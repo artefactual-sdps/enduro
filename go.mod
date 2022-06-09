@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/alicebob/miniredis/v2 v2.18.0
-	github.com/aws/aws-sdk-go v1.43.31
+	github.com/aws/aws-sdk-go v1.44.30
 	github.com/fsnotify/fsnotify v1.5.4
 	github.com/go-logr/logr v1.2.2
 	github.com/go-logr/zapr v1.2.2
