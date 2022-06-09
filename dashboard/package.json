@@ -13,7 +13,7 @@
     "@types/vue-moment": "^4.0.3",
     "humanize-duration": "^3.27.2",
     "pinia": "^2.0.14",
-    "vue": "^3.2.25",
+    "vue": "^3.2.37",
     "vue-moment": "^4.1.0",
     "vue-router": "4"
   },
