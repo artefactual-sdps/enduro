@@ -34,8 +34,8 @@ require (
 	github.com/stretchr/testify v1.7.2
 	github.com/ulikunitz/xz v0.5.10 // indirect
 	go.buf.build/grpc/go/artefactual/a3m v1.3.1
-	go.temporal.io/api v1.7.1-0.20220223032354-6e6fe738916a
-	go.temporal.io/sdk v1.14.0
+	go.temporal.io/api v1.8.0
+	go.temporal.io/sdk v1.15.0
 	go.uber.org/multierr v1.8.0
 	go.uber.org/zap v1.21.0
 	goa.design/goa/v3 v3.7.6
@@ -118,7 +118,7 @@ require (
 	golang.org/x/tools v0.1.10 // indirect
 	golang.org/x/xerrors v0.0.0-20220517211312-f3a8303e98df // indirect
 	google.golang.org/api v0.81.0 // indirect
-	google.golang.org/genproto v0.0.0-20220531173845-685668d2de03 // indirect
+	google.golang.org/genproto v0.0.0-20220602131408-e326c6e8e9c8 // indirect
 	gopkg.in/ini.v1 v1.66.4 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
