@@ -15,11 +15,22 @@ spec:
     spec:
       containers:
         - name: enduro-dashboard
-          image: enduro-dashboard:dev
-          imagePullPolicy: Never
+          image: ghcr.io/artefactual-labs/enduro-dashboard:main
           env:
             - name: ENDURO_API_ADDRESS
-              value: http://enduro:9000
+              value: enduro:9000
           ports:
-            - containerPort: 3000
+            - containerPort: 80
           resources: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: enduro-dashboard
+  labels:
+    app: enduro-dashboard
+spec:
+  selector:
+    app: enduro-dashboard
+  ports:
+    - port: 80

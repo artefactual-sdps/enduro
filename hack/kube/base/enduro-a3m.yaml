@@ -28,17 +28,13 @@ spec:
             ]
       containers:
         - name: enduro-a3m-worker
-          image: enduro-a3m-worker:dev
-          imagePullPolicy: Never
+          image: ghcr.io/artefactual-labs/enduro-a3m-worker:main
           volumeMounts:
             - name: enduro-a3m
               mountPath: /home/a3m/.local/share/a3m/share
         - name: a3m
           image: ghcr.io/artefactual-labs/a3m:main
           imagePullPolicy: Always
-          env:
-            - name: A3M_DEBUG
-              value: "true"
           ports:
             - containerPort: 7000
           volumeMounts:

@@ -24,19 +24,7 @@ docker_build(
   ]
 )
 
-k8s_yaml([
-  "hack/kube/dev/enduro-a3m.yaml",
-  "hack/kube/dev/enduro-dashboard.yaml",
-  "hack/kube/dev/enduro.yaml",
-  "hack/kube/dev/minio-setup-buckets-job.yaml",
-  "hack/kube/dev/minio.yaml",
-  "hack/kube/dev/mysql.yaml",
-  "hack/kube/dev/opensearch-dashboards.yaml",
-  "hack/kube/dev/opensearch.yaml",
-  "hack/kube/dev/redis.yaml",
-  "hack/kube/dev/temporal-ui.yaml",
-  "hack/kube/dev/temporal.yaml",
-])
+k8s_yaml(kustomize("hack/kube/overlays/dev"))
 
 k8s_resource("enduro-dashboard", port_forwards="3000")
 

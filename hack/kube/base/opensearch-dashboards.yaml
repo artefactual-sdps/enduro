@@ -24,3 +24,15 @@ spec:
           ports:
             - containerPort: 5601
           resources: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: opensearch-dashboards
+  labels:
+    app: opensearch-dashboards
+spec:
+  selector:
+    app: opensearch-dashboards
+  ports:
+    - port: 5601

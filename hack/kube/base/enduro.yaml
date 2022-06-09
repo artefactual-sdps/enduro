@@ -25,8 +25,7 @@ spec:
             ]
       containers:
         - name: enduro
-          image: enduro:dev
-          imagePullPolicy: Never
+          image: ghcr.io/artefactual-labs/enduro:main
           ports:
             - containerPort: 9000
           resources: {}

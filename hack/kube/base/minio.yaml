@@ -57,7 +57,10 @@ spec:
   selector:
     app: minio
   ports:
-    - port: 9000
+    - name: api
+      port: 9000
+    - name: console
+      port: 9001
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
