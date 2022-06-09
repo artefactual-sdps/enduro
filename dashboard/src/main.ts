@@ -25,7 +25,7 @@ app.mount("#app");
 app.provide(clientProviderKey, client);
 
 interface Filters {
-  [key: string]: (value: any) => string;
+  [key: string]: (...value: any[]) => string;
 }
 
 declare module "@vue/runtime-core" {
