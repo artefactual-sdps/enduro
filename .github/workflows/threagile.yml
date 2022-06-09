@@ -1,7 +1,7 @@
 on:
   push:
     paths:
-      - "threat_model.yaml" # Execute only when the threat model changes
+      - "enduro.threagile.yaml" # Execute only when the threat model changes
 
 jobs:
   threagile_job:

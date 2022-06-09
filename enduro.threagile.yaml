@@ -228,7 +228,7 @@ technical_assets:
       EnduroAPIRequestTraffic:
         target: ingress-controller
         description: reverse proxy https endpoint
-        protocol: binary-encrypted
+        protocol: https
         authentication: token
         authorization: enduser-identity-propagation
         tags:
@@ -304,7 +304,7 @@ technical_assets:
       EnduroAPIRequestTraffic:
         target: enduro-api
         description: reverse proxy https endpoint
-        protocol: binary-encrypted
+        protocol: https
         authentication: token # values: none, credentials, session-id, token, client-certificate, two-factor
         authorization: enduser-identity-propagation # values: none, technical-user, enduser-identity-propagation
         tags:
@@ -559,7 +559,7 @@ technical_assets:
       StartProcessingSignal:
         target: a3m
         description: The worker will trigger a3m to begin processing.
-        protocol: binary-encrypted
+        protocol: https
         authentication: none
         authorization: none
         tags:
@@ -644,7 +644,7 @@ technical_assets:
       WorkflowDetailsTraffic:
         target: mysql
         description: Update and retrieve collection info in mysql db.
-        protocol: binary-encrypted
+        protocol: https
         authentication: credentials # values: none, credentials, session-id, token, client-certificate, two-factor
         authorization: none # values: none, technical-user, enduser-identity-propagation
         tags:
@@ -762,7 +762,7 @@ technical_assets:
       WorkflowDetailsTraffic:
         target: mysql
         description: Update and retrieve collection info in mysql db.
-        protocol: binary-encrypted
+        protocol: https
         authentication: credentials # values: none, credentials, session-id, token, client-certificate, two-factor
         authorization: none # values: none, technical-user, enduser-identity-propagation
         tags:
@@ -778,7 +778,7 @@ technical_assets:
       TemporalTraffic:
         target: temporal
         description: description
-        protocol: binary-encrypted
+        protocol: https
         authentication: none # values: none, credentials, session-id, token, client-certificate, two-factor
         authorization: enduser-identity-propagation # values: none, technical-user, enduser-identity-propagation
         tags:
