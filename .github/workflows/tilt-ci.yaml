@@ -1,0 +1,22 @@
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+name: Tilt CI
+jobs:
+  tilt-ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3.0.2
+      - name: Create k8s cluster
+        uses: helm/kind-action@v1.2.0
+      - name: Install Tilt
+        uses: yokawasa/action-setup-kube-tools@v0.8.1
+        with:
+          setup-tools: |
+            tilt
+          tilt: v0.30.2
+      - name: Check tilt ci
+        run: timeout 600 tilt ci
