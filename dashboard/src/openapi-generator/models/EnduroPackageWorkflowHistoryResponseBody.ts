@@ -21,10 +21,10 @@ import { exists, mapValues } from '../runtime';
 export interface EnduroPackageWorkflowHistoryResponseBody {
     /**
      * Contents of the event
-     * @type {object}
+     * @type {Blob}
      * @memberof EnduroPackageWorkflowHistoryResponseBody
      */
-    details?: object;
+    details?: Blob;
     /**
      * Identifier of package
      * @type {number}
