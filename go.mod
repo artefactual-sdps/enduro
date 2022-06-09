@@ -6,7 +6,7 @@ require (
 	github.com/alicebob/miniredis/v2 v2.18.0
 	github.com/aws/aws-sdk-go v1.44.30
 	github.com/fsnotify/fsnotify v1.5.4
-	github.com/go-logr/logr v1.2.2
+	github.com/go-logr/logr v1.2.3
 	github.com/go-logr/zapr v1.2.2
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/go-sql-driver/mysql v1.6.0
