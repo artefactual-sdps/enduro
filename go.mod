@@ -17,7 +17,7 @@ require (
 	github.com/gorilla/websocket v1.5.0
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1
-	github.com/jmoiron/sqlx v1.3.4
+	github.com/jmoiron/sqlx v1.3.5
 	github.com/jszwec/csvutil v1.7.0
 	github.com/mholt/archiver/v3 v3.5.1
 	github.com/nyudlts/go-bagit v0.1.1-alpha.0.20220214141947-20f7d3004abe
