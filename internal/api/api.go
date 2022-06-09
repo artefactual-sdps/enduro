@@ -24,18 +24,18 @@ import (
 	"goa.design/goa/v3/middleware"
 
 	"github.com/artefactual-labs/enduro/internal/api/gen/batch"
-	"github.com/artefactual-labs/enduro/internal/api/gen/collection"
 	batchsvr "github.com/artefactual-labs/enduro/internal/api/gen/http/batch/server"
-	collectionsvr "github.com/artefactual-labs/enduro/internal/api/gen/http/collection/server"
+	packagesvr "github.com/artefactual-labs/enduro/internal/api/gen/http/package_/server"
 	swaggersvr "github.com/artefactual-labs/enduro/internal/api/gen/http/swagger/server"
+	"github.com/artefactual-labs/enduro/internal/api/gen/package_"
 	intbatch "github.com/artefactual-labs/enduro/internal/batch"
-	intcol "github.com/artefactual-labs/enduro/internal/collection"
+	intpkg "github.com/artefactual-labs/enduro/internal/package_"
 )
 
 func HTTPServer(
 	logger logr.Logger, config *Config,
 	batchsvc intbatch.Service,
-	colsvc intcol.Service,
+	pkgsvc intpkg.Service,
 ) *http.Server {
 	dec := goahttp.RequestDecoder
 	enc := goahttp.ResponseEncoder
@@ -52,11 +52,11 @@ func HTTPServer(
 	var batchServer *batchsvr.Server = batchsvr.New(batchEndpoints, mux, dec, enc, batchErrorHandler, nil)
 	batchsvr.Mount(mux, batchServer)
 
-	// Collection service.
-	var collectionEndpoints *collection.Endpoints = collection.NewEndpoints(colsvc.Goa())
-	collectionErrorHandler := errorHandler(logger, "Collection error.")
-	var collectionServer *collectionsvr.Server = collectionsvr.New(collectionEndpoints, mux, dec, enc, collectionErrorHandler, nil, websocketUpgrader, nil)
-	collectionsvr.Mount(mux, collectionServer)
+	// Package service.
+	var packageEndpoints *package_.Endpoints = package_.NewEndpoints(pkgsvc.Goa())
+	packageErrorHandler := errorHandler(logger, "Package error.")
+	var packageServer *packagesvr.Server = packagesvr.New(packageEndpoints, mux, dec, enc, packageErrorHandler, nil, websocketUpgrader, nil)
+	packagesvr.Mount(mux, packageServer)
 
 	// Swagger service.
 	var swaggerService *swaggersvr.Server = swaggersvr.New(nil, nil, nil, nil, nil, nil, nil)

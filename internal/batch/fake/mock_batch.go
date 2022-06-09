@@ -9,7 +9,7 @@ import (
 	reflect "reflect"
 
 	batch "github.com/artefactual-labs/enduro/internal/api/gen/batch"
-	collection "github.com/artefactual-labs/enduro/internal/collection"
+	package_ "github.com/artefactual-labs/enduro/internal/package_"
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -52,7 +52,7 @@ func (mr *MockServiceMockRecorder) Hints(arg0 interface{}) *gomock.Call {
 }
 
 // InitProcessingWorkflow mocks base method.
-func (m *MockService) InitProcessingWorkflow(arg0 context.Context, arg1 *collection.ProcessingWorkflowRequest) error {
+func (m *MockService) InitProcessingWorkflow(arg0 context.Context, arg1 *package_.ProcessingWorkflowRequest) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "InitProcessingWorkflow", arg0, arg1)
 	ret0, _ := ret[0].(error)

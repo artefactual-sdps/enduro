@@ -90,13 +90,13 @@ paths:
                 - Tempora eveniet eligendi.
                 - Rem asperiores vero aliquid vel aut.
                 - Quidem dicta nisi ipsum non illo id.
-  /collection:
+  /package:
     get:
       tags:
-      - collection
-      summary: list collection
-      description: List all stored collections
-      operationId: collection#list
+      - package
+      summary: list package
+      description: List all stored packages
+      operationId: package#list
       parameters:
       - name: name
         in: query
@@ -182,21 +182,21 @@ paths:
                   status: error
                   workflow_id: A464FD15-9F47-E3CC-BD80-3B5C5830C503
                 next_cursor: Facere cum.
-  /collection/{id}:
+  /package/{id}:
     delete:
       tags:
-      - collection
-      summary: delete collection
-      description: Delete collection by ID
-      operationId: collection#delete
+      - package
+      summary: delete package
+      description: Delete package by ID
+      operationId: package#delete
       parameters:
       - name: id
         in: path
-        description: Identifier of collection to delete
+        description: Identifier of package to delete
         required: true
         schema:
           type: integer
-          description: Identifier of collection to delete
+          description: Identifier of package to delete
           example: 7638789534826980623
         example: 11003716713769220718
       responses:
@@ -207,24 +207,24 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CollectionNotfound'
+                $ref: '#/components/schemas/PackageNotfound'
               example:
                 id: 2165236649375698924
                 message: Sit ea et et dolor.
     get:
       tags:
-      - collection
-      summary: show collection
-      description: Show collection by ID
-      operationId: collection#show
+      - package
+      summary: show package
+      description: Show package by ID
+      operationId: package#show
       parameters:
       - name: id
         in: path
-        description: Identifier of collection to show
+        description: Identifier of package to show
         required: true
         schema:
           type: integer
-          description: Identifier of collection to show
+          description: Identifier of package to show
           example: 11427972956700943101
         example: 9203513792022244598
       responses:
@@ -233,7 +233,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/EnduroStoredCollection'
+                $ref: '#/components/schemas/EnduroStoredPackage'
               example:
                 aip_id: 2AE5027E-EF4C-E00D-314E-1CB4449A11C0
                 completed_at: "1997-08-27T00:00:04Z"
@@ -249,25 +249,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CollectionNotfound'
+                $ref: '#/components/schemas/PackageNotfound'
               example:
                 id: 2246475217907625301
                 message: Ea tenetur deleniti vel.
-  /collection/{id}/cancel:
+  /package/{id}/cancel:
     post:
       tags:
-      - collection
-      summary: cancel collection
-      description: Cancel collection processing by ID
-      operationId: collection#cancel
+      - package
+      summary: cancel package
+      description: Cancel package processing by ID
+      operationId: package#cancel
       parameters:
       - name: id
         in: path
-        description: Identifier of collection to remove
+        description: Identifier of package to remove
         required: true
         schema:
           type: integer
-          description: Identifier of collection to remove
+          description: Identifier of package to remove
           example: 11753811572662635557
         example: 14930879189291518875
       responses:
@@ -288,25 +288,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CollectionNotfound'
+                $ref: '#/components/schemas/PackageNotfound'
               example:
                 id: 3508348661133018630
                 message: Explicabo nam praesentium iste et aliquid.
-  /collection/{id}/download:
+  /package/{id}/download:
     get:
       tags:
-      - collection
-      summary: download collection
-      description: Download collection by ID
-      operationId: collection#download
+      - package
+      summary: download package
+      description: Download package by ID
+      operationId: package#download
       parameters:
       - name: id
         in: path
-        description: Identifier of collection to look up
+        description: Identifier of package to look up
         required: true
         schema:
           type: integer
-          description: Identifier of collection to look up
+          description: Identifier of package to look up
           example: 17298149395404699584
         example: 7494586481663086822
       responses:
@@ -402,25 +402,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CollectionNotfound'
+                $ref: '#/components/schemas/PackageNotfound'
               example:
                 id: 11956141247744386323
                 message: Sed possimus voluptatum.
-  /collection/{id}/preservation-actions:
+  /package/{id}/preservation-actions:
     get:
       tags:
-      - collection
-      summary: preservation-actions collection
+      - package
+      summary: preservation-actions package
       description: List all preservation actions by ID
-      operationId: collection#preservation-actions
+      operationId: package#preservation-actions
       parameters:
       - name: id
         in: path
-        description: Identifier of collection to look up
+        description: Identifier of package to look up
         required: true
         schema:
           type: integer
-          description: Identifier of collection to look up
+          description: Identifier of package to look up
           example: 11875688747252261123
         example: 6801610311019669209
       responses:
@@ -429,7 +429,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/EnduroCollectionPreservationActions'
+                $ref: '#/components/schemas/EnduroPackagePreservationActions'
               example:
                 actions:
                 - action_id: Veritatis cumque.
@@ -457,25 +457,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CollectionNotfound'
+                $ref: '#/components/schemas/PackageNotfound'
               example:
                 id: 13124819927299222419
                 message: Et rem ducimus iste maiores.
-  /collection/{id}/retry:
+  /package/{id}/retry:
     post:
       tags:
-      - collection
-      summary: retry collection
-      description: Retry collection processing by ID
-      operationId: collection#retry
+      - package
+      summary: retry package
+      description: Retry package processing by ID
+      operationId: package#retry
       parameters:
       - name: id
         in: path
-        description: Identifier of collection to retry
+        description: Identifier of package to retry
         required: true
         schema:
           type: integer
-          description: Identifier of collection to retry
+          description: Identifier of package to retry
           example: 13928084075125878608
         example: 1459351663664876143
       responses:
@@ -496,25 +496,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CollectionNotfound'
+                $ref: '#/components/schemas/PackageNotfound'
               example:
                 id: 12367619642138472932
                 message: Quae est debitis.
-  /collection/{id}/workflow:
+  /package/{id}/workflow:
     get:
       tags:
-      - collection
-      summary: workflow collection
+      - package
+      summary: workflow package
       description: Retrieve workflow status by ID
-      operationId: collection#workflow
+      operationId: package#workflow
       parameters:
       - name: id
         in: path
-        description: Identifier of collection to look up
+        description: Identifier of package to look up
         required: true
         schema:
           type: integer
-          description: Identifier of collection to look up
+          description: Identifier of package to look up
           example: 14235750693972130264
         example: 4501196470416696206
       responses:
@@ -523,7 +523,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/EnduroCollectionWorkflowStatus'
+                $ref: '#/components/schemas/EnduroPackageWorkflowStatus'
               example:
                 history:
                 - details: Ut reprehenderit eos consequuntur iusto.
@@ -538,17 +538,17 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CollectionNotfound'
+                $ref: '#/components/schemas/PackageNotfound'
               example:
                 id: 2843051066282331256
                 message: Velit sint aut veritatis ut quo rerum.
-  /collection/bulk:
+  /package/bulk:
     get:
       tags:
-      - collection
-      summary: bulk_status collection
+      - package
+      summary: bulk_status package
       description: Retrieve status of current bulk operation.
-      operationId: collection#bulk_status
+      operationId: package#bulk_status
       responses:
         "200":
           description: OK response.
@@ -565,10 +565,10 @@ paths:
                 workflow_id: Eveniet atque ipsum esse.
     post:
       tags:
-      - collection
-      summary: bulk collection
+      - package
+      summary: bulk package
       description: Bulk operations (retry, cancel...).
-      operationId: collection#bulk
+      operationId: package#bulk
       requestBody:
         required: true
         content:
@@ -609,12 +609,12 @@ paths:
                 id: 3F1FKVRR
                 message: Value of ID must be an integer
                 name: bad_request
-  /collection/monitor:
+  /package/monitor:
     get:
       tags:
-      - collection
-      summary: monitor collection
-      operationId: collection#monitor
+      - package
+      summary: monitor package
+      operationId: package#monitor
       responses:
         "101":
           description: Switching Protocols response.
@@ -766,29 +766,40 @@ components:
         workflow_id: Et est tenetur vel.
       required:
       - running
-    CollectionNotfound:
+    EnduroMonitorUpdate:
       type: object
       properties:
         id:
           type: integer
-          description: Identifier of missing collection
-          example: 3597486707360869379
-        message:
+          description: Identifier of package
+          example: 16279269383789341971
+        item:
+          $ref: '#/components/schemas/EnduroStoredPackage'
+        type:
           type: string
-          description: Message of error
-          example: Aliquam aut.
-      description: Collection not found
+          description: Type of the event
+          example: Vel sunt.
       example:
-        id: 656191046410806374
-        message: Ducimus velit perferendis ut dolorem qui.
+        id: 3365661111003968594
+        item:
+          aip_id: 288BFD74-D973-18B5-FAA5-29ADF4569AC7
+          completed_at: "1981-07-18T09:32:04Z"
+          created_at: "1983-12-07T23:41:35Z"
+          id: 2608592925037585396
+          name: Vitae illum magni placeat quo.
+          run_id: 3F59C655-AFF8-EAB8-FA17-44E154EF0557
+          started_at: "1998-03-18T12:36:31Z"
+          status: error
+          workflow_id: A464FD15-9F47-E3CC-BD80-3B5C5830C503
+        type: Consequuntur laborum deserunt sapiente blanditiis laudantium.
       required:
-      - message
       - id
-    EnduroCollectionPreservationActions:
+      - type
+    EnduroPackagePreservationActions:
       type: object
       properties:
         actions:
-          $ref: '#/components/schemas/EnduroCollectionPreservationActionsActionCollection'
+          $ref: '#/components/schemas/EnduroPackagePreservationActionsActionCollection'
       example:
         actions:
         - action_id: Veritatis cumque.
@@ -811,7 +822,7 @@ components:
           name: Quod impedit sapiente ea.
           started_at: "2015-08-09T01:52:06Z"
           status: processing
-    EnduroCollectionPreservationActionsAction:
+    EnduroPackagePreservationActionsAction:
       type: object
       properties:
         action_id:
@@ -848,10 +859,10 @@ components:
       - name
       - status
       - started_at
-    EnduroCollectionPreservationActionsActionCollection:
+    EnduroPackagePreservationActionsActionCollection:
       type: array
       items:
-        $ref: '#/components/schemas/EnduroCollectionPreservationActionsAction'
+        $ref: '#/components/schemas/EnduroPackagePreservationActionsAction'
       example:
       - action_id: Veritatis cumque.
         id: 17014779284437445999
@@ -863,7 +874,7 @@ components:
         name: Quod impedit sapiente ea.
         started_at: "2015-08-09T01:52:06Z"
         status: processing
-    EnduroCollectionWorkflowHistory:
+    EnduroPackageWorkflowHistory:
       type: object
       properties:
         details:
@@ -873,7 +884,7 @@ components:
           format: binary
         id:
           type: integer
-          description: Identifier of collection
+          description: Identifier of package
           example: 2810303458441790849
         type:
           type: string
@@ -884,10 +895,10 @@ components:
         details: Officiis ea assumenda incidunt occaecati qui.
         id: 4728556995103678722
         type: Sint repellat laudantium ut vel corporis.
-    EnduroCollectionWorkflowHistoryCollection:
+    EnduroPackageWorkflowHistoryCollection:
       type: array
       items:
-        $ref: '#/components/schemas/EnduroCollectionWorkflowHistory'
+        $ref: '#/components/schemas/EnduroPackageWorkflowHistory'
       example:
       - details: Ut reprehenderit eos consequuntur iusto.
         id: 8869941666368485627
@@ -901,11 +912,11 @@ components:
       - details: Ut reprehenderit eos consequuntur iusto.
         id: 8869941666368485627
         type: Amet rerum quam sequi.
-    EnduroCollectionWorkflowStatus:
+    EnduroPackageWorkflowStatus:
       type: object
       properties:
         history:
-          $ref: '#/components/schemas/EnduroCollectionWorkflowHistoryCollection'
+          $ref: '#/components/schemas/EnduroPackageWorkflowHistoryCollection'
         status:
           type: string
           example: Ab voluptas commodi omnis.
@@ -918,36 +929,7 @@ components:
           id: 8869941666368485627
           type: Amet rerum quam sequi.
         status: Vel sint illo sunt.
-    EnduroMonitorUpdate:
-      type: object
-      properties:
-        id:
-          type: integer
-          description: Identifier of collection
-          example: 16279269383789341971
-        item:
-          $ref: '#/components/schemas/EnduroStoredCollection'
-        type:
-          type: string
-          description: Type of the event
-          example: Vel sunt.
-      example:
-        id: 3365661111003968594
-        item:
-          aip_id: 288BFD74-D973-18B5-FAA5-29ADF4569AC7
-          completed_at: "1981-07-18T09:32:04Z"
-          created_at: "1983-12-07T23:41:35Z"
-          id: 2608592925037585396
-          name: Vitae illum magni placeat quo.
-          run_id: 3F59C655-AFF8-EAB8-FA17-44E154EF0557
-          started_at: "1998-03-18T12:36:31Z"
-          status: error
-          workflow_id: A464FD15-9F47-E3CC-BD80-3B5C5830C503
-        type: Consequuntur laborum deserunt sapiente blanditiis laudantium.
-      required:
-      - id
-      - type
-    EnduroStoredCollection:
+    EnduroStoredPackage:
       type: object
       properties:
         aip_id:
@@ -967,11 +949,11 @@ components:
           format: date-time
         id:
           type: integer
-          description: Identifier of collection
+          description: Identifier of package
           example: 356243881726260884
         name:
           type: string
-          description: Name of the collection
+          description: Name of the package
           example: Beatae tenetur sed.
         run_id:
           type: string
@@ -985,7 +967,7 @@ components:
           format: date-time
         status:
           type: string
-          description: Status of the collection
+          description: Status of the package
           default: new
           example: new
           enum:
@@ -1002,7 +984,7 @@ components:
           description: Identifier of processing workflow
           example: 86EDFB6E-94F4-2B51-2B7E-E4683F848FD6
           format: uuid
-      description: StoredCollection describes a collection retrieved by the service.
+      description: StoredPackage describes a package retrieved by the service.
       example:
         aip_id: 34287C80-E47A-5C59-54F8-1AC4DAC80AFD
         completed_at: "1994-06-22T02:02:01Z"
@@ -1017,10 +999,10 @@ components:
       - id
       - status
       - created_at
-    EnduroStoredCollectionCollection:
+    EnduroStoredPackageCollection:
       type: array
       items:
-        $ref: '#/components/schemas/EnduroStoredCollection'
+        $ref: '#/components/schemas/EnduroStoredPackage'
       example:
       - aip_id: 288BFD74-D973-18B5-FAA5-29ADF4569AC7
         completed_at: "1981-07-18T09:32:04Z"
@@ -1084,7 +1066,7 @@ components:
       type: object
       properties:
         items:
-          $ref: '#/components/schemas/EnduroStoredCollectionCollection'
+          $ref: '#/components/schemas/EnduroStoredPackageCollection'
         next_cursor:
           type: string
           example: Et voluptas ullam.
@@ -1111,6 +1093,24 @@ components:
         next_cursor: Ea accusantium velit dolores aut et sint.
       required:
       - items
+    PackageNotfound:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Identifier of missing package
+          example: 3597486707360869379
+        message:
+          type: string
+          description: Message of error
+          example: Aliquam aut.
+      description: Package not found
+      example:
+        id: 656191046410806374
+        message: Ducimus velit perferendis ut dolorem qui.
+      required:
+      - message
+      - id
     SubmitRequestBody:
       type: object
       properties:
@@ -1131,8 +1131,8 @@ components:
       - path
 tags:
 - name: batch
-  description: The batch service manages batches of collections.
-- name: collection
-  description: The collection service manages packages being transferred to Archivematica.
+  description: The batch service manages batches of packages.
+- name: package
+  description: The package service manages packages being transferred to a3m.
 - name: swagger
   description: The swagger service serves the API swagger definition.

@@ -2,7 +2,7 @@ import * as api from "./openapi-generator";
 import type { InjectionKey } from "vue";
 
 export interface Client {
-  package: api.CollectionApi;
+  package: api.PackageApi;
 }
 
 function getPath(): string {
@@ -27,7 +27,7 @@ function createClient(): Client {
   console.log("Enduro client created", path);
 
   return {
-    package: new api.CollectionApi(config),
+    package: new api.PackageApi(config),
   };
 }
 

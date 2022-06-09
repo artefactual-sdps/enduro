@@ -12,7 +12,7 @@ import (
 	temporalsdk_activity "go.temporal.io/sdk/activity"
 	"google.golang.org/grpc"
 
-	"github.com/artefactual-labs/enduro/internal/collection"
+	"github.com/artefactual-labs/enduro/internal/package_"
 )
 
 const CreateAIPActivityName = "create-aip-activity"
@@ -20,12 +20,12 @@ const CreateAIPActivityName = "create-aip-activity"
 type CreateAIPActivity struct {
 	logger logr.Logger
 	cfg    *Config
-	colsvc collection.Service
+	pkgsvc package_.Service
 }
 
 type CreateAIPActivityParams struct {
-	Path         string
-	CollectionID uint
+	Path      string
+	PackageID uint
 }
 
 type CreateAIPActivityResult struct {
@@ -33,11 +33,11 @@ type CreateAIPActivityResult struct {
 	UUID string
 }
 
-func NewCreateAIPActivity(logger logr.Logger, cfg *Config, colsvc collection.Service) *CreateAIPActivity {
+func NewCreateAIPActivity(logger logr.Logger, cfg *Config, pkgsvc package_.Service) *CreateAIPActivity {
 	return &CreateAIPActivity{
 		logger: logger,
 		cfg:    cfg,
-		colsvc: colsvc,
+		pkgsvc: pkgsvc,
 	}
 }
 
@@ -123,7 +123,7 @@ func (a *CreateAIPActivity) Execute(ctx context.Context, opts *CreateAIPActivity
 						continue
 					}
 
-					err = savePreservationActions(ctx, readResp.Jobs, a.colsvc, opts.CollectionID)
+					err = savePreservationActions(ctx, readResp.Jobs, a.pkgsvc, opts.PackageID)
 					if err != nil {
 						return err
 					}
@@ -152,16 +152,16 @@ func (a *CreateAIPActivity) Execute(ctx context.Context, opts *CreateAIPActivity
 	return result, nil
 }
 
-func savePreservationActions(ctx context.Context, jobs []*a3m_transferservice.Job, colsvc collection.Service, collectionID uint) error {
+func savePreservationActions(ctx context.Context, jobs []*a3m_transferservice.Job, pkgsvc package_.Service, packageID uint) error {
 	for _, job := range jobs {
-		pa := collection.PreservationAction{
-			ActionID:     job.Id,
-			Name:         job.Name,
-			Status:       collection.PreservationActionStatus(job.Status),
-			CollectionID: collectionID,
+		pa := package_.PreservationAction{
+			ActionID:  job.Id,
+			Name:      job.Name,
+			Status:    package_.PreservationActionStatus(job.Status),
+			PackageID: packageID,
 		}
 		pa.StartedAt.Time = job.StartTime.AsTime()
-		err := colsvc.CreatePreservationAction(ctx, &pa)
+		err := pkgsvc.CreatePreservationAction(ctx, &pa)
 		if err != nil {
 			return err
 		}

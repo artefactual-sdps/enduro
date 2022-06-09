@@ -9,7 +9,7 @@ import (
 	"gotest.tools/v3/fs"
 
 	batchfake "github.com/artefactual-labs/enduro/internal/batch/fake"
-	"github.com/artefactual-labs/enduro/internal/collection"
+	"github.com/artefactual-labs/enduro/internal/package_"
 )
 
 func TestBatchActivityStartsProcessingWorkflows(t *testing.T) {
@@ -33,12 +33,12 @@ func TestBatchActivityStartsProcessingWorkflows(t *testing.T) {
 	a := NewBatchActivity(serviceMock)
 
 	// Expectations: the activity starts a processing workflow for each subdirectory.
-	serviceMock.EXPECT().InitProcessingWorkflow(ctx, &collection.ProcessingWorkflowRequest{
+	serviceMock.EXPECT().InitProcessingWorkflow(ctx, &package_.ProcessingWorkflowRequest{
 		BatchDir: batchPath,
 		Key:      "transfer1",
 		IsDir:    true,
 	})
-	serviceMock.EXPECT().InitProcessingWorkflow(ctx, &collection.ProcessingWorkflowRequest{
+	serviceMock.EXPECT().InitProcessingWorkflow(ctx, &package_.ProcessingWorkflowRequest{
 		BatchDir: batchPath,
 		Key:      "transfer2",
 		IsDir:    true,

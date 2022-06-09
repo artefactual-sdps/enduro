@@ -14,7 +14,7 @@ import (
 	goa "goa.design/goa/v3/pkg"
 )
 
-// The batch service manages batches of collections.
+// The batch service manages batches of packages.
 type Service interface {
 	// Submit a new batch
 	Submit(context.Context, *SubmitPayload) (res *BatchResult, err error)

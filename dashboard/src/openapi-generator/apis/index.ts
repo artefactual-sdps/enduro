@@ -1,5 +1,5 @@
 /* tslint:disable */
 /* eslint-disable */
 export * from './BatchApi';
-export * from './CollectionApi';
+export * from './PackageApi';
 export * from './SwaggerApi';

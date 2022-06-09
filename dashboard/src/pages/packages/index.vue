@@ -5,10 +5,10 @@ import PackageStatus from "../../components/PackageStatus.vue";
 
 const client = inject(clientProviderKey) as Client;
 
-const items: Array<api.EnduroStoredCollectionResponseBody> = reactive([]);
+const items: Array<api.EnduroStoredPackageResponseBody> = reactive([]);
 
 onMounted(() => {
-  client.package.collectionList().then((resp) => {
+  client.package.packageList().then((resp) => {
     Object.assign(items, resp.items);
   });
 });

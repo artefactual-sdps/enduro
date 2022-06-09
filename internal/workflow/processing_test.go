@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/suite"
 	temporalsdk_testsuite "go.temporal.io/sdk/testsuite"
 
-	collectionfake "github.com/artefactual-labs/enduro/internal/collection/fake"
+	packagefake "github.com/artefactual-labs/enduro/internal/package_/fake"
 	watcherfake "github.com/artefactual-labs/enduro/internal/watcher/fake"
 )
 
@@ -27,7 +27,7 @@ func (s *ProcessingWorkflowTestSuite) SetupTest() {
 	ctrl := gomock.NewController(s.T())
 	s.workflow = NewProcessingWorkflow(
 		logr.Discard(),
-		collectionfake.NewMockService(ctrl),
+		packagefake.NewMockService(ctrl),
 		watcherfake.NewMockService(ctrl),
 	)
 }

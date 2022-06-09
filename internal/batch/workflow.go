@@ -8,7 +8,7 @@ import (
 	temporalsdk_temporal "go.temporal.io/sdk/temporal"
 	temporalsdk_workflow "go.temporal.io/sdk/workflow"
 
-	"github.com/artefactual-labs/enduro/internal/collection"
+	"github.com/artefactual-labs/enduro/internal/package_"
 	"github.com/artefactual-labs/enduro/internal/temporal"
 )
 
@@ -55,7 +55,7 @@ func (a *BatchActivity) Execute(ctx context.Context, params BatchWorkflowInput) 
 		return temporal.NonRetryableError(err)
 	}
 	for _, file := range files {
-		req := collection.ProcessingWorkflowRequest{
+		req := package_.ProcessingWorkflowRequest{
 			BatchDir:        params.Path,
 			Key:             file.Name(),
 			IsDir:           file.IsDir(),

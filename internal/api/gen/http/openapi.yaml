@@ -74,13 +74,13 @@ paths:
             $ref: '#/definitions/BatchHintsResponseBody'
       schemes:
       - http
-  /collection:
+  /package:
     get:
       tags:
-      - collection
-      summary: list collection
-      description: List all stored collections
-      operationId: collection#list
+      - package
+      summary: list package
+      description: List all stored packages
+      operationId: package#list
       parameters:
       - name: name
         in: query
@@ -123,33 +123,33 @@ paths:
         "200":
           description: OK response.
           schema:
-            $ref: '#/definitions/CollectionListResponseBody'
+            $ref: '#/definitions/PackageListResponseBody'
             required:
             - items
       schemes:
       - http
-  /collection/{id}:
+  /package/{id}:
     get:
       tags:
-      - collection
-      summary: show collection
-      description: Show collection by ID
-      operationId: collection#show
+      - package
+      summary: show package
+      description: Show package by ID
+      operationId: package#show
       parameters:
       - name: id
         in: path
-        description: Identifier of collection to show
+        description: Identifier of package to show
         required: true
         type: integer
       responses:
         "200":
           description: OK response.
           schema:
-            $ref: '#/definitions/CollectionShowResponseBody'
+            $ref: '#/definitions/PackageShowResponseBody'
         "404":
           description: Not Found response.
           schema:
-            $ref: '#/definitions/CollectionShowNotFoundResponseBody'
+            $ref: '#/definitions/PackageShowNotFoundResponseBody'
             required:
             - message
             - id
@@ -157,14 +157,14 @@ paths:
       - http
     delete:
       tags:
-      - collection
-      summary: delete collection
-      description: Delete collection by ID
-      operationId: collection#delete
+      - package
+      summary: delete package
+      description: Delete package by ID
+      operationId: package#delete
       parameters:
       - name: id
         in: path
-        description: Identifier of collection to delete
+        description: Identifier of package to delete
         required: true
         type: integer
       responses:
@@ -173,23 +173,23 @@ paths:
         "404":
           description: Not Found response.
           schema:
-            $ref: '#/definitions/CollectionDeleteNotFoundResponseBody'
+            $ref: '#/definitions/PackageDeleteNotFoundResponseBody'
             required:
             - message
             - id
       schemes:
       - http
-  /collection/{id}/cancel:
+  /package/{id}/cancel:
     post:
       tags:
-      - collection
-      summary: cancel collection
-      description: Cancel collection processing by ID
-      operationId: collection#cancel
+      - package
+      summary: cancel package
+      description: Cancel package processing by ID
+      operationId: package#cancel
       parameters:
       - name: id
         in: path
-        description: Identifier of collection to remove
+        description: Identifier of package to remove
         required: true
         type: integer
       responses:
@@ -198,27 +198,27 @@ paths:
         "400":
           description: Bad Request response.
           schema:
-            $ref: '#/definitions/CollectionCancelNotRunningResponseBody'
+            $ref: '#/definitions/PackageCancelNotRunningResponseBody'
         "404":
           description: Not Found response.
           schema:
-            $ref: '#/definitions/CollectionCancelNotFoundResponseBody'
+            $ref: '#/definitions/PackageCancelNotFoundResponseBody'
             required:
             - message
             - id
       schemes:
       - http
-  /collection/{id}/download:
+  /package/{id}/download:
     get:
       tags:
-      - collection
-      summary: download collection
-      description: Download collection by ID
-      operationId: collection#download
+      - package
+      summary: download package
+      description: Download package by ID
+      operationId: package#download
       parameters:
       - name: id
         in: path
-        description: Identifier of collection to look up
+        description: Identifier of package to look up
         required: true
         type: integer
       responses:
@@ -230,50 +230,50 @@ paths:
         "404":
           description: Not Found response.
           schema:
-            $ref: '#/definitions/CollectionDownloadNotFoundResponseBody'
+            $ref: '#/definitions/PackageDownloadNotFoundResponseBody'
             required:
             - message
             - id
       schemes:
       - http
-  /collection/{id}/preservation-actions:
+  /package/{id}/preservation-actions:
     get:
       tags:
-      - collection
-      summary: preservation-actions collection
+      - package
+      summary: preservation-actions package
       description: List all preservation actions by ID
-      operationId: collection#preservation-actions
+      operationId: package#preservation-actions
       parameters:
       - name: id
         in: path
-        description: Identifier of collection to look up
+        description: Identifier of package to look up
         required: true
         type: integer
       responses:
         "200":
           description: OK response.
           schema:
-            $ref: '#/definitions/CollectionPreservationActionsResponseBody'
+            $ref: '#/definitions/PackagePreservationActionsResponseBody'
         "404":
           description: Not Found response.
           schema:
-            $ref: '#/definitions/CollectionPreservationActionsNotFoundResponseBody'
+            $ref: '#/definitions/PackagePreservationActionsNotFoundResponseBody'
             required:
             - message
             - id
       schemes:
       - http
-  /collection/{id}/retry:
+  /package/{id}/retry:
     post:
       tags:
-      - collection
-      summary: retry collection
-      description: Retry collection processing by ID
-      operationId: collection#retry
+      - package
+      summary: retry package
+      description: Retry package processing by ID
+      operationId: package#retry
       parameters:
       - name: id
         in: path
-        description: Identifier of collection to retry
+        description: Identifier of package to retry
         required: true
         type: integer
       responses:
@@ -282,71 +282,71 @@ paths:
         "400":
           description: Bad Request response.
           schema:
-            $ref: '#/definitions/CollectionRetryNotRunningResponseBody'
+            $ref: '#/definitions/PackageRetryNotRunningResponseBody'
         "404":
           description: Not Found response.
           schema:
-            $ref: '#/definitions/CollectionRetryNotFoundResponseBody'
+            $ref: '#/definitions/PackageRetryNotFoundResponseBody'
             required:
             - message
             - id
       schemes:
       - http
-  /collection/{id}/workflow:
+  /package/{id}/workflow:
     get:
       tags:
-      - collection
-      summary: workflow collection
+      - package
+      summary: workflow package
       description: Retrieve workflow status by ID
-      operationId: collection#workflow
+      operationId: package#workflow
       parameters:
       - name: id
         in: path
-        description: Identifier of collection to look up
+        description: Identifier of package to look up
         required: true
         type: integer
       responses:
         "200":
           description: OK response.
           schema:
-            $ref: '#/definitions/CollectionWorkflowResponseBody'
+            $ref: '#/definitions/PackageWorkflowResponseBody'
         "404":
           description: Not Found response.
           schema:
-            $ref: '#/definitions/CollectionWorkflowNotFoundResponseBody'
+            $ref: '#/definitions/PackageWorkflowNotFoundResponseBody'
             required:
             - message
             - id
       schemes:
       - http
-  /collection/bulk:
+  /package/bulk:
     get:
       tags:
-      - collection
-      summary: bulk_status collection
+      - package
+      summary: bulk_status package
       description: Retrieve status of current bulk operation.
-      operationId: collection#bulk_status
+      operationId: package#bulk_status
       responses:
         "200":
           description: OK response.
           schema:
-            $ref: '#/definitions/CollectionBulkStatusResponseBody'
+            $ref: '#/definitions/PackageBulkStatusResponseBody'
             required:
             - running
       schemes:
       - http
     post:
       tags:
-      - collection
-      summary: bulk collection
+      - package
+      summary: bulk package
       description: Bulk operations (retry, cancel...).
-      operationId: collection#bulk
+      operationId: package#bulk
       parameters:
       - name: BulkRequestBody
         in: body
         required: true
         schema:
-          $ref: '#/definitions/CollectionBulkRequestBody'
+          $ref: '#/definitions/PackageBulkRequestBody'
           required:
           - operation
           - status
@@ -354,31 +354,31 @@ paths:
         "202":
           description: Accepted response.
           schema:
-            $ref: '#/definitions/CollectionBulkResponseBody'
+            $ref: '#/definitions/PackageBulkResponseBody'
             required:
             - workflow_id
             - run_id
         "400":
           description: Bad Request response.
           schema:
-            $ref: '#/definitions/CollectionBulkNotValidResponseBody'
+            $ref: '#/definitions/PackageBulkNotValidResponseBody'
         "409":
           description: Conflict response.
           schema:
-            $ref: '#/definitions/CollectionBulkNotAvailableResponseBody'
+            $ref: '#/definitions/PackageBulkNotAvailableResponseBody'
       schemes:
       - http
-  /collection/monitor:
+  /package/monitor:
     get:
       tags:
-      - collection
-      summary: monitor collection
-      operationId: collection#monitor
+      - package
+      summary: monitor package
+      operationId: package#monitor
       responses:
         "101":
           description: Switching Protocols response.
           schema:
-            $ref: '#/definitions/CollectionMonitorResponseBody'
+            $ref: '#/definitions/PackageMonitorResponseBody'
       schemes:
       - ws
   /swagger/swagger.json:
@@ -561,7 +561,233 @@ definitions:
     required:
     - workflow_id
     - run_id
-  CollectionBulkNotAvailableResponseBody:
+  EnduroPackagePreservationActionsActionResponseBody:
+    title: 'Mediatype identifier: application/vnd.enduro.package-preservation-actions-action;
+      view=default'
+    type: object
+    properties:
+      action_id:
+        type: string
+        example: Blanditiis quasi quam architecto.
+      id:
+        type: integer
+        example: 6920606468320741910
+        format: int64
+      name:
+        type: string
+        example: In non possimus quia expedita quia.
+      started_at:
+        type: string
+        example: "2011-07-20T04:03:51Z"
+        format: date-time
+      status:
+        type: string
+        example: failed
+        enum:
+        - unspecified
+        - complete
+        - processing
+        - failed
+    description: PreservationAction describes a preservation action. (default view)
+    example:
+      action_id: Totam reiciendis reiciendis.
+      id: 16123501299694023279
+      name: Sunt quia explicabo est vitae aperiam.
+      started_at: "1991-12-05T12:01:10Z"
+      status: unspecified
+    required:
+    - id
+    - action_id
+    - name
+    - status
+    - started_at
+  EnduroPackagePreservationActionsActionResponseBodyCollection:
+    title: 'Mediatype identifier: application/vnd.enduro.package-preservation-actions-action;
+      type=collection; view=default'
+    type: array
+    items:
+      $ref: '#/definitions/EnduroPackagePreservationActionsActionResponseBody'
+    description: EnduroPackage-Preservation-Actions-ActionCollectionResponseBody is
+      the result type for an array of EnduroPackage-Preservation-Actions-ActionResponseBody
+      (default view)
+    example:
+    - action_id: Eum maiores totam in numquam itaque nulla.
+      id: 7057450215175192646
+      name: Sint maiores odit in quia tempora.
+      started_at: "1998-10-31T09:15:13Z"
+      status: unspecified
+    - action_id: Eum maiores totam in numquam itaque nulla.
+      id: 7057450215175192646
+      name: Sint maiores odit in quia tempora.
+      started_at: "1998-10-31T09:15:13Z"
+      status: unspecified
+    - action_id: Eum maiores totam in numquam itaque nulla.
+      id: 7057450215175192646
+      name: Sint maiores odit in quia tempora.
+      started_at: "1998-10-31T09:15:13Z"
+      status: unspecified
+    - action_id: Eum maiores totam in numquam itaque nulla.
+      id: 7057450215175192646
+      name: Sint maiores odit in quia tempora.
+      started_at: "1998-10-31T09:15:13Z"
+      status: unspecified
+  EnduroPackageWorkflowHistoryResponseBody:
+    title: 'Mediatype identifier: application/vnd.enduro.package-workflow-history;
+      view=default'
+    type: object
+    properties:
+      details:
+        description: Contents of the event
+        example: Sapiente totam ipsa minus.
+      id:
+        type: integer
+        description: Identifier of package
+        example: 6418809734831999911
+        format: int64
+      type:
+        type: string
+        description: Type of the event
+        example: Non perspiciatis.
+    description: WorkflowHistoryEvent describes a history event in Temporal. (default
+      view)
+    example:
+      details: Quas beatae ex voluptatum cum.
+      id: 15522650713237053992
+      type: Dolor voluptatem eum.
+  EnduroPackageWorkflowHistoryResponseBodyCollection:
+    title: 'Mediatype identifier: application/vnd.enduro.package-workflow-history;
+      type=collection; view=default'
+    type: array
+    items:
+      $ref: '#/definitions/EnduroPackageWorkflowHistoryResponseBody'
+    description: EnduroPackage-Workflow-HistoryCollectionResponseBody is the result
+      type for an array of EnduroPackage-Workflow-HistoryResponseBody (default view)
+    example:
+    - details: Sapiente dolorem id dolor rerum sunt sint.
+      id: 14390278263520728367
+      type: Minima tempora repudiandae molestias ratione fugiat.
+    - details: Sapiente dolorem id dolor rerum sunt sint.
+      id: 14390278263520728367
+      type: Minima tempora repudiandae molestias ratione fugiat.
+  EnduroStoredPackageResponseBody:
+    title: 'Mediatype identifier: application/vnd.enduro.stored-package; view=default'
+    type: object
+    properties:
+      aip_id:
+        type: string
+        description: Identifier of Archivematica AIP
+        example: E058AD50-5D7F-E9A8-E010-D33044724992
+        format: uuid
+      completed_at:
+        type: string
+        description: Completion datetime
+        example: "1972-09-15T19:31:34Z"
+        format: date-time
+      created_at:
+        type: string
+        description: Creation datetime
+        example: "2006-05-08T03:21:07Z"
+        format: date-time
+      id:
+        type: integer
+        description: Identifier of package
+        example: 3488603430297288186
+        format: int64
+      name:
+        type: string
+        description: Name of the package
+        example: Similique qui.
+      run_id:
+        type: string
+        description: Identifier of latest processing workflow run
+        example: F25C441B-B3AA-5871-1077-53EACA084D5A
+        format: uuid
+      started_at:
+        type: string
+        description: Start datetime
+        example: "2010-10-16T23:35:57Z"
+        format: date-time
+      status:
+        type: string
+        description: Status of the package
+        default: new
+        example: done
+        enum:
+        - new
+        - in progress
+        - done
+        - error
+        - unknown
+        - queued
+        - pending
+        - abandoned
+      workflow_id:
+        type: string
+        description: Identifier of processing workflow
+        example: CEF3CAF7-AB82-083A-2F08-9497BE6B7488
+        format: uuid
+    description: StoredPackage describes a package retrieved by the service. (default
+      view)
+    example:
+      aip_id: AC2E8D12-84E7-ADAA-5045-93C4FF40145F
+      completed_at: "1970-04-04T05:07:06Z"
+      created_at: "1975-12-19T17:23:14Z"
+      id: 2454704535101245703
+      name: Sint et quae quisquam.
+      run_id: 76150F6F-C16D-33A6-B049-F5AE2D7C6385
+      started_at: "1981-05-29T01:47:50Z"
+      status: abandoned
+      workflow_id: 43632E4F-A034-6412-7CEA-7CD0E1AED81D
+    required:
+    - id
+    - status
+    - created_at
+  EnduroStoredPackageResponseBodyCollection:
+    title: 'Mediatype identifier: application/vnd.enduro.stored-package; type=collection;
+      view=default'
+    type: array
+    items:
+      $ref: '#/definitions/EnduroStoredPackageResponseBody'
+    description: EnduroStored-PackageCollectionResponseBody is the result type for
+      an array of EnduroStored-PackageResponseBody (default view)
+    example:
+    - aip_id: A45D83CF-F038-77BB-220E-D79EFC31D198
+      completed_at: "1990-08-20T23:48:32Z"
+      created_at: "1974-07-21T19:27:25Z"
+      id: 5956403125240755452
+      name: Labore commodi voluptatem tenetur nesciunt reiciendis tempore.
+      run_id: 76FB876C-96AC-91E7-BD21-B0C2988DDF65
+      started_at: "1979-06-07T07:41:30Z"
+      status: new
+      workflow_id: 7D80331A-7620-D09D-7CCB-2EF87B797732
+    - aip_id: A45D83CF-F038-77BB-220E-D79EFC31D198
+      completed_at: "1990-08-20T23:48:32Z"
+      created_at: "1974-07-21T19:27:25Z"
+      id: 5956403125240755452
+      name: Labore commodi voluptatem tenetur nesciunt reiciendis tempore.
+      run_id: 76FB876C-96AC-91E7-BD21-B0C2988DDF65
+      started_at: "1979-06-07T07:41:30Z"
+      status: new
+      workflow_id: 7D80331A-7620-D09D-7CCB-2EF87B797732
+    - aip_id: A45D83CF-F038-77BB-220E-D79EFC31D198
+      completed_at: "1990-08-20T23:48:32Z"
+      created_at: "1974-07-21T19:27:25Z"
+      id: 5956403125240755452
+      name: Labore commodi voluptatem tenetur nesciunt reiciendis tempore.
+      run_id: 76FB876C-96AC-91E7-BD21-B0C2988DDF65
+      started_at: "1979-06-07T07:41:30Z"
+      status: new
+      workflow_id: 7D80331A-7620-D09D-7CCB-2EF87B797732
+    - aip_id: A45D83CF-F038-77BB-220E-D79EFC31D198
+      completed_at: "1990-08-20T23:48:32Z"
+      created_at: "1974-07-21T19:27:25Z"
+      id: 5956403125240755452
+      name: Labore commodi voluptatem tenetur nesciunt reiciendis tempore.
+      run_id: 76FB876C-96AC-91E7-BD21-B0C2988DDF65
+      started_at: "1979-06-07T07:41:30Z"
+      status: new
+      workflow_id: 7D80331A-7620-D09D-7CCB-2EF87B797732
+  PackageBulkNotAvailableResponseBody:
     title: 'Mediatype identifier: application/vnd.goa.error; view=default'
     type: object
     properties:
@@ -606,7 +832,7 @@ definitions:
     - temporary
     - timeout
     - fault
-  CollectionBulkNotValidResponseBody:
+  PackageBulkNotValidResponseBody:
     title: 'Mediatype identifier: application/vnd.goa.error; view=default'
     type: object
     properties:
@@ -651,8 +877,8 @@ definitions:
     - temporary
     - timeout
     - fault
-  CollectionBulkRequestBody:
-    title: CollectionBulkRequestBody
+  PackageBulkRequestBody:
+    title: PackageBulkRequestBody
     type: object
     properties:
       operation:
@@ -686,8 +912,8 @@ definitions:
     required:
     - operation
     - status
-  CollectionBulkResponseBody:
-    title: CollectionBulkResponseBody
+  PackageBulkResponseBody:
+    title: PackageBulkResponseBody
     type: object
     properties:
       run_id:
@@ -702,8 +928,8 @@ definitions:
     required:
     - workflow_id
     - run_id
-  CollectionBulkStatusResponseBody:
-    title: CollectionBulkStatusResponseBody
+  PackageBulkStatusResponseBody:
+    title: PackageBulkStatusResponseBody
     type: object
     properties:
       closed_at:
@@ -735,27 +961,27 @@ definitions:
       workflow_id: Qui magni occaecati dolorem esse deleniti.
     required:
     - running
-  CollectionCancelNotFoundResponseBody:
-    title: CollectionCancelNotFoundResponseBody
+  PackageCancelNotFoundResponseBody:
+    title: PackageCancelNotFoundResponseBody
     type: object
     properties:
       id:
         type: integer
-        description: Identifier of missing collection
+        description: Identifier of missing package
         example: 10742020284310708011
         format: int64
       message:
         type: string
         description: Message of error
         example: Ut quisquam officia dolorem delectus.
-    description: Collection not found
+    description: Package not found
     example:
       id: 12880090019776346249
       message: Et tempora similique.
     required:
     - message
     - id
-  CollectionCancelNotRunningResponseBody:
+  PackageCancelNotRunningResponseBody:
     title: 'Mediatype identifier: application/vnd.goa.error; view=default'
     type: object
     properties:
@@ -800,52 +1026,52 @@ definitions:
     - temporary
     - timeout
     - fault
-  CollectionDeleteNotFoundResponseBody:
-    title: CollectionDeleteNotFoundResponseBody
+  PackageDeleteNotFoundResponseBody:
+    title: PackageDeleteNotFoundResponseBody
     type: object
     properties:
       id:
         type: integer
-        description: Identifier of missing collection
+        description: Identifier of missing package
         example: 8596451622752141620
         format: int64
       message:
         type: string
         description: Message of error
         example: Sint consequuntur dicta.
-    description: Collection not found
+    description: Package not found
     example:
       id: 11128191567695799429
       message: Praesentium a itaque eligendi quo eos.
     required:
     - message
     - id
-  CollectionDownloadNotFoundResponseBody:
-    title: CollectionDownloadNotFoundResponseBody
+  PackageDownloadNotFoundResponseBody:
+    title: PackageDownloadNotFoundResponseBody
     type: object
     properties:
       id:
         type: integer
-        description: Identifier of missing collection
+        description: Identifier of missing package
         example: 2551462927691999941
         format: int64
       message:
         type: string
         description: Message of error
         example: Ex perspiciatis ut nam non ipsa.
-    description: Collection not found
+    description: Package not found
     example:
       id: 6813908055992809381
       message: Cum laboriosam aliquid dolorem mollitia facilis non.
     required:
     - message
     - id
-  CollectionListResponseBody:
-    title: CollectionListResponseBody
+  PackageListResponseBody:
+    title: PackageListResponseBody
     type: object
     properties:
       items:
-        $ref: '#/definitions/EnduroStoredCollectionResponseBodyCollection'
+        $ref: '#/definitions/EnduroStoredPackageResponseBodyCollection'
       next_cursor:
         type: string
         example: Provident molestiae sint et.
@@ -872,17 +1098,17 @@ definitions:
       next_cursor: Veniam magni.
     required:
     - items
-  CollectionMonitorResponseBody:
+  PackageMonitorResponseBody:
     title: 'Mediatype identifier: application/vnd.enduro.monitor-update; view=default'
     type: object
     properties:
       id:
         type: integer
-        description: Identifier of collection
+        description: Identifier of package
         example: 9916043004669830935
         format: int64
       item:
-        $ref: '#/definitions/EnduroStoredCollectionResponseBody'
+        $ref: '#/definitions/EnduroStoredPackageResponseBody'
       type:
         type: string
         description: Type of the event
@@ -904,33 +1130,33 @@ definitions:
     required:
     - id
     - type
-  CollectionPreservationActionsNotFoundResponseBody:
-    title: CollectionPreservationActionsNotFoundResponseBody
+  PackagePreservationActionsNotFoundResponseBody:
+    title: PackagePreservationActionsNotFoundResponseBody
     type: object
     properties:
       id:
         type: integer
-        description: Identifier of missing collection
+        description: Identifier of missing package
         example: 14658862406802586238
         format: int64
       message:
         type: string
         description: Message of error
         example: Eos odit nobis est perferendis aperiam.
-    description: Collection not found
+    description: Package not found
     example:
       id: 1582683469153866133
       message: Eius dolore beatae omnis.
     required:
     - message
     - id
-  CollectionPreservationActionsResponseBody:
-    title: 'Mediatype identifier: application/vnd.enduro.collection-preservation-actions;
+  PackagePreservationActionsResponseBody:
+    title: 'Mediatype identifier: application/vnd.enduro.package-preservation-actions;
       view=default'
     type: object
     properties:
       actions:
-        $ref: '#/definitions/EnduroCollectionPreservationActionsActionResponseBodyCollection'
+        $ref: '#/definitions/EnduroPackagePreservationActionsActionResponseBodyCollection'
     description: Preservation-ActionsResponseBody result type (default view)
     example:
       actions:
@@ -944,27 +1170,27 @@ definitions:
         name: Sint maiores odit in quia tempora.
         started_at: "1998-10-31T09:15:13Z"
         status: unspecified
-  CollectionRetryNotFoundResponseBody:
-    title: CollectionRetryNotFoundResponseBody
+  PackageRetryNotFoundResponseBody:
+    title: PackageRetryNotFoundResponseBody
     type: object
     properties:
       id:
         type: integer
-        description: Identifier of missing collection
+        description: Identifier of missing package
         example: 6863600688512825923
         format: int64
       message:
         type: string
         description: Message of error
         example: Sit perferendis dolor dolore voluptatem omnis.
-    description: Collection not found
+    description: Package not found
     example:
       id: 5055500684694062847
       message: Tempore asperiores facere.
     required:
     - message
     - id
-  CollectionRetryNotRunningResponseBody:
+  PackageRetryNotRunningResponseBody:
     title: 'Mediatype identifier: application/vnd.goa.error; view=default'
     type: object
     properties:
@@ -1009,28 +1235,28 @@ definitions:
     - temporary
     - timeout
     - fault
-  CollectionShowNotFoundResponseBody:
-    title: CollectionShowNotFoundResponseBody
+  PackageShowNotFoundResponseBody:
+    title: PackageShowNotFoundResponseBody
     type: object
     properties:
       id:
         type: integer
-        description: Identifier of missing collection
+        description: Identifier of missing package
         example: 13136096573646845251
         format: int64
       message:
         type: string
         description: Message of error
         example: Recusandae laudantium.
-    description: Collection not found
+    description: Package not found
     example:
       id: 13664665285220164853
       message: Quae rerum unde nobis.
     required:
     - message
     - id
-  CollectionShowResponseBody:
-    title: 'Mediatype identifier: application/vnd.enduro.stored-collection; view=default'
+  PackageShowResponseBody:
+    title: 'Mediatype identifier: application/vnd.enduro.stored-package; view=default'
     type: object
     properties:
       aip_id:
@@ -1050,12 +1276,12 @@ definitions:
         format: date-time
       id:
         type: integer
-        description: Identifier of collection
+        description: Identifier of package
         example: 9704859011707544862
         format: int64
       name:
         type: string
-        description: Name of the collection
+        description: Name of the package
         example: Magni eveniet quia voluptas fuga molestias.
       run_id:
         type: string
@@ -1069,7 +1295,7 @@ definitions:
         format: date-time
       status:
         type: string
-        description: Status of the collection
+        description: Status of the package
         default: new
         example: unknown
         enum:
@@ -1101,33 +1327,33 @@ definitions:
     - id
     - status
     - created_at
-  CollectionWorkflowNotFoundResponseBody:
-    title: CollectionWorkflowNotFoundResponseBody
+  PackageWorkflowNotFoundResponseBody:
+    title: PackageWorkflowNotFoundResponseBody
     type: object
     properties:
       id:
         type: integer
-        description: Identifier of missing collection
+        description: Identifier of missing package
         example: 11053071550819203011
         format: int64
       message:
         type: string
         description: Message of error
         example: Unde nulla veritatis consequatur.
-    description: Collection not found
+    description: Package not found
     example:
       id: 9456871970891484049
       message: Nisi quo et.
     required:
     - message
     - id
-  CollectionWorkflowResponseBody:
-    title: 'Mediatype identifier: application/vnd.enduro.collection-workflow-status;
+  PackageWorkflowResponseBody:
+    title: 'Mediatype identifier: application/vnd.enduro.package-workflow-status;
       view=default'
     type: object
     properties:
       history:
-        $ref: '#/definitions/EnduroCollectionWorkflowHistoryResponseBodyCollection'
+        $ref: '#/definitions/EnduroPackageWorkflowHistoryResponseBodyCollection'
       status:
         type: string
         example: Incidunt fugit facilis voluptas.
@@ -1144,230 +1370,3 @@ definitions:
         id: 14390278263520728367
         type: Minima tempora repudiandae molestias ratione fugiat.
       status: Numquam enim est dolore dolorum rem.
-  EnduroCollectionPreservationActionsActionResponseBody:
-    title: 'Mediatype identifier: application/vnd.enduro.collection-preservation-actions-action;
-      view=default'
-    type: object
-    properties:
-      action_id:
-        type: string
-        example: Blanditiis quasi quam architecto.
-      id:
-        type: integer
-        example: 6920606468320741910
-        format: int64
-      name:
-        type: string
-        example: In non possimus quia expedita quia.
-      started_at:
-        type: string
-        example: "2011-07-20T04:03:51Z"
-        format: date-time
-      status:
-        type: string
-        example: failed
-        enum:
-        - unspecified
-        - complete
-        - processing
-        - failed
-    description: PreservationAction describes a preservation action. (default view)
-    example:
-      action_id: Totam reiciendis reiciendis.
-      id: 16123501299694023279
-      name: Sunt quia explicabo est vitae aperiam.
-      started_at: "1991-12-05T12:01:10Z"
-      status: unspecified
-    required:
-    - id
-    - action_id
-    - name
-    - status
-    - started_at
-  EnduroCollectionPreservationActionsActionResponseBodyCollection:
-    title: 'Mediatype identifier: application/vnd.enduro.collection-preservation-actions-action;
-      type=collection; view=default'
-    type: array
-    items:
-      $ref: '#/definitions/EnduroCollectionPreservationActionsActionResponseBody'
-    description: EnduroCollection-Preservation-Actions-ActionCollectionResponseBody
-      is the result type for an array of EnduroCollection-Preservation-Actions-ActionResponseBody
-      (default view)
-    example:
-    - action_id: Eum maiores totam in numquam itaque nulla.
-      id: 7057450215175192646
-      name: Sint maiores odit in quia tempora.
-      started_at: "1998-10-31T09:15:13Z"
-      status: unspecified
-    - action_id: Eum maiores totam in numquam itaque nulla.
-      id: 7057450215175192646
-      name: Sint maiores odit in quia tempora.
-      started_at: "1998-10-31T09:15:13Z"
-      status: unspecified
-    - action_id: Eum maiores totam in numquam itaque nulla.
-      id: 7057450215175192646
-      name: Sint maiores odit in quia tempora.
-      started_at: "1998-10-31T09:15:13Z"
-      status: unspecified
-    - action_id: Eum maiores totam in numquam itaque nulla.
-      id: 7057450215175192646
-      name: Sint maiores odit in quia tempora.
-      started_at: "1998-10-31T09:15:13Z"
-      status: unspecified
-  EnduroCollectionWorkflowHistoryResponseBody:
-    title: 'Mediatype identifier: application/vnd.enduro.collection-workflow-history;
-      view=default'
-    type: object
-    properties:
-      details:
-        description: Contents of the event
-        example: Sapiente totam ipsa minus.
-      id:
-        type: integer
-        description: Identifier of collection
-        example: 6418809734831999911
-        format: int64
-      type:
-        type: string
-        description: Type of the event
-        example: Non perspiciatis.
-    description: WorkflowHistoryEvent describes a history event in Temporal. (default
-      view)
-    example:
-      details: Quas beatae ex voluptatum cum.
-      id: 15522650713237053992
-      type: Dolor voluptatem eum.
-  EnduroCollectionWorkflowHistoryResponseBodyCollection:
-    title: 'Mediatype identifier: application/vnd.enduro.collection-workflow-history;
-      type=collection; view=default'
-    type: array
-    items:
-      $ref: '#/definitions/EnduroCollectionWorkflowHistoryResponseBody'
-    description: EnduroCollection-Workflow-HistoryCollectionResponseBody is the result
-      type for an array of EnduroCollection-Workflow-HistoryResponseBody (default
-      view)
-    example:
-    - details: Sapiente dolorem id dolor rerum sunt sint.
-      id: 14390278263520728367
-      type: Minima tempora repudiandae molestias ratione fugiat.
-    - details: Sapiente dolorem id dolor rerum sunt sint.
-      id: 14390278263520728367
-      type: Minima tempora repudiandae molestias ratione fugiat.
-  EnduroStoredCollectionResponseBody:
-    title: 'Mediatype identifier: application/vnd.enduro.stored-collection; view=default'
-    type: object
-    properties:
-      aip_id:
-        type: string
-        description: Identifier of Archivematica AIP
-        example: E058AD50-5D7F-E9A8-E010-D33044724992
-        format: uuid
-      completed_at:
-        type: string
-        description: Completion datetime
-        example: "1972-09-15T19:31:34Z"
-        format: date-time
-      created_at:
-        type: string
-        description: Creation datetime
-        example: "2006-05-08T03:21:07Z"
-        format: date-time
-      id:
-        type: integer
-        description: Identifier of collection
-        example: 3488603430297288186
-        format: int64
-      name:
-        type: string
-        description: Name of the collection
-        example: Similique qui.
-      run_id:
-        type: string
-        description: Identifier of latest processing workflow run
-        example: F25C441B-B3AA-5871-1077-53EACA084D5A
-        format: uuid
-      started_at:
-        type: string
-        description: Start datetime
-        example: "2010-10-16T23:35:57Z"
-        format: date-time
-      status:
-        type: string
-        description: Status of the collection
-        default: new
-        example: done
-        enum:
-        - new
-        - in progress
-        - done
-        - error
-        - unknown
-        - queued
-        - pending
-        - abandoned
-      workflow_id:
-        type: string
-        description: Identifier of processing workflow
-        example: CEF3CAF7-AB82-083A-2F08-9497BE6B7488
-        format: uuid
-    description: StoredCollection describes a collection retrieved by the service.
-      (default view)
-    example:
-      aip_id: AC2E8D12-84E7-ADAA-5045-93C4FF40145F
-      completed_at: "1970-04-04T05:07:06Z"
-      created_at: "1975-12-19T17:23:14Z"
-      id: 2454704535101245703
-      name: Sint et quae quisquam.
-      run_id: 76150F6F-C16D-33A6-B049-F5AE2D7C6385
-      started_at: "1981-05-29T01:47:50Z"
-      status: abandoned
-      workflow_id: 43632E4F-A034-6412-7CEA-7CD0E1AED81D
-    required:
-    - id
-    - status
-    - created_at
-  EnduroStoredCollectionResponseBodyCollection:
-    title: 'Mediatype identifier: application/vnd.enduro.stored-collection; type=collection;
-      view=default'
-    type: array
-    items:
-      $ref: '#/definitions/EnduroStoredCollectionResponseBody'
-    description: EnduroStored-CollectionCollectionResponseBody is the result type
-      for an array of EnduroStored-CollectionResponseBody (default view)
-    example:
-    - aip_id: A45D83CF-F038-77BB-220E-D79EFC31D198
-      completed_at: "1990-08-20T23:48:32Z"
-      created_at: "1974-07-21T19:27:25Z"
-      id: 5956403125240755452
-      name: Labore commodi voluptatem tenetur nesciunt reiciendis tempore.
-      run_id: 76FB876C-96AC-91E7-BD21-B0C2988DDF65
-      started_at: "1979-06-07T07:41:30Z"
-      status: new
-      workflow_id: 7D80331A-7620-D09D-7CCB-2EF87B797732
-    - aip_id: A45D83CF-F038-77BB-220E-D79EFC31D198
-      completed_at: "1990-08-20T23:48:32Z"
-      created_at: "1974-07-21T19:27:25Z"
-      id: 5956403125240755452
-      name: Labore commodi voluptatem tenetur nesciunt reiciendis tempore.
-      run_id: 76FB876C-96AC-91E7-BD21-B0C2988DDF65
-      started_at: "1979-06-07T07:41:30Z"
-      status: new
-      workflow_id: 7D80331A-7620-D09D-7CCB-2EF87B797732
-    - aip_id: A45D83CF-F038-77BB-220E-D79EFC31D198
-      completed_at: "1990-08-20T23:48:32Z"
-      created_at: "1974-07-21T19:27:25Z"
-      id: 5956403125240755452
-      name: Labore commodi voluptatem tenetur nesciunt reiciendis tempore.
-      run_id: 76FB876C-96AC-91E7-BD21-B0C2988DDF65
-      started_at: "1979-06-07T07:41:30Z"
-      status: new
-      workflow_id: 7D80331A-7620-D09D-7CCB-2EF87B797732
-    - aip_id: A45D83CF-F038-77BB-220E-D79EFC31D198
-      completed_at: "1990-08-20T23:48:32Z"
-      created_at: "1974-07-21T19:27:25Z"
-      id: 5956403125240755452
-      name: Labore commodi voluptatem tenetur nesciunt reiciendis tempore.
-      run_id: 76FB876C-96AC-91E7-BD21-B0C2988DDF65
-      started_at: "1979-06-07T07:41:30Z"
-      status: new
-      workflow_id: 7D80331A-7620-D09D-7CCB-2EF87B797732

@@ -7,26 +7,26 @@ import (
 	"github.com/go-logr/logr"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
 
-	"github.com/artefactual-labs/enduro/internal/collection"
+	"github.com/artefactual-labs/enduro/internal/package_"
 )
 
 type createPackageLocalActivityParams struct {
 	Key    string
-	Status collection.Status
+	Status package_.Status
 }
 
-func createPackageLocalActivity(ctx context.Context, logger logr.Logger, colsvc collection.Service, params *createPackageLocalActivityParams) (uint, error) {
+func createPackageLocalActivity(ctx context.Context, logger logr.Logger, pkgsvc package_.Service, params *createPackageLocalActivityParams) (uint, error) {
 	info := temporalsdk_activity.GetInfo(ctx)
 
-	col := &collection.Collection{
+	col := &package_.Package{
 		Name:       params.Key,
 		WorkflowID: info.WorkflowExecution.ID,
 		RunID:      info.WorkflowExecution.RunID,
 		Status:     params.Status,
 	}
 
-	if err := colsvc.Create(ctx, col); err != nil {
-		logger.Error(err, "Error creating collection")
+	if err := pkgsvc.Create(ctx, col); err != nil {
+		logger.Error(err, "Error creating package")
 		return 0, err
 	}
 
@@ -34,19 +34,19 @@ func createPackageLocalActivity(ctx context.Context, logger logr.Logger, colsvc 
 }
 
 type updatePackageLocalActivityParams struct {
-	CollectionID uint
-	Key          string
-	SIPID        string
-	StoredAt     time.Time
-	Status       collection.Status
+	PackageID uint
+	Key       string
+	SIPID     string
+	StoredAt  time.Time
+	Status    package_.Status
 }
 
-func updatePackageLocalActivity(ctx context.Context, logger logr.Logger, colsvc collection.Service, params *updatePackageLocalActivityParams) error {
+func updatePackageLocalActivity(ctx context.Context, logger logr.Logger, pkgsvc package_.Service, params *updatePackageLocalActivityParams) error {
 	info := temporalsdk_activity.GetInfo(ctx)
 
-	err := colsvc.UpdateWorkflowStatus(
+	err := pkgsvc.UpdateWorkflowStatus(
 		ctx,
-		params.CollectionID,
+		params.PackageID,
 		params.Key,
 		info.WorkflowExecution.ID,
 		info.WorkflowExecution.RunID,
@@ -55,18 +55,18 @@ func updatePackageLocalActivity(ctx context.Context, logger logr.Logger, colsvc 
 		params.StoredAt,
 	)
 	if err != nil {
-		logger.Error(err, "Error updating collection")
+		logger.Error(err, "Error updating package")
 		return err
 	}
 
 	return nil
 }
 
-func setStatusInProgressLocalActivity(ctx context.Context, colsvc collection.Service, colID uint, startedAt time.Time) error {
-	return colsvc.SetStatusInProgress(ctx, colID, startedAt)
+func setStatusInProgressLocalActivity(ctx context.Context, pkgsvc package_.Service, pkgID uint, startedAt time.Time) error {
+	return pkgsvc.SetStatusInProgress(ctx, pkgID, startedAt)
 }
 
 //nolint:deadcode,unused
-func setStatusLocalActivity(ctx context.Context, colsvc collection.Service, colID uint, status collection.Status) error {
-	return colsvc.SetStatus(ctx, colID, status)
+func setStatusLocalActivity(ctx context.Context, pkgsvc package_.Service, pkgID uint, status package_.Status) error {
+	return pkgsvc.SetStatus(ctx, pkgID, status)
 }

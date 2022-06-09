@@ -4,9 +4,9 @@ import { inject } from "vue";
 
 export const usePackageStore = defineStore("package", {
   state: () => ({
-    current: null as api.CollectionShowResponseBody | null,
+    current: null as api.PackageShowResponseBody | null,
     current_preservation_actions:
-      null as api.CollectionPreservationActionsResponseBody | null,
+      null as api.PackagePreservationActionsResponseBody | null,
   }),
   actions: {
     async fetchCurrent(id: string) {
@@ -16,11 +16,11 @@ export const usePackageStore = defineStore("package", {
         return;
       }
       const client = inject(clientProviderKey) as Client;
-      client.package.collectionShow({ id: packageId }).then((payload) => {
+      client.package.packageShow({ id: packageId }).then((payload) => {
         this.current = payload;
       });
       client.package
-        .collectionPreservationActions({ id: packageId })
+        .packagePreservationActions({ id: packageId })
         .then((payload) => {
           this.current_preservation_actions = payload;
         });

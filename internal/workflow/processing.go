@@ -15,7 +15,7 @@ import (
 	temporalsdk_workflow "go.temporal.io/sdk/workflow"
 
 	"github.com/artefactual-labs/enduro/internal/a3m"
-	"github.com/artefactual-labs/enduro/internal/collection"
+	"github.com/artefactual-labs/enduro/internal/package_"
 	sdps_activities "github.com/artefactual-labs/enduro/internal/sdps/activities"
 	"github.com/artefactual-labs/enduro/internal/temporal"
 	"github.com/artefactual-labs/enduro/internal/validation"
@@ -25,21 +25,21 @@ import (
 
 type ProcessingWorkflow struct {
 	logger logr.Logger
-	colsvc collection.Service
+	pkgsvc package_.Service
 	wsvc   watcher.Service
 }
 
-func NewProcessingWorkflow(logger logr.Logger, colsvc collection.Service, wsvc watcher.Service) *ProcessingWorkflow {
+func NewProcessingWorkflow(logger logr.Logger, pkgsvc package_.Service, wsvc watcher.Service) *ProcessingWorkflow {
 	return &ProcessingWorkflow{
 		logger: logger,
-		colsvc: colsvc,
+		pkgsvc: pkgsvc,
 		wsvc:   wsvc,
 	}
 }
 
 // TransferInfo is shared state that is passed down to activities. It can be
 // useful for hooks that may require quick access to processing state.
-// TODO: clean this up, e.g.: it can embed a collection.Collection.
+// TODO: clean this up, e.g.: it can embed a package_.package_.
 type TransferInfo struct {
 	// TempFile is the temporary location where the blob is downloaded.
 	//
@@ -51,12 +51,12 @@ type TransferInfo struct {
 	// It is populated by CreateAIPActivity.
 	SIPID string
 
-	// Enduro internal collection ID.
-	// The zero value represents a new collection. It can be used to indicate
-	// an existing collection in retries.
+	// Enduro internal package ID.
+	// The zero value represents a new package_. It can be used to indicate
+	// an existing package in retries.
 	//
 	// It is populated via the workflow request or createPackageLocalActivity.
-	CollectionID uint
+	PackageID uint
 
 	// Name of the watcher that received this blob.
 	//
@@ -121,12 +121,12 @@ type TransferInfo struct {
 // Retrying this workflow would result in a new Archivematica transfer. We  do
 // not have a retry policy in place. The user could trigger a new instance via
 // the API.
-func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *collection.ProcessingWorkflowRequest) error {
+func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *package_.ProcessingWorkflowRequest) error {
 	var (
 		logger = temporalsdk_workflow.GetLogger(ctx)
 
 		tinfo = &TransferInfo{
-			CollectionID:     req.CollectionID,
+			PackageID:        req.PackageID,
 			WatcherName:      req.WatcherName,
 			RetentionPeriod:  req.RetentionPeriod,
 			CompletedDir:     req.CompletedDir,
@@ -136,53 +136,53 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *coll
 			BatchDir:         req.BatchDir,
 		}
 
-		// Collection status. All collections start in queued status.
-		status = collection.StatusQueued
+		// Package status. All packages start in queued status.
+		status = package_.StatusQueued
 	)
 
-	// Persist collection as early as possible.
+	// Persist package as early as possible.
 	{
 		activityOpts := withLocalActivityOpts(ctx)
 		var err error
 
-		if req.CollectionID == 0 {
-			err = temporalsdk_workflow.ExecuteLocalActivity(activityOpts, createPackageLocalActivity, w.logger, w.colsvc, &createPackageLocalActivityParams{
+		if req.PackageID == 0 {
+			err = temporalsdk_workflow.ExecuteLocalActivity(activityOpts, createPackageLocalActivity, w.logger, w.pkgsvc, &createPackageLocalActivityParams{
 				Key:    req.Key,
 				Status: status,
-			}).Get(activityOpts, &tinfo.CollectionID)
+			}).Get(activityOpts, &tinfo.PackageID)
 		} else {
-			// TODO: investigate better way to reset the collection.
-			err = temporalsdk_workflow.ExecuteLocalActivity(activityOpts, updatePackageLocalActivity, w.logger, w.colsvc, &updatePackageLocalActivityParams{
-				CollectionID: req.CollectionID,
-				Key:          req.Key,
-				SIPID:        "",
-				StoredAt:     time.Time{},
-				Status:       status,
+			// TODO: investigate better way to reset the package_.
+			err = temporalsdk_workflow.ExecuteLocalActivity(activityOpts, updatePackageLocalActivity, w.logger, w.pkgsvc, &updatePackageLocalActivityParams{
+				PackageID: req.PackageID,
+				Key:       req.Key,
+				SIPID:     "",
+				StoredAt:  time.Time{},
+				Status:    status,
 			}).Get(activityOpts, nil)
 		}
 
 		if err != nil {
-			return fmt.Errorf("error persisting collection: %v", err)
+			return fmt.Errorf("error persisting package: %v", err)
 		}
 	}
 
-	// Ensure that the status of the collection is always updated when this
+	// Ensure that the status of the package is always updated when this
 	// workflow function returns.
 	defer func() {
 		// Mark as failed unless it completed successfully or it was abandoned.
-		if status != collection.StatusDone && status != collection.StatusAbandoned {
-			status = collection.StatusError
+		if status != package_.StatusDone && status != package_.StatusAbandoned {
+			status = package_.StatusError
 		}
 
 		// Use disconnected context so it also runs after cancellation.
 		dctx, _ := temporalsdk_workflow.NewDisconnectedContext(ctx)
 		activityOpts := withLocalActivityOpts(dctx)
-		_ = temporalsdk_workflow.ExecuteLocalActivity(activityOpts, updatePackageLocalActivity, w.logger, w.colsvc, &updatePackageLocalActivityParams{
-			CollectionID: tinfo.CollectionID,
-			Key:          tinfo.Key,
-			SIPID:        tinfo.SIPID,
-			StoredAt:     tinfo.StoredAt,
-			Status:       status,
+		_ = temporalsdk_workflow.ExecuteLocalActivity(activityOpts, updatePackageLocalActivity, w.logger, w.pkgsvc, &updatePackageLocalActivityParams{
+			PackageID: tinfo.PackageID,
+			Key:       tinfo.Key,
+			SIPID:     tinfo.SIPID,
+			StoredAt:  tinfo.StoredAt,
+			Status:    status,
 		}).Get(activityOpts, nil)
 	}()
 
@@ -239,12 +239,12 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *coll
 			return sessErr
 		}
 
-		status = collection.StatusDone
+		status = package_.StatusDone
 	}
 
 	// Schedule deletion of the original in the watched data source.
 	{
-		if status == collection.StatusDone {
+		if status == package_.StatusDone {
 			if tinfo.RetentionPeriod != nil {
 				err := temporalsdk_workflow.NewTimer(ctx, *tinfo.RetentionPeriod).Get(ctx, nil)
 				if err != nil {
@@ -262,7 +262,7 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *coll
 
 	logger.Info(
 		"Workflow completed successfully!",
-		"collectionID", tinfo.CollectionID,
+		"packageID", tinfo.PackageID,
 		"watcher", tinfo.WatcherName,
 		"batchDir", tinfo.BatchDir,
 		"key", tinfo.Key,
@@ -279,7 +279,7 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 	// Set in-progress status.
 	{
 		ctx := withLocalActivityOpts(sessCtx)
-		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setStatusInProgressLocalActivity, w.colsvc, tinfo.CollectionID, time.Now().UTC()).Get(ctx, nil)
+		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setStatusInProgressLocalActivity, w.pkgsvc, tinfo.PackageID, time.Now().UTC()).Get(ctx, nil)
 		if err != nil {
 			return err
 		}
@@ -418,8 +418,8 @@ func (w *ProcessingWorkflow) transferA3m(sessCtx temporalsdk_workflow.Context, t
 	})
 
 	params := &a3m.CreateAIPActivityParams{
-		Path:         tinfo.Bundle.FullPath,
-		CollectionID: tinfo.CollectionID,
+		Path:      tinfo.Bundle.FullPath,
+		PackageID: tinfo.PackageID,
 	}
 
 	result := a3m.CreateAIPActivityResult{}

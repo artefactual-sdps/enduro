@@ -1,4 +1,4 @@
-CREATE TABLE collection (
+CREATE TABLE package (
   `id` INT UNSIGNED AUTO_INCREMENT NOT NULL,
   `name` VARCHAR(2048) NOT NULL,
   `workflow_id` VARCHAR(255) NOT NULL,
@@ -9,11 +9,11 @@ CREATE TABLE collection (
   `started_at` TIMESTAMP(6) NULL,
   `completed_at` TIMESTAMP(6) NULL,
   PRIMARY KEY (`id`),
-  KEY `collection_name_idx` (`name`(50)),
-  KEY `collection_aip_id_idx` (`aip_id`),
-  KEY `collection_status_idx` (`status`),
-  KEY `collection_created_at_idx` (`created_at`),
-  KEY `collection_started_at_idx` (`started_at`)
+  KEY `package_name_idx` (`name`(50)),
+  KEY `package_aip_id_idx` (`aip_id`),
+  KEY `package_status_idx` (`status`),
+  KEY `package_created_at_idx` (`created_at`),
+  KEY `package_started_at_idx` (`started_at`)
 );
 CREATE TABLE preservation_action (
   `id` INT UNSIGNED AUTO_INCREMENT NOT NULL,
@@ -21,7 +21,7 @@ CREATE TABLE preservation_action (
   `name` VARCHAR(2048) NOT NULL,
   `status` TINYINT NOT NULL, -- {unspecified, complete, processing, failed}
   `started_at` TIMESTAMP(6) NULL,
-  `collection_id` INT UNSIGNED NOT NULL,
+  `package_id` INT UNSIGNED NOT NULL,
   PRIMARY KEY (`id`),
-  FOREIGN KEY (`collection_id`) REFERENCES collection(`id`)
+  FOREIGN KEY (`package_id`) REFERENCES package(`id`)
 );

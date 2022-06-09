@@ -1,2 +1,2 @@
-DROP TABLE "collection";
+DROP TABLE "package";
 DROP TABLE "preservation_action";

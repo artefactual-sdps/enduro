@@ -16,7 +16,7 @@ import (
 	"gotest.tools/v3/assert"
 
 	goabatch "github.com/artefactual-labs/enduro/internal/api/gen/batch"
-	"github.com/artefactual-labs/enduro/internal/collection"
+	"github.com/artefactual-labs/enduro/internal/package_"
 )
 
 var completedDirs = []string{"/tmp/xyz"}
@@ -205,14 +205,14 @@ func TestBatchServiceInitProcessingWorkflow(t *testing.T) {
 		mock.AnythingOfType("*context.timerCtx"),
 		mock.AnythingOfType("internal.StartWorkflowOptions"),
 		mock.AnythingOfType("string"),
-		mock.AnythingOfType("*collection.ProcessingWorkflowRequest"),
+		mock.AnythingOfType("*package_.ProcessingWorkflowRequest"),
 	).Return(
 		nil,
 		&temporalapi_serviceerror.Internal{},
 	)
 
 	batchsvc := NewService(logger, client, completedDirs)
-	err := batchsvc.InitProcessingWorkflow(ctx, &collection.ProcessingWorkflowRequest{})
+	err := batchsvc.InitProcessingWorkflow(ctx, &package_.ProcessingWorkflowRequest{})
 
 	assert.ErrorType(t, err, &temporalapi_serviceerror.Internal{})
 }

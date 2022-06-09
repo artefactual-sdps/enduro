@@ -13,7 +13,7 @@ import (
 	temporalsdk_client "go.temporal.io/sdk/client"
 
 	goabatch "github.com/artefactual-labs/enduro/internal/api/gen/batch"
-	"github.com/artefactual-labs/enduro/internal/collection"
+	"github.com/artefactual-labs/enduro/internal/package_"
 	"github.com/artefactual-labs/enduro/internal/temporal"
 	"github.com/artefactual-labs/enduro/internal/validation"
 )
@@ -24,7 +24,7 @@ type Service interface {
 	Submit(context.Context, *goabatch.SubmitPayload) (res *goabatch.BatchResult, err error)
 	Status(context.Context) (res *goabatch.BatchStatusResult, err error)
 	Hints(context.Context) (res *goabatch.BatchHintsResult, err error)
-	InitProcessingWorkflow(ctx context.Context, req *collection.ProcessingWorkflowRequest) error
+	InitProcessingWorkflow(ctx context.Context, req *package_.ProcessingWorkflowRequest) error
 }
 
 type batchImpl struct {
@@ -123,9 +123,9 @@ func (s *batchImpl) Hints(ctx context.Context) (*goabatch.BatchHintsResult, erro
 	return result, nil
 }
 
-func (s *batchImpl) InitProcessingWorkflow(ctx context.Context, req *collection.ProcessingWorkflowRequest) error {
+func (s *batchImpl) InitProcessingWorkflow(ctx context.Context, req *package_.ProcessingWorkflowRequest) error {
 	req.ValidationConfig = validation.Config{}
-	err := collection.InitProcessingWorkflow(ctx, s.tc, req)
+	err := package_.InitProcessingWorkflow(ctx, s.tc, req)
 	if err != nil {
 		s.logger.Error(err, "Error initializing processing workflow.")
 	}

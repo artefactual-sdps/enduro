@@ -50,16 +50,16 @@ app.config.globalProperties.$filters = {
     return humanizeDuration(moment.duration(diff).asMilliseconds());
   },
   formatPreservationActionStatus(
-    value: api.EnduroCollectionPreservationActionsActionResponseBodyStatusEnum
+    value: api.EnduroPackagePreservationActionsActionResponseBodyStatusEnum
   ) {
     switch (value) {
-      case api.EnduroCollectionPreservationActionsActionResponseBodyStatusEnum
+      case api.EnduroPackagePreservationActionsActionResponseBodyStatusEnum
         .Complete:
         return "bg-success";
-      case api.EnduroCollectionPreservationActionsActionResponseBodyStatusEnum
+      case api.EnduroPackagePreservationActionsActionResponseBodyStatusEnum
         .Failed:
         return "bg-danger";
-      case api.EnduroCollectionPreservationActionsActionResponseBodyStatusEnum
+      case api.EnduroPackagePreservationActionsActionResponseBodyStatusEnum
         .Processing:
         return "bg-warning";
       default:

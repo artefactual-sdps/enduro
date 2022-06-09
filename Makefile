@@ -12,22 +12,22 @@ define NEWLINE
 endef
 
 IGNORED_PACKAGES := \
-	github.com/artefactual-labs/enduro/hack/gencols \
+	github.com/artefactual-labs/enduro/hack/genpkgs \
 	github.com/artefactual-labs/enduro/internal/amclient/fake \
 	github.com/artefactual-labs/enduro/internal/api/design \
 	github.com/artefactual-labs/enduro/internal/api/gen/batch \
-	github.com/artefactual-labs/enduro/internal/api/gen/collection \
-	github.com/artefactual-labs/enduro/internal/api/gen/collection/views \
+	github.com/artefactual-labs/enduro/internal/api/gen/package_ \
+	github.com/artefactual-labs/enduro/internal/api/gen/package_/views \
 	github.com/artefactual-labs/enduro/internal/api/gen/http/batch/client \
 	github.com/artefactual-labs/enduro/internal/api/gen/http/batch/server \
 	github.com/artefactual-labs/enduro/internal/api/gen/http/cli/enduro \
-	github.com/artefactual-labs/enduro/internal/api/gen/http/collection/client \
-	github.com/artefactual-labs/enduro/internal/api/gen/http/collection/server \
+	github.com/artefactual-labs/enduro/internal/api/gen/http/package_/client \
+	github.com/artefactual-labs/enduro/internal/api/gen/http/package_/server \
 	github.com/artefactual-labs/enduro/internal/api/gen/http/swagger/client \
 	github.com/artefactual-labs/enduro/internal/api/gen/http/swagger/server \
 	github.com/artefactual-labs/enduro/internal/api/gen/swagger \
 	github.com/artefactual-labs/enduro/internal/batch/fake \
-	github.com/artefactual-labs/enduro/internal/collection/fake \
+	github.com/artefactual-labs/enduro/internal/package_/fake \
 	github.com/artefactual-labs/enduro/internal/temporal/testutil \
 	github.com/artefactual-labs/enduro/internal/watcher/fake
 PACKAGES		:= $(shell go list ./...)
@@ -121,7 +121,7 @@ gen-dashboard-client:
 
 gen-mock:
 	$(MOCKGEN) -destination=./internal/batch/fake/mock_batch.go -package=fake github.com/artefactual-labs/enduro/internal/batch Service
-	$(MOCKGEN) -destination=./internal/collection/fake/mock_collection.go -package=fake github.com/artefactual-labs/enduro/internal/collection Service
+	$(MOCKGEN) -destination=./internal/package_/fake/mock_package_.go -package=fake github.com/artefactual-labs/enduro/internal/package_ Service
 	$(MOCKGEN) -destination=./internal/watcher/fake/mock_watcher.go -package=fake github.com/artefactual-labs/enduro/internal/watcher Service
 
 .PHONY: *

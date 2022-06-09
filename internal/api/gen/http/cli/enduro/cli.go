@@ -15,7 +15,7 @@ import (
 	"os"
 
 	batchc "github.com/artefactual-labs/enduro/internal/api/gen/http/batch/client"
-	collectionc "github.com/artefactual-labs/enduro/internal/api/gen/http/collection/client"
+	package_c "github.com/artefactual-labs/enduro/internal/api/gen/http/package_/client"
 	goahttp "goa.design/goa/v3/http"
 	goa "goa.design/goa/v3/pkg"
 )
@@ -26,7 +26,7 @@ import (
 //
 func UsageCommands() string {
 	return `batch (submit|status|hints)
-collection (monitor|list|show|delete|cancel|retry|workflow|download|bulk|bulk-status|preservation-actions)
+package (monitor|list|show|delete|cancel|retry|workflow|download|bulk|bulk-status|preservation-actions)
 `
 }
 
@@ -37,7 +37,7 @@ func UsageExamples() string {
       "path": "Iste ut alias et.",
       "retention_period": "Molestiae in."
    }'` + "\n" +
-		os.Args[0] + ` collection monitor` + "\n" +
+		os.Args[0] + ` package monitor` + "\n" +
 		""
 }
 
@@ -50,7 +50,7 @@ func ParseEndpoint(
 	dec func(*http.Response) goahttp.Decoder,
 	restore bool,
 	dialer goahttp.Dialer,
-	collectionConfigurer *collectionc.ConnConfigurer,
+	package_Configurer *package_c.ConnConfigurer,
 ) (goa.Endpoint, interface{}, error) {
 	var (
 		batchFlags = flag.NewFlagSet("batch", flag.ContinueOnError)
@@ -62,61 +62,61 @@ func ParseEndpoint(
 
 		batchHintsFlags = flag.NewFlagSet("hints", flag.ExitOnError)
 
-		collectionFlags = flag.NewFlagSet("collection", flag.ContinueOnError)
+		package_Flags = flag.NewFlagSet("package", flag.ContinueOnError)
 
-		collectionMonitorFlags = flag.NewFlagSet("monitor", flag.ExitOnError)
+		package_MonitorFlags = flag.NewFlagSet("monitor", flag.ExitOnError)
 
-		collectionListFlags                   = flag.NewFlagSet("list", flag.ExitOnError)
-		collectionListNameFlag                = collectionListFlags.String("name", "", "")
-		collectionListAipIDFlag               = collectionListFlags.String("aip-id", "", "")
-		collectionListEarliestCreatedTimeFlag = collectionListFlags.String("earliest-created-time", "", "")
-		collectionListLatestCreatedTimeFlag   = collectionListFlags.String("latest-created-time", "", "")
-		collectionListStatusFlag              = collectionListFlags.String("status", "", "")
-		collectionListCursorFlag              = collectionListFlags.String("cursor", "", "")
+		package_ListFlags                   = flag.NewFlagSet("list", flag.ExitOnError)
+		package_ListNameFlag                = package_ListFlags.String("name", "", "")
+		package_ListAipIDFlag               = package_ListFlags.String("aip-id", "", "")
+		package_ListEarliestCreatedTimeFlag = package_ListFlags.String("earliest-created-time", "", "")
+		package_ListLatestCreatedTimeFlag   = package_ListFlags.String("latest-created-time", "", "")
+		package_ListStatusFlag              = package_ListFlags.String("status", "", "")
+		package_ListCursorFlag              = package_ListFlags.String("cursor", "", "")
 
-		collectionShowFlags  = flag.NewFlagSet("show", flag.ExitOnError)
-		collectionShowIDFlag = collectionShowFlags.String("id", "REQUIRED", "Identifier of collection to show")
+		package_ShowFlags  = flag.NewFlagSet("show", flag.ExitOnError)
+		package_ShowIDFlag = package_ShowFlags.String("id", "REQUIRED", "Identifier of package to show")
 
-		collectionDeleteFlags  = flag.NewFlagSet("delete", flag.ExitOnError)
-		collectionDeleteIDFlag = collectionDeleteFlags.String("id", "REQUIRED", "Identifier of collection to delete")
+		package_DeleteFlags  = flag.NewFlagSet("delete", flag.ExitOnError)
+		package_DeleteIDFlag = package_DeleteFlags.String("id", "REQUIRED", "Identifier of package to delete")
 
-		collectionCancelFlags  = flag.NewFlagSet("cancel", flag.ExitOnError)
-		collectionCancelIDFlag = collectionCancelFlags.String("id", "REQUIRED", "Identifier of collection to remove")
+		package_CancelFlags  = flag.NewFlagSet("cancel", flag.ExitOnError)
+		package_CancelIDFlag = package_CancelFlags.String("id", "REQUIRED", "Identifier of package to remove")
 
-		collectionRetryFlags  = flag.NewFlagSet("retry", flag.ExitOnError)
-		collectionRetryIDFlag = collectionRetryFlags.String("id", "REQUIRED", "Identifier of collection to retry")
+		package_RetryFlags  = flag.NewFlagSet("retry", flag.ExitOnError)
+		package_RetryIDFlag = package_RetryFlags.String("id", "REQUIRED", "Identifier of package to retry")
 
-		collectionWorkflowFlags  = flag.NewFlagSet("workflow", flag.ExitOnError)
-		collectionWorkflowIDFlag = collectionWorkflowFlags.String("id", "REQUIRED", "Identifier of collection to look up")
+		package_WorkflowFlags  = flag.NewFlagSet("workflow", flag.ExitOnError)
+		package_WorkflowIDFlag = package_WorkflowFlags.String("id", "REQUIRED", "Identifier of package to look up")
 
-		collectionDownloadFlags  = flag.NewFlagSet("download", flag.ExitOnError)
-		collectionDownloadIDFlag = collectionDownloadFlags.String("id", "REQUIRED", "Identifier of collection to look up")
+		package_DownloadFlags  = flag.NewFlagSet("download", flag.ExitOnError)
+		package_DownloadIDFlag = package_DownloadFlags.String("id", "REQUIRED", "Identifier of package to look up")
 
-		collectionBulkFlags    = flag.NewFlagSet("bulk", flag.ExitOnError)
-		collectionBulkBodyFlag = collectionBulkFlags.String("body", "REQUIRED", "")
+		package_BulkFlags    = flag.NewFlagSet("bulk", flag.ExitOnError)
+		package_BulkBodyFlag = package_BulkFlags.String("body", "REQUIRED", "")
 
-		collectionBulkStatusFlags = flag.NewFlagSet("bulk-status", flag.ExitOnError)
+		package_BulkStatusFlags = flag.NewFlagSet("bulk-status", flag.ExitOnError)
 
-		collectionPreservationActionsFlags  = flag.NewFlagSet("preservation-actions", flag.ExitOnError)
-		collectionPreservationActionsIDFlag = collectionPreservationActionsFlags.String("id", "REQUIRED", "Identifier of collection to look up")
+		package_PreservationActionsFlags  = flag.NewFlagSet("preservation-actions", flag.ExitOnError)
+		package_PreservationActionsIDFlag = package_PreservationActionsFlags.String("id", "REQUIRED", "Identifier of package to look up")
 	)
 	batchFlags.Usage = batchUsage
 	batchSubmitFlags.Usage = batchSubmitUsage
 	batchStatusFlags.Usage = batchStatusUsage
 	batchHintsFlags.Usage = batchHintsUsage
 
-	collectionFlags.Usage = collectionUsage
-	collectionMonitorFlags.Usage = collectionMonitorUsage
-	collectionListFlags.Usage = collectionListUsage
-	collectionShowFlags.Usage = collectionShowUsage
-	collectionDeleteFlags.Usage = collectionDeleteUsage
-	collectionCancelFlags.Usage = collectionCancelUsage
-	collectionRetryFlags.Usage = collectionRetryUsage
-	collectionWorkflowFlags.Usage = collectionWorkflowUsage
-	collectionDownloadFlags.Usage = collectionDownloadUsage
-	collectionBulkFlags.Usage = collectionBulkUsage
-	collectionBulkStatusFlags.Usage = collectionBulkStatusUsage
-	collectionPreservationActionsFlags.Usage = collectionPreservationActionsUsage
+	package_Flags.Usage = package_Usage
+	package_MonitorFlags.Usage = package_MonitorUsage
+	package_ListFlags.Usage = package_ListUsage
+	package_ShowFlags.Usage = package_ShowUsage
+	package_DeleteFlags.Usage = package_DeleteUsage
+	package_CancelFlags.Usage = package_CancelUsage
+	package_RetryFlags.Usage = package_RetryUsage
+	package_WorkflowFlags.Usage = package_WorkflowUsage
+	package_DownloadFlags.Usage = package_DownloadUsage
+	package_BulkFlags.Usage = package_BulkUsage
+	package_BulkStatusFlags.Usage = package_BulkStatusUsage
+	package_PreservationActionsFlags.Usage = package_PreservationActionsUsage
 
 	if err := flag.CommandLine.Parse(os.Args[1:]); err != nil {
 		return nil, nil, err
@@ -135,8 +135,8 @@ func ParseEndpoint(
 		switch svcn {
 		case "batch":
 			svcf = batchFlags
-		case "collection":
-			svcf = collectionFlags
+		case "package":
+			svcf = package_Flags
 		default:
 			return nil, nil, fmt.Errorf("unknown service %q", svcn)
 		}
@@ -165,40 +165,40 @@ func ParseEndpoint(
 
 			}
 
-		case "collection":
+		case "package":
 			switch epn {
 			case "monitor":
-				epf = collectionMonitorFlags
+				epf = package_MonitorFlags
 
 			case "list":
-				epf = collectionListFlags
+				epf = package_ListFlags
 
 			case "show":
-				epf = collectionShowFlags
+				epf = package_ShowFlags
 
 			case "delete":
-				epf = collectionDeleteFlags
+				epf = package_DeleteFlags
 
 			case "cancel":
-				epf = collectionCancelFlags
+				epf = package_CancelFlags
 
 			case "retry":
-				epf = collectionRetryFlags
+				epf = package_RetryFlags
 
 			case "workflow":
-				epf = collectionWorkflowFlags
+				epf = package_WorkflowFlags
 
 			case "download":
-				epf = collectionDownloadFlags
+				epf = package_DownloadFlags
 
 			case "bulk":
-				epf = collectionBulkFlags
+				epf = package_BulkFlags
 
 			case "bulk-status":
-				epf = collectionBulkStatusFlags
+				epf = package_BulkStatusFlags
 
 			case "preservation-actions":
-				epf = collectionPreservationActionsFlags
+				epf = package_PreservationActionsFlags
 
 			}
 
@@ -235,42 +235,42 @@ func ParseEndpoint(
 				endpoint = c.Hints()
 				data = nil
 			}
-		case "collection":
-			c := collectionc.NewClient(scheme, host, doer, enc, dec, restore, dialer, collectionConfigurer)
+		case "package":
+			c := package_c.NewClient(scheme, host, doer, enc, dec, restore, dialer, package_Configurer)
 			switch epn {
 			case "monitor":
 				endpoint = c.Monitor()
 				data = nil
 			case "list":
 				endpoint = c.List()
-				data, err = collectionc.BuildListPayload(*collectionListNameFlag, *collectionListAipIDFlag, *collectionListEarliestCreatedTimeFlag, *collectionListLatestCreatedTimeFlag, *collectionListStatusFlag, *collectionListCursorFlag)
+				data, err = package_c.BuildListPayload(*package_ListNameFlag, *package_ListAipIDFlag, *package_ListEarliestCreatedTimeFlag, *package_ListLatestCreatedTimeFlag, *package_ListStatusFlag, *package_ListCursorFlag)
 			case "show":
 				endpoint = c.Show()
-				data, err = collectionc.BuildShowPayload(*collectionShowIDFlag)
+				data, err = package_c.BuildShowPayload(*package_ShowIDFlag)
 			case "delete":
 				endpoint = c.Delete()
-				data, err = collectionc.BuildDeletePayload(*collectionDeleteIDFlag)
+				data, err = package_c.BuildDeletePayload(*package_DeleteIDFlag)
 			case "cancel":
 				endpoint = c.Cancel()
-				data, err = collectionc.BuildCancelPayload(*collectionCancelIDFlag)
+				data, err = package_c.BuildCancelPayload(*package_CancelIDFlag)
 			case "retry":
 				endpoint = c.Retry()
-				data, err = collectionc.BuildRetryPayload(*collectionRetryIDFlag)
+				data, err = package_c.BuildRetryPayload(*package_RetryIDFlag)
 			case "workflow":
 				endpoint = c.Workflow()
-				data, err = collectionc.BuildWorkflowPayload(*collectionWorkflowIDFlag)
+				data, err = package_c.BuildWorkflowPayload(*package_WorkflowIDFlag)
 			case "download":
 				endpoint = c.Download()
-				data, err = collectionc.BuildDownloadPayload(*collectionDownloadIDFlag)
+				data, err = package_c.BuildDownloadPayload(*package_DownloadIDFlag)
 			case "bulk":
 				endpoint = c.Bulk()
-				data, err = collectionc.BuildBulkPayload(*collectionBulkBodyFlag)
+				data, err = package_c.BuildBulkPayload(*package_BulkBodyFlag)
 			case "bulk-status":
 				endpoint = c.BulkStatus()
 				data = nil
 			case "preservation-actions":
 				endpoint = c.PreservationActions()
-				data, err = collectionc.BuildPreservationActionsPayload(*collectionPreservationActionsIDFlag)
+				data, err = package_c.BuildPreservationActionsPayload(*package_PreservationActionsIDFlag)
 			}
 		}
 	}
@@ -283,7 +283,7 @@ func ParseEndpoint(
 
 // batchUsage displays the usage of the batch command and its subcommands.
 func batchUsage() {
-	fmt.Fprintf(os.Stderr, `The batch service manages batches of collections.
+	fmt.Fprintf(os.Stderr, `The batch service manages batches of packages.
 Usage:
     %[1]s [globalflags] batch COMMAND [flags]
 
@@ -331,44 +331,43 @@ Example:
 `, os.Args[0])
 }
 
-// collectionUsage displays the usage of the collection command and its
-// subcommands.
-func collectionUsage() {
-	fmt.Fprintf(os.Stderr, `The collection service manages packages being transferred to Archivematica.
+// packageUsage displays the usage of the package command and its subcommands.
+func package_Usage() {
+	fmt.Fprintf(os.Stderr, `The package service manages packages being transferred to a3m.
 Usage:
-    %[1]s [globalflags] collection COMMAND [flags]
+    %[1]s [globalflags] package COMMAND [flags]
 
 COMMAND:
     monitor: Monitor implements monitor.
-    list: List all stored collections
-    show: Show collection by ID
-    delete: Delete collection by ID
-    cancel: Cancel collection processing by ID
-    retry: Retry collection processing by ID
+    list: List all stored packages
+    show: Show package by ID
+    delete: Delete package by ID
+    cancel: Cancel package processing by ID
+    retry: Retry package processing by ID
     workflow: Retrieve workflow status by ID
-    download: Download collection by ID
+    download: Download package by ID
     bulk: Bulk operations (retry, cancel...).
     bulk-status: Retrieve status of current bulk operation.
     preservation-actions: List all preservation actions by ID
 
 Additional help:
-    %[1]s collection COMMAND --help
+    %[1]s package COMMAND --help
 `, os.Args[0])
 }
-func collectionMonitorUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] collection monitor
+func package_MonitorUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] package monitor
 
 Monitor implements monitor.
 
 Example:
-    %[1]s collection monitor
+    %[1]s package monitor
 `, os.Args[0])
 }
 
-func collectionListUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] collection list -name STRING -aip-id STRING -earliest-created-time STRING -latest-created-time STRING -status STRING -cursor STRING
+func package_ListUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] package list -name STRING -aip-id STRING -earliest-created-time STRING -latest-created-time STRING -status STRING -cursor STRING
 
-List all stored collections
+List all stored packages
     -name STRING: 
     -aip-id STRING: 
     -earliest-created-time STRING: 
@@ -377,84 +376,84 @@ List all stored collections
     -cursor STRING: 
 
 Example:
-    %[1]s collection list --name "Sed perferendis illum illum omnis et officiis." --aip-id "4CCDE767-7648-444F-D09F-4B4FFE4EB36B" --earliest-created-time "1975-12-06T05:38:21Z" --latest-created-time "2006-11-19T10:37:19Z" --status "queued" --cursor "Rerum non qui et officia sint rerum."
+    %[1]s package list --name "Sed perferendis illum illum omnis et officiis." --aip-id "4CCDE767-7648-444F-D09F-4B4FFE4EB36B" --earliest-created-time "1975-12-06T05:38:21Z" --latest-created-time "2006-11-19T10:37:19Z" --status "queued" --cursor "Rerum non qui et officia sint rerum."
 `, os.Args[0])
 }
 
-func collectionShowUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] collection show -id UINT
+func package_ShowUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] package show -id UINT
 
-Show collection by ID
-    -id UINT: Identifier of collection to show
+Show package by ID
+    -id UINT: Identifier of package to show
 
 Example:
-    %[1]s collection show --id 14355586344563939112
+    %[1]s package show --id 14355586344563939112
 `, os.Args[0])
 }
 
-func collectionDeleteUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] collection delete -id UINT
+func package_DeleteUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] package delete -id UINT
 
-Delete collection by ID
-    -id UINT: Identifier of collection to delete
+Delete package by ID
+    -id UINT: Identifier of package to delete
 
 Example:
-    %[1]s collection delete --id 1834784557229413063
+    %[1]s package delete --id 1834784557229413063
 `, os.Args[0])
 }
 
-func collectionCancelUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] collection cancel -id UINT
+func package_CancelUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] package cancel -id UINT
 
-Cancel collection processing by ID
-    -id UINT: Identifier of collection to remove
+Cancel package processing by ID
+    -id UINT: Identifier of package to remove
 
 Example:
-    %[1]s collection cancel --id 13929232778824558181
+    %[1]s package cancel --id 13929232778824558181
 `, os.Args[0])
 }
 
-func collectionRetryUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] collection retry -id UINT
+func package_RetryUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] package retry -id UINT
 
-Retry collection processing by ID
-    -id UINT: Identifier of collection to retry
+Retry package processing by ID
+    -id UINT: Identifier of package to retry
 
 Example:
-    %[1]s collection retry --id 5123728706916400341
+    %[1]s package retry --id 5123728706916400341
 `, os.Args[0])
 }
 
-func collectionWorkflowUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] collection workflow -id UINT
+func package_WorkflowUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] package workflow -id UINT
 
 Retrieve workflow status by ID
-    -id UINT: Identifier of collection to look up
+    -id UINT: Identifier of package to look up
 
 Example:
-    %[1]s collection workflow --id 14957336110119165110
+    %[1]s package workflow --id 14957336110119165110
 `, os.Args[0])
 }
 
-func collectionDownloadUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] collection download -id UINT
+func package_DownloadUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] package download -id UINT
 
-Download collection by ID
-    -id UINT: Identifier of collection to look up
+Download package by ID
+    -id UINT: Identifier of package to look up
 
 Example:
-    %[1]s collection download --id 16265995649010858738
+    %[1]s package download --id 16265995649010858738
 `, os.Args[0])
 }
 
-func collectionBulkUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] collection bulk -body JSON
+func package_BulkUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] package bulk -body JSON
 
 Bulk operations (retry, cancel...).
     -body JSON: 
 
 Example:
-    %[1]s collection bulk --body '{
+    %[1]s package bulk --body '{
       "operation": "cancel",
       "size": 3764210318943693810,
       "status": "in progress"
@@ -462,23 +461,23 @@ Example:
 `, os.Args[0])
 }
 
-func collectionBulkStatusUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] collection bulk-status
+func package_BulkStatusUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] package bulk-status
 
 Retrieve status of current bulk operation.
 
 Example:
-    %[1]s collection bulk-status
+    %[1]s package bulk-status
 `, os.Args[0])
 }
 
-func collectionPreservationActionsUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] collection preservation-actions -id UINT
+func package_PreservationActionsUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] package preservation-actions -id UINT
 
 List all preservation actions by ID
-    -id UINT: Identifier of collection to look up
+    -id UINT: Identifier of package to look up
 
 Example:
-    %[1]s collection preservation-actions --id 9792579105820977192
+    %[1]s package preservation-actions --id 9792579105820977192
 `, os.Args[0])
 }

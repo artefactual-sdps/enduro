@@ -21,10 +21,10 @@ import (
 	temporalsdk_worker "go.temporal.io/sdk/worker"
 
 	"github.com/artefactual-labs/enduro/internal/a3m"
-	"github.com/artefactual-labs/enduro/internal/collection"
 	"github.com/artefactual-labs/enduro/internal/config"
 	"github.com/artefactual-labs/enduro/internal/db"
 	"github.com/artefactual-labs/enduro/internal/log"
+	"github.com/artefactual-labs/enduro/internal/package_"
 	sdps_activities "github.com/artefactual-labs/enduro/internal/sdps/activities"
 	"github.com/artefactual-labs/enduro/internal/temporal"
 	"github.com/artefactual-labs/enduro/internal/version"
@@ -92,10 +92,10 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Set up the collection service.
-	var colsvc collection.Service
+	// Set up the package service.
+	var pkgsvc package_.Service
 	{
-		colsvc = collection.NewService(logger.WithName("collection"), database, temporalClient)
+		pkgsvc = package_.NewService(logger.WithName("package"), database, temporalClient)
 	}
 
 	searchConfig := opensearch.Config{
@@ -152,7 +152,7 @@ func main() {
 		w.RegisterActivityWithOptions(activities.NewDownloadActivity(wsvc).Execute, temporalsdk_activity.RegisterOptions{Name: activities.DownloadActivityName})
 		w.RegisterActivityWithOptions(activities.NewBundleActivity(wsvc).Execute, temporalsdk_activity.RegisterOptions{Name: activities.BundleActivityName})
 		w.RegisterActivityWithOptions(activities.NewValidateTransferActivity().Execute, temporalsdk_activity.RegisterOptions{Name: activities.ValidateTransferActivityName})
-		w.RegisterActivityWithOptions(a3m.NewCreateAIPActivity(logger, &cfg.A3m, colsvc).Execute, temporalsdk_activity.RegisterOptions{Name: a3m.CreateAIPActivityName})
+		w.RegisterActivityWithOptions(a3m.NewCreateAIPActivity(logger, &cfg.A3m, pkgsvc).Execute, temporalsdk_activity.RegisterOptions{Name: a3m.CreateAIPActivityName})
 		w.RegisterActivityWithOptions(activities.NewCleanUpActivity().Execute, temporalsdk_activity.RegisterOptions{Name: activities.CleanUpActivityName})
 		w.RegisterActivityWithOptions(activities.NewUploadActivity(cfg.AIPStore).Execute, temporalsdk_activity.RegisterOptions{Name: activities.UploadActivityName})
 

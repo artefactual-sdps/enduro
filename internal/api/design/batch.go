@@ -5,7 +5,7 @@ import (
 )
 
 var _ = Service("batch", func() {
-	Description("The batch service manages batches of collections.")
+	Description("The batch service manages batches of packages.")
 	HTTP(func() {
 		Path("/batch")
 	})

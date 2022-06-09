@@ -24,10 +24,10 @@ import (
 
 	"github.com/artefactual-labs/enduro/internal/api"
 	"github.com/artefactual-labs/enduro/internal/batch"
-	"github.com/artefactual-labs/enduro/internal/collection"
 	"github.com/artefactual-labs/enduro/internal/config"
 	"github.com/artefactual-labs/enduro/internal/db"
 	"github.com/artefactual-labs/enduro/internal/log"
+	"github.com/artefactual-labs/enduro/internal/package_"
 	"github.com/artefactual-labs/enduro/internal/temporal"
 	"github.com/artefactual-labs/enduro/internal/version"
 	"github.com/artefactual-labs/enduro/internal/watcher"
@@ -123,10 +123,10 @@ func main() {
 		batchsvc = batch.NewService(logger.WithName("batch"), temporalClient, cfg.Watcher.CompletedDirs())
 	}
 
-	// Set up the collection service.
-	var colsvc collection.Service
+	// Set up the package service.
+	var pkgsvc package_.Service
 	{
-		colsvc = collection.NewService(logger.WithName("collection"), database, temporalClient)
+		pkgsvc = package_.NewService(logger.WithName("package"), database, temporalClient)
 	}
 
 	// Set up the watcher service.
@@ -147,7 +147,7 @@ func main() {
 
 		g.Add(
 			func() error {
-				srv = api.HTTPServer(logger, &cfg.API, batchsvc, colsvc)
+				srv = api.HTTPServer(logger, &cfg.API, batchsvc, pkgsvc)
 				return srv.ListenAndServe()
 			},
 			func(err error) {
@@ -179,7 +179,7 @@ func main() {
 							}
 							logger.V(1).Info("Starting new workflow", "watcher", event.WatcherName, "bucket", event.Bucket, "key", event.Key, "dir", event.IsDir)
 							go func() {
-								req := collection.ProcessingWorkflowRequest{
+								req := package_.ProcessingWorkflowRequest{
 									WatcherName:      event.WatcherName,
 									RetentionPeriod:  event.RetentionPeriod,
 									CompletedDir:     event.CompletedDir,
@@ -188,7 +188,7 @@ func main() {
 									IsDir:            event.IsDir,
 									ValidationConfig: cfg.Validation,
 								}
-								if err := collection.InitProcessingWorkflow(ctx, temporalClient, &req); err != nil {
+								if err := package_.InitProcessingWorkflow(ctx, temporalClient, &req); err != nil {
 									logger.Error(err, "Error initializing processing workflow.")
 								}
 							}()
@@ -222,12 +222,12 @@ func main() {
 			os.Exit(1)
 		}
 
-		w.RegisterWorkflowWithOptions(workflow.NewProcessingWorkflow(logger, colsvc, wsvc).Execute, temporalsdk_workflow.RegisterOptions{Name: collection.ProcessingWorkflowName})
+		w.RegisterWorkflowWithOptions(workflow.NewProcessingWorkflow(logger, pkgsvc, wsvc).Execute, temporalsdk_workflow.RegisterOptions{Name: package_.ProcessingWorkflowName})
 		w.RegisterActivityWithOptions(activities.NewDeleteOriginalActivity(wsvc).Execute, temporalsdk_activity.RegisterOptions{Name: activities.DeleteOriginalActivityName})
 		w.RegisterActivityWithOptions(activities.NewDisposeOriginalActivity(wsvc).Execute, temporalsdk_activity.RegisterOptions{Name: activities.DisposeOriginalActivityName})
 
-		w.RegisterWorkflowWithOptions(collection.BulkWorkflow, temporalsdk_workflow.RegisterOptions{Name: collection.BulkWorkflowName})
-		w.RegisterActivityWithOptions(collection.NewBulkActivity(colsvc).Execute, temporalsdk_activity.RegisterOptions{Name: collection.BulkActivityName})
+		w.RegisterWorkflowWithOptions(package_.BulkWorkflow, temporalsdk_workflow.RegisterOptions{Name: package_.BulkWorkflowName})
+		w.RegisterActivityWithOptions(package_.NewBulkActivity(pkgsvc).Execute, temporalsdk_activity.RegisterOptions{Name: package_.BulkActivityName})
 
 		w.RegisterWorkflowWithOptions(batch.BatchWorkflow, temporalsdk_workflow.RegisterOptions{Name: batch.BatchWorkflowName})
 		w.RegisterActivityWithOptions(batch.NewBatchActivity(batchsvc).Execute, temporalsdk_activity.RegisterOptions{Name: batch.BatchActivityName})
