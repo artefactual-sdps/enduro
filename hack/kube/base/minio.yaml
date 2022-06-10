@@ -13,6 +13,16 @@ spec:
       labels:
         app: minio
     spec:
+      initContainers:
+        - name: check-redis
+          image: busybox
+          imagePullPolicy: IfNotPresent
+          command:
+            [
+              "sh",
+              "-c",
+              "until echo STATUS | nc -w 2 redis 6379; do echo waiting for redis to start; sleep 1; done;",
+            ]
       containers:
         - name: minio
           image: minio/minio
