@@ -1,5 +1,5 @@
-import { defineStore, acceptHMRUpdate } from "pinia";
 import { clientProviderKey, Client, api } from "../client";
+import { defineStore, acceptHMRUpdate } from "pinia";
 import { inject } from "vue";
 
 export const usePackageStore = defineStore("package", {

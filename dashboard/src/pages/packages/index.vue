@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { inject, onMounted, reactive } from "vue";
 import { clientProviderKey, Client, api } from "../../client";
 import PackageStatus from "../../components/PackageStatus.vue";
+import { inject, onMounted, reactive } from "vue";
 
 const client = inject(clientProviderKey) as Client;
 

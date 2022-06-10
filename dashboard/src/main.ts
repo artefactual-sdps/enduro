@@ -1,13 +1,12 @@
+import App from "./App.vue";
+import { createClient, clientProviderKey, api } from "./client";
+import "./styles/main.scss";
+import humanizeDuration from "humanize-duration";
+import moment from "moment";
+import { createPinia } from "pinia";
 import { createApp } from "vue";
 import { createRouter, createWebHistory } from "vue-router";
 import routes from "~pages";
-import { createClient, clientProviderKey, api } from "./client";
-import App from "./App.vue";
-import { createPinia } from "pinia";
-import moment from "moment";
-import humanizeDuration from "humanize-duration";
-
-import "./styles/main.scss";
 
 const router = createRouter({
   history: createWebHistory("/"),
