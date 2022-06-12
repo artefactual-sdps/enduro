@@ -2,17 +2,17 @@
 
 FROM node:18 AS builder
 WORKDIR /app
-COPY package.json package-lock.json ./
+COPY --link package.json package-lock.json ./
 RUN --mount=type=cache,target=/app/.npm \
     npm set cache /app/.npm && npm install-clean
-COPY . .
+COPY --link . .
 RUN npm run build
 CMD npm run dev
 
 FROM nginx:alpine
 WORKDIR /usr/share/nginx/html
 RUN rm -rf ./*
-COPY --from=builder /app/dist .
+COPY --from=builder --link /app/dist .
 COPY <<EOF /etc/nginx/templates/default.conf.template
 upstream backend {
     least_conn;
