@@ -13,16 +13,6 @@ spec:
       labels:
         app: temporal
     spec:
-      initContainers:
-        - name: check-mysql
-          image: busybox
-          imagePullPolicy: IfNotPresent
-          command:
-            [
-              "sh",
-              "-c",
-              "until echo STATUS | nc -w 2 mysql 3306; do echo waiting for mysql to start; sleep 1; done;",
-            ]
       containers:
         - name: temporal
           image: temporalio/auto-setup:1.16.2

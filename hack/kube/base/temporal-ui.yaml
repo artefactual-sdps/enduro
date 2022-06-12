@@ -13,16 +13,6 @@ spec:
       labels:
         app: temporal-ui
     spec:
-      initContainers:
-        - name: check-temporal
-          image: busybox
-          imagePullPolicy: IfNotPresent
-          command:
-            [
-              "sh",
-              "-c",
-              "until echo STATUS | nc -w 2 temporal 7233; do echo waiting for temporal to start; sleep 1; done;",
-            ]
       containers:
         - name: temporal-ui
           image: temporalio/ui:0.13.2
