@@ -11,7 +11,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3.0.2
       - name: Create k8s cluster
-        uses: helm/kind-action@v1.2.0
+        uses: AbsaOSS/k3d-action@v2.3.0
+        with:
+          cluster-name: sdps-ci
+          args: >-
+            --registry-create sdps-ci-registry
+            --no-lb
+            --k3s-arg "--no-deploy=traefik,servicelb,metrics-server@server:*"
       - name: Install Tilt
         uses: yokawasa/action-setup-kube-tools@v0.8.1
         with:
