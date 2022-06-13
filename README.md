@@ -146,6 +146,12 @@ and trigger an upload to the `sips` bucket in Minio. Click the caret to set the
 path to a file/directory in the host and a Minio object name, then click the
 cloud icon to trigger the upload.
 
+For example, to upload an existing sample ZIP from the project folder (make
+sure you update `/path/to/enduro` to the proper project folder in the host):
+
+- Host path: `/path/to/enduro/hack/sampledata/StructB-AM.zip`
+- Object name: `StructB-AM.zip`
+
 ### Known issues
 
 #### Minio uploads don't trigger workflows
