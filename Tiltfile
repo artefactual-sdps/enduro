@@ -34,15 +34,50 @@ k8s_resource("opensearch-dashboards", port_forwards="7500:5601")
 
 k8s_resource("temporal-ui", port_forwards="7440:8080")
 
+local_resource(
+  "gen-api",
+  cmd="docker run \
+    --rm \
+    --user $(id -u):$(id -g) \
+    --volume $(pwd):/src \
+    fixl/goagen:3.7.5 gen \
+      github.com/artefactual-labs/enduro/internal/api/design \
+      -o internal/api \
+  ",
+  deps=["internal/api"],
+  ignore=["internal/api/gen"],
+  auto_init=False
+)
+
+local_resource(
+  "gen-dashboard-client",
+  cmd="docker run \
+    --rm \
+    --user $(id -u):$(id -g) \
+    --volume $(pwd):/local \
+    openapitools/openapi-generator-cli:v6.0.0 generate \
+      --input-spec /local/internal/api/gen/http/openapi.json \
+      --generator-name typescript-fetch \
+      --output /local/dashboard/src/openapi-generator/ \
+      --skip-validate-spec \
+      -p 'generateAliasAsModel=false' \
+      -p 'withInterfaces=true' \
+      -p 'supportsES6=true' \
+  ",
+  deps=["internal/api/gen"],
+  auto_init=False
+)
+
 cmd_button(
   "minio-upload",
   argv=[
     "sh",
     "-c",
-    "docker run --rm \
+    "docker run \
+      --rm \
       --add-host=host-gateway:host-gateway \
       --entrypoint=/bin/bash \
-      -v $HOST_PATH:/sampledata/$OBJECT_NAME \
+      --volume $HOST_PATH:/sampledata/$OBJECT_NAME \
       minio/mc -c ' \
         mc alias set enduro http://host-gateway:7461 minio minio123; \
         mc cp -r /sampledata/$OBJECT_NAME enduro/sips/$OBJECT_NAME; \
