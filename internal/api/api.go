@@ -26,16 +26,20 @@ import (
 	"github.com/artefactual-labs/enduro/internal/api/gen/batch"
 	batchsvr "github.com/artefactual-labs/enduro/internal/api/gen/http/batch/server"
 	packagesvr "github.com/artefactual-labs/enduro/internal/api/gen/http/package_/server"
+	storagesvr "github.com/artefactual-labs/enduro/internal/api/gen/http/storage/server"
 	swaggersvr "github.com/artefactual-labs/enduro/internal/api/gen/http/swagger/server"
 	"github.com/artefactual-labs/enduro/internal/api/gen/package_"
+	"github.com/artefactual-labs/enduro/internal/api/gen/storage"
 	intbatch "github.com/artefactual-labs/enduro/internal/batch"
 	intpkg "github.com/artefactual-labs/enduro/internal/package_"
+	intstorage "github.com/artefactual-labs/enduro/internal/storage"
 )
 
 func HTTPServer(
 	logger logr.Logger, config *Config,
 	batchsvc intbatch.Service,
 	pkgsvc intpkg.Service,
+	storagesvc intstorage.Service,
 ) *http.Server {
 	dec := goahttp.RequestDecoder
 	enc := goahttp.ResponseEncoder
@@ -57,6 +61,12 @@ func HTTPServer(
 	packageErrorHandler := errorHandler(logger, "Package error.")
 	var packageServer *packagesvr.Server = packagesvr.New(packageEndpoints, mux, dec, enc, packageErrorHandler, nil, websocketUpgrader, nil)
 	packagesvr.Mount(mux, packageServer)
+
+	// Storage service.
+	var storageEndpoints *storage.Endpoints = storage.NewEndpoints(storagesvc)
+	storageErrorHandler := errorHandler(logger, "Storage error.")
+	var storageServer *storagesvr.Server = storagesvr.New(storageEndpoints, mux, dec, enc, storageErrorHandler, nil)
+	storagesvr.Mount(mux, storageServer)
 
 	// Swagger service.
 	var swaggerService *swaggersvr.Server = swaggersvr.New(nil, nil, nil, nil, nil, nil, nil)

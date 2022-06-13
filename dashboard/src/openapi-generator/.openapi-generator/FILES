@@ -1,5 +1,6 @@
 apis/BatchApi.ts
 apis/PackageApi.ts
+apis/StorageApi.ts
 apis/SwaggerApi.ts
 apis/index.ts
 index.ts
@@ -31,5 +32,13 @@ models/PackageShowNotFoundResponseBody.ts
 models/PackageShowResponseBody.ts
 models/PackageWorkflowNotFoundResponseBody.ts
 models/PackageWorkflowResponseBody.ts
+models/StorageSubmitNotAvailableResponseBody.ts
+models/StorageSubmitNotValidResponseBody.ts
+models/StorageSubmitRequestBody.ts
+models/StorageSubmitResponseBody.ts
+models/StorageUpdateNotAvailableResponseBody.ts
+models/StorageUpdateNotValidResponseBody.ts
+models/StorageUpdateRequestBody.ts
+models/StorageUpdateResponseBody.ts
 models/index.ts
 runtime.ts

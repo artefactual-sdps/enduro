@@ -122,6 +122,7 @@ gen-dashboard-client:
 gen-mock:
 	$(MOCKGEN) -destination=./internal/batch/fake/mock_batch.go -package=fake github.com/artefactual-labs/enduro/internal/batch Service
 	$(MOCKGEN) -destination=./internal/package_/fake/mock_package_.go -package=fake github.com/artefactual-labs/enduro/internal/package_ Service
+	$(MOCKGEN) -destination=./internal/storage/fake/mock_storage.go -package=fake github.com/artefactual-labs/enduro/internal/storage Service
 	$(MOCKGEN) -destination=./internal/watcher/fake/mock_watcher.go -package=fake github.com/artefactual-labs/enduro/internal/watcher Service
 
 .PHONY: *

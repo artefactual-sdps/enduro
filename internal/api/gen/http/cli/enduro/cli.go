@@ -16,6 +16,7 @@ import (
 
 	batchc "github.com/artefactual-labs/enduro/internal/api/gen/http/batch/client"
 	package_c "github.com/artefactual-labs/enduro/internal/api/gen/http/package_/client"
+	storagec "github.com/artefactual-labs/enduro/internal/api/gen/http/storage/client"
 	goahttp "goa.design/goa/v3/http"
 	goa "goa.design/goa/v3/pkg"
 )
@@ -27,17 +28,21 @@ import (
 func UsageCommands() string {
 	return `batch (submit|status|hints)
 package (monitor|list|show|delete|cancel|retry|workflow|download|bulk|bulk-status|preservation-actions)
+storage (submit|update)
 `
 }
 
 // UsageExamples produces an example of a valid invocation of the CLI tool.
 func UsageExamples() string {
 	return os.Args[0] + ` batch submit --body '{
-      "completed_dir": "Et enim esse aut accusantium deleniti beatae.",
-      "path": "Iste ut alias et.",
-      "retention_period": "Molestiae in."
+      "completed_dir": "Nostrum consectetur.",
+      "path": "Numquam laborum quod.",
+      "retention_period": "Quas at."
    }'` + "\n" +
 		os.Args[0] + ` package monitor` + "\n" +
+		os.Args[0] + ` storage submit --body '{
+      "key": "Quibusdam dolor aut sit in."
+   }'` + "\n" +
 		""
 }
 
@@ -99,6 +104,14 @@ func ParseEndpoint(
 
 		package_PreservationActionsFlags  = flag.NewFlagSet("preservation-actions", flag.ExitOnError)
 		package_PreservationActionsIDFlag = package_PreservationActionsFlags.String("id", "REQUIRED", "Identifier of package to look up")
+
+		storageFlags = flag.NewFlagSet("storage", flag.ContinueOnError)
+
+		storageSubmitFlags    = flag.NewFlagSet("submit", flag.ExitOnError)
+		storageSubmitBodyFlag = storageSubmitFlags.String("body", "REQUIRED", "")
+
+		storageUpdateFlags    = flag.NewFlagSet("update", flag.ExitOnError)
+		storageUpdateBodyFlag = storageUpdateFlags.String("body", "REQUIRED", "")
 	)
 	batchFlags.Usage = batchUsage
 	batchSubmitFlags.Usage = batchSubmitUsage
@@ -117,6 +130,10 @@ func ParseEndpoint(
 	package_BulkFlags.Usage = package_BulkUsage
 	package_BulkStatusFlags.Usage = package_BulkStatusUsage
 	package_PreservationActionsFlags.Usage = package_PreservationActionsUsage
+
+	storageFlags.Usage = storageUsage
+	storageSubmitFlags.Usage = storageSubmitUsage
+	storageUpdateFlags.Usage = storageUpdateUsage
 
 	if err := flag.CommandLine.Parse(os.Args[1:]); err != nil {
 		return nil, nil, err
@@ -137,6 +154,8 @@ func ParseEndpoint(
 			svcf = batchFlags
 		case "package":
 			svcf = package_Flags
+		case "storage":
+			svcf = storageFlags
 		default:
 			return nil, nil, fmt.Errorf("unknown service %q", svcn)
 		}
@@ -199,6 +218,16 @@ func ParseEndpoint(
 
 			case "preservation-actions":
 				epf = package_PreservationActionsFlags
+
+			}
+
+		case "storage":
+			switch epn {
+			case "submit":
+				epf = storageSubmitFlags
+
+			case "update":
+				epf = storageUpdateFlags
 
 			}
 
@@ -272,6 +301,16 @@ func ParseEndpoint(
 				endpoint = c.PreservationActions()
 				data, err = package_c.BuildPreservationActionsPayload(*package_PreservationActionsIDFlag)
 			}
+		case "storage":
+			c := storagec.NewClient(scheme, host, doer, enc, dec, restore)
+			switch epn {
+			case "submit":
+				endpoint = c.Submit()
+				data, err = storagec.BuildSubmitPayload(*storageSubmitBodyFlag)
+			case "update":
+				endpoint = c.Update()
+				data, err = storagec.BuildUpdatePayload(*storageUpdateBodyFlag)
+			}
 		}
 	}
 	if err != nil {
@@ -304,9 +343,9 @@ Submit a new batch
 
 Example:
     %[1]s batch submit --body '{
-      "completed_dir": "Et enim esse aut accusantium deleniti beatae.",
-      "path": "Iste ut alias et.",
-      "retention_period": "Molestiae in."
+      "completed_dir": "Nostrum consectetur.",
+      "path": "Numquam laborum quod.",
+      "retention_period": "Quas at."
    }'
 `, os.Args[0])
 }
@@ -376,7 +415,7 @@ List all stored packages
     -cursor STRING: 
 
 Example:
-    %[1]s package list --name "Sed perferendis illum illum omnis et officiis." --aip-id "4CCDE767-7648-444F-D09F-4B4FFE4EB36B" --earliest-created-time "1975-12-06T05:38:21Z" --latest-created-time "2006-11-19T10:37:19Z" --status "queued" --cursor "Rerum non qui et officia sint rerum."
+    %[1]s package list --name "Officiis illo velit possimus et ea." --aip-id "4CCDE767-7648-444F-D09F-4B4FFE4EB36B" --earliest-created-time "2015-10-25T14:36:23Z" --latest-created-time "1999-07-07T13:15:15Z" --status "abandoned" --cursor "Dicta facere cum enim vel odit."
 `, os.Args[0])
 }
 
@@ -387,7 +426,7 @@ Show package by ID
     -id UINT: Identifier of package to show
 
 Example:
-    %[1]s package show --id 14355586344563939112
+    %[1]s package show --id 9188529240547168068
 `, os.Args[0])
 }
 
@@ -398,7 +437,7 @@ Delete package by ID
     -id UINT: Identifier of package to delete
 
 Example:
-    %[1]s package delete --id 1834784557229413063
+    %[1]s package delete --id 10447808246697357189
 `, os.Args[0])
 }
 
@@ -409,7 +448,7 @@ Cancel package processing by ID
     -id UINT: Identifier of package to remove
 
 Example:
-    %[1]s package cancel --id 13929232778824558181
+    %[1]s package cancel --id 224429362866116975
 `, os.Args[0])
 }
 
@@ -420,7 +459,7 @@ Retry package processing by ID
     -id UINT: Identifier of package to retry
 
 Example:
-    %[1]s package retry --id 5123728706916400341
+    %[1]s package retry --id 12367619642138472932
 `, os.Args[0])
 }
 
@@ -431,7 +470,7 @@ Retrieve workflow status by ID
     -id UINT: Identifier of package to look up
 
 Example:
-    %[1]s package workflow --id 14957336110119165110
+    %[1]s package workflow --id 12826886350933798103
 `, os.Args[0])
 }
 
@@ -442,7 +481,7 @@ Download package by ID
     -id UINT: Identifier of package to look up
 
 Example:
-    %[1]s package download --id 16265995649010858738
+    %[1]s package download --id 7057964250562282979
 `, os.Args[0])
 }
 
@@ -454,9 +493,9 @@ Bulk operations (retry, cancel...).
 
 Example:
     %[1]s package bulk --body '{
-      "operation": "cancel",
-      "size": 3764210318943693810,
-      "status": "in progress"
+      "operation": "retry",
+      "size": 11073631979459909334,
+      "status": "abandoned"
    }'
 `, os.Args[0])
 }
@@ -478,6 +517,46 @@ List all preservation actions by ID
     -id UINT: Identifier of package to look up
 
 Example:
-    %[1]s package preservation-actions --id 9792579105820977192
+    %[1]s package preservation-actions --id 3980734888877443042
+`, os.Args[0])
+}
+
+// storageUsage displays the usage of the storage command and its subcommands.
+func storageUsage() {
+	fmt.Fprintf(os.Stderr, `The storage service manages XXX.
+Usage:
+    %[1]s [globalflags] storage COMMAND [flags]
+
+COMMAND:
+    submit: XXX
+    update: Signal the storage service that an upload is complete
+
+Additional help:
+    %[1]s storage COMMAND --help
+`, os.Args[0])
+}
+func storageSubmitUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage submit -body JSON
+
+XXX
+    -body JSON: 
+
+Example:
+    %[1]s storage submit --body '{
+      "key": "Quibusdam dolor aut sit in."
+   }'
+`, os.Args[0])
+}
+
+func storageUpdateUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage update -body JSON
+
+Signal the storage service that an upload is complete
+    -body JSON: 
+
+Example:
+    %[1]s storage update --body '{
+      "workflow_id": "Asperiores dolor."
+   }'
 `, os.Args[0])
 }

@@ -28,6 +28,7 @@ import (
 	"github.com/artefactual-labs/enduro/internal/db"
 	"github.com/artefactual-labs/enduro/internal/log"
 	"github.com/artefactual-labs/enduro/internal/package_"
+	"github.com/artefactual-labs/enduro/internal/storage"
 	"github.com/artefactual-labs/enduro/internal/temporal"
 	"github.com/artefactual-labs/enduro/internal/version"
 	"github.com/artefactual-labs/enduro/internal/watcher"
@@ -129,6 +130,16 @@ func main() {
 		pkgsvc = package_.NewService(logger.WithName("package"), database, temporalClient)
 	}
 
+	// Set up the storage service.
+	var storagesvc storage.Service
+	{
+		storagesvc, err = storage.NewService(logger.WithName("storage"), database, temporalClient, cfg.Storage)
+		if err != nil {
+			logger.Error(err, "Search configuration failed.")
+			os.Exit(1)
+		}
+	}
+
 	// Set up the watcher service.
 	var wsvc watcher.Service
 	{
@@ -147,7 +158,7 @@ func main() {
 
 		g.Add(
 			func() error {
-				srv = api.HTTPServer(logger, &cfg.API, batchsvc, pkgsvc)
+				srv = api.HTTPServer(logger, &cfg.API, batchsvc, pkgsvc, storagesvc)
 				return srv.ListenAndServe()
 			},
 			func(err error) {
@@ -231,6 +242,8 @@ func main() {
 
 		w.RegisterWorkflowWithOptions(batch.BatchWorkflow, temporalsdk_workflow.RegisterOptions{Name: batch.BatchWorkflowName})
 		w.RegisterActivityWithOptions(batch.NewBatchActivity(batchsvc).Execute, temporalsdk_activity.RegisterOptions{Name: batch.BatchActivityName})
+
+		w.RegisterWorkflowWithOptions(storage.NewStorageWorkflow(logger).Execute, temporalsdk_workflow.RegisterOptions{Name: storage.StorageWorkflowName})
 
 		g.Add(
 			func() error {

@@ -10,6 +10,7 @@ import (
 	"github.com/artefactual-labs/enduro/internal/api"
 	"github.com/artefactual-labs/enduro/internal/db"
 	"github.com/artefactual-labs/enduro/internal/search"
+	"github.com/artefactual-labs/enduro/internal/storage"
 	"github.com/artefactual-labs/enduro/internal/temporal"
 	"github.com/artefactual-labs/enduro/internal/validation"
 	"github.com/artefactual-labs/enduro/internal/version"
@@ -27,6 +28,7 @@ type Configuration struct {
 	Validation  validation.Config
 
 	AIPStore aipstore.Config
+	Storage  storage.Config
 	A3m      a3m.Config
 }
 
