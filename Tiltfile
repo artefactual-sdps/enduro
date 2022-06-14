@@ -35,6 +35,40 @@ k8s_resource("opensearch-dashboards", port_forwards="7500:5601")
 k8s_resource("temporal-ui", port_forwards="7440:8080")
 
 cmd_button(
+  "linkerd-install",
+  argv=[
+    "sh",
+    "-c",
+    "linkerd install -L linkerd | kubectl apply -f - ; \
+      linkerd viz install -L linkerd | kubectl apply -f - ; \
+      kubectl get -n default deploy,statefulset -o yaml \
+        | linkerd inject - \
+        | kubectl apply --force=true --validate=false -f - ; \
+      kubectl rollout restart deployment,statefulset \
+    ",
+  ],
+  location="nav",
+  icon_name="polyline",
+  text="Install Linkerd",
+)
+
+cmd_button(
+  "linkerd-uninstall",
+  argv=[
+    "sh",
+    "-c",
+    "kubectl get -n default deploy,statefulset -o yaml \
+      | linkerd uninject - | kubectl apply --force=true --validate=false -f - ; \
+      linkerd viz uninstall | kubectl delete -f - ; \
+      linkerd uninstall | kubectl delete -f - \
+    ",
+  ],
+  location="nav",
+  icon_name="delete",
+  text="Remove Linkerd",
+)
+
+cmd_button(
   "minio-upload",
   argv=[
     "sh",

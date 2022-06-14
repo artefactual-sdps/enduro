@@ -15,3 +15,7 @@ images:
 patchesStrategicMerge:
   - enduro-a3m-patch.yaml
   - enduro-dashboard-patch.yaml
+patches:
+  - path: linkerd-mesh-patch.yaml
+    target:
+      namespace: default
