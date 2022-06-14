@@ -3,7 +3,7 @@
 // HTTP request path constructors for the package service.
 //
 // Command:
-// $ goa-v3.7.6 gen github.com/artefactual-labs/enduro/internal/api/design -o
+// $ goa gen github.com/artefactual-labs/enduro/internal/api/design -o
 // internal/api
 
 package server
