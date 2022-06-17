@@ -15,24 +15,6 @@ import (
 	storage "github.com/artefactual-labs/enduro/internal/api/gen/storage"
 )
 
-// BuildSubmitPayload builds the payload for the storage submit endpoint from
-// CLI flags.
-func BuildSubmitPayload(storageSubmitBody string) (*storage.SubmitPayload, error) {
-	var err error
-	var body SubmitRequestBody
-	{
-		err = json.Unmarshal([]byte(storageSubmitBody), &body)
-		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"key\": \"Quibusdam dolor aut sit in.\"\n   }'")
-		}
-	}
-	v := &storage.SubmitPayload{
-		Key: body.Key,
-	}
-
-	return v, nil
-}
-
 // BuildUpdatePayload builds the payload for the storage update endpoint from
 // CLI flags.
 func BuildUpdatePayload(storageUpdateBody string) (*storage.UpdatePayload, error) {
@@ -41,7 +23,7 @@ func BuildUpdatePayload(storageUpdateBody string) (*storage.UpdatePayload, error
 	{
 		err = json.Unmarshal([]byte(storageUpdateBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"workflow_id\": \"Asperiores dolor.\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"workflow_id\": \"Et autem id saepe asperiores dolor.\"\n   }'")
 		}
 	}
 	v := &storage.UpdatePayload{

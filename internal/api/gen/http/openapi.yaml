@@ -388,14 +388,6 @@ paths:
             summary: submit storage
             description: XXX
             operationId: storage#submit
-            parameters:
-                - name: SubmitRequestBody
-                  in: body
-                  required: true
-                  schema:
-                    $ref: '#/definitions/StorageSubmitRequestBody'
-                    required:
-                        - key
             responses:
                 "202":
                     description: Accepted response.
@@ -670,16 +662,16 @@ definitions:
             $ref: '#/definitions/EnduroPackagePreservationActionsActionResponseBody'
         description: EnduroPackage-Preservation-Actions-ActionCollectionResponseBody is the result type for an array of EnduroPackage-Preservation-Actions-ActionResponseBody (default view)
         example:
-            - action_id: Sint maiores odit in quia tempora.
-              id: 7737853162882572773
-              name: Neque eum voluptate architecto accusantium sapiente.
-              started_at: "2015-12-13T05:57:03Z"
-              status: processing
-            - action_id: Sint maiores odit in quia tempora.
-              id: 7737853162882572773
-              name: Neque eum voluptate architecto accusantium sapiente.
-              started_at: "2015-12-13T05:57:03Z"
-              status: processing
+            - action_id: Exercitationem neque eum voluptate architecto accusantium sapiente.
+              id: 11871551536295482453
+              name: Et inventore et officiis ad.
+              started_at: "1989-02-27T14:12:27Z"
+              status: complete
+            - action_id: Exercitationem neque eum voluptate architecto accusantium sapiente.
+              id: 11871551536295482453
+              name: Et inventore et officiis ad.
+              started_at: "1989-02-27T14:12:27Z"
+              status: complete
     EnduroPackageWorkflowHistoryResponseBody:
         title: 'Mediatype identifier: application/vnd.enduro.package-workflow-history; view=default'
         type: object
@@ -710,18 +702,18 @@ definitions:
             $ref: '#/definitions/EnduroPackageWorkflowHistoryResponseBody'
         description: EnduroPackage-Workflow-HistoryCollectionResponseBody is the result type for an array of EnduroPackage-Workflow-HistoryResponseBody (default view)
         example:
-            - details: Dolor rerum sunt sint quae.
-              id: 5905658699765004372
-              type: Ratione fugiat error sapiente dolorem.
-            - details: Dolor rerum sunt sint quae.
-              id: 5905658699765004372
-              type: Ratione fugiat error sapiente dolorem.
-            - details: Dolor rerum sunt sint quae.
-              id: 5905658699765004372
-              type: Ratione fugiat error sapiente dolorem.
-            - details: Dolor rerum sunt sint quae.
-              id: 5905658699765004372
-              type: Ratione fugiat error sapiente dolorem.
+            - details: Vitae laudantium sunt ad.
+              id: 7489979625158906158
+              type: Perspiciatis aut voluptatem magni et molestiae labore.
+            - details: Vitae laudantium sunt ad.
+              id: 7489979625158906158
+              type: Perspiciatis aut voluptatem magni et molestiae labore.
+            - details: Vitae laudantium sunt ad.
+              id: 7489979625158906158
+              type: Perspiciatis aut voluptatem magni et molestiae labore.
+            - details: Vitae laudantium sunt ad.
+              id: 7489979625158906158
+              type: Perspiciatis aut voluptatem magni et molestiae labore.
     EnduroStoredPackageResponseBody:
         title: 'Mediatype identifier: application/vnd.enduro.stored-package; view=default'
         type: object
@@ -802,40 +794,40 @@ definitions:
         description: EnduroStored-PackageCollectionResponseBody is the result type for an array of EnduroStored-PackageResponseBody (default view)
         example:
             - aip_id: A45D83CF-F038-77BB-220E-D79EFC31D198
-              completed_at: "1989-06-22T16:39:13Z"
-              created_at: "1979-04-26T06:45:01Z"
-              id: 5016877277289298865
-              name: In laudantium consequatur ducimus quis.
+              completed_at: "1982-02-24T18:14:57Z"
+              created_at: "2008-03-01T21:57:18Z"
+              id: 7927144598566976999
+              name: Accusantium doloribus corrupti enim debitis nihil voluptatem.
               run_id: 76FB876C-96AC-91E7-BD21-B0C2988DDF65
-              started_at: "1980-02-14T22:51:11Z"
-              status: done
+              started_at: "2014-07-21T14:40:00Z"
+              status: error
               workflow_id: 7D80331A-7620-D09D-7CCB-2EF87B797732
             - aip_id: A45D83CF-F038-77BB-220E-D79EFC31D198
-              completed_at: "1989-06-22T16:39:13Z"
-              created_at: "1979-04-26T06:45:01Z"
-              id: 5016877277289298865
-              name: In laudantium consequatur ducimus quis.
+              completed_at: "1982-02-24T18:14:57Z"
+              created_at: "2008-03-01T21:57:18Z"
+              id: 7927144598566976999
+              name: Accusantium doloribus corrupti enim debitis nihil voluptatem.
               run_id: 76FB876C-96AC-91E7-BD21-B0C2988DDF65
-              started_at: "1980-02-14T22:51:11Z"
-              status: done
+              started_at: "2014-07-21T14:40:00Z"
+              status: error
               workflow_id: 7D80331A-7620-D09D-7CCB-2EF87B797732
             - aip_id: A45D83CF-F038-77BB-220E-D79EFC31D198
-              completed_at: "1989-06-22T16:39:13Z"
-              created_at: "1979-04-26T06:45:01Z"
-              id: 5016877277289298865
-              name: In laudantium consequatur ducimus quis.
+              completed_at: "1982-02-24T18:14:57Z"
+              created_at: "2008-03-01T21:57:18Z"
+              id: 7927144598566976999
+              name: Accusantium doloribus corrupti enim debitis nihil voluptatem.
               run_id: 76FB876C-96AC-91E7-BD21-B0C2988DDF65
-              started_at: "1980-02-14T22:51:11Z"
-              status: done
+              started_at: "2014-07-21T14:40:00Z"
+              status: error
               workflow_id: 7D80331A-7620-D09D-7CCB-2EF87B797732
             - aip_id: A45D83CF-F038-77BB-220E-D79EFC31D198
-              completed_at: "1989-06-22T16:39:13Z"
-              created_at: "1979-04-26T06:45:01Z"
-              id: 5016877277289298865
-              name: In laudantium consequatur ducimus quis.
+              completed_at: "1982-02-24T18:14:57Z"
+              created_at: "2008-03-01T21:57:18Z"
+              id: 7927144598566976999
+              name: Accusantium doloribus corrupti enim debitis nihil voluptatem.
               run_id: 76FB876C-96AC-91E7-BD21-B0C2988DDF65
-              started_at: "1980-02-14T22:51:11Z"
-              status: done
+              started_at: "2014-07-21T14:40:00Z"
+              status: error
               workflow_id: 7D80331A-7620-D09D-7CCB-2EF87B797732
     PackageBulkNotAvailableResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
@@ -1162,13 +1154,13 @@ definitions:
             id: 2904826368010179606
             item:
                 aip_id: A45D83CF-F038-77BB-220E-D79EFC31D198
-                completed_at: "1989-06-22T16:39:13Z"
-                created_at: "1979-04-26T06:45:01Z"
-                id: 5016877277289298865
-                name: In laudantium consequatur ducimus quis.
+                completed_at: "1982-02-24T18:14:57Z"
+                created_at: "2008-03-01T21:57:18Z"
+                id: 7927144598566976999
+                name: Accusantium doloribus corrupti enim debitis nihil voluptatem.
                 run_id: 76FB876C-96AC-91E7-BD21-B0C2988DDF65
-                started_at: "1980-02-14T22:51:11Z"
-                status: done
+                started_at: "2014-07-21T14:40:00Z"
+                status: error
                 workflow_id: 7D80331A-7620-D09D-7CCB-2EF87B797732
             type: Maxime facere maxime eveniet voluptatum est quia.
         required:
@@ -1203,21 +1195,21 @@ definitions:
         description: Preservation-ActionsResponseBody result type (default view)
         example:
             actions:
-                - action_id: Sint maiores odit in quia tempora.
-                  id: 7737853162882572773
-                  name: Neque eum voluptate architecto accusantium sapiente.
-                  started_at: "2015-12-13T05:57:03Z"
-                  status: processing
-                - action_id: Sint maiores odit in quia tempora.
-                  id: 7737853162882572773
-                  name: Neque eum voluptate architecto accusantium sapiente.
-                  started_at: "2015-12-13T05:57:03Z"
-                  status: processing
-                - action_id: Sint maiores odit in quia tempora.
-                  id: 7737853162882572773
-                  name: Neque eum voluptate architecto accusantium sapiente.
-                  started_at: "2015-12-13T05:57:03Z"
-                  status: processing
+                - action_id: Exercitationem neque eum voluptate architecto accusantium sapiente.
+                  id: 11871551536295482453
+                  name: Et inventore et officiis ad.
+                  started_at: "1989-02-27T14:12:27Z"
+                  status: complete
+                - action_id: Exercitationem neque eum voluptate architecto accusantium sapiente.
+                  id: 11871551536295482453
+                  name: Et inventore et officiis ad.
+                  started_at: "1989-02-27T14:12:27Z"
+                  status: complete
+                - action_id: Exercitationem neque eum voluptate architecto accusantium sapiente.
+                  id: 11871551536295482453
+                  name: Et inventore et officiis ad.
+                  started_at: "1989-02-27T14:12:27Z"
+                  status: complete
     PackageRetryNotFoundResponseBody:
         title: PackageRetryNotFoundResponseBody
         type: object
@@ -1405,18 +1397,15 @@ definitions:
         description: WorkflowResponseBody result type (default view)
         example:
             history:
-                - details: Dolor rerum sunt sint quae.
-                  id: 5905658699765004372
-                  type: Ratione fugiat error sapiente dolorem.
-                - details: Dolor rerum sunt sint quae.
-                  id: 5905658699765004372
-                  type: Ratione fugiat error sapiente dolorem.
-                - details: Dolor rerum sunt sint quae.
-                  id: 5905658699765004372
-                  type: Ratione fugiat error sapiente dolorem.
-                - details: Dolor rerum sunt sint quae.
-                  id: 5905658699765004372
-                  type: Ratione fugiat error sapiente dolorem.
+                - details: Vitae laudantium sunt ad.
+                  id: 7489979625158906158
+                  type: Perspiciatis aut voluptatem magni et molestiae labore.
+                - details: Vitae laudantium sunt ad.
+                  id: 7489979625158906158
+                  type: Perspiciatis aut voluptatem magni et molestiae labore.
+                - details: Vitae laudantium sunt ad.
+                  id: 7489979625158906158
+                  type: Perspiciatis aut voluptatem magni et molestiae labore.
             status: Ut qui.
     StorageSubmitNotAvailableResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
@@ -1504,17 +1493,6 @@ definitions:
             - temporary
             - timeout
             - fault
-    StorageSubmitRequestBody:
-        title: StorageSubmitRequestBody
-        type: object
-        properties:
-            key:
-                type: string
-                example: Voluptas quas incidunt.
-        example:
-            key: Eveniet nisi.
-        required:
-            - key
     StorageSubmitResponseBody:
         title: StorageSubmitResponseBody
         type: object
@@ -1561,7 +1539,7 @@ definitions:
                 example: true
         description: update_not_available_response_body result type (default view)
         example:
-            fault: false
+            fault: true
             id: 123abc
             message: parameter 'p' must be an integer
             name: bad_request
@@ -1581,7 +1559,7 @@ definitions:
             fault:
                 type: boolean
                 description: Is the error a server-side fault?
-                example: false
+                example: true
             id:
                 type: string
                 description: ID is a unique identifier for this particular occurrence of the problem.
@@ -1597,11 +1575,11 @@ definitions:
             temporary:
                 type: boolean
                 description: Is the error temporary?
-                example: false
+                example: true
             timeout:
                 type: boolean
                 description: Is the error a timeout?
-                example: false
+                example: true
         description: update_not_valid_response_body result type (default view)
         example:
             fault: false
@@ -1623,9 +1601,9 @@ definitions:
         properties:
             workflow_id:
                 type: string
-                example: Atque voluptatem incidunt doloremque cum.
+                example: Nam vitae autem labore esse aut.
         example:
-            workflow_id: Vitae odio non laborum dolores voluptatem cum.
+            workflow_id: Atque voluptatem incidunt doloremque cum.
         required:
             - workflow_id
     StorageUpdateResponseBody:

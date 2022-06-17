@@ -13,12 +13,6 @@ import (
 	goa "goa.design/goa/v3/pkg"
 )
 
-// SubmitRequestBody is the type of the "storage" service "submit" endpoint
-// HTTP request body.
-type SubmitRequestBody struct {
-	Key string `form:"key" json:"key" xml:"key"`
-}
-
 // UpdateRequestBody is the type of the "storage" service "update" endpoint
 // HTTP request body.
 type UpdateRequestBody struct {
@@ -108,15 +102,6 @@ type UpdateNotValidResponseBody struct {
 	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
 	// Is the error a server-side fault?
 	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
-}
-
-// NewSubmitRequestBody builds the HTTP request body from the payload of the
-// "submit" endpoint of the "storage" service.
-func NewSubmitRequestBody(p *storage.SubmitPayload) *SubmitRequestBody {
-	body := &SubmitRequestBody{
-		Key: p.Key,
-	}
-	return body
 }
 
 // NewUpdateRequestBody builds the HTTP request body from the payload of the

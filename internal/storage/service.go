@@ -3,7 +3,6 @@ package storage
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -11,6 +10,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/go-logr/logr"
+	"github.com/google/uuid"
 	temporalsdk_client "go.temporal.io/sdk/client"
 
 	goastorage "github.com/artefactual-labs/enduro/internal/api/gen/storage"
@@ -19,7 +19,7 @@ import (
 var urlExpirationTime = 15 * time.Minute
 
 type Service interface {
-	Submit(context.Context, *goastorage.SubmitPayload) (res *goastorage.SubmitResult, err error)
+	Submit(context.Context) (res *goastorage.SubmitResult, err error)
 	Update(context.Context, *goastorage.UpdatePayload) (res *goastorage.UpdateResult, err error)
 }
 
@@ -60,11 +60,7 @@ func NewService(logger logr.Logger, db *sql.DB, tc temporalsdk_client.Client, co
 	return s, nil
 }
 
-func (s *storageImpl) Submit(ctx context.Context, payload *goastorage.SubmitPayload) (*goastorage.SubmitResult, error) {
-	if payload.Key == "" {
-		return nil, goastorage.MakeNotValid(errors.New("error starting workflow - key is empty"))
-	}
-
+func (s *storageImpl) Submit(ctx context.Context) (*goastorage.SubmitResult, error) {
 	workflowReq := &StorageWorkflowRequest{}
 	exec, err := InitStorageWorkflow(ctx, s.tc, workflowReq)
 	if err != nil {
@@ -73,7 +69,7 @@ func (s *storageImpl) Submit(ctx context.Context, payload *goastorage.SubmitPayl
 
 	req, _ := s.s3.PutObjectRequest(&s3.PutObjectInput{
 		Bucket: aws.String("aips"),
-		Key:    &payload.Key,
+		Key:    aws.String(uuid.New().String()),
 	})
 	url, err := req.Presign(urlExpirationTime)
 	if err != nil {

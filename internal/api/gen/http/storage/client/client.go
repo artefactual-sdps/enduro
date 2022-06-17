@@ -62,15 +62,10 @@ func NewClient(
 // submit server.
 func (c *Client) Submit() goa.Endpoint {
 	var (
-		encodeRequest  = EncodeSubmitRequest(c.encoder)
 		decodeResponse = DecodeSubmitResponse(c.decoder, c.RestoreResponseBody)
 	)
 	return func(ctx context.Context, v interface{}) (interface{}, error) {
 		req, err := c.BuildSubmitRequest(ctx, v)
-		if err != nil {
-			return nil, err
-		}
-		err = encodeRequest(req, v)
 		if err != nil {
 			return nil, err
 		}

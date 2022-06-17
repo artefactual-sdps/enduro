@@ -11,10 +11,6 @@ var _ = Service("storage", func() {
 	})
 	Method("submit", func() {
 		Description("XXX")
-		Payload(func() {
-			Attribute("key", String)
-			Required("key")
-		})
 		Result(SubmitResult)
 		Error("not_available")
 		Error("not_valid")

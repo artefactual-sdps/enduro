@@ -31,31 +31,6 @@ func EncodeSubmitResponse(encoder func(context.Context, http.ResponseWriter) goa
 	}
 }
 
-// DecodeSubmitRequest returns a decoder for requests sent to the storage
-// submit endpoint.
-func DecodeSubmitRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (interface{}, error) {
-	return func(r *http.Request) (interface{}, error) {
-		var (
-			body SubmitRequestBody
-			err  error
-		)
-		err = decoder(r).Decode(&body)
-		if err != nil {
-			if err == io.EOF {
-				return nil, goa.MissingPayloadError()
-			}
-			return nil, goa.DecodePayloadError(err.Error())
-		}
-		err = ValidateSubmitRequestBody(&body)
-		if err != nil {
-			return nil, err
-		}
-		payload := NewSubmitPayload(&body)
-
-		return payload, nil
-	}
-}
-
 // EncodeSubmitError returns an encoder for errors returned by the submit
 // storage endpoint.
 func EncodeSubmitError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {

@@ -13,12 +13,6 @@ import (
 	goa "goa.design/goa/v3/pkg"
 )
 
-// SubmitRequestBody is the type of the "storage" service "submit" endpoint
-// HTTP request body.
-type SubmitRequestBody struct {
-	Key *string `form:"key,omitempty" json:"key,omitempty" xml:"key,omitempty"`
-}
-
 // UpdateRequestBody is the type of the "storage" service "update" endpoint
 // HTTP request body.
 type UpdateRequestBody struct {
@@ -185,15 +179,6 @@ func NewUpdateNotValidResponseBody(res *goa.ServiceError) *UpdateNotValidRespons
 	return body
 }
 
-// NewSubmitPayload builds a storage service submit endpoint payload.
-func NewSubmitPayload(body *SubmitRequestBody) *storage.SubmitPayload {
-	v := &storage.SubmitPayload{
-		Key: *body.Key,
-	}
-
-	return v
-}
-
 // NewUpdatePayload builds a storage service update endpoint payload.
 func NewUpdatePayload(body *UpdateRequestBody) *storage.UpdatePayload {
 	v := &storage.UpdatePayload{
@@ -201,14 +186,6 @@ func NewUpdatePayload(body *UpdateRequestBody) *storage.UpdatePayload {
 	}
 
 	return v
-}
-
-// ValidateSubmitRequestBody runs the validations defined on SubmitRequestBody
-func ValidateSubmitRequestBody(body *SubmitRequestBody) (err error) {
-	if body.Key == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("key", "body"))
-	}
-	return
 }
 
 // ValidateUpdateRequestBody runs the validations defined on UpdateRequestBody

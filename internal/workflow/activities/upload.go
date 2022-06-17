@@ -28,11 +28,7 @@ func (a *UploadActivity) Execute(ctx context.Context, AIPPath string) error {
 	c := client.NewClient("http", "enduro:9000", doer, goahttp.RequestEncoder, goahttp.ResponseDecoder, false)
 
 	submitEndpoint := c.Submit()
-	submitData, err := client.BuildSubmitPayload("{\"key\": \"foobar\"}")
-	if err != nil {
-		return err
-	}
-	submitResponseData, err := submitEndpoint(ctx, submitData)
+	submitResponseData, err := submitEndpoint(ctx, nil)
 	if err != nil {
 		return err
 	}

@@ -36,18 +36,18 @@ func (m *MockService) EXPECT() *MockServiceMockRecorder {
 }
 
 // Submit mocks base method.
-func (m *MockService) Submit(arg0 context.Context, arg1 *storage.SubmitPayload) (*storage.SubmitResult, error) {
+func (m *MockService) Submit(arg0 context.Context) (*storage.SubmitResult, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Submit", arg0, arg1)
+	ret := m.ctrl.Call(m, "Submit", arg0)
 	ret0, _ := ret[0].(*storage.SubmitResult)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Submit indicates an expected call of Submit.
-func (mr *MockServiceMockRecorder) Submit(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockServiceMockRecorder) Submit(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Submit", reflect.TypeOf((*MockService)(nil).Submit), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Submit", reflect.TypeOf((*MockService)(nil).Submit), arg0)
 }
 
 // Update mocks base method.

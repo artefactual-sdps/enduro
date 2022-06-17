@@ -20,10 +20,10 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/BatchStatusResult'
                             example:
-                                run_id: Nisi ipsum.
+                                run_id: Quidem dicta nisi ipsum non illo id.
                                 running: true
-                                status: Eveniet eligendi sed rem asperiores vero aliquid.
-                                workflow_id: Aut error quidem.
+                                status: Qui tempora eveniet eligendi sed.
+                                workflow_id: Asperiores vero aliquid vel aut.
         post:
             tags:
                 - batch
@@ -37,9 +37,9 @@ paths:
                         schema:
                             $ref: '#/components/schemas/SubmitRequestBody'
                         example:
-                            completed_dir: Nostrum consectetur.
-                            path: Numquam laborum quod.
-                            retention_period: Quas at.
+                            completed_dir: Optio et sed numquam laborum quod ab.
+                            path: Distinctio dolorum et rerum.
+                            retention_period: Consectetur sint.
             responses:
                 "202":
                     description: Accepted response.
@@ -48,8 +48,8 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/BatchResult'
                             example:
-                                run_id: Quia commodi id.
-                                workflow_id: Consequatur impedit vel exercitationem.
+                                run_id: Exercitationem molestiae quia.
+                                workflow_id: At animi consequatur impedit.
                 "400":
                     description: 'not_valid: Bad Request response.'
                     content:
@@ -78,9 +78,10 @@ paths:
                                 $ref: '#/components/schemas/BatchHintsResult'
                             example:
                                 completed_dirs:
-                                    - Id eos maiores.
-                                    - Commodi voluptatem tenetur nesciunt.
-                                    - Tempore ut.
+                                    - Labore commodi voluptatem tenetur nesciunt reiciendis tempore.
+                                    - Dignissimos sit in.
+                                    - Consequatur ducimus quis.
+                                    - Minus praesentium.
     /package:
         get:
             tags:
@@ -94,8 +95,8 @@ paths:
                   allowEmptyValue: true
                   schema:
                     type: string
-                    example: Culpa et.
-                  example: Et omnis et nulla voluptatibus.
+                    example: Sint sit saepe.
+                  example: Est repudiandae.
                 - name: aip_id
                   in: query
                   allowEmptyValue: true
@@ -109,23 +110,23 @@ paths:
                   allowEmptyValue: true
                   schema:
                     type: string
-                    example: "2014-05-17T14:35:39Z"
+                    example: "1998-11-30T07:02:18Z"
                     format: date-time
-                  example: "1993-10-06T20:22:18Z"
+                  example: "2014-05-17T14:35:39Z"
                 - name: latest_created_time
                   in: query
                   allowEmptyValue: true
                   schema:
                     type: string
-                    example: "1979-05-05T07:31:06Z"
+                    example: "1993-10-06T20:22:18Z"
                     format: date-time
-                  example: "1973-01-17T22:51:40Z"
+                  example: "1979-05-05T07:31:06Z"
                 - name: status
                   in: query
                   allowEmptyValue: true
                   schema:
                     type: string
-                    example: queued
+                    example: new
                     enum:
                         - new
                         - in progress
@@ -143,8 +144,8 @@ paths:
                   schema:
                     type: string
                     description: Pagination cursor
-                    example: Praesentium incidunt qui inventore.
-                  example: Voluptates eos distinctio sed.
+                    example: Dolores sed.
+                  example: Ut tenetur dolorum error aut quibusdam.
             responses:
                 "200":
                     description: OK response.
@@ -172,7 +173,7 @@ paths:
                                       started_at: "1998-03-18T12:36:31Z"
                                       status: error
                                       workflow_id: A464FD15-9F47-E3CC-BD80-3B5C5830C503
-                                next_cursor: Ut alias voluptas molestias et quia sit.
+                                next_cursor: Dolor maxime enim vitae.
     /package/{id}:
         delete:
             tags:
@@ -188,8 +189,8 @@ paths:
                   schema:
                     type: integer
                     description: Identifier of package to delete
-                    example: 3105655718456452111
-                  example: 4700247328511795900
+                    example: 16805278569601677892
+                  example: 11685748424569986063
             responses:
                 "204":
                     description: No Content response.
@@ -213,8 +214,8 @@ paths:
                   schema:
                     type: integer
                     description: Identifier of package to show
-                    example: 2171469772219693450
-                  example: 9555266736606209236
+                    example: 1270080036653766538
+                  example: 3460011645440185538
             responses:
                 "200":
                     description: OK response.
@@ -224,12 +225,12 @@ paths:
                                 $ref: '#/components/schemas/EnduroStoredPackage'
                             example:
                                 aip_id: 2AE5027E-EF4C-E00D-314E-1CB4449A11C0
-                                completed_at: "2003-01-10T00:53:18Z"
-                                created_at: "2015-03-10T02:05:35Z"
-                                id: 15701218761654208541
-                                name: Corrupti quo non dolor maxime.
+                                completed_at: "2006-12-16T00:49:52Z"
+                                created_at: "2006-02-14T04:02:46Z"
+                                id: 13756233326978694172
+                                name: Dignissimos ut.
                                 run_id: 77DFBD55-EC3C-CF64-7021-5A80D932517B
-                                started_at: "1974-05-04T07:36:00Z"
+                                started_at: "1985-10-08T06:13:45Z"
                                 status: abandoned
                                 workflow_id: 0E0CB887-B526-812D-F285-DE018C555BB8
                 "404":
@@ -253,8 +254,8 @@ paths:
                   schema:
                     type: integer
                     description: Identifier of package to remove
-                    example: 5876162629255164791
-                  example: 12095199493095804003
+                    example: 87257810135651930
+                  example: 3244178900207723955
             responses:
                 "200":
                     description: OK response.
@@ -285,8 +286,8 @@ paths:
                   schema:
                     type: integer
                     description: Identifier of package to look up
-                    example: 6059747101605470410
-                  example: 1647908478703343764
+                    example: 14760195883437713572
+                  example: 14082378806865101282
             responses:
                 "200":
                     description: OK response.
@@ -295,47 +296,66 @@ paths:
                             schema:
                                 type: string
                                 example:
-                                    - 69
+                                    - 81
+                                    - 117
+                                    - 97
+                                    - 101
+                                    - 114
+                                    - 97
+                                    - 116
+                                    - 32
+                                    - 112
+                                    - 114
+                                    - 97
+                                    - 101
+                                    - 115
+                                    - 101
+                                    - 110
+                                    - 116
+                                    - 105
                                     - 117
                                     - 109
                                     - 32
-                                    - 100
-                                    - 111
-                                    - 108
-                                    - 111
-                                    - 114
-                                    - 101
-                                    - 115
-                                    - 32
-                                    - 105
-                                    - 112
-                                    - 115
                                     - 97
-                                    - 32
-                                    - 100
-                                    - 111
-                                    - 108
-                                    - 111
-                                    - 114
-                                    - 32
-                                    - 100
-                                    - 101
-                                    - 115
+                                    - 112
                                     - 101
                                     - 114
-                                    - 117
-                                    - 110
-                                    - 116
+                                    - 105
+                                    - 97
+                                    - 109
                                     - 46
                                 format: binary
                             example:
-                                - 86
+                                - 80
+                                - 114
+                                - 97
                                 - 101
-                                - 108
-                                - 32
-                                - 101
-                                - 111
                                 - 115
+                                - 101
+                                - 110
+                                - 116
+                                - 105
+                                - 117
+                                - 109
+                                - 32
+                                - 111
+                                - 102
+                                - 102
+                                - 105
+                                - 99
+                                - 105
+                                - 105
+                                - 115
+                                - 32
+                                - 111
+                                - 99
+                                - 99
+                                - 97
+                                - 101
+                                - 99
+                                - 97
+                                - 116
+                                - 105
                                 - 46
                 "404":
                     description: 'not_found: Package not found'
@@ -358,8 +378,8 @@ paths:
                   schema:
                     type: integer
                     description: Identifier of package to look up
-                    example: 17280670702990726189
-                  example: 14256695960175898038
+                    example: 15908442899566664974
+                  example: 18167651904635036627
             responses:
                 "200":
                     description: OK response.
@@ -410,8 +430,8 @@ paths:
                   schema:
                     type: integer
                     description: Identifier of package to retry
-                    example: 4816212125257195638
-                  example: 5231338353180703567
+                    example: 16091073060371969298
+                  example: 13941297375760393551
             responses:
                 "200":
                     description: OK response.
@@ -442,8 +462,8 @@ paths:
                   schema:
                     type: integer
                     description: Identifier of package to look up
-                    example: 8753899278977154248
-                  example: 7986588105451209487
+                    example: 8911853216807723464
+                  example: 2219650161765820901
             responses:
                 "200":
                     description: OK response.
@@ -459,7 +479,7 @@ paths:
                                     - details: Ut reprehenderit eos consequuntur iusto.
                                       id: 8869941666368485627
                                       type: Amet rerum quam sequi.
-                                status: Labore vitae laudantium sunt.
+                                status: Repellat sed exercitationem omnis ad.
                 "404":
                     description: 'not_found: Package not found'
                     content:
@@ -481,12 +501,12 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/BulkStatusResult'
                             example:
-                                closed_at: "2001-10-12T20:53:00Z"
-                                run_id: Quis soluta nisi ullam eum maiores totam.
+                                closed_at: "1989-01-14T18:12:09Z"
+                                run_id: Totam in numquam itaque nulla officiis sint.
                                 running: false
-                                started_at: "1990-11-23T17:00:02Z"
-                                status: Debitis eveniet atque ipsum esse.
-                                workflow_id: Voluptatem ab similique aut sed velit ad.
+                                started_at: "1999-09-03T22:16:29Z"
+                                status: Sed velit ad numquam.
+                                workflow_id: Soluta nisi ullam eum.
         post:
             tags:
                 - package
@@ -500,9 +520,9 @@ paths:
                         schema:
                             $ref: '#/components/schemas/BulkRequestBody'
                         example:
-                            operation: retry
-                            size: 11073631979459909334
-                            status: abandoned
+                            operation: abandon
+                            size: 4176659541053659304
+                            status: in progress
             responses:
                 "202":
                     description: Accepted response.
@@ -511,8 +531,8 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/BatchResult'
                             example:
-                                run_id: Blanditiis rerum inventore architecto vel.
-                                workflow_id: Velit et consequatur eum eligendi est.
+                                run_id: Incidunt qui.
+                                workflow_id: Eius quia molestiae ut eaque vero.
                 "400":
                     description: 'not_valid: Bad Request response.'
                     content:
@@ -539,7 +559,7 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/EnduroMonitorUpdate'
                             example:
-                                id: 8200413483411576519
+                                id: 18183426172150548679
                                 item:
                                     aip_id: 288BFD74-D973-18B5-FAA5-29ADF4569AC7
                                     completed_at: "1981-07-18T09:32:04Z"
@@ -550,7 +570,7 @@ paths:
                                     started_at: "1998-03-18T12:36:31Z"
                                     status: error
                                     workflow_id: A464FD15-9F47-E3CC-BD80-3B5C5830C503
-                                type: Perferendis illum illum omnis.
+                                type: Sed nostrum.
     /storage/submit:
         post:
             tags:
@@ -558,14 +578,6 @@ paths:
             summary: submit storage
             description: XXX
             operationId: storage#submit
-            requestBody:
-                required: true
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/SubmitRequestBody2'
-                        example:
-                            key: Quibusdam dolor aut sit in.
             responses:
                 "202":
                     description: Accepted response.
@@ -574,8 +586,8 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/SubmitResult'
                             example:
-                                url: Commodi possimus et.
-                                workflow_id: Et dignissimos explicabo soluta et autem id.
+                                url: In sunt commodi possimus et impedit.
+                                workflow_id: Dignissimos explicabo.
                 "400":
                     description: 'not_valid: Bad Request response.'
                     content:
@@ -602,7 +614,7 @@ paths:
                         schema:
                             $ref: '#/components/schemas/UpdateRequestBody'
                         example:
-                            workflow_id: Asperiores dolor.
+                            workflow_id: Et autem id saepe asperiores dolor.
             responses:
                 "202":
                     description: Accepted response.
@@ -643,29 +655,28 @@ components:
                     type: array
                     items:
                         type: string
-                        example: Ut et facilis ex praesentium et sunt.
+                        example: Esse nulla aliquid facere qui tenetur corrupti.
                     description: A list of known values of completedDir used by existing watchers.
                     example:
-                        - Atque illum voluptas adipisci voluptatibus et.
-                        - Dolor ducimus.
-                        - Ea reprehenderit.
+                        - Ut et facilis ex praesentium et sunt.
+                        - Et atque illum voluptas adipisci voluptatibus et.
             example:
                 completed_dirs:
-                    - Sapiente aliquam sed magni ad quibusdam nam.
-                    - Aut in eum in quod.
-                    - Quod et.
+                    - Ducimus nam ea reprehenderit.
+                    - Possimus sapiente aliquam.
+                    - Magni ad quibusdam nam.
         BatchResult:
             type: object
             properties:
                 run_id:
                     type: string
-                    example: Quaerat beatae.
+                    example: Vel sunt.
                 workflow_id:
                     type: string
-                    example: Vel sunt.
+                    example: Aspernatur voluptatibus quo enim.
             example:
-                run_id: Qui ratione dolore nam et rem.
-                workflow_id: Sed occaecati.
+                run_id: Sed occaecati.
+                workflow_id: Quaerat beatae.
             required:
                 - workflow_id
                 - run_id
@@ -674,21 +685,21 @@ components:
             properties:
                 run_id:
                     type: string
-                    example: Quos quo in ab.
+                    example: Nulla suscipit impedit eius officia.
                 running:
                     type: boolean
                     example: false
                 status:
                     type: string
-                    example: Facilis id nulla suscipit impedit.
+                    example: Et rem.
                 workflow_id:
                     type: string
-                    example: Officia maxime.
+                    example: Doloremque et aut velit facilis.
             example:
-                run_id: Facere qui tenetur corrupti dicta.
-                running: true
-                status: Fugit dolores quis beatae nihil magnam vel.
-                workflow_id: Repellendus aut vitae esse nulla.
+                run_id: Dolores repellendus aut.
+                running: false
+                status: Quos quo in ab.
+                workflow_id: Maiores fugit dolores quis beatae nihil magnam.
             required:
                 - running
         BulkRequestBody:
@@ -696,7 +707,7 @@ components:
             properties:
                 operation:
                     type: string
-                    example: cancel
+                    example: abandon
                     enum:
                         - retry
                         - cancel
@@ -704,10 +715,10 @@ components:
                 size:
                     type: integer
                     default: 100
-                    example: 9835271868051980153
+                    example: 13945986084264221042
                 status:
                     type: string
-                    example: in progress
+                    example: pending
                     enum:
                         - new
                         - in progress
@@ -718,8 +729,8 @@ components:
                         - pending
                         - abandoned
             example:
-                operation: retry
-                size: 9070164321791027674
+                operation: cancel
+                size: 8543854129181295123
                 status: queued
             required:
                 - operation
@@ -729,31 +740,31 @@ components:
             properties:
                 closed_at:
                     type: string
-                    example: "1980-08-20T21:14:43Z"
+                    example: "1986-01-30T19:46:22Z"
                     format: date-time
                 run_id:
                     type: string
-                    example: Est tenetur vel assumenda natus a.
+                    example: Eos odio aut omnis iusto modi quis.
                 running:
                     type: boolean
                     example: true
                 started_at:
                     type: string
-                    example: "1983-04-02T09:30:01Z"
+                    example: "2015-09-27T17:39:26Z"
                     format: date-time
                 status:
                     type: string
-                    example: Autem a a odit architecto quisquam nisi.
+                    example: Natus aut animi praesentium cupiditate.
                 workflow_id:
                     type: string
-                    example: Est autem et expedita distinctio voluptatem.
+                    example: Aut explicabo perferendis sunt.
             example:
-                closed_at: "1983-05-02T19:30:24Z"
-                run_id: Facere ipsa voluptates numquam dolorem.
+                closed_at: "1972-09-20T00:32:18Z"
+                run_id: Dolores dicta voluptas sed rerum ipsam dicta.
                 running: true
-                started_at: "1998-01-28T03:01:53Z"
-                status: Non commodi et repellat.
-                workflow_id: Ipsa vitae autem dolor.
+                started_at: "1983-07-19T17:50:27Z"
+                status: Voluptas libero dolorem libero.
+                workflow_id: Quam repudiandae adipisci.
             required:
                 - running
         EnduroMonitorUpdate:
@@ -762,15 +773,15 @@ components:
                 id:
                     type: integer
                     description: Identifier of package
-                    example: 13474930064581812747
+                    example: 2461550381747127414
                 item:
                     $ref: '#/components/schemas/EnduroStoredPackage'
                 type:
                     type: string
                     description: Type of the event
-                    example: Non sint voluptatum.
+                    example: In eum.
             example:
-                id: 16051569137426891633
+                id: 10219730091460583868
                 item:
                     aip_id: 288BFD74-D973-18B5-FAA5-29ADF4569AC7
                     completed_at: "1981-07-18T09:32:04Z"
@@ -781,7 +792,7 @@ components:
                     started_at: "1998-03-18T12:36:31Z"
                     status: error
                     workflow_id: A464FD15-9F47-E3CC-BD80-3B5C5830C503
-                type: Vel temporibus.
+                type: Veniam mollitia.
             required:
                 - id
                 - type
@@ -817,20 +828,20 @@ components:
             properties:
                 action_id:
                     type: string
-                    example: Eaque vel deleniti.
+                    example: Doloremque aut.
                 id:
                     type: integer
-                    example: 14699676190580707333
+                    example: 9360361600696854982
                 name:
                     type: string
-                    example: Fugiat et porro eum ut quod.
+                    example: Ullam officia.
                 started_at:
                     type: string
-                    example: "2000-12-21T15:12:45Z"
+                    example: "1991-09-10T12:27:15Z"
                     format: date-time
                 status:
                     type: string
-                    example: failed
+                    example: unspecified
                     enum:
                         - unspecified
                         - complete
@@ -838,11 +849,11 @@ components:
                         - failed
             description: PreservationAction describes a preservation action.
             example:
-                action_id: Maxime architecto molestiae et assumenda.
-                id: 5696130737748481379
-                name: Adipisci hic magni mollitia.
-                started_at: "1972-06-20T09:45:48Z"
-                status: processing
+                action_id: Numquam accusantium.
+                id: 14085317344252852228
+                name: Alias quis dolores.
+                started_at: "1990-05-19T00:57:04Z"
+                status: unspecified
             required:
                 - id
                 - action_id
@@ -869,40 +880,32 @@ components:
                   name: Quod impedit sapiente ea.
                   started_at: "2015-08-09T01:52:06Z"
                   status: processing
-                - action_id: Veritatis cumque.
-                  id: 17014779284437445999
-                  name: Quod impedit sapiente ea.
-                  started_at: "2015-08-09T01:52:06Z"
-                  status: processing
         EnduroPackageWorkflowHistory:
             type: object
             properties:
                 details:
                     type: string
                     description: Contents of the event
-                    example: Rerum consequatur odit quo recusandae.
+                    example: Et quasi incidunt dolorem ullam vel.
                     format: binary
                 id:
                     type: integer
                     description: Identifier of package
-                    example: 16014346685868918382
+                    example: 8176370860606764108
                 type:
                     type: string
                     description: Type of the event
-                    example: Eum dolores iure id rem sed.
+                    example: Qui consequatur maxime.
             description: WorkflowHistoryEvent describes a history event in Temporal.
             example:
-                details: Quo tempore debitis iure.
-                id: 9335551504306938174
-                type: Praesentium aperiam sunt.
+                details: Voluptas eum dolores iure id rem.
+                id: 1187968576338104579
+                type: Illo ex unde distinctio dolores.
         EnduroPackageWorkflowHistoryCollection:
             type: array
             items:
                 $ref: '#/components/schemas/EnduroPackageWorkflowHistory'
             example:
-                - details: Ut reprehenderit eos consequuntur iusto.
-                  id: 8869941666368485627
-                  type: Amet rerum quam sequi.
                 - details: Ut reprehenderit eos consequuntur iusto.
                   id: 8869941666368485627
                   type: Amet rerum quam sequi.
@@ -916,7 +919,7 @@ components:
                     $ref: '#/components/schemas/EnduroPackageWorkflowHistoryCollection'
                 status:
                     type: string
-                    example: Illo ex unde distinctio dolores.
+                    example: Excepturi ratione sint perspiciatis vel error.
             example:
                 history:
                     - details: Ut reprehenderit eos consequuntur iusto.
@@ -925,7 +928,7 @@ components:
                     - details: Ut reprehenderit eos consequuntur iusto.
                       id: 8869941666368485627
                       type: Amet rerum quam sequi.
-                status: Omnis qui nisi amet in.
+                status: Rerum consequatur odit quo recusandae.
         EnduroStoredPackage:
             type: object
             properties:
@@ -937,21 +940,21 @@ components:
                 completed_at:
                     type: string
                     description: Completion datetime
-                    example: "1973-03-05T03:35:45Z"
+                    example: "2003-05-30T03:48:43Z"
                     format: date-time
                 created_at:
                     type: string
                     description: Creation datetime
-                    example: "2004-09-18T04:15:28Z"
+                    example: "1976-04-04T20:53:45Z"
                     format: date-time
                 id:
                     type: integer
                     description: Identifier of package
-                    example: 12782770904040360137
+                    example: 3516530983232275021
                 name:
                     type: string
                     description: Name of the package
-                    example: Tempore reprehenderit adipisci deleniti.
+                    example: Similique quod et et beatae non.
                 run_id:
                     type: string
                     description: Identifier of latest processing workflow run
@@ -960,13 +963,13 @@ components:
                 started_at:
                     type: string
                     description: Start datetime
-                    example: "1986-04-17T12:41:57Z"
+                    example: "1972-04-10T20:13:24Z"
                     format: date-time
                 status:
                     type: string
                     description: Status of the package
                     default: new
-                    example: unknown
+                    example: abandoned
                     enum:
                         - new
                         - in progress
@@ -984,12 +987,12 @@ components:
             description: StoredPackage describes a package retrieved by the service.
             example:
                 aip_id: 34287C80-E47A-5C59-54F8-1AC4DAC80AFD
-                completed_at: "2006-08-13T13:20:23Z"
-                created_at: "1986-12-22T12:40:02Z"
-                id: 14830529226909317215
-                name: Ipsum saepe adipisci rerum et atque ut.
+                completed_at: "1972-04-09T19:16:23Z"
+                created_at: "1993-06-24T15:32:18Z"
+                id: 12105394376585767881
+                name: Fugit possimus doloribus suscipit et vero repellendus.
                 run_id: EF5D214E-555E-4D58-0EF2-F45C1076AF15
-                started_at: "1984-03-18T10:29:44Z"
+                started_at: "1985-07-02T21:51:22Z"
                 status: abandoned
                 workflow_id: 1883B2DF-F70A-5DB7-7F4C-C27752CD3BFF
             required:
@@ -1028,22 +1031,13 @@ components:
                   started_at: "1998-03-18T12:36:31Z"
                   status: error
                   workflow_id: A464FD15-9F47-E3CC-BD80-3B5C5830C503
-                - aip_id: 288BFD74-D973-18B5-FAA5-29ADF4569AC7
-                  completed_at: "1981-07-18T09:32:04Z"
-                  created_at: "1983-12-07T23:41:35Z"
-                  id: 2608592925037585396
-                  name: Vitae illum magni placeat quo.
-                  run_id: 3F59C655-AFF8-EAB8-FA17-44E154EF0557
-                  started_at: "1998-03-18T12:36:31Z"
-                  status: error
-                  workflow_id: A464FD15-9F47-E3CC-BD80-3B5C5830C503
         Error:
             type: object
             properties:
                 fault:
                     type: boolean
                     description: Is the error a server-side fault?
-                    example: true
+                    example: false
                 id:
                     type: string
                     description: ID is a unique identifier for this particular occurrence of the problem.
@@ -1082,7 +1076,7 @@ components:
                     $ref: '#/components/schemas/EnduroStoredPackageCollection'
                 next_cursor:
                     type: string
-                    example: Ea at molestias.
+                    example: Dolores voluptas.
             example:
                 items:
                     - aip_id: 288BFD74-D973-18B5-FAA5-29ADF4569AC7
@@ -1103,7 +1097,7 @@ components:
                       started_at: "1998-03-18T12:36:31Z"
                       status: error
                       workflow_id: A464FD15-9F47-E3CC-BD80-3B5C5830C503
-                next_cursor: Reprehenderit excepturi ratione sint perspiciatis vel.
+                next_cursor: Nihil dicta magnam ad.
             required:
                 - items
         PackageNotfound:
@@ -1112,15 +1106,15 @@ components:
                 id:
                     type: integer
                     description: Identifier of missing package
-                    example: 17265064570072990161
+                    example: 13137918576052444468
                 message:
                     type: string
                     description: Message of error
-                    example: Dignissimos recusandae qui consequatur.
+                    example: Vel temporibus.
             description: Package not found
             example:
-                id: 1187968576338104579
-                message: Et quasi incidunt dolorem ullam vel.
+                id: 11960080814002910128
+                message: Ea at molestias.
             required:
                 - message
                 - id
@@ -1129,41 +1123,31 @@ components:
             properties:
                 completed_dir:
                     type: string
-                    example: Non cupiditate.
+                    example: Aliquam aliquid non tempore vel.
                 path:
                     type: string
-                    example: Aliquam aliquid non tempore vel.
+                    example: Vitae odio non laborum dolores voluptatem cum.
                 retention_period:
                     type: string
-                    example: Omnis voluptatem cum incidunt voluptatem.
+                    example: Non cupiditate.
             example:
-                completed_dir: Qui numquam totam est.
-                path: Adipisci vel rerum quo.
-                retention_period: Aspernatur voluptatibus quo enim.
+                completed_dir: Adipisci vel rerum quo.
+                path: Omnis voluptatem cum incidunt voluptatem.
+                retention_period: Qui numquam totam est.
             required:
                 - path
-        SubmitRequestBody2:
-            type: object
-            properties:
-                key:
-                    type: string
-                    example: Qui aliquam.
-            example:
-                key: Consequatur reprehenderit sint sit saepe cumque est.
-            required:
-                - key
         SubmitResult:
             type: object
             properties:
                 url:
                     type: string
-                    example: Quibusdam quia ea corporis nam veritatis rem.
+                    example: Consectetur quia iusto est quia quia.
                 workflow_id:
                     type: string
-                    example: Ullam labore delectus quia ut distinctio ducimus.
+                    example: Nobis non explicabo.
             example:
-                url: Fugit incidunt odit et.
-                workflow_id: Consequatur ut cum.
+                url: Iusto sed reprehenderit earum dolore consectetur et.
+                workflow_id: Est aspernatur eligendi porro ea quasi.
             required:
                 - url
                 - workflow_id
@@ -1172,9 +1156,9 @@ components:
             properties:
                 workflow_id:
                     type: string
-                    example: Cumque quo ut inventore sit.
+                    example: Assumenda sed qui amet ipsum repellendus.
             example:
-                workflow_id: Necessitatibus soluta.
+                workflow_id: Qui aliquam.
             required:
                 - workflow_id
         UpdateResult:
@@ -1182,9 +1166,9 @@ components:
             properties:
                 ok:
                     type: boolean
-                    example: false
+                    example: true
             example:
-                ok: true
+                ok: false
             required:
                 - ok
 tags:

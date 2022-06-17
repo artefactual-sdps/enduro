@@ -30,7 +30,6 @@ export * from './PackageWorkflowNotFoundResponseBody';
 export * from './PackageWorkflowResponseBody';
 export * from './StorageSubmitNotAvailableResponseBody';
 export * from './StorageSubmitNotValidResponseBody';
-export * from './StorageSubmitRequestBody';
 export * from './StorageSubmitResponseBody';
 export * from './StorageUpdateNotAvailableResponseBody';
 export * from './StorageUpdateNotValidResponseBody';

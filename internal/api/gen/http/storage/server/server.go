@@ -115,7 +115,6 @@ func NewSubmitHandler(
 	formatter func(err error) goahttp.Statuser,
 ) http.Handler {
 	var (
-		decodeRequest  = DecodeSubmitRequest(mux, decoder)
 		encodeResponse = EncodeSubmitResponse(encoder)
 		encodeError    = EncodeSubmitError(encoder, formatter)
 	)
@@ -123,14 +122,8 @@ func NewSubmitHandler(
 		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
 		ctx = context.WithValue(ctx, goa.MethodKey, "submit")
 		ctx = context.WithValue(ctx, goa.ServiceKey, "storage")
-		payload, err := decodeRequest(r)
-		if err != nil {
-			if err := encodeError(ctx, w, err); err != nil {
-				errhandler(ctx, w, err)
-			}
-			return
-		}
-		res, err := endpoint(ctx, payload)
+		var err error
+		res, err := endpoint(ctx, nil)
 		if err != nil {
 			if err := encodeError(ctx, w, err); err != nil {
 				errhandler(ctx, w, err)

@@ -38,8 +38,7 @@ func (e *Endpoints) Use(m func(goa.Endpoint) goa.Endpoint) {
 // "submit" of service "storage".
 func NewSubmitEndpoint(s Service) goa.Endpoint {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
-		p := req.(*SubmitPayload)
-		return s.Submit(ctx, p)
+		return s.Submit(ctx)
 	}
 }
 

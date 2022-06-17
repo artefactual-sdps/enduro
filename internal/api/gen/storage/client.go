@@ -33,9 +33,9 @@ func NewClient(submit, update goa.Endpoint) *Client {
 //	- "not_available" (type *goa.ServiceError)
 //	- "not_valid" (type *goa.ServiceError)
 //	- error: internal error
-func (c *Client) Submit(ctx context.Context, p *SubmitPayload) (res *SubmitResult, err error) {
+func (c *Client) Submit(ctx context.Context) (res *SubmitResult, err error) {
 	var ires interface{}
-	ires, err = c.SubmitEndpoint(ctx, p)
+	ires, err = c.SubmitEndpoint(ctx, nil)
 	if err != nil {
 		return
 	}

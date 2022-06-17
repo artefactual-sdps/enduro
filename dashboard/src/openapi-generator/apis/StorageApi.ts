@@ -21,9 +21,6 @@ import {
     StorageSubmitNotValidResponseBody,
     StorageSubmitNotValidResponseBodyFromJSON,
     StorageSubmitNotValidResponseBodyToJSON,
-    StorageSubmitRequestBody,
-    StorageSubmitRequestBodyFromJSON,
-    StorageSubmitRequestBodyToJSON,
     StorageSubmitResponseBody,
     StorageSubmitResponseBodyFromJSON,
     StorageSubmitResponseBodyToJSON,
@@ -41,10 +38,6 @@ import {
     StorageUpdateResponseBodyToJSON,
 } from '../models';
 
-export interface StorageSubmitRequest {
-    submitRequestBody: StorageSubmitRequestBody;
-}
-
 export interface StorageUpdateRequest {
     updateRequestBody: StorageUpdateRequestBody;
 }
@@ -59,18 +52,17 @@ export interface StorageApiInterface {
     /**
      * XXX
      * @summary submit storage
-     * @param {StorageSubmitRequestBody} submitRequestBody 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof StorageApiInterface
      */
-    storageSubmitRaw(requestParameters: StorageSubmitRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<StorageSubmitResponseBody>>;
+    storageSubmitRaw(initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<StorageSubmitResponseBody>>;
 
     /**
      * XXX
      * submit storage
      */
-    storageSubmit(requestParameters: StorageSubmitRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<StorageSubmitResponseBody>;
+    storageSubmit(initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<StorageSubmitResponseBody>;
 
     /**
      * Signal the storage service that an upload is complete
@@ -99,23 +91,16 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
      * XXX
      * submit storage
      */
-    async storageSubmitRaw(requestParameters: StorageSubmitRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<StorageSubmitResponseBody>> {
-        if (requestParameters.submitRequestBody === null || requestParameters.submitRequestBody === undefined) {
-            throw new runtime.RequiredError('submitRequestBody','Required parameter requestParameters.submitRequestBody was null or undefined when calling storageSubmit.');
-        }
-
+    async storageSubmitRaw(initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<StorageSubmitResponseBody>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
-
-        headerParameters['Content-Type'] = 'application/json';
 
         const response = await this.request({
             path: `/storage/submit`,
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: StorageSubmitRequestBodyToJSON(requestParameters.submitRequestBody),
         }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => StorageSubmitResponseBodyFromJSON(jsonValue));
@@ -125,8 +110,8 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
      * XXX
      * submit storage
      */
-    async storageSubmit(requestParameters: StorageSubmitRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<StorageSubmitResponseBody> {
-        const response = await this.storageSubmitRaw(requestParameters, initOverrides);
+    async storageSubmit(initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<StorageSubmitResponseBody> {
+        const response = await this.storageSubmitRaw(initOverrides);
         return await response.value();
     }
 
