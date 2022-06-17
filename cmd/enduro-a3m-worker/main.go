@@ -19,8 +19,11 @@ import (
 	temporalsdk_activity "go.temporal.io/sdk/activity"
 	temporalsdk_client "go.temporal.io/sdk/client"
 	temporalsdk_worker "go.temporal.io/sdk/worker"
+	goahttp "goa.design/goa/v3/http"
 
 	"github.com/artefactual-labs/enduro/internal/a3m"
+	goahttpstorage "github.com/artefactual-labs/enduro/internal/api/gen/http/storage/client"
+	goastorage "github.com/artefactual-labs/enduro/internal/api/gen/storage"
 	"github.com/artefactual-labs/enduro/internal/config"
 	"github.com/artefactual-labs/enduro/internal/db"
 	"github.com/artefactual-labs/enduro/internal/log"
@@ -154,7 +157,14 @@ func main() {
 		w.RegisterActivityWithOptions(activities.NewValidateTransferActivity().Execute, temporalsdk_activity.RegisterOptions{Name: activities.ValidateTransferActivityName})
 		w.RegisterActivityWithOptions(a3m.NewCreateAIPActivity(logger, &cfg.A3m, pkgsvc).Execute, temporalsdk_activity.RegisterOptions{Name: a3m.CreateAIPActivityName})
 		w.RegisterActivityWithOptions(activities.NewCleanUpActivity().Execute, temporalsdk_activity.RegisterOptions{Name: activities.CleanUpActivityName})
-		w.RegisterActivityWithOptions(activities.NewUploadActivity().Execute, temporalsdk_activity.RegisterOptions{Name: activities.UploadActivityName})
+
+		httpClient := &http.Client{Timeout: time.Second}
+		storageHttpClient := goahttpstorage.NewClient("http", cfg.API.Listen, httpClient, goahttp.RequestEncoder, goahttp.ResponseDecoder, false)
+		storageClient := goastorage.NewClient(
+			storageHttpClient.Submit(),
+			storageHttpClient.Update(),
+		)
+		w.RegisterActivityWithOptions(activities.NewUploadActivity(storageClient).Execute, temporalsdk_activity.RegisterOptions{Name: activities.UploadActivityName})
 
 		w.RegisterActivityWithOptions(sdps_activities.NewValidatePackageActivity().Execute, temporalsdk_activity.RegisterOptions{Name: sdps_activities.ValidatePackageActivityName})
 		w.RegisterActivityWithOptions(sdps_activities.NewIndexActivity(logger, searchClient).Execute, temporalsdk_activity.RegisterOptions{Name: sdps_activities.IndexActivityName})
