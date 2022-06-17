@@ -25,24 +25,34 @@ type Service interface {
 	Update(context.Context, *goastorage.UpdatePayload) (res *goastorage.UpdateResult, err error)
 }
 
-type storageImpl struct {
+type serviceImpl struct {
 	logger logr.Logger
 	db     *sql.DB
 	tc     temporalsdk_client.Client
 	config Config
-	sess   *session.Session
+	bucket *blob.Bucket
 }
 
-var _ Service = (*storageImpl)(nil)
+var _ Service = (*serviceImpl)(nil)
 
-func NewService(logger logr.Logger, db *sql.DB, tc temporalsdk_client.Client, config Config) (*storageImpl, error) {
-	s := &storageImpl{
+func NewService(logger logr.Logger, db *sql.DB, tc temporalsdk_client.Client, config Config) (*serviceImpl, error) {
+	s := &serviceImpl{
 		logger: logger,
 		db:     db,
 		tc:     tc,
 		config: config,
 	}
 
+	var err error
+	s.bucket, err = s.openBucket(&config)
+	if err != nil {
+		return nil, fmt.Errorf("error opening bucket: %v", err)
+	}
+
+	return s, nil
+}
+
+func (s *serviceImpl) openBucket(config *Config) (*blob.Bucket, error) {
 	sessOpts := session.Options{}
 	sessOpts.Config.WithRegion(s.config.Region)
 	sessOpts.Config.WithEndpoint(s.config.Endpoint)
@@ -56,25 +66,17 @@ func NewService(logger logr.Logger, db *sql.DB, tc temporalsdk_client.Client, co
 	if err != nil {
 		return nil, err
 	}
-
-	s.sess = sess
-
-	return s, nil
+	return s3blob.OpenBucket(context.Background(), sess, s.config.Bucket, nil)
 }
 
-func (s *storageImpl) Submit(ctx context.Context) (*goastorage.SubmitResult, error) {
-	bucket, err := s3blob.OpenBucket(context.Background(), s.sess, s.config.Bucket, nil)
-	if err != nil {
-		return nil, fmt.Errorf("error opening bucket: %v", err)
-	}
-
+func (s *serviceImpl) Submit(ctx context.Context) (*goastorage.SubmitResult, error) {
 	workflowReq := &StorageWorkflowRequest{}
 	exec, err := InitStorageWorkflow(ctx, s.tc, workflowReq)
 	if err != nil {
 		return nil, err
 	}
 
-	url, err := bucket.SignedURL(ctx, uuid.New().String(), &blob.SignedURLOptions{Expiry: urlExpirationTime, Method: http.MethodPut})
+	url, err := s.bucket.SignedURL(ctx, uuid.New().String(), &blob.SignedURLOptions{Expiry: urlExpirationTime, Method: http.MethodPut})
 	if err != nil {
 		return nil, err
 	}
@@ -86,7 +88,7 @@ func (s *storageImpl) Submit(ctx context.Context) (*goastorage.SubmitResult, err
 	return result, nil
 }
 
-func (s *storageImpl) Update(ctx context.Context, payload *goastorage.UpdatePayload) (*goastorage.UpdateResult, error) {
+func (s *serviceImpl) Update(ctx context.Context, payload *goastorage.UpdatePayload) (*goastorage.UpdateResult, error) {
 	signal := StorageWorkflowSignal{}
 
 	err := s.tc.SignalWorkflow(context.Background(), payload.WorkflowID, "", StorageWorkflowSignalName, signal)
@@ -96,4 +98,8 @@ func (s *storageImpl) Update(ctx context.Context, payload *goastorage.UpdatePayl
 
 	result := &goastorage.UpdateResult{OK: true}
 	return result, nil
+}
+
+func SetBucket(s *serviceImpl, b *blob.Bucket) {
+	s.bucket = b
 }

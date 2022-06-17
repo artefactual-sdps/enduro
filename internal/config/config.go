@@ -6,7 +6,6 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/artefactual-labs/enduro/internal/a3m"
-	"github.com/artefactual-labs/enduro/internal/aipstore"
 	"github.com/artefactual-labs/enduro/internal/api"
 	"github.com/artefactual-labs/enduro/internal/db"
 	"github.com/artefactual-labs/enduro/internal/search"
@@ -27,9 +26,8 @@ type Configuration struct {
 	Watcher     watcher.Config
 	Validation  validation.Config
 
-	AIPStore aipstore.Config
-	Storage  storage.Config
-	A3m      a3m.Config
+	Storage storage.Config
+	A3m     a3m.Config
 }
 
 func (c Configuration) Validate() error {

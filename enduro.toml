@@ -36,14 +36,6 @@ stripTopLevelDir = true
 [validation]
 checksumsCheckEnabled = false
 
-[aipstore]
-endpoint = "http://minio:9000"
-pathStyle = true
-key = "minio"
-secret = "minio123"
-region = "us-west-1"
-bucket = "aips"
-
 [storage]
 endpoint = "http://minio:9000"
 pathStyle = true

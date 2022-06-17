@@ -154,7 +154,7 @@ func main() {
 		w.RegisterActivityWithOptions(activities.NewValidateTransferActivity().Execute, temporalsdk_activity.RegisterOptions{Name: activities.ValidateTransferActivityName})
 		w.RegisterActivityWithOptions(a3m.NewCreateAIPActivity(logger, &cfg.A3m, pkgsvc).Execute, temporalsdk_activity.RegisterOptions{Name: a3m.CreateAIPActivityName})
 		w.RegisterActivityWithOptions(activities.NewCleanUpActivity().Execute, temporalsdk_activity.RegisterOptions{Name: activities.CleanUpActivityName})
-		w.RegisterActivityWithOptions(activities.NewUploadActivity(cfg.AIPStore).Execute, temporalsdk_activity.RegisterOptions{Name: activities.UploadActivityName})
+		w.RegisterActivityWithOptions(activities.NewUploadActivity().Execute, temporalsdk_activity.RegisterOptions{Name: activities.UploadActivityName})
 
 		w.RegisterActivityWithOptions(sdps_activities.NewValidatePackageActivity().Execute, temporalsdk_activity.RegisterOptions{Name: sdps_activities.ValidatePackageActivityName})
 		w.RegisterActivityWithOptions(sdps_activities.NewIndexActivity(logger, searchClient).Execute, temporalsdk_activity.RegisterOptions{Name: sdps_activities.IndexActivityName})

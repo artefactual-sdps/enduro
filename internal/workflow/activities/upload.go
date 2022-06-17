@@ -10,17 +10,15 @@ import (
 
 	goahttp "goa.design/goa/v3/http"
 
-	"github.com/artefactual-labs/enduro/internal/aipstore"
 	"github.com/artefactual-labs/enduro/internal/api/gen/http/storage/client"
-	"github.com/artefactual-labs/enduro/internal/api/gen/storage"
+	goastorage "github.com/artefactual-labs/enduro/internal/api/gen/storage"
 )
 
 type UploadActivity struct {
-	config aipstore.Config
 }
 
-func NewUploadActivity(config aipstore.Config) *UploadActivity {
-	return &UploadActivity{config: config}
+func NewUploadActivity() *UploadActivity {
+	return &UploadActivity{}
 }
 
 func (a *UploadActivity) Execute(ctx context.Context, AIPPath string) error {
@@ -33,7 +31,7 @@ func (a *UploadActivity) Execute(ctx context.Context, AIPPath string) error {
 		return err
 	}
 
-	sr, ok := submitResponseData.(*storage.SubmitResult)
+	sr, ok := submitResponseData.(*goastorage.SubmitResult)
 	if !ok {
 		return errors.New("unexpected value from Submit endpoint")
 	}
@@ -42,9 +40,9 @@ func (a *UploadActivity) Execute(ctx context.Context, AIPPath string) error {
 	if err != nil {
 		return err
 	}
-	defer f.Close() // XXX is this needed if client.Do closes it?
+	defer f.Close()
 
-	httpClient := &http.Client{} // XXX set timeout here?
+	httpClient := &http.Client{}
 	uploadReq, err := http.NewRequest(http.MethodPut, sr.URL, f)
 	if err != nil {
 		return nil
@@ -53,7 +51,7 @@ func (a *UploadActivity) Execute(ctx context.Context, AIPPath string) error {
 	if err != nil {
 		return err
 	}
-	uploadReq.ContentLength = fi.Size() // XXX why is this not done by NewRequest?
+	uploadReq.ContentLength = fi.Size()
 	if err != nil {
 		return err
 	}
@@ -71,7 +69,7 @@ func (a *UploadActivity) Execute(ctx context.Context, AIPPath string) error {
 	if err != nil {
 		return err
 	}
-	_, ok = updateResponseData.(*storage.UpdateResult)
+	_, ok = updateResponseData.(*goastorage.UpdateResult)
 	if !ok {
 		return errors.New("unexpected value from Update endpoint")
 	}
