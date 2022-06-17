@@ -3,15 +3,17 @@ package storage
 import (
 	"context"
 	"database/sql"
+	"fmt"
+	"net/http"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/go-logr/logr"
 	"github.com/google/uuid"
 	temporalsdk_client "go.temporal.io/sdk/client"
+	"gocloud.dev/blob"
+	"gocloud.dev/blob/s3blob"
 
 	goastorage "github.com/artefactual-labs/enduro/internal/api/gen/storage"
 )
@@ -28,7 +30,7 @@ type storageImpl struct {
 	db     *sql.DB
 	tc     temporalsdk_client.Client
 	config Config
-	s3     *s3.S3
+	sess   *session.Session
 }
 
 var _ Service = (*storageImpl)(nil)
@@ -55,23 +57,24 @@ func NewService(logger logr.Logger, db *sql.DB, tc temporalsdk_client.Client, co
 		return nil, err
 	}
 
-	s.s3 = s3.New(sess)
+	s.sess = sess
 
 	return s, nil
 }
 
 func (s *storageImpl) Submit(ctx context.Context) (*goastorage.SubmitResult, error) {
+	bucket, err := s3blob.OpenBucket(context.Background(), s.sess, s.config.Bucket, nil)
+	if err != nil {
+		return nil, fmt.Errorf("error opening bucket: %v", err)
+	}
+
 	workflowReq := &StorageWorkflowRequest{}
 	exec, err := InitStorageWorkflow(ctx, s.tc, workflowReq)
 	if err != nil {
 		return nil, err
 	}
 
-	req, _ := s.s3.PutObjectRequest(&s3.PutObjectInput{
-		Bucket: aws.String("aips"),
-		Key:    aws.String(uuid.New().String()),
-	})
-	url, err := req.Presign(urlExpirationTime)
+	url, err := bucket.SignedURL(ctx, uuid.New().String(), &blob.SignedURLOptions{Expiry: urlExpirationTime, Method: http.MethodPut})
 	if err != nil {
 		return nil, err
 	}
