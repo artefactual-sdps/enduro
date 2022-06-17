@@ -159,7 +159,7 @@ func main() {
 		w.RegisterActivityWithOptions(activities.NewCleanUpActivity().Execute, temporalsdk_activity.RegisterOptions{Name: activities.CleanUpActivityName})
 
 		httpClient := &http.Client{Timeout: time.Second}
-		storageHttpClient := goahttpstorage.NewClient("http", cfg.API.Listen, httpClient, goahttp.RequestEncoder, goahttp.ResponseDecoder, false)
+		storageHttpClient := goahttpstorage.NewClient("http", cfg.Storage.EnduroAddress, httpClient, goahttp.RequestEncoder, goahttp.ResponseDecoder, false)
 		storageClient := goastorage.NewClient(
 			storageHttpClient.Submit(),
 			storageHttpClient.Update(),

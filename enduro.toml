@@ -43,6 +43,7 @@ key = "minio"
 secret = "minio123"
 region = "us-west-1"
 bucket = "aips"
+enduroAddress = "enduro:9000"
 
 [a3m]
 address = "127.0.0.1:7000"
