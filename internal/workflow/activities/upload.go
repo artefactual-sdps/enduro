@@ -14,8 +14,7 @@ import (
 	goastorage "github.com/artefactual-labs/enduro/internal/api/gen/storage"
 )
 
-type UploadActivity struct {
-}
+type UploadActivity struct{}
 
 func NewUploadActivity() *UploadActivity {
 	return &UploadActivity{}

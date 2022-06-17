@@ -84,7 +84,7 @@ func main() {
 	}
 	_ = database.Ping()
 
-	temporalClient, err := temporalsdk_client.NewClient(temporalsdk_client.Options{
+	temporalClient, err := temporalsdk_client.Dial(temporalsdk_client.Options{
 		Namespace: cfg.Temporal.Namespace,
 		HostPort:  cfg.Temporal.Address,
 		Logger:    temporal.Logger(logger.WithName("temporal-client")),
@@ -215,7 +215,7 @@ func main() {
 
 	// Workflow and activity worker.
 	{
-		temporalClient, err := temporalsdk_client.NewClient(temporalsdk_client.Options{
+		temporalClient, err := temporalsdk_client.Dial(temporalsdk_client.Options{
 			Namespace: cfg.Temporal.Namespace,
 			HostPort:  cfg.Temporal.Address,
 			Logger:    temporal.Logger(logger.WithName("temporal-worker")),
