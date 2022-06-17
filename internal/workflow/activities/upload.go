@@ -2,15 +2,17 @@ package activities
 
 import (
 	"context"
-	"io"
+	"errors"
+	"fmt"
+	"net/http"
 	"os"
-	"path/filepath"
+	"time"
 
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"gocloud.dev/blob/s3blob"
+	goahttp "goa.design/goa/v3/http"
 
 	"github.com/artefactual-labs/enduro/internal/aipstore"
+	"github.com/artefactual-labs/enduro/internal/api/gen/http/storage/client"
+	"github.com/artefactual-labs/enduro/internal/api/gen/storage"
 )
 
 type UploadActivity struct {
@@ -22,53 +24,60 @@ func NewUploadActivity(config aipstore.Config) *UploadActivity {
 }
 
 func (a *UploadActivity) Execute(ctx context.Context, AIPPath string) error {
-	sessOpts := session.Options{}
-	sessOpts.Config.WithRegion(a.config.Region)
-	sessOpts.Config.WithEndpoint(a.config.Endpoint)
-	sessOpts.Config.WithS3ForcePathStyle(a.config.PathStyle)
-	sessOpts.Config.WithCredentials(
-		credentials.NewStaticCredentials(
-			a.config.Key, a.config.Secret, a.config.Token,
-		),
-	)
-	sess, err := session.NewSessionWithOptions(sessOpts)
+	doer := &http.Client{Timeout: time.Second}
+	c := client.NewClient("http", "enduro:9000", doer, goahttp.RequestEncoder, goahttp.ResponseDecoder, false)
+
+	submitEndpoint := c.Submit()
+	submitData, err := client.BuildSubmitPayload("{\"key\": \"foobar\"}")
+	if err != nil {
+		return err
+	}
+	submitResponseData, err := submitEndpoint(ctx, submitData)
 	if err != nil {
 		return err
 	}
 
-	bucket, err := s3blob.OpenBucket(ctx, sess, a.config.Bucket, nil)
-	if err != nil {
-		return err
-	}
-
-	defer bucket.Close()
-
-	name := filepath.Base(AIPPath)
-
-	// Open the key "foo.txt" for writing with the default options.
-	w, err := bucket.NewWriter(ctx, name, nil)
-	if err != nil {
-		return err
+	sr, ok := submitResponseData.(*storage.SubmitResult)
+	if !ok {
+		return errors.New("unexpected value from Submit endpoint")
 	}
 
 	f, err := os.Open(AIPPath)
 	if err != nil {
 		return err
 	}
+	defer f.Close() // XXX is this needed if client.Do closes it?
 
-	defer f.Close()
-
-	// TODO: Does this return when the context is canceled?
-	_, copyErr := io.Copy(w, f)
-
-	closeErr := w.Close()
-
-	if copyErr != nil {
-		return copyErr
+	httpClient := &http.Client{} // XXX set timeout here?
+	uploadReq, err := http.NewRequest(http.MethodPut, sr.URL, f)
+	if err != nil {
+		return nil
 	}
-	if closeErr != nil {
-		return closeErr
+	fi, err := f.Stat()
+	if err != nil {
+		return err
+	}
+	uploadReq.ContentLength = fi.Size() // XXX why is this not done by NewRequest?
+	if err != nil {
+		return err
+	}
+	_, err = httpClient.Do(uploadReq)
+	if err != nil {
+		return err
 	}
 
+	updateEndpoint := c.Update()
+	updateData, err := client.BuildUpdatePayload(fmt.Sprintf("{\"workflow_id\": \"%s\"}", sr.WorkflowID))
+	if err != nil {
+		return err
+	}
+	updateResponseData, err := updateEndpoint(ctx, updateData)
+	if err != nil {
+		return err
+	}
+	_, ok = updateResponseData.(*storage.UpdateResult)
+	if !ok {
+		return errors.New("unexpected value from Update endpoint")
+	}
 	return nil
 }
