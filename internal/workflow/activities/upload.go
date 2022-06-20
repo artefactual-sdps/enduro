@@ -10,6 +10,12 @@ import (
 	goastorage "github.com/artefactual-labs/enduro/internal/api/gen/storage"
 )
 
+type UploadActivityParams struct {
+	AIPPath   string
+	PackageID uint
+	Name      string
+}
+
 type UploadActivity struct {
 	storageClient *goastorage.Client
 }
@@ -20,7 +26,7 @@ func NewUploadActivity(storageClient *goastorage.Client) *UploadActivity {
 	}
 }
 
-func (a *UploadActivity) Execute(ctx context.Context, AIPPath string) error {
+func (a *UploadActivity) Execute(ctx context.Context, params *UploadActivityParams) error {
 	childCtx, cancel := context.WithTimeout(ctx, time.Second*5)
 	defer cancel()
 	res, err := a.storageClient.Submit(childCtx)
@@ -30,7 +36,7 @@ func (a *UploadActivity) Execute(ctx context.Context, AIPPath string) error {
 
 	// Upload to MinIO using the upload pre-signed URL.
 	{
-		f, err := os.Open(AIPPath)
+		f, err := os.Open(params.AIPPath)
 		if err != nil {
 			return err
 		}

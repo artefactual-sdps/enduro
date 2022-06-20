@@ -67,7 +67,11 @@ func TestUploadActivity(t *testing.T) {
 
 		activity := NewUploadActivity(storageClient)
 
-		err := activity.Execute(context.Background(), tmpDir.Join("aip.7z"))
+		err := activity.Execute(context.Background(), &UploadActivityParams{
+			AIPPath:   tmpDir.Join("aip.7z"),
+			PackageID: 1,
+			Name:      "aip.7z",
+		})
 		assert.NilError(t, err)
 	})
 
@@ -97,7 +101,11 @@ func TestUploadActivity(t *testing.T) {
 
 		activity := NewUploadActivity(storageClient)
 
-		err := activity.Execute(context.Background(), tmpDir.Join("aip.7z"))
+		err := activity.Execute(context.Background(), &UploadActivityParams{
+			AIPPath:   tmpDir.Join("aip.7z"),
+			PackageID: 1,
+			Name:      "aip.7z",
+		})
 		assert.Error(t, err, "update failed")
 	})
 }
