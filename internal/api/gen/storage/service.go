@@ -40,13 +40,12 @@ type SubmitPayload struct {
 
 // SubmitResult is the result type of the storage service submit method.
 type SubmitResult struct {
-	URL        string
-	WorkflowID string
+	URL string
 }
 
 // UpdatePayload is the payload type of the storage service update method.
 type UpdatePayload struct {
-	WorkflowID string
+	AipID string
 }
 
 // UpdateResult is the result type of the storage service update method.

@@ -70,7 +70,7 @@ func (a *UploadActivity) Execute(ctx context.Context, params *UploadActivityPara
 
 	childCtx, cancel = context.WithTimeout(ctx, time.Second*5)
 	defer cancel()
-	_, err = a.storageClient.Update(childCtx, &goastorage.UpdatePayload{WorkflowID: res.WorkflowID})
+	_, err = a.storageClient.Update(childCtx, &goastorage.UpdatePayload{AipID: params.AIPID})
 
 	return err
 }

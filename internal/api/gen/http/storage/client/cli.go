@@ -23,7 +23,7 @@ func BuildSubmitPayload(storageSubmitBody string) (*storage.SubmitPayload, error
 	{
 		err = json.Unmarshal([]byte(storageSubmitBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"aip_id\": \"Impedit et.\",\n      \"name\": \"Explicabo soluta et autem id saepe asperiores.\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"aip_id\": \"Quibusdam dolor aut sit in.\",\n      \"name\": \"Commodi possimus et.\"\n   }'")
 		}
 	}
 	v := &storage.SubmitPayload{
@@ -42,11 +42,11 @@ func BuildUpdatePayload(storageUpdateBody string) (*storage.UpdatePayload, error
 	{
 		err = json.Unmarshal([]byte(storageUpdateBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"workflow_id\": \"Consequatur fugiat et non voluptatem.\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"aip_id\": \"Asperiores dolor.\"\n   }'")
 		}
 	}
 	v := &storage.UpdatePayload{
-		WorkflowID: body.WorkflowID,
+		AipID: body.AipID,
 	}
 
 	return v, nil

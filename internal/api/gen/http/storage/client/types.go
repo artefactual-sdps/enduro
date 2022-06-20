@@ -23,14 +23,13 @@ type SubmitRequestBody struct {
 // UpdateRequestBody is the type of the "storage" service "update" endpoint
 // HTTP request body.
 type UpdateRequestBody struct {
-	WorkflowID string `form:"workflow_id" json:"workflow_id" xml:"workflow_id"`
+	AipID string `form:"aip_id" json:"aip_id" xml:"aip_id"`
 }
 
 // SubmitResponseBody is the type of the "storage" service "submit" endpoint
 // HTTP response body.
 type SubmitResponseBody struct {
-	URL        *string `form:"url,omitempty" json:"url,omitempty" xml:"url,omitempty"`
-	WorkflowID *string `form:"workflow_id,omitempty" json:"workflow_id,omitempty" xml:"workflow_id,omitempty"`
+	URL *string `form:"url,omitempty" json:"url,omitempty" xml:"url,omitempty"`
 }
 
 // UpdateResponseBody is the type of the "storage" service "update" endpoint
@@ -125,7 +124,7 @@ func NewSubmitRequestBody(p *storage.SubmitPayload) *SubmitRequestBody {
 // "update" endpoint of the "storage" service.
 func NewUpdateRequestBody(p *storage.UpdatePayload) *UpdateRequestBody {
 	body := &UpdateRequestBody{
-		WorkflowID: p.WorkflowID,
+		AipID: p.AipID,
 	}
 	return body
 }
@@ -134,8 +133,7 @@ func NewUpdateRequestBody(p *storage.UpdatePayload) *UpdateRequestBody {
 // from a HTTP "Accepted" response.
 func NewSubmitResultAccepted(body *SubmitResponseBody) *storage.SubmitResult {
 	v := &storage.SubmitResult{
-		URL:        *body.URL,
-		WorkflowID: *body.WorkflowID,
+		URL: *body.URL,
 	}
 
 	return v
@@ -213,9 +211,6 @@ func NewUpdateNotValid(body *UpdateNotValidResponseBody) *goa.ServiceError {
 func ValidateSubmitResponseBody(body *SubmitResponseBody) (err error) {
 	if body.URL == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("url", "body"))
-	}
-	if body.WorkflowID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("workflow_id", "body"))
 	}
 	return
 }

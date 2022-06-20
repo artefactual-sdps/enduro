@@ -29,8 +29,8 @@ var _ = Service("storage", func() {
 	Method("update", func() {
 		Description("Signal the storage service that an upload is complete")
 		Payload(func() {
-			Attribute("workflow_id", String)
-			Required("workflow_id")
+			Attribute("aip_id", String)
+			Required("aip_id")
 		})
 		Result(UpdateResult)
 		Error("not_available")
@@ -46,8 +46,7 @@ var _ = Service("storage", func() {
 
 var SubmitResult = Type("SubmitResult", func() {
 	Attribute("url", String)
-	Attribute("workflow_id", String)
-	Required("url", "workflow_id")
+	Required("url")
 })
 
 var UpdateResult = Type("UpdateResult", func() {

@@ -23,14 +23,13 @@ type SubmitRequestBody struct {
 // UpdateRequestBody is the type of the "storage" service "update" endpoint
 // HTTP request body.
 type UpdateRequestBody struct {
-	WorkflowID *string `form:"workflow_id,omitempty" json:"workflow_id,omitempty" xml:"workflow_id,omitempty"`
+	AipID *string `form:"aip_id,omitempty" json:"aip_id,omitempty" xml:"aip_id,omitempty"`
 }
 
 // SubmitResponseBody is the type of the "storage" service "submit" endpoint
 // HTTP response body.
 type SubmitResponseBody struct {
-	URL        string `form:"url" json:"url" xml:"url"`
-	WorkflowID string `form:"workflow_id" json:"workflow_id" xml:"workflow_id"`
+	URL string `form:"url" json:"url" xml:"url"`
 }
 
 // UpdateResponseBody is the type of the "storage" service "update" endpoint
@@ -115,8 +114,7 @@ type UpdateNotValidResponseBody struct {
 // "submit" endpoint of the "storage" service.
 func NewSubmitResponseBody(res *storage.SubmitResult) *SubmitResponseBody {
 	body := &SubmitResponseBody{
-		URL:        res.URL,
-		WorkflowID: res.WorkflowID,
+		URL: res.URL,
 	}
 	return body
 }
@@ -199,7 +197,7 @@ func NewSubmitPayload(body *SubmitRequestBody) *storage.SubmitPayload {
 // NewUpdatePayload builds a storage service update endpoint payload.
 func NewUpdatePayload(body *UpdateRequestBody) *storage.UpdatePayload {
 	v := &storage.UpdatePayload{
-		WorkflowID: *body.WorkflowID,
+		AipID: *body.AipID,
 	}
 
 	return v
@@ -218,8 +216,8 @@ func ValidateSubmitRequestBody(body *SubmitRequestBody) (err error) {
 
 // ValidateUpdateRequestBody runs the validations defined on UpdateRequestBody
 func ValidateUpdateRequestBody(body *UpdateRequestBody) (err error) {
-	if body.WorkflowID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("workflow_id", "body"))
+	if body.AipID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("aip_id", "body"))
 	}
 	return
 }

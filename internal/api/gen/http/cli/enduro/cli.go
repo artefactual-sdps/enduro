@@ -35,14 +35,14 @@ storage (submit|update)
 // UsageExamples produces an example of a valid invocation of the CLI tool.
 func UsageExamples() string {
 	return os.Args[0] + ` batch submit --body '{
-      "completed_dir": "Quas at.",
-      "path": "Ab nostrum consectetur.",
-      "retention_period": "Consequatur impedit vel exercitationem."
+      "completed_dir": "Nostrum consectetur.",
+      "path": "Numquam laborum quod.",
+      "retention_period": "Quas at."
    }'` + "\n" +
 		os.Args[0] + ` package monitor` + "\n" +
 		os.Args[0] + ` storage submit --body '{
-      "aip_id": "Impedit et.",
-      "name": "Explicabo soluta et autem id saepe asperiores."
+      "aip_id": "Quibusdam dolor aut sit in.",
+      "name": "Commodi possimus et."
    }'` + "\n" +
 		""
 }
@@ -344,9 +344,9 @@ Submit a new batch
 
 Example:
     %[1]s batch submit --body '{
-      "completed_dir": "Quas at.",
-      "path": "Ab nostrum consectetur.",
-      "retention_period": "Consequatur impedit vel exercitationem."
+      "completed_dir": "Nostrum consectetur.",
+      "path": "Numquam laborum quod.",
+      "retention_period": "Quas at."
    }'
 `, os.Args[0])
 }
@@ -416,7 +416,7 @@ List all stored packages
     -cursor STRING: 
 
 Example:
-    %[1]s package list --name "Dolor illum excepturi magni quidem." --aip-id "4CCDE767-7648-444F-D09F-4B4FFE4EB36B" --earliest-created-time "1998-12-19T01:21:09Z" --latest-created-time "1986-04-24T02:59:26Z" --status "pending" --cursor "Quo non dolor maxime enim vitae."
+    %[1]s package list --name "Officiis illo velit possimus et ea." --aip-id "4CCDE767-7648-444F-D09F-4B4FFE4EB36B" --earliest-created-time "2015-10-25T14:36:23Z" --latest-created-time "1999-07-07T13:15:15Z" --status "abandoned" --cursor "Dicta facere cum enim vel odit."
 `, os.Args[0])
 }
 
@@ -427,7 +427,7 @@ Show package by ID
     -id UINT: Identifier of package to show
 
 Example:
-    %[1]s package show --id 6306058619673083134
+    %[1]s package show --id 9188529240547168068
 `, os.Args[0])
 }
 
@@ -438,7 +438,7 @@ Delete package by ID
     -id UINT: Identifier of package to delete
 
 Example:
-    %[1]s package delete --id 2771991328371276903
+    %[1]s package delete --id 10447808246697357189
 `, os.Args[0])
 }
 
@@ -449,7 +449,7 @@ Cancel package processing by ID
     -id UINT: Identifier of package to remove
 
 Example:
-    %[1]s package cancel --id 12826886350933798103
+    %[1]s package cancel --id 224429362866116975
 `, os.Args[0])
 }
 
@@ -460,7 +460,7 @@ Retry package processing by ID
     -id UINT: Identifier of package to retry
 
 Example:
-    %[1]s package retry --id 11509451525561245690
+    %[1]s package retry --id 12367619642138472932
 `, os.Args[0])
 }
 
@@ -471,7 +471,7 @@ Retrieve workflow status by ID
     -id UINT: Identifier of package to look up
 
 Example:
-    %[1]s package workflow --id 14683926232730786222
+    %[1]s package workflow --id 12826886350933798103
 `, os.Args[0])
 }
 
@@ -482,7 +482,7 @@ Download package by ID
     -id UINT: Identifier of package to look up
 
 Example:
-    %[1]s package download --id 8990200003441314855
+    %[1]s package download --id 7057964250562282979
 `, os.Args[0])
 }
 
@@ -495,8 +495,8 @@ Bulk operations (retry, cancel...).
 Example:
     %[1]s package bulk --body '{
       "operation": "retry",
-      "size": 5450621743403568317,
-      "status": "queued"
+      "size": 11073631979459909334,
+      "status": "abandoned"
    }'
 `, os.Args[0])
 }
@@ -518,7 +518,7 @@ List all preservation actions by ID
     -id UINT: Identifier of package to look up
 
 Example:
-    %[1]s package preservation-actions --id 11970900180965159798
+    %[1]s package preservation-actions --id 3980734888877443042
 `, os.Args[0])
 }
 
@@ -544,8 +544,8 @@ Start the submission of a package
 
 Example:
     %[1]s storage submit --body '{
-      "aip_id": "Impedit et.",
-      "name": "Explicabo soluta et autem id saepe asperiores."
+      "aip_id": "Quibusdam dolor aut sit in.",
+      "name": "Commodi possimus et."
    }'
 `, os.Args[0])
 }
@@ -558,7 +558,7 @@ Signal the storage service that an upload is complete
 
 Example:
     %[1]s storage update --body '{
-      "workflow_id": "Consequatur fugiat et non voluptatem."
+      "aip_id": "Asperiores dolor."
    }'
 `, os.Args[0])
 }

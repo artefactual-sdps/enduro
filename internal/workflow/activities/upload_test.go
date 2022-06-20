@@ -8,11 +8,11 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/google/uuid"
 	"gotest.tools/v3/assert"
 	"gotest.tools/v3/fs"
 
 	goastorage "github.com/artefactual-labs/enduro/internal/api/gen/storage"
-	"github.com/google/uuid"
 )
 
 // StorageService implements goastorage.Service.
@@ -47,8 +47,7 @@ func TestUploadActivity(t *testing.T) {
 		fakeStorageService := StorageService{}
 		fakeStorageService.SubmitHandler = func(ctx context.Context, req *goastorage.SubmitPayload) (res *goastorage.SubmitResult, err error) {
 			return &goastorage.SubmitResult{
-				URL:        minioTestServer.URL + "/aips/foobar.7z",
-				WorkflowID: "storage-workflow-eef08a96-15c9-41b9-a0de-3445253e1595",
+				URL: minioTestServer.URL + "/aips/foobar.7z",
 			}, nil
 		}
 		fakeStorageService.UpdateHandler = func(ctx context.Context, req *goastorage.UpdatePayload) (res *goastorage.UpdateResult, err error) {
@@ -83,8 +82,7 @@ func TestUploadActivity(t *testing.T) {
 		fakeStorageService := StorageService{}
 		fakeStorageService.SubmitHandler = func(ctx context.Context, req *goastorage.SubmitPayload) (res *goastorage.SubmitResult, err error) {
 			return &goastorage.SubmitResult{
-				URL:        minioTestServer.URL + "/aips/foobar.7z",
-				WorkflowID: "storage-workflow-eef08a96-15c9-41b9-a0de-3445253e1595",
+				URL: minioTestServer.URL + "/aips/foobar.7z",
 			}, nil
 		}
 		fakeStorageService.UpdateHandler = func(ctx context.Context, req *goastorage.UpdatePayload) (res *goastorage.UpdateResult, err error) {

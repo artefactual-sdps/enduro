@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/go-logr/logr"
-	"github.com/google/uuid"
 	temporalsdk_api_enums "go.temporal.io/api/enums/v1"
 	temporalsdk_client "go.temporal.io/sdk/client"
 	temporalsdk_workflow "go.temporal.io/sdk/workflow"
@@ -20,7 +19,7 @@ const (
 )
 
 type StorageWorkflowRequest struct {
-	WorkflowID string `json:"-"`
+	AIPID string
 }
 
 type StorageWorkflowSignal struct{}
@@ -52,13 +51,10 @@ func (w *StorageWorkflow) Execute(ctx temporalsdk_workflow.Context, req StorageW
 }
 
 func InitStorageWorkflow(ctx context.Context, tc temporalsdk_client.Client, req *StorageWorkflowRequest) (temporalsdk_client.WorkflowRun, error) {
-	if req.WorkflowID == "" {
-		req.WorkflowID = fmt.Sprintf("%s-%s", StorageWorkflowName, uuid.New().String())
-	}
 	ctx, cancel := context.WithTimeout(ctx, time.Second*5)
 	defer cancel()
 	opts := temporalsdk_client.StartWorkflowOptions{
-		ID:                    req.WorkflowID,
+		ID:                    fmt.Sprintf("%s-%s", StorageWorkflowName, req.AIPID),
 		TaskQueue:             temporal.GlobalTaskQueue,
 		WorkflowIDReusePolicy: temporalsdk_api_enums.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE,
 	}
