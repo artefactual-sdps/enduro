@@ -215,16 +215,6 @@ func main() {
 
 	// Workflow and activity worker.
 	{
-		temporalClient, err := temporalsdk_client.Dial(temporalsdk_client.Options{
-			Namespace: cfg.Temporal.Namespace,
-			HostPort:  cfg.Temporal.Address,
-			Logger:    temporal.Logger(logger.WithName("temporal-worker")),
-		})
-		if err != nil {
-			logger.Error(err, "Error creating Temporal client.")
-			os.Exit(1)
-		}
-
 		done := make(chan struct{})
 		workerOpts := temporalsdk_worker.Options{}
 		w := temporalsdk_worker.New(temporalClient, temporal.GlobalTaskQueue, workerOpts)
