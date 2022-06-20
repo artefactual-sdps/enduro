@@ -3,6 +3,7 @@ package storage
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
@@ -11,6 +12,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/go-logr/logr"
 	"github.com/google/uuid"
+	"github.com/jmoiron/sqlx"
 	temporalsdk_client "go.temporal.io/sdk/client"
 	"gocloud.dev/blob"
 	"gocloud.dev/blob/s3blob"
@@ -27,7 +29,7 @@ type Service interface {
 
 type serviceImpl struct {
 	logger logr.Logger
-	db     *sql.DB
+	db     *sqlx.DB
 	tc     temporalsdk_client.Client
 	config Config
 	bucket *blob.Bucket
@@ -38,7 +40,7 @@ var _ Service = (*serviceImpl)(nil)
 func NewService(logger logr.Logger, db *sql.DB, tc temporalsdk_client.Client, config Config) (*serviceImpl, error) {
 	s := &serviceImpl{
 		logger: logger,
-		db:     db,
+		db:     sqlx.NewDb(db, "mysql"),
 		tc:     tc,
 		config: config,
 	}
@@ -73,12 +75,23 @@ func (s *serviceImpl) Submit(ctx context.Context, payload *goastorage.SubmitPayl
 	workflowReq := &StorageWorkflowRequest{}
 	exec, err := InitStorageWorkflow(ctx, s.tc, workflowReq)
 	if err != nil {
-		return nil, err
+		return nil, goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
 	}
 
-	url, err := s.bucket.SignedURL(ctx, uuid.New().String(), &blob.SignedURLOptions{Expiry: urlExpirationTime, Method: http.MethodPut})
+	p := Package{
+		Name:      payload.Name,
+		AIPID:     payload.AipID,
+		Status:    StatusUnspecified,
+		ObjectKey: uuid.New().String(),
+	}
+	err = s.Create(ctx, &p)
 	if err != nil {
-		return nil, err
+		return nil, goastorage.MakeNotValid(errors.New("cannot persist package"))
+	}
+
+	url, err := s.bucket.SignedURL(ctx, p.ObjectKey, &blob.SignedURLOptions{Expiry: urlExpirationTime, Method: http.MethodPut})
+	if err != nil {
+		return nil, goastorage.MakeNotValid(errors.New("cannot persist package"))
 	}
 
 	result := &goastorage.SubmitResult{
@@ -102,4 +115,30 @@ func (s *serviceImpl) Update(ctx context.Context, payload *goastorage.UpdatePayl
 
 func SetBucket(s *serviceImpl, b *blob.Bucket) {
 	s.bucket = b
+}
+
+func (s *serviceImpl) Create(ctx context.Context, p *Package) error {
+	query := `INSERT INTO storage_package (name, aip_id, status, object_key) VALUES (?, ?, ?, ?)`
+	args := []interface{}{
+		p.Name,
+		p.AIPID,
+		p.Status,
+		p.ObjectKey,
+	}
+
+	res, err := s.db.ExecContext(ctx, query, args...)
+	if err != nil {
+		s.logger.Error(err, "error inserting package")
+		return fmt.Errorf("error inserting package: %w", err)
+	}
+
+	var id int64
+	if id, err = res.LastInsertId(); err != nil {
+		s.logger.Error(err, "error retrieving insert ID")
+		return fmt.Errorf("error retrieving insert ID: %w", err)
+	}
+
+	p.ID = uint(id)
+
+	return nil
 }

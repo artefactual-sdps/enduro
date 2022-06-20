@@ -386,9 +386,9 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 			},
 		})
 		err := temporalsdk_workflow.ExecuteActivity(activityOpts, activities.UploadActivityName, &activities.UploadActivityParams{
-			AIPPath:   tinfo.AIPPath,
-			PackageID: tinfo.PackageID,
-			Name:      tinfo.Key,
+			AIPPath: tinfo.AIPPath,
+			AIPID:   tinfo.SIPID,
+			Name:    tinfo.Key,
 		}).Get(activityOpts, nil)
 		if err != nil {
 			return err

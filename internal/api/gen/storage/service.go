@@ -14,9 +14,9 @@ import (
 	goa "goa.design/goa/v3/pkg"
 )
 
-// The storage service manages XXX.
+// The storage service manages the storage of packages.
 type Service interface {
-	// XXX
+	// Start the submission of a package
 	Submit(context.Context, *SubmitPayload) (res *SubmitResult, err error)
 	// Signal the storage service that an upload is complete
 	Update(context.Context, *UpdatePayload) (res *UpdateResult, err error)
@@ -34,8 +34,8 @@ var MethodNames = [2]string{"submit", "update"}
 
 // SubmitPayload is the payload type of the storage service submit method.
 type SubmitPayload struct {
-	PackageID uint
-	Name      string
+	AipID string
+	Name  string
 }
 
 // SubmitResult is the result type of the storage service submit method.

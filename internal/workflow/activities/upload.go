@@ -11,9 +11,9 @@ import (
 )
 
 type UploadActivityParams struct {
-	AIPPath   string
-	PackageID uint
-	Name      string
+	AIPPath string
+	AIPID   string
+	Name    string
 }
 
 type UploadActivity struct {
@@ -30,8 +30,8 @@ func (a *UploadActivity) Execute(ctx context.Context, params *UploadActivityPara
 	childCtx, cancel := context.WithTimeout(ctx, time.Second*5)
 	defer cancel()
 	res, err := a.storageClient.Submit(childCtx, &goastorage.SubmitPayload{
-		PackageID: params.PackageID,
-		Name:      params.Name,
+		AipID: params.AIPID,
+		Name:  params.Name,
 	})
 	if err != nil {
 		return err

@@ -57,7 +57,7 @@ export interface StorageUpdateRequest {
  */
 export interface StorageApiInterface {
     /**
-     * XXX
+     * Start the submission of a package
      * @summary submit storage
      * @param {StorageSubmitRequestBody} submitRequestBody 
      * @param {*} [options] Override http request option.
@@ -67,7 +67,7 @@ export interface StorageApiInterface {
     storageSubmitRaw(requestParameters: StorageSubmitRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<StorageSubmitResponseBody>>;
 
     /**
-     * XXX
+     * Start the submission of a package
      * submit storage
      */
     storageSubmit(requestParameters: StorageSubmitRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<StorageSubmitResponseBody>;
@@ -96,7 +96,7 @@ export interface StorageApiInterface {
 export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
     /**
-     * XXX
+     * Start the submission of a package
      * submit storage
      */
     async storageSubmitRaw(requestParameters: StorageSubmitRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<StorageSubmitResponseBody>> {
@@ -122,7 +122,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
     }
 
     /**
-     * XXX
+     * Start the submission of a package
      * submit storage
      */
     async storageSubmit(requestParameters: StorageSubmitRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<StorageSubmitResponseBody> {

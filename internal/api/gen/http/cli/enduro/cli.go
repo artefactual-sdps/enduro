@@ -35,14 +35,14 @@ storage (submit|update)
 // UsageExamples produces an example of a valid invocation of the CLI tool.
 func UsageExamples() string {
 	return os.Args[0] + ` batch submit --body '{
-      "completed_dir": "Quod ab nostrum consectetur sint quas at.",
-      "path": "Sed numquam.",
+      "completed_dir": "Quas at.",
+      "path": "Ab nostrum consectetur.",
       "retention_period": "Consequatur impedit vel exercitationem."
    }'` + "\n" +
 		os.Args[0] + ` package monitor` + "\n" +
 		os.Args[0] + ` storage submit --body '{
-      "name": "Et dignissimos explicabo soluta et autem id.",
-      "package_id": 8804409728531068241
+      "aip_id": "Impedit et.",
+      "name": "Explicabo soluta et autem id saepe asperiores."
    }'` + "\n" +
 		""
 }
@@ -344,8 +344,8 @@ Submit a new batch
 
 Example:
     %[1]s batch submit --body '{
-      "completed_dir": "Quod ab nostrum consectetur sint quas at.",
-      "path": "Sed numquam.",
+      "completed_dir": "Quas at.",
+      "path": "Ab nostrum consectetur.",
       "retention_period": "Consequatur impedit vel exercitationem."
    }'
 `, os.Args[0])
@@ -524,12 +524,12 @@ Example:
 
 // storageUsage displays the usage of the storage command and its subcommands.
 func storageUsage() {
-	fmt.Fprintf(os.Stderr, `The storage service manages XXX.
+	fmt.Fprintf(os.Stderr, `The storage service manages the storage of packages.
 Usage:
     %[1]s [globalflags] storage COMMAND [flags]
 
 COMMAND:
-    submit: XXX
+    submit: Start the submission of a package
     update: Signal the storage service that an upload is complete
 
 Additional help:
@@ -539,13 +539,13 @@ Additional help:
 func storageSubmitUsage() {
 	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage submit -body JSON
 
-XXX
+Start the submission of a package
     -body JSON: 
 
 Example:
     %[1]s storage submit --body '{
-      "name": "Et dignissimos explicabo soluta et autem id.",
-      "package_id": 8804409728531068241
+      "aip_id": "Impedit et.",
+      "name": "Explicabo soluta et autem id saepe asperiores."
    }'
 `, os.Args[0])
 }
@@ -558,7 +558,7 @@ Signal the storage service that an upload is complete
 
 Example:
     %[1]s storage update --body '{
-      "workflow_id": "Nesciunt qui est provident fuga aut consequatur."
+      "workflow_id": "Consequatur fugiat et non voluptatem."
    }'
 `, os.Args[0])
 }

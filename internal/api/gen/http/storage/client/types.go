@@ -16,8 +16,8 @@ import (
 // SubmitRequestBody is the type of the "storage" service "submit" endpoint
 // HTTP request body.
 type SubmitRequestBody struct {
-	PackageID uint   `form:"package_id" json:"package_id" xml:"package_id"`
-	Name      string `form:"name" json:"name" xml:"name"`
+	AipID string `form:"aip_id" json:"aip_id" xml:"aip_id"`
+	Name  string `form:"name" json:"name" xml:"name"`
 }
 
 // UpdateRequestBody is the type of the "storage" service "update" endpoint
@@ -115,8 +115,8 @@ type UpdateNotValidResponseBody struct {
 // "submit" endpoint of the "storage" service.
 func NewSubmitRequestBody(p *storage.SubmitPayload) *SubmitRequestBody {
 	body := &SubmitRequestBody{
-		PackageID: p.PackageID,
-		Name:      p.Name,
+		AipID: p.AipID,
+		Name:  p.Name,
 	}
 	return body
 }

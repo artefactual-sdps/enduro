@@ -5,16 +5,16 @@ import (
 )
 
 var _ = Service("storage", func() {
-	Description("The storage service manages XXX.")
+	Description("The storage service manages the storage of packages.")
 	HTTP(func() {
 		Path("/storage")
 	})
 	Method("submit", func() {
-		Description("XXX")
+		Description("Start the submission of a package")
 		Payload(func() {
-			Attribute("package_id", UInt)
+			Attribute("aip_id", String)
 			Attribute("name", String)
-			Required("package_id", "name")
+			Required("aip_id", "name")
 		})
 		Result(SubmitResult)
 		Error("not_available")

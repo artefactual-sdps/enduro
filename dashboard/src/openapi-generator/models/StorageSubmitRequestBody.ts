@@ -24,13 +24,13 @@ export interface StorageSubmitRequestBody {
      * @type {string}
      * @memberof StorageSubmitRequestBody
      */
-    name: string;
+    aipId: string;
     /**
      * 
-     * @type {number}
+     * @type {string}
      * @memberof StorageSubmitRequestBody
      */
-    packageId: number;
+    name: string;
 }
 
 export function StorageSubmitRequestBodyFromJSON(json: any): StorageSubmitRequestBody {
@@ -43,8 +43,8 @@ export function StorageSubmitRequestBodyFromJSONTyped(json: any, ignoreDiscrimin
     }
     return {
         
+        'aipId': json['aip_id'],
         'name': json['name'],
-        'packageId': json['package_id'],
     };
 }
 
@@ -57,8 +57,8 @@ export function StorageSubmitRequestBodyToJSON(value?: StorageSubmitRequestBody 
     }
     return {
         
+        'aip_id': value.aipId,
         'name': value.name,
-        'package_id': value.packageId,
     };
 }
 

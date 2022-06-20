@@ -12,6 +12,7 @@ import (
 	"gotest.tools/v3/fs"
 
 	goastorage "github.com/artefactual-labs/enduro/internal/api/gen/storage"
+	"github.com/google/uuid"
 )
 
 // StorageService implements goastorage.Service.
@@ -68,9 +69,9 @@ func TestUploadActivity(t *testing.T) {
 		activity := NewUploadActivity(storageClient)
 
 		err := activity.Execute(context.Background(), &UploadActivityParams{
-			AIPPath:   tmpDir.Join("aip.7z"),
-			PackageID: 1,
-			Name:      "aip.7z",
+			AIPPath: tmpDir.Join("aip.7z"),
+			AIPID:   uuid.New().String(),
+			Name:    "aip.7z",
 		})
 		assert.NilError(t, err)
 	})
@@ -102,9 +103,9 @@ func TestUploadActivity(t *testing.T) {
 		activity := NewUploadActivity(storageClient)
 
 		err := activity.Execute(context.Background(), &UploadActivityParams{
-			AIPPath:   tmpDir.Join("aip.7z"),
-			PackageID: 1,
-			Name:      "aip.7z",
+			AIPPath: tmpDir.Join("aip.7z"),
+			AIPID:   uuid.New().String(),
+			Name:    "aip.7z",
 		})
 		assert.Error(t, err, "update failed")
 	})

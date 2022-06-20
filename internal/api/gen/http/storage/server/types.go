@@ -16,8 +16,8 @@ import (
 // SubmitRequestBody is the type of the "storage" service "submit" endpoint
 // HTTP request body.
 type SubmitRequestBody struct {
-	PackageID *uint   `form:"package_id,omitempty" json:"package_id,omitempty" xml:"package_id,omitempty"`
-	Name      *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	AipID *string `form:"aip_id,omitempty" json:"aip_id,omitempty" xml:"aip_id,omitempty"`
+	Name  *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 }
 
 // UpdateRequestBody is the type of the "storage" service "update" endpoint
@@ -189,8 +189,8 @@ func NewUpdateNotValidResponseBody(res *goa.ServiceError) *UpdateNotValidRespons
 // NewSubmitPayload builds a storage service submit endpoint payload.
 func NewSubmitPayload(body *SubmitRequestBody) *storage.SubmitPayload {
 	v := &storage.SubmitPayload{
-		PackageID: *body.PackageID,
-		Name:      *body.Name,
+		AipID: *body.AipID,
+		Name:  *body.Name,
 	}
 
 	return v
@@ -207,8 +207,8 @@ func NewUpdatePayload(body *UpdateRequestBody) *storage.UpdatePayload {
 
 // ValidateSubmitRequestBody runs the validations defined on SubmitRequestBody
 func ValidateSubmitRequestBody(body *SubmitRequestBody) (err error) {
-	if body.PackageID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("package_id", "body"))
+	if body.AipID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("aip_id", "body"))
 	}
 	if body.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))

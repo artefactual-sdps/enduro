@@ -386,7 +386,7 @@ paths:
             tags:
                 - storage
             summary: submit storage
-            description: XXX
+            description: Start the submission of a package
             operationId: storage#submit
             parameters:
                 - name: SubmitRequestBody
@@ -395,7 +395,7 @@ paths:
                   schema:
                     $ref: '#/definitions/StorageSubmitRequestBody'
                     required:
-                        - package_id
+                        - aip_id
                         - name
             responses:
                 "202":
@@ -526,14 +526,14 @@ definitions:
             temporary:
                 type: boolean
                 description: Is the error temporary?
-                example: false
+                example: true
             timeout:
                 type: boolean
                 description: Is the error a timeout?
-                example: true
+                example: false
         description: submit_not_available_response_body result type (default view)
         example:
-            fault: true
+            fault: false
             id: 123abc
             message: parameter 'p' must be an integer
             name: bad_request
@@ -553,7 +553,7 @@ definitions:
             fault:
                 type: boolean
                 description: Is the error a server-side fault?
-                example: false
+                example: true
             id:
                 type: string
                 description: ID is a unique identifier for this particular occurrence of the problem.
@@ -576,11 +576,11 @@ definitions:
                 example: false
         description: submit_not_valid_response_body result type (default view)
         example:
-            fault: true
+            fault: false
             id: 123abc
             message: parameter 'p' must be an integer
             name: bad_request
-            temporary: true
+            temporary: false
             timeout: false
         required:
             - name
@@ -598,7 +598,7 @@ definitions:
                 example: Amet ipsa dicta aperiam necessitatibus ipsam.
             path:
                 type: string
-                example: Nesciunt recusandae qui optio sed consectetur sequi.
+                example: Optio sed consectetur sequi.
             retention_period:
                 type: string
                 example: Molestias quae.
@@ -614,13 +614,13 @@ definitions:
         properties:
             run_id:
                 type: string
-                example: Recusandae quasi voluptatem iusto consequatur qui aut.
+                example: Consequatur qui.
             workflow_id:
                 type: string
-                example: Non voluptatem et velit suscipit.
+                example: Suscipit ea recusandae quasi voluptatem.
         example:
-            run_id: Quibusdam vitae ut.
-            workflow_id: Totam atque.
+            run_id: Vitae ut voluptas aut id.
+            workflow_id: Ducimus totam atque pariatur.
         required:
             - workflow_id
             - run_id
@@ -1517,18 +1517,17 @@ definitions:
         title: StorageSubmitRequestBody
         type: object
         properties:
+            aip_id:
+                type: string
+                example: Aliquam aliquid non tempore vel.
             name:
                 type: string
-                example: Aliquid non tempore vel in.
-            package_id:
-                type: integer
-                example: 17952704627632579164
-                format: int64
+                example: Non cupiditate.
         example:
-            name: Ipsam omnis voluptatem.
-            package_id: 3756165718669726171
+            aip_id: Omnis voluptatem cum incidunt voluptatem.
+            name: Adipisci vel rerum quo.
         required:
-            - package_id
+            - aip_id
             - name
     StorageSubmitResponseBody:
         title: StorageSubmitResponseBody
@@ -1580,8 +1579,8 @@ definitions:
             id: 123abc
             message: parameter 'p' must be an integer
             name: bad_request
-            temporary: true
-            timeout: false
+            temporary: false
+            timeout: true
         required:
             - name
             - id
@@ -1596,7 +1595,7 @@ definitions:
             fault:
                 type: boolean
                 description: Is the error a server-side fault?
-                example: false
+                example: true
             id:
                 type: string
                 description: ID is a unique identifier for this particular occurrence of the problem.
@@ -1612,14 +1611,14 @@ definitions:
             temporary:
                 type: boolean
                 description: Is the error temporary?
-                example: false
+                example: true
             timeout:
                 type: boolean
                 description: Is the error a timeout?
-                example: true
+                example: false
         description: update_not_valid_response_body result type (default view)
         example:
-            fault: false
+            fault: true
             id: 123abc
             message: parameter 'p' must be an integer
             name: bad_request
@@ -1638,9 +1637,9 @@ definitions:
         properties:
             workflow_id:
                 type: string
-                example: Voluptatibus quo.
+                example: Beatae tenetur sed.
         example:
-            workflow_id: Ab vel sunt velit.
+            workflow_id: Quod qui.
         required:
             - workflow_id
     StorageUpdateResponseBody:
@@ -1649,8 +1648,8 @@ definitions:
         properties:
             ok:
                 type: boolean
-                example: true
+                example: false
         example:
-            ok: false
+            ok: true
         required:
             - ok
