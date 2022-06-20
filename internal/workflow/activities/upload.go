@@ -29,7 +29,10 @@ func NewUploadActivity(storageClient *goastorage.Client) *UploadActivity {
 func (a *UploadActivity) Execute(ctx context.Context, params *UploadActivityParams) error {
 	childCtx, cancel := context.WithTimeout(ctx, time.Second*5)
 	defer cancel()
-	res, err := a.storageClient.Submit(childCtx)
+	res, err := a.storageClient.Submit(childCtx, &goastorage.SubmitPayload{
+		PackageID: params.PackageID,
+		Name:      params.Name,
+	})
 	if err != nil {
 		return err
 	}

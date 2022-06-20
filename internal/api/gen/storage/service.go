@@ -17,7 +17,7 @@ import (
 // The storage service manages XXX.
 type Service interface {
 	// XXX
-	Submit(context.Context) (res *SubmitResult, err error)
+	Submit(context.Context, *SubmitPayload) (res *SubmitResult, err error)
 	// Signal the storage service that an upload is complete
 	Update(context.Context, *UpdatePayload) (res *UpdateResult, err error)
 }
@@ -31,6 +31,12 @@ const ServiceName = "storage"
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
 var MethodNames = [2]string{"submit", "update"}
+
+// SubmitPayload is the payload type of the storage service submit method.
+type SubmitPayload struct {
+	PackageID uint
+	Name      string
+}
 
 // SubmitResult is the result type of the storage service submit method.
 type SubmitResult struct {

@@ -35,12 +35,15 @@ storage (submit|update)
 // UsageExamples produces an example of a valid invocation of the CLI tool.
 func UsageExamples() string {
 	return os.Args[0] + ` batch submit --body '{
-      "completed_dir": "Optio et sed numquam laborum quod ab.",
-      "path": "Distinctio dolorum et rerum.",
-      "retention_period": "Consectetur sint."
+      "completed_dir": "Quod ab nostrum consectetur sint quas at.",
+      "path": "Sed numquam.",
+      "retention_period": "Consequatur impedit vel exercitationem."
    }'` + "\n" +
 		os.Args[0] + ` package monitor` + "\n" +
-		os.Args[0] + ` storage submit` + "\n" +
+		os.Args[0] + ` storage submit --body '{
+      "name": "Et dignissimos explicabo soluta et autem id.",
+      "package_id": 8804409728531068241
+   }'` + "\n" +
 		""
 }
 
@@ -105,7 +108,8 @@ func ParseEndpoint(
 
 		storageFlags = flag.NewFlagSet("storage", flag.ContinueOnError)
 
-		storageSubmitFlags = flag.NewFlagSet("submit", flag.ExitOnError)
+		storageSubmitFlags    = flag.NewFlagSet("submit", flag.ExitOnError)
+		storageSubmitBodyFlag = storageSubmitFlags.String("body", "REQUIRED", "")
 
 		storageUpdateFlags    = flag.NewFlagSet("update", flag.ExitOnError)
 		storageUpdateBodyFlag = storageUpdateFlags.String("body", "REQUIRED", "")
@@ -303,7 +307,7 @@ func ParseEndpoint(
 			switch epn {
 			case "submit":
 				endpoint = c.Submit()
-				data = nil
+				data, err = storagec.BuildSubmitPayload(*storageSubmitBodyFlag)
 			case "update":
 				endpoint = c.Update()
 				data, err = storagec.BuildUpdatePayload(*storageUpdateBodyFlag)
@@ -340,9 +344,9 @@ Submit a new batch
 
 Example:
     %[1]s batch submit --body '{
-      "completed_dir": "Optio et sed numquam laborum quod ab.",
-      "path": "Distinctio dolorum et rerum.",
-      "retention_period": "Consectetur sint."
+      "completed_dir": "Quod ab nostrum consectetur sint quas at.",
+      "path": "Sed numquam.",
+      "retention_period": "Consequatur impedit vel exercitationem."
    }'
 `, os.Args[0])
 }
@@ -412,7 +416,7 @@ List all stored packages
     -cursor STRING: 
 
 Example:
-    %[1]s package list --name "Laborum ea facilis provident dolor illum." --aip-id "4CCDE767-7648-444F-D09F-4B4FFE4EB36B" --earliest-created-time "1998-05-14T01:12:12Z" --latest-created-time "1991-10-20T08:51:24Z" --status "in progress" --cursor "Doloribus sed nam vero corrupti quo."
+    %[1]s package list --name "Dolor illum excepturi magni quidem." --aip-id "4CCDE767-7648-444F-D09F-4B4FFE4EB36B" --earliest-created-time "1998-12-19T01:21:09Z" --latest-created-time "1986-04-24T02:59:26Z" --status "pending" --cursor "Quo non dolor maxime enim vitae."
 `, os.Args[0])
 }
 
@@ -423,7 +427,7 @@ Show package by ID
     -id UINT: Identifier of package to show
 
 Example:
-    %[1]s package show --id 6146369010375495700
+    %[1]s package show --id 6306058619673083134
 `, os.Args[0])
 }
 
@@ -434,7 +438,7 @@ Delete package by ID
     -id UINT: Identifier of package to delete
 
 Example:
-    %[1]s package delete --id 224429362866116975
+    %[1]s package delete --id 2771991328371276903
 `, os.Args[0])
 }
 
@@ -445,7 +449,7 @@ Cancel package processing by ID
     -id UINT: Identifier of package to remove
 
 Example:
-    %[1]s package cancel --id 12367619642138472932
+    %[1]s package cancel --id 12826886350933798103
 `, os.Args[0])
 }
 
@@ -456,7 +460,7 @@ Retry package processing by ID
     -id UINT: Identifier of package to retry
 
 Example:
-    %[1]s package retry --id 12826886350933798103
+    %[1]s package retry --id 11509451525561245690
 `, os.Args[0])
 }
 
@@ -467,7 +471,7 @@ Retrieve workflow status by ID
     -id UINT: Identifier of package to look up
 
 Example:
-    %[1]s package workflow --id 11509451525561245690
+    %[1]s package workflow --id 14683926232730786222
 `, os.Args[0])
 }
 
@@ -478,7 +482,7 @@ Download package by ID
     -id UINT: Identifier of package to look up
 
 Example:
-    %[1]s package download --id 11956141247744386323
+    %[1]s package download --id 8990200003441314855
 `, os.Args[0])
 }
 
@@ -490,9 +494,9 @@ Bulk operations (retry, cancel...).
 
 Example:
     %[1]s package bulk --body '{
-      "operation": "abandon",
-      "size": 4176659541053659304,
-      "status": "in progress"
+      "operation": "retry",
+      "size": 5450621743403568317,
+      "status": "queued"
    }'
 `, os.Args[0])
 }
@@ -514,7 +518,7 @@ List all preservation actions by ID
     -id UINT: Identifier of package to look up
 
 Example:
-    %[1]s package preservation-actions --id 6161904790566803604
+    %[1]s package preservation-actions --id 11970900180965159798
 `, os.Args[0])
 }
 
@@ -533,12 +537,16 @@ Additional help:
 `, os.Args[0])
 }
 func storageSubmitUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage submit
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage submit -body JSON
 
 XXX
+    -body JSON: 
 
 Example:
-    %[1]s storage submit
+    %[1]s storage submit --body '{
+      "name": "Et dignissimos explicabo soluta et autem id.",
+      "package_id": 8804409728531068241
+   }'
 `, os.Args[0])
 }
 
@@ -550,7 +558,7 @@ Signal the storage service that an upload is complete
 
 Example:
     %[1]s storage update --body '{
-      "workflow_id": "Et autem id saepe asperiores dolor."
+      "workflow_id": "Nesciunt qui est provident fuga aut consequatur."
    }'
 `, os.Args[0])
 }

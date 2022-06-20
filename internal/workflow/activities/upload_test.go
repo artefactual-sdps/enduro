@@ -16,12 +16,12 @@ import (
 
 // StorageService implements goastorage.Service.
 type StorageService struct {
-	SubmitHandler func(ctx context.Context) (res *goastorage.SubmitResult, err error)
+	SubmitHandler func(ctx context.Context, req *goastorage.SubmitPayload) (res *goastorage.SubmitResult, err error)
 	UpdateHandler func(ctx context.Context, req *goastorage.UpdatePayload) (res *goastorage.UpdateResult, err error)
 }
 
-func (s StorageService) Submit(ctx context.Context) (res *goastorage.SubmitResult, err error) {
-	return s.SubmitHandler(ctx)
+func (s StorageService) Submit(ctx context.Context, req *goastorage.SubmitPayload) (res *goastorage.SubmitResult, err error) {
+	return s.SubmitHandler(ctx, req)
 }
 
 func (s StorageService) Update(ctx context.Context, req *goastorage.UpdatePayload) (res *goastorage.UpdateResult, err error) {
@@ -44,7 +44,7 @@ func TestUploadActivity(t *testing.T) {
 		defer minioTestServer.Close()
 
 		fakeStorageService := StorageService{}
-		fakeStorageService.SubmitHandler = func(ctx context.Context) (res *goastorage.SubmitResult, err error) {
+		fakeStorageService.SubmitHandler = func(ctx context.Context, req *goastorage.SubmitPayload) (res *goastorage.SubmitResult, err error) {
 			return &goastorage.SubmitResult{
 				URL:        minioTestServer.URL + "/aips/foobar.7z",
 				WorkflowID: "storage-workflow-eef08a96-15c9-41b9-a0de-3445253e1595",
@@ -80,7 +80,7 @@ func TestUploadActivity(t *testing.T) {
 		defer minioTestServer.Close()
 
 		fakeStorageService := StorageService{}
-		fakeStorageService.SubmitHandler = func(ctx context.Context) (res *goastorage.SubmitResult, err error) {
+		fakeStorageService.SubmitHandler = func(ctx context.Context, req *goastorage.SubmitPayload) (res *goastorage.SubmitResult, err error) {
 			return &goastorage.SubmitResult{
 				URL:        minioTestServer.URL + "/aips/foobar.7z",
 				WorkflowID: "storage-workflow-eef08a96-15c9-41b9-a0de-3445253e1595",

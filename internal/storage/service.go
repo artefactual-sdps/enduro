@@ -21,7 +21,7 @@ import (
 var urlExpirationTime = 15 * time.Minute
 
 type Service interface {
-	Submit(context.Context) (res *goastorage.SubmitResult, err error)
+	Submit(context.Context, *goastorage.SubmitPayload) (res *goastorage.SubmitResult, err error)
 	Update(context.Context, *goastorage.UpdatePayload) (res *goastorage.UpdateResult, err error)
 }
 
@@ -69,7 +69,7 @@ func (s *serviceImpl) openBucket(config *Config) (*blob.Bucket, error) {
 	return s3blob.OpenBucket(context.Background(), sess, s.config.Bucket, nil)
 }
 
-func (s *serviceImpl) Submit(ctx context.Context) (*goastorage.SubmitResult, error) {
+func (s *serviceImpl) Submit(ctx context.Context, payload *goastorage.SubmitPayload) (*goastorage.SubmitResult, error) {
 	workflowReq := &StorageWorkflowRequest{}
 	exec, err := InitStorageWorkflow(ctx, s.tc, workflowReq)
 	if err != nil {

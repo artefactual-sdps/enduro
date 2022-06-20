@@ -34,6 +34,22 @@ func (c *Client) BuildSubmitRequest(ctx context.Context, v interface{}) (*http.R
 	return req, nil
 }
 
+// EncodeSubmitRequest returns an encoder for requests sent to the storage
+// submit server.
+func EncodeSubmitRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, interface{}) error {
+	return func(req *http.Request, v interface{}) error {
+		p, ok := v.(*storage.SubmitPayload)
+		if !ok {
+			return goahttp.ErrInvalidType("storage", "submit", "*storage.SubmitPayload", v)
+		}
+		body := NewSubmitRequestBody(p)
+		if err := encoder(req).Encode(&body); err != nil {
+			return goahttp.ErrEncodingError("storage", "submit", err)
+		}
+		return nil
+	}
+}
+
 // DecodeSubmitResponse returns a decoder for responses returned by the storage
 // submit endpoint. restoreBody controls whether the response body should be
 // restored after having been read.

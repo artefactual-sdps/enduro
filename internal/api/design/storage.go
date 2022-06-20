@@ -11,6 +11,11 @@ var _ = Service("storage", func() {
 	})
 	Method("submit", func() {
 		Description("XXX")
+		Payload(func() {
+			Attribute("package_id", UInt)
+			Attribute("name", String)
+			Required("package_id", "name")
+		})
 		Result(SubmitResult)
 		Error("not_available")
 		Error("not_valid")
