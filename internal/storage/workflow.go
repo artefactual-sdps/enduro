@@ -14,15 +14,15 @@ import (
 )
 
 const (
-	StorageWorkflowName       = "storage-workflow"
-	StorageWorkflowSignalName = "storage-workflow-signal"
+	StorageWorkflowName  = "storage-workflow"
+	UploadDoneSignalName = "upload-done-signal"
 )
 
 type StorageWorkflowRequest struct {
 	AIPID string
 }
 
-type StorageWorkflowSignal struct{}
+type UploadDoneSignal struct{}
 
 type StorageWorkflow struct {
 	logger logr.Logger
@@ -35,10 +35,9 @@ func NewStorageWorkflow(logger logr.Logger) *StorageWorkflow {
 }
 
 func (w *StorageWorkflow) Execute(ctx temporalsdk_workflow.Context, req StorageWorkflowRequest) error {
-	// logger = temporalsdk_workflow.GetLogger(ctx)
-	var signal StorageWorkflowSignal
+	var signal UploadDoneSignal
 	timerFuture := temporalsdk_workflow.NewTimer(ctx, urlExpirationTime)
-	signalChan := temporalsdk_workflow.GetSignalChannel(ctx, StorageWorkflowSignalName)
+	signalChan := temporalsdk_workflow.GetSignalChannel(ctx, UploadDoneSignalName)
 	selector := temporalsdk_workflow.NewSelector(ctx)
 	selector.AddReceive(signalChan, func(channel temporalsdk_workflow.ReceiveChannel, more bool) {
 		_ = channel.Receive(ctx, &signal)

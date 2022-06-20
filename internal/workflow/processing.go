@@ -23,6 +23,8 @@ import (
 	"github.com/artefactual-labs/enduro/internal/workflow/activities"
 )
 
+const ReviewPerformedSignalName = "review-performed-signal"
+
 type ProcessingWorkflow struct {
 	logger logr.Logger
 	pkgsvc package_.Service
@@ -376,7 +378,6 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 
 	// Upload AIP to MinIO.
 	{
-		// tinfo.AIPPath
 		activityOpts := temporalsdk_workflow.WithActivityOptions(sessCtx, temporalsdk_workflow.ActivityOptions{
 			StartToCloseTimeout: time.Hour * 24,
 			RetryPolicy: &temporalsdk_temporal.RetryPolicy{
@@ -395,21 +396,53 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 		}
 	}
 
-	// Index content in OpenSearch.
+	// Set package to pending status.
 	{
-		if tinfo.Bundle != (activities.BundleActivityResult{}) {
-			activityOpts := withActivityOptsForLongLivedRequest(sessCtx)
-			err := temporalsdk_workflow.ExecuteActivity(activityOpts, sdps_activities.IndexActivityName, &sdps_activities.IndexActivityParams{
-				Path:        tinfo.Bundle.FullPath,
-				SearchIndex: sdps_activities.ESIndexName,
-			}).Get(activityOpts, nil)
-			if err != nil {
-				return err
+		ctx := withLocalActivityOpts(sessCtx)
+		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setStatusLocalActivity, w.pkgsvc, tinfo.PackageID, package_.StatusPending).Get(ctx, nil)
+		if err != nil {
+			return err
+		}
+	}
+
+	review, err := w.waitForReview(sessCtx)
+	if err != nil {
+		return err
+	}
+
+	// TODO: move to reject or permanent.
+	if review.Accepted {
+		// Index content in OpenSearch.
+		{
+			if tinfo.Bundle != (activities.BundleActivityResult{}) {
+				activityOpts := withActivityOptsForLongLivedRequest(sessCtx)
+				err := temporalsdk_workflow.ExecuteActivity(activityOpts, sdps_activities.IndexActivityName, &sdps_activities.IndexActivityParams{
+					Path:        tinfo.Bundle.FullPath,
+					SearchIndex: sdps_activities.ESIndexName,
+				}).Get(activityOpts, nil)
+				if err != nil {
+					return err
+				}
 			}
 		}
 	}
 
 	return nil
+}
+
+type ReviewPerformedSignal struct {
+	Accepted bool
+}
+
+func (w *ProcessingWorkflow) waitForReview(ctx temporalsdk_workflow.Context) (*ReviewPerformedSignal, error) {
+	var review *ReviewPerformedSignal
+	signalChan := temporalsdk_workflow.GetSignalChannel(ctx, ReviewPerformedSignalName)
+	selector := temporalsdk_workflow.NewSelector(ctx)
+	selector.AddReceive(signalChan, func(channel temporalsdk_workflow.ReceiveChannel, more bool) {
+		_ = channel.Receive(ctx, review)
+	})
+	selector.Select(ctx)
+	return review, nil
 }
 
 func (w *ProcessingWorkflow) transferA3m(sessCtx temporalsdk_workflow.Context, tinfo *TransferInfo) error {
