@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { usePackageStore } from "../../../stores/package";
+import PackageReviewAlert from "../../../components/PackageReviewAlert.vue";
 
 const packageStore = usePackageStore();
 </script>
@@ -128,6 +129,7 @@ const packageStore = usePackageStore();
         </table>
       </div>
     </div>
+    <PackageReviewAlert />
   </div>
 </template>
 

@@ -9,7 +9,7 @@ export const usePackageStore = defineStore("package", {
       null as api.PackagePreservationActionsResponseBody | null,
   }),
   actions: {
-    async fetchCurrent(id: string) {
+    fetchCurrent(id: string) {
       this.reset();
       const packageId = +id;
       if (Number.isNaN(packageId)) {
@@ -25,6 +25,8 @@ export const usePackageStore = defineStore("package", {
           this.current_preservation_actions = payload;
         });
     },
+    confirm() {},
+    reject() {},
     reset() {
       this.current = null;
       this.current_preservation_actions = null;
