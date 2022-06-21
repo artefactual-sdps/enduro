@@ -58,8 +58,9 @@ type Client struct {
 	// preservation-actions endpoint.
 	PreservationActionsDoer goahttp.Doer
 
-	// Accept Doer is the HTTP client used to make requests to the accept endpoint.
-	AcceptDoer goahttp.Doer
+	// Confirm Doer is the HTTP client used to make requests to the confirm
+	// endpoint.
+	ConfirmDoer goahttp.Doer
 
 	// Reject Doer is the HTTP client used to make requests to the reject endpoint.
 	RejectDoer goahttp.Doer
@@ -105,7 +106,7 @@ func NewClient(
 		BulkDoer:                doer,
 		BulkStatusDoer:          doer,
 		PreservationActionsDoer: doer,
-		AcceptDoer:              doer,
+		ConfirmDoer:             doer,
 		RejectDoer:              doer,
 		CORSDoer:                doer,
 		RestoreResponseBody:     restoreBody,
@@ -355,20 +356,20 @@ func (c *Client) PreservationActions() goa.Endpoint {
 	}
 }
 
-// Accept returns an endpoint that makes HTTP requests to the package service
-// accept server.
-func (c *Client) Accept() goa.Endpoint {
+// Confirm returns an endpoint that makes HTTP requests to the package service
+// confirm server.
+func (c *Client) Confirm() goa.Endpoint {
 	var (
-		decodeResponse = DecodeAcceptResponse(c.decoder, c.RestoreResponseBody)
+		decodeResponse = DecodeConfirmResponse(c.decoder, c.RestoreResponseBody)
 	)
 	return func(ctx context.Context, v interface{}) (interface{}, error) {
-		req, err := c.BuildAcceptRequest(ctx, v)
+		req, err := c.BuildConfirmRequest(ctx, v)
 		if err != nil {
 			return nil, err
 		}
-		resp, err := c.AcceptDoer.Do(req)
+		resp, err := c.ConfirmDoer.Do(req)
 		if err != nil {
-			return nil, goahttp.ErrRequestError("package", "accept", err)
+			return nil, goahttp.ErrRequestError("package", "confirm", err)
 		}
 		return decodeResponse(resp)
 	}

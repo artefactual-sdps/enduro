@@ -896,23 +896,23 @@ func DecodePreservationActionsResponse(decoder func(*http.Response) goahttp.Deco
 	}
 }
 
-// BuildAcceptRequest instantiates a HTTP request object with method and path
-// set to call the "package" service "accept" endpoint
-func (c *Client) BuildAcceptRequest(ctx context.Context, v interface{}) (*http.Request, error) {
+// BuildConfirmRequest instantiates a HTTP request object with method and path
+// set to call the "package" service "confirm" endpoint
+func (c *Client) BuildConfirmRequest(ctx context.Context, v interface{}) (*http.Request, error) {
 	var (
 		id uint
 	)
 	{
-		p, ok := v.(*package_.AcceptPayload)
+		p, ok := v.(*package_.ConfirmPayload)
 		if !ok {
-			return nil, goahttp.ErrInvalidType("package", "accept", "*package_.AcceptPayload", v)
+			return nil, goahttp.ErrInvalidType("package", "confirm", "*package_.ConfirmPayload", v)
 		}
 		id = p.ID
 	}
-	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: AcceptPackagePath(id)}
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: ConfirmPackagePath(id)}
 	req, err := http.NewRequest("POST", u.String(), nil)
 	if err != nil {
-		return nil, goahttp.ErrInvalidURL("package", "accept", u.String(), err)
+		return nil, goahttp.ErrInvalidURL("package", "confirm", u.String(), err)
 	}
 	if ctx != nil {
 		req = req.WithContext(ctx)
@@ -921,14 +921,14 @@ func (c *Client) BuildAcceptRequest(ctx context.Context, v interface{}) (*http.R
 	return req, nil
 }
 
-// DecodeAcceptResponse returns a decoder for responses returned by the package
-// accept endpoint. restoreBody controls whether the response body should be
-// restored after having been read.
-// DecodeAcceptResponse may return the following errors:
+// DecodeConfirmResponse returns a decoder for responses returned by the
+// package confirm endpoint. restoreBody controls whether the response body
+// should be restored after having been read.
+// DecodeConfirmResponse may return the following errors:
 //	- "not_available" (type *goa.ServiceError): http.StatusConflict
 //	- "not_valid" (type *goa.ServiceError): http.StatusBadRequest
 //	- error: internal error
-func DecodeAcceptResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
+func DecodeConfirmResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
 	return func(resp *http.Response) (interface{}, error) {
 		if restoreBody {
 			b, err := ioutil.ReadAll(resp.Body)
@@ -945,50 +945,50 @@ func DecodeAcceptResponse(decoder func(*http.Response) goahttp.Decoder, restoreB
 		switch resp.StatusCode {
 		case http.StatusAccepted:
 			var (
-				body AcceptResponseBody
+				body ConfirmResponseBody
 				err  error
 			)
 			err = decoder(resp).Decode(&body)
 			if err != nil {
-				return nil, goahttp.ErrDecodingError("package", "accept", err)
+				return nil, goahttp.ErrDecodingError("package", "confirm", err)
 			}
-			err = ValidateAcceptResponseBody(&body)
+			err = ValidateConfirmResponseBody(&body)
 			if err != nil {
-				return nil, goahttp.ErrValidationError("package", "accept", err)
+				return nil, goahttp.ErrValidationError("package", "confirm", err)
 			}
-			res := NewAcceptResultAccepted(&body)
+			res := NewConfirmResultAccepted(&body)
 			return res, nil
 		case http.StatusConflict:
 			var (
-				body AcceptNotAvailableResponseBody
+				body ConfirmNotAvailableResponseBody
 				err  error
 			)
 			err = decoder(resp).Decode(&body)
 			if err != nil {
-				return nil, goahttp.ErrDecodingError("package", "accept", err)
+				return nil, goahttp.ErrDecodingError("package", "confirm", err)
 			}
-			err = ValidateAcceptNotAvailableResponseBody(&body)
+			err = ValidateConfirmNotAvailableResponseBody(&body)
 			if err != nil {
-				return nil, goahttp.ErrValidationError("package", "accept", err)
+				return nil, goahttp.ErrValidationError("package", "confirm", err)
 			}
-			return nil, NewAcceptNotAvailable(&body)
+			return nil, NewConfirmNotAvailable(&body)
 		case http.StatusBadRequest:
 			var (
-				body AcceptNotValidResponseBody
+				body ConfirmNotValidResponseBody
 				err  error
 			)
 			err = decoder(resp).Decode(&body)
 			if err != nil {
-				return nil, goahttp.ErrDecodingError("package", "accept", err)
+				return nil, goahttp.ErrDecodingError("package", "confirm", err)
 			}
-			err = ValidateAcceptNotValidResponseBody(&body)
+			err = ValidateConfirmNotValidResponseBody(&body)
 			if err != nil {
-				return nil, goahttp.ErrValidationError("package", "accept", err)
+				return nil, goahttp.ErrValidationError("package", "confirm", err)
 			}
-			return nil, NewAcceptNotValid(&body)
+			return nil, NewConfirmNotValid(&body)
 		default:
 			body, _ := ioutil.ReadAll(resp.Body)
-			return nil, goahttp.ErrInvalidResponse("package", "accept", resp.StatusCode, string(body))
+			return nil, goahttp.ErrInvalidResponse("package", "confirm", resp.StatusCode, string(body))
 		}
 	}
 }

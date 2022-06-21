@@ -67,9 +67,9 @@ func PreservationActionsPackagePath(id uint) string {
 	return fmt.Sprintf("/package/%v/preservation-actions", id)
 }
 
-// AcceptPackagePath returns the URL path to the package service accept HTTP endpoint.
-func AcceptPackagePath(id uint) string {
-	return fmt.Sprintf("/package/%v/accept", id)
+// ConfirmPackagePath returns the URL path to the package service confirm HTTP endpoint.
+func ConfirmPackagePath(id uint) string {
+	return fmt.Sprintf("/package/%v/confirm", id)
 }
 
 // RejectPackagePath returns the URL path to the package service reject HTTP endpoint.

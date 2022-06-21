@@ -15,15 +15,6 @@
 
 import * as runtime from '../runtime';
 import {
-    PackageAcceptNotAvailableResponseBody,
-    PackageAcceptNotAvailableResponseBodyFromJSON,
-    PackageAcceptNotAvailableResponseBodyToJSON,
-    PackageAcceptNotValidResponseBody,
-    PackageAcceptNotValidResponseBodyFromJSON,
-    PackageAcceptNotValidResponseBodyToJSON,
-    PackageAcceptResponseBody,
-    PackageAcceptResponseBodyFromJSON,
-    PackageAcceptResponseBodyToJSON,
     PackageBulkNotAvailableResponseBody,
     PackageBulkNotAvailableResponseBodyFromJSON,
     PackageBulkNotAvailableResponseBodyToJSON,
@@ -45,6 +36,15 @@ import {
     PackageCancelNotRunningResponseBody,
     PackageCancelNotRunningResponseBodyFromJSON,
     PackageCancelNotRunningResponseBodyToJSON,
+    PackageConfirmNotAvailableResponseBody,
+    PackageConfirmNotAvailableResponseBodyFromJSON,
+    PackageConfirmNotAvailableResponseBodyToJSON,
+    PackageConfirmNotValidResponseBody,
+    PackageConfirmNotValidResponseBodyFromJSON,
+    PackageConfirmNotValidResponseBodyToJSON,
+    PackageConfirmResponseBody,
+    PackageConfirmResponseBodyFromJSON,
+    PackageConfirmResponseBodyToJSON,
     PackageDeleteNotFoundResponseBody,
     PackageDeleteNotFoundResponseBodyFromJSON,
     PackageDeleteNotFoundResponseBodyToJSON,
@@ -92,15 +92,15 @@ import {
     PackageWorkflowResponseBodyToJSON,
 } from '../models';
 
-export interface PackageAcceptRequest {
-    id: number;
-}
-
 export interface PackageBulkRequest {
     bulkRequestBody: PackageBulkRequestBody;
 }
 
 export interface PackageCancelRequest {
+    id: number;
+}
+
+export interface PackageConfirmRequest {
     id: number;
 }
 
@@ -149,22 +149,6 @@ export interface PackageWorkflowRequest {
  */
 export interface PackageApiInterface {
     /**
-     * Signal the package has been reviewed and accepted
-     * @summary accept package
-     * @param {number} id Identifier of package to look up
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof PackageApiInterface
-     */
-    packageAcceptRaw(requestParameters: PackageAcceptRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<PackageAcceptResponseBody>>;
-
-    /**
-     * Signal the package has been reviewed and accepted
-     * accept package
-     */
-    packageAccept(requestParameters: PackageAcceptRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<PackageAcceptResponseBody>;
-
-    /**
      * Bulk operations (retry, cancel...).
      * @summary bulk package
      * @param {PackageBulkRequestBody} bulkRequestBody 
@@ -210,6 +194,22 @@ export interface PackageApiInterface {
      * cancel package
      */
     packageCancel(requestParameters: PackageCancelRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<void>;
+
+    /**
+     * Signal the package has been reviewed and accepted
+     * @summary confirm package
+     * @param {number} id Identifier of package to look up
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof PackageApiInterface
+     */
+    packageConfirmRaw(requestParameters: PackageConfirmRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<PackageConfirmResponseBody>>;
+
+    /**
+     * Signal the package has been reviewed and accepted
+     * confirm package
+     */
+    packageConfirm(requestParameters: PackageConfirmRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<PackageConfirmResponseBody>;
 
     /**
      * Delete package by ID
@@ -366,38 +366,6 @@ export interface PackageApiInterface {
 export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
 
     /**
-     * Signal the package has been reviewed and accepted
-     * accept package
-     */
-    async packageAcceptRaw(requestParameters: PackageAcceptRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<PackageAcceptResponseBody>> {
-        if (requestParameters.id === null || requestParameters.id === undefined) {
-            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling packageAccept.');
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        const response = await this.request({
-            path: `/package/{id}/accept`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
-            method: 'POST',
-            headers: headerParameters,
-            query: queryParameters,
-        }, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => PackageAcceptResponseBodyFromJSON(jsonValue));
-    }
-
-    /**
-     * Signal the package has been reviewed and accepted
-     * accept package
-     */
-    async packageAccept(requestParameters: PackageAcceptRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<PackageAcceptResponseBody> {
-        const response = await this.packageAcceptRaw(requestParameters, initOverrides);
-        return await response.value();
-    }
-
-    /**
      * Bulk operations (retry, cancel...).
      * bulk package
      */
@@ -489,6 +457,38 @@ export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
      */
     async packageCancel(requestParameters: PackageCancelRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<void> {
         await this.packageCancelRaw(requestParameters, initOverrides);
+    }
+
+    /**
+     * Signal the package has been reviewed and accepted
+     * confirm package
+     */
+    async packageConfirmRaw(requestParameters: PackageConfirmRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<PackageConfirmResponseBody>> {
+        if (requestParameters.id === null || requestParameters.id === undefined) {
+            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling packageConfirm.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const response = await this.request({
+            path: `/package/{id}/confirm`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => PackageConfirmResponseBodyFromJSON(jsonValue));
+    }
+
+    /**
+     * Signal the package has been reviewed and accepted
+     * confirm package
+     */
+    async packageConfirm(requestParameters: PackageConfirmRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<PackageConfirmResponseBody> {
+        const response = await this.packageConfirmRaw(requestParameters, initOverrides);
+        return await response.value();
     }
 
     /**

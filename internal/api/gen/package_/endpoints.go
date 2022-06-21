@@ -27,7 +27,7 @@ type Endpoints struct {
 	Bulk                goa.Endpoint
 	BulkStatus          goa.Endpoint
 	PreservationActions goa.Endpoint
-	Accept              goa.Endpoint
+	Confirm             goa.Endpoint
 	Reject              goa.Endpoint
 }
 
@@ -52,7 +52,7 @@ func NewEndpoints(s Service) *Endpoints {
 		Bulk:                NewBulkEndpoint(s),
 		BulkStatus:          NewBulkStatusEndpoint(s),
 		PreservationActions: NewPreservationActionsEndpoint(s),
-		Accept:              NewAcceptEndpoint(s),
+		Confirm:             NewConfirmEndpoint(s),
 		Reject:              NewRejectEndpoint(s),
 	}
 }
@@ -70,7 +70,7 @@ func (e *Endpoints) Use(m func(goa.Endpoint) goa.Endpoint) {
 	e.Bulk = m(e.Bulk)
 	e.BulkStatus = m(e.BulkStatus)
 	e.PreservationActions = m(e.PreservationActions)
-	e.Accept = m(e.Accept)
+	e.Confirm = m(e.Confirm)
 	e.Reject = m(e.Reject)
 }
 
@@ -187,12 +187,12 @@ func NewPreservationActionsEndpoint(s Service) goa.Endpoint {
 	}
 }
 
-// NewAcceptEndpoint returns an endpoint function that calls the method
-// "accept" of service "package".
-func NewAcceptEndpoint(s Service) goa.Endpoint {
+// NewConfirmEndpoint returns an endpoint function that calls the method
+// "confirm" of service "package".
+func NewConfirmEndpoint(s Service) goa.Endpoint {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
-		p := req.(*AcceptPayload)
-		return s.Accept(ctx, p)
+		p := req.(*ConfirmPayload)
+		return s.Confirm(ctx, p)
 	}
 }
 

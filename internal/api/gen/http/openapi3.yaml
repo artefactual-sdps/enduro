@@ -239,44 +239,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/PackageNotfound'
-    /package/{id}/accept:
-        post:
-            tags:
-                - package
-            summary: accept package
-            description: Signal the package has been reviewed and accepted
-            operationId: package#accept
-            parameters:
-                - name: id
-                  in: path
-                  description: Identifier of package to look up
-                  required: true
-                  schema:
-                    type: integer
-                    description: Identifier of package to look up
-                    example: 9265203465938678124
-                  example: 763310194583190784
-            responses:
-                "202":
-                    description: Accepted response.
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/AcceptResult'
-                            example:
-                                ok: true
-                "400":
-                    description: 'not_valid: Bad Request response.'
-                    content:
-                        application/vnd.goa.error:
-                            schema:
-                                $ref: '#/components/schemas/Error'
-                "409":
-                    description: 'not_available: Conflict response.'
-                    content:
-                        application/vnd.goa.error:
-                            schema:
-                                $ref: '#/components/schemas/Error'
     /package/{id}/cancel:
         post:
             tags:
@@ -309,6 +271,44 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/PackageNotfound'
+    /package/{id}/confirm:
+        post:
+            tags:
+                - package
+            summary: confirm package
+            description: Signal the package has been reviewed and accepted
+            operationId: package#confirm
+            parameters:
+                - name: id
+                  in: path
+                  description: Identifier of package to look up
+                  required: true
+                  schema:
+                    type: integer
+                    description: Identifier of package to look up
+                    example: 9265203465938678124
+                  example: 763310194583190784
+            responses:
+                "202":
+                    description: Accepted response.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ConfirmResult'
+                            example:
+                                ok: true
+                "400":
+                    description: 'not_valid: Bad Request response.'
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                "409":
+                    description: 'not_available: Conflict response.'
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
     /package/{id}/download:
         get:
             tags:
@@ -478,7 +478,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/AcceptResult'
+                                $ref: '#/components/schemas/ConfirmResult'
                             example:
                                 ok: false
                 "400":
@@ -744,7 +744,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/AcceptResult'
+                                $ref: '#/components/schemas/ConfirmResult'
                             example:
                                 ok: false
                 "400":
@@ -771,16 +771,6 @@ paths:
                     description: File downloaded
 components:
     schemas:
-        AcceptResult:
-            type: object
-            properties:
-                ok:
-                    type: boolean
-                    example: true
-            example:
-                ok: true
-            required:
-                - ok
         BatchHintsResult:
             type: object
             properties:
@@ -901,6 +891,16 @@ components:
                 workflow_id: Qui sit consectetur quia iusto.
             required:
                 - running
+        ConfirmResult:
+            type: object
+            properties:
+                ok:
+                    type: boolean
+                    example: true
+            example:
+                ok: true
+            required:
+                - ok
         EnduroMonitorUpdate:
             type: object
             properties:

@@ -94,9 +94,9 @@ type PreservationActionsResponseBody struct {
 	Actions EnduroPackagePreservationActionsActionResponseBodyCollection `form:"actions,omitempty" json:"actions,omitempty" xml:"actions,omitempty"`
 }
 
-// AcceptResponseBody is the type of the "package" service "accept" endpoint
+// ConfirmResponseBody is the type of the "package" service "confirm" endpoint
 // HTTP response body.
-type AcceptResponseBody struct {
+type ConfirmResponseBody struct {
 	OK bool `form:"ok" json:"ok" xml:"ok"`
 }
 
@@ -241,9 +241,9 @@ type PreservationActionsNotFoundResponseBody struct {
 	ID uint `form:"id" json:"id" xml:"id"`
 }
 
-// AcceptNotAvailableResponseBody is the type of the "package" service "accept"
-// endpoint HTTP response body for the "not_available" error.
-type AcceptNotAvailableResponseBody struct {
+// ConfirmNotAvailableResponseBody is the type of the "package" service
+// "confirm" endpoint HTTP response body for the "not_available" error.
+type ConfirmNotAvailableResponseBody struct {
 	// Name is the name of this class of errors.
 	Name string `form:"name" json:"name" xml:"name"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -259,9 +259,9 @@ type AcceptNotAvailableResponseBody struct {
 	Fault bool `form:"fault" json:"fault" xml:"fault"`
 }
 
-// AcceptNotValidResponseBody is the type of the "package" service "accept"
+// ConfirmNotValidResponseBody is the type of the "package" service "confirm"
 // endpoint HTTP response body for the "not_valid" error.
-type AcceptNotValidResponseBody struct {
+type ConfirmNotValidResponseBody struct {
 	// Name is the name of this class of errors.
 	Name string `form:"name" json:"name" xml:"name"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -466,10 +466,10 @@ func NewPreservationActionsResponseBody(res *package_views.EnduroPackagePreserva
 	return body
 }
 
-// NewAcceptResponseBody builds the HTTP response body from the result of the
-// "accept" endpoint of the "package" service.
-func NewAcceptResponseBody(res *package_.AcceptResult) *AcceptResponseBody {
-	body := &AcceptResponseBody{
+// NewConfirmResponseBody builds the HTTP response body from the result of the
+// "confirm" endpoint of the "package" service.
+func NewConfirmResponseBody(res *package_.ConfirmResult) *ConfirmResponseBody {
+	body := &ConfirmResponseBody{
 		OK: res.OK,
 	}
 	return body
@@ -611,10 +611,10 @@ func NewPreservationActionsNotFoundResponseBody(res *package_.PackageNotfound) *
 	return body
 }
 
-// NewAcceptNotAvailableResponseBody builds the HTTP response body from the
-// result of the "accept" endpoint of the "package" service.
-func NewAcceptNotAvailableResponseBody(res *goa.ServiceError) *AcceptNotAvailableResponseBody {
-	body := &AcceptNotAvailableResponseBody{
+// NewConfirmNotAvailableResponseBody builds the HTTP response body from the
+// result of the "confirm" endpoint of the "package" service.
+func NewConfirmNotAvailableResponseBody(res *goa.ServiceError) *ConfirmNotAvailableResponseBody {
+	body := &ConfirmNotAvailableResponseBody{
 		Name:      res.Name,
 		ID:        res.ID,
 		Message:   res.Message,
@@ -625,10 +625,10 @@ func NewAcceptNotAvailableResponseBody(res *goa.ServiceError) *AcceptNotAvailabl
 	return body
 }
 
-// NewAcceptNotValidResponseBody builds the HTTP response body from the result
-// of the "accept" endpoint of the "package" service.
-func NewAcceptNotValidResponseBody(res *goa.ServiceError) *AcceptNotValidResponseBody {
-	body := &AcceptNotValidResponseBody{
+// NewConfirmNotValidResponseBody builds the HTTP response body from the result
+// of the "confirm" endpoint of the "package" service.
+func NewConfirmNotValidResponseBody(res *goa.ServiceError) *ConfirmNotValidResponseBody {
+	body := &ConfirmNotValidResponseBody{
 		Name:      res.Name,
 		ID:        res.ID,
 		Message:   res.Message,
@@ -753,9 +753,9 @@ func NewPreservationActionsPayload(id uint) *package_.PreservationActionsPayload
 	return v
 }
 
-// NewAcceptPayload builds a package service accept endpoint payload.
-func NewAcceptPayload(id uint) *package_.AcceptPayload {
-	v := &package_.AcceptPayload{}
+// NewConfirmPayload builds a package service confirm endpoint payload.
+func NewConfirmPayload(id uint) *package_.ConfirmPayload {
+	v := &package_.ConfirmPayload{}
 	v.ID = id
 
 	return v

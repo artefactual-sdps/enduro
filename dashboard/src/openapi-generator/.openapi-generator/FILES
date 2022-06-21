@@ -13,9 +13,6 @@ models/BatchSubmitResponseBody.ts
 models/EnduroPackagePreservationActionsActionResponseBody.ts
 models/EnduroPackageWorkflowHistoryResponseBody.ts
 models/EnduroStoredPackageResponseBody.ts
-models/PackageAcceptNotAvailableResponseBody.ts
-models/PackageAcceptNotValidResponseBody.ts
-models/PackageAcceptResponseBody.ts
 models/PackageBulkNotAvailableResponseBody.ts
 models/PackageBulkNotValidResponseBody.ts
 models/PackageBulkRequestBody.ts
@@ -23,6 +20,9 @@ models/PackageBulkResponseBody.ts
 models/PackageBulkStatusResponseBody.ts
 models/PackageCancelNotFoundResponseBody.ts
 models/PackageCancelNotRunningResponseBody.ts
+models/PackageConfirmNotAvailableResponseBody.ts
+models/PackageConfirmNotValidResponseBody.ts
+models/PackageConfirmResponseBody.ts
 models/PackageDeleteNotFoundResponseBody.ts
 models/PackageDownloadNotFoundResponseBody.ts
 models/PackageListResponseBody.ts

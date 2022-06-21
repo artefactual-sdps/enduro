@@ -254,20 +254,20 @@ func BuildPreservationActionsPayload(package_PreservationActionsID string) (*pac
 	return v, nil
 }
 
-// BuildAcceptPayload builds the payload for the package accept endpoint from
+// BuildConfirmPayload builds the payload for the package confirm endpoint from
 // CLI flags.
-func BuildAcceptPayload(package_AcceptID string) (*package_.AcceptPayload, error) {
+func BuildConfirmPayload(package_ConfirmID string) (*package_.ConfirmPayload, error) {
 	var err error
 	var id uint
 	{
 		var v uint64
-		v, err = strconv.ParseUint(package_AcceptID, 10, strconv.IntSize)
+		v, err = strconv.ParseUint(package_ConfirmID, 10, strconv.IntSize)
 		id = uint(v)
 		if err != nil {
 			return nil, fmt.Errorf("invalid value for id, must be UINT")
 		}
 	}
-	v := &package_.AcceptPayload{}
+	v := &package_.ConfirmPayload{}
 	v.ID = id
 
 	return v, nil

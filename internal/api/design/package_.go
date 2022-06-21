@@ -179,17 +179,17 @@ var _ = Service("package", func() {
 			Response("not_found", StatusNotFound)
 		})
 	})
-	Method("accept", func() {
+	Method("confirm", func() {
 		Description("Signal the package has been reviewed and accepted")
 		Payload(func() {
 			Attribute("id", UInt, "Identifier of package to look up")
 			Required("id")
 		})
-		Result(AcceptResult)
+		Result(ConfirmResult)
 		Error("not_available")
 		Error("not_valid")
 		HTTP(func() {
-			POST("/{id}/accept")
+			POST("/{id}/confirm")
 			Response(StatusAccepted)
 			Response("not_available", StatusConflict)
 			Response("not_valid", StatusBadRequest)
@@ -349,7 +349,7 @@ var PreservationAction = ResultType("application/vnd.enduro.package-preservation
 	Required("id", "action_id", "name", "status", "started_at")
 })
 
-var AcceptResult = Type("AcceptResult", func() {
+var ConfirmResult = Type("ConfirmResult", func() {
 	Attribute("ok", Boolean)
 	Required("ok")
 })

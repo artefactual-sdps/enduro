@@ -677,21 +677,21 @@ func EncodePreservationActionsError(encoder func(context.Context, http.ResponseW
 	}
 }
 
-// EncodeAcceptResponse returns an encoder for responses returned by the
-// package accept endpoint.
-func EncodeAcceptResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
+// EncodeConfirmResponse returns an encoder for responses returned by the
+// package confirm endpoint.
+func EncodeConfirmResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
 	return func(ctx context.Context, w http.ResponseWriter, v interface{}) error {
-		res, _ := v.(*package_.AcceptResult)
+		res, _ := v.(*package_.ConfirmResult)
 		enc := encoder(ctx, w)
-		body := NewAcceptResponseBody(res)
+		body := NewConfirmResponseBody(res)
 		w.WriteHeader(http.StatusAccepted)
 		return enc.Encode(body)
 	}
 }
 
-// DecodeAcceptRequest returns a decoder for requests sent to the package
-// accept endpoint.
-func DecodeAcceptRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (interface{}, error) {
+// DecodeConfirmRequest returns a decoder for requests sent to the package
+// confirm endpoint.
+func DecodeConfirmRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (interface{}, error) {
 	return func(r *http.Request) (interface{}, error) {
 		var (
 			id  uint
@@ -710,15 +710,15 @@ func DecodeAcceptRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.
 		if err != nil {
 			return nil, err
 		}
-		payload := NewAcceptPayload(id)
+		payload := NewConfirmPayload(id)
 
 		return payload, nil
 	}
 }
 
-// EncodeAcceptError returns an encoder for errors returned by the accept
+// EncodeConfirmError returns an encoder for errors returned by the confirm
 // package endpoint.
-func EncodeAcceptError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
+func EncodeConfirmError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
 	encodeError := goahttp.ErrorEncoder(encoder, formatter)
 	return func(ctx context.Context, w http.ResponseWriter, v error) error {
 		var en ErrorNamer
@@ -734,7 +734,7 @@ func EncodeAcceptError(encoder func(context.Context, http.ResponseWriter) goahtt
 			if formatter != nil {
 				body = formatter(res)
 			} else {
-				body = NewAcceptNotAvailableResponseBody(res)
+				body = NewConfirmNotAvailableResponseBody(res)
 			}
 			w.Header().Set("goa-error", res.ErrorName())
 			w.WriteHeader(http.StatusConflict)
@@ -747,7 +747,7 @@ func EncodeAcceptError(encoder func(context.Context, http.ResponseWriter) goahtt
 			if formatter != nil {
 				body = formatter(res)
 			} else {
-				body = NewAcceptNotValidResponseBody(res)
+				body = NewConfirmNotValidResponseBody(res)
 			}
 			w.Header().Set("goa-error", res.ErrorName())
 			w.WriteHeader(http.StatusBadRequest)

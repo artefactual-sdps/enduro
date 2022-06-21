@@ -179,36 +179,6 @@ paths:
                             - id
             schemes:
                 - http
-    /package/{id}/accept:
-        post:
-            tags:
-                - package
-            summary: accept package
-            description: Signal the package has been reviewed and accepted
-            operationId: package#accept
-            parameters:
-                - name: id
-                  in: path
-                  description: Identifier of package to look up
-                  required: true
-                  type: integer
-            responses:
-                "202":
-                    description: Accepted response.
-                    schema:
-                        $ref: '#/definitions/PackageAcceptResponseBody'
-                        required:
-                            - ok
-                "400":
-                    description: Bad Request response.
-                    schema:
-                        $ref: '#/definitions/PackageAcceptNotValidResponseBody'
-                "409":
-                    description: Conflict response.
-                    schema:
-                        $ref: '#/definitions/PackageAcceptNotAvailableResponseBody'
-            schemes:
-                - http
     /package/{id}/cancel:
         post:
             tags:
@@ -236,6 +206,36 @@ paths:
                         required:
                             - message
                             - id
+            schemes:
+                - http
+    /package/{id}/confirm:
+        post:
+            tags:
+                - package
+            summary: confirm package
+            description: Signal the package has been reviewed and accepted
+            operationId: package#confirm
+            parameters:
+                - name: id
+                  in: path
+                  description: Identifier of package to look up
+                  required: true
+                  type: integer
+            responses:
+                "202":
+                    description: Accepted response.
+                    schema:
+                        $ref: '#/definitions/PackageConfirmResponseBody'
+                        required:
+                            - ok
+                "400":
+                    description: Bad Request response.
+                    schema:
+                        $ref: '#/definitions/PackageConfirmNotValidResponseBody'
+                "409":
+                    description: Conflict response.
+                    schema:
+                        $ref: '#/definitions/PackageConfirmNotAvailableResponseBody'
             schemes:
                 - http
     /package/{id}/download:
@@ -905,103 +905,6 @@ definitions:
               started_at: "1976-01-19T02:38:53Z"
               status: queued
               workflow_id: 7D80331A-7620-D09D-7CCB-2EF87B797732
-    PackageAcceptNotAvailableResponseBody:
-        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
-        type: object
-        properties:
-            fault:
-                type: boolean
-                description: Is the error a server-side fault?
-                example: true
-            id:
-                type: string
-                description: ID is a unique identifier for this particular occurrence of the problem.
-                example: 123abc
-            message:
-                type: string
-                description: Message is a human-readable explanation specific to this occurrence of the problem.
-                example: parameter 'p' must be an integer
-            name:
-                type: string
-                description: Name is the name of this class of errors.
-                example: bad_request
-            temporary:
-                type: boolean
-                description: Is the error temporary?
-                example: true
-            timeout:
-                type: boolean
-                description: Is the error a timeout?
-                example: true
-        description: accept_not_available_response_body result type (default view)
-        example:
-            fault: true
-            id: 123abc
-            message: parameter 'p' must be an integer
-            name: bad_request
-            temporary: true
-            timeout: false
-        required:
-            - name
-            - id
-            - message
-            - temporary
-            - timeout
-            - fault
-    PackageAcceptNotValidResponseBody:
-        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
-        type: object
-        properties:
-            fault:
-                type: boolean
-                description: Is the error a server-side fault?
-                example: false
-            id:
-                type: string
-                description: ID is a unique identifier for this particular occurrence of the problem.
-                example: 123abc
-            message:
-                type: string
-                description: Message is a human-readable explanation specific to this occurrence of the problem.
-                example: parameter 'p' must be an integer
-            name:
-                type: string
-                description: Name is the name of this class of errors.
-                example: bad_request
-            temporary:
-                type: boolean
-                description: Is the error temporary?
-                example: false
-            timeout:
-                type: boolean
-                description: Is the error a timeout?
-                example: false
-        description: accept_not_valid_response_body result type (default view)
-        example:
-            fault: true
-            id: 123abc
-            message: parameter 'p' must be an integer
-            name: bad_request
-            temporary: false
-            timeout: true
-        required:
-            - name
-            - id
-            - message
-            - temporary
-            - timeout
-            - fault
-    PackageAcceptResponseBody:
-        title: PackageAcceptResponseBody
-        type: object
-        properties:
-            ok:
-                type: boolean
-                example: false
-        example:
-            ok: true
-        required:
-            - ok
     PackageBulkNotAvailableResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
@@ -1235,6 +1138,103 @@ definitions:
             - temporary
             - timeout
             - fault
+    PackageConfirmNotAvailableResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+        type: object
+        properties:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
+                example: true
+            id:
+                type: string
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
+            message:
+                type: string
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
+            name:
+                type: string
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
+                example: true
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: true
+        description: confirm_not_available_response_body result type (default view)
+        example:
+            fault: true
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: true
+            timeout: false
+        required:
+            - name
+            - id
+            - message
+            - temporary
+            - timeout
+            - fault
+    PackageConfirmNotValidResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+        type: object
+        properties:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
+                example: false
+            id:
+                type: string
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
+            message:
+                type: string
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
+            name:
+                type: string
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
+                example: false
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: false
+        description: confirm_not_valid_response_body result type (default view)
+        example:
+            fault: true
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: false
+            timeout: true
+        required:
+            - name
+            - id
+            - message
+            - temporary
+            - timeout
+            - fault
+    PackageConfirmResponseBody:
+        title: PackageConfirmResponseBody
+        type: object
+        properties:
+            ok:
+                type: boolean
+                example: false
+        example:
+            ok: true
+        required:
+            - ok
     PackageDeleteNotFoundResponseBody:
         title: PackageDeleteNotFoundResponseBody
         type: object

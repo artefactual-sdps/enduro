@@ -14,54 +14,54 @@
 
 import { exists, mapValues } from '../runtime';
 /**
- * accept_not_available_response_body result type (default view)
+ * confirm_not_valid_response_body result type (default view)
  * @export
- * @interface PackageAcceptNotAvailableResponseBody
+ * @interface PackageConfirmNotValidResponseBody
  */
-export interface PackageAcceptNotAvailableResponseBody {
+export interface PackageConfirmNotValidResponseBody {
     /**
      * Is the error a server-side fault?
      * @type {boolean}
-     * @memberof PackageAcceptNotAvailableResponseBody
+     * @memberof PackageConfirmNotValidResponseBody
      */
     fault: boolean;
     /**
      * ID is a unique identifier for this particular occurrence of the problem.
      * @type {string}
-     * @memberof PackageAcceptNotAvailableResponseBody
+     * @memberof PackageConfirmNotValidResponseBody
      */
     id: string;
     /**
      * Message is a human-readable explanation specific to this occurrence of the problem.
      * @type {string}
-     * @memberof PackageAcceptNotAvailableResponseBody
+     * @memberof PackageConfirmNotValidResponseBody
      */
     message: string;
     /**
      * Name is the name of this class of errors.
      * @type {string}
-     * @memberof PackageAcceptNotAvailableResponseBody
+     * @memberof PackageConfirmNotValidResponseBody
      */
     name: string;
     /**
      * Is the error temporary?
      * @type {boolean}
-     * @memberof PackageAcceptNotAvailableResponseBody
+     * @memberof PackageConfirmNotValidResponseBody
      */
     temporary: boolean;
     /**
      * Is the error a timeout?
      * @type {boolean}
-     * @memberof PackageAcceptNotAvailableResponseBody
+     * @memberof PackageConfirmNotValidResponseBody
      */
     timeout: boolean;
 }
 
-export function PackageAcceptNotAvailableResponseBodyFromJSON(json: any): PackageAcceptNotAvailableResponseBody {
-    return PackageAcceptNotAvailableResponseBodyFromJSONTyped(json, false);
+export function PackageConfirmNotValidResponseBodyFromJSON(json: any): PackageConfirmNotValidResponseBody {
+    return PackageConfirmNotValidResponseBodyFromJSONTyped(json, false);
 }
 
-export function PackageAcceptNotAvailableResponseBodyFromJSONTyped(json: any, ignoreDiscriminator: boolean): PackageAcceptNotAvailableResponseBody {
+export function PackageConfirmNotValidResponseBodyFromJSONTyped(json: any, ignoreDiscriminator: boolean): PackageConfirmNotValidResponseBody {
     if ((json === undefined) || (json === null)) {
         return json;
     }
@@ -76,7 +76,7 @@ export function PackageAcceptNotAvailableResponseBodyFromJSONTyped(json: any, ig
     };
 }
 
-export function PackageAcceptNotAvailableResponseBodyToJSON(value?: PackageAcceptNotAvailableResponseBody | null): any {
+export function PackageConfirmNotValidResponseBodyToJSON(value?: PackageConfirmNotValidResponseBody | null): any {
     if (value === undefined) {
         return undefined;
     }

@@ -27,7 +27,7 @@ import (
 //
 func UsageCommands() string {
 	return `batch (submit|status|hints)
-package (monitor|list|show|delete|cancel|retry|workflow|download|bulk|bulk-status|preservation-actions|accept|reject)
+package (monitor|list|show|delete|cancel|retry|workflow|download|bulk|bulk-status|preservation-actions|confirm|reject)
 storage (submit|update|download)
 `
 }
@@ -105,8 +105,8 @@ func ParseEndpoint(
 		package_PreservationActionsFlags  = flag.NewFlagSet("preservation-actions", flag.ExitOnError)
 		package_PreservationActionsIDFlag = package_PreservationActionsFlags.String("id", "REQUIRED", "Identifier of package to look up")
 
-		package_AcceptFlags  = flag.NewFlagSet("accept", flag.ExitOnError)
-		package_AcceptIDFlag = package_AcceptFlags.String("id", "REQUIRED", "Identifier of package to look up")
+		package_ConfirmFlags  = flag.NewFlagSet("confirm", flag.ExitOnError)
+		package_ConfirmIDFlag = package_ConfirmFlags.String("id", "REQUIRED", "Identifier of package to look up")
 
 		package_RejectFlags  = flag.NewFlagSet("reject", flag.ExitOnError)
 		package_RejectIDFlag = package_RejectFlags.String("id", "REQUIRED", "Identifier of package to look up")
@@ -140,7 +140,7 @@ func ParseEndpoint(
 	package_BulkFlags.Usage = package_BulkUsage
 	package_BulkStatusFlags.Usage = package_BulkStatusUsage
 	package_PreservationActionsFlags.Usage = package_PreservationActionsUsage
-	package_AcceptFlags.Usage = package_AcceptUsage
+	package_ConfirmFlags.Usage = package_ConfirmUsage
 	package_RejectFlags.Usage = package_RejectUsage
 
 	storageFlags.Usage = storageUsage
@@ -232,8 +232,8 @@ func ParseEndpoint(
 			case "preservation-actions":
 				epf = package_PreservationActionsFlags
 
-			case "accept":
-				epf = package_AcceptFlags
+			case "confirm":
+				epf = package_ConfirmFlags
 
 			case "reject":
 				epf = package_RejectFlags
@@ -322,9 +322,9 @@ func ParseEndpoint(
 			case "preservation-actions":
 				endpoint = c.PreservationActions()
 				data, err = package_c.BuildPreservationActionsPayload(*package_PreservationActionsIDFlag)
-			case "accept":
-				endpoint = c.Accept()
-				data, err = package_c.BuildAcceptPayload(*package_AcceptIDFlag)
+			case "confirm":
+				endpoint = c.Confirm()
+				data, err = package_c.BuildConfirmPayload(*package_ConfirmIDFlag)
 			case "reject":
 				endpoint = c.Reject()
 				data, err = package_c.BuildRejectPayload(*package_RejectIDFlag)
@@ -419,7 +419,7 @@ COMMAND:
     bulk: Bulk operations (retry, cancel...).
     bulk-status: Retrieve status of current bulk operation.
     preservation-actions: List all preservation actions by ID
-    accept: Signal the package has been reviewed and accepted
+    confirm: Signal the package has been reviewed and accepted
     reject: Signal the package has been reviewed and rejected
 
 Additional help:
@@ -554,14 +554,14 @@ Example:
 `, os.Args[0])
 }
 
-func package_AcceptUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] package accept -id UINT
+func package_ConfirmUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] package confirm -id UINT
 
 Signal the package has been reviewed and accepted
     -id UINT: Identifier of package to look up
 
 Example:
-    %[1]s package accept --id 15253041435799747880
+    %[1]s package confirm --id 15253041435799747880
 `, os.Args[0])
 }
 

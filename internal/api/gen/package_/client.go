@@ -27,12 +27,12 @@ type Client struct {
 	BulkEndpoint                goa.Endpoint
 	BulkStatusEndpoint          goa.Endpoint
 	PreservationActionsEndpoint goa.Endpoint
-	AcceptEndpoint              goa.Endpoint
+	ConfirmEndpoint             goa.Endpoint
 	RejectEndpoint              goa.Endpoint
 }
 
 // NewClient initializes a "package" service client given the endpoints.
-func NewClient(monitor, list, show, delete_, cancel, retry, workflow, download, bulk, bulkStatus, preservationActions, accept, reject goa.Endpoint) *Client {
+func NewClient(monitor, list, show, delete_, cancel, retry, workflow, download, bulk, bulkStatus, preservationActions, confirm, reject goa.Endpoint) *Client {
 	return &Client{
 		MonitorEndpoint:             monitor,
 		ListEndpoint:                list,
@@ -45,7 +45,7 @@ func NewClient(monitor, list, show, delete_, cancel, retry, workflow, download, 
 		BulkEndpoint:                bulk,
 		BulkStatusEndpoint:          bulkStatus,
 		PreservationActionsEndpoint: preservationActions,
-		AcceptEndpoint:              accept,
+		ConfirmEndpoint:             confirm,
 		RejectEndpoint:              reject,
 	}
 }
@@ -176,18 +176,18 @@ func (c *Client) PreservationActions(ctx context.Context, p *PreservationActions
 	return ires.(*EnduroPackagePreservationActions), nil
 }
 
-// Accept calls the "accept" endpoint of the "package" service.
-// Accept may return the following errors:
+// Confirm calls the "confirm" endpoint of the "package" service.
+// Confirm may return the following errors:
 //	- "not_available" (type *goa.ServiceError)
 //	- "not_valid" (type *goa.ServiceError)
 //	- error: internal error
-func (c *Client) Accept(ctx context.Context, p *AcceptPayload) (res *AcceptResult, err error) {
+func (c *Client) Confirm(ctx context.Context, p *ConfirmPayload) (res *ConfirmResult, err error) {
 	var ires interface{}
-	ires, err = c.AcceptEndpoint(ctx, p)
+	ires, err = c.ConfirmEndpoint(ctx, p)
 	if err != nil {
 		return
 	}
-	return ires.(*AcceptResult), nil
+	return ires.(*ConfirmResult), nil
 }
 
 // Reject calls the "reject" endpoint of the "package" service.

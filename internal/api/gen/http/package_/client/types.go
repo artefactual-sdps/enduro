@@ -94,9 +94,9 @@ type PreservationActionsResponseBody struct {
 	Actions EnduroPackagePreservationActionsActionCollectionResponseBody `form:"actions,omitempty" json:"actions,omitempty" xml:"actions,omitempty"`
 }
 
-// AcceptResponseBody is the type of the "package" service "accept" endpoint
+// ConfirmResponseBody is the type of the "package" service "confirm" endpoint
 // HTTP response body.
-type AcceptResponseBody struct {
+type ConfirmResponseBody struct {
 	OK *bool `form:"ok,omitempty" json:"ok,omitempty" xml:"ok,omitempty"`
 }
 
@@ -241,9 +241,9 @@ type PreservationActionsNotFoundResponseBody struct {
 	ID *uint `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
 }
 
-// AcceptNotAvailableResponseBody is the type of the "package" service "accept"
-// endpoint HTTP response body for the "not_available" error.
-type AcceptNotAvailableResponseBody struct {
+// ConfirmNotAvailableResponseBody is the type of the "package" service
+// "confirm" endpoint HTTP response body for the "not_available" error.
+type ConfirmNotAvailableResponseBody struct {
 	// Name is the name of this class of errors.
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -259,9 +259,9 @@ type AcceptNotAvailableResponseBody struct {
 	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
 }
 
-// AcceptNotValidResponseBody is the type of the "package" service "accept"
+// ConfirmNotValidResponseBody is the type of the "package" service "confirm"
 // endpoint HTTP response body for the "not_valid" error.
-type AcceptNotValidResponseBody struct {
+type ConfirmNotValidResponseBody struct {
 	// Name is the name of this class of errors.
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -619,19 +619,19 @@ func NewPreservationActionsNotFound(body *PreservationActionsNotFoundResponseBod
 	return v
 }
 
-// NewAcceptResultAccepted builds a "package" service "accept" endpoint result
-// from a HTTP "Accepted" response.
-func NewAcceptResultAccepted(body *AcceptResponseBody) *package_.AcceptResult {
-	v := &package_.AcceptResult{
+// NewConfirmResultAccepted builds a "package" service "confirm" endpoint
+// result from a HTTP "Accepted" response.
+func NewConfirmResultAccepted(body *ConfirmResponseBody) *package_.ConfirmResult {
+	v := &package_.ConfirmResult{
 		OK: *body.OK,
 	}
 
 	return v
 }
 
-// NewAcceptNotAvailable builds a package service accept endpoint not_available
-// error.
-func NewAcceptNotAvailable(body *AcceptNotAvailableResponseBody) *goa.ServiceError {
+// NewConfirmNotAvailable builds a package service confirm endpoint
+// not_available error.
+func NewConfirmNotAvailable(body *ConfirmNotAvailableResponseBody) *goa.ServiceError {
 	v := &goa.ServiceError{
 		Name:      *body.Name,
 		ID:        *body.ID,
@@ -644,8 +644,8 @@ func NewAcceptNotAvailable(body *AcceptNotAvailableResponseBody) *goa.ServiceErr
 	return v
 }
 
-// NewAcceptNotValid builds a package service accept endpoint not_valid error.
-func NewAcceptNotValid(body *AcceptNotValidResponseBody) *goa.ServiceError {
+// NewConfirmNotValid builds a package service confirm endpoint not_valid error.
+func NewConfirmNotValid(body *ConfirmNotValidResponseBody) *goa.ServiceError {
 	v := &goa.ServiceError{
 		Name:      *body.Name,
 		ID:        *body.ID,
@@ -734,8 +734,9 @@ func ValidateBulkStatusResponseBody(body *BulkStatusResponseBody) (err error) {
 	return
 }
 
-// ValidateAcceptResponseBody runs the validations defined on AcceptResponseBody
-func ValidateAcceptResponseBody(body *AcceptResponseBody) (err error) {
+// ValidateConfirmResponseBody runs the validations defined on
+// ConfirmResponseBody
+func ValidateConfirmResponseBody(body *ConfirmResponseBody) (err error) {
 	if body.OK == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("ok", "body"))
 	}
@@ -930,9 +931,9 @@ func ValidatePreservationActionsNotFoundResponseBody(body *PreservationActionsNo
 	return
 }
 
-// ValidateAcceptNotAvailableResponseBody runs the validations defined on
-// accept_not_available_response_body
-func ValidateAcceptNotAvailableResponseBody(body *AcceptNotAvailableResponseBody) (err error) {
+// ValidateConfirmNotAvailableResponseBody runs the validations defined on
+// confirm_not_available_response_body
+func ValidateConfirmNotAvailableResponseBody(body *ConfirmNotAvailableResponseBody) (err error) {
 	if body.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
 	}
@@ -954,9 +955,9 @@ func ValidateAcceptNotAvailableResponseBody(body *AcceptNotAvailableResponseBody
 	return
 }
 
-// ValidateAcceptNotValidResponseBody runs the validations defined on
-// accept_not_valid_response_body
-func ValidateAcceptNotValidResponseBody(body *AcceptNotValidResponseBody) (err error) {
+// ValidateConfirmNotValidResponseBody runs the validations defined on
+// confirm_not_valid_response_body
+func ValidateConfirmNotValidResponseBody(body *ConfirmNotValidResponseBody) (err error) {
 	if body.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
 	}

@@ -16,22 +16,22 @@ import { exists, mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface PackageAcceptResponseBody
+ * @interface PackageConfirmResponseBody
  */
-export interface PackageAcceptResponseBody {
+export interface PackageConfirmResponseBody {
     /**
      * 
      * @type {boolean}
-     * @memberof PackageAcceptResponseBody
+     * @memberof PackageConfirmResponseBody
      */
     ok: boolean;
 }
 
-export function PackageAcceptResponseBodyFromJSON(json: any): PackageAcceptResponseBody {
-    return PackageAcceptResponseBodyFromJSONTyped(json, false);
+export function PackageConfirmResponseBodyFromJSON(json: any): PackageConfirmResponseBody {
+    return PackageConfirmResponseBodyFromJSONTyped(json, false);
 }
 
-export function PackageAcceptResponseBodyFromJSONTyped(json: any, ignoreDiscriminator: boolean): PackageAcceptResponseBody {
+export function PackageConfirmResponseBodyFromJSONTyped(json: any, ignoreDiscriminator: boolean): PackageConfirmResponseBody {
     if ((json === undefined) || (json === null)) {
         return json;
     }
@@ -41,7 +41,7 @@ export function PackageAcceptResponseBodyFromJSONTyped(json: any, ignoreDiscrimi
     };
 }
 
-export function PackageAcceptResponseBodyToJSON(value?: PackageAcceptResponseBody | null): any {
+export function PackageConfirmResponseBodyToJSON(value?: PackageConfirmResponseBody | null): any {
     if (value === undefined) {
         return undefined;
     }

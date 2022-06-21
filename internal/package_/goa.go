@@ -404,7 +404,7 @@ func (w *goaWrapper) BulkStatus(ctx context.Context) (*goapackage.BulkStatusResu
 	return result, nil
 }
 
-func (w *goaWrapper) Accept(ctx context.Context, payload *goapackage.AcceptPayload) (*goapackage.AcceptResult, error) {
+func (w *goaWrapper) Confirm(ctx context.Context, payload *goapackage.ConfirmPayload) (*goapackage.ConfirmResult, error) {
 	var err error
 	var goapkg *goapackage.EnduroStoredPackage
 	if goapkg, err = w.Show(ctx, &goapackage.ShowPayload{ID: payload.ID}); err != nil {
@@ -419,7 +419,7 @@ func (w *goaWrapper) Accept(ctx context.Context, payload *goapackage.AcceptPaylo
 		return nil, goapackage.MakeNotAvailable(errors.New("cannot perform operation"))
 	}
 
-	result := goapackage.AcceptResult{
+	result := goapackage.ConfirmResult{
 		OK: true,
 	}
 	return &result, nil
