@@ -22,7 +22,17 @@ import (
 // BuildSubmitRequest instantiates a HTTP request object with method and path
 // set to call the "storage" service "submit" endpoint
 func (c *Client) BuildSubmitRequest(ctx context.Context, v interface{}) (*http.Request, error) {
-	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: SubmitStoragePath()}
+	var (
+		aipID string
+	)
+	{
+		p, ok := v.(*storage.SubmitPayload)
+		if !ok {
+			return nil, goahttp.ErrInvalidType("storage", "submit", "*storage.SubmitPayload", v)
+		}
+		aipID = p.AipID
+	}
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: SubmitStoragePath(aipID)}
 	req, err := http.NewRequest("POST", u.String(), nil)
 	if err != nil {
 		return nil, goahttp.ErrInvalidURL("storage", "submit", u.String(), err)
@@ -125,7 +135,17 @@ func DecodeSubmitResponse(decoder func(*http.Response) goahttp.Decoder, restoreB
 // BuildUpdateRequest instantiates a HTTP request object with method and path
 // set to call the "storage" service "update" endpoint
 func (c *Client) BuildUpdateRequest(ctx context.Context, v interface{}) (*http.Request, error) {
-	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: UpdateStoragePath()}
+	var (
+		aipID string
+	)
+	{
+		p, ok := v.(*storage.UpdatePayload)
+		if !ok {
+			return nil, goahttp.ErrInvalidType("storage", "update", "*storage.UpdatePayload", v)
+		}
+		aipID = p.AipID
+	}
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: UpdateStoragePath(aipID)}
 	req, err := http.NewRequest("POST", u.String(), nil)
 	if err != nil {
 		return nil, goahttp.ErrInvalidURL("storage", "update", u.String(), err)
@@ -135,22 +155,6 @@ func (c *Client) BuildUpdateRequest(ctx context.Context, v interface{}) (*http.R
 	}
 
 	return req, nil
-}
-
-// EncodeUpdateRequest returns an encoder for requests sent to the storage
-// update server.
-func EncodeUpdateRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, interface{}) error {
-	return func(req *http.Request, v interface{}) error {
-		p, ok := v.(*storage.UpdatePayload)
-		if !ok {
-			return goahttp.ErrInvalidType("storage", "update", "*storage.UpdatePayload", v)
-		}
-		body := NewUpdateRequestBody(p)
-		if err := encoder(req).Encode(&body); err != nil {
-			return goahttp.ErrEncodingError("storage", "update", err)
-		}
-		return nil
-	}
 }
 
 // DecodeUpdateResponse returns a decoder for responses returned by the storage

@@ -33,20 +33,18 @@ import {
     StorageUpdateNotValidResponseBody,
     StorageUpdateNotValidResponseBodyFromJSON,
     StorageUpdateNotValidResponseBodyToJSON,
-    StorageUpdateRequestBody,
-    StorageUpdateRequestBodyFromJSON,
-    StorageUpdateRequestBodyToJSON,
     StorageUpdateResponseBody,
     StorageUpdateResponseBodyFromJSON,
     StorageUpdateResponseBodyToJSON,
 } from '../models';
 
 export interface StorageSubmitRequest {
+    aipId: string;
     submitRequestBody: StorageSubmitRequestBody;
 }
 
 export interface StorageUpdateRequest {
-    updateRequestBody: StorageUpdateRequestBody;
+    aipId: string;
 }
 
 /**
@@ -59,6 +57,7 @@ export interface StorageApiInterface {
     /**
      * Start the submission of a package
      * @summary submit storage
+     * @param {string} aipId 
      * @param {StorageSubmitRequestBody} submitRequestBody 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -75,7 +74,7 @@ export interface StorageApiInterface {
     /**
      * Signal the storage service that an upload is complete
      * @summary update storage
-     * @param {StorageUpdateRequestBody} updateRequestBody 
+     * @param {string} aipId 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof StorageApiInterface
@@ -100,6 +99,10 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
      * submit storage
      */
     async storageSubmitRaw(requestParameters: StorageSubmitRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<StorageSubmitResponseBody>> {
+        if (requestParameters.aipId === null || requestParameters.aipId === undefined) {
+            throw new runtime.RequiredError('aipId','Required parameter requestParameters.aipId was null or undefined when calling storageSubmit.');
+        }
+
         if (requestParameters.submitRequestBody === null || requestParameters.submitRequestBody === undefined) {
             throw new runtime.RequiredError('submitRequestBody','Required parameter requestParameters.submitRequestBody was null or undefined when calling storageSubmit.');
         }
@@ -111,7 +114,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
         headerParameters['Content-Type'] = 'application/json';
 
         const response = await this.request({
-            path: `/storage/submit`,
+            path: `/storage/{aip_id}/submit`.replace(`{${"aip_id"}}`, encodeURIComponent(String(requestParameters.aipId))),
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
@@ -135,22 +138,19 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
      * update storage
      */
     async storageUpdateRaw(requestParameters: StorageUpdateRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<StorageUpdateResponseBody>> {
-        if (requestParameters.updateRequestBody === null || requestParameters.updateRequestBody === undefined) {
-            throw new runtime.RequiredError('updateRequestBody','Required parameter requestParameters.updateRequestBody was null or undefined when calling storageUpdate.');
+        if (requestParameters.aipId === null || requestParameters.aipId === undefined) {
+            throw new runtime.RequiredError('aipId','Required parameter requestParameters.aipId was null or undefined when calling storageUpdate.');
         }
 
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
 
-        headerParameters['Content-Type'] = 'application/json';
-
         const response = await this.request({
-            path: `/storage/update`,
+            path: `/storage/{aip_id}/update`.replace(`{${"aip_id"}}`, encodeURIComponent(String(requestParameters.aipId))),
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: StorageUpdateRequestBodyToJSON(requestParameters.updateRequestBody),
         }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => StorageUpdateResponseBodyFromJSON(jsonValue));

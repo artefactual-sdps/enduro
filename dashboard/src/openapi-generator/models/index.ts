@@ -34,5 +34,4 @@ export * from './StorageSubmitRequestBody';
 export * from './StorageSubmitResponseBody';
 export * from './StorageUpdateNotAvailableResponseBody';
 export * from './StorageUpdateNotValidResponseBody';
-export * from './StorageUpdateRequestBody';
 export * from './StorageUpdateResponseBody';

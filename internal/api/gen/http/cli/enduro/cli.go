@@ -41,9 +41,8 @@ func UsageExamples() string {
    }'` + "\n" +
 		os.Args[0] + ` package monitor` + "\n" +
 		os.Args[0] + ` storage submit --body '{
-      "aip_id": "Quibusdam dolor aut sit in.",
       "name": "Commodi possimus et."
-   }'` + "\n" +
+   }' --aip-id "Et dignissimos explicabo soluta et autem id."` + "\n" +
 		""
 }
 
@@ -108,11 +107,12 @@ func ParseEndpoint(
 
 		storageFlags = flag.NewFlagSet("storage", flag.ContinueOnError)
 
-		storageSubmitFlags    = flag.NewFlagSet("submit", flag.ExitOnError)
-		storageSubmitBodyFlag = storageSubmitFlags.String("body", "REQUIRED", "")
+		storageSubmitFlags     = flag.NewFlagSet("submit", flag.ExitOnError)
+		storageSubmitBodyFlag  = storageSubmitFlags.String("body", "REQUIRED", "")
+		storageSubmitAipIDFlag = storageSubmitFlags.String("aip-id", "REQUIRED", "")
 
-		storageUpdateFlags    = flag.NewFlagSet("update", flag.ExitOnError)
-		storageUpdateBodyFlag = storageUpdateFlags.String("body", "REQUIRED", "")
+		storageUpdateFlags     = flag.NewFlagSet("update", flag.ExitOnError)
+		storageUpdateAipIDFlag = storageUpdateFlags.String("aip-id", "REQUIRED", "")
 	)
 	batchFlags.Usage = batchUsage
 	batchSubmitFlags.Usage = batchSubmitUsage
@@ -307,10 +307,10 @@ func ParseEndpoint(
 			switch epn {
 			case "submit":
 				endpoint = c.Submit()
-				data, err = storagec.BuildSubmitPayload(*storageSubmitBodyFlag)
+				data, err = storagec.BuildSubmitPayload(*storageSubmitBodyFlag, *storageSubmitAipIDFlag)
 			case "update":
 				endpoint = c.Update()
-				data, err = storagec.BuildUpdatePayload(*storageUpdateBodyFlag)
+				data, err = storagec.BuildUpdatePayload(*storageUpdateAipIDFlag)
 			}
 		}
 	}
@@ -537,28 +537,26 @@ Additional help:
 `, os.Args[0])
 }
 func storageSubmitUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage submit -body JSON
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage submit -body JSON -aip-id STRING
 
 Start the submission of a package
     -body JSON: 
+    -aip-id STRING: 
 
 Example:
     %[1]s storage submit --body '{
-      "aip_id": "Quibusdam dolor aut sit in.",
       "name": "Commodi possimus et."
-   }'
+   }' --aip-id "Et dignissimos explicabo soluta et autem id."
 `, os.Args[0])
 }
 
 func storageUpdateUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage update -body JSON
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage update -aip-id STRING
 
 Signal the storage service that an upload is complete
-    -body JSON: 
+    -aip-id STRING: 
 
 Example:
-    %[1]s storage update --body '{
-      "aip_id": "Asperiores dolor."
-   }'
+    %[1]s storage update --aip-id "Nesciunt qui est provident fuga aut consequatur."
 `, os.Args[0])
 }

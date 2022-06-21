@@ -24,12 +24,6 @@ export interface StorageSubmitRequestBody {
      * @type {string}
      * @memberof StorageSubmitRequestBody
      */
-    aipId: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof StorageSubmitRequestBody
-     */
     name: string;
 }
 
@@ -43,7 +37,6 @@ export function StorageSubmitRequestBodyFromJSONTyped(json: any, ignoreDiscrimin
     }
     return {
         
-        'aipId': json['aip_id'],
         'name': json['name'],
     };
 }
@@ -57,7 +50,6 @@ export function StorageSubmitRequestBodyToJSON(value?: StorageSubmitRequestBody 
     }
     return {
         
-        'aip_id': value.aipId,
         'name': value.name,
     };
 }

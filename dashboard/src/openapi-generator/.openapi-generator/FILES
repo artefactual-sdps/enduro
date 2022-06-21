@@ -38,7 +38,6 @@ models/StorageSubmitRequestBody.ts
 models/StorageSubmitResponseBody.ts
 models/StorageUpdateNotAvailableResponseBody.ts
 models/StorageUpdateNotValidResponseBody.ts
-models/StorageUpdateRequestBody.ts
 models/StorageUpdateResponseBody.ts
 models/index.ts
 runtime.ts

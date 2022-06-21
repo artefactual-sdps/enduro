@@ -16,14 +16,7 @@ import (
 // SubmitRequestBody is the type of the "storage" service "submit" endpoint
 // HTTP request body.
 type SubmitRequestBody struct {
-	AipID *string `form:"aip_id,omitempty" json:"aip_id,omitempty" xml:"aip_id,omitempty"`
-	Name  *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
-}
-
-// UpdateRequestBody is the type of the "storage" service "update" endpoint
-// HTTP request body.
-type UpdateRequestBody struct {
-	AipID *string `form:"aip_id,omitempty" json:"aip_id,omitempty" xml:"aip_id,omitempty"`
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 }
 
 // SubmitResponseBody is the type of the "storage" service "submit" endpoint
@@ -185,39 +178,27 @@ func NewUpdateNotValidResponseBody(res *goa.ServiceError) *UpdateNotValidRespons
 }
 
 // NewSubmitPayload builds a storage service submit endpoint payload.
-func NewSubmitPayload(body *SubmitRequestBody) *storage.SubmitPayload {
+func NewSubmitPayload(body *SubmitRequestBody, aipID string) *storage.SubmitPayload {
 	v := &storage.SubmitPayload{
-		AipID: *body.AipID,
-		Name:  *body.Name,
+		Name: *body.Name,
 	}
+	v.AipID = aipID
 
 	return v
 }
 
 // NewUpdatePayload builds a storage service update endpoint payload.
-func NewUpdatePayload(body *UpdateRequestBody) *storage.UpdatePayload {
-	v := &storage.UpdatePayload{
-		AipID: *body.AipID,
-	}
+func NewUpdatePayload(aipID string) *storage.UpdatePayload {
+	v := &storage.UpdatePayload{}
+	v.AipID = aipID
 
 	return v
 }
 
 // ValidateSubmitRequestBody runs the validations defined on SubmitRequestBody
 func ValidateSubmitRequestBody(body *SubmitRequestBody) (err error) {
-	if body.AipID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("aip_id", "body"))
-	}
 	if body.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
-	}
-	return
-}
-
-// ValidateUpdateRequestBody runs the validations defined on UpdateRequestBody
-func ValidateUpdateRequestBody(body *UpdateRequestBody) (err error) {
-	if body.AipID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("aip_id", "body"))
 	}
 	return
 }

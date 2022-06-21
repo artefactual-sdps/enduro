@@ -32,6 +32,14 @@ const ServiceName = "storage"
 // MethodKey key.
 var MethodNames = [2]string{"submit", "update"}
 
+// Package not found.
+type PackageNotfound struct {
+	// Message of error
+	Message string
+	// Identifier of missing package
+	ID uint
+}
+
 // SubmitPayload is the payload type of the storage service submit method.
 type SubmitPayload struct {
 	AipID string
@@ -51,6 +59,16 @@ type UpdatePayload struct {
 // UpdateResult is the result type of the storage service update method.
 type UpdateResult struct {
 	OK bool
+}
+
+// Error returns an error description.
+func (e *PackageNotfound) Error() string {
+	return "Package not found."
+}
+
+// ErrorName returns "PackageNotfound".
+func (e *PackageNotfound) ErrorName() string {
+	return e.Message
 }
 
 // MakeNotAvailable builds a goa.ServiceError from an error.

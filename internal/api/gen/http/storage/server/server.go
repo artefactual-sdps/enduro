@@ -59,10 +59,10 @@ func New(
 ) *Server {
 	return &Server{
 		Mounts: []*MountPoint{
-			{"Submit", "POST", "/storage/submit"},
-			{"Update", "POST", "/storage/update"},
-			{"CORS", "OPTIONS", "/storage/submit"},
-			{"CORS", "OPTIONS", "/storage/update"},
+			{"Submit", "POST", "/storage/{aip_id}/submit"},
+			{"Update", "POST", "/storage/{aip_id}/update"},
+			{"CORS", "OPTIONS", "/storage/{aip_id}/submit"},
+			{"CORS", "OPTIONS", "/storage/{aip_id}/update"},
 		},
 		Submit: NewSubmitHandler(e.Submit, mux, decoder, encoder, errhandler, formatter),
 		Update: NewUpdateHandler(e.Update, mux, decoder, encoder, errhandler, formatter),
@@ -101,7 +101,7 @@ func MountSubmitHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("POST", "/storage/submit", f)
+	mux.Handle("POST", "/storage/{aip_id}/submit", f)
 }
 
 // NewSubmitHandler creates a HTTP handler which loads the HTTP request and
@@ -152,7 +152,7 @@ func MountUpdateHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("POST", "/storage/update", f)
+	mux.Handle("POST", "/storage/{aip_id}/update", f)
 }
 
 // NewUpdateHandler creates a HTTP handler which loads the HTTP request and
@@ -198,8 +198,8 @@ func NewUpdateHandler(
 // service storage.
 func MountCORSHandler(mux goahttp.Muxer, h http.Handler) {
 	h = HandleStorageOrigin(h)
-	mux.Handle("OPTIONS", "/storage/submit", h.ServeHTTP)
-	mux.Handle("OPTIONS", "/storage/update", h.ServeHTTP)
+	mux.Handle("OPTIONS", "/storage/{aip_id}/submit", h.ServeHTTP)
+	mux.Handle("OPTIONS", "/storage/{aip_id}/update", h.ServeHTTP)
 }
 
 // NewCORSHandler creates a HTTP handler which returns a simple 200 response.

@@ -50,7 +50,14 @@ func DecodeSubmitRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.
 		if err != nil {
 			return nil, err
 		}
-		payload := NewSubmitPayload(&body)
+
+		var (
+			aipID string
+
+			params = mux.Vars(r)
+		)
+		aipID = params["aip_id"]
+		payload := NewSubmitPayload(&body, aipID)
 
 		return payload, nil
 	}
@@ -115,21 +122,12 @@ func EncodeUpdateResponse(encoder func(context.Context, http.ResponseWriter) goa
 func DecodeUpdateRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (interface{}, error) {
 	return func(r *http.Request) (interface{}, error) {
 		var (
-			body UpdateRequestBody
-			err  error
+			aipID string
+
+			params = mux.Vars(r)
 		)
-		err = decoder(r).Decode(&body)
-		if err != nil {
-			if err == io.EOF {
-				return nil, goa.MissingPayloadError()
-			}
-			return nil, goa.DecodePayloadError(err.Error())
-		}
-		err = ValidateUpdateRequestBody(&body)
-		if err != nil {
-			return nil, err
-		}
-		payload := NewUpdatePayload(&body)
+		aipID = params["aip_id"]
+		payload := NewUpdatePayload(aipID)
 
 		return payload, nil
 	}

@@ -17,37 +17,36 @@ import (
 
 // BuildSubmitPayload builds the payload for the storage submit endpoint from
 // CLI flags.
-func BuildSubmitPayload(storageSubmitBody string) (*storage.SubmitPayload, error) {
+func BuildSubmitPayload(storageSubmitBody string, storageSubmitAipID string) (*storage.SubmitPayload, error) {
 	var err error
 	var body SubmitRequestBody
 	{
 		err = json.Unmarshal([]byte(storageSubmitBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"aip_id\": \"Quibusdam dolor aut sit in.\",\n      \"name\": \"Commodi possimus et.\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"name\": \"Commodi possimus et.\"\n   }'")
 		}
 	}
-	v := &storage.SubmitPayload{
-		AipID: body.AipID,
-		Name:  body.Name,
+	var aipID string
+	{
+		aipID = storageSubmitAipID
 	}
+	v := &storage.SubmitPayload{
+		Name: body.Name,
+	}
+	v.AipID = aipID
 
 	return v, nil
 }
 
 // BuildUpdatePayload builds the payload for the storage update endpoint from
 // CLI flags.
-func BuildUpdatePayload(storageUpdateBody string) (*storage.UpdatePayload, error) {
-	var err error
-	var body UpdateRequestBody
+func BuildUpdatePayload(storageUpdateAipID string) (*storage.UpdatePayload, error) {
+	var aipID string
 	{
-		err = json.Unmarshal([]byte(storageUpdateBody), &body)
-		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"aip_id\": \"Asperiores dolor.\"\n   }'")
-		}
+		aipID = storageUpdateAipID
 	}
-	v := &storage.UpdatePayload{
-		AipID: body.AipID,
-	}
+	v := &storage.UpdatePayload{}
+	v.AipID = aipID
 
 	return v, nil
 }

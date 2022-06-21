@@ -30,6 +30,7 @@ func NewClient(submit, update goa.Endpoint) *Client {
 
 // Submit calls the "submit" endpoint of the "storage" service.
 // Submit may return the following errors:
+//	- "not_found" (type *PackageNotfound): Package not found
 //	- "not_available" (type *goa.ServiceError)
 //	- "not_valid" (type *goa.ServiceError)
 //	- error: internal error
@@ -44,6 +45,7 @@ func (c *Client) Submit(ctx context.Context, p *SubmitPayload) (res *SubmitResul
 
 // Update calls the "update" endpoint of the "storage" service.
 // Update may return the following errors:
+//	- "not_found" (type *PackageNotfound): Package not found
 //	- "not_available" (type *goa.ServiceError)
 //	- "not_valid" (type *goa.ServiceError)
 //	- error: internal error

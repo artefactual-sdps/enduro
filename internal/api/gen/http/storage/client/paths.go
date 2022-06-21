@@ -8,12 +8,16 @@
 
 package client
 
+import (
+	"fmt"
+)
+
 // SubmitStoragePath returns the URL path to the storage service submit HTTP endpoint.
-func SubmitStoragePath() string {
-	return "/storage/submit"
+func SubmitStoragePath(aipID string) string {
+	return fmt.Sprintf("/storage/%v/submit", aipID)
 }
 
 // UpdateStoragePath returns the URL path to the storage service update HTTP endpoint.
-func UpdateStoragePath() string {
-	return "/storage/update"
+func UpdateStoragePath(aipID string) string {
+	return fmt.Sprintf("/storage/%v/update", aipID)
 }

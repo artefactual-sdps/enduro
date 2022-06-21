@@ -25,12 +25,6 @@ export interface StorageSubmitResponseBody {
      * @memberof StorageSubmitResponseBody
      */
     url: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof StorageSubmitResponseBody
-     */
-    workflowId: string;
 }
 
 export function StorageSubmitResponseBodyFromJSON(json: any): StorageSubmitResponseBody {
@@ -44,7 +38,6 @@ export function StorageSubmitResponseBodyFromJSONTyped(json: any, ignoreDiscrimi
     return {
         
         'url': json['url'],
-        'workflowId': json['workflow_id'],
     };
 }
 
@@ -58,7 +51,6 @@ export function StorageSubmitResponseBodyToJSON(value?: StorageSubmitResponseBod
     return {
         
         'url': value.url,
-        'workflow_id': value.workflowId,
     };
 }
 
