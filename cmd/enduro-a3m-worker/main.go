@@ -143,7 +143,7 @@ func main() {
 		workerOpts := temporalsdk_worker.Options{
 			DisableWorkflowWorker:              true,
 			EnableSessionWorker:                true,
-			MaxConcurrentSessionExecutionSize:  1,
+			MaxConcurrentSessionExecutionSize:  1000,
 			MaxConcurrentActivityExecutionSize: 1,
 		}
 		w := temporalsdk_worker.New(temporalClient, temporal.A3mWorkerTaskQueue, workerOpts)
