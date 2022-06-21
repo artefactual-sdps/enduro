@@ -5,6 +5,10 @@
     "**/build": true,
     "**/node_modules": true
   },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/website": true
+  },
   "editor.formatOnSave": true,
   "[vue][javascript][typescript][scss][html][json][markdown][yaml][toml]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode",
