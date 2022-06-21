@@ -31,8 +31,6 @@ type Service interface {
 	Retry(context.Context, *RetryPayload) (err error)
 	// Retrieve workflow status by ID
 	Workflow(context.Context, *WorkflowPayload) (res *EnduroPackageWorkflowStatus, err error)
-	// Download package by ID
-	Download(context.Context, *DownloadPayload) (res []byte, err error)
 	// Bulk operations (retry, cancel...).
 	Bulk(context.Context, *BulkPayload) (res *BulkResult, err error)
 	// Retrieve status of current bulk operation.
@@ -53,7 +51,7 @@ const ServiceName = "package"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [13]string{"monitor", "list", "show", "delete", "cancel", "retry", "workflow", "download", "bulk", "bulk_status", "preservation-actions", "confirm", "reject"}
+var MethodNames = [12]string{"monitor", "list", "show", "delete", "cancel", "retry", "workflow", "bulk", "bulk_status", "preservation-actions", "confirm", "reject"}
 
 // MonitorServerStream is the interface a "monitor" endpoint server stream must
 // satisfy.
@@ -115,12 +113,6 @@ type ConfirmResult struct {
 // DeletePayload is the payload type of the package service delete method.
 type DeletePayload struct {
 	// Identifier of package to delete
-	ID uint
-}
-
-// DownloadPayload is the payload type of the package service download method.
-type DownloadPayload struct {
-	// Identifier of package to look up
 	ID uint
 }
 

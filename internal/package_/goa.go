@@ -303,14 +303,6 @@ func (w *goaWrapper) Workflow(ctx context.Context, payload *goapackage.WorkflowP
 	return resp, nil
 }
 
-// Download is a dummy implementation of goapackage.Service. The actual work
-// (serving the file) is done from the API interceptor. Once goa supports this
-// use case (it may never happen) we should be able to have a service method
-// easy to adopt, e.g. with a io.Writer argument?
-func (w *goaWrapper) Download(ctx context.Context, payload *goapackage.DownloadPayload) (res []byte, err error) {
-	return []byte{}, nil
-}
-
 func (w *goaWrapper) Bulk(ctx context.Context, payload *goapackage.BulkPayload) (*goapackage.BulkResult, error) {
 	if payload.Size == 0 {
 		return nil, goapackage.MakeNotValid(errors.New("size is zero"))

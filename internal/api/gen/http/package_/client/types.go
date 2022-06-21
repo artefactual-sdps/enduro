@@ -187,15 +187,6 @@ type WorkflowNotFoundResponseBody struct {
 	ID *uint `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
 }
 
-// DownloadNotFoundResponseBody is the type of the "package" service "download"
-// endpoint HTTP response body for the "not_found" error.
-type DownloadNotFoundResponseBody struct {
-	// Message of error
-	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
-	// Identifier of missing package
-	ID *uint `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
-}
-
 // BulkNotAvailableResponseBody is the type of the "package" service "bulk"
 // endpoint HTTP response body for the "not_available" error.
 type BulkNotAvailableResponseBody struct {
@@ -528,17 +519,6 @@ func NewWorkflowNotFound(body *WorkflowNotFoundResponseBody) *package_.PackageNo
 	return v
 }
 
-// NewDownloadNotFound builds a package service download endpoint not_found
-// error.
-func NewDownloadNotFound(body *DownloadNotFoundResponseBody) *package_.PackageNotfound {
-	v := &package_.PackageNotfound{
-		Message: *body.Message,
-		ID:      *body.ID,
-	}
-
-	return v
-}
-
 // NewBulkResultAccepted builds a "package" service "bulk" endpoint result from
 // a HTTP "Accepted" response.
 func NewBulkResultAccepted(body *BulkResponseBody) *package_.BulkResult {
@@ -850,18 +830,6 @@ func ValidateRetryNotFoundResponseBody(body *RetryNotFoundResponseBody) (err err
 // ValidateWorkflowNotFoundResponseBody runs the validations defined on
 // workflow_not_found_response_body
 func ValidateWorkflowNotFoundResponseBody(body *WorkflowNotFoundResponseBody) (err error) {
-	if body.Message == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
-	}
-	if body.ID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
-	}
-	return
-}
-
-// ValidateDownloadNotFoundResponseBody runs the validations defined on
-// download_not_found_response_body
-func ValidateDownloadNotFoundResponseBody(body *DownloadNotFoundResponseBody) (err error) {
 	if body.Message == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
 	}

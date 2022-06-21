@@ -119,20 +119,6 @@ var _ = Service("package", func() {
 			Response("not_found", StatusNotFound)
 		})
 	})
-	Method("download", func() {
-		Description("Download package by ID")
-		Payload(func() {
-			Attribute("id", UInt, "Identifier of package to look up")
-			Required("id")
-		})
-		Result(Bytes)
-		Error("not_found", PackageNotFound, "Package not found")
-		HTTP(func() {
-			GET("/{id}/download")
-			Response(StatusOK)
-			Response("not_found", StatusNotFound)
-		})
-	})
 	Method("bulk", func() {
 		Description("Bulk operations (retry, cancel...).")
 		Payload(func() {

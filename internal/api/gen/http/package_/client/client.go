@@ -43,10 +43,6 @@ type Client struct {
 	// endpoint.
 	WorkflowDoer goahttp.Doer
 
-	// Download Doer is the HTTP client used to make requests to the download
-	// endpoint.
-	DownloadDoer goahttp.Doer
-
 	// Bulk Doer is the HTTP client used to make requests to the bulk endpoint.
 	BulkDoer goahttp.Doer
 
@@ -102,7 +98,6 @@ func NewClient(
 		CancelDoer:              doer,
 		RetryDoer:               doer,
 		WorkflowDoer:            doer,
-		DownloadDoer:            doer,
 		BulkDoer:                doer,
 		BulkStatusDoer:          doer,
 		PreservationActionsDoer: doer,
@@ -270,25 +265,6 @@ func (c *Client) Workflow() goa.Endpoint {
 		resp, err := c.WorkflowDoer.Do(req)
 		if err != nil {
 			return nil, goahttp.ErrRequestError("package", "workflow", err)
-		}
-		return decodeResponse(resp)
-	}
-}
-
-// Download returns an endpoint that makes HTTP requests to the package service
-// download server.
-func (c *Client) Download() goa.Endpoint {
-	var (
-		decodeResponse = DecodeDownloadResponse(c.decoder, c.RestoreResponseBody)
-	)
-	return func(ctx context.Context, v interface{}) (interface{}, error) {
-		req, err := c.BuildDownloadRequest(ctx, v)
-		if err != nil {
-			return nil, err
-		}
-		resp, err := c.DownloadDoer.Do(req)
-		if err != nil {
-			return nil, goahttp.ErrRequestError("package", "download", err)
 		}
 		return decodeResponse(resp)
 	}

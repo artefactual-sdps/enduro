@@ -1,3 +1,4 @@
+.openapi-generator-ignore
 apis/BatchApi.ts
 apis/PackageApi.ts
 apis/StorageApi.ts
@@ -24,7 +25,6 @@ models/PackageConfirmNotAvailableResponseBody.ts
 models/PackageConfirmNotValidResponseBody.ts
 models/PackageConfirmResponseBody.ts
 models/PackageDeleteNotFoundResponseBody.ts
-models/PackageDownloadNotFoundResponseBody.ts
 models/PackageListResponseBody.ts
 models/PackageMonitorResponseBody.ts
 models/PackagePreservationActionsNotFoundResponseBody.ts

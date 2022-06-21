@@ -23,7 +23,6 @@ type Client struct {
 	CancelEndpoint              goa.Endpoint
 	RetryEndpoint               goa.Endpoint
 	WorkflowEndpoint            goa.Endpoint
-	DownloadEndpoint            goa.Endpoint
 	BulkEndpoint                goa.Endpoint
 	BulkStatusEndpoint          goa.Endpoint
 	PreservationActionsEndpoint goa.Endpoint
@@ -32,7 +31,7 @@ type Client struct {
 }
 
 // NewClient initializes a "package" service client given the endpoints.
-func NewClient(monitor, list, show, delete_, cancel, retry, workflow, download, bulk, bulkStatus, preservationActions, confirm, reject goa.Endpoint) *Client {
+func NewClient(monitor, list, show, delete_, cancel, retry, workflow, bulk, bulkStatus, preservationActions, confirm, reject goa.Endpoint) *Client {
 	return &Client{
 		MonitorEndpoint:             monitor,
 		ListEndpoint:                list,
@@ -41,7 +40,6 @@ func NewClient(monitor, list, show, delete_, cancel, retry, workflow, download, 
 		CancelEndpoint:              cancel,
 		RetryEndpoint:               retry,
 		WorkflowEndpoint:            workflow,
-		DownloadEndpoint:            download,
 		BulkEndpoint:                bulk,
 		BulkStatusEndpoint:          bulkStatus,
 		PreservationActionsEndpoint: preservationActions,
@@ -123,19 +121,6 @@ func (c *Client) Workflow(ctx context.Context, p *WorkflowPayload) (res *EnduroP
 		return
 	}
 	return ires.(*EnduroPackageWorkflowStatus), nil
-}
-
-// Download calls the "download" endpoint of the "package" service.
-// Download may return the following errors:
-//	- "not_found" (type *PackageNotfound): Package not found
-//	- error: internal error
-func (c *Client) Download(ctx context.Context, p *DownloadPayload) (res []byte, err error) {
-	var ires interface{}
-	ires, err = c.DownloadEndpoint(ctx, p)
-	if err != nil {
-		return
-	}
-	return ires.([]byte), nil
 }
 
 // Bulk calls the "bulk" endpoint of the "package" service.

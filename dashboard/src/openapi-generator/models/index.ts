@@ -20,7 +20,6 @@ export * from './PackageConfirmNotAvailableResponseBody';
 export * from './PackageConfirmNotValidResponseBody';
 export * from './PackageConfirmResponseBody';
 export * from './PackageDeleteNotFoundResponseBody';
-export * from './PackageDownloadNotFoundResponseBody';
 export * from './PackageListResponseBody';
 export * from './PackageMonitorResponseBody';
 export * from './PackagePreservationActionsNotFoundResponseBody';

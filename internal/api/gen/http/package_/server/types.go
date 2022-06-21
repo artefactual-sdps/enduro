@@ -187,15 +187,6 @@ type WorkflowNotFoundResponseBody struct {
 	ID uint `form:"id" json:"id" xml:"id"`
 }
 
-// DownloadNotFoundResponseBody is the type of the "package" service "download"
-// endpoint HTTP response body for the "not_found" error.
-type DownloadNotFoundResponseBody struct {
-	// Message of error
-	Message string `form:"message" json:"message" xml:"message"`
-	// Identifier of missing package
-	ID uint `form:"id" json:"id" xml:"id"`
-}
-
 // BulkNotAvailableResponseBody is the type of the "package" service "bulk"
 // endpoint HTTP response body for the "not_available" error.
 type BulkNotAvailableResponseBody struct {
@@ -562,16 +553,6 @@ func NewWorkflowNotFoundResponseBody(res *package_.PackageNotfound) *WorkflowNot
 	return body
 }
 
-// NewDownloadNotFoundResponseBody builds the HTTP response body from the
-// result of the "download" endpoint of the "package" service.
-func NewDownloadNotFoundResponseBody(res *package_.PackageNotfound) *DownloadNotFoundResponseBody {
-	body := &DownloadNotFoundResponseBody{
-		Message: res.Message,
-		ID:      res.ID,
-	}
-	return body
-}
-
 // NewBulkNotAvailableResponseBody builds the HTTP response body from the
 // result of the "bulk" endpoint of the "package" service.
 func NewBulkNotAvailableResponseBody(res *goa.ServiceError) *BulkNotAvailableResponseBody {
@@ -715,14 +696,6 @@ func NewRetryPayload(id uint) *package_.RetryPayload {
 // NewWorkflowPayload builds a package service workflow endpoint payload.
 func NewWorkflowPayload(id uint) *package_.WorkflowPayload {
 	v := &package_.WorkflowPayload{}
-	v.ID = id
-
-	return v
-}
-
-// NewDownloadPayload builds a package service download endpoint payload.
-func NewDownloadPayload(id uint) *package_.DownloadPayload {
-	v := &package_.DownloadPayload{}
 	v.ID = id
 
 	return v

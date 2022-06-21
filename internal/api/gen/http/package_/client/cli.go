@@ -181,25 +181,6 @@ func BuildWorkflowPayload(package_WorkflowID string) (*package_.WorkflowPayload,
 	return v, nil
 }
 
-// BuildDownloadPayload builds the payload for the package download endpoint
-// from CLI flags.
-func BuildDownloadPayload(package_DownloadID string) (*package_.DownloadPayload, error) {
-	var err error
-	var id uint
-	{
-		var v uint64
-		v, err = strconv.ParseUint(package_DownloadID, 10, strconv.IntSize)
-		id = uint(v)
-		if err != nil {
-			return nil, fmt.Errorf("invalid value for id, must be UINT")
-		}
-	}
-	v := &package_.DownloadPayload{}
-	v.ID = id
-
-	return v, nil
-}
-
 // BuildBulkPayload builds the payload for the package bulk endpoint from CLI
 // flags.
 func BuildBulkPayload(package_BulkBody string) (*package_.BulkPayload, error) {
@@ -208,7 +189,7 @@ func BuildBulkPayload(package_BulkBody string) (*package_.BulkPayload, error) {
 	{
 		err = json.Unmarshal([]byte(package_BulkBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"operation\": \"retry\",\n      \"size\": 13733910633092730650,\n      \"status\": \"done\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"operation\": \"abandon\",\n      \"size\": 18171225832561681153,\n      \"status\": \"unknown\"\n   }'")
 		}
 		if !(body.Operation == "retry" || body.Operation == "cancel" || body.Operation == "abandon") {
 			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.operation", body.Operation, []interface{}{"retry", "cancel", "abandon"}))

@@ -106,7 +106,7 @@ website: $(HUGO)
 	hugo serve --source=website/
 
 gen-dashboard-client:
-	@rm -rf $(CURDIR)/dashboard/src/client
+	@rm -rf $(CURDIR)/dashboard/src/openapi-generator
 	@docker container run --rm --user $(shell id -u):$(shell id -g) --volume $(CURDIR):/local openapitools/openapi-generator-cli:v6.0.0 \
 		generate \
 			--input-spec /local/internal/api/gen/http/openapi.json \

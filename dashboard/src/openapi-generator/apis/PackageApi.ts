@@ -48,9 +48,6 @@ import {
     PackageDeleteNotFoundResponseBody,
     PackageDeleteNotFoundResponseBodyFromJSON,
     PackageDeleteNotFoundResponseBodyToJSON,
-    PackageDownloadNotFoundResponseBody,
-    PackageDownloadNotFoundResponseBodyFromJSON,
-    PackageDownloadNotFoundResponseBodyToJSON,
     PackageListResponseBody,
     PackageListResponseBodyFromJSON,
     PackageListResponseBodyToJSON,
@@ -105,10 +102,6 @@ export interface PackageConfirmRequest {
 }
 
 export interface PackageDeleteRequest {
-    id: number;
-}
-
-export interface PackageDownloadRequest {
     id: number;
 }
 
@@ -226,22 +219,6 @@ export interface PackageApiInterface {
      * delete package
      */
     packageDelete(requestParameters: PackageDeleteRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<void>;
-
-    /**
-     * Download package by ID
-     * @summary download package
-     * @param {number} id Identifier of package to look up
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof PackageApiInterface
-     */
-    packageDownloadRaw(requestParameters: PackageDownloadRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<string>>;
-
-    /**
-     * Download package by ID
-     * download package
-     */
-    packageDownload(requestParameters: PackageDownloadRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<string>;
 
     /**
      * List all stored packages
@@ -520,38 +497,6 @@ export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
      */
     async packageDelete(requestParameters: PackageDeleteRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<void> {
         await this.packageDeleteRaw(requestParameters, initOverrides);
-    }
-
-    /**
-     * Download package by ID
-     * download package
-     */
-    async packageDownloadRaw(requestParameters: PackageDownloadRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<string>> {
-        if (requestParameters.id === null || requestParameters.id === undefined) {
-            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling packageDownload.');
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        const response = await this.request({
-            path: `/package/{id}/download`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        }, initOverrides);
-
-        return new runtime.TextApiResponse(response) as any;
-    }
-
-    /**
-     * Download package by ID
-     * download package
-     */
-    async packageDownload(requestParameters: PackageDownloadRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<string> {
-        const response = await this.packageDownloadRaw(requestParameters, initOverrides);
-        return await response.value();
     }
 
     /**

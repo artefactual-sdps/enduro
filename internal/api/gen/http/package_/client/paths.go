@@ -47,11 +47,6 @@ func WorkflowPackagePath(id uint) string {
 	return fmt.Sprintf("/package/%v/workflow", id)
 }
 
-// DownloadPackagePath returns the URL path to the package service download HTTP endpoint.
-func DownloadPackagePath(id uint) string {
-	return fmt.Sprintf("/package/%v/download", id)
-}
-
 // BulkPackagePath returns the URL path to the package service bulk HTTP endpoint.
 func BulkPackagePath() string {
 	return "/package/bulk"

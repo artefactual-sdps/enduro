@@ -27,7 +27,7 @@ import (
 //
 func UsageCommands() string {
 	return `batch (submit|status|hints)
-package (monitor|list|show|delete|cancel|retry|workflow|download|bulk|bulk-status|preservation-actions|confirm|reject)
+package (monitor|list|show|delete|cancel|retry|workflow|bulk|bulk-status|preservation-actions|confirm|reject)
 storage (submit|update|download)
 `
 }
@@ -41,8 +41,8 @@ func UsageExamples() string {
    }'` + "\n" +
 		os.Args[0] + ` package monitor` + "\n" +
 		os.Args[0] + ` storage submit --body '{
-      "name": "Omnis quisquam ad consequuntur."
-   }' --aip-id "Nesciunt qui est provident fuga aut consequatur."` + "\n" +
+      "name": "Asperiores dolor."
+   }' --aip-id "Omnis quisquam ad consequuntur."` + "\n" +
 		""
 }
 
@@ -94,9 +94,6 @@ func ParseEndpoint(
 		package_WorkflowFlags  = flag.NewFlagSet("workflow", flag.ExitOnError)
 		package_WorkflowIDFlag = package_WorkflowFlags.String("id", "REQUIRED", "Identifier of package to look up")
 
-		package_DownloadFlags  = flag.NewFlagSet("download", flag.ExitOnError)
-		package_DownloadIDFlag = package_DownloadFlags.String("id", "REQUIRED", "Identifier of package to look up")
-
 		package_BulkFlags    = flag.NewFlagSet("bulk", flag.ExitOnError)
 		package_BulkBodyFlag = package_BulkFlags.String("body", "REQUIRED", "")
 
@@ -136,7 +133,6 @@ func ParseEndpoint(
 	package_CancelFlags.Usage = package_CancelUsage
 	package_RetryFlags.Usage = package_RetryUsage
 	package_WorkflowFlags.Usage = package_WorkflowUsage
-	package_DownloadFlags.Usage = package_DownloadUsage
 	package_BulkFlags.Usage = package_BulkUsage
 	package_BulkStatusFlags.Usage = package_BulkStatusUsage
 	package_PreservationActionsFlags.Usage = package_PreservationActionsUsage
@@ -219,9 +215,6 @@ func ParseEndpoint(
 
 			case "workflow":
 				epf = package_WorkflowFlags
-
-			case "download":
-				epf = package_DownloadFlags
 
 			case "bulk":
 				epf = package_BulkFlags
@@ -310,9 +303,6 @@ func ParseEndpoint(
 			case "workflow":
 				endpoint = c.Workflow()
 				data, err = package_c.BuildWorkflowPayload(*package_WorkflowIDFlag)
-			case "download":
-				endpoint = c.Download()
-				data, err = package_c.BuildDownloadPayload(*package_DownloadIDFlag)
 			case "bulk":
 				endpoint = c.Bulk()
 				data, err = package_c.BuildBulkPayload(*package_BulkBodyFlag)
@@ -415,7 +405,6 @@ COMMAND:
     cancel: Cancel package processing by ID
     retry: Retry package processing by ID
     workflow: Retrieve workflow status by ID
-    download: Download package by ID
     bulk: Bulk operations (retry, cancel...).
     bulk-status: Retrieve status of current bulk operation.
     preservation-actions: List all preservation actions by ID
@@ -507,17 +496,6 @@ Example:
 `, os.Args[0])
 }
 
-func package_DownloadUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] package download -id UINT
-
-Download package by ID
-    -id UINT: Identifier of package to look up
-
-Example:
-    %[1]s package download --id 16208726300707896748
-`, os.Args[0])
-}
-
 func package_BulkUsage() {
 	fmt.Fprintf(os.Stderr, `%[1]s [flags] package bulk -body JSON
 
@@ -526,9 +504,9 @@ Bulk operations (retry, cancel...).
 
 Example:
     %[1]s package bulk --body '{
-      "operation": "retry",
-      "size": 13733910633092730650,
-      "status": "done"
+      "operation": "abandon",
+      "size": 18171225832561681153,
+      "status": "unknown"
    }'
 `, os.Args[0])
 }
@@ -550,7 +528,7 @@ List all preservation actions by ID
     -id UINT: Identifier of package to look up
 
 Example:
-    %[1]s package preservation-actions --id 11970900180965159798
+    %[1]s package preservation-actions --id 6161904790566803604
 `, os.Args[0])
 }
 
@@ -561,7 +539,7 @@ Signal the package has been reviewed and accepted
     -id UINT: Identifier of package to look up
 
 Example:
-    %[1]s package confirm --id 15253041435799747880
+    %[1]s package confirm --id 11858054252557775308
 `, os.Args[0])
 }
 
@@ -572,7 +550,7 @@ Signal the package has been reviewed and rejected
     -id UINT: Identifier of package to look up
 
 Example:
-    %[1]s package reject --id 13110967601727961339
+    %[1]s package reject --id 3137421012754071442
 `, os.Args[0])
 }
 
@@ -600,8 +578,8 @@ Start the submission of a package
 
 Example:
     %[1]s storage submit --body '{
-      "name": "Omnis quisquam ad consequuntur."
-   }' --aip-id "Nesciunt qui est provident fuga aut consequatur."
+      "name": "Asperiores dolor."
+   }' --aip-id "Omnis quisquam ad consequuntur."
 `, os.Args[0])
 }
 
@@ -612,7 +590,7 @@ Signal the storage service that an upload is complete
     -aip-id STRING: 
 
 Example:
-    %[1]s storage update --aip-id "Ducimus totam atque pariatur."
+    %[1]s storage update --aip-id "Ea recusandae quasi voluptatem iusto consequatur qui."
 `, os.Args[0])
 }
 
@@ -623,6 +601,6 @@ Download package by AIPID
     -aip-id STRING: 
 
 Example:
-    %[1]s storage download --aip-id "Modi maiores sit veniam."
+    %[1]s storage download --aip-id "Quibusdam vitae ut."
 `, os.Args[0])
 }
