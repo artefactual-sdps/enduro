@@ -1,6 +1,5 @@
-import { clientProviderKey, Client, api } from "../client";
+import { api, client } from "../client";
 import { defineStore, acceptHMRUpdate } from "pinia";
-import { inject } from "vue";
 
 export const usePackageStore = defineStore("package", {
   state: () => ({
@@ -8,6 +7,14 @@ export const usePackageStore = defineStore("package", {
     current_preservation_actions:
       null as api.PackagePreservationActionsResponseBody | null,
   }),
+  getters: {
+    isPending(): boolean {
+      return (
+        this.current?.status ==
+        api.EnduroStoredPackageResponseBodyStatusEnum.Pending
+      );
+    },
+  },
   actions: {
     fetchCurrent(id: string) {
       this.reset();
@@ -15,7 +22,6 @@ export const usePackageStore = defineStore("package", {
       if (Number.isNaN(packageId)) {
         return;
       }
-      const client = inject(clientProviderKey) as Client;
       client.package.packageShow({ id: packageId }).then((payload) => {
         this.current = payload;
       });
@@ -25,8 +31,22 @@ export const usePackageStore = defineStore("package", {
           this.current_preservation_actions = payload;
         });
     },
-    confirm() {},
-    reject() {},
+    confirm() {
+      if (!this.current) return;
+      client.package.packageConfirm({ id: this.current.id }).then((payload) => {
+        if (!this.current) return;
+        this.current.status =
+          api.EnduroStoredPackageResponseBodyStatusEnum.InProgress;
+      });
+    },
+    reject() {
+      if (!this.current) return;
+      client.package.packageReject({ id: this.current.id }).then((payload) => {
+        if (!this.current) return;
+        this.current.status =
+          api.EnduroStoredPackageResponseBodyStatusEnum.InProgress;
+      });
+    },
     reset() {
       this.current = null;
       this.current_preservation_actions = null;

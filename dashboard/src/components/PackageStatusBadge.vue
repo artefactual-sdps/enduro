@@ -4,4 +4,6 @@ const props = defineProps({
 });
 </script>
 
-<template>{{ props.status }}</template>
+<template>
+  <span class="badge text-bg-warning">{{ props.status.toUpperCase() }}</span>
+</template>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { usePackageStore } from "../../../stores/package";
 import PackageReviewAlert from "../../../components/PackageReviewAlert.vue";
+import PackageStatusBadge from "../../../components/PackageStatusBadge.vue";
+import { usePackageStore } from "../../../stores/package";
 
 const packageStore = usePackageStore();
 </script>
@@ -17,15 +18,12 @@ const packageStore = usePackageStore();
           <dd>{{ packageStore.current.aipId }}</dd>
           <dt>Workflow status</dt>
           <dd>
-            <span class="badge text-bg-warning"
-              >TODO: {{ packageStore.current.status }}</span
-            >
+            <PackageStatusBadge :status="packageStore.current.status" />
             (Create and Review AIP)
           </dd>
           <dt>Started</dt>
           <dd>{{ packageStore.current.startedAt }}</dd>
         </dl>
-        <pre>{{ packageStore.current }}</pre>
       </div>
       <div class="col">
         <div class="card mb-3">
@@ -51,9 +49,7 @@ const packageStore = usePackageStore();
               <dd>1.45 GB</dd>
               <dt>Last workflow outcome</dt>
               <dd>
-                <span class="badge text-bg-warning"
-                  >TODO: {{ packageStore.current.status }}</span
-                >
+                <PackageStatusBadge :status="packageStore.current.status" />
                 (Create and Review AIP)
               </dd>
             </dl>
@@ -67,6 +63,9 @@ const packageStore = usePackageStore();
         </div>
       </div>
     </div>
+
+    <PackageReviewAlert />
+
     <div class="row">
       <div class="col">
         <h2>Preservation actions</h2>
@@ -74,9 +73,7 @@ const packageStore = usePackageStore();
           <div class="card-body">
             <p>
               Create and Review AIP
-              <span class="badge text-bg-warning"
-                >TODO: {{ packageStore.current.status }}</span
-              >
+              <PackageStatusBadge :status="packageStore.current.status" />
             </p>
             <span v-if="packageStore.current.completedAt">
               Completed
@@ -129,7 +126,6 @@ const packageStore = usePackageStore();
         </table>
       </div>
     </div>
-    <PackageReviewAlert />
   </div>
 </template>
 

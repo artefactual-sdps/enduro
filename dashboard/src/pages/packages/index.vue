@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import { clientProviderKey, Client, api } from "../../client";
-import PackageStatus from "../../components/PackageStatus.vue";
-import { inject, onMounted, reactive } from "vue";
-
-const client = inject(clientProviderKey) as Client;
+import { client, api } from "../../client";
+import PackageStatusBadge from "../../components/PackageStatusBadge.vue";
+import { onMounted, reactive } from "vue";
 
 const items: Array<api.EnduroStoredPackageResponseBody> = reactive([]);
 
@@ -39,7 +37,7 @@ onMounted(() => {
         <td>{{ $filters.formatDateTime(pkg.startedAt) }}</td>
         <td>Location?</td>
         <td>
-          <PackageStatus :status="pkg.status" />
+          <PackageStatusBadge :status="pkg.status" />
         </td>
       </tr>
     </tbody>

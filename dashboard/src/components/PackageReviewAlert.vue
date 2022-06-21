@@ -2,11 +2,12 @@
 import { usePackageStore } from "../stores/package";
 
 const store = usePackageStore();
+
 const location = "aip-review";
 </script>
 
 <template>
-  <div class="alert alert-info" role="alert">
+  <div class="alert alert-info" role="alert" v-if="store.isPending">
     <h4 class="alert-heading">Task: Review AIP</h4>
     Your AIP has been created and is currently stored in
     <strong>{{ location }}</strong

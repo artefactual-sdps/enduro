@@ -1,5 +1,4 @@
 import * as api from "./openapi-generator";
-import type { InjectionKey } from "vue";
 
 export interface Client {
   package: api.PackageApi;
@@ -31,6 +30,6 @@ function createClient(): Client {
   };
 }
 
-const clientProviderKey = Symbol() as InjectionKey<Client>;
+const client = createClient();
 
-export { api, createClient, clientProviderKey };
+export { api, client };

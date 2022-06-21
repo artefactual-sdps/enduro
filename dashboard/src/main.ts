@@ -1,5 +1,5 @@
 import App from "./App.vue";
-import { createClient, clientProviderKey, api } from "./client";
+import { api } from "./client";
 import "./styles/main.scss";
 import humanizeDuration from "humanize-duration";
 import moment from "moment";
@@ -14,14 +14,10 @@ const router = createRouter({
   strict: false,
 });
 
-const client = createClient();
-const pinia = createPinia();
-
 const app = createApp(App);
 app.use(router);
-app.use(pinia);
+app.use(createPinia());
 app.mount("#app");
-app.provide(clientProviderKey, client);
 
 interface Filters {
   [key: string]: (...value: any[]) => string;
