@@ -16,15 +16,17 @@ import (
 
 // Endpoints wraps the "storage" service endpoints.
 type Endpoints struct {
-	Submit goa.Endpoint
-	Update goa.Endpoint
+	Submit   goa.Endpoint
+	Update   goa.Endpoint
+	Download goa.Endpoint
 }
 
 // NewEndpoints wraps the methods of the "storage" service with endpoints.
 func NewEndpoints(s Service) *Endpoints {
 	return &Endpoints{
-		Submit: NewSubmitEndpoint(s),
-		Update: NewUpdateEndpoint(s),
+		Submit:   NewSubmitEndpoint(s),
+		Update:   NewUpdateEndpoint(s),
+		Download: NewDownloadEndpoint(s),
 	}
 }
 
@@ -32,6 +34,7 @@ func NewEndpoints(s Service) *Endpoints {
 func (e *Endpoints) Use(m func(goa.Endpoint) goa.Endpoint) {
 	e.Submit = m(e.Submit)
 	e.Update = m(e.Update)
+	e.Download = m(e.Download)
 }
 
 // NewSubmitEndpoint returns an endpoint function that calls the method
@@ -49,5 +52,14 @@ func NewUpdateEndpoint(s Service) goa.Endpoint {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
 		p := req.(*UpdatePayload)
 		return s.Update(ctx, p)
+	}
+}
+
+// NewDownloadEndpoint returns an endpoint function that calls the method
+// "download" of service "storage".
+func NewDownloadEndpoint(s Service) goa.Endpoint {
+	return func(ctx context.Context, req interface{}) (interface{}, error) {
+		p := req.(*DownloadPayload)
+		return s.Download(ctx, p)
 	}
 }

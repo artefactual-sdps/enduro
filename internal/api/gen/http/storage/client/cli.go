@@ -23,7 +23,7 @@ func BuildSubmitPayload(storageSubmitBody string, storageSubmitAipID string) (*s
 	{
 		err = json.Unmarshal([]byte(storageSubmitBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"name\": \"Commodi possimus et.\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"name\": \"Explicabo soluta et autem id saepe asperiores.\"\n   }'")
 		}
 	}
 	var aipID string
@@ -46,6 +46,19 @@ func BuildUpdatePayload(storageUpdateAipID string) (*storage.UpdatePayload, erro
 		aipID = storageUpdateAipID
 	}
 	v := &storage.UpdatePayload{}
+	v.AipID = aipID
+
+	return v, nil
+}
+
+// BuildDownloadPayload builds the payload for the storage download endpoint
+// from CLI flags.
+func BuildDownloadPayload(storageDownloadAipID string) (*storage.DownloadPayload, error) {
+	var aipID string
+	{
+		aipID = storageDownloadAipID
+	}
+	v := &storage.DownloadPayload{}
 	v.AipID = aipID
 
 	return v, nil

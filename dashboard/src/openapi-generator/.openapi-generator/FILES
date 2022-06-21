@@ -32,6 +32,8 @@ models/PackageShowNotFoundResponseBody.ts
 models/PackageShowResponseBody.ts
 models/PackageWorkflowNotFoundResponseBody.ts
 models/PackageWorkflowResponseBody.ts
+models/StorageDownloadNotFoundResponseBody.ts
+models/StorageDownloadResponseBody.ts
 models/StorageSubmitNotAvailableResponseBody.ts
 models/StorageSubmitNotValidResponseBody.ts
 models/StorageSubmitRequestBody.ts

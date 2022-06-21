@@ -228,3 +228,85 @@ func DecodeUpdateResponse(decoder func(*http.Response) goahttp.Decoder, restoreB
 		}
 	}
 }
+
+// BuildDownloadRequest instantiates a HTTP request object with method and path
+// set to call the "storage" service "download" endpoint
+func (c *Client) BuildDownloadRequest(ctx context.Context, v interface{}) (*http.Request, error) {
+	var (
+		aipID string
+	)
+	{
+		p, ok := v.(*storage.DownloadPayload)
+		if !ok {
+			return nil, goahttp.ErrInvalidType("storage", "download", "*storage.DownloadPayload", v)
+		}
+		aipID = p.AipID
+	}
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: DownloadStoragePath(aipID)}
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		return nil, goahttp.ErrInvalidURL("storage", "download", u.String(), err)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
+	return req, nil
+}
+
+// DecodeDownloadResponse returns a decoder for responses returned by the
+// storage download endpoint. restoreBody controls whether the response body
+// should be restored after having been read.
+// DecodeDownloadResponse may return the following errors:
+//	- "not_found" (type *storage.StoragePackageNotfound): http.StatusNotFound
+//	- error: internal error
+func DecodeDownloadResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
+	return func(resp *http.Response) (interface{}, error) {
+		if restoreBody {
+			b, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = ioutil.NopCloser(bytes.NewBuffer(b))
+			defer func() {
+				resp.Body = ioutil.NopCloser(bytes.NewBuffer(b))
+			}()
+		} else {
+			defer resp.Body.Close()
+		}
+		switch resp.StatusCode {
+		case http.StatusOK:
+			var (
+				body DownloadResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "download", err)
+			}
+			err = ValidateDownloadResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "download", err)
+			}
+			res := NewDownloadResultOK(&body)
+			return res, nil
+		case http.StatusNotFound:
+			var (
+				body DownloadNotFoundResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "download", err)
+			}
+			err = ValidateDownloadNotFoundResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "download", err)
+			}
+			return nil, NewDownloadNotFound(&body)
+		default:
+			body, _ := ioutil.ReadAll(resp.Body)
+			return nil, goahttp.ErrInvalidResponse("storage", "download", resp.StatusCode, string(body))
+		}
+	}
+}

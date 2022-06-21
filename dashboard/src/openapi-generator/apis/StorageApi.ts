@@ -15,6 +15,12 @@
 
 import * as runtime from '../runtime';
 import {
+    StorageDownloadNotFoundResponseBody,
+    StorageDownloadNotFoundResponseBodyFromJSON,
+    StorageDownloadNotFoundResponseBodyToJSON,
+    StorageDownloadResponseBody,
+    StorageDownloadResponseBodyFromJSON,
+    StorageDownloadResponseBodyToJSON,
     StorageSubmitNotAvailableResponseBody,
     StorageSubmitNotAvailableResponseBodyFromJSON,
     StorageSubmitNotAvailableResponseBodyToJSON,
@@ -38,6 +44,10 @@ import {
     StorageUpdateResponseBodyToJSON,
 } from '../models';
 
+export interface StorageDownloadRequest {
+    aipId: string;
+}
+
 export interface StorageSubmitRequest {
     aipId: string;
     submitRequestBody: StorageSubmitRequestBody;
@@ -54,6 +64,22 @@ export interface StorageUpdateRequest {
  * @interface StorageApiInterface
  */
 export interface StorageApiInterface {
+    /**
+     * Download package by AIPID
+     * @summary download storage
+     * @param {string} aipId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof StorageApiInterface
+     */
+    storageDownloadRaw(requestParameters: StorageDownloadRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<StorageDownloadResponseBody>>;
+
+    /**
+     * Download package by AIPID
+     * download storage
+     */
+    storageDownload(requestParameters: StorageDownloadRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<StorageDownloadResponseBody>;
+
     /**
      * Start the submission of a package
      * @summary submit storage
@@ -93,6 +119,38 @@ export interface StorageApiInterface {
  * 
  */
 export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
+
+    /**
+     * Download package by AIPID
+     * download storage
+     */
+    async storageDownloadRaw(requestParameters: StorageDownloadRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<StorageDownloadResponseBody>> {
+        if (requestParameters.aipId === null || requestParameters.aipId === undefined) {
+            throw new runtime.RequiredError('aipId','Required parameter requestParameters.aipId was null or undefined when calling storageDownload.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const response = await this.request({
+            path: `/storage/{aip_id}/download`.replace(`{${"aip_id"}}`, encodeURIComponent(String(requestParameters.aipId))),
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => StorageDownloadResponseBodyFromJSON(jsonValue));
+    }
+
+    /**
+     * Download package by AIPID
+     * download storage
+     */
+    async storageDownload(requestParameters: StorageDownloadRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<StorageDownloadResponseBody> {
+        const response = await this.storageDownloadRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
 
     /**
      * Start the submission of a package

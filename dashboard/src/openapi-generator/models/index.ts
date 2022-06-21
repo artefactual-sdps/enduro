@@ -28,6 +28,8 @@ export * from './PackageShowNotFoundResponseBody';
 export * from './PackageShowResponseBody';
 export * from './PackageWorkflowNotFoundResponseBody';
 export * from './PackageWorkflowResponseBody';
+export * from './StorageDownloadNotFoundResponseBody';
+export * from './StorageDownloadResponseBody';
 export * from './StorageSubmitNotAvailableResponseBody';
 export * from './StorageSubmitNotValidResponseBody';
 export * from './StorageSubmitRequestBody';

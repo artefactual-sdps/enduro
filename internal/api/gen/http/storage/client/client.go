@@ -24,6 +24,10 @@ type Client struct {
 	// Update Doer is the HTTP client used to make requests to the update endpoint.
 	UpdateDoer goahttp.Doer
 
+	// Download Doer is the HTTP client used to make requests to the download
+	// endpoint.
+	DownloadDoer goahttp.Doer
+
 	// CORS Doer is the HTTP client used to make requests to the  endpoint.
 	CORSDoer goahttp.Doer
 
@@ -49,6 +53,7 @@ func NewClient(
 	return &Client{
 		SubmitDoer:          doer,
 		UpdateDoer:          doer,
+		DownloadDoer:        doer,
 		CORSDoer:            doer,
 		RestoreResponseBody: restoreBody,
 		scheme:              scheme,
@@ -96,6 +101,25 @@ func (c *Client) Update() goa.Endpoint {
 		resp, err := c.UpdateDoer.Do(req)
 		if err != nil {
 			return nil, goahttp.ErrRequestError("storage", "update", err)
+		}
+		return decodeResponse(resp)
+	}
+}
+
+// Download returns an endpoint that makes HTTP requests to the storage service
+// download server.
+func (c *Client) Download() goa.Endpoint {
+	var (
+		decodeResponse = DecodeDownloadResponse(c.decoder, c.RestoreResponseBody)
+	)
+	return func(ctx context.Context, v interface{}) (interface{}, error) {
+		req, err := c.BuildDownloadRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		resp, err := c.DownloadDoer.Do(req)
+		if err != nil {
+			return nil, goahttp.ErrRequestError("storage", "download", err)
 		}
 		return decodeResponse(resp)
 	}

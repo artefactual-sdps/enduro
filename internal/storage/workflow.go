@@ -36,7 +36,7 @@ func NewStorageWorkflow(logger logr.Logger) *StorageWorkflow {
 
 func (w *StorageWorkflow) Execute(ctx temporalsdk_workflow.Context, req StorageWorkflowRequest) error {
 	var signal UploadDoneSignal
-	timerFuture := temporalsdk_workflow.NewTimer(ctx, urlExpirationTime)
+	timerFuture := temporalsdk_workflow.NewTimer(ctx, submitURLExpirationTime)
 	signalChan := temporalsdk_workflow.GetSignalChannel(ctx, UploadDoneSignalName)
 	selector := temporalsdk_workflow.NewSelector(ctx)
 	selector.AddReceive(signalChan, func(channel temporalsdk_workflow.ReceiveChannel, more bool) {

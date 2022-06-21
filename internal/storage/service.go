@@ -20,11 +20,15 @@ import (
 	goastorage "github.com/artefactual-labs/enduro/internal/api/gen/storage"
 )
 
-var urlExpirationTime = 15 * time.Minute
+var (
+	submitURLExpirationTime   = 15 * time.Minute
+	downloadURLExpirationTime = 15 * time.Minute
+)
 
 type Service interface {
 	Submit(context.Context, *goastorage.SubmitPayload) (res *goastorage.SubmitResult, err error)
 	Update(context.Context, *goastorage.UpdatePayload) (res *goastorage.UpdateResult, err error)
+	Download(context.Context, *goastorage.DownloadPayload) (res *goastorage.DownloadResult, err error)
 }
 
 type serviceImpl struct {
@@ -89,7 +93,7 @@ func (s *serviceImpl) Submit(ctx context.Context, payload *goastorage.SubmitPayl
 		return nil, goastorage.MakeNotValid(errors.New("cannot persist package"))
 	}
 
-	url, err := s.bucket.SignedURL(ctx, p.ObjectKey, &blob.SignedURLOptions{Expiry: urlExpirationTime, Method: http.MethodPut})
+	url, err := s.bucket.SignedURL(ctx, p.ObjectKey, &blob.SignedURLOptions{Expiry: submitURLExpirationTime, Method: http.MethodPut})
 	if err != nil {
 		return nil, goastorage.MakeNotValid(errors.New("cannot persist package"))
 	}
@@ -114,6 +118,28 @@ func (s *serviceImpl) Update(ctx context.Context, payload *goastorage.UpdatePayl
 	}
 
 	result := &goastorage.UpdateResult{OK: true}
+	return result, nil
+}
+
+func (s *serviceImpl) Download(ctx context.Context, payload *goastorage.DownloadPayload) (*goastorage.DownloadResult, error) {
+	p, err := s.readPackage(ctx, payload.AipID)
+	if err == sql.ErrNoRows {
+		return nil, &goastorage.StoragePackageNotfound{AipID: payload.AipID, Message: "not_found"}
+	} else if err != nil {
+		return nil, err
+	}
+
+	url, err := s.bucket.SignedURL(ctx, p.ObjectKey, &blob.SignedURLOptions{
+		Expiry: downloadURLExpirationTime,
+		Method: http.MethodGet,
+	})
+	if err != nil {
+		return nil, goastorage.MakeNotValid(errors.New("cannot retrieve package"))
+	}
+
+	result := &goastorage.DownloadResult{
+		URL: url,
+	}
 	return result, nil
 }
 
@@ -143,6 +169,18 @@ func (s *serviceImpl) createPackage(ctx context.Context, p *Package) error {
 	p.ID = uint(id)
 
 	return nil
+}
+
+func (s *serviceImpl) readPackage(ctx context.Context, AIPID string) (*Package, error) {
+	query := "SELECT id, name, aip_id, status, object_key FROM storage_package WHERE aip_id = (?)"
+	args := []interface{}{AIPID}
+	p := Package{}
+
+	if err := s.db.GetContext(ctx, &p, query, args...); err != nil {
+		return nil, err
+	}
+
+	return &p, nil
 }
 
 func (s *serviceImpl) updatePackageStatus(ctx context.Context, status PackageStatus, aipID string) error {

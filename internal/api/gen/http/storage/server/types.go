@@ -31,6 +31,12 @@ type UpdateResponseBody struct {
 	OK bool `form:"ok" json:"ok" xml:"ok"`
 }
 
+// DownloadResponseBody is the type of the "storage" service "download"
+// endpoint HTTP response body.
+type DownloadResponseBody struct {
+	URL string `form:"url" json:"url" xml:"url"`
+}
+
 // SubmitNotAvailableResponseBody is the type of the "storage" service "submit"
 // endpoint HTTP response body for the "not_available" error.
 type SubmitNotAvailableResponseBody struct {
@@ -103,6 +109,15 @@ type UpdateNotValidResponseBody struct {
 	Fault bool `form:"fault" json:"fault" xml:"fault"`
 }
 
+// DownloadNotFoundResponseBody is the type of the "storage" service "download"
+// endpoint HTTP response body for the "not_found" error.
+type DownloadNotFoundResponseBody struct {
+	// Message of error
+	Message string `form:"message" json:"message" xml:"message"`
+	// Identifier of missing package
+	AipID string `form:"aip_id" json:"aip_id" xml:"aip_id"`
+}
+
 // NewSubmitResponseBody builds the HTTP response body from the result of the
 // "submit" endpoint of the "storage" service.
 func NewSubmitResponseBody(res *storage.SubmitResult) *SubmitResponseBody {
@@ -117,6 +132,15 @@ func NewSubmitResponseBody(res *storage.SubmitResult) *SubmitResponseBody {
 func NewUpdateResponseBody(res *storage.UpdateResult) *UpdateResponseBody {
 	body := &UpdateResponseBody{
 		OK: res.OK,
+	}
+	return body
+}
+
+// NewDownloadResponseBody builds the HTTP response body from the result of the
+// "download" endpoint of the "storage" service.
+func NewDownloadResponseBody(res *storage.DownloadResult) *DownloadResponseBody {
+	body := &DownloadResponseBody{
+		URL: res.URL,
 	}
 	return body
 }
@@ -177,6 +201,16 @@ func NewUpdateNotValidResponseBody(res *goa.ServiceError) *UpdateNotValidRespons
 	return body
 }
 
+// NewDownloadNotFoundResponseBody builds the HTTP response body from the
+// result of the "download" endpoint of the "storage" service.
+func NewDownloadNotFoundResponseBody(res *storage.StoragePackageNotfound) *DownloadNotFoundResponseBody {
+	body := &DownloadNotFoundResponseBody{
+		Message: res.Message,
+		AipID:   res.AipID,
+	}
+	return body
+}
+
 // NewSubmitPayload builds a storage service submit endpoint payload.
 func NewSubmitPayload(body *SubmitRequestBody, aipID string) *storage.SubmitPayload {
 	v := &storage.SubmitPayload{
@@ -190,6 +224,14 @@ func NewSubmitPayload(body *SubmitRequestBody, aipID string) *storage.SubmitPayl
 // NewUpdatePayload builds a storage service update endpoint payload.
 func NewUpdatePayload(aipID string) *storage.UpdatePayload {
 	v := &storage.UpdatePayload{}
+	v.AipID = aipID
+
+	return v
+}
+
+// NewDownloadPayload builds a storage service download endpoint payload.
+func NewDownloadPayload(aipID string) *storage.DownloadPayload {
+	v := &storage.DownloadPayload{}
 	v.AipID = aipID
 
 	return v

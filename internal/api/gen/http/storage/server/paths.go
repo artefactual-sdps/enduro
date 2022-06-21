@@ -21,3 +21,8 @@ func SubmitStoragePath(aipID string) string {
 func UpdateStoragePath(aipID string) string {
 	return fmt.Sprintf("/storage/%v/update", aipID)
 }
+
+// DownloadStoragePath returns the URL path to the storage service download HTTP endpoint.
+func DownloadStoragePath(aipID string) string {
+	return fmt.Sprintf("/storage/%v/download", aipID)
+}

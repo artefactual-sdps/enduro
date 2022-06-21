@@ -163,6 +163,7 @@ func main() {
 		storageClient := goastorage.NewClient(
 			storageHttpClient.Submit(),
 			storageHttpClient.Update(),
+			storageHttpClient.Download(),
 		)
 		w.RegisterActivityWithOptions(activities.NewUploadActivity(storageClient).Execute, temporalsdk_activity.RegisterOptions{Name: activities.UploadActivityName})
 

@@ -16,8 +16,8 @@ var _ = Service("storage", func() {
 			Attribute("name", String)
 			Required("aip_id", "name")
 		})
-		Error("not_found", PackageNotFound, "Package not found")
 		Result(SubmitResult)
+		Error("not_found", StoragePackageNotFound, "Storage package not found")
 		Error("not_available")
 		Error("not_valid")
 		HTTP(func() {
@@ -33,8 +33,8 @@ var _ = Service("storage", func() {
 			Attribute("aip_id", String)
 			Required("aip_id")
 		})
-		Error("not_found", PackageNotFound, "Package not found")
 		Result(UpdateResult)
+		Error("not_found", StoragePackageNotFound, "Storage package not found")
 		Error("not_available")
 		Error("not_valid")
 		HTTP(func() {
@@ -42,6 +42,20 @@ var _ = Service("storage", func() {
 			Response(StatusAccepted)
 			Response("not_available", StatusConflict)
 			Response("not_valid", StatusBadRequest)
+		})
+	})
+	Method("download", func() {
+		Description("Download package by AIPID")
+		Payload(func() {
+			Attribute("aip_id", String)
+			Required("aip_id")
+		})
+		Result(DownloadResult)
+		Error("not_found", StoragePackageNotFound, "Storage package not found")
+		HTTP(func() {
+			GET("/{aip_id}/download")
+			Response(StatusOK)
+			Response("not_found", StatusNotFound)
 		})
 	})
 })
@@ -54,4 +68,18 @@ var SubmitResult = Type("SubmitResult", func() {
 var UpdateResult = Type("UpdateResult", func() {
 	Attribute("ok", Boolean)
 	Required("ok")
+})
+
+var DownloadResult = Type("DownloadResult", func() {
+	Attribute("url", String)
+	Required("url")
+})
+
+var StoragePackageNotFound = Type("StoragePackageNotfound", func() {
+	Description("Storage package not found.")
+	Attribute("message", String, "Message of error", func() {
+		Meta("struct:error:name")
+	})
+	Attribute("aip_id", String, "Identifier of missing package")
+	Required("message", "aip_id")
 })

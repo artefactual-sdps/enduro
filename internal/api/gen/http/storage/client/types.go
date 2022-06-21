@@ -31,6 +31,12 @@ type UpdateResponseBody struct {
 	OK *bool `form:"ok,omitempty" json:"ok,omitempty" xml:"ok,omitempty"`
 }
 
+// DownloadResponseBody is the type of the "storage" service "download"
+// endpoint HTTP response body.
+type DownloadResponseBody struct {
+	URL *string `form:"url,omitempty" json:"url,omitempty" xml:"url,omitempty"`
+}
+
 // SubmitNotAvailableResponseBody is the type of the "storage" service "submit"
 // endpoint HTTP response body for the "not_available" error.
 type SubmitNotAvailableResponseBody struct {
@@ -101,6 +107,15 @@ type UpdateNotValidResponseBody struct {
 	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
 	// Is the error a server-side fault?
 	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
+// DownloadNotFoundResponseBody is the type of the "storage" service "download"
+// endpoint HTTP response body for the "not_found" error.
+type DownloadNotFoundResponseBody struct {
+	// Message of error
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Identifier of missing package
+	AipID *string `form:"aip_id,omitempty" json:"aip_id,omitempty" xml:"aip_id,omitempty"`
 }
 
 // NewSubmitRequestBody builds the HTTP request body from the payload of the
@@ -190,6 +205,27 @@ func NewUpdateNotValid(body *UpdateNotValidResponseBody) *goa.ServiceError {
 	return v
 }
 
+// NewDownloadResultOK builds a "storage" service "download" endpoint result
+// from a HTTP "OK" response.
+func NewDownloadResultOK(body *DownloadResponseBody) *storage.DownloadResult {
+	v := &storage.DownloadResult{
+		URL: *body.URL,
+	}
+
+	return v
+}
+
+// NewDownloadNotFound builds a storage service download endpoint not_found
+// error.
+func NewDownloadNotFound(body *DownloadNotFoundResponseBody) *storage.StoragePackageNotfound {
+	v := &storage.StoragePackageNotfound{
+		Message: *body.Message,
+		AipID:   *body.AipID,
+	}
+
+	return v
+}
+
 // ValidateSubmitResponseBody runs the validations defined on SubmitResponseBody
 func ValidateSubmitResponseBody(body *SubmitResponseBody) (err error) {
 	if body.URL == nil {
@@ -202,6 +238,15 @@ func ValidateSubmitResponseBody(body *SubmitResponseBody) (err error) {
 func ValidateUpdateResponseBody(body *UpdateResponseBody) (err error) {
 	if body.OK == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("ok", "body"))
+	}
+	return
+}
+
+// ValidateDownloadResponseBody runs the validations defined on
+// DownloadResponseBody
+func ValidateDownloadResponseBody(body *DownloadResponseBody) (err error) {
+	if body.URL == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("url", "body"))
 	}
 	return
 }
@@ -298,6 +343,18 @@ func ValidateUpdateNotValidResponseBody(body *UpdateNotValidResponseBody) (err e
 	}
 	if body.Fault == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
+// ValidateDownloadNotFoundResponseBody runs the validations defined on
+// download_not_found_response_body
+func ValidateDownloadNotFoundResponseBody(body *DownloadNotFoundResponseBody) (err error) {
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.AipID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("aip_id", "body"))
 	}
 	return
 }

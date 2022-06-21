@@ -20,6 +20,8 @@ type Service interface {
 	Submit(context.Context, *SubmitPayload) (res *SubmitResult, err error)
 	// Signal the storage service that an upload is complete
 	Update(context.Context, *UpdatePayload) (res *UpdateResult, err error)
+	// Download package by AIPID
+	Download(context.Context, *DownloadPayload) (res *DownloadResult, err error)
 }
 
 // ServiceName is the name of the service as defined in the design. This is the
@@ -30,14 +32,24 @@ const ServiceName = "storage"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [2]string{"submit", "update"}
+var MethodNames = [3]string{"submit", "update", "download"}
 
-// Package not found.
-type PackageNotfound struct {
+// DownloadPayload is the payload type of the storage service download method.
+type DownloadPayload struct {
+	AipID string
+}
+
+// DownloadResult is the result type of the storage service download method.
+type DownloadResult struct {
+	URL string
+}
+
+// Storage package not found.
+type StoragePackageNotfound struct {
 	// Message of error
 	Message string
 	// Identifier of missing package
-	ID uint
+	AipID string
 }
 
 // SubmitPayload is the payload type of the storage service submit method.
@@ -62,12 +74,12 @@ type UpdateResult struct {
 }
 
 // Error returns an error description.
-func (e *PackageNotfound) Error() string {
-	return "Package not found."
+func (e *StoragePackageNotfound) Error() string {
+	return "Storage package not found."
 }
 
-// ErrorName returns "PackageNotfound".
-func (e *PackageNotfound) ErrorName() string {
+// ErrorName returns "StoragePackageNotfound".
+func (e *StoragePackageNotfound) ErrorName() string {
 	return e.Message
 }
 

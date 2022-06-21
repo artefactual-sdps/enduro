@@ -16,21 +16,23 @@ import (
 
 // Client is the "storage" service client.
 type Client struct {
-	SubmitEndpoint goa.Endpoint
-	UpdateEndpoint goa.Endpoint
+	SubmitEndpoint   goa.Endpoint
+	UpdateEndpoint   goa.Endpoint
+	DownloadEndpoint goa.Endpoint
 }
 
 // NewClient initializes a "storage" service client given the endpoints.
-func NewClient(submit, update goa.Endpoint) *Client {
+func NewClient(submit, update, download goa.Endpoint) *Client {
 	return &Client{
-		SubmitEndpoint: submit,
-		UpdateEndpoint: update,
+		SubmitEndpoint:   submit,
+		UpdateEndpoint:   update,
+		DownloadEndpoint: download,
 	}
 }
 
 // Submit calls the "submit" endpoint of the "storage" service.
 // Submit may return the following errors:
-//	- "not_found" (type *PackageNotfound): Package not found
+//	- "not_found" (type *StoragePackageNotfound): Storage package not found
 //	- "not_available" (type *goa.ServiceError)
 //	- "not_valid" (type *goa.ServiceError)
 //	- error: internal error
@@ -45,7 +47,7 @@ func (c *Client) Submit(ctx context.Context, p *SubmitPayload) (res *SubmitResul
 
 // Update calls the "update" endpoint of the "storage" service.
 // Update may return the following errors:
-//	- "not_found" (type *PackageNotfound): Package not found
+//	- "not_found" (type *StoragePackageNotfound): Storage package not found
 //	- "not_available" (type *goa.ServiceError)
 //	- "not_valid" (type *goa.ServiceError)
 //	- error: internal error
@@ -56,4 +58,17 @@ func (c *Client) Update(ctx context.Context, p *UpdatePayload) (res *UpdateResul
 		return
 	}
 	return ires.(*UpdateResult), nil
+}
+
+// Download calls the "download" endpoint of the "storage" service.
+// Download may return the following errors:
+//	- "not_found" (type *StoragePackageNotfound): Storage package not found
+//	- error: internal error
+func (c *Client) Download(ctx context.Context, p *DownloadPayload) (res *DownloadResult, err error) {
+	var ires interface{}
+	ires, err = c.DownloadEndpoint(ctx, p)
+	if err != nil {
+		return
+	}
+	return ires.(*DownloadResult), nil
 }
