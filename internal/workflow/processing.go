@@ -408,6 +408,15 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 		return err
 	}
 
+	// Set package to in progress status.
+	{
+		ctx := withLocalActivityOpts(sessCtx)
+		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setStatusLocalActivity, w.pkgsvc, tinfo.PackageID, package_.StatusInProgress).Get(ctx, nil)
+		if err != nil {
+			return err
+		}
+	}
+
 	// TODO: move to reject or permanent.
 	if review.Accepted {
 		// Index content in OpenSearch.
