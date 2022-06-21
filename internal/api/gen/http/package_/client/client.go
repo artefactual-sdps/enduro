@@ -58,6 +58,12 @@ type Client struct {
 	// preservation-actions endpoint.
 	PreservationActionsDoer goahttp.Doer
 
+	// Accept Doer is the HTTP client used to make requests to the accept endpoint.
+	AcceptDoer goahttp.Doer
+
+	// Reject Doer is the HTTP client used to make requests to the reject endpoint.
+	RejectDoer goahttp.Doer
+
 	// CORS Doer is the HTTP client used to make requests to the  endpoint.
 	CORSDoer goahttp.Doer
 
@@ -99,6 +105,8 @@ func NewClient(
 		BulkDoer:                doer,
 		BulkStatusDoer:          doer,
 		PreservationActionsDoer: doer,
+		AcceptDoer:              doer,
+		RejectDoer:              doer,
 		CORSDoer:                doer,
 		RestoreResponseBody:     restoreBody,
 		scheme:                  scheme,
@@ -342,6 +350,44 @@ func (c *Client) PreservationActions() goa.Endpoint {
 		resp, err := c.PreservationActionsDoer.Do(req)
 		if err != nil {
 			return nil, goahttp.ErrRequestError("package", "preservation-actions", err)
+		}
+		return decodeResponse(resp)
+	}
+}
+
+// Accept returns an endpoint that makes HTTP requests to the package service
+// accept server.
+func (c *Client) Accept() goa.Endpoint {
+	var (
+		decodeResponse = DecodeAcceptResponse(c.decoder, c.RestoreResponseBody)
+	)
+	return func(ctx context.Context, v interface{}) (interface{}, error) {
+		req, err := c.BuildAcceptRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		resp, err := c.AcceptDoer.Do(req)
+		if err != nil {
+			return nil, goahttp.ErrRequestError("package", "accept", err)
+		}
+		return decodeResponse(resp)
+	}
+}
+
+// Reject returns an endpoint that makes HTTP requests to the package service
+// reject server.
+func (c *Client) Reject() goa.Endpoint {
+	var (
+		decodeResponse = DecodeRejectResponse(c.decoder, c.RestoreResponseBody)
+	)
+	return func(ctx context.Context, v interface{}) (interface{}, error) {
+		req, err := c.BuildRejectRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		resp, err := c.RejectDoer.Do(req)
+		if err != nil {
+			return nil, goahttp.ErrRequestError("package", "reject", err)
 		}
 		return decodeResponse(resp)
 	}

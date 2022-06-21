@@ -94,6 +94,18 @@ type PreservationActionsResponseBody struct {
 	Actions EnduroPackagePreservationActionsActionResponseBodyCollection `form:"actions,omitempty" json:"actions,omitempty" xml:"actions,omitempty"`
 }
 
+// AcceptResponseBody is the type of the "package" service "accept" endpoint
+// HTTP response body.
+type AcceptResponseBody struct {
+	OK bool `form:"ok" json:"ok" xml:"ok"`
+}
+
+// RejectResponseBody is the type of the "package" service "reject" endpoint
+// HTTP response body.
+type RejectResponseBody struct {
+	OK bool `form:"ok" json:"ok" xml:"ok"`
+}
+
 // ShowNotFoundResponseBody is the type of the "package" service "show"
 // endpoint HTTP response body for the "not_found" error.
 type ShowNotFoundResponseBody struct {
@@ -227,6 +239,78 @@ type PreservationActionsNotFoundResponseBody struct {
 	Message string `form:"message" json:"message" xml:"message"`
 	// Identifier of missing package
 	ID uint `form:"id" json:"id" xml:"id"`
+}
+
+// AcceptNotAvailableResponseBody is the type of the "package" service "accept"
+// endpoint HTTP response body for the "not_available" error.
+type AcceptNotAvailableResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// AcceptNotValidResponseBody is the type of the "package" service "accept"
+// endpoint HTTP response body for the "not_valid" error.
+type AcceptNotValidResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// RejectNotAvailableResponseBody is the type of the "package" service "reject"
+// endpoint HTTP response body for the "not_available" error.
+type RejectNotAvailableResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// RejectNotValidResponseBody is the type of the "package" service "reject"
+// endpoint HTTP response body for the "not_valid" error.
+type RejectNotValidResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
 }
 
 // EnduroStoredPackageResponseBody is used to define fields on response body
@@ -382,6 +466,24 @@ func NewPreservationActionsResponseBody(res *package_views.EnduroPackagePreserva
 	return body
 }
 
+// NewAcceptResponseBody builds the HTTP response body from the result of the
+// "accept" endpoint of the "package" service.
+func NewAcceptResponseBody(res *package_.AcceptResult) *AcceptResponseBody {
+	body := &AcceptResponseBody{
+		OK: res.OK,
+	}
+	return body
+}
+
+// NewRejectResponseBody builds the HTTP response body from the result of the
+// "reject" endpoint of the "package" service.
+func NewRejectResponseBody(res *package_.RejectResult) *RejectResponseBody {
+	body := &RejectResponseBody{
+		OK: res.OK,
+	}
+	return body
+}
+
 // NewShowNotFoundResponseBody builds the HTTP response body from the result of
 // the "show" endpoint of the "package" service.
 func NewShowNotFoundResponseBody(res *package_.PackageNotfound) *ShowNotFoundResponseBody {
@@ -509,6 +611,62 @@ func NewPreservationActionsNotFoundResponseBody(res *package_.PackageNotfound) *
 	return body
 }
 
+// NewAcceptNotAvailableResponseBody builds the HTTP response body from the
+// result of the "accept" endpoint of the "package" service.
+func NewAcceptNotAvailableResponseBody(res *goa.ServiceError) *AcceptNotAvailableResponseBody {
+	body := &AcceptNotAvailableResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewAcceptNotValidResponseBody builds the HTTP response body from the result
+// of the "accept" endpoint of the "package" service.
+func NewAcceptNotValidResponseBody(res *goa.ServiceError) *AcceptNotValidResponseBody {
+	body := &AcceptNotValidResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewRejectNotAvailableResponseBody builds the HTTP response body from the
+// result of the "reject" endpoint of the "package" service.
+func NewRejectNotAvailableResponseBody(res *goa.ServiceError) *RejectNotAvailableResponseBody {
+	body := &RejectNotAvailableResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewRejectNotValidResponseBody builds the HTTP response body from the result
+// of the "reject" endpoint of the "package" service.
+func NewRejectNotValidResponseBody(res *goa.ServiceError) *RejectNotValidResponseBody {
+	body := &RejectNotValidResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
 // NewListPayload builds a package service list endpoint payload.
 func NewListPayload(name *string, aipID *string, earliestCreatedTime *string, latestCreatedTime *string, status *string, cursor *string) *package_.ListPayload {
 	v := &package_.ListPayload{}
@@ -590,6 +748,22 @@ func NewBulkPayload(body *BulkRequestBody) *package_.BulkPayload {
 // endpoint payload.
 func NewPreservationActionsPayload(id uint) *package_.PreservationActionsPayload {
 	v := &package_.PreservationActionsPayload{}
+	v.ID = id
+
+	return v
+}
+
+// NewAcceptPayload builds a package service accept endpoint payload.
+func NewAcceptPayload(id uint) *package_.AcceptPayload {
+	v := &package_.AcceptPayload{}
+	v.ID = id
+
+	return v
+}
+
+// NewRejectPayload builds a package service reject endpoint payload.
+func NewRejectPayload(id uint) *package_.RejectPayload {
+	v := &package_.RejectPayload{}
 	v.ID = id
 
 	return v

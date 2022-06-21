@@ -896,6 +896,200 @@ func DecodePreservationActionsResponse(decoder func(*http.Response) goahttp.Deco
 	}
 }
 
+// BuildAcceptRequest instantiates a HTTP request object with method and path
+// set to call the "package" service "accept" endpoint
+func (c *Client) BuildAcceptRequest(ctx context.Context, v interface{}) (*http.Request, error) {
+	var (
+		id uint
+	)
+	{
+		p, ok := v.(*package_.AcceptPayload)
+		if !ok {
+			return nil, goahttp.ErrInvalidType("package", "accept", "*package_.AcceptPayload", v)
+		}
+		id = p.ID
+	}
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: AcceptPackagePath(id)}
+	req, err := http.NewRequest("POST", u.String(), nil)
+	if err != nil {
+		return nil, goahttp.ErrInvalidURL("package", "accept", u.String(), err)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
+	return req, nil
+}
+
+// DecodeAcceptResponse returns a decoder for responses returned by the package
+// accept endpoint. restoreBody controls whether the response body should be
+// restored after having been read.
+// DecodeAcceptResponse may return the following errors:
+//	- "not_available" (type *goa.ServiceError): http.StatusConflict
+//	- "not_valid" (type *goa.ServiceError): http.StatusBadRequest
+//	- error: internal error
+func DecodeAcceptResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
+	return func(resp *http.Response) (interface{}, error) {
+		if restoreBody {
+			b, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = ioutil.NopCloser(bytes.NewBuffer(b))
+			defer func() {
+				resp.Body = ioutil.NopCloser(bytes.NewBuffer(b))
+			}()
+		} else {
+			defer resp.Body.Close()
+		}
+		switch resp.StatusCode {
+		case http.StatusAccepted:
+			var (
+				body AcceptResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("package", "accept", err)
+			}
+			err = ValidateAcceptResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("package", "accept", err)
+			}
+			res := NewAcceptResultAccepted(&body)
+			return res, nil
+		case http.StatusConflict:
+			var (
+				body AcceptNotAvailableResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("package", "accept", err)
+			}
+			err = ValidateAcceptNotAvailableResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("package", "accept", err)
+			}
+			return nil, NewAcceptNotAvailable(&body)
+		case http.StatusBadRequest:
+			var (
+				body AcceptNotValidResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("package", "accept", err)
+			}
+			err = ValidateAcceptNotValidResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("package", "accept", err)
+			}
+			return nil, NewAcceptNotValid(&body)
+		default:
+			body, _ := ioutil.ReadAll(resp.Body)
+			return nil, goahttp.ErrInvalidResponse("package", "accept", resp.StatusCode, string(body))
+		}
+	}
+}
+
+// BuildRejectRequest instantiates a HTTP request object with method and path
+// set to call the "package" service "reject" endpoint
+func (c *Client) BuildRejectRequest(ctx context.Context, v interface{}) (*http.Request, error) {
+	var (
+		id uint
+	)
+	{
+		p, ok := v.(*package_.RejectPayload)
+		if !ok {
+			return nil, goahttp.ErrInvalidType("package", "reject", "*package_.RejectPayload", v)
+		}
+		id = p.ID
+	}
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: RejectPackagePath(id)}
+	req, err := http.NewRequest("POST", u.String(), nil)
+	if err != nil {
+		return nil, goahttp.ErrInvalidURL("package", "reject", u.String(), err)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
+	return req, nil
+}
+
+// DecodeRejectResponse returns a decoder for responses returned by the package
+// reject endpoint. restoreBody controls whether the response body should be
+// restored after having been read.
+// DecodeRejectResponse may return the following errors:
+//	- "not_available" (type *goa.ServiceError): http.StatusConflict
+//	- "not_valid" (type *goa.ServiceError): http.StatusBadRequest
+//	- error: internal error
+func DecodeRejectResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
+	return func(resp *http.Response) (interface{}, error) {
+		if restoreBody {
+			b, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = ioutil.NopCloser(bytes.NewBuffer(b))
+			defer func() {
+				resp.Body = ioutil.NopCloser(bytes.NewBuffer(b))
+			}()
+		} else {
+			defer resp.Body.Close()
+		}
+		switch resp.StatusCode {
+		case http.StatusAccepted:
+			var (
+				body RejectResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("package", "reject", err)
+			}
+			err = ValidateRejectResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("package", "reject", err)
+			}
+			res := NewRejectResultAccepted(&body)
+			return res, nil
+		case http.StatusConflict:
+			var (
+				body RejectNotAvailableResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("package", "reject", err)
+			}
+			err = ValidateRejectNotAvailableResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("package", "reject", err)
+			}
+			return nil, NewRejectNotAvailable(&body)
+		case http.StatusBadRequest:
+			var (
+				body RejectNotValidResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("package", "reject", err)
+			}
+			err = ValidateRejectNotValidResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("package", "reject", err)
+			}
+			return nil, NewRejectNotValid(&body)
+		default:
+			body, _ := ioutil.ReadAll(resp.Body)
+			return nil, goahttp.ErrInvalidResponse("package", "reject", resp.StatusCode, string(body))
+		}
+	}
+}
+
 // unmarshalEnduroStoredPackageResponseBodyToPackageViewsEnduroStoredPackageView
 // builds a value of type *package_views.EnduroStoredPackageView from a value
 // of type *EnduroStoredPackageResponseBody.

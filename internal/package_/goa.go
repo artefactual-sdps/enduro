@@ -403,3 +403,45 @@ func (w *goaWrapper) BulkStatus(ctx context.Context) (*goapackage.BulkStatusResu
 
 	return result, nil
 }
+
+func (w *goaWrapper) Accept(ctx context.Context, payload *goapackage.AcceptPayload) (*goapackage.AcceptResult, error) {
+	var err error
+	var goapkg *goapackage.EnduroStoredPackage
+	if goapkg, err = w.Show(ctx, &goapackage.ShowPayload{ID: payload.ID}); err != nil {
+		return nil, err
+	}
+
+	signal := ReviewPerformedSignal{
+		Accepted: true,
+	}
+	err = w.tc.SignalWorkflow(ctx, *goapkg.WorkflowID, "", ReviewPerformedSignalName, signal)
+	if err != nil {
+		return nil, goapackage.MakeNotAvailable(errors.New("cannot perform operation"))
+	}
+
+	result := goapackage.AcceptResult{
+		OK: true,
+	}
+	return &result, nil
+}
+
+func (w *goaWrapper) Reject(ctx context.Context, payload *goapackage.RejectPayload) (*goapackage.RejectResult, error) {
+	var err error
+	var goapkg *goapackage.EnduroStoredPackage
+	if goapkg, err = w.Show(ctx, &goapackage.ShowPayload{ID: payload.ID}); err != nil {
+		return nil, err
+	}
+
+	signal := ReviewPerformedSignal{
+		Accepted: false,
+	}
+	err = w.tc.SignalWorkflow(context.Background(), *goapkg.WorkflowID, "", ReviewPerformedSignalName, signal)
+	if err != nil {
+		return nil, goapackage.MakeNotAvailable(errors.New("cannot perform operation"))
+	}
+
+	result := goapackage.RejectResult{
+		OK: true,
+	}
+	return &result, nil
+}

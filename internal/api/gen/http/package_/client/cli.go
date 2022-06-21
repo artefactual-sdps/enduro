@@ -208,7 +208,7 @@ func BuildBulkPayload(package_BulkBody string) (*package_.BulkPayload, error) {
 	{
 		err = json.Unmarshal([]byte(package_BulkBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"operation\": \"retry\",\n      \"size\": 5450621743403568317,\n      \"status\": \"queued\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"operation\": \"retry\",\n      \"size\": 13733910633092730650,\n      \"status\": \"done\"\n   }'")
 		}
 		if !(body.Operation == "retry" || body.Operation == "cancel" || body.Operation == "abandon") {
 			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.operation", body.Operation, []interface{}{"retry", "cancel", "abandon"}))
@@ -249,6 +249,44 @@ func BuildPreservationActionsPayload(package_PreservationActionsID string) (*pac
 		}
 	}
 	v := &package_.PreservationActionsPayload{}
+	v.ID = id
+
+	return v, nil
+}
+
+// BuildAcceptPayload builds the payload for the package accept endpoint from
+// CLI flags.
+func BuildAcceptPayload(package_AcceptID string) (*package_.AcceptPayload, error) {
+	var err error
+	var id uint
+	{
+		var v uint64
+		v, err = strconv.ParseUint(package_AcceptID, 10, strconv.IntSize)
+		id = uint(v)
+		if err != nil {
+			return nil, fmt.Errorf("invalid value for id, must be UINT")
+		}
+	}
+	v := &package_.AcceptPayload{}
+	v.ID = id
+
+	return v, nil
+}
+
+// BuildRejectPayload builds the payload for the package reject endpoint from
+// CLI flags.
+func BuildRejectPayload(package_RejectID string) (*package_.RejectPayload, error) {
+	var err error
+	var id uint
+	{
+		var v uint64
+		v, err = strconv.ParseUint(package_RejectID, 10, strconv.IntSize)
+		id = uint(v)
+		if err != nil {
+			return nil, fmt.Errorf("invalid value for id, must be UINT")
+		}
+	}
+	v := &package_.RejectPayload{}
 	v.ID = id
 
 	return v, nil

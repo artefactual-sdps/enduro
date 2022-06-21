@@ -179,6 +179,38 @@ var _ = Service("package", func() {
 			Response("not_found", StatusNotFound)
 		})
 	})
+	Method("accept", func() {
+		Description("Signal the package has been reviewed and accepted")
+		Payload(func() {
+			Attribute("id", UInt, "Identifier of package to look up")
+			Required("id")
+		})
+		Result(AcceptResult)
+		Error("not_available")
+		Error("not_valid")
+		HTTP(func() {
+			POST("/{id}/accept")
+			Response(StatusAccepted)
+			Response("not_available", StatusConflict)
+			Response("not_valid", StatusBadRequest)
+		})
+	})
+	Method("reject", func() {
+		Description("Signal the package has been reviewed and rejected")
+		Payload(func() {
+			Attribute("id", UInt, "Identifier of package to look up")
+			Required("id")
+		})
+		Result(RejectResult)
+		Error("not_available")
+		Error("not_valid")
+		HTTP(func() {
+			POST("/{id}/reject")
+			Response(StatusAccepted)
+			Response("not_available", StatusConflict)
+			Response("not_valid", StatusBadRequest)
+		})
+	})
 })
 
 var EnumPackageStatus = func() {
@@ -315,4 +347,14 @@ var PreservationAction = ResultType("application/vnd.enduro.package-preservation
 		})
 	})
 	Required("id", "action_id", "name", "status", "started_at")
+})
+
+var AcceptResult = Type("AcceptResult", func() {
+	Attribute("ok", Boolean)
+	Required("ok")
+})
+
+var RejectResult = Type("RejectResult", func() {
+	Attribute("ok", Boolean)
+	Required("ok")
 })

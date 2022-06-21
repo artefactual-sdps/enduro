@@ -15,6 +15,15 @@
 
 import * as runtime from '../runtime';
 import {
+    PackageAcceptNotAvailableResponseBody,
+    PackageAcceptNotAvailableResponseBodyFromJSON,
+    PackageAcceptNotAvailableResponseBodyToJSON,
+    PackageAcceptNotValidResponseBody,
+    PackageAcceptNotValidResponseBodyFromJSON,
+    PackageAcceptNotValidResponseBodyToJSON,
+    PackageAcceptResponseBody,
+    PackageAcceptResponseBodyFromJSON,
+    PackageAcceptResponseBodyToJSON,
     PackageBulkNotAvailableResponseBody,
     PackageBulkNotAvailableResponseBodyFromJSON,
     PackageBulkNotAvailableResponseBodyToJSON,
@@ -54,6 +63,15 @@ import {
     PackagePreservationActionsResponseBody,
     PackagePreservationActionsResponseBodyFromJSON,
     PackagePreservationActionsResponseBodyToJSON,
+    PackageRejectNotAvailableResponseBody,
+    PackageRejectNotAvailableResponseBodyFromJSON,
+    PackageRejectNotAvailableResponseBodyToJSON,
+    PackageRejectNotValidResponseBody,
+    PackageRejectNotValidResponseBodyFromJSON,
+    PackageRejectNotValidResponseBodyToJSON,
+    PackageRejectResponseBody,
+    PackageRejectResponseBodyFromJSON,
+    PackageRejectResponseBodyToJSON,
     PackageRetryNotFoundResponseBody,
     PackageRetryNotFoundResponseBodyFromJSON,
     PackageRetryNotFoundResponseBodyToJSON,
@@ -73,6 +91,10 @@ import {
     PackageWorkflowResponseBodyFromJSON,
     PackageWorkflowResponseBodyToJSON,
 } from '../models';
+
+export interface PackageAcceptRequest {
+    id: number;
+}
 
 export interface PackageBulkRequest {
     bulkRequestBody: PackageBulkRequestBody;
@@ -103,6 +125,10 @@ export interface PackagePreservationActionsRequest {
     id: number;
 }
 
+export interface PackageRejectRequest {
+    id: number;
+}
+
 export interface PackageRetryRequest {
     id: number;
 }
@@ -122,6 +148,22 @@ export interface PackageWorkflowRequest {
  * @interface PackageApiInterface
  */
 export interface PackageApiInterface {
+    /**
+     * Signal the package has been reviewed and accepted
+     * @summary accept package
+     * @param {number} id Identifier of package to look up
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof PackageApiInterface
+     */
+    packageAcceptRaw(requestParameters: PackageAcceptRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<PackageAcceptResponseBody>>;
+
+    /**
+     * Signal the package has been reviewed and accepted
+     * accept package
+     */
+    packageAccept(requestParameters: PackageAcceptRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<PackageAcceptResponseBody>;
+
     /**
      * Bulk operations (retry, cancel...).
      * @summary bulk package
@@ -253,6 +295,22 @@ export interface PackageApiInterface {
     packagePreservationActions(requestParameters: PackagePreservationActionsRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<PackagePreservationActionsResponseBody>;
 
     /**
+     * Signal the package has been reviewed and rejected
+     * @summary reject package
+     * @param {number} id Identifier of package to look up
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof PackageApiInterface
+     */
+    packageRejectRaw(requestParameters: PackageRejectRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<PackageRejectResponseBody>>;
+
+    /**
+     * Signal the package has been reviewed and rejected
+     * reject package
+     */
+    packageReject(requestParameters: PackageRejectRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<PackageRejectResponseBody>;
+
+    /**
      * Retry package processing by ID
      * @summary retry package
      * @param {number} id Identifier of package to retry
@@ -306,6 +364,38 @@ export interface PackageApiInterface {
  * 
  */
 export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
+
+    /**
+     * Signal the package has been reviewed and accepted
+     * accept package
+     */
+    async packageAcceptRaw(requestParameters: PackageAcceptRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<PackageAcceptResponseBody>> {
+        if (requestParameters.id === null || requestParameters.id === undefined) {
+            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling packageAccept.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const response = await this.request({
+            path: `/package/{id}/accept`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => PackageAcceptResponseBodyFromJSON(jsonValue));
+    }
+
+    /**
+     * Signal the package has been reviewed and accepted
+     * accept package
+     */
+    async packageAccept(requestParameters: PackageAcceptRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<PackageAcceptResponseBody> {
+        const response = await this.packageAcceptRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
 
     /**
      * Bulk operations (retry, cancel...).
@@ -570,6 +660,38 @@ export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
      */
     async packagePreservationActions(requestParameters: PackagePreservationActionsRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<PackagePreservationActionsResponseBody> {
         const response = await this.packagePreservationActionsRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Signal the package has been reviewed and rejected
+     * reject package
+     */
+    async packageRejectRaw(requestParameters: PackageRejectRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<PackageRejectResponseBody>> {
+        if (requestParameters.id === null || requestParameters.id === undefined) {
+            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling packageReject.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const response = await this.request({
+            path: `/package/{id}/reject`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => PackageRejectResponseBodyFromJSON(jsonValue));
+    }
+
+    /**
+     * Signal the package has been reviewed and rejected
+     * reject package
+     */
+    async packageReject(requestParameters: PackageRejectRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<PackageRejectResponseBody> {
+        const response = await this.packageRejectRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

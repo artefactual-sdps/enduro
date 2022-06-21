@@ -66,3 +66,13 @@ func BulkStatusPackagePath() string {
 func PreservationActionsPackagePath(id uint) string {
 	return fmt.Sprintf("/package/%v/preservation-actions", id)
 }
+
+// AcceptPackagePath returns the URL path to the package service accept HTTP endpoint.
+func AcceptPackagePath(id uint) string {
+	return fmt.Sprintf("/package/%v/accept", id)
+}
+
+// RejectPackagePath returns the URL path to the package service reject HTTP endpoint.
+func RejectPackagePath(id uint) string {
+	return fmt.Sprintf("/package/%v/reject", id)
+}

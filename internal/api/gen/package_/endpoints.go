@@ -27,6 +27,8 @@ type Endpoints struct {
 	Bulk                goa.Endpoint
 	BulkStatus          goa.Endpoint
 	PreservationActions goa.Endpoint
+	Accept              goa.Endpoint
+	Reject              goa.Endpoint
 }
 
 // MonitorEndpointInput holds both the payload and the server stream of the
@@ -50,6 +52,8 @@ func NewEndpoints(s Service) *Endpoints {
 		Bulk:                NewBulkEndpoint(s),
 		BulkStatus:          NewBulkStatusEndpoint(s),
 		PreservationActions: NewPreservationActionsEndpoint(s),
+		Accept:              NewAcceptEndpoint(s),
+		Reject:              NewRejectEndpoint(s),
 	}
 }
 
@@ -66,6 +70,8 @@ func (e *Endpoints) Use(m func(goa.Endpoint) goa.Endpoint) {
 	e.Bulk = m(e.Bulk)
 	e.BulkStatus = m(e.BulkStatus)
 	e.PreservationActions = m(e.PreservationActions)
+	e.Accept = m(e.Accept)
+	e.Reject = m(e.Reject)
 }
 
 // NewMonitorEndpoint returns an endpoint function that calls the method
@@ -178,5 +184,23 @@ func NewPreservationActionsEndpoint(s Service) goa.Endpoint {
 		}
 		vres := NewViewedEnduroPackagePreservationActions(res, "default")
 		return vres, nil
+	}
+}
+
+// NewAcceptEndpoint returns an endpoint function that calls the method
+// "accept" of service "package".
+func NewAcceptEndpoint(s Service) goa.Endpoint {
+	return func(ctx context.Context, req interface{}) (interface{}, error) {
+		p := req.(*AcceptPayload)
+		return s.Accept(ctx, p)
+	}
+}
+
+// NewRejectEndpoint returns an endpoint function that calls the method
+// "reject" of service "package".
+func NewRejectEndpoint(s Service) goa.Endpoint {
+	return func(ctx context.Context, req interface{}) (interface{}, error) {
+		p := req.(*RejectPayload)
+		return s.Reject(ctx, p)
 	}
 }

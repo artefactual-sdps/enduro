@@ -16,7 +16,14 @@ import (
 const (
 	// Name of the package processing workflow.
 	ProcessingWorkflowName = "processing-workflow"
+
+	// Name of the signal for reviewing a package.
+	ReviewPerformedSignalName = "review-performed-signal"
 )
+
+type ReviewPerformedSignal struct {
+	Accepted bool
+}
 
 type ProcessingWorkflowRequest struct {
 	WorkflowID string `json:"-"`

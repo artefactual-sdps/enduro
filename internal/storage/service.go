@@ -107,7 +107,7 @@ func (s *serviceImpl) Submit(ctx context.Context, payload *goastorage.SubmitPayl
 func (s *serviceImpl) Update(ctx context.Context, payload *goastorage.UpdatePayload) (*goastorage.UpdateResult, error) {
 	signal := UploadDoneSignal{}
 	workflowID := fmt.Sprintf("%s-%s", StorageWorkflowName, payload.AipID)
-	err := s.tc.SignalWorkflow(context.Background(), workflowID, "", UploadDoneSignalName, signal)
+	err := s.tc.SignalWorkflow(ctx, workflowID, "", UploadDoneSignalName, signal)
 	if err != nil {
 		return nil, goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
 	}

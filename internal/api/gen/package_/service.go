@@ -39,6 +39,10 @@ type Service interface {
 	BulkStatus(context.Context) (res *BulkStatusResult, err error)
 	// List all preservation actions by ID
 	PreservationActions(context.Context, *PreservationActionsPayload) (res *EnduroPackagePreservationActions, err error)
+	// Signal the package has been reviewed and accepted
+	Accept(context.Context, *AcceptPayload) (res *AcceptResult, err error)
+	// Signal the package has been reviewed and rejected
+	Reject(context.Context, *RejectPayload) (res *RejectResult, err error)
 }
 
 // ServiceName is the name of the service as defined in the design. This is the
@@ -49,7 +53,7 @@ const ServiceName = "package"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [11]string{"monitor", "list", "show", "delete", "cancel", "retry", "workflow", "download", "bulk", "bulk_status", "preservation-actions"}
+var MethodNames = [13]string{"monitor", "list", "show", "delete", "cancel", "retry", "workflow", "download", "bulk", "bulk_status", "preservation-actions", "accept", "reject"}
 
 // MonitorServerStream is the interface a "monitor" endpoint server stream must
 // satisfy.
@@ -65,6 +69,17 @@ type MonitorServerStream interface {
 type MonitorClientStream interface {
 	// Recv reads instances of "EnduroMonitorUpdate" from the stream.
 	Recv() (*EnduroMonitorUpdate, error)
+}
+
+// AcceptPayload is the payload type of the package service accept method.
+type AcceptPayload struct {
+	// Identifier of package to look up
+	ID uint
+}
+
+// AcceptResult is the result type of the package service accept method.
+type AcceptResult struct {
+	OK bool
 }
 
 // BulkPayload is the payload type of the package service bulk method.
@@ -209,6 +224,17 @@ type PackageNotfound struct {
 type PreservationActionsPayload struct {
 	// Identifier of package to look up
 	ID uint
+}
+
+// RejectPayload is the payload type of the package service reject method.
+type RejectPayload struct {
+	// Identifier of package to look up
+	ID uint
+}
+
+// RejectResult is the result type of the package service reject method.
+type RejectResult struct {
+	OK bool
 }
 
 // RetryPayload is the payload type of the package service retry method.

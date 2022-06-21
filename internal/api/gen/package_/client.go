@@ -27,10 +27,12 @@ type Client struct {
 	BulkEndpoint                goa.Endpoint
 	BulkStatusEndpoint          goa.Endpoint
 	PreservationActionsEndpoint goa.Endpoint
+	AcceptEndpoint              goa.Endpoint
+	RejectEndpoint              goa.Endpoint
 }
 
 // NewClient initializes a "package" service client given the endpoints.
-func NewClient(monitor, list, show, delete_, cancel, retry, workflow, download, bulk, bulkStatus, preservationActions goa.Endpoint) *Client {
+func NewClient(monitor, list, show, delete_, cancel, retry, workflow, download, bulk, bulkStatus, preservationActions, accept, reject goa.Endpoint) *Client {
 	return &Client{
 		MonitorEndpoint:             monitor,
 		ListEndpoint:                list,
@@ -43,6 +45,8 @@ func NewClient(monitor, list, show, delete_, cancel, retry, workflow, download, 
 		BulkEndpoint:                bulk,
 		BulkStatusEndpoint:          bulkStatus,
 		PreservationActionsEndpoint: preservationActions,
+		AcceptEndpoint:              accept,
+		RejectEndpoint:              reject,
 	}
 }
 
@@ -170,4 +174,32 @@ func (c *Client) PreservationActions(ctx context.Context, p *PreservationActions
 		return
 	}
 	return ires.(*EnduroPackagePreservationActions), nil
+}
+
+// Accept calls the "accept" endpoint of the "package" service.
+// Accept may return the following errors:
+//	- "not_available" (type *goa.ServiceError)
+//	- "not_valid" (type *goa.ServiceError)
+//	- error: internal error
+func (c *Client) Accept(ctx context.Context, p *AcceptPayload) (res *AcceptResult, err error) {
+	var ires interface{}
+	ires, err = c.AcceptEndpoint(ctx, p)
+	if err != nil {
+		return
+	}
+	return ires.(*AcceptResult), nil
+}
+
+// Reject calls the "reject" endpoint of the "package" service.
+// Reject may return the following errors:
+//	- "not_available" (type *goa.ServiceError)
+//	- "not_valid" (type *goa.ServiceError)
+//	- error: internal error
+func (c *Client) Reject(ctx context.Context, p *RejectPayload) (res *RejectResult, err error) {
+	var ires interface{}
+	ires, err = c.RejectEndpoint(ctx, p)
+	if err != nil {
+		return
+	}
+	return ires.(*RejectResult), nil
 }

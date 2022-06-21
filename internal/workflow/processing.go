@@ -23,8 +23,6 @@ import (
 	"github.com/artefactual-labs/enduro/internal/workflow/activities"
 )
 
-const ReviewPerformedSignalName = "review-performed-signal"
-
 type ProcessingWorkflow struct {
 	logger logr.Logger
 	pkgsvc package_.Service
@@ -430,19 +428,15 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 	return nil
 }
 
-type ReviewPerformedSignal struct {
-	Accepted bool
-}
-
-func (w *ProcessingWorkflow) waitForReview(ctx temporalsdk_workflow.Context) (*ReviewPerformedSignal, error) {
-	var review *ReviewPerformedSignal
-	signalChan := temporalsdk_workflow.GetSignalChannel(ctx, ReviewPerformedSignalName)
+func (w *ProcessingWorkflow) waitForReview(ctx temporalsdk_workflow.Context) (*package_.ReviewPerformedSignal, error) {
+	var review package_.ReviewPerformedSignal
+	signalChan := temporalsdk_workflow.GetSignalChannel(ctx, package_.ReviewPerformedSignalName)
 	selector := temporalsdk_workflow.NewSelector(ctx)
 	selector.AddReceive(signalChan, func(channel temporalsdk_workflow.ReceiveChannel, more bool) {
-		_ = channel.Receive(ctx, review)
+		_ = channel.Receive(ctx, &review)
 	})
 	selector.Select(ctx)
-	return review, nil
+	return &review, nil
 }
 
 func (w *ProcessingWorkflow) transferA3m(sessCtx temporalsdk_workflow.Context, tinfo *TransferInfo) error {

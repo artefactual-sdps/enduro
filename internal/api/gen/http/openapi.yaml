@@ -179,6 +179,36 @@ paths:
                             - id
             schemes:
                 - http
+    /package/{id}/accept:
+        post:
+            tags:
+                - package
+            summary: accept package
+            description: Signal the package has been reviewed and accepted
+            operationId: package#accept
+            parameters:
+                - name: id
+                  in: path
+                  description: Identifier of package to look up
+                  required: true
+                  type: integer
+            responses:
+                "202":
+                    description: Accepted response.
+                    schema:
+                        $ref: '#/definitions/PackageAcceptResponseBody'
+                        required:
+                            - ok
+                "400":
+                    description: Bad Request response.
+                    schema:
+                        $ref: '#/definitions/PackageAcceptNotValidResponseBody'
+                "409":
+                    description: Conflict response.
+                    schema:
+                        $ref: '#/definitions/PackageAcceptNotAvailableResponseBody'
+            schemes:
+                - http
     /package/{id}/cancel:
         post:
             tags:
@@ -261,6 +291,36 @@ paths:
                         required:
                             - message
                             - id
+            schemes:
+                - http
+    /package/{id}/reject:
+        post:
+            tags:
+                - package
+            summary: reject package
+            description: Signal the package has been reviewed and rejected
+            operationId: package#reject
+            parameters:
+                - name: id
+                  in: path
+                  description: Identifier of package to look up
+                  required: true
+                  type: integer
+            responses:
+                "202":
+                    description: Accepted response.
+                    schema:
+                        $ref: '#/definitions/PackageRejectResponseBody'
+                        required:
+                            - ok
+                "400":
+                    description: Bad Request response.
+                    schema:
+                        $ref: '#/definitions/PackageRejectNotValidResponseBody'
+                "409":
+                    description: Conflict response.
+                    schema:
+                        $ref: '#/definitions/PackageRejectNotAvailableResponseBody'
             schemes:
                 - http
     /package/{id}/retry:
@@ -497,36 +557,36 @@ definitions:
                 type: array
                 items:
                     type: string
-                    example: Quia et aut nihil.
+                    example: Laboriosam corporis vitae.
                 description: A list of known values of completedDir used by existing watchers.
                 example:
-                    - Natus iste ad dolores repellat dolore.
-                    - Amet velit quae tenetur aliquid.
+                    - Voluptas magnam ipsam quia eius.
+                    - Praesentium commodi voluptas doloribus.
         example:
             completed_dirs:
-                - Corporis vitae.
-                - Culpa voluptas.
+                - Corporis sint aut consequatur itaque similique rerum.
+                - Minima odio sint.
     BatchStatusResponseBody:
         title: BatchStatusResponseBody
         type: object
         properties:
             run_id:
                 type: string
-                example: Commodi porro.
+                example: Et sapiente.
             running:
                 type: boolean
                 example: true
             status:
                 type: string
-                example: Soluta id animi et iure perspiciatis.
+                example: Velit deserunt vel reiciendis rerum quia.
             workflow_id:
                 type: string
-                example: Placeat id quia libero sit.
+                example: Magnam recusandae laudantium quidem consequatur ducimus excepturi.
         example:
-            run_id: Sapiente hic.
-            running: true
-            status: Vel reiciendis rerum quia et.
-            workflow_id: Recusandae laudantium quidem consequatur ducimus excepturi perferendis.
+            run_id: Dolore et amet velit quae tenetur aliquid.
+            running: false
+            status: Quia et aut nihil.
+            workflow_id: Fugit natus iste ad dolores.
         required:
             - running
     BatchSubmitNotAvailableResponseBody:
@@ -536,7 +596,7 @@ definitions:
             fault:
                 type: boolean
                 description: Is the error a server-side fault?
-                example: true
+                example: false
             id:
                 type: string
                 description: ID is a unique identifier for this particular occurrence of the problem.
@@ -552,19 +612,19 @@ definitions:
             temporary:
                 type: boolean
                 description: Is the error temporary?
-                example: false
+                example: true
             timeout:
                 type: boolean
                 description: Is the error a timeout?
-                example: true
+                example: false
         description: submit_not_available_response_body result type (default view)
         example:
-            fault: true
+            fault: false
             id: 123abc
             message: parameter 'p' must be an integer
             name: bad_request
-            temporary: false
-            timeout: true
+            temporary: true
+            timeout: false
         required:
             - name
             - id
@@ -599,14 +659,14 @@ definitions:
             timeout:
                 type: boolean
                 description: Is the error a timeout?
-                example: false
+                example: true
         description: submit_not_valid_response_body result type (default view)
         example:
-            fault: true
+            fault: false
             id: 123abc
             message: parameter 'p' must be an integer
             name: bad_request
-            temporary: false
+            temporary: true
             timeout: true
         required:
             - name
@@ -621,17 +681,17 @@ definitions:
         properties:
             completed_dir:
                 type: string
-                example: Rerum pariatur dicta eum.
+                example: Molestias placeat iste sapiente et.
             path:
                 type: string
-                example: Repellendus nobis aut officiis tempora.
+                example: Qui reiciendis harum quos dolores.
             retention_period:
                 type: string
-                example: Similique qui.
+                example: Aut enim consequuntur debitis temporibus qui.
         example:
-            completed_dir: Iste sapiente.
-            path: Harum quos dolores alias molestias.
-            retention_period: Consequatur aut enim consequuntur debitis.
+            completed_dir: Perspiciatis provident.
+            path: Id animi et.
+            retention_period: Id quia libero sit et.
         required:
             - path
     BatchSubmitResponseBody:
@@ -640,13 +700,13 @@ definitions:
         properties:
             run_id:
                 type: string
-                example: Nisi corrupti sunt ad deleniti sunt nostrum.
+                example: Reprehenderit iure quae.
             workflow_id:
                 type: string
-                example: Necessitatibus ipsam alias molestias.
+                example: Debitis et sit minima repudiandae dicta saepe.
         example:
-            run_id: Reprehenderit iure quae.
-            workflow_id: Debitis et sit minima repudiandae dicta saepe.
+            run_id: Consequatur laudantium excepturi rem.
+            workflow_id: Neque natus quaerat dicta sit voluptatibus.
         required:
             - workflow_id
             - run_id
@@ -713,22 +773,22 @@ definitions:
             details:
                 type: string
                 description: Contents of the event
-                example: Excepturi labore quae eveniet.
+                example: Praesentium voluptates dolor odio atque harum distinctio.
                 format: binary
             id:
                 type: integer
                 description: Identifier of package
-                example: 12353131072037442932
+                example: 6902906638314429730
                 format: int64
             type:
                 type: string
                 description: Type of the event
-                example: Et hic veniam.
+                example: Sed ipsum expedita molestiae a quaerat possimus.
         description: WorkflowHistoryEvent describes a history event in Temporal. (default view)
         example:
-            details: Quaerat possimus totam praesentium voluptates dolor.
-            id: 11384854509020276519
-            type: Iure blanditiis sed ipsum expedita molestiae.
+            details: Rerum et aut laboriosam quia maxime aut.
+            id: 15903273005604877596
+            type: Ut error.
     EnduroPackageWorkflowHistoryResponseBodyCollection:
         title: 'Mediatype identifier: application/vnd.enduro.package-workflow-history; type=collection; view=default'
         type: array
@@ -736,15 +796,18 @@ definitions:
             $ref: '#/definitions/EnduroPackageWorkflowHistoryResponseBody'
         description: EnduroPackage-Workflow-HistoryCollectionResponseBody is the result type for an array of EnduroPackage-Workflow-HistoryResponseBody (default view)
         example:
-            - details: Ut quo rerum commodi repellat.
-              id: 9434232823278448693
-              type: Sunt ad labore velit sint aut.
-            - details: Ut quo rerum commodi repellat.
-              id: 9434232823278448693
-              type: Sunt ad labore velit sint aut.
-            - details: Ut quo rerum commodi repellat.
-              id: 9434232823278448693
-              type: Sunt ad labore velit sint aut.
+            - details: Et dolorem sed possimus voluptatum ut cumque.
+              id: 2107691848385005665
+              type: Ad est iusto.
+            - details: Et dolorem sed possimus voluptatum ut cumque.
+              id: 2107691848385005665
+              type: Ad est iusto.
+            - details: Et dolorem sed possimus voluptatum ut cumque.
+              id: 2107691848385005665
+              type: Ad est iusto.
+            - details: Et dolorem sed possimus voluptatum ut cumque.
+              id: 2107691848385005665
+              type: Ad est iusto.
     EnduroStoredPackageResponseBody:
         title: 'Mediatype identifier: application/vnd.enduro.stored-package; view=default'
         type: object
@@ -757,22 +820,22 @@ definitions:
             completed_at:
                 type: string
                 description: Completion datetime
-                example: "1991-06-14T03:42:39Z"
+                example: "2006-08-26T23:55:15Z"
                 format: date-time
             created_at:
                 type: string
                 description: Creation datetime
-                example: "1972-09-15T19:31:34Z"
+                example: "2004-04-09T03:10:51Z"
                 format: date-time
             id:
                 type: integer
                 description: Identifier of package
-                example: 7457460490408697225
+                example: 4232146918458093013
                 format: int64
             name:
                 type: string
                 description: Name of the package
-                example: Commodi voluptas doloribus aut sint.
+                example: Vel molestiae dolores.
             run_id:
                 type: string
                 description: Identifier of latest processing workflow run
@@ -781,13 +844,13 @@ definitions:
             started_at:
                 type: string
                 description: Start datetime
-                example: "1996-09-26T07:02:01Z"
+                example: "2010-12-16T10:43:12Z"
                 format: date-time
             status:
                 type: string
                 description: Status of the package
                 default: new
-                example: unknown
+                example: in progress
                 enum:
                     - new
                     - in progress
@@ -805,13 +868,13 @@ definitions:
         description: StoredPackage describes a package retrieved by the service. (default view)
         example:
             aip_id: AC2E8D12-84E7-ADAA-5045-93C4FF40145F
-            completed_at: "2015-05-23T16:11:00Z"
-            created_at: "1970-04-04T05:07:06Z"
-            id: 14849872052316915406
-            name: Et explicabo qui voluptas omnis quod.
+            completed_at: "1986-11-15T06:20:07Z"
+            created_at: "1992-01-06T01:52:18Z"
+            id: 6560282264630538412
+            name: Porro libero consequatur commodi reprehenderit.
             run_id: 76150F6F-C16D-33A6-B049-F5AE2D7C6385
-            started_at: "1996-01-12T19:22:28Z"
-            status: new
+            started_at: "1971-07-26T14:11:57Z"
+            status: error
             workflow_id: 43632E4F-A034-6412-7CEA-7CD0E1AED81D
         required:
             - id
@@ -825,32 +888,120 @@ definitions:
         description: EnduroStored-PackageCollectionResponseBody is the result type for an array of EnduroStored-PackageResponseBody (default view)
         example:
             - aip_id: A45D83CF-F038-77BB-220E-D79EFC31D198
-              completed_at: "2011-10-30T07:00:57Z"
-              created_at: "2000-01-21T23:59:15Z"
-              id: 4790564190533607275
-              name: Debitis nihil voluptatem et numquam consequatur fuga.
+              completed_at: "1999-03-08T07:09:12Z"
+              created_at: "1990-06-18T08:08:19Z"
+              id: 18203542379465091968
+              name: Sint maiores.
               run_id: 76FB876C-96AC-91E7-BD21-B0C2988DDF65
-              started_at: "1974-06-04T12:55:47Z"
+              started_at: "1976-01-19T02:38:53Z"
               status: queued
               workflow_id: 7D80331A-7620-D09D-7CCB-2EF87B797732
             - aip_id: A45D83CF-F038-77BB-220E-D79EFC31D198
-              completed_at: "2011-10-30T07:00:57Z"
-              created_at: "2000-01-21T23:59:15Z"
-              id: 4790564190533607275
-              name: Debitis nihil voluptatem et numquam consequatur fuga.
+              completed_at: "1999-03-08T07:09:12Z"
+              created_at: "1990-06-18T08:08:19Z"
+              id: 18203542379465091968
+              name: Sint maiores.
               run_id: 76FB876C-96AC-91E7-BD21-B0C2988DDF65
-              started_at: "1974-06-04T12:55:47Z"
+              started_at: "1976-01-19T02:38:53Z"
               status: queued
               workflow_id: 7D80331A-7620-D09D-7CCB-2EF87B797732
-            - aip_id: A45D83CF-F038-77BB-220E-D79EFC31D198
-              completed_at: "2011-10-30T07:00:57Z"
-              created_at: "2000-01-21T23:59:15Z"
-              id: 4790564190533607275
-              name: Debitis nihil voluptatem et numquam consequatur fuga.
-              run_id: 76FB876C-96AC-91E7-BD21-B0C2988DDF65
-              started_at: "1974-06-04T12:55:47Z"
-              status: queued
-              workflow_id: 7D80331A-7620-D09D-7CCB-2EF87B797732
+    PackageAcceptNotAvailableResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+        type: object
+        properties:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
+                example: true
+            id:
+                type: string
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
+            message:
+                type: string
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
+            name:
+                type: string
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
+                example: true
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: true
+        description: accept_not_available_response_body result type (default view)
+        example:
+            fault: true
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: true
+            timeout: false
+        required:
+            - name
+            - id
+            - message
+            - temporary
+            - timeout
+            - fault
+    PackageAcceptNotValidResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+        type: object
+        properties:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
+                example: false
+            id:
+                type: string
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
+            message:
+                type: string
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
+            name:
+                type: string
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
+                example: false
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: false
+        description: accept_not_valid_response_body result type (default view)
+        example:
+            fault: true
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: false
+            timeout: true
+        required:
+            - name
+            - id
+            - message
+            - temporary
+            - timeout
+            - fault
+    PackageAcceptResponseBody:
+        title: PackageAcceptResponseBody
+        type: object
+        properties:
+            ok:
+                type: boolean
+                example: false
+        example:
+            ok: true
+        required:
+            - ok
     PackageBulkNotAvailableResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
@@ -874,18 +1025,18 @@ definitions:
             temporary:
                 type: boolean
                 description: Is the error temporary?
-                example: true
+                example: false
             timeout:
                 type: boolean
                 description: Is the error a timeout?
-                example: true
+                example: false
         description: bulk_not_available_response_body result type (default view)
         example:
-            fault: true
+            fault: false
             id: 123abc
             message: parameter 'p' must be an integer
             name: bad_request
-            temporary: false
+            temporary: true
             timeout: false
         required:
             - name
@@ -924,12 +1075,12 @@ definitions:
                 example: false
         description: bulk_not_valid_response_body result type (default view)
         example:
-            fault: true
+            fault: false
             id: 123abc
             message: parameter 'p' must be an integer
             name: bad_request
-            temporary: false
-            timeout: false
+            temporary: true
+            timeout: true
         required:
             - name
             - id
@@ -943,7 +1094,7 @@ definitions:
         properties:
             operation:
                 type: string
-                example: abandon
+                example: retry
                 enum:
                     - retry
                     - cancel
@@ -951,11 +1102,11 @@ definitions:
             size:
                 type: integer
                 default: 100
-                example: 15577355224491362657
+                example: 3333432921172127252
                 format: int64
             status:
                 type: string
-                example: abandoned
+                example: error
                 enum:
                     - new
                     - in progress
@@ -966,9 +1117,9 @@ definitions:
                     - pending
                     - abandoned
         example:
-            operation: retry
-            size: 18126798757583163717
-            status: unknown
+            operation: cancel
+            size: 18217313972529446153
+            status: abandoned
         required:
             - operation
             - status
@@ -978,13 +1129,13 @@ definitions:
         properties:
             run_id:
                 type: string
-                example: Enim quis vel ipsa laudantium harum sunt.
+                example: Nostrum architecto.
             workflow_id:
                 type: string
-                example: Molestias harum.
+                example: Sunt nostrum aut.
         example:
-            run_id: Nulla quia praesentium ea est voluptate.
-            workflow_id: Aut deserunt nostrum architecto sed.
+            run_id: Est voluptate quis sunt.
+            workflow_id: Corrupti nulla quia praesentium.
         required:
             - workflow_id
             - run_id
@@ -994,31 +1145,31 @@ definitions:
         properties:
             closed_at:
                 type: string
-                example: "2009-01-22T05:59:19Z"
+                example: "1999-11-22T07:19:33Z"
                 format: date-time
             run_id:
                 type: string
-                example: Atque reprehenderit qui magni occaecati.
+                example: Qui magni occaecati dolorem esse deleniti.
             running:
                 type: boolean
                 example: false
             started_at:
                 type: string
-                example: "2004-05-24T21:12:05Z"
+                example: "2015-09-08T06:02:34Z"
                 format: date-time
             status:
                 type: string
-                example: At quia voluptatem.
+                example: Voluptatem repellat quasi.
             workflow_id:
                 type: string
-                example: Quasi blanditiis eos magni.
+                example: Eos magni praesentium atque.
         example:
-            closed_at: "2000-11-27T21:45:07Z"
+            closed_at: "1982-04-21T01:26:16Z"
             run_id: Ipsam ducimus aut et ut et repellat.
-            running: false
-            started_at: "2015-09-21T20:58:59Z"
-            status: Vero non sint deserunt quae.
-            workflow_id: Deserunt quaerat expedita illo dolor iure.
+            running: true
+            started_at: "2000-07-30T23:43:56Z"
+            status: Deserunt quae sit deserunt quaerat.
+            workflow_id: Illo dolor iure.
         required:
             - running
     PackageCancelNotFoundResponseBody:
@@ -1028,16 +1179,16 @@ definitions:
             id:
                 type: integer
                 description: Identifier of missing package
-                example: 11004012991814989216
+                example: 18098025247534976706
                 format: int64
             message:
                 type: string
                 description: Message of error
-                example: Quis quis quia voluptas ut atque.
+                example: Recusandae magni quaerat cum ut qui.
         description: Package not found
         example:
-            id: 15126750309902953258
-            message: Quia nemo.
+            id: 10617556012076734266
+            message: Laboriosam nam.
         required:
             - message
             - id
@@ -1048,7 +1199,7 @@ definitions:
             fault:
                 type: boolean
                 description: Is the error a server-side fault?
-                example: true
+                example: false
             id:
                 type: string
                 description: ID is a unique identifier for this particular occurrence of the problem.
@@ -1064,14 +1215,14 @@ definitions:
             temporary:
                 type: boolean
                 description: Is the error temporary?
-                example: false
+                example: true
             timeout:
                 type: boolean
                 description: Is the error a timeout?
                 example: true
         description: cancel_not_running_response_body result type (default view)
         example:
-            fault: true
+            fault: false
             id: 123abc
             message: parameter 'p' must be an integer
             name: bad_request
@@ -1091,16 +1242,16 @@ definitions:
             id:
                 type: integer
                 description: Identifier of missing package
-                example: 18309297163572093418
+                example: 11004012991814989216
                 format: int64
             message:
                 type: string
                 description: Message of error
-                example: Laboriosam aliquid.
+                example: Quis quis quia voluptas ut atque.
         description: Package not found
         example:
-            id: 9854943047418154968
-            message: Facilis non quia.
+            id: 15126750309902953258
+            message: Quia nemo.
         required:
             - message
             - id
@@ -1111,16 +1262,16 @@ definitions:
             id:
                 type: integer
                 description: Identifier of missing package
-                example: 3343283304624431267
+                example: 3227703766797734358
                 format: int64
             message:
                 type: string
                 description: Message of error
-                example: Possimus quidem et qui quis officiis amet.
+                example: Molestias harum.
         description: Package not found
         example:
-            id: 11677306631364607079
-            message: Sint labore.
+            id: 14856923408648526452
+            message: Quis vel ipsa.
         required:
             - message
             - id
@@ -1132,7 +1283,7 @@ definitions:
                 $ref: '#/definitions/EnduroStoredPackageResponseBodyCollection'
             next_cursor:
                 type: string
-                example: Quam assumenda saepe omnis et eius.
+                example: Atque doloribus.
         example:
             items:
                 - aip_id: 288BFD74-D973-18B5-FAA5-29ADF4569AC7
@@ -1153,7 +1304,7 @@ definitions:
                   started_at: "1998-03-18T12:36:31Z"
                   status: error
                   workflow_id: A464FD15-9F47-E3CC-BD80-3B5C5830C503
-            next_cursor: Qui nobis numquam ducimus quia sed aut.
+            next_cursor: Harum et.
         required:
             - items
     PackageMonitorResponseBody:
@@ -1163,28 +1314,28 @@ definitions:
             id:
                 type: integer
                 description: Identifier of package
-                example: 17552965550942373114
+                example: 9481413325438951878
                 format: int64
             item:
                 $ref: '#/definitions/EnduroStoredPackageResponseBody'
             type:
                 type: string
                 description: Type of the event
-                example: Quia eius.
+                example: Omnis itaque soluta sed et modi molestias.
         description: MonitorResponseBody result type (default view)
         example:
-            id: 17995569689099197508
+            id: 12526682820878335988
             item:
                 aip_id: A45D83CF-F038-77BB-220E-D79EFC31D198
-                completed_at: "2011-10-30T07:00:57Z"
-                created_at: "2000-01-21T23:59:15Z"
-                id: 4790564190533607275
-                name: Debitis nihil voluptatem et numquam consequatur fuga.
+                completed_at: "1999-03-08T07:09:12Z"
+                created_at: "1990-06-18T08:08:19Z"
+                id: 18203542379465091968
+                name: Sint maiores.
                 run_id: 76FB876C-96AC-91E7-BD21-B0C2988DDF65
-                started_at: "1974-06-04T12:55:47Z"
+                started_at: "1976-01-19T02:38:53Z"
                 status: queued
                 workflow_id: 7D80331A-7620-D09D-7CCB-2EF87B797732
-            type: Error inventore molestias animi asperiores blanditiis quasi.
+            type: Vel quisquam.
         required:
             - id
             - type
@@ -1237,27 +1388,50 @@ definitions:
                   name: Expedita amet vero.
                   started_at: "1992-01-21T13:41:06Z"
                   status: complete
-    PackageRetryNotFoundResponseBody:
-        title: PackageRetryNotFoundResponseBody
+    PackageRejectNotAvailableResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
         properties:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
+                example: true
             id:
-                type: integer
-                description: Identifier of missing package
-                example: 6576757723881193412
-                format: int64
+                type: string
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
             message:
                 type: string
-                description: Message of error
-                example: Enim omnis laboriosam.
-        description: Package not found
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
+            name:
+                type: string
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
+                example: false
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: false
+        description: reject_not_available_response_body result type (default view)
         example:
-            id: 10567616861069595259
-            message: Ad nostrum neque aperiam et repellat.
+            fault: false
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: false
+            timeout: false
         required:
-            - message
+            - name
             - id
-    PackageRetryNotRunningResponseBody:
+            - message
+            - temporary
+            - timeout
+            - fault
+    PackageRejectNotValidResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
         properties:
@@ -1280,11 +1454,85 @@ definitions:
             temporary:
                 type: boolean
                 description: Is the error temporary?
+                example: true
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: false
+        description: reject_not_valid_response_body result type (default view)
+        example:
+            fault: true
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: false
+            timeout: false
+        required:
+            - name
+            - id
+            - message
+            - temporary
+            - timeout
+            - fault
+    PackageRejectResponseBody:
+        title: PackageRejectResponseBody
+        type: object
+        properties:
+            ok:
+                type: boolean
+                example: false
+        example:
+            ok: false
+        required:
+            - ok
+    PackageRetryNotFoundResponseBody:
+        title: PackageRetryNotFoundResponseBody
+        type: object
+        properties:
+            id:
+                type: integer
+                description: Identifier of missing package
+                example: 12562254437171046919
+                format: int64
+            message:
+                type: string
+                description: Message of error
+                example: Sint architecto sed voluptas quasi.
+        description: Package not found
+        example:
+            id: 12353131072037442932
+            message: Natus voluptatum facere dolore.
+        required:
+            - message
+            - id
+    PackageRetryNotRunningResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+        type: object
+        properties:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
+                example: true
+            id:
+                type: string
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
+            message:
+                type: string
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
+            name:
+                type: string
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
                 example: false
             timeout:
                 type: boolean
                 description: Is the error a timeout?
-                example: true
+                example: false
         description: retry_not_running_response_body result type (default view)
         example:
             fault: false
@@ -1292,7 +1540,7 @@ definitions:
             message: parameter 'p' must be an integer
             name: bad_request
             temporary: false
-            timeout: false
+            timeout: true
         required:
             - name
             - id
@@ -1307,16 +1555,16 @@ definitions:
             id:
                 type: integer
                 description: Identifier of missing package
-                example: 5598853050942793384
+                example: 18309297163572093418
                 format: int64
             message:
                 type: string
                 description: Message of error
-                example: Et odit quo.
+                example: Laboriosam aliquid.
         description: Package not found
         example:
-            id: 4925887654812537685
-            message: Ut nam non ipsa dolores.
+            id: 9854943047418154968
+            message: Facilis non quia.
         required:
             - message
             - id
@@ -1332,22 +1580,22 @@ definitions:
             completed_at:
                 type: string
                 description: Completion datetime
-                example: "1974-02-19T13:08:28Z"
+                example: "2011-12-27T22:05:08Z"
                 format: date-time
             created_at:
                 type: string
                 description: Creation datetime
-                example: "1985-08-24T13:34:15Z"
+                example: "1981-03-07T06:47:47Z"
                 format: date-time
             id:
                 type: integer
                 description: Identifier of package
-                example: 2713318622522898448
+                example: 18391016349104840277
                 format: int64
             name:
                 type: string
                 description: Name of the package
-                example: Aut non atque doloribus.
+                example: Est est ut voluptatem voluptatem numquam.
             run_id:
                 type: string
                 description: Identifier of latest processing workflow run
@@ -1356,13 +1604,13 @@ definitions:
             started_at:
                 type: string
                 description: Start datetime
-                example: "2015-12-02T20:22:35Z"
+                example: "1992-10-23T08:38:34Z"
                 format: date-time
             status:
                 type: string
                 description: Status of the package
                 default: new
-                example: abandoned
+                example: in progress
                 enum:
                     - new
                     - in progress
@@ -1380,13 +1628,13 @@ definitions:
         description: ShowResponseBody result type (default view)
         example:
             aip_id: C14F18CD-9DAC-4197-F250-EC3FBAFE81DD
-            completed_at: "2002-01-28T11:24:03Z"
-            created_at: "1982-05-30T14:38:11Z"
-            id: 14230316941030809847
-            name: Sed reiciendis ipsum dolores cum saepe quibusdam.
+            completed_at: "2008-09-25T09:56:33Z"
+            created_at: "1980-01-08T08:03:28Z"
+            id: 7776555649655882558
+            name: Itaque occaecati dolor quo deserunt vitae suscipit.
             run_id: 36111869-D7E7-159A-3E5F-AC3C2E0C42DD
-            started_at: "2000-03-31T23:24:33Z"
-            status: pending
+            started_at: "1999-10-25T11:17:15Z"
+            status: abandoned
             workflow_id: EBC096AD-D9EC-2F9C-CCD5-2819684939D3
         required:
             - id
@@ -1399,16 +1647,16 @@ definitions:
             id:
                 type: integer
                 description: Identifier of missing package
-                example: 8896109554937044776
+                example: 3343283304624431267
                 format: int64
             message:
                 type: string
                 description: Message of error
-                example: Numquam rerum et aut.
+                example: Possimus quidem et qui quis officiis amet.
         description: Package not found
         example:
-            id: 1199506583286500287
-            message: Maxime aut temporibus sunt aut quis.
+            id: 11677306631364607079
+            message: Sint labore.
         required:
             - message
             - id
@@ -1420,23 +1668,20 @@ definitions:
                 $ref: '#/definitions/EnduroPackageWorkflowHistoryResponseBodyCollection'
             status:
                 type: string
-                example: Natus voluptatum facere dolore.
+                example: Quae eveniet voluptates enim.
         description: WorkflowResponseBody result type (default view)
         example:
             history:
-                - details: Ut quo rerum commodi repellat.
-                  id: 9434232823278448693
-                  type: Sunt ad labore velit sint aut.
-                - details: Ut quo rerum commodi repellat.
-                  id: 9434232823278448693
-                  type: Sunt ad labore velit sint aut.
-                - details: Ut quo rerum commodi repellat.
-                  id: 9434232823278448693
-                  type: Sunt ad labore velit sint aut.
-                - details: Ut quo rerum commodi repellat.
-                  id: 9434232823278448693
-                  type: Sunt ad labore velit sint aut.
-            status: Harum distinctio beatae commodi ut.
+                - details: Et dolorem sed possimus voluptatum ut cumque.
+                  id: 2107691848385005665
+                  type: Ad est iusto.
+                - details: Et dolorem sed possimus voluptatum ut cumque.
+                  id: 2107691848385005665
+                  type: Ad est iusto.
+                - details: Et dolorem sed possimus voluptatum ut cumque.
+                  id: 2107691848385005665
+                  type: Ad est iusto.
+            status: Aut quis perferendis.
     StorageDownloadNotFoundResponseBody:
         title: StorageDownloadNotFoundResponseBody
         type: object
@@ -1444,15 +1689,15 @@ definitions:
             aip_id:
                 type: string
                 description: Identifier of missing package
-                example: Maiores fugit dolores quis beatae nihil magnam.
+                example: Et atque illum voluptas adipisci voluptatibus et.
             message:
                 type: string
                 description: Message of error
-                example: Quos quo in ab.
+                example: Ut et facilis ex praesentium et sunt.
         description: Storage package not found
         example:
-            aip_id: Esse nulla aliquid facere qui tenetur corrupti.
-            message: Dolores repellendus aut.
+            aip_id: Ea reprehenderit.
+            message: Dolor ducimus.
         required:
             - message
             - aip_id
@@ -1462,9 +1707,9 @@ definitions:
         properties:
             url:
                 type: string
-                example: Aut velit facilis id nulla suscipit impedit.
+                example: Repellendus aut vitae esse nulla.
         example:
-            url: Officia maxime.
+            url: Facere qui tenetur corrupti dicta.
         required:
             - url
     StorageSubmitNotAvailableResponseBody:
@@ -1474,7 +1719,7 @@ definitions:
             fault:
                 type: boolean
                 description: Is the error a server-side fault?
-                example: false
+                example: true
             id:
                 type: string
                 description: ID is a unique identifier for this particular occurrence of the problem.
@@ -1494,7 +1739,7 @@ definitions:
             timeout:
                 type: boolean
                 description: Is the error a timeout?
-                example: false
+                example: true
         description: submit_not_available_response_body result type (default view)
         example:
             fault: true
@@ -1517,7 +1762,7 @@ definitions:
             fault:
                 type: boolean
                 description: Is the error a server-side fault?
-                example: false
+                example: true
             id:
                 type: string
                 description: ID is a unique identifier for this particular occurrence of the problem.
@@ -1537,7 +1782,7 @@ definitions:
             timeout:
                 type: boolean
                 description: Is the error a timeout?
-                example: false
+                example: true
         description: submit_not_valid_response_body result type (default view)
         example:
             fault: false
@@ -1545,7 +1790,7 @@ definitions:
             message: parameter 'p' must be an integer
             name: bad_request
             temporary: true
-            timeout: false
+            timeout: true
         required:
             - name
             - id
@@ -1559,9 +1804,9 @@ definitions:
         properties:
             name:
                 type: string
-                example: Nobis aspernatur.
+                example: Facilis id nulla suscipit impedit.
         example:
-            name: Quo enim ab vel sunt velit.
+            name: Officia maxime.
         required:
             - name
     StorageSubmitResponseBody:
@@ -1570,9 +1815,9 @@ definitions:
         properties:
             url:
                 type: string
-                example: In aliquam aliquid non tempore.
+                example: Quo enim ab vel sunt velit.
         example:
-            url: In non cupiditate ipsam omnis voluptatem.
+            url: Beatae tenetur sed.
         required:
             - url
     StorageUpdateNotAvailableResponseBody:
@@ -1582,7 +1827,7 @@ definitions:
             fault:
                 type: boolean
                 description: Is the error a server-side fault?
-                example: true
+                example: false
             id:
                 type: string
                 description: ID is a unique identifier for this particular occurrence of the problem.
@@ -1605,7 +1850,7 @@ definitions:
                 example: true
         description: update_not_available_response_body result type (default view)
         example:
-            fault: false
+            fault: true
             id: 123abc
             message: parameter 'p' must be an integer
             name: bad_request
@@ -1652,7 +1897,7 @@ definitions:
             id: 123abc
             message: parameter 'p' must be an integer
             name: bad_request
-            temporary: true
+            temporary: false
             timeout: true
         required:
             - name
@@ -1669,6 +1914,6 @@ definitions:
                 type: boolean
                 example: false
         example:
-            ok: false
+            ok: true
         required:
             - ok
