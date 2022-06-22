@@ -18,8 +18,10 @@ const packageStore = usePackageStore();
           <dd>{{ packageStore.current.aipId }}</dd>
           <dt>Workflow status</dt>
           <dd>
-            <PackageStatusBadge :status="packageStore.current.status" />
-            (Create and Review AIP)
+            <PackageStatusBadge
+              :status="packageStore.current.status"
+              :note="'Create and Review AIP'"
+            />
           </dd>
           <dt>Started</dt>
           <dd>{{ packageStore.current.startedAt }}</dd>
@@ -49,8 +51,10 @@ const packageStore = usePackageStore();
               <dd>1.45 GB</dd>
               <dt>Last workflow outcome</dt>
               <dd>
-                <PackageStatusBadge :status="packageStore.current.status" />
-                (Create and Review AIP)
+                <PackageStatusBadge
+                  :status="packageStore.current.status"
+                  :note="'Create and Review AIP'"
+                />
               </dd>
             </dl>
             <div class="">
