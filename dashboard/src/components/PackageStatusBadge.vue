@@ -26,10 +26,12 @@ const colorClass = computed(() => {
 </script>
 
 <template>
-  <span :class="['badge', colorClass]">
-    {{ props.status.toUpperCase() }}
+  <span>
+    <span :class="['badge', colorClass]">
+      {{ props.status.toUpperCase() }}
+    </span>
+    <span v-if="props.note" class="badge text-dark fw-normal"
+      >({{ props.note }})</span
+    >
   </span>
-  <span v-if="props.note" class="badge text-dark fw-normal"
-    >({{ props.note }})</span
-  >
 </template>

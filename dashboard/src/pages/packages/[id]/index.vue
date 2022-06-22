@@ -1,9 +1,16 @@
 <script setup lang="ts">
+import { storageServiceDownloadURL } from "../../../client";
 import PackageReviewAlert from "../../../components/PackageReviewAlert.vue";
 import PackageStatusBadge from "../../../components/PackageStatusBadge.vue";
 import { usePackageStore } from "../../../stores/package";
 
 const packageStore = usePackageStore();
+
+const download = () => {
+  if (!packageStore.current?.aipId) return;
+  const url = storageServiceDownloadURL(packageStore.current.aipId);
+  window.open(url, "_blank");
+};
 </script>
 
 <template>
@@ -64,7 +71,7 @@ const packageStore = usePackageStore();
               <button
                 class="btn btn-primary btn-sm"
                 type="button"
-                @click="packageStore.download()"
+                @click="download"
               >
                 Download
               </button>

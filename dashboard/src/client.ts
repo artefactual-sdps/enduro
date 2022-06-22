@@ -32,6 +32,16 @@ function createClient(): Client {
   };
 }
 
+function storageServiceDownloadURL(aipId: string): string {
+  return (
+    getPath() +
+    `/storage/{aip_id}/download`.replace(
+      `{${"aip_id"}}`,
+      encodeURIComponent(aipId)
+    )
+  );
+}
+
 const client = createClient();
 
-export { api, client };
+export { api, client, storageServiceDownloadURL };
