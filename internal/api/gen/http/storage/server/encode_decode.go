@@ -109,11 +109,8 @@ func EncodeSubmitError(encoder func(context.Context, http.ResponseWriter) goahtt
 // storage update endpoint.
 func EncodeUpdateResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
 	return func(ctx context.Context, w http.ResponseWriter, v interface{}) error {
-		res, _ := v.(*storage.UpdateResult)
-		enc := encoder(ctx, w)
-		body := NewUpdateResponseBody(res)
 		w.WriteHeader(http.StatusAccepted)
-		return enc.Encode(body)
+		return nil
 	}
 }
 

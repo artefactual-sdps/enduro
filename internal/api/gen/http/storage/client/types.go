@@ -25,12 +25,6 @@ type SubmitResponseBody struct {
 	URL *string `form:"url,omitempty" json:"url,omitempty" xml:"url,omitempty"`
 }
 
-// UpdateResponseBody is the type of the "storage" service "update" endpoint
-// HTTP response body.
-type UpdateResponseBody struct {
-	OK *bool `form:"ok,omitempty" json:"ok,omitempty" xml:"ok,omitempty"`
-}
-
 // SubmitNotAvailableResponseBody is the type of the "storage" service "submit"
 // endpoint HTTP response body for the "not_available" error.
 type SubmitNotAvailableResponseBody struct {
@@ -160,16 +154,6 @@ func NewSubmitNotValid(body *SubmitNotValidResponseBody) *goa.ServiceError {
 	return v
 }
 
-// NewUpdateResultAccepted builds a "storage" service "update" endpoint result
-// from a HTTP "Accepted" response.
-func NewUpdateResultAccepted(body *UpdateResponseBody) *storage.UpdateResult {
-	v := &storage.UpdateResult{
-		OK: *body.OK,
-	}
-
-	return v
-}
-
 // NewUpdateNotAvailable builds a storage service update endpoint not_available
 // error.
 func NewUpdateNotAvailable(body *UpdateNotAvailableResponseBody) *goa.ServiceError {
@@ -214,14 +198,6 @@ func NewDownloadNotFound(body *DownloadNotFoundResponseBody) *storage.StoragePac
 func ValidateSubmitResponseBody(body *SubmitResponseBody) (err error) {
 	if body.URL == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("url", "body"))
-	}
-	return
-}
-
-// ValidateUpdateResponseBody runs the validations defined on UpdateResponseBody
-func ValidateUpdateResponseBody(body *UpdateResponseBody) (err error) {
-	if body.OK == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("ok", "body"))
 	}
 	return
 }

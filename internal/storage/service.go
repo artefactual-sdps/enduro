@@ -28,7 +28,7 @@ var submitURLExpirationTime = 15 * time.Minute
 
 type Service interface {
 	Submit(context.Context, *goastorage.SubmitPayload) (res *goastorage.SubmitResult, err error)
-	Update(context.Context, *goastorage.UpdatePayload) (res *goastorage.UpdateResult, err error)
+	Update(context.Context, *goastorage.UpdatePayload) (err error)
 	Download(context.Context, *goastorage.DownloadPayload) ([]byte, error)
 	HTTPDownload(mux goahttp.Muxer, dec func(r *http.Request) goahttp.Decoder) http.HandlerFunc
 }
@@ -106,21 +106,20 @@ func (s *serviceImpl) Submit(ctx context.Context, payload *goastorage.SubmitPayl
 	return result, nil
 }
 
-func (s *serviceImpl) Update(ctx context.Context, payload *goastorage.UpdatePayload) (*goastorage.UpdateResult, error) {
+func (s *serviceImpl) Update(ctx context.Context, payload *goastorage.UpdatePayload) error {
 	signal := UploadDoneSignal{}
 	workflowID := fmt.Sprintf("%s-%s", StorageWorkflowName, payload.AipID)
 	err := s.tc.SignalWorkflow(ctx, workflowID, "", UploadDoneSignalName, signal)
 	if err != nil {
-		return nil, goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
+		return goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
 	}
 	// Uptade the package status to in_review
 	err = s.updatePackageStatus(ctx, StatusInReview, payload.AipID)
 	if err != nil {
-		return nil, goastorage.MakeNotValid(errors.New("cannot persist package"))
+		return goastorage.MakeNotValid(errors.New("cannot persist package"))
 	}
 
-	result := &goastorage.UpdateResult{OK: true}
-	return result, nil
+	return nil
 }
 
 func (s *serviceImpl) Download(ctx context.Context, payload *goastorage.DownloadPayload) ([]byte, error) {

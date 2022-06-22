@@ -94,18 +94,6 @@ type PreservationActionsResponseBody struct {
 	Actions EnduroPackagePreservationActionsActionCollectionResponseBody `form:"actions,omitempty" json:"actions,omitempty" xml:"actions,omitempty"`
 }
 
-// ConfirmResponseBody is the type of the "package" service "confirm" endpoint
-// HTTP response body.
-type ConfirmResponseBody struct {
-	OK *bool `form:"ok,omitempty" json:"ok,omitempty" xml:"ok,omitempty"`
-}
-
-// RejectResponseBody is the type of the "package" service "reject" endpoint
-// HTTP response body.
-type RejectResponseBody struct {
-	OK *bool `form:"ok,omitempty" json:"ok,omitempty" xml:"ok,omitempty"`
-}
-
 // ShowNotFoundResponseBody is the type of the "package" service "show"
 // endpoint HTTP response body for the "not_found" error.
 type ShowNotFoundResponseBody struct {
@@ -599,16 +587,6 @@ func NewPreservationActionsNotFound(body *PreservationActionsNotFoundResponseBod
 	return v
 }
 
-// NewConfirmResultAccepted builds a "package" service "confirm" endpoint
-// result from a HTTP "Accepted" response.
-func NewConfirmResultAccepted(body *ConfirmResponseBody) *package_.ConfirmResult {
-	v := &package_.ConfirmResult{
-		OK: *body.OK,
-	}
-
-	return v
-}
-
 // NewConfirmNotAvailable builds a package service confirm endpoint
 // not_available error.
 func NewConfirmNotAvailable(body *ConfirmNotAvailableResponseBody) *goa.ServiceError {
@@ -633,16 +611,6 @@ func NewConfirmNotValid(body *ConfirmNotValidResponseBody) *goa.ServiceError {
 		Temporary: *body.Temporary,
 		Timeout:   *body.Timeout,
 		Fault:     *body.Fault,
-	}
-
-	return v
-}
-
-// NewRejectResultAccepted builds a "package" service "reject" endpoint result
-// from a HTTP "Accepted" response.
-func NewRejectResultAccepted(body *RejectResponseBody) *package_.RejectResult {
-	v := &package_.RejectResult{
-		OK: *body.OK,
 	}
 
 	return v
@@ -710,23 +678,6 @@ func ValidateBulkStatusResponseBody(body *BulkStatusResponseBody) (err error) {
 	}
 	if body.ClosedAt != nil {
 		err = goa.MergeErrors(err, goa.ValidateFormat("body.closed_at", *body.ClosedAt, goa.FormatDateTime))
-	}
-	return
-}
-
-// ValidateConfirmResponseBody runs the validations defined on
-// ConfirmResponseBody
-func ValidateConfirmResponseBody(body *ConfirmResponseBody) (err error) {
-	if body.OK == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("ok", "body"))
-	}
-	return
-}
-
-// ValidateRejectResponseBody runs the validations defined on RejectResponseBody
-func ValidateRejectResponseBody(body *RejectResponseBody) (err error) {
-	if body.OK == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("ok", "body"))
 	}
 	return
 }

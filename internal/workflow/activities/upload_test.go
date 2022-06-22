@@ -18,7 +18,7 @@ import (
 // StorageService implements goastorage.Service.
 type StorageService struct {
 	SubmitHandler   func(ctx context.Context, req *goastorage.SubmitPayload) (res *goastorage.SubmitResult, err error)
-	UpdateHandler   func(ctx context.Context, req *goastorage.UpdatePayload) (res *goastorage.UpdateResult, err error)
+	UpdateHandler   func(ctx context.Context, req *goastorage.UpdatePayload) (err error)
 	DownloadHandler func(ctx context.Context, req *goastorage.DownloadPayload) (res []byte, err error)
 }
 
@@ -26,7 +26,7 @@ func (s StorageService) Submit(ctx context.Context, req *goastorage.SubmitPayloa
 	return s.SubmitHandler(ctx, req)
 }
 
-func (s StorageService) Update(ctx context.Context, req *goastorage.UpdatePayload) (res *goastorage.UpdateResult, err error) {
+func (s StorageService) Update(ctx context.Context, req *goastorage.UpdatePayload) (err error) {
 	return s.UpdateHandler(ctx, req)
 }
 
@@ -55,10 +55,8 @@ func TestUploadActivity(t *testing.T) {
 				URL: minioTestServer.URL + "/aips/foobar.7z",
 			}, nil
 		}
-		fakeStorageService.UpdateHandler = func(ctx context.Context, req *goastorage.UpdatePayload) (res *goastorage.UpdateResult, err error) {
-			return &goastorage.UpdateResult{
-				OK: true,
-			}, nil
+		fakeStorageService.UpdateHandler = func(ctx context.Context, req *goastorage.UpdatePayload) (err error) {
+			return nil
 		}
 
 		endpoints := goastorage.NewEndpoints(fakeStorageService)
@@ -91,8 +89,8 @@ func TestUploadActivity(t *testing.T) {
 				URL: minioTestServer.URL + "/aips/foobar.7z",
 			}, nil
 		}
-		fakeStorageService.UpdateHandler = func(ctx context.Context, req *goastorage.UpdatePayload) (res *goastorage.UpdateResult, err error) {
-			return nil, errors.New("update failed")
+		fakeStorageService.UpdateHandler = func(ctx context.Context, req *goastorage.UpdatePayload) (err error) {
+			return errors.New("update failed")
 		}
 
 		endpoints := goastorage.NewEndpoints(fakeStorageService)

@@ -613,11 +613,8 @@ func EncodePreservationActionsError(encoder func(context.Context, http.ResponseW
 // package confirm endpoint.
 func EncodeConfirmResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
 	return func(ctx context.Context, w http.ResponseWriter, v interface{}) error {
-		res, _ := v.(*package_.ConfirmResult)
-		enc := encoder(ctx, w)
-		body := NewConfirmResponseBody(res)
 		w.WriteHeader(http.StatusAccepted)
-		return enc.Encode(body)
+		return nil
 	}
 }
 
@@ -694,11 +691,8 @@ func EncodeConfirmError(encoder func(context.Context, http.ResponseWriter) goaht
 // package reject endpoint.
 func EncodeRejectResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
 	return func(ctx context.Context, w http.ResponseWriter, v interface{}) error {
-		res, _ := v.(*package_.RejectResult)
-		enc := encoder(ctx, w)
-		body := NewRejectResponseBody(res)
 		w.WriteHeader(http.StatusAccepted)
-		return enc.Encode(body)
+		return nil
 	}
 }
 

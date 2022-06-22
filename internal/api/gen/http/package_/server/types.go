@@ -94,18 +94,6 @@ type PreservationActionsResponseBody struct {
 	Actions EnduroPackagePreservationActionsActionResponseBodyCollection `form:"actions,omitempty" json:"actions,omitempty" xml:"actions,omitempty"`
 }
 
-// ConfirmResponseBody is the type of the "package" service "confirm" endpoint
-// HTTP response body.
-type ConfirmResponseBody struct {
-	OK bool `form:"ok" json:"ok" xml:"ok"`
-}
-
-// RejectResponseBody is the type of the "package" service "reject" endpoint
-// HTTP response body.
-type RejectResponseBody struct {
-	OK bool `form:"ok" json:"ok" xml:"ok"`
-}
-
 // ShowNotFoundResponseBody is the type of the "package" service "show"
 // endpoint HTTP response body for the "not_found" error.
 type ShowNotFoundResponseBody struct {
@@ -453,24 +441,6 @@ func NewPreservationActionsResponseBody(res *package_views.EnduroPackagePreserva
 		for i, val := range res.Actions {
 			body.Actions[i] = marshalPackageViewsEnduroPackagePreservationActionsActionViewToEnduroPackagePreservationActionsActionResponseBody(val)
 		}
-	}
-	return body
-}
-
-// NewConfirmResponseBody builds the HTTP response body from the result of the
-// "confirm" endpoint of the "package" service.
-func NewConfirmResponseBody(res *package_.ConfirmResult) *ConfirmResponseBody {
-	body := &ConfirmResponseBody{
-		OK: res.OK,
-	}
-	return body
-}
-
-// NewRejectResponseBody builds the HTTP response body from the result of the
-// "reject" endpoint of the "package" service.
-func NewRejectResponseBody(res *package_.RejectResult) *RejectResponseBody {
-	body := &RejectResponseBody{
-		OK: res.OK,
 	}
 	return body
 }

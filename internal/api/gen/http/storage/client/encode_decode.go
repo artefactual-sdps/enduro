@@ -180,20 +180,7 @@ func DecodeUpdateResponse(decoder func(*http.Response) goahttp.Decoder, restoreB
 		}
 		switch resp.StatusCode {
 		case http.StatusAccepted:
-			var (
-				body UpdateResponseBody
-				err  error
-			)
-			err = decoder(resp).Decode(&body)
-			if err != nil {
-				return nil, goahttp.ErrDecodingError("storage", "update", err)
-			}
-			err = ValidateUpdateResponseBody(&body)
-			if err != nil {
-				return nil, goahttp.ErrValidationError("storage", "update", err)
-			}
-			res := NewUpdateResultAccepted(&body)
-			return res, nil
+			return nil, nil
 		case http.StatusConflict:
 			var (
 				body UpdateNotAvailableResponseBody

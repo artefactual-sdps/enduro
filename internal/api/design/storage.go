@@ -33,7 +33,6 @@ var _ = Service("storage", func() {
 			Attribute("aip_id", String)
 			Required("aip_id")
 		})
-		Result(UpdateResult)
 		Error("not_found", StoragePackageNotFound, "Storage package not found")
 		Error("not_available")
 		Error("not_valid")
@@ -63,11 +62,6 @@ var _ = Service("storage", func() {
 var SubmitResult = Type("SubmitResult", func() {
 	Attribute("url", String)
 	Required("url")
-})
-
-var UpdateResult = Type("UpdateResult", func() {
-	Attribute("ok", Boolean)
-	Required("ok")
 })
 
 var StoragePackageNotFound = Type("StoragePackageNotfound", func() {

@@ -23,7 +23,6 @@ models/PackageCancelNotFoundResponseBody.ts
 models/PackageCancelNotRunningResponseBody.ts
 models/PackageConfirmNotAvailableResponseBody.ts
 models/PackageConfirmNotValidResponseBody.ts
-models/PackageConfirmResponseBody.ts
 models/PackageDeleteNotFoundResponseBody.ts
 models/PackageListResponseBody.ts
 models/PackageMonitorResponseBody.ts
@@ -31,7 +30,6 @@ models/PackagePreservationActionsNotFoundResponseBody.ts
 models/PackagePreservationActionsResponseBody.ts
 models/PackageRejectNotAvailableResponseBody.ts
 models/PackageRejectNotValidResponseBody.ts
-models/PackageRejectResponseBody.ts
 models/PackageRetryNotFoundResponseBody.ts
 models/PackageRetryNotRunningResponseBody.ts
 models/PackageShowNotFoundResponseBody.ts
@@ -45,6 +43,5 @@ models/StorageSubmitRequestBody.ts
 models/StorageSubmitResponseBody.ts
 models/StorageUpdateNotAvailableResponseBody.ts
 models/StorageUpdateNotValidResponseBody.ts
-models/StorageUpdateResponseBody.ts
 models/index.ts
 runtime.ts

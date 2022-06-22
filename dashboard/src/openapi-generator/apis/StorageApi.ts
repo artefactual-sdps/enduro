@@ -36,9 +36,6 @@ import {
     StorageUpdateNotValidResponseBody,
     StorageUpdateNotValidResponseBodyFromJSON,
     StorageUpdateNotValidResponseBodyToJSON,
-    StorageUpdateResponseBody,
-    StorageUpdateResponseBodyFromJSON,
-    StorageUpdateResponseBodyToJSON,
 } from '../models';
 
 export interface StorageDownloadRequest {
@@ -102,13 +99,13 @@ export interface StorageApiInterface {
      * @throws {RequiredError}
      * @memberof StorageApiInterface
      */
-    storageUpdateRaw(requestParameters: StorageUpdateRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<StorageUpdateResponseBody>>;
+    storageUpdateRaw(requestParameters: StorageUpdateRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<void>>;
 
     /**
      * Signal the storage service that an upload is complete
      * update storage
      */
-    storageUpdate(requestParameters: StorageUpdateRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<StorageUpdateResponseBody>;
+    storageUpdate(requestParameters: StorageUpdateRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<void>;
 
 }
 
@@ -192,7 +189,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
      * Signal the storage service that an upload is complete
      * update storage
      */
-    async storageUpdateRaw(requestParameters: StorageUpdateRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<StorageUpdateResponseBody>> {
+    async storageUpdateRaw(requestParameters: StorageUpdateRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<void>> {
         if (requestParameters.aipId === null || requestParameters.aipId === undefined) {
             throw new runtime.RequiredError('aipId','Required parameter requestParameters.aipId was null or undefined when calling storageUpdate.');
         }
@@ -208,16 +205,15 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => StorageUpdateResponseBodyFromJSON(jsonValue));
+        return new runtime.VoidApiResponse(response);
     }
 
     /**
      * Signal the storage service that an upload is complete
      * update storage
      */
-    async storageUpdate(requestParameters: StorageUpdateRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<StorageUpdateResponseBody> {
-        const response = await this.storageUpdateRaw(requestParameters, initOverrides);
-        return await response.value();
+    async storageUpdate(requestParameters: StorageUpdateRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<void> {
+        await this.storageUpdateRaw(requestParameters, initOverrides);
     }
 
 }

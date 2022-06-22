@@ -38,9 +38,9 @@ type Service interface {
 	// List all preservation actions by ID
 	PreservationActions(context.Context, *PreservationActionsPayload) (res *EnduroPackagePreservationActions, err error)
 	// Signal the package has been reviewed and accepted
-	Confirm(context.Context, *ConfirmPayload) (res *ConfirmResult, err error)
+	Confirm(context.Context, *ConfirmPayload) (err error)
 	// Signal the package has been reviewed and rejected
-	Reject(context.Context, *RejectPayload) (res *RejectResult, err error)
+	Reject(context.Context, *RejectPayload) (err error)
 }
 
 // ServiceName is the name of the service as defined in the design. This is the
@@ -103,11 +103,6 @@ type CancelPayload struct {
 type ConfirmPayload struct {
 	// Identifier of package to look up
 	ID uint
-}
-
-// ConfirmResult is the result type of the package service confirm method.
-type ConfirmResult struct {
-	OK bool
 }
 
 // DeletePayload is the payload type of the package service delete method.
@@ -222,11 +217,6 @@ type PreservationActionsPayload struct {
 type RejectPayload struct {
 	// Identifier of package to look up
 	ID uint
-}
-
-// RejectResult is the result type of the package service reject method.
-type RejectResult struct {
-	OK bool
 }
 
 // RetryPayload is the payload type of the package service retry method.

@@ -867,20 +867,7 @@ func DecodeConfirmResponse(decoder func(*http.Response) goahttp.Decoder, restore
 		}
 		switch resp.StatusCode {
 		case http.StatusAccepted:
-			var (
-				body ConfirmResponseBody
-				err  error
-			)
-			err = decoder(resp).Decode(&body)
-			if err != nil {
-				return nil, goahttp.ErrDecodingError("package", "confirm", err)
-			}
-			err = ValidateConfirmResponseBody(&body)
-			if err != nil {
-				return nil, goahttp.ErrValidationError("package", "confirm", err)
-			}
-			res := NewConfirmResultAccepted(&body)
-			return res, nil
+			return nil, nil
 		case http.StatusConflict:
 			var (
 				body ConfirmNotAvailableResponseBody
@@ -964,20 +951,7 @@ func DecodeRejectResponse(decoder func(*http.Response) goahttp.Decoder, restoreB
 		}
 		switch resp.StatusCode {
 		case http.StatusAccepted:
-			var (
-				body RejectResponseBody
-				err  error
-			)
-			err = decoder(resp).Decode(&body)
-			if err != nil {
-				return nil, goahttp.ErrDecodingError("package", "reject", err)
-			}
-			err = ValidateRejectResponseBody(&body)
-			if err != nil {
-				return nil, goahttp.ErrValidationError("package", "reject", err)
-			}
-			res := NewRejectResultAccepted(&body)
-			return res, nil
+			return nil, nil
 		case http.StatusConflict:
 			var (
 				body RejectNotAvailableResponseBody

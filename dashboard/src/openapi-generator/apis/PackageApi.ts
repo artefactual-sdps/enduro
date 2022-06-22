@@ -42,9 +42,6 @@ import {
     PackageConfirmNotValidResponseBody,
     PackageConfirmNotValidResponseBodyFromJSON,
     PackageConfirmNotValidResponseBodyToJSON,
-    PackageConfirmResponseBody,
-    PackageConfirmResponseBodyFromJSON,
-    PackageConfirmResponseBodyToJSON,
     PackageDeleteNotFoundResponseBody,
     PackageDeleteNotFoundResponseBodyFromJSON,
     PackageDeleteNotFoundResponseBodyToJSON,
@@ -66,9 +63,6 @@ import {
     PackageRejectNotValidResponseBody,
     PackageRejectNotValidResponseBodyFromJSON,
     PackageRejectNotValidResponseBodyToJSON,
-    PackageRejectResponseBody,
-    PackageRejectResponseBodyFromJSON,
-    PackageRejectResponseBodyToJSON,
     PackageRetryNotFoundResponseBody,
     PackageRetryNotFoundResponseBodyFromJSON,
     PackageRetryNotFoundResponseBodyToJSON,
@@ -196,13 +190,13 @@ export interface PackageApiInterface {
      * @throws {RequiredError}
      * @memberof PackageApiInterface
      */
-    packageConfirmRaw(requestParameters: PackageConfirmRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<PackageConfirmResponseBody>>;
+    packageConfirmRaw(requestParameters: PackageConfirmRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<void>>;
 
     /**
      * Signal the package has been reviewed and accepted
      * confirm package
      */
-    packageConfirm(requestParameters: PackageConfirmRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<PackageConfirmResponseBody>;
+    packageConfirm(requestParameters: PackageConfirmRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<void>;
 
     /**
      * Delete package by ID
@@ -279,13 +273,13 @@ export interface PackageApiInterface {
      * @throws {RequiredError}
      * @memberof PackageApiInterface
      */
-    packageRejectRaw(requestParameters: PackageRejectRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<PackageRejectResponseBody>>;
+    packageRejectRaw(requestParameters: PackageRejectRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<void>>;
 
     /**
      * Signal the package has been reviewed and rejected
      * reject package
      */
-    packageReject(requestParameters: PackageRejectRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<PackageRejectResponseBody>;
+    packageReject(requestParameters: PackageRejectRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<void>;
 
     /**
      * Retry package processing by ID
@@ -440,7 +434,7 @@ export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
      * Signal the package has been reviewed and accepted
      * confirm package
      */
-    async packageConfirmRaw(requestParameters: PackageConfirmRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<PackageConfirmResponseBody>> {
+    async packageConfirmRaw(requestParameters: PackageConfirmRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<void>> {
         if (requestParameters.id === null || requestParameters.id === undefined) {
             throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling packageConfirm.');
         }
@@ -456,16 +450,15 @@ export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => PackageConfirmResponseBodyFromJSON(jsonValue));
+        return new runtime.VoidApiResponse(response);
     }
 
     /**
      * Signal the package has been reviewed and accepted
      * confirm package
      */
-    async packageConfirm(requestParameters: PackageConfirmRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<PackageConfirmResponseBody> {
-        const response = await this.packageConfirmRaw(requestParameters, initOverrides);
-        return await response.value();
+    async packageConfirm(requestParameters: PackageConfirmRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<void> {
+        await this.packageConfirmRaw(requestParameters, initOverrides);
     }
 
     /**
@@ -612,7 +605,7 @@ export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
      * Signal the package has been reviewed and rejected
      * reject package
      */
-    async packageRejectRaw(requestParameters: PackageRejectRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<PackageRejectResponseBody>> {
+    async packageRejectRaw(requestParameters: PackageRejectRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<void>> {
         if (requestParameters.id === null || requestParameters.id === undefined) {
             throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling packageReject.');
         }
@@ -628,16 +621,15 @@ export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => PackageRejectResponseBodyFromJSON(jsonValue));
+        return new runtime.VoidApiResponse(response);
     }
 
     /**
      * Signal the package has been reviewed and rejected
      * reject package
      */
-    async packageReject(requestParameters: PackageRejectRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<PackageRejectResponseBody> {
-        const response = await this.packageRejectRaw(requestParameters, initOverrides);
-        return await response.value();
+    async packageReject(requestParameters: PackageRejectRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<void> {
+        await this.packageRejectRaw(requestParameters, initOverrides);
     }
 
     /**

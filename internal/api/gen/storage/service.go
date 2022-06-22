@@ -19,7 +19,7 @@ type Service interface {
 	// Start the submission of a package
 	Submit(context.Context, *SubmitPayload) (res *SubmitResult, err error)
 	// Signal the storage service that an upload is complete
-	Update(context.Context, *UpdatePayload) (res *UpdateResult, err error)
+	Update(context.Context, *UpdatePayload) (err error)
 	// Download package by AIPID
 	Download(context.Context, *DownloadPayload) (res []byte, err error)
 }
@@ -61,11 +61,6 @@ type SubmitResult struct {
 // UpdatePayload is the payload type of the storage service update method.
 type UpdatePayload struct {
 	AipID string
-}
-
-// UpdateResult is the result type of the storage service update method.
-type UpdateResult struct {
-	OK bool
 }
 
 // Error returns an error description.

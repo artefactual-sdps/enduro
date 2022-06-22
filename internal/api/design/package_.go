@@ -171,7 +171,6 @@ var _ = Service("package", func() {
 			Attribute("id", UInt, "Identifier of package to look up")
 			Required("id")
 		})
-		Result(ConfirmResult)
 		Error("not_available")
 		Error("not_valid")
 		HTTP(func() {
@@ -187,7 +186,6 @@ var _ = Service("package", func() {
 			Attribute("id", UInt, "Identifier of package to look up")
 			Required("id")
 		})
-		Result(RejectResult)
 		Error("not_available")
 		Error("not_valid")
 		HTTP(func() {
@@ -333,14 +331,4 @@ var PreservationAction = ResultType("application/vnd.enduro.package-preservation
 		})
 	})
 	Required("id", "action_id", "name", "status", "started_at")
-})
-
-var ConfirmResult = Type("ConfirmResult", func() {
-	Attribute("ok", Boolean)
-	Required("ok")
-})
-
-var RejectResult = Type("RejectResult", func() {
-	Attribute("ok", Boolean)
-	Required("ok")
 })

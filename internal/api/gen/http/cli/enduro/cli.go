@@ -35,13 +35,13 @@ storage (submit|update|download)
 // UsageExamples produces an example of a valid invocation of the CLI tool.
 func UsageExamples() string {
 	return os.Args[0] + ` batch submit --body '{
-      "completed_dir": "Quia commodi id.",
-      "path": "Consequatur impedit vel exercitationem.",
-      "retention_period": "Tempora eveniet eligendi."
+      "completed_dir": "Eveniet eligendi sed rem asperiores vero aliquid.",
+      "path": "Id qui.",
+      "retention_period": "Aut error quidem."
    }'` + "\n" +
 		os.Args[0] + ` package monitor` + "\n" +
 		os.Args[0] + ` storage submit --body '{
-      "name": "Asperiores dolor."
+      "name": "Id saepe asperiores dolor."
    }' --aip-id "Omnis quisquam ad consequuntur."` + "\n" +
 		""
 }
@@ -364,9 +364,9 @@ Submit a new batch
 
 Example:
     %[1]s batch submit --body '{
-      "completed_dir": "Quia commodi id.",
-      "path": "Consequatur impedit vel exercitationem.",
-      "retention_period": "Tempora eveniet eligendi."
+      "completed_dir": "Eveniet eligendi sed rem asperiores vero aliquid.",
+      "path": "Id qui.",
+      "retention_period": "Aut error quidem."
    }'
 `, os.Args[0])
 }
@@ -550,7 +550,7 @@ Signal the package has been reviewed and rejected
     -id UINT: Identifier of package to look up
 
 Example:
-    %[1]s package reject --id 3137421012754071442
+    %[1]s package reject --id 11867561598943911748
 `, os.Args[0])
 }
 
@@ -578,7 +578,7 @@ Start the submission of a package
 
 Example:
     %[1]s storage submit --body '{
-      "name": "Asperiores dolor."
+      "name": "Id saepe asperiores dolor."
    }' --aip-id "Omnis quisquam ad consequuntur."
 `, os.Args[0])
 }
@@ -601,6 +601,6 @@ Download package by AIPID
     -aip-id STRING: 
 
 Example:
-    %[1]s storage download --aip-id "Quibusdam vitae ut."
+    %[1]s storage download --aip-id "Vitae ut voluptas aut id."
 `, os.Args[0])
 }

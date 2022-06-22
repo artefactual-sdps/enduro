@@ -166,13 +166,9 @@ func (c *Client) PreservationActions(ctx context.Context, p *PreservationActions
 //	- "not_available" (type *goa.ServiceError)
 //	- "not_valid" (type *goa.ServiceError)
 //	- error: internal error
-func (c *Client) Confirm(ctx context.Context, p *ConfirmPayload) (res *ConfirmResult, err error) {
-	var ires interface{}
-	ires, err = c.ConfirmEndpoint(ctx, p)
-	if err != nil {
-		return
-	}
-	return ires.(*ConfirmResult), nil
+func (c *Client) Confirm(ctx context.Context, p *ConfirmPayload) (err error) {
+	_, err = c.ConfirmEndpoint(ctx, p)
+	return
 }
 
 // Reject calls the "reject" endpoint of the "package" service.
@@ -180,11 +176,7 @@ func (c *Client) Confirm(ctx context.Context, p *ConfirmPayload) (res *ConfirmRe
 //	- "not_available" (type *goa.ServiceError)
 //	- "not_valid" (type *goa.ServiceError)
 //	- error: internal error
-func (c *Client) Reject(ctx context.Context, p *RejectPayload) (res *RejectResult, err error) {
-	var ires interface{}
-	ires, err = c.RejectEndpoint(ctx, p)
-	if err != nil {
-		return
-	}
-	return ires.(*RejectResult), nil
+func (c *Client) Reject(ctx context.Context, p *RejectPayload) (err error) {
+	_, err = c.RejectEndpoint(ctx, p)
+	return
 }

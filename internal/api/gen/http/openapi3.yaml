@@ -22,7 +22,7 @@ paths:
                             example:
                                 run_id: Consequatur ducimus quis.
                                 running: true
-                                status: Labore commodi voluptatem tenetur nesciunt reiciendis tempore.
+                                status: Voluptatem tenetur nesciunt reiciendis tempore.
                                 workflow_id: Dignissimos sit in.
         post:
             tags:
@@ -37,9 +37,9 @@ paths:
                         schema:
                             $ref: '#/components/schemas/SubmitRequestBody'
                         example:
-                            completed_dir: Quia commodi id.
-                            path: Consequatur impedit vel exercitationem.
-                            retention_period: Tempora eveniet eligendi.
+                            completed_dir: Eveniet eligendi sed rem asperiores vero aliquid.
+                            path: Id qui.
+                            retention_period: Aut error quidem.
             responses:
                 "202":
                     description: Accepted response.
@@ -48,8 +48,8 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/BatchResult'
                             example:
-                                run_id: Quidem dicta nisi ipsum non illo id.
-                                workflow_id: Rem asperiores vero aliquid vel aut.
+                                run_id: Illo id eos maiores.
+                                workflow_id: Nisi ipsum.
                 "400":
                     description: 'not_valid: Bad Request response.'
                     content:
@@ -95,8 +95,8 @@ paths:
                   allowEmptyValue: true
                   schema:
                     type: string
-                    example: Qui qui.
-                  example: Iste aperiam laborum.
+                    example: Quidem voluptatum aut quia recusandae architecto.
+                  example: Qui excepturi iste aperiam laborum suscipit aut.
                 - name: aip_id
                   in: query
                   allowEmptyValue: true
@@ -291,12 +291,6 @@ paths:
             responses:
                 "202":
                     description: Accepted response.
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/ConfirmResult'
-                            example:
-                                ok: false
                 "400":
                     description: 'not_valid: Bad Request response.'
                     content:
@@ -381,12 +375,6 @@ paths:
             responses:
                 "202":
                     description: Accepted response.
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/ConfirmResult'
-                            example:
-                                ok: false
                 "400":
                     description: 'not_valid: Bad Request response.'
                     content:
@@ -578,7 +566,18 @@ paths:
                             schema:
                                 type: string
                                 example:
-                                    - 79
+                                    - 84
+                                    - 101
+                                    - 109
+                                    - 112
+                                    - 111
+                                    - 114
+                                    - 105
+                                    - 98
+                                    - 117
+                                    - 115
+                                    - 32
+                                    - 111
                                     - 102
                                     - 102
                                     - 105
@@ -593,35 +592,6 @@ paths:
                                     - 111
                                     - 114
                                     - 101
-                                    - 32
-                                    - 115
-                                    - 105
-                                    - 116
-                                    - 32
-                                    - 118
-                                    - 111
-                                    - 108
-                                    - 117
-                                    - 112
-                                    - 116
-                                    - 97
-                                    - 116
-                                    - 101
-                                    - 109
-                                    - 32
-                                    - 100
-                                    - 111
-                                    - 108
-                                    - 111
-                                    - 114
-                                    - 117
-                                    - 109
-                                    - 32
-                                    - 110
-                                    - 105
-                                    - 104
-                                    - 105
-                                    - 108
                                     - 46
                                 format: binary
                             example:
@@ -684,7 +654,7 @@ paths:
                         schema:
                             $ref: '#/components/schemas/SubmitRequestBody2'
                         example:
-                            name: Asperiores dolor.
+                            name: Id saepe asperiores dolor.
             responses:
                 "202":
                     description: Accepted response.
@@ -724,12 +694,6 @@ paths:
             responses:
                 "202":
                     description: Accepted response.
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/ConfirmResult'
-                            example:
-                                ok: true
                 "400":
                     description: 'not_valid: Bad Request response.'
                     content:
@@ -872,16 +836,6 @@ components:
                 workflow_id: Quia odit.
             required:
                 - running
-        ConfirmResult:
-            type: object
-            properties:
-                ok:
-                    type: boolean
-                    example: true
-            example:
-                ok: true
-            required:
-                - ok
         EnduroMonitorUpdate:
             type: object
             properties:
@@ -1244,15 +1198,15 @@ components:
                 aip_id:
                     type: string
                     description: Identifier of missing package
-                    example: Animi autem quibusdam qui.
+                    example: Et iusto.
                 message:
                     type: string
                     description: Message of error
-                    example: Iusto veniam.
+                    example: Voluptatem dolorum.
             description: Storage package not found
             example:
-                aip_id: Quia recusandae.
-                message: Sed quidem voluptatum.
+                aip_id: Qui ipsa.
+                message: Totam animi autem.
             required:
                 - message
                 - aip_id
@@ -1279,9 +1233,9 @@ components:
             properties:
                 name:
                     type: string
-                    example: Sint dolor officiis quo.
+                    example: Ut dolorem.
             example:
-                name: Qui quisquam ad aut quisquam.
+                name: Dolor officiis.
             required:
                 - name
         SubmitResult:
@@ -1289,9 +1243,9 @@ components:
             properties:
                 url:
                     type: string
-                    example: Voluptas provident harum quia.
+                    example: Ipsum qui quisquam ad aut.
             example:
-                url: Ducimus esse.
+                url: Itaque voluptas provident harum quia ab ducimus.
             required:
                 - url
 tags:

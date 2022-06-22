@@ -180,7 +180,7 @@ func NewPreservationActionsEndpoint(s Service) goa.Endpoint {
 func NewConfirmEndpoint(s Service) goa.Endpoint {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
 		p := req.(*ConfirmPayload)
-		return s.Confirm(ctx, p)
+		return nil, s.Confirm(ctx, p)
 	}
 }
 
@@ -189,6 +189,6 @@ func NewConfirmEndpoint(s Service) goa.Endpoint {
 func NewRejectEndpoint(s Service) goa.Endpoint {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
 		p := req.(*RejectPayload)
-		return s.Reject(ctx, p)
+		return nil, s.Reject(ctx, p)
 	}
 }

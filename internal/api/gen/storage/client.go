@@ -51,13 +51,9 @@ func (c *Client) Submit(ctx context.Context, p *SubmitPayload) (res *SubmitResul
 //	- "not_available" (type *goa.ServiceError)
 //	- "not_valid" (type *goa.ServiceError)
 //	- error: internal error
-func (c *Client) Update(ctx context.Context, p *UpdatePayload) (res *UpdateResult, err error) {
-	var ires interface{}
-	ires, err = c.UpdateEndpoint(ctx, p)
-	if err != nil {
-		return
-	}
-	return ires.(*UpdateResult), nil
+func (c *Client) Update(ctx context.Context, p *UpdatePayload) (err error) {
+	_, err = c.UpdateEndpoint(ctx, p)
+	return
 }
 
 // Download calls the "download" endpoint of the "storage" service.

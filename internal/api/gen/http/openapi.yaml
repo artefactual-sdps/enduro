@@ -224,10 +224,6 @@ paths:
             responses:
                 "202":
                     description: Accepted response.
-                    schema:
-                        $ref: '#/definitions/PackageConfirmResponseBody'
-                        required:
-                            - ok
                 "400":
                     description: Bad Request response.
                     schema:
@@ -281,10 +277,6 @@ paths:
             responses:
                 "202":
                     description: Accepted response.
-                    schema:
-                        $ref: '#/definitions/PackageRejectResponseBody'
-                        required:
-                            - ok
                 "400":
                     description: Bad Request response.
                     schema:
@@ -491,10 +483,6 @@ paths:
             responses:
                 "202":
                     description: Accepted response.
-                    schema:
-                        $ref: '#/definitions/StorageUpdateResponseBody'
-                        required:
-                            - ok
                 "400":
                     description: Bad Request response.
                     schema:
@@ -1132,7 +1120,7 @@ definitions:
             temporary:
                 type: boolean
                 description: Is the error temporary?
-                example: true
+                example: false
             timeout:
                 type: boolean
                 description: Is the error a timeout?
@@ -1144,7 +1132,7 @@ definitions:
             message: parameter 'p' must be an integer
             name: bad_request
             temporary: true
-            timeout: false
+            timeout: true
         required:
             - name
             - id
@@ -1179,15 +1167,15 @@ definitions:
             timeout:
                 type: boolean
                 description: Is the error a timeout?
-                example: false
+                example: true
         description: confirm_not_valid_response_body result type (default view)
         example:
-            fault: true
+            fault: false
             id: 123abc
             message: parameter 'p' must be an integer
             name: bad_request
             temporary: false
-            timeout: true
+            timeout: false
         required:
             - name
             - id
@@ -1195,17 +1183,6 @@ definitions:
             - temporary
             - timeout
             - fault
-    PackageConfirmResponseBody:
-        title: PackageConfirmResponseBody
-        type: object
-        properties:
-            ok:
-                type: boolean
-                example: false
-        example:
-            ok: true
-        required:
-            - ok
     PackageDeleteNotFoundResponseBody:
         title: PackageDeleteNotFoundResponseBody
         type: object
@@ -1341,7 +1318,7 @@ definitions:
             fault:
                 type: boolean
                 description: Is the error a server-side fault?
-                example: true
+                example: false
             id:
                 type: string
                 description: ID is a unique identifier for this particular occurrence of the problem.
@@ -1357,11 +1334,11 @@ definitions:
             temporary:
                 type: boolean
                 description: Is the error temporary?
-                example: false
+                example: true
             timeout:
                 type: boolean
                 description: Is the error a timeout?
-                example: false
+                example: true
         description: reject_not_available_response_body result type (default view)
         example:
             fault: false
@@ -1407,12 +1384,12 @@ definitions:
                 example: false
         description: reject_not_valid_response_body result type (default view)
         example:
-            fault: true
+            fault: false
             id: 123abc
             message: parameter 'p' must be an integer
             name: bad_request
             temporary: false
-            timeout: false
+            timeout: true
         required:
             - name
             - id
@@ -1420,17 +1397,6 @@ definitions:
             - temporary
             - timeout
             - fault
-    PackageRejectResponseBody:
-        title: PackageRejectResponseBody
-        type: object
-        properties:
-            ok:
-                type: boolean
-                example: false
-        example:
-            ok: false
-        required:
-            - ok
     PackageRetryNotFoundResponseBody:
         title: PackageRetryNotFoundResponseBody
         type: object
@@ -1639,7 +1605,7 @@ definitions:
             message:
                 type: string
                 description: Message of error
-                example: Repellendus aut vitae esse nulla.
+                example: Vel dolores repellendus aut vitae esse nulla.
         description: Storage package not found
         example:
             aip_id: Et atque illum voluptas adipisci voluptatibus et.
@@ -1750,9 +1716,9 @@ definitions:
         properties:
             url:
                 type: string
-                example: Quo enim ab vel sunt velit.
+                example: Est nobis aspernatur voluptatibus quo enim ab.
         example:
-            url: Beatae tenetur sed.
+            url: Sunt velit quaerat beatae tenetur sed.
         required:
             - url
     StorageUpdateNotAvailableResponseBody:
@@ -1762,7 +1728,7 @@ definitions:
             fault:
                 type: boolean
                 description: Is the error a server-side fault?
-                example: false
+                example: true
             id:
                 type: string
                 description: ID is a unique identifier for this particular occurrence of the problem.
@@ -1778,7 +1744,7 @@ definitions:
             temporary:
                 type: boolean
                 description: Is the error temporary?
-                example: true
+                example: false
             timeout:
                 type: boolean
                 description: Is the error a timeout?
@@ -1790,7 +1756,7 @@ definitions:
             message: parameter 'p' must be an integer
             name: bad_request
             temporary: true
-            timeout: true
+            timeout: false
         required:
             - name
             - id
@@ -1821,19 +1787,19 @@ definitions:
             temporary:
                 type: boolean
                 description: Is the error temporary?
-                example: false
+                example: true
             timeout:
                 type: boolean
                 description: Is the error a timeout?
                 example: true
         description: update_not_valid_response_body result type (default view)
         example:
-            fault: true
+            fault: false
             id: 123abc
             message: parameter 'p' must be an integer
             name: bad_request
-            temporary: false
-            timeout: true
+            temporary: true
+            timeout: false
         required:
             - name
             - id
@@ -1841,14 +1807,3 @@ definitions:
             - temporary
             - timeout
             - fault
-    StorageUpdateResponseBody:
-        title: StorageUpdateResponseBody
-        type: object
-        properties:
-            ok:
-                type: boolean
-                example: false
-        example:
-            ok: true
-        required:
-            - ok

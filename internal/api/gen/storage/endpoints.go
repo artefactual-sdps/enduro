@@ -51,7 +51,7 @@ func NewSubmitEndpoint(s Service) goa.Endpoint {
 func NewUpdateEndpoint(s Service) goa.Endpoint {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
 		p := req.(*UpdatePayload)
-		return s.Update(ctx, p)
+		return nil, s.Update(ctx, p)
 	}
 }
 
