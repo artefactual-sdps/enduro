@@ -32,7 +32,22 @@ const download = () => {
             />
           </dd>
           <dt>Started</dt>
-          <dd>{{ packageStore.current.startedAt }}</dd>
+          <dd>{{ $filters.formatDateTime(packageStore.current.startedAt) }}</dd>
+          <span v-if="packageStore.current.completedAt">
+            <dt>Completed</dt>
+            <dd>
+              {{ $filters.formatDateTime(packageStore.current.completedAt) }}
+              <div class="pt-2">
+                (took
+                {{
+                  $filters.formatDuration(
+                    packageStore.current.startedAt,
+                    packageStore.current.completedAt
+                  )
+                }})
+              </div>
+            </dd>
+          </span>
         </dl>
       </div>
       <div class="col-md-6">
