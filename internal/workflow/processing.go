@@ -374,6 +374,18 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 		}
 	}
 
+	// Persist SIPID.
+	{
+		activityOpts := withLocalActivityOpts(sessCtx)
+		_ = temporalsdk_workflow.ExecuteLocalActivity(activityOpts, updatePackageLocalActivity, w.logger, w.pkgsvc, &updatePackageLocalActivityParams{
+			PackageID: tinfo.PackageID,
+			Key:       tinfo.Key,
+			SIPID:     tinfo.SIPID,
+			StoredAt:  tinfo.StoredAt,
+			Status:    package_.StatusInProgress,
+		}).Get(activityOpts, nil)
+	}
+
 	// Upload AIP to MinIO.
 	{
 		activityOpts := temporalsdk_workflow.WithActivityOptions(sessCtx, temporalsdk_workflow.ActivityOptions{
