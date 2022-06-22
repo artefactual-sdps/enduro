@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import "bootstrap/js/dist/collapse";
 import { storageServiceDownloadURL } from "../../../client";
 import PackageReviewAlert from "../../../components/PackageReviewAlert.vue";
 import PackageStatusBadge from "../../../components/PackageStatusBadge.vue";
 import { usePackageStore } from "../../../stores/package";
+import "bootstrap/js/dist/collapse";
 
 const packageStore = usePackageStore();
 
@@ -66,9 +66,9 @@ const download = () => {
               </dd>
             </dl>
             <div class="">
-              <a href="#" class="btn btn-secondary btn-sm me-3"
-                >View metadata summary</a
-              >
+              <button class="btn btn-secondary btn-sm me-2 disabled">
+                View metadata summary
+              </button>
               <button
                 class="btn btn-primary btn-sm"
                 type="button"
