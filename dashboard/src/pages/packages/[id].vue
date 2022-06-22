@@ -10,53 +10,53 @@ packageStore.fetchCurrent(route.params.id.toString());
 </script>
 
 <template>
-  <div>
+  <div v-if="packageStore.current">
     <PackagePendingAlert />
-    <div class="container-xxl pt-3 flex-grow-1">
-      <div class="row" v-if="packageStore.current">
-        <!-- Breadcrumb -->
-        <div class="col-12">
-          <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-              <li class="breadcrumb-item">
-                <router-link :to="{ name: 'packages' }">Packages</router-link>
-              </li>
-              <li class="breadcrumb-item active" aria-current="page">
-                {{ packageStore.current.name }}
-              </li>
-            </ol>
-          </nav>
-        </div>
-
-        <!-- Navigation tabs -->
-        <div class="col-12">
-          <ul class="nav nav-tabs">
-            <li class="nav-item">
-              <router-link
-                class="nav-link"
-                exact-active-class="active"
-                :to="{
-                  name: 'packages-id',
-                  params: { id: packageStore.current.id },
-                }"
-                >Overview</router-link
-              >
+    <div class="container-xxl px-0">
+      <!-- Breadcrumb -->
+      <div>
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+              <router-link :to="{ name: 'packages' }">Packages</router-link>
             </li>
-            <li class="nav-item">
-              <router-link
-                class="nav-link"
-                exact-active-class="active"
-                :to="{
-                  name: 'packages-id-workflow',
-                  params: { id: packageStore.current.id },
-                }"
-                >Workflow</router-link
-              >
+            <li class="breadcrumb-item active" aria-current="page">
+              {{ packageStore.current.name }}
             </li>
-          </ul>
-        </div>
+          </ol>
+        </nav>
       </div>
-      <router-view></router-view>
+
+      <!-- Navigation tabs -->
+      <div>
+        <ul class="nav nav-tabs">
+          <li class="nav-item">
+            <router-link
+              class="nav-link"
+              exact-active-class="active"
+              :to="{
+                name: 'packages-id',
+                params: { id: packageStore.current.id },
+              }"
+              >Overview</router-link
+            >
+          </li>
+          <li class="nav-item">
+            <router-link
+              class="nav-link"
+              exact-active-class="active"
+              :to="{
+                name: 'packages-id-workflow',
+                params: { id: packageStore.current.id },
+              }"
+              >Workflow</router-link
+            >
+          </li>
+        </ul>
+      </div>
+      <div class="pt-3">
+        <router-view></router-view>
+      </div>
     </div>
   </div>
 </template>

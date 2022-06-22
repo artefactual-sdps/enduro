@@ -16,8 +16,8 @@ const download = () => {
 
 <template>
   <div v-if="packageStore.current">
-    <div class="row mt-3">
-      <div class="col">
+    <div class="row">
+      <div class="col-md-6">
         <h2>AIP creation details</h2>
         <dl>
           <dt>Name</dt>
@@ -35,7 +35,7 @@ const download = () => {
           <dd>{{ packageStore.current.startedAt }}</dd>
         </dl>
       </div>
-      <div class="col">
+      <div class="col-md-6">
         <div class="card mb-3">
           <div class="card-body">
             <h5 class="card-title">Location</h5>
@@ -49,7 +49,7 @@ const download = () => {
             </div>
           </div>
         </div>
-        <div class="card">
+        <div class="card mb-3">
           <div class="card-body">
             <h5 class="card-title">Package details</h5>
             <dl>
@@ -65,8 +65,8 @@ const download = () => {
                 />
               </dd>
             </dl>
-            <div class="">
-              <button class="btn btn-secondary btn-sm me-2 disabled">
+            <div class="d-flex flex-wrap gap-2">
+              <button class="btn btn-secondary btn-sm disabled">
                 View metadata summary
               </button>
               <button
@@ -82,7 +82,7 @@ const download = () => {
       </div>
     </div>
 
-    <div class="d-flex mt-3">
+    <div class="d-flex">
       <h2 class="flex-grow-1 mb-0">Preservation actions</h2>
       <button
         class="btn btn-sm btn-link text-decoration-none align-self-end"
@@ -95,25 +95,29 @@ const download = () => {
         Expand all | Collapse all
       </button>
     </div>
+
     <hr />
-    <h3>
-      Create and Review AIP
-      <PackageStatusBadge :status="packageStore.current.status" />
-    </h3>
-    <span v-if="packageStore.current.completedAt">
-      Completed
-      {{ $filters.formatDateTime(packageStore.current.completedAt) }}
-      (took
-      {{
-        $filters.formatDuration(
-          packageStore.current.startedAt,
-          packageStore.current.completedAt
-        )
-      }})
-    </span>
-    <span v-else>
-      Started {{ $filters.formatDateTime(packageStore.current.startedAt) }}
-    </span>
+
+    <div class="mb-3">
+      <h3>
+        Create and Review AIP
+        <PackageStatusBadge :status="packageStore.current.status" />
+      </h3>
+      <span v-if="packageStore.current.completedAt">
+        Completed
+        {{ $filters.formatDateTime(packageStore.current.completedAt) }}
+        (took
+        {{
+          $filters.formatDuration(
+            packageStore.current.startedAt,
+            packageStore.current.completedAt
+          )
+        }})
+      </span>
+      <span v-else>
+        Started {{ $filters.formatDateTime(packageStore.current.startedAt) }}
+      </span>
+    </div>
 
     <PackageReviewAlert />
 

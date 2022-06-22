@@ -5,7 +5,7 @@ import Header from "./components/Header.vue";
 <template>
   <div class="d-flex flex-column min-vh-100">
     <Header />
-    <main>
+    <main class="flex-grow-1 pt-3 px-3">
       <router-view></router-view>
     </main>
   </div>

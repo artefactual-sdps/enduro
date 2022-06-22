@@ -5,12 +5,11 @@ const packageStore = usePackageStore();
 </script>
 
 <template>
-  <div class="row" v-if="packageStore.isPending">
-    <div class="col-12">
-      <div class="alert alert-warning text-center mb-0 m-3" role="alert">
-        This package is mid-workflow, and is currently awaiting user
-        decision(s).
-      </div>
-    </div>
+  <div
+    v-if="packageStore.isPending"
+    class="alert alert-warning text-center"
+    role="alert"
+  >
+    This package is mid-workflow, and is currently awaiting user decision(s).
   </div>
 </template>

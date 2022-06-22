@@ -7,7 +7,7 @@ const location = "aip-review";
 </script>
 
 <template>
-  <div class="alert alert-info mt-3" role="alert" v-if="packageStore.isPending">
+  <div class="alert alert-info" role="alert" v-if="packageStore.isPending">
     <h4 class="alert-heading">Task: Review AIP</h4>
     Your AIP has been created and is currently stored in
     <strong>{{ location }}</strong

@@ -19,7 +19,7 @@ const openPackage = (id: number) => {
 </script>
 
 <template>
-  <div class="container-xxl pt-3 flex-grow-1">
+  <div class="container-xxl px-0">
     <h2>Packages</h2>
     <table class="table table-bordered table-hover">
       <thead>
