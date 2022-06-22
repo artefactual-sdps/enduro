@@ -153,8 +153,11 @@ func (s *serviceImpl) HTTPDownload(mux goahttp.Muxer, dec func(r *http.Request) 
 		}
 		defer reader.Close()
 
+		filename := fmt.Sprintf("enduro-%s.7z", pkg.AIPID)
+
 		rw.Header().Add("Content-Type", reader.ContentType())
 		rw.Header().Add("Content-Length", strconv.FormatInt(reader.Size(), 10))
+		rw.Header().Add("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", filename))
 
 		// Copy reader contents into the response.
 		_, err = io.Copy(rw, reader)
