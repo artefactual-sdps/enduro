@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { usePackageStore } from "../stores/package";
 
-const store = usePackageStore();
+const packageStore = usePackageStore();
 
 const location = "aip-review";
 </script>
 
 <template>
-  <div class="alert alert-info" role="alert" v-if="store.isPending">
+  <div class="alert alert-info mt-3" role="alert" v-if="packageStore.isPending">
     <h4 class="alert-heading">Task: Review AIP</h4>
     Your AIP has been created and is currently stored in
     <strong>{{ location }}</strong
@@ -15,10 +15,18 @@ const location = "aip-review";
     reject it.
     <hr />
     <div class="d-flex flex-wrap gap-2">
-      <button class="btn btn-danger" type="button" @click="store.reject()">
+      <button
+        class="btn btn-danger"
+        type="button"
+        @click="packageStore.reject()"
+      >
         Reject
       </button>
-      <button class="btn btn-success" type="button" @click="store.confirm()">
+      <button
+        class="btn btn-success"
+        type="button"
+        @click="packageStore.confirm()"
+      >
         Confirm
       </button>
     </div>

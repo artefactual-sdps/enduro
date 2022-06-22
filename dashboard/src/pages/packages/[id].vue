@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import PackagePendingAlert from "../../components/PackagePendingAlert.vue";
 import { usePackageStore } from "../../stores/package";
 import { useRoute } from "vue-router";
 
@@ -9,8 +10,10 @@ packageStore.fetchCurrent(route.params.id.toString());
 </script>
 
 <template>
-  <div>
+  <PackagePendingAlert />
+  <div class="container-xxl pt-3 flex-grow-1">
     <div class="row" v-if="packageStore.current">
+      <!-- Breadcrumb -->
       <div class="col-12">
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb">
@@ -23,6 +26,8 @@ packageStore.fetchCurrent(route.params.id.toString());
           </ol>
         </nav>
       </div>
+
+      <!-- Navigation tabs -->
       <div class="col-12">
         <ul class="nav nav-tabs">
           <li class="nav-item">

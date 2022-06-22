@@ -13,35 +13,38 @@ onMounted(() => {
 </script>
 
 <template>
-  <h2>Packages</h2>
-  <table v-bind="$attrs" class="table table-striped table-hover">
-    <thead>
-      <tr>
-        <th scope="col">ID</th>
-        <th scope="col">Name</th>
-        <th scope="col">UUID</th>
-        <th scope="col">Started</th>
-        <th scope="col">Location</th>
-        <th scope="col">Status</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr v-for="pkg in items" :key="pkg.id">
-        <td scope="row">{{ pkg.id }}</td>
-        <td>
-          <router-link :to="{ name: 'packages-id', params: { id: pkg.id } }">{{
-            pkg.name
-          }}</router-link>
-        </td>
-        <td>{{ pkg.aipId }}</td>
-        <td>{{ $filters.formatDateTime(pkg.startedAt) }}</td>
-        <td>Location?</td>
-        <td>
-          <PackageStatusBadge :status="pkg.status" />
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  <div class="container-xxl pt-3 flex-grow-1">
+    <h2>Packages</h2>
+    <table v-bind="$attrs" class="table table-striped table-hover">
+      <thead>
+        <tr>
+          <th scope="col">ID</th>
+          <th scope="col">Name</th>
+          <th scope="col">UUID</th>
+          <th scope="col">Started</th>
+          <th scope="col">Location</th>
+          <th scope="col">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="pkg in items" :key="pkg.id">
+          <td scope="row">{{ pkg.id }}</td>
+          <td>
+            <router-link
+              :to="{ name: 'packages-id', params: { id: pkg.id } }"
+              >{{ pkg.name }}</router-link
+            >
+          </td>
+          <td>{{ pkg.aipId }}</td>
+          <td>{{ $filters.formatDateTime(pkg.startedAt) }}</td>
+          <td>Location?</td>
+          <td>
+            <PackageStatusBadge :status="pkg.status" />
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </template>
 
 <style scoped></style>

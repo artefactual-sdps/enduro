@@ -72,7 +72,7 @@ const packageStore = usePackageStore();
 
     <PackageReviewAlert />
 
-    <div class="row">
+    <div class="row mt-3">
       <div class="col">
         <h2>Preservation actions</h2>
         <div class="card mb-3">

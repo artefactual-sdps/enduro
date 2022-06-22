@@ -1,13 +1,6 @@
 <script setup lang="ts">
-import Footer from "../components/Footer.vue";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
+router.push({ name: "packages" });
 </script>
-
-<template>
-  Welcome to Enduro!
-
-  <ul>
-    <li><router-link :to="{ name: 'packages' }">Packages</router-link></li>
-  </ul>
-
-  <Footer />
-</template>

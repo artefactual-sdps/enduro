@@ -5,11 +5,10 @@ const packageStore = usePackageStore();
 </script>
 
 <template>
-  <div>This is the workflow page</div>
-  <template v-bind="$attrs">
-    <div v-if="packageStore.current">
-      <pre>Name: {{ packageStore.current.name }} </pre>
+  <div class="row mt-3">
+    <div class="col">
+      <h2>Not done yet!</h2>
+      <pre>{{ packageStore.current }}</pre>
     </div>
-    <div v-else>Loading...</div>
-  </template>
+  </div>
 </template>
