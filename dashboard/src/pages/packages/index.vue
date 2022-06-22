@@ -2,7 +2,9 @@
 import { client, api } from "../../client";
 import PackageStatusBadge from "../../components/PackageStatusBadge.vue";
 import { onMounted, reactive } from "vue";
+import { useRouter } from "vue-router";
 
+const router = useRouter();
 const items: Array<api.EnduroStoredPackageResponseBody> = reactive([]);
 
 onMounted(() => {
@@ -10,12 +12,16 @@ onMounted(() => {
     Object.assign(items, resp.items);
   });
 });
+
+const openPackage = (id: number) => {
+  router.push({ name: "packages-id", params: { id } });
+};
 </script>
 
 <template>
   <div class="container-xxl pt-3 flex-grow-1">
     <h2>Packages</h2>
-    <table v-bind="$attrs" class="table table-striped table-hover">
+    <table class="table table-bordered table-hover">
       <thead>
         <tr>
           <th scope="col">ID</th>
@@ -27,7 +33,7 @@ onMounted(() => {
         </tr>
       </thead>
       <tbody>
-        <tr v-for="pkg in items" :key="pkg.id">
+        <tr v-for="pkg in items" :key="pkg.id" @click="openPackage(pkg.id)">
           <td scope="row">{{ pkg.id }}</td>
           <td>
             <router-link
@@ -35,9 +41,9 @@ onMounted(() => {
               >{{ pkg.name }}</router-link
             >
           </td>
-          <td>{{ pkg.aipId }}</td>
+          <td class="font-monospace">{{ pkg.aipId }}</td>
           <td>{{ $filters.formatDateTime(pkg.startedAt) }}</td>
-          <td>Location?</td>
+          <td></td>
           <td>
             <PackageStatusBadge :status="pkg.status" />
           </td>
@@ -47,4 +53,8 @@ onMounted(() => {
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+tbody tr {
+  cursor: pointer;
+}
+</style>
