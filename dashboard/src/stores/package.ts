@@ -47,6 +47,14 @@ export const usePackageStore = defineStore("package", {
           api.EnduroStoredPackageResponseBodyStatusEnum.InProgress;
       });
     },
+    download() {
+      if (!this.current || !this.current.aipId) return;
+      client.storage
+        .storageDownload({ aipId: this.current.aipId })
+        .then((payload) => {
+          console.log(payload);
+        });
+    },
     reset() {
       this.current = null;
       this.current_preservation_actions = null;

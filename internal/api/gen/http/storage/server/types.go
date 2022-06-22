@@ -31,12 +31,6 @@ type UpdateResponseBody struct {
 	OK bool `form:"ok" json:"ok" xml:"ok"`
 }
 
-// DownloadResponseBody is the type of the "storage" service "download"
-// endpoint HTTP response body.
-type DownloadResponseBody struct {
-	URL string `form:"url" json:"url" xml:"url"`
-}
-
 // SubmitNotAvailableResponseBody is the type of the "storage" service "submit"
 // endpoint HTTP response body for the "not_available" error.
 type SubmitNotAvailableResponseBody struct {
@@ -132,15 +126,6 @@ func NewSubmitResponseBody(res *storage.SubmitResult) *SubmitResponseBody {
 func NewUpdateResponseBody(res *storage.UpdateResult) *UpdateResponseBody {
 	body := &UpdateResponseBody{
 		OK: res.OK,
-	}
-	return body
-}
-
-// NewDownloadResponseBody builds the HTTP response body from the result of the
-// "download" endpoint of the "storage" service.
-func NewDownloadResponseBody(res *storage.DownloadResult) *DownloadResponseBody {
-	body := &DownloadResponseBody{
-		URL: res.URL,
 	}
 	return body
 }

@@ -21,7 +21,7 @@ type Service interface {
 	// Signal the storage service that an upload is complete
 	Update(context.Context, *UpdatePayload) (res *UpdateResult, err error)
 	// Download package by AIPID
-	Download(context.Context, *DownloadPayload) (res *DownloadResult, err error)
+	Download(context.Context, *DownloadPayload) (res []byte, err error)
 }
 
 // ServiceName is the name of the service as defined in the design. This is the
@@ -37,11 +37,6 @@ var MethodNames = [3]string{"submit", "update", "download"}
 // DownloadPayload is the payload type of the storage service download method.
 type DownloadPayload struct {
 	AipID string
-}
-
-// DownloadResult is the result type of the storage service download method.
-type DownloadResult struct {
-	URL string
 }
 
 // Storage package not found.

@@ -6,10 +6,12 @@ package fake
 
 import (
 	context "context"
+	http0 "net/http"
 	reflect "reflect"
 
 	storage "github.com/artefactual-labs/enduro/internal/api/gen/storage"
 	gomock "github.com/golang/mock/gomock"
+	http "goa.design/goa/v3/http"
 )
 
 // MockService is a mock of Service interface.
@@ -36,10 +38,10 @@ func (m *MockService) EXPECT() *MockServiceMockRecorder {
 }
 
 // Download mocks base method.
-func (m *MockService) Download(arg0 context.Context, arg1 *storage.DownloadPayload) (*storage.DownloadResult, error) {
+func (m *MockService) Download(arg0 context.Context, arg1 *storage.DownloadPayload) ([]byte, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Download", arg0, arg1)
-	ret0, _ := ret[0].(*storage.DownloadResult)
+	ret0, _ := ret[0].([]byte)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -48,6 +50,20 @@ func (m *MockService) Download(arg0 context.Context, arg1 *storage.DownloadPaylo
 func (mr *MockServiceMockRecorder) Download(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Download", reflect.TypeOf((*MockService)(nil).Download), arg0, arg1)
+}
+
+// HTTPDownload mocks base method.
+func (m *MockService) HTTPDownload(arg0 http.Muxer, arg1 func(*http0.Request) http.Decoder) http0.HandlerFunc {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "HTTPDownload", arg0, arg1)
+	ret0, _ := ret[0].(http0.HandlerFunc)
+	return ret0
+}
+
+// HTTPDownload indicates an expected call of HTTPDownload.
+func (mr *MockServiceMockRecorder) HTTPDownload(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HTTPDownload", reflect.TypeOf((*MockService)(nil).HTTPDownload), arg0, arg1)
 }
 
 // Submit mocks base method.

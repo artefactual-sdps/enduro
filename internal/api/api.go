@@ -66,6 +66,7 @@ func HTTPServer(
 	var storageEndpoints *storage.Endpoints = storage.NewEndpoints(storagesvc)
 	storageErrorHandler := errorHandler(logger, "Storage error.")
 	var storageServer *storagesvr.Server = storagesvr.New(storageEndpoints, mux, dec, enc, storageErrorHandler, nil)
+	storageServer.Download = storagesvc.HTTPDownload(mux, dec)
 	storagesvr.Mount(mux, storageServer)
 
 	// Swagger service.

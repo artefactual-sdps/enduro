@@ -2,6 +2,7 @@ import * as api from "./openapi-generator";
 
 export interface Client {
   package: api.PackageApi;
+  storage: api.StorageApi;
 }
 
 function getPath(): string {
@@ -27,6 +28,7 @@ function createClient(): Client {
 
   return {
     package: new api.PackageApi(config),
+    storage: new api.StorageApi(config),
   };
 }
 

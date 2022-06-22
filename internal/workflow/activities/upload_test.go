@@ -19,7 +19,7 @@ import (
 type StorageService struct {
 	SubmitHandler   func(ctx context.Context, req *goastorage.SubmitPayload) (res *goastorage.SubmitResult, err error)
 	UpdateHandler   func(ctx context.Context, req *goastorage.UpdatePayload) (res *goastorage.UpdateResult, err error)
-	DownloadHandler func(ctx context.Context, req *goastorage.DownloadPayload) (res *goastorage.DownloadResult, err error)
+	DownloadHandler func(ctx context.Context, req *goastorage.DownloadPayload) (res []byte, err error)
 }
 
 func (s StorageService) Submit(ctx context.Context, req *goastorage.SubmitPayload) (res *goastorage.SubmitResult, err error) {
@@ -30,7 +30,7 @@ func (s StorageService) Update(ctx context.Context, req *goastorage.UpdatePayloa
 	return s.UpdateHandler(ctx, req)
 }
 
-func (s StorageService) Download(ctx context.Context, req *goastorage.DownloadPayload) (res *goastorage.DownloadResult, err error) {
+func (s StorageService) Download(ctx context.Context, req *goastorage.DownloadPayload) (res []byte, err error) {
 	return s.DownloadHandler(ctx, req)
 }
 

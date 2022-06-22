@@ -57,7 +57,13 @@ const packageStore = usePackageStore();
               <a href="#" class="btn btn-secondary btn-sm me-3"
                 >View metadata summary</a
               >
-              <a href="#" class="btn btn-primary btn-sm">Download</a>
+              <button
+                class="btn btn-primary btn-sm"
+                type="button"
+                @click="packageStore.download()"
+              >
+                Download
+              </button>
             </div>
           </div>
         </div>

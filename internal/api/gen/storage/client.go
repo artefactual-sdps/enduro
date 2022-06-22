@@ -64,11 +64,11 @@ func (c *Client) Update(ctx context.Context, p *UpdatePayload) (res *UpdateResul
 // Download may return the following errors:
 //	- "not_found" (type *StoragePackageNotfound): Storage package not found
 //	- error: internal error
-func (c *Client) Download(ctx context.Context, p *DownloadPayload) (res *DownloadResult, err error) {
+func (c *Client) Download(ctx context.Context, p *DownloadPayload) (res []byte, err error) {
 	var ires interface{}
 	ires, err = c.DownloadEndpoint(ctx, p)
 	if err != nil {
 		return
 	}
-	return ires.(*DownloadResult), nil
+	return ires.([]byte), nil
 }

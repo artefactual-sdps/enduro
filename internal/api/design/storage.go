@@ -50,7 +50,7 @@ var _ = Service("storage", func() {
 			Attribute("aip_id", String)
 			Required("aip_id")
 		})
-		Result(DownloadResult)
+		Result(Bytes)
 		Error("not_found", StoragePackageNotFound, "Storage package not found")
 		HTTP(func() {
 			GET("/{aip_id}/download")
@@ -68,11 +68,6 @@ var SubmitResult = Type("SubmitResult", func() {
 var UpdateResult = Type("UpdateResult", func() {
 	Attribute("ok", Boolean)
 	Required("ok")
-})
-
-var DownloadResult = Type("DownloadResult", func() {
-	Attribute("url", String)
-	Required("url")
 })
 
 var StoragePackageNotFound = Type("StoragePackageNotfound", func() {

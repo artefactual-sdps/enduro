@@ -179,9 +179,9 @@ func EncodeUpdateError(encoder func(context.Context, http.ResponseWriter) goahtt
 // storage download endpoint.
 func EncodeDownloadResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
 	return func(ctx context.Context, w http.ResponseWriter, v interface{}) error {
-		res, _ := v.(*storage.DownloadResult)
+		res, _ := v.([]byte)
 		enc := encoder(ctx, w)
-		body := NewDownloadResponseBody(res)
+		body := res
 		w.WriteHeader(http.StatusOK)
 		return enc.Encode(body)
 	}

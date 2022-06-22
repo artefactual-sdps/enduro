@@ -5,7 +5,9 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -14,21 +16,21 @@ import (
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	temporalsdk_client "go.temporal.io/sdk/client"
+	goahttp "goa.design/goa/v3/http"
 	"gocloud.dev/blob"
 	"gocloud.dev/blob/s3blob"
 
+	"github.com/artefactual-labs/enduro/internal/api/gen/http/storage/server"
 	goastorage "github.com/artefactual-labs/enduro/internal/api/gen/storage"
 )
 
-var (
-	submitURLExpirationTime   = 15 * time.Minute
-	downloadURLExpirationTime = 15 * time.Minute
-)
+var submitURLExpirationTime = 15 * time.Minute
 
 type Service interface {
 	Submit(context.Context, *goastorage.SubmitPayload) (res *goastorage.SubmitResult, err error)
 	Update(context.Context, *goastorage.UpdatePayload) (res *goastorage.UpdateResult, err error)
-	Download(context.Context, *goastorage.DownloadPayload) (res *goastorage.DownloadResult, err error)
+	Download(context.Context, *goastorage.DownloadPayload) ([]byte, error)
+	HTTPDownload(mux goahttp.Muxer, dec func(r *http.Request) goahttp.Decoder) http.HandlerFunc
 }
 
 type serviceImpl struct {
@@ -121,26 +123,46 @@ func (s *serviceImpl) Update(ctx context.Context, payload *goastorage.UpdatePayl
 	return result, nil
 }
 
-func (s *serviceImpl) Download(ctx context.Context, payload *goastorage.DownloadPayload) (*goastorage.DownloadResult, error) {
-	p, err := s.readPackage(ctx, payload.AipID)
-	if err == sql.ErrNoRows {
-		return nil, &goastorage.StoragePackageNotfound{AipID: payload.AipID, Message: "not_found"}
-	} else if err != nil {
-		return nil, err
-	}
+func (s *serviceImpl) Download(ctx context.Context, payload *goastorage.DownloadPayload) ([]byte, error) {
+	return []byte{}, nil
+}
 
-	url, err := s.bucket.SignedURL(ctx, p.ObjectKey, &blob.SignedURLOptions{
-		Expiry: downloadURLExpirationTime,
-		Method: http.MethodGet,
-	})
-	if err != nil {
-		return nil, goastorage.MakeNotValid(errors.New("cannot retrieve package"))
-	}
+func (s *serviceImpl) HTTPDownload(mux goahttp.Muxer, dec func(r *http.Request) goahttp.Decoder) http.HandlerFunc {
+	return func(rw http.ResponseWriter, req *http.Request) {
+		// Decode request payload.
+		payload, err := server.DecodeDownloadRequest(mux, dec)(req)
+		if err != nil {
+			rw.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		p := payload.(*goastorage.DownloadPayload)
 
-	result := &goastorage.DownloadResult{
-		URL: url,
+		// Read storage package.
+		ctx := context.Background()
+		pkg, err := s.readPackage(ctx, p.AipID)
+		if err != nil {
+			rw.WriteHeader(http.StatusNotFound)
+			return
+		}
+
+		// Get MinIO bucket reader for object key.
+		reader, err := s.bucket.NewReader(ctx, pkg.ObjectKey, nil)
+		if err != nil {
+			rw.WriteHeader(http.StatusNotFound)
+			return
+		}
+		defer reader.Close()
+
+		rw.Header().Add("Content-Type", reader.ContentType())
+		rw.Header().Add("Content-Length", strconv.FormatInt(reader.Size(), 10))
+
+		// Copy reader contents into the response.
+		_, err = io.Copy(rw, reader)
+		if err != nil {
+			rw.WriteHeader(http.StatusNotFound)
+			return
+		}
 	}
-	return result, nil
 }
 
 func SetBucket(s *serviceImpl, b *blob.Bucket) {
