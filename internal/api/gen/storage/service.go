@@ -11,6 +11,7 @@ package storage
 import (
 	"context"
 
+	storageviews "github.com/artefactual-labs/enduro/internal/api/gen/storage/views"
 	goa "goa.design/goa/v3/pkg"
 )
 
@@ -22,6 +23,8 @@ type Service interface {
 	Update(context.Context, *UpdatePayload) (err error)
 	// Download package by AIPID
 	Download(context.Context, *DownloadPayload) (res []byte, err error)
+	// List locations
+	List(context.Context) (res StoredLocationCollection, err error)
 }
 
 // ServiceName is the name of the service as defined in the design. This is the
@@ -32,7 +35,7 @@ const ServiceName = "storage"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [3]string{"submit", "update", "download"}
+var MethodNames = [4]string{"submit", "update", "download", "list"}
 
 // DownloadPayload is the payload type of the storage service download method.
 type DownloadPayload struct {
@@ -46,6 +49,18 @@ type StoragePackageNotfound struct {
 	// Identifier of missing package
 	AipID string
 }
+
+// A StoredLocation describes a location retrieved by the storage service.
+type StoredLocation struct {
+	// ID is the unique id of the location.
+	ID string
+	// Name of location
+	Name string
+}
+
+// StoredLocationCollection is the result type of the storage service list
+// method.
+type StoredLocationCollection []*StoredLocation
 
 // SubmitPayload is the payload type of the storage service submit method.
 type SubmitPayload struct {
@@ -89,4 +104,62 @@ func MakeNotValid(err error) *goa.ServiceError {
 		ID:      goa.NewErrorID(),
 		Message: err.Error(),
 	}
+}
+
+// NewStoredLocationCollection initializes result type StoredLocationCollection
+// from viewed result type StoredLocationCollection.
+func NewStoredLocationCollection(vres storageviews.StoredLocationCollection) StoredLocationCollection {
+	return newStoredLocationCollection(vres.Projected)
+}
+
+// NewViewedStoredLocationCollection initializes viewed result type
+// StoredLocationCollection from result type StoredLocationCollection using the
+// given view.
+func NewViewedStoredLocationCollection(res StoredLocationCollection, view string) storageviews.StoredLocationCollection {
+	p := newStoredLocationCollectionView(res)
+	return storageviews.StoredLocationCollection{Projected: p, View: "default"}
+}
+
+// newStoredLocationCollection converts projected type StoredLocationCollection
+// to service type StoredLocationCollection.
+func newStoredLocationCollection(vres storageviews.StoredLocationCollectionView) StoredLocationCollection {
+	res := make(StoredLocationCollection, len(vres))
+	for i, n := range vres {
+		res[i] = newStoredLocation(n)
+	}
+	return res
+}
+
+// newStoredLocationCollectionView projects result type
+// StoredLocationCollection to projected type StoredLocationCollectionView
+// using the "default" view.
+func newStoredLocationCollectionView(res StoredLocationCollection) storageviews.StoredLocationCollectionView {
+	vres := make(storageviews.StoredLocationCollectionView, len(res))
+	for i, n := range res {
+		vres[i] = newStoredLocationView(n)
+	}
+	return vres
+}
+
+// newStoredLocation converts projected type StoredLocation to service type
+// StoredLocation.
+func newStoredLocation(vres *storageviews.StoredLocationView) *StoredLocation {
+	res := &StoredLocation{}
+	if vres.ID != nil {
+		res.ID = *vres.ID
+	}
+	if vres.Name != nil {
+		res.Name = *vres.Name
+	}
+	return res
+}
+
+// newStoredLocationView projects result type StoredLocation to projected type
+// StoredLocationView using the "default" view.
+func newStoredLocationView(res *StoredLocation) *storageviews.StoredLocationView {
+	vres := &storageviews.StoredLocationView{
+		ID:   &res.ID,
+		Name: &res.Name,
+	}
+	return vres
 }

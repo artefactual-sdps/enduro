@@ -19,14 +19,16 @@ type Client struct {
 	SubmitEndpoint   goa.Endpoint
 	UpdateEndpoint   goa.Endpoint
 	DownloadEndpoint goa.Endpoint
+	ListEndpoint     goa.Endpoint
 }
 
 // NewClient initializes a "storage" service client given the endpoints.
-func NewClient(submit, update, download goa.Endpoint) *Client {
+func NewClient(submit, update, download, list goa.Endpoint) *Client {
 	return &Client{
 		SubmitEndpoint:   submit,
 		UpdateEndpoint:   update,
 		DownloadEndpoint: download,
+		ListEndpoint:     list,
 	}
 }
 
@@ -67,4 +69,14 @@ func (c *Client) Download(ctx context.Context, p *DownloadPayload) (res []byte, 
 		return
 	}
 	return ires.([]byte), nil
+}
+
+// List calls the "list" endpoint of the "storage" service.
+func (c *Client) List(ctx context.Context) (res StoredLocationCollection, err error) {
+	var ires interface{}
+	ires, err = c.ListEndpoint(ctx, nil)
+	if err != nil {
+		return
+	}
+	return ires.(StoredLocationCollection), nil
 }

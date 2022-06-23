@@ -19,6 +19,7 @@ type Endpoints struct {
 	Submit   goa.Endpoint
 	Update   goa.Endpoint
 	Download goa.Endpoint
+	List     goa.Endpoint
 }
 
 // NewEndpoints wraps the methods of the "storage" service with endpoints.
@@ -27,6 +28,7 @@ func NewEndpoints(s Service) *Endpoints {
 		Submit:   NewSubmitEndpoint(s),
 		Update:   NewUpdateEndpoint(s),
 		Download: NewDownloadEndpoint(s),
+		List:     NewListEndpoint(s),
 	}
 }
 
@@ -35,6 +37,7 @@ func (e *Endpoints) Use(m func(goa.Endpoint) goa.Endpoint) {
 	e.Submit = m(e.Submit)
 	e.Update = m(e.Update)
 	e.Download = m(e.Download)
+	e.List = m(e.List)
 }
 
 // NewSubmitEndpoint returns an endpoint function that calls the method
@@ -61,5 +64,18 @@ func NewDownloadEndpoint(s Service) goa.Endpoint {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
 		p := req.(*DownloadPayload)
 		return s.Download(ctx, p)
+	}
+}
+
+// NewListEndpoint returns an endpoint function that calls the method "list" of
+// service "storage".
+func NewListEndpoint(s Service) goa.Endpoint {
+	return func(ctx context.Context, req interface{}) (interface{}, error) {
+		res, err := s.List(ctx)
+		if err != nil {
+			return nil, err
+		}
+		vres := NewViewedStoredLocationCollection(res, "default")
+		return vres, nil
 	}
 }

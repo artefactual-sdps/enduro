@@ -30,6 +30,8 @@ type Service interface {
 	Submit(context.Context, *goastorage.SubmitPayload) (res *goastorage.SubmitResult, err error)
 	Update(context.Context, *goastorage.UpdatePayload) (err error)
 	Download(context.Context, *goastorage.DownloadPayload) ([]byte, error)
+	List(context.Context) (res goastorage.StoredLocationCollection, err error)
+
 	HTTPDownload(mux goahttp.Muxer, dec func(r *http.Request) goahttp.Decoder) http.HandlerFunc
 }
 
@@ -124,6 +126,18 @@ func (s *serviceImpl) Update(ctx context.Context, payload *goastorage.UpdatePayl
 
 func (s *serviceImpl) Download(ctx context.Context, payload *goastorage.DownloadPayload) ([]byte, error) {
 	return []byte{}, nil
+}
+
+func (s *serviceImpl) List(context.Context) (goastorage.StoredLocationCollection, error) {
+	res := []*goastorage.StoredLocation{}
+	for _, item := range s.config.Locations {
+		l := &goastorage.StoredLocation{
+			ID:   item.Name,
+			Name: item.Name,
+		}
+		res = append(res, l)
+	}
+	return res, nil
 }
 
 func (s *serviceImpl) HTTPDownload(mux goahttp.Muxer, dec func(r *http.Request) goahttp.Decoder) http.HandlerFunc {

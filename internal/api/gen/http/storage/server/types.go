@@ -10,6 +10,7 @@ package server
 
 import (
 	storage "github.com/artefactual-labs/enduro/internal/api/gen/storage"
+	storageviews "github.com/artefactual-labs/enduro/internal/api/gen/storage/views"
 	goa "goa.design/goa/v3/pkg"
 )
 
@@ -24,6 +25,10 @@ type SubmitRequestBody struct {
 type SubmitResponseBody struct {
 	URL string `form:"url" json:"url" xml:"url"`
 }
+
+// StoredLocationResponseCollection is the type of the "storage" service "list"
+// endpoint HTTP response body.
+type StoredLocationResponseCollection []*StoredLocationResponse
 
 // SubmitNotAvailableResponseBody is the type of the "storage" service "submit"
 // endpoint HTTP response body for the "not_available" error.
@@ -106,11 +111,29 @@ type DownloadNotFoundResponseBody struct {
 	AipID string `form:"aip_id" json:"aip_id" xml:"aip_id"`
 }
 
+// StoredLocationResponse is used to define fields on response body types.
+type StoredLocationResponse struct {
+	// ID is the unique id of the location.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Name of location
+	Name string `form:"name" json:"name" xml:"name"`
+}
+
 // NewSubmitResponseBody builds the HTTP response body from the result of the
 // "submit" endpoint of the "storage" service.
 func NewSubmitResponseBody(res *storage.SubmitResult) *SubmitResponseBody {
 	body := &SubmitResponseBody{
 		URL: res.URL,
+	}
+	return body
+}
+
+// NewStoredLocationResponseCollection builds the HTTP response body from the
+// result of the "list" endpoint of the "storage" service.
+func NewStoredLocationResponseCollection(res storageviews.StoredLocationCollectionView) StoredLocationResponseCollection {
+	body := make([]*StoredLocationResponse, len(res))
+	for i, val := range res {
+		body[i] = marshalStorageviewsStoredLocationViewToStoredLocationResponse(val)
 	}
 	return body
 }

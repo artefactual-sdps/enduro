@@ -16,6 +16,10 @@ import (
 	"github.com/artefactual-labs/enduro/internal/watcher"
 )
 
+type ConfigurationValidator interface {
+	Validate() error
+}
+
 type Configuration struct {
 	Debug       bool
 	DebugListen string
@@ -31,6 +35,12 @@ type Configuration struct {
 }
 
 func (c Configuration) Validate() error {
+	if config, ok := interface{}(c.Storage).(ConfigurationValidator); ok {
+		err := config.Validate()
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 

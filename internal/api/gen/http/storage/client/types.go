@@ -10,6 +10,7 @@ package client
 
 import (
 	storage "github.com/artefactual-labs/enduro/internal/api/gen/storage"
+	storageviews "github.com/artefactual-labs/enduro/internal/api/gen/storage/views"
 	goa "goa.design/goa/v3/pkg"
 )
 
@@ -24,6 +25,10 @@ type SubmitRequestBody struct {
 type SubmitResponseBody struct {
 	URL *string `form:"url,omitempty" json:"url,omitempty" xml:"url,omitempty"`
 }
+
+// ListResponseBody is the type of the "storage" service "list" endpoint HTTP
+// response body.
+type ListResponseBody []*StoredLocationResponse
 
 // SubmitNotAvailableResponseBody is the type of the "storage" service "submit"
 // endpoint HTTP response body for the "not_available" error.
@@ -104,6 +109,14 @@ type DownloadNotFoundResponseBody struct {
 	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
 	// Identifier of missing package
 	AipID *string `form:"aip_id,omitempty" json:"aip_id,omitempty" xml:"aip_id,omitempty"`
+}
+
+// StoredLocationResponse is used to define fields on response body types.
+type StoredLocationResponse struct {
+	// ID is the unique id of the location.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Name of location
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 }
 
 // NewSubmitRequestBody builds the HTTP request body from the payload of the
@@ -189,6 +202,17 @@ func NewDownloadNotFound(body *DownloadNotFoundResponseBody) *storage.StoragePac
 	v := &storage.StoragePackageNotfound{
 		Message: *body.Message,
 		AipID:   *body.AipID,
+	}
+
+	return v
+}
+
+// NewListStoredLocationCollectionOK builds a "storage" service "list" endpoint
+// result from a HTTP "OK" response.
+func NewListStoredLocationCollectionOK(body ListResponseBody) storageviews.StoredLocationCollectionView {
+	v := make([]*storageviews.StoredLocationView, len(body))
+	for i, val := range body {
+		v[i] = unmarshalStoredLocationResponseToStorageviewsStoredLocationView(val)
 	}
 
 	return v
@@ -306,6 +330,18 @@ func ValidateDownloadNotFoundResponseBody(body *DownloadNotFoundResponseBody) (e
 	}
 	if body.AipID == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("aip_id", "body"))
+	}
+	return
+}
+
+// ValidateStoredLocationResponse runs the validations defined on
+// StoredLocationResponse
+func ValidateStoredLocationResponse(body *StoredLocationResponse) (err error) {
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
 	}
 	return
 }

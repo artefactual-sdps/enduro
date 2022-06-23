@@ -15,6 +15,7 @@ import (
 	"net/http"
 
 	storage "github.com/artefactual-labs/enduro/internal/api/gen/storage"
+	storageviews "github.com/artefactual-labs/enduro/internal/api/gen/storage/views"
 	goahttp "goa.design/goa/v3/http"
 	goa "goa.design/goa/v3/pkg"
 )
@@ -227,4 +228,28 @@ func EncodeDownloadError(encoder func(context.Context, http.ResponseWriter) goah
 			return encodeError(ctx, w, v)
 		}
 	}
+}
+
+// EncodeListResponse returns an encoder for responses returned by the storage
+// list endpoint.
+func EncodeListResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
+	return func(ctx context.Context, w http.ResponseWriter, v interface{}) error {
+		res := v.(storageviews.StoredLocationCollection)
+		enc := encoder(ctx, w)
+		body := NewStoredLocationResponseCollection(res.Projected)
+		w.WriteHeader(http.StatusOK)
+		return enc.Encode(body)
+	}
+}
+
+// marshalStorageviewsStoredLocationViewToStoredLocationResponse builds a value
+// of type *StoredLocationResponse from a value of type
+// *storageviews.StoredLocationView.
+func marshalStorageviewsStoredLocationViewToStoredLocationResponse(v *storageviews.StoredLocationView) *StoredLocationResponse {
+	res := &StoredLocationResponse{
+		ID:   *v.ID,
+		Name: *v.Name,
+	}
+
+	return res
 }

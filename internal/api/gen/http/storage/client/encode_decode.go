@@ -16,6 +16,7 @@ import (
 	"net/url"
 
 	storage "github.com/artefactual-labs/enduro/internal/api/gen/storage"
+	storageviews "github.com/artefactual-labs/enduro/internal/api/gen/storage/views"
 	goahttp "goa.design/goa/v3/http"
 )
 
@@ -291,4 +292,73 @@ func DecodeDownloadResponse(decoder func(*http.Response) goahttp.Decoder, restor
 			return nil, goahttp.ErrInvalidResponse("storage", "download", resp.StatusCode, string(body))
 		}
 	}
+}
+
+// BuildListRequest instantiates a HTTP request object with method and path set
+// to call the "storage" service "list" endpoint
+func (c *Client) BuildListRequest(ctx context.Context, v interface{}) (*http.Request, error) {
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: ListStoragePath()}
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		return nil, goahttp.ErrInvalidURL("storage", "list", u.String(), err)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
+	return req, nil
+}
+
+// DecodeListResponse returns a decoder for responses returned by the storage
+// list endpoint. restoreBody controls whether the response body should be
+// restored after having been read.
+func DecodeListResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
+	return func(resp *http.Response) (interface{}, error) {
+		if restoreBody {
+			b, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = ioutil.NopCloser(bytes.NewBuffer(b))
+			defer func() {
+				resp.Body = ioutil.NopCloser(bytes.NewBuffer(b))
+			}()
+		} else {
+			defer resp.Body.Close()
+		}
+		switch resp.StatusCode {
+		case http.StatusOK:
+			var (
+				body ListResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "list", err)
+			}
+			p := NewListStoredLocationCollectionOK(body)
+			view := "default"
+			vres := storageviews.StoredLocationCollection{Projected: p, View: view}
+			if err = storageviews.ValidateStoredLocationCollection(vres); err != nil {
+				return nil, goahttp.ErrValidationError("storage", "list", err)
+			}
+			res := storage.NewStoredLocationCollection(vres)
+			return res, nil
+		default:
+			body, _ := ioutil.ReadAll(resp.Body)
+			return nil, goahttp.ErrInvalidResponse("storage", "list", resp.StatusCode, string(body))
+		}
+	}
+}
+
+// unmarshalStoredLocationResponseToStorageviewsStoredLocationView builds a
+// value of type *storageviews.StoredLocationView from a value of type
+// *StoredLocationResponse.
+func unmarshalStoredLocationResponseToStorageviewsStoredLocationView(v *StoredLocationResponse) *storageviews.StoredLocationView {
+	res := &storageviews.StoredLocationView{
+		ID:   v.ID,
+		Name: v.Name,
+	}
+
+	return res
 }

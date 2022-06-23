@@ -57,6 +57,14 @@ var _ = Service("storage", func() {
 			Response("not_found", StatusNotFound)
 		})
 	})
+	Method("list", func() {
+		Description("List locations")
+		Result(CollectionOf(StoredLocation), func() { View("default") })
+		HTTP(func() {
+			GET("/location")
+			Response(StatusOK)
+		})
+	})
 })
 
 var SubmitResult = Type("SubmitResult", func() {
@@ -71,4 +79,27 @@ var StoragePackageNotFound = Type("StoragePackageNotfound", func() {
 	})
 	Attribute("aip_id", String, "Identifier of missing package")
 	Required("message", "aip_id")
+})
+
+var StoredLocation = ResultType("application/vnd.cellar.stored-location", func() {
+	Description("A StoredLocation describes a location retrieved by the storage service.")
+	Reference(Location)
+	TypeName("StoredLocation")
+
+	Attributes(func() {
+		Attribute("id", String, "ID is the unique id of the location.")
+		Field(2, "name")
+	})
+
+	View("default", func() {
+		Attribute("id")
+		Attribute("name")
+	})
+
+	Required("id", "name")
+})
+
+var Location = Type("Location", func() {
+	Description("Location describes a physical entity used to store AIPs.")
+	Attribute("name", String, "Name of location")
 })

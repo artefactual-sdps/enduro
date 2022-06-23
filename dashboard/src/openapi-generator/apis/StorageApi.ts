@@ -36,6 +36,9 @@ import {
     StorageUpdateNotValidResponseBody,
     StorageUpdateNotValidResponseBodyFromJSON,
     StorageUpdateNotValidResponseBodyToJSON,
+    StoredLocationResponse,
+    StoredLocationResponseFromJSON,
+    StoredLocationResponseToJSON,
 } from '../models';
 
 export interface StorageDownloadRequest {
@@ -73,6 +76,21 @@ export interface StorageApiInterface {
      * download storage
      */
     storageDownload(requestParameters: StorageDownloadRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<string>;
+
+    /**
+     * List locations
+     * @summary list storage
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof StorageApiInterface
+     */
+    storageListRaw(initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<Array<StoredLocationResponse>>>;
+
+    /**
+     * List locations
+     * list storage
+     */
+    storageList(initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<Array<StoredLocationResponse>>;
 
     /**
      * Start the submission of a package
@@ -143,6 +161,34 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
      */
     async storageDownload(requestParameters: StorageDownloadRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<string> {
         const response = await this.storageDownloadRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * List locations
+     * list storage
+     */
+    async storageListRaw(initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<Array<StoredLocationResponse>>> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const response = await this.request({
+            path: `/storage/location`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(StoredLocationResponseFromJSON));
+    }
+
+    /**
+     * List locations
+     * list storage
+     */
+    async storageList(initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<Array<StoredLocationResponse>> {
+        const response = await this.storageListRaw(initOverrides);
         return await response.value();
     }
 

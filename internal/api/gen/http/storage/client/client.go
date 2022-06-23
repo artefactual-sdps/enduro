@@ -28,6 +28,9 @@ type Client struct {
 	// endpoint.
 	DownloadDoer goahttp.Doer
 
+	// List Doer is the HTTP client used to make requests to the list endpoint.
+	ListDoer goahttp.Doer
+
 	// CORS Doer is the HTTP client used to make requests to the  endpoint.
 	CORSDoer goahttp.Doer
 
@@ -54,6 +57,7 @@ func NewClient(
 		SubmitDoer:          doer,
 		UpdateDoer:          doer,
 		DownloadDoer:        doer,
+		ListDoer:            doer,
 		CORSDoer:            doer,
 		RestoreResponseBody: restoreBody,
 		scheme:              scheme,
@@ -120,6 +124,25 @@ func (c *Client) Download() goa.Endpoint {
 		resp, err := c.DownloadDoer.Do(req)
 		if err != nil {
 			return nil, goahttp.ErrRequestError("storage", "download", err)
+		}
+		return decodeResponse(resp)
+	}
+}
+
+// List returns an endpoint that makes HTTP requests to the storage service
+// list server.
+func (c *Client) List() goa.Endpoint {
+	var (
+		decodeResponse = DecodeListResponse(c.decoder, c.RestoreResponseBody)
+	)
+	return func(ctx context.Context, v interface{}) (interface{}, error) {
+		req, err := c.BuildListRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		resp, err := c.ListDoer.Do(req)
+		if err != nil {
+			return nil, goahttp.ErrRequestError("storage", "list", err)
 		}
 		return decodeResponse(resp)
 	}

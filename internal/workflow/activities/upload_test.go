@@ -20,6 +20,7 @@ type StorageService struct {
 	SubmitHandler   func(ctx context.Context, req *goastorage.SubmitPayload) (res *goastorage.SubmitResult, err error)
 	UpdateHandler   func(ctx context.Context, req *goastorage.UpdatePayload) (err error)
 	DownloadHandler func(ctx context.Context, req *goastorage.DownloadPayload) (res []byte, err error)
+	ListHandler     func(ctx context.Context) (res goastorage.StoredLocationCollection, err error)
 }
 
 func (s StorageService) Submit(ctx context.Context, req *goastorage.SubmitPayload) (res *goastorage.SubmitResult, err error) {
@@ -32,6 +33,10 @@ func (s StorageService) Update(ctx context.Context, req *goastorage.UpdatePayloa
 
 func (s StorageService) Download(ctx context.Context, req *goastorage.DownloadPayload) (res []byte, err error) {
 	return s.DownloadHandler(ctx, req)
+}
+
+func (s StorageService) List(ctx context.Context) (res goastorage.StoredLocationCollection, err error) {
+	return s.ListHandler(ctx)
 }
 
 func MinIOUploadPreSignedURLHandler(t *testing.T) func(rw http.ResponseWriter, req *http.Request) {
@@ -64,6 +69,7 @@ func TestUploadActivity(t *testing.T) {
 			endpoints.Submit,
 			endpoints.Update,
 			endpoints.Download,
+			endpoints.List,
 		)
 
 		tmpDir := fs.NewDir(t, "", fs.WithFile("aip.7z", "contents-of-the-aip"))
@@ -98,6 +104,7 @@ func TestUploadActivity(t *testing.T) {
 			endpoints.Submit,
 			endpoints.Update,
 			endpoints.Download,
+			endpoints.List,
 		)
 
 		tmpDir := fs.NewDir(t, "", fs.WithFile("aip.7z", "contents-of-the-aip"))

@@ -28,21 +28,21 @@ import (
 func UsageCommands() string {
 	return `batch (submit|status|hints)
 package (monitor|list|show|delete|cancel|retry|workflow|bulk|bulk-status|preservation-actions|confirm|reject)
-storage (submit|update|download)
+storage (submit|update|download|list)
 `
 }
 
 // UsageExamples produces an example of a valid invocation of the CLI tool.
 func UsageExamples() string {
 	return os.Args[0] + ` batch submit --body '{
-      "completed_dir": "Eveniet eligendi sed rem asperiores vero aliquid.",
-      "path": "Id qui.",
-      "retention_period": "Aut error quidem."
+      "completed_dir": "Maiores labore commodi.",
+      "path": "Quidem dicta nisi ipsum non illo id.",
+      "retention_period": "Tenetur nesciunt reiciendis tempore."
    }'` + "\n" +
 		os.Args[0] + ` package monitor` + "\n" +
 		os.Args[0] + ` storage submit --body '{
-      "name": "Id saepe asperiores dolor."
-   }' --aip-id "Omnis quisquam ad consequuntur."` + "\n" +
+      "name": "Omnis quisquam ad consequuntur."
+   }' --aip-id "Nesciunt qui est provident fuga aut consequatur."` + "\n" +
 		""
 }
 
@@ -119,6 +119,8 @@ func ParseEndpoint(
 
 		storageDownloadFlags     = flag.NewFlagSet("download", flag.ExitOnError)
 		storageDownloadAipIDFlag = storageDownloadFlags.String("aip-id", "REQUIRED", "")
+
+		storageListFlags = flag.NewFlagSet("list", flag.ExitOnError)
 	)
 	batchFlags.Usage = batchUsage
 	batchSubmitFlags.Usage = batchSubmitUsage
@@ -143,6 +145,7 @@ func ParseEndpoint(
 	storageSubmitFlags.Usage = storageSubmitUsage
 	storageUpdateFlags.Usage = storageUpdateUsage
 	storageDownloadFlags.Usage = storageDownloadUsage
+	storageListFlags.Usage = storageListUsage
 
 	if err := flag.CommandLine.Parse(os.Args[1:]); err != nil {
 		return nil, nil, err
@@ -244,6 +247,9 @@ func ParseEndpoint(
 			case "download":
 				epf = storageDownloadFlags
 
+			case "list":
+				epf = storageListFlags
+
 			}
 
 		}
@@ -331,6 +337,9 @@ func ParseEndpoint(
 			case "download":
 				endpoint = c.Download()
 				data, err = storagec.BuildDownloadPayload(*storageDownloadAipIDFlag)
+			case "list":
+				endpoint = c.List()
+				data = nil
 			}
 		}
 	}
@@ -364,9 +373,9 @@ Submit a new batch
 
 Example:
     %[1]s batch submit --body '{
-      "completed_dir": "Eveniet eligendi sed rem asperiores vero aliquid.",
-      "path": "Id qui.",
-      "retention_period": "Aut error quidem."
+      "completed_dir": "Maiores labore commodi.",
+      "path": "Quidem dicta nisi ipsum non illo id.",
+      "retention_period": "Tenetur nesciunt reiciendis tempore."
    }'
 `, os.Args[0])
 }
@@ -437,7 +446,7 @@ List all stored packages
     -cursor STRING: 
 
 Example:
-    %[1]s package list --name "Illo natus et itaque eaque." --aip-id "4CCDE767-7648-444F-D09F-4B4FFE4EB36B" --earliest-created-time "1993-03-03T14:33:12Z" --latest-created-time "2000-07-10T02:09:45Z" --status "error" --cursor "Dicta explicabo est quaerat incidunt."
+    %[1]s package list --name "Eaque suscipit in cum et quia facere." --aip-id "4CCDE767-7648-444F-D09F-4B4FFE4EB36B" --earliest-created-time "2014-12-10T03:38:58Z" --latest-created-time "1984-03-13T11:21:43Z" --status "queued" --cursor "Iure aut dolor ut quibusdam."
 `, os.Args[0])
 }
 
@@ -448,7 +457,7 @@ Show package by ID
     -id UINT: Identifier of package to show
 
 Example:
-    %[1]s package show --id 3996361606384399983
+    %[1]s package show --id 12188605603092880190
 `, os.Args[0])
 }
 
@@ -459,7 +468,7 @@ Delete package by ID
     -id UINT: Identifier of package to delete
 
 Example:
-    %[1]s package delete --id 5829343242568083082
+    %[1]s package delete --id 11255156712036053872
 `, os.Args[0])
 }
 
@@ -470,7 +479,7 @@ Cancel package processing by ID
     -id UINT: Identifier of package to remove
 
 Example:
-    %[1]s package cancel --id 11255156712036053872
+    %[1]s package cancel --id 4269239435361436165
 `, os.Args[0])
 }
 
@@ -481,7 +490,7 @@ Retry package processing by ID
     -id UINT: Identifier of package to retry
 
 Example:
-    %[1]s package retry --id 4269239435361436165
+    %[1]s package retry --id 7057964250562282979
 `, os.Args[0])
 }
 
@@ -492,7 +501,7 @@ Retrieve workflow status by ID
     -id UINT: Identifier of package to look up
 
 Example:
-    %[1]s package workflow --id 7057964250562282979
+    %[1]s package workflow --id 2148016667919691631
 `, os.Args[0])
 }
 
@@ -504,9 +513,9 @@ Bulk operations (retry, cancel...).
 
 Example:
     %[1]s package bulk --body '{
-      "operation": "abandon",
-      "size": 18171225832561681153,
-      "status": "unknown"
+      "operation": "retry",
+      "size": 5450621743403568317,
+      "status": "queued"
    }'
 `, os.Args[0])
 }
@@ -528,7 +537,7 @@ List all preservation actions by ID
     -id UINT: Identifier of package to look up
 
 Example:
-    %[1]s package preservation-actions --id 6161904790566803604
+    %[1]s package preservation-actions --id 11970900180965159798
 `, os.Args[0])
 }
 
@@ -539,7 +548,7 @@ Signal the package has been reviewed and accepted
     -id UINT: Identifier of package to look up
 
 Example:
-    %[1]s package confirm --id 11858054252557775308
+    %[1]s package confirm --id 15253041435799747880
 `, os.Args[0])
 }
 
@@ -550,7 +559,7 @@ Signal the package has been reviewed and rejected
     -id UINT: Identifier of package to look up
 
 Example:
-    %[1]s package reject --id 11867561598943911748
+    %[1]s package reject --id 6786858878723580314
 `, os.Args[0])
 }
 
@@ -564,6 +573,7 @@ COMMAND:
     submit: Start the submission of a package
     update: Signal the storage service that an upload is complete
     download: Download package by AIPID
+    list: List locations
 
 Additional help:
     %[1]s storage COMMAND --help
@@ -578,8 +588,8 @@ Start the submission of a package
 
 Example:
     %[1]s storage submit --body '{
-      "name": "Id saepe asperiores dolor."
-   }' --aip-id "Omnis quisquam ad consequuntur."
+      "name": "Omnis quisquam ad consequuntur."
+   }' --aip-id "Nesciunt qui est provident fuga aut consequatur."
 `, os.Args[0])
 }
 
@@ -590,7 +600,7 @@ Signal the storage service that an upload is complete
     -aip-id STRING: 
 
 Example:
-    %[1]s storage update --aip-id "Ea recusandae quasi voluptatem iusto consequatur qui."
+    %[1]s storage update --aip-id "Ducimus totam atque pariatur."
 `, os.Args[0])
 }
 
@@ -601,6 +611,16 @@ Download package by AIPID
     -aip-id STRING: 
 
 Example:
-    %[1]s storage download --aip-id "Vitae ut voluptas aut id."
+    %[1]s storage download --aip-id "Modi maiores sit veniam."
+`, os.Args[0])
+}
+
+func storageListUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage list
+
+List locations
+
+Example:
+    %[1]s storage list
 `, os.Args[0])
 }

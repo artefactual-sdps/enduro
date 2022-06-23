@@ -43,5 +43,6 @@ models/StorageSubmitRequestBody.ts
 models/StorageSubmitResponseBody.ts
 models/StorageUpdateNotAvailableResponseBody.ts
 models/StorageUpdateNotValidResponseBody.ts
+models/StoredLocationResponse.ts
 models/index.ts
 runtime.ts
