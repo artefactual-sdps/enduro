@@ -91,6 +91,7 @@ func (s *serviceImpl) Submit(ctx context.Context, payload *goastorage.SubmitPayl
 		AIPID:     payload.AipID,
 		Status:    StatusUnspecified,
 		ObjectKey: uuid.New().String(),
+		Location:  "",
 	}
 	err = s.createPackage(ctx, &p)
 	if err != nil {
@@ -186,12 +187,13 @@ func SetBucket(s *serviceImpl, b *blob.Bucket) {
 }
 
 func (s *serviceImpl) createPackage(ctx context.Context, p *Package) error {
-	query := `INSERT INTO storage_package (name, aip_id, status, object_key) VALUES (?, ?, ?, ?)`
+	query := `INSERT INTO storage_package (name, aip_id, status, object_key, location) VALUES (?, ?, ?, ?, ?)`
 	args := []interface{}{
 		p.Name,
 		p.AIPID,
 		p.Status,
 		p.ObjectKey,
+		p.Location,
 	}
 
 	res, err := s.db.ExecContext(ctx, query, args...)
@@ -210,7 +212,7 @@ func (s *serviceImpl) createPackage(ctx context.Context, p *Package) error {
 }
 
 func (s *serviceImpl) readPackage(ctx context.Context, AIPID string) (*Package, error) {
-	query := "SELECT id, name, aip_id, status, object_key FROM storage_package WHERE aip_id = (?)"
+	query := "SELECT id, name, aip_id, status, object_key, location FROM storage_package WHERE aip_id = (?)"
 	args := []interface{}{AIPID}
 	p := Package{}
 

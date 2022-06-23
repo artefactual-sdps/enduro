@@ -65,4 +65,5 @@ type Package struct {
 	AIPID     string        `db:"aip_id"`
 	Status    PackageStatus `db:"status"`
 	ObjectKey string        `db:"object_key"`
+	Location  string        `db:"location"`
 }
