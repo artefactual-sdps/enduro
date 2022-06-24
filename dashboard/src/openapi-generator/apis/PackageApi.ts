@@ -42,6 +42,9 @@ import {
     PackageConfirmNotValidResponseBody,
     PackageConfirmNotValidResponseBodyFromJSON,
     PackageConfirmNotValidResponseBodyToJSON,
+    PackageConfirmRequestBody,
+    PackageConfirmRequestBodyFromJSON,
+    PackageConfirmRequestBodyToJSON,
     PackageDeleteNotFoundResponseBody,
     PackageDeleteNotFoundResponseBodyFromJSON,
     PackageDeleteNotFoundResponseBodyToJSON,
@@ -93,6 +96,7 @@ export interface PackageCancelRequest {
 
 export interface PackageConfirmRequest {
     id: number;
+    confirmRequestBody: PackageConfirmRequestBody;
 }
 
 export interface PackageDeleteRequest {
@@ -186,6 +190,7 @@ export interface PackageApiInterface {
      * Signal the package has been reviewed and accepted
      * @summary confirm package
      * @param {number} id Identifier of package to look up
+     * @param {PackageConfirmRequestBody} confirmRequestBody 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof PackageApiInterface
@@ -439,15 +444,22 @@ export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
             throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling packageConfirm.');
         }
 
+        if (requestParameters.confirmRequestBody === null || requestParameters.confirmRequestBody === undefined) {
+            throw new runtime.RequiredError('confirmRequestBody','Required parameter requestParameters.confirmRequestBody was null or undefined when calling packageConfirm.');
+        }
+
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
 
         const response = await this.request({
             path: `/package/{id}/confirm`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
+            body: PackageConfirmRequestBodyToJSON(requestParameters.confirmRequestBody),
         }, initOverrides);
 
         return new runtime.VoidApiResponse(response);

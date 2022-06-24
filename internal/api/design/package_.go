@@ -169,7 +169,8 @@ var _ = Service("package", func() {
 		Description("Signal the package has been reviewed and accepted")
 		Payload(func() {
 			Attribute("id", UInt, "Identifier of package to look up")
-			Required("id")
+			Attribute("location", String)
+			Required("id", "location")
 		})
 		Error("not_available")
 		Error("not_valid")

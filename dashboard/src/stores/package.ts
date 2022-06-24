@@ -33,11 +33,16 @@ export const usePackageStore = defineStore("package", {
     },
     confirm() {
       if (!this.current) return;
-      client.package.packageConfirm({ id: this.current.id }).then((payload) => {
-        if (!this.current) return;
-        this.current.status =
-          api.EnduroStoredPackageResponseBodyStatusEnum.InProgress;
-      });
+      client.package
+        .packageConfirm({
+          id: this.current.id,
+          confirmRequestBody: { location: "perma-aips-2" },
+        })
+        .then((payload) => {
+          if (!this.current) return;
+          this.current.status =
+            api.EnduroStoredPackageResponseBodyStatusEnum.InProgress;
+        });
     },
     reject() {
       if (!this.current) return;

@@ -189,7 +189,7 @@ func BuildBulkPayload(package_BulkBody string) (*package_.BulkPayload, error) {
 	{
 		err = json.Unmarshal([]byte(package_BulkBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"operation\": \"retry\",\n      \"size\": 16832046131746849752,\n      \"status\": \"in progress\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"operation\": \"retry\",\n      \"size\": 13733910633092730650,\n      \"status\": \"done\"\n   }'")
 		}
 		if !(body.Operation == "retry" || body.Operation == "cancel" || body.Operation == "abandon") {
 			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.operation", body.Operation, []interface{}{"retry", "cancel", "abandon"}))
@@ -237,8 +237,15 @@ func BuildPreservationActionsPayload(package_PreservationActionsID string) (*pac
 
 // BuildConfirmPayload builds the payload for the package confirm endpoint from
 // CLI flags.
-func BuildConfirmPayload(package_ConfirmID string) (*package_.ConfirmPayload, error) {
+func BuildConfirmPayload(package_ConfirmBody string, package_ConfirmID string) (*package_.ConfirmPayload, error) {
 	var err error
+	var body ConfirmRequestBody
+	{
+		err = json.Unmarshal([]byte(package_ConfirmBody), &body)
+		if err != nil {
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location\": \"Et dignissimos explicabo soluta et autem id.\"\n   }'")
+		}
+	}
 	var id uint
 	{
 		var v uint64
@@ -248,7 +255,9 @@ func BuildConfirmPayload(package_ConfirmID string) (*package_.ConfirmPayload, er
 			return nil, fmt.Errorf("invalid value for id, must be UINT")
 		}
 	}
-	v := &package_.ConfirmPayload{}
+	v := &package_.ConfirmPayload{
+		Location: body.Location,
+	}
 	v.ID = id
 
 	return v, nil

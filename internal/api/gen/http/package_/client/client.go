@@ -336,10 +336,15 @@ func (c *Client) PreservationActions() goa.Endpoint {
 // confirm server.
 func (c *Client) Confirm() goa.Endpoint {
 	var (
+		encodeRequest  = EncodeConfirmRequest(c.encoder)
 		decodeResponse = DecodeConfirmResponse(c.decoder, c.RestoreResponseBody)
 	)
 	return func(ctx context.Context, v interface{}) (interface{}, error) {
 		req, err := c.BuildConfirmRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		err = encodeRequest(req, v)
 		if err != nil {
 			return nil, err
 		}

@@ -434,9 +434,8 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 		{
 			activityOpts := withActivityOptsForRequest(sessCtx)
 			err := temporalsdk_workflow.ExecuteActivity(activityOpts, activities.MoveToPermanentStorageActivityName, &activities.MoveToPermanentStorageActivityParams{
-				AIPID: tinfo.SIPID,
-				// XXX: change review to a struct that contains the location the user selected
-				Location: "perma-aips-1",
+				AIPID:    tinfo.SIPID,
+				Location: *review.Location,
 			}).Get(activityOpts, nil)
 			if err != nil {
 				return err

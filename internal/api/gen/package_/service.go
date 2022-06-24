@@ -102,7 +102,8 @@ type CancelPayload struct {
 // ConfirmPayload is the payload type of the package service confirm method.
 type ConfirmPayload struct {
 	// Identifier of package to look up
-	ID uint
+	ID       uint
+	Location string
 }
 
 // DeletePayload is the payload type of the package service delete method.

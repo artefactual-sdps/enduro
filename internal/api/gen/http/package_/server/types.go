@@ -22,6 +22,12 @@ type BulkRequestBody struct {
 	Size      *uint   `form:"size,omitempty" json:"size,omitempty" xml:"size,omitempty"`
 }
 
+// ConfirmRequestBody is the type of the "package" service "confirm" endpoint
+// HTTP request body.
+type ConfirmRequestBody struct {
+	Location *string `form:"location,omitempty" json:"location,omitempty" xml:"location,omitempty"`
+}
+
 // MonitorResponseBody is the type of the "package" service "monitor" endpoint
 // HTTP response body.
 type MonitorResponseBody struct {
@@ -697,8 +703,10 @@ func NewPreservationActionsPayload(id uint) *package_.PreservationActionsPayload
 }
 
 // NewConfirmPayload builds a package service confirm endpoint payload.
-func NewConfirmPayload(id uint) *package_.ConfirmPayload {
-	v := &package_.ConfirmPayload{}
+func NewConfirmPayload(body *ConfirmRequestBody, id uint) *package_.ConfirmPayload {
+	v := &package_.ConfirmPayload{
+		Location: *body.Location,
+	}
 	v.ID = id
 
 	return v
@@ -729,6 +737,14 @@ func ValidateBulkRequestBody(body *BulkRequestBody) (err error) {
 		if !(*body.Status == "new" || *body.Status == "in progress" || *body.Status == "done" || *body.Status == "error" || *body.Status == "unknown" || *body.Status == "queued" || *body.Status == "pending" || *body.Status == "abandoned") {
 			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []interface{}{"new", "in progress", "done", "error", "unknown", "queued", "pending", "abandoned"}))
 		}
+	}
+	return
+}
+
+// ValidateConfirmRequestBody runs the validations defined on ConfirmRequestBody
+func ValidateConfirmRequestBody(body *ConfirmRequestBody) (err error) {
+	if body.Location == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("location", "body"))
 	}
 	return
 }
