@@ -71,7 +71,7 @@ ignored:
 lint:
 	$(GOLANGCI_LINT) run -v --timeout=5m --fix
 
-goagen:
+gen-goa:
 	$(GOA) gen github.com/artefactual-labs/enduro/internal/api/design -o internal/api
 
 clean:
