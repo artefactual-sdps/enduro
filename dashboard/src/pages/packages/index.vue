@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { client, api } from "../../client";
-import PackageStatusBadge from "../../components/PackageStatusBadge.vue";
+import { client, api } from "@/client";
+import PackageStatusBadge from "@/components/PackageStatusBadge.vue";
 import { onMounted, reactive } from "vue";
 import { useRouter } from "vue-router";
 

@@ -5,6 +5,7 @@ import humanizeDuration from "humanize-duration";
 import moment from "moment";
 import { createPinia } from "pinia";
 import { createApp } from "vue";
+import { PromiseDialog } from "vue3-promise-dialog";
 import { createRouter, createWebHistory } from "vue-router";
 import routes from "~pages";
 
@@ -17,6 +18,7 @@ const router = createRouter({
 const app = createApp(App);
 app.use(router);
 app.use(createPinia());
+app.use(PromiseDialog);
 app.mount("#app");
 
 interface Filters {

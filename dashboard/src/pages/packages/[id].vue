@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import PackagePendingAlert from "../../components/PackagePendingAlert.vue";
-import { usePackageStore } from "../../stores/package";
+import PackagePendingAlert from "@/components/PackagePendingAlert.vue";
+import { usePackageStore } from "@/stores/package";
 import { useRoute } from "vue-router";
 
 const route = useRoute();
@@ -12,6 +12,7 @@ packageStore.fetchCurrent(route.params.id.toString());
 <template>
   <div v-if="packageStore.current">
     <PackagePendingAlert />
+
     <div class="container-xxl px-0">
       <!-- Breadcrumb -->
       <div>

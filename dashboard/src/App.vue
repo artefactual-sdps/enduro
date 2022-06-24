@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Header from "./components/Header.vue";
+import { DialogWrapper } from "vue3-promise-dialog";
 </script>
 
 <template>
@@ -9,4 +10,5 @@ import Header from "./components/Header.vue";
       <router-view></router-view>
     </main>
   </div>
+  <DialogWrapper />
 </template>
