@@ -27,7 +27,7 @@ import (
 	goastorage "github.com/artefactual-labs/enduro/internal/api/gen/storage"
 )
 
-var submitURLExpirationTime = 15 * time.Minute
+var SubmitURLExpirationTime = 15 * time.Minute
 
 type Location interface {
 	Name() string
@@ -154,7 +154,7 @@ func (s *serviceImpl) Location(name string) (Location, error) {
 }
 
 func (s *serviceImpl) Submit(ctx context.Context, payload *goastorage.SubmitPayload) (*goastorage.SubmitResult, error) {
-	_, err := InitStorageWorkflow(ctx, s.tc, &StorageWorkflowRequest{AIPID: payload.AipID})
+	_, err := InitStorageWorkflow(ctx, s.tc, &StorageUploadWorkflowRequest{AIPID: payload.AipID})
 	if err != nil {
 		return nil, goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
 	}
@@ -171,7 +171,7 @@ func (s *serviceImpl) Submit(ctx context.Context, payload *goastorage.SubmitPayl
 		return nil, goastorage.MakeNotValid(errors.New("cannot persist package"))
 	}
 
-	url, err := s.bucket.SignedURL(ctx, p.ObjectKey, &blob.SignedURLOptions{Expiry: submitURLExpirationTime, Method: http.MethodPut})
+	url, err := s.bucket.SignedURL(ctx, p.ObjectKey, &blob.SignedURLOptions{Expiry: SubmitURLExpirationTime, Method: http.MethodPut})
 	if err != nil {
 		return nil, goastorage.MakeNotValid(errors.New("cannot persist package"))
 	}
@@ -184,7 +184,7 @@ func (s *serviceImpl) Submit(ctx context.Context, payload *goastorage.SubmitPayl
 
 func (s *serviceImpl) Update(ctx context.Context, payload *goastorage.UpdatePayload) error {
 	signal := UploadDoneSignal{}
-	workflowID := fmt.Sprintf("%s-%s", StorageWorkflowName, payload.AipID)
+	workflowID := fmt.Sprintf("%s-%s", StorageUploadWorkflowName, payload.AipID)
 	err := s.tc.SignalWorkflow(ctx, workflowID, "", UploadDoneSignalName, signal)
 	if err != nil {
 		return goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
