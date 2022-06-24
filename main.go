@@ -29,6 +29,7 @@ import (
 	"github.com/artefactual-labs/enduro/internal/log"
 	"github.com/artefactual-labs/enduro/internal/package_"
 	"github.com/artefactual-labs/enduro/internal/storage"
+	storage_workflows "github.com/artefactual-labs/enduro/internal/storage/workflows"
 	"github.com/artefactual-labs/enduro/internal/temporal"
 	"github.com/artefactual-labs/enduro/internal/version"
 	"github.com/artefactual-labs/enduro/internal/watcher"
@@ -233,8 +234,8 @@ func main() {
 		w.RegisterWorkflowWithOptions(batch.BatchWorkflow, temporalsdk_workflow.RegisterOptions{Name: batch.BatchWorkflowName})
 		w.RegisterActivityWithOptions(batch.NewBatchActivity(batchsvc).Execute, temporalsdk_activity.RegisterOptions{Name: batch.BatchActivityName})
 
-		w.RegisterWorkflowWithOptions(storage.NewStorageWorkflow(logger).Execute, temporalsdk_workflow.RegisterOptions{Name: storage.StorageWorkflowName})
-		w.RegisterWorkflowWithOptions(storage.NewStorageMoveWorkflow(logger, storagesvc).Execute, temporalsdk_workflow.RegisterOptions{Name: storage.StorageMoveWorkflowName})
+		w.RegisterWorkflowWithOptions(storage_workflows.NewStorageUploadWorkflow().Execute, temporalsdk_workflow.RegisterOptions{Name: storage.StorageUploadWorkflowName})
+		w.RegisterWorkflowWithOptions(storage_workflows.NewStorageMoveWorkflow(storagesvc).Execute, temporalsdk_workflow.RegisterOptions{Name: storage.StorageMoveWorkflowName})
 
 		g.Add(
 			func() error {
