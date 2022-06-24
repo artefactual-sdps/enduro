@@ -78,6 +78,8 @@ type Service interface {
 	Bucket() *blob.Bucket
 	Location(name string) (Location, error)
 	ReadPackage(ctx context.Context, AIPID string) (*Package, error)
+	UpdatePackageStatus(ctx context.Context, status PackageStatus, aipID string) error
+	UpdatePackageLocation(ctx context.Context, location string, aipID string) error
 
 	HTTPDownload(mux goahttp.Muxer, dec func(r *http.Request) goahttp.Decoder) http.HandlerFunc
 }
@@ -188,7 +190,7 @@ func (s *serviceImpl) Update(ctx context.Context, payload *goastorage.UpdatePayl
 		return goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
 	}
 	// Uptade the package status to in_review
-	err = s.updatePackageStatus(ctx, StatusInReview, payload.AipID)
+	err = s.UpdatePackageStatus(ctx, StatusInReview, payload.AipID)
 	if err != nil {
 		return goastorage.MakeNotValid(errors.New("cannot persist package"))
 	}
@@ -361,7 +363,7 @@ func (s *serviceImpl) ReadPackage(ctx context.Context, AIPID string) (*Package, 
 	return &p, nil
 }
 
-func (s *serviceImpl) updatePackageStatus(ctx context.Context, status PackageStatus, aipID string) error {
+func (s *serviceImpl) UpdatePackageStatus(ctx context.Context, status PackageStatus, aipID string) error {
 	query := `UPDATE storage_package SET status=? WHERE aip_id=?`
 	args := []interface{}{
 		status,
@@ -376,8 +378,7 @@ func (s *serviceImpl) updatePackageStatus(ctx context.Context, status PackageSta
 	return nil
 }
 
-//nolint:deadcode,unused
-func (s *serviceImpl) updatePackageLocation(ctx context.Context, location string, aipID string) error {
+func (s *serviceImpl) UpdatePackageLocation(ctx context.Context, location string, aipID string) error {
 	query := `UPDATE storage_package SET location=? WHERE aip_id=?`
 	args := []interface{}{
 		location,
