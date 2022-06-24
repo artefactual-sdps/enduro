@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { storageServiceDownloadURL } from "../../../client";
-import PackageReviewAlert from "../../../components/PackageReviewAlert.vue";
-import PackageStatusBadge from "../../../components/PackageStatusBadge.vue";
-import { usePackageStore } from "../../../stores/package";
+import { storageServiceDownloadURL } from "@/client";
+import PackageReviewAlert from "@/components/PackageReviewAlert.vue";
+import PackageStatusBadge from "@/components/PackageStatusBadge.vue";
+import { usePackageStore } from "@/stores/package";
 import "bootstrap/js/dist/collapse";
 
 const packageStore = usePackageStore();

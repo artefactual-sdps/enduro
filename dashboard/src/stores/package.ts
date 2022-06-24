@@ -1,4 +1,4 @@
-import { api, client } from "../client";
+import { api, client } from "@/client";
 import { defineStore, acceptHMRUpdate } from "pinia";
 
 export const usePackageStore = defineStore("package", {
@@ -31,12 +31,12 @@ export const usePackageStore = defineStore("package", {
           this.current_preservation_actions = payload;
         });
     },
-    confirm() {
+    confirm(locationName: string) {
       if (!this.current) return;
       client.package
         .packageConfirm({
           id: this.current.id,
-          confirmRequestBody: { location: "perma-aips-2" },
+          confirmRequestBody: { location: locationName },
         })
         .then((payload) => {
           if (!this.current) return;

@@ -29,6 +29,7 @@
 @import "bootstrap/scss/breadcrumb";
 @import "bootstrap/scss/alert";
 @import "bootstrap/scss/transitions";
+@import "bootstrap/scss/modal";
 
 // Utilities API last to generate classes based on the Sass map in `_utilities.scss`.
 @import "bootstrap/scss/utilities/api";
