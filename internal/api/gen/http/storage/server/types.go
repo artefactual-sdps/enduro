@@ -20,6 +20,12 @@ type SubmitRequestBody struct {
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 }
 
+// MoveRequestBody is the type of the "storage" service "move" endpoint HTTP
+// request body.
+type MoveRequestBody struct {
+	Location *string `form:"location,omitempty" json:"location,omitempty" xml:"location,omitempty"`
+}
+
 // SubmitResponseBody is the type of the "storage" service "submit" endpoint
 // HTTP response body.
 type SubmitResponseBody struct {
@@ -29,6 +35,12 @@ type SubmitResponseBody struct {
 // StoredLocationResponseCollection is the type of the "storage" service "list"
 // endpoint HTTP response body.
 type StoredLocationResponseCollection []*StoredLocationResponse
+
+// MoveStatusResponseBody is the type of the "storage" service "move_status"
+// endpoint HTTP response body.
+type MoveStatusResponseBody struct {
+	Done bool `form:"done" json:"done" xml:"done"`
+}
 
 // SubmitNotAvailableResponseBody is the type of the "storage" service "submit"
 // endpoint HTTP response body for the "not_available" error.
@@ -111,6 +123,60 @@ type DownloadNotFoundResponseBody struct {
 	AipID string `form:"aip_id" json:"aip_id" xml:"aip_id"`
 }
 
+// MoveNotAvailableResponseBody is the type of the "storage" service "move"
+// endpoint HTTP response body for the "not_available" error.
+type MoveNotAvailableResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// MoveNotValidResponseBody is the type of the "storage" service "move"
+// endpoint HTTP response body for the "not_valid" error.
+type MoveNotValidResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// MoveNotFoundResponseBody is the type of the "storage" service "move"
+// endpoint HTTP response body for the "not_found" error.
+type MoveNotFoundResponseBody struct {
+	// Message of error
+	Message string `form:"message" json:"message" xml:"message"`
+	// Identifier of missing package
+	AipID string `form:"aip_id" json:"aip_id" xml:"aip_id"`
+}
+
+// MoveStatusNotFoundResponseBody is the type of the "storage" service
+// "move_status" endpoint HTTP response body for the "not_found" error.
+type MoveStatusNotFoundResponseBody struct {
+	// Message of error
+	Message string `form:"message" json:"message" xml:"message"`
+	// Identifier of missing package
+	AipID string `form:"aip_id" json:"aip_id" xml:"aip_id"`
+}
+
 // StoredLocationResponse is used to define fields on response body types.
 type StoredLocationResponse struct {
 	// ID is the unique id of the location.
@@ -134,6 +200,15 @@ func NewStoredLocationResponseCollection(res storageviews.StoredLocationCollecti
 	body := make([]*StoredLocationResponse, len(res))
 	for i, val := range res {
 		body[i] = marshalStorageviewsStoredLocationViewToStoredLocationResponse(val)
+	}
+	return body
+}
+
+// NewMoveStatusResponseBody builds the HTTP response body from the result of
+// the "move_status" endpoint of the "storage" service.
+func NewMoveStatusResponseBody(res *storage.MoveStatusResult) *MoveStatusResponseBody {
+	body := &MoveStatusResponseBody{
+		Done: res.Done,
 	}
 	return body
 }
@@ -204,6 +279,54 @@ func NewDownloadNotFoundResponseBody(res *storage.StoragePackageNotfound) *Downl
 	return body
 }
 
+// NewMoveNotAvailableResponseBody builds the HTTP response body from the
+// result of the "move" endpoint of the "storage" service.
+func NewMoveNotAvailableResponseBody(res *goa.ServiceError) *MoveNotAvailableResponseBody {
+	body := &MoveNotAvailableResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewMoveNotValidResponseBody builds the HTTP response body from the result of
+// the "move" endpoint of the "storage" service.
+func NewMoveNotValidResponseBody(res *goa.ServiceError) *MoveNotValidResponseBody {
+	body := &MoveNotValidResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewMoveNotFoundResponseBody builds the HTTP response body from the result of
+// the "move" endpoint of the "storage" service.
+func NewMoveNotFoundResponseBody(res *storage.StoragePackageNotfound) *MoveNotFoundResponseBody {
+	body := &MoveNotFoundResponseBody{
+		Message: res.Message,
+		AipID:   res.AipID,
+	}
+	return body
+}
+
+// NewMoveStatusNotFoundResponseBody builds the HTTP response body from the
+// result of the "move_status" endpoint of the "storage" service.
+func NewMoveStatusNotFoundResponseBody(res *storage.StoragePackageNotfound) *MoveStatusNotFoundResponseBody {
+	body := &MoveStatusNotFoundResponseBody{
+		Message: res.Message,
+		AipID:   res.AipID,
+	}
+	return body
+}
+
 // NewSubmitPayload builds a storage service submit endpoint payload.
 func NewSubmitPayload(body *SubmitRequestBody, aipID string) *storage.SubmitPayload {
 	v := &storage.SubmitPayload{
@@ -230,10 +353,36 @@ func NewDownloadPayload(aipID string) *storage.DownloadPayload {
 	return v
 }
 
+// NewMovePayload builds a storage service move endpoint payload.
+func NewMovePayload(body *MoveRequestBody, aipID string) *storage.MovePayload {
+	v := &storage.MovePayload{
+		Location: *body.Location,
+	}
+	v.AipID = aipID
+
+	return v
+}
+
+// NewMoveStatusPayload builds a storage service move_status endpoint payload.
+func NewMoveStatusPayload(aipID string) *storage.MoveStatusPayload {
+	v := &storage.MoveStatusPayload{}
+	v.AipID = aipID
+
+	return v
+}
+
 // ValidateSubmitRequestBody runs the validations defined on SubmitRequestBody
 func ValidateSubmitRequestBody(body *SubmitRequestBody) (err error) {
 	if body.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	return
+}
+
+// ValidateMoveRequestBody runs the validations defined on MoveRequestBody
+func ValidateMoveRequestBody(body *MoveRequestBody) (err error) {
+	if body.Location == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("location", "body"))
 	}
 	return
 }

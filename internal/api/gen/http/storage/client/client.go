@@ -31,6 +31,13 @@ type Client struct {
 	// List Doer is the HTTP client used to make requests to the list endpoint.
 	ListDoer goahttp.Doer
 
+	// Move Doer is the HTTP client used to make requests to the move endpoint.
+	MoveDoer goahttp.Doer
+
+	// MoveStatus Doer is the HTTP client used to make requests to the move_status
+	// endpoint.
+	MoveStatusDoer goahttp.Doer
+
 	// CORS Doer is the HTTP client used to make requests to the  endpoint.
 	CORSDoer goahttp.Doer
 
@@ -58,6 +65,8 @@ func NewClient(
 		UpdateDoer:          doer,
 		DownloadDoer:        doer,
 		ListDoer:            doer,
+		MoveDoer:            doer,
+		MoveStatusDoer:      doer,
 		CORSDoer:            doer,
 		RestoreResponseBody: restoreBody,
 		scheme:              scheme,
@@ -143,6 +152,49 @@ func (c *Client) List() goa.Endpoint {
 		resp, err := c.ListDoer.Do(req)
 		if err != nil {
 			return nil, goahttp.ErrRequestError("storage", "list", err)
+		}
+		return decodeResponse(resp)
+	}
+}
+
+// Move returns an endpoint that makes HTTP requests to the storage service
+// move server.
+func (c *Client) Move() goa.Endpoint {
+	var (
+		encodeRequest  = EncodeMoveRequest(c.encoder)
+		decodeResponse = DecodeMoveResponse(c.decoder, c.RestoreResponseBody)
+	)
+	return func(ctx context.Context, v interface{}) (interface{}, error) {
+		req, err := c.BuildMoveRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		err = encodeRequest(req, v)
+		if err != nil {
+			return nil, err
+		}
+		resp, err := c.MoveDoer.Do(req)
+		if err != nil {
+			return nil, goahttp.ErrRequestError("storage", "move", err)
+		}
+		return decodeResponse(resp)
+	}
+}
+
+// MoveStatus returns an endpoint that makes HTTP requests to the storage
+// service move_status server.
+func (c *Client) MoveStatus() goa.Endpoint {
+	var (
+		decodeResponse = DecodeMoveStatusResponse(c.decoder, c.RestoreResponseBody)
+	)
+	return func(ctx context.Context, v interface{}) (interface{}, error) {
+		req, err := c.BuildMoveStatusRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		resp, err := c.MoveStatusDoer.Do(req)
+		if err != nil {
+			return nil, goahttp.ErrRequestError("storage", "move_status", err)
 		}
 		return decodeResponse(resp)
 	}

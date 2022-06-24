@@ -242,6 +242,159 @@ func EncodeListResponse(encoder func(context.Context, http.ResponseWriter) goaht
 	}
 }
 
+// EncodeMoveResponse returns an encoder for responses returned by the storage
+// move endpoint.
+func EncodeMoveResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
+	return func(ctx context.Context, w http.ResponseWriter, v interface{}) error {
+		w.WriteHeader(http.StatusAccepted)
+		return nil
+	}
+}
+
+// DecodeMoveRequest returns a decoder for requests sent to the storage move
+// endpoint.
+func DecodeMoveRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (interface{}, error) {
+	return func(r *http.Request) (interface{}, error) {
+		var (
+			body MoveRequestBody
+			err  error
+		)
+		err = decoder(r).Decode(&body)
+		if err != nil {
+			if err == io.EOF {
+				return nil, goa.MissingPayloadError()
+			}
+			return nil, goa.DecodePayloadError(err.Error())
+		}
+		err = ValidateMoveRequestBody(&body)
+		if err != nil {
+			return nil, err
+		}
+
+		var (
+			aipID string
+
+			params = mux.Vars(r)
+		)
+		aipID = params["aip_id"]
+		payload := NewMovePayload(&body, aipID)
+
+		return payload, nil
+	}
+}
+
+// EncodeMoveError returns an encoder for errors returned by the move storage
+// endpoint.
+func EncodeMoveError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
+	encodeError := goahttp.ErrorEncoder(encoder, formatter)
+	return func(ctx context.Context, w http.ResponseWriter, v error) error {
+		var en ErrorNamer
+		if !errors.As(v, &en) {
+			return encodeError(ctx, w, v)
+		}
+		switch en.ErrorName() {
+		case "not_available":
+			var res *goa.ServiceError
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			var body interface{}
+			if formatter != nil {
+				body = formatter(res)
+			} else {
+				body = NewMoveNotAvailableResponseBody(res)
+			}
+			w.Header().Set("goa-error", res.ErrorName())
+			w.WriteHeader(http.StatusConflict)
+			return enc.Encode(body)
+		case "not_valid":
+			var res *goa.ServiceError
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			var body interface{}
+			if formatter != nil {
+				body = formatter(res)
+			} else {
+				body = NewMoveNotValidResponseBody(res)
+			}
+			w.Header().Set("goa-error", res.ErrorName())
+			w.WriteHeader(http.StatusBadRequest)
+			return enc.Encode(body)
+		case "not_found":
+			var res *storage.StoragePackageNotfound
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			var body interface{}
+			if formatter != nil {
+				body = formatter(res)
+			} else {
+				body = NewMoveNotFoundResponseBody(res)
+			}
+			w.Header().Set("goa-error", res.ErrorName())
+			w.WriteHeader(http.StatusNotFound)
+			return enc.Encode(body)
+		default:
+			return encodeError(ctx, w, v)
+		}
+	}
+}
+
+// EncodeMoveStatusResponse returns an encoder for responses returned by the
+// storage move_status endpoint.
+func EncodeMoveStatusResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
+	return func(ctx context.Context, w http.ResponseWriter, v interface{}) error {
+		res, _ := v.(*storage.MoveStatusResult)
+		enc := encoder(ctx, w)
+		body := NewMoveStatusResponseBody(res)
+		w.WriteHeader(http.StatusOK)
+		return enc.Encode(body)
+	}
+}
+
+// DecodeMoveStatusRequest returns a decoder for requests sent to the storage
+// move_status endpoint.
+func DecodeMoveStatusRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (interface{}, error) {
+	return func(r *http.Request) (interface{}, error) {
+		var (
+			aipID string
+
+			params = mux.Vars(r)
+		)
+		aipID = params["aip_id"]
+		payload := NewMoveStatusPayload(aipID)
+
+		return payload, nil
+	}
+}
+
+// EncodeMoveStatusError returns an encoder for errors returned by the
+// move_status storage endpoint.
+func EncodeMoveStatusError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
+	encodeError := goahttp.ErrorEncoder(encoder, formatter)
+	return func(ctx context.Context, w http.ResponseWriter, v error) error {
+		var en ErrorNamer
+		if !errors.As(v, &en) {
+			return encodeError(ctx, w, v)
+		}
+		switch en.ErrorName() {
+		case "not_found":
+			var res *storage.StoragePackageNotfound
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			var body interface{}
+			if formatter != nil {
+				body = formatter(res)
+			} else {
+				body = NewMoveStatusNotFoundResponseBody(res)
+			}
+			w.Header().Set("goa-error", res.ErrorName())
+			w.WriteHeader(http.StatusNotFound)
+			return enc.Encode(body)
+		default:
+			return encodeError(ctx, w, v)
+		}
+	}
+}
+
 // marshalStorageviewsStoredLocationViewToStoredLocationResponse builds a value
 // of type *StoredLocationResponse from a value of type
 // *storageviews.StoredLocationView.

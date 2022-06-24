@@ -15,6 +15,8 @@ import (
 	"github.com/go-logr/logr"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
+	temporalapi_enums "go.temporal.io/api/enums/v1"
+	temporalapi_serviceerror "go.temporal.io/api/serviceerror"
 	temporalsdk_client "go.temporal.io/sdk/client"
 	goahttp "goa.design/goa/v3/http"
 	"gocloud.dev/blob"
@@ -69,6 +71,8 @@ type Service interface {
 	Update(context.Context, *goastorage.UpdatePayload) (err error)
 	Download(context.Context, *goastorage.DownloadPayload) ([]byte, error)
 	List(context.Context) (res goastorage.StoredLocationCollection, err error)
+	Move(context.Context, *goastorage.MovePayload) (err error)
+	MoveStatus(context.Context, *goastorage.MoveStatusPayload) (res *goastorage.MoveStatusResult, err error)
 
 	HTTPDownload(mux goahttp.Muxer, dec func(r *http.Request) goahttp.Decoder) http.HandlerFunc
 }
@@ -126,8 +130,7 @@ func (s *serviceImpl) openBucket(config *Config) (*blob.Bucket, error) {
 }
 
 func (s *serviceImpl) Submit(ctx context.Context, payload *goastorage.SubmitPayload) (*goastorage.SubmitResult, error) {
-	workflowReq := &StorageWorkflowRequest{AIPID: payload.AipID}
-	_, err := InitStorageWorkflow(ctx, s.tc, workflowReq)
+	_, err := InitStorageWorkflow(ctx, s.tc, &StorageWorkflowRequest{AIPID: payload.AipID})
 	if err != nil {
 		return nil, goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
 	}
@@ -185,6 +188,73 @@ func (s *serviceImpl) List(context.Context) (goastorage.StoredLocationCollection
 		res = append(res, l)
 	}
 	return res, nil
+}
+
+func (s *serviceImpl) Move(ctx context.Context, payload *goastorage.MovePayload) error {
+	p, err := s.readPackage(ctx, payload.AipID)
+	if err == sql.ErrNoRows {
+		return &goastorage.StoragePackageNotfound{AipID: payload.AipID, Message: "not_found"}
+	} else if err != nil {
+		return err
+	}
+
+	_, err = InitStorageMoveWorkflow(ctx, s.tc, &StorageMoveWorkflowRequest{
+		AIPID:    p.AIPID,
+		Location: payload.Location,
+	})
+	if err != nil {
+		s.logger.Error(err, "error initializing move workflow")
+		return goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
+	}
+
+	return nil
+}
+
+func (s *serviceImpl) MoveStatus(ctx context.Context, payload *goastorage.MoveStatusPayload) (*goastorage.MoveStatusResult, error) {
+	p, err := s.readPackage(ctx, payload.AipID)
+	if err == sql.ErrNoRows {
+		return nil, &goastorage.StoragePackageNotfound{AipID: payload.AipID, Message: "not_found"}
+	} else if err != nil {
+		return nil, err
+	}
+
+	resp, err := s.tc.DescribeWorkflowExecution(ctx, fmt.Sprintf("%s-%s", StorageMoveWorkflowName, p.AIPID), "")
+	if err != nil {
+		switch err := err.(type) {
+		case *temporalapi_serviceerror.NotFound:
+			s.logger.Error(err, "error retrieving workflow")
+			// XXX this should be 404, can we create goastorage.MakeNotFound?
+			return nil, goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
+		default:
+			// XXX should this be 404 too?
+			s.logger.Error(err, "error retrieving workflow")
+			return nil, goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
+		}
+	}
+	if resp.WorkflowExecutionInfo == nil {
+		// XXX how to log error when there's no error?
+		s.logger.Error(errors.New("error"), "error retrieving workflow execution details")
+		return nil, goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
+	}
+
+	// XXX: what about WORKFLOW_EXECUTION_STATUS_UNSPECIFIED and WORKFLOW_EXECUTION_STATUS_CONTINUED_AS_NEW?
+	var done bool
+	switch resp.WorkflowExecutionInfo.Status {
+	case
+		temporalapi_enums.WORKFLOW_EXECUTION_STATUS_FAILED,
+		temporalapi_enums.WORKFLOW_EXECUTION_STATUS_CANCELED,
+		temporalapi_enums.WORKFLOW_EXECUTION_STATUS_TERMINATED,
+		temporalapi_enums.WORKFLOW_EXECUTION_STATUS_TIMED_OUT:
+		// XXX how to log error when there's no error?
+		s.logger.Error(errors.New("error"), "workflow execution failed")
+		return nil, goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
+	case temporalapi_enums.WORKFLOW_EXECUTION_STATUS_COMPLETED:
+		done = true
+	case temporalapi_enums.WORKFLOW_EXECUTION_STATUS_RUNNING:
+		done = false
+	}
+
+	return &goastorage.MoveStatusResult{Done: done}, nil
 }
 
 func (s *serviceImpl) HTTPDownload(mux goahttp.Muxer, dec func(r *http.Request) goahttp.Decoder) http.HandlerFunc {
@@ -270,8 +340,6 @@ func (s *serviceImpl) readPackage(ctx context.Context, AIPID string) (*Package, 
 }
 
 func (s *serviceImpl) updatePackageStatus(ctx context.Context, status PackageStatus, aipID string) error {
-	s.logger.Info("updating package status", "status", status, "aip_id", aipID)
-
 	query := `UPDATE storage_package SET status=? WHERE aip_id=?`
 	args := []interface{}{
 		status,

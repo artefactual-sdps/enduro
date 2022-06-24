@@ -18,6 +18,24 @@ import {
     StorageDownloadNotFoundResponseBody,
     StorageDownloadNotFoundResponseBodyFromJSON,
     StorageDownloadNotFoundResponseBodyToJSON,
+    StorageMoveNotAvailableResponseBody,
+    StorageMoveNotAvailableResponseBodyFromJSON,
+    StorageMoveNotAvailableResponseBodyToJSON,
+    StorageMoveNotFoundResponseBody,
+    StorageMoveNotFoundResponseBodyFromJSON,
+    StorageMoveNotFoundResponseBodyToJSON,
+    StorageMoveNotValidResponseBody,
+    StorageMoveNotValidResponseBodyFromJSON,
+    StorageMoveNotValidResponseBodyToJSON,
+    StorageMoveRequestBody,
+    StorageMoveRequestBodyFromJSON,
+    StorageMoveRequestBodyToJSON,
+    StorageMoveStatusNotFoundResponseBody,
+    StorageMoveStatusNotFoundResponseBodyFromJSON,
+    StorageMoveStatusNotFoundResponseBodyToJSON,
+    StorageMoveStatusResponseBody,
+    StorageMoveStatusResponseBodyFromJSON,
+    StorageMoveStatusResponseBodyToJSON,
     StorageSubmitNotAvailableResponseBody,
     StorageSubmitNotAvailableResponseBodyFromJSON,
     StorageSubmitNotAvailableResponseBodyToJSON,
@@ -42,6 +60,15 @@ import {
 } from '../models';
 
 export interface StorageDownloadRequest {
+    aipId: string;
+}
+
+export interface StorageMoveRequest {
+    aipId: string;
+    moveRequestBody: StorageMoveRequestBody;
+}
+
+export interface StorageMoveStatusRequest {
     aipId: string;
 }
 
@@ -91,6 +118,39 @@ export interface StorageApiInterface {
      * list storage
      */
     storageList(initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<Array<StoredLocationResponse>>;
+
+    /**
+     * Move a package to a permanent storage location
+     * @summary move storage
+     * @param {string} aipId 
+     * @param {StorageMoveRequestBody} moveRequestBody 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof StorageApiInterface
+     */
+    storageMoveRaw(requestParameters: StorageMoveRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<void>>;
+
+    /**
+     * Move a package to a permanent storage location
+     * move storage
+     */
+    storageMove(requestParameters: StorageMoveRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<void>;
+
+    /**
+     * Retrieve the status of a permanent storage location move of the package
+     * @summary move_status storage
+     * @param {string} aipId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof StorageApiInterface
+     */
+    storageMoveStatusRaw(requestParameters: StorageMoveStatusRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<StorageMoveStatusResponseBody>>;
+
+    /**
+     * Retrieve the status of a permanent storage location move of the package
+     * move_status storage
+     */
+    storageMoveStatus(requestParameters: StorageMoveStatusRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<StorageMoveStatusResponseBody>;
 
     /**
      * Start the submission of a package
@@ -189,6 +249,76 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
      */
     async storageList(initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<Array<StoredLocationResponse>> {
         const response = await this.storageListRaw(initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Move a package to a permanent storage location
+     * move storage
+     */
+    async storageMoveRaw(requestParameters: StorageMoveRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<void>> {
+        if (requestParameters.aipId === null || requestParameters.aipId === undefined) {
+            throw new runtime.RequiredError('aipId','Required parameter requestParameters.aipId was null or undefined when calling storageMove.');
+        }
+
+        if (requestParameters.moveRequestBody === null || requestParameters.moveRequestBody === undefined) {
+            throw new runtime.RequiredError('moveRequestBody','Required parameter requestParameters.moveRequestBody was null or undefined when calling storageMove.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        const response = await this.request({
+            path: `/storage/{aip_id}/store`.replace(`{${"aip_id"}}`, encodeURIComponent(String(requestParameters.aipId))),
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: StorageMoveRequestBodyToJSON(requestParameters.moveRequestBody),
+        }, initOverrides);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     * Move a package to a permanent storage location
+     * move storage
+     */
+    async storageMove(requestParameters: StorageMoveRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<void> {
+        await this.storageMoveRaw(requestParameters, initOverrides);
+    }
+
+    /**
+     * Retrieve the status of a permanent storage location move of the package
+     * move_status storage
+     */
+    async storageMoveStatusRaw(requestParameters: StorageMoveStatusRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<StorageMoveStatusResponseBody>> {
+        if (requestParameters.aipId === null || requestParameters.aipId === undefined) {
+            throw new runtime.RequiredError('aipId','Required parameter requestParameters.aipId was null or undefined when calling storageMoveStatus.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const response = await this.request({
+            path: `/storage/{aip_id}/store`.replace(`{${"aip_id"}}`, encodeURIComponent(String(requestParameters.aipId))),
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => StorageMoveStatusResponseBodyFromJSON(jsonValue));
+    }
+
+    /**
+     * Retrieve the status of a permanent storage location move of the package
+     * move_status storage
+     */
+    async storageMoveStatus(requestParameters: StorageMoveStatusRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<StorageMoveStatusResponseBody> {
+        const response = await this.storageMoveStatusRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

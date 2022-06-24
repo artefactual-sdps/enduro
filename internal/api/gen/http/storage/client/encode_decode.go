@@ -351,6 +351,203 @@ func DecodeListResponse(decoder func(*http.Response) goahttp.Decoder, restoreBod
 	}
 }
 
+// BuildMoveRequest instantiates a HTTP request object with method and path set
+// to call the "storage" service "move" endpoint
+func (c *Client) BuildMoveRequest(ctx context.Context, v interface{}) (*http.Request, error) {
+	var (
+		aipID string
+	)
+	{
+		p, ok := v.(*storage.MovePayload)
+		if !ok {
+			return nil, goahttp.ErrInvalidType("storage", "move", "*storage.MovePayload", v)
+		}
+		aipID = p.AipID
+	}
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: MoveStoragePath(aipID)}
+	req, err := http.NewRequest("POST", u.String(), nil)
+	if err != nil {
+		return nil, goahttp.ErrInvalidURL("storage", "move", u.String(), err)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
+	return req, nil
+}
+
+// EncodeMoveRequest returns an encoder for requests sent to the storage move
+// server.
+func EncodeMoveRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, interface{}) error {
+	return func(req *http.Request, v interface{}) error {
+		p, ok := v.(*storage.MovePayload)
+		if !ok {
+			return goahttp.ErrInvalidType("storage", "move", "*storage.MovePayload", v)
+		}
+		body := NewMoveRequestBody(p)
+		if err := encoder(req).Encode(&body); err != nil {
+			return goahttp.ErrEncodingError("storage", "move", err)
+		}
+		return nil
+	}
+}
+
+// DecodeMoveResponse returns a decoder for responses returned by the storage
+// move endpoint. restoreBody controls whether the response body should be
+// restored after having been read.
+// DecodeMoveResponse may return the following errors:
+//	- "not_available" (type *goa.ServiceError): http.StatusConflict
+//	- "not_valid" (type *goa.ServiceError): http.StatusBadRequest
+//	- "not_found" (type *storage.StoragePackageNotfound): http.StatusNotFound
+//	- error: internal error
+func DecodeMoveResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
+	return func(resp *http.Response) (interface{}, error) {
+		if restoreBody {
+			b, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = ioutil.NopCloser(bytes.NewBuffer(b))
+			defer func() {
+				resp.Body = ioutil.NopCloser(bytes.NewBuffer(b))
+			}()
+		} else {
+			defer resp.Body.Close()
+		}
+		switch resp.StatusCode {
+		case http.StatusAccepted:
+			return nil, nil
+		case http.StatusConflict:
+			var (
+				body MoveNotAvailableResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "move", err)
+			}
+			err = ValidateMoveNotAvailableResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "move", err)
+			}
+			return nil, NewMoveNotAvailable(&body)
+		case http.StatusBadRequest:
+			var (
+				body MoveNotValidResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "move", err)
+			}
+			err = ValidateMoveNotValidResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "move", err)
+			}
+			return nil, NewMoveNotValid(&body)
+		case http.StatusNotFound:
+			var (
+				body MoveNotFoundResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "move", err)
+			}
+			err = ValidateMoveNotFoundResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "move", err)
+			}
+			return nil, NewMoveNotFound(&body)
+		default:
+			body, _ := ioutil.ReadAll(resp.Body)
+			return nil, goahttp.ErrInvalidResponse("storage", "move", resp.StatusCode, string(body))
+		}
+	}
+}
+
+// BuildMoveStatusRequest instantiates a HTTP request object with method and
+// path set to call the "storage" service "move_status" endpoint
+func (c *Client) BuildMoveStatusRequest(ctx context.Context, v interface{}) (*http.Request, error) {
+	var (
+		aipID string
+	)
+	{
+		p, ok := v.(*storage.MoveStatusPayload)
+		if !ok {
+			return nil, goahttp.ErrInvalidType("storage", "move_status", "*storage.MoveStatusPayload", v)
+		}
+		aipID = p.AipID
+	}
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: MoveStatusStoragePath(aipID)}
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		return nil, goahttp.ErrInvalidURL("storage", "move_status", u.String(), err)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
+	return req, nil
+}
+
+// DecodeMoveStatusResponse returns a decoder for responses returned by the
+// storage move_status endpoint. restoreBody controls whether the response body
+// should be restored after having been read.
+// DecodeMoveStatusResponse may return the following errors:
+//	- "not_found" (type *storage.StoragePackageNotfound): http.StatusNotFound
+//	- error: internal error
+func DecodeMoveStatusResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
+	return func(resp *http.Response) (interface{}, error) {
+		if restoreBody {
+			b, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = ioutil.NopCloser(bytes.NewBuffer(b))
+			defer func() {
+				resp.Body = ioutil.NopCloser(bytes.NewBuffer(b))
+			}()
+		} else {
+			defer resp.Body.Close()
+		}
+		switch resp.StatusCode {
+		case http.StatusOK:
+			var (
+				body MoveStatusResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "move_status", err)
+			}
+			err = ValidateMoveStatusResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "move_status", err)
+			}
+			res := NewMoveStatusResultOK(&body)
+			return res, nil
+		case http.StatusNotFound:
+			var (
+				body MoveStatusNotFoundResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "move_status", err)
+			}
+			err = ValidateMoveStatusNotFoundResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "move_status", err)
+			}
+			return nil, NewMoveStatusNotFound(&body)
+		default:
+			body, _ := ioutil.ReadAll(resp.Body)
+			return nil, goahttp.ErrInvalidResponse("storage", "move_status", resp.StatusCode, string(body))
+		}
+	}
+}
+
 // unmarshalStoredLocationResponseToStorageviewsStoredLocationView builds a
 // value of type *storageviews.StoredLocationView from a value of type
 // *StoredLocationResponse.

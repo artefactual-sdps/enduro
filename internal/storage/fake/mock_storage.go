@@ -81,6 +81,35 @@ func (mr *MockServiceMockRecorder) List(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockService)(nil).List), arg0)
 }
 
+// Move mocks base method.
+func (m *MockService) Move(arg0 context.Context, arg1 *storage.MovePayload) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Move", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Move indicates an expected call of Move.
+func (mr *MockServiceMockRecorder) Move(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Move", reflect.TypeOf((*MockService)(nil).Move), arg0, arg1)
+}
+
+// MoveStatus mocks base method.
+func (m *MockService) MoveStatus(arg0 context.Context, arg1 *storage.MoveStatusPayload) (*storage.MoveStatusResult, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "MoveStatus", arg0, arg1)
+	ret0, _ := ret[0].(*storage.MoveStatusResult)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// MoveStatus indicates an expected call of MoveStatus.
+func (mr *MockServiceMockRecorder) MoveStatus(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MoveStatus", reflect.TypeOf((*MockService)(nil).MoveStatus), arg0, arg1)
+}
+
 // Submit mocks base method.
 func (m *MockService) Submit(arg0 context.Context, arg1 *storage.SubmitPayload) (*storage.SubmitResult, error) {
 	m.ctrl.T.Helper()
