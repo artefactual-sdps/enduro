@@ -1,17 +1,12 @@
 <script setup lang="ts">
-import { storageServiceDownloadURL } from "@/client";
+import PackageDetailsCard from "@/components/PackageDetailsCard.vue";
+import PackageLocationCard from "@/components/PackageLocationCard.vue";
 import PackageReviewAlert from "@/components/PackageReviewAlert.vue";
 import PackageStatusBadge from "@/components/PackageStatusBadge.vue";
 import { usePackageStore } from "@/stores/package";
 import "bootstrap/js/dist/collapse";
 
 const packageStore = usePackageStore();
-
-const download = () => {
-  if (!packageStore.current?.aipId) return;
-  const url = storageServiceDownloadURL(packageStore.current.aipId);
-  window.open(url, "_blank");
-};
 </script>
 
 <template>
@@ -51,49 +46,8 @@ const download = () => {
         </dl>
       </div>
       <div class="col-md-6">
-        <div class="card mb-3">
-          <div class="card-body">
-            <h5 class="card-title">Location</h5>
-            <p class="card-text">
-              <a href="#">aip-review</a>
-            </p>
-            <div class="">
-              <a href="#" class="btn btn-primary btn-sm"
-                >Choose storage location</a
-              >
-            </div>
-          </div>
-        </div>
-        <div class="card mb-3">
-          <div class="card-body">
-            <h5 class="card-title">Package details</h5>
-            <dl>
-              <dt>Original objects</dt>
-              <dd>14</dd>
-              <dt>Package size</dt>
-              <dd>1.45 GB</dd>
-              <dt>Last workflow outcome</dt>
-              <dd>
-                <PackageStatusBadge
-                  :status="packageStore.current.status"
-                  :note="'Create and Review AIP'"
-                />
-              </dd>
-            </dl>
-            <div class="d-flex flex-wrap gap-2">
-              <button class="btn btn-secondary btn-sm disabled">
-                View metadata summary
-              </button>
-              <button
-                class="btn btn-primary btn-sm"
-                type="button"
-                @click="download"
-              >
-                Download
-              </button>
-            </div>
-          </div>
-        </div>
+        <PackageLocationCard />
+        <PackageDetailsCard />
       </div>
     </div>
 
@@ -139,10 +93,7 @@ const download = () => {
     <table
       class="table table-bordered table-sm collapse"
       id="preservation-actions-table"
-      v-if="
-        packageStore.current_preservation_actions &&
-        packageStore.current_preservation_actions.actions
-      "
+      v-if="packageStore.current_preservation_actions?.actions"
     >
       <thead>
         <tr>
