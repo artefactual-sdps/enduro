@@ -234,6 +234,7 @@ func main() {
 		w.RegisterActivityWithOptions(batch.NewBatchActivity(batchsvc).Execute, temporalsdk_activity.RegisterOptions{Name: batch.BatchActivityName})
 
 		w.RegisterWorkflowWithOptions(storage.NewStorageWorkflow(logger).Execute, temporalsdk_workflow.RegisterOptions{Name: storage.StorageWorkflowName})
+		w.RegisterWorkflowWithOptions(storage.NewStorageMoveWorkflow(logger, storagesvc).Execute, temporalsdk_workflow.RegisterOptions{Name: storage.StorageMoveWorkflowName})
 
 		g.Add(
 			func() error {

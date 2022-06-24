@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -74,6 +75,10 @@ type Service interface {
 	Move(context.Context, *goastorage.MovePayload) (err error)
 	MoveStatus(context.Context, *goastorage.MoveStatusPayload) (res *goastorage.MoveStatusResult, err error)
 
+	Bucket() *blob.Bucket
+	Location(name string) (Location, error)
+	ReadPackage(ctx context.Context, AIPID string) (*Package, error)
+
 	HTTPDownload(mux goahttp.Muxer, dec func(r *http.Request) goahttp.Decoder) http.HandlerFunc
 }
 
@@ -83,6 +88,7 @@ type serviceImpl struct {
 	tc        temporalsdk_client.Client
 	config    Config
 	bucket    *blob.Bucket
+	mu        sync.RWMutex
 	locations map[string]Location
 }
 
@@ -127,6 +133,22 @@ func (s *serviceImpl) openBucket(config *Config) (*blob.Bucket, error) {
 		return nil, err
 	}
 	return s3blob.OpenBucket(context.Background(), sess, s.config.Bucket, nil)
+}
+
+func (s *serviceImpl) Bucket() *blob.Bucket {
+	return s.bucket
+}
+
+func (s *serviceImpl) Location(name string) (Location, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	l, ok := s.locations[name]
+	if !ok {
+		return nil, fmt.Errorf("error loading location: unknown location %s", name)
+	}
+
+	return l, nil
 }
 
 func (s *serviceImpl) Submit(ctx context.Context, payload *goastorage.SubmitPayload) (*goastorage.SubmitResult, error) {
@@ -191,7 +213,7 @@ func (s *serviceImpl) List(context.Context) (goastorage.StoredLocationCollection
 }
 
 func (s *serviceImpl) Move(ctx context.Context, payload *goastorage.MovePayload) error {
-	p, err := s.readPackage(ctx, payload.AipID)
+	p, err := s.ReadPackage(ctx, payload.AipID)
 	if err == sql.ErrNoRows {
 		return &goastorage.StoragePackageNotfound{AipID: payload.AipID, Message: "not_found"}
 	} else if err != nil {
@@ -211,7 +233,7 @@ func (s *serviceImpl) Move(ctx context.Context, payload *goastorage.MovePayload)
 }
 
 func (s *serviceImpl) MoveStatus(ctx context.Context, payload *goastorage.MoveStatusPayload) (*goastorage.MoveStatusResult, error) {
-	p, err := s.readPackage(ctx, payload.AipID)
+	p, err := s.ReadPackage(ctx, payload.AipID)
 	if err == sql.ErrNoRows {
 		return nil, &goastorage.StoragePackageNotfound{AipID: payload.AipID, Message: "not_found"}
 	} else if err != nil {
@@ -269,7 +291,7 @@ func (s *serviceImpl) HTTPDownload(mux goahttp.Muxer, dec func(r *http.Request) 
 
 		// Read storage package.
 		ctx := context.Background()
-		pkg, err := s.readPackage(ctx, p.AipID)
+		pkg, err := s.ReadPackage(ctx, p.AipID)
 		if err != nil {
 			rw.WriteHeader(http.StatusNotFound)
 			return
@@ -327,7 +349,7 @@ func (s *serviceImpl) createPackage(ctx context.Context, p *Package) error {
 	return nil
 }
 
-func (s *serviceImpl) readPackage(ctx context.Context, AIPID string) (*Package, error) {
+func (s *serviceImpl) ReadPackage(ctx context.Context, AIPID string) (*Package, error) {
 	query := "SELECT id, name, aip_id, status, object_key, location FROM storage_package WHERE aip_id = (?)"
 	args := []interface{}{AIPID}
 	p := Package{}

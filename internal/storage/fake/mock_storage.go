@@ -10,8 +10,10 @@ import (
 	reflect "reflect"
 
 	storage "github.com/artefactual-labs/enduro/internal/api/gen/storage"
+	storage0 "github.com/artefactual-labs/enduro/internal/storage"
 	gomock "github.com/golang/mock/gomock"
 	http "goa.design/goa/v3/http"
+	blob "gocloud.dev/blob"
 )
 
 // MockService is a mock of Service interface.
@@ -35,6 +37,20 @@ func NewMockService(ctrl *gomock.Controller) *MockService {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockService) EXPECT() *MockServiceMockRecorder {
 	return m.recorder
+}
+
+// Bucket mocks base method.
+func (m *MockService) Bucket() *blob.Bucket {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Bucket")
+	ret0, _ := ret[0].(*blob.Bucket)
+	return ret0
+}
+
+// Bucket indicates an expected call of Bucket.
+func (mr *MockServiceMockRecorder) Bucket() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Bucket", reflect.TypeOf((*MockService)(nil).Bucket))
 }
 
 // Download mocks base method.
@@ -81,6 +97,21 @@ func (mr *MockServiceMockRecorder) List(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockService)(nil).List), arg0)
 }
 
+// Location mocks base method.
+func (m *MockService) Location(arg0 string) (storage0.Location, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Location", arg0)
+	ret0, _ := ret[0].(storage0.Location)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Location indicates an expected call of Location.
+func (mr *MockServiceMockRecorder) Location(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Location", reflect.TypeOf((*MockService)(nil).Location), arg0)
+}
+
 // Move mocks base method.
 func (m *MockService) Move(arg0 context.Context, arg1 *storage.MovePayload) error {
 	m.ctrl.T.Helper()
@@ -108,6 +139,21 @@ func (m *MockService) MoveStatus(arg0 context.Context, arg1 *storage.MoveStatusP
 func (mr *MockServiceMockRecorder) MoveStatus(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MoveStatus", reflect.TypeOf((*MockService)(nil).MoveStatus), arg0, arg1)
+}
+
+// ReadPackage mocks base method.
+func (m *MockService) ReadPackage(arg0 context.Context, arg1 string) (*storage0.Package, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ReadPackage", arg0, arg1)
+	ret0, _ := ret[0].(*storage0.Package)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ReadPackage indicates an expected call of ReadPackage.
+func (mr *MockServiceMockRecorder) ReadPackage(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadPackage", reflect.TypeOf((*MockService)(nil).ReadPackage), arg0, arg1)
 }
 
 // Submit mocks base method.
