@@ -3,6 +3,7 @@ package storage
 import (
 	"context"
 	"fmt"
+	"io"
 	"time"
 
 	"github.com/go-logr/logr"
@@ -35,7 +36,8 @@ type StorageWorkflow struct {
 }
 
 type StorageMoveWorkflow struct {
-	logger logr.Logger
+	logger     logr.Logger
+	storagesvc Service
 }
 
 func NewStorageWorkflow(logger logr.Logger) *StorageWorkflow {
@@ -44,9 +46,10 @@ func NewStorageWorkflow(logger logr.Logger) *StorageWorkflow {
 	}
 }
 
-func NewStorageMoveWorkflow(logger logr.Logger) *StorageMoveWorkflow {
+func NewStorageMoveWorkflow(logger logr.Logger, storagesvc Service) *StorageMoveWorkflow {
 	return &StorageMoveWorkflow{
-		logger: logger,
+		logger:     logger,
+		storagesvc: storagesvc,
 	}
 }
 
@@ -65,19 +68,56 @@ func (w *StorageWorkflow) Execute(ctx temporalsdk_workflow.Context, req StorageW
 	return nil
 }
 
+func copyToPermanentLocation(ctx context.Context, storagesvc Service, AIPID, location string) error {
+	p, err := storagesvc.ReadPackage(ctx, AIPID)
+	if err != nil {
+		return err
+	}
+
+	reader, err := storagesvc.Bucket().NewReader(ctx, p.ObjectKey, nil)
+	if err != nil {
+		return err
+	}
+	defer reader.Close()
+
+	l, err := storagesvc.Location(location)
+	if err != nil {
+		return err
+	}
+
+	bucket, err := l.OpenBucket()
+	if err != nil {
+		return err
+	}
+	defer bucket.Close()
+
+	// XXX: what key should we use for the permanent location?
+	writer, err := bucket.NewWriter(ctx, p.AIPID, nil)
+	if err != nil {
+		return err
+	}
+
+	_, copyErr := io.Copy(writer, reader)
+	closeErr := writer.Close()
+
+	if copyErr != nil {
+		return copyErr
+	}
+	if closeErr != nil {
+		return closeErr
+	}
+
+	return nil
+}
+
 func (w *StorageMoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req StorageMoveWorkflowRequest) error {
-	var signal string
-	timerFuture := temporalsdk_workflow.NewTimer(ctx, 1*time.Minute)
-	signalChan := temporalsdk_workflow.GetSignalChannel(ctx, "signal-name")
-	selector := temporalsdk_workflow.NewSelector(ctx)
-	selector.AddReceive(signalChan, func(channel temporalsdk_workflow.ReceiveChannel, more bool) {
-		_ = channel.Receive(ctx, &signal)
-	})
-	selector.AddFuture(timerFuture, func(f temporalsdk_workflow.Future) {
-		_ = f.Get(ctx, nil)
-	})
-	selector.Select(ctx)
-	// XXX: add activity to copy package.ObjectKey from s.bucket to req.Location
+	// XXX: how do we get a regular context from the temporal one?
+	childContext := context.Background()
+	err := copyToPermanentLocation(childContext, w.storagesvc, req.AIPID, req.Location)
+	if err != nil {
+		return err
+	}
+
 	// XXX: add activity to delete package.Object from s.bucket
 	// XXX: add local activity to set storage package location to req.Location
 	//      err = s.updatePackageLocation(ctx, req.Location, req.AIPID)
