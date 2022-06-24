@@ -184,3 +184,31 @@ func (mr *MockServiceMockRecorder) Update(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockService)(nil).Update), arg0, arg1)
 }
+
+// UpdatePackageLocation mocks base method.
+func (m *MockService) UpdatePackageLocation(arg0 context.Context, arg1, arg2 string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdatePackageLocation", arg0, arg1, arg2)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdatePackageLocation indicates an expected call of UpdatePackageLocation.
+func (mr *MockServiceMockRecorder) UpdatePackageLocation(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdatePackageLocation", reflect.TypeOf((*MockService)(nil).UpdatePackageLocation), arg0, arg1, arg2)
+}
+
+// UpdatePackageStatus mocks base method.
+func (m *MockService) UpdatePackageStatus(arg0 context.Context, arg1 storage0.PackageStatus, arg2 string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdatePackageStatus", arg0, arg1, arg2)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdatePackageStatus indicates an expected call of UpdatePackageStatus.
+func (mr *MockServiceMockRecorder) UpdatePackageStatus(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdatePackageStatus", reflect.TypeOf((*MockService)(nil).UpdatePackageStatus), arg0, arg1, arg2)
+}

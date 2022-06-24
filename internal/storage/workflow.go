@@ -112,17 +112,23 @@ func copyToPermanentLocation(ctx context.Context, storagesvc Service, AIPID, loc
 
 func (w *StorageMoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req StorageMoveWorkflowRequest) error {
 	// XXX: how do we get a regular context from the temporal one?
-	childContext := context.Background()
-	err := copyToPermanentLocation(childContext, w.storagesvc, req.AIPID, req.Location)
+	childCtx := context.Background()
+	err := copyToPermanentLocation(childCtx, w.storagesvc, req.AIPID, req.Location)
 	if err != nil {
 		return err
 	}
 
-	// XXX: add activity to delete package.Object from s.bucket
-	// XXX: add local activity to set storage package location to req.Location
-	//      err = s.updatePackageLocation(ctx, req.Location, req.AIPID)
-	// XXX: add local activity to set storage package status to Stored
-	//      err = s.updatePackageStatus(ctx, StatusStored, req.AIPID)
+	// XXX: should we delete the package from the internal aips bucket here?
+
+	err = w.storagesvc.UpdatePackageLocation(childCtx, req.Location, req.AIPID)
+	if err != nil {
+		return err
+	}
+
+	err = w.storagesvc.UpdatePackageStatus(childCtx, StatusStored, req.AIPID)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
