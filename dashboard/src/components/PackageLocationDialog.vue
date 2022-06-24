@@ -1,11 +1,13 @@
 <script setup lang="ts">
+import useEventListener from "@/composables/useEventListener";
 import { useStorageStore } from "@/stores/storage";
 import Modal from "bootstrap/js/dist/modal";
 import { ref, onMounted } from "vue";
-import { closeDialog as cd } from "vue3-promise-dialog";
+import { closeDialog } from "vue3-promise-dialog";
 
 const el = ref<HTMLElement | null>(null);
 const modal = ref<Modal | null>(null);
+
 const storageStore = useStorageStore();
 storageStore.fetchLocations();
 
@@ -15,17 +17,15 @@ onMounted(() => {
   modal.value.show();
 });
 
-const closeDialog = (data?: any) => {
-  modal.value?.hide();
-  cd(data ? data : null);
-};
+let data: string | null = null;
+
+useEventListener(el, "hidden.bs.modal", (e) => {
+  closeDialog(data);
+});
 
 const onChoose = (locationName: string) => {
-  closeDialog(locationName);
-};
-
-const onClose = () => {
-  closeDialog();
+  data = locationName;
+  modal.value?.hide();
 };
 </script>
 
@@ -56,7 +56,11 @@ const onClose = () => {
           </table>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" @click="onClose">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+          >
             Close
           </button>
         </div>
