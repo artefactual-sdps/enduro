@@ -429,8 +429,31 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 		}
 	}
 
-	// TODO: move to reject or permanent.
 	if review.Accepted {
+		// Move package to permanent storage
+		{
+			activityOpts := withActivityOptsForRequest(sessCtx)
+			err := temporalsdk_workflow.ExecuteActivity(activityOpts, activities.MoveToPermanentStorageActivityName, &activities.MoveToPermanentStorageActivityParams{
+				AIPID: tinfo.SIPID,
+				// XXX: change review to a struct that contains the location the user selected
+				Location: "perma-aips-1",
+			}).Get(activityOpts, nil)
+			if err != nil {
+				return err
+			}
+		}
+
+		// Poll package move to permanent storage
+		{
+			activityOpts := withActivityOptsForLongLivedRequest(sessCtx)
+			err := temporalsdk_workflow.ExecuteActivity(activityOpts, activities.PollMoveToPermanentStorageActivityName, &activities.PollMoveToPermanentStorageActivityParams{
+				AIPID: tinfo.SIPID,
+			}).Get(activityOpts, nil)
+			if err != nil {
+				return err
+			}
+		}
+
 		// Index content in OpenSearch.
 		{
 			if tinfo.Bundle != (activities.BundleActivityResult{}) {
@@ -444,6 +467,8 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 				}
 			}
 		}
+	} else {
+		// XXX: update SS package status to rejected
 	}
 
 	return nil
