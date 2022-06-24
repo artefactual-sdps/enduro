@@ -154,7 +154,7 @@ func InitStorageMoveWorkflow(ctx context.Context, tc temporalsdk_client.Client, 
 	opts := temporalsdk_client.StartWorkflowOptions{
 		ID:                    fmt.Sprintf("%s-%s", StorageMoveWorkflowName, req.AIPID),
 		TaskQueue:             temporal.GlobalTaskQueue,
-		WorkflowIDReusePolicy: temporalsdk_api_enums.WORKFLOW_ID_REUSE_POLICY_REJECT_DUPLICATE,
+		WorkflowIDReusePolicy: temporalsdk_api_enums.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE_FAILED_ONLY,
 	}
 	exec, err := tc.ExecuteWorkflow(ctx, opts, StorageMoveWorkflowName, req)
 	if err != nil {
