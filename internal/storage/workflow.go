@@ -77,7 +77,6 @@ func (w *StorageMoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req Stor
 		_ = f.Get(ctx, nil)
 	})
 	selector.Select(ctx)
-	// XXX: modify minio-setup-buckets-job.yaml to include location buckets?
 	// XXX: add activity to copy package.ObjectKey from s.bucket to req.Location
 	// XXX: add activity to delete package.Object from s.bucket
 	// XXX: add local activity to set storage package location to req.Location
