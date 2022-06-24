@@ -22,6 +22,12 @@ type BulkRequestBody struct {
 	Size      uint   `form:"size" json:"size" xml:"size"`
 }
 
+// ConfirmRequestBody is the type of the "package" service "confirm" endpoint
+// HTTP request body.
+type ConfirmRequestBody struct {
+	Location string `form:"location" json:"location" xml:"location"`
+}
+
 // MonitorResponseBody is the type of the "package" service "monitor" endpoint
 // HTTP response body.
 type MonitorResponseBody struct {
@@ -361,6 +367,15 @@ func NewBulkRequestBody(p *package_.BulkPayload) *BulkRequestBody {
 		if body.Size == zero {
 			body.Size = 100
 		}
+	}
+	return body
+}
+
+// NewConfirmRequestBody builds the HTTP request body from the payload of the
+// "confirm" endpoint of the "package" service.
+func NewConfirmRequestBody(p *package_.ConfirmPayload) *ConfirmRequestBody {
+	body := &ConfirmRequestBody{
+		Location: p.Location,
 	}
 	return body
 }

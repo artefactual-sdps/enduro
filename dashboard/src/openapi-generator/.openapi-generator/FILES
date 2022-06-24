@@ -23,6 +23,7 @@ models/PackageCancelNotFoundResponseBody.ts
 models/PackageCancelNotRunningResponseBody.ts
 models/PackageConfirmNotAvailableResponseBody.ts
 models/PackageConfirmNotValidResponseBody.ts
+models/PackageConfirmRequestBody.ts
 models/PackageDeleteNotFoundResponseBody.ts
 models/PackageListResponseBody.ts
 models/PackageMonitorResponseBody.ts

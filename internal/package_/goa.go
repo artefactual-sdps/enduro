@@ -405,6 +405,7 @@ func (w *goaWrapper) Confirm(ctx context.Context, payload *goapackage.ConfirmPay
 
 	signal := ReviewPerformedSignal{
 		Accepted: true,
+		Location: &payload.Location,
 	}
 	err = w.tc.SignalWorkflow(ctx, *goapkg.WorkflowID, "", ReviewPerformedSignalName, signal)
 	if err != nil {

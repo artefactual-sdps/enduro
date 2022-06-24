@@ -35,14 +35,14 @@ storage (submit|update|download|list|move|move-status)
 // UsageExamples produces an example of a valid invocation of the CLI tool.
 func UsageExamples() string {
 	return os.Args[0] + ` batch submit --body '{
-      "completed_dir": "Praesentium incidunt necessitatibus accusantium doloribus corrupti enim.",
-      "path": "Sit in laudantium consequatur ducimus quis placeat.",
-      "retention_period": "Nihil voluptatem et numquam consequatur fuga nisi."
+      "completed_dir": "In laudantium consequatur ducimus quis.",
+      "path": "Nesciunt reiciendis tempore ut dignissimos.",
+      "retention_period": "Minus praesentium."
    }'` + "\n" +
 		os.Args[0] + ` package monitor` + "\n" +
 		os.Args[0] + ` storage submit --body '{
-      "name": "Totam atque."
-   }' --aip-id "Quibusdam vitae ut."` + "\n" +
+      "name": "Nesciunt qui est provident fuga aut consequatur."
+   }' --aip-id "Et non voluptatem et velit."` + "\n" +
 		""
 }
 
@@ -102,8 +102,9 @@ func ParseEndpoint(
 		package_PreservationActionsFlags  = flag.NewFlagSet("preservation-actions", flag.ExitOnError)
 		package_PreservationActionsIDFlag = package_PreservationActionsFlags.String("id", "REQUIRED", "Identifier of package to look up")
 
-		package_ConfirmFlags  = flag.NewFlagSet("confirm", flag.ExitOnError)
-		package_ConfirmIDFlag = package_ConfirmFlags.String("id", "REQUIRED", "Identifier of package to look up")
+		package_ConfirmFlags    = flag.NewFlagSet("confirm", flag.ExitOnError)
+		package_ConfirmBodyFlag = package_ConfirmFlags.String("body", "REQUIRED", "")
+		package_ConfirmIDFlag   = package_ConfirmFlags.String("id", "REQUIRED", "Identifier of package to look up")
 
 		package_RejectFlags  = flag.NewFlagSet("reject", flag.ExitOnError)
 		package_RejectIDFlag = package_RejectFlags.String("id", "REQUIRED", "Identifier of package to look up")
@@ -335,7 +336,7 @@ func ParseEndpoint(
 				data, err = package_c.BuildPreservationActionsPayload(*package_PreservationActionsIDFlag)
 			case "confirm":
 				endpoint = c.Confirm()
-				data, err = package_c.BuildConfirmPayload(*package_ConfirmIDFlag)
+				data, err = package_c.BuildConfirmPayload(*package_ConfirmBodyFlag, *package_ConfirmIDFlag)
 			case "reject":
 				endpoint = c.Reject()
 				data, err = package_c.BuildRejectPayload(*package_RejectIDFlag)
@@ -394,9 +395,9 @@ Submit a new batch
 
 Example:
     %[1]s batch submit --body '{
-      "completed_dir": "Praesentium incidunt necessitatibus accusantium doloribus corrupti enim.",
-      "path": "Sit in laudantium consequatur ducimus quis placeat.",
-      "retention_period": "Nihil voluptatem et numquam consequatur fuga nisi."
+      "completed_dir": "In laudantium consequatur ducimus quis.",
+      "path": "Nesciunt reiciendis tempore ut dignissimos.",
+      "retention_period": "Minus praesentium."
    }'
 `, os.Args[0])
 }
@@ -467,7 +468,7 @@ List all stored packages
     -cursor STRING: 
 
 Example:
-    %[1]s package list --name "Veniam ullam dicta rerum enim." --aip-id "4CCDE767-7648-444F-D09F-4B4FFE4EB36B" --earliest-created-time "2012-11-04T09:27:10Z" --latest-created-time "1970-11-18T16:04:15Z" --status "abandoned" --cursor "Doloribus in minima mollitia et optio."
+    %[1]s package list --name "Pariatur et labore totam harum." --aip-id "4CCDE767-7648-444F-D09F-4B4FFE4EB36B" --earliest-created-time "1983-03-24T18:13:30Z" --latest-created-time "1989-05-24T14:37:08Z" --status "abandoned" --cursor "Asperiores cum aliquid aut impedit tenetur iure."
 `, os.Args[0])
 }
 
@@ -478,7 +479,7 @@ Show package by ID
     -id UINT: Identifier of package to show
 
 Example:
-    %[1]s package show --id 14088201212033625334
+    %[1]s package show --id 16226413424839125038
 `, os.Args[0])
 }
 
@@ -489,7 +490,7 @@ Delete package by ID
     -id UINT: Identifier of package to delete
 
 Example:
-    %[1]s package delete --id 13449499894847559462
+    %[1]s package delete --id 10713203392724464608
 `, os.Args[0])
 }
 
@@ -500,7 +501,7 @@ Cancel package processing by ID
     -id UINT: Identifier of package to remove
 
 Example:
-    %[1]s package cancel --id 9738225148411363728
+    %[1]s package cancel --id 16265995649010858738
 `, os.Args[0])
 }
 
@@ -511,7 +512,7 @@ Retry package processing by ID
     -id UINT: Identifier of package to retry
 
 Example:
-    %[1]s package retry --id 7046851762324585684
+    %[1]s package retry --id 2942106513154595060
 `, os.Args[0])
 }
 
@@ -522,7 +523,7 @@ Retrieve workflow status by ID
     -id UINT: Identifier of package to look up
 
 Example:
-    %[1]s package workflow --id 776285361058552077
+    %[1]s package workflow --id 13958385186974344721
 `, os.Args[0])
 }
 
@@ -535,8 +536,8 @@ Bulk operations (retry, cancel...).
 Example:
     %[1]s package bulk --body '{
       "operation": "retry",
-      "size": 16832046131746849752,
-      "status": "in progress"
+      "size": 13733910633092730650,
+      "status": "done"
    }'
 `, os.Args[0])
 }
@@ -558,18 +559,21 @@ List all preservation actions by ID
     -id UINT: Identifier of package to look up
 
 Example:
-    %[1]s package preservation-actions --id 13761428402712395782
+    %[1]s package preservation-actions --id 11970900180965159798
 `, os.Args[0])
 }
 
 func package_ConfirmUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] package confirm -id UINT
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] package confirm -body JSON -id UINT
 
 Signal the package has been reviewed and accepted
+    -body JSON: 
     -id UINT: Identifier of package to look up
 
 Example:
-    %[1]s package confirm --id 15289935602122708024
+    %[1]s package confirm --body '{
+      "location": "Et dignissimos explicabo soluta et autem id."
+   }' --id 8102857567907469695
 `, os.Args[0])
 }
 
@@ -580,7 +584,7 @@ Signal the package has been reviewed and rejected
     -id UINT: Identifier of package to look up
 
 Example:
-    %[1]s package reject --id 1523714123306093090
+    %[1]s package reject --id 15579105168412297244
 `, os.Args[0])
 }
 
@@ -611,8 +615,8 @@ Start the submission of a package
 
 Example:
     %[1]s storage submit --body '{
-      "name": "Totam atque."
-   }' --aip-id "Quibusdam vitae ut."
+      "name": "Nesciunt qui est provident fuga aut consequatur."
+   }' --aip-id "Et non voluptatem et velit."
 `, os.Args[0])
 }
 
@@ -623,7 +627,7 @@ Signal the storage service that an upload is complete
     -aip-id STRING: 
 
 Example:
-    %[1]s storage update --aip-id "Dolorem nesciunt recusandae qui optio sed consectetur."
+    %[1]s storage update --aip-id "Vitae ut voluptas aut id."
 `, os.Args[0])
 }
 
@@ -634,7 +638,7 @@ Download package by AIPID
     -aip-id STRING: 
 
 Example:
-    %[1]s storage download --aip-id "Necessitatibus ipsam alias molestias."
+    %[1]s storage download --aip-id "Dolor dolorum."
 `, os.Args[0])
 }
 
@@ -657,8 +661,8 @@ Move a package to a permanent storage location
 
 Example:
     %[1]s storage move --body '{
-      "location": "Placeat iste sapiente et consequatur."
-   }' --aip-id "Enim consequuntur debitis temporibus."
+      "location": "Tempora voluptatem rerum."
+   }' --aip-id "Dicta eum consequatur."
 `, os.Args[0])
 }
 
@@ -669,6 +673,6 @@ Retrieve the status of a permanent storage location move of the package
     -aip-id STRING: 
 
 Example:
-    %[1]s storage move-status --aip-id "Deserunt vel reiciendis rerum quia."
+    %[1]s storage move-status --aip-id "Id animi et."
 `, os.Args[0])
 }

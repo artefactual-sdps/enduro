@@ -844,6 +844,22 @@ func (c *Client) BuildConfirmRequest(ctx context.Context, v interface{}) (*http.
 	return req, nil
 }
 
+// EncodeConfirmRequest returns an encoder for requests sent to the package
+// confirm server.
+func EncodeConfirmRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, interface{}) error {
+	return func(req *http.Request, v interface{}) error {
+		p, ok := v.(*package_.ConfirmPayload)
+		if !ok {
+			return goahttp.ErrInvalidType("package", "confirm", "*package_.ConfirmPayload", v)
+		}
+		body := NewConfirmRequestBody(p)
+		if err := encoder(req).Encode(&body); err != nil {
+			return goahttp.ErrEncodingError("package", "confirm", err)
+		}
+		return nil
+	}
+}
+
 // DecodeConfirmResponse returns a decoder for responses returned by the
 // package confirm endpoint. restoreBody controls whether the response body
 // should be restored after having been read.

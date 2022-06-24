@@ -23,6 +23,7 @@ const (
 
 type ReviewPerformedSignal struct {
 	Accepted bool
+	Location *string
 }
 
 type ProcessingWorkflowRequest struct {

@@ -623,8 +623,23 @@ func EncodeConfirmResponse(encoder func(context.Context, http.ResponseWriter) go
 func DecodeConfirmRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (interface{}, error) {
 	return func(r *http.Request) (interface{}, error) {
 		var (
-			id  uint
-			err error
+			body ConfirmRequestBody
+			err  error
+		)
+		err = decoder(r).Decode(&body)
+		if err != nil {
+			if err == io.EOF {
+				return nil, goa.MissingPayloadError()
+			}
+			return nil, goa.DecodePayloadError(err.Error())
+		}
+		err = ValidateConfirmRequestBody(&body)
+		if err != nil {
+			return nil, err
+		}
+
+		var (
+			id uint
 
 			params = mux.Vars(r)
 		)
@@ -639,7 +654,7 @@ func DecodeConfirmRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp
 		if err != nil {
 			return nil, err
 		}
-		payload := NewConfirmPayload(id)
+		payload := NewConfirmPayload(&body, id)
 
 		return payload, nil
 	}

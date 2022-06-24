@@ -18,6 +18,7 @@ export * from './PackageCancelNotFoundResponseBody';
 export * from './PackageCancelNotRunningResponseBody';
 export * from './PackageConfirmNotAvailableResponseBody';
 export * from './PackageConfirmNotValidResponseBody';
+export * from './PackageConfirmRequestBody';
 export * from './PackageDeleteNotFoundResponseBody';
 export * from './PackageListResponseBody';
 export * from './PackageMonitorResponseBody';
