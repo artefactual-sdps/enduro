@@ -65,6 +65,38 @@ var _ = Service("storage", func() {
 			Response(StatusOK)
 		})
 	})
+	Method("move", func() {
+		Description("Move a package to a permanent storage location")
+		Payload(func() {
+			Attribute("aip_id", String)
+			Attribute("location", String)
+			Required("aip_id", "location")
+		})
+		Error("not_found", StoragePackageNotFound, "Storage package not found")
+		Error("not_available")
+		Error("not_valid")
+		HTTP(func() {
+			POST("/{aip_id}/store")
+			Response(StatusAccepted)
+			Response("not_found", StatusNotFound)
+			Response("not_available", StatusConflict)
+			Response("not_valid", StatusBadRequest)
+		})
+	})
+	Method("move_status", func() {
+		Description("Retrieve the status of a permanent storage location move of the package")
+		Payload(func() {
+			Attribute("aip_id", String)
+			Required("aip_id")
+		})
+		Result(MoveStatusResult)
+		Error("not_found", StoragePackageNotFound, "Storage package not found")
+		HTTP(func() {
+			GET("/{aip_id}/store")
+			Response(StatusOK)
+			Response("not_found", StatusNotFound)
+		})
+	})
 })
 
 var SubmitResult = Type("SubmitResult", func() {
@@ -102,4 +134,9 @@ var StoredLocation = ResultType("application/vnd.cellar.stored-location", func()
 var Location = Type("Location", func() {
 	Description("Location describes a physical entity used to store AIPs.")
 	Attribute("name", String, "Name of location")
+})
+
+var MoveStatusResult = Type("MoveStatusResult", func() {
+	Attribute("done", Boolean)
+	Required("done")
 })

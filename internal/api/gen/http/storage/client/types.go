@@ -20,6 +20,12 @@ type SubmitRequestBody struct {
 	Name string `form:"name" json:"name" xml:"name"`
 }
 
+// MoveRequestBody is the type of the "storage" service "move" endpoint HTTP
+// request body.
+type MoveRequestBody struct {
+	Location string `form:"location" json:"location" xml:"location"`
+}
+
 // SubmitResponseBody is the type of the "storage" service "submit" endpoint
 // HTTP response body.
 type SubmitResponseBody struct {
@@ -29,6 +35,12 @@ type SubmitResponseBody struct {
 // ListResponseBody is the type of the "storage" service "list" endpoint HTTP
 // response body.
 type ListResponseBody []*StoredLocationResponse
+
+// MoveStatusResponseBody is the type of the "storage" service "move_status"
+// endpoint HTTP response body.
+type MoveStatusResponseBody struct {
+	Done *bool `form:"done,omitempty" json:"done,omitempty" xml:"done,omitempty"`
+}
 
 // SubmitNotAvailableResponseBody is the type of the "storage" service "submit"
 // endpoint HTTP response body for the "not_available" error.
@@ -111,6 +123,60 @@ type DownloadNotFoundResponseBody struct {
 	AipID *string `form:"aip_id,omitempty" json:"aip_id,omitempty" xml:"aip_id,omitempty"`
 }
 
+// MoveNotAvailableResponseBody is the type of the "storage" service "move"
+// endpoint HTTP response body for the "not_available" error.
+type MoveNotAvailableResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
+// MoveNotValidResponseBody is the type of the "storage" service "move"
+// endpoint HTTP response body for the "not_valid" error.
+type MoveNotValidResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
+// MoveNotFoundResponseBody is the type of the "storage" service "move"
+// endpoint HTTP response body for the "not_found" error.
+type MoveNotFoundResponseBody struct {
+	// Message of error
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Identifier of missing package
+	AipID *string `form:"aip_id,omitempty" json:"aip_id,omitempty" xml:"aip_id,omitempty"`
+}
+
+// MoveStatusNotFoundResponseBody is the type of the "storage" service
+// "move_status" endpoint HTTP response body for the "not_found" error.
+type MoveStatusNotFoundResponseBody struct {
+	// Message of error
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Identifier of missing package
+	AipID *string `form:"aip_id,omitempty" json:"aip_id,omitempty" xml:"aip_id,omitempty"`
+}
+
 // StoredLocationResponse is used to define fields on response body types.
 type StoredLocationResponse struct {
 	// ID is the unique id of the location.
@@ -124,6 +190,15 @@ type StoredLocationResponse struct {
 func NewSubmitRequestBody(p *storage.SubmitPayload) *SubmitRequestBody {
 	body := &SubmitRequestBody{
 		Name: p.Name,
+	}
+	return body
+}
+
+// NewMoveRequestBody builds the HTTP request body from the payload of the
+// "move" endpoint of the "storage" service.
+func NewMoveRequestBody(p *storage.MovePayload) *MoveRequestBody {
+	body := &MoveRequestBody{
+		Location: p.Location,
 	}
 	return body
 }
@@ -218,10 +293,79 @@ func NewListStoredLocationCollectionOK(body ListResponseBody) storageviews.Store
 	return v
 }
 
+// NewMoveNotAvailable builds a storage service move endpoint not_available
+// error.
+func NewMoveNotAvailable(body *MoveNotAvailableResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
+// NewMoveNotValid builds a storage service move endpoint not_valid error.
+func NewMoveNotValid(body *MoveNotValidResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
+// NewMoveNotFound builds a storage service move endpoint not_found error.
+func NewMoveNotFound(body *MoveNotFoundResponseBody) *storage.StoragePackageNotfound {
+	v := &storage.StoragePackageNotfound{
+		Message: *body.Message,
+		AipID:   *body.AipID,
+	}
+
+	return v
+}
+
+// NewMoveStatusResultOK builds a "storage" service "move_status" endpoint
+// result from a HTTP "OK" response.
+func NewMoveStatusResultOK(body *MoveStatusResponseBody) *storage.MoveStatusResult {
+	v := &storage.MoveStatusResult{
+		Done: *body.Done,
+	}
+
+	return v
+}
+
+// NewMoveStatusNotFound builds a storage service move_status endpoint
+// not_found error.
+func NewMoveStatusNotFound(body *MoveStatusNotFoundResponseBody) *storage.StoragePackageNotfound {
+	v := &storage.StoragePackageNotfound{
+		Message: *body.Message,
+		AipID:   *body.AipID,
+	}
+
+	return v
+}
+
 // ValidateSubmitResponseBody runs the validations defined on SubmitResponseBody
 func ValidateSubmitResponseBody(body *SubmitResponseBody) (err error) {
 	if body.URL == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("url", "body"))
+	}
+	return
+}
+
+// ValidateMoveStatusResponseBody runs the validations defined on
+// move_status_response_body
+func ValidateMoveStatusResponseBody(body *MoveStatusResponseBody) (err error) {
+	if body.Done == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("done", "body"))
 	}
 	return
 }
@@ -325,6 +469,78 @@ func ValidateUpdateNotValidResponseBody(body *UpdateNotValidResponseBody) (err e
 // ValidateDownloadNotFoundResponseBody runs the validations defined on
 // download_not_found_response_body
 func ValidateDownloadNotFoundResponseBody(body *DownloadNotFoundResponseBody) (err error) {
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.AipID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("aip_id", "body"))
+	}
+	return
+}
+
+// ValidateMoveNotAvailableResponseBody runs the validations defined on
+// move_not_available_response_body
+func ValidateMoveNotAvailableResponseBody(body *MoveNotAvailableResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
+// ValidateMoveNotValidResponseBody runs the validations defined on
+// move_not_valid_response_body
+func ValidateMoveNotValidResponseBody(body *MoveNotValidResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
+// ValidateMoveNotFoundResponseBody runs the validations defined on
+// move_not_found_response_body
+func ValidateMoveNotFoundResponseBody(body *MoveNotFoundResponseBody) (err error) {
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.AipID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("aip_id", "body"))
+	}
+	return
+}
+
+// ValidateMoveStatusNotFoundResponseBody runs the validations defined on
+// move_status_not_found_response_body
+func ValidateMoveStatusNotFoundResponseBody(body *MoveStatusNotFoundResponseBody) (err error) {
 	if body.Message == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
 	}

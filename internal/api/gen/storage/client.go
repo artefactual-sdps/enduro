@@ -16,19 +16,23 @@ import (
 
 // Client is the "storage" service client.
 type Client struct {
-	SubmitEndpoint   goa.Endpoint
-	UpdateEndpoint   goa.Endpoint
-	DownloadEndpoint goa.Endpoint
-	ListEndpoint     goa.Endpoint
+	SubmitEndpoint     goa.Endpoint
+	UpdateEndpoint     goa.Endpoint
+	DownloadEndpoint   goa.Endpoint
+	ListEndpoint       goa.Endpoint
+	MoveEndpoint       goa.Endpoint
+	MoveStatusEndpoint goa.Endpoint
 }
 
 // NewClient initializes a "storage" service client given the endpoints.
-func NewClient(submit, update, download, list goa.Endpoint) *Client {
+func NewClient(submit, update, download, list, move, moveStatus goa.Endpoint) *Client {
 	return &Client{
-		SubmitEndpoint:   submit,
-		UpdateEndpoint:   update,
-		DownloadEndpoint: download,
-		ListEndpoint:     list,
+		SubmitEndpoint:     submit,
+		UpdateEndpoint:     update,
+		DownloadEndpoint:   download,
+		ListEndpoint:       list,
+		MoveEndpoint:       move,
+		MoveStatusEndpoint: moveStatus,
 	}
 }
 
@@ -79,4 +83,28 @@ func (c *Client) List(ctx context.Context) (res StoredLocationCollection, err er
 		return
 	}
 	return ires.(StoredLocationCollection), nil
+}
+
+// Move calls the "move" endpoint of the "storage" service.
+// Move may return the following errors:
+//	- "not_found" (type *StoragePackageNotfound): Storage package not found
+//	- "not_available" (type *goa.ServiceError)
+//	- "not_valid" (type *goa.ServiceError)
+//	- error: internal error
+func (c *Client) Move(ctx context.Context, p *MovePayload) (err error) {
+	_, err = c.MoveEndpoint(ctx, p)
+	return
+}
+
+// MoveStatus calls the "move_status" endpoint of the "storage" service.
+// MoveStatus may return the following errors:
+//	- "not_found" (type *StoragePackageNotfound): Storage package not found
+//	- error: internal error
+func (c *Client) MoveStatus(ctx context.Context, p *MoveStatusPayload) (res *MoveStatusResult, err error) {
+	var ires interface{}
+	ires, err = c.MoveStatusEndpoint(ctx, p)
+	if err != nil {
+		return
+	}
+	return ires.(*MoveStatusResult), nil
 }

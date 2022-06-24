@@ -17,10 +17,12 @@ import (
 
 // StorageService implements goastorage.Service.
 type StorageService struct {
-	SubmitHandler   func(ctx context.Context, req *goastorage.SubmitPayload) (res *goastorage.SubmitResult, err error)
-	UpdateHandler   func(ctx context.Context, req *goastorage.UpdatePayload) (err error)
-	DownloadHandler func(ctx context.Context, req *goastorage.DownloadPayload) (res []byte, err error)
-	ListHandler     func(ctx context.Context) (res goastorage.StoredLocationCollection, err error)
+	SubmitHandler     func(ctx context.Context, req *goastorage.SubmitPayload) (res *goastorage.SubmitResult, err error)
+	UpdateHandler     func(ctx context.Context, req *goastorage.UpdatePayload) (err error)
+	DownloadHandler   func(ctx context.Context, req *goastorage.DownloadPayload) (res []byte, err error)
+	ListHandler       func(ctx context.Context) (res goastorage.StoredLocationCollection, err error)
+	MoveHandler       func(ctx context.Context, req *goastorage.MovePayload) (err error)
+	MoveStatusHandler func(ctx context.Context, req *goastorage.MoveStatusPayload) (res *goastorage.MoveStatusResult, err error)
 }
 
 func (s StorageService) Submit(ctx context.Context, req *goastorage.SubmitPayload) (res *goastorage.SubmitResult, err error) {
@@ -37,6 +39,14 @@ func (s StorageService) Download(ctx context.Context, req *goastorage.DownloadPa
 
 func (s StorageService) List(ctx context.Context) (res goastorage.StoredLocationCollection, err error) {
 	return s.ListHandler(ctx)
+}
+
+func (s StorageService) Move(ctx context.Context, req *goastorage.MovePayload) (err error) {
+	return s.MoveHandler(ctx, req)
+}
+
+func (s StorageService) MoveStatus(ctx context.Context, req *goastorage.MoveStatusPayload) (res *goastorage.MoveStatusResult, err error) {
+	return s.MoveStatusHandler(ctx, req)
 }
 
 func MinIOUploadPreSignedURLHandler(t *testing.T) func(rw http.ResponseWriter, req *http.Request) {
@@ -70,6 +80,8 @@ func TestUploadActivity(t *testing.T) {
 			endpoints.Update,
 			endpoints.Download,
 			endpoints.List,
+			endpoints.Move,
+			endpoints.MoveStatus,
 		)
 
 		tmpDir := fs.NewDir(t, "", fs.WithFile("aip.7z", "contents-of-the-aip"))
@@ -105,6 +117,8 @@ func TestUploadActivity(t *testing.T) {
 			endpoints.Update,
 			endpoints.Download,
 			endpoints.List,
+			endpoints.Move,
+			endpoints.MoveStatus,
 		)
 
 		tmpDir := fs.NewDir(t, "", fs.WithFile("aip.7z", "contents-of-the-aip"))

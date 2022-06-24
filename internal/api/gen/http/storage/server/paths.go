@@ -31,3 +31,13 @@ func DownloadStoragePath(aipID string) string {
 func ListStoragePath() string {
 	return "/storage/location"
 }
+
+// MoveStoragePath returns the URL path to the storage service move HTTP endpoint.
+func MoveStoragePath(aipID string) string {
+	return fmt.Sprintf("/storage/%v/store", aipID)
+}
+
+// MoveStatusStoragePath returns the URL path to the storage service move_status HTTP endpoint.
+func MoveStatusStoragePath(aipID string) string {
+	return fmt.Sprintf("/storage/%v/store", aipID)
+}

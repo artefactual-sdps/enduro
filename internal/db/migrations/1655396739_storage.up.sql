@@ -2,7 +2,7 @@ CREATE TABLE storage_package (
   `id` INT UNSIGNED AUTO_INCREMENT NOT NULL,
   `name` VARCHAR(2048) NOT NULL,
   `aip_id` VARCHAR(36) NOT NULL,
-  `status` TINYINT NOT NULL, -- {review, rejected, permanent}
+  `status` TINYINT NOT NULL, -- {in_review, rejected, stored}
   `object_key` VARCHAR(36) NOT NULL,
   `location` VARCHAR(2048) NOT NULL,
   PRIMARY KEY (`id`),

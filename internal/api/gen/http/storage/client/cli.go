@@ -23,7 +23,7 @@ func BuildSubmitPayload(storageSubmitBody string, storageSubmitAipID string) (*s
 	{
 		err = json.Unmarshal([]byte(storageSubmitBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"name\": \"Omnis quisquam ad consequuntur.\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"name\": \"Totam atque.\"\n   }'")
 		}
 	}
 	var aipID string
@@ -59,6 +59,42 @@ func BuildDownloadPayload(storageDownloadAipID string) (*storage.DownloadPayload
 		aipID = storageDownloadAipID
 	}
 	v := &storage.DownloadPayload{}
+	v.AipID = aipID
+
+	return v, nil
+}
+
+// BuildMovePayload builds the payload for the storage move endpoint from CLI
+// flags.
+func BuildMovePayload(storageMoveBody string, storageMoveAipID string) (*storage.MovePayload, error) {
+	var err error
+	var body MoveRequestBody
+	{
+		err = json.Unmarshal([]byte(storageMoveBody), &body)
+		if err != nil {
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location\": \"Placeat iste sapiente et consequatur.\"\n   }'")
+		}
+	}
+	var aipID string
+	{
+		aipID = storageMoveAipID
+	}
+	v := &storage.MovePayload{
+		Location: body.Location,
+	}
+	v.AipID = aipID
+
+	return v, nil
+}
+
+// BuildMoveStatusPayload builds the payload for the storage move_status
+// endpoint from CLI flags.
+func BuildMoveStatusPayload(storageMoveStatusAipID string) (*storage.MoveStatusPayload, error) {
+	var aipID string
+	{
+		aipID = storageMoveStatusAipID
+	}
+	v := &storage.MoveStatusPayload{}
 	v.AipID = aipID
 
 	return v, nil
