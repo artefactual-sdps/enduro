@@ -26,6 +26,43 @@ import (
 
 var submitURLExpirationTime = 15 * time.Minute
 
+type Location interface {
+	Name() string
+	OpenBucket() (*blob.Bucket, error)
+}
+
+type locationImpl struct {
+	name   string
+	config LocationConfig
+}
+
+func (l *locationImpl) Name() string {
+	return l.name
+}
+func (l *locationImpl) OpenBucket() (*blob.Bucket, error) {
+	sessOpts := session.Options{}
+	sessOpts.Config.WithRegion(l.config.Region)
+	sessOpts.Config.WithEndpoint(l.config.Endpoint)
+	sessOpts.Config.WithS3ForcePathStyle(l.config.PathStyle)
+	sessOpts.Config.WithCredentials(
+		credentials.NewStaticCredentials(
+			l.config.Key, l.config.Secret, l.config.Token,
+		),
+	)
+	sess, err := session.NewSessionWithOptions(sessOpts)
+	if err != nil {
+		return nil, err
+	}
+	return s3blob.OpenBucket(context.Background(), sess, l.config.Bucket, nil)
+}
+
+func NewLocation(config LocationConfig) Location {
+	return &locationImpl{
+		name:   config.Name,
+		config: config,
+	}
+}
+
 type Service interface {
 	Submit(context.Context, *goastorage.SubmitPayload) (res *goastorage.SubmitResult, err error)
 	Update(context.Context, *goastorage.UpdatePayload) (err error)
@@ -36,11 +73,12 @@ type Service interface {
 }
 
 type serviceImpl struct {
-	logger logr.Logger
-	db     *sqlx.DB
-	tc     temporalsdk_client.Client
-	config Config
-	bucket *blob.Bucket
+	logger    logr.Logger
+	db        *sqlx.DB
+	tc        temporalsdk_client.Client
+	config    Config
+	bucket    *blob.Bucket
+	locations map[string]Location
 }
 
 var _ Service = (*serviceImpl)(nil)
@@ -58,6 +96,13 @@ func NewService(logger logr.Logger, db *sql.DB, tc temporalsdk_client.Client, co
 	if err != nil {
 		return nil, fmt.Errorf("error opening bucket: %v", err)
 	}
+
+	locations := map[string]Location{}
+	for _, item := range config.Locations {
+		l := NewLocation(item)
+		locations[item.Name] = l
+	}
+	s.locations = locations
 
 	return s, nil
 }
@@ -131,10 +176,10 @@ func (s *serviceImpl) Download(ctx context.Context, payload *goastorage.Download
 
 func (s *serviceImpl) List(context.Context) (goastorage.StoredLocationCollection, error) {
 	res := []*goastorage.StoredLocation{}
-	for _, item := range s.config.Locations {
+	for _, item := range s.locations {
 		l := &goastorage.StoredLocation{
-			ID:   item.Name,
-			Name: item.Name,
+			ID:   item.Name(),
+			Name: item.Name(),
 		}
 		res = append(res, l)
 	}
