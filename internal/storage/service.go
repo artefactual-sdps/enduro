@@ -39,6 +39,7 @@ type locationImpl struct {
 func (l *locationImpl) Name() string {
 	return l.name
 }
+
 func (l *locationImpl) OpenBucket() (*blob.Bucket, error) {
 	sessOpts := session.Options{}
 	sessOpts.Config.WithRegion(l.config.Region)
@@ -280,6 +281,22 @@ func (s *serviceImpl) updatePackageStatus(ctx context.Context, status PackageSta
 	_, err := s.db.ExecContext(ctx, query, args...)
 	if err != nil {
 		return fmt.Errorf("error updating package status: %w", err)
+	}
+
+	return nil
+}
+
+//nolint:deadcode,unused
+func (s *serviceImpl) updatePackageLocation(ctx context.Context, location string, aipID string) error {
+	query := `UPDATE storage_package SET location=? WHERE aip_id=?`
+	args := []interface{}{
+		location,
+		aipID,
+	}
+
+	_, err := s.db.ExecContext(ctx, query, args...)
+	if err != nil {
+		return fmt.Errorf("error updating package location: %w", err)
 	}
 
 	return nil
