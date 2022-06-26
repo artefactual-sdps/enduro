@@ -548,6 +548,105 @@ func DecodeMoveStatusResponse(decoder func(*http.Response) goahttp.Decoder, rest
 	}
 }
 
+// BuildRejectRequest instantiates a HTTP request object with method and path
+// set to call the "storage" service "reject" endpoint
+func (c *Client) BuildRejectRequest(ctx context.Context, v interface{}) (*http.Request, error) {
+	var (
+		aipID string
+	)
+	{
+		p, ok := v.(*storage.RejectPayload)
+		if !ok {
+			return nil, goahttp.ErrInvalidType("storage", "reject", "*storage.RejectPayload", v)
+		}
+		aipID = p.AipID
+	}
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: RejectStoragePath(aipID)}
+	req, err := http.NewRequest("POST", u.String(), nil)
+	if err != nil {
+		return nil, goahttp.ErrInvalidURL("storage", "reject", u.String(), err)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
+	return req, nil
+}
+
+// DecodeRejectResponse returns a decoder for responses returned by the storage
+// reject endpoint. restoreBody controls whether the response body should be
+// restored after having been read.
+// DecodeRejectResponse may return the following errors:
+//	- "not_available" (type *goa.ServiceError): http.StatusConflict
+//	- "not_valid" (type *goa.ServiceError): http.StatusBadRequest
+//	- "not_found" (type *storage.StoragePackageNotfound): http.StatusNotFound
+//	- error: internal error
+func DecodeRejectResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
+	return func(resp *http.Response) (interface{}, error) {
+		if restoreBody {
+			b, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = ioutil.NopCloser(bytes.NewBuffer(b))
+			defer func() {
+				resp.Body = ioutil.NopCloser(bytes.NewBuffer(b))
+			}()
+		} else {
+			defer resp.Body.Close()
+		}
+		switch resp.StatusCode {
+		case http.StatusAccepted:
+			return nil, nil
+		case http.StatusConflict:
+			var (
+				body RejectNotAvailableResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "reject", err)
+			}
+			err = ValidateRejectNotAvailableResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "reject", err)
+			}
+			return nil, NewRejectNotAvailable(&body)
+		case http.StatusBadRequest:
+			var (
+				body RejectNotValidResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "reject", err)
+			}
+			err = ValidateRejectNotValidResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "reject", err)
+			}
+			return nil, NewRejectNotValid(&body)
+		case http.StatusNotFound:
+			var (
+				body RejectNotFoundResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "reject", err)
+			}
+			err = ValidateRejectNotFoundResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "reject", err)
+			}
+			return nil, NewRejectNotFound(&body)
+		default:
+			body, _ := ioutil.ReadAll(resp.Body)
+			return nil, goahttp.ErrInvalidResponse("storage", "reject", resp.StatusCode, string(body))
+		}
+	}
+}
+
 // unmarshalStoredLocationResponseToStorageviewsStoredLocationView builds a
 // value of type *storageviews.StoredLocationView from a value of type
 // *StoredLocationResponse.

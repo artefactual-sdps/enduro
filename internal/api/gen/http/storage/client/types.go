@@ -177,6 +177,51 @@ type MoveStatusNotFoundResponseBody struct {
 	AipID *string `form:"aip_id,omitempty" json:"aip_id,omitempty" xml:"aip_id,omitempty"`
 }
 
+// RejectNotAvailableResponseBody is the type of the "storage" service "reject"
+// endpoint HTTP response body for the "not_available" error.
+type RejectNotAvailableResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
+// RejectNotValidResponseBody is the type of the "storage" service "reject"
+// endpoint HTTP response body for the "not_valid" error.
+type RejectNotValidResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
+// RejectNotFoundResponseBody is the type of the "storage" service "reject"
+// endpoint HTTP response body for the "not_found" error.
+type RejectNotFoundResponseBody struct {
+	// Message of error
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Identifier of missing package
+	AipID *string `form:"aip_id,omitempty" json:"aip_id,omitempty" xml:"aip_id,omitempty"`
+}
+
 // StoredLocationResponse is used to define fields on response body types.
 type StoredLocationResponse struct {
 	// ID is the unique id of the location.
@@ -345,6 +390,45 @@ func NewMoveStatusResultOK(body *MoveStatusResponseBody) *storage.MoveStatusResu
 // NewMoveStatusNotFound builds a storage service move_status endpoint
 // not_found error.
 func NewMoveStatusNotFound(body *MoveStatusNotFoundResponseBody) *storage.StoragePackageNotfound {
+	v := &storage.StoragePackageNotfound{
+		Message: *body.Message,
+		AipID:   *body.AipID,
+	}
+
+	return v
+}
+
+// NewRejectNotAvailable builds a storage service reject endpoint not_available
+// error.
+func NewRejectNotAvailable(body *RejectNotAvailableResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
+// NewRejectNotValid builds a storage service reject endpoint not_valid error.
+func NewRejectNotValid(body *RejectNotValidResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
+// NewRejectNotFound builds a storage service reject endpoint not_found error.
+func NewRejectNotFound(body *RejectNotFoundResponseBody) *storage.StoragePackageNotfound {
 	v := &storage.StoragePackageNotfound{
 		Message: *body.Message,
 		AipID:   *body.AipID,
@@ -541,6 +625,66 @@ func ValidateMoveNotFoundResponseBody(body *MoveNotFoundResponseBody) (err error
 // ValidateMoveStatusNotFoundResponseBody runs the validations defined on
 // move_status_not_found_response_body
 func ValidateMoveStatusNotFoundResponseBody(body *MoveStatusNotFoundResponseBody) (err error) {
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.AipID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("aip_id", "body"))
+	}
+	return
+}
+
+// ValidateRejectNotAvailableResponseBody runs the validations defined on
+// reject_not_available_response_body
+func ValidateRejectNotAvailableResponseBody(body *RejectNotAvailableResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
+// ValidateRejectNotValidResponseBody runs the validations defined on
+// reject_not_valid_response_body
+func ValidateRejectNotValidResponseBody(body *RejectNotValidResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
+// ValidateRejectNotFoundResponseBody runs the validations defined on
+// reject_not_found_response_body
+func ValidateRejectNotFoundResponseBody(body *RejectNotFoundResponseBody) (err error) {
 	if body.Message == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
 	}

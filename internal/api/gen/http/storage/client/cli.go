@@ -99,3 +99,16 @@ func BuildMoveStatusPayload(storageMoveStatusAipID string) (*storage.MoveStatusP
 
 	return v, nil
 }
+
+// BuildRejectPayload builds the payload for the storage reject endpoint from
+// CLI flags.
+func BuildRejectPayload(storageRejectAipID string) (*storage.RejectPayload, error) {
+	var aipID string
+	{
+		aipID = storageRejectAipID
+	}
+	v := &storage.RejectPayload{}
+	v.AipID = aipID
+
+	return v, nil
+}

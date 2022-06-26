@@ -97,6 +97,23 @@ var _ = Service("storage", func() {
 			Response("not_found", StatusNotFound)
 		})
 	})
+	Method("reject", func() {
+		Description("Reject a package")
+		Payload(func() {
+			Attribute("aip_id", String)
+			Required("aip_id")
+		})
+		Error("not_found", StoragePackageNotFound, "Storage package not found")
+		Error("not_available")
+		Error("not_valid")
+		HTTP(func() {
+			POST("/{aip_id}/reject")
+			Response(StatusAccepted)
+			Response("not_found", StatusNotFound)
+			Response("not_available", StatusConflict)
+			Response("not_valid", StatusBadRequest)
+		})
+	})
 })
 
 var SubmitResult = Type("SubmitResult", func() {

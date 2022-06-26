@@ -22,10 +22,11 @@ type Client struct {
 	ListEndpoint       goa.Endpoint
 	MoveEndpoint       goa.Endpoint
 	MoveStatusEndpoint goa.Endpoint
+	RejectEndpoint     goa.Endpoint
 }
 
 // NewClient initializes a "storage" service client given the endpoints.
-func NewClient(submit, update, download, list, move, moveStatus goa.Endpoint) *Client {
+func NewClient(submit, update, download, list, move, moveStatus, reject goa.Endpoint) *Client {
 	return &Client{
 		SubmitEndpoint:     submit,
 		UpdateEndpoint:     update,
@@ -33,6 +34,7 @@ func NewClient(submit, update, download, list, move, moveStatus goa.Endpoint) *C
 		ListEndpoint:       list,
 		MoveEndpoint:       move,
 		MoveStatusEndpoint: moveStatus,
+		RejectEndpoint:     reject,
 	}
 }
 
@@ -107,4 +109,15 @@ func (c *Client) MoveStatus(ctx context.Context, p *MoveStatusPayload) (res *Mov
 		return
 	}
 	return ires.(*MoveStatusResult), nil
+}
+
+// Reject calls the "reject" endpoint of the "storage" service.
+// Reject may return the following errors:
+//	- "not_found" (type *StoragePackageNotfound): Storage package not found
+//	- "not_available" (type *goa.ServiceError)
+//	- "not_valid" (type *goa.ServiceError)
+//	- error: internal error
+func (c *Client) Reject(ctx context.Context, p *RejectPayload) (err error) {
+	_, err = c.RejectEndpoint(ctx, p)
+	return
 }

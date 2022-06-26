@@ -28,16 +28,16 @@ import (
 func UsageCommands() string {
 	return `batch (submit|status|hints)
 package (monitor|list|show|delete|cancel|retry|workflow|bulk|bulk-status|preservation-actions|confirm|reject)
-storage (submit|update|download|list|move|move-status)
+storage (submit|update|download|list|move|move-status|reject)
 `
 }
 
 // UsageExamples produces an example of a valid invocation of the CLI tool.
 func UsageExamples() string {
 	return os.Args[0] + ` batch submit --body '{
-      "completed_dir": "In laudantium consequatur ducimus quis.",
-      "path": "Nesciunt reiciendis tempore ut dignissimos.",
-      "retention_period": "Minus praesentium."
+      "completed_dir": "Minus praesentium.",
+      "path": "In laudantium consequatur ducimus quis.",
+      "retention_period": "Necessitatibus accusantium doloribus corrupti enim."
    }'` + "\n" +
 		os.Args[0] + ` package monitor` + "\n" +
 		os.Args[0] + ` storage submit --body '{
@@ -129,6 +129,9 @@ func ParseEndpoint(
 
 		storageMoveStatusFlags     = flag.NewFlagSet("move-status", flag.ExitOnError)
 		storageMoveStatusAipIDFlag = storageMoveStatusFlags.String("aip-id", "REQUIRED", "")
+
+		storageRejectFlags     = flag.NewFlagSet("reject", flag.ExitOnError)
+		storageRejectAipIDFlag = storageRejectFlags.String("aip-id", "REQUIRED", "")
 	)
 	batchFlags.Usage = batchUsage
 	batchSubmitFlags.Usage = batchSubmitUsage
@@ -156,6 +159,7 @@ func ParseEndpoint(
 	storageListFlags.Usage = storageListUsage
 	storageMoveFlags.Usage = storageMoveUsage
 	storageMoveStatusFlags.Usage = storageMoveStatusUsage
+	storageRejectFlags.Usage = storageRejectUsage
 
 	if err := flag.CommandLine.Parse(os.Args[1:]); err != nil {
 		return nil, nil, err
@@ -266,6 +270,9 @@ func ParseEndpoint(
 			case "move-status":
 				epf = storageMoveStatusFlags
 
+			case "reject":
+				epf = storageRejectFlags
+
 			}
 
 		}
@@ -362,6 +369,9 @@ func ParseEndpoint(
 			case "move-status":
 				endpoint = c.MoveStatus()
 				data, err = storagec.BuildMoveStatusPayload(*storageMoveStatusAipIDFlag)
+			case "reject":
+				endpoint = c.Reject()
+				data, err = storagec.BuildRejectPayload(*storageRejectAipIDFlag)
 			}
 		}
 	}
@@ -395,9 +405,9 @@ Submit a new batch
 
 Example:
     %[1]s batch submit --body '{
-      "completed_dir": "In laudantium consequatur ducimus quis.",
-      "path": "Nesciunt reiciendis tempore ut dignissimos.",
-      "retention_period": "Minus praesentium."
+      "completed_dir": "Minus praesentium.",
+      "path": "In laudantium consequatur ducimus quis.",
+      "retention_period": "Necessitatibus accusantium doloribus corrupti enim."
    }'
 `, os.Args[0])
 }
@@ -468,7 +478,7 @@ List all stored packages
     -cursor STRING: 
 
 Example:
-    %[1]s package list --name "Pariatur et labore totam harum." --aip-id "4CCDE767-7648-444F-D09F-4B4FFE4EB36B" --earliest-created-time "1983-03-24T18:13:30Z" --latest-created-time "1989-05-24T14:37:08Z" --status "abandoned" --cursor "Asperiores cum aliquid aut impedit tenetur iure."
+    %[1]s package list --name "Totam harum repellat voluptatem." --aip-id "4CCDE767-7648-444F-D09F-4B4FFE4EB36B" --earliest-created-time "1970-06-30T01:49:40Z" --latest-created-time "2013-12-16T21:43:29Z" --status "new" --cursor "Impedit tenetur iure quam."
 `, os.Args[0])
 }
 
@@ -479,7 +489,7 @@ Show package by ID
     -id UINT: Identifier of package to show
 
 Example:
-    %[1]s package show --id 16226413424839125038
+    %[1]s package show --id 12762063473831794056
 `, os.Args[0])
 }
 
@@ -601,6 +611,7 @@ COMMAND:
     list: List locations
     move: Move a package to a permanent storage location
     move-status: Retrieve the status of a permanent storage location move of the package
+    reject: Reject a package
 
 Additional help:
     %[1]s storage COMMAND --help
@@ -674,5 +685,16 @@ Retrieve the status of a permanent storage location move of the package
 
 Example:
     %[1]s storage move-status --aip-id "Id animi et."
+`, os.Args[0])
+}
+
+func storageRejectUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage reject -aip-id STRING
+
+Reject a package
+    -aip-id STRING: 
+
+Example:
+    %[1]s storage reject --aip-id "Magnam recusandae laudantium quidem consequatur ducimus excepturi."
 `, os.Args[0])
 }

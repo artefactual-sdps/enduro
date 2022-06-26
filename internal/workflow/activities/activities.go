@@ -9,6 +9,7 @@ const (
 	DisposeOriginalActivityName            = "dispose-original-activity"
 	MoveToPermanentStorageActivityName     = "move-to-permanent-storage-activity"
 	PollMoveToPermanentStorageActivityName = "poll-move-to-permanent-storage-activity"
+	RejectPackageActivityName              = "reject-package-activity"
 	ValidateTransferActivityName           = "validate-transfer-activity"
 	UploadActivityName                     = "upload-activity"
 )
