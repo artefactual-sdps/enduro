@@ -29,6 +29,7 @@ import (
 	"github.com/artefactual-labs/enduro/internal/log"
 	"github.com/artefactual-labs/enduro/internal/package_"
 	"github.com/artefactual-labs/enduro/internal/storage"
+	storage_activities "github.com/artefactual-labs/enduro/internal/storage/activities"
 	storage_workflows "github.com/artefactual-labs/enduro/internal/storage/workflows"
 	"github.com/artefactual-labs/enduro/internal/temporal"
 	"github.com/artefactual-labs/enduro/internal/version"
@@ -236,6 +237,8 @@ func main() {
 
 		w.RegisterWorkflowWithOptions(storage_workflows.NewStorageUploadWorkflow().Execute, temporalsdk_workflow.RegisterOptions{Name: storage.StorageUploadWorkflowName})
 		w.RegisterWorkflowWithOptions(storage_workflows.NewStorageMoveWorkflow(storagesvc).Execute, temporalsdk_workflow.RegisterOptions{Name: storage.StorageMoveWorkflowName})
+
+		w.RegisterActivityWithOptions(storage_activities.NewCopyToPermanentLocationActivity(storagesvc).Execute, temporalsdk_activity.RegisterOptions{Name: storage.CopyToPermanentLocationActivityName})
 
 		g.Add(
 			func() error {

@@ -12,9 +12,10 @@ import (
 )
 
 const (
-	StorageUploadWorkflowName = "storage-upload-workflow"
-	StorageMoveWorkflowName   = "storage-move-workflow"
-	UploadDoneSignalName      = "upload-done-signal"
+	CopyToPermanentLocationActivityName = "copy-to-permanent-location-activity"
+	StorageUploadWorkflowName           = "storage-upload-workflow"
+	StorageMoveWorkflowName             = "storage-move-workflow"
+	UploadDoneSignalName                = "upload-done-signal"
 )
 
 type StorageUploadWorkflowRequest struct {
@@ -22,6 +23,11 @@ type StorageUploadWorkflowRequest struct {
 }
 
 type StorageMoveWorkflowRequest struct {
+	AIPID    string
+	Location string
+}
+
+type CopyToPermanentLocationActivityParams struct {
 	AIPID    string
 	Location string
 }

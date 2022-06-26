@@ -1,9 +1,9 @@
 package workflows
 
 import (
-	"context"
-	"io"
+	"time"
 
+	temporalsdk_temporal "go.temporal.io/sdk/temporal"
 	temporalsdk_workflow "go.temporal.io/sdk/workflow"
 
 	"github.com/artefactual-labs/enduro/internal/storage"
@@ -19,66 +19,71 @@ func NewStorageMoveWorkflow(storagesvc storage.Service) *StorageMoveWorkflow {
 	}
 }
 
-func copyToPermanentLocation(ctx context.Context, storagesvc storage.Service, AIPID, location string) error {
-	p, err := storagesvc.ReadPackage(ctx, AIPID)
-	if err != nil {
-		return err
-	}
-
-	reader, err := storagesvc.Bucket().NewReader(ctx, p.ObjectKey, nil)
-	if err != nil {
-		return err
-	}
-	defer reader.Close()
-
-	l, err := storagesvc.Location(location)
-	if err != nil {
-		return err
-	}
-
-	bucket, err := l.OpenBucket()
-	if err != nil {
-		return err
-	}
-	defer bucket.Close()
-
-	// XXX: what key should we use for the permanent location?
-	writer, err := bucket.NewWriter(ctx, p.AIPID, nil)
-	if err != nil {
-		return err
-	}
-
-	_, copyErr := io.Copy(writer, reader)
-	closeErr := writer.Close()
-
-	if copyErr != nil {
-		return copyErr
-	}
-	if closeErr != nil {
-		return closeErr
-	}
-
-	return nil
-}
-
 func (w *StorageMoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req storage.StorageMoveWorkflowRequest) error {
-	// XXX: how do we get a regular context from the temporal one?
-	childCtx := context.Background()
-	err := copyToPermanentLocation(childCtx, w.storagesvc, req.AIPID, req.Location)
-	if err != nil {
-		return err
+	// Copy package from internal processing bucket to permanent location bucket
+	{
+		activityOpts := temporalsdk_workflow.WithActivityOptions(ctx, temporalsdk_workflow.ActivityOptions{
+			StartToCloseTimeout: time.Hour * 2,
+			RetryPolicy: &temporalsdk_temporal.RetryPolicy{
+				InitialInterval:    time.Second,
+				BackoffCoefficient: 2,
+				MaximumInterval:    time.Minute * 10,
+				MaximumAttempts:    5,
+				NonRetryableErrorTypes: []string{
+					"TemporalTimeout:StartToClose",
+				},
+			},
+		})
+		err := temporalsdk_workflow.ExecuteActivity(activityOpts, storage.CopyToPermanentLocationActivityName, &storage.CopyToPermanentLocationActivityParams{
+			AIPID:    req.AIPID,
+			Location: req.Location,
+		}).Get(activityOpts, nil)
+		if err != nil {
+			return err
+		}
 	}
 
-	// XXX: should we delete the package from the internal aips bucket here?
+	// TODO: should we delete the package from the internal aips bucket here?
 
-	err = w.storagesvc.UpdatePackageLocation(childCtx, req.Location, req.AIPID)
-	if err != nil {
-		return err
+	// Update package location
+	{
+		activityOpts := temporalsdk_workflow.WithLocalActivityOptions(ctx, temporalsdk_workflow.LocalActivityOptions{
+			ScheduleToCloseTimeout: 5 * time.Second,
+			RetryPolicy: &temporalsdk_temporal.RetryPolicy{
+				InitialInterval:    time.Second,
+				BackoffCoefficient: 2,
+				MaximumInterval:    time.Minute,
+				MaximumAttempts:    3,
+			},
+		})
+		err := temporalsdk_workflow.ExecuteLocalActivity(activityOpts, storage.UpdatePackageLocationLocalActivity, w.storagesvc, &storage.UpdatePackageLocationLocalActivityParams{
+			AIPID:    req.AIPID,
+			Location: req.Location,
+		}).Get(activityOpts, nil)
+		if err != nil {
+			return err
+		}
 	}
 
-	err = w.storagesvc.UpdatePackageStatus(childCtx, storage.StatusStored, req.AIPID)
-	if err != nil {
-		return err
+	// Update package status
+	{
+
+		activityOpts := temporalsdk_workflow.WithLocalActivityOptions(ctx, temporalsdk_workflow.LocalActivityOptions{
+			ScheduleToCloseTimeout: 5 * time.Second,
+			RetryPolicy: &temporalsdk_temporal.RetryPolicy{
+				InitialInterval:    time.Second,
+				BackoffCoefficient: 2,
+				MaximumInterval:    time.Minute,
+				MaximumAttempts:    3,
+			},
+		})
+		err := temporalsdk_workflow.ExecuteLocalActivity(activityOpts, storage.UpdatePackageStatusLocalActivity, w.storagesvc, &storage.UpdatePackageStatusLocalActivityParams{
+			AIPID:    req.AIPID,
+			Location: req.Location,
+		}).Get(activityOpts, nil)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
