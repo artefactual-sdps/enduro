@@ -74,6 +74,7 @@ type Service interface {
 	List(context.Context) (res goastorage.StoredLocationCollection, err error)
 	Move(context.Context, *goastorage.MovePayload) (err error)
 	MoveStatus(context.Context, *goastorage.MoveStatusPayload) (res *goastorage.MoveStatusResult, err error)
+	Reject(context.Context, *goastorage.RejectPayload) (err error)
 
 	Bucket() *blob.Bucket
 	Location(name string) (Location, error)
@@ -279,6 +280,10 @@ func (s *serviceImpl) MoveStatus(ctx context.Context, payload *goastorage.MoveSt
 	}
 
 	return &goastorage.MoveStatusResult{Done: done}, nil
+}
+
+func (s *serviceImpl) Reject(ctx context.Context, payload *goastorage.RejectPayload) error {
+	return s.UpdatePackageStatus(ctx, StatusRejected, payload.AipID)
 }
 
 func (s *serviceImpl) HTTPDownload(mux goahttp.Muxer, dec func(r *http.Request) goahttp.Decoder) http.HandlerFunc {

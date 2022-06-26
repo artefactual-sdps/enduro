@@ -22,6 +22,7 @@ type Endpoints struct {
 	List       goa.Endpoint
 	Move       goa.Endpoint
 	MoveStatus goa.Endpoint
+	Reject     goa.Endpoint
 }
 
 // NewEndpoints wraps the methods of the "storage" service with endpoints.
@@ -33,6 +34,7 @@ func NewEndpoints(s Service) *Endpoints {
 		List:       NewListEndpoint(s),
 		Move:       NewMoveEndpoint(s),
 		MoveStatus: NewMoveStatusEndpoint(s),
+		Reject:     NewRejectEndpoint(s),
 	}
 }
 
@@ -44,6 +46,7 @@ func (e *Endpoints) Use(m func(goa.Endpoint) goa.Endpoint) {
 	e.List = m(e.List)
 	e.Move = m(e.Move)
 	e.MoveStatus = m(e.MoveStatus)
+	e.Reject = m(e.Reject)
 }
 
 // NewSubmitEndpoint returns an endpoint function that calls the method
@@ -101,5 +104,14 @@ func NewMoveStatusEndpoint(s Service) goa.Endpoint {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
 		p := req.(*MoveStatusPayload)
 		return s.MoveStatus(ctx, p)
+	}
+}
+
+// NewRejectEndpoint returns an endpoint function that calls the method
+// "reject" of service "storage".
+func NewRejectEndpoint(s Service) goa.Endpoint {
+	return func(ctx context.Context, req interface{}) (interface{}, error) {
+		p := req.(*RejectPayload)
+		return nil, s.Reject(ctx, p)
 	}
 }

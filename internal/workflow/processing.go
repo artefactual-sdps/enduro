@@ -467,7 +467,16 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 			}
 		}
 	} else {
-		// XXX: update SS package status to rejected
+		// Reject package
+		{
+			activityOpts := withActivityOptsForRequest(sessCtx)
+			err := temporalsdk_workflow.ExecuteActivity(activityOpts, activities.RejectPackageActivityName, &activities.RejectPackageActivityParams{
+				AIPID: tinfo.SIPID,
+			}).Get(activityOpts, nil)
+			if err != nil {
+				return err
+			}
+		}
 	}
 
 	return nil

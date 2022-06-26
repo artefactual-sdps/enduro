@@ -177,6 +177,51 @@ type MoveStatusNotFoundResponseBody struct {
 	AipID string `form:"aip_id" json:"aip_id" xml:"aip_id"`
 }
 
+// RejectNotAvailableResponseBody is the type of the "storage" service "reject"
+// endpoint HTTP response body for the "not_available" error.
+type RejectNotAvailableResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// RejectNotValidResponseBody is the type of the "storage" service "reject"
+// endpoint HTTP response body for the "not_valid" error.
+type RejectNotValidResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// RejectNotFoundResponseBody is the type of the "storage" service "reject"
+// endpoint HTTP response body for the "not_found" error.
+type RejectNotFoundResponseBody struct {
+	// Message of error
+	Message string `form:"message" json:"message" xml:"message"`
+	// Identifier of missing package
+	AipID string `form:"aip_id" json:"aip_id" xml:"aip_id"`
+}
+
 // StoredLocationResponse is used to define fields on response body types.
 type StoredLocationResponse struct {
 	// ID is the unique id of the location.
@@ -327,6 +372,44 @@ func NewMoveStatusNotFoundResponseBody(res *storage.StoragePackageNotfound) *Mov
 	return body
 }
 
+// NewRejectNotAvailableResponseBody builds the HTTP response body from the
+// result of the "reject" endpoint of the "storage" service.
+func NewRejectNotAvailableResponseBody(res *goa.ServiceError) *RejectNotAvailableResponseBody {
+	body := &RejectNotAvailableResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewRejectNotValidResponseBody builds the HTTP response body from the result
+// of the "reject" endpoint of the "storage" service.
+func NewRejectNotValidResponseBody(res *goa.ServiceError) *RejectNotValidResponseBody {
+	body := &RejectNotValidResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewRejectNotFoundResponseBody builds the HTTP response body from the result
+// of the "reject" endpoint of the "storage" service.
+func NewRejectNotFoundResponseBody(res *storage.StoragePackageNotfound) *RejectNotFoundResponseBody {
+	body := &RejectNotFoundResponseBody{
+		Message: res.Message,
+		AipID:   res.AipID,
+	}
+	return body
+}
+
 // NewSubmitPayload builds a storage service submit endpoint payload.
 func NewSubmitPayload(body *SubmitRequestBody, aipID string) *storage.SubmitPayload {
 	v := &storage.SubmitPayload{
@@ -366,6 +449,14 @@ func NewMovePayload(body *MoveRequestBody, aipID string) *storage.MovePayload {
 // NewMoveStatusPayload builds a storage service move_status endpoint payload.
 func NewMoveStatusPayload(aipID string) *storage.MoveStatusPayload {
 	v := &storage.MoveStatusPayload{}
+	v.AipID = aipID
+
+	return v
+}
+
+// NewRejectPayload builds a storage service reject endpoint payload.
+func NewRejectPayload(aipID string) *storage.RejectPayload {
+	v := &storage.RejectPayload{}
 	v.AipID = aipID
 
 	return v

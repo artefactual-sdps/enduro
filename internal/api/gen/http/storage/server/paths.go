@@ -41,3 +41,8 @@ func MoveStoragePath(aipID string) string {
 func MoveStatusStoragePath(aipID string) string {
 	return fmt.Sprintf("/storage/%v/store", aipID)
 }
+
+// RejectStoragePath returns the URL path to the storage service reject HTTP endpoint.
+func RejectStoragePath(aipID string) string {
+	return fmt.Sprintf("/storage/%v/reject", aipID)
+}

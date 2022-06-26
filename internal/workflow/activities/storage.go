@@ -106,3 +106,28 @@ func (a *PollMoveToPermanentStorageActivity) Execute(ctx context.Context, params
 	err := g.Run()
 	return err
 }
+
+type RejectPackageActivityParams struct {
+	AIPID string
+}
+
+type RejectPackageActivity struct {
+	storageClient *goastorage.Client
+}
+
+func NewRejectPackageActivity(storageClient *goastorage.Client) *RejectPackageActivity {
+	return &RejectPackageActivity{
+		storageClient: storageClient,
+	}
+}
+
+func (a *RejectPackageActivity) Execute(ctx context.Context, params *RejectPackageActivityParams) error {
+	childCtx, cancel := context.WithTimeout(ctx, time.Second*5)
+	defer cancel()
+
+	err := a.storageClient.Reject(childCtx, &goastorage.RejectPayload{
+		AipID: params.AIPID,
+	})
+
+	return err
+}

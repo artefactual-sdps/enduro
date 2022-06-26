@@ -36,6 +36,15 @@ import {
     StorageMoveStatusResponseBody,
     StorageMoveStatusResponseBodyFromJSON,
     StorageMoveStatusResponseBodyToJSON,
+    StorageRejectNotAvailableResponseBody,
+    StorageRejectNotAvailableResponseBodyFromJSON,
+    StorageRejectNotAvailableResponseBodyToJSON,
+    StorageRejectNotFoundResponseBody,
+    StorageRejectNotFoundResponseBodyFromJSON,
+    StorageRejectNotFoundResponseBodyToJSON,
+    StorageRejectNotValidResponseBody,
+    StorageRejectNotValidResponseBodyFromJSON,
+    StorageRejectNotValidResponseBodyToJSON,
     StorageSubmitNotAvailableResponseBody,
     StorageSubmitNotAvailableResponseBodyFromJSON,
     StorageSubmitNotAvailableResponseBodyToJSON,
@@ -69,6 +78,10 @@ export interface StorageMoveRequest {
 }
 
 export interface StorageMoveStatusRequest {
+    aipId: string;
+}
+
+export interface StorageRejectRequest {
     aipId: string;
 }
 
@@ -151,6 +164,22 @@ export interface StorageApiInterface {
      * move_status storage
      */
     storageMoveStatus(requestParameters: StorageMoveStatusRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<StorageMoveStatusResponseBody>;
+
+    /**
+     * Reject a package
+     * @summary reject storage
+     * @param {string} aipId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof StorageApiInterface
+     */
+    storageRejectRaw(requestParameters: StorageRejectRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<void>>;
+
+    /**
+     * Reject a package
+     * reject storage
+     */
+    storageReject(requestParameters: StorageRejectRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<void>;
 
     /**
      * Start the submission of a package
@@ -320,6 +349,37 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
     async storageMoveStatus(requestParameters: StorageMoveStatusRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<StorageMoveStatusResponseBody> {
         const response = await this.storageMoveStatusRaw(requestParameters, initOverrides);
         return await response.value();
+    }
+
+    /**
+     * Reject a package
+     * reject storage
+     */
+    async storageRejectRaw(requestParameters: StorageRejectRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<void>> {
+        if (requestParameters.aipId === null || requestParameters.aipId === undefined) {
+            throw new runtime.RequiredError('aipId','Required parameter requestParameters.aipId was null or undefined when calling storageReject.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const response = await this.request({
+            path: `/storage/{aip_id}/reject`.replace(`{${"aip_id"}}`, encodeURIComponent(String(requestParameters.aipId))),
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     * Reject a package
+     * reject storage
+     */
+    async storageReject(requestParameters: StorageRejectRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<void> {
+        await this.storageRejectRaw(requestParameters, initOverrides);
     }
 
     /**
