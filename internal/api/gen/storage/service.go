@@ -31,6 +31,8 @@ type Service interface {
 	MoveStatus(context.Context, *MoveStatusPayload) (res *MoveStatusResult, err error)
 	// Reject a package
 	Reject(context.Context, *RejectPayload) (err error)
+	// Show package by AIPID
+	Show(context.Context, *ShowPayload) (res *StoredStoragePackage, err error)
 }
 
 // ServiceName is the name of the service as defined in the design. This is the
@@ -41,7 +43,7 @@ const ServiceName = "storage"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [7]string{"submit", "update", "download", "list", "move", "move_status", "reject"}
+var MethodNames = [8]string{"submit", "update", "download", "list", "move", "move_status", "reject", "show"}
 
 // DownloadPayload is the payload type of the storage service download method.
 type DownloadPayload struct {
@@ -71,6 +73,11 @@ type RejectPayload struct {
 	AipID string
 }
 
+// ShowPayload is the payload type of the storage service show method.
+type ShowPayload struct {
+	AipID string
+}
+
 // Storage package not found.
 type StoragePackageNotfound struct {
 	// Message of error
@@ -90,6 +97,17 @@ type StoredLocation struct {
 // StoredLocationCollection is the result type of the storage service list
 // method.
 type StoredLocationCollection []*StoredLocation
+
+// StoredStoragePackage is the result type of the storage service show method.
+type StoredStoragePackage struct {
+	ID    uint
+	Name  string
+	AipID string
+	// Status of the package
+	Status    string
+	ObjectKey string
+	Location  *string
+}
 
 // SubmitPayload is the payload type of the storage service submit method.
 type SubmitPayload struct {
@@ -158,6 +176,20 @@ func NewViewedStoredLocationCollection(res StoredLocationCollection, view string
 	return storageviews.StoredLocationCollection{Projected: p, View: "default"}
 }
 
+// NewStoredStoragePackage initializes result type StoredStoragePackage from
+// viewed result type StoredStoragePackage.
+func NewStoredStoragePackage(vres *storageviews.StoredStoragePackage) *StoredStoragePackage {
+	return newStoredStoragePackage(vres.Projected)
+}
+
+// NewViewedStoredStoragePackage initializes viewed result type
+// StoredStoragePackage from result type StoredStoragePackage using the given
+// view.
+func NewViewedStoredStoragePackage(res *StoredStoragePackage, view string) *storageviews.StoredStoragePackage {
+	p := newStoredStoragePackageView(res)
+	return &storageviews.StoredStoragePackage{Projected: p, View: "default"}
+}
+
 // newStoredLocationCollection converts projected type StoredLocationCollection
 // to service type StoredLocationCollection.
 func newStoredLocationCollection(vres storageviews.StoredLocationCollectionView) StoredLocationCollection {
@@ -198,6 +230,43 @@ func newStoredLocationView(res *StoredLocation) *storageviews.StoredLocationView
 	vres := &storageviews.StoredLocationView{
 		ID:   &res.ID,
 		Name: &res.Name,
+	}
+	return vres
+}
+
+// newStoredStoragePackage converts projected type StoredStoragePackage to
+// service type StoredStoragePackage.
+func newStoredStoragePackage(vres *storageviews.StoredStoragePackageView) *StoredStoragePackage {
+	res := &StoredStoragePackage{
+		Location: vres.Location,
+	}
+	if vres.Name != nil {
+		res.Name = *vres.Name
+	}
+	if vres.AipID != nil {
+		res.AipID = *vres.AipID
+	}
+	if vres.Status != nil {
+		res.Status = *vres.Status
+	}
+	if vres.ObjectKey != nil {
+		res.ObjectKey = *vres.ObjectKey
+	}
+	if vres.Status == nil {
+		res.Status = "unspecified"
+	}
+	return res
+}
+
+// newStoredStoragePackageView projects result type StoredStoragePackage to
+// projected type StoredStoragePackageView using the "default" view.
+func newStoredStoragePackageView(res *StoredStoragePackage) *storageviews.StoredStoragePackageView {
+	vres := &storageviews.StoredStoragePackageView{
+		Name:      &res.Name,
+		AipID:     &res.AipID,
+		Status:    &res.Status,
+		ObjectKey: &res.ObjectKey,
+		Location:  res.Location,
 	}
 	return vres
 }

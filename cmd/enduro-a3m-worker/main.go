@@ -168,6 +168,7 @@ func main() {
 			storageHttpClient.Move(),
 			storageHttpClient.MoveStatus(),
 			storageHttpClient.Reject(),
+			storageHttpClient.Show(),
 		)
 		w.RegisterActivityWithOptions(activities.NewUploadActivity(storageClient).Execute, temporalsdk_activity.RegisterOptions{Name: activities.UploadActivityName})
 

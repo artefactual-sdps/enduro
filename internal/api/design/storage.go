@@ -116,6 +116,20 @@ var _ = Service("storage", func() {
 			Response("not_valid", StatusBadRequest)
 		})
 	})
+	Method("show", func() {
+		Description("Show package by AIPID")
+		Payload(func() {
+			Attribute("aip_id", String)
+			Required("aip_id")
+		})
+		Result(StoredStoragePackage)
+		Error("not_found", StoragePackageNotFound, "Storage package not found")
+		HTTP(func() {
+			GET("/{aip_id}")
+			Response(StatusOK)
+			Response("not_found", StatusNotFound)
+		})
+	})
 })
 
 var SubmitResult = Type("SubmitResult", func() {
@@ -132,7 +146,7 @@ var StoragePackageNotFound = Type("StoragePackageNotfound", func() {
 	Required("message", "aip_id")
 })
 
-var StoredLocation = ResultType("application/vnd.cellar.stored-location", func() {
+var StoredLocation = ResultType("application/vnd.enduro.stored-location", func() {
 	Description("A StoredLocation describes a location retrieved by the storage service.")
 	Reference(Location)
 	TypeName("StoredLocation")
@@ -158,4 +172,43 @@ var Location = Type("Location", func() {
 var MoveStatusResult = Type("MoveStatusResult", func() {
 	Attribute("done", Boolean)
 	Required("done")
+})
+
+var StoredStoragePackage = ResultType("application/vnd.enduro.stored-storage-package", func() {
+	Description("A StoredStoragePackage describes a package retrieved by the storage service.")
+	Reference(StoragePackage)
+	TypeName("StoredStoragePackage")
+	Attributes(func() {
+		Attribute("id", UInt)
+		Attribute("name")
+		Attribute("aip_id")
+		Attribute("status")
+		Attribute("object_key")
+		Attribute("location")
+	})
+	View("default", func() {
+		Attribute("name")
+		Attribute("aip_id")
+		Attribute("status")
+		Attribute("object_key")
+		Attribute("location")
+	})
+	Required("id", "name", "aip_id", "status", "object_key")
+})
+
+var EnumStoragePackageStatus = func() {
+	Enum("stored", "rejected", "in_review", "unspecified")
+}
+
+var StoragePackage = Type("StoragePackage", func() {
+	Description("Storage package describes a package of the storage service.")
+	Attribute("id", UInt)
+	Attribute("name", String)
+	Attribute("aip_id", String)
+	Attribute("status", String, "Status of the package", func() {
+		EnumStoragePackageStatus()
+		Default("unspecified")
+	})
+	Attribute("object_key", String)
+	Attribute("location", String)
 })

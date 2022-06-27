@@ -21,6 +21,15 @@ type StoredLocationCollection struct {
 	View string
 }
 
+// StoredStoragePackage is the viewed result type that is projected based on a
+// view.
+type StoredStoragePackage struct {
+	// Type to project
+	Projected *StoredStoragePackageView
+	// View to render
+	View string
+}
+
 // StoredLocationCollectionView is a type that runs validations on a projected
 // type.
 type StoredLocationCollectionView []*StoredLocationView
@@ -33,6 +42,17 @@ type StoredLocationView struct {
 	Name *string
 }
 
+// StoredStoragePackageView is a type that runs validations on a projected type.
+type StoredStoragePackageView struct {
+	ID    *uint
+	Name  *string
+	AipID *string
+	// Status of the package
+	Status    *string
+	ObjectKey *string
+	Location  *string
+}
+
 var (
 	// StoredLocationCollectionMap is a map indexing the attribute names of
 	// StoredLocationCollection by view name.
@@ -40,6 +60,17 @@ var (
 		"default": {
 			"id",
 			"name",
+		},
+	}
+	// StoredStoragePackageMap is a map indexing the attribute names of
+	// StoredStoragePackage by view name.
+	StoredStoragePackageMap = map[string][]string{
+		"default": {
+			"name",
+			"aip_id",
+			"status",
+			"object_key",
+			"location",
 		},
 	}
 	// StoredLocationMap is a map indexing the attribute names of StoredLocation by
@@ -58,6 +89,18 @@ func ValidateStoredLocationCollection(result StoredLocationCollection) (err erro
 	switch result.View {
 	case "default", "":
 		err = ValidateStoredLocationCollectionView(result.Projected)
+	default:
+		err = goa.InvalidEnumValueError("view", result.View, []interface{}{"default"})
+	}
+	return
+}
+
+// ValidateStoredStoragePackage runs the validations defined on the viewed
+// result type StoredStoragePackage.
+func ValidateStoredStoragePackage(result *StoredStoragePackage) (err error) {
+	switch result.View {
+	case "default", "":
+		err = ValidateStoredStoragePackageView(result.Projected)
 	default:
 		err = goa.InvalidEnumValueError("view", result.View, []interface{}{"default"})
 	}
@@ -83,6 +126,29 @@ func ValidateStoredLocationView(result *StoredLocationView) (err error) {
 	}
 	if result.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("name", "result"))
+	}
+	return
+}
+
+// ValidateStoredStoragePackageView runs the validations defined on
+// StoredStoragePackageView using the "default" view.
+func ValidateStoredStoragePackageView(result *StoredStoragePackageView) (err error) {
+	if result.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "result"))
+	}
+	if result.AipID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("aip_id", "result"))
+	}
+	if result.Status == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("status", "result"))
+	}
+	if result.ObjectKey == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("object_key", "result"))
+	}
+	if result.Status != nil {
+		if !(*result.Status == "stored" || *result.Status == "rejected" || *result.Status == "in_review" || *result.Status == "unspecified") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.status", *result.Status, []interface{}{"stored", "rejected", "in_review", "unspecified"}))
+		}
 	}
 	return
 }

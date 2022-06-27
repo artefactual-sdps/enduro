@@ -41,6 +41,9 @@ type Client struct {
 	// Reject Doer is the HTTP client used to make requests to the reject endpoint.
 	RejectDoer goahttp.Doer
 
+	// Show Doer is the HTTP client used to make requests to the show endpoint.
+	ShowDoer goahttp.Doer
+
 	// CORS Doer is the HTTP client used to make requests to the  endpoint.
 	CORSDoer goahttp.Doer
 
@@ -71,6 +74,7 @@ func NewClient(
 		MoveDoer:            doer,
 		MoveStatusDoer:      doer,
 		RejectDoer:          doer,
+		ShowDoer:            doer,
 		CORSDoer:            doer,
 		RestoreResponseBody: restoreBody,
 		scheme:              scheme,
@@ -218,6 +222,25 @@ func (c *Client) Reject() goa.Endpoint {
 		resp, err := c.RejectDoer.Do(req)
 		if err != nil {
 			return nil, goahttp.ErrRequestError("storage", "reject", err)
+		}
+		return decodeResponse(resp)
+	}
+}
+
+// Show returns an endpoint that makes HTTP requests to the storage service
+// show server.
+func (c *Client) Show() goa.Endpoint {
+	var (
+		decodeResponse = DecodeShowResponse(c.decoder, c.RestoreResponseBody)
+	)
+	return func(ctx context.Context, v interface{}) (interface{}, error) {
+		req, err := c.BuildShowRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		resp, err := c.ShowDoer.Do(req)
+		if err != nil {
+			return nil, goahttp.ErrRequestError("storage", "show", err)
 		}
 		return decodeResponse(resp)
 	}

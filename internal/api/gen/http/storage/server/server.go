@@ -28,6 +28,7 @@ type Server struct {
 	Move       http.Handler
 	MoveStatus http.Handler
 	Reject     http.Handler
+	Show       http.Handler
 	CORS       http.Handler
 }
 
@@ -71,12 +72,14 @@ func New(
 			{"Move", "POST", "/storage/{aip_id}/store"},
 			{"MoveStatus", "GET", "/storage/{aip_id}/store"},
 			{"Reject", "POST", "/storage/{aip_id}/reject"},
+			{"Show", "GET", "/storage/{aip_id}"},
 			{"CORS", "OPTIONS", "/storage/{aip_id}/submit"},
 			{"CORS", "OPTIONS", "/storage/{aip_id}/update"},
 			{"CORS", "OPTIONS", "/storage/{aip_id}/download"},
 			{"CORS", "OPTIONS", "/storage/location"},
 			{"CORS", "OPTIONS", "/storage/{aip_id}/store"},
 			{"CORS", "OPTIONS", "/storage/{aip_id}/reject"},
+			{"CORS", "OPTIONS", "/storage/{aip_id}"},
 		},
 		Submit:     NewSubmitHandler(e.Submit, mux, decoder, encoder, errhandler, formatter),
 		Update:     NewUpdateHandler(e.Update, mux, decoder, encoder, errhandler, formatter),
@@ -85,6 +88,7 @@ func New(
 		Move:       NewMoveHandler(e.Move, mux, decoder, encoder, errhandler, formatter),
 		MoveStatus: NewMoveStatusHandler(e.MoveStatus, mux, decoder, encoder, errhandler, formatter),
 		Reject:     NewRejectHandler(e.Reject, mux, decoder, encoder, errhandler, formatter),
+		Show:       NewShowHandler(e.Show, mux, decoder, encoder, errhandler, formatter),
 		CORS:       NewCORSHandler(),
 	}
 }
@@ -101,6 +105,7 @@ func (s *Server) Use(m func(http.Handler) http.Handler) {
 	s.Move = m(s.Move)
 	s.MoveStatus = m(s.MoveStatus)
 	s.Reject = m(s.Reject)
+	s.Show = m(s.Show)
 	s.CORS = m(s.CORS)
 }
 
@@ -113,6 +118,7 @@ func Mount(mux goahttp.Muxer, h *Server) {
 	MountMoveHandler(mux, h.Move)
 	MountMoveStatusHandler(mux, h.MoveStatus)
 	MountRejectHandler(mux, h.Reject)
+	MountShowHandler(mux, h.Show)
 	MountCORSHandler(mux, h.CORS)
 }
 
@@ -471,6 +477,57 @@ func NewRejectHandler(
 	})
 }
 
+// MountShowHandler configures the mux to serve the "storage" service "show"
+// endpoint.
+func MountShowHandler(mux goahttp.Muxer, h http.Handler) {
+	f, ok := HandleStorageOrigin(h).(http.HandlerFunc)
+	if !ok {
+		f = func(w http.ResponseWriter, r *http.Request) {
+			h.ServeHTTP(w, r)
+		}
+	}
+	mux.Handle("GET", "/storage/{aip_id}", f)
+}
+
+// NewShowHandler creates a HTTP handler which loads the HTTP request and calls
+// the "storage" service "show" endpoint.
+func NewShowHandler(
+	endpoint goa.Endpoint,
+	mux goahttp.Muxer,
+	decoder func(*http.Request) goahttp.Decoder,
+	encoder func(context.Context, http.ResponseWriter) goahttp.Encoder,
+	errhandler func(context.Context, http.ResponseWriter, error),
+	formatter func(err error) goahttp.Statuser,
+) http.Handler {
+	var (
+		decodeRequest  = DecodeShowRequest(mux, decoder)
+		encodeResponse = EncodeShowResponse(encoder)
+		encodeError    = EncodeShowError(encoder, formatter)
+	)
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
+		ctx = context.WithValue(ctx, goa.MethodKey, "show")
+		ctx = context.WithValue(ctx, goa.ServiceKey, "storage")
+		payload, err := decodeRequest(r)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		res, err := endpoint(ctx, payload)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		if err := encodeResponse(ctx, w, res); err != nil {
+			errhandler(ctx, w, err)
+		}
+	})
+}
+
 // MountCORSHandler configures the mux to serve the CORS endpoints for the
 // service storage.
 func MountCORSHandler(mux goahttp.Muxer, h http.Handler) {
@@ -481,6 +538,7 @@ func MountCORSHandler(mux goahttp.Muxer, h http.Handler) {
 	mux.Handle("OPTIONS", "/storage/location", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/storage/{aip_id}/store", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/storage/{aip_id}/reject", h.ServeHTTP)
+	mux.Handle("OPTIONS", "/storage/{aip_id}", h.ServeHTTP)
 }
 
 // NewCORSHandler creates a HTTP handler which returns a simple 200 response.

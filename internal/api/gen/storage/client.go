@@ -23,10 +23,11 @@ type Client struct {
 	MoveEndpoint       goa.Endpoint
 	MoveStatusEndpoint goa.Endpoint
 	RejectEndpoint     goa.Endpoint
+	ShowEndpoint       goa.Endpoint
 }
 
 // NewClient initializes a "storage" service client given the endpoints.
-func NewClient(submit, update, download, list, move, moveStatus, reject goa.Endpoint) *Client {
+func NewClient(submit, update, download, list, move, moveStatus, reject, show goa.Endpoint) *Client {
 	return &Client{
 		SubmitEndpoint:     submit,
 		UpdateEndpoint:     update,
@@ -35,6 +36,7 @@ func NewClient(submit, update, download, list, move, moveStatus, reject goa.Endp
 		MoveEndpoint:       move,
 		MoveStatusEndpoint: moveStatus,
 		RejectEndpoint:     reject,
+		ShowEndpoint:       show,
 	}
 }
 
@@ -121,4 +123,17 @@ func (c *Client) MoveStatus(ctx context.Context, p *MoveStatusPayload) (res *Mov
 func (c *Client) Reject(ctx context.Context, p *RejectPayload) (err error) {
 	_, err = c.RejectEndpoint(ctx, p)
 	return
+}
+
+// Show calls the "show" endpoint of the "storage" service.
+// Show may return the following errors:
+//	- "not_found" (type *StoragePackageNotfound): Storage package not found
+//	- error: internal error
+func (c *Client) Show(ctx context.Context, p *ShowPayload) (res *StoredStoragePackage, err error) {
+	var ires interface{}
+	ires, err = c.ShowEndpoint(ctx, p)
+	if err != nil {
+		return
+	}
+	return ires.(*StoredStoragePackage), nil
 }
