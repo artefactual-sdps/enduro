@@ -284,8 +284,15 @@ func (s *serviceImpl) HTTPDownload(mux goahttp.Muxer, dec func(r *http.Request) 
 			return
 		}
 
+		// Get package bucket
+		bucket, err := s.packageBucket(pkg)
+		if err != nil {
+			rw.WriteHeader(http.StatusNotFound)
+			return
+		}
+
 		// Get MinIO bucket reader for object key.
-		reader, err := s.bucket.NewReader(ctx, pkg.ObjectKey, nil)
+		reader, err := bucket.NewReader(ctx, pkg.ObjectKey, nil)
 		if err != nil {
 			rw.WriteHeader(http.StatusNotFound)
 			return
@@ -376,4 +383,22 @@ func (s *serviceImpl) UpdatePackageLocation(ctx context.Context, location string
 	}
 
 	return nil
+}
+
+func (s *serviceImpl) packageBucket(pkg *Package) (*blob.Bucket, error) {
+	var result *blob.Bucket
+	if pkg.Location == "" {
+		// Package is still in the internal processing bucket
+		result = s.bucket
+	} else {
+		location, err := s.Location(pkg.Location)
+		if err != nil {
+			return nil, err
+		}
+		result, err = location.OpenBucket()
+		if err != nil {
+			return nil, err
+		}
+	}
+	return result, nil
 }
