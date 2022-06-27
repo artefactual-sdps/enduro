@@ -22,22 +22,19 @@
 </template>
 
 <style lang="scss" scoped>
-.navbar-brand {
-  user-select: none;
-}
-
 .navbar {
-  background-color: #5e2750;
-}
+  user-select: none;
+  background-color: var(--bs-enduro-primary);
 
-@media (min-width: 576px) {
-  .nav-link.active {
-    color: white;
-    background-color: #fff2;
+  @media (min-width: 576px) {
+    .nav-link.active {
+      color: white;
+      background-color: #fff2;
+    }
   }
-}
 
-.nav-link.active {
-  border-radius: var(--bs-border-radius-sm) !important;
+  .nav-link.active {
+    border-radius: var(--bs-border-radius);
+  }
 }
 </style>

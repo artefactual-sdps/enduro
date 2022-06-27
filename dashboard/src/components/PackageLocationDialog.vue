@@ -37,7 +37,7 @@ const onChoose = (locationName: string) => {
           <h5 class="modal-title">Choose location</h5>
         </div>
         <div class="modal-body">
-          <table class="table table-rounded table-hover table-sm">
+          <table class="table table-rounded table-hover table-sm table-linked">
             <thead>
               <tr>
                 <th>Location name</th>
@@ -68,9 +68,3 @@ const onChoose = (locationName: string) => {
     </div>
   </div>
 </template>
-
-<style scoped lang="scss">
-tbody tr {
-  cursor: pointer;
-}
-</style>
