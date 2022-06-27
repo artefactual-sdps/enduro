@@ -43,6 +43,8 @@ export * from './StorageMoveStatusResponseBody';
 export * from './StorageRejectNotAvailableResponseBody';
 export * from './StorageRejectNotFoundResponseBody';
 export * from './StorageRejectNotValidResponseBody';
+export * from './StorageShowNotFoundResponseBody';
+export * from './StorageShowResponseBody';
 export * from './StorageSubmitNotAvailableResponseBody';
 export * from './StorageSubmitNotValidResponseBody';
 export * from './StorageSubmitRequestBody';

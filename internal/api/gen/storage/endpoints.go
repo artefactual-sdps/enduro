@@ -23,6 +23,7 @@ type Endpoints struct {
 	Move       goa.Endpoint
 	MoveStatus goa.Endpoint
 	Reject     goa.Endpoint
+	Show       goa.Endpoint
 }
 
 // NewEndpoints wraps the methods of the "storage" service with endpoints.
@@ -35,6 +36,7 @@ func NewEndpoints(s Service) *Endpoints {
 		Move:       NewMoveEndpoint(s),
 		MoveStatus: NewMoveStatusEndpoint(s),
 		Reject:     NewRejectEndpoint(s),
+		Show:       NewShowEndpoint(s),
 	}
 }
 
@@ -47,6 +49,7 @@ func (e *Endpoints) Use(m func(goa.Endpoint) goa.Endpoint) {
 	e.Move = m(e.Move)
 	e.MoveStatus = m(e.MoveStatus)
 	e.Reject = m(e.Reject)
+	e.Show = m(e.Show)
 }
 
 // NewSubmitEndpoint returns an endpoint function that calls the method
@@ -113,5 +116,19 @@ func NewRejectEndpoint(s Service) goa.Endpoint {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
 		p := req.(*RejectPayload)
 		return nil, s.Reject(ctx, p)
+	}
+}
+
+// NewShowEndpoint returns an endpoint function that calls the method "show" of
+// service "storage".
+func NewShowEndpoint(s Service) goa.Endpoint {
+	return func(ctx context.Context, req interface{}) (interface{}, error) {
+		p := req.(*ShowPayload)
+		res, err := s.Show(ctx, p)
+		if err != nil {
+			return nil, err
+		}
+		vres := NewViewedStoredStoragePackage(res, "default")
+		return vres, nil
 	}
 }

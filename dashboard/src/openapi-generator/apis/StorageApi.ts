@@ -48,6 +48,12 @@ import {
     StorageRejectNotValidResponseBody,
     StorageRejectNotValidResponseBodyFromJSON,
     StorageRejectNotValidResponseBodyToJSON,
+    StorageShowNotFoundResponseBody,
+    StorageShowNotFoundResponseBodyFromJSON,
+    StorageShowNotFoundResponseBodyToJSON,
+    StorageShowResponseBody,
+    StorageShowResponseBodyFromJSON,
+    StorageShowResponseBodyToJSON,
     StorageSubmitNotAvailableResponseBody,
     StorageSubmitNotAvailableResponseBodyFromJSON,
     StorageSubmitNotAvailableResponseBodyToJSON,
@@ -85,6 +91,10 @@ export interface StorageMoveStatusRequest {
 }
 
 export interface StorageRejectRequest {
+    aipId: string;
+}
+
+export interface StorageShowRequest {
     aipId: string;
 }
 
@@ -183,6 +193,22 @@ export interface StorageApiInterface {
      * reject storage
      */
     storageReject(requestParameters: StorageRejectRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<void>;
+
+    /**
+     * Show package by AIPID
+     * @summary show storage
+     * @param {string} aipId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof StorageApiInterface
+     */
+    storageShowRaw(requestParameters: StorageShowRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<StorageShowResponseBody>>;
+
+    /**
+     * Show package by AIPID
+     * show storage
+     */
+    storageShow(requestParameters: StorageShowRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<StorageShowResponseBody>;
 
     /**
      * Start the submission of a package
@@ -383,6 +409,38 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
      */
     async storageReject(requestParameters: StorageRejectRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<void> {
         await this.storageRejectRaw(requestParameters, initOverrides);
+    }
+
+    /**
+     * Show package by AIPID
+     * show storage
+     */
+    async storageShowRaw(requestParameters: StorageShowRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<StorageShowResponseBody>> {
+        if (requestParameters.aipId === null || requestParameters.aipId === undefined) {
+            throw new runtime.RequiredError('aipId','Required parameter requestParameters.aipId was null or undefined when calling storageShow.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const response = await this.request({
+            path: `/storage/{aip_id}`.replace(`{${"aip_id"}}`, encodeURIComponent(String(requestParameters.aipId))),
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => StorageShowResponseBodyFromJSON(jsonValue));
+    }
+
+    /**
+     * Show package by AIPID
+     * show storage
+     */
+    async storageShow(requestParameters: StorageShowRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<StorageShowResponseBody> {
+        const response = await this.storageShowRaw(requestParameters, initOverrides);
+        return await response.value();
     }
 
     /**

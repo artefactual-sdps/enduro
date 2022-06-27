@@ -662,6 +662,90 @@ func DecodeRejectResponse(decoder func(*http.Response) goahttp.Decoder, restoreB
 	}
 }
 
+// BuildShowRequest instantiates a HTTP request object with method and path set
+// to call the "storage" service "show" endpoint
+func (c *Client) BuildShowRequest(ctx context.Context, v interface{}) (*http.Request, error) {
+	var (
+		aipID string
+	)
+	{
+		p, ok := v.(*storage.ShowPayload)
+		if !ok {
+			return nil, goahttp.ErrInvalidType("storage", "show", "*storage.ShowPayload", v)
+		}
+		aipID = p.AipID
+	}
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: ShowStoragePath(aipID)}
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		return nil, goahttp.ErrInvalidURL("storage", "show", u.String(), err)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
+	return req, nil
+}
+
+// DecodeShowResponse returns a decoder for responses returned by the storage
+// show endpoint. restoreBody controls whether the response body should be
+// restored after having been read.
+// DecodeShowResponse may return the following errors:
+//	- "not_found" (type *storage.StoragePackageNotfound): http.StatusNotFound
+//	- error: internal error
+func DecodeShowResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
+	return func(resp *http.Response) (interface{}, error) {
+		if restoreBody {
+			b, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = ioutil.NopCloser(bytes.NewBuffer(b))
+			defer func() {
+				resp.Body = ioutil.NopCloser(bytes.NewBuffer(b))
+			}()
+		} else {
+			defer resp.Body.Close()
+		}
+		switch resp.StatusCode {
+		case http.StatusOK:
+			var (
+				body ShowResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "show", err)
+			}
+			p := NewShowStoredStoragePackageOK(&body)
+			view := "default"
+			vres := &storageviews.StoredStoragePackage{Projected: p, View: view}
+			if err = storageviews.ValidateStoredStoragePackage(vres); err != nil {
+				return nil, goahttp.ErrValidationError("storage", "show", err)
+			}
+			res := storage.NewStoredStoragePackage(vres)
+			return res, nil
+		case http.StatusNotFound:
+			var (
+				body ShowNotFoundResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "show", err)
+			}
+			err = ValidateShowNotFoundResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "show", err)
+			}
+			return nil, NewShowNotFound(&body)
+		default:
+			body, _ := ioutil.ReadAll(resp.Body)
+			return nil, goahttp.ErrInvalidResponse("storage", "show", resp.StatusCode, string(body))
+		}
+	}
+}
+
 // unmarshalStoredLocationResponseToStorageviewsStoredLocationView builds a
 // value of type *storageviews.StoredLocationView from a value of type
 // *StoredLocationResponse.

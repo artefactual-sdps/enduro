@@ -42,6 +42,18 @@ type MoveStatusResponseBody struct {
 	Done *bool `form:"done,omitempty" json:"done,omitempty" xml:"done,omitempty"`
 }
 
+// ShowResponseBody is the type of the "storage" service "show" endpoint HTTP
+// response body.
+type ShowResponseBody struct {
+	ID    *uint   `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	Name  *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	AipID *string `form:"aip_id,omitempty" json:"aip_id,omitempty" xml:"aip_id,omitempty"`
+	// Status of the package
+	Status    *string `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
+	ObjectKey *string `form:"object_key,omitempty" json:"object_key,omitempty" xml:"object_key,omitempty"`
+	Location  *string `form:"location,omitempty" json:"location,omitempty" xml:"location,omitempty"`
+}
+
 // SubmitNotAvailableResponseBody is the type of the "storage" service "submit"
 // endpoint HTTP response body for the "not_available" error.
 type SubmitNotAvailableResponseBody struct {
@@ -234,6 +246,15 @@ type RejectNotValidResponseBody struct {
 // RejectNotFoundResponseBody is the type of the "storage" service "reject"
 // endpoint HTTP response body for the "not_found" error.
 type RejectNotFoundResponseBody struct {
+	// Message of error
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Identifier of missing package
+	AipID *string `form:"aip_id,omitempty" json:"aip_id,omitempty" xml:"aip_id,omitempty"`
+}
+
+// ShowNotFoundResponseBody is the type of the "storage" service "show"
+// endpoint HTTP response body for the "not_found" error.
+type ShowNotFoundResponseBody struct {
 	// Message of error
 	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
 	// Identifier of missing package
@@ -462,6 +483,31 @@ func NewRejectNotValid(body *RejectNotValidResponseBody) *goa.ServiceError {
 
 // NewRejectNotFound builds a storage service reject endpoint not_found error.
 func NewRejectNotFound(body *RejectNotFoundResponseBody) *storage.StoragePackageNotfound {
+	v := &storage.StoragePackageNotfound{
+		Message: *body.Message,
+		AipID:   *body.AipID,
+	}
+
+	return v
+}
+
+// NewShowStoredStoragePackageOK builds a "storage" service "show" endpoint
+// result from a HTTP "OK" response.
+func NewShowStoredStoragePackageOK(body *ShowResponseBody) *storageviews.StoredStoragePackageView {
+	v := &storageviews.StoredStoragePackageView{
+		ID:        body.ID,
+		Name:      body.Name,
+		AipID:     body.AipID,
+		Status:    body.Status,
+		ObjectKey: body.ObjectKey,
+		Location:  body.Location,
+	}
+
+	return v
+}
+
+// NewShowNotFound builds a storage service show endpoint not_found error.
+func NewShowNotFound(body *ShowNotFoundResponseBody) *storage.StoragePackageNotfound {
 	v := &storage.StoragePackageNotfound{
 		Message: *body.Message,
 		AipID:   *body.AipID,
@@ -742,6 +788,18 @@ func ValidateRejectNotValidResponseBody(body *RejectNotValidResponseBody) (err e
 // ValidateRejectNotFoundResponseBody runs the validations defined on
 // reject_not_found_response_body
 func ValidateRejectNotFoundResponseBody(body *RejectNotFoundResponseBody) (err error) {
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.AipID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("aip_id", "body"))
+	}
+	return
+}
+
+// ValidateShowNotFoundResponseBody runs the validations defined on
+// show_not_found_response_body
+func ValidateShowNotFoundResponseBody(body *ShowNotFoundResponseBody) (err error) {
 	if body.Message == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
 	}

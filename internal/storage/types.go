@@ -3,6 +3,8 @@ package storage
 import (
 	"encoding/json"
 	"strings"
+
+	goastorage "github.com/artefactual-labs/enduro/internal/api/gen/storage"
 )
 
 type PackageStatus uint
@@ -66,4 +68,16 @@ type Package struct {
 	Status    PackageStatus `db:"status"`
 	ObjectKey string        `db:"object_key"`
 	Location  string        `db:"location"`
+}
+
+// Goa returns the API representation of the package.
+func (p Package) Goa() *goastorage.StoredStoragePackage {
+	return &goastorage.StoredStoragePackage{
+		ID:        p.ID,
+		Name:      p.Name,
+		AipID:     p.AIPID,
+		Status:    p.Status.String(),
+		ObjectKey: p.ObjectKey,
+		Location:  &p.Location,
+	}
 }

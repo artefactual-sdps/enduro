@@ -488,6 +488,63 @@ func EncodeRejectError(encoder func(context.Context, http.ResponseWriter) goahtt
 	}
 }
 
+// EncodeShowResponse returns an encoder for responses returned by the storage
+// show endpoint.
+func EncodeShowResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
+	return func(ctx context.Context, w http.ResponseWriter, v interface{}) error {
+		res := v.(*storageviews.StoredStoragePackage)
+		enc := encoder(ctx, w)
+		body := NewShowResponseBody(res.Projected)
+		w.WriteHeader(http.StatusOK)
+		return enc.Encode(body)
+	}
+}
+
+// DecodeShowRequest returns a decoder for requests sent to the storage show
+// endpoint.
+func DecodeShowRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (interface{}, error) {
+	return func(r *http.Request) (interface{}, error) {
+		var (
+			aipID string
+
+			params = mux.Vars(r)
+		)
+		aipID = params["aip_id"]
+		payload := NewShowPayload(aipID)
+
+		return payload, nil
+	}
+}
+
+// EncodeShowError returns an encoder for errors returned by the show storage
+// endpoint.
+func EncodeShowError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
+	encodeError := goahttp.ErrorEncoder(encoder, formatter)
+	return func(ctx context.Context, w http.ResponseWriter, v error) error {
+		var en ErrorNamer
+		if !errors.As(v, &en) {
+			return encodeError(ctx, w, v)
+		}
+		switch en.ErrorName() {
+		case "not_found":
+			var res *storage.StoragePackageNotfound
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			var body interface{}
+			if formatter != nil {
+				body = formatter(res)
+			} else {
+				body = NewShowNotFoundResponseBody(res)
+			}
+			w.Header().Set("goa-error", res.ErrorName())
+			w.WriteHeader(http.StatusNotFound)
+			return enc.Encode(body)
+		default:
+			return encodeError(ctx, w, v)
+		}
+	}
+}
+
 // marshalStorageviewsStoredLocationViewToStoredLocationResponse builds a value
 // of type *StoredLocationResponse from a value of type
 // *storageviews.StoredLocationView.

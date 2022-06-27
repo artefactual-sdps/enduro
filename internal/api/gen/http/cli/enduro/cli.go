@@ -28,21 +28,21 @@ import (
 func UsageCommands() string {
 	return `batch (submit|status|hints)
 package (monitor|list|show|delete|cancel|retry|workflow|bulk|bulk-status|preservation-actions|confirm|reject)
-storage (submit|update|download|list|move|move-status|reject)
+storage (submit|update|download|list|move|move-status|reject|show)
 `
 }
 
 // UsageExamples produces an example of a valid invocation of the CLI tool.
 func UsageExamples() string {
 	return os.Args[0] + ` batch submit --body '{
-      "completed_dir": "Minus praesentium.",
-      "path": "In laudantium consequatur ducimus quis.",
-      "retention_period": "Necessitatibus accusantium doloribus corrupti enim."
+      "completed_dir": "Odit assumenda.",
+      "path": "Aperiam blanditiis adipisci sint maiores repellendus.",
+      "retention_period": "Assumenda ea adipisci totam."
    }'` + "\n" +
 		os.Args[0] + ` package monitor` + "\n" +
 		os.Args[0] + ` storage submit --body '{
-      "name": "Nesciunt qui est provident fuga aut consequatur."
-   }' --aip-id "Et non voluptatem et velit."` + "\n" +
+      "name": "Molestias quae."
+   }' --aip-id "Corrupti sunt ad deleniti sunt nostrum."` + "\n" +
 		""
 }
 
@@ -132,6 +132,9 @@ func ParseEndpoint(
 
 		storageRejectFlags     = flag.NewFlagSet("reject", flag.ExitOnError)
 		storageRejectAipIDFlag = storageRejectFlags.String("aip-id", "REQUIRED", "")
+
+		storageShowFlags     = flag.NewFlagSet("show", flag.ExitOnError)
+		storageShowAipIDFlag = storageShowFlags.String("aip-id", "REQUIRED", "")
 	)
 	batchFlags.Usage = batchUsage
 	batchSubmitFlags.Usage = batchSubmitUsage
@@ -160,6 +163,7 @@ func ParseEndpoint(
 	storageMoveFlags.Usage = storageMoveUsage
 	storageMoveStatusFlags.Usage = storageMoveStatusUsage
 	storageRejectFlags.Usage = storageRejectUsage
+	storageShowFlags.Usage = storageShowUsage
 
 	if err := flag.CommandLine.Parse(os.Args[1:]); err != nil {
 		return nil, nil, err
@@ -273,6 +277,9 @@ func ParseEndpoint(
 			case "reject":
 				epf = storageRejectFlags
 
+			case "show":
+				epf = storageShowFlags
+
 			}
 
 		}
@@ -372,6 +379,9 @@ func ParseEndpoint(
 			case "reject":
 				endpoint = c.Reject()
 				data, err = storagec.BuildRejectPayload(*storageRejectAipIDFlag)
+			case "show":
+				endpoint = c.Show()
+				data, err = storagec.BuildShowPayload(*storageShowAipIDFlag)
 			}
 		}
 	}
@@ -405,9 +415,9 @@ Submit a new batch
 
 Example:
     %[1]s batch submit --body '{
-      "completed_dir": "Minus praesentium.",
-      "path": "In laudantium consequatur ducimus quis.",
-      "retention_period": "Necessitatibus accusantium doloribus corrupti enim."
+      "completed_dir": "Odit assumenda.",
+      "path": "Aperiam blanditiis adipisci sint maiores repellendus.",
+      "retention_period": "Assumenda ea adipisci totam."
    }'
 `, os.Args[0])
 }
@@ -478,7 +488,7 @@ List all stored packages
     -cursor STRING: 
 
 Example:
-    %[1]s package list --name "Totam harum repellat voluptatem." --aip-id "4CCDE767-7648-444F-D09F-4B4FFE4EB36B" --earliest-created-time "1970-06-30T01:49:40Z" --latest-created-time "2013-12-16T21:43:29Z" --status "new" --cursor "Impedit tenetur iure quam."
+    %[1]s package list --name "Corporis optio voluptatem." --aip-id "4CCDE767-7648-444F-D09F-4B4FFE4EB36B" --earliest-created-time "1995-09-16T16:42:56Z" --latest-created-time "2000-05-22T20:18:12Z" --status "abandoned" --cursor "Aliquid laborum qui."
 `, os.Args[0])
 }
 
@@ -489,7 +499,7 @@ Show package by ID
     -id UINT: Identifier of package to show
 
 Example:
-    %[1]s package show --id 12762063473831794056
+    %[1]s package show --id 3563794184417678133
 `, os.Args[0])
 }
 
@@ -500,7 +510,7 @@ Delete package by ID
     -id UINT: Identifier of package to delete
 
 Example:
-    %[1]s package delete --id 10713203392724464608
+    %[1]s package delete --id 7046851762324585684
 `, os.Args[0])
 }
 
@@ -511,7 +521,7 @@ Cancel package processing by ID
     -id UINT: Identifier of package to remove
 
 Example:
-    %[1]s package cancel --id 16265995649010858738
+    %[1]s package cancel --id 776285361058552077
 `, os.Args[0])
 }
 
@@ -522,7 +532,7 @@ Retry package processing by ID
     -id UINT: Identifier of package to retry
 
 Example:
-    %[1]s package retry --id 2942106513154595060
+    %[1]s package retry --id 1358811786190908087
 `, os.Args[0])
 }
 
@@ -533,7 +543,7 @@ Retrieve workflow status by ID
     -id UINT: Identifier of package to look up
 
 Example:
-    %[1]s package workflow --id 13958385186974344721
+    %[1]s package workflow --id 4205109267704321404
 `, os.Args[0])
 }
 
@@ -545,9 +555,9 @@ Bulk operations (retry, cancel...).
 
 Example:
     %[1]s package bulk --body '{
-      "operation": "retry",
-      "size": 13733910633092730650,
-      "status": "done"
+      "operation": "cancel",
+      "size": 13700644845007826515,
+      "status": "pending"
    }'
 `, os.Args[0])
 }
@@ -569,7 +579,7 @@ List all preservation actions by ID
     -id UINT: Identifier of package to look up
 
 Example:
-    %[1]s package preservation-actions --id 11970900180965159798
+    %[1]s package preservation-actions --id 11558794572644673838
 `, os.Args[0])
 }
 
@@ -582,8 +592,8 @@ Signal the package has been reviewed and accepted
 
 Example:
     %[1]s package confirm --body '{
-      "location": "Et dignissimos explicabo soluta et autem id."
-   }' --id 8102857567907469695
+      "location": "Non dolorem nesciunt recusandae qui optio."
+   }' --id 5235701885623156419
 `, os.Args[0])
 }
 
@@ -594,7 +604,7 @@ Signal the package has been reviewed and rejected
     -id UINT: Identifier of package to look up
 
 Example:
-    %[1]s package reject --id 15579105168412297244
+    %[1]s package reject --id 2704045210694776917
 `, os.Args[0])
 }
 
@@ -612,6 +622,7 @@ COMMAND:
     move: Move a package to a permanent storage location
     move-status: Retrieve the status of a permanent storage location move of the package
     reject: Reject a package
+    show: Show package by AIPID
 
 Additional help:
     %[1]s storage COMMAND --help
@@ -626,8 +637,8 @@ Start the submission of a package
 
 Example:
     %[1]s storage submit --body '{
-      "name": "Nesciunt qui est provident fuga aut consequatur."
-   }' --aip-id "Et non voluptatem et velit."
+      "name": "Molestias quae."
+   }' --aip-id "Corrupti sunt ad deleniti sunt nostrum."
 `, os.Args[0])
 }
 
@@ -638,7 +649,7 @@ Signal the storage service that an upload is complete
     -aip-id STRING: 
 
 Example:
-    %[1]s storage update --aip-id "Vitae ut voluptas aut id."
+    %[1]s storage update --aip-id "Neque natus quaerat dicta sit voluptatibus."
 `, os.Args[0])
 }
 
@@ -649,7 +660,7 @@ Download package by AIPID
     -aip-id STRING: 
 
 Example:
-    %[1]s storage download --aip-id "Dolor dolorum."
+    %[1]s storage download --aip-id "Repellendus nobis aut officiis tempora."
 `, os.Args[0])
 }
 
@@ -672,8 +683,8 @@ Move a package to a permanent storage location
 
 Example:
     %[1]s storage move --body '{
-      "location": "Tempora voluptatem rerum."
-   }' --aip-id "Dicta eum consequatur."
+      "location": "Magnam recusandae laudantium quidem consequatur ducimus excepturi."
+   }' --aip-id "Et sapiente."
 `, os.Args[0])
 }
 
@@ -684,7 +695,7 @@ Retrieve the status of a permanent storage location move of the package
     -aip-id STRING: 
 
 Example:
-    %[1]s storage move-status --aip-id "Id animi et."
+    %[1]s storage move-status --aip-id "Laboriosam corporis vitae."
 `, os.Args[0])
 }
 
@@ -695,6 +706,17 @@ Reject a package
     -aip-id STRING: 
 
 Example:
-    %[1]s storage reject --aip-id "Magnam recusandae laudantium quidem consequatur ducimus excepturi."
+    %[1]s storage reject --aip-id "Exercitationem minima odio sint illum odit."
+`, os.Args[0])
+}
+
+func storageShowUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage show -aip-id STRING
+
+Show package by AIPID
+    -aip-id STRING: 
+
+Example:
+    %[1]s storage show --aip-id "Similique neque rerum laboriosam."
 `, os.Args[0])
 }

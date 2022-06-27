@@ -24,6 +24,7 @@ type StorageService struct {
 	MoveHandler       func(ctx context.Context, req *goastorage.MovePayload) (err error)
 	MoveStatusHandler func(ctx context.Context, req *goastorage.MoveStatusPayload) (res *goastorage.MoveStatusResult, err error)
 	RejectHandler     func(ctx context.Context, req *goastorage.RejectPayload) (err error)
+	ShowHandler       func(ctx context.Context, req *goastorage.ShowPayload) (res *goastorage.StoredStoragePackage, err error)
 }
 
 func (s StorageService) Submit(ctx context.Context, req *goastorage.SubmitPayload) (res *goastorage.SubmitResult, err error) {
@@ -52,6 +53,10 @@ func (s StorageService) MoveStatus(ctx context.Context, req *goastorage.MoveStat
 
 func (s StorageService) Reject(ctx context.Context, req *goastorage.RejectPayload) (err error) {
 	return s.RejectHandler(ctx, req)
+}
+
+func (s StorageService) Show(ctx context.Context, req *goastorage.ShowPayload) (res *goastorage.StoredStoragePackage, err error) {
+	return s.ShowHandler(ctx, req)
 }
 
 func MinIOUploadPreSignedURLHandler(t *testing.T) func(rw http.ResponseWriter, req *http.Request) {
@@ -88,6 +93,7 @@ func TestUploadActivity(t *testing.T) {
 			endpoints.Move,
 			endpoints.MoveStatus,
 			endpoints.Reject,
+			endpoints.Show,
 		)
 
 		tmpDir := fs.NewDir(t, "", fs.WithFile("aip.7z", "contents-of-the-aip"))
@@ -126,6 +132,7 @@ func TestUploadActivity(t *testing.T) {
 			endpoints.Move,
 			endpoints.MoveStatus,
 			endpoints.Reject,
+			endpoints.Show,
 		)
 
 		tmpDir := fs.NewDir(t, "", fs.WithFile("aip.7z", "contents-of-the-aip"))

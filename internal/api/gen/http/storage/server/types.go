@@ -42,6 +42,17 @@ type MoveStatusResponseBody struct {
 	Done bool `form:"done" json:"done" xml:"done"`
 }
 
+// ShowResponseBody is the type of the "storage" service "show" endpoint HTTP
+// response body.
+type ShowResponseBody struct {
+	Name  string `form:"name" json:"name" xml:"name"`
+	AipID string `form:"aip_id" json:"aip_id" xml:"aip_id"`
+	// Status of the package
+	Status    string  `form:"status" json:"status" xml:"status"`
+	ObjectKey string  `form:"object_key" json:"object_key" xml:"object_key"`
+	Location  *string `form:"location,omitempty" json:"location,omitempty" xml:"location,omitempty"`
+}
+
 // SubmitNotAvailableResponseBody is the type of the "storage" service "submit"
 // endpoint HTTP response body for the "not_available" error.
 type SubmitNotAvailableResponseBody struct {
@@ -240,6 +251,15 @@ type RejectNotFoundResponseBody struct {
 	AipID string `form:"aip_id" json:"aip_id" xml:"aip_id"`
 }
 
+// ShowNotFoundResponseBody is the type of the "storage" service "show"
+// endpoint HTTP response body for the "not_found" error.
+type ShowNotFoundResponseBody struct {
+	// Message of error
+	Message string `form:"message" json:"message" xml:"message"`
+	// Identifier of missing package
+	AipID string `form:"aip_id" json:"aip_id" xml:"aip_id"`
+}
+
 // StoredLocationResponse is used to define fields on response body types.
 type StoredLocationResponse struct {
 	// ID is the unique id of the location.
@@ -272,6 +292,19 @@ func NewStoredLocationResponseCollection(res storageviews.StoredLocationCollecti
 func NewMoveStatusResponseBody(res *storage.MoveStatusResult) *MoveStatusResponseBody {
 	body := &MoveStatusResponseBody{
 		Done: res.Done,
+	}
+	return body
+}
+
+// NewShowResponseBody builds the HTTP response body from the result of the
+// "show" endpoint of the "storage" service.
+func NewShowResponseBody(res *storageviews.StoredStoragePackageView) *ShowResponseBody {
+	body := &ShowResponseBody{
+		Name:      *res.Name,
+		AipID:     *res.AipID,
+		Status:    *res.Status,
+		ObjectKey: *res.ObjectKey,
+		Location:  res.Location,
 	}
 	return body
 }
@@ -442,6 +475,16 @@ func NewRejectNotFoundResponseBody(res *storage.StoragePackageNotfound) *RejectN
 	return body
 }
 
+// NewShowNotFoundResponseBody builds the HTTP response body from the result of
+// the "show" endpoint of the "storage" service.
+func NewShowNotFoundResponseBody(res *storage.StoragePackageNotfound) *ShowNotFoundResponseBody {
+	body := &ShowNotFoundResponseBody{
+		Message: res.Message,
+		AipID:   res.AipID,
+	}
+	return body
+}
+
 // NewSubmitPayload builds a storage service submit endpoint payload.
 func NewSubmitPayload(body *SubmitRequestBody, aipID string) *storage.SubmitPayload {
 	v := &storage.SubmitPayload{
@@ -489,6 +532,14 @@ func NewMoveStatusPayload(aipID string) *storage.MoveStatusPayload {
 // NewRejectPayload builds a storage service reject endpoint payload.
 func NewRejectPayload(aipID string) *storage.RejectPayload {
 	v := &storage.RejectPayload{}
+	v.AipID = aipID
+
+	return v
+}
+
+// NewShowPayload builds a storage service show endpoint payload.
+func NewShowPayload(aipID string) *storage.ShowPayload {
+	v := &storage.ShowPayload{}
 	v.AipID = aipID
 
 	return v
