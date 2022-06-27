@@ -168,6 +168,24 @@ type MoveNotFoundResponseBody struct {
 	AipID *string `form:"aip_id,omitempty" json:"aip_id,omitempty" xml:"aip_id,omitempty"`
 }
 
+// MoveStatusFailedDependencyResponseBody is the type of the "storage" service
+// "move_status" endpoint HTTP response body for the "failed_dependency" error.
+type MoveStatusFailedDependencyResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
 // MoveStatusNotFoundResponseBody is the type of the "storage" service
 // "move_status" endpoint HTTP response body for the "not_found" error.
 type MoveStatusNotFoundResponseBody struct {
@@ -382,6 +400,21 @@ func NewMoveNotFound(body *MoveNotFoundResponseBody) *storage.StoragePackageNotf
 func NewMoveStatusResultOK(body *MoveStatusResponseBody) *storage.MoveStatusResult {
 	v := &storage.MoveStatusResult{
 		Done: *body.Done,
+	}
+
+	return v
+}
+
+// NewMoveStatusFailedDependency builds a storage service move_status endpoint
+// failed_dependency error.
+func NewMoveStatusFailedDependency(body *MoveStatusFailedDependencyResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
 	}
 
 	return v
@@ -618,6 +651,30 @@ func ValidateMoveNotFoundResponseBody(body *MoveNotFoundResponseBody) (err error
 	}
 	if body.AipID == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("aip_id", "body"))
+	}
+	return
+}
+
+// ValidateMoveStatusFailedDependencyResponseBody runs the validations defined
+// on move_status_failed_dependency_response_body
+func ValidateMoveStatusFailedDependencyResponseBody(body *MoveStatusFailedDependencyResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
 	}
 	return
 }

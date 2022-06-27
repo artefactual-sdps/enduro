@@ -135,6 +135,15 @@ func MakeNotValid(err error) *goa.ServiceError {
 	}
 }
 
+// MakeFailedDependency builds a goa.ServiceError from an error.
+func MakeFailedDependency(err error) *goa.ServiceError {
+	return &goa.ServiceError{
+		Name:    "failed_dependency",
+		ID:      goa.NewErrorID(),
+		Message: err.Error(),
+	}
+}
+
 // NewStoredLocationCollection initializes result type StoredLocationCollection
 // from viewed result type StoredLocationCollection.
 func NewStoredLocationCollection(vres storageviews.StoredLocationCollection) StoredLocationCollection {

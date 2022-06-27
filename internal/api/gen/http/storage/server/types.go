@@ -168,6 +168,24 @@ type MoveNotFoundResponseBody struct {
 	AipID string `form:"aip_id" json:"aip_id" xml:"aip_id"`
 }
 
+// MoveStatusFailedDependencyResponseBody is the type of the "storage" service
+// "move_status" endpoint HTTP response body for the "failed_dependency" error.
+type MoveStatusFailedDependencyResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
 // MoveStatusNotFoundResponseBody is the type of the "storage" service
 // "move_status" endpoint HTTP response body for the "not_found" error.
 type MoveStatusNotFoundResponseBody struct {
@@ -358,6 +376,20 @@ func NewMoveNotFoundResponseBody(res *storage.StoragePackageNotfound) *MoveNotFo
 	body := &MoveNotFoundResponseBody{
 		Message: res.Message,
 		AipID:   res.AipID,
+	}
+	return body
+}
+
+// NewMoveStatusFailedDependencyResponseBody builds the HTTP response body from
+// the result of the "move_status" endpoint of the "storage" service.
+func NewMoveStatusFailedDependencyResponseBody(res *goa.ServiceError) *MoveStatusFailedDependencyResponseBody {
+	body := &MoveStatusFailedDependencyResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
 	}
 	return body
 }

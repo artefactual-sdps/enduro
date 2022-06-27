@@ -101,6 +101,7 @@ func (c *Client) Move(ctx context.Context, p *MovePayload) (err error) {
 // MoveStatus calls the "move_status" endpoint of the "storage" service.
 // MoveStatus may return the following errors:
 //	- "not_found" (type *StoragePackageNotfound): Storage package not found
+//	- "failed_dependency" (type *goa.ServiceError)
 //	- error: internal error
 func (c *Client) MoveStatus(ctx context.Context, p *MoveStatusPayload) (res *MoveStatusResult, err error) {
 	var ires interface{}

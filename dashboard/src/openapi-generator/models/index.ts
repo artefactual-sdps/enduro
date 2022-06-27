@@ -37,6 +37,7 @@ export * from './StorageMoveNotAvailableResponseBody';
 export * from './StorageMoveNotFoundResponseBody';
 export * from './StorageMoveNotValidResponseBody';
 export * from './StorageMoveRequestBody';
+export * from './StorageMoveStatusFailedDependencyResponseBody';
 export * from './StorageMoveStatusNotFoundResponseBody';
 export * from './StorageMoveStatusResponseBody';
 export * from './StorageRejectNotAvailableResponseBody';

@@ -376,6 +376,19 @@ func EncodeMoveStatusError(encoder func(context.Context, http.ResponseWriter) go
 			return encodeError(ctx, w, v)
 		}
 		switch en.ErrorName() {
+		case "failed_dependency":
+			var res *goa.ServiceError
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			var body interface{}
+			if formatter != nil {
+				body = formatter(res)
+			} else {
+				body = NewMoveStatusFailedDependencyResponseBody(res)
+			}
+			w.Header().Set("goa-error", res.ErrorName())
+			w.WriteHeader(http.StatusFailedDependency)
+			return enc.Encode(body)
 		case "not_found":
 			var res *storage.StoragePackageNotfound
 			errors.As(v, &res)

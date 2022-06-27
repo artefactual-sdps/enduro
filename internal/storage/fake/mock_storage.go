@@ -156,6 +156,20 @@ func (mr *MockServiceMockRecorder) ReadPackage(arg0, arg1 interface{}) *gomock.C
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadPackage", reflect.TypeOf((*MockService)(nil).ReadPackage), arg0, arg1)
 }
 
+// Reject mocks base method.
+func (m *MockService) Reject(arg0 context.Context, arg1 *storage.RejectPayload) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Reject", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Reject indicates an expected call of Reject.
+func (mr *MockServiceMockRecorder) Reject(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Reject", reflect.TypeOf((*MockService)(nil).Reject), arg0, arg1)
+}
+
 // Submit mocks base method.
 func (m *MockService) Submit(arg0 context.Context, arg1 *storage.SubmitPayload) (*storage.SubmitResult, error) {
 	m.ctrl.T.Helper()

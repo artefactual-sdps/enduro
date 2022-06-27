@@ -91,10 +91,12 @@ var _ = Service("storage", func() {
 		})
 		Result(MoveStatusResult)
 		Error("not_found", StoragePackageNotFound, "Storage package not found")
+		Error("failed_dependency")
 		HTTP(func() {
 			GET("/{aip_id}/store")
 			Response(StatusOK)
 			Response("not_found", StatusNotFound)
+			Response("failed_dependency", StatusFailedDependency)
 		})
 	})
 	Method("reject", func() {
