@@ -17,7 +17,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	temporalapi_enums "go.temporal.io/api/enums/v1"
-	temporalapi_serviceerror "go.temporal.io/api/serviceerror"
 	temporalsdk_client "go.temporal.io/sdk/client"
 	goahttp "goa.design/goa/v3/http"
 	"gocloud.dev/blob"
@@ -237,32 +236,15 @@ func (s *serviceImpl) Move(ctx context.Context, payload *goastorage.MovePayload)
 
 func (s *serviceImpl) MoveStatus(ctx context.Context, payload *goastorage.MoveStatusPayload) (*goastorage.MoveStatusResult, error) {
 	p, err := s.ReadPackage(ctx, payload.AipID)
-	if err == sql.ErrNoRows {
+	if err != nil {
 		return nil, &goastorage.StoragePackageNotfound{AipID: payload.AipID, Message: "not_found"}
-	} else if err != nil {
-		return nil, err
 	}
 
 	resp, err := s.tc.DescribeWorkflowExecution(ctx, fmt.Sprintf("%s-%s", StorageMoveWorkflowName, p.AIPID), "")
-	if err != nil {
-		switch err := err.(type) {
-		case *temporalapi_serviceerror.NotFound:
-			s.logger.Error(err, "error retrieving workflow")
-			// XXX this should be 404, can we create goastorage.MakeNotFound?
-			return nil, goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
-		default:
-			// XXX should this be 404 too?
-			s.logger.Error(err, "error retrieving workflow")
-			return nil, goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
-		}
-	}
-	if resp.WorkflowExecutionInfo == nil {
-		// XXX how to log error when there's no error?
-		s.logger.Error(errors.New("error"), "error retrieving workflow execution details")
-		return nil, goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
+	if err != nil || resp.WorkflowExecutionInfo == nil {
+		return nil, goastorage.MakeFailedDependency(errors.New("cannot perform operation"))
 	}
 
-	// XXX: what about WORKFLOW_EXECUTION_STATUS_UNSPECIFIED and WORKFLOW_EXECUTION_STATUS_CONTINUED_AS_NEW?
 	var done bool
 	switch resp.WorkflowExecutionInfo.Status {
 	case
@@ -270,9 +252,7 @@ func (s *serviceImpl) MoveStatus(ctx context.Context, payload *goastorage.MoveSt
 		temporalapi_enums.WORKFLOW_EXECUTION_STATUS_CANCELED,
 		temporalapi_enums.WORKFLOW_EXECUTION_STATUS_TERMINATED,
 		temporalapi_enums.WORKFLOW_EXECUTION_STATUS_TIMED_OUT:
-		// XXX how to log error when there's no error?
-		s.logger.Error(errors.New("error"), "workflow execution failed")
-		return nil, goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
+		return nil, goastorage.MakeFailedDependency(errors.New("cannot perform operation"))
 	case temporalapi_enums.WORKFLOW_EXECUTION_STATUS_COMPLETED:
 		done = true
 	case temporalapi_enums.WORKFLOW_EXECUTION_STATUS_RUNNING:

@@ -42,6 +42,7 @@ models/StorageMoveNotAvailableResponseBody.ts
 models/StorageMoveNotFoundResponseBody.ts
 models/StorageMoveNotValidResponseBody.ts
 models/StorageMoveRequestBody.ts
+models/StorageMoveStatusFailedDependencyResponseBody.ts
 models/StorageMoveStatusNotFoundResponseBody.ts
 models/StorageMoveStatusResponseBody.ts
 models/StorageRejectNotAvailableResponseBody.ts

@@ -495,6 +495,7 @@ func (c *Client) BuildMoveStatusRequest(ctx context.Context, v interface{}) (*ht
 // storage move_status endpoint. restoreBody controls whether the response body
 // should be restored after having been read.
 // DecodeMoveStatusResponse may return the following errors:
+//	- "failed_dependency" (type *goa.ServiceError): http.StatusFailedDependency
 //	- "not_found" (type *storage.StoragePackageNotfound): http.StatusNotFound
 //	- error: internal error
 func DecodeMoveStatusResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
@@ -527,6 +528,20 @@ func DecodeMoveStatusResponse(decoder func(*http.Response) goahttp.Decoder, rest
 			}
 			res := NewMoveStatusResultOK(&body)
 			return res, nil
+		case http.StatusFailedDependency:
+			var (
+				body MoveStatusFailedDependencyResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "move_status", err)
+			}
+			err = ValidateMoveStatusFailedDependencyResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "move_status", err)
+			}
+			return nil, NewMoveStatusFailedDependency(&body)
 		case http.StatusNotFound:
 			var (
 				body MoveStatusNotFoundResponseBody
