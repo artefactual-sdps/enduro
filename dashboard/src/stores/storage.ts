@@ -3,16 +3,16 @@ import { defineStore, acceptHMRUpdate } from "pinia";
 
 export const useStorageStore = defineStore("storage", {
   state: () => ({
-    locations: [] as Array<{ name: string }>,
+    locations: [] as Array<api.StoredLocationResponse>,
   }),
   getters: {},
   actions: {
-    fetchLocations() {
-      this.reset();
-      this.locations = [{ name: "perma-aips-1" }, { name: "perma-aips-2" }];
-    },
-    reset() {
-      this.locations = [];
+    async fetchLocations() {
+      try {
+        this.locations = await client.storage.storageList();
+      } catch (error) {
+        return error;
+      }
     },
   },
 });
