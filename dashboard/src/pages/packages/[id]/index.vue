@@ -124,5 +124,3 @@ const packageStore = usePackageStore();
     </table>
   </div>
 </template>
-
-<style scoped></style>

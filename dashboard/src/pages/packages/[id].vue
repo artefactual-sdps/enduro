@@ -12,7 +12,7 @@ packageStore.fetchCurrent(route.params.id.toString());
 <template>
   <div v-if="packageStore.current">
     <!-- Navigation bar -->
-    <div class="container-fluid pt-3">
+    <div class="container-fluid pt-3 packages-navbar">
       <div class="container-xxl px-0">
         <div class="col">
           <PackagePendingAlert />
@@ -67,31 +67,3 @@ packageStore.fetchCurrent(route.params.id.toString());
     </div>
   </div>
 </template>
-
-<style lang="scss" scoped>
-.container-fluid {
-  background-color: #f5f5f5;
-  border-bottom: 1px solid #dee2e6;
-}
-
-.nav-tabs {
-  border-bottom: 0;
-}
-
-.nav-link {
-  &,
-  &:hover {
-    border-top: 3px solid transparent;
-  }
-  &.active {
-    border-top: 3px solid #5e2750 !important;
-    border-left-color: #dee2e6 !important;
-    border-right-color: #dee2e6 !important;
-  }
-}
-.nav-tabs .nav-link:hover,
-.nav-tabs .nav-link:focus {
-  border-left-color: transparent;
-  border-right-color: transparent;
-}
-</style>

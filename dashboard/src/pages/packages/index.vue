@@ -21,7 +21,7 @@ const openPackage = (id: number) => {
 <template>
   <div class="container-xxl pt-3">
     <h2>Packages</h2>
-    <table class="table table-bordered table-hover">
+    <table class="table table-bordered table-hover table-linked table-enduro">
       <thead>
         <tr>
           <th scope="col">ID</th>
@@ -52,9 +52,3 @@ const openPackage = (id: number) => {
     </table>
   </div>
 </template>
-
-<style scoped>
-tbody tr {
-  cursor: pointer;
-}
-</style>

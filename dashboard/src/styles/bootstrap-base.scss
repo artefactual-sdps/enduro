@@ -1,0 +1,16 @@
+@import "bootstrap/scss/functions";
+
+// Variable overrides.
+$enduro-primary: #5e2750;
+$custom-theme-colors: (
+  "enduro-primary": $enduro-primary,
+);
+
+// Bootstrap required
+@import "bootstrap/scss/variables";
+
+$theme-colors: map-merge($theme-colors, $custom-theme-colors);
+
+// Default map overrides.
+@import "bootstrap/scss/maps";
+@import "bootstrap/scss/mixins";
