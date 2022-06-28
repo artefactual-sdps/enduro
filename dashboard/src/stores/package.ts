@@ -1,4 +1,5 @@
 import { api, client } from "@/client";
+import { useStorageStore } from "@/stores/storage";
 import { defineStore, acceptHMRUpdate } from "pinia";
 
 export const usePackageStore = defineStore("package", {
@@ -24,6 +25,9 @@ export const usePackageStore = defineStore("package", {
       }
       client.package.packageShow({ id: packageId }).then((payload) => {
         this.current = payload;
+        if (this.current.aipId) {
+          useStorageStore().fetchPackage(this.current.aipId);
+        }
       });
       client.package
         .packagePreservationActions({ id: packageId })

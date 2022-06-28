@@ -5,6 +5,10 @@ import Modal from "bootstrap/js/dist/modal";
 import { ref, onMounted } from "vue";
 import { closeDialog } from "vue3-promise-dialog";
 
+const props = defineProps({
+  currentLocation: { type: String, required: false },
+});
+
 const el = ref<HTMLElement | null>(null);
 const modal = ref<Modal | null>(null);
 
@@ -24,6 +28,7 @@ useEventListener(el, "hidden.bs.modal", (e) => {
 });
 
 const onChoose = (locationName: string) => {
+  if (locationName === props.currentLocation) return;
   data = locationName;
   modal.value?.hide();
 };
@@ -48,12 +53,16 @@ const onChoose = (locationName: string) => {
               <tr
                 v-for="(item, index) in storageStore.locations"
                 @click="onChoose(item.name)"
+                :class="[item.name == props.currentLocation ? 'disabled' : '']"
               >
                 <td>{{ item.name }}</td>
                 <td><span class="badge bg-success">READY</span></td>
               </tr>
             </tbody>
           </table>
+          <small class="text-muted" v-if="props.currentLocation">
+            The current location is {{ props.currentLocation }}.
+          </small>
         </div>
         <div class="modal-footer">
           <button
@@ -68,3 +77,11 @@ const onChoose = (locationName: string) => {
     </div>
   </div>
 </template>
+
+<style scoped>
+.disabled {
+  cursor: not-allowed;
+  background-color: #f5f5f5;
+  font-weight: bold;
+}
+</style>
