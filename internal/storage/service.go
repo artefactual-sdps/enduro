@@ -155,7 +155,7 @@ func (s *serviceImpl) Location(name string) (Location, error) {
 }
 
 func (s *serviceImpl) Submit(ctx context.Context, payload *goastorage.SubmitPayload) (*goastorage.SubmitResult, error) {
-	_, err := InitStorageWorkflow(ctx, s.tc, &StorageUploadWorkflowRequest{AIPID: payload.AipID})
+	_, err := InitStorageUploadWorkflow(ctx, s.tc, &StorageUploadWorkflowRequest{AIPID: payload.AipID})
 	if err != nil {
 		return nil, goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
 	}
@@ -224,8 +224,9 @@ func (s *serviceImpl) Move(ctx context.Context, payload *goastorage.MovePayload)
 	}
 
 	_, err = InitStorageMoveWorkflow(ctx, s.tc, &StorageMoveWorkflowRequest{
-		AIPID:    p.AIPID,
-		Location: payload.Location,
+		AIPID:     p.AIPID,
+		Location:  payload.Location,
+		ObjectKey: p.ObjectKey,
 	})
 	if err != nil {
 		s.logger.Error(err, "error initializing move workflow")
@@ -296,15 +297,8 @@ func (s *serviceImpl) HTTPDownload(mux goahttp.Muxer, dec func(r *http.Request) 
 			return
 		}
 
-		// Get package bucket
-		bucket, err := s.packageBucket(pkg)
-		if err != nil {
-			rw.WriteHeader(http.StatusNotFound)
-			return
-		}
-
 		// Get MinIO bucket reader for object key.
-		reader, err := bucket.NewReader(ctx, pkg.ObjectKey, nil)
+		reader, err := s.packageReader(ctx, pkg)
 		if err != nil {
 			rw.WriteHeader(http.StatusNotFound)
 			return
@@ -397,20 +391,30 @@ func (s *serviceImpl) UpdatePackageLocation(ctx context.Context, location string
 	return nil
 }
 
-func (s *serviceImpl) packageBucket(pkg *Package) (*blob.Bucket, error) {
-	var result *blob.Bucket
+func (s *serviceImpl) packageReader(ctx context.Context, pkg *Package) (*blob.Reader, error) {
+	var bucket *blob.Bucket
+	var key string
+
 	if pkg.Location == "" {
 		// Package is still in the internal processing bucket
-		result = s.bucket
+		bucket = s.bucket
+		key = pkg.ObjectKey
 	} else {
 		location, err := s.Location(pkg.Location)
 		if err != nil {
 			return nil, err
 		}
-		result, err = location.OpenBucket()
+		bucket, err = location.OpenBucket()
 		if err != nil {
 			return nil, err
 		}
+		key = pkg.AIPID
 	}
-	return result, nil
+
+	reader, err := bucket.NewReader(ctx, key, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return reader, nil
 }

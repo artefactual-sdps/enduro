@@ -13,6 +13,7 @@ import (
 
 const (
 	CopyToPermanentLocationActivityName = "copy-to-permanent-location-activity"
+	DeleteFromLocationActivityName      = "delete-from-location-activity"
 	StorageUploadWorkflowName           = "storage-upload-workflow"
 	StorageMoveWorkflowName             = "storage-move-workflow"
 	UploadDoneSignalName                = "upload-done-signal"
@@ -23,18 +24,20 @@ type StorageUploadWorkflowRequest struct {
 }
 
 type StorageMoveWorkflowRequest struct {
-	AIPID    string
-	Location string
+	AIPID     string
+	Location  string
+	ObjectKey string
 }
 
 type CopyToPermanentLocationActivityParams struct {
-	AIPID    string
-	Location string
+	AIPID     string
+	Location  string
+	ObjectKey string
 }
 
 type UploadDoneSignal struct{}
 
-func InitStorageWorkflow(ctx context.Context, tc temporalsdk_client.Client, req *StorageUploadWorkflowRequest) (temporalsdk_client.WorkflowRun, error) {
+func InitStorageUploadWorkflow(ctx context.Context, tc temporalsdk_client.Client, req *StorageUploadWorkflowRequest) (temporalsdk_client.WorkflowRun, error) {
 	ctx, cancel := context.WithTimeout(ctx, time.Second*5)
 	defer cancel()
 	opts := temporalsdk_client.StartWorkflowOptions{
