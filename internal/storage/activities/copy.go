@@ -16,12 +16,7 @@ func NewCopyToPermanentLocationActivity(storagesvc storage.Service) *CopyToPerma
 }
 
 func (a *CopyToPermanentLocationActivity) Execute(ctx context.Context, params *storage.CopyToPermanentLocationActivityParams) error {
-	p, err := a.storagesvc.ReadPackage(ctx, params.AIPID)
-	if err != nil {
-		return err
-	}
-
-	reader, err := a.storagesvc.Bucket().NewReader(ctx, p.ObjectKey, nil)
+	reader, err := a.storagesvc.Bucket().NewReader(ctx, params.ObjectKey, nil)
 	if err != nil {
 		return err
 	}
@@ -38,7 +33,7 @@ func (a *CopyToPermanentLocationActivity) Execute(ctx context.Context, params *s
 	}
 	defer bucket.Close()
 
-	writer, err := bucket.NewWriter(ctx, p.ObjectKey, nil)
+	writer, err := bucket.NewWriter(ctx, params.AIPID, nil)
 	if err != nil {
 		return err
 	}

@@ -35,15 +35,34 @@ func (w *StorageMoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req stor
 			},
 		})
 		err := temporalsdk_workflow.ExecuteActivity(activityOpts, storage.CopyToPermanentLocationActivityName, &storage.CopyToPermanentLocationActivityParams{
-			AIPID:    req.AIPID,
-			Location: req.Location,
+			AIPID:     req.AIPID,
+			Location:  req.Location,
+			ObjectKey: req.ObjectKey,
 		}).Get(activityOpts, nil)
 		if err != nil {
 			return err
 		}
 	}
 
-	// TODO: should we delete the package from the internal aips bucket here?
+	// Delete package from internal processing bucket
+	{
+
+		activityOpts := temporalsdk_workflow.WithLocalActivityOptions(ctx, temporalsdk_workflow.LocalActivityOptions{
+			ScheduleToCloseTimeout: 5 * time.Second,
+			RetryPolicy: &temporalsdk_temporal.RetryPolicy{
+				InitialInterval:    time.Second,
+				BackoffCoefficient: 2,
+				MaximumInterval:    time.Minute,
+				MaximumAttempts:    3,
+			},
+		})
+		err := temporalsdk_workflow.ExecuteLocalActivity(activityOpts, storage.DeleteFromLocationLocalActivity, w.storagesvc, &storage.DeleteFromLocationLocalActivityParams{
+			ObjectKey: req.ObjectKey,
+		}).Get(activityOpts, nil)
+		if err != nil {
+			return err
+		}
+	}
 
 	// Update package location
 	{
