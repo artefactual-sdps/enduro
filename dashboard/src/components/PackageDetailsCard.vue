@@ -2,6 +2,7 @@
 import { storageServiceDownloadURL } from "@/client";
 import PackageStatusBadge from "@/components/PackageStatusBadge.vue";
 import { usePackageStore } from "@/stores/package";
+import { computed } from "vue";
 
 const packageStore = usePackageStore();
 
@@ -10,6 +11,10 @@ const download = () => {
   const url = storageServiceDownloadURL(packageStore.current.aipId);
   window.open(url, "_blank");
 };
+
+const stored = computed(() => {
+  return packageStore.current?.aipId?.length;
+});
 </script>
 
 <template>
@@ -33,7 +38,16 @@ const download = () => {
         <button class="btn btn-secondary btn-sm disabled">
           View metadata summary
         </button>
-        <button class="btn btn-primary btn-sm" type="button" @click="download">
+        <button
+          :class="{
+            btn: true,
+            'btn-primary': true,
+            'btn-sm': true,
+            disabled: !stored,
+          }"
+          type="button"
+          @click="download"
+        >
           Download
         </button>
       </div>
