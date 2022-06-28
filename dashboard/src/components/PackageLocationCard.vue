@@ -1,27 +1,27 @@
 <script setup lang="ts">
 import { openPackageLocationDialog } from "@/dialogs";
-import { usePackageStore } from "@/stores/package";
+import { useStorageStore } from "@/stores/storage";
 
-const packageStore = usePackageStore();
-
-// TODO: packageStore.current.location
-const location = undefined;
+const storageStore = useStorageStore();
 
 const choose = async () => {
-  await openPackageLocationDialog();
+  const location = await openPackageLocationDialog(
+    storageStore.package?.location
+  );
+  console.log(location);
   // TODO: packageStore.current.move
 };
 </script>
 
 <template>
-  <div class="card mb-3" v-if="packageStore.current">
+  <div class="card mb-3">
     <div class="card-body">
       <h5 class="card-title">Location</h5>
       <p class="card-text">
-        <span v-if="location">{{ location }}</span>
-        <span v-else>Not available yet.</span>
+        <span v-if="!storageStore.package?.location">Not available yet.</span>
+        <span v-else>{{ storageStore.package.location }}</span>
       </p>
-      <div v-if="location || true">
+      <div v-if="storageStore.package?.location">
         <button type="button" class="btn btn-primary btn-sm" @click="choose">
           Choose storage location
         </button>
