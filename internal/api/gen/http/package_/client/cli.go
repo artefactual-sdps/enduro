@@ -288,3 +288,50 @@ func BuildRejectPayload(package_RejectID string) (*package_.RejectPayload, error
 
 	return v, nil
 }
+
+// BuildMovePayload builds the payload for the package move endpoint from CLI
+// flags.
+func BuildMovePayload(package_MoveBody string, package_MoveID string) (*package_.MovePayload, error) {
+	var err error
+	var body MoveRequestBody
+	{
+		err = json.Unmarshal([]byte(package_MoveBody), &body)
+		if err != nil {
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location\": \"Quae tenetur.\"\n   }'")
+		}
+	}
+	var id uint
+	{
+		var v uint64
+		v, err = strconv.ParseUint(package_MoveID, 10, strconv.IntSize)
+		id = uint(v)
+		if err != nil {
+			return nil, fmt.Errorf("invalid value for id, must be UINT")
+		}
+	}
+	v := &package_.MovePayload{
+		Location: body.Location,
+	}
+	v.ID = id
+
+	return v, nil
+}
+
+// BuildMoveStatusPayload builds the payload for the package move_status
+// endpoint from CLI flags.
+func BuildMoveStatusPayload(package_MoveStatusID string) (*package_.MoveStatusPayload, error) {
+	var err error
+	var id uint
+	{
+		var v uint64
+		v, err = strconv.ParseUint(package_MoveStatusID, 10, strconv.IntSize)
+		id = uint(v)
+		if err != nil {
+			return nil, fmt.Errorf("invalid value for id, must be UINT")
+		}
+	}
+	v := &package_.MoveStatusPayload{}
+	v.ID = id
+
+	return v, nil
+}

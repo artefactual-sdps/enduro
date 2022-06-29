@@ -432,3 +432,51 @@ func (w *goaWrapper) Reject(ctx context.Context, payload *goapackage.RejectPaylo
 
 	return nil
 }
+
+func (w *goaWrapper) Move(ctx context.Context, payload *goapackage.MovePayload) error {
+	var err error
+	var goapkg *goapackage.EnduroStoredPackage
+	if goapkg, err = w.Show(ctx, &goapackage.ShowPayload{ID: payload.ID}); err != nil {
+		return err
+	}
+
+	_, err = InitMoveWorkflow(ctx, w.tc, &MoveWorkflowRequest{
+		AIPID:    *goapkg.AipID,
+		Location: payload.Location,
+	})
+	if err != nil {
+		w.logger.Error(err, "error initializing move workflow")
+		return goapackage.MakeNotAvailable(errors.New("cannot perform operation"))
+	}
+
+	return nil
+}
+
+func (w *goaWrapper) MoveStatus(ctx context.Context, payload *goapackage.MoveStatusPayload) (*goapackage.MoveStatusResult, error) {
+	var err error
+	var goapkg *goapackage.EnduroStoredPackage
+	if goapkg, err = w.Show(ctx, &goapackage.ShowPayload{ID: payload.ID}); err != nil {
+		return nil, err
+	}
+
+	resp, err := w.tc.DescribeWorkflowExecution(ctx, fmt.Sprintf("%s-%s", MoveWorkflowName, *goapkg.AipID), "")
+	if err != nil || resp.WorkflowExecutionInfo == nil {
+		return nil, goapackage.MakeFailedDependency(errors.New("cannot perform operation"))
+	}
+
+	var done bool
+	switch resp.WorkflowExecutionInfo.Status {
+	case
+		temporalapi_enums.WORKFLOW_EXECUTION_STATUS_FAILED,
+		temporalapi_enums.WORKFLOW_EXECUTION_STATUS_CANCELED,
+		temporalapi_enums.WORKFLOW_EXECUTION_STATUS_TERMINATED,
+		temporalapi_enums.WORKFLOW_EXECUTION_STATUS_TIMED_OUT:
+		return nil, goapackage.MakeFailedDependency(errors.New("cannot perform operation"))
+	case temporalapi_enums.WORKFLOW_EXECUTION_STATUS_COMPLETED:
+		done = true
+	case temporalapi_enums.WORKFLOW_EXECUTION_STATUS_RUNNING:
+		done = false
+	}
+
+	return &goapackage.MoveStatusResult{Done: done}, nil
+}

@@ -174,11 +174,13 @@ var _ = Service("package", func() {
 			Attribute("location", String)
 			Required("id", "location")
 		})
+		Error("not_found", PackageNotFound, "Package not found")
 		Error("not_available")
 		Error("not_valid")
 		HTTP(func() {
 			POST("/{id}/confirm")
 			Response(StatusAccepted)
+			Response("not_found", StatusNotFound)
 			Response("not_available", StatusConflict)
 			Response("not_valid", StatusBadRequest)
 		})
@@ -189,15 +191,52 @@ var _ = Service("package", func() {
 			Attribute("id", UInt, "Identifier of package to look up")
 			Required("id")
 		})
+		Error("not_found", PackageNotFound, "Package not found")
 		Error("not_available")
 		Error("not_valid")
 		HTTP(func() {
 			POST("/{id}/reject")
 			Response(StatusAccepted)
+			Response("not_found", StatusNotFound)
 			Response("not_available", StatusConflict)
 			Response("not_valid", StatusBadRequest)
 		})
 	})
+	Method("move", func() {
+		Description("Move a package to a permanent storage location")
+		Payload(func() {
+			Attribute("id", UInt, "Identifier of package to move")
+			Attribute("location", String)
+			Required("id", "location")
+		})
+		Error("not_found", PackageNotFound, "Package not found")
+		Error("not_available")
+		Error("not_valid")
+		HTTP(func() {
+			POST("/{id}/move")
+			Response(StatusAccepted)
+			Response("not_found", StatusNotFound)
+			Response("not_available", StatusConflict)
+			Response("not_valid", StatusBadRequest)
+		})
+	})
+	Method("move_status", func() {
+		Description("Retrieve the status of a permanent storage location move of the package")
+		Payload(func() {
+			Attribute("id", UInt, "Identifier of package to move")
+			Required("id")
+		})
+		Result(MoveStatusResult)
+		Error("not_found", PackageNotFound, "Package not found")
+		Error("failed_dependency")
+		HTTP(func() {
+			GET("/{id}/move")
+			Response(StatusOK)
+			Response("not_found", StatusNotFound)
+			Response("failed_dependency", StatusFailedDependency)
+		})
+	})
+
 })
 
 var EnumPackageStatus = func() {
