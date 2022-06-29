@@ -6,7 +6,7 @@ import { useRoute } from "vue-router";
 const route = useRoute();
 const packageStore = usePackageStore();
 
-packageStore.fetchCurrent(route.params.id.toString());
+await packageStore.fetchCurrent(route.params.id.toString());
 </script>
 
 <template>

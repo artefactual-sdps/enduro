@@ -200,13 +200,12 @@ func (w *goaWrapper) Delete(ctx context.Context, payload *goapackage.DeletePaylo
 
 // Cancel package processing by ID. It implements goapackage.Service.
 func (w *goaWrapper) Cancel(ctx context.Context, payload *goapackage.CancelPayload) error {
-	var err error
-	var goacol *goapackage.EnduroStoredPackage
-	if goacol, err = w.Show(ctx, &goapackage.ShowPayload{ID: payload.ID}); err != nil {
+	goapkg, err := w.Show(ctx, &goapackage.ShowPayload{ID: payload.ID})
+	if err != nil {
 		return err
 	}
 
-	if err := w.tc.CancelWorkflow(ctx, *goacol.WorkflowID, *goacol.RunID); err != nil {
+	if err := w.tc.CancelWorkflow(ctx, *goapkg.WorkflowID, *goapkg.RunID); err != nil {
 		// TODO: return custom errors
 		return err
 	}
@@ -220,15 +219,14 @@ func (w *goaWrapper) Cancel(ctx context.Context, payload *goapackage.CancelPaylo
 //
 // TODO: conceptually Temporal workflows should handle retries, i.e. retry could be part of workflow code too (e.g. signals, children, etc).
 func (w *goaWrapper) Retry(ctx context.Context, payload *goapackage.RetryPayload) error {
-	var err error
-	var goacol *goapackage.EnduroStoredPackage
-	if goacol, err = w.Show(ctx, &goapackage.ShowPayload{ID: payload.ID}); err != nil {
+	goapkg, err := w.Show(ctx, &goapackage.ShowPayload{ID: payload.ID})
+	if err != nil {
 		return err
 	}
 
 	execution := &temporalapi_common.WorkflowExecution{
-		WorkflowId: *goacol.WorkflowID,
-		RunId:      *goacol.RunID,
+		WorkflowId: *goapkg.WorkflowID,
+		RunId:      *goapkg.RunID,
 	}
 
 	historyEvent, err := temporal.FirstHistoryEvent(ctx, w.tc, execution)
@@ -251,8 +249,8 @@ func (w *goaWrapper) Retry(ctx context.Context, payload *goapackage.RetryPayload
 		return fmt.Errorf("error loading state of the previous workflow run: %w", err)
 	}
 
-	req.WorkflowID = *goacol.WorkflowID
-	req.PackageID = goacol.ID
+	req.WorkflowID = *goapkg.WorkflowID
+	req.PackageID = goapkg.ID
 	if err := InitProcessingWorkflow(ctx, w.tc, req); err != nil {
 		return fmt.Errorf("error starting the new workflow instance: %w", err)
 	}
@@ -263,8 +261,8 @@ func (w *goaWrapper) Retry(ctx context.Context, payload *goapackage.RetryPayload
 }
 
 func (w *goaWrapper) Workflow(ctx context.Context, payload *goapackage.WorkflowPayload) (res *goapackage.EnduroPackageWorkflowStatus, err error) {
-	var goacol *goapackage.EnduroStoredPackage
-	if goacol, err = w.Show(ctx, &goapackage.ShowPayload{ID: payload.ID}); err != nil {
+	goapkg, err := w.Show(ctx, &goapackage.ShowPayload{ID: payload.ID})
+	if err != nil {
 		return nil, err
 	}
 
@@ -272,7 +270,7 @@ func (w *goaWrapper) Workflow(ctx context.Context, payload *goapackage.WorkflowP
 		History: []*goapackage.EnduroPackageWorkflowHistory{},
 	}
 
-	we, err := w.tc.DescribeWorkflowExecution(ctx, *goacol.WorkflowID, *goacol.RunID)
+	we, err := w.tc.DescribeWorkflowExecution(ctx, *goapkg.WorkflowID, *goapkg.RunID)
 	if err != nil {
 		switch err.(type) {
 		case *temporalapi_serviceerror.NotFound:
@@ -288,7 +286,7 @@ func (w *goaWrapper) Workflow(ctx context.Context, payload *goapackage.WorkflowP
 	}
 	resp.Status = &status
 
-	iter := w.tc.GetWorkflowHistory(ctx, *goacol.WorkflowID, *goacol.RunID, false, temporalapi_enums.HISTORY_EVENT_FILTER_TYPE_ALL_EVENT)
+	iter := w.tc.GetWorkflowHistory(ctx, *goapkg.WorkflowID, *goapkg.RunID, false, temporalapi_enums.HISTORY_EVENT_FILTER_TYPE_ALL_EVENT)
 	for iter.HasNext() {
 		event, err := iter.Next()
 		if err != nil {
@@ -401,9 +399,8 @@ func (w *goaWrapper) BulkStatus(ctx context.Context) (*goapackage.BulkStatusResu
 }
 
 func (w *goaWrapper) Confirm(ctx context.Context, payload *goapackage.ConfirmPayload) error {
-	var err error
-	var goapkg *goapackage.EnduroStoredPackage
-	if goapkg, err = w.Show(ctx, &goapackage.ShowPayload{ID: payload.ID}); err != nil {
+	goapkg, err := w.Show(ctx, &goapackage.ShowPayload{ID: payload.ID})
+	if err != nil {
 		return err
 	}
 
@@ -420,9 +417,8 @@ func (w *goaWrapper) Confirm(ctx context.Context, payload *goapackage.ConfirmPay
 }
 
 func (w *goaWrapper) Reject(ctx context.Context, payload *goapackage.RejectPayload) error {
-	var err error
-	var goapkg *goapackage.EnduroStoredPackage
-	if goapkg, err = w.Show(ctx, &goapackage.ShowPayload{ID: payload.ID}); err != nil {
+	goapkg, err := w.Show(ctx, &goapackage.ShowPayload{ID: payload.ID})
+	if err != nil {
 		return err
 	}
 
@@ -438,9 +434,12 @@ func (w *goaWrapper) Reject(ctx context.Context, payload *goapackage.RejectPaylo
 }
 
 func (w *goaWrapper) Move(ctx context.Context, payload *goapackage.MovePayload) error {
-	var err error
-	var goapkg *goapackage.EnduroStoredPackage
-	if goapkg, err = w.Show(ctx, &goapackage.ShowPayload{ID: payload.ID}); err != nil {
+	if payload.Location == "" {
+		return goapackage.MakeNotValid(errors.New("location attribute is empty"))
+	}
+
+	goapkg, err := w.Show(ctx, &goapackage.ShowPayload{ID: payload.ID})
+	if err != nil {
 		return err
 	}
 
@@ -458,9 +457,8 @@ func (w *goaWrapper) Move(ctx context.Context, payload *goapackage.MovePayload) 
 }
 
 func (w *goaWrapper) MoveStatus(ctx context.Context, payload *goapackage.MoveStatusPayload) (*goapackage.MoveStatusResult, error) {
-	var err error
-	var goapkg *goapackage.EnduroStoredPackage
-	if goapkg, err = w.Show(ctx, &goapackage.ShowPayload{ID: payload.ID}); err != nil {
+	goapkg, err := w.Show(ctx, &goapackage.ShowPayload{ID: payload.ID})
+	if err != nil {
 		return nil, err
 	}
 
