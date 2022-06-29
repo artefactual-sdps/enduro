@@ -66,12 +66,13 @@ func (p *PreservationActionStatus) UnmarshalJSON(b []byte) error {
 
 // PreservationAction represents a preservation action in the preservation_action table.
 type PreservationAction struct {
-	ID        uint                     `db:"id"`
-	ActionID  string                   `db:"action_id"`
-	Name      string                   `db:"name"`
-	Status    PreservationActionStatus `db:"status"`
-	StartedAt sql.NullTime             `db:"started_at"`
-	PackageID uint                     `db:"package_id"`
+	ID          uint                     `db:"id"`
+	ActionID    string                   `db:"action_id"`
+	Name        string                   `db:"name"`
+	Status      PreservationActionStatus `db:"status"`
+	StartedAt   sql.NullTime             `db:"started_at"`
+	CompletedAt sql.NullTime             `db:"completed_at"`
+	PackageID   uint                     `db:"package_id"`
 }
 
 func (w *goaWrapper) PreservationActions(ctx context.Context, payload *goapackage.PreservationActionsPayload) (*goapackage.EnduroPackagePreservationActions, error) {
@@ -81,7 +82,7 @@ func (w *goaWrapper) PreservationActions(ctx context.Context, payload *goapackag
 		return nil, err
 	}
 
-	query := "SELECT id, action_id, name, status, CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at FROM preservation_action WHERE package_id = (?)"
+	query := "SELECT id, action_id, name, status, CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at, CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at FROM preservation_action WHERE package_id = (?)"
 	args := []interface{}{goacol.ID}
 
 	query = w.db.Rebind(query)
@@ -98,11 +99,12 @@ func (w *goaWrapper) PreservationActions(ctx context.Context, payload *goapackag
 			return nil, fmt.Errorf("error scanning database result: %w", err)
 		}
 		preservation_actions = append(preservation_actions, &goapackage.EnduroPackagePreservationActionsAction{
-			ID:        pa.ID,
-			ActionID:  pa.ActionID,
-			Name:      pa.Name,
-			Status:    pa.Status.String(),
-			StartedAt: pa.StartedAt.Time.Format(time.RFC3339),
+			ID:          pa.ID,
+			ActionID:    pa.ActionID,
+			Name:        pa.Name,
+			Status:      pa.Status.String(),
+			StartedAt:   pa.StartedAt.Time.Format(time.RFC3339),
+			CompletedAt: formatOptionalTime(pa.CompletedAt),
 		})
 	}
 
@@ -114,12 +116,13 @@ func (w *goaWrapper) PreservationActions(ctx context.Context, payload *goapackag
 }
 
 func (svc *packageImpl) CreatePreservationAction(ctx context.Context, pa *PreservationAction) error {
-	query := `INSERT INTO preservation_action (action_id, name, status, started_at, package_id) VALUES ((?), (?), (?), (?), (?))`
+	query := `INSERT INTO preservation_action (action_id, name, status, started_at, completed_at, package_id) VALUES ((?), (?), (?), (?), (?), (?))`
 	args := []interface{}{
 		pa.ActionID,
 		pa.Name,
 		pa.Status,
 		pa.StartedAt,
+		pa.CompletedAt,
 		pa.PackageID,
 	}
 

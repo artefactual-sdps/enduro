@@ -51,12 +51,13 @@ func (svc *packageImpl) Goa() goapackage.Service {
 }
 
 func (svc *packageImpl) Create(ctx context.Context, col *Package) error {
-	query := `INSERT INTO package (name, workflow_id, run_id, aip_id, status) VALUES ((?), (?), (?), (?), (?))`
+	query := `INSERT INTO package (name, workflow_id, run_id, aip_id, location, status) VALUES ((?), (?), (?), (?), (?), (?))`
 	args := []interface{}{
 		col.Name,
 		col.WorkflowID,
 		col.RunID,
 		col.AIPID,
+		col.Location,
 		col.Status,
 	}
 
@@ -188,7 +189,7 @@ func (svc *packageImpl) updateRow(ctx context.Context, query string, args []inte
 }
 
 func (svc *packageImpl) read(ctx context.Context, ID uint) (*Package, error) {
-	query := "SELECT id, name, workflow_id, run_id, aip_id, status, CONVERT_TZ(created_at, @@session.time_zone, '+00:00') AS created_at, CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at, CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at FROM package WHERE id = (?)"
+	query := "SELECT id, name, workflow_id, run_id, aip_id, location, status, CONVERT_TZ(created_at, @@session.time_zone, '+00:00') AS created_at, CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at, CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at FROM package WHERE id = (?)"
 	args := []interface{}{ID}
 	c := Package{}
 

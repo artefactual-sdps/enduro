@@ -27,6 +27,12 @@ export interface EnduroPackagePreservationActionsActionResponseBody {
     actionId: string;
     /**
      * 
+     * @type {Date}
+     * @memberof EnduroPackagePreservationActionsActionResponseBody
+     */
+    completedAt?: Date;
+    /**
+     * 
      * @type {number}
      * @memberof EnduroPackagePreservationActionsActionResponseBody
      */
@@ -75,6 +81,7 @@ export function EnduroPackagePreservationActionsActionResponseBodyFromJSONTyped(
     return {
         
         'actionId': json['action_id'],
+        'completedAt': !exists(json, 'completed_at') ? undefined : (new Date(json['completed_at'])),
         'id': json['id'],
         'name': json['name'],
         'startedAt': (new Date(json['started_at'])),
@@ -92,6 +99,7 @@ export function EnduroPackagePreservationActionsActionResponseBodyToJSON(value?:
     return {
         
         'action_id': value.actionId,
+        'completed_at': value.completedAt === undefined ? undefined : (value.completedAt.toISOString()),
         'id': value.id,
         'name': value.name,
         'started_at': (value.startedAt.toISOString()),

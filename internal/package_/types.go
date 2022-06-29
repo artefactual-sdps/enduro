@@ -14,6 +14,7 @@ type Package struct {
 	WorkflowID string `db:"workflow_id"`
 	RunID      string `db:"run_id"`
 	AIPID      string `db:"aip_id"`
+	Location   string `db:"location"`
 	Status     Status `db:"status"`
 
 	// It defaults to CURRENT_TIMESTAMP(6) so populated as soon as possible.
@@ -34,6 +35,7 @@ func (c Package) Goa() *goapackage.EnduroStoredPackage {
 		WorkflowID:  formatOptionalString(c.WorkflowID),
 		RunID:       formatOptionalString(c.RunID),
 		AipID:       formatOptionalString(c.AIPID),
+		Location:    formatOptionalString(c.Location),
 		Status:      c.Status.String(),
 		CreatedAt:   formatTime(c.CreatedAt),
 		StartedAt:   formatOptionalTime(c.StartedAt),

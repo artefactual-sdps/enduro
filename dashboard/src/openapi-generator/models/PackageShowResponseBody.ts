@@ -44,6 +44,12 @@ export interface PackageShowResponseBody {
      */
     id: number;
     /**
+     * Location of the package
+     * @type {string}
+     * @memberof PackageShowResponseBody
+     */
+    location?: string;
+    /**
      * Name of the package
      * @type {string}
      * @memberof PackageShowResponseBody
@@ -106,6 +112,7 @@ export function PackageShowResponseBodyFromJSONTyped(json: any, ignoreDiscrimina
         'completedAt': !exists(json, 'completed_at') ? undefined : (new Date(json['completed_at'])),
         'createdAt': (new Date(json['created_at'])),
         'id': json['id'],
+        'location': !exists(json, 'location') ? undefined : json['location'],
         'name': !exists(json, 'name') ? undefined : json['name'],
         'runId': !exists(json, 'run_id') ? undefined : json['run_id'],
         'startedAt': !exists(json, 'started_at') ? undefined : (new Date(json['started_at'])),
@@ -127,6 +134,7 @@ export function PackageShowResponseBodyToJSON(value?: PackageShowResponseBody | 
         'completed_at': value.completedAt === undefined ? undefined : (value.completedAt.toISOString()),
         'created_at': (value.createdAt.toISOString()),
         'id': value.id,
+        'location': value.location,
         'name': value.name,
         'run_id': value.runId,
         'started_at': value.startedAt === undefined ? undefined : (value.startedAt.toISOString()),

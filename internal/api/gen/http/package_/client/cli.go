@@ -19,7 +19,7 @@ import (
 
 // BuildListPayload builds the payload for the package list endpoint from CLI
 // flags.
-func BuildListPayload(package_ListName string, package_ListAipID string, package_ListEarliestCreatedTime string, package_ListLatestCreatedTime string, package_ListStatus string, package_ListCursor string) (*package_.ListPayload, error) {
+func BuildListPayload(package_ListName string, package_ListAipID string, package_ListEarliestCreatedTime string, package_ListLatestCreatedTime string, package_ListLocation string, package_ListStatus string, package_ListCursor string) (*package_.ListPayload, error) {
 	var err error
 	var name *string
 	{
@@ -57,6 +57,12 @@ func BuildListPayload(package_ListName string, package_ListAipID string, package
 			}
 		}
 	}
+	var location *string
+	{
+		if package_ListLocation != "" {
+			location = &package_ListLocation
+		}
+	}
 	var status *string
 	{
 		if package_ListStatus != "" {
@@ -80,6 +86,7 @@ func BuildListPayload(package_ListName string, package_ListAipID string, package
 	v.AipID = aipID
 	v.EarliestCreatedTime = earliestCreatedTime
 	v.LatestCreatedTime = latestCreatedTime
+	v.Location = location
 	v.Status = status
 	v.Cursor = cursor
 
@@ -189,7 +196,7 @@ func BuildBulkPayload(package_BulkBody string) (*package_.BulkPayload, error) {
 	{
 		err = json.Unmarshal([]byte(package_BulkBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"operation\": \"cancel\",\n      \"size\": 13700644845007826515,\n      \"status\": \"pending\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"operation\": \"retry\",\n      \"size\": 11871551536295482453,\n      \"status\": \"error\"\n   }'")
 		}
 		if !(body.Operation == "retry" || body.Operation == "cancel" || body.Operation == "abandon") {
 			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.operation", body.Operation, []interface{}{"retry", "cancel", "abandon"}))
@@ -243,7 +250,7 @@ func BuildConfirmPayload(package_ConfirmBody string, package_ConfirmID string) (
 	{
 		err = json.Unmarshal([]byte(package_ConfirmBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location\": \"Non dolorem nesciunt recusandae qui optio.\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location\": \"Quidem consequatur ducimus excepturi perferendis et.\"\n   }'")
 		}
 	}
 	var id uint

@@ -53,6 +53,8 @@ type ShowResponseBody struct {
 	ID uint `form:"id" json:"id" xml:"id"`
 	// Name of the package
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// Location of the package
+	Location *string `form:"location,omitempty" json:"location,omitempty" xml:"location,omitempty"`
 	// Status of the package
 	Status string `form:"status" json:"status" xml:"status"`
 	// Identifier of processing workflow
@@ -305,6 +307,8 @@ type EnduroStoredPackageResponseBody struct {
 	ID uint `form:"id" json:"id" xml:"id"`
 	// Name of the package
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// Location of the package
+	Location *string `form:"location,omitempty" json:"location,omitempty" xml:"location,omitempty"`
 	// Status of the package
 	Status string `form:"status" json:"status" xml:"status"`
 	// Identifier of processing workflow
@@ -347,11 +351,12 @@ type EnduroPackagePreservationActionsActionResponseBodyCollection []*EnduroPacka
 // EnduroPackagePreservationActionsActionResponseBody is used to define fields
 // on response body types.
 type EnduroPackagePreservationActionsActionResponseBody struct {
-	ID        uint   `form:"id" json:"id" xml:"id"`
-	ActionID  string `form:"action_id" json:"action_id" xml:"action_id"`
-	Name      string `form:"name" json:"name" xml:"name"`
-	Status    string `form:"status" json:"status" xml:"status"`
-	StartedAt string `form:"started_at" json:"started_at" xml:"started_at"`
+	ID          uint    `form:"id" json:"id" xml:"id"`
+	ActionID    string  `form:"action_id" json:"action_id" xml:"action_id"`
+	Name        string  `form:"name" json:"name" xml:"name"`
+	Status      string  `form:"status" json:"status" xml:"status"`
+	StartedAt   string  `form:"started_at" json:"started_at" xml:"started_at"`
+	CompletedAt *string `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
 }
 
 // NewMonitorResponseBody builds the HTTP response body from the result of the
@@ -388,6 +393,7 @@ func NewShowResponseBody(res *package_views.EnduroStoredPackageView) *ShowRespon
 	body := &ShowResponseBody{
 		ID:          *res.ID,
 		Name:        res.Name,
+		Location:    res.Location,
 		Status:      *res.Status,
 		WorkflowID:  res.WorkflowID,
 		RunID:       res.RunID,
@@ -625,12 +631,13 @@ func NewRejectNotValidResponseBody(res *goa.ServiceError) *RejectNotValidRespons
 }
 
 // NewListPayload builds a package service list endpoint payload.
-func NewListPayload(name *string, aipID *string, earliestCreatedTime *string, latestCreatedTime *string, status *string, cursor *string) *package_.ListPayload {
+func NewListPayload(name *string, aipID *string, earliestCreatedTime *string, latestCreatedTime *string, location *string, status *string, cursor *string) *package_.ListPayload {
 	v := &package_.ListPayload{}
 	v.Name = name
 	v.AipID = aipID
 	v.EarliestCreatedTime = earliestCreatedTime
 	v.LatestCreatedTime = latestCreatedTime
+	v.Location = location
 	v.Status = status
 	v.Cursor = cursor
 

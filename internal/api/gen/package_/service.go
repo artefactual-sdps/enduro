@@ -130,11 +130,12 @@ type EnduroPackagePreservationActions struct {
 
 // PreservationAction describes a preservation action.
 type EnduroPackagePreservationActionsAction struct {
-	ID        uint
-	ActionID  string
-	Name      string
-	Status    string
-	StartedAt string
+	ID          uint
+	ActionID    string
+	Name        string
+	Status      string
+	StartedAt   string
+	CompletedAt *string
 }
 
 type EnduroPackagePreservationActionsActionCollection []*EnduroPackagePreservationActionsAction
@@ -164,6 +165,8 @@ type EnduroStoredPackage struct {
 	ID uint
 	// Name of the package
 	Name *string
+	// Location of the package
+	Location *string
 	// Status of the package
 	Status string
 	// Identifier of processing workflow
@@ -188,6 +191,7 @@ type ListPayload struct {
 	AipID               *string
 	EarliestCreatedTime *string
 	LatestCreatedTime   *string
+	Location            *string
 	Status              *string
 	// Pagination cursor
 	Cursor *string
@@ -367,6 +371,7 @@ func newEnduroMonitorUpdateView(res *EnduroMonitorUpdate) *package_views.EnduroM
 func newEnduroStoredPackage(vres *package_views.EnduroStoredPackageView) *EnduroStoredPackage {
 	res := &EnduroStoredPackage{
 		Name:        vres.Name,
+		Location:    vres.Location,
 		WorkflowID:  vres.WorkflowID,
 		RunID:       vres.RunID,
 		AipID:       vres.AipID,
@@ -394,6 +399,7 @@ func newEnduroStoredPackageView(res *EnduroStoredPackage) *package_views.EnduroS
 	vres := &package_views.EnduroStoredPackageView{
 		ID:          &res.ID,
 		Name:        res.Name,
+		Location:    res.Location,
 		Status:      &res.Status,
 		WorkflowID:  res.WorkflowID,
 		RunID:       res.RunID,
@@ -524,7 +530,9 @@ func newEnduroPackagePreservationActionsActionCollectionView(res EnduroPackagePr
 // EnduroPackagePreservationActionsAction to service type
 // EnduroPackagePreservationActionsAction.
 func newEnduroPackagePreservationActionsAction(vres *package_views.EnduroPackagePreservationActionsActionView) *EnduroPackagePreservationActionsAction {
-	res := &EnduroPackagePreservationActionsAction{}
+	res := &EnduroPackagePreservationActionsAction{
+		CompletedAt: vres.CompletedAt,
+	}
 	if vres.ID != nil {
 		res.ID = *vres.ID
 	}
@@ -548,11 +556,12 @@ func newEnduroPackagePreservationActionsAction(vres *package_views.EnduroPackage
 // EnduroPackagePreservationActionsActionView using the "default" view.
 func newEnduroPackagePreservationActionsActionView(res *EnduroPackagePreservationActionsAction) *package_views.EnduroPackagePreservationActionsActionView {
 	vres := &package_views.EnduroPackagePreservationActionsActionView{
-		ID:        &res.ID,
-		ActionID:  &res.ActionID,
-		Name:      &res.Name,
-		Status:    &res.Status,
-		StartedAt: &res.StartedAt,
+		ID:          &res.ID,
+		ActionID:    &res.ActionID,
+		Name:        &res.Name,
+		Status:      &res.Status,
+		StartedAt:   &res.StartedAt,
+		CompletedAt: res.CompletedAt,
 	}
 	return vres
 }

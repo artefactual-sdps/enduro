@@ -35,14 +35,14 @@ storage (submit|update|download|list|move|move-status|reject|show)
 // UsageExamples produces an example of a valid invocation of the CLI tool.
 func UsageExamples() string {
 	return os.Args[0] + ` batch submit --body '{
-      "completed_dir": "Odit assumenda.",
-      "path": "Aperiam blanditiis adipisci sint maiores repellendus.",
-      "retention_period": "Assumenda ea adipisci totam."
+      "completed_dir": "Voluptatem odio.",
+      "path": "Eius praesentium.",
+      "retention_period": "Consequatur ut."
    }'` + "\n" +
 		os.Args[0] + ` package monitor` + "\n" +
 		os.Args[0] + ` storage submit --body '{
-      "name": "Molestias quae."
-   }' --aip-id "Corrupti sunt ad deleniti sunt nostrum."` + "\n" +
+      "name": "Eius fugit natus iste ad."
+   }' --aip-id "Repellat dolore."` + "\n" +
 		""
 }
 
@@ -76,6 +76,7 @@ func ParseEndpoint(
 		package_ListAipIDFlag               = package_ListFlags.String("aip-id", "", "")
 		package_ListEarliestCreatedTimeFlag = package_ListFlags.String("earliest-created-time", "", "")
 		package_ListLatestCreatedTimeFlag   = package_ListFlags.String("latest-created-time", "", "")
+		package_ListLocationFlag            = package_ListFlags.String("location", "", "")
 		package_ListStatusFlag              = package_ListFlags.String("status", "", "")
 		package_ListCursorFlag              = package_ListFlags.String("cursor", "", "")
 
@@ -323,7 +324,7 @@ func ParseEndpoint(
 				data = nil
 			case "list":
 				endpoint = c.List()
-				data, err = package_c.BuildListPayload(*package_ListNameFlag, *package_ListAipIDFlag, *package_ListEarliestCreatedTimeFlag, *package_ListLatestCreatedTimeFlag, *package_ListStatusFlag, *package_ListCursorFlag)
+				data, err = package_c.BuildListPayload(*package_ListNameFlag, *package_ListAipIDFlag, *package_ListEarliestCreatedTimeFlag, *package_ListLatestCreatedTimeFlag, *package_ListLocationFlag, *package_ListStatusFlag, *package_ListCursorFlag)
 			case "show":
 				endpoint = c.Show()
 				data, err = package_c.BuildShowPayload(*package_ShowIDFlag)
@@ -415,9 +416,9 @@ Submit a new batch
 
 Example:
     %[1]s batch submit --body '{
-      "completed_dir": "Odit assumenda.",
-      "path": "Aperiam blanditiis adipisci sint maiores repellendus.",
-      "retention_period": "Assumenda ea adipisci totam."
+      "completed_dir": "Voluptatem odio.",
+      "path": "Eius praesentium.",
+      "retention_period": "Consequatur ut."
    }'
 `, os.Args[0])
 }
@@ -477,18 +478,19 @@ Example:
 }
 
 func package_ListUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] package list -name STRING -aip-id STRING -earliest-created-time STRING -latest-created-time STRING -status STRING -cursor STRING
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] package list -name STRING -aip-id STRING -earliest-created-time STRING -latest-created-time STRING -location STRING -status STRING -cursor STRING
 
 List all stored packages
     -name STRING: 
     -aip-id STRING: 
     -earliest-created-time STRING: 
     -latest-created-time STRING: 
+    -location STRING: 
     -status STRING: 
     -cursor STRING: 
 
 Example:
-    %[1]s package list --name "Corporis optio voluptatem." --aip-id "4CCDE767-7648-444F-D09F-4B4FFE4EB36B" --earliest-created-time "1995-09-16T16:42:56Z" --latest-created-time "2000-05-22T20:18:12Z" --status "abandoned" --cursor "Aliquid laborum qui."
+    %[1]s package list --name "Voluptas molestias." --aip-id "0C589E55-99C1-3ED8-809A-1463C91242B6" --earliest-created-time "1970-01-19T08:34:43Z" --latest-created-time "1990-02-09T02:51:23Z" --location "Perferendis soluta sit." --status "in progress" --cursor "Voluptas in repudiandae."
 `, os.Args[0])
 }
 
@@ -499,7 +501,7 @@ Show package by ID
     -id UINT: Identifier of package to show
 
 Example:
-    %[1]s package show --id 3563794184417678133
+    %[1]s package show --id 14730182356857932512
 `, os.Args[0])
 }
 
@@ -510,7 +512,7 @@ Delete package by ID
     -id UINT: Identifier of package to delete
 
 Example:
-    %[1]s package delete --id 7046851762324585684
+    %[1]s package delete --id 3080901619629439359
 `, os.Args[0])
 }
 
@@ -521,7 +523,7 @@ Cancel package processing by ID
     -id UINT: Identifier of package to remove
 
 Example:
-    %[1]s package cancel --id 776285361058552077
+    %[1]s package cancel --id 2274996796133435490
 `, os.Args[0])
 }
 
@@ -532,7 +534,7 @@ Retry package processing by ID
     -id UINT: Identifier of package to retry
 
 Example:
-    %[1]s package retry --id 1358811786190908087
+    %[1]s package retry --id 15969220508734603449
 `, os.Args[0])
 }
 
@@ -543,7 +545,7 @@ Retrieve workflow status by ID
     -id UINT: Identifier of package to look up
 
 Example:
-    %[1]s package workflow --id 4205109267704321404
+    %[1]s package workflow --id 5219320084721508274
 `, os.Args[0])
 }
 
@@ -555,9 +557,9 @@ Bulk operations (retry, cancel...).
 
 Example:
     %[1]s package bulk --body '{
-      "operation": "cancel",
-      "size": 13700644845007826515,
-      "status": "pending"
+      "operation": "retry",
+      "size": 11871551536295482453,
+      "status": "error"
    }'
 `, os.Args[0])
 }
@@ -579,7 +581,7 @@ List all preservation actions by ID
     -id UINT: Identifier of package to look up
 
 Example:
-    %[1]s package preservation-actions --id 11558794572644673838
+    %[1]s package preservation-actions --id 482531450817334231
 `, os.Args[0])
 }
 
@@ -592,8 +594,8 @@ Signal the package has been reviewed and accepted
 
 Example:
     %[1]s package confirm --body '{
-      "location": "Non dolorem nesciunt recusandae qui optio."
-   }' --id 5235701885623156419
+      "location": "Quidem consequatur ducimus excepturi perferendis et."
+   }' --id 7422012479403016367
 `, os.Args[0])
 }
 
@@ -604,7 +606,7 @@ Signal the package has been reviewed and rejected
     -id UINT: Identifier of package to look up
 
 Example:
-    %[1]s package reject --id 2704045210694776917
+    %[1]s package reject --id 5231729523283448320
 `, os.Args[0])
 }
 
@@ -637,8 +639,8 @@ Start the submission of a package
 
 Example:
     %[1]s storage submit --body '{
-      "name": "Molestias quae."
-   }' --aip-id "Corrupti sunt ad deleniti sunt nostrum."
+      "name": "Eius fugit natus iste ad."
+   }' --aip-id "Repellat dolore."
 `, os.Args[0])
 }
 
@@ -649,7 +651,7 @@ Signal the storage service that an upload is complete
     -aip-id STRING: 
 
 Example:
-    %[1]s storage update --aip-id "Neque natus quaerat dicta sit voluptatibus."
+    %[1]s storage update --aip-id "Culpa voluptas."
 `, os.Args[0])
 }
 
@@ -660,7 +662,7 @@ Download package by AIPID
     -aip-id STRING: 
 
 Example:
-    %[1]s storage download --aip-id "Repellendus nobis aut officiis tempora."
+    %[1]s storage download --aip-id "Aut sint."
 `, os.Args[0])
 }
 
@@ -683,8 +685,8 @@ Move a package to a permanent storage location
 
 Example:
     %[1]s storage move --body '{
-      "location": "Magnam recusandae laudantium quidem consequatur ducimus excepturi."
-   }' --aip-id "Et sapiente."
+      "location": "Et voluptatem quia pariatur voluptates ut blanditiis."
+   }' --aip-id "Aut dicta."
 `, os.Args[0])
 }
 
@@ -695,7 +697,7 @@ Retrieve the status of a permanent storage location move of the package
     -aip-id STRING: 
 
 Example:
-    %[1]s storage move-status --aip-id "Laboriosam corporis vitae."
+    %[1]s storage move-status --aip-id "Ut ipsam fugiat."
 `, os.Args[0])
 }
 
@@ -706,7 +708,7 @@ Reject a package
     -aip-id STRING: 
 
 Example:
-    %[1]s storage reject --aip-id "Exercitationem minima odio sint illum odit."
+    %[1]s storage reject --aip-id "Est ut excepturi odio."
 `, os.Args[0])
 }
 
@@ -717,6 +719,6 @@ Show package by AIPID
     -aip-id STRING: 
 
 Example:
-    %[1]s storage show --aip-id "Similique neque rerum laboriosam."
+    %[1]s storage show --aip-id "Et porro suscipit et natus quaerat."
 `, os.Args[0])
 }

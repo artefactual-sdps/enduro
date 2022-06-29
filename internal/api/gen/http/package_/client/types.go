@@ -53,6 +53,8 @@ type ShowResponseBody struct {
 	ID *uint `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
 	// Name of the package
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// Location of the package
+	Location *string `form:"location,omitempty" json:"location,omitempty" xml:"location,omitempty"`
 	// Status of the package
 	Status *string `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
 	// Identifier of processing workflow
@@ -305,6 +307,8 @@ type EnduroStoredPackageResponseBody struct {
 	ID *uint `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
 	// Name of the package
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// Location of the package
+	Location *string `form:"location,omitempty" json:"location,omitempty" xml:"location,omitempty"`
 	// Status of the package
 	Status *string `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
 	// Identifier of processing workflow
@@ -347,11 +351,12 @@ type EnduroPackagePreservationActionsActionCollectionResponseBody []*EnduroPacka
 // EnduroPackagePreservationActionsActionResponseBody is used to define fields
 // on response body types.
 type EnduroPackagePreservationActionsActionResponseBody struct {
-	ID        *uint   `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
-	ActionID  *string `form:"action_id,omitempty" json:"action_id,omitempty" xml:"action_id,omitempty"`
-	Name      *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
-	Status    *string `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
-	StartedAt *string `form:"started_at,omitempty" json:"started_at,omitempty" xml:"started_at,omitempty"`
+	ID          *uint   `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	ActionID    *string `form:"action_id,omitempty" json:"action_id,omitempty" xml:"action_id,omitempty"`
+	Name        *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	Status      *string `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
+	StartedAt   *string `form:"started_at,omitempty" json:"started_at,omitempty" xml:"started_at,omitempty"`
+	CompletedAt *string `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
 }
 
 // NewBulkRequestBody builds the HTTP request body from the payload of the
@@ -414,6 +419,7 @@ func NewShowEnduroStoredPackageOK(body *ShowResponseBody) *package_views.EnduroS
 	v := &package_views.EnduroStoredPackageView{
 		ID:          body.ID,
 		Name:        body.Name,
+		Location:    body.Location,
 		Status:      body.Status,
 		WorkflowID:  body.WorkflowID,
 		RunID:       body.RunID,
@@ -1051,6 +1057,9 @@ func ValidateEnduroPackagePreservationActionsActionResponseBody(body *EnduroPack
 	}
 	if body.StartedAt != nil {
 		err = goa.MergeErrors(err, goa.ValidateFormat("body.started_at", *body.StartedAt, goa.FormatDateTime))
+	}
+	if body.CompletedAt != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("body.completed_at", *body.CompletedAt, goa.FormatDateTime))
 	}
 	return
 }
