@@ -21,6 +21,12 @@ func NewMoveWorkflow(logger logr.Logger, pkgsvc package_.Service) *MoveWorkflow 
 }
 
 func (w *MoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req *package_.MoveWorkflowRequest) error {
+	// Save starting time for preservation action.
+	startedAt := temporalsdk_workflow.Now(ctx).UTC()
+
+	// Assume the preservation action will be successful.
+	status := package_.StatusComplete
+
 	// Set package to in progress status.
 	{
 		ctx := withLocalActivityOpts(ctx)
@@ -38,18 +44,20 @@ func (w *MoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req *package_.M
 			Location: req.Location,
 		}).Get(activityOpts, nil)
 		if err != nil {
-			return err
+			status = package_.StatusFailed
 		}
 	}
 
 	// Poll package move to permanent storage
 	{
-		activityOpts := withActivityOptsForLongLivedRequest(ctx)
-		err := temporalsdk_workflow.ExecuteActivity(activityOpts, activities.PollMoveToPermanentStorageActivityName, &activities.PollMoveToPermanentStorageActivityParams{
-			AIPID: req.AIPID,
-		}).Get(activityOpts, nil)
-		if err != nil {
-			return err
+		if status != package_.StatusFailed {
+			activityOpts := withActivityOptsForLongLivedRequest(ctx)
+			err := temporalsdk_workflow.ExecuteActivity(activityOpts, activities.PollMoveToPermanentStorageActivityName, &activities.PollMoveToPermanentStorageActivityParams{
+				AIPID: req.AIPID,
+			}).Get(activityOpts, nil)
+			if err != nil {
+				status = package_.StatusFailed
+			}
 		}
 	}
 
@@ -66,8 +74,20 @@ func (w *MoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req *package_.M
 
 	// Set package location.
 	{
+		if status != package_.StatusFailed {
+			ctx := withLocalActivityOpts(ctx)
+			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setLocationLocalActivity, w.pkgsvc, req.ID, req.Location).Get(ctx, nil)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	// Create preservation action.
+	{
 		ctx := withLocalActivityOpts(ctx)
-		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setLocationLocalActivity, w.pkgsvc, req.ID, req.Location).Get(ctx, nil)
+		completedAt := temporalsdk_workflow.Now(ctx).UTC()
+		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, saveLocationMovePreservationActionLocalActivity, w.pkgsvc, req.ID, req.Location, status, startedAt, completedAt).Get(ctx, nil)
 		if err != nil {
 			return err
 		}
