@@ -71,3 +71,13 @@ func ConfirmPackagePath(id uint) string {
 func RejectPackagePath(id uint) string {
 	return fmt.Sprintf("/package/%v/reject", id)
 }
+
+// MovePackagePath returns the URL path to the package service move HTTP endpoint.
+func MovePackagePath(id uint) string {
+	return fmt.Sprintf("/package/%v/move", id)
+}
+
+// MoveStatusPackagePath returns the URL path to the package service move_status HTTP endpoint.
+func MoveStatusPackagePath(id uint) string {
+	return fmt.Sprintf("/package/%v/move", id)
+}

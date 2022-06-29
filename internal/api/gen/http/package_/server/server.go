@@ -33,6 +33,8 @@ type Server struct {
 	PreservationActions http.Handler
 	Confirm             http.Handler
 	Reject              http.Handler
+	Move                http.Handler
+	MoveStatus          http.Handler
 	CORS                http.Handler
 }
 
@@ -86,6 +88,8 @@ func New(
 			{"PreservationActions", "GET", "/package/{id}/preservation-actions"},
 			{"Confirm", "POST", "/package/{id}/confirm"},
 			{"Reject", "POST", "/package/{id}/reject"},
+			{"Move", "POST", "/package/{id}/move"},
+			{"MoveStatus", "GET", "/package/{id}/move"},
 			{"CORS", "OPTIONS", "/package/monitor"},
 			{"CORS", "OPTIONS", "/package"},
 			{"CORS", "OPTIONS", "/package/{id}"},
@@ -96,6 +100,7 @@ func New(
 			{"CORS", "OPTIONS", "/package/{id}/preservation-actions"},
 			{"CORS", "OPTIONS", "/package/{id}/confirm"},
 			{"CORS", "OPTIONS", "/package/{id}/reject"},
+			{"CORS", "OPTIONS", "/package/{id}/move"},
 		},
 		Monitor:             NewMonitorHandler(e.Monitor, mux, decoder, encoder, errhandler, formatter, upgrader, configurer.MonitorFn),
 		List:                NewListHandler(e.List, mux, decoder, encoder, errhandler, formatter),
@@ -109,6 +114,8 @@ func New(
 		PreservationActions: NewPreservationActionsHandler(e.PreservationActions, mux, decoder, encoder, errhandler, formatter),
 		Confirm:             NewConfirmHandler(e.Confirm, mux, decoder, encoder, errhandler, formatter),
 		Reject:              NewRejectHandler(e.Reject, mux, decoder, encoder, errhandler, formatter),
+		Move:                NewMoveHandler(e.Move, mux, decoder, encoder, errhandler, formatter),
+		MoveStatus:          NewMoveStatusHandler(e.MoveStatus, mux, decoder, encoder, errhandler, formatter),
 		CORS:                NewCORSHandler(),
 	}
 }
@@ -130,6 +137,8 @@ func (s *Server) Use(m func(http.Handler) http.Handler) {
 	s.PreservationActions = m(s.PreservationActions)
 	s.Confirm = m(s.Confirm)
 	s.Reject = m(s.Reject)
+	s.Move = m(s.Move)
+	s.MoveStatus = m(s.MoveStatus)
 	s.CORS = m(s.CORS)
 }
 
@@ -147,6 +156,8 @@ func Mount(mux goahttp.Muxer, h *Server) {
 	MountPreservationActionsHandler(mux, h.PreservationActions)
 	MountConfirmHandler(mux, h.Confirm)
 	MountRejectHandler(mux, h.Reject)
+	MountMoveHandler(mux, h.Move)
+	MountMoveStatusHandler(mux, h.MoveStatus)
 	MountCORSHandler(mux, h.CORS)
 }
 
@@ -767,6 +778,108 @@ func NewRejectHandler(
 	})
 }
 
+// MountMoveHandler configures the mux to serve the "package" service "move"
+// endpoint.
+func MountMoveHandler(mux goahttp.Muxer, h http.Handler) {
+	f, ok := HandlePackageOrigin(h).(http.HandlerFunc)
+	if !ok {
+		f = func(w http.ResponseWriter, r *http.Request) {
+			h.ServeHTTP(w, r)
+		}
+	}
+	mux.Handle("POST", "/package/{id}/move", f)
+}
+
+// NewMoveHandler creates a HTTP handler which loads the HTTP request and calls
+// the "package" service "move" endpoint.
+func NewMoveHandler(
+	endpoint goa.Endpoint,
+	mux goahttp.Muxer,
+	decoder func(*http.Request) goahttp.Decoder,
+	encoder func(context.Context, http.ResponseWriter) goahttp.Encoder,
+	errhandler func(context.Context, http.ResponseWriter, error),
+	formatter func(err error) goahttp.Statuser,
+) http.Handler {
+	var (
+		decodeRequest  = DecodeMoveRequest(mux, decoder)
+		encodeResponse = EncodeMoveResponse(encoder)
+		encodeError    = EncodeMoveError(encoder, formatter)
+	)
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
+		ctx = context.WithValue(ctx, goa.MethodKey, "move")
+		ctx = context.WithValue(ctx, goa.ServiceKey, "package")
+		payload, err := decodeRequest(r)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		res, err := endpoint(ctx, payload)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		if err := encodeResponse(ctx, w, res); err != nil {
+			errhandler(ctx, w, err)
+		}
+	})
+}
+
+// MountMoveStatusHandler configures the mux to serve the "package" service
+// "move_status" endpoint.
+func MountMoveStatusHandler(mux goahttp.Muxer, h http.Handler) {
+	f, ok := HandlePackageOrigin(h).(http.HandlerFunc)
+	if !ok {
+		f = func(w http.ResponseWriter, r *http.Request) {
+			h.ServeHTTP(w, r)
+		}
+	}
+	mux.Handle("GET", "/package/{id}/move", f)
+}
+
+// NewMoveStatusHandler creates a HTTP handler which loads the HTTP request and
+// calls the "package" service "move_status" endpoint.
+func NewMoveStatusHandler(
+	endpoint goa.Endpoint,
+	mux goahttp.Muxer,
+	decoder func(*http.Request) goahttp.Decoder,
+	encoder func(context.Context, http.ResponseWriter) goahttp.Encoder,
+	errhandler func(context.Context, http.ResponseWriter, error),
+	formatter func(err error) goahttp.Statuser,
+) http.Handler {
+	var (
+		decodeRequest  = DecodeMoveStatusRequest(mux, decoder)
+		encodeResponse = EncodeMoveStatusResponse(encoder)
+		encodeError    = EncodeMoveStatusError(encoder, formatter)
+	)
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
+		ctx = context.WithValue(ctx, goa.MethodKey, "move_status")
+		ctx = context.WithValue(ctx, goa.ServiceKey, "package")
+		payload, err := decodeRequest(r)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		res, err := endpoint(ctx, payload)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		if err := encodeResponse(ctx, w, res); err != nil {
+			errhandler(ctx, w, err)
+		}
+	})
+}
+
 // MountCORSHandler configures the mux to serve the CORS endpoints for the
 // service package.
 func MountCORSHandler(mux goahttp.Muxer, h http.Handler) {
@@ -781,6 +894,7 @@ func MountCORSHandler(mux goahttp.Muxer, h http.Handler) {
 	mux.Handle("OPTIONS", "/package/{id}/preservation-actions", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/package/{id}/confirm", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/package/{id}/reject", h.ServeHTTP)
+	mux.Handle("OPTIONS", "/package/{id}/move", h.ServeHTTP)
 }
 
 // NewCORSHandler creates a HTTP handler which returns a simple 200 response.

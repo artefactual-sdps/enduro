@@ -28,6 +28,12 @@ type ConfirmRequestBody struct {
 	Location string `form:"location" json:"location" xml:"location"`
 }
 
+// MoveRequestBody is the type of the "package" service "move" endpoint HTTP
+// request body.
+type MoveRequestBody struct {
+	Location string `form:"location" json:"location" xml:"location"`
+}
+
 // MonitorResponseBody is the type of the "package" service "monitor" endpoint
 // HTTP response body.
 type MonitorResponseBody struct {
@@ -100,6 +106,12 @@ type BulkStatusResponseBody struct {
 // "preservation-actions" endpoint HTTP response body.
 type PreservationActionsResponseBody struct {
 	Actions EnduroPackagePreservationActionsActionCollectionResponseBody `form:"actions,omitempty" json:"actions,omitempty" xml:"actions,omitempty"`
+}
+
+// MoveStatusResponseBody is the type of the "package" service "move_status"
+// endpoint HTTP response body.
+type MoveStatusResponseBody struct {
+	Done *bool `form:"done,omitempty" json:"done,omitempty" xml:"done,omitempty"`
 }
 
 // ShowNotFoundResponseBody is the type of the "package" service "show"
@@ -264,6 +276,15 @@ type ConfirmNotValidResponseBody struct {
 	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
 }
 
+// ConfirmNotFoundResponseBody is the type of the "package" service "confirm"
+// endpoint HTTP response body for the "not_found" error.
+type ConfirmNotFoundResponseBody struct {
+	// Message of error
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Identifier of missing package
+	ID *uint `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+}
+
 // RejectNotAvailableResponseBody is the type of the "package" service "reject"
 // endpoint HTTP response body for the "not_available" error.
 type RejectNotAvailableResponseBody struct {
@@ -298,6 +319,87 @@ type RejectNotValidResponseBody struct {
 	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
 	// Is the error a server-side fault?
 	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
+// RejectNotFoundResponseBody is the type of the "package" service "reject"
+// endpoint HTTP response body for the "not_found" error.
+type RejectNotFoundResponseBody struct {
+	// Message of error
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Identifier of missing package
+	ID *uint `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+}
+
+// MoveNotAvailableResponseBody is the type of the "package" service "move"
+// endpoint HTTP response body for the "not_available" error.
+type MoveNotAvailableResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
+// MoveNotValidResponseBody is the type of the "package" service "move"
+// endpoint HTTP response body for the "not_valid" error.
+type MoveNotValidResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
+// MoveNotFoundResponseBody is the type of the "package" service "move"
+// endpoint HTTP response body for the "not_found" error.
+type MoveNotFoundResponseBody struct {
+	// Message of error
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Identifier of missing package
+	ID *uint `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+}
+
+// MoveStatusFailedDependencyResponseBody is the type of the "package" service
+// "move_status" endpoint HTTP response body for the "failed_dependency" error.
+type MoveStatusFailedDependencyResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
+// MoveStatusNotFoundResponseBody is the type of the "package" service
+// "move_status" endpoint HTTP response body for the "not_found" error.
+type MoveStatusNotFoundResponseBody struct {
+	// Message of error
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Identifier of missing package
+	ID *uint `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
 }
 
 // EnduroStoredPackageResponseBody is used to define fields on response body
@@ -380,6 +482,15 @@ func NewBulkRequestBody(p *package_.BulkPayload) *BulkRequestBody {
 // "confirm" endpoint of the "package" service.
 func NewConfirmRequestBody(p *package_.ConfirmPayload) *ConfirmRequestBody {
 	body := &ConfirmRequestBody{
+		Location: p.Location,
+	}
+	return body
+}
+
+// NewMoveRequestBody builds the HTTP request body from the payload of the
+// "move" endpoint of the "package" service.
+func NewMoveRequestBody(p *package_.MovePayload) *MoveRequestBody {
+	body := &MoveRequestBody{
 		Location: p.Location,
 	}
 	return body
@@ -637,6 +748,16 @@ func NewConfirmNotValid(body *ConfirmNotValidResponseBody) *goa.ServiceError {
 	return v
 }
 
+// NewConfirmNotFound builds a package service confirm endpoint not_found error.
+func NewConfirmNotFound(body *ConfirmNotFoundResponseBody) *package_.PackageNotfound {
+	v := &package_.PackageNotfound{
+		Message: *body.Message,
+		ID:      *body.ID,
+	}
+
+	return v
+}
+
 // NewRejectNotAvailable builds a package service reject endpoint not_available
 // error.
 func NewRejectNotAvailable(body *RejectNotAvailableResponseBody) *goa.ServiceError {
@@ -661,6 +782,91 @@ func NewRejectNotValid(body *RejectNotValidResponseBody) *goa.ServiceError {
 		Temporary: *body.Temporary,
 		Timeout:   *body.Timeout,
 		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
+// NewRejectNotFound builds a package service reject endpoint not_found error.
+func NewRejectNotFound(body *RejectNotFoundResponseBody) *package_.PackageNotfound {
+	v := &package_.PackageNotfound{
+		Message: *body.Message,
+		ID:      *body.ID,
+	}
+
+	return v
+}
+
+// NewMoveNotAvailable builds a package service move endpoint not_available
+// error.
+func NewMoveNotAvailable(body *MoveNotAvailableResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
+// NewMoveNotValid builds a package service move endpoint not_valid error.
+func NewMoveNotValid(body *MoveNotValidResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
+// NewMoveNotFound builds a package service move endpoint not_found error.
+func NewMoveNotFound(body *MoveNotFoundResponseBody) *package_.PackageNotfound {
+	v := &package_.PackageNotfound{
+		Message: *body.Message,
+		ID:      *body.ID,
+	}
+
+	return v
+}
+
+// NewMoveStatusResultOK builds a "package" service "move_status" endpoint
+// result from a HTTP "OK" response.
+func NewMoveStatusResultOK(body *MoveStatusResponseBody) *package_.MoveStatusResult {
+	v := &package_.MoveStatusResult{
+		Done: *body.Done,
+	}
+
+	return v
+}
+
+// NewMoveStatusFailedDependency builds a package service move_status endpoint
+// failed_dependency error.
+func NewMoveStatusFailedDependency(body *MoveStatusFailedDependencyResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
+// NewMoveStatusNotFound builds a package service move_status endpoint
+// not_found error.
+func NewMoveStatusNotFound(body *MoveStatusNotFoundResponseBody) *package_.PackageNotfound {
+	v := &package_.PackageNotfound{
+		Message: *body.Message,
+		ID:      *body.ID,
 	}
 
 	return v
@@ -699,6 +905,15 @@ func ValidateBulkStatusResponseBody(body *BulkStatusResponseBody) (err error) {
 	}
 	if body.ClosedAt != nil {
 		err = goa.MergeErrors(err, goa.ValidateFormat("body.closed_at", *body.ClosedAt, goa.FormatDateTime))
+	}
+	return
+}
+
+// ValidateMoveStatusResponseBody runs the validations defined on
+// move_status_response_body
+func ValidateMoveStatusResponseBody(body *MoveStatusResponseBody) (err error) {
+	if body.Done == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("done", "body"))
 	}
 	return
 }
@@ -919,6 +1134,18 @@ func ValidateConfirmNotValidResponseBody(body *ConfirmNotValidResponseBody) (err
 	return
 }
 
+// ValidateConfirmNotFoundResponseBody runs the validations defined on
+// confirm_not_found_response_body
+func ValidateConfirmNotFoundResponseBody(body *ConfirmNotFoundResponseBody) (err error) {
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	return
+}
+
 // ValidateRejectNotAvailableResponseBody runs the validations defined on
 // reject_not_available_response_body
 func ValidateRejectNotAvailableResponseBody(body *RejectNotAvailableResponseBody) (err error) {
@@ -963,6 +1190,114 @@ func ValidateRejectNotValidResponseBody(body *RejectNotValidResponseBody) (err e
 	}
 	if body.Fault == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
+// ValidateRejectNotFoundResponseBody runs the validations defined on
+// reject_not_found_response_body
+func ValidateRejectNotFoundResponseBody(body *RejectNotFoundResponseBody) (err error) {
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	return
+}
+
+// ValidateMoveNotAvailableResponseBody runs the validations defined on
+// move_not_available_response_body
+func ValidateMoveNotAvailableResponseBody(body *MoveNotAvailableResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
+// ValidateMoveNotValidResponseBody runs the validations defined on
+// move_not_valid_response_body
+func ValidateMoveNotValidResponseBody(body *MoveNotValidResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
+// ValidateMoveNotFoundResponseBody runs the validations defined on
+// move_not_found_response_body
+func ValidateMoveNotFoundResponseBody(body *MoveNotFoundResponseBody) (err error) {
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	return
+}
+
+// ValidateMoveStatusFailedDependencyResponseBody runs the validations defined
+// on move_status_failed_dependency_response_body
+func ValidateMoveStatusFailedDependencyResponseBody(body *MoveStatusFailedDependencyResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
+// ValidateMoveStatusNotFoundResponseBody runs the validations defined on
+// move_status_not_found_response_body
+func ValidateMoveStatusNotFoundResponseBody(body *MoveStatusNotFoundResponseBody) (err error) {
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
 	}
 	return
 }

@@ -28,6 +28,8 @@ type Endpoints struct {
 	PreservationActions goa.Endpoint
 	Confirm             goa.Endpoint
 	Reject              goa.Endpoint
+	Move                goa.Endpoint
+	MoveStatus          goa.Endpoint
 }
 
 // MonitorEndpointInput holds both the payload and the server stream of the
@@ -52,6 +54,8 @@ func NewEndpoints(s Service) *Endpoints {
 		PreservationActions: NewPreservationActionsEndpoint(s),
 		Confirm:             NewConfirmEndpoint(s),
 		Reject:              NewRejectEndpoint(s),
+		Move:                NewMoveEndpoint(s),
+		MoveStatus:          NewMoveStatusEndpoint(s),
 	}
 }
 
@@ -69,6 +73,8 @@ func (e *Endpoints) Use(m func(goa.Endpoint) goa.Endpoint) {
 	e.PreservationActions = m(e.PreservationActions)
 	e.Confirm = m(e.Confirm)
 	e.Reject = m(e.Reject)
+	e.Move = m(e.Move)
+	e.MoveStatus = m(e.MoveStatus)
 }
 
 // NewMonitorEndpoint returns an endpoint function that calls the method
@@ -190,5 +196,23 @@ func NewRejectEndpoint(s Service) goa.Endpoint {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
 		p := req.(*RejectPayload)
 		return nil, s.Reject(ctx, p)
+	}
+}
+
+// NewMoveEndpoint returns an endpoint function that calls the method "move" of
+// service "package".
+func NewMoveEndpoint(s Service) goa.Endpoint {
+	return func(ctx context.Context, req interface{}) (interface{}, error) {
+		p := req.(*MovePayload)
+		return nil, s.Move(ctx, p)
+	}
+}
+
+// NewMoveStatusEndpoint returns an endpoint function that calls the method
+// "move_status" of service "package".
+func NewMoveStatusEndpoint(s Service) goa.Endpoint {
+	return func(ctx context.Context, req interface{}) (interface{}, error) {
+		p := req.(*MoveStatusPayload)
+		return s.MoveStatus(ctx, p)
 	}
 }

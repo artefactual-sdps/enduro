@@ -869,6 +869,7 @@ func EncodeConfirmRequest(encoder func(*http.Request) goahttp.Encoder) func(*htt
 // DecodeConfirmResponse may return the following errors:
 //	- "not_available" (type *goa.ServiceError): http.StatusConflict
 //	- "not_valid" (type *goa.ServiceError): http.StatusBadRequest
+//	- "not_found" (type *package_.PackageNotfound): http.StatusNotFound
 //	- error: internal error
 func DecodeConfirmResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
 	return func(resp *http.Response) (interface{}, error) {
@@ -915,6 +916,20 @@ func DecodeConfirmResponse(decoder func(*http.Response) goahttp.Decoder, restore
 				return nil, goahttp.ErrValidationError("package", "confirm", err)
 			}
 			return nil, NewConfirmNotValid(&body)
+		case http.StatusNotFound:
+			var (
+				body ConfirmNotFoundResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("package", "confirm", err)
+			}
+			err = ValidateConfirmNotFoundResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("package", "confirm", err)
+			}
+			return nil, NewConfirmNotFound(&body)
 		default:
 			body, _ := ioutil.ReadAll(resp.Body)
 			return nil, goahttp.ErrInvalidResponse("package", "confirm", resp.StatusCode, string(body))
@@ -953,6 +968,7 @@ func (c *Client) BuildRejectRequest(ctx context.Context, v interface{}) (*http.R
 // DecodeRejectResponse may return the following errors:
 //	- "not_available" (type *goa.ServiceError): http.StatusConflict
 //	- "not_valid" (type *goa.ServiceError): http.StatusBadRequest
+//	- "not_found" (type *package_.PackageNotfound): http.StatusNotFound
 //	- error: internal error
 func DecodeRejectResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
 	return func(resp *http.Response) (interface{}, error) {
@@ -999,9 +1015,235 @@ func DecodeRejectResponse(decoder func(*http.Response) goahttp.Decoder, restoreB
 				return nil, goahttp.ErrValidationError("package", "reject", err)
 			}
 			return nil, NewRejectNotValid(&body)
+		case http.StatusNotFound:
+			var (
+				body RejectNotFoundResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("package", "reject", err)
+			}
+			err = ValidateRejectNotFoundResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("package", "reject", err)
+			}
+			return nil, NewRejectNotFound(&body)
 		default:
 			body, _ := ioutil.ReadAll(resp.Body)
 			return nil, goahttp.ErrInvalidResponse("package", "reject", resp.StatusCode, string(body))
+		}
+	}
+}
+
+// BuildMoveRequest instantiates a HTTP request object with method and path set
+// to call the "package" service "move" endpoint
+func (c *Client) BuildMoveRequest(ctx context.Context, v interface{}) (*http.Request, error) {
+	var (
+		id uint
+	)
+	{
+		p, ok := v.(*package_.MovePayload)
+		if !ok {
+			return nil, goahttp.ErrInvalidType("package", "move", "*package_.MovePayload", v)
+		}
+		id = p.ID
+	}
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: MovePackagePath(id)}
+	req, err := http.NewRequest("POST", u.String(), nil)
+	if err != nil {
+		return nil, goahttp.ErrInvalidURL("package", "move", u.String(), err)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
+	return req, nil
+}
+
+// EncodeMoveRequest returns an encoder for requests sent to the package move
+// server.
+func EncodeMoveRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, interface{}) error {
+	return func(req *http.Request, v interface{}) error {
+		p, ok := v.(*package_.MovePayload)
+		if !ok {
+			return goahttp.ErrInvalidType("package", "move", "*package_.MovePayload", v)
+		}
+		body := NewMoveRequestBody(p)
+		if err := encoder(req).Encode(&body); err != nil {
+			return goahttp.ErrEncodingError("package", "move", err)
+		}
+		return nil
+	}
+}
+
+// DecodeMoveResponse returns a decoder for responses returned by the package
+// move endpoint. restoreBody controls whether the response body should be
+// restored after having been read.
+// DecodeMoveResponse may return the following errors:
+//	- "not_available" (type *goa.ServiceError): http.StatusConflict
+//	- "not_valid" (type *goa.ServiceError): http.StatusBadRequest
+//	- "not_found" (type *package_.PackageNotfound): http.StatusNotFound
+//	- error: internal error
+func DecodeMoveResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
+	return func(resp *http.Response) (interface{}, error) {
+		if restoreBody {
+			b, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = ioutil.NopCloser(bytes.NewBuffer(b))
+			defer func() {
+				resp.Body = ioutil.NopCloser(bytes.NewBuffer(b))
+			}()
+		} else {
+			defer resp.Body.Close()
+		}
+		switch resp.StatusCode {
+		case http.StatusAccepted:
+			return nil, nil
+		case http.StatusConflict:
+			var (
+				body MoveNotAvailableResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("package", "move", err)
+			}
+			err = ValidateMoveNotAvailableResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("package", "move", err)
+			}
+			return nil, NewMoveNotAvailable(&body)
+		case http.StatusBadRequest:
+			var (
+				body MoveNotValidResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("package", "move", err)
+			}
+			err = ValidateMoveNotValidResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("package", "move", err)
+			}
+			return nil, NewMoveNotValid(&body)
+		case http.StatusNotFound:
+			var (
+				body MoveNotFoundResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("package", "move", err)
+			}
+			err = ValidateMoveNotFoundResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("package", "move", err)
+			}
+			return nil, NewMoveNotFound(&body)
+		default:
+			body, _ := ioutil.ReadAll(resp.Body)
+			return nil, goahttp.ErrInvalidResponse("package", "move", resp.StatusCode, string(body))
+		}
+	}
+}
+
+// BuildMoveStatusRequest instantiates a HTTP request object with method and
+// path set to call the "package" service "move_status" endpoint
+func (c *Client) BuildMoveStatusRequest(ctx context.Context, v interface{}) (*http.Request, error) {
+	var (
+		id uint
+	)
+	{
+		p, ok := v.(*package_.MoveStatusPayload)
+		if !ok {
+			return nil, goahttp.ErrInvalidType("package", "move_status", "*package_.MoveStatusPayload", v)
+		}
+		id = p.ID
+	}
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: MoveStatusPackagePath(id)}
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		return nil, goahttp.ErrInvalidURL("package", "move_status", u.String(), err)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
+	return req, nil
+}
+
+// DecodeMoveStatusResponse returns a decoder for responses returned by the
+// package move_status endpoint. restoreBody controls whether the response body
+// should be restored after having been read.
+// DecodeMoveStatusResponse may return the following errors:
+//	- "failed_dependency" (type *goa.ServiceError): http.StatusFailedDependency
+//	- "not_found" (type *package_.PackageNotfound): http.StatusNotFound
+//	- error: internal error
+func DecodeMoveStatusResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
+	return func(resp *http.Response) (interface{}, error) {
+		if restoreBody {
+			b, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = ioutil.NopCloser(bytes.NewBuffer(b))
+			defer func() {
+				resp.Body = ioutil.NopCloser(bytes.NewBuffer(b))
+			}()
+		} else {
+			defer resp.Body.Close()
+		}
+		switch resp.StatusCode {
+		case http.StatusOK:
+			var (
+				body MoveStatusResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("package", "move_status", err)
+			}
+			err = ValidateMoveStatusResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("package", "move_status", err)
+			}
+			res := NewMoveStatusResultOK(&body)
+			return res, nil
+		case http.StatusFailedDependency:
+			var (
+				body MoveStatusFailedDependencyResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("package", "move_status", err)
+			}
+			err = ValidateMoveStatusFailedDependencyResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("package", "move_status", err)
+			}
+			return nil, NewMoveStatusFailedDependency(&body)
+		case http.StatusNotFound:
+			var (
+				body MoveStatusNotFoundResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("package", "move_status", err)
+			}
+			err = ValidateMoveStatusNotFoundResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("package", "move_status", err)
+			}
+			return nil, NewMoveStatusNotFound(&body)
+		default:
+			body, _ := ioutil.ReadAll(resp.Body)
+			return nil, goahttp.ErrInvalidResponse("package", "move_status", resp.StatusCode, string(body))
 		}
 	}
 }

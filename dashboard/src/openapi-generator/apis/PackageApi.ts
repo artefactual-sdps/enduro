@@ -39,6 +39,9 @@ import {
     PackageConfirmNotAvailableResponseBody,
     PackageConfirmNotAvailableResponseBodyFromJSON,
     PackageConfirmNotAvailableResponseBodyToJSON,
+    PackageConfirmNotFoundResponseBody,
+    PackageConfirmNotFoundResponseBodyFromJSON,
+    PackageConfirmNotFoundResponseBodyToJSON,
     PackageConfirmNotValidResponseBody,
     PackageConfirmNotValidResponseBodyFromJSON,
     PackageConfirmNotValidResponseBodyToJSON,
@@ -54,6 +57,27 @@ import {
     PackageMonitorResponseBody,
     PackageMonitorResponseBodyFromJSON,
     PackageMonitorResponseBodyToJSON,
+    PackageMoveNotAvailableResponseBody,
+    PackageMoveNotAvailableResponseBodyFromJSON,
+    PackageMoveNotAvailableResponseBodyToJSON,
+    PackageMoveNotFoundResponseBody,
+    PackageMoveNotFoundResponseBodyFromJSON,
+    PackageMoveNotFoundResponseBodyToJSON,
+    PackageMoveNotValidResponseBody,
+    PackageMoveNotValidResponseBodyFromJSON,
+    PackageMoveNotValidResponseBodyToJSON,
+    PackageMoveRequestBody,
+    PackageMoveRequestBodyFromJSON,
+    PackageMoveRequestBodyToJSON,
+    PackageMoveStatusFailedDependencyResponseBody,
+    PackageMoveStatusFailedDependencyResponseBodyFromJSON,
+    PackageMoveStatusFailedDependencyResponseBodyToJSON,
+    PackageMoveStatusNotFoundResponseBody,
+    PackageMoveStatusNotFoundResponseBodyFromJSON,
+    PackageMoveStatusNotFoundResponseBodyToJSON,
+    PackageMoveStatusResponseBody,
+    PackageMoveStatusResponseBodyFromJSON,
+    PackageMoveStatusResponseBodyToJSON,
     PackagePreservationActionsNotFoundResponseBody,
     PackagePreservationActionsNotFoundResponseBodyFromJSON,
     PackagePreservationActionsNotFoundResponseBodyToJSON,
@@ -63,6 +87,9 @@ import {
     PackageRejectNotAvailableResponseBody,
     PackageRejectNotAvailableResponseBodyFromJSON,
     PackageRejectNotAvailableResponseBodyToJSON,
+    PackageRejectNotFoundResponseBody,
+    PackageRejectNotFoundResponseBodyFromJSON,
+    PackageRejectNotFoundResponseBodyToJSON,
     PackageRejectNotValidResponseBody,
     PackageRejectNotValidResponseBodyFromJSON,
     PackageRejectNotValidResponseBodyToJSON,
@@ -111,6 +138,15 @@ export interface PackageListRequest {
     location?: string;
     status?: PackageListStatusEnum;
     cursor?: string;
+}
+
+export interface PackageMoveRequest {
+    id: number;
+    moveRequestBody: PackageMoveRequestBody;
+}
+
+export interface PackageMoveStatusRequest {
+    id: number;
 }
 
 export interface PackagePreservationActionsRequest {
@@ -255,6 +291,39 @@ export interface PackageApiInterface {
      * monitor package
      */
     packageMonitor(initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<void>;
+
+    /**
+     * Move a package to a permanent storage location
+     * @summary move package
+     * @param {number} id Identifier of package to move
+     * @param {PackageMoveRequestBody} moveRequestBody 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof PackageApiInterface
+     */
+    packageMoveRaw(requestParameters: PackageMoveRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<void>>;
+
+    /**
+     * Move a package to a permanent storage location
+     * move package
+     */
+    packageMove(requestParameters: PackageMoveRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<void>;
+
+    /**
+     * Retrieve the status of a permanent storage location move of the package
+     * @summary move_status package
+     * @param {number} id Identifier of package to move
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof PackageApiInterface
+     */
+    packageMoveStatusRaw(requestParameters: PackageMoveStatusRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<PackageMoveStatusResponseBody>>;
+
+    /**
+     * Retrieve the status of a permanent storage location move of the package
+     * move_status package
+     */
+    packageMoveStatus(requestParameters: PackageMoveStatusRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<PackageMoveStatusResponseBody>;
 
     /**
      * List all preservation actions by ID
@@ -585,6 +654,76 @@ export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
      */
     async packageMonitor(initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<void> {
         await this.packageMonitorRaw(initOverrides);
+    }
+
+    /**
+     * Move a package to a permanent storage location
+     * move package
+     */
+    async packageMoveRaw(requestParameters: PackageMoveRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<void>> {
+        if (requestParameters.id === null || requestParameters.id === undefined) {
+            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling packageMove.');
+        }
+
+        if (requestParameters.moveRequestBody === null || requestParameters.moveRequestBody === undefined) {
+            throw new runtime.RequiredError('moveRequestBody','Required parameter requestParameters.moveRequestBody was null or undefined when calling packageMove.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        const response = await this.request({
+            path: `/package/{id}/move`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: PackageMoveRequestBodyToJSON(requestParameters.moveRequestBody),
+        }, initOverrides);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     * Move a package to a permanent storage location
+     * move package
+     */
+    async packageMove(requestParameters: PackageMoveRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<void> {
+        await this.packageMoveRaw(requestParameters, initOverrides);
+    }
+
+    /**
+     * Retrieve the status of a permanent storage location move of the package
+     * move_status package
+     */
+    async packageMoveStatusRaw(requestParameters: PackageMoveStatusRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<PackageMoveStatusResponseBody>> {
+        if (requestParameters.id === null || requestParameters.id === undefined) {
+            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling packageMoveStatus.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const response = await this.request({
+            path: `/package/{id}/move`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => PackageMoveStatusResponseBodyFromJSON(jsonValue));
+    }
+
+    /**
+     * Retrieve the status of a permanent storage location move of the package
+     * move_status package
+     */
+    async packageMoveStatus(requestParameters: PackageMoveStatusRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<PackageMoveStatusResponseBody> {
+        const response = await this.packageMoveStatusRaw(requestParameters, initOverrides);
+        return await response.value();
     }
 
     /**

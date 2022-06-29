@@ -41,6 +41,10 @@ type Service interface {
 	Confirm(context.Context, *ConfirmPayload) (err error)
 	// Signal the package has been reviewed and rejected
 	Reject(context.Context, *RejectPayload) (err error)
+	// Move a package to a permanent storage location
+	Move(context.Context, *MovePayload) (err error)
+	// Retrieve the status of a permanent storage location move of the package
+	MoveStatus(context.Context, *MoveStatusPayload) (res *MoveStatusResult, err error)
 }
 
 // ServiceName is the name of the service as defined in the design. This is the
@@ -51,7 +55,7 @@ const ServiceName = "package"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [12]string{"monitor", "list", "show", "delete", "cancel", "retry", "workflow", "bulk", "bulk_status", "preservation-actions", "confirm", "reject"}
+var MethodNames = [14]string{"monitor", "list", "show", "delete", "cancel", "retry", "workflow", "bulk", "bulk_status", "preservation-actions", "confirm", "reject", "move", "move_status"}
 
 // MonitorServerStream is the interface a "monitor" endpoint server stream must
 // satisfy.
@@ -203,6 +207,26 @@ type ListResult struct {
 	NextCursor *string
 }
 
+// MovePayload is the payload type of the package service move method.
+type MovePayload struct {
+	// Identifier of package to move
+	ID       uint
+	Location string
+}
+
+// MoveStatusPayload is the payload type of the package service move_status
+// method.
+type MoveStatusPayload struct {
+	// Identifier of package to move
+	ID uint
+}
+
+// MoveStatusResult is the result type of the package service move_status
+// method.
+type MoveStatusResult struct {
+	Done bool
+}
+
 // Package not found.
 type PackageNotfound struct {
 	// Message of error
@@ -274,6 +298,15 @@ func MakeNotAvailable(err error) *goa.ServiceError {
 func MakeNotValid(err error) *goa.ServiceError {
 	return &goa.ServiceError{
 		Name:    "not_valid",
+		ID:      goa.NewErrorID(),
+		Message: err.Error(),
+	}
+}
+
+// MakeFailedDependency builds a goa.ServiceError from an error.
+func MakeFailedDependency(err error) *goa.ServiceError {
+	return &goa.ServiceError{
+		Name:    "failed_dependency",
 		ID:      goa.NewErrorID(),
 		Message: err.Error(),
 	}

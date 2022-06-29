@@ -27,7 +27,7 @@ import (
 //
 func UsageCommands() string {
 	return `batch (submit|status|hints)
-package (monitor|list|show|delete|cancel|retry|workflow|bulk|bulk-status|preservation-actions|confirm|reject)
+package (monitor|list|show|delete|cancel|retry|workflow|bulk|bulk-status|preservation-actions|confirm|reject|move|move-status)
 storage (submit|update|download|list|move|move-status|reject|show)
 `
 }
@@ -41,8 +41,8 @@ func UsageExamples() string {
    }'` + "\n" +
 		os.Args[0] + ` package monitor` + "\n" +
 		os.Args[0] + ` storage submit --body '{
-      "name": "Eius fugit natus iste ad."
-   }' --aip-id "Repellat dolore."` + "\n" +
+      "name": "Sint aut."
+   }' --aip-id "Itaque similique."` + "\n" +
 		""
 }
 
@@ -110,6 +110,13 @@ func ParseEndpoint(
 		package_RejectFlags  = flag.NewFlagSet("reject", flag.ExitOnError)
 		package_RejectIDFlag = package_RejectFlags.String("id", "REQUIRED", "Identifier of package to look up")
 
+		package_MoveFlags    = flag.NewFlagSet("move", flag.ExitOnError)
+		package_MoveBodyFlag = package_MoveFlags.String("body", "REQUIRED", "")
+		package_MoveIDFlag   = package_MoveFlags.String("id", "REQUIRED", "Identifier of package to move")
+
+		package_MoveStatusFlags  = flag.NewFlagSet("move-status", flag.ExitOnError)
+		package_MoveStatusIDFlag = package_MoveStatusFlags.String("id", "REQUIRED", "Identifier of package to move")
+
 		storageFlags = flag.NewFlagSet("storage", flag.ContinueOnError)
 
 		storageSubmitFlags     = flag.NewFlagSet("submit", flag.ExitOnError)
@@ -155,6 +162,8 @@ func ParseEndpoint(
 	package_PreservationActionsFlags.Usage = package_PreservationActionsUsage
 	package_ConfirmFlags.Usage = package_ConfirmUsage
 	package_RejectFlags.Usage = package_RejectUsage
+	package_MoveFlags.Usage = package_MoveUsage
+	package_MoveStatusFlags.Usage = package_MoveStatusUsage
 
 	storageFlags.Usage = storageUsage
 	storageSubmitFlags.Usage = storageSubmitUsage
@@ -252,6 +261,12 @@ func ParseEndpoint(
 
 			case "reject":
 				epf = package_RejectFlags
+
+			case "move":
+				epf = package_MoveFlags
+
+			case "move-status":
+				epf = package_MoveStatusFlags
 
 			}
 
@@ -355,6 +370,12 @@ func ParseEndpoint(
 			case "reject":
 				endpoint = c.Reject()
 				data, err = package_c.BuildRejectPayload(*package_RejectIDFlag)
+			case "move":
+				endpoint = c.Move()
+				data, err = package_c.BuildMovePayload(*package_MoveBodyFlag, *package_MoveIDFlag)
+			case "move-status":
+				endpoint = c.MoveStatus()
+				data, err = package_c.BuildMoveStatusPayload(*package_MoveStatusIDFlag)
 			}
 		case "storage":
 			c := storagec.NewClient(scheme, host, doer, enc, dec, restore)
@@ -462,6 +483,8 @@ COMMAND:
     preservation-actions: List all preservation actions by ID
     confirm: Signal the package has been reviewed and accepted
     reject: Signal the package has been reviewed and rejected
+    move: Move a package to a permanent storage location
+    move-status: Retrieve the status of a permanent storage location move of the package
 
 Additional help:
     %[1]s package COMMAND --help
@@ -606,7 +629,32 @@ Signal the package has been reviewed and rejected
     -id UINT: Identifier of package to look up
 
 Example:
-    %[1]s package reject --id 5231729523283448320
+    %[1]s package reject --id 10364407959241353442
+`, os.Args[0])
+}
+
+func package_MoveUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] package move -body JSON -id UINT
+
+Move a package to a permanent storage location
+    -body JSON: 
+    -id UINT: Identifier of package to move
+
+Example:
+    %[1]s package move --body '{
+      "location": "Quae tenetur."
+   }' --id 2018151398983385474
+`, os.Args[0])
+}
+
+func package_MoveStatusUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] package move-status -id UINT
+
+Retrieve the status of a permanent storage location move of the package
+    -id UINT: Identifier of package to move
+
+Example:
+    %[1]s package move-status --id 15656824071418464692
 `, os.Args[0])
 }
 
@@ -639,8 +687,8 @@ Start the submission of a package
 
 Example:
     %[1]s storage submit --body '{
-      "name": "Eius fugit natus iste ad."
-   }' --aip-id "Repellat dolore."
+      "name": "Sint aut."
+   }' --aip-id "Itaque similique."
 `, os.Args[0])
 }
 
@@ -651,7 +699,7 @@ Signal the storage service that an upload is complete
     -aip-id STRING: 
 
 Example:
-    %[1]s storage update --aip-id "Culpa voluptas."
+    %[1]s storage update --aip-id "Molestias quaerat cupiditate vel molestiae dolores."
 `, os.Args[0])
 }
 
@@ -662,7 +710,7 @@ Download package by AIPID
     -aip-id STRING: 
 
 Example:
-    %[1]s storage download --aip-id "Aut sint."
+    %[1]s storage download --aip-id "Similique neque rerum laboriosam."
 `, os.Args[0])
 }
 
@@ -685,8 +733,8 @@ Move a package to a permanent storage location
 
 Example:
     %[1]s storage move --body '{
-      "location": "Et voluptatem quia pariatur voluptates ut blanditiis."
-   }' --aip-id "Aut dicta."
+      "location": "Perspiciatis rerum ut."
+   }' --aip-id "Ut laboriosam omnis."
 `, os.Args[0])
 }
 
@@ -697,7 +745,7 @@ Retrieve the status of a permanent storage location move of the package
     -aip-id STRING: 
 
 Example:
-    %[1]s storage move-status --aip-id "Ut ipsam fugiat."
+    %[1]s storage move-status --aip-id "Ipsum nam impedit."
 `, os.Args[0])
 }
 
@@ -708,7 +756,7 @@ Reject a package
     -aip-id STRING: 
 
 Example:
-    %[1]s storage reject --aip-id "Est ut excepturi odio."
+    %[1]s storage reject --aip-id "Voluptatem aut dolorem perspiciatis."
 `, os.Args[0])
 }
 
@@ -719,6 +767,6 @@ Show package by AIPID
     -aip-id STRING: 
 
 Example:
-    %[1]s storage show --aip-id "Et porro suscipit et natus quaerat."
+    %[1]s storage show --aip-id "Et rerum nemo corporis magni consequatur."
 `, os.Args[0])
 }
