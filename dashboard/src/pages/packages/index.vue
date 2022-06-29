@@ -43,7 +43,7 @@ const openPackage = (id: number) => {
           </td>
           <td class="font-monospace">{{ pkg.aipId }}</td>
           <td>{{ $filters.formatDateTime(pkg.startedAt) }}</td>
-          <td></td>
+          <td>{{ pkg.location }}</td>
           <td>
             <PackageStatusBadge :status="pkg.status" />
           </td>
