@@ -53,6 +53,20 @@ func (mr *MockServiceMockRecorder) Bucket() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Bucket", reflect.TypeOf((*MockService)(nil).Bucket))
 }
 
+// Delete mocks base method.
+func (m *MockService) Delete(arg0 context.Context, arg1 string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Delete", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Delete indicates an expected call of Delete.
+func (mr *MockServiceMockRecorder) Delete(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockService)(nil).Delete), arg0, arg1)
+}
+
 // Download mocks base method.
 func (m *MockService) Download(arg0 context.Context, arg1 *storage.DownloadPayload) ([]byte, error) {
 	m.ctrl.T.Helper()
@@ -139,6 +153,21 @@ func (m *MockService) MoveStatus(arg0 context.Context, arg1 *storage.MoveStatusP
 func (mr *MockServiceMockRecorder) MoveStatus(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MoveStatus", reflect.TypeOf((*MockService)(nil).MoveStatus), arg0, arg1)
+}
+
+// PackageReader mocks base method.
+func (m *MockService) PackageReader(arg0 context.Context, arg1 *storage0.Package) (*blob.Reader, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "PackageReader", arg0, arg1)
+	ret0, _ := ret[0].(*blob.Reader)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// PackageReader indicates an expected call of PackageReader.
+func (mr *MockServiceMockRecorder) PackageReader(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PackageReader", reflect.TypeOf((*MockService)(nil).PackageReader), arg0, arg1)
 }
 
 // ReadPackage mocks base method.

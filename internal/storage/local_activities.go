@@ -14,8 +14,7 @@ func UpdatePackageLocationLocalActivity(ctx context.Context, storagesvc Service,
 }
 
 type UpdatePackageStatusLocalActivityParams struct {
-	AIPID    string
-	Location string
+	AIPID string
 }
 
 func UpdatePackageStatusLocalActivity(ctx context.Context, storagesvc Service, params *UpdatePackageStatusLocalActivityParams) error {
@@ -23,9 +22,9 @@ func UpdatePackageStatusLocalActivity(ctx context.Context, storagesvc Service, p
 }
 
 type DeleteFromLocationLocalActivityParams struct {
-	ObjectKey string
+	AIPID string
 }
 
 func DeleteFromLocationLocalActivity(ctx context.Context, storagesvc Service, params *DeleteFromLocationLocalActivityParams) error {
-	return storagesvc.Bucket().Delete(ctx, params.ObjectKey)
+	return storagesvc.Delete(ctx, params.AIPID)
 }
