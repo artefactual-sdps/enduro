@@ -82,6 +82,8 @@ type Service interface {
 	UpdatePackageStatus(ctx context.Context, status PackageStatus, aipID string) error
 	UpdatePackageLocation(ctx context.Context, location string, aipID string) error
 
+	Delete(ctx context.Context, AIPID string) (err error)
+	PackageReader(ctx context.Context, pkg *Package) (*blob.Reader, error)
 	HTTPDownload(mux goahttp.Muxer, dec func(r *http.Request) goahttp.Decoder) http.HandlerFunc
 }
 
@@ -224,9 +226,8 @@ func (s *serviceImpl) Move(ctx context.Context, payload *goastorage.MovePayload)
 	}
 
 	_, err = InitStorageMoveWorkflow(ctx, s.tc, &StorageMoveWorkflowRequest{
-		AIPID:     p.AIPID,
-		Location:  payload.Location,
-		ObjectKey: p.ObjectKey,
+		AIPID:    p.AIPID,
+		Location: payload.Location,
 	})
 	if err != nil {
 		s.logger.Error(err, "error initializing move workflow")
@@ -298,7 +299,7 @@ func (s *serviceImpl) HTTPDownload(mux goahttp.Muxer, dec func(r *http.Request) 
 		}
 
 		// Get MinIO bucket reader for object key.
-		reader, err := s.packageReader(ctx, pkg)
+		reader, err := s.PackageReader(ctx, pkg)
 		if err != nil {
 			rw.WriteHeader(http.StatusNotFound)
 			return
@@ -391,24 +392,47 @@ func (s *serviceImpl) UpdatePackageLocation(ctx context.Context, location string
 	return nil
 }
 
-func (s *serviceImpl) packageReader(ctx context.Context, pkg *Package) (*blob.Reader, error) {
+func (s *serviceImpl) packageBucket(p *Package) (string, *blob.Bucket, error) {
 	var bucket *blob.Bucket
 	var key string
 
-	if pkg.Location == "" {
+	if p.Location == "" {
 		// Package is still in the internal processing bucket
 		bucket = s.bucket
-		key = pkg.ObjectKey
+		key = p.ObjectKey
 	} else {
-		location, err := s.Location(pkg.Location)
+		location, err := s.Location(p.Location)
 		if err != nil {
-			return nil, err
+			return "", nil, err
 		}
 		bucket, err = location.OpenBucket()
 		if err != nil {
-			return nil, err
+			return "", nil, err
 		}
-		key = pkg.AIPID
+		key = p.AIPID
+	}
+
+	return key, bucket, nil
+}
+
+func (s *serviceImpl) Delete(ctx context.Context, AIPID string) error {
+	p, err := s.ReadPackage(ctx, AIPID)
+	if err != nil {
+		return err
+	}
+
+	key, bucket, err := s.packageBucket(p)
+	if err != nil {
+		return err
+	}
+
+	return bucket.Delete(ctx, key)
+}
+
+func (s *serviceImpl) PackageReader(ctx context.Context, p *Package) (*blob.Reader, error) {
+	key, bucket, err := s.packageBucket(p)
+	if err != nil {
+		return nil, err
 	}
 
 	reader, err := bucket.NewReader(ctx, key, nil)

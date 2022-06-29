@@ -21,8 +21,11 @@ import (
 	temporalsdk_client "go.temporal.io/sdk/client"
 	temporalsdk_worker "go.temporal.io/sdk/worker"
 	temporalsdk_workflow "go.temporal.io/sdk/workflow"
+	goahttp "goa.design/goa/v3/http"
 
 	"github.com/artefactual-labs/enduro/internal/api"
+	goahttpstorage "github.com/artefactual-labs/enduro/internal/api/gen/http/storage/client"
+	goastorage "github.com/artefactual-labs/enduro/internal/api/gen/storage"
 	"github.com/artefactual-labs/enduro/internal/batch"
 	"github.com/artefactual-labs/enduro/internal/config"
 	"github.com/artefactual-labs/enduro/internal/db"
@@ -241,6 +244,21 @@ func main() {
 		w.RegisterActivityWithOptions(storage_activities.NewCopyToPermanentLocationActivity(storagesvc).Execute, temporalsdk_activity.RegisterOptions{Name: storage.CopyToPermanentLocationActivityName})
 
 		w.RegisterWorkflowWithOptions(workflow.NewMoveWorkflow(logger, pkgsvc).Execute, temporalsdk_workflow.RegisterOptions{Name: package_.MoveWorkflowName})
+
+		httpClient := &http.Client{Timeout: time.Second}
+		storageHttpClient := goahttpstorage.NewClient("http", cfg.Storage.EnduroAddress, httpClient, goahttp.RequestEncoder, goahttp.ResponseDecoder, false)
+		storageClient := goastorage.NewClient(
+			storageHttpClient.Submit(),
+			storageHttpClient.Update(),
+			storageHttpClient.Download(),
+			storageHttpClient.List(),
+			storageHttpClient.Move(),
+			storageHttpClient.MoveStatus(),
+			storageHttpClient.Reject(),
+			storageHttpClient.Show(),
+		)
+		w.RegisterActivityWithOptions(activities.NewMoveToPermanentStorageActivity(storageClient).Execute, temporalsdk_activity.RegisterOptions{Name: activities.MoveToPermanentStorageActivityName})
+		w.RegisterActivityWithOptions(activities.NewPollMoveToPermanentStorageActivity(storageClient).Execute, temporalsdk_activity.RegisterOptions{Name: activities.PollMoveToPermanentStorageActivityName})
 
 		g.Add(
 			func() error {

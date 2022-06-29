@@ -82,6 +82,7 @@ func InitProcessingWorkflow(ctx context.Context, tc temporalsdk_client.Client, r
 }
 
 type MoveWorkflowRequest struct {
+	ID       uint
 	AIPID    string
 	Location string
 }
@@ -92,7 +93,7 @@ func InitMoveWorkflow(ctx context.Context, tc temporalsdk_client.Client, req *Mo
 	opts := temporalsdk_client.StartWorkflowOptions{
 		ID:                    fmt.Sprintf("%s-%s", MoveWorkflowName, req.AIPID),
 		TaskQueue:             temporal.GlobalTaskQueue,
-		WorkflowIDReusePolicy: temporalsdk_api_enums.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE_FAILED_ONLY,
+		WorkflowIDReusePolicy: temporalsdk_api_enums.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE,
 	}
 	exec, err := tc.ExecuteWorkflow(ctx, opts, MoveWorkflowName, req)
 

@@ -20,7 +20,7 @@ func NewStorageMoveWorkflow(storagesvc storage.Service) *StorageMoveWorkflow {
 }
 
 func (w *StorageMoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req storage.StorageMoveWorkflowRequest) error {
-	// Copy package from internal processing bucket to permanent location bucket
+	// Copy package from its current bucket to a new permanent location bucket
 	{
 		activityOpts := temporalsdk_workflow.WithActivityOptions(ctx, temporalsdk_workflow.ActivityOptions{
 			StartToCloseTimeout: time.Hour * 2,
@@ -35,16 +35,15 @@ func (w *StorageMoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req stor
 			},
 		})
 		err := temporalsdk_workflow.ExecuteActivity(activityOpts, storage.CopyToPermanentLocationActivityName, &storage.CopyToPermanentLocationActivityParams{
-			AIPID:     req.AIPID,
-			Location:  req.Location,
-			ObjectKey: req.ObjectKey,
+			AIPID:    req.AIPID,
+			Location: req.Location,
 		}).Get(activityOpts, nil)
 		if err != nil {
 			return err
 		}
 	}
 
-	// Delete package from internal processing bucket
+	// Delete package from its current bucket
 	{
 
 		activityOpts := temporalsdk_workflow.WithLocalActivityOptions(ctx, temporalsdk_workflow.LocalActivityOptions{
@@ -57,7 +56,7 @@ func (w *StorageMoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req stor
 			},
 		})
 		err := temporalsdk_workflow.ExecuteLocalActivity(activityOpts, storage.DeleteFromLocationLocalActivity, w.storagesvc, &storage.DeleteFromLocationLocalActivityParams{
-			ObjectKey: req.ObjectKey,
+			AIPID: req.AIPID,
 		}).Get(activityOpts, nil)
 		if err != nil {
 			return err
@@ -97,8 +96,7 @@ func (w *StorageMoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req stor
 			},
 		})
 		err := temporalsdk_workflow.ExecuteLocalActivity(activityOpts, storage.UpdatePackageStatusLocalActivity, w.storagesvc, &storage.UpdatePackageStatusLocalActivityParams{
-			AIPID:    req.AIPID,
-			Location: req.Location,
+			AIPID: req.AIPID,
 		}).Get(activityOpts, nil)
 		if err != nil {
 			return err

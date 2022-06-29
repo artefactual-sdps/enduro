@@ -236,7 +236,6 @@ var _ = Service("package", func() {
 			Response("failed_dependency", StatusFailedDependency)
 		})
 	})
-
 })
 
 var EnumPackageStatus = func() {

@@ -445,6 +445,7 @@ func (w *goaWrapper) Move(ctx context.Context, payload *goapackage.MovePayload) 
 	}
 
 	_, err = InitMoveWorkflow(ctx, w.tc, &MoveWorkflowRequest{
+		ID:       payload.ID,
 		AIPID:    *goapkg.AipID,
 		Location: payload.Location,
 	})
