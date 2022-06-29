@@ -66,7 +66,10 @@ func setStatusInProgressLocalActivity(ctx context.Context, pkgsvc package_.Servi
 	return pkgsvc.SetStatusInProgress(ctx, pkgID, startedAt)
 }
 
-//nolint:deadcode,unused
 func setStatusLocalActivity(ctx context.Context, pkgsvc package_.Service, pkgID uint, status package_.Status) error {
 	return pkgsvc.SetStatus(ctx, pkgID, status)
+}
+
+func setLocationLocalActivity(ctx context.Context, pkgsvc package_.Service, pkgID uint, location string) error {
+	return pkgsvc.SetLocation(ctx, pkgID, location)
 }

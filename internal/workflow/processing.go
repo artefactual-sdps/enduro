@@ -453,6 +453,15 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 			}
 		}
 
+		// Set package location
+		{
+			ctx := withLocalActivityOpts(sessCtx)
+			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setLocationLocalActivity, w.pkgsvc, tinfo.PackageID, *review.Location).Get(ctx, nil)
+			if err != nil {
+				return err
+			}
+		}
+
 		// Index content in OpenSearch.
 		{
 			if tinfo.Bundle != (activities.BundleActivityResult{}) {
