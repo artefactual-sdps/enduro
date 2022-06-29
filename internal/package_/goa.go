@@ -46,7 +46,9 @@ func (w *goaWrapper) Monitor(ctx context.Context, stream goapackage.MonitorServe
 	defer sub.Close()
 
 	// Say hello to be nice.
-	if err := stream.Send(&goapackage.EnduroMonitorUpdate{Type: "hello"}); err != nil {
+	message := "hello"
+	event := &goapackage.EnduroMonitorPingEvent{Message: &message}
+	if err := stream.Send(&goapackage.EnduroMonitorEvent{MonitorPingEvent: event}); err != nil {
 		return err
 	}
 
@@ -62,7 +64,9 @@ func (w *goaWrapper) Monitor(ctx context.Context, stream goapackage.MonitorServe
 			return nil
 
 		case <-ticker.C:
-			if err := stream.Send(&goapackage.EnduroMonitorUpdate{Type: "ping"}); err != nil {
+			message := "ping"
+			event := &goapackage.EnduroMonitorPingEvent{Message: &message}
+			if err := stream.Send(&goapackage.EnduroMonitorEvent{MonitorPingEvent: event}); err != nil {
 				return nil
 			}
 
@@ -193,7 +197,8 @@ func (w *goaWrapper) Delete(ctx context.Context, payload *goapackage.DeletePaylo
 		return &goapackage.PackageNotfound{ID: payload.ID, Message: "not_found"}
 	}
 
-	publishEvent(ctx, w.events, EventTypePackageDeleted, payload.ID)
+	event := &goapackage.EnduroPackageDeletedEvent{ID: payload.ID}
+	publishEvent(ctx, w.events, event)
 
 	return nil
 }
@@ -210,7 +215,7 @@ func (w *goaWrapper) Cancel(ctx context.Context, payload *goapackage.CancelPaylo
 		return err
 	}
 
-	publishEvent(ctx, w.events, EventTypePackageUpdated, payload.ID)
+	// TODO: send event
 
 	return nil
 }
@@ -255,7 +260,7 @@ func (w *goaWrapper) Retry(ctx context.Context, payload *goapackage.RetryPayload
 		return fmt.Errorf("error starting the new workflow instance: %w", err)
 	}
 
-	publishEvent(ctx, w.events, EventTypePackageUpdated, payload.ID)
+	// TODO: send event
 
 	return nil
 }

@@ -223,7 +223,7 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *pack
 
 				logger.Error(
 					"Session failed, will retry shortly (10s)...",
-					"err", ctx.Err().Error(),
+					"err", ctx.Err(),
 					"attemptFailed", attempt,
 					"attemptsLeft", maxAttempts-attempt,
 				)

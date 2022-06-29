@@ -1,9 +1,11 @@
 import App from "./App.vue";
-import { api } from "./client";
+import { client, api } from "./client";
 import "./styles/main.scss";
+import { PiniaDebounce } from "@pinia/plugin-debounce";
 import humanizeDuration from "humanize-duration";
 import moment from "moment";
-import { createPinia } from "pinia";
+import { createPinia, PiniaVuePlugin } from "pinia";
+import { debounce } from "ts-debounce";
 import { createApp } from "vue";
 import { PromiseDialog } from "vue3-promise-dialog";
 import { createRouter, createWebHistory } from "vue-router";
@@ -15,11 +17,16 @@ const router = createRouter({
   strict: false,
 });
 
+const pinia = createPinia();
+pinia.use(PiniaDebounce(debounce));
+
 const app = createApp(App);
 app.use(router);
-app.use(createPinia());
+app.use(pinia);
 app.use(PromiseDialog);
 app.mount("#app");
+
+client.connectPackageMonitor();
 
 interface Filters {
   [key: string]: (...value: any[]) => string;

@@ -207,10 +207,10 @@ func (s *serviceImpl) Download(ctx context.Context, payload *goastorage.Download
 
 func (s *serviceImpl) List(context.Context) (goastorage.StoredLocationCollection, error) {
 	res := []*goastorage.StoredLocation{}
-	for _, item := range s.locations {
+	for _, item := range s.config.Locations {
 		l := &goastorage.StoredLocation{
-			ID:   item.Name(),
-			Name: item.Name(),
+			ID:   item.Name,
+			Name: item.Name,
 		}
 		res = append(res, l)
 	}
