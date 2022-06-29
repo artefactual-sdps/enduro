@@ -21,6 +21,7 @@ type Service interface {
 	SetStatus(ctx context.Context, ID uint, status Status) error
 	SetStatusInProgress(ctx context.Context, ID uint, startedAt time.Time) error
 	SetStatusPending(ctx context.Context, ID uint) error
+	SetLocation(ctx context.Context, ID uint, location string) error
 	CreatePreservationAction(ctx context.Context, pa *PreservationAction) error
 }
 
@@ -161,6 +162,22 @@ func (svc *packageImpl) SetStatusPending(ctx context.Context, ID uint) error {
 	query := `UPDATE package SET status = (?), WHERE id = (?)`
 	args := []interface{}{
 		StatusPending,
+		ID,
+	}
+
+	if _, err := svc.updateRow(ctx, query, args); err != nil {
+		return err
+	}
+
+	publishEvent(ctx, svc.events, EventTypePackageUpdated, ID)
+
+	return nil
+}
+
+func (svc *packageImpl) SetLocation(ctx context.Context, ID uint, location string) error {
+	query := `UPDATE package SET location = (?) WHERE id = (?)`
+	args := []interface{}{
+		location,
 		ID,
 	}
 
