@@ -64,6 +64,8 @@ type EnduroStoredPackageView struct {
 	ID *uint
 	// Name of the package
 	Name *string
+	// Location of the package
+	Location *string
 	// Status of the package
 	Status *string
 	// Identifier of processing workflow
@@ -115,11 +117,12 @@ type EnduroPackagePreservationActionsActionCollectionView []*EnduroPackagePreser
 // EnduroPackagePreservationActionsActionView is a type that runs validations
 // on a projected type.
 type EnduroPackagePreservationActionsActionView struct {
-	ID        *uint
-	ActionID  *string
-	Name      *string
-	Status    *string
-	StartedAt *string
+	ID          *uint
+	ActionID    *string
+	Name        *string
+	Status      *string
+	StartedAt   *string
+	CompletedAt *string
 }
 
 var (
@@ -138,6 +141,7 @@ var (
 		"default": {
 			"id",
 			"name",
+			"location",
 			"status",
 			"workflow_id",
 			"run_id",
@@ -190,6 +194,7 @@ var (
 			"name",
 			"status",
 			"started_at",
+			"completed_at",
 		},
 	}
 	// EnduroPackagePreservationActionsActionMap is a map indexing the attribute
@@ -201,6 +206,7 @@ var (
 			"name",
 			"status",
 			"started_at",
+			"completed_at",
 		},
 	}
 )
@@ -389,6 +395,9 @@ func ValidateEnduroPackagePreservationActionsActionView(result *EnduroPackagePre
 	}
 	if result.StartedAt != nil {
 		err = goa.MergeErrors(err, goa.ValidateFormat("result.started_at", *result.StartedAt, goa.FormatDateTime))
+	}
+	if result.CompletedAt != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("result.completed_at", *result.CompletedAt, goa.FormatDateTime))
 	}
 	return
 }

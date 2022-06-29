@@ -29,6 +29,7 @@ var _ = Service("package", func() {
 			Attribute("latest_created_time", String, func() {
 				Format(FormatDateTime)
 			})
+			Attribute("location", String)
 			Attribute("status", String, func() {
 				EnumPackageStatus()
 			})
@@ -43,6 +44,7 @@ var _ = Service("package", func() {
 				Param("aip_id")
 				Param("earliest_created_time")
 				Param("latest_created_time")
+				Param("location")
 				Param("status")
 				Param("cursor")
 			})
@@ -205,6 +207,7 @@ var EnumPackageStatus = func() {
 var Package_ = Type("Package", func() {
 	Description("Package describes a package to be stored.")
 	Attribute("name", String, "Name of the package")
+	Attribute("location", String, "Location of the package")
 	Attribute("status", String, "Status of the package", func() {
 		EnumPackageStatus()
 		Default("new")
@@ -236,6 +239,7 @@ var StoredPackage = ResultType("application/vnd.enduro.stored-package", func() {
 	Attributes(func() {
 		Attribute("id", UInt, "Identifier of package")
 		Attribute("name")
+		Attribute("location")
 		Attribute("status")
 		Attribute("workflow_id")
 		Attribute("run_id")
@@ -247,6 +251,7 @@ var StoredPackage = ResultType("application/vnd.enduro.stored-package", func() {
 	View("default", func() {
 		Attribute("id")
 		Attribute("name")
+		Attribute("location")
 		Attribute("status")
 		Attribute("workflow_id")
 		Attribute("run_id")
@@ -328,6 +333,9 @@ var PreservationAction = ResultType("application/vnd.enduro.package-preservation
 			EnumPreservationActionStatus()
 		})
 		Attribute("started_at", String, func() {
+			Format(FormatDateTime)
+		})
+		Attribute("completed_at", String, func() {
 			Format(FormatDateTime)
 		})
 	})

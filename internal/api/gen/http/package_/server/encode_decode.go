@@ -42,6 +42,7 @@ func DecodeListRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.De
 			aipID               *string
 			earliestCreatedTime *string
 			latestCreatedTime   *string
+			location            *string
 			status              *string
 			cursor              *string
 			err                 error
@@ -71,6 +72,10 @@ func DecodeListRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.De
 		if latestCreatedTime != nil {
 			err = goa.MergeErrors(err, goa.ValidateFormat("latestCreatedTime", *latestCreatedTime, goa.FormatDateTime))
 		}
+		locationRaw := r.URL.Query().Get("location")
+		if locationRaw != "" {
+			location = &locationRaw
+		}
 		statusRaw := r.URL.Query().Get("status")
 		if statusRaw != "" {
 			status = &statusRaw
@@ -87,7 +92,7 @@ func DecodeListRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.De
 		if err != nil {
 			return nil, err
 		}
-		payload := NewListPayload(name, aipID, earliestCreatedTime, latestCreatedTime, status, cursor)
+		payload := NewListPayload(name, aipID, earliestCreatedTime, latestCreatedTime, location, status, cursor)
 
 		return payload, nil
 	}
@@ -790,6 +795,7 @@ func marshalPackageViewsEnduroStoredPackageViewToEnduroStoredPackageResponseBody
 	res := &EnduroStoredPackageResponseBody{
 		ID:          *v.ID,
 		Name:        v.Name,
+		Location:    v.Location,
 		Status:      *v.Status,
 		WorkflowID:  v.WorkflowID,
 		RunID:       v.RunID,
@@ -809,6 +815,7 @@ func marshalPackageEnduroStoredPackageToEnduroStoredPackageResponseBody(v *packa
 	res := &EnduroStoredPackageResponseBody{
 		ID:          v.ID,
 		Name:        v.Name,
+		Location:    v.Location,
 		Status:      v.Status,
 		WorkflowID:  v.WorkflowID,
 		RunID:       v.RunID,
@@ -846,11 +853,12 @@ func marshalPackageViewsEnduroPackagePreservationActionsActionViewToEnduroPackag
 		return nil
 	}
 	res := &EnduroPackagePreservationActionsActionResponseBody{
-		ID:        *v.ID,
-		ActionID:  *v.ActionID,
-		Name:      *v.Name,
-		Status:    *v.Status,
-		StartedAt: *v.StartedAt,
+		ID:          *v.ID,
+		ActionID:    *v.ActionID,
+		Name:        *v.Name,
+		Status:      *v.Status,
+		StartedAt:   *v.StartedAt,
+		CompletedAt: v.CompletedAt,
 	}
 
 	return res
