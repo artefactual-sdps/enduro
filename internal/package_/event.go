@@ -12,10 +12,6 @@ import (
 const (
 	// EventBufferSize is the buffer size of the channel for each subscription.
 	EventBufferSize = 16
-
-	EventTypePackageCreated = "package:created"
-	EventTypePackageUpdated = "package:updated"
-	EventTypePackageDeleted = "package:deleted"
 )
 
 // EventService represents a service for managing event dispatch and event
@@ -23,7 +19,7 @@ const (
 type EventService interface {
 	// Publishes an event to a user's event listeners.
 	// If the user is not currently subscribed then this is a no-op.
-	PublishEvent(event *goapackage.EnduroMonitorUpdate)
+	PublishEvent(event *goapackage.EnduroMonitorEvent)
 
 	// Creates a subscription. Caller must call Subscription.Close() when done
 	// with the subscription.
@@ -47,7 +43,7 @@ func NewEventService() *EventServiceImpl {
 //
 // If user's channel is full then the user is disconnected. This is to prevent
 // slow users from blocking progress.
-func (s *EventServiceImpl) PublishEvent(event *goapackage.EnduroMonitorUpdate) {
+func (s *EventServiceImpl) PublishEvent(event *goapackage.EnduroMonitorEvent) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -65,7 +61,7 @@ func (s *EventServiceImpl) PublishEvent(event *goapackage.EnduroMonitorUpdate) {
 func (s *EventServiceImpl) Subscribe(ctx context.Context) (Subscription, error) {
 	sub := &SubscriptionImpl{
 		service: s,
-		c:       make(chan *goapackage.EnduroMonitorUpdate, EventBufferSize),
+		c:       make(chan *goapackage.EnduroMonitorEvent, EventBufferSize),
 		id:      uuid.New(),
 	}
 
@@ -104,7 +100,7 @@ func NopEventService() EventService { return &nopEventService{} }
 
 type nopEventService struct{}
 
-func (*nopEventService) PublishEvent(event *goapackage.EnduroMonitorUpdate) {}
+func (*nopEventService) PublishEvent(event *goapackage.EnduroMonitorEvent) {}
 
 func (*nopEventService) Subscribe(ctx context.Context) (Subscription, error) {
 	panic("not implemented")
@@ -113,7 +109,7 @@ func (*nopEventService) Subscribe(ctx context.Context) (Subscription, error) {
 // Subscription represents a stream of events for a single user.
 type Subscription interface {
 	// Event stream for all user's event.
-	C() <-chan *goapackage.EnduroMonitorUpdate
+	C() <-chan *goapackage.EnduroMonitorEvent
 
 	// Closes the event stream channel and disconnects from the event service.
 	Close() error
@@ -121,10 +117,10 @@ type Subscription interface {
 
 // SubscriptionImpl represents a stream of user-related events.
 type SubscriptionImpl struct {
-	service *EventServiceImpl                    // service subscription was created from
-	c       chan *goapackage.EnduroMonitorUpdate // channel of events
-	once    sync.Once                            // ensures c only closed once
-	id      uuid.UUID                            // subscription identifier
+	service *EventServiceImpl                   // service subscription was created from
+	c       chan *goapackage.EnduroMonitorEvent // channel of events
+	once    sync.Once                           // ensures c only closed once
+	id      uuid.UUID                           // subscription identifier
 }
 
 var _ Subscription = (*SubscriptionImpl)(nil)
@@ -136,6 +132,29 @@ func (s *SubscriptionImpl) Close() error {
 }
 
 // C returns a receive-only channel of user-related events.
-func (s *SubscriptionImpl) C() <-chan *goapackage.EnduroMonitorUpdate {
+func (s *SubscriptionImpl) C() <-chan *goapackage.EnduroMonitorEvent {
 	return s.c
+}
+
+func publishEvent(ctx context.Context, events EventService, event interface{}) {
+	update := &goapackage.EnduroMonitorEvent{}
+
+	switch v := event.(type) {
+	case *goapackage.EnduroMonitorPingEvent:
+		update.MonitorPingEvent = v
+	case *goapackage.EnduroPackageCreatedEvent:
+		update.PackageCreatedEvent = v
+	case *goapackage.EnduroPackageUpdatedEvent:
+		update.PackageUpdatedEvent = v
+	case *goapackage.EnduroPackageDeletedEvent:
+		update.PackageDeletedEvent = v
+	case *goapackage.EnduroPackageStatusUpdatedEvent:
+		update.PackageStatusUpdatedEvent = v
+	case *goapackage.EnduroPackageLocationUpdatedEvent:
+		update.PackageLocationUpdatedEvent = v
+	default:
+		panic("tried to publish unexpected event")
+	}
+
+	events.PublishEvent(update)
 }

@@ -51,15 +51,15 @@ func (svc *packageImpl) Goa() goapackage.Service {
 	}
 }
 
-func (svc *packageImpl) Create(ctx context.Context, col *Package) error {
+func (svc *packageImpl) Create(ctx context.Context, pkg *Package) error {
 	query := `INSERT INTO package (name, workflow_id, run_id, aip_id, location, status) VALUES ((?), (?), (?), (?), (?), (?))`
 	args := []interface{}{
-		col.Name,
-		col.WorkflowID,
-		col.RunID,
-		col.AIPID,
-		col.Location,
-		col.Status,
+		pkg.Name,
+		pkg.WorkflowID,
+		pkg.RunID,
+		pkg.AIPID,
+		pkg.Location,
+		pkg.Status,
 	}
 
 	query = svc.db.Rebind(query)
@@ -73,22 +73,14 @@ func (svc *packageImpl) Create(ctx context.Context, col *Package) error {
 		return fmt.Errorf("error retrieving insert ID: %w", err)
 	}
 
-	col.ID = uint(id)
+	pkg.ID = uint(id)
 
-	publishEvent(ctx, svc.events, EventTypePackageCreated, col.ID)
+	if pkg, err := svc.Goa().Show(ctx, &goapackage.ShowPayload{ID: uint(id)}); err == nil {
+		event := &goapackage.EnduroPackageCreatedEvent{ID: uint(id), Item: pkg}
+		publishEvent(ctx, svc.events, event)
+	}
 
 	return nil
-}
-
-func publishEvent(ctx context.Context, events EventService, eventType string, id uint) {
-	// TODO: publish updated package?
-	var item *goapackage.EnduroStoredPackage
-
-	events.PublishEvent(&goapackage.EnduroMonitorUpdate{
-		ID:   id,
-		Type: eventType,
-		Item: item,
-	})
 }
 
 func (svc *packageImpl) UpdateWorkflowStatus(ctx context.Context, ID uint, name string, workflowID, runID, aipID string, status Status, storedAt time.Time) error {
@@ -116,7 +108,10 @@ func (svc *packageImpl) UpdateWorkflowStatus(ctx context.Context, ID uint, name 
 		return err
 	}
 
-	publishEvent(ctx, svc.events, EventTypePackageUpdated, ID)
+	if pkg, err := svc.Goa().Show(ctx, &goapackage.ShowPayload{ID: ID}); err == nil {
+		event := &goapackage.EnduroPackageUpdatedEvent{ID: uint(ID), Item: pkg}
+		publishEvent(ctx, svc.events, event)
+	}
 
 	return nil
 }
@@ -132,7 +127,8 @@ func (svc *packageImpl) SetStatus(ctx context.Context, ID uint, status Status) e
 		return err
 	}
 
-	publishEvent(ctx, svc.events, EventTypePackageUpdated, ID)
+	event := &goapackage.EnduroPackageStatusUpdatedEvent{ID: uint(ID), Status: status.String()}
+	publishEvent(ctx, svc.events, event)
 
 	return nil
 }
@@ -153,7 +149,8 @@ func (svc *packageImpl) SetStatusInProgress(ctx context.Context, ID uint, starte
 		return err
 	}
 
-	publishEvent(ctx, svc.events, EventTypePackageUpdated, ID)
+	event := &goapackage.EnduroPackageStatusUpdatedEvent{ID: uint(ID), Status: StatusInProgress.String()}
+	publishEvent(ctx, svc.events, event)
 
 	return nil
 }
@@ -169,7 +166,8 @@ func (svc *packageImpl) SetStatusPending(ctx context.Context, ID uint) error {
 		return err
 	}
 
-	publishEvent(ctx, svc.events, EventTypePackageUpdated, ID)
+	event := &goapackage.EnduroPackageStatusUpdatedEvent{ID: uint(ID), Status: StatusPending.String()}
+	publishEvent(ctx, svc.events, event)
 
 	return nil
 }
@@ -185,7 +183,8 @@ func (svc *packageImpl) SetLocation(ctx context.Context, ID uint, location strin
 		return err
 	}
 
-	publishEvent(ctx, svc.events, EventTypePackageUpdated, ID)
+	event := &goapackage.EnduroPackageLocationUpdatedEvent{ID: uint(ID), Location: location}
+	publishEvent(ctx, svc.events, event)
 
 	return nil
 }

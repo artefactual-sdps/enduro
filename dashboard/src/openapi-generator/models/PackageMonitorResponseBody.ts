@@ -14,11 +14,41 @@
 
 import { exists, mapValues } from '../runtime';
 import {
-    EnduroStoredPackageResponseBody,
-    EnduroStoredPackageResponseBodyFromJSON,
-    EnduroStoredPackageResponseBodyFromJSONTyped,
-    EnduroStoredPackageResponseBodyToJSON,
-} from './EnduroStoredPackageResponseBody';
+    EnduroMonitorPingEventResponseBody,
+    EnduroMonitorPingEventResponseBodyFromJSON,
+    EnduroMonitorPingEventResponseBodyFromJSONTyped,
+    EnduroMonitorPingEventResponseBodyToJSON,
+} from './EnduroMonitorPingEventResponseBody';
+import {
+    EnduroPackageCreatedEventResponseBody,
+    EnduroPackageCreatedEventResponseBodyFromJSON,
+    EnduroPackageCreatedEventResponseBodyFromJSONTyped,
+    EnduroPackageCreatedEventResponseBodyToJSON,
+} from './EnduroPackageCreatedEventResponseBody';
+import {
+    EnduroPackageDeletedEventResponseBody,
+    EnduroPackageDeletedEventResponseBodyFromJSON,
+    EnduroPackageDeletedEventResponseBodyFromJSONTyped,
+    EnduroPackageDeletedEventResponseBodyToJSON,
+} from './EnduroPackageDeletedEventResponseBody';
+import {
+    EnduroPackageLocationUpdatedEventResponseBody,
+    EnduroPackageLocationUpdatedEventResponseBodyFromJSON,
+    EnduroPackageLocationUpdatedEventResponseBodyFromJSONTyped,
+    EnduroPackageLocationUpdatedEventResponseBodyToJSON,
+} from './EnduroPackageLocationUpdatedEventResponseBody';
+import {
+    EnduroPackageStatusUpdatedEventResponseBody,
+    EnduroPackageStatusUpdatedEventResponseBodyFromJSON,
+    EnduroPackageStatusUpdatedEventResponseBodyFromJSONTyped,
+    EnduroPackageStatusUpdatedEventResponseBodyToJSON,
+} from './EnduroPackageStatusUpdatedEventResponseBody';
+import {
+    EnduroPackageUpdatedEventResponseBody,
+    EnduroPackageUpdatedEventResponseBodyFromJSON,
+    EnduroPackageUpdatedEventResponseBodyFromJSONTyped,
+    EnduroPackageUpdatedEventResponseBodyToJSON,
+} from './EnduroPackageUpdatedEventResponseBody';
 
 /**
  * MonitorResponseBody result type (default view)
@@ -27,23 +57,41 @@ import {
  */
 export interface PackageMonitorResponseBody {
     /**
-     * Identifier of package
-     * @type {number}
+     * 
+     * @type {EnduroMonitorPingEventResponseBody}
      * @memberof PackageMonitorResponseBody
      */
-    id: number;
+    monitorPingEvent?: EnduroMonitorPingEventResponseBody;
     /**
      * 
-     * @type {EnduroStoredPackageResponseBody}
+     * @type {EnduroPackageCreatedEventResponseBody}
      * @memberof PackageMonitorResponseBody
      */
-    item?: EnduroStoredPackageResponseBody;
+    packageCreatedEvent?: EnduroPackageCreatedEventResponseBody;
     /**
-     * Type of the event
-     * @type {string}
+     * 
+     * @type {EnduroPackageDeletedEventResponseBody}
      * @memberof PackageMonitorResponseBody
      */
-    type: string;
+    packageDeletedEvent?: EnduroPackageDeletedEventResponseBody;
+    /**
+     * 
+     * @type {EnduroPackageLocationUpdatedEventResponseBody}
+     * @memberof PackageMonitorResponseBody
+     */
+    packageLocationUpdatedEvent?: EnduroPackageLocationUpdatedEventResponseBody;
+    /**
+     * 
+     * @type {EnduroPackageStatusUpdatedEventResponseBody}
+     * @memberof PackageMonitorResponseBody
+     */
+    packageStatusUpdatedEvent?: EnduroPackageStatusUpdatedEventResponseBody;
+    /**
+     * 
+     * @type {EnduroPackageUpdatedEventResponseBody}
+     * @memberof PackageMonitorResponseBody
+     */
+    packageUpdatedEvent?: EnduroPackageUpdatedEventResponseBody;
 }
 
 export function PackageMonitorResponseBodyFromJSON(json: any): PackageMonitorResponseBody {
@@ -56,9 +104,12 @@ export function PackageMonitorResponseBodyFromJSONTyped(json: any, ignoreDiscrim
     }
     return {
         
-        'id': json['id'],
-        'item': !exists(json, 'item') ? undefined : EnduroStoredPackageResponseBodyFromJSON(json['item']),
-        'type': json['type'],
+        'monitorPingEvent': !exists(json, 'monitor_ping_event') ? undefined : EnduroMonitorPingEventResponseBodyFromJSON(json['monitor_ping_event']),
+        'packageCreatedEvent': !exists(json, 'package_created_event') ? undefined : EnduroPackageCreatedEventResponseBodyFromJSON(json['package_created_event']),
+        'packageDeletedEvent': !exists(json, 'package_deleted_event') ? undefined : EnduroPackageDeletedEventResponseBodyFromJSON(json['package_deleted_event']),
+        'packageLocationUpdatedEvent': !exists(json, 'package_location_updated_event') ? undefined : EnduroPackageLocationUpdatedEventResponseBodyFromJSON(json['package_location_updated_event']),
+        'packageStatusUpdatedEvent': !exists(json, 'package_status_updated_event') ? undefined : EnduroPackageStatusUpdatedEventResponseBodyFromJSON(json['package_status_updated_event']),
+        'packageUpdatedEvent': !exists(json, 'package_updated_event') ? undefined : EnduroPackageUpdatedEventResponseBodyFromJSON(json['package_updated_event']),
     };
 }
 
@@ -71,9 +122,12 @@ export function PackageMonitorResponseBodyToJSON(value?: PackageMonitorResponseB
     }
     return {
         
-        'id': value.id,
-        'item': EnduroStoredPackageResponseBodyToJSON(value.item),
-        'type': value.type,
+        'monitor_ping_event': EnduroMonitorPingEventResponseBodyToJSON(value.monitorPingEvent),
+        'package_created_event': EnduroPackageCreatedEventResponseBodyToJSON(value.packageCreatedEvent),
+        'package_deleted_event': EnduroPackageDeletedEventResponseBodyToJSON(value.packageDeletedEvent),
+        'package_location_updated_event': EnduroPackageLocationUpdatedEventResponseBodyToJSON(value.packageLocationUpdatedEvent),
+        'package_status_updated_event': EnduroPackageStatusUpdatedEventResponseBodyToJSON(value.packageStatusUpdatedEvent),
+        'package_updated_event': EnduroPackageUpdatedEventResponseBodyToJSON(value.packageUpdatedEvent),
     };
 }
 

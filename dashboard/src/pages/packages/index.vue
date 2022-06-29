@@ -1,17 +1,12 @@
 <script setup lang="ts">
-import { client, api } from "@/client";
 import PackageStatusBadge from "@/components/PackageStatusBadge.vue";
-import { onMounted, reactive } from "vue";
+import { usePackageStore } from "@/stores/package";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
-const items: Array<api.EnduroStoredPackageResponseBody> = reactive([]);
+const packageStore = usePackageStore();
 
-onMounted(() => {
-  client.package.packageList().then((resp) => {
-    Object.assign(items, resp.items);
-  });
-});
+await packageStore.fetchPackages();
 
 const openPackage = (id: number) => {
   router.push({ name: "packages-id", params: { id } });
@@ -33,7 +28,11 @@ const openPackage = (id: number) => {
         </tr>
       </thead>
       <tbody>
-        <tr v-for="pkg in items" :key="pkg.id" @click="openPackage(pkg.id)">
+        <tr
+          v-for="pkg in packageStore.packages"
+          :key="pkg.id"
+          @click="openPackage(pkg.id)"
+        >
           <td scope="row">{{ pkg.id }}</td>
           <td>
             <router-link

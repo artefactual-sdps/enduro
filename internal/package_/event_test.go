@@ -24,7 +24,7 @@ func TestEventService(t *testing.T) {
 		}
 
 		// Publish event to both users
-		s.PublishEvent(&goapackage.EnduroMonitorUpdate{ID: 1})
+		s.PublishEvent(&goapackage.EnduroMonitorEvent{})
 
 		// Verify both subscribers received the update.
 		select {
@@ -50,7 +50,7 @@ func TestEventService(t *testing.T) {
 		}
 
 		// Publish event & close.
-		s.PublishEvent(&goapackage.EnduroMonitorUpdate{ID: 1})
+		s.PublishEvent(&goapackage.EnduroMonitorEvent{})
 		if err := sub.Close(); err != nil {
 			t.Fatal(err)
 		}

@@ -139,7 +139,7 @@ func (svc *packageImpl) CreatePreservationAction(ctx context.Context, pa *Preser
 
 	pa.ID = uint(id)
 
-	publishEvent(ctx, svc.events, EventTypePackageUpdated, pa.PackageID)
+	// publishEvent(ctx, svc.events, EventTypePackageUpdated, pa.PackageID)
 
 	return nil
 }

@@ -23,11 +23,11 @@ $(GO_MOD_UPGRADE): $(BINGO_DIR)/go-mod-upgrade.mod
 	@echo "(re)installing $(GOBIN)/go-mod-upgrade-v0.7.0"
 	@cd $(BINGO_DIR) && $(GO) build -mod=mod -modfile=go-mod-upgrade.mod -o=$(GOBIN)/go-mod-upgrade-v0.7.0 "github.com/oligot/go-mod-upgrade"
 
-GOA := $(GOBIN)/goa-v3.7.6
+GOA := $(GOBIN)/goa-v3.7.7
 $(GOA): $(BINGO_DIR)/goa.mod
 	@# Install binary/ries using Go 1.14+ build command. This is using bwplotka/bingo-controlled, separate go module with pinned dependencies.
-	@echo "(re)installing $(GOBIN)/goa-v3.7.6"
-	@cd $(BINGO_DIR) && $(GO) build -mod=mod -modfile=goa.mod -o=$(GOBIN)/goa-v3.7.6 "goa.design/goa/v3/cmd/goa"
+	@echo "(re)installing $(GOBIN)/goa-v3.7.7"
+	@cd $(BINGO_DIR) && $(GO) build -mod=mod -modfile=goa.mod -o=$(GOBIN)/goa-v3.7.7 "goa.design/goa/v3/cmd/goa"
 
 GOLANGCI_LINT := $(GOBIN)/golangci-lint-v1.46.2
 $(GOLANGCI_LINT): $(BINGO_DIR)/golangci-lint.mod

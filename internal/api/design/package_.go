@@ -10,7 +10,9 @@ var _ = Service("package", func() {
 		Path("/package")
 	})
 	Method("monitor", func() {
-		StreamingResult(MonitorUpdate)
+		StreamingResult(MonitorEvent, func() {
+			View("default")
+		})
 		HTTP(func() {
 			GET("/monitor")
 			Response(StatusOK)
@@ -301,17 +303,12 @@ var StoredPackage = ResultType("application/vnd.enduro.stored-package", func() {
 	Required("id", "status", "created_at")
 })
 
-var MonitorUpdate = ResultType("application/vnd.enduro.monitor-update", func() {
-	Attribute("id", UInt, "Identifier of package")
-	Attribute("type", String, "Type of the event")
-	Attribute("item", StoredPackage, "Package")
-	Required("id", "type")
-})
-
 var WorkflowStatus = ResultType("application/vnd.enduro.package-workflow-status", func() {
 	Description("WorkflowStatus describes the processing workflow status of a package.")
-	Attribute("status", String) // TODO
-	Attribute("history", CollectionOf(WorkflowHistoryEvent))
+	Attributes(func() {
+		Attribute("status", String) // TODO
+		Attribute("history", CollectionOf(WorkflowHistoryEvent))
+	})
 })
 
 var WorkflowHistoryEvent = ResultType("application/vnd.enduro.package-workflow-history", func() {
@@ -358,7 +355,9 @@ var EnumPreservationActionStatus = func() {
 
 var PreservationActions = ResultType("application/vnd.enduro.package-preservation-actions", func() {
 	Description("PreservationActions describes the preservation actions of a package.")
-	Attribute("actions", CollectionOf(PreservationAction))
+	Attributes(func() {
+		Attribute("actions", CollectionOf(PreservationAction))
+	})
 })
 
 var PreservationAction = ResultType("application/vnd.enduro.package-preservation-actions-action", func() {
