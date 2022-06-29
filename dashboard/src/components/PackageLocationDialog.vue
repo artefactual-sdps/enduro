@@ -9,11 +9,11 @@ const props = defineProps({
   currentLocation: { type: String, required: false },
 });
 
-const el = ref<HTMLElement | null>(null);
-const modal = ref<Modal | null>(null);
-
 const storageStore = useStorageStore();
 storageStore.fetchLocations();
+
+const el = ref<HTMLElement | null>(null);
+const modal = ref<Modal | null>(null);
 
 onMounted(() => {
   if (!el.value) return;
