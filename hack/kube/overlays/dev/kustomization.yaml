@@ -18,4 +18,5 @@ patchesStrategicMerge:
 patches:
   - path: linkerd-mesh-patch.yaml
     target:
+      labelSelector: "mesh=linkerd"
       namespace: default

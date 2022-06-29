@@ -4,6 +4,7 @@ metadata:
   name: mysql
   labels:
     app: mysql
+    mesh: linkerd
 spec:
   selector:
     matchLabels:

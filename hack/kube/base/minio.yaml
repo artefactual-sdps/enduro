@@ -4,6 +4,7 @@ metadata:
   name: minio
   labels:
     app: minio
+    mesh: linkerd
 spec:
   selector:
     matchLabels:

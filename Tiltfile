@@ -41,10 +41,10 @@ cmd_button(
     "-c",
     "linkerd install -L linkerd | kubectl apply -f - ; \
       linkerd viz install -L linkerd | kubectl apply -f - ; \
-      kubectl get -n default deploy,statefulset -o yaml \
+      kubectl get -n default deploy,statefulset -l 'mesh=linkerd' -o yaml \
         | linkerd inject - \
         | kubectl apply --force=true --validate=false -f - ; \
-      kubectl rollout restart deployment,statefulset \
+      kubectl rollout restart deploy,statefulset \
     ",
   ],
   location="nav",
@@ -57,7 +57,7 @@ cmd_button(
   argv=[
     "sh",
     "-c",
-    "kubectl get -n default deploy,statefulset -o yaml \
+    "kubectl get -n default deploy,statefulset -l 'mesh=linkerd' -o yaml \
       | linkerd uninject - | kubectl apply --force=true --validate=false -f - ; \
       linkerd viz uninstall | kubectl delete -f - ; \
       linkerd uninstall | kubectl delete -f - \

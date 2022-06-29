@@ -4,6 +4,7 @@ metadata:
   name: redis
   labels:
     app: redis
+    mesh: linkerd
 spec:
   selector:
     matchLabels:
