@@ -4,6 +4,7 @@ metadata:
   name: temporal
   labels:
     app: temporal
+    mesh: linkerd
 spec:
   selector:
     matchLabels:

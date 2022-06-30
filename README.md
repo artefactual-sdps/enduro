@@ -152,6 +152,82 @@ sure you update `/path/to/enduro` to the proper project folder in the host):
 - Host path: `/path/to/enduro/hack/sampledata/StructB-AM.zip`
 - Object name: `StructB-AM.zip`
 
+### [Linkerd] Service Mesh
+
+#### Install Linkerd
+
+In the Tilt UI there is a 'node' icon with the text "Install Linkerd": pressing
+this button will install the Linkerd service mesh in your local cluster. Once
+installed, Linkerd will encrypt all traffic between pods with TLS.
+
+While the service mesh is important to secure production installs, it is not
+normally necessary when running the dev cluster locally. This functionality
+exists in the development workflow so that changes that might affect
+communication between pods can be tested locally with the service mesh in
+place.
+
+Two new namespaces will be created (linkerd and linkerd-viz) and the linkerd
+containers and the associated visualization components (Prometheus and Grafana)
+will be installed in your dev cluster.
+
+**Prerequisites:**
+
+1. The cluster must be created, and Enduro must be up and running.
+   - see [Set Up](#set-up) instructions above
+2. Linkerd CLI must be installed - there are a few ways to accomplish this. See
+   the [Linkerd CLI install page]
+
+**Install Linkerd in your local cluster:**
+
+1. Press the 'Install Linkerd' button. This will start the process: first
+   Linkerd will be installed, then the visualization components, then the Enduro
+   containers will have the Linkerd service mesh injected, and finally the Enduro
+   containers will be restarted. This process can take a few mins to complete.
+
+2. View the state of all pods being created using the command:
+
+- `kubectl get pods --all-namespaces`
+- You will see the linkerd and linkerd-viz pods start to appear in this list.
+
+3. Once the 'linkerd-viz' pods become visible, you can attempt to launch the
+   linkerd Dashboard:
+
+- `linkerd viz dashboard`
+- It may take a few mins for the pods to stabilize and the dahboard to appear.
+- Look in the 'default' namespace - you should hopefully see all Enduro
+  containers meshed: 10/10
+
+4. Check the state of the service mesh:
+
+- `linkerd check`
+
+#### Delete Linkerd pods and un-mesh your local cluster
+
+There is a second icon in the Tilt UI (trashcan) which will completely remove
+Linkerd and it's associated Dashboard and then restart all pods in the cluster.
+Use this when Linkerd is no longer required for testing.
+
+**Note**: There is a timing issue where some of the pods may be in the process of
+shutting down which will prevent Linkerd pods from being uninstalled. The
+button may be required to be pressed a second time.
+
+**Remove Linkerd:**
+
+1. Press the 'Remove Linkerd' button.
+2. Test if removal has completed:
+
+- `kubectl get pods --all-namespaces`
+  - if the 'linkerd' and 'linkerd-viz' namespace pods do not disappear after a
+    few mins, press the trashcan button a second time.
+  - the specific error will look like:
+  ```
+  Please uninject the following pods before uninstalling the control-plane:
+  * redis-578d59c764-rwbr2
+  * mysql-6f8cc976cb-bzm62
+  * enduro-dashboard-9656656b-vgs7g
+  ```
+  - pressing the trashcan button a second time will clear up this error.
+
 ### Known issues
 
 #### Minio uploads don't trigger workflows
@@ -172,3 +248,5 @@ is sometimes not setup properly. To solve it, from the Tilt UI, restart the
 [install]: https://docs.tilt.dev/install.html
 [manage docker as a non-root user]: https://docs.docker.com/engine/install/linux-postinstall/#manage-docker-as-a-non-root-user
 [tilt ui]: https://docs.tilt.dev/tutorial/3-tilt-ui.html
+[linkerd]: https://linkerd.io/
+[linkerd cli install page]: https://linkerd.io/2.11/getting-started/#step-1-install-the-cli

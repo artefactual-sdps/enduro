@@ -4,6 +4,7 @@ metadata:
   name: enduro-a3m
   labels:
     app: enduro-a3m
+    mesh: linkerd
 spec:
   serviceName: enduro-a3m
   selector:

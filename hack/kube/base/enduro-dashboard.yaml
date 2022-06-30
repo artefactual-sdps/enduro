@@ -4,6 +4,7 @@ metadata:
   name: enduro-dashboard
   labels:
     app: enduro-dashboard
+    mesh: linkerd
 spec:
   selector:
     matchLabels:

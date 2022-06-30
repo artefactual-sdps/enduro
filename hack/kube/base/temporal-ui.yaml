@@ -4,6 +4,7 @@ metadata:
   name: temporal-ui
   labels:
     app: temporal-ui
+    mesh: linkerd
 spec:
   selector:
     matchLabels:
