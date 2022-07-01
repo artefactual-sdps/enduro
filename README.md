@@ -3,7 +3,7 @@
   <img src="https://github.com/artefactual-labs/enduro/workflows/Test/badge.svg"/>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-blue.svg"/></a>
   <a href="https://goreportcard.com/report/github.com/artefactual-labs/enduro"><img src="https://goreportcard.com/badge/github.com/artefactual-labs/enduro"/></a>
-  <a href="https://codecov.io/gh/artefactual-labs/enduro"><img src="https://img.shields.io/codecov/c/github/artefactual-labs/enduro"/></a>
+  <a href="https://codecov.io/gh/artefactual-sdps/enduro"><img src="https://img.shields.io/codecov/c/github/artefactual-sdps/enduro"/></a>
 </p>
 
 # Enduro
