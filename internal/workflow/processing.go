@@ -156,7 +156,7 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *pack
 				PackageID: req.PackageID,
 				Key:       req.Key,
 				SIPID:     "",
-				StoredAt:  time.Time{},
+				StoredAt:  temporalsdk_workflow.Now(ctx).UTC(),
 				Status:    status,
 			}).Get(activityOpts, nil)
 		}
@@ -279,7 +279,7 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 	// Set in-progress status.
 	{
 		ctx := withLocalActivityOpts(sessCtx)
-		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setStatusInProgressLocalActivity, w.pkgsvc, tinfo.PackageID, time.Now().UTC()).Get(ctx, nil)
+		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setStatusInProgressLocalActivity, w.pkgsvc, tinfo.PackageID, temporalsdk_workflow.Now(sessCtx).UTC()).Get(ctx, nil)
 		if err != nil {
 			return err
 		}
@@ -290,7 +290,7 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 		if tinfo.WatcherName != "" && !tinfo.IsDir {
 			// TODO: even if TempFile is defined, we should confirm that the file is
 			// locally available in disk, just in case we're in the context of a
-			// session retry where a different working is doing the work. In that
+			// session retry where a different worker is doing the work. In that
 			// case, the activity whould be executed again.
 			if tinfo.TempFile == "" {
 				activityOpts := withActivityOptsForLongLivedRequest(sessCtx)
