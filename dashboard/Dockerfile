@@ -22,6 +22,13 @@ server {
     listen 80;
     root /usr/share/nginx/html;
     absolute_redirect off;
+    location /api/package/monitor {
+        proxy_pass http://backend/package/monitor;
+        proxy_http_version 1.1;
+        proxy_set_header Connection "Upgrade";
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Host \$host;
+    }
     location /api/ {
         proxy_pass http://backend/;
         proxy_redirect / /api/;
