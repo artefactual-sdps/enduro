@@ -60,6 +60,7 @@ const packageStore = usePackageStore();
         data-bs-target="#preservation-actions-table"
         aria-expanded="false"
         aria-controls="preservation-actions-table"
+        v-if="packageStore.current_preservation_actions?.actions"
       >
         Expand all | Collapse all
       </button>
