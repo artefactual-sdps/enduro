@@ -16,6 +16,7 @@ import (
 	temporalsdk_client "go.temporal.io/sdk/client"
 
 	goapackage "github.com/artefactual-labs/enduro/internal/api/gen/package_"
+	"github.com/artefactual-labs/enduro/internal/ref"
 	"github.com/artefactual-labs/enduro/internal/temporal"
 )
 
@@ -46,8 +47,7 @@ func (w *goaWrapper) Monitor(ctx context.Context, stream goapackage.MonitorServe
 	defer sub.Close()
 
 	// Say hello to be nice.
-	message := "hello"
-	event := &goapackage.EnduroMonitorPingEvent{Message: &message}
+	event := &goapackage.EnduroMonitorPingEvent{Message: ref.New("Hello")}
 	if err := stream.Send(&goapackage.EnduroMonitorEvent{MonitorPingEvent: event}); err != nil {
 		return err
 	}
@@ -64,8 +64,7 @@ func (w *goaWrapper) Monitor(ctx context.Context, stream goapackage.MonitorServe
 			return nil
 
 		case <-ticker.C:
-			message := "ping"
-			event := &goapackage.EnduroMonitorPingEvent{Message: &message}
+			event := &goapackage.EnduroMonitorPingEvent{Message: ref.New("ping")}
 			if err := stream.Send(&goapackage.EnduroMonitorEvent{MonitorPingEvent: event}); err != nil {
 				return nil
 			}
