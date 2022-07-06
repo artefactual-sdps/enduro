@@ -1,5 +1,6 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
+namespace: sdps
 resources:
   - enduro-a3m.yaml
   - enduro-dashboard.yaml
@@ -7,6 +8,7 @@ resources:
   - minio-setup-buckets-job.yaml
   - minio.yaml
   - mysql.yaml
+  - namespace.yaml
   - opensearch-dashboards.yaml
   - opensearch.yaml
   - redis.yaml
