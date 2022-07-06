@@ -244,7 +244,7 @@ func (s *serviceImpl) MoveStatus(ctx context.Context, payload *goastorage.MoveSt
 	}
 
 	resp, err := s.tc.DescribeWorkflowExecution(ctx, fmt.Sprintf("%s-%s", StorageMoveWorkflowName, p.AIPID), "")
-	if err != nil || resp.WorkflowExecutionInfo == nil {
+	if err != nil {
 		return nil, goastorage.MakeFailedDependency(errors.New("cannot perform operation"))
 	}
 

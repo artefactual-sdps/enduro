@@ -464,11 +464,15 @@ func (w *goaWrapper) Move(ctx context.Context, payload *goapackage.MovePayload) 
 func (w *goaWrapper) MoveStatus(ctx context.Context, payload *goapackage.MoveStatusPayload) (*goapackage.MoveStatusResult, error) {
 	goapkg, err := w.Show(ctx, &goapackage.ShowPayload{ID: payload.ID})
 	if err != nil {
-		return nil, err
+		return nil, goapackage.MakeFailedDependency(errors.New("cannot perform operation"))
+	}
+	if goapkg.AipID == nil {
+		return nil, goapackage.MakeFailedDependency(errors.New("cannot perform operation"))
 	}
 
-	resp, err := w.tc.DescribeWorkflowExecution(ctx, fmt.Sprintf("%s-%s", MoveWorkflowName, *goapkg.AipID), "")
-	if err != nil || resp.WorkflowExecutionInfo == nil {
+	workflowID := fmt.Sprintf("%s-%s", MoveWorkflowName, *goapkg.AipID)
+	resp, err := w.tc.DescribeWorkflowExecution(ctx, workflowID, "")
+	if err != nil {
 		return nil, goapackage.MakeFailedDependency(errors.New("cannot perform operation"))
 	}
 
