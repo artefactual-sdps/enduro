@@ -30,8 +30,8 @@ require (
 	github.com/spf13/afero v1.8.2
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.12.0
-	github.com/stretchr/objx v0.3.0 // indirect
-	github.com/stretchr/testify v1.7.2
+	github.com/stretchr/objx v0.4.0 // indirect
+	github.com/stretchr/testify v1.8.0
 	github.com/ulikunitz/xz v0.5.10 // indirect
 	go.buf.build/grpc/go/artefactual/a3m v1.3.1
 	go.temporal.io/api v1.8.0
