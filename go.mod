@@ -3,8 +3,8 @@ module github.com/artefactual-labs/enduro
 go 1.18
 
 require (
-	github.com/alicebob/miniredis/v2 v2.21.0
-	github.com/aws/aws-sdk-go v1.44.32
+	github.com/alicebob/miniredis/v2 v2.22.0
+	github.com/aws/aws-sdk-go v1.44.50
 	github.com/fsnotify/fsnotify v1.5.4
 	github.com/go-logr/logr v1.2.3
 	github.com/go-logr/zapr v1.2.3
@@ -18,9 +18,9 @@ require (
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/jmoiron/sqlx v1.3.5
-	github.com/jszwec/csvutil v1.7.0
+	github.com/jszwec/csvutil v1.7.1
 	github.com/mholt/archiver/v3 v3.5.1
-	github.com/nyudlts/go-bagit v0.1.1-alpha.0.20220214141947-20f7d3004abe
+	github.com/nyudlts/go-bagit v0.2.0-alpha
 	github.com/oklog/run v1.1.0
 	github.com/opensearch-project/opensearch-go v1.1.0
 	github.com/otiai10/copy v1.7.0
@@ -30,21 +30,21 @@ require (
 	github.com/spf13/afero v1.8.2
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.12.0
-	github.com/stretchr/objx v0.3.0 // indirect
-	github.com/stretchr/testify v1.7.2
+	github.com/stretchr/objx v0.4.0 // indirect
+	github.com/stretchr/testify v1.8.0
 	github.com/ulikunitz/xz v0.5.10 // indirect
 	go.buf.build/grpc/go/artefactual/a3m v1.3.1
 	go.temporal.io/api v1.8.0
 	go.temporal.io/sdk v1.15.0
 	go.uber.org/multierr v1.8.0
 	go.uber.org/zap v1.21.0
-	goa.design/goa/v3 v3.7.7
-	goa.design/plugins/v3 v3.7.7
+	goa.design/goa/v3 v3.7.10
+	goa.design/plugins/v3 v3.7.10
 	gocloud.dev v0.25.0
 	golang.org/x/text v0.3.7
 	google.golang.org/grpc v1.47.0
 	google.golang.org/protobuf v1.28.0 // indirect
-	gotest.tools/v3 v3.2.0
+	gotest.tools/v3 v3.3.0
 )
 
 require (
