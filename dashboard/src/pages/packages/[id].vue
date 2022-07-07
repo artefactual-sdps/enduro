@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import PackagePendingAlert from "@/components/PackagePendingAlert.vue";
 import { usePackageStore } from "@/stores/package";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 
 const route = useRoute();
+const router = useRouter();
 const packageStore = usePackageStore();
 
-await packageStore.fetchCurrent(route.params.id.toString());
+const errors = await packageStore.fetchCurrent(route.params.id.toString());
+if (errors?.length) {
+  router.push({name: "all"});
+}
 </script>
 
 <template>
