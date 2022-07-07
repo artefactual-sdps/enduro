@@ -11,14 +11,9 @@ package api
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
-	"net/url"
 	"os"
-	"runtime"
-	"strings"
 	"time"
-	"unicode/utf8"
 
 	"github.com/go-logr/logr"
 	"github.com/gorilla/websocket"
@@ -46,7 +41,7 @@ func HTTPServer(
 ) *http.Server {
 	dec := goahttp.RequestDecoder
 	enc := goahttp.ResponseEncoder
-	var mux goahttp.Muxer = goahttp.NewMuxer()
+	mux := goahttp.NewMuxer()
 
 	websocketUpgrader := &websocket.Upgrader{
 		HandshakeTimeout: time.Second,
@@ -54,26 +49,26 @@ func HTTPServer(
 	}
 
 	// Batch service.
-	var batchEndpoints *batch.Endpoints = batch.NewEndpoints(batchsvc)
+	batchEndpoints := batch.NewEndpoints(batchsvc)
 	batchErrorHandler := errorHandler(logger, "Batch error.")
-	var batchServer *batchsvr.Server = batchsvr.New(batchEndpoints, mux, dec, enc, batchErrorHandler, nil)
+	batchServer := batchsvr.New(batchEndpoints, mux, dec, enc, batchErrorHandler, nil)
 	batchsvr.Mount(mux, batchServer)
 
 	// Package service.
-	var packageEndpoints *package_.Endpoints = package_.NewEndpoints(pkgsvc.Goa())
+	packageEndpoints := package_.NewEndpoints(pkgsvc.Goa())
 	packageErrorHandler := errorHandler(logger, "Package error.")
-	var packageServer *packagesvr.Server = packagesvr.New(packageEndpoints, mux, dec, enc, packageErrorHandler, nil, websocketUpgrader, nil)
+	packageServer := packagesvr.New(packageEndpoints, mux, dec, enc, packageErrorHandler, nil, websocketUpgrader, nil)
 	packagesvr.Mount(mux, packageServer)
 
 	// Storage service.
-	var storageEndpoints *storage.Endpoints = storage.NewEndpoints(storagesvc)
+	storageEndpoints := storage.NewEndpoints(storagesvc)
 	storageErrorHandler := errorHandler(logger, "Storage error.")
-	var storageServer *storagesvr.Server = storagesvr.New(storageEndpoints, mux, dec, enc, storageErrorHandler, nil)
+	storageServer := storagesvr.New(storageEndpoints, mux, dec, enc, storageErrorHandler, nil)
 	storageServer.Download = storagesvc.HTTPDownload(mux, dec)
 	storagesvr.Mount(mux, storageServer)
 
 	// Swagger service.
-	var swaggerService *swaggersvr.Server = swaggersvr.New(nil, nil, nil, nil, nil, nil, nil)
+	swaggerService := swaggersvr.New(nil, nil, nil, nil, nil, nil, nil)
 	swaggersvr.Mount(mux, swaggerService)
 
 	// Global middlewares.
@@ -114,82 +109,4 @@ func errorHandler(logger logr.Logger, msg string) func(context.Context, http.Res
 		_ = json.NewEncoder(w).Encode(&errorMessage{RequestID: reqID})
 		logger.Error(err, "Package service error.", "reqID", reqID)
 	}
-}
-
-func versionHeaderMiddleware(version string) func(http.Handler) http.Handler {
-	return func(h http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Header().Set("X-Enduro-Version", version)
-			h.ServeHTTP(w, r)
-		})
-	}
-}
-
-func recoverMiddleware(logger logr.Logger) func(http.Handler) http.Handler {
-	return func(h http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			defer func() {
-				if r := recover(); r != nil {
-					var msg string
-					switch x := r.(type) {
-					case string, error:
-						msg = fmt.Sprintf("panic: %s", x)
-					default:
-						msg = "unknown panic"
-					}
-					const size = 64 << 10 // 64KB
-					buf := make([]byte, size)
-					buf = buf[:runtime.Stack(buf, false)]
-					lines := strings.Split(string(buf), "\n")
-					stack := lines[3:]
-					err := fmt.Errorf("%s\n%s", msg, strings.Join(stack, "\n"))
-					logger.Error(err, "panic error")
-				}
-			}()
-			h.ServeHTTP(w, r)
-		})
-	}
-}
-
-func sameOriginChecker(logger logr.Logger) func(r *http.Request) bool {
-	return func(r *http.Request) bool {
-		origin := r.Header["Origin"]
-		if len(origin) == 0 {
-			return true
-		}
-		u, err := url.Parse(origin[0])
-		if err != nil {
-			logger.V(1).Info("WebSocket client rejected (origin parse error)", "err", err)
-			return false
-		}
-		eq := equalASCIIFold(u.Host, r.Host)
-		if !eq {
-			logger.V(1).Info("WebSocket client rejected (origin and host not equal)", "origin-host", u.Host, "request-host", r.Host)
-		}
-		return eq
-	}
-}
-
-// equalASCIIFold returns true if s is equal to t with ASCII case folding as
-// defined in RFC 4790.
-func equalASCIIFold(s, t string) bool {
-	for s != "" && t != "" {
-		sr, size := utf8.DecodeRuneInString(s)
-		s = s[size:]
-		tr, size := utf8.DecodeRuneInString(t)
-		t = t[size:]
-		if sr == tr {
-			continue
-		}
-		if 'A' <= sr && sr <= 'Z' {
-			sr = sr + 'a' - 'A'
-		}
-		if 'A' <= tr && tr <= 'Z' {
-			tr = tr + 'a' - 'A'
-		}
-		if sr != tr {
-			return false
-		}
-	}
-	return s == t
 }
