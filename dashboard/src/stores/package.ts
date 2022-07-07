@@ -62,19 +62,35 @@ export const usePackageStore = defineStore("package", {
         return;
       }
 
+      const errors: Array<any> = [];
       await Promise.allSettled([
-        client.package.packageShow({ id: packageId }).then((resp) => {
-          this.current = resp;
-        }),
+        client.package
+          .packageShow({ id: packageId })
+          .then((resp) => {
+            this.current = resp;
+          })
+          .catch((error) => {
+            errors.push(error);
+          }),
         client.package
           .packagePreservationActions({ id: packageId })
           .then((resp) => {
             this.current_preservation_actions = resp;
+          })
+          .catch((error) => {
+            errors.push(error);
           }),
-        client.package.packageMoveStatus({ id: packageId }).then((resp) => {
-          this.locationChanging = !resp.done;
-        }),
+        client.package
+          .packageMoveStatus({ id: packageId })
+          .then((resp) => {
+            this.locationChanging = !resp.done;
+          })
+          .catch((error) => {
+            errors.push(error);
+          }),
       ]);
+
+      return errors;
     },
     async fetchPackages() {
       try {
