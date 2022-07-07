@@ -44,7 +44,7 @@ require (
 	golang.org/x/text v0.3.7
 	google.golang.org/grpc v1.47.0
 	google.golang.org/protobuf v1.28.0 // indirect
-	gotest.tools/v3 v3.2.0
+	gotest.tools/v3 v3.3.0
 )
 
 require (
