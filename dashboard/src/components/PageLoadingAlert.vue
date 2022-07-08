@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { runtime } from "@/client";
+import { computed } from "@vue/reactivity";
+
 interface Props {
   title?: string;
   error?: unknown;
@@ -10,10 +13,30 @@ const { title = "Page loading error", error, execute } = defineProps<Props>();
 const retry = () => {
   if (execute) execute();
 };
+
+const is404 = computed(() => {
+  let nf = false;
+  try {
+    const err = error as runtime.ResponseError;
+    nf = err.response.status === 404;
+  } catch (err) {}
+  return nf;
+});
 </script>
 
 <template>
-  <div class="alert alert-danger" role="alert" v-if="error">
+  <!-- Not found. -->
+  <div class="alert alert-warning" role="alert" v-if="error && is404">
+    <h4 class="alert-heading">Page not found!</h4>
+    <p>We can't find the page you're looking for.</p>
+    <hr />
+    <router-link class="btn btn-warning" :to="{ name: 'index' }"
+      >Take me home</router-link
+    >
+  </div>
+
+  <!-- Other errors. -->
+  <div class="alert alert-danger" role="alert" v-if="error && !is404">
     <h4 class="alert-heading">{{ title }}</h4>
     <slot>
       <p>It was not possible to load this page.</p>

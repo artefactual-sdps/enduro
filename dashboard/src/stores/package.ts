@@ -59,7 +59,7 @@ export const usePackageStore = defineStore("package", {
 
       const packageId = +id;
       if (Number.isNaN(packageId)) {
-        return;
+        throw Error("Unexpected parameter");
       }
 
       this.current = await client.package.packageShow({ id: packageId });

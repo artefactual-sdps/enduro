@@ -20,7 +20,7 @@ const openPackage = (id: number) => {
 <template>
   <div class="container-xxl pt-3">
     <h2>Packages</h2>
-    <PageLoadingAlert :execute="execute" :error="error"></PageLoadingAlert>
+    <PageLoadingAlert :execute="execute" :error="error" />
     <table class="table table-bordered table-hover table-linked table-enduro">
       <thead>
         <tr>
