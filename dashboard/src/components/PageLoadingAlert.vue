@@ -37,6 +37,7 @@ const is404 = computed(() => {
 
   <!-- Other errors. -->
   <div class="alert alert-danger" role="alert" v-if="error && !is404">
+    foobar
     <h4 class="alert-heading">{{ title }}</h4>
     <slot>
       <p>It was not possible to load this page.</p>
