@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import PackageStatusBadge from "@/components/PackageStatusBadge.vue";
+import PageLoadingAlert from "@/components/PageLoadingAlert.vue";
 import { usePackageStore } from "@/stores/package";
+import { useAsyncState } from "@vueuse/core";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
 const packageStore = usePackageStore();
 
-await packageStore.fetchPackages();
+const { execute, error } = useAsyncState(() => {
+  return packageStore.fetchPackages();
+}, null);
 
 const openPackage = (id: number) => {
   router.push({ name: "packages-id", params: { id } });
@@ -16,6 +20,7 @@ const openPackage = (id: number) => {
 <template>
   <div class="container-xxl pt-3">
     <h2>Packages</h2>
+    <PageLoadingAlert :execute="execute" :error="error"></PageLoadingAlert>
     <table class="table table-bordered table-hover table-linked table-enduro">
       <thead>
         <tr>

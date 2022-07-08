@@ -1,4 +1,5 @@
 import * as api from "./openapi-generator";
+import * as runtime from "./openapi-generator/runtime";
 import { usePackageStore, PackageMonitorResponseBody } from "./stores/package";
 
 export interface Client {
@@ -76,4 +77,4 @@ function createClient(): Client {
 
 const client = createClient();
 
-export { api, client, storageServiceDownloadURL };
+export { api, runtime, client, storageServiceDownloadURL };
