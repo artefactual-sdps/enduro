@@ -19,12 +19,22 @@ CREATE TABLE package (
 );
 CREATE TABLE preservation_action (
   `id` INT UNSIGNED AUTO_INCREMENT NOT NULL,
-  `action_id` VARCHAR(36) NOT NULL,
   `name` VARCHAR(2048) NOT NULL,
-  `status` TINYINT NOT NULL, -- {unspecified, complete, processing, failed}
+  `workflow_id` VARCHAR(255) NOT NULL,
   `started_at` TIMESTAMP(6) NULL,
   `completed_at` TIMESTAMP(6) NULL,
   `package_id` INT UNSIGNED NOT NULL,
   PRIMARY KEY (`id`),
-  FOREIGN KEY (`package_id`) REFERENCES package(`id`)
+  FOREIGN KEY (`package_id`) REFERENCES package(`id`) ON DELETE CASCADE
+);
+CREATE TABLE preservation_task (
+  `id` INT UNSIGNED AUTO_INCREMENT NOT NULL,
+  `task_id` VARCHAR(36) NOT NULL,
+  `name` VARCHAR(2048) NOT NULL,
+  `status` TINYINT NOT NULL, -- {unspecified, complete, processing, failed}
+  `started_at` TIMESTAMP(6) NULL,
+  `completed_at` TIMESTAMP(6) NULL,
+  `preservation_action_id` INT UNSIGNED NOT NULL,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`preservation_action_id`) REFERENCES preservation_action(`id`) ON DELETE CASCADE
 );
