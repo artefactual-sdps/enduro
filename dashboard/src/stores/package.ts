@@ -62,43 +62,22 @@ export const usePackageStore = defineStore("package", {
         return;
       }
 
-      const errors: Array<any> = [];
+      this.current = await client.package.packageShow({ id: packageId });
+
       await Promise.allSettled([
-        client.package
-          .packageShow({ id: packageId })
-          .then((resp) => {
-            this.current = resp;
-          })
-          .catch((error) => {
-            errors.push(error);
-          }),
         client.package
           .packagePreservationActions({ id: packageId })
           .then((resp) => {
             this.current_preservation_actions = resp;
-          })
-          .catch((error) => {
-            errors.push(error);
           }),
-        client.package
-          .packageMoveStatus({ id: packageId })
-          .then((resp) => {
-            this.locationChanging = !resp.done;
-          })
-          .catch((error) => {
-            errors.push(error);
-          }),
+        client.package.packageMoveStatus({ id: packageId }).then((resp) => {
+          this.locationChanging = !resp.done;
+        }),
       ]);
-
-      return errors;
     },
     async fetchPackages() {
-      try {
-        const resp = await client.package.packageList();
-        this.packages = resp.items;
-      } catch (error) {
-        return error;
-      }
+      const resp = await client.package.packageList();
+      this.packages = resp.items;
     },
     async fetchPackagesDebounced() {
       return this.fetchPackages();

@@ -1,23 +1,47 @@
 <script setup lang="ts">
+import { runtime } from "@/client";
 import PackagePendingAlert from "@/components/PackagePendingAlert.vue";
+import PageLoadingAlert from "@/components/PageLoadingAlert.vue";
 import { usePackageStore } from "@/stores/package";
+import { useAsyncState } from "@vueuse/core";
 import { useRoute, useRouter } from "vue-router";
 
 const route = useRoute();
 const router = useRouter();
 const packageStore = usePackageStore();
 
-const errors = await packageStore.fetchCurrent(route.params.id.toString());
-if (errors?.length) {
-  router.push({name: "all"});
-}
+const { execute, error } = useAsyncState(
+  () => {
+    return packageStore.fetchCurrent(route.params.id.toString());
+  },
+  null,
+  {
+    onError: (err) => {
+      const rerr = err as runtime.ResponseError;
+      try {
+        if (rerr.response.status == 404) {
+          router.push({ name: "all" });
+        }
+      } catch (err) {}
+    },
+  }
+);
 </script>
 
 <template>
-  <div v-if="packageStore.current">
-    <!-- Navigation bar -->
-    <div class="container-fluid pt-3 packages-navbar">
+  <div>
+    <div class="container-fluid pt-3" v-if="error">
       <div class="container-xxl px-0">
+        <PageLoadingAlert :execute="execute" :error="error"></PageLoadingAlert>
+      </div>
+    </div>
+
+    <!-- Navigation bar -->
+    <div
+      class="container-fluid pt-3 packages-navbar"
+      v-if="packageStore.current"
+    >
+      <div class="container-xxl px-0" v-if="packageStore.current">
         <div class="col">
           <PackagePendingAlert />
         </div>
