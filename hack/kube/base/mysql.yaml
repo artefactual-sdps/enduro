@@ -89,7 +89,7 @@ metadata:
   name: mysql-configmap
 data:
   initdb.sh: |
-    mysql -u root -p$MYSQL_ROOT_PASSWORD --execute "
+    mysql --socket /var/lib/mysql/mysql.sock -u root -p$MYSQL_ROOT_PASSWORD --execute "
       CREATE DATABASE IF NOT EXISTS temporal;
       GRANT ALL PRIVILEGES ON temporal.* TO '$MYSQL_USER'@'%';
       CREATE DATABASE IF NOT EXISTS temporal_visibility;
