@@ -15,7 +15,7 @@ spec:
             [
               "sh",
               "-c",
-              "until echo STATUS | nc -w 2 minio 9000; do echo waiting for minio to start; sleep 1; done;",
+              "until nslookup minio; do echo waiting for minio service; sleep 1; done;",
             ]
       containers:
         - name: setup-buckets
