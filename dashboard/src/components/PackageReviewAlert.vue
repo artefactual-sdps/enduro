@@ -18,6 +18,17 @@ const confirm = async () => {
       Please review the output and decide if you would like to keep the AIP or
       reject it.
     </p>
+    <p class="mb-1">Links:</p>
+    <ul>
+      <li>Expand the task details below</li>
+      <li>View a summary of the preservation metadata created</li>
+      <li>
+        <a href="#" @click.prevent="packageStore.ui.download.request"
+          >Download</a
+        >
+        a local copy of the AIP for inspection
+      </li>
+    </ul>
     <hr />
     <div class="d-flex flex-wrap gap-2">
       <button

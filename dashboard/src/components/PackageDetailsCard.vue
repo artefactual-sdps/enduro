@@ -2,7 +2,7 @@
 import { storageServiceDownloadURL } from "@/client";
 import PackageStatusBadge from "@/components/PackageStatusBadge.vue";
 import { usePackageStore } from "@/stores/package";
-import { computed } from "vue";
+import { computed, watch } from "vue";
 
 const packageStore = usePackageStore();
 
@@ -15,6 +15,8 @@ const download = () => {
 const stored = computed(() => {
   return packageStore.current?.aipId?.length;
 });
+
+watch(packageStore.ui.download, () => download());
 </script>
 
 <template>
