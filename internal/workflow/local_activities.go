@@ -2,11 +2,9 @@ package workflow
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/go-logr/logr"
-	"github.com/google/uuid"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
 
 	"github.com/artefactual-labs/enduro/internal/package_"
@@ -77,13 +75,15 @@ func setLocationLocalActivity(ctx context.Context, pkgsvc package_.Service, pkgI
 }
 
 func saveLocationMovePreservationActionLocalActivity(ctx context.Context, pkgsvc package_.Service, pkgID uint, location string, status package_.PreservationActionStatus, startedAt, completedAt time.Time) error {
-	pa := package_.PreservationAction{
-		ActionID:  uuid.NewString(),
-		Name:      fmt.Sprintf("Moved to %s", location),
-		Status:    status,
-		PackageID: pkgID,
-	}
-	pa.StartedAt.Time = startedAt
-	pa.CompletedAt.Time = completedAt
-	return pkgsvc.CreatePreservationAction(ctx, &pa)
+	// XXX: create new preservation action type and additional preservation task for move
+	// pa := package_.PreservationAction{
+	// 	ActionID:  uuid.NewString(),
+	// 	Name:      fmt.Sprintf("Moved to %s", location),
+	// 	Status:    status,
+	// 	PackageID: pkgID,
+	// }
+	// pa.StartedAt.Time = startedAt
+	// pa.CompletedAt.Time = completedAt
+	// return pkgsvc.CreatePreservationAction(ctx, &pa)
+	return nil
 }

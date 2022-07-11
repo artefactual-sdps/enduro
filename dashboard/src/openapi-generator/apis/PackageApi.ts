@@ -78,12 +78,6 @@ import {
     PackageMoveStatusResponseBody,
     PackageMoveStatusResponseBodyFromJSON,
     PackageMoveStatusResponseBodyToJSON,
-    PackagePreservationActionsNotFoundResponseBody,
-    PackagePreservationActionsNotFoundResponseBodyFromJSON,
-    PackagePreservationActionsNotFoundResponseBodyToJSON,
-    PackagePreservationActionsResponseBody,
-    PackagePreservationActionsResponseBodyFromJSON,
-    PackagePreservationActionsResponseBodyToJSON,
     PackageRejectNotAvailableResponseBody,
     PackageRejectNotAvailableResponseBodyFromJSON,
     PackageRejectNotAvailableResponseBodyToJSON,
@@ -146,10 +140,6 @@ export interface PackageMoveRequest {
 }
 
 export interface PackageMoveStatusRequest {
-    id: number;
-}
-
-export interface PackagePreservationActionsRequest {
     id: number;
 }
 
@@ -324,22 +314,6 @@ export interface PackageApiInterface {
      * move_status package
      */
     packageMoveStatus(requestParameters: PackageMoveStatusRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<PackageMoveStatusResponseBody>;
-
-    /**
-     * List all preservation actions by ID
-     * @summary preservation-actions package
-     * @param {number} id Identifier of package to look up
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof PackageApiInterface
-     */
-    packagePreservationActionsRaw(requestParameters: PackagePreservationActionsRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<PackagePreservationActionsResponseBody>>;
-
-    /**
-     * List all preservation actions by ID
-     * preservation-actions package
-     */
-    packagePreservationActions(requestParameters: PackagePreservationActionsRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<PackagePreservationActionsResponseBody>;
 
     /**
      * Signal the package has been reviewed and rejected
@@ -723,38 +697,6 @@ export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
      */
     async packageMoveStatus(requestParameters: PackageMoveStatusRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<PackageMoveStatusResponseBody> {
         const response = await this.packageMoveStatusRaw(requestParameters, initOverrides);
-        return await response.value();
-    }
-
-    /**
-     * List all preservation actions by ID
-     * preservation-actions package
-     */
-    async packagePreservationActionsRaw(requestParameters: PackagePreservationActionsRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<PackagePreservationActionsResponseBody>> {
-        if (requestParameters.id === null || requestParameters.id === undefined) {
-            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling packagePreservationActions.');
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        const response = await this.request({
-            path: `/package/{id}/preservation-actions`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        }, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => PackagePreservationActionsResponseBodyFromJSON(jsonValue));
-    }
-
-    /**
-     * List all preservation actions by ID
-     * preservation-actions package
-     */
-    async packagePreservationActions(requestParameters: PackagePreservationActionsRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<PackagePreservationActionsResponseBody> {
-        const response = await this.packagePreservationActionsRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
