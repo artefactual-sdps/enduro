@@ -9,26 +9,18 @@ import (
 )
 
 type (
-	PreservationActionStatus uint
-	PreservationTaskStatus   uint
+	PreservationTaskStatus uint
 )
 
 const (
-	StatusUnspecified PreservationActionStatus = iota
+	StatusUnspecified PreservationTaskStatus = iota
 	StatusComplete
 	StatusProcessing
 	StatusFailed
 )
 
-const (
-	StatusUnspecified_ PreservationTaskStatus = iota
-	StatusComplete_
-	StatusProcessing_
-	StatusFailed_
-)
-
-func NewPreservationActionStatus(status string) PreservationActionStatus {
-	var s PreservationActionStatus
+func NewPreservationTaskStatus(status string) PreservationTaskStatus {
+	var s PreservationTaskStatus
 
 	switch strings.ToLower(status) {
 	case "processing":
@@ -44,57 +36,13 @@ func NewPreservationActionStatus(status string) PreservationActionStatus {
 	return s
 }
 
-func (p PreservationActionStatus) String() string {
+func (p PreservationTaskStatus) String() string {
 	switch p {
 	case StatusProcessing:
 		return "processing"
 	case StatusComplete:
 		return "complete"
 	case StatusFailed:
-		return "failed"
-	}
-	return "unspecified"
-}
-
-func (p PreservationActionStatus) MarshalJSON() ([]byte, error) {
-	return json.Marshal(p.String())
-}
-
-func (p *PreservationActionStatus) UnmarshalJSON(b []byte) error {
-	var s string
-	if err := json.Unmarshal(b, &s); err != nil {
-		return err
-	}
-
-	*p = NewPreservationActionStatus(s)
-
-	return nil
-}
-
-func NewPreservationTaskStatus(status string) PreservationTaskStatus {
-	var s PreservationTaskStatus
-
-	switch strings.ToLower(status) {
-	case "processing":
-		s = StatusProcessing_
-	case "complete":
-		s = StatusComplete_
-	case "failed":
-		s = StatusFailed_
-	default:
-		s = StatusUnspecified_
-	}
-
-	return s
-}
-
-func (p PreservationTaskStatus) String() string {
-	switch p {
-	case StatusProcessing_:
-		return "processing"
-	case StatusComplete_:
-		return "complete"
-	case StatusFailed_:
 		return "failed"
 	}
 	return "unspecified"
@@ -117,13 +65,12 @@ func (p *PreservationTaskStatus) UnmarshalJSON(b []byte) error {
 
 // PreservationAction represents a preservation action in the preservation_action table.
 type PreservationAction struct {
-	ID          uint                     `db:"id"`
-	ActionID    string                   `db:"action_id"`
-	Name        string                   `db:"name"`
-	Status      PreservationActionStatus `db:"status"`
-	StartedAt   sql.NullTime             `db:"started_at"`
-	CompletedAt sql.NullTime             `db:"completed_at"`
-	PackageID   uint                     `db:"package_id"`
+	ID          uint         `db:"id"`
+	Name        string       `db:"name"`
+	WorkflowID  string       `db:"workflow_id"`
+	StartedAt   sql.NullTime `db:"started_at"`
+	CompletedAt sql.NullTime `db:"completed_at"`
+	PackageID   uint         `db:"package_id"`
 }
 
 // PreservationTask represents a preservation action task in the preservation_task table.
@@ -138,26 +85,29 @@ type PreservationTask struct {
 }
 
 func (svc *packageImpl) CreatePreservationAction(ctx context.Context, pa *PreservationAction) error {
-	// XXX: create new preservation action type
-	// query := `INSERT INTO preservation_action (action_id, name, status, started_at, completed_at, package_id) VALUES ((?), (?), (?), (?), (?), (?))`
-	// args := []interface{}{
-	// 	pa.ActionID,
-	// 	pa.Name,
-	// 	pa.Status,
-	// 	pa.StartedAt,
-	// 	pa.CompletedAt,
-	// 	pa.PackageID,
-	// }
+	query := `INSERT INTO preservation_action (name, workflow_id, started_at, completed_at, package_id) VALUES ((?), (?), (?), (?), (?))`
+	args := []interface{}{
+		pa.Name,
+		pa.WorkflowID,
+		pa.StartedAt,
+		pa.CompletedAt,
+		pa.PackageID,
+	}
 
-	// query = svc.db.Rebind(query)
-	// res, err := svc.db.ExecContext(ctx, query, args...)
-	// if err != nil {
-	// 	return fmt.Errorf("error inserting preservation nActionw", err)
-	// }
+	query = svc.db.Rebind(query)
+	res, err := svc.db.ExecContext(ctx, query, args...)
+	if err != nil {
+		return fmt.Errorf("error inserting preservation action: %w", err)
+	}
 
-	// pa.ID = uint(id)
+	var id int64
+	if id, err = res.LastInsertId(); err != nil {
+		return fmt.Errorf("error retrieving insert ID: %w", err)
+	}
 
-	// // publishEvent(ctx, svc.events, EventTypePackageUpdated, pa.PackageID)
+	pa.ID = uint(id)
+
+	// publishEvent(ctx, svc.events, EventTypePackageUpdated, pa.PackageID)
 
 	return nil
 }

@@ -74,7 +74,7 @@ func setLocationLocalActivity(ctx context.Context, pkgsvc package_.Service, pkgI
 	return pkgsvc.SetLocation(ctx, pkgID, location)
 }
 
-func saveLocationMovePreservationActionLocalActivity(ctx context.Context, pkgsvc package_.Service, pkgID uint, location string, status package_.PreservationActionStatus, startedAt, completedAt time.Time) error {
+func saveLocationMovePreservationActionLocalActivity(ctx context.Context, pkgsvc package_.Service, pkgID uint, location string, status package_.PreservationTaskStatus, startedAt, completedAt time.Time) error {
 	// XXX: create new preservation action type and additional preservation task for move
 	// pa := package_.PreservationAction{
 	// 	ActionID:  uuid.NewString(),
