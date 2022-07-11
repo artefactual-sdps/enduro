@@ -128,13 +128,13 @@ type PreservationAction struct {
 
 // PreservationTask represents a preservation action task in the preservation_task table.
 type PreservationTask struct {
-	ID                   uint                     `db:"id"`
-	TaskID               string                   `db:"task_id"`
-	Name                 string                   `db:"name"`
-	Status               PreservationActionStatus `db:"status"`
-	StartedAt            sql.NullTime             `db:"started_at"`
-	CompletedAt          sql.NullTime             `db:"completed_at"`
-	PreservationActionID uint                     `db:"preservation_action_id"`
+	ID                   uint                   `db:"id"`
+	TaskID               string                 `db:"task_id"`
+	Name                 string                 `db:"name"`
+	Status               PreservationTaskStatus `db:"status"`
+	StartedAt            sql.NullTime           `db:"started_at"`
+	CompletedAt          sql.NullTime           `db:"completed_at"`
+	PreservationActionID uint                   `db:"preservation_action_id"`
 }
 
 func (svc *packageImpl) CreatePreservationAction(ctx context.Context, pa *PreservationAction) error {
@@ -152,12 +152,7 @@ func (svc *packageImpl) CreatePreservationAction(ctx context.Context, pa *Preser
 	// query = svc.db.Rebind(query)
 	// res, err := svc.db.ExecContext(ctx, query, args...)
 	// if err != nil {
-	// 	return fmt.Errorf("error inserting preservation action: %w", err)
-	// }
-
-	// var id int64
-	// if id, err = res.LastInsertId(); err != nil {
-	// 	return fmt.Errorf("error retrieving insert ID: %w", err)
+	// 	return fmt.Errorf("error inserting preservation nActionw", err)
 	// }
 
 	// pa.ID = uint(id)
