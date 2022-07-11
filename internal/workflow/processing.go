@@ -509,8 +509,19 @@ func (w *ProcessingWorkflow) waitForReview(ctx temporalsdk_workflow.Context) (*p
 }
 
 func (w *ProcessingWorkflow) transferA3m(sessCtx temporalsdk_workflow.Context, tinfo *TransferInfo) error {
-	paID := uint(0)
-	// XXX: add "Create AIP" preservation action and pass its paID to CreateAIPActivity below
+	var paID uint
+	{
+		ctx := withLocalActivityOpts(sessCtx)
+		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, createPreservationActionLocalActivity, w.pkgsvc, &createPreservationActionLocalActivityParams{
+			Name:       "Create AIP", // XXX: move to a translatable constant?
+			WorkflowID: tinfo.WorkflowID,
+			StartedAt:  temporalsdk_workflow.Now(sessCtx).UTC(),
+			PackageID:  tinfo.PackageID,
+		}).Get(ctx, &paID)
+		if err != nil {
+			return err
+		}
+	}
 
 	activityOpts := temporalsdk_workflow.WithActivityOptions(sessCtx, temporalsdk_workflow.ActivityOptions{
 		StartToCloseTimeout: time.Hour * 24,
@@ -531,6 +542,8 @@ func (w *ProcessingWorkflow) transferA3m(sessCtx temporalsdk_workflow.Context, t
 	tinfo.SIPID = result.UUID
 	tinfo.AIPPath = result.Path
 	tinfo.StoredAt = temporalsdk_workflow.Now(sessCtx).UTC()
+
+	// XXX: set "Create AIP" preservation action completed_at, pass tinfo.WorkflowID
 
 	return err
 }

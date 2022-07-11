@@ -87,7 +87,7 @@ func (w *MoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req *package_.M
 	{
 		ctx := withLocalActivityOpts(ctx)
 		completedAt := temporalsdk_workflow.Now(ctx).UTC()
-		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, saveLocationMovePreservationActionLocalActivity, w.pkgsvc, req.ID, req.Location, status, startedAt, completedAt).Get(ctx, nil)
+		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, saveLocationMovePreservationActionLocalActivity, w.logger, w.pkgsvc, req.ID, req.Location, status, startedAt, completedAt).Get(ctx, nil)
 		if err != nil {
 			return err
 		}
