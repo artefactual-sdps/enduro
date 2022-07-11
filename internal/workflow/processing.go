@@ -51,6 +51,11 @@ type TransferInfo struct {
 	// It is populated by CreateAIPActivity.
 	SIPID string
 
+	// Workflow ID.
+	//
+	// It is populated via the workflow request.
+	WorkflowID string
+
 	// Enduro internal package ID.
 	// The zero value represents a new package_. It can be used to indicate
 	// an existing package in retries.
@@ -126,6 +131,7 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *pack
 		logger = temporalsdk_workflow.GetLogger(ctx)
 
 		tinfo = &TransferInfo{
+			WorkflowID:       req.WorkflowID,
 			PackageID:        req.PackageID,
 			WatcherName:      req.WatcherName,
 			RetentionPeriod:  req.RetentionPeriod,
