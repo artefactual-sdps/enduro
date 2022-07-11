@@ -123,10 +123,11 @@ func (a *CreateAIPActivity) Execute(ctx context.Context, opts *CreateAIPActivity
 						continue
 					}
 
-					err = savePreservationActions(ctx, readResp.Jobs, a.pkgsvc, opts.PackageID)
-					if err != nil {
-						return err
-					}
+					// XXX: save preservation tasks for each job
+					// err = savePreservationActions(ctx, readResp.Jobs, a.pkgsvc, opts.PackageID)
+					// if err != nil {
+					// 	return err
+					// }
 
 					if readResp.Status == a3m_transferservice.PackageStatus_PACKAGE_STATUS_FAILED || readResp.Status == a3m_transferservice.PackageStatus_PACKAGE_STATUS_REJECTED {
 						return errors.New("package failed or rejected")
@@ -150,22 +151,4 @@ func (a *CreateAIPActivity) Execute(ctx context.Context, opts *CreateAIPActivity
 	}
 
 	return result, nil
-}
-
-func savePreservationActions(ctx context.Context, jobs []*a3m_transferservice.Job, pkgsvc package_.Service, packageID uint) error {
-	for _, job := range jobs {
-		pa := package_.PreservationAction{
-			ActionID:  job.Id,
-			Name:      job.Name,
-			Status:    package_.PreservationActionStatus(job.Status),
-			PackageID: packageID,
-		}
-		pa.StartedAt.Time = job.StartTime.AsTime()
-		err := pkgsvc.CreatePreservationAction(ctx, &pa)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
 }

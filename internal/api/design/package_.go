@@ -155,20 +155,6 @@ var _ = Service("package", func() {
 			Response(StatusOK)
 		})
 	})
-	Method("preservation-actions", func() {
-		Description("List all preservation actions by ID")
-		Payload(func() {
-			Attribute("id", UInt, "Identifier of package to look up")
-			Required("id")
-		})
-		Result(PreservationActions)
-		Error("not_found", PackageNotFound, "Package not found")
-		HTTP(func() {
-			GET("/{id}/preservation-actions")
-			Response(StatusOK)
-			Response("not_found", StatusNotFound)
-		})
-	})
 	Method("confirm", func() {
 		Description("Signal the package has been reviewed and accepted")
 		Payload(func() {
@@ -347,34 +333,4 @@ var BulkStatusResult = Type("BulkStatusResult", func() {
 	Attribute("workflow_id", String)
 	Attribute("run_id", String)
 	Required("running")
-})
-
-var EnumPreservationActionStatus = func() {
-	Enum("unspecified", "complete", "processing", "failed")
-}
-
-var PreservationActions = ResultType("application/vnd.enduro.package-preservation-actions", func() {
-	Description("PreservationActions describes the preservation actions of a package.")
-	Attributes(func() {
-		Attribute("actions", CollectionOf(PreservationAction))
-	})
-})
-
-var PreservationAction = ResultType("application/vnd.enduro.package-preservation-actions-action", func() {
-	Description("PreservationAction describes a preservation action.")
-	Attributes(func() {
-		Attribute("id", UInt)
-		Attribute("action_id", String)
-		Attribute("name", String)
-		Attribute("status", String, func() {
-			EnumPreservationActionStatus()
-		})
-		Attribute("started_at", String, func() {
-			Format(FormatDateTime)
-		})
-		Attribute("completed_at", String, func() {
-			Format(FormatDateTime)
-		})
-	})
-	Required("id", "action_id", "name", "status", "started_at")
 })
