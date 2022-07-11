@@ -1,5 +1,5 @@
 import PageLoadingAlert from "../../src/components/PageLoadingAlert.vue";
-import { render, fireEvent } from "@testing-library/vue";
+import { render } from "@testing-library/vue";
 import { RouterLinkStub } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 

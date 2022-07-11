@@ -1,5 +1,6 @@
 import { api, client } from "@/client";
 import { defineStore, acceptHMRUpdate } from "pinia";
+import { ref } from "vue";
 
 export const usePackageStore = defineStore("package", {
   state: () => ({
@@ -17,6 +18,11 @@ export const usePackageStore = defineStore("package", {
 
     // A list of packages shown during searches.
     packages: [] as Array<api.EnduroStoredPackageResponseBody>,
+
+    // User-interface interactions between components.
+    ui: {
+      download: new UIRequest(),
+    },
   }),
   getters: {
     isPending(): boolean {
@@ -196,4 +202,9 @@ function handlePackageLocationUpdated(
     state.current.location = event.location;
     state.locationChanging = false;
   });
+}
+
+class UIRequest {
+  inner = ref(0);
+  request = () => this.inner.value++;
 }
