@@ -1,0 +1,22 @@
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+name: Dashboard
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3.0.2
+      - uses: actions/setup-node@v3.4.0
+        with:
+          node-version: 18.x
+      - run: npm ci
+        working-directory: ./dashboard
+      - run: npm run test
+        working-directory: ./dashboard
+      - run: npm run lint
+        working-directory: ./dashboard
+      - run: npm run coverage
+        working-directory: ./dashboard
