@@ -15,3 +15,4 @@ images:
 patchesStrategicMerge:
   - enduro-a3m-patch.yaml
   - enduro-dashboard-patch.yaml
+  - opensearch-patch.yaml
