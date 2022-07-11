@@ -1,0 +1,17 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: enduro-a3m
+spec:
+  replicas: 3
+  template:
+    spec:
+      containers:
+        - name: enduro-a3m-worker
+          volumeMounts:
+            - name: config
+              mountPath: /home/enduro/.config
+      volumes:
+        - name: config
+          secret:
+            secretName: enduro-config-secret

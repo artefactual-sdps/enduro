@@ -1,0 +1,32 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: sdps
+bases:
+  - ../../base
+resources:
+  - enduro-config-secret.yaml
+secretGenerator:
+  - name: mysql-secret
+    behavior: replace
+    literals:
+      - user=mysql_user
+      - password=mysql_pass
+      - root-password=mysql_root_pass
+  - name: minio-secret
+    behavior: replace
+    literals:
+      - user=minio_user
+      - password=minio_pass
+patchesStrategicMerge:
+  - enduro-patch.yaml
+  - enduro-a3m-patch.yaml
+images:
+  - name: ghcr.io/artefactual-labs/enduro:main
+    newName: enduro
+    newTag: dev
+  - name: ghcr.io/artefactual-labs/enduro-a3m-worker:main
+    newName: enduro-a3m-worker
+    newTag: dev
+  - name: ghcr.io/artefactual-labs/enduro-dashboard:main
+    newName: enduro-dashboard
+    newTag: dev
