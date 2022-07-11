@@ -22,9 +22,15 @@ spec:
             - name: DB_PORT
               value: "3306"
             - name: MYSQL_USER
-              value: enduro
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: user
             - name: MYSQL_PWD
-              value: enduro123
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: password
             - name: MYSQL_SEEDS
               value: mysql
             - name: DYNAMIC_CONFIG_FILE_PATH

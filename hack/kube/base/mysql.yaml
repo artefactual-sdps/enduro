@@ -1,3 +1,13 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mysql-secret
+type: Opaque
+data:
+  user: ZW5kdXJv # enduro
+  password: ZW5kdXJvMTIz # enduro123
+  root-password: cm9vdDEyMw== # root123
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -18,11 +28,22 @@ spec:
           image: mysql:8.0
           env:
             - name: MYSQL_ROOT_PASSWORD
-              value: root123
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: root-password
             - name: MYSQL_USER
-              value: enduro
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: user
             - name: MYSQL_PASSWORD
-              value: enduro123
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: password
+            - name: MYSQL_DATABASE
+              value: enduro
           ports:
             - containerPort: 3306
           volumeMounts:
@@ -67,10 +88,10 @@ kind: ConfigMap
 metadata:
   name: mysql-configmap
 data:
-  initdb.sql: |
-    CREATE DATABASE IF NOT EXISTS enduro;
-    GRANT ALL PRIVILEGES ON enduro.* TO 'enduro'@'%';
-    CREATE DATABASE IF NOT EXISTS temporal;
-    GRANT ALL PRIVILEGES ON temporal.* TO 'enduro'@'%';
-    CREATE DATABASE IF NOT EXISTS temporal_visibility;
-    GRANT ALL PRIVILEGES ON temporal_visibility.* TO 'enduro'@'%';
+  initdb.sh: |
+    mysql -u root -p$MYSQL_ROOT_PASSWORD --execute "
+      CREATE DATABASE IF NOT EXISTS temporal;
+      GRANT ALL PRIVILEGES ON temporal.* TO '$MYSQL_USER'@'%';
+      CREATE DATABASE IF NOT EXISTS temporal_visibility;
+      GRANT ALL PRIVILEGES ON temporal_visibility.* TO '$MYSQL_USER'@'%';
+    "
