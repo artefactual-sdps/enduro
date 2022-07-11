@@ -12,12 +12,20 @@ import (
 )
 
 type PreservationActionStatus uint
+type PreservationTaskStatus uint
 
 const (
 	StatusUnspecified PreservationActionStatus = iota
 	StatusComplete
 	StatusProcessing
 	StatusFailed
+)
+
+const (
+	StatusUnspecified_ PreservationTaskStatus = iota
+	StatusComplete_
+	StatusProcessing_
+	StatusFailed_
 )
 
 func NewPreservationActionStatus(status string) PreservationActionStatus {
@@ -64,6 +72,50 @@ func (p *PreservationActionStatus) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+func NewPreservationTaskStatus(status string) PreservationTaskStatus {
+	var s PreservationTaskStatus
+
+	switch strings.ToLower(status) {
+	case "processing":
+		s = StatusProcessing_
+	case "complete":
+		s = StatusComplete_
+	case "failed":
+		s = StatusFailed_
+	default:
+		s = StatusUnspecified_
+	}
+
+	return s
+}
+
+func (p PreservationTaskStatus) String() string {
+	switch p {
+	case StatusProcessing_:
+		return "processing"
+	case StatusComplete_:
+		return "complete"
+	case StatusFailed_:
+		return "failed"
+	}
+	return "unspecified"
+}
+
+func (p PreservationTaskStatus) MarshalJSON() ([]byte, error) {
+	return json.Marshal(p.String())
+}
+
+func (p *PreservationTaskStatus) UnmarshalJSON(b []byte) error {
+	var s string
+	if err := json.Unmarshal(b, &s); err != nil {
+		return err
+	}
+
+	*p = NewPreservationTaskStatus(s)
+
+	return nil
+}
+
 // PreservationAction represents a preservation action in the preservation_action table.
 type PreservationAction struct {
 	ID          uint                     `db:"id"`
@@ -73,6 +125,17 @@ type PreservationAction struct {
 	StartedAt   sql.NullTime             `db:"started_at"`
 	CompletedAt sql.NullTime             `db:"completed_at"`
 	PackageID   uint                     `db:"package_id"`
+}
+
+// PreservationTask represents a preservation action task in the preservation_task table.
+type PreservationTask struct {
+	ID                   uint                     `db:"id"`
+	TaskID               string                   `db:"task_id"`
+	Name                 string                   `db:"name"`
+	Status               PreservationActionStatus `db:"status"`
+	StartedAt            sql.NullTime             `db:"started_at"`
+	CompletedAt          sql.NullTime             `db:"completed_at"`
+	PreservationActionID uint                     `db:"preservation_action_id"`
 }
 
 func (w *goaWrapper) PreservationActions(ctx context.Context, payload *goapackage.PreservationActionsPayload) (*goapackage.EnduroPackagePreservationActions, error) {
@@ -140,6 +203,33 @@ func (svc *packageImpl) CreatePreservationAction(ctx context.Context, pa *Preser
 	pa.ID = uint(id)
 
 	// publishEvent(ctx, svc.events, EventTypePackageUpdated, pa.PackageID)
+
+	return nil
+}
+
+func (svc *packageImpl) CreatePreservationTask(ctx context.Context, pt *PreservationTask) error {
+	query := `INSERT INTO preservation_task (task_id, name, status, started_at, completed_at, preservation_action_id) VALUES ((?), (?), (?), (?), (?), (?))`
+	args := []interface{}{
+		pt.TaskID,
+		pt.Name,
+		pt.Status,
+		pt.StartedAt,
+		pt.CompletedAt,
+		pt.PreservationActionID,
+	}
+
+	query = svc.db.Rebind(query)
+	res, err := svc.db.ExecContext(ctx, query, args...)
+	if err != nil {
+		return fmt.Errorf("error inserting preservation task: %w", err)
+	}
+
+	var id int64
+	if id, err = res.LastInsertId(); err != nil {
+		return fmt.Errorf("error retrieving insert ID: %w", err)
+	}
+
+	pt.ID = uint(id)
 
 	return nil
 }
