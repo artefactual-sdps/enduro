@@ -16,7 +16,7 @@
     "@vueuse/core": "^8.9.1",
     "humanize-duration": "^3.27.2",
     "moment": "^2.29.4",
-    "pinia": "^2.0.14",
+    "pinia": "^2.0.15",
     "ts-debounce": "^4.0.0",
     "vue": "^3.2.37",
     "vue-router": "4",
