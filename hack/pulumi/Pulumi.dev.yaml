@@ -15,3 +15,13 @@ config:
   enduro:buildImages: "true"
   enduro:doToken:
     secure: AAABAGKr4WqRtJ7aBN3hYYg7GostgknrR8+RN3EFR1U/F6X3V3vncwicnSHgfemVlT40bwTGwWgMdXT7R1b4owvy7dC8AUsRMY0LeHmtgHFwKBWylFQoZSPh5pa5w0rJW/e4HXY0dw==
+  enduro:minioPassword:
+    secure: AAABAC/SrWmZvSW9MRmFs+0Ebo9qd6s1p0diyBVgvhAedRpT74raqRHgf2tq
+  enduro:minioUser:
+    secure: AAABALHuDZyEY2O0MliAzMX6xlZhq9MHxUf6Nwifi9DhOGSon3PDdXwU
+  enduro:mysqlPassword:
+    secure: AAABABbbQllIyDWNbBOkasGnHgM0jmyOc+H79m+ryjHrSP5TVcKz84aECmQ=
+  enduro:mysqlRootPassword:
+    secure: AAABAG/8+nKEsxRAAf3raXpnKpXADybWr5E6Cmkyt3UHoC+M8//cdRiBXzA=
+  enduro:mysqlUser:
+    secure: AAABAI3wg8XJxCG60DgCZQk6bs576LYRwo5n7Gj8184yfUkw7LZwK7bOepwtRiI=

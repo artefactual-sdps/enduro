@@ -45,6 +45,11 @@ Use the [Pulumi CLI] `config set` and `config set-all` commands to configure.
 - `aws:secretKey` **secret**: AWS secret key.
 - `basicAuthUsername` **secret**: Basic authentication username.
 - `basicAuthPassword` **secret**: Basic authentication password.
+- `mysqlUser` **secret**: MySQL user for the Enduro and Temporal databases.
+- `mysqlPassword` **secret**: Password for the MySQL user.
+- `mysqlRootPassword` **secret**: Password for the MySQL root user.
+- `minioUser` **secret**: MinIO user for the UI and API.
+- `minioPassword` **secret**: Password for the MinIO user.
 
 ### Optional
 
@@ -70,6 +75,11 @@ pulumi config set-all \
   --plaintext clusterName=my-sdps-cluster \
   --secret basicAuthUsername=abc123 \
   --secret basicAuthPassword=abc123 \
+  --secret mysqlUser=abc123 \
+  --secret mysqlPassword=abc123 \
+  --secret mysqlRootPassword=abc123 \
+  --secret minioUser=abc123 \
+  --secret minioPassword=abc123 \
   --plaintext buildImages=true
 ```
 

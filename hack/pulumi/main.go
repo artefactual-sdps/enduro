@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"regexp"
+	"strings"
 
 	"github.com/pulumi/pulumi-aws/sdk/v5/go/aws/route53"
 	"github.com/pulumi/pulumi-digitalocean/sdk/v4/go/digitalocean"
@@ -19,6 +20,77 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi/config"
 	"golang.org/x/crypto/bcrypt"
 )
+
+// Enduro configuration template.
+const enduroConfigTemplate string = `
+debug = false
+debugListen = "127.0.0.1:9001"
+
+[temporal]
+namespace = "default"
+address = "temporal:7233"
+taskqueue = "global"
+
+[api]
+listen = "0.0.0.0:9000"
+debug = false
+
+[database]
+dsn = "{MYSQL_USER}:{MYSQL_PASSWORD}@tcp(mysql:3306)/enduro"
+
+[search]
+addresses = ["http://opensearch:9200"]
+username = "admin"
+password = "admin"
+
+[[watcher.minio]]
+name = "dev-minio"
+redisAddress = "redis://redis:6379"
+redisList = "minio-events"
+endpoint = "http://minio:9000"
+pathStyle = true
+key = "{MINIO_USER}"
+secret = "{MINIO_PASSWORD}"
+region = "us-west-1"
+bucket = "sips"
+retentionPeriod = "10s"
+stripTopLevelDir = true
+
+[validation]
+checksumsCheckEnabled = false
+
+[storage]
+# internal processing bucket
+endpoint = "http://minio:9000"
+pathStyle = true
+key = "{MINIO_USER}"
+secret = "{MINIO_PASSWORD}"
+region = "us-west-1"
+bucket = "aips"
+enduroAddress = "enduro:9000"
+
+[[storage.location]]
+name = "perma-aips-1"
+endpoint = "http://minio:9000"
+pathStyle = true
+key = "{MINIO_USER}"
+secret = "{MINIO_PASSWORD}"
+region = "us-west-1"
+bucket = "perma-aips-1"
+
+[[storage.location]]
+name = "perma-aips-2"
+endpoint = "http://minio:9000"
+pathStyle = true
+key = "{MINIO_USER}"
+secret = "{MINIO_PASSWORD}"
+region = "us-west-1"
+bucket = "perma-aips-2"
+
+[a3m]
+address = "127.0.0.1:7000"
+shareDir = "/home/a3m/.local/share/a3m/share"
+`
 
 // Regular expression used to replace the kubeconfig token.
 var re *regexp.Regexp = regexp.MustCompile(`(?m)^(\s*token:\s)\w*$`)
@@ -196,11 +268,75 @@ func main() {
 			return err
 		}
 
+		// Encode MySQL and Minio configuration secrets.
+		mysqlUser := cfg.RequireSecret("mysqlUser").ApplyT(func(val string) string {
+			return base64.StdEncoding.EncodeToString([]byte(val))
+		})
+		mysqlPassword := cfg.RequireSecret("mysqlPassword").ApplyT(func(val string) string {
+			return base64.StdEncoding.EncodeToString([]byte(val))
+		})
+		mysqlRootPassword := cfg.RequireSecret("mysqlRootPassword").ApplyT(func(val string) string {
+			return base64.StdEncoding.EncodeToString([]byte(val))
+		})
+		minioUser := cfg.RequireSecret("minioUser").ApplyT(func(val string) string {
+			return base64.StdEncoding.EncodeToString([]byte(val))
+		})
+		minioPassword := cfg.RequireSecret("minioPassword").ApplyT(func(val string) string {
+			return base64.StdEncoding.EncodeToString([]byte(val))
+		})
+
+		// Generate Enduro configuration file content.
+		enduroConfig := pulumi.All(
+			cfg.RequireSecret("mysqlUser"),
+			cfg.RequireSecret("mysqlPassword"),
+			cfg.RequireSecret("minioUser"),
+			cfg.RequireSecret("minioPassword"),
+		).ApplyT(func(args []interface{}) string {
+			mysqlUser := args[0].(string)
+			mysqlPassword := args[1].(string)
+			minioUser := args[2].(string)
+			minioPassword := args[3].(string)
+			config := strings.Replace(enduroConfigTemplate, "{MYSQL_USER}", mysqlUser, -1)
+			config = strings.Replace(config, "{MYSQL_PASSWORD}", mysqlPassword, -1)
+			config = strings.Replace(config, "{MINIO_USER}", minioUser, -1)
+			config = strings.Replace(config, "{MINIO_PASSWORD}", minioPassword, -1)
+			return base64.StdEncoding.EncodeToString([]byte(config))
+		}).(pulumi.StringOutput)
+
+		// Generate Enduro configuration file secret.
+		enduroSecret, err := core.NewSecret(ctx, "enduro-secret",
+			&core.SecretArgs{
+				Metadata: &meta.ObjectMetaArgs{
+					Name: pulumi.String("enduro-secret"),
+				},
+				Data: pulumi.StringMap{
+					"enduro.toml": enduroConfig,
+				},
+				Type: pulumi.String("Opaque"),
+			},
+			pulumi.Provider(k8sProvider),
+		)
+		if err != nil {
+			return err
+		}
+
 		// Apply Kubernetes base Kustomization, with the following transformations:
 		// - Change Docker images to the ones from the DO CR.
 		// - Add imagePullSecrets with the CR credentials secret.
 		// - Set enduro-a3m replicas to 3.
-		secrets := []map[string]interface{}{{"name": crSecret.Metadata.Name()}}
+		// - Updates the MySQL and Minio secrets data.
+		// - Mounts the enduro-secret as volumes to replace the default config.
+		imagePullSecrets := []map[string]interface{}{{"name": crSecret.Metadata.Name()}}
+		enduroConfigVolume := map[string]interface{}{
+			"name": "config",
+			"secret": map[string]interface{}{
+				"secretName": enduroSecret.Metadata.Name(),
+			},
+		}
+		enduroConfigVolumeMount := map[string]interface{}{
+			"name":      "config",
+			"mountPath": "/home/enduro/.config",
+		}
 		k8sKustomize, err := kustomize.NewDirectory(ctx, "k8s-kustomize",
 			kustomize.DirectoryArgs{
 				Directory: pulumi.String("../kube/base"),
@@ -211,24 +347,57 @@ func main() {
 							template := state["spec"].(map[string]interface{})["template"]
 							templateSpec := template.(map[string]interface{})["spec"]
 							containers := templateSpec.(map[string]interface{})["containers"]
+							volumes := templateSpec.(map[string]interface{})["volumes"]
 							container := containers.([]interface{})[0]
+							volumeMounts := container.(map[string]interface{})["volumeMounts"]
 							container.(map[string]interface{})["image"] = images["enduro"]
-							templateSpec.(map[string]interface{})["imagePullSecrets"] = secrets
+							templateSpec.(map[string]interface{})["imagePullSecrets"] = imagePullSecrets
+							if volumes == nil {
+								volumes = []map[string]interface{}{}
+							}
+							volumes = append(volumes.([]map[string]interface{}), enduroConfigVolume)
+							templateSpec.(map[string]interface{})["volumes"] = volumes
+							if volumeMounts == nil {
+								volumeMounts = []interface{}{}
+							}
+							volumeMounts = append(volumeMounts.([]interface{}), enduroConfigVolumeMount)
+							container.(map[string]interface{})["volumeMounts"] = volumeMounts
 						} else if state["kind"] == "Deployment" && name == "enduro-dashboard" {
 							template := state["spec"].(map[string]interface{})["template"]
 							templateSpec := template.(map[string]interface{})["spec"]
 							containers := templateSpec.(map[string]interface{})["containers"]
 							container := containers.([]interface{})[0]
 							container.(map[string]interface{})["image"] = images["enduro-dashboard"]
-							templateSpec.(map[string]interface{})["imagePullSecrets"] = secrets
+							templateSpec.(map[string]interface{})["imagePullSecrets"] = imagePullSecrets
 						} else if state["kind"] == "StatefulSet" && name == "enduro-a3m" {
 							template := state["spec"].(map[string]interface{})["template"]
 							templateSpec := template.(map[string]interface{})["spec"]
 							containers := templateSpec.(map[string]interface{})["containers"]
+							volumes := templateSpec.(map[string]interface{})["volumes"]
 							container := containers.([]interface{})[0]
+							volumeMounts := container.(map[string]interface{})["volumeMounts"]
 							container.(map[string]interface{})["image"] = images["enduro-a3m-worker"]
-							templateSpec.(map[string]interface{})["imagePullSecrets"] = secrets
+							templateSpec.(map[string]interface{})["imagePullSecrets"] = imagePullSecrets
 							state["spec"].(map[string]interface{})["replicas"] = 3
+							if volumes == nil {
+								volumes = []map[string]interface{}{}
+							}
+							volumes = append(volumes.([]map[string]interface{}), enduroConfigVolume)
+							templateSpec.(map[string]interface{})["volumes"] = volumes
+							if volumeMounts == nil {
+								volumeMounts = []interface{}{}
+							}
+							volumeMounts = append(volumeMounts.([]interface{}), enduroConfigVolumeMount)
+							container.(map[string]interface{})["volumeMounts"] = volumeMounts
+						} else if state["kind"] == "Secret" && name == "mysql-secret" {
+							data := state["data"].(map[string]interface{})
+							data["user"] = mysqlUser
+							data["password"] = mysqlPassword
+							data["root-password"] = mysqlRootPassword
+						} else if state["kind"] == "Secret" && name == "minio-secret" {
+							data := state["data"].(map[string]interface{})
+							data["user"] = minioUser
+							data["password"] = minioPassword
 						}
 					},
 				},
