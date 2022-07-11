@@ -509,6 +509,9 @@ func (w *ProcessingWorkflow) waitForReview(ctx temporalsdk_workflow.Context) (*p
 }
 
 func (w *ProcessingWorkflow) transferA3m(sessCtx temporalsdk_workflow.Context, tinfo *TransferInfo) error {
+	paID := uint(0)
+	// XXX: add "Create AIP" preservation action and pass its paID to CreateAIPActivity below
+
 	activityOpts := temporalsdk_workflow.WithActivityOptions(sessCtx, temporalsdk_workflow.ActivityOptions{
 		StartToCloseTimeout: time.Hour * 24,
 		HeartbeatTimeout:    time.Second * 5,
@@ -518,8 +521,8 @@ func (w *ProcessingWorkflow) transferA3m(sessCtx temporalsdk_workflow.Context, t
 	})
 
 	params := &a3m.CreateAIPActivityParams{
-		Path:      tinfo.Bundle.FullPath,
-		PackageID: tinfo.PackageID,
+		Path:                 tinfo.Bundle.FullPath,
+		PreservationActionID: paID,
 	}
 
 	result := a3m.CreateAIPActivityResult{}
