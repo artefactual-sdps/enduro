@@ -19,7 +19,7 @@ jobs:
             --no-lb
             --k3s-arg "--no-deploy=traefik,servicelb,metrics-server@server:*"
       - name: Install Tilt
-        uses: yokawasa/action-setup-kube-tools@v0.8.1
+        uses: yokawasa/action-setup-kube-tools@v0.8.2
         with:
           setup-tools: |
             tilt
