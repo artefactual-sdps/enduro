@@ -57,6 +57,11 @@ func BulkStatusPackagePath() string {
 	return "/package/bulk"
 }
 
+// PreservationActionsPackagePath returns the URL path to the package service preservation-actions HTTP endpoint.
+func PreservationActionsPackagePath(id uint) string {
+	return fmt.Sprintf("/package/%v/preservation-actions", id)
+}
+
 // ConfirmPackagePath returns the URL path to the package service confirm HTTP endpoint.
 func ConfirmPackagePath(id uint) string {
 	return fmt.Sprintf("/package/%v/confirm", id)

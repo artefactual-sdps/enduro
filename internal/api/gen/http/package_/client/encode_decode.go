@@ -737,6 +737,91 @@ func DecodeBulkStatusResponse(decoder func(*http.Response) goahttp.Decoder, rest
 	}
 }
 
+// BuildPreservationActionsRequest instantiates a HTTP request object with
+// method and path set to call the "package" service "preservation-actions"
+// endpoint
+func (c *Client) BuildPreservationActionsRequest(ctx context.Context, v interface{}) (*http.Request, error) {
+	var (
+		id uint
+	)
+	{
+		p, ok := v.(*package_.PreservationActionsPayload)
+		if !ok {
+			return nil, goahttp.ErrInvalidType("package", "preservation-actions", "*package_.PreservationActionsPayload", v)
+		}
+		id = p.ID
+	}
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: PreservationActionsPackagePath(id)}
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		return nil, goahttp.ErrInvalidURL("package", "preservation-actions", u.String(), err)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
+	return req, nil
+}
+
+// DecodePreservationActionsResponse returns a decoder for responses returned
+// by the package preservation-actions endpoint. restoreBody controls whether
+// the response body should be restored after having been read.
+// DecodePreservationActionsResponse may return the following errors:
+//	- "not_found" (type *package_.PackageNotfound): http.StatusNotFound
+//	- error: internal error
+func DecodePreservationActionsResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
+	return func(resp *http.Response) (interface{}, error) {
+		if restoreBody {
+			b, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = ioutil.NopCloser(bytes.NewBuffer(b))
+			defer func() {
+				resp.Body = ioutil.NopCloser(bytes.NewBuffer(b))
+			}()
+		} else {
+			defer resp.Body.Close()
+		}
+		switch resp.StatusCode {
+		case http.StatusOK:
+			var (
+				body PreservationActionsResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("package", "preservation-actions", err)
+			}
+			p := NewPreservationActionsEnduroPackagePreservationActionsOK(&body)
+			view := "default"
+			vres := &package_views.EnduroPackagePreservationActions{Projected: p, View: view}
+			if err = package_views.ValidateEnduroPackagePreservationActions(vres); err != nil {
+				return nil, goahttp.ErrValidationError("package", "preservation-actions", err)
+			}
+			res := package_.NewEnduroPackagePreservationActions(vres)
+			return res, nil
+		case http.StatusNotFound:
+			var (
+				body PreservationActionsNotFoundResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("package", "preservation-actions", err)
+			}
+			err = ValidatePreservationActionsNotFoundResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("package", "preservation-actions", err)
+			}
+			return nil, NewPreservationActionsNotFound(&body)
+		default:
+			body, _ := ioutil.ReadAll(resp.Body)
+			return nil, goahttp.ErrInvalidResponse("package", "preservation-actions", resp.StatusCode, string(body))
+		}
+	}
+}
+
 // BuildConfirmRequest instantiates a HTTP request object with method and path
 // set to call the "package" service "confirm" endpoint
 func (c *Client) BuildConfirmRequest(ctx context.Context, v interface{}) (*http.Request, error) {
@@ -1302,6 +1387,49 @@ func unmarshalEnduroPackageWorkflowHistoryResponseBodyToPackageViewsEnduroPackag
 		ID:      v.ID,
 		Type:    v.Type,
 		Details: v.Details,
+	}
+
+	return res
+}
+
+// unmarshalEnduroPackagePreservationActionResponseBodyToPackageViewsEnduroPackagePreservationActionView
+// builds a value of type *package_views.EnduroPackagePreservationActionView
+// from a value of type *EnduroPackagePreservationActionResponseBody.
+func unmarshalEnduroPackagePreservationActionResponseBodyToPackageViewsEnduroPackagePreservationActionView(v *EnduroPackagePreservationActionResponseBody) *package_views.EnduroPackagePreservationActionView {
+	if v == nil {
+		return nil
+	}
+	res := &package_views.EnduroPackagePreservationActionView{
+		ID:          v.ID,
+		Name:        v.Name,
+		WorkflowID:  v.WorkflowID,
+		StartedAt:   v.StartedAt,
+		CompletedAt: v.CompletedAt,
+	}
+	if v.Tasks != nil {
+		res.Tasks = make([]*package_views.EnduroPackagePreservationTaskView, len(v.Tasks))
+		for i, val := range v.Tasks {
+			res.Tasks[i] = unmarshalEnduroPackagePreservationTaskResponseBodyToPackageViewsEnduroPackagePreservationTaskView(val)
+		}
+	}
+
+	return res
+}
+
+// unmarshalEnduroPackagePreservationTaskResponseBodyToPackageViewsEnduroPackagePreservationTaskView
+// builds a value of type *package_views.EnduroPackagePreservationTaskView from
+// a value of type *EnduroPackagePreservationTaskResponseBody.
+func unmarshalEnduroPackagePreservationTaskResponseBodyToPackageViewsEnduroPackagePreservationTaskView(v *EnduroPackagePreservationTaskResponseBody) *package_views.EnduroPackagePreservationTaskView {
+	if v == nil {
+		return nil
+	}
+	res := &package_views.EnduroPackagePreservationTaskView{
+		ID:          v.ID,
+		TaskID:      v.TaskID,
+		Name:        v.Name,
+		Status:      v.Status,
+		StartedAt:   v.StartedAt,
+		CompletedAt: v.CompletedAt,
 	}
 
 	return res

@@ -20,21 +20,22 @@ import (
 
 // Server lists the package service endpoint HTTP handlers.
 type Server struct {
-	Mounts     []*MountPoint
-	Monitor    http.Handler
-	List       http.Handler
-	Show       http.Handler
-	Delete     http.Handler
-	Cancel     http.Handler
-	Retry      http.Handler
-	Workflow   http.Handler
-	Bulk       http.Handler
-	BulkStatus http.Handler
-	Confirm    http.Handler
-	Reject     http.Handler
-	Move       http.Handler
-	MoveStatus http.Handler
-	CORS       http.Handler
+	Mounts              []*MountPoint
+	Monitor             http.Handler
+	List                http.Handler
+	Show                http.Handler
+	Delete              http.Handler
+	Cancel              http.Handler
+	Retry               http.Handler
+	Workflow            http.Handler
+	Bulk                http.Handler
+	BulkStatus          http.Handler
+	PreservationActions http.Handler
+	Confirm             http.Handler
+	Reject              http.Handler
+	Move                http.Handler
+	MoveStatus          http.Handler
+	CORS                http.Handler
 }
 
 // ErrorNamer is an interface implemented by generated error structs that
@@ -84,6 +85,7 @@ func New(
 			{"Workflow", "GET", "/package/{id}/workflow"},
 			{"Bulk", "POST", "/package/bulk"},
 			{"BulkStatus", "GET", "/package/bulk"},
+			{"PreservationActions", "GET", "/package/{id}/preservation-actions"},
 			{"Confirm", "POST", "/package/{id}/confirm"},
 			{"Reject", "POST", "/package/{id}/reject"},
 			{"Move", "POST", "/package/{id}/move"},
@@ -95,24 +97,26 @@ func New(
 			{"CORS", "OPTIONS", "/package/{id}/retry"},
 			{"CORS", "OPTIONS", "/package/{id}/workflow"},
 			{"CORS", "OPTIONS", "/package/bulk"},
+			{"CORS", "OPTIONS", "/package/{id}/preservation-actions"},
 			{"CORS", "OPTIONS", "/package/{id}/confirm"},
 			{"CORS", "OPTIONS", "/package/{id}/reject"},
 			{"CORS", "OPTIONS", "/package/{id}/move"},
 		},
-		Monitor:    NewMonitorHandler(e.Monitor, mux, decoder, encoder, errhandler, formatter, upgrader, configurer.MonitorFn),
-		List:       NewListHandler(e.List, mux, decoder, encoder, errhandler, formatter),
-		Show:       NewShowHandler(e.Show, mux, decoder, encoder, errhandler, formatter),
-		Delete:     NewDeleteHandler(e.Delete, mux, decoder, encoder, errhandler, formatter),
-		Cancel:     NewCancelHandler(e.Cancel, mux, decoder, encoder, errhandler, formatter),
-		Retry:      NewRetryHandler(e.Retry, mux, decoder, encoder, errhandler, formatter),
-		Workflow:   NewWorkflowHandler(e.Workflow, mux, decoder, encoder, errhandler, formatter),
-		Bulk:       NewBulkHandler(e.Bulk, mux, decoder, encoder, errhandler, formatter),
-		BulkStatus: NewBulkStatusHandler(e.BulkStatus, mux, decoder, encoder, errhandler, formatter),
-		Confirm:    NewConfirmHandler(e.Confirm, mux, decoder, encoder, errhandler, formatter),
-		Reject:     NewRejectHandler(e.Reject, mux, decoder, encoder, errhandler, formatter),
-		Move:       NewMoveHandler(e.Move, mux, decoder, encoder, errhandler, formatter),
-		MoveStatus: NewMoveStatusHandler(e.MoveStatus, mux, decoder, encoder, errhandler, formatter),
-		CORS:       NewCORSHandler(),
+		Monitor:             NewMonitorHandler(e.Monitor, mux, decoder, encoder, errhandler, formatter, upgrader, configurer.MonitorFn),
+		List:                NewListHandler(e.List, mux, decoder, encoder, errhandler, formatter),
+		Show:                NewShowHandler(e.Show, mux, decoder, encoder, errhandler, formatter),
+		Delete:              NewDeleteHandler(e.Delete, mux, decoder, encoder, errhandler, formatter),
+		Cancel:              NewCancelHandler(e.Cancel, mux, decoder, encoder, errhandler, formatter),
+		Retry:               NewRetryHandler(e.Retry, mux, decoder, encoder, errhandler, formatter),
+		Workflow:            NewWorkflowHandler(e.Workflow, mux, decoder, encoder, errhandler, formatter),
+		Bulk:                NewBulkHandler(e.Bulk, mux, decoder, encoder, errhandler, formatter),
+		BulkStatus:          NewBulkStatusHandler(e.BulkStatus, mux, decoder, encoder, errhandler, formatter),
+		PreservationActions: NewPreservationActionsHandler(e.PreservationActions, mux, decoder, encoder, errhandler, formatter),
+		Confirm:             NewConfirmHandler(e.Confirm, mux, decoder, encoder, errhandler, formatter),
+		Reject:              NewRejectHandler(e.Reject, mux, decoder, encoder, errhandler, formatter),
+		Move:                NewMoveHandler(e.Move, mux, decoder, encoder, errhandler, formatter),
+		MoveStatus:          NewMoveStatusHandler(e.MoveStatus, mux, decoder, encoder, errhandler, formatter),
+		CORS:                NewCORSHandler(),
 	}
 }
 
@@ -130,6 +134,7 @@ func (s *Server) Use(m func(http.Handler) http.Handler) {
 	s.Workflow = m(s.Workflow)
 	s.Bulk = m(s.Bulk)
 	s.BulkStatus = m(s.BulkStatus)
+	s.PreservationActions = m(s.PreservationActions)
 	s.Confirm = m(s.Confirm)
 	s.Reject = m(s.Reject)
 	s.Move = m(s.Move)
@@ -148,6 +153,7 @@ func Mount(mux goahttp.Muxer, h *Server) {
 	MountWorkflowHandler(mux, h.Workflow)
 	MountBulkHandler(mux, h.Bulk)
 	MountBulkStatusHandler(mux, h.BulkStatus)
+	MountPreservationActionsHandler(mux, h.PreservationActions)
 	MountConfirmHandler(mux, h.Confirm)
 	MountRejectHandler(mux, h.Reject)
 	MountMoveHandler(mux, h.Move)
@@ -619,6 +625,57 @@ func NewBulkStatusHandler(
 	})
 }
 
+// MountPreservationActionsHandler configures the mux to serve the "package"
+// service "preservation-actions" endpoint.
+func MountPreservationActionsHandler(mux goahttp.Muxer, h http.Handler) {
+	f, ok := HandlePackageOrigin(h).(http.HandlerFunc)
+	if !ok {
+		f = func(w http.ResponseWriter, r *http.Request) {
+			h.ServeHTTP(w, r)
+		}
+	}
+	mux.Handle("GET", "/package/{id}/preservation-actions", f)
+}
+
+// NewPreservationActionsHandler creates a HTTP handler which loads the HTTP
+// request and calls the "package" service "preservation-actions" endpoint.
+func NewPreservationActionsHandler(
+	endpoint goa.Endpoint,
+	mux goahttp.Muxer,
+	decoder func(*http.Request) goahttp.Decoder,
+	encoder func(context.Context, http.ResponseWriter) goahttp.Encoder,
+	errhandler func(context.Context, http.ResponseWriter, error),
+	formatter func(err error) goahttp.Statuser,
+) http.Handler {
+	var (
+		decodeRequest  = DecodePreservationActionsRequest(mux, decoder)
+		encodeResponse = EncodePreservationActionsResponse(encoder)
+		encodeError    = EncodePreservationActionsError(encoder, formatter)
+	)
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
+		ctx = context.WithValue(ctx, goa.MethodKey, "preservation-actions")
+		ctx = context.WithValue(ctx, goa.ServiceKey, "package")
+		payload, err := decodeRequest(r)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		res, err := endpoint(ctx, payload)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		if err := encodeResponse(ctx, w, res); err != nil {
+			errhandler(ctx, w, err)
+		}
+	})
+}
+
 // MountConfirmHandler configures the mux to serve the "package" service
 // "confirm" endpoint.
 func MountConfirmHandler(mux goahttp.Muxer, h http.Handler) {
@@ -834,6 +891,7 @@ func MountCORSHandler(mux goahttp.Muxer, h http.Handler) {
 	mux.Handle("OPTIONS", "/package/{id}/retry", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/package/{id}/workflow", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/package/bulk", h.ServeHTTP)
+	mux.Handle("OPTIONS", "/package/{id}/preservation-actions", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/package/{id}/confirm", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/package/{id}/reject", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/package/{id}/move", h.ServeHTTP)

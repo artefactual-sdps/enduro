@@ -15,6 +15,8 @@ models/EnduroMonitorPingEventResponseBody.ts
 models/EnduroPackageCreatedEventResponseBody.ts
 models/EnduroPackageDeletedEventResponseBody.ts
 models/EnduroPackageLocationUpdatedEventResponseBody.ts
+models/EnduroPackagePreservationActionResponseBody.ts
+models/EnduroPackagePreservationTaskResponseBody.ts
 models/EnduroPackageStatusUpdatedEventResponseBody.ts
 models/EnduroPackageUpdatedEventResponseBody.ts
 models/EnduroPackageWorkflowHistoryResponseBody.ts
@@ -40,6 +42,8 @@ models/PackageMoveRequestBody.ts
 models/PackageMoveStatusFailedDependencyResponseBody.ts
 models/PackageMoveStatusNotFoundResponseBody.ts
 models/PackageMoveStatusResponseBody.ts
+models/PackagePreservationActionsNotFoundResponseBody.ts
+models/PackagePreservationActionsResponseBody.ts
 models/PackageRejectNotAvailableResponseBody.ts
 models/PackageRejectNotFoundResponseBody.ts
 models/PackageRejectNotValidResponseBody.ts

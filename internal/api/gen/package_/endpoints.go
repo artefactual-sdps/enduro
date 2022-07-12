@@ -16,19 +16,20 @@ import (
 
 // Endpoints wraps the "package" service endpoints.
 type Endpoints struct {
-	Monitor    goa.Endpoint
-	List       goa.Endpoint
-	Show       goa.Endpoint
-	Delete     goa.Endpoint
-	Cancel     goa.Endpoint
-	Retry      goa.Endpoint
-	Workflow   goa.Endpoint
-	Bulk       goa.Endpoint
-	BulkStatus goa.Endpoint
-	Confirm    goa.Endpoint
-	Reject     goa.Endpoint
-	Move       goa.Endpoint
-	MoveStatus goa.Endpoint
+	Monitor             goa.Endpoint
+	List                goa.Endpoint
+	Show                goa.Endpoint
+	Delete              goa.Endpoint
+	Cancel              goa.Endpoint
+	Retry               goa.Endpoint
+	Workflow            goa.Endpoint
+	Bulk                goa.Endpoint
+	BulkStatus          goa.Endpoint
+	PreservationActions goa.Endpoint
+	Confirm             goa.Endpoint
+	Reject              goa.Endpoint
+	Move                goa.Endpoint
+	MoveStatus          goa.Endpoint
 }
 
 // MonitorEndpointInput holds both the payload and the server stream of the
@@ -41,19 +42,20 @@ type MonitorEndpointInput struct {
 // NewEndpoints wraps the methods of the "package" service with endpoints.
 func NewEndpoints(s Service) *Endpoints {
 	return &Endpoints{
-		Monitor:    NewMonitorEndpoint(s),
-		List:       NewListEndpoint(s),
-		Show:       NewShowEndpoint(s),
-		Delete:     NewDeleteEndpoint(s),
-		Cancel:     NewCancelEndpoint(s),
-		Retry:      NewRetryEndpoint(s),
-		Workflow:   NewWorkflowEndpoint(s),
-		Bulk:       NewBulkEndpoint(s),
-		BulkStatus: NewBulkStatusEndpoint(s),
-		Confirm:    NewConfirmEndpoint(s),
-		Reject:     NewRejectEndpoint(s),
-		Move:       NewMoveEndpoint(s),
-		MoveStatus: NewMoveStatusEndpoint(s),
+		Monitor:             NewMonitorEndpoint(s),
+		List:                NewListEndpoint(s),
+		Show:                NewShowEndpoint(s),
+		Delete:              NewDeleteEndpoint(s),
+		Cancel:              NewCancelEndpoint(s),
+		Retry:               NewRetryEndpoint(s),
+		Workflow:            NewWorkflowEndpoint(s),
+		Bulk:                NewBulkEndpoint(s),
+		BulkStatus:          NewBulkStatusEndpoint(s),
+		PreservationActions: NewPreservationActionsEndpoint(s),
+		Confirm:             NewConfirmEndpoint(s),
+		Reject:              NewRejectEndpoint(s),
+		Move:                NewMoveEndpoint(s),
+		MoveStatus:          NewMoveStatusEndpoint(s),
 	}
 }
 
@@ -68,6 +70,7 @@ func (e *Endpoints) Use(m func(goa.Endpoint) goa.Endpoint) {
 	e.Workflow = m(e.Workflow)
 	e.Bulk = m(e.Bulk)
 	e.BulkStatus = m(e.BulkStatus)
+	e.PreservationActions = m(e.PreservationActions)
 	e.Confirm = m(e.Confirm)
 	e.Reject = m(e.Reject)
 	e.Move = m(e.Move)
@@ -161,6 +164,20 @@ func NewBulkEndpoint(s Service) goa.Endpoint {
 func NewBulkStatusEndpoint(s Service) goa.Endpoint {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
 		return s.BulkStatus(ctx)
+	}
+}
+
+// NewPreservationActionsEndpoint returns an endpoint function that calls the
+// method "preservation-actions" of service "package".
+func NewPreservationActionsEndpoint(s Service) goa.Endpoint {
+	return func(ctx context.Context, req interface{}) (interface{}, error) {
+		p := req.(*PreservationActionsPayload)
+		res, err := s.PreservationActions(ctx, p)
+		if err != nil {
+			return nil, err
+		}
+		vres := NewViewedEnduroPackagePreservationActions(res, "default")
+		return vres, nil
 	}
 }
 

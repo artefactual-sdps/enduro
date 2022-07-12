@@ -546,6 +546,74 @@ func EncodeBulkStatusResponse(encoder func(context.Context, http.ResponseWriter)
 	}
 }
 
+// EncodePreservationActionsResponse returns an encoder for responses returned
+// by the package preservation-actions endpoint.
+func EncodePreservationActionsResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
+	return func(ctx context.Context, w http.ResponseWriter, v interface{}) error {
+		res := v.(*package_views.EnduroPackagePreservationActions)
+		enc := encoder(ctx, w)
+		body := NewPreservationActionsResponseBody(res.Projected)
+		w.WriteHeader(http.StatusOK)
+		return enc.Encode(body)
+	}
+}
+
+// DecodePreservationActionsRequest returns a decoder for requests sent to the
+// package preservation-actions endpoint.
+func DecodePreservationActionsRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (interface{}, error) {
+	return func(r *http.Request) (interface{}, error) {
+		var (
+			id  uint
+			err error
+
+			params = mux.Vars(r)
+		)
+		{
+			idRaw := params["id"]
+			v, err2 := strconv.ParseUint(idRaw, 10, strconv.IntSize)
+			if err2 != nil {
+				err = goa.MergeErrors(err, goa.InvalidFieldTypeError("id", idRaw, "unsigned integer"))
+			}
+			id = uint(v)
+		}
+		if err != nil {
+			return nil, err
+		}
+		payload := NewPreservationActionsPayload(id)
+
+		return payload, nil
+	}
+}
+
+// EncodePreservationActionsError returns an encoder for errors returned by the
+// preservation-actions package endpoint.
+func EncodePreservationActionsError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
+	encodeError := goahttp.ErrorEncoder(encoder, formatter)
+	return func(ctx context.Context, w http.ResponseWriter, v error) error {
+		var en ErrorNamer
+		if !errors.As(v, &en) {
+			return encodeError(ctx, w, v)
+		}
+		switch en.ErrorName() {
+		case "not_found":
+			var res *package_.PackageNotfound
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			var body interface{}
+			if formatter != nil {
+				body = formatter(res)
+			} else {
+				body = NewPreservationActionsNotFoundResponseBody(res)
+			}
+			w.Header().Set("goa-error", res.ErrorName())
+			w.WriteHeader(http.StatusNotFound)
+			return enc.Encode(body)
+		default:
+			return encodeError(ctx, w, v)
+		}
+	}
+}
+
 // EncodeConfirmResponse returns an encoder for responses returned by the
 // package confirm endpoint.
 func EncodeConfirmResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
@@ -1073,6 +1141,49 @@ func marshalPackageViewsEnduroPackageWorkflowHistoryViewToEnduroPackageWorkflowH
 		ID:      v.ID,
 		Type:    v.Type,
 		Details: v.Details,
+	}
+
+	return res
+}
+
+// marshalPackageViewsEnduroPackagePreservationActionViewToEnduroPackagePreservationActionResponseBody
+// builds a value of type *EnduroPackagePreservationActionResponseBody from a
+// value of type *package_views.EnduroPackagePreservationActionView.
+func marshalPackageViewsEnduroPackagePreservationActionViewToEnduroPackagePreservationActionResponseBody(v *package_views.EnduroPackagePreservationActionView) *EnduroPackagePreservationActionResponseBody {
+	if v == nil {
+		return nil
+	}
+	res := &EnduroPackagePreservationActionResponseBody{
+		ID:          *v.ID,
+		Name:        *v.Name,
+		WorkflowID:  *v.WorkflowID,
+		StartedAt:   *v.StartedAt,
+		CompletedAt: v.CompletedAt,
+	}
+	if v.Tasks != nil {
+		res.Tasks = make([]*EnduroPackagePreservationTaskResponseBody, len(v.Tasks))
+		for i, val := range v.Tasks {
+			res.Tasks[i] = marshalPackageViewsEnduroPackagePreservationTaskViewToEnduroPackagePreservationTaskResponseBody(val)
+		}
+	}
+
+	return res
+}
+
+// marshalPackageViewsEnduroPackagePreservationTaskViewToEnduroPackagePreservationTaskResponseBody
+// builds a value of type *EnduroPackagePreservationTaskResponseBody from a
+// value of type *package_views.EnduroPackagePreservationTaskView.
+func marshalPackageViewsEnduroPackagePreservationTaskViewToEnduroPackagePreservationTaskResponseBody(v *package_views.EnduroPackagePreservationTaskView) *EnduroPackagePreservationTaskResponseBody {
+	if v == nil {
+		return nil
+	}
+	res := &EnduroPackagePreservationTaskResponseBody{
+		ID:          *v.ID,
+		TaskID:      *v.TaskID,
+		Name:        *v.Name,
+		Status:      *v.Status,
+		StartedAt:   *v.StartedAt,
+		CompletedAt: v.CompletedAt,
 	}
 
 	return res

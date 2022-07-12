@@ -39,6 +39,15 @@ type EnduroPackageWorkflowStatus struct {
 	View string
 }
 
+// EnduroPackagePreservationActions is the viewed result type that is projected
+// based on a view.
+type EnduroPackagePreservationActions struct {
+	// Type to project
+	Projected *EnduroPackagePreservationActionsView
+	// View to render
+	View string
+}
+
 // EnduroMonitorEventView is a type that runs validations on a projected type.
 type EnduroMonitorEventView struct {
 	MonitorPingEvent            *EnduroMonitorPingEventView
@@ -140,6 +149,42 @@ type EnduroPackageWorkflowHistoryView struct {
 	Details interface{}
 }
 
+// EnduroPackagePreservationActionsView is a type that runs validations on a
+// projected type.
+type EnduroPackagePreservationActionsView struct {
+	Actions EnduroPackagePreservationActionCollectionView
+}
+
+// EnduroPackagePreservationActionCollectionView is a type that runs
+// validations on a projected type.
+type EnduroPackagePreservationActionCollectionView []*EnduroPackagePreservationActionView
+
+// EnduroPackagePreservationActionView is a type that runs validations on a
+// projected type.
+type EnduroPackagePreservationActionView struct {
+	ID          *uint
+	Name        *string
+	WorkflowID  *string
+	StartedAt   *string
+	CompletedAt *string
+	Tasks       EnduroPackagePreservationTaskCollectionView
+}
+
+// EnduroPackagePreservationTaskCollectionView is a type that runs validations
+// on a projected type.
+type EnduroPackagePreservationTaskCollectionView []*EnduroPackagePreservationTaskView
+
+// EnduroPackagePreservationTaskView is a type that runs validations on a
+// projected type.
+type EnduroPackagePreservationTaskView struct {
+	ID          *uint
+	TaskID      *string
+	Name        *string
+	Status      *string
+	StartedAt   *string
+	CompletedAt *string
+}
+
 var (
 	// EnduroMonitorEventMap is a map indexing the attribute names of
 	// EnduroMonitorEvent by view name.
@@ -175,6 +220,13 @@ var (
 		"default": {
 			"status",
 			"history",
+		},
+	}
+	// EnduroPackagePreservationActionsMap is a map indexing the attribute names of
+	// EnduroPackagePreservationActions by view name.
+	EnduroPackagePreservationActionsMap = map[string][]string{
+		"default": {
+			"actions",
 		},
 	}
 	// EnduroMonitorPingEventMap is a map indexing the attribute names of
@@ -241,6 +293,54 @@ var (
 			"details",
 		},
 	}
+	// EnduroPackagePreservationActionCollectionMap is a map indexing the attribute
+	// names of EnduroPackagePreservationActionCollection by view name.
+	EnduroPackagePreservationActionCollectionMap = map[string][]string{
+		"default": {
+			"id",
+			"name",
+			"workflow_id",
+			"started_at",
+			"completed_at",
+			"tasks",
+		},
+	}
+	// EnduroPackagePreservationActionMap is a map indexing the attribute names of
+	// EnduroPackagePreservationAction by view name.
+	EnduroPackagePreservationActionMap = map[string][]string{
+		"default": {
+			"id",
+			"name",
+			"workflow_id",
+			"started_at",
+			"completed_at",
+			"tasks",
+		},
+	}
+	// EnduroPackagePreservationTaskCollectionMap is a map indexing the attribute
+	// names of EnduroPackagePreservationTaskCollection by view name.
+	EnduroPackagePreservationTaskCollectionMap = map[string][]string{
+		"default": {
+			"id",
+			"task_id",
+			"name",
+			"status",
+			"started_at",
+			"completed_at",
+		},
+	}
+	// EnduroPackagePreservationTaskMap is a map indexing the attribute names of
+	// EnduroPackagePreservationTask by view name.
+	EnduroPackagePreservationTaskMap = map[string][]string{
+		"default": {
+			"id",
+			"task_id",
+			"name",
+			"status",
+			"started_at",
+			"completed_at",
+		},
+	}
 )
 
 // ValidateEnduroMonitorEvent runs the validations defined on the viewed result
@@ -273,6 +373,18 @@ func ValidateEnduroPackageWorkflowStatus(result *EnduroPackageWorkflowStatus) (e
 	switch result.View {
 	case "default", "":
 		err = ValidateEnduroPackageWorkflowStatusView(result.Projected)
+	default:
+		err = goa.InvalidEnumValueError("view", result.View, []interface{}{"default"})
+	}
+	return
+}
+
+// ValidateEnduroPackagePreservationActions runs the validations defined on the
+// viewed result type EnduroPackagePreservationActions.
+func ValidateEnduroPackagePreservationActions(result *EnduroPackagePreservationActions) (err error) {
+	switch result.View {
+	case "default", "":
+		err = ValidateEnduroPackagePreservationActionsView(result.Projected)
 	default:
 		err = goa.InvalidEnumValueError("view", result.View, []interface{}{"default"})
 	}
@@ -455,5 +567,102 @@ func ValidateEnduroPackageWorkflowHistoryCollectionView(result EnduroPackageWork
 // EnduroPackageWorkflowHistoryView using the "default" view.
 func ValidateEnduroPackageWorkflowHistoryView(result *EnduroPackageWorkflowHistoryView) (err error) {
 
+	return
+}
+
+// ValidateEnduroPackagePreservationActionsView runs the validations defined on
+// EnduroPackagePreservationActionsView using the "default" view.
+func ValidateEnduroPackagePreservationActionsView(result *EnduroPackagePreservationActionsView) (err error) {
+
+	if result.Actions != nil {
+		if err2 := ValidateEnduroPackagePreservationActionCollectionView(result.Actions); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	return
+}
+
+// ValidateEnduroPackagePreservationActionCollectionView runs the validations
+// defined on EnduroPackagePreservationActionCollectionView using the "default"
+// view.
+func ValidateEnduroPackagePreservationActionCollectionView(result EnduroPackagePreservationActionCollectionView) (err error) {
+	for _, item := range result {
+		if err2 := ValidateEnduroPackagePreservationActionView(item); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	return
+}
+
+// ValidateEnduroPackagePreservationActionView runs the validations defined on
+// EnduroPackagePreservationActionView using the "default" view.
+func ValidateEnduroPackagePreservationActionView(result *EnduroPackagePreservationActionView) (err error) {
+	if result.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "result"))
+	}
+	if result.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "result"))
+	}
+	if result.WorkflowID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("workflow_id", "result"))
+	}
+	if result.StartedAt == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("started_at", "result"))
+	}
+	if result.StartedAt != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("result.started_at", *result.StartedAt, goa.FormatDateTime))
+	}
+	if result.CompletedAt != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("result.completed_at", *result.CompletedAt, goa.FormatDateTime))
+	}
+	if result.Tasks != nil {
+		if err2 := ValidateEnduroPackagePreservationTaskCollectionView(result.Tasks); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	return
+}
+
+// ValidateEnduroPackagePreservationTaskCollectionView runs the validations
+// defined on EnduroPackagePreservationTaskCollectionView using the "default"
+// view.
+func ValidateEnduroPackagePreservationTaskCollectionView(result EnduroPackagePreservationTaskCollectionView) (err error) {
+	for _, item := range result {
+		if err2 := ValidateEnduroPackagePreservationTaskView(item); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	return
+}
+
+// ValidateEnduroPackagePreservationTaskView runs the validations defined on
+// EnduroPackagePreservationTaskView using the "default" view.
+func ValidateEnduroPackagePreservationTaskView(result *EnduroPackagePreservationTaskView) (err error) {
+	if result.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "result"))
+	}
+	if result.TaskID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("task_id", "result"))
+	}
+	if result.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "result"))
+	}
+	if result.Status == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("status", "result"))
+	}
+	if result.StartedAt == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("started_at", "result"))
+	}
+	if result.Status != nil {
+		if !(*result.Status == "unspecified" || *result.Status == "complete" || *result.Status == "processing" || *result.Status == "failed") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.status", *result.Status, []interface{}{"unspecified", "complete", "processing", "failed"}))
+		}
+	}
+	if result.StartedAt != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("result.started_at", *result.StartedAt, goa.FormatDateTime))
+	}
+	if result.CompletedAt != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("result.completed_at", *result.CompletedAt, goa.FormatDateTime))
+	}
 	return
 }

@@ -6,11 +6,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
+
+	goapackage "github.com/artefactual-labs/enduro/internal/api/gen/package_"
 )
 
-type (
-	PreservationTaskStatus uint
-)
+type PreservationTaskStatus uint
 
 const (
 	StatusUnspecified PreservationTaskStatus = iota
@@ -84,17 +85,93 @@ type PreservationTask struct {
 	PreservationActionID uint                   `db:"preservation_action_id"`
 }
 
+func (w *goaWrapper) PreservationActions(ctx context.Context, payload *goapackage.PreservationActionsPayload) (*goapackage.EnduroPackagePreservationActions, error) {
+	goapkg, err := w.Show(ctx, &goapackage.ShowPayload{ID: payload.ID})
+	if err != nil {
+		return nil, err
+	}
+
+	query := "SELECT id, name, workflow_id, CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at, CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at FROM preservation_action WHERE package_id = (?) ORDER BY started_at DESC"
+	args := []interface{}{goapkg.ID}
+
+	query = w.db.Rebind(query)
+	rows, err := w.db.QueryxContext(ctx, query, args...)
+	if err != nil {
+		return nil, fmt.Errorf("error querying the database: %w", err)
+	}
+	defer rows.Close()
+
+	preservation_actions := []*goapackage.EnduroPackagePreservationAction{}
+	for rows.Next() {
+		pa := PreservationAction{}
+		if err := rows.StructScan(&pa); err != nil {
+			return nil, fmt.Errorf("error scanning database result: %w", err)
+		}
+		goapa := &goapackage.EnduroPackagePreservationAction{
+			ID:          pa.ID,
+			Name:        pa.Name,
+			WorkflowID:  pa.WorkflowID,
+			StartedAt:   formatTime(pa.StartedAt.Time),
+			CompletedAt: formatOptionalTime(pa.CompletedAt),
+		}
+
+		ptQuery := "SELECT id, task_id, name, status, CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at, CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at FROM preservation_task WHERE preservation_action_id = (?)"
+		ptQueryArgs := []interface{}{pa.ID}
+
+		ptQuery = w.db.Rebind(ptQuery)
+		ptRows, err := w.db.QueryxContext(ctx, ptQuery, ptQueryArgs...)
+		if err != nil {
+			return nil, fmt.Errorf("error querying the database: %w", err)
+		}
+		defer ptRows.Close()
+
+		preservation_tasks := []*goapackage.EnduroPackagePreservationTask{}
+		for ptRows.Next() {
+			pt := PreservationTask{}
+			if err := ptRows.StructScan(&pt); err != nil {
+				return nil, fmt.Errorf("error scanning database result: %w", err)
+			}
+			goapt := &goapackage.EnduroPackagePreservationTask{
+				ID:          pt.ID,
+				TaskID:      pt.TaskID,
+				Name:        pt.Name,
+				Status:      pt.Status.String(),
+				StartedAt:   formatTime(pt.StartedAt.Time),
+				CompletedAt: formatOptionalTime(pt.CompletedAt),
+			}
+			preservation_tasks = append(preservation_tasks, goapt)
+		}
+
+		goapa.Tasks = preservation_tasks
+		preservation_actions = append(preservation_actions, goapa)
+	}
+
+	result := &goapackage.EnduroPackagePreservationActions{
+		Actions: preservation_actions,
+	}
+
+	return result, nil
+}
+
 func (svc *packageImpl) CreatePreservationAction(ctx context.Context, pa *PreservationAction) error {
-	query := `INSERT INTO preservation_action (name, workflow_id, started_at, completed_at, package_id) VALUES ((?), (?), (?), (?), (?))`
+	startedAt := &pa.StartedAt.Time
+	completedAt := &pa.CompletedAt.Time
+	if pa.StartedAt.Time.IsZero() {
+		startedAt = nil
+	}
+	if pa.CompletedAt.Time.IsZero() {
+		completedAt = nil
+	}
+
+	query := `INSERT INTO preservation_action (name, workflow_id, started_at, completed_at, package_id) VALUES (?, ?, ?, ?, ?)`
 	args := []interface{}{
 		pa.Name,
 		pa.WorkflowID,
-		pa.StartedAt,
-		pa.CompletedAt,
+		startedAt,
+		completedAt,
 		pa.PackageID,
 	}
 
-	query = svc.db.Rebind(query)
 	res, err := svc.db.ExecContext(ctx, query, args...)
 	if err != nil {
 		return fmt.Errorf("error inserting preservation action: %w", err)
@@ -112,18 +189,41 @@ func (svc *packageImpl) CreatePreservationAction(ctx context.Context, pa *Preser
 	return nil
 }
 
+func (svc *packageImpl) CompletePreservationAction(ctx context.Context, ID uint, completedAt time.Time) error {
+	query := `UPDATE preservation_action SET completed_at = (?) WHERE id = (?)`
+	args := []interface{}{
+		completedAt,
+		ID,
+	}
+
+	_, err := svc.db.ExecContext(ctx, query, args...)
+	if err != nil {
+		return fmt.Errorf("error updating preservation action: %w", err)
+	}
+
+	return nil
+}
+
 func (svc *packageImpl) CreatePreservationTask(ctx context.Context, pt *PreservationTask) error {
-	query := `INSERT INTO preservation_task (task_id, name, status, started_at, completed_at, preservation_action_id) VALUES ((?), (?), (?), (?), (?), (?))`
+	startedAt := &pt.StartedAt.Time
+	completedAt := &pt.CompletedAt.Time
+	if pt.StartedAt.Time.IsZero() {
+		startedAt = nil
+	}
+	if pt.CompletedAt.Time.IsZero() {
+		completedAt = nil
+	}
+
+	query := `INSERT INTO preservation_task (task_id, name, status, started_at, completed_at, preservation_action_id) VALUES (?, ?, ?, ?, ?, ?)`
 	args := []interface{}{
 		pt.TaskID,
 		pt.Name,
 		pt.Status,
-		pt.StartedAt,
-		pt.CompletedAt,
+		startedAt,
+		completedAt,
 		pt.PreservationActionID,
 	}
 
-	query = svc.db.Rebind(query)
 	res, err := svc.db.ExecContext(ctx, query, args...)
 	if err != nil {
 		return fmt.Errorf("error inserting preservation task: %w", err)
