@@ -51,11 +51,6 @@ type TransferInfo struct {
 	// It is populated by CreateAIPActivity.
 	SIPID string
 
-	// Workflow ID.
-	//
-	// It is populated via the workflow request.
-	WorkflowID string
-
 	// Enduro internal package ID.
 	// The zero value represents a new package_. It can be used to indicate
 	// an existing package in retries.
@@ -131,7 +126,6 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *pack
 		logger = temporalsdk_workflow.GetLogger(ctx)
 
 		tinfo = &TransferInfo{
-			WorkflowID:       req.WorkflowID,
 			PackageID:        req.PackageID,
 			WatcherName:      req.WatcherName,
 			RetentionPeriod:  req.RetentionPeriod,
@@ -509,12 +503,17 @@ func (w *ProcessingWorkflow) waitForReview(ctx temporalsdk_workflow.Context) (*p
 }
 
 func (w *ProcessingWorkflow) transferA3m(sessCtx temporalsdk_workflow.Context, tinfo *TransferInfo) error {
+	// Identifier of the new preservation action
 	var paID uint
+
+	// Assume the preservation action will be successful.
+	status := package_.ActionStatusComplete
+
 	{
 		ctx := withLocalActivityOpts(sessCtx)
 		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, createPreservationActionLocalActivity, w.pkgsvc, &createPreservationActionLocalActivityParams{
 			Name:       "Create AIP", // XXX: move to a translatable constant?
-			WorkflowID: tinfo.WorkflowID,
+			WorkflowID: temporalsdk_workflow.GetInfo(sessCtx).WorkflowExecution.ID,
 			StartedAt:  temporalsdk_workflow.Now(sessCtx).UTC(),
 			PackageID:  tinfo.PackageID,
 		}).Get(ctx, &paID)
@@ -538,6 +537,9 @@ func (w *ProcessingWorkflow) transferA3m(sessCtx temporalsdk_workflow.Context, t
 
 	result := a3m.CreateAIPActivityResult{}
 	err := temporalsdk_workflow.ExecuteActivity(activityOpts, a3m.CreateAIPActivityName, params).Get(sessCtx, &result)
+	if err != nil {
+		status = package_.ActionStatusFailed
+	}
 
 	tinfo.SIPID = result.UUID
 	tinfo.AIPPath = result.Path
@@ -545,7 +547,11 @@ func (w *ProcessingWorkflow) transferA3m(sessCtx temporalsdk_workflow.Context, t
 
 	{
 		ctx := withLocalActivityOpts(sessCtx)
-		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, completePreservationActionLocalActivity, w.pkgsvc, paID, temporalsdk_workflow.Now(sessCtx).UTC()).Get(ctx, nil)
+		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, completePreservationActionLocalActivity, w.pkgsvc, &completePreservationActionLocalActivityParams{
+			PreservationActionID: paID,
+			Status:               status,
+			CompletedAt:          temporalsdk_workflow.Now(sessCtx).UTC(),
+		}).Get(ctx, nil)
 		if err != nil {
 			return err
 		}

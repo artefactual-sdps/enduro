@@ -999,6 +999,14 @@ definitions:
                 type: string
                 example: "1970-02-09T06:04:22Z"
                 format: date-time
+            status:
+                type: string
+                example: unspecified
+                enum:
+                    - unspecified
+                    - complete
+                    - processing
+                    - failed
             tasks:
                 $ref: '#/definitions/EnduroPackagePreservationTaskResponseBodyCollection'
             workflow_id:
@@ -1009,7 +1017,8 @@ definitions:
             completed_at: "1978-01-15T13:22:03Z"
             id: 13525661014464927803
             name: Aut quibusdam id ducimus magnam culpa distinctio.
-            started_at: "2015-10-24T07:38:09Z"
+            started_at: "1971-08-01T00:05:22Z"
+            status: complete
             tasks:
                 - completed_at: "1972-09-15T19:31:34Z"
                   id: 547721877613787456
@@ -1028,6 +1037,7 @@ definitions:
             - id
             - name
             - workflow_id
+            - status
             - started_at
     EnduroPackagePreservationActionResponseBodyCollection:
         title: 'Mediatype identifier: application/vnd.enduro.package-preservation-action; type=collection; view=default'
@@ -1040,6 +1050,7 @@ definitions:
               id: 9205377442714239647
               name: Amet velit quae tenetur aliquid.
               started_at: "1971-03-23T07:11:25Z"
+              status: failed
               tasks:
                 - completed_at: "1972-09-15T19:31:34Z"
                   id: 547721877613787456
@@ -1058,6 +1069,7 @@ definitions:
               id: 9205377442714239647
               name: Amet velit quae tenetur aliquid.
               started_at: "1971-03-23T07:11:25Z"
+              status: failed
               tasks:
                 - completed_at: "1972-09-15T19:31:34Z"
                   id: 547721877613787456
@@ -1076,6 +1088,7 @@ definitions:
               id: 9205377442714239647
               name: Amet velit quae tenetur aliquid.
               started_at: "1971-03-23T07:11:25Z"
+              status: failed
               tasks:
                 - completed_at: "1972-09-15T19:31:34Z"
                   id: 547721877613787456
@@ -2051,6 +2064,7 @@ definitions:
                   id: 9205377442714239647
                   name: Amet velit quae tenetur aliquid.
                   started_at: "1971-03-23T07:11:25Z"
+                  status: failed
                   tasks:
                     - completed_at: "1972-09-15T19:31:34Z"
                       id: 547721877613787456
@@ -2069,6 +2083,7 @@ definitions:
                   id: 9205377442714239647
                   name: Amet velit quae tenetur aliquid.
                   started_at: "1971-03-23T07:11:25Z"
+                  status: failed
                   tasks:
                     - completed_at: "1972-09-15T19:31:34Z"
                       id: 547721877613787456
@@ -2087,6 +2102,7 @@ definitions:
                   id: 9205377442714239647
                   name: Amet velit quae tenetur aliquid.
                   started_at: "1971-03-23T07:11:25Z"
+                  status: failed
                   tasks:
                     - completed_at: "1972-09-15T19:31:34Z"
                       id: 547721877613787456

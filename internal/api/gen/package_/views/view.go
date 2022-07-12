@@ -165,6 +165,7 @@ type EnduroPackagePreservationActionView struct {
 	ID          *uint
 	Name        *string
 	WorkflowID  *string
+	Status      *string
 	StartedAt   *string
 	CompletedAt *string
 	Tasks       EnduroPackagePreservationTaskCollectionView
@@ -300,6 +301,7 @@ var (
 			"id",
 			"name",
 			"workflow_id",
+			"status",
 			"started_at",
 			"completed_at",
 			"tasks",
@@ -312,6 +314,7 @@ var (
 			"id",
 			"name",
 			"workflow_id",
+			"status",
 			"started_at",
 			"completed_at",
 			"tasks",
@@ -606,8 +609,16 @@ func ValidateEnduroPackagePreservationActionView(result *EnduroPackagePreservati
 	if result.WorkflowID == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("workflow_id", "result"))
 	}
+	if result.Status == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("status", "result"))
+	}
 	if result.StartedAt == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("started_at", "result"))
+	}
+	if result.Status != nil {
+		if !(*result.Status == "unspecified" || *result.Status == "complete" || *result.Status == "processing" || *result.Status == "failed") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.status", *result.Status, []interface{}{"unspecified", "complete", "processing", "failed"}))
+		}
 	}
 	if result.StartedAt != nil {
 		err = goa.MergeErrors(err, goa.ValidateFormat("result.started_at", *result.StartedAt, goa.FormatDateTime))

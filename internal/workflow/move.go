@@ -25,7 +25,7 @@ func (w *MoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req *package_.M
 	startedAt := temporalsdk_workflow.Now(ctx).UTC()
 
 	// Assume the preservation action will be successful.
-	status := package_.StatusComplete
+	status := package_.ActionStatusComplete
 
 	// Set package to in progress status.
 	{
@@ -44,19 +44,19 @@ func (w *MoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req *package_.M
 			Location: req.Location,
 		}).Get(activityOpts, nil)
 		if err != nil {
-			status = package_.StatusFailed
+			status = package_.ActionStatusFailed
 		}
 	}
 
 	// Poll package move to permanent storage
 	{
-		if status != package_.StatusFailed {
+		if status != package_.ActionStatusFailed {
 			activityOpts := withActivityOptsForLongLivedRequest(ctx)
 			err := temporalsdk_workflow.ExecuteActivity(activityOpts, activities.PollMoveToPermanentStorageActivityName, &activities.PollMoveToPermanentStorageActivityParams{
 				AIPID: req.AIPID,
 			}).Get(activityOpts, nil)
 			if err != nil {
-				status = package_.StatusFailed
+				status = package_.ActionStatusFailed
 			}
 		}
 	}
@@ -74,7 +74,7 @@ func (w *MoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req *package_.M
 
 	// Set package location.
 	{
-		if status != package_.StatusFailed {
+		if status != package_.ActionStatusFailed {
 			ctx := withLocalActivityOpts(ctx)
 			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setLocationLocalActivity, w.pkgsvc, req.ID, req.Location).Get(ctx, nil)
 			if err != nil {
@@ -90,8 +90,8 @@ func (w *MoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req *package_.M
 		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, saveLocationMovePreservationActionLocalActivity, w.pkgsvc, &saveLocationMovePreservationActionLocalActivityParams{
 			PackageID:   req.ID,
 			Location:    req.Location,
+			WorkflowID:  temporalsdk_workflow.GetInfo(ctx).WorkflowExecution.ID,
 			Status:      status,
-			WorkflowID:  req.WorkflowID,
 			StartedAt:   startedAt,
 			CompletedAt: completedAt,
 		}).Get(ctx, nil)

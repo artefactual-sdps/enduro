@@ -152,6 +152,7 @@ type EnduroPackagePreservationAction struct {
 	ID          uint
 	Name        string
 	WorkflowID  string
+	Status      string
 	StartedAt   string
 	CompletedAt *string
 	Tasks       EnduroPackagePreservationTaskCollection
@@ -779,6 +780,9 @@ func newEnduroPackagePreservationAction(vres *package_views.EnduroPackagePreserv
 	if vres.WorkflowID != nil {
 		res.WorkflowID = *vres.WorkflowID
 	}
+	if vres.Status != nil {
+		res.Status = *vres.Status
+	}
 	if vres.StartedAt != nil {
 		res.StartedAt = *vres.StartedAt
 	}
@@ -796,6 +800,7 @@ func newEnduroPackagePreservationActionView(res *EnduroPackagePreservationAction
 		ID:          &res.ID,
 		Name:        &res.Name,
 		WorkflowID:  &res.WorkflowID,
+		Status:      &res.Status,
 		StartedAt:   &res.StartedAt,
 		CompletedAt: res.CompletedAt,
 	}
