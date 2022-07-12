@@ -21,7 +21,7 @@ jobs:
       - name: Delete Kubernetes resources
         run: kubectl delete all,pvc,pv --all -n sdps
       - name: Refresh and update Pulumi stack
-        uses: pulumi/actions@v3.17.0
+        uses: pulumi/actions@v3.18.1
         with:
           command: up
           refresh: true
