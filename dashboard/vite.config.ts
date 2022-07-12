@@ -35,6 +35,10 @@ export default defineConfig({
   },
   test: {
     environment: "happy-dom",
+    restoreMocks: true,
+    sequence: {
+      shuffle: true,
+    },
     coverage: {
       exclude: ["src/openapi-generator/**"],
     },
