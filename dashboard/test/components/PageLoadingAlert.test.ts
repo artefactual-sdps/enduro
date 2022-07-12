@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 
 describe("PageLoadingAlert.vue", () => {
   it("should render", () => {
-    const { html } = render(PageLoadingAlert, {
+    const { html, unmount } = render(PageLoadingAlert, {
       props: {
         error: { response: { status: 404 } },
       },
@@ -26,5 +26,7 @@ describe("PageLoadingAlert.vue", () => {
       <!-- Other errors. -->
       <!--v-if-->"
     `);
+
+    unmount();
   });
 });
