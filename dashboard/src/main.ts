@@ -53,6 +53,20 @@ app.config.globalProperties.$filters = {
     const diff = moment(to).diff(from);
     return humanizeDuration(moment.duration(diff).asMilliseconds());
   },
+  formatPreservationActionStatus(
+    value: api.EnduroPackagePreservationActionResponseBodyStatusEnum
+  ) {
+    switch (value) {
+      case api.EnduroPackagePreservationActionResponseBodyStatusEnum.Complete:
+        return "bg-success";
+      case api.EnduroPackagePreservationActionResponseBodyStatusEnum.Failed:
+        return "bg-danger";
+      case api.EnduroPackagePreservationActionResponseBodyStatusEnum.Processing:
+        return "bg-warning";
+      default:
+        return "bg-secondary";
+    }
+  },
   formatPreservationTaskStatus(
     value: api.EnduroPackagePreservationTaskResponseBodyStatusEnum
   ) {

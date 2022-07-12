@@ -455,10 +455,11 @@ paths:
                                 $ref: '#/components/schemas/EnduroPackagePreservationActions'
                             example:
                                 actions:
-                                    - completed_at: "1997-07-18T04:11:03Z"
+                                    - completed_at: "1992-05-04T14:52:58Z"
                                       id: 16729434636397543631
                                       name: Suscipit mollitia.
-                                      started_at: "1986-11-02T17:03:22Z"
+                                      started_at: "2012-09-27T09:58:46Z"
+                                      status: failed
                                       tasks:
                                         - completed_at: "2004-10-01T08:47:57Z"
                                           id: 9894916935787135177
@@ -473,10 +474,11 @@ paths:
                                           status: processing
                                           task_id: Dignissimos sit in.
                                       workflow_id: Nihil voluptas reiciendis.
-                                    - completed_at: "1997-07-18T04:11:03Z"
+                                    - completed_at: "1992-05-04T14:52:58Z"
                                       id: 16729434636397543631
                                       name: Suscipit mollitia.
-                                      started_at: "1986-11-02T17:03:22Z"
+                                      started_at: "2012-09-27T09:58:46Z"
+                                      status: failed
                                       tasks:
                                         - completed_at: "2004-10-01T08:47:57Z"
                                           id: 9894916935787135177
@@ -491,10 +493,11 @@ paths:
                                           status: processing
                                           task_id: Dignissimos sit in.
                                       workflow_id: Nihil voluptas reiciendis.
-                                    - completed_at: "1997-07-18T04:11:03Z"
+                                    - completed_at: "1992-05-04T14:52:58Z"
                                       id: 16729434636397543631
                                       name: Suscipit mollitia.
-                                      started_at: "1986-11-02T17:03:22Z"
+                                      started_at: "2012-09-27T09:58:46Z"
+                                      status: failed
                                       tasks:
                                         - completed_at: "2004-10-01T08:47:57Z"
                                           id: 9894916935787135177
@@ -509,10 +512,11 @@ paths:
                                           status: processing
                                           task_id: Dignissimos sit in.
                                       workflow_id: Nihil voluptas reiciendis.
-                                    - completed_at: "1997-07-18T04:11:03Z"
+                                    - completed_at: "1992-05-04T14:52:58Z"
                                       id: 16729434636397543631
                                       name: Suscipit mollitia.
-                                      started_at: "1986-11-02T17:03:22Z"
+                                      started_at: "2012-09-27T09:58:46Z"
+                                      status: failed
                                       tasks:
                                         - completed_at: "2004-10-01T08:47:57Z"
                                           id: 9894916935787135177
@@ -809,7 +813,17 @@ paths:
                             schema:
                                 type: string
                                 example:
-                                    - 69
+                                    - 66
+                                    - 101
+                                    - 97
+                                    - 116
+                                    - 97
+                                    - 101
+                                    - 32
+                                    - 97
+                                    - 116
+                                    - 32
+                                    - 101
                                     - 120
                                     - 99
                                     - 101
@@ -819,50 +833,29 @@ paths:
                                     - 114
                                     - 105
                                     - 32
+                                    - 118
+                                    - 105
+                                    - 116
                                     - 97
-                                    - 114
-                                    - 99
-                                    - 104
-                                    - 105
-                                    - 116
                                     - 101
-                                    - 99
-                                    - 116
-                                    - 111
-                                    - 32
-                                    - 105
-                                    - 108
-                                    - 108
-                                    - 117
-                                    - 109
                                     - 32
                                     - 101
                                     - 116
                                     - 32
-                                    - 99
-                                    - 111
-                                    - 110
                                     - 115
-                                    - 101
-                                    - 113
-                                    - 117
                                     - 97
-                                    - 116
-                                    - 117
-                                    - 114
-                                    - 32
-                                    - 111
+                                    - 101
                                     - 112
-                                    - 116
+                                    - 101
+                                    - 32
+                                    - 114
+                                    - 101
                                     - 105
-                                    - 111
-                                    - 32
                                     - 99
-                                    - 111
-                                    - 114
-                                    - 112
-                                    - 111
-                                    - 114
+                                    - 105
+                                    - 101
+                                    - 110
+                                    - 100
                                     - 105
                                     - 115
                                     - 46
@@ -1245,9 +1238,9 @@ components:
             properties:
                 location:
                     type: string
-                    example: Quae numquam fuga aut voluptate est nihil.
+                    example: Fuga aut voluptate est nihil in ut.
             example:
-                location: Ut qui.
+                location: Aut quo possimus sunt iste facilis.
             required:
                 - location
         EnduroMonitorPingEventResponseBody:
@@ -1331,6 +1324,14 @@ components:
                     type: string
                     example: "1992-06-28T07:45:30Z"
                     format: date-time
+                status:
+                    type: string
+                    example: processing
+                    enum:
+                        - unspecified
+                        - complete
+                        - processing
+                        - failed
                 tasks:
                     $ref: '#/components/schemas/EnduroPackagePreservationTaskCollection'
                 workflow_id:
@@ -1338,10 +1339,11 @@ components:
                     example: Ullam animi.
             description: PreservationAction describes a preservation action.
             example:
-                completed_at: "2015-11-24T10:22:50Z"
+                completed_at: "1991-09-17T22:10:52Z"
                 id: 7689940285117808268
                 name: Aut error expedita et a nulla.
-                started_at: "2013-11-01T16:59:48Z"
+                started_at: "1987-10-10T08:20:46Z"
+                status: processing
                 tasks:
                     - completed_at: "2004-10-01T08:47:57Z"
                       id: 9894916935787135177
@@ -1360,16 +1362,18 @@ components:
                 - id
                 - name
                 - workflow_id
+                - status
                 - started_at
         EnduroPackagePreservationActionCollection:
             type: array
             items:
                 $ref: '#/components/schemas/EnduroPackagePreservationAction'
             example:
-                - completed_at: "1997-07-18T04:11:03Z"
+                - completed_at: "1992-05-04T14:52:58Z"
                   id: 16729434636397543631
                   name: Suscipit mollitia.
-                  started_at: "1986-11-02T17:03:22Z"
+                  started_at: "2012-09-27T09:58:46Z"
+                  status: failed
                   tasks:
                     - completed_at: "2004-10-01T08:47:57Z"
                       id: 9894916935787135177
@@ -1384,28 +1388,11 @@ components:
                       status: processing
                       task_id: Dignissimos sit in.
                   workflow_id: Nihil voluptas reiciendis.
-                - completed_at: "1997-07-18T04:11:03Z"
+                - completed_at: "1992-05-04T14:52:58Z"
                   id: 16729434636397543631
                   name: Suscipit mollitia.
-                  started_at: "1986-11-02T17:03:22Z"
-                  tasks:
-                    - completed_at: "2004-10-01T08:47:57Z"
-                      id: 9894916935787135177
-                      name: Consequatur ducimus quis.
-                      started_at: "1978-07-25T08:10:43Z"
-                      status: processing
-                      task_id: Dignissimos sit in.
-                    - completed_at: "2004-10-01T08:47:57Z"
-                      id: 9894916935787135177
-                      name: Consequatur ducimus quis.
-                      started_at: "1978-07-25T08:10:43Z"
-                      status: processing
-                      task_id: Dignissimos sit in.
-                  workflow_id: Nihil voluptas reiciendis.
-                - completed_at: "1997-07-18T04:11:03Z"
-                  id: 16729434636397543631
-                  name: Suscipit mollitia.
-                  started_at: "1986-11-02T17:03:22Z"
+                  started_at: "2012-09-27T09:58:46Z"
+                  status: failed
                   tasks:
                     - completed_at: "2004-10-01T08:47:57Z"
                       id: 9894916935787135177
@@ -1427,10 +1414,11 @@ components:
                     $ref: '#/components/schemas/EnduroPackagePreservationActionCollection'
             example:
                 actions:
-                    - completed_at: "1997-07-18T04:11:03Z"
+                    - completed_at: "1992-05-04T14:52:58Z"
                       id: 16729434636397543631
                       name: Suscipit mollitia.
-                      started_at: "1986-11-02T17:03:22Z"
+                      started_at: "2012-09-27T09:58:46Z"
+                      status: failed
                       tasks:
                         - completed_at: "2004-10-01T08:47:57Z"
                           id: 9894916935787135177
@@ -1445,10 +1433,11 @@ components:
                           status: processing
                           task_id: Dignissimos sit in.
                       workflow_id: Nihil voluptas reiciendis.
-                    - completed_at: "1997-07-18T04:11:03Z"
+                    - completed_at: "1992-05-04T14:52:58Z"
                       id: 16729434636397543631
                       name: Suscipit mollitia.
-                      started_at: "1986-11-02T17:03:22Z"
+                      started_at: "2012-09-27T09:58:46Z"
+                      status: failed
                       tasks:
                         - completed_at: "2004-10-01T08:47:57Z"
                           id: 9894916935787135177
@@ -1463,10 +1452,11 @@ components:
                           status: processing
                           task_id: Dignissimos sit in.
                       workflow_id: Nihil voluptas reiciendis.
-                    - completed_at: "1997-07-18T04:11:03Z"
+                    - completed_at: "1992-05-04T14:52:58Z"
                       id: 16729434636397543631
                       name: Suscipit mollitia.
-                      started_at: "1986-11-02T17:03:22Z"
+                      started_at: "2012-09-27T09:58:46Z"
+                      status: failed
                       tasks:
                         - completed_at: "2004-10-01T08:47:57Z"
                           id: 9894916935787135177
@@ -1481,10 +1471,11 @@ components:
                           status: processing
                           task_id: Dignissimos sit in.
                       workflow_id: Nihil voluptas reiciendis.
-                    - completed_at: "1997-07-18T04:11:03Z"
+                    - completed_at: "1992-05-04T14:52:58Z"
                       id: 16729434636397543631
                       name: Suscipit mollitia.
-                      started_at: "1986-11-02T17:03:22Z"
+                      started_at: "2012-09-27T09:58:46Z"
+                      status: failed
                       tasks:
                         - completed_at: "2004-10-01T08:47:57Z"
                           id: 9894916935787135177
@@ -1995,9 +1986,9 @@ components:
             properties:
                 done:
                     type: boolean
-                    example: false
+                    example: true
             example:
-                done: true
+                done: false
             required:
                 - done
         PackageNotfound:
@@ -2024,15 +2015,15 @@ components:
                 aip_id:
                     type: string
                     description: Identifier of missing package
-                    example: Perspiciatis odit.
+                    example: Assumenda praesentium voluptate esse quis.
                 message:
                     type: string
                     description: Message of error
-                    example: Beatae at excepturi vitae et saepe reiciendis.
+                    example: Perspiciatis odit.
             description: Storage package not found
             example:
-                aip_id: Minima nemo.
-                message: Assumenda praesentium voluptate esse quis.
+                aip_id: Et praesentium voluptatem.
+                message: Minima nemo.
             required:
                 - message
                 - aip_id
@@ -2042,15 +2033,15 @@ components:
                 id:
                     type: string
                     description: ID is the unique id of the location.
-                    example: Et praesentium voluptatem.
+                    example: Qui id optio officiis est facere.
                 name:
                     type: string
                     description: Name of location
-                    example: Qui id optio officiis est facere.
+                    example: Consequatur voluptates.
             description: A StoredLocation describes a location retrieved by the storage service. (default view)
             example:
-                id: Consequatur voluptates.
-                name: Est iure.
+                id: Est iure.
+                name: Aliquam eligendi quam rerum ut qui et.
             required:
                 - id
                 - name
@@ -2064,41 +2055,45 @@ components:
                   name: Voluptatem eveniet voluptas fugiat optio quae.
                 - id: Fugit ut quis.
                   name: Voluptatem eveniet voluptas fugiat optio quae.
+                - id: Fugit ut quis.
+                  name: Voluptatem eveniet voluptas fugiat optio quae.
+                - id: Fugit ut quis.
+                  name: Voluptatem eveniet voluptas fugiat optio quae.
         StoredStoragePackage:
             type: object
             properties:
                 aip_id:
                     type: string
-                    example: Aut at.
+                    example: Voluptates at et quis optio dolore.
                 id:
                     type: integer
-                    example: 12655105353680321040
+                    example: 18171351887618583330
                 location:
                     type: string
-                    example: Dolore vero placeat tenetur quia provident cupiditate.
+                    example: Cupiditate culpa.
                 name:
                     type: string
-                    example: Quam rerum ut qui et quas.
+                    example: At soluta magni dolore repellendus.
                 object_key:
                     type: string
-                    example: Dolore repellendus et voluptates at et quis.
+                    example: Tenetur quia.
                 status:
                     type: string
                     description: Status of the package
                     default: unspecified
-                    example: rejected
+                    example: stored
                     enum:
                         - stored
                         - rejected
                         - in_review
                         - unspecified
             example:
-                aip_id: Dolorem soluta.
-                id: 1164292439882356153
+                aip_id: Dicta dolorem soluta alias.
+                id: 18203919815258670249
                 location: Corrupti maiores qui voluptas molestiae aut amet.
-                name: Est totam ut sunt autem in repellat.
-                object_key: Velit libero dignissimos iure harum aut non.
-                status: rejected
+                name: Totam ut sunt autem in.
+                object_key: Libero dignissimos iure harum aut non.
+                status: in_review
             required:
                 - id
                 - name
@@ -2128,9 +2123,9 @@ components:
             properties:
                 name:
                     type: string
-                    example: Sunt iste facilis rerum inventore architecto tempora.
+                    example: Tempora tenetur.
             example:
-                name: Cupiditate ex.
+                name: Ex officia qui ratione doloribus ut.
             required:
                 - name
         SubmitResult:
@@ -2138,9 +2133,9 @@ components:
             properties:
                 url:
                     type: string
-                    example: Qui ratione doloribus ut.
+                    example: Assumenda porro velit ut reiciendis voluptas dolorum.
             example:
-                url: Assumenda porro velit ut reiciendis voluptas dolorum.
+                url: Excepturi architecto illum et consequatur optio corporis.
             required:
                 - url
 tags:

@@ -80,7 +80,7 @@ type saveLocationMovePreservationActionLocalActivityParams struct {
 	PackageID   uint
 	Location    string
 	WorkflowID  string
-	Status      package_.PreservationTaskStatus
+	Status      package_.PreservationActionStatus
 	StartedAt   time.Time
 	CompletedAt time.Time
 }
@@ -89,6 +89,7 @@ func saveLocationMovePreservationActionLocalActivity(ctx context.Context, pkgsvc
 	paID, err := createPreservationActionLocalActivity(ctx, pkgsvc, &createPreservationActionLocalActivityParams{
 		Name:        "Move package", // XXX: move to a translatable constant?
 		WorkflowID:  params.WorkflowID,
+		Status:      params.Status,
 		StartedAt:   params.StartedAt,
 		CompletedAt: params.CompletedAt,
 		PackageID:   params.PackageID,
@@ -97,10 +98,17 @@ func saveLocationMovePreservationActionLocalActivity(ctx context.Context, pkgsvc
 		return err
 	}
 
+	actionStatusToTaskStatus := map[package_.PreservationActionStatus]package_.PreservationTaskStatus{
+		package_.ActionStatusUnspecified: package_.TaskStatusUnspecified,
+		package_.ActionStatusComplete:    package_.TaskStatusComplete,
+		package_.ActionStatusProcessing:  package_.TaskStatusProcessing,
+		package_.ActionStatusFailed:      package_.TaskStatusFailed,
+	}
+
 	pt := package_.PreservationTask{
 		TaskID:               uuid.NewString(),
 		Name:                 fmt.Sprintf("Moved to %s", params.Location),
-		Status:               params.Status,
+		Status:               actionStatusToTaskStatus[params.Status],
 		PreservationActionID: paID,
 	}
 	pt.StartedAt.Time = params.StartedAt
@@ -112,6 +120,7 @@ func saveLocationMovePreservationActionLocalActivity(ctx context.Context, pkgsvc
 type createPreservationActionLocalActivityParams struct {
 	Name        string
 	WorkflowID  string
+	Status      package_.PreservationActionStatus
 	StartedAt   time.Time
 	CompletedAt time.Time
 	PackageID   uint
@@ -121,6 +130,7 @@ func createPreservationActionLocalActivity(ctx context.Context, pkgsvc package_.
 	pa := package_.PreservationAction{
 		Name:       params.Name,
 		WorkflowID: params.WorkflowID,
+		Status:     params.Status,
 		PackageID:  params.PackageID,
 	}
 	pa.StartedAt.Time = params.StartedAt
@@ -133,6 +143,12 @@ func createPreservationActionLocalActivity(ctx context.Context, pkgsvc package_.
 	return pa.ID, nil
 }
 
-func completePreservationActionLocalActivity(ctx context.Context, pkgsvc package_.Service, paID uint, completedAt time.Time) error {
-	return pkgsvc.CompletePreservationAction(ctx, paID, completedAt)
+type completePreservationActionLocalActivityParams struct {
+	PreservationActionID uint
+	Status               package_.PreservationActionStatus
+	CompletedAt          time.Time
+}
+
+func completePreservationActionLocalActivity(ctx context.Context, pkgsvc package_.Service, params *completePreservationActionLocalActivityParams) error {
+	return pkgsvc.CompletePreservationAction(ctx, params.PreservationActionID, params.Status, params.CompletedAt)
 }

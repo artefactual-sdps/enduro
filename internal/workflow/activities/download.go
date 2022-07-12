@@ -22,7 +22,6 @@ func NewDownloadActivity(wsvc watcher.Service) *DownloadActivity {
 }
 
 func tempFile(pattern string) (*os.File, error) {
-	// XXX: inline this below?
 	if pattern == "" {
 		pattern = "blob-*"
 	}

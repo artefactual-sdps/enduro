@@ -51,6 +51,12 @@ export interface EnduroPackagePreservationActionResponseBody {
      */
     startedAt: Date;
     /**
+     * 
+     * @type {string}
+     * @memberof EnduroPackagePreservationActionResponseBody
+     */
+    status: EnduroPackagePreservationActionResponseBodyStatusEnum;
+    /**
      * EnduroPackage-Preservation-TaskCollectionResponseBody is the result type for an array of EnduroPackage-Preservation-TaskResponseBody (default view)
      * @type {Array<EnduroPackagePreservationTaskResponseBody>}
      * @memberof EnduroPackagePreservationActionResponseBody
@@ -63,6 +69,19 @@ export interface EnduroPackagePreservationActionResponseBody {
      */
     workflowId: string;
 }
+
+
+/**
+ * @export
+ */
+export const EnduroPackagePreservationActionResponseBodyStatusEnum = {
+    Unspecified: 'unspecified',
+    Complete: 'complete',
+    Processing: 'processing',
+    Failed: 'failed'
+} as const;
+export type EnduroPackagePreservationActionResponseBodyStatusEnum = typeof EnduroPackagePreservationActionResponseBodyStatusEnum[keyof typeof EnduroPackagePreservationActionResponseBodyStatusEnum];
+
 
 export function EnduroPackagePreservationActionResponseBodyFromJSON(json: any): EnduroPackagePreservationActionResponseBody {
     return EnduroPackagePreservationActionResponseBodyFromJSONTyped(json, false);
@@ -78,6 +97,7 @@ export function EnduroPackagePreservationActionResponseBodyFromJSONTyped(json: a
         'id': json['id'],
         'name': json['name'],
         'startedAt': (new Date(json['started_at'])),
+        'status': json['status'],
         'tasks': !exists(json, 'tasks') ? undefined : ((json['tasks'] as Array<any>).map(EnduroPackagePreservationTaskResponseBodyFromJSON)),
         'workflowId': json['workflow_id'],
     };
@@ -96,6 +116,7 @@ export function EnduroPackagePreservationActionResponseBodyToJSON(value?: Enduro
         'id': value.id,
         'name': value.name,
         'started_at': (value.startedAt.toISOString()),
+        'status': value.status,
         'tasks': value.tasks === undefined ? undefined : ((value.tasks as Array<any>).map(EnduroPackagePreservationTaskResponseBodyToJSON)),
         'workflow_id': value.workflowId,
     };

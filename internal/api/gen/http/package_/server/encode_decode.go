@@ -1157,6 +1157,7 @@ func marshalPackageViewsEnduroPackagePreservationActionViewToEnduroPackagePreser
 		ID:          *v.ID,
 		Name:        *v.Name,
 		WorkflowID:  *v.WorkflowID,
+		Status:      *v.Status,
 		StartedAt:   *v.StartedAt,
 		CompletedAt: v.CompletedAt,
 	}

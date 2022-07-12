@@ -501,6 +501,7 @@ type EnduroPackagePreservationActionResponseBody struct {
 	ID          *uint                                               `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
 	Name        *string                                             `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 	WorkflowID  *string                                             `form:"workflow_id,omitempty" json:"workflow_id,omitempty" xml:"workflow_id,omitempty"`
+	Status      *string                                             `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
 	StartedAt   *string                                             `form:"started_at,omitempty" json:"started_at,omitempty" xml:"started_at,omitempty"`
 	CompletedAt *string                                             `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
 	Tasks       EnduroPackagePreservationTaskCollectionResponseBody `form:"tasks,omitempty" json:"tasks,omitempty" xml:"tasks,omitempty"`
@@ -1523,8 +1524,16 @@ func ValidateEnduroPackagePreservationActionResponseBody(body *EnduroPackagePres
 	if body.WorkflowID == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("workflow_id", "body"))
 	}
+	if body.Status == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("status", "body"))
+	}
 	if body.StartedAt == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("started_at", "body"))
+	}
+	if body.Status != nil {
+		if !(*body.Status == "unspecified" || *body.Status == "complete" || *body.Status == "processing" || *body.Status == "failed") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []interface{}{"unspecified", "complete", "processing", "failed"}))
+		}
 	}
 	if body.StartedAt != nil {
 		err = goa.MergeErrors(err, goa.ValidateFormat("body.started_at", *body.StartedAt, goa.FormatDateTime))
