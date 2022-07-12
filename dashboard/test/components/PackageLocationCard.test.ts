@@ -1,12 +1,13 @@
 import { api } from "../../src/client";
 import PackageLocationCard from "../../src/components/PackageLocationCard.vue";
+import { usePackageStore } from "../../src/stores/package";
 import { createTestingPinia } from "@pinia/testing";
-import { render } from "@testing-library/vue";
+import { render, fireEvent } from "@testing-library/vue";
 import { describe, it, vi, expect } from "vitest";
 
 describe("PackageLocationCard.vue", () => {
   it("renders when the package is stored", async () => {
-    const { html } = render(PackageLocationCard, {
+    const { html, unmount } = render(PackageLocationCard, {
       global: {
         plugins: [
           createTestingPinia({
@@ -35,10 +36,57 @@ describe("PackageLocationCard.vue", () => {
         </div>
       </div>"
     `);
+
+    unmount();
+  });
+
+  it("renders when the package location is moved", async () => {
+    const { getByText, unmount } = render(PackageLocationCard, {
+      global: {
+        plugins: [
+          createTestingPinia({
+            createSpy: vi.fn,
+            stubActions: false,
+            initialState: {
+              package: {
+                current: {
+                  status: api.PackageShowResponseBodyStatusEnum.Done,
+                  location: "perma-aips-1",
+                } as api.PackageShowResponseBody,
+              },
+            },
+          }),
+        ],
+      },
+    });
+
+    getByText("perma-aips-1");
+
+    const packageStore = usePackageStore();
+    packageStore.move.mockImplementation(async () => {
+      packageStore.$patch((state) => {
+        state.current.status =
+          api.EnduroStoredPackageResponseBodyStatusEnum.InProgress;
+        state.locationChanging = true;
+      });
+    });
+
+    vi.mock("../../src/dialogs", () => {
+      return {
+        openPackageLocationDialog: () => "perma-aips-2",
+      };
+    });
+
+    const button = getByText("Choose storage location");
+    await fireEvent.click(button);
+
+    getByText("The package is being moved into a new location.");
+
+    unmount();
   });
 
   it("renders when the package location is not available", async () => {
-    const { html } = render(PackageLocationCard, {
+    const { html, unmount } = render(PackageLocationCard, {
       global: {
         plugins: [
           createTestingPinia({
@@ -66,10 +114,12 @@ describe("PackageLocationCard.vue", () => {
         </div>
       </div>"
     `);
+
+    unmount();
   });
 
   it("renders when the package is rejected", async () => {
-    const { html } = render(PackageLocationCard, {
+    const { html, unmount } = render(PackageLocationCard, {
       global: {
         plugins: [
           createTestingPinia({
@@ -98,10 +148,12 @@ describe("PackageLocationCard.vue", () => {
         </div>
       </div>"
     `);
+
+    unmount();
   });
 
   it("renders when the package is moving", async () => {
-    const { html } = render(PackageLocationCard, {
+    const { html, unmount } = render(PackageLocationCard, {
       global: {
         plugins: [
           createTestingPinia({
@@ -130,5 +182,7 @@ describe("PackageLocationCard.vue", () => {
         </div>
       </div>"
     `);
+
+    unmount();
   });
 });
