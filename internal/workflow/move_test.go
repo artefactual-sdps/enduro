@@ -94,10 +94,6 @@ func (s *MoveWorkflowTestSuite) TestSuccessfulMove() {
 		saveLocationMovePreservationActionLocalActivity,
 		mock.Anything,
 		mock.Anything,
-		pkgID,
-		location,
-		package_.StatusComplete,
-		mock.Anything,
 		mock.Anything,
 	).Return(nil)
 
@@ -139,10 +135,6 @@ func (s *MoveWorkflowTestSuite) TestFailedMove() {
 	s.env.OnActivity(
 		saveLocationMovePreservationActionLocalActivity,
 		mock.Anything,
-		mock.Anything,
-		pkgID,
-		location,
-		package_.StatusFailed,
 		mock.Anything,
 		mock.Anything,
 	).Return(nil)

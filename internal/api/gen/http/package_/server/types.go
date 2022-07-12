@@ -102,6 +102,12 @@ type BulkStatusResponseBody struct {
 	RunID      *string `form:"run_id,omitempty" json:"run_id,omitempty" xml:"run_id,omitempty"`
 }
 
+// PreservationActionsResponseBody is the type of the "package" service
+// "preservation-actions" endpoint HTTP response body.
+type PreservationActionsResponseBody struct {
+	Actions EnduroPackagePreservationActionResponseBodyCollection `form:"actions,omitempty" json:"actions,omitempty" xml:"actions,omitempty"`
+}
+
 // MoveStatusResponseBody is the type of the "package" service "move_status"
 // endpoint HTTP response body.
 type MoveStatusResponseBody struct {
@@ -223,6 +229,15 @@ type BulkNotValidResponseBody struct {
 	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
 	// Is the error a server-side fault?
 	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// PreservationActionsNotFoundResponseBody is the type of the "package" service
+// "preservation-actions" endpoint HTTP response body for the "not_found" error.
+type PreservationActionsNotFoundResponseBody struct {
+	// Message of error
+	Message string `form:"message" json:"message" xml:"message"`
+	// Identifier of missing package
+	ID uint `form:"id" json:"id" xml:"id"`
 }
 
 // ConfirmNotAvailableResponseBody is the type of the "package" service
@@ -476,6 +491,36 @@ type EnduroPackageWorkflowHistoryResponseBody struct {
 	Details interface{} `form:"details,omitempty" json:"details,omitempty" xml:"details,omitempty"`
 }
 
+// EnduroPackagePreservationActionResponseBodyCollection is used to define
+// fields on response body types.
+type EnduroPackagePreservationActionResponseBodyCollection []*EnduroPackagePreservationActionResponseBody
+
+// EnduroPackagePreservationActionResponseBody is used to define fields on
+// response body types.
+type EnduroPackagePreservationActionResponseBody struct {
+	ID          uint                                                `form:"id" json:"id" xml:"id"`
+	Name        string                                              `form:"name" json:"name" xml:"name"`
+	WorkflowID  string                                              `form:"workflow_id" json:"workflow_id" xml:"workflow_id"`
+	StartedAt   string                                              `form:"started_at" json:"started_at" xml:"started_at"`
+	CompletedAt *string                                             `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
+	Tasks       EnduroPackagePreservationTaskResponseBodyCollection `form:"tasks,omitempty" json:"tasks,omitempty" xml:"tasks,omitempty"`
+}
+
+// EnduroPackagePreservationTaskResponseBodyCollection is used to define fields
+// on response body types.
+type EnduroPackagePreservationTaskResponseBodyCollection []*EnduroPackagePreservationTaskResponseBody
+
+// EnduroPackagePreservationTaskResponseBody is used to define fields on
+// response body types.
+type EnduroPackagePreservationTaskResponseBody struct {
+	ID          uint    `form:"id" json:"id" xml:"id"`
+	TaskID      string  `form:"task_id" json:"task_id" xml:"task_id"`
+	Name        string  `form:"name" json:"name" xml:"name"`
+	Status      string  `form:"status" json:"status" xml:"status"`
+	StartedAt   string  `form:"started_at" json:"started_at" xml:"started_at"`
+	CompletedAt *string `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
+}
+
 // NewMonitorResponseBody builds the HTTP response body from the result of the
 // "monitor" endpoint of the "package" service.
 func NewMonitorResponseBody(res *package_views.EnduroMonitorEventView) *MonitorResponseBody {
@@ -569,6 +614,19 @@ func NewBulkStatusResponseBody(res *package_.BulkStatusResult) *BulkStatusRespon
 		Status:     res.Status,
 		WorkflowID: res.WorkflowID,
 		RunID:      res.RunID,
+	}
+	return body
+}
+
+// NewPreservationActionsResponseBody builds the HTTP response body from the
+// result of the "preservation-actions" endpoint of the "package" service.
+func NewPreservationActionsResponseBody(res *package_views.EnduroPackagePreservationActionsView) *PreservationActionsResponseBody {
+	body := &PreservationActionsResponseBody{}
+	if res.Actions != nil {
+		body.Actions = make([]*EnduroPackagePreservationActionResponseBody, len(res.Actions))
+		for i, val := range res.Actions {
+			body.Actions[i] = marshalPackageViewsEnduroPackagePreservationActionViewToEnduroPackagePreservationActionResponseBody(val)
+		}
 	}
 	return body
 }
@@ -684,6 +742,17 @@ func NewBulkNotValidResponseBody(res *goa.ServiceError) *BulkNotValidResponseBod
 		Temporary: res.Temporary,
 		Timeout:   res.Timeout,
 		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewPreservationActionsNotFoundResponseBody builds the HTTP response body
+// from the result of the "preservation-actions" endpoint of the "package"
+// service.
+func NewPreservationActionsNotFoundResponseBody(res *package_.PackageNotfound) *PreservationActionsNotFoundResponseBody {
+	body := &PreservationActionsNotFoundResponseBody{
+		Message: res.Message,
+		ID:      res.ID,
 	}
 	return body
 }
@@ -892,6 +961,15 @@ func NewBulkPayload(body *BulkRequestBody) *package_.BulkPayload {
 	if body.Size == nil {
 		v.Size = 100
 	}
+
+	return v
+}
+
+// NewPreservationActionsPayload builds a package service preservation-actions
+// endpoint payload.
+func NewPreservationActionsPayload(id uint) *package_.PreservationActionsPayload {
+	v := &package_.PreservationActionsPayload{}
+	v.ID = id
 
 	return v
 }

@@ -30,7 +30,7 @@ type ReviewPerformedSignal struct {
 }
 
 type ProcessingWorkflowRequest struct {
-	WorkflowID string `json:"-"`
+	WorkflowID string
 
 	// The zero value represents a new package. It can be used to indicate
 	// an existing package in retries.
@@ -82,16 +82,22 @@ func InitProcessingWorkflow(ctx context.Context, tc temporalsdk_client.Client, r
 }
 
 type MoveWorkflowRequest struct {
-	ID       uint
-	AIPID    string
-	Location string
+	ID         uint
+	WorkflowID string
+	AIPID      string
+	Location   string
 }
 
 func InitMoveWorkflow(ctx context.Context, tc temporalsdk_client.Client, req *MoveWorkflowRequest) (temporalsdk_client.WorkflowRun, error) {
+	if req.WorkflowID == "" {
+		req.WorkflowID = fmt.Sprintf("%s-%s", MoveWorkflowName, req.AIPID)
+	}
+
 	ctx, cancel := context.WithTimeout(ctx, time.Second*5)
 	defer cancel()
+
 	opts := temporalsdk_client.StartWorkflowOptions{
-		ID:                    fmt.Sprintf("%s-%s", MoveWorkflowName, req.AIPID),
+		ID:                    req.WorkflowID,
 		TaskQueue:             temporal.GlobalTaskQueue,
 		WorkflowIDReusePolicy: temporalsdk_api_enums.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE,
 	}

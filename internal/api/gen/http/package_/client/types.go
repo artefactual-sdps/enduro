@@ -102,6 +102,12 @@ type BulkStatusResponseBody struct {
 	RunID      *string `form:"run_id,omitempty" json:"run_id,omitempty" xml:"run_id,omitempty"`
 }
 
+// PreservationActionsResponseBody is the type of the "package" service
+// "preservation-actions" endpoint HTTP response body.
+type PreservationActionsResponseBody struct {
+	Actions EnduroPackagePreservationActionCollectionResponseBody `form:"actions,omitempty" json:"actions,omitempty" xml:"actions,omitempty"`
+}
+
 // MoveStatusResponseBody is the type of the "package" service "move_status"
 // endpoint HTTP response body.
 type MoveStatusResponseBody struct {
@@ -223,6 +229,15 @@ type BulkNotValidResponseBody struct {
 	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
 	// Is the error a server-side fault?
 	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
+// PreservationActionsNotFoundResponseBody is the type of the "package" service
+// "preservation-actions" endpoint HTTP response body for the "not_found" error.
+type PreservationActionsNotFoundResponseBody struct {
+	// Message of error
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Identifier of missing package
+	ID *uint `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
 }
 
 // ConfirmNotAvailableResponseBody is the type of the "package" service
@@ -476,6 +491,36 @@ type EnduroPackageWorkflowHistoryResponseBody struct {
 	Details interface{} `form:"details,omitempty" json:"details,omitempty" xml:"details,omitempty"`
 }
 
+// EnduroPackagePreservationActionCollectionResponseBody is used to define
+// fields on response body types.
+type EnduroPackagePreservationActionCollectionResponseBody []*EnduroPackagePreservationActionResponseBody
+
+// EnduroPackagePreservationActionResponseBody is used to define fields on
+// response body types.
+type EnduroPackagePreservationActionResponseBody struct {
+	ID          *uint                                               `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	Name        *string                                             `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	WorkflowID  *string                                             `form:"workflow_id,omitempty" json:"workflow_id,omitempty" xml:"workflow_id,omitempty"`
+	StartedAt   *string                                             `form:"started_at,omitempty" json:"started_at,omitempty" xml:"started_at,omitempty"`
+	CompletedAt *string                                             `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
+	Tasks       EnduroPackagePreservationTaskCollectionResponseBody `form:"tasks,omitempty" json:"tasks,omitempty" xml:"tasks,omitempty"`
+}
+
+// EnduroPackagePreservationTaskCollectionResponseBody is used to define fields
+// on response body types.
+type EnduroPackagePreservationTaskCollectionResponseBody []*EnduroPackagePreservationTaskResponseBody
+
+// EnduroPackagePreservationTaskResponseBody is used to define fields on
+// response body types.
+type EnduroPackagePreservationTaskResponseBody struct {
+	ID          *uint   `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	TaskID      *string `form:"task_id,omitempty" json:"task_id,omitempty" xml:"task_id,omitempty"`
+	Name        *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	Status      *string `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
+	StartedAt   *string `form:"started_at,omitempty" json:"started_at,omitempty" xml:"started_at,omitempty"`
+	CompletedAt *string `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
+}
+
 // NewBulkRequestBody builds the HTTP request body from the payload of the
 // "bulk" endpoint of the "package" service.
 func NewBulkRequestBody(p *package_.BulkPayload) *BulkRequestBody {
@@ -716,6 +761,31 @@ func NewBulkStatusResultOK(body *BulkStatusResponseBody) *package_.BulkStatusRes
 		Status:     body.Status,
 		WorkflowID: body.WorkflowID,
 		RunID:      body.RunID,
+	}
+
+	return v
+}
+
+// NewPreservationActionsEnduroPackagePreservationActionsOK builds a "package"
+// service "preservation-actions" endpoint result from a HTTP "OK" response.
+func NewPreservationActionsEnduroPackagePreservationActionsOK(body *PreservationActionsResponseBody) *package_views.EnduroPackagePreservationActionsView {
+	v := &package_views.EnduroPackagePreservationActionsView{}
+	if body.Actions != nil {
+		v.Actions = make([]*package_views.EnduroPackagePreservationActionView, len(body.Actions))
+		for i, val := range body.Actions {
+			v.Actions[i] = unmarshalEnduroPackagePreservationActionResponseBodyToPackageViewsEnduroPackagePreservationActionView(val)
+		}
+	}
+
+	return v
+}
+
+// NewPreservationActionsNotFound builds a package service preservation-actions
+// endpoint not_found error.
+func NewPreservationActionsNotFound(body *PreservationActionsNotFoundResponseBody) *package_.PackageNotfound {
+	v := &package_.PackageNotfound{
+		Message: *body.Message,
+		ID:      *body.ID,
 	}
 
 	return v
@@ -1076,6 +1146,18 @@ func ValidateBulkNotValidResponseBody(body *BulkNotValidResponseBody) (err error
 	return
 }
 
+// ValidatePreservationActionsNotFoundResponseBody runs the validations defined
+// on preservation-actions_not_found_response_body
+func ValidatePreservationActionsNotFoundResponseBody(body *PreservationActionsNotFoundResponseBody) (err error) {
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	return
+}
+
 // ValidateConfirmNotAvailableResponseBody runs the validations defined on
 // confirm_not_available_response_body
 func ValidateConfirmNotAvailableResponseBody(body *ConfirmNotAvailableResponseBody) (err error) {
@@ -1411,6 +1493,92 @@ func ValidateEnduroStoredPackageCollectionResponseBody(body EnduroStoredPackageC
 				err = goa.MergeErrors(err, err2)
 			}
 		}
+	}
+	return
+}
+
+// ValidateEnduroPackagePreservationActionCollectionResponseBody runs the
+// validations defined on
+// EnduroPackage-Preservation-ActionCollectionResponseBody
+func ValidateEnduroPackagePreservationActionCollectionResponseBody(body EnduroPackagePreservationActionCollectionResponseBody) (err error) {
+	for _, e := range body {
+		if e != nil {
+			if err2 := ValidateEnduroPackagePreservationActionResponseBody(e); err2 != nil {
+				err = goa.MergeErrors(err, err2)
+			}
+		}
+	}
+	return
+}
+
+// ValidateEnduroPackagePreservationActionResponseBody runs the validations
+// defined on EnduroPackage-Preservation-ActionResponseBody
+func ValidateEnduroPackagePreservationActionResponseBody(body *EnduroPackagePreservationActionResponseBody) (err error) {
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.WorkflowID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("workflow_id", "body"))
+	}
+	if body.StartedAt == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("started_at", "body"))
+	}
+	if body.StartedAt != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("body.started_at", *body.StartedAt, goa.FormatDateTime))
+	}
+	if body.CompletedAt != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("body.completed_at", *body.CompletedAt, goa.FormatDateTime))
+	}
+	if err2 := ValidateEnduroPackagePreservationTaskCollectionResponseBody(body.Tasks); err2 != nil {
+		err = goa.MergeErrors(err, err2)
+	}
+	return
+}
+
+// ValidateEnduroPackagePreservationTaskCollectionResponseBody runs the
+// validations defined on EnduroPackage-Preservation-TaskCollectionResponseBody
+func ValidateEnduroPackagePreservationTaskCollectionResponseBody(body EnduroPackagePreservationTaskCollectionResponseBody) (err error) {
+	for _, e := range body {
+		if e != nil {
+			if err2 := ValidateEnduroPackagePreservationTaskResponseBody(e); err2 != nil {
+				err = goa.MergeErrors(err, err2)
+			}
+		}
+	}
+	return
+}
+
+// ValidateEnduroPackagePreservationTaskResponseBody runs the validations
+// defined on EnduroPackage-Preservation-TaskResponseBody
+func ValidateEnduroPackagePreservationTaskResponseBody(body *EnduroPackagePreservationTaskResponseBody) (err error) {
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.TaskID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("task_id", "body"))
+	}
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.Status == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("status", "body"))
+	}
+	if body.StartedAt == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("started_at", "body"))
+	}
+	if body.Status != nil {
+		if !(*body.Status == "unspecified" || *body.Status == "complete" || *body.Status == "processing" || *body.Status == "failed") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []interface{}{"unspecified", "complete", "processing", "failed"}))
+		}
+	}
+	if body.StartedAt != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("body.started_at", *body.StartedAt, goa.FormatDateTime))
+	}
+	if body.CompletedAt != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("body.completed_at", *body.CompletedAt, goa.FormatDateTime))
 	}
 	return
 }

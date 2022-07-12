@@ -50,6 +50,10 @@ type Client struct {
 	// endpoint.
 	BulkStatusDoer goahttp.Doer
 
+	// PreservationActions Doer is the HTTP client used to make requests to the
+	// preservation-actions endpoint.
+	PreservationActionsDoer goahttp.Doer
+
 	// Confirm Doer is the HTTP client used to make requests to the confirm
 	// endpoint.
 	ConfirmDoer goahttp.Doer
@@ -94,27 +98,28 @@ func NewClient(
 		cfn = &ConnConfigurer{}
 	}
 	return &Client{
-		MonitorDoer:         doer,
-		ListDoer:            doer,
-		ShowDoer:            doer,
-		DeleteDoer:          doer,
-		CancelDoer:          doer,
-		RetryDoer:           doer,
-		WorkflowDoer:        doer,
-		BulkDoer:            doer,
-		BulkStatusDoer:      doer,
-		ConfirmDoer:         doer,
-		RejectDoer:          doer,
-		MoveDoer:            doer,
-		MoveStatusDoer:      doer,
-		CORSDoer:            doer,
-		RestoreResponseBody: restoreBody,
-		scheme:              scheme,
-		host:                host,
-		decoder:             dec,
-		encoder:             enc,
-		dialer:              dialer,
-		configurer:          cfn,
+		MonitorDoer:             doer,
+		ListDoer:                doer,
+		ShowDoer:                doer,
+		DeleteDoer:              doer,
+		CancelDoer:              doer,
+		RetryDoer:               doer,
+		WorkflowDoer:            doer,
+		BulkDoer:                doer,
+		BulkStatusDoer:          doer,
+		PreservationActionsDoer: doer,
+		ConfirmDoer:             doer,
+		RejectDoer:              doer,
+		MoveDoer:                doer,
+		MoveStatusDoer:          doer,
+		CORSDoer:                doer,
+		RestoreResponseBody:     restoreBody,
+		scheme:                  scheme,
+		host:                    host,
+		decoder:                 dec,
+		encoder:                 enc,
+		dialer:                  dialer,
+		configurer:              cfn,
 	}
 }
 
@@ -312,6 +317,25 @@ func (c *Client) BulkStatus() goa.Endpoint {
 		resp, err := c.BulkStatusDoer.Do(req)
 		if err != nil {
 			return nil, goahttp.ErrRequestError("package", "bulk_status", err)
+		}
+		return decodeResponse(resp)
+	}
+}
+
+// PreservationActions returns an endpoint that makes HTTP requests to the
+// package service preservation-actions server.
+func (c *Client) PreservationActions() goa.Endpoint {
+	var (
+		decodeResponse = DecodePreservationActionsResponse(c.decoder, c.RestoreResponseBody)
+	)
+	return func(ctx context.Context, v interface{}) (interface{}, error) {
+		req, err := c.BuildPreservationActionsRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		resp, err := c.PreservationActionsDoer.Do(req)
+		if err != nil {
+			return nil, goahttp.ErrRequestError("package", "preservation-actions", err)
 		}
 		return decodeResponse(resp)
 	}

@@ -543,7 +543,13 @@ func (w *ProcessingWorkflow) transferA3m(sessCtx temporalsdk_workflow.Context, t
 	tinfo.AIPPath = result.Path
 	tinfo.StoredAt = temporalsdk_workflow.Now(sessCtx).UTC()
 
-	// XXX: set "Create AIP" preservation action completed_at, pass tinfo.WorkflowID
+	{
+		ctx := withLocalActivityOpts(sessCtx)
+		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, completePreservationActionLocalActivity, w.pkgsvc, paID, temporalsdk_workflow.Now(sessCtx).UTC()).Get(ctx, nil)
+		if err != nil {
+			return err
+		}
+	}
 
 	return err
 }

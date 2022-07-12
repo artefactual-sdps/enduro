@@ -35,6 +35,8 @@ type Service interface {
 	Bulk(context.Context, *BulkPayload) (res *BulkResult, err error)
 	// Retrieve status of current bulk operation.
 	BulkStatus(context.Context) (res *BulkStatusResult, err error)
+	// List all preservation actions by ID
+	PreservationActions(context.Context, *PreservationActionsPayload) (res *EnduroPackagePreservationActions, err error)
 	// Signal the package has been reviewed and accepted
 	Confirm(context.Context, *ConfirmPayload) (err error)
 	// Signal the package has been reviewed and rejected
@@ -53,7 +55,7 @@ const ServiceName = "package"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [13]string{"monitor", "list", "show", "delete", "cancel", "retry", "workflow", "bulk", "bulk_status", "confirm", "reject", "move", "move_status"}
+var MethodNames = [14]string{"monitor", "list", "show", "delete", "cancel", "retry", "workflow", "bulk", "bulk_status", "preservation-actions", "confirm", "reject", "move", "move_status"}
 
 // MonitorServerStream is the interface a "monitor" endpoint server stream must
 // satisfy.
@@ -144,6 +146,36 @@ type EnduroPackageLocationUpdatedEvent struct {
 	ID       uint
 	Location string
 }
+
+// PreservationAction describes a preservation action.
+type EnduroPackagePreservationAction struct {
+	ID          uint
+	Name        string
+	WorkflowID  string
+	StartedAt   string
+	CompletedAt *string
+	Tasks       EnduroPackagePreservationTaskCollection
+}
+
+type EnduroPackagePreservationActionCollection []*EnduroPackagePreservationAction
+
+// EnduroPackagePreservationActions is the result type of the package service
+// preservation-actions method.
+type EnduroPackagePreservationActions struct {
+	Actions EnduroPackagePreservationActionCollection
+}
+
+// PreservationTask describes a preservation action task.
+type EnduroPackagePreservationTask struct {
+	ID          uint
+	TaskID      string
+	Name        string
+	Status      string
+	StartedAt   string
+	CompletedAt *string
+}
+
+type EnduroPackagePreservationTaskCollection []*EnduroPackagePreservationTask
 
 type EnduroPackageStatusUpdatedEvent struct {
 	// Identifier of package
@@ -245,6 +277,13 @@ type PackageNotfound struct {
 	// Message of error
 	Message string
 	// Identifier of missing package
+	ID uint
+}
+
+// PreservationActionsPayload is the payload type of the package service
+// preservation-actions method.
+type PreservationActionsPayload struct {
+	// Identifier of package to look up
 	ID uint
 }
 
@@ -358,6 +397,21 @@ func NewEnduroPackageWorkflowStatus(vres *package_views.EnduroPackageWorkflowSta
 func NewViewedEnduroPackageWorkflowStatus(res *EnduroPackageWorkflowStatus, view string) *package_views.EnduroPackageWorkflowStatus {
 	p := newEnduroPackageWorkflowStatusView(res)
 	return &package_views.EnduroPackageWorkflowStatus{Projected: p, View: "default"}
+}
+
+// NewEnduroPackagePreservationActions initializes result type
+// EnduroPackagePreservationActions from viewed result type
+// EnduroPackagePreservationActions.
+func NewEnduroPackagePreservationActions(vres *package_views.EnduroPackagePreservationActions) *EnduroPackagePreservationActions {
+	return newEnduroPackagePreservationActions(vres.Projected)
+}
+
+// NewViewedEnduroPackagePreservationActions initializes viewed result type
+// EnduroPackagePreservationActions from result type
+// EnduroPackagePreservationActions using the given view.
+func NewViewedEnduroPackagePreservationActions(res *EnduroPackagePreservationActions, view string) *package_views.EnduroPackagePreservationActions {
+	p := newEnduroPackagePreservationActionsView(res)
+	return &package_views.EnduroPackagePreservationActions{Projected: p, View: "default"}
 }
 
 // newEnduroMonitorEvent converts projected type EnduroMonitorEvent to service
@@ -661,6 +715,153 @@ func newEnduroPackageWorkflowHistoryView(res *EnduroPackageWorkflowHistory) *pac
 		ID:      res.ID,
 		Type:    res.Type,
 		Details: res.Details,
+	}
+	return vres
+}
+
+// newEnduroPackagePreservationActions converts projected type
+// EnduroPackagePreservationActions to service type
+// EnduroPackagePreservationActions.
+func newEnduroPackagePreservationActions(vres *package_views.EnduroPackagePreservationActionsView) *EnduroPackagePreservationActions {
+	res := &EnduroPackagePreservationActions{}
+	if vres.Actions != nil {
+		res.Actions = newEnduroPackagePreservationActionCollection(vres.Actions)
+	}
+	return res
+}
+
+// newEnduroPackagePreservationActionsView projects result type
+// EnduroPackagePreservationActions to projected type
+// EnduroPackagePreservationActionsView using the "default" view.
+func newEnduroPackagePreservationActionsView(res *EnduroPackagePreservationActions) *package_views.EnduroPackagePreservationActionsView {
+	vres := &package_views.EnduroPackagePreservationActionsView{}
+	if res.Actions != nil {
+		vres.Actions = newEnduroPackagePreservationActionCollectionView(res.Actions)
+	}
+	return vres
+}
+
+// newEnduroPackagePreservationActionCollection converts projected type
+// EnduroPackagePreservationActionCollection to service type
+// EnduroPackagePreservationActionCollection.
+func newEnduroPackagePreservationActionCollection(vres package_views.EnduroPackagePreservationActionCollectionView) EnduroPackagePreservationActionCollection {
+	res := make(EnduroPackagePreservationActionCollection, len(vres))
+	for i, n := range vres {
+		res[i] = newEnduroPackagePreservationAction(n)
+	}
+	return res
+}
+
+// newEnduroPackagePreservationActionCollectionView projects result type
+// EnduroPackagePreservationActionCollection to projected type
+// EnduroPackagePreservationActionCollectionView using the "default" view.
+func newEnduroPackagePreservationActionCollectionView(res EnduroPackagePreservationActionCollection) package_views.EnduroPackagePreservationActionCollectionView {
+	vres := make(package_views.EnduroPackagePreservationActionCollectionView, len(res))
+	for i, n := range res {
+		vres[i] = newEnduroPackagePreservationActionView(n)
+	}
+	return vres
+}
+
+// newEnduroPackagePreservationAction converts projected type
+// EnduroPackagePreservationAction to service type
+// EnduroPackagePreservationAction.
+func newEnduroPackagePreservationAction(vres *package_views.EnduroPackagePreservationActionView) *EnduroPackagePreservationAction {
+	res := &EnduroPackagePreservationAction{
+		CompletedAt: vres.CompletedAt,
+	}
+	if vres.ID != nil {
+		res.ID = *vres.ID
+	}
+	if vres.Name != nil {
+		res.Name = *vres.Name
+	}
+	if vres.WorkflowID != nil {
+		res.WorkflowID = *vres.WorkflowID
+	}
+	if vres.StartedAt != nil {
+		res.StartedAt = *vres.StartedAt
+	}
+	if vres.Tasks != nil {
+		res.Tasks = newEnduroPackagePreservationTaskCollection(vres.Tasks)
+	}
+	return res
+}
+
+// newEnduroPackagePreservationActionView projects result type
+// EnduroPackagePreservationAction to projected type
+// EnduroPackagePreservationActionView using the "default" view.
+func newEnduroPackagePreservationActionView(res *EnduroPackagePreservationAction) *package_views.EnduroPackagePreservationActionView {
+	vres := &package_views.EnduroPackagePreservationActionView{
+		ID:          &res.ID,
+		Name:        &res.Name,
+		WorkflowID:  &res.WorkflowID,
+		StartedAt:   &res.StartedAt,
+		CompletedAt: res.CompletedAt,
+	}
+	if res.Tasks != nil {
+		vres.Tasks = newEnduroPackagePreservationTaskCollectionView(res.Tasks)
+	}
+	return vres
+}
+
+// newEnduroPackagePreservationTaskCollection converts projected type
+// EnduroPackagePreservationTaskCollection to service type
+// EnduroPackagePreservationTaskCollection.
+func newEnduroPackagePreservationTaskCollection(vres package_views.EnduroPackagePreservationTaskCollectionView) EnduroPackagePreservationTaskCollection {
+	res := make(EnduroPackagePreservationTaskCollection, len(vres))
+	for i, n := range vres {
+		res[i] = newEnduroPackagePreservationTask(n)
+	}
+	return res
+}
+
+// newEnduroPackagePreservationTaskCollectionView projects result type
+// EnduroPackagePreservationTaskCollection to projected type
+// EnduroPackagePreservationTaskCollectionView using the "default" view.
+func newEnduroPackagePreservationTaskCollectionView(res EnduroPackagePreservationTaskCollection) package_views.EnduroPackagePreservationTaskCollectionView {
+	vres := make(package_views.EnduroPackagePreservationTaskCollectionView, len(res))
+	for i, n := range res {
+		vres[i] = newEnduroPackagePreservationTaskView(n)
+	}
+	return vres
+}
+
+// newEnduroPackagePreservationTask converts projected type
+// EnduroPackagePreservationTask to service type EnduroPackagePreservationTask.
+func newEnduroPackagePreservationTask(vres *package_views.EnduroPackagePreservationTaskView) *EnduroPackagePreservationTask {
+	res := &EnduroPackagePreservationTask{
+		CompletedAt: vres.CompletedAt,
+	}
+	if vres.ID != nil {
+		res.ID = *vres.ID
+	}
+	if vres.TaskID != nil {
+		res.TaskID = *vres.TaskID
+	}
+	if vres.Name != nil {
+		res.Name = *vres.Name
+	}
+	if vres.Status != nil {
+		res.Status = *vres.Status
+	}
+	if vres.StartedAt != nil {
+		res.StartedAt = *vres.StartedAt
+	}
+	return res
+}
+
+// newEnduroPackagePreservationTaskView projects result type
+// EnduroPackagePreservationTask to projected type
+// EnduroPackagePreservationTaskView using the "default" view.
+func newEnduroPackagePreservationTaskView(res *EnduroPackagePreservationTask) *package_views.EnduroPackagePreservationTaskView {
+	vres := &package_views.EnduroPackagePreservationTaskView{
+		ID:          &res.ID,
+		TaskID:      &res.TaskID,
+		Name:        &res.Name,
+		Status:      &res.Status,
+		StartedAt:   &res.StartedAt,
+		CompletedAt: res.CompletedAt,
 	}
 	return vres
 }

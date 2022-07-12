@@ -16,37 +16,39 @@ import (
 
 // Client is the "package" service client.
 type Client struct {
-	MonitorEndpoint    goa.Endpoint
-	ListEndpoint       goa.Endpoint
-	ShowEndpoint       goa.Endpoint
-	DeleteEndpoint     goa.Endpoint
-	CancelEndpoint     goa.Endpoint
-	RetryEndpoint      goa.Endpoint
-	WorkflowEndpoint   goa.Endpoint
-	BulkEndpoint       goa.Endpoint
-	BulkStatusEndpoint goa.Endpoint
-	ConfirmEndpoint    goa.Endpoint
-	RejectEndpoint     goa.Endpoint
-	MoveEndpoint       goa.Endpoint
-	MoveStatusEndpoint goa.Endpoint
+	MonitorEndpoint             goa.Endpoint
+	ListEndpoint                goa.Endpoint
+	ShowEndpoint                goa.Endpoint
+	DeleteEndpoint              goa.Endpoint
+	CancelEndpoint              goa.Endpoint
+	RetryEndpoint               goa.Endpoint
+	WorkflowEndpoint            goa.Endpoint
+	BulkEndpoint                goa.Endpoint
+	BulkStatusEndpoint          goa.Endpoint
+	PreservationActionsEndpoint goa.Endpoint
+	ConfirmEndpoint             goa.Endpoint
+	RejectEndpoint              goa.Endpoint
+	MoveEndpoint                goa.Endpoint
+	MoveStatusEndpoint          goa.Endpoint
 }
 
 // NewClient initializes a "package" service client given the endpoints.
-func NewClient(monitor, list, show, delete_, cancel, retry, workflow, bulk, bulkStatus, confirm, reject, move, moveStatus goa.Endpoint) *Client {
+func NewClient(monitor, list, show, delete_, cancel, retry, workflow, bulk, bulkStatus, preservationActions, confirm, reject, move, moveStatus goa.Endpoint) *Client {
 	return &Client{
-		MonitorEndpoint:    monitor,
-		ListEndpoint:       list,
-		ShowEndpoint:       show,
-		DeleteEndpoint:     delete_,
-		CancelEndpoint:     cancel,
-		RetryEndpoint:      retry,
-		WorkflowEndpoint:   workflow,
-		BulkEndpoint:       bulk,
-		BulkStatusEndpoint: bulkStatus,
-		ConfirmEndpoint:    confirm,
-		RejectEndpoint:     reject,
-		MoveEndpoint:       move,
-		MoveStatusEndpoint: moveStatus,
+		MonitorEndpoint:             monitor,
+		ListEndpoint:                list,
+		ShowEndpoint:                show,
+		DeleteEndpoint:              delete_,
+		CancelEndpoint:              cancel,
+		RetryEndpoint:               retry,
+		WorkflowEndpoint:            workflow,
+		BulkEndpoint:                bulk,
+		BulkStatusEndpoint:          bulkStatus,
+		PreservationActionsEndpoint: preservationActions,
+		ConfirmEndpoint:             confirm,
+		RejectEndpoint:              reject,
+		MoveEndpoint:                move,
+		MoveStatusEndpoint:          moveStatus,
 	}
 }
 
@@ -147,6 +149,20 @@ func (c *Client) BulkStatus(ctx context.Context) (res *BulkStatusResult, err err
 		return
 	}
 	return ires.(*BulkStatusResult), nil
+}
+
+// PreservationActions calls the "preservation-actions" endpoint of the
+// "package" service.
+// PreservationActions may return the following errors:
+//	- "not_found" (type *PackageNotfound): Package not found
+//	- error: internal error
+func (c *Client) PreservationActions(ctx context.Context, p *PreservationActionsPayload) (res *EnduroPackagePreservationActions, err error) {
+	var ires interface{}
+	ires, err = c.PreservationActionsEndpoint(ctx, p)
+	if err != nil {
+		return
+	}
+	return ires.(*EnduroPackagePreservationActions), nil
 }
 
 // Confirm calls the "confirm" endpoint of the "package" service.

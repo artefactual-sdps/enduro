@@ -23,6 +23,7 @@ type Service interface {
 	SetStatusPending(ctx context.Context, ID uint) error
 	SetLocation(ctx context.Context, ID uint, location string) error
 	CreatePreservationAction(ctx context.Context, pa *PreservationAction) error
+	CompletePreservationAction(ctx context.Context, ID uint, completedAt time.Time) error
 	CreatePreservationTask(ctx context.Context, pt *PreservationTask) error
 }
 
