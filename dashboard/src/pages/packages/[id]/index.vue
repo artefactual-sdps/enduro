@@ -116,8 +116,8 @@ watch(packageStore.ui.expand, () => col?.show());
           aria-controls="preservation-actions-table-0"
           v-if="packageStore.current_preservation_actions?.actions"
         >
-          <icon-circle-chevron-up style="font-size: 2em" v-if="shown" />
-          <icon-circle-chevron-down style="font-size: 2em" v-else />
+          <IconCircleChevronUp style="font-size: 2em" v-if="shown" />
+          <IconCircleChevronDown style="font-size: 2em" v-else />
         </button>
       </div>
       <span v-if="packageStore.current.completedAt">
