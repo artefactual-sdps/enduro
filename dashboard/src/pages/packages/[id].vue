@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { runtime } from "@/client";
 import PackagePendingAlert from "@/components/PackagePendingAlert.vue";
 import PageLoadingAlert from "@/components/PageLoadingAlert.vue";
 import { usePackageStore } from "@/stores/package";
