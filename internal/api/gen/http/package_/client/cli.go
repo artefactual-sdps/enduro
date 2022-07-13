@@ -250,7 +250,7 @@ func BuildConfirmPayload(package_ConfirmBody string, package_ConfirmID string) (
 	{
 		err = json.Unmarshal([]byte(package_ConfirmBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location\": \"Laboriosam mollitia.\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location\": \"Quae quisquam.\"\n   }'")
 		}
 	}
 	var id uint
@@ -297,7 +297,7 @@ func BuildMovePayload(package_MoveBody string, package_MoveID string) (*package_
 	{
 		err = json.Unmarshal([]byte(package_MoveBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location\": \"Ex molestiae omnis dolorem omnis nihil.\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location\": \"Qui praesentium.\"\n   }'")
 		}
 	}
 	var id uint

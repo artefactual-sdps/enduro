@@ -91,6 +91,7 @@ func (w *MoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req *package_.M
 			PackageID:   req.ID,
 			Location:    req.Location,
 			WorkflowID:  temporalsdk_workflow.GetInfo(ctx).WorkflowExecution.ID,
+			Type:        package_.ActionTypeMovePackage,
 			Status:      status,
 			StartedAt:   startedAt,
 			CompletedAt: completedAt,

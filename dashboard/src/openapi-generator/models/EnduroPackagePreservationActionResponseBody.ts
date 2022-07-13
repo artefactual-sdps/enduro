@@ -40,12 +40,6 @@ export interface EnduroPackagePreservationActionResponseBody {
     id: number;
     /**
      * 
-     * @type {string}
-     * @memberof EnduroPackagePreservationActionResponseBody
-     */
-    name: string;
-    /**
-     * 
      * @type {Date}
      * @memberof EnduroPackagePreservationActionResponseBody
      */
@@ -67,6 +61,12 @@ export interface EnduroPackagePreservationActionResponseBody {
      * @type {string}
      * @memberof EnduroPackagePreservationActionResponseBody
      */
+    type: EnduroPackagePreservationActionResponseBodyTypeEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof EnduroPackagePreservationActionResponseBody
+     */
     workflowId: string;
 }
 
@@ -82,6 +82,15 @@ export const EnduroPackagePreservationActionResponseBodyStatusEnum = {
 } as const;
 export type EnduroPackagePreservationActionResponseBodyStatusEnum = typeof EnduroPackagePreservationActionResponseBodyStatusEnum[keyof typeof EnduroPackagePreservationActionResponseBodyStatusEnum];
 
+/**
+ * @export
+ */
+export const EnduroPackagePreservationActionResponseBodyTypeEnum = {
+    CreateAip: 'create-aip',
+    MovePackage: 'move-package'
+} as const;
+export type EnduroPackagePreservationActionResponseBodyTypeEnum = typeof EnduroPackagePreservationActionResponseBodyTypeEnum[keyof typeof EnduroPackagePreservationActionResponseBodyTypeEnum];
+
 
 export function EnduroPackagePreservationActionResponseBodyFromJSON(json: any): EnduroPackagePreservationActionResponseBody {
     return EnduroPackagePreservationActionResponseBodyFromJSONTyped(json, false);
@@ -95,10 +104,10 @@ export function EnduroPackagePreservationActionResponseBodyFromJSONTyped(json: a
         
         'completedAt': !exists(json, 'completed_at') ? undefined : (new Date(json['completed_at'])),
         'id': json['id'],
-        'name': json['name'],
         'startedAt': (new Date(json['started_at'])),
         'status': json['status'],
         'tasks': !exists(json, 'tasks') ? undefined : ((json['tasks'] as Array<any>).map(EnduroPackagePreservationTaskResponseBodyFromJSON)),
+        'type': json['type'],
         'workflowId': json['workflow_id'],
     };
 }
@@ -114,10 +123,10 @@ export function EnduroPackagePreservationActionResponseBodyToJSON(value?: Enduro
         
         'completed_at': value.completedAt === undefined ? undefined : (value.completedAt.toISOString()),
         'id': value.id,
-        'name': value.name,
         'started_at': (value.startedAt.toISOString()),
         'status': value.status,
         'tasks': value.tasks === undefined ? undefined : ((value.tasks as Array<any>).map(EnduroPackagePreservationTaskResponseBodyToJSON)),
+        'type': value.type,
         'workflow_id': value.workflowId,
     };
 }

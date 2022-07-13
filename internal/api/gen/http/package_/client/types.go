@@ -499,8 +499,8 @@ type EnduroPackagePreservationActionCollectionResponseBody []*EnduroPackagePrese
 // response body types.
 type EnduroPackagePreservationActionResponseBody struct {
 	ID          *uint                                               `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
-	Name        *string                                             `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 	WorkflowID  *string                                             `form:"workflow_id,omitempty" json:"workflow_id,omitempty" xml:"workflow_id,omitempty"`
+	Type        *string                                             `form:"type,omitempty" json:"type,omitempty" xml:"type,omitempty"`
 	Status      *string                                             `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
 	StartedAt   *string                                             `form:"started_at,omitempty" json:"started_at,omitempty" xml:"started_at,omitempty"`
 	CompletedAt *string                                             `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
@@ -1518,17 +1518,22 @@ func ValidateEnduroPackagePreservationActionResponseBody(body *EnduroPackagePres
 	if body.ID == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
 	}
-	if body.Name == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
-	}
 	if body.WorkflowID == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("workflow_id", "body"))
+	}
+	if body.Type == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("type", "body"))
 	}
 	if body.Status == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("status", "body"))
 	}
 	if body.StartedAt == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("started_at", "body"))
+	}
+	if body.Type != nil {
+		if !(*body.Type == "create-aip" || *body.Type == "move-package") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.type", *body.Type, []interface{}{"create-aip", "move-package"}))
+		}
 	}
 	if body.Status != nil {
 		if !(*body.Status == "unspecified" || *body.Status == "complete" || *body.Status == "processing" || *body.Status == "failed") {

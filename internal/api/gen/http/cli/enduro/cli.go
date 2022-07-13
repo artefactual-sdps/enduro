@@ -41,8 +41,8 @@ func UsageExamples() string {
    }'` + "\n" +
 		os.Args[0] + ` package monitor` + "\n" +
 		os.Args[0] + ` storage submit --body '{
-      "name": "Officia quibusdam dolore in aliquid aut optio."
-   }' --aip-id "Cumque rerum sunt hic velit soluta."` + "\n" +
+      "name": "Dolores et voluptas repellat."
+   }' --aip-id "Illum et tempora quae porro."` + "\n" +
 		""
 }
 
@@ -617,8 +617,8 @@ Signal the package has been reviewed and accepted
 
 Example:
     %[1]s package confirm --body '{
-      "location": "Laboriosam mollitia."
-   }' --id 11460178884580951033
+      "location": "Quae quisquam."
+   }' --id 8514020084237529991
 `, os.Args[0])
 }
 
@@ -629,7 +629,7 @@ Signal the package has been reviewed and rejected
     -id UINT: Identifier of package to look up
 
 Example:
-    %[1]s package reject --id 3345747896208607207
+    %[1]s package reject --id 7675198139225874930
 `, os.Args[0])
 }
 
@@ -642,8 +642,8 @@ Move a package to a permanent storage location
 
 Example:
     %[1]s package move --body '{
-      "location": "Ex molestiae omnis dolorem omnis nihil."
-   }' --id 17899441333270121038
+      "location": "Qui praesentium."
+   }' --id 3923434489665488889
 `, os.Args[0])
 }
 
@@ -654,7 +654,7 @@ Retrieve the status of a permanent storage location move of the package
     -id UINT: Identifier of package to move
 
 Example:
-    %[1]s package move-status --id 9345896311382296345
+    %[1]s package move-status --id 17899441333270121038
 `, os.Args[0])
 }
 
@@ -687,8 +687,8 @@ Start the submission of a package
 
 Example:
     %[1]s storage submit --body '{
-      "name": "Officia quibusdam dolore in aliquid aut optio."
-   }' --aip-id "Cumque rerum sunt hic velit soluta."
+      "name": "Dolores et voluptas repellat."
+   }' --aip-id "Illum et tempora quae porro."
 `, os.Args[0])
 }
 
@@ -699,7 +699,7 @@ Signal the storage service that an upload is complete
     -aip-id STRING: 
 
 Example:
-    %[1]s storage update --aip-id "Et explicabo qui voluptas omnis quod."
+    %[1]s storage update --aip-id "Aspernatur consequatur eum voluptatum id atque."
 `, os.Args[0])
 }
 
@@ -710,7 +710,7 @@ Download package by AIPID
     -aip-id STRING: 
 
 Example:
-    %[1]s storage download --aip-id "Ut similique facere architecto consequatur."
+    %[1]s storage download --aip-id "Et explicabo qui voluptas omnis quod."
 `, os.Args[0])
 }
 
@@ -733,8 +733,8 @@ Move a package to a permanent storage location
 
 Example:
     %[1]s storage move --body '{
-      "location": "Harum officiis eum pariatur fugit eaque."
-   }' --aip-id "Quia consectetur et et repellendus quam."
+      "location": "Eveniet voluptas fugiat optio quae distinctio."
+   }' --aip-id "Architecto dolore harum tempore excepturi dolor aut."
 `, os.Args[0])
 }
 
@@ -745,7 +745,7 @@ Retrieve the status of a permanent storage location move of the package
     -aip-id STRING: 
 
 Example:
-    %[1]s storage move-status --aip-id "Similique iure nulla voluptatem."
+    %[1]s storage move-status --aip-id "Pariatur rerum voluptas iusto."
 `, os.Args[0])
 }
 
@@ -756,7 +756,7 @@ Reject a package
     -aip-id STRING: 
 
 Example:
-    %[1]s storage reject --aip-id "Deserunt voluptate."
+    %[1]s storage reject --aip-id "Assumenda ea similique voluptatibus consequatur in."
 `, os.Args[0])
 }
 
@@ -767,6 +767,6 @@ Show package by AIPID
     -aip-id STRING: 
 
 Example:
-    %[1]s storage show --aip-id "Et qui ratione esse qui."
+    %[1]s storage show --aip-id "Dolorum facere omnis quibusdam architecto explicabo voluptas."
 `, os.Args[0])
 }

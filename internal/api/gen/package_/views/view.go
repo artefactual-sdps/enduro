@@ -163,8 +163,8 @@ type EnduroPackagePreservationActionCollectionView []*EnduroPackagePreservationA
 // projected type.
 type EnduroPackagePreservationActionView struct {
 	ID          *uint
-	Name        *string
 	WorkflowID  *string
+	Type        *string
 	Status      *string
 	StartedAt   *string
 	CompletedAt *string
@@ -299,8 +299,8 @@ var (
 	EnduroPackagePreservationActionCollectionMap = map[string][]string{
 		"default": {
 			"id",
-			"name",
 			"workflow_id",
+			"type",
 			"status",
 			"started_at",
 			"completed_at",
@@ -312,8 +312,8 @@ var (
 	EnduroPackagePreservationActionMap = map[string][]string{
 		"default": {
 			"id",
-			"name",
 			"workflow_id",
+			"type",
 			"status",
 			"started_at",
 			"completed_at",
@@ -603,17 +603,22 @@ func ValidateEnduroPackagePreservationActionView(result *EnduroPackagePreservati
 	if result.ID == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("id", "result"))
 	}
-	if result.Name == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("name", "result"))
-	}
 	if result.WorkflowID == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("workflow_id", "result"))
+	}
+	if result.Type == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("type", "result"))
 	}
 	if result.Status == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("status", "result"))
 	}
 	if result.StartedAt == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("started_at", "result"))
+	}
+	if result.Type != nil {
+		if !(*result.Type == "create-aip" || *result.Type == "move-package") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.type", *result.Type, []interface{}{"create-aip", "move-package"}))
+		}
 	}
 	if result.Status != nil {
 		if !(*result.Status == "unspecified" || *result.Status == "complete" || *result.Status == "processing" || *result.Status == "failed") {

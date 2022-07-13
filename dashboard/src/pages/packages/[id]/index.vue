@@ -158,7 +158,7 @@ watch(packageStore.ui.expand, () => col?.show());
             :key="action.id"
           >
             <td>{{ idx + 1 }}</td>
-            <td>{{ action.name }}</td>
+            <td>{{ action.type }}</td>
             <td>
               <span
                 class="badge"

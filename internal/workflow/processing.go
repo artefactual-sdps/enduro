@@ -512,8 +512,8 @@ func (w *ProcessingWorkflow) transferA3m(sessCtx temporalsdk_workflow.Context, t
 	{
 		ctx := withLocalActivityOpts(sessCtx)
 		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, createPreservationActionLocalActivity, w.pkgsvc, &createPreservationActionLocalActivityParams{
-			Name:       "Create AIP", // XXX: move to a translatable constant?
 			WorkflowID: temporalsdk_workflow.GetInfo(sessCtx).WorkflowExecution.ID,
+			Type:       package_.ActionTypeCreateAIP,
 			StartedAt:  temporalsdk_workflow.Now(sessCtx).UTC(),
 			PackageID:  tinfo.PackageID,
 		}).Get(ctx, &paID)
