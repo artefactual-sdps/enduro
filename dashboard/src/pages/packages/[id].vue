@@ -54,17 +54,6 @@ const { execute, error } = useAsyncState(
               >Overview</router-link
             >
           </li>
-          <li class="nav-item">
-            <router-link
-              class="nav-link"
-              exact-active-class="active"
-              :to="{
-                name: 'packages-id-workflow',
-                params: { id: packageStore.current.id },
-              }"
-              >Workflow</router-link
-            >
-          </li>
         </ul>
       </div>
 
