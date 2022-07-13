@@ -11,12 +11,12 @@ const classes: {
   [key in api.EnduroStoredPackageResponseBodyStatusEnum]: string;
 } = {
   new: "text-bg-dark",
-  "in progress": "text-bg-secondary",
+  "in progress": "text-bg-warning",
   done: "text-bg-success",
   error: "text-bg-danger",
   unknown: "text-bg-dark",
-  queued: "text-bg-dark",
-  pending: "text-bg-warning",
+  queued: "text-bg-info",
+  pending: "text-bg-secondary",
   abandoned: "text-bg-dark",
 };
 

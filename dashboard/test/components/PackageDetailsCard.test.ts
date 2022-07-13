@@ -69,7 +69,7 @@ describe("PackageDetailsCard.vue", () => {
             <dt>Package size</dt>
             <dd>N/A</dd>
             <dt>Last workflow outcome</dt>
-            <dd><span><span class=\\"badge text-bg-warning\\">PENDING</span><span class=\\"badge text-dark fw-normal\\">(Create and Review AIP)</span></span></dd>
+            <dd><span><span class=\\"badge text-bg-secondary\\">PENDING</span><span class=\\"badge text-dark fw-normal\\">(Create and Review AIP)</span></span></dd>
           </dl>
           <div class=\\"d-flex flex-wrap gap-2\\"><button class=\\"btn btn-secondary btn-sm disabled\\"> View metadata summary </button><button class=\\"btn btn-primary btn-sm\\" type=\\"button\\"> Download </button></div>
         </div>

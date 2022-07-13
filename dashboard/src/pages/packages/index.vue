@@ -1,9 +1,11 @@
 <script setup lang="ts">
+import PackageListLegend from "@/components/PackageListLegend.vue";
 import PackageStatusBadge from "@/components/PackageStatusBadge.vue";
 import PageLoadingAlert from "@/components/PageLoadingAlert.vue";
 import { usePackageStore } from "@/stores/package";
 import { useAsyncState } from "@vueuse/core";
 import { useRouter } from "vue-router";
+import IconInfoFill from "~icons/akar-icons/info-fill";
 
 const router = useRouter();
 const packageStore = usePackageStore();
@@ -15,12 +17,16 @@ const { execute, error } = useAsyncState(() => {
 const openPackage = (id: number) => {
   router.push({ name: "packages-id", params: { id } });
 };
+
+let showLegend = $ref(false);
+const toggleLegend = () => (showLegend = !showLegend);
 </script>
 
 <template>
   <div class="container-xxl pt-3">
     <h2>Packages</h2>
     <PageLoadingAlert :execute="execute" :error="error" />
+    <PackageListLegend v-model="showLegend" />
     <table class="table table-bordered table-hover table-linked table-enduro">
       <thead>
         <tr>
@@ -29,7 +35,10 @@ const openPackage = (id: number) => {
           <th scope="col">UUID</th>
           <th scope="col">Started</th>
           <th scope="col">Location</th>
-          <th scope="col">Status</th>
+          <th scope="col" class="text-nowrap">
+            Status
+            <a href="#" @click.prevent="toggleLegend"><IconInfoFill /></a>
+          </th>
         </tr>
       </thead>
       <tbody>
