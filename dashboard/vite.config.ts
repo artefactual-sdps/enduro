@@ -1,11 +1,16 @@
 import vue from "@vitejs/plugin-vue";
 import { resolve } from "path";
+import Icons from "unplugin-icons/vite";
 import Pages from "vite-plugin-pages";
 import { configDefaults, defineConfig } from "vitest/config";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [vue({ reactivityTransform: true }), Pages()],
+  plugins: [
+    vue({ reactivityTransform: true }),
+    Pages(),
+    Icons({ compiler: "vue3" }),
+  ],
   server: {
     proxy: {
       "/api": {
