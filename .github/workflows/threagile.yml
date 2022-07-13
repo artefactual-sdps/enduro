@@ -2,7 +2,7 @@ on:
   push:
     paths:
       - "enduro.threagile.yaml" # Execute only when the threat model changes
-
+name: Threagile
 jobs:
   threagile_job:
     runs-on: ubuntu-latest

@@ -1,5 +1,5 @@
-name: Pulumi
 on: [workflow_dispatch]
+name: Pulumi
 jobs:
   dev:
     runs-on: ubuntu-latest
