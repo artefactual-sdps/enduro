@@ -19,8 +19,8 @@ CREATE TABLE package (
 );
 CREATE TABLE preservation_action (
   `id` INT UNSIGNED AUTO_INCREMENT NOT NULL,
-  `name` VARCHAR(2048) NOT NULL,
   `workflow_id` VARCHAR(255) NOT NULL,
+  `type` TINYINT NOT NULL, -- {create-aip, move-package}
   `status` TINYINT NOT NULL, -- {unspecified, complete, processing, failed}
   `started_at` TIMESTAMP(6) NULL,
   `completed_at` TIMESTAMP(6) NULL,

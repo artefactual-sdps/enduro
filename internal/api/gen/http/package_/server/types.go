@@ -499,8 +499,8 @@ type EnduroPackagePreservationActionResponseBodyCollection []*EnduroPackagePrese
 // response body types.
 type EnduroPackagePreservationActionResponseBody struct {
 	ID          uint                                                `form:"id" json:"id" xml:"id"`
-	Name        string                                              `form:"name" json:"name" xml:"name"`
 	WorkflowID  string                                              `form:"workflow_id" json:"workflow_id" xml:"workflow_id"`
+	Type        string                                              `form:"type" json:"type" xml:"type"`
 	Status      string                                              `form:"status" json:"status" xml:"status"`
 	StartedAt   string                                              `form:"started_at" json:"started_at" xml:"started_at"`
 	CompletedAt *string                                             `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`

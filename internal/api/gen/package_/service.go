@@ -150,8 +150,8 @@ type EnduroPackageLocationUpdatedEvent struct {
 // PreservationAction describes a preservation action.
 type EnduroPackagePreservationAction struct {
 	ID          uint
-	Name        string
 	WorkflowID  string
+	Type        string
 	Status      string
 	StartedAt   string
 	CompletedAt *string
@@ -774,11 +774,11 @@ func newEnduroPackagePreservationAction(vres *package_views.EnduroPackagePreserv
 	if vres.ID != nil {
 		res.ID = *vres.ID
 	}
-	if vres.Name != nil {
-		res.Name = *vres.Name
-	}
 	if vres.WorkflowID != nil {
 		res.WorkflowID = *vres.WorkflowID
+	}
+	if vres.Type != nil {
+		res.Type = *vres.Type
 	}
 	if vres.Status != nil {
 		res.Status = *vres.Status
@@ -798,8 +798,8 @@ func newEnduroPackagePreservationAction(vres *package_views.EnduroPackagePreserv
 func newEnduroPackagePreservationActionView(res *EnduroPackagePreservationAction) *package_views.EnduroPackagePreservationActionView {
 	vres := &package_views.EnduroPackagePreservationActionView{
 		ID:          &res.ID,
-		Name:        &res.Name,
 		WorkflowID:  &res.WorkflowID,
+		Type:        &res.Type,
 		Status:      &res.Status,
 		StartedAt:   &res.StartedAt,
 		CompletedAt: res.CompletedAt,

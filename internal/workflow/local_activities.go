@@ -80,6 +80,7 @@ type saveLocationMovePreservationActionLocalActivityParams struct {
 	PackageID   uint
 	Location    string
 	WorkflowID  string
+	Type        package_.PreservationActionType
 	Status      package_.PreservationActionStatus
 	StartedAt   time.Time
 	CompletedAt time.Time
@@ -87,8 +88,8 @@ type saveLocationMovePreservationActionLocalActivityParams struct {
 
 func saveLocationMovePreservationActionLocalActivity(ctx context.Context, pkgsvc package_.Service, params *saveLocationMovePreservationActionLocalActivityParams) error {
 	paID, err := createPreservationActionLocalActivity(ctx, pkgsvc, &createPreservationActionLocalActivityParams{
-		Name:        "Move package", // XXX: move to a translatable constant?
 		WorkflowID:  params.WorkflowID,
+		Type:        params.Type,
 		Status:      params.Status,
 		StartedAt:   params.StartedAt,
 		CompletedAt: params.CompletedAt,
@@ -118,8 +119,8 @@ func saveLocationMovePreservationActionLocalActivity(ctx context.Context, pkgsvc
 }
 
 type createPreservationActionLocalActivityParams struct {
-	Name        string
 	WorkflowID  string
+	Type        package_.PreservationActionType
 	Status      package_.PreservationActionStatus
 	StartedAt   time.Time
 	CompletedAt time.Time
@@ -128,8 +129,8 @@ type createPreservationActionLocalActivityParams struct {
 
 func createPreservationActionLocalActivity(ctx context.Context, pkgsvc package_.Service, params *createPreservationActionLocalActivityParams) (uint, error) {
 	pa := package_.PreservationAction{
-		Name:       params.Name,
 		WorkflowID: params.WorkflowID,
+		Type:       params.Type,
 		Status:     params.Status,
 		PackageID:  params.PackageID,
 	}

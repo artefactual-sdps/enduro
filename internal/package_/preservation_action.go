@@ -11,23 +11,61 @@ import (
 	goapackage "github.com/artefactual-labs/enduro/internal/api/gen/package_"
 )
 
-type (
-	PreservationActionStatus uint
-	PreservationTaskStatus   uint
+type PreservationActionType uint
+
+const (
+	ActionTypeUnspecified PreservationActionType = iota
+	ActionTypeCreateAIP
+	ActionTypeMovePackage
 )
+
+func NewPreservationActionType(status string) PreservationActionType {
+	var s PreservationActionType
+
+	switch strings.ToLower(status) {
+	case "create-aip":
+		s = ActionTypeCreateAIP
+	case "move-package":
+		s = ActionTypeMovePackage
+	default:
+		s = ActionTypeUnspecified
+	}
+
+	return s
+}
+
+func (p PreservationActionType) String() string {
+	switch p {
+	case ActionTypeCreateAIP:
+		return "create-aip"
+	case ActionTypeMovePackage:
+		return "move-package"
+	}
+	return "unspecified"
+}
+
+func (p PreservationActionType) MarshalJSON() ([]byte, error) {
+	return json.Marshal(p.String())
+}
+
+func (p *PreservationActionType) UnmarshalJSON(b []byte) error {
+	var s string
+	if err := json.Unmarshal(b, &s); err != nil {
+		return err
+	}
+
+	*p = NewPreservationActionType(s)
+
+	return nil
+}
+
+type PreservationActionStatus uint
 
 const (
 	ActionStatusUnspecified PreservationActionStatus = iota
 	ActionStatusComplete
 	ActionStatusProcessing
 	ActionStatusFailed
-)
-
-const (
-	TaskStatusUnspecified PreservationTaskStatus = iota
-	TaskStatusComplete
-	TaskStatusProcessing
-	TaskStatusFailed
 )
 
 func NewPreservationActionStatus(status string) PreservationActionStatus {
@@ -74,6 +112,26 @@ func (p *PreservationActionStatus) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+// PreservationAction represents a preservation action in the preservation_action table.
+type PreservationAction struct {
+	ID          uint                     `db:"id"`
+	WorkflowID  string                   `db:"workflow_id"`
+	Type        PreservationActionType   `db:"type"`
+	Status      PreservationActionStatus `db:"status"`
+	StartedAt   sql.NullTime             `db:"started_at"`
+	CompletedAt sql.NullTime             `db:"completed_at"`
+	PackageID   uint                     `db:"package_id"`
+}
+
+type PreservationTaskStatus uint
+
+const (
+	TaskStatusUnspecified PreservationTaskStatus = iota
+	TaskStatusComplete
+	TaskStatusProcessing
+	TaskStatusFailed
+)
+
 func NewPreservationTaskStatus(status string) PreservationTaskStatus {
 	var s PreservationTaskStatus
 
@@ -118,17 +176,6 @@ func (p *PreservationTaskStatus) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-// PreservationAction represents a preservation action in the preservation_action table.
-type PreservationAction struct {
-	ID          uint                     `db:"id"`
-	Name        string                   `db:"name"`
-	WorkflowID  string                   `db:"workflow_id"`
-	Status      PreservationActionStatus `db:"status"`
-	StartedAt   sql.NullTime             `db:"started_at"`
-	CompletedAt sql.NullTime             `db:"completed_at"`
-	PackageID   uint                     `db:"package_id"`
-}
-
 // PreservationTask represents a preservation action task in the preservation_task table.
 type PreservationTask struct {
 	ID                   uint                   `db:"id"`
@@ -146,7 +193,7 @@ func (w *goaWrapper) PreservationActions(ctx context.Context, payload *goapackag
 		return nil, err
 	}
 
-	query := "SELECT id, name, workflow_id, status, CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at, CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at FROM preservation_action WHERE package_id = (?) ORDER BY started_at DESC"
+	query := "SELECT id, workflow_id, type, status, CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at, CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at FROM preservation_action WHERE package_id = (?) ORDER BY started_at DESC"
 	args := []interface{}{goapkg.ID}
 
 	query = w.db.Rebind(query)
@@ -164,8 +211,8 @@ func (w *goaWrapper) PreservationActions(ctx context.Context, payload *goapackag
 		}
 		goapa := &goapackage.EnduroPackagePreservationAction{
 			ID:          pa.ID,
-			Name:        pa.Name,
 			WorkflowID:  pa.WorkflowID,
+			Type:        pa.Type.String(),
 			Status:      pa.Status.String(),
 			StartedAt:   formatTime(pa.StartedAt.Time),
 			CompletedAt: formatOptionalTime(pa.CompletedAt),
@@ -219,10 +266,10 @@ func (svc *packageImpl) CreatePreservationAction(ctx context.Context, pa *Preser
 		completedAt = nil
 	}
 
-	query := `INSERT INTO preservation_action (name, workflow_id, status, started_at, completed_at, package_id) VALUES (?, ?, ?, ?, ?, ?)`
+	query := `INSERT INTO preservation_action (workflow_id, type, status, started_at, completed_at, package_id) VALUES (?, ?, ?, ?, ?, ?)`
 	args := []interface{}{
-		pa.Name,
 		pa.WorkflowID,
+		pa.Type,
 		pa.Status,
 		startedAt,
 		completedAt,

@@ -356,6 +356,10 @@ var PreservationActions = ResultType("application/vnd.enduro.package-preservatio
 	})
 })
 
+var EnumPreservationActionType = func() {
+	Enum("create-aip", "move-package")
+}
+
 var EnumPreservationActionStatus = func() {
 	Enum("unspecified", "complete", "processing", "failed")
 }
@@ -364,8 +368,10 @@ var PreservationAction = ResultType("application/vnd.enduro.package-preservation
 	Description("PreservationAction describes a preservation action.")
 	Attributes(func() {
 		Attribute("id", UInt)
-		Attribute("name", String)
 		Attribute("workflow_id", String)
+		Attribute("type", String, func() {
+			EnumPreservationActionType()
+		})
 		Attribute("status", String, func() {
 			EnumPreservationActionStatus()
 		})
@@ -377,7 +383,7 @@ var PreservationAction = ResultType("application/vnd.enduro.package-preservation
 		})
 		Attribute("tasks", CollectionOf(PreservationTask))
 	})
-	Required("id", "name", "workflow_id", "status", "started_at")
+	Required("id", "workflow_id", "type", "status", "started_at")
 })
 
 var EnumPreservationTaskStatus = func() {

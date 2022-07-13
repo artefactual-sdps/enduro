@@ -1155,8 +1155,8 @@ func marshalPackageViewsEnduroPackagePreservationActionViewToEnduroPackagePreser
 	}
 	res := &EnduroPackagePreservationActionResponseBody{
 		ID:          *v.ID,
-		Name:        *v.Name,
 		WorkflowID:  *v.WorkflowID,
+		Type:        *v.Type,
 		Status:      *v.Status,
 		StartedAt:   *v.StartedAt,
 		CompletedAt: v.CompletedAt,
