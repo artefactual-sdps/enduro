@@ -20,7 +20,10 @@ const confirm = async () => {
     </p>
     <p class="mb-1">Links:</p>
     <ul>
-      <li>Expand the task details below</li>
+      <li>
+        <a href="#" @click.prevent="packageStore.ui.expand.request">Expand</a>
+        the task details below
+      </li>
       <li>View a summary of the preservation metadata created</li>
       <li>
         <a href="#" @click.prevent="packageStore.ui.download.request"
