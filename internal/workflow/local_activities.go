@@ -153,3 +153,40 @@ type completePreservationActionLocalActivityParams struct {
 func completePreservationActionLocalActivity(ctx context.Context, pkgsvc package_.Service, params *completePreservationActionLocalActivityParams) error {
 	return pkgsvc.CompletePreservationAction(ctx, params.PreservationActionID, params.Status, params.CompletedAt)
 }
+
+type createPreservationTaskLocalActivityParams struct {
+	TaskID               string
+	Name                 string
+	Status               package_.PreservationTaskStatus
+	StartedAt            time.Time
+	CompletedAt          time.Time
+	PreservationActionID uint
+}
+
+func createPreservationTaskLocalActivity(ctx context.Context, pkgsvc package_.Service, params *createPreservationTaskLocalActivityParams) (uint, error) {
+	pt := package_.PreservationTask{
+		TaskID:               params.TaskID,
+		Name:                 params.Name,
+		Status:               params.Status,
+		PreservationActionID: params.PreservationActionID,
+	}
+	pt.StartedAt.Time = params.StartedAt
+	pt.CompletedAt.Time = params.CompletedAt
+
+	if err := pkgsvc.CreatePreservationTask(ctx, &pt); err != nil {
+		return 0, err
+	}
+
+	return pt.ID, nil
+}
+
+type completePreservationTaskLocalActivityParams struct {
+	ID          uint
+	Name        *string
+	Status      package_.PreservationTaskStatus
+	CompletedAt time.Time
+}
+
+func completePreservationTaskLocalActivity(ctx context.Context, pkgsvc package_.Service, params *completePreservationTaskLocalActivityParams) error {
+	return pkgsvc.CompletePreservationTask(ctx, params.ID, params.Name, params.Status, params.CompletedAt)
+}
