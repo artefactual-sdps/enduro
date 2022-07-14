@@ -3,7 +3,6 @@ run:
   skip-dirs:
   - dashboard
   - hack
-  - website
 
 linters:
   enable:

@@ -23,6 +23,5 @@ ignore:
 - "build"
 - "hack"
 - "dashboard"
-- "website"
 - "fake"
 - "gen"

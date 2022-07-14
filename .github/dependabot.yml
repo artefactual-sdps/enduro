@@ -20,7 +20,3 @@ updates:
     directory: "/dashboard"
     schedule:
       interval: "weekly"
-  - package-ecosystem: "npm"
-    directory: "/website"
-    schedule:
-      interval: "weekly"
