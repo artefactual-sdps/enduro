@@ -343,3 +343,23 @@ func (svc *packageImpl) CreatePreservationTask(ctx context.Context, pt *Preserva
 
 	return nil
 }
+
+func (svc *packageImpl) CompletePreservationTask(ctx context.Context, ID uint, name *string, status PreservationTaskStatus, completedAt time.Time) error {
+	var query string
+	args := []interface{}{}
+
+	if name != nil {
+		query = `UPDATE preservation_task SET name = ?, status = ?, completed_at = ? WHERE id = ?`
+		args = append(args, name, status, completedAt, ID)
+	} else {
+		query = `UPDATE preservation_task SET status = ?, completed_at = ? WHERE id = ?`
+		args = append(args, status, completedAt, ID)
+	}
+
+	_, err := svc.db.ExecContext(ctx, query, args...)
+	if err != nil {
+		return fmt.Errorf("error updating preservation task: %w", err)
+	}
+
+	return nil
+}

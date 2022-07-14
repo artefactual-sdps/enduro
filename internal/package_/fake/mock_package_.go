@@ -51,6 +51,20 @@ func (mr *MockServiceMockRecorder) CompletePreservationAction(arg0, arg1, arg2, 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CompletePreservationAction", reflect.TypeOf((*MockService)(nil).CompletePreservationAction), arg0, arg1, arg2, arg3)
 }
 
+// CompletePreservationTask mocks base method.
+func (m *MockService) CompletePreservationTask(arg0 context.Context, arg1 uint, arg2 *string, arg3 package_0.PreservationTaskStatus, arg4 time.Time) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CompletePreservationTask", arg0, arg1, arg2, arg3, arg4)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CompletePreservationTask indicates an expected call of CompletePreservationTask.
+func (mr *MockServiceMockRecorder) CompletePreservationTask(arg0, arg1, arg2, arg3, arg4 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CompletePreservationTask", reflect.TypeOf((*MockService)(nil).CompletePreservationTask), arg0, arg1, arg2, arg3, arg4)
+}
+
 // Create mocks base method.
 func (m *MockService) Create(arg0 context.Context, arg1 *package_0.Package) error {
 	m.ctrl.T.Helper()
