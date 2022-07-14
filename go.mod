@@ -42,7 +42,7 @@ require (
 	goa.design/plugins/v3 v3.7.10
 	gocloud.dev v0.25.0
 	golang.org/x/text v0.3.7
-	google.golang.org/grpc v1.47.0
+	google.golang.org/grpc v1.48.0
 	google.golang.org/protobuf v1.28.0 // indirect
 	gotest.tools/v3 v3.3.0
 )
