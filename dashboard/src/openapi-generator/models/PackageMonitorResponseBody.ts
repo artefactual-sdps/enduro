@@ -49,6 +49,30 @@ import {
     EnduroPackageUpdatedEventResponseBodyFromJSONTyped,
     EnduroPackageUpdatedEventResponseBodyToJSON,
 } from './EnduroPackageUpdatedEventResponseBody';
+import {
+    EnduroPreservationActionCreatedEventResponseBody,
+    EnduroPreservationActionCreatedEventResponseBodyFromJSON,
+    EnduroPreservationActionCreatedEventResponseBodyFromJSONTyped,
+    EnduroPreservationActionCreatedEventResponseBodyToJSON,
+} from './EnduroPreservationActionCreatedEventResponseBody';
+import {
+    EnduroPreservationActionUpdatedEventResponseBody,
+    EnduroPreservationActionUpdatedEventResponseBodyFromJSON,
+    EnduroPreservationActionUpdatedEventResponseBodyFromJSONTyped,
+    EnduroPreservationActionUpdatedEventResponseBodyToJSON,
+} from './EnduroPreservationActionUpdatedEventResponseBody';
+import {
+    EnduroPreservationTaskCreatedEventResponseBody,
+    EnduroPreservationTaskCreatedEventResponseBodyFromJSON,
+    EnduroPreservationTaskCreatedEventResponseBodyFromJSONTyped,
+    EnduroPreservationTaskCreatedEventResponseBodyToJSON,
+} from './EnduroPreservationTaskCreatedEventResponseBody';
+import {
+    EnduroPreservationTaskUpdatedEventResponseBody,
+    EnduroPreservationTaskUpdatedEventResponseBodyFromJSON,
+    EnduroPreservationTaskUpdatedEventResponseBodyFromJSONTyped,
+    EnduroPreservationTaskUpdatedEventResponseBodyToJSON,
+} from './EnduroPreservationTaskUpdatedEventResponseBody';
 
 /**
  * MonitorResponseBody result type (default view)
@@ -92,6 +116,30 @@ export interface PackageMonitorResponseBody {
      * @memberof PackageMonitorResponseBody
      */
     packageUpdatedEvent?: EnduroPackageUpdatedEventResponseBody;
+    /**
+     * 
+     * @type {EnduroPreservationActionCreatedEventResponseBody}
+     * @memberof PackageMonitorResponseBody
+     */
+    preservationActionCreatedEvent?: EnduroPreservationActionCreatedEventResponseBody;
+    /**
+     * 
+     * @type {EnduroPreservationActionUpdatedEventResponseBody}
+     * @memberof PackageMonitorResponseBody
+     */
+    preservationActionUpdatedEvent?: EnduroPreservationActionUpdatedEventResponseBody;
+    /**
+     * 
+     * @type {EnduroPreservationTaskCreatedEventResponseBody}
+     * @memberof PackageMonitorResponseBody
+     */
+    preservationTaskCreatedEvent?: EnduroPreservationTaskCreatedEventResponseBody;
+    /**
+     * 
+     * @type {EnduroPreservationTaskUpdatedEventResponseBody}
+     * @memberof PackageMonitorResponseBody
+     */
+    preservationTaskUpdatedEvent?: EnduroPreservationTaskUpdatedEventResponseBody;
 }
 
 export function PackageMonitorResponseBodyFromJSON(json: any): PackageMonitorResponseBody {
@@ -110,6 +158,10 @@ export function PackageMonitorResponseBodyFromJSONTyped(json: any, ignoreDiscrim
         'packageLocationUpdatedEvent': !exists(json, 'package_location_updated_event') ? undefined : EnduroPackageLocationUpdatedEventResponseBodyFromJSON(json['package_location_updated_event']),
         'packageStatusUpdatedEvent': !exists(json, 'package_status_updated_event') ? undefined : EnduroPackageStatusUpdatedEventResponseBodyFromJSON(json['package_status_updated_event']),
         'packageUpdatedEvent': !exists(json, 'package_updated_event') ? undefined : EnduroPackageUpdatedEventResponseBodyFromJSON(json['package_updated_event']),
+        'preservationActionCreatedEvent': !exists(json, 'preservation_action_created_event') ? undefined : EnduroPreservationActionCreatedEventResponseBodyFromJSON(json['preservation_action_created_event']),
+        'preservationActionUpdatedEvent': !exists(json, 'preservation_action_updated_event') ? undefined : EnduroPreservationActionUpdatedEventResponseBodyFromJSON(json['preservation_action_updated_event']),
+        'preservationTaskCreatedEvent': !exists(json, 'preservation_task_created_event') ? undefined : EnduroPreservationTaskCreatedEventResponseBodyFromJSON(json['preservation_task_created_event']),
+        'preservationTaskUpdatedEvent': !exists(json, 'preservation_task_updated_event') ? undefined : EnduroPreservationTaskUpdatedEventResponseBodyFromJSON(json['preservation_task_updated_event']),
     };
 }
 
@@ -128,6 +180,10 @@ export function PackageMonitorResponseBodyToJSON(value?: PackageMonitorResponseB
         'package_location_updated_event': EnduroPackageLocationUpdatedEventResponseBodyToJSON(value.packageLocationUpdatedEvent),
         'package_status_updated_event': EnduroPackageStatusUpdatedEventResponseBodyToJSON(value.packageStatusUpdatedEvent),
         'package_updated_event': EnduroPackageUpdatedEventResponseBodyToJSON(value.packageUpdatedEvent),
+        'preservation_action_created_event': EnduroPreservationActionCreatedEventResponseBodyToJSON(value.preservationActionCreatedEvent),
+        'preservation_action_updated_event': EnduroPreservationActionUpdatedEventResponseBodyToJSON(value.preservationActionUpdatedEvent),
+        'preservation_task_created_event': EnduroPreservationTaskCreatedEventResponseBodyToJSON(value.preservationTaskCreatedEvent),
+        'preservation_task_updated_event': EnduroPreservationTaskUpdatedEventResponseBodyToJSON(value.preservationTaskUpdatedEvent),
     };
 }
 

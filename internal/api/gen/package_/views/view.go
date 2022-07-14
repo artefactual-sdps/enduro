@@ -41,12 +41,16 @@ type EnduroPackagePreservationActions struct {
 
 // EnduroMonitorEventView is a type that runs validations on a projected type.
 type EnduroMonitorEventView struct {
-	MonitorPingEvent            *EnduroMonitorPingEventView
-	PackageCreatedEvent         *EnduroPackageCreatedEventView
-	PackageDeletedEvent         *EnduroPackageDeletedEventView
-	PackageUpdatedEvent         *EnduroPackageUpdatedEventView
-	PackageStatusUpdatedEvent   *EnduroPackageStatusUpdatedEventView
-	PackageLocationUpdatedEvent *EnduroPackageLocationUpdatedEventView
+	MonitorPingEvent               *EnduroMonitorPingEventView
+	PackageCreatedEvent            *EnduroPackageCreatedEventView
+	PackageDeletedEvent            *EnduroPackageDeletedEventView
+	PackageUpdatedEvent            *EnduroPackageUpdatedEventView
+	PackageStatusUpdatedEvent      *EnduroPackageStatusUpdatedEventView
+	PackageLocationUpdatedEvent    *EnduroPackageLocationUpdatedEventView
+	PreservationActionCreatedEvent *EnduroPreservationActionCreatedEventView
+	PreservationActionUpdatedEvent *EnduroPreservationActionUpdatedEventView
+	PreservationTaskCreatedEvent   *EnduroPreservationTaskCreatedEventView
+	PreservationTaskUpdatedEvent   *EnduroPreservationTaskUpdatedEventView
 }
 
 // EnduroMonitorPingEventView is a type that runs validations on a projected
@@ -118,15 +122,13 @@ type EnduroPackageLocationUpdatedEventView struct {
 	Location *string
 }
 
-// EnduroPackagePreservationActionsView is a type that runs validations on a
-// projected type.
-type EnduroPackagePreservationActionsView struct {
-	Actions EnduroPackagePreservationActionCollectionView
+// EnduroPreservationActionCreatedEventView is a type that runs validations on
+// a projected type.
+type EnduroPreservationActionCreatedEventView struct {
+	// Identifier of preservation action
+	ID   *uint
+	Item *EnduroPackagePreservationActionView
 }
-
-// EnduroPackagePreservationActionCollectionView is a type that runs
-// validations on a projected type.
-type EnduroPackagePreservationActionCollectionView []*EnduroPackagePreservationActionView
 
 // EnduroPackagePreservationActionView is a type that runs validations on a
 // projected type.
@@ -138,6 +140,7 @@ type EnduroPackagePreservationActionView struct {
 	StartedAt   *string
 	CompletedAt *string
 	Tasks       EnduroPackagePreservationTaskCollectionView
+	PackageID   *uint
 }
 
 // EnduroPackagePreservationTaskCollectionView is a type that runs validations
@@ -147,14 +150,49 @@ type EnduroPackagePreservationTaskCollectionView []*EnduroPackagePreservationTas
 // EnduroPackagePreservationTaskView is a type that runs validations on a
 // projected type.
 type EnduroPackagePreservationTaskView struct {
-	ID          *uint
-	TaskID      *string
-	Name        *string
-	Status      *string
-	StartedAt   *string
-	CompletedAt *string
-	Note        *string
+	ID                   *uint
+	TaskID               *string
+	Name                 *string
+	Status               *string
+	StartedAt            *string
+	CompletedAt          *string
+	Note                 *string
+	PreservationActionID *uint
 }
+
+// EnduroPreservationActionUpdatedEventView is a type that runs validations on
+// a projected type.
+type EnduroPreservationActionUpdatedEventView struct {
+	// Identifier of preservation action
+	ID   *uint
+	Item *EnduroPackagePreservationActionView
+}
+
+// EnduroPreservationTaskCreatedEventView is a type that runs validations on a
+// projected type.
+type EnduroPreservationTaskCreatedEventView struct {
+	// Identifier of preservation task
+	ID   *uint
+	Item *EnduroPackagePreservationTaskView
+}
+
+// EnduroPreservationTaskUpdatedEventView is a type that runs validations on a
+// projected type.
+type EnduroPreservationTaskUpdatedEventView struct {
+	// Identifier of preservation task
+	ID   *uint
+	Item *EnduroPackagePreservationTaskView
+}
+
+// EnduroPackagePreservationActionsView is a type that runs validations on a
+// projected type.
+type EnduroPackagePreservationActionsView struct {
+	Actions EnduroPackagePreservationActionCollectionView
+}
+
+// EnduroPackagePreservationActionCollectionView is a type that runs
+// validations on a projected type.
+type EnduroPackagePreservationActionCollectionView []*EnduroPackagePreservationActionView
 
 var (
 	// EnduroMonitorEventMap is a map indexing the attribute names of
@@ -167,6 +205,10 @@ var (
 			"package_updated_event",
 			"package_status_updated_event",
 			"package_location_updated_event",
+			"preservation_action_created_event",
+			"preservation_action_updated_event",
+			"preservation_task_created_event",
+			"preservation_task_updated_event",
 		},
 	}
 	// EnduroStoredPackageMap is a map indexing the attribute names of
@@ -238,22 +280,26 @@ var (
 			"location",
 		},
 	}
-	// EnduroPackagePreservationActionCollectionMap is a map indexing the attribute
-	// names of EnduroPackagePreservationActionCollection by view name.
-	EnduroPackagePreservationActionCollectionMap = map[string][]string{
+	// EnduroPreservationActionCreatedEventMap is a map indexing the attribute
+	// names of EnduroPreservationActionCreatedEvent by view name.
+	EnduroPreservationActionCreatedEventMap = map[string][]string{
 		"default": {
 			"id",
-			"workflow_id",
-			"type",
-			"status",
-			"started_at",
-			"completed_at",
-			"tasks",
+			"item",
 		},
 	}
 	// EnduroPackagePreservationActionMap is a map indexing the attribute names of
 	// EnduroPackagePreservationAction by view name.
 	EnduroPackagePreservationActionMap = map[string][]string{
+		"simple": {
+			"id",
+			"workflow_id",
+			"type",
+			"status",
+			"started_at",
+			"completed_at",
+			"package_id",
+		},
 		"default": {
 			"id",
 			"workflow_id",
@@ -262,6 +308,7 @@ var (
 			"started_at",
 			"completed_at",
 			"tasks",
+			"package_id",
 		},
 	}
 	// EnduroPackagePreservationTaskCollectionMap is a map indexing the attribute
@@ -275,6 +322,7 @@ var (
 			"started_at",
 			"completed_at",
 			"note",
+			"preservation_action_id",
 		},
 	}
 	// EnduroPackagePreservationTaskMap is a map indexing the attribute names of
@@ -288,6 +336,54 @@ var (
 			"started_at",
 			"completed_at",
 			"note",
+			"preservation_action_id",
+		},
+	}
+	// EnduroPreservationActionUpdatedEventMap is a map indexing the attribute
+	// names of EnduroPreservationActionUpdatedEvent by view name.
+	EnduroPreservationActionUpdatedEventMap = map[string][]string{
+		"default": {
+			"id",
+			"item",
+		},
+	}
+	// EnduroPreservationTaskCreatedEventMap is a map indexing the attribute names
+	// of EnduroPreservationTaskCreatedEvent by view name.
+	EnduroPreservationTaskCreatedEventMap = map[string][]string{
+		"default": {
+			"id",
+			"item",
+		},
+	}
+	// EnduroPreservationTaskUpdatedEventMap is a map indexing the attribute names
+	// of EnduroPreservationTaskUpdatedEvent by view name.
+	EnduroPreservationTaskUpdatedEventMap = map[string][]string{
+		"default": {
+			"id",
+			"item",
+		},
+	}
+	// EnduroPackagePreservationActionCollectionMap is a map indexing the attribute
+	// names of EnduroPackagePreservationActionCollection by view name.
+	EnduroPackagePreservationActionCollectionMap = map[string][]string{
+		"simple": {
+			"id",
+			"workflow_id",
+			"type",
+			"status",
+			"started_at",
+			"completed_at",
+			"package_id",
+		},
+		"default": {
+			"id",
+			"workflow_id",
+			"type",
+			"status",
+			"started_at",
+			"completed_at",
+			"tasks",
+			"package_id",
 		},
 	}
 )
@@ -359,6 +455,26 @@ func ValidateEnduroMonitorEventView(result *EnduroMonitorEventView) (err error) 
 	}
 	if result.PackageLocationUpdatedEvent != nil {
 		if err2 := ValidateEnduroPackageLocationUpdatedEventView(result.PackageLocationUpdatedEvent); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	if result.PreservationActionCreatedEvent != nil {
+		if err2 := ValidateEnduroPreservationActionCreatedEventView(result.PreservationActionCreatedEvent); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	if result.PreservationActionUpdatedEvent != nil {
+		if err2 := ValidateEnduroPreservationActionUpdatedEventView(result.PreservationActionUpdatedEvent); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	if result.PreservationTaskCreatedEvent != nil {
+		if err2 := ValidateEnduroPreservationTaskCreatedEventView(result.PreservationTaskCreatedEvent); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	if result.PreservationTaskUpdatedEvent != nil {
+		if err2 := ValidateEnduroPreservationTaskUpdatedEventView(result.PreservationTaskUpdatedEvent); err2 != nil {
 			err = goa.MergeErrors(err, err2)
 		}
 	}
@@ -476,26 +592,53 @@ func ValidateEnduroPackageLocationUpdatedEventView(result *EnduroPackageLocation
 	return
 }
 
-// ValidateEnduroPackagePreservationActionsView runs the validations defined on
-// EnduroPackagePreservationActionsView using the "default" view.
-func ValidateEnduroPackagePreservationActionsView(result *EnduroPackagePreservationActionsView) (err error) {
-
-	if result.Actions != nil {
-		if err2 := ValidateEnduroPackagePreservationActionCollectionView(result.Actions); err2 != nil {
+// ValidateEnduroPreservationActionCreatedEventView runs the validations
+// defined on EnduroPreservationActionCreatedEventView using the "default" view.
+func ValidateEnduroPreservationActionCreatedEventView(result *EnduroPreservationActionCreatedEventView) (err error) {
+	if result.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "result"))
+	}
+	if result.Item != nil {
+		if err2 := ValidateEnduroPackagePreservationActionViewSimple(result.Item); err2 != nil {
 			err = goa.MergeErrors(err, err2)
 		}
 	}
 	return
 }
 
-// ValidateEnduroPackagePreservationActionCollectionView runs the validations
-// defined on EnduroPackagePreservationActionCollectionView using the "default"
-// view.
-func ValidateEnduroPackagePreservationActionCollectionView(result EnduroPackagePreservationActionCollectionView) (err error) {
-	for _, item := range result {
-		if err2 := ValidateEnduroPackagePreservationActionView(item); err2 != nil {
-			err = goa.MergeErrors(err, err2)
+// ValidateEnduroPackagePreservationActionViewSimple runs the validations
+// defined on EnduroPackagePreservationActionView using the "simple" view.
+func ValidateEnduroPackagePreservationActionViewSimple(result *EnduroPackagePreservationActionView) (err error) {
+	if result.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "result"))
+	}
+	if result.WorkflowID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("workflow_id", "result"))
+	}
+	if result.Type == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("type", "result"))
+	}
+	if result.Status == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("status", "result"))
+	}
+	if result.StartedAt == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("started_at", "result"))
+	}
+	if result.Type != nil {
+		if !(*result.Type == "create-aip" || *result.Type == "move-package") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.type", *result.Type, []interface{}{"create-aip", "move-package"}))
 		}
+	}
+	if result.Status != nil {
+		if !(*result.Status == "unspecified" || *result.Status == "in progress" || *result.Status == "done" || *result.Status == "error" || *result.Status == "queued" || *result.Status == "pending") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.status", *result.Status, []interface{}{"unspecified", "in progress", "done", "error", "queued", "pending"}))
+		}
+	}
+	if result.StartedAt != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("result.started_at", *result.StartedAt, goa.FormatDateTime))
+	}
+	if result.CompletedAt != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("result.completed_at", *result.CompletedAt, goa.FormatDateTime))
 	}
 	return
 }
@@ -582,6 +725,84 @@ func ValidateEnduroPackagePreservationTaskView(result *EnduroPackagePreservation
 	}
 	if result.CompletedAt != nil {
 		err = goa.MergeErrors(err, goa.ValidateFormat("result.completed_at", *result.CompletedAt, goa.FormatDateTime))
+	}
+	return
+}
+
+// ValidateEnduroPreservationActionUpdatedEventView runs the validations
+// defined on EnduroPreservationActionUpdatedEventView using the "default" view.
+func ValidateEnduroPreservationActionUpdatedEventView(result *EnduroPreservationActionUpdatedEventView) (err error) {
+	if result.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "result"))
+	}
+	if result.Item != nil {
+		if err2 := ValidateEnduroPackagePreservationActionViewSimple(result.Item); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	return
+}
+
+// ValidateEnduroPreservationTaskCreatedEventView runs the validations defined
+// on EnduroPreservationTaskCreatedEventView using the "default" view.
+func ValidateEnduroPreservationTaskCreatedEventView(result *EnduroPreservationTaskCreatedEventView) (err error) {
+	if result.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "result"))
+	}
+	if result.Item != nil {
+		if err2 := ValidateEnduroPackagePreservationTaskView(result.Item); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	return
+}
+
+// ValidateEnduroPreservationTaskUpdatedEventView runs the validations defined
+// on EnduroPreservationTaskUpdatedEventView using the "default" view.
+func ValidateEnduroPreservationTaskUpdatedEventView(result *EnduroPreservationTaskUpdatedEventView) (err error) {
+	if result.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "result"))
+	}
+	if result.Item != nil {
+		if err2 := ValidateEnduroPackagePreservationTaskView(result.Item); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	return
+}
+
+// ValidateEnduroPackagePreservationActionsView runs the validations defined on
+// EnduroPackagePreservationActionsView using the "default" view.
+func ValidateEnduroPackagePreservationActionsView(result *EnduroPackagePreservationActionsView) (err error) {
+
+	if result.Actions != nil {
+		if err2 := ValidateEnduroPackagePreservationActionCollectionView(result.Actions); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	return
+}
+
+// ValidateEnduroPackagePreservationActionCollectionViewSimple runs the
+// validations defined on EnduroPackagePreservationActionCollectionView using
+// the "simple" view.
+func ValidateEnduroPackagePreservationActionCollectionViewSimple(result EnduroPackagePreservationActionCollectionView) (err error) {
+	for _, item := range result {
+		if err2 := ValidateEnduroPackagePreservationActionViewSimple(item); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	return
+}
+
+// ValidateEnduroPackagePreservationActionCollectionView runs the validations
+// defined on EnduroPackagePreservationActionCollectionView using the "default"
+// view.
+func ValidateEnduroPackagePreservationActionCollectionView(result EnduroPackagePreservationActionCollectionView) (err error) {
+	for _, item := range result {
+		if err2 := ValidateEnduroPackagePreservationActionView(item); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
 	}
 	return
 }

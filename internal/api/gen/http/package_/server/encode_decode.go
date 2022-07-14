@@ -1042,6 +1042,109 @@ func marshalPackageViewsEnduroPackageLocationUpdatedEventViewToEnduroPackageLoca
 	return res
 }
 
+// marshalPackageViewsEnduroPreservationActionCreatedEventViewToEnduroPreservationActionCreatedEventResponseBody
+// builds a value of type *EnduroPreservationActionCreatedEventResponseBody
+// from a value of type *package_views.EnduroPreservationActionCreatedEventView.
+func marshalPackageViewsEnduroPreservationActionCreatedEventViewToEnduroPreservationActionCreatedEventResponseBody(v *package_views.EnduroPreservationActionCreatedEventView) *EnduroPreservationActionCreatedEventResponseBody {
+	if v == nil {
+		return nil
+	}
+	res := &EnduroPreservationActionCreatedEventResponseBody{
+		ID: *v.ID,
+	}
+	if v.Item != nil {
+		res.Item = marshalPackageViewsEnduroPackagePreservationActionViewToEnduroPackagePreservationActionResponseBodySimple(v.Item)
+	}
+
+	return res
+}
+
+// marshalPackageViewsEnduroPackagePreservationActionViewToEnduroPackagePreservationActionResponseBodySimple
+// builds a value of type *EnduroPackagePreservationActionResponseBodySimple
+// from a value of type *package_views.EnduroPackagePreservationActionView.
+func marshalPackageViewsEnduroPackagePreservationActionViewToEnduroPackagePreservationActionResponseBodySimple(v *package_views.EnduroPackagePreservationActionView) *EnduroPackagePreservationActionResponseBodySimple {
+	res := &EnduroPackagePreservationActionResponseBodySimple{
+		ID:          *v.ID,
+		WorkflowID:  *v.WorkflowID,
+		Type:        *v.Type,
+		Status:      *v.Status,
+		StartedAt:   *v.StartedAt,
+		CompletedAt: v.CompletedAt,
+		PackageID:   v.PackageID,
+	}
+
+	return res
+}
+
+// marshalPackageViewsEnduroPreservationActionUpdatedEventViewToEnduroPreservationActionUpdatedEventResponseBody
+// builds a value of type *EnduroPreservationActionUpdatedEventResponseBody
+// from a value of type *package_views.EnduroPreservationActionUpdatedEventView.
+func marshalPackageViewsEnduroPreservationActionUpdatedEventViewToEnduroPreservationActionUpdatedEventResponseBody(v *package_views.EnduroPreservationActionUpdatedEventView) *EnduroPreservationActionUpdatedEventResponseBody {
+	if v == nil {
+		return nil
+	}
+	res := &EnduroPreservationActionUpdatedEventResponseBody{
+		ID: *v.ID,
+	}
+	if v.Item != nil {
+		res.Item = marshalPackageViewsEnduroPackagePreservationActionViewToEnduroPackagePreservationActionResponseBodySimple(v.Item)
+	}
+
+	return res
+}
+
+// marshalPackageViewsEnduroPreservationTaskCreatedEventViewToEnduroPreservationTaskCreatedEventResponseBody
+// builds a value of type *EnduroPreservationTaskCreatedEventResponseBody from
+// a value of type *package_views.EnduroPreservationTaskCreatedEventView.
+func marshalPackageViewsEnduroPreservationTaskCreatedEventViewToEnduroPreservationTaskCreatedEventResponseBody(v *package_views.EnduroPreservationTaskCreatedEventView) *EnduroPreservationTaskCreatedEventResponseBody {
+	if v == nil {
+		return nil
+	}
+	res := &EnduroPreservationTaskCreatedEventResponseBody{
+		ID: *v.ID,
+	}
+	if v.Item != nil {
+		res.Item = marshalPackageViewsEnduroPackagePreservationTaskViewToEnduroPackagePreservationTaskResponseBody(v.Item)
+	}
+
+	return res
+}
+
+// marshalPackageViewsEnduroPackagePreservationTaskViewToEnduroPackagePreservationTaskResponseBody
+// builds a value of type *EnduroPackagePreservationTaskResponseBody from a
+// value of type *package_views.EnduroPackagePreservationTaskView.
+func marshalPackageViewsEnduroPackagePreservationTaskViewToEnduroPackagePreservationTaskResponseBody(v *package_views.EnduroPackagePreservationTaskView) *EnduroPackagePreservationTaskResponseBody {
+	res := &EnduroPackagePreservationTaskResponseBody{
+		ID:                   *v.ID,
+		TaskID:               *v.TaskID,
+		Name:                 *v.Name,
+		Status:               *v.Status,
+		StartedAt:            *v.StartedAt,
+		CompletedAt:          v.CompletedAt,
+		Note:                 v.Note,
+		PreservationActionID: v.PreservationActionID,
+	}
+
+	return res
+}
+
+// marshalPackageViewsEnduroPreservationTaskUpdatedEventViewToEnduroPreservationTaskUpdatedEventResponseBody
+// builds a value of type *EnduroPreservationTaskUpdatedEventResponseBody from
+// a value of type *package_views.EnduroPreservationTaskUpdatedEventView.
+func marshalPackageViewsEnduroPreservationTaskUpdatedEventViewToEnduroPreservationTaskUpdatedEventResponseBody(v *package_views.EnduroPreservationTaskUpdatedEventView) *EnduroPreservationTaskUpdatedEventResponseBody {
+	if v == nil {
+		return nil
+	}
+	res := &EnduroPreservationTaskUpdatedEventResponseBody{
+		ID: *v.ID,
+	}
+	if v.Item != nil {
+		res.Item = marshalPackageViewsEnduroPackagePreservationTaskViewToEnduroPackagePreservationTaskResponseBody(v.Item)
+	}
+
+	return res
+}
+
 // marshalPackageEnduroStoredPackageToEnduroStoredPackageResponseBody builds a
 // value of type *EnduroStoredPackageResponseBody from a value of type
 // *package_.EnduroStoredPackage.
@@ -1076,32 +1179,13 @@ func marshalPackageViewsEnduroPackagePreservationActionViewToEnduroPackagePreser
 		Status:      *v.Status,
 		StartedAt:   *v.StartedAt,
 		CompletedAt: v.CompletedAt,
+		PackageID:   v.PackageID,
 	}
 	if v.Tasks != nil {
 		res.Tasks = make([]*EnduroPackagePreservationTaskResponseBody, len(v.Tasks))
 		for i, val := range v.Tasks {
 			res.Tasks[i] = marshalPackageViewsEnduroPackagePreservationTaskViewToEnduroPackagePreservationTaskResponseBody(val)
 		}
-	}
-
-	return res
-}
-
-// marshalPackageViewsEnduroPackagePreservationTaskViewToEnduroPackagePreservationTaskResponseBody
-// builds a value of type *EnduroPackagePreservationTaskResponseBody from a
-// value of type *package_views.EnduroPackagePreservationTaskView.
-func marshalPackageViewsEnduroPackagePreservationTaskViewToEnduroPackagePreservationTaskResponseBody(v *package_views.EnduroPackagePreservationTaskView) *EnduroPackagePreservationTaskResponseBody {
-	if v == nil {
-		return nil
-	}
-	res := &EnduroPackagePreservationTaskResponseBody{
-		ID:          *v.ID,
-		TaskID:      *v.TaskID,
-		Name:        *v.Name,
-		Status:      *v.Status,
-		StartedAt:   *v.StartedAt,
-		CompletedAt: v.CompletedAt,
-		Note:        v.Note,
 	}
 
 	return res

@@ -1272,22 +1272,18 @@ func unmarshalEnduroPackageLocationUpdatedEventResponseBodyToPackageViewsEnduroP
 	return res
 }
 
-// unmarshalEnduroStoredPackageResponseBodyToPackageEnduroStoredPackage builds
-// a value of type *package_.EnduroStoredPackage from a value of type
-// *EnduroStoredPackageResponseBody.
-func unmarshalEnduroStoredPackageResponseBodyToPackageEnduroStoredPackage(v *EnduroStoredPackageResponseBody) *package_.EnduroStoredPackage {
-	res := &package_.EnduroStoredPackage{
-		ID:          *v.ID,
-		Name:        v.Name,
-		Location:    v.Location,
-		Status:      *v.Status,
-		WorkflowID:  v.WorkflowID,
-		RunID:       v.RunID,
-		AipID:       v.AipID,
-		CreatedAt:   *v.CreatedAt,
-		StartedAt:   v.StartedAt,
-		CompletedAt: v.CompletedAt,
+// unmarshalEnduroPreservationActionCreatedEventResponseBodyToPackageViewsEnduroPreservationActionCreatedEventView
+// builds a value of type
+// *package_views.EnduroPreservationActionCreatedEventView from a value of type
+// *EnduroPreservationActionCreatedEventResponseBody.
+func unmarshalEnduroPreservationActionCreatedEventResponseBodyToPackageViewsEnduroPreservationActionCreatedEventView(v *EnduroPreservationActionCreatedEventResponseBody) *package_views.EnduroPreservationActionCreatedEventView {
+	if v == nil {
+		return nil
 	}
+	res := &package_views.EnduroPreservationActionCreatedEventView{
+		ID: v.ID,
+	}
+	res.Item = unmarshalEnduroPackagePreservationActionResponseBodyToPackageViewsEnduroPackagePreservationActionView(v.Item)
 
 	return res
 }
@@ -1296,9 +1292,6 @@ func unmarshalEnduroStoredPackageResponseBodyToPackageEnduroStoredPackage(v *End
 // builds a value of type *package_views.EnduroPackagePreservationActionView
 // from a value of type *EnduroPackagePreservationActionResponseBody.
 func unmarshalEnduroPackagePreservationActionResponseBodyToPackageViewsEnduroPackagePreservationActionView(v *EnduroPackagePreservationActionResponseBody) *package_views.EnduroPackagePreservationActionView {
-	if v == nil {
-		return nil
-	}
 	res := &package_views.EnduroPackagePreservationActionView{
 		ID:          v.ID,
 		WorkflowID:  v.WorkflowID,
@@ -1306,6 +1299,7 @@ func unmarshalEnduroPackagePreservationActionResponseBodyToPackageViewsEnduroPac
 		Status:      v.Status,
 		StartedAt:   v.StartedAt,
 		CompletedAt: v.CompletedAt,
+		PackageID:   v.PackageID,
 	}
 	if v.Tasks != nil {
 		res.Tasks = make([]*package_views.EnduroPackagePreservationTaskView, len(v.Tasks))
@@ -1325,13 +1319,80 @@ func unmarshalEnduroPackagePreservationTaskResponseBodyToPackageViewsEnduroPacka
 		return nil
 	}
 	res := &package_views.EnduroPackagePreservationTaskView{
-		ID:          v.ID,
-		TaskID:      v.TaskID,
+		ID:                   v.ID,
+		TaskID:               v.TaskID,
+		Name:                 v.Name,
+		Status:               v.Status,
+		StartedAt:            v.StartedAt,
+		CompletedAt:          v.CompletedAt,
+		Note:                 v.Note,
+		PreservationActionID: v.PreservationActionID,
+	}
+
+	return res
+}
+
+// unmarshalEnduroPreservationActionUpdatedEventResponseBodyToPackageViewsEnduroPreservationActionUpdatedEventView
+// builds a value of type
+// *package_views.EnduroPreservationActionUpdatedEventView from a value of type
+// *EnduroPreservationActionUpdatedEventResponseBody.
+func unmarshalEnduroPreservationActionUpdatedEventResponseBodyToPackageViewsEnduroPreservationActionUpdatedEventView(v *EnduroPreservationActionUpdatedEventResponseBody) *package_views.EnduroPreservationActionUpdatedEventView {
+	if v == nil {
+		return nil
+	}
+	res := &package_views.EnduroPreservationActionUpdatedEventView{
+		ID: v.ID,
+	}
+	res.Item = unmarshalEnduroPackagePreservationActionResponseBodyToPackageViewsEnduroPackagePreservationActionView(v.Item)
+
+	return res
+}
+
+// unmarshalEnduroPreservationTaskCreatedEventResponseBodyToPackageViewsEnduroPreservationTaskCreatedEventView
+// builds a value of type *package_views.EnduroPreservationTaskCreatedEventView
+// from a value of type *EnduroPreservationTaskCreatedEventResponseBody.
+func unmarshalEnduroPreservationTaskCreatedEventResponseBodyToPackageViewsEnduroPreservationTaskCreatedEventView(v *EnduroPreservationTaskCreatedEventResponseBody) *package_views.EnduroPreservationTaskCreatedEventView {
+	if v == nil {
+		return nil
+	}
+	res := &package_views.EnduroPreservationTaskCreatedEventView{
+		ID: v.ID,
+	}
+	res.Item = unmarshalEnduroPackagePreservationTaskResponseBodyToPackageViewsEnduroPackagePreservationTaskView(v.Item)
+
+	return res
+}
+
+// unmarshalEnduroPreservationTaskUpdatedEventResponseBodyToPackageViewsEnduroPreservationTaskUpdatedEventView
+// builds a value of type *package_views.EnduroPreservationTaskUpdatedEventView
+// from a value of type *EnduroPreservationTaskUpdatedEventResponseBody.
+func unmarshalEnduroPreservationTaskUpdatedEventResponseBodyToPackageViewsEnduroPreservationTaskUpdatedEventView(v *EnduroPreservationTaskUpdatedEventResponseBody) *package_views.EnduroPreservationTaskUpdatedEventView {
+	if v == nil {
+		return nil
+	}
+	res := &package_views.EnduroPreservationTaskUpdatedEventView{
+		ID: v.ID,
+	}
+	res.Item = unmarshalEnduroPackagePreservationTaskResponseBodyToPackageViewsEnduroPackagePreservationTaskView(v.Item)
+
+	return res
+}
+
+// unmarshalEnduroStoredPackageResponseBodyToPackageEnduroStoredPackage builds
+// a value of type *package_.EnduroStoredPackage from a value of type
+// *EnduroStoredPackageResponseBody.
+func unmarshalEnduroStoredPackageResponseBodyToPackageEnduroStoredPackage(v *EnduroStoredPackageResponseBody) *package_.EnduroStoredPackage {
+	res := &package_.EnduroStoredPackage{
+		ID:          *v.ID,
 		Name:        v.Name,
-		Status:      v.Status,
+		Location:    v.Location,
+		Status:      *v.Status,
+		WorkflowID:  v.WorkflowID,
+		RunID:       v.RunID,
+		AipID:       v.AipID,
+		CreatedAt:   *v.CreatedAt,
 		StartedAt:   v.StartedAt,
 		CompletedAt: v.CompletedAt,
-		Note:        v.Note,
 	}
 
 	return res

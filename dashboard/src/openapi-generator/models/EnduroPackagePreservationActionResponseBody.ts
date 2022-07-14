@@ -40,6 +40,12 @@ export interface EnduroPackagePreservationActionResponseBody {
     id: number;
     /**
      * 
+     * @type {number}
+     * @memberof EnduroPackagePreservationActionResponseBody
+     */
+    packageId?: number;
+    /**
+     * 
      * @type {Date}
      * @memberof EnduroPackagePreservationActionResponseBody
      */
@@ -106,6 +112,7 @@ export function EnduroPackagePreservationActionResponseBodyFromJSONTyped(json: a
         
         'completedAt': !exists(json, 'completed_at') ? undefined : (new Date(json['completed_at'])),
         'id': json['id'],
+        'packageId': !exists(json, 'package_id') ? undefined : json['package_id'],
         'startedAt': (new Date(json['started_at'])),
         'status': json['status'],
         'tasks': !exists(json, 'tasks') ? undefined : ((json['tasks'] as Array<any>).map(EnduroPackagePreservationTaskResponseBodyFromJSON)),
@@ -125,6 +132,7 @@ export function EnduroPackagePreservationActionResponseBodyToJSON(value?: Enduro
         
         'completed_at': value.completedAt === undefined ? undefined : (value.completedAt.toISOString()),
         'id': value.id,
+        'package_id': value.packageId,
         'started_at': (value.startedAt.toISOString()),
         'status': value.status,
         'tasks': value.tasks === undefined ? undefined : ((value.tasks as Array<any>).map(EnduroPackagePreservationTaskResponseBodyToJSON)),
