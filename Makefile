@@ -77,12 +77,6 @@ gen-goa:
 clean:
 	rm -rf ./build ./dist
 
-release-test-config:
-	$(GORELEASER) --snapshot --skip-publish --rm-dist
-
-release-test:
-	$(GORELEASER) --skip-publish
-
 PROJECT := enduro
 UNAME_OS := $(shell uname -s)
 UNAME_ARCH := $(shell uname -m)
