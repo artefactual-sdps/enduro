@@ -3,7 +3,7 @@
 // swagger HTTP server
 //
 // Command:
-// $ goa-v3.7.10 gen github.com/artefactual-labs/enduro/internal/api/design -o
+// $ goa-v3.7.10 gen github.com/artefactual-sdps/enduro/internal/api/design -o
 // internal/api
 
 package server
@@ -12,7 +12,7 @@ import (
 	"context"
 	"net/http"
 
-	swagger "github.com/artefactual-labs/enduro/internal/api/gen/swagger"
+	swagger "github.com/artefactual-sdps/enduro/internal/api/gen/swagger"
 	goahttp "goa.design/goa/v3/http"
 	"goa.design/plugins/v3/cors"
 )

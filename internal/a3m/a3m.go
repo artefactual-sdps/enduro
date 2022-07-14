@@ -12,7 +12,7 @@ import (
 	temporalsdk_activity "go.temporal.io/sdk/activity"
 	"google.golang.org/grpc"
 
-	"github.com/artefactual-labs/enduro/internal/package_"
+	"github.com/artefactual-sdps/enduro/internal/package_"
 )
 
 const CreateAIPActivityName = "create-aip-activity"

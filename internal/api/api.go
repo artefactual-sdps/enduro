@@ -21,16 +21,16 @@ import (
 	goahttpmwr "goa.design/goa/v3/http/middleware"
 	"goa.design/goa/v3/middleware"
 
-	"github.com/artefactual-labs/enduro/internal/api/gen/batch"
-	batchsvr "github.com/artefactual-labs/enduro/internal/api/gen/http/batch/server"
-	packagesvr "github.com/artefactual-labs/enduro/internal/api/gen/http/package_/server"
-	storagesvr "github.com/artefactual-labs/enduro/internal/api/gen/http/storage/server"
-	swaggersvr "github.com/artefactual-labs/enduro/internal/api/gen/http/swagger/server"
-	"github.com/artefactual-labs/enduro/internal/api/gen/package_"
-	"github.com/artefactual-labs/enduro/internal/api/gen/storage"
-	intbatch "github.com/artefactual-labs/enduro/internal/batch"
-	intpkg "github.com/artefactual-labs/enduro/internal/package_"
-	intstorage "github.com/artefactual-labs/enduro/internal/storage"
+	"github.com/artefactual-sdps/enduro/internal/api/gen/batch"
+	batchsvr "github.com/artefactual-sdps/enduro/internal/api/gen/http/batch/server"
+	packagesvr "github.com/artefactual-sdps/enduro/internal/api/gen/http/package_/server"
+	storagesvr "github.com/artefactual-sdps/enduro/internal/api/gen/http/storage/server"
+	swaggersvr "github.com/artefactual-sdps/enduro/internal/api/gen/http/swagger/server"
+	"github.com/artefactual-sdps/enduro/internal/api/gen/package_"
+	"github.com/artefactual-sdps/enduro/internal/api/gen/storage"
+	intbatch "github.com/artefactual-sdps/enduro/internal/batch"
+	intpkg "github.com/artefactual-sdps/enduro/internal/package_"
+	intstorage "github.com/artefactual-sdps/enduro/internal/storage"
 )
 
 func HTTPServer(

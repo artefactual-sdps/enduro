@@ -5,7 +5,7 @@ import (
 
 	"gotest.tools/v3/assert"
 
-	"github.com/artefactual-labs/enduro/internal/bagit"
+	"github.com/artefactual-sdps/enduro/internal/bagit"
 )
 
 func TestBagit(t *testing.T) {

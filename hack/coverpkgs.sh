@@ -18,8 +18,8 @@ cd ${curdir}/..
 #
 
 go list ./... \
-	| grep -v "/artefactual-labs/enduro/hack" \
-	| grep -v "/artefactual-labs/enduro/internal/api/gen" \
-	| grep -v "/artefactual-labs/enduro/internal/api/design" \
+	| grep -v "/artefactual-sdps/enduro/hack" \
+	| grep -v "/artefactual-sdps/enduro/internal/api/gen" \
+	| grep -v "/artefactual-sdps/enduro/internal/api/design" \
 	| grep -v "/fake" \
 	| paste -sd","

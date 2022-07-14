@@ -3,7 +3,7 @@
 // storage HTTP client encoders and decoders
 //
 // Command:
-// $ goa-v3.7.10 gen github.com/artefactual-labs/enduro/internal/api/design -o
+// $ goa-v3.7.10 gen github.com/artefactual-sdps/enduro/internal/api/design -o
 // internal/api
 
 package client
@@ -15,8 +15,8 @@ import (
 	"net/http"
 	"net/url"
 
-	storage "github.com/artefactual-labs/enduro/internal/api/gen/storage"
-	storageviews "github.com/artefactual-labs/enduro/internal/api/gen/storage/views"
+	storage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
+	storageviews "github.com/artefactual-sdps/enduro/internal/api/gen/storage/views"
 	goahttp "goa.design/goa/v3/http"
 )
 

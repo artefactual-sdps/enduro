@@ -7,7 +7,7 @@ import (
 	"github.com/oklog/run"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
 
-	goastorage "github.com/artefactual-labs/enduro/internal/api/gen/storage"
+	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 )
 
 type MoveToPermanentStorageActivityParams struct {

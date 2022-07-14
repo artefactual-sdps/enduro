@@ -3,7 +3,7 @@
 // batch HTTP client CLI support package
 //
 // Command:
-// $ goa-v3.7.10 gen github.com/artefactual-labs/enduro/internal/api/design -o
+// $ goa-v3.7.10 gen github.com/artefactual-sdps/enduro/internal/api/design -o
 // internal/api
 
 package client
@@ -12,7 +12,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	batch "github.com/artefactual-labs/enduro/internal/api/gen/batch"
+	batch "github.com/artefactual-sdps/enduro/internal/api/gen/batch"
 )
 
 // BuildSubmitPayload builds the payload for the batch submit endpoint from CLI

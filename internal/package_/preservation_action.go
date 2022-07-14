@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	goapackage "github.com/artefactual-labs/enduro/internal/api/gen/package_"
+	goapackage "github.com/artefactual-sdps/enduro/internal/api/gen/package_"
 )
 
 type PreservationActionType uint

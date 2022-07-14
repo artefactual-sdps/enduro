@@ -22,8 +22,8 @@ import (
 	"gocloud.dev/blob"
 	"gocloud.dev/blob/s3blob"
 
-	"github.com/artefactual-labs/enduro/internal/api/gen/http/storage/server"
-	goastorage "github.com/artefactual-labs/enduro/internal/api/gen/storage"
+	"github.com/artefactual-sdps/enduro/internal/api/gen/http/storage/server"
+	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 )
 
 var SubmitURLExpirationTime = 15 * time.Minute

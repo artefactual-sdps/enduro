@@ -8,8 +8,8 @@ import (
 	"gotest.tools/v3/assert"
 	"gotest.tools/v3/fs"
 
-	batchfake "github.com/artefactual-labs/enduro/internal/batch/fake"
-	"github.com/artefactual-labs/enduro/internal/package_"
+	batchfake "github.com/artefactual-sdps/enduro/internal/batch/fake"
+	"github.com/artefactual-sdps/enduro/internal/package_"
 )
 
 func TestBatchActivityStartsProcessingWorkflows(t *testing.T) {

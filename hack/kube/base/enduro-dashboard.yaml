@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: enduro-dashboard
-          image: ghcr.io/artefactual-labs/enduro-dashboard:main
+          image: ghcr.io/artefactual-sdps/enduro-dashboard:main
           env:
             - name: ENDURO_API_ADDRESS
               value: enduro:9000

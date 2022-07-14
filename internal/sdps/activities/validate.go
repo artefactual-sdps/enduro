@@ -3,7 +3,7 @@ package activities
 import (
 	"context"
 
-	"github.com/artefactual-labs/enduro/internal/sdps"
+	"github.com/artefactual-sdps/enduro/internal/sdps"
 )
 
 type ValidatePackageActivity struct{}

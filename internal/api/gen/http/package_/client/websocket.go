@@ -3,7 +3,7 @@
 // package WebSocket client streaming
 //
 // Command:
-// $ goa-v3.7.10 gen github.com/artefactual-labs/enduro/internal/api/design -o
+// $ goa-v3.7.10 gen github.com/artefactual-sdps/enduro/internal/api/design -o
 // internal/api
 
 package client
@@ -11,8 +11,8 @@ package client
 import (
 	"io"
 
-	package_ "github.com/artefactual-labs/enduro/internal/api/gen/package_"
-	package_views "github.com/artefactual-labs/enduro/internal/api/gen/package_/views"
+	package_ "github.com/artefactual-sdps/enduro/internal/api/gen/package_"
+	package_views "github.com/artefactual-sdps/enduro/internal/api/gen/package_/views"
 	"github.com/gorilla/websocket"
 	goahttp "goa.design/goa/v3/http"
 )

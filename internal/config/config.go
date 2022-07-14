@@ -5,15 +5,15 @@ import (
 
 	"github.com/spf13/viper"
 
-	"github.com/artefactual-labs/enduro/internal/a3m"
-	"github.com/artefactual-labs/enduro/internal/api"
-	"github.com/artefactual-labs/enduro/internal/db"
-	"github.com/artefactual-labs/enduro/internal/search"
-	"github.com/artefactual-labs/enduro/internal/storage"
-	"github.com/artefactual-labs/enduro/internal/temporal"
-	"github.com/artefactual-labs/enduro/internal/validation"
-	"github.com/artefactual-labs/enduro/internal/version"
-	"github.com/artefactual-labs/enduro/internal/watcher"
+	"github.com/artefactual-sdps/enduro/internal/a3m"
+	"github.com/artefactual-sdps/enduro/internal/api"
+	"github.com/artefactual-sdps/enduro/internal/db"
+	"github.com/artefactual-sdps/enduro/internal/search"
+	"github.com/artefactual-sdps/enduro/internal/storage"
+	"github.com/artefactual-sdps/enduro/internal/temporal"
+	"github.com/artefactual-sdps/enduro/internal/validation"
+	"github.com/artefactual-sdps/enduro/internal/version"
+	"github.com/artefactual-sdps/enduro/internal/watcher"
 )
 
 type ConfigurationValidator interface {

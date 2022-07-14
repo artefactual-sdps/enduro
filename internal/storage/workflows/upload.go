@@ -3,7 +3,7 @@ package workflows
 import (
 	temporalsdk_workflow "go.temporal.io/sdk/workflow"
 
-	"github.com/artefactual-labs/enduro/internal/storage"
+	"github.com/artefactual-sdps/enduro/internal/storage"
 )
 
 type StorageUploadWorkflow struct{}

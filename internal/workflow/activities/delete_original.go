@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/artefactual-labs/enduro/internal/watcher"
+	"github.com/artefactual-sdps/enduro/internal/watcher"
 )
 
 type DeleteOriginalActivity struct {

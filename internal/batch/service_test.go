@@ -15,8 +15,8 @@ import (
 	temporalsdk_mocks "go.temporal.io/sdk/mocks"
 	"gotest.tools/v3/assert"
 
-	goabatch "github.com/artefactual-labs/enduro/internal/api/gen/batch"
-	"github.com/artefactual-labs/enduro/internal/package_"
+	goabatch "github.com/artefactual-sdps/enduro/internal/api/gen/batch"
+	"github.com/artefactual-sdps/enduro/internal/package_"
 )
 
 var completedDirs = []string{"/tmp/xyz"}

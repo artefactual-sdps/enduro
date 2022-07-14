@@ -11,7 +11,7 @@ import (
 	temporalsdk_temporal "go.temporal.io/sdk/temporal"
 	temporalsdk_workflow "go.temporal.io/sdk/workflow"
 
-	"github.com/artefactual-labs/enduro/internal/api/gen/package_"
+	"github.com/artefactual-sdps/enduro/internal/api/gen/package_"
 )
 
 const (

@@ -3,7 +3,7 @@
 // storage HTTP client CLI support package
 //
 // Command:
-// $ goa-v3.7.10 gen github.com/artefactual-labs/enduro/internal/api/design -o
+// $ goa-v3.7.10 gen github.com/artefactual-sdps/enduro/internal/api/design -o
 // internal/api
 
 package client
@@ -12,7 +12,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	storage "github.com/artefactual-labs/enduro/internal/api/gen/storage"
+	storage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 )
 
 // BuildSubmitPayload builds the payload for the storage submit endpoint from

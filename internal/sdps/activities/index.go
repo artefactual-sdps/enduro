@@ -11,7 +11,7 @@ import (
 	"github.com/opensearch-project/opensearch-go/opensearchapi"
 	"go.uber.org/multierr"
 
-	"github.com/artefactual-labs/enduro/internal/sdps"
+	"github.com/artefactual-sdps/enduro/internal/sdps"
 )
 
 // IndexActivity stores Batch data in OpenSearch

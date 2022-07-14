@@ -3,7 +3,7 @@
 // package HTTP server encoders and decoders
 //
 // Command:
-// $ goa-v3.7.10 gen github.com/artefactual-labs/enduro/internal/api/design -o
+// $ goa-v3.7.10 gen github.com/artefactual-sdps/enduro/internal/api/design -o
 // internal/api
 
 package server
@@ -15,8 +15,8 @@ import (
 	"net/http"
 	"strconv"
 
-	package_ "github.com/artefactual-labs/enduro/internal/api/gen/package_"
-	package_views "github.com/artefactual-labs/enduro/internal/api/gen/package_/views"
+	package_ "github.com/artefactual-sdps/enduro/internal/api/gen/package_"
+	package_views "github.com/artefactual-sdps/enduro/internal/api/gen/package_/views"
 	goahttp "goa.design/goa/v3/http"
 	goa "goa.design/goa/v3/pkg"
 )

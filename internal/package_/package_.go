@@ -10,7 +10,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	temporalsdk_client "go.temporal.io/sdk/client"
 
-	goapackage "github.com/artefactual-labs/enduro/internal/api/gen/package_"
+	goapackage "github.com/artefactual-sdps/enduro/internal/api/gen/package_"
 )
 
 type Service interface {

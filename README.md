@@ -1,8 +1,8 @@
 <p align="left">
-  <a href="https://github.com/artefactual-labs/enduro/releases/latest"><img src="https://img.shields.io/github/v/release/artefactual-labs/enduro.svg?color=orange"/></a>
-  <img src="https://github.com/artefactual-labs/enduro/workflows/Test/badge.svg"/>
+  <a href="https://github.com/artefactual-sdps/enduro/releases/latest"><img src="https://img.shields.io/github/v/release/artefactual-sdps/enduro.svg?color=orange"/></a>
+  <img src="https://github.com/artefactual-sdps/enduro/workflows/Test/badge.svg"/>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-blue.svg"/></a>
-  <a href="https://goreportcard.com/report/github.com/artefactual-labs/enduro"><img src="https://goreportcard.com/badge/github.com/artefactual-labs/enduro"/></a>
+  <a href="https://goreportcard.com/report/github.com/artefactual-sdps/enduro"><img src="https://goreportcard.com/badge/github.com/artefactual-sdps/enduro"/></a>
   <a href="https://codecov.io/gh/artefactual-sdps/enduro"><img src="https://img.shields.io/codecov/c/github/artefactual-sdps/enduro"/></a>
 </p>
 

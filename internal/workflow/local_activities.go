@@ -9,7 +9,7 @@ import (
 	"github.com/google/uuid"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
 
-	"github.com/artefactual-labs/enduro/internal/package_"
+	"github.com/artefactual-sdps/enduro/internal/package_"
 )
 
 type createPackageLocalActivityParams struct {
