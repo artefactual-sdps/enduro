@@ -12,13 +12,13 @@ import (
 	temporalsdk_testsuite "go.temporal.io/sdk/testsuite"
 	temporalsdk_worker "go.temporal.io/sdk/worker"
 
-	"github.com/artefactual-labs/enduro/internal/a3m"
-	"github.com/artefactual-labs/enduro/internal/package_"
-	packagefake "github.com/artefactual-labs/enduro/internal/package_/fake"
-	sdps_activities "github.com/artefactual-labs/enduro/internal/sdps/activities"
-	"github.com/artefactual-labs/enduro/internal/validation"
-	watcherfake "github.com/artefactual-labs/enduro/internal/watcher/fake"
-	"github.com/artefactual-labs/enduro/internal/workflow/activities"
+	"github.com/artefactual-sdps/enduro/internal/a3m"
+	"github.com/artefactual-sdps/enduro/internal/package_"
+	packagefake "github.com/artefactual-sdps/enduro/internal/package_/fake"
+	sdps_activities "github.com/artefactual-sdps/enduro/internal/sdps/activities"
+	"github.com/artefactual-sdps/enduro/internal/validation"
+	watcherfake "github.com/artefactual-sdps/enduro/internal/watcher/fake"
+	"github.com/artefactual-sdps/enduro/internal/workflow/activities"
 )
 
 type ProcessingWorkflowTestSuite struct {

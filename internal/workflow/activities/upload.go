@@ -7,7 +7,7 @@ import (
 	"os"
 	"time"
 
-	goastorage "github.com/artefactual-labs/enduro/internal/api/gen/storage"
+	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 )
 
 type UploadActivityParams struct {

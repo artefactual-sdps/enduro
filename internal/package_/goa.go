@@ -15,9 +15,9 @@ import (
 	temporalapi_serviceerror "go.temporal.io/api/serviceerror"
 	temporalsdk_client "go.temporal.io/sdk/client"
 
-	goapackage "github.com/artefactual-labs/enduro/internal/api/gen/package_"
-	"github.com/artefactual-labs/enduro/internal/ref"
-	"github.com/artefactual-labs/enduro/internal/temporal"
+	goapackage "github.com/artefactual-sdps/enduro/internal/api/gen/package_"
+	"github.com/artefactual-sdps/enduro/internal/ref"
+	"github.com/artefactual-sdps/enduro/internal/temporal"
 )
 
 var ErrBulkStatusUnavailable = errors.New("bulk status unavailable")

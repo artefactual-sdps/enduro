@@ -3,13 +3,13 @@
 // batch HTTP server types
 //
 // Command:
-// $ goa-v3.7.10 gen github.com/artefactual-labs/enduro/internal/api/design -o
+// $ goa-v3.7.10 gen github.com/artefactual-sdps/enduro/internal/api/design -o
 // internal/api
 
 package server
 
 import (
-	batch "github.com/artefactual-labs/enduro/internal/api/gen/batch"
+	batch "github.com/artefactual-sdps/enduro/internal/api/gen/batch"
 	goa "goa.design/goa/v3/pkg"
 )
 

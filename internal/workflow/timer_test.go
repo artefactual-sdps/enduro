@@ -12,7 +12,7 @@ import (
 	temporalsdk_workflow "go.temporal.io/sdk/workflow"
 	"gotest.tools/v3/assert"
 
-	"github.com/artefactual-labs/enduro/internal/workflow"
+	"github.com/artefactual-sdps/enduro/internal/workflow"
 )
 
 func TestTimer(t *testing.T) {

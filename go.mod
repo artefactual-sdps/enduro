@@ -1,4 +1,4 @@
-module github.com/artefactual-labs/enduro
+module github.com/artefactual-sdps/enduro
 
 go 1.18
 

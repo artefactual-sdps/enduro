@@ -12,7 +12,7 @@ import (
 	"gotest.tools/v3/assert"
 	"gotest.tools/v3/fs"
 
-	goastorage "github.com/artefactual-labs/enduro/internal/api/gen/storage"
+	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 )
 
 // StorageService implements goastorage.Service.

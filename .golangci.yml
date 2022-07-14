@@ -24,7 +24,7 @@ linters-settings:
     sections:
       - standard
       - default
-      - prefix(github.com/artefactual-labs/enduro)
+      - prefix(github.com/artefactual-sdps/enduro)
     section-separators:
       - newLine
   importas:

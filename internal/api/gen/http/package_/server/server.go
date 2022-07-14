@@ -3,7 +3,7 @@
 // package HTTP server
 //
 // Command:
-// $ goa-v3.7.10 gen github.com/artefactual-labs/enduro/internal/api/design -o
+// $ goa-v3.7.10 gen github.com/artefactual-sdps/enduro/internal/api/design -o
 // internal/api
 
 package server
@@ -12,7 +12,7 @@ import (
 	"context"
 	"net/http"
 
-	package_ "github.com/artefactual-labs/enduro/internal/api/gen/package_"
+	package_ "github.com/artefactual-sdps/enduro/internal/api/gen/package_"
 	goahttp "goa.design/goa/v3/http"
 	goa "goa.design/goa/v3/pkg"
 	"goa.design/plugins/v3/cors"

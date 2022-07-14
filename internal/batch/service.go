@@ -12,10 +12,10 @@ import (
 	temporalapi_serviceerror "go.temporal.io/api/serviceerror"
 	temporalsdk_client "go.temporal.io/sdk/client"
 
-	goabatch "github.com/artefactual-labs/enduro/internal/api/gen/batch"
-	"github.com/artefactual-labs/enduro/internal/package_"
-	"github.com/artefactual-labs/enduro/internal/temporal"
-	"github.com/artefactual-labs/enduro/internal/validation"
+	goabatch "github.com/artefactual-sdps/enduro/internal/api/gen/batch"
+	"github.com/artefactual-sdps/enduro/internal/package_"
+	"github.com/artefactual-sdps/enduro/internal/temporal"
+	"github.com/artefactual-sdps/enduro/internal/validation"
 )
 
 var ErrBatchStatusUnavailable = errors.New("batch status unavailable")

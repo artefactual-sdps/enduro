@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"strings"
 
-	goastorage "github.com/artefactual-labs/enduro/internal/api/gen/storage"
+	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 )
 
 type PackageStatus uint

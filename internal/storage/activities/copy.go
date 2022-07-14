@@ -4,7 +4,7 @@ import (
 	"context"
 	"io"
 
-	"github.com/artefactual-labs/enduro/internal/storage"
+	"github.com/artefactual-sdps/enduro/internal/storage"
 )
 
 type CopyToPermanentLocationActivity struct {

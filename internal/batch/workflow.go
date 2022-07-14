@@ -8,8 +8,8 @@ import (
 	temporalsdk_temporal "go.temporal.io/sdk/temporal"
 	temporalsdk_workflow "go.temporal.io/sdk/workflow"
 
-	"github.com/artefactual-labs/enduro/internal/package_"
-	"github.com/artefactual-labs/enduro/internal/temporal"
+	"github.com/artefactual-sdps/enduro/internal/package_"
+	"github.com/artefactual-sdps/enduro/internal/temporal"
 )
 
 const (

@@ -3,7 +3,7 @@ include .bingo/Variables.mk
 SHELL=/bin/bash
 BUILD_TIME=$(shell date -u +%Y-%m-%dT%T%z)
 GIT_COMMIT=$(shell git rev-parse --short HEAD)
-LD_FLAGS= '-X "github.com/artefactual-labs/enduro/internal/version.BuildTime=$(BUILD_TIME)" -X github.com/artefactual-labs/enduro/internal/version.GitCommit=$(GIT_COMMIT)'
+LD_FLAGS= '-X "github.com/artefactual-sdps/enduro/internal/version.BuildTime=$(BUILD_TIME)" -X github.com/artefactual-sdps/enduro/internal/version.GitCommit=$(GIT_COMMIT)'
 GO_FLAGS= -ldflags=$(LD_FLAGS)
 
 define NEWLINE
@@ -12,24 +12,24 @@ define NEWLINE
 endef
 
 IGNORED_PACKAGES := \
-	github.com/artefactual-labs/enduro/hack/genpkgs \
-	github.com/artefactual-labs/enduro/internal/amclient/fake \
-	github.com/artefactual-labs/enduro/internal/api/design \
-	github.com/artefactual-labs/enduro/internal/api/gen/batch \
-	github.com/artefactual-labs/enduro/internal/api/gen/package_ \
-	github.com/artefactual-labs/enduro/internal/api/gen/package_/views \
-	github.com/artefactual-labs/enduro/internal/api/gen/http/batch/client \
-	github.com/artefactual-labs/enduro/internal/api/gen/http/batch/server \
-	github.com/artefactual-labs/enduro/internal/api/gen/http/cli/enduro \
-	github.com/artefactual-labs/enduro/internal/api/gen/http/package_/client \
-	github.com/artefactual-labs/enduro/internal/api/gen/http/package_/server \
-	github.com/artefactual-labs/enduro/internal/api/gen/http/swagger/client \
-	github.com/artefactual-labs/enduro/internal/api/gen/http/swagger/server \
-	github.com/artefactual-labs/enduro/internal/api/gen/swagger \
-	github.com/artefactual-labs/enduro/internal/batch/fake \
-	github.com/artefactual-labs/enduro/internal/package_/fake \
-	github.com/artefactual-labs/enduro/internal/temporal/testutil \
-	github.com/artefactual-labs/enduro/internal/watcher/fake
+	github.com/artefactual-sdps/enduro/hack/genpkgs \
+	github.com/artefactual-sdps/enduro/internal/amclient/fake \
+	github.com/artefactual-sdps/enduro/internal/api/design \
+	github.com/artefactual-sdps/enduro/internal/api/gen/batch \
+	github.com/artefactual-sdps/enduro/internal/api/gen/package_ \
+	github.com/artefactual-sdps/enduro/internal/api/gen/package_/views \
+	github.com/artefactual-sdps/enduro/internal/api/gen/http/batch/client \
+	github.com/artefactual-sdps/enduro/internal/api/gen/http/batch/server \
+	github.com/artefactual-sdps/enduro/internal/api/gen/http/cli/enduro \
+	github.com/artefactual-sdps/enduro/internal/api/gen/http/package_/client \
+	github.com/artefactual-sdps/enduro/internal/api/gen/http/package_/server \
+	github.com/artefactual-sdps/enduro/internal/api/gen/http/swagger/client \
+	github.com/artefactual-sdps/enduro/internal/api/gen/http/swagger/server \
+	github.com/artefactual-sdps/enduro/internal/api/gen/swagger \
+	github.com/artefactual-sdps/enduro/internal/batch/fake \
+	github.com/artefactual-sdps/enduro/internal/package_/fake \
+	github.com/artefactual-sdps/enduro/internal/temporal/testutil \
+	github.com/artefactual-sdps/enduro/internal/watcher/fake
 PACKAGES		:= $(shell go list ./...)
 TEST_PACKAGES	:= $(filter-out $(IGNORED_PACKAGES),$(PACKAGES))
 
@@ -72,7 +72,7 @@ lint:
 	$(GOLANGCI_LINT) run -v --timeout=5m --fix
 
 gen-goa:
-	$(GOA) gen github.com/artefactual-labs/enduro/internal/api/design -o internal/api
+	$(GOA) gen github.com/artefactual-sdps/enduro/internal/api/design -o internal/api
 
 clean:
 	rm -rf ./build ./dist
@@ -92,9 +92,9 @@ gen-dashboard-client:
 	@echo "@@@@ We're using \`--skip-validate-spec\` to deal with Goa spec generation issues."
 
 gen-mock:
-	$(MOCKGEN) -destination=./internal/batch/fake/mock_batch.go -package=fake github.com/artefactual-labs/enduro/internal/batch Service
-	$(MOCKGEN) -destination=./internal/package_/fake/mock_package_.go -package=fake github.com/artefactual-labs/enduro/internal/package_ Service
-	$(MOCKGEN) -destination=./internal/storage/fake/mock_storage.go -package=fake github.com/artefactual-labs/enduro/internal/storage Service
-	$(MOCKGEN) -destination=./internal/watcher/fake/mock_watcher.go -package=fake github.com/artefactual-labs/enduro/internal/watcher Service
+	$(MOCKGEN) -destination=./internal/batch/fake/mock_batch.go -package=fake github.com/artefactual-sdps/enduro/internal/batch Service
+	$(MOCKGEN) -destination=./internal/package_/fake/mock_package_.go -package=fake github.com/artefactual-sdps/enduro/internal/package_ Service
+	$(MOCKGEN) -destination=./internal/storage/fake/mock_storage.go -package=fake github.com/artefactual-sdps/enduro/internal/storage Service
+	$(MOCKGEN) -destination=./internal/watcher/fake/mock_watcher.go -package=fake github.com/artefactual-sdps/enduro/internal/watcher Service
 
 .PHONY: *

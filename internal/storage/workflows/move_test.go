@@ -10,9 +10,9 @@ import (
 	temporalsdk_activity "go.temporal.io/sdk/activity"
 	temporalsdk_testsuite "go.temporal.io/sdk/testsuite"
 
-	"github.com/artefactual-labs/enduro/internal/storage"
-	"github.com/artefactual-labs/enduro/internal/storage/activities"
-	"github.com/artefactual-labs/enduro/internal/storage/fake"
+	"github.com/artefactual-sdps/enduro/internal/storage"
+	"github.com/artefactual-sdps/enduro/internal/storage/activities"
+	"github.com/artefactual-sdps/enduro/internal/storage/fake"
 )
 
 func TestStorageMoveWorkflow(t *testing.T) {

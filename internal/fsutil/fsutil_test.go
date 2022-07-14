@@ -8,7 +8,7 @@ import (
 	"gotest.tools/v3/assert"
 	"gotest.tools/v3/fs"
 
-	"github.com/artefactual-labs/enduro/internal/fsutil"
+	"github.com/artefactual-sdps/enduro/internal/fsutil"
 )
 
 var Renamer = os.Rename

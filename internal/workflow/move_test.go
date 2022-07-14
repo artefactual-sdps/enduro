@@ -13,9 +13,9 @@ import (
 	temporalsdk_testsuite "go.temporal.io/sdk/testsuite"
 	temporalsdk_worker "go.temporal.io/sdk/worker"
 
-	"github.com/artefactual-labs/enduro/internal/package_"
-	packagefake "github.com/artefactual-labs/enduro/internal/package_/fake"
-	"github.com/artefactual-labs/enduro/internal/workflow/activities"
+	"github.com/artefactual-sdps/enduro/internal/package_"
+	packagefake "github.com/artefactual-sdps/enduro/internal/package_/fake"
+	"github.com/artefactual-sdps/enduro/internal/workflow/activities"
 )
 
 type MoveWorkflowTestSuite struct {

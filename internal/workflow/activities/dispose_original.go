@@ -4,8 +4,8 @@ import (
 	"context"
 	"path/filepath"
 
-	"github.com/artefactual-labs/enduro/internal/fsutil"
-	"github.com/artefactual-labs/enduro/internal/watcher"
+	"github.com/artefactual-sdps/enduro/internal/fsutil"
+	"github.com/artefactual-sdps/enduro/internal/watcher"
 )
 
 type DisposeOriginalActivity struct {

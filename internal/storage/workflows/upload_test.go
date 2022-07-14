@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 	temporalsdk_testsuite "go.temporal.io/sdk/testsuite"
 
-	"github.com/artefactual-labs/enduro/internal/storage"
+	"github.com/artefactual-sdps/enduro/internal/storage"
 )
 
 func TestStorageUploadWorkflow(t *testing.T) {

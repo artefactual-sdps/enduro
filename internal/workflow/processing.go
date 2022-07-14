@@ -14,13 +14,13 @@ import (
 	temporalsdk_temporal "go.temporal.io/sdk/temporal"
 	temporalsdk_workflow "go.temporal.io/sdk/workflow"
 
-	"github.com/artefactual-labs/enduro/internal/a3m"
-	"github.com/artefactual-labs/enduro/internal/package_"
-	sdps_activities "github.com/artefactual-labs/enduro/internal/sdps/activities"
-	"github.com/artefactual-labs/enduro/internal/temporal"
-	"github.com/artefactual-labs/enduro/internal/validation"
-	"github.com/artefactual-labs/enduro/internal/watcher"
-	"github.com/artefactual-labs/enduro/internal/workflow/activities"
+	"github.com/artefactual-sdps/enduro/internal/a3m"
+	"github.com/artefactual-sdps/enduro/internal/package_"
+	sdps_activities "github.com/artefactual-sdps/enduro/internal/sdps/activities"
+	"github.com/artefactual-sdps/enduro/internal/temporal"
+	"github.com/artefactual-sdps/enduro/internal/validation"
+	"github.com/artefactual-sdps/enduro/internal/watcher"
+	"github.com/artefactual-sdps/enduro/internal/workflow/activities"
 )
 
 type ProcessingWorkflow struct {

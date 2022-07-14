@@ -28,7 +28,7 @@ spec:
             ]
       containers:
         - name: enduro-a3m-worker
-          image: ghcr.io/artefactual-labs/enduro-a3m-worker:main
+          image: ghcr.io/artefactual-sdps/enduro-a3m-worker:main
           volumeMounts:
             - name: enduro-a3m
               mountPath: /home/a3m/.local/share/a3m/share

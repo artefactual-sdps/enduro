@@ -5,7 +5,7 @@ import (
 
 	"gotest.tools/v3/assert"
 
-	"github.com/artefactual-labs/enduro/internal/storage"
+	"github.com/artefactual-sdps/enduro/internal/storage"
 )
 
 func TestConfigValidator(t *testing.T) {

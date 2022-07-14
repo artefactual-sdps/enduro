@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	goapackage "github.com/artefactual-labs/enduro/internal/api/gen/package_"
-	"github.com/artefactual-labs/enduro/internal/package_"
+	goapackage "github.com/artefactual-sdps/enduro/internal/api/gen/package_"
+	"github.com/artefactual-sdps/enduro/internal/package_"
 )
 
 func TestEventService(t *testing.T) {

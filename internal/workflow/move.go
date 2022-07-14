@@ -4,8 +4,8 @@ import (
 	"github.com/go-logr/logr"
 	temporalsdk_workflow "go.temporal.io/sdk/workflow"
 
-	"github.com/artefactual-labs/enduro/internal/package_"
-	"github.com/artefactual-labs/enduro/internal/workflow/activities"
+	"github.com/artefactual-sdps/enduro/internal/package_"
+	"github.com/artefactual-sdps/enduro/internal/workflow/activities"
 )
 
 type MoveWorkflow struct {

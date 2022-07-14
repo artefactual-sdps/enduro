@@ -3,7 +3,7 @@
 // enduro HTTP client CLI support package
 //
 // Command:
-// $ goa-v3.7.10 gen github.com/artefactual-labs/enduro/internal/api/design -o
+// $ goa-v3.7.10 gen github.com/artefactual-sdps/enduro/internal/api/design -o
 // internal/api
 
 package cli
@@ -14,9 +14,9 @@ import (
 	"net/http"
 	"os"
 
-	batchc "github.com/artefactual-labs/enduro/internal/api/gen/http/batch/client"
-	package_c "github.com/artefactual-labs/enduro/internal/api/gen/http/package_/client"
-	storagec "github.com/artefactual-labs/enduro/internal/api/gen/http/storage/client"
+	batchc "github.com/artefactual-sdps/enduro/internal/api/gen/http/batch/client"
+	package_c "github.com/artefactual-sdps/enduro/internal/api/gen/http/package_/client"
+	storagec "github.com/artefactual-sdps/enduro/internal/api/gen/http/storage/client"
 	goahttp "goa.design/goa/v3/http"
 	goa "goa.design/goa/v3/pkg"
 )
