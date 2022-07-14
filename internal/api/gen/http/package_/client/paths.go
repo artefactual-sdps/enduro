@@ -42,11 +42,6 @@ func RetryPackagePath(id uint) string {
 	return fmt.Sprintf("/package/%v/retry", id)
 }
 
-// WorkflowPackagePath returns the URL path to the package service workflow HTTP endpoint.
-func WorkflowPackagePath(id uint) string {
-	return fmt.Sprintf("/package/%v/workflow", id)
-}
-
 // BulkPackagePath returns the URL path to the package service bulk HTTP endpoint.
 func BulkPackagePath() string {
 	return "/package/bulk"

@@ -30,15 +30,6 @@ type EnduroStoredPackage struct {
 	View string
 }
 
-// EnduroPackageWorkflowStatus is the viewed result type that is projected
-// based on a view.
-type EnduroPackageWorkflowStatus struct {
-	// Type to project
-	Projected *EnduroPackageWorkflowStatusView
-	// View to render
-	View string
-}
-
 // EnduroPackagePreservationActions is the viewed result type that is projected
 // based on a view.
 type EnduroPackagePreservationActions struct {
@@ -127,28 +118,6 @@ type EnduroPackageLocationUpdatedEventView struct {
 	Location *string
 }
 
-// EnduroPackageWorkflowStatusView is a type that runs validations on a
-// projected type.
-type EnduroPackageWorkflowStatusView struct {
-	Status  *string
-	History EnduroPackageWorkflowHistoryCollectionView
-}
-
-// EnduroPackageWorkflowHistoryCollectionView is a type that runs validations
-// on a projected type.
-type EnduroPackageWorkflowHistoryCollectionView []*EnduroPackageWorkflowHistoryView
-
-// EnduroPackageWorkflowHistoryView is a type that runs validations on a
-// projected type.
-type EnduroPackageWorkflowHistoryView struct {
-	// Identifier of package
-	ID *uint
-	// Type of the event
-	Type *string
-	// Contents of the event
-	Details interface{}
-}
-
 // EnduroPackagePreservationActionsView is a type that runs validations on a
 // projected type.
 type EnduroPackagePreservationActionsView struct {
@@ -215,14 +184,6 @@ var (
 			"completed_at",
 		},
 	}
-	// EnduroPackageWorkflowStatusMap is a map indexing the attribute names of
-	// EnduroPackageWorkflowStatus by view name.
-	EnduroPackageWorkflowStatusMap = map[string][]string{
-		"default": {
-			"status",
-			"history",
-		},
-	}
 	// EnduroPackagePreservationActionsMap is a map indexing the attribute names of
 	// EnduroPackagePreservationActions by view name.
 	EnduroPackagePreservationActionsMap = map[string][]string{
@@ -274,24 +235,6 @@ var (
 		"default": {
 			"id",
 			"location",
-		},
-	}
-	// EnduroPackageWorkflowHistoryCollectionMap is a map indexing the attribute
-	// names of EnduroPackageWorkflowHistoryCollection by view name.
-	EnduroPackageWorkflowHistoryCollectionMap = map[string][]string{
-		"default": {
-			"id",
-			"type",
-			"details",
-		},
-	}
-	// EnduroPackageWorkflowHistoryMap is a map indexing the attribute names of
-	// EnduroPackageWorkflowHistory by view name.
-	EnduroPackageWorkflowHistoryMap = map[string][]string{
-		"default": {
-			"id",
-			"type",
-			"details",
 		},
 	}
 	// EnduroPackagePreservationActionCollectionMap is a map indexing the attribute
@@ -364,18 +307,6 @@ func ValidateEnduroStoredPackage(result *EnduroStoredPackage) (err error) {
 	switch result.View {
 	case "default", "":
 		err = ValidateEnduroStoredPackageView(result.Projected)
-	default:
-		err = goa.InvalidEnumValueError("view", result.View, []interface{}{"default"})
-	}
-	return
-}
-
-// ValidateEnduroPackageWorkflowStatus runs the validations defined on the
-// viewed result type EnduroPackageWorkflowStatus.
-func ValidateEnduroPackageWorkflowStatus(result *EnduroPackageWorkflowStatus) (err error) {
-	switch result.View {
-	case "default", "":
-		err = ValidateEnduroPackageWorkflowStatusView(result.Projected)
 	default:
 		err = goa.InvalidEnumValueError("view", result.View, []interface{}{"default"})
 	}
@@ -539,37 +470,6 @@ func ValidateEnduroPackageLocationUpdatedEventView(result *EnduroPackageLocation
 	if result.Location == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("location", "result"))
 	}
-	return
-}
-
-// ValidateEnduroPackageWorkflowStatusView runs the validations defined on
-// EnduroPackageWorkflowStatusView using the "default" view.
-func ValidateEnduroPackageWorkflowStatusView(result *EnduroPackageWorkflowStatusView) (err error) {
-
-	if result.History != nil {
-		if err2 := ValidateEnduroPackageWorkflowHistoryCollectionView(result.History); err2 != nil {
-			err = goa.MergeErrors(err, err2)
-		}
-	}
-	return
-}
-
-// ValidateEnduroPackageWorkflowHistoryCollectionView runs the validations
-// defined on EnduroPackageWorkflowHistoryCollectionView using the "default"
-// view.
-func ValidateEnduroPackageWorkflowHistoryCollectionView(result EnduroPackageWorkflowHistoryCollectionView) (err error) {
-	for _, item := range result {
-		if err2 := ValidateEnduroPackageWorkflowHistoryView(item); err2 != nil {
-			err = goa.MergeErrors(err, err2)
-		}
-	}
-	return
-}
-
-// ValidateEnduroPackageWorkflowHistoryView runs the validations defined on
-// EnduroPackageWorkflowHistoryView using the "default" view.
-func ValidateEnduroPackageWorkflowHistoryView(result *EnduroPackageWorkflowHistoryView) (err error) {
-
 	return
 }
 

@@ -264,51 +264,6 @@ func (w *goaWrapper) Retry(ctx context.Context, payload *goapackage.RetryPayload
 	return nil
 }
 
-func (w *goaWrapper) Workflow(ctx context.Context, payload *goapackage.WorkflowPayload) (res *goapackage.EnduroPackageWorkflowStatus, err error) {
-	goapkg, err := w.Show(ctx, &goapackage.ShowPayload{ID: payload.ID})
-	if err != nil {
-		return nil, err
-	}
-
-	resp := &goapackage.EnduroPackageWorkflowStatus{
-		History: []*goapackage.EnduroPackageWorkflowHistory{},
-	}
-
-	we, err := w.tc.DescribeWorkflowExecution(ctx, *goapkg.WorkflowID, *goapkg.RunID)
-	if err != nil {
-		switch err.(type) {
-		case *temporalapi_serviceerror.NotFound:
-			return nil, &goapackage.PackageNotfound{Message: "not_found"}
-		default:
-			return nil, fmt.Errorf("error looking up history: %v", err)
-		}
-	}
-
-	status := "ACTIVE"
-	if we.WorkflowExecutionInfo.Status != temporalapi_enums.WORKFLOW_EXECUTION_STATUS_RUNNING {
-		status = we.WorkflowExecutionInfo.Status.String()
-	}
-	resp.Status = &status
-
-	iter := w.tc.GetWorkflowHistory(ctx, *goapkg.WorkflowID, *goapkg.RunID, false, temporalapi_enums.HISTORY_EVENT_FILTER_TYPE_ALL_EVENT)
-	for iter.HasNext() {
-		event, err := iter.Next()
-		if err != nil {
-			return nil, fmt.Errorf("error looking up history events: %v", err)
-		}
-
-		eventID := uint(event.EventId)
-		eventType := event.EventType.String()
-		resp.History = append(resp.History, &goapackage.EnduroPackageWorkflowHistory{
-			ID:      &eventID,
-			Type:    &eventType,
-			Details: event,
-		})
-	}
-
-	return resp, nil
-}
-
 func (w *goaWrapper) Bulk(ctx context.Context, payload *goapackage.BulkPayload) (*goapackage.BulkResult, error) {
 	if payload.Size == 0 {
 		return nil, goapackage.MakeNotValid(errors.New("size is zero"))

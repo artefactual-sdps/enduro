@@ -495,90 +495,6 @@ func DecodeRetryResponse(decoder func(*http.Response) goahttp.Decoder, restoreBo
 	}
 }
 
-// BuildWorkflowRequest instantiates a HTTP request object with method and path
-// set to call the "package" service "workflow" endpoint
-func (c *Client) BuildWorkflowRequest(ctx context.Context, v interface{}) (*http.Request, error) {
-	var (
-		id uint
-	)
-	{
-		p, ok := v.(*package_.WorkflowPayload)
-		if !ok {
-			return nil, goahttp.ErrInvalidType("package", "workflow", "*package_.WorkflowPayload", v)
-		}
-		id = p.ID
-	}
-	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: WorkflowPackagePath(id)}
-	req, err := http.NewRequest("GET", u.String(), nil)
-	if err != nil {
-		return nil, goahttp.ErrInvalidURL("package", "workflow", u.String(), err)
-	}
-	if ctx != nil {
-		req = req.WithContext(ctx)
-	}
-
-	return req, nil
-}
-
-// DecodeWorkflowResponse returns a decoder for responses returned by the
-// package workflow endpoint. restoreBody controls whether the response body
-// should be restored after having been read.
-// DecodeWorkflowResponse may return the following errors:
-//	- "not_found" (type *package_.PackageNotfound): http.StatusNotFound
-//	- error: internal error
-func DecodeWorkflowResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
-	return func(resp *http.Response) (interface{}, error) {
-		if restoreBody {
-			b, err := ioutil.ReadAll(resp.Body)
-			if err != nil {
-				return nil, err
-			}
-			resp.Body = ioutil.NopCloser(bytes.NewBuffer(b))
-			defer func() {
-				resp.Body = ioutil.NopCloser(bytes.NewBuffer(b))
-			}()
-		} else {
-			defer resp.Body.Close()
-		}
-		switch resp.StatusCode {
-		case http.StatusOK:
-			var (
-				body WorkflowResponseBody
-				err  error
-			)
-			err = decoder(resp).Decode(&body)
-			if err != nil {
-				return nil, goahttp.ErrDecodingError("package", "workflow", err)
-			}
-			p := NewWorkflowEnduroPackageWorkflowStatusOK(&body)
-			view := "default"
-			vres := &package_views.EnduroPackageWorkflowStatus{Projected: p, View: view}
-			if err = package_views.ValidateEnduroPackageWorkflowStatus(vres); err != nil {
-				return nil, goahttp.ErrValidationError("package", "workflow", err)
-			}
-			res := package_.NewEnduroPackageWorkflowStatus(vres)
-			return res, nil
-		case http.StatusNotFound:
-			var (
-				body WorkflowNotFoundResponseBody
-				err  error
-			)
-			err = decoder(resp).Decode(&body)
-			if err != nil {
-				return nil, goahttp.ErrDecodingError("package", "workflow", err)
-			}
-			err = ValidateWorkflowNotFoundResponseBody(&body)
-			if err != nil {
-				return nil, goahttp.ErrValidationError("package", "workflow", err)
-			}
-			return nil, NewWorkflowNotFound(&body)
-		default:
-			body, _ := ioutil.ReadAll(resp.Body)
-			return nil, goahttp.ErrInvalidResponse("package", "workflow", resp.StatusCode, string(body))
-		}
-	}
-}
-
 // BuildBulkRequest instantiates a HTTP request object with method and path set
 // to call the "package" service "bulk" endpoint
 func (c *Client) BuildBulkRequest(ctx context.Context, v interface{}) (*http.Request, error) {
@@ -1371,22 +1287,6 @@ func unmarshalEnduroStoredPackageResponseBodyToPackageEnduroStoredPackage(v *End
 		CreatedAt:   *v.CreatedAt,
 		StartedAt:   v.StartedAt,
 		CompletedAt: v.CompletedAt,
-	}
-
-	return res
-}
-
-// unmarshalEnduroPackageWorkflowHistoryResponseBodyToPackageViewsEnduroPackageWorkflowHistoryView
-// builds a value of type *package_views.EnduroPackageWorkflowHistoryView from
-// a value of type *EnduroPackageWorkflowHistoryResponseBody.
-func unmarshalEnduroPackageWorkflowHistoryResponseBodyToPackageViewsEnduroPackageWorkflowHistoryView(v *EnduroPackageWorkflowHistoryResponseBody) *package_views.EnduroPackageWorkflowHistoryView {
-	if v == nil {
-		return nil
-	}
-	res := &package_views.EnduroPackageWorkflowHistoryView{
-		ID:      v.ID,
-		Type:    v.Type,
-		Details: v.Details,
 	}
 
 	return res

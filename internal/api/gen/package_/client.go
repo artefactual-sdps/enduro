@@ -22,7 +22,6 @@ type Client struct {
 	DeleteEndpoint              goa.Endpoint
 	CancelEndpoint              goa.Endpoint
 	RetryEndpoint               goa.Endpoint
-	WorkflowEndpoint            goa.Endpoint
 	BulkEndpoint                goa.Endpoint
 	BulkStatusEndpoint          goa.Endpoint
 	PreservationActionsEndpoint goa.Endpoint
@@ -33,7 +32,7 @@ type Client struct {
 }
 
 // NewClient initializes a "package" service client given the endpoints.
-func NewClient(monitor, list, show, delete_, cancel, retry, workflow, bulk, bulkStatus, preservationActions, confirm, reject, move, moveStatus goa.Endpoint) *Client {
+func NewClient(monitor, list, show, delete_, cancel, retry, bulk, bulkStatus, preservationActions, confirm, reject, move, moveStatus goa.Endpoint) *Client {
 	return &Client{
 		MonitorEndpoint:             monitor,
 		ListEndpoint:                list,
@@ -41,7 +40,6 @@ func NewClient(monitor, list, show, delete_, cancel, retry, workflow, bulk, bulk
 		DeleteEndpoint:              delete_,
 		CancelEndpoint:              cancel,
 		RetryEndpoint:               retry,
-		WorkflowEndpoint:            workflow,
 		BulkEndpoint:                bulk,
 		BulkStatusEndpoint:          bulkStatus,
 		PreservationActionsEndpoint: preservationActions,
@@ -112,19 +110,6 @@ func (c *Client) Cancel(ctx context.Context, p *CancelPayload) (err error) {
 func (c *Client) Retry(ctx context.Context, p *RetryPayload) (err error) {
 	_, err = c.RetryEndpoint(ctx, p)
 	return
-}
-
-// Workflow calls the "workflow" endpoint of the "package" service.
-// Workflow may return the following errors:
-//	- "not_found" (type *PackageNotfound): Package not found
-//	- error: internal error
-func (c *Client) Workflow(ctx context.Context, p *WorkflowPayload) (res *EnduroPackageWorkflowStatus, err error) {
-	var ires interface{}
-	ires, err = c.WorkflowEndpoint(ctx, p)
-	if err != nil {
-		return
-	}
-	return ires.(*EnduroPackageWorkflowStatus), nil
 }
 
 // Bulk calls the "bulk" endpoint of the "package" service.

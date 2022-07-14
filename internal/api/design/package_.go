@@ -109,20 +109,6 @@ var _ = Service("package", func() {
 			Response("not_running", StatusBadRequest)
 		})
 	})
-	Method("workflow", func() {
-		Description("Retrieve workflow status by ID")
-		Payload(func() {
-			Attribute("id", UInt, "Identifier of package to look up")
-			Required("id")
-		})
-		Result(WorkflowStatus)
-		Error("not_found", PackageNotFound, "Package not found")
-		HTTP(func() {
-			GET("/{id}/workflow")
-			Response(StatusOK)
-			Response("not_found", StatusNotFound)
-		})
-	})
 	Method("bulk", func() {
 		Description("Bulk operations (retry, cancel...).")
 		Payload(func() {
@@ -301,23 +287,6 @@ var StoredPackage = ResultType("application/vnd.enduro.stored-package", func() {
 		Attribute("completed_at")
 	})
 	Required("id", "status", "created_at")
-})
-
-var WorkflowStatus = ResultType("application/vnd.enduro.package-workflow-status", func() {
-	Description("WorkflowStatus describes the processing workflow status of a package.")
-	Attributes(func() {
-		Attribute("status", String) // TODO
-		Attribute("history", CollectionOf(WorkflowHistoryEvent))
-	})
-})
-
-var WorkflowHistoryEvent = ResultType("application/vnd.enduro.package-workflow-history", func() {
-	Description("WorkflowHistoryEvent describes a history event in Temporal.")
-	Attributes(func() {
-		Attribute("id", UInt, "Identifier of package")
-		Attribute("type", String, "Type of the event")
-		Attribute("details", Any, "Contents of the event")
-	})
 })
 
 var PackageNotFound = Type("PackageNotfound", func() {

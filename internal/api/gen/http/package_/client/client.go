@@ -39,10 +39,6 @@ type Client struct {
 	// Retry Doer is the HTTP client used to make requests to the retry endpoint.
 	RetryDoer goahttp.Doer
 
-	// Workflow Doer is the HTTP client used to make requests to the workflow
-	// endpoint.
-	WorkflowDoer goahttp.Doer
-
 	// Bulk Doer is the HTTP client used to make requests to the bulk endpoint.
 	BulkDoer goahttp.Doer
 
@@ -104,7 +100,6 @@ func NewClient(
 		DeleteDoer:              doer,
 		CancelDoer:              doer,
 		RetryDoer:               doer,
-		WorkflowDoer:            doer,
 		BulkDoer:                doer,
 		BulkStatusDoer:          doer,
 		PreservationActionsDoer: doer,
@@ -255,25 +250,6 @@ func (c *Client) Retry() goa.Endpoint {
 		resp, err := c.RetryDoer.Do(req)
 		if err != nil {
 			return nil, goahttp.ErrRequestError("package", "retry", err)
-		}
-		return decodeResponse(resp)
-	}
-}
-
-// Workflow returns an endpoint that makes HTTP requests to the package service
-// workflow server.
-func (c *Client) Workflow() goa.Endpoint {
-	var (
-		decodeResponse = DecodeWorkflowResponse(c.decoder, c.RestoreResponseBody)
-	)
-	return func(ctx context.Context, v interface{}) (interface{}, error) {
-		req, err := c.BuildWorkflowRequest(ctx, v)
-		if err != nil {
-			return nil, err
-		}
-		resp, err := c.WorkflowDoer.Do(req)
-		if err != nil {
-			return nil, goahttp.ErrRequestError("package", "workflow", err)
 		}
 		return decodeResponse(resp)
 	}

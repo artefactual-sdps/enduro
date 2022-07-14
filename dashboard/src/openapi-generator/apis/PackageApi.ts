@@ -105,12 +105,6 @@ import {
     PackageShowResponseBody,
     PackageShowResponseBodyFromJSON,
     PackageShowResponseBodyToJSON,
-    PackageWorkflowNotFoundResponseBody,
-    PackageWorkflowNotFoundResponseBodyFromJSON,
-    PackageWorkflowNotFoundResponseBodyToJSON,
-    PackageWorkflowResponseBody,
-    PackageWorkflowResponseBodyFromJSON,
-    PackageWorkflowResponseBodyToJSON,
 } from '../models';
 
 export interface PackageBulkRequest {
@@ -162,10 +156,6 @@ export interface PackageRetryRequest {
 }
 
 export interface PackageShowRequest {
-    id: number;
-}
-
-export interface PackageWorkflowRequest {
     id: number;
 }
 
@@ -388,22 +378,6 @@ export interface PackageApiInterface {
      * show package
      */
     packageShow(requestParameters: PackageShowRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<PackageShowResponseBody>;
-
-    /**
-     * Retrieve workflow status by ID
-     * @summary workflow package
-     * @param {number} id Identifier of package to look up
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof PackageApiInterface
-     */
-    packageWorkflowRaw(requestParameters: PackageWorkflowRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<PackageWorkflowResponseBody>>;
-
-    /**
-     * Retrieve workflow status by ID
-     * workflow package
-     */
-    packageWorkflow(requestParameters: PackageWorkflowRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<PackageWorkflowResponseBody>;
 
 }
 
@@ -849,38 +823,6 @@ export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
      */
     async packageShow(requestParameters: PackageShowRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<PackageShowResponseBody> {
         const response = await this.packageShowRaw(requestParameters, initOverrides);
-        return await response.value();
-    }
-
-    /**
-     * Retrieve workflow status by ID
-     * workflow package
-     */
-    async packageWorkflowRaw(requestParameters: PackageWorkflowRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<PackageWorkflowResponseBody>> {
-        if (requestParameters.id === null || requestParameters.id === undefined) {
-            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling packageWorkflow.');
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        const response = await this.request({
-            path: `/package/{id}/workflow`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        }, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => PackageWorkflowResponseBodyFromJSON(jsonValue));
-    }
-
-    /**
-     * Retrieve workflow status by ID
-     * workflow package
-     */
-    async packageWorkflow(requestParameters: PackageWorkflowRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<PackageWorkflowResponseBody> {
-        const response = await this.packageWorkflowRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
