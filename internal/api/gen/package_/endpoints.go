@@ -22,7 +22,6 @@ type Endpoints struct {
 	Delete              goa.Endpoint
 	Cancel              goa.Endpoint
 	Retry               goa.Endpoint
-	Workflow            goa.Endpoint
 	Bulk                goa.Endpoint
 	BulkStatus          goa.Endpoint
 	PreservationActions goa.Endpoint
@@ -48,7 +47,6 @@ func NewEndpoints(s Service) *Endpoints {
 		Delete:              NewDeleteEndpoint(s),
 		Cancel:              NewCancelEndpoint(s),
 		Retry:               NewRetryEndpoint(s),
-		Workflow:            NewWorkflowEndpoint(s),
 		Bulk:                NewBulkEndpoint(s),
 		BulkStatus:          NewBulkStatusEndpoint(s),
 		PreservationActions: NewPreservationActionsEndpoint(s),
@@ -67,7 +65,6 @@ func (e *Endpoints) Use(m func(goa.Endpoint) goa.Endpoint) {
 	e.Delete = m(e.Delete)
 	e.Cancel = m(e.Cancel)
 	e.Retry = m(e.Retry)
-	e.Workflow = m(e.Workflow)
 	e.Bulk = m(e.Bulk)
 	e.BulkStatus = m(e.BulkStatus)
 	e.PreservationActions = m(e.PreservationActions)
@@ -133,20 +130,6 @@ func NewRetryEndpoint(s Service) goa.Endpoint {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
 		p := req.(*RetryPayload)
 		return nil, s.Retry(ctx, p)
-	}
-}
-
-// NewWorkflowEndpoint returns an endpoint function that calls the method
-// "workflow" of service "package".
-func NewWorkflowEndpoint(s Service) goa.Endpoint {
-	return func(ctx context.Context, req interface{}) (interface{}, error) {
-		p := req.(*WorkflowPayload)
-		res, err := s.Workflow(ctx, p)
-		if err != nil {
-			return nil, err
-		}
-		vres := NewViewedEnduroPackageWorkflowStatus(res, "default")
-		return vres, nil
 	}
 }
 

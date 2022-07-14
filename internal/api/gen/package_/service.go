@@ -29,8 +29,6 @@ type Service interface {
 	Cancel(context.Context, *CancelPayload) (err error)
 	// Retry package processing by ID
 	Retry(context.Context, *RetryPayload) (err error)
-	// Retrieve workflow status by ID
-	Workflow(context.Context, *WorkflowPayload) (res *EnduroPackageWorkflowStatus, err error)
 	// Bulk operations (retry, cancel...).
 	Bulk(context.Context, *BulkPayload) (res *BulkResult, err error)
 	// Retrieve status of current bulk operation.
@@ -55,7 +53,7 @@ const ServiceName = "package"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [14]string{"monitor", "list", "show", "delete", "cancel", "retry", "workflow", "bulk", "bulk_status", "preservation-actions", "confirm", "reject", "move", "move_status"}
+var MethodNames = [13]string{"monitor", "list", "show", "delete", "cancel", "retry", "bulk", "bulk_status", "preservation-actions", "confirm", "reject", "move", "move_status"}
 
 // MonitorServerStream is the interface a "monitor" endpoint server stream must
 // satisfy.
@@ -190,25 +188,6 @@ type EnduroPackageUpdatedEvent struct {
 	Item *EnduroStoredPackage
 }
 
-// WorkflowHistoryEvent describes a history event in Temporal.
-type EnduroPackageWorkflowHistory struct {
-	// Identifier of package
-	ID *uint
-	// Type of the event
-	Type *string
-	// Contents of the event
-	Details interface{}
-}
-
-type EnduroPackageWorkflowHistoryCollection []*EnduroPackageWorkflowHistory
-
-// EnduroPackageWorkflowStatus is the result type of the package service
-// workflow method.
-type EnduroPackageWorkflowStatus struct {
-	Status  *string
-	History EnduroPackageWorkflowHistoryCollection
-}
-
 // EnduroStoredPackage is the result type of the package service show method.
 type EnduroStoredPackage struct {
 	// Identifier of package
@@ -306,12 +285,6 @@ type ShowPayload struct {
 	ID uint
 }
 
-// WorkflowPayload is the payload type of the package service workflow method.
-type WorkflowPayload struct {
-	// Identifier of package to look up
-	ID uint
-}
-
 // Error returns an error description.
 func (e *PackageNotfound) Error() string {
 	return "Package not found."
@@ -383,21 +356,6 @@ func NewEnduroStoredPackage(vres *package_views.EnduroStoredPackage) *EnduroStor
 func NewViewedEnduroStoredPackage(res *EnduroStoredPackage, view string) *package_views.EnduroStoredPackage {
 	p := newEnduroStoredPackageView(res)
 	return &package_views.EnduroStoredPackage{Projected: p, View: "default"}
-}
-
-// NewEnduroPackageWorkflowStatus initializes result type
-// EnduroPackageWorkflowStatus from viewed result type
-// EnduroPackageWorkflowStatus.
-func NewEnduroPackageWorkflowStatus(vres *package_views.EnduroPackageWorkflowStatus) *EnduroPackageWorkflowStatus {
-	return newEnduroPackageWorkflowStatus(vres.Projected)
-}
-
-// NewViewedEnduroPackageWorkflowStatus initializes viewed result type
-// EnduroPackageWorkflowStatus from result type EnduroPackageWorkflowStatus
-// using the given view.
-func NewViewedEnduroPackageWorkflowStatus(res *EnduroPackageWorkflowStatus, view string) *package_views.EnduroPackageWorkflowStatus {
-	p := newEnduroPackageWorkflowStatusView(res)
-	return &package_views.EnduroPackageWorkflowStatus{Projected: p, View: "default"}
 }
 
 // NewEnduroPackagePreservationActions initializes result type
@@ -646,76 +604,6 @@ func newEnduroPackageLocationUpdatedEventView(res *EnduroPackageLocationUpdatedE
 	vres := &package_views.EnduroPackageLocationUpdatedEventView{
 		ID:       &res.ID,
 		Location: &res.Location,
-	}
-	return vres
-}
-
-// newEnduroPackageWorkflowStatus converts projected type
-// EnduroPackageWorkflowStatus to service type EnduroPackageWorkflowStatus.
-func newEnduroPackageWorkflowStatus(vres *package_views.EnduroPackageWorkflowStatusView) *EnduroPackageWorkflowStatus {
-	res := &EnduroPackageWorkflowStatus{
-		Status: vres.Status,
-	}
-	if vres.History != nil {
-		res.History = newEnduroPackageWorkflowHistoryCollection(vres.History)
-	}
-	return res
-}
-
-// newEnduroPackageWorkflowStatusView projects result type
-// EnduroPackageWorkflowStatus to projected type
-// EnduroPackageWorkflowStatusView using the "default" view.
-func newEnduroPackageWorkflowStatusView(res *EnduroPackageWorkflowStatus) *package_views.EnduroPackageWorkflowStatusView {
-	vres := &package_views.EnduroPackageWorkflowStatusView{
-		Status: res.Status,
-	}
-	if res.History != nil {
-		vres.History = newEnduroPackageWorkflowHistoryCollectionView(res.History)
-	}
-	return vres
-}
-
-// newEnduroPackageWorkflowHistoryCollection converts projected type
-// EnduroPackageWorkflowHistoryCollection to service type
-// EnduroPackageWorkflowHistoryCollection.
-func newEnduroPackageWorkflowHistoryCollection(vres package_views.EnduroPackageWorkflowHistoryCollectionView) EnduroPackageWorkflowHistoryCollection {
-	res := make(EnduroPackageWorkflowHistoryCollection, len(vres))
-	for i, n := range vres {
-		res[i] = newEnduroPackageWorkflowHistory(n)
-	}
-	return res
-}
-
-// newEnduroPackageWorkflowHistoryCollectionView projects result type
-// EnduroPackageWorkflowHistoryCollection to projected type
-// EnduroPackageWorkflowHistoryCollectionView using the "default" view.
-func newEnduroPackageWorkflowHistoryCollectionView(res EnduroPackageWorkflowHistoryCollection) package_views.EnduroPackageWorkflowHistoryCollectionView {
-	vres := make(package_views.EnduroPackageWorkflowHistoryCollectionView, len(res))
-	for i, n := range res {
-		vres[i] = newEnduroPackageWorkflowHistoryView(n)
-	}
-	return vres
-}
-
-// newEnduroPackageWorkflowHistory converts projected type
-// EnduroPackageWorkflowHistory to service type EnduroPackageWorkflowHistory.
-func newEnduroPackageWorkflowHistory(vres *package_views.EnduroPackageWorkflowHistoryView) *EnduroPackageWorkflowHistory {
-	res := &EnduroPackageWorkflowHistory{
-		ID:      vres.ID,
-		Type:    vres.Type,
-		Details: vres.Details,
-	}
-	return res
-}
-
-// newEnduroPackageWorkflowHistoryView projects result type
-// EnduroPackageWorkflowHistory to projected type
-// EnduroPackageWorkflowHistoryView using the "default" view.
-func newEnduroPackageWorkflowHistoryView(res *EnduroPackageWorkflowHistory) *package_views.EnduroPackageWorkflowHistoryView {
-	vres := &package_views.EnduroPackageWorkflowHistoryView{
-		ID:      res.ID,
-		Type:    res.Type,
-		Details: res.Details,
 	}
 	return vres
 }

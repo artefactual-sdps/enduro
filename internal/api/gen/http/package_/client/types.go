@@ -77,13 +77,6 @@ type ShowResponseBody struct {
 	CompletedAt *string `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
 }
 
-// WorkflowResponseBody is the type of the "package" service "workflow"
-// endpoint HTTP response body.
-type WorkflowResponseBody struct {
-	Status  *string                                            `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
-	History EnduroPackageWorkflowHistoryCollectionResponseBody `form:"history,omitempty" json:"history,omitempty" xml:"history,omitempty"`
-}
-
 // BulkResponseBody is the type of the "package" service "bulk" endpoint HTTP
 // response body.
 type BulkResponseBody struct {
@@ -180,15 +173,6 @@ type RetryNotRunningResponseBody struct {
 // RetryNotFoundResponseBody is the type of the "package" service "retry"
 // endpoint HTTP response body for the "not_found" error.
 type RetryNotFoundResponseBody struct {
-	// Message of error
-	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
-	// Identifier of missing package
-	ID *uint `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
-}
-
-// WorkflowNotFoundResponseBody is the type of the "package" service "workflow"
-// endpoint HTTP response body for the "not_found" error.
-type WorkflowNotFoundResponseBody struct {
 	// Message of error
 	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
 	// Identifier of missing package
@@ -476,21 +460,6 @@ type EnduroPackageLocationUpdatedEventResponseBody struct {
 // response body types.
 type EnduroStoredPackageCollectionResponseBody []*EnduroStoredPackageResponseBody
 
-// EnduroPackageWorkflowHistoryCollectionResponseBody is used to define fields
-// on response body types.
-type EnduroPackageWorkflowHistoryCollectionResponseBody []*EnduroPackageWorkflowHistoryResponseBody
-
-// EnduroPackageWorkflowHistoryResponseBody is used to define fields on
-// response body types.
-type EnduroPackageWorkflowHistoryResponseBody struct {
-	// Identifier of package
-	ID *uint `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
-	// Type of the event
-	Type *string `form:"type,omitempty" json:"type,omitempty" xml:"type,omitempty"`
-	// Contents of the event
-	Details interface{} `form:"details,omitempty" json:"details,omitempty" xml:"details,omitempty"`
-}
-
 // EnduroPackagePreservationActionCollectionResponseBody is used to define
 // fields on response body types.
 type EnduroPackagePreservationActionCollectionResponseBody []*EnduroPackagePreservationActionResponseBody
@@ -677,33 +646,6 @@ func NewRetryNotRunning(body *RetryNotRunningResponseBody) *goa.ServiceError {
 
 // NewRetryNotFound builds a package service retry endpoint not_found error.
 func NewRetryNotFound(body *RetryNotFoundResponseBody) *package_.PackageNotfound {
-	v := &package_.PackageNotfound{
-		Message: *body.Message,
-		ID:      *body.ID,
-	}
-
-	return v
-}
-
-// NewWorkflowEnduroPackageWorkflowStatusOK builds a "package" service
-// "workflow" endpoint result from a HTTP "OK" response.
-func NewWorkflowEnduroPackageWorkflowStatusOK(body *WorkflowResponseBody) *package_views.EnduroPackageWorkflowStatusView {
-	v := &package_views.EnduroPackageWorkflowStatusView{
-		Status: body.Status,
-	}
-	if body.History != nil {
-		v.History = make([]*package_views.EnduroPackageWorkflowHistoryView, len(body.History))
-		for i, val := range body.History {
-			v.History[i] = unmarshalEnduroPackageWorkflowHistoryResponseBodyToPackageViewsEnduroPackageWorkflowHistoryView(val)
-		}
-	}
-
-	return v
-}
-
-// NewWorkflowNotFound builds a package service workflow endpoint not_found
-// error.
-func NewWorkflowNotFound(body *WorkflowNotFoundResponseBody) *package_.PackageNotfound {
 	v := &package_.PackageNotfound{
 		Message: *body.Message,
 		ID:      *body.ID,
@@ -1078,18 +1020,6 @@ func ValidateRetryNotRunningResponseBody(body *RetryNotRunningResponseBody) (err
 // ValidateRetryNotFoundResponseBody runs the validations defined on
 // retry_not_found_response_body
 func ValidateRetryNotFoundResponseBody(body *RetryNotFoundResponseBody) (err error) {
-	if body.Message == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
-	}
-	if body.ID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
-	}
-	return
-}
-
-// ValidateWorkflowNotFoundResponseBody runs the validations defined on
-// workflow_not_found_response_body
-func ValidateWorkflowNotFoundResponseBody(body *WorkflowNotFoundResponseBody) (err error) {
 	if body.Message == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
 	}

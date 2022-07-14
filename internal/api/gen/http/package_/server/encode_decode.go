@@ -387,74 +387,6 @@ func EncodeRetryError(encoder func(context.Context, http.ResponseWriter) goahttp
 	}
 }
 
-// EncodeWorkflowResponse returns an encoder for responses returned by the
-// package workflow endpoint.
-func EncodeWorkflowResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
-	return func(ctx context.Context, w http.ResponseWriter, v interface{}) error {
-		res := v.(*package_views.EnduroPackageWorkflowStatus)
-		enc := encoder(ctx, w)
-		body := NewWorkflowResponseBody(res.Projected)
-		w.WriteHeader(http.StatusOK)
-		return enc.Encode(body)
-	}
-}
-
-// DecodeWorkflowRequest returns a decoder for requests sent to the package
-// workflow endpoint.
-func DecodeWorkflowRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (interface{}, error) {
-	return func(r *http.Request) (interface{}, error) {
-		var (
-			id  uint
-			err error
-
-			params = mux.Vars(r)
-		)
-		{
-			idRaw := params["id"]
-			v, err2 := strconv.ParseUint(idRaw, 10, strconv.IntSize)
-			if err2 != nil {
-				err = goa.MergeErrors(err, goa.InvalidFieldTypeError("id", idRaw, "unsigned integer"))
-			}
-			id = uint(v)
-		}
-		if err != nil {
-			return nil, err
-		}
-		payload := NewWorkflowPayload(id)
-
-		return payload, nil
-	}
-}
-
-// EncodeWorkflowError returns an encoder for errors returned by the workflow
-// package endpoint.
-func EncodeWorkflowError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
-	encodeError := goahttp.ErrorEncoder(encoder, formatter)
-	return func(ctx context.Context, w http.ResponseWriter, v error) error {
-		var en ErrorNamer
-		if !errors.As(v, &en) {
-			return encodeError(ctx, w, v)
-		}
-		switch en.ErrorName() {
-		case "not_found":
-			var res *package_.PackageNotfound
-			errors.As(v, &res)
-			enc := encoder(ctx, w)
-			var body interface{}
-			if formatter != nil {
-				body = formatter(res)
-			} else {
-				body = NewWorkflowNotFoundResponseBody(res)
-			}
-			w.Header().Set("goa-error", res.ErrorName())
-			w.WriteHeader(http.StatusNotFound)
-			return enc.Encode(body)
-		default:
-			return encodeError(ctx, w, v)
-		}
-	}
-}
-
 // EncodeBulkResponse returns an encoder for responses returned by the package
 // bulk endpoint.
 func EncodeBulkResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
@@ -1125,22 +1057,6 @@ func marshalPackageEnduroStoredPackageToEnduroStoredPackageResponseBody(v *packa
 		CreatedAt:   v.CreatedAt,
 		StartedAt:   v.StartedAt,
 		CompletedAt: v.CompletedAt,
-	}
-
-	return res
-}
-
-// marshalPackageViewsEnduroPackageWorkflowHistoryViewToEnduroPackageWorkflowHistoryResponseBody
-// builds a value of type *EnduroPackageWorkflowHistoryResponseBody from a
-// value of type *package_views.EnduroPackageWorkflowHistoryView.
-func marshalPackageViewsEnduroPackageWorkflowHistoryViewToEnduroPackageWorkflowHistoryResponseBody(v *package_views.EnduroPackageWorkflowHistoryView) *EnduroPackageWorkflowHistoryResponseBody {
-	if v == nil {
-		return nil
-	}
-	res := &EnduroPackageWorkflowHistoryResponseBody{
-		ID:      v.ID,
-		Type:    v.Type,
-		Details: v.Details,
 	}
 
 	return res

@@ -169,25 +169,6 @@ func BuildRetryPayload(package_RetryID string) (*package_.RetryPayload, error) {
 	return v, nil
 }
 
-// BuildWorkflowPayload builds the payload for the package workflow endpoint
-// from CLI flags.
-func BuildWorkflowPayload(package_WorkflowID string) (*package_.WorkflowPayload, error) {
-	var err error
-	var id uint
-	{
-		var v uint64
-		v, err = strconv.ParseUint(package_WorkflowID, 10, strconv.IntSize)
-		id = uint(v)
-		if err != nil {
-			return nil, fmt.Errorf("invalid value for id, must be UINT")
-		}
-	}
-	v := &package_.WorkflowPayload{}
-	v.ID = id
-
-	return v, nil
-}
-
 // BuildBulkPayload builds the payload for the package bulk endpoint from CLI
 // flags.
 func BuildBulkPayload(package_BulkBody string) (*package_.BulkPayload, error) {
@@ -196,7 +177,7 @@ func BuildBulkPayload(package_BulkBody string) (*package_.BulkPayload, error) {
 	{
 		err = json.Unmarshal([]byte(package_BulkBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"operation\": \"cancel\",\n      \"size\": 12680881456796554968,\n      \"status\": \"error\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"operation\": \"retry\",\n      \"size\": 2156492309337350184,\n      \"status\": \"queued\"\n   }'")
 		}
 		if !(body.Operation == "retry" || body.Operation == "cancel" || body.Operation == "abandon") {
 			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.operation", body.Operation, []interface{}{"retry", "cancel", "abandon"}))
@@ -250,7 +231,7 @@ func BuildConfirmPayload(package_ConfirmBody string, package_ConfirmID string) (
 	{
 		err = json.Unmarshal([]byte(package_ConfirmBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location\": \"Quae quisquam.\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location\": \"Maxime quia laboriosam sint et.\"\n   }'")
 		}
 	}
 	var id uint
@@ -297,7 +278,7 @@ func BuildMovePayload(package_MoveBody string, package_MoveID string) (*package_
 	{
 		err = json.Unmarshal([]byte(package_MoveBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location\": \"Qui praesentium.\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location\": \"Quo ut eveniet et rerum nemo corporis.\"\n   }'")
 		}
 	}
 	var id uint

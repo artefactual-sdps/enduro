@@ -77,13 +77,6 @@ type ShowResponseBody struct {
 	CompletedAt *string `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
 }
 
-// WorkflowResponseBody is the type of the "package" service "workflow"
-// endpoint HTTP response body.
-type WorkflowResponseBody struct {
-	Status  *string                                            `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
-	History EnduroPackageWorkflowHistoryResponseBodyCollection `form:"history,omitempty" json:"history,omitempty" xml:"history,omitempty"`
-}
-
 // BulkResponseBody is the type of the "package" service "bulk" endpoint HTTP
 // response body.
 type BulkResponseBody struct {
@@ -180,15 +173,6 @@ type RetryNotRunningResponseBody struct {
 // RetryNotFoundResponseBody is the type of the "package" service "retry"
 // endpoint HTTP response body for the "not_found" error.
 type RetryNotFoundResponseBody struct {
-	// Message of error
-	Message string `form:"message" json:"message" xml:"message"`
-	// Identifier of missing package
-	ID uint `form:"id" json:"id" xml:"id"`
-}
-
-// WorkflowNotFoundResponseBody is the type of the "package" service "workflow"
-// endpoint HTTP response body for the "not_found" error.
-type WorkflowNotFoundResponseBody struct {
 	// Message of error
 	Message string `form:"message" json:"message" xml:"message"`
 	// Identifier of missing package
@@ -476,21 +460,6 @@ type EnduroPackageLocationUpdatedEventResponseBody struct {
 // response body types.
 type EnduroStoredPackageCollectionResponseBody []*EnduroStoredPackageResponseBody
 
-// EnduroPackageWorkflowHistoryResponseBodyCollection is used to define fields
-// on response body types.
-type EnduroPackageWorkflowHistoryResponseBodyCollection []*EnduroPackageWorkflowHistoryResponseBody
-
-// EnduroPackageWorkflowHistoryResponseBody is used to define fields on
-// response body types.
-type EnduroPackageWorkflowHistoryResponseBody struct {
-	// Identifier of package
-	ID *uint `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
-	// Type of the event
-	Type *string `form:"type,omitempty" json:"type,omitempty" xml:"type,omitempty"`
-	// Contents of the event
-	Details interface{} `form:"details,omitempty" json:"details,omitempty" xml:"details,omitempty"`
-}
-
 // EnduroPackagePreservationActionResponseBodyCollection is used to define
 // fields on response body types.
 type EnduroPackagePreservationActionResponseBodyCollection []*EnduroPackagePreservationActionResponseBody
@@ -576,21 +545,6 @@ func NewShowResponseBody(res *package_views.EnduroStoredPackageView) *ShowRespon
 		CreatedAt:   *res.CreatedAt,
 		StartedAt:   res.StartedAt,
 		CompletedAt: res.CompletedAt,
-	}
-	return body
-}
-
-// NewWorkflowResponseBody builds the HTTP response body from the result of the
-// "workflow" endpoint of the "package" service.
-func NewWorkflowResponseBody(res *package_views.EnduroPackageWorkflowStatusView) *WorkflowResponseBody {
-	body := &WorkflowResponseBody{
-		Status: res.Status,
-	}
-	if res.History != nil {
-		body.History = make([]*EnduroPackageWorkflowHistoryResponseBody, len(res.History))
-		for i, val := range res.History {
-			body.History[i] = marshalPackageViewsEnduroPackageWorkflowHistoryViewToEnduroPackageWorkflowHistoryResponseBody(val)
-		}
 	}
 	return body
 }
@@ -703,16 +657,6 @@ func NewRetryNotRunningResponseBody(res *goa.ServiceError) *RetryNotRunningRespo
 // of the "retry" endpoint of the "package" service.
 func NewRetryNotFoundResponseBody(res *package_.PackageNotfound) *RetryNotFoundResponseBody {
 	body := &RetryNotFoundResponseBody{
-		Message: res.Message,
-		ID:      res.ID,
-	}
-	return body
-}
-
-// NewWorkflowNotFoundResponseBody builds the HTTP response body from the
-// result of the "workflow" endpoint of the "package" service.
-func NewWorkflowNotFoundResponseBody(res *package_.PackageNotfound) *WorkflowNotFoundResponseBody {
-	body := &WorkflowNotFoundResponseBody{
 		Message: res.Message,
 		ID:      res.ID,
 	}
@@ -937,14 +881,6 @@ func NewCancelPayload(id uint) *package_.CancelPayload {
 // NewRetryPayload builds a package service retry endpoint payload.
 func NewRetryPayload(id uint) *package_.RetryPayload {
 	v := &package_.RetryPayload{}
-	v.ID = id
-
-	return v
-}
-
-// NewWorkflowPayload builds a package service workflow endpoint payload.
-func NewWorkflowPayload(id uint) *package_.WorkflowPayload {
-	v := &package_.WorkflowPayload{}
 	v.ID = id
 
 	return v

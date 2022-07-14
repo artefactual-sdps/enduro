@@ -19,7 +19,6 @@ models/EnduroPackagePreservationActionResponseBody.ts
 models/EnduroPackagePreservationTaskResponseBody.ts
 models/EnduroPackageStatusUpdatedEventResponseBody.ts
 models/EnduroPackageUpdatedEventResponseBody.ts
-models/EnduroPackageWorkflowHistoryResponseBody.ts
 models/EnduroStoredPackageResponseBody.ts
 models/PackageBulkNotAvailableResponseBody.ts
 models/PackageBulkNotValidResponseBody.ts
@@ -51,8 +50,6 @@ models/PackageRetryNotFoundResponseBody.ts
 models/PackageRetryNotRunningResponseBody.ts
 models/PackageShowNotFoundResponseBody.ts
 models/PackageShowResponseBody.ts
-models/PackageWorkflowNotFoundResponseBody.ts
-models/PackageWorkflowResponseBody.ts
 models/StorageDownloadNotFoundResponseBody.ts
 models/StorageMoveNotAvailableResponseBody.ts
 models/StorageMoveNotFoundResponseBody.ts
