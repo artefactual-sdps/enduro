@@ -22,7 +22,6 @@ export const usePackageStore = defineStore("package", {
     // User-interface interactions between components.
     ui: {
       download: new UIRequest(),
-      expand: new UIRequest(),
     },
   }),
   getters: {

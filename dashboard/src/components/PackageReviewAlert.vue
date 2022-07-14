@@ -2,6 +2,14 @@
 import { openPackageLocationDialog } from "@/dialogs";
 import { usePackageStore } from "@/stores/package";
 
+let { expandCounter } = defineProps<{
+  expandCounter: number;
+}>();
+
+const emit = defineEmits<{
+  (e: "update:expandCounter", value: number): void;
+}>();
+
 const packageStore = usePackageStore();
 
 const confirm = async () => {
@@ -21,7 +29,11 @@ const confirm = async () => {
     <p class="mb-1">Links:</p>
     <ul>
       <li>
-        <a href="#" @click.prevent="packageStore.ui.expand.request">Expand</a>
+        <a
+          href="#"
+          @click.prevent="emit('update:expandCounter', expandCounter + 1)"
+          >Expand</a
+        >
         the task details below
       </li>
       <li>View a summary of the preservation metadata created</li>
