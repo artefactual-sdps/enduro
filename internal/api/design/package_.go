@@ -330,7 +330,7 @@ var EnumPreservationActionType = func() {
 }
 
 var EnumPreservationActionStatus = func() {
-	Enum("unspecified", "complete", "processing", "failed")
+	Enum("unspecified", "in progress", "done", "error", "queued", "pending")
 }
 
 var PreservationAction = ResultType("application/vnd.enduro.package-preservation-action", func() {
@@ -356,7 +356,7 @@ var PreservationAction = ResultType("application/vnd.enduro.package-preservation
 })
 
 var EnumPreservationTaskStatus = func() {
-	Enum("unspecified", "complete", "processing", "failed")
+	Enum("unspecified", "in progress", "done", "error", "queued", "pending")
 }
 
 var PreservationTask = ResultType("application/vnd.enduro.package-preservation-task", func() {

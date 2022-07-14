@@ -76,9 +76,11 @@ export interface EnduroPackagePreservationActionResponseBody {
  */
 export const EnduroPackagePreservationActionResponseBodyStatusEnum = {
     Unspecified: 'unspecified',
-    Complete: 'complete',
-    Processing: 'processing',
-    Failed: 'failed'
+    InProgress: 'in progress',
+    Done: 'done',
+    Error: 'error',
+    Queued: 'queued',
+    Pending: 'pending'
 } as const;
 export type EnduroPackagePreservationActionResponseBodyStatusEnum = typeof EnduroPackagePreservationActionResponseBodyStatusEnum[keyof typeof EnduroPackagePreservationActionResponseBodyStatusEnum];
 

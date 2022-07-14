@@ -41,6 +41,7 @@ func (p PreservationActionType) String() string {
 	case ActionTypeMovePackage:
 		return "move-package"
 	}
+
 	return "unspecified"
 }
 
@@ -63,21 +64,27 @@ type PreservationActionStatus uint
 
 const (
 	ActionStatusUnspecified PreservationActionStatus = iota
-	ActionStatusComplete
-	ActionStatusProcessing
-	ActionStatusFailed
+	ActionStatusInProgress
+	ActionStatusDone
+	ActionStatusError
+	ActionStatusQueued
+	ActionStatusPending
 )
 
 func NewPreservationActionStatus(status string) PreservationActionStatus {
 	var s PreservationActionStatus
 
 	switch strings.ToLower(status) {
-	case "processing":
-		s = ActionStatusProcessing
-	case "complete":
-		s = ActionStatusComplete
-	case "failed":
-		s = ActionStatusFailed
+	case "in progress":
+		s = ActionStatusInProgress
+	case "done":
+		s = ActionStatusDone
+	case "error":
+		s = ActionStatusError
+	case "queued":
+		s = ActionStatusQueued
+	case "pending":
+		s = ActionStatusPending
 	default:
 		s = ActionStatusUnspecified
 	}
@@ -87,13 +94,18 @@ func NewPreservationActionStatus(status string) PreservationActionStatus {
 
 func (p PreservationActionStatus) String() string {
 	switch p {
-	case ActionStatusProcessing:
-		return "processing"
-	case ActionStatusComplete:
-		return "complete"
-	case ActionStatusFailed:
-		return "failed"
+	case ActionStatusInProgress:
+		return "in progress"
+	case ActionStatusDone:
+		return "done"
+	case ActionStatusError:
+		return "error"
+	case ActionStatusQueued:
+		return "queued"
+	case ActionStatusPending:
+		return "pending"
 	}
+
 	return "unspecified"
 }
 
@@ -127,21 +139,27 @@ type PreservationTaskStatus uint
 
 const (
 	TaskStatusUnspecified PreservationTaskStatus = iota
-	TaskStatusComplete
-	TaskStatusProcessing
-	TaskStatusFailed
+	TaskStatusInProgress
+	TaskStatusDone
+	TaskStatusError
+	TaskStatusQueued
+	TaskStatusPending
 )
 
 func NewPreservationTaskStatus(status string) PreservationTaskStatus {
 	var s PreservationTaskStatus
 
 	switch strings.ToLower(status) {
-	case "processing":
-		s = TaskStatusProcessing
-	case "complete":
-		s = TaskStatusComplete
-	case "failed":
-		s = TaskStatusFailed
+	case "in progress":
+		s = TaskStatusInProgress
+	case "done":
+		s = TaskStatusDone
+	case "error":
+		s = TaskStatusError
+	case "queued":
+		s = TaskStatusQueued
+	case "pending":
+		s = TaskStatusPending
 	default:
 		s = TaskStatusUnspecified
 	}
@@ -151,13 +169,18 @@ func NewPreservationTaskStatus(status string) PreservationTaskStatus {
 
 func (p PreservationTaskStatus) String() string {
 	switch p {
-	case TaskStatusProcessing:
-		return "processing"
-	case TaskStatusComplete:
-		return "complete"
-	case TaskStatusFailed:
-		return "failed"
+	case TaskStatusInProgress:
+		return "in progress"
+	case TaskStatusDone:
+		return "done"
+	case TaskStatusError:
+		return "error"
+	case TaskStatusQueued:
+		return "queued"
+	case TaskStatusPending:
+		return "pending"
 	}
+
 	return "unspecified"
 }
 
@@ -193,10 +216,9 @@ func (w *goaWrapper) PreservationActions(ctx context.Context, payload *goapackag
 		return nil, err
 	}
 
-	query := "SELECT id, workflow_id, type, status, CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at, CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at FROM preservation_action WHERE package_id = (?) ORDER BY started_at DESC"
+	query := "SELECT id, workflow_id, type, status, CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at, CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at FROM preservation_action WHERE package_id = ? ORDER BY started_at DESC"
 	args := []interface{}{goapkg.ID}
 
-	query = w.db.Rebind(query)
 	rows, err := w.db.QueryxContext(ctx, query, args...)
 	if err != nil {
 		return nil, fmt.Errorf("error querying the database: %w", err)
@@ -218,10 +240,9 @@ func (w *goaWrapper) PreservationActions(ctx context.Context, payload *goapackag
 			CompletedAt: formatOptionalTime(pa.CompletedAt),
 		}
 
-		ptQuery := "SELECT id, task_id, name, status, CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at, CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at FROM preservation_task WHERE preservation_action_id = (?)"
+		ptQuery := "SELECT id, task_id, name, status, CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at, CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at FROM preservation_task WHERE preservation_action_id = ?"
 		ptQueryArgs := []interface{}{pa.ID}
 
-		ptQuery = w.db.Rebind(ptQuery)
 		ptRows, err := w.db.QueryxContext(ctx, ptQuery, ptQueryArgs...)
 		if err != nil {
 			return nil, fmt.Errorf("error querying the database: %w", err)
@@ -293,8 +314,23 @@ func (svc *packageImpl) CreatePreservationAction(ctx context.Context, pa *Preser
 	return nil
 }
 
+func (svc *packageImpl) SetPreservationActionStatus(ctx context.Context, ID uint, status PreservationActionStatus) error {
+	query := `UPDATE preservation_action SET status = ? WHERE id = ?`
+	args := []interface{}{
+		status,
+		ID,
+	}
+
+	_, err := svc.db.ExecContext(ctx, query, args...)
+	if err != nil {
+		return fmt.Errorf("error updating preservation action: %w", err)
+	}
+
+	return nil
+}
+
 func (svc *packageImpl) CompletePreservationAction(ctx context.Context, ID uint, status PreservationActionStatus, completedAt time.Time) error {
-	query := `UPDATE preservation_action SET status = (?), completed_at = (?) WHERE id = (?)`
+	query := `UPDATE preservation_action SET status = ?, completed_at = ? WHERE id = ?`
 	args := []interface{}{
 		status,
 		completedAt,

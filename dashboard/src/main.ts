@@ -57,28 +57,36 @@ app.config.globalProperties.$filters = {
     value: api.EnduroPackagePreservationActionResponseBodyStatusEnum
   ) {
     switch (value) {
-      case api.EnduroPackagePreservationActionResponseBodyStatusEnum.Complete:
+      case api.EnduroPackagePreservationActionResponseBodyStatusEnum.InProgress:
+        return "bg-secondary";
+      case api.EnduroPackagePreservationActionResponseBodyStatusEnum.Done:
         return "bg-success";
-      case api.EnduroPackagePreservationActionResponseBodyStatusEnum.Failed:
+      case api.EnduroPackagePreservationActionResponseBodyStatusEnum.Error:
         return "bg-danger";
-      case api.EnduroPackagePreservationActionResponseBodyStatusEnum.Processing:
+      case api.EnduroPackagePreservationActionResponseBodyStatusEnum.Queued:
+        return "bg-info";
+      case api.EnduroPackagePreservationActionResponseBodyStatusEnum.Pending:
         return "bg-warning";
       default:
-        return "bg-secondary";
+        return "bg-dark";
     }
   },
   formatPreservationTaskStatus(
     value: api.EnduroPackagePreservationTaskResponseBodyStatusEnum
   ) {
     switch (value) {
-      case api.EnduroPackagePreservationTaskResponseBodyStatusEnum.Complete:
+      case api.EnduroPackagePreservationTaskResponseBodyStatusEnum.InProgress:
+        return "bg-secondary";
+      case api.EnduroPackagePreservationTaskResponseBodyStatusEnum.Done:
         return "bg-success";
-      case api.EnduroPackagePreservationTaskResponseBodyStatusEnum.Failed:
+      case api.EnduroPackagePreservationTaskResponseBodyStatusEnum.Error:
         return "bg-danger";
-      case api.EnduroPackagePreservationTaskResponseBodyStatusEnum.Processing:
+      case api.EnduroPackagePreservationTaskResponseBodyStatusEnum.Queued:
+        return "bg-info";
+      case api.EnduroPackagePreservationTaskResponseBodyStatusEnum.Pending:
         return "bg-warning";
       default:
-        return "bg-secondary";
+        return "bg-dark";
     }
   },
 };

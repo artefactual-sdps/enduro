@@ -971,12 +971,14 @@ definitions:
                 format: date-time
             status:
                 type: string
-                example: failed
+                example: in progress
                 enum:
                     - unspecified
-                    - complete
-                    - processing
-                    - failed
+                    - in progress
+                    - done
+                    - error
+                    - queued
+                    - pending
             tasks:
                 $ref: '#/definitions/EnduroPackagePreservationTaskResponseBodyCollection'
             type:
@@ -999,19 +1001,19 @@ definitions:
                   id: 13127725253964961724
                   name: Molestiae dolores exercitationem quo modi voluptatibus.
                   started_at: "2004-03-16T18:00:38Z"
-                  status: processing
+                  status: done
                   task_id: Soluta sed et modi molestias quaerat cupiditate.
                 - completed_at: "2008-09-20T02:32:03Z"
                   id: 13127725253964961724
                   name: Molestiae dolores exercitationem quo modi voluptatibus.
                   started_at: "2004-03-16T18:00:38Z"
-                  status: processing
+                  status: done
                   task_id: Soluta sed et modi molestias quaerat cupiditate.
                 - completed_at: "2008-09-20T02:32:03Z"
                   id: 13127725253964961724
                   name: Molestiae dolores exercitationem quo modi voluptatibus.
                   started_at: "2004-03-16T18:00:38Z"
-                  status: processing
+                  status: done
                   task_id: Soluta sed et modi molestias quaerat cupiditate.
             type: move-package
             workflow_id: Reprehenderit excepturi ratione sint perspiciatis vel.
@@ -1031,75 +1033,75 @@ definitions:
             - completed_at: "1993-07-04T16:31:20Z"
               id: 3716209643676786968
               started_at: "1981-09-24T22:48:02Z"
-              status: complete
+              status: pending
               tasks:
                 - completed_at: "2008-09-20T02:32:03Z"
                   id: 13127725253964961724
                   name: Molestiae dolores exercitationem quo modi voluptatibus.
                   started_at: "2004-03-16T18:00:38Z"
-                  status: processing
+                  status: done
                   task_id: Soluta sed et modi molestias quaerat cupiditate.
                 - completed_at: "2008-09-20T02:32:03Z"
                   id: 13127725253964961724
                   name: Molestiae dolores exercitationem quo modi voluptatibus.
                   started_at: "2004-03-16T18:00:38Z"
-                  status: processing
+                  status: done
                   task_id: Soluta sed et modi molestias quaerat cupiditate.
                 - completed_at: "2008-09-20T02:32:03Z"
                   id: 13127725253964961724
                   name: Molestiae dolores exercitationem quo modi voluptatibus.
                   started_at: "2004-03-16T18:00:38Z"
-                  status: processing
+                  status: done
                   task_id: Soluta sed et modi molestias quaerat cupiditate.
               type: create-aip
               workflow_id: Alias molestias placeat iste sapiente.
             - completed_at: "1993-07-04T16:31:20Z"
               id: 3716209643676786968
               started_at: "1981-09-24T22:48:02Z"
-              status: complete
+              status: pending
               tasks:
                 - completed_at: "2008-09-20T02:32:03Z"
                   id: 13127725253964961724
                   name: Molestiae dolores exercitationem quo modi voluptatibus.
                   started_at: "2004-03-16T18:00:38Z"
-                  status: processing
+                  status: done
                   task_id: Soluta sed et modi molestias quaerat cupiditate.
                 - completed_at: "2008-09-20T02:32:03Z"
                   id: 13127725253964961724
                   name: Molestiae dolores exercitationem quo modi voluptatibus.
                   started_at: "2004-03-16T18:00:38Z"
-                  status: processing
+                  status: done
                   task_id: Soluta sed et modi molestias quaerat cupiditate.
                 - completed_at: "2008-09-20T02:32:03Z"
                   id: 13127725253964961724
                   name: Molestiae dolores exercitationem quo modi voluptatibus.
                   started_at: "2004-03-16T18:00:38Z"
-                  status: processing
+                  status: done
                   task_id: Soluta sed et modi molestias quaerat cupiditate.
               type: create-aip
               workflow_id: Alias molestias placeat iste sapiente.
             - completed_at: "1993-07-04T16:31:20Z"
               id: 3716209643676786968
               started_at: "1981-09-24T22:48:02Z"
-              status: complete
+              status: pending
               tasks:
                 - completed_at: "2008-09-20T02:32:03Z"
                   id: 13127725253964961724
                   name: Molestiae dolores exercitationem quo modi voluptatibus.
                   started_at: "2004-03-16T18:00:38Z"
-                  status: processing
+                  status: done
                   task_id: Soluta sed et modi molestias quaerat cupiditate.
                 - completed_at: "2008-09-20T02:32:03Z"
                   id: 13127725253964961724
                   name: Molestiae dolores exercitationem quo modi voluptatibus.
                   started_at: "2004-03-16T18:00:38Z"
-                  status: processing
+                  status: done
                   task_id: Soluta sed et modi molestias quaerat cupiditate.
                 - completed_at: "2008-09-20T02:32:03Z"
                   id: 13127725253964961724
                   name: Molestiae dolores exercitationem quo modi voluptatibus.
                   started_at: "2004-03-16T18:00:38Z"
-                  status: processing
+                  status: done
                   task_id: Soluta sed et modi molestias quaerat cupiditate.
               type: create-aip
               workflow_id: Alias molestias placeat iste sapiente.
@@ -1124,12 +1126,14 @@ definitions:
                 format: date-time
             status:
                 type: string
-                example: failed
+                example: pending
                 enum:
                     - unspecified
-                    - complete
-                    - processing
-                    - failed
+                    - in progress
+                    - done
+                    - error
+                    - queued
+                    - pending
             task_id:
                 type: string
                 example: Nam vitae ipsam et ea facilis.
@@ -1139,7 +1143,7 @@ definitions:
             id: 12390816917679193029
             name: Accusantium velit dolores aut.
             started_at: "2012-08-11T04:09:57Z"
-            status: complete
+            status: error
             task_id: Laudantium facilis laudantium et voluptas ullam dolor.
         required:
             - id
@@ -1158,19 +1162,19 @@ definitions:
               id: 13127725253964961724
               name: Molestiae dolores exercitationem quo modi voluptatibus.
               started_at: "2004-03-16T18:00:38Z"
-              status: processing
+              status: done
               task_id: Soluta sed et modi molestias quaerat cupiditate.
             - completed_at: "2008-09-20T02:32:03Z"
               id: 13127725253964961724
               name: Molestiae dolores exercitationem quo modi voluptatibus.
               started_at: "2004-03-16T18:00:38Z"
-              status: processing
+              status: done
               task_id: Soluta sed et modi molestias quaerat cupiditate.
             - completed_at: "2008-09-20T02:32:03Z"
               id: 13127725253964961724
               name: Molestiae dolores exercitationem quo modi voluptatibus.
               started_at: "2004-03-16T18:00:38Z"
-              status: processing
+              status: done
               task_id: Soluta sed et modi molestias quaerat cupiditate.
     EnduroPackageStatusUpdatedEventResponseBody:
         title: 'Mediatype identifier: application/vnd.enduro.package-status-updated-event; view=default'
@@ -2053,75 +2057,75 @@ definitions:
                 - completed_at: "1993-07-04T16:31:20Z"
                   id: 3716209643676786968
                   started_at: "1981-09-24T22:48:02Z"
-                  status: complete
+                  status: pending
                   tasks:
                     - completed_at: "2008-09-20T02:32:03Z"
                       id: 13127725253964961724
                       name: Molestiae dolores exercitationem quo modi voluptatibus.
                       started_at: "2004-03-16T18:00:38Z"
-                      status: processing
+                      status: done
                       task_id: Soluta sed et modi molestias quaerat cupiditate.
                     - completed_at: "2008-09-20T02:32:03Z"
                       id: 13127725253964961724
                       name: Molestiae dolores exercitationem quo modi voluptatibus.
                       started_at: "2004-03-16T18:00:38Z"
-                      status: processing
+                      status: done
                       task_id: Soluta sed et modi molestias quaerat cupiditate.
                     - completed_at: "2008-09-20T02:32:03Z"
                       id: 13127725253964961724
                       name: Molestiae dolores exercitationem quo modi voluptatibus.
                       started_at: "2004-03-16T18:00:38Z"
-                      status: processing
+                      status: done
                       task_id: Soluta sed et modi molestias quaerat cupiditate.
                   type: create-aip
                   workflow_id: Alias molestias placeat iste sapiente.
                 - completed_at: "1993-07-04T16:31:20Z"
                   id: 3716209643676786968
                   started_at: "1981-09-24T22:48:02Z"
-                  status: complete
+                  status: pending
                   tasks:
                     - completed_at: "2008-09-20T02:32:03Z"
                       id: 13127725253964961724
                       name: Molestiae dolores exercitationem quo modi voluptatibus.
                       started_at: "2004-03-16T18:00:38Z"
-                      status: processing
+                      status: done
                       task_id: Soluta sed et modi molestias quaerat cupiditate.
                     - completed_at: "2008-09-20T02:32:03Z"
                       id: 13127725253964961724
                       name: Molestiae dolores exercitationem quo modi voluptatibus.
                       started_at: "2004-03-16T18:00:38Z"
-                      status: processing
+                      status: done
                       task_id: Soluta sed et modi molestias quaerat cupiditate.
                     - completed_at: "2008-09-20T02:32:03Z"
                       id: 13127725253964961724
                       name: Molestiae dolores exercitationem quo modi voluptatibus.
                       started_at: "2004-03-16T18:00:38Z"
-                      status: processing
+                      status: done
                       task_id: Soluta sed et modi molestias quaerat cupiditate.
                   type: create-aip
                   workflow_id: Alias molestias placeat iste sapiente.
                 - completed_at: "1993-07-04T16:31:20Z"
                   id: 3716209643676786968
                   started_at: "1981-09-24T22:48:02Z"
-                  status: complete
+                  status: pending
                   tasks:
                     - completed_at: "2008-09-20T02:32:03Z"
                       id: 13127725253964961724
                       name: Molestiae dolores exercitationem quo modi voluptatibus.
                       started_at: "2004-03-16T18:00:38Z"
-                      status: processing
+                      status: done
                       task_id: Soluta sed et modi molestias quaerat cupiditate.
                     - completed_at: "2008-09-20T02:32:03Z"
                       id: 13127725253964961724
                       name: Molestiae dolores exercitationem quo modi voluptatibus.
                       started_at: "2004-03-16T18:00:38Z"
-                      status: processing
+                      status: done
                       task_id: Soluta sed et modi molestias quaerat cupiditate.
                     - completed_at: "2008-09-20T02:32:03Z"
                       id: 13127725253964961724
                       name: Molestiae dolores exercitationem quo modi voluptatibus.
                       started_at: "2004-03-16T18:00:38Z"
-                      status: processing
+                      status: done
                       task_id: Soluta sed et modi molestias quaerat cupiditate.
                   type: create-aip
                   workflow_id: Alias molestias placeat iste sapiente.

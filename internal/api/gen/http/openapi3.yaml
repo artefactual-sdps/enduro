@@ -459,93 +459,93 @@ paths:
                                     - completed_at: "1992-01-25T13:19:08Z"
                                       id: 13052063245471964920
                                       started_at: "1976-11-16T02:31:35Z"
-                                      status: processing
+                                      status: queued
                                       tasks:
                                         - completed_at: "2015-11-24T16:44:22Z"
                                           id: 5570435736376233057
                                           name: Qui tempora eveniet eligendi sed.
                                           started_at: "1975-04-17T10:01:35Z"
-                                          status: processing
+                                          status: done
                                           task_id: Molestiae quia commodi.
                                         - completed_at: "2015-11-24T16:44:22Z"
                                           id: 5570435736376233057
                                           name: Qui tempora eveniet eligendi sed.
                                           started_at: "1975-04-17T10:01:35Z"
-                                          status: processing
+                                          status: done
                                           task_id: Molestiae quia commodi.
                                         - completed_at: "2015-11-24T16:44:22Z"
                                           id: 5570435736376233057
                                           name: Qui tempora eveniet eligendi sed.
                                           started_at: "1975-04-17T10:01:35Z"
-                                          status: processing
+                                          status: done
                                           task_id: Molestiae quia commodi.
                                         - completed_at: "2015-11-24T16:44:22Z"
                                           id: 5570435736376233057
                                           name: Qui tempora eveniet eligendi sed.
                                           started_at: "1975-04-17T10:01:35Z"
-                                          status: processing
+                                          status: done
                                           task_id: Molestiae quia commodi.
                                       type: create-aip
                                       workflow_id: Vel ut minima eius veritatis.
                                     - completed_at: "1992-01-25T13:19:08Z"
                                       id: 13052063245471964920
                                       started_at: "1976-11-16T02:31:35Z"
-                                      status: processing
+                                      status: queued
                                       tasks:
                                         - completed_at: "2015-11-24T16:44:22Z"
                                           id: 5570435736376233057
                                           name: Qui tempora eveniet eligendi sed.
                                           started_at: "1975-04-17T10:01:35Z"
-                                          status: processing
+                                          status: done
                                           task_id: Molestiae quia commodi.
                                         - completed_at: "2015-11-24T16:44:22Z"
                                           id: 5570435736376233057
                                           name: Qui tempora eveniet eligendi sed.
                                           started_at: "1975-04-17T10:01:35Z"
-                                          status: processing
+                                          status: done
                                           task_id: Molestiae quia commodi.
                                         - completed_at: "2015-11-24T16:44:22Z"
                                           id: 5570435736376233057
                                           name: Qui tempora eveniet eligendi sed.
                                           started_at: "1975-04-17T10:01:35Z"
-                                          status: processing
+                                          status: done
                                           task_id: Molestiae quia commodi.
                                         - completed_at: "2015-11-24T16:44:22Z"
                                           id: 5570435736376233057
                                           name: Qui tempora eveniet eligendi sed.
                                           started_at: "1975-04-17T10:01:35Z"
-                                          status: processing
+                                          status: done
                                           task_id: Molestiae quia commodi.
                                       type: create-aip
                                       workflow_id: Vel ut minima eius veritatis.
                                     - completed_at: "1992-01-25T13:19:08Z"
                                       id: 13052063245471964920
                                       started_at: "1976-11-16T02:31:35Z"
-                                      status: processing
+                                      status: queued
                                       tasks:
                                         - completed_at: "2015-11-24T16:44:22Z"
                                           id: 5570435736376233057
                                           name: Qui tempora eveniet eligendi sed.
                                           started_at: "1975-04-17T10:01:35Z"
-                                          status: processing
+                                          status: done
                                           task_id: Molestiae quia commodi.
                                         - completed_at: "2015-11-24T16:44:22Z"
                                           id: 5570435736376233057
                                           name: Qui tempora eveniet eligendi sed.
                                           started_at: "1975-04-17T10:01:35Z"
-                                          status: processing
+                                          status: done
                                           task_id: Molestiae quia commodi.
                                         - completed_at: "2015-11-24T16:44:22Z"
                                           id: 5570435736376233057
                                           name: Qui tempora eveniet eligendi sed.
                                           started_at: "1975-04-17T10:01:35Z"
-                                          status: processing
+                                          status: done
                                           task_id: Molestiae quia commodi.
                                         - completed_at: "2015-11-24T16:44:22Z"
                                           id: 5570435736376233057
                                           name: Qui tempora eveniet eligendi sed.
                                           started_at: "1975-04-17T10:01:35Z"
-                                          status: processing
+                                          status: done
                                           task_id: Molestiae quia commodi.
                                       type: create-aip
                                       workflow_id: Vel ut minima eius veritatis.
@@ -1280,12 +1280,14 @@ components:
                     format: date-time
                 status:
                     type: string
-                    example: complete
+                    example: pending
                     enum:
                         - unspecified
-                        - complete
-                        - processing
-                        - failed
+                        - in progress
+                        - done
+                        - error
+                        - queued
+                        - pending
                 tasks:
                     $ref: '#/components/schemas/EnduroPackagePreservationTaskCollection'
                 type:
@@ -1302,31 +1304,31 @@ components:
                 completed_at: "1978-12-20T07:40:48Z"
                 id: 14330361765373085382
                 started_at: "1987-11-15T00:54:00Z"
-                status: complete
+                status: error
                 tasks:
                     - completed_at: "2015-11-24T16:44:22Z"
                       id: 5570435736376233057
                       name: Qui tempora eveniet eligendi sed.
                       started_at: "1975-04-17T10:01:35Z"
-                      status: processing
+                      status: done
                       task_id: Molestiae quia commodi.
                     - completed_at: "2015-11-24T16:44:22Z"
                       id: 5570435736376233057
                       name: Qui tempora eveniet eligendi sed.
                       started_at: "1975-04-17T10:01:35Z"
-                      status: processing
+                      status: done
                       task_id: Molestiae quia commodi.
                     - completed_at: "2015-11-24T16:44:22Z"
                       id: 5570435736376233057
                       name: Qui tempora eveniet eligendi sed.
                       started_at: "1975-04-17T10:01:35Z"
-                      status: processing
+                      status: done
                       task_id: Molestiae quia commodi.
                     - completed_at: "2015-11-24T16:44:22Z"
                       id: 5570435736376233057
                       name: Qui tempora eveniet eligendi sed.
                       started_at: "1975-04-17T10:01:35Z"
-                      status: processing
+                      status: done
                       task_id: Molestiae quia commodi.
                 type: create-aip
                 workflow_id: Dolorem qui ipsa vel inventore voluptatum.
@@ -1344,62 +1346,62 @@ components:
                 - completed_at: "1992-01-25T13:19:08Z"
                   id: 13052063245471964920
                   started_at: "1976-11-16T02:31:35Z"
-                  status: processing
+                  status: queued
                   tasks:
                     - completed_at: "2015-11-24T16:44:22Z"
                       id: 5570435736376233057
                       name: Qui tempora eveniet eligendi sed.
                       started_at: "1975-04-17T10:01:35Z"
-                      status: processing
+                      status: done
                       task_id: Molestiae quia commodi.
                     - completed_at: "2015-11-24T16:44:22Z"
                       id: 5570435736376233057
                       name: Qui tempora eveniet eligendi sed.
                       started_at: "1975-04-17T10:01:35Z"
-                      status: processing
+                      status: done
                       task_id: Molestiae quia commodi.
                     - completed_at: "2015-11-24T16:44:22Z"
                       id: 5570435736376233057
                       name: Qui tempora eveniet eligendi sed.
                       started_at: "1975-04-17T10:01:35Z"
-                      status: processing
+                      status: done
                       task_id: Molestiae quia commodi.
                     - completed_at: "2015-11-24T16:44:22Z"
                       id: 5570435736376233057
                       name: Qui tempora eveniet eligendi sed.
                       started_at: "1975-04-17T10:01:35Z"
-                      status: processing
+                      status: done
                       task_id: Molestiae quia commodi.
                   type: create-aip
                   workflow_id: Vel ut minima eius veritatis.
                 - completed_at: "1992-01-25T13:19:08Z"
                   id: 13052063245471964920
                   started_at: "1976-11-16T02:31:35Z"
-                  status: processing
+                  status: queued
                   tasks:
                     - completed_at: "2015-11-24T16:44:22Z"
                       id: 5570435736376233057
                       name: Qui tempora eveniet eligendi sed.
                       started_at: "1975-04-17T10:01:35Z"
-                      status: processing
+                      status: done
                       task_id: Molestiae quia commodi.
                     - completed_at: "2015-11-24T16:44:22Z"
                       id: 5570435736376233057
                       name: Qui tempora eveniet eligendi sed.
                       started_at: "1975-04-17T10:01:35Z"
-                      status: processing
+                      status: done
                       task_id: Molestiae quia commodi.
                     - completed_at: "2015-11-24T16:44:22Z"
                       id: 5570435736376233057
                       name: Qui tempora eveniet eligendi sed.
                       started_at: "1975-04-17T10:01:35Z"
-                      status: processing
+                      status: done
                       task_id: Molestiae quia commodi.
                     - completed_at: "2015-11-24T16:44:22Z"
                       id: 5570435736376233057
                       name: Qui tempora eveniet eligendi sed.
                       started_at: "1975-04-17T10:01:35Z"
-                      status: processing
+                      status: done
                       task_id: Molestiae quia commodi.
                   type: create-aip
                   workflow_id: Vel ut minima eius veritatis.
@@ -1413,93 +1415,93 @@ components:
                     - completed_at: "1992-01-25T13:19:08Z"
                       id: 13052063245471964920
                       started_at: "1976-11-16T02:31:35Z"
-                      status: processing
+                      status: queued
                       tasks:
                         - completed_at: "2015-11-24T16:44:22Z"
                           id: 5570435736376233057
                           name: Qui tempora eveniet eligendi sed.
                           started_at: "1975-04-17T10:01:35Z"
-                          status: processing
+                          status: done
                           task_id: Molestiae quia commodi.
                         - completed_at: "2015-11-24T16:44:22Z"
                           id: 5570435736376233057
                           name: Qui tempora eveniet eligendi sed.
                           started_at: "1975-04-17T10:01:35Z"
-                          status: processing
+                          status: done
                           task_id: Molestiae quia commodi.
                         - completed_at: "2015-11-24T16:44:22Z"
                           id: 5570435736376233057
                           name: Qui tempora eveniet eligendi sed.
                           started_at: "1975-04-17T10:01:35Z"
-                          status: processing
+                          status: done
                           task_id: Molestiae quia commodi.
                         - completed_at: "2015-11-24T16:44:22Z"
                           id: 5570435736376233057
                           name: Qui tempora eveniet eligendi sed.
                           started_at: "1975-04-17T10:01:35Z"
-                          status: processing
+                          status: done
                           task_id: Molestiae quia commodi.
                       type: create-aip
                       workflow_id: Vel ut minima eius veritatis.
                     - completed_at: "1992-01-25T13:19:08Z"
                       id: 13052063245471964920
                       started_at: "1976-11-16T02:31:35Z"
-                      status: processing
+                      status: queued
                       tasks:
                         - completed_at: "2015-11-24T16:44:22Z"
                           id: 5570435736376233057
                           name: Qui tempora eveniet eligendi sed.
                           started_at: "1975-04-17T10:01:35Z"
-                          status: processing
+                          status: done
                           task_id: Molestiae quia commodi.
                         - completed_at: "2015-11-24T16:44:22Z"
                           id: 5570435736376233057
                           name: Qui tempora eveniet eligendi sed.
                           started_at: "1975-04-17T10:01:35Z"
-                          status: processing
+                          status: done
                           task_id: Molestiae quia commodi.
                         - completed_at: "2015-11-24T16:44:22Z"
                           id: 5570435736376233057
                           name: Qui tempora eveniet eligendi sed.
                           started_at: "1975-04-17T10:01:35Z"
-                          status: processing
+                          status: done
                           task_id: Molestiae quia commodi.
                         - completed_at: "2015-11-24T16:44:22Z"
                           id: 5570435736376233057
                           name: Qui tempora eveniet eligendi sed.
                           started_at: "1975-04-17T10:01:35Z"
-                          status: processing
+                          status: done
                           task_id: Molestiae quia commodi.
                       type: create-aip
                       workflow_id: Vel ut minima eius veritatis.
                     - completed_at: "1992-01-25T13:19:08Z"
                       id: 13052063245471964920
                       started_at: "1976-11-16T02:31:35Z"
-                      status: processing
+                      status: queued
                       tasks:
                         - completed_at: "2015-11-24T16:44:22Z"
                           id: 5570435736376233057
                           name: Qui tempora eveniet eligendi sed.
                           started_at: "1975-04-17T10:01:35Z"
-                          status: processing
+                          status: done
                           task_id: Molestiae quia commodi.
                         - completed_at: "2015-11-24T16:44:22Z"
                           id: 5570435736376233057
                           name: Qui tempora eveniet eligendi sed.
                           started_at: "1975-04-17T10:01:35Z"
-                          status: processing
+                          status: done
                           task_id: Molestiae quia commodi.
                         - completed_at: "2015-11-24T16:44:22Z"
                           id: 5570435736376233057
                           name: Qui tempora eveniet eligendi sed.
                           started_at: "1975-04-17T10:01:35Z"
-                          status: processing
+                          status: done
                           task_id: Molestiae quia commodi.
                         - completed_at: "2015-11-24T16:44:22Z"
                           id: 5570435736376233057
                           name: Qui tempora eveniet eligendi sed.
                           started_at: "1975-04-17T10:01:35Z"
-                          status: processing
+                          status: done
                           task_id: Molestiae quia commodi.
                       type: create-aip
                       workflow_id: Vel ut minima eius veritatis.
@@ -1522,12 +1524,14 @@ components:
                     format: date-time
                 status:
                     type: string
-                    example: processing
+                    example: queued
                     enum:
                         - unspecified
-                        - complete
-                        - processing
-                        - failed
+                        - in progress
+                        - done
+                        - error
+                        - queued
+                        - pending
                 task_id:
                     type: string
                     example: Non repudiandae neque dolorem rerum.
@@ -1537,7 +1541,7 @@ components:
                 id: 8127764067526771768
                 name: Sequi cum vitae quas exercitationem et molestiae.
                 started_at: "1981-12-03T03:49:25Z"
-                status: complete
+                status: error
                 task_id: Qui eum.
             required:
                 - id
@@ -1554,25 +1558,25 @@ components:
                   id: 5570435736376233057
                   name: Qui tempora eveniet eligendi sed.
                   started_at: "1975-04-17T10:01:35Z"
-                  status: processing
+                  status: done
                   task_id: Molestiae quia commodi.
                 - completed_at: "2015-11-24T16:44:22Z"
                   id: 5570435736376233057
                   name: Qui tempora eveniet eligendi sed.
                   started_at: "1975-04-17T10:01:35Z"
-                  status: processing
+                  status: done
                   task_id: Molestiae quia commodi.
                 - completed_at: "2015-11-24T16:44:22Z"
                   id: 5570435736376233057
                   name: Qui tempora eveniet eligendi sed.
                   started_at: "1975-04-17T10:01:35Z"
-                  status: processing
+                  status: done
                   task_id: Molestiae quia commodi.
                 - completed_at: "2015-11-24T16:44:22Z"
                   id: 5570435736376233057
                   name: Qui tempora eveniet eligendi sed.
                   started_at: "1975-04-17T10:01:35Z"
-                  status: processing
+                  status: done
                   task_id: Molestiae quia commodi.
         EnduroPackageStatusUpdatedEventResponseBody:
             type: object

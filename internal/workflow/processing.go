@@ -195,8 +195,8 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *pack
 			Status:    status,
 		}).Get(activityOpts, nil)
 
-		if paStatus != package_.ActionStatusComplete {
-			paStatus = package_.ActionStatusFailed
+		if paStatus != package_.ActionStatusDone {
+			paStatus = package_.ActionStatusError
 		}
 
 		_ = temporalsdk_workflow.ExecuteLocalActivity(activityOpts, completePreservationActionLocalActivity, w.pkgsvc, &completePreservationActionLocalActivityParams{
@@ -261,7 +261,7 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *pack
 
 		status = package_.StatusDone
 
-		paStatus = package_.ActionStatusComplete
+		paStatus = package_.ActionStatusDone
 	}
 
 	// Schedule deletion of the original in the watched data source.
@@ -316,7 +316,7 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, createPreservationActionLocalActivity, w.pkgsvc, &createPreservationActionLocalActivityParams{
 				WorkflowID: temporalsdk_workflow.GetInfo(ctx).WorkflowExecution.ID,
 				Type:       package_.ActionTypeCreateAIP,
-				Status:     package_.ActionStatusProcessing,
+				Status:     package_.ActionStatusInProgress,
 				StartedAt:  packageStartedAt,
 				PackageID:  tinfo.PackageID,
 			}).Get(ctx, &tinfo.PreservationActionID)
@@ -456,6 +456,15 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 		}
 	}
 
+	// Set preservation action to pending status.
+	{
+		ctx := withLocalActivityOpts(sessCtx)
+		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setPreservationActonStatusLocalActivity, w.pkgsvc, tinfo.PreservationActionID, package_.ActionStatusPending).Get(ctx, nil)
+		if err != nil {
+			return err
+		}
+	}
+
 	// Identifier of the preservation task for package review
 	var reviewPreservationTaskID uint
 
@@ -466,8 +475,8 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 		ctx := withLocalActivityOpts(sessCtx)
 		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, createPreservationTaskLocalActivity, w.pkgsvc, &createPreservationTaskLocalActivityParams{
 			TaskID:               uuid.NewString(),
-			Name:                 "Awaiting user review",
-			Status:               package_.TaskStatusProcessing, // TODO: set to pending
+			Name:                 "Awaiting user decision",
+			Status:               package_.TaskStatusPending,
 			StartedAt:            reviewStartedAt,
 			PreservationActionID: tinfo.PreservationActionID,
 		}).Get(ctx, &reviewPreservationTaskID)
@@ -492,6 +501,15 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 		}
 	}
 
+	// Set preservation action to in progress status.
+	{
+		ctx := withLocalActivityOpts(sessCtx)
+		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setPreservationActonStatusLocalActivity, w.pkgsvc, tinfo.PreservationActionID, package_.ActionStatusInProgress).Get(ctx, nil)
+		if err != nil {
+			return err
+		}
+	}
+
 	if review.Accepted {
 		// Record package confirmation in review preservation task
 		{
@@ -499,7 +517,7 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, completePreservationTaskLocalActivity, w.pkgsvc, &completePreservationTaskLocalActivityParams{
 				ID:          reviewPreservationTaskID,
 				Name:        ref.New("Reviewed and accepted"),
-				Status:      package_.TaskStatusComplete,
+				Status:      package_.TaskStatusDone,
 				CompletedAt: reviewCompletedAt,
 			}).Get(ctx, nil)
 			if err != nil {
@@ -559,7 +577,7 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, completePreservationTaskLocalActivity, w.pkgsvc, &completePreservationTaskLocalActivityParams{
 				ID:          reviewPreservationTaskID,
 				Name:        ref.New("Reviewed and rejected"),
-				Status:      package_.TaskStatusComplete,
+				Status:      package_.TaskStatusDone,
 				CompletedAt: reviewCompletedAt,
 			}).Get(ctx, nil)
 			if err != nil {

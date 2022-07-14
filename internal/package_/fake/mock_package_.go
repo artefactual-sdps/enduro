@@ -135,6 +135,20 @@ func (mr *MockServiceMockRecorder) SetLocation(arg0, arg1, arg2 interface{}) *go
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetLocation", reflect.TypeOf((*MockService)(nil).SetLocation), arg0, arg1, arg2)
 }
 
+// SetPreservationActionStatus mocks base method.
+func (m *MockService) SetPreservationActionStatus(arg0 context.Context, arg1 uint, arg2 package_0.PreservationActionStatus) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SetPreservationActionStatus", arg0, arg1, arg2)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SetPreservationActionStatus indicates an expected call of SetPreservationActionStatus.
+func (mr *MockServiceMockRecorder) SetPreservationActionStatus(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetPreservationActionStatus", reflect.TypeOf((*MockService)(nil).SetPreservationActionStatus), arg0, arg1, arg2)
+}
+
 // SetStatus mocks base method.
 func (m *MockService) SetStatus(arg0 context.Context, arg1 uint, arg2 package_0.Status) error {
 	m.ctrl.T.Helper()
