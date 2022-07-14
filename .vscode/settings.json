@@ -6,8 +6,7 @@
     "**/node_modules": true
   },
   "search.exclude": {
-    "**/node_modules": true,
-    "**/website": true
+    "**/node_modules": true
   },
   "editor.formatOnSave": true,
   "[vue][javascript][typescript][scss][html][json][markdown][yaml][toml]": {
