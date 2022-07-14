@@ -152,6 +152,14 @@ func publishEvent(ctx context.Context, events EventService, event interface{}) {
 		update.PackageStatusUpdatedEvent = v
 	case *goapackage.EnduroPackageLocationUpdatedEvent:
 		update.PackageLocationUpdatedEvent = v
+	case *goapackage.EnduroPreservationActionCreatedEvent:
+		update.PreservationActionCreatedEvent = v
+	case *goapackage.EnduroPreservationActionUpdatedEvent:
+		update.PreservationActionUpdatedEvent = v
+	case *goapackage.EnduroPreservationTaskCreatedEvent:
+		update.PreservationTaskCreatedEvent = v
+	case *goapackage.EnduroPreservationTaskUpdatedEvent:
+		update.PreservationTaskUpdatedEvent = v
 	default:
 		panic("tried to publish unexpected event")
 	}

@@ -9,6 +9,7 @@ import (
 	"time"
 
 	goapackage "github.com/artefactual-sdps/enduro/internal/api/gen/package_"
+	"github.com/artefactual-sdps/enduro/internal/ref"
 )
 
 type PreservationActionType uint
@@ -311,7 +312,10 @@ func (svc *packageImpl) CreatePreservationAction(ctx context.Context, pa *Preser
 
 	pa.ID = uint(id)
 
-	// publishEvent(ctx, svc.events, EventTypePackageUpdated, pa.PackageID)
+	if item, err := svc.readPreservationAction(ctx, pa.ID); err == nil {
+		event := &goapackage.EnduroPreservationActionCreatedEvent{ID: pa.ID, Item: item}
+		publishEvent(ctx, svc.events, event)
+	}
 
 	return nil
 }
@@ -328,6 +332,11 @@ func (svc *packageImpl) SetPreservationActionStatus(ctx context.Context, ID uint
 		return fmt.Errorf("error updating preservation action: %w", err)
 	}
 
+	if item, err := svc.readPreservationAction(ctx, ID); err == nil {
+		event := &goapackage.EnduroPreservationActionUpdatedEvent{ID: ID, Item: item}
+		publishEvent(ctx, svc.events, event)
+	}
+
 	return nil
 }
 
@@ -342,6 +351,11 @@ func (svc *packageImpl) CompletePreservationAction(ctx context.Context, ID uint,
 	_, err := svc.db.ExecContext(ctx, query, args...)
 	if err != nil {
 		return fmt.Errorf("error updating preservation action: %w", err)
+	}
+
+	if item, err := svc.readPreservationAction(ctx, ID); err == nil {
+		event := &goapackage.EnduroPreservationActionUpdatedEvent{ID: ID, Item: item}
+		publishEvent(ctx, svc.events, event)
 	}
 
 	return nil
@@ -380,6 +394,11 @@ func (svc *packageImpl) CreatePreservationTask(ctx context.Context, pt *Preserva
 
 	pt.ID = uint(id)
 
+	if item, err := svc.readPreservationTask(ctx, pt.ID); err == nil {
+		event := &goapackage.EnduroPreservationTaskCreatedEvent{ID: pt.ID, Item: item}
+		publishEvent(ctx, svc.events, event)
+	}
+
 	return nil
 }
 
@@ -400,5 +419,80 @@ func (svc *packageImpl) CompletePreservationTask(ctx context.Context, ID uint, s
 		return fmt.Errorf("error updating preservation task: %w", err)
 	}
 
+	if item, err := svc.readPreservationTask(ctx, ID); err == nil {
+		event := &goapackage.EnduroPreservationTaskUpdatedEvent{ID: ID, Item: item}
+		publishEvent(ctx, svc.events, event)
+	}
+
 	return nil
+}
+
+func (svc *packageImpl) readPreservationAction(ctx context.Context, ID uint) (*goapackage.EnduroPackagePreservationAction, error) {
+	query := `
+		SELECT
+			preservation_action.id,
+			preservation_action.workflow_id,
+			preservation_action.type,
+			preservation_action.status,
+			CONVERT_TZ(preservation_action.started_at, @@session.time_zone, '+00:00') AS started_at,
+			CONVERT_TZ(preservation_action.completed_at, @@session.time_zone, '+00:00') AS completed_at,
+			preservation_action.package_id
+		FROM preservation_action
+		LEFT JOIN package ON (preservation_action.package_id = package.id)
+		WHERE preservation_action.id = ?
+	`
+	args := []interface{}{ID}
+	dbItem := PreservationAction{}
+
+	if err := svc.db.GetContext(ctx, &dbItem, query, args...); err != nil {
+		return nil, err
+	}
+
+	item := goapackage.EnduroPackagePreservationAction{
+		ID:          dbItem.ID,
+		WorkflowID:  dbItem.WorkflowID,
+		Type:        dbItem.Type.String(),
+		Status:      dbItem.Status.String(),
+		StartedAt:   ref.Deref(formatOptionalTime(dbItem.StartedAt)),
+		CompletedAt: formatOptionalTime(dbItem.CompletedAt),
+		PackageID:   ref.New(dbItem.PackageID),
+	}
+
+	return &item, nil
+}
+
+func (svc *packageImpl) readPreservationTask(ctx context.Context, ID uint) (*goapackage.EnduroPackagePreservationTask, error) {
+	query := `
+		SELECT
+			preservation_task.id,
+			preservation_task.task_id,
+			preservation_task.name,
+			preservation_task.status,
+			CONVERT_TZ(preservation_task.started_at, @@session.time_zone, '+00:00') AS started_at,
+			CONVERT_TZ(preservation_task.completed_at, @@session.time_zone, '+00:00') AS completed_at,
+			preservation_task.note,
+			preservation_task.preservation_action_id
+		FROM preservation_task
+		LEFT JOIN preservation_action ON (preservation_task.preservation_action_id = preservation_action.id)
+		WHERE preservation_task.id = ?
+	`
+	args := []interface{}{ID}
+	dbItem := PreservationTask{}
+
+	if err := svc.db.GetContext(ctx, &dbItem, query, args...); err != nil {
+		return nil, err
+	}
+
+	item := goapackage.EnduroPackagePreservationTask{
+		ID:                   dbItem.ID,
+		TaskID:               dbItem.TaskID,
+		Name:                 dbItem.Name,
+		Status:               dbItem.Status.String(),
+		StartedAt:            ref.Deref(formatOptionalTime(dbItem.StartedAt)),
+		CompletedAt:          formatOptionalTime(dbItem.CompletedAt),
+		Note:                 ref.New(dbItem.Note),
+		PreservationActionID: ref.New(dbItem.PreservationActionID),
+	}
+
+	return &item, nil
 }

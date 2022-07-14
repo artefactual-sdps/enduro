@@ -43,21 +43,38 @@ export const usePackageStore = defineStore("package", {
     isRejected(): boolean {
       return this.isDone && this.current?.location === undefined;
     },
+    getActionById: (state) => {
+      return (
+        actionId: number
+      ): api.EnduroPackagePreservationActionResponseBody | undefined => {
+        const x = state.current_preservation_actions?.actions?.find(
+          (action) => action.id === actionId
+        );
+        return x;
+      };
+    },
+    getTaskById: (state) => {
+      return (
+        actionId: number,
+        taskId: number
+      ): api.EnduroPackagePreservationTaskResponseBody | undefined => {
+        const action = state.current_preservation_actions?.actions?.find(
+          (action) => action.id === actionId
+        );
+        if (!action) return;
+        return action.tasks?.find((task) => task.id === taskId);
+      };
+    },
   },
   actions: {
-    handleEvent(event: PackageMonitorResponseBody) {
-      if (event.monitor_ping_event) {
-        handleMonitorPing(event.monitor_ping_event);
-      } else if (event.package_created_event) {
-        handlePackageCreated(event.package_created_event);
-      } else if (event.package_deleted_event) {
-        handlePackageDeleted(event.package_deleted_event);
-      } else if (event.package_location_updated_event) {
-        handlePackageLocationUpdated(event.package_location_updated_event);
-      } else if (event.package_status_updated_event) {
-        handlePackageStatusUpdated(event.package_status_updated_event);
-      } else if (event.package_updated_event) {
-        handlePackageUpdated(event.package_updated_event);
+    handleEvent(event: api.PackageMonitorResponseBody) {
+      let key: keyof api.PackageMonitorResponseBody;
+      for (key in event) {
+        const payload: any = event[key];
+        if (!payload) continue;
+        const handler = handlers[key];
+        handler(payload);
+        break;
       }
     },
     async fetchCurrent(id: string) {
@@ -148,15 +165,28 @@ if (import.meta.hot) {
   import.meta.hot.accept(acceptHMRUpdate(usePackageStore, import.meta.hot));
 }
 
-// TODO: use api.PackageMonitorResponseBody.
-export interface PackageMonitorResponseBody {
-  monitor_ping_event?: api.EnduroMonitorPingEventResponseBody;
-  package_created_event?: api.EnduroPackageCreatedEventResponseBody;
-  package_deleted_event?: api.EnduroPackageDeletedEventResponseBody;
-  package_location_updated_event?: api.EnduroPackageLocationUpdatedEventResponseBody;
-  package_status_updated_event?: api.EnduroPackageStatusUpdatedEventResponseBody;
-  package_updated_event?: api.EnduroPackageUpdatedEventResponseBody;
-}
+// Event handler function.
+type Handler<T> = (event: T) => void;
+
+// Utility that constructs a type with all properties of T set to required,
+// mapping them to the event handlers.
+type Partial<T> = {
+  [P in keyof T]-?: Handler<NonNullable<T[P]>>;
+};
+
+// Pairs all known events with the event handlers.
+const handlers: Partial<api.PackageMonitorResponseBody> = {
+  monitorPingEvent: handleMonitorPing,
+  packageCreatedEvent: handlePackageCreated,
+  packageDeletedEvent: handlePackageDeleted,
+  packageLocationUpdatedEvent: handlePackageLocationUpdated,
+  packageStatusUpdatedEvent: handlePackageStatusUpdated,
+  packageUpdatedEvent: handlePackageUpdated,
+  preservationActionCreatedEvent: handlePreservationActionCreated,
+  preservationActionUpdatedEvent: handlePreservationActionUpdated,
+  preservationTaskCreatedEvent: handlePreservationTaskCreated,
+  preservationTaskUpdatedEvent: handlePreservationTaskUpdated,
+};
 
 function handleMonitorPing(event: api.EnduroMonitorPingEventResponseBody) {}
 
@@ -202,6 +232,58 @@ function handlePackageLocationUpdated(
     state.current.location = event.location;
     state.locationChanging = false;
   });
+}
+
+function handlePreservationActionCreated(
+  event: api.EnduroPreservationActionCreatedEventResponseBody
+) {
+  const store = usePackageStore();
+
+  // Ignore event if it does not relate to the current package.
+  if (store.current?.id != event.item.packageId) return;
+
+  // Append the action.
+  store.current_preservation_actions?.actions?.unshift(event.item);
+}
+
+function handlePreservationActionUpdated(
+  event: api.EnduroPreservationActionUpdatedEventResponseBody
+) {
+  const store = usePackageStore();
+
+  // Ignore event if it does not relate to the current package.
+  if (store.current?.id != event.item.packageId) return;
+
+  // Find and update the action.
+  const action = store.getActionById(event.id);
+  if (!action) return;
+  Object.assign(action, event.item);
+}
+
+function handlePreservationTaskCreated(
+  event: api.EnduroPreservationTaskCreatedEventResponseBody
+) {
+  const store = usePackageStore();
+
+  // Find and update the action.
+  if (!event.item.preservationActionId) return;
+  const action = store.getActionById(event.item.preservationActionId);
+  if (!action) return;
+  if (action.id === event.item.preservationActionId) {
+    if (!action.tasks) action.tasks = [];
+    action.tasks.push(event.item);
+  }
+}
+
+function handlePreservationTaskUpdated(
+  event: api.EnduroPreservationTaskUpdatedEventResponseBody
+) {
+  const store = usePackageStore();
+
+  if (!event.item.preservationActionId) return;
+  const task = store.getTaskById(event.item.preservationActionId, event.id);
+  if (!task) return;
+  Object.assign(task, event.item);
 }
 
 class UIRequest {

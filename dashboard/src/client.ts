@@ -1,6 +1,6 @@
 import * as api from "./openapi-generator";
 import * as runtime from "./openapi-generator/runtime";
-import { usePackageStore, PackageMonitorResponseBody } from "./stores/package";
+import { usePackageStore } from "./stores/package";
 
 export interface Client {
   package: api.PackageApi;
@@ -49,8 +49,9 @@ function connectPackageMonitor() {
   const url = getWebSocketURL() + "/package/monitor";
   const socket = new WebSocket(url);
   socket.onmessage = (event: MessageEvent) => {
-    const body = JSON.parse(event.data) as PackageMonitorResponseBody;
-    store.handleEvent(body);
+    const body = JSON.parse(event.data);
+    const data = api.PackageMonitorResponseBodyFromJSON(body);
+    store.handleEvent(data);
   };
   socket.onclose = (event: CloseEvent) => {
     // tslint:disable-next-line:no-console

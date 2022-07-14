@@ -37,6 +37,26 @@ var MonitorEvent = ResultType("application/vnd.enduro.monitor-event", func() {
 			PackageLocationUpdatedEvent,
 			func() { View("default") },
 		)
+		Attribute(
+			"preservation_action_created_event",
+			PreservationActionCreatedEvent,
+			func() { View("default") },
+		)
+		Attribute(
+			"preservation_action_updated_event",
+			PreservationActionUpdatedEvent,
+			func() { View("default") },
+		)
+		Attribute(
+			"preservation_task_created_event",
+			PreservationTaskCreatedEvent,
+			func() { View("default") },
+		)
+		Attribute(
+			"preservation_task_updated_event",
+			PreservationTaskUpdatedEvent,
+			func() { View("default") },
+		)
 	})
 })
 
@@ -112,5 +132,65 @@ var PackageLocationUpdatedEvent = ResultType("application/vnd.enduro.package-loc
 	View("default", func() {
 		Attribute("id")
 		Attribute("location")
+	})
+})
+
+var PreservationActionCreatedEvent = ResultType("application/vnd.enduro.preservation-action-created-event", func() {
+	Attributes(func() {
+		Attribute("id", UInt, "Identifier of preservation action")
+		Attribute("item", PreservationAction, func() {
+			View("simple")
+		})
+		Required("id", "item")
+	})
+
+	View("default", func() {
+		Attribute("id")
+		Attribute("item")
+	})
+})
+
+var PreservationActionUpdatedEvent = ResultType("application/vnd.enduro.preservation-action-updated-event", func() {
+	Attributes(func() {
+		Attribute("id", UInt, "Identifier of preservation action")
+		Attribute("item", PreservationAction, func() {
+			View("simple")
+		})
+		Required("id", "item")
+	})
+
+	View("default", func() {
+		Attribute("id")
+		Attribute("item")
+	})
+})
+
+var PreservationTaskCreatedEvent = ResultType("application/vnd.enduro.preservation-task-created-event", func() {
+	Attributes(func() {
+		Attribute("id", UInt, "Identifier of preservation task")
+		Attribute("item", PreservationTask, func() {
+			View("default")
+		})
+		Required("id", "item")
+	})
+
+	View("default", func() {
+		Attribute("id")
+		Attribute("item")
+	})
+})
+
+var PreservationTaskUpdatedEvent = ResultType("application/vnd.enduro.preservation-task-updated-event", func() {
+	Attributes(func() {
+		Attribute("id", UInt, "Identifier of preservation task")
+		Attribute("item", PreservationTask, func() {
+			View("default")
+		})
+		Required("id", "item")
+	})
+
+	View("default", func() {
+		Attribute("id")
+		Attribute("item")
 	})
 })
