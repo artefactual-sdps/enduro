@@ -101,9 +101,9 @@ func saveLocationMovePreservationActionLocalActivity(ctx context.Context, pkgsvc
 
 	actionStatusToTaskStatus := map[package_.PreservationActionStatus]package_.PreservationTaskStatus{
 		package_.ActionStatusUnspecified: package_.TaskStatusUnspecified,
-		package_.ActionStatusComplete:    package_.TaskStatusComplete,
-		package_.ActionStatusProcessing:  package_.TaskStatusProcessing,
-		package_.ActionStatusFailed:      package_.TaskStatusFailed,
+		package_.ActionStatusDone:        package_.TaskStatusDone,
+		package_.ActionStatusInProgress:  package_.TaskStatusInProgress,
+		package_.ActionStatusError:       package_.TaskStatusError,
 	}
 
 	pt := package_.PreservationTask{
@@ -142,6 +142,10 @@ func createPreservationActionLocalActivity(ctx context.Context, pkgsvc package_.
 	}
 
 	return pa.ID, nil
+}
+
+func setPreservationActonStatusLocalActivity(ctx context.Context, pkgsvc package_.Service, ID uint, status package_.PreservationActionStatus) error {
+	return pkgsvc.SetPreservationActionStatus(ctx, ID, status)
 }
 
 type completePreservationActionLocalActivityParams struct {

@@ -153,11 +153,18 @@ func (a *CreateAIPActivity) Execute(ctx context.Context, opts *CreateAIPActivity
 }
 
 func savePreservationTasks(ctx context.Context, jobs []*a3m_transferservice.Job, pkgsvc package_.Service, paID uint) error {
+	jobStatusToPreservationTaskStatus := map[a3m_transferservice.Job_Status]package_.PreservationTaskStatus{
+		a3m_transferservice.Job_STATUS_UNSPECIFIED: package_.TaskStatusUnspecified,
+		a3m_transferservice.Job_STATUS_COMPLETE:    package_.TaskStatusDone,
+		a3m_transferservice.Job_STATUS_PROCESSING:  package_.TaskStatusInProgress,
+		a3m_transferservice.Job_STATUS_FAILED:      package_.TaskStatusError,
+	}
+
 	for _, job := range jobs {
 		pt := package_.PreservationTask{
 			TaskID:               job.Id,
 			Name:                 job.Name,
-			Status:               package_.PreservationTaskStatus(job.Status),
+			Status:               jobStatusToPreservationTaskStatus[job.Status],
 			PreservationActionID: paID,
 		}
 		pt.StartedAt.Time = job.StartTime.AsTime()

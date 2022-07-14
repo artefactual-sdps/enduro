@@ -1466,8 +1466,8 @@ func ValidateEnduroPackagePreservationActionResponseBody(body *EnduroPackagePres
 		}
 	}
 	if body.Status != nil {
-		if !(*body.Status == "unspecified" || *body.Status == "complete" || *body.Status == "processing" || *body.Status == "failed") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []interface{}{"unspecified", "complete", "processing", "failed"}))
+		if !(*body.Status == "unspecified" || *body.Status == "in progress" || *body.Status == "done" || *body.Status == "error" || *body.Status == "queued" || *body.Status == "pending") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []interface{}{"unspecified", "in progress", "done", "error", "queued", "pending"}))
 		}
 	}
 	if body.StartedAt != nil {
@@ -1514,8 +1514,8 @@ func ValidateEnduroPackagePreservationTaskResponseBody(body *EnduroPackagePreser
 		err = goa.MergeErrors(err, goa.MissingFieldError("started_at", "body"))
 	}
 	if body.Status != nil {
-		if !(*body.Status == "unspecified" || *body.Status == "complete" || *body.Status == "processing" || *body.Status == "failed") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []interface{}{"unspecified", "complete", "processing", "failed"}))
+		if !(*body.Status == "unspecified" || *body.Status == "in progress" || *body.Status == "done" || *body.Status == "error" || *body.Status == "queued" || *body.Status == "pending") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []interface{}{"unspecified", "in progress", "done", "error", "queued", "pending"}))
 		}
 	}
 	if body.StartedAt != nil {

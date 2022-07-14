@@ -5,7 +5,7 @@ CREATE TABLE package (
   `run_id` VARCHAR(36) NOT NULL,
   `aip_id` VARCHAR(36) NOT NULL,
   `location` VARCHAR(2048) NOT NULL,
-  `status` TINYINT NOT NULL, -- {new, in progress, done, error, unknown}
+  `status` TINYINT NOT NULL,
   `created_at` TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6) NOT NULL,
   `started_at` TIMESTAMP(6) NULL,
   `completed_at` TIMESTAMP(6) NULL,
@@ -20,8 +20,8 @@ CREATE TABLE package (
 CREATE TABLE preservation_action (
   `id` INT UNSIGNED AUTO_INCREMENT NOT NULL,
   `workflow_id` VARCHAR(255) NOT NULL,
-  `type` TINYINT NOT NULL, -- {create-aip, move-package}
-  `status` TINYINT NOT NULL, -- {unspecified, complete, processing, failed}
+  `type` TINYINT NOT NULL,
+  `status` TINYINT NOT NULL,
   `started_at` TIMESTAMP(6) NULL,
   `completed_at` TIMESTAMP(6) NULL,
   `package_id` INT UNSIGNED NOT NULL,
@@ -32,7 +32,7 @@ CREATE TABLE preservation_task (
   `id` INT UNSIGNED AUTO_INCREMENT NOT NULL,
   `task_id` VARCHAR(36) NOT NULL,
   `name` VARCHAR(2048) NOT NULL,
-  `status` TINYINT NOT NULL, -- {unspecified, complete, processing, failed}
+  `status` TINYINT NOT NULL,
   `started_at` TIMESTAMP(6) NULL,
   `completed_at` TIMESTAMP(6) NULL,
   `preservation_action_id` INT UNSIGNED NOT NULL,
