@@ -427,6 +427,26 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 		}).Get(activityOpts, nil)
 	}
 
+	// Identifier of the preservation task for upload to sips bucket.
+	var uploadPreservationTaskID uint
+
+	uploadStartedAt := temporalsdk_workflow.Now(sessCtx).UTC()
+
+	// Add preservation task for upload to review bucket.
+	{
+		ctx := withLocalActivityOpts(sessCtx)
+		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, createPreservationTaskLocalActivity, w.pkgsvc, &createPreservationTaskLocalActivityParams{
+			TaskID:               uuid.NewString(),
+			Name:                 "Moving to review bucket",
+			Status:               package_.TaskStatusInProgress,
+			StartedAt:            uploadStartedAt,
+			PreservationActionID: tinfo.PreservationActionID,
+		}).Get(ctx, &uploadPreservationTaskID)
+		if err != nil {
+			return err
+		}
+	}
+
 	// Upload AIP to MinIO.
 	{
 		activityOpts := temporalsdk_workflow.WithActivityOptions(sessCtx, temporalsdk_workflow.ActivityOptions{
@@ -442,6 +462,22 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 			AIPID:   tinfo.SIPID,
 			Name:    tinfo.Key,
 		}).Get(activityOpts, nil)
+		if err != nil {
+			return err
+		}
+	}
+
+	uploadCompletedAt := temporalsdk_workflow.Now(sessCtx).UTC()
+
+	// Complete preservation task for upload to review bucket.
+	{
+		ctx := withLocalActivityOpts(sessCtx)
+		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, completePreservationTaskLocalActivity, w.pkgsvc, &completePreservationTaskLocalActivityParams{
+			ID:          uploadPreservationTaskID,
+			Name:        ref.New("Moved to review bucket"),
+			Status:      package_.TaskStatusDone,
+			CompletedAt: uploadCompletedAt,
+		}).Get(ctx, nil)
 		if err != nil {
 			return err
 		}
@@ -525,6 +561,26 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 			}
 		}
 
+		// Identifier of the preservation task for permanent storage move.
+		var movePreservationTaskID uint
+
+		moveStartedAt := temporalsdk_workflow.Now(sessCtx).UTC()
+
+		// Add preservation task for permanent storage move.
+		{
+			ctx := withLocalActivityOpts(sessCtx)
+			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, createPreservationTaskLocalActivity, w.pkgsvc, &createPreservationTaskLocalActivityParams{
+				TaskID:               uuid.NewString(),
+				Name:                 "Moving to permanent storage",
+				Status:               package_.TaskStatusInProgress,
+				StartedAt:            moveStartedAt,
+				PreservationActionID: tinfo.PreservationActionID,
+			}).Get(ctx, &movePreservationTaskID)
+			if err != nil {
+				return err
+			}
+		}
+
 		// Move package to permanent storage
 		{
 			activityOpts := withActivityOptsForRequest(sessCtx)
@@ -543,6 +599,22 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 			err := temporalsdk_workflow.ExecuteActivity(activityOpts, activities.PollMoveToPermanentStorageActivityName, &activities.PollMoveToPermanentStorageActivityParams{
 				AIPID: tinfo.SIPID,
 			}).Get(activityOpts, nil)
+			if err != nil {
+				return err
+			}
+		}
+
+		moveCompletedAt := temporalsdk_workflow.Now(sessCtx).UTC()
+
+		// Complete preservation task for permanent storage move.
+		{
+			ctx := withLocalActivityOpts(sessCtx)
+			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, completePreservationTaskLocalActivity, w.pkgsvc, &completePreservationTaskLocalActivityParams{
+				ID:          movePreservationTaskID,
+				Name:        ref.New(fmt.Sprintf("Moved to %s", *review.Location)),
+				Status:      package_.TaskStatusDone,
+				CompletedAt: moveCompletedAt,
+			}).Get(ctx, nil)
 			if err != nil {
 				return err
 			}
