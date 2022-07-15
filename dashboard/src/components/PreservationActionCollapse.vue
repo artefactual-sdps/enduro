@@ -105,8 +105,11 @@ watch($$(expandCounter), () => col?.show());
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(task, index) in action.tasks" :key="action.id">
-            <td>{{ index + 1 }}</td>
+          <tr
+            v-for="(task, index) in action.tasks.slice().reverse()"
+            :key="action.id"
+          >
+            <td>{{ action.tasks.length - index }}</td>
             <td>{{ task.name }}</td>
             <td>
               <span
