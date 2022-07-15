@@ -489,6 +489,7 @@ type EnduroPackagePreservationTaskResponseBody struct {
 	Status      string  `form:"status" json:"status" xml:"status"`
 	StartedAt   string  `form:"started_at" json:"started_at" xml:"started_at"`
 	CompletedAt *string `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
+	Note        *string `form:"note,omitempty" json:"note,omitempty" xml:"note,omitempty"`
 }
 
 // NewMonitorResponseBody builds the HTTP response body from the result of the

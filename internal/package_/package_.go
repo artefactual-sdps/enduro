@@ -26,7 +26,7 @@ type Service interface {
 	SetPreservationActionStatus(ctx context.Context, ID uint, status PreservationActionStatus) error
 	CompletePreservationAction(ctx context.Context, ID uint, status PreservationActionStatus, completedAt time.Time) error
 	CreatePreservationTask(ctx context.Context, pt *PreservationTask) error
-	CompletePreservationTask(ctx context.Context, ID uint, name *string, status PreservationTaskStatus, completedAt time.Time) error
+	CompletePreservationTask(ctx context.Context, ID uint, status PreservationTaskStatus, completedAt time.Time, note *string) error
 }
 
 type packageImpl struct {

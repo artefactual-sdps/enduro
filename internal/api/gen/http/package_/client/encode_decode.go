@@ -1331,6 +1331,7 @@ func unmarshalEnduroPackagePreservationTaskResponseBodyToPackageViewsEnduroPacka
 		Status:      v.Status,
 		StartedAt:   v.StartedAt,
 		CompletedAt: v.CompletedAt,
+		Note:        v.Note,
 	}
 
 	return res

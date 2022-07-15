@@ -39,6 +39,12 @@ export interface EnduroPackagePreservationTaskResponseBody {
     name: string;
     /**
      * 
+     * @type {string}
+     * @memberof EnduroPackagePreservationTaskResponseBody
+     */
+    note?: string;
+    /**
+     * 
      * @type {Date}
      * @memberof EnduroPackagePreservationTaskResponseBody
      */
@@ -85,6 +91,7 @@ export function EnduroPackagePreservationTaskResponseBodyFromJSONTyped(json: any
         'completedAt': !exists(json, 'completed_at') ? undefined : (new Date(json['completed_at'])),
         'id': json['id'],
         'name': json['name'],
+        'note': !exists(json, 'note') ? undefined : json['note'],
         'startedAt': (new Date(json['started_at'])),
         'status': json['status'],
         'taskId': json['task_id'],
@@ -103,6 +110,7 @@ export function EnduroPackagePreservationTaskResponseBodyToJSON(value?: EnduroPa
         'completed_at': value.completedAt === undefined ? undefined : (value.completedAt.toISOString()),
         'id': value.id,
         'name': value.name,
+        'note': value.note,
         'started_at': (value.startedAt.toISOString()),
         'status': value.status,
         'task_id': value.taskId,

@@ -437,9 +437,10 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 		ctx := withLocalActivityOpts(sessCtx)
 		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, createPreservationTaskLocalActivity, w.pkgsvc, &createPreservationTaskLocalActivityParams{
 			TaskID:               uuid.NewString(),
-			Name:                 "Moving to review bucket",
+			Name:                 "Move AIP",
 			Status:               package_.TaskStatusInProgress,
 			StartedAt:            uploadStartedAt,
+			Note:                 "Moving to review bucket",
 			PreservationActionID: tinfo.PreservationActionID,
 		}).Get(ctx, &uploadPreservationTaskID)
 		if err != nil {
@@ -474,9 +475,9 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 		ctx := withLocalActivityOpts(sessCtx)
 		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, completePreservationTaskLocalActivity, w.pkgsvc, &completePreservationTaskLocalActivityParams{
 			ID:          uploadPreservationTaskID,
-			Name:        ref.New("Moved to review bucket"),
 			Status:      package_.TaskStatusDone,
 			CompletedAt: uploadCompletedAt,
+			Note:        ref.New("Moved to review bucket"),
 		}).Get(ctx, nil)
 		if err != nil {
 			return err
@@ -511,9 +512,10 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 		ctx := withLocalActivityOpts(sessCtx)
 		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, createPreservationTaskLocalActivity, w.pkgsvc, &createPreservationTaskLocalActivityParams{
 			TaskID:               uuid.NewString(),
-			Name:                 "Awaiting user decision",
+			Name:                 "Review AIP",
 			Status:               package_.TaskStatusPending,
 			StartedAt:            reviewStartedAt,
+			Note:                 "Awaiting user decision",
 			PreservationActionID: tinfo.PreservationActionID,
 		}).Get(ctx, &reviewPreservationTaskID)
 		if err != nil {
@@ -552,9 +554,9 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 			ctx := withLocalActivityOpts(sessCtx)
 			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, completePreservationTaskLocalActivity, w.pkgsvc, &completePreservationTaskLocalActivityParams{
 				ID:          reviewPreservationTaskID,
-				Name:        ref.New("Reviewed and accepted"),
 				Status:      package_.TaskStatusDone,
 				CompletedAt: reviewCompletedAt,
+				Note:        ref.New("Reviewed and accepted"),
 			}).Get(ctx, nil)
 			if err != nil {
 				return err
@@ -571,9 +573,10 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 			ctx := withLocalActivityOpts(sessCtx)
 			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, createPreservationTaskLocalActivity, w.pkgsvc, &createPreservationTaskLocalActivityParams{
 				TaskID:               uuid.NewString(),
-				Name:                 "Moving to permanent storage",
+				Name:                 "Move AIP",
 				Status:               package_.TaskStatusInProgress,
 				StartedAt:            moveStartedAt,
+				Note:                 "Moving to permanent storage",
 				PreservationActionID: tinfo.PreservationActionID,
 			}).Get(ctx, &movePreservationTaskID)
 			if err != nil {
@@ -611,9 +614,9 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 			ctx := withLocalActivityOpts(sessCtx)
 			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, completePreservationTaskLocalActivity, w.pkgsvc, &completePreservationTaskLocalActivityParams{
 				ID:          movePreservationTaskID,
-				Name:        ref.New(fmt.Sprintf("Moved to %s", *review.Location)),
 				Status:      package_.TaskStatusDone,
 				CompletedAt: moveCompletedAt,
+				Note:        ref.New(fmt.Sprintf("Moved to %s", *review.Location)),
 			}).Get(ctx, nil)
 			if err != nil {
 				return err
@@ -648,9 +651,9 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 			ctx := withLocalActivityOpts(sessCtx)
 			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, completePreservationTaskLocalActivity, w.pkgsvc, &completePreservationTaskLocalActivityParams{
 				ID:          reviewPreservationTaskID,
-				Name:        ref.New("Reviewed and rejected"),
 				Status:      package_.TaskStatusDone,
 				CompletedAt: reviewCompletedAt,
+				Note:        ref.New("Reviewed and rejected"),
 			}).Get(ctx, nil)
 			if err != nil {
 				return err

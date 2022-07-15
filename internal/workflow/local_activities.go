@@ -108,8 +108,9 @@ func saveLocationMovePreservationActionLocalActivity(ctx context.Context, pkgsvc
 
 	pt := package_.PreservationTask{
 		TaskID:               uuid.NewString(),
-		Name:                 fmt.Sprintf("Moved to %s", params.Location),
+		Name:                 "Move AIP",
 		Status:               actionStatusToTaskStatus[params.Status],
+		Note:                 fmt.Sprintf("Moved to %s", params.Location),
 		PreservationActionID: paID,
 	}
 	pt.StartedAt.Time = params.StartedAt
@@ -164,6 +165,7 @@ type createPreservationTaskLocalActivityParams struct {
 	Status               package_.PreservationTaskStatus
 	StartedAt            time.Time
 	CompletedAt          time.Time
+	Note                 string
 	PreservationActionID uint
 }
 
@@ -172,6 +174,7 @@ func createPreservationTaskLocalActivity(ctx context.Context, pkgsvc package_.Se
 		TaskID:               params.TaskID,
 		Name:                 params.Name,
 		Status:               params.Status,
+		Note:                 params.Note,
 		PreservationActionID: params.PreservationActionID,
 	}
 	pt.StartedAt.Time = params.StartedAt
@@ -186,11 +189,11 @@ func createPreservationTaskLocalActivity(ctx context.Context, pkgsvc package_.Se
 
 type completePreservationTaskLocalActivityParams struct {
 	ID          uint
-	Name        *string
 	Status      package_.PreservationTaskStatus
 	CompletedAt time.Time
+	Note        *string
 }
 
 func completePreservationTaskLocalActivity(ctx context.Context, pkgsvc package_.Service, params *completePreservationTaskLocalActivityParams) error {
-	return pkgsvc.CompletePreservationTask(ctx, params.ID, params.Name, params.Status, params.CompletedAt)
+	return pkgsvc.CompletePreservationTask(ctx, params.ID, params.Status, params.CompletedAt, params.Note)
 }

@@ -489,6 +489,7 @@ type EnduroPackagePreservationTaskResponseBody struct {
 	Status      *string `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
 	StartedAt   *string `form:"started_at,omitempty" json:"started_at,omitempty" xml:"started_at,omitempty"`
 	CompletedAt *string `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
+	Note        *string `form:"note,omitempty" json:"note,omitempty" xml:"note,omitempty"`
 }
 
 // NewBulkRequestBody builds the HTTP request body from the payload of the

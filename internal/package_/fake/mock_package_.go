@@ -52,7 +52,7 @@ func (mr *MockServiceMockRecorder) CompletePreservationAction(arg0, arg1, arg2, 
 }
 
 // CompletePreservationTask mocks base method.
-func (m *MockService) CompletePreservationTask(arg0 context.Context, arg1 uint, arg2 *string, arg3 package_0.PreservationTaskStatus, arg4 time.Time) error {
+func (m *MockService) CompletePreservationTask(arg0 context.Context, arg1 uint, arg2 package_0.PreservationTaskStatus, arg3 time.Time, arg4 *string) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CompletePreservationTask", arg0, arg1, arg2, arg3, arg4)
 	ret0, _ := ret[0].(error)
