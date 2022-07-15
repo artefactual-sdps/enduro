@@ -35,9 +35,9 @@ storage (submit|update|download|list|move|move-status|reject|show)
 // UsageExamples produces an example of a valid invocation of the CLI tool.
 func UsageExamples() string {
 	return os.Args[0] + ` batch submit --body '{
-      "completed_dir": "Molestias et qui corporis.",
-      "path": "Id mollitia sed.",
-      "retention_period": "Hic deleniti quidem."
+      "completed_dir": "Rerum necessitatibus recusandae id mollitia.",
+      "path": "In provident.",
+      "retention_period": "Qui molestias et qui corporis natus hic."
    }'` + "\n" +
 		os.Args[0] + ` package monitor` + "\n" +
 		os.Args[0] + ` storage submit --body '{
@@ -427,9 +427,9 @@ Submit a new batch
 
 Example:
     %[1]s batch submit --body '{
-      "completed_dir": "Molestias et qui corporis.",
-      "path": "Id mollitia sed.",
-      "retention_period": "Hic deleniti quidem."
+      "completed_dir": "Rerum necessitatibus recusandae id mollitia.",
+      "path": "In provident.",
+      "retention_period": "Qui molestias et qui corporis natus hic."
    }'
 `, os.Args[0])
 }
@@ -595,8 +595,8 @@ Signal the package has been reviewed and accepted
 
 Example:
     %[1]s package confirm --body '{
-      "location": "Maxime quia laboriosam sint et."
-   }' --id 7348427114565682891
+      "location": "Aut dolorem perspiciatis repudiandae."
+   }' --id 1862234972514153970
 `, os.Args[0])
 }
 
@@ -607,7 +607,7 @@ Signal the package has been reviewed and rejected
     -id UINT: Identifier of package to look up
 
 Example:
-    %[1]s package reject --id 9615941239644811233
+    %[1]s package reject --id 1369363346339569407
 `, os.Args[0])
 }
 
@@ -620,7 +620,7 @@ Move a package to a permanent storage location
 
 Example:
     %[1]s package move --body '{
-      "location": "Quo ut eveniet et rerum nemo corporis."
+      "location": "Ut eveniet et rerum nemo corporis."
    }' --id 17914282321240143382
 `, os.Args[0])
 }

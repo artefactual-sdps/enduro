@@ -153,6 +153,7 @@ type EnduroPackagePreservationTaskView struct {
 	Status      *string
 	StartedAt   *string
 	CompletedAt *string
+	Note        *string
 }
 
 var (
@@ -273,6 +274,7 @@ var (
 			"status",
 			"started_at",
 			"completed_at",
+			"note",
 		},
 	}
 	// EnduroPackagePreservationTaskMap is a map indexing the attribute names of
@@ -285,6 +287,7 @@ var (
 			"status",
 			"started_at",
 			"completed_at",
+			"note",
 		},
 	}
 )

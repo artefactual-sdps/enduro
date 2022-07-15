@@ -374,6 +374,7 @@ var PreservationTask = ResultType("application/vnd.enduro.package-preservation-t
 		Attribute("completed_at", String, func() {
 			Format(FormatDateTime)
 		})
+		Attribute("note", String)
 	})
 	Required("id", "task_id", "name", "status", "started_at")
 })

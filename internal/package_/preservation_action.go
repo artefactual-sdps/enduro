@@ -207,7 +207,8 @@ type PreservationTask struct {
 	Status               PreservationTaskStatus `db:"status"`
 	StartedAt            sql.NullTime           `db:"started_at"`
 	CompletedAt          sql.NullTime           `db:"completed_at"`
-	PreservationActionID uint                   `db:"preservation_action_id"`
+	Note                 string
+	PreservationActionID uint `db:"preservation_action_id"`
 }
 
 func (w *goaWrapper) PreservationActions(ctx context.Context, payload *goapackage.PreservationActionsPayload) (*goapackage.EnduroPackagePreservationActions, error) {
@@ -240,7 +241,7 @@ func (w *goaWrapper) PreservationActions(ctx context.Context, payload *goapackag
 			CompletedAt: formatOptionalTime(pa.CompletedAt),
 		}
 
-		ptQuery := "SELECT id, task_id, name, status, CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at, CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at FROM preservation_task WHERE preservation_action_id = ?"
+		ptQuery := "SELECT id, task_id, name, status, CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at, CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at, note FROM preservation_task WHERE preservation_action_id = ?"
 		ptQueryArgs := []interface{}{pa.ID}
 
 		ptRows, err := w.db.QueryxContext(ctx, ptQuery, ptQueryArgs...)
@@ -262,6 +263,7 @@ func (w *goaWrapper) PreservationActions(ctx context.Context, payload *goapackag
 				Status:      pt.Status.String(),
 				StartedAt:   formatTime(pt.StartedAt.Time),
 				CompletedAt: formatOptionalTime(pt.CompletedAt),
+				Note:        &pt.Note,
 			}
 			preservation_tasks = append(preservation_tasks, goapt)
 		}
@@ -355,13 +357,14 @@ func (svc *packageImpl) CreatePreservationTask(ctx context.Context, pt *Preserva
 		completedAt = nil
 	}
 
-	query := `INSERT INTO preservation_task (task_id, name, status, started_at, completed_at, preservation_action_id) VALUES (?, ?, ?, ?, ?, ?)`
+	query := `INSERT INTO preservation_task (task_id, name, status, started_at, completed_at, note, preservation_action_id) VALUES (?, ?, ?, ?, ?, ?, ?)`
 	args := []interface{}{
 		pt.TaskID,
 		pt.Name,
 		pt.Status,
 		startedAt,
 		completedAt,
+		pt.Note,
 		pt.PreservationActionID,
 	}
 
@@ -380,13 +383,13 @@ func (svc *packageImpl) CreatePreservationTask(ctx context.Context, pt *Preserva
 	return nil
 }
 
-func (svc *packageImpl) CompletePreservationTask(ctx context.Context, ID uint, name *string, status PreservationTaskStatus, completedAt time.Time) error {
+func (svc *packageImpl) CompletePreservationTask(ctx context.Context, ID uint, status PreservationTaskStatus, completedAt time.Time, note *string) error {
 	var query string
 	args := []interface{}{}
 
-	if name != nil {
-		query = `UPDATE preservation_task SET name = ?, status = ?, completed_at = ? WHERE id = ?`
-		args = append(args, name, status, completedAt, ID)
+	if note != nil {
+		query = `UPDATE preservation_task SET note = ?, status = ?, completed_at = ? WHERE id = ?`
+		args = append(args, note, status, completedAt, ID)
 	} else {
 		query = `UPDATE preservation_task SET status = ?, completed_at = ? WHERE id = ?`
 		args = append(args, status, completedAt, ID)

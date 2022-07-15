@@ -172,6 +172,7 @@ type EnduroPackagePreservationTask struct {
 	Status      string
 	StartedAt   string
 	CompletedAt *string
+	Note        *string
 }
 
 type EnduroPackagePreservationTaskCollection []*EnduroPackagePreservationTask
@@ -725,6 +726,7 @@ func newEnduroPackagePreservationTaskCollectionView(res EnduroPackagePreservatio
 func newEnduroPackagePreservationTask(vres *package_views.EnduroPackagePreservationTaskView) *EnduroPackagePreservationTask {
 	res := &EnduroPackagePreservationTask{
 		CompletedAt: vres.CompletedAt,
+		Note:        vres.Note,
 	}
 	if vres.ID != nil {
 		res.ID = *vres.ID
@@ -755,6 +757,7 @@ func newEnduroPackagePreservationTaskView(res *EnduroPackagePreservationTask) *p
 		Status:      &res.Status,
 		StartedAt:   &res.StartedAt,
 		CompletedAt: res.CompletedAt,
+		Note:        res.Note,
 	}
 	return vres
 }

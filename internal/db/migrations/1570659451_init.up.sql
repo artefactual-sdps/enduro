@@ -35,6 +35,7 @@ CREATE TABLE preservation_task (
   `status` TINYINT NOT NULL,
   `started_at` TIMESTAMP(6) NULL,
   `completed_at` TIMESTAMP(6) NULL,
+  `note` LONGTEXT NOT NULL,
   `preservation_action_id` INT UNSIGNED NOT NULL,
   PRIMARY KEY (`id`),
   FOREIGN KEY (`preservation_action_id`) REFERENCES preservation_action(`id`) ON DELETE CASCADE

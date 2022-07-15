@@ -115,7 +115,7 @@ watch($$(expandCounter), () => col?.show());
                 >{{ task.status }}</span
               >
             </td>
-            <td>TODO: note goes here</td>
+            <td>{{ task.note }}</td>
           </tr>
         </tbody>
       </table>
