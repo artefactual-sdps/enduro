@@ -351,7 +351,7 @@ func (s *serviceImpl) createPackage(ctx context.Context, p *Package) error {
 }
 
 func (s *serviceImpl) ReadPackage(ctx context.Context, AIPID string) (*Package, error) {
-	query := "SELECT id, name, aip_id, status, object_key, location FROM storage_package WHERE aip_id = (?)"
+	query := "SELECT id, name, aip_id, status, object_key, location FROM storage_package WHERE aip_id = ?"
 	args := []interface{}{AIPID}
 	p := Package{}
 

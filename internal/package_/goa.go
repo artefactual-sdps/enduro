@@ -95,32 +95,32 @@ func (w *goaWrapper) List(ctx context.Context, payload *goapackage.ListPayload) 
 	if payload.Name != nil {
 		name := patternMatchingCharReplacer.Replace(*payload.Name) + "%"
 		args = append(args, name)
-		conds = append(conds, [2]string{"AND", "name LIKE (?)"})
+		conds = append(conds, [2]string{"AND", "name LIKE ?"})
 	}
 	if payload.AipID != nil {
 		args = append(args, payload.AipID)
-		conds = append(conds, [2]string{"AND", "aip_id = (?)"})
+		conds = append(conds, [2]string{"AND", "aip_id = ?"})
 	}
 	if payload.Location != nil {
 		args = append(args, payload.Location)
-		conds = append(conds, [2]string{"AND", "location = (?)"})
+		conds = append(conds, [2]string{"AND", "location = ?"})
 	}
 	if payload.Status != nil {
 		args = append(args, NewStatus(*payload.Status))
-		conds = append(conds, [2]string{"AND", "status = (?)"})
+		conds = append(conds, [2]string{"AND", "status = ?"})
 	}
 	if payload.EarliestCreatedTime != nil {
 		args = append(args, payload.EarliestCreatedTime)
-		conds = append(conds, [2]string{"AND", "created_at >= (?)"})
+		conds = append(conds, [2]string{"AND", "created_at >= ?"})
 	}
 	if payload.LatestCreatedTime != nil {
 		args = append(args, payload.LatestCreatedTime)
-		conds = append(conds, [2]string{"AND", "created_at <= (?)"})
+		conds = append(conds, [2]string{"AND", "created_at <= ?"})
 	}
 
 	if payload.Cursor != nil {
 		args = append(args, *payload.Cursor)
-		conds = append(conds, [2]string{"AND", "id <= (?)"})
+		conds = append(conds, [2]string{"AND", "id <= ?"})
 	}
 
 	var where string
@@ -134,7 +134,6 @@ func (w *goaWrapper) List(ctx context.Context, payload *goapackage.ListPayload) 
 
 	query += where + " ORDER BY id DESC LIMIT " + limitSQL
 
-	query = w.db.Rebind(query)
 	rows, err := w.db.QueryxContext(ctx, query, args...)
 	if err != nil {
 		return nil, fmt.Errorf("error querying the database: %w", err)
@@ -181,9 +180,8 @@ func (w *goaWrapper) Show(ctx context.Context, payload *goapackage.ShowPayload) 
 //
 // TODO: return error if it's still running?
 func (w *goaWrapper) Delete(ctx context.Context, payload *goapackage.DeletePayload) error {
-	query := "DELETE FROM package WHERE id = (?)"
+	query := "DELETE FROM package WHERE id = ?"
 
-	query = w.db.Rebind(query)
 	res, err := w.db.ExecContext(ctx, query, payload.ID)
 	if err != nil {
 		return err

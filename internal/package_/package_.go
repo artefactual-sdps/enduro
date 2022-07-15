@@ -56,7 +56,7 @@ func (svc *packageImpl) Goa() goapackage.Service {
 }
 
 func (svc *packageImpl) Create(ctx context.Context, pkg *Package) error {
-	query := `INSERT INTO package (name, workflow_id, run_id, aip_id, location, status) VALUES ((?), (?), (?), (?), (?), (?))`
+	query := `INSERT INTO package (name, workflow_id, run_id, aip_id, location, status) VALUES (?, ?, ?, ?, ?, ?)`
 	args := []interface{}{
 		pkg.Name,
 		pkg.WorkflowID,
@@ -66,7 +66,6 @@ func (svc *packageImpl) Create(ctx context.Context, pkg *Package) error {
 		pkg.Status,
 	}
 
-	query = svc.db.Rebind(query)
 	res, err := svc.db.ExecContext(ctx, query, args...)
 	if err != nil {
 		return fmt.Errorf("error inserting package: %w", err)
@@ -97,7 +96,7 @@ func (svc *packageImpl) UpdateWorkflowStatus(ctx context.Context, ID uint, name 
 		completedAt = nil
 	}
 
-	query := `UPDATE package SET name = (?), workflow_id = (?), run_id = (?), aip_id = (?), status = (?), completed_at = (?) WHERE id = (?)`
+	query := `UPDATE package SET name = ?, workflow_id = ?, run_id = ?, aip_id = ?, status = ?, completed_at = ? WHERE id = ?`
 	args := []interface{}{
 		name,
 		workflowID,
@@ -121,7 +120,7 @@ func (svc *packageImpl) UpdateWorkflowStatus(ctx context.Context, ID uint, name 
 }
 
 func (svc *packageImpl) SetStatus(ctx context.Context, ID uint, status Status) error {
-	query := `UPDATE package SET status = (?) WHERE id = (?)`
+	query := `UPDATE package SET status = ? WHERE id = ?`
 	args := []interface{}{
 		status,
 		ID,
@@ -142,10 +141,10 @@ func (svc *packageImpl) SetStatusInProgress(ctx context.Context, ID uint, starte
 	args := []interface{}{StatusInProgress}
 
 	if !startedAt.IsZero() {
-		query = `UPDATE package SET status = (?), started_at = (?) WHERE id = (?)`
+		query = `UPDATE package SET status = ?, started_at = ? WHERE id = ?`
 		args = append(args, startedAt, ID)
 	} else {
-		query = `UPDATE package SET status = (?) WHERE id = (?)`
+		query = `UPDATE package SET status = ? WHERE id = ?`
 		args = append(args, ID)
 	}
 
@@ -160,7 +159,7 @@ func (svc *packageImpl) SetStatusInProgress(ctx context.Context, ID uint, starte
 }
 
 func (svc *packageImpl) SetStatusPending(ctx context.Context, ID uint) error {
-	query := `UPDATE package SET status = (?), WHERE id = (?)`
+	query := `UPDATE package SET status = ?, WHERE id = ?`
 	args := []interface{}{
 		StatusPending,
 		ID,
@@ -177,7 +176,7 @@ func (svc *packageImpl) SetStatusPending(ctx context.Context, ID uint) error {
 }
 
 func (svc *packageImpl) SetLocation(ctx context.Context, ID uint, location string) error {
-	query := `UPDATE package SET location = (?) WHERE id = (?)`
+	query := `UPDATE package SET location = ? WHERE id = ?`
 	args := []interface{}{
 		location,
 		ID,
@@ -194,7 +193,6 @@ func (svc *packageImpl) SetLocation(ctx context.Context, ID uint, location strin
 }
 
 func (svc *packageImpl) updateRow(ctx context.Context, query string, args []interface{}) (int64, error) {
-	query = svc.db.Rebind(query)
 	res, err := svc.db.ExecContext(ctx, query, args...)
 	if err != nil {
 		return 0, fmt.Errorf("error updating package: %v", err)
@@ -209,11 +207,10 @@ func (svc *packageImpl) updateRow(ctx context.Context, query string, args []inte
 }
 
 func (svc *packageImpl) read(ctx context.Context, ID uint) (*Package, error) {
-	query := "SELECT id, name, workflow_id, run_id, aip_id, location, status, CONVERT_TZ(created_at, @@session.time_zone, '+00:00') AS created_at, CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at, CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at FROM package WHERE id = (?)"
+	query := "SELECT id, name, workflow_id, run_id, aip_id, location, status, CONVERT_TZ(created_at, @@session.time_zone, '+00:00') AS created_at, CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at, CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at FROM package WHERE id = ?"
 	args := []interface{}{ID}
 	c := Package{}
 
-	query = svc.db.Rebind(query)
 	if err := svc.db.GetContext(ctx, &c, query, args...); err != nil {
 		return nil, err
 	}
