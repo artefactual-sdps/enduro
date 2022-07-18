@@ -14,7 +14,7 @@
   "dependencies": {
     "@pinia/plugin-debounce": "^0.1.0",
     "@types/humanize-duration": "^3.27.1",
-    "@vueuse/core": "^8.9.2",
+    "@vueuse/core": "^8.9.4",
     "humanize-duration": "^3.27.2",
     "moment": "^2.29.4",
     "pinia": "^2.0.16",
