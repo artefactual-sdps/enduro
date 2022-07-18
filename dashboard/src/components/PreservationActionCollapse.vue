@@ -77,8 +77,16 @@ const getPreservationActionLabel = (value: api.EnduroPackagePreservationActionRe
           :aria-controls="'preservation-actions-table-' + index"
           v-if="action.tasks"
         >
-          <IconCircleChevronUp style="font-size: 2em" v-if="shown" />
-          <IconCircleChevronDown style="font-size: 2em" v-else />
+          <span v-if="shown">
+            <IconCircleChevronUp style="font-size: 2em" aria-hidden="true" />
+            <span class="visually-hidden"
+              >Collapse preservation tasks table</span
+            >
+          </span>
+          <span v-else>
+            <IconCircleChevronDown style="font-size: 2em" aria-hidden="true" />
+            <span class="visually-hidden">Expand preservation tasks table</span>
+          </span>
         </button>
       </div>
       <span v-if="action.completedAt">

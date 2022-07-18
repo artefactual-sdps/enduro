@@ -35,9 +35,20 @@ const toggleLegend = () => (showLegend = !showLegend);
           <th scope="col">UUID</th>
           <th scope="col">Started</th>
           <th scope="col">Location</th>
-          <th scope="col" class="text-nowrap">
-            Status
-            <a href="#" @click.prevent="toggleLegend"><IconInfoFill /></a>
+          <th scope="col">
+            <span class="d-flex">
+              Status
+              <button
+                class="btn btn-sm btn-link text-decoration-none ms-auto p-0 ps-1"
+                type="button"
+                @click="toggleLegend"
+              >
+                <IconInfoFill style="font-size: 1.2em" aria-hidden="true" />
+                <span class="visually-hidden"
+                  >Toggle package status legend</span
+                >
+              </button>
+            </span>
           </th>
         </tr>
       </thead>
