@@ -27,7 +27,7 @@ require (
 	github.com/pborman/uuid v1.2.1 // indirect
 	github.com/prometheus/client_golang v1.12.2
 	github.com/radovskyb/watcher v1.0.7
-	github.com/spf13/afero v1.8.2
+	github.com/spf13/afero v1.9.0
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.12.0
 	github.com/stretchr/objx v0.4.0 // indirect
