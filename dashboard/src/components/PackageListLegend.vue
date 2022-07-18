@@ -45,11 +45,7 @@ const items = [
 
 <template>
   <Transition>
-    <div
-      class="alert alert-secondary alert-dismissible"
-      role="alert"
-      v-if="show"
-    >
+    <div class="alert alert-secondary alert-dismissible" v-if="show">
       <div class="container-fluid">
         <div class="row" v-for="(item, index) in items">
           <div class="col-12 col-md-2 py-2">
