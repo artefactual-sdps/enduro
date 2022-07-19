@@ -45,7 +45,7 @@ export default defineConfig({
       shuffle: true,
     },
     coverage: {
-      exclude: ["src/openapi-generator/**"],
+      exclude: ["src/openapi-generator/**", "test/**"],
     },
   },
 });

@@ -4,7 +4,6 @@ import IconCircleChevronUp from "~icons/akar-icons/circle-chevron-up";
 import PackageReviewAlert from "@/components/PackageReviewAlert.vue";
 import { api } from "@/client";
 import { onMounted, watch } from "vue";
-import useEventListener from "@/composables/useEventListener";
 import Collapse from "bootstrap/js/dist/collapse";
 
 const { action, index, toggleAll } = defineProps<{
@@ -18,32 +17,41 @@ const emit = defineEmits<{
 }>();
 
 let shown = $ref<boolean>(false);
-
 const el = $ref<HTMLElement | null>(null);
-useEventListener($$(el), "shown.bs.collapse", () => {
-  shown = true;
-  emit("update:toggleAll", null);
-});
-useEventListener($$(el), "hidden.bs.collapse", () => {
-  shown = false;
-  emit("update:toggleAll", null);
-});
-
 let col = <Collapse | null>null;
+
 onMounted(() => {
   if (!el) return;
   col = new Collapse(el, { toggle: false });
 });
 
+const toggle = () => {
+  shown ? hide() : show();
+};
+
+const show = () => {
+  col?.show();
+  emit("update:toggleAll", null);
+  shown = true;
+};
+
+const hide = () => {
+  col?.hide();
+  emit("update:toggleAll", null);
+  shown = false;
+};
+
 watch($$(toggleAll), () => {
   if (toggleAll === null) return;
-  toggleAll ? col?.show() : col?.hide();
+  toggleAll ? show() : hide();
 });
 
 let expandCounter = $ref<number>(0);
-watch($$(expandCounter), () => col?.show());
+watch($$(expandCounter), () => show());
 
-const getPreservationActionLabel = (value: api.EnduroPackagePreservationActionResponseBodyTypeEnum) => {
+const getPreservationActionLabel = (
+  value: api.EnduroPackagePreservationActionResponseBodyTypeEnum
+) => {
   switch (value) {
     case api.EnduroPackagePreservationActionResponseBodyTypeEnum.CreateAip:
       return "Create AIP";
@@ -71,11 +79,10 @@ const getPreservationActionLabel = (value: api.EnduroPackagePreservationActionRe
         <button
           class="btn btn-sm btn-link text-decoration-none ms-auto p-0"
           type="button"
-          data-bs-toggle="collapse"
-          :data-bs-target="'#preservation-actions-table-' + index"
           aria-expanded="false"
           :aria-controls="'preservation-actions-table-' + index"
           v-if="action.tasks"
+          @click="toggle"
         >
           <span v-if="shown">
             <IconCircleChevronUp style="font-size: 2em" aria-hidden="true" />
