@@ -56,7 +56,10 @@ let toggleAll = $ref<boolean | null>(false);
       <h2 class="mb-0">Preservation actions</h2>
       <div
         class="align-self-end ms-auto d-flex"
-        v-if="packageStore.current_preservation_actions?.actions"
+        v-if="
+          packageStore.current_preservation_actions?.actions &&
+          packageStore.current_preservation_actions.actions.length > 1
+        "
       >
         <button
           class="btn btn-sm btn-link text-decoration-none p-0"
