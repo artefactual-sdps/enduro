@@ -1,11 +1,21 @@
 <script setup lang="ts">
+import { api } from "../../../client";
 import PackageDetailsCard from "@/components/PackageDetailsCard.vue";
 import PackageLocationCard from "@/components/PackageLocationCard.vue";
 import PreservationActionCollapse from "@/components/PreservationActionCollapse.vue";
 import StatusBadge from "@/components/StatusBadge.vue";
 import { usePackageStore } from "@/stores/package";
+import { computed } from "vue";
 
 const packageStore = usePackageStore();
+
+const createAipWorkflow = computed(() => {
+  return packageStore.current_preservation_actions?.actions?.filter(
+    (action) =>
+      action.type ===
+      api.EnduroPackagePreservationActionResponseBodyTypeEnum.CreateAip
+  )[0];
+});
 
 let toggleAll = $ref<boolean | null>(false);
 </script>
@@ -23,37 +33,28 @@ let toggleAll = $ref<boolean | null>(false);
           <dt>Workflow status</dt>
           <dd>
             <StatusBadge
-              v-if="packageStore.current_preservation_actions?.actions"
-              :status="
-                packageStore.current_preservation_actions?.actions.slice(-1)[0]
-                  .status
-              "
+              v-if="createAipWorkflow"
+              :status="createAipWorkflow.status"
               :note="
-                $filters.getPreservationActionLabel(
-                  packageStore.current_preservation_actions?.actions.slice(
-                    -1
-                  )[0].type
-                )
+                $filters.getPreservationActionLabel(createAipWorkflow.type)
               "
             />
           </dd>
           <dt>Started</dt>
-          <dd>{{ $filters.formatDateTime(packageStore.current.startedAt) }}</dd>
-          <span v-if="packageStore.current.completedAt">
-            <dt>Completed</dt>
-            <dd>
-              {{ $filters.formatDateTime(packageStore.current.completedAt) }}
-              <div class="pt-2">
-                (took
-                {{
-                  $filters.formatDuration(
-                    packageStore.current.startedAt,
-                    packageStore.current.completedAt
-                  )
-                }})
-              </div>
-            </dd>
-          </span>
+          <dd>{{ $filters.formatDateTime(createAipWorkflow?.startedAt) }}</dd>
+          <dt v-if="createAipWorkflow?.completedAt">Completed</dt>
+          <dd v-if="createAipWorkflow?.completedAt">
+            {{ $filters.formatDateTime(createAipWorkflow.completedAt) }}
+            <div class="pt-2">
+              (took
+              {{
+                $filters.formatDuration(
+                  createAipWorkflow.startedAt,
+                  createAipWorkflow.completedAt
+                )
+              }})
+            </div>
+          </dd>
         </dl>
       </div>
       <div class="col-md-6">
