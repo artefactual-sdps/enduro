@@ -11,6 +11,7 @@ import (
 	temporalsdk_client "go.temporal.io/sdk/client"
 
 	goapackage "github.com/artefactual-sdps/enduro/internal/api/gen/package_"
+	"github.com/artefactual-sdps/enduro/internal/event"
 )
 
 type Service interface {
@@ -33,19 +34,17 @@ type packageImpl struct {
 	logger logr.Logger
 	db     *sqlx.DB
 	tc     temporalsdk_client.Client
-
-	// Destination for events to be published.
-	events EventService
+	evsvc  event.EventService
 }
 
 var _ Service = (*packageImpl)(nil)
 
-func NewService(logger logr.Logger, db *sql.DB, tc temporalsdk_client.Client) *packageImpl {
+func NewService(logger logr.Logger, db *sql.DB, tc temporalsdk_client.Client, evsvc event.EventService) *packageImpl {
 	return &packageImpl{
 		logger: logger,
 		db:     sqlx.NewDb(db, "mysql"),
 		tc:     tc,
-		events: NewEventService(),
+		evsvc:  evsvc,
 	}
 }
 
@@ -79,8 +78,8 @@ func (svc *packageImpl) Create(ctx context.Context, pkg *Package) error {
 	pkg.ID = uint(id)
 
 	if pkg, err := svc.Goa().Show(ctx, &goapackage.ShowPayload{ID: uint(id)}); err == nil {
-		event := &goapackage.EnduroPackageCreatedEvent{ID: uint(id), Item: pkg}
-		publishEvent(ctx, svc.events, event)
+		ev := &goapackage.EnduroPackageCreatedEvent{ID: uint(id), Item: pkg}
+		event.PublishEvent(ctx, svc.evsvc, ev)
 	}
 
 	return nil
@@ -112,8 +111,8 @@ func (svc *packageImpl) UpdateWorkflowStatus(ctx context.Context, ID uint, name 
 	}
 
 	if pkg, err := svc.Goa().Show(ctx, &goapackage.ShowPayload{ID: ID}); err == nil {
-		event := &goapackage.EnduroPackageUpdatedEvent{ID: uint(ID), Item: pkg}
-		publishEvent(ctx, svc.events, event)
+		ev := &goapackage.EnduroPackageUpdatedEvent{ID: uint(ID), Item: pkg}
+		event.PublishEvent(ctx, svc.evsvc, ev)
 	}
 
 	return nil
@@ -130,8 +129,8 @@ func (svc *packageImpl) SetStatus(ctx context.Context, ID uint, status Status) e
 		return err
 	}
 
-	event := &goapackage.EnduroPackageStatusUpdatedEvent{ID: uint(ID), Status: status.String()}
-	publishEvent(ctx, svc.events, event)
+	ev := &goapackage.EnduroPackageStatusUpdatedEvent{ID: uint(ID), Status: status.String()}
+	event.PublishEvent(ctx, svc.evsvc, ev)
 
 	return nil
 }
@@ -152,8 +151,8 @@ func (svc *packageImpl) SetStatusInProgress(ctx context.Context, ID uint, starte
 		return err
 	}
 
-	event := &goapackage.EnduroPackageStatusUpdatedEvent{ID: uint(ID), Status: StatusInProgress.String()}
-	publishEvent(ctx, svc.events, event)
+	ev := &goapackage.EnduroPackageStatusUpdatedEvent{ID: uint(ID), Status: StatusInProgress.String()}
+	event.PublishEvent(ctx, svc.evsvc, ev)
 
 	return nil
 }
@@ -169,8 +168,8 @@ func (svc *packageImpl) SetStatusPending(ctx context.Context, ID uint) error {
 		return err
 	}
 
-	event := &goapackage.EnduroPackageStatusUpdatedEvent{ID: uint(ID), Status: StatusPending.String()}
-	publishEvent(ctx, svc.events, event)
+	ev := &goapackage.EnduroPackageStatusUpdatedEvent{ID: uint(ID), Status: StatusPending.String()}
+	event.PublishEvent(ctx, svc.evsvc, ev)
 
 	return nil
 }
@@ -186,8 +185,8 @@ func (svc *packageImpl) SetLocation(ctx context.Context, ID uint, location strin
 		return err
 	}
 
-	event := &goapackage.EnduroPackageLocationUpdatedEvent{ID: uint(ID), Location: location}
-	publishEvent(ctx, svc.events, event)
+	ev := &goapackage.EnduroPackageLocationUpdatedEvent{ID: uint(ID), Location: location}
+	event.PublishEvent(ctx, svc.evsvc, ev)
 
 	return nil
 }

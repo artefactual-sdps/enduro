@@ -1,17 +1,17 @@
-package package__test
+package event_test
 
 import (
 	"context"
 	"testing"
 
 	goapackage "github.com/artefactual-sdps/enduro/internal/api/gen/package_"
-	"github.com/artefactual-sdps/enduro/internal/package_"
+	"github.com/artefactual-sdps/enduro/internal/event"
 )
 
 func TestEventService(t *testing.T) {
 	t.Run("Subscribe", func(t *testing.T) {
 		ctx := context.Background()
-		s := package_.NewEventService()
+		s := event.NewEventServiceInMemImpl()
 
 		subA, err := s.Subscribe(ctx)
 		if err != nil {
@@ -42,7 +42,7 @@ func TestEventService(t *testing.T) {
 
 	t.Run("Unsubscribe", func(t *testing.T) {
 		ctx := context.Background()
-		s := package_.NewEventService()
+		s := event.NewEventServiceInMemImpl()
 
 		sub, err := s.Subscribe(ctx)
 		if err != nil {
