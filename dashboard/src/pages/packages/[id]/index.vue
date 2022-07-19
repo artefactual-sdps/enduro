@@ -8,13 +8,14 @@ import { usePackageStore } from "@/stores/package";
 
 const packageStore = usePackageStore();
 
-const createAipWorkflow = $computed(() => {
-  return packageStore.current_preservation_actions?.actions?.filter(
-    (action) =>
-      action.type ===
-      api.EnduroPackagePreservationActionResponseBodyTypeEnum.CreateAip
-  )[0];
-});
+const createAipWorkflow = $computed(
+  () =>
+    packageStore.current_preservation_actions?.actions?.filter(
+      (action) =>
+        action.type ===
+        api.EnduroPackagePreservationActionResponseBodyTypeEnum.CreateAip
+    )[0]
+);
 
 let toggleAll = $ref<boolean | null>(false);
 </script>
