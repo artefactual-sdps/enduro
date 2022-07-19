@@ -23,8 +23,18 @@ let toggleAll = $ref<boolean | null>(false);
           <dt>Workflow status</dt>
           <dd>
             <StatusBadge
-              :status="packageStore.current.status"
-              :note="'Create and Review AIP'"
+              v-if="packageStore.current_preservation_actions?.actions"
+              :status="
+                packageStore.current_preservation_actions?.actions.slice(-1)[0]
+                  .status
+              "
+              :note="
+                $filters.getPreservationActionLabel(
+                  packageStore.current_preservation_actions?.actions.slice(
+                    -1
+                  )[0].type
+                )
+              "
             />
           </dd>
           <dt>Started</dt>
