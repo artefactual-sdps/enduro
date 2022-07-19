@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import PackageDetailsCard from "@/components/PackageDetailsCard.vue";
 import PackageLocationCard from "@/components/PackageLocationCard.vue";
-import PackageStatusBadge from "@/components/PackageStatusBadge.vue";
 import PreservationActionCollapse from "@/components/PreservationActionCollapse.vue";
+import StatusBadge from "@/components/StatusBadge.vue";
 import { usePackageStore } from "@/stores/package";
 
 const packageStore = usePackageStore();
@@ -22,7 +22,7 @@ let toggleAll = $ref<boolean | null>(false);
           <dd>{{ packageStore.current.aipId }}</dd>
           <dt>Workflow status</dt>
           <dd>
-            <PackageStatusBadge
+            <StatusBadge
               :status="packageStore.current.status"
               :note="'Create and Review AIP'"
             />

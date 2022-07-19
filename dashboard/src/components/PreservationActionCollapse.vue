@@ -2,6 +2,7 @@
 import IconCircleChevronDown from "~icons/akar-icons/circle-chevron-down";
 import IconCircleChevronUp from "~icons/akar-icons/circle-chevron-up";
 import PackageReviewAlert from "@/components/PackageReviewAlert.vue";
+import StatusBadge from "@/components/StatusBadge.vue";
 import { api } from "@/client";
 import { onMounted, watch } from "vue";
 import Collapse from "bootstrap/js/dist/collapse";
@@ -70,11 +71,7 @@ const getPreservationActionLabel = (
       <div class="d-flex">
         <h3 class="h4">
           {{ getPreservationActionLabel(action.type) }}
-          <span
-            class="badge"
-            :class="$filters.formatPreservationActionStatus(action.status)"
-            >{{ action.status }}</span
-          >
+          <StatusBadge :status="action.status" />
         </h3>
         <button
           class="btn btn-sm btn-link text-decoration-none ms-auto p-0"
@@ -137,13 +134,7 @@ const getPreservationActionLabel = (
           >
             <td>{{ action.tasks.length - index }}</td>
             <td>{{ task.name }}</td>
-            <td>
-              <span
-                class="badge"
-                :class="$filters.formatPreservationTaskStatus(task.status)"
-                >{{ task.status }}</span
-              >
-            </td>
+            <td><StatusBadge :status="task.status" /></td>
             <td>{{ task.note }}</td>
           </tr>
         </tbody>

@@ -3,12 +3,18 @@ import { api } from "@/client";
 import { computed } from "vue";
 
 const props = defineProps<{
-  status: api.PackageShowResponseBodyStatusEnum;
+  status:
+    | api.EnduroStoredPackageResponseBodyStatusEnum
+    | api.EnduroPackagePreservationActionResponseBodyStatusEnum
+    | api.EnduroPackagePreservationTaskResponseBodyStatusEnum;
   note?: string;
 }>();
 
 const classes: {
-  [key in api.EnduroStoredPackageResponseBodyStatusEnum]: string;
+  [key in
+    | api.EnduroStoredPackageResponseBodyStatusEnum
+    | api.EnduroPackagePreservationActionResponseBodyStatusEnum
+    | api.EnduroPackagePreservationTaskResponseBodyStatusEnum]: string;
 } = {
   new: "text-bg-dark",
   "in progress": "text-bg-secondary",
@@ -18,6 +24,7 @@ const classes: {
   queued: "text-bg-info",
   pending: "text-bg-warning",
   abandoned: "text-bg-dark",
+  unspecified: "text-bg-dark",
 };
 
 const colorClass = computed(() => {

@@ -60,8 +60,6 @@ describe("PreservationActionCollapse.vue", () => {
             $filters: {
               formatDateTime: () => "now",
               formatDuration: () => "some time",
-              formatPreservationActionStatus: () => "",
-              formatPreservationTaskStatus: () => "",
             },
           },
         },

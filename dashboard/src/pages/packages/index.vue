@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import PackageListLegend from "@/components/PackageListLegend.vue";
-import PackageStatusBadge from "@/components/PackageStatusBadge.vue";
 import PageLoadingAlert from "@/components/PageLoadingAlert.vue";
+import StatusBadge from "@/components/StatusBadge.vue";
 import { usePackageStore } from "@/stores/package";
 import { useAsyncState } from "@vueuse/core";
 import { useRouter } from "vue-router";
@@ -69,7 +69,7 @@ const toggleLegend = () => (showLegend = !showLegend);
           <td>{{ $filters.formatDateTime(pkg.startedAt) }}</td>
           <td>{{ pkg.location }}</td>
           <td>
-            <PackageStatusBadge :status="pkg.status" />
+            <StatusBadge :status="pkg.status" />
           </td>
         </tr>
       </tbody>

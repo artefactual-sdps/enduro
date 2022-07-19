@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { api } from "@/client";
-import PackageStatusBadge from "@/components/PackageStatusBadge.vue";
+import StatusBadge from "@/components/StatusBadge.vue";
 import { computed } from "vue";
 
 const { modelValue } = defineProps<{
@@ -49,10 +49,10 @@ const items = [
       <div class="container-fluid">
         <div class="row" v-for="(item, index) in items">
           <div class="col-12 col-md-2 py-2">
-            <PackageStatusBadge
+            <StatusBadge
               :status="item.status"
               :aria-describedby="`badge-${index}-desc`"
-            ></PackageStatusBadge>
+            />
           </div>
           <div class="col-12 col-md-10 py-2" :id="`badge-${index}-desc`">
             {{ item.description }}

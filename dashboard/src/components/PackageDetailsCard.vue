@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { storageServiceDownloadURL } from "@/client";
-import PackageStatusBadge from "@/components/PackageStatusBadge.vue";
+import StatusBadge from "@/components/StatusBadge.vue";
 import { usePackageStore } from "@/stores/package";
 import { computed, watch } from "vue";
 
@@ -30,7 +30,7 @@ watch(packageStore.ui.download, () => download());
         <dd>N/A</dd>
         <dt>Last workflow outcome</dt>
         <dd>
-          <PackageStatusBadge
+          <StatusBadge
             :status="packageStore.current.status"
             :note="'Create and Review AIP'"
           />
