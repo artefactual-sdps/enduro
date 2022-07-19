@@ -16,6 +16,7 @@ import (
 	temporalsdk_client "go.temporal.io/sdk/client"
 
 	goapackage "github.com/artefactual-sdps/enduro/internal/api/gen/package_"
+	"github.com/artefactual-sdps/enduro/internal/event"
 	"github.com/artefactual-sdps/enduro/internal/ref"
 	"github.com/artefactual-sdps/enduro/internal/temporal"
 )
@@ -40,7 +41,7 @@ func (w *goaWrapper) Monitor(ctx context.Context, stream goapackage.MonitorServe
 	defer stream.Close()
 
 	// Subscribe to the event service.
-	sub, err := w.events.Subscribe(ctx)
+	sub, err := w.evsvc.Subscribe(ctx)
 	if err != nil {
 		return err
 	}
@@ -64,7 +65,7 @@ func (w *goaWrapper) Monitor(ctx context.Context, stream goapackage.MonitorServe
 			return nil
 
 		case <-ticker.C:
-			event := &goapackage.EnduroMonitorPingEvent{Message: ref.New("ping")}
+			event := &goapackage.EnduroMonitorPingEvent{Message: ref.New("Ping")}
 			if err := stream.Send(&goapackage.EnduroMonitorEvent{MonitorPingEvent: event}); err != nil {
 				return nil
 			}
@@ -194,8 +195,8 @@ func (w *goaWrapper) Delete(ctx context.Context, payload *goapackage.DeletePaylo
 		return &goapackage.PackageNotfound{ID: payload.ID, Message: "not_found"}
 	}
 
-	event := &goapackage.EnduroPackageDeletedEvent{ID: payload.ID}
-	publishEvent(ctx, w.events, event)
+	ev := &goapackage.EnduroPackageDeletedEvent{ID: payload.ID}
+	event.PublishEvent(ctx, w.evsvc, ev)
 
 	return nil
 }

@@ -9,6 +9,7 @@ import (
 	"time"
 
 	goapackage "github.com/artefactual-sdps/enduro/internal/api/gen/package_"
+	"github.com/artefactual-sdps/enduro/internal/event"
 	"github.com/artefactual-sdps/enduro/internal/ref"
 )
 
@@ -313,8 +314,8 @@ func (svc *packageImpl) CreatePreservationAction(ctx context.Context, pa *Preser
 	pa.ID = uint(id)
 
 	if item, err := svc.readPreservationAction(ctx, pa.ID); err == nil {
-		event := &goapackage.EnduroPreservationActionCreatedEvent{ID: pa.ID, Item: item}
-		publishEvent(ctx, svc.events, event)
+		ev := &goapackage.EnduroPreservationActionCreatedEvent{ID: pa.ID, Item: item}
+		event.PublishEvent(ctx, svc.evsvc, ev)
 	}
 
 	return nil
@@ -333,8 +334,8 @@ func (svc *packageImpl) SetPreservationActionStatus(ctx context.Context, ID uint
 	}
 
 	if item, err := svc.readPreservationAction(ctx, ID); err == nil {
-		event := &goapackage.EnduroPreservationActionUpdatedEvent{ID: ID, Item: item}
-		publishEvent(ctx, svc.events, event)
+		ev := &goapackage.EnduroPreservationActionUpdatedEvent{ID: ID, Item: item}
+		event.PublishEvent(ctx, svc.evsvc, ev)
 	}
 
 	return nil
@@ -354,8 +355,8 @@ func (svc *packageImpl) CompletePreservationAction(ctx context.Context, ID uint,
 	}
 
 	if item, err := svc.readPreservationAction(ctx, ID); err == nil {
-		event := &goapackage.EnduroPreservationActionUpdatedEvent{ID: ID, Item: item}
-		publishEvent(ctx, svc.events, event)
+		ev := &goapackage.EnduroPreservationActionUpdatedEvent{ID: ID, Item: item}
+		event.PublishEvent(ctx, svc.evsvc, ev)
 	}
 
 	return nil
@@ -395,8 +396,8 @@ func (svc *packageImpl) CreatePreservationTask(ctx context.Context, pt *Preserva
 	pt.ID = uint(id)
 
 	if item, err := svc.readPreservationTask(ctx, pt.ID); err == nil {
-		event := &goapackage.EnduroPreservationTaskCreatedEvent{ID: pt.ID, Item: item}
-		publishEvent(ctx, svc.events, event)
+		ev := &goapackage.EnduroPreservationTaskCreatedEvent{ID: pt.ID, Item: item}
+		event.PublishEvent(ctx, svc.evsvc, ev)
 	}
 
 	return nil
@@ -420,8 +421,8 @@ func (svc *packageImpl) CompletePreservationTask(ctx context.Context, ID uint, s
 	}
 
 	if item, err := svc.readPreservationTask(ctx, ID); err == nil {
-		event := &goapackage.EnduroPreservationTaskUpdatedEvent{ID: ID, Item: item}
-		publishEvent(ctx, svc.events, event)
+		ev := &goapackage.EnduroPreservationTaskUpdatedEvent{ID: ID, Item: item}
+		event.PublishEvent(ctx, svc.evsvc, ev)
 	}
 
 	return nil

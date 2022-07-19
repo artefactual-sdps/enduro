@@ -8,6 +8,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/a3m"
 	"github.com/artefactual-sdps/enduro/internal/api"
 	"github.com/artefactual-sdps/enduro/internal/db"
+	"github.com/artefactual-sdps/enduro/internal/event"
 	"github.com/artefactual-sdps/enduro/internal/search"
 	"github.com/artefactual-sdps/enduro/internal/storage"
 	"github.com/artefactual-sdps/enduro/internal/temporal"
@@ -24,6 +25,7 @@ type Configuration struct {
 	Debug       bool
 	DebugListen string
 	API         api.Config
+	Event       event.Config
 	Database    db.Config
 	Search      search.Config
 	Temporal    temporal.Config

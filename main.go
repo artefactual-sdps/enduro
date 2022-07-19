@@ -29,6 +29,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/batch"
 	"github.com/artefactual-sdps/enduro/internal/config"
 	"github.com/artefactual-sdps/enduro/internal/db"
+	"github.com/artefactual-sdps/enduro/internal/event"
 	"github.com/artefactual-sdps/enduro/internal/log"
 	"github.com/artefactual-sdps/enduro/internal/package_"
 	"github.com/artefactual-sdps/enduro/internal/storage"
@@ -129,10 +130,17 @@ func main() {
 		batchsvc = batch.NewService(logger.WithName("batch"), temporalClient, cfg.Watcher.CompletedDirs())
 	}
 
+	// Set up the event service.
+	evsvc, err := event.NewEventServiceRedis(&cfg.Event)
+	if err != nil {
+		logger.Error(err, "Error creating Event service.")
+		os.Exit(1)
+	}
+
 	// Set up the package service.
 	var pkgsvc package_.Service
 	{
-		pkgsvc = package_.NewService(logger.WithName("package"), database, temporalClient)
+		pkgsvc = package_.NewService(logger.WithName("package"), database, temporalClient, evsvc)
 	}
 
 	// Set up the storage service.

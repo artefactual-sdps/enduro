@@ -1,0 +1,92 @@
+package event
+
+import (
+	"context"
+	"encoding/json"
+	"sync"
+	"time"
+
+	"github.com/go-redis/redis/v8"
+
+	goapackage "github.com/artefactual-sdps/enduro/internal/api/gen/package_"
+)
+
+type EventServiceRedisImpl struct {
+	client *redis.Client
+	cfg    *Config
+}
+
+var _ EventService = (*EventServiceRedisImpl)(nil)
+
+func NewEventServiceRedis(cfg *Config) (EventService, error) {
+	opts, err := redis.ParseURL(cfg.RedisAddress)
+	if err != nil {
+		return nil, err
+	}
+	return &EventServiceRedisImpl{
+		client: redis.NewClient(opts),
+		cfg:    cfg,
+	}, nil
+}
+
+func (s *EventServiceRedisImpl) PublishEvent(event *goapackage.EnduroMonitorEvent) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	blob, _ := json.Marshal(event)
+	_ = s.client.Publish(ctx, s.cfg.RedisChannel, blob).Err()
+}
+
+func (s *EventServiceRedisImpl) Subscribe(ctx context.Context) (Subscription, error) {
+	sub := NewSubscriptionRedis(s.client, s.cfg.RedisChannel)
+
+	return sub, nil
+}
+
+// SubscriptionRedisImpl represents a stream of user-related events.
+type SubscriptionRedisImpl struct {
+	c      chan *goapackage.EnduroMonitorEvent // channel of events
+	pubsub *redis.PubSub
+	once   sync.Once
+	done   bool
+}
+
+var _ Subscription = (*SubscriptionRedisImpl)(nil)
+
+func NewSubscriptionRedis(c *redis.Client, channel string) Subscription {
+	pubsub := c.Subscribe(context.Background(), channel)
+	sub := SubscriptionRedisImpl{
+		pubsub: pubsub,
+		c:      make(chan *goapackage.EnduroMonitorEvent, EventBufferSize),
+	}
+	go sub.loop()
+	return &sub
+}
+
+func (s *SubscriptionRedisImpl) loop() {
+	ch := s.pubsub.Channel()
+
+	for msg := range ch {
+		event := goapackage.EnduroMonitorEvent{}
+		if err := json.Unmarshal([]byte(msg.Payload), &event); err == nil {
+			s.c <- &event
+		}
+		if s.done {
+			break
+		}
+	}
+}
+
+// Close disconnects the subscription from the service it was created from.
+func (s *SubscriptionRedisImpl) Close() error {
+	s.once.Do(func() {
+		close(s.c)
+		s.done = true
+	})
+	return s.pubsub.Close()
+}
+
+// C returns a receive-only channel of user-related events.
+func (s *SubscriptionRedisImpl) C() <-chan *goapackage.EnduroMonitorEvent {
+	return s.c
+}
