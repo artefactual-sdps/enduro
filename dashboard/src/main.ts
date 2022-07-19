@@ -53,4 +53,16 @@ app.config.globalProperties.$filters = {
     const diff = moment(to).diff(from);
     return humanizeDuration(moment.duration(diff).asMilliseconds());
   },
+  getPreservationActionLabel(
+    value: api.EnduroPackagePreservationActionResponseBodyTypeEnum
+  ) {
+    switch (value) {
+      case api.EnduroPackagePreservationActionResponseBodyTypeEnum.CreateAip:
+        return "Create and Review AIP";
+      case api.EnduroPackagePreservationActionResponseBodyTypeEnum.MovePackage:
+        return "Move package";
+      default:
+        return value;
+    }
+  },
 };

@@ -60,6 +60,7 @@ describe("PreservationActionCollapse.vue", () => {
             $filters: {
               formatDateTime: () => "now",
               formatDuration: () => "some time",
+              getPreservationActionLabel: () => "Move package",
             },
           },
         },

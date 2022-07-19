@@ -28,11 +28,18 @@ watch(packageStore.ui.download, () => download());
         <dd>N/A</dd>
         <dt>Package size</dt>
         <dd>N/A</dd>
-        <dt>Last workflow outcome</dt>
+        <dt>Last workflow status</dt>
         <dd>
           <StatusBadge
-            :status="packageStore.current.status"
-            :note="'Create and Review AIP'"
+            v-if="packageStore.current_preservation_actions?.actions"
+            :status="
+              packageStore.current_preservation_actions?.actions[0].status
+            "
+            :note="
+              $filters.getPreservationActionLabel(
+                packageStore.current_preservation_actions?.actions[0].type
+              )
+            "
           />
         </dd>
       </dl>

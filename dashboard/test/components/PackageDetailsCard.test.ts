@@ -43,39 +43,40 @@ describe("PackageDetailsCard.vue", () => {
   });
 
   it("renders when the package is in pending status", async () => {
-    const { html } = render(PackageDetailsCard, {
+    const now = new Date();
+    const { getByText } = render(PackageDetailsCard, {
       global: {
         plugins: [
           createTestingPinia({
             createSpy: vi.fn,
             initialState: {
               package: {
-                current: {
-                  aipId: "89229d18-5554-4e0d-8c4e-d0d88afd3bae",
-                  status: api.PackageShowResponseBodyStatusEnum.Pending,
-                } as api.PackageShowResponseBody,
+                current: {} as api.PackageShowResponseBody,
+                current_preservation_actions: {
+                  actions: [
+                    {
+                      status:
+                        api.EnduroPackagePreservationTaskResponseBodyStatusEnum
+                          .Pending,
+                      type: api
+                        .EnduroPackagePreservationActionResponseBodyTypeEnum
+                        .MovePackage,
+                    },
+                  ],
+                } as api.PackagePreservationActionsResponseBody,
               },
             },
           }),
         ],
+        mocks: {
+          $filters: {
+            getPreservationActionLabel: () => "Move package",
+          },
+        },
       },
     });
 
-    expect(html()).toMatchInlineSnapshot(`
-      "<div class=\\"card mb-3\\">
-        <div class=\\"card-body\\">
-          <h5 class=\\"card-title\\">Package details</h5>
-          <dl>
-            <dt>Original objects</dt>
-            <dd>N/A</dd>
-            <dt>Package size</dt>
-            <dd>N/A</dd>
-            <dt>Last workflow outcome</dt>
-            <dd><span><span class=\\"badge text-bg-warning\\">PENDING</span><span class=\\"badge text-dark fw-normal\\">(Create and Review AIP)</span></span></dd>
-          </dl>
-          <div class=\\"d-flex flex-wrap gap-2\\"><button class=\\"btn btn-secondary btn-sm disabled\\"> View metadata summary </button><button class=\\"btn btn-primary btn-sm\\" type=\\"button\\"> Download </button></div>
-        </div>
-      </div>"
-    `);
+    getByText("PENDING");
+    getByText("(Move package)");
   });
 });

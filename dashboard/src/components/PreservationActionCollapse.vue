@@ -49,19 +49,6 @@ watch($$(toggleAll), () => {
 
 let expandCounter = $ref<number>(0);
 watch($$(expandCounter), () => show());
-
-const getPreservationActionLabel = (
-  value: api.EnduroPackagePreservationActionResponseBodyTypeEnum
-) => {
-  switch (value) {
-    case api.EnduroPackagePreservationActionResponseBodyTypeEnum.CreateAip:
-      return "Create AIP";
-    case api.EnduroPackagePreservationActionResponseBodyTypeEnum.MovePackage:
-      return "Move package";
-    default:
-      return value;
-  }
-};
 </script>
 
 <template>
@@ -70,7 +57,7 @@ const getPreservationActionLabel = (
     <div class="mb-3">
       <div class="d-flex">
         <h3 class="h4">
-          {{ getPreservationActionLabel(action.type) }}
+          {{ $filters.getPreservationActionLabel(action.type) }}
           <StatusBadge :status="action.status" />
         </h3>
         <button
