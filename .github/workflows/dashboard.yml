@@ -14,7 +14,7 @@ jobs:
           node-version: 18.x
       - run: npm ci
         working-directory: ./dashboard
-      - run: npm run test
+      - run: npm run test:unit
         working-directory: ./dashboard
       - run: npm run lint
         working-directory: ./dashboard
