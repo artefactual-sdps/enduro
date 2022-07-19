@@ -1,15 +1,14 @@
 <script setup lang="ts">
-import { api } from "../../../client";
+import { api } from "@/client";
 import PackageDetailsCard from "@/components/PackageDetailsCard.vue";
 import PackageLocationCard from "@/components/PackageLocationCard.vue";
 import PreservationActionCollapse from "@/components/PreservationActionCollapse.vue";
 import StatusBadge from "@/components/StatusBadge.vue";
 import { usePackageStore } from "@/stores/package";
-import { computed } from "vue";
 
 const packageStore = usePackageStore();
 
-const createAipWorkflow = computed(() => {
+const createAipWorkflow = $computed(() => {
   return packageStore.current_preservation_actions?.actions?.filter(
     (action) =>
       action.type ===
