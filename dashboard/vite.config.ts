@@ -11,7 +11,19 @@ export default defineConfig({
     Pages(),
     Icons({ compiler: "vue3" }),
   ],
+  // Use esbuild deps optimization at build time.
+  // https://vitejs.dev/guide/migration.html#using-esbuild-deps-optimization-at-build-time
+  build: {
+    commonjsOptions: {
+      include: [],
+    },
+  },
+  optimizeDeps: {
+    disabled: false,
+  },
   server: {
+    port: 3000,
+    strictPort: true,
     proxy: {
       "/api": {
         target: process.env.ENDURO_API_ADDRESS || "http://127.0.0.1:9000",
