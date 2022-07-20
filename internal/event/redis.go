@@ -3,7 +3,6 @@ package event
 import (
 	"context"
 	"encoding/json"
-	"sync"
 	"time"
 
 	"github.com/go-redis/redis/v8"
@@ -45,10 +44,9 @@ func (s *EventServiceRedisImpl) Subscribe(ctx context.Context) (Subscription, er
 
 // SubscriptionRedisImpl represents a stream of user-related events.
 type SubscriptionRedisImpl struct {
-	c      chan *goapackage.EnduroMonitorEvent // channel of events
 	pubsub *redis.PubSub
-	once   sync.Once
-	done   bool
+	c      chan *goapackage.EnduroMonitorEvent // channel of events
+	stopCh chan struct{}
 }
 
 var _ Subscription = (*SubscriptionRedisImpl)(nil)
@@ -58,6 +56,7 @@ func NewSubscriptionRedis(c *redis.Client, channel string) Subscription {
 	sub := SubscriptionRedisImpl{
 		pubsub: pubsub,
 		c:      make(chan *goapackage.EnduroMonitorEvent, EventBufferSize),
+		stopCh: make(chan struct{}),
 	}
 	go sub.loop()
 	return &sub
@@ -66,23 +65,23 @@ func NewSubscriptionRedis(c *redis.Client, channel string) Subscription {
 func (s *SubscriptionRedisImpl) loop() {
 	ch := s.pubsub.Channel()
 
-	for msg := range ch {
-		event := goapackage.EnduroMonitorEvent{}
-		if err := json.Unmarshal([]byte(msg.Payload), &event); err == nil {
-			s.c <- &event
-		}
-		if s.done {
-			break
+	for {
+		select {
+		case msg := <-ch:
+			event := goapackage.EnduroMonitorEvent{}
+			if err := json.Unmarshal([]byte(msg.Payload), &event); err == nil {
+				s.c <- &event
+			}
+		case <-s.stopCh:
+			return
 		}
 	}
 }
 
 // Close disconnects the subscription from the service it was created from.
 func (s *SubscriptionRedisImpl) Close() error {
-	s.once.Do(func() {
-		close(s.c)
-		s.done = true
-	})
+	s.stopCh <- struct{}{}
+
 	return s.pubsub.Close()
 }
 
