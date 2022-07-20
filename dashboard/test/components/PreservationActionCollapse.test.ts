@@ -3,7 +3,6 @@ import PreservationActionCollapse from "../../src/components/PreservationActionC
 import { createTestingPinia } from "@pinia/testing";
 import { render, fireEvent } from "@testing-library/vue";
 import { describe, it, expect, vi } from "vitest";
-import { nextTick } from "vue";
 
 describe("PreservationActionCollapse.vue", () => {
   it("renders, expands and collapses", async () => {

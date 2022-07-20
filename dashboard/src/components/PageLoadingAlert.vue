@@ -19,7 +19,7 @@ const is404 = computed(() => {
   try {
     const err = error as runtime.ResponseError;
     nf = err.response.status === 404;
-  } catch (err) {}
+  } catch (err) {} // eslint-disable-line
   return nf;
 });
 </script>

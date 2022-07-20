@@ -43,7 +43,6 @@ describe("PackageDetailsCard.vue", () => {
   });
 
   it("renders when the package is in pending status", async () => {
-    const now = new Date();
     const { getByText } = render(PackageDetailsCard, {
       global: {
         plugins: [

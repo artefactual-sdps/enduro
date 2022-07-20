@@ -2,7 +2,7 @@
 import { openPackageLocationDialog } from "@/dialogs";
 import { usePackageStore } from "@/stores/package";
 
-let { expandCounter } = defineProps<{
+const { expandCounter } = defineProps<{
   expandCounter: number;
 }>();
 

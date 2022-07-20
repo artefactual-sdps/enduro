@@ -12,7 +12,7 @@ const props = defineProps({
 const storageStore = useStorageStore();
 storageStore.fetchLocations();
 
-const el = ref<HTMLElement | null>(null);
+const el = ref<window.HTMLElement | null>(null);
 const modal = ref<Modal | null>(null);
 
 onMounted(() => {
@@ -23,7 +23,7 @@ onMounted(() => {
 
 let data: string | null = null;
 
-useEventListener(el, "hidden.bs.modal", (e) => {
+useEventListener(el, "hidden.bs.modal", () => {
   closeDialog(data);
 });
 

@@ -70,7 +70,7 @@ export const usePackageStore = defineStore("package", {
     handleEvent(event: api.PackageMonitorResponseBody) {
       let key: keyof api.PackageMonitorResponseBody;
       for (key in event) {
-        const payload: any = event[key];
+        const payload: any = event[key]; // eslint-disable-line
         if (!payload) continue;
         const handler = handlers[key];
         handler(payload);
@@ -141,7 +141,7 @@ export const usePackageStore = defineStore("package", {
           id: this.current.id,
           confirmRequestBody: { location: locationName },
         })
-        .then((payload) => {
+        .then(() => {
           if (!this.current) return;
           this.current.status =
             api.EnduroStoredPackageResponseBodyStatusEnum.InProgress;
@@ -149,7 +149,7 @@ export const usePackageStore = defineStore("package", {
     },
     reject() {
       if (!this.current) return;
-      client.package.packageReject({ id: this.current.id }).then((payload) => {
+      client.package.packageReject({ id: this.current.id }).then(() => {
         if (!this.current) return;
         this.current.status =
           api.EnduroStoredPackageResponseBodyStatusEnum.InProgress;
@@ -188,17 +188,17 @@ const handlers: Partial<api.PackageMonitorResponseBody> = {
   preservationTaskUpdatedEvent: handlePreservationTaskUpdated,
 };
 
-function handleMonitorPing(event: api.EnduroMonitorPingEventResponseBody) {}
+function handleMonitorPing(event: api.EnduroMonitorPingEventResponseBody) {} // eslint-disable-line
 
 function handlePackageCreated(
-  event: api.EnduroPackageCreatedEventResponseBody
+  event: api.EnduroPackageCreatedEventResponseBody // eslint-disable-line
 ) {
   const store = usePackageStore();
   store.fetchPackagesDebounced();
 }
 
 function handlePackageDeleted(
-  event: api.EnduroPackageDeletedEventResponseBody
+  event: api.EnduroPackageDeletedEventResponseBody // eslint-disable-line
 ) {
   const store = usePackageStore();
   store.fetchPackagesDebounced();
