@@ -47,3 +47,9 @@ $(MOCKGEN): $(BINGO_DIR)/mockgen.mod
 	@echo "(re)installing $(GOBIN)/mockgen-v1.6.0"
 	@cd $(BINGO_DIR) && $(GO) build -mod=mod -modfile=mockgen.mod -o=$(GOBIN)/mockgen-v1.6.0 "github.com/golang/mock/mockgen"
 
+TPARSE := $(GOBIN)/tparse-v0.11.1
+$(TPARSE): $(BINGO_DIR)/tparse.mod
+	@# Install binary/ries using Go 1.14+ build command. This is using bwplotka/bingo-controlled, separate go module with pinned dependencies.
+	@echo "(re)installing $(GOBIN)/tparse-v0.11.1"
+	@cd $(BINGO_DIR) && $(GO) build -mod=mod -modfile=tparse.mod -o=$(GOBIN)/tparse-v0.11.1 "github.com/mfridman/tparse"
+

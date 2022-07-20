@@ -59,6 +59,9 @@ enduro-a3m-worker-dev:
 	mkdir -p ./build
 	$(GO) build -trimpath -o build/enduro-a3m-worker $(GO_FLAGS) -v ./cmd/enduro-a3m-worker
 
+tparse:
+	@$(GO) test -count=1 -json -cover  $(TEST_PACKAGES) | $(TPARSE) -follow -all
+
 test:
 	@$(GOTESTSUM) $(TEST_PACKAGES)
 
