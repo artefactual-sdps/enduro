@@ -1,5 +1,5 @@
 import { api, client } from "@/client";
-import { defineStore, acceptHMRUpdate } from "pinia";
+import { acceptHMRUpdate, defineStore } from "pinia";
 
 export const useStorageStore = defineStore("storage", {
   state: () => ({

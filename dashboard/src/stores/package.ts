@@ -1,5 +1,5 @@
 import { api, client } from "@/client";
-import { defineStore, acceptHMRUpdate } from "pinia";
+import { acceptHMRUpdate, defineStore } from "pinia";
 import { ref } from "vue";
 
 export const usePackageStore = defineStore("package", {

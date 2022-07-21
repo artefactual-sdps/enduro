@@ -2,8 +2,8 @@ import { api } from "../../src/client";
 import PackageLocationCard from "../../src/components/PackageLocationCard.vue";
 import { usePackageStore } from "../../src/stores/package";
 import { createTestingPinia } from "@pinia/testing";
-import { render, fireEvent } from "@testing-library/vue";
-import { describe, it, vi, expect } from "vitest";
+import { fireEvent, render } from "@testing-library/vue";
+import { describe, expect, it, vi } from "vitest";
 
 describe("PackageLocationCard.vue", () => {
   it("renders when the package is stored", async () => {

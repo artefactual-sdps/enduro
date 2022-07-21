@@ -14,5 +14,6 @@
   },
   "[go]": {
     "editor.defaultFormatter": "golang.go"
-  }
+  },
+  "eslint.lintTask.options": "-c ./dashboard/.eslintrc.cjs ./dashboard"
 }
