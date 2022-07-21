@@ -17,7 +17,7 @@ const createAipWorkflow = $computed(
     )[0]
 );
 
-let toggleAll = $ref<boolean | null>(false);
+const toggleAll = $ref<boolean | null>(false);
 </script>
 
 <template>

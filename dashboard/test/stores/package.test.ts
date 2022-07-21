@@ -1,6 +1,6 @@
 import { usePackageStore } from "../../src/stores/package";
-import { setActivePinia, createPinia } from "pinia";
-import { expect, describe, it, beforeEach } from "vitest";
+import { createPinia, setActivePinia } from "pinia";
+import { beforeEach, describe, expect, it } from "vitest";
 
 describe("usePackageStore", () => {
   beforeEach(() => {

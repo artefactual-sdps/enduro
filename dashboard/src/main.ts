@@ -1,10 +1,10 @@
 import App from "./App.vue";
-import { client, api } from "./client";
+import { api, client } from "./client";
 import "./styles/main.scss";
 import { PiniaDebounce } from "@pinia/plugin-debounce";
 import humanizeDuration from "humanize-duration";
+import { createPinia } from "pinia";
 import moment from "moment";
-import { createPinia, PiniaVuePlugin } from "pinia";
 import { debounce } from "ts-debounce";
 import { createApp } from "vue";
 import { PromiseDialog } from "vue3-promise-dialog";

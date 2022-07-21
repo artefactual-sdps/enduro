@@ -1,6 +1,6 @@
 import PackageListLegend from "../../src/components/PackageListLegend.vue";
-import { render, fireEvent } from "@testing-library/vue";
-import { describe, it, expect } from "vitest";
+import { fireEvent, render } from "@testing-library/vue";
+import { describe, expect, it } from "vitest";
 
 describe("PackageListLegend.vue", () => {
   it("renders when the package is moving", async () => {

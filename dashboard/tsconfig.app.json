@@ -1,0 +1,30 @@
+{
+  "extends": "@vue/tsconfig/tsconfig.web.json",
+  "include": [
+    "env.d.ts",
+    "src/**/*",
+    "src/**/*.vue"
+  ],
+  "exclude": [
+    "src/**/__tests__/*"
+  ],
+  "compilerOptions": {
+    "composite": true,
+    "baseUrl": ".",
+
+    // openapi-generator v6.0.1 or newer adopted type-only imports, but it has
+    // other issues (FetchError incorrectly extends base class). Wait until
+    // https://github.com/OpenAPITools/openapi-generator/issues/12927 is solved.
+    "preserveValueImports": false,
+    "importsNotUsedAsValues": "preserve",
+
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    },
+    "types": [
+      "unplugin-icons/types/vue"
+    ]
+  }
+}

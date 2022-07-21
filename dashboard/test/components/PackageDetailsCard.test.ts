@@ -3,7 +3,7 @@ import PackageDetailsCard from "../../src/components/PackageDetailsCard.vue";
 import { usePackageStore } from "../../src/stores/package";
 import { createTestingPinia } from "@pinia/testing";
 import { render } from "@testing-library/vue";
-import { expect, describe, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { nextTick } from "vue";
 
 describe("PackageDetailsCard.vue", () => {
@@ -43,7 +43,6 @@ describe("PackageDetailsCard.vue", () => {
   });
 
   it("renders when the package is in pending status", async () => {
-    const now = new Date();
     const { getByText } = render(PackageDetailsCard, {
       global: {
         plugins: [
