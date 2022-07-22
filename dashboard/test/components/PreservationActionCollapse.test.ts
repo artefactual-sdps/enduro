@@ -1,9 +1,8 @@
-import { api } from "../../src/client";
-import PreservationActionCollapse from "../../src/components/PreservationActionCollapse.vue";
+import { api } from "@/client";
+import PreservationActionCollapse from "@/components/PreservationActionCollapse.vue";
 import { createTestingPinia } from "@pinia/testing";
 import { render, fireEvent } from "@testing-library/vue";
 import { describe, it, expect, vi } from "vitest";
-import { nextTick } from "vue";
 
 describe("PreservationActionCollapse.vue", () => {
   it("renders, expands and collapses", async () => {

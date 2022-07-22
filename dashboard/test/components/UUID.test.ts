@@ -1,6 +1,5 @@
-import UUID from "../../src/components/UUID.vue";
+import UUID from "@/components/UUID.vue";
 import { render } from "@testing-library/vue";
-import { RouterLinkStub } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 
 describe("UUID.vue", () => {

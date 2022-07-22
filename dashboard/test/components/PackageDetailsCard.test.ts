@@ -1,6 +1,6 @@
-import { api } from "../../src/client";
-import PackageDetailsCard from "../../src/components/PackageDetailsCard.vue";
-import { usePackageStore } from "../../src/stores/package";
+import { api } from "@/client";
+import PackageDetailsCard from "@/components/PackageDetailsCard.vue";
+import { usePackageStore } from "@/stores/package";
 import { createTestingPinia } from "@pinia/testing";
 import { render } from "@testing-library/vue";
 import { expect, describe, it, vi } from "vitest";
