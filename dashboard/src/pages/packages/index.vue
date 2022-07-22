@@ -2,6 +2,7 @@
 import PackageListLegend from "@/components/PackageListLegend.vue";
 import PageLoadingAlert from "@/components/PageLoadingAlert.vue";
 import StatusBadge from "@/components/StatusBadge.vue";
+import UUID from "@/components/UUID.vue";
 import { usePackageStore } from "@/stores/package";
 import { useAsyncState } from "@vueuse/core";
 import { useRouter } from "vue-router";
@@ -14,10 +15,6 @@ const { execute, error } = useAsyncState(() => {
   return packageStore.fetchPackages();
 }, null);
 
-const openPackage = (id: number) => {
-  router.push({ name: "packages-id", params: { id } });
-};
-
 let showLegend = $ref(false);
 const toggleLegend = () => (showLegend = !showLegend);
 </script>
@@ -27,7 +24,7 @@ const toggleLegend = () => (showLegend = !showLegend);
     <h2>Packages</h2>
     <PageLoadingAlert :execute="execute" :error="error" />
     <PackageListLegend v-model="showLegend" />
-    <table class="table table-bordered table-hover table-linked table-enduro">
+    <table class="table table-bordered table-hover">
       <thead>
         <tr>
           <th scope="col">ID</th>
@@ -53,11 +50,7 @@ const toggleLegend = () => (showLegend = !showLegend);
         </tr>
       </thead>
       <tbody>
-        <tr
-          v-for="pkg in packageStore.packages"
-          :key="pkg.id"
-          @click="openPackage(pkg.id)"
-        >
+        <tr v-for="pkg in packageStore.packages" :key="pkg.id">
           <td scope="row">{{ pkg.id }}</td>
           <td>
             <router-link
@@ -65,7 +58,9 @@ const toggleLegend = () => (showLegend = !showLegend);
               >{{ pkg.name }}</router-link
             >
           </td>
-          <td class="font-monospace">{{ pkg.aipId }}</td>
+          <td>
+            <UUID :id="pkg.aipId" />
+          </td>
           <td>{{ $filters.formatDateTime(pkg.startedAt) }}</td>
           <td>{{ pkg.location }}</td>
           <td>

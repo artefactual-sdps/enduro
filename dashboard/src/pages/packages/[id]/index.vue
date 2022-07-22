@@ -4,6 +4,7 @@ import PackageDetailsCard from "@/components/PackageDetailsCard.vue";
 import PackageLocationCard from "@/components/PackageLocationCard.vue";
 import PreservationActionCollapse from "@/components/PreservationActionCollapse.vue";
 import StatusBadge from "@/components/StatusBadge.vue";
+import UUID from "@/components/UUID.vue";
 import { usePackageStore } from "@/stores/package";
 
 const packageStore = usePackageStore();
@@ -29,7 +30,9 @@ let toggleAll = $ref<boolean | null>(false);
           <dt>Name</dt>
           <dd>{{ packageStore.current.name }}</dd>
           <dt>AIP UUID</dt>
-          <dd>{{ packageStore.current.aipId }}</dd>
+          <dd>
+            <UUID :id="packageStore.current.aipId" />
+          </dd>
           <dt>Workflow status</dt>
           <dd>
             <StatusBadge
