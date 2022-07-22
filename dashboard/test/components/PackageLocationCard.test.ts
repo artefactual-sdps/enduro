@@ -63,13 +63,17 @@ describe("PackageLocationCard.vue", () => {
     getByText("perma-aips-1");
 
     const packageStore = usePackageStore();
-    packageStore.move.mockImplementation(async () => {
+
+    const moveMock = vi.fn().mockImplementation(packageStore.move);
+    moveMock.mockImplementation(async () => {
       packageStore.$patch((state) => {
+        if (!state.current) return;
         state.current.status =
           api.EnduroStoredPackageResponseBodyStatusEnum.InProgress;
         state.locationChanging = true;
       });
     });
+    packageStore.move = moveMock;
 
     vi.mock("../../src/dialogs", () => {
       return {
