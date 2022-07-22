@@ -1,4 +1,4 @@
-import PackageListLegend from "../../src/components/PackageListLegend.vue";
+import PackageListLegend from "@/components/PackageListLegend.vue";
 import { render, fireEvent } from "@testing-library/vue";
 import { describe, it, expect } from "vitest";
 
