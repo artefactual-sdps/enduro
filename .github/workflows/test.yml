@@ -21,6 +21,7 @@ jobs:
       uses: actions/setup-go@v3
       with:
         go-version: ${{ matrix.go-version }}
+        cache: true
     - name: Test
       run: go test -race -coverprofile=covreport -covermode=atomic -coverpkg=$(./hack/coverpkgs.sh) -v ./...
     - name: Upload coverage to Codecov
