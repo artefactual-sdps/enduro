@@ -2,12 +2,14 @@ import { api } from "@/client";
 import PackageLocationCard from "@/components/PackageLocationCard.vue";
 import { usePackageStore } from "@/stores/package";
 import { createTestingPinia } from "@pinia/testing";
-import { render, fireEvent } from "@testing-library/vue";
-import { describe, it, vi, expect } from "vitest";
+import { render, fireEvent, cleanup } from "@testing-library/vue";
+import { describe, it, vi, expect, afterEach } from "vitest";
 
 describe("PackageLocationCard.vue", () => {
+  afterEach(() => cleanup());
+
   it("renders when the package is stored", async () => {
-    const { html, unmount } = render(PackageLocationCard, {
+    const { html } = render(PackageLocationCard, {
       global: {
         plugins: [
           createTestingPinia({
@@ -36,12 +38,10 @@ describe("PackageLocationCard.vue", () => {
         </div>
       </div>"
     `);
-
-    unmount();
   });
 
   it("renders when the package location is moved", async () => {
-    const { getByText, unmount } = render(PackageLocationCard, {
+    const { getByText } = render(PackageLocationCard, {
       global: {
         plugins: [
           createTestingPinia({
@@ -85,12 +85,10 @@ describe("PackageLocationCard.vue", () => {
     await fireEvent.click(button);
 
     getByText("The package is being moved into a new location.");
-
-    unmount();
   });
 
   it("renders when the package location is not available", async () => {
-    const { html, unmount } = render(PackageLocationCard, {
+    const { html } = render(PackageLocationCard, {
       global: {
         plugins: [
           createTestingPinia({
@@ -118,12 +116,10 @@ describe("PackageLocationCard.vue", () => {
         </div>
       </div>"
     `);
-
-    unmount();
   });
 
   it("renders when the package is rejected", async () => {
-    const { html, unmount } = render(PackageLocationCard, {
+    const { html } = render(PackageLocationCard, {
       global: {
         plugins: [
           createTestingPinia({
@@ -152,12 +148,10 @@ describe("PackageLocationCard.vue", () => {
         </div>
       </div>"
     `);
-
-    unmount();
   });
 
   it("renders when the package is moving", async () => {
-    const { html, unmount } = render(PackageLocationCard, {
+    const { html } = render(PackageLocationCard, {
       global: {
         plugins: [
           createTestingPinia({
@@ -186,7 +180,5 @@ describe("PackageLocationCard.vue", () => {
         </div>
       </div>"
     `);
-
-    unmount();
   });
 });
