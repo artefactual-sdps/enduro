@@ -1,21 +1,17 @@
 import PackageListLegend from "@/components/PackageListLegend.vue";
-import { render, fireEvent } from "@testing-library/vue";
-import { describe, it, expect } from "vitest";
+import { render, fireEvent, cleanup } from "@testing-library/vue";
+import { describe, it, expect, afterEach } from "vitest";
 
 describe("PackageListLegend.vue", () => {
+  afterEach(() => cleanup());
+
   it("renders when the package is moving", async () => {
-    const {
-      getByText,
-      getByLabelText,
-      queryByText,
-      emitted,
-      unmount,
-      rerender,
-    } = render(PackageListLegend, {
-      props: {
-        modelValue: true,
-      },
-    });
+    const { getByText, getByLabelText, queryByText, emitted, rerender } =
+      render(PackageListLegend, {
+        props: {
+          modelValue: true,
+        },
+      });
 
     getByText("DONE");
     getByText("ERROR");
@@ -31,7 +27,5 @@ describe("PackageListLegend.vue", () => {
     // And setting the prop to false should hide the legend.
     await rerender({ modelValue: false });
     expect(queryByText("DONE")).toBeNull();
-
-    unmount();
   });
 });

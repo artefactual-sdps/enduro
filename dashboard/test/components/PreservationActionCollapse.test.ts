@@ -1,13 +1,15 @@
 import { api } from "@/client";
 import PreservationActionCollapse from "@/components/PreservationActionCollapse.vue";
 import { createTestingPinia } from "@pinia/testing";
-import { render, fireEvent } from "@testing-library/vue";
-import { describe, it, expect, vi } from "vitest";
+import { render, fireEvent, cleanup } from "@testing-library/vue";
+import { describe, it, expect, vi, afterEach } from "vitest";
 
 describe("PreservationActionCollapse.vue", () => {
+  afterEach(() => cleanup());
+
   it("renders, expands and collapses", async () => {
     const now = new Date();
-    const { getByText, getByRole, emitted, unmount, rerender } = render(
+    const { getByText, getByRole, emitted, rerender } = render(
       PreservationActionCollapse,
       {
         props: {
@@ -85,7 +87,5 @@ describe("PreservationActionCollapse.vue", () => {
 
     await rerender({ toggleAll: true });
     expect(emitted()["update:toggleAll"][2]).toStrictEqual([null]);
-
-    unmount();
   });
 });

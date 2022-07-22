@@ -1,11 +1,13 @@
 import PageLoadingAlert from "@/components/PageLoadingAlert.vue";
-import { render } from "@testing-library/vue";
+import { render, cleanup } from "@testing-library/vue";
 import { RouterLinkStub } from "@vue/test-utils";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, afterEach } from "vitest";
 
 describe("PageLoadingAlert.vue", () => {
+  afterEach(() => cleanup());
+
   it("should render", () => {
-    const { html, unmount } = render(PageLoadingAlert, {
+    const { html } = render(PageLoadingAlert, {
       props: {
         error: { response: { status: 404 } },
       },
@@ -26,7 +28,5 @@ describe("PageLoadingAlert.vue", () => {
       <!-- Other errors. -->
       <!--v-if-->"
     `);
-
-    unmount();
   });
 });
