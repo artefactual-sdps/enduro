@@ -91,7 +91,7 @@ watch($$(expandCounter), () => show());
       </span>
     </div>
 
-    <!-- 
+    <!--
     <PackageReviewAlert
       v-model:expandCounter="expandCounter"
       v-if="
@@ -121,7 +121,9 @@ watch($$(expandCounter), () => show());
           >
             <td>{{ action.tasks.length - index }}</td>
             <td>{{ task.name }}</td>
-            <td><StatusBadge :status="task.status" /></td>
+            <td>
+              <StatusBadge :status="task.status" />
+            </td>
             <td>{{ task.note }}</td>
           </tr>
         </tbody>
