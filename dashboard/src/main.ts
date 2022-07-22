@@ -2,18 +2,16 @@ import App from "./App.vue";
 import { client, api } from "./client";
 import "./styles/main.scss";
 import { PiniaDebounce } from "@pinia/plugin-debounce";
+import { createRouter, createWebHistory } from "@vue-router";
 import humanizeDuration from "humanize-duration";
 import moment from "moment";
-import { createPinia, PiniaVuePlugin } from "pinia";
+import { createPinia } from "pinia";
 import { debounce } from "ts-debounce";
 import { createApp } from "vue";
 import { PromiseDialog } from "vue3-promise-dialog";
-import { createRouter, createWebHistory } from "vue-router";
-import routes from "~pages";
 
 const router = createRouter({
   history: createWebHistory("/"),
-  routes,
   strict: false,
 });
 
