@@ -224,12 +224,7 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *pack
 				return fmt.Errorf("error creating session: %v", err)
 			}
 
-			// We use this timer to identify transfers that exceeded a deadline.
-			// We can't rely on workflow.ErrCanceled because the same context
-			// error is seen when the session worker dies.
-			timer := NewTimer()
-
-			sessErr = w.SessionHandler(sessCtx, attempt, tinfo, req.ValidationConfig, timer)
+			sessErr = w.SessionHandler(sessCtx, attempt, tinfo, req.ValidationConfig)
 
 			// We want to retry the session if it has been canceled as a result
 			// of losing the worker but not otherwise. This scenario seems to be
@@ -295,7 +290,7 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *pack
 }
 
 // SessionHandler runs activities that belong to the same session.
-func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context, attempt int, tinfo *TransferInfo, validationConfig validation.Config, timer *Timer) error {
+func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context, attempt int, tinfo *TransferInfo, validationConfig validation.Config) error {
 	defer temporalsdk_workflow.CompleteSession(sessCtx)
 
 	packageStartedAt := temporalsdk_workflow.Now(sessCtx).UTC()
@@ -632,18 +627,9 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 			}
 		}
 
-		// Index content in OpenSearch.
-		{
-			if tinfo.Bundle != (activities.BundleActivityResult{}) {
-				activityOpts := withActivityOptsForLongLivedRequest(sessCtx)
-				err := temporalsdk_workflow.ExecuteActivity(activityOpts, sdps_activities.IndexActivityName, &sdps_activities.IndexActivityParams{
-					Path:        tinfo.Bundle.FullPath,
-					SearchIndex: sdps_activities.ESIndexName,
-				}).Get(activityOpts, nil)
-				if err != nil {
-					return err
-				}
-			}
+		err = w.indexAIP(sessCtx, tinfo)
+		if err != nil {
+			return err
 		}
 	} else {
 		// Record package rejection in review preservation task
@@ -708,4 +694,64 @@ func (w *ProcessingWorkflow) transferA3m(sessCtx temporalsdk_workflow.Context, t
 	tinfo.StoredAt = temporalsdk_workflow.Now(sessCtx).UTC()
 
 	return err
+}
+
+func (w *ProcessingWorkflow) indexAIP(sessCtx temporalsdk_workflow.Context, tinfo *TransferInfo) error {
+	// Identifier of the preservation task for indexing.
+	var indexingPreservationTaskID uint
+
+	// Assume the preservation task will be successful.
+	status := package_.TaskStatusDone
+
+	var note string
+
+	indexingStartedAt := temporalsdk_workflow.Now(sessCtx).UTC()
+
+	// Add preservation task for indexing.
+	{
+		ctx := withLocalActivityOpts(sessCtx)
+		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, createPreservationTaskLocalActivity, w.pkgsvc, &createPreservationTaskLocalActivityParams{
+			TaskID:               uuid.NewString(),
+			Name:                 "Index AIP",
+			Status:               package_.TaskStatusInProgress,
+			StartedAt:            indexingStartedAt,
+			PreservationActionID: tinfo.PreservationActionID,
+		}).Get(ctx, &indexingPreservationTaskID)
+		if err != nil {
+			return err
+		}
+	}
+
+	// Index content in OpenSearch.
+	{
+		if tinfo.Bundle != (activities.BundleActivityResult{}) {
+			activityOpts := withActivityOptsForLongLivedRequest(sessCtx)
+			err := temporalsdk_workflow.ExecuteActivity(activityOpts, sdps_activities.IndexActivityName, &sdps_activities.IndexActivityParams{
+				Path:        tinfo.Bundle.FullPath,
+				SearchIndex: sdps_activities.ESIndexName,
+			}).Get(activityOpts, nil)
+			if err != nil {
+				status = package_.TaskStatusError
+				note = "Indexing failed"
+			}
+		}
+	}
+
+	indexingCompletedAt := temporalsdk_workflow.Now(sessCtx).UTC()
+
+	// Complete preservation task for indexing.
+	{
+		ctx := withLocalActivityOpts(sessCtx)
+		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, completePreservationTaskLocalActivity, w.pkgsvc, &completePreservationTaskLocalActivityParams{
+			ID:          indexingPreservationTaskID,
+			Status:      status,
+			CompletedAt: indexingCompletedAt,
+			Note:        &note,
+		}).Get(ctx, nil)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
