@@ -47,16 +47,27 @@ const onChoose = (locationName: string) => {
               <tr>
                 <th>Location name</th>
                 <th>Status</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
               <tr
                 v-for="(item, index) in storageStore.locations"
-                @click="onChoose(item.name)"
-                :class="[item.name == props.currentLocation ? 'disabled' : '']"
+                :class="[item.name == props.currentLocation ? 'current' : '']"
               >
                 <td>{{ item.name }}</td>
-                <td><span class="badge bg-success">READY</span></td>
+                <td>
+                  <span class="badge bg-success">READY</span>
+                </td>
+                <td class="text-end">
+                  <button
+                    v-if="item.name != props.currentLocation"
+                    class="btn btn-sm btn-primary"
+                    @click="onChoose(item.name)"
+                  >
+                    Move
+                  </button>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -79,9 +90,14 @@ const onChoose = (locationName: string) => {
 </template>
 
 <style scoped>
-.disabled {
+.current {
   cursor: not-allowed;
   background-color: #f5f5f5;
+}
+
+table .btn {
+  font-size: 0.75rem;
   font-weight: bold;
+  padding: 0.125rem 0.25rem;
 }
 </style>
