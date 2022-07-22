@@ -48,9 +48,7 @@ func main() {
 	_ = p.Parse(os.Args[1:])
 
 	if v, _ := p.GetBool("version"); v {
-		fmt.Printf(
-			"%s version %s (commit=%s) built on %s using %s\n",
-			appName, version.Version, version.GitCommit, version.BuildTime, version.GoVersion)
+		fmt.Println(version.Info(appName))
 		os.Exit(0)
 	}
 
