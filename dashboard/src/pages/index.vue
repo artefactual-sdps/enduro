@@ -2,7 +2,7 @@
 import { useRouter } from "vue-router";
 
 const router = useRouter();
-router.push({ name: "packages" });
+router.push({ name: "/packages/" });
 </script>
 
 <template></template>

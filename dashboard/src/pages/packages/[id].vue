@@ -2,14 +2,15 @@
 import PackagePendingAlert from "@/components/PackagePendingAlert.vue";
 import PageLoadingAlert from "@/components/PageLoadingAlert.vue";
 import { usePackageStore } from "@/stores/package";
+import { useRoute } from "@vue-router";
 import { useAsyncState } from "@vueuse/core";
-import { useRoute } from "vue-router";
 
 const route = useRoute();
-const packageStore = usePackageStore();
+if (route.name != "/packages/[id]/") throw Error();
 
+const packageStore = usePackageStore();
 const { execute, error } = useAsyncState(
-  packageStore.fetchCurrent(route.params.id.toString()),
+  packageStore.fetchCurrent(route.params.id),
   null
 );
 </script>
@@ -31,7 +32,7 @@ const { execute, error } = useAsyncState(
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb">
             <li class="breadcrumb-item">
-              <router-link :to="{ name: 'packages' }">Packages</router-link>
+              <router-link :to="{ name: '/packages/' }">Packages</router-link>
             </li>
             <li class="breadcrumb-item active" aria-current="page">
               {{ packageStore.current.name }}
@@ -48,7 +49,7 @@ const { execute, error } = useAsyncState(
               class="nav-link"
               exact-active-class="active"
               :to="{
-                name: 'packages-id',
+                name: '/packages/[id]/',
                 params: { id: packageStore.current.id },
               }"
               >Overview</router-link

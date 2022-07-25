@@ -12,7 +12,7 @@ onMounted(() => {
 <template>
   <nav class="navbar navbar-dark navbar-expand-sm">
     <div class="container-fluid">
-      <router-link class="navbar-brand mb-0 h1" :to="{ name: 'index' }"
+      <router-link class="navbar-brand mb-0 h1" :to="{ name: '/' }"
         >Enduro</router-link
       >
 
@@ -35,7 +35,7 @@ onMounted(() => {
             <router-link
               class="nav-link"
               active-class="active"
-              :to="{ name: 'packages' }"
+              :to="{ name: '/packages/' }"
               >Packages</router-link
             >
           </li>

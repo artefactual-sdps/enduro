@@ -1,15 +1,17 @@
 import vue from "@vitejs/plugin-vue";
 import { fileURLToPath, URL } from "node:url";
 import Icons from "unplugin-icons/vite";
-import Pages from "vite-plugin-pages";
+import VueRouter from "unplugin-vue-router/vite";
 import { defineConfig } from "vitest/config";
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
     vue({ reactivityTransform: true }),
-    Pages(),
     Icons({ compiler: "vue3" }),
+    VueRouter({
+      routesFolder: "src/pages",
+    }),
   ],
   // Use esbuild deps optimization at build time.
   // https://vitejs.dev/guide/migration.html#using-esbuild-deps-optimization-at-build-time
