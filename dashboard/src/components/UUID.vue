@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { useClipboard } from "@vueuse/core";
+import { toRef } from "vue";
 import IconCheck from "~icons/akar-icons/check";
 import IconCopy from "~icons/akar-icons/copy";
 
 const props = defineProps<{ id?: string }>();
 
-const source = $ref(props.id);
+// $toRef can't be used because of https://github.com/vuejs/core/issues/6349.
+const source = toRef(props, "id", "");
 
 const { copy, copied, isSupported } = useClipboard({ source });
 </script>
