@@ -17,49 +17,21 @@ const { copy, copied, isSupported } = useClipboard({ source });
     <span class="font-monospace">{{ id }}</span>
 
     <template v-if="isSupported">
-      <div class="d-inline position-relative ms-2">
-        <Transition name="slide-up" :duration="200">
-          <!-- Copied visual hint. -->
-          <span
-            v-if="copied"
-            class="btn btn-sm position-absolute border-0 text-success"
-          >
-            <IconCheck aria-hidden="true" />
-            <span class="visually-hidden">Copied!</span>
-          </span>
-
-          <!-- Copy button. -->
-          <button
-            v-else
-            @click="copy()"
-            class="btn btn-sm position-absolute border-0 link-secondary"
-          >
-            <IconCopy aria-hidden="true" />
-            <span class="visually-hidden">Copy to clipboard</span>
-          </button>
-        </Transition>
-      </div>
+      <button
+        @click="copy()"
+        class="btn btn-sm btn-link link-secondary p-0 ms-2"
+      >
+        <!-- Copied visual hint. -->
+        <span v-if="copied">
+          <IconCheck aria-hidden="true" class="text-success" />
+          <span class="visually-hidden">Copied!</span>
+        </span>
+        <!-- Copy icon. -->
+        <span v-else>
+          <IconCopy aria-hidden="true" />
+          <span class="visually-hidden">Copy to clipboard</span>
+        </span>
+      </button>
     </template>
   </div>
 </template>
-
-<style scoped>
-.btn-sm {
-  padding: 0;
-}
-
-.slide-up-enter-active,
-.slide-up-leave-active {
-  transition: all 0.2s ease-out;
-}
-
-.slide-up-enter-from {
-  opacity: 0;
-  transform: translateY(10px);
-}
-
-.slide-up-leave-to {
-  opacity: 0;
-  transform: translateY(-10px);
-}
-</style>
