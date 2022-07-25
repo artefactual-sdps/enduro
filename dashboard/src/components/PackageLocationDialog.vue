@@ -42,35 +42,37 @@ const onChoose = (locationName: string) => {
           <h5 class="modal-title">Choose location</h5>
         </div>
         <div class="modal-body">
-          <table class="table table-rounded table-hover table-sm table-linked">
-            <thead>
-              <tr>
-                <th>Location name</th>
-                <th>Status</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr
-                v-for="(item, index) in storageStore.locations"
-                :class="[item.name == props.currentLocation ? 'current' : '']"
-              >
-                <td>{{ item.name }}</td>
-                <td>
-                  <span class="badge bg-success">READY</span>
-                </td>
-                <td class="text-end">
-                  <button
-                    v-if="item.name != props.currentLocation"
-                    class="btn btn-sm btn-primary"
-                    @click="onChoose(item.name)"
-                  >
-                    Move
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <div class="table-responsive mb-3">
+            <table class="table table-sm mb-0">
+              <thead>
+                <tr>
+                  <th>Location name</th>
+                  <th>Status</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="(item, index) in storageStore.locations"
+                  :class="[item.name == props.currentLocation ? 'current' : '']"
+                >
+                  <td>{{ item.name }}</td>
+                  <td>
+                    <span class="badge bg-success">READY</span>
+                  </td>
+                  <td class="text-end">
+                    <button
+                      v-if="item.name != props.currentLocation"
+                      class="btn btn-sm btn-primary"
+                      @click="onChoose(item.name)"
+                    >
+                      Move
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
           <small class="text-muted" v-if="props.currentLocation">
             The current location is {{ props.currentLocation }}.
           </small>
@@ -91,7 +93,6 @@ const onChoose = (locationName: string) => {
 
 <style scoped>
 .current {
-  cursor: not-allowed;
   background-color: #f5f5f5;
 }
 

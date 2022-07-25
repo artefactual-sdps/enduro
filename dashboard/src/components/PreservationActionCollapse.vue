@@ -104,8 +104,12 @@ watch($$(expandCounter), () => show());
     -->
     <PackageReviewAlert v-model:expandCounter="expandCounter" />
 
-    <div ref="el" :id="'preservation-actions-table-' + index" class="collapse">
-      <table class="table table-bordered table-sm" v-if="action.tasks">
+    <div
+      ref="el"
+      :id="'preservation-actions-table-' + index"
+      class="collapse table-responsive mb-3"
+    >
+      <table class="table table-bordered table-sm mb-0" v-if="action.tasks">
         <thead>
           <tr>
             <th scope="col">Task #</th>
