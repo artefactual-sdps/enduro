@@ -35,6 +35,10 @@ taskqueue = "global"
 listen = "0.0.0.0:9000"
 debug = false
 
+[event]
+redisAddress = "redis://redis:6379"
+redisChannel = "enduro-events"
+
 [database]
 dsn = "{MYSQL_USER}:{MYSQL_PASSWORD}@tcp(mysql:3306)/enduro"
 
