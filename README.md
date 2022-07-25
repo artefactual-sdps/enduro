@@ -114,6 +114,8 @@ tilt up
 
 ### Clear the cluster
 
+> Check the Tilt UI helpers below to just flush the existing data.
+
 To remove the resources created by Tilt in the cluster, execute:
 
 ```
@@ -151,6 +153,12 @@ sure you update `/path/to/enduro` to the proper project folder in the host):
 
 - Host path: `/path/to/enduro/hack/sampledata/StructB-AM.zip`
 - Object name: `StructB-AM.zip`
+
+#### Flush
+
+Also in the Tilt UI header, click the trash button to flush the existing data.
+This will recreate the MySQL databases and the MinIO buckets, delete the
+Opensearch index and restart the required resources.
 
 ### Known issues
 

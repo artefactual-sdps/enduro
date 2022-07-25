@@ -57,3 +57,20 @@ cmd_button(
     text_input("OBJECT_NAME", label="Object name"),
   ]
 )
+
+cmd_button(
+  "flush",
+  argv=[
+    "sh",
+    "-c",
+    "kubectl create -f hack/kube/tools/mysql-recreate-databases-job.yaml; \
+    kubectl create -f hack/kube/tools/minio-recreate-buckets-job.yaml; \
+    kubectl create -f hack/kube/tools/opensearch-delete-index-job.yaml; \
+    kubectl rollout restart deployment temporal -n sdps; \
+    kubectl rollout restart deployment enduro -n sdps; \
+    kubectl rollout restart statefulset enduro-a3m -n sdps;",
+  ],
+  location="nav",
+  icon_name="delete",
+  text="Flush",
+)

@@ -1,0 +1,14 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  generateName: opensearch-delete-index-
+  namespace: sdps
+spec:
+  template:
+    spec:
+      restartPolicy: "OnFailure"
+      containers:
+        - name: delete-index
+          image: alpine/curl
+          imagePullPolicy: IfNotPresent
+          command: ["sh", "-c", "curl -X DELETE http://opensearch:9200/sdps"]

@@ -1,0 +1,44 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  generateName: mysql-recreate-databases-
+  namespace: sdps
+spec:
+  template:
+    spec:
+      restartPolicy: "OnFailure"
+      containers:
+        - name: recreate-databases
+          image: mysql:8.0
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: root-password
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: user
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: password
+          command: [
+              "sh",
+              "-c",
+              'mysql -h mysql -u root -p$MYSQL_ROOT_PASSWORD --execute "
+              DROP DATABASE IF EXISTS enduro;
+              CREATE DATABASE IF NOT EXISTS enduro;
+              GRANT ALL PRIVILEGES ON enduro.* TO ''$MYSQL_USER''@''%'';
+              DROP DATABASE IF EXISTS temporal;
+              CREATE DATABASE IF NOT EXISTS temporal;
+              GRANT ALL PRIVILEGES ON temporal.* TO ''$MYSQL_USER''@''%'';
+              DROP DATABASE IF EXISTS temporal_visibility;
+              CREATE DATABASE IF NOT EXISTS temporal_visibility;
+              GRANT ALL PRIVILEGES ON temporal_visibility.* TO ''$MYSQL_USER''@''%'';
+              "',
+            ]
