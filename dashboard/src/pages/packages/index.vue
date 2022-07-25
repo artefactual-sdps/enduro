@@ -34,10 +34,10 @@ const toggleLegend = () => (showLegend = !showLegend);
             <th scope="col">Started</th>
             <th scope="col">Location</th>
             <th scope="col">
-              <span class="d-flex">
+              <span class="d-flex gap-2">
                 Status
                 <button
-                  class="btn btn-sm btn-link text-decoration-none ms-auto p-0 ps-1"
+                  class="btn btn-sm btn-link text-decoration-none ms-auto p-0"
                   type="button"
                   @click="toggleLegend"
                 >
