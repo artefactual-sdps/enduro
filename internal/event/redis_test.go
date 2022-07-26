@@ -30,6 +30,10 @@ func TestEventServiceRedisPublish(t *testing.T) {
 	t.Cleanup(func() {
 		sub.Close()
 	})
+	// Call Receive to force the connection to wait a response from
+	// Redis so the subscription is active immediately.
+	_, err := sub.Receive(ctx)
+	assert.NilError(t, err)
 
 	input := make(chan *redis.Message)
 

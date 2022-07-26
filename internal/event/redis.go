@@ -52,7 +52,11 @@ type SubscriptionRedisImpl struct {
 var _ Subscription = (*SubscriptionRedisImpl)(nil)
 
 func NewSubscriptionRedis(c *redis.Client, channel string) Subscription {
-	pubsub := c.Subscribe(context.Background(), channel)
+	ctx := context.Background()
+	pubsub := c.Subscribe(ctx, channel)
+	// Call Receive to force the connection to wait a response from
+	// Redis so the subscription is active immediately.
+	_, _ = pubsub.Receive(ctx)
 	sub := SubscriptionRedisImpl{
 		pubsub: pubsub,
 		c:      make(chan *goapackage.EnduroMonitorEvent, EventBufferSize),
