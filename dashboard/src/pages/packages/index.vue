@@ -6,6 +6,8 @@ import UUID from "@/components/UUID.vue";
 import { usePackageStore } from "@/stores/package";
 import { useAsyncState } from "@vueuse/core";
 import { useRouter } from "vue-router";
+import { onMounted } from "vue";
+import Tooltip from "bootstrap/js/dist/tooltip";
 import IconInfoFill from "~icons/akar-icons/info-fill";
 
 const router = useRouter();
@@ -15,8 +17,18 @@ const { execute, error } = useAsyncState(() => {
   return packageStore.fetchPackages();
 }, null);
 
+const el = $ref<HTMLElement | null>(null);
+let tooltip = <Tooltip | null>null;
+
+onMounted(() => {
+  if (el) tooltip = new Tooltip(el);
+});
+
 let showLegend = $ref(false);
-const toggleLegend = () => (showLegend = !showLegend);
+const toggleLegend = () => {
+  showLegend = !showLegend;
+  if (tooltip) tooltip.hide();
+};
 </script>
 
 <template>
@@ -37,9 +49,12 @@ const toggleLegend = () => (showLegend = !showLegend);
               <span class="d-flex gap-2">
                 Status
                 <button
+                  ref="el"
                   class="btn btn-sm btn-link text-decoration-none ms-auto p-0"
                   type="button"
                   @click="toggleLegend"
+                  data-bs-toggle="tooltip"
+                  data-bs-title="Toggle legend"
                 >
                   <IconInfoFill style="font-size: 1.2em" aria-hidden="true" />
                   <span class="visually-hidden"

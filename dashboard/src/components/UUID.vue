@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useClipboard } from "@vueuse/core";
-import { toRef } from "vue";
+import { onMounted, toRef, watch } from "vue";
+import Tooltip from "bootstrap/js/dist/tooltip";
 import IconCheck from "~icons/akar-icons/check";
 import IconCopy from "~icons/akar-icons/copy";
 
@@ -10,6 +11,22 @@ const props = defineProps<{ id?: string }>();
 const source = toRef(props, "id", "");
 
 const { copy, copied, isSupported } = useClipboard({ source });
+
+const el = $ref<HTMLElement | null>(null);
+let tooltip = <Tooltip | null>null;
+
+onMounted(() => {
+  if (el) tooltip = new Tooltip(el);
+});
+
+watch(copied, (val) => {
+  if (tooltip) {
+    tooltip.setContent({
+      ".tooltip-inner": val ? "Copied!" : "Copy to clipboard",
+    });
+    if (!val) tooltip.hide();
+  }
+});
 </script>
 
 <template>
@@ -18,8 +35,11 @@ const { copy, copied, isSupported } = useClipboard({ source });
 
     <template v-if="isSupported">
       <button
+        ref="el"
         @click="copy()"
         class="btn btn-sm btn-link link-secondary p-0 ms-2"
+        data-bs-toggle="tooltip"
+        data-bs-title="Copy to clipboard"
       >
         <!-- Copied visual hint. -->
         <span v-if="copied">
