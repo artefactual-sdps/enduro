@@ -8,6 +8,7 @@ config:
     secure: AAABABbxwapTFbm0xqnnvTZc/elH6CQx9/TLeZ5MWZF2igIWLut7+NwOR7GDAG258agfG45dIHJB/SoZGA2/kRdzGtQv7FkfZ2OgLIavaQpnAkErSjsXYzLYP6tunqz5L4HdDhHyeQ==
   enduro:acmeEmail:
     secure: AAABAKvx9I2Ed21IRd2szMRrWtr58atGU+9ZEG+Kcv5kB+d/jaomxCdUrA2+48Yo3qGzr/qb94tS
+  enduro:acmeServer: https://acme-v02.api.letsencrypt.org/directory
   enduro:basicAuthPassword:
     secure: AAABAKnORM4KvGQwDMtd4iS1kBXwIKlv1kCTpICpSLAqR9v/0ZJQv9Y9Ts8=
   enduro:basicAuthUsername:
