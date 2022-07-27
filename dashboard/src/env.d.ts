@@ -1,6 +1,7 @@
 /// <reference types="vite/client" />
 /// <reference types="vite-plugin-pages/client" />
 /// <reference types="vue/macros-global" />
+/// <reference types="unplugin-icons/types/vue" />
 
 declare module "*.vue" {
   import type { DefineComponent } from "vue";
