@@ -23,6 +23,8 @@ jobs:
           kubectl create -f hack/kube/tools/mysql-recreate-databases-job.yaml
           kubectl create -f hack/kube/tools/minio-recreate-buckets-job.yaml
           kubectl create -f hack/kube/tools/opensearch-delete-index-job.yaml
+          kubectl wait --for=condition=complete --timeout=30s job --all -n sdps
+          kubectl rollout restart deployment temporal -n sdps
       - name: Refresh and update Pulumi stack
         uses: pulumi/actions@v3.18.1
         with:
@@ -33,8 +35,3 @@ jobs:
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_TOKEN }}
           DOCKER_BUILDKIT: 1
-      - name: Restart resources
-        run: |
-          kubectl rollout restart deployment temporal -n sdps
-          kubectl rollout restart deployment enduro -n sdps
-          kubectl rollout restart statefulset enduro-a3m -n sdps
