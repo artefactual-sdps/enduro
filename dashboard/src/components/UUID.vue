@@ -15,7 +15,7 @@ const { copy, copied, isSupported } = useClipboard({ source });
 const el = $ref<HTMLElement | null>(null);
 let tooltip = <Tooltip | null>null;
 
-onMounted(() => {
+watch($$(el), () => {
   if (el) tooltip = new Tooltip(el);
 });
 
@@ -30,14 +30,14 @@ watch(copied, (val) => {
 </script>
 
 <template>
-  <div v-if="id">
+  <div v-if="id" class="d-flex align-items-start gap-2">
     <span class="font-monospace">{{ id }}</span>
 
     <template v-if="isSupported">
       <button
         ref="el"
         @click="copy()"
-        class="btn btn-sm btn-link link-secondary p-0 ms-2"
+        class="btn btn-sm btn-link link-secondary p-0"
         data-bs-toggle="tooltip"
         data-bs-title="Copy to clipboard"
       >
