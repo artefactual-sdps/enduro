@@ -21,16 +21,13 @@ describe("UUID.vue", () => {
   });
 
   it("should copy to clipboard", async () => {
-    let clipboardText = "";
-    Object.assign(navigator, {
-      clipboard: { writeText: (text: string) => (clipboardText = text) },
-    });
+    Object.assign(navigator, { clipboard: { writeText: vi.fn() } });
 
     const { getByRole, findByRole } = render(UUID, { props: { id: uuid } });
 
     await fireEvent.click(getByRole("button", { name: "Copy to clipboard" }));
 
-    expect(clipboardText).toEqual(uuid);
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(uuid);
     getByRole("button", { name: "Copied!" });
 
     // Confirm that the button goes back into its original state.
