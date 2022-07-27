@@ -53,22 +53,11 @@ function connectPackageMonitor() {
     const data = api.PackageMonitorResponseBodyFromJSON(body);
     store.handleEvent(data);
   };
-  socket.onclose = (event: CloseEvent) => {
-    // tslint:disable-next-line:no-console
-    console.log("Enduro WebSocket client closed", event.code);
-  };
-
-  // tslint:disable-next-line:no-console
-  console.log("Enduro WebSocket client created", url);
 }
 
 function createClient(): Client {
   const path = getPath();
   const config: api.Configuration = new api.Configuration({ basePath: path });
-
-  // tslint:disable-next-line:no-console
-  console.log("Enduro client created", path);
-
   return {
     package: new api.PackageApi(config),
     storage: new api.StorageApi(config),
