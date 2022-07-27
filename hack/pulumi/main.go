@@ -57,7 +57,6 @@ key = "{MINIO_USER}"
 secret = "{MINIO_PASSWORD}"
 region = "us-west-1"
 bucket = "sips"
-retentionPeriod = "10s"
 stripTopLevelDir = true
 
 [validation]
