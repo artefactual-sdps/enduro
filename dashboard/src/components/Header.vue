@@ -1,64 +1,67 @@
 <script setup lang="ts">
-import Collapse from "bootstrap/js/dist/collapse";
+import Offcanvas from "bootstrap/js/dist/offcanvas";
 import { onMounted } from "vue";
+import TextAlignJustified from "~icons/akar-icons/text-align-justified";
 
-const el = $ref<HTMLElement | null>(null);
+const offcanvasButton = $ref<HTMLElement | null>(null);
 
 onMounted(() => {
-  if (el) new Collapse(el);
+  if (offcanvasButton) new Offcanvas(offcanvasButton);
 });
 </script>
 
 <template>
-  <nav class="navbar navbar-dark navbar-expand-sm">
-    <div class="container-fluid">
-      <router-link class="navbar-brand mb-0 h1" :to="{ name: 'index' }"
-        >Enduro</router-link
-      >
-
+  <header class="navbar navbar-expand-lg border-bottom">
+    <nav class="container-fluid gap-2" aria-label="Main navigation">
       <button
-        class="navbar-toggler"
+        class="bg-white text-enduro-primary border border-opacity-75 border-enduro-primary rounded-3 d-lg-none"
         type="button"
-        ref="collapseButton"
-        data-bs-toggle="collapse"
-        data-bs-target="#navbarSupportedContent"
-        aria-controls="navbarSupportedContent"
-        aria-expanded="false"
+        ref="offcanvasButton"
+        data-bs-toggle="offcanvas"
+        data-bs-target="#offcanvas"
+        aria-controls="offcanvas"
         aria-label="Toggle navigation"
       >
-        <span class="navbar-toggler-icon"></span>
+        <TextAlignJustified style="font-size: 2em" />
       </button>
 
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav me-auto">
-          <li class="nav-item">
-            <router-link
-              class="nav-link"
-              active-class="active"
-              :to="{ name: 'packages' }"
+      <router-link
+        class="navbar-brand h1 m-0 p-2 text-enduro-primary border border-opacity-75 border-enduro-primary rounded-3"
+        :to="{ name: 'index' }"
+        >Enduro</router-link
+      >
+    </nav>
+  </header>
+
+  <div class="flex-grow-1 row">
+    <div
+      class="col-lg-2 offcanvas-lg offcanvas-start border-end bg-light"
+      tabindex="-1"
+      id="offcanvas"
+      aria-label="offcanvasLabel"
+    >
+      <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasLabel">Navigation</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="offcanvas"
+          data-bs-target="#offcanvas"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="offcanvas-body">
+        <ul class="list-unstyled p-lg-3">
+          <li>
+            <router-link active-class="active" :to="{ name: 'packages' }"
               >Packages</router-link
             >
           </li>
         </ul>
       </div>
     </div>
-  </nav>
+    <div class="col-lg-10 ps-lg-0">
+      <router-view></router-view>
+    </div>
+  </div>
 </template>
-
-<style lang="scss" scoped>
-.navbar {
-  user-select: none;
-  background-color: var(--bs-enduro-primary);
-
-  @media (min-width: 576px) {
-    .nav-link.active {
-      color: white;
-      background-color: #fff2;
-    }
-  }
-
-  .nav-link.active {
-    border-radius: var(--bs-border-radius);
-  }
-}
-</style>
