@@ -6,9 +6,6 @@ import { DialogWrapper } from "vue3-promise-dialog";
 <template>
   <div class="d-flex flex-column min-vh-100">
     <Header />
-    <main class="flex-grow-1">
-      <router-view></router-view>
-    </main>
     <DialogWrapper />
   </div>
 </template>
