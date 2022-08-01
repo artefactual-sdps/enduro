@@ -38,8 +38,8 @@ require (
 	go.temporal.io/sdk v1.15.0
 	go.uber.org/multierr v1.8.0
 	go.uber.org/zap v1.21.0
-	goa.design/goa/v3 v3.7.12
-	goa.design/plugins/v3 v3.7.12
+	goa.design/goa/v3 v3.7.14
+	goa.design/plugins/v3 v3.7.14
 	gocloud.dev v0.25.0
 	golang.org/x/text v0.3.7
 	google.golang.org/grpc v1.48.0
