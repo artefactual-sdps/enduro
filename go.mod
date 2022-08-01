@@ -33,7 +33,7 @@ require (
 	github.com/stretchr/objx v0.4.0 // indirect
 	github.com/stretchr/testify v1.8.0
 	github.com/ulikunitz/xz v0.5.10 // indirect
-	go.buf.build/grpc/go/artefactual/a3m v1.3.1
+	go.buf.build/grpc/go/artefactual/a3m v1.4.1
 	go.temporal.io/api v1.8.0
 	go.temporal.io/sdk v1.15.0
 	go.uber.org/multierr v1.8.0
@@ -43,7 +43,7 @@ require (
 	gocloud.dev v0.25.0
 	golang.org/x/text v0.3.7
 	google.golang.org/grpc v1.48.0
-	google.golang.org/protobuf v1.28.0 // indirect
+	google.golang.org/protobuf v1.28.1 // indirect
 	gotest.tools/v3 v3.3.0
 )
 
