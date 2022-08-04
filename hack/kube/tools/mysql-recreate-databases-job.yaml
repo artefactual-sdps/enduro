@@ -34,6 +34,9 @@ spec:
               DROP DATABASE IF EXISTS enduro;
               CREATE DATABASE IF NOT EXISTS enduro;
               GRANT ALL PRIVILEGES ON enduro.* TO ''$MYSQL_USER''@''%'';
+              DROP DATABASE IF EXISTS enduro_storage;
+              CREATE DATABASE IF NOT EXISTS enduro_storage;
+              GRANT ALL PRIVILEGES ON enduro_storage.* TO ''$MYSQL_USER''@''%'';
               DROP DATABASE IF EXISTS temporal;
               CREATE DATABASE IF NOT EXISTS temporal;
               GRANT ALL PRIVILEGES ON temporal.* TO ''$MYSQL_USER''@''%'';

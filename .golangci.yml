@@ -1,21 +1,22 @@
 run:
   deadline: 60s
   skip-dirs:
-  - dashboard
-  - hack
+    - dashboard
+    - hack
+    - internal/storage/persistence/ent/schema
 
 linters:
   enable:
-  - misspell
-  - gofumpt
-  - importas
-  - gci
+    - misspell
+    - gofumpt
+    - importas
+    - gci
 
 issues:
   exclude-rules:
-  - path: _test\.go
-    linters:
-    - errcheck
+    - path: _test\.go
+      linters:
+        - errcheck
 
 linters-settings:
   gci:

@@ -2,71 +2,28 @@ package storage
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"fmt"
-	"io"
 	"net/http"
-	"strconv"
 	"sync"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/session"
+	"entgo.io/ent/examples/o2o2types/ent"
 	"github.com/go-logr/logr"
 	"github.com/google/uuid"
-	"github.com/jmoiron/sqlx"
 	temporalapi_enums "go.temporal.io/api/enums/v1"
 	temporalsdk_client "go.temporal.io/sdk/client"
-	goahttp "goa.design/goa/v3/http"
 	"gocloud.dev/blob"
-	"gocloud.dev/blob/s3blob"
 
-	"github.com/artefactual-sdps/enduro/internal/api/gen/http/storage/server"
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
+	"github.com/artefactual-sdps/enduro/internal/storage/persistence"
+	"github.com/artefactual-sdps/enduro/internal/storage/status"
 )
 
 var SubmitURLExpirationTime = 15 * time.Minute
 
-type Location interface {
-	Name() string
-	OpenBucket() (*blob.Bucket, error)
-}
-
-type locationImpl struct {
-	name   string
-	config LocationConfig
-}
-
-func (l *locationImpl) Name() string {
-	return l.name
-}
-
-func (l *locationImpl) OpenBucket() (*blob.Bucket, error) {
-	sessOpts := session.Options{}
-	sessOpts.Config.WithRegion(l.config.Region)
-	sessOpts.Config.WithEndpoint(l.config.Endpoint)
-	sessOpts.Config.WithS3ForcePathStyle(l.config.PathStyle)
-	sessOpts.Config.WithCredentials(
-		credentials.NewStaticCredentials(
-			l.config.Key, l.config.Secret, l.config.Token,
-		),
-	)
-	sess, err := session.NewSessionWithOptions(sessOpts)
-	if err != nil {
-		return nil, err
-	}
-	return s3blob.OpenBucket(context.Background(), sess, l.config.Bucket, nil)
-}
-
-func NewLocation(config LocationConfig) Location {
-	return &locationImpl{
-		name:   config.Name,
-		config: config,
-	}
-}
-
 type Service interface {
+	// Used in the Goa API.
 	Submit(context.Context, *goastorage.SubmitPayload) (res *goastorage.SubmitResult, err error)
 	Update(context.Context, *goastorage.UpdatePayload) (err error)
 	Download(context.Context, *goastorage.DownloadPayload) ([]byte, error)
@@ -76,46 +33,56 @@ type Service interface {
 	Reject(context.Context, *goastorage.RejectPayload) (err error)
 	Show(context.Context, *goastorage.ShowPayload) (res *goastorage.StoredStoragePackage, err error)
 
-	Bucket() *blob.Bucket
+	// Used from workflow activities.
 	Location(name string) (Location, error)
-	ReadPackage(ctx context.Context, AIPID string) (*Package, error)
-	UpdatePackageStatus(ctx context.Context, status PackageStatus, aipID string) error
+	ReadPackage(ctx context.Context, AIPID string) (*goastorage.StoredStoragePackage, error)
+	UpdatePackageStatus(ctx context.Context, status status.PackageStatus, aipID string) error
 	UpdatePackageLocation(ctx context.Context, location string, aipID string) error
-
 	Delete(ctx context.Context, AIPID string) (err error)
-	PackageReader(ctx context.Context, pkg *Package) (*blob.Reader, error)
-	HTTPDownload(mux goahttp.Muxer, dec func(r *http.Request) goahttp.Decoder) http.HandlerFunc
+
+	// Both.
+	PackageReader(ctx context.Context, pkg *goastorage.StoredStoragePackage) (*blob.Reader, error)
 }
 
 type serviceImpl struct {
-	logger    logr.Logger
-	db        *sqlx.DB
-	tc        temporalsdk_client.Client
-	config    Config
-	bucket    *blob.Bucket
-	mu        sync.RWMutex
+	logger logr.Logger
+	config Config
+
+	// Internal processing location.
+	internal Location
+
+	// Perma locations.
 	locations map[string]Location
+	mu        sync.RWMutex
+
+	// Temporal client.
+	tc temporalsdk_client.Client
+
+	// Persistence client.
+	storagePersistence persistence.Storage
 }
 
 var _ Service = (*serviceImpl)(nil)
 
-func NewService(logger logr.Logger, db *sql.DB, tc temporalsdk_client.Client, config Config) (*serviceImpl, error) {
-	s := &serviceImpl{
-		logger: logger,
-		db:     sqlx.NewDb(db, "mysql"),
-		tc:     tc,
-		config: config,
+func NewService(logger logr.Logger, config Config, storagePersistence persistence.Storage, tc temporalsdk_client.Client) (s *serviceImpl, err error) {
+	s = &serviceImpl{
+		logger:             logger,
+		tc:                 tc,
+		config:             config,
+		storagePersistence: storagePersistence,
 	}
 
-	var err error
-	s.bucket, err = s.openBucket(&config)
+	s.internal, err = NewLocation(config.Internal)
 	if err != nil {
-		return nil, fmt.Errorf("error opening bucket: %v", err)
+		return nil, err
 	}
 
 	locations := map[string]Location{}
 	for _, item := range config.Locations {
-		l := NewLocation(item)
+		l, err := NewLocation(item)
+		if err != nil {
+			return nil, err
+		}
 		locations[item.Name] = l
 	}
 	s.locations = locations
@@ -123,28 +90,11 @@ func NewService(logger logr.Logger, db *sql.DB, tc temporalsdk_client.Client, co
 	return s, nil
 }
 
-func (s *serviceImpl) openBucket(config *Config) (*blob.Bucket, error) {
-	sessOpts := session.Options{}
-	sessOpts.Config.WithRegion(s.config.Region)
-	sessOpts.Config.WithEndpoint(s.config.Endpoint)
-	sessOpts.Config.WithS3ForcePathStyle(s.config.PathStyle)
-	sessOpts.Config.WithCredentials(
-		credentials.NewStaticCredentials(
-			s.config.Key, s.config.Secret, s.config.Token,
-		),
-	)
-	sess, err := session.NewSessionWithOptions(sessOpts)
-	if err != nil {
-		return nil, err
-	}
-	return s3blob.OpenBucket(context.Background(), sess, s.config.Bucket, nil)
-}
-
-func (s *serviceImpl) Bucket() *blob.Bucket {
-	return s.bucket
-}
-
 func (s *serviceImpl) Location(name string) (Location, error) {
+	if name == "" {
+		return s.internal, nil
+	}
+
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
@@ -162,19 +112,22 @@ func (s *serviceImpl) Submit(ctx context.Context, payload *goastorage.SubmitPayl
 		return nil, goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
 	}
 
-	p := Package{
-		Name:      payload.Name,
-		AIPID:     payload.AipID,
-		Status:    StatusUnspecified,
-		ObjectKey: uuid.New().String(),
-		Location:  "",
+	AIPUUID, err := uuid.Parse(payload.AipID)
+	if err != nil {
+		return nil, goastorage.MakeNotValid(errors.New("cannot persist package"))
 	}
-	err = s.createPackage(ctx, &p)
+	objectKey := uuid.New()
+	_, err = s.storagePersistence.CreatePackage(ctx, payload.Name, AIPUUID, objectKey)
 	if err != nil {
 		return nil, goastorage.MakeNotValid(errors.New("cannot persist package"))
 	}
 
-	url, err := s.bucket.SignedURL(ctx, p.ObjectKey, &blob.SignedURLOptions{Expiry: SubmitURLExpirationTime, Method: http.MethodPut})
+	bucket := s.internal.Bucket()
+	opts := &blob.SignedURLOptions{
+		Expiry: SubmitURLExpirationTime,
+		Method: http.MethodPut,
+	}
+	url, err := bucket.SignedURL(ctx, objectKey.String(), opts)
 	if err != nil {
 		return nil, goastorage.MakeNotValid(errors.New("cannot persist package"))
 	}
@@ -193,7 +146,7 @@ func (s *serviceImpl) Update(ctx context.Context, payload *goastorage.UpdatePayl
 		return goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
 	}
 	// Uptade the package status to in_review
-	err = s.UpdatePackageStatus(ctx, StatusInReview, payload.AipID)
+	err = s.UpdatePackageStatus(ctx, status.StatusInReview, payload.AipID)
 	if err != nil {
 		return goastorage.MakeNotValid(errors.New("cannot persist package"))
 	}
@@ -202,6 +155,8 @@ func (s *serviceImpl) Update(ctx context.Context, payload *goastorage.UpdatePayl
 }
 
 func (s *serviceImpl) Download(ctx context.Context, payload *goastorage.DownloadPayload) ([]byte, error) {
+	// This service method is unused, see the Download function instead which
+	// makes use of http.ResponseWriter.
 	return []byte{}, nil
 }
 
@@ -218,15 +173,15 @@ func (s *serviceImpl) List(context.Context) (goastorage.StoredLocationCollection
 }
 
 func (s *serviceImpl) Move(ctx context.Context, payload *goastorage.MovePayload) error {
-	p, err := s.ReadPackage(ctx, payload.AipID)
-	if err == sql.ErrNoRows {
+	pkg, err := s.ReadPackage(ctx, payload.AipID)
+	if errors.Is(err, &ent.NotFoundError{}) || errors.Is(err, &ent.NotSingularError{}) {
 		return &goastorage.StoragePackageNotfound{AipID: payload.AipID, Message: "not_found"}
 	} else if err != nil {
-		return err
+		return goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
 	}
 
 	_, err = InitStorageMoveWorkflow(ctx, s.tc, &StorageMoveWorkflowRequest{
-		AIPID:    p.AIPID,
+		AIPID:    pkg.AipID,
 		Location: payload.Location,
 	})
 	if err != nil {
@@ -239,11 +194,13 @@ func (s *serviceImpl) Move(ctx context.Context, payload *goastorage.MovePayload)
 
 func (s *serviceImpl) MoveStatus(ctx context.Context, payload *goastorage.MoveStatusPayload) (*goastorage.MoveStatusResult, error) {
 	p, err := s.ReadPackage(ctx, payload.AipID)
-	if err != nil {
+	if errors.Is(err, &ent.NotFoundError{}) || errors.Is(err, &ent.NotSingularError{}) {
 		return nil, &goastorage.StoragePackageNotfound{AipID: payload.AipID, Message: "not_found"}
+	} else if err != nil {
+		return nil, goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
 	}
 
-	resp, err := s.tc.DescribeWorkflowExecution(ctx, fmt.Sprintf("%s-%s", StorageMoveWorkflowName, p.AIPID), "")
+	resp, err := s.tc.DescribeWorkflowExecution(ctx, fmt.Sprintf("%s-%s", StorageMoveWorkflowName, p.AipID), "")
 	if err != nil {
 		return nil, goastorage.MakeFailedDependency(errors.New("cannot perform operation"))
 	}
@@ -266,162 +223,68 @@ func (s *serviceImpl) MoveStatus(ctx context.Context, payload *goastorage.MoveSt
 }
 
 func (s *serviceImpl) Reject(ctx context.Context, payload *goastorage.RejectPayload) error {
-	return s.UpdatePackageStatus(ctx, StatusRejected, payload.AipID)
+	return s.UpdatePackageStatus(ctx, status.StatusRejected, payload.AipID)
 }
 
 func (s *serviceImpl) Show(ctx context.Context, payload *goastorage.ShowPayload) (*goastorage.StoredStoragePackage, error) {
-	p, err := s.ReadPackage(ctx, payload.AipID)
-	if err == sql.ErrNoRows {
+	pkg, err := s.ReadPackage(ctx, payload.AipID)
+	if errors.Is(err, &ent.NotFoundError{}) || errors.Is(err, &ent.NotSingularError{}) {
 		return nil, &goastorage.StoragePackageNotfound{AipID: payload.AipID, Message: "not_found"}
 	} else if err != nil {
+		return nil, goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
+	}
+
+	return pkg, nil
+}
+
+func (s *serviceImpl) ReadPackage(ctx context.Context, AIPID string) (*goastorage.StoredStoragePackage, error) {
+	AIPUUID, err := uuid.Parse(AIPID)
+	if err != nil {
 		return nil, err
 	}
 
-	return p.Goa(), nil
+	return s.storagePersistence.ReadPackage(ctx, AIPUUID)
 }
 
-func (s *serviceImpl) HTTPDownload(mux goahttp.Muxer, dec func(r *http.Request) goahttp.Decoder) http.HandlerFunc {
-	return func(rw http.ResponseWriter, req *http.Request) {
-		// Decode request payload.
-		payload, err := server.DecodeDownloadRequest(mux, dec)(req)
-		if err != nil {
-			rw.WriteHeader(http.StatusBadRequest)
-			return
-		}
-		p := payload.(*goastorage.DownloadPayload)
-
-		// Read storage package.
-		ctx := context.Background()
-		pkg, err := s.ReadPackage(ctx, p.AipID)
-		if err != nil {
-			rw.WriteHeader(http.StatusNotFound)
-			return
-		}
-
-		// Get MinIO bucket reader for object key.
-		reader, err := s.PackageReader(ctx, pkg)
-		if err != nil {
-			rw.WriteHeader(http.StatusNotFound)
-			return
-		}
-		defer reader.Close()
-
-		filename := fmt.Sprintf("enduro-%s.7z", pkg.AIPID)
-
-		rw.Header().Add("Content-Type", reader.ContentType())
-		rw.Header().Add("Content-Length", strconv.FormatInt(reader.Size(), 10))
-		rw.Header().Add("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", filename))
-
-		// Copy reader contents into the response.
-		_, err = io.Copy(rw, reader)
-		if err != nil {
-			rw.WriteHeader(http.StatusNotFound)
-			return
-		}
-	}
-}
-
-func SetBucket(s *serviceImpl, b *blob.Bucket) {
-	s.bucket = b
-}
-
-func (s *serviceImpl) createPackage(ctx context.Context, p *Package) error {
-	query := `INSERT INTO storage_package (name, aip_id, status, object_key, location) VALUES (?, ?, ?, ?, ?)`
-	args := []interface{}{
-		p.Name,
-		p.AIPID,
-		p.Status,
-		p.ObjectKey,
-		p.Location,
-	}
-
-	res, err := s.db.ExecContext(ctx, query, args...)
-	if err != nil {
-		return fmt.Errorf("error inserting package: %w", err)
-	}
-
-	var id int64
-	if id, err = res.LastInsertId(); err != nil {
-		return fmt.Errorf("error retrieving insert ID: %w", err)
-	}
-
-	p.ID = uint(id)
-
-	return nil
-}
-
-func (s *serviceImpl) ReadPackage(ctx context.Context, AIPID string) (*Package, error) {
-	query := "SELECT id, name, aip_id, status, object_key, location FROM storage_package WHERE aip_id = ?"
-	args := []interface{}{AIPID}
-	p := Package{}
-
-	if err := s.db.GetContext(ctx, &p, query, args...); err != nil {
-		return nil, err
-	}
-
-	return &p, nil
-}
-
-func (s *serviceImpl) UpdatePackageStatus(ctx context.Context, status PackageStatus, aipID string) error {
-	query := `UPDATE storage_package SET status=? WHERE aip_id=?`
-	args := []interface{}{
-		status,
-		aipID,
-	}
-
-	_, err := s.db.ExecContext(ctx, query, args...)
-	if err != nil {
-		return fmt.Errorf("error updating package status: %w", err)
-	}
-
-	return nil
-}
-
-func (s *serviceImpl) UpdatePackageLocation(ctx context.Context, location string, aipID string) error {
-	query := `UPDATE storage_package SET location=? WHERE aip_id=?`
-	args := []interface{}{
-		location,
-		aipID,
-	}
-
-	_, err := s.db.ExecContext(ctx, query, args...)
-	if err != nil {
-		return fmt.Errorf("error updating package location: %w", err)
-	}
-
-	return nil
-}
-
-func (s *serviceImpl) packageBucket(p *Package) (string, *blob.Bucket, error) {
-	var bucket *blob.Bucket
-	var key string
-
-	if p.Location == "" {
-		// Package is still in the internal processing bucket
-		bucket = s.bucket
-		key = p.ObjectKey
-	} else {
-		location, err := s.Location(p.Location)
-		if err != nil {
-			return "", nil, err
-		}
-		bucket, err = location.OpenBucket()
-		if err != nil {
-			return "", nil, err
-		}
-		key = p.AIPID
-	}
-
-	return key, bucket, nil
-}
-
-func (s *serviceImpl) Delete(ctx context.Context, AIPID string) error {
-	p, err := s.ReadPackage(ctx, AIPID)
+func (s *serviceImpl) UpdatePackageStatus(ctx context.Context, status status.PackageStatus, AIPID string) error {
+	AIPUUID, err := uuid.Parse(AIPID)
 	if err != nil {
 		return err
 	}
 
-	key, bucket, err := s.packageBucket(p)
+	return s.storagePersistence.UpdatePackageStatus(ctx, status, AIPUUID)
+}
+
+func (s *serviceImpl) UpdatePackageLocation(ctx context.Context, location string, AIPID string) error {
+	AIPUUID, err := uuid.Parse(AIPID)
+	if err != nil {
+		return err
+	}
+
+	return s.storagePersistence.UpdatePackageLocation(ctx, location, AIPUUID)
+}
+
+// packageBucket returns the bucket and the key of the given package.
+func (s *serviceImpl) packageBucket(p *goastorage.StoredStoragePackage) (*blob.Bucket, string, error) {
+	// Package is still in the internal processing bucket.
+	if p.Location == nil || *p.Location == "" {
+		return s.internal.Bucket(), p.ObjectKey, nil
+	}
+
+	location, err := s.Location(*p.Location)
+	if err != nil {
+		return nil, "", err
+	}
+	return location.Bucket(), p.AipID, nil
+}
+
+func (s *serviceImpl) Delete(ctx context.Context, AIPID string) error {
+	pkg, err := s.ReadPackage(ctx, AIPID)
+	if err != nil {
+		return err
+	}
+
+	bucket, key, err := s.packageBucket(pkg)
 	if err != nil {
 		return err
 	}
@@ -429,8 +292,8 @@ func (s *serviceImpl) Delete(ctx context.Context, AIPID string) error {
 	return bucket.Delete(ctx, key)
 }
 
-func (s *serviceImpl) PackageReader(ctx context.Context, p *Package) (*blob.Reader, error) {
-	key, bucket, err := s.packageBucket(p)
+func (s *serviceImpl) PackageReader(ctx context.Context, pkg *goastorage.StoredStoragePackage) (*blob.Reader, error) {
+	bucket, key, err := s.packageBucket(pkg)
 	if err != nil {
 		return nil, err
 	}

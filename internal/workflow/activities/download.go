@@ -3,7 +3,6 @@ package activities
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"os"
 
 	"github.com/artefactual-sdps/enduro/internal/temporal"
@@ -25,7 +24,7 @@ func tempFile(pattern string) (*os.File, error) {
 	if pattern == "" {
 		pattern = "blob-*"
 	}
-	return ioutil.TempFile("", pattern)
+	return os.CreateTemp("", pattern)
 }
 
 func (a *DownloadActivity) Execute(ctx context.Context, watcherName, key string) (string, error) {

@@ -10,6 +10,6 @@ import (
 //go:embed migrations/*.sql
 var fs embed.FS
 
-func sourceDriver() (source.Driver, error) {
+func enduroSourceDriver() (source.Driver, error) {
 	return iofs.New(fs, "migrations")
 }

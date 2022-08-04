@@ -41,6 +41,7 @@ redisChannel = "enduro-events"
 
 [database]
 dsn = "{MYSQL_USER}:{MYSQL_PASSWORD}@tcp(mysql:3306)/enduro"
+migrate = true
 
 [search]
 addresses = ["http://opensearch:9200"]
@@ -63,14 +64,19 @@ stripTopLevelDir = true
 checksumsCheckEnabled = false
 
 [storage]
-# internal processing bucket
+enduroAddress = "enduro:9000"
+
+[storage.database]
+dsn = "{MYSQL_USER}:{MYSQL_PASSWORD}@tcp(mysql:3306)/enduro_storage"
+migrate = true
+
+[storage.internal]
 endpoint = "http://minio:9000"
 pathStyle = true
 key = "{MINIO_USER}"
 secret = "{MINIO_PASSWORD}"
 region = "us-west-1"
 bucket = "aips"
-enduroAddress = "enduro:9000"
 
 [[storage.location]]
 name = "perma-aips-1"

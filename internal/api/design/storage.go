@@ -197,7 +197,7 @@ var StoredStoragePackage = ResultType("application/vnd.enduro.stored-storage-pac
 })
 
 var EnumStoragePackageStatus = func() {
-	Enum("stored", "rejected", "in_review", "unspecified")
+	Enum("unspecified", "in_review", "rejected", "stored", "moving")
 }
 
 var StoragePackage = Type("StoragePackage", func() {

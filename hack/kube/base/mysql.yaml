@@ -90,6 +90,8 @@ metadata:
 data:
   initdb.sh: |
     mysql --socket /var/lib/mysql/mysql.sock -u root -p$MYSQL_ROOT_PASSWORD --execute "
+      CREATE DATABASE IF NOT EXISTS enduro_storage;
+      GRANT ALL PRIVILEGES ON enduro_storage.* TO '$MYSQL_USER'@'%';
       CREATE DATABASE IF NOT EXISTS temporal;
       GRANT ALL PRIVILEGES ON temporal.* TO '$MYSQL_USER'@'%';
       CREATE DATABASE IF NOT EXISTS temporal_visibility;

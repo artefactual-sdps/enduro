@@ -6,13 +6,12 @@ package fake
 
 import (
 	context "context"
-	http0 "net/http"
 	reflect "reflect"
 
 	storage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 	storage0 "github.com/artefactual-sdps/enduro/internal/storage"
+	status "github.com/artefactual-sdps/enduro/internal/storage/status"
 	gomock "github.com/golang/mock/gomock"
-	http "goa.design/goa/v3/http"
 	blob "gocloud.dev/blob"
 )
 
@@ -37,20 +36,6 @@ func NewMockService(ctrl *gomock.Controller) *MockService {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockService) EXPECT() *MockServiceMockRecorder {
 	return m.recorder
-}
-
-// Bucket mocks base method.
-func (m *MockService) Bucket() *blob.Bucket {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Bucket")
-	ret0, _ := ret[0].(*blob.Bucket)
-	return ret0
-}
-
-// Bucket indicates an expected call of Bucket.
-func (mr *MockServiceMockRecorder) Bucket() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Bucket", reflect.TypeOf((*MockService)(nil).Bucket))
 }
 
 // Delete mocks base method.
@@ -80,20 +65,6 @@ func (m *MockService) Download(arg0 context.Context, arg1 *storage.DownloadPaylo
 func (mr *MockServiceMockRecorder) Download(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Download", reflect.TypeOf((*MockService)(nil).Download), arg0, arg1)
-}
-
-// HTTPDownload mocks base method.
-func (m *MockService) HTTPDownload(arg0 http.Muxer, arg1 func(*http0.Request) http.Decoder) http0.HandlerFunc {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "HTTPDownload", arg0, arg1)
-	ret0, _ := ret[0].(http0.HandlerFunc)
-	return ret0
-}
-
-// HTTPDownload indicates an expected call of HTTPDownload.
-func (mr *MockServiceMockRecorder) HTTPDownload(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HTTPDownload", reflect.TypeOf((*MockService)(nil).HTTPDownload), arg0, arg1)
 }
 
 // List mocks base method.
@@ -156,7 +127,7 @@ func (mr *MockServiceMockRecorder) MoveStatus(arg0, arg1 interface{}) *gomock.Ca
 }
 
 // PackageReader mocks base method.
-func (m *MockService) PackageReader(arg0 context.Context, arg1 *storage0.Package) (*blob.Reader, error) {
+func (m *MockService) PackageReader(arg0 context.Context, arg1 *storage.StoredStoragePackage) (*blob.Reader, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "PackageReader", arg0, arg1)
 	ret0, _ := ret[0].(*blob.Reader)
@@ -171,10 +142,10 @@ func (mr *MockServiceMockRecorder) PackageReader(arg0, arg1 interface{}) *gomock
 }
 
 // ReadPackage mocks base method.
-func (m *MockService) ReadPackage(arg0 context.Context, arg1 string) (*storage0.Package, error) {
+func (m *MockService) ReadPackage(arg0 context.Context, arg1 string) (*storage.StoredStoragePackage, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ReadPackage", arg0, arg1)
-	ret0, _ := ret[0].(*storage0.Package)
+	ret0, _ := ret[0].(*storage.StoredStoragePackage)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -258,7 +229,7 @@ func (mr *MockServiceMockRecorder) UpdatePackageLocation(arg0, arg1, arg2 interf
 }
 
 // UpdatePackageStatus mocks base method.
-func (m *MockService) UpdatePackageStatus(arg0 context.Context, arg1 storage0.PackageStatus, arg2 string) error {
+func (m *MockService) UpdatePackageStatus(arg0 context.Context, arg1 status.PackageStatus, arg2 string) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdatePackageStatus", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
