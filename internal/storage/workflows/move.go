@@ -7,6 +7,7 @@ import (
 	temporalsdk_workflow "go.temporal.io/sdk/workflow"
 
 	"github.com/artefactual-sdps/enduro/internal/storage"
+	"github.com/artefactual-sdps/enduro/internal/storage/status"
 )
 
 type StorageMoveWorkflow struct {
@@ -20,6 +21,13 @@ func NewStorageMoveWorkflow(storagesvc storage.Service) *StorageMoveWorkflow {
 }
 
 func (w *StorageMoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req storage.StorageMoveWorkflowRequest) error {
+	// Set package status to moving.
+	{
+		if err := w.updatePackageStatus(ctx, status.StatusMoving, req.AIPID); err != nil {
+			return err
+		}
+	}
+
 	// Copy package from its current bucket to a new permanent location bucket
 	{
 		activityOpts := temporalsdk_workflow.WithActivityOptions(ctx, temporalsdk_workflow.ActivityOptions{
@@ -83,25 +91,31 @@ func (w *StorageMoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req stor
 		}
 	}
 
-	// Update package status
+	// Set package status to stored.
 	{
-
-		activityOpts := temporalsdk_workflow.WithLocalActivityOptions(ctx, temporalsdk_workflow.LocalActivityOptions{
-			ScheduleToCloseTimeout: 5 * time.Second,
-			RetryPolicy: &temporalsdk_temporal.RetryPolicy{
-				InitialInterval:    time.Second,
-				BackoffCoefficient: 2,
-				MaximumInterval:    time.Minute,
-				MaximumAttempts:    3,
-			},
-		})
-		err := temporalsdk_workflow.ExecuteLocalActivity(activityOpts, storage.UpdatePackageStatusLocalActivity, w.storagesvc, &storage.UpdatePackageStatusLocalActivityParams{
-			AIPID: req.AIPID,
-		}).Get(activityOpts, nil)
-		if err != nil {
+		if err := w.updatePackageStatus(ctx, status.StatusStored, req.AIPID); err != nil {
 			return err
 		}
 	}
 
 	return nil
+}
+
+func (w *StorageMoveWorkflow) updatePackageStatus(ctx temporalsdk_workflow.Context, st status.PackageStatus, AIPID string) error {
+	activityOpts := temporalsdk_workflow.WithLocalActivityOptions(ctx, temporalsdk_workflow.LocalActivityOptions{
+		ScheduleToCloseTimeout: 5 * time.Second,
+		RetryPolicy: &temporalsdk_temporal.RetryPolicy{
+			InitialInterval:    time.Second,
+			BackoffCoefficient: 2,
+			MaximumInterval:    time.Minute,
+			MaximumAttempts:    3,
+		},
+	})
+
+	params := &storage.UpdatePackageStatusLocalActivityParams{
+		AIPID:  AIPID,
+		Status: st,
+	}
+
+	return temporalsdk_workflow.ExecuteLocalActivity(activityOpts, storage.UpdatePackageStatusLocalActivity, w.storagesvc, params).Get(activityOpts, nil)
 }

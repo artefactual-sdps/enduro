@@ -3,7 +3,7 @@ package activities
 import (
 	"context"
 	"errors"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -61,7 +61,7 @@ func (s StorageService) Show(ctx context.Context, req *goastorage.ShowPayload) (
 
 func MinIOUploadPreSignedURLHandler(t *testing.T) func(rw http.ResponseWriter, req *http.Request) {
 	return func(rw http.ResponseWriter, req *http.Request) {
-		bytes, err := ioutil.ReadAll(req.Body)
+		bytes, err := io.ReadAll(req.Body)
 		defer req.Body.Close()
 
 		assert.NilError(t, err)

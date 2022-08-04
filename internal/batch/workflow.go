@@ -2,7 +2,7 @@ package batch
 
 import (
 	"context"
-	"io/ioutil"
+	"os"
 	"time"
 
 	temporalsdk_temporal "go.temporal.io/sdk/temporal"
@@ -50,7 +50,7 @@ func NewBatchActivity(batchsvc Service) *BatchActivity {
 }
 
 func (a *BatchActivity) Execute(ctx context.Context, params BatchWorkflowInput) error {
-	files, err := ioutil.ReadDir(params.Path)
+	files, err := os.ReadDir(params.Path)
 	if err != nil {
 		return temporal.NonRetryableError(err)
 	}

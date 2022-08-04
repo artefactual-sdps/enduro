@@ -32,11 +32,7 @@ func (a *CopyToPermanentLocationActivity) Execute(ctx context.Context, params *s
 		return err
 	}
 
-	bucket, err := l.OpenBucket()
-	if err != nil {
-		return err
-	}
-	defer bucket.Close()
+	bucket := l.Bucket()
 
 	writer, err := bucket.NewWriter(ctx, params.AIPID, nil)
 	if err != nil {

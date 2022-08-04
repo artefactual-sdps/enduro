@@ -77,12 +77,12 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	database, err := db.Connect(cfg.Database.DSN)
+	enduroDatabase, err := db.Connect(cfg.Database.DSN)
 	if err != nil {
-		logger.Error(err, "Database configuration failed.")
+		logger.Error(err, "Enduro database configuration failed.")
 		os.Exit(1)
 	}
-	_ = database.Ping()
+	_ = enduroDatabase.Ping()
 
 	temporalClient, err := temporalsdk_client.Dial(temporalsdk_client.Options{
 		Namespace: cfg.Temporal.Namespace,
@@ -104,7 +104,7 @@ func main() {
 	// Set up the package service.
 	var pkgsvc package_.Service
 	{
-		pkgsvc = package_.NewService(logger.WithName("package"), database, temporalClient, evsvc)
+		pkgsvc = package_.NewService(logger.WithName("package"), enduroDatabase, temporalClient, evsvc)
 	}
 
 	searchConfig := opensearch.Config{

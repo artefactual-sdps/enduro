@@ -31,7 +31,7 @@ k8s_resource("enduro-a3m", labels=["Enduro"])
 k8s_resource("enduro-dashboard", port_forwards="3000", labels=["Enduro"])
 
 # Other resources
-k8s_resource("mysql", labels=["Others"])
+k8s_resource("mysql", port_forwards="3306", labels=["Others"])
 k8s_resource(
   "minio",
   port_forwards=["7460:9001",
@@ -65,6 +65,14 @@ local_resource(
   auto_init=False,
   trigger_mode=TRIGGER_MODE_MANUAL,
   deps=["internal/api/gen"],
+  labels=["Tools"]
+)
+local_resource(
+  "gen-ent",
+  cmd="make gen-ent",
+  auto_init=False,
+  trigger_mode=TRIGGER_MODE_MANUAL,
+  deps=["internal/storage/persistence/ent/schema"],
   labels=["Tools"]
 )
 

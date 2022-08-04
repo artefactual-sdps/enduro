@@ -1,0 +1,2 @@
+-- create "package" table
+CREATE TABLE `package` (`id` bigint NOT NULL AUTO_INCREMENT, `name` varchar(2048) NOT NULL, `aip_id` char(36) NOT NULL, `location` varchar(2048) NULL, `status` enum('unspecified','in_review','rejected','stored','moving') NOT NULL, `object_key` char(36) NOT NULL, PRIMARY KEY (`id`), INDEX `pkg_aip_id` (`aip_id`), INDEX `pkg_location` (`location` (50)), INDEX `pkg_object_key` (`object_key`)) CHARSET utf8mb4 COLLATE utf8mb4_bin;

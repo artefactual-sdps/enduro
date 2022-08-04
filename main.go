@@ -13,6 +13,8 @@ import (
 	"syscall"
 	"time"
 
+	"ariga.io/sqlcomment"
+	"entgo.io/ent/dialect/sql"
 	"github.com/oklog/run"
 	"github.com/opensearch-project/opensearch-go"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -34,6 +36,9 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/package_"
 	"github.com/artefactual-sdps/enduro/internal/storage"
 	storage_activities "github.com/artefactual-sdps/enduro/internal/storage/activities"
+	"github.com/artefactual-sdps/enduro/internal/storage/persistence"
+	storage_entclient "github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/client"
+	storage_entdb "github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db"
 	storage_workflows "github.com/artefactual-sdps/enduro/internal/storage/workflows"
 	"github.com/artefactual-sdps/enduro/internal/temporal"
 	"github.com/artefactual-sdps/enduro/internal/version"
@@ -81,12 +86,29 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	database, err := db.Connect(cfg.Database.DSN)
+	enduroDatabase, err := db.Connect(cfg.Database.DSN)
 	if err != nil {
-		logger.Error(err, "Database configuration failed.")
+		logger.Error(err, "Enduro database configuration failed.")
 		os.Exit(1)
 	}
-	_ = database.Ping()
+	if cfg.Database.Migrate {
+		if err := db.MigrateEnduroDatabase(enduroDatabase); err != nil {
+			logger.Error(err, "Enduro database migration failed.")
+			os.Exit(1)
+		}
+	}
+
+	storageDatabase, err := db.Connect(cfg.Storage.Database.DSN)
+	if err != nil {
+		logger.Error(err, "Storage database configuration failed.")
+		os.Exit(1)
+	}
+	if cfg.Storage.Database.Migrate {
+		if err := db.MigrateEnduroStorageDatabase(storageDatabase); err != nil {
+			logger.Error(err, "Storage database migration failed.")
+			os.Exit(1)
+		}
+	}
 
 	temporalClient, err := temporalsdk_client.Dial(temporalsdk_client.Options{
 		Namespace: cfg.Temporal.Namespace,
@@ -138,15 +160,30 @@ func main() {
 	// Set up the package service.
 	var pkgsvc package_.Service
 	{
-		pkgsvc = package_.NewService(logger.WithName("package"), database, temporalClient, evsvc)
+		pkgsvc = package_.NewService(logger.WithName("package"), enduroDatabase, temporalClient, evsvc)
+	}
+
+	// Set up the ent db client.
+	var storagePersistence persistence.Storage
+	{
+
+		drv := sqlcomment.NewDriver(
+			sql.OpenDB("mysql", storageDatabase),
+			sqlcomment.WithDriverVerTag(),
+			sqlcomment.WithTags(sqlcomment.Tags{
+				sqlcomment.KeyApplication: appName,
+			}),
+		)
+		client := storage_entdb.NewClient(storage_entdb.Driver(drv))
+		storagePersistence = storage_entclient.NewClient(client)
 	}
 
 	// Set up the storage service.
 	var storagesvc storage.Service
 	{
-		storagesvc, err = storage.NewService(logger.WithName("storage"), database, temporalClient, cfg.Storage)
+		storagesvc, err = storage.NewService(logger.WithName("storage"), cfg.Storage, storagePersistence, temporalClient)
 		if err != nil {
-			logger.Error(err, "Search configuration failed.")
+			logger.Error(err, "Error setting up storage service.")
 			os.Exit(1)
 		}
 	}

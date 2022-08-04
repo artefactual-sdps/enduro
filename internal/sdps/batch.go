@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strings"
 )
@@ -254,7 +254,7 @@ func OpenBatch(path string) (*Batch, error) {
 }
 
 func (b *Batch) load(path string) error {
-	res, err := ioutil.ReadDir(path)
+	res, err := os.ReadDir(path)
 	if err != nil {
 		return fmt.Errorf("cannot read dir: %v (%s)", err, path)
 	}

@@ -9,8 +9,14 @@ import (
 	mysqldriver "github.com/go-sql-driver/mysql"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/mysql"
+	"github.com/golang-migrate/migrate/v4/source"
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/artefactual-sdps/enduro/internal/storage/persistence"
 )
+
+// Wait up to five minutes is another process is already on it.
+const lockTimeout = time.Minute * 5
 
 // Connect returns the database handler which is safe for concurrent access.
 func Connect(ds string) (db *sql.DB, err error) {
@@ -42,7 +48,7 @@ func Connect(ds string) (db *sql.DB, err error) {
 	c := prometheus.NewGaugeFunc(
 		prometheus.GaugeOpts{
 			Namespace: "src",
-			Subsystem: "mysql_app",
+			Subsystem: "mysql_app_" + config.DBName,
 			Name:      "open_connections",
 			Help:      "Number of open connections to MySQL DB, as reported by mysql.DB.Stats()",
 		},
@@ -53,36 +59,55 @@ func Connect(ds string) (db *sql.DB, err error) {
 	)
 	prometheus.MustRegister(c)
 
-	// Database migration.
-	m, err := newMigrate(db)
-	if err != nil {
-		return nil, fmt.Errorf("error creating migrate object: %v", err)
-	}
-	if err := doMigrate(m); err != nil {
-		return nil, fmt.Errorf("error during database migration: %v", err)
-	}
-
 	return db, nil
 }
 
-func newMigrate(db *sql.DB) (*migrate.Migrate, error) {
+func MigrateEnduroDatabase(db *sql.DB) error {
+	src, err := enduroSourceDriver()
+	if err != nil {
+		return fmt.Errorf("error loading migration sources: %v", err)
+	}
+
+	return up(db, src)
+}
+
+func MigrateEnduroStorageDatabase(db *sql.DB) error {
+	src, err := persistence.SourceDriver()
+	if err != nil {
+		return fmt.Errorf("error loading migration sources: %v", err)
+	}
+
+	return up(db, src)
+}
+
+// up migrates the database.
+func up(db *sql.DB, src source.Driver) error {
+	m, err := newMigrate(db, src)
+	if err != nil {
+		return fmt.Errorf("error creating golang-migrate object: %v", err)
+	}
+
+	err = doMigrate(m)
+	if err != nil {
+		return fmt.Errorf("error during database migration: %v", err)
+	}
+
+	return nil
+}
+
+// newMigrate builds the golang-migrate object.
+func newMigrate(db *sql.DB, src source.Driver) (*migrate.Migrate, error) {
 	driver, err := mysql.WithInstance(db, &mysql.Config{})
 	if err != nil {
 		return nil, fmt.Errorf("error creating migrate driver: %w", err)
 	}
 
-	sourceInstance, err := sourceDriver()
-	if err != nil {
-		return nil, fmt.Errorf("error creating source driver: %v", err)
-	}
-
-	m, err := migrate.NewWithInstance("iofs", sourceInstance, "mysql", driver)
+	m, err := migrate.NewWithInstance("source", src, "driver", driver)
 	if err != nil {
 		return nil, fmt.Errorf("error creating migrate instance: %w", err)
 	}
 
-	// Wait up to five minutes is another process is already on it.
-	m.LockTimeout = 5 * time.Minute
+	m.LockTimeout = lockTimeout
 
 	return m, nil
 }

@@ -206,6 +206,7 @@ Grouped as tools, there are some code generators:
 
 - `gen-goa`: generates the Go API code based on the Goa design.
 - `gen-dashboard-client`: generates the TypeScript client code for the API.
+- `gen-ent`: generates the Go database code.
 
 This resources need to be triggered manually by default, but they can be
 configured to run automatically on code changes in the Tilt UI.

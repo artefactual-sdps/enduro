@@ -24,6 +24,8 @@ IGNORED_PACKAGES := \
 	github.com/artefactual-sdps/enduro/internal/api/gen/swagger \
 	github.com/artefactual-sdps/enduro/internal/batch/fake \
 	github.com/artefactual-sdps/enduro/internal/package_/fake \
+	github.com/artefactual-sdps/enduro/internal/storage/fake \
+	github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db \
 	github.com/artefactual-sdps/enduro/internal/temporal/testutil \
 	github.com/artefactual-sdps/enduro/internal/watcher/fake
 PACKAGES		:= $(shell go list ./...)
@@ -81,6 +83,10 @@ gen-mock:
 	$(MOCKGEN) -destination=./internal/batch/fake/mock_batch.go -package=fake github.com/artefactual-sdps/enduro/internal/batch Service
 	$(MOCKGEN) -destination=./internal/package_/fake/mock_package_.go -package=fake github.com/artefactual-sdps/enduro/internal/package_ Service
 	$(MOCKGEN) -destination=./internal/storage/fake/mock_storage.go -package=fake github.com/artefactual-sdps/enduro/internal/storage Service
+	$(MOCKGEN) -destination=./internal/storage/persistence/fake/mock_persistence.go -package=fake github.com/artefactual-sdps/enduro/internal/storage/persistence Storage
 	$(MOCKGEN) -destination=./internal/watcher/fake/mock_watcher.go -package=fake github.com/artefactual-sdps/enduro/internal/watcher Service
+
+gen-ent:
+	$(ENT) generate ./internal/storage/persistence/ent/schema --feature sql/versioned-migration --target=./internal/storage/persistence/ent/db
 
 .PHONY: *
