@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import Offcanvas from "bootstrap/js/dist/offcanvas";
-import { onMounted } from "vue";
-import TextAlignJustified from "~icons/akar-icons/text-align-justified";
 import Header from "@/components/Header.vue";
 import Dropdown from "bootstrap/js/dist/dropdown";
+import Offcanvas from "bootstrap/js/dist/offcanvas";
+import { onMounted } from "vue";
 import { DialogWrapper } from "vue3-promise-dialog";
+import TextAlignJustified from "~icons/akar-icons/text-align-justified";
 import IconAnalyticsLine from "~icons/clarity/analytics-line";
 import IconBlocksGroupLine from "~icons/clarity/blocks-group-line";
 import IconBundleLine from "~icons/clarity/bundle-line";
@@ -53,30 +53,44 @@ onMounted(() => {
           Enduro</router-link
         >
       </div>
-      <div class="col-lg-10">
-        <div class="avatar-profile">
-          <div class="dropdown text-end">
-            <a
-              href="#"
-              class="d-block link-dark text-decoration-none dropdown-toggle"
-              data-bs-toggle="dropdown"
-              ref="dropdown"
-              aria-expanded="false"
-            >
-              <img
-                src="https://github.com/mdo.png"
-                alt="mdo"
-                width="32"
-                height="32"
-                class="rounded-circle"
-              />
-            </a>
-            <ul class="dropdown-menu text-small" style="">
-              <li><a class="dropdown-item" href="#">Profile</a></li>
-              <li><hr class="dropdown-divider" /></li>
-              <li><a class="dropdown-item" href="#">Sign out</a></li>
-            </ul>
-          </div>
+      <div class="col-lg-10 d-flex">
+        <form class="d-flex flex-grow-1" role="search">
+          <input
+            class="form-control me-2"
+            type="search"
+            placeholder="Search"
+            aria-label="Search"
+          />
+          <button
+            class="btn btn-link text-decoration-none ms-auto p-0"
+            type="submit"
+          >
+            <IconSliderLine class="text-secondary" aria-hidden="true" />
+            <span class="visually-hidden">Search</span>
+          </button>
+        </form>
+
+        <div class="dropdown ms-3">
+          <a
+            href="#"
+            class="link-dark text-decoration-none dropdown-toggle"
+            data-bs-toggle="dropdown"
+            ref="dropdown"
+            aria-expanded="false"
+          >
+            <img
+              src="https://github.com/mdo.png"
+              alt="mdo"
+              width="32"
+              height="32"
+              class="rounded-circle"
+            />
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="#">Profile</a></li>
+            <li><hr class="dropdown-divider" /></li>
+            <li><a class="dropdown-item" href="#">Sign out</a></li>
+          </ul>
         </div>
       </div>
     </nav>
@@ -116,6 +130,7 @@ onMounted(() => {
 </template>
 
 <style>
+/*
 .avatar-profile {
   --bs-nav-link-padding-x: 0;
   --bes-nav-link-margin-y: 1rem;
@@ -132,4 +147,30 @@ onMounted(() => {
   margin-right: 1rem;
   list-style: none;
 }
+
+
+.search-block {
+  padding: 0 2rem;
+  flex-grow: 1;
+  align-self: stretch;
+  padding-left: 0;
+  margin-bottom: 0;
+  margin-left: 0;
+  margin-right: 1rem;
+}
+input {
+  min-height: 2.5rem;
+  flex-grow: 1;
+  width: 100%;
+  border-color: #e1e1e1;
+  border-style: solid;
+  border-width: 1.5px;
+}
+input:hover {
+  border-color: var(--enduro-purple);
+}
+.search-config {
+  color: var(--enduro-purple);
+}
+*/
 </style>
