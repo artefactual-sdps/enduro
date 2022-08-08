@@ -1,15 +1,13 @@
 version_settings(constraint=">=0.22.2")
-
 load("ext://uibutton", "cmd_button", "text_input")
 
+# Docker images
 docker_build("enduro:dev", context=".")
-
 docker_build(
   "enduro-a3m-worker:dev",
   context=".",
   target="enduro-a3m-worker"
 )
-
 docker_build(
   "enduro-dashboard:dev",
   context="dashboard",
@@ -24,16 +22,53 @@ docker_build(
   ]
 )
 
+# All Kubernetes resources
 k8s_yaml(kustomize("hack/kube/overlays/dev"))
 
-k8s_resource("enduro-dashboard", port_forwards="3000")
+# Enduro resources
+k8s_resource("enduro", labels=["Enduro"])
+k8s_resource("enduro-a3m", labels=["Enduro"])
+k8s_resource("enduro-dashboard", port_forwards="3000", labels=["Enduro"])
 
-k8s_resource("minio", port_forwards=["7460:9001", "0.0.0.0:7461:9000"])
+# Other resources
+k8s_resource("mysql", labels=["Others"])
+k8s_resource(
+  "minio",
+  port_forwards=["7460:9001",
+  "0.0.0.0:7461:9000"],
+  labels=["Others"]
+)
+k8s_resource("opensearch", labels=["Others"])
+k8s_resource(
+  "opensearch-dashboards",
+  port_forwards="7500:5601",
+  labels=["Others"]
+)
+k8s_resource("redis", labels=["Others"])
+k8s_resource("temporal", labels=["Others"])
+k8s_resource("temporal-ui", port_forwards="7440:8080", labels=["Others"])
 
-k8s_resource("opensearch-dashboards", port_forwards="7500:5601")
+# Tools
+k8s_resource("minio-setup-buckets", labels=["Tools"])
+local_resource(
+  "gen-goa",
+  cmd="make gen-goa",
+  auto_init=False,
+  trigger_mode=TRIGGER_MODE_MANUAL,
+  deps=["internal/api"],
+  ignore=["internal/api/gen"],
+  labels=["Tools"]
+)
+local_resource(
+  "gen-dashboard-client",
+  cmd="make gen-dashboard-client",
+  auto_init=False,
+  trigger_mode=TRIGGER_MODE_MANUAL,
+  deps=["internal/api/gen"],
+  labels=["Tools"]
+)
 
-k8s_resource("temporal-ui", port_forwards="7440:8080")
-
+# Buttons
 cmd_button(
   "minio-upload",
   argv=[
@@ -57,7 +92,6 @@ cmd_button(
     text_input("OBJECT_NAME", label="Object name"),
   ]
 )
-
 cmd_button(
   "flush",
   argv=[
