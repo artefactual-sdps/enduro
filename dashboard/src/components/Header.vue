@@ -115,9 +115,10 @@ onMounted(() => {
       </div>
       <div class="offcanvas-body d-flex flex-grow-1">
         <ul class="list-unstyled flex-grow-1">
-          <li class="p-3">
+          <li>
             <router-link
-              active-class="bg-white text-decoration-none text-dark"
+              class="d-block p-3 text-decoration-none text-dark"
+              active-class="bg-enduro-primary text-white"
               :to="{ name: 'packages' }"
             >
               <div class="row">
@@ -128,8 +129,12 @@ onMounted(() => {
               </div></router-link
             >
           </li>
-          <li class="p-3">
-            <router-link active-class="bg-dark" :to="{ name: 'index' }">
+          <li>
+            <router-link
+              class="d-block p-3 text-decoration-none text-dark"
+              active-class="bg-enduro-primary text-white"
+              :to="{ name: 'index' }"
+            >
               <div class="row">
                 <div class="col-3 d-flex justify-content-end p-0">
                   <IconRackServerLine
