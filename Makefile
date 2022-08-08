@@ -1,10 +1,6 @@
 include .bingo/Variables.mk
 
 SHELL=/bin/bash
-BUILD_TIME=$(shell date -u +%Y-%m-%dT%T%z)
-GIT_COMMIT=$(shell git rev-parse --short HEAD)
-LD_FLAGS= '-X "github.com/artefactual-sdps/enduro/internal/version.BuildTime=$(BUILD_TIME)" -X github.com/artefactual-sdps/enduro/internal/version.GitCommit=$(GIT_COMMIT)'
-GO_FLAGS= -ldflags=$(LD_FLAGS)
 
 define NEWLINE
 
@@ -35,29 +31,19 @@ TEST_PACKAGES	:= $(filter-out $(IGNORED_PACKAGES),$(PACKAGES))
 
 export PATH:=$(GOBIN):$(PATH)
 
-.DEFAULT_GOAL := run
+.DEFAULT_GOAL := tools
 
 $(GOBIN)/bingo:
 	$(GO) install github.com/bwplotka/bingo@latest
 
 bingo: $(GOBIN)/bingo
 
+env:
+	$(GO) env
+
 tools: bingo
 	bingo get
 	bingo list
-
-run: enduro-dev
-	./build/enduro
-
-build: enduro-dev enduro-a3m-worker-dev
-
-enduro-dev:
-	mkdir -p ./build
-	$(GO) build -trimpath -o build/enduro $(GO_FLAGS) -v .
-
-enduro-a3m-worker-dev:
-	mkdir -p ./build
-	$(GO) build -trimpath -o build/enduro-a3m-worker $(GO_FLAGS) -v ./cmd/enduro-a3m-worker
 
 tparse:
 	@$(GO) test -count=1 -json -cover  $(TEST_PACKAGES) | $(TPARSE) -follow -all
@@ -76,9 +62,6 @@ lint:
 
 gen-goa:
 	$(GOA) gen github.com/artefactual-sdps/enduro/internal/api/design -o internal/api
-
-clean:
-	rm -rf ./build ./dist
 
 gen-dashboard-client:
 	@rm -rf $(CURDIR)/dashboard/src/openapi-generator
