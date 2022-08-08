@@ -98,7 +98,7 @@ onMounted(() => {
 
   <div class="flex-grow-1 row">
     <div
-      class="col-lg-2 offcanvas-lg offcanvas-start border-end bg-light"
+      class="col-lg-2 offcanvas-lg offcanvas-start d-flex border-end bg-light pe-0"
       tabindex="-1"
       id="offcanvas"
       aria-label="offcanvasLabel"
@@ -113,11 +113,32 @@ onMounted(() => {
           aria-label="Close"
         ></button>
       </div>
-      <div class="offcanvas-body">
-        <ul class="list-unstyled p-lg-3">
-          <li>
-            <router-link active-class="active" :to="{ name: 'packages' }"
-              >Packages</router-link
+      <div class="offcanvas-body d-flex flex-grow-1">
+        <ul class="list-unstyled flex-grow-1">
+          <li class="p-3">
+            <router-link
+              active-class="bg-white text-decoration-none text-dark"
+              :to="{ name: 'packages' }"
+            >
+              <div class="row">
+                <div class="col-3 d-flex justify-content-end p-0">
+                  <IconBundleLine style="font-size: 1.5em" aria-hidden="true" />
+                </div>
+                <div class="col-9">Packages</div>
+              </div></router-link
+            >
+          </li>
+          <li class="p-3">
+            <router-link active-class="bg-dark" :to="{ name: 'index' }">
+              <div class="row">
+                <div class="col-3 d-flex justify-content-end p-0">
+                  <IconRackServerLine
+                    style="font-size: 1.5em"
+                    aria-hidden="true"
+                  />
+                </div>
+                <div class="col-9">Locations</div>
+              </div></router-link
             >
           </li>
         </ul>
