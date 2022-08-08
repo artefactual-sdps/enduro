@@ -17,11 +17,7 @@ It's a **proof of concept** at its very early stages. It aims to cover our
 client's needs while exploring new and innovative ways to build durable and
 fault-tolerant workflows suited for preservation.
 
-## Further reading
-
-Visit https://enduroproject.netlify.com for more details.
-
-## Local environment
+## Local/Development environment
 
 Enduro uses Tilt to set up a local environment building the Docker images in a
 Kubernetes cluster. It has been tested with k3d, Minikube and Kind.
@@ -44,6 +40,52 @@ even against remote clusters, check Tilt's [Choosing a Local Dev Cluster] and
 
 Additionally, follow the [Manage Docker as a non-root user] post-install guide
 so that you don’t have to run Tilt with `sudo`.
+
+### Requirements for development
+
+While we run the services inside a Kubernetes cluster we recomend to install
+Go, Node and other tools locally to ease the development process.
+
+- [Go] (1.18+)
+- [NPM and Node] (18+)
+- GNU [Make] and [GCC]
+
+If using Linux, Node.js binary distributions are available from [NodeSource].
+
+#### Go tools
+
+We use [bingo] to manage some Go tools and binaries needed to perform various
+development operations. First, update the environment to indicate bingo where
+to install them and make them available:
+
+```
+export GOBIN=$HOME/go/bin
+export PATH=$PATH:$HOME/go/bin
+```
+
+Make sure those environment variables are set each time you use bingo or one of
+the tools. For example, by adding those lines to your `~/.profile` file.
+
+Then, install and list them with:
+
+```
+make tools
+```
+
+This tools will be used through Makefile rules or the Tilt UI.
+
+### Editor
+
+As source-code editor, we strongly recommended [Visual Studio Code] for its
+great out-of-the-box support for Go and TypeScript. The project includes some
+basic settings for formatting and we suggest installing the following VSCcode
+extensions:
+
+- Go
+- Vue Language Features (Volar)
+- TypeScript Vue Plugin (Volar)
+- Prettier - Code formatter
+- ESLint
 
 ### Set up
 
@@ -160,6 +202,16 @@ Also in the Tilt UI header, click the trash button to flush the existing data.
 This will recreate the MySQL databases and the MinIO buckets, delete the
 Opensearch index and restart the required resources.
 
+#### Generators
+
+Grouped as tools, there are some code generators:
+
+- `gen-goa`: generates the Go API code based on the Goa design.
+- `gen-dashboard-client`: generates the TypeScript client code for the API.
+
+This resources need to be triggered manually by default, but they can be
+configured to run automatically on code changes in the Tilt UI.
+
 ### Known issues
 
 #### Minio uploads don't trigger workflows
@@ -180,3 +232,10 @@ is sometimes not setup properly. To solve it, from the Tilt UI, restart the
 [install]: https://docs.tilt.dev/install.html
 [manage docker as a non-root user]: https://docs.docker.com/engine/install/linux-postinstall/#manage-docker-as-a-non-root-user
 [tilt ui]: https://docs.tilt.dev/tutorial/3-tilt-ui.html
+[go]: https://go.dev/doc/install
+[npm and node]: https://nodejs.org/
+[nodesource]: https://github.com/nodesource/distributions
+[make]: https://www.gnu.org/software/make/
+[gcc]: https://gcc.gnu.org/
+[bingo]: https://github.com/bwplotka/bingo
+[visual studio code]: https://code.visualstudio.com/
