@@ -40,7 +40,7 @@ require (
 	go.uber.org/zap v1.21.0
 	goa.design/goa/v3 v3.7.12
 	goa.design/plugins/v3 v3.7.12
-	gocloud.dev v0.25.0
+	gocloud.dev v0.26.0
 	golang.org/x/text v0.3.7
 	google.golang.org/grpc v1.48.0
 	google.golang.org/protobuf v1.28.0 // indirect
