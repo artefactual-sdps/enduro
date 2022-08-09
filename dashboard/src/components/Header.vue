@@ -1,81 +1,96 @@
 <script setup lang="ts">
-import Header from "@/components/Header.vue";
+import Collapse from "bootstrap/js/dist/collapse";
 import Dropdown from "bootstrap/js/dist/dropdown";
 import Offcanvas from "bootstrap/js/dist/offcanvas";
 import { onMounted } from "vue";
 import { DialogWrapper } from "vue3-promise-dialog";
-import TextAlignJustified from "~icons/akar-icons/text-align-justified";
 import IconAnalyticsLine from "~icons/clarity/analytics-line";
 import IconBlocksGroupLine from "~icons/clarity/blocks-group-line";
 import IconBundleLine from "~icons/clarity/bundle-line";
 import IconFileGroupLine from "~icons/clarity/file-group-line";
 import IconHomeLine from "~icons/clarity/home-line";
 import IconMenuLine from "~icons/clarity/menu-line";
+import IconSearchLine from "~icons/clarity/search-line";
 import IconProcessOnVmLine from "~icons/clarity/process-on-vm-line";
 import IconRackServerLine from "~icons/clarity/rack-server-line";
 import IconSettingsLine from "~icons/clarity/settings-line";
 import IconShieldCheckLine from "~icons/clarity/shield-check-line";
 import IconSliderLine from "~icons/clarity/slider-line";
 
-const offcanvasButton = $ref<HTMLElement | null>(null);
-
+const offcanvas = $ref<HTMLElement | null>(null);
+const collapse = $ref<HTMLElement | null>(null);
 const dropdown = $ref<HTMLElement | null>(null);
-onMounted(() => {
-  if (dropdown) new Dropdown(dropdown);
-});
 
 onMounted(() => {
-  if (offcanvasButton) new Offcanvas(offcanvasButton);
+  if (offcanvas) new Offcanvas(offcanvas);
+  if (collapse) new Collapse(collapse);
+  if (dropdown) new Dropdown(dropdown);
 });
 </script>
 
 <template>
-  <header class="navbar navbar-expand-lg border-bottom">
-    <nav class="container-fluid gap-2 row" aria-label="Main navigation">
-      <div class="col-lg-2 d-flex justify-content-end">
+  <header class="border-bottom">
+    <nav class="navbar navbar-expand-lg">
+      <div class="container-fluid">
         <button
-          class="bg-white text-enduro-primary d-lg-none"
+          ref="offcanvas"
           type="button"
-          ref="offcanvasButton"
+          class="navbar-toggler btn btn-link text-decoration-none"
           data-bs-toggle="offcanvas"
-          data-bs-target="#offcanvas"
-          aria-controls="offcanvas"
-          aria-label="Toggle navigation"
+          data-bs-target="#menu-offcanvas"
+          aria-controls="menu-offcanvas"
+          aria-label="Toggle menu"
         >
-          <TextAlignJustified style="font-size: 2em" />
+          <IconMenuLine class="text-dark fs-2" aria-hidden="true" />
         </button>
 
         <router-link
-          class="navbar-brand h1 m-0 p-2 text-enduro-primary"
+          class="navbar-brand me-auto me-lg-3 p-2 text-enduro-primary"
           :to="{ name: 'index' }"
         >
-          <img src="/logo.png" alt="" height="30" class="d-inline-block" />
+          <img
+            src="/logo.png"
+            alt=""
+            height="35"
+            class="d-inline-block align-text-middle"
+          />
           Enduro</router-link
         >
-      </div>
-      <div class="col-lg-10 d-flex">
-        <form class="d-flex flex-grow-1" role="search">
-          <input
-            class="form-control me-2"
-            type="search"
-            placeholder="Search"
-            aria-label="Search"
-          />
-          <button
-            class="btn btn-link text-decoration-none ms-auto p-0"
-            type="submit"
-          >
-            <IconSliderLine class="text-secondary" aria-hidden="true" />
-            <span class="visually-hidden">Search</span>
-          </button>
-        </form>
 
-        <div class="dropdown ms-3">
-          <a
-            href="#"
-            class="link-dark text-decoration-none dropdown-toggle"
-            data-bs-toggle="dropdown"
+        <button
+          ref="collapse"
+          type="button"
+          class="navbar-toggler btn btn-link text-decoration-none ms-auto"
+          data-bs-toggle="collapse"
+          data-bs-target="#search-collapse"
+          aria-controls="search-collapse"
+          aria-expanded="false"
+          aria-label="Toggle search"
+        >
+          <IconSearchLine class="text-dark fs-3" aria-hidden="true" />
+        </button>
+
+        <div class="collapse navbar-collapse py-3 py-lg-0" id="search-collapse">
+          <form class="d-flex flex-grow-1" role="search">
+            <input
+              class="form-control"
+              type="search"
+              placeholder="Search"
+              aria-label="Search"
+            />
+            <button type="submit" class="btn btn-link text-decoration-none">
+              <IconSliderLine class="text-secondary" aria-hidden="true" />
+              <span class="visually-hidden">Search</span>
+            </button>
+          </form>
+        </div>
+
+        <div class="dropdown mx-2">
+          <button
             ref="dropdown"
+            type="button"
+            class="btn btn-link text-dark text-decoration-none dropdown-toggle p-2"
+            data-bs-toggle="dropdown"
             aria-expanded="false"
           >
             <img
@@ -85,7 +100,7 @@ onMounted(() => {
               height="32"
               class="rounded-circle"
             />
-          </a>
+          </button>
           <ul class="dropdown-menu dropdown-menu-end">
             <li><a class="dropdown-item" href="#">Profile</a></li>
             <li><hr class="dropdown-divider" /></li>
@@ -100,7 +115,7 @@ onMounted(() => {
     <div
       class="col-lg-2 offcanvas-lg offcanvas-start d-flex border-end bg-light pe-0"
       tabindex="-1"
-      id="offcanvas"
+      id="menu-offcanvas"
       aria-label="offcanvasLabel"
     >
       <div class="offcanvas-header">
@@ -109,7 +124,7 @@ onMounted(() => {
           type="button"
           class="btn-close"
           data-bs-dismiss="offcanvas"
-          data-bs-target="#offcanvas"
+          data-bs-target="#menu-offcanvas"
           aria-label="Close"
         ></button>
       </div>
@@ -154,49 +169,3 @@ onMounted(() => {
     </div>
   </div>
 </template>
-
-<style>
-/*
-.avatar-profile {
-  --bs-nav-link-padding-x: 0;
-  --bes-nav-link-margin-y: 1rem;
-  --bs-nav-link-padding-y: 1rem;
-  --bs-nav-link-font-weight: ;
-  --bs-nav-link-color: var(--bs-navbar-color);
-  --bs-nav-link-hover-color: var(--bs-navbar-hover-color);
-  --bs-nav-link-disabled-color: var(--bs-navbar-disabled-color);
-  display: flex;
-  flex-direction: column;
-  padding-left: 0;
-  margin-bottom: 0;
-  margin-left: 1rem;
-  margin-right: 1rem;
-  list-style: none;
-}
-
-
-.search-block {
-  padding: 0 2rem;
-  flex-grow: 1;
-  align-self: stretch;
-  padding-left: 0;
-  margin-bottom: 0;
-  margin-left: 0;
-  margin-right: 1rem;
-}
-input {
-  min-height: 2.5rem;
-  flex-grow: 1;
-  width: 100%;
-  border-color: #e1e1e1;
-  border-style: solid;
-  border-width: 1.5px;
-}
-input:hover {
-  border-color: var(--enduro-purple);
-}
-.search-config {
-  color: var(--enduro-purple);
-}
-*/
-</style>
