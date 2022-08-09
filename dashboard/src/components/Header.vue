@@ -10,9 +10,9 @@ import IconBundleLine from "~icons/clarity/bundle-line";
 import IconFileGroupLine from "~icons/clarity/file-group-line";
 import IconHomeLine from "~icons/clarity/home-line";
 import IconMenuLine from "~icons/clarity/menu-line";
-import IconSearchLine from "~icons/clarity/search-line";
 import IconProcessOnVmLine from "~icons/clarity/process-on-vm-line";
 import IconRackServerLine from "~icons/clarity/rack-server-line";
+import IconSearchLine from "~icons/clarity/search-line";
 import IconSettingsLine from "~icons/clarity/settings-line";
 import IconShieldCheckLine from "~icons/clarity/shield-check-line";
 import IconSliderLine from "~icons/clarity/slider-line";
@@ -30,7 +30,7 @@ onMounted(() => {
 
 <template>
   <header class="border-bottom">
-    <nav class="navbar navbar-expand-lg">
+    <nav class="navbar navbar-expand-md">
       <div class="container-fluid">
         <button
           ref="offcanvas"
@@ -43,19 +43,30 @@ onMounted(() => {
         >
           <IconMenuLine class="text-dark fs-2" aria-hidden="true" />
         </button>
+        <div class="col-2">
+          <router-link
+            class="navbar-brand me-auto me-md-3 p-2 text-enduro-primary"
+            :to="{ name: 'index' }"
+          >
+            <img
+              src="/logo.png"
+              alt=""
+              height="35"
+              class="d-inline-block align-text-middle"
+            />
+            Enduro</router-link
+          >
+        </div>
 
-        <router-link
-          class="navbar-brand me-auto me-lg-3 p-2 text-enduro-primary"
-          :to="{ name: 'index' }"
-        >
-          <img
-            src="/logo.png"
-            alt=""
-            height="35"
-            class="d-inline-block align-text-middle"
-          />
-          Enduro</router-link
-        >
+        <div class="d-none d-md-block px-1">
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+              <li class="breadcrumb-item active" aria-current="page">
+                / Packages
+              </li>
+            </ol>
+          </nav>
+        </div>
 
         <button
           ref="collapse"
@@ -70,7 +81,7 @@ onMounted(() => {
           <IconSearchLine class="text-dark fs-3" aria-hidden="true" />
         </button>
 
-        <div class="collapse navbar-collapse py-3 py-lg-0" id="search-collapse">
+        <div class="collapse navbar-collapse py-3 py-md-0" id="search-collapse">
           <form class="d-flex flex-grow-1" role="search">
             <input
               class="form-control"
@@ -113,7 +124,7 @@ onMounted(() => {
 
   <div class="flex-grow-1 row">
     <div
-      class="col-lg-2 offcanvas-lg offcanvas-start d-flex border-end bg-light pe-0"
+      class="col-md-2 offcanvas-md offcanvas-start d-flex border-end bg-light pe-0"
       tabindex="-1"
       id="menu-offcanvas"
       aria-label="offcanvasLabel"
@@ -164,7 +175,7 @@ onMounted(() => {
         </ul>
       </div>
     </div>
-    <div class="col-lg-10 ps-lg-0">
+    <div class="col-md-10 ps-md-0">
       <router-view></router-view>
     </div>
   </div>
