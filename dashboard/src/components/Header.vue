@@ -43,7 +43,8 @@ onMounted(() => {
         >
           <IconMenuLine class="text-dark fs-2" aria-hidden="true" />
         </button>
-        <div class="col-2">
+
+        <div class="col-md-2">
           <router-link
             class="navbar-brand me-auto me-md-3 p-2 text-enduro-primary"
             :to="{ name: 'index' }"
@@ -58,7 +59,7 @@ onMounted(() => {
           >
         </div>
 
-        <div class="d-none d-md-block px-1">
+        <div class="d-none d-md-block me-3" id="header-breadcrumb">
           <nav aria-label="breadcrumb">
             <ol class="breadcrumb mb-0">
               <li class="breadcrumb-item active" aria-current="page">
@@ -180,3 +181,9 @@ onMounted(() => {
     </div>
   </div>
 </template>
+
+<style>
+#header-breadcrumb {
+  margin-left: -1rem;
+}
+</style>
