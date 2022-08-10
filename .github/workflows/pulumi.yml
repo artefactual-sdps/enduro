@@ -13,6 +13,16 @@ jobs:
       - name: Download Go dependencies
         run: go mod download
         working-directory: hack/pulumi
+      - name: Refresh and update Pulumi stack
+        uses: pulumi/actions@v3.18.1
+        with:
+          command: up
+          refresh: true
+          stack-name: dev
+          work-dir: hack/pulumi
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_TOKEN }}
+          DOCKER_BUILDKIT: 1
       - name: Configure kubectl
         uses: azure/k8s-set-context@v3.0
         with:
@@ -26,13 +36,5 @@ jobs:
           kubectl create -f hack/kube/tools/opensearch-delete-index-job.yaml
           kubectl wait --for=condition=complete --timeout=30s job --all -n sdps
           kubectl rollout restart deployment temporal -n sdps
-      - name: Refresh and update Pulumi stack
-        uses: pulumi/actions@v3.18.1
-        with:
-          command: up
-          refresh: true
-          stack-name: dev
-          work-dir: hack/pulumi
-        env:
-          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_TOKEN }}
-          DOCKER_BUILDKIT: 1
+          kubectl rollout restart deployment enduro -n sdps
+          kubectl rollout restart statefulset enduro-a3m -n sdps
