@@ -49,22 +49,26 @@ onMounted(() => {
           <IconMenuLine class="text-dark fs-2" aria-hidden="true" />
         </button>
 
-        <div class="col-md-2">
+        <div class="col-md-2 ps-3" id="header-brand">
           <router-link
             class="navbar-brand me-auto me-md-3 p-2 text-enduro-primary"
             :to="{ name: 'index' }"
           >
-            <img
-              src="/logo.png"
-              alt=""
-              height="35"
-              class="d-inline-block align-text-middle"
-            />
-            Enduro</router-link
-          >
+            <div class="row">
+              <div class="col-3 d-flex justify-content-end p-0">
+                <img
+                  src="/logo.png"
+                  alt=""
+                  height="35"
+                  class="d-inline-block align-text-middle"
+                />
+              </div>
+              <div class="col-9 d-flex justify-content-end pe-3">Enduro</div>
+            </div>
+          </router-link>
         </div>
 
-        <div class="d-none d-md-block me-3" id="header-breadcrumb">
+        <div class="flex-grow-1 d-none d-md-block me-3" id="header-breadcrumb">
           <nav aria-label="breadcrumb">
             <ol class="breadcrumb mb-0">
               <li class="breadcrumb-item active" aria-current="page">
@@ -73,7 +77,7 @@ onMounted(() => {
             </ol>
           </nav>
         </div>
-
+        <!-- SEARCH BOX STUFF
         <button
           ref="collapse"
           type="button"
@@ -86,8 +90,11 @@ onMounted(() => {
         >
           <IconSearchLine class="text-dark fs-3" aria-hidden="true" />
         </button>
-
-        <div class="collapse navbar-collapse py-3 py-md-0" id="search-collapse">
+        
+        <div
+          class="collapse navbar-collapse py-3 py-md-0"
+          id="search-collapse"
+        >
           <form class="d-flex flex-grow-1" role="search">
             <input
               class="form-control"
@@ -101,7 +108,7 @@ onMounted(() => {
             </button>
           </form>
         </div>
-
+-->
         <div class="dropdown mx-2">
           <button
             ref="dropdown"
@@ -188,7 +195,7 @@ onMounted(() => {
 </template>
 
 <style>
-#header-breadcrumb {
+#header-brand {
   margin-left: -1rem;
 }
 </style>
