@@ -36,101 +36,98 @@ onMounted(() => {
   </div>
   <header class="border-bottom">
     <nav class="navbar navbar-expand-md">
-      <div class="container-fluid">
-        <button
-          ref="offcanvas"
-          type="button"
-          class="navbar-toggler btn btn-link text-decoration-none"
-          data-bs-toggle="offcanvas"
-          data-bs-target="#menu-offcanvas"
-          aria-controls="menu-offcanvas"
-          aria-label="Toggle menu"
-        >
-          <IconMenuLine class="text-dark fs-2" aria-hidden="true" />
-        </button>
+      <button
+        ref="offcanvas"
+        type="button"
+        class="navbar-toggler btn btn-link text-decoration-none"
+        data-bs-toggle="offcanvas"
+        data-bs-target="#menu-offcanvas"
+        aria-controls="menu-offcanvas"
+        aria-label="Toggle menu"
+      >
+        <IconMenuLine class="text-dark fs-2" aria-hidden="true" />
+      </button>
 
-        <div class="col-md-2 ps-3" id="header-brand">
-          <router-link
-            class="navbar-brand me-auto me-md-3 p-2 text-enduro-primary"
-            :to="{ name: 'index' }"
-          >
+      <div class="col-md-2 pe-2">
+        <router-link
+          class="navbar-brand text-enduro-primary me-0"
+          :to="{ name: 'index' }"
+        >
+          <div class="container-fluid">
             <div class="row">
               <div class="col-3 d-flex justify-content-end p-0">
-                <img
-                  src="/logo.png"
-                  alt=""
-                  height="35"
-                  class="d-inline-block align-text-middle"
-                />
+                <img src="/logo.png" alt="" height="30" />
               </div>
-              <div class="col-9 d-flex justify-content-end pe-3">Enduro</div>
+              <div class="col-9 d-flex justify-content-end p-0">Enduro</div>
             </div>
-          </router-link>
-        </div>
+          </div>
+        </router-link>
+      </div>
 
-        <div class="flex-grow-1 d-none d-md-block me-3" id="header-breadcrumb">
-          <nav aria-label="breadcrumb">
-            <ol class="breadcrumb mb-0">
-              <li class="breadcrumb-item active" aria-current="page">
-                / Packages
-              </li>
-            </ol>
-          </nav>
-        </div>
-        <!-- SEARCH BOX STUFF
-        <button
-          ref="collapse"
-          type="button"
-          class="navbar-toggler btn btn-link text-decoration-none ms-auto"
-          data-bs-toggle="collapse"
-          data-bs-target="#search-collapse"
-          aria-controls="search-collapse"
-          aria-expanded="false"
-          aria-label="Toggle search"
-        >
-          <IconSearchLine class="text-dark fs-3" aria-hidden="true" />
-        </button>
-        
-        <div
-          class="collapse navbar-collapse py-3 py-md-0"
-          id="search-collapse"
-        >
-          <form class="d-flex flex-grow-1" role="search">
-            <input
-              class="form-control"
-              type="search"
-              placeholder="Search"
-              aria-label="Search"
-            />
-            <button type="submit" class="btn btn-link text-decoration-none">
-              <IconSliderLine class="text-secondary" aria-hidden="true" />
-              <span class="visually-hidden">Search</span>
-            </button>
-          </form>
-        </div>
--->
-        <div class="dropdown mx-2">
-          <button
-            ref="dropdown"
-            type="button"
-            class="btn btn-link text-dark text-decoration-none dropdown-toggle p-2"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-          >
-            <img
-              src="https://github.com/mdo.png"
-              alt="mdo"
-              width="32"
-              height="32"
-              class="rounded-circle"
-            />
+      <div class="flex-grow-1 d-none d-md-block me-3" id="header-breadcrumb">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item active" aria-current="page">
+              / Packages
+            </li>
+          </ol>
+        </nav>
+      </div>
+
+      <!-- SEARCH BOX STUFF
+      <button
+        ref="collapse"
+        type="button"
+        class="navbar-toggler btn btn-link text-decoration-none ms-auto"
+        data-bs-toggle="collapse"
+        data-bs-target="#search-collapse"
+        aria-controls="search-collapse"
+        aria-expanded="false"
+        aria-label="Toggle search"
+      >
+        <IconSearchLine class="text-dark fs-3" aria-hidden="true" />
+      </button>
+      
+      <div
+        class="collapse navbar-collapse py-3 py-md-0"
+        id="search-collapse"
+      >
+        <form class="d-flex flex-grow-1" role="search">
+          <input
+            class="form-control"
+            type="search"
+            placeholder="Search"
+            aria-label="Search"
+          />
+          <button type="submit" class="btn btn-link text-decoration-none">
+            <IconSliderLine class="text-secondary" aria-hidden="true" />
+            <span class="visually-hidden">Search</span>
           </button>
-          <ul class="dropdown-menu dropdown-menu-end">
-            <li><a class="dropdown-item" href="#">Profile</a></li>
-            <li><hr class="dropdown-divider" /></li>
-            <li><a class="dropdown-item" href="#">Sign out</a></li>
-          </ul>
-        </div>
+        </form>
+      </div>
+      -->
+
+      <div class="dropdown mx-2">
+        <button
+          ref="dropdown"
+          type="button"
+          class="btn btn-link text-dark text-decoration-none dropdown-toggle p-2"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+        >
+          <img
+            src="https://github.com/mdo.png"
+            alt="mdo"
+            width="32"
+            height="32"
+            class="rounded-circle"
+          />
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li><a class="dropdown-item" href="#">Profile</a></li>
+          <li><hr class="dropdown-divider" /></li>
+          <li><a class="dropdown-item" href="#">Sign out</a></li>
+        </ul>
       </div>
     </nav>
   </header>
@@ -193,9 +190,3 @@ onMounted(() => {
     </div>
   </div>
 </template>
-
-<style>
-#header-brand {
-  margin-left: -1rem;
-}
-</style>
