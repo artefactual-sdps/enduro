@@ -29,6 +29,11 @@ onMounted(() => {
 </script>
 
 <template>
+  <div class="visually-hidden-focusable overflow-hidden p-3 border-bottom">
+    <a class="btn btn-outline-enduro-primary" href="#main"
+      >Skip to main content</a
+    >
+  </div>
   <header class="border-bottom">
     <nav class="navbar navbar-expand-md">
       <div class="container-fluid">
@@ -176,7 +181,7 @@ onMounted(() => {
         </ul>
       </div>
     </div>
-    <div class="col-md-10 ps-md-0">
+    <div class="col-md-10 ps-md-0" id="main" role="main">
       <router-view></router-view>
     </div>
   </div>
