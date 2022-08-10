@@ -34,7 +34,7 @@ jobs:
           kubectl create -f hack/kube/tools/mysql-recreate-databases-job.yaml
           kubectl create -f hack/kube/tools/minio-recreate-buckets-job.yaml
           kubectl create -f hack/kube/tools/opensearch-delete-index-job.yaml
-          kubectl wait --for=condition=complete --timeout=30s job --all -n sdps
+          kubectl wait --for=condition=complete --timeout=120s job --all -n sdps
           kubectl rollout restart deployment temporal -n sdps
           kubectl rollout restart deployment enduro -n sdps
           kubectl rollout restart statefulset enduro-a3m -n sdps
