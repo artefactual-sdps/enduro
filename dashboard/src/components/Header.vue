@@ -35,11 +35,11 @@ onMounted(() => {
     >
   </div>
   <header class="border-bottom">
-    <nav class="navbar navbar-expand-md">
+    <nav class="navbar navbar-expand-md p-0">
       <button
         ref="offcanvas"
         type="button"
-        class="navbar-toggler btn btn-link text-decoration-none"
+        class="navbar-toggler btn btn-link text-decoration-none p-1 ms-3"
         data-bs-toggle="offcanvas"
         data-bs-target="#menu-offcanvas"
         aria-controls="menu-offcanvas"
@@ -48,9 +48,9 @@ onMounted(() => {
         <IconMenuLine class="text-dark fs-2" aria-hidden="true" />
       </button>
 
-      <div class="col-md-2 pe-2">
+      <div class="col-md-2 me-auto ms-2 ms-md-0">
         <router-link
-          class="navbar-brand text-enduro-primary me-0"
+          class="navbar-brand text-enduro-primary d-flex me-0 py-3 ps-3 ps-md-0"
           :to="{ name: 'index' }"
         >
           <div class="container-fluid">
@@ -58,13 +58,15 @@ onMounted(() => {
               <div class="col-3 d-flex justify-content-end p-0">
                 <img src="/logo.png" alt="" height="30" />
               </div>
-              <div class="col-9 d-flex justify-content-end p-0">Enduro</div>
+              <div class="col-9 d-flex justify-content-end p-0 pe-2">
+                Enduro
+              </div>
             </div>
           </div>
         </router-link>
       </div>
 
-      <div class="flex-grow-1 d-none d-md-block me-3" id="header-breadcrumb">
+      <div class="flex-grow-1 d-none d-md-block ms-1">
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb mb-0">
             <li class="breadcrumb-item active" aria-current="page">
@@ -107,7 +109,8 @@ onMounted(() => {
       </div>
       -->
 
-      <div class="dropdown mx-2">
+      <!-- USER MENU STUFF
+      <div class="dropdown me-3">
         <button
           ref="dropdown"
           type="button"
@@ -129,6 +132,7 @@ onMounted(() => {
           <li><a class="dropdown-item" href="#">Sign out</a></li>
         </ul>
       </div>
+      -->
     </nav>
   </header>
 
