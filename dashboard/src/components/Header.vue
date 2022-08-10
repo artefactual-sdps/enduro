@@ -3,37 +3,20 @@ import Collapse from "bootstrap/js/dist/collapse";
 import Dropdown from "bootstrap/js/dist/dropdown";
 import Offcanvas from "bootstrap/js/dist/offcanvas";
 import { onMounted } from "vue";
-import { DialogWrapper } from "vue3-promise-dialog";
-import IconAnalyticsLine from "~icons/clarity/analytics-line";
-import IconBlocksGroupLine from "~icons/clarity/blocks-group-line";
-import IconBundleLine from "~icons/clarity/bundle-line";
-import IconFileGroupLine from "~icons/clarity/file-group-line";
-import IconHomeLine from "~icons/clarity/home-line";
 import IconMenuLine from "~icons/clarity/menu-line";
-import IconProcessOnVmLine from "~icons/clarity/process-on-vm-line";
-import IconRackServerLine from "~icons/clarity/rack-server-line";
-import IconSearchLine from "~icons/clarity/search-line";
-import IconSettingsLine from "~icons/clarity/settings-line";
-import IconShieldCheckLine from "~icons/clarity/shield-check-line";
-import IconSliderLine from "~icons/clarity/slider-line";
 
 const offcanvas = $ref<HTMLElement | null>(null);
-const collapse = $ref<HTMLElement | null>(null);
-const dropdown = $ref<HTMLElement | null>(null);
+//const collapse = $ref<HTMLElement | null>(null);
+//const dropdown = $ref<HTMLElement | null>(null);
 
 onMounted(() => {
   if (offcanvas) new Offcanvas(offcanvas);
-  if (collapse) new Collapse(collapse);
-  if (dropdown) new Dropdown(dropdown);
+  //if (collapse) new Collapse(collapse);
+  //if (dropdown) new Dropdown(dropdown);
 });
 </script>
 
 <template>
-  <div class="visually-hidden-focusable overflow-hidden p-3 border-bottom">
-    <a class="btn btn-outline-enduro-primary" href="#main"
-      >Skip to main content</a
-    >
-  </div>
   <header class="border-bottom">
     <nav class="navbar navbar-expand-md p-0">
       <button
@@ -135,71 +118,4 @@ onMounted(() => {
       -->
     </nav>
   </header>
-
-  <div class="container-fluid d-flex flex-grow-1">
-    <div class="row flex-grow-1">
-      <div
-        class="col-md-2 offcanvas-md offcanvas-start d-flex border-end bg-light p-0"
-        tabindex="-1"
-        id="menu-offcanvas"
-        aria-label="offcanvasLabel"
-      >
-        <div class="offcanvas-header">
-          <h5 class="offcanvas-title" id="offcanvasLabel">Navigation</h5>
-          <button
-            type="button"
-            class="btn-close"
-            data-bs-dismiss="offcanvas"
-            data-bs-target="#menu-offcanvas"
-            aria-label="Close"
-          ></button>
-        </div>
-        <div class="offcanvas-body d-flex flex-grow-1">
-          <ul class="list-unstyled flex-grow-1">
-            <li>
-              <router-link
-                class="d-block py-3 text-decoration-none text-dark"
-                active-class="bg-enduro-primary text-white"
-                :to="{ name: 'packages' }"
-              >
-                <div class="container-fluid">
-                  <div class="row">
-                    <div class="col-3 d-flex justify-content-end p-0">
-                      <IconBundleLine
-                        style="font-size: 1.5em"
-                        aria-hidden="true"
-                      />
-                    </div>
-                    <div class="col-9">Packages</div>
-                  </div>
-                </div></router-link
-              >
-            </li>
-            <li>
-              <router-link
-                class="d-block py-3 text-decoration-none text-dark"
-                active-class="bg-enduro-primary text-white"
-                :to="{ name: 'locations' }"
-              >
-                <div class="container-fluid">
-                  <div class="row">
-                    <div class="col-3 d-flex justify-content-end p-0">
-                      <IconRackServerLine
-                        style="font-size: 1.5em"
-                        aria-hidden="true"
-                      />
-                    </div>
-                    <div class="col-9">Locations</div>
-                  </div>
-                </div></router-link
-              >
-            </li>
-          </ul>
-        </div>
-      </div>
-      <div class="col-md-10 p-0" id="main" role="main">
-        <router-view></router-view>
-      </div>
-    </div>
-  </div>
 </template>
