@@ -1,15 +1,20 @@
 <script setup lang="ts">
+import RawIconBundleLine from "~icons/clarity/bundle-line?raw&width=2em&height=2em";
+import RawIconRackServerLine from "~icons/clarity/rack-server-line?raw&width=2em&height=2em";
 import IconAnalyticsLine from "~icons/clarity/analytics-line";
 import IconBlocksGroupLine from "~icons/clarity/blocks-group-line";
-import IconBundleLine from "~icons/clarity/bundle-line";
 import IconFileGroupLine from "~icons/clarity/file-group-line";
 import IconHomeLine from "~icons/clarity/home-line";
 import IconProcessOnVmLine from "~icons/clarity/process-on-vm-line";
-import IconRackServerLine from "~icons/clarity/rack-server-line";
 import IconSearchLine from "~icons/clarity/search-line";
 import IconSettingsLine from "~icons/clarity/settings-line";
 import IconShieldCheckLine from "~icons/clarity/shield-check-line";
 import IconSliderLine from "~icons/clarity/slider-line";
+
+const menuItems = [
+  { routeName: "packages", icon: RawIconBundleLine, text: "Packages" },
+  { routeName: "locations", icon: RawIconRackServerLine, text: "Locations" },
+];
 </script>
 
 <template>
@@ -31,37 +36,20 @@ import IconSliderLine from "~icons/clarity/slider-line";
     </div>
     <div class="offcanvas-body d-flex flex-grow-1">
       <ul class="list-unstyled flex-grow-1">
-        <li>
+        <li v-for="item in menuItems">
           <router-link
             class="d-block py-3 text-decoration-none text-dark"
             active-class="bg-enduro-primary text-white"
-            :to="{ name: 'packages' }"
+            :to="{ name: item.routeName }"
           >
             <div class="container-fluid">
               <div class="row">
                 <div class="col-3 d-flex justify-content-end p-0">
-                  <IconBundleLine style="font-size: 1.5em" aria-hidden="true" />
+                  <span v-html="item.icon" aria-hidden="true" />
                 </div>
-                <div class="col-9">Packages</div>
-              </div>
-            </div></router-link
-          >
-        </li>
-        <li>
-          <router-link
-            class="d-block py-3 text-decoration-none text-dark"
-            active-class="bg-enduro-primary text-white"
-            :to="{ name: 'locations' }"
-          >
-            <div class="container-fluid">
-              <div class="row">
-                <div class="col-3 d-flex justify-content-end p-0">
-                  <IconRackServerLine
-                    style="font-size: 1.5em"
-                    aria-hidden="true"
-                  />
+                <div class="col-9 d-flex align-items-center">
+                  {{ item.text }}
                 </div>
-                <div class="col-9">Locations</div>
               </div>
             </div></router-link
           >
