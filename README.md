@@ -55,16 +55,14 @@ If using Linux, Node.js binary distributions are available from [NodeSource].
 #### Go tools
 
 We use [bingo] to manage some Go tools and binaries needed to perform various
-development operations. First, update the environment to indicate bingo where
-to install them and make them available:
+development operations. First, set `GOPATH` in your environment:
 
 ```
-export GOBIN=$HOME/go/bin
-export PATH=$PATH:$HOME/go/bin
+export GOPATH=$HOME/go
 ```
 
-Make sure those environment variables are set each time you use bingo or one of
-the tools. For example, by adding those lines to your `~/.profile` file.
+Make sure that environment variable is set each time you use bingo or one of
+the tools. For example, by adding that line to your `~/.profile` file.
 
 Then, install and list them with:
 
@@ -72,7 +70,7 @@ Then, install and list them with:
 make tools
 ```
 
-This tools will be used through Makefile rules or the Tilt UI.
+This tools will be used through Makefile rules and the Tilt UI.
 
 ### Editor
 
