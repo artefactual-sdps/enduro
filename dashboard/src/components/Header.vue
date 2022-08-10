@@ -179,7 +179,7 @@ onMounted(() => {
               <router-link
                 class="d-block py-3 text-decoration-none text-dark"
                 active-class="bg-enduro-primary text-white"
-                :to="{ name: 'index' }"
+                :to="{ name: 'locations' }"
               >
                 <div class="container-fluid">
                   <div class="row">
