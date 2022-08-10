@@ -33,7 +33,7 @@ onMounted(() => {
 
       <div class="col-md-2 me-auto ms-2 ms-md-0">
         <router-link
-          class="navbar-brand text-enduro-primary d-flex me-0 py-3 ps-3 ps-md-0"
+          class="navbar-brand h1 mb-0 text-enduro-primary d-flex me-0 py-3 ps-3 ps-md-0"
           :to="{ name: 'index' }"
         >
           <div class="container-fluid">
@@ -41,7 +41,9 @@ onMounted(() => {
               <div class="col-3 d-flex justify-content-end p-0">
                 <img src="/logo.png" alt="" height="30" />
               </div>
-              <div class="col-9 d-flex justify-content-end p-0 pe-2">
+              <div
+                class="col-9 d-flex justify-content-end align-items-center p-0 pe-2"
+              >
                 Enduro
               </div>
             </div>
