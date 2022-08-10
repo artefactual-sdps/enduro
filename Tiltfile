@@ -97,7 +97,8 @@ cmd_button(
   argv=[
     "sh",
     "-c",
-    "kubectl create -f hack/kube/tools/mysql-recreate-databases-job.yaml; \
+    "kubectl delete job --all -n sdps; \
+    kubectl create -f hack/kube/tools/mysql-recreate-databases-job.yaml; \
     kubectl create -f hack/kube/tools/minio-recreate-buckets-job.yaml; \
     kubectl create -f hack/kube/tools/opensearch-delete-index-job.yaml; \
     kubectl wait --for=condition=complete --timeout=30s job --all -n sdps; \
