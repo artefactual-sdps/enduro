@@ -6,7 +6,7 @@ authentication.
 
 ## Requirements
 
-- [Go] (v1.18.1+)
+- [Go] (v1.19+)
 - [Pulumi] (v3.35.3+)
 
 To build new images, [Docker] (v18.09+) is also required and [BuildKit builds]

@@ -46,7 +46,7 @@ so that you don’t have to run Tilt with `sudo`.
 While we run the services inside a Kubernetes cluster we recomend to install
 Go, Node and other tools locally to ease the development process.
 
-- [Go] (1.18+)
+- [Go] (1.19+)
 - [NPM and Node] (18+)
 - GNU [Make] and [GCC]
 
