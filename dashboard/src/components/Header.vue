@@ -132,61 +132,70 @@ onMounted(() => {
     </nav>
   </header>
 
-  <div class="flex-grow-1 row">
-    <div
-      class="col-md-2 offcanvas-md offcanvas-start d-flex border-end bg-light pe-0"
-      tabindex="-1"
-      id="menu-offcanvas"
-      aria-label="offcanvasLabel"
-    >
-      <div class="offcanvas-header">
-        <h5 class="offcanvas-title" id="offcanvasLabel">Navigation</h5>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="offcanvas"
-          data-bs-target="#menu-offcanvas"
-          aria-label="Close"
-        ></button>
+  <div class="container-fluid d-flex flex-grow-1">
+    <div class="row flex-grow-1">
+      <div
+        class="col-md-2 offcanvas-md offcanvas-start d-flex border-end bg-light p-0"
+        tabindex="-1"
+        id="menu-offcanvas"
+        aria-label="offcanvasLabel"
+      >
+        <div class="offcanvas-header">
+          <h5 class="offcanvas-title" id="offcanvasLabel">Navigation</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="offcanvas"
+            data-bs-target="#menu-offcanvas"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="offcanvas-body d-flex flex-grow-1">
+          <ul class="list-unstyled flex-grow-1">
+            <li>
+              <router-link
+                class="d-block py-3 text-decoration-none text-dark"
+                active-class="bg-enduro-primary text-white"
+                :to="{ name: 'packages' }"
+              >
+                <div class="container-fluid">
+                  <div class="row">
+                    <div class="col-3 d-flex justify-content-end p-0">
+                      <IconBundleLine
+                        style="font-size: 1.5em"
+                        aria-hidden="true"
+                      />
+                    </div>
+                    <div class="col-9">Packages</div>
+                  </div>
+                </div></router-link
+              >
+            </li>
+            <li>
+              <router-link
+                class="d-block py-3 text-decoration-none text-dark"
+                active-class="bg-enduro-primary text-white"
+                :to="{ name: 'index' }"
+              >
+                <div class="container-fluid">
+                  <div class="row">
+                    <div class="col-3 d-flex justify-content-end p-0">
+                      <IconRackServerLine
+                        style="font-size: 1.5em"
+                        aria-hidden="true"
+                      />
+                    </div>
+                    <div class="col-9">Locations</div>
+                  </div>
+                </div></router-link
+              >
+            </li>
+          </ul>
+        </div>
       </div>
-      <div class="offcanvas-body d-flex flex-grow-1">
-        <ul class="list-unstyled flex-grow-1">
-          <li>
-            <router-link
-              class="d-block p-3 text-decoration-none text-dark"
-              active-class="bg-enduro-primary text-white"
-              :to="{ name: 'packages' }"
-            >
-              <div class="row">
-                <div class="col-3 d-flex justify-content-end p-0">
-                  <IconBundleLine style="font-size: 1.5em" aria-hidden="true" />
-                </div>
-                <div class="col-9">Packages</div>
-              </div></router-link
-            >
-          </li>
-          <li>
-            <router-link
-              class="d-block p-3 text-decoration-none text-dark"
-              active-class="bg-enduro-primary text-white"
-              :to="{ name: 'index' }"
-            >
-              <div class="row">
-                <div class="col-3 d-flex justify-content-end p-0">
-                  <IconRackServerLine
-                    style="font-size: 1.5em"
-                    aria-hidden="true"
-                  />
-                </div>
-                <div class="col-9">Locations</div>
-              </div></router-link
-            >
-          </li>
-        </ul>
+      <div class="col-md-10 p-0" id="main" role="main">
+        <router-view></router-view>
       </div>
-    </div>
-    <div class="col-md-10 ps-md-0" id="main" role="main">
-      <router-view></router-view>
     </div>
   </div>
 </template>
