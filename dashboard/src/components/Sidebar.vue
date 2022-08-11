@@ -3,7 +3,7 @@ import IconAnalyticsLine from "~icons/clarity/analytics-line";
 import IconBlocksGroupLine from "~icons/clarity/blocks-group-line";
 import RawIconBundleLine from "~icons/clarity/bundle-line?raw&width=2em&height=2em";
 import IconFileGroupLine from "~icons/clarity/file-group-line";
-import IconHomeLine from "~icons/clarity/home-line";
+import RawIconCollapseLine from "~icons/clarity/collapse-line?raw&width=2em&height=2em";
 import IconProcessOnVmLine from "~icons/clarity/process-on-vm-line";
 import RawIconRackServerLine from "~icons/clarity/rack-server-line?raw&width=2em&height=2em";
 import IconSearchLine from "~icons/clarity/search-line";
@@ -15,11 +15,14 @@ const menuItems = [
   { routeName: "packages", icon: RawIconBundleLine, text: "Packages" },
   { routeName: "locations", icon: RawIconRackServerLine, text: "Locations" },
 ];
+
+let collapsed = $ref<boolean>(false);
 </script>
 
 <template>
   <div
     class="sidebar offcanvas-md offcanvas-start d-flex border-end bg-light"
+    :class="collapsed ? 'collapsed' : ''"
     tabindex="-1"
     id="menu-offcanvas"
     aria-label="offcanvasLabel"
@@ -35,7 +38,7 @@ const menuItems = [
       ></button>
     </div>
     <div class="offcanvas-body d-flex flex-column flex-grow-1">
-      <ul class="list-unstyled flex-grow-1">
+      <ul class="list-unstyled flex-grow-1 mb-0">
         <li v-for="item in menuItems">
           <router-link
             class="d-block py-3 text-decoration-none text-dark sidebar-link"
@@ -44,10 +47,20 @@ const menuItems = [
           >
             <div class="container-fluid">
               <div class="row">
-                <div class="col-3 d-flex justify-content-end p-0">
+                <div
+                  class="d-flex p-0"
+                  :class="
+                    collapsed
+                      ? 'col-12 justify-content-center'
+                      : 'col-3 justify-content-end'
+                  "
+                >
                   <span v-html="item.icon" aria-hidden="true" />
                 </div>
-                <div class="col-9 d-flex align-items-center">
+                <div
+                  class="col-9 d-flex align-items-center"
+                  :class="collapsed ? 'd-none' : ''"
+                >
                   {{ item.text }}
                 </div>
               </div>
@@ -55,6 +68,41 @@ const menuItems = [
           >
         </li>
       </ul>
+      <button
+        type="button"
+        class="btn btn-link text-decoration-none text-dark sidebar-link p-0 py-3 rounded-0 d-none d-md-block"
+        @click="collapsed = !collapsed"
+      >
+        <div class="container-fluid">
+          <div class="row">
+            <div
+              class="d-flex p-0"
+              :class="
+                collapsed
+                  ? 'col-12 justify-content-center'
+                  : 'col-3 justify-content-end'
+              "
+            >
+              <span
+                v-html="RawIconCollapseLine"
+                aria-hidden="true"
+                :style="
+                  collapsed
+                    ? 'transform: rotate(90deg)'
+                    : 'transform: rotate(270deg)'
+                "
+              />
+            </div>
+            <div
+              class="col-9 d-flex align-items-center"
+              :class="collapsed ? 'd-none' : ''"
+            >
+              <span v-if="collapsed">Expand</span>
+              <span v-else>Collapse</span>
+            </div>
+          </div>
+        </div>
+      </button>
     </div>
   </div>
 </template>

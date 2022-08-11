@@ -9,6 +9,11 @@ body {
   .sidebar {
     width: 200px;
     min-width: 200px;
+
+    &.collapsed {
+      width: 70px;
+      min-width: 70px;
+    }
   }
 }
 
