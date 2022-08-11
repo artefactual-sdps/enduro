@@ -38,8 +38,8 @@ const menuItems = [
       <ul class="list-unstyled flex-grow-1">
         <li v-for="item in menuItems">
           <router-link
-            class="d-block py-3 text-decoration-none text-dark"
-            active-class="bg-enduro-primary text-white"
+            class="d-block py-3 text-decoration-none text-dark sidebar-link"
+            active-class="bg-enduro-primary text-white active"
             :to="{ name: item.routeName }"
           >
             <div class="container-fluid">
@@ -58,3 +58,16 @@ const menuItems = [
     </div>
   </div>
 </template>
+
+<style lang="scss">
+.sidebar-link {
+  &:hover,
+  &:focus {
+    background-color: shade-color($light, 25%) !important;
+
+    &.active {
+      background-color: shade-color($enduro-primary, 25%) !important;
+    }
+  }
+}
+</style>
