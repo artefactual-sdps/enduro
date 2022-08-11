@@ -5,6 +5,13 @@ body {
   overflow-x: hidden;
 }
 
+@media (min-width: 768px) {
+  .sidebar {
+    width: 200px;
+    min-width: 200px;
+  }
+}
+
 button:focus:not(:focus-visible),
 .btn:focus:not(:focus-visible) {
   box-shadow: none;

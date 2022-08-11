@@ -19,7 +19,7 @@ const menuItems = [
 
 <template>
   <div
-    class="col-md-2 p-0 offcanvas-md offcanvas-start d-flex flex-grow-1 border-end bg-light"
+    class="sidebar offcanvas-md offcanvas-start d-flex border-end bg-light"
     tabindex="-1"
     id="menu-offcanvas"
     aria-label="offcanvasLabel"
@@ -34,7 +34,7 @@ const menuItems = [
         aria-label="Close"
       ></button>
     </div>
-    <div class="offcanvas-body d-flex flex-grow-1">
+    <div class="offcanvas-body d-flex flex-column flex-grow-1">
       <ul class="list-unstyled flex-grow-1">
         <li v-for="item in menuItems">
           <router-link

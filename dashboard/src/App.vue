@@ -12,12 +12,10 @@ import { DialogWrapper } from "vue3-promise-dialog";
       >
     </div>
     <Header />
-    <div class="container-fluid d-flex flex-grow-1">
-      <div class="row flex-grow-1">
-        <Sidebar />
-        <div class="col-md-10 p-0" id="main" role="main">
-          <router-view></router-view>
-        </div>
+    <div class="flex-grow-1 d-flex">
+      <Sidebar />
+      <div class="flex-grow-1" id="main" role="main">
+        <router-view></router-view>
       </div>
     </div>
     <DialogWrapper />
