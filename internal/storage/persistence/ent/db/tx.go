@@ -12,6 +12,8 @@ import (
 // Tx is a transactional client that is created by calling Client.Tx().
 type Tx struct {
 	config
+	// Location is the client for interacting with the Location builders.
+	Location *LocationClient
 	// Pkg is the client for interacting with the Pkg builders.
 	Pkg *PkgClient
 
@@ -149,6 +151,7 @@ func (tx *Tx) Client() *Client {
 }
 
 func (tx *Tx) init() {
+	tx.Location = NewLocationClient(tx.config)
 	tx.Pkg = NewPkgClient(tx.config)
 }
 
@@ -159,7 +162,7 @@ func (tx *Tx) init() {
 // of them in order to commit or rollback the transaction.
 //
 // If a closed transaction is embedded in one of the generated entities, and the entity
-// applies a query, for example: Pkg.QueryXXX(), the query will be executed
+// applies a query, for example: Location.QueryXXX(), the query will be executed
 // through the driver which created this transaction.
 //
 // Note that txDriver is not goroutine safe.

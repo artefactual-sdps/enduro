@@ -9,6 +9,35 @@ import (
 )
 
 var (
+	// LocationColumns holds the columns for the "location" table.
+	LocationColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "name", Type: field.TypeString, Size: 2048},
+		{Name: "source", Type: field.TypeEnum, Enums: []string{"unspecified", "minio"}},
+		{Name: "purpose", Type: field.TypeEnum, Enums: []string{"unspecified", "aip_store"}},
+		{Name: "uuid", Type: field.TypeUUID},
+	}
+	// LocationTable holds the schema information for the "location" table.
+	LocationTable = &schema.Table{
+		Name:       "location",
+		Columns:    LocationColumns,
+		PrimaryKey: []*schema.Column{LocationColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "location_name",
+				Unique:  false,
+				Columns: []*schema.Column{LocationColumns[1]},
+				Annotation: &entsql.IndexAnnotation{
+					Prefix: 50,
+				},
+			},
+			{
+				Name:    "location_uuid",
+				Unique:  false,
+				Columns: []*schema.Column{LocationColumns[4]},
+			},
+		},
+	}
 	// PackageColumns holds the columns for the "package" table.
 	PackageColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -46,11 +75,15 @@ var (
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
+		LocationTable,
 		PackageTable,
 	}
 )
 
 func init() {
+	LocationTable.Annotation = &entsql.Annotation{
+		Table: "location",
+	}
 	PackageTable.Annotation = &entsql.Annotation{
 		Table: "package",
 	}

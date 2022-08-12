@@ -9,6 +9,19 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db"
 )
 
+// The LocationFunc type is an adapter to allow the use of ordinary
+// function as Location mutator.
+type LocationFunc func(context.Context, *db.LocationMutation) (db.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f LocationFunc) Mutate(ctx context.Context, m db.Mutation) (db.Value, error) {
+	mv, ok := m.(*db.LocationMutation)
+	if !ok {
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *db.LocationMutation", m)
+	}
+	return f(ctx, mv)
+}
+
 // The PkgFunc type is an adapter to allow the use of ordinary
 // function as Pkg mutator.
 type PkgFunc func(context.Context, *db.PkgMutation) (db.Value, error)
