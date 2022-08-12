@@ -3,7 +3,8 @@ import { useStateStore } from "@/stores/state";
 import IconAnalyticsLine from "~icons/clarity/analytics-line";
 import IconBlocksGroupLine from "~icons/clarity/blocks-group-line";
 import RawIconBundleLine from "~icons/clarity/bundle-line?raw&width=2em&height=2em";
-import RawIconCollapseLine from "~icons/clarity/collapse-line?raw&width=2em&height=2em";
+import RawIconPinLine from "~icons/clarity/pin-line?raw&width=2em&height=2em";
+import RawIconPinSolid from "~icons/clarity/pin-solid?raw&width=2em&height=2em";
 import IconFileGroupLine from "~icons/clarity/file-group-line";
 import IconProcessOnVmLine from "~icons/clarity/process-on-vm-line";
 import RawIconRackServerLine from "~icons/clarity/rack-server-line?raw&width=2em&height=2em";
@@ -11,13 +12,26 @@ import IconSearchLine from "~icons/clarity/search-line";
 import IconSettingsLine from "~icons/clarity/settings-line";
 import IconShieldCheckLine from "~icons/clarity/shield-check-line";
 import IconSliderLine from "~icons/clarity/slider-line";
-
-const stateStore = useStateStore();
+import useEventListener from "@/composables/useEventListener";
 
 const menuItems = [
   { routeName: "packages", icon: RawIconBundleLine, text: "Packages" },
   { routeName: "locations", icon: RawIconRackServerLine, text: "Locations" },
 ];
+
+const stateStore = useStateStore();
+const offcanvas = $ref<HTMLElement | null>(null);
+var pinned = $ref<boolean>(false);
+
+useEventListener($$(offcanvas), "mouseenter", (e) => {
+  if (!pinned && !offcanvas?.classList.contains("show"))
+    stateStore.expandSidebar();
+});
+
+useEventListener($$(offcanvas), "mouseleave", (e) => {
+  if (!pinned && !offcanvas?.classList.contains("show"))
+    stateStore.collapseSidebar();
+});
 </script>
 
 <template>
@@ -27,6 +41,7 @@ const menuItems = [
     tabindex="-1"
     id="menu-offcanvas"
     aria-label="offcanvasLabel"
+    ref="offcanvas"
   >
     <div class="offcanvas-header px-3">
       <h5 class="offcanvas-title" id="offcanvasLabel">Navigation</h5>
@@ -49,18 +64,18 @@ const menuItems = [
             <div class="container-fluid">
               <div class="row">
                 <div
-                  class="d-flex p-0"
+                  class="d-flex p-0 col-3 justify-content-end"
                   :class="
                     stateStore.sidebarCollapsed
-                      ? 'col-12 justify-content-center'
-                      : 'col-3 justify-content-end'
+                      ? 'col-md-12 justify-content-md-center'
+                      : ''
                   "
                 >
                   <span v-html="item.icon" aria-hidden="true" />
                 </div>
                 <div
                   class="col-9 d-flex align-items-center"
-                  :class="stateStore.sidebarCollapsed ? 'd-none' : ''"
+                  :class="stateStore.sidebarCollapsed ? 'd-md-none' : ''"
                 >
                   {{ item.text }}
                 </div>
@@ -72,34 +87,32 @@ const menuItems = [
       <button
         type="button"
         class="btn btn-link text-decoration-none text-dark sidebar-link p-0 py-3 rounded-0 d-none d-md-block"
-        @click="stateStore.toggleSidebar()"
+        @click="pinned = !pinned"
       >
         <div class="container-fluid">
           <div class="row">
             <div
-              class="d-flex p-0"
+              class="d-flex p-0 col-3 justify-content-end"
               :class="
                 stateStore.sidebarCollapsed
-                  ? 'col-12 justify-content-center'
-                  : 'col-3 justify-content-end'
+                  ? 'col-md-12 justify-content-md-center'
+                  : ''
               "
             >
               <span
-                v-html="RawIconCollapseLine"
+                v-html="RawIconPinSolid"
+                class="text-primary"
                 aria-hidden="true"
-                :style="
-                  stateStore.sidebarCollapsed
-                    ? 'transform: rotate(90deg)'
-                    : 'transform: rotate(270deg)'
-                "
+                v-if="pinned"
               />
+              <span v-html="RawIconPinLine" aria-hidden="true" v-else />
             </div>
             <div
               class="col-9 d-flex align-items-center"
-              :class="stateStore.sidebarCollapsed ? 'd-none' : ''"
+              :class="stateStore.sidebarCollapsed ? 'd-md-none' : ''"
             >
-              <span v-if="stateStore.sidebarCollapsed">Expand</span>
-              <span v-else>Collapse</span>
+              <span v-if="!pinned">Pin</span>
+              <span v-else>Unpin</span>
             </div>
           </div>
         </div>

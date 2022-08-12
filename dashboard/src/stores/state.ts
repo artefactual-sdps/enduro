@@ -7,12 +7,15 @@ type BreadcrumbItem = {
 
 export const useStateStore = defineStore("state", {
   state: () => ({
-    sidebarCollapsed: false as boolean,
+    sidebarCollapsed: true as boolean,
     breadcrumb: [] as Array<BreadcrumbItem>,
   }),
   actions: {
-    toggleSidebar() {
-      this.sidebarCollapsed = !this.sidebarCollapsed;
+    expandSidebar() {
+      this.sidebarCollapsed = false;
+    },
+    collapseSidebar() {
+      this.sidebarCollapsed = true;
     },
     updateBreadcrumb(breadcrumb: Array<BreadcrumbItem>) {
       this.breadcrumb = breadcrumb;
