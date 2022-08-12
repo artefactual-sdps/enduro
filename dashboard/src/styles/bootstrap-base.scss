@@ -6,6 +6,9 @@ $custom-theme-colors: (
   "enduro-primary": $enduro-primary,
 );
 
+$offcanvas-horizontal-width: 300px;
+$offcanvas-padding-x: 0;
+
 // Bootstrap required
 @import "bootstrap/scss/variables";
 

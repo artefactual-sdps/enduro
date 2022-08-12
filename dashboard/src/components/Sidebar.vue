@@ -22,13 +22,13 @@ const menuItems = [
 
 <template>
   <div
-    class="sidebar offcanvas-md offcanvas-start d-flex border-end bg-light"
+    class="sidebar offcanvas-md offcanvas-start d-flex bg-light"
     :class="stateStore.sidebarCollapsed ? 'collapsed' : ''"
     tabindex="-1"
     id="menu-offcanvas"
     aria-label="offcanvasLabel"
   >
-    <div class="offcanvas-header">
+    <div class="offcanvas-header px-3">
       <h5 class="offcanvas-title" id="offcanvasLabel">Navigation</h5>
       <button
         type="button"
@@ -38,7 +38,7 @@ const menuItems = [
         aria-label="Close"
       ></button>
     </div>
-    <div class="offcanvas-body d-flex flex-column flex-grow-1">
+    <div class="offcanvas-body d-flex flex-column flex-grow-1 pt-0">
       <ul class="list-unstyled flex-grow-1 mb-0">
         <li v-for="item in menuItems">
           <router-link
@@ -108,7 +108,7 @@ const menuItems = [
   </div>
 </template>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .sidebar-link {
   &:hover,
   &:focus {
@@ -117,6 +117,12 @@ const menuItems = [
     &.active {
       background-color: shade-color($enduro-primary, 25%) !important;
     }
+  }
+}
+
+@media (min-width: 768px) {
+  .sidebar {
+    border-right: $border-width $border-style $border-color;
   }
 }
 </style>
