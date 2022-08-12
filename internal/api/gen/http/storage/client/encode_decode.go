@@ -65,9 +65,9 @@ func EncodeSubmitRequest(encoder func(*http.Request) goahttp.Encoder) func(*http
 // submit endpoint. restoreBody controls whether the response body should be
 // restored after having been read.
 // DecodeSubmitResponse may return the following errors:
-//	- "not_available" (type *goa.ServiceError): http.StatusConflict
-//	- "not_valid" (type *goa.ServiceError): http.StatusBadRequest
-//	- error: internal error
+//   - "not_available" (type *goa.ServiceError): http.StatusConflict
+//   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
+//   - error: internal error
 func DecodeSubmitResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
 	return func(resp *http.Response) (interface{}, error) {
 		if restoreBody {
@@ -162,9 +162,9 @@ func (c *Client) BuildUpdateRequest(ctx context.Context, v interface{}) (*http.R
 // update endpoint. restoreBody controls whether the response body should be
 // restored after having been read.
 // DecodeUpdateResponse may return the following errors:
-//	- "not_available" (type *goa.ServiceError): http.StatusConflict
-//	- "not_valid" (type *goa.ServiceError): http.StatusBadRequest
-//	- error: internal error
+//   - "not_available" (type *goa.ServiceError): http.StatusConflict
+//   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
+//   - error: internal error
 func DecodeUpdateResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
 	return func(resp *http.Response) (interface{}, error) {
 		if restoreBody {
@@ -246,8 +246,8 @@ func (c *Client) BuildDownloadRequest(ctx context.Context, v interface{}) (*http
 // storage download endpoint. restoreBody controls whether the response body
 // should be restored after having been read.
 // DecodeDownloadResponse may return the following errors:
-//	- "not_found" (type *storage.StoragePackageNotfound): http.StatusNotFound
-//	- error: internal error
+//   - "not_found" (type *storage.StoragePackageNotfound): http.StatusNotFound
+//   - error: internal error
 func DecodeDownloadResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
 	return func(resp *http.Response) (interface{}, error) {
 		if restoreBody {
@@ -294,13 +294,13 @@ func DecodeDownloadResponse(decoder func(*http.Response) goahttp.Decoder, restor
 	}
 }
 
-// BuildListRequest instantiates a HTTP request object with method and path set
-// to call the "storage" service "list" endpoint
-func (c *Client) BuildListRequest(ctx context.Context, v interface{}) (*http.Request, error) {
-	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: ListStoragePath()}
+// BuildLocationsRequest instantiates a HTTP request object with method and
+// path set to call the "storage" service "locations" endpoint
+func (c *Client) BuildLocationsRequest(ctx context.Context, v interface{}) (*http.Request, error) {
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: LocationsStoragePath()}
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
-		return nil, goahttp.ErrInvalidURL("storage", "list", u.String(), err)
+		return nil, goahttp.ErrInvalidURL("storage", "locations", u.String(), err)
 	}
 	if ctx != nil {
 		req = req.WithContext(ctx)
@@ -309,10 +309,10 @@ func (c *Client) BuildListRequest(ctx context.Context, v interface{}) (*http.Req
 	return req, nil
 }
 
-// DecodeListResponse returns a decoder for responses returned by the storage
-// list endpoint. restoreBody controls whether the response body should be
-// restored after having been read.
-func DecodeListResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
+// DecodeLocationsResponse returns a decoder for responses returned by the
+// storage locations endpoint. restoreBody controls whether the response body
+// should be restored after having been read.
+func DecodeLocationsResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
 	return func(resp *http.Response) (interface{}, error) {
 		if restoreBody {
 			b, err := io.ReadAll(resp.Body)
@@ -329,24 +329,24 @@ func DecodeListResponse(decoder func(*http.Response) goahttp.Decoder, restoreBod
 		switch resp.StatusCode {
 		case http.StatusOK:
 			var (
-				body ListResponseBody
+				body LocationsResponseBody
 				err  error
 			)
 			err = decoder(resp).Decode(&body)
 			if err != nil {
-				return nil, goahttp.ErrDecodingError("storage", "list", err)
+				return nil, goahttp.ErrDecodingError("storage", "locations", err)
 			}
-			p := NewListStoredLocationCollectionOK(body)
+			p := NewLocationsStoredLocationCollectionOK(body)
 			view := "default"
 			vres := storageviews.StoredLocationCollection{Projected: p, View: view}
 			if err = storageviews.ValidateStoredLocationCollection(vres); err != nil {
-				return nil, goahttp.ErrValidationError("storage", "list", err)
+				return nil, goahttp.ErrValidationError("storage", "locations", err)
 			}
 			res := storage.NewStoredLocationCollection(vres)
 			return res, nil
 		default:
 			body, _ := io.ReadAll(resp.Body)
-			return nil, goahttp.ErrInvalidResponse("storage", "list", resp.StatusCode, string(body))
+			return nil, goahttp.ErrInvalidResponse("storage", "locations", resp.StatusCode, string(body))
 		}
 	}
 }
@@ -396,10 +396,10 @@ func EncodeMoveRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.R
 // move endpoint. restoreBody controls whether the response body should be
 // restored after having been read.
 // DecodeMoveResponse may return the following errors:
-//	- "not_available" (type *goa.ServiceError): http.StatusConflict
-//	- "not_valid" (type *goa.ServiceError): http.StatusBadRequest
-//	- "not_found" (type *storage.StoragePackageNotfound): http.StatusNotFound
-//	- error: internal error
+//   - "not_available" (type *goa.ServiceError): http.StatusConflict
+//   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
+//   - "not_found" (type *storage.StoragePackageNotfound): http.StatusNotFound
+//   - error: internal error
 func DecodeMoveResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
 	return func(resp *http.Response) (interface{}, error) {
 		if restoreBody {
@@ -495,9 +495,9 @@ func (c *Client) BuildMoveStatusRequest(ctx context.Context, v interface{}) (*ht
 // storage move_status endpoint. restoreBody controls whether the response body
 // should be restored after having been read.
 // DecodeMoveStatusResponse may return the following errors:
-//	- "failed_dependency" (type *goa.ServiceError): http.StatusFailedDependency
-//	- "not_found" (type *storage.StoragePackageNotfound): http.StatusNotFound
-//	- error: internal error
+//   - "failed_dependency" (type *goa.ServiceError): http.StatusFailedDependency
+//   - "not_found" (type *storage.StoragePackageNotfound): http.StatusNotFound
+//   - error: internal error
 func DecodeMoveStatusResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
 	return func(resp *http.Response) (interface{}, error) {
 		if restoreBody {
@@ -592,10 +592,10 @@ func (c *Client) BuildRejectRequest(ctx context.Context, v interface{}) (*http.R
 // reject endpoint. restoreBody controls whether the response body should be
 // restored after having been read.
 // DecodeRejectResponse may return the following errors:
-//	- "not_available" (type *goa.ServiceError): http.StatusConflict
-//	- "not_valid" (type *goa.ServiceError): http.StatusBadRequest
-//	- "not_found" (type *storage.StoragePackageNotfound): http.StatusNotFound
-//	- error: internal error
+//   - "not_available" (type *goa.ServiceError): http.StatusConflict
+//   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
+//   - "not_found" (type *storage.StoragePackageNotfound): http.StatusNotFound
+//   - error: internal error
 func DecodeRejectResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
 	return func(resp *http.Response) (interface{}, error) {
 		if restoreBody {
@@ -691,8 +691,8 @@ func (c *Client) BuildShowRequest(ctx context.Context, v interface{}) (*http.Req
 // show endpoint. restoreBody controls whether the response body should be
 // restored after having been read.
 // DecodeShowResponse may return the following errors:
-//	- "not_found" (type *storage.StoragePackageNotfound): http.StatusNotFound
-//	- error: internal error
+//   - "not_found" (type *storage.StoragePackageNotfound): http.StatusNotFound
+//   - error: internal error
 func DecodeShowResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
 	return func(resp *http.Response) (interface{}, error) {
 		if restoreBody {

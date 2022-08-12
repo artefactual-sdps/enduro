@@ -170,7 +170,7 @@ func main() {
 			storageHttpClient.Submit(),
 			storageHttpClient.Update(),
 			storageHttpClient.Download(),
-			storageHttpClient.List(),
+			storageHttpClient.Locations(),
 			storageHttpClient.Move(),
 			storageHttpClient.MoveStatus(),
 			storageHttpClient.Reject(),

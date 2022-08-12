@@ -28,8 +28,9 @@ type Client struct {
 	// endpoint.
 	DownloadDoer goahttp.Doer
 
-	// List Doer is the HTTP client used to make requests to the list endpoint.
-	ListDoer goahttp.Doer
+	// Locations Doer is the HTTP client used to make requests to the locations
+	// endpoint.
+	LocationsDoer goahttp.Doer
 
 	// Move Doer is the HTTP client used to make requests to the move endpoint.
 	MoveDoer goahttp.Doer
@@ -70,7 +71,7 @@ func NewClient(
 		SubmitDoer:          doer,
 		UpdateDoer:          doer,
 		DownloadDoer:        doer,
-		ListDoer:            doer,
+		LocationsDoer:       doer,
 		MoveDoer:            doer,
 		MoveStatusDoer:      doer,
 		RejectDoer:          doer,
@@ -146,20 +147,20 @@ func (c *Client) Download() goa.Endpoint {
 	}
 }
 
-// List returns an endpoint that makes HTTP requests to the storage service
-// list server.
-func (c *Client) List() goa.Endpoint {
+// Locations returns an endpoint that makes HTTP requests to the storage
+// service locations server.
+func (c *Client) Locations() goa.Endpoint {
 	var (
-		decodeResponse = DecodeListResponse(c.decoder, c.RestoreResponseBody)
+		decodeResponse = DecodeLocationsResponse(c.decoder, c.RestoreResponseBody)
 	)
 	return func(ctx context.Context, v interface{}) (interface{}, error) {
-		req, err := c.BuildListRequest(ctx, v)
+		req, err := c.BuildLocationsRequest(ctx, v)
 		if err != nil {
 			return nil, err
 		}
-		resp, err := c.ListDoer.Do(req)
+		resp, err := c.LocationsDoer.Do(req)
 		if err != nil {
-			return nil, goahttp.ErrRequestError("storage", "list", err)
+			return nil, goahttp.ErrRequestError("storage", "locations", err)
 		}
 		return decodeResponse(resp)
 	}

@@ -230,9 +230,9 @@ func EncodeDownloadError(encoder func(context.Context, http.ResponseWriter) goah
 	}
 }
 
-// EncodeListResponse returns an encoder for responses returned by the storage
-// list endpoint.
-func EncodeListResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
+// EncodeLocationsResponse returns an encoder for responses returned by the
+// storage locations endpoint.
+func EncodeLocationsResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
 	return func(ctx context.Context, w http.ResponseWriter, v interface{}) error {
 		res := v.(storageviews.StoredLocationCollection)
 		enc := encoder(ctx, w)

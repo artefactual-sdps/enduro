@@ -27,7 +27,7 @@ type Service interface {
 	Submit(context.Context, *goastorage.SubmitPayload) (res *goastorage.SubmitResult, err error)
 	Update(context.Context, *goastorage.UpdatePayload) (err error)
 	Download(context.Context, *goastorage.DownloadPayload) ([]byte, error)
-	List(context.Context) (res goastorage.StoredLocationCollection, err error)
+	Locations(context.Context) (res goastorage.StoredLocationCollection, err error)
 	Move(context.Context, *goastorage.MovePayload) (err error)
 	MoveStatus(context.Context, *goastorage.MoveStatusPayload) (res *goastorage.MoveStatusResult, err error)
 	Reject(context.Context, *goastorage.RejectPayload) (err error)
@@ -160,7 +160,7 @@ func (s *serviceImpl) Download(ctx context.Context, payload *goastorage.Download
 	return []byte{}, nil
 }
 
-func (s *serviceImpl) List(context.Context) (goastorage.StoredLocationCollection, error) {
+func (s *serviceImpl) Locations(context.Context) (goastorage.StoredLocationCollection, error) {
 	res := []*goastorage.StoredLocation{}
 	for _, item := range s.config.Locations {
 		l := &goastorage.StoredLocation{

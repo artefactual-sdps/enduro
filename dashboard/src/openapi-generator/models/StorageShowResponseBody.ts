@@ -56,10 +56,11 @@ export interface StorageShowResponseBody {
  * @export
  */
 export const StorageShowResponseBodyStatusEnum = {
-    Stored: 'stored',
-    Rejected: 'rejected',
+    Unspecified: 'unspecified',
     InReview: 'in_review',
-    Unspecified: 'unspecified'
+    Rejected: 'rejected',
+    Stored: 'stored',
+    Moving: 'moving'
 } as const;
 export type StorageShowResponseBodyStatusEnum = typeof StorageShowResponseBodyStatusEnum[keyof typeof StorageShowResponseBodyStatusEnum];
 

@@ -32,9 +32,9 @@ type SubmitResponseBody struct {
 	URL *string `form:"url,omitempty" json:"url,omitempty" xml:"url,omitempty"`
 }
 
-// ListResponseBody is the type of the "storage" service "list" endpoint HTTP
-// response body.
-type ListResponseBody []*StoredLocationResponse
+// LocationsResponseBody is the type of the "storage" service "locations"
+// endpoint HTTP response body.
+type LocationsResponseBody []*StoredLocationResponse
 
 // MoveStatusResponseBody is the type of the "storage" service "move_status"
 // endpoint HTTP response body.
@@ -366,9 +366,9 @@ func NewDownloadNotFound(body *DownloadNotFoundResponseBody) *storage.StoragePac
 	return v
 }
 
-// NewListStoredLocationCollectionOK builds a "storage" service "list" endpoint
-// result from a HTTP "OK" response.
-func NewListStoredLocationCollectionOK(body ListResponseBody) storageviews.StoredLocationCollectionView {
+// NewLocationsStoredLocationCollectionOK builds a "storage" service
+// "locations" endpoint result from a HTTP "OK" response.
+func NewLocationsStoredLocationCollectionOK(body LocationsResponseBody) storageviews.StoredLocationCollectionView {
 	v := make([]*storageviews.StoredLocationView, len(body))
 	for i, val := range body {
 		v[i] = unmarshalStoredLocationResponseToStorageviewsStoredLocationView(val)

@@ -57,7 +57,7 @@ var _ = Service("storage", func() {
 			Response("not_found", StatusNotFound)
 		})
 	})
-	Method("list", func() {
+	Method("locations", func() {
 		Description("List locations")
 		Result(CollectionOf(StoredLocation), func() { View("default") })
 		HTTP(func() {

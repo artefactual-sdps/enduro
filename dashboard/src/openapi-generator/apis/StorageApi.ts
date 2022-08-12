@@ -132,18 +132,18 @@ export interface StorageApiInterface {
 
     /**
      * List locations
-     * @summary list storage
+     * @summary locations storage
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof StorageApiInterface
      */
-    storageListRaw(initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<Array<StoredLocationResponse>>>;
+    storageLocationsRaw(initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<Array<StoredLocationResponse>>>;
 
     /**
      * List locations
-     * list storage
+     * locations storage
      */
-    storageList(initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<Array<StoredLocationResponse>>;
+    storageLocations(initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<Array<StoredLocationResponse>>;
 
     /**
      * Move a package to a permanent storage location
@@ -284,9 +284,9 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
     /**
      * List locations
-     * list storage
+     * locations storage
      */
-    async storageListRaw(initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<Array<StoredLocationResponse>>> {
+    async storageLocationsRaw(initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<Array<StoredLocationResponse>>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -303,10 +303,10 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
     /**
      * List locations
-     * list storage
+     * locations storage
      */
-    async storageList(initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<Array<StoredLocationResponse>> {
-        const response = await this.storageListRaw(initOverrides);
+    async storageLocations(initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<Array<StoredLocationResponse>> {
+        const response = await this.storageLocationsRaw(initOverrides);
         return await response.value();
     }
 

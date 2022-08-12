@@ -695,9 +695,9 @@ paths:
         get:
             tags:
                 - storage
-            summary: list storage
+            summary: locations storage
             description: List locations
-            operationId: storage#list
+            operationId: storage#locations
             responses:
                 "200":
                     description: OK response.
@@ -3149,19 +3149,20 @@ definitions:
                 type: string
                 description: Status of the package
                 default: unspecified
-                example: rejected
+                example: stored
                 enum:
-                    - stored
-                    - rejected
-                    - in_review
                     - unspecified
+                    - in_review
+                    - rejected
+                    - stored
+                    - moving
         description: ShowResponseBody result type (default view)
         example:
             aip_id: Non unde ut aspernatur.
             location: Sunt ut.
             name: Distinctio sed distinctio.
             object_key: Quibusdam facilis magnam a veritatis vel eos.
-            status: in_review
+            status: stored
         required:
             - name
             - aip_id
@@ -3172,7 +3173,7 @@ definitions:
         type: array
         items:
             $ref: '#/definitions/StoredLocationResponse'
-        description: ListResponseBody is the result type for an array of StoredLocationResponse (default view)
+        description: LocationsResponseBody is the result type for an array of StoredLocationResponse (default view)
         example:
             - id: Officiis eum pariatur.
               name: Eaque nemo quia.

@@ -67,21 +67,6 @@ func (mr *MockServiceMockRecorder) Download(arg0, arg1 interface{}) *gomock.Call
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Download", reflect.TypeOf((*MockService)(nil).Download), arg0, arg1)
 }
 
-// List mocks base method.
-func (m *MockService) List(arg0 context.Context) (storage.StoredLocationCollection, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "List", arg0)
-	ret0, _ := ret[0].(storage.StoredLocationCollection)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// List indicates an expected call of List.
-func (mr *MockServiceMockRecorder) List(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockService)(nil).List), arg0)
-}
-
 // Location mocks base method.
 func (m *MockService) Location(arg0 string) (storage0.Location, error) {
 	m.ctrl.T.Helper()
@@ -95,6 +80,21 @@ func (m *MockService) Location(arg0 string) (storage0.Location, error) {
 func (mr *MockServiceMockRecorder) Location(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Location", reflect.TypeOf((*MockService)(nil).Location), arg0)
+}
+
+// Locations mocks base method.
+func (m *MockService) Locations(arg0 context.Context) (storage.StoredLocationCollection, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Locations", arg0)
+	ret0, _ := ret[0].(storage.StoredLocationCollection)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Locations indicates an expected call of Locations.
+func (mr *MockServiceMockRecorder) Locations(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Locations", reflect.TypeOf((*MockService)(nil).Locations), arg0)
 }
 
 // Move mocks base method.

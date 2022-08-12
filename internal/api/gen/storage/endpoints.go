@@ -19,7 +19,7 @@ type Endpoints struct {
 	Submit     goa.Endpoint
 	Update     goa.Endpoint
 	Download   goa.Endpoint
-	List       goa.Endpoint
+	Locations  goa.Endpoint
 	Move       goa.Endpoint
 	MoveStatus goa.Endpoint
 	Reject     goa.Endpoint
@@ -32,7 +32,7 @@ func NewEndpoints(s Service) *Endpoints {
 		Submit:     NewSubmitEndpoint(s),
 		Update:     NewUpdateEndpoint(s),
 		Download:   NewDownloadEndpoint(s),
-		List:       NewListEndpoint(s),
+		Locations:  NewLocationsEndpoint(s),
 		Move:       NewMoveEndpoint(s),
 		MoveStatus: NewMoveStatusEndpoint(s),
 		Reject:     NewRejectEndpoint(s),
@@ -45,7 +45,7 @@ func (e *Endpoints) Use(m func(goa.Endpoint) goa.Endpoint) {
 	e.Submit = m(e.Submit)
 	e.Update = m(e.Update)
 	e.Download = m(e.Download)
-	e.List = m(e.List)
+	e.Locations = m(e.Locations)
 	e.Move = m(e.Move)
 	e.MoveStatus = m(e.MoveStatus)
 	e.Reject = m(e.Reject)
@@ -79,11 +79,11 @@ func NewDownloadEndpoint(s Service) goa.Endpoint {
 	}
 }
 
-// NewListEndpoint returns an endpoint function that calls the method "list" of
-// service "storage".
-func NewListEndpoint(s Service) goa.Endpoint {
+// NewLocationsEndpoint returns an endpoint function that calls the method
+// "locations" of service "storage".
+func NewLocationsEndpoint(s Service) goa.Endpoint {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
-		res, err := s.List(ctx)
+		res, err := s.Locations(ctx)
 		if err != nil {
 			return nil, err
 		}

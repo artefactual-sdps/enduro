@@ -24,7 +24,7 @@ type Service interface {
 	// Download package by AIPID
 	Download(context.Context, *DownloadPayload) (res []byte, err error)
 	// List locations
-	List(context.Context) (res StoredLocationCollection, err error)
+	Locations(context.Context) (res StoredLocationCollection, err error)
 	// Move a package to a permanent storage location
 	Move(context.Context, *MovePayload) (err error)
 	// Retrieve the status of a permanent storage location move of the package
@@ -43,7 +43,7 @@ const ServiceName = "storage"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [8]string{"submit", "update", "download", "list", "move", "move_status", "reject", "show"}
+var MethodNames = [8]string{"submit", "update", "download", "locations", "move", "move_status", "reject", "show"}
 
 // DownloadPayload is the payload type of the storage service download method.
 type DownloadPayload struct {
@@ -94,7 +94,7 @@ type StoredLocation struct {
 	Name string
 }
 
-// StoredLocationCollection is the result type of the storage service list
+// StoredLocationCollection is the result type of the storage service locations
 // method.
 type StoredLocationCollection []*StoredLocation
 

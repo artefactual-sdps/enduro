@@ -146,8 +146,8 @@ func ValidateStoredStoragePackageView(result *StoredStoragePackageView) (err err
 		err = goa.MergeErrors(err, goa.MissingFieldError("object_key", "result"))
 	}
 	if result.Status != nil {
-		if !(*result.Status == "stored" || *result.Status == "rejected" || *result.Status == "in_review" || *result.Status == "unspecified") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.status", *result.Status, []interface{}{"stored", "rejected", "in_review", "unspecified"}))
+		if !(*result.Status == "unspecified" || *result.Status == "in_review" || *result.Status == "rejected" || *result.Status == "stored" || *result.Status == "moving") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.status", *result.Status, []interface{}{"unspecified", "in_review", "rejected", "stored", "moving"}))
 		}
 	}
 	return

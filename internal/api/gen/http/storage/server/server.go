@@ -24,7 +24,7 @@ type Server struct {
 	Submit     http.Handler
 	Update     http.Handler
 	Download   http.Handler
-	List       http.Handler
+	Locations  http.Handler
 	Move       http.Handler
 	MoveStatus http.Handler
 	Reject     http.Handler
@@ -68,7 +68,7 @@ func New(
 			{"Submit", "POST", "/storage/{aip_id}/submit"},
 			{"Update", "POST", "/storage/{aip_id}/update"},
 			{"Download", "GET", "/storage/{aip_id}/download"},
-			{"List", "GET", "/storage/location"},
+			{"Locations", "GET", "/storage/location"},
 			{"Move", "POST", "/storage/{aip_id}/store"},
 			{"MoveStatus", "GET", "/storage/{aip_id}/store"},
 			{"Reject", "POST", "/storage/{aip_id}/reject"},
@@ -84,7 +84,7 @@ func New(
 		Submit:     NewSubmitHandler(e.Submit, mux, decoder, encoder, errhandler, formatter),
 		Update:     NewUpdateHandler(e.Update, mux, decoder, encoder, errhandler, formatter),
 		Download:   NewDownloadHandler(e.Download, mux, decoder, encoder, errhandler, formatter),
-		List:       NewListHandler(e.List, mux, decoder, encoder, errhandler, formatter),
+		Locations:  NewLocationsHandler(e.Locations, mux, decoder, encoder, errhandler, formatter),
 		Move:       NewMoveHandler(e.Move, mux, decoder, encoder, errhandler, formatter),
 		MoveStatus: NewMoveStatusHandler(e.MoveStatus, mux, decoder, encoder, errhandler, formatter),
 		Reject:     NewRejectHandler(e.Reject, mux, decoder, encoder, errhandler, formatter),
@@ -101,7 +101,7 @@ func (s *Server) Use(m func(http.Handler) http.Handler) {
 	s.Submit = m(s.Submit)
 	s.Update = m(s.Update)
 	s.Download = m(s.Download)
-	s.List = m(s.List)
+	s.Locations = m(s.Locations)
 	s.Move = m(s.Move)
 	s.MoveStatus = m(s.MoveStatus)
 	s.Reject = m(s.Reject)
@@ -114,7 +114,7 @@ func Mount(mux goahttp.Muxer, h *Server) {
 	MountSubmitHandler(mux, h.Submit)
 	MountUpdateHandler(mux, h.Update)
 	MountDownloadHandler(mux, h.Download)
-	MountListHandler(mux, h.List)
+	MountLocationsHandler(mux, h.Locations)
 	MountMoveHandler(mux, h.Move)
 	MountMoveStatusHandler(mux, h.MoveStatus)
 	MountRejectHandler(mux, h.Reject)
@@ -280,9 +280,9 @@ func NewDownloadHandler(
 	})
 }
 
-// MountListHandler configures the mux to serve the "storage" service "list"
-// endpoint.
-func MountListHandler(mux goahttp.Muxer, h http.Handler) {
+// MountLocationsHandler configures the mux to serve the "storage" service
+// "locations" endpoint.
+func MountLocationsHandler(mux goahttp.Muxer, h http.Handler) {
 	f, ok := HandleStorageOrigin(h).(http.HandlerFunc)
 	if !ok {
 		f = func(w http.ResponseWriter, r *http.Request) {
@@ -292,9 +292,9 @@ func MountListHandler(mux goahttp.Muxer, h http.Handler) {
 	mux.Handle("GET", "/storage/location", f)
 }
 
-// NewListHandler creates a HTTP handler which loads the HTTP request and calls
-// the "storage" service "list" endpoint.
-func NewListHandler(
+// NewLocationsHandler creates a HTTP handler which loads the HTTP request and
+// calls the "storage" service "locations" endpoint.
+func NewLocationsHandler(
 	endpoint goa.Endpoint,
 	mux goahttp.Muxer,
 	decoder func(*http.Request) goahttp.Decoder,
@@ -303,12 +303,12 @@ func NewListHandler(
 	formatter func(err error) goahttp.Statuser,
 ) http.Handler {
 	var (
-		encodeResponse = EncodeListResponse(encoder)
+		encodeResponse = EncodeLocationsResponse(encoder)
 		encodeError    = goahttp.ErrorEncoder(encoder, formatter)
 	)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
-		ctx = context.WithValue(ctx, goa.MethodKey, "list")
+		ctx = context.WithValue(ctx, goa.MethodKey, "locations")
 		ctx = context.WithValue(ctx, goa.ServiceKey, "storage")
 		var err error
 		res, err := endpoint(ctx, nil)

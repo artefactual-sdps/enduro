@@ -27,8 +27,8 @@ func DownloadStoragePath(aipID string) string {
 	return fmt.Sprintf("/storage/%v/download", aipID)
 }
 
-// ListStoragePath returns the URL path to the storage service list HTTP endpoint.
-func ListStoragePath() string {
+// LocationsStoragePath returns the URL path to the storage service locations HTTP endpoint.
+func LocationsStoragePath() string {
 	return "/storage/location"
 }
 

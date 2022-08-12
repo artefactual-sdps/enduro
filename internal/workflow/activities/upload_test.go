@@ -20,7 +20,7 @@ type StorageService struct {
 	SubmitHandler     func(ctx context.Context, req *goastorage.SubmitPayload) (res *goastorage.SubmitResult, err error)
 	UpdateHandler     func(ctx context.Context, req *goastorage.UpdatePayload) (err error)
 	DownloadHandler   func(ctx context.Context, req *goastorage.DownloadPayload) (res []byte, err error)
-	ListHandler       func(ctx context.Context) (res goastorage.StoredLocationCollection, err error)
+	LocationsHandler  func(ctx context.Context) (res goastorage.StoredLocationCollection, err error)
 	MoveHandler       func(ctx context.Context, req *goastorage.MovePayload) (err error)
 	MoveStatusHandler func(ctx context.Context, req *goastorage.MoveStatusPayload) (res *goastorage.MoveStatusResult, err error)
 	RejectHandler     func(ctx context.Context, req *goastorage.RejectPayload) (err error)
@@ -39,8 +39,8 @@ func (s StorageService) Download(ctx context.Context, req *goastorage.DownloadPa
 	return s.DownloadHandler(ctx, req)
 }
 
-func (s StorageService) List(ctx context.Context) (res goastorage.StoredLocationCollection, err error) {
-	return s.ListHandler(ctx)
+func (s StorageService) Locations(ctx context.Context) (res goastorage.StoredLocationCollection, err error) {
+	return s.LocationsHandler(ctx)
 }
 
 func (s StorageService) Move(ctx context.Context, req *goastorage.MovePayload) (err error) {
@@ -89,7 +89,7 @@ func TestUploadActivity(t *testing.T) {
 			endpoints.Submit,
 			endpoints.Update,
 			endpoints.Download,
-			endpoints.List,
+			endpoints.Locations,
 			endpoints.Move,
 			endpoints.MoveStatus,
 			endpoints.Reject,
@@ -128,7 +128,7 @@ func TestUploadActivity(t *testing.T) {
 			endpoints.Submit,
 			endpoints.Update,
 			endpoints.Download,
-			endpoints.List,
+			endpoints.Locations,
 			endpoints.Move,
 			endpoints.MoveStatus,
 			endpoints.Reject,

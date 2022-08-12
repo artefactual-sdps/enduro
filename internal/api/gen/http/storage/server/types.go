@@ -32,8 +32,8 @@ type SubmitResponseBody struct {
 	URL string `form:"url" json:"url" xml:"url"`
 }
 
-// StoredLocationResponseCollection is the type of the "storage" service "list"
-// endpoint HTTP response body.
+// StoredLocationResponseCollection is the type of the "storage" service
+// "locations" endpoint HTTP response body.
 type StoredLocationResponseCollection []*StoredLocationResponse
 
 // MoveStatusResponseBody is the type of the "storage" service "move_status"
@@ -278,7 +278,7 @@ func NewSubmitResponseBody(res *storage.SubmitResult) *SubmitResponseBody {
 }
 
 // NewStoredLocationResponseCollection builds the HTTP response body from the
-// result of the "list" endpoint of the "storage" service.
+// result of the "locations" endpoint of the "storage" service.
 func NewStoredLocationResponseCollection(res storageviews.StoredLocationCollectionView) StoredLocationResponseCollection {
 	body := make([]*StoredLocationResponse, len(res))
 	for i, val := range res {

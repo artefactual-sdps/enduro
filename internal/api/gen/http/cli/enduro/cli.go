@@ -23,12 +23,11 @@ import (
 
 // UsageCommands returns the set of commands and sub-commands using the format
 //
-//    command (subcommand1|subcommand2|...)
-//
+//	command (subcommand1|subcommand2|...)
 func UsageCommands() string {
 	return `batch (submit|status|hints)
 package (monitor|list|show|delete|cancel|retry|bulk|bulk-status|preservation-actions|confirm|reject|move|move-status)
-storage (submit|update|download|list|move|move-status|reject|show)
+storage (submit|update|download|locations|move|move-status|reject|show)
 `
 }
 
@@ -126,7 +125,7 @@ func ParseEndpoint(
 		storageDownloadFlags     = flag.NewFlagSet("download", flag.ExitOnError)
 		storageDownloadAipIDFlag = storageDownloadFlags.String("aip-id", "REQUIRED", "")
 
-		storageListFlags = flag.NewFlagSet("list", flag.ExitOnError)
+		storageLocationsFlags = flag.NewFlagSet("locations", flag.ExitOnError)
 
 		storageMoveFlags     = flag.NewFlagSet("move", flag.ExitOnError)
 		storageMoveBodyFlag  = storageMoveFlags.String("body", "REQUIRED", "")
@@ -165,7 +164,7 @@ func ParseEndpoint(
 	storageSubmitFlags.Usage = storageSubmitUsage
 	storageUpdateFlags.Usage = storageUpdateUsage
 	storageDownloadFlags.Usage = storageDownloadUsage
-	storageListFlags.Usage = storageListUsage
+	storageLocationsFlags.Usage = storageLocationsUsage
 	storageMoveFlags.Usage = storageMoveUsage
 	storageMoveStatusFlags.Usage = storageMoveStatusUsage
 	storageRejectFlags.Usage = storageRejectUsage
@@ -274,8 +273,8 @@ func ParseEndpoint(
 			case "download":
 				epf = storageDownloadFlags
 
-			case "list":
-				epf = storageListFlags
+			case "locations":
+				epf = storageLocationsFlags
 
 			case "move":
 				epf = storageMoveFlags
@@ -379,8 +378,8 @@ func ParseEndpoint(
 			case "download":
 				endpoint = c.Download()
 				data, err = storagec.BuildDownloadPayload(*storageDownloadAipIDFlag)
-			case "list":
-				endpoint = c.List()
+			case "locations":
+				endpoint = c.Locations()
 				data = nil
 			case "move":
 				endpoint = c.Move()
@@ -646,7 +645,7 @@ COMMAND:
     submit: Start the submission of a package
     update: Signal the storage service that an upload is complete
     download: Download package by AIPID
-    list: List locations
+    locations: List locations
     move: Move a package to a permanent storage location
     move-status: Retrieve the status of a permanent storage location move of the package
     reject: Reject a package
@@ -692,13 +691,13 @@ Example:
 `, os.Args[0])
 }
 
-func storageListUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage list
+func storageLocationsUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage locations
 
 List locations
 
 Example:
-    %[1]s storage list
+    %[1]s storage locations
 `, os.Args[0])
 }
 
