@@ -15,37 +15,26 @@ const { execute, error } = useAsyncState(
 </script>
 
 <template>
-  <div>
-    <div class="container-xxl pt-3" v-if="error">
-      <PageLoadingAlert :execute="execute" :error="error" />
-    </div>
+  <div class="container-xxl">
+    <PageLoadingAlert v-if="error" :execute="execute" :error="error" />
 
-    <div class="container-xxl pt-3" v-if="packageStore.current">
-      <!-- Alert -->
-      <div class="col">
-        <PackagePendingAlert />
-      </div>
+    <!-- Alert -->
+    <PackagePendingAlert v-if="packageStore.current" />
 
-      <!-- Navigation tabs -->
-      <div class="col">
-        <ul class="nav nav-tabs">
-          <li class="nav-item">
-            <router-link
-              class="nav-link"
-              exact-active-class="active"
-              :to="{
-                name: 'packages-id',
-                params: { id: packageStore.current.id },
-              }"
-              >Overview</router-link
-            >
-          </li>
-        </ul>
-      </div>
-
-      <div class="pt-3">
-        <router-view></router-view>
-      </div>
-    </div>
+    <!-- Navigation tabs -->
+    <ul class="nav nav-tabs mb-3" v-if="packageStore.current">
+      <li class="nav-item">
+        <router-link
+          class="nav-link"
+          exact-active-class="active"
+          :to="{
+            name: 'packages-id',
+            params: { id: packageStore.current.id },
+          }"
+          >Overview</router-link
+        >
+      </li>
+    </ul>
+    <router-view></router-view>
   </div>
 </template>

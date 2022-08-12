@@ -6,7 +6,7 @@ stateStore.updateBreadcrumb([{ text: "Locations" }]);
 </script>
 
 <template>
-  <div class="container-xxl pt-3">
+  <div class="container-xxl">
     <h2>Locations</h2>
     <div class="table-responsive mb-3">
       <table class="table table-bordered mb-0">

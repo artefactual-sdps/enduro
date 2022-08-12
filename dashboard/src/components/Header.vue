@@ -21,7 +21,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <header class="border-bottom">
+  <header class="border-bottom sticky-top">
     <nav class="navbar navbar-expand-md p-0">
       <button
         ref="offcanvas"

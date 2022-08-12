@@ -36,7 +36,7 @@ const toggleLegend = () => {
 </script>
 
 <template>
-  <div class="container-xxl pt-3">
+  <div class="container-xxl">
     <h2>Packages</h2>
     <PageLoadingAlert :execute="execute" :error="error" />
     <PackageListLegend v-model="showLegend" />

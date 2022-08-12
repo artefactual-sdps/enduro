@@ -36,7 +36,7 @@ useEventListener($$(offcanvas), "mouseleave", (e) => {
 
 <template>
   <div
-    class="sidebar offcanvas-md offcanvas-start d-flex bg-light"
+    class="sidebar offcanvas-md offcanvas-start d-flex bg-light overflow-auto sticky-md-top"
     :class="stateStore.sidebarCollapsed ? 'collapsed' : ''"
     tabindex="-1"
     id="menu-offcanvas"
