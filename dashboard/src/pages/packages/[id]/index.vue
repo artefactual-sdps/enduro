@@ -76,15 +76,15 @@ let toggleAll = $ref<boolean | null>(false);
         "
       >
         <button
-          class="btn btn-sm btn-link text-decoration-none p-0"
+          class="btn btn-sm btn-link p-0"
           type="button"
           @click="toggleAll = true"
         >
           Expand all
         </button>
-        <span class="px-1 link-primary">|</span>
+        <span class="px-1">|</span>
         <button
-          class="btn btn-sm btn-link text-decoration-none p-0"
+          class="btn btn-sm btn-link p-0"
           type="button"
           @click="toggleAll = false"
         >

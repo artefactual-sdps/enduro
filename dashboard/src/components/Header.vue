@@ -40,7 +40,7 @@ onMounted(() => {
         :class="stateStore.sidebarCollapsed ? 'collapsed-header' : ''"
       >
         <router-link
-          class="navbar-brand h1 mb-0 text-enduro-primary d-flex me-0 py-3 ps-2 ps-md-0"
+          class="navbar-brand h1 mb-0 text-primary d-flex me-0 py-3 ps-2 ps-md-0"
           :to="{ name: 'index' }"
         >
           <div class="container-fluid">

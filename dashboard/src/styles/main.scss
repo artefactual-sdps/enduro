@@ -26,3 +26,13 @@ button:focus:not(:focus-visible),
 .btn:focus:not(:focus-visible) {
   box-shadow: none;
 }
+
+a,
+.btn-link {
+  text-decoration: none;
+
+  &:hover,
+  &:focus {
+    text-decoration: underline;
+  }
+}

@@ -12,9 +12,12 @@ const stateStore = useStateStore();
         class="breadcrumb-item"
         :class="!item.routeName ? 'active' : ''"
       >
-        <router-link :to="{ name: item.routeName }" v-if="item.routeName">{{
-          item.text
-        }}</router-link>
+        <router-link
+          :to="{ name: item.routeName }"
+          v-if="item.routeName"
+          class="text-primary"
+          >{{ item.text }}</router-link
+        >
         <span v-else>{{ item.text }}</span>
       </li>
     </ol>

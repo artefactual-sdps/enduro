@@ -43,7 +43,7 @@ const menuItems = [
         <li v-for="item in menuItems">
           <router-link
             class="d-block py-3 text-decoration-none text-dark sidebar-link"
-            active-class="bg-enduro-primary text-white active"
+            active-class="bg-primary text-white active"
             :to="{ name: item.routeName }"
           >
             <div class="container-fluid">
@@ -115,7 +115,7 @@ const menuItems = [
     background-color: shade-color($light, 25%) !important;
 
     &.active {
-      background-color: shade-color($enduro-primary, 25%) !important;
+      background-color: shade-color($primary, 25%) !important;
     }
   }
 }
