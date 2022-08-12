@@ -4,6 +4,9 @@ import Dropdown from "bootstrap/js/dist/dropdown";
 import Offcanvas from "bootstrap/js/dist/offcanvas";
 import { onMounted } from "vue";
 import IconMenuLine from "~icons/clarity/menu-line";
+import { useStateStore } from "@/stores/state";
+
+const state = useStateStore();
 
 const offcanvas = $ref<HTMLElement | null>(null);
 //const collapse = $ref<HTMLElement | null>(null);
@@ -31,13 +34,16 @@ onMounted(() => {
         <IconMenuLine class="text-dark fs-2" aria-hidden="true" />
       </button>
 
-      <div class="sidebar me-auto ms-2 ms-md-0">
+      <div
+        class="sidebar me-auto ms-2 ms-md-0"
+        :class="state.sidebarCollapsed ? 'collapsed-header' : ''"
+      >
         <router-link
           class="navbar-brand h1 mb-0 text-enduro-primary d-flex me-0 py-3 ps-2 ps-md-0"
           :to="{ name: 'index' }"
         >
           <div class="container-fluid">
-            <div class="row">
+            <div class="row" :class="state.sidebarCollapsed ? 'ps-md-3' : ''">
               <div class="col-3 d-flex justify-content-end p-0">
                 <img src="/logo.png" alt="" height="30" />
               </div>

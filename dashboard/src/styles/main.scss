@@ -11,8 +11,13 @@ body {
     min-width: 200px;
 
     &.collapsed {
-      width: 70px;
-      min-width: 70px;
+      width: 69px;
+      min-width: 69px;
+    }
+
+    &.collapsed-header {
+      width: 150px;
+      min-width: 150px;
     }
   }
 }

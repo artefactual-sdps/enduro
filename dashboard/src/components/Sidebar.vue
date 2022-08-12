@@ -10,19 +10,20 @@ import IconSearchLine from "~icons/clarity/search-line";
 import IconSettingsLine from "~icons/clarity/settings-line";
 import IconShieldCheckLine from "~icons/clarity/shield-check-line";
 import IconSliderLine from "~icons/clarity/slider-line";
+import { useStateStore } from "@/stores/state";
+
+const state = useStateStore();
 
 const menuItems = [
   { routeName: "packages", icon: RawIconBundleLine, text: "Packages" },
   { routeName: "locations", icon: RawIconRackServerLine, text: "Locations" },
 ];
-
-let collapsed = $ref<boolean>(false);
 </script>
 
 <template>
   <div
     class="sidebar offcanvas-md offcanvas-start d-flex border-end bg-light"
-    :class="collapsed ? 'collapsed' : ''"
+    :class="state.sidebarCollapsed ? 'collapsed' : ''"
     tabindex="-1"
     id="menu-offcanvas"
     aria-label="offcanvasLabel"
@@ -50,7 +51,7 @@ let collapsed = $ref<boolean>(false);
                 <div
                   class="d-flex p-0"
                   :class="
-                    collapsed
+                    state.sidebarCollapsed
                       ? 'col-12 justify-content-center'
                       : 'col-3 justify-content-end'
                   "
@@ -59,7 +60,7 @@ let collapsed = $ref<boolean>(false);
                 </div>
                 <div
                   class="col-9 d-flex align-items-center"
-                  :class="collapsed ? 'd-none' : ''"
+                  :class="state.sidebarCollapsed ? 'd-none' : ''"
                 >
                   {{ item.text }}
                 </div>
@@ -71,14 +72,14 @@ let collapsed = $ref<boolean>(false);
       <button
         type="button"
         class="btn btn-link text-decoration-none text-dark sidebar-link p-0 py-3 rounded-0 d-none d-md-block"
-        @click="collapsed = !collapsed"
+        @click="state.toggleSidebar()"
       >
         <div class="container-fluid">
           <div class="row">
             <div
               class="d-flex p-0"
               :class="
-                collapsed
+                state.sidebarCollapsed
                   ? 'col-12 justify-content-center'
                   : 'col-3 justify-content-end'
               "
@@ -87,7 +88,7 @@ let collapsed = $ref<boolean>(false);
                 v-html="RawIconCollapseLine"
                 aria-hidden="true"
                 :style="
-                  collapsed
+                  state.sidebarCollapsed
                     ? 'transform: rotate(90deg)'
                     : 'transform: rotate(270deg)'
                 "
@@ -95,9 +96,9 @@ let collapsed = $ref<boolean>(false);
             </div>
             <div
               class="col-9 d-flex align-items-center"
-              :class="collapsed ? 'd-none' : ''"
+              :class="state.sidebarCollapsed ? 'd-none' : ''"
             >
-              <span v-if="collapsed">Expand</span>
+              <span v-if="state.sidebarCollapsed">Expand</span>
               <span v-else>Collapse</span>
             </div>
           </div>
