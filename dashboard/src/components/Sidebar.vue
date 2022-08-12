@@ -12,7 +12,7 @@ import IconShieldCheckLine from "~icons/clarity/shield-check-line";
 import IconSliderLine from "~icons/clarity/slider-line";
 import { useStateStore } from "@/stores/state";
 
-const state = useStateStore();
+const stateStore = useStateStore();
 
 const menuItems = [
   { routeName: "packages", icon: RawIconBundleLine, text: "Packages" },
@@ -23,7 +23,7 @@ const menuItems = [
 <template>
   <div
     class="sidebar offcanvas-md offcanvas-start d-flex border-end bg-light"
-    :class="state.sidebarCollapsed ? 'collapsed' : ''"
+    :class="stateStore.sidebarCollapsed ? 'collapsed' : ''"
     tabindex="-1"
     id="menu-offcanvas"
     aria-label="offcanvasLabel"
@@ -51,7 +51,7 @@ const menuItems = [
                 <div
                   class="d-flex p-0"
                   :class="
-                    state.sidebarCollapsed
+                    stateStore.sidebarCollapsed
                       ? 'col-12 justify-content-center'
                       : 'col-3 justify-content-end'
                   "
@@ -60,7 +60,7 @@ const menuItems = [
                 </div>
                 <div
                   class="col-9 d-flex align-items-center"
-                  :class="state.sidebarCollapsed ? 'd-none' : ''"
+                  :class="stateStore.sidebarCollapsed ? 'd-none' : ''"
                 >
                   {{ item.text }}
                 </div>
@@ -72,14 +72,14 @@ const menuItems = [
       <button
         type="button"
         class="btn btn-link text-decoration-none text-dark sidebar-link p-0 py-3 rounded-0 d-none d-md-block"
-        @click="state.toggleSidebar()"
+        @click="stateStore.toggleSidebar()"
       >
         <div class="container-fluid">
           <div class="row">
             <div
               class="d-flex p-0"
               :class="
-                state.sidebarCollapsed
+                stateStore.sidebarCollapsed
                   ? 'col-12 justify-content-center'
                   : 'col-3 justify-content-end'
               "
@@ -88,7 +88,7 @@ const menuItems = [
                 v-html="RawIconCollapseLine"
                 aria-hidden="true"
                 :style="
-                  state.sidebarCollapsed
+                  stateStore.sidebarCollapsed
                     ? 'transform: rotate(90deg)'
                     : 'transform: rotate(270deg)'
                 "
@@ -96,9 +96,9 @@ const menuItems = [
             </div>
             <div
               class="col-9 d-flex align-items-center"
-              :class="state.sidebarCollapsed ? 'd-none' : ''"
+              :class="stateStore.sidebarCollapsed ? 'd-none' : ''"
             >
-              <span v-if="state.sidebarCollapsed">Expand</span>
+              <span v-if="stateStore.sidebarCollapsed">Expand</span>
               <span v-else>Collapse</span>
             </div>
           </div>

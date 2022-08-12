@@ -1,4 +1,9 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { useStateStore } from "@/stores/state";
+
+const stateStore = useStateStore();
+stateStore.updateBreadcrumb([{ text: "Locations" }]);
+</script>
 
 <template>
   <div class="container-xxl pt-3">

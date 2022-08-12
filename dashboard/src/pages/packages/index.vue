@@ -4,11 +4,15 @@ import PageLoadingAlert from "@/components/PageLoadingAlert.vue";
 import StatusBadge from "@/components/StatusBadge.vue";
 import UUID from "@/components/UUID.vue";
 import { usePackageStore } from "@/stores/package";
+import { useStateStore } from "@/stores/state";
 import { useAsyncState } from "@vueuse/core";
 import { useRouter } from "vue-router";
 import { onMounted } from "vue";
 import Tooltip from "bootstrap/js/dist/tooltip";
 import IconInfoFill from "~icons/akar-icons/info-fill";
+
+const stateStore = useStateStore();
+stateStore.updateBreadcrumb([{ text: "Packages" }]);
 
 const router = useRouter();
 const packageStore = usePackageStore();

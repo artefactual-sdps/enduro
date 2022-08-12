@@ -26,20 +26,6 @@ const { execute, error } = useAsyncState(
         <PackagePendingAlert />
       </div>
 
-      <!-- Breadcrumb -->
-      <div class="col">
-        <nav aria-label="breadcrumb">
-          <ol class="breadcrumb">
-            <li class="breadcrumb-item">
-              <router-link :to="{ name: 'packages' }">Packages</router-link>
-            </li>
-            <li class="breadcrumb-item active" aria-current="page">
-              {{ packageStore.current.name }}
-            </li>
-          </ol>
-        </nav>
-      </div>
-
       <!-- Navigation tabs -->
       <div class="col">
         <ul class="nav nav-tabs">

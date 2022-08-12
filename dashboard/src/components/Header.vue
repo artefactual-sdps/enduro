@@ -5,8 +5,9 @@ import Offcanvas from "bootstrap/js/dist/offcanvas";
 import { onMounted } from "vue";
 import IconMenuLine from "~icons/clarity/menu-line";
 import { useStateStore } from "@/stores/state";
+import Breadcrumb from "@/components/Breadcrumb.vue";
 
-const state = useStateStore();
+const stateStore = useStateStore();
 
 const offcanvas = $ref<HTMLElement | null>(null);
 //const collapse = $ref<HTMLElement | null>(null);
@@ -36,14 +37,17 @@ onMounted(() => {
 
       <div
         class="sidebar me-auto ms-2 ms-md-0"
-        :class="state.sidebarCollapsed ? 'collapsed-header' : ''"
+        :class="stateStore.sidebarCollapsed ? 'collapsed-header' : ''"
       >
         <router-link
           class="navbar-brand h1 mb-0 text-enduro-primary d-flex me-0 py-3 ps-2 ps-md-0"
           :to="{ name: 'index' }"
         >
           <div class="container-fluid">
-            <div class="row" :class="state.sidebarCollapsed ? 'ps-md-3' : ''">
+            <div
+              class="row"
+              :class="stateStore.sidebarCollapsed ? 'ps-md-3' : ''"
+            >
               <div class="col-3 d-flex justify-content-end p-0">
                 <img src="/logo.png" alt="" height="30" />
               </div>
@@ -58,13 +62,8 @@ onMounted(() => {
       </div>
 
       <div class="flex-grow-1 d-none d-md-block ms-1">
-        <nav aria-label="breadcrumb">
-          <ol class="breadcrumb mb-0">
-            <li class="breadcrumb-item active" aria-current="page">
-              / Packages
-            </li>
-          </ol>
-        </nav>
+        <span class="text-muted me-2">/</span>
+        <Breadcrumb />
       </div>
 
       <!-- SEARCH BOX STUFF
