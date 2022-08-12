@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useStateStore } from "@/stores/state";
 import IconAnalyticsLine from "~icons/clarity/analytics-line";
 import IconBlocksGroupLine from "~icons/clarity/blocks-group-line";
 import RawIconBundleLine from "~icons/clarity/bundle-line?raw&width=2em&height=2em";
@@ -10,7 +11,6 @@ import IconSearchLine from "~icons/clarity/search-line";
 import IconSettingsLine from "~icons/clarity/settings-line";
 import IconShieldCheckLine from "~icons/clarity/shield-check-line";
 import IconSliderLine from "~icons/clarity/slider-line";
-import { useStateStore } from "@/stores/state";
 
 const stateStore = useStateStore();
 

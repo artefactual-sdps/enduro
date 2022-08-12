@@ -1,11 +1,11 @@
 <script setup lang="ts">
+import Breadcrumb from "@/components/Breadcrumb.vue";
+import { useStateStore } from "@/stores/state";
 import Collapse from "bootstrap/js/dist/collapse";
 import Dropdown from "bootstrap/js/dist/dropdown";
 import Offcanvas from "bootstrap/js/dist/offcanvas";
 import { onMounted } from "vue";
 import IconMenuLine from "~icons/clarity/menu-line";
-import { useStateStore } from "@/stores/state";
-import Breadcrumb from "@/components/Breadcrumb.vue";
 
 const stateStore = useStateStore();
 

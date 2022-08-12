@@ -1,7 +1,7 @@
 import { api, client } from "@/client";
+import { useStateStore } from "@/stores/state";
 import { defineStore, acceptHMRUpdate } from "pinia";
 import { ref } from "vue";
-import { useStateStore } from "@/stores/state";
 
 export const usePackageStore = defineStore("package", {
   state: () => ({
