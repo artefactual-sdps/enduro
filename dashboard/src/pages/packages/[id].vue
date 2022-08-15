@@ -22,9 +22,9 @@ const { execute, error } = useAsyncState(
     <!-- Alert -->
     <PackagePendingAlert v-if="packageStore.current" />
 
-    <h2 class="d-flex">
+    <h1 class="d-flex mb-3">
       <IconBundleLine class="me-3 text-dark" />{{ packageStore.current?.name }}
-    </h2>
+    </h1>
 
     <!-- Navigation tabs -->
     <ul class="nav nav-tabs mb-3" v-if="packageStore.current">

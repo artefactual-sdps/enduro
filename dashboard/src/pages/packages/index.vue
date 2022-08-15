@@ -38,7 +38,9 @@ const toggleLegend = () => {
 
 <template>
   <div class="container-xxl">
-    <h2 class="d-flex"><IconBundleLine class="me-3 text-dark" />Packages</h2>
+    <h1 class="d-flex mb-3">
+      <IconBundleLine class="me-3 text-dark" />Packages
+    </h1>
     <PageLoadingAlert :execute="execute" :error="error" />
     <PackageListLegend v-model="showLegend" />
     <div class="table-responsive mb-3">

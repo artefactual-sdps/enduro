@@ -8,9 +8,9 @@ stateStore.updateBreadcrumb([{ text: "Locations" }]);
 
 <template>
   <div class="container-xxl">
-    <h2 class="d-flex">
+    <h1 class="d-flex mb-3">
       <IconRackServerLine class="me-3 text-dark" />Locations
-    </h2>
+    </h1>
     <div class="table-responsive mb-3">
       <table class="table table-bordered mb-0">
         <thead>
