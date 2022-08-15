@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3.0.2
+        uses: actions/checkout@v3
       - name: Create k8s cluster
         uses: AbsaOSS/k3d-action@v2.3.0
         with:
