@@ -1,12 +1,9 @@
 <script setup lang="ts">
-import useEventListener from "@/composables/useEventListener";
 import { useStateStore } from "@/stores/state";
 import IconAnalyticsLine from "~icons/clarity/analytics-line";
 import IconBlocksGroupLine from "~icons/clarity/blocks-group-line";
 import RawIconBundleLine from "~icons/clarity/bundle-line?raw&width=2em&height=2em";
 import IconFileGroupLine from "~icons/clarity/file-group-line";
-import RawIconPinLine from "~icons/clarity/pin-line?raw&width=2em&height=2em";
-import RawIconPinSolid from "~icons/clarity/pin-solid?raw&width=2em&height=2em";
 import IconProcessOnVmLine from "~icons/clarity/process-on-vm-line";
 import RawIconRackServerLine from "~icons/clarity/rack-server-line?raw&width=2em&height=2em";
 import IconSearchLine from "~icons/clarity/search-line";
@@ -20,18 +17,6 @@ const menuItems = [
 ];
 
 const stateStore = useStateStore();
-const offcanvas = $ref<HTMLElement | null>(null);
-var pinned = $ref<boolean>(false);
-
-useEventListener($$(offcanvas), "mouseenter", (e) => {
-  if (!pinned && !offcanvas?.classList.contains("show"))
-    stateStore.expandSidebar();
-});
-
-useEventListener($$(offcanvas), "mouseleave", (e) => {
-  if (!pinned && !offcanvas?.classList.contains("show"))
-    stateStore.collapseSidebar();
-});
 </script>
 
 <template>
@@ -75,7 +60,11 @@ useEventListener($$(offcanvas), "mouseleave", (e) => {
                 </div>
                 <div
                   class="col-9 d-flex align-items-center"
-                  :class="stateStore.sidebarCollapsed ? 'd-md-none' : ''"
+                  :class="
+                    stateStore.sidebarCollapsed
+                      ? 'col-md-12 justify-content-md-center pt-md-2'
+                      : ''
+                  "
                 >
                   {{ item.text }}
                 </div>
@@ -84,39 +73,6 @@ useEventListener($$(offcanvas), "mouseleave", (e) => {
           >
         </li>
       </ul>
-      <button
-        type="button"
-        class="btn btn-link text-decoration-none text-dark sidebar-link p-0 py-3 rounded-0 d-none d-md-block"
-        @click="pinned = !pinned"
-      >
-        <div class="container-fluid">
-          <div class="row">
-            <div
-              class="d-flex p-0 col-3 justify-content-end"
-              :class="
-                stateStore.sidebarCollapsed
-                  ? 'col-md-12 justify-content-md-center'
-                  : ''
-              "
-            >
-              <span
-                v-html="RawIconPinSolid"
-                class="text-primary"
-                aria-hidden="true"
-                v-if="pinned"
-              />
-              <span v-html="RawIconPinLine" aria-hidden="true" v-else />
-            </div>
-            <div
-              class="col-9 d-flex align-items-center"
-              :class="stateStore.sidebarCollapsed ? 'd-md-none' : ''"
-            >
-              <span v-if="!pinned">Pin</span>
-              <span v-else>Unpin</span>
-            </div>
-          </div>
-        </div>
-      </button>
     </div>
   </div>
 </template>
@@ -136,6 +92,17 @@ useEventListener($$(offcanvas), "mouseleave", (e) => {
 @media (min-width: 768px) {
   .sidebar {
     border-right: $border-width $border-style $border-color;
+    width: 200px;
+    min-width: 200px;
+
+    &.collapsed {
+      width: 90px;
+      min-width: 90px;
+
+      .sidebar-link {
+        font-size: $font-size-sm;
+      }
+    }
   }
 }
 </style>

@@ -5,23 +5,6 @@ body {
   overflow: hidden;
 }
 
-@media (min-width: 768px) {
-  .sidebar {
-    width: 200px;
-    min-width: 200px;
-
-    &.collapsed {
-      width: 69px;
-      min-width: 69px;
-    }
-
-    &.collapsed-header {
-      width: 150px;
-      min-width: 150px;
-    }
-  }
-}
-
 button:focus:not(:focus-visible),
 .btn:focus:not(:focus-visible) {
   box-shadow: none;
