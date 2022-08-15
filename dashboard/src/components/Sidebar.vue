@@ -99,8 +99,8 @@ const stateStore = useStateStore();
       width: 90px;
       min-width: 90px;
 
-      .sidebar-link {
-        font-size: $font-size-sm;
+      .sidebar-link .col-9 {
+        font-size: 0.75 * $font-size-base;
       }
     }
   }
