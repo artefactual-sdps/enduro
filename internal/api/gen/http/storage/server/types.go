@@ -266,6 +266,11 @@ type StoredLocationResponse struct {
 	ID string `form:"id" json:"id" xml:"id"`
 	// Name of location
 	Name string `form:"name" json:"name" xml:"name"`
+	// Data source of the location
+	Source string `form:"source" json:"source" xml:"source"`
+	// Purpose of the location
+	Purpose string `form:"purpose" json:"purpose" xml:"purpose"`
+	UUID    string `form:"uuid" json:"uuid" xml:"uuid"`
 }
 
 // NewSubmitResponseBody builds the HTTP response body from the result of the

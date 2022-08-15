@@ -92,6 +92,11 @@ type StoredLocation struct {
 	ID string
 	// Name of location
 	Name string
+	// Data source of the location
+	Source string
+	// Purpose of the location
+	Purpose string
+	UUID    string
 }
 
 // StoredLocationCollection is the result type of the storage service locations
@@ -209,6 +214,21 @@ func newStoredLocation(vres *storageviews.StoredLocationView) *StoredLocation {
 	if vres.Name != nil {
 		res.Name = *vres.Name
 	}
+	if vres.Source != nil {
+		res.Source = *vres.Source
+	}
+	if vres.Purpose != nil {
+		res.Purpose = *vres.Purpose
+	}
+	if vres.UUID != nil {
+		res.UUID = *vres.UUID
+	}
+	if vres.Source == nil {
+		res.Source = "unspecified"
+	}
+	if vres.Purpose == nil {
+		res.Purpose = "unspecified"
+	}
 	return res
 }
 
@@ -216,8 +236,11 @@ func newStoredLocation(vres *storageviews.StoredLocationView) *StoredLocation {
 // StoredLocationView using the "default" view.
 func newStoredLocationView(res *StoredLocation) *storageviews.StoredLocationView {
 	vres := &storageviews.StoredLocationView{
-		ID:   &res.ID,
-		Name: &res.Name,
+		ID:      &res.ID,
+		Name:    &res.Name,
+		Source:  &res.Source,
+		Purpose: &res.Purpose,
+		UUID:    &res.UUID,
 	}
 	return vres
 }

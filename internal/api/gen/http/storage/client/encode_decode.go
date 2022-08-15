@@ -751,8 +751,11 @@ func DecodeShowResponse(decoder func(*http.Response) goahttp.Decoder, restoreBod
 // *StoredLocationResponse.
 func unmarshalStoredLocationResponseToStorageviewsStoredLocationView(v *StoredLocationResponse) *storageviews.StoredLocationView {
 	res := &storageviews.StoredLocationView{
-		ID:   v.ID,
-		Name: v.Name,
+		ID:      v.ID,
+		Name:    v.Name,
+		Source:  v.Source,
+		Purpose: v.Purpose,
+		UUID:    v.UUID,
 	}
 
 	return res

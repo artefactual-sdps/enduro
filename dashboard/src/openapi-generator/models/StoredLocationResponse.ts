@@ -31,7 +31,45 @@ export interface StoredLocationResponse {
      * @memberof StoredLocationResponse
      */
     name: string;
+    /**
+     * Purpose of the location
+     * @type {string}
+     * @memberof StoredLocationResponse
+     */
+    purpose: StoredLocationResponsePurposeEnum;
+    /**
+     * Data source of the location
+     * @type {string}
+     * @memberof StoredLocationResponse
+     */
+    source: StoredLocationResponseSourceEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof StoredLocationResponse
+     */
+    uuid: string;
 }
+
+
+/**
+ * @export
+ */
+export const StoredLocationResponsePurposeEnum = {
+    Unspecified: 'unspecified',
+    AipStore: 'aip_store'
+} as const;
+export type StoredLocationResponsePurposeEnum = typeof StoredLocationResponsePurposeEnum[keyof typeof StoredLocationResponsePurposeEnum];
+
+/**
+ * @export
+ */
+export const StoredLocationResponseSourceEnum = {
+    Unspecified: 'unspecified',
+    Minio: 'minio'
+} as const;
+export type StoredLocationResponseSourceEnum = typeof StoredLocationResponseSourceEnum[keyof typeof StoredLocationResponseSourceEnum];
+
 
 export function StoredLocationResponseFromJSON(json: any): StoredLocationResponse {
     return StoredLocationResponseFromJSONTyped(json, false);
@@ -45,6 +83,9 @@ export function StoredLocationResponseFromJSONTyped(json: any, ignoreDiscriminat
         
         'id': json['id'],
         'name': json['name'],
+        'purpose': json['purpose'],
+        'source': json['source'],
+        'uuid': json['uuid'],
     };
 }
 
@@ -59,6 +100,9 @@ export function StoredLocationResponseToJSON(value?: StoredLocationResponse | nu
         
         'id': value.id,
         'name': value.name,
+        'purpose': value.purpose,
+        'source': value.source,
+        'uuid': value.uuid,
     };
 }
 

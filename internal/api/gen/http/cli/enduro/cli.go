@@ -34,9 +34,9 @@ storage (submit|update|download|locations|move|move-status|reject|show)
 // UsageExamples produces an example of a valid invocation of the CLI tool.
 func UsageExamples() string {
 	return os.Args[0] + ` batch submit --body '{
-      "completed_dir": "Vitae odit sunt.",
-      "path": "Illum quasi.",
-      "retention_period": "Dolor et suscipit."
+      "completed_dir": "Dolor et suscipit.",
+      "path": "Sed vitae odit sunt.",
+      "retention_period": "In provident."
    }'` + "\n" +
 		os.Args[0] + ` package monitor` + "\n" +
 		os.Args[0] + ` storage submit --body '{
@@ -426,9 +426,9 @@ Submit a new batch
 
 Example:
     %[1]s batch submit --body '{
-      "completed_dir": "Vitae odit sunt.",
-      "path": "Illum quasi.",
-      "retention_period": "Dolor et suscipit."
+      "completed_dir": "Dolor et suscipit.",
+      "path": "Sed vitae odit sunt.",
+      "retention_period": "In provident."
    }'
 `, os.Args[0])
 }
@@ -710,8 +710,8 @@ Move a package to a permanent storage location
 
 Example:
     %[1]s storage move --body '{
-      "location": "Eaque architecto magnam pariatur rerum voluptas."
-   }' --aip-id "Sit vitae."
+      "location": "Voluptas iusto sit vitae ad quasi."
+   }' --aip-id "Iure nulla."
 `, os.Args[0])
 }
 
@@ -722,7 +722,7 @@ Retrieve the status of a permanent storage location move of the package
     -aip-id STRING: 
 
 Example:
-    %[1]s storage move-status --aip-id "Dolorum quis sed iure mollitia nisi."
+    %[1]s storage move-status --aip-id "Mollitia nisi et deserunt voluptate."
 `, os.Args[0])
 }
 
@@ -733,7 +733,7 @@ Reject a package
     -aip-id STRING: 
 
 Example:
-    %[1]s storage reject --aip-id "Mollitia repellendus et qui ratione esse."
+    %[1]s storage reject --aip-id "Voluptatibus rerum necessitatibus pariatur."
 `, os.Args[0])
 }
 
@@ -744,6 +744,6 @@ Show package by AIPID
     -aip-id STRING: 
 
 Example:
-    %[1]s storage show --aip-id "Unde saepe."
+    %[1]s storage show --aip-id "Ut labore aut."
 `, os.Args[0])
 }

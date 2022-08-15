@@ -267,6 +267,11 @@ type StoredLocationResponse struct {
 	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
 	// Name of location
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// Data source of the location
+	Source *string `form:"source,omitempty" json:"source,omitempty" xml:"source,omitempty"`
+	// Purpose of the location
+	Purpose *string `form:"purpose,omitempty" json:"purpose,omitempty" xml:"purpose,omitempty"`
+	UUID    *string `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
 }
 
 // NewSubmitRequestBody builds the HTTP request body from the payload of the
@@ -817,6 +822,25 @@ func ValidateStoredLocationResponse(body *StoredLocationResponse) (err error) {
 	}
 	if body.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.Source == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("source", "body"))
+	}
+	if body.Purpose == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("purpose", "body"))
+	}
+	if body.UUID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("uuid", "body"))
+	}
+	if body.Source != nil {
+		if !(*body.Source == "unspecified" || *body.Source == "minio") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.source", *body.Source, []interface{}{"unspecified", "minio"}))
+		}
+	}
+	if body.Purpose != nil {
+		if !(*body.Purpose == "unspecified" || *body.Purpose == "aip_store") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.purpose", *body.Purpose, []interface{}{"unspecified", "aip_store"}))
+		}
 	}
 	return
 }

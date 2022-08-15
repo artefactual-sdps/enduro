@@ -40,6 +40,11 @@ type StoredLocationView struct {
 	ID *string
 	// Name of location
 	Name *string
+	// Data source of the location
+	Source *string
+	// Purpose of the location
+	Purpose *string
+	UUID    *string
 }
 
 // StoredStoragePackageView is a type that runs validations on a projected type.
@@ -60,6 +65,9 @@ var (
 		"default": {
 			"id",
 			"name",
+			"source",
+			"purpose",
+			"uuid",
 		},
 	}
 	// StoredStoragePackageMap is a map indexing the attribute names of
@@ -79,6 +87,9 @@ var (
 		"default": {
 			"id",
 			"name",
+			"source",
+			"purpose",
+			"uuid",
 		},
 	}
 )
@@ -126,6 +137,25 @@ func ValidateStoredLocationView(result *StoredLocationView) (err error) {
 	}
 	if result.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("name", "result"))
+	}
+	if result.Source == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("source", "result"))
+	}
+	if result.Purpose == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("purpose", "result"))
+	}
+	if result.UUID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("uuid", "result"))
+	}
+	if result.Source != nil {
+		if !(*result.Source == "unspecified" || *result.Source == "minio") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.source", *result.Source, []interface{}{"unspecified", "minio"}))
+		}
+	}
+	if result.Purpose != nil {
+		if !(*result.Purpose == "unspecified" || *result.Purpose == "aip_store") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.purpose", *result.Purpose, []interface{}{"unspecified", "aip_store"}))
+		}
 	}
 	return
 }

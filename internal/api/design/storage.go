@@ -154,19 +154,42 @@ var StoredLocation = ResultType("application/vnd.enduro.stored-location", func()
 	Attributes(func() {
 		Attribute("id", String, "ID is the unique id of the location.")
 		Field(2, "name")
+		Field(3, "source")
+		Field(4, "purpose")
+		Field(5, "uuid")
 	})
 
 	View("default", func() {
 		Attribute("id")
 		Attribute("name")
+		Attribute("source")
+		Attribute("purpose")
+		Attribute("uuid")
 	})
 
-	Required("id", "name")
+	Required("id", "name", "source", "purpose", "uuid")
 })
+
+var EnumLocationSource = func() {
+	Enum("unspecified", "minio")
+}
+
+var EnumLocationPurpose = func() {
+	Enum("unspecified", "aip_store")
+}
 
 var Location = Type("Location", func() {
 	Description("Location describes a physical entity used to store AIPs.")
 	Attribute("name", String, "Name of location")
+	Attribute("source", String, "Data source of the location", func() {
+		EnumLocationSource()
+		Default("unspecified")
+	})
+	Attribute("purpose", String, "Purpose of the location", func() {
+		EnumLocationPurpose()
+		Default("unspecified")
+	})
+	Attribute("uuid", String)
 })
 
 var MoveStatusResult = Type("MoveStatusResult", func() {
