@@ -10,6 +10,7 @@ import { useRouter } from "vue-router";
 import { onMounted } from "vue";
 import Tooltip from "bootstrap/js/dist/tooltip";
 import IconInfoFill from "~icons/akar-icons/info-fill";
+import IconBundleLine from "~icons/clarity/bundle-line";
 
 const stateStore = useStateStore();
 stateStore.updateBreadcrumb([{ text: "Packages" }]);
@@ -37,7 +38,7 @@ const toggleLegend = () => {
 
 <template>
   <div class="container-xxl">
-    <h2>Packages</h2>
+    <h2 class="d-flex"><IconBundleLine class="me-3 text-dark" />Packages</h2>
     <PageLoadingAlert :execute="execute" :error="error" />
     <PackageListLegend v-model="showLegend" />
     <div class="table-responsive mb-3">

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useStateStore } from "@/stores/state";
+import IconRackServerLine from "~icons/clarity/rack-server-line";
 
 const stateStore = useStateStore();
 stateStore.updateBreadcrumb([{ text: "Locations" }]);
@@ -7,7 +8,9 @@ stateStore.updateBreadcrumb([{ text: "Locations" }]);
 
 <template>
   <div class="container-xxl">
-    <h2>Locations</h2>
+    <h2 class="d-flex">
+      <IconRackServerLine class="me-3 text-dark" />Locations
+    </h2>
     <div class="table-responsive mb-3">
       <table class="table table-bordered mb-0">
         <thead>

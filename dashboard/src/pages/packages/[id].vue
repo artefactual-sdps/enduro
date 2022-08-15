@@ -4,6 +4,7 @@ import PageLoadingAlert from "@/components/PageLoadingAlert.vue";
 import { usePackageStore } from "@/stores/package";
 import { useAsyncState } from "@vueuse/core";
 import { useRoute } from "vue-router";
+import IconBundleLine from "~icons/clarity/bundle-line";
 
 const route = useRoute();
 const packageStore = usePackageStore();
@@ -20,6 +21,10 @@ const { execute, error } = useAsyncState(
 
     <!-- Alert -->
     <PackagePendingAlert v-if="packageStore.current" />
+
+    <h2 class="d-flex">
+      <IconBundleLine class="me-3 text-dark" />{{ packageStore.current?.name }}
+    </h2>
 
     <!-- Navigation tabs -->
     <ul class="nav nav-tabs mb-3" v-if="packageStore.current">
