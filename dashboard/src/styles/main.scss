@@ -36,3 +36,10 @@ a,
     text-decoration: underline;
   }
 }
+
+h1,
+h2,
+h3 {
+  font-weight: 400;
+  color: var(--bs-primary);
+}
