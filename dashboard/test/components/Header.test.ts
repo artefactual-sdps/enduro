@@ -18,6 +18,7 @@ describe("Header.vue", () => {
                 sidebarCollapsed: false,
               },
             },
+            stubActions: false,
           }),
         ],
       },

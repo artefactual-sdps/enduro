@@ -42,7 +42,7 @@ onMounted(() => {
         :aria-label="
           (stateStore.sidebarCollapsed ? 'Expand' : 'Collapse') + ' navigation'
         "
-        @click="stateStore.sidebarCollapsed = !stateStore.sidebarCollapsed"
+        @click="stateStore.toggleSidebar()"
       >
         <IconMenuLine
           class="text-dark mx-1"

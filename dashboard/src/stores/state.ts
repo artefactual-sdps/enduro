@@ -11,11 +11,8 @@ export const useStateStore = defineStore("state", {
     breadcrumb: [] as Array<BreadcrumbItem>,
   }),
   actions: {
-    expandSidebar() {
-      this.sidebarCollapsed = false;
-    },
-    collapseSidebar() {
-      this.sidebarCollapsed = true;
+    toggleSidebar() {
+      this.sidebarCollapsed = !this.sidebarCollapsed;
     },
     updateBreadcrumb(breadcrumb: Array<BreadcrumbItem>) {
       this.breadcrumb = breadcrumb;

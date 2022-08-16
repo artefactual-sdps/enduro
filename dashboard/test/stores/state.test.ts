@@ -7,14 +7,12 @@ describe("useStateStore", () => {
     setActivePinia(createPinia());
   });
 
-  it("modifies the sidebarCollapsed property", () => {
+  it("toggles the sidebarCollapsed property", () => {
     const stateStore = useStateStore();
+    stateStore.sidebarCollapsed = false;
 
-    stateStore.collapseSidebar();
+    stateStore.toggleSidebar();
     expect(stateStore.sidebarCollapsed).toEqual(true);
-
-    stateStore.expandSidebar();
-    expect(stateStore.sidebarCollapsed).toEqual(false);
   });
 
   it("updates the breadcrumb property", () => {
