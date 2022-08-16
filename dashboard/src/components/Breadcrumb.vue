@@ -11,7 +11,7 @@ const stateStore = useStateStore();
         v-for="item in stateStore.breadcrumb"
         class="breadcrumb-item"
         :class="!item.routeName ? 'active' : ''"
-        :aria-current="!item.routeName ? 'page' : null"
+        :aria-current="!item.routeName ? 'page' : undefined"
       >
         <router-link
           :to="{ name: item.routeName }"
