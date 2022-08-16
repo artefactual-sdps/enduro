@@ -1,7 +1,7 @@
 import Breadcrumb from "@/components/Breadcrumb.vue";
 import { createTestingPinia } from "@pinia/testing";
-import { cleanup, fireEvent, render } from "@testing-library/vue";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { cleanup, render } from "@testing-library/vue";
+import { afterEach, describe, it, vi } from "vitest";
 import { createRouter, createWebHistory } from "vue-router";
 
 describe("Breadcrumb.vue", () => {
