@@ -242,6 +242,72 @@ func EncodeLocationsResponse(encoder func(context.Context, http.ResponseWriter) 
 	}
 }
 
+// EncodeAddLocationResponse returns an encoder for responses returned by the
+// storage add-location endpoint.
+func EncodeAddLocationResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
+	return func(ctx context.Context, w http.ResponseWriter, v interface{}) error {
+		res, _ := v.(*storage.AddLocationResult)
+		enc := encoder(ctx, w)
+		body := NewAddLocationResponseBody(res)
+		w.WriteHeader(http.StatusCreated)
+		return enc.Encode(body)
+	}
+}
+
+// DecodeAddLocationRequest returns a decoder for requests sent to the storage
+// add-location endpoint.
+func DecodeAddLocationRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (interface{}, error) {
+	return func(r *http.Request) (interface{}, error) {
+		var (
+			body AddLocationRequestBody
+			err  error
+		)
+		err = decoder(r).Decode(&body)
+		if err != nil {
+			if err == io.EOF {
+				return nil, goa.MissingPayloadError()
+			}
+			return nil, goa.DecodePayloadError(err.Error())
+		}
+		err = ValidateAddLocationRequestBody(&body)
+		if err != nil {
+			return nil, err
+		}
+		payload := NewAddLocationPayload(&body)
+
+		return payload, nil
+	}
+}
+
+// EncodeAddLocationError returns an encoder for errors returned by the
+// add-location storage endpoint.
+func EncodeAddLocationError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
+	encodeError := goahttp.ErrorEncoder(encoder, formatter)
+	return func(ctx context.Context, w http.ResponseWriter, v error) error {
+		var en ErrorNamer
+		if !errors.As(v, &en) {
+			return encodeError(ctx, w, v)
+		}
+		switch en.ErrorName() {
+		case "not_valid":
+			var res *goa.ServiceError
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			var body interface{}
+			if formatter != nil {
+				body = formatter(res)
+			} else {
+				body = NewAddLocationNotValidResponseBody(res)
+			}
+			w.Header().Set("goa-error", res.ErrorName())
+			w.WriteHeader(http.StatusBadRequest)
+			return enc.Encode(body)
+		default:
+			return encodeError(ctx, w, v)
+		}
+	}
+}
+
 // EncodeMoveResponse returns an encoder for responses returned by the storage
 // move endpoint.
 func EncodeMoveResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
@@ -550,7 +616,6 @@ func EncodeShowError(encoder func(context.Context, http.ResponseWriter) goahttp.
 // *storageviews.StoredLocationView.
 func marshalStorageviewsStoredLocationViewToStoredLocationResponse(v *storageviews.StoredLocationView) *StoredLocationResponse {
 	res := &StoredLocationResponse{
-		ID:      *v.ID,
 		Name:    *v.Name,
 		Source:  *v.Source,
 		Purpose: *v.Purpose,

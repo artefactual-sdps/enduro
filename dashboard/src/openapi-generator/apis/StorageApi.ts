@@ -15,6 +15,15 @@
 
 import * as runtime from '../runtime';
 import {
+    StorageAddLocationNotValidResponseBody,
+    StorageAddLocationNotValidResponseBodyFromJSON,
+    StorageAddLocationNotValidResponseBodyToJSON,
+    StorageAddLocationRequestBody,
+    StorageAddLocationRequestBodyFromJSON,
+    StorageAddLocationRequestBodyToJSON,
+    StorageAddLocationResponseBody,
+    StorageAddLocationResponseBodyFromJSON,
+    StorageAddLocationResponseBodyToJSON,
     StorageDownloadNotFoundResponseBody,
     StorageDownloadNotFoundResponseBodyFromJSON,
     StorageDownloadNotFoundResponseBodyToJSON,
@@ -77,6 +86,10 @@ import {
     StoredLocationResponseToJSON,
 } from '../models';
 
+export interface StorageAddLocationRequest {
+    addLocationRequestBody: StorageAddLocationRequestBody;
+}
+
 export interface StorageDownloadRequest {
     aipId: string;
 }
@@ -114,6 +127,22 @@ export interface StorageUpdateRequest {
  * @interface StorageApiInterface
  */
 export interface StorageApiInterface {
+    /**
+     * Add a storage location
+     * @summary add-location storage
+     * @param {StorageAddLocationRequestBody} addLocationRequestBody 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof StorageApiInterface
+     */
+    storageAddLocationRaw(requestParameters: StorageAddLocationRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<StorageAddLocationResponseBody>>;
+
+    /**
+     * Add a storage location
+     * add-location storage
+     */
+    storageAddLocation(requestParameters: StorageAddLocationRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<StorageAddLocationResponseBody>;
+
     /**
      * Download package by AIPID
      * @summary download storage
@@ -249,6 +278,41 @@ export interface StorageApiInterface {
  * 
  */
 export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
+
+    /**
+     * Add a storage location
+     * add-location storage
+     */
+    async storageAddLocationRaw(requestParameters: StorageAddLocationRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<StorageAddLocationResponseBody>> {
+        if (requestParameters.addLocationRequestBody === null || requestParameters.addLocationRequestBody === undefined) {
+            throw new runtime.RequiredError('addLocationRequestBody','Required parameter requestParameters.addLocationRequestBody was null or undefined when calling storageAddLocation.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        const response = await this.request({
+            path: `/storage/location`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: StorageAddLocationRequestBodyToJSON(requestParameters.addLocationRequestBody),
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => StorageAddLocationResponseBodyFromJSON(jsonValue));
+    }
+
+    /**
+     * Add a storage location
+     * add-location storage
+     */
+    async storageAddLocation(requestParameters: StorageAddLocationRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<StorageAddLocationResponseBody> {
+        const response = await this.storageAddLocationRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
 
     /**
      * Download package by AIPID

@@ -55,6 +55,9 @@ models/PackageRetryNotFoundResponseBody.ts
 models/PackageRetryNotRunningResponseBody.ts
 models/PackageShowNotFoundResponseBody.ts
 models/PackageShowResponseBody.ts
+models/StorageAddLocationNotValidResponseBody.ts
+models/StorageAddLocationRequestBody.ts
+models/StorageAddLocationResponseBody.ts
 models/StorageDownloadNotFoundResponseBody.ts
 models/StorageMoveNotAvailableResponseBody.ts
 models/StorageMoveNotFoundResponseBody.ts

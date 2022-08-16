@@ -14,6 +14,8 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/enttest"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/pkg"
+	"github.com/artefactual-sdps/enduro/internal/storage/purpose"
+	"github.com/artefactual-sdps/enduro/internal/storage/source"
 	"github.com/artefactual-sdps/enduro/internal/storage/status"
 )
 
@@ -155,4 +157,25 @@ func TestUpdatePackageLocation(t *testing.T) {
 			pkg.ID(p.ID),
 			pkg.Location("perma-aips-2"),
 		).OnlyX(context.Background())
+}
+
+func TestCreateLocation(t *testing.T) {
+	t.Parallel()
+
+	entc, c := setUpClient(t)
+
+	l, err := c.CreateLocation(
+		context.Background(),
+		"test_location",
+		source.LocationSourceMinIO,
+		purpose.LocationPurposeAIPStore,
+		uuid.MustParse("7a090f2c-7bd4-471c-8aa1-8c72125decd5"),
+	)
+	assert.NilError(t, err)
+
+	dblocation := entc.Location.GetX(context.Background(), int(l.ID))
+	assert.Equal(t, dblocation.Name, "test_location")
+	assert.Equal(t, dblocation.Source, source.LocationSourceMinIO)
+	assert.Equal(t, dblocation.Purpose, purpose.LocationPurposeAIPStore)
+	assert.Equal(t, dblocation.UUID.String(), "7a090f2c-7bd4-471c-8aa1-8c72125decd5")
 }

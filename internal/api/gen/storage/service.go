@@ -25,6 +25,8 @@ type Service interface {
 	Download(context.Context, *DownloadPayload) (res []byte, err error)
 	// List locations
 	Locations(context.Context) (res StoredLocationCollection, err error)
+	// Add a storage location
+	AddLocation(context.Context, *AddLocationPayload) (res *AddLocationResult, err error)
 	// Move a package to a permanent storage location
 	Move(context.Context, *MovePayload) (err error)
 	// Retrieve the status of a permanent storage location move of the package
@@ -43,7 +45,21 @@ const ServiceName = "storage"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [8]string{"submit", "update", "download", "locations", "move", "move_status", "reject", "show"}
+var MethodNames = [9]string{"submit", "update", "download", "locations", "add-location", "move", "move_status", "reject", "show"}
+
+// AddLocationPayload is the payload type of the storage service add-location
+// method.
+type AddLocationPayload struct {
+	Name    string
+	Source  string
+	Purpose string
+}
+
+// AddLocationResult is the result type of the storage service add-location
+// method.
+type AddLocationResult struct {
+	UUID string
+}
 
 // DownloadPayload is the payload type of the storage service download method.
 type DownloadPayload struct {
@@ -89,7 +105,7 @@ type StoragePackageNotfound struct {
 // A StoredLocation describes a location retrieved by the storage service.
 type StoredLocation struct {
 	// ID is the unique id of the location.
-	ID string
+	ID uint
 	// Name of location
 	Name string
 	// Data source of the location
@@ -208,9 +224,6 @@ func newStoredLocationCollectionView(res StoredLocationCollection) storageviews.
 // StoredLocation.
 func newStoredLocation(vres *storageviews.StoredLocationView) *StoredLocation {
 	res := &StoredLocation{}
-	if vres.ID != nil {
-		res.ID = *vres.ID
-	}
 	if vres.Name != nil {
 		res.Name = *vres.Name
 	}
@@ -236,7 +249,6 @@ func newStoredLocation(vres *storageviews.StoredLocationView) *StoredLocation {
 // StoredLocationView using the "default" view.
 func newStoredLocationView(res *StoredLocation) *storageviews.StoredLocationView {
 	vres := &storageviews.StoredLocationView{
-		ID:      &res.ID,
 		Name:    &res.Name,
 		Source:  &res.Source,
 		Purpose: &res.Purpose,

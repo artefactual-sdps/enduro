@@ -16,27 +16,29 @@ import (
 
 // Client is the "storage" service client.
 type Client struct {
-	SubmitEndpoint     goa.Endpoint
-	UpdateEndpoint     goa.Endpoint
-	DownloadEndpoint   goa.Endpoint
-	LocationsEndpoint  goa.Endpoint
-	MoveEndpoint       goa.Endpoint
-	MoveStatusEndpoint goa.Endpoint
-	RejectEndpoint     goa.Endpoint
-	ShowEndpoint       goa.Endpoint
+	SubmitEndpoint      goa.Endpoint
+	UpdateEndpoint      goa.Endpoint
+	DownloadEndpoint    goa.Endpoint
+	LocationsEndpoint   goa.Endpoint
+	AddLocationEndpoint goa.Endpoint
+	MoveEndpoint        goa.Endpoint
+	MoveStatusEndpoint  goa.Endpoint
+	RejectEndpoint      goa.Endpoint
+	ShowEndpoint        goa.Endpoint
 }
 
 // NewClient initializes a "storage" service client given the endpoints.
-func NewClient(submit, update, download, locations, move, moveStatus, reject, show goa.Endpoint) *Client {
+func NewClient(submit, update, download, locations, addLocation, move, moveStatus, reject, show goa.Endpoint) *Client {
 	return &Client{
-		SubmitEndpoint:     submit,
-		UpdateEndpoint:     update,
-		DownloadEndpoint:   download,
-		LocationsEndpoint:  locations,
-		MoveEndpoint:       move,
-		MoveStatusEndpoint: moveStatus,
-		RejectEndpoint:     reject,
-		ShowEndpoint:       show,
+		SubmitEndpoint:      submit,
+		UpdateEndpoint:      update,
+		DownloadEndpoint:    download,
+		LocationsEndpoint:   locations,
+		AddLocationEndpoint: addLocation,
+		MoveEndpoint:        move,
+		MoveStatusEndpoint:  moveStatus,
+		RejectEndpoint:      reject,
+		ShowEndpoint:        show,
 	}
 }
 
@@ -87,6 +89,19 @@ func (c *Client) Locations(ctx context.Context) (res StoredLocationCollection, e
 		return
 	}
 	return ires.(StoredLocationCollection), nil
+}
+
+// AddLocation calls the "add-location" endpoint of the "storage" service.
+// AddLocation may return the following errors:
+//   - "not_valid" (type *goa.ServiceError)
+//   - error: internal error
+func (c *Client) AddLocation(ctx context.Context, p *AddLocationPayload) (res *AddLocationResult, err error) {
+	var ires interface{}
+	ires, err = c.AddLocationEndpoint(ctx, p)
+	if err != nil {
+		return
+	}
+	return ires.(*AddLocationResult), nil
 }
 
 // Move calls the "move" endpoint of the "storage" service.

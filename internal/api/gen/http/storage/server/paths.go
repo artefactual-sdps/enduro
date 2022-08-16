@@ -32,6 +32,11 @@ func LocationsStoragePath() string {
 	return "/storage/location"
 }
 
+// AddLocationStoragePath returns the URL path to the storage service add-location HTTP endpoint.
+func AddLocationStoragePath() string {
+	return "/storage/location"
+}
+
 // MoveStoragePath returns the URL path to the storage service move HTTP endpoint.
 func MoveStoragePath(aipID string) string {
 	return fmt.Sprintf("/storage/%v/store", aipID)

@@ -20,12 +20,6 @@ import { exists, mapValues } from '../runtime';
  */
 export interface StoredLocationResponse {
     /**
-     * ID is the unique id of the location.
-     * @type {string}
-     * @memberof StoredLocationResponse
-     */
-    id: string;
-    /**
      * Name of location
      * @type {string}
      * @memberof StoredLocationResponse
@@ -81,7 +75,6 @@ export function StoredLocationResponseFromJSONTyped(json: any, ignoreDiscriminat
     }
     return {
         
-        'id': json['id'],
         'name': json['name'],
         'purpose': json['purpose'],
         'source': json['source'],
@@ -98,7 +91,6 @@ export function StoredLocationResponseToJSON(value?: StoredLocationResponse | nu
     }
     return {
         
-        'id': value.id,
         'name': value.name,
         'purpose': value.purpose,
         'source': value.source,

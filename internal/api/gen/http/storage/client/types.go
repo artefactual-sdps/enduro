@@ -20,6 +20,14 @@ type SubmitRequestBody struct {
 	Name string `form:"name" json:"name" xml:"name"`
 }
 
+// AddLocationRequestBody is the type of the "storage" service "add-location"
+// endpoint HTTP request body.
+type AddLocationRequestBody struct {
+	Name    string `form:"name" json:"name" xml:"name"`
+	Source  string `form:"source" json:"source" xml:"source"`
+	Purpose string `form:"purpose" json:"purpose" xml:"purpose"`
+}
+
 // MoveRequestBody is the type of the "storage" service "move" endpoint HTTP
 // request body.
 type MoveRequestBody struct {
@@ -35,6 +43,12 @@ type SubmitResponseBody struct {
 // LocationsResponseBody is the type of the "storage" service "locations"
 // endpoint HTTP response body.
 type LocationsResponseBody []*StoredLocationResponse
+
+// AddLocationResponseBody is the type of the "storage" service "add-location"
+// endpoint HTTP response body.
+type AddLocationResponseBody struct {
+	UUID *string `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
+}
 
 // MoveStatusResponseBody is the type of the "storage" service "move_status"
 // endpoint HTTP response body.
@@ -133,6 +147,24 @@ type DownloadNotFoundResponseBody struct {
 	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
 	// Identifier of missing package
 	AipID *string `form:"aip_id,omitempty" json:"aip_id,omitempty" xml:"aip_id,omitempty"`
+}
+
+// AddLocationNotValidResponseBody is the type of the "storage" service
+// "add-location" endpoint HTTP response body for the "not_valid" error.
+type AddLocationNotValidResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
 }
 
 // MoveNotAvailableResponseBody is the type of the "storage" service "move"
@@ -264,7 +296,7 @@ type ShowNotFoundResponseBody struct {
 // StoredLocationResponse is used to define fields on response body types.
 type StoredLocationResponse struct {
 	// ID is the unique id of the location.
-	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	ID *uint `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
 	// Name of location
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 	// Data source of the location
@@ -279,6 +311,17 @@ type StoredLocationResponse struct {
 func NewSubmitRequestBody(p *storage.SubmitPayload) *SubmitRequestBody {
 	body := &SubmitRequestBody{
 		Name: p.Name,
+	}
+	return body
+}
+
+// NewAddLocationRequestBody builds the HTTP request body from the payload of
+// the "add-location" endpoint of the "storage" service.
+func NewAddLocationRequestBody(p *storage.AddLocationPayload) *AddLocationRequestBody {
+	body := &AddLocationRequestBody{
+		Name:    p.Name,
+		Source:  p.Source,
+		Purpose: p.Purpose,
 	}
 	return body
 }
@@ -377,6 +420,31 @@ func NewLocationsStoredLocationCollectionOK(body LocationsResponseBody) storagev
 	v := make([]*storageviews.StoredLocationView, len(body))
 	for i, val := range body {
 		v[i] = unmarshalStoredLocationResponseToStorageviewsStoredLocationView(val)
+	}
+
+	return v
+}
+
+// NewAddLocationResultCreated builds a "storage" service "add-location"
+// endpoint result from a HTTP "Created" response.
+func NewAddLocationResultCreated(body *AddLocationResponseBody) *storage.AddLocationResult {
+	v := &storage.AddLocationResult{
+		UUID: *body.UUID,
+	}
+
+	return v
+}
+
+// NewAddLocationNotValid builds a storage service add-location endpoint
+// not_valid error.
+func NewAddLocationNotValid(body *AddLocationNotValidResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
 	}
 
 	return v
@@ -529,6 +597,15 @@ func ValidateSubmitResponseBody(body *SubmitResponseBody) (err error) {
 	return
 }
 
+// ValidateAddLocationResponseBody runs the validations defined on
+// Add-LocationResponseBody
+func ValidateAddLocationResponseBody(body *AddLocationResponseBody) (err error) {
+	if body.UUID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("uuid", "body"))
+	}
+	return
+}
+
 // ValidateMoveStatusResponseBody runs the validations defined on
 // move_status_response_body
 func ValidateMoveStatusResponseBody(body *MoveStatusResponseBody) (err error) {
@@ -642,6 +719,30 @@ func ValidateDownloadNotFoundResponseBody(body *DownloadNotFoundResponseBody) (e
 	}
 	if body.AipID == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("aip_id", "body"))
+	}
+	return
+}
+
+// ValidateAddLocationNotValidResponseBody runs the validations defined on
+// add-location_not_valid_response_body
+func ValidateAddLocationNotValidResponseBody(body *AddLocationNotValidResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
 	}
 	return
 }

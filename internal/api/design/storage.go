@@ -65,6 +65,26 @@ var _ = Service("storage", func() {
 			Response(StatusOK)
 		})
 	})
+	Method("add-location", func() {
+		Description("Add a storage location")
+		Payload(func() {
+			Attribute("name", String)
+			Attribute("source", String, func() {
+				EnumLocationSource()
+			})
+			Attribute("purpose", String, func() {
+				EnumLocationPurpose()
+			})
+			Required("name", "source", "purpose")
+		})
+		Result(AddLocationResult)
+		Error("not_valid")
+		HTTP(func() {
+			POST("/location")
+			Response(StatusCreated)
+			Response("not_valid", StatusBadRequest)
+		})
+	})
 	Method("move", func() {
 		Description("Move a package to a permanent storage location")
 		Payload(func() {
@@ -152,7 +172,7 @@ var StoredLocation = ResultType("application/vnd.enduro.stored-location", func()
 	TypeName("StoredLocation")
 
 	Attributes(func() {
-		Attribute("id", String, "ID is the unique id of the location.")
+		Attribute("id", UInt, "ID is the unique id of the location.")
 		Field(2, "name")
 		Field(3, "source")
 		Field(4, "purpose")
@@ -160,7 +180,6 @@ var StoredLocation = ResultType("application/vnd.enduro.stored-location", func()
 	})
 
 	View("default", func() {
-		Attribute("id")
 		Attribute("name")
 		Attribute("source")
 		Attribute("purpose")
@@ -180,6 +199,7 @@ var EnumLocationPurpose = func() {
 
 var Location = Type("Location", func() {
 	Description("Location describes a physical entity used to store AIPs.")
+	Attribute("id", UInt)
 	Attribute("name", String, "Name of location")
 	Attribute("source", String, "Data source of the location", func() {
 		EnumLocationSource()
@@ -190,6 +210,11 @@ var Location = Type("Location", func() {
 		Default("unspecified")
 	})
 	Attribute("uuid", String)
+})
+
+var AddLocationResult = Type("AddLocationResult", func() {
+	Attribute("uuid", String)
+	Required("uuid")
 })
 
 var MoveStatusResult = Type("MoveStatusResult", func() {

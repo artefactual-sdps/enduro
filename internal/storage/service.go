@@ -17,6 +17,8 @@ import (
 
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence"
+	"github.com/artefactual-sdps/enduro/internal/storage/purpose"
+	"github.com/artefactual-sdps/enduro/internal/storage/source"
 	"github.com/artefactual-sdps/enduro/internal/storage/status"
 )
 
@@ -32,6 +34,7 @@ type Service interface {
 	MoveStatus(context.Context, *goastorage.MoveStatusPayload) (res *goastorage.MoveStatusResult, err error)
 	Reject(context.Context, *goastorage.RejectPayload) (err error)
 	Show(context.Context, *goastorage.ShowPayload) (res *goastorage.StoredStoragePackage, err error)
+	AddLocation(context.Context, *goastorage.AddLocationPayload) (res *goastorage.AddLocationResult, err error)
 
 	// Used from workflow activities.
 	Location(name string) (Location, error)
@@ -162,10 +165,13 @@ func (s *serviceImpl) Download(ctx context.Context, payload *goastorage.Download
 
 func (s *serviceImpl) Locations(context.Context) (goastorage.StoredLocationCollection, error) {
 	res := []*goastorage.StoredLocation{}
-	for _, item := range s.config.Locations {
+	for i, item := range s.config.Locations {
 		l := &goastorage.StoredLocation{
-			ID:   item.Name,
-			Name: item.Name,
+			ID:      uint(i + 1),
+			Name:    item.Name,
+			Source:  "",
+			Purpose: "",
+			UUID:    "",
 		}
 		res = append(res, l)
 	}
@@ -304,4 +310,17 @@ func (s *serviceImpl) PackageReader(ctx context.Context, pkg *goastorage.StoredS
 	}
 
 	return reader, nil
+}
+
+func (s *serviceImpl) AddLocation(ctx context.Context, payload *goastorage.AddLocationPayload) (res *goastorage.AddLocationResult, err error) {
+	source := source.NewLocationSource(payload.Source)
+	purpose := purpose.NewLocationPurpose(payload.Purpose)
+	UUID := uuid.New()
+
+	_, err = s.storagePersistence.CreateLocation(ctx, payload.Name, source, purpose, UUID)
+	if err != nil {
+		return nil, goastorage.MakeNotValid(errors.New("cannot persist location"))
+	}
+
+	return &goastorage.AddLocationResult{UUID: UUID.String()}, nil
 }

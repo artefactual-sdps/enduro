@@ -38,6 +38,21 @@ func (m *MockService) EXPECT() *MockServiceMockRecorder {
 	return m.recorder
 }
 
+// AddLocation mocks base method.
+func (m *MockService) AddLocation(arg0 context.Context, arg1 *storage.AddLocationPayload) (*storage.AddLocationResult, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddLocation", arg0, arg1)
+	ret0, _ := ret[0].(*storage.AddLocationResult)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AddLocation indicates an expected call of AddLocation.
+func (mr *MockServiceMockRecorder) AddLocation(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddLocation", reflect.TypeOf((*MockService)(nil).AddLocation), arg0, arg1)
+}
+
 // Delete mocks base method.
 func (m *MockService) Delete(arg0 context.Context, arg1 string) error {
 	m.ctrl.T.Helper()

@@ -9,6 +9,8 @@ import (
 	reflect "reflect"
 
 	storage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
+	purpose "github.com/artefactual-sdps/enduro/internal/storage/purpose"
+	source "github.com/artefactual-sdps/enduro/internal/storage/source"
 	status "github.com/artefactual-sdps/enduro/internal/storage/status"
 	gomock "github.com/golang/mock/gomock"
 	uuid "github.com/google/uuid"
@@ -35,6 +37,21 @@ func NewMockStorage(ctrl *gomock.Controller) *MockStorage {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockStorage) EXPECT() *MockStorageMockRecorder {
 	return m.recorder
+}
+
+// CreateLocation mocks base method.
+func (m *MockStorage) CreateLocation(arg0 context.Context, arg1 string, arg2 source.LocationSource, arg3 purpose.LocationPurpose, arg4 uuid.UUID) (*storage.StoredLocation, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateLocation", arg0, arg1, arg2, arg3, arg4)
+	ret0, _ := ret[0].(*storage.StoredLocation)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateLocation indicates an expected call of CreateLocation.
+func (mr *MockStorageMockRecorder) CreateLocation(arg0, arg1, arg2, arg3, arg4 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateLocation", reflect.TypeOf((*MockStorage)(nil).CreateLocation), arg0, arg1, arg2, arg3, arg4)
 }
 
 // CreatePackage mocks base method.

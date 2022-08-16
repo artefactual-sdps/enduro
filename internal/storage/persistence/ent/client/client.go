@@ -10,6 +10,8 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/pkg"
+	"github.com/artefactual-sdps/enduro/internal/storage/purpose"
+	"github.com/artefactual-sdps/enduro/internal/storage/source"
 	"github.com/artefactual-sdps/enduro/internal/storage/status"
 )
 
@@ -36,7 +38,7 @@ func (c *Client) CreatePackage(ctx context.Context, name string, AIPID uuid.UUID
 		return nil, err
 	}
 
-	return asGoa(pkg), nil
+	return pkgAsGoa(pkg), nil
 }
 
 func (c *Client) ListPackages(ctx context.Context) ([]*goastorage.StoredStoragePackage, error) {
@@ -44,7 +46,7 @@ func (c *Client) ListPackages(ctx context.Context) ([]*goastorage.StoredStorageP
 
 	res, err := c.c.Pkg.Query().All(ctx)
 	for _, item := range res {
-		pkgs = append(pkgs, asGoa(item))
+		pkgs = append(pkgs, pkgAsGoa(item))
 	}
 
 	return pkgs, err
@@ -60,7 +62,7 @@ func (c *Client) ReadPackage(ctx context.Context, AIPID uuid.UUID) (*goastorage.
 		return nil, err
 	}
 
-	return asGoa(pkg), nil
+	return pkgAsGoa(pkg), nil
 }
 
 func (c *Client) UpdatePackageStatus(ctx context.Context, status status.PackageStatus, AIPID uuid.UUID) error {
@@ -99,7 +101,7 @@ func (c *Client) UpdatePackageLocation(ctx context.Context, location string, aip
 	return nil
 }
 
-func asGoa(pkg *db.Pkg) *goastorage.StoredStoragePackage {
+func pkgAsGoa(pkg *db.Pkg) *goastorage.StoredStoragePackage {
 	p := &goastorage.StoredStoragePackage{
 		ID:        uint(pkg.ID),
 		Name:      pkg.Name,
@@ -113,4 +115,30 @@ func asGoa(pkg *db.Pkg) *goastorage.StoredStoragePackage {
 	}
 
 	return p
+}
+
+func (c *Client) CreateLocation(ctx context.Context, name string, source source.LocationSource, purpose purpose.LocationPurpose, UUID uuid.UUID) (*goastorage.StoredLocation, error) {
+	l, err := c.c.Location.Create().
+		SetName(name).
+		SetSource(source).
+		SetPurpose(purpose).
+		SetUUID(UUID).
+		Save(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return locationAsGoa(l), nil
+}
+
+func locationAsGoa(loc *db.Location) *goastorage.StoredLocation {
+	l := &goastorage.StoredLocation{
+		ID:      uint(loc.ID),
+		Name:    loc.Name,
+		Source:  loc.Source.String(),
+		Purpose: loc.Purpose.String(),
+		UUID:    loc.UUID.String(),
+	}
+
+	return l
 }

@@ -171,6 +171,7 @@ func main() {
 			storageHttpClient.Update(),
 			storageHttpClient.Download(),
 			storageHttpClient.Locations(),
+			storageHttpClient.AddLocation(),
 			storageHttpClient.Move(),
 			storageHttpClient.MoveStatus(),
 			storageHttpClient.Reject(),

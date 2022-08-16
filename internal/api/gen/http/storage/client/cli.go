@@ -13,6 +13,7 @@ import (
 	"fmt"
 
 	storage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
+	goa "goa.design/goa/v3/pkg"
 )
 
 // BuildSubmitPayload builds the payload for the storage submit endpoint from
@@ -23,7 +24,7 @@ func BuildSubmitPayload(storageSubmitBody string, storageSubmitAipID string) (*s
 	{
 		err = json.Unmarshal([]byte(storageSubmitBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"name\": \"Explicabo qui.\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"name\": \"Consequatur porro.\"\n   }'")
 		}
 	}
 	var aipID string
@@ -64,6 +65,35 @@ func BuildDownloadPayload(storageDownloadAipID string) (*storage.DownloadPayload
 	return v, nil
 }
 
+// BuildAddLocationPayload builds the payload for the storage add-location
+// endpoint from CLI flags.
+func BuildAddLocationPayload(storageAddLocationBody string) (*storage.AddLocationPayload, error) {
+	var err error
+	var body AddLocationRequestBody
+	{
+		err = json.Unmarshal([]byte(storageAddLocationBody), &body)
+		if err != nil {
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"name\": \"Nulla voluptatem omnis id repudiandae.\",\n      \"purpose\": \"aip_store\",\n      \"source\": \"unspecified\"\n   }'")
+		}
+		if !(body.Source == "unspecified" || body.Source == "minio") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.source", body.Source, []interface{}{"unspecified", "minio"}))
+		}
+		if !(body.Purpose == "unspecified" || body.Purpose == "aip_store") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.purpose", body.Purpose, []interface{}{"unspecified", "aip_store"}))
+		}
+		if err != nil {
+			return nil, err
+		}
+	}
+	v := &storage.AddLocationPayload{
+		Name:    body.Name,
+		Source:  body.Source,
+		Purpose: body.Purpose,
+	}
+
+	return v, nil
+}
+
 // BuildMovePayload builds the payload for the storage move endpoint from CLI
 // flags.
 func BuildMovePayload(storageMoveBody string, storageMoveAipID string) (*storage.MovePayload, error) {
@@ -72,7 +102,7 @@ func BuildMovePayload(storageMoveBody string, storageMoveAipID string) (*storage
 	{
 		err = json.Unmarshal([]byte(storageMoveBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location\": \"Voluptas iusto sit vitae ad quasi.\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location\": \"Sed iure mollitia nisi et deserunt voluptate.\"\n   }'")
 		}
 	}
 	var aipID string

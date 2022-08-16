@@ -37,7 +37,7 @@ type StoredLocationCollectionView []*StoredLocationView
 // StoredLocationView is a type that runs validations on a projected type.
 type StoredLocationView struct {
 	// ID is the unique id of the location.
-	ID *string
+	ID *uint
 	// Name of location
 	Name *string
 	// Data source of the location
@@ -63,7 +63,6 @@ var (
 	// StoredLocationCollection by view name.
 	StoredLocationCollectionMap = map[string][]string{
 		"default": {
-			"id",
 			"name",
 			"source",
 			"purpose",
@@ -85,7 +84,6 @@ var (
 	// view name.
 	StoredLocationMap = map[string][]string{
 		"default": {
-			"id",
 			"name",
 			"source",
 			"purpose",
@@ -132,9 +130,6 @@ func ValidateStoredLocationCollectionView(result StoredLocationCollectionView) (
 // ValidateStoredLocationView runs the validations defined on
 // StoredLocationView using the "default" view.
 func ValidateStoredLocationView(result *StoredLocationView) (err error) {
-	if result.ID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("id", "result"))
-	}
 	if result.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("name", "result"))
 	}
