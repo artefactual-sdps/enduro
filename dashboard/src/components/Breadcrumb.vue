@@ -19,7 +19,7 @@ const stateStore = useStateStore();
           class="text-primary"
           >{{ item.text }}</router-link
         >
-        <span v-else>{{ item.text }}</span>
+        <template v-else>{{ item.text }}</template>
       </li>
     </ol>
   </nav>
