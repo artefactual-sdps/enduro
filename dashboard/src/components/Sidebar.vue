@@ -1,15 +1,7 @@
 <script setup lang="ts">
 import { useStateStore } from "@/stores/state";
-import IconAnalyticsLine from "~icons/clarity/analytics-line";
-import IconBlocksGroupLine from "~icons/clarity/blocks-group-line";
 import RawIconBundleLine from "~icons/clarity/bundle-line?raw&width=2em&height=2em";
-import IconFileGroupLine from "~icons/clarity/file-group-line";
-import IconProcessOnVmLine from "~icons/clarity/process-on-vm-line";
 import RawIconRackServerLine from "~icons/clarity/rack-server-line?raw&width=2em&height=2em";
-import IconSearchLine from "~icons/clarity/search-line";
-import IconSettingsLine from "~icons/clarity/settings-line";
-import IconShieldCheckLine from "~icons/clarity/shield-check-line";
-import IconSliderLine from "~icons/clarity/slider-line";
 
 const menuItems = [
   { routeName: "packages", icon: RawIconBundleLine, text: "Packages" },
