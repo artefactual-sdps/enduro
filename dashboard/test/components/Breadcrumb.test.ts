@@ -8,10 +8,6 @@ describe("Breadcrumb.vue", () => {
   afterEach(() => cleanup());
 
   it("renders", async () => {
-    const router = createRouter({
-      history: createWebHistory(),
-      routes: [{ name: "packages", path: "/packages", component: {} }],
-    });
     const { getByRole, getByText } = render(Breadcrumb, {
       global: {
         plugins: [
@@ -26,7 +22,10 @@ describe("Breadcrumb.vue", () => {
               },
             },
           }),
-          router,
+          createRouter({
+            history: createWebHistory(),
+            routes: [{ name: "packages", path: "/packages", component: {} }],
+          }),
         ],
       },
       routes: [],

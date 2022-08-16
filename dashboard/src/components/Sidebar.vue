@@ -25,7 +25,7 @@ const stateStore = useStateStore();
     :class="stateStore.sidebarCollapsed ? 'collapsed' : ''"
     tabindex="-1"
     id="menu-offcanvas"
-    aria-label="offcanvasLabel"
+    aria-labelledby="offcanvasLabel"
     ref="offcanvas"
   >
     <div class="offcanvas-header px-3">
@@ -39,40 +39,42 @@ const stateStore = useStateStore();
       ></button>
     </div>
     <div class="offcanvas-body d-flex flex-column flex-grow-1 pt-0">
-      <ul class="list-unstyled flex-grow-1 mb-0">
-        <li v-for="item in menuItems">
-          <router-link
-            class="d-block py-3 text-decoration-none text-dark sidebar-link"
-            active-class="bg-primary text-white active"
-            :to="{ name: item.routeName }"
-          >
-            <div class="container-fluid">
-              <div class="row">
-                <div
-                  class="d-flex p-0 col-3 justify-content-end"
-                  :class="
-                    stateStore.sidebarCollapsed
-                      ? 'col-md-12 justify-content-md-center'
-                      : ''
-                  "
-                >
-                  <span v-html="item.icon" aria-hidden="true" />
+      <nav aria-labelledby="offcanvasLabel">
+        <ul class="list-unstyled flex-grow-1 mb-0">
+          <li v-for="item in menuItems">
+            <router-link
+              class="d-block py-3 text-decoration-none text-dark sidebar-link"
+              active-class="bg-primary text-white active"
+              :to="{ name: item.routeName }"
+            >
+              <div class="container-fluid">
+                <div class="row">
+                  <div
+                    class="d-flex p-0 col-3 justify-content-end"
+                    :class="
+                      stateStore.sidebarCollapsed
+                        ? 'col-md-12 justify-content-md-center'
+                        : ''
+                    "
+                  >
+                    <span v-html="item.icon" aria-hidden="true" />
+                  </div>
+                  <div
+                    class="col-9 d-flex align-items-center"
+                    :class="
+                      stateStore.sidebarCollapsed
+                        ? 'col-md-12 justify-content-md-center pt-md-2'
+                        : ''
+                    "
+                  >
+                    {{ item.text }}
+                  </div>
                 </div>
-                <div
-                  class="col-9 d-flex align-items-center"
-                  :class="
-                    stateStore.sidebarCollapsed
-                      ? 'col-md-12 justify-content-md-center pt-md-2'
-                      : ''
-                  "
-                >
-                  {{ item.text }}
-                </div>
-              </div>
-            </div></router-link
-          >
-        </li>
-      </ul>
+              </div></router-link
+            >
+          </li>
+        </ul>
+      </nav>
     </div>
   </div>
 </template>
