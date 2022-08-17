@@ -4,11 +4,16 @@ import PageLoadingAlert from "@/components/PageLoadingAlert.vue";
 import StatusBadge from "@/components/StatusBadge.vue";
 import UUID from "@/components/UUID.vue";
 import { usePackageStore } from "@/stores/package";
+import { useStateStore } from "@/stores/state";
 import { useAsyncState } from "@vueuse/core";
 import { useRouter } from "vue-router";
 import { onMounted } from "vue";
 import Tooltip from "bootstrap/js/dist/tooltip";
 import IconInfoFill from "~icons/akar-icons/info-fill";
+import IconBundleLine from "~icons/clarity/bundle-line";
+
+const stateStore = useStateStore();
+stateStore.updateBreadcrumb([{ text: "Packages" }]);
 
 const router = useRouter();
 const packageStore = usePackageStore();
@@ -32,8 +37,10 @@ const toggleLegend = () => {
 </script>
 
 <template>
-  <div class="container-xxl pt-3">
-    <h2>Packages</h2>
+  <div class="container-xxl">
+    <h1 class="d-flex mb-3">
+      <IconBundleLine class="me-3 text-dark" />Packages
+    </h1>
     <PageLoadingAlert :execute="execute" :error="error" />
     <PackageListLegend v-model="showLegend" />
     <div class="table-responsive mb-3">

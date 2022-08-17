@@ -32,7 +32,7 @@ describe("PackageLocationCard.vue", () => {
         <div class=\\"card-body\\">
           <!--v-if-->
           <!--v-if-->
-          <h5 class=\\"card-title\\">Location</h5>
+          <h4 class=\\"card-title\\">Location</h4>
           <p class=\\"card-text\\"><span>perma-aips-1</span></p>
           <div class=\\"actions\\"><button type=\\"button\\" class=\\"btn btn-primary btn-sm\\" disabled=\\"false\\">Choose storage location</button></div>
         </div>
@@ -110,7 +110,7 @@ describe("PackageLocationCard.vue", () => {
         <div class=\\"card-body\\">
           <!--v-if-->
           <!--v-if-->
-          <h5 class=\\"card-title\\">Location</h5>
+          <h4 class=\\"card-title\\">Location</h4>
           <p class=\\"card-text\\"><span>Not available yet.</span></p>
           <div class=\\"actions\\"><button type=\\"button\\" class=\\"btn btn-primary btn-sm\\" disabled=\\"true\\">Choose storage location</button></div>
         </div>
@@ -142,7 +142,7 @@ describe("PackageLocationCard.vue", () => {
         <div class=\\"card-body\\">
           <!--v-if-->
           <!--v-if-->
-          <h5 class=\\"card-title\\">Location</h5>
+          <h4 class=\\"card-title\\">Location</h4>
           <p class=\\"card-text\\"><span>Package rejected.</span></p>
           <!--v-if-->
         </div>
@@ -174,7 +174,7 @@ describe("PackageLocationCard.vue", () => {
         <div class=\\"card-body\\">
           <!--v-if-->
           <!--v-if-->
-          <h5 class=\\"card-title\\">Location</h5>
+          <h4 class=\\"card-title\\">Location</h4>
           <p class=\\"card-text\\"><span>perma-aips-1</span></p>
           <div class=\\"actions\\"><button type=\\"button\\" class=\\"btn btn-primary btn-sm\\" disabled=\\"true\\">Choose storage location</button></div>
         </div>

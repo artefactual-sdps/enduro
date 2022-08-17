@@ -1,11 +1,17 @@
 @import "bootstrap-base.scss";
 @import "bootstrap.scss";
 
-body {
-  overflow-x: hidden;
-}
-
 button:focus:not(:focus-visible),
 .btn:focus:not(:focus-visible) {
   box-shadow: none;
+}
+
+a:not(.btn),
+.btn-link {
+  text-decoration: none;
+
+  &:hover,
+  &:focus {
+    text-decoration: underline;
+  }
 }

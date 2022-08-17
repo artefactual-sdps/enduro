@@ -61,7 +61,7 @@ watch($$(expandCounter), () => show());
           <StatusBadge :status="action.status" />
         </h3>
         <button
-          class="btn btn-sm btn-link text-decoration-none ms-auto p-0"
+          class="btn btn-sm btn-link text-primary text-decoration-none ms-auto p-0"
           type="button"
           aria-expanded="false"
           :aria-controls="'preservation-actions-table-' + index"

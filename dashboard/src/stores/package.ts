@@ -1,4 +1,5 @@
 import { api, client } from "@/client";
+import { useStateStore } from "@/stores/state";
 import { defineStore, acceptHMRUpdate } from "pinia";
 import { ref } from "vue";
 
@@ -86,6 +87,13 @@ export const usePackageStore = defineStore("package", {
       }
 
       this.current = await client.package.packageShow({ id: packageId });
+
+      // Update breadcrumb. TODO: should this be done in the component?
+      const stateStore = useStateStore();
+      stateStore.updateBreadcrumb([
+        { routeName: "packages", text: "Packages" },
+        { text: this.current.name },
+      ]);
 
       await Promise.allSettled([
         client.package

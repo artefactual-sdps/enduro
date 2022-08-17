@@ -22,7 +22,7 @@ watch(packageStore.ui.download, () => download());
 <template>
   <div class="card mb-3" v-if="packageStore.current">
     <div class="card-body">
-      <h5 class="card-title">Package details</h5>
+      <h4 class="card-title">Package details</h4>
       <dl>
         <dt>Original objects</dt>
         <dd>N/A</dd>

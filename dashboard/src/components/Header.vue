@@ -1,64 +1,80 @@
 <script setup lang="ts">
-import Collapse from "bootstrap/js/dist/collapse";
+import Breadcrumb from "@/components/Breadcrumb.vue";
+import { useStateStore } from "@/stores/state";
+import Offcanvas from "bootstrap/js/dist/offcanvas";
 import { onMounted } from "vue";
+import IconMenuLine from "~icons/clarity/menu-line";
 
-const el = $ref<HTMLElement | null>(null);
+const stateStore = useStateStore();
+
+const offcanvas = $ref<HTMLElement | null>(null);
 
 onMounted(() => {
-  if (el) new Collapse(el);
+  if (offcanvas) new Offcanvas(offcanvas);
 });
 </script>
 
 <template>
-  <nav class="navbar navbar-dark navbar-expand-sm">
-    <div class="container-fluid">
-      <router-link class="navbar-brand mb-0 h1" :to="{ name: 'index' }"
-        >Enduro</router-link
-      >
-
+  <header class="bg-white border-bottom sticky-top">
+    <nav class="navbar navbar-expand-md p-0">
+      <!-- Open offcanvas button, only visible in sm. -->
       <button
-        class="navbar-toggler"
+        ref="offcanvas"
         type="button"
-        ref="collapseButton"
-        data-bs-toggle="collapse"
-        data-bs-target="#navbarSupportedContent"
-        aria-controls="navbarSupportedContent"
-        aria-expanded="false"
-        aria-label="Toggle navigation"
+        class="navbar-toggler btn btn-link text-decoration-none p-3"
+        data-bs-toggle="offcanvas"
+        data-bs-target="#menu-offcanvas"
+        aria-controls="menu-offcanvas"
+        aria-label="Open navigation"
       >
-        <span class="navbar-toggler-icon"></span>
+        <IconMenuLine
+          class="text-dark mx-1"
+          style="font-size: 1.5em"
+          aria-hidden="true"
+        />
       </button>
 
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav me-auto">
-          <li class="nav-item">
-            <router-link
-              class="nav-link"
-              active-class="active"
-              :to="{ name: 'packages' }"
-              >Packages</router-link
-            >
-          </li>
-        </ul>
+      <!-- Collapse/expand sidebar button, visible in md or higher. -->
+      <button
+        type="button"
+        class="btn btn-link text-decoration-none p-3 d-none d-md-block"
+        :class="stateStore.sidebarCollapsed ? 'sidebar-collapsed' : ''"
+        :aria-label="
+          (stateStore.sidebarCollapsed ? 'Expand' : 'Collapse') + ' navigation'
+        "
+        @click="stateStore.toggleSidebar()"
+      >
+        <IconMenuLine
+          class="text-dark mx-1"
+          style="font-size: 1.5em"
+          aria-hidden="true"
+        />
+      </button>
+
+      <router-link
+        class="navbar-brand h1 mb-0 me-auto p-3 px-2 text-primary text-decoration-none d-flex align-items-center"
+        :class="stateStore.sidebarCollapsed ? '' : 'ms-2'"
+        :to="{ name: 'index' }"
+      >
+        <img src="/logo.png" alt="" height="30" class="me-2" />
+        Enduro
+      </router-link>
+
+      <div class="flex-grow-1 d-none d-md-block">
+        <span class="text-muted me-2">/</span>
+        <Breadcrumb />
       </div>
-    </div>
-  </nav>
+    </nav>
+  </header>
 </template>
 
 <style lang="scss" scoped>
-.navbar {
-  user-select: none;
-  background-color: var(--bs-enduro-primary);
+header {
+  height: $header-height;
+}
 
-  @media (min-width: 576px) {
-    .nav-link.active {
-      color: white;
-      background-color: #fff2;
-    }
-  }
-
-  .nav-link.active {
-    border-radius: var(--bs-border-radius);
-  }
+.sidebar-collapsed {
+  width: $sidebar-collapsed-width;
+  min-width: $sidebar-collapsed-width;
 }
 </style>

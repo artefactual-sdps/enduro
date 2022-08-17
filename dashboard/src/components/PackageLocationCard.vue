@@ -28,7 +28,7 @@ const choose = async () => {
       <div v-if="packageStore.isMoving" class="alert alert-info" role="alert">
         The package is being moved into a new location.
       </div>
-      <h5 class="card-title">Location</h5>
+      <h4 class="card-title">Location</h4>
       <p class="card-text">
         <span v-if="packageStore.isRejected">Package rejected.</span>
         <span v-else-if="!packageStore.current?.location"
