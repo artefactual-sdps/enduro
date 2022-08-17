@@ -20,6 +20,12 @@ import { exists, mapValues } from '../runtime';
  */
 export interface StoredLocationResponse {
     /**
+     * Description of the location
+     * @type {string}
+     * @memberof StoredLocationResponse
+     */
+    description?: string;
+    /**
      * Name of location
      * @type {string}
      * @memberof StoredLocationResponse
@@ -42,7 +48,7 @@ export interface StoredLocationResponse {
      * @type {string}
      * @memberof StoredLocationResponse
      */
-    uuid: string;
+    uuid?: string;
 }
 
 
@@ -75,10 +81,11 @@ export function StoredLocationResponseFromJSONTyped(json: any, ignoreDiscriminat
     }
     return {
         
+        'description': !exists(json, 'description') ? undefined : json['description'],
         'name': json['name'],
         'purpose': json['purpose'],
         'source': json['source'],
-        'uuid': json['uuid'],
+        'uuid': !exists(json, 'uuid') ? undefined : json['uuid'],
     };
 }
 
@@ -91,6 +98,7 @@ export function StoredLocationResponseToJSON(value?: StoredLocationResponse | nu
     }
     return {
         
+        'description': value.description,
         'name': value.name,
         'purpose': value.purpose,
         'source': value.source,

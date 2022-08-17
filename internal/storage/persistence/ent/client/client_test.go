@@ -10,6 +10,7 @@ import (
 	"gotest.tools/v3/assert"
 
 	"github.com/artefactual-sdps/enduro/internal/api/gen/storage"
+	"github.com/artefactual-sdps/enduro/internal/ref"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/client"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/enttest"
@@ -167,6 +168,7 @@ func TestCreateLocation(t *testing.T) {
 	l, err := c.CreateLocation(
 		context.Background(),
 		"test_location",
+		ref.New("location description"),
 		source.LocationSourceMinIO,
 		purpose.LocationPurposeAIPStore,
 		uuid.MustParse("7a090f2c-7bd4-471c-8aa1-8c72125decd5"),
@@ -175,6 +177,7 @@ func TestCreateLocation(t *testing.T) {
 
 	dblocation := entc.Location.GetX(context.Background(), int(l.ID))
 	assert.Equal(t, dblocation.Name, "test_location")
+	assert.Equal(t, dblocation.Description, "location description")
 	assert.Equal(t, dblocation.Source, source.LocationSourceMinIO)
 	assert.Equal(t, dblocation.Purpose, purpose.LocationPurposeAIPStore)
 	assert.Equal(t, dblocation.UUID.String(), "7a090f2c-7bd4-471c-8aa1-8c72125decd5")

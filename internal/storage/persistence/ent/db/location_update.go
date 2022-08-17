@@ -36,6 +36,12 @@ func (lu *LocationUpdate) SetName(s string) *LocationUpdate {
 	return lu
 }
 
+// SetDescription sets the "description" field.
+func (lu *LocationUpdate) SetDescription(s string) *LocationUpdate {
+	lu.mutation.SetDescription(s)
+	return lu
+}
+
 // SetSource sets the "source" field.
 func (lu *LocationUpdate) SetSource(ss source.LocationSource) *LocationUpdate {
 	lu.mutation.SetSource(ss)
@@ -159,6 +165,13 @@ func (lu *LocationUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: location.FieldName,
 		})
 	}
+	if value, ok := lu.mutation.Description(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: location.FieldDescription,
+		})
+	}
 	if value, ok := lu.mutation.Source(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeEnum,
@@ -202,6 +215,12 @@ type LocationUpdateOne struct {
 // SetName sets the "name" field.
 func (luo *LocationUpdateOne) SetName(s string) *LocationUpdateOne {
 	luo.mutation.SetName(s)
+	return luo
+}
+
+// SetDescription sets the "description" field.
+func (luo *LocationUpdateOne) SetDescription(s string) *LocationUpdateOne {
+	luo.mutation.SetDescription(s)
 	return luo
 }
 
@@ -356,6 +375,13 @@ func (luo *LocationUpdateOne) sqlSave(ctx context.Context) (_node *Location, err
 			Type:   field.TypeString,
 			Value:  value,
 			Column: location.FieldName,
+		})
+	}
+	if value, ok := luo.mutation.Description(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: location.FieldDescription,
 		})
 	}
 	if value, ok := luo.mutation.Source(); ok {

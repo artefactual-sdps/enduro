@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
+	"github.com/artefactual-sdps/enduro/internal/ref"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/pkg"
@@ -117,9 +118,10 @@ func pkgAsGoa(pkg *db.Pkg) *goastorage.StoredStoragePackage {
 	return p
 }
 
-func (c *Client) CreateLocation(ctx context.Context, name string, source source.LocationSource, purpose purpose.LocationPurpose, UUID uuid.UUID) (*goastorage.StoredLocation, error) {
+func (c *Client) CreateLocation(ctx context.Context, name string, description *string, source source.LocationSource, purpose purpose.LocationPurpose, UUID uuid.UUID) (*goastorage.StoredLocation, error) {
 	l, err := c.c.Location.Create().
 		SetName(name).
+		SetDescription(*description).
 		SetSource(source).
 		SetPurpose(purpose).
 		SetUUID(UUID).
@@ -133,11 +135,12 @@ func (c *Client) CreateLocation(ctx context.Context, name string, source source.
 
 func locationAsGoa(loc *db.Location) *goastorage.StoredLocation {
 	l := &goastorage.StoredLocation{
-		ID:      uint(loc.ID),
-		Name:    loc.Name,
-		Source:  loc.Source.String(),
-		Purpose: loc.Purpose.String(),
-		UUID:    loc.UUID.String(),
+		ID:          uint(loc.ID),
+		Name:        loc.Name,
+		Description: &loc.Description,
+		Source:      loc.Source.String(),
+		Purpose:     loc.Purpose.String(),
+		UUID:        ref.New(loc.UUID.String()),
 	}
 
 	return l

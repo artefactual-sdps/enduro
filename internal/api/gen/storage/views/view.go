@@ -40,6 +40,8 @@ type StoredLocationView struct {
 	ID *uint
 	// Name of location
 	Name *string
+	// Description of the location
+	Description *string
 	// Data source of the location
 	Source *string
 	// Purpose of the location
@@ -64,6 +66,7 @@ var (
 	StoredLocationCollectionMap = map[string][]string{
 		"default": {
 			"name",
+			"description",
 			"source",
 			"purpose",
 			"uuid",
@@ -85,6 +88,7 @@ var (
 	StoredLocationMap = map[string][]string{
 		"default": {
 			"name",
+			"description",
 			"source",
 			"purpose",
 			"uuid",
@@ -138,9 +142,6 @@ func ValidateStoredLocationView(result *StoredLocationView) (err error) {
 	}
 	if result.Purpose == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("purpose", "result"))
-	}
-	if result.UUID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("uuid", "result"))
 	}
 	if result.Source != nil {
 		if !(*result.Source == "unspecified" || *result.Source == "minio") {

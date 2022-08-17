@@ -69,6 +69,7 @@ var _ = Service("storage", func() {
 		Description("Add a storage location")
 		Payload(func() {
 			Attribute("name", String)
+			Attribute("description", String)
 			Attribute("source", String, func() {
 				EnumLocationSource()
 			})
@@ -174,19 +175,21 @@ var StoredLocation = ResultType("application/vnd.enduro.stored-location", func()
 	Attributes(func() {
 		Attribute("id", UInt, "ID is the unique id of the location.")
 		Field(2, "name")
-		Field(3, "source")
-		Field(4, "purpose")
-		Field(5, "uuid")
+		Field(3, "description")
+		Field(4, "source")
+		Field(5, "purpose")
+		Field(6, "uuid")
 	})
 
 	View("default", func() {
 		Attribute("name")
+		Attribute("description")
 		Attribute("source")
 		Attribute("purpose")
 		Attribute("uuid")
 	})
 
-	Required("id", "name", "source", "purpose", "uuid")
+	Required("id", "name", "source", "purpose")
 })
 
 var EnumLocationSource = func() {
@@ -201,6 +204,7 @@ var Location = Type("Location", func() {
 	Description("Location describes a physical entity used to store AIPs.")
 	Attribute("id", UInt)
 	Attribute("name", String, "Name of location")
+	Attribute("description", String, "Description of the location")
 	Attribute("source", String, "Data source of the location", func() {
 		EnumLocationSource()
 		Default("unspecified")

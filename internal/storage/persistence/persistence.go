@@ -20,5 +20,5 @@ type Storage interface {
 	UpdatePackageLocation(ctx context.Context, location string, aipID uuid.UUID) error
 
 	// Location.
-	CreateLocation(ctx context.Context, name string, source source.LocationSource, purpose purpose.LocationPurpose, uuid uuid.UUID) (*goastorage.StoredLocation, error)
+	CreateLocation(ctx context.Context, name string, description *string, source source.LocationSource, purpose purpose.LocationPurpose, uuid uuid.UUID) (*goastorage.StoredLocation, error)
 }

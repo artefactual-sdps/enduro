@@ -23,9 +23,10 @@ type SubmitRequestBody struct {
 // AddLocationRequestBody is the type of the "storage" service "add-location"
 // endpoint HTTP request body.
 type AddLocationRequestBody struct {
-	Name    *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
-	Source  *string `form:"source,omitempty" json:"source,omitempty" xml:"source,omitempty"`
-	Purpose *string `form:"purpose,omitempty" json:"purpose,omitempty" xml:"purpose,omitempty"`
+	Name        *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	Description *string `form:"description,omitempty" json:"description,omitempty" xml:"description,omitempty"`
+	Source      *string `form:"source,omitempty" json:"source,omitempty" xml:"source,omitempty"`
+	Purpose     *string `form:"purpose,omitempty" json:"purpose,omitempty" xml:"purpose,omitempty"`
 }
 
 // MoveRequestBody is the type of the "storage" service "move" endpoint HTTP
@@ -296,11 +297,13 @@ type ShowNotFoundResponseBody struct {
 type StoredLocationResponse struct {
 	// Name of location
 	Name string `form:"name" json:"name" xml:"name"`
+	// Description of the location
+	Description *string `form:"description,omitempty" json:"description,omitempty" xml:"description,omitempty"`
 	// Data source of the location
 	Source string `form:"source" json:"source" xml:"source"`
 	// Purpose of the location
-	Purpose string `form:"purpose" json:"purpose" xml:"purpose"`
-	UUID    string `form:"uuid" json:"uuid" xml:"uuid"`
+	Purpose string  `form:"purpose" json:"purpose" xml:"purpose"`
+	UUID    *string `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
 }
 
 // NewSubmitResponseBody builds the HTTP response body from the result of the
@@ -572,9 +575,10 @@ func NewDownloadPayload(aipID string) *storage.DownloadPayload {
 // NewAddLocationPayload builds a storage service add-location endpoint payload.
 func NewAddLocationPayload(body *AddLocationRequestBody) *storage.AddLocationPayload {
 	v := &storage.AddLocationPayload{
-		Name:    *body.Name,
-		Source:  *body.Source,
-		Purpose: *body.Purpose,
+		Name:        *body.Name,
+		Description: body.Description,
+		Source:      *body.Source,
+		Purpose:     *body.Purpose,
 	}
 
 	return v

@@ -50,9 +50,10 @@ var MethodNames = [9]string{"submit", "update", "download", "locations", "add-lo
 // AddLocationPayload is the payload type of the storage service add-location
 // method.
 type AddLocationPayload struct {
-	Name    string
-	Source  string
-	Purpose string
+	Name        string
+	Description *string
+	Source      string
+	Purpose     string
 }
 
 // AddLocationResult is the result type of the storage service add-location
@@ -108,11 +109,13 @@ type StoredLocation struct {
 	ID uint
 	// Name of location
 	Name string
+	// Description of the location
+	Description *string
 	// Data source of the location
 	Source string
 	// Purpose of the location
 	Purpose string
-	UUID    string
+	UUID    *string
 }
 
 // StoredLocationCollection is the result type of the storage service locations
@@ -223,7 +226,10 @@ func newStoredLocationCollectionView(res StoredLocationCollection) storageviews.
 // newStoredLocation converts projected type StoredLocation to service type
 // StoredLocation.
 func newStoredLocation(vres *storageviews.StoredLocationView) *StoredLocation {
-	res := &StoredLocation{}
+	res := &StoredLocation{
+		Description: vres.Description,
+		UUID:        vres.UUID,
+	}
 	if vres.Name != nil {
 		res.Name = *vres.Name
 	}
@@ -232,9 +238,6 @@ func newStoredLocation(vres *storageviews.StoredLocationView) *StoredLocation {
 	}
 	if vres.Purpose != nil {
 		res.Purpose = *vres.Purpose
-	}
-	if vres.UUID != nil {
-		res.UUID = *vres.UUID
 	}
 	if vres.Source == nil {
 		res.Source = "unspecified"
@@ -249,10 +252,11 @@ func newStoredLocation(vres *storageviews.StoredLocationView) *StoredLocation {
 // StoredLocationView using the "default" view.
 func newStoredLocationView(res *StoredLocation) *storageviews.StoredLocationView {
 	vres := &storageviews.StoredLocationView{
-		Name:    &res.Name,
-		Source:  &res.Source,
-		Purpose: &res.Purpose,
-		UUID:    &res.UUID,
+		Name:        &res.Name,
+		Description: res.Description,
+		Source:      &res.Source,
+		Purpose:     &res.Purpose,
+		UUID:        res.UUID,
 	}
 	return vres
 }

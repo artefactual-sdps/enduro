@@ -40,18 +40,18 @@ func (m *MockStorage) EXPECT() *MockStorageMockRecorder {
 }
 
 // CreateLocation mocks base method.
-func (m *MockStorage) CreateLocation(arg0 context.Context, arg1 string, arg2 source.LocationSource, arg3 purpose.LocationPurpose, arg4 uuid.UUID) (*storage.StoredLocation, error) {
+func (m *MockStorage) CreateLocation(arg0 context.Context, arg1 string, arg2 *string, arg3 source.LocationSource, arg4 purpose.LocationPurpose, arg5 uuid.UUID) (*storage.StoredLocation, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateLocation", arg0, arg1, arg2, arg3, arg4)
+	ret := m.ctrl.Call(m, "CreateLocation", arg0, arg1, arg2, arg3, arg4, arg5)
 	ret0, _ := ret[0].(*storage.StoredLocation)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CreateLocation indicates an expected call of CreateLocation.
-func (mr *MockStorageMockRecorder) CreateLocation(arg0, arg1, arg2, arg3, arg4 interface{}) *gomock.Call {
+func (mr *MockStorageMockRecorder) CreateLocation(arg0, arg1, arg2, arg3, arg4, arg5 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateLocation", reflect.TypeOf((*MockStorage)(nil).CreateLocation), arg0, arg1, arg2, arg3, arg4)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateLocation", reflect.TypeOf((*MockStorage)(nil).CreateLocation), arg0, arg1, arg2, arg3, arg4, arg5)
 }
 
 // CreatePackage mocks base method.

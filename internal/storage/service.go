@@ -167,11 +167,8 @@ func (s *serviceImpl) Locations(context.Context) (goastorage.StoredLocationColle
 	res := []*goastorage.StoredLocation{}
 	for i, item := range s.config.Locations {
 		l := &goastorage.StoredLocation{
-			ID:      uint(i + 1),
-			Name:    item.Name,
-			Source:  "",
-			Purpose: "",
-			UUID:    "",
+			ID:   uint(i + 1),
+			Name: item.Name,
 		}
 		res = append(res, l)
 	}
@@ -317,7 +314,7 @@ func (s *serviceImpl) AddLocation(ctx context.Context, payload *goastorage.AddLo
 	purpose := purpose.NewLocationPurpose(payload.Purpose)
 	UUID := uuid.New()
 
-	_, err = s.storagePersistence.CreateLocation(ctx, payload.Name, source, purpose, UUID)
+	_, err = s.storagePersistence.CreateLocation(ctx, payload.Name, payload.Description, source, purpose, UUID)
 	if err != nil {
 		return nil, goastorage.MakeNotValid(errors.New("cannot persist location"))
 	}

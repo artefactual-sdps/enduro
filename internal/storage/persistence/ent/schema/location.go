@@ -31,6 +31,10 @@ func (Location) Fields() []ent.Field {
 			Annotations(entsql.Annotation{
 				Size: 2048,
 			}),
+		field.String("description").
+			Annotations(entsql.Annotation{
+				Size: 2048,
+			}),
 		field.Enum("source").
 			GoType(source.LocationSourceUnspecified),
 		field.Enum("purpose").

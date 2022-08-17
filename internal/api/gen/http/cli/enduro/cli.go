@@ -720,9 +720,10 @@ Add a storage location
 
 Example:
     %[1]s storage add-location --body '{
-      "name": "Nulla voluptatem omnis id repudiandae.",
+      "description": "Voluptatibus consequatur in quaerat dolorum.",
+      "name": "Dolor animi aspernatur sed assumenda ea.",
       "purpose": "aip_store",
-      "source": "unspecified"
+      "source": "minio"
    }'
 `, os.Args[0])
 }
@@ -736,8 +737,8 @@ Move a package to a permanent storage location
 
 Example:
     %[1]s storage move --body '{
-      "location": "Sed iure mollitia nisi et deserunt voluptate."
-   }' --aip-id "Ex velit."
+      "location": "Dolorum facere omnis quibusdam architecto explicabo voluptas."
+   }' --aip-id "Et nemo pariatur mollitia."
 `, os.Args[0])
 }
 
@@ -748,7 +749,7 @@ Retrieve the status of a permanent storage location move of the package
     -aip-id STRING: 
 
 Example:
-    %[1]s storage move-status --aip-id "Rerum necessitatibus pariatur."
+    %[1]s storage move-status --aip-id "Beatae amet unde consequatur."
 `, os.Args[0])
 }
 
@@ -759,7 +760,7 @@ Reject a package
     -aip-id STRING: 
 
 Example:
-    %[1]s storage reject --aip-id "Est quia ut."
+    %[1]s storage reject --aip-id "Aperiam aut in laudantium quae nisi."
 `, os.Args[0])
 }
 
@@ -770,6 +771,6 @@ Show package by AIPID
     -aip-id STRING: 
 
 Example:
-    %[1]s storage show --aip-id "Unde voluptas et provident molestiae."
+    %[1]s storage show --aip-id "Magni sunt mollitia."
 `, os.Args[0])
 }

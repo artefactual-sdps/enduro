@@ -616,10 +616,11 @@ func EncodeShowError(encoder func(context.Context, http.ResponseWriter) goahttp.
 // *storageviews.StoredLocationView.
 func marshalStorageviewsStoredLocationViewToStoredLocationResponse(v *storageviews.StoredLocationView) *StoredLocationResponse {
 	res := &StoredLocationResponse{
-		Name:    *v.Name,
-		Source:  *v.Source,
-		Purpose: *v.Purpose,
-		UUID:    *v.UUID,
+		Name:        *v.Name,
+		Description: v.Description,
+		Source:      *v.Source,
+		Purpose:     *v.Purpose,
+		UUID:        v.UUID,
 	}
 
 	return res

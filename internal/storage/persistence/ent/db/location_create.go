@@ -28,6 +28,12 @@ func (lc *LocationCreate) SetName(s string) *LocationCreate {
 	return lc
 }
 
+// SetDescription sets the "description" field.
+func (lc *LocationCreate) SetDescription(s string) *LocationCreate {
+	lc.mutation.SetDescription(s)
+	return lc
+}
+
 // SetSource sets the "source" field.
 func (lc *LocationCreate) SetSource(ss source.LocationSource) *LocationCreate {
 	lc.mutation.SetSource(ss)
@@ -125,6 +131,9 @@ func (lc *LocationCreate) check() error {
 	if _, ok := lc.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`db: missing required field "Location.name"`)}
 	}
+	if _, ok := lc.mutation.Description(); !ok {
+		return &ValidationError{Name: "description", err: errors.New(`db: missing required field "Location.description"`)}
+	}
 	if _, ok := lc.mutation.Source(); !ok {
 		return &ValidationError{Name: "source", err: errors.New(`db: missing required field "Location.source"`)}
 	}
@@ -178,6 +187,14 @@ func (lc *LocationCreate) createSpec() (*Location, *sqlgraph.CreateSpec) {
 			Column: location.FieldName,
 		})
 		_node.Name = value
+	}
+	if value, ok := lc.mutation.Description(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: location.FieldDescription,
+		})
+		_node.Description = value
 	}
 	if value, ok := lc.mutation.Source(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{

@@ -73,7 +73,7 @@ func BuildAddLocationPayload(storageAddLocationBody string) (*storage.AddLocatio
 	{
 		err = json.Unmarshal([]byte(storageAddLocationBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"name\": \"Nulla voluptatem omnis id repudiandae.\",\n      \"purpose\": \"aip_store\",\n      \"source\": \"unspecified\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"description\": \"Voluptatibus consequatur in quaerat dolorum.\",\n      \"name\": \"Dolor animi aspernatur sed assumenda ea.\",\n      \"purpose\": \"aip_store\",\n      \"source\": \"minio\"\n   }'")
 		}
 		if !(body.Source == "unspecified" || body.Source == "minio") {
 			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.source", body.Source, []interface{}{"unspecified", "minio"}))
@@ -86,9 +86,10 @@ func BuildAddLocationPayload(storageAddLocationBody string) (*storage.AddLocatio
 		}
 	}
 	v := &storage.AddLocationPayload{
-		Name:    body.Name,
-		Source:  body.Source,
-		Purpose: body.Purpose,
+		Name:        body.Name,
+		Description: body.Description,
+		Source:      body.Source,
+		Purpose:     body.Purpose,
 	}
 
 	return v, nil
@@ -102,7 +103,7 @@ func BuildMovePayload(storageMoveBody string, storageMoveAipID string) (*storage
 	{
 		err = json.Unmarshal([]byte(storageMoveBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location\": \"Sed iure mollitia nisi et deserunt voluptate.\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location\": \"Dolorum facere omnis quibusdam architecto explicabo voluptas.\"\n   }'")
 		}
 	}
 	var aipID string

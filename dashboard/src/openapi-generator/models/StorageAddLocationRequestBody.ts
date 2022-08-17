@@ -24,6 +24,12 @@ export interface StorageAddLocationRequestBody {
      * @type {string}
      * @memberof StorageAddLocationRequestBody
      */
+    description?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof StorageAddLocationRequestBody
+     */
     name: string;
     /**
      * 
@@ -69,6 +75,7 @@ export function StorageAddLocationRequestBodyFromJSONTyped(json: any, ignoreDisc
     }
     return {
         
+        'description': !exists(json, 'description') ? undefined : json['description'],
         'name': json['name'],
         'purpose': json['purpose'],
         'source': json['source'],
@@ -84,6 +91,7 @@ export function StorageAddLocationRequestBodyToJSON(value?: StorageAddLocationRe
     }
     return {
         
+        'description': value.description,
         'name': value.name,
         'purpose': value.purpose,
         'source': value.source,

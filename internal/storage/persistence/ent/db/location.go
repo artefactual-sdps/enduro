@@ -20,6 +20,8 @@ type Location struct {
 	ID int `json:"id,omitempty"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
+	// Description holds the value of the "description" field.
+	Description string `json:"description,omitempty"`
 	// Source holds the value of the "source" field.
 	Source source.LocationSource `json:"source,omitempty"`
 	// Purpose holds the value of the "purpose" field.
@@ -39,7 +41,7 @@ func (*Location) scanValues(columns []string) ([]interface{}, error) {
 			values[i] = new(source.LocationSource)
 		case location.FieldID:
 			values[i] = new(sql.NullInt64)
-		case location.FieldName:
+		case location.FieldName, location.FieldDescription:
 			values[i] = new(sql.NullString)
 		case location.FieldUUID:
 			values[i] = new(uuid.UUID)
@@ -69,6 +71,12 @@ func (l *Location) assignValues(columns []string, values []interface{}) error {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
 			} else if value.Valid {
 				l.Name = value.String
+			}
+		case location.FieldDescription:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field description", values[i])
+			} else if value.Valid {
+				l.Description = value.String
 			}
 		case location.FieldSource:
 			if value, ok := values[i].(*source.LocationSource); !ok {
@@ -118,6 +126,9 @@ func (l *Location) String() string {
 	builder.WriteString(fmt.Sprintf("id=%v, ", l.ID))
 	builder.WriteString("name=")
 	builder.WriteString(l.Name)
+	builder.WriteString(", ")
+	builder.WriteString("description=")
+	builder.WriteString(l.Description)
 	builder.WriteString(", ")
 	builder.WriteString("source=")
 	builder.WriteString(fmt.Sprintf("%v", l.Source))

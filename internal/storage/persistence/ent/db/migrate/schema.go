@@ -13,6 +13,7 @@ var (
 	LocationColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "name", Type: field.TypeString, Size: 2048},
+		{Name: "description", Type: field.TypeString, Size: 2048},
 		{Name: "source", Type: field.TypeEnum, Enums: []string{"unspecified", "minio"}},
 		{Name: "purpose", Type: field.TypeEnum, Enums: []string{"unspecified", "aip_store"}},
 		{Name: "uuid", Type: field.TypeUUID},
@@ -34,7 +35,7 @@ var (
 			{
 				Name:    "location_uuid",
 				Unique:  false,
-				Columns: []*schema.Column{LocationColumns[4]},
+				Columns: []*schema.Column{LocationColumns[5]},
 			},
 		},
 	}

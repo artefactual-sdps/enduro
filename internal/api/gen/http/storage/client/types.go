@@ -23,9 +23,10 @@ type SubmitRequestBody struct {
 // AddLocationRequestBody is the type of the "storage" service "add-location"
 // endpoint HTTP request body.
 type AddLocationRequestBody struct {
-	Name    string `form:"name" json:"name" xml:"name"`
-	Source  string `form:"source" json:"source" xml:"source"`
-	Purpose string `form:"purpose" json:"purpose" xml:"purpose"`
+	Name        string  `form:"name" json:"name" xml:"name"`
+	Description *string `form:"description,omitempty" json:"description,omitempty" xml:"description,omitempty"`
+	Source      string  `form:"source" json:"source" xml:"source"`
+	Purpose     string  `form:"purpose" json:"purpose" xml:"purpose"`
 }
 
 // MoveRequestBody is the type of the "storage" service "move" endpoint HTTP
@@ -299,6 +300,8 @@ type StoredLocationResponse struct {
 	ID *uint `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
 	// Name of location
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// Description of the location
+	Description *string `form:"description,omitempty" json:"description,omitempty" xml:"description,omitempty"`
 	// Data source of the location
 	Source *string `form:"source,omitempty" json:"source,omitempty" xml:"source,omitempty"`
 	// Purpose of the location
@@ -319,9 +322,10 @@ func NewSubmitRequestBody(p *storage.SubmitPayload) *SubmitRequestBody {
 // the "add-location" endpoint of the "storage" service.
 func NewAddLocationRequestBody(p *storage.AddLocationPayload) *AddLocationRequestBody {
 	body := &AddLocationRequestBody{
-		Name:    p.Name,
-		Source:  p.Source,
-		Purpose: p.Purpose,
+		Name:        p.Name,
+		Description: p.Description,
+		Source:      p.Source,
+		Purpose:     p.Purpose,
 	}
 	return body
 }
@@ -929,9 +933,6 @@ func ValidateStoredLocationResponse(body *StoredLocationResponse) (err error) {
 	}
 	if body.Purpose == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("purpose", "body"))
-	}
-	if body.UUID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("uuid", "body"))
 	}
 	if body.Source != nil {
 		if !(*body.Source == "unspecified" || *body.Source == "minio") {
