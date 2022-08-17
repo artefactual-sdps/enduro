@@ -14,16 +14,16 @@ import { DialogWrapper } from "vue3-promise-dialog";
     <Header />
     <div class="flex-grow-1 d-flex">
       <Sidebar />
-      <div class="flex-grow-1 px-2 pt-3" id="main" role="main">
+      <main class="flex-grow-1 px-2 pt-3" id="main">
         <router-view></router-view>
-      </div>
+      </main>
     </div>
     <DialogWrapper />
   </div>
 </template>
 
 <style scoped>
-#main {
+main {
   overflow-x: hidden;
 }
 </style>
