@@ -3,13 +3,17 @@
 // Variable overrides.
 $primary: #5e2750;
 $link-color: #0d6efd;
-
 $offcanvas-horizontal-width: 300px;
 $offcanvas-padding-x: 0;
 $headings-color: $primary;
 $headings-font-weight: 400;
 
-// Bootstrap required
+// Custom variables.
+$header-height: 64px;
+$sidebar-width: 200px;
+$sidebar-collapsed-width: 90px;
+
+// Bootstrap required.
 @import "bootstrap/scss/variables";
 
 // Default map overrides.

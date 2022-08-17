@@ -13,7 +13,7 @@ const stateStore = useStateStore();
 
 <template>
   <div
-    class="sidebar offcanvas-md offcanvas-start d-flex bg-light overflow-auto sticky-md-top"
+    class="sidebar offcanvas-md offcanvas-start d-flex bg-light"
     :class="stateStore.sidebarCollapsed ? 'collapsed' : ''"
     tabindex="-1"
     id="menu-offcanvas"
@@ -85,13 +85,18 @@ const stateStore = useStateStore();
 
 @media (min-width: 768px) {
   .sidebar {
+    position: sticky;
+    top: $header-height;
+    height: calc(100vh - $header-height);
+    overflow-y: auto;
+    overflow-x: hidden;
     border-right: $border-width $border-style $border-color;
-    width: 200px;
-    min-width: 200px;
+    width: $sidebar-width;
+    min-width: $sidebar-width;
 
     &.collapsed {
-      width: 90px;
-      min-width: 90px;
+      width: $sidebar-collapsed-width;
+      min-width: $sidebar-collapsed-width;
 
       .sidebar-link .col-9 {
         font-size: 0.75 * $font-size-base;

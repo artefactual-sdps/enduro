@@ -7,12 +7,14 @@ import { DialogWrapper } from "vue3-promise-dialog";
 <template>
   <div class="d-flex flex-column">
     <div class="visually-hidden-focusable p-3 border-bottom">
-      <a class="btn btn-outline-primary" href="#main">Skip to main content</a>
+      <a class="btn btn-sm btn-outline-primary" href="#main"
+        >Skip to main content</a
+      >
     </div>
     <Header />
-    <div class="flex-grow-1 d-flex" id="content">
+    <div class="flex-grow-1 d-flex">
       <Sidebar />
-      <div class="flex-grow-1 px-2 pt-3 overflow-auto" id="main" role="main">
+      <div class="flex-grow-1 px-2 pt-3" id="main" role="main">
         <router-view></router-view>
       </div>
     </div>
@@ -21,7 +23,7 @@ import { DialogWrapper } from "vue3-promise-dialog";
 </template>
 
 <style scoped>
-#content {
-  height: calc(100vh - 63px);
+#main {
+  overflow-x: hidden;
 }
 </style>

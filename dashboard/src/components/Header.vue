@@ -15,7 +15,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <header class="border-bottom sticky-top">
+  <header class="bg-white border-bottom sticky-top">
     <nav class="navbar navbar-expand-md p-0">
       <!-- Open offcanvas button, only visible in sm. -->
       <button
@@ -68,9 +68,13 @@ onMounted(() => {
   </header>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
+header {
+  height: $header-height;
+}
+
 .sidebar-collapsed {
-  width: 90px;
-  min-width: 90px;
+  width: $sidebar-collapsed-width;
+  min-width: $sidebar-collapsed-width;
 }
 </style>
