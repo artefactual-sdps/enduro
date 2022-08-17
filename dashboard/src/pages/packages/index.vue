@@ -23,7 +23,7 @@ const { execute, error } = useAsyncState(() => {
 }, null);
 
 const el = $ref<HTMLElement | null>(null);
-let tooltip = <Tooltip | null>null;
+let tooltip: Tooltip | null = null;
 
 onMounted(() => {
   if (el) tooltip = new Tooltip(el);

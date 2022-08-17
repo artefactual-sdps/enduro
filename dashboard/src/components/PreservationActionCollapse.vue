@@ -19,7 +19,7 @@ const emit = defineEmits<{
 
 let shown = $ref<boolean>(false);
 const el = $ref<HTMLElement | null>(null);
-let col = <Collapse | null>null;
+let col: Collapse | null = null;
 
 onMounted(() => {
   if (!el) return;

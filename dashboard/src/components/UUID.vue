@@ -13,7 +13,7 @@ const source = toRef(props, "id", "");
 const { copy, copied, isSupported } = useClipboard({ source });
 
 const el = $ref<HTMLElement | null>(null);
-let tooltip = <Tooltip | null>null;
+let tooltip: Tooltip | null = null;
 
 watch($$(el), () => {
   if (el) tooltip = new Tooltip(el);
