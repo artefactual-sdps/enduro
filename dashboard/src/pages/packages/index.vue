@@ -6,9 +6,9 @@ import UUID from "@/components/UUID.vue";
 import { usePackageStore } from "@/stores/package";
 import { useStateStore } from "@/stores/state";
 import { useAsyncState } from "@vueuse/core";
-import { useRouter } from "vue-router";
-import { onMounted } from "vue";
 import Tooltip from "bootstrap/js/dist/tooltip";
+import { onMounted } from "vue";
+import { useRouter } from "vue-router";
 import IconInfoFill from "~icons/akar-icons/info-fill";
 import IconBundleLine from "~icons/clarity/bundle-line";
 
@@ -23,7 +23,7 @@ const { execute, error } = useAsyncState(() => {
 }, null);
 
 const el = $ref<HTMLElement | null>(null);
-let tooltip = <Tooltip | null>null;
+let tooltip: Tooltip | null = null;
 
 onMounted(() => {
   if (el) tooltip = new Tooltip(el);
