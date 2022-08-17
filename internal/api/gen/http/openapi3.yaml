@@ -747,7 +747,64 @@ paths:
                                         started_at: "2006-11-24T03:34:26Z"
                                         status: queued
                                         task_id: Ipsum est.
-    /storage/{aip_id}:
+    /storage/location:
+        get:
+            tags:
+                - storage
+            summary: locations storage
+            description: List locations
+            operationId: storage#locations
+            responses:
+                "200":
+                    description: OK response.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/StoredLocationResponseCollection'
+                            example:
+                                - description: Pariatur rerum voluptas iusto.
+                                  name: Adipisci officiis eaque architecto.
+                                  purpose: unspecified
+                                  source: unspecified
+                                  uuid: Quasi similique iure nulla voluptatem omnis id.
+                                - description: Pariatur rerum voluptas iusto.
+                                  name: Adipisci officiis eaque architecto.
+                                  purpose: unspecified
+                                  source: unspecified
+                                  uuid: Quasi similique iure nulla voluptatem omnis id.
+        post:
+            tags:
+                - storage
+            summary: add-location storage
+            description: Add a storage location
+            operationId: storage#add-location
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/AddLocationRequestBody'
+                        example:
+                            description: Voluptatibus consequatur in quaerat dolorum.
+                            name: Dolor animi aspernatur sed assumenda ea.
+                            purpose: aip_store
+                            source: minio
+            responses:
+                "201":
+                    description: Created response.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AddLocationResult'
+                            example:
+                                uuid: Mollitia nisi et deserunt voluptate.
+                "400":
+                    description: 'not_valid: Bad Request response.'
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+    /storage/package/{aip_id}:
         get:
             tags:
                 - storage
@@ -782,7 +839,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/StoragePackageNotfound'
-    /storage/{aip_id}/download:
+    /storage/package/{aip_id}/download:
         get:
             tags:
                 - storage
@@ -871,7 +928,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/StoragePackageNotfound'
-    /storage/{aip_id}/reject:
+    /storage/package/{aip_id}/reject:
         post:
             tags:
                 - storage
@@ -907,7 +964,7 @@ paths:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
-    /storage/{aip_id}/store:
+    /storage/package/{aip_id}/store:
         get:
             tags:
                 - storage
@@ -986,7 +1043,7 @@ paths:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
-    /storage/{aip_id}/submit:
+    /storage/package/{aip_id}/submit:
         post:
             tags:
                 - storage
@@ -1030,7 +1087,7 @@ paths:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
-    /storage/{aip_id}/update:
+    /storage/package/{aip_id}/update:
         post:
             tags:
                 - storage
@@ -1056,63 +1113,6 @@ paths:
                                 $ref: '#/components/schemas/Error'
                 "409":
                     description: 'not_available: Conflict response.'
-                    content:
-                        application/vnd.goa.error:
-                            schema:
-                                $ref: '#/components/schemas/Error'
-    /storage/location:
-        get:
-            tags:
-                - storage
-            summary: locations storage
-            description: List locations
-            operationId: storage#locations
-            responses:
-                "200":
-                    description: OK response.
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/StoredLocationResponseCollection'
-                            example:
-                                - description: Pariatur rerum voluptas iusto.
-                                  name: Adipisci officiis eaque architecto.
-                                  purpose: unspecified
-                                  source: unspecified
-                                  uuid: Quasi similique iure nulla voluptatem omnis id.
-                                - description: Pariatur rerum voluptas iusto.
-                                  name: Adipisci officiis eaque architecto.
-                                  purpose: unspecified
-                                  source: unspecified
-                                  uuid: Quasi similique iure nulla voluptatem omnis id.
-        post:
-            tags:
-                - storage
-            summary: add-location storage
-            description: Add a storage location
-            operationId: storage#add-location
-            requestBody:
-                required: true
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/AddLocationRequestBody'
-                        example:
-                            description: Voluptatibus consequatur in quaerat dolorum.
-                            name: Dolor animi aspernatur sed assumenda ea.
-                            purpose: aip_store
-                            source: minio
-            responses:
-                "201":
-                    description: Created response.
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/AddLocationResult'
-                            example:
-                                uuid: Mollitia nisi et deserunt voluptate.
-                "400":
-                    description: 'not_valid: Bad Request response.'
                     content:
                         application/vnd.goa.error:
                             schema:

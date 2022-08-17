@@ -66,22 +66,22 @@ func New(
 ) *Server {
 	return &Server{
 		Mounts: []*MountPoint{
-			{"Submit", "POST", "/storage/{aip_id}/submit"},
-			{"Update", "POST", "/storage/{aip_id}/update"},
-			{"Download", "GET", "/storage/{aip_id}/download"},
+			{"Submit", "POST", "/storage/package/{aip_id}/submit"},
+			{"Update", "POST", "/storage/package/{aip_id}/update"},
+			{"Download", "GET", "/storage/package/{aip_id}/download"},
 			{"Locations", "GET", "/storage/location"},
 			{"AddLocation", "POST", "/storage/location"},
-			{"Move", "POST", "/storage/{aip_id}/store"},
-			{"MoveStatus", "GET", "/storage/{aip_id}/store"},
-			{"Reject", "POST", "/storage/{aip_id}/reject"},
-			{"Show", "GET", "/storage/{aip_id}"},
-			{"CORS", "OPTIONS", "/storage/{aip_id}/submit"},
-			{"CORS", "OPTIONS", "/storage/{aip_id}/update"},
-			{"CORS", "OPTIONS", "/storage/{aip_id}/download"},
+			{"Move", "POST", "/storage/package/{aip_id}/store"},
+			{"MoveStatus", "GET", "/storage/package/{aip_id}/store"},
+			{"Reject", "POST", "/storage/package/{aip_id}/reject"},
+			{"Show", "GET", "/storage/package/{aip_id}"},
+			{"CORS", "OPTIONS", "/storage/package/{aip_id}/submit"},
+			{"CORS", "OPTIONS", "/storage/package/{aip_id}/update"},
+			{"CORS", "OPTIONS", "/storage/package/{aip_id}/download"},
 			{"CORS", "OPTIONS", "/storage/location"},
-			{"CORS", "OPTIONS", "/storage/{aip_id}/store"},
-			{"CORS", "OPTIONS", "/storage/{aip_id}/reject"},
-			{"CORS", "OPTIONS", "/storage/{aip_id}"},
+			{"CORS", "OPTIONS", "/storage/package/{aip_id}/store"},
+			{"CORS", "OPTIONS", "/storage/package/{aip_id}/reject"},
+			{"CORS", "OPTIONS", "/storage/package/{aip_id}"},
 		},
 		Submit:      NewSubmitHandler(e.Submit, mux, decoder, encoder, errhandler, formatter),
 		Update:      NewUpdateHandler(e.Update, mux, decoder, encoder, errhandler, formatter),
@@ -141,7 +141,7 @@ func MountSubmitHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("POST", "/storage/{aip_id}/submit", f)
+	mux.Handle("POST", "/storage/package/{aip_id}/submit", f)
 }
 
 // NewSubmitHandler creates a HTTP handler which loads the HTTP request and
@@ -192,7 +192,7 @@ func MountUpdateHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("POST", "/storage/{aip_id}/update", f)
+	mux.Handle("POST", "/storage/package/{aip_id}/update", f)
 }
 
 // NewUpdateHandler creates a HTTP handler which loads the HTTP request and
@@ -243,7 +243,7 @@ func MountDownloadHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("GET", "/storage/{aip_id}/download", f)
+	mux.Handle("GET", "/storage/package/{aip_id}/download", f)
 }
 
 // NewDownloadHandler creates a HTTP handler which loads the HTTP request and
@@ -389,7 +389,7 @@ func MountMoveHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("POST", "/storage/{aip_id}/store", f)
+	mux.Handle("POST", "/storage/package/{aip_id}/store", f)
 }
 
 // NewMoveHandler creates a HTTP handler which loads the HTTP request and calls
@@ -440,7 +440,7 @@ func MountMoveStatusHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("GET", "/storage/{aip_id}/store", f)
+	mux.Handle("GET", "/storage/package/{aip_id}/store", f)
 }
 
 // NewMoveStatusHandler creates a HTTP handler which loads the HTTP request and
@@ -491,7 +491,7 @@ func MountRejectHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("POST", "/storage/{aip_id}/reject", f)
+	mux.Handle("POST", "/storage/package/{aip_id}/reject", f)
 }
 
 // NewRejectHandler creates a HTTP handler which loads the HTTP request and
@@ -542,7 +542,7 @@ func MountShowHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("GET", "/storage/{aip_id}", f)
+	mux.Handle("GET", "/storage/package/{aip_id}", f)
 }
 
 // NewShowHandler creates a HTTP handler which loads the HTTP request and calls
@@ -588,13 +588,13 @@ func NewShowHandler(
 // service storage.
 func MountCORSHandler(mux goahttp.Muxer, h http.Handler) {
 	h = HandleStorageOrigin(h)
-	mux.Handle("OPTIONS", "/storage/{aip_id}/submit", h.ServeHTTP)
-	mux.Handle("OPTIONS", "/storage/{aip_id}/update", h.ServeHTTP)
-	mux.Handle("OPTIONS", "/storage/{aip_id}/download", h.ServeHTTP)
+	mux.Handle("OPTIONS", "/storage/package/{aip_id}/submit", h.ServeHTTP)
+	mux.Handle("OPTIONS", "/storage/package/{aip_id}/update", h.ServeHTTP)
+	mux.Handle("OPTIONS", "/storage/package/{aip_id}/download", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/storage/location", h.ServeHTTP)
-	mux.Handle("OPTIONS", "/storage/{aip_id}/store", h.ServeHTTP)
-	mux.Handle("OPTIONS", "/storage/{aip_id}/reject", h.ServeHTTP)
-	mux.Handle("OPTIONS", "/storage/{aip_id}", h.ServeHTTP)
+	mux.Handle("OPTIONS", "/storage/package/{aip_id}/store", h.ServeHTTP)
+	mux.Handle("OPTIONS", "/storage/package/{aip_id}/reject", h.ServeHTTP)
+	mux.Handle("OPTIONS", "/storage/package/{aip_id}", h.ServeHTTP)
 }
 
 // NewCORSHandler creates a HTTP handler which returns a simple 200 response.

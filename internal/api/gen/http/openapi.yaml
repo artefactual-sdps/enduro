@@ -475,7 +475,50 @@ paths:
                         $ref: '#/definitions/PackageMonitorResponseBody'
             schemes:
                 - ws
-    /storage/{aip_id}:
+    /storage/location:
+        get:
+            tags:
+                - storage
+            summary: locations storage
+            description: List locations
+            operationId: storage#locations
+            responses:
+                "200":
+                    description: OK response.
+                    schema:
+                        $ref: '#/definitions/StorageStoredLocationResponseCollection'
+            schemes:
+                - http
+        post:
+            tags:
+                - storage
+            summary: add-location storage
+            description: Add a storage location
+            operationId: storage#add-location
+            parameters:
+                - name: Add-LocationRequestBody
+                  in: body
+                  required: true
+                  schema:
+                    $ref: '#/definitions/StorageAddLocationRequestBody'
+                    required:
+                        - name
+                        - source
+                        - purpose
+            responses:
+                "201":
+                    description: Created response.
+                    schema:
+                        $ref: '#/definitions/StorageAddLocationResponseBody'
+                        required:
+                            - uuid
+                "400":
+                    description: Bad Request response.
+                    schema:
+                        $ref: '#/definitions/StorageAddLocationNotValidResponseBody'
+            schemes:
+                - http
+    /storage/package/{aip_id}:
         get:
             tags:
                 - storage
@@ -501,7 +544,7 @@ paths:
                             - aip_id
             schemes:
                 - http
-    /storage/{aip_id}/download:
+    /storage/package/{aip_id}/download:
         get:
             tags:
                 - storage
@@ -528,7 +571,7 @@ paths:
                             - aip_id
             schemes:
                 - http
-    /storage/{aip_id}/reject:
+    /storage/package/{aip_id}/reject:
         post:
             tags:
                 - storage
@@ -560,7 +603,7 @@ paths:
                         $ref: '#/definitions/StorageRejectNotAvailableResponseBody'
             schemes:
                 - http
-    /storage/{aip_id}/store:
+    /storage/package/{aip_id}/store:
         get:
             tags:
                 - storage
@@ -630,7 +673,7 @@ paths:
                         $ref: '#/definitions/StorageMoveNotAvailableResponseBody'
             schemes:
                 - http
-    /storage/{aip_id}/submit:
+    /storage/package/{aip_id}/submit:
         post:
             tags:
                 - storage
@@ -666,7 +709,7 @@ paths:
                         $ref: '#/definitions/StorageSubmitNotAvailableResponseBody'
             schemes:
                 - http
-    /storage/{aip_id}/update:
+    /storage/package/{aip_id}/update:
         post:
             tags:
                 - storage
@@ -689,49 +732,6 @@ paths:
                     description: Conflict response.
                     schema:
                         $ref: '#/definitions/StorageUpdateNotAvailableResponseBody'
-            schemes:
-                - http
-    /storage/location:
-        get:
-            tags:
-                - storage
-            summary: locations storage
-            description: List locations
-            operationId: storage#locations
-            responses:
-                "200":
-                    description: OK response.
-                    schema:
-                        $ref: '#/definitions/StorageStoredLocationResponseCollection'
-            schemes:
-                - http
-        post:
-            tags:
-                - storage
-            summary: add-location storage
-            description: Add a storage location
-            operationId: storage#add-location
-            parameters:
-                - name: Add-LocationRequestBody
-                  in: body
-                  required: true
-                  schema:
-                    $ref: '#/definitions/StorageAddLocationRequestBody'
-                    required:
-                        - name
-                        - source
-                        - purpose
-            responses:
-                "201":
-                    description: Created response.
-                    schema:
-                        $ref: '#/definitions/StorageAddLocationResponseBody'
-                        required:
-                            - uuid
-                "400":
-                    description: Bad Request response.
-                    schema:
-                        $ref: '#/definitions/StorageAddLocationNotValidResponseBody'
             schemes:
                 - http
     /swagger/swagger.json:

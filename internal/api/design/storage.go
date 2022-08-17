@@ -21,7 +21,7 @@ var _ = Service("storage", func() {
 		Error("not_available")
 		Error("not_valid")
 		HTTP(func() {
-			POST("/{aip_id}/submit")
+			POST("/package/{aip_id}/submit")
 			Response(StatusAccepted)
 			Response("not_available", StatusConflict)
 			Response("not_valid", StatusBadRequest)
@@ -37,7 +37,7 @@ var _ = Service("storage", func() {
 		Error("not_available")
 		Error("not_valid")
 		HTTP(func() {
-			POST("/{aip_id}/update")
+			POST("/package/{aip_id}/update")
 			Response(StatusAccepted)
 			Response("not_available", StatusConflict)
 			Response("not_valid", StatusBadRequest)
@@ -52,7 +52,7 @@ var _ = Service("storage", func() {
 		Result(Bytes)
 		Error("not_found", StoragePackageNotFound, "Storage package not found")
 		HTTP(func() {
-			GET("/{aip_id}/download")
+			GET("/package/{aip_id}/download")
 			Response(StatusOK)
 			Response("not_found", StatusNotFound)
 		})
@@ -97,7 +97,7 @@ var _ = Service("storage", func() {
 		Error("not_available")
 		Error("not_valid")
 		HTTP(func() {
-			POST("/{aip_id}/store")
+			POST("/package/{aip_id}/store")
 			Response(StatusAccepted)
 			Response("not_found", StatusNotFound)
 			Response("not_available", StatusConflict)
@@ -114,7 +114,7 @@ var _ = Service("storage", func() {
 		Error("not_found", StoragePackageNotFound, "Storage package not found")
 		Error("failed_dependency")
 		HTTP(func() {
-			GET("/{aip_id}/store")
+			GET("/package/{aip_id}/store")
 			Response(StatusOK)
 			Response("not_found", StatusNotFound)
 			Response("failed_dependency", StatusFailedDependency)
@@ -130,7 +130,7 @@ var _ = Service("storage", func() {
 		Error("not_available")
 		Error("not_valid")
 		HTTP(func() {
-			POST("/{aip_id}/reject")
+			POST("/package/{aip_id}/reject")
 			Response(StatusAccepted)
 			Response("not_found", StatusNotFound)
 			Response("not_available", StatusConflict)
@@ -146,7 +146,7 @@ var _ = Service("storage", func() {
 		Result(StoredStoragePackage)
 		Error("not_found", StoragePackageNotFound, "Storage package not found")
 		HTTP(func() {
-			GET("/{aip_id}")
+			GET("/package/{aip_id}")
 			Response(StatusOK)
 			Response("not_found", StatusNotFound)
 		})

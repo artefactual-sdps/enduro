@@ -328,7 +328,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
         const headerParameters: runtime.HTTPHeaders = {};
 
         const response = await this.request({
-            path: `/storage/{aip_id}/download`.replace(`{${"aip_id"}}`, encodeURIComponent(String(requestParameters.aipId))),
+            path: `/storage/package/{aip_id}/download`.replace(`{${"aip_id"}}`, encodeURIComponent(String(requestParameters.aipId))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -394,7 +394,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
         headerParameters['Content-Type'] = 'application/json';
 
         const response = await this.request({
-            path: `/storage/{aip_id}/store`.replace(`{${"aip_id"}}`, encodeURIComponent(String(requestParameters.aipId))),
+            path: `/storage/package/{aip_id}/store`.replace(`{${"aip_id"}}`, encodeURIComponent(String(requestParameters.aipId))),
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
@@ -426,7 +426,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
         const headerParameters: runtime.HTTPHeaders = {};
 
         const response = await this.request({
-            path: `/storage/{aip_id}/store`.replace(`{${"aip_id"}}`, encodeURIComponent(String(requestParameters.aipId))),
+            path: `/storage/package/{aip_id}/store`.replace(`{${"aip_id"}}`, encodeURIComponent(String(requestParameters.aipId))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -458,7 +458,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
         const headerParameters: runtime.HTTPHeaders = {};
 
         const response = await this.request({
-            path: `/storage/{aip_id}/reject`.replace(`{${"aip_id"}}`, encodeURIComponent(String(requestParameters.aipId))),
+            path: `/storage/package/{aip_id}/reject`.replace(`{${"aip_id"}}`, encodeURIComponent(String(requestParameters.aipId))),
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
@@ -489,7 +489,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
         const headerParameters: runtime.HTTPHeaders = {};
 
         const response = await this.request({
-            path: `/storage/{aip_id}`.replace(`{${"aip_id"}}`, encodeURIComponent(String(requestParameters.aipId))),
+            path: `/storage/package/{aip_id}`.replace(`{${"aip_id"}}`, encodeURIComponent(String(requestParameters.aipId))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -527,7 +527,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
         headerParameters['Content-Type'] = 'application/json';
 
         const response = await this.request({
-            path: `/storage/{aip_id}/submit`.replace(`{${"aip_id"}}`, encodeURIComponent(String(requestParameters.aipId))),
+            path: `/storage/package/{aip_id}/submit`.replace(`{${"aip_id"}}`, encodeURIComponent(String(requestParameters.aipId))),
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
@@ -560,7 +560,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
         const headerParameters: runtime.HTTPHeaders = {};
 
         const response = await this.request({
-            path: `/storage/{aip_id}/update`.replace(`{${"aip_id"}}`, encodeURIComponent(String(requestParameters.aipId))),
+            path: `/storage/package/{aip_id}/update`.replace(`{${"aip_id"}}`, encodeURIComponent(String(requestParameters.aipId))),
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
