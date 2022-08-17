@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useClipboard } from "@vueuse/core";
-import { onMounted, toRef, watch } from "vue";
 import Tooltip from "bootstrap/js/dist/tooltip";
+import { toRef, watch } from "vue";
 import IconCheck from "~icons/akar-icons/check";
 import IconCopy from "~icons/akar-icons/copy";
 

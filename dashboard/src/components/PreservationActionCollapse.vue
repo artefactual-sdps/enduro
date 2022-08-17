@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import IconCircleChevronDown from "~icons/akar-icons/circle-chevron-down";
-import IconCircleChevronUp from "~icons/akar-icons/circle-chevron-up";
+import { api } from "@/client";
 import PackageReviewAlert from "@/components/PackageReviewAlert.vue";
 import StatusBadge from "@/components/StatusBadge.vue";
-import { api } from "@/client";
-import { onMounted, watch } from "vue";
 import Collapse from "bootstrap/js/dist/collapse";
+import { onMounted, watch } from "vue";
+import IconCircleChevronDown from "~icons/akar-icons/circle-chevron-down";
+import IconCircleChevronUp from "~icons/akar-icons/circle-chevron-up";
 
 const { action, index, toggleAll } = defineProps<{
   action: api.EnduroPackagePreservationActionResponseBody;
