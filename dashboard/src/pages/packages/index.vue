@@ -3,8 +3,8 @@ import PackageListLegend from "@/components/PackageListLegend.vue";
 import PageLoadingAlert from "@/components/PageLoadingAlert.vue";
 import StatusBadge from "@/components/StatusBadge.vue";
 import UUID from "@/components/UUID.vue";
+import { useLayoutStore } from "@/stores/layout";
 import { usePackageStore } from "@/stores/package";
-import { useStateStore } from "@/stores/state";
 import { useAsyncState } from "@vueuse/core";
 import Tooltip from "bootstrap/js/dist/tooltip";
 import { onMounted } from "vue";
@@ -12,8 +12,8 @@ import { useRouter } from "vue-router";
 import IconInfoFill from "~icons/akar-icons/info-fill";
 import IconBundleLine from "~icons/clarity/bundle-line";
 
-const stateStore = useStateStore();
-stateStore.updateBreadcrumb([{ text: "Packages" }]);
+const layoutStore = useLayoutStore();
+layoutStore.updateBreadcrumb([{ text: "Packages" }]);
 
 const router = useRouter();
 const packageStore = usePackageStore();

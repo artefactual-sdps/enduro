@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { useStateStore } from "@/stores/state";
+import { useLayoutStore } from "@/stores/layout";
 
-const stateStore = useStateStore();
+const layoutStore = useLayoutStore();
 </script>
 
 <template>
   <nav aria-label="Breadcrumb" class="d-inline-block">
     <ol class="breadcrumb mb-0">
       <li
-        v-for="item in stateStore.breadcrumb"
+        v-for="item in layoutStore.breadcrumb"
         class="breadcrumb-item"
         :class="!item.routeName ? 'active' : ''"
         :aria-current="!item.routeName ? 'page' : undefined"

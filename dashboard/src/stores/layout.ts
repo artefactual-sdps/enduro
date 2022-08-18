@@ -5,7 +5,7 @@ type BreadcrumbItem = {
   text?: string;
 };
 
-export const useStateStore = defineStore("state", {
+export const useLayoutStore = defineStore("layout", {
   state: () => ({
     sidebarCollapsed: false as boolean,
     breadcrumb: [] as Array<BreadcrumbItem>,

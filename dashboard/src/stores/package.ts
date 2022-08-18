@@ -1,5 +1,5 @@
 import { api, client } from "@/client";
-import { useStateStore } from "@/stores/state";
+import { useLayoutStore } from "@/stores/layout";
 import { defineStore, acceptHMRUpdate } from "pinia";
 import { ref } from "vue";
 
@@ -89,8 +89,8 @@ export const usePackageStore = defineStore("package", {
       this.current = await client.package.packageShow({ id: packageId });
 
       // Update breadcrumb. TODO: should this be done in the component?
-      const stateStore = useStateStore();
-      stateStore.updateBreadcrumb([
+      const layoutStore = useLayoutStore();
+      layoutStore.updateBreadcrumb([
         { routeName: "packages", text: "Packages" },
         { text: this.current.name },
       ]);

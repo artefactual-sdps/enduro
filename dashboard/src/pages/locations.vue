@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { useStateStore } from "@/stores/state";
+import { useLayoutStore } from "@/stores/layout";
 import IconRackServerLine from "~icons/clarity/rack-server-line";
 
-const stateStore = useStateStore();
-stateStore.updateBreadcrumb([{ text: "Locations" }]);
+const layoutStore = useLayoutStore();
+layoutStore.updateBreadcrumb([{ text: "Locations" }]);
 </script>
 
 <template>
