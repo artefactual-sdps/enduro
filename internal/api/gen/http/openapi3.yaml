@@ -774,9 +774,9 @@ paths:
         post:
             tags:
                 - storage
-            summary: add-location storage
+            summary: add_location storage
             description: Add a storage location
-            operationId: storage#add-location
+            operationId: storage#add_location
             requestBody:
                 required: true
                 content:

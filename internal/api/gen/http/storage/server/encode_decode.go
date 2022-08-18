@@ -243,7 +243,7 @@ func EncodeLocationsResponse(encoder func(context.Context, http.ResponseWriter) 
 }
 
 // EncodeAddLocationResponse returns an encoder for responses returned by the
-// storage add-location endpoint.
+// storage add_location endpoint.
 func EncodeAddLocationResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
 	return func(ctx context.Context, w http.ResponseWriter, v interface{}) error {
 		res, _ := v.(*storage.AddLocationResult)
@@ -255,7 +255,7 @@ func EncodeAddLocationResponse(encoder func(context.Context, http.ResponseWriter
 }
 
 // DecodeAddLocationRequest returns a decoder for requests sent to the storage
-// add-location endpoint.
+// add_location endpoint.
 func DecodeAddLocationRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (interface{}, error) {
 	return func(r *http.Request) (interface{}, error) {
 		var (
@@ -280,7 +280,7 @@ func DecodeAddLocationRequest(mux goahttp.Muxer, decoder func(*http.Request) goa
 }
 
 // EncodeAddLocationError returns an encoder for errors returned by the
-// add-location storage endpoint.
+// add_location storage endpoint.
 func EncodeAddLocationError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
 	encodeError := goahttp.ErrorEncoder(encoder, formatter)
 	return func(ctx context.Context, w http.ResponseWriter, v error) error {

@@ -65,7 +65,7 @@ var _ = Service("storage", func() {
 			Response(StatusOK)
 		})
 	})
-	Method("add-location", func() {
+	Method("add_location", func() {
 		Description("Add a storage location")
 		Payload(func() {
 			Attribute("name", String)

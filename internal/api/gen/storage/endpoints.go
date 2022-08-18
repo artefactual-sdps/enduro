@@ -99,7 +99,7 @@ func NewLocationsEndpoint(s Service) goa.Endpoint {
 }
 
 // NewAddLocationEndpoint returns an endpoint function that calls the method
-// "add-location" of service "storage".
+// "add_location" of service "storage".
 func NewAddLocationEndpoint(s Service) goa.Endpoint {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
 		p := req.(*AddLocationPayload)

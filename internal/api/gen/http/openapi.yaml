@@ -492,11 +492,11 @@ paths:
         post:
             tags:
                 - storage
-            summary: add-location storage
+            summary: add_location storage
             description: Add a storage location
-            operationId: storage#add-location
+            operationId: storage#add_location
             parameters:
-                - name: Add-LocationRequestBody
+                - name: add_location_request_body
                   in: body
                   required: true
                   schema:
@@ -2776,7 +2776,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: add-location_not_valid_response_body result type (default view)
+        description: add_location_not_valid_response_body result type (default view)
         example:
             fault: true
             id: 123abc

@@ -65,7 +65,7 @@ func BuildDownloadPayload(storageDownloadAipID string) (*storage.DownloadPayload
 	return v, nil
 }
 
-// BuildAddLocationPayload builds the payload for the storage add-location
+// BuildAddLocationPayload builds the payload for the storage add_location
 // endpoint from CLI flags.
 func BuildAddLocationPayload(storageAddLocationBody string) (*storage.AddLocationPayload, error) {
 	var err error

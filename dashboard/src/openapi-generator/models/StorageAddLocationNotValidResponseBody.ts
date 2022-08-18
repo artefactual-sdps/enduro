@@ -14,7 +14,7 @@
 
 import { exists, mapValues } from '../runtime';
 /**
- * add-location_not_valid_response_body result type (default view)
+ * add_location_not_valid_response_body result type (default view)
  * @export
  * @interface StorageAddLocationNotValidResponseBody
  */

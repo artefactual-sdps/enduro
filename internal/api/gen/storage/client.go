@@ -93,7 +93,7 @@ func (c *Client) Locations(ctx context.Context) (res StoredLocationCollection, e
 	return ires.(StoredLocationCollection), nil
 }
 
-// AddLocation calls the "add-location" endpoint of the "storage" service.
+// AddLocation calls the "add_location" endpoint of the "storage" service.
 // AddLocation may return the following errors:
 //   - "not_valid" (type *goa.ServiceError)
 //   - error: internal error

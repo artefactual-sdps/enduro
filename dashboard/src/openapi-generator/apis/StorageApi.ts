@@ -139,7 +139,7 @@ export interface StorageUpdateRequest {
 export interface StorageApiInterface {
     /**
      * Add a storage location
-     * @summary add-location storage
+     * @summary add_location storage
      * @param {StorageAddLocationRequestBody} addLocationRequestBody 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -149,7 +149,7 @@ export interface StorageApiInterface {
 
     /**
      * Add a storage location
-     * add-location storage
+     * add_location storage
      */
     storageAddLocation(requestParameters: StorageAddLocationRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<StorageAddLocationResponseBody>;
 
@@ -307,7 +307,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
     /**
      * Add a storage location
-     * add-location storage
+     * add_location storage
      */
     async storageAddLocationRaw(requestParameters: StorageAddLocationRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<StorageAddLocationResponseBody>> {
         if (requestParameters.addLocationRequestBody === null || requestParameters.addLocationRequestBody === undefined) {
@@ -333,7 +333,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
     /**
      * Add a storage location
-     * add-location storage
+     * add_location storage
      */
     async storageAddLocation(requestParameters: StorageAddLocationRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<StorageAddLocationResponseBody> {
         const response = await this.storageAddLocationRaw(requestParameters, initOverrides);

@@ -32,7 +32,7 @@ func LocationsStoragePath() string {
 	return "/storage/location"
 }
 
-// AddLocationStoragePath returns the URL path to the storage service add-location HTTP endpoint.
+// AddLocationStoragePath returns the URL path to the storage service add_location HTTP endpoint.
 func AddLocationStoragePath() string {
 	return "/storage/location"
 }

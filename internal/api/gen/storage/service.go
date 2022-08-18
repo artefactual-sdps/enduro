@@ -47,9 +47,9 @@ const ServiceName = "storage"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [10]string{"submit", "update", "download", "locations", "add-location", "move", "move_status", "reject", "show", "show-location"}
+var MethodNames = [10]string{"submit", "update", "download", "locations", "add_location", "move", "move_status", "reject", "show", "show-location"}
 
-// AddLocationPayload is the payload type of the storage service add-location
+// AddLocationPayload is the payload type of the storage service add_location
 // method.
 type AddLocationPayload struct {
 	Name        string
@@ -58,7 +58,7 @@ type AddLocationPayload struct {
 	Purpose     string
 }
 
-// AddLocationResult is the result type of the storage service add-location
+// AddLocationResult is the result type of the storage service add_location
 // method.
 type AddLocationResult struct {
 	UUID string

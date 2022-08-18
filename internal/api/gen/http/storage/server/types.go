@@ -20,7 +20,7 @@ type SubmitRequestBody struct {
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 }
 
-// AddLocationRequestBody is the type of the "storage" service "add-location"
+// AddLocationRequestBody is the type of the "storage" service "add_location"
 // endpoint HTTP request body.
 type AddLocationRequestBody struct {
 	Name        *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
@@ -45,7 +45,7 @@ type SubmitResponseBody struct {
 // "locations" endpoint HTTP response body.
 type StoredLocationResponseCollection []*StoredLocationResponse
 
-// AddLocationResponseBody is the type of the "storage" service "add-location"
+// AddLocationResponseBody is the type of the "storage" service "add_location"
 // endpoint HTTP response body.
 type AddLocationResponseBody struct {
 	UUID string `form:"uuid" json:"uuid" xml:"uuid"`
@@ -164,7 +164,7 @@ type DownloadNotFoundResponseBody struct {
 }
 
 // AddLocationNotValidResponseBody is the type of the "storage" service
-// "add-location" endpoint HTTP response body for the "not_valid" error.
+// "add_location" endpoint HTTP response body for the "not_valid" error.
 type AddLocationNotValidResponseBody struct {
 	// Name is the name of this class of errors.
 	Name string `form:"name" json:"name" xml:"name"`
@@ -349,7 +349,7 @@ func NewStoredLocationResponseCollection(res storageviews.StoredLocationCollecti
 }
 
 // NewAddLocationResponseBody builds the HTTP response body from the result of
-// the "add-location" endpoint of the "storage" service.
+// the "add_location" endpoint of the "storage" service.
 func NewAddLocationResponseBody(res *storage.AddLocationResult) *AddLocationResponseBody {
 	body := &AddLocationResponseBody{
 		UUID: res.UUID,
@@ -459,7 +459,7 @@ func NewDownloadNotFoundResponseBody(res *storage.StoragePackageNotfound) *Downl
 }
 
 // NewAddLocationNotValidResponseBody builds the HTTP response body from the
-// result of the "add-location" endpoint of the "storage" service.
+// result of the "add_location" endpoint of the "storage" service.
 func NewAddLocationNotValidResponseBody(res *goa.ServiceError) *AddLocationNotValidResponseBody {
 	body := &AddLocationNotValidResponseBody{
 		Name:      res.Name,
@@ -618,7 +618,7 @@ func NewDownloadPayload(aipID string) *storage.DownloadPayload {
 	return v
 }
 
-// NewAddLocationPayload builds a storage service add-location endpoint payload.
+// NewAddLocationPayload builds a storage service add_location endpoint payload.
 func NewAddLocationPayload(body *AddLocationRequestBody) *storage.AddLocationPayload {
 	v := &storage.AddLocationPayload{
 		Name:        *body.Name,
@@ -682,7 +682,7 @@ func ValidateSubmitRequestBody(body *SubmitRequestBody) (err error) {
 }
 
 // ValidateAddLocationRequestBody runs the validations defined on
-// Add-LocationRequestBody
+// add_location_request_body
 func ValidateAddLocationRequestBody(body *AddLocationRequestBody) (err error) {
 	if body.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))

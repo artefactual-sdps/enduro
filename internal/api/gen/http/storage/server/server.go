@@ -336,7 +336,7 @@ func NewLocationsHandler(
 }
 
 // MountAddLocationHandler configures the mux to serve the "storage" service
-// "add-location" endpoint.
+// "add_location" endpoint.
 func MountAddLocationHandler(mux goahttp.Muxer, h http.Handler) {
 	f, ok := HandleStorageOrigin(h).(http.HandlerFunc)
 	if !ok {
@@ -348,7 +348,7 @@ func MountAddLocationHandler(mux goahttp.Muxer, h http.Handler) {
 }
 
 // NewAddLocationHandler creates a HTTP handler which loads the HTTP request
-// and calls the "storage" service "add-location" endpoint.
+// and calls the "storage" service "add_location" endpoint.
 func NewAddLocationHandler(
 	endpoint goa.Endpoint,
 	mux goahttp.Muxer,
@@ -364,7 +364,7 @@ func NewAddLocationHandler(
 	)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
-		ctx = context.WithValue(ctx, goa.MethodKey, "add-location")
+		ctx = context.WithValue(ctx, goa.MethodKey, "add_location")
 		ctx = context.WithValue(ctx, goa.ServiceKey, "storage")
 		payload, err := decodeRequest(r)
 		if err != nil {
