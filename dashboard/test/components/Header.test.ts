@@ -1,5 +1,5 @@
 import Header from "@/components/Header.vue";
-import { useStateStore } from "@/stores/state";
+import { useLayoutStore } from "@/stores/layout";
 import { createTestingPinia } from "@pinia/testing";
 import { cleanup, fireEvent, render } from "@testing-library/vue";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -14,7 +14,7 @@ describe("Header.vue", () => {
           createTestingPinia({
             createSpy: vi.fn,
             initialState: {
-              state: {
+              layout: {
                 sidebarCollapsed: false,
               },
             },
@@ -24,21 +24,21 @@ describe("Header.vue", () => {
       },
     });
 
-    const stateStore = useStateStore();
+    const layoutStore = useLayoutStore();
 
     const expandButton = getByRole("button", {
       name: "Collapse navigation",
     });
 
     await fireEvent.click(expandButton);
-    expect(stateStore.sidebarCollapsed).toEqual(true);
+    expect(layoutStore.sidebarCollapsed).toEqual(true);
 
     const collapseButton = getByRole("button", {
       name: "Expand navigation",
     });
 
     await fireEvent.click(collapseButton);
-    expect(stateStore.sidebarCollapsed).toEqual(false);
+    expect(layoutStore.sidebarCollapsed).toEqual(false);
   });
 
   it("displays the breadcrumb navigation", async () => {
@@ -48,7 +48,7 @@ describe("Header.vue", () => {
           createTestingPinia({
             createSpy: vi.fn,
             initialState: {
-              state: { breadcrumb: [{ text: "Packages" }] },
+              layout: { breadcrumb: [{ text: "Packages" }] },
             },
           }),
         ],

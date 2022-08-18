@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useStateStore } from "@/stores/state";
+import { useLayoutStore } from "@/stores/layout";
 import RawIconBundleLine from "~icons/clarity/bundle-line?raw&width=2em&height=2em";
 import RawIconRackServerLine from "~icons/clarity/rack-server-line?raw&width=2em&height=2em";
 
@@ -8,13 +8,13 @@ const menuItems = [
   { routeName: "locations", icon: RawIconRackServerLine, text: "Locations" },
 ];
 
-const stateStore = useStateStore();
+const layoutStore = useLayoutStore();
 </script>
 
 <template>
   <div
     class="sidebar offcanvas-md offcanvas-start d-flex bg-light"
-    :class="stateStore.sidebarCollapsed ? 'collapsed' : ''"
+    :class="layoutStore.sidebarCollapsed ? 'collapsed' : ''"
     tabindex="-1"
     id="menu-offcanvas"
     aria-labelledby="offcanvasLabel"
@@ -44,7 +44,7 @@ const stateStore = useStateStore();
                   <div
                     class="d-flex p-0 col-3 justify-content-end"
                     :class="
-                      stateStore.sidebarCollapsed
+                      layoutStore.sidebarCollapsed
                         ? 'col-md-12 justify-content-md-center'
                         : ''
                     "
@@ -54,7 +54,7 @@ const stateStore = useStateStore();
                   <div
                     class="col-9 d-flex align-items-center"
                     :class="
-                      stateStore.sidebarCollapsed
+                      layoutStore.sidebarCollapsed
                         ? 'col-md-12 justify-content-md-center pt-md-2'
                         : ''
                     "

@@ -1,25 +1,25 @@
-import { useStateStore } from "../../src/stores/state";
+import { useLayoutStore } from "../../src/stores/layout";
 import { setActivePinia, createPinia } from "pinia";
 import { expect, describe, it, beforeEach } from "vitest";
 
-describe("useStateStore", () => {
+describe("useLayoutStore", () => {
   beforeEach(() => {
     setActivePinia(createPinia());
   });
 
   it("toggles the sidebarCollapsed property", () => {
-    const stateStore = useStateStore();
-    stateStore.sidebarCollapsed = false;
+    const layoutStore = useLayoutStore();
+    layoutStore.sidebarCollapsed = false;
 
-    stateStore.toggleSidebar();
-    expect(stateStore.sidebarCollapsed).toEqual(true);
+    layoutStore.toggleSidebar();
+    expect(layoutStore.sidebarCollapsed).toEqual(true);
   });
 
   it("updates the breadcrumb property", () => {
-    const stateStore = useStateStore();
+    const layoutStore = useLayoutStore();
     const breadcrumb = [{ text: "Packages" }];
 
-    stateStore.updateBreadcrumb(breadcrumb);
-    expect(stateStore.breadcrumb).toEqual(breadcrumb);
+    layoutStore.updateBreadcrumb(breadcrumb);
+    expect(layoutStore.breadcrumb).toEqual(breadcrumb);
   });
 });

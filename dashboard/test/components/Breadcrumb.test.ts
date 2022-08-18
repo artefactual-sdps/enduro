@@ -14,7 +14,7 @@ describe("Breadcrumb.vue", () => {
           createTestingPinia({
             createSpy: vi.fn,
             initialState: {
-              state: {
+              layout: {
                 breadcrumb: [
                   { routeName: "packages", text: "Packages" },
                   { text: "Package.zip" },

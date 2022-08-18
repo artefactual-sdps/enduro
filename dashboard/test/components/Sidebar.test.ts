@@ -1,5 +1,5 @@
 import Sidebar from "@/components/Sidebar.vue";
-import { useStateStore } from "@/stores/state";
+import { useLayoutStore } from "@/stores/layout";
 import { createTestingPinia } from "@pinia/testing";
 import { cleanup, fireEvent, render } from "@testing-library/vue";
 import { flushPromises } from "@vue/test-utils";
@@ -17,7 +17,7 @@ describe("Sidebar.vue", () => {
           createTestingPinia({
             createSpy: vi.fn,
             initialState: {
-              state: {
+              layout: {
                 sidebarCollapsed: false,
               },
             },
@@ -53,7 +53,7 @@ describe("Sidebar.vue", () => {
           createTestingPinia({
             createSpy: vi.fn,
             initialState: {
-              state: {
+              layout: {
                 sidebarCollapsed: false,
               },
             },
@@ -62,15 +62,15 @@ describe("Sidebar.vue", () => {
       },
     });
 
-    const stateStore = useStateStore();
-    stateStore.sidebarCollapsed = true;
+    const layoutStore = useLayoutStore();
+    layoutStore.sidebarCollapsed = true;
     await nextTick();
 
     expect(container.firstElementChild?.getAttribute("class")).toContain(
       "collapsed"
     );
 
-    stateStore.sidebarCollapsed = false;
+    layoutStore.sidebarCollapsed = false;
     await nextTick();
 
     expect(container.firstElementChild?.getAttribute("class")).not.toContain(

@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import Breadcrumb from "@/components/Breadcrumb.vue";
-import { useStateStore } from "@/stores/state";
+import { useLayoutStore } from "@/stores/layout";
 import Offcanvas from "bootstrap/js/dist/offcanvas";
 import { onMounted } from "vue";
 import IconMenuLine from "~icons/clarity/menu-line";
 
-const stateStore = useStateStore();
+const layoutStore = useLayoutStore();
 
 const offcanvas = $ref<HTMLElement | null>(null);
 
@@ -38,11 +38,11 @@ onMounted(() => {
       <button
         type="button"
         class="btn btn-link text-decoration-none p-3 d-none d-md-block"
-        :class="stateStore.sidebarCollapsed ? 'sidebar-collapsed' : ''"
+        :class="layoutStore.sidebarCollapsed ? 'sidebar-collapsed' : ''"
         :aria-label="
-          (stateStore.sidebarCollapsed ? 'Expand' : 'Collapse') + ' navigation'
+          (layoutStore.sidebarCollapsed ? 'Expand' : 'Collapse') + ' navigation'
         "
-        @click="stateStore.toggleSidebar()"
+        @click="layoutStore.toggleSidebar()"
       >
         <IconMenuLine
           class="text-dark mx-1"
@@ -53,7 +53,7 @@ onMounted(() => {
 
       <router-link
         class="navbar-brand h1 mb-0 me-auto p-3 px-2 text-primary text-decoration-none d-flex align-items-center"
-        :class="stateStore.sidebarCollapsed ? '' : 'ms-2'"
+        :class="layoutStore.sidebarCollapsed ? '' : 'ms-2'"
         :to="{ name: 'index' }"
       >
         <img src="/logo.png" alt="" height="30" class="me-2" />
