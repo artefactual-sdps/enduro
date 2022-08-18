@@ -1,9 +1,13 @@
 <script setup lang="ts">
 import { useLayoutStore } from "@/stores/layout";
+import { useStorageStore } from "@/stores/storage";
 import IconRackServerLine from "~icons/clarity/rack-server-line";
 
 const layoutStore = useLayoutStore();
 layoutStore.updateBreadcrumb([{ text: "Locations" }]);
+
+const storageStore = useStorageStore();
+storageStore.fetchLocations();
 </script>
 
 <template>
@@ -23,7 +27,16 @@ layoutStore.updateBreadcrumb([{ text: "Locations" }]);
             <th scope="col">UUID</th>
           </tr>
         </thead>
-        <tbody></tbody>
+        <tbody>
+          <tr v-for="(item, index) in storageStore.locations">
+            <td>{{ item.name }}</td>
+            <td>{{ $filters.getLocationSourceLabel(item.source) }}</td>
+            <td>{{ $filters.getLocationPurposeLabel(item.purpose) }}</td>
+            <td></td>
+            <td></td>
+            <td>{{ item.uuid }}</td>
+          </tr>
+        </tbody>
       </table>
     </div>
   </div>

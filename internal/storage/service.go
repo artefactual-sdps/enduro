@@ -16,6 +16,7 @@ import (
 	"gocloud.dev/blob"
 
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
+	"github.com/artefactual-sdps/enduro/internal/ref"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence"
 	"github.com/artefactual-sdps/enduro/internal/storage/purpose"
 	"github.com/artefactual-sdps/enduro/internal/storage/source"
@@ -168,8 +169,12 @@ func (s *serviceImpl) Locations(context.Context) (goastorage.StoredLocationColle
 	res := []*goastorage.StoredLocation{}
 	for i, item := range s.config.Locations {
 		l := &goastorage.StoredLocation{
-			ID:   uint(i + 1),
-			Name: item.Name,
+			ID:          uint(i + 1),
+			Name:        item.Name,
+			Description: ref.New(""),
+			Source:      source.LocationSourceMinIO.String(),
+			Purpose:     purpose.LocationPurposeAIPStore.String(),
+			UUID:        ref.New(""),
 		}
 		res = append(res, l)
 	}
