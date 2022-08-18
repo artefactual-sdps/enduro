@@ -30,6 +30,14 @@ type StoredStoragePackage struct {
 	View string
 }
 
+// StoredLocation is the viewed result type that is projected based on a view.
+type StoredLocation struct {
+	// Type to project
+	Projected *StoredLocationView
+	// View to render
+	View string
+}
+
 // StoredLocationCollectionView is a type that runs validations on a projected
 // type.
 type StoredLocationCollectionView []*StoredLocationView
@@ -114,6 +122,18 @@ func ValidateStoredStoragePackage(result *StoredStoragePackage) (err error) {
 	switch result.View {
 	case "default", "":
 		err = ValidateStoredStoragePackageView(result.Projected)
+	default:
+		err = goa.InvalidEnumValueError("view", result.View, []interface{}{"default"})
+	}
+	return
+}
+
+// ValidateStoredLocation runs the validations defined on the viewed result
+// type StoredLocation.
+func ValidateStoredLocation(result *StoredLocation) (err error) {
+	switch result.View {
+	case "default", "":
+		err = ValidateStoredLocationView(result.Projected)
 	default:
 		err = goa.InvalidEnumValueError("view", result.View, []interface{}{"default"})
 	}

@@ -200,6 +200,21 @@ func (mr *MockServiceMockRecorder) Show(arg0, arg1 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Show", reflect.TypeOf((*MockService)(nil).Show), arg0, arg1)
 }
 
+// ShowLocation mocks base method.
+func (m *MockService) ShowLocation(arg0 context.Context, arg1 *storage.ShowLocationPayload) (*storage.StoredLocation, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ShowLocation", arg0, arg1)
+	ret0, _ := ret[0].(*storage.StoredLocation)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ShowLocation indicates an expected call of ShowLocation.
+func (mr *MockServiceMockRecorder) ShowLocation(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ShowLocation", reflect.TypeOf((*MockService)(nil).ShowLocation), arg0, arg1)
+}
+
 // Submit mocks base method.
 func (m *MockService) Submit(arg0 context.Context, arg1 *storage.SubmitPayload) (*storage.SubmitResult, error) {
 	m.ctrl.T.Helper()

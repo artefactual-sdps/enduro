@@ -84,6 +84,21 @@ func (mr *MockStorageMockRecorder) ListPackages(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListPackages", reflect.TypeOf((*MockStorage)(nil).ListPackages), arg0)
 }
 
+// ReadLocation mocks base method.
+func (m *MockStorage) ReadLocation(arg0 context.Context, arg1 uuid.UUID) (*storage.StoredLocation, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ReadLocation", arg0, arg1)
+	ret0, _ := ret[0].(*storage.StoredLocation)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ReadLocation indicates an expected call of ReadLocation.
+func (mr *MockStorageMockRecorder) ReadLocation(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadLocation", reflect.TypeOf((*MockStorage)(nil).ReadLocation), arg0, arg1)
+}
+
 // ReadPackage mocks base method.
 func (m *MockStorage) ReadPackage(arg0 context.Context, arg1 uuid.UUID) (*storage.StoredStoragePackage, error) {
 	m.ctrl.T.Helper()

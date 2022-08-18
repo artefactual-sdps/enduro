@@ -16,29 +16,31 @@ import (
 
 // Client is the "storage" service client.
 type Client struct {
-	SubmitEndpoint      goa.Endpoint
-	UpdateEndpoint      goa.Endpoint
-	DownloadEndpoint    goa.Endpoint
-	LocationsEndpoint   goa.Endpoint
-	AddLocationEndpoint goa.Endpoint
-	MoveEndpoint        goa.Endpoint
-	MoveStatusEndpoint  goa.Endpoint
-	RejectEndpoint      goa.Endpoint
-	ShowEndpoint        goa.Endpoint
+	SubmitEndpoint       goa.Endpoint
+	UpdateEndpoint       goa.Endpoint
+	DownloadEndpoint     goa.Endpoint
+	LocationsEndpoint    goa.Endpoint
+	AddLocationEndpoint  goa.Endpoint
+	MoveEndpoint         goa.Endpoint
+	MoveStatusEndpoint   goa.Endpoint
+	RejectEndpoint       goa.Endpoint
+	ShowEndpoint         goa.Endpoint
+	ShowLocationEndpoint goa.Endpoint
 }
 
 // NewClient initializes a "storage" service client given the endpoints.
-func NewClient(submit, update, download, locations, addLocation, move, moveStatus, reject, show goa.Endpoint) *Client {
+func NewClient(submit, update, download, locations, addLocation, move, moveStatus, reject, show, showLocation goa.Endpoint) *Client {
 	return &Client{
-		SubmitEndpoint:      submit,
-		UpdateEndpoint:      update,
-		DownloadEndpoint:    download,
-		LocationsEndpoint:   locations,
-		AddLocationEndpoint: addLocation,
-		MoveEndpoint:        move,
-		MoveStatusEndpoint:  moveStatus,
-		RejectEndpoint:      reject,
-		ShowEndpoint:        show,
+		SubmitEndpoint:       submit,
+		UpdateEndpoint:       update,
+		DownloadEndpoint:     download,
+		LocationsEndpoint:    locations,
+		AddLocationEndpoint:  addLocation,
+		MoveEndpoint:         move,
+		MoveStatusEndpoint:   moveStatus,
+		RejectEndpoint:       reject,
+		ShowEndpoint:         show,
+		ShowLocationEndpoint: showLocation,
 	}
 }
 
@@ -151,4 +153,17 @@ func (c *Client) Show(ctx context.Context, p *ShowPayload) (res *StoredStoragePa
 		return
 	}
 	return ires.(*StoredStoragePackage), nil
+}
+
+// ShowLocation calls the "show-location" endpoint of the "storage" service.
+// ShowLocation may return the following errors:
+//   - "not_found" (type *StorageLocationNotfound): Storage location not found
+//   - error: internal error
+func (c *Client) ShowLocation(ctx context.Context, p *ShowLocationPayload) (res *StoredLocation, err error) {
+	var ires interface{}
+	ires, err = c.ShowLocationEndpoint(ctx, p)
+	if err != nil {
+		return
+	}
+	return ires.(*StoredLocation), nil
 }

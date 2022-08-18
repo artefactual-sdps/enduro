@@ -156,3 +156,16 @@ func BuildShowPayload(storageShowAipID string) (*storage.ShowPayload, error) {
 
 	return v, nil
 }
+
+// BuildShowLocationPayload builds the payload for the storage show-location
+// endpoint from CLI flags.
+func BuildShowLocationPayload(storageShowLocationUUID string) (*storage.ShowLocationPayload, error) {
+	var uuid string
+	{
+		uuid = storageShowLocationUUID
+	}
+	v := &storage.ShowLocationPayload{}
+	v.UUID = uuid
+
+	return v, nil
+}

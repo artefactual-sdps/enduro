@@ -57,6 +57,12 @@ import {
     StorageRejectNotValidResponseBody,
     StorageRejectNotValidResponseBodyFromJSON,
     StorageRejectNotValidResponseBodyToJSON,
+    StorageShowLocationNotFoundResponseBody,
+    StorageShowLocationNotFoundResponseBodyFromJSON,
+    StorageShowLocationNotFoundResponseBodyToJSON,
+    StorageShowLocationResponseBody,
+    StorageShowLocationResponseBodyFromJSON,
+    StorageShowLocationResponseBodyToJSON,
     StorageShowNotFoundResponseBody,
     StorageShowNotFoundResponseBodyFromJSON,
     StorageShowNotFoundResponseBodyToJSON,
@@ -109,6 +115,10 @@ export interface StorageRejectRequest {
 
 export interface StorageShowRequest {
     aipId: string;
+}
+
+export interface StorageShowLocationRequest {
+    uuid: string;
 }
 
 export interface StorageSubmitRequest {
@@ -238,6 +248,22 @@ export interface StorageApiInterface {
      * show storage
      */
     storageShow(requestParameters: StorageShowRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<StorageShowResponseBody>;
+
+    /**
+     * Show location by UUID
+     * @summary show-location storage
+     * @param {string} uuid 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof StorageApiInterface
+     */
+    storageShowLocationRaw(requestParameters: StorageShowLocationRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<StorageShowLocationResponseBody>>;
+
+    /**
+     * Show location by UUID
+     * show-location storage
+     */
+    storageShowLocation(requestParameters: StorageShowLocationRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<StorageShowLocationResponseBody>;
 
     /**
      * Start the submission of a package
@@ -504,6 +530,38 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
      */
     async storageShow(requestParameters: StorageShowRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<StorageShowResponseBody> {
         const response = await this.storageShowRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Show location by UUID
+     * show-location storage
+     */
+    async storageShowLocationRaw(requestParameters: StorageShowLocationRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<StorageShowLocationResponseBody>> {
+        if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
+            throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling storageShowLocation.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const response = await this.request({
+            path: `/storage/location/{uuid}`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => StorageShowLocationResponseBodyFromJSON(jsonValue));
+    }
+
+    /**
+     * Show location by UUID
+     * show-location storage
+     */
+    async storageShowLocation(requestParameters: StorageShowLocationRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<StorageShowLocationResponseBody> {
+        const response = await this.storageShowLocationRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

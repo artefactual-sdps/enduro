@@ -182,3 +182,28 @@ func TestCreateLocation(t *testing.T) {
 	assert.Equal(t, dblocation.Purpose, purpose.LocationPurposeAIPStore)
 	assert.Equal(t, dblocation.UUID.String(), "7a090f2c-7bd4-471c-8aa1-8c72125decd5")
 }
+
+func TestReadLocation(t *testing.T) {
+	t.Parallel()
+
+	entc, c := setUpClient(t)
+
+	entc.Location.Create().
+		SetName("test_location").
+		SetDescription("location description").
+		SetSource(source.LocationSourceMinIO).
+		SetPurpose(purpose.LocationPurposeAIPStore).
+		SetUUID(uuid.MustParse("7a090f2c-7bd4-471c-8aa1-8c72125decd5")).
+		SaveX(context.Background())
+
+	l, err := c.ReadLocation(context.Background(), uuid.MustParse("7a090f2c-7bd4-471c-8aa1-8c72125decd5"))
+	assert.NilError(t, err)
+	assert.DeepEqual(t, l, &storage.StoredLocation{
+		ID:          1,
+		Name:        "test_location",
+		Description: ref.New("location description"),
+		Source:      source.LocationSourceMinIO.String(),
+		Purpose:     purpose.LocationPurposeAIPStore.String(),
+		UUID:        ref.New("7a090f2c-7bd4-471c-8aa1-8c72125decd5"),
+	})
+}

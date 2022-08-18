@@ -27,16 +27,16 @@ import (
 func UsageCommands() string {
 	return `batch (submit|status|hints)
 package (monitor|list|show|delete|cancel|retry|bulk|bulk-status|preservation-actions|confirm|reject|move|move-status)
-storage (submit|update|download|locations|add-location|move|move-status|reject|show)
+storage (submit|update|download|locations|add-location|move|move-status|reject|show|show-location)
 `
 }
 
 // UsageExamples produces an example of a valid invocation of the CLI tool.
 func UsageExamples() string {
 	return os.Args[0] + ` batch submit --body '{
-      "completed_dir": "Rerum necessitatibus recusandae id mollitia.",
-      "path": "In provident.",
-      "retention_period": "Qui molestias et qui corporis natus hic."
+      "completed_dir": "Qui molestias et qui corporis natus hic.",
+      "path": "Rerum necessitatibus recusandae id mollitia.",
+      "retention_period": "Quidem ipsum esse quisquam blanditiis ut aut."
    }'` + "\n" +
 		os.Args[0] + ` package monitor` + "\n" +
 		os.Args[0] + ` storage submit --body '{
@@ -142,6 +142,9 @@ func ParseEndpoint(
 
 		storageShowFlags     = flag.NewFlagSet("show", flag.ExitOnError)
 		storageShowAipIDFlag = storageShowFlags.String("aip-id", "REQUIRED", "")
+
+		storageShowLocationFlags    = flag.NewFlagSet("show-location", flag.ExitOnError)
+		storageShowLocationUUIDFlag = storageShowLocationFlags.String("uuid", "REQUIRED", "")
 	)
 	batchFlags.Usage = batchUsage
 	batchSubmitFlags.Usage = batchSubmitUsage
@@ -173,6 +176,7 @@ func ParseEndpoint(
 	storageMoveStatusFlags.Usage = storageMoveStatusUsage
 	storageRejectFlags.Usage = storageRejectUsage
 	storageShowFlags.Usage = storageShowUsage
+	storageShowLocationFlags.Usage = storageShowLocationUsage
 
 	if err := flag.CommandLine.Parse(os.Args[1:]); err != nil {
 		return nil, nil, err
@@ -295,6 +299,9 @@ func ParseEndpoint(
 			case "show":
 				epf = storageShowFlags
 
+			case "show-location":
+				epf = storageShowLocationFlags
+
 			}
 
 		}
@@ -403,6 +410,9 @@ func ParseEndpoint(
 			case "show":
 				endpoint = c.Show()
 				data, err = storagec.BuildShowPayload(*storageShowAipIDFlag)
+			case "show-location":
+				endpoint = c.ShowLocation()
+				data, err = storagec.BuildShowLocationPayload(*storageShowLocationUUIDFlag)
 			}
 		}
 	}
@@ -436,9 +446,9 @@ Submit a new batch
 
 Example:
     %[1]s batch submit --body '{
-      "completed_dir": "Rerum necessitatibus recusandae id mollitia.",
-      "path": "In provident.",
-      "retention_period": "Qui molestias et qui corporis natus hic."
+      "completed_dir": "Qui molestias et qui corporis natus hic.",
+      "path": "Rerum necessitatibus recusandae id mollitia.",
+      "retention_period": "Quidem ipsum esse quisquam blanditiis ut aut."
    }'
 `, os.Args[0])
 }
@@ -661,6 +671,7 @@ COMMAND:
     move-status: Retrieve the status of a permanent storage location move of the package
     reject: Reject a package
     show: Show package by AIPID
+    show-location: Show location by UUID
 
 Additional help:
     %[1]s storage COMMAND --help
@@ -772,5 +783,16 @@ Show package by AIPID
 
 Example:
     %[1]s storage show --aip-id "Magni sunt mollitia."
+`, os.Args[0])
+}
+
+func storageShowLocationUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage show-location -uuid STRING
+
+Show location by UUID
+    -uuid STRING: 
+
+Example:
+    %[1]s storage show-location --uuid "Tempora error inventore molestias animi asperiores blanditiis."
 `, os.Args[0])
 }

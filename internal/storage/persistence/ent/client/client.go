@@ -10,6 +10,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/ref"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db"
+	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/location"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/pkg"
 	"github.com/artefactual-sdps/enduro/internal/storage/purpose"
 	"github.com/artefactual-sdps/enduro/internal/storage/source"
@@ -126,6 +127,19 @@ func (c *Client) CreateLocation(ctx context.Context, name string, description *s
 		SetPurpose(purpose).
 		SetUUID(UUID).
 		Save(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return locationAsGoa(l), nil
+}
+
+func (c *Client) ReadLocation(ctx context.Context, UUID uuid.UUID) (*goastorage.StoredLocation, error) {
+	l, err := c.c.Location.Query().
+		Where(
+			location.UUID(UUID),
+		).
+		Only(ctx)
 	if err != nil {
 		return nil, err
 	}

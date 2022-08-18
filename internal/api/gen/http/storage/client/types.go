@@ -69,6 +69,22 @@ type ShowResponseBody struct {
 	Location  *string `form:"location,omitempty" json:"location,omitempty" xml:"location,omitempty"`
 }
 
+// ShowLocationResponseBody is the type of the "storage" service
+// "show-location" endpoint HTTP response body.
+type ShowLocationResponseBody struct {
+	// ID is the unique id of the location.
+	ID *uint `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Name of location
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// Description of the location
+	Description *string `form:"description,omitempty" json:"description,omitempty" xml:"description,omitempty"`
+	// Data source of the location
+	Source *string `form:"source,omitempty" json:"source,omitempty" xml:"source,omitempty"`
+	// Purpose of the location
+	Purpose *string `form:"purpose,omitempty" json:"purpose,omitempty" xml:"purpose,omitempty"`
+	UUID    *string `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
+}
+
 // SubmitNotAvailableResponseBody is the type of the "storage" service "submit"
 // endpoint HTTP response body for the "not_available" error.
 type SubmitNotAvailableResponseBody struct {
@@ -292,6 +308,15 @@ type ShowNotFoundResponseBody struct {
 	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
 	// Identifier of missing package
 	AipID *string `form:"aip_id,omitempty" json:"aip_id,omitempty" xml:"aip_id,omitempty"`
+}
+
+// ShowLocationNotFoundResponseBody is the type of the "storage" service
+// "show-location" endpoint HTTP response body for the "not_found" error.
+type ShowLocationNotFoundResponseBody struct {
+	// Message of error
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Identifier of missing location
+	UUID *string `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
 }
 
 // StoredLocationResponse is used to define fields on response body types.
@@ -588,6 +613,32 @@ func NewShowNotFound(body *ShowNotFoundResponseBody) *storage.StoragePackageNotf
 	v := &storage.StoragePackageNotfound{
 		Message: *body.Message,
 		AipID:   *body.AipID,
+	}
+
+	return v
+}
+
+// NewShowLocationStoredLocationOK builds a "storage" service "show-location"
+// endpoint result from a HTTP "OK" response.
+func NewShowLocationStoredLocationOK(body *ShowLocationResponseBody) *storageviews.StoredLocationView {
+	v := &storageviews.StoredLocationView{
+		ID:          body.ID,
+		Name:        body.Name,
+		Description: body.Description,
+		Source:      body.Source,
+		Purpose:     body.Purpose,
+		UUID:        body.UUID,
+	}
+
+	return v
+}
+
+// NewShowLocationNotFound builds a storage service show-location endpoint
+// not_found error.
+func NewShowLocationNotFound(body *ShowLocationNotFoundResponseBody) *storage.StorageLocationNotfound {
+	v := &storage.StorageLocationNotfound{
+		Message: *body.Message,
+		UUID:    *body.UUID,
 	}
 
 	return v
@@ -915,6 +966,18 @@ func ValidateShowNotFoundResponseBody(body *ShowNotFoundResponseBody) (err error
 	}
 	if body.AipID == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("aip_id", "body"))
+	}
+	return
+}
+
+// ValidateShowLocationNotFoundResponseBody runs the validations defined on
+// show-location_not_found_response_body
+func ValidateShowLocationNotFoundResponseBody(body *ShowLocationNotFoundResponseBody) (err error) {
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.UUID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("uuid", "body"))
 	}
 	return
 }

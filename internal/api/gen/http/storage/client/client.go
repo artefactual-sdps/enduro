@@ -49,6 +49,10 @@ type Client struct {
 	// Show Doer is the HTTP client used to make requests to the show endpoint.
 	ShowDoer goahttp.Doer
 
+	// ShowLocation Doer is the HTTP client used to make requests to the
+	// show-location endpoint.
+	ShowLocationDoer goahttp.Doer
+
 	// CORS Doer is the HTTP client used to make requests to the  endpoint.
 	CORSDoer goahttp.Doer
 
@@ -81,6 +85,7 @@ func NewClient(
 		MoveStatusDoer:      doer,
 		RejectDoer:          doer,
 		ShowDoer:            doer,
+		ShowLocationDoer:    doer,
 		CORSDoer:            doer,
 		RestoreResponseBody: restoreBody,
 		scheme:              scheme,
@@ -271,6 +276,25 @@ func (c *Client) Show() goa.Endpoint {
 		resp, err := c.ShowDoer.Do(req)
 		if err != nil {
 			return nil, goahttp.ErrRequestError("storage", "show", err)
+		}
+		return decodeResponse(resp)
+	}
+}
+
+// ShowLocation returns an endpoint that makes HTTP requests to the storage
+// service show-location server.
+func (c *Client) ShowLocation() goa.Endpoint {
+	var (
+		decodeResponse = DecodeShowLocationResponse(c.decoder, c.RestoreResponseBody)
+	)
+	return func(ctx context.Context, v interface{}) (interface{}, error) {
+		req, err := c.BuildShowLocationRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		resp, err := c.ShowLocationDoer.Do(req)
+		if err != nil {
+			return nil, goahttp.ErrRequestError("storage", "show-location", err)
 		}
 		return decodeResponse(resp)
 	}

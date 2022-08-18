@@ -56,3 +56,8 @@ func RejectStoragePath(aipID string) string {
 func ShowStoragePath(aipID string) string {
 	return fmt.Sprintf("/storage/package/%v", aipID)
 }
+
+// ShowLocationStoragePath returns the URL path to the storage service show-location HTTP endpoint.
+func ShowLocationStoragePath(uuid string) string {
+	return fmt.Sprintf("/storage/location/%v", uuid)
+}

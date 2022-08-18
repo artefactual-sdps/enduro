@@ -35,6 +35,7 @@ type Service interface {
 	Reject(context.Context, *goastorage.RejectPayload) (err error)
 	Show(context.Context, *goastorage.ShowPayload) (res *goastorage.StoredStoragePackage, err error)
 	AddLocation(context.Context, *goastorage.AddLocationPayload) (res *goastorage.AddLocationResult, err error)
+	ShowLocation(context.Context, *goastorage.ShowLocationPayload) (res *goastorage.StoredLocation, err error)
 
 	// Used from workflow activities.
 	Location(name string) (Location, error)
@@ -320,4 +321,24 @@ func (s *serviceImpl) AddLocation(ctx context.Context, payload *goastorage.AddLo
 	}
 
 	return &goastorage.AddLocationResult{UUID: UUID.String()}, nil
+}
+
+func (s *serviceImpl) ReadLocation(ctx context.Context, UUID string) (*goastorage.StoredLocation, error) {
+	uuid, err := uuid.Parse(UUID)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.storagePersistence.ReadLocation(ctx, uuid)
+}
+
+func (s *serviceImpl) ShowLocation(ctx context.Context, payload *goastorage.ShowLocationPayload) (*goastorage.StoredLocation, error) {
+	l, err := s.ReadLocation(ctx, payload.UUID)
+	if errors.Is(err, &ent.NotFoundError{}) || errors.Is(err, &ent.NotSingularError{}) {
+		return nil, &goastorage.StorageLocationNotfound{UUID: payload.UUID, Message: "not_found"}
+	} else if err != nil {
+		return nil, goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
+	}
+
+	return l, nil
 }

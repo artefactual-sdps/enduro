@@ -151,6 +151,20 @@ var _ = Service("storage", func() {
 			Response("not_found", StatusNotFound)
 		})
 	})
+	Method("show-location", func() {
+		Description("Show location by UUID")
+		Payload(func() {
+			Attribute("uuid", String)
+			Required("uuid")
+		})
+		Result(StoredLocation)
+		Error("not_found", StorageLocationNotFound, "Storage location not found")
+		HTTP(func() {
+			GET("/location/{uuid}")
+			Response(StatusOK)
+			Response("not_found", StatusNotFound)
+		})
+	})
 })
 
 var SubmitResult = Type("SubmitResult", func() {
@@ -165,6 +179,15 @@ var StoragePackageNotFound = Type("StoragePackageNotfound", func() {
 	})
 	Attribute("aip_id", String, "Identifier of missing package")
 	Required("message", "aip_id")
+})
+
+var StorageLocationNotFound = Type("StorageLocationNotfound", func() {
+	Description("Storage location not found.")
+	Attribute("message", String, "Message of error", func() {
+		Meta("struct:error:name")
+	})
+	Attribute("uuid", String, "Identifier of missing location")
+	Required("message", "uuid")
 })
 
 var StoredLocation = ResultType("application/vnd.enduro.stored-location", func() {

@@ -68,6 +68,20 @@ type ShowResponseBody struct {
 	Location  *string `form:"location,omitempty" json:"location,omitempty" xml:"location,omitempty"`
 }
 
+// ShowLocationResponseBody is the type of the "storage" service
+// "show-location" endpoint HTTP response body.
+type ShowLocationResponseBody struct {
+	// Name of location
+	Name string `form:"name" json:"name" xml:"name"`
+	// Description of the location
+	Description *string `form:"description,omitempty" json:"description,omitempty" xml:"description,omitempty"`
+	// Data source of the location
+	Source string `form:"source" json:"source" xml:"source"`
+	// Purpose of the location
+	Purpose string  `form:"purpose" json:"purpose" xml:"purpose"`
+	UUID    *string `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
+}
+
 // SubmitNotAvailableResponseBody is the type of the "storage" service "submit"
 // endpoint HTTP response body for the "not_available" error.
 type SubmitNotAvailableResponseBody struct {
@@ -293,6 +307,15 @@ type ShowNotFoundResponseBody struct {
 	AipID string `form:"aip_id" json:"aip_id" xml:"aip_id"`
 }
 
+// ShowLocationNotFoundResponseBody is the type of the "storage" service
+// "show-location" endpoint HTTP response body for the "not_found" error.
+type ShowLocationNotFoundResponseBody struct {
+	// Message of error
+	Message string `form:"message" json:"message" xml:"message"`
+	// Identifier of missing location
+	UUID string `form:"uuid" json:"uuid" xml:"uuid"`
+}
+
 // StoredLocationResponse is used to define fields on response body types.
 type StoredLocationResponse struct {
 	// Name of location
@@ -352,6 +375,19 @@ func NewShowResponseBody(res *storageviews.StoredStoragePackageView) *ShowRespon
 		Status:    *res.Status,
 		ObjectKey: *res.ObjectKey,
 		Location:  res.Location,
+	}
+	return body
+}
+
+// NewShowLocationResponseBody builds the HTTP response body from the result of
+// the "show-location" endpoint of the "storage" service.
+func NewShowLocationResponseBody(res *storageviews.StoredLocationView) *ShowLocationResponseBody {
+	body := &ShowLocationResponseBody{
+		Name:        *res.Name,
+		Description: res.Description,
+		Source:      *res.Source,
+		Purpose:     *res.Purpose,
+		UUID:        res.UUID,
 	}
 	return body
 }
@@ -546,6 +582,16 @@ func NewShowNotFoundResponseBody(res *storage.StoragePackageNotfound) *ShowNotFo
 	return body
 }
 
+// NewShowLocationNotFoundResponseBody builds the HTTP response body from the
+// result of the "show-location" endpoint of the "storage" service.
+func NewShowLocationNotFoundResponseBody(res *storage.StorageLocationNotfound) *ShowLocationNotFoundResponseBody {
+	body := &ShowLocationNotFoundResponseBody{
+		Message: res.Message,
+		UUID:    res.UUID,
+	}
+	return body
+}
+
 // NewSubmitPayload builds a storage service submit endpoint payload.
 func NewSubmitPayload(body *SubmitRequestBody, aipID string) *storage.SubmitPayload {
 	v := &storage.SubmitPayload{
@@ -614,6 +660,15 @@ func NewRejectPayload(aipID string) *storage.RejectPayload {
 func NewShowPayload(aipID string) *storage.ShowPayload {
 	v := &storage.ShowPayload{}
 	v.AipID = aipID
+
+	return v
+}
+
+// NewShowLocationPayload builds a storage service show-location endpoint
+// payload.
+func NewShowLocationPayload(uuid string) *storage.ShowLocationPayload {
+	v := &storage.ShowLocationPayload{}
+	v.UUID = uuid
 
 	return v
 }
