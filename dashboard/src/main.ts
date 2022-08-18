@@ -65,4 +65,24 @@ app.config.globalProperties.$filters = {
         return value;
     }
   },
+  getLocationSourceLabel(value: api.StorageAddLocationRequestBodySourceEnum) {
+    switch (value) {
+      case api.StorageAddLocationRequestBodySourceEnum.Minio:
+        return "MinIO";
+      case api.StorageAddLocationRequestBodySourceEnum.Unspecified:
+        return "Unspecified";
+      default:
+        return value;
+    }
+  },
+  getLocationPurposeLabel(value: api.StorageAddLocationRequestBodyPurposeEnum) {
+    switch (value) {
+      case api.StorageAddLocationRequestBodyPurposeEnum.AipStore:
+        return "AIP Store";
+      case api.StorageAddLocationRequestBodyPurposeEnum.Unspecified:
+        return "Unspecified";
+      default:
+        return value;
+    }
+  },
 };

@@ -9,6 +9,8 @@ import (
 	reflect "reflect"
 
 	storage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
+	purpose "github.com/artefactual-sdps/enduro/internal/storage/purpose"
+	source "github.com/artefactual-sdps/enduro/internal/storage/source"
 	status "github.com/artefactual-sdps/enduro/internal/storage/status"
 	gomock "github.com/golang/mock/gomock"
 	uuid "github.com/google/uuid"
@@ -37,6 +39,21 @@ func (m *MockStorage) EXPECT() *MockStorageMockRecorder {
 	return m.recorder
 }
 
+// CreateLocation mocks base method.
+func (m *MockStorage) CreateLocation(arg0 context.Context, arg1 string, arg2 *string, arg3 source.LocationSource, arg4 purpose.LocationPurpose, arg5 uuid.UUID) (*storage.StoredLocation, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateLocation", arg0, arg1, arg2, arg3, arg4, arg5)
+	ret0, _ := ret[0].(*storage.StoredLocation)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateLocation indicates an expected call of CreateLocation.
+func (mr *MockStorageMockRecorder) CreateLocation(arg0, arg1, arg2, arg3, arg4, arg5 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateLocation", reflect.TypeOf((*MockStorage)(nil).CreateLocation), arg0, arg1, arg2, arg3, arg4, arg5)
+}
+
 // CreatePackage mocks base method.
 func (m *MockStorage) CreatePackage(arg0 context.Context, arg1 string, arg2, arg3 uuid.UUID) (*storage.StoredStoragePackage, error) {
 	m.ctrl.T.Helper()
@@ -52,6 +69,21 @@ func (mr *MockStorageMockRecorder) CreatePackage(arg0, arg1, arg2, arg3 interfac
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreatePackage", reflect.TypeOf((*MockStorage)(nil).CreatePackage), arg0, arg1, arg2, arg3)
 }
 
+// ListLocations mocks base method.
+func (m *MockStorage) ListLocations(arg0 context.Context) (storage.StoredLocationCollection, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListLocations", arg0)
+	ret0, _ := ret[0].(storage.StoredLocationCollection)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListLocations indicates an expected call of ListLocations.
+func (mr *MockStorageMockRecorder) ListLocations(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListLocations", reflect.TypeOf((*MockStorage)(nil).ListLocations), arg0)
+}
+
 // ListPackages mocks base method.
 func (m *MockStorage) ListPackages(arg0 context.Context) ([]*storage.StoredStoragePackage, error) {
 	m.ctrl.T.Helper()
@@ -65,6 +97,21 @@ func (m *MockStorage) ListPackages(arg0 context.Context) ([]*storage.StoredStora
 func (mr *MockStorageMockRecorder) ListPackages(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListPackages", reflect.TypeOf((*MockStorage)(nil).ListPackages), arg0)
+}
+
+// ReadLocation mocks base method.
+func (m *MockStorage) ReadLocation(arg0 context.Context, arg1 uuid.UUID) (*storage.StoredLocation, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ReadLocation", arg0, arg1)
+	ret0, _ := ret[0].(*storage.StoredLocation)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ReadLocation indicates an expected call of ReadLocation.
+func (mr *MockStorageMockRecorder) ReadLocation(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadLocation", reflect.TypeOf((*MockStorage)(nil).ReadLocation), arg0, arg1)
 }
 
 // ReadPackage mocks base method.

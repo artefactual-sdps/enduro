@@ -294,11 +294,13 @@ func main() {
 			storageHttpClient.Submit(),
 			storageHttpClient.Update(),
 			storageHttpClient.Download(),
-			storageHttpClient.List(),
+			storageHttpClient.Locations(),
+			storageHttpClient.AddLocation(),
 			storageHttpClient.Move(),
 			storageHttpClient.MoveStatus(),
 			storageHttpClient.Reject(),
 			storageHttpClient.Show(),
+			storageHttpClient.ShowLocation(),
 		)
 		w.RegisterActivityWithOptions(activities.NewMoveToPermanentStorageActivity(storageClient).Execute, temporalsdk_activity.RegisterOptions{Name: activities.MoveToPermanentStorageActivityName})
 		w.RegisterActivityWithOptions(activities.NewPollMoveToPermanentStorageActivity(storageClient).Execute, temporalsdk_activity.RegisterOptions{Name: activities.PollMoveToPermanentStorageActivityName})

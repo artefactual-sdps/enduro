@@ -7,9 +7,13 @@ import (
 	"github.com/google/uuid"
 
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
+	"github.com/artefactual-sdps/enduro/internal/ref"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db"
+	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/location"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/pkg"
+	"github.com/artefactual-sdps/enduro/internal/storage/purpose"
+	"github.com/artefactual-sdps/enduro/internal/storage/source"
 	"github.com/artefactual-sdps/enduro/internal/storage/status"
 )
 
@@ -36,7 +40,7 @@ func (c *Client) CreatePackage(ctx context.Context, name string, AIPID uuid.UUID
 		return nil, err
 	}
 
-	return asGoa(pkg), nil
+	return pkgAsGoa(ctx, pkg), nil
 }
 
 func (c *Client) ListPackages(ctx context.Context) ([]*goastorage.StoredStoragePackage, error) {
@@ -44,7 +48,7 @@ func (c *Client) ListPackages(ctx context.Context) ([]*goastorage.StoredStorageP
 
 	res, err := c.c.Pkg.Query().All(ctx)
 	for _, item := range res {
-		pkgs = append(pkgs, asGoa(item))
+		pkgs = append(pkgs, pkgAsGoa(ctx, item))
 	}
 
 	return pkgs, err
@@ -60,7 +64,7 @@ func (c *Client) ReadPackage(ctx context.Context, AIPID uuid.UUID) (*goastorage.
 		return nil, err
 	}
 
-	return asGoa(pkg), nil
+	return pkgAsGoa(ctx, pkg), nil
 }
 
 func (c *Client) UpdatePackageStatus(ctx context.Context, status status.PackageStatus, AIPID uuid.UUID) error {
@@ -81,12 +85,22 @@ func (c *Client) UpdatePackageStatus(ctx context.Context, status status.PackageS
 	return nil
 }
 
-func (c *Client) UpdatePackageLocation(ctx context.Context, location string, aipID uuid.UUID) error {
+func (c *Client) UpdatePackageLocation(ctx context.Context, locationName string, aipID uuid.UUID) error {
+	l, err := c.c.Location.Query().
+		Where(
+			// TODO: switch to look by UUID
+			location.Name(locationName),
+		).
+		Only(ctx)
+	if err != nil {
+		return err
+	}
+
 	n, err := c.c.Pkg.Update().
 		Where(
 			pkg.AipID(aipID),
 		).
-		SetLocation(location).
+		SetLocation(l).
 		Save(ctx)
 	if err != nil {
 		return err
@@ -99,7 +113,7 @@ func (c *Client) UpdatePackageLocation(ctx context.Context, location string, aip
 	return nil
 }
 
-func asGoa(pkg *db.Pkg) *goastorage.StoredStoragePackage {
+func pkgAsGoa(ctx context.Context, pkg *db.Pkg) *goastorage.StoredStoragePackage {
 	p := &goastorage.StoredStoragePackage{
 		ID:        uint(pkg.ID),
 		Name:      pkg.Name,
@@ -108,9 +122,67 @@ func asGoa(pkg *db.Pkg) *goastorage.StoredStoragePackage {
 		ObjectKey: pkg.ObjectKey.String(),
 	}
 
-	if pkg.Location != "" {
-		p.Location = &pkg.Location
+	l, err := pkg.QueryLocation().Only(ctx)
+	if err == nil {
+		// TODO: switch to location UUID
+		p.Location = &l.Name
 	}
 
 	return p
+}
+
+func (c *Client) CreateLocation(ctx context.Context, name string, description *string, source source.LocationSource, purpose purpose.LocationPurpose, UUID uuid.UUID) (*goastorage.StoredLocation, error) {
+	var d string
+	if description != nil {
+		d = *description
+	}
+	l, err := c.c.Location.Create().
+		SetName(name).
+		SetDescription(d).
+		SetSource(source).
+		SetPurpose(purpose).
+		SetUUID(UUID).
+		Save(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return locationAsGoa(ctx, l), nil
+}
+
+func (c *Client) ListLocations(ctx context.Context) (goastorage.StoredLocationCollection, error) {
+	locations := []*goastorage.StoredLocation{}
+
+	res, err := c.c.Location.Query().All(ctx)
+	for _, item := range res {
+		locations = append(locations, locationAsGoa(ctx, item))
+	}
+
+	return locations, err
+}
+
+func (c *Client) ReadLocation(ctx context.Context, UUID uuid.UUID) (*goastorage.StoredLocation, error) {
+	l, err := c.c.Location.Query().
+		Where(
+			location.UUID(UUID),
+		).
+		Only(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return locationAsGoa(ctx, l), nil
+}
+
+func locationAsGoa(ctx context.Context, loc *db.Location) *goastorage.StoredLocation {
+	l := &goastorage.StoredLocation{
+		ID:          uint(loc.ID),
+		Name:        loc.Name,
+		Description: &loc.Description,
+		Source:      loc.Source.String(),
+		Purpose:     loc.Purpose.String(),
+		UUID:        ref.New(loc.UUID.String()),
+	}
+
+	return l
 }

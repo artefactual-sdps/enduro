@@ -30,6 +30,14 @@ type StoredStoragePackage struct {
 	View string
 }
 
+// StoredLocation is the viewed result type that is projected based on a view.
+type StoredLocation struct {
+	// Type to project
+	Projected *StoredLocationView
+	// View to render
+	View string
+}
+
 // StoredLocationCollectionView is a type that runs validations on a projected
 // type.
 type StoredLocationCollectionView []*StoredLocationView
@@ -37,9 +45,16 @@ type StoredLocationCollectionView []*StoredLocationView
 // StoredLocationView is a type that runs validations on a projected type.
 type StoredLocationView struct {
 	// ID is the unique id of the location.
-	ID *string
+	ID *uint
 	// Name of location
 	Name *string
+	// Description of the location
+	Description *string
+	// Data source of the location
+	Source *string
+	// Purpose of the location
+	Purpose *string
+	UUID    *string
 }
 
 // StoredStoragePackageView is a type that runs validations on a projected type.
@@ -58,8 +73,11 @@ var (
 	// StoredLocationCollection by view name.
 	StoredLocationCollectionMap = map[string][]string{
 		"default": {
-			"id",
 			"name",
+			"description",
+			"source",
+			"purpose",
+			"uuid",
 		},
 	}
 	// StoredStoragePackageMap is a map indexing the attribute names of
@@ -77,8 +95,11 @@ var (
 	// view name.
 	StoredLocationMap = map[string][]string{
 		"default": {
-			"id",
 			"name",
+			"description",
+			"source",
+			"purpose",
+			"uuid",
 		},
 	}
 )
@@ -107,6 +128,18 @@ func ValidateStoredStoragePackage(result *StoredStoragePackage) (err error) {
 	return
 }
 
+// ValidateStoredLocation runs the validations defined on the viewed result
+// type StoredLocation.
+func ValidateStoredLocation(result *StoredLocation) (err error) {
+	switch result.View {
+	case "default", "":
+		err = ValidateStoredLocationView(result.Projected)
+	default:
+		err = goa.InvalidEnumValueError("view", result.View, []interface{}{"default"})
+	}
+	return
+}
+
 // ValidateStoredLocationCollectionView runs the validations defined on
 // StoredLocationCollectionView using the "default" view.
 func ValidateStoredLocationCollectionView(result StoredLocationCollectionView) (err error) {
@@ -121,11 +154,24 @@ func ValidateStoredLocationCollectionView(result StoredLocationCollectionView) (
 // ValidateStoredLocationView runs the validations defined on
 // StoredLocationView using the "default" view.
 func ValidateStoredLocationView(result *StoredLocationView) (err error) {
-	if result.ID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("id", "result"))
-	}
 	if result.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("name", "result"))
+	}
+	if result.Source == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("source", "result"))
+	}
+	if result.Purpose == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("purpose", "result"))
+	}
+	if result.Source != nil {
+		if !(*result.Source == "unspecified" || *result.Source == "minio") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.source", *result.Source, []interface{}{"unspecified", "minio"}))
+		}
+	}
+	if result.Purpose != nil {
+		if !(*result.Purpose == "unspecified" || *result.Purpose == "aip_store") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.purpose", *result.Purpose, []interface{}{"unspecified", "aip_store"}))
+		}
 	}
 	return
 }
@@ -146,8 +192,8 @@ func ValidateStoredStoragePackageView(result *StoredStoragePackageView) (err err
 		err = goa.MergeErrors(err, goa.MissingFieldError("object_key", "result"))
 	}
 	if result.Status != nil {
-		if !(*result.Status == "stored" || *result.Status == "rejected" || *result.Status == "in_review" || *result.Status == "unspecified") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.status", *result.Status, []interface{}{"stored", "rejected", "in_review", "unspecified"}))
+		if !(*result.Status == "unspecified" || *result.Status == "in_review" || *result.Status == "rejected" || *result.Status == "stored" || *result.Status == "moving") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.status", *result.Status, []interface{}{"unspecified", "in_review", "rejected", "stored", "moving"}))
 		}
 	}
 	return

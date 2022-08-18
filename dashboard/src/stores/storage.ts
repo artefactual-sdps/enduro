@@ -10,7 +10,7 @@ export const useStorageStore = defineStore("storage", {
     async fetchLocations() {
       this.$reset();
       try {
-        this.locations = await client.storage.storageList();
+        this.locations = await client.storage.storageLocations();
       } catch (error) {
         return error;
       }

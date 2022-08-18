@@ -72,8 +72,8 @@ func (c *Client) List(ctx context.Context, p *ListPayload) (res *ListResult, err
 
 // Show calls the "show" endpoint of the "package" service.
 // Show may return the following errors:
-//	- "not_found" (type *PackageNotfound): Package not found
-//	- error: internal error
+//   - "not_found" (type *PackageNotfound): Package not found
+//   - error: internal error
 func (c *Client) Show(ctx context.Context, p *ShowPayload) (res *EnduroStoredPackage, err error) {
 	var ires interface{}
 	ires, err = c.ShowEndpoint(ctx, p)
@@ -85,8 +85,8 @@ func (c *Client) Show(ctx context.Context, p *ShowPayload) (res *EnduroStoredPac
 
 // Delete calls the "delete" endpoint of the "package" service.
 // Delete may return the following errors:
-//	- "not_found" (type *PackageNotfound): Package not found
-//	- error: internal error
+//   - "not_found" (type *PackageNotfound): Package not found
+//   - error: internal error
 func (c *Client) Delete(ctx context.Context, p *DeletePayload) (err error) {
 	_, err = c.DeleteEndpoint(ctx, p)
 	return
@@ -94,9 +94,9 @@ func (c *Client) Delete(ctx context.Context, p *DeletePayload) (err error) {
 
 // Cancel calls the "cancel" endpoint of the "package" service.
 // Cancel may return the following errors:
-//	- "not_found" (type *PackageNotfound): Package not found
-//	- "not_running" (type *goa.ServiceError)
-//	- error: internal error
+//   - "not_found" (type *PackageNotfound): Package not found
+//   - "not_running" (type *goa.ServiceError)
+//   - error: internal error
 func (c *Client) Cancel(ctx context.Context, p *CancelPayload) (err error) {
 	_, err = c.CancelEndpoint(ctx, p)
 	return
@@ -104,9 +104,9 @@ func (c *Client) Cancel(ctx context.Context, p *CancelPayload) (err error) {
 
 // Retry calls the "retry" endpoint of the "package" service.
 // Retry may return the following errors:
-//	- "not_found" (type *PackageNotfound): Package not found
-//	- "not_running" (type *goa.ServiceError)
-//	- error: internal error
+//   - "not_found" (type *PackageNotfound): Package not found
+//   - "not_running" (type *goa.ServiceError)
+//   - error: internal error
 func (c *Client) Retry(ctx context.Context, p *RetryPayload) (err error) {
 	_, err = c.RetryEndpoint(ctx, p)
 	return
@@ -114,9 +114,9 @@ func (c *Client) Retry(ctx context.Context, p *RetryPayload) (err error) {
 
 // Bulk calls the "bulk" endpoint of the "package" service.
 // Bulk may return the following errors:
-//	- "not_available" (type *goa.ServiceError)
-//	- "not_valid" (type *goa.ServiceError)
-//	- error: internal error
+//   - "not_available" (type *goa.ServiceError)
+//   - "not_valid" (type *goa.ServiceError)
+//   - error: internal error
 func (c *Client) Bulk(ctx context.Context, p *BulkPayload) (res *BulkResult, err error) {
 	var ires interface{}
 	ires, err = c.BulkEndpoint(ctx, p)
@@ -139,8 +139,8 @@ func (c *Client) BulkStatus(ctx context.Context) (res *BulkStatusResult, err err
 // PreservationActions calls the "preservation-actions" endpoint of the
 // "package" service.
 // PreservationActions may return the following errors:
-//	- "not_found" (type *PackageNotfound): Package not found
-//	- error: internal error
+//   - "not_found" (type *PackageNotfound): Package not found
+//   - error: internal error
 func (c *Client) PreservationActions(ctx context.Context, p *PreservationActionsPayload) (res *EnduroPackagePreservationActions, err error) {
 	var ires interface{}
 	ires, err = c.PreservationActionsEndpoint(ctx, p)
@@ -152,10 +152,10 @@ func (c *Client) PreservationActions(ctx context.Context, p *PreservationActions
 
 // Confirm calls the "confirm" endpoint of the "package" service.
 // Confirm may return the following errors:
-//	- "not_found" (type *PackageNotfound): Package not found
-//	- "not_available" (type *goa.ServiceError)
-//	- "not_valid" (type *goa.ServiceError)
-//	- error: internal error
+//   - "not_found" (type *PackageNotfound): Package not found
+//   - "not_available" (type *goa.ServiceError)
+//   - "not_valid" (type *goa.ServiceError)
+//   - error: internal error
 func (c *Client) Confirm(ctx context.Context, p *ConfirmPayload) (err error) {
 	_, err = c.ConfirmEndpoint(ctx, p)
 	return
@@ -163,10 +163,10 @@ func (c *Client) Confirm(ctx context.Context, p *ConfirmPayload) (err error) {
 
 // Reject calls the "reject" endpoint of the "package" service.
 // Reject may return the following errors:
-//	- "not_found" (type *PackageNotfound): Package not found
-//	- "not_available" (type *goa.ServiceError)
-//	- "not_valid" (type *goa.ServiceError)
-//	- error: internal error
+//   - "not_found" (type *PackageNotfound): Package not found
+//   - "not_available" (type *goa.ServiceError)
+//   - "not_valid" (type *goa.ServiceError)
+//   - error: internal error
 func (c *Client) Reject(ctx context.Context, p *RejectPayload) (err error) {
 	_, err = c.RejectEndpoint(ctx, p)
 	return
@@ -174,10 +174,10 @@ func (c *Client) Reject(ctx context.Context, p *RejectPayload) (err error) {
 
 // Move calls the "move" endpoint of the "package" service.
 // Move may return the following errors:
-//	- "not_found" (type *PackageNotfound): Package not found
-//	- "not_available" (type *goa.ServiceError)
-//	- "not_valid" (type *goa.ServiceError)
-//	- error: internal error
+//   - "not_found" (type *PackageNotfound): Package not found
+//   - "not_available" (type *goa.ServiceError)
+//   - "not_valid" (type *goa.ServiceError)
+//   - error: internal error
 func (c *Client) Move(ctx context.Context, p *MovePayload) (err error) {
 	_, err = c.MoveEndpoint(ctx, p)
 	return
@@ -185,9 +185,9 @@ func (c *Client) Move(ctx context.Context, p *MovePayload) (err error) {
 
 // MoveStatus calls the "move_status" endpoint of the "package" service.
 // MoveStatus may return the following errors:
-//	- "not_found" (type *PackageNotfound): Package not found
-//	- "failed_dependency" (type *goa.ServiceError)
-//	- error: internal error
+//   - "not_found" (type *PackageNotfound): Package not found
+//   - "failed_dependency" (type *goa.ServiceError)
+//   - error: internal error
 func (c *Client) MoveStatus(ctx context.Context, p *MoveStatusPayload) (res *MoveStatusResult, err error) {
 	var ires interface{}
 	ires, err = c.MoveStatusEndpoint(ctx, p)

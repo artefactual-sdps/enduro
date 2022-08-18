@@ -10,10 +10,13 @@ import (
 	"gotest.tools/v3/assert"
 
 	"github.com/artefactual-sdps/enduro/internal/api/gen/storage"
+	"github.com/artefactual-sdps/enduro/internal/ref"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/client"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/enttest"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/pkg"
+	"github.com/artefactual-sdps/enduro/internal/storage/purpose"
+	"github.com/artefactual-sdps/enduro/internal/storage/source"
 	"github.com/artefactual-sdps/enduro/internal/storage/status"
 )
 
@@ -139,12 +142,28 @@ func TestUpdatePackageLocation(t *testing.T) {
 
 	entc, c := setUpClient(t)
 
+	l1 := entc.Location.Create().
+		SetName("perma-aips-1").
+		SetDescription("").
+		SetSource(source.LocationSourceMinIO).
+		SetPurpose(purpose.LocationPurposeAIPStore).
+		SetUUID(uuid.MustParse("af2cd8cb-6f20-41c2-ab64-225d48312ac8")).
+		SaveX(context.Background())
+
+	l2 := entc.Location.Create().
+		SetName("perma-aips-2").
+		SetDescription("").
+		SetSource(source.LocationSourceMinIO).
+		SetPurpose(purpose.LocationPurposeAIPStore).
+		SetUUID(uuid.MustParse("aef501be-b726-4d32-820d-549541d29b64")).
+		SaveX(context.Background())
+
 	p := entc.Pkg.Create().
 		SetName("Package").
 		SetAipID(uuid.MustParse("488c64cc-d89b-4916-9131-c94152dfb12e")).
 		SetObjectKey(uuid.MustParse("e2630293-a714-4787-ab6d-e68254a6fb6a")).
 		SetStatus(status.StatusStored).
-		SetLocation("perma-aips-1").
+		SetLocation(l1).
 		SaveX(context.Background())
 
 	err := c.UpdatePackageLocation(context.Background(), "perma-aips-2", p.AipID)
@@ -153,6 +172,96 @@ func TestUpdatePackageLocation(t *testing.T) {
 	entc.Pkg.Query().
 		Where(
 			pkg.ID(p.ID),
-			pkg.Location("perma-aips-2"),
+			pkg.LocationID(l2.ID),
 		).OnlyX(context.Background())
+}
+
+func TestCreateLocation(t *testing.T) {
+	t.Parallel()
+
+	entc, c := setUpClient(t)
+
+	l, err := c.CreateLocation(
+		context.Background(),
+		"test_location",
+		ref.New("location description"),
+		source.LocationSourceMinIO,
+		purpose.LocationPurposeAIPStore,
+		uuid.MustParse("7a090f2c-7bd4-471c-8aa1-8c72125decd5"),
+	)
+	assert.NilError(t, err)
+
+	dblocation := entc.Location.GetX(context.Background(), int(l.ID))
+	assert.Equal(t, dblocation.Name, "test_location")
+	assert.Equal(t, dblocation.Description, "location description")
+	assert.Equal(t, dblocation.Source, source.LocationSourceMinIO)
+	assert.Equal(t, dblocation.Purpose, purpose.LocationPurposeAIPStore)
+	assert.Equal(t, dblocation.UUID.String(), "7a090f2c-7bd4-471c-8aa1-8c72125decd5")
+}
+
+func TestListLocations(t *testing.T) {
+	t.Parallel()
+
+	entc, c := setUpClient(t)
+
+	entc.Location.Create().
+		SetName("Location").
+		SetDescription("location").
+		SetSource(source.LocationSourceMinIO).
+		SetPurpose(purpose.LocationPurposeAIPStore).
+		SetUUID(uuid.MustParse("021f7ac2-5b0b-4620-b574-21f6a206cff3")).
+		SaveX(context.Background())
+	entc.Location.Create().
+		SetName("Another Location").
+		SetDescription("another location").
+		SetSource(source.LocationSourceMinIO).
+		SetPurpose(purpose.LocationPurposeAIPStore).
+		SetUUID(uuid.MustParse("7ba9a118-a662-4047-8547-64bc752b91c6")).
+		SaveX(context.Background())
+
+	locations, err := c.ListLocations(context.Background())
+	assert.NilError(t, err)
+	assert.DeepEqual(t, locations, storage.StoredLocationCollection{
+		{
+			ID:          1,
+			Name:        "Location",
+			Description: ref.New("location"),
+			Source:      "minio",
+			Purpose:     "aip_store",
+			UUID:        ref.New("021f7ac2-5b0b-4620-b574-21f6a206cff3"),
+		},
+		{
+			ID:          2,
+			Name:        "Another Location",
+			Description: ref.New("another location"),
+			Source:      "minio",
+			Purpose:     "aip_store",
+			UUID:        ref.New("7ba9a118-a662-4047-8547-64bc752b91c6"),
+		},
+	})
+}
+
+func TestReadLocation(t *testing.T) {
+	t.Parallel()
+
+	entc, c := setUpClient(t)
+
+	entc.Location.Create().
+		SetName("test_location").
+		SetDescription("location description").
+		SetSource(source.LocationSourceMinIO).
+		SetPurpose(purpose.LocationPurposeAIPStore).
+		SetUUID(uuid.MustParse("7a090f2c-7bd4-471c-8aa1-8c72125decd5")).
+		SaveX(context.Background())
+
+	l, err := c.ReadLocation(context.Background(), uuid.MustParse("7a090f2c-7bd4-471c-8aa1-8c72125decd5"))
+	assert.NilError(t, err)
+	assert.DeepEqual(t, l, &storage.StoredLocation{
+		ID:          1,
+		Name:        "test_location",
+		Description: ref.New("location description"),
+		Source:      source.LocationSourceMinIO.String(),
+		Purpose:     purpose.LocationPurposeAIPStore.String(),
+		UUID:        ref.New("7a090f2c-7bd4-471c-8aa1-8c72125decd5"),
+	})
 }

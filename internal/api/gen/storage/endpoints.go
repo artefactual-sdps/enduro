@@ -16,27 +16,31 @@ import (
 
 // Endpoints wraps the "storage" service endpoints.
 type Endpoints struct {
-	Submit     goa.Endpoint
-	Update     goa.Endpoint
-	Download   goa.Endpoint
-	List       goa.Endpoint
-	Move       goa.Endpoint
-	MoveStatus goa.Endpoint
-	Reject     goa.Endpoint
-	Show       goa.Endpoint
+	Submit       goa.Endpoint
+	Update       goa.Endpoint
+	Download     goa.Endpoint
+	Locations    goa.Endpoint
+	AddLocation  goa.Endpoint
+	Move         goa.Endpoint
+	MoveStatus   goa.Endpoint
+	Reject       goa.Endpoint
+	Show         goa.Endpoint
+	ShowLocation goa.Endpoint
 }
 
 // NewEndpoints wraps the methods of the "storage" service with endpoints.
 func NewEndpoints(s Service) *Endpoints {
 	return &Endpoints{
-		Submit:     NewSubmitEndpoint(s),
-		Update:     NewUpdateEndpoint(s),
-		Download:   NewDownloadEndpoint(s),
-		List:       NewListEndpoint(s),
-		Move:       NewMoveEndpoint(s),
-		MoveStatus: NewMoveStatusEndpoint(s),
-		Reject:     NewRejectEndpoint(s),
-		Show:       NewShowEndpoint(s),
+		Submit:       NewSubmitEndpoint(s),
+		Update:       NewUpdateEndpoint(s),
+		Download:     NewDownloadEndpoint(s),
+		Locations:    NewLocationsEndpoint(s),
+		AddLocation:  NewAddLocationEndpoint(s),
+		Move:         NewMoveEndpoint(s),
+		MoveStatus:   NewMoveStatusEndpoint(s),
+		Reject:       NewRejectEndpoint(s),
+		Show:         NewShowEndpoint(s),
+		ShowLocation: NewShowLocationEndpoint(s),
 	}
 }
 
@@ -45,11 +49,13 @@ func (e *Endpoints) Use(m func(goa.Endpoint) goa.Endpoint) {
 	e.Submit = m(e.Submit)
 	e.Update = m(e.Update)
 	e.Download = m(e.Download)
-	e.List = m(e.List)
+	e.Locations = m(e.Locations)
+	e.AddLocation = m(e.AddLocation)
 	e.Move = m(e.Move)
 	e.MoveStatus = m(e.MoveStatus)
 	e.Reject = m(e.Reject)
 	e.Show = m(e.Show)
+	e.ShowLocation = m(e.ShowLocation)
 }
 
 // NewSubmitEndpoint returns an endpoint function that calls the method
@@ -79,16 +85,25 @@ func NewDownloadEndpoint(s Service) goa.Endpoint {
 	}
 }
 
-// NewListEndpoint returns an endpoint function that calls the method "list" of
-// service "storage".
-func NewListEndpoint(s Service) goa.Endpoint {
+// NewLocationsEndpoint returns an endpoint function that calls the method
+// "locations" of service "storage".
+func NewLocationsEndpoint(s Service) goa.Endpoint {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
-		res, err := s.List(ctx)
+		res, err := s.Locations(ctx)
 		if err != nil {
 			return nil, err
 		}
 		vres := NewViewedStoredLocationCollection(res, "default")
 		return vres, nil
+	}
+}
+
+// NewAddLocationEndpoint returns an endpoint function that calls the method
+// "add_location" of service "storage".
+func NewAddLocationEndpoint(s Service) goa.Endpoint {
+	return func(ctx context.Context, req interface{}) (interface{}, error) {
+		p := req.(*AddLocationPayload)
+		return s.AddLocation(ctx, p)
 	}
 }
 
@@ -129,6 +144,20 @@ func NewShowEndpoint(s Service) goa.Endpoint {
 			return nil, err
 		}
 		vres := NewViewedStoredStoragePackage(res, "default")
+		return vres, nil
+	}
+}
+
+// NewShowLocationEndpoint returns an endpoint function that calls the method
+// "show-location" of service "storage".
+func NewShowLocationEndpoint(s Service) goa.Endpoint {
+	return func(ctx context.Context, req interface{}) (interface{}, error) {
+		p := req.(*ShowLocationPayload)
+		res, err := s.ShowLocation(ctx, p)
+		if err != nil {
+			return nil, err
+		}
+		vres := NewViewedStoredLocation(res, "default")
 		return vres, nil
 	}
 }

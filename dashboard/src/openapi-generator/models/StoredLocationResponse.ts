@@ -20,18 +20,56 @@ import { exists, mapValues } from '../runtime';
  */
 export interface StoredLocationResponse {
     /**
-     * ID is the unique id of the location.
+     * Description of the location
      * @type {string}
      * @memberof StoredLocationResponse
      */
-    id: string;
+    description?: string;
     /**
      * Name of location
      * @type {string}
      * @memberof StoredLocationResponse
      */
     name: string;
+    /**
+     * Purpose of the location
+     * @type {string}
+     * @memberof StoredLocationResponse
+     */
+    purpose: StoredLocationResponsePurposeEnum;
+    /**
+     * Data source of the location
+     * @type {string}
+     * @memberof StoredLocationResponse
+     */
+    source: StoredLocationResponseSourceEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof StoredLocationResponse
+     */
+    uuid?: string;
 }
+
+
+/**
+ * @export
+ */
+export const StoredLocationResponsePurposeEnum = {
+    Unspecified: 'unspecified',
+    AipStore: 'aip_store'
+} as const;
+export type StoredLocationResponsePurposeEnum = typeof StoredLocationResponsePurposeEnum[keyof typeof StoredLocationResponsePurposeEnum];
+
+/**
+ * @export
+ */
+export const StoredLocationResponseSourceEnum = {
+    Unspecified: 'unspecified',
+    Minio: 'minio'
+} as const;
+export type StoredLocationResponseSourceEnum = typeof StoredLocationResponseSourceEnum[keyof typeof StoredLocationResponseSourceEnum];
+
 
 export function StoredLocationResponseFromJSON(json: any): StoredLocationResponse {
     return StoredLocationResponseFromJSONTyped(json, false);
@@ -43,8 +81,11 @@ export function StoredLocationResponseFromJSONTyped(json: any, ignoreDiscriminat
     }
     return {
         
-        'id': json['id'],
+        'description': !exists(json, 'description') ? undefined : json['description'],
         'name': json['name'],
+        'purpose': json['purpose'],
+        'source': json['source'],
+        'uuid': !exists(json, 'uuid') ? undefined : json['uuid'],
     };
 }
 
@@ -57,8 +98,11 @@ export function StoredLocationResponseToJSON(value?: StoredLocationResponse | nu
     }
     return {
         
-        'id': value.id,
+        'description': value.description,
         'name': value.name,
+        'purpose': value.purpose,
+        'source': value.source,
+        'uuid': value.uuid,
     };
 }
 

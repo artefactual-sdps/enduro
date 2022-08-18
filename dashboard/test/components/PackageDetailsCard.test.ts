@@ -37,7 +37,7 @@ describe("PackageDetailsCard.vue", () => {
 
     // Then we observe that the component download function is executed.
     expect(window.open).toBeCalledWith(
-      "///api/storage/89229d18-5554-4e0d-8c4e-d0d88afd3bae/download",
+      "///api/storage/package/89229d18-5554-4e0d-8c4e-d0d88afd3bae/download",
       "_blank"
     );
   });

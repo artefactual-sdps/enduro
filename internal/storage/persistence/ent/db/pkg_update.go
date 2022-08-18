@@ -10,6 +10,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/location"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/pkg"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/predicate"
 	"github.com/artefactual-sdps/enduro/internal/storage/status"
@@ -41,23 +42,23 @@ func (pu *PkgUpdate) SetAipID(u uuid.UUID) *PkgUpdate {
 	return pu
 }
 
-// SetLocation sets the "location" field.
-func (pu *PkgUpdate) SetLocation(s string) *PkgUpdate {
-	pu.mutation.SetLocation(s)
+// SetLocationID sets the "location_id" field.
+func (pu *PkgUpdate) SetLocationID(i int) *PkgUpdate {
+	pu.mutation.SetLocationID(i)
 	return pu
 }
 
-// SetNillableLocation sets the "location" field if the given value is not nil.
-func (pu *PkgUpdate) SetNillableLocation(s *string) *PkgUpdate {
-	if s != nil {
-		pu.SetLocation(*s)
+// SetNillableLocationID sets the "location_id" field if the given value is not nil.
+func (pu *PkgUpdate) SetNillableLocationID(i *int) *PkgUpdate {
+	if i != nil {
+		pu.SetLocationID(*i)
 	}
 	return pu
 }
 
-// ClearLocation clears the value of the "location" field.
-func (pu *PkgUpdate) ClearLocation() *PkgUpdate {
-	pu.mutation.ClearLocation()
+// ClearLocationID clears the value of the "location_id" field.
+func (pu *PkgUpdate) ClearLocationID() *PkgUpdate {
+	pu.mutation.ClearLocationID()
 	return pu
 }
 
@@ -73,9 +74,20 @@ func (pu *PkgUpdate) SetObjectKey(u uuid.UUID) *PkgUpdate {
 	return pu
 }
 
+// SetLocation sets the "location" edge to the Location entity.
+func (pu *PkgUpdate) SetLocation(l *Location) *PkgUpdate {
+	return pu.SetLocationID(l.ID)
+}
+
 // Mutation returns the PkgMutation object of the builder.
 func (pu *PkgUpdate) Mutation() *PkgMutation {
 	return pu.mutation
+}
+
+// ClearLocation clears the "location" edge to the Location entity.
+func (pu *PkgUpdate) ClearLocation() *PkgUpdate {
+	pu.mutation.ClearLocation()
+	return pu
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -180,19 +192,6 @@ func (pu *PkgUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: pkg.FieldAipID,
 		})
 	}
-	if value, ok := pu.mutation.Location(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: pkg.FieldLocation,
-		})
-	}
-	if pu.mutation.LocationCleared() {
-		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Column: pkg.FieldLocation,
-		})
-	}
 	if value, ok := pu.mutation.Status(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeEnum,
@@ -206,6 +205,41 @@ func (pu *PkgUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Value:  value,
 			Column: pkg.FieldObjectKey,
 		})
+	}
+	if pu.mutation.LocationCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   pkg.LocationTable,
+			Columns: []string{pkg.LocationColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: location.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := pu.mutation.LocationIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   pkg.LocationTable,
+			Columns: []string{pkg.LocationColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: location.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, pu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -238,23 +272,23 @@ func (puo *PkgUpdateOne) SetAipID(u uuid.UUID) *PkgUpdateOne {
 	return puo
 }
 
-// SetLocation sets the "location" field.
-func (puo *PkgUpdateOne) SetLocation(s string) *PkgUpdateOne {
-	puo.mutation.SetLocation(s)
+// SetLocationID sets the "location_id" field.
+func (puo *PkgUpdateOne) SetLocationID(i int) *PkgUpdateOne {
+	puo.mutation.SetLocationID(i)
 	return puo
 }
 
-// SetNillableLocation sets the "location" field if the given value is not nil.
-func (puo *PkgUpdateOne) SetNillableLocation(s *string) *PkgUpdateOne {
-	if s != nil {
-		puo.SetLocation(*s)
+// SetNillableLocationID sets the "location_id" field if the given value is not nil.
+func (puo *PkgUpdateOne) SetNillableLocationID(i *int) *PkgUpdateOne {
+	if i != nil {
+		puo.SetLocationID(*i)
 	}
 	return puo
 }
 
-// ClearLocation clears the value of the "location" field.
-func (puo *PkgUpdateOne) ClearLocation() *PkgUpdateOne {
-	puo.mutation.ClearLocation()
+// ClearLocationID clears the value of the "location_id" field.
+func (puo *PkgUpdateOne) ClearLocationID() *PkgUpdateOne {
+	puo.mutation.ClearLocationID()
 	return puo
 }
 
@@ -270,9 +304,20 @@ func (puo *PkgUpdateOne) SetObjectKey(u uuid.UUID) *PkgUpdateOne {
 	return puo
 }
 
+// SetLocation sets the "location" edge to the Location entity.
+func (puo *PkgUpdateOne) SetLocation(l *Location) *PkgUpdateOne {
+	return puo.SetLocationID(l.ID)
+}
+
 // Mutation returns the PkgMutation object of the builder.
 func (puo *PkgUpdateOne) Mutation() *PkgMutation {
 	return puo.mutation
+}
+
+// ClearLocation clears the "location" edge to the Location entity.
+func (puo *PkgUpdateOne) ClearLocation() *PkgUpdateOne {
+	puo.mutation.ClearLocation()
+	return puo
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
@@ -407,19 +452,6 @@ func (puo *PkgUpdateOne) sqlSave(ctx context.Context) (_node *Pkg, err error) {
 			Column: pkg.FieldAipID,
 		})
 	}
-	if value, ok := puo.mutation.Location(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: pkg.FieldLocation,
-		})
-	}
-	if puo.mutation.LocationCleared() {
-		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Column: pkg.FieldLocation,
-		})
-	}
 	if value, ok := puo.mutation.Status(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeEnum,
@@ -433,6 +465,41 @@ func (puo *PkgUpdateOne) sqlSave(ctx context.Context) (_node *Pkg, err error) {
 			Value:  value,
 			Column: pkg.FieldObjectKey,
 		})
+	}
+	if puo.mutation.LocationCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   pkg.LocationTable,
+			Columns: []string{pkg.LocationColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: location.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := puo.mutation.LocationIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   pkg.LocationTable,
+			Columns: []string{pkg.LocationColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: location.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &Pkg{config: puo.config}
 	_spec.Assign = _node.assignValues

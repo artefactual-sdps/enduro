@@ -16,7 +16,10 @@ import (
 	"gocloud.dev/blob"
 
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
+	"github.com/artefactual-sdps/enduro/internal/ref"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence"
+	"github.com/artefactual-sdps/enduro/internal/storage/purpose"
+	"github.com/artefactual-sdps/enduro/internal/storage/source"
 	"github.com/artefactual-sdps/enduro/internal/storage/status"
 )
 
@@ -27,11 +30,13 @@ type Service interface {
 	Submit(context.Context, *goastorage.SubmitPayload) (res *goastorage.SubmitResult, err error)
 	Update(context.Context, *goastorage.UpdatePayload) (err error)
 	Download(context.Context, *goastorage.DownloadPayload) ([]byte, error)
-	List(context.Context) (res goastorage.StoredLocationCollection, err error)
+	Locations(context.Context) (res goastorage.StoredLocationCollection, err error)
 	Move(context.Context, *goastorage.MovePayload) (err error)
 	MoveStatus(context.Context, *goastorage.MoveStatusPayload) (res *goastorage.MoveStatusResult, err error)
 	Reject(context.Context, *goastorage.RejectPayload) (err error)
 	Show(context.Context, *goastorage.ShowPayload) (res *goastorage.StoredStoragePackage, err error)
+	AddLocation(context.Context, *goastorage.AddLocationPayload) (res *goastorage.AddLocationResult, err error)
+	ShowLocation(context.Context, *goastorage.ShowLocationPayload) (res *goastorage.StoredLocation, err error)
 
 	// Used from workflow activities.
 	Location(name string) (Location, error)
@@ -160,12 +165,16 @@ func (s *serviceImpl) Download(ctx context.Context, payload *goastorage.Download
 	return []byte{}, nil
 }
 
-func (s *serviceImpl) List(context.Context) (goastorage.StoredLocationCollection, error) {
+func (s *serviceImpl) Locations(context.Context) (goastorage.StoredLocationCollection, error) {
 	res := []*goastorage.StoredLocation{}
-	for _, item := range s.config.Locations {
+	for i, item := range s.config.Locations {
 		l := &goastorage.StoredLocation{
-			ID:   item.Name,
-			Name: item.Name,
+			ID:          uint(i + 1),
+			Name:        item.Name,
+			Description: ref.New(""),
+			Source:      source.LocationSourceMinIO.String(),
+			Purpose:     purpose.LocationPurposeAIPStore.String(),
+			UUID:        ref.New(""),
 		}
 		res = append(res, l)
 	}
@@ -304,4 +313,37 @@ func (s *serviceImpl) PackageReader(ctx context.Context, pkg *goastorage.StoredS
 	}
 
 	return reader, nil
+}
+
+func (s *serviceImpl) AddLocation(ctx context.Context, payload *goastorage.AddLocationPayload) (res *goastorage.AddLocationResult, err error) {
+	source := source.NewLocationSource(payload.Source)
+	purpose := purpose.NewLocationPurpose(payload.Purpose)
+	UUID := uuid.New()
+
+	_, err = s.storagePersistence.CreateLocation(ctx, payload.Name, payload.Description, source, purpose, UUID)
+	if err != nil {
+		return nil, goastorage.MakeNotValid(errors.New("cannot persist location"))
+	}
+
+	return &goastorage.AddLocationResult{UUID: UUID.String()}, nil
+}
+
+func (s *serviceImpl) ReadLocation(ctx context.Context, UUID string) (*goastorage.StoredLocation, error) {
+	uuid, err := uuid.Parse(UUID)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.storagePersistence.ReadLocation(ctx, uuid)
+}
+
+func (s *serviceImpl) ShowLocation(ctx context.Context, payload *goastorage.ShowLocationPayload) (*goastorage.StoredLocation, error) {
+	l, err := s.ReadLocation(ctx, payload.UUID)
+	if errors.Is(err, &ent.NotFoundError{}) || errors.Is(err, &ent.NotSingularError{}) {
+		return nil, &goastorage.StorageLocationNotfound{UUID: payload.UUID, Message: "not_found"}
+	} else if err != nil {
+		return nil, goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
+	}
+
+	return l, nil
 }

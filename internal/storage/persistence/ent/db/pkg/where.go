@@ -4,6 +4,7 @@ package pkg
 
 import (
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/predicate"
 	"github.com/artefactual-sdps/enduro/internal/storage/status"
 	"github.com/google/uuid"
@@ -94,10 +95,10 @@ func AipID(v uuid.UUID) predicate.Pkg {
 	})
 }
 
-// Location applies equality check predicate on the "location" field. It's identical to LocationEQ.
-func Location(v string) predicate.Pkg {
+// LocationID applies equality check predicate on the "location_id" field. It's identical to LocationIDEQ.
+func LocationID(v int) predicate.Pkg {
 	return predicate.Pkg(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldLocation), v))
+		s.Where(sql.EQ(s.C(FieldLocationID), v))
 	})
 }
 
@@ -295,22 +296,22 @@ func AipIDLTE(v uuid.UUID) predicate.Pkg {
 	})
 }
 
-// LocationEQ applies the EQ predicate on the "location" field.
-func LocationEQ(v string) predicate.Pkg {
+// LocationIDEQ applies the EQ predicate on the "location_id" field.
+func LocationIDEQ(v int) predicate.Pkg {
 	return predicate.Pkg(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldLocation), v))
+		s.Where(sql.EQ(s.C(FieldLocationID), v))
 	})
 }
 
-// LocationNEQ applies the NEQ predicate on the "location" field.
-func LocationNEQ(v string) predicate.Pkg {
+// LocationIDNEQ applies the NEQ predicate on the "location_id" field.
+func LocationIDNEQ(v int) predicate.Pkg {
 	return predicate.Pkg(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldLocation), v))
+		s.Where(sql.NEQ(s.C(FieldLocationID), v))
 	})
 }
 
-// LocationIn applies the In predicate on the "location" field.
-func LocationIn(vs ...string) predicate.Pkg {
+// LocationIDIn applies the In predicate on the "location_id" field.
+func LocationIDIn(vs ...int) predicate.Pkg {
 	v := make([]interface{}, len(vs))
 	for i := range v {
 		v[i] = vs[i]
@@ -322,12 +323,12 @@ func LocationIn(vs ...string) predicate.Pkg {
 			s.Where(sql.False())
 			return
 		}
-		s.Where(sql.In(s.C(FieldLocation), v...))
+		s.Where(sql.In(s.C(FieldLocationID), v...))
 	})
 }
 
-// LocationNotIn applies the NotIn predicate on the "location" field.
-func LocationNotIn(vs ...string) predicate.Pkg {
+// LocationIDNotIn applies the NotIn predicate on the "location_id" field.
+func LocationIDNotIn(vs ...int) predicate.Pkg {
 	v := make([]interface{}, len(vs))
 	for i := range v {
 		v[i] = vs[i]
@@ -339,84 +340,21 @@ func LocationNotIn(vs ...string) predicate.Pkg {
 			s.Where(sql.False())
 			return
 		}
-		s.Where(sql.NotIn(s.C(FieldLocation), v...))
+		s.Where(sql.NotIn(s.C(FieldLocationID), v...))
 	})
 }
 
-// LocationGT applies the GT predicate on the "location" field.
-func LocationGT(v string) predicate.Pkg {
+// LocationIDIsNil applies the IsNil predicate on the "location_id" field.
+func LocationIDIsNil() predicate.Pkg {
 	return predicate.Pkg(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldLocation), v))
+		s.Where(sql.IsNull(s.C(FieldLocationID)))
 	})
 }
 
-// LocationGTE applies the GTE predicate on the "location" field.
-func LocationGTE(v string) predicate.Pkg {
+// LocationIDNotNil applies the NotNil predicate on the "location_id" field.
+func LocationIDNotNil() predicate.Pkg {
 	return predicate.Pkg(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldLocation), v))
-	})
-}
-
-// LocationLT applies the LT predicate on the "location" field.
-func LocationLT(v string) predicate.Pkg {
-	return predicate.Pkg(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldLocation), v))
-	})
-}
-
-// LocationLTE applies the LTE predicate on the "location" field.
-func LocationLTE(v string) predicate.Pkg {
-	return predicate.Pkg(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldLocation), v))
-	})
-}
-
-// LocationContains applies the Contains predicate on the "location" field.
-func LocationContains(v string) predicate.Pkg {
-	return predicate.Pkg(func(s *sql.Selector) {
-		s.Where(sql.Contains(s.C(FieldLocation), v))
-	})
-}
-
-// LocationHasPrefix applies the HasPrefix predicate on the "location" field.
-func LocationHasPrefix(v string) predicate.Pkg {
-	return predicate.Pkg(func(s *sql.Selector) {
-		s.Where(sql.HasPrefix(s.C(FieldLocation), v))
-	})
-}
-
-// LocationHasSuffix applies the HasSuffix predicate on the "location" field.
-func LocationHasSuffix(v string) predicate.Pkg {
-	return predicate.Pkg(func(s *sql.Selector) {
-		s.Where(sql.HasSuffix(s.C(FieldLocation), v))
-	})
-}
-
-// LocationIsNil applies the IsNil predicate on the "location" field.
-func LocationIsNil() predicate.Pkg {
-	return predicate.Pkg(func(s *sql.Selector) {
-		s.Where(sql.IsNull(s.C(FieldLocation)))
-	})
-}
-
-// LocationNotNil applies the NotNil predicate on the "location" field.
-func LocationNotNil() predicate.Pkg {
-	return predicate.Pkg(func(s *sql.Selector) {
-		s.Where(sql.NotNull(s.C(FieldLocation)))
-	})
-}
-
-// LocationEqualFold applies the EqualFold predicate on the "location" field.
-func LocationEqualFold(v string) predicate.Pkg {
-	return predicate.Pkg(func(s *sql.Selector) {
-		s.Where(sql.EqualFold(s.C(FieldLocation), v))
-	})
-}
-
-// LocationContainsFold applies the ContainsFold predicate on the "location" field.
-func LocationContainsFold(v string) predicate.Pkg {
-	return predicate.Pkg(func(s *sql.Selector) {
-		s.Where(sql.ContainsFold(s.C(FieldLocation), v))
+		s.Where(sql.NotNull(s.C(FieldLocationID)))
 	})
 }
 
@@ -541,6 +479,34 @@ func ObjectKeyLT(v uuid.UUID) predicate.Pkg {
 func ObjectKeyLTE(v uuid.UUID) predicate.Pkg {
 	return predicate.Pkg(func(s *sql.Selector) {
 		s.Where(sql.LTE(s.C(FieldObjectKey), v))
+	})
+}
+
+// HasLocation applies the HasEdge predicate on the "location" edge.
+func HasLocation() predicate.Pkg {
+	return predicate.Pkg(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(LocationTable, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, LocationTable, LocationColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasLocationWith applies the HasEdge predicate on the "location" edge with a given conditions (other predicates).
+func HasLocationWith(preds ...predicate.Location) predicate.Pkg {
+	return predicate.Pkg(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(LocationInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, LocationTable, LocationColumn),
+		)
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
 	})
 }
 

@@ -21,7 +21,7 @@ var _ = Service("storage", func() {
 		Error("not_available")
 		Error("not_valid")
 		HTTP(func() {
-			POST("/{aip_id}/submit")
+			POST("/package/{aip_id}/submit")
 			Response(StatusAccepted)
 			Response("not_available", StatusConflict)
 			Response("not_valid", StatusBadRequest)
@@ -37,7 +37,7 @@ var _ = Service("storage", func() {
 		Error("not_available")
 		Error("not_valid")
 		HTTP(func() {
-			POST("/{aip_id}/update")
+			POST("/package/{aip_id}/update")
 			Response(StatusAccepted)
 			Response("not_available", StatusConflict)
 			Response("not_valid", StatusBadRequest)
@@ -52,17 +52,38 @@ var _ = Service("storage", func() {
 		Result(Bytes)
 		Error("not_found", StoragePackageNotFound, "Storage package not found")
 		HTTP(func() {
-			GET("/{aip_id}/download")
+			GET("/package/{aip_id}/download")
 			Response(StatusOK)
 			Response("not_found", StatusNotFound)
 		})
 	})
-	Method("list", func() {
+	Method("locations", func() {
 		Description("List locations")
 		Result(CollectionOf(StoredLocation), func() { View("default") })
 		HTTP(func() {
 			GET("/location")
 			Response(StatusOK)
+		})
+	})
+	Method("add_location", func() {
+		Description("Add a storage location")
+		Payload(func() {
+			Attribute("name", String)
+			Attribute("description", String)
+			Attribute("source", String, func() {
+				EnumLocationSource()
+			})
+			Attribute("purpose", String, func() {
+				EnumLocationPurpose()
+			})
+			Required("name", "source", "purpose")
+		})
+		Result(AddLocationResult)
+		Error("not_valid")
+		HTTP(func() {
+			POST("/location")
+			Response(StatusCreated)
+			Response("not_valid", StatusBadRequest)
 		})
 	})
 	Method("move", func() {
@@ -76,7 +97,7 @@ var _ = Service("storage", func() {
 		Error("not_available")
 		Error("not_valid")
 		HTTP(func() {
-			POST("/{aip_id}/store")
+			POST("/package/{aip_id}/store")
 			Response(StatusAccepted)
 			Response("not_found", StatusNotFound)
 			Response("not_available", StatusConflict)
@@ -93,7 +114,7 @@ var _ = Service("storage", func() {
 		Error("not_found", StoragePackageNotFound, "Storage package not found")
 		Error("failed_dependency")
 		HTTP(func() {
-			GET("/{aip_id}/store")
+			GET("/package/{aip_id}/store")
 			Response(StatusOK)
 			Response("not_found", StatusNotFound)
 			Response("failed_dependency", StatusFailedDependency)
@@ -109,7 +130,7 @@ var _ = Service("storage", func() {
 		Error("not_available")
 		Error("not_valid")
 		HTTP(func() {
-			POST("/{aip_id}/reject")
+			POST("/package/{aip_id}/reject")
 			Response(StatusAccepted)
 			Response("not_found", StatusNotFound)
 			Response("not_available", StatusConflict)
@@ -125,7 +146,21 @@ var _ = Service("storage", func() {
 		Result(StoredStoragePackage)
 		Error("not_found", StoragePackageNotFound, "Storage package not found")
 		HTTP(func() {
-			GET("/{aip_id}")
+			GET("/package/{aip_id}")
+			Response(StatusOK)
+			Response("not_found", StatusNotFound)
+		})
+	})
+	Method("show-location", func() {
+		Description("Show location by UUID")
+		Payload(func() {
+			Attribute("uuid", String)
+			Required("uuid")
+		})
+		Result(StoredLocation)
+		Error("not_found", StorageLocationNotFound, "Storage location not found")
+		HTTP(func() {
+			GET("/location/{uuid}")
 			Response(StatusOK)
 			Response("not_found", StatusNotFound)
 		})
@@ -146,27 +181,67 @@ var StoragePackageNotFound = Type("StoragePackageNotfound", func() {
 	Required("message", "aip_id")
 })
 
+var StorageLocationNotFound = Type("StorageLocationNotfound", func() {
+	Description("Storage location not found.")
+	Attribute("message", String, "Message of error", func() {
+		Meta("struct:error:name")
+	})
+	Attribute("uuid", String, "Identifier of missing location")
+	Required("message", "uuid")
+})
+
 var StoredLocation = ResultType("application/vnd.enduro.stored-location", func() {
 	Description("A StoredLocation describes a location retrieved by the storage service.")
 	Reference(Location)
 	TypeName("StoredLocation")
 
 	Attributes(func() {
-		Attribute("id", String, "ID is the unique id of the location.")
+		Attribute("id", UInt, "ID is the unique id of the location.")
 		Field(2, "name")
+		Field(3, "description")
+		Field(4, "source")
+		Field(5, "purpose")
+		Field(6, "uuid")
 	})
 
 	View("default", func() {
-		Attribute("id")
 		Attribute("name")
+		Attribute("description")
+		Attribute("source")
+		Attribute("purpose")
+		Attribute("uuid")
 	})
 
-	Required("id", "name")
+	Required("id", "name", "source", "purpose")
 })
+
+var EnumLocationSource = func() {
+	Enum("unspecified", "minio")
+}
+
+var EnumLocationPurpose = func() {
+	Enum("unspecified", "aip_store")
+}
 
 var Location = Type("Location", func() {
 	Description("Location describes a physical entity used to store AIPs.")
+	Attribute("id", UInt)
 	Attribute("name", String, "Name of location")
+	Attribute("description", String, "Description of the location")
+	Attribute("source", String, "Data source of the location", func() {
+		EnumLocationSource()
+		Default("unspecified")
+	})
+	Attribute("purpose", String, "Purpose of the location", func() {
+		EnumLocationPurpose()
+		Default("unspecified")
+	})
+	Attribute("uuid", String)
+})
+
+var AddLocationResult = Type("AddLocationResult", func() {
+	Attribute("uuid", String)
+	Required("uuid")
 })
 
 var MoveStatusResult = Type("MoveStatusResult", func() {

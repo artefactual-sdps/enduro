@@ -17,14 +17,16 @@ import (
 
 // StorageService implements goastorage.Service.
 type StorageService struct {
-	SubmitHandler     func(ctx context.Context, req *goastorage.SubmitPayload) (res *goastorage.SubmitResult, err error)
-	UpdateHandler     func(ctx context.Context, req *goastorage.UpdatePayload) (err error)
-	DownloadHandler   func(ctx context.Context, req *goastorage.DownloadPayload) (res []byte, err error)
-	ListHandler       func(ctx context.Context) (res goastorage.StoredLocationCollection, err error)
-	MoveHandler       func(ctx context.Context, req *goastorage.MovePayload) (err error)
-	MoveStatusHandler func(ctx context.Context, req *goastorage.MoveStatusPayload) (res *goastorage.MoveStatusResult, err error)
-	RejectHandler     func(ctx context.Context, req *goastorage.RejectPayload) (err error)
-	ShowHandler       func(ctx context.Context, req *goastorage.ShowPayload) (res *goastorage.StoredStoragePackage, err error)
+	SubmitHandler       func(ctx context.Context, req *goastorage.SubmitPayload) (res *goastorage.SubmitResult, err error)
+	UpdateHandler       func(ctx context.Context, req *goastorage.UpdatePayload) (err error)
+	DownloadHandler     func(ctx context.Context, req *goastorage.DownloadPayload) (res []byte, err error)
+	LocationsHandler    func(ctx context.Context) (res goastorage.StoredLocationCollection, err error)
+	MoveHandler         func(ctx context.Context, req *goastorage.MovePayload) (err error)
+	MoveStatusHandler   func(ctx context.Context, req *goastorage.MoveStatusPayload) (res *goastorage.MoveStatusResult, err error)
+	RejectHandler       func(ctx context.Context, req *goastorage.RejectPayload) (err error)
+	ShowHandler         func(ctx context.Context, req *goastorage.ShowPayload) (res *goastorage.StoredStoragePackage, err error)
+	AddLocationHandler  func(ctx context.Context, req *goastorage.AddLocationPayload) (res *goastorage.AddLocationResult, err error)
+	ShowLocationHandler func(ctx context.Context, req *goastorage.ShowLocationPayload) (res *goastorage.StoredLocation, err error)
 }
 
 func (s StorageService) Submit(ctx context.Context, req *goastorage.SubmitPayload) (res *goastorage.SubmitResult, err error) {
@@ -39,8 +41,8 @@ func (s StorageService) Download(ctx context.Context, req *goastorage.DownloadPa
 	return s.DownloadHandler(ctx, req)
 }
 
-func (s StorageService) List(ctx context.Context) (res goastorage.StoredLocationCollection, err error) {
-	return s.ListHandler(ctx)
+func (s StorageService) Locations(ctx context.Context) (res goastorage.StoredLocationCollection, err error) {
+	return s.LocationsHandler(ctx)
 }
 
 func (s StorageService) Move(ctx context.Context, req *goastorage.MovePayload) (err error) {
@@ -57,6 +59,14 @@ func (s StorageService) Reject(ctx context.Context, req *goastorage.RejectPayloa
 
 func (s StorageService) Show(ctx context.Context, req *goastorage.ShowPayload) (res *goastorage.StoredStoragePackage, err error) {
 	return s.ShowHandler(ctx, req)
+}
+
+func (s StorageService) AddLocation(ctx context.Context, req *goastorage.AddLocationPayload) (res *goastorage.AddLocationResult, err error) {
+	return s.AddLocationHandler(ctx, req)
+}
+
+func (s StorageService) ShowLocation(ctx context.Context, req *goastorage.ShowLocationPayload) (res *goastorage.StoredLocation, err error) {
+	return s.ShowLocationHandler(ctx, req)
 }
 
 func MinIOUploadPreSignedURLHandler(t *testing.T) func(rw http.ResponseWriter, req *http.Request) {
@@ -89,11 +99,13 @@ func TestUploadActivity(t *testing.T) {
 			endpoints.Submit,
 			endpoints.Update,
 			endpoints.Download,
-			endpoints.List,
+			endpoints.Locations,
+			endpoints.AddLocation,
 			endpoints.Move,
 			endpoints.MoveStatus,
 			endpoints.Reject,
 			endpoints.Show,
+			endpoints.ShowLocation,
 		)
 
 		tmpDir := fs.NewDir(t, "", fs.WithFile("aip.7z", "contents-of-the-aip"))
@@ -128,11 +140,13 @@ func TestUploadActivity(t *testing.T) {
 			endpoints.Submit,
 			endpoints.Update,
 			endpoints.Download,
-			endpoints.List,
+			endpoints.Locations,
+			endpoints.AddLocation,
 			endpoints.Move,
 			endpoints.MoveStatus,
 			endpoints.Reject,
 			endpoints.Show,
+			endpoints.ShowLocation,
 		)
 
 		tmpDir := fs.NewDir(t, "", fs.WithFile("aip.7z", "contents-of-the-aip"))

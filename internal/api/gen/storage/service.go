@@ -24,7 +24,9 @@ type Service interface {
 	// Download package by AIPID
 	Download(context.Context, *DownloadPayload) (res []byte, err error)
 	// List locations
-	List(context.Context) (res StoredLocationCollection, err error)
+	Locations(context.Context) (res StoredLocationCollection, err error)
+	// Add a storage location
+	AddLocation(context.Context, *AddLocationPayload) (res *AddLocationResult, err error)
 	// Move a package to a permanent storage location
 	Move(context.Context, *MovePayload) (err error)
 	// Retrieve the status of a permanent storage location move of the package
@@ -33,6 +35,8 @@ type Service interface {
 	Reject(context.Context, *RejectPayload) (err error)
 	// Show package by AIPID
 	Show(context.Context, *ShowPayload) (res *StoredStoragePackage, err error)
+	// Show location by UUID
+	ShowLocation(context.Context, *ShowLocationPayload) (res *StoredLocation, err error)
 }
 
 // ServiceName is the name of the service as defined in the design. This is the
@@ -43,7 +47,22 @@ const ServiceName = "storage"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [8]string{"submit", "update", "download", "list", "move", "move_status", "reject", "show"}
+var MethodNames = [10]string{"submit", "update", "download", "locations", "add_location", "move", "move_status", "reject", "show", "show-location"}
+
+// AddLocationPayload is the payload type of the storage service add_location
+// method.
+type AddLocationPayload struct {
+	Name        string
+	Description *string
+	Source      string
+	Purpose     string
+}
+
+// AddLocationResult is the result type of the storage service add_location
+// method.
+type AddLocationResult struct {
+	UUID string
+}
 
 // DownloadPayload is the payload type of the storage service download method.
 type DownloadPayload struct {
@@ -73,9 +92,23 @@ type RejectPayload struct {
 	AipID string
 }
 
+// ShowLocationPayload is the payload type of the storage service show-location
+// method.
+type ShowLocationPayload struct {
+	UUID string
+}
+
 // ShowPayload is the payload type of the storage service show method.
 type ShowPayload struct {
 	AipID string
+}
+
+// Storage location not found.
+type StorageLocationNotfound struct {
+	// Message of error
+	Message string
+	// Identifier of missing location
+	UUID string
 }
 
 // Storage package not found.
@@ -86,15 +119,23 @@ type StoragePackageNotfound struct {
 	AipID string
 }
 
-// A StoredLocation describes a location retrieved by the storage service.
+// StoredLocation is the result type of the storage service show-location
+// method.
 type StoredLocation struct {
 	// ID is the unique id of the location.
-	ID string
+	ID uint
 	// Name of location
 	Name string
+	// Description of the location
+	Description *string
+	// Data source of the location
+	Source string
+	// Purpose of the location
+	Purpose string
+	UUID    *string
 }
 
-// StoredLocationCollection is the result type of the storage service list
+// StoredLocationCollection is the result type of the storage service locations
 // method.
 type StoredLocationCollection []*StoredLocation
 
@@ -123,6 +164,16 @@ type SubmitResult struct {
 // UpdatePayload is the payload type of the storage service update method.
 type UpdatePayload struct {
 	AipID string
+}
+
+// Error returns an error description.
+func (e *StorageLocationNotfound) Error() string {
+	return "Storage location not found."
+}
+
+// ErrorName returns "StorageLocationNotfound".
+func (e *StorageLocationNotfound) ErrorName() string {
+	return e.Message
 }
 
 // Error returns an error description.
@@ -178,6 +229,19 @@ func NewViewedStoredStoragePackage(res *StoredStoragePackage, view string) *stor
 	return &storageviews.StoredStoragePackage{Projected: p, View: "default"}
 }
 
+// NewStoredLocation initializes result type StoredLocation from viewed result
+// type StoredLocation.
+func NewStoredLocation(vres *storageviews.StoredLocation) *StoredLocation {
+	return newStoredLocation(vres.Projected)
+}
+
+// NewViewedStoredLocation initializes viewed result type StoredLocation from
+// result type StoredLocation using the given view.
+func NewViewedStoredLocation(res *StoredLocation, view string) *storageviews.StoredLocation {
+	p := newStoredLocationView(res)
+	return &storageviews.StoredLocation{Projected: p, View: "default"}
+}
+
 // newStoredLocationCollection converts projected type StoredLocationCollection
 // to service type StoredLocationCollection.
 func newStoredLocationCollection(vres storageviews.StoredLocationCollectionView) StoredLocationCollection {
@@ -202,12 +266,24 @@ func newStoredLocationCollectionView(res StoredLocationCollection) storageviews.
 // newStoredLocation converts projected type StoredLocation to service type
 // StoredLocation.
 func newStoredLocation(vres *storageviews.StoredLocationView) *StoredLocation {
-	res := &StoredLocation{}
-	if vres.ID != nil {
-		res.ID = *vres.ID
+	res := &StoredLocation{
+		Description: vres.Description,
+		UUID:        vres.UUID,
 	}
 	if vres.Name != nil {
 		res.Name = *vres.Name
+	}
+	if vres.Source != nil {
+		res.Source = *vres.Source
+	}
+	if vres.Purpose != nil {
+		res.Purpose = *vres.Purpose
+	}
+	if vres.Source == nil {
+		res.Source = "unspecified"
+	}
+	if vres.Purpose == nil {
+		res.Purpose = "unspecified"
 	}
 	return res
 }
@@ -216,8 +292,11 @@ func newStoredLocation(vres *storageviews.StoredLocationView) *StoredLocation {
 // StoredLocationView using the "default" view.
 func newStoredLocationView(res *StoredLocation) *storageviews.StoredLocationView {
 	vres := &storageviews.StoredLocationView{
-		ID:   &res.ID,
-		Name: &res.Name,
+		Name:        &res.Name,
+		Description: res.Description,
+		Source:      &res.Source,
+		Purpose:     &res.Purpose,
+		UUID:        res.UUID,
 	}
 	return vres
 }

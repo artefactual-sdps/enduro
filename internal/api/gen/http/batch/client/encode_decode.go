@@ -54,9 +54,9 @@ func EncodeSubmitRequest(encoder func(*http.Request) goahttp.Encoder) func(*http
 // submit endpoint. restoreBody controls whether the response body should be
 // restored after having been read.
 // DecodeSubmitResponse may return the following errors:
-//	- "not_available" (type *goa.ServiceError): http.StatusConflict
-//	- "not_valid" (type *goa.ServiceError): http.StatusBadRequest
-//	- error: internal error
+//   - "not_available" (type *goa.ServiceError): http.StatusConflict
+//   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
+//   - error: internal error
 func DecodeSubmitResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
 	return func(resp *http.Response) (interface{}, error) {
 		if restoreBody {
