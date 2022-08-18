@@ -120,9 +120,13 @@ func pkgAsGoa(pkg *db.Pkg) *goastorage.StoredStoragePackage {
 }
 
 func (c *Client) CreateLocation(ctx context.Context, name string, description *string, source source.LocationSource, purpose purpose.LocationPurpose, UUID uuid.UUID) (*goastorage.StoredLocation, error) {
+	var d string
+	if description != nil {
+		d = *description
+	}
 	l, err := c.c.Location.Create().
 		SetName(name).
-		SetDescription(*description).
+		SetDescription(d).
 		SetSource(source).
 		SetPurpose(purpose).
 		SetUUID(UUID).
