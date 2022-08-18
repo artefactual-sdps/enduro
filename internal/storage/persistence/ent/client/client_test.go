@@ -199,6 +199,48 @@ func TestCreateLocation(t *testing.T) {
 	assert.Equal(t, dblocation.UUID.String(), "7a090f2c-7bd4-471c-8aa1-8c72125decd5")
 }
 
+func TestListLocations(t *testing.T) {
+	t.Parallel()
+
+	entc, c := setUpClient(t)
+
+	entc.Location.Create().
+		SetName("Location").
+		SetDescription("location").
+		SetSource(source.LocationSourceMinIO).
+		SetPurpose(purpose.LocationPurposeAIPStore).
+		SetUUID(uuid.MustParse("021f7ac2-5b0b-4620-b574-21f6a206cff3")).
+		SaveX(context.Background())
+	entc.Location.Create().
+		SetName("Another Location").
+		SetDescription("another location").
+		SetSource(source.LocationSourceMinIO).
+		SetPurpose(purpose.LocationPurposeAIPStore).
+		SetUUID(uuid.MustParse("7ba9a118-a662-4047-8547-64bc752b91c6")).
+		SaveX(context.Background())
+
+	locations, err := c.ListLocations(context.Background())
+	assert.NilError(t, err)
+	assert.DeepEqual(t, locations, storage.StoredLocationCollection{
+		{
+			ID:          1,
+			Name:        "Location",
+			Description: ref.New("location"),
+			Source:      "minio",
+			Purpose:     "aip_store",
+			UUID:        ref.New("021f7ac2-5b0b-4620-b574-21f6a206cff3"),
+		},
+		{
+			ID:          2,
+			Name:        "Another Location",
+			Description: ref.New("another location"),
+			Source:      "minio",
+			Purpose:     "aip_store",
+			UUID:        ref.New("7ba9a118-a662-4047-8547-64bc752b91c6"),
+		},
+	})
+}
+
 func TestReadLocation(t *testing.T) {
 	t.Parallel()
 

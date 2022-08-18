@@ -150,6 +150,17 @@ func (c *Client) CreateLocation(ctx context.Context, name string, description *s
 	return locationAsGoa(ctx, l), nil
 }
 
+func (c *Client) ListLocations(ctx context.Context) (goastorage.StoredLocationCollection, error) {
+	locations := []*goastorage.StoredLocation{}
+
+	res, err := c.c.Location.Query().All(ctx)
+	for _, item := range res {
+		locations = append(locations, locationAsGoa(ctx, item))
+	}
+
+	return locations, err
+}
+
 func (c *Client) ReadLocation(ctx context.Context, UUID uuid.UUID) (*goastorage.StoredLocation, error) {
 	l, err := c.c.Location.Query().
 		Where(

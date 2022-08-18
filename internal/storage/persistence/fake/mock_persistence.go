@@ -69,6 +69,21 @@ func (mr *MockStorageMockRecorder) CreatePackage(arg0, arg1, arg2, arg3 interfac
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreatePackage", reflect.TypeOf((*MockStorage)(nil).CreatePackage), arg0, arg1, arg2, arg3)
 }
 
+// ListLocations mocks base method.
+func (m *MockStorage) ListLocations(arg0 context.Context) (storage.StoredLocationCollection, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListLocations", arg0)
+	ret0, _ := ret[0].(storage.StoredLocationCollection)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListLocations indicates an expected call of ListLocations.
+func (mr *MockStorageMockRecorder) ListLocations(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListLocations", reflect.TypeOf((*MockStorage)(nil).ListLocations), arg0)
+}
+
 // ListPackages mocks base method.
 func (m *MockStorage) ListPackages(arg0 context.Context) ([]*storage.StoredStoragePackage, error) {
 	m.ctrl.T.Helper()
