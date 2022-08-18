@@ -10,6 +10,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/location"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/pkg"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/predicate"
 )
@@ -23,6 +24,8 @@ type PkgQuery struct {
 	order      []OrderFunc
 	fields     []string
 	predicates []predicate.Pkg
+	// eager-loading edges.
+	withLocation *LocationQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -57,6 +60,28 @@ func (pq *PkgQuery) Unique(unique bool) *PkgQuery {
 func (pq *PkgQuery) Order(o ...OrderFunc) *PkgQuery {
 	pq.order = append(pq.order, o...)
 	return pq
+}
+
+// QueryLocation chains the current query on the "location" edge.
+func (pq *PkgQuery) QueryLocation() *LocationQuery {
+	query := &LocationQuery{config: pq.config}
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := pq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := pq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(pkg.Table, pkg.FieldID, selector),
+			sqlgraph.To(location.Table, location.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, pkg.LocationTable, pkg.LocationColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(pq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // First returns the first Pkg entity from the query.
@@ -235,16 +260,28 @@ func (pq *PkgQuery) Clone() *PkgQuery {
 		return nil
 	}
 	return &PkgQuery{
-		config:     pq.config,
-		limit:      pq.limit,
-		offset:     pq.offset,
-		order:      append([]OrderFunc{}, pq.order...),
-		predicates: append([]predicate.Pkg{}, pq.predicates...),
+		config:       pq.config,
+		limit:        pq.limit,
+		offset:       pq.offset,
+		order:        append([]OrderFunc{}, pq.order...),
+		predicates:   append([]predicate.Pkg{}, pq.predicates...),
+		withLocation: pq.withLocation.Clone(),
 		// clone intermediate query.
 		sql:    pq.sql.Clone(),
 		path:   pq.path,
 		unique: pq.unique,
 	}
+}
+
+// WithLocation tells the query-builder to eager-load the nodes that are connected to
+// the "location" edge. The optional arguments are used to configure the query builder of the edge.
+func (pq *PkgQuery) WithLocation(opts ...func(*LocationQuery)) *PkgQuery {
+	query := &LocationQuery{config: pq.config}
+	for _, opt := range opts {
+		opt(query)
+	}
+	pq.withLocation = query
+	return pq
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -313,8 +350,11 @@ func (pq *PkgQuery) prepareQuery(ctx context.Context) error {
 
 func (pq *PkgQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Pkg, error) {
 	var (
-		nodes = []*Pkg{}
-		_spec = pq.querySpec()
+		nodes       = []*Pkg{}
+		_spec       = pq.querySpec()
+		loadedTypes = [1]bool{
+			pq.withLocation != nil,
+		}
 	)
 	_spec.ScanValues = func(columns []string) ([]interface{}, error) {
 		return (*Pkg).scanValues(nil, columns)
@@ -322,6 +362,7 @@ func (pq *PkgQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Pkg, err
 	_spec.Assign = func(columns []string, values []interface{}) error {
 		node := &Pkg{config: pq.config}
 		nodes = append(nodes, node)
+		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	for i := range hooks {
@@ -333,6 +374,33 @@ func (pq *PkgQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Pkg, err
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+
+	if query := pq.withLocation; query != nil {
+		ids := make([]int, 0, len(nodes))
+		nodeids := make(map[int][]*Pkg)
+		for i := range nodes {
+			fk := nodes[i].LocationID
+			if _, ok := nodeids[fk]; !ok {
+				ids = append(ids, fk)
+			}
+			nodeids[fk] = append(nodeids[fk], nodes[i])
+		}
+		query.Where(location.IDIn(ids...))
+		neighbors, err := query.All(ctx)
+		if err != nil {
+			return nil, err
+		}
+		for _, n := range neighbors {
+			nodes, ok := nodeids[n.ID]
+			if !ok {
+				return nil, fmt.Errorf(`unexpected foreign-key "location_id" returned %v`, n.ID)
+			}
+			for i := range nodes {
+				nodes[i].Edges.Location = n
+			}
+		}
+	}
+
 	return nodes, nil
 }
 

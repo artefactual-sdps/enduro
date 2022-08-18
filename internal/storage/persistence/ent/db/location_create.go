@@ -10,6 +10,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/location"
+	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/pkg"
 	"github.com/artefactual-sdps/enduro/internal/storage/purpose"
 	"github.com/artefactual-sdps/enduro/internal/storage/source"
 	"github.com/google/uuid"
@@ -50,6 +51,21 @@ func (lc *LocationCreate) SetPurpose(pp purpose.LocationPurpose) *LocationCreate
 func (lc *LocationCreate) SetUUID(u uuid.UUID) *LocationCreate {
 	lc.mutation.SetUUID(u)
 	return lc
+}
+
+// AddPackageIDs adds the "packages" edge to the Pkg entity by IDs.
+func (lc *LocationCreate) AddPackageIDs(ids ...int) *LocationCreate {
+	lc.mutation.AddPackageIDs(ids...)
+	return lc
+}
+
+// AddPackages adds the "packages" edges to the Pkg entity.
+func (lc *LocationCreate) AddPackages(p ...*Pkg) *LocationCreate {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return lc.AddPackageIDs(ids...)
 }
 
 // Mutation returns the LocationMutation object of the builder.
@@ -219,6 +235,25 @@ func (lc *LocationCreate) createSpec() (*Location, *sqlgraph.CreateSpec) {
 			Column: location.FieldUUID,
 		})
 		_node.UUID = value
+	}
+	if nodes := lc.mutation.PackagesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   location.PackagesTable,
+			Columns: []string{location.PackagesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: pkg.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

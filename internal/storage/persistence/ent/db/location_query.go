@@ -4,6 +4,7 @@ package db
 
 import (
 	"context"
+	"database/sql/driver"
 	"fmt"
 	"math"
 
@@ -11,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/location"
+	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/pkg"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/predicate"
 )
 
@@ -23,6 +25,8 @@ type LocationQuery struct {
 	order      []OrderFunc
 	fields     []string
 	predicates []predicate.Location
+	// eager-loading edges.
+	withPackages *PkgQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -57,6 +61,28 @@ func (lq *LocationQuery) Unique(unique bool) *LocationQuery {
 func (lq *LocationQuery) Order(o ...OrderFunc) *LocationQuery {
 	lq.order = append(lq.order, o...)
 	return lq
+}
+
+// QueryPackages chains the current query on the "packages" edge.
+func (lq *LocationQuery) QueryPackages() *PkgQuery {
+	query := &PkgQuery{config: lq.config}
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := lq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := lq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(location.Table, location.FieldID, selector),
+			sqlgraph.To(pkg.Table, pkg.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, true, location.PackagesTable, location.PackagesColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(lq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // First returns the first Location entity from the query.
@@ -235,16 +261,28 @@ func (lq *LocationQuery) Clone() *LocationQuery {
 		return nil
 	}
 	return &LocationQuery{
-		config:     lq.config,
-		limit:      lq.limit,
-		offset:     lq.offset,
-		order:      append([]OrderFunc{}, lq.order...),
-		predicates: append([]predicate.Location{}, lq.predicates...),
+		config:       lq.config,
+		limit:        lq.limit,
+		offset:       lq.offset,
+		order:        append([]OrderFunc{}, lq.order...),
+		predicates:   append([]predicate.Location{}, lq.predicates...),
+		withPackages: lq.withPackages.Clone(),
 		// clone intermediate query.
 		sql:    lq.sql.Clone(),
 		path:   lq.path,
 		unique: lq.unique,
 	}
+}
+
+// WithPackages tells the query-builder to eager-load the nodes that are connected to
+// the "packages" edge. The optional arguments are used to configure the query builder of the edge.
+func (lq *LocationQuery) WithPackages(opts ...func(*PkgQuery)) *LocationQuery {
+	query := &PkgQuery{config: lq.config}
+	for _, opt := range opts {
+		opt(query)
+	}
+	lq.withPackages = query
+	return lq
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -313,8 +351,11 @@ func (lq *LocationQuery) prepareQuery(ctx context.Context) error {
 
 func (lq *LocationQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Location, error) {
 	var (
-		nodes = []*Location{}
-		_spec = lq.querySpec()
+		nodes       = []*Location{}
+		_spec       = lq.querySpec()
+		loadedTypes = [1]bool{
+			lq.withPackages != nil,
+		}
 	)
 	_spec.ScanValues = func(columns []string) ([]interface{}, error) {
 		return (*Location).scanValues(nil, columns)
@@ -322,6 +363,7 @@ func (lq *LocationQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Loc
 	_spec.Assign = func(columns []string, values []interface{}) error {
 		node := &Location{config: lq.config}
 		nodes = append(nodes, node)
+		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	for i := range hooks {
@@ -333,6 +375,32 @@ func (lq *LocationQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Loc
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+
+	if query := lq.withPackages; query != nil {
+		fks := make([]driver.Value, 0, len(nodes))
+		nodeids := make(map[int]*Location)
+		for i := range nodes {
+			fks = append(fks, nodes[i].ID)
+			nodeids[nodes[i].ID] = nodes[i]
+			nodes[i].Edges.Packages = []*Pkg{}
+		}
+		query.Where(predicate.Pkg(func(s *sql.Selector) {
+			s.Where(sql.InValues(location.PackagesColumn, fks...))
+		}))
+		neighbors, err := query.All(ctx)
+		if err != nil {
+			return nil, err
+		}
+		for _, n := range neighbors {
+			fk := n.LocationID
+			node, ok := nodeids[fk]
+			if !ok {
+				return nil, fmt.Errorf(`unexpected foreign-key "location_id" returned %v for node %v`, fk, n.ID)
+			}
+			node.Edges.Packages = append(node.Edges.Packages, n)
+		}
+	}
+
 	return nodes, nil
 }
 

@@ -35,18 +35,21 @@ const (
 // LocationMutation represents an operation that mutates the Location nodes in the graph.
 type LocationMutation struct {
 	config
-	op            Op
-	typ           string
-	id            *int
-	name          *string
-	description   *string
-	source        *source.LocationSource
-	purpose       *purpose.LocationPurpose
-	uuid          *uuid.UUID
-	clearedFields map[string]struct{}
-	done          bool
-	oldValue      func(context.Context) (*Location, error)
-	predicates    []predicate.Location
+	op              Op
+	typ             string
+	id              *int
+	name            *string
+	description     *string
+	source          *source.LocationSource
+	purpose         *purpose.LocationPurpose
+	uuid            *uuid.UUID
+	clearedFields   map[string]struct{}
+	packages        map[int]struct{}
+	removedpackages map[int]struct{}
+	clearedpackages bool
+	done            bool
+	oldValue        func(context.Context) (*Location, error)
+	predicates      []predicate.Location
 }
 
 var _ ent.Mutation = (*LocationMutation)(nil)
@@ -327,6 +330,60 @@ func (m *LocationMutation) ResetUUID() {
 	m.uuid = nil
 }
 
+// AddPackageIDs adds the "packages" edge to the Pkg entity by ids.
+func (m *LocationMutation) AddPackageIDs(ids ...int) {
+	if m.packages == nil {
+		m.packages = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.packages[ids[i]] = struct{}{}
+	}
+}
+
+// ClearPackages clears the "packages" edge to the Pkg entity.
+func (m *LocationMutation) ClearPackages() {
+	m.clearedpackages = true
+}
+
+// PackagesCleared reports if the "packages" edge to the Pkg entity was cleared.
+func (m *LocationMutation) PackagesCleared() bool {
+	return m.clearedpackages
+}
+
+// RemovePackageIDs removes the "packages" edge to the Pkg entity by IDs.
+func (m *LocationMutation) RemovePackageIDs(ids ...int) {
+	if m.removedpackages == nil {
+		m.removedpackages = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.packages, ids[i])
+		m.removedpackages[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedPackages returns the removed IDs of the "packages" edge to the Pkg entity.
+func (m *LocationMutation) RemovedPackagesIDs() (ids []int) {
+	for id := range m.removedpackages {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// PackagesIDs returns the "packages" edge IDs in the mutation.
+func (m *LocationMutation) PackagesIDs() (ids []int) {
+	for id := range m.packages {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetPackages resets all changes to the "packages" edge.
+func (m *LocationMutation) ResetPackages() {
+	m.packages = nil
+	m.clearedpackages = false
+	m.removedpackages = nil
+}
+
 // Where appends a list predicates to the LocationMutation builder.
 func (m *LocationMutation) Where(ps ...predicate.Location) {
 	m.predicates = append(m.predicates, ps...)
@@ -513,67 +570,104 @@ func (m *LocationMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *LocationMutation) AddedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.packages != nil {
+		edges = append(edges, location.EdgePackages)
+	}
 	return edges
 }
 
 // AddedIDs returns all IDs (to other nodes) that were added for the given edge
 // name in this mutation.
 func (m *LocationMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case location.EdgePackages:
+		ids := make([]ent.Value, 0, len(m.packages))
+		for id := range m.packages {
+			ids = append(ids, id)
+		}
+		return ids
+	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *LocationMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.removedpackages != nil {
+		edges = append(edges, location.EdgePackages)
+	}
 	return edges
 }
 
 // RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
 // the given name in this mutation.
 func (m *LocationMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case location.EdgePackages:
+		ids := make([]ent.Value, 0, len(m.removedpackages))
+		for id := range m.removedpackages {
+			ids = append(ids, id)
+		}
+		return ids
+	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *LocationMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.clearedpackages {
+		edges = append(edges, location.EdgePackages)
+	}
 	return edges
 }
 
 // EdgeCleared returns a boolean which indicates if the edge with the given name
 // was cleared in this mutation.
 func (m *LocationMutation) EdgeCleared(name string) bool {
+	switch name {
+	case location.EdgePackages:
+		return m.clearedpackages
+	}
 	return false
 }
 
 // ClearEdge clears the value of the edge with the given name. It returns an error
 // if that edge is not defined in the schema.
 func (m *LocationMutation) ClearEdge(name string) error {
+	switch name {
+	}
 	return fmt.Errorf("unknown Location unique edge %s", name)
 }
 
 // ResetEdge resets all changes to the edge with the given name in this mutation.
 // It returns an error if the edge is not defined in the schema.
 func (m *LocationMutation) ResetEdge(name string) error {
+	switch name {
+	case location.EdgePackages:
+		m.ResetPackages()
+		return nil
+	}
 	return fmt.Errorf("unknown Location edge %s", name)
 }
 
 // PkgMutation represents an operation that mutates the Pkg nodes in the graph.
 type PkgMutation struct {
 	config
-	op            Op
-	typ           string
-	id            *int
-	name          *string
-	aip_id        *uuid.UUID
-	location      *string
-	status        *status.PackageStatus
-	object_key    *uuid.UUID
-	clearedFields map[string]struct{}
-	done          bool
-	oldValue      func(context.Context) (*Pkg, error)
-	predicates    []predicate.Pkg
+	op              Op
+	typ             string
+	id              *int
+	name            *string
+	aip_id          *uuid.UUID
+	status          *status.PackageStatus
+	object_key      *uuid.UUID
+	clearedFields   map[string]struct{}
+	location        *int
+	clearedlocation bool
+	done            bool
+	oldValue        func(context.Context) (*Pkg, error)
+	predicates      []predicate.Pkg
 }
 
 var _ ent.Mutation = (*PkgMutation)(nil)
@@ -746,13 +840,13 @@ func (m *PkgMutation) ResetAipID() {
 	m.aip_id = nil
 }
 
-// SetLocation sets the "location" field.
-func (m *PkgMutation) SetLocation(s string) {
-	m.location = &s
+// SetLocationID sets the "location_id" field.
+func (m *PkgMutation) SetLocationID(i int) {
+	m.location = &i
 }
 
-// Location returns the value of the "location" field in the mutation.
-func (m *PkgMutation) Location() (r string, exists bool) {
+// LocationID returns the value of the "location_id" field in the mutation.
+func (m *PkgMutation) LocationID() (r int, exists bool) {
 	v := m.location
 	if v == nil {
 		return
@@ -760,39 +854,39 @@ func (m *PkgMutation) Location() (r string, exists bool) {
 	return *v, true
 }
 
-// OldLocation returns the old "location" field's value of the Pkg entity.
+// OldLocationID returns the old "location_id" field's value of the Pkg entity.
 // If the Pkg object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PkgMutation) OldLocation(ctx context.Context) (v string, err error) {
+func (m *PkgMutation) OldLocationID(ctx context.Context) (v int, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldLocation is only allowed on UpdateOne operations")
+		return v, errors.New("OldLocationID is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldLocation requires an ID field in the mutation")
+		return v, errors.New("OldLocationID requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldLocation: %w", err)
+		return v, fmt.Errorf("querying old value for OldLocationID: %w", err)
 	}
-	return oldValue.Location, nil
+	return oldValue.LocationID, nil
 }
 
-// ClearLocation clears the value of the "location" field.
-func (m *PkgMutation) ClearLocation() {
+// ClearLocationID clears the value of the "location_id" field.
+func (m *PkgMutation) ClearLocationID() {
 	m.location = nil
-	m.clearedFields[pkg.FieldLocation] = struct{}{}
+	m.clearedFields[pkg.FieldLocationID] = struct{}{}
 }
 
-// LocationCleared returns if the "location" field was cleared in this mutation.
-func (m *PkgMutation) LocationCleared() bool {
-	_, ok := m.clearedFields[pkg.FieldLocation]
+// LocationIDCleared returns if the "location_id" field was cleared in this mutation.
+func (m *PkgMutation) LocationIDCleared() bool {
+	_, ok := m.clearedFields[pkg.FieldLocationID]
 	return ok
 }
 
-// ResetLocation resets all changes to the "location" field.
-func (m *PkgMutation) ResetLocation() {
+// ResetLocationID resets all changes to the "location_id" field.
+func (m *PkgMutation) ResetLocationID() {
 	m.location = nil
-	delete(m.clearedFields, pkg.FieldLocation)
+	delete(m.clearedFields, pkg.FieldLocationID)
 }
 
 // SetStatus sets the "status" field.
@@ -867,6 +961,32 @@ func (m *PkgMutation) ResetObjectKey() {
 	m.object_key = nil
 }
 
+// ClearLocation clears the "location" edge to the Location entity.
+func (m *PkgMutation) ClearLocation() {
+	m.clearedlocation = true
+}
+
+// LocationCleared reports if the "location" edge to the Location entity was cleared.
+func (m *PkgMutation) LocationCleared() bool {
+	return m.LocationIDCleared() || m.clearedlocation
+}
+
+// LocationIDs returns the "location" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// LocationID instead. It exists only for internal usage by the builders.
+func (m *PkgMutation) LocationIDs() (ids []int) {
+	if id := m.location; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetLocation resets all changes to the "location" edge.
+func (m *PkgMutation) ResetLocation() {
+	m.location = nil
+	m.clearedlocation = false
+}
+
 // Where appends a list predicates to the PkgMutation builder.
 func (m *PkgMutation) Where(ps ...predicate.Pkg) {
 	m.predicates = append(m.predicates, ps...)
@@ -894,7 +1014,7 @@ func (m *PkgMutation) Fields() []string {
 		fields = append(fields, pkg.FieldAipID)
 	}
 	if m.location != nil {
-		fields = append(fields, pkg.FieldLocation)
+		fields = append(fields, pkg.FieldLocationID)
 	}
 	if m.status != nil {
 		fields = append(fields, pkg.FieldStatus)
@@ -914,8 +1034,8 @@ func (m *PkgMutation) Field(name string) (ent.Value, bool) {
 		return m.Name()
 	case pkg.FieldAipID:
 		return m.AipID()
-	case pkg.FieldLocation:
-		return m.Location()
+	case pkg.FieldLocationID:
+		return m.LocationID()
 	case pkg.FieldStatus:
 		return m.Status()
 	case pkg.FieldObjectKey:
@@ -933,8 +1053,8 @@ func (m *PkgMutation) OldField(ctx context.Context, name string) (ent.Value, err
 		return m.OldName(ctx)
 	case pkg.FieldAipID:
 		return m.OldAipID(ctx)
-	case pkg.FieldLocation:
-		return m.OldLocation(ctx)
+	case pkg.FieldLocationID:
+		return m.OldLocationID(ctx)
 	case pkg.FieldStatus:
 		return m.OldStatus(ctx)
 	case pkg.FieldObjectKey:
@@ -962,12 +1082,12 @@ func (m *PkgMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetAipID(v)
 		return nil
-	case pkg.FieldLocation:
-		v, ok := value.(string)
+	case pkg.FieldLocationID:
+		v, ok := value.(int)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetLocation(v)
+		m.SetLocationID(v)
 		return nil
 	case pkg.FieldStatus:
 		v, ok := value.(status.PackageStatus)
@@ -990,13 +1110,16 @@ func (m *PkgMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *PkgMutation) AddedFields() []string {
-	return nil
+	var fields []string
+	return fields
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *PkgMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	}
 	return nil, false
 }
 
@@ -1013,8 +1136,8 @@ func (m *PkgMutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *PkgMutation) ClearedFields() []string {
 	var fields []string
-	if m.FieldCleared(pkg.FieldLocation) {
-		fields = append(fields, pkg.FieldLocation)
+	if m.FieldCleared(pkg.FieldLocationID) {
+		fields = append(fields, pkg.FieldLocationID)
 	}
 	return fields
 }
@@ -1030,8 +1153,8 @@ func (m *PkgMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *PkgMutation) ClearField(name string) error {
 	switch name {
-	case pkg.FieldLocation:
-		m.ClearLocation()
+	case pkg.FieldLocationID:
+		m.ClearLocationID()
 		return nil
 	}
 	return fmt.Errorf("unknown Pkg nullable field %s", name)
@@ -1047,8 +1170,8 @@ func (m *PkgMutation) ResetField(name string) error {
 	case pkg.FieldAipID:
 		m.ResetAipID()
 		return nil
-	case pkg.FieldLocation:
-		m.ResetLocation()
+	case pkg.FieldLocationID:
+		m.ResetLocationID()
 		return nil
 	case pkg.FieldStatus:
 		m.ResetStatus()
@@ -1062,48 +1185,76 @@ func (m *PkgMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *PkgMutation) AddedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.location != nil {
+		edges = append(edges, pkg.EdgeLocation)
+	}
 	return edges
 }
 
 // AddedIDs returns all IDs (to other nodes) that were added for the given edge
 // name in this mutation.
 func (m *PkgMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case pkg.EdgeLocation:
+		if id := m.location; id != nil {
+			return []ent.Value{*id}
+		}
+	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *PkgMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
 	return edges
 }
 
 // RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
 // the given name in this mutation.
 func (m *PkgMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *PkgMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.clearedlocation {
+		edges = append(edges, pkg.EdgeLocation)
+	}
 	return edges
 }
 
 // EdgeCleared returns a boolean which indicates if the edge with the given name
 // was cleared in this mutation.
 func (m *PkgMutation) EdgeCleared(name string) bool {
+	switch name {
+	case pkg.EdgeLocation:
+		return m.clearedlocation
+	}
 	return false
 }
 
 // ClearEdge clears the value of the edge with the given name. It returns an error
 // if that edge is not defined in the schema.
 func (m *PkgMutation) ClearEdge(name string) error {
+	switch name {
+	case pkg.EdgeLocation:
+		m.ClearLocation()
+		return nil
+	}
 	return fmt.Errorf("unknown Pkg unique edge %s", name)
 }
 
 // ResetEdge resets all changes to the edge with the given name in this mutation.
 // It returns an error if the edge is not defined in the schema.
 func (m *PkgMutation) ResetEdge(name string) error {
+	switch name {
+	case pkg.EdgeLocation:
+		m.ResetLocation()
+		return nil
+	}
 	return fmt.Errorf("unknown Pkg edge %s", name)
 }

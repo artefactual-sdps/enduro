@@ -44,15 +44,23 @@ var (
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "name", Type: field.TypeString, Size: 2048},
 		{Name: "aip_id", Type: field.TypeUUID},
-		{Name: "location", Type: field.TypeString, Nullable: true, Size: 2048},
 		{Name: "status", Type: field.TypeEnum, Enums: []string{"unspecified", "in_review", "rejected", "stored", "moving"}},
 		{Name: "object_key", Type: field.TypeUUID},
+		{Name: "location_id", Type: field.TypeInt, Nullable: true},
 	}
 	// PackageTable holds the schema information for the "package" table.
 	PackageTable = &schema.Table{
 		Name:       "package",
 		Columns:    PackageColumns,
 		PrimaryKey: []*schema.Column{PackageColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "package_location_location",
+				Columns:    []*schema.Column{PackageColumns[5]},
+				RefColumns: []*schema.Column{LocationColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
 		Indexes: []*schema.Index{
 			{
 				Name:    "pkg_aip_id",
@@ -60,17 +68,9 @@ var (
 				Columns: []*schema.Column{PackageColumns[2]},
 			},
 			{
-				Name:    "pkg_location",
-				Unique:  false,
-				Columns: []*schema.Column{PackageColumns[3]},
-				Annotation: &entsql.IndexAnnotation{
-					Prefix: 50,
-				},
-			},
-			{
 				Name:    "pkg_object_key",
 				Unique:  false,
-				Columns: []*schema.Column{PackageColumns[5]},
+				Columns: []*schema.Column{PackageColumns[4]},
 			},
 		},
 	}
@@ -85,6 +85,7 @@ func init() {
 	LocationTable.Annotation = &entsql.Annotation{
 		Table: "location",
 	}
+	PackageTable.ForeignKeys[0].RefTable = LocationTable
 	PackageTable.Annotation = &entsql.Annotation{
 		Table: "package",
 	}

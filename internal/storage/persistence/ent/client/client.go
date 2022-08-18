@@ -40,7 +40,7 @@ func (c *Client) CreatePackage(ctx context.Context, name string, AIPID uuid.UUID
 		return nil, err
 	}
 
-	return pkgAsGoa(pkg), nil
+	return pkgAsGoa(ctx, pkg), nil
 }
 
 func (c *Client) ListPackages(ctx context.Context) ([]*goastorage.StoredStoragePackage, error) {
@@ -48,7 +48,7 @@ func (c *Client) ListPackages(ctx context.Context) ([]*goastorage.StoredStorageP
 
 	res, err := c.c.Pkg.Query().All(ctx)
 	for _, item := range res {
-		pkgs = append(pkgs, pkgAsGoa(item))
+		pkgs = append(pkgs, pkgAsGoa(ctx, item))
 	}
 
 	return pkgs, err
@@ -64,7 +64,7 @@ func (c *Client) ReadPackage(ctx context.Context, AIPID uuid.UUID) (*goastorage.
 		return nil, err
 	}
 
-	return pkgAsGoa(pkg), nil
+	return pkgAsGoa(ctx, pkg), nil
 }
 
 func (c *Client) UpdatePackageStatus(ctx context.Context, status status.PackageStatus, AIPID uuid.UUID) error {
@@ -85,12 +85,22 @@ func (c *Client) UpdatePackageStatus(ctx context.Context, status status.PackageS
 	return nil
 }
 
-func (c *Client) UpdatePackageLocation(ctx context.Context, location string, aipID uuid.UUID) error {
+func (c *Client) UpdatePackageLocation(ctx context.Context, locationName string, aipID uuid.UUID) error {
+	l, err := c.c.Location.Query().
+		Where(
+			// TODO: switch to look by UUID
+			location.Name(locationName),
+		).
+		Only(ctx)
+	if err != nil {
+		return err
+	}
+
 	n, err := c.c.Pkg.Update().
 		Where(
 			pkg.AipID(aipID),
 		).
-		SetLocation(location).
+		SetLocation(l).
 		Save(ctx)
 	if err != nil {
 		return err
@@ -103,7 +113,7 @@ func (c *Client) UpdatePackageLocation(ctx context.Context, location string, aip
 	return nil
 }
 
-func pkgAsGoa(pkg *db.Pkg) *goastorage.StoredStoragePackage {
+func pkgAsGoa(ctx context.Context, pkg *db.Pkg) *goastorage.StoredStoragePackage {
 	p := &goastorage.StoredStoragePackage{
 		ID:        uint(pkg.ID),
 		Name:      pkg.Name,
@@ -112,8 +122,10 @@ func pkgAsGoa(pkg *db.Pkg) *goastorage.StoredStoragePackage {
 		ObjectKey: pkg.ObjectKey.String(),
 	}
 
-	if pkg.Location != "" {
-		p.Location = &pkg.Location
+	l, err := pkg.QueryLocation().Only(ctx)
+	if err == nil {
+		// TODO: switch to location UUID
+		p.Location = &l.Name
 	}
 
 	return p
@@ -135,7 +147,7 @@ func (c *Client) CreateLocation(ctx context.Context, name string, description *s
 		return nil, err
 	}
 
-	return locationAsGoa(l), nil
+	return locationAsGoa(ctx, l), nil
 }
 
 func (c *Client) ReadLocation(ctx context.Context, UUID uuid.UUID) (*goastorage.StoredLocation, error) {
@@ -148,10 +160,10 @@ func (c *Client) ReadLocation(ctx context.Context, UUID uuid.UUID) (*goastorage.
 		return nil, err
 	}
 
-	return locationAsGoa(l), nil
+	return locationAsGoa(ctx, l), nil
 }
 
-func locationAsGoa(loc *db.Location) *goastorage.StoredLocation {
+func locationAsGoa(ctx context.Context, loc *db.Location) *goastorage.StoredLocation {
 	l := &goastorage.StoredLocation{
 		ID:          uint(loc.ID),
 		Name:        loc.Name,

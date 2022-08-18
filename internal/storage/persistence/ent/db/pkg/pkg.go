@@ -17,14 +17,23 @@ const (
 	FieldName = "name"
 	// FieldAipID holds the string denoting the aip_id field in the database.
 	FieldAipID = "aip_id"
-	// FieldLocation holds the string denoting the location field in the database.
-	FieldLocation = "location"
+	// FieldLocationID holds the string denoting the location_id field in the database.
+	FieldLocationID = "location_id"
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
 	// FieldObjectKey holds the string denoting the object_key field in the database.
 	FieldObjectKey = "object_key"
+	// EdgeLocation holds the string denoting the location edge name in mutations.
+	EdgeLocation = "location"
 	// Table holds the table name of the pkg in the database.
 	Table = "package"
+	// LocationTable is the table that holds the location relation/edge.
+	LocationTable = "package"
+	// LocationInverseTable is the table name for the Location entity.
+	// It exists in this package in order to avoid circular dependency with the "location" package.
+	LocationInverseTable = "location"
+	// LocationColumn is the table column denoting the location relation/edge.
+	LocationColumn = "location_id"
 )
 
 // Columns holds all SQL columns for pkg fields.
@@ -32,7 +41,7 @@ var Columns = []string{
 	FieldID,
 	FieldName,
 	FieldAipID,
-	FieldLocation,
+	FieldLocationID,
 	FieldStatus,
 	FieldObjectKey,
 }

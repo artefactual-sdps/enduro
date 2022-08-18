@@ -9,6 +9,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/location"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/pkg"
 	"github.com/artefactual-sdps/enduro/internal/storage/status"
 	"github.com/google/uuid"
@@ -33,16 +34,16 @@ func (pc *PkgCreate) SetAipID(u uuid.UUID) *PkgCreate {
 	return pc
 }
 
-// SetLocation sets the "location" field.
-func (pc *PkgCreate) SetLocation(s string) *PkgCreate {
-	pc.mutation.SetLocation(s)
+// SetLocationID sets the "location_id" field.
+func (pc *PkgCreate) SetLocationID(i int) *PkgCreate {
+	pc.mutation.SetLocationID(i)
 	return pc
 }
 
-// SetNillableLocation sets the "location" field if the given value is not nil.
-func (pc *PkgCreate) SetNillableLocation(s *string) *PkgCreate {
-	if s != nil {
-		pc.SetLocation(*s)
+// SetNillableLocationID sets the "location_id" field if the given value is not nil.
+func (pc *PkgCreate) SetNillableLocationID(i *int) *PkgCreate {
+	if i != nil {
+		pc.SetLocationID(*i)
 	}
 	return pc
 }
@@ -57,6 +58,11 @@ func (pc *PkgCreate) SetStatus(ss status.PackageStatus) *PkgCreate {
 func (pc *PkgCreate) SetObjectKey(u uuid.UUID) *PkgCreate {
 	pc.mutation.SetObjectKey(u)
 	return pc
+}
+
+// SetLocation sets the "location" edge to the Location entity.
+func (pc *PkgCreate) SetLocation(l *Location) *PkgCreate {
+	return pc.SetLocationID(l.ID)
 }
 
 // Mutation returns the PkgMutation object of the builder.
@@ -195,14 +201,6 @@ func (pc *PkgCreate) createSpec() (*Pkg, *sqlgraph.CreateSpec) {
 		})
 		_node.AipID = value
 	}
-	if value, ok := pc.mutation.Location(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: pkg.FieldLocation,
-		})
-		_node.Location = value
-	}
 	if value, ok := pc.mutation.Status(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
 			Type:   field.TypeEnum,
@@ -218,6 +216,26 @@ func (pc *PkgCreate) createSpec() (*Pkg, *sqlgraph.CreateSpec) {
 			Column: pkg.FieldObjectKey,
 		})
 		_node.ObjectKey = value
+	}
+	if nodes := pc.mutation.LocationIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   pkg.LocationTable,
+			Columns: []string{pkg.LocationColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: location.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.LocationID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

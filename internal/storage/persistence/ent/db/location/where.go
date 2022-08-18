@@ -4,6 +4,7 @@ package location
 
 import (
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/predicate"
 	"github.com/artefactual-sdps/enduro/internal/storage/purpose"
 	"github.com/artefactual-sdps/enduro/internal/storage/source"
@@ -493,6 +494,34 @@ func UUIDLT(v uuid.UUID) predicate.Location {
 func UUIDLTE(v uuid.UUID) predicate.Location {
 	return predicate.Location(func(s *sql.Selector) {
 		s.Where(sql.LTE(s.C(FieldUUID), v))
+	})
+}
+
+// HasPackages applies the HasEdge predicate on the "packages" edge.
+func HasPackages() predicate.Location {
+	return predicate.Location(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(PackagesTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, true, PackagesTable, PackagesColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasPackagesWith applies the HasEdge predicate on the "packages" edge with a given conditions (other predicates).
+func HasPackagesWith(preds ...predicate.Pkg) predicate.Location {
+	return predicate.Location(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(PackagesInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, true, PackagesTable, PackagesColumn),
+		)
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
 	})
 }
 

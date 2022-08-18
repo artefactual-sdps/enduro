@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/location"
+	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/pkg"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/predicate"
 	"github.com/artefactual-sdps/enduro/internal/storage/purpose"
 	"github.com/artefactual-sdps/enduro/internal/storage/source"
@@ -60,9 +61,45 @@ func (lu *LocationUpdate) SetUUID(u uuid.UUID) *LocationUpdate {
 	return lu
 }
 
+// AddPackageIDs adds the "packages" edge to the Pkg entity by IDs.
+func (lu *LocationUpdate) AddPackageIDs(ids ...int) *LocationUpdate {
+	lu.mutation.AddPackageIDs(ids...)
+	return lu
+}
+
+// AddPackages adds the "packages" edges to the Pkg entity.
+func (lu *LocationUpdate) AddPackages(p ...*Pkg) *LocationUpdate {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return lu.AddPackageIDs(ids...)
+}
+
 // Mutation returns the LocationMutation object of the builder.
 func (lu *LocationUpdate) Mutation() *LocationMutation {
 	return lu.mutation
+}
+
+// ClearPackages clears all "packages" edges to the Pkg entity.
+func (lu *LocationUpdate) ClearPackages() *LocationUpdate {
+	lu.mutation.ClearPackages()
+	return lu
+}
+
+// RemovePackageIDs removes the "packages" edge to Pkg entities by IDs.
+func (lu *LocationUpdate) RemovePackageIDs(ids ...int) *LocationUpdate {
+	lu.mutation.RemovePackageIDs(ids...)
+	return lu
+}
+
+// RemovePackages removes "packages" edges to Pkg entities.
+func (lu *LocationUpdate) RemovePackages(p ...*Pkg) *LocationUpdate {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return lu.RemovePackageIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -193,6 +230,60 @@ func (lu *LocationUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: location.FieldUUID,
 		})
 	}
+	if lu.mutation.PackagesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   location.PackagesTable,
+			Columns: []string{location.PackagesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: pkg.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := lu.mutation.RemovedPackagesIDs(); len(nodes) > 0 && !lu.mutation.PackagesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   location.PackagesTable,
+			Columns: []string{location.PackagesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: pkg.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := lu.mutation.PackagesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   location.PackagesTable,
+			Columns: []string{location.PackagesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: pkg.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, lu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{location.Label}
@@ -242,9 +333,45 @@ func (luo *LocationUpdateOne) SetUUID(u uuid.UUID) *LocationUpdateOne {
 	return luo
 }
 
+// AddPackageIDs adds the "packages" edge to the Pkg entity by IDs.
+func (luo *LocationUpdateOne) AddPackageIDs(ids ...int) *LocationUpdateOne {
+	luo.mutation.AddPackageIDs(ids...)
+	return luo
+}
+
+// AddPackages adds the "packages" edges to the Pkg entity.
+func (luo *LocationUpdateOne) AddPackages(p ...*Pkg) *LocationUpdateOne {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return luo.AddPackageIDs(ids...)
+}
+
 // Mutation returns the LocationMutation object of the builder.
 func (luo *LocationUpdateOne) Mutation() *LocationMutation {
 	return luo.mutation
+}
+
+// ClearPackages clears all "packages" edges to the Pkg entity.
+func (luo *LocationUpdateOne) ClearPackages() *LocationUpdateOne {
+	luo.mutation.ClearPackages()
+	return luo
+}
+
+// RemovePackageIDs removes the "packages" edge to Pkg entities by IDs.
+func (luo *LocationUpdateOne) RemovePackageIDs(ids ...int) *LocationUpdateOne {
+	luo.mutation.RemovePackageIDs(ids...)
+	return luo
+}
+
+// RemovePackages removes "packages" edges to Pkg entities.
+func (luo *LocationUpdateOne) RemovePackages(p ...*Pkg) *LocationUpdateOne {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return luo.RemovePackageIDs(ids...)
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
@@ -404,6 +531,60 @@ func (luo *LocationUpdateOne) sqlSave(ctx context.Context) (_node *Location, err
 			Value:  value,
 			Column: location.FieldUUID,
 		})
+	}
+	if luo.mutation.PackagesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   location.PackagesTable,
+			Columns: []string{location.PackagesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: pkg.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := luo.mutation.RemovedPackagesIDs(); len(nodes) > 0 && !luo.mutation.PackagesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   location.PackagesTable,
+			Columns: []string{location.PackagesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: pkg.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := luo.mutation.PackagesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   location.PackagesTable,
+			Columns: []string{location.PackagesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: pkg.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &Location{config: luo.config}
 	_spec.Assign = _node.assignValues

@@ -28,6 +28,27 @@ type Location struct {
 	Purpose purpose.LocationPurpose `json:"purpose,omitempty"`
 	// UUID holds the value of the "uuid" field.
 	UUID uuid.UUID `json:"uuid,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the LocationQuery when eager-loading is set.
+	Edges LocationEdges `json:"edges"`
+}
+
+// LocationEdges holds the relations/edges for other nodes in the graph.
+type LocationEdges struct {
+	// Packages holds the value of the packages edge.
+	Packages []*Pkg `json:"packages,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+}
+
+// PackagesOrErr returns the Packages value or an error if the edge
+// was not loaded in eager-loading.
+func (e LocationEdges) PackagesOrErr() ([]*Pkg, error) {
+	if e.loadedTypes[0] {
+		return e.Packages, nil
+	}
+	return nil, &NotLoadedError{edge: "packages"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -99,6 +120,11 @@ func (l *Location) assignValues(columns []string, values []interface{}) error {
 		}
 	}
 	return nil
+}
+
+// QueryPackages queries the "packages" edge of the Location entity.
+func (l *Location) QueryPackages() *PkgQuery {
+	return (&LocationClient{config: l.config}).QueryPackages(l)
 }
 
 // Update returns a builder for updating this Location.

@@ -176,7 +176,14 @@ func TestServiceList(t *testing.T) {
 		res, err := svc.Locations(ctx)
 		assert.NilError(t, err)
 		assert.DeepEqual(t, res, goastorage.StoredLocationCollection{
-			{ID: 1, Name: "perma-aips-1"},
+			{
+				ID:          1,
+				Name:        "perma-aips-1",
+				Description: ref.New(""),
+				Source:      "minio",
+				Purpose:     "aip_store",
+				UUID:        ref.New(""),
+			},
 		})
 	})
 }

@@ -142,12 +142,28 @@ func TestUpdatePackageLocation(t *testing.T) {
 
 	entc, c := setUpClient(t)
 
+	l1 := entc.Location.Create().
+		SetName("perma-aips-1").
+		SetDescription("").
+		SetSource(source.LocationSourceMinIO).
+		SetPurpose(purpose.LocationPurposeAIPStore).
+		SetUUID(uuid.MustParse("af2cd8cb-6f20-41c2-ab64-225d48312ac8")).
+		SaveX(context.Background())
+
+	l2 := entc.Location.Create().
+		SetName("perma-aips-2").
+		SetDescription("").
+		SetSource(source.LocationSourceMinIO).
+		SetPurpose(purpose.LocationPurposeAIPStore).
+		SetUUID(uuid.MustParse("aef501be-b726-4d32-820d-549541d29b64")).
+		SaveX(context.Background())
+
 	p := entc.Pkg.Create().
 		SetName("Package").
 		SetAipID(uuid.MustParse("488c64cc-d89b-4916-9131-c94152dfb12e")).
 		SetObjectKey(uuid.MustParse("e2630293-a714-4787-ab6d-e68254a6fb6a")).
 		SetStatus(status.StatusStored).
-		SetLocation("perma-aips-1").
+		SetLocation(l1).
 		SaveX(context.Background())
 
 	err := c.UpdatePackageLocation(context.Background(), "perma-aips-2", p.AipID)
@@ -156,7 +172,7 @@ func TestUpdatePackageLocation(t *testing.T) {
 	entc.Pkg.Query().
 		Where(
 			pkg.ID(p.ID),
-			pkg.Location("perma-aips-2"),
+			pkg.LocationID(l2.ID),
 		).OnlyX(context.Background())
 }
 

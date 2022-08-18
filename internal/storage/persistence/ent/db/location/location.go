@@ -24,8 +24,17 @@ const (
 	FieldPurpose = "purpose"
 	// FieldUUID holds the string denoting the uuid field in the database.
 	FieldUUID = "uuid"
+	// EdgePackages holds the string denoting the packages edge name in mutations.
+	EdgePackages = "packages"
 	// Table holds the table name of the location in the database.
 	Table = "location"
+	// PackagesTable is the table that holds the packages relation/edge.
+	PackagesTable = "package"
+	// PackagesInverseTable is the table name for the Pkg entity.
+	// It exists in this package in order to avoid circular dependency with the "pkg" package.
+	PackagesInverseTable = "package"
+	// PackagesColumn is the table column denoting the packages relation/edge.
+	PackagesColumn = "location_id"
 )
 
 // Columns holds all SQL columns for location fields.

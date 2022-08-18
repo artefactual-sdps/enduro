@@ -4,6 +4,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema"
+	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
 	"github.com/google/uuid"
@@ -31,10 +32,8 @@ func (Pkg) Fields() []ent.Field {
 				Size: 2048,
 			}),
 		field.UUID("aip_id", uuid.UUID{}),
-		field.String("location").
-			Annotations(entsql.Annotation{
-				Size: 2048,
-			}).Optional(),
+		field.Int("location_id").
+			Optional(),
 		field.Enum("status").
 			GoType(status.StatusUnspecified),
 		field.UUID("object_key", uuid.UUID{}),
@@ -43,17 +42,17 @@ func (Pkg) Fields() []ent.Field {
 
 // Edges of the Pkg.
 func (Pkg) Edges() []ent.Edge {
-	return nil
+	return []ent.Edge{
+		edge.To("location", Location.Type).
+			Field("location_id").
+			Unique(),
+	}
 }
 
 // Indexes of the Pkg.
 func (Pkg) Indexes() []ent.Index {
 	return []ent.Index{
 		index.Fields("aip_id"),
-		index.Fields("location").
-			Annotations(
-				entsql.Prefix(50),
-			),
 		index.Fields("object_key"),
 	}
 }

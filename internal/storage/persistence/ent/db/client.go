@@ -14,6 +14,7 @@ import (
 
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 // Client is the client that holds all ent builders.
@@ -213,6 +214,22 @@ func (c *LocationClient) GetX(ctx context.Context, id int) *Location {
 	return obj
 }
 
+// QueryPackages queries the packages edge of a Location.
+func (c *LocationClient) QueryPackages(l *Location) *PkgQuery {
+	query := &PkgQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := l.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(location.Table, location.FieldID, id),
+			sqlgraph.To(pkg.Table, pkg.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, true, location.PackagesTable, location.PackagesColumn),
+		)
+		fromV = sqlgraph.Neighbors(l.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *LocationClient) Hooks() []Hook {
 	return c.hooks.Location
@@ -301,6 +318,22 @@ func (c *PkgClient) GetX(ctx context.Context, id int) *Pkg {
 		panic(err)
 	}
 	return obj
+}
+
+// QueryLocation queries the location edge of a Pkg.
+func (c *PkgClient) QueryLocation(pk *Pkg) *LocationQuery {
+	query := &LocationQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := pk.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(pkg.Table, pkg.FieldID, id),
+			sqlgraph.To(location.Table, location.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, pkg.LocationTable, pkg.LocationColumn),
+		)
+		fromV = sqlgraph.Neighbors(pk.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
 }
 
 // Hooks returns the client hooks.
