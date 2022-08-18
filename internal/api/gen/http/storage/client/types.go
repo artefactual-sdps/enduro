@@ -9,6 +9,8 @@
 package client
 
 import (
+	"encoding/json"
+
 	storage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 	storageviews "github.com/artefactual-sdps/enduro/internal/api/gen/storage/views"
 	goa "goa.design/goa/v3/pkg"
@@ -27,6 +29,13 @@ type AddLocationRequestBody struct {
 	Description *string `form:"description,omitempty" json:"description,omitempty" xml:"description,omitempty"`
 	Source      string  `form:"source" json:"source" xml:"source"`
 	Purpose     string  `form:"purpose" json:"purpose" xml:"purpose"`
+	Config      *struct {
+		// Union type name, one of:
+		// - "s3"
+		Type string `form:"Type" json:"Type" xml:"Type"`
+		// JSON formatted union value
+		Value string `form:"Value" json:"Value" xml:"Value"`
+	} `form:"config,omitempty" json:"config,omitempty" xml:"config,omitempty"`
 }
 
 // MoveRequestBody is the type of the "storage" service "move" endpoint HTTP
@@ -351,6 +360,24 @@ func NewAddLocationRequestBody(p *storage.AddLocationPayload) *AddLocationReques
 		Description: p.Description,
 		Source:      p.Source,
 		Purpose:     p.Purpose,
+	}
+	if p.Config != nil {
+		js, _ := json.Marshal(p.Config)
+		var name string
+		switch p.Config.(type) {
+		case *storage.S3Config:
+			name = "s3"
+		}
+		body.Config = &struct {
+			// Union type name, one of:
+			// - "s3"
+			Type string `form:"Type" json:"Type" xml:"Type"`
+			// JSON formatted union value
+			Value string `form:"Value" json:"Value" xml:"Value"`
+		}{
+			Type:  name,
+			Value: string(js),
+		}
 	}
 	return body
 }

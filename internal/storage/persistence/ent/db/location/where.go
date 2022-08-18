@@ -6,8 +6,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/predicate"
-	"github.com/artefactual-sdps/enduro/internal/storage/purpose"
-	"github.com/artefactual-sdps/enduro/internal/storage/source"
+	"github.com/artefactual-sdps/enduro/internal/storage/types"
 	"github.com/google/uuid"
 )
 
@@ -326,21 +325,21 @@ func DescriptionContainsFold(v string) predicate.Location {
 }
 
 // SourceEQ applies the EQ predicate on the "source" field.
-func SourceEQ(v source.LocationSource) predicate.Location {
+func SourceEQ(v types.LocationSource) predicate.Location {
 	return predicate.Location(func(s *sql.Selector) {
 		s.Where(sql.EQ(s.C(FieldSource), v))
 	})
 }
 
 // SourceNEQ applies the NEQ predicate on the "source" field.
-func SourceNEQ(v source.LocationSource) predicate.Location {
+func SourceNEQ(v types.LocationSource) predicate.Location {
 	return predicate.Location(func(s *sql.Selector) {
 		s.Where(sql.NEQ(s.C(FieldSource), v))
 	})
 }
 
 // SourceIn applies the In predicate on the "source" field.
-func SourceIn(vs ...source.LocationSource) predicate.Location {
+func SourceIn(vs ...types.LocationSource) predicate.Location {
 	v := make([]interface{}, len(vs))
 	for i := range v {
 		v[i] = vs[i]
@@ -357,7 +356,7 @@ func SourceIn(vs ...source.LocationSource) predicate.Location {
 }
 
 // SourceNotIn applies the NotIn predicate on the "source" field.
-func SourceNotIn(vs ...source.LocationSource) predicate.Location {
+func SourceNotIn(vs ...types.LocationSource) predicate.Location {
 	v := make([]interface{}, len(vs))
 	for i := range v {
 		v[i] = vs[i]
@@ -374,21 +373,21 @@ func SourceNotIn(vs ...source.LocationSource) predicate.Location {
 }
 
 // PurposeEQ applies the EQ predicate on the "purpose" field.
-func PurposeEQ(v purpose.LocationPurpose) predicate.Location {
+func PurposeEQ(v types.LocationPurpose) predicate.Location {
 	return predicate.Location(func(s *sql.Selector) {
 		s.Where(sql.EQ(s.C(FieldPurpose), v))
 	})
 }
 
 // PurposeNEQ applies the NEQ predicate on the "purpose" field.
-func PurposeNEQ(v purpose.LocationPurpose) predicate.Location {
+func PurposeNEQ(v types.LocationPurpose) predicate.Location {
 	return predicate.Location(func(s *sql.Selector) {
 		s.Where(sql.NEQ(s.C(FieldPurpose), v))
 	})
 }
 
 // PurposeIn applies the In predicate on the "purpose" field.
-func PurposeIn(vs ...purpose.LocationPurpose) predicate.Location {
+func PurposeIn(vs ...types.LocationPurpose) predicate.Location {
 	v := make([]interface{}, len(vs))
 	for i := range v {
 		v[i] = vs[i]
@@ -405,7 +404,7 @@ func PurposeIn(vs ...purpose.LocationPurpose) predicate.Location {
 }
 
 // PurposeNotIn applies the NotIn predicate on the "purpose" field.
-func PurposeNotIn(vs ...purpose.LocationPurpose) predicate.Location {
+func PurposeNotIn(vs ...types.LocationPurpose) predicate.Location {
 	v := make([]interface{}, len(vs))
 	for i := range v {
 		v[i] = vs[i]

@@ -10,7 +10,7 @@ import (
 
 	storage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 	storage0 "github.com/artefactual-sdps/enduro/internal/storage"
-	status "github.com/artefactual-sdps/enduro/internal/storage/status"
+	types "github.com/artefactual-sdps/enduro/internal/storage/types"
 	gomock "github.com/golang/mock/gomock"
 	blob "gocloud.dev/blob"
 )
@@ -259,7 +259,7 @@ func (mr *MockServiceMockRecorder) UpdatePackageLocation(arg0, arg1, arg2 interf
 }
 
 // UpdatePackageStatus mocks base method.
-func (m *MockService) UpdatePackageStatus(arg0 context.Context, arg1 status.PackageStatus, arg2 string) error {
+func (m *MockService) UpdatePackageStatus(arg0 context.Context, arg1 types.PackageStatus, arg2 string) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdatePackageStatus", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)

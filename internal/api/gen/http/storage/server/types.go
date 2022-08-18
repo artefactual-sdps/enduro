@@ -9,6 +9,8 @@
 package server
 
 import (
+	"encoding/json"
+
 	storage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 	storageviews "github.com/artefactual-sdps/enduro/internal/api/gen/storage/views"
 	goa "goa.design/goa/v3/pkg"
@@ -27,6 +29,13 @@ type AddLocationRequestBody struct {
 	Description *string `form:"description,omitempty" json:"description,omitempty" xml:"description,omitempty"`
 	Source      *string `form:"source,omitempty" json:"source,omitempty" xml:"source,omitempty"`
 	Purpose     *string `form:"purpose,omitempty" json:"purpose,omitempty" xml:"purpose,omitempty"`
+	Config      *struct {
+		// Union type name, one of:
+		// - "s3"
+		Type *string `form:"Type" json:"Type" xml:"Type"`
+		// JSON formatted union value
+		Value *string `form:"Value" json:"Value" xml:"Value"`
+	} `form:"config,omitempty" json:"config,omitempty" xml:"config,omitempty"`
 }
 
 // MoveRequestBody is the type of the "storage" service "move" endpoint HTTP
@@ -626,6 +635,14 @@ func NewAddLocationPayload(body *AddLocationRequestBody) *storage.AddLocationPay
 		Source:      *body.Source,
 		Purpose:     *body.Purpose,
 	}
+	if body.Config != nil {
+		switch *body.Config.Type {
+		case "s3":
+			var val *storage.S3Config
+			json.Unmarshal([]byte(*body.Config.Value), &val)
+			v.Config = val
+		}
+	}
 
 	return v
 }
@@ -701,6 +718,19 @@ func ValidateAddLocationRequestBody(body *AddLocationRequestBody) (err error) {
 	if body.Purpose != nil {
 		if !(*body.Purpose == "unspecified" || *body.Purpose == "aip_store") {
 			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.purpose", *body.Purpose, []interface{}{"unspecified", "aip_store"}))
+		}
+	}
+	if body.Config != nil {
+		if body.Config.Type == nil {
+			err = goa.MergeErrors(err, goa.MissingFieldError("Type", "body.config"))
+		}
+		if body.Config.Value == nil {
+			err = goa.MergeErrors(err, goa.MissingFieldError("Value", "body.config"))
+		}
+		if body.Config.Type != nil {
+			if !(*body.Config.Type == "s3") {
+				err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.config.Type", *body.Config.Type, []interface{}{"s3"}))
+			}
 		}
 	}
 	return

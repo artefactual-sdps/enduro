@@ -13,7 +13,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/storage"
 	"github.com/artefactual-sdps/enduro/internal/storage/activities"
 	"github.com/artefactual-sdps/enduro/internal/storage/fake"
-	"github.com/artefactual-sdps/enduro/internal/storage/status"
+	"github.com/artefactual-sdps/enduro/internal/storage/types"
 )
 
 func TestStorageMoveWorkflow(t *testing.T) {
@@ -28,8 +28,8 @@ func TestStorageMoveWorkflow(t *testing.T) {
 	storagesvc := fake.NewMockService(ctrl)
 	storagesvc.EXPECT().Delete(gomock.Any(), aipID)
 	storagesvc.EXPECT().UpdatePackageLocation(gomock.Any(), location, aipID)
-	storagesvc.EXPECT().UpdatePackageStatus(gomock.Any(), status.StatusMoving, aipID)
-	storagesvc.EXPECT().UpdatePackageStatus(gomock.Any(), status.StatusStored, aipID)
+	storagesvc.EXPECT().UpdatePackageStatus(gomock.Any(), types.StatusMoving, aipID)
+	storagesvc.EXPECT().UpdatePackageStatus(gomock.Any(), types.StatusStored, aipID)
 
 	// Worker activities
 	env.RegisterActivityWithOptions(activities.NewCopyToPermanentLocationActivity(storagesvc).Execute, temporalsdk_activity.RegisterOptions{Name: storage.CopyToPermanentLocationActivityName})

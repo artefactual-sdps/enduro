@@ -11,7 +11,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/location"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/pkg"
-	"github.com/artefactual-sdps/enduro/internal/storage/status"
+	"github.com/artefactual-sdps/enduro/internal/storage/types"
 	"github.com/google/uuid"
 )
 
@@ -49,8 +49,8 @@ func (pc *PkgCreate) SetNillableLocationID(i *int) *PkgCreate {
 }
 
 // SetStatus sets the "status" field.
-func (pc *PkgCreate) SetStatus(ss status.PackageStatus) *PkgCreate {
-	pc.mutation.SetStatus(ss)
+func (pc *PkgCreate) SetStatus(ts types.PackageStatus) *PkgCreate {
+	pc.mutation.SetStatus(ts)
 	return pc
 }
 

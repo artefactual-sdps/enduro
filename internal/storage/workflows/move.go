@@ -7,7 +7,7 @@ import (
 	temporalsdk_workflow "go.temporal.io/sdk/workflow"
 
 	"github.com/artefactual-sdps/enduro/internal/storage"
-	"github.com/artefactual-sdps/enduro/internal/storage/status"
+	"github.com/artefactual-sdps/enduro/internal/storage/types"
 )
 
 type StorageMoveWorkflow struct {
@@ -23,7 +23,7 @@ func NewStorageMoveWorkflow(storagesvc storage.Service) *StorageMoveWorkflow {
 func (w *StorageMoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req storage.StorageMoveWorkflowRequest) error {
 	// Set package status to moving.
 	{
-		if err := w.updatePackageStatus(ctx, status.StatusMoving, req.AIPID); err != nil {
+		if err := w.updatePackageStatus(ctx, types.StatusMoving, req.AIPID); err != nil {
 			return err
 		}
 	}
@@ -93,7 +93,7 @@ func (w *StorageMoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req stor
 
 	// Set package status to stored.
 	{
-		if err := w.updatePackageStatus(ctx, status.StatusStored, req.AIPID); err != nil {
+		if err := w.updatePackageStatus(ctx, types.StatusStored, req.AIPID); err != nil {
 			return err
 		}
 	}
@@ -101,7 +101,7 @@ func (w *StorageMoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req stor
 	return nil
 }
 
-func (w *StorageMoveWorkflow) updatePackageStatus(ctx temporalsdk_workflow.Context, st status.PackageStatus, AIPID string) error {
+func (w *StorageMoveWorkflow) updatePackageStatus(ctx temporalsdk_workflow.Context, st types.PackageStatus, AIPID string) error {
 	activityOpts := temporalsdk_workflow.WithLocalActivityOptions(ctx, temporalsdk_workflow.LocalActivityOptions{
 		ScheduleToCloseTimeout: 5 * time.Second,
 		RetryPolicy: &temporalsdk_temporal.RetryPolicy{

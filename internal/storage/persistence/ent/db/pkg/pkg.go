@@ -5,7 +5,7 @@ package pkg
 import (
 	"fmt"
 
-	"github.com/artefactual-sdps/enduro/internal/storage/status"
+	"github.com/artefactual-sdps/enduro/internal/storage/types"
 )
 
 const (
@@ -57,7 +57,7 @@ func ValidColumn(column string) bool {
 }
 
 // StatusValidator is a validator for the "status" field enum values. It is called by the builders before save.
-func StatusValidator(s status.PackageStatus) error {
+func StatusValidator(s types.PackageStatus) error {
 	switch s.String() {
 	case "unspecified", "in_review", "rejected", "stored", "moving":
 		return nil

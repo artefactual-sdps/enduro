@@ -5,8 +5,7 @@ package location
 import (
 	"fmt"
 
-	"github.com/artefactual-sdps/enduro/internal/storage/purpose"
-	"github.com/artefactual-sdps/enduro/internal/storage/source"
+	"github.com/artefactual-sdps/enduro/internal/storage/types"
 )
 
 const (
@@ -24,6 +23,8 @@ const (
 	FieldPurpose = "purpose"
 	// FieldUUID holds the string denoting the uuid field in the database.
 	FieldUUID = "uuid"
+	// FieldConfig holds the string denoting the config field in the database.
+	FieldConfig = "config"
 	// EdgePackages holds the string denoting the packages edge name in mutations.
 	EdgePackages = "packages"
 	// Table holds the table name of the location in the database.
@@ -45,6 +46,7 @@ var Columns = []string{
 	FieldSource,
 	FieldPurpose,
 	FieldUUID,
+	FieldConfig,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -58,7 +60,7 @@ func ValidColumn(column string) bool {
 }
 
 // SourceValidator is a validator for the "source" field enum values. It is called by the builders before save.
-func SourceValidator(s source.LocationSource) error {
+func SourceValidator(s types.LocationSource) error {
 	switch s.String() {
 	case "unspecified", "minio":
 		return nil
@@ -68,7 +70,7 @@ func SourceValidator(s source.LocationSource) error {
 }
 
 // PurposeValidator is a validator for the "purpose" field enum values. It is called by the builders before save.
-func PurposeValidator(pu purpose.LocationPurpose) error {
+func PurposeValidator(pu types.LocationPurpose) error {
 	switch pu.String() {
 	case "unspecified", "aip_store":
 		return nil

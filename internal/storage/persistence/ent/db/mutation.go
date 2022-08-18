@@ -11,9 +11,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/location"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/pkg"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/predicate"
-	"github.com/artefactual-sdps/enduro/internal/storage/purpose"
-	"github.com/artefactual-sdps/enduro/internal/storage/source"
-	"github.com/artefactual-sdps/enduro/internal/storage/status"
+	"github.com/artefactual-sdps/enduro/internal/storage/types"
 	"github.com/google/uuid"
 
 	"entgo.io/ent"
@@ -40,9 +38,10 @@ type LocationMutation struct {
 	id              *int
 	name            *string
 	description     *string
-	source          *source.LocationSource
-	purpose         *purpose.LocationPurpose
+	source          *types.LocationSource
+	purpose         *types.LocationPurpose
 	uuid            *uuid.UUID
+	_config         *types.LocationConfig
 	clearedFields   map[string]struct{}
 	packages        map[int]struct{}
 	removedpackages map[int]struct{}
@@ -223,12 +222,12 @@ func (m *LocationMutation) ResetDescription() {
 }
 
 // SetSource sets the "source" field.
-func (m *LocationMutation) SetSource(ss source.LocationSource) {
-	m.source = &ss
+func (m *LocationMutation) SetSource(ts types.LocationSource) {
+	m.source = &ts
 }
 
 // Source returns the value of the "source" field in the mutation.
-func (m *LocationMutation) Source() (r source.LocationSource, exists bool) {
+func (m *LocationMutation) Source() (r types.LocationSource, exists bool) {
 	v := m.source
 	if v == nil {
 		return
@@ -239,7 +238,7 @@ func (m *LocationMutation) Source() (r source.LocationSource, exists bool) {
 // OldSource returns the old "source" field's value of the Location entity.
 // If the Location object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *LocationMutation) OldSource(ctx context.Context) (v source.LocationSource, err error) {
+func (m *LocationMutation) OldSource(ctx context.Context) (v types.LocationSource, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldSource is only allowed on UpdateOne operations")
 	}
@@ -259,12 +258,12 @@ func (m *LocationMutation) ResetSource() {
 }
 
 // SetPurpose sets the "purpose" field.
-func (m *LocationMutation) SetPurpose(pp purpose.LocationPurpose) {
-	m.purpose = &pp
+func (m *LocationMutation) SetPurpose(tp types.LocationPurpose) {
+	m.purpose = &tp
 }
 
 // Purpose returns the value of the "purpose" field in the mutation.
-func (m *LocationMutation) Purpose() (r purpose.LocationPurpose, exists bool) {
+func (m *LocationMutation) Purpose() (r types.LocationPurpose, exists bool) {
 	v := m.purpose
 	if v == nil {
 		return
@@ -275,7 +274,7 @@ func (m *LocationMutation) Purpose() (r purpose.LocationPurpose, exists bool) {
 // OldPurpose returns the old "purpose" field's value of the Location entity.
 // If the Location object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *LocationMutation) OldPurpose(ctx context.Context) (v purpose.LocationPurpose, err error) {
+func (m *LocationMutation) OldPurpose(ctx context.Context) (v types.LocationPurpose, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldPurpose is only allowed on UpdateOne operations")
 	}
@@ -328,6 +327,42 @@ func (m *LocationMutation) OldUUID(ctx context.Context) (v uuid.UUID, err error)
 // ResetUUID resets all changes to the "uuid" field.
 func (m *LocationMutation) ResetUUID() {
 	m.uuid = nil
+}
+
+// SetConfig sets the "config" field.
+func (m *LocationMutation) SetConfig(tc types.LocationConfig) {
+	m._config = &tc
+}
+
+// Config returns the value of the "config" field in the mutation.
+func (m *LocationMutation) Config() (r types.LocationConfig, exists bool) {
+	v := m._config
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldConfig returns the old "config" field's value of the Location entity.
+// If the Location object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *LocationMutation) OldConfig(ctx context.Context) (v types.LocationConfig, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldConfig is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldConfig requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldConfig: %w", err)
+	}
+	return oldValue.Config, nil
+}
+
+// ResetConfig resets all changes to the "config" field.
+func (m *LocationMutation) ResetConfig() {
+	m._config = nil
 }
 
 // AddPackageIDs adds the "packages" edge to the Pkg entity by ids.
@@ -403,7 +438,7 @@ func (m *LocationMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *LocationMutation) Fields() []string {
-	fields := make([]string, 0, 5)
+	fields := make([]string, 0, 6)
 	if m.name != nil {
 		fields = append(fields, location.FieldName)
 	}
@@ -418,6 +453,9 @@ func (m *LocationMutation) Fields() []string {
 	}
 	if m.uuid != nil {
 		fields = append(fields, location.FieldUUID)
+	}
+	if m._config != nil {
+		fields = append(fields, location.FieldConfig)
 	}
 	return fields
 }
@@ -437,6 +475,8 @@ func (m *LocationMutation) Field(name string) (ent.Value, bool) {
 		return m.Purpose()
 	case location.FieldUUID:
 		return m.UUID()
+	case location.FieldConfig:
+		return m.Config()
 	}
 	return nil, false
 }
@@ -456,6 +496,8 @@ func (m *LocationMutation) OldField(ctx context.Context, name string) (ent.Value
 		return m.OldPurpose(ctx)
 	case location.FieldUUID:
 		return m.OldUUID(ctx)
+	case location.FieldConfig:
+		return m.OldConfig(ctx)
 	}
 	return nil, fmt.Errorf("unknown Location field %s", name)
 }
@@ -480,14 +522,14 @@ func (m *LocationMutation) SetField(name string, value ent.Value) error {
 		m.SetDescription(v)
 		return nil
 	case location.FieldSource:
-		v, ok := value.(source.LocationSource)
+		v, ok := value.(types.LocationSource)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetSource(v)
 		return nil
 	case location.FieldPurpose:
-		v, ok := value.(purpose.LocationPurpose)
+		v, ok := value.(types.LocationPurpose)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -499,6 +541,13 @@ func (m *LocationMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetUUID(v)
+		return nil
+	case location.FieldConfig:
+		v, ok := value.(types.LocationConfig)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetConfig(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Location field %s", name)
@@ -563,6 +612,9 @@ func (m *LocationMutation) ResetField(name string) error {
 		return nil
 	case location.FieldUUID:
 		m.ResetUUID()
+		return nil
+	case location.FieldConfig:
+		m.ResetConfig()
 		return nil
 	}
 	return fmt.Errorf("unknown Location field %s", name)
@@ -660,7 +712,7 @@ type PkgMutation struct {
 	id              *int
 	name            *string
 	aip_id          *uuid.UUID
-	status          *status.PackageStatus
+	status          *types.PackageStatus
 	object_key      *uuid.UUID
 	clearedFields   map[string]struct{}
 	location        *int
@@ -890,12 +942,12 @@ func (m *PkgMutation) ResetLocationID() {
 }
 
 // SetStatus sets the "status" field.
-func (m *PkgMutation) SetStatus(ss status.PackageStatus) {
-	m.status = &ss
+func (m *PkgMutation) SetStatus(ts types.PackageStatus) {
+	m.status = &ts
 }
 
 // Status returns the value of the "status" field in the mutation.
-func (m *PkgMutation) Status() (r status.PackageStatus, exists bool) {
+func (m *PkgMutation) Status() (r types.PackageStatus, exists bool) {
 	v := m.status
 	if v == nil {
 		return
@@ -906,7 +958,7 @@ func (m *PkgMutation) Status() (r status.PackageStatus, exists bool) {
 // OldStatus returns the old "status" field's value of the Pkg entity.
 // If the Pkg object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PkgMutation) OldStatus(ctx context.Context) (v status.PackageStatus, err error) {
+func (m *PkgMutation) OldStatus(ctx context.Context) (v types.PackageStatus, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldStatus is only allowed on UpdateOne operations")
 	}
@@ -1090,7 +1142,7 @@ func (m *PkgMutation) SetField(name string, value ent.Value) error {
 		m.SetLocationID(v)
 		return nil
 	case pkg.FieldStatus:
-		v, ok := value.(status.PackageStatus)
+		v, ok := value.(types.PackageStatus)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}

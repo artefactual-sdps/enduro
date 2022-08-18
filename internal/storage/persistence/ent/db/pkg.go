@@ -9,7 +9,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/location"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/pkg"
-	"github.com/artefactual-sdps/enduro/internal/storage/status"
+	"github.com/artefactual-sdps/enduro/internal/storage/types"
 	"github.com/google/uuid"
 )
 
@@ -25,7 +25,7 @@ type Pkg struct {
 	// LocationID holds the value of the "location_id" field.
 	LocationID int `json:"location_id,omitempty"`
 	// Status holds the value of the "status" field.
-	Status status.PackageStatus `json:"status,omitempty"`
+	Status types.PackageStatus `json:"status,omitempty"`
 	// ObjectKey holds the value of the "object_key" field.
 	ObjectKey uuid.UUID `json:"object_key,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -66,7 +66,7 @@ func (*Pkg) scanValues(columns []string) ([]interface{}, error) {
 		case pkg.FieldName:
 			values[i] = new(sql.NullString)
 		case pkg.FieldStatus:
-			values[i] = new(status.PackageStatus)
+			values[i] = new(types.PackageStatus)
 		case pkg.FieldAipID, pkg.FieldObjectKey:
 			values[i] = new(uuid.UUID)
 		default:
@@ -109,7 +109,7 @@ func (pk *Pkg) assignValues(columns []string, values []interface{}) error {
 				pk.LocationID = int(value.Int64)
 			}
 		case pkg.FieldStatus:
-			if value, ok := values[i].(*status.PackageStatus); !ok {
+			if value, ok := values[i].(*types.PackageStatus); !ok {
 				return fmt.Errorf("unexpected type %T for field status", values[i])
 			} else if value != nil {
 				pk.Status = *value

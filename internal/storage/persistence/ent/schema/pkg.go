@@ -9,7 +9,7 @@ import (
 	"entgo.io/ent/schema/index"
 	"github.com/google/uuid"
 
-	"github.com/artefactual-sdps/enduro/internal/storage/status"
+	"github.com/artefactual-sdps/enduro/internal/storage/types"
 )
 
 // Pkg holds the schema definition for the Pkg entity.
@@ -36,7 +36,7 @@ func (Pkg) Fields() []ent.Field {
 		field.Int("location_id").
 			Optional(),
 		field.Enum("status").
-			GoType(status.StatusUnspecified),
+			GoType(types.StatusUnspecified),
 		field.UUID("object_key", uuid.UUID{}).
 			Unique(),
 	}

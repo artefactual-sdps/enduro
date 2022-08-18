@@ -18,9 +18,7 @@ import (
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 	"github.com/artefactual-sdps/enduro/internal/ref"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence"
-	"github.com/artefactual-sdps/enduro/internal/storage/purpose"
-	"github.com/artefactual-sdps/enduro/internal/storage/source"
-	"github.com/artefactual-sdps/enduro/internal/storage/status"
+	"github.com/artefactual-sdps/enduro/internal/storage/types"
 )
 
 var SubmitURLExpirationTime = 15 * time.Minute
@@ -41,7 +39,7 @@ type Service interface {
 	// Used from workflow activities.
 	Location(name string) (Location, error)
 	ReadPackage(ctx context.Context, AIPID string) (*goastorage.StoredStoragePackage, error)
-	UpdatePackageStatus(ctx context.Context, status status.PackageStatus, aipID string) error
+	UpdatePackageStatus(ctx context.Context, status types.PackageStatus, aipID string) error
 	UpdatePackageLocation(ctx context.Context, location string, aipID string) error
 	Delete(ctx context.Context, AIPID string) (err error)
 
@@ -152,7 +150,7 @@ func (s *serviceImpl) Update(ctx context.Context, payload *goastorage.UpdatePayl
 		return goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
 	}
 	// Uptade the package status to in_review
-	err = s.UpdatePackageStatus(ctx, status.StatusInReview, payload.AipID)
+	err = s.UpdatePackageStatus(ctx, types.StatusInReview, payload.AipID)
 	if err != nil {
 		return goastorage.MakeNotValid(errors.New("cannot persist package"))
 	}
@@ -173,8 +171,8 @@ func (s *serviceImpl) Locations(context.Context) (goastorage.StoredLocationColle
 			ID:          uint(i + 1),
 			Name:        item.Name,
 			Description: ref.New(""),
-			Source:      source.LocationSourceMinIO.String(),
-			Purpose:     purpose.LocationPurposeAIPStore.String(),
+			Source:      types.LocationSourceMinIO.String(),
+			Purpose:     types.LocationPurposeAIPStore.String(),
 			UUID:        ref.New(""),
 		}
 		res = append(res, l)
@@ -233,7 +231,7 @@ func (s *serviceImpl) MoveStatus(ctx context.Context, payload *goastorage.MoveSt
 }
 
 func (s *serviceImpl) Reject(ctx context.Context, payload *goastorage.RejectPayload) error {
-	return s.UpdatePackageStatus(ctx, status.StatusRejected, payload.AipID)
+	return s.UpdatePackageStatus(ctx, types.StatusRejected, payload.AipID)
 }
 
 func (s *serviceImpl) Show(ctx context.Context, payload *goastorage.ShowPayload) (*goastorage.StoredStoragePackage, error) {
@@ -256,7 +254,7 @@ func (s *serviceImpl) ReadPackage(ctx context.Context, AIPID string) (*goastorag
 	return s.storagePersistence.ReadPackage(ctx, AIPUUID)
 }
 
-func (s *serviceImpl) UpdatePackageStatus(ctx context.Context, status status.PackageStatus, AIPID string) error {
+func (s *serviceImpl) UpdatePackageStatus(ctx context.Context, status types.PackageStatus, AIPID string) error {
 	AIPUUID, err := uuid.Parse(AIPID)
 	if err != nil {
 		return err
@@ -317,11 +315,23 @@ func (s *serviceImpl) PackageReader(ctx context.Context, pkg *goastorage.StoredS
 }
 
 func (s *serviceImpl) AddLocation(ctx context.Context, payload *goastorage.AddLocationPayload) (res *goastorage.AddLocationResult, err error) {
-	source := source.NewLocationSource(payload.Source)
-	purpose := purpose.NewLocationPurpose(payload.Purpose)
+	source := types.NewLocationSource(payload.Source)
+	purpose := types.NewLocationPurpose(payload.Purpose)
 	UUID := uuid.New()
 
-	_, err = s.storagePersistence.CreateLocation(ctx, payload.Name, payload.Description, source, purpose, UUID)
+	var config types.LocationConfig
+	switch c := payload.Config.(type) {
+	case *goastorage.S3Config:
+		config.Value = c.ConvertToS3Config()
+	default:
+		return nil, fmt.Errorf("unsupported config type: %T", c)
+	}
+
+	if !config.Value.Valid() {
+		return nil, goastorage.MakeNotValid(errors.New("invalid configuration"))
+	}
+
+	_, err = s.storagePersistence.CreateLocation(ctx, payload.Name, payload.Description, source, purpose, UUID, &config)
 	if err != nil {
 		return nil, goastorage.MakeNotValid(errors.New("cannot persist location"))
 	}

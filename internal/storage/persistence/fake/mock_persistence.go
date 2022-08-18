@@ -9,9 +9,7 @@ import (
 	reflect "reflect"
 
 	storage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
-	purpose "github.com/artefactual-sdps/enduro/internal/storage/purpose"
-	source "github.com/artefactual-sdps/enduro/internal/storage/source"
-	status "github.com/artefactual-sdps/enduro/internal/storage/status"
+	types "github.com/artefactual-sdps/enduro/internal/storage/types"
 	gomock "github.com/golang/mock/gomock"
 	uuid "github.com/google/uuid"
 )
@@ -40,18 +38,18 @@ func (m *MockStorage) EXPECT() *MockStorageMockRecorder {
 }
 
 // CreateLocation mocks base method.
-func (m *MockStorage) CreateLocation(arg0 context.Context, arg1 string, arg2 *string, arg3 source.LocationSource, arg4 purpose.LocationPurpose, arg5 uuid.UUID) (*storage.StoredLocation, error) {
+func (m *MockStorage) CreateLocation(arg0 context.Context, arg1 string, arg2 *string, arg3 types.LocationSource, arg4 types.LocationPurpose, arg5 uuid.UUID, arg6 *types.LocationConfig) (*storage.StoredLocation, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateLocation", arg0, arg1, arg2, arg3, arg4, arg5)
+	ret := m.ctrl.Call(m, "CreateLocation", arg0, arg1, arg2, arg3, arg4, arg5, arg6)
 	ret0, _ := ret[0].(*storage.StoredLocation)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CreateLocation indicates an expected call of CreateLocation.
-func (mr *MockStorageMockRecorder) CreateLocation(arg0, arg1, arg2, arg3, arg4, arg5 interface{}) *gomock.Call {
+func (mr *MockStorageMockRecorder) CreateLocation(arg0, arg1, arg2, arg3, arg4, arg5, arg6 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateLocation", reflect.TypeOf((*MockStorage)(nil).CreateLocation), arg0, arg1, arg2, arg3, arg4, arg5)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateLocation", reflect.TypeOf((*MockStorage)(nil).CreateLocation), arg0, arg1, arg2, arg3, arg4, arg5, arg6)
 }
 
 // CreatePackage mocks base method.
@@ -144,7 +142,7 @@ func (mr *MockStorageMockRecorder) UpdatePackageLocation(arg0, arg1, arg2 interf
 }
 
 // UpdatePackageStatus mocks base method.
-func (m *MockStorage) UpdatePackageStatus(arg0 context.Context, arg1 status.PackageStatus, arg2 uuid.UUID) error {
+func (m *MockStorage) UpdatePackageStatus(arg0 context.Context, arg1 types.PackageStatus, arg2 uuid.UUID) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdatePackageStatus", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)

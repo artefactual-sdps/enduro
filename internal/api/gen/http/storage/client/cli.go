@@ -24,7 +24,7 @@ func BuildSubmitPayload(storageSubmitBody string, storageSubmitAipID string) (*s
 	{
 		err = json.Unmarshal([]byte(storageSubmitBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"name\": \"Consequatur porro.\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"name\": \"Eveniet voluptas fugiat optio quae distinctio.\"\n   }'")
 		}
 	}
 	var aipID string
@@ -73,13 +73,18 @@ func BuildAddLocationPayload(storageAddLocationBody string) (*storage.AddLocatio
 	{
 		err = json.Unmarshal([]byte(storageAddLocationBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"description\": \"Voluptatibus consequatur in quaerat dolorum.\",\n      \"name\": \"Dolor animi aspernatur sed assumenda ea.\",\n      \"purpose\": \"aip_store\",\n      \"source\": \"minio\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"config\": {\n         \"Type\": \"s3\",\n         \"Value\": \"\\\"JSON\\\"\"\n      },\n      \"description\": \"Beatae amet unde consequatur.\",\n      \"name\": \"Ducimus et ut.\",\n      \"purpose\": \"unspecified\",\n      \"source\": \"minio\"\n   }'")
 		}
 		if !(body.Source == "unspecified" || body.Source == "minio") {
 			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.source", body.Source, []interface{}{"unspecified", "minio"}))
 		}
 		if !(body.Purpose == "unspecified" || body.Purpose == "aip_store") {
 			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.purpose", body.Purpose, []interface{}{"unspecified", "aip_store"}))
+		}
+		if body.Config != nil {
+			if !(body.Config.Type == "s3") {
+				err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.config.Type", body.Config.Type, []interface{}{"s3"}))
+			}
 		}
 		if err != nil {
 			return nil, err
@@ -90,6 +95,14 @@ func BuildAddLocationPayload(storageAddLocationBody string) (*storage.AddLocatio
 		Description: body.Description,
 		Source:      body.Source,
 		Purpose:     body.Purpose,
+	}
+	if body.Config != nil {
+		switch body.Config.Type {
+		case "s3":
+			var val *storage.S3Config
+			json.Unmarshal([]byte(body.Config.Value), &val)
+			v.Config = val
+		}
 	}
 
 	return v, nil
@@ -103,7 +116,7 @@ func BuildMovePayload(storageMoveBody string, storageMoveAipID string) (*storage
 	{
 		err = json.Unmarshal([]byte(storageMoveBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location\": \"Dolorum facere omnis quibusdam architecto explicabo voluptas.\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location\": \"Autem eos temporibus iusto et ut.\"\n   }'")
 		}
 	}
 	var aipID string

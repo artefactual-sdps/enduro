@@ -3,7 +3,7 @@ package storage
 import (
 	"context"
 
-	"github.com/artefactual-sdps/enduro/internal/storage/status"
+	"github.com/artefactual-sdps/enduro/internal/storage/types"
 )
 
 type UpdatePackageLocationLocalActivityParams struct {
@@ -17,7 +17,7 @@ func UpdatePackageLocationLocalActivity(ctx context.Context, storagesvc Service,
 
 type UpdatePackageStatusLocalActivityParams struct {
 	AIPID  string
-	Status status.PackageStatus
+	Status types.PackageStatus
 }
 
 func UpdatePackageStatusLocalActivity(ctx context.Context, storagesvc Service, params *UpdatePackageStatusLocalActivityParams) error {

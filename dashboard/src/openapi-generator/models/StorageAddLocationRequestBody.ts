@@ -13,12 +13,25 @@
  */
 
 import { exists, mapValues } from '../runtime';
+import {
+    StorageAddLocationRequestBodyConfig,
+    StorageAddLocationRequestBodyConfigFromJSON,
+    StorageAddLocationRequestBodyConfigFromJSONTyped,
+    StorageAddLocationRequestBodyConfigToJSON,
+} from './StorageAddLocationRequestBodyConfig';
+
 /**
  * 
  * @export
  * @interface StorageAddLocationRequestBody
  */
 export interface StorageAddLocationRequestBody {
+    /**
+     * 
+     * @type {StorageAddLocationRequestBodyConfig}
+     * @memberof StorageAddLocationRequestBody
+     */
+    config?: StorageAddLocationRequestBodyConfig;
     /**
      * 
      * @type {string}
@@ -75,6 +88,7 @@ export function StorageAddLocationRequestBodyFromJSONTyped(json: any, ignoreDisc
     }
     return {
         
+        'config': !exists(json, 'config') ? undefined : StorageAddLocationRequestBodyConfigFromJSON(json['config']),
         'description': !exists(json, 'description') ? undefined : json['description'],
         'name': json['name'],
         'purpose': json['purpose'],
@@ -91,6 +105,7 @@ export function StorageAddLocationRequestBodyToJSON(value?: StorageAddLocationRe
     }
     return {
         
+        'config': StorageAddLocationRequestBodyConfigToJSON(value.config),
         'description': value.description,
         'name': value.name,
         'purpose': value.purpose,
