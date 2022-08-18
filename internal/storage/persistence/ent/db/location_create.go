@@ -11,8 +11,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/location"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/pkg"
-	"github.com/artefactual-sdps/enduro/internal/storage/purpose"
-	"github.com/artefactual-sdps/enduro/internal/storage/source"
+	"github.com/artefactual-sdps/enduro/internal/storage/types"
 	"github.com/google/uuid"
 )
 
@@ -36,20 +35,26 @@ func (lc *LocationCreate) SetDescription(s string) *LocationCreate {
 }
 
 // SetSource sets the "source" field.
-func (lc *LocationCreate) SetSource(ss source.LocationSource) *LocationCreate {
-	lc.mutation.SetSource(ss)
+func (lc *LocationCreate) SetSource(ts types.LocationSource) *LocationCreate {
+	lc.mutation.SetSource(ts)
 	return lc
 }
 
 // SetPurpose sets the "purpose" field.
-func (lc *LocationCreate) SetPurpose(pp purpose.LocationPurpose) *LocationCreate {
-	lc.mutation.SetPurpose(pp)
+func (lc *LocationCreate) SetPurpose(tp types.LocationPurpose) *LocationCreate {
+	lc.mutation.SetPurpose(tp)
 	return lc
 }
 
 // SetUUID sets the "uuid" field.
 func (lc *LocationCreate) SetUUID(u uuid.UUID) *LocationCreate {
 	lc.mutation.SetUUID(u)
+	return lc
+}
+
+// SetConfig sets the "config" field.
+func (lc *LocationCreate) SetConfig(tc types.LocationConfig) *LocationCreate {
+	lc.mutation.SetConfig(tc)
 	return lc
 }
 
@@ -169,6 +174,9 @@ func (lc *LocationCreate) check() error {
 	if _, ok := lc.mutation.UUID(); !ok {
 		return &ValidationError{Name: "uuid", err: errors.New(`db: missing required field "Location.uuid"`)}
 	}
+	if _, ok := lc.mutation.Config(); !ok {
+		return &ValidationError{Name: "config", err: errors.New(`db: missing required field "Location.config"`)}
+	}
 	return nil
 }
 
@@ -235,6 +243,14 @@ func (lc *LocationCreate) createSpec() (*Location, *sqlgraph.CreateSpec) {
 			Column: location.FieldUUID,
 		})
 		_node.UUID = value
+	}
+	if value, ok := lc.mutation.Config(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeJSON,
+			Value:  value,
+			Column: location.FieldConfig,
+		})
+		_node.Config = value
 	}
 	if nodes := lc.mutation.PackagesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

@@ -57,6 +57,7 @@ models/PackageShowNotFoundResponseBody.ts
 models/PackageShowResponseBody.ts
 models/StorageAddLocationNotValidResponseBody.ts
 models/StorageAddLocationRequestBody.ts
+models/StorageAddLocationRequestBodyConfig.ts
 models/StorageAddLocationResponseBody.ts
 models/StorageDownloadNotFoundResponseBody.ts
 models/StorageMoveNotAvailableResponseBody.ts

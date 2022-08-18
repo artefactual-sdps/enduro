@@ -19,7 +19,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/storage"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/fake"
-	"github.com/artefactual-sdps/enduro/internal/storage/status"
+	"github.com/artefactual-sdps/enduro/internal/storage/types"
 )
 
 type setUpAttrs struct {
@@ -201,7 +201,7 @@ func TestReject(t *testing.T) {
 			EXPECT().
 			UpdatePackageStatus(
 				ctx,
-				status.StatusRejected,
+				types.StatusRejected,
 				uuid.MustParse(AIPID),
 			).
 			Return(nil).
@@ -238,7 +238,7 @@ func TestServiceUpdatePackageStatus(t *testing.T) {
 		svc := setUpService(t, &attrs)
 		ctx := context.Background()
 
-		err := svc.UpdatePackageStatus(ctx, status.StatusStored, "<invalid-uuid>")
+		err := svc.UpdatePackageStatus(ctx, types.StatusStored, "<invalid-uuid>")
 		assert.Error(t, err, "invalid UUID length: 14")
 	})
 
@@ -254,13 +254,13 @@ func TestServiceUpdatePackageStatus(t *testing.T) {
 			EXPECT().
 			UpdatePackageStatus(
 				ctx,
-				status.StatusStored,
+				types.StatusStored,
 				uuid.MustParse(AIPID),
 			).
 			Return(errors.New("something is wrong")).
 			Times(1)
 
-		err := svc.UpdatePackageStatus(ctx, status.StatusStored, AIPID)
+		err := svc.UpdatePackageStatus(ctx, types.StatusStored, AIPID)
 		assert.Error(t, err, "something is wrong")
 	})
 }

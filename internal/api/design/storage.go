@@ -2,6 +2,8 @@ package design
 
 import (
 	. "goa.design/goa/v3/dsl"
+
+	"github.com/artefactual-sdps/enduro/internal/storage/types"
 )
 
 var _ = Service("storage", func() {
@@ -75,6 +77,9 @@ var _ = Service("storage", func() {
 			})
 			Attribute("purpose", String, func() {
 				EnumLocationPurpose()
+			})
+			OneOf("config", func() {
+				Attribute("s3", S3Config)
 			})
 			Required("name", "source", "purpose")
 		})
@@ -286,4 +291,19 @@ var StoragePackage = Type("StoragePackage", func() {
 	})
 	Attribute("object_key", String)
 	Attribute("location", String)
+})
+
+var S3Config = Type("S3Config", func() {
+	ConvertTo(types.S3Config{})
+
+	Attribute("bucket", String)
+	Attribute("region", String)
+	Attribute("endpoint", String)
+	Attribute("path_style", Boolean)
+	Attribute("profile", String)
+	Attribute("key", String)
+	Attribute("secret", String)
+	Attribute("token", String)
+
+	Required("bucket", "region")
 })

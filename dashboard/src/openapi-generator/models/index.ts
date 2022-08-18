@@ -52,6 +52,7 @@ export * from './PackageShowNotFoundResponseBody';
 export * from './PackageShowResponseBody';
 export * from './StorageAddLocationNotValidResponseBody';
 export * from './StorageAddLocationRequestBody';
+export * from './StorageAddLocationRequestBodyConfig';
 export * from './StorageAddLocationResponseBody';
 export * from './StorageDownloadNotFoundResponseBody';
 export * from './StorageMoveNotAvailableResponseBody';

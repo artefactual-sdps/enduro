@@ -13,8 +13,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/location"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/pkg"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/predicate"
-	"github.com/artefactual-sdps/enduro/internal/storage/purpose"
-	"github.com/artefactual-sdps/enduro/internal/storage/source"
+	"github.com/artefactual-sdps/enduro/internal/storage/types"
 	"github.com/google/uuid"
 )
 
@@ -44,20 +43,26 @@ func (lu *LocationUpdate) SetDescription(s string) *LocationUpdate {
 }
 
 // SetSource sets the "source" field.
-func (lu *LocationUpdate) SetSource(ss source.LocationSource) *LocationUpdate {
-	lu.mutation.SetSource(ss)
+func (lu *LocationUpdate) SetSource(ts types.LocationSource) *LocationUpdate {
+	lu.mutation.SetSource(ts)
 	return lu
 }
 
 // SetPurpose sets the "purpose" field.
-func (lu *LocationUpdate) SetPurpose(pp purpose.LocationPurpose) *LocationUpdate {
-	lu.mutation.SetPurpose(pp)
+func (lu *LocationUpdate) SetPurpose(tp types.LocationPurpose) *LocationUpdate {
+	lu.mutation.SetPurpose(tp)
 	return lu
 }
 
 // SetUUID sets the "uuid" field.
 func (lu *LocationUpdate) SetUUID(u uuid.UUID) *LocationUpdate {
 	lu.mutation.SetUUID(u)
+	return lu
+}
+
+// SetConfig sets the "config" field.
+func (lu *LocationUpdate) SetConfig(tc types.LocationConfig) *LocationUpdate {
+	lu.mutation.SetConfig(tc)
 	return lu
 }
 
@@ -230,6 +235,13 @@ func (lu *LocationUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: location.FieldUUID,
 		})
 	}
+	if value, ok := lu.mutation.Config(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeJSON,
+			Value:  value,
+			Column: location.FieldConfig,
+		})
+	}
 	if lu.mutation.PackagesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
@@ -316,20 +328,26 @@ func (luo *LocationUpdateOne) SetDescription(s string) *LocationUpdateOne {
 }
 
 // SetSource sets the "source" field.
-func (luo *LocationUpdateOne) SetSource(ss source.LocationSource) *LocationUpdateOne {
-	luo.mutation.SetSource(ss)
+func (luo *LocationUpdateOne) SetSource(ts types.LocationSource) *LocationUpdateOne {
+	luo.mutation.SetSource(ts)
 	return luo
 }
 
 // SetPurpose sets the "purpose" field.
-func (luo *LocationUpdateOne) SetPurpose(pp purpose.LocationPurpose) *LocationUpdateOne {
-	luo.mutation.SetPurpose(pp)
+func (luo *LocationUpdateOne) SetPurpose(tp types.LocationPurpose) *LocationUpdateOne {
+	luo.mutation.SetPurpose(tp)
 	return luo
 }
 
 // SetUUID sets the "uuid" field.
 func (luo *LocationUpdateOne) SetUUID(u uuid.UUID) *LocationUpdateOne {
 	luo.mutation.SetUUID(u)
+	return luo
+}
+
+// SetConfig sets the "config" field.
+func (luo *LocationUpdateOne) SetConfig(tc types.LocationConfig) *LocationUpdateOne {
+	luo.mutation.SetConfig(tc)
 	return luo
 }
 
@@ -530,6 +548,13 @@ func (luo *LocationUpdateOne) sqlSave(ctx context.Context) (_node *Location, err
 			Type:   field.TypeUUID,
 			Value:  value,
 			Column: location.FieldUUID,
+		})
+	}
+	if value, ok := luo.mutation.Config(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeJSON,
+			Value:  value,
+			Column: location.FieldConfig,
 		})
 	}
 	if luo.mutation.PackagesCleared() {

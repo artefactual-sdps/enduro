@@ -13,7 +13,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/location"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/pkg"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/predicate"
-	"github.com/artefactual-sdps/enduro/internal/storage/status"
+	"github.com/artefactual-sdps/enduro/internal/storage/types"
 	"github.com/google/uuid"
 )
 
@@ -63,8 +63,8 @@ func (pu *PkgUpdate) ClearLocationID() *PkgUpdate {
 }
 
 // SetStatus sets the "status" field.
-func (pu *PkgUpdate) SetStatus(ss status.PackageStatus) *PkgUpdate {
-	pu.mutation.SetStatus(ss)
+func (pu *PkgUpdate) SetStatus(ts types.PackageStatus) *PkgUpdate {
+	pu.mutation.SetStatus(ts)
 	return pu
 }
 
@@ -293,8 +293,8 @@ func (puo *PkgUpdateOne) ClearLocationID() *PkgUpdateOne {
 }
 
 // SetStatus sets the "status" field.
-func (puo *PkgUpdateOne) SetStatus(ss status.PackageStatus) *PkgUpdateOne {
-	puo.mutation.SetStatus(ss)
+func (puo *PkgUpdateOne) SetStatus(ts types.PackageStatus) *PkgUpdateOne {
+	puo.mutation.SetStatus(ts)
 	return puo
 }
 

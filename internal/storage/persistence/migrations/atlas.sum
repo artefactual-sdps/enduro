@@ -1,3 +1,5 @@
-h1:BH4WYx2UQPNRUwOEcjB8LTow0sWOQ86OlcIJ2IfiI/E=
+h1:QP8qKIjaC/oidxGFQ3nSau8WH12aZZrQsGsViG+atv0=
 20220818175139_init.down.sql h1:SU3ri3mnbAqcubHMc09bvtO1fHwsmWf0Fv3zO32TIKE=
 20220818175139_init.up.sql h1:L99Oh5xRGKLr5aV9GfKdP0Wz9hMJ2jGHwdNdFYYDcj4=
+20220819155618_location_config.down.sql h1:YHBToXRroeebB14Oi6BV6Ts8urWNUBIkSkt879Ant9o=
+20220819155618_location_config.up.sql h1:y9bNaLWOxphh62tWNK1NXNXpzRb8l89J0xfwqzdHqts=

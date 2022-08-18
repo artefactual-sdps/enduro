@@ -56,6 +56,9 @@ type AddLocationPayload struct {
 	Description *string
 	Source      string
 	Purpose     string
+	Config      interface {
+		configVal()
+	}
 }
 
 // AddLocationResult is the result type of the storage service add_location
@@ -90,6 +93,17 @@ type MoveStatusResult struct {
 // RejectPayload is the payload type of the storage service reject method.
 type RejectPayload struct {
 	AipID string
+}
+
+type S3Config struct {
+	Bucket    string
+	Region    string
+	Endpoint  *string
+	PathStyle *bool
+	Profile   *string
+	Key       *string
+	Secret    *string
+	Token     *string
 }
 
 // ShowLocationPayload is the payload type of the storage service show-location
@@ -185,6 +199,7 @@ func (e *StoragePackageNotfound) Error() string {
 func (e *StoragePackageNotfound) ErrorName() string {
 	return e.Message
 }
+func (*S3Config) configVal() {}
 
 // MakeNotAvailable builds a goa.ServiceError from an error.
 func MakeNotAvailable(err error) *goa.ServiceError {

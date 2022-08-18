@@ -17,6 +17,7 @@ var (
 		{Name: "source", Type: field.TypeEnum, Enums: []string{"unspecified", "minio"}},
 		{Name: "purpose", Type: field.TypeEnum, Enums: []string{"unspecified", "aip_store"}},
 		{Name: "uuid", Type: field.TypeUUID, Unique: true},
+		{Name: "config", Type: field.TypeJSON},
 	}
 	// LocationTable holds the schema information for the "location" table.
 	LocationTable = &schema.Table{

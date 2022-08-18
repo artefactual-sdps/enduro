@@ -6,7 +6,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/predicate"
-	"github.com/artefactual-sdps/enduro/internal/storage/status"
+	"github.com/artefactual-sdps/enduro/internal/storage/types"
 	"github.com/google/uuid"
 )
 
@@ -359,21 +359,21 @@ func LocationIDNotNil() predicate.Pkg {
 }
 
 // StatusEQ applies the EQ predicate on the "status" field.
-func StatusEQ(v status.PackageStatus) predicate.Pkg {
+func StatusEQ(v types.PackageStatus) predicate.Pkg {
 	return predicate.Pkg(func(s *sql.Selector) {
 		s.Where(sql.EQ(s.C(FieldStatus), v))
 	})
 }
 
 // StatusNEQ applies the NEQ predicate on the "status" field.
-func StatusNEQ(v status.PackageStatus) predicate.Pkg {
+func StatusNEQ(v types.PackageStatus) predicate.Pkg {
 	return predicate.Pkg(func(s *sql.Selector) {
 		s.Where(sql.NEQ(s.C(FieldStatus), v))
 	})
 }
 
 // StatusIn applies the In predicate on the "status" field.
-func StatusIn(vs ...status.PackageStatus) predicate.Pkg {
+func StatusIn(vs ...types.PackageStatus) predicate.Pkg {
 	v := make([]interface{}, len(vs))
 	for i := range v {
 		v[i] = vs[i]
@@ -390,7 +390,7 @@ func StatusIn(vs ...status.PackageStatus) predicate.Pkg {
 }
 
 // StatusNotIn applies the NotIn predicate on the "status" field.
-func StatusNotIn(vs ...status.PackageStatus) predicate.Pkg {
+func StatusNotIn(vs ...types.PackageStatus) predicate.Pkg {
 	v := make([]interface{}, len(vs))
 	for i := range v {
 		v[i] = vs[i]

@@ -12,9 +12,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/location"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/pkg"
-	"github.com/artefactual-sdps/enduro/internal/storage/purpose"
-	"github.com/artefactual-sdps/enduro/internal/storage/source"
-	"github.com/artefactual-sdps/enduro/internal/storage/status"
+	"github.com/artefactual-sdps/enduro/internal/storage/types"
 )
 
 var ErrUnexpectedUpdateResults = errors.New("update operation had unexpected results")
@@ -34,7 +32,7 @@ func (c *Client) CreatePackage(ctx context.Context, name string, AIPID uuid.UUID
 		SetName(name).
 		SetAipID(AIPID).
 		SetObjectKey(objectKey).
-		SetStatus(status.StatusUnspecified).
+		SetStatus(types.StatusUnspecified).
 		Save(ctx)
 	if err != nil {
 		return nil, err
@@ -67,7 +65,7 @@ func (c *Client) ReadPackage(ctx context.Context, AIPID uuid.UUID) (*goastorage.
 	return pkgAsGoa(ctx, pkg), nil
 }
 
-func (c *Client) UpdatePackageStatus(ctx context.Context, status status.PackageStatus, AIPID uuid.UUID) error {
+func (c *Client) UpdatePackageStatus(ctx context.Context, status types.PackageStatus, AIPID uuid.UUID) error {
 	n, err := c.c.Pkg.Update().
 		Where(
 			pkg.AipID(AIPID),
@@ -131,17 +129,24 @@ func pkgAsGoa(ctx context.Context, pkg *db.Pkg) *goastorage.StoredStoragePackage
 	return p
 }
 
-func (c *Client) CreateLocation(ctx context.Context, name string, description *string, source source.LocationSource, purpose purpose.LocationPurpose, UUID uuid.UUID) (*goastorage.StoredLocation, error) {
+func (c *Client) CreateLocation(ctx context.Context, name string, description *string, source types.LocationSource, purpose types.LocationPurpose, UUID uuid.UUID, config *types.LocationConfig) (*goastorage.StoredLocation, error) {
 	var d string
 	if description != nil {
 		d = *description
 	}
+
+	var sc types.LocationConfig
+	if config != nil {
+		sc = *config
+	}
+
 	l, err := c.c.Location.Create().
 		SetName(name).
 		SetDescription(d).
 		SetSource(source).
 		SetPurpose(purpose).
 		SetUUID(UUID).
+		SetConfig(sc).
 		Save(ctx)
 	if err != nil {
 		return nil, err

@@ -15,9 +15,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/enttest"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/pkg"
-	"github.com/artefactual-sdps/enduro/internal/storage/purpose"
-	"github.com/artefactual-sdps/enduro/internal/storage/source"
-	"github.com/artefactual-sdps/enduro/internal/storage/status"
+	"github.com/artefactual-sdps/enduro/internal/storage/types"
 )
 
 func setUpClient(t *testing.T) (*db.Client, *client.Client) {
@@ -60,13 +58,13 @@ func TestListPackages(t *testing.T) {
 		SetName("Package").
 		SetAipID(uuid.MustParse("488c64cc-d89b-4916-9131-c94152dfb12e")).
 		SetObjectKey(uuid.MustParse("e2630293-a714-4787-ab6d-e68254a6fb6a")).
-		SetStatus(status.StatusStored).
+		SetStatus(types.StatusStored).
 		SaveX(context.Background())
 	entc.Pkg.Create().
 		SetName("Another Package").
 		SetAipID(uuid.MustParse("96e182a0-31ab-4738-a620-1ff1954d9ecb")).
 		SetObjectKey(uuid.MustParse("49b0a604-6c81-458c-852a-1afa713f1fd9")).
-		SetStatus(status.StatusRejected).
+		SetStatus(types.StatusRejected).
 		SaveX(context.Background())
 
 	pkgs, err := c.ListPackages(context.Background())
@@ -100,7 +98,7 @@ func TestReadPackage(t *testing.T) {
 		SetName("Package").
 		SetAipID(uuid.MustParse("488c64cc-d89b-4916-9131-c94152dfb12e")).
 		SetObjectKey(uuid.MustParse("e2630293-a714-4787-ab6d-e68254a6fb6a")).
-		SetStatus(status.StatusStored).
+		SetStatus(types.StatusStored).
 		SaveX(context.Background())
 
 	pkg, err := c.ReadPackage(context.Background(), uuid.MustParse("488c64cc-d89b-4916-9131-c94152dfb12e"))
@@ -124,16 +122,16 @@ func TestUpdatePackageStatus(t *testing.T) {
 		SetName("Package").
 		SetAipID(uuid.MustParse("488c64cc-d89b-4916-9131-c94152dfb12e")).
 		SetObjectKey(uuid.MustParse("e2630293-a714-4787-ab6d-e68254a6fb6a")).
-		SetStatus(status.StatusStored).
+		SetStatus(types.StatusStored).
 		SaveX(context.Background())
 
-	err := c.UpdatePackageStatus(context.Background(), status.StatusRejected, p.AipID)
+	err := c.UpdatePackageStatus(context.Background(), types.StatusRejected, p.AipID)
 	assert.NilError(t, err)
 
 	entc.Pkg.Query().
 		Where(
 			pkg.ID(p.ID),
-			pkg.StatusEQ(status.StatusRejected),
+			pkg.StatusEQ(types.StatusRejected),
 		).OnlyX(context.Background())
 }
 
@@ -145,24 +143,34 @@ func TestUpdatePackageLocation(t *testing.T) {
 	l1 := entc.Location.Create().
 		SetName("perma-aips-1").
 		SetDescription("").
-		SetSource(source.LocationSourceMinIO).
-		SetPurpose(purpose.LocationPurposeAIPStore).
+		SetSource(types.LocationSourceMinIO).
+		SetPurpose(types.LocationPurposeAIPStore).
 		SetUUID(uuid.MustParse("af2cd8cb-6f20-41c2-ab64-225d48312ac8")).
+		SetConfig(types.LocationConfig{
+			Value: &types.S3Config{
+				Bucket: "perma-aips-1",
+			},
+		}).
 		SaveX(context.Background())
 
 	l2 := entc.Location.Create().
 		SetName("perma-aips-2").
 		SetDescription("").
-		SetSource(source.LocationSourceMinIO).
-		SetPurpose(purpose.LocationPurposeAIPStore).
+		SetSource(types.LocationSourceMinIO).
+		SetPurpose(types.LocationPurposeAIPStore).
 		SetUUID(uuid.MustParse("aef501be-b726-4d32-820d-549541d29b64")).
+		SetConfig(types.LocationConfig{
+			Value: &types.S3Config{
+				Bucket: "perma-aips-2",
+			},
+		}).
 		SaveX(context.Background())
 
 	p := entc.Pkg.Create().
 		SetName("Package").
 		SetAipID(uuid.MustParse("488c64cc-d89b-4916-9131-c94152dfb12e")).
 		SetObjectKey(uuid.MustParse("e2630293-a714-4787-ab6d-e68254a6fb6a")).
-		SetStatus(status.StatusStored).
+		SetStatus(types.StatusStored).
 		SetLocation(l1).
 		SaveX(context.Background())
 
@@ -185,18 +193,24 @@ func TestCreateLocation(t *testing.T) {
 		context.Background(),
 		"test_location",
 		ref.New("location description"),
-		source.LocationSourceMinIO,
-		purpose.LocationPurposeAIPStore,
+		types.LocationSourceMinIO,
+		types.LocationPurposeAIPStore,
 		uuid.MustParse("7a090f2c-7bd4-471c-8aa1-8c72125decd5"),
+		&types.LocationConfig{
+			Value: &types.S3Config{
+				Bucket: "perma-aips-1",
+			},
+		},
 	)
 	assert.NilError(t, err)
 
 	dblocation := entc.Location.GetX(context.Background(), int(l.ID))
 	assert.Equal(t, dblocation.Name, "test_location")
 	assert.Equal(t, dblocation.Description, "location description")
-	assert.Equal(t, dblocation.Source, source.LocationSourceMinIO)
-	assert.Equal(t, dblocation.Purpose, purpose.LocationPurposeAIPStore)
+	assert.Equal(t, dblocation.Source, types.LocationSourceMinIO)
+	assert.Equal(t, dblocation.Purpose, types.LocationPurposeAIPStore)
 	assert.Equal(t, dblocation.UUID.String(), "7a090f2c-7bd4-471c-8aa1-8c72125decd5")
+	assert.DeepEqual(t, dblocation.Config.Value, &types.S3Config{Bucket: "perma-aips-1"})
 }
 
 func TestListLocations(t *testing.T) {
@@ -207,16 +221,26 @@ func TestListLocations(t *testing.T) {
 	entc.Location.Create().
 		SetName("Location").
 		SetDescription("location").
-		SetSource(source.LocationSourceMinIO).
-		SetPurpose(purpose.LocationPurposeAIPStore).
+		SetSource(types.LocationSourceMinIO).
+		SetPurpose(types.LocationPurposeAIPStore).
 		SetUUID(uuid.MustParse("021f7ac2-5b0b-4620-b574-21f6a206cff3")).
+		SetConfig(types.LocationConfig{
+			Value: &types.S3Config{
+				Bucket: "perma-aips-1",
+			},
+		}).
 		SaveX(context.Background())
 	entc.Location.Create().
 		SetName("Another Location").
 		SetDescription("another location").
-		SetSource(source.LocationSourceMinIO).
-		SetPurpose(purpose.LocationPurposeAIPStore).
+		SetSource(types.LocationSourceMinIO).
+		SetPurpose(types.LocationPurposeAIPStore).
 		SetUUID(uuid.MustParse("7ba9a118-a662-4047-8547-64bc752b91c6")).
+		SetConfig(types.LocationConfig{
+			Value: &types.S3Config{
+				Bucket: "perma-aips-2",
+			},
+		}).
 		SaveX(context.Background())
 
 	locations, err := c.ListLocations(context.Background())
@@ -249,9 +273,14 @@ func TestReadLocation(t *testing.T) {
 	entc.Location.Create().
 		SetName("test_location").
 		SetDescription("location description").
-		SetSource(source.LocationSourceMinIO).
-		SetPurpose(purpose.LocationPurposeAIPStore).
+		SetSource(types.LocationSourceMinIO).
+		SetPurpose(types.LocationPurposeAIPStore).
 		SetUUID(uuid.MustParse("7a090f2c-7bd4-471c-8aa1-8c72125decd5")).
+		SetConfig(types.LocationConfig{
+			Value: &types.S3Config{
+				Bucket: "perma-aips-1",
+			},
+		}).
 		SaveX(context.Background())
 
 	l, err := c.ReadLocation(context.Background(), uuid.MustParse("7a090f2c-7bd4-471c-8aa1-8c72125decd5"))
@@ -260,8 +289,8 @@ func TestReadLocation(t *testing.T) {
 		ID:          1,
 		Name:        "test_location",
 		Description: ref.New("location description"),
-		Source:      source.LocationSourceMinIO.String(),
-		Purpose:     purpose.LocationPurposeAIPStore.String(),
+		Source:      types.LocationSourceMinIO.String(),
+		Purpose:     types.LocationPurposeAIPStore.String(),
 		UUID:        ref.New("7a090f2c-7bd4-471c-8aa1-8c72125decd5"),
 	})
 }

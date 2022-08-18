@@ -9,8 +9,7 @@ import (
 	"entgo.io/ent/schema/index"
 	"github.com/google/uuid"
 
-	"github.com/artefactual-sdps/enduro/internal/storage/purpose"
-	"github.com/artefactual-sdps/enduro/internal/storage/source"
+	"github.com/artefactual-sdps/enduro/internal/storage/types"
 )
 
 // Location holds the schema definition for the Location entity.
@@ -37,11 +36,12 @@ func (Location) Fields() []ent.Field {
 				Size: 2048,
 			}),
 		field.Enum("source").
-			GoType(source.LocationSourceUnspecified),
+			GoType(types.LocationSourceUnspecified),
 		field.Enum("purpose").
-			GoType(purpose.LocationPurposeUnspecified),
+			GoType(types.LocationPurposeUnspecified),
 		field.UUID("uuid", uuid.UUID{}).
 			Unique(),
+		field.JSON("config", types.LocationConfig{}),
 	}
 }
 
