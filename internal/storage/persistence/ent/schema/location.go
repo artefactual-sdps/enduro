@@ -40,7 +40,8 @@ func (Location) Fields() []ent.Field {
 			GoType(source.LocationSourceUnspecified),
 		field.Enum("purpose").
 			GoType(purpose.LocationPurposeUnspecified),
-		field.UUID("uuid", uuid.UUID{}),
+		field.UUID("uuid", uuid.UUID{}).
+			Unique(),
 	}
 }
 

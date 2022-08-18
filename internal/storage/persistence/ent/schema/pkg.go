@@ -31,12 +31,14 @@ func (Pkg) Fields() []ent.Field {
 			Annotations(entsql.Annotation{
 				Size: 2048,
 			}),
-		field.UUID("aip_id", uuid.UUID{}),
+		field.UUID("aip_id", uuid.UUID{}).
+			Unique(),
 		field.Int("location_id").
 			Optional(),
 		field.Enum("status").
 			GoType(status.StatusUnspecified),
-		field.UUID("object_key", uuid.UUID{}),
+		field.UUID("object_key", uuid.UUID{}).
+			Unique(),
 	}
 }
 

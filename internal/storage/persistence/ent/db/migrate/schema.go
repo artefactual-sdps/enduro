@@ -16,7 +16,7 @@ var (
 		{Name: "description", Type: field.TypeString, Size: 2048},
 		{Name: "source", Type: field.TypeEnum, Enums: []string{"unspecified", "minio"}},
 		{Name: "purpose", Type: field.TypeEnum, Enums: []string{"unspecified", "aip_store"}},
-		{Name: "uuid", Type: field.TypeUUID},
+		{Name: "uuid", Type: field.TypeUUID, Unique: true},
 	}
 	// LocationTable holds the schema information for the "location" table.
 	LocationTable = &schema.Table{
@@ -43,9 +43,9 @@ var (
 	PackageColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "name", Type: field.TypeString, Size: 2048},
-		{Name: "aip_id", Type: field.TypeUUID},
+		{Name: "aip_id", Type: field.TypeUUID, Unique: true},
 		{Name: "status", Type: field.TypeEnum, Enums: []string{"unspecified", "in_review", "rejected", "stored", "moving"}},
-		{Name: "object_key", Type: field.TypeUUID},
+		{Name: "object_key", Type: field.TypeUUID, Unique: true},
 		{Name: "location_id", Type: field.TypeInt, Nullable: true},
 	}
 	// PackageTable holds the schema information for the "package" table.
