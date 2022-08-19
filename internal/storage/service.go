@@ -112,15 +112,16 @@ func (s *serviceImpl) Location(name string) (Location, error) {
 }
 
 func (s *serviceImpl) Submit(ctx context.Context, payload *goastorage.SubmitPayload) (*goastorage.SubmitResult, error) {
-	_, err := InitStorageUploadWorkflow(ctx, s.tc, &StorageUploadWorkflowRequest{AIPID: payload.AipID})
+	AIPUUID, err := uuid.Parse(payload.AipID)
+	if err != nil {
+		return nil, goastorage.MakeNotValid(err)
+	}
+
+	_, err = InitStorageUploadWorkflow(ctx, s.tc, &StorageUploadWorkflowRequest{AIPID: payload.AipID})
 	if err != nil {
 		return nil, goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
 	}
 
-	AIPUUID, err := uuid.Parse(payload.AipID)
-	if err != nil {
-		return nil, goastorage.MakeNotValid(errors.New("cannot persist package"))
-	}
 	objectKey := uuid.New()
 	_, err = s.storagePersistence.CreatePackage(ctx, payload.Name, AIPUUID, objectKey)
 	if err != nil {

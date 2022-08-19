@@ -38,29 +38,23 @@ type UploadDoneSignal struct{}
 func InitStorageUploadWorkflow(ctx context.Context, tc temporalsdk_client.Client, req *StorageUploadWorkflowRequest) (temporalsdk_client.WorkflowRun, error) {
 	ctx, cancel := context.WithTimeout(ctx, time.Second*5)
 	defer cancel()
+
 	opts := temporalsdk_client.StartWorkflowOptions{
 		ID:                    fmt.Sprintf("%s-%s", StorageUploadWorkflowName, req.AIPID),
 		TaskQueue:             temporal.GlobalTaskQueue,
 		WorkflowIDReusePolicy: temporalsdk_api_enums.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE,
 	}
-	exec, err := tc.ExecuteWorkflow(ctx, opts, StorageUploadWorkflowName, req)
-	if err != nil {
-		return nil, err
-	}
-	return exec, nil
+	return tc.ExecuteWorkflow(ctx, opts, StorageUploadWorkflowName, req)
 }
 
 func InitStorageMoveWorkflow(ctx context.Context, tc temporalsdk_client.Client, req *StorageMoveWorkflowRequest) (temporalsdk_client.WorkflowRun, error) {
 	ctx, cancel := context.WithTimeout(ctx, time.Second*5)
 	defer cancel()
+
 	opts := temporalsdk_client.StartWorkflowOptions{
 		ID:                    fmt.Sprintf("%s-%s", StorageMoveWorkflowName, req.AIPID),
 		TaskQueue:             temporal.GlobalTaskQueue,
 		WorkflowIDReusePolicy: temporalsdk_api_enums.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE,
 	}
-	exec, err := tc.ExecuteWorkflow(ctx, opts, StorageMoveWorkflowName, req)
-	if err != nil {
-		return nil, err
-	}
-	return exec, nil
+	return tc.ExecuteWorkflow(ctx, opts, StorageMoveWorkflowName, req)
 }

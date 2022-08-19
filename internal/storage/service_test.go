@@ -4,13 +4,19 @@ import (
 	"context"
 	"errors"
 	"io"
+	"net/url"
 	"testing"
 
 	"github.com/go-logr/logr"
 	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
+	"github.com/stretchr/testify/mock"
+	temporalsdk_api_enums "go.temporal.io/api/enums/v1"
 	temporalsdk_client "go.temporal.io/sdk/client"
 	temporalsdk_mocks "go.temporal.io/sdk/mocks"
+	goa "goa.design/goa/v3/pkg"
+	"gocloud.dev/blob"
+	"gocloud.dev/blob/fileblob"
 	"gocloud.dev/blob/memblob"
 	"gotest.tools/v3/assert"
 
@@ -88,6 +94,21 @@ func setUpService(t *testing.T, attrs *setUpAttrs) storage.Service {
 	return s
 }
 
+func fakeInternalLocation(t *testing.T, svc storage.Service, b *blob.Bucket) {
+	t.Helper()
+
+	t.Cleanup(func() { b.Close() })
+
+	l, err := svc.Location("")
+	assert.NilError(t, err)
+
+	if b == nil {
+		b = memblob.OpenBucket(nil)
+	}
+
+	l.SetBucket(b)
+}
+
 func fakeLocation(t *testing.T, svc storage.Service, name, objectKey, contents string) {
 	t.Helper()
 
@@ -95,6 +116,7 @@ func fakeLocation(t *testing.T, svc storage.Service, name, objectKey, contents s
 	assert.NilError(t, err)
 
 	mb := memblob.OpenBucket(nil)
+	t.Cleanup(func() { mb.Close() })
 	l.SetBucket(mb)
 
 	mb.WriteAll(context.Background(), objectKey, []byte(contents), nil)
@@ -111,6 +133,217 @@ func TestNewService(t *testing.T) {
 	)
 
 	assert.ErrorContains(t, err, "s3blob.OpenBucket: bucketName is required")
+}
+
+func TestServiceSubmit(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Returns not_valid if AIPID is invalid", func(t *testing.T) {
+		t.Parallel()
+
+		AIPID := "12345"
+		attrs := &setUpAttrs{}
+		svc := setUpService(t, attrs)
+
+		ret, err := svc.Submit(context.Background(), &goastorage.SubmitPayload{
+			AipID: AIPID,
+		})
+		assert.Assert(t, ret == nil)
+		assert.Equal(t, err.(*goa.ServiceError).Name, "not_valid")
+		assert.ErrorContains(t, err, "invalid UUID length: 5")
+	})
+
+	t.Run("Returns not_available if workflow cannot be executed", func(t *testing.T) {
+		t.Parallel()
+
+		AIPID := "5ab42bc3-acc2-420b-bbd0-76efdef94828"
+		attrs := &setUpAttrs{}
+		svc := setUpService(t, attrs)
+
+		attrs.temporalClientMock.
+			On(
+				"ExecuteWorkflow",
+				mock.AnythingOfType("*context.timerCtx"),
+				temporalsdk_client.StartWorkflowOptions{
+					ID:                    "storage-upload-workflow-" + AIPID,
+					TaskQueue:             "global",
+					WorkflowIDReusePolicy: temporalsdk_api_enums.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE,
+				},
+				"storage-upload-workflow",
+				&storage.StorageUploadWorkflowRequest{AIPID: AIPID},
+			).
+			Return(
+				nil,
+				errors.New("something went wrong"),
+			).
+			Times(1)
+
+		ret, err := svc.Submit(context.Background(), &goastorage.SubmitPayload{
+			AipID: AIPID,
+		})
+		assert.Assert(t, ret == nil)
+		assert.Equal(t, err.(*goa.ServiceError).Name, "not_available")
+		assert.ErrorContains(t, err, "cannot perform operation")
+	})
+
+	t.Run("Returns not_valid if package cannot be persisted", func(t *testing.T) {
+		t.Parallel()
+
+		AIPID := "5ab42bc3-acc2-420b-bbd0-76efdef94828"
+		attrs := &setUpAttrs{}
+		svc := setUpService(t, attrs)
+		ctx := context.Background()
+
+		attrs.temporalClientMock.
+			On(
+				"ExecuteWorkflow",
+				mock.AnythingOfType("*context.timerCtx"),
+				temporalsdk_client.StartWorkflowOptions{
+					ID:                    "storage-upload-workflow-" + AIPID,
+					TaskQueue:             "global",
+					WorkflowIDReusePolicy: temporalsdk_api_enums.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE,
+				},
+				"storage-upload-workflow",
+				&storage.StorageUploadWorkflowRequest{AIPID: AIPID},
+			).
+			Return(
+				&temporalsdk_mocks.WorkflowRun{},
+				nil,
+			).
+			Times(1)
+
+		attrs.persistenceMock.
+			EXPECT().
+			CreatePackage(
+				gomock.AssignableToTypeOf(ctx),
+				"package",
+				uuid.MustParse(AIPID),
+				gomock.Any(),
+			).
+			Return(
+				nil,
+				errors.New("database server error"),
+			).
+			Times(1)
+
+		ret, err := svc.Submit(ctx, &goastorage.SubmitPayload{
+			Name:  "package",
+			AipID: AIPID,
+		})
+		assert.Assert(t, ret == nil)
+		assert.Equal(t, err.(*goa.ServiceError).Name, "not_valid")
+		assert.ErrorContains(t, err, "cannot persist package")
+	})
+
+	t.Run("Returns not_valid if signed URL cannot be generated", func(t *testing.T) {
+		t.Parallel()
+
+		AIPID := "5ab42bc3-acc2-420b-bbd0-76efdef94828"
+		attrs := &setUpAttrs{}
+		svc := setUpService(t, attrs)
+		ctx := context.Background()
+
+		attrs.temporalClientMock.
+			On(
+				"ExecuteWorkflow",
+				mock.AnythingOfType("*context.timerCtx"),
+				temporalsdk_client.StartWorkflowOptions{
+					ID:                    "storage-upload-workflow-" + AIPID,
+					TaskQueue:             "global",
+					WorkflowIDReusePolicy: temporalsdk_api_enums.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE,
+				},
+				"storage-upload-workflow",
+				&storage.StorageUploadWorkflowRequest{AIPID: AIPID},
+			).
+			Return(
+				&temporalsdk_mocks.WorkflowRun{},
+				nil,
+			).
+			Times(1)
+
+		attrs.persistenceMock.
+			EXPECT().
+			CreatePackage(
+				gomock.AssignableToTypeOf(ctx),
+				"package",
+				uuid.MustParse(AIPID),
+				func() gomock.Matcher {
+					return gomock.Any()
+				}(),
+			).
+			Return(
+				&goastorage.StoredStoragePackage{},
+				nil,
+			).
+			Times(1)
+
+		fakeInternalLocation(t, svc, nil)
+
+		ret, err := svc.Submit(ctx, &goastorage.SubmitPayload{
+			Name:  "package",
+			AipID: AIPID,
+		})
+		assert.Assert(t, ret == nil)
+		assert.Equal(t, err.(*goa.ServiceError).Name, "not_valid")
+		assert.ErrorContains(t, err, "cannot persist package")
+	})
+
+	t.Run("Returns signed URL", func(t *testing.T) {
+		t.Parallel()
+
+		AIPID := "5ab42bc3-acc2-420b-bbd0-76efdef94828"
+		attrs := &setUpAttrs{}
+		svc := setUpService(t, attrs)
+		ctx := context.Background()
+
+		attrs.temporalClientMock.
+			On(
+				"ExecuteWorkflow",
+				mock.AnythingOfType("*context.timerCtx"),
+				temporalsdk_client.StartWorkflowOptions{
+					ID:                    "storage-upload-workflow-" + AIPID,
+					TaskQueue:             "global",
+					WorkflowIDReusePolicy: temporalsdk_api_enums.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE,
+				},
+				"storage-upload-workflow",
+				&storage.StorageUploadWorkflowRequest{AIPID: AIPID},
+			).
+			Return(
+				&temporalsdk_mocks.WorkflowRun{},
+				nil,
+			).
+			Times(1)
+
+		attrs.persistenceMock.
+			EXPECT().
+			CreatePackage(
+				gomock.AssignableToTypeOf(ctx),
+				"package",
+				uuid.MustParse(AIPID),
+				func() gomock.Matcher {
+					return gomock.Any()
+				}(),
+			).
+			Return(
+				&goastorage.StoredStoragePackage{},
+				nil,
+			).
+			Times(1)
+
+		// Fake internal location, using fileblob because it can generate signed URLs.
+		furl, err := url.Parse("file:///tmp/dir")
+		assert.NilError(t, err)
+		b, err := fileblob.OpenBucket("/tmp", &fileblob.Options{URLSigner: fileblob.NewURLSignerHMAC(furl, []byte("1234"))})
+		assert.NilError(t, err)
+		fakeInternalLocation(t, svc, b)
+
+		ret, err := svc.Submit(ctx, &goastorage.SubmitPayload{
+			Name:  "package",
+			AipID: AIPID,
+		})
+		assert.Equal(t, ret.URL[0:15], "file:///tmp/dir")
+		assert.NilError(t, err)
+	})
 }
 
 func TestServiceLocation(t *testing.T) {
