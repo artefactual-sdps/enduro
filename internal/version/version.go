@@ -13,8 +13,10 @@ var (
 	GoVersion = runtime.Version()
 )
 
+var buildInfoReader = debug.ReadBuildInfo
+
 func Info(appName string) string {
-	info, ok := debug.ReadBuildInfo()
+	info, ok := buildInfoReader()
 	if ok {
 		for _, item := range info.Settings {
 			if item.Key == "vcs.revision" {

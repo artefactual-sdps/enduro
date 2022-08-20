@@ -9,23 +9,35 @@ endef
 
 IGNORED_PACKAGES := \
 	github.com/artefactual-sdps/enduro/hack/genpkgs \
-	github.com/artefactual-sdps/enduro/internal/amclient/fake \
 	github.com/artefactual-sdps/enduro/internal/api/design \
 	github.com/artefactual-sdps/enduro/internal/api/gen/batch \
-	github.com/artefactual-sdps/enduro/internal/api/gen/package_ \
-	github.com/artefactual-sdps/enduro/internal/api/gen/package_/views \
 	github.com/artefactual-sdps/enduro/internal/api/gen/http/batch/client \
 	github.com/artefactual-sdps/enduro/internal/api/gen/http/batch/server \
 	github.com/artefactual-sdps/enduro/internal/api/gen/http/cli/enduro \
 	github.com/artefactual-sdps/enduro/internal/api/gen/http/package_/client \
 	github.com/artefactual-sdps/enduro/internal/api/gen/http/package_/server \
+	github.com/artefactual-sdps/enduro/internal/api/gen/http/storage/client \
+	github.com/artefactual-sdps/enduro/internal/api/gen/http/storage/server \
 	github.com/artefactual-sdps/enduro/internal/api/gen/http/swagger/client \
 	github.com/artefactual-sdps/enduro/internal/api/gen/http/swagger/server \
+	github.com/artefactual-sdps/enduro/internal/api/gen/package_ \
+	github.com/artefactual-sdps/enduro/internal/api/gen/package_/views \
+	github.com/artefactual-sdps/enduro/internal/api/gen/storage \
+	github.com/artefactual-sdps/enduro/internal/api/gen/storage/views \
 	github.com/artefactual-sdps/enduro/internal/api/gen/swagger \
 	github.com/artefactual-sdps/enduro/internal/batch/fake \
 	github.com/artefactual-sdps/enduro/internal/package_/fake \
 	github.com/artefactual-sdps/enduro/internal/storage/fake \
 	github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db \
+	github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/enttest \
+	github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/hook \
+	github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/location \
+	github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/migrate \
+	github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/pkg \
+	github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/predicate \
+	github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/runtime \
+	github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/schema \
+	github.com/artefactual-sdps/enduro/internal/storage/persistence/fake \
 	github.com/artefactual-sdps/enduro/internal/temporal/testutil \
 	github.com/artefactual-sdps/enduro/internal/watcher/fake
 PACKAGES		:= $(shell go list ./...)
@@ -48,7 +60,7 @@ tools: bingo
 	bingo list
 
 tparse:
-	@$(GO) test -count=1 -json -cover  $(TEST_PACKAGES) | $(TPARSE) -follow -all
+	@$(GO) test -count=1 -json -cover  $(TEST_PACKAGES) | $(TPARSE) -follow -all -notests
 
 test:
 	@$(GOTESTSUM) $(TEST_PACKAGES)
