@@ -21,6 +21,9 @@ var _ = API("enduro", func() {
 			URI("http://localhost:9000")
 		})
 	})
+	HTTP(func() {
+		Consumes("application/json")
+	})
 	cors.Origin("*", func() {
 		cors.Methods("GET", "HEAD", "POST", "PUT", "DELETE", "OPTIONS")
 	})
