@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/artefactual-sdps/enduro/internal/storage/types"
 	"gotest.tools/v3/assert"
+
+	"github.com/artefactual-sdps/enduro/internal/storage/types"
 )
 
 func TestLocationConfig(t *testing.T) {

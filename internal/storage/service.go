@@ -121,7 +121,11 @@ func (s *serviceImpl) Submit(ctx context.Context, payload *goastorage.SubmitPayl
 	}
 
 	objectKey := uuid.New()
-	_, err = s.storagePersistence.CreatePackage(ctx, payload.Name, AIPUUID, objectKey)
+	_, err = s.storagePersistence.CreatePackage(ctx, &goastorage.StoragePackage{
+		Name:      &payload.Name,
+		AipID:     ref.New(AIPUUID.String()),
+		ObjectKey: ref.New(objectKey.String()),
+	})
 	if err != nil {
 		return nil, goastorage.MakeNotValid(errors.New("cannot persist package"))
 	}
@@ -331,7 +335,13 @@ func (s *serviceImpl) AddLocation(ctx context.Context, payload *goastorage.AddLo
 		return nil, goastorage.MakeNotValid(errors.New("invalid configuration"))
 	}
 
-	_, err = s.storagePersistence.CreateLocation(ctx, payload.Name, payload.Description, source, purpose, UUID, &config)
+	_, err = s.storagePersistence.CreateLocation(ctx, &goastorage.Location{
+		Name:        &payload.Name,
+		Description: payload.Description,
+		Source:      source.String(),
+		Purpose:     purpose.String(),
+		UUID:        ref.New(UUID.String()),
+	}, &config)
 	if err != nil {
 		return nil, goastorage.MakeNotValid(errors.New("cannot persist location"))
 	}

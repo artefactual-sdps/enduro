@@ -3,8 +3,9 @@ package ref_test
 import (
 	"testing"
 
-	"github.com/artefactual-sdps/enduro/internal/ref"
 	"gotest.tools/v3/assert"
+
+	"github.com/artefactual-sdps/enduro/internal/ref"
 )
 
 func TestNew(t *testing.T) {
@@ -27,4 +28,17 @@ func TestDeref(t *testing.T) {
 	s := "string"
 
 	assert.Equal(t, s, ref.Deref(&s))
+}
+
+func TestDerefZero(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Returns the underlying value of the pointer", func(t *testing.T) {
+		s := "string"
+		assert.Equal(t, ref.DerefZero(&s), "string")
+	})
+
+	t.Run("Returns the default value if the pointer is nil", func(t *testing.T) {
+		assert.Equal(t, ref.DerefZero[string](nil), "")
+	})
 }

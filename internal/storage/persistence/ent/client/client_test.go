@@ -10,6 +10,7 @@ import (
 	"gotest.tools/v3/assert"
 
 	"github.com/artefactual-sdps/enduro/internal/api/gen/storage"
+	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 	"github.com/artefactual-sdps/enduro/internal/ref"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/client"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db"
@@ -37,9 +38,11 @@ func TestCreatePackage(t *testing.T) {
 
 	pkg, err := c.CreatePackage(
 		context.Background(),
-		"test_package",
-		uuid.MustParse("488c64cc-d89b-4916-9131-c94152dfb12e"),
-		uuid.MustParse("e2630293-a714-4787-ab6d-e68254a6fb6a"),
+		&goastorage.StoragePackage{
+			Name:      ref.New("test_package"),
+			AipID:     ref.New(uuid.MustParse("488c64cc-d89b-4916-9131-c94152dfb12e").String()),
+			ObjectKey: ref.New(uuid.MustParse("e2630293-a714-4787-ab6d-e68254a6fb6a").String()),
+		},
 	)
 	assert.NilError(t, err)
 
@@ -191,11 +194,13 @@ func TestCreateLocation(t *testing.T) {
 
 	l, err := c.CreateLocation(
 		context.Background(),
-		"test_location",
-		ref.New("location description"),
-		types.LocationSourceMinIO,
-		types.LocationPurposeAIPStore,
-		uuid.MustParse("7a090f2c-7bd4-471c-8aa1-8c72125decd5"),
+		&goastorage.Location{
+			Name:        ref.New("test_location"),
+			Description: ref.New("location description"),
+			Source:      types.LocationSourceMinIO.String(),
+			Purpose:     types.LocationPurposeAIPStore.String(),
+			UUID:        ref.New(uuid.MustParse("7a090f2c-7bd4-471c-8aa1-8c72125decd5").String()),
+		},
 		&types.LocationConfig{
 			Value: &types.S3Config{
 				Bucket: "perma-aips-1",

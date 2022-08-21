@@ -27,13 +27,34 @@ func NewClient(c *db.Client) *Client {
 	return &Client{c: c}
 }
 
-func (c *Client) CreatePackage(ctx context.Context, name string, AIPID uuid.UUID, objectKey uuid.UUID) (*goastorage.StoredStoragePackage, error) {
-	pkg, err := c.c.Pkg.Create().
-		SetName(name).
-		SetAipID(AIPID).
-		SetObjectKey(objectKey).
-		SetStatus(types.StatusUnspecified).
-		Save(ctx)
+func (c *Client) CreatePackage(ctx context.Context, goapkg *goastorage.StoragePackage) (*goastorage.StoredStoragePackage, error) {
+	q := c.c.Pkg.Create()
+
+	q.SetName(ref.DerefZero(goapkg.Name))
+
+	var AIPUUID uuid.UUID
+	if goapkg.AipID != nil {
+		ret, err := uuid.Parse(*goapkg.AipID)
+		if err != nil {
+			return nil, err
+		}
+		AIPUUID = ret
+	}
+	q.SetAipID(AIPUUID)
+
+	var objectKey uuid.UUID
+	if goapkg.ObjectKey != nil {
+		ret, err := uuid.Parse(*goapkg.ObjectKey)
+		if err != nil {
+			return nil, err
+		}
+		objectKey = ret
+	}
+	q.SetObjectKey(objectKey)
+
+	q.SetStatus(types.NewPackageStatus(goapkg.Status))
+
+	pkg, err := q.Save(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -129,25 +150,27 @@ func pkgAsGoa(ctx context.Context, pkg *db.Pkg) *goastorage.StoredStoragePackage
 	return p
 }
 
-func (c *Client) CreateLocation(ctx context.Context, name string, description *string, source types.LocationSource, purpose types.LocationPurpose, UUID uuid.UUID, config *types.LocationConfig) (*goastorage.StoredLocation, error) {
-	var d string
-	if description != nil {
-		d = *description
-	}
+func (c *Client) CreateLocation(ctx context.Context, location *goastorage.Location, config *types.LocationConfig) (*goastorage.StoredLocation, error) {
+	q := c.c.Location.Create()
 
-	var sc types.LocationConfig
-	if config != nil {
-		sc = *config
-	}
+	q.SetName(ref.DerefZero(location.Name))
+	q.SetDescription(ref.DerefZero(location.Description))
+	q.SetSource(types.NewLocationSource(location.Source))
+	q.SetPurpose(types.NewLocationPurpose(location.Purpose))
 
-	l, err := c.c.Location.Create().
-		SetName(name).
-		SetDescription(d).
-		SetSource(source).
-		SetPurpose(purpose).
-		SetUUID(UUID).
-		SetConfig(sc).
-		Save(ctx)
+	var UUID uuid.UUID
+	if location.UUID != nil {
+		ret, err := uuid.Parse(*location.UUID)
+		if err != nil {
+			return nil, err
+		}
+		UUID = ret
+	}
+	q.SetUUID(UUID)
+
+	q.SetConfig(ref.DerefZero(config))
+
+	l, err := q.Save(ctx)
 	if err != nil {
 		return nil, err
 	}

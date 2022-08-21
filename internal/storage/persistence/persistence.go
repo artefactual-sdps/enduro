@@ -11,14 +11,14 @@ import (
 
 type Storage interface {
 	// Package.
-	CreatePackage(ctx context.Context, name string, AIPID uuid.UUID, objectKey uuid.UUID) (*goastorage.StoredStoragePackage, error)
+	CreatePackage(ctx context.Context, pkg *goastorage.StoragePackage) (*goastorage.StoredStoragePackage, error)
 	ListPackages(ctx context.Context) ([]*goastorage.StoredStoragePackage, error)
 	ReadPackage(ctx context.Context, AIPID uuid.UUID) (*goastorage.StoredStoragePackage, error)
 	UpdatePackageStatus(ctx context.Context, status types.PackageStatus, AIPID uuid.UUID) error
 	UpdatePackageLocation(ctx context.Context, location string, aipID uuid.UUID) error
 
 	// Location.
-	CreateLocation(ctx context.Context, name string, description *string, source types.LocationSource, purpose types.LocationPurpose, uuid uuid.UUID, config *types.LocationConfig) (*goastorage.StoredLocation, error)
+	CreateLocation(ctx context.Context, location *goastorage.Location, config *types.LocationConfig) (*goastorage.StoredLocation, error)
 	ListLocations(ctx context.Context) (goastorage.StoredLocationCollection, error)
 	ReadLocation(ctx context.Context, uuid uuid.UUID) (*goastorage.StoredLocation, error)
 }
