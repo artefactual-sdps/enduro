@@ -12,8 +12,6 @@ func TestInfo(t *testing.T) {
 	t.Parallel()
 
 	t.Run("works when ReadBuildInfo is not available", func(t *testing.T) {
-		t.Parallel()
-
 		buildInfoReader = func() (info *debug.BuildInfo, ok bool) {
 			return nil, false
 		}
@@ -24,8 +22,6 @@ func TestInfo(t *testing.T) {
 	})
 
 	t.Run("works when ReadBuildInfo is available", func(t *testing.T) {
-		t.Parallel()
-
 		buildInfoReader = func() (info *debug.BuildInfo, ok bool) {
 			return &debug.BuildInfo{
 				Settings: []debug.BuildSetting{
