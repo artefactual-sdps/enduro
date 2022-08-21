@@ -216,8 +216,6 @@ func TestServiceSubmit(t *testing.T) {
 			EXPECT().
 			CreatePackage(
 				gomock.AssignableToTypeOf(ctx),
-				"package",
-				uuid.MustParse(AIPID),
 				gomock.Any(),
 			).
 			Return(
@@ -265,11 +263,7 @@ func TestServiceSubmit(t *testing.T) {
 			EXPECT().
 			CreatePackage(
 				gomock.AssignableToTypeOf(ctx),
-				"package",
-				uuid.MustParse(AIPID),
-				func() gomock.Matcher {
-					return gomock.Any()
-				}(),
+				gomock.Any(),
 			).
 			Return(
 				&goastorage.StoredStoragePackage{},
@@ -318,11 +312,7 @@ func TestServiceSubmit(t *testing.T) {
 			EXPECT().
 			CreatePackage(
 				gomock.AssignableToTypeOf(ctx),
-				"package",
-				uuid.MustParse(AIPID),
-				func() gomock.Matcher {
-					return gomock.Any()
-				}(),
+				gomock.Any(),
 			).
 			Return(
 				&goastorage.StoredStoragePackage{},

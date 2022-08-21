@@ -38,33 +38,33 @@ func (m *MockStorage) EXPECT() *MockStorageMockRecorder {
 }
 
 // CreateLocation mocks base method.
-func (m *MockStorage) CreateLocation(arg0 context.Context, arg1 string, arg2 *string, arg3 types.LocationSource, arg4 types.LocationPurpose, arg5 uuid.UUID, arg6 *types.LocationConfig) (*storage.StoredLocation, error) {
+func (m *MockStorage) CreateLocation(arg0 context.Context, arg1 *storage.Location, arg2 *types.LocationConfig) (*storage.StoredLocation, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateLocation", arg0, arg1, arg2, arg3, arg4, arg5, arg6)
+	ret := m.ctrl.Call(m, "CreateLocation", arg0, arg1, arg2)
 	ret0, _ := ret[0].(*storage.StoredLocation)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CreateLocation indicates an expected call of CreateLocation.
-func (mr *MockStorageMockRecorder) CreateLocation(arg0, arg1, arg2, arg3, arg4, arg5, arg6 interface{}) *gomock.Call {
+func (mr *MockStorageMockRecorder) CreateLocation(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateLocation", reflect.TypeOf((*MockStorage)(nil).CreateLocation), arg0, arg1, arg2, arg3, arg4, arg5, arg6)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateLocation", reflect.TypeOf((*MockStorage)(nil).CreateLocation), arg0, arg1, arg2)
 }
 
 // CreatePackage mocks base method.
-func (m *MockStorage) CreatePackage(arg0 context.Context, arg1 string, arg2, arg3 uuid.UUID) (*storage.StoredStoragePackage, error) {
+func (m *MockStorage) CreatePackage(arg0 context.Context, arg1 *storage.StoragePackage) (*storage.StoredStoragePackage, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreatePackage", arg0, arg1, arg2, arg3)
+	ret := m.ctrl.Call(m, "CreatePackage", arg0, arg1)
 	ret0, _ := ret[0].(*storage.StoredStoragePackage)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CreatePackage indicates an expected call of CreatePackage.
-func (mr *MockStorageMockRecorder) CreatePackage(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+func (mr *MockStorageMockRecorder) CreatePackage(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreatePackage", reflect.TypeOf((*MockStorage)(nil).CreatePackage), arg0, arg1, arg2, arg3)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreatePackage", reflect.TypeOf((*MockStorage)(nil).CreatePackage), arg0, arg1)
 }
 
 // ListLocations mocks base method.
