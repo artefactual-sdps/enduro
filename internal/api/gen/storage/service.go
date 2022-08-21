@@ -72,6 +72,20 @@ type DownloadPayload struct {
 	AipID string
 }
 
+// Location describes a physical entity used to store AIPs.
+type Location struct {
+	ID *uint
+	// Name of location
+	Name *string
+	// Description of the location
+	Description *string
+	// Data source of the location
+	Source string
+	// Purpose of the location
+	Purpose string
+	UUID    *string
+}
+
 // MovePayload is the payload type of the storage service move method.
 type MovePayload struct {
 	AipID    string
@@ -123,6 +137,17 @@ type StorageLocationNotfound struct {
 	Message string
 	// Identifier of missing location
 	UUID string
+}
+
+// Storage package describes a package of the storage service.
+type StoragePackage struct {
+	ID    *uint
+	Name  *string
+	AipID *string
+	// Status of the package
+	Status    string
+	ObjectKey *string
+	Location  *string
 }
 
 // Storage package not found.

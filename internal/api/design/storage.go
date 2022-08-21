@@ -230,6 +230,7 @@ var EnumLocationPurpose = func() {
 
 var Location = Type("Location", func() {
 	Description("Location describes a physical entity used to store AIPs.")
+	Meta("type:generate:force", "storage")
 	Attribute("id", UInt)
 	Attribute("name", String, "Name of location")
 	Attribute("description", String, "Description of the location")
@@ -282,6 +283,7 @@ var EnumStoragePackageStatus = func() {
 
 var StoragePackage = Type("StoragePackage", func() {
 	Description("Storage package describes a package of the storage service.")
+	Meta("type:generate:force", "storage")
 	Attribute("id", UInt)
 	Attribute("name", String)
 	Attribute("aip_id", String)
