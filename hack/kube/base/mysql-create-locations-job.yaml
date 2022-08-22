@@ -22,27 +22,27 @@ spec:
                 secretKeyRef:
                   name: mysql-secret
                   key: password
-          command: [
-              "sh",
-              "-c",
-              'mysql -h mysql -u $MYSQL_USER -p$MYSQL_PASSWORD --execute "
+          command:
+            - sh
+            - -c
+            - >
+              mysql -h mysql -u $MYSQL_USER -p$MYSQL_PASSWORD --execute '
               INSERT IGNORE INTO enduro_storage.location (name, description, source, purpose, uuid, config)
               VALUES (
-              \"perma-aips-1\",
-              \"\",
-              \"minio\",
-              \"aip_store\",
-              \"f2cc963f-c14d-4eaa-b950-bd207189a1f1\",
-              \"{\"s3\": {\"bucket\": \"perma-aips-1\", \"region\": \"us-west-1\", \"endpoint\": \"http://minio:9000\", \"path_style\": 1, \"key\": \"minio\", \"secret\": \"minio123\"}}\"
+              "perma-aips-1",
+              "",
+              "minio",
+              "aip_store",
+              "f2cc963f-c14d-4eaa-b950-bd207189a1f1",
+              "{\"s3\": {\"bucket\": \"perma-aips-1\", \"region\": \"us-west-1\", \"endpoint\": \"http://minio:9000\", \"path_style\": true, \"key\": \"minio\", \"secret\": \"minio123\"}}"
               );
               INSERT IGNORE INTO enduro_storage.location (name, description, source, purpose, uuid, config)
               VALUES (
-              \"perma-aips-2\",
-              \"\",
-              \"minio\",
-              \"aip_store\",
-              \"0a7cc888-67ea-445c-8a64-6f8dfcf373e5\",
-              \"{\"s3\": {\"bucket\": \"perma-aips-2\", \"region\": \"us-west-1\", \"endpoint\": \"http://minio:9000\", \"path_style\": 1, \"key\": \"minio\", \"secret\": \"minio123\"}}\"
+              "perma-aips-2",
+              "",
+              "minio",
+              "aip_store",
+              "0a7cc888-67ea-445c-8a64-6f8dfcf373e5",
+              "{\"s3\": {\"bucket\": \"perma-aips-2\", \"region\": \"us-west-1\", \"endpoint\": \"http://minio:9000\", \"path_style\": true, \"key\": \"minio\", \"secret\": \"minio123\"}}"
               );
-              " && echo "Locations created"',
-            ]
+              ' && echo 'Locations created'
