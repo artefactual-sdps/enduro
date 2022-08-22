@@ -41,7 +41,7 @@ func TestCreatePackage(t *testing.T) {
 		&goastorage.StoragePackage{
 			Name:      "test_package",
 			AipID:     uuid.MustParse("488c64cc-d89b-4916-9131-c94152dfb12e").String(),
-			ObjectKey: ref.New(uuid.MustParse("e2630293-a714-4787-ab6d-e68254a6fb6a").String()),
+			ObjectKey: ref.New(uuid.MustParse("e2630293-a714-4787-ab6d-e68254a6fb6a")),
 		},
 	)
 	assert.NilError(t, err)
@@ -78,7 +78,7 @@ func TestListPackages(t *testing.T) {
 			Name:      "Package",
 			AipID:     "488c64cc-d89b-4916-9131-c94152dfb12e",
 			Status:    "stored",
-			ObjectKey: "e2630293-a714-4787-ab6d-e68254a6fb6a",
+			ObjectKey: uuid.MustParse("e2630293-a714-4787-ab6d-e68254a6fb6a"),
 			Location:  nil,
 		},
 		{
@@ -86,7 +86,7 @@ func TestListPackages(t *testing.T) {
 			Name:      "Another Package",
 			AipID:     "96e182a0-31ab-4738-a620-1ff1954d9ecb",
 			Status:    "rejected",
-			ObjectKey: "49b0a604-6c81-458c-852a-1afa713f1fd9",
+			ObjectKey: uuid.MustParse("49b0a604-6c81-458c-852a-1afa713f1fd9"),
 			Location:  nil,
 		},
 	})
@@ -111,7 +111,7 @@ func TestReadPackage(t *testing.T) {
 		Name:      "Package",
 		AipID:     "488c64cc-d89b-4916-9131-c94152dfb12e",
 		Status:    "stored",
-		ObjectKey: "e2630293-a714-4787-ab6d-e68254a6fb6a",
+		ObjectKey: uuid.MustParse("e2630293-a714-4787-ab6d-e68254a6fb6a"),
 		Location:  nil,
 	})
 }
@@ -199,7 +199,7 @@ func TestCreateLocation(t *testing.T) {
 			Description: ref.New("location description"),
 			Source:      types.LocationSourceMinIO.String(),
 			Purpose:     types.LocationPurposeAIPStore.String(),
-			UUID:        ref.New(uuid.MustParse("7a090f2c-7bd4-471c-8aa1-8c72125decd5").String()),
+			UUID:        ref.New(uuid.MustParse("7a090f2c-7bd4-471c-8aa1-8c72125decd5")),
 		},
 		&types.LocationConfig{
 			Value: &types.S3Config{
@@ -257,7 +257,7 @@ func TestListLocations(t *testing.T) {
 			Description: ref.New("location"),
 			Source:      "minio",
 			Purpose:     "aip_store",
-			UUID:        ref.New("021f7ac2-5b0b-4620-b574-21f6a206cff3"),
+			UUID:        ref.New(uuid.MustParse("021f7ac2-5b0b-4620-b574-21f6a206cff3")),
 		},
 		{
 			ID:          2,
@@ -265,7 +265,7 @@ func TestListLocations(t *testing.T) {
 			Description: ref.New("another location"),
 			Source:      "minio",
 			Purpose:     "aip_store",
-			UUID:        ref.New("7ba9a118-a662-4047-8547-64bc752b91c6"),
+			UUID:        ref.New(uuid.MustParse("7ba9a118-a662-4047-8547-64bc752b91c6")),
 		},
 	})
 }
@@ -296,6 +296,6 @@ func TestReadLocation(t *testing.T) {
 		Description: ref.New("location description"),
 		Source:      types.LocationSourceMinIO.String(),
 		Purpose:     types.LocationPurposeAIPStore.String(),
-		UUID:        ref.New("7a090f2c-7bd4-471c-8aa1-8c72125decd5"),
+		UUID:        ref.New(uuid.MustParse("7a090f2c-7bd4-471c-8aa1-8c72125decd5")),
 	})
 }

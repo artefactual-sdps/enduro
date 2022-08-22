@@ -12,6 +12,7 @@ import (
 	"context"
 
 	storageviews "github.com/artefactual-sdps/enduro/internal/api/gen/storage/views"
+	"github.com/google/uuid"
 	goa "goa.design/goa/v3/pkg"
 )
 
@@ -82,7 +83,7 @@ type Location struct {
 	Source string
 	// Purpose of the location
 	Purpose string
-	UUID    *string
+	UUID    *uuid.UUID
 }
 
 // MovePayload is the payload type of the storage service move method.
@@ -144,7 +145,7 @@ type StoragePackage struct {
 	AipID string
 	// Status of the package
 	Status    string
-	ObjectKey *string
+	ObjectKey *uuid.UUID
 	Location  *string
 }
 
@@ -169,7 +170,7 @@ type StoredLocation struct {
 	Source string
 	// Purpose of the location
 	Purpose string
-	UUID    *string
+	UUID    *uuid.UUID
 }
 
 // StoredLocationCollection is the result type of the storage service locations
@@ -183,7 +184,7 @@ type StoredStoragePackage struct {
 	AipID string
 	// Status of the package
 	Status    string
-	ObjectKey string
+	ObjectKey uuid.UUID
 	Location  *string
 }
 

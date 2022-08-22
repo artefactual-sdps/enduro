@@ -13,6 +13,7 @@ import (
 
 	storage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 	storageviews "github.com/artefactual-sdps/enduro/internal/api/gen/storage/views"
+	"github.com/google/uuid"
 	goa "goa.design/goa/v3/pkg"
 )
 
@@ -72,9 +73,9 @@ type ShowResponseBody struct {
 	Name  string `form:"name" json:"name" xml:"name"`
 	AipID string `form:"aip_id" json:"aip_id" xml:"aip_id"`
 	// Status of the package
-	Status    string  `form:"status" json:"status" xml:"status"`
-	ObjectKey string  `form:"object_key" json:"object_key" xml:"object_key"`
-	Location  *string `form:"location,omitempty" json:"location,omitempty" xml:"location,omitempty"`
+	Status    string    `form:"status" json:"status" xml:"status"`
+	ObjectKey uuid.UUID `form:"object_key" json:"object_key" xml:"object_key"`
+	Location  *string   `form:"location,omitempty" json:"location,omitempty" xml:"location,omitempty"`
 }
 
 // ShowLocationResponseBody is the type of the "storage" service
@@ -87,8 +88,8 @@ type ShowLocationResponseBody struct {
 	// Data source of the location
 	Source string `form:"source" json:"source" xml:"source"`
 	// Purpose of the location
-	Purpose string  `form:"purpose" json:"purpose" xml:"purpose"`
-	UUID    *string `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
+	Purpose string     `form:"purpose" json:"purpose" xml:"purpose"`
+	UUID    *uuid.UUID `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
 }
 
 // SubmitNotAvailableResponseBody is the type of the "storage" service "submit"
@@ -334,8 +335,8 @@ type StoredLocationResponse struct {
 	// Data source of the location
 	Source string `form:"source" json:"source" xml:"source"`
 	// Purpose of the location
-	Purpose string  `form:"purpose" json:"purpose" xml:"purpose"`
-	UUID    *string `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
+	Purpose string     `form:"purpose" json:"purpose" xml:"purpose"`
+	UUID    *uuid.UUID `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
 }
 
 // NewSubmitResponseBody builds the HTTP response body from the result of the

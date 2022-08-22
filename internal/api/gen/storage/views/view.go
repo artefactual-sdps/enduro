@@ -9,6 +9,7 @@
 package views
 
 import (
+	"github.com/google/uuid"
 	goa "goa.design/goa/v3/pkg"
 )
 
@@ -54,7 +55,7 @@ type StoredLocationView struct {
 	Source *string
 	// Purpose of the location
 	Purpose *string
-	UUID    *string
+	UUID    *uuid.UUID
 }
 
 // StoredStoragePackageView is a type that runs validations on a projected type.
@@ -64,7 +65,7 @@ type StoredStoragePackageView struct {
 	AipID *string
 	// Status of the package
 	Status    *string
-	ObjectKey *string
+	ObjectKey *uuid.UUID
 	Location  *string
 }
 

@@ -13,6 +13,7 @@ import (
 
 	storage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 	storageviews "github.com/artefactual-sdps/enduro/internal/api/gen/storage/views"
+	"github.com/google/uuid"
 	goa "goa.design/goa/v3/pkg"
 )
 
@@ -73,9 +74,9 @@ type ShowResponseBody struct {
 	Name  *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 	AipID *string `form:"aip_id,omitempty" json:"aip_id,omitempty" xml:"aip_id,omitempty"`
 	// Status of the package
-	Status    *string `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
-	ObjectKey *string `form:"object_key,omitempty" json:"object_key,omitempty" xml:"object_key,omitempty"`
-	Location  *string `form:"location,omitempty" json:"location,omitempty" xml:"location,omitempty"`
+	Status    *string    `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
+	ObjectKey *uuid.UUID `form:"object_key,omitempty" json:"object_key,omitempty" xml:"object_key,omitempty"`
+	Location  *string    `form:"location,omitempty" json:"location,omitempty" xml:"location,omitempty"`
 }
 
 // ShowLocationResponseBody is the type of the "storage" service
@@ -90,8 +91,8 @@ type ShowLocationResponseBody struct {
 	// Data source of the location
 	Source *string `form:"source,omitempty" json:"source,omitempty" xml:"source,omitempty"`
 	// Purpose of the location
-	Purpose *string `form:"purpose,omitempty" json:"purpose,omitempty" xml:"purpose,omitempty"`
-	UUID    *string `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
+	Purpose *string    `form:"purpose,omitempty" json:"purpose,omitempty" xml:"purpose,omitempty"`
+	UUID    *uuid.UUID `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
 }
 
 // SubmitNotAvailableResponseBody is the type of the "storage" service "submit"
@@ -339,8 +340,8 @@ type StoredLocationResponse struct {
 	// Data source of the location
 	Source *string `form:"source,omitempty" json:"source,omitempty" xml:"source,omitempty"`
 	// Purpose of the location
-	Purpose *string `form:"purpose,omitempty" json:"purpose,omitempty" xml:"purpose,omitempty"`
-	UUID    *string `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
+	Purpose *string    `form:"purpose,omitempty" json:"purpose,omitempty" xml:"purpose,omitempty"`
+	UUID    *uuid.UUID `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
 }
 
 // NewSubmitRequestBody builds the HTTP request body from the payload of the

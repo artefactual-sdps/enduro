@@ -16,7 +16,6 @@ import (
 	"gocloud.dev/blob"
 
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
-	"github.com/artefactual-sdps/enduro/internal/ref"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence"
 	"github.com/artefactual-sdps/enduro/internal/storage/types"
 )
@@ -124,7 +123,7 @@ func (s *serviceImpl) Submit(ctx context.Context, payload *goastorage.SubmitPayl
 	_, err = s.storagePersistence.CreatePackage(ctx, &goastorage.StoragePackage{
 		Name:      payload.Name,
 		AipID:     AIPUUID.String(),
-		ObjectKey: ref.New(objectKey.String()),
+		ObjectKey: &objectKey,
 	})
 	if err != nil {
 		return nil, goastorage.MakeNotValid(errors.New("cannot persist package"))
@@ -168,20 +167,8 @@ func (s *serviceImpl) Download(ctx context.Context, payload *goastorage.Download
 	return []byte{}, nil
 }
 
-func (s *serviceImpl) Locations(context.Context) (goastorage.StoredLocationCollection, error) {
-	res := []*goastorage.StoredLocation{}
-	for i, item := range s.config.Locations {
-		l := &goastorage.StoredLocation{
-			ID:          uint(i + 1),
-			Name:        item.Name,
-			Description: ref.New(""),
-			Source:      types.LocationSourceMinIO.String(),
-			Purpose:     types.LocationPurposeAIPStore.String(),
-			UUID:        ref.New(""),
-		}
-		res = append(res, l)
-	}
-	return res, nil
+func (s *serviceImpl) Locations(ctx context.Context) (goastorage.StoredLocationCollection, error) {
+	return s.storagePersistence.ListLocations(ctx)
 }
 
 func (s *serviceImpl) Move(ctx context.Context, payload *goastorage.MovePayload) error {
@@ -280,7 +267,7 @@ func (s *serviceImpl) UpdatePackageLocation(ctx context.Context, location string
 func (s *serviceImpl) packageBucket(p *goastorage.StoredStoragePackage) (*blob.Bucket, string, error) {
 	// Package is still in the internal processing bucket.
 	if p.Location == nil || *p.Location == "" {
-		return s.internal.Bucket(), p.ObjectKey, nil
+		return s.internal.Bucket(), p.ObjectKey.String(), nil
 	}
 
 	location, err := s.Location(*p.Location)
@@ -340,7 +327,7 @@ func (s *serviceImpl) AddLocation(ctx context.Context, payload *goastorage.AddLo
 		Description: payload.Description,
 		Source:      source.String(),
 		Purpose:     purpose.String(),
-		UUID:        ref.New(UUID.String()),
+		UUID:        &UUID,
 	}, &config)
 	if err != nil {
 		return nil, goastorage.MakeNotValid(errors.New("cannot persist location"))
