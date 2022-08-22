@@ -74,9 +74,8 @@ type DownloadPayload struct {
 
 // Location describes a physical entity used to store AIPs.
 type Location struct {
-	ID *uint
 	// Name of location
-	Name *string
+	Name string
 	// Description of the location
 	Description *string
 	// Data source of the location
@@ -141,9 +140,8 @@ type StorageLocationNotfound struct {
 
 // Storage package describes a package of the storage service.
 type StoragePackage struct {
-	ID    *uint
-	Name  *string
-	AipID *string
+	Name  string
+	AipID string
 	// Status of the package
 	Status    string
 	ObjectKey *string
