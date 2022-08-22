@@ -6,7 +6,7 @@ spec:
   backoffLimit: 100
   template:
     spec:
-      restartPolicy: "OnFailure"
+      restartPolicy: OnFailure
       initContainers:
         - name: check-minio
           image: busybox
@@ -19,7 +19,7 @@ spec:
             ]
       containers:
         - name: setup-buckets
-          image: "minio/mc"
+          image: minio/mc
           imagePullPolicy: IfNotPresent
           env:
             - name: MINIO_USER

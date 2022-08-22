@@ -30,11 +30,13 @@ jobs:
           kubeconfig: ${{ secrets.DO_DEV_KUBECONFIG }}
       - name: Flush existing data
         run: |
-          kubectl delete job --all -n sdps
+          kubectl config set-context --current --namespace sdps
+          kubectl delete job --all
           kubectl create -f hack/kube/tools/mysql-recreate-databases-job.yaml
           kubectl create -f hack/kube/tools/minio-recreate-buckets-job.yaml
           kubectl create -f hack/kube/tools/opensearch-delete-index-job.yaml
-          kubectl wait --for=condition=complete --timeout=120s job --all -n sdps
-          kubectl rollout restart deployment temporal -n sdps
-          kubectl rollout restart deployment enduro -n sdps
-          kubectl rollout restart statefulset enduro-a3m -n sdps
+          kubectl wait --for=condition=complete --timeout=120s job --all
+          kubectl rollout restart deployment temporal
+          kubectl rollout restart deployment enduro
+          kubectl rollout restart statefulset enduro-a3m
+          kubectl create -f hack/kube/base/mysql-create-locations-job.yaml

@@ -1,12 +1,12 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  generateName: opensearch-delete-index-
-  namespace: sdps
+  name: opensearch-delete-index
 spec:
+  backoffLimit: 100
   template:
     spec:
-      restartPolicy: "OnFailure"
+      restartPolicy: OnFailure
       containers:
         - name: delete-index
           image: alpine/curl

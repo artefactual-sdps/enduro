@@ -1,12 +1,12 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  generateName: mysql-recreate-databases-
-  namespace: sdps
+  name: mysql-recreate-databases
 spec:
+  backoffLimit: 100
   template:
     spec:
-      restartPolicy: "OnFailure"
+      restartPolicy: OnFailure
       containers:
         - name: recreate-databases
           image: mysql:8.0
@@ -22,11 +22,6 @@ spec:
                 secretKeyRef:
                   name: mysql-secret
                   key: user
-            - name: MYSQL_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: mysql-secret
-                  key: password
           command: [
               "sh",
               "-c",

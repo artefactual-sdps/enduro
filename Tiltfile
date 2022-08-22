@@ -50,6 +50,7 @@ k8s_resource("temporal-ui", port_forwards="7440:8080", labels=["Others"])
 
 # Tools
 k8s_resource("minio-setup-buckets", labels=["Tools"])
+k8s_resource("mysql-create-locations", labels=["Tools"])
 local_resource(
   "gen-goa",
   cmd="make gen-goa",
@@ -105,16 +106,18 @@ cmd_button(
   argv=[
     "sh",
     "-c",
-    "kubectl delete job --all -n sdps; \
+    "kubectl config set-context --current --namespace sdps; \
+    kubectl delete job --all; \
     kubectl create -f hack/kube/tools/mysql-recreate-databases-job.yaml; \
     kubectl create -f hack/kube/tools/minio-recreate-buckets-job.yaml; \
     kubectl create -f hack/kube/tools/opensearch-delete-index-job.yaml; \
-    kubectl wait --for=condition=complete --timeout=120s job --all -n sdps; \
-    kubectl rollout restart deployment temporal -n sdps; \
-    kubectl rollout restart deployment enduro -n sdps; \
-    kubectl rollout restart statefulset enduro-a3m -n sdps;",
+    kubectl wait --for=condition=complete --timeout=120s job --all; \
+    kubectl rollout restart deployment temporal; \
+    kubectl rollout restart deployment enduro; \
+    kubectl rollout restart statefulset enduro-a3m; \
+    kubectl create -f hack/kube/base/mysql-create-locations-job.yaml;",
   ],
   location="nav",
   icon_name="delete",
-  text="Flush",
+  text="Flush"
 )
