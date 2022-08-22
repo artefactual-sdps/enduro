@@ -39,8 +39,8 @@ func TestCreatePackage(t *testing.T) {
 	pkg, err := c.CreatePackage(
 		context.Background(),
 		&goastorage.StoragePackage{
-			Name:      ref.New("test_package"),
-			AipID:     ref.New(uuid.MustParse("488c64cc-d89b-4916-9131-c94152dfb12e").String()),
+			Name:      "test_package",
+			AipID:     uuid.MustParse("488c64cc-d89b-4916-9131-c94152dfb12e").String(),
 			ObjectKey: ref.New(uuid.MustParse("e2630293-a714-4787-ab6d-e68254a6fb6a").String()),
 		},
 	)
@@ -195,7 +195,7 @@ func TestCreateLocation(t *testing.T) {
 	l, err := c.CreateLocation(
 		context.Background(),
 		&goastorage.Location{
-			Name:        ref.New("test_location"),
+			Name:        "test_location",
 			Description: ref.New("location description"),
 			Source:      types.LocationSourceMinIO.String(),
 			Purpose:     types.LocationPurposeAIPStore.String(),

@@ -30,15 +30,11 @@ func NewClient(c *db.Client) *Client {
 func (c *Client) CreatePackage(ctx context.Context, goapkg *goastorage.StoragePackage) (*goastorage.StoredStoragePackage, error) {
 	q := c.c.Pkg.Create()
 
-	q.SetName(ref.DerefZero(goapkg.Name))
+	q.SetName(goapkg.Name)
 
-	var AIPUUID uuid.UUID
-	if goapkg.AipID != nil {
-		ret, err := uuid.Parse(*goapkg.AipID)
-		if err != nil {
-			return nil, err
-		}
-		AIPUUID = ret
+	AIPUUID, err := uuid.Parse(goapkg.AipID)
+	if err != nil {
+		return nil, err
 	}
 	q.SetAipID(AIPUUID)
 
@@ -153,7 +149,7 @@ func pkgAsGoa(ctx context.Context, pkg *db.Pkg) *goastorage.StoredStoragePackage
 func (c *Client) CreateLocation(ctx context.Context, location *goastorage.Location, config *types.LocationConfig) (*goastorage.StoredLocation, error) {
 	q := c.c.Location.Create()
 
-	q.SetName(ref.DerefZero(location.Name))
+	q.SetName(location.Name)
 	q.SetDescription(ref.DerefZero(location.Description))
 	q.SetSource(types.NewLocationSource(location.Source))
 	q.SetPurpose(types.NewLocationPurpose(location.Purpose))

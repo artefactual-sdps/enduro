@@ -231,7 +231,6 @@ var EnumLocationPurpose = func() {
 var Location = Type("Location", func() {
 	Description("Location describes a physical entity used to store AIPs.")
 	Meta("type:generate:force", "storage")
-	Attribute("id", UInt)
 	Attribute("name", String, "Name of location")
 	Attribute("description", String, "Description of the location")
 	Attribute("source", String, "Data source of the location", func() {
@@ -243,6 +242,8 @@ var Location = Type("Location", func() {
 		Default("unspecified")
 	})
 	Attribute("uuid", String)
+
+	Required("name", "source", "purpose")
 })
 
 var AddLocationResult = Type("AddLocationResult", func() {
@@ -284,7 +285,6 @@ var EnumStoragePackageStatus = func() {
 var StoragePackage = Type("StoragePackage", func() {
 	Description("Storage package describes a package of the storage service.")
 	Meta("type:generate:force", "storage")
-	Attribute("id", UInt)
 	Attribute("name", String)
 	Attribute("aip_id", String)
 	Attribute("status", String, "Status of the package", func() {
@@ -293,6 +293,8 @@ var StoragePackage = Type("StoragePackage", func() {
 	})
 	Attribute("object_key", String)
 	Attribute("location", String)
+
+	Required("name", "aip_id", "status")
 })
 
 var S3Config = Type("S3Config", func() {
