@@ -41,7 +41,7 @@
     "unplugin-icons": "^0.14.8",
     "vite": "^3.0.4",
     "vite-plugin-pages": "^0.25.0",
-    "vitest": "^0.21.0",
+    "vitest": "^0.22.1",
     "vue-tsc": "^0.39.5"
   }
 }
