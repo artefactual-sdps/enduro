@@ -241,7 +241,9 @@ var Location = Type("Location", func() {
 		EnumLocationPurpose()
 		Default("unspecified")
 	})
-	Attribute("uuid", String)
+	Attribute("uuid", String, func() {
+		Meta("struct:field:type", "uuid.UUID", "github.com/google/uuid")
+	})
 
 	Required("name", "source", "purpose")
 })
@@ -291,7 +293,9 @@ var StoragePackage = Type("StoragePackage", func() {
 		EnumStoragePackageStatus()
 		Default("unspecified")
 	})
-	Attribute("object_key", String)
+	Attribute("object_key", String, func() {
+		Meta("struct:field:type", "uuid.UUID", "github.com/google/uuid")
+	})
 	Attribute("location", String)
 
 	Required("name", "aip_id", "status")

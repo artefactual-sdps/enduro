@@ -40,11 +40,7 @@ func (c *Client) CreatePackage(ctx context.Context, goapkg *goastorage.StoragePa
 
 	var objectKey uuid.UUID
 	if goapkg.ObjectKey != nil {
-		ret, err := uuid.Parse(*goapkg.ObjectKey)
-		if err != nil {
-			return nil, err
-		}
-		objectKey = ret
+		objectKey = *goapkg.ObjectKey
 	}
 	q.SetObjectKey(objectKey)
 
@@ -134,7 +130,7 @@ func pkgAsGoa(ctx context.Context, pkg *db.Pkg) *goastorage.StoredStoragePackage
 		Name:      pkg.Name,
 		AipID:     pkg.AipID.String(),
 		Status:    pkg.Status.String(),
-		ObjectKey: pkg.ObjectKey.String(),
+		ObjectKey: pkg.ObjectKey,
 	}
 
 	l, err := pkg.QueryLocation().Only(ctx)
@@ -154,15 +150,9 @@ func (c *Client) CreateLocation(ctx context.Context, location *goastorage.Locati
 	q.SetSource(types.NewLocationSource(location.Source))
 	q.SetPurpose(types.NewLocationPurpose(location.Purpose))
 
-	var UUID uuid.UUID
 	if location.UUID != nil {
-		ret, err := uuid.Parse(*location.UUID)
-		if err != nil {
-			return nil, err
-		}
-		UUID = ret
+		q.SetUUID(*location.UUID)
 	}
-	q.SetUUID(UUID)
 
 	q.SetConfig(ref.DerefZero(config))
 
@@ -205,7 +195,7 @@ func locationAsGoa(ctx context.Context, loc *db.Location) *goastorage.StoredLoca
 		Description: &loc.Description,
 		Source:      loc.Source.String(),
 		Purpose:     loc.Purpose.String(),
-		UUID:        ref.New(loc.UUID.String()),
+		UUID:        &loc.UUID,
 	}
 
 	return l

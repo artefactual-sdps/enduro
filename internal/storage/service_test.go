@@ -389,25 +389,41 @@ func TestServiceDownload(t *testing.T) {
 func TestServiceList(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.Background()
-
 	t.Run("Returns defined locations", func(t *testing.T) {
 		t.Parallel()
 
-		svc := setUpService(t, &setUpAttrs{})
+		ctx := context.Background()
+		attrs := &setUpAttrs{}
+		svc := setUpService(t, attrs)
 
-		res, err := svc.Locations(ctx)
-		assert.NilError(t, err)
-		assert.DeepEqual(t, res, goastorage.StoredLocationCollection{
+		storedLocations := goastorage.StoredLocationCollection{
 			{
 				ID:          1,
 				Name:        "perma-aips-1",
-				Description: ref.New(""),
+				Description: ref.New("One"),
 				Source:      "minio",
 				Purpose:     "aip_store",
-				UUID:        ref.New(""),
+				UUID:        ref.New(uuid.New()),
 			},
-		})
+			{
+				ID:          2,
+				Name:        "perma-aips-2",
+				Description: ref.New("Two"),
+				Source:      "minio",
+				Purpose:     "aip_store",
+				UUID:        ref.New(uuid.New()),
+			},
+		}
+
+		attrs.persistenceMock.
+			EXPECT().
+			ListLocations(ctx).
+			Return(storedLocations, nil).
+			Times(1)
+
+		res, err := svc.Locations(ctx)
+		assert.NilError(t, err)
+		assert.DeepEqual(t, res, storedLocations)
 	})
 }
 
@@ -547,7 +563,7 @@ func TestServiceDelete(t *testing.T) {
 				&goastorage.StoredStoragePackage{
 					ID:        1,
 					AipID:     AIPID,
-					ObjectKey: AIPID,
+					ObjectKey: uuid.MustParse(AIPID),
 					Location:  nil,
 				},
 				nil,
@@ -578,7 +594,7 @@ func TestServiceDelete(t *testing.T) {
 				&goastorage.StoredStoragePackage{
 					ID:        1,
 					AipID:     AIPID,
-					ObjectKey: AIPID,
+					ObjectKey: uuid.MustParse(AIPID),
 					Location:  ref.New("perma-aips-1"),
 				},
 				nil,
@@ -609,7 +625,7 @@ func TestServiceDelete(t *testing.T) {
 				&goastorage.StoredStoragePackage{
 					ID:        1,
 					AipID:     AIPID,
-					ObjectKey: AIPID,
+					ObjectKey: uuid.MustParse(AIPID),
 					Location:  ref.New("perma-aips-1"),
 				},
 				nil,
@@ -644,7 +660,7 @@ func TestServiceDelete(t *testing.T) {
 				&goastorage.StoredStoragePackage{
 					ID:        1,
 					AipID:     AIPID,
-					ObjectKey: AIPID,
+					ObjectKey: uuid.MustParse(AIPID),
 					Location:  ref.New("perma-aips-99"),
 				},
 				nil,
@@ -670,7 +686,7 @@ func TestPackageReader(t *testing.T) {
 		reader, err := svc.PackageReader(ctx, &goastorage.StoredStoragePackage{
 			ID:        1,
 			AipID:     AIPID,
-			ObjectKey: AIPID,
+			ObjectKey: uuid.MustParse(AIPID),
 			Location:  ref.New("perma-aips-1"),
 		})
 		assert.NilError(t, err)
@@ -689,7 +705,7 @@ func TestPackageReader(t *testing.T) {
 		_, err := svc.PackageReader(ctx, &goastorage.StoredStoragePackage{
 			ID:        1,
 			AipID:     AIPID,
-			ObjectKey: AIPID,
+			ObjectKey: uuid.MustParse(AIPID),
 			Location:  ref.New("perma-aips-99"),
 		})
 		assert.Error(t, err, "error loading location: unknown location perma-aips-99")
@@ -709,7 +725,7 @@ func TestPackageReader(t *testing.T) {
 		_, err = svc.PackageReader(ctx, &goastorage.StoredStoragePackage{
 			ID:        1,
 			AipID:     AIPID,
-			ObjectKey: AIPID,
+			ObjectKey: uuid.MustParse(AIPID),
 			Location:  ref.New("perma-aips-1"),
 		})
 		assert.Error(t, err, "blob: Bucket has been closed (code=FailedPrecondition)")
