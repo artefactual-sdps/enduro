@@ -27,7 +27,7 @@ func (a *CopyToPermanentLocationActivity) Execute(ctx context.Context, params *s
 	}
 	defer reader.Close()
 
-	l, err := a.storagesvc.Location(params.LocationID)
+	l, err := a.storagesvc.Location(ctx, params.LocationID)
 	if err != nil {
 		return err
 	}

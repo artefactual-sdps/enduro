@@ -35,7 +35,7 @@ type Service interface {
 	ShowLocation(context.Context, *goastorage.ShowLocationPayload) (res *goastorage.StoredLocation, err error)
 
 	// Used from workflow activities.
-	Location(locationID uuid.UUID) (Location, error)
+	Location(ctx context.Context, locationID uuid.UUID) (Location, error)
 	ReadPackage(ctx context.Context, AIPID string) (*goastorage.StoredStoragePackage, error)
 	UpdatePackageStatus(ctx context.Context, status types.PackageStatus, aipID string) error
 	UpdatePackageLocationID(ctx context.Context, locationID uuid.UUID, aipID string) error
@@ -77,14 +77,17 @@ func NewService(logger logr.Logger, config Config, storagePersistence persistenc
 	return s, nil
 }
 
-func (s *serviceImpl) Location(locationID uuid.UUID) (Location, error) {
+func (s *serviceImpl) Location(ctx context.Context, locationID uuid.UUID) (Location, error) {
 	if locationID == uuid.Nil {
 		return s.internal, nil
 	}
 
-	// TODO: get location from the database based on name
+	l, err := s.storagePersistence.ReadLocation(ctx, locationID)
+	if err != nil {
+		return nil, err
+	}
 
-	return nil, nil
+	return NewLocation(l)
 }
 
 func (s *serviceImpl) Submit(ctx context.Context, payload *goastorage.SubmitPayload) (*goastorage.SubmitResult, error) {
@@ -243,13 +246,13 @@ func (s *serviceImpl) UpdatePackageLocationID(ctx context.Context, locationID uu
 }
 
 // packageBucket returns the bucket and the key of the given package.
-func (s *serviceImpl) packageBucket(p *goastorage.StoredStoragePackage) (*blob.Bucket, string, error) {
+func (s *serviceImpl) packageBucket(ctx context.Context, p *goastorage.StoredStoragePackage) (*blob.Bucket, string, error) {
 	// Package is still in the internal processing bucket.
 	if p.LocationID == nil || *p.LocationID == uuid.Nil {
 		return s.internal.Bucket(), p.ObjectKey.String(), nil
 	}
 
-	location, err := s.Location(*p.LocationID)
+	location, err := s.Location(ctx, *p.LocationID)
 	if err != nil {
 		return nil, "", err
 	}
@@ -262,7 +265,7 @@ func (s *serviceImpl) Delete(ctx context.Context, AIPID string) error {
 		return err
 	}
 
-	bucket, key, err := s.packageBucket(pkg)
+	bucket, key, err := s.packageBucket(ctx, pkg)
 	if err != nil {
 		return err
 	}
@@ -271,7 +274,7 @@ func (s *serviceImpl) Delete(ctx context.Context, AIPID string) error {
 }
 
 func (s *serviceImpl) PackageReader(ctx context.Context, pkg *goastorage.StoredStoragePackage) (*blob.Reader, error) {
-	bucket, key, err := s.packageBucket(pkg)
+	bucket, key, err := s.packageBucket(ctx, pkg)
 	if err != nil {
 		return nil, err
 	}

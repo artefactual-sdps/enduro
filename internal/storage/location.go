@@ -2,6 +2,8 @@ package storage
 
 import (
 	"context"
+	"errors"
+	"fmt"
 
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -10,6 +12,7 @@ import (
 	"gocloud.dev/blob/s3blob"
 
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
+	"github.com/artefactual-sdps/enduro/internal/storage/types"
 )
 
 var LocationFactory = func(cfg LocationConfig) (Location, error) {
@@ -48,7 +51,28 @@ func NewLocation(location *goastorage.StoredLocation) (*locationImpl, error) {
 		id: *location.UUID,
 	}
 
-	// TODO: loading the S3Config, etc...
+	var config *types.S3Config
+	switch c := location.Config.(type) {
+	case *goastorage.S3Config:
+		config = c.ConvertToS3Config()
+	default:
+		return nil, fmt.Errorf("unsupported config type: %T", c)
+	}
+
+	if !config.Valid() {
+		return nil, errors.New("invalid configuration")
+	}
+
+	l.config = LocationConfig{
+		Region:    config.Region,
+		Endpoint:  config.Endpoint,
+		PathStyle: config.PathStyle,
+		Profile:   config.Profile,
+		Key:       config.Key,
+		Secret:    config.Secret,
+		Token:     config.Token,
+		Bucket:    config.Bucket,
+	}
 
 	return l, nil
 }

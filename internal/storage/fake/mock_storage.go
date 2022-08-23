@@ -84,18 +84,18 @@ func (mr *MockServiceMockRecorder) Download(arg0, arg1 interface{}) *gomock.Call
 }
 
 // Location mocks base method.
-func (m *MockService) Location(arg0 uuid.UUID) (storage0.Location, error) {
+func (m *MockService) Location(arg0 context.Context, arg1 uuid.UUID) (storage0.Location, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Location", arg0)
+	ret := m.ctrl.Call(m, "Location", arg0, arg1)
 	ret0, _ := ret[0].(storage0.Location)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Location indicates an expected call of Location.
-func (mr *MockServiceMockRecorder) Location(arg0 interface{}) *gomock.Call {
+func (mr *MockServiceMockRecorder) Location(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Location", reflect.TypeOf((*MockService)(nil).Location), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Location", reflect.TypeOf((*MockService)(nil).Location), arg0, arg1)
 }
 
 // Locations mocks base method.
