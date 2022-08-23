@@ -5,17 +5,18 @@ import (
 	"time"
 
 	goapackage "github.com/artefactual-sdps/enduro/internal/api/gen/package_"
+	"github.com/google/uuid"
 )
 
 // Package represents a package in the package table.
 type Package struct {
-	ID         uint   `db:"id"`
-	Name       string `db:"name"`
-	WorkflowID string `db:"workflow_id"`
-	RunID      string `db:"run_id"`
-	AIPID      string `db:"aip_id"`
-	Location   string `db:"location"`
-	Status     Status `db:"status"`
+	ID         uint      `db:"id"`
+	Name       string    `db:"name"`
+	WorkflowID string    `db:"workflow_id"`
+	RunID      string    `db:"run_id"`
+	AIPID      string    `db:"aip_id"`
+	LocationID uuid.UUID `db:"location_id"`
+	Status     Status    `db:"status"`
 
 	// It defaults to CURRENT_TIMESTAMP(6) so populated as soon as possible.
 	CreatedAt time.Time `db:"created_at"`
@@ -35,7 +36,7 @@ func (c Package) Goa() *goapackage.EnduroStoredPackage {
 		WorkflowID:  formatOptionalString(c.WorkflowID),
 		RunID:       formatOptionalString(c.RunID),
 		AipID:       formatOptionalString(c.AIPID),
-		Location:    formatOptionalString(c.Location),
+		LocationID:  &c.LocationID,
 		Status:      c.Status.String(),
 		CreatedAt:   formatTime(c.CreatedAt),
 		StartedAt:   formatOptionalTime(c.StartedAt),

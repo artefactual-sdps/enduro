@@ -95,8 +95,10 @@ var _ = Service("storage", func() {
 		Description("Move a package to a permanent storage location")
 		Payload(func() {
 			Attribute("aip_id", String)
-			Attribute("location", String)
-			Required("aip_id", "location")
+			Attribute("location_id", String, func() {
+				Meta("struct:field:type", "uuid.UUID", "github.com/google/uuid")
+			})
+			Required("aip_id", "location_id")
 		})
 		Error("not_found", StoragePackageNotFound, "Storage package not found")
 		Error("not_available")
@@ -159,7 +161,9 @@ var _ = Service("storage", func() {
 	Method("show-location", func() {
 		Description("Show location by UUID")
 		Payload(func() {
-			Attribute("uuid", String)
+			Attribute("uuid", String, func() {
+				Meta("struct:field:type", "uuid.UUID", "github.com/google/uuid")
+			})
 			Required("uuid")
 		})
 		Result(StoredLocation)
@@ -191,7 +195,9 @@ var StorageLocationNotFound = Type("StorageLocationNotfound", func() {
 	Attribute("message", String, "Message of error", func() {
 		Meta("struct:error:name")
 	})
-	Attribute("uuid", String, "Identifier of missing location")
+	Attribute("uuid", String, func() {
+		Meta("struct:field:type", "uuid.UUID", "github.com/google/uuid")
+	})
 	Required("message", "uuid")
 })
 
@@ -202,11 +208,12 @@ var StoredLocation = ResultType("application/vnd.enduro.stored-location", func()
 
 	Attributes(func() {
 		Attribute("id", UInt, "ID is the unique id of the location.")
-		Field(2, "name")
-		Field(3, "description")
-		Field(4, "source")
-		Field(5, "purpose")
-		Field(6, "uuid")
+		Attribute("name")
+		Attribute("description")
+		Attribute("source")
+		Attribute("purpose")
+		Attribute("uuid")
+		Attribute("config")
 	})
 
 	View("default", func() {
@@ -244,7 +251,9 @@ var Location = Type("Location", func() {
 	Attribute("uuid", String, func() {
 		Meta("struct:field:type", "uuid.UUID", "github.com/google/uuid")
 	})
-
+	OneOf("config", func() {
+		Attribute("s3", S3Config)
+	})
 	Required("name", "source", "purpose")
 })
 
@@ -268,14 +277,14 @@ var StoredStoragePackage = ResultType("application/vnd.enduro.stored-storage-pac
 		Attribute("aip_id")
 		Attribute("status")
 		Attribute("object_key")
-		Attribute("location")
+		Attribute("location_id")
 	})
 	View("default", func() {
 		Attribute("name")
 		Attribute("aip_id")
 		Attribute("status")
 		Attribute("object_key")
-		Attribute("location")
+		Attribute("location_id")
 	})
 	Required("id", "name", "aip_id", "status", "object_key")
 })
@@ -296,7 +305,9 @@ var StoragePackage = Type("StoragePackage", func() {
 	Attribute("object_key", String, func() {
 		Meta("struct:field:type", "uuid.UUID", "github.com/google/uuid")
 	})
-	Attribute("location", String)
+	Attribute("location_id", String, func() {
+		Meta("struct:field:type", "uuid.UUID", "github.com/google/uuid")
+	})
 
 	Required("name", "aip_id", "status")
 })

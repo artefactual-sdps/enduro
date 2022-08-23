@@ -120,8 +120,8 @@ func EncodeListRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.R
 		if p.LatestCreatedTime != nil {
 			values.Add("latest_created_time", *p.LatestCreatedTime)
 		}
-		if p.Location != nil {
-			values.Add("location", *p.Location)
+		if p.LocationID != nil {
+			values.Add("location_id", *p.LocationID)
 		}
 		if p.Status != nil {
 			values.Add("status", *p.Status)
@@ -1200,7 +1200,7 @@ func unmarshalEnduroStoredPackageResponseBodyToPackageViewsEnduroStoredPackageVi
 	res := &package_views.EnduroStoredPackageView{
 		ID:          v.ID,
 		Name:        v.Name,
-		Location:    v.Location,
+		LocationID:  v.LocationID,
 		Status:      v.Status,
 		WorkflowID:  v.WorkflowID,
 		RunID:       v.RunID,
@@ -1265,8 +1265,8 @@ func unmarshalEnduroPackageLocationUpdatedEventResponseBodyToPackageViewsEnduroP
 		return nil
 	}
 	res := &package_views.EnduroPackageLocationUpdatedEventView{
-		ID:       v.ID,
-		Location: v.Location,
+		ID:         v.ID,
+		LocationID: v.LocationID,
 	}
 
 	return res
@@ -1385,7 +1385,7 @@ func unmarshalEnduroStoredPackageResponseBodyToPackageEnduroStoredPackage(v *End
 	res := &package_.EnduroStoredPackage{
 		ID:          *v.ID,
 		Name:        v.Name,
-		Location:    v.Location,
+		LocationID:  v.LocationID,
 		Status:      *v.Status,
 		WorkflowID:  v.WorkflowID,
 		RunID:       v.RunID,

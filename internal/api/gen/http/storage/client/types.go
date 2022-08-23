@@ -42,7 +42,7 @@ type AddLocationRequestBody struct {
 // MoveRequestBody is the type of the "storage" service "move" endpoint HTTP
 // request body.
 type MoveRequestBody struct {
-	Location string `form:"location" json:"location" xml:"location"`
+	LocationID uuid.UUID `form:"location_id" json:"location_id" xml:"location_id"`
 }
 
 // SubmitResponseBody is the type of the "storage" service "submit" endpoint
@@ -74,9 +74,9 @@ type ShowResponseBody struct {
 	Name  *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 	AipID *string `form:"aip_id,omitempty" json:"aip_id,omitempty" xml:"aip_id,omitempty"`
 	// Status of the package
-	Status    *string    `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
-	ObjectKey *uuid.UUID `form:"object_key,omitempty" json:"object_key,omitempty" xml:"object_key,omitempty"`
-	Location  *string    `form:"location,omitempty" json:"location,omitempty" xml:"location,omitempty"`
+	Status     *string    `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
+	ObjectKey  *uuid.UUID `form:"object_key,omitempty" json:"object_key,omitempty" xml:"object_key,omitempty"`
+	LocationID *uuid.UUID `form:"location_id,omitempty" json:"location_id,omitempty" xml:"location_id,omitempty"`
 }
 
 // ShowLocationResponseBody is the type of the "storage" service
@@ -93,6 +93,13 @@ type ShowLocationResponseBody struct {
 	// Purpose of the location
 	Purpose *string    `form:"purpose,omitempty" json:"purpose,omitempty" xml:"purpose,omitempty"`
 	UUID    *uuid.UUID `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
+	Config  *struct {
+		// Union type name, one of:
+		// - "s3"
+		Type *string `form:"Type" json:"Type" xml:"Type"`
+		// JSON formatted union value
+		Value *string `form:"Value" json:"Value" xml:"Value"`
+	} `form:"config,omitempty" json:"config,omitempty" xml:"config,omitempty"`
 }
 
 // SubmitNotAvailableResponseBody is the type of the "storage" service "submit"
@@ -324,9 +331,8 @@ type ShowNotFoundResponseBody struct {
 // "show-location" endpoint HTTP response body for the "not_found" error.
 type ShowLocationNotFoundResponseBody struct {
 	// Message of error
-	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
-	// Identifier of missing location
-	UUID *string `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
+	Message *string    `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	UUID    *uuid.UUID `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
 }
 
 // StoredLocationResponse is used to define fields on response body types.
@@ -342,6 +348,13 @@ type StoredLocationResponse struct {
 	// Purpose of the location
 	Purpose *string    `form:"purpose,omitempty" json:"purpose,omitempty" xml:"purpose,omitempty"`
 	UUID    *uuid.UUID `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
+	Config  *struct {
+		// Union type name, one of:
+		// - "s3"
+		Type *string `form:"Type" json:"Type" xml:"Type"`
+		// JSON formatted union value
+		Value *string `form:"Value" json:"Value" xml:"Value"`
+	} `form:"config,omitempty" json:"config,omitempty" xml:"config,omitempty"`
 }
 
 // NewSubmitRequestBody builds the HTTP request body from the payload of the
@@ -387,7 +400,7 @@ func NewAddLocationRequestBody(p *storage.AddLocationPayload) *AddLocationReques
 // "move" endpoint of the "storage" service.
 func NewMoveRequestBody(p *storage.MovePayload) *MoveRequestBody {
 	body := &MoveRequestBody{
-		Location: p.Location,
+		LocationID: p.LocationID,
 	}
 	return body
 }
@@ -625,12 +638,12 @@ func NewRejectNotFound(body *RejectNotFoundResponseBody) *storage.StoragePackage
 // result from a HTTP "OK" response.
 func NewShowStoredStoragePackageOK(body *ShowResponseBody) *storageviews.StoredStoragePackageView {
 	v := &storageviews.StoredStoragePackageView{
-		ID:        body.ID,
-		Name:      body.Name,
-		AipID:     body.AipID,
-		Status:    body.Status,
-		ObjectKey: body.ObjectKey,
-		Location:  body.Location,
+		ID:         body.ID,
+		Name:       body.Name,
+		AipID:      body.AipID,
+		Status:     body.Status,
+		ObjectKey:  body.ObjectKey,
+		LocationID: body.LocationID,
 	}
 
 	return v
@@ -656,6 +669,14 @@ func NewShowLocationStoredLocationOK(body *ShowLocationResponseBody) *storagevie
 		Source:      body.Source,
 		Purpose:     body.Purpose,
 		UUID:        body.UUID,
+	}
+	if body.Config != nil {
+		switch *body.Config.Type {
+		case "s3":
+			var val *storageviews.S3ConfigView
+			json.Unmarshal([]byte(*body.Config.Value), &val)
+			v.Config = val
+		}
 	}
 
 	return v
@@ -1033,6 +1054,19 @@ func ValidateStoredLocationResponse(body *StoredLocationResponse) (err error) {
 	if body.Purpose != nil {
 		if !(*body.Purpose == "unspecified" || *body.Purpose == "aip_store") {
 			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.purpose", *body.Purpose, []interface{}{"unspecified", "aip_store"}))
+		}
+	}
+	if body.Config != nil {
+		if body.Config.Type == nil {
+			err = goa.MergeErrors(err, goa.MissingFieldError("Type", "body.config"))
+		}
+		if body.Config.Value == nil {
+			err = goa.MergeErrors(err, goa.MissingFieldError("Value", "body.config"))
+		}
+		if body.Config.Type != nil {
+			if !(*body.Config.Type == "s3") {
+				err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.config.Type", *body.Config.Type, []interface{}{"s3"}))
+			}
 		}
 	}
 	return

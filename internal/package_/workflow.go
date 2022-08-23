@@ -25,8 +25,8 @@ const (
 )
 
 type ReviewPerformedSignal struct {
-	Accepted bool
-	Location *string
+	Accepted   bool
+	LocationID *uuid.UUID `json:LocationID,omitempty`
 }
 
 type ProcessingWorkflowRequest struct {
@@ -82,9 +82,9 @@ func InitProcessingWorkflow(ctx context.Context, tc temporalsdk_client.Client, r
 }
 
 type MoveWorkflowRequest struct {
-	ID       uint
-	AIPID    string
-	Location string
+	ID         uint
+	AIPID      string
+	LocationID uuid.UUID
 }
 
 func InitMoveWorkflow(ctx context.Context, tc temporalsdk_client.Client, req *MoveWorkflowRequest) (temporalsdk_client.WorkflowRun, error) {

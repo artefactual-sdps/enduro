@@ -75,7 +75,7 @@ func ParseEndpoint(
 		package_ListAipIDFlag               = package_ListFlags.String("aip-id", "", "")
 		package_ListEarliestCreatedTimeFlag = package_ListFlags.String("earliest-created-time", "", "")
 		package_ListLatestCreatedTimeFlag   = package_ListFlags.String("latest-created-time", "", "")
-		package_ListLocationFlag            = package_ListFlags.String("location", "", "")
+		package_ListLocationIDFlag          = package_ListFlags.String("location-id", "", "")
 		package_ListStatusFlag              = package_ListFlags.String("status", "", "")
 		package_ListCursorFlag              = package_ListFlags.String("cursor", "", "")
 
@@ -345,7 +345,7 @@ func ParseEndpoint(
 				data = nil
 			case "list":
 				endpoint = c.List()
-				data, err = package_c.BuildListPayload(*package_ListNameFlag, *package_ListAipIDFlag, *package_ListEarliestCreatedTimeFlag, *package_ListLatestCreatedTimeFlag, *package_ListLocationFlag, *package_ListStatusFlag, *package_ListCursorFlag)
+				data, err = package_c.BuildListPayload(*package_ListNameFlag, *package_ListAipIDFlag, *package_ListEarliestCreatedTimeFlag, *package_ListLatestCreatedTimeFlag, *package_ListLocationIDFlag, *package_ListStatusFlag, *package_ListCursorFlag)
 			case "show":
 				endpoint = c.Show()
 				data, err = package_c.BuildShowPayload(*package_ShowIDFlag)
@@ -509,19 +509,19 @@ Example:
 }
 
 func package_ListUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] package list -name STRING -aip-id STRING -earliest-created-time STRING -latest-created-time STRING -location STRING -status STRING -cursor STRING
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] package list -name STRING -aip-id STRING -earliest-created-time STRING -latest-created-time STRING -location-id JSON -status STRING -cursor STRING
 
 List all stored packages
     -name STRING: 
     -aip-id STRING: 
     -earliest-created-time STRING: 
     -latest-created-time STRING: 
-    -location STRING: 
+    -location-id JSON: 
     -status STRING: 
     -cursor STRING: 
 
 Example:
-    %[1]s package list --name "Inventore expedita sunt." --aip-id "A8E7C55C-B3EA-B228-EF84-9DB3D55D57A4" --earliest-created-time "2007-10-31T04:26:47Z" --latest-created-time "2012-10-15T09:29:37Z" --location "Officiis sint." --status "done" --cursor "In quia tempora exercitationem."
+    %[1]s package list --name "Inventore expedita sunt." --aip-id "A8E7C55C-B3EA-B228-EF84-9DB3D55D57A4" --earliest-created-time "2007-10-31T04:26:47Z" --latest-created-time "2012-10-15T09:29:37Z" --location-id "Officiis sint." --status "done" --cursor "In quia tempora exercitationem."
 `, os.Args[0])
 }
 
@@ -614,7 +614,7 @@ Signal the package has been reviewed and accepted
 
 Example:
     %[1]s package confirm --body '{
-      "location": "Officiis rem voluptas."
+      "location_id": "Officiis rem voluptas."
    }' --id 16521280057797749018
 `, os.Args[0])
 }
@@ -639,7 +639,7 @@ Move a package to a permanent storage location
 
 Example:
     %[1]s package move --body '{
-      "location": "Consectetur alias architecto in dolor porro."
+      "location_id": "Consectetur alias architecto in dolor porro."
    }' --id 3546614325791434372
 `, os.Args[0])
 }
@@ -752,7 +752,7 @@ Move a package to a permanent storage location
 
 Example:
     %[1]s storage move --body '{
-      "location": "Autem eos temporibus iusto et ut."
+      "location_id": "Autem eos temporibus iusto et ut."
    }' --aip-id "Aperiam aut in laudantium quae nisi."
 `, os.Args[0])
 }
@@ -791,10 +791,10 @@ Example:
 }
 
 func storageShowLocationUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage show-location -uuid STRING
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage show-location -uuid JSON
 
 Show location by UUID
-    -uuid STRING: 
+    -uuid JSON: 
 
 Example:
     %[1]s storage show-location --uuid "Voluptatem numquam eligendi tenetur incidunt quia."

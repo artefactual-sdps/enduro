@@ -11,12 +11,14 @@ package client
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"io"
 	"net/http"
 	"net/url"
 
 	storage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 	storageviews "github.com/artefactual-sdps/enduro/internal/api/gen/storage/views"
+	"github.com/google/uuid"
 	goahttp "goa.design/goa/v3/http"
 )
 
@@ -838,7 +840,7 @@ func DecodeShowResponse(decoder func(*http.Response) goahttp.Decoder, restoreBod
 // path set to call the "storage" service "show-location" endpoint
 func (c *Client) BuildShowLocationRequest(ctx context.Context, v interface{}) (*http.Request, error) {
 	var (
-		uuid string
+		uuid uuid.UUID
 	)
 	{
 		p, ok := v.(*storage.ShowLocationPayload)
@@ -929,6 +931,14 @@ func unmarshalStoredLocationResponseToStorageviewsStoredLocationView(v *StoredLo
 		Source:      v.Source,
 		Purpose:     v.Purpose,
 		UUID:        v.UUID,
+	}
+	if v.Config != nil {
+		switch *v.Config.Type {
+		case "s3":
+			var val *storageviews.S3ConfigView
+			json.Unmarshal([]byte(*v.Config.Value), &val)
+			res.Config = val
+		}
 	}
 
 	return res

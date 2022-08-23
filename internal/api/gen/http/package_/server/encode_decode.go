@@ -17,6 +17,7 @@ import (
 
 	package_ "github.com/artefactual-sdps/enduro/internal/api/gen/package_"
 	package_views "github.com/artefactual-sdps/enduro/internal/api/gen/package_/views"
+	"github.com/google/uuid"
 	goahttp "goa.design/goa/v3/http"
 	goa "goa.design/goa/v3/pkg"
 )
@@ -42,7 +43,7 @@ func DecodeListRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.De
 			aipID               *string
 			earliestCreatedTime *string
 			latestCreatedTime   *string
-			location            *string
+			locationID          *uuid.UUID
 			status              *string
 			cursor              *string
 			err                 error
@@ -72,9 +73,9 @@ func DecodeListRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.De
 		if latestCreatedTime != nil {
 			err = goa.MergeErrors(err, goa.ValidateFormat("latestCreatedTime", *latestCreatedTime, goa.FormatDateTime))
 		}
-		locationRaw := r.URL.Query().Get("location")
-		if locationRaw != "" {
-			location = &locationRaw
+		locationIDRaw := r.URL.Query().Get("location_id")
+		if locationIDRaw != "" {
+			locationID = &locationIDRaw
 		}
 		statusRaw := r.URL.Query().Get("status")
 		if statusRaw != "" {
@@ -92,7 +93,7 @@ func DecodeListRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.De
 		if err != nil {
 			return nil, err
 		}
-		payload := NewListPayload(name, aipID, earliestCreatedTime, latestCreatedTime, location, status, cursor)
+		payload := NewListPayload(name, aipID, earliestCreatedTime, latestCreatedTime, locationID, status, cursor)
 
 		return payload, nil
 	}
@@ -968,7 +969,7 @@ func marshalPackageViewsEnduroStoredPackageViewToEnduroStoredPackageResponseBody
 	res := &EnduroStoredPackageResponseBody{
 		ID:          *v.ID,
 		Name:        v.Name,
-		Location:    v.Location,
+		LocationID:  v.LocationID,
 		Status:      *v.Status,
 		WorkflowID:  v.WorkflowID,
 		RunID:       v.RunID,
@@ -1035,8 +1036,8 @@ func marshalPackageViewsEnduroPackageLocationUpdatedEventViewToEnduroPackageLoca
 		return nil
 	}
 	res := &EnduroPackageLocationUpdatedEventResponseBody{
-		ID:       *v.ID,
-		Location: *v.Location,
+		ID:         *v.ID,
+		LocationID: *v.LocationID,
 	}
 
 	return res
@@ -1152,7 +1153,7 @@ func marshalPackageEnduroStoredPackageToEnduroStoredPackageResponseBody(v *packa
 	res := &EnduroStoredPackageResponseBody{
 		ID:          v.ID,
 		Name:        v.Name,
-		Location:    v.Location,
+		LocationID:  v.LocationID,
 		Status:      v.Status,
 		WorkflowID:  v.WorkflowID,
 		RunID:       v.RunID,

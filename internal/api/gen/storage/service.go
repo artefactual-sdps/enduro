@@ -84,12 +84,15 @@ type Location struct {
 	// Purpose of the location
 	Purpose string
 	UUID    *uuid.UUID
+	Config  interface {
+		configVal()
+	}
 }
 
 // MovePayload is the payload type of the storage service move method.
 type MovePayload struct {
-	AipID    string
-	Location string
+	AipID      string
+	LocationID uuid.UUID
 }
 
 // MoveStatusPayload is the payload type of the storage service move_status
@@ -123,7 +126,7 @@ type S3Config struct {
 // ShowLocationPayload is the payload type of the storage service show-location
 // method.
 type ShowLocationPayload struct {
-	UUID string
+	UUID uuid.UUID
 }
 
 // ShowPayload is the payload type of the storage service show method.
@@ -135,8 +138,7 @@ type ShowPayload struct {
 type StorageLocationNotfound struct {
 	// Message of error
 	Message string
-	// Identifier of missing location
-	UUID string
+	UUID    uuid.UUID
 }
 
 // Storage package describes a package of the storage service.
@@ -144,9 +146,9 @@ type StoragePackage struct {
 	Name  string
 	AipID string
 	// Status of the package
-	Status    string
-	ObjectKey *uuid.UUID
-	Location  *string
+	Status     string
+	ObjectKey  *uuid.UUID
+	LocationID *uuid.UUID
 }
 
 // Storage package not found.
@@ -171,6 +173,9 @@ type StoredLocation struct {
 	// Purpose of the location
 	Purpose string
 	UUID    *uuid.UUID
+	Config  interface {
+		configVal()
+	}
 }
 
 // StoredLocationCollection is the result type of the storage service locations
@@ -183,9 +188,9 @@ type StoredStoragePackage struct {
 	Name  string
 	AipID string
 	// Status of the package
-	Status    string
-	ObjectKey uuid.UUID
-	Location  *string
+	Status     string
+	ObjectKey  uuid.UUID
+	LocationID *uuid.UUID
 }
 
 // SubmitPayload is the payload type of the storage service submit method.
@@ -344,7 +349,7 @@ func newStoredLocationView(res *StoredLocation) *storageviews.StoredLocationView
 // service type StoredStoragePackage.
 func newStoredStoragePackage(vres *storageviews.StoredStoragePackageView) *StoredStoragePackage {
 	res := &StoredStoragePackage{
-		Location: vres.Location,
+		LocationID: vres.LocationID,
 	}
 	if vres.Name != nil {
 		res.Name = *vres.Name
@@ -368,11 +373,11 @@ func newStoredStoragePackage(vres *storageviews.StoredStoragePackageView) *Store
 // projected type StoredStoragePackageView using the "default" view.
 func newStoredStoragePackageView(res *StoredStoragePackage) *storageviews.StoredStoragePackageView {
 	vres := &storageviews.StoredStoragePackageView{
-		Name:      &res.Name,
-		AipID:     &res.AipID,
-		Status:    &res.Status,
-		ObjectKey: &res.ObjectKey,
-		Location:  res.Location,
+		Name:       &res.Name,
+		AipID:      &res.AipID,
+		Status:     &res.Status,
+		ObjectKey:  &res.ObjectKey,
+		LocationID: res.LocationID,
 	}
 	return vres
 }

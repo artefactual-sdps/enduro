@@ -12,6 +12,7 @@ import (
 	package_ "github.com/artefactual-sdps/enduro/internal/api/gen/package_"
 	package_0 "github.com/artefactual-sdps/enduro/internal/package_"
 	gomock "github.com/golang/mock/gomock"
+	uuid "github.com/google/uuid"
 )
 
 // MockService is a mock of Service interface.
@@ -121,18 +122,18 @@ func (mr *MockServiceMockRecorder) Goa() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Goa", reflect.TypeOf((*MockService)(nil).Goa))
 }
 
-// SetLocation mocks base method.
-func (m *MockService) SetLocation(arg0 context.Context, arg1 uint, arg2 string) error {
+// SetLocationID mocks base method.
+func (m *MockService) SetLocationID(arg0 context.Context, arg1 uint, arg2 uuid.UUID) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SetLocation", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "SetLocationID", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// SetLocation indicates an expected call of SetLocation.
-func (mr *MockServiceMockRecorder) SetLocation(arg0, arg1, arg2 interface{}) *gomock.Call {
+// SetLocationID indicates an expected call of SetLocationID.
+func (mr *MockServiceMockRecorder) SetLocationID(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetLocation", reflect.TypeOf((*MockService)(nil).SetLocation), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetLocationID", reflect.TypeOf((*MockService)(nil).SetLocationID), arg0, arg1, arg2)
 }
 
 // SetPreservationActionStatus mocks base method.

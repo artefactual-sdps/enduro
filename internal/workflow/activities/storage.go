@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/oklog/run"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
 
@@ -11,8 +12,8 @@ import (
 )
 
 type MoveToPermanentStorageActivityParams struct {
-	AIPID    string
-	Location string
+	AIPID      string
+	LocationID uuid.UUID
 }
 
 type MoveToPermanentStorageActivity struct {
@@ -30,8 +31,8 @@ func (a *MoveToPermanentStorageActivity) Execute(ctx context.Context, params *Mo
 	defer cancel()
 
 	err := a.storageClient.Move(childCtx, &goastorage.MovePayload{
-		AipID:    params.AIPID,
-		Location: params.Location,
+		AipID:      params.AIPID,
+		LocationID: params.LocationID,
 	})
 
 	return err

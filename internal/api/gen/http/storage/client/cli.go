@@ -13,6 +13,7 @@ import (
 	"fmt"
 
 	storage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
+	"github.com/google/uuid"
 	goa "goa.design/goa/v3/pkg"
 )
 
@@ -116,7 +117,7 @@ func BuildMovePayload(storageMoveBody string, storageMoveAipID string) (*storage
 	{
 		err = json.Unmarshal([]byte(storageMoveBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location\": \"Autem eos temporibus iusto et ut.\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location_id\": \"Autem eos temporibus iusto et ut.\"\n   }'")
 		}
 	}
 	var aipID string
@@ -124,7 +125,7 @@ func BuildMovePayload(storageMoveBody string, storageMoveAipID string) (*storage
 		aipID = storageMoveAipID
 	}
 	v := &storage.MovePayload{
-		Location: body.Location,
+		LocationID: body.LocationID,
 	}
 	v.AipID = aipID
 
@@ -173,9 +174,13 @@ func BuildShowPayload(storageShowAipID string) (*storage.ShowPayload, error) {
 // BuildShowLocationPayload builds the payload for the storage show-location
 // endpoint from CLI flags.
 func BuildShowLocationPayload(storageShowLocationUUID string) (*storage.ShowLocationPayload, error) {
-	var uuid string
+	var err error
+	var uuid uuid.UUID
 	{
-		uuid = storageShowLocationUUID
+		err = json.Unmarshal([]byte(storageShowLocationUUID), &uuid)
+		if err != nil {
+			return nil, fmt.Errorf("invalid JSON for uuid, \nerror: %s, \nexample of valid JSON:\n%s", err, "\"Voluptatem numquam eligendi tenetur incidunt quia.\"")
+		}
 	}
 	v := &storage.ShowLocationPayload{}
 	v.UUID = uuid

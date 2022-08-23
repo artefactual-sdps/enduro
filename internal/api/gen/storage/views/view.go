@@ -56,6 +56,21 @@ type StoredLocationView struct {
 	// Purpose of the location
 	Purpose *string
 	UUID    *uuid.UUID
+	Config  interface {
+		configVal()
+	}
+}
+
+// S3ConfigView is a type that runs validations on a projected type.
+type S3ConfigView struct {
+	Bucket    *string
+	Region    *string
+	Endpoint  *string
+	PathStyle *bool
+	Profile   *string
+	Key       *string
+	Secret    *string
+	Token     *string
 }
 
 // StoredStoragePackageView is a type that runs validations on a projected type.
@@ -64,10 +79,12 @@ type StoredStoragePackageView struct {
 	Name  *string
 	AipID *string
 	// Status of the package
-	Status    *string
-	ObjectKey *uuid.UUID
-	Location  *string
+	Status     *string
+	ObjectKey  *uuid.UUID
+	LocationID *uuid.UUID
 }
+
+func (*S3ConfigView) configVal() {}
 
 var (
 	// StoredLocationCollectionMap is a map indexing the attribute names of
@@ -89,7 +106,7 @@ var (
 			"aip_id",
 			"status",
 			"object_key",
-			"location",
+			"location_id",
 		},
 	}
 	// StoredLocationMap is a map indexing the attribute names of StoredLocation by
@@ -173,6 +190,17 @@ func ValidateStoredLocationView(result *StoredLocationView) (err error) {
 		if !(*result.Purpose == "unspecified" || *result.Purpose == "aip_store") {
 			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.purpose", *result.Purpose, []interface{}{"unspecified", "aip_store"}))
 		}
+	}
+	return
+}
+
+// ValidateS3ConfigView runs the validations defined on S3ConfigView.
+func ValidateS3ConfigView(result *S3ConfigView) (err error) {
+	if result.Bucket == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("bucket", "result"))
+	}
+	if result.Region == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("region", "result"))
 	}
 	return
 }

@@ -11,6 +11,7 @@ package server
 import (
 	package_ "github.com/artefactual-sdps/enduro/internal/api/gen/package_"
 	package_views "github.com/artefactual-sdps/enduro/internal/api/gen/package_/views"
+	"github.com/google/uuid"
 	goa "goa.design/goa/v3/pkg"
 )
 
@@ -25,13 +26,13 @@ type BulkRequestBody struct {
 // ConfirmRequestBody is the type of the "package" service "confirm" endpoint
 // HTTP request body.
 type ConfirmRequestBody struct {
-	Location *string `form:"location,omitempty" json:"location,omitempty" xml:"location,omitempty"`
+	LocationID *uuid.UUID `form:"location_id,omitempty" json:"location_id,omitempty" xml:"location_id,omitempty"`
 }
 
 // MoveRequestBody is the type of the "package" service "move" endpoint HTTP
 // request body.
 type MoveRequestBody struct {
-	Location *string `form:"location,omitempty" json:"location,omitempty" xml:"location,omitempty"`
+	LocationID *uuid.UUID `form:"location_id,omitempty" json:"location_id,omitempty" xml:"location_id,omitempty"`
 }
 
 // MonitorResponseBody is the type of the "package" service "monitor" endpoint
@@ -62,9 +63,8 @@ type ShowResponseBody struct {
 	// Identifier of package
 	ID uint `form:"id" json:"id" xml:"id"`
 	// Name of the package
-	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
-	// Location of the package
-	Location *string `form:"location,omitempty" json:"location,omitempty" xml:"location,omitempty"`
+	Name       *string    `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	LocationID *uuid.UUID `form:"location_id,omitempty" json:"location_id,omitempty" xml:"location_id,omitempty"`
 	// Status of the package
 	Status string `form:"status" json:"status" xml:"status"`
 	// Identifier of processing workflow
@@ -410,9 +410,8 @@ type EnduroStoredPackageResponseBody struct {
 	// Identifier of package
 	ID uint `form:"id" json:"id" xml:"id"`
 	// Name of the package
-	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
-	// Location of the package
-	Location *string `form:"location,omitempty" json:"location,omitempty" xml:"location,omitempty"`
+	Name       *string    `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	LocationID *uuid.UUID `form:"location_id,omitempty" json:"location_id,omitempty" xml:"location_id,omitempty"`
 	// Status of the package
 	Status string `form:"status" json:"status" xml:"status"`
 	// Identifier of processing workflow
@@ -456,8 +455,8 @@ type EnduroPackageStatusUpdatedEventResponseBody struct {
 // response body types.
 type EnduroPackageLocationUpdatedEventResponseBody struct {
 	// Identifier of package
-	ID       uint   `form:"id" json:"id" xml:"id"`
-	Location string `form:"location" json:"location" xml:"location"`
+	ID         uint      `form:"id" json:"id" xml:"id"`
+	LocationID uuid.UUID `form:"location_id" json:"location_id" xml:"location_id"`
 }
 
 // EnduroPreservationActionCreatedEventResponseBody is used to define fields on
@@ -600,7 +599,7 @@ func NewShowResponseBody(res *package_views.EnduroStoredPackageView) *ShowRespon
 	body := &ShowResponseBody{
 		ID:          *res.ID,
 		Name:        res.Name,
-		Location:    res.Location,
+		LocationID:  res.LocationID,
 		Status:      *res.Status,
 		WorkflowID:  res.WorkflowID,
 		RunID:       res.RunID,
@@ -904,13 +903,13 @@ func NewMoveStatusNotFoundResponseBody(res *package_.PackageNotfound) *MoveStatu
 }
 
 // NewListPayload builds a package service list endpoint payload.
-func NewListPayload(name *string, aipID *string, earliestCreatedTime *string, latestCreatedTime *string, location *string, status *string, cursor *string) *package_.ListPayload {
+func NewListPayload(name *string, aipID *string, earliestCreatedTime *string, latestCreatedTime *string, locationID *uuid.UUID, status *string, cursor *string) *package_.ListPayload {
 	v := &package_.ListPayload{}
 	v.Name = name
 	v.AipID = aipID
 	v.EarliestCreatedTime = earliestCreatedTime
 	v.LatestCreatedTime = latestCreatedTime
-	v.Location = location
+	v.LocationID = locationID
 	v.Status = status
 	v.Cursor = cursor
 
@@ -977,7 +976,7 @@ func NewPreservationActionsPayload(id uint) *package_.PreservationActionsPayload
 // NewConfirmPayload builds a package service confirm endpoint payload.
 func NewConfirmPayload(body *ConfirmRequestBody, id uint) *package_.ConfirmPayload {
 	v := &package_.ConfirmPayload{
-		Location: *body.Location,
+		LocationID: *body.LocationID,
 	}
 	v.ID = id
 
@@ -995,7 +994,7 @@ func NewRejectPayload(id uint) *package_.RejectPayload {
 // NewMovePayload builds a package service move endpoint payload.
 func NewMovePayload(body *MoveRequestBody, id uint) *package_.MovePayload {
 	v := &package_.MovePayload{
-		Location: *body.Location,
+		LocationID: *body.LocationID,
 	}
 	v.ID = id
 
@@ -1033,16 +1032,16 @@ func ValidateBulkRequestBody(body *BulkRequestBody) (err error) {
 
 // ValidateConfirmRequestBody runs the validations defined on ConfirmRequestBody
 func ValidateConfirmRequestBody(body *ConfirmRequestBody) (err error) {
-	if body.Location == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("location", "body"))
+	if body.LocationID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("location_id", "body"))
 	}
 	return
 }
 
 // ValidateMoveRequestBody runs the validations defined on MoveRequestBody
 func ValidateMoveRequestBody(body *MoveRequestBody) (err error) {
-	if body.Location == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("location", "body"))
+	if body.LocationID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("location_id", "body"))
 	}
 	return
 }

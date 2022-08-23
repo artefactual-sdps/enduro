@@ -55,13 +55,6 @@ func setUpService(t *testing.T, attrs *setUpAttrs) storage.Service {
 				Bucket: "internal",
 				Region: "eu-west-2",
 			},
-			Locations: []storage.LocationConfig{
-				{
-					Name:   "perma-aips-1",
-					Bucket: "perma-aips-1",
-					Region: "eu-west-2",
-				},
-			},
 		}),
 		persistence:        &ps,
 		persistenceMock:    psMock,

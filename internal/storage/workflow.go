@@ -9,6 +9,7 @@ import (
 	temporalsdk_client "go.temporal.io/sdk/client"
 
 	"github.com/artefactual-sdps/enduro/internal/temporal"
+	"github.com/google/uuid"
 )
 
 const (
@@ -24,13 +25,13 @@ type StorageUploadWorkflowRequest struct {
 }
 
 type StorageMoveWorkflowRequest struct {
-	AIPID    string
-	Location string
+	AIPID      string
+	LocationID uuid.UUID
 }
 
 type CopyToPermanentLocationActivityParams struct {
-	AIPID    string
-	Location string
+	AIPID      string
+	LocationID uuid.UUID
 }
 
 type UploadDoneSignal struct{}

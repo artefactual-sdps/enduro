@@ -125,13 +125,15 @@ var PackageStatusUpdatedEvent = ResultType("application/vnd.enduro.package-statu
 var PackageLocationUpdatedEvent = ResultType("application/vnd.enduro.package-location-updated-event", func() {
 	Attributes(func() {
 		Attribute("id", UInt, "Identifier of package")
-		Attribute("location", String)
-		Required("id", "location")
+		Attribute("location_id", String, func() {
+			Meta("struct:field:type", "uuid.UUID", "github.com/google/uuid")
+		})
+		Required("id", "location_id")
 	})
 
 	View("default", func() {
 		Attribute("id")
-		Attribute("location")
+		Attribute("location_id")
 	})
 })
 

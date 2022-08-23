@@ -72,8 +72,8 @@ func setStatusLocalActivity(ctx context.Context, pkgsvc package_.Service, pkgID 
 	return pkgsvc.SetStatus(ctx, pkgID, status)
 }
 
-func setLocationLocalActivity(ctx context.Context, pkgsvc package_.Service, pkgID uint, location string) error {
-	return pkgsvc.SetLocation(ctx, pkgID, location)
+func setLocationLocalActivity(ctx context.Context, pkgsvc package_.Service, pkgID uint, locationID uuid.UUID) error {
+	return pkgsvc.SetLocationID(ctx, pkgID, locationID)
 }
 
 type saveLocationMovePreservationActionLocalActivityParams struct {

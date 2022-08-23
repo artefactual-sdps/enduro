@@ -10,6 +10,8 @@ package client
 
 import (
 	"fmt"
+
+	"github.com/google/uuid"
 )
 
 // SubmitStoragePath returns the URL path to the storage service submit HTTP endpoint.
@@ -58,6 +60,6 @@ func ShowStoragePath(aipID string) string {
 }
 
 // ShowLocationStoragePath returns the URL path to the storage service show-location HTTP endpoint.
-func ShowLocationStoragePath(uuid string) string {
+func ShowLocationStoragePath(uuid uuid.UUID) string {
 	return fmt.Sprintf("/storage/location/%v", uuid)
 }

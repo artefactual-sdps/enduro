@@ -9,6 +9,7 @@
 package views
 
 import (
+	"github.com/google/uuid"
 	goa "goa.design/goa/v3/pkg"
 )
 
@@ -72,9 +73,8 @@ type EnduroStoredPackageView struct {
 	// Identifier of package
 	ID *uint
 	// Name of the package
-	Name *string
-	// Location of the package
-	Location *string
+	Name       *string
+	LocationID *uuid.UUID
 	// Status of the package
 	Status *string
 	// Identifier of processing workflow
@@ -118,8 +118,8 @@ type EnduroPackageStatusUpdatedEventView struct {
 // projected type.
 type EnduroPackageLocationUpdatedEventView struct {
 	// Identifier of package
-	ID       *uint
-	Location *string
+	ID         *uint
+	LocationID *uuid.UUID
 }
 
 // EnduroPreservationActionCreatedEventView is a type that runs validations on
@@ -217,7 +217,7 @@ var (
 		"default": {
 			"id",
 			"name",
-			"location",
+			"location_id",
 			"status",
 			"workflow_id",
 			"run_id",
@@ -277,7 +277,7 @@ var (
 	EnduroPackageLocationUpdatedEventMap = map[string][]string{
 		"default": {
 			"id",
-			"location",
+			"location_id",
 		},
 	}
 	// EnduroPreservationActionCreatedEventMap is a map indexing the attribute
@@ -586,8 +586,8 @@ func ValidateEnduroPackageLocationUpdatedEventView(result *EnduroPackageLocation
 	if result.ID == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("id", "result"))
 	}
-	if result.Location == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("location", "result"))
+	if result.LocationID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("location_id", "result"))
 	}
 	return
 }

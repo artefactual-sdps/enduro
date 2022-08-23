@@ -94,8 +94,8 @@ paths:
                   allowEmptyValue: true
                   schema:
                     type: string
-                    example: Tempore esse vitae quos.
-                  example: Quo voluptatibus accusamus aut.
+                    example: Autem corporis.
+                  example: Rerum et architecto pariatur pariatur provident sint.
                 - name: aip_id
                   in: query
                   allowEmptyValue: true
@@ -109,30 +109,30 @@ paths:
                   allowEmptyValue: true
                   schema:
                     type: string
-                    example: "1993-07-30T06:04:32Z"
+                    example: "1986-04-23T23:10:30Z"
                     format: date-time
-                  example: "1980-04-18T19:03:35Z"
+                  example: "2006-09-17T06:58:31Z"
                 - name: latest_created_time
                   in: query
                   allowEmptyValue: true
                   schema:
                     type: string
-                    example: "1988-11-11T10:19:59Z"
+                    example: "1989-08-09T11:22:42Z"
                     format: date-time
-                  example: "1970-03-03T00:37:35Z"
-                - name: location
+                  example: "1997-03-29T20:31:36Z"
+                - name: location_id
                   in: query
                   allowEmptyValue: true
                   schema:
                     type: string
-                    example: Ad velit corrupti et.
-                  example: Impedit non fugiat deserunt.
+                    example: Dolor dolorem eaque laudantium.
+                  example: Deserunt quaerat ex hic qui repudiandae ad.
                 - name: status
                   in: query
                   allowEmptyValue: true
                   schema:
                     type: string
-                    example: error
+                    example: abandoned
                     enum:
                         - new
                         - in progress
@@ -142,7 +142,7 @@ paths:
                         - queued
                         - pending
                         - abandoned
-                  example: unknown
+                  example: new
                 - name: cursor
                   in: query
                   description: Pagination cursor
@@ -150,8 +150,8 @@ paths:
                   schema:
                     type: string
                     description: Pagination cursor
-                    example: Ut reiciendis asperiores enim.
-                  example: Aliquid et veritatis.
+                    example: Explicabo impedit non fugiat deserunt et.
+                  example: Optio ut reiciendis asperiores enim molestiae.
             responses:
                 "200":
                     description: OK response.
@@ -165,7 +165,7 @@ paths:
                                       completed_at: "2009-08-30T22:47:27Z"
                                       created_at: "1970-02-11T05:56:26Z"
                                       id: 2608592925037585396
-                                      location: In velit iusto laudantium.
+                                      location_id: In velit iusto laudantium.
                                       name: Vitae illum magni placeat quo.
                                       run_id: 3F59C655-AFF8-EAB8-FA17-44E154EF0557
                                       started_at: "1999-10-22T09:43:22Z"
@@ -175,7 +175,7 @@ paths:
                                       completed_at: "2009-08-30T22:47:27Z"
                                       created_at: "1970-02-11T05:56:26Z"
                                       id: 2608592925037585396
-                                      location: In velit iusto laudantium.
+                                      location_id: In velit iusto laudantium.
                                       name: Vitae illum magni placeat quo.
                                       run_id: 3F59C655-AFF8-EAB8-FA17-44E154EF0557
                                       started_at: "1999-10-22T09:43:22Z"
@@ -185,7 +185,7 @@ paths:
                                       completed_at: "2009-08-30T22:47:27Z"
                                       created_at: "1970-02-11T05:56:26Z"
                                       id: 2608592925037585396
-                                      location: In velit iusto laudantium.
+                                      location_id: In velit iusto laudantium.
                                       name: Vitae illum magni placeat quo.
                                       run_id: 3F59C655-AFF8-EAB8-FA17-44E154EF0557
                                       started_at: "1999-10-22T09:43:22Z"
@@ -195,7 +195,7 @@ paths:
                                       completed_at: "2009-08-30T22:47:27Z"
                                       created_at: "1970-02-11T05:56:26Z"
                                       id: 2608592925037585396
-                                      location: In velit iusto laudantium.
+                                      location_id: In velit iusto laudantium.
                                       name: Vitae illum magni placeat quo.
                                       run_id: 3F59C655-AFF8-EAB8-FA17-44E154EF0557
                                       started_at: "1999-10-22T09:43:22Z"
@@ -217,8 +217,8 @@ paths:
                   schema:
                     type: integer
                     description: Identifier of package to delete
-                    example: 17685747899818079804
-                  example: 12376029283876969269
+                    example: 10041010211267970916
+                  example: 13213094512271608621
             responses:
                 "204":
                     description: No Content response.
@@ -242,8 +242,8 @@ paths:
                   schema:
                     type: integer
                     description: Identifier of package to show
-                    example: 13213094512271608621
-                  example: 53497842962778970
+                    example: 10291173390845988889
+                  example: 2348435681226212956
             responses:
                 "200":
                     description: OK response.
@@ -256,7 +256,7 @@ paths:
                                 completed_at: "1973-07-27T18:02:29Z"
                                 created_at: "1971-09-30T17:15:51Z"
                                 id: 11312523493040000801
-                                location: Expedita amet vero.
+                                location_id: Expedita amet vero.
                                 name: Ad aut rerum.
                                 run_id: 6D98E750-AE3D-1948-4270-2B4874F82503
                                 started_at: "1988-06-14T22:34:25Z"
@@ -283,8 +283,8 @@ paths:
                   schema:
                     type: integer
                     description: Identifier of package to remove
-                    example: 12772351798617928033
-                  example: 12411970524471810382
+                    example: 53497842962778970
+                  example: 17685747899818079804
             responses:
                 "200":
                     description: OK response.
@@ -315,8 +315,8 @@ paths:
                   schema:
                     type: integer
                     description: Identifier of package to look up
-                    example: 12673816868335909006
-                  example: 4986043789186451930
+                    example: 3014719000413425182
+                  example: 3959489344867392873
             requestBody:
                 required: true
                 content:
@@ -324,7 +324,7 @@ paths:
                         schema:
                             $ref: '#/components/schemas/ConfirmRequestBody'
                         example:
-                            location: Officiis rem voluptas.
+                            location_id: Officiis rem voluptas.
             responses:
                 "202":
                     description: Accepted response.
@@ -361,8 +361,8 @@ paths:
                   schema:
                     type: integer
                     description: Identifier of package to move
-                    example: 7222546007258627023
-                  example: 13872760231112293105
+                    example: 5718469214379396135
+                  example: 2963567513015846214
             responses:
                 "200":
                     description: OK response.
@@ -398,8 +398,8 @@ paths:
                   schema:
                     type: integer
                     description: Identifier of package to move
-                    example: 2963567513015846214
-                  example: 16347135534505794595
+                    example: 4986043789186451930
+                  example: 6484267068959424616
             requestBody:
                 required: true
                 content:
@@ -407,7 +407,7 @@ paths:
                         schema:
                             $ref: '#/components/schemas/ConfirmRequestBody'
                         example:
-                            location: Consectetur alias architecto in dolor porro.
+                            location_id: Consectetur alias architecto in dolor porro.
             responses:
                 "202":
                     description: Accepted response.
@@ -444,8 +444,8 @@ paths:
                   schema:
                     type: integer
                     description: Identifier of package to look up
-                    example: 3959489344867392873
-                  example: 2448627321897021564
+                    example: 12411970524471810382
+                  example: 12882741507642078452
             responses:
                 "200":
                     description: OK response.
@@ -540,8 +540,8 @@ paths:
                   schema:
                     type: integer
                     description: Identifier of package to look up
-                    example: 6484267068959424616
-                  example: 5718469214379396135
+                    example: 2448627321897021564
+                  example: 12673816868335909006
             responses:
                 "202":
                     description: Accepted response.
@@ -578,8 +578,8 @@ paths:
                   schema:
                     type: integer
                     description: Identifier of package to retry
-                    example: 12882741507642078452
-                  example: 3014719000413425182
+                    example: 12376029283876969269
+                  example: 12772351798617928033
             responses:
                 "200":
                     description: OK response.
@@ -677,7 +677,7 @@ paths:
                                         completed_at: "1971-04-08T14:14:00Z"
                                         created_at: "1972-12-14T18:22:18Z"
                                         id: 772288762104249152
-                                        location: Qui reprehenderit.
+                                        location_id: Qui reprehenderit.
                                         name: Quidem maxime vel sint ducimus officia labore.
                                         run_id: AC77D914-0A36-9917-2BA7-F519556A50B8
                                         started_at: "1972-07-29T07:07:39Z"
@@ -687,7 +687,7 @@ paths:
                                     id: 14197924954802378506
                                 package_location_updated_event:
                                     id: 17136966396571644201
-                                    location: Accusantium illum illo.
+                                    location_id: Accusantium illum illo.
                                 package_status_updated_event:
                                     id: 14730182356857932512
                                     status: in progress
@@ -698,7 +698,7 @@ paths:
                                         completed_at: "1971-04-08T14:14:00Z"
                                         created_at: "1972-12-14T18:22:18Z"
                                         id: 772288762104249152
-                                        location: Qui reprehenderit.
+                                        location_id: Qui reprehenderit.
                                         name: Quidem maxime vel sint ducimus officia labore.
                                         run_id: AC77D914-0A36-9917-2BA7-F519556A50B8
                                         started_at: "1972-07-29T07:07:39Z"
@@ -824,8 +824,8 @@ paths:
                   required: true
                   schema:
                     type: string
-                    example: Vel qui alias debitis voluptatem a.
-                  example: Sed nesciunt.
+                    example: Consequatur fugiat distinctio id vero voluptatum repudiandae.
+                  example: Earum autem vel.
             responses:
                 "200":
                     description: OK response.
@@ -834,6 +834,9 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/StoredLocation'
                             example:
+                                config:
+                                    Type: s3
+                                    Value: '"JSON"'
                                 description: Velit esse assumenda eum sit ut quam.
                                 id: 17985566963493411554
                                 name: Nobis blanditiis sed qui.
@@ -859,8 +862,8 @@ paths:
                   required: true
                   schema:
                     type: string
-                    example: Consequatur fugiat distinctio id vero voluptatum repudiandae.
-                  example: Earum autem vel.
+                    example: Nam perferendis.
+                  example: Consequatur vel.
             responses:
                 "200":
                     description: OK response.
@@ -871,7 +874,7 @@ paths:
                             example:
                                 aip_id: Error inventore molestias animi asperiores blanditiis quasi.
                                 id: 8360981809637401322
-                                location: Qui nobis numquam ducimus quia sed aut.
+                                location_id: Qui nobis numquam ducimus quia sed aut.
                                 name: Porro a molestiae.
                                 object_key: Quam assumenda saepe omnis et eius.
                                 status: in_review
@@ -894,8 +897,8 @@ paths:
                   required: true
                   schema:
                     type: string
-                    example: Distinctio officiis voluptas non architecto sunt.
-                  example: Omnis velit architecto quos.
+                    example: Est autem rerum voluptatem voluptatem natus aut.
+                  example: Sed rerum distinctio officiis voluptas.
             responses:
                 "200":
                     description: OK response.
@@ -922,18 +925,33 @@ paths:
                                     - 46
                                 format: binary
                             example:
-                                - 69
-                                - 116
-                                - 32
-                                - 97
-                                - 117
-                                - 116
-                                - 32
+                                - 65
                                 - 114
+                                - 99
+                                - 104
+                                - 105
+                                - 116
                                 - 101
-                                - 114
+                                - 99
+                                - 116
+                                - 111
+                                - 32
+                                - 115
                                 - 117
-                                - 109
+                                - 110
+                                - 116
+                                - 32
+                                - 99
+                                - 111
+                                - 110
+                                - 115
+                                - 101
+                                - 99
+                                - 116
+                                - 101
+                                - 116
+                                - 117
+                                - 114
                                 - 46
                 "404":
                     description: 'not_found: Storage package not found'
@@ -954,8 +972,8 @@ paths:
                   required: true
                   schema:
                     type: string
-                    example: Nam perferendis.
-                  example: Consequatur vel.
+                    example: Fugit molestiae quos numquam aut.
+                  example: Et consequuntur nulla fuga cumque.
             responses:
                 "202":
                     description: Accepted response.
@@ -990,8 +1008,8 @@ paths:
                   required: true
                   schema:
                     type: string
-                    example: Molestiae quos numquam aut laboriosam et.
-                  example: Nulla fuga cumque.
+                    example: Sed impedit suscipit itaque et asperiores.
+                  example: Eius laudantium.
             responses:
                 "200":
                     description: OK response.
@@ -1025,8 +1043,8 @@ paths:
                   required: true
                   schema:
                     type: string
-                    example: Ut facere numquam neque sed impedit.
-                  example: Itaque et asperiores qui eius laudantium est.
+                    example: Velit architecto quos quod et.
+                  example: Rerum illo ut facere numquam.
             requestBody:
                 required: true
                 content:
@@ -1034,7 +1052,7 @@ paths:
                         schema:
                             $ref: '#/components/schemas/ConfirmRequestBody'
                         example:
-                            location: Autem eos temporibus iusto et ut.
+                            location_id: Autem eos temporibus iusto et ut.
             responses:
                 "202":
                     description: Accepted response.
@@ -1069,8 +1087,8 @@ paths:
                   required: true
                   schema:
                     type: string
-                    example: Aliquid et qui molestiae praesentium debitis.
-                  example: Amet saepe adipisci reprehenderit voluptas quisquam.
+                    example: Minima veritatis porro aliquid et qui.
+                  example: Praesentium debitis asperiores amet.
             requestBody:
                 required: true
                 content:
@@ -1113,8 +1131,8 @@ paths:
                   required: true
                   schema:
                     type: string
-                    example: Impedit est autem rerum voluptatem.
-                  example: Natus aut accusantium sed.
+                    example: Adipisci reprehenderit.
+                  example: Quisquam cum.
             responses:
                 "202":
                     description: Accepted response.
@@ -1327,13 +1345,13 @@ components:
         ConfirmRequestBody:
             type: object
             properties:
-                location:
+                location_id:
                     type: string
                     example: Veniam sit reiciendis consequuntur.
             example:
-                location: Vero necessitatibus consequuntur in velit repellat.
+                location_id: Vero necessitatibus consequuntur in velit repellat.
             required:
-                - location
+                - location_id
         EnduroMonitorPingEventResponseBody:
             type: object
             properties:
@@ -1360,7 +1378,7 @@ components:
                     completed_at: "1971-04-08T14:14:00Z"
                     created_at: "1972-12-14T18:22:18Z"
                     id: 772288762104249152
-                    location: Qui reprehenderit.
+                    location_id: Qui reprehenderit.
                     name: Quidem maxime vel sint ducimus officia labore.
                     run_id: AC77D914-0A36-9917-2BA7-F519556A50B8
                     started_at: "1972-07-29T07:07:39Z"
@@ -1388,16 +1406,16 @@ components:
                     type: integer
                     description: Identifier of package
                     example: 8746368663749195781
-                location:
+                location_id:
                     type: string
                     example: Architecto magnam et placeat dolorem in saepe.
             description: EnduroPackage-Location-Updated-EventResponseBody result type (default view)
             example:
                 id: 1437191114534300130
-                location: Expedita consequatur eaque ad.
+                location_id: Expedita consequatur eaque ad.
             required:
                 - id
-                - location
+                - location_id
         EnduroPackagePreservationAction:
             type: object
             properties:
@@ -1875,7 +1893,7 @@ components:
                     completed_at: "1971-04-08T14:14:00Z"
                     created_at: "1972-12-14T18:22:18Z"
                     id: 772288762104249152
-                    location: Qui reprehenderit.
+                    location_id: Qui reprehenderit.
                     name: Quidem maxime vel sint ducimus officia labore.
                     run_id: AC77D914-0A36-9917-2BA7-F519556A50B8
                     started_at: "1972-07-29T07:07:39Z"
@@ -2000,9 +2018,8 @@ components:
                     type: integer
                     description: Identifier of package
                     example: 15204634609855551527
-                location:
+                location_id:
                     type: string
-                    description: Location of the package
                     example: A vero dolor enim error nobis.
                 name:
                     type: string
@@ -2043,7 +2060,7 @@ components:
                 completed_at: "2013-10-09T03:00:37Z"
                 created_at: "1978-12-25T10:39:20Z"
                 id: 13070806063894069497
-                location: Est nulla.
+                location_id: Est nulla.
                 name: Laudantium aut error expedita et a.
                 run_id: AFE55386-F5B6-467C-35B0-2117A9683AF1
                 started_at: "1982-03-03T14:44:11Z"
@@ -2062,7 +2079,7 @@ components:
                   completed_at: "2009-08-30T22:47:27Z"
                   created_at: "1970-02-11T05:56:26Z"
                   id: 2608592925037585396
-                  location: In velit iusto laudantium.
+                  location_id: In velit iusto laudantium.
                   name: Vitae illum magni placeat quo.
                   run_id: 3F59C655-AFF8-EAB8-FA17-44E154EF0557
                   started_at: "1999-10-22T09:43:22Z"
@@ -2072,7 +2089,7 @@ components:
                   completed_at: "2009-08-30T22:47:27Z"
                   created_at: "1970-02-11T05:56:26Z"
                   id: 2608592925037585396
-                  location: In velit iusto laudantium.
+                  location_id: In velit iusto laudantium.
                   name: Vitae illum magni placeat quo.
                   run_id: 3F59C655-AFF8-EAB8-FA17-44E154EF0557
                   started_at: "1999-10-22T09:43:22Z"
@@ -2082,7 +2099,7 @@ components:
                   completed_at: "2009-08-30T22:47:27Z"
                   created_at: "1970-02-11T05:56:26Z"
                   id: 2608592925037585396
-                  location: In velit iusto laudantium.
+                  location_id: In velit iusto laudantium.
                   name: Vitae illum magni placeat quo.
                   run_id: 3F59C655-AFF8-EAB8-FA17-44E154EF0557
                   started_at: "1999-10-22T09:43:22Z"
@@ -2110,9 +2127,8 @@ components:
                     type: integer
                     description: Identifier of package
                     example: 4104612956914036467
-                location:
+                location_id:
                     type: string
-                    description: Location of the package
                     example: Dolor atque deleniti corrupti.
                 name:
                     type: string
@@ -2153,7 +2169,7 @@ components:
                 completed_at: "1983-02-24T03:05:31Z"
                 created_at: "1981-11-29T00:41:52Z"
                 id: 3743908634100266694
-                location: Iste eaque sit repellendus et suscipit.
+                location_id: Iste eaque sit repellendus et suscipit.
                 name: Excepturi nesciunt aliquam necessitatibus odit est soluta.
                 run_id: FDCA5323-C4C9-FB10-0E70-1125891ABDEE
                 started_at: "1974-09-26T20:55:59Z"
@@ -2215,7 +2231,7 @@ components:
                       completed_at: "2009-08-30T22:47:27Z"
                       created_at: "1970-02-11T05:56:26Z"
                       id: 2608592925037585396
-                      location: In velit iusto laudantium.
+                      location_id: In velit iusto laudantium.
                       name: Vitae illum magni placeat quo.
                       run_id: 3F59C655-AFF8-EAB8-FA17-44E154EF0557
                       started_at: "1999-10-22T09:43:22Z"
@@ -2225,7 +2241,7 @@ components:
                       completed_at: "2009-08-30T22:47:27Z"
                       created_at: "1970-02-11T05:56:26Z"
                       id: 2608592925037585396
-                      location: In velit iusto laudantium.
+                      location_id: In velit iusto laudantium.
                       name: Vitae illum magni placeat quo.
                       run_id: 3F59C655-AFF8-EAB8-FA17-44E154EF0557
                       started_at: "1999-10-22T09:43:22Z"
@@ -2235,7 +2251,7 @@ components:
                       completed_at: "2009-08-30T22:47:27Z"
                       created_at: "1970-02-11T05:56:26Z"
                       id: 2608592925037585396
-                      location: In velit iusto laudantium.
+                      location_id: In velit iusto laudantium.
                       name: Vitae illum magni placeat quo.
                       run_id: 3F59C655-AFF8-EAB8-FA17-44E154EF0557
                       started_at: "1999-10-22T09:43:22Z"
@@ -2245,7 +2261,7 @@ components:
                       completed_at: "2009-08-30T22:47:27Z"
                       created_at: "1970-02-11T05:56:26Z"
                       id: 2608592925037585396
-                      location: In velit iusto laudantium.
+                      location_id: In velit iusto laudantium.
                       name: Vitae illum magni placeat quo.
                       run_id: 3F59C655-AFF8-EAB8-FA17-44E154EF0557
                       started_at: "1999-10-22T09:43:22Z"
@@ -2288,7 +2304,7 @@ components:
                         completed_at: "1971-04-08T14:14:00Z"
                         created_at: "1972-12-14T18:22:18Z"
                         id: 772288762104249152
-                        location: Qui reprehenderit.
+                        location_id: Qui reprehenderit.
                         name: Quidem maxime vel sint ducimus officia labore.
                         run_id: AC77D914-0A36-9917-2BA7-F519556A50B8
                         started_at: "1972-07-29T07:07:39Z"
@@ -2298,7 +2314,7 @@ components:
                     id: 14197924954802378506
                 package_location_updated_event:
                     id: 17136966396571644201
-                    location: Accusantium illum illo.
+                    location_id: Accusantium illum illo.
                 package_status_updated_event:
                     id: 14730182356857932512
                     status: in progress
@@ -2309,7 +2325,7 @@ components:
                         completed_at: "1971-04-08T14:14:00Z"
                         created_at: "1972-12-14T18:22:18Z"
                         id: 772288762104249152
-                        location: Qui reprehenderit.
+                        location_id: Qui reprehenderit.
                         name: Quidem maxime vel sint ducimus officia labore.
                         run_id: AC77D914-0A36-9917-2BA7-F519556A50B8
                         started_at: "1972-07-29T07:07:39Z"
@@ -2391,15 +2407,14 @@ components:
                 message:
                     type: string
                     description: Message of error
-                    example: Et et aut dolorem iure qui fuga.
+                    example: Consectetur illo dolor dolorum.
                 uuid:
                     type: string
-                    description: Identifier of missing location
-                    example: Autem corporis.
+                    example: Quod ratione.
             description: Storage location not found
             example:
-                message: Rerum et architecto pariatur pariatur provident sint.
-                uuid: Quam sint.
+                message: Nemo dignissimos.
+                uuid: Et et aut dolorem iure qui fuga.
             required:
                 - message
                 - uuid
@@ -2424,6 +2439,27 @@ components:
         StoredLocation:
             type: object
             properties:
+                config:
+                    type: object
+                    properties:
+                        Type:
+                            type: string
+                            description: |-
+                                Union type name, one of:
+                                - "s3"
+                            example: s3
+                            enum:
+                                - s3
+                        Value:
+                            type: string
+                            description: JSON formatted union value
+                            example: '"JSON"'
+                    example:
+                        Type: s3
+                        Value: '"JSON"'
+                    required:
+                        - Type
+                        - Value
                 description:
                     type: string
                     description: Description of the location
@@ -2456,12 +2492,15 @@ components:
                     type: string
                     example: Delectus quam.
             example:
-                description: Qui vitae deserunt autem a et dolor.
-                id: 8112615494569459410
-                name: Et corporis magnam tempora aut iste ut.
+                config:
+                    Type: s3
+                    Value: '"JSON"'
+                description: Iste ut animi.
+                id: 9228026185945323321
+                name: Magnam tempora.
                 purpose: unspecified
                 source: minio
-                uuid: Dolorum ipsam quod ratione nesciunt nemo dignissimos.
+                uuid: Autem a.
             required:
                 - id
                 - name
@@ -2538,7 +2577,7 @@ components:
                 id:
                     type: integer
                     example: 8333679131273708372
-                location:
+                location_id:
                     type: string
                     example: Vel itaque tenetur quis dolorum.
                 name:
@@ -2561,7 +2600,7 @@ components:
             example:
                 aip_id: Aliquam expedita eius quo molestiae animi incidunt.
                 id: 11949369535364447131
-                location: Delectus est adipisci aut omnis quibusdam.
+                location_id: Delectus est adipisci aut omnis quibusdam.
                 name: Eius fugit eum.
                 object_key: In praesentium sapiente eveniet dignissimos consectetur.
                 status: unspecified

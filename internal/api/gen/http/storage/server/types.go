@@ -42,7 +42,7 @@ type AddLocationRequestBody struct {
 // MoveRequestBody is the type of the "storage" service "move" endpoint HTTP
 // request body.
 type MoveRequestBody struct {
-	Location *string `form:"location,omitempty" json:"location,omitempty" xml:"location,omitempty"`
+	LocationID *uuid.UUID `form:"location_id,omitempty" json:"location_id,omitempty" xml:"location_id,omitempty"`
 }
 
 // SubmitResponseBody is the type of the "storage" service "submit" endpoint
@@ -73,9 +73,9 @@ type ShowResponseBody struct {
 	Name  string `form:"name" json:"name" xml:"name"`
 	AipID string `form:"aip_id" json:"aip_id" xml:"aip_id"`
 	// Status of the package
-	Status    string    `form:"status" json:"status" xml:"status"`
-	ObjectKey uuid.UUID `form:"object_key" json:"object_key" xml:"object_key"`
-	Location  *string   `form:"location,omitempty" json:"location,omitempty" xml:"location,omitempty"`
+	Status     string     `form:"status" json:"status" xml:"status"`
+	ObjectKey  uuid.UUID  `form:"object_key" json:"object_key" xml:"object_key"`
+	LocationID *uuid.UUID `form:"location_id,omitempty" json:"location_id,omitempty" xml:"location_id,omitempty"`
 }
 
 // ShowLocationResponseBody is the type of the "storage" service
@@ -321,9 +321,8 @@ type ShowNotFoundResponseBody struct {
 // "show-location" endpoint HTTP response body for the "not_found" error.
 type ShowLocationNotFoundResponseBody struct {
 	// Message of error
-	Message string `form:"message" json:"message" xml:"message"`
-	// Identifier of missing location
-	UUID string `form:"uuid" json:"uuid" xml:"uuid"`
+	Message string    `form:"message" json:"message" xml:"message"`
+	UUID    uuid.UUID `form:"uuid" json:"uuid" xml:"uuid"`
 }
 
 // StoredLocationResponse is used to define fields on response body types.
@@ -380,11 +379,11 @@ func NewMoveStatusResponseBody(res *storage.MoveStatusResult) *MoveStatusRespons
 // "show" endpoint of the "storage" service.
 func NewShowResponseBody(res *storageviews.StoredStoragePackageView) *ShowResponseBody {
 	body := &ShowResponseBody{
-		Name:      *res.Name,
-		AipID:     *res.AipID,
-		Status:    *res.Status,
-		ObjectKey: *res.ObjectKey,
-		Location:  res.Location,
+		Name:       *res.Name,
+		AipID:      *res.AipID,
+		Status:     *res.Status,
+		ObjectKey:  *res.ObjectKey,
+		LocationID: res.LocationID,
 	}
 	return body
 }
@@ -651,7 +650,7 @@ func NewAddLocationPayload(body *AddLocationRequestBody) *storage.AddLocationPay
 // NewMovePayload builds a storage service move endpoint payload.
 func NewMovePayload(body *MoveRequestBody, aipID string) *storage.MovePayload {
 	v := &storage.MovePayload{
-		Location: *body.Location,
+		LocationID: *body.LocationID,
 	}
 	v.AipID = aipID
 
@@ -684,7 +683,7 @@ func NewShowPayload(aipID string) *storage.ShowPayload {
 
 // NewShowLocationPayload builds a storage service show-location endpoint
 // payload.
-func NewShowLocationPayload(uuid string) *storage.ShowLocationPayload {
+func NewShowLocationPayload(uuid uuid.UUID) *storage.ShowLocationPayload {
 	v := &storage.ShowLocationPayload{}
 	v.UUID = uuid
 
@@ -739,8 +738,8 @@ func ValidateAddLocationRequestBody(body *AddLocationRequestBody) (err error) {
 
 // ValidateMoveRequestBody runs the validations defined on MoveRequestBody
 func ValidateMoveRequestBody(body *MoveRequestBody) (err error) {
-	if body.Location == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("location", "body"))
+	if body.LocationID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("location_id", "body"))
 	}
 	return
 }

@@ -99,7 +99,7 @@ paths:
                   required: false
                   type: string
                   format: date-time
-                - name: location
+                - name: location_id
                   in: query
                   required: false
                   type: string
@@ -229,7 +229,7 @@ paths:
                   schema:
                     $ref: '#/definitions/PackageConfirmRequestBody'
                     required:
-                        - location
+                        - location_id
             responses:
                 "202":
                     description: Accepted response.
@@ -301,7 +301,7 @@ paths:
                   schema:
                     $ref: '#/definitions/PackageMoveRequestBody'
                     required:
-                        - location
+                        - location_id
             responses:
                 "202":
                     description: Accepted response.
@@ -676,7 +676,7 @@ paths:
                   schema:
                     $ref: '#/definitions/StorageMoveRequestBody'
                     required:
-                        - location
+                        - location_id
             responses:
                 "202":
                     description: Accepted response.
@@ -781,15 +781,15 @@ definitions:
                 type: array
                 items:
                     type: string
-                    example: Fugit ipsam.
+                    example: Ab consectetur.
                 description: A list of known values of completedDir used by existing watchers.
                 example:
-                    - Consectetur sint est iure optio.
-                    - Ratione iste dolorem rerum maxime dicta a.
+                    - Iure optio suscipit.
+                    - Iste dolorem.
         example:
             completed_dirs:
-                - Fuga laborum maiores et esse.
-                - Est deserunt.
+                - Dicta a quidem aliquam.
+                - Laborum maiores et esse qui est deserunt.
                 - Optio ex labore iste eveniet.
                 - Sint omnis dolor quas corrupti.
     BatchStatusResponseBody:
@@ -798,21 +798,21 @@ definitions:
         properties:
             run_id:
                 type: string
-                example: Quaerat molestiae vero.
+                example: Quaerat sunt nihil ipsam harum quaerat molestiae.
             running:
                 type: boolean
-                example: true
+                example: false
             status:
                 type: string
-                example: Adipisci dignissimos iusto harum sunt omnis.
+                example: Molestiae deserunt facere adipisci dignissimos iusto.
             workflow_id:
                 type: string
-                example: Ullam quaerat sunt nihil ipsam.
+                example: Sunt omnis qui.
         example:
-            run_id: Aliquid enim ex sint laboriosam.
-            running: false
-            status: Qui nesciunt.
-            workflow_id: Aut animi quis voluptatem.
+            run_id: Fugit ipsam.
+            running: true
+            status: Corporis qui nesciunt assumenda aut animi.
+            workflow_id: Voluptatem aut aliquid enim ex sint laboriosam.
         required:
             - running
     BatchSubmitNotAvailableResponseBody:
@@ -822,7 +822,7 @@ definitions:
             fault:
                 type: boolean
                 description: Is the error a server-side fault?
-                example: false
+                example: true
             id:
                 type: string
                 description: ID is a unique identifier for this particular occurrence of the problem.
@@ -838,18 +838,18 @@ definitions:
             temporary:
                 type: boolean
                 description: Is the error temporary?
-                example: false
+                example: true
             timeout:
                 type: boolean
                 description: Is the error a timeout?
                 example: true
         description: submit_not_available_response_body result type (default view)
         example:
-            fault: true
+            fault: false
             id: 123abc
             message: parameter 'p' must be an integer
             name: bad_request
-            temporary: true
+            temporary: false
             timeout: true
         required:
             - name
@@ -881,19 +881,19 @@ definitions:
             temporary:
                 type: boolean
                 description: Is the error temporary?
-                example: false
+                example: true
             timeout:
                 type: boolean
                 description: Is the error a timeout?
                 example: true
         description: submit_not_valid_response_body result type (default view)
         example:
-            fault: false
+            fault: true
             id: 123abc
             message: parameter 'p' must be an integer
             name: bad_request
-            temporary: true
-            timeout: false
+            temporary: false
+            timeout: true
         required:
             - name
             - id
@@ -907,17 +907,17 @@ definitions:
         properties:
             completed_dir:
                 type: string
-                example: Beatae eligendi quos dolores corporis quidem.
+                example: Minus aut et et beatae eligendi quos.
             path:
                 type: string
-                example: Optio minus aut et.
+                example: Vel error quia.
             retention_period:
                 type: string
-                example: Vitae blanditiis reiciendis.
+                example: Corporis quidem.
         example:
-            completed_dir: Fugiat asperiores.
-            path: Deserunt quasi ea quisquam et saepe eum.
-            retention_period: Eos molestiae.
+            completed_dir: Deserunt quasi ea quisquam et saepe eum.
+            path: Vitae blanditiis reiciendis.
+            retention_period: Fugiat asperiores.
         required:
             - path
     BatchSubmitResponseBody:
@@ -926,13 +926,13 @@ definitions:
         properties:
             run_id:
                 type: string
-                example: Nemo dolores.
+                example: Optio voluptatibus.
             workflow_id:
                 type: string
-                example: Optio voluptatibus.
+                example: Unde in.
         example:
-            run_id: Voluptatum recusandae.
-            workflow_id: Qui suscipit.
+            run_id: Qui suscipit.
+            workflow_id: Nemo dolores.
         required:
             - workflow_id
             - run_id
@@ -965,7 +965,7 @@ definitions:
                 completed_at: "1971-04-08T14:14:00Z"
                 created_at: "1972-12-14T18:22:18Z"
                 id: 772288762104249152
-                location: Qui reprehenderit.
+                location_id: Qui reprehenderit.
                 name: Quidem maxime vel sint ducimus officia labore.
                 run_id: AC77D914-0A36-9917-2BA7-F519556A50B8
                 started_at: "1972-07-29T07:07:39Z"
@@ -997,16 +997,16 @@ definitions:
                 description: Identifier of package
                 example: 3953311594479223600
                 format: int64
-            location:
+            location_id:
                 type: string
                 example: Eligendi dicta.
         description: EnduroPackage-Location-Updated-EventResponseBody result type (default view)
         example:
             id: 10170014933461933457
-            location: Qui sapiente.
+            location_id: Qui sapiente.
         required:
             - id
-            - location
+            - location_id
     EnduroPackagePreservationActionResponseBody:
         title: 'Mediatype identifier: application/vnd.enduro.package-preservation-action; view=default'
         type: object
@@ -1418,7 +1418,7 @@ definitions:
                 completed_at: "1971-04-08T14:14:00Z"
                 created_at: "1972-12-14T18:22:18Z"
                 id: 772288762104249152
-                location: Qui reprehenderit.
+                location_id: Qui reprehenderit.
                 name: Quidem maxime vel sint ducimus officia labore.
                 run_id: AC77D914-0A36-9917-2BA7-F519556A50B8
                 started_at: "1972-07-29T07:07:39Z"
@@ -1553,9 +1553,8 @@ definitions:
                 description: Identifier of package
                 example: 8381706518740933380
                 format: int64
-            location:
+            location_id:
                 type: string
-                description: Location of the package
                 example: Sit quibusdam quidem consectetur praesentium.
             name:
                 type: string
@@ -1596,7 +1595,7 @@ definitions:
             completed_at: "1988-01-16T22:44:28Z"
             created_at: "1985-10-24T11:04:14Z"
             id: 7760024769891321589
-            location: Aut tempore.
+            location_id: Aut tempore.
             name: Sit perferendis dolor dolore voluptatem omnis.
             run_id: A1E767AB-DA97-F23F-D106-18BF8653EB6C
             started_at: "2005-01-31T15:05:47Z"
@@ -1617,7 +1616,7 @@ definitions:
               completed_at: "1971-04-08T14:14:00Z"
               created_at: "1972-12-14T18:22:18Z"
               id: 772288762104249152
-              location: Qui reprehenderit.
+              location_id: Qui reprehenderit.
               name: Quidem maxime vel sint ducimus officia labore.
               run_id: AC77D914-0A36-9917-2BA7-F519556A50B8
               started_at: "1972-07-29T07:07:39Z"
@@ -1627,7 +1626,7 @@ definitions:
               completed_at: "1971-04-08T14:14:00Z"
               created_at: "1972-12-14T18:22:18Z"
               id: 772288762104249152
-              location: Qui reprehenderit.
+              location_id: Qui reprehenderit.
               name: Quidem maxime vel sint ducimus officia labore.
               run_id: AC77D914-0A36-9917-2BA7-F519556A50B8
               started_at: "1972-07-29T07:07:39Z"
@@ -1637,7 +1636,7 @@ definitions:
               completed_at: "1971-04-08T14:14:00Z"
               created_at: "1972-12-14T18:22:18Z"
               id: 772288762104249152
-              location: Qui reprehenderit.
+              location_id: Qui reprehenderit.
               name: Quidem maxime vel sint ducimus officia labore.
               run_id: AC77D914-0A36-9917-2BA7-F519556A50B8
               started_at: "1972-07-29T07:07:39Z"
@@ -1986,13 +1985,13 @@ definitions:
         title: PackageConfirmRequestBody
         type: object
         properties:
-            location:
+            location_id:
                 type: string
                 example: Fugiat quos eos id minima velit provident.
         example:
-            location: Consequatur provident nulla veritatis.
+            location_id: Consequatur provident nulla veritatis.
         required:
-            - location
+            - location_id
     PackageDeleteNotFoundResponseBody:
         title: PackageDeleteNotFoundResponseBody
         type: object
@@ -2028,7 +2027,7 @@ definitions:
                   completed_at: "2009-08-30T22:47:27Z"
                   created_at: "1970-02-11T05:56:26Z"
                   id: 2608592925037585396
-                  location: In velit iusto laudantium.
+                  location_id: In velit iusto laudantium.
                   name: Vitae illum magni placeat quo.
                   run_id: 3F59C655-AFF8-EAB8-FA17-44E154EF0557
                   started_at: "1999-10-22T09:43:22Z"
@@ -2038,7 +2037,7 @@ definitions:
                   completed_at: "2009-08-30T22:47:27Z"
                   created_at: "1970-02-11T05:56:26Z"
                   id: 2608592925037585396
-                  location: In velit iusto laudantium.
+                  location_id: In velit iusto laudantium.
                   name: Vitae illum magni placeat quo.
                   run_id: 3F59C655-AFF8-EAB8-FA17-44E154EF0557
                   started_at: "1999-10-22T09:43:22Z"
@@ -2048,7 +2047,7 @@ definitions:
                   completed_at: "2009-08-30T22:47:27Z"
                   created_at: "1970-02-11T05:56:26Z"
                   id: 2608592925037585396
-                  location: In velit iusto laudantium.
+                  location_id: In velit iusto laudantium.
                   name: Vitae illum magni placeat quo.
                   run_id: 3F59C655-AFF8-EAB8-FA17-44E154EF0557
                   started_at: "1999-10-22T09:43:22Z"
@@ -2058,7 +2057,7 @@ definitions:
                   completed_at: "2009-08-30T22:47:27Z"
                   created_at: "1970-02-11T05:56:26Z"
                   id: 2608592925037585396
-                  location: In velit iusto laudantium.
+                  location_id: In velit iusto laudantium.
                   name: Vitae illum magni placeat quo.
                   run_id: 3F59C655-AFF8-EAB8-FA17-44E154EF0557
                   started_at: "1999-10-22T09:43:22Z"
@@ -2102,7 +2101,7 @@ definitions:
                     completed_at: "1971-04-08T14:14:00Z"
                     created_at: "1972-12-14T18:22:18Z"
                     id: 772288762104249152
-                    location: Qui reprehenderit.
+                    location_id: Qui reprehenderit.
                     name: Quidem maxime vel sint ducimus officia labore.
                     run_id: AC77D914-0A36-9917-2BA7-F519556A50B8
                     started_at: "1972-07-29T07:07:39Z"
@@ -2112,7 +2111,7 @@ definitions:
                 id: 14197924954802378506
             package_location_updated_event:
                 id: 17136966396571644201
-                location: Accusantium illum illo.
+                location_id: Accusantium illum illo.
             package_status_updated_event:
                 id: 14730182356857932512
                 status: in progress
@@ -2123,7 +2122,7 @@ definitions:
                     completed_at: "1971-04-08T14:14:00Z"
                     created_at: "1972-12-14T18:22:18Z"
                     id: 772288762104249152
-                    location: Qui reprehenderit.
+                    location_id: Qui reprehenderit.
                     name: Quidem maxime vel sint ducimus officia labore.
                     run_id: AC77D914-0A36-9917-2BA7-F519556A50B8
                     started_at: "1972-07-29T07:07:39Z"
@@ -2281,13 +2280,13 @@ definitions:
         title: PackageMoveRequestBody
         type: object
         properties:
-            location:
+            location_id:
                 type: string
                 example: Aliquid quia beatae dolorem.
         example:
-            location: Qui odit velit illo.
+            location_id: Qui odit velit illo.
         required:
-            - location
+            - location_id
     PackageMoveStatusFailedDependencyResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
@@ -2684,9 +2683,8 @@ definitions:
                 description: Identifier of package
                 example: 9966246911348489531
                 format: int64
-            location:
+            location_id:
                 type: string
-                description: Location of the package
                 example: Corporis sed.
             name:
                 type: string
@@ -2727,7 +2725,7 @@ definitions:
             completed_at: "1972-09-08T06:52:05Z"
             created_at: "1973-07-20T01:57:46Z"
             id: 15359087577426068004
-            location: Voluptas atque.
+            location_id: Voluptas atque.
             name: Praesentium ipsa repudiandae earum est eaque.
             run_id: FA72E36A-FA51-C026-0A9C-7A8A45F95FF4
             started_at: "2007-10-14T22:27:23Z"
@@ -2974,13 +2972,13 @@ definitions:
         title: StorageMoveRequestBody
         type: object
         properties:
-            location:
+            location_id:
                 type: string
                 example: Beatae fuga quibusdam suscipit tempore.
         example:
-            location: Quisquam ratione.
+            location_id: Quisquam ratione.
         required:
-            - location
+            - location_id
     StorageMoveStatusFailedDependencyResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
@@ -3169,7 +3167,6 @@ definitions:
                 example: Nemo laborum dolor sint quia ut.
             uuid:
                 type: string
-                description: Identifier of missing location
                 example: Facere iure id neque et sequi est.
         description: Storage location not found
         example:
@@ -3246,7 +3243,7 @@ definitions:
             aip_id:
                 type: string
                 example: Excepturi placeat quos sunt debitis.
-            location:
+            location_id:
                 type: string
                 example: Ea unde.
             name:
@@ -3269,7 +3266,7 @@ definitions:
         description: ShowResponseBody result type (default view)
         example:
             aip_id: Qui alias minima.
-            location: Tempore necessitatibus quas.
+            location_id: Tempore necessitatibus quas.
             name: Est neque.
             object_key: Quos pariatur ipsam velit consequatur.
             status: unspecified
