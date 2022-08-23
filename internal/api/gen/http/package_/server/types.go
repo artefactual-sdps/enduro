@@ -903,7 +903,7 @@ func NewMoveStatusNotFoundResponseBody(res *package_.PackageNotfound) *MoveStatu
 }
 
 // NewListPayload builds a package service list endpoint payload.
-func NewListPayload(name *string, aipID *string, earliestCreatedTime *string, latestCreatedTime *string, locationID *uuid.UUID, status *string, cursor *string) *package_.ListPayload {
+func NewListPayload(name *string, aipID *string, earliestCreatedTime *string, latestCreatedTime *string, locationID *string, status *string, cursor *string) *package_.ListPayload {
 	v := &package_.ListPayload{}
 	v.Name = name
 	v.AipID = aipID

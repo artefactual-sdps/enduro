@@ -5,29 +5,32 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/google/uuid"
 	"gocloud.dev/blob"
 	"gocloud.dev/blob/s3blob"
+
+	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 )
 
 var LocationFactory = func(cfg LocationConfig) (Location, error) {
-	return NewLocation(cfg)
+	return NewInternalLocation(cfg)
 }
 
 type Location interface {
-	Name() string
+	UUID() uuid.UUID
 	Bucket() *blob.Bucket
 	SetBucket(*blob.Bucket)
 }
 
 type locationImpl struct {
-	name   string
+	id     uuid.UUID
 	config LocationConfig
 	bucket *blob.Bucket
 }
 
-func NewLocation(config LocationConfig) (*locationImpl, error) {
+func NewInternalLocation(config LocationConfig) (*locationImpl, error) {
 	l := &locationImpl{
-		name:   config.Name,
+		id:     uuid.Nil,
 		config: config,
 	}
 
@@ -40,8 +43,18 @@ func NewLocation(config LocationConfig) (*locationImpl, error) {
 	return l, nil
 }
 
-func (l *locationImpl) Name() string {
-	return l.name
+func NewLocation(location *goastorage.StoredLocation) (*locationImpl, error) {
+	l := &locationImpl{
+		id: *location.UUID,
+	}
+
+	// TODO: loading the S3Config, etc...
+
+	return l, nil
+}
+
+func (l *locationImpl) UUID() uuid.UUID {
+	return l.id
 }
 
 func (l *locationImpl) openBucket() (*blob.Bucket, error) {

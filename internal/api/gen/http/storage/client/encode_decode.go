@@ -18,7 +18,6 @@ import (
 
 	storage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 	storageviews "github.com/artefactual-sdps/enduro/internal/api/gen/storage/views"
-	"github.com/google/uuid"
 	goahttp "goa.design/goa/v3/http"
 )
 
@@ -840,7 +839,7 @@ func DecodeShowResponse(decoder func(*http.Response) goahttp.Decoder, restoreBod
 // path set to call the "storage" service "show-location" endpoint
 func (c *Client) BuildShowLocationRequest(ctx context.Context, v interface{}) (*http.Request, error) {
 	var (
-		uuid uuid.UUID
+		uuid string
 	)
 	{
 		p, ok := v.(*storage.ShowLocationPayload)

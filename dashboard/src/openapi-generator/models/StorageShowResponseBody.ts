@@ -30,7 +30,7 @@ export interface StorageShowResponseBody {
      * @type {string}
      * @memberof StorageShowResponseBody
      */
-    location?: string;
+    locationId?: string;
     /**
      * 
      * @type {string}
@@ -76,7 +76,7 @@ export function StorageShowResponseBodyFromJSONTyped(json: any, ignoreDiscrimina
     return {
         
         'aipId': json['aip_id'],
-        'location': !exists(json, 'location') ? undefined : json['location'],
+        'locationId': !exists(json, 'location_id') ? undefined : json['location_id'],
         'name': json['name'],
         'objectKey': json['object_key'],
         'status': json['status'],
@@ -93,7 +93,7 @@ export function StorageShowResponseBodyToJSON(value?: StorageShowResponseBody | 
     return {
         
         'aip_id': value.aipId,
-        'location': value.location,
+        'location_id': value.locationId,
         'name': value.name,
         'object_key': value.objectKey,
         'status': value.status,

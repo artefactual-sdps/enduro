@@ -24,7 +24,7 @@ export interface PackageMoveRequestBody {
      * @type {string}
      * @memberof PackageMoveRequestBody
      */
-    location: string;
+    locationId: string;
 }
 
 export function PackageMoveRequestBodyFromJSON(json: any): PackageMoveRequestBody {
@@ -37,7 +37,7 @@ export function PackageMoveRequestBodyFromJSONTyped(json: any, ignoreDiscriminat
     }
     return {
         
-        'location': json['location'],
+        'locationId': json['location_id'],
     };
 }
 
@@ -50,7 +50,7 @@ export function PackageMoveRequestBodyToJSON(value?: PackageMoveRequestBody | nu
     }
     return {
         
-        'location': value.location,
+        'location_id': value.locationId,
     };
 }
 

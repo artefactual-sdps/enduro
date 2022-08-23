@@ -74,20 +74,20 @@ func TestListPackages(t *testing.T) {
 	assert.NilError(t, err)
 	assert.DeepEqual(t, pkgs, []*storage.StoredStoragePackage{
 		{
-			ID:        1,
-			Name:      "Package",
-			AipID:     "488c64cc-d89b-4916-9131-c94152dfb12e",
-			Status:    "stored",
-			ObjectKey: uuid.MustParse("e2630293-a714-4787-ab6d-e68254a6fb6a"),
-			Location:  nil,
+			ID:         1,
+			Name:       "Package",
+			AipID:      "488c64cc-d89b-4916-9131-c94152dfb12e",
+			Status:     "stored",
+			ObjectKey:  uuid.MustParse("e2630293-a714-4787-ab6d-e68254a6fb6a"),
+			LocationID: nil,
 		},
 		{
-			ID:        2,
-			Name:      "Another Package",
-			AipID:     "96e182a0-31ab-4738-a620-1ff1954d9ecb",
-			Status:    "rejected",
-			ObjectKey: uuid.MustParse("49b0a604-6c81-458c-852a-1afa713f1fd9"),
-			Location:  nil,
+			ID:         2,
+			Name:       "Another Package",
+			AipID:      "96e182a0-31ab-4738-a620-1ff1954d9ecb",
+			Status:     "rejected",
+			ObjectKey:  uuid.MustParse("49b0a604-6c81-458c-852a-1afa713f1fd9"),
+			LocationID: nil,
 		},
 	})
 }
@@ -107,12 +107,12 @@ func TestReadPackage(t *testing.T) {
 	pkg, err := c.ReadPackage(context.Background(), uuid.MustParse("488c64cc-d89b-4916-9131-c94152dfb12e"))
 	assert.NilError(t, err)
 	assert.DeepEqual(t, pkg, &storage.StoredStoragePackage{
-		ID:        1,
-		Name:      "Package",
-		AipID:     "488c64cc-d89b-4916-9131-c94152dfb12e",
-		Status:    "stored",
-		ObjectKey: uuid.MustParse("e2630293-a714-4787-ab6d-e68254a6fb6a"),
-		Location:  nil,
+		ID:         1,
+		Name:       "Package",
+		AipID:      "488c64cc-d89b-4916-9131-c94152dfb12e",
+		Status:     "stored",
+		ObjectKey:  uuid.MustParse("e2630293-a714-4787-ab6d-e68254a6fb6a"),
+		LocationID: nil,
 	})
 }
 
@@ -177,7 +177,7 @@ func TestUpdatePackageLocation(t *testing.T) {
 		SetLocation(l1).
 		SaveX(context.Background())
 
-	err := c.UpdatePackageLocation(context.Background(), "perma-aips-2", p.AipID)
+	err := c.UpdatePackageLocationID(context.Background(), l2.UUID, p.AipID)
 	assert.NilError(t, err)
 
 	entc.Pkg.Query().

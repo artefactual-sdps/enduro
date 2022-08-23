@@ -4,8 +4,9 @@ import (
 	"database/sql"
 	"time"
 
-	goapackage "github.com/artefactual-sdps/enduro/internal/api/gen/package_"
 	"github.com/google/uuid"
+
+	goapackage "github.com/artefactual-sdps/enduro/internal/api/gen/package_"
 )
 
 // Package represents a package in the package table.

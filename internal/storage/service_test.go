@@ -335,20 +335,20 @@ func TestServiceLocation(t *testing.T) {
 	svc := setUpService(t, &setUpAttrs{})
 
 	testCases := map[string]struct {
-		name string
+		UUID uuid.UUID
 		err  error
 	}{
 		"Returns internal location": {
-			"",
+			uuid.Nil,
 			nil,
 		},
 		"Returns location": {
-			"perma-aips-1",
+			uuid.MustParse("50110114-55ac-4567-b74f-9def601c6293"),
 			nil,
 		},
 		"Returns error when location cannot be found": {
-			"perma-aips-999",
-			errors.New("error loading location: unknown location perma-aips-999"),
+			uuid.MustParse("d8ea8946-dc82-4f4e-8c2d-8d3861f3297d"),
+			errors.New("error loading location: unknown location d8ea8946-dc82-4f4e-8c2d-8d3861f3297d"),
 		},
 	}
 
@@ -357,7 +357,7 @@ func TestServiceLocation(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			loc, err := svc.Location(tc.name)
+			loc, err := svc.Location(tc.UUID)
 
 			if tc.err == nil {
 				assert.NilError(t, err)

@@ -38,7 +38,7 @@ type Service interface {
 	Location(locationID uuid.UUID) (Location, error)
 	ReadPackage(ctx context.Context, AIPID string) (*goastorage.StoredStoragePackage, error)
 	UpdatePackageStatus(ctx context.Context, status types.PackageStatus, aipID string) error
-	UpdatePackageLocation(ctx context.Context, location string, aipID string) error
+	UpdatePackageLocationID(ctx context.Context, locationID uuid.UUID, aipID string) error
 	Delete(ctx context.Context, AIPID string) (err error)
 
 	// Both.
@@ -69,7 +69,7 @@ func NewService(logger logr.Logger, config Config, storagePersistence persistenc
 		storagePersistence: storagePersistence,
 	}
 
-	s.internal, err = NewLocation(config.Internal)
+	s.internal, err = NewInternalLocation(config.Internal)
 	if err != nil {
 		return nil, err
 	}
@@ -233,13 +233,13 @@ func (s *serviceImpl) UpdatePackageStatus(ctx context.Context, status types.Pack
 	return s.storagePersistence.UpdatePackageStatus(ctx, status, AIPUUID)
 }
 
-func (s *serviceImpl) UpdatePackageLocation(ctx context.Context, location string, AIPID string) error {
+func (s *serviceImpl) UpdatePackageLocationID(ctx context.Context, locationID uuid.UUID, AIPID string) error {
 	AIPUUID, err := uuid.Parse(AIPID)
 	if err != nil {
 		return err
 	}
 
-	return s.storagePersistence.UpdatePackageLocation(ctx, location, AIPUUID)
+	return s.storagePersistence.UpdatePackageLocationID(ctx, locationID, AIPUUID)
 }
 
 // packageBucket returns the bucket and the key of the given package.
@@ -320,9 +320,14 @@ func (s *serviceImpl) ReadLocation(ctx context.Context, UUID uuid.UUID) (*goasto
 }
 
 func (s *serviceImpl) ShowLocation(ctx context.Context, payload *goastorage.ShowLocationPayload) (*goastorage.StoredLocation, error) {
-	l, err := s.ReadLocation(ctx, payload.UUID)
+	locationID, err := uuid.Parse(payload.UUID)
+	if err != nil {
+		return nil, &goastorage.StorageLocationNotfound{UUID: locationID, Message: "not_found"}
+	}
+
+	l, err := s.ReadLocation(ctx, locationID)
 	if errors.Is(err, &ent.NotFoundError{}) || errors.Is(err, &ent.NotSingularError{}) {
-		return nil, &goastorage.StorageLocationNotfound{UUID: payload.UUID, Message: "not_found"}
+		return nil, &goastorage.StorageLocationNotfound{UUID: locationID, Message: "not_found"}
 	} else if err != nil {
 		return nil, goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
 	}

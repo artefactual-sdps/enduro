@@ -44,11 +44,11 @@ export interface EnduroStoredPackageResponseBody {
      */
     id: number;
     /**
-     * Location of the package
+     * 
      * @type {string}
      * @memberof EnduroStoredPackageResponseBody
      */
-    location?: string;
+    locationId?: string;
     /**
      * Name of the package
      * @type {string}
@@ -112,7 +112,7 @@ export function EnduroStoredPackageResponseBodyFromJSONTyped(json: any, ignoreDi
         'completedAt': !exists(json, 'completed_at') ? undefined : (new Date(json['completed_at'])),
         'createdAt': (new Date(json['created_at'])),
         'id': json['id'],
-        'location': !exists(json, 'location') ? undefined : json['location'],
+        'locationId': !exists(json, 'location_id') ? undefined : json['location_id'],
         'name': !exists(json, 'name') ? undefined : json['name'],
         'runId': !exists(json, 'run_id') ? undefined : json['run_id'],
         'startedAt': !exists(json, 'started_at') ? undefined : (new Date(json['started_at'])),
@@ -134,7 +134,7 @@ export function EnduroStoredPackageResponseBodyToJSON(value?: EnduroStoredPackag
         'completed_at': value.completedAt === undefined ? undefined : (value.completedAt.toISOString()),
         'created_at': (value.createdAt.toISOString()),
         'id': value.id,
-        'location': value.location,
+        'location_id': value.locationId,
         'name': value.name,
         'run_id': value.runId,
         'started_at': value.startedAt === undefined ? undefined : (value.startedAt.toISOString()),

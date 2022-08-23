@@ -24,7 +24,7 @@ export interface PackageConfirmRequestBody {
      * @type {string}
      * @memberof PackageConfirmRequestBody
      */
-    location: string;
+    locationId: string;
 }
 
 export function PackageConfirmRequestBodyFromJSON(json: any): PackageConfirmRequestBody {
@@ -37,7 +37,7 @@ export function PackageConfirmRequestBodyFromJSONTyped(json: any, ignoreDiscrimi
     }
     return {
         
-        'location': json['location'],
+        'locationId': json['location_id'],
     };
 }
 
@@ -50,7 +50,7 @@ export function PackageConfirmRequestBodyToJSON(value?: PackageConfirmRequestBod
     }
     return {
         
-        'location': value.location,
+        'location_id': value.locationId,
     };
 }
 

@@ -17,7 +17,6 @@ import (
 
 	package_ "github.com/artefactual-sdps/enduro/internal/api/gen/package_"
 	package_views "github.com/artefactual-sdps/enduro/internal/api/gen/package_/views"
-	"github.com/google/uuid"
 	goahttp "goa.design/goa/v3/http"
 	goa "goa.design/goa/v3/pkg"
 )
@@ -43,7 +42,7 @@ func DecodeListRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.De
 			aipID               *string
 			earliestCreatedTime *string
 			latestCreatedTime   *string
-			locationID          *uuid.UUID
+			locationID          *string
 			status              *string
 			cursor              *string
 			err                 error
@@ -76,6 +75,9 @@ func DecodeListRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.De
 		locationIDRaw := r.URL.Query().Get("location_id")
 		if locationIDRaw != "" {
 			locationID = &locationIDRaw
+		}
+		if locationID != nil {
+			err = goa.MergeErrors(err, goa.ValidateFormat("locationID", *locationID, goa.FormatUUID))
 		}
 		statusRaw := r.URL.Query().Get("status")
 		if statusRaw != "" {

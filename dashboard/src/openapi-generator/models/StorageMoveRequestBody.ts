@@ -24,7 +24,7 @@ export interface StorageMoveRequestBody {
      * @type {string}
      * @memberof StorageMoveRequestBody
      */
-    location: string;
+    locationId: string;
 }
 
 export function StorageMoveRequestBodyFromJSON(json: any): StorageMoveRequestBody {
@@ -37,7 +37,7 @@ export function StorageMoveRequestBodyFromJSONTyped(json: any, ignoreDiscriminat
     }
     return {
         
-        'location': json['location'],
+        'locationId': json['location_id'],
     };
 }
 
@@ -50,7 +50,7 @@ export function StorageMoveRequestBodyToJSON(value?: StorageMoveRequestBody | nu
     }
     return {
         
-        'location': value.location,
+        'location_id': value.locationId,
     };
 }
 

@@ -161,8 +161,9 @@ var _ = Service("storage", func() {
 	Method("show-location", func() {
 		Description("Show location by UUID")
 		Payload(func() {
+			// TODO: explore how we can use uuid.UUID that are also URL params.
 			Attribute("uuid", String, func() {
-				Meta("struct:field:type", "uuid.UUID", "github.com/google/uuid")
+				Format(FormatUUID)
 			})
 			Required("uuid")
 		})

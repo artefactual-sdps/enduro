@@ -251,7 +251,7 @@ type ListPayload struct {
 	AipID               *string
 	EarliestCreatedTime *string
 	LatestCreatedTime   *string
-	LocationID          *uuid.UUID
+	LocationID          *string
 	Status              *string
 	// Pagination cursor
 	Cursor *string

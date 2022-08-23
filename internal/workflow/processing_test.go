@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-logr/logr"
 	"github.com/golang/mock/gomock"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
@@ -64,7 +65,7 @@ func TestProcessingWorkflow(t *testing.T) {
 
 func (s *ProcessingWorkflowTestSuite) TestPackageConfirmation() {
 	pkgID := uint(1)
-	location := "perma-aips-100"
+	locationID := uuid.MustParse("51328c02-2b63-47be-958e-e8088aa1a61f")
 	watcherName := "watcher"
 	retentionPeriod := 1 * time.Second
 
@@ -73,7 +74,7 @@ func (s *ProcessingWorkflowTestSuite) TestPackageConfirmation() {
 		func() {
 			s.env.SignalWorkflow(
 				package_.ReviewPerformedSignalName,
-				package_.ReviewPerformedSignal{Accepted: true, Location: &location},
+				package_.ReviewPerformedSignal{Accepted: true, LocationID: &locationID},
 			)
 		},
 		0,
@@ -96,7 +97,7 @@ func (s *ProcessingWorkflowTestSuite) TestPackageConfirmation() {
 	s.env.OnActivity(completePreservationTaskLocalActivity, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 	s.env.OnActivity(activities.MoveToPermanentStorageActivityName, mock.Anything, mock.Anything).Return(nil)
 	s.env.OnActivity(activities.PollMoveToPermanentStorageActivityName, mock.Anything, mock.Anything).Return(nil)
-	s.env.OnActivity(setLocationLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
+	s.env.OnActivity(setLocationIDLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 	s.env.OnActivity(sdps_activities.IndexActivityName, mock.Anything, mock.Anything).Return(nil)
 	// TODO: CleanUpActivityName
 	// TODO: DeleteOriginalActivityName

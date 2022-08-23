@@ -126,7 +126,7 @@ type S3Config struct {
 // ShowLocationPayload is the payload type of the storage service show-location
 // method.
 type ShowLocationPayload struct {
-	UUID uuid.UUID
+	UUID string
 }
 
 // ShowPayload is the payload type of the storage service show method.

@@ -683,7 +683,7 @@ func NewShowPayload(aipID string) *storage.ShowPayload {
 
 // NewShowLocationPayload builds a storage service show-location endpoint
 // payload.
-func NewShowLocationPayload(uuid uuid.UUID) *storage.ShowLocationPayload {
+func NewShowLocationPayload(uuid string) *storage.ShowLocationPayload {
 	v := &storage.ShowLocationPayload{}
 	v.UUID = uuid
 

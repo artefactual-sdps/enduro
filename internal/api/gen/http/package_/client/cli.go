@@ -14,7 +14,6 @@ import (
 	"strconv"
 
 	package_ "github.com/artefactual-sdps/enduro/internal/api/gen/package_"
-	"github.com/google/uuid"
 	goa "goa.design/goa/v3/pkg"
 )
 
@@ -58,12 +57,13 @@ func BuildListPayload(package_ListName string, package_ListAipID string, package
 			}
 		}
 	}
-	var locationID uuid.UUID
+	var locationID *string
 	{
 		if package_ListLocationID != "" {
-			err = json.Unmarshal([]byte(package_ListLocationID), &locationID)
+			locationID = &package_ListLocationID
+			err = goa.MergeErrors(err, goa.ValidateFormat("locationID", *locationID, goa.FormatUUID))
 			if err != nil {
-				return nil, fmt.Errorf("invalid JSON for locationID, \nerror: %s, \nexample of valid JSON:\n%s", err, "\"Officiis sint.\"")
+				return nil, err
 			}
 		}
 	}
@@ -181,7 +181,7 @@ func BuildBulkPayload(package_BulkBody string) (*package_.BulkPayload, error) {
 	{
 		err = json.Unmarshal([]byte(package_BulkBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"operation\": \"retry\",\n      \"size\": 9053777342018039151,\n      \"status\": \"queued\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"operation\": \"cancel\",\n      \"size\": 16791274394538018091,\n      \"status\": \"error\"\n   }'")
 		}
 		if !(body.Operation == "retry" || body.Operation == "cancel" || body.Operation == "abandon") {
 			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.operation", body.Operation, []interface{}{"retry", "cancel", "abandon"}))
@@ -235,7 +235,7 @@ func BuildConfirmPayload(package_ConfirmBody string, package_ConfirmID string) (
 	{
 		err = json.Unmarshal([]byte(package_ConfirmBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location_id\": \"Officiis rem voluptas.\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location_id\": \"Iusto et ut illo aperiam aut.\"\n   }'")
 		}
 	}
 	var id uint
@@ -282,7 +282,7 @@ func BuildMovePayload(package_MoveBody string, package_MoveID string) (*package_
 	{
 		err = json.Unmarshal([]byte(package_MoveBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location_id\": \"Consectetur alias architecto in dolor porro.\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location_id\": \"Sint et sit.\"\n   }'")
 		}
 	}
 	var id uint

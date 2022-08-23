@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/google/uuid"
 	temporalsdk_api_enums "go.temporal.io/api/enums/v1"
 	temporalsdk_client "go.temporal.io/sdk/client"
 
 	"github.com/artefactual-sdps/enduro/internal/temporal"
-	"github.com/google/uuid"
 )
 
 const (

@@ -32,7 +32,7 @@ var _ = Service("package", func() {
 				Format(FormatDateTime)
 			})
 			Attribute("location_id", String, func() {
-				Meta("struct:field:type", "uuid.UUID", "github.com/google/uuid")
+				Format(FormatUUID)
 			})
 			Attribute("status", String, func() {
 				EnumPackageStatus()

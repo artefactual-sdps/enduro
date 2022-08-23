@@ -34,14 +34,14 @@ storage (submit|update|download|locations|add-location|move|move-status|reject|s
 // UsageExamples produces an example of a valid invocation of the CLI tool.
 func UsageExamples() string {
 	return os.Args[0] + ` batch submit --body '{
-      "completed_dir": "Voluptates iure et voluptatum ut.",
-      "path": "Impedit rerum laborum minus.",
-      "retention_period": "Est ut eum quis nihil soluta ut."
+      "completed_dir": "Et labore totam.",
+      "path": "Tempore voluptatum quo.",
+      "retention_period": "Repellat voluptatem at voluptate labore molestias."
    }'` + "\n" +
 		os.Args[0] + ` package monitor` + "\n" +
 		os.Args[0] + ` storage submit --body '{
-      "name": "Eveniet voluptas fugiat optio quae distinctio."
-   }' --aip-id "Architecto dolore harum tempore excepturi dolor aut."` + "\n" +
+      "name": "Dolorem non voluptate voluptatem voluptate maxime facere."
+   }' --aip-id "Eveniet voluptatum est quia et praesentium a."` + "\n" +
 		""
 }
 
@@ -446,9 +446,9 @@ Submit a new batch
 
 Example:
     %[1]s batch submit --body '{
-      "completed_dir": "Voluptates iure et voluptatum ut.",
-      "path": "Impedit rerum laborum minus.",
-      "retention_period": "Est ut eum quis nihil soluta ut."
+      "completed_dir": "Et labore totam.",
+      "path": "Tempore voluptatum quo.",
+      "retention_period": "Repellat voluptatem at voluptate labore molestias."
    }'
 `, os.Args[0])
 }
@@ -509,19 +509,19 @@ Example:
 }
 
 func package_ListUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] package list -name STRING -aip-id STRING -earliest-created-time STRING -latest-created-time STRING -location-id JSON -status STRING -cursor STRING
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] package list -name STRING -aip-id STRING -earliest-created-time STRING -latest-created-time STRING -location-id STRING -status STRING -cursor STRING
 
 List all stored packages
     -name STRING: 
     -aip-id STRING: 
     -earliest-created-time STRING: 
     -latest-created-time STRING: 
-    -location-id JSON: 
+    -location-id STRING: 
     -status STRING: 
     -cursor STRING: 
 
 Example:
-    %[1]s package list --name "Inventore expedita sunt." --aip-id "A8E7C55C-B3EA-B228-EF84-9DB3D55D57A4" --earliest-created-time "2007-10-31T04:26:47Z" --latest-created-time "2012-10-15T09:29:37Z" --location-id "Officiis sint." --status "done" --cursor "In quia tempora exercitationem."
+    %[1]s package list --name "Ipsum esse itaque voluptatem ab." --aip-id "7F641448-35F7-7B05-AFB4-8DFCC48CED66" --earliest-created-time "2014-05-05T19:00:01Z" --latest-created-time "1988-07-27T12:24:16Z" --location-id "CEF3CAF7-AB82-083A-2F08-9497BE6B7488" --status "in progress" --cursor "Minima repudiandae dicta saepe quo reprehenderit."
 `, os.Args[0])
 }
 
@@ -532,7 +532,7 @@ Show package by ID
     -id UINT: Identifier of package to show
 
 Example:
-    %[1]s package show --id 18115652671411718947
+    %[1]s package show --id 7314482132030618922
 `, os.Args[0])
 }
 
@@ -543,7 +543,7 @@ Delete package by ID
     -id UINT: Identifier of package to delete
 
 Example:
-    %[1]s package delete --id 9146733231910218533
+    %[1]s package delete --id 5346121426091037760
 `, os.Args[0])
 }
 
@@ -554,7 +554,7 @@ Cancel package processing by ID
     -id UINT: Identifier of package to remove
 
 Example:
-    %[1]s package cancel --id 1476223215177163600
+    %[1]s package cancel --id 7264703909707707120
 `, os.Args[0])
 }
 
@@ -565,7 +565,7 @@ Retry package processing by ID
     -id UINT: Identifier of package to retry
 
 Example:
-    %[1]s package retry --id 18177441847274884793
+    %[1]s package retry --id 3776341047555541422
 `, os.Args[0])
 }
 
@@ -577,9 +577,9 @@ Bulk operations (retry, cancel...).
 
 Example:
     %[1]s package bulk --body '{
-      "operation": "retry",
-      "size": 9053777342018039151,
-      "status": "queued"
+      "operation": "cancel",
+      "size": 16791274394538018091,
+      "status": "error"
    }'
 `, os.Args[0])
 }
@@ -601,7 +601,7 @@ List all preservation actions by ID
     -id UINT: Identifier of package to look up
 
 Example:
-    %[1]s package preservation-actions --id 4433925421161774604
+    %[1]s package preservation-actions --id 5938259809471485651
 `, os.Args[0])
 }
 
@@ -614,8 +614,8 @@ Signal the package has been reviewed and accepted
 
 Example:
     %[1]s package confirm --body '{
-      "location_id": "Officiis rem voluptas."
-   }' --id 16521280057797749018
+      "location_id": "Iusto et ut illo aperiam aut."
+   }' --id 6419528433330012106
 `, os.Args[0])
 }
 
@@ -626,7 +626,7 @@ Signal the package has been reviewed and rejected
     -id UINT: Identifier of package to look up
 
 Example:
-    %[1]s package reject --id 5836895197606663965
+    %[1]s package reject --id 11545654378921578609
 `, os.Args[0])
 }
 
@@ -639,8 +639,8 @@ Move a package to a permanent storage location
 
 Example:
     %[1]s package move --body '{
-      "location_id": "Consectetur alias architecto in dolor porro."
-   }' --id 3546614325791434372
+      "location_id": "Sint et sit."
+   }' --id 8783128850317561390
 `, os.Args[0])
 }
 
@@ -651,7 +651,7 @@ Retrieve the status of a permanent storage location move of the package
     -id UINT: Identifier of package to move
 
 Example:
-    %[1]s package move-status --id 5007678243935735816
+    %[1]s package move-status --id 697764478201717731
 `, os.Args[0])
 }
 
@@ -686,8 +686,8 @@ Start the submission of a package
 
 Example:
     %[1]s storage submit --body '{
-      "name": "Eveniet voluptas fugiat optio quae distinctio."
-   }' --aip-id "Architecto dolore harum tempore excepturi dolor aut."
+      "name": "Dolorem non voluptate voluptatem voluptate maxime facere."
+   }' --aip-id "Eveniet voluptatum est quia et praesentium a."
 `, os.Args[0])
 }
 
@@ -698,7 +698,7 @@ Signal the storage service that an upload is complete
     -aip-id STRING: 
 
 Example:
-    %[1]s storage update --aip-id "Adipisci officiis eaque architecto."
+    %[1]s storage update --aip-id "Inventore qui ipsum doloribus voluptas aut debitis."
 `, os.Args[0])
 }
 
@@ -709,7 +709,7 @@ Download package by AIPID
     -aip-id STRING: 
 
 Example:
-    %[1]s storage download --aip-id "Vitae ad."
+    %[1]s storage download --aip-id "Laudantium vel sit."
 `, os.Args[0])
 }
 
@@ -735,10 +735,10 @@ Example:
          "Type": "s3",
          "Value": "\"JSON\""
       },
-      "description": "Beatae amet unde consequatur.",
-      "name": "Ducimus et ut.",
-      "purpose": "unspecified",
-      "source": "minio"
+      "description": "Accusantium vitae.",
+      "name": "Sit ut quam praesentium odio assumenda fuga.",
+      "purpose": "aip_store",
+      "source": "unspecified"
    }'
 `, os.Args[0])
 }
@@ -752,8 +752,8 @@ Move a package to a permanent storage location
 
 Example:
     %[1]s storage move --body '{
-      "location_id": "Autem eos temporibus iusto et ut."
-   }' --aip-id "Aperiam aut in laudantium quae nisi."
+      "location_id": "Modi aut blanditiis."
+   }' --aip-id "Unde in."
 `, os.Args[0])
 }
 
@@ -764,7 +764,7 @@ Retrieve the status of a permanent storage location move of the package
     -aip-id STRING: 
 
 Example:
-    %[1]s storage move-status --aip-id "Magni sunt mollitia."
+    %[1]s storage move-status --aip-id "Voluptatum recusandae."
 `, os.Args[0])
 }
 
@@ -775,7 +775,7 @@ Reject a package
     -aip-id STRING: 
 
 Example:
-    %[1]s storage reject --aip-id "Totam nobis dolorem eos recusandae id."
+    %[1]s storage reject --aip-id "Rerum vitae blanditiis reiciendis."
 `, os.Args[0])
 }
 
@@ -786,17 +786,17 @@ Show package by AIPID
     -aip-id STRING: 
 
 Example:
-    %[1]s storage show --aip-id "Eaque dolore ex."
+    %[1]s storage show --aip-id "Facere adipisci."
 `, os.Args[0])
 }
 
 func storageShowLocationUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage show-location -uuid JSON
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage show-location -uuid STRING
 
 Show location by UUID
-    -uuid JSON: 
+    -uuid STRING: 
 
 Example:
-    %[1]s storage show-location --uuid "Voluptatem numquam eligendi tenetur incidunt quia."
+    %[1]s storage show-location --uuid "6BD40BD6-7AF6-FB4E-C1C1-23700A0E68DE"
 `, os.Args[0])
 }

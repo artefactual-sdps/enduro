@@ -30,7 +30,7 @@ export interface EnduroPackageLocationUpdatedEventResponseBody {
      * @type {string}
      * @memberof EnduroPackageLocationUpdatedEventResponseBody
      */
-    location: string;
+    locationId: string;
 }
 
 export function EnduroPackageLocationUpdatedEventResponseBodyFromJSON(json: any): EnduroPackageLocationUpdatedEventResponseBody {
@@ -44,7 +44,7 @@ export function EnduroPackageLocationUpdatedEventResponseBodyFromJSONTyped(json:
     return {
         
         'id': json['id'],
-        'location': json['location'],
+        'locationId': json['location_id'],
     };
 }
 
@@ -58,7 +58,7 @@ export function EnduroPackageLocationUpdatedEventResponseBodyToJSON(value?: Endu
     return {
         
         'id': value.id,
-        'location': value.location,
+        'location_id': value.locationId,
     };
 }
 

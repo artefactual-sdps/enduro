@@ -16,7 +16,6 @@ import (
 
 	storage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 	storageviews "github.com/artefactual-sdps/enduro/internal/api/gen/storage/views"
-	"github.com/google/uuid"
 	goahttp "goa.design/goa/v3/http"
 	goa "goa.design/goa/v3/pkg"
 )
@@ -629,11 +628,17 @@ func EncodeShowLocationResponse(encoder func(context.Context, http.ResponseWrite
 func DecodeShowLocationRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (interface{}, error) {
 	return func(r *http.Request) (interface{}, error) {
 		var (
-			uuid uuid.UUID
+			uuid string
+			err  error
 
 			params = mux.Vars(r)
 		)
 		uuid = params["uuid"]
+		err = goa.MergeErrors(err, goa.ValidateFormat("uuid", uuid, goa.FormatUUID))
+
+		if err != nil {
+			return nil, err
+		}
 		payload := NewShowLocationPayload(uuid)
 
 		return payload, nil

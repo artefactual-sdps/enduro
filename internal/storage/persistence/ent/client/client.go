@@ -96,11 +96,10 @@ func (c *Client) UpdatePackageStatus(ctx context.Context, status types.PackageSt
 	return nil
 }
 
-func (c *Client) UpdatePackageLocation(ctx context.Context, locationName string, aipID uuid.UUID) error {
+func (c *Client) UpdatePackageLocationID(ctx context.Context, locationID uuid.UUID, aipID uuid.UUID) error {
 	l, err := c.c.Location.Query().
 		Where(
-			// TODO: switch to look by UUID
-			location.Name(locationName),
+			location.UUID(locationID),
 		).
 		Only(ctx)
 	if err != nil {
@@ -133,10 +132,10 @@ func pkgAsGoa(ctx context.Context, pkg *db.Pkg) *goastorage.StoredStoragePackage
 		ObjectKey: pkg.ObjectKey,
 	}
 
+	// TODO: should we use UUID as the foreign key?
 	l, err := pkg.QueryLocation().Only(ctx)
 	if err == nil {
-		// TODO: switch to location UUID
-		p.Location = &l.Name
+		p.LocationID = &l.UUID
 	}
 
 	return p
