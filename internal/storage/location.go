@@ -15,23 +15,27 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/storage/types"
 )
 
-var LocationFactory = func(cfg LocationConfig) (Location, error) {
-	return NewInternalLocation(cfg)
+var InternalLocationFactory = func(config *LocationConfig) (Location, error) {
+	return NewInternalLocation(config)
+}
+
+var LocationFactory = func(location *goastorage.StoredLocation) (Location, error) {
+	return NewLocation(location)
 }
 
 type Location interface {
 	UUID() uuid.UUID
 	Bucket() *blob.Bucket
-	SetBucket(*blob.Bucket)
+	Close() error
 }
 
 type locationImpl struct {
 	id     uuid.UUID
-	config LocationConfig
+	config *LocationConfig
 	bucket *blob.Bucket
 }
 
-func NewInternalLocation(config LocationConfig) (*locationImpl, error) {
+func NewInternalLocation(config *LocationConfig) (*locationImpl, error) {
 	l := &locationImpl{
 		id:     uuid.Nil,
 		config: config,
@@ -63,7 +67,7 @@ func NewLocation(location *goastorage.StoredLocation) (*locationImpl, error) {
 		return nil, errors.New("invalid configuration")
 	}
 
-	l.config = LocationConfig{
+	l.config = &LocationConfig{
 		Region:    config.Region,
 		Endpoint:  config.Endpoint,
 		PathStyle: config.PathStyle,
@@ -72,6 +76,12 @@ func NewLocation(location *goastorage.StoredLocation) (*locationImpl, error) {
 		Secret:    config.Secret,
 		Token:     config.Token,
 		Bucket:    config.Bucket,
+	}
+
+	if b, err := l.openBucket(); err != nil {
+		return nil, err
+	} else {
+		l.bucket = b
 	}
 
 	return l, nil
@@ -102,6 +112,6 @@ func (l *locationImpl) Bucket() *blob.Bucket {
 	return l.bucket
 }
 
-func (l *locationImpl) SetBucket(b *blob.Bucket) {
-	l.bucket = b
+func (l *locationImpl) Close() error {
+	return l.bucket.Close()
 }

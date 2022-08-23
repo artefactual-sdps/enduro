@@ -69,7 +69,7 @@ func NewService(logger logr.Logger, config Config, storagePersistence persistenc
 		storagePersistence: storagePersistence,
 	}
 
-	s.internal, err = NewInternalLocation(config.Internal)
+	s.internal, err = InternalLocationFactory(&config.Internal)
 	if err != nil {
 		return nil, err
 	}
@@ -84,10 +84,10 @@ func (s *serviceImpl) Location(ctx context.Context, locationID uuid.UUID) (Locat
 
 	l, err := s.storagePersistence.ReadLocation(ctx, locationID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error loading location: %s", err)
 	}
 
-	return NewLocation(l)
+	return LocationFactory(l)
 }
 
 func (s *serviceImpl) Submit(ctx context.Context, payload *goastorage.SubmitPayload) (*goastorage.SubmitResult, error) {
@@ -256,6 +256,7 @@ func (s *serviceImpl) packageBucket(ctx context.Context, p *goastorage.StoredSto
 	if err != nil {
 		return nil, "", err
 	}
+
 	return location.Bucket(), p.AipID, nil
 }
 
