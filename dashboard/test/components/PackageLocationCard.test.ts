@@ -18,7 +18,7 @@ describe("PackageLocationCard.vue", () => {
               package: {
                 current: {
                   status: api.PackageShowResponseBodyStatusEnum.Done,
-                  location: "perma-aips-1",
+                  locationId: "f8635e46-a320-4152-9a2c-98a28eeb50d1",
                 } as api.PackageShowResponseBody,
               },
             },
@@ -33,7 +33,7 @@ describe("PackageLocationCard.vue", () => {
           <!--v-if-->
           <!--v-if-->
           <h4 class=\\"card-title\\">Location</h4>
-          <p class=\\"card-text\\"><span>perma-aips-1</span></p>
+          <p class=\\"card-text\\"><span>f8635e46-a320-4152-9a2c-98a28eeb50d1</span></p>
           <div class=\\"actions\\"><button type=\\"button\\" class=\\"btn btn-primary btn-sm\\" disabled=\\"false\\">Choose storage location</button></div>
         </div>
       </div>"
@@ -51,7 +51,7 @@ describe("PackageLocationCard.vue", () => {
               package: {
                 current: {
                   status: api.PackageShowResponseBodyStatusEnum.Done,
-                  location: "perma-aips-1",
+                  locationId: "f8635e46-a320-4152-9a2c-98a28eeb50d1",
                 } as api.PackageShowResponseBody,
               },
             },
@@ -60,7 +60,7 @@ describe("PackageLocationCard.vue", () => {
       },
     });
 
-    getByText("perma-aips-1");
+    getByText("f8635e46-a320-4152-9a2c-98a28eeb50d1");
 
     const packageStore = usePackageStore();
 
@@ -77,7 +77,7 @@ describe("PackageLocationCard.vue", () => {
 
     vi.mock("../../src/dialogs", () => {
       return {
-        openPackageLocationDialog: () => "perma-aips-2",
+        openPackageLocationDialog: () => "fe675e52-c761-46d0-8605-fae4bd10303e",
       };
     });
 
@@ -128,7 +128,7 @@ describe("PackageLocationCard.vue", () => {
               package: {
                 current: {
                   status: api.PackageShowResponseBodyStatusEnum.Done,
-                  location: undefined,
+                  locationId: undefined,
                 } as api.PackageShowResponseBody,
               },
             },
@@ -160,7 +160,7 @@ describe("PackageLocationCard.vue", () => {
               package: {
                 current: {
                   status: api.PackageShowResponseBodyStatusEnum.InProgress,
-                  location: "perma-aips-1",
+                  locationId: "f8635e46-a320-4152-9a2c-98a28eeb50d1",
                 } as api.PackageShowResponseBody,
               },
             },
@@ -175,7 +175,7 @@ describe("PackageLocationCard.vue", () => {
           <!--v-if-->
           <!--v-if-->
           <h4 class=\\"card-title\\">Location</h4>
-          <p class=\\"card-text\\"><span>perma-aips-1</span></p>
+          <p class=\\"card-text\\"><span>f8635e46-a320-4152-9a2c-98a28eeb50d1</span></p>
           <div class=\\"actions\\"><button type=\\"button\\" class=\\"btn btn-primary btn-sm\\" disabled=\\"true\\">Choose storage location</button></div>
         </div>
       </div>"

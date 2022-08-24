@@ -42,7 +42,7 @@ export const usePackageStore = defineStore("package", {
       return this.locationChanging;
     },
     isRejected(): boolean {
-      return this.isDone && this.current?.location === undefined;
+      return this.isDone && this.current?.locationId === undefined;
     },
     getActionById: (state) => {
       return (
@@ -113,12 +113,12 @@ export const usePackageStore = defineStore("package", {
     async fetchPackagesDebounced() {
       return this.fetchPackages();
     },
-    async move(locationName: string) {
+    async move(locationId: string) {
       if (!this.current) return;
       try {
         await client.package.packageMove({
           id: this.current.id,
-          moveRequestBody: { location: locationName },
+          moveRequestBody: { locationId: locationId },
         });
       } catch (error) {
         return error;
@@ -142,12 +142,12 @@ export const usePackageStore = defineStore("package", {
       }
       this.locationChanging = !resp.done;
     },
-    confirm(locationName: string) {
+    confirm(locationId: string) {
       if (!this.current) return;
       client.package
         .packageConfirm({
           id: this.current.id,
-          confirmRequestBody: { location: locationName },
+          confirmRequestBody: { locationId: locationId },
         })
         .then((payload) => {
           if (!this.current) return;
@@ -237,7 +237,7 @@ function handlePackageLocationUpdated(
   store.fetchPackagesDebounced();
   store.$patch((state) => {
     if (state.current?.id != event.id) return;
-    state.current.location = event.location;
+    state.current.locationId = event.locationId;
     state.locationChanging = false;
   });
 }

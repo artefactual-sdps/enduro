@@ -189,12 +189,25 @@ func (c *Client) ReadLocation(ctx context.Context, UUID uuid.UUID) (*goastorage.
 
 func locationAsGoa(ctx context.Context, loc *db.Location) *goastorage.StoredLocation {
 	l := &goastorage.StoredLocation{
-		ID:          uint(loc.ID),
 		Name:        loc.Name,
 		Description: &loc.Description,
 		Source:      loc.Source.String(),
 		Purpose:     loc.Purpose.String(),
-		UUID:        &loc.UUID,
+		UUID:        loc.UUID,
+	}
+
+	switch c := loc.Config.Value.(type) {
+	case *types.S3Config:
+		l.Config = &goastorage.S3Config{
+			Bucket:    c.Bucket,
+			Region:    c.Region,
+			Endpoint:  &c.Endpoint,
+			PathStyle: &c.PathStyle,
+			Profile:   &c.Profile,
+			Key:       &c.Key,
+			Secret:    &c.Secret,
+			Token:     &c.Token,
+		}
 	}
 
 	return l

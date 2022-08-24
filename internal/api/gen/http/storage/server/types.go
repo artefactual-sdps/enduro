@@ -88,8 +88,8 @@ type ShowLocationResponseBody struct {
 	// Data source of the location
 	Source string `form:"source" json:"source" xml:"source"`
 	// Purpose of the location
-	Purpose string     `form:"purpose" json:"purpose" xml:"purpose"`
-	UUID    *uuid.UUID `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
+	Purpose string    `form:"purpose" json:"purpose" xml:"purpose"`
+	UUID    uuid.UUID `form:"uuid" json:"uuid" xml:"uuid"`
 }
 
 // SubmitNotAvailableResponseBody is the type of the "storage" service "submit"
@@ -334,8 +334,8 @@ type StoredLocationResponse struct {
 	// Data source of the location
 	Source string `form:"source" json:"source" xml:"source"`
 	// Purpose of the location
-	Purpose string     `form:"purpose" json:"purpose" xml:"purpose"`
-	UUID    *uuid.UUID `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
+	Purpose string    `form:"purpose" json:"purpose" xml:"purpose"`
+	UUID    uuid.UUID `form:"uuid" json:"uuid" xml:"uuid"`
 }
 
 // NewSubmitResponseBody builds the HTTP response body from the result of the
@@ -396,7 +396,7 @@ func NewShowLocationResponseBody(res *storageviews.StoredLocationView) *ShowLoca
 		Description: res.Description,
 		Source:      *res.Source,
 		Purpose:     *res.Purpose,
-		UUID:        res.UUID,
+		UUID:        *res.UUID,
 	}
 	return body
 }

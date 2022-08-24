@@ -52,7 +52,7 @@ func NewInternalLocation(config *LocationConfig) (*locationImpl, error) {
 
 func NewLocation(location *goastorage.StoredLocation) (*locationImpl, error) {
 	l := &locationImpl{
-		id: *location.UUID,
+		id: location.UUID,
 	}
 
 	var config *types.S3Config

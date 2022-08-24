@@ -82,8 +82,6 @@ type ShowResponseBody struct {
 // ShowLocationResponseBody is the type of the "storage" service
 // "show-location" endpoint HTTP response body.
 type ShowLocationResponseBody struct {
-	// ID is the unique id of the location.
-	ID *uint `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
 	// Name of location
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 	// Description of the location
@@ -337,8 +335,6 @@ type ShowLocationNotFoundResponseBody struct {
 
 // StoredLocationResponse is used to define fields on response body types.
 type StoredLocationResponse struct {
-	// ID is the unique id of the location.
-	ID *uint `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
 	// Name of location
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 	// Description of the location
@@ -663,7 +659,6 @@ func NewShowNotFound(body *ShowNotFoundResponseBody) *storage.StoragePackageNotf
 // endpoint result from a HTTP "OK" response.
 func NewShowLocationStoredLocationOK(body *ShowLocationResponseBody) *storageviews.StoredLocationView {
 	v := &storageviews.StoredLocationView{
-		ID:          body.ID,
 		Name:        body.Name,
 		Description: body.Description,
 		Source:      body.Source,
@@ -1034,9 +1029,6 @@ func ValidateShowLocationNotFoundResponseBody(body *ShowLocationNotFoundResponse
 // ValidateStoredLocationResponse runs the validations defined on
 // StoredLocationResponse
 func ValidateStoredLocationResponse(body *StoredLocationResponse) (err error) {
-	if body.ID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
-	}
 	if body.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
 	}
@@ -1045,6 +1037,9 @@ func ValidateStoredLocationResponse(body *StoredLocationResponse) (err error) {
 	}
 	if body.Purpose == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("purpose", "body"))
+	}
+	if body.UUID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("uuid", "body"))
 	}
 	if body.Source != nil {
 		if !(*body.Source == "unspecified" || *body.Source == "minio") {

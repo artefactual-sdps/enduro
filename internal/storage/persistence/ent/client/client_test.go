@@ -15,6 +15,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/client"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/enttest"
+	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/location"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/pkg"
 	"github.com/artefactual-sdps/enduro/internal/storage/types"
 )
@@ -191,9 +192,10 @@ func TestCreateLocation(t *testing.T) {
 	t.Parallel()
 
 	entc, c := setUpClient(t)
+	ctx := context.Background()
 
 	l, err := c.CreateLocation(
-		context.Background(),
+		ctx,
 		&goastorage.Location{
 			Name:        "test_location",
 			Description: ref.New("location description"),
@@ -209,7 +211,8 @@ func TestCreateLocation(t *testing.T) {
 	)
 	assert.NilError(t, err)
 
-	dblocation := entc.Location.GetX(context.Background(), int(l.ID))
+	dblocation, err := entc.Location.Query().Where(location.UUID(l.UUID)).Only(ctx)
+	assert.NilError(t, err)
 	assert.Equal(t, dblocation.Name, "test_location")
 	assert.Equal(t, dblocation.Description, "location description")
 	assert.Equal(t, dblocation.Source, types.LocationSourceMinIO)
@@ -252,20 +255,36 @@ func TestListLocations(t *testing.T) {
 	assert.NilError(t, err)
 	assert.DeepEqual(t, locations, storage.StoredLocationCollection{
 		{
-			ID:          1,
 			Name:        "Location",
 			Description: ref.New("location"),
 			Source:      "minio",
 			Purpose:     "aip_store",
-			UUID:        ref.New(uuid.MustParse("021f7ac2-5b0b-4620-b574-21f6a206cff3")),
+			UUID:        uuid.MustParse("021f7ac2-5b0b-4620-b574-21f6a206cff3"),
+			Config: &storage.S3Config{
+				Bucket:    "perma-aips-1",
+				Endpoint:  ref.New(""),
+				PathStyle: ref.New(false),
+				Profile:   ref.New(""),
+				Key:       ref.New(""),
+				Secret:    ref.New(""),
+				Token:     ref.New(""),
+			},
 		},
 		{
-			ID:          2,
 			Name:        "Another Location",
 			Description: ref.New("another location"),
 			Source:      "minio",
 			Purpose:     "aip_store",
-			UUID:        ref.New(uuid.MustParse("7ba9a118-a662-4047-8547-64bc752b91c6")),
+			UUID:        uuid.MustParse("7ba9a118-a662-4047-8547-64bc752b91c6"),
+			Config: &storage.S3Config{
+				Bucket:    "perma-aips-2",
+				Endpoint:  ref.New(""),
+				PathStyle: ref.New(false),
+				Profile:   ref.New(""),
+				Key:       ref.New(""),
+				Secret:    ref.New(""),
+				Token:     ref.New(""),
+			},
 		},
 	})
 }
@@ -291,11 +310,19 @@ func TestReadLocation(t *testing.T) {
 	l, err := c.ReadLocation(context.Background(), uuid.MustParse("7a090f2c-7bd4-471c-8aa1-8c72125decd5"))
 	assert.NilError(t, err)
 	assert.DeepEqual(t, l, &storage.StoredLocation{
-		ID:          1,
 		Name:        "test_location",
 		Description: ref.New("location description"),
 		Source:      types.LocationSourceMinIO.String(),
 		Purpose:     types.LocationPurposeAIPStore.String(),
-		UUID:        ref.New(uuid.MustParse("7a090f2c-7bd4-471c-8aa1-8c72125decd5")),
+		UUID:        uuid.MustParse("7a090f2c-7bd4-471c-8aa1-8c72125decd5"),
+		Config: &storage.S3Config{
+			Bucket:    "perma-aips-1",
+			Endpoint:  ref.New(""),
+			PathStyle: ref.New(false),
+			Profile:   ref.New(""),
+			Key:       ref.New(""),
+			Secret:    ref.New(""),
+			Token:     ref.New(""),
+		},
 	})
 }

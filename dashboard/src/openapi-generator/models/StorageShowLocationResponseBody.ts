@@ -48,7 +48,7 @@ export interface StorageShowLocationResponseBody {
      * @type {string}
      * @memberof StorageShowLocationResponseBody
      */
-    uuid?: string;
+    uuid: string;
 }
 
 
@@ -85,7 +85,7 @@ export function StorageShowLocationResponseBodyFromJSONTyped(json: any, ignoreDi
         'name': json['name'],
         'purpose': json['purpose'],
         'source': json['source'],
-        'uuid': !exists(json, 'uuid') ? undefined : json['uuid'],
+        'uuid': json['uuid'],
     };
 }
 

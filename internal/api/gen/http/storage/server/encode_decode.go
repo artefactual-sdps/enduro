@@ -683,7 +683,7 @@ func marshalStorageviewsStoredLocationViewToStoredLocationResponse(v *storagevie
 		Description: v.Description,
 		Source:      *v.Source,
 		Purpose:     *v.Purpose,
-		UUID:        v.UUID,
+		UUID:        *v.UUID,
 	}
 
 	return res

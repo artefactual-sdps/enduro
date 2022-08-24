@@ -421,20 +421,18 @@ func TestServiceList(t *testing.T) {
 
 		storedLocations := goastorage.StoredLocationCollection{
 			{
-				ID:          1,
 				Name:        "perma-aips-1",
 				Description: ref.New("One"),
 				Source:      "minio",
 				Purpose:     "aip_store",
-				UUID:        ref.New(uuid.New()),
+				UUID:        uuid.New(),
 			},
 			{
-				ID:          2,
 				Name:        "perma-aips-2",
 				Description: ref.New("Two"),
 				Source:      "minio",
 				Purpose:     "aip_store",
-				UUID:        ref.New(uuid.New()),
+				UUID:        uuid.New(),
 			},
 		}
 
@@ -718,7 +716,7 @@ func TestPackageReader(t *testing.T) {
 			).
 			Return(
 				&goastorage.StoredLocation{
-					UUID: &locationID,
+					UUID: locationID,
 					Config: &goastorage.S3Config{
 						Bucket: "perma-aips-1",
 						Region: "planet-earth",
@@ -786,7 +784,7 @@ func TestPackageReader(t *testing.T) {
 			).
 			Return(
 				&goastorage.StoredLocation{
-					UUID: &locationID,
+					UUID: locationID,
 					Config: &goastorage.S3Config{
 						Bucket: "perma-aips-1",
 						Region: "planet-earth",

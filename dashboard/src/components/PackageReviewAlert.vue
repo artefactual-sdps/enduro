@@ -13,9 +13,9 @@ const emit = defineEmits<{
 const packageStore = usePackageStore();
 
 const confirm = async () => {
-  const locationName = await openPackageLocationDialog();
-  if (!locationName) return;
-  packageStore.confirm(locationName);
+  const locationId = await openPackageLocationDialog();
+  if (!locationId) return;
+  packageStore.confirm(locationId);
 };
 </script>
 

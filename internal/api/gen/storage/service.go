@@ -162,8 +162,6 @@ type StoragePackageNotfound struct {
 // StoredLocation is the result type of the storage service show-location
 // method.
 type StoredLocation struct {
-	// ID is the unique id of the location.
-	ID uint
 	// Name of location
 	Name string
 	// Description of the location
@@ -172,7 +170,7 @@ type StoredLocation struct {
 	Source string
 	// Purpose of the location
 	Purpose string
-	UUID    *uuid.UUID
+	UUID    uuid.UUID
 	Config  interface {
 		configVal()
 	}
@@ -312,7 +310,6 @@ func newStoredLocationCollectionView(res StoredLocationCollection) storageviews.
 func newStoredLocation(vres *storageviews.StoredLocationView) *StoredLocation {
 	res := &StoredLocation{
 		Description: vres.Description,
-		UUID:        vres.UUID,
 	}
 	if vres.Name != nil {
 		res.Name = *vres.Name
@@ -322,6 +319,9 @@ func newStoredLocation(vres *storageviews.StoredLocationView) *StoredLocation {
 	}
 	if vres.Purpose != nil {
 		res.Purpose = *vres.Purpose
+	}
+	if vres.UUID != nil {
+		res.UUID = *vres.UUID
 	}
 	if vres.Source == nil {
 		res.Source = "unspecified"
@@ -340,7 +340,7 @@ func newStoredLocationView(res *StoredLocation) *storageviews.StoredLocationView
 		Description: res.Description,
 		Source:      &res.Source,
 		Purpose:     &res.Purpose,
-		UUID:        res.UUID,
+		UUID:        &res.UUID,
 	}
 	return vres
 }

@@ -48,7 +48,7 @@ export interface StoredLocationResponse {
      * @type {string}
      * @memberof StoredLocationResponse
      */
-    uuid?: string;
+    uuid: string;
 }
 
 
@@ -85,7 +85,7 @@ export function StoredLocationResponseFromJSONTyped(json: any, ignoreDiscriminat
         'name': json['name'],
         'purpose': json['purpose'],
         'source': json['source'],
-        'uuid': !exists(json, 'uuid') ? undefined : json['uuid'],
+        'uuid': json['uuid'],
     };
 }
 

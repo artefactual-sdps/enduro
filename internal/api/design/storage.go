@@ -208,7 +208,6 @@ var StoredLocation = ResultType("application/vnd.enduro.stored-location", func()
 	TypeName("StoredLocation")
 
 	Attributes(func() {
-		Attribute("id", UInt, "ID is the unique id of the location.")
 		Attribute("name")
 		Attribute("description")
 		Attribute("source")
@@ -225,7 +224,7 @@ var StoredLocation = ResultType("application/vnd.enduro.stored-location", func()
 		Attribute("uuid")
 	})
 
-	Required("id", "name", "source", "purpose")
+	Required("name", "source", "purpose", "uuid")
 })
 
 var EnumLocationSource = func() {
