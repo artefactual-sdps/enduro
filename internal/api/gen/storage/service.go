@@ -182,7 +182,6 @@ type StoredLocationCollection []*StoredLocation
 
 // StoredStoragePackage is the result type of the storage service show method.
 type StoredStoragePackage struct {
-	ID    uint
 	Name  string
 	AipID string
 	// Status of the package

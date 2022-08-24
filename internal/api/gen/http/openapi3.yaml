@@ -20,10 +20,10 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/BatchStatusResult'
                             example:
-                                run_id: Quasi nostrum autem animi est sit ipsum.
+                                run_id: Corporis optio voluptatem.
                                 running: true
-                                status: Dicta rerum enim aut.
-                                workflow_id: Est delectus voluptatem quod consectetur expedita ex.
+                                status: Voluptatem quod consectetur expedita ex.
+                                workflow_id: Quasi nostrum autem animi est sit ipsum.
         post:
             tags:
                 - batch
@@ -37,9 +37,9 @@ paths:
                         schema:
                             $ref: '#/components/schemas/SubmitRequestBody'
                         example:
-                            completed_dir: Et labore totam.
-                            path: Tempore voluptatum quo.
-                            retention_period: Repellat voluptatem at voluptate labore molestias.
+                            completed_dir: Repellat voluptatem at voluptate labore molestias.
+                            path: Et labore totam.
+                            retention_period: Sit et quo accusamus.
             responses:
                 "202":
                     description: Accepted response.
@@ -48,8 +48,8 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/BatchResult'
                             example:
-                                run_id: Necessitatibus molestiae et.
-                                workflow_id: Sit et quo accusamus.
+                                run_id: Ullam dicta rerum enim aut odit.
+                                workflow_id: Necessitatibus molestiae et.
                 "400":
                     description: 'not_valid: Bad Request response.'
                     content:
@@ -78,8 +78,7 @@ paths:
                                 $ref: '#/components/schemas/BatchHintsResult'
                             example:
                                 completed_dirs:
-                                    - Optio voluptatem qui vel praesentium.
-                                    - Sint possimus consequatur optio.
+                                    - Praesentium labore sint possimus consequatur optio.
                                     - Debitis cumque fugit fugiat laudantium.
     /package:
         get:
@@ -878,10 +877,9 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/StoredStoragePackage'
                             example:
-                                aip_id: Aut aliquid enim ex sint laboriosam.
-                                id: 7196185733149970257
+                                aip_id: Aliquid enim ex sint laboriosam.
                                 location_id: Optio suscipit ratione iste dolorem.
-                                name: Animi quis.
+                                name: Aut animi quis voluptatem.
                                 object_key: Ipsam quo ab consectetur sint est.
                                 status: in_review
                 "404":
@@ -2547,19 +2545,16 @@ components:
             properties:
                 aip_id:
                     type: string
-                    example: Expedita est incidunt quos ab et laudantium.
-                id:
-                    type: integer
-                    example: 12999502787365507840
+                    example: Quos ab.
                 location_id:
                     type: string
-                    example: Eveniet sed ratione.
+                    example: Sed ratione deleniti.
                 name:
                     type: string
-                    example: Voluptatibus ab vero.
+                    example: Fugit voluptatibus ab vero maiores expedita est.
                 object_key:
                     type: string
-                    example: Fugit nam quia.
+                    example: Quam libero fugit nam quia soluta.
                 status:
                     type: string
                     description: Status of the package
@@ -2573,13 +2568,11 @@ components:
                         - moving
             example:
                 aip_id: Esse inventore aut qui aut quibusdam officia.
-                id: 5419040669105536138
                 location_id: Fugit a.
                 name: Laudantium ea maxime amet.
                 object_key: Exercitationem iste animi non voluptatem expedita deleniti.
                 status: unspecified
             required:
-                - id
                 - name
                 - aip_id
                 - status

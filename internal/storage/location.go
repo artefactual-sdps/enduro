@@ -15,11 +15,15 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/storage/types"
 )
 
-var InternalLocationFactory = func(config *LocationConfig) (Location, error) {
+type InternalLocationFactory func(config *LocationConfig) (Location, error)
+
+var DefaultInternalLocationFactory = func(config *LocationConfig) (Location, error) {
 	return NewInternalLocation(config)
 }
 
-var LocationFactory = func(location *goastorage.StoredLocation) (Location, error) {
+type LocationFactory func(location *goastorage.StoredLocation) (Location, error)
+
+var DefaultLocationFactory = func(location *goastorage.StoredLocation) (Location, error) {
 	return NewLocation(location)
 }
 

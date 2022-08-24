@@ -125,7 +125,6 @@ func (c *Client) UpdatePackageLocationID(ctx context.Context, locationID uuid.UU
 
 func pkgAsGoa(ctx context.Context, pkg *db.Pkg) *goastorage.StoredStoragePackage {
 	p := &goastorage.StoredStoragePackage{
-		ID:        uint(pkg.ID),
 		Name:      pkg.Name,
 		AipID:     pkg.AipID.String(),
 		Status:    pkg.Status.String(),

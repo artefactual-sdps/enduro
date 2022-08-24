@@ -57,19 +57,23 @@ type serviceImpl struct {
 
 	// Persistence client.
 	storagePersistence persistence.Storage
+
+	// Factory for permanent locations.
+	locationFactory LocationFactory
 }
 
 var _ Service = (*serviceImpl)(nil)
 
-func NewService(logger logr.Logger, config Config, storagePersistence persistence.Storage, tc temporalsdk_client.Client) (s *serviceImpl, err error) {
+func NewService(logger logr.Logger, config Config, storagePersistence persistence.Storage, tc temporalsdk_client.Client, internalLocationFactory InternalLocationFactory, locationFactory LocationFactory) (s *serviceImpl, err error) {
 	s = &serviceImpl{
 		logger:             logger,
 		tc:                 tc,
 		config:             config,
 		storagePersistence: storagePersistence,
+		locationFactory:    locationFactory,
 	}
 
-	s.internal, err = InternalLocationFactory(&config.Internal)
+	s.internal, err = internalLocationFactory(&config.Internal)
 	if err != nil {
 		return nil, err
 	}
@@ -84,10 +88,10 @@ func (s *serviceImpl) Location(ctx context.Context, locationID uuid.UUID) (Locat
 
 	l, err := s.storagePersistence.ReadLocation(ctx, locationID)
 	if err != nil {
-		return nil, fmt.Errorf("error loading location: %s", err)
+		return nil, fmt.Errorf("error loading location: unknown location %s", locationID)
 	}
 
-	return LocationFactory(l)
+	return s.locationFactory(l)
 }
 
 func (s *serviceImpl) Submit(ctx context.Context, payload *goastorage.SubmitPayload) (*goastorage.SubmitResult, error) {

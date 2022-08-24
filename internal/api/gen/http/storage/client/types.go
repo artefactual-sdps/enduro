@@ -70,7 +70,6 @@ type MoveStatusResponseBody struct {
 // ShowResponseBody is the type of the "storage" service "show" endpoint HTTP
 // response body.
 type ShowResponseBody struct {
-	ID    *uint   `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
 	Name  *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 	AipID *string `form:"aip_id,omitempty" json:"aip_id,omitempty" xml:"aip_id,omitempty"`
 	// Status of the package
@@ -634,7 +633,6 @@ func NewRejectNotFound(body *RejectNotFoundResponseBody) *storage.StoragePackage
 // result from a HTTP "OK" response.
 func NewShowStoredStoragePackageOK(body *ShowResponseBody) *storageviews.StoredStoragePackageView {
 	v := &storageviews.StoredStoragePackageView{
-		ID:         body.ID,
 		Name:       body.Name,
 		AipID:      body.AipID,
 		Status:     body.Status,

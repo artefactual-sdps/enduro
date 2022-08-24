@@ -37,8 +37,9 @@ func TestCreatePackage(t *testing.T) {
 
 	entc, c := setUpClient(t)
 
-	pkg, err := c.CreatePackage(
-		context.Background(),
+	ctx := context.Background()
+	p, err := c.CreatePackage(
+		ctx,
 		&goastorage.StoragePackage{
 			Name:      "test_package",
 			AipID:     uuid.MustParse("488c64cc-d89b-4916-9131-c94152dfb12e").String(),
@@ -47,7 +48,8 @@ func TestCreatePackage(t *testing.T) {
 	)
 	assert.NilError(t, err)
 
-	dbpkg := entc.Pkg.GetX(context.Background(), int(pkg.ID))
+	dbpkg, err := entc.Pkg.Query().Where(pkg.AipID(uuid.MustParse(p.AipID))).Only(ctx)
+	assert.NilError(t, err)
 	assert.Equal(t, dbpkg.Name, "test_package")
 	assert.Equal(t, dbpkg.AipID.String(), "488c64cc-d89b-4916-9131-c94152dfb12e")
 	assert.Equal(t, dbpkg.ObjectKey.String(), "e2630293-a714-4787-ab6d-e68254a6fb6a")
@@ -75,7 +77,6 @@ func TestListPackages(t *testing.T) {
 	assert.NilError(t, err)
 	assert.DeepEqual(t, pkgs, []*storage.StoredStoragePackage{
 		{
-			ID:         1,
 			Name:       "Package",
 			AipID:      "488c64cc-d89b-4916-9131-c94152dfb12e",
 			Status:     "stored",
@@ -83,7 +84,6 @@ func TestListPackages(t *testing.T) {
 			LocationID: nil,
 		},
 		{
-			ID:         2,
 			Name:       "Another Package",
 			AipID:      "96e182a0-31ab-4738-a620-1ff1954d9ecb",
 			Status:     "rejected",
@@ -108,7 +108,6 @@ func TestReadPackage(t *testing.T) {
 	pkg, err := c.ReadPackage(context.Background(), uuid.MustParse("488c64cc-d89b-4916-9131-c94152dfb12e"))
 	assert.NilError(t, err)
 	assert.DeepEqual(t, pkg, &storage.StoredStoragePackage{
-		ID:         1,
 		Name:       "Package",
 		AipID:      "488c64cc-d89b-4916-9131-c94152dfb12e",
 		Status:     "stored",

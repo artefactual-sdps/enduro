@@ -272,7 +272,6 @@ var StoredStoragePackage = ResultType("application/vnd.enduro.stored-storage-pac
 	Reference(StoragePackage)
 	TypeName("StoredStoragePackage")
 	Attributes(func() {
-		Attribute("id", UInt)
 		Attribute("name")
 		Attribute("aip_id")
 		Attribute("status")
@@ -286,7 +285,7 @@ var StoredStoragePackage = ResultType("application/vnd.enduro.stored-storage-pac
 		Attribute("object_key")
 		Attribute("location_id")
 	})
-	Required("id", "name", "aip_id", "status", "object_key")
+	Required("name", "aip_id", "status", "object_key")
 })
 
 var EnumStoragePackageStatus = func() {

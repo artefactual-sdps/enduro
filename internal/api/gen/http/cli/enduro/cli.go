@@ -34,9 +34,9 @@ storage (submit|update|download|locations|add-location|move|move-status|reject|s
 // UsageExamples produces an example of a valid invocation of the CLI tool.
 func UsageExamples() string {
 	return os.Args[0] + ` batch submit --body '{
-      "completed_dir": "Et labore totam.",
-      "path": "Tempore voluptatum quo.",
-      "retention_period": "Repellat voluptatem at voluptate labore molestias."
+      "completed_dir": "Repellat voluptatem at voluptate labore molestias.",
+      "path": "Et labore totam.",
+      "retention_period": "Sit et quo accusamus."
    }'` + "\n" +
 		os.Args[0] + ` package monitor` + "\n" +
 		os.Args[0] + ` storage submit --body '{
@@ -446,9 +446,9 @@ Submit a new batch
 
 Example:
     %[1]s batch submit --body '{
-      "completed_dir": "Et labore totam.",
-      "path": "Tempore voluptatum quo.",
-      "retention_period": "Repellat voluptatem at voluptate labore molestias."
+      "completed_dir": "Repellat voluptatem at voluptate labore molestias.",
+      "path": "Et labore totam.",
+      "retention_period": "Sit et quo accusamus."
    }'
 `, os.Args[0])
 }

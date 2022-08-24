@@ -73,7 +73,6 @@ type S3ConfigView struct {
 
 // StoredStoragePackageView is a type that runs validations on a projected type.
 type StoredStoragePackageView struct {
-	ID    *uint
 	Name  *string
 	AipID *string
 	// Status of the package

@@ -26,7 +26,7 @@ const (
 
 type ReviewPerformedSignal struct {
 	Accepted   bool
-	LocationID *uuid.UUID `json:LocationID,omitempty`
+	LocationID *uuid.UUID
 }
 
 type ProcessingWorkflowRequest struct {
