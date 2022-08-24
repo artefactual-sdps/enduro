@@ -11,13 +11,13 @@ import (
 
 // Package represents a package in the package table.
 type Package struct {
-	ID         uint      `db:"id"`
-	Name       string    `db:"name"`
-	WorkflowID string    `db:"workflow_id"`
-	RunID      string    `db:"run_id"`
-	AIPID      string    `db:"aip_id"`
-	LocationID uuid.UUID `db:"location_id"`
-	Status     Status    `db:"status"`
+	ID         uint          `db:"id"`
+	Name       string        `db:"name"`
+	WorkflowID string        `db:"workflow_id"`
+	RunID      string        `db:"run_id"`
+	AIPID      string        `db:"aip_id"`
+	LocationID uuid.NullUUID `db:"location_id"`
+	Status     Status        `db:"status"`
 
 	// It defaults to CURRENT_TIMESTAMP(6) so populated as soon as possible.
 	CreatedAt time.Time `db:"created_at"`
@@ -30,18 +30,20 @@ type Package struct {
 }
 
 // Goa returns the API representation of the package.
-func (c Package) Goa() *goapackage.EnduroStoredPackage {
+func (p Package) Goa() *goapackage.EnduroStoredPackage {
 	col := goapackage.EnduroStoredPackage{
-		ID:          c.ID,
-		Name:        formatOptionalString(c.Name),
-		WorkflowID:  formatOptionalString(c.WorkflowID),
-		RunID:       formatOptionalString(c.RunID),
-		AipID:       formatOptionalString(c.AIPID),
-		LocationID:  &c.LocationID,
-		Status:      c.Status.String(),
-		CreatedAt:   formatTime(c.CreatedAt),
-		StartedAt:   formatOptionalTime(c.StartedAt),
-		CompletedAt: formatOptionalTime(c.CompletedAt),
+		ID:          p.ID,
+		Name:        formatOptionalString(p.Name),
+		WorkflowID:  formatOptionalString(p.WorkflowID),
+		RunID:       formatOptionalString(p.RunID),
+		AipID:       formatOptionalString(p.AIPID),
+		Status:      p.Status.String(),
+		CreatedAt:   formatTime(p.CreatedAt),
+		StartedAt:   formatOptionalTime(p.StartedAt),
+		CompletedAt: formatOptionalTime(p.CompletedAt),
+	}
+	if p.LocationID.Valid {
+		col.LocationID = &p.LocationID.UUID
 	}
 
 	return &col
