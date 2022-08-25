@@ -9,10 +9,8 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/api"
 	"github.com/artefactual-sdps/enduro/internal/db"
 	"github.com/artefactual-sdps/enduro/internal/event"
-	"github.com/artefactual-sdps/enduro/internal/search"
 	"github.com/artefactual-sdps/enduro/internal/storage"
 	"github.com/artefactual-sdps/enduro/internal/temporal"
-	"github.com/artefactual-sdps/enduro/internal/validation"
 	"github.com/artefactual-sdps/enduro/internal/version"
 	"github.com/artefactual-sdps/enduro/internal/watcher"
 )
@@ -27,13 +25,10 @@ type Configuration struct {
 	API         api.Config
 	Event       event.Config
 	Database    db.Config
-	Search      search.Config
 	Temporal    temporal.Config
 	Watcher     watcher.Config
-	Validation  validation.Config
-
-	Storage storage.Config
-	A3m     a3m.Config
+	Storage     storage.Config
+	A3m         a3m.Config
 }
 
 func (c Configuration) Validate() error {

@@ -186,7 +186,6 @@ type Partial<T> = {
 const handlers: Partial<api.PackageMonitorResponseBody> = {
   monitorPingEvent: handleMonitorPing,
   packageCreatedEvent: handlePackageCreated,
-  packageDeletedEvent: handlePackageDeleted,
   packageLocationUpdatedEvent: handlePackageLocationUpdated,
   packageStatusUpdatedEvent: handlePackageStatusUpdated,
   packageUpdatedEvent: handlePackageUpdated,
@@ -200,13 +199,6 @@ function handleMonitorPing(event: api.EnduroMonitorPingEventResponseBody) {}
 
 function handlePackageCreated(
   event: api.EnduroPackageCreatedEventResponseBody
-) {
-  const store = usePackageStore();
-  store.fetchPackagesDebounced();
-}
-
-function handlePackageDeleted(
-  event: api.EnduroPackageDeletedEventResponseBody
 ) {
   const store = usePackageStore();
   store.fetchPackagesDebounced();

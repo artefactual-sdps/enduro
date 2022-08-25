@@ -15,27 +15,6 @@
 
 import * as runtime from '../runtime';
 import {
-    PackageBulkNotAvailableResponseBody,
-    PackageBulkNotAvailableResponseBodyFromJSON,
-    PackageBulkNotAvailableResponseBodyToJSON,
-    PackageBulkNotValidResponseBody,
-    PackageBulkNotValidResponseBodyFromJSON,
-    PackageBulkNotValidResponseBodyToJSON,
-    PackageBulkRequestBody,
-    PackageBulkRequestBodyFromJSON,
-    PackageBulkRequestBodyToJSON,
-    PackageBulkResponseBody,
-    PackageBulkResponseBodyFromJSON,
-    PackageBulkResponseBodyToJSON,
-    PackageBulkStatusResponseBody,
-    PackageBulkStatusResponseBodyFromJSON,
-    PackageBulkStatusResponseBodyToJSON,
-    PackageCancelNotFoundResponseBody,
-    PackageCancelNotFoundResponseBodyFromJSON,
-    PackageCancelNotFoundResponseBodyToJSON,
-    PackageCancelNotRunningResponseBody,
-    PackageCancelNotRunningResponseBodyFromJSON,
-    PackageCancelNotRunningResponseBodyToJSON,
     PackageConfirmNotAvailableResponseBody,
     PackageConfirmNotAvailableResponseBodyFromJSON,
     PackageConfirmNotAvailableResponseBodyToJSON,
@@ -48,9 +27,6 @@ import {
     PackageConfirmRequestBody,
     PackageConfirmRequestBodyFromJSON,
     PackageConfirmRequestBodyToJSON,
-    PackageDeleteNotFoundResponseBody,
-    PackageDeleteNotFoundResponseBodyFromJSON,
-    PackageDeleteNotFoundResponseBodyToJSON,
     PackageListResponseBody,
     PackageListResponseBodyFromJSON,
     PackageListResponseBodyToJSON,
@@ -93,12 +69,6 @@ import {
     PackageRejectNotValidResponseBody,
     PackageRejectNotValidResponseBodyFromJSON,
     PackageRejectNotValidResponseBodyToJSON,
-    PackageRetryNotFoundResponseBody,
-    PackageRetryNotFoundResponseBodyFromJSON,
-    PackageRetryNotFoundResponseBodyToJSON,
-    PackageRetryNotRunningResponseBody,
-    PackageRetryNotRunningResponseBodyFromJSON,
-    PackageRetryNotRunningResponseBodyToJSON,
     PackageShowNotFoundResponseBody,
     PackageShowNotFoundResponseBodyFromJSON,
     PackageShowNotFoundResponseBodyToJSON,
@@ -107,21 +77,9 @@ import {
     PackageShowResponseBodyToJSON,
 } from '../models';
 
-export interface PackageBulkRequest {
-    bulkRequestBody: PackageBulkRequestBody;
-}
-
-export interface PackageCancelRequest {
-    id: number;
-}
-
 export interface PackageConfirmRequest {
     id: number;
     confirmRequestBody: PackageConfirmRequestBody;
-}
-
-export interface PackageDeleteRequest {
-    id: number;
 }
 
 export interface PackageListRequest {
@@ -151,10 +109,6 @@ export interface PackageRejectRequest {
     id: number;
 }
 
-export interface PackageRetryRequest {
-    id: number;
-}
-
 export interface PackageShowRequest {
     id: number;
 }
@@ -166,53 +120,6 @@ export interface PackageShowRequest {
  * @interface PackageApiInterface
  */
 export interface PackageApiInterface {
-    /**
-     * Bulk operations (retry, cancel...).
-     * @summary bulk package
-     * @param {PackageBulkRequestBody} bulkRequestBody 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof PackageApiInterface
-     */
-    packageBulkRaw(requestParameters: PackageBulkRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<PackageBulkResponseBody>>;
-
-    /**
-     * Bulk operations (retry, cancel...).
-     * bulk package
-     */
-    packageBulk(requestParameters: PackageBulkRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<PackageBulkResponseBody>;
-
-    /**
-     * Retrieve status of current bulk operation.
-     * @summary bulk_status package
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof PackageApiInterface
-     */
-    packageBulkStatusRaw(initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<PackageBulkStatusResponseBody>>;
-
-    /**
-     * Retrieve status of current bulk operation.
-     * bulk_status package
-     */
-    packageBulkStatus(initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<PackageBulkStatusResponseBody>;
-
-    /**
-     * Cancel package processing by ID
-     * @summary cancel package
-     * @param {number} id Identifier of package to remove
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof PackageApiInterface
-     */
-    packageCancelRaw(requestParameters: PackageCancelRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<void>>;
-
-    /**
-     * Cancel package processing by ID
-     * cancel package
-     */
-    packageCancel(requestParameters: PackageCancelRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<void>;
-
     /**
      * Signal the package has been reviewed and accepted
      * @summary confirm package
@@ -229,22 +136,6 @@ export interface PackageApiInterface {
      * confirm package
      */
     packageConfirm(requestParameters: PackageConfirmRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<void>;
-
-    /**
-     * Delete package by ID
-     * @summary delete package
-     * @param {number} id Identifier of package to delete
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof PackageApiInterface
-     */
-    packageDeleteRaw(requestParameters: PackageDeleteRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<void>>;
-
-    /**
-     * Delete package by ID
-     * delete package
-     */
-    packageDelete(requestParameters: PackageDeleteRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<void>;
 
     /**
      * List all stored packages
@@ -348,22 +239,6 @@ export interface PackageApiInterface {
     packageReject(requestParameters: PackageRejectRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<void>;
 
     /**
-     * Retry package processing by ID
-     * @summary retry package
-     * @param {number} id Identifier of package to retry
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof PackageApiInterface
-     */
-    packageRetryRaw(requestParameters: PackageRetryRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<void>>;
-
-    /**
-     * Retry package processing by ID
-     * retry package
-     */
-    packageRetry(requestParameters: PackageRetryRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<void>;
-
-    /**
      * Show package by ID
      * @summary show package
      * @param {number} id Identifier of package to show
@@ -385,100 +260,6 @@ export interface PackageApiInterface {
  * 
  */
 export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
-
-    /**
-     * Bulk operations (retry, cancel...).
-     * bulk package
-     */
-    async packageBulkRaw(requestParameters: PackageBulkRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<PackageBulkResponseBody>> {
-        if (requestParameters.bulkRequestBody === null || requestParameters.bulkRequestBody === undefined) {
-            throw new runtime.RequiredError('bulkRequestBody','Required parameter requestParameters.bulkRequestBody was null or undefined when calling packageBulk.');
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        headerParameters['Content-Type'] = 'application/json';
-
-        const response = await this.request({
-            path: `/package/bulk`,
-            method: 'POST',
-            headers: headerParameters,
-            query: queryParameters,
-            body: PackageBulkRequestBodyToJSON(requestParameters.bulkRequestBody),
-        }, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => PackageBulkResponseBodyFromJSON(jsonValue));
-    }
-
-    /**
-     * Bulk operations (retry, cancel...).
-     * bulk package
-     */
-    async packageBulk(requestParameters: PackageBulkRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<PackageBulkResponseBody> {
-        const response = await this.packageBulkRaw(requestParameters, initOverrides);
-        return await response.value();
-    }
-
-    /**
-     * Retrieve status of current bulk operation.
-     * bulk_status package
-     */
-    async packageBulkStatusRaw(initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<PackageBulkStatusResponseBody>> {
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        const response = await this.request({
-            path: `/package/bulk`,
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        }, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => PackageBulkStatusResponseBodyFromJSON(jsonValue));
-    }
-
-    /**
-     * Retrieve status of current bulk operation.
-     * bulk_status package
-     */
-    async packageBulkStatus(initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<PackageBulkStatusResponseBody> {
-        const response = await this.packageBulkStatusRaw(initOverrides);
-        return await response.value();
-    }
-
-    /**
-     * Cancel package processing by ID
-     * cancel package
-     */
-    async packageCancelRaw(requestParameters: PackageCancelRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<void>> {
-        if (requestParameters.id === null || requestParameters.id === undefined) {
-            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling packageCancel.');
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        const response = await this.request({
-            path: `/package/{id}/cancel`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
-            method: 'POST',
-            headers: headerParameters,
-            query: queryParameters,
-        }, initOverrides);
-
-        return new runtime.VoidApiResponse(response);
-    }
-
-    /**
-     * Cancel package processing by ID
-     * cancel package
-     */
-    async packageCancel(requestParameters: PackageCancelRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<void> {
-        await this.packageCancelRaw(requestParameters, initOverrides);
-    }
 
     /**
      * Signal the package has been reviewed and accepted
@@ -516,37 +297,6 @@ export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
      */
     async packageConfirm(requestParameters: PackageConfirmRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<void> {
         await this.packageConfirmRaw(requestParameters, initOverrides);
-    }
-
-    /**
-     * Delete package by ID
-     * delete package
-     */
-    async packageDeleteRaw(requestParameters: PackageDeleteRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<void>> {
-        if (requestParameters.id === null || requestParameters.id === undefined) {
-            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling packageDelete.');
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        const response = await this.request({
-            path: `/package/{id}`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
-            method: 'DELETE',
-            headers: headerParameters,
-            query: queryParameters,
-        }, initOverrides);
-
-        return new runtime.VoidApiResponse(response);
-    }
-
-    /**
-     * Delete package by ID
-     * delete package
-     */
-    async packageDelete(requestParameters: PackageDeleteRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<void> {
-        await this.packageDeleteRaw(requestParameters, initOverrides);
     }
 
     /**
@@ -761,37 +511,6 @@ export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
      */
     async packageReject(requestParameters: PackageRejectRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<void> {
         await this.packageRejectRaw(requestParameters, initOverrides);
-    }
-
-    /**
-     * Retry package processing by ID
-     * retry package
-     */
-    async packageRetryRaw(requestParameters: PackageRetryRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<void>> {
-        if (requestParameters.id === null || requestParameters.id === undefined) {
-            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling packageRetry.');
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        const response = await this.request({
-            path: `/package/{id}/retry`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
-            method: 'POST',
-            headers: headerParameters,
-            query: queryParameters,
-        }, initOverrides);
-
-        return new runtime.VoidApiResponse(response);
-    }
-
-    /**
-     * Retry package processing by ID
-     * retry package
-     */
-    async packageRetry(requestParameters: PackageRetryRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<void> {
-        await this.packageRetryRaw(requestParameters, initOverrides);
     }
 
     /**

@@ -60,7 +60,7 @@ func TestEventServiceRedisPublish(t *testing.T) {
 
 	select {
 	case ret := <-input:
-		assert.DeepEqual(t, ret.Payload, `{"MonitorPingEvent":{"Message":"hello"},"PackageCreatedEvent":null,"PackageDeletedEvent":null,"PackageUpdatedEvent":null,"PackageStatusUpdatedEvent":null,"PackageLocationUpdatedEvent":null,"PreservationActionCreatedEvent":null,"PreservationActionUpdatedEvent":null,"PreservationTaskCreatedEvent":null,"PreservationTaskUpdatedEvent":null}`)
+		assert.DeepEqual(t, ret.Payload, `{"MonitorPingEvent":{"Message":"hello"},"PackageCreatedEvent":null,"PackageUpdatedEvent":null,"PackageStatusUpdatedEvent":null,"PackageLocationUpdatedEvent":null,"PreservationActionCreatedEvent":null,"PreservationActionUpdatedEvent":null,"PreservationTaskCreatedEvent":null,"PreservationTaskUpdatedEvent":null}`)
 	case <-time.After(10 * time.Second):
 		t.Fatal("timeout!")
 	}

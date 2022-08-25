@@ -30,22 +30,6 @@ type Client struct {
 	// Show Doer is the HTTP client used to make requests to the show endpoint.
 	ShowDoer goahttp.Doer
 
-	// Delete Doer is the HTTP client used to make requests to the delete endpoint.
-	DeleteDoer goahttp.Doer
-
-	// Cancel Doer is the HTTP client used to make requests to the cancel endpoint.
-	CancelDoer goahttp.Doer
-
-	// Retry Doer is the HTTP client used to make requests to the retry endpoint.
-	RetryDoer goahttp.Doer
-
-	// Bulk Doer is the HTTP client used to make requests to the bulk endpoint.
-	BulkDoer goahttp.Doer
-
-	// BulkStatus Doer is the HTTP client used to make requests to the bulk_status
-	// endpoint.
-	BulkStatusDoer goahttp.Doer
-
 	// PreservationActions Doer is the HTTP client used to make requests to the
 	// preservation-actions endpoint.
 	PreservationActionsDoer goahttp.Doer
@@ -97,11 +81,6 @@ func NewClient(
 		MonitorDoer:             doer,
 		ListDoer:                doer,
 		ShowDoer:                doer,
-		DeleteDoer:              doer,
-		CancelDoer:              doer,
-		RetryDoer:               doer,
-		BulkDoer:                doer,
-		BulkStatusDoer:          doer,
 		PreservationActionsDoer: doer,
 		ConfirmDoer:             doer,
 		RejectDoer:              doer,
@@ -193,106 +172,6 @@ func (c *Client) Show() goa.Endpoint {
 		resp, err := c.ShowDoer.Do(req)
 		if err != nil {
 			return nil, goahttp.ErrRequestError("package", "show", err)
-		}
-		return decodeResponse(resp)
-	}
-}
-
-// Delete returns an endpoint that makes HTTP requests to the package service
-// delete server.
-func (c *Client) Delete() goa.Endpoint {
-	var (
-		decodeResponse = DecodeDeleteResponse(c.decoder, c.RestoreResponseBody)
-	)
-	return func(ctx context.Context, v interface{}) (interface{}, error) {
-		req, err := c.BuildDeleteRequest(ctx, v)
-		if err != nil {
-			return nil, err
-		}
-		resp, err := c.DeleteDoer.Do(req)
-		if err != nil {
-			return nil, goahttp.ErrRequestError("package", "delete", err)
-		}
-		return decodeResponse(resp)
-	}
-}
-
-// Cancel returns an endpoint that makes HTTP requests to the package service
-// cancel server.
-func (c *Client) Cancel() goa.Endpoint {
-	var (
-		decodeResponse = DecodeCancelResponse(c.decoder, c.RestoreResponseBody)
-	)
-	return func(ctx context.Context, v interface{}) (interface{}, error) {
-		req, err := c.BuildCancelRequest(ctx, v)
-		if err != nil {
-			return nil, err
-		}
-		resp, err := c.CancelDoer.Do(req)
-		if err != nil {
-			return nil, goahttp.ErrRequestError("package", "cancel", err)
-		}
-		return decodeResponse(resp)
-	}
-}
-
-// Retry returns an endpoint that makes HTTP requests to the package service
-// retry server.
-func (c *Client) Retry() goa.Endpoint {
-	var (
-		decodeResponse = DecodeRetryResponse(c.decoder, c.RestoreResponseBody)
-	)
-	return func(ctx context.Context, v interface{}) (interface{}, error) {
-		req, err := c.BuildRetryRequest(ctx, v)
-		if err != nil {
-			return nil, err
-		}
-		resp, err := c.RetryDoer.Do(req)
-		if err != nil {
-			return nil, goahttp.ErrRequestError("package", "retry", err)
-		}
-		return decodeResponse(resp)
-	}
-}
-
-// Bulk returns an endpoint that makes HTTP requests to the package service
-// bulk server.
-func (c *Client) Bulk() goa.Endpoint {
-	var (
-		encodeRequest  = EncodeBulkRequest(c.encoder)
-		decodeResponse = DecodeBulkResponse(c.decoder, c.RestoreResponseBody)
-	)
-	return func(ctx context.Context, v interface{}) (interface{}, error) {
-		req, err := c.BuildBulkRequest(ctx, v)
-		if err != nil {
-			return nil, err
-		}
-		err = encodeRequest(req, v)
-		if err != nil {
-			return nil, err
-		}
-		resp, err := c.BulkDoer.Do(req)
-		if err != nil {
-			return nil, goahttp.ErrRequestError("package", "bulk", err)
-		}
-		return decodeResponse(resp)
-	}
-}
-
-// BulkStatus returns an endpoint that makes HTTP requests to the package
-// service bulk_status server.
-func (c *Client) BulkStatus() goa.Endpoint {
-	var (
-		decodeResponse = DecodeBulkStatusResponse(c.decoder, c.RestoreResponseBody)
-	)
-	return func(ctx context.Context, v interface{}) (interface{}, error) {
-		req, err := c.BuildBulkStatusRequest(ctx, v)
-		if err != nil {
-			return nil, err
-		}
-		resp, err := c.BulkStatusDoer.Do(req)
-		if err != nil {
-			return nil, goahttp.ErrRequestError("package", "bulk_status", err)
 		}
 		return decodeResponse(resp)
 	}

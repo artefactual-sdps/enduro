@@ -68,81 +68,6 @@ var _ = Service("package", func() {
 			Response("not_found", StatusNotFound)
 		})
 	})
-	Method("delete", func() {
-		Description("Delete package by ID")
-		Payload(func() {
-			Attribute("id", UInt, "Identifier of package to delete")
-			Required("id")
-		})
-		Error("not_found", PackageNotFound, "Package not found")
-		HTTP(func() {
-			DELETE("/{id}")
-			Response(StatusNoContent)
-			Response("not_found", StatusNotFound)
-		})
-	})
-	Method("cancel", func() {
-		Description("Cancel package processing by ID")
-		Payload(func() {
-			Attribute("id", UInt, "Identifier of package to remove")
-			Required("id")
-		})
-		Error("not_found", PackageNotFound, "Package not found")
-		Error("not_running")
-		HTTP(func() {
-			POST("/{id}/cancel")
-			Response(StatusOK)
-			Response("not_found", StatusNotFound)
-			Response("not_running", StatusBadRequest)
-		})
-	})
-	Method("retry", func() {
-		Description("Retry package processing by ID")
-		Payload(func() {
-			Attribute("id", UInt, "Identifier of package to retry")
-			Required("id")
-		})
-		Error("not_found", PackageNotFound, "Package not found")
-		Error("not_running")
-		HTTP(func() {
-			POST("/{id}/retry")
-			Response(StatusOK)
-			Response("not_found", StatusNotFound)
-			Response("not_running", StatusBadRequest)
-		})
-	})
-	Method("bulk", func() {
-		Description("Bulk operations (retry, cancel...).")
-		Payload(func() {
-			Attribute("operation", String, func() {
-				Enum("retry", "cancel", "abandon")
-			})
-			Attribute("status", String, func() {
-				EnumPackageStatus()
-			})
-			Attribute("size", UInt, func() {
-				Default(100)
-			})
-			Required("operation", "status")
-		})
-		Result(BulkResult)
-		Error("not_available")
-		Error("not_valid")
-		HTTP(func() {
-			POST("/bulk")
-			Response(StatusAccepted)
-			Response("not_available", StatusConflict)
-			Response("not_valid", StatusBadRequest)
-		})
-	})
-	Method("bulk_status", func() {
-		Description("Retrieve status of current bulk operation.")
-		Result(BulkStatusResult)
-		HTTP(func() {
-			GET("/bulk")
-			Response(StatusOK)
-		})
-	})
 	Method("preservation-actions", func() {
 		Description("List all preservation actions by ID")
 		Payload(func() {
@@ -304,26 +229,6 @@ var PackageNotFound = Type("PackageNotfound", func() {
 	})
 	Attribute("id", UInt, "Identifier of missing package")
 	Required("message", "id")
-})
-
-var BulkResult = Type("BulkResult", func() {
-	Attribute("workflow_id", String)
-	Attribute("run_id", String)
-	Required("workflow_id", "run_id")
-})
-
-var BulkStatusResult = Type("BulkStatusResult", func() {
-	Attribute("running", Boolean)
-	Attribute("started_at", String, func() {
-		Format(FormatDateTime)
-	})
-	Attribute("closed_at", String, func() {
-		Format(FormatDateTime)
-	})
-	Attribute("status", String)
-	Attribute("workflow_id", String)
-	Attribute("run_id", String)
-	Required("running")
 })
 
 var PreservationActions = ResultType("application/vnd.enduro.package-preservation-actions", func() {

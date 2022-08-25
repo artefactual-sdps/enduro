@@ -44,7 +44,6 @@ type EnduroPackagePreservationActions struct {
 type EnduroMonitorEventView struct {
 	MonitorPingEvent               *EnduroMonitorPingEventView
 	PackageCreatedEvent            *EnduroPackageCreatedEventView
-	PackageDeletedEvent            *EnduroPackageDeletedEventView
 	PackageUpdatedEvent            *EnduroPackageUpdatedEventView
 	PackageStatusUpdatedEvent      *EnduroPackageStatusUpdatedEventView
 	PackageLocationUpdatedEvent    *EnduroPackageLocationUpdatedEventView
@@ -89,13 +88,6 @@ type EnduroStoredPackageView struct {
 	StartedAt *string
 	// Completion datetime
 	CompletedAt *string
-}
-
-// EnduroPackageDeletedEventView is a type that runs validations on a projected
-// type.
-type EnduroPackageDeletedEventView struct {
-	// Identifier of package
-	ID *uint
 }
 
 // EnduroPackageUpdatedEventView is a type that runs validations on a projected
@@ -201,7 +193,6 @@ var (
 		"default": {
 			"monitor_ping_event",
 			"package_created_event",
-			"package_deleted_event",
 			"package_updated_event",
 			"package_status_updated_event",
 			"package_location_updated_event",
@@ -247,13 +238,6 @@ var (
 		"default": {
 			"id",
 			"item",
-		},
-	}
-	// EnduroPackageDeletedEventMap is a map indexing the attribute names of
-	// EnduroPackageDeletedEvent by view name.
-	EnduroPackageDeletedEventMap = map[string][]string{
-		"default": {
-			"id",
 		},
 	}
 	// EnduroPackageUpdatedEventMap is a map indexing the attribute names of
@@ -438,11 +422,6 @@ func ValidateEnduroMonitorEventView(result *EnduroMonitorEventView) (err error) 
 			err = goa.MergeErrors(err, err2)
 		}
 	}
-	if result.PackageDeletedEvent != nil {
-		if err2 := ValidateEnduroPackageDeletedEventView(result.PackageDeletedEvent); err2 != nil {
-			err = goa.MergeErrors(err, err2)
-		}
-	}
 	if result.PackageUpdatedEvent != nil {
 		if err2 := ValidateEnduroPackageUpdatedEventView(result.PackageUpdatedEvent); err2 != nil {
 			err = goa.MergeErrors(err, err2)
@@ -536,15 +515,6 @@ func ValidateEnduroStoredPackageView(result *EnduroStoredPackageView) (err error
 	}
 	if result.CompletedAt != nil {
 		err = goa.MergeErrors(err, goa.ValidateFormat("result.completed_at", *result.CompletedAt, goa.FormatDateTime))
-	}
-	return
-}
-
-// ValidateEnduroPackageDeletedEventView runs the validations defined on
-// EnduroPackageDeletedEventView using the "default" view.
-func ValidateEnduroPackageDeletedEventView(result *EnduroPackageDeletedEventView) (err error) {
-	if result.ID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("id", "result"))
 	}
 	return
 }

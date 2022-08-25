@@ -18,11 +18,6 @@ var MonitorEvent = ResultType("application/vnd.enduro.monitor-event", func() {
 			func() { View("default") },
 		)
 		Attribute(
-			"package_deleted_event",
-			PackageDeletedEvent,
-			func() { View("default") },
-		)
-		Attribute(
 			"package_updated_event",
 			PackageUpdatedEvent,
 			func() { View("default") },
@@ -80,17 +75,6 @@ var PackageCreatedEvent = ResultType("application/vnd.enduro.package-created-eve
 	View("default", func() {
 		Attribute("id")
 		Attribute("item")
-	})
-})
-
-var PackageDeletedEvent = ResultType("application/vnd.enduro.package-deleted-event", func() {
-	Attributes(func() {
-		Attribute("id", UInt, "Identifier of package")
-		Required("id")
-	})
-
-	View("default", func() {
-		Attribute("id")
 	})
 })
 

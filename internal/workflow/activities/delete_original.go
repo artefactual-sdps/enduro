@@ -2,8 +2,6 @@ package activities
 
 import (
 	"context"
-	"os"
-	"path/filepath"
 
 	"github.com/artefactual-sdps/enduro/internal/watcher"
 )
@@ -16,13 +14,6 @@ func NewDeleteOriginalActivity(wsvc watcher.Service) *DeleteOriginalActivity {
 	return &DeleteOriginalActivity{wsvc: wsvc}
 }
 
-func (a *DeleteOriginalActivity) Execute(ctx context.Context, watcherName, batchDir, key string) error {
-	if batchDir != "" {
-		return deleteOriginalFromBatch(batchDir, key)
-	}
+func (a *DeleteOriginalActivity) Execute(ctx context.Context, watcherName, key string) error {
 	return a.wsvc.Delete(ctx, watcherName, key)
-}
-
-func deleteOriginalFromBatch(batchDir, key string) error {
-	return os.RemoveAll(filepath.Join(batchDir, key))
 }

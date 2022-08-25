@@ -16,8 +16,6 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/a3m"
 	"github.com/artefactual-sdps/enduro/internal/package_"
 	packagefake "github.com/artefactual-sdps/enduro/internal/package_/fake"
-	sdps_activities "github.com/artefactual-sdps/enduro/internal/sdps/activities"
-	"github.com/artefactual-sdps/enduro/internal/validation"
 	watcherfake "github.com/artefactual-sdps/enduro/internal/watcher/fake"
 	"github.com/artefactual-sdps/enduro/internal/workflow/activities"
 )
@@ -47,9 +45,6 @@ func (s *ProcessingWorkflowTestSuite) SetupTest() {
 	s.env.RegisterActivityWithOptions(activities.NewUploadActivity(nil).Execute, temporalsdk_activity.RegisterOptions{Name: activities.UploadActivityName})
 	s.env.RegisterActivityWithOptions(activities.NewMoveToPermanentStorageActivity(nil).Execute, temporalsdk_activity.RegisterOptions{Name: activities.MoveToPermanentStorageActivityName})
 	s.env.RegisterActivityWithOptions(activities.NewPollMoveToPermanentStorageActivity(nil).Execute, temporalsdk_activity.RegisterOptions{Name: activities.PollMoveToPermanentStorageActivityName})
-	s.env.RegisterActivityWithOptions(sdps_activities.NewValidatePackageActivity().Execute, temporalsdk_activity.RegisterOptions{Name: sdps_activities.ValidatePackageActivityName})
-	s.env.RegisterActivityWithOptions(activities.NewValidateTransferActivity().Execute, temporalsdk_activity.RegisterOptions{Name: activities.ValidateTransferActivityName})
-	s.env.RegisterActivityWithOptions(sdps_activities.NewIndexActivity(logger, nil).Execute, temporalsdk_activity.RegisterOptions{Name: sdps_activities.IndexActivityName})
 	s.env.RegisterActivityWithOptions(activities.NewRejectPackageActivity(nil).Execute, temporalsdk_activity.RegisterOptions{Name: activities.RejectPackageActivityName})
 
 	s.workflow = NewProcessingWorkflow(logger, pkgsvc, wsvc)
@@ -86,8 +81,6 @@ func (s *ProcessingWorkflowTestSuite) TestPackageConfirmation() {
 	s.env.OnActivity(createPreservationActionLocalActivity, mock.Anything, mock.Anything, mock.Anything).Return(uint(0), nil)
 	s.env.OnActivity(activities.DownloadActivityName, mock.Anything, mock.Anything, mock.Anything).Return("", nil)
 	s.env.OnActivity(activities.BundleActivityName, mock.Anything, mock.Anything).Return(&activities.BundleActivityResult{FullPath: "/tmp/aip", FullPathBeforeStrip: "/tmp/aip"}, nil)
-	s.env.OnActivity(sdps_activities.ValidatePackageActivityName, mock.Anything, mock.Anything).Return(nil)
-	s.env.OnActivity(activities.ValidateTransferActivityName, mock.Anything, mock.Anything).Return(nil)
 	s.env.OnActivity(a3m.CreateAIPActivityName, mock.Anything, mock.Anything).Return(nil, nil)
 	s.env.OnActivity(updatePackageLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 	s.env.OnActivity(createPreservationTaskLocalActivity, mock.Anything, mock.Anything, mock.Anything).Return(uint(0), nil)
@@ -98,7 +91,6 @@ func (s *ProcessingWorkflowTestSuite) TestPackageConfirmation() {
 	s.env.OnActivity(activities.MoveToPermanentStorageActivityName, mock.Anything, mock.Anything).Return(nil)
 	s.env.OnActivity(activities.PollMoveToPermanentStorageActivityName, mock.Anything, mock.Anything).Return(nil)
 	s.env.OnActivity(setLocationIDLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
-	s.env.OnActivity(sdps_activities.IndexActivityName, mock.Anything, mock.Anything).Return(nil)
 	// TODO: CleanUpActivityName
 	// TODO: DeleteOriginalActivityName
 	s.env.OnActivity(updatePackageLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
@@ -107,9 +99,8 @@ func (s *ProcessingWorkflowTestSuite) TestPackageConfirmation() {
 	s.env.ExecuteWorkflow(
 		s.workflow.Execute,
 		&package_.ProcessingWorkflowRequest{
-			ValidationConfig: validation.Config{ChecksumsCheckEnabled: true},
-			WatcherName:      watcherName,
-			RetentionPeriod:  &retentionPeriod,
+			WatcherName:     watcherName,
+			RetentionPeriod: &retentionPeriod,
 		},
 	)
 
@@ -139,8 +130,6 @@ func (s *ProcessingWorkflowTestSuite) TestPackageRejection() {
 	s.env.OnActivity(createPreservationActionLocalActivity, mock.Anything, mock.Anything, mock.Anything).Return(uint(0), nil)
 	s.env.OnActivity(activities.DownloadActivityName, mock.Anything, mock.Anything, mock.Anything).Return("", nil)
 	s.env.OnActivity(activities.BundleActivityName, mock.Anything, mock.Anything).Return(&activities.BundleActivityResult{FullPath: "/tmp/aip", FullPathBeforeStrip: "/tmp/aip"}, nil)
-	s.env.OnActivity(sdps_activities.ValidatePackageActivityName, mock.Anything, mock.Anything).Return(nil)
-	s.env.OnActivity(activities.ValidateTransferActivityName, mock.Anything, mock.Anything).Return(nil)
 	s.env.OnActivity(a3m.CreateAIPActivityName, mock.Anything, mock.Anything).Return(nil, nil)
 	s.env.OnActivity(updatePackageLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 	s.env.OnActivity(completePreservationTaskLocalActivity, mock.Anything, mock.Anything, mock.Anything).Return(nil)
@@ -157,9 +146,8 @@ func (s *ProcessingWorkflowTestSuite) TestPackageRejection() {
 	s.env.ExecuteWorkflow(
 		s.workflow.Execute,
 		&package_.ProcessingWorkflowRequest{
-			ValidationConfig: validation.Config{ChecksumsCheckEnabled: true},
-			WatcherName:      watcherName,
-			RetentionPeriod:  &retentionPeriod,
+			WatcherName:     watcherName,
+			RetentionPeriod: &retentionPeriod,
 		},
 	)
 

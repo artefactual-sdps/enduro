@@ -43,11 +43,6 @@ redisChannel = "enduro-events"
 dsn = "{MYSQL_USER}:{MYSQL_PASSWORD}@tcp(mysql:3306)/enduro"
 migrate = true
 
-[search]
-addresses = ["http://opensearch:9200"]
-username = "admin"
-password = "admin"
-
 [[watcher.minio]]
 name = "dev-minio"
 redisAddress = "redis://redis:6379"
@@ -59,9 +54,6 @@ secret = "{MINIO_PASSWORD}"
 region = "us-west-1"
 bucket = "sips"
 stripTopLevelDir = true
-
-[validation]
-checksumsCheckEnabled = false
 
 [storage]
 enduroAddress = "enduro:9000"
@@ -444,7 +436,6 @@ func main() {
 			{Name: "enduro", Service: "enduro-dashboard", Port: 80},
 			{Name: "minio", Service: "minio", Port: 9001},
 			{Name: "temporal", Service: "temporal-ui", Port: 8080},
-			{Name: "opensearch", Service: "opensearch-dashboards", Port: 5601},
 		}
 
 		// Generate ingress rules and TLS hosts for the endpoints.

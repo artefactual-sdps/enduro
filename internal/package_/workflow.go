@@ -10,7 +10,6 @@ import (
 	temporalsdk_client "go.temporal.io/sdk/client"
 
 	"github.com/artefactual-sdps/enduro/internal/temporal"
-	"github.com/artefactual-sdps/enduro/internal/validation"
 )
 
 const (
@@ -55,12 +54,6 @@ type ProcessingWorkflowRequest struct {
 
 	// Whether the blob is a directory (fs watcher)
 	IsDir bool
-
-	// Batch directory that contains the blob.
-	BatchDir string
-
-	// Configuration for the validating the transfer.
-	ValidationConfig validation.Config
 }
 
 func InitProcessingWorkflow(ctx context.Context, tc temporalsdk_client.Client, req *ProcessingWorkflowRequest) error {

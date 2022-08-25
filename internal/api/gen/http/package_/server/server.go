@@ -24,11 +24,6 @@ type Server struct {
 	Monitor             http.Handler
 	List                http.Handler
 	Show                http.Handler
-	Delete              http.Handler
-	Cancel              http.Handler
-	Retry               http.Handler
-	Bulk                http.Handler
-	BulkStatus          http.Handler
 	PreservationActions http.Handler
 	Confirm             http.Handler
 	Reject              http.Handler
@@ -78,11 +73,6 @@ func New(
 			{"Monitor", "GET", "/package/monitor"},
 			{"List", "GET", "/package"},
 			{"Show", "GET", "/package/{id}"},
-			{"Delete", "DELETE", "/package/{id}"},
-			{"Cancel", "POST", "/package/{id}/cancel"},
-			{"Retry", "POST", "/package/{id}/retry"},
-			{"Bulk", "POST", "/package/bulk"},
-			{"BulkStatus", "GET", "/package/bulk"},
 			{"PreservationActions", "GET", "/package/{id}/preservation-actions"},
 			{"Confirm", "POST", "/package/{id}/confirm"},
 			{"Reject", "POST", "/package/{id}/reject"},
@@ -91,9 +81,6 @@ func New(
 			{"CORS", "OPTIONS", "/package/monitor"},
 			{"CORS", "OPTIONS", "/package"},
 			{"CORS", "OPTIONS", "/package/{id}"},
-			{"CORS", "OPTIONS", "/package/{id}/cancel"},
-			{"CORS", "OPTIONS", "/package/{id}/retry"},
-			{"CORS", "OPTIONS", "/package/bulk"},
 			{"CORS", "OPTIONS", "/package/{id}/preservation-actions"},
 			{"CORS", "OPTIONS", "/package/{id}/confirm"},
 			{"CORS", "OPTIONS", "/package/{id}/reject"},
@@ -102,11 +89,6 @@ func New(
 		Monitor:             NewMonitorHandler(e.Monitor, mux, decoder, encoder, errhandler, formatter, upgrader, configurer.MonitorFn),
 		List:                NewListHandler(e.List, mux, decoder, encoder, errhandler, formatter),
 		Show:                NewShowHandler(e.Show, mux, decoder, encoder, errhandler, formatter),
-		Delete:              NewDeleteHandler(e.Delete, mux, decoder, encoder, errhandler, formatter),
-		Cancel:              NewCancelHandler(e.Cancel, mux, decoder, encoder, errhandler, formatter),
-		Retry:               NewRetryHandler(e.Retry, mux, decoder, encoder, errhandler, formatter),
-		Bulk:                NewBulkHandler(e.Bulk, mux, decoder, encoder, errhandler, formatter),
-		BulkStatus:          NewBulkStatusHandler(e.BulkStatus, mux, decoder, encoder, errhandler, formatter),
 		PreservationActions: NewPreservationActionsHandler(e.PreservationActions, mux, decoder, encoder, errhandler, formatter),
 		Confirm:             NewConfirmHandler(e.Confirm, mux, decoder, encoder, errhandler, formatter),
 		Reject:              NewRejectHandler(e.Reject, mux, decoder, encoder, errhandler, formatter),
@@ -124,11 +106,6 @@ func (s *Server) Use(m func(http.Handler) http.Handler) {
 	s.Monitor = m(s.Monitor)
 	s.List = m(s.List)
 	s.Show = m(s.Show)
-	s.Delete = m(s.Delete)
-	s.Cancel = m(s.Cancel)
-	s.Retry = m(s.Retry)
-	s.Bulk = m(s.Bulk)
-	s.BulkStatus = m(s.BulkStatus)
 	s.PreservationActions = m(s.PreservationActions)
 	s.Confirm = m(s.Confirm)
 	s.Reject = m(s.Reject)
@@ -142,11 +119,6 @@ func Mount(mux goahttp.Muxer, h *Server) {
 	MountMonitorHandler(mux, h.Monitor)
 	MountListHandler(mux, h.List)
 	MountShowHandler(mux, h.Show)
-	MountDeleteHandler(mux, h.Delete)
-	MountCancelHandler(mux, h.Cancel)
-	MountRetryHandler(mux, h.Retry)
-	MountBulkHandler(mux, h.Bulk)
-	MountBulkStatusHandler(mux, h.BulkStatus)
 	MountPreservationActionsHandler(mux, h.PreservationActions)
 	MountConfirmHandler(mux, h.Confirm)
 	MountRejectHandler(mux, h.Reject)
@@ -308,254 +280,6 @@ func NewShowHandler(
 			return
 		}
 		res, err := endpoint(ctx, payload)
-		if err != nil {
-			if err := encodeError(ctx, w, err); err != nil {
-				errhandler(ctx, w, err)
-			}
-			return
-		}
-		if err := encodeResponse(ctx, w, res); err != nil {
-			errhandler(ctx, w, err)
-		}
-	})
-}
-
-// MountDeleteHandler configures the mux to serve the "package" service
-// "delete" endpoint.
-func MountDeleteHandler(mux goahttp.Muxer, h http.Handler) {
-	f, ok := HandlePackageOrigin(h).(http.HandlerFunc)
-	if !ok {
-		f = func(w http.ResponseWriter, r *http.Request) {
-			h.ServeHTTP(w, r)
-		}
-	}
-	mux.Handle("DELETE", "/package/{id}", f)
-}
-
-// NewDeleteHandler creates a HTTP handler which loads the HTTP request and
-// calls the "package" service "delete" endpoint.
-func NewDeleteHandler(
-	endpoint goa.Endpoint,
-	mux goahttp.Muxer,
-	decoder func(*http.Request) goahttp.Decoder,
-	encoder func(context.Context, http.ResponseWriter) goahttp.Encoder,
-	errhandler func(context.Context, http.ResponseWriter, error),
-	formatter func(err error) goahttp.Statuser,
-) http.Handler {
-	var (
-		decodeRequest  = DecodeDeleteRequest(mux, decoder)
-		encodeResponse = EncodeDeleteResponse(encoder)
-		encodeError    = EncodeDeleteError(encoder, formatter)
-	)
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
-		ctx = context.WithValue(ctx, goa.MethodKey, "delete")
-		ctx = context.WithValue(ctx, goa.ServiceKey, "package")
-		payload, err := decodeRequest(r)
-		if err != nil {
-			if err := encodeError(ctx, w, err); err != nil {
-				errhandler(ctx, w, err)
-			}
-			return
-		}
-		res, err := endpoint(ctx, payload)
-		if err != nil {
-			if err := encodeError(ctx, w, err); err != nil {
-				errhandler(ctx, w, err)
-			}
-			return
-		}
-		if err := encodeResponse(ctx, w, res); err != nil {
-			errhandler(ctx, w, err)
-		}
-	})
-}
-
-// MountCancelHandler configures the mux to serve the "package" service
-// "cancel" endpoint.
-func MountCancelHandler(mux goahttp.Muxer, h http.Handler) {
-	f, ok := HandlePackageOrigin(h).(http.HandlerFunc)
-	if !ok {
-		f = func(w http.ResponseWriter, r *http.Request) {
-			h.ServeHTTP(w, r)
-		}
-	}
-	mux.Handle("POST", "/package/{id}/cancel", f)
-}
-
-// NewCancelHandler creates a HTTP handler which loads the HTTP request and
-// calls the "package" service "cancel" endpoint.
-func NewCancelHandler(
-	endpoint goa.Endpoint,
-	mux goahttp.Muxer,
-	decoder func(*http.Request) goahttp.Decoder,
-	encoder func(context.Context, http.ResponseWriter) goahttp.Encoder,
-	errhandler func(context.Context, http.ResponseWriter, error),
-	formatter func(err error) goahttp.Statuser,
-) http.Handler {
-	var (
-		decodeRequest  = DecodeCancelRequest(mux, decoder)
-		encodeResponse = EncodeCancelResponse(encoder)
-		encodeError    = EncodeCancelError(encoder, formatter)
-	)
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
-		ctx = context.WithValue(ctx, goa.MethodKey, "cancel")
-		ctx = context.WithValue(ctx, goa.ServiceKey, "package")
-		payload, err := decodeRequest(r)
-		if err != nil {
-			if err := encodeError(ctx, w, err); err != nil {
-				errhandler(ctx, w, err)
-			}
-			return
-		}
-		res, err := endpoint(ctx, payload)
-		if err != nil {
-			if err := encodeError(ctx, w, err); err != nil {
-				errhandler(ctx, w, err)
-			}
-			return
-		}
-		if err := encodeResponse(ctx, w, res); err != nil {
-			errhandler(ctx, w, err)
-		}
-	})
-}
-
-// MountRetryHandler configures the mux to serve the "package" service "retry"
-// endpoint.
-func MountRetryHandler(mux goahttp.Muxer, h http.Handler) {
-	f, ok := HandlePackageOrigin(h).(http.HandlerFunc)
-	if !ok {
-		f = func(w http.ResponseWriter, r *http.Request) {
-			h.ServeHTTP(w, r)
-		}
-	}
-	mux.Handle("POST", "/package/{id}/retry", f)
-}
-
-// NewRetryHandler creates a HTTP handler which loads the HTTP request and
-// calls the "package" service "retry" endpoint.
-func NewRetryHandler(
-	endpoint goa.Endpoint,
-	mux goahttp.Muxer,
-	decoder func(*http.Request) goahttp.Decoder,
-	encoder func(context.Context, http.ResponseWriter) goahttp.Encoder,
-	errhandler func(context.Context, http.ResponseWriter, error),
-	formatter func(err error) goahttp.Statuser,
-) http.Handler {
-	var (
-		decodeRequest  = DecodeRetryRequest(mux, decoder)
-		encodeResponse = EncodeRetryResponse(encoder)
-		encodeError    = EncodeRetryError(encoder, formatter)
-	)
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
-		ctx = context.WithValue(ctx, goa.MethodKey, "retry")
-		ctx = context.WithValue(ctx, goa.ServiceKey, "package")
-		payload, err := decodeRequest(r)
-		if err != nil {
-			if err := encodeError(ctx, w, err); err != nil {
-				errhandler(ctx, w, err)
-			}
-			return
-		}
-		res, err := endpoint(ctx, payload)
-		if err != nil {
-			if err := encodeError(ctx, w, err); err != nil {
-				errhandler(ctx, w, err)
-			}
-			return
-		}
-		if err := encodeResponse(ctx, w, res); err != nil {
-			errhandler(ctx, w, err)
-		}
-	})
-}
-
-// MountBulkHandler configures the mux to serve the "package" service "bulk"
-// endpoint.
-func MountBulkHandler(mux goahttp.Muxer, h http.Handler) {
-	f, ok := HandlePackageOrigin(h).(http.HandlerFunc)
-	if !ok {
-		f = func(w http.ResponseWriter, r *http.Request) {
-			h.ServeHTTP(w, r)
-		}
-	}
-	mux.Handle("POST", "/package/bulk", f)
-}
-
-// NewBulkHandler creates a HTTP handler which loads the HTTP request and calls
-// the "package" service "bulk" endpoint.
-func NewBulkHandler(
-	endpoint goa.Endpoint,
-	mux goahttp.Muxer,
-	decoder func(*http.Request) goahttp.Decoder,
-	encoder func(context.Context, http.ResponseWriter) goahttp.Encoder,
-	errhandler func(context.Context, http.ResponseWriter, error),
-	formatter func(err error) goahttp.Statuser,
-) http.Handler {
-	var (
-		decodeRequest  = DecodeBulkRequest(mux, decoder)
-		encodeResponse = EncodeBulkResponse(encoder)
-		encodeError    = EncodeBulkError(encoder, formatter)
-	)
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
-		ctx = context.WithValue(ctx, goa.MethodKey, "bulk")
-		ctx = context.WithValue(ctx, goa.ServiceKey, "package")
-		payload, err := decodeRequest(r)
-		if err != nil {
-			if err := encodeError(ctx, w, err); err != nil {
-				errhandler(ctx, w, err)
-			}
-			return
-		}
-		res, err := endpoint(ctx, payload)
-		if err != nil {
-			if err := encodeError(ctx, w, err); err != nil {
-				errhandler(ctx, w, err)
-			}
-			return
-		}
-		if err := encodeResponse(ctx, w, res); err != nil {
-			errhandler(ctx, w, err)
-		}
-	})
-}
-
-// MountBulkStatusHandler configures the mux to serve the "package" service
-// "bulk_status" endpoint.
-func MountBulkStatusHandler(mux goahttp.Muxer, h http.Handler) {
-	f, ok := HandlePackageOrigin(h).(http.HandlerFunc)
-	if !ok {
-		f = func(w http.ResponseWriter, r *http.Request) {
-			h.ServeHTTP(w, r)
-		}
-	}
-	mux.Handle("GET", "/package/bulk", f)
-}
-
-// NewBulkStatusHandler creates a HTTP handler which loads the HTTP request and
-// calls the "package" service "bulk_status" endpoint.
-func NewBulkStatusHandler(
-	endpoint goa.Endpoint,
-	mux goahttp.Muxer,
-	decoder func(*http.Request) goahttp.Decoder,
-	encoder func(context.Context, http.ResponseWriter) goahttp.Encoder,
-	errhandler func(context.Context, http.ResponseWriter, error),
-	formatter func(err error) goahttp.Statuser,
-) http.Handler {
-	var (
-		encodeResponse = EncodeBulkStatusResponse(encoder)
-		encodeError    = goahttp.ErrorEncoder(encoder, formatter)
-	)
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
-		ctx = context.WithValue(ctx, goa.MethodKey, "bulk_status")
-		ctx = context.WithValue(ctx, goa.ServiceKey, "package")
-		var err error
-		res, err := endpoint(ctx, nil)
 		if err != nil {
 			if err := encodeError(ctx, w, err); err != nil {
 				errhandler(ctx, w, err)
@@ -830,9 +554,6 @@ func MountCORSHandler(mux goahttp.Muxer, h http.Handler) {
 	mux.Handle("OPTIONS", "/package/monitor", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/package", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/package/{id}", h.ServeHTTP)
-	mux.Handle("OPTIONS", "/package/{id}/cancel", h.ServeHTTP)
-	mux.Handle("OPTIONS", "/package/{id}/retry", h.ServeHTTP)
-	mux.Handle("OPTIONS", "/package/bulk", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/package/{id}/preservation-actions", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/package/{id}/confirm", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/package/{id}/reject", h.ServeHTTP)

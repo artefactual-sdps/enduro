@@ -3,22 +3,16 @@ package package_
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"strconv"
 	"strings"
 	"time"
 
-	temporalapi_common "go.temporal.io/api/common/v1"
 	temporalapi_enums "go.temporal.io/api/enums/v1"
-	temporalapi_serviceerror "go.temporal.io/api/serviceerror"
-	temporalsdk_client "go.temporal.io/sdk/client"
 
 	goapackage "github.com/artefactual-sdps/enduro/internal/api/gen/package_"
-	"github.com/artefactual-sdps/enduro/internal/event"
 	"github.com/artefactual-sdps/enduro/internal/ref"
-	"github.com/artefactual-sdps/enduro/internal/temporal"
 )
 
 var ErrBulkStatusUnavailable = errors.New("bulk status unavailable")
@@ -175,185 +169,6 @@ func (w *goaWrapper) Show(ctx context.Context, payload *goapackage.ShowPayload) 
 	}
 
 	return c.Goa(), nil
-}
-
-// Delete package by ID. It implements goapackage.Service.
-//
-// TODO: return error if it's still running?
-func (w *goaWrapper) Delete(ctx context.Context, payload *goapackage.DeletePayload) error {
-	query := "DELETE FROM package WHERE id = ?"
-
-	res, err := w.db.ExecContext(ctx, query, payload.ID)
-	if err != nil {
-		return err
-	}
-	n, err := res.RowsAffected()
-	if err != nil {
-		return err
-	}
-	if n != 1 {
-		return &goapackage.PackageNotfound{ID: payload.ID, Message: "not_found"}
-	}
-
-	ev := &goapackage.EnduroPackageDeletedEvent{ID: payload.ID}
-	event.PublishEvent(ctx, w.evsvc, ev)
-
-	return nil
-}
-
-// Cancel package processing by ID. It implements goapackage.Service.
-func (w *goaWrapper) Cancel(ctx context.Context, payload *goapackage.CancelPayload) error {
-	goapkg, err := w.Show(ctx, &goapackage.ShowPayload{ID: payload.ID})
-	if err != nil {
-		return err
-	}
-
-	if err := w.tc.CancelWorkflow(ctx, *goapkg.WorkflowID, *goapkg.RunID); err != nil {
-		// TODO: return custom errors
-		return err
-	}
-
-	// TODO: send event
-
-	return nil
-}
-
-// Retry package processing by ID. It implements goapackage.Service.
-//
-// TODO: conceptually Temporal workflows should handle retries, i.e. retry could be part of workflow code too (e.g. signals, children, etc).
-func (w *goaWrapper) Retry(ctx context.Context, payload *goapackage.RetryPayload) error {
-	goapkg, err := w.Show(ctx, &goapackage.ShowPayload{ID: payload.ID})
-	if err != nil {
-		return err
-	}
-
-	execution := &temporalapi_common.WorkflowExecution{
-		WorkflowId: *goapkg.WorkflowID,
-		RunId:      *goapkg.RunID,
-	}
-
-	historyEvent, err := temporal.FirstHistoryEvent(ctx, w.tc, execution)
-	if err != nil {
-		return fmt.Errorf("error loading history of the previous workflow run: %w", err)
-	}
-	if historyEvent.GetEventType() != temporalapi_enums.EVENT_TYPE_WORKFLOW_EXECUTION_STARTED {
-		return fmt.Errorf("error loading history of the previous workflow run: initiator state not found")
-	}
-
-	input := historyEvent.GetWorkflowExecutionStartedEventAttributes().Input
-	if len(input.Payloads) == 0 {
-		return errors.New("error loading state of the previous workflow run")
-	}
-	eventPayload := input.Payloads[0]
-	eventAttrs := eventPayload.GetData()
-
-	req := &ProcessingWorkflowRequest{}
-	if err := json.Unmarshal(eventAttrs, req); err != nil {
-		return fmt.Errorf("error loading state of the previous workflow run: %w", err)
-	}
-
-	req.WorkflowID = *goapkg.WorkflowID
-	req.PackageID = goapkg.ID
-	if err := InitProcessingWorkflow(ctx, w.tc, req); err != nil {
-		return fmt.Errorf("error starting the new workflow instance: %w", err)
-	}
-
-	// TODO: send event
-
-	return nil
-}
-
-func (w *goaWrapper) Bulk(ctx context.Context, payload *goapackage.BulkPayload) (*goapackage.BulkResult, error) {
-	if payload.Size == 0 {
-		return nil, goapackage.MakeNotValid(errors.New("size is zero"))
-	}
-	input := BulkWorkflowInput{
-		Operation: BulkWorkflowOperation(payload.Operation),
-		Status:    NewStatus(payload.Status),
-		Size:      payload.Size,
-	}
-
-	opts := temporalsdk_client.StartWorkflowOptions{
-		ID:                       BulkWorkflowID,
-		WorkflowIDReusePolicy:    temporalapi_enums.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE,
-		TaskQueue:                temporal.GlobalTaskQueue,
-		WorkflowExecutionTimeout: time.Hour,
-	}
-	exec, err := w.tc.ExecuteWorkflow(ctx, opts, BulkWorkflowName, input)
-	if err != nil {
-		switch err := err.(type) {
-		case *temporalapi_serviceerror.NotFound:
-			return nil, goapackage.MakeNotAvailable(
-				fmt.Errorf("error starting bulk - operation is already in progress (workflowID=%s)", BulkWorkflowID),
-			)
-		default:
-			w.logger.Info("error starting bulk", "err", err)
-			return nil, fmt.Errorf("error starting bulk")
-		}
-	}
-
-	return &goapackage.BulkResult{
-		WorkflowID: exec.GetID(),
-		RunID:      exec.GetRunID(),
-	}, nil
-}
-
-func (w *goaWrapper) BulkStatus(ctx context.Context) (*goapackage.BulkStatusResult, error) {
-	result := &goapackage.BulkStatusResult{}
-
-	resp, err := w.tc.DescribeWorkflowExecution(ctx, BulkWorkflowID, "")
-	if err != nil {
-		switch err := err.(type) {
-		case *temporalapi_serviceerror.NotFound:
-			// We've never seen a workflow run before.
-			return result, nil
-		default:
-			w.logger.Info("error retrieving workflow", "err", err)
-			return nil, ErrBulkStatusUnavailable
-		}
-	}
-
-	if resp.WorkflowExecutionInfo == nil {
-		w.logger.Info("error retrieving workflow execution details")
-		return nil, ErrBulkStatusUnavailable
-	}
-
-	result.WorkflowID = &resp.WorkflowExecutionInfo.Execution.WorkflowId
-	result.RunID = &resp.WorkflowExecutionInfo.Execution.RunId
-
-	if resp.WorkflowExecutionInfo.StartTime != nil {
-		t := resp.WorkflowExecutionInfo.StartTime.Format(time.RFC3339)
-		result.StartedAt = &t
-	}
-
-	if resp.WorkflowExecutionInfo.CloseTime != nil {
-		t := resp.WorkflowExecutionInfo.CloseTime.Format(time.RFC3339)
-		result.ClosedAt = &t
-	}
-
-	// Workflow is not running!
-	if resp.WorkflowExecutionInfo.Status != temporalapi_enums.WORKFLOW_EXECUTION_STATUS_RUNNING {
-		st := strings.ToLower(resp.WorkflowExecutionInfo.Status.String())
-		result.Status = &st
-
-		return result, nil
-	}
-
-	result.Running = true
-
-	// We can use the status property to communicate progress from heartbeats.
-	length := len(resp.PendingActivities)
-	if length > 0 {
-		latest := resp.PendingActivities[length-1]
-		progress := &BulkProgress{}
-		details := latest.HeartbeatDetails.String()
-		if err := json.Unmarshal([]byte(details), progress); err == nil {
-			status := fmt.Sprintf("Processing package %d (done: %d)", progress.CurrentID, progress.Count)
-			result.Status = &status
-		}
-	}
-
-	return result, nil
 }
 
 func (w *goaWrapper) Confirm(ctx context.Context, payload *goapackage.ConfirmPayload) error {

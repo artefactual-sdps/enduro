@@ -10,9 +10,6 @@ endef
 IGNORED_PACKAGES := \
 	github.com/artefactual-sdps/enduro/hack/genpkgs \
 	github.com/artefactual-sdps/enduro/internal/api/design \
-	github.com/artefactual-sdps/enduro/internal/api/gen/batch \
-	github.com/artefactual-sdps/enduro/internal/api/gen/http/batch/client \
-	github.com/artefactual-sdps/enduro/internal/api/gen/http/batch/server \
 	github.com/artefactual-sdps/enduro/internal/api/gen/http/cli/enduro \
 	github.com/artefactual-sdps/enduro/internal/api/gen/http/package_/client \
 	github.com/artefactual-sdps/enduro/internal/api/gen/http/package_/server \
@@ -92,7 +89,6 @@ gen-dashboard-client:
 	@echo "@@@@ We're using \`--skip-validate-spec\` to deal with Goa spec generation issues."
 
 gen-mock:
-	$(MOCKGEN) -destination=./internal/batch/fake/mock_batch.go -package=fake github.com/artefactual-sdps/enduro/internal/batch Service
 	$(MOCKGEN) -destination=./internal/package_/fake/mock_package_.go -package=fake github.com/artefactual-sdps/enduro/internal/package_ Service
 	$(MOCKGEN) -destination=./internal/storage/fake/mock_storage.go -package=fake github.com/artefactual-sdps/enduro/internal/storage Service
 	$(MOCKGEN) -destination=./internal/storage/persistence/fake/mock_persistence.go -package=fake github.com/artefactual-sdps/enduro/internal/storage/persistence Storage

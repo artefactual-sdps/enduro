@@ -2,9 +2,7 @@ package activities
 
 import (
 	"context"
-	"path/filepath"
 
-	"github.com/artefactual-sdps/enduro/internal/fsutil"
 	"github.com/artefactual-sdps/enduro/internal/watcher"
 )
 
@@ -16,20 +14,6 @@ func NewDisposeOriginalActivity(wsvc watcher.Service) *DisposeOriginalActivity {
 	return &DisposeOriginalActivity{wsvc: wsvc}
 }
 
-func (a *DisposeOriginalActivity) Execute(ctx context.Context, watcherName, completedDir, batchDir, key string) error {
-	if batchDir != "" {
-		return disposeOriginalFromBatch(completedDir, batchDir, key)
-	}
+func (a *DisposeOriginalActivity) Execute(ctx context.Context, watcherName, completedDir, key string) error {
 	return a.wsvc.Dispose(ctx, watcherName, key)
-}
-
-func disposeOriginalFromBatch(completedDir, batchDir, key string) error {
-	if completedDir == "" {
-		return nil
-	}
-
-	src := filepath.Join(batchDir, key)
-	dst := filepath.Join(completedDir, key)
-
-	return fsutil.Move(src, dst)
 }
