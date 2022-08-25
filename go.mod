@@ -19,14 +19,12 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/websocket v1.5.0
 	github.com/hashicorp/errwrap v1.1.0 // indirect
-	github.com/hashicorp/go-multierror v1.1.1
+	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/jmoiron/sqlx v1.3.5
-	github.com/jszwec/csvutil v1.7.1
 	github.com/mattn/go-sqlite3 v1.14.14
 	github.com/mholt/archiver/v3 v3.5.1
 	github.com/nyudlts/go-bagit v0.2.0-alpha
 	github.com/oklog/run v1.1.0
-	github.com/opensearch-project/opensearch-go v1.1.0
 	github.com/otiai10/copy v1.7.0
 	github.com/pborman/uuid v1.2.1 // indirect
 	github.com/prometheus/client_golang v1.13.0
@@ -40,12 +38,12 @@ require (
 	go.buf.build/grpc/go/artefactual/a3m v1.4.1
 	go.temporal.io/api v1.8.0
 	go.temporal.io/sdk v1.15.0
-	go.uber.org/multierr v1.8.0
+	go.uber.org/multierr v1.8.0 // indirect
 	go.uber.org/zap v1.22.0
 	goa.design/goa/v3 v3.8.3
 	goa.design/plugins/v3 v3.8.3
 	gocloud.dev v0.26.0
-	golang.org/x/text v0.3.7
+	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/grpc v1.48.0
 	google.golang.org/protobuf v1.28.1 // indirect
 	gotest.tools/v3 v3.3.0

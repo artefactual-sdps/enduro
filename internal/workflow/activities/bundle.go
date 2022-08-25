@@ -33,7 +33,6 @@ type BundleActivityParams struct {
 	TempFile         string
 	StripTopLevelDir bool
 	IsDir            bool
-	BatchDir         string
 }
 
 type BundleActivityResult struct {
@@ -61,22 +60,7 @@ func (a *BundleActivity) Execute(ctx context.Context, params *BundleActivityPara
 		}
 	}()
 
-	if params.BatchDir != "" {
-		var batchDirIsInTransferDir bool
-		batchDirIsInTransferDir, err = isSubPath(params.TransferDir, params.BatchDir)
-		if err != nil {
-			return nil, temporal.NonRetryableError(err)
-		}
-		if batchDirIsInTransferDir {
-			res.FullPath = filepath.Join(params.BatchDir, params.Key)
-			// This makes the workflow not to delete the original content in the transfer directory
-			res.FullPathBeforeStrip = ""
-		} else {
-			src := filepath.Join(params.BatchDir, params.Key)
-			dst := params.TransferDir
-			res.FullPath, res.FullPathBeforeStrip, err = a.Copy(ctx, src, dst, params.StripTopLevelDir)
-		}
-	} else if params.IsDir {
+	if params.IsDir {
 		var w watcher.Watcher
 		w, err = a.wsvc.ByName(params.WatcherName)
 		if err == nil {
@@ -209,18 +193,6 @@ func (a *BundleActivity) Copy(ctx context.Context, src, dst string, stripTopLeve
 	}
 
 	return tempDir, tempDirBeforeStrip, nil
-}
-
-func isSubPath(path, subPath string) (bool, error) {
-	up := ".." + string(os.PathSeparator)
-	rel, err := filepath.Rel(path, subPath)
-	if err != nil {
-		return false, err
-	}
-	if !strings.HasPrefix(rel, up) && rel != ".." {
-		return true, nil
-	}
-	return false, nil
 }
 
 // stripDirContainer strips the top-level directory of a transfer.

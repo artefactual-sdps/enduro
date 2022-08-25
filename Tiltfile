@@ -38,12 +38,6 @@ k8s_resource(
   "0.0.0.0:7461:9000"],
   labels=["Others"]
 )
-k8s_resource("opensearch", labels=["Others"])
-k8s_resource(
-  "opensearch-dashboards",
-  port_forwards="7500:5601",
-  labels=["Others"]
-)
 k8s_resource("redis", labels=["Others"])
 k8s_resource("temporal", labels=["Others"])
 k8s_resource("temporal-ui", port_forwards="7440:8080", labels=["Others"])
@@ -110,7 +104,6 @@ cmd_button(
     kubectl delete job --all; \
     kubectl create -f hack/kube/tools/mysql-recreate-databases-job.yaml; \
     kubectl create -f hack/kube/tools/minio-recreate-buckets-job.yaml; \
-    kubectl create -f hack/kube/tools/opensearch-delete-index-job.yaml; \
     kubectl wait --for=condition=complete --timeout=120s job --all; \
     kubectl rollout restart deployment temporal; \
     kubectl rollout restart deployment enduro; \

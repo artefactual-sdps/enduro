@@ -19,11 +19,6 @@ type Client struct {
 	MonitorEndpoint             goa.Endpoint
 	ListEndpoint                goa.Endpoint
 	ShowEndpoint                goa.Endpoint
-	DeleteEndpoint              goa.Endpoint
-	CancelEndpoint              goa.Endpoint
-	RetryEndpoint               goa.Endpoint
-	BulkEndpoint                goa.Endpoint
-	BulkStatusEndpoint          goa.Endpoint
 	PreservationActionsEndpoint goa.Endpoint
 	ConfirmEndpoint             goa.Endpoint
 	RejectEndpoint              goa.Endpoint
@@ -32,16 +27,11 @@ type Client struct {
 }
 
 // NewClient initializes a "package" service client given the endpoints.
-func NewClient(monitor, list, show, delete_, cancel, retry, bulk, bulkStatus, preservationActions, confirm, reject, move, moveStatus goa.Endpoint) *Client {
+func NewClient(monitor, list, show, preservationActions, confirm, reject, move, moveStatus goa.Endpoint) *Client {
 	return &Client{
 		MonitorEndpoint:             monitor,
 		ListEndpoint:                list,
 		ShowEndpoint:                show,
-		DeleteEndpoint:              delete_,
-		CancelEndpoint:              cancel,
-		RetryEndpoint:               retry,
-		BulkEndpoint:                bulk,
-		BulkStatusEndpoint:          bulkStatus,
 		PreservationActionsEndpoint: preservationActions,
 		ConfirmEndpoint:             confirm,
 		RejectEndpoint:              reject,
@@ -81,59 +71,6 @@ func (c *Client) Show(ctx context.Context, p *ShowPayload) (res *EnduroStoredPac
 		return
 	}
 	return ires.(*EnduroStoredPackage), nil
-}
-
-// Delete calls the "delete" endpoint of the "package" service.
-// Delete may return the following errors:
-//   - "not_found" (type *PackageNotfound): Package not found
-//   - error: internal error
-func (c *Client) Delete(ctx context.Context, p *DeletePayload) (err error) {
-	_, err = c.DeleteEndpoint(ctx, p)
-	return
-}
-
-// Cancel calls the "cancel" endpoint of the "package" service.
-// Cancel may return the following errors:
-//   - "not_found" (type *PackageNotfound): Package not found
-//   - "not_running" (type *goa.ServiceError)
-//   - error: internal error
-func (c *Client) Cancel(ctx context.Context, p *CancelPayload) (err error) {
-	_, err = c.CancelEndpoint(ctx, p)
-	return
-}
-
-// Retry calls the "retry" endpoint of the "package" service.
-// Retry may return the following errors:
-//   - "not_found" (type *PackageNotfound): Package not found
-//   - "not_running" (type *goa.ServiceError)
-//   - error: internal error
-func (c *Client) Retry(ctx context.Context, p *RetryPayload) (err error) {
-	_, err = c.RetryEndpoint(ctx, p)
-	return
-}
-
-// Bulk calls the "bulk" endpoint of the "package" service.
-// Bulk may return the following errors:
-//   - "not_available" (type *goa.ServiceError)
-//   - "not_valid" (type *goa.ServiceError)
-//   - error: internal error
-func (c *Client) Bulk(ctx context.Context, p *BulkPayload) (res *BulkResult, err error) {
-	var ires interface{}
-	ires, err = c.BulkEndpoint(ctx, p)
-	if err != nil {
-		return
-	}
-	return ires.(*BulkResult), nil
-}
-
-// BulkStatus calls the "bulk_status" endpoint of the "package" service.
-func (c *Client) BulkStatus(ctx context.Context) (res *BulkStatusResult, err error) {
-	var ires interface{}
-	ires, err = c.BulkStatusEndpoint(ctx, nil)
-	if err != nil {
-		return
-	}
-	return ires.(*BulkStatusResult), nil
 }
 
 // PreservationActions calls the "preservation-actions" endpoint of the

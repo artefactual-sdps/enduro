@@ -10,8 +10,6 @@ resources:
   - mysql-create-locations-job.yaml
   - mysql.yaml
   - namespace.yaml
-  - opensearch-dashboards.yaml
-  - opensearch.yaml
   - redis.yaml
   - temporal-ui.yaml
   - temporal.yaml

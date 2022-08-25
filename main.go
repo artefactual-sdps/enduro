@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"crypto/tls"
 	"errors"
 	"fmt"
 	"net"
@@ -16,7 +15,6 @@ import (
 	"ariga.io/sqlcomment"
 	"entgo.io/ent/dialect/sql"
 	"github.com/oklog/run"
-	"github.com/opensearch-project/opensearch-go"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/pflag"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
@@ -28,7 +26,6 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/api"
 	goahttpstorage "github.com/artefactual-sdps/enduro/internal/api/gen/http/storage/client"
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
-	"github.com/artefactual-sdps/enduro/internal/batch"
 	"github.com/artefactual-sdps/enduro/internal/config"
 	"github.com/artefactual-sdps/enduro/internal/db"
 	"github.com/artefactual-sdps/enduro/internal/event"
@@ -120,36 +117,6 @@ func main() {
 		os.Exit(1)
 	}
 
-	searchConfig := opensearch.Config{
-		Addresses: cfg.Search.Addresses,
-		Username:  cfg.Search.Username,
-		Password:  cfg.Search.Password,
-		Transport: &http.Transport{
-			MaxIdleConnsPerHost:   10,
-			ResponseHeaderTimeout: time.Second,
-			DialContext:           (&net.Dialer{Timeout: time.Second}).DialContext,
-			TLSClientConfig: &tls.Config{
-				MinVersion: tls.VersionTLS11,
-			},
-		},
-	}
-	searchClient, err := opensearch.NewClient(searchConfig)
-	if err != nil {
-		logger.Error(err, "Search configuration failed.")
-		os.Exit(1)
-	}
-	_, err = searchClient.API.Ping()
-	if err != nil {
-		logger.Info("Search server not available.", "msg", err, "retries", !searchConfig.DisableRetry)
-	}
-	logger.Info("Search client configured")
-
-	// Set up the batch service.
-	var batchsvc batch.Service
-	{
-		batchsvc = batch.NewService(logger.WithName("batch"), temporalClient, cfg.Watcher.CompletedDirs())
-	}
-
 	// Set up the event service.
 	evsvc, err := event.NewEventServiceRedis(&cfg.Event)
 	if err != nil {
@@ -206,7 +173,7 @@ func main() {
 
 		g.Add(
 			func() error {
-				srv = api.HTTPServer(logger, &cfg.API, batchsvc, pkgsvc, storagesvc)
+				srv = api.HTTPServer(logger, &cfg.API, pkgsvc, storagesvc)
 				return srv.ListenAndServe()
 			},
 			func(err error) {
@@ -245,7 +212,6 @@ func main() {
 									StripTopLevelDir: event.StripTopLevelDir,
 									Key:              event.Key,
 									IsDir:            event.IsDir,
-									ValidationConfig: cfg.Validation,
 								}
 								if err := package_.InitProcessingWorkflow(ctx, temporalClient, &req); err != nil {
 									logger.Error(err, "Error initializing processing workflow.")
@@ -274,12 +240,6 @@ func main() {
 		w.RegisterWorkflowWithOptions(workflow.NewProcessingWorkflow(logger, pkgsvc, wsvc).Execute, temporalsdk_workflow.RegisterOptions{Name: package_.ProcessingWorkflowName})
 		w.RegisterActivityWithOptions(activities.NewDeleteOriginalActivity(wsvc).Execute, temporalsdk_activity.RegisterOptions{Name: activities.DeleteOriginalActivityName})
 		w.RegisterActivityWithOptions(activities.NewDisposeOriginalActivity(wsvc).Execute, temporalsdk_activity.RegisterOptions{Name: activities.DisposeOriginalActivityName})
-
-		w.RegisterWorkflowWithOptions(package_.BulkWorkflow, temporalsdk_workflow.RegisterOptions{Name: package_.BulkWorkflowName})
-		w.RegisterActivityWithOptions(package_.NewBulkActivity(pkgsvc).Execute, temporalsdk_activity.RegisterOptions{Name: package_.BulkActivityName})
-
-		w.RegisterWorkflowWithOptions(batch.BatchWorkflow, temporalsdk_workflow.RegisterOptions{Name: batch.BatchWorkflowName})
-		w.RegisterActivityWithOptions(batch.NewBatchActivity(batchsvc).Execute, temporalsdk_activity.RegisterOptions{Name: batch.BatchActivityName})
 
 		w.RegisterWorkflowWithOptions(storage_workflows.NewStorageUploadWorkflow().Execute, temporalsdk_workflow.RegisterOptions{Name: storage.StorageUploadWorkflowName})
 		w.RegisterWorkflowWithOptions(storage_workflows.NewStorageMoveWorkflow(storagesvc).Execute, temporalsdk_workflow.RegisterOptions{Name: storage.StorageMoveWorkflowName})

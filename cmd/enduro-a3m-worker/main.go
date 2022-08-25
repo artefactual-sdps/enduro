@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"crypto/tls"
 	"fmt"
 	"net"
 	"net/http"
@@ -13,7 +12,6 @@ import (
 	"time"
 
 	"github.com/oklog/run"
-	"github.com/opensearch-project/opensearch-go"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/pflag"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
@@ -29,7 +27,6 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/event"
 	"github.com/artefactual-sdps/enduro/internal/log"
 	"github.com/artefactual-sdps/enduro/internal/package_"
-	sdps_activities "github.com/artefactual-sdps/enduro/internal/sdps/activities"
 	"github.com/artefactual-sdps/enduro/internal/temporal"
 	"github.com/artefactual-sdps/enduro/internal/version"
 	"github.com/artefactual-sdps/enduro/internal/watcher"
@@ -107,30 +104,6 @@ func main() {
 		pkgsvc = package_.NewService(logger.WithName("package"), enduroDatabase, temporalClient, evsvc)
 	}
 
-	searchConfig := opensearch.Config{
-		Addresses: cfg.Search.Addresses,
-		Username:  cfg.Search.Username,
-		Password:  cfg.Search.Password,
-		Transport: &http.Transport{
-			MaxIdleConnsPerHost:   10,
-			ResponseHeaderTimeout: time.Second,
-			DialContext:           (&net.Dialer{Timeout: time.Second}).DialContext,
-			TLSClientConfig: &tls.Config{
-				MinVersion: tls.VersionTLS11,
-			},
-		},
-	}
-	searchClient, err := opensearch.NewClient(searchConfig)
-	if err != nil {
-		logger.Error(err, "Search configuration failed.")
-		os.Exit(1)
-	}
-	_, err = searchClient.API.Ping()
-	if err != nil {
-		logger.Info("Search server not available.", "msg", err, "retries", !searchConfig.DisableRetry)
-	}
-	logger.Info("Search client configured")
-
 	// Set up the watcher service.
 	var wsvc watcher.Service
 	{
@@ -160,7 +133,6 @@ func main() {
 
 		w.RegisterActivityWithOptions(activities.NewDownloadActivity(wsvc).Execute, temporalsdk_activity.RegisterOptions{Name: activities.DownloadActivityName})
 		w.RegisterActivityWithOptions(activities.NewBundleActivity(wsvc).Execute, temporalsdk_activity.RegisterOptions{Name: activities.BundleActivityName})
-		w.RegisterActivityWithOptions(activities.NewValidateTransferActivity().Execute, temporalsdk_activity.RegisterOptions{Name: activities.ValidateTransferActivityName})
 		w.RegisterActivityWithOptions(a3m.NewCreateAIPActivity(logger, &cfg.A3m, pkgsvc).Execute, temporalsdk_activity.RegisterOptions{Name: a3m.CreateAIPActivityName})
 		w.RegisterActivityWithOptions(activities.NewCleanUpActivity().Execute, temporalsdk_activity.RegisterOptions{Name: activities.CleanUpActivityName})
 
@@ -180,11 +152,9 @@ func main() {
 		)
 		w.RegisterActivityWithOptions(activities.NewUploadActivity(storageClient).Execute, temporalsdk_activity.RegisterOptions{Name: activities.UploadActivityName})
 
-		w.RegisterActivityWithOptions(sdps_activities.NewValidatePackageActivity().Execute, temporalsdk_activity.RegisterOptions{Name: sdps_activities.ValidatePackageActivityName})
 		w.RegisterActivityWithOptions(activities.NewMoveToPermanentStorageActivity(storageClient).Execute, temporalsdk_activity.RegisterOptions{Name: activities.MoveToPermanentStorageActivityName})
 		w.RegisterActivityWithOptions(activities.NewPollMoveToPermanentStorageActivity(storageClient).Execute, temporalsdk_activity.RegisterOptions{Name: activities.PollMoveToPermanentStorageActivityName})
 		w.RegisterActivityWithOptions(activities.NewRejectPackageActivity(storageClient).Execute, temporalsdk_activity.RegisterOptions{Name: activities.RejectPackageActivityName})
-		w.RegisterActivityWithOptions(sdps_activities.NewIndexActivity(logger, searchClient).Execute, temporalsdk_activity.RegisterOptions{Name: sdps_activities.IndexActivityName})
 
 		g.Add(
 			func() error {

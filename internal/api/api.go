@@ -21,21 +21,17 @@ import (
 	goahttpmwr "goa.design/goa/v3/http/middleware"
 	"goa.design/goa/v3/middleware"
 
-	"github.com/artefactual-sdps/enduro/internal/api/gen/batch"
-	batchsvr "github.com/artefactual-sdps/enduro/internal/api/gen/http/batch/server"
 	packagesvr "github.com/artefactual-sdps/enduro/internal/api/gen/http/package_/server"
 	storagesvr "github.com/artefactual-sdps/enduro/internal/api/gen/http/storage/server"
 	swaggersvr "github.com/artefactual-sdps/enduro/internal/api/gen/http/swagger/server"
 	"github.com/artefactual-sdps/enduro/internal/api/gen/package_"
 	"github.com/artefactual-sdps/enduro/internal/api/gen/storage"
-	intbatch "github.com/artefactual-sdps/enduro/internal/batch"
 	intpkg "github.com/artefactual-sdps/enduro/internal/package_"
 	intstorage "github.com/artefactual-sdps/enduro/internal/storage"
 )
 
 func HTTPServer(
 	logger logr.Logger, config *Config,
-	batchsvc intbatch.Service,
 	pkgsvc intpkg.Service,
 	storagesvc intstorage.Service,
 ) *http.Server {
@@ -47,12 +43,6 @@ func HTTPServer(
 		HandshakeTimeout: time.Second,
 		CheckOrigin:      sameOriginChecker(logger),
 	}
-
-	// Batch service.
-	batchEndpoints := batch.NewEndpoints(batchsvc)
-	batchErrorHandler := errorHandler(logger, "Batch error.")
-	batchServer := batchsvr.New(batchEndpoints, mux, dec, enc, batchErrorHandler, nil)
-	batchsvr.Mount(mux, batchServer)
 
 	// Package service.
 	packageEndpoints := package_.NewEndpoints(pkgsvc.Goa())

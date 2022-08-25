@@ -20,11 +20,6 @@ redisChannel = "enduro-events"
 dsn = "enduro:enduro123@tcp(mysql:3306)/enduro"
 migrate = true
 
-[search]
-addresses = ["http://opensearch:9200"]
-username = "admin"
-password = "admin"
-
 [[watcher.minio]]
 name = "dev-minio"
 redisAddress = "redis://redis:6379"
@@ -36,9 +31,6 @@ secret = "minio123"
 region = "us-west-1"
 bucket = "sips"
 stripTopLevelDir = true
-
-[validation]
-checksumsCheckEnabled = false
 
 [storage]
 enduroAddress = "enduro:9000"

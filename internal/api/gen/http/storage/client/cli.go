@@ -24,7 +24,7 @@ func BuildSubmitPayload(storageSubmitBody string, storageSubmitAipID string) (*s
 	{
 		err = json.Unmarshal([]byte(storageSubmitBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"name\": \"Dolorem non voluptate voluptatem voluptate maxime facere.\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"name\": \"Occaecati aut.\"\n   }'")
 		}
 	}
 	var aipID string
@@ -73,7 +73,7 @@ func BuildAddLocationPayload(storageAddLocationBody string) (*storage.AddLocatio
 	{
 		err = json.Unmarshal([]byte(storageAddLocationBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"config\": {\n         \"Type\": \"s3\",\n         \"Value\": \"\\\"JSON\\\"\"\n      },\n      \"description\": \"Accusantium vitae.\",\n      \"name\": \"Sit ut quam praesentium odio assumenda fuga.\",\n      \"purpose\": \"aip_store\",\n      \"source\": \"unspecified\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"config\": {\n         \"Type\": \"s3\",\n         \"Value\": \"\\\"JSON\\\"\"\n      },\n      \"description\": \"Voluptatem fugiat officia repellat voluptatibus distinctio dolorem.\",\n      \"name\": \"Magnam tempore et qui.\",\n      \"purpose\": \"unspecified\",\n      \"source\": \"minio\"\n   }'")
 		}
 		if !(body.Source == "unspecified" || body.Source == "minio") {
 			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.source", body.Source, []interface{}{"unspecified", "minio"}))
@@ -116,7 +116,7 @@ func BuildMovePayload(storageMoveBody string, storageMoveAipID string) (*storage
 	{
 		err = json.Unmarshal([]byte(storageMoveBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location_id\": \"Modi aut blanditiis.\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location_id\": \"Similique praesentium velit aspernatur alias animi.\"\n   }'")
 		}
 	}
 	var aipID string

@@ -19,11 +19,6 @@ type Endpoints struct {
 	Monitor             goa.Endpoint
 	List                goa.Endpoint
 	Show                goa.Endpoint
-	Delete              goa.Endpoint
-	Cancel              goa.Endpoint
-	Retry               goa.Endpoint
-	Bulk                goa.Endpoint
-	BulkStatus          goa.Endpoint
 	PreservationActions goa.Endpoint
 	Confirm             goa.Endpoint
 	Reject              goa.Endpoint
@@ -44,11 +39,6 @@ func NewEndpoints(s Service) *Endpoints {
 		Monitor:             NewMonitorEndpoint(s),
 		List:                NewListEndpoint(s),
 		Show:                NewShowEndpoint(s),
-		Delete:              NewDeleteEndpoint(s),
-		Cancel:              NewCancelEndpoint(s),
-		Retry:               NewRetryEndpoint(s),
-		Bulk:                NewBulkEndpoint(s),
-		BulkStatus:          NewBulkStatusEndpoint(s),
 		PreservationActions: NewPreservationActionsEndpoint(s),
 		Confirm:             NewConfirmEndpoint(s),
 		Reject:              NewRejectEndpoint(s),
@@ -62,11 +52,6 @@ func (e *Endpoints) Use(m func(goa.Endpoint) goa.Endpoint) {
 	e.Monitor = m(e.Monitor)
 	e.List = m(e.List)
 	e.Show = m(e.Show)
-	e.Delete = m(e.Delete)
-	e.Cancel = m(e.Cancel)
-	e.Retry = m(e.Retry)
-	e.Bulk = m(e.Bulk)
-	e.BulkStatus = m(e.BulkStatus)
 	e.PreservationActions = m(e.PreservationActions)
 	e.Confirm = m(e.Confirm)
 	e.Reject = m(e.Reject)
@@ -103,50 +88,6 @@ func NewShowEndpoint(s Service) goa.Endpoint {
 		}
 		vres := NewViewedEnduroStoredPackage(res, "default")
 		return vres, nil
-	}
-}
-
-// NewDeleteEndpoint returns an endpoint function that calls the method
-// "delete" of service "package".
-func NewDeleteEndpoint(s Service) goa.Endpoint {
-	return func(ctx context.Context, req interface{}) (interface{}, error) {
-		p := req.(*DeletePayload)
-		return nil, s.Delete(ctx, p)
-	}
-}
-
-// NewCancelEndpoint returns an endpoint function that calls the method
-// "cancel" of service "package".
-func NewCancelEndpoint(s Service) goa.Endpoint {
-	return func(ctx context.Context, req interface{}) (interface{}, error) {
-		p := req.(*CancelPayload)
-		return nil, s.Cancel(ctx, p)
-	}
-}
-
-// NewRetryEndpoint returns an endpoint function that calls the method "retry"
-// of service "package".
-func NewRetryEndpoint(s Service) goa.Endpoint {
-	return func(ctx context.Context, req interface{}) (interface{}, error) {
-		p := req.(*RetryPayload)
-		return nil, s.Retry(ctx, p)
-	}
-}
-
-// NewBulkEndpoint returns an endpoint function that calls the method "bulk" of
-// service "package".
-func NewBulkEndpoint(s Service) goa.Endpoint {
-	return func(ctx context.Context, req interface{}) (interface{}, error) {
-		p := req.(*BulkPayload)
-		return s.Bulk(ctx, p)
-	}
-}
-
-// NewBulkStatusEndpoint returns an endpoint function that calls the method
-// "bulk_status" of service "package".
-func NewBulkStatusEndpoint(s Service) goa.Endpoint {
-	return func(ctx context.Context, req interface{}) (interface{}, error) {
-		return s.BulkStatus(ctx)
 	}
 }
 

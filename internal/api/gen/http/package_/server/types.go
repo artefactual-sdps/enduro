@@ -15,14 +15,6 @@ import (
 	goa "goa.design/goa/v3/pkg"
 )
 
-// BulkRequestBody is the type of the "package" service "bulk" endpoint HTTP
-// request body.
-type BulkRequestBody struct {
-	Operation *string `form:"operation,omitempty" json:"operation,omitempty" xml:"operation,omitempty"`
-	Status    *string `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
-	Size      *uint   `form:"size,omitempty" json:"size,omitempty" xml:"size,omitempty"`
-}
-
 // ConfirmRequestBody is the type of the "package" service "confirm" endpoint
 // HTTP request body.
 type ConfirmRequestBody struct {
@@ -40,7 +32,6 @@ type MoveRequestBody struct {
 type MonitorResponseBody struct {
 	MonitorPingEvent               *EnduroMonitorPingEventResponseBody               `form:"monitor_ping_event,omitempty" json:"monitor_ping_event,omitempty" xml:"monitor_ping_event,omitempty"`
 	PackageCreatedEvent            *EnduroPackageCreatedEventResponseBody            `form:"package_created_event,omitempty" json:"package_created_event,omitempty" xml:"package_created_event,omitempty"`
-	PackageDeletedEvent            *EnduroPackageDeletedEventResponseBody            `form:"package_deleted_event,omitempty" json:"package_deleted_event,omitempty" xml:"package_deleted_event,omitempty"`
 	PackageUpdatedEvent            *EnduroPackageUpdatedEventResponseBody            `form:"package_updated_event,omitempty" json:"package_updated_event,omitempty" xml:"package_updated_event,omitempty"`
 	PackageStatusUpdatedEvent      *EnduroPackageStatusUpdatedEventResponseBody      `form:"package_status_updated_event,omitempty" json:"package_status_updated_event,omitempty" xml:"package_status_updated_event,omitempty"`
 	PackageLocationUpdatedEvent    *EnduroPackageLocationUpdatedEventResponseBody    `form:"package_location_updated_event,omitempty" json:"package_location_updated_event,omitempty" xml:"package_location_updated_event,omitempty"`
@@ -81,24 +72,6 @@ type ShowResponseBody struct {
 	CompletedAt *string `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
 }
 
-// BulkResponseBody is the type of the "package" service "bulk" endpoint HTTP
-// response body.
-type BulkResponseBody struct {
-	WorkflowID string `form:"workflow_id" json:"workflow_id" xml:"workflow_id"`
-	RunID      string `form:"run_id" json:"run_id" xml:"run_id"`
-}
-
-// BulkStatusResponseBody is the type of the "package" service "bulk_status"
-// endpoint HTTP response body.
-type BulkStatusResponseBody struct {
-	Running    bool    `form:"running" json:"running" xml:"running"`
-	StartedAt  *string `form:"started_at,omitempty" json:"started_at,omitempty" xml:"started_at,omitempty"`
-	ClosedAt   *string `form:"closed_at,omitempty" json:"closed_at,omitempty" xml:"closed_at,omitempty"`
-	Status     *string `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
-	WorkflowID *string `form:"workflow_id,omitempty" json:"workflow_id,omitempty" xml:"workflow_id,omitempty"`
-	RunID      *string `form:"run_id,omitempty" json:"run_id,omitempty" xml:"run_id,omitempty"`
-}
-
 // PreservationActionsResponseBody is the type of the "package" service
 // "preservation-actions" endpoint HTTP response body.
 type PreservationActionsResponseBody struct {
@@ -118,105 +91,6 @@ type ShowNotFoundResponseBody struct {
 	Message string `form:"message" json:"message" xml:"message"`
 	// Identifier of missing package
 	ID uint `form:"id" json:"id" xml:"id"`
-}
-
-// DeleteNotFoundResponseBody is the type of the "package" service "delete"
-// endpoint HTTP response body for the "not_found" error.
-type DeleteNotFoundResponseBody struct {
-	// Message of error
-	Message string `form:"message" json:"message" xml:"message"`
-	// Identifier of missing package
-	ID uint `form:"id" json:"id" xml:"id"`
-}
-
-// CancelNotRunningResponseBody is the type of the "package" service "cancel"
-// endpoint HTTP response body for the "not_running" error.
-type CancelNotRunningResponseBody struct {
-	// Name is the name of this class of errors.
-	Name string `form:"name" json:"name" xml:"name"`
-	// ID is a unique identifier for this particular occurrence of the problem.
-	ID string `form:"id" json:"id" xml:"id"`
-	// Message is a human-readable explanation specific to this occurrence of the
-	// problem.
-	Message string `form:"message" json:"message" xml:"message"`
-	// Is the error temporary?
-	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
-	// Is the error a timeout?
-	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
-	// Is the error a server-side fault?
-	Fault bool `form:"fault" json:"fault" xml:"fault"`
-}
-
-// CancelNotFoundResponseBody is the type of the "package" service "cancel"
-// endpoint HTTP response body for the "not_found" error.
-type CancelNotFoundResponseBody struct {
-	// Message of error
-	Message string `form:"message" json:"message" xml:"message"`
-	// Identifier of missing package
-	ID uint `form:"id" json:"id" xml:"id"`
-}
-
-// RetryNotRunningResponseBody is the type of the "package" service "retry"
-// endpoint HTTP response body for the "not_running" error.
-type RetryNotRunningResponseBody struct {
-	// Name is the name of this class of errors.
-	Name string `form:"name" json:"name" xml:"name"`
-	// ID is a unique identifier for this particular occurrence of the problem.
-	ID string `form:"id" json:"id" xml:"id"`
-	// Message is a human-readable explanation specific to this occurrence of the
-	// problem.
-	Message string `form:"message" json:"message" xml:"message"`
-	// Is the error temporary?
-	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
-	// Is the error a timeout?
-	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
-	// Is the error a server-side fault?
-	Fault bool `form:"fault" json:"fault" xml:"fault"`
-}
-
-// RetryNotFoundResponseBody is the type of the "package" service "retry"
-// endpoint HTTP response body for the "not_found" error.
-type RetryNotFoundResponseBody struct {
-	// Message of error
-	Message string `form:"message" json:"message" xml:"message"`
-	// Identifier of missing package
-	ID uint `form:"id" json:"id" xml:"id"`
-}
-
-// BulkNotAvailableResponseBody is the type of the "package" service "bulk"
-// endpoint HTTP response body for the "not_available" error.
-type BulkNotAvailableResponseBody struct {
-	// Name is the name of this class of errors.
-	Name string `form:"name" json:"name" xml:"name"`
-	// ID is a unique identifier for this particular occurrence of the problem.
-	ID string `form:"id" json:"id" xml:"id"`
-	// Message is a human-readable explanation specific to this occurrence of the
-	// problem.
-	Message string `form:"message" json:"message" xml:"message"`
-	// Is the error temporary?
-	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
-	// Is the error a timeout?
-	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
-	// Is the error a server-side fault?
-	Fault bool `form:"fault" json:"fault" xml:"fault"`
-}
-
-// BulkNotValidResponseBody is the type of the "package" service "bulk"
-// endpoint HTTP response body for the "not_valid" error.
-type BulkNotValidResponseBody struct {
-	// Name is the name of this class of errors.
-	Name string `form:"name" json:"name" xml:"name"`
-	// ID is a unique identifier for this particular occurrence of the problem.
-	ID string `form:"id" json:"id" xml:"id"`
-	// Message is a human-readable explanation specific to this occurrence of the
-	// problem.
-	Message string `form:"message" json:"message" xml:"message"`
-	// Is the error temporary?
-	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
-	// Is the error a timeout?
-	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
-	// Is the error a server-side fault?
-	Fault bool `form:"fault" json:"fault" xml:"fault"`
 }
 
 // PreservationActionsNotFoundResponseBody is the type of the "package" service
@@ -428,13 +302,6 @@ type EnduroStoredPackageResponseBody struct {
 	CompletedAt *string `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
 }
 
-// EnduroPackageDeletedEventResponseBody is used to define fields on response
-// body types.
-type EnduroPackageDeletedEventResponseBody struct {
-	// Identifier of package
-	ID uint `form:"id" json:"id" xml:"id"`
-}
-
 // EnduroPackageUpdatedEventResponseBody is used to define fields on response
 // body types.
 type EnduroPackageUpdatedEventResponseBody struct {
@@ -551,9 +418,6 @@ func NewMonitorResponseBody(res *package_views.EnduroMonitorEventView) *MonitorR
 	if res.PackageCreatedEvent != nil {
 		body.PackageCreatedEvent = marshalPackageViewsEnduroPackageCreatedEventViewToEnduroPackageCreatedEventResponseBody(res.PackageCreatedEvent)
 	}
-	if res.PackageDeletedEvent != nil {
-		body.PackageDeletedEvent = marshalPackageViewsEnduroPackageDeletedEventViewToEnduroPackageDeletedEventResponseBody(res.PackageDeletedEvent)
-	}
 	if res.PackageUpdatedEvent != nil {
 		body.PackageUpdatedEvent = marshalPackageViewsEnduroPackageUpdatedEventViewToEnduroPackageUpdatedEventResponseBody(res.PackageUpdatedEvent)
 	}
@@ -611,30 +475,6 @@ func NewShowResponseBody(res *package_views.EnduroStoredPackageView) *ShowRespon
 	return body
 }
 
-// NewBulkResponseBody builds the HTTP response body from the result of the
-// "bulk" endpoint of the "package" service.
-func NewBulkResponseBody(res *package_.BulkResult) *BulkResponseBody {
-	body := &BulkResponseBody{
-		WorkflowID: res.WorkflowID,
-		RunID:      res.RunID,
-	}
-	return body
-}
-
-// NewBulkStatusResponseBody builds the HTTP response body from the result of
-// the "bulk_status" endpoint of the "package" service.
-func NewBulkStatusResponseBody(res *package_.BulkStatusResult) *BulkStatusResponseBody {
-	body := &BulkStatusResponseBody{
-		Running:    res.Running,
-		StartedAt:  res.StartedAt,
-		ClosedAt:   res.ClosedAt,
-		Status:     res.Status,
-		WorkflowID: res.WorkflowID,
-		RunID:      res.RunID,
-	}
-	return body
-}
-
 // NewPreservationActionsResponseBody builds the HTTP response body from the
 // result of the "preservation-actions" endpoint of the "package" service.
 func NewPreservationActionsResponseBody(res *package_views.EnduroPackagePreservationActionsView) *PreservationActionsResponseBody {
@@ -663,92 +503,6 @@ func NewShowNotFoundResponseBody(res *package_.PackageNotfound) *ShowNotFoundRes
 	body := &ShowNotFoundResponseBody{
 		Message: res.Message,
 		ID:      res.ID,
-	}
-	return body
-}
-
-// NewDeleteNotFoundResponseBody builds the HTTP response body from the result
-// of the "delete" endpoint of the "package" service.
-func NewDeleteNotFoundResponseBody(res *package_.PackageNotfound) *DeleteNotFoundResponseBody {
-	body := &DeleteNotFoundResponseBody{
-		Message: res.Message,
-		ID:      res.ID,
-	}
-	return body
-}
-
-// NewCancelNotRunningResponseBody builds the HTTP response body from the
-// result of the "cancel" endpoint of the "package" service.
-func NewCancelNotRunningResponseBody(res *goa.ServiceError) *CancelNotRunningResponseBody {
-	body := &CancelNotRunningResponseBody{
-		Name:      res.Name,
-		ID:        res.ID,
-		Message:   res.Message,
-		Temporary: res.Temporary,
-		Timeout:   res.Timeout,
-		Fault:     res.Fault,
-	}
-	return body
-}
-
-// NewCancelNotFoundResponseBody builds the HTTP response body from the result
-// of the "cancel" endpoint of the "package" service.
-func NewCancelNotFoundResponseBody(res *package_.PackageNotfound) *CancelNotFoundResponseBody {
-	body := &CancelNotFoundResponseBody{
-		Message: res.Message,
-		ID:      res.ID,
-	}
-	return body
-}
-
-// NewRetryNotRunningResponseBody builds the HTTP response body from the result
-// of the "retry" endpoint of the "package" service.
-func NewRetryNotRunningResponseBody(res *goa.ServiceError) *RetryNotRunningResponseBody {
-	body := &RetryNotRunningResponseBody{
-		Name:      res.Name,
-		ID:        res.ID,
-		Message:   res.Message,
-		Temporary: res.Temporary,
-		Timeout:   res.Timeout,
-		Fault:     res.Fault,
-	}
-	return body
-}
-
-// NewRetryNotFoundResponseBody builds the HTTP response body from the result
-// of the "retry" endpoint of the "package" service.
-func NewRetryNotFoundResponseBody(res *package_.PackageNotfound) *RetryNotFoundResponseBody {
-	body := &RetryNotFoundResponseBody{
-		Message: res.Message,
-		ID:      res.ID,
-	}
-	return body
-}
-
-// NewBulkNotAvailableResponseBody builds the HTTP response body from the
-// result of the "bulk" endpoint of the "package" service.
-func NewBulkNotAvailableResponseBody(res *goa.ServiceError) *BulkNotAvailableResponseBody {
-	body := &BulkNotAvailableResponseBody{
-		Name:      res.Name,
-		ID:        res.ID,
-		Message:   res.Message,
-		Temporary: res.Temporary,
-		Timeout:   res.Timeout,
-		Fault:     res.Fault,
-	}
-	return body
-}
-
-// NewBulkNotValidResponseBody builds the HTTP response body from the result of
-// the "bulk" endpoint of the "package" service.
-func NewBulkNotValidResponseBody(res *goa.ServiceError) *BulkNotValidResponseBody {
-	body := &BulkNotValidResponseBody{
-		Name:      res.Name,
-		ID:        res.ID,
-		Message:   res.Message,
-		Temporary: res.Temporary,
-		Timeout:   res.Timeout,
-		Fault:     res.Fault,
 	}
 	return body
 }
@@ -924,46 +678,6 @@ func NewShowPayload(id uint) *package_.ShowPayload {
 	return v
 }
 
-// NewDeletePayload builds a package service delete endpoint payload.
-func NewDeletePayload(id uint) *package_.DeletePayload {
-	v := &package_.DeletePayload{}
-	v.ID = id
-
-	return v
-}
-
-// NewCancelPayload builds a package service cancel endpoint payload.
-func NewCancelPayload(id uint) *package_.CancelPayload {
-	v := &package_.CancelPayload{}
-	v.ID = id
-
-	return v
-}
-
-// NewRetryPayload builds a package service retry endpoint payload.
-func NewRetryPayload(id uint) *package_.RetryPayload {
-	v := &package_.RetryPayload{}
-	v.ID = id
-
-	return v
-}
-
-// NewBulkPayload builds a package service bulk endpoint payload.
-func NewBulkPayload(body *BulkRequestBody) *package_.BulkPayload {
-	v := &package_.BulkPayload{
-		Operation: *body.Operation,
-		Status:    *body.Status,
-	}
-	if body.Size != nil {
-		v.Size = *body.Size
-	}
-	if body.Size == nil {
-		v.Size = 100
-	}
-
-	return v
-}
-
 // NewPreservationActionsPayload builds a package service preservation-actions
 // endpoint payload.
 func NewPreservationActionsPayload(id uint) *package_.PreservationActionsPayload {
@@ -1007,27 +721,6 @@ func NewMoveStatusPayload(id uint) *package_.MoveStatusPayload {
 	v.ID = id
 
 	return v
-}
-
-// ValidateBulkRequestBody runs the validations defined on BulkRequestBody
-func ValidateBulkRequestBody(body *BulkRequestBody) (err error) {
-	if body.Operation == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("operation", "body"))
-	}
-	if body.Status == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("status", "body"))
-	}
-	if body.Operation != nil {
-		if !(*body.Operation == "retry" || *body.Operation == "cancel" || *body.Operation == "abandon") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.operation", *body.Operation, []interface{}{"retry", "cancel", "abandon"}))
-		}
-	}
-	if body.Status != nil {
-		if !(*body.Status == "new" || *body.Status == "in progress" || *body.Status == "done" || *body.Status == "error" || *body.Status == "unknown" || *body.Status == "queued" || *body.Status == "pending" || *body.Status == "abandoned") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []interface{}{"new", "in progress", "done", "error", "unknown", "queued", "pending", "abandoned"}))
-		}
-	}
-	return
 }
 
 // ValidateConfirmRequestBody runs the validations defined on ConfirmRequestBody

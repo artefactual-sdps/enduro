@@ -18,9 +18,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/a3m"
 	"github.com/artefactual-sdps/enduro/internal/package_"
 	"github.com/artefactual-sdps/enduro/internal/ref"
-	sdps_activities "github.com/artefactual-sdps/enduro/internal/sdps/activities"
 	"github.com/artefactual-sdps/enduro/internal/temporal"
-	"github.com/artefactual-sdps/enduro/internal/validation"
 	"github.com/artefactual-sdps/enduro/internal/watcher"
 	"github.com/artefactual-sdps/enduro/internal/workflow/activities"
 )
@@ -62,8 +60,7 @@ type TransferInfo struct {
 
 	// Name of the watcher that received this blob.
 	//
-	// It is populated via the workflow request. Expect an empty string when
-	// the workflow was started by a batch.
+	// It is populated via the workflow request.
 	WatcherName string
 
 	// Retention period.
@@ -98,11 +95,6 @@ type TransferInfo struct {
 	//
 	// It is populated via the workflow request.
 	IsDir bool
-
-	// Batch directory that contains the blob.
-	//
-	// It is populated via the workflow request.
-	BatchDir string
 
 	// StoredAt is the time when the AIP is stored.
 	//
@@ -140,7 +132,6 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *pack
 			StripTopLevelDir: req.StripTopLevelDir,
 			Key:              req.Key,
 			IsDir:            req.IsDir,
-			BatchDir:         req.BatchDir,
 		}
 
 		// Package status. All packages start in queued status.
@@ -224,7 +215,7 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *pack
 				return fmt.Errorf("error creating session: %v", err)
 			}
 
-			sessErr = w.SessionHandler(sessCtx, attempt, tinfo, req.ValidationConfig)
+			sessErr = w.SessionHandler(sessCtx, attempt, tinfo)
 
 			// We want to retry the session if it has been canceled as a result
 			// of losing the worker but not otherwise. This scenario seems to be
@@ -268,11 +259,11 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *pack
 					logger.Warn("Retention policy timer failed", "err", err.Error())
 				} else {
 					activityOpts := withActivityOptsForRequest(ctx)
-					_ = temporalsdk_workflow.ExecuteActivity(activityOpts, activities.DeleteOriginalActivityName, tinfo.WatcherName, tinfo.BatchDir, tinfo.Key).Get(activityOpts, nil)
+					_ = temporalsdk_workflow.ExecuteActivity(activityOpts, activities.DeleteOriginalActivityName, tinfo.WatcherName, tinfo.Key).Get(activityOpts, nil)
 				}
 			} else if tinfo.CompletedDir != "" {
 				activityOpts := withActivityOptsForLocalAction(ctx)
-				_ = temporalsdk_workflow.ExecuteActivity(activityOpts, activities.DisposeOriginalActivityName, tinfo.WatcherName, tinfo.CompletedDir, tinfo.BatchDir, tinfo.Key).Get(activityOpts, nil)
+				_ = temporalsdk_workflow.ExecuteActivity(activityOpts, activities.DisposeOriginalActivityName, tinfo.WatcherName, tinfo.CompletedDir, tinfo.Key).Get(activityOpts, nil)
 			}
 		}
 	}
@@ -281,7 +272,6 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *pack
 		"Workflow completed successfully!",
 		"packageID", tinfo.PackageID,
 		"watcher", tinfo.WatcherName,
-		"batchDir", tinfo.BatchDir,
 		"key", tinfo.Key,
 		"status", status.String(),
 	)
@@ -290,7 +280,7 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *pack
 }
 
 // SessionHandler runs activities that belong to the same session.
-func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context, attempt int, tinfo *TransferInfo, validationConfig validation.Config) error {
+func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context, attempt int, tinfo *TransferInfo) error {
 	defer temporalsdk_workflow.CompleteSession(sessCtx)
 
 	packageStartedAt := temporalsdk_workflow.Now(sessCtx).UTC()
@@ -349,7 +339,6 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 				IsDir:            tinfo.IsDir,
 				TempFile:         tinfo.TempFile,
 				StripTopLevelDir: tinfo.StripTopLevelDir,
-				BatchDir:         tinfo.BatchDir,
 			}).Get(activityOpts, &tinfo.Bundle)
 			if err != nil {
 				return err
@@ -367,41 +356,6 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 			}).Get(activityOpts, nil)
 		}
 	}()
-
-	// Validate package.
-	{
-		if tinfo.Bundle != (activities.BundleActivityResult{}) {
-			activityOpts := temporalsdk_workflow.WithActivityOptions(sessCtx, temporalsdk_workflow.ActivityOptions{
-				StartToCloseTimeout: time.Minute * 5,
-				RetryPolicy: &temporalsdk_temporal.RetryPolicy{
-					MaximumAttempts: 1,
-				},
-			})
-			err := temporalsdk_workflow.ExecuteActivity(activityOpts, sdps_activities.ValidatePackageActivityName, tinfo.Bundle.FullPath).Get(activityOpts, nil)
-			if err != nil {
-				return err
-			}
-		}
-	}
-
-	// Validate transfer.
-	{
-		if validationConfig.IsEnabled() && tinfo.Bundle != (activities.BundleActivityResult{}) {
-			activityOpts := temporalsdk_workflow.WithActivityOptions(sessCtx, temporalsdk_workflow.ActivityOptions{
-				StartToCloseTimeout: time.Minute * 5,
-				RetryPolicy: &temporalsdk_temporal.RetryPolicy{
-					MaximumAttempts: 1,
-				},
-			})
-			err := temporalsdk_workflow.ExecuteActivity(activityOpts, activities.ValidateTransferActivityName, &activities.ValidateTransferActivityParams{
-				Config: validationConfig,
-				Path:   tinfo.Bundle.FullPath,
-			}).Get(activityOpts, nil)
-			if err != nil {
-				return err
-			}
-		}
-	}
 
 	{
 		err := w.transferA3m(sessCtx, tinfo)
@@ -626,11 +580,6 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 				return err
 			}
 		}
-
-		err = w.indexAIP(sessCtx, tinfo)
-		if err != nil {
-			return err
-		}
 	} else {
 		// Record package rejection in review preservation task
 		{
@@ -694,64 +643,4 @@ func (w *ProcessingWorkflow) transferA3m(sessCtx temporalsdk_workflow.Context, t
 	tinfo.StoredAt = temporalsdk_workflow.Now(sessCtx).UTC()
 
 	return err
-}
-
-func (w *ProcessingWorkflow) indexAIP(sessCtx temporalsdk_workflow.Context, tinfo *TransferInfo) error {
-	// Identifier of the preservation task for indexing.
-	var indexingPreservationTaskID uint
-
-	// Assume the preservation task will be successful.
-	status := package_.TaskStatusDone
-
-	var note string
-
-	indexingStartedAt := temporalsdk_workflow.Now(sessCtx).UTC()
-
-	// Add preservation task for indexing.
-	{
-		ctx := withLocalActivityOpts(sessCtx)
-		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, createPreservationTaskLocalActivity, w.pkgsvc, &createPreservationTaskLocalActivityParams{
-			TaskID:               uuid.NewString(),
-			Name:                 "Index AIP",
-			Status:               package_.TaskStatusInProgress,
-			StartedAt:            indexingStartedAt,
-			PreservationActionID: tinfo.PreservationActionID,
-		}).Get(ctx, &indexingPreservationTaskID)
-		if err != nil {
-			return err
-		}
-	}
-
-	// Index content in OpenSearch.
-	{
-		if tinfo.Bundle != (activities.BundleActivityResult{}) {
-			activityOpts := withActivityOptsForLongLivedRequest(sessCtx)
-			err := temporalsdk_workflow.ExecuteActivity(activityOpts, sdps_activities.IndexActivityName, &sdps_activities.IndexActivityParams{
-				Path:        tinfo.Bundle.FullPath,
-				SearchIndex: sdps_activities.ESIndexName,
-			}).Get(activityOpts, nil)
-			if err != nil {
-				status = package_.TaskStatusError
-				note = "Indexing failed"
-			}
-		}
-	}
-
-	indexingCompletedAt := temporalsdk_workflow.Now(sessCtx).UTC()
-
-	// Complete preservation task for indexing.
-	{
-		ctx := withLocalActivityOpts(sessCtx)
-		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, completePreservationTaskLocalActivity, w.pkgsvc, &completePreservationTaskLocalActivityParams{
-			ID:          indexingPreservationTaskID,
-			Status:      status,
-			CompletedAt: indexingCompletedAt,
-			Note:        &note,
-		}).Get(ctx, nil)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
 }

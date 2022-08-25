@@ -16,8 +16,6 @@ func PublishEvent(ctx context.Context, events EventService, event interface{}) {
 		update.PackageCreatedEvent = v
 	case *goapackage.EnduroPackageUpdatedEvent:
 		update.PackageUpdatedEvent = v
-	case *goapackage.EnduroPackageDeletedEvent:
-		update.PackageDeletedEvent = v
 	case *goapackage.EnduroPackageStatusUpdatedEvent:
 		update.PackageStatusUpdatedEvent = v
 	case *goapackage.EnduroPackageLocationUpdatedEvent:

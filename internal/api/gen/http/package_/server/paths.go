@@ -27,31 +27,6 @@ func ShowPackagePath(id uint) string {
 	return fmt.Sprintf("/package/%v", id)
 }
 
-// DeletePackagePath returns the URL path to the package service delete HTTP endpoint.
-func DeletePackagePath(id uint) string {
-	return fmt.Sprintf("/package/%v", id)
-}
-
-// CancelPackagePath returns the URL path to the package service cancel HTTP endpoint.
-func CancelPackagePath(id uint) string {
-	return fmt.Sprintf("/package/%v/cancel", id)
-}
-
-// RetryPackagePath returns the URL path to the package service retry HTTP endpoint.
-func RetryPackagePath(id uint) string {
-	return fmt.Sprintf("/package/%v/retry", id)
-}
-
-// BulkPackagePath returns the URL path to the package service bulk HTTP endpoint.
-func BulkPackagePath() string {
-	return "/package/bulk"
-}
-
-// BulkStatusPackagePath returns the URL path to the package service bulk_status HTTP endpoint.
-func BulkStatusPackagePath() string {
-	return "/package/bulk"
-}
-
 // PreservationActionsPackagePath returns the URL path to the package service preservation-actions HTTP endpoint.
 func PreservationActionsPackagePath(id uint) string {
 	return fmt.Sprintf("/package/%v/preservation-actions", id)
