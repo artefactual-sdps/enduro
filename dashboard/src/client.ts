@@ -9,15 +9,13 @@ export interface Client {
 }
 
 function getPath(): string {
-  const base = "/api";
   const location = window.location;
   const path =
     location.protocol +
     "//" +
     location.hostname +
     (location.port ? ":" + location.port : "") +
-    base +
-    (location.search ? location.search : "");
+    "/api";
 
   return path.replace(/\/$/, "");
 }
