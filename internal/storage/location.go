@@ -2,32 +2,46 @@ package storage
 
 import (
 	"context"
+	"errors"
+	"fmt"
 
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/google/uuid"
 	"gocloud.dev/blob"
 	"gocloud.dev/blob/s3blob"
+
+	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
+	"github.com/artefactual-sdps/enduro/internal/storage/types"
 )
 
-var LocationFactory = func(cfg LocationConfig) (Location, error) {
-	return NewLocation(cfg)
+type InternalLocationFactory func(config *LocationConfig) (Location, error)
+
+var DefaultInternalLocationFactory = func(config *LocationConfig) (Location, error) {
+	return NewInternalLocation(config)
+}
+
+type LocationFactory func(location *goastorage.StoredLocation) (Location, error)
+
+var DefaultLocationFactory = func(location *goastorage.StoredLocation) (Location, error) {
+	return NewLocation(location)
 }
 
 type Location interface {
-	Name() string
+	UUID() uuid.UUID
 	Bucket() *blob.Bucket
-	SetBucket(*blob.Bucket)
+	Close() error
 }
 
 type locationImpl struct {
-	name   string
-	config LocationConfig
+	id     uuid.UUID
+	config *LocationConfig
 	bucket *blob.Bucket
 }
 
-func NewLocation(config LocationConfig) (*locationImpl, error) {
+func NewInternalLocation(config *LocationConfig) (*locationImpl, error) {
 	l := &locationImpl{
-		name:   config.Name,
+		id:     uuid.Nil,
 		config: config,
 	}
 
@@ -40,8 +54,45 @@ func NewLocation(config LocationConfig) (*locationImpl, error) {
 	return l, nil
 }
 
-func (l *locationImpl) Name() string {
-	return l.name
+func NewLocation(location *goastorage.StoredLocation) (*locationImpl, error) {
+	l := &locationImpl{
+		id: location.UUID,
+	}
+
+	var config *types.S3Config
+	switch c := location.Config.(type) {
+	case *goastorage.S3Config:
+		config = c.ConvertToS3Config()
+	default:
+		return nil, fmt.Errorf("unsupported config type: %T", c)
+	}
+
+	if !config.Valid() {
+		return nil, errors.New("invalid configuration")
+	}
+
+	l.config = &LocationConfig{
+		Region:    config.Region,
+		Endpoint:  config.Endpoint,
+		PathStyle: config.PathStyle,
+		Profile:   config.Profile,
+		Key:       config.Key,
+		Secret:    config.Secret,
+		Token:     config.Token,
+		Bucket:    config.Bucket,
+	}
+
+	if b, err := l.openBucket(); err != nil {
+		return nil, err
+	} else {
+		l.bucket = b
+	}
+
+	return l, nil
+}
+
+func (l *locationImpl) UUID() uuid.UUID {
+	return l.id
 }
 
 func (l *locationImpl) openBucket() (*blob.Bucket, error) {
@@ -65,6 +116,6 @@ func (l *locationImpl) Bucket() *blob.Bucket {
 	return l.bucket
 }
 
-func (l *locationImpl) SetBucket(b *blob.Bucket) {
-	l.bucket = b
+func (l *locationImpl) Close() error {
+	return l.bucket.Close()
 }

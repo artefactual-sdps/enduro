@@ -96,11 +96,10 @@ func (c *Client) UpdatePackageStatus(ctx context.Context, status types.PackageSt
 	return nil
 }
 
-func (c *Client) UpdatePackageLocation(ctx context.Context, locationName string, aipID uuid.UUID) error {
+func (c *Client) UpdatePackageLocationID(ctx context.Context, locationID uuid.UUID, aipID uuid.UUID) error {
 	l, err := c.c.Location.Query().
 		Where(
-			// TODO: switch to look by UUID
-			location.Name(locationName),
+			location.UUID(locationID),
 		).
 		Only(ctx)
 	if err != nil {
@@ -126,17 +125,16 @@ func (c *Client) UpdatePackageLocation(ctx context.Context, locationName string,
 
 func pkgAsGoa(ctx context.Context, pkg *db.Pkg) *goastorage.StoredStoragePackage {
 	p := &goastorage.StoredStoragePackage{
-		ID:        uint(pkg.ID),
 		Name:      pkg.Name,
 		AipID:     pkg.AipID.String(),
 		Status:    pkg.Status.String(),
 		ObjectKey: pkg.ObjectKey,
 	}
 
+	// TODO: should we use UUID as the foreign key?
 	l, err := pkg.QueryLocation().Only(ctx)
 	if err == nil {
-		// TODO: switch to location UUID
-		p.Location = &l.Name
+		p.LocationID = &l.UUID
 	}
 
 	return p
@@ -190,12 +188,25 @@ func (c *Client) ReadLocation(ctx context.Context, UUID uuid.UUID) (*goastorage.
 
 func locationAsGoa(ctx context.Context, loc *db.Location) *goastorage.StoredLocation {
 	l := &goastorage.StoredLocation{
-		ID:          uint(loc.ID),
 		Name:        loc.Name,
 		Description: &loc.Description,
 		Source:      loc.Source.String(),
 		Purpose:     loc.Purpose.String(),
-		UUID:        &loc.UUID,
+		UUID:        loc.UUID,
+	}
+
+	switch c := loc.Config.Value.(type) {
+	case *types.S3Config:
+		l.Config = &goastorage.S3Config{
+			Bucket:    c.Bucket,
+			Region:    c.Region,
+			Endpoint:  &c.Endpoint,
+			PathStyle: &c.PathStyle,
+			Profile:   &c.Profile,
+			Key:       &c.Key,
+			Secret:    &c.Secret,
+			Token:     &c.Token,
+		}
 	}
 
 	return l

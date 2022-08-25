@@ -129,7 +129,7 @@ export interface PackageListRequest {
     aipId?: string;
     earliestCreatedTime?: Date;
     latestCreatedTime?: Date;
-    location?: string;
+    locationId?: string;
     status?: PackageListStatusEnum;
     cursor?: string;
 }
@@ -253,7 +253,7 @@ export interface PackageApiInterface {
      * @param {string} [aipId] 
      * @param {Date} [earliestCreatedTime] 
      * @param {Date} [latestCreatedTime] 
-     * @param {string} [location] 
+     * @param {string} [locationId] 
      * @param {'new' | 'in progress' | 'done' | 'error' | 'unknown' | 'queued' | 'pending' | 'abandoned'} [status] 
      * @param {string} [cursor] Pagination cursor
      * @param {*} [options] Override http request option.
@@ -572,8 +572,8 @@ export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
             queryParameters['latest_created_time'] = (requestParameters.latestCreatedTime as any).toISOString();
         }
 
-        if (requestParameters.location !== undefined) {
-            queryParameters['location'] = requestParameters.location;
+        if (requestParameters.locationId !== undefined) {
+            queryParameters['location_id'] = requestParameters.locationId;
         }
 
         if (requestParameters.status !== undefined) {

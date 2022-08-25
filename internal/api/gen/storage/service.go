@@ -84,12 +84,15 @@ type Location struct {
 	// Purpose of the location
 	Purpose string
 	UUID    *uuid.UUID
+	Config  interface {
+		configVal()
+	}
 }
 
 // MovePayload is the payload type of the storage service move method.
 type MovePayload struct {
-	AipID    string
-	Location string
+	AipID      string
+	LocationID uuid.UUID
 }
 
 // MoveStatusPayload is the payload type of the storage service move_status
@@ -135,8 +138,7 @@ type ShowPayload struct {
 type StorageLocationNotfound struct {
 	// Message of error
 	Message string
-	// Identifier of missing location
-	UUID string
+	UUID    uuid.UUID
 }
 
 // Storage package describes a package of the storage service.
@@ -144,9 +146,9 @@ type StoragePackage struct {
 	Name  string
 	AipID string
 	// Status of the package
-	Status    string
-	ObjectKey *uuid.UUID
-	Location  *string
+	Status     string
+	ObjectKey  *uuid.UUID
+	LocationID *uuid.UUID
 }
 
 // Storage package not found.
@@ -160,8 +162,6 @@ type StoragePackageNotfound struct {
 // StoredLocation is the result type of the storage service show-location
 // method.
 type StoredLocation struct {
-	// ID is the unique id of the location.
-	ID uint
 	// Name of location
 	Name string
 	// Description of the location
@@ -170,7 +170,10 @@ type StoredLocation struct {
 	Source string
 	// Purpose of the location
 	Purpose string
-	UUID    *uuid.UUID
+	UUID    uuid.UUID
+	Config  interface {
+		configVal()
+	}
 }
 
 // StoredLocationCollection is the result type of the storage service locations
@@ -179,13 +182,12 @@ type StoredLocationCollection []*StoredLocation
 
 // StoredStoragePackage is the result type of the storage service show method.
 type StoredStoragePackage struct {
-	ID    uint
 	Name  string
 	AipID string
 	// Status of the package
-	Status    string
-	ObjectKey uuid.UUID
-	Location  *string
+	Status     string
+	ObjectKey  uuid.UUID
+	LocationID *uuid.UUID
 }
 
 // SubmitPayload is the payload type of the storage service submit method.
@@ -307,7 +309,6 @@ func newStoredLocationCollectionView(res StoredLocationCollection) storageviews.
 func newStoredLocation(vres *storageviews.StoredLocationView) *StoredLocation {
 	res := &StoredLocation{
 		Description: vres.Description,
-		UUID:        vres.UUID,
 	}
 	if vres.Name != nil {
 		res.Name = *vres.Name
@@ -317,6 +318,9 @@ func newStoredLocation(vres *storageviews.StoredLocationView) *StoredLocation {
 	}
 	if vres.Purpose != nil {
 		res.Purpose = *vres.Purpose
+	}
+	if vres.UUID != nil {
+		res.UUID = *vres.UUID
 	}
 	if vres.Source == nil {
 		res.Source = "unspecified"
@@ -335,7 +339,7 @@ func newStoredLocationView(res *StoredLocation) *storageviews.StoredLocationView
 		Description: res.Description,
 		Source:      &res.Source,
 		Purpose:     &res.Purpose,
-		UUID:        res.UUID,
+		UUID:        &res.UUID,
 	}
 	return vres
 }
@@ -344,7 +348,7 @@ func newStoredLocationView(res *StoredLocation) *storageviews.StoredLocationView
 // service type StoredStoragePackage.
 func newStoredStoragePackage(vres *storageviews.StoredStoragePackageView) *StoredStoragePackage {
 	res := &StoredStoragePackage{
-		Location: vres.Location,
+		LocationID: vres.LocationID,
 	}
 	if vres.Name != nil {
 		res.Name = *vres.Name
@@ -368,11 +372,11 @@ func newStoredStoragePackage(vres *storageviews.StoredStoragePackageView) *Store
 // projected type StoredStoragePackageView using the "default" view.
 func newStoredStoragePackageView(res *StoredStoragePackage) *storageviews.StoredStoragePackageView {
 	vres := &storageviews.StoredStoragePackageView{
-		Name:      &res.Name,
-		AipID:     &res.AipID,
-		Status:    &res.Status,
-		ObjectKey: &res.ObjectKey,
-		Location:  res.Location,
+		Name:       &res.Name,
+		AipID:      &res.AipID,
+		Status:     &res.Status,
+		ObjectKey:  &res.ObjectKey,
+		LocationID: res.LocationID,
 	}
 	return vres
 }

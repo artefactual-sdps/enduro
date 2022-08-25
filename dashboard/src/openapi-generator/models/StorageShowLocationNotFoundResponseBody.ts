@@ -26,7 +26,7 @@ export interface StorageShowLocationNotFoundResponseBody {
      */
     message: string;
     /**
-     * Identifier of missing location
+     * 
      * @type {string}
      * @memberof StorageShowLocationNotFoundResponseBody
      */

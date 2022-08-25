@@ -31,7 +31,9 @@ var _ = Service("package", func() {
 			Attribute("latest_created_time", String, func() {
 				Format(FormatDateTime)
 			})
-			Attribute("location", String)
+			Attribute("location_id", String, func() {
+				Format(FormatUUID)
+			})
 			Attribute("status", String, func() {
 				EnumPackageStatus()
 			})
@@ -46,7 +48,7 @@ var _ = Service("package", func() {
 				Param("aip_id")
 				Param("earliest_created_time")
 				Param("latest_created_time")
-				Param("location")
+				Param("location_id")
 				Param("status")
 				Param("cursor")
 			})
@@ -159,8 +161,10 @@ var _ = Service("package", func() {
 		Description("Signal the package has been reviewed and accepted")
 		Payload(func() {
 			Attribute("id", UInt, "Identifier of package to look up")
-			Attribute("location", String)
-			Required("id", "location")
+			Attribute("location_id", String, func() {
+				Meta("struct:field:type", "uuid.UUID", "github.com/google/uuid")
+			})
+			Required("id", "location_id")
 		})
 		Error("not_found", PackageNotFound, "Package not found")
 		Error("not_available")
@@ -194,8 +198,10 @@ var _ = Service("package", func() {
 		Description("Move a package to a permanent storage location")
 		Payload(func() {
 			Attribute("id", UInt, "Identifier of package to move")
-			Attribute("location", String)
-			Required("id", "location")
+			Attribute("location_id", String, func() {
+				Meta("struct:field:type", "uuid.UUID", "github.com/google/uuid")
+			})
+			Required("id", "location_id")
 		})
 		Error("not_found", PackageNotFound, "Package not found")
 		Error("not_available")
@@ -233,7 +239,9 @@ var EnumPackageStatus = func() {
 var Package_ = Type("Package", func() {
 	Description("Package describes a package to be stored.")
 	Attribute("name", String, "Name of the package")
-	Attribute("location", String, "Location of the package")
+	Attribute("location_id", String, func() {
+		Meta("struct:field:type", "uuid.UUID", "github.com/google/uuid")
+	})
 	Attribute("status", String, "Status of the package", func() {
 		EnumPackageStatus()
 		Default("new")
@@ -265,7 +273,7 @@ var StoredPackage = ResultType("application/vnd.enduro.stored-package", func() {
 	Attributes(func() {
 		Attribute("id", UInt, "Identifier of package")
 		Attribute("name")
-		Attribute("location")
+		Attribute("location_id")
 		Attribute("status")
 		Attribute("workflow_id")
 		Attribute("run_id")
@@ -277,7 +285,7 @@ var StoredPackage = ResultType("application/vnd.enduro.stored-package", func() {
 	View("default", func() {
 		Attribute("id")
 		Attribute("name")
-		Attribute("location")
+		Attribute("location_id")
 		Attribute("status")
 		Attribute("workflow_id")
 		Attribute("run_id")

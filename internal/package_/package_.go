@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/go-logr/logr"
+	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	temporalsdk_client "go.temporal.io/sdk/client"
 
@@ -22,7 +23,7 @@ type Service interface {
 	SetStatus(ctx context.Context, ID uint, status Status) error
 	SetStatusInProgress(ctx context.Context, ID uint, startedAt time.Time) error
 	SetStatusPending(ctx context.Context, ID uint) error
-	SetLocation(ctx context.Context, ID uint, location string) error
+	SetLocationID(ctx context.Context, ID uint, locationID uuid.UUID) error
 	CreatePreservationAction(ctx context.Context, pa *PreservationAction) error
 	SetPreservationActionStatus(ctx context.Context, ID uint, status PreservationActionStatus) error
 	CompletePreservationAction(ctx context.Context, ID uint, status PreservationActionStatus, completedAt time.Time) error
@@ -55,13 +56,13 @@ func (svc *packageImpl) Goa() goapackage.Service {
 }
 
 func (svc *packageImpl) Create(ctx context.Context, pkg *Package) error {
-	query := `INSERT INTO package (name, workflow_id, run_id, aip_id, location, status) VALUES (?, ?, ?, ?, ?, ?)`
+	query := `INSERT INTO package (name, workflow_id, run_id, aip_id, location_id, status) VALUES (?, ?, ?, ?, ?, ?)`
 	args := []interface{}{
 		pkg.Name,
 		pkg.WorkflowID,
 		pkg.RunID,
 		pkg.AIPID,
-		pkg.Location,
+		pkg.LocationID,
 		pkg.Status,
 	}
 
@@ -174,10 +175,10 @@ func (svc *packageImpl) SetStatusPending(ctx context.Context, ID uint) error {
 	return nil
 }
 
-func (svc *packageImpl) SetLocation(ctx context.Context, ID uint, location string) error {
-	query := `UPDATE package SET location = ? WHERE id = ?`
+func (svc *packageImpl) SetLocationID(ctx context.Context, ID uint, locationID uuid.UUID) error {
+	query := `UPDATE package SET location_id = ? WHERE id = ?`
 	args := []interface{}{
-		location,
+		locationID,
 		ID,
 	}
 
@@ -185,7 +186,7 @@ func (svc *packageImpl) SetLocation(ctx context.Context, ID uint, location strin
 		return err
 	}
 
-	ev := &goapackage.EnduroPackageLocationUpdatedEvent{ID: uint(ID), Location: location}
+	ev := &goapackage.EnduroPackageLocationUpdatedEvent{ID: uint(ID), LocationID: locationID}
 	event.PublishEvent(ctx, svc.evsvc, ev)
 
 	return nil
@@ -206,7 +207,7 @@ func (svc *packageImpl) updateRow(ctx context.Context, query string, args []inte
 }
 
 func (svc *packageImpl) read(ctx context.Context, ID uint) (*Package, error) {
-	query := "SELECT id, name, workflow_id, run_id, aip_id, location, status, CONVERT_TZ(created_at, @@session.time_zone, '+00:00') AS created_at, CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at, CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at FROM package WHERE id = ?"
+	query := "SELECT id, name, workflow_id, run_id, aip_id, location_id, status, CONVERT_TZ(created_at, @@session.time_zone, '+00:00') AS created_at, CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at, CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at FROM package WHERE id = ?"
 	args := []interface{}{ID}
 	c := Package{}
 

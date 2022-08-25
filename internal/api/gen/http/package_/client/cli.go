@@ -19,7 +19,7 @@ import (
 
 // BuildListPayload builds the payload for the package list endpoint from CLI
 // flags.
-func BuildListPayload(package_ListName string, package_ListAipID string, package_ListEarliestCreatedTime string, package_ListLatestCreatedTime string, package_ListLocation string, package_ListStatus string, package_ListCursor string) (*package_.ListPayload, error) {
+func BuildListPayload(package_ListName string, package_ListAipID string, package_ListEarliestCreatedTime string, package_ListLatestCreatedTime string, package_ListLocationID string, package_ListStatus string, package_ListCursor string) (*package_.ListPayload, error) {
 	var err error
 	var name *string
 	{
@@ -57,10 +57,14 @@ func BuildListPayload(package_ListName string, package_ListAipID string, package
 			}
 		}
 	}
-	var location *string
+	var locationID *string
 	{
-		if package_ListLocation != "" {
-			location = &package_ListLocation
+		if package_ListLocationID != "" {
+			locationID = &package_ListLocationID
+			err = goa.MergeErrors(err, goa.ValidateFormat("locationID", *locationID, goa.FormatUUID))
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 	var status *string
@@ -86,7 +90,7 @@ func BuildListPayload(package_ListName string, package_ListAipID string, package
 	v.AipID = aipID
 	v.EarliestCreatedTime = earliestCreatedTime
 	v.LatestCreatedTime = latestCreatedTime
-	v.Location = location
+	v.LocationID = locationID
 	v.Status = status
 	v.Cursor = cursor
 
@@ -177,7 +181,7 @@ func BuildBulkPayload(package_BulkBody string) (*package_.BulkPayload, error) {
 	{
 		err = json.Unmarshal([]byte(package_BulkBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"operation\": \"retry\",\n      \"size\": 9053777342018039151,\n      \"status\": \"queued\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"operation\": \"cancel\",\n      \"size\": 16791274394538018091,\n      \"status\": \"error\"\n   }'")
 		}
 		if !(body.Operation == "retry" || body.Operation == "cancel" || body.Operation == "abandon") {
 			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.operation", body.Operation, []interface{}{"retry", "cancel", "abandon"}))
@@ -231,7 +235,7 @@ func BuildConfirmPayload(package_ConfirmBody string, package_ConfirmID string) (
 	{
 		err = json.Unmarshal([]byte(package_ConfirmBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location\": \"Officiis rem voluptas.\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location_id\": \"Iusto et ut illo aperiam aut.\"\n   }'")
 		}
 	}
 	var id uint
@@ -244,7 +248,7 @@ func BuildConfirmPayload(package_ConfirmBody string, package_ConfirmID string) (
 		}
 	}
 	v := &package_.ConfirmPayload{
-		Location: body.Location,
+		LocationID: body.LocationID,
 	}
 	v.ID = id
 
@@ -278,7 +282,7 @@ func BuildMovePayload(package_MoveBody string, package_MoveID string) (*package_
 	{
 		err = json.Unmarshal([]byte(package_MoveBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location\": \"Consectetur alias architecto in dolor porro.\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location_id\": \"Sint et sit.\"\n   }'")
 		}
 	}
 	var id uint
@@ -291,7 +295,7 @@ func BuildMovePayload(package_MoveBody string, package_MoveID string) (*package_
 		}
 	}
 	v := &package_.MovePayload{
-		Location: body.Location,
+		LocationID: body.LocationID,
 	}
 	v.ID = id
 

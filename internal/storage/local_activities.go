@@ -3,16 +3,18 @@ package storage
 import (
 	"context"
 
+	"github.com/google/uuid"
+
 	"github.com/artefactual-sdps/enduro/internal/storage/types"
 )
 
 type UpdatePackageLocationLocalActivityParams struct {
-	AIPID    string
-	Location string
+	AIPID      string
+	LocationID uuid.UUID
 }
 
 func UpdatePackageLocationLocalActivity(ctx context.Context, storagesvc Service, params *UpdatePackageLocationLocalActivityParams) error {
-	return storagesvc.UpdatePackageLocation(ctx, params.Location, params.AIPID)
+	return storagesvc.UpdatePackageLocationID(ctx, params.LocationID, params.AIPID)
 }
 
 type UpdatePackageStatusLocalActivityParams struct {

@@ -55,24 +55,6 @@ secret = "minio123"
 region = "us-west-1"
 bucket = "aips"
 
-[[storage.location]]
-name = "perma-aips-1"
-endpoint = "http://minio:9000"
-pathStyle = true
-key = "minio"
-secret = "minio123"
-region = "us-west-1"
-bucket = "perma-aips-1"
-
-[[storage.location]]
-name = "perma-aips-2"
-endpoint = "http://minio:9000"
-pathStyle = true
-key = "minio"
-secret = "minio123"
-region = "us-west-1"
-bucket = "perma-aips-2"
-
 [a3m]
 address = "127.0.0.1:7000"
 shareDir = "/home/a3m/.local/share/a3m/share"

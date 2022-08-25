@@ -583,8 +583,8 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 		{
 			activityOpts := withActivityOptsForRequest(sessCtx)
 			err := temporalsdk_workflow.ExecuteActivity(activityOpts, activities.MoveToPermanentStorageActivityName, &activities.MoveToPermanentStorageActivityParams{
-				AIPID:    tinfo.SIPID,
-				Location: *review.Location,
+				AIPID:      tinfo.SIPID,
+				LocationID: *review.LocationID,
 			}).Get(activityOpts, nil)
 			if err != nil {
 				return err
@@ -611,7 +611,7 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 				ID:          movePreservationTaskID,
 				Status:      package_.TaskStatusDone,
 				CompletedAt: moveCompletedAt,
-				Note:        ref.New(fmt.Sprintf("Moved to %s", *review.Location)),
+				Note:        ref.New(fmt.Sprintf("Moved to location %s", *review.LocationID)),
 			}).Get(ctx, nil)
 			if err != nil {
 				return err
@@ -621,7 +621,7 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 		// Set package location
 		{
 			ctx := withLocalActivityOpts(sessCtx)
-			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setLocationLocalActivity, w.pkgsvc, tinfo.PackageID, *review.Location).Get(ctx, nil)
+			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setLocationIDLocalActivity, w.pkgsvc, tinfo.PackageID, *review.LocationID).Get(ctx, nil)
 			if err != nil {
 				return err
 			}

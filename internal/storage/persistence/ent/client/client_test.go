@@ -15,6 +15,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/client"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/enttest"
+	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/location"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/pkg"
 	"github.com/artefactual-sdps/enduro/internal/storage/types"
 )
@@ -36,8 +37,9 @@ func TestCreatePackage(t *testing.T) {
 
 	entc, c := setUpClient(t)
 
-	pkg, err := c.CreatePackage(
-		context.Background(),
+	ctx := context.Background()
+	p, err := c.CreatePackage(
+		ctx,
 		&goastorage.StoragePackage{
 			Name:      "test_package",
 			AipID:     uuid.MustParse("488c64cc-d89b-4916-9131-c94152dfb12e").String(),
@@ -46,7 +48,8 @@ func TestCreatePackage(t *testing.T) {
 	)
 	assert.NilError(t, err)
 
-	dbpkg := entc.Pkg.GetX(context.Background(), int(pkg.ID))
+	dbpkg, err := entc.Pkg.Query().Where(pkg.AipID(uuid.MustParse(p.AipID))).Only(ctx)
+	assert.NilError(t, err)
 	assert.Equal(t, dbpkg.Name, "test_package")
 	assert.Equal(t, dbpkg.AipID.String(), "488c64cc-d89b-4916-9131-c94152dfb12e")
 	assert.Equal(t, dbpkg.ObjectKey.String(), "e2630293-a714-4787-ab6d-e68254a6fb6a")
@@ -74,20 +77,18 @@ func TestListPackages(t *testing.T) {
 	assert.NilError(t, err)
 	assert.DeepEqual(t, pkgs, []*storage.StoredStoragePackage{
 		{
-			ID:        1,
-			Name:      "Package",
-			AipID:     "488c64cc-d89b-4916-9131-c94152dfb12e",
-			Status:    "stored",
-			ObjectKey: uuid.MustParse("e2630293-a714-4787-ab6d-e68254a6fb6a"),
-			Location:  nil,
+			Name:       "Package",
+			AipID:      "488c64cc-d89b-4916-9131-c94152dfb12e",
+			Status:     "stored",
+			ObjectKey:  uuid.MustParse("e2630293-a714-4787-ab6d-e68254a6fb6a"),
+			LocationID: nil,
 		},
 		{
-			ID:        2,
-			Name:      "Another Package",
-			AipID:     "96e182a0-31ab-4738-a620-1ff1954d9ecb",
-			Status:    "rejected",
-			ObjectKey: uuid.MustParse("49b0a604-6c81-458c-852a-1afa713f1fd9"),
-			Location:  nil,
+			Name:       "Another Package",
+			AipID:      "96e182a0-31ab-4738-a620-1ff1954d9ecb",
+			Status:     "rejected",
+			ObjectKey:  uuid.MustParse("49b0a604-6c81-458c-852a-1afa713f1fd9"),
+			LocationID: nil,
 		},
 	})
 }
@@ -107,12 +108,11 @@ func TestReadPackage(t *testing.T) {
 	pkg, err := c.ReadPackage(context.Background(), uuid.MustParse("488c64cc-d89b-4916-9131-c94152dfb12e"))
 	assert.NilError(t, err)
 	assert.DeepEqual(t, pkg, &storage.StoredStoragePackage{
-		ID:        1,
-		Name:      "Package",
-		AipID:     "488c64cc-d89b-4916-9131-c94152dfb12e",
-		Status:    "stored",
-		ObjectKey: uuid.MustParse("e2630293-a714-4787-ab6d-e68254a6fb6a"),
-		Location:  nil,
+		Name:       "Package",
+		AipID:      "488c64cc-d89b-4916-9131-c94152dfb12e",
+		Status:     "stored",
+		ObjectKey:  uuid.MustParse("e2630293-a714-4787-ab6d-e68254a6fb6a"),
+		LocationID: nil,
 	})
 }
 
@@ -177,7 +177,7 @@ func TestUpdatePackageLocation(t *testing.T) {
 		SetLocation(l1).
 		SaveX(context.Background())
 
-	err := c.UpdatePackageLocation(context.Background(), "perma-aips-2", p.AipID)
+	err := c.UpdatePackageLocationID(context.Background(), l2.UUID, p.AipID)
 	assert.NilError(t, err)
 
 	entc.Pkg.Query().
@@ -191,9 +191,10 @@ func TestCreateLocation(t *testing.T) {
 	t.Parallel()
 
 	entc, c := setUpClient(t)
+	ctx := context.Background()
 
 	l, err := c.CreateLocation(
-		context.Background(),
+		ctx,
 		&goastorage.Location{
 			Name:        "test_location",
 			Description: ref.New("location description"),
@@ -209,7 +210,8 @@ func TestCreateLocation(t *testing.T) {
 	)
 	assert.NilError(t, err)
 
-	dblocation := entc.Location.GetX(context.Background(), int(l.ID))
+	dblocation, err := entc.Location.Query().Where(location.UUID(l.UUID)).Only(ctx)
+	assert.NilError(t, err)
 	assert.Equal(t, dblocation.Name, "test_location")
 	assert.Equal(t, dblocation.Description, "location description")
 	assert.Equal(t, dblocation.Source, types.LocationSourceMinIO)
@@ -252,20 +254,36 @@ func TestListLocations(t *testing.T) {
 	assert.NilError(t, err)
 	assert.DeepEqual(t, locations, storage.StoredLocationCollection{
 		{
-			ID:          1,
 			Name:        "Location",
 			Description: ref.New("location"),
 			Source:      "minio",
 			Purpose:     "aip_store",
-			UUID:        ref.New(uuid.MustParse("021f7ac2-5b0b-4620-b574-21f6a206cff3")),
+			UUID:        uuid.MustParse("021f7ac2-5b0b-4620-b574-21f6a206cff3"),
+			Config: &storage.S3Config{
+				Bucket:    "perma-aips-1",
+				Endpoint:  ref.New(""),
+				PathStyle: ref.New(false),
+				Profile:   ref.New(""),
+				Key:       ref.New(""),
+				Secret:    ref.New(""),
+				Token:     ref.New(""),
+			},
 		},
 		{
-			ID:          2,
 			Name:        "Another Location",
 			Description: ref.New("another location"),
 			Source:      "minio",
 			Purpose:     "aip_store",
-			UUID:        ref.New(uuid.MustParse("7ba9a118-a662-4047-8547-64bc752b91c6")),
+			UUID:        uuid.MustParse("7ba9a118-a662-4047-8547-64bc752b91c6"),
+			Config: &storage.S3Config{
+				Bucket:    "perma-aips-2",
+				Endpoint:  ref.New(""),
+				PathStyle: ref.New(false),
+				Profile:   ref.New(""),
+				Key:       ref.New(""),
+				Secret:    ref.New(""),
+				Token:     ref.New(""),
+			},
 		},
 	})
 }
@@ -291,11 +309,19 @@ func TestReadLocation(t *testing.T) {
 	l, err := c.ReadLocation(context.Background(), uuid.MustParse("7a090f2c-7bd4-471c-8aa1-8c72125decd5"))
 	assert.NilError(t, err)
 	assert.DeepEqual(t, l, &storage.StoredLocation{
-		ID:          1,
 		Name:        "test_location",
 		Description: ref.New("location description"),
 		Source:      types.LocationSourceMinIO.String(),
 		Purpose:     types.LocationPurposeAIPStore.String(),
-		UUID:        ref.New(uuid.MustParse("7a090f2c-7bd4-471c-8aa1-8c72125decd5")),
+		UUID:        uuid.MustParse("7a090f2c-7bd4-471c-8aa1-8c72125decd5"),
+		Config: &storage.S3Config{
+			Bucket:    "perma-aips-1",
+			Endpoint:  ref.New(""),
+			PathStyle: ref.New(false),
+			Profile:   ref.New(""),
+			Key:       ref.New(""),
+			Secret:    ref.New(""),
+			Token:     ref.New(""),
+		},
 	})
 }

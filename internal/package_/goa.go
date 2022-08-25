@@ -84,7 +84,7 @@ func (w *goaWrapper) Monitor(ctx context.Context, stream goapackage.MonitorServe
 
 // List all stored packages. It implements goapackage.Service.
 func (w *goaWrapper) List(ctx context.Context, payload *goapackage.ListPayload) (*goapackage.ListResult, error) {
-	query := "SELECT id, name, workflow_id, run_id, aip_id, location, status, CONVERT_TZ(created_at, @@session.time_zone, '+00:00') AS created_at, CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at, CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at FROM package"
+	query := "SELECT id, name, workflow_id, run_id, aip_id, location_id, status, CONVERT_TZ(created_at, @@session.time_zone, '+00:00') AS created_at, CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at, CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at FROM package"
 	args := []interface{}{}
 
 	// We extract one extra item so we can tell the next cursor.
@@ -102,9 +102,9 @@ func (w *goaWrapper) List(ctx context.Context, payload *goapackage.ListPayload) 
 		args = append(args, payload.AipID)
 		conds = append(conds, [2]string{"AND", "aip_id = ?"})
 	}
-	if payload.Location != nil {
-		args = append(args, payload.Location)
-		conds = append(conds, [2]string{"AND", "location = ?"})
+	if payload.LocationID != nil {
+		args = append(args, payload.LocationID)
+		conds = append(conds, [2]string{"AND", "location_id = ?"})
 	}
 	if payload.Status != nil {
 		args = append(args, NewStatus(*payload.Status))
@@ -363,8 +363,8 @@ func (w *goaWrapper) Confirm(ctx context.Context, payload *goapackage.ConfirmPay
 	}
 
 	signal := ReviewPerformedSignal{
-		Accepted: true,
-		Location: &payload.Location,
+		Accepted:   true,
+		LocationID: &payload.LocationID,
 	}
 	err = w.tc.SignalWorkflow(ctx, *goapkg.WorkflowID, "", ReviewPerformedSignalName, signal)
 	if err != nil {
@@ -392,19 +392,15 @@ func (w *goaWrapper) Reject(ctx context.Context, payload *goapackage.RejectPaylo
 }
 
 func (w *goaWrapper) Move(ctx context.Context, payload *goapackage.MovePayload) error {
-	if payload.Location == "" {
-		return goapackage.MakeNotValid(errors.New("location attribute is empty"))
-	}
-
 	goapkg, err := w.Show(ctx, &goapackage.ShowPayload{ID: payload.ID})
 	if err != nil {
 		return err
 	}
 
 	_, err = InitMoveWorkflow(ctx, w.tc, &MoveWorkflowRequest{
-		ID:       payload.ID,
-		AIPID:    *goapkg.AipID,
-		Location: payload.Location,
+		ID:         payload.ID,
+		AIPID:      *goapkg.AipID,
+		LocationID: payload.LocationID,
 	})
 	if err != nil {
 		w.logger.Error(err, "error initializing move workflow")

@@ -6,7 +6,7 @@ import { ref, onMounted } from "vue";
 import { closeDialog } from "vue3-promise-dialog";
 
 const props = defineProps({
-  currentLocation: { type: String, required: false },
+  currentLocationId: { type: String, required: false },
 });
 
 const storageStore = useStorageStore();
@@ -27,9 +27,9 @@ useEventListener(el, "hidden.bs.modal", (e) => {
   closeDialog(data);
 });
 
-const onChoose = (locationName: string) => {
-  if (locationName === props.currentLocation) return;
-  data = locationName;
+const onChoose = (locationId: string) => {
+  if (locationId === props.currentLocationId) return;
+  data = locationId;
   modal.value?.hide();
 };
 </script>
@@ -54,7 +54,9 @@ const onChoose = (locationName: string) => {
               <tbody>
                 <tr
                   v-for="(item, index) in storageStore.locations"
-                  :class="[item.name == props.currentLocation ? 'current' : '']"
+                  :class="[
+                    item.uuid == props.currentLocationId ? 'current' : '',
+                  ]"
                 >
                   <td>{{ item.name }}</td>
                   <td>
@@ -62,9 +64,9 @@ const onChoose = (locationName: string) => {
                   </td>
                   <td class="text-end">
                     <button
-                      v-if="item.name != props.currentLocation"
+                      v-if="item.uuid != props.currentLocationId"
                       class="btn btn-sm btn-primary"
-                      @click="onChoose(item.name)"
+                      @click="onChoose(item.uuid)"
                     >
                       Move
                     </button>
@@ -73,8 +75,8 @@ const onChoose = (locationName: string) => {
               </tbody>
             </table>
           </div>
-          <small class="text-muted" v-if="props.currentLocation">
-            The current location is {{ props.currentLocation }}.
+          <small class="text-muted" v-if="props.currentLocationId">
+            The current location is {{ props.currentLocationId }}.
           </small>
         </div>
         <div class="modal-footer">

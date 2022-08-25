@@ -29,10 +29,12 @@ import (
 )
 
 type setUpAttrs struct {
-	logger         *logr.Logger
-	config         *storage.Config
-	persistence    *persistence.Storage
-	temporalClient *temporalsdk_client.Client
+	logger                  *logr.Logger
+	config                  *storage.Config
+	persistence             *persistence.Storage
+	temporalClient          *temporalsdk_client.Client
+	internalLocationFactory storage.InternalLocationFactory
+	locationFactory         storage.LocationFactory
 
 	persistenceMock    *fake.MockStorage
 	temporalClientMock *temporalsdk_mocks.Client
@@ -55,18 +57,13 @@ func setUpService(t *testing.T, attrs *setUpAttrs) storage.Service {
 				Bucket: "internal",
 				Region: "eu-west-2",
 			},
-			Locations: []storage.LocationConfig{
-				{
-					Name:   "perma-aips-1",
-					Bucket: "perma-aips-1",
-					Region: "eu-west-2",
-				},
-			},
 		}),
-		persistence:        &ps,
-		persistenceMock:    psMock,
-		temporalClient:     &tc,
-		temporalClientMock: tcMock,
+		persistence:             &ps,
+		persistenceMock:         psMock,
+		temporalClient:          &tc,
+		temporalClientMock:      tcMock,
+		internalLocationFactory: storage.DefaultInternalLocationFactory,
+		locationFactory:         storage.DefaultLocationFactory,
 	}
 	if attrs.logger != nil {
 		params.logger = attrs.logger
@@ -80,6 +77,12 @@ func setUpService(t *testing.T, attrs *setUpAttrs) storage.Service {
 	if attrs.temporalClient != nil {
 		params.temporalClient = attrs.temporalClient
 	}
+	if attrs.internalLocationFactory != nil {
+		params.internalLocationFactory = attrs.internalLocationFactory
+	}
+	if attrs.locationFactory != nil {
+		params.locationFactory = attrs.locationFactory
+	}
 
 	*attrs = params
 
@@ -88,38 +91,97 @@ func setUpService(t *testing.T, attrs *setUpAttrs) storage.Service {
 		*params.config,
 		*params.persistence,
 		*params.temporalClient,
+		params.internalLocationFactory,
+		params.locationFactory,
 	)
 	assert.NilError(t, err)
 
 	return s
 }
 
-func fakeInternalLocation(t *testing.T, svc storage.Service, b *blob.Bucket) {
+type fakeLocation struct {
+	b  *blob.Bucket
+	id uuid.UUID
+}
+
+func (l *fakeLocation) UUID() uuid.UUID {
+	return l.id
+}
+
+func (l *fakeLocation) Bucket() *blob.Bucket {
+	return l.b
+}
+
+func (l *fakeLocation) Close() error {
+	return nil
+}
+
+func fakeInternalLocationFactory(t *testing.T, b *blob.Bucket) storage.InternalLocationFactory {
 	t.Helper()
 
 	t.Cleanup(func() { b.Close() })
-
-	l, err := svc.Location("")
-	assert.NilError(t, err)
 
 	if b == nil {
 		b = memblob.OpenBucket(nil)
 	}
 
-	l.SetBucket(b)
+	return func(config *storage.LocationConfig) (storage.Location, error) {
+		return &fakeLocation{
+			b:  b,
+			id: uuid.Nil,
+		}, nil
+	}
 }
 
-func fakeLocation(t *testing.T, svc storage.Service, name, objectKey, contents string) {
+func fakeInternalLocationFactoryWithContents(t *testing.T, b *blob.Bucket, objectKey, contents string) storage.InternalLocationFactory {
 	t.Helper()
 
-	l, err := svc.Location(name)
-	assert.NilError(t, err)
+	if b == nil {
+		b = memblob.OpenBucket(nil)
+	}
+	t.Cleanup(func() { b.Close() })
+	b.WriteAll(context.Background(), objectKey, []byte(contents), nil)
 
-	mb := memblob.OpenBucket(nil)
-	t.Cleanup(func() { mb.Close() })
-	l.SetBucket(mb)
+	return func(config *storage.LocationConfig) (storage.Location, error) {
+		return &fakeLocation{
+			b:  b,
+			id: uuid.Nil,
+		}, nil
+	}
+}
 
-	mb.WriteAll(context.Background(), objectKey, []byte(contents), nil)
+func fakeLocationFactory(t *testing.T, b *blob.Bucket) storage.LocationFactory {
+	t.Helper()
+
+	t.Cleanup(func() { b.Close() })
+
+	if b == nil {
+		b = memblob.OpenBucket(nil)
+	}
+
+	return func(location *goastorage.StoredLocation) (storage.Location, error) {
+		return &fakeLocation{
+			b:  b,
+			id: location.UUID,
+		}, nil
+	}
+}
+
+func fakeLocationFactoryWithContents(t *testing.T, b *blob.Bucket, objectKey, contents string) storage.LocationFactory {
+	t.Helper()
+
+	if b == nil {
+		b = memblob.OpenBucket(nil)
+	}
+	t.Cleanup(func() { b.Close() })
+	b.WriteAll(context.Background(), objectKey, []byte(contents), nil)
+
+	return func(location *goastorage.StoredLocation) (storage.Location, error) {
+		return &fakeLocation{
+			b:  b,
+			id: location.UUID,
+		}, nil
+	}
 }
 
 func TestNewService(t *testing.T) {
@@ -130,6 +192,8 @@ func TestNewService(t *testing.T) {
 		storage.Config{},
 		nil,
 		nil,
+		storage.DefaultInternalLocationFactory,
+		storage.DefaultLocationFactory,
 	)
 
 	assert.ErrorContains(t, err, "s3blob.OpenBucket: bucketName is required")
@@ -271,8 +335,6 @@ func TestServiceSubmit(t *testing.T) {
 			).
 			Times(1)
 
-		fakeInternalLocation(t, svc, nil)
-
 		ret, err := svc.Submit(ctx, &goastorage.SubmitPayload{
 			Name:  "package",
 			AipID: AIPID,
@@ -285,8 +347,16 @@ func TestServiceSubmit(t *testing.T) {
 	t.Run("Returns signed URL", func(t *testing.T) {
 		t.Parallel()
 
+		// Fake internal location, using fileblob because it can generate signed URLs.
+		furl, err := url.Parse("file:///tmp/dir")
+		assert.NilError(t, err)
+		b, err := fileblob.OpenBucket("/tmp", &fileblob.Options{URLSigner: fileblob.NewURLSignerHMAC(furl, []byte("1234"))})
+		assert.NilError(t, err)
+
 		AIPID := "5ab42bc3-acc2-420b-bbd0-76efdef94828"
-		attrs := &setUpAttrs{}
+		attrs := &setUpAttrs{
+			internalLocationFactory: fakeInternalLocationFactory(t, b),
+		}
 		svc := setUpService(t, attrs)
 		ctx := context.Background()
 
@@ -320,13 +390,6 @@ func TestServiceSubmit(t *testing.T) {
 			).
 			Times(1)
 
-		// Fake internal location, using fileblob because it can generate signed URLs.
-		furl, err := url.Parse("file:///tmp/dir")
-		assert.NilError(t, err)
-		b, err := fileblob.OpenBucket("/tmp", &fileblob.Options{URLSigner: fileblob.NewURLSignerHMAC(furl, []byte("1234"))})
-		assert.NilError(t, err)
-		fakeInternalLocation(t, svc, b)
-
 		ret, err := svc.Submit(ctx, &goastorage.SubmitPayload{
 			Name:  "package",
 			AipID: AIPID,
@@ -339,23 +402,51 @@ func TestServiceSubmit(t *testing.T) {
 func TestServiceLocation(t *testing.T) {
 	t.Parallel()
 
-	svc := setUpService(t, &setUpAttrs{})
+	attrs := &setUpAttrs{
+		locationFactory: fakeLocationFactory(t, nil),
+	}
+	ctx := context.Background()
+	svc := setUpService(t, attrs)
+	locationID := uuid.MustParse("50110114-55ac-4567-b74f-9def601c6293")
+
+	attrs.persistenceMock.
+		EXPECT().
+		ReadLocation(
+			ctx,
+			locationID,
+		).
+		Return(
+			&goastorage.StoredLocation{
+				UUID: locationID,
+			},
+			nil,
+		).Times(1)
+	attrs.persistenceMock.
+		EXPECT().
+		ReadLocation(
+			ctx,
+			uuid.MustParse("d8ea8946-dc82-4f4e-8c2d-8d3861f3297d"),
+		).
+		Return(
+			nil,
+			errors.New("unknown location d8ea8946-dc82-4f4e-8c2d-8d3861f3297d"),
+		).Times(1)
 
 	testCases := map[string]struct {
-		name string
+		UUID uuid.UUID
 		err  error
 	}{
 		"Returns internal location": {
-			"",
+			uuid.Nil,
 			nil,
 		},
 		"Returns location": {
-			"perma-aips-1",
+			uuid.MustParse("50110114-55ac-4567-b74f-9def601c6293"),
 			nil,
 		},
 		"Returns error when location cannot be found": {
-			"perma-aips-999",
-			errors.New("error loading location: unknown location perma-aips-999"),
+			uuid.MustParse("d8ea8946-dc82-4f4e-8c2d-8d3861f3297d"),
+			errors.New("error loading location: unknown location d8ea8946-dc82-4f4e-8c2d-8d3861f3297d"),
 		},
 	}
 
@@ -364,11 +455,11 @@ func TestServiceLocation(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			loc, err := svc.Location(tc.name)
+			loc, err := svc.Location(context.Background(), tc.UUID)
 
 			if tc.err == nil {
 				assert.NilError(t, err)
-				assert.Equal(t, loc.Name(), tc.name)
+				assert.Equal(t, loc.UUID(), tc.UUID)
 			} else {
 				assert.Error(t, err, tc.err.Error())
 			}
@@ -398,20 +489,18 @@ func TestServiceList(t *testing.T) {
 
 		storedLocations := goastorage.StoredLocationCollection{
 			{
-				ID:          1,
 				Name:        "perma-aips-1",
 				Description: ref.New("One"),
 				Source:      "minio",
 				Purpose:     "aip_store",
-				UUID:        ref.New(uuid.New()),
+				UUID:        uuid.New(),
 			},
 			{
-				ID:          2,
 				Name:        "perma-aips-2",
 				Description: ref.New("Two"),
 				Source:      "minio",
 				Purpose:     "aip_store",
-				UUID:        ref.New(uuid.New()),
+				UUID:        uuid.New(),
 			},
 		}
 
@@ -428,6 +517,8 @@ func TestServiceList(t *testing.T) {
 }
 
 func TestReject(t *testing.T) {
+	t.Parallel()
+
 	t.Run("Fails when passing an invalid UUID", func(t *testing.T) {
 		t.Parallel()
 
@@ -504,7 +595,7 @@ func TestServiceUpdatePackageStatus(t *testing.T) {
 	})
 }
 
-func TestServiceUpdatePackageLocation(t *testing.T) {
+func TestServiceUpdatePackageLocationID(t *testing.T) {
 	t.Parallel()
 
 	t.Run("Fails when passing an invalid UUID", func(t *testing.T) {
@@ -514,7 +605,7 @@ func TestServiceUpdatePackageLocation(t *testing.T) {
 		svc := setUpService(t, &attrs)
 		ctx := context.Background()
 
-		err := svc.UpdatePackageLocation(ctx, "perma-aips-1", "<invalid-uuid>")
+		err := svc.UpdatePackageLocationID(ctx, uuid.Nil, "<invalid-uuid>")
 		assert.Error(t, err, "invalid UUID length: 14")
 	})
 
@@ -525,19 +616,19 @@ func TestServiceUpdatePackageLocation(t *testing.T) {
 		svc := setUpService(t, &attrs)
 		ctx := context.Background()
 		AIPID := "7c09fa45-cdac-4874-90af-56dc86a6e73c"
-		loc := "perma-aips-1"
+		locationID := uuid.MustParse("7484e911-7fc3-40c2-acb4-91e552d05380")
 
 		attrs.persistenceMock.
 			EXPECT().
-			UpdatePackageLocation(
+			UpdatePackageLocationID(
 				ctx,
-				loc,
+				locationID,
 				uuid.MustParse(AIPID),
 			).
 			Return(errors.New("something is wrong")).
 			Times(1)
 
-		err := svc.UpdatePackageLocation(ctx, "perma-aips-1", AIPID)
+		err := svc.UpdatePackageLocationID(ctx, locationID, AIPID)
 		assert.Error(t, err, "something is wrong")
 	})
 }
@@ -548,10 +639,12 @@ func TestServiceDelete(t *testing.T) {
 	t.Run("From internal location", func(t *testing.T) {
 		t.Parallel()
 
-		attrs := setUpAttrs{}
-		svc := setUpService(t, &attrs)
 		ctx := context.Background()
 		AIPID := "7c09fa45-cdac-4874-90af-56dc86a6e73c"
+		attrs := setUpAttrs{
+			internalLocationFactory: fakeInternalLocationFactoryWithContents(t, nil, AIPID, "foobar"),
+		}
+		svc := setUpService(t, &attrs)
 
 		attrs.persistenceMock.
 			EXPECT().
@@ -561,16 +654,13 @@ func TestServiceDelete(t *testing.T) {
 			).
 			Return(
 				&goastorage.StoredStoragePackage{
-					ID:        1,
-					AipID:     AIPID,
-					ObjectKey: uuid.MustParse(AIPID),
-					Location:  nil,
+					AipID:      AIPID,
+					ObjectKey:  uuid.MustParse(AIPID),
+					LocationID: &uuid.Nil,
 				},
 				nil,
 			).
 			Times(1)
-
-		fakeLocation(t, svc, "", AIPID, "foobar")
 
 		err := svc.Delete(ctx, AIPID)
 		assert.NilError(t, err)
@@ -579,10 +669,13 @@ func TestServiceDelete(t *testing.T) {
 	t.Run("From perma location", func(t *testing.T) {
 		t.Parallel()
 
-		attrs := setUpAttrs{}
-		svc := setUpService(t, &attrs)
 		ctx := context.Background()
 		AIPID := "76a654ad-dccc-4dd3-a398-e84cd9f96415"
+		locationID := uuid.MustParse("7484e911-7fc3-40c2-acb4-91e552d05380")
+		attrs := setUpAttrs{
+			locationFactory: fakeLocationFactoryWithContents(t, nil, AIPID, "foobar"),
+		}
+		svc := setUpService(t, &attrs)
 
 		attrs.persistenceMock.
 			EXPECT().
@@ -592,16 +685,27 @@ func TestServiceDelete(t *testing.T) {
 			).
 			Return(
 				&goastorage.StoredStoragePackage{
-					ID:        1,
-					AipID:     AIPID,
-					ObjectKey: uuid.MustParse(AIPID),
-					Location:  ref.New("perma-aips-1"),
+					AipID:      AIPID,
+					ObjectKey:  uuid.MustParse(AIPID),
+					LocationID: &locationID,
 				},
 				nil,
 			).
 			Times(1)
 
-		fakeLocation(t, svc, "perma-aips-1", AIPID, "foobar")
+		attrs.persistenceMock.
+			EXPECT().
+			ReadLocation(
+				ctx,
+				locationID,
+			).
+			Return(
+				&goastorage.StoredLocation{
+					UUID: locationID,
+				},
+				nil,
+			).
+			Times(1)
 
 		err := svc.Delete(ctx, AIPID)
 		assert.NilError(t, err)
@@ -610,10 +714,13 @@ func TestServiceDelete(t *testing.T) {
 	t.Run("Fails if object does not exist", func(t *testing.T) {
 		t.Parallel()
 
-		attrs := setUpAttrs{}
-		svc := setUpService(t, &attrs)
 		ctx := context.Background()
 		AIPID := "76a654ad-dccc-4dd3-a398-e84cd9f96415"
+		locationID := uuid.MustParse("7484e911-7fc3-40c2-acb4-91e552d05380")
+		attrs := setUpAttrs{
+			locationFactory: fakeLocationFactory(t, nil),
+		}
+		svc := setUpService(t, &attrs)
 
 		attrs.persistenceMock.
 			EXPECT().
@@ -623,22 +730,29 @@ func TestServiceDelete(t *testing.T) {
 			).
 			Return(
 				&goastorage.StoredStoragePackage{
-					ID:        1,
-					AipID:     AIPID,
-					ObjectKey: uuid.MustParse(AIPID),
-					Location:  ref.New("perma-aips-1"),
+					AipID:      AIPID,
+					ObjectKey:  uuid.MustParse(AIPID),
+					LocationID: &locationID,
 				},
 				nil,
 			).
 			Times(1)
 
-		// Fake empty location.
-		l, err := svc.Location("perma-aips-1")
-		assert.NilError(t, err)
-		mb := memblob.OpenBucket(nil)
-		l.SetBucket(mb)
+		attrs.persistenceMock.
+			EXPECT().
+			ReadLocation(
+				ctx,
+				locationID,
+			).
+			Return(
+				&goastorage.StoredLocation{
+					UUID: locationID,
+				},
+				nil,
+			).
+			Times(1)
 
-		err = svc.Delete(ctx, AIPID)
+		err := svc.Delete(ctx, AIPID)
 		assert.Error(t, err, "blob (key \"76a654ad-dccc-4dd3-a398-e84cd9f96415\") (code=NotFound): blob not found")
 	})
 
@@ -649,6 +763,7 @@ func TestServiceDelete(t *testing.T) {
 		svc := setUpService(t, &attrs)
 		ctx := context.Background()
 		AIPID := "76a654ad-dccc-4dd3-a398-e84cd9f96415"
+		locationID := uuid.MustParse("7484e911-7fc3-40c2-acb4-91e552d05380")
 
 		attrs.persistenceMock.
 			EXPECT().
@@ -658,17 +773,28 @@ func TestServiceDelete(t *testing.T) {
 			).
 			Return(
 				&goastorage.StoredStoragePackage{
-					ID:        1,
-					AipID:     AIPID,
-					ObjectKey: uuid.MustParse(AIPID),
-					Location:  ref.New("perma-aips-99"),
+					AipID:      AIPID,
+					ObjectKey:  uuid.MustParse(AIPID),
+					LocationID: &locationID,
 				},
 				nil,
 			).
 			Times(1)
 
+		attrs.persistenceMock.
+			EXPECT().
+			ReadLocation(
+				ctx,
+				locationID,
+			).
+			Return(
+				nil,
+				errors.New("unknown location 7484e911-7fc3-40c2-acb4-91e552d05380"),
+			).
+			Times(1)
+
 		err := svc.Delete(ctx, AIPID)
-		assert.Error(t, err, "error loading location: unknown location perma-aips-99")
+		assert.Error(t, err, "error loading location: unknown location 7484e911-7fc3-40c2-acb4-91e552d05380")
 	})
 }
 
@@ -676,18 +802,38 @@ func TestPackageReader(t *testing.T) {
 	t.Parallel()
 
 	t.Run("Provides a valid reader", func(t *testing.T) {
-		attrs := setUpAttrs{}
-		svc := setUpService(t, &attrs)
+		t.Parallel()
+
 		ctx := context.Background()
 		AIPID := "7c09fa45-cdac-4874-90af-56dc86a6e73c"
+		locationID := uuid.MustParse("7484e911-7fc3-40c2-acb4-91e552d05380")
+		attrs := setUpAttrs{
+			locationFactory: fakeLocationFactoryWithContents(t, nil, AIPID, "contents"),
+		}
+		svc := setUpService(t, &attrs)
 
-		fakeLocation(t, svc, "perma-aips-1", AIPID, "contents")
+		attrs.persistenceMock.
+			EXPECT().
+			ReadLocation(
+				ctx,
+				locationID,
+			).
+			Return(
+				&goastorage.StoredLocation{
+					UUID: locationID,
+					Config: &goastorage.S3Config{
+						Bucket: "perma-aips-1",
+						Region: "planet-earth",
+					},
+				},
+				nil,
+			).
+			Times(1)
 
 		reader, err := svc.PackageReader(ctx, &goastorage.StoredStoragePackage{
-			ID:        1,
-			AipID:     AIPID,
-			ObjectKey: uuid.MustParse(AIPID),
-			Location:  ref.New("perma-aips-1"),
+			AipID:      AIPID,
+			ObjectKey:  uuid.MustParse(AIPID),
+			LocationID: &locationID,
 		})
 		assert.NilError(t, err)
 
@@ -697,36 +843,69 @@ func TestPackageReader(t *testing.T) {
 	})
 
 	t.Run("Fails if the location is not available", func(t *testing.T) {
+		t.Parallel()
+
 		attrs := setUpAttrs{}
 		svc := setUpService(t, &attrs)
 		ctx := context.Background()
 		AIPID := "7c09fa45-cdac-4874-90af-56dc86a6e73c"
+		locationID := uuid.MustParse("7484e911-7fc3-40c2-acb4-91e552d05380")
+
+		attrs.persistenceMock.
+			EXPECT().
+			ReadLocation(
+				ctx,
+				locationID,
+			).
+			Return(
+				nil,
+				errors.New("unknown location 7484e911-7fc3-40c2-acb4-91e552d05380"),
+			).
+			Times(1)
 
 		_, err := svc.PackageReader(ctx, &goastorage.StoredStoragePackage{
-			ID:        1,
-			AipID:     AIPID,
-			ObjectKey: uuid.MustParse(AIPID),
-			Location:  ref.New("perma-aips-99"),
+			AipID:      AIPID,
+			ObjectKey:  uuid.MustParse(AIPID),
+			LocationID: &locationID,
 		})
-		assert.Error(t, err, "error loading location: unknown location perma-aips-99")
+		assert.Error(t, err, "error loading location: unknown location 7484e911-7fc3-40c2-acb4-91e552d05380")
 	})
 
 	t.Run("Fails if the reader cannot be created", func(t *testing.T) {
-		attrs := setUpAttrs{}
-		svc := setUpService(t, &attrs)
+		t.Parallel()
+
 		ctx := context.Background()
 		AIPID := "7c09fa45-cdac-4874-90af-56dc86a6e73c"
+		locationID := uuid.MustParse("7484e911-7fc3-40c2-acb4-91e552d05380")
+		b := memblob.OpenBucket(nil)
+		attrs := setUpAttrs{
+			locationFactory: fakeLocationFactoryWithContents(t, b, AIPID, "foobar"),
+		}
+		svc := setUpService(t, &attrs)
+		b.Close()
 
-		// Close the bucker beforehand to force the error.
-		l, err := svc.Location("perma-aips-1")
-		assert.NilError(t, err)
-		l.Bucket().Close()
+		attrs.persistenceMock.
+			EXPECT().
+			ReadLocation(
+				ctx,
+				locationID,
+			).
+			Return(
+				&goastorage.StoredLocation{
+					UUID: locationID,
+					Config: &goastorage.S3Config{
+						Bucket: "perma-aips-1",
+						Region: "planet-earth",
+					},
+				},
+				nil,
+			).
+			Times(1)
 
-		_, err = svc.PackageReader(ctx, &goastorage.StoredStoragePackage{
-			ID:        1,
-			AipID:     AIPID,
-			ObjectKey: uuid.MustParse(AIPID),
-			Location:  ref.New("perma-aips-1"),
+		_, err := svc.PackageReader(ctx, &goastorage.StoredStoragePackage{
+			AipID:      AIPID,
+			ObjectKey:  uuid.MustParse(AIPID),
+			LocationID: &locationID,
 		})
 		assert.Error(t, err, "blob: Bucket has been closed (code=FailedPrecondition)")
 	})

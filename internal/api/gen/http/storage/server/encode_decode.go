@@ -629,10 +629,16 @@ func DecodeShowLocationRequest(mux goahttp.Muxer, decoder func(*http.Request) go
 	return func(r *http.Request) (interface{}, error) {
 		var (
 			uuid string
+			err  error
 
 			params = mux.Vars(r)
 		)
 		uuid = params["uuid"]
+		err = goa.MergeErrors(err, goa.ValidateFormat("uuid", uuid, goa.FormatUUID))
+
+		if err != nil {
+			return nil, err
+		}
 		payload := NewShowLocationPayload(uuid)
 
 		return payload, nil
@@ -677,7 +683,7 @@ func marshalStorageviewsStoredLocationViewToStoredLocationResponse(v *storagevie
 		Description: v.Description,
 		Source:      *v.Source,
 		Purpose:     *v.Purpose,
-		UUID:        v.UUID,
+		UUID:        *v.UUID,
 	}
 
 	return res

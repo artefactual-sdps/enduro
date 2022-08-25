@@ -43,8 +43,8 @@ func (w *StorageMoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req stor
 			},
 		})
 		err := temporalsdk_workflow.ExecuteActivity(activityOpts, storage.CopyToPermanentLocationActivityName, &storage.CopyToPermanentLocationActivityParams{
-			AIPID:    req.AIPID,
-			Location: req.Location,
+			AIPID:      req.AIPID,
+			LocationID: req.LocationID,
 		}).Get(activityOpts, nil)
 		if err != nil {
 			return err
@@ -83,8 +83,8 @@ func (w *StorageMoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req stor
 			},
 		})
 		err := temporalsdk_workflow.ExecuteLocalActivity(activityOpts, storage.UpdatePackageLocationLocalActivity, w.storagesvc, &storage.UpdatePackageLocationLocalActivityParams{
-			AIPID:    req.AIPID,
-			Location: req.Location,
+			AIPID:      req.AIPID,
+			LocationID: req.LocationID,
 		}).Get(activityOpts, nil)
 		if err != nil {
 			return err

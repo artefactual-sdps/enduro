@@ -59,7 +59,7 @@ func TestMoveWorkflow(t *testing.T) {
 func (s *MoveWorkflowTestSuite) TestSuccessfulMove() {
 	pkgID := uint(1)
 	AIPID := uuid.NewString()
-	location := "perma-aips-100"
+	locationID := uuid.MustParse("51328c02-2b63-47be-958e-e8088aa1a61f")
 
 	// Package is set to in progress status.
 	s.env.OnActivity(setStatusLocalActivity, mock.Anything, mock.Anything, pkgID, package_.StatusInProgress).Return(nil)
@@ -69,8 +69,8 @@ func (s *MoveWorkflowTestSuite) TestSuccessfulMove() {
 		activities.MoveToPermanentStorageActivityName,
 		mock.Anything,
 		&activities.MoveToPermanentStorageActivityParams{
-			AIPID:    AIPID,
-			Location: location,
+			AIPID:      AIPID,
+			LocationID: locationID,
 		},
 	).Return(nil)
 
@@ -87,7 +87,7 @@ func (s *MoveWorkflowTestSuite) TestSuccessfulMove() {
 	s.env.OnActivity(setStatusLocalActivity, mock.Anything, mock.Anything, pkgID, package_.StatusDone).Return(nil)
 
 	// Package location is set.
-	s.env.OnActivity(setLocationLocalActivity, mock.Anything, mock.Anything, pkgID, location).Return(nil)
+	s.env.OnActivity(setLocationIDLocalActivity, mock.Anything, mock.Anything, pkgID, locationID).Return(nil)
 
 	// Preservation action is created with successful status.
 	s.env.OnActivity(
@@ -100,9 +100,9 @@ func (s *MoveWorkflowTestSuite) TestSuccessfulMove() {
 	s.env.ExecuteWorkflow(
 		s.workflow.Execute,
 		&package_.MoveWorkflowRequest{
-			ID:       pkgID,
-			AIPID:    AIPID,
-			Location: location,
+			ID:         pkgID,
+			AIPID:      AIPID,
+			LocationID: locationID,
 		},
 	)
 
@@ -113,7 +113,7 @@ func (s *MoveWorkflowTestSuite) TestSuccessfulMove() {
 func (s *MoveWorkflowTestSuite) TestFailedMove() {
 	pkgID := uint(1)
 	AIPID := uuid.NewString()
-	location := "perma-aips-100"
+	locationID := uuid.MustParse("51328c02-2b63-47be-958e-e8088aa1a61f")
 
 	// Package is set to in progress status.
 	s.env.OnActivity(setStatusLocalActivity, mock.Anything, mock.Anything, pkgID, package_.StatusInProgress).Return(nil)
@@ -123,8 +123,8 @@ func (s *MoveWorkflowTestSuite) TestFailedMove() {
 		activities.MoveToPermanentStorageActivityName,
 		mock.Anything,
 		&activities.MoveToPermanentStorageActivityParams{
-			AIPID:    AIPID,
-			Location: location,
+			AIPID:      AIPID,
+			LocationID: locationID,
 		},
 	).Return(errors.New("error moving package"))
 
@@ -142,9 +142,9 @@ func (s *MoveWorkflowTestSuite) TestFailedMove() {
 	s.env.ExecuteWorkflow(
 		s.workflow.Execute,
 		&package_.MoveWorkflowRequest{
-			ID:       pkgID,
-			AIPID:    AIPID,
-			Location: location,
+			ID:         pkgID,
+			AIPID:      AIPID,
+			LocationID: locationID,
 		},
 	)
 

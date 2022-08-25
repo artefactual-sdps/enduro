@@ -127,18 +127,18 @@ func (mr *MockStorageMockRecorder) ReadPackage(arg0, arg1 interface{}) *gomock.C
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadPackage", reflect.TypeOf((*MockStorage)(nil).ReadPackage), arg0, arg1)
 }
 
-// UpdatePackageLocation mocks base method.
-func (m *MockStorage) UpdatePackageLocation(arg0 context.Context, arg1 string, arg2 uuid.UUID) error {
+// UpdatePackageLocationID mocks base method.
+func (m *MockStorage) UpdatePackageLocationID(arg0 context.Context, arg1, arg2 uuid.UUID) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdatePackageLocation", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "UpdatePackageLocationID", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// UpdatePackageLocation indicates an expected call of UpdatePackageLocation.
-func (mr *MockStorageMockRecorder) UpdatePackageLocation(arg0, arg1, arg2 interface{}) *gomock.Call {
+// UpdatePackageLocationID indicates an expected call of UpdatePackageLocationID.
+func (mr *MockStorageMockRecorder) UpdatePackageLocationID(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdatePackageLocation", reflect.TypeOf((*MockStorage)(nil).UpdatePackageLocation), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdatePackageLocationID", reflect.TypeOf((*MockStorage)(nil).UpdatePackageLocationID), arg0, arg1, arg2)
 }
 
 // UpdatePackageStatus mocks base method.

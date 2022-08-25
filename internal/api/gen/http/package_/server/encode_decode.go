@@ -42,7 +42,7 @@ func DecodeListRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.De
 			aipID               *string
 			earliestCreatedTime *string
 			latestCreatedTime   *string
-			location            *string
+			locationID          *string
 			status              *string
 			cursor              *string
 			err                 error
@@ -72,9 +72,12 @@ func DecodeListRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.De
 		if latestCreatedTime != nil {
 			err = goa.MergeErrors(err, goa.ValidateFormat("latestCreatedTime", *latestCreatedTime, goa.FormatDateTime))
 		}
-		locationRaw := r.URL.Query().Get("location")
-		if locationRaw != "" {
-			location = &locationRaw
+		locationIDRaw := r.URL.Query().Get("location_id")
+		if locationIDRaw != "" {
+			locationID = &locationIDRaw
+		}
+		if locationID != nil {
+			err = goa.MergeErrors(err, goa.ValidateFormat("locationID", *locationID, goa.FormatUUID))
 		}
 		statusRaw := r.URL.Query().Get("status")
 		if statusRaw != "" {
@@ -92,7 +95,7 @@ func DecodeListRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.De
 		if err != nil {
 			return nil, err
 		}
-		payload := NewListPayload(name, aipID, earliestCreatedTime, latestCreatedTime, location, status, cursor)
+		payload := NewListPayload(name, aipID, earliestCreatedTime, latestCreatedTime, locationID, status, cursor)
 
 		return payload, nil
 	}
@@ -968,7 +971,7 @@ func marshalPackageViewsEnduroStoredPackageViewToEnduroStoredPackageResponseBody
 	res := &EnduroStoredPackageResponseBody{
 		ID:          *v.ID,
 		Name:        v.Name,
-		Location:    v.Location,
+		LocationID:  v.LocationID,
 		Status:      *v.Status,
 		WorkflowID:  v.WorkflowID,
 		RunID:       v.RunID,
@@ -1035,8 +1038,8 @@ func marshalPackageViewsEnduroPackageLocationUpdatedEventViewToEnduroPackageLoca
 		return nil
 	}
 	res := &EnduroPackageLocationUpdatedEventResponseBody{
-		ID:       *v.ID,
-		Location: *v.Location,
+		ID:         *v.ID,
+		LocationID: *v.LocationID,
 	}
 
 	return res
@@ -1152,7 +1155,7 @@ func marshalPackageEnduroStoredPackageToEnduroStoredPackageResponseBody(v *packa
 	res := &EnduroStoredPackageResponseBody{
 		ID:          v.ID,
 		Name:        v.Name,
-		Location:    v.Location,
+		LocationID:  v.LocationID,
 		Status:      v.Status,
 		WorkflowID:  v.WorkflowID,
 		RunID:       v.RunID,

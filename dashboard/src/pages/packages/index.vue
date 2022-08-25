@@ -85,7 +85,7 @@ const toggleLegend = () => {
               <UUID :id="pkg.aipId" />
             </td>
             <td>{{ $filters.formatDateTime(pkg.startedAt) }}</td>
-            <td>{{ pkg.location }}</td>
+            <td>{{ pkg.locationId }}</td>
             <td>
               <StatusBadge :status="pkg.status" />
             </td>

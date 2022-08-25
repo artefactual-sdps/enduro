@@ -4,7 +4,7 @@ CREATE TABLE package (
   `workflow_id` VARCHAR(255) NOT NULL,
   `run_id` VARCHAR(36) NOT NULL,
   `aip_id` VARCHAR(36) NOT NULL,
-  `location` VARCHAR(2048) NOT NULL,
+  `location_id` VARCHAR(36) NULL,
   `status` TINYINT NOT NULL,
   `created_at` TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6) NOT NULL,
   `started_at` TIMESTAMP(6) NULL,
@@ -12,7 +12,7 @@ CREATE TABLE package (
   PRIMARY KEY (`id`),
   KEY `package_name_idx` (`name`(50)),
   KEY `package_aip_id_idx` (`aip_id`),
-  KEY `package_location_idx` (`location`(50)),
+  KEY `package_location_id_idx` (`location_id`),
   KEY `package_status_idx` (`status`),
   KEY `package_created_at_idx` (`created_at`),
   KEY `package_started_at_idx` (`started_at`)

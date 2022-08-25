@@ -21,13 +21,13 @@ func TestStorageMoveWorkflow(t *testing.T) {
 	env := s.NewTestWorkflowEnvironment()
 
 	aipID := uuid.NewString()
-	location := "perma-aips-100"
+	locationID := uuid.MustParse("e7452225-53d6-46f3-9f90-d0f2ee18b7cd")
 
 	// Mock services and their expected calls
 	ctrl := gomock.NewController(t)
 	storagesvc := fake.NewMockService(ctrl)
 	storagesvc.EXPECT().Delete(gomock.Any(), aipID)
-	storagesvc.EXPECT().UpdatePackageLocation(gomock.Any(), location, aipID)
+	storagesvc.EXPECT().UpdatePackageLocationID(gomock.Any(), locationID, aipID)
 	storagesvc.EXPECT().UpdatePackageStatus(gomock.Any(), types.StatusMoving, aipID)
 	storagesvc.EXPECT().UpdatePackageStatus(gomock.Any(), types.StatusStored, aipID)
 
@@ -38,8 +38,8 @@ func TestStorageMoveWorkflow(t *testing.T) {
 	env.ExecuteWorkflow(
 		NewStorageMoveWorkflow(storagesvc).Execute,
 		storage.StorageMoveWorkflowRequest{
-			AIPID:    aipID,
-			Location: location,
+			AIPID:      aipID,
+			LocationID: locationID,
 		},
 	)
 

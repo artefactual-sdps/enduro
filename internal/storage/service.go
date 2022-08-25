@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"sync"
 	"time"
 
 	"entgo.io/ent/examples/o2o2types/ent"
@@ -36,10 +35,10 @@ type Service interface {
 	ShowLocation(context.Context, *goastorage.ShowLocationPayload) (res *goastorage.StoredLocation, err error)
 
 	// Used from workflow activities.
-	Location(name string) (Location, error)
+	Location(ctx context.Context, locationID uuid.UUID) (Location, error)
 	ReadPackage(ctx context.Context, AIPID string) (*goastorage.StoredStoragePackage, error)
 	UpdatePackageStatus(ctx context.Context, status types.PackageStatus, aipID string) error
-	UpdatePackageLocation(ctx context.Context, location string, aipID string) error
+	UpdatePackageLocationID(ctx context.Context, locationID uuid.UUID, aipID string) error
 	Delete(ctx context.Context, AIPID string) (err error)
 
 	// Both.
@@ -53,59 +52,46 @@ type serviceImpl struct {
 	// Internal processing location.
 	internal Location
 
-	// Perma locations.
-	locations map[string]Location
-	mu        sync.RWMutex
-
 	// Temporal client.
 	tc temporalsdk_client.Client
 
 	// Persistence client.
 	storagePersistence persistence.Storage
+
+	// Factory for permanent locations.
+	locationFactory LocationFactory
 }
 
 var _ Service = (*serviceImpl)(nil)
 
-func NewService(logger logr.Logger, config Config, storagePersistence persistence.Storage, tc temporalsdk_client.Client) (s *serviceImpl, err error) {
+func NewService(logger logr.Logger, config Config, storagePersistence persistence.Storage, tc temporalsdk_client.Client, internalLocationFactory InternalLocationFactory, locationFactory LocationFactory) (s *serviceImpl, err error) {
 	s = &serviceImpl{
 		logger:             logger,
 		tc:                 tc,
 		config:             config,
 		storagePersistence: storagePersistence,
+		locationFactory:    locationFactory,
 	}
 
-	s.internal, err = NewLocation(config.Internal)
+	s.internal, err = internalLocationFactory(&config.Internal)
 	if err != nil {
 		return nil, err
 	}
 
-	locations := map[string]Location{}
-	for _, item := range config.Locations {
-		l, err := NewLocation(item)
-		if err != nil {
-			return nil, err
-		}
-		locations[item.Name] = l
-	}
-	s.locations = locations
-
 	return s, nil
 }
 
-func (s *serviceImpl) Location(name string) (Location, error) {
-	if name == "" {
+func (s *serviceImpl) Location(ctx context.Context, locationID uuid.UUID) (Location, error) {
+	if locationID == uuid.Nil {
 		return s.internal, nil
 	}
 
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-
-	l, ok := s.locations[name]
-	if !ok {
-		return nil, fmt.Errorf("error loading location: unknown location %s", name)
+	l, err := s.storagePersistence.ReadLocation(ctx, locationID)
+	if err != nil {
+		return nil, fmt.Errorf("error loading location: unknown location %s", locationID)
 	}
 
-	return l, nil
+	return s.locationFactory(l)
 }
 
 func (s *serviceImpl) Submit(ctx context.Context, payload *goastorage.SubmitPayload) (*goastorage.SubmitResult, error) {
@@ -180,8 +166,8 @@ func (s *serviceImpl) Move(ctx context.Context, payload *goastorage.MovePayload)
 	}
 
 	_, err = InitStorageMoveWorkflow(ctx, s.tc, &StorageMoveWorkflowRequest{
-		AIPID:    pkg.AipID,
-		Location: payload.Location,
+		AIPID:      pkg.AipID,
+		LocationID: payload.LocationID,
 	})
 	if err != nil {
 		s.logger.Error(err, "error initializing move workflow")
@@ -254,26 +240,27 @@ func (s *serviceImpl) UpdatePackageStatus(ctx context.Context, status types.Pack
 	return s.storagePersistence.UpdatePackageStatus(ctx, status, AIPUUID)
 }
 
-func (s *serviceImpl) UpdatePackageLocation(ctx context.Context, location string, AIPID string) error {
+func (s *serviceImpl) UpdatePackageLocationID(ctx context.Context, locationID uuid.UUID, AIPID string) error {
 	AIPUUID, err := uuid.Parse(AIPID)
 	if err != nil {
 		return err
 	}
 
-	return s.storagePersistence.UpdatePackageLocation(ctx, location, AIPUUID)
+	return s.storagePersistence.UpdatePackageLocationID(ctx, locationID, AIPUUID)
 }
 
 // packageBucket returns the bucket and the key of the given package.
-func (s *serviceImpl) packageBucket(p *goastorage.StoredStoragePackage) (*blob.Bucket, string, error) {
+func (s *serviceImpl) packageBucket(ctx context.Context, p *goastorage.StoredStoragePackage) (*blob.Bucket, string, error) {
 	// Package is still in the internal processing bucket.
-	if p.Location == nil || *p.Location == "" {
+	if p.LocationID == nil || *p.LocationID == uuid.Nil {
 		return s.internal.Bucket(), p.ObjectKey.String(), nil
 	}
 
-	location, err := s.Location(*p.Location)
+	location, err := s.Location(ctx, *p.LocationID)
 	if err != nil {
 		return nil, "", err
 	}
+
 	return location.Bucket(), p.AipID, nil
 }
 
@@ -283,7 +270,7 @@ func (s *serviceImpl) Delete(ctx context.Context, AIPID string) error {
 		return err
 	}
 
-	bucket, key, err := s.packageBucket(pkg)
+	bucket, key, err := s.packageBucket(ctx, pkg)
 	if err != nil {
 		return err
 	}
@@ -292,7 +279,7 @@ func (s *serviceImpl) Delete(ctx context.Context, AIPID string) error {
 }
 
 func (s *serviceImpl) PackageReader(ctx context.Context, pkg *goastorage.StoredStoragePackage) (*blob.Reader, error) {
-	bucket, key, err := s.packageBucket(pkg)
+	bucket, key, err := s.packageBucket(ctx, pkg)
 	if err != nil {
 		return nil, err
 	}
@@ -336,19 +323,19 @@ func (s *serviceImpl) AddLocation(ctx context.Context, payload *goastorage.AddLo
 	return &goastorage.AddLocationResult{UUID: UUID.String()}, nil
 }
 
-func (s *serviceImpl) ReadLocation(ctx context.Context, UUID string) (*goastorage.StoredLocation, error) {
-	uuid, err := uuid.Parse(UUID)
-	if err != nil {
-		return nil, err
-	}
-
-	return s.storagePersistence.ReadLocation(ctx, uuid)
+func (s *serviceImpl) ReadLocation(ctx context.Context, UUID uuid.UUID) (*goastorage.StoredLocation, error) {
+	return s.storagePersistence.ReadLocation(ctx, UUID)
 }
 
 func (s *serviceImpl) ShowLocation(ctx context.Context, payload *goastorage.ShowLocationPayload) (*goastorage.StoredLocation, error) {
-	l, err := s.ReadLocation(ctx, payload.UUID)
+	locationID, err := uuid.Parse(payload.UUID)
+	if err != nil {
+		return nil, &goastorage.StorageLocationNotfound{UUID: locationID, Message: "not_found"}
+	}
+
+	l, err := s.ReadLocation(ctx, locationID)
 	if errors.Is(err, &ent.NotFoundError{}) || errors.Is(err, &ent.NotSingularError{}) {
-		return nil, &goastorage.StorageLocationNotfound{UUID: payload.UUID, Message: "not_found"}
+		return nil, &goastorage.StorageLocationNotfound{UUID: locationID, Message: "not_found"}
 	} else if err != nil {
 		return nil, goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
 	}

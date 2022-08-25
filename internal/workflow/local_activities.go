@@ -72,13 +72,13 @@ func setStatusLocalActivity(ctx context.Context, pkgsvc package_.Service, pkgID 
 	return pkgsvc.SetStatus(ctx, pkgID, status)
 }
 
-func setLocationLocalActivity(ctx context.Context, pkgsvc package_.Service, pkgID uint, location string) error {
-	return pkgsvc.SetLocation(ctx, pkgID, location)
+func setLocationIDLocalActivity(ctx context.Context, pkgsvc package_.Service, pkgID uint, locationID uuid.UUID) error {
+	return pkgsvc.SetLocationID(ctx, pkgID, locationID)
 }
 
 type saveLocationMovePreservationActionLocalActivityParams struct {
 	PackageID   uint
-	Location    string
+	LocationID  uuid.UUID
 	WorkflowID  string
 	Type        package_.PreservationActionType
 	Status      package_.PreservationActionStatus
@@ -110,7 +110,7 @@ func saveLocationMovePreservationActionLocalActivity(ctx context.Context, pkgsvc
 		TaskID:               uuid.NewString(),
 		Name:                 "Move AIP",
 		Status:               actionStatusToTaskStatus[params.Status],
-		Note:                 fmt.Sprintf("Moved to %s", params.Location),
+		Note:                 fmt.Sprintf("Moved to location %s", params.LocationID),
 		PreservationActionID: paID,
 	}
 	pt.StartedAt.Time = params.StartedAt

@@ -11,6 +11,7 @@ package client
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"io"
 	"net/http"
 	"net/url"
@@ -923,12 +924,19 @@ func DecodeShowLocationResponse(decoder func(*http.Response) goahttp.Decoder, re
 // *StoredLocationResponse.
 func unmarshalStoredLocationResponseToStorageviewsStoredLocationView(v *StoredLocationResponse) *storageviews.StoredLocationView {
 	res := &storageviews.StoredLocationView{
-		ID:          v.ID,
 		Name:        v.Name,
 		Description: v.Description,
 		Source:      v.Source,
 		Purpose:     v.Purpose,
 		UUID:        v.UUID,
+	}
+	if v.Config != nil {
+		switch *v.Config.Type {
+		case "s3":
+			var val *storageviews.S3ConfigView
+			json.Unmarshal([]byte(*v.Config.Value), &val)
+			res.Config = val
+		}
 	}
 
 	return res
