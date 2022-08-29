@@ -836,7 +836,7 @@ func DecodeShowResponse(decoder func(*http.Response) goahttp.Decoder, restoreBod
 }
 
 // BuildShowLocationRequest instantiates a HTTP request object with method and
-// path set to call the "storage" service "show-location" endpoint
+// path set to call the "storage" service "show_location" endpoint
 func (c *Client) BuildShowLocationRequest(ctx context.Context, v interface{}) (*http.Request, error) {
 	var (
 		uuid string
@@ -844,14 +844,14 @@ func (c *Client) BuildShowLocationRequest(ctx context.Context, v interface{}) (*
 	{
 		p, ok := v.(*storage.ShowLocationPayload)
 		if !ok {
-			return nil, goahttp.ErrInvalidType("storage", "show-location", "*storage.ShowLocationPayload", v)
+			return nil, goahttp.ErrInvalidType("storage", "show_location", "*storage.ShowLocationPayload", v)
 		}
 		uuid = p.UUID
 	}
 	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: ShowLocationStoragePath(uuid)}
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
-		return nil, goahttp.ErrInvalidURL("storage", "show-location", u.String(), err)
+		return nil, goahttp.ErrInvalidURL("storage", "show_location", u.String(), err)
 	}
 	if ctx != nil {
 		req = req.WithContext(ctx)
@@ -861,7 +861,7 @@ func (c *Client) BuildShowLocationRequest(ctx context.Context, v interface{}) (*
 }
 
 // DecodeShowLocationResponse returns a decoder for responses returned by the
-// storage show-location endpoint. restoreBody controls whether the response
+// storage show_location endpoint. restoreBody controls whether the response
 // body should be restored after having been read.
 // DecodeShowLocationResponse may return the following errors:
 //   - "not_found" (type *storage.StorageLocationNotfound): http.StatusNotFound
@@ -888,13 +888,13 @@ func DecodeShowLocationResponse(decoder func(*http.Response) goahttp.Decoder, re
 			)
 			err = decoder(resp).Decode(&body)
 			if err != nil {
-				return nil, goahttp.ErrDecodingError("storage", "show-location", err)
+				return nil, goahttp.ErrDecodingError("storage", "show_location", err)
 			}
 			p := NewShowLocationStoredLocationOK(&body)
 			view := "default"
 			vres := &storageviews.StoredLocation{Projected: p, View: view}
 			if err = storageviews.ValidateStoredLocation(vres); err != nil {
-				return nil, goahttp.ErrValidationError("storage", "show-location", err)
+				return nil, goahttp.ErrValidationError("storage", "show_location", err)
 			}
 			res := storage.NewStoredLocation(vres)
 			return res, nil
@@ -905,16 +905,115 @@ func DecodeShowLocationResponse(decoder func(*http.Response) goahttp.Decoder, re
 			)
 			err = decoder(resp).Decode(&body)
 			if err != nil {
-				return nil, goahttp.ErrDecodingError("storage", "show-location", err)
+				return nil, goahttp.ErrDecodingError("storage", "show_location", err)
 			}
 			err = ValidateShowLocationNotFoundResponseBody(&body)
 			if err != nil {
-				return nil, goahttp.ErrValidationError("storage", "show-location", err)
+				return nil, goahttp.ErrValidationError("storage", "show_location", err)
 			}
 			return nil, NewShowLocationNotFound(&body)
 		default:
 			body, _ := io.ReadAll(resp.Body)
-			return nil, goahttp.ErrInvalidResponse("storage", "show-location", resp.StatusCode, string(body))
+			return nil, goahttp.ErrInvalidResponse("storage", "show_location", resp.StatusCode, string(body))
+		}
+	}
+}
+
+// BuildLocationPackagesRequest instantiates a HTTP request object with method
+// and path set to call the "storage" service "location_packages" endpoint
+func (c *Client) BuildLocationPackagesRequest(ctx context.Context, v interface{}) (*http.Request, error) {
+	var (
+		uuid string
+	)
+	{
+		p, ok := v.(*storage.LocationPackagesPayload)
+		if !ok {
+			return nil, goahttp.ErrInvalidType("storage", "location_packages", "*storage.LocationPackagesPayload", v)
+		}
+		uuid = p.UUID
+	}
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: LocationPackagesStoragePath(uuid)}
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		return nil, goahttp.ErrInvalidURL("storage", "location_packages", u.String(), err)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
+	return req, nil
+}
+
+// DecodeLocationPackagesResponse returns a decoder for responses returned by
+// the storage location_packages endpoint. restoreBody controls whether the
+// response body should be restored after having been read.
+// DecodeLocationPackagesResponse may return the following errors:
+//   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
+//   - "not_found" (type *storage.StorageLocationNotfound): http.StatusNotFound
+//   - error: internal error
+func DecodeLocationPackagesResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
+	return func(resp *http.Response) (interface{}, error) {
+		if restoreBody {
+			b, err := io.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			defer func() {
+				resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			}()
+		} else {
+			defer resp.Body.Close()
+		}
+		switch resp.StatusCode {
+		case http.StatusOK:
+			var (
+				body LocationPackagesResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "location_packages", err)
+			}
+			p := NewLocationPackagesStoredStoragePackageCollectionOK(body)
+			view := "default"
+			vres := storageviews.StoredStoragePackageCollection{Projected: p, View: view}
+			if err = storageviews.ValidateStoredStoragePackageCollection(vres); err != nil {
+				return nil, goahttp.ErrValidationError("storage", "location_packages", err)
+			}
+			res := storage.NewStoredStoragePackageCollection(vres)
+			return res, nil
+		case http.StatusBadRequest:
+			var (
+				body LocationPackagesNotValidResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "location_packages", err)
+			}
+			err = ValidateLocationPackagesNotValidResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "location_packages", err)
+			}
+			return nil, NewLocationPackagesNotValid(&body)
+		case http.StatusNotFound:
+			var (
+				body LocationPackagesNotFoundResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "location_packages", err)
+			}
+			err = ValidateLocationPackagesNotFoundResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "location_packages", err)
+			}
+			return nil, NewLocationPackagesNotFound(&body)
+		default:
+			body, _ := io.ReadAll(resp.Body)
+			return nil, goahttp.ErrInvalidResponse("storage", "location_packages", resp.StatusCode, string(body))
 		}
 	}
 }
@@ -929,6 +1028,7 @@ func unmarshalStoredLocationResponseToStorageviewsStoredLocationView(v *StoredLo
 		Source:      v.Source,
 		Purpose:     v.Purpose,
 		UUID:        v.UUID,
+		CreatedAt:   v.CreatedAt,
 	}
 	if v.Config != nil {
 		switch *v.Config.Type {
@@ -937,6 +1037,22 @@ func unmarshalStoredLocationResponseToStorageviewsStoredLocationView(v *StoredLo
 			json.Unmarshal([]byte(*v.Config.Value), &val)
 			res.Config = val
 		}
+	}
+
+	return res
+}
+
+// unmarshalStoredStoragePackageResponseToStorageviewsStoredStoragePackageView
+// builds a value of type *storageviews.StoredStoragePackageView from a value
+// of type *StoredStoragePackageResponse.
+func unmarshalStoredStoragePackageResponseToStorageviewsStoredStoragePackageView(v *StoredStoragePackageResponse) *storageviews.StoredStoragePackageView {
+	res := &storageviews.StoredStoragePackageView{
+		Name:       v.Name,
+		AipID:      v.AipID,
+		Status:     v.Status,
+		ObjectKey:  v.ObjectKey,
+		LocationID: v.LocationID,
+		CreatedAt:  v.CreatedAt,
 	}
 
 	return res

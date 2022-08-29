@@ -429,7 +429,10 @@ func TestServiceLocation(t *testing.T) {
 		).
 		Return(
 			nil,
-			errors.New("unknown location d8ea8946-dc82-4f4e-8c2d-8d3861f3297d"),
+			&goastorage.StorageLocationNotfound{
+				UUID:    uuid.MustParse("d8ea8946-dc82-4f4e-8c2d-8d3861f3297d"),
+				Message: "location not found",
+			},
 		).Times(1)
 
 	testCases := map[string]struct {
@@ -446,7 +449,10 @@ func TestServiceLocation(t *testing.T) {
 		},
 		"Returns error when location cannot be found": {
 			uuid.MustParse("d8ea8946-dc82-4f4e-8c2d-8d3861f3297d"),
-			errors.New("error loading location: unknown location d8ea8946-dc82-4f4e-8c2d-8d3861f3297d"),
+			&goastorage.StorageLocationNotfound{
+				UUID:    uuid.MustParse("d8ea8946-dc82-4f4e-8c2d-8d3861f3297d"),
+				Message: "location not found",
+			},
 		},
 	}
 
@@ -789,12 +795,12 @@ func TestServiceDelete(t *testing.T) {
 			).
 			Return(
 				nil,
-				errors.New("unknown location 7484e911-7fc3-40c2-acb4-91e552d05380"),
+				&goastorage.StorageLocationNotfound{UUID: locationID, Message: "location not found"},
 			).
 			Times(1)
 
 		err := svc.Delete(ctx, AIPID)
-		assert.Error(t, err, "error loading location: unknown location 7484e911-7fc3-40c2-acb4-91e552d05380")
+		assert.ErrorContains(t, err, "location not found")
 	})
 }
 
@@ -859,7 +865,7 @@ func TestPackageReader(t *testing.T) {
 			).
 			Return(
 				nil,
-				errors.New("unknown location 7484e911-7fc3-40c2-acb4-91e552d05380"),
+				&goastorage.StorageLocationNotfound{UUID: locationID, Message: "location not found"},
 			).
 			Times(1)
 
@@ -868,7 +874,7 @@ func TestPackageReader(t *testing.T) {
 			ObjectKey:  uuid.MustParse(AIPID),
 			LocationID: &locationID,
 		})
-		assert.Error(t, err, "error loading location: unknown location 7484e911-7fc3-40c2-acb4-91e552d05380")
+		assert.ErrorContains(t, err, "location not found")
 	})
 
 	t.Run("Fails if the reader cannot be created", func(t *testing.T) {

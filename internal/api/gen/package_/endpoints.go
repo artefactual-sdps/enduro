@@ -92,7 +92,7 @@ func NewShowEndpoint(s Service) goa.Endpoint {
 }
 
 // NewPreservationActionsEndpoint returns an endpoint function that calls the
-// method "preservation-actions" of service "package".
+// method "preservation_actions" of service "package".
 func NewPreservationActionsEndpoint(s Service) goa.Endpoint {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
 		p := req.(*PreservationActionsPayload)

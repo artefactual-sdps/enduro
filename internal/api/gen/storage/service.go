@@ -38,6 +38,8 @@ type Service interface {
 	Show(context.Context, *ShowPayload) (res *StoredStoragePackage, err error)
 	// Show location by UUID
 	ShowLocation(context.Context, *ShowLocationPayload) (res *StoredLocation, err error)
+	// List all the packages stored in the location with UUID
+	LocationPackages(context.Context, *LocationPackagesPayload) (res StoredStoragePackageCollection, err error)
 }
 
 // ServiceName is the name of the service as defined in the design. This is the
@@ -48,7 +50,7 @@ const ServiceName = "storage"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [10]string{"submit", "update", "download", "locations", "add_location", "move", "move_status", "reject", "show", "show-location"}
+var MethodNames = [11]string{"submit", "update", "download", "locations", "add_location", "move", "move_status", "reject", "show", "show_location", "location_packages"}
 
 // AddLocationPayload is the payload type of the storage service add_location
 // method.
@@ -87,6 +89,14 @@ type Location struct {
 	Config  interface {
 		configVal()
 	}
+	// Creation datetime
+	CreatedAt string
+}
+
+// LocationPackagesPayload is the payload type of the storage service
+// location_packages method.
+type LocationPackagesPayload struct {
+	UUID string
 }
 
 // MovePayload is the payload type of the storage service move method.
@@ -123,7 +133,7 @@ type S3Config struct {
 	Token     *string
 }
 
-// ShowLocationPayload is the payload type of the storage service show-location
+// ShowLocationPayload is the payload type of the storage service show_location
 // method.
 type ShowLocationPayload struct {
 	UUID string
@@ -149,6 +159,8 @@ type StoragePackage struct {
 	Status     string
 	ObjectKey  *uuid.UUID
 	LocationID *uuid.UUID
+	// Creation datetime
+	CreatedAt string
 }
 
 // Storage package not found.
@@ -156,10 +168,10 @@ type StoragePackageNotfound struct {
 	// Message of error
 	Message string
 	// Identifier of missing package
-	AipID string
+	AipID uuid.UUID
 }
 
-// StoredLocation is the result type of the storage service show-location
+// StoredLocation is the result type of the storage service show_location
 // method.
 type StoredLocation struct {
 	// Name of location
@@ -174,6 +186,8 @@ type StoredLocation struct {
 	Config  interface {
 		configVal()
 	}
+	// Creation datetime
+	CreatedAt string
 }
 
 // StoredLocationCollection is the result type of the storage service locations
@@ -188,7 +202,13 @@ type StoredStoragePackage struct {
 	Status     string
 	ObjectKey  uuid.UUID
 	LocationID *uuid.UUID
+	// Creation datetime
+	CreatedAt string
 }
+
+// StoredStoragePackageCollection is the result type of the storage service
+// location_packages method.
+type StoredStoragePackageCollection []*StoredStoragePackage
 
 // SubmitPayload is the payload type of the storage service submit method.
 type SubmitPayload struct {
@@ -213,7 +233,7 @@ func (e *StorageLocationNotfound) Error() string {
 
 // ErrorName returns "StorageLocationNotfound".
 func (e *StorageLocationNotfound) ErrorName() string {
-	return e.Message
+	return "not_found"
 }
 
 // Error returns an error description.
@@ -283,6 +303,21 @@ func NewViewedStoredLocation(res *StoredLocation, view string) *storageviews.Sto
 	return &storageviews.StoredLocation{Projected: p, View: "default"}
 }
 
+// NewStoredStoragePackageCollection initializes result type
+// StoredStoragePackageCollection from viewed result type
+// StoredStoragePackageCollection.
+func NewStoredStoragePackageCollection(vres storageviews.StoredStoragePackageCollection) StoredStoragePackageCollection {
+	return newStoredStoragePackageCollection(vres.Projected)
+}
+
+// NewViewedStoredStoragePackageCollection initializes viewed result type
+// StoredStoragePackageCollection from result type
+// StoredStoragePackageCollection using the given view.
+func NewViewedStoredStoragePackageCollection(res StoredStoragePackageCollection, view string) storageviews.StoredStoragePackageCollection {
+	p := newStoredStoragePackageCollectionView(res)
+	return storageviews.StoredStoragePackageCollection{Projected: p, View: "default"}
+}
+
 // newStoredLocationCollection converts projected type StoredLocationCollection
 // to service type StoredLocationCollection.
 func newStoredLocationCollection(vres storageviews.StoredLocationCollectionView) StoredLocationCollection {
@@ -322,6 +357,9 @@ func newStoredLocation(vres *storageviews.StoredLocationView) *StoredLocation {
 	if vres.UUID != nil {
 		res.UUID = *vres.UUID
 	}
+	if vres.CreatedAt != nil {
+		res.CreatedAt = *vres.CreatedAt
+	}
 	if vres.Source == nil {
 		res.Source = "unspecified"
 	}
@@ -340,6 +378,7 @@ func newStoredLocationView(res *StoredLocation) *storageviews.StoredLocationView
 		Source:      &res.Source,
 		Purpose:     &res.Purpose,
 		UUID:        &res.UUID,
+		CreatedAt:   &res.CreatedAt,
 	}
 	return vres
 }
@@ -362,6 +401,9 @@ func newStoredStoragePackage(vres *storageviews.StoredStoragePackageView) *Store
 	if vres.ObjectKey != nil {
 		res.ObjectKey = *vres.ObjectKey
 	}
+	if vres.CreatedAt != nil {
+		res.CreatedAt = *vres.CreatedAt
+	}
 	if vres.Status == nil {
 		res.Status = "unspecified"
 	}
@@ -377,6 +419,29 @@ func newStoredStoragePackageView(res *StoredStoragePackage) *storageviews.Stored
 		Status:     &res.Status,
 		ObjectKey:  &res.ObjectKey,
 		LocationID: res.LocationID,
+		CreatedAt:  &res.CreatedAt,
+	}
+	return vres
+}
+
+// newStoredStoragePackageCollection converts projected type
+// StoredStoragePackageCollection to service type
+// StoredStoragePackageCollection.
+func newStoredStoragePackageCollection(vres storageviews.StoredStoragePackageCollectionView) StoredStoragePackageCollection {
+	res := make(StoredStoragePackageCollection, len(vres))
+	for i, n := range vres {
+		res[i] = newStoredStoragePackage(n)
+	}
+	return res
+}
+
+// newStoredStoragePackageCollectionView projects result type
+// StoredStoragePackageCollection to projected type
+// StoredStoragePackageCollectionView using the "default" view.
+func newStoredStoragePackageCollectionView(res StoredStoragePackageCollection) storageviews.StoredStoragePackageCollectionView {
+	vres := make(storageviews.StoredStoragePackageCollectionView, len(res))
+	for i, n := range res {
+		vres[i] = newStoredStoragePackageView(n)
 	}
 	return vres
 }

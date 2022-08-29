@@ -14,11 +14,17 @@
 
 import { exists, mapValues } from '../runtime';
 /**
- * Show-LocationResponseBody result type (default view)
+ * show_location_response_body result type (default view)
  * @export
  * @interface StorageShowLocationResponseBody
  */
 export interface StorageShowLocationResponseBody {
+    /**
+     * Creation datetime
+     * @type {Date}
+     * @memberof StorageShowLocationResponseBody
+     */
+    createdAt: Date;
     /**
      * Description of the location
      * @type {string}
@@ -81,6 +87,7 @@ export function StorageShowLocationResponseBodyFromJSONTyped(json: any, ignoreDi
     }
     return {
         
+        'createdAt': (new Date(json['created_at'])),
         'description': !exists(json, 'description') ? undefined : json['description'],
         'name': json['name'],
         'purpose': json['purpose'],
@@ -98,6 +105,7 @@ export function StorageShowLocationResponseBodyToJSON(value?: StorageShowLocatio
     }
     return {
         
+        'created_at': (value.createdAt.toISOString()),
         'description': value.description,
         'name': value.name,
         'purpose': value.purpose,

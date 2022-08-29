@@ -39,6 +39,15 @@ type StoredLocation struct {
 	View string
 }
 
+// StoredStoragePackageCollection is the viewed result type that is projected
+// based on a view.
+type StoredStoragePackageCollection struct {
+	// Type to project
+	Projected StoredStoragePackageCollectionView
+	// View to render
+	View string
+}
+
 // StoredLocationCollectionView is a type that runs validations on a projected
 // type.
 type StoredLocationCollectionView []*StoredLocationView
@@ -57,6 +66,8 @@ type StoredLocationView struct {
 	Config  interface {
 		configVal()
 	}
+	// Creation datetime
+	CreatedAt *string
 }
 
 // S3ConfigView is a type that runs validations on a projected type.
@@ -79,7 +90,13 @@ type StoredStoragePackageView struct {
 	Status     *string
 	ObjectKey  *uuid.UUID
 	LocationID *uuid.UUID
+	// Creation datetime
+	CreatedAt *string
 }
+
+// StoredStoragePackageCollectionView is a type that runs validations on a
+// projected type.
+type StoredStoragePackageCollectionView []*StoredStoragePackageView
 
 func (*S3ConfigView) configVal() {}
 
@@ -93,6 +110,7 @@ var (
 			"source",
 			"purpose",
 			"uuid",
+			"created_at",
 		},
 	}
 	// StoredStoragePackageMap is a map indexing the attribute names of
@@ -104,6 +122,7 @@ var (
 			"status",
 			"object_key",
 			"location_id",
+			"created_at",
 		},
 	}
 	// StoredLocationMap is a map indexing the attribute names of StoredLocation by
@@ -115,6 +134,19 @@ var (
 			"source",
 			"purpose",
 			"uuid",
+			"created_at",
+		},
+	}
+	// StoredStoragePackageCollectionMap is a map indexing the attribute names of
+	// StoredStoragePackageCollection by view name.
+	StoredStoragePackageCollectionMap = map[string][]string{
+		"default": {
+			"name",
+			"aip_id",
+			"status",
+			"object_key",
+			"location_id",
+			"created_at",
 		},
 	}
 )
@@ -155,6 +187,18 @@ func ValidateStoredLocation(result *StoredLocation) (err error) {
 	return
 }
 
+// ValidateStoredStoragePackageCollection runs the validations defined on the
+// viewed result type StoredStoragePackageCollection.
+func ValidateStoredStoragePackageCollection(result StoredStoragePackageCollection) (err error) {
+	switch result.View {
+	case "default", "":
+		err = ValidateStoredStoragePackageCollectionView(result.Projected)
+	default:
+		err = goa.InvalidEnumValueError("view", result.View, []interface{}{"default"})
+	}
+	return
+}
+
 // ValidateStoredLocationCollectionView runs the validations defined on
 // StoredLocationCollectionView using the "default" view.
 func ValidateStoredLocationCollectionView(result StoredLocationCollectionView) (err error) {
@@ -181,6 +225,9 @@ func ValidateStoredLocationView(result *StoredLocationView) (err error) {
 	if result.UUID == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("uuid", "result"))
 	}
+	if result.CreatedAt == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("created_at", "result"))
+	}
 	if result.Source != nil {
 		if !(*result.Source == "unspecified" || *result.Source == "minio") {
 			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.source", *result.Source, []interface{}{"unspecified", "minio"}))
@@ -190,6 +237,9 @@ func ValidateStoredLocationView(result *StoredLocationView) (err error) {
 		if !(*result.Purpose == "unspecified" || *result.Purpose == "aip_store") {
 			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.purpose", *result.Purpose, []interface{}{"unspecified", "aip_store"}))
 		}
+	}
+	if result.CreatedAt != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("result.created_at", *result.CreatedAt, goa.FormatDateTime))
 	}
 	return
 }
@@ -220,9 +270,26 @@ func ValidateStoredStoragePackageView(result *StoredStoragePackageView) (err err
 	if result.ObjectKey == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("object_key", "result"))
 	}
+	if result.CreatedAt == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("created_at", "result"))
+	}
 	if result.Status != nil {
 		if !(*result.Status == "unspecified" || *result.Status == "in_review" || *result.Status == "rejected" || *result.Status == "stored" || *result.Status == "moving") {
 			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.status", *result.Status, []interface{}{"unspecified", "in_review", "rejected", "stored", "moving"}))
+		}
+	}
+	if result.CreatedAt != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("result.created_at", *result.CreatedAt, goa.FormatDateTime))
+	}
+	return
+}
+
+// ValidateStoredStoragePackageCollectionView runs the validations defined on
+// StoredStoragePackageCollectionView using the "default" view.
+func ValidateStoredStoragePackageCollectionView(result StoredStoragePackageCollectionView) (err error) {
+	for _, item := range result {
+		if err2 := ValidateStoredStoragePackageView(item); err2 != nil {
+			err = goa.MergeErrors(err, err2)
 		}
 	}
 	return

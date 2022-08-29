@@ -8,14 +8,12 @@ import { usePackageStore } from "@/stores/package";
 import { useAsyncState } from "@vueuse/core";
 import Tooltip from "bootstrap/js/dist/tooltip";
 import { onMounted } from "vue";
-import { useRouter } from "vue-router";
 import IconInfoFill from "~icons/akar-icons/info-fill";
 import IconBundleLine from "~icons/clarity/bundle-line";
 
 const layoutStore = useLayoutStore();
 layoutStore.updateBreadcrumb([{ text: "Packages" }]);
 
-const router = useRouter();
 const packageStore = usePackageStore();
 
 const { execute, error } = useAsyncState(() => {

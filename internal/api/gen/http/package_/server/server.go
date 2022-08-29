@@ -293,7 +293,7 @@ func NewShowHandler(
 }
 
 // MountPreservationActionsHandler configures the mux to serve the "package"
-// service "preservation-actions" endpoint.
+// service "preservation_actions" endpoint.
 func MountPreservationActionsHandler(mux goahttp.Muxer, h http.Handler) {
 	f, ok := HandlePackageOrigin(h).(http.HandlerFunc)
 	if !ok {
@@ -305,7 +305,7 @@ func MountPreservationActionsHandler(mux goahttp.Muxer, h http.Handler) {
 }
 
 // NewPreservationActionsHandler creates a HTTP handler which loads the HTTP
-// request and calls the "package" service "preservation-actions" endpoint.
+// request and calls the "package" service "preservation_actions" endpoint.
 func NewPreservationActionsHandler(
 	endpoint goa.Endpoint,
 	mux goahttp.Muxer,
@@ -321,7 +321,7 @@ func NewPreservationActionsHandler(
 	)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
-		ctx = context.WithValue(ctx, goa.MethodKey, "preservation-actions")
+		ctx = context.WithValue(ctx, goa.MethodKey, "preservation_actions")
 		ctx = context.WithValue(ctx, goa.ServiceKey, "package")
 		payload, err := decodeRequest(r)
 		if err != nil {

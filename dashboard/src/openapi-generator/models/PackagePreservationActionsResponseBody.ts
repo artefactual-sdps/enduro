@@ -21,7 +21,7 @@ import {
 } from './EnduroPackagePreservationActionResponseBody';
 
 /**
- * Preservation-ActionsResponseBody result type (default view)
+ * preservation_actions_response_body result type (default view)
  * @export
  * @interface PackagePreservationActionsResponseBody
  */

@@ -18,6 +18,7 @@ var (
 		{Name: "purpose", Type: field.TypeEnum, Enums: []string{"unspecified", "aip_store"}},
 		{Name: "uuid", Type: field.TypeUUID, Unique: true},
 		{Name: "config", Type: field.TypeJSON},
+		{Name: "created_at", Type: field.TypeTime},
 	}
 	// LocationTable holds the schema information for the "location" table.
 	LocationTable = &schema.Table{
@@ -47,6 +48,7 @@ var (
 		{Name: "aip_id", Type: field.TypeUUID, Unique: true},
 		{Name: "status", Type: field.TypeEnum, Enums: []string{"unspecified", "in_review", "rejected", "stored", "moving"}},
 		{Name: "object_key", Type: field.TypeUUID, Unique: true},
+		{Name: "created_at", Type: field.TypeTime},
 		{Name: "location_id", Type: field.TypeInt, Nullable: true},
 	}
 	// PackageTable holds the schema information for the "package" table.
@@ -57,7 +59,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "package_location_location",
-				Columns:    []*schema.Column{PackageColumns[5]},
+				Columns:    []*schema.Column{PackageColumns[6]},
 				RefColumns: []*schema.Column{LocationColumns[0]},
 				OnDelete:   schema.SetNull,
 			},

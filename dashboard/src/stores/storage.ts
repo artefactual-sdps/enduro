@@ -1,19 +1,36 @@
 import { api, client } from "@/client";
+import { useLayoutStore } from "@/stores/layout";
 import { defineStore, acceptHMRUpdate } from "pinia";
 
 export const useStorageStore = defineStore("storage", {
   state: () => ({
     locations: [] as Array<api.StoredLocationResponse>,
+    current: null as api.StoredLocationResponse | null,
+    current_packages: [] as Array<api.StoredStoragePackageResponse>,
   }),
   getters: {},
   actions: {
     async fetchLocations() {
+      const resp = await client.storage.storageLocations();
+      this.locations = resp;
+    },
+    async fetchCurrent(uuid: string) {
       this.$reset();
-      try {
-        this.locations = await client.storage.storageLocations();
-      } catch (error) {
-        return error;
-      }
+
+      this.current = await client.storage.storageShowLocation({ uuid: uuid });
+
+      // Update breadcrumb. TODO: should this be done in the component?
+      const layoutStore = useLayoutStore();
+      layoutStore.updateBreadcrumb([
+        { routeName: "locations", text: "Locations" },
+        { text: this.current.name },
+      ]);
+
+      await Promise.all([
+        client.storage.storageLocationPackages({ uuid: uuid }).then((resp) => {
+          this.current_packages = resp;
+        }),
+      ]);
     },
   },
 });

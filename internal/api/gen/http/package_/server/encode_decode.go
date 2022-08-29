@@ -150,6 +150,19 @@ func EncodeShowError(encoder func(context.Context, http.ResponseWriter) goahttp.
 			return encodeError(ctx, w, v)
 		}
 		switch en.ErrorName() {
+		case "not_available":
+			var res *goa.ServiceError
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			var body interface{}
+			if formatter != nil {
+				body = formatter(res)
+			} else {
+				body = NewShowNotAvailableResponseBody(res)
+			}
+			w.Header().Set("goa-error", res.ErrorName())
+			w.WriteHeader(http.StatusConflict)
+			return enc.Encode(body)
 		case "not_found":
 			var res *package_.PackageNotfound
 			errors.As(v, &res)
@@ -170,7 +183,7 @@ func EncodeShowError(encoder func(context.Context, http.ResponseWriter) goahttp.
 }
 
 // EncodePreservationActionsResponse returns an encoder for responses returned
-// by the package preservation-actions endpoint.
+// by the package preservation_actions endpoint.
 func EncodePreservationActionsResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
 	return func(ctx context.Context, w http.ResponseWriter, v interface{}) error {
 		res := v.(*package_views.EnduroPackagePreservationActions)
@@ -182,7 +195,7 @@ func EncodePreservationActionsResponse(encoder func(context.Context, http.Respon
 }
 
 // DecodePreservationActionsRequest returns a decoder for requests sent to the
-// package preservation-actions endpoint.
+// package preservation_actions endpoint.
 func DecodePreservationActionsRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (interface{}, error) {
 	return func(r *http.Request) (interface{}, error) {
 		var (
@@ -209,7 +222,7 @@ func DecodePreservationActionsRequest(mux goahttp.Muxer, decoder func(*http.Requ
 }
 
 // EncodePreservationActionsError returns an encoder for errors returned by the
-// preservation-actions package endpoint.
+// preservation_actions package endpoint.
 func EncodePreservationActionsError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
 	encodeError := goahttp.ErrorEncoder(encoder, formatter)
 	return func(ctx context.Context, w http.ResponseWriter, v error) error {

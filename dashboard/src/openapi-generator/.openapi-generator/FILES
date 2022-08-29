@@ -35,6 +35,7 @@ models/PackagePreservationActionsResponseBody.ts
 models/PackageRejectNotAvailableResponseBody.ts
 models/PackageRejectNotFoundResponseBody.ts
 models/PackageRejectNotValidResponseBody.ts
+models/PackageShowNotAvailableResponseBody.ts
 models/PackageShowNotFoundResponseBody.ts
 models/PackageShowResponseBody.ts
 models/StorageAddLocationNotValidResponseBody.ts
@@ -42,6 +43,8 @@ models/StorageAddLocationRequestBody.ts
 models/StorageAddLocationRequestBodyConfig.ts
 models/StorageAddLocationResponseBody.ts
 models/StorageDownloadNotFoundResponseBody.ts
+models/StorageLocationPackagesNotFoundResponseBody.ts
+models/StorageLocationPackagesNotValidResponseBody.ts
 models/StorageMoveNotAvailableResponseBody.ts
 models/StorageMoveNotFoundResponseBody.ts
 models/StorageMoveNotValidResponseBody.ts
@@ -63,5 +66,6 @@ models/StorageSubmitResponseBody.ts
 models/StorageUpdateNotAvailableResponseBody.ts
 models/StorageUpdateNotValidResponseBody.ts
 models/StoredLocationResponse.ts
+models/StoredStoragePackageResponse.ts
 models/index.ts
 runtime.ts

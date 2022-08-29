@@ -20,5 +20,6 @@ type Storage interface {
 	// Location.
 	CreateLocation(ctx context.Context, location *goastorage.Location, config *types.LocationConfig) (*goastorage.StoredLocation, error)
 	ListLocations(ctx context.Context) (goastorage.StoredLocationCollection, error)
-	ReadLocation(ctx context.Context, uuid uuid.UUID) (*goastorage.StoredLocation, error)
+	ReadLocation(ctx context.Context, locationID uuid.UUID) (*goastorage.StoredLocation, error)
+	LocationPackages(ctx context.Context, locationID uuid.UUID) (goastorage.StoredStoragePackageCollection, error)
 }

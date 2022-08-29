@@ -24,12 +24,17 @@ func BuildSubmitPayload(storageSubmitBody string, storageSubmitAipID string) (*s
 	{
 		err = json.Unmarshal([]byte(storageSubmitBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"name\": \"Occaecati aut.\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"name\": \"Est quia et praesentium a autem.\"\n   }'")
 		}
 	}
 	var aipID string
 	{
 		aipID = storageSubmitAipID
+		err = goa.MergeErrors(err, goa.ValidateFormat("aipID", aipID, goa.FormatUUID))
+
+		if err != nil {
+			return nil, err
+		}
 	}
 	v := &storage.SubmitPayload{
 		Name: body.Name,
@@ -42,9 +47,15 @@ func BuildSubmitPayload(storageSubmitBody string, storageSubmitAipID string) (*s
 // BuildUpdatePayload builds the payload for the storage update endpoint from
 // CLI flags.
 func BuildUpdatePayload(storageUpdateAipID string) (*storage.UpdatePayload, error) {
+	var err error
 	var aipID string
 	{
 		aipID = storageUpdateAipID
+		err = goa.MergeErrors(err, goa.ValidateFormat("aipID", aipID, goa.FormatUUID))
+
+		if err != nil {
+			return nil, err
+		}
 	}
 	v := &storage.UpdatePayload{}
 	v.AipID = aipID
@@ -55,9 +66,15 @@ func BuildUpdatePayload(storageUpdateAipID string) (*storage.UpdatePayload, erro
 // BuildDownloadPayload builds the payload for the storage download endpoint
 // from CLI flags.
 func BuildDownloadPayload(storageDownloadAipID string) (*storage.DownloadPayload, error) {
+	var err error
 	var aipID string
 	{
 		aipID = storageDownloadAipID
+		err = goa.MergeErrors(err, goa.ValidateFormat("aipID", aipID, goa.FormatUUID))
+
+		if err != nil {
+			return nil, err
+		}
 	}
 	v := &storage.DownloadPayload{}
 	v.AipID = aipID
@@ -73,7 +90,7 @@ func BuildAddLocationPayload(storageAddLocationBody string) (*storage.AddLocatio
 	{
 		err = json.Unmarshal([]byte(storageAddLocationBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"config\": {\n         \"Type\": \"s3\",\n         \"Value\": \"\\\"JSON\\\"\"\n      },\n      \"description\": \"Voluptatem fugiat officia repellat voluptatibus distinctio dolorem.\",\n      \"name\": \"Magnam tempore et qui.\",\n      \"purpose\": \"unspecified\",\n      \"source\": \"minio\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"config\": {\n         \"Type\": \"s3\",\n         \"Value\": \"\\\"JSON\\\"\"\n      },\n      \"description\": \"Est sed.\",\n      \"name\": \"Quam aut sit quo.\",\n      \"purpose\": \"aip_store\",\n      \"source\": \"minio\"\n   }'")
 		}
 		if !(body.Source == "unspecified" || body.Source == "minio") {
 			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.source", body.Source, []interface{}{"unspecified", "minio"}))
@@ -116,12 +133,17 @@ func BuildMovePayload(storageMoveBody string, storageMoveAipID string) (*storage
 	{
 		err = json.Unmarshal([]byte(storageMoveBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location_id\": \"Similique praesentium velit aspernatur alias animi.\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location_id\": \"Dignissimos deserunt autem.\"\n   }'")
 		}
 	}
 	var aipID string
 	{
 		aipID = storageMoveAipID
+		err = goa.MergeErrors(err, goa.ValidateFormat("aipID", aipID, goa.FormatUUID))
+
+		if err != nil {
+			return nil, err
+		}
 	}
 	v := &storage.MovePayload{
 		LocationID: body.LocationID,
@@ -134,9 +156,15 @@ func BuildMovePayload(storageMoveBody string, storageMoveAipID string) (*storage
 // BuildMoveStatusPayload builds the payload for the storage move_status
 // endpoint from CLI flags.
 func BuildMoveStatusPayload(storageMoveStatusAipID string) (*storage.MoveStatusPayload, error) {
+	var err error
 	var aipID string
 	{
 		aipID = storageMoveStatusAipID
+		err = goa.MergeErrors(err, goa.ValidateFormat("aipID", aipID, goa.FormatUUID))
+
+		if err != nil {
+			return nil, err
+		}
 	}
 	v := &storage.MoveStatusPayload{}
 	v.AipID = aipID
@@ -147,9 +175,15 @@ func BuildMoveStatusPayload(storageMoveStatusAipID string) (*storage.MoveStatusP
 // BuildRejectPayload builds the payload for the storage reject endpoint from
 // CLI flags.
 func BuildRejectPayload(storageRejectAipID string) (*storage.RejectPayload, error) {
+	var err error
 	var aipID string
 	{
 		aipID = storageRejectAipID
+		err = goa.MergeErrors(err, goa.ValidateFormat("aipID", aipID, goa.FormatUUID))
+
+		if err != nil {
+			return nil, err
+		}
 	}
 	v := &storage.RejectPayload{}
 	v.AipID = aipID
@@ -160,9 +194,15 @@ func BuildRejectPayload(storageRejectAipID string) (*storage.RejectPayload, erro
 // BuildShowPayload builds the payload for the storage show endpoint from CLI
 // flags.
 func BuildShowPayload(storageShowAipID string) (*storage.ShowPayload, error) {
+	var err error
 	var aipID string
 	{
 		aipID = storageShowAipID
+		err = goa.MergeErrors(err, goa.ValidateFormat("aipID", aipID, goa.FormatUUID))
+
+		if err != nil {
+			return nil, err
+		}
 	}
 	v := &storage.ShowPayload{}
 	v.AipID = aipID
@@ -170,7 +210,7 @@ func BuildShowPayload(storageShowAipID string) (*storage.ShowPayload, error) {
 	return v, nil
 }
 
-// BuildShowLocationPayload builds the payload for the storage show-location
+// BuildShowLocationPayload builds the payload for the storage show_location
 // endpoint from CLI flags.
 func BuildShowLocationPayload(storageShowLocationUUID string) (*storage.ShowLocationPayload, error) {
 	var err error
@@ -184,6 +224,25 @@ func BuildShowLocationPayload(storageShowLocationUUID string) (*storage.ShowLoca
 		}
 	}
 	v := &storage.ShowLocationPayload{}
+	v.UUID = uuid
+
+	return v, nil
+}
+
+// BuildLocationPackagesPayload builds the payload for the storage
+// location_packages endpoint from CLI flags.
+func BuildLocationPackagesPayload(storageLocationPackagesUUID string) (*storage.LocationPackagesPayload, error) {
+	var err error
+	var uuid string
+	{
+		uuid = storageLocationPackagesUUID
+		err = goa.MergeErrors(err, goa.ValidateFormat("uuid", uuid, goa.FormatUUID))
+
+		if err != nil {
+			return nil, err
+		}
+	}
+	v := &storage.LocationPackagesPayload{}
 	v.UUID = uuid
 
 	return v, nil

@@ -69,6 +69,9 @@ import {
     PackageRejectNotValidResponseBody,
     PackageRejectNotValidResponseBodyFromJSON,
     PackageRejectNotValidResponseBodyToJSON,
+    PackageShowNotAvailableResponseBody,
+    PackageShowNotAvailableResponseBodyFromJSON,
+    PackageShowNotAvailableResponseBodyToJSON,
     PackageShowNotFoundResponseBody,
     PackageShowNotFoundResponseBodyFromJSON,
     PackageShowNotFoundResponseBodyToJSON,
@@ -208,7 +211,7 @@ export interface PackageApiInterface {
 
     /**
      * List all preservation actions by ID
-     * @summary preservation-actions package
+     * @summary preservation_actions package
      * @param {number} id Identifier of package to look up
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -218,7 +221,7 @@ export interface PackageApiInterface {
 
     /**
      * List all preservation actions by ID
-     * preservation-actions package
+     * preservation_actions package
      */
     packagePreservationActions(requestParameters: PackagePreservationActionsRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<PackagePreservationActionsResponseBody>;
 
@@ -452,7 +455,7 @@ export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
 
     /**
      * List all preservation actions by ID
-     * preservation-actions package
+     * preservation_actions package
      */
     async packagePreservationActionsRaw(requestParameters: PackagePreservationActionsRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<PackagePreservationActionsResponseBody>> {
         if (requestParameters.id === null || requestParameters.id === undefined) {
@@ -475,7 +478,7 @@ export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
 
     /**
      * List all preservation actions by ID
-     * preservation-actions package
+     * preservation_actions package
      */
     async packagePreservationActions(requestParameters: PackagePreservationActionsRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<PackagePreservationActionsResponseBody> {
         const response = await this.packagePreservationActionsRaw(requestParameters, initOverrides);

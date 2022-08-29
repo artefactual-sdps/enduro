@@ -4,6 +4,7 @@ package pkg
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/artefactual-sdps/enduro/internal/storage/types"
 )
@@ -23,6 +24,8 @@ const (
 	FieldStatus = "status"
 	// FieldObjectKey holds the string denoting the object_key field in the database.
 	FieldObjectKey = "object_key"
+	// FieldCreatedAt holds the string denoting the created_at field in the database.
+	FieldCreatedAt = "created_at"
 	// EdgeLocation holds the string denoting the location edge name in mutations.
 	EdgeLocation = "location"
 	// Table holds the table name of the pkg in the database.
@@ -44,6 +47,7 @@ var Columns = []string{
 	FieldLocationID,
 	FieldStatus,
 	FieldObjectKey,
+	FieldCreatedAt,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -55,6 +59,11 @@ func ValidColumn(column string) bool {
 	}
 	return false
 }
+
+var (
+	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
+	DefaultCreatedAt func() time.Time
+)
 
 // StatusValidator is a validator for the "status" field enum values. It is called by the builders before save.
 func StatusValidator(s types.PackageStatus) error {

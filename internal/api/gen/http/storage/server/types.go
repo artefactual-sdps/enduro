@@ -76,10 +76,12 @@ type ShowResponseBody struct {
 	Status     string     `form:"status" json:"status" xml:"status"`
 	ObjectKey  uuid.UUID  `form:"object_key" json:"object_key" xml:"object_key"`
 	LocationID *uuid.UUID `form:"location_id,omitempty" json:"location_id,omitempty" xml:"location_id,omitempty"`
+	// Creation datetime
+	CreatedAt string `form:"created_at" json:"created_at" xml:"created_at"`
 }
 
 // ShowLocationResponseBody is the type of the "storage" service
-// "show-location" endpoint HTTP response body.
+// "show_location" endpoint HTTP response body.
 type ShowLocationResponseBody struct {
 	// Name of location
 	Name string `form:"name" json:"name" xml:"name"`
@@ -90,7 +92,13 @@ type ShowLocationResponseBody struct {
 	// Purpose of the location
 	Purpose string    `form:"purpose" json:"purpose" xml:"purpose"`
 	UUID    uuid.UUID `form:"uuid" json:"uuid" xml:"uuid"`
+	// Creation datetime
+	CreatedAt string `form:"created_at" json:"created_at" xml:"created_at"`
 }
+
+// StoredStoragePackageResponseCollection is the type of the "storage" service
+// "location_packages" endpoint HTTP response body.
+type StoredStoragePackageResponseCollection []*StoredStoragePackageResponse
 
 // SubmitNotAvailableResponseBody is the type of the "storage" service "submit"
 // endpoint HTTP response body for the "not_available" error.
@@ -170,7 +178,7 @@ type DownloadNotFoundResponseBody struct {
 	// Message of error
 	Message string `form:"message" json:"message" xml:"message"`
 	// Identifier of missing package
-	AipID string `form:"aip_id" json:"aip_id" xml:"aip_id"`
+	AipID uuid.UUID `form:"aip_id" json:"aip_id" xml:"aip_id"`
 }
 
 // AddLocationNotValidResponseBody is the type of the "storage" service
@@ -233,7 +241,7 @@ type MoveNotFoundResponseBody struct {
 	// Message of error
 	Message string `form:"message" json:"message" xml:"message"`
 	// Identifier of missing package
-	AipID string `form:"aip_id" json:"aip_id" xml:"aip_id"`
+	AipID uuid.UUID `form:"aip_id" json:"aip_id" xml:"aip_id"`
 }
 
 // MoveStatusFailedDependencyResponseBody is the type of the "storage" service
@@ -260,7 +268,7 @@ type MoveStatusNotFoundResponseBody struct {
 	// Message of error
 	Message string `form:"message" json:"message" xml:"message"`
 	// Identifier of missing package
-	AipID string `form:"aip_id" json:"aip_id" xml:"aip_id"`
+	AipID uuid.UUID `form:"aip_id" json:"aip_id" xml:"aip_id"`
 }
 
 // RejectNotAvailableResponseBody is the type of the "storage" service "reject"
@@ -305,7 +313,7 @@ type RejectNotFoundResponseBody struct {
 	// Message of error
 	Message string `form:"message" json:"message" xml:"message"`
 	// Identifier of missing package
-	AipID string `form:"aip_id" json:"aip_id" xml:"aip_id"`
+	AipID uuid.UUID `form:"aip_id" json:"aip_id" xml:"aip_id"`
 }
 
 // ShowNotFoundResponseBody is the type of the "storage" service "show"
@@ -314,12 +322,38 @@ type ShowNotFoundResponseBody struct {
 	// Message of error
 	Message string `form:"message" json:"message" xml:"message"`
 	// Identifier of missing package
-	AipID string `form:"aip_id" json:"aip_id" xml:"aip_id"`
+	AipID uuid.UUID `form:"aip_id" json:"aip_id" xml:"aip_id"`
 }
 
 // ShowLocationNotFoundResponseBody is the type of the "storage" service
-// "show-location" endpoint HTTP response body for the "not_found" error.
+// "show_location" endpoint HTTP response body for the "not_found" error.
 type ShowLocationNotFoundResponseBody struct {
+	// Message of error
+	Message string    `form:"message" json:"message" xml:"message"`
+	UUID    uuid.UUID `form:"uuid" json:"uuid" xml:"uuid"`
+}
+
+// LocationPackagesNotValidResponseBody is the type of the "storage" service
+// "location_packages" endpoint HTTP response body for the "not_valid" error.
+type LocationPackagesNotValidResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// LocationPackagesNotFoundResponseBody is the type of the "storage" service
+// "location_packages" endpoint HTTP response body for the "not_found" error.
+type LocationPackagesNotFoundResponseBody struct {
 	// Message of error
 	Message string    `form:"message" json:"message" xml:"message"`
 	UUID    uuid.UUID `form:"uuid" json:"uuid" xml:"uuid"`
@@ -336,6 +370,20 @@ type StoredLocationResponse struct {
 	// Purpose of the location
 	Purpose string    `form:"purpose" json:"purpose" xml:"purpose"`
 	UUID    uuid.UUID `form:"uuid" json:"uuid" xml:"uuid"`
+	// Creation datetime
+	CreatedAt string `form:"created_at" json:"created_at" xml:"created_at"`
+}
+
+// StoredStoragePackageResponse is used to define fields on response body types.
+type StoredStoragePackageResponse struct {
+	Name  string `form:"name" json:"name" xml:"name"`
+	AipID string `form:"aip_id" json:"aip_id" xml:"aip_id"`
+	// Status of the package
+	Status     string     `form:"status" json:"status" xml:"status"`
+	ObjectKey  uuid.UUID  `form:"object_key" json:"object_key" xml:"object_key"`
+	LocationID *uuid.UUID `form:"location_id,omitempty" json:"location_id,omitempty" xml:"location_id,omitempty"`
+	// Creation datetime
+	CreatedAt string `form:"created_at" json:"created_at" xml:"created_at"`
 }
 
 // NewSubmitResponseBody builds the HTTP response body from the result of the
@@ -384,12 +432,13 @@ func NewShowResponseBody(res *storageviews.StoredStoragePackageView) *ShowRespon
 		Status:     *res.Status,
 		ObjectKey:  *res.ObjectKey,
 		LocationID: res.LocationID,
+		CreatedAt:  *res.CreatedAt,
 	}
 	return body
 }
 
 // NewShowLocationResponseBody builds the HTTP response body from the result of
-// the "show-location" endpoint of the "storage" service.
+// the "show_location" endpoint of the "storage" service.
 func NewShowLocationResponseBody(res *storageviews.StoredLocationView) *ShowLocationResponseBody {
 	body := &ShowLocationResponseBody{
 		Name:        *res.Name,
@@ -397,6 +446,17 @@ func NewShowLocationResponseBody(res *storageviews.StoredLocationView) *ShowLoca
 		Source:      *res.Source,
 		Purpose:     *res.Purpose,
 		UUID:        *res.UUID,
+		CreatedAt:   *res.CreatedAt,
+	}
+	return body
+}
+
+// NewStoredStoragePackageResponseCollection builds the HTTP response body from
+// the result of the "location_packages" endpoint of the "storage" service.
+func NewStoredStoragePackageResponseCollection(res storageviews.StoredStoragePackageCollectionView) StoredStoragePackageResponseCollection {
+	body := make([]*StoredStoragePackageResponse, len(res))
+	for i, val := range res {
+		body[i] = marshalStorageviewsStoredStoragePackageViewToStoredStoragePackageResponse(val)
 	}
 	return body
 }
@@ -592,9 +652,33 @@ func NewShowNotFoundResponseBody(res *storage.StoragePackageNotfound) *ShowNotFo
 }
 
 // NewShowLocationNotFoundResponseBody builds the HTTP response body from the
-// result of the "show-location" endpoint of the "storage" service.
+// result of the "show_location" endpoint of the "storage" service.
 func NewShowLocationNotFoundResponseBody(res *storage.StorageLocationNotfound) *ShowLocationNotFoundResponseBody {
 	body := &ShowLocationNotFoundResponseBody{
+		Message: res.Message,
+		UUID:    res.UUID,
+	}
+	return body
+}
+
+// NewLocationPackagesNotValidResponseBody builds the HTTP response body from
+// the result of the "location_packages" endpoint of the "storage" service.
+func NewLocationPackagesNotValidResponseBody(res *goa.ServiceError) *LocationPackagesNotValidResponseBody {
+	body := &LocationPackagesNotValidResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewLocationPackagesNotFoundResponseBody builds the HTTP response body from
+// the result of the "location_packages" endpoint of the "storage" service.
+func NewLocationPackagesNotFoundResponseBody(res *storage.StorageLocationNotfound) *LocationPackagesNotFoundResponseBody {
+	body := &LocationPackagesNotFoundResponseBody{
 		Message: res.Message,
 		UUID:    res.UUID,
 	}
@@ -681,10 +765,19 @@ func NewShowPayload(aipID string) *storage.ShowPayload {
 	return v
 }
 
-// NewShowLocationPayload builds a storage service show-location endpoint
+// NewShowLocationPayload builds a storage service show_location endpoint
 // payload.
 func NewShowLocationPayload(uuid string) *storage.ShowLocationPayload {
 	v := &storage.ShowLocationPayload{}
+	v.UUID = uuid
+
+	return v
+}
+
+// NewLocationPackagesPayload builds a storage service location_packages
+// endpoint payload.
+func NewLocationPackagesPayload(uuid string) *storage.LocationPackagesPayload {
+	v := &storage.LocationPackagesPayload{}
 	v.UUID = uuid
 
 	return v

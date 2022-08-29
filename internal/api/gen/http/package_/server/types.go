@@ -73,7 +73,7 @@ type ShowResponseBody struct {
 }
 
 // PreservationActionsResponseBody is the type of the "package" service
-// "preservation-actions" endpoint HTTP response body.
+// "preservation_actions" endpoint HTTP response body.
 type PreservationActionsResponseBody struct {
 	Actions EnduroPackagePreservationActionResponseBodyCollection `form:"actions,omitempty" json:"actions,omitempty" xml:"actions,omitempty"`
 }
@@ -82,6 +82,24 @@ type PreservationActionsResponseBody struct {
 // endpoint HTTP response body.
 type MoveStatusResponseBody struct {
 	Done bool `form:"done" json:"done" xml:"done"`
+}
+
+// ShowNotAvailableResponseBody is the type of the "package" service "show"
+// endpoint HTTP response body for the "not_available" error.
+type ShowNotAvailableResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
 }
 
 // ShowNotFoundResponseBody is the type of the "package" service "show"
@@ -94,7 +112,7 @@ type ShowNotFoundResponseBody struct {
 }
 
 // PreservationActionsNotFoundResponseBody is the type of the "package" service
-// "preservation-actions" endpoint HTTP response body for the "not_found" error.
+// "preservation_actions" endpoint HTTP response body for the "not_found" error.
 type PreservationActionsNotFoundResponseBody struct {
 	// Message of error
 	Message string `form:"message" json:"message" xml:"message"`
@@ -476,7 +494,7 @@ func NewShowResponseBody(res *package_views.EnduroStoredPackageView) *ShowRespon
 }
 
 // NewPreservationActionsResponseBody builds the HTTP response body from the
-// result of the "preservation-actions" endpoint of the "package" service.
+// result of the "preservation_actions" endpoint of the "package" service.
 func NewPreservationActionsResponseBody(res *package_views.EnduroPackagePreservationActionsView) *PreservationActionsResponseBody {
 	body := &PreservationActionsResponseBody{}
 	if res.Actions != nil {
@@ -497,6 +515,20 @@ func NewMoveStatusResponseBody(res *package_.MoveStatusResult) *MoveStatusRespon
 	return body
 }
 
+// NewShowNotAvailableResponseBody builds the HTTP response body from the
+// result of the "show" endpoint of the "package" service.
+func NewShowNotAvailableResponseBody(res *goa.ServiceError) *ShowNotAvailableResponseBody {
+	body := &ShowNotAvailableResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
 // NewShowNotFoundResponseBody builds the HTTP response body from the result of
 // the "show" endpoint of the "package" service.
 func NewShowNotFoundResponseBody(res *package_.PackageNotfound) *ShowNotFoundResponseBody {
@@ -508,7 +540,7 @@ func NewShowNotFoundResponseBody(res *package_.PackageNotfound) *ShowNotFoundRes
 }
 
 // NewPreservationActionsNotFoundResponseBody builds the HTTP response body
-// from the result of the "preservation-actions" endpoint of the "package"
+// from the result of the "preservation_actions" endpoint of the "package"
 // service.
 func NewPreservationActionsNotFoundResponseBody(res *package_.PackageNotfound) *PreservationActionsNotFoundResponseBody {
 	body := &PreservationActionsNotFoundResponseBody{
@@ -678,7 +710,7 @@ func NewShowPayload(id uint) *package_.ShowPayload {
 	return v
 }
 
-// NewPreservationActionsPayload builds a package service preservation-actions
+// NewPreservationActionsPayload builds a package service preservation_actions
 // endpoint payload.
 func NewPreservationActionsPayload(id uint) *package_.PreservationActionsPayload {
 	v := &package_.PreservationActionsPayload{}

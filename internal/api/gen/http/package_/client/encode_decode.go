@@ -203,6 +203,7 @@ func (c *Client) BuildShowRequest(ctx context.Context, v interface{}) (*http.Req
 // show endpoint. restoreBody controls whether the response body should be
 // restored after having been read.
 // DecodeShowResponse may return the following errors:
+//   - "not_available" (type *goa.ServiceError): http.StatusConflict
 //   - "not_found" (type *package_.PackageNotfound): http.StatusNotFound
 //   - error: internal error
 func DecodeShowResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
@@ -237,6 +238,20 @@ func DecodeShowResponse(decoder func(*http.Response) goahttp.Decoder, restoreBod
 			}
 			res := package_.NewEnduroStoredPackage(vres)
 			return res, nil
+		case http.StatusConflict:
+			var (
+				body ShowNotAvailableResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("package", "show", err)
+			}
+			err = ValidateShowNotAvailableResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("package", "show", err)
+			}
+			return nil, NewShowNotAvailable(&body)
 		case http.StatusNotFound:
 			var (
 				body ShowNotFoundResponseBody
@@ -259,7 +274,7 @@ func DecodeShowResponse(decoder func(*http.Response) goahttp.Decoder, restoreBod
 }
 
 // BuildPreservationActionsRequest instantiates a HTTP request object with
-// method and path set to call the "package" service "preservation-actions"
+// method and path set to call the "package" service "preservation_actions"
 // endpoint
 func (c *Client) BuildPreservationActionsRequest(ctx context.Context, v interface{}) (*http.Request, error) {
 	var (
@@ -268,14 +283,14 @@ func (c *Client) BuildPreservationActionsRequest(ctx context.Context, v interfac
 	{
 		p, ok := v.(*package_.PreservationActionsPayload)
 		if !ok {
-			return nil, goahttp.ErrInvalidType("package", "preservation-actions", "*package_.PreservationActionsPayload", v)
+			return nil, goahttp.ErrInvalidType("package", "preservation_actions", "*package_.PreservationActionsPayload", v)
 		}
 		id = p.ID
 	}
 	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: PreservationActionsPackagePath(id)}
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
-		return nil, goahttp.ErrInvalidURL("package", "preservation-actions", u.String(), err)
+		return nil, goahttp.ErrInvalidURL("package", "preservation_actions", u.String(), err)
 	}
 	if ctx != nil {
 		req = req.WithContext(ctx)
@@ -285,7 +300,7 @@ func (c *Client) BuildPreservationActionsRequest(ctx context.Context, v interfac
 }
 
 // DecodePreservationActionsResponse returns a decoder for responses returned
-// by the package preservation-actions endpoint. restoreBody controls whether
+// by the package preservation_actions endpoint. restoreBody controls whether
 // the response body should be restored after having been read.
 // DecodePreservationActionsResponse may return the following errors:
 //   - "not_found" (type *package_.PackageNotfound): http.StatusNotFound
@@ -312,13 +327,13 @@ func DecodePreservationActionsResponse(decoder func(*http.Response) goahttp.Deco
 			)
 			err = decoder(resp).Decode(&body)
 			if err != nil {
-				return nil, goahttp.ErrDecodingError("package", "preservation-actions", err)
+				return nil, goahttp.ErrDecodingError("package", "preservation_actions", err)
 			}
 			p := NewPreservationActionsEnduroPackagePreservationActionsOK(&body)
 			view := "default"
 			vres := &package_views.EnduroPackagePreservationActions{Projected: p, View: view}
 			if err = package_views.ValidateEnduroPackagePreservationActions(vres); err != nil {
-				return nil, goahttp.ErrValidationError("package", "preservation-actions", err)
+				return nil, goahttp.ErrValidationError("package", "preservation_actions", err)
 			}
 			res := package_.NewEnduroPackagePreservationActions(vres)
 			return res, nil
@@ -329,16 +344,16 @@ func DecodePreservationActionsResponse(decoder func(*http.Response) goahttp.Deco
 			)
 			err = decoder(resp).Decode(&body)
 			if err != nil {
-				return nil, goahttp.ErrDecodingError("package", "preservation-actions", err)
+				return nil, goahttp.ErrDecodingError("package", "preservation_actions", err)
 			}
 			err = ValidatePreservationActionsNotFoundResponseBody(&body)
 			if err != nil {
-				return nil, goahttp.ErrValidationError("package", "preservation-actions", err)
+				return nil, goahttp.ErrValidationError("package", "preservation_actions", err)
 			}
 			return nil, NewPreservationActionsNotFound(&body)
 		default:
 			body, _ := io.ReadAll(resp.Body)
-			return nil, goahttp.ErrInvalidResponse("package", "preservation-actions", resp.StatusCode, string(body))
+			return nil, goahttp.ErrInvalidResponse("package", "preservation_actions", resp.StatusCode, string(body))
 		}
 	}
 }

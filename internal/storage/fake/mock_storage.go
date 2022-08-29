@@ -98,6 +98,21 @@ func (mr *MockServiceMockRecorder) Location(arg0, arg1 interface{}) *gomock.Call
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Location", reflect.TypeOf((*MockService)(nil).Location), arg0, arg1)
 }
 
+// LocationPackages mocks base method.
+func (m *MockService) LocationPackages(arg0 context.Context, arg1 *storage.LocationPackagesPayload) (storage.StoredStoragePackageCollection, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "LocationPackages", arg0, arg1)
+	ret0, _ := ret[0].(storage.StoredStoragePackageCollection)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// LocationPackages indicates an expected call of LocationPackages.
+func (mr *MockServiceMockRecorder) LocationPackages(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LocationPackages", reflect.TypeOf((*MockService)(nil).LocationPackages), arg0, arg1)
+}
+
 // Locations mocks base method.
 func (m *MockService) Locations(arg0 context.Context) (storage.StoredLocationCollection, error) {
 	m.ctrl.T.Helper()

@@ -14,68 +14,68 @@
 
 import { exists, mapValues } from '../runtime';
 /**
- * ShowResponseBody result type (default view)
+ * A StoredStoragePackage describes a package retrieved by the storage service. (default view)
  * @export
- * @interface StorageShowResponseBody
+ * @interface StoredStoragePackageResponse
  */
-export interface StorageShowResponseBody {
+export interface StoredStoragePackageResponse {
     /**
      * 
      * @type {string}
-     * @memberof StorageShowResponseBody
+     * @memberof StoredStoragePackageResponse
      */
     aipId: string;
     /**
      * Creation datetime
      * @type {Date}
-     * @memberof StorageShowResponseBody
+     * @memberof StoredStoragePackageResponse
      */
     createdAt: Date;
     /**
      * 
      * @type {string}
-     * @memberof StorageShowResponseBody
+     * @memberof StoredStoragePackageResponse
      */
     locationId?: string;
     /**
      * 
      * @type {string}
-     * @memberof StorageShowResponseBody
+     * @memberof StoredStoragePackageResponse
      */
     name: string;
     /**
      * 
      * @type {string}
-     * @memberof StorageShowResponseBody
+     * @memberof StoredStoragePackageResponse
      */
     objectKey: string;
     /**
      * Status of the package
      * @type {string}
-     * @memberof StorageShowResponseBody
+     * @memberof StoredStoragePackageResponse
      */
-    status: StorageShowResponseBodyStatusEnum;
+    status: StoredStoragePackageResponseStatusEnum;
 }
 
 
 /**
  * @export
  */
-export const StorageShowResponseBodyStatusEnum = {
+export const StoredStoragePackageResponseStatusEnum = {
     Unspecified: 'unspecified',
     InReview: 'in_review',
     Rejected: 'rejected',
     Stored: 'stored',
     Moving: 'moving'
 } as const;
-export type StorageShowResponseBodyStatusEnum = typeof StorageShowResponseBodyStatusEnum[keyof typeof StorageShowResponseBodyStatusEnum];
+export type StoredStoragePackageResponseStatusEnum = typeof StoredStoragePackageResponseStatusEnum[keyof typeof StoredStoragePackageResponseStatusEnum];
 
 
-export function StorageShowResponseBodyFromJSON(json: any): StorageShowResponseBody {
-    return StorageShowResponseBodyFromJSONTyped(json, false);
+export function StoredStoragePackageResponseFromJSON(json: any): StoredStoragePackageResponse {
+    return StoredStoragePackageResponseFromJSONTyped(json, false);
 }
 
-export function StorageShowResponseBodyFromJSONTyped(json: any, ignoreDiscriminator: boolean): StorageShowResponseBody {
+export function StoredStoragePackageResponseFromJSONTyped(json: any, ignoreDiscriminator: boolean): StoredStoragePackageResponse {
     if ((json === undefined) || (json === null)) {
         return json;
     }
@@ -90,7 +90,7 @@ export function StorageShowResponseBodyFromJSONTyped(json: any, ignoreDiscrimina
     };
 }
 
-export function StorageShowResponseBodyToJSON(value?: StorageShowResponseBody | null): any {
+export function StoredStoragePackageResponseToJSON(value?: StoredStoragePackageResponse | null): any {
     if (value === undefined) {
         return undefined;
     }

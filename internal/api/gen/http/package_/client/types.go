@@ -73,7 +73,7 @@ type ShowResponseBody struct {
 }
 
 // PreservationActionsResponseBody is the type of the "package" service
-// "preservation-actions" endpoint HTTP response body.
+// "preservation_actions" endpoint HTTP response body.
 type PreservationActionsResponseBody struct {
 	Actions EnduroPackagePreservationActionCollectionResponseBody `form:"actions,omitempty" json:"actions,omitempty" xml:"actions,omitempty"`
 }
@@ -82,6 +82,24 @@ type PreservationActionsResponseBody struct {
 // endpoint HTTP response body.
 type MoveStatusResponseBody struct {
 	Done *bool `form:"done,omitempty" json:"done,omitempty" xml:"done,omitempty"`
+}
+
+// ShowNotAvailableResponseBody is the type of the "package" service "show"
+// endpoint HTTP response body for the "not_available" error.
+type ShowNotAvailableResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
 }
 
 // ShowNotFoundResponseBody is the type of the "package" service "show"
@@ -94,7 +112,7 @@ type ShowNotFoundResponseBody struct {
 }
 
 // PreservationActionsNotFoundResponseBody is the type of the "package" service
-// "preservation-actions" endpoint HTTP response body for the "not_found" error.
+// "preservation_actions" endpoint HTTP response body for the "not_found" error.
 type PreservationActionsNotFoundResponseBody struct {
 	// Message of error
 	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
@@ -482,6 +500,21 @@ func NewShowEnduroStoredPackageOK(body *ShowResponseBody) *package_views.EnduroS
 	return v
 }
 
+// NewShowNotAvailable builds a package service show endpoint not_available
+// error.
+func NewShowNotAvailable(body *ShowNotAvailableResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
 // NewShowNotFound builds a package service show endpoint not_found error.
 func NewShowNotFound(body *ShowNotFoundResponseBody) *package_.PackageNotfound {
 	v := &package_.PackageNotfound{
@@ -493,7 +526,7 @@ func NewShowNotFound(body *ShowNotFoundResponseBody) *package_.PackageNotfound {
 }
 
 // NewPreservationActionsEnduroPackagePreservationActionsOK builds a "package"
-// service "preservation-actions" endpoint result from a HTTP "OK" response.
+// service "preservation_actions" endpoint result from a HTTP "OK" response.
 func NewPreservationActionsEnduroPackagePreservationActionsOK(body *PreservationActionsResponseBody) *package_views.EnduroPackagePreservationActionsView {
 	v := &package_views.EnduroPackagePreservationActionsView{}
 	if body.Actions != nil {
@@ -506,7 +539,7 @@ func NewPreservationActionsEnduroPackagePreservationActionsOK(body *Preservation
 	return v
 }
 
-// NewPreservationActionsNotFound builds a package service preservation-actions
+// NewPreservationActionsNotFound builds a package service preservation_actions
 // endpoint not_found error.
 func NewPreservationActionsNotFound(body *PreservationActionsNotFoundResponseBody) *package_.PackageNotfound {
 	v := &package_.PackageNotfound{
@@ -690,6 +723,30 @@ func ValidateMoveStatusResponseBody(body *MoveStatusResponseBody) (err error) {
 	return
 }
 
+// ValidateShowNotAvailableResponseBody runs the validations defined on
+// show_not_available_response_body
+func ValidateShowNotAvailableResponseBody(body *ShowNotAvailableResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
 // ValidateShowNotFoundResponseBody runs the validations defined on
 // show_not_found_response_body
 func ValidateShowNotFoundResponseBody(body *ShowNotFoundResponseBody) (err error) {
@@ -703,7 +760,7 @@ func ValidateShowNotFoundResponseBody(body *ShowNotFoundResponseBody) (err error
 }
 
 // ValidatePreservationActionsNotFoundResponseBody runs the validations defined
-// on preservation-actions_not_found_response_body
+// on preservation_actions_not_found_response_body
 func ValidatePreservationActionsNotFoundResponseBody(body *PreservationActionsNotFoundResponseBody) (err error) {
 	if body.Message == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))

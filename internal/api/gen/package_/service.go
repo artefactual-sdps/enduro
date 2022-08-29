@@ -44,7 +44,7 @@ const ServiceName = "package"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [8]string{"monitor", "list", "show", "preservation-actions", "confirm", "reject", "move", "move_status"}
+var MethodNames = [8]string{"monitor", "list", "show", "preservation_actions", "confirm", "reject", "move", "move_status"}
 
 // MonitorServerStream is the interface a "monitor" endpoint server stream must
 // satisfy.
@@ -113,7 +113,7 @@ type EnduroPackagePreservationAction struct {
 type EnduroPackagePreservationActionCollection []*EnduroPackagePreservationAction
 
 // EnduroPackagePreservationActions is the result type of the package service
-// preservation-actions method.
+// preservation_actions method.
 type EnduroPackagePreservationActions struct {
 	Actions EnduroPackagePreservationActionCollection
 }
@@ -240,7 +240,7 @@ type PackageNotfound struct {
 }
 
 // PreservationActionsPayload is the payload type of the package service
-// preservation-actions method.
+// preservation_actions method.
 type PreservationActionsPayload struct {
 	// Identifier of package to look up
 	ID uint
@@ -265,7 +265,7 @@ func (e *PackageNotfound) Error() string {
 
 // ErrorName returns "PackageNotfound".
 func (e *PackageNotfound) ErrorName() string {
-	return e.Message
+	return "not_found"
 }
 
 // MakeNotAvailable builds a goa.ServiceError from an error.

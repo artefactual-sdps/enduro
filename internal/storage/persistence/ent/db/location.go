@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/location"
@@ -30,6 +31,8 @@ type Location struct {
 	UUID uuid.UUID `json:"uuid,omitempty"`
 	// Config holds the value of the "config" field.
 	Config types.LocationConfig `json:"config,omitempty"`
+	// CreatedAt holds the value of the "created_at" field.
+	CreatedAt time.Time `json:"created_at,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the LocationQuery when eager-loading is set.
 	Edges LocationEdges `json:"edges"`
@@ -64,6 +67,8 @@ func (*Location) scanValues(columns []string) ([]interface{}, error) {
 			values[i] = new(sql.NullInt64)
 		case location.FieldName, location.FieldDescription:
 			values[i] = new(sql.NullString)
+		case location.FieldCreatedAt:
+			values[i] = new(sql.NullTime)
 		case location.FieldPurpose:
 			values[i] = new(types.LocationPurpose)
 		case location.FieldSource:
@@ -129,6 +134,12 @@ func (l *Location) assignValues(columns []string, values []interface{}) error {
 					return fmt.Errorf("unmarshal field config: %w", err)
 				}
 			}
+		case location.FieldCreatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field created_at", values[i])
+			} else if value.Valid {
+				l.CreatedAt = value.Time
+			}
 		}
 	}
 	return nil
@@ -179,6 +190,9 @@ func (l *Location) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("config=")
 	builder.WriteString(fmt.Sprintf("%v", l.Config))
+	builder.WriteString(", ")
+	builder.WriteString("created_at=")
+	builder.WriteString(l.CreatedAt.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

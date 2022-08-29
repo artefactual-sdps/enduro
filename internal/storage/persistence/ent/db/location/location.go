@@ -4,6 +4,7 @@ package location
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/artefactual-sdps/enduro/internal/storage/types"
 )
@@ -25,6 +26,8 @@ const (
 	FieldUUID = "uuid"
 	// FieldConfig holds the string denoting the config field in the database.
 	FieldConfig = "config"
+	// FieldCreatedAt holds the string denoting the created_at field in the database.
+	FieldCreatedAt = "created_at"
 	// EdgePackages holds the string denoting the packages edge name in mutations.
 	EdgePackages = "packages"
 	// Table holds the table name of the location in the database.
@@ -47,6 +50,7 @@ var Columns = []string{
 	FieldPurpose,
 	FieldUUID,
 	FieldConfig,
+	FieldCreatedAt,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -58,6 +62,11 @@ func ValidColumn(column string) bool {
 	}
 	return false
 }
+
+var (
+	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
+	DefaultCreatedAt func() time.Time
+)
 
 // SourceValidator is a validator for the "source" field enum values. It is called by the builders before save.
 func SourceValidator(s types.LocationSource) error {
