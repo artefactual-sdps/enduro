@@ -39,7 +39,7 @@ require (
 	go.temporal.io/api v1.8.0
 	go.temporal.io/sdk v1.15.0
 	go.uber.org/multierr v1.8.0 // indirect
-	go.uber.org/zap v1.22.0
+	go.uber.org/zap v1.23.0
 	goa.design/goa/v3 v3.8.3
 	goa.design/plugins/v3 v3.8.3
 	gocloud.dev v0.26.0
