@@ -36,8 +36,8 @@ require (
 	github.com/stretchr/testify v1.8.0
 	github.com/ulikunitz/xz v0.5.10 // indirect
 	go.buf.build/grpc/go/artefactual/a3m v1.4.1
-	go.temporal.io/api v1.8.0
-	go.temporal.io/sdk v1.15.0
+	go.temporal.io/api v1.11.0
+	go.temporal.io/sdk v1.16.0
 	go.uber.org/multierr v1.8.0 // indirect
 	go.uber.org/zap v1.22.0
 	goa.design/goa/v3 v3.8.3
@@ -83,7 +83,7 @@ require (
 	github.com/go-openapi/inflect v0.19.0 // indirect
 	github.com/gogo/googleapis v1.4.1 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
-	github.com/gogo/status v1.1.0 // indirect
+	github.com/gogo/status v1.1.1 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
