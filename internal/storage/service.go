@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"time"
 
-	"entgo.io/ent/examples/o2o2types/ent"
 	"github.com/go-logr/logr"
 	"github.com/google/uuid"
 	temporalapi_enums "go.temporal.io/api/enums/v1"
@@ -33,6 +32,7 @@ type Service interface {
 	Show(context.Context, *goastorage.ShowPayload) (res *goastorage.StoredStoragePackage, err error)
 	AddLocation(context.Context, *goastorage.AddLocationPayload) (res *goastorage.AddLocationResult, err error)
 	ShowLocation(context.Context, *goastorage.ShowLocationPayload) (res *goastorage.StoredLocation, err error)
+	LocationPackages(context.Context, *goastorage.LocationPackagesPayload) (res goastorage.StoredStoragePackageCollection, err error)
 
 	// Used from workflow activities.
 	Location(ctx context.Context, locationID uuid.UUID) (Location, error)
@@ -86,9 +86,9 @@ func (s *serviceImpl) Location(ctx context.Context, locationID uuid.UUID) (Locat
 		return s.internal, nil
 	}
 
-	l, err := s.storagePersistence.ReadLocation(ctx, locationID)
+	l, err := s.ReadLocation(ctx, locationID)
 	if err != nil {
-		return nil, fmt.Errorf("error loading location: unknown location %s", locationID)
+		return nil, err
 	}
 
 	return s.locationFactory(l)
@@ -159,10 +159,8 @@ func (s *serviceImpl) Locations(ctx context.Context) (goastorage.StoredLocationC
 
 func (s *serviceImpl) Move(ctx context.Context, payload *goastorage.MovePayload) error {
 	pkg, err := s.ReadPackage(ctx, payload.AipID)
-	if errors.Is(err, &ent.NotFoundError{}) || errors.Is(err, &ent.NotSingularError{}) {
-		return &goastorage.StoragePackageNotfound{AipID: payload.AipID, Message: "not_found"}
-	} else if err != nil {
-		return goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
+	if err != nil {
+		return err
 	}
 
 	_, err = InitStorageMoveWorkflow(ctx, s.tc, &StorageMoveWorkflowRequest{
@@ -179,10 +177,8 @@ func (s *serviceImpl) Move(ctx context.Context, payload *goastorage.MovePayload)
 
 func (s *serviceImpl) MoveStatus(ctx context.Context, payload *goastorage.MoveStatusPayload) (*goastorage.MoveStatusResult, error) {
 	p, err := s.ReadPackage(ctx, payload.AipID)
-	if errors.Is(err, &ent.NotFoundError{}) || errors.Is(err, &ent.NotSingularError{}) {
-		return nil, &goastorage.StoragePackageNotfound{AipID: payload.AipID, Message: "not_found"}
-	} else if err != nil {
-		return nil, goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
+	if err != nil {
+		return nil, err
 	}
 
 	resp, err := s.tc.DescribeWorkflowExecution(ctx, fmt.Sprintf("%s-%s", StorageMoveWorkflowName, p.AipID), "")
@@ -212,14 +208,7 @@ func (s *serviceImpl) Reject(ctx context.Context, payload *goastorage.RejectPayl
 }
 
 func (s *serviceImpl) Show(ctx context.Context, payload *goastorage.ShowPayload) (*goastorage.StoredStoragePackage, error) {
-	pkg, err := s.ReadPackage(ctx, payload.AipID)
-	if errors.Is(err, &ent.NotFoundError{}) || errors.Is(err, &ent.NotSingularError{}) {
-		return nil, &goastorage.StoragePackageNotfound{AipID: payload.AipID, Message: "not_found"}
-	} else if err != nil {
-		return nil, goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
-	}
-
-	return pkg, nil
+	return s.ReadPackage(ctx, payload.AipID)
 }
 
 func (s *serviceImpl) ReadPackage(ctx context.Context, AIPID string) (*goastorage.StoredStoragePackage, error) {
@@ -330,15 +319,22 @@ func (s *serviceImpl) ReadLocation(ctx context.Context, UUID uuid.UUID) (*goasto
 func (s *serviceImpl) ShowLocation(ctx context.Context, payload *goastorage.ShowLocationPayload) (*goastorage.StoredLocation, error) {
 	locationID, err := uuid.Parse(payload.UUID)
 	if err != nil {
-		return nil, &goastorage.StorageLocationNotfound{UUID: locationID, Message: "not_found"}
+		return nil, goastorage.MakeNotValid(errors.New("cannot persist location"))
 	}
 
-	l, err := s.ReadLocation(ctx, locationID)
-	if errors.Is(err, &ent.NotFoundError{}) || errors.Is(err, &ent.NotSingularError{}) {
-		return nil, &goastorage.StorageLocationNotfound{UUID: locationID, Message: "not_found"}
-	} else if err != nil {
+	return s.ReadLocation(ctx, locationID)
+}
+
+func (s *serviceImpl) LocationPackages(ctx context.Context, payload *goastorage.LocationPackagesPayload) (goastorage.StoredStoragePackageCollection, error) {
+	locationID, err := uuid.Parse(payload.UUID)
+	if err != nil {
+		return nil, goastorage.MakeNotValid(err)
+	}
+
+	pkgs, err := s.storagePersistence.LocationPackages(ctx, locationID)
+	if err != nil {
 		return nil, goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
 	}
 
-	return l, nil
+	return pkgs, nil
 }

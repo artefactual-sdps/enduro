@@ -16,31 +16,33 @@ import (
 
 // Client is the "storage" service client.
 type Client struct {
-	SubmitEndpoint       goa.Endpoint
-	UpdateEndpoint       goa.Endpoint
-	DownloadEndpoint     goa.Endpoint
-	LocationsEndpoint    goa.Endpoint
-	AddLocationEndpoint  goa.Endpoint
-	MoveEndpoint         goa.Endpoint
-	MoveStatusEndpoint   goa.Endpoint
-	RejectEndpoint       goa.Endpoint
-	ShowEndpoint         goa.Endpoint
-	ShowLocationEndpoint goa.Endpoint
+	SubmitEndpoint           goa.Endpoint
+	UpdateEndpoint           goa.Endpoint
+	DownloadEndpoint         goa.Endpoint
+	LocationsEndpoint        goa.Endpoint
+	AddLocationEndpoint      goa.Endpoint
+	MoveEndpoint             goa.Endpoint
+	MoveStatusEndpoint       goa.Endpoint
+	RejectEndpoint           goa.Endpoint
+	ShowEndpoint             goa.Endpoint
+	ShowLocationEndpoint     goa.Endpoint
+	LocationPackagesEndpoint goa.Endpoint
 }
 
 // NewClient initializes a "storage" service client given the endpoints.
-func NewClient(submit, update, download, locations, addLocation, move, moveStatus, reject, show, showLocation goa.Endpoint) *Client {
+func NewClient(submit, update, download, locations, addLocation, move, moveStatus, reject, show, showLocation, locationPackages goa.Endpoint) *Client {
 	return &Client{
-		SubmitEndpoint:       submit,
-		UpdateEndpoint:       update,
-		DownloadEndpoint:     download,
-		LocationsEndpoint:    locations,
-		AddLocationEndpoint:  addLocation,
-		MoveEndpoint:         move,
-		MoveStatusEndpoint:   moveStatus,
-		RejectEndpoint:       reject,
-		ShowEndpoint:         show,
-		ShowLocationEndpoint: showLocation,
+		SubmitEndpoint:           submit,
+		UpdateEndpoint:           update,
+		DownloadEndpoint:         download,
+		LocationsEndpoint:        locations,
+		AddLocationEndpoint:      addLocation,
+		MoveEndpoint:             move,
+		MoveStatusEndpoint:       moveStatus,
+		RejectEndpoint:           reject,
+		ShowEndpoint:             show,
+		ShowLocationEndpoint:     showLocation,
+		LocationPackagesEndpoint: locationPackages,
 	}
 }
 
@@ -155,7 +157,7 @@ func (c *Client) Show(ctx context.Context, p *ShowPayload) (res *StoredStoragePa
 	return ires.(*StoredStoragePackage), nil
 }
 
-// ShowLocation calls the "show-location" endpoint of the "storage" service.
+// ShowLocation calls the "show_location" endpoint of the "storage" service.
 // ShowLocation may return the following errors:
 //   - "not_found" (type *StorageLocationNotfound): Storage location not found
 //   - error: internal error
@@ -166,4 +168,19 @@ func (c *Client) ShowLocation(ctx context.Context, p *ShowLocationPayload) (res 
 		return
 	}
 	return ires.(*StoredLocation), nil
+}
+
+// LocationPackages calls the "location_packages" endpoint of the "storage"
+// service.
+// LocationPackages may return the following errors:
+//   - "not_found" (type *StorageLocationNotfound): Storage location not found
+//   - "not_valid" (type *goa.ServiceError)
+//   - error: internal error
+func (c *Client) LocationPackages(ctx context.Context, p *LocationPackagesPayload) (res StoredStoragePackageCollection, err error) {
+	var ires interface{}
+	ires, err = c.LocationPackagesEndpoint(ctx, p)
+	if err != nil {
+		return
+	}
+	return ires.(StoredStoragePackageCollection), nil
 }

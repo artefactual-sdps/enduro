@@ -3,6 +3,7 @@ package client
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/google/uuid"
 
@@ -72,7 +73,11 @@ func (c *Client) ReadPackage(ctx context.Context, AIPID uuid.UUID) (*goastorage.
 		).
 		Only(ctx)
 	if err != nil {
-		return nil, err
+		if db.IsNotFound(err) {
+			return nil, &goastorage.StoragePackageNotfound{AipID: AIPID, Message: "package not found"}
+		} else if err != nil {
+			return nil, goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
+		}
 	}
 
 	return pkgAsGoa(ctx, pkg), nil
@@ -129,6 +134,7 @@ func pkgAsGoa(ctx context.Context, pkg *db.Pkg) *goastorage.StoredStoragePackage
 		AipID:     pkg.AipID.String(),
 		Status:    pkg.Status.String(),
 		ObjectKey: pkg.ObjectKey,
+		CreatedAt: pkg.CreatedAt.Format(time.RFC3339),
 	}
 
 	// TODO: should we use UUID as the foreign key?
@@ -173,14 +179,18 @@ func (c *Client) ListLocations(ctx context.Context) (goastorage.StoredLocationCo
 	return locations, err
 }
 
-func (c *Client) ReadLocation(ctx context.Context, UUID uuid.UUID) (*goastorage.StoredLocation, error) {
+func (c *Client) ReadLocation(ctx context.Context, locationID uuid.UUID) (*goastorage.StoredLocation, error) {
 	l, err := c.c.Location.Query().
 		Where(
-			location.UUID(UUID),
+			location.UUID(locationID),
 		).
 		Only(ctx)
 	if err != nil {
-		return nil, err
+		if db.IsNotFound(err) {
+			return nil, &goastorage.StorageLocationNotfound{UUID: locationID, Message: "location not found"}
+		} else if err != nil {
+			return nil, goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
+		}
 	}
 
 	return locationAsGoa(ctx, l), nil
@@ -193,6 +203,7 @@ func locationAsGoa(ctx context.Context, loc *db.Location) *goastorage.StoredLoca
 		Source:      loc.Source.String(),
 		Purpose:     loc.Purpose.String(),
 		UUID:        loc.UUID,
+		CreatedAt:   loc.CreatedAt.Format(time.RFC3339),
 	}
 
 	switch c := loc.Config.Value.(type) {
@@ -210,4 +221,18 @@ func locationAsGoa(ctx context.Context, loc *db.Location) *goastorage.StoredLoca
 	}
 
 	return l
+}
+
+func (c *Client) LocationPackages(ctx context.Context, locationID uuid.UUID) (goastorage.StoredStoragePackageCollection, error) {
+	res, err := c.c.Location.Query().Where(location.UUID(locationID)).QueryPackages().All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	packages := []*goastorage.StoredStoragePackage{}
+	for _, item := range res {
+		packages = append(packages, pkgAsGoa(ctx, item))
+	}
+
+	return packages, nil
 }

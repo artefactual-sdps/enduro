@@ -27,7 +27,7 @@ func ShowPackagePath(id uint) string {
 	return fmt.Sprintf("/package/%v", id)
 }
 
-// PreservationActionsPackagePath returns the URL path to the package service preservation-actions HTTP endpoint.
+// PreservationActionsPackagePath returns the URL path to the package service preservation_actions HTTP endpoint.
 func PreservationActionsPackagePath(id uint) string {
 	return fmt.Sprintf("/package/%v/preservation-actions", id)
 }

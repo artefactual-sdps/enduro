@@ -63,6 +63,7 @@ func (c *Client) List(ctx context.Context, p *ListPayload) (res *ListResult, err
 // Show calls the "show" endpoint of the "package" service.
 // Show may return the following errors:
 //   - "not_found" (type *PackageNotfound): Package not found
+//   - "not_available" (type *goa.ServiceError)
 //   - error: internal error
 func (c *Client) Show(ctx context.Context, p *ShowPayload) (res *EnduroStoredPackage, err error) {
 	var ires interface{}
@@ -73,7 +74,7 @@ func (c *Client) Show(ctx context.Context, p *ShowPayload) (res *EnduroStoredPac
 	return ires.(*EnduroStoredPackage), nil
 }
 
-// PreservationActions calls the "preservation-actions" endpoint of the
+// PreservationActions calls the "preservation_actions" endpoint of the
 // "package" service.
 // PreservationActions may return the following errors:
 //   - "not_found" (type *PackageNotfound): Package not found

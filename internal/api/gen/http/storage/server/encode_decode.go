@@ -58,6 +58,11 @@ func DecodeSubmitRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.
 			params = mux.Vars(r)
 		)
 		aipID = params["aip_id"]
+		err = goa.MergeErrors(err, goa.ValidateFormat("aipID", aipID, goa.FormatUUID))
+
+		if err != nil {
+			return nil, err
+		}
 		payload := NewSubmitPayload(&body, aipID)
 
 		return payload, nil
@@ -121,10 +126,16 @@ func DecodeUpdateRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.
 	return func(r *http.Request) (interface{}, error) {
 		var (
 			aipID string
+			err   error
 
 			params = mux.Vars(r)
 		)
 		aipID = params["aip_id"]
+		err = goa.MergeErrors(err, goa.ValidateFormat("aipID", aipID, goa.FormatUUID))
+
+		if err != nil {
+			return nil, err
+		}
 		payload := NewUpdatePayload(aipID)
 
 		return payload, nil
@@ -191,10 +202,16 @@ func DecodeDownloadRequest(mux goahttp.Muxer, decoder func(*http.Request) goahtt
 	return func(r *http.Request) (interface{}, error) {
 		var (
 			aipID string
+			err   error
 
 			params = mux.Vars(r)
 		)
 		aipID = params["aip_id"]
+		err = goa.MergeErrors(err, goa.ValidateFormat("aipID", aipID, goa.FormatUUID))
+
+		if err != nil {
+			return nil, err
+		}
 		payload := NewDownloadPayload(aipID)
 
 		return payload, nil
@@ -343,6 +360,11 @@ func DecodeMoveRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.De
 			params = mux.Vars(r)
 		)
 		aipID = params["aip_id"]
+		err = goa.MergeErrors(err, goa.ValidateFormat("aipID", aipID, goa.FormatUUID))
+
+		if err != nil {
+			return nil, err
+		}
 		payload := NewMovePayload(&body, aipID)
 
 		return payload, nil
@@ -422,10 +444,16 @@ func DecodeMoveStatusRequest(mux goahttp.Muxer, decoder func(*http.Request) goah
 	return func(r *http.Request) (interface{}, error) {
 		var (
 			aipID string
+			err   error
 
 			params = mux.Vars(r)
 		)
 		aipID = params["aip_id"]
+		err = goa.MergeErrors(err, goa.ValidateFormat("aipID", aipID, goa.FormatUUID))
+
+		if err != nil {
+			return nil, err
+		}
 		payload := NewMoveStatusPayload(aipID)
 
 		return payload, nil
@@ -489,10 +517,16 @@ func DecodeRejectRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.
 	return func(r *http.Request) (interface{}, error) {
 		var (
 			aipID string
+			err   error
 
 			params = mux.Vars(r)
 		)
 		aipID = params["aip_id"]
+		err = goa.MergeErrors(err, goa.ValidateFormat("aipID", aipID, goa.FormatUUID))
+
+		if err != nil {
+			return nil, err
+		}
 		payload := NewRejectPayload(aipID)
 
 		return payload, nil
@@ -572,10 +606,16 @@ func DecodeShowRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.De
 	return func(r *http.Request) (interface{}, error) {
 		var (
 			aipID string
+			err   error
 
 			params = mux.Vars(r)
 		)
 		aipID = params["aip_id"]
+		err = goa.MergeErrors(err, goa.ValidateFormat("aipID", aipID, goa.FormatUUID))
+
+		if err != nil {
+			return nil, err
+		}
 		payload := NewShowPayload(aipID)
 
 		return payload, nil
@@ -612,7 +652,7 @@ func EncodeShowError(encoder func(context.Context, http.ResponseWriter) goahttp.
 }
 
 // EncodeShowLocationResponse returns an encoder for responses returned by the
-// storage show-location endpoint.
+// storage show_location endpoint.
 func EncodeShowLocationResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
 	return func(ctx context.Context, w http.ResponseWriter, v interface{}) error {
 		res := v.(*storageviews.StoredLocation)
@@ -624,7 +664,7 @@ func EncodeShowLocationResponse(encoder func(context.Context, http.ResponseWrite
 }
 
 // DecodeShowLocationRequest returns a decoder for requests sent to the storage
-// show-location endpoint.
+// show_location endpoint.
 func DecodeShowLocationRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (interface{}, error) {
 	return func(r *http.Request) (interface{}, error) {
 		var (
@@ -646,7 +686,7 @@ func DecodeShowLocationRequest(mux goahttp.Muxer, decoder func(*http.Request) go
 }
 
 // EncodeShowLocationError returns an encoder for errors returned by the
-// show-location storage endpoint.
+// show_location storage endpoint.
 func EncodeShowLocationError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
 	encodeError := goahttp.ErrorEncoder(encoder, formatter)
 	return func(ctx context.Context, w http.ResponseWriter, v error) error {
@@ -674,6 +714,82 @@ func EncodeShowLocationError(encoder func(context.Context, http.ResponseWriter) 
 	}
 }
 
+// EncodeLocationPackagesResponse returns an encoder for responses returned by
+// the storage location_packages endpoint.
+func EncodeLocationPackagesResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
+	return func(ctx context.Context, w http.ResponseWriter, v interface{}) error {
+		res := v.(storageviews.StoredStoragePackageCollection)
+		enc := encoder(ctx, w)
+		body := NewStoredStoragePackageResponseCollection(res.Projected)
+		w.WriteHeader(http.StatusOK)
+		return enc.Encode(body)
+	}
+}
+
+// DecodeLocationPackagesRequest returns a decoder for requests sent to the
+// storage location_packages endpoint.
+func DecodeLocationPackagesRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (interface{}, error) {
+	return func(r *http.Request) (interface{}, error) {
+		var (
+			uuid string
+			err  error
+
+			params = mux.Vars(r)
+		)
+		uuid = params["uuid"]
+		err = goa.MergeErrors(err, goa.ValidateFormat("uuid", uuid, goa.FormatUUID))
+
+		if err != nil {
+			return nil, err
+		}
+		payload := NewLocationPackagesPayload(uuid)
+
+		return payload, nil
+	}
+}
+
+// EncodeLocationPackagesError returns an encoder for errors returned by the
+// location_packages storage endpoint.
+func EncodeLocationPackagesError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
+	encodeError := goahttp.ErrorEncoder(encoder, formatter)
+	return func(ctx context.Context, w http.ResponseWriter, v error) error {
+		var en ErrorNamer
+		if !errors.As(v, &en) {
+			return encodeError(ctx, w, v)
+		}
+		switch en.ErrorName() {
+		case "not_valid":
+			var res *goa.ServiceError
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			var body interface{}
+			if formatter != nil {
+				body = formatter(res)
+			} else {
+				body = NewLocationPackagesNotValidResponseBody(res)
+			}
+			w.Header().Set("goa-error", res.ErrorName())
+			w.WriteHeader(http.StatusBadRequest)
+			return enc.Encode(body)
+		case "not_found":
+			var res *storage.StorageLocationNotfound
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			var body interface{}
+			if formatter != nil {
+				body = formatter(res)
+			} else {
+				body = NewLocationPackagesNotFoundResponseBody(res)
+			}
+			w.Header().Set("goa-error", res.ErrorName())
+			w.WriteHeader(http.StatusNotFound)
+			return enc.Encode(body)
+		default:
+			return encodeError(ctx, w, v)
+		}
+	}
+}
+
 // marshalStorageviewsStoredLocationViewToStoredLocationResponse builds a value
 // of type *StoredLocationResponse from a value of type
 // *storageviews.StoredLocationView.
@@ -684,6 +800,23 @@ func marshalStorageviewsStoredLocationViewToStoredLocationResponse(v *storagevie
 		Source:      *v.Source,
 		Purpose:     *v.Purpose,
 		UUID:        *v.UUID,
+		CreatedAt:   *v.CreatedAt,
+	}
+
+	return res
+}
+
+// marshalStorageviewsStoredStoragePackageViewToStoredStoragePackageResponse
+// builds a value of type *StoredStoragePackageResponse from a value of type
+// *storageviews.StoredStoragePackageView.
+func marshalStorageviewsStoredStoragePackageViewToStoredStoragePackageResponse(v *storageviews.StoredStoragePackageView) *StoredStoragePackageResponse {
+	res := &StoredStoragePackageResponse{
+		Name:       *v.Name,
+		AipID:      *v.AipID,
+		Status:     *v.Status,
+		ObjectKey:  *v.ObjectKey,
+		LocationID: v.LocationID,
+		CreatedAt:  *v.CreatedAt,
 	}
 
 	return res

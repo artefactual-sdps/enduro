@@ -62,13 +62,15 @@ var _ = Service("package", func() {
 		})
 		Result(StoredPackage)
 		Error("not_found", PackageNotFound, "Package not found")
+		Error("not_available")
 		HTTP(func() {
 			GET("/{id}")
 			Response(StatusOK)
 			Response("not_found", StatusNotFound)
+			Response("not_available", StatusConflict)
 		})
 	})
-	Method("preservation-actions", func() {
+	Method("preservation_actions", func() {
 		Description("List all preservation actions by ID")
 		Payload(func() {
 			Attribute("id", UInt, "Identifier of package to look up")
@@ -225,7 +227,7 @@ var StoredPackage = ResultType("application/vnd.enduro.stored-package", func() {
 var PackageNotFound = Type("PackageNotfound", func() {
 	Description("Package not found.")
 	Attribute("message", String, "Message of error", func() {
-		Meta("struct:error:name")
+		Meta("struct:error:message")
 	})
 	Attribute("id", UInt, "Identifier of missing package")
 	Required("message", "id")

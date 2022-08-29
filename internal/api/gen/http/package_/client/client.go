@@ -31,7 +31,7 @@ type Client struct {
 	ShowDoer goahttp.Doer
 
 	// PreservationActions Doer is the HTTP client used to make requests to the
-	// preservation-actions endpoint.
+	// preservation_actions endpoint.
 	PreservationActionsDoer goahttp.Doer
 
 	// Confirm Doer is the HTTP client used to make requests to the confirm
@@ -178,7 +178,7 @@ func (c *Client) Show() goa.Endpoint {
 }
 
 // PreservationActions returns an endpoint that makes HTTP requests to the
-// package service preservation-actions server.
+// package service preservation_actions server.
 func (c *Client) PreservationActions() goa.Endpoint {
 	var (
 		decodeResponse = DecodePreservationActionsResponse(c.decoder, c.RestoreResponseBody)
@@ -190,7 +190,7 @@ func (c *Client) PreservationActions() goa.Endpoint {
 		}
 		resp, err := c.PreservationActionsDoer.Do(req)
 		if err != nil {
-			return nil, goahttp.ErrRequestError("package", "preservation-actions", err)
+			return nil, goahttp.ErrRequestError("package", "preservation_actions", err)
 		}
 		return decodeResponse(resp)
 	}

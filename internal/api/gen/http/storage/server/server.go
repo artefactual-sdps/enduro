@@ -20,18 +20,19 @@ import (
 
 // Server lists the storage service endpoint HTTP handlers.
 type Server struct {
-	Mounts       []*MountPoint
-	Submit       http.Handler
-	Update       http.Handler
-	Download     http.Handler
-	Locations    http.Handler
-	AddLocation  http.Handler
-	Move         http.Handler
-	MoveStatus   http.Handler
-	Reject       http.Handler
-	Show         http.Handler
-	ShowLocation http.Handler
-	CORS         http.Handler
+	Mounts           []*MountPoint
+	Submit           http.Handler
+	Update           http.Handler
+	Download         http.Handler
+	Locations        http.Handler
+	AddLocation      http.Handler
+	Move             http.Handler
+	MoveStatus       http.Handler
+	Reject           http.Handler
+	Show             http.Handler
+	ShowLocation     http.Handler
+	LocationPackages http.Handler
+	CORS             http.Handler
 }
 
 // ErrorNamer is an interface implemented by generated error structs that
@@ -77,6 +78,7 @@ func New(
 			{"Reject", "POST", "/storage/package/{aip_id}/reject"},
 			{"Show", "GET", "/storage/package/{aip_id}"},
 			{"ShowLocation", "GET", "/storage/location/{uuid}"},
+			{"LocationPackages", "GET", "/storage/location/{uuid}/packages"},
 			{"CORS", "OPTIONS", "/storage/package/{aip_id}/submit"},
 			{"CORS", "OPTIONS", "/storage/package/{aip_id}/update"},
 			{"CORS", "OPTIONS", "/storage/package/{aip_id}/download"},
@@ -85,18 +87,20 @@ func New(
 			{"CORS", "OPTIONS", "/storage/package/{aip_id}/reject"},
 			{"CORS", "OPTIONS", "/storage/package/{aip_id}"},
 			{"CORS", "OPTIONS", "/storage/location/{uuid}"},
+			{"CORS", "OPTIONS", "/storage/location/{uuid}/packages"},
 		},
-		Submit:       NewSubmitHandler(e.Submit, mux, decoder, encoder, errhandler, formatter),
-		Update:       NewUpdateHandler(e.Update, mux, decoder, encoder, errhandler, formatter),
-		Download:     NewDownloadHandler(e.Download, mux, decoder, encoder, errhandler, formatter),
-		Locations:    NewLocationsHandler(e.Locations, mux, decoder, encoder, errhandler, formatter),
-		AddLocation:  NewAddLocationHandler(e.AddLocation, mux, decoder, encoder, errhandler, formatter),
-		Move:         NewMoveHandler(e.Move, mux, decoder, encoder, errhandler, formatter),
-		MoveStatus:   NewMoveStatusHandler(e.MoveStatus, mux, decoder, encoder, errhandler, formatter),
-		Reject:       NewRejectHandler(e.Reject, mux, decoder, encoder, errhandler, formatter),
-		Show:         NewShowHandler(e.Show, mux, decoder, encoder, errhandler, formatter),
-		ShowLocation: NewShowLocationHandler(e.ShowLocation, mux, decoder, encoder, errhandler, formatter),
-		CORS:         NewCORSHandler(),
+		Submit:           NewSubmitHandler(e.Submit, mux, decoder, encoder, errhandler, formatter),
+		Update:           NewUpdateHandler(e.Update, mux, decoder, encoder, errhandler, formatter),
+		Download:         NewDownloadHandler(e.Download, mux, decoder, encoder, errhandler, formatter),
+		Locations:        NewLocationsHandler(e.Locations, mux, decoder, encoder, errhandler, formatter),
+		AddLocation:      NewAddLocationHandler(e.AddLocation, mux, decoder, encoder, errhandler, formatter),
+		Move:             NewMoveHandler(e.Move, mux, decoder, encoder, errhandler, formatter),
+		MoveStatus:       NewMoveStatusHandler(e.MoveStatus, mux, decoder, encoder, errhandler, formatter),
+		Reject:           NewRejectHandler(e.Reject, mux, decoder, encoder, errhandler, formatter),
+		Show:             NewShowHandler(e.Show, mux, decoder, encoder, errhandler, formatter),
+		ShowLocation:     NewShowLocationHandler(e.ShowLocation, mux, decoder, encoder, errhandler, formatter),
+		LocationPackages: NewLocationPackagesHandler(e.LocationPackages, mux, decoder, encoder, errhandler, formatter),
+		CORS:             NewCORSHandler(),
 	}
 }
 
@@ -115,6 +119,7 @@ func (s *Server) Use(m func(http.Handler) http.Handler) {
 	s.Reject = m(s.Reject)
 	s.Show = m(s.Show)
 	s.ShowLocation = m(s.ShowLocation)
+	s.LocationPackages = m(s.LocationPackages)
 	s.CORS = m(s.CORS)
 }
 
@@ -130,6 +135,7 @@ func Mount(mux goahttp.Muxer, h *Server) {
 	MountRejectHandler(mux, h.Reject)
 	MountShowHandler(mux, h.Show)
 	MountShowLocationHandler(mux, h.ShowLocation)
+	MountLocationPackagesHandler(mux, h.LocationPackages)
 	MountCORSHandler(mux, h.CORS)
 }
 
@@ -591,7 +597,7 @@ func NewShowHandler(
 }
 
 // MountShowLocationHandler configures the mux to serve the "storage" service
-// "show-location" endpoint.
+// "show_location" endpoint.
 func MountShowLocationHandler(mux goahttp.Muxer, h http.Handler) {
 	f, ok := HandleStorageOrigin(h).(http.HandlerFunc)
 	if !ok {
@@ -603,7 +609,7 @@ func MountShowLocationHandler(mux goahttp.Muxer, h http.Handler) {
 }
 
 // NewShowLocationHandler creates a HTTP handler which loads the HTTP request
-// and calls the "storage" service "show-location" endpoint.
+// and calls the "storage" service "show_location" endpoint.
 func NewShowLocationHandler(
 	endpoint goa.Endpoint,
 	mux goahttp.Muxer,
@@ -619,7 +625,58 @@ func NewShowLocationHandler(
 	)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
-		ctx = context.WithValue(ctx, goa.MethodKey, "show-location")
+		ctx = context.WithValue(ctx, goa.MethodKey, "show_location")
+		ctx = context.WithValue(ctx, goa.ServiceKey, "storage")
+		payload, err := decodeRequest(r)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		res, err := endpoint(ctx, payload)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		if err := encodeResponse(ctx, w, res); err != nil {
+			errhandler(ctx, w, err)
+		}
+	})
+}
+
+// MountLocationPackagesHandler configures the mux to serve the "storage"
+// service "location_packages" endpoint.
+func MountLocationPackagesHandler(mux goahttp.Muxer, h http.Handler) {
+	f, ok := HandleStorageOrigin(h).(http.HandlerFunc)
+	if !ok {
+		f = func(w http.ResponseWriter, r *http.Request) {
+			h.ServeHTTP(w, r)
+		}
+	}
+	mux.Handle("GET", "/storage/location/{uuid}/packages", f)
+}
+
+// NewLocationPackagesHandler creates a HTTP handler which loads the HTTP
+// request and calls the "storage" service "location_packages" endpoint.
+func NewLocationPackagesHandler(
+	endpoint goa.Endpoint,
+	mux goahttp.Muxer,
+	decoder func(*http.Request) goahttp.Decoder,
+	encoder func(context.Context, http.ResponseWriter) goahttp.Encoder,
+	errhandler func(context.Context, http.ResponseWriter, error),
+	formatter func(err error) goahttp.Statuser,
+) http.Handler {
+	var (
+		decodeRequest  = DecodeLocationPackagesRequest(mux, decoder)
+		encodeResponse = EncodeLocationPackagesResponse(encoder)
+		encodeError    = EncodeLocationPackagesError(encoder, formatter)
+	)
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
+		ctx = context.WithValue(ctx, goa.MethodKey, "location_packages")
 		ctx = context.WithValue(ctx, goa.ServiceKey, "storage")
 		payload, err := decodeRequest(r)
 		if err != nil {
@@ -653,6 +710,7 @@ func MountCORSHandler(mux goahttp.Muxer, h http.Handler) {
 	mux.Handle("OPTIONS", "/storage/package/{aip_id}/reject", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/storage/package/{aip_id}", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/storage/location/{uuid}", h.ServeHTTP)
+	mux.Handle("OPTIONS", "/storage/location/{uuid}/packages", h.ServeHTTP)
 }
 
 // NewCORSHandler creates a HTTP handler which returns a simple 200 response.

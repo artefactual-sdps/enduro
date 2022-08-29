@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"sync"
+	"time"
 
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/location"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/pkg"
@@ -42,6 +43,7 @@ type LocationMutation struct {
 	purpose         *types.LocationPurpose
 	uuid            *uuid.UUID
 	_config         *types.LocationConfig
+	created_at      *time.Time
 	clearedFields   map[string]struct{}
 	packages        map[int]struct{}
 	removedpackages map[int]struct{}
@@ -365,6 +367,42 @@ func (m *LocationMutation) ResetConfig() {
 	m._config = nil
 }
 
+// SetCreatedAt sets the "created_at" field.
+func (m *LocationMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *LocationMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the Location entity.
+// If the Location object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *LocationMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *LocationMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
 // AddPackageIDs adds the "packages" edge to the Pkg entity by ids.
 func (m *LocationMutation) AddPackageIDs(ids ...int) {
 	if m.packages == nil {
@@ -438,7 +476,7 @@ func (m *LocationMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *LocationMutation) Fields() []string {
-	fields := make([]string, 0, 6)
+	fields := make([]string, 0, 7)
 	if m.name != nil {
 		fields = append(fields, location.FieldName)
 	}
@@ -456,6 +494,9 @@ func (m *LocationMutation) Fields() []string {
 	}
 	if m._config != nil {
 		fields = append(fields, location.FieldConfig)
+	}
+	if m.created_at != nil {
+		fields = append(fields, location.FieldCreatedAt)
 	}
 	return fields
 }
@@ -477,6 +518,8 @@ func (m *LocationMutation) Field(name string) (ent.Value, bool) {
 		return m.UUID()
 	case location.FieldConfig:
 		return m.Config()
+	case location.FieldCreatedAt:
+		return m.CreatedAt()
 	}
 	return nil, false
 }
@@ -498,6 +541,8 @@ func (m *LocationMutation) OldField(ctx context.Context, name string) (ent.Value
 		return m.OldUUID(ctx)
 	case location.FieldConfig:
 		return m.OldConfig(ctx)
+	case location.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
 	}
 	return nil, fmt.Errorf("unknown Location field %s", name)
 }
@@ -548,6 +593,13 @@ func (m *LocationMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetConfig(v)
+		return nil
+	case location.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Location field %s", name)
@@ -615,6 +667,9 @@ func (m *LocationMutation) ResetField(name string) error {
 		return nil
 	case location.FieldConfig:
 		m.ResetConfig()
+		return nil
+	case location.FieldCreatedAt:
+		m.ResetCreatedAt()
 		return nil
 	}
 	return fmt.Errorf("unknown Location field %s", name)
@@ -714,6 +769,7 @@ type PkgMutation struct {
 	aip_id          *uuid.UUID
 	status          *types.PackageStatus
 	object_key      *uuid.UUID
+	created_at      *time.Time
 	clearedFields   map[string]struct{}
 	location        *int
 	clearedlocation bool
@@ -1013,6 +1069,42 @@ func (m *PkgMutation) ResetObjectKey() {
 	m.object_key = nil
 }
 
+// SetCreatedAt sets the "created_at" field.
+func (m *PkgMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *PkgMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the Pkg entity.
+// If the Pkg object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PkgMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *PkgMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
 // ClearLocation clears the "location" edge to the Location entity.
 func (m *PkgMutation) ClearLocation() {
 	m.clearedlocation = true
@@ -1058,7 +1150,7 @@ func (m *PkgMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *PkgMutation) Fields() []string {
-	fields := make([]string, 0, 5)
+	fields := make([]string, 0, 6)
 	if m.name != nil {
 		fields = append(fields, pkg.FieldName)
 	}
@@ -1073,6 +1165,9 @@ func (m *PkgMutation) Fields() []string {
 	}
 	if m.object_key != nil {
 		fields = append(fields, pkg.FieldObjectKey)
+	}
+	if m.created_at != nil {
+		fields = append(fields, pkg.FieldCreatedAt)
 	}
 	return fields
 }
@@ -1092,6 +1187,8 @@ func (m *PkgMutation) Field(name string) (ent.Value, bool) {
 		return m.Status()
 	case pkg.FieldObjectKey:
 		return m.ObjectKey()
+	case pkg.FieldCreatedAt:
+		return m.CreatedAt()
 	}
 	return nil, false
 }
@@ -1111,6 +1208,8 @@ func (m *PkgMutation) OldField(ctx context.Context, name string) (ent.Value, err
 		return m.OldStatus(ctx)
 	case pkg.FieldObjectKey:
 		return m.OldObjectKey(ctx)
+	case pkg.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
 	}
 	return nil, fmt.Errorf("unknown Pkg field %s", name)
 }
@@ -1154,6 +1253,13 @@ func (m *PkgMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetObjectKey(v)
+		return nil
+	case pkg.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Pkg field %s", name)
@@ -1230,6 +1336,9 @@ func (m *PkgMutation) ResetField(name string) error {
 		return nil
 	case pkg.FieldObjectKey:
 		m.ResetObjectKey()
+		return nil
+	case pkg.FieldCreatedAt:
+		m.ResetCreatedAt()
 		return nil
 	}
 	return fmt.Errorf("unknown Pkg field %s", name)

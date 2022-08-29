@@ -1,6 +1,8 @@
 package schema
 
 import (
+	"time"
+
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema"
@@ -39,6 +41,9 @@ func (Pkg) Fields() []ent.Field {
 			GoType(types.StatusUnspecified),
 		field.UUID("object_key", uuid.UUID{}).
 			Unique(),
+		field.Time("created_at").
+			Immutable().
+			Default(time.Now),
 	}
 }
 

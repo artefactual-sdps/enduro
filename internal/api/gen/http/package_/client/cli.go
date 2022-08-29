@@ -117,7 +117,7 @@ func BuildShowPayload(package_ShowID string) (*package_.ShowPayload, error) {
 }
 
 // BuildPreservationActionsPayload builds the payload for the package
-// preservation-actions endpoint from CLI flags.
+// preservation_actions endpoint from CLI flags.
 func BuildPreservationActionsPayload(package_PreservationActionsID string) (*package_.PreservationActionsPayload, error) {
 	var err error
 	var id uint
@@ -143,7 +143,7 @@ func BuildConfirmPayload(package_ConfirmBody string, package_ConfirmID string) (
 	{
 		err = json.Unmarshal([]byte(package_ConfirmBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location_id\": \"Itaque soluta sed et.\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location_id\": \"Ut quas.\"\n   }'")
 		}
 	}
 	var id uint
@@ -190,7 +190,7 @@ func BuildMovePayload(package_MoveBody string, package_MoveID string) (*package_
 	{
 		err = json.Unmarshal([]byte(package_MoveBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location_id\": \"Quod laboriosam omnis.\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location_id\": \"Temporibus iusto et.\"\n   }'")
 		}
 	}
 	var id uint

@@ -4,21 +4,29 @@ import (
 	"context"
 	"fmt"
 	"testing"
+	"time"
 
+	"entgo.io/ent"
 	"github.com/google/uuid"
 	_ "github.com/mattn/go-sqlite3"
 	"gotest.tools/v3/assert"
 
-	"github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 	"github.com/artefactual-sdps/enduro/internal/ref"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/client"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/enttest"
+	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/hook"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/location"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/pkg"
 	"github.com/artefactual-sdps/enduro/internal/storage/types"
 )
+
+func fakeNow() time.Time {
+	const longForm = "Jan 2, 2006 at 3:04pm (MST)"
+	t, _ := time.Parse(longForm, "Feb 3, 2013 at 7:54pm (PST)")
+	return t
+}
 
 func setUpClient(t *testing.T) (*db.Client, *client.Client) {
 	t.Helper()
@@ -28,6 +36,24 @@ func setUpClient(t *testing.T) (*db.Client, *client.Client) {
 	t.Cleanup(func() { entc.Close() })
 
 	c := client.NewClient(entc)
+
+	// Use ent Hooks to set the create_at fields to a fixed value
+	entc.Pkg.Use(func(next ent.Mutator) ent.Mutator {
+		return hook.PkgFunc(func(ctx context.Context, m *db.PkgMutation) (ent.Value, error) {
+			if m.Op() == db.OpCreate {
+				m.SetCreatedAt(fakeNow())
+			}
+			return next.Mutate(ctx, m)
+		})
+	})
+	entc.Location.Use(func(next ent.Mutator) ent.Mutator {
+		return hook.LocationFunc(func(ctx context.Context, m *db.LocationMutation) (ent.Value, error) {
+			if m.Op() == db.OpCreate {
+				m.SetCreatedAt(fakeNow())
+			}
+			return next.Mutate(ctx, m)
+		})
+	})
 
 	return entc, c
 }
@@ -53,6 +79,7 @@ func TestCreatePackage(t *testing.T) {
 	assert.Equal(t, dbpkg.Name, "test_package")
 	assert.Equal(t, dbpkg.AipID.String(), "488c64cc-d89b-4916-9131-c94152dfb12e")
 	assert.Equal(t, dbpkg.ObjectKey.String(), "e2630293-a714-4787-ab6d-e68254a6fb6a")
+	assert.Equal(t, dbpkg.CreatedAt, time.Date(2013, time.February, 3, 19, 54, 0, 0, time.UTC))
 }
 
 func TestListPackages(t *testing.T) {
@@ -75,13 +102,14 @@ func TestListPackages(t *testing.T) {
 
 	pkgs, err := c.ListPackages(context.Background())
 	assert.NilError(t, err)
-	assert.DeepEqual(t, pkgs, []*storage.StoredStoragePackage{
+	assert.DeepEqual(t, pkgs, []*goastorage.StoredStoragePackage{
 		{
 			Name:       "Package",
 			AipID:      "488c64cc-d89b-4916-9131-c94152dfb12e",
 			Status:     "stored",
 			ObjectKey:  uuid.MustParse("e2630293-a714-4787-ab6d-e68254a6fb6a"),
 			LocationID: nil,
+			CreatedAt:  "2013-02-03T19:54:00Z",
 		},
 		{
 			Name:       "Another Package",
@@ -89,6 +117,7 @@ func TestListPackages(t *testing.T) {
 			Status:     "rejected",
 			ObjectKey:  uuid.MustParse("49b0a604-6c81-458c-852a-1afa713f1fd9"),
 			LocationID: nil,
+			CreatedAt:  "2013-02-03T19:54:00Z",
 		},
 	})
 }
@@ -96,23 +125,36 @@ func TestListPackages(t *testing.T) {
 func TestReadPackage(t *testing.T) {
 	t.Parallel()
 
-	entc, c := setUpClient(t)
+	t.Run("Returns valid result", func(t *testing.T) {
+		entc, c := setUpClient(t)
 
-	entc.Pkg.Create().
-		SetName("Package").
-		SetAipID(uuid.MustParse("488c64cc-d89b-4916-9131-c94152dfb12e")).
-		SetObjectKey(uuid.MustParse("e2630293-a714-4787-ab6d-e68254a6fb6a")).
-		SetStatus(types.StatusStored).
-		SaveX(context.Background())
+		entc.Pkg.Create().
+			SetName("Package").
+			SetAipID(uuid.MustParse("488c64cc-d89b-4916-9131-c94152dfb12e")).
+			SetObjectKey(uuid.MustParse("e2630293-a714-4787-ab6d-e68254a6fb6a")).
+			SetStatus(types.StatusStored).
+			SaveX(context.Background())
 
-	pkg, err := c.ReadPackage(context.Background(), uuid.MustParse("488c64cc-d89b-4916-9131-c94152dfb12e"))
-	assert.NilError(t, err)
-	assert.DeepEqual(t, pkg, &storage.StoredStoragePackage{
-		Name:       "Package",
-		AipID:      "488c64cc-d89b-4916-9131-c94152dfb12e",
-		Status:     "stored",
-		ObjectKey:  uuid.MustParse("e2630293-a714-4787-ab6d-e68254a6fb6a"),
-		LocationID: nil,
+		pkg, err := c.ReadPackage(context.Background(), uuid.MustParse("488c64cc-d89b-4916-9131-c94152dfb12e"))
+		assert.NilError(t, err)
+		assert.DeepEqual(t, pkg, &goastorage.StoredStoragePackage{
+			Name:       "Package",
+			AipID:      "488c64cc-d89b-4916-9131-c94152dfb12e",
+			Status:     "stored",
+			ObjectKey:  uuid.MustParse("e2630293-a714-4787-ab6d-e68254a6fb6a"),
+			LocationID: nil,
+			CreatedAt:  "2013-02-03T19:54:00Z",
+		})
+	})
+
+	t.Run("Returns error when package does not exist", func(t *testing.T) {
+		t.Parallel()
+
+		_, c := setUpClient(t)
+
+		l, err := c.ReadPackage(context.Background(), uuid.MustParse("488c64cc-d89b-4916-9131-c94152dfb12e"))
+		assert.Assert(t, l == nil)
+		assert.ErrorContains(t, err, "package not found")
 	})
 }
 
@@ -217,6 +259,7 @@ func TestCreateLocation(t *testing.T) {
 	assert.Equal(t, dblocation.Source, types.LocationSourceMinIO)
 	assert.Equal(t, dblocation.Purpose, types.LocationPurposeAIPStore)
 	assert.Equal(t, dblocation.UUID.String(), "7a090f2c-7bd4-471c-8aa1-8c72125decd5")
+	assert.Equal(t, dblocation.CreatedAt, time.Date(2013, time.February, 3, 19, 54, 0, 0, time.UTC))
 	assert.DeepEqual(t, dblocation.Config.Value, &types.S3Config{Bucket: "perma-aips-1"})
 }
 
@@ -252,14 +295,15 @@ func TestListLocations(t *testing.T) {
 
 	locations, err := c.ListLocations(context.Background())
 	assert.NilError(t, err)
-	assert.DeepEqual(t, locations, storage.StoredLocationCollection{
+	assert.DeepEqual(t, locations, goastorage.StoredLocationCollection{
 		{
 			Name:        "Location",
 			Description: ref.New("location"),
 			Source:      "minio",
 			Purpose:     "aip_store",
 			UUID:        uuid.MustParse("021f7ac2-5b0b-4620-b574-21f6a206cff3"),
-			Config: &storage.S3Config{
+			CreatedAt:   "2013-02-03T19:54:00Z",
+			Config: &goastorage.S3Config{
 				Bucket:    "perma-aips-1",
 				Endpoint:  ref.New(""),
 				PathStyle: ref.New(false),
@@ -275,7 +319,8 @@ func TestListLocations(t *testing.T) {
 			Source:      "minio",
 			Purpose:     "aip_store",
 			UUID:        uuid.MustParse("7ba9a118-a662-4047-8547-64bc752b91c6"),
-			Config: &storage.S3Config{
+			CreatedAt:   "2013-02-03T19:54:00Z",
+			Config: &goastorage.S3Config{
 				Bucket:    "perma-aips-2",
 				Endpoint:  ref.New(""),
 				PathStyle: ref.New(false),
@@ -291,37 +336,131 @@ func TestListLocations(t *testing.T) {
 func TestReadLocation(t *testing.T) {
 	t.Parallel()
 
-	entc, c := setUpClient(t)
+	t.Run("Returns valid result", func(t *testing.T) {
+		t.Parallel()
 
-	entc.Location.Create().
-		SetName("test_location").
-		SetDescription("location description").
-		SetSource(types.LocationSourceMinIO).
-		SetPurpose(types.LocationPurposeAIPStore).
-		SetUUID(uuid.MustParse("7a090f2c-7bd4-471c-8aa1-8c72125decd5")).
-		SetConfig(types.LocationConfig{
-			Value: &types.S3Config{
-				Bucket: "perma-aips-1",
+		entc, c := setUpClient(t)
+
+		entc.Location.Create().
+			SetName("test_location").
+			SetDescription("location description").
+			SetSource(types.LocationSourceMinIO).
+			SetPurpose(types.LocationPurposeAIPStore).
+			SetUUID(uuid.MustParse("7a090f2c-7bd4-471c-8aa1-8c72125decd5")).
+			SetConfig(types.LocationConfig{
+				Value: &types.S3Config{
+					Bucket: "perma-aips-1",
+				},
+			}).
+			SaveX(context.Background())
+
+		l, err := c.ReadLocation(context.Background(), uuid.MustParse("7a090f2c-7bd4-471c-8aa1-8c72125decd5"))
+		assert.NilError(t, err)
+		assert.DeepEqual(t, l, &goastorage.StoredLocation{
+			Name:        "test_location",
+			Description: ref.New("location description"),
+			Source:      types.LocationSourceMinIO.String(),
+			Purpose:     types.LocationPurposeAIPStore.String(),
+			UUID:        uuid.MustParse("7a090f2c-7bd4-471c-8aa1-8c72125decd5"),
+			CreatedAt:   "2013-02-03T19:54:00Z",
+			Config: &goastorage.S3Config{
+				Bucket:    "perma-aips-1",
+				Endpoint:  ref.New(""),
+				PathStyle: ref.New(false),
+				Profile:   ref.New(""),
+				Key:       ref.New(""),
+				Secret:    ref.New(""),
+				Token:     ref.New(""),
 			},
-		}).
-		SaveX(context.Background())
+		})
+	})
 
-	l, err := c.ReadLocation(context.Background(), uuid.MustParse("7a090f2c-7bd4-471c-8aa1-8c72125decd5"))
-	assert.NilError(t, err)
-	assert.DeepEqual(t, l, &storage.StoredLocation{
-		Name:        "test_location",
-		Description: ref.New("location description"),
-		Source:      types.LocationSourceMinIO.String(),
-		Purpose:     types.LocationPurposeAIPStore.String(),
-		UUID:        uuid.MustParse("7a090f2c-7bd4-471c-8aa1-8c72125decd5"),
-		Config: &storage.S3Config{
-			Bucket:    "perma-aips-1",
-			Endpoint:  ref.New(""),
-			PathStyle: ref.New(false),
-			Profile:   ref.New(""),
-			Key:       ref.New(""),
-			Secret:    ref.New(""),
-			Token:     ref.New(""),
-		},
+	t.Run("Returns error when location does not exist", func(t *testing.T) {
+		t.Parallel()
+
+		_, c := setUpClient(t)
+
+		l, err := c.ReadLocation(context.Background(), uuid.MustParse("7a090f2c-7bd4-471c-8aa1-8c72125decd5"))
+		assert.Assert(t, l == nil)
+		assert.ErrorContains(t, err, "location not found")
+	})
+}
+
+func TestLocationPackages(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Returns valid result", func(t *testing.T) {
+		t.Parallel()
+
+		entc, c := setUpClient(t)
+
+		locationID := uuid.MustParse("021f7ac2-5b0b-4620-b574-21f6a206cff3")
+		l := entc.Location.Create().
+			SetName("Location").
+			SetDescription("location").
+			SetSource(types.LocationSourceMinIO).
+			SetPurpose(types.LocationPurposeAIPStore).
+			SetUUID(locationID).
+			SetConfig(types.LocationConfig{
+				Value: &types.S3Config{
+					Bucket: "perma-aips-1",
+				},
+			}).
+			SaveX(context.Background())
+
+		entc.Pkg.Create().
+			SetName("Package").
+			SetAipID(uuid.MustParse("488c64cc-d89b-4916-9131-c94152dfb12e")).
+			SetObjectKey(uuid.MustParse("e2630293-a714-4787-ab6d-e68254a6fb6a")).
+			SetStatus(types.StatusStored).
+			SetLocation(l).
+			SaveX(context.Background())
+
+		pkgs, err := c.LocationPackages(context.Background(), locationID)
+		assert.NilError(t, err)
+		assert.DeepEqual(t, pkgs, goastorage.StoredStoragePackageCollection{
+			{
+				Name:       "Package",
+				AipID:      "488c64cc-d89b-4916-9131-c94152dfb12e",
+				Status:     "stored",
+				ObjectKey:  uuid.MustParse("e2630293-a714-4787-ab6d-e68254a6fb6a"),
+				LocationID: ref.New(locationID),
+				CreatedAt:  "2013-02-03T19:54:00Z",
+			},
+		})
+	})
+
+	t.Run("Returns empty result", func(t *testing.T) {
+		t.Parallel()
+
+		entc, c := setUpClient(t)
+
+		locationID := uuid.MustParse("021f7ac2-5b0b-4620-b574-21f6a206cff3")
+		entc.Location.Create().
+			SetName("Location").
+			SetDescription("location").
+			SetSource(types.LocationSourceMinIO).
+			SetPurpose(types.LocationPurposeAIPStore).
+			SetUUID(locationID).
+			SetConfig(types.LocationConfig{
+				Value: &types.S3Config{
+					Bucket: "perma-aips-1",
+				},
+			}).
+			SaveX(context.Background())
+
+		pkgs, err := c.LocationPackages(context.Background(), locationID)
+		assert.NilError(t, err)
+		assert.Assert(t, len(pkgs) == 0)
+	})
+
+	t.Run("Returns empty result if location does not exist", func(t *testing.T) {
+		t.Parallel()
+
+		_, c := setUpClient(t)
+
+		pkgs, err := c.LocationPackages(context.Background(), uuid.Nil)
+		assert.NilError(t, err)
+		assert.Assert(t, len(pkgs) == 0)
 	})
 }

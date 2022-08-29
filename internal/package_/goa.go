@@ -163,9 +163,9 @@ func (w *goaWrapper) List(ctx context.Context, payload *goapackage.ListPayload) 
 func (w *goaWrapper) Show(ctx context.Context, payload *goapackage.ShowPayload) (*goapackage.EnduroStoredPackage, error) {
 	c, err := w.read(ctx, payload.ID)
 	if err == sql.ErrNoRows {
-		return nil, &goapackage.PackageNotfound{ID: payload.ID, Message: "not_found"}
+		return nil, &goapackage.PackageNotfound{ID: payload.ID, Message: "package not found"}
 	} else if err != nil {
-		return nil, err
+		return nil, goapackage.MakeNotAvailable(errors.New("cannot perform operation"))
 	}
 
 	return c.Goa(), nil

@@ -22,8 +22,8 @@ const { execute, error } = useAsyncState(
     <!-- Alert -->
     <PackagePendingAlert v-if="packageStore.current" />
 
-    <h1 class="d-flex mb-3">
-      <IconBundleLine class="me-3 text-dark" />{{ packageStore.current?.name }}
+    <h1 class="d-flex mb-3" v-if="packageStore.current">
+      <IconBundleLine class="me-3 text-dark" />{{ packageStore.current.name }}
     </h1>
 
     <!-- Navigation tabs -->

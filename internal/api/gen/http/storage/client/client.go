@@ -50,8 +50,12 @@ type Client struct {
 	ShowDoer goahttp.Doer
 
 	// ShowLocation Doer is the HTTP client used to make requests to the
-	// show-location endpoint.
+	// show_location endpoint.
 	ShowLocationDoer goahttp.Doer
+
+	// LocationPackages Doer is the HTTP client used to make requests to the
+	// location_packages endpoint.
+	LocationPackagesDoer goahttp.Doer
 
 	// CORS Doer is the HTTP client used to make requests to the  endpoint.
 	CORSDoer goahttp.Doer
@@ -76,22 +80,23 @@ func NewClient(
 	restoreBody bool,
 ) *Client {
 	return &Client{
-		SubmitDoer:          doer,
-		UpdateDoer:          doer,
-		DownloadDoer:        doer,
-		LocationsDoer:       doer,
-		AddLocationDoer:     doer,
-		MoveDoer:            doer,
-		MoveStatusDoer:      doer,
-		RejectDoer:          doer,
-		ShowDoer:            doer,
-		ShowLocationDoer:    doer,
-		CORSDoer:            doer,
-		RestoreResponseBody: restoreBody,
-		scheme:              scheme,
-		host:                host,
-		decoder:             dec,
-		encoder:             enc,
+		SubmitDoer:           doer,
+		UpdateDoer:           doer,
+		DownloadDoer:         doer,
+		LocationsDoer:        doer,
+		AddLocationDoer:      doer,
+		MoveDoer:             doer,
+		MoveStatusDoer:       doer,
+		RejectDoer:           doer,
+		ShowDoer:             doer,
+		ShowLocationDoer:     doer,
+		LocationPackagesDoer: doer,
+		CORSDoer:             doer,
+		RestoreResponseBody:  restoreBody,
+		scheme:               scheme,
+		host:                 host,
+		decoder:              dec,
+		encoder:              enc,
 	}
 }
 
@@ -282,7 +287,7 @@ func (c *Client) Show() goa.Endpoint {
 }
 
 // ShowLocation returns an endpoint that makes HTTP requests to the storage
-// service show-location server.
+// service show_location server.
 func (c *Client) ShowLocation() goa.Endpoint {
 	var (
 		decodeResponse = DecodeShowLocationResponse(c.decoder, c.RestoreResponseBody)
@@ -294,7 +299,26 @@ func (c *Client) ShowLocation() goa.Endpoint {
 		}
 		resp, err := c.ShowLocationDoer.Do(req)
 		if err != nil {
-			return nil, goahttp.ErrRequestError("storage", "show-location", err)
+			return nil, goahttp.ErrRequestError("storage", "show_location", err)
+		}
+		return decodeResponse(resp)
+	}
+}
+
+// LocationPackages returns an endpoint that makes HTTP requests to the storage
+// service location_packages server.
+func (c *Client) LocationPackages() goa.Endpoint {
+	var (
+		decodeResponse = DecodeLocationPackagesResponse(c.decoder, c.RestoreResponseBody)
+	)
+	return func(ctx context.Context, v interface{}) (interface{}, error) {
+		req, err := c.BuildLocationPackagesRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		resp, err := c.LocationPackagesDoer.Do(req)
+		if err != nil {
+			return nil, goahttp.ErrRequestError("storage", "location_packages", err)
 		}
 		return decodeResponse(resp)
 	}

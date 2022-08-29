@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -58,6 +59,20 @@ func (lc *LocationCreate) SetConfig(tc types.LocationConfig) *LocationCreate {
 	return lc
 }
 
+// SetCreatedAt sets the "created_at" field.
+func (lc *LocationCreate) SetCreatedAt(t time.Time) *LocationCreate {
+	lc.mutation.SetCreatedAt(t)
+	return lc
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (lc *LocationCreate) SetNillableCreatedAt(t *time.Time) *LocationCreate {
+	if t != nil {
+		lc.SetCreatedAt(*t)
+	}
+	return lc
+}
+
 // AddPackageIDs adds the "packages" edge to the Pkg entity by IDs.
 func (lc *LocationCreate) AddPackageIDs(ids ...int) *LocationCreate {
 	lc.mutation.AddPackageIDs(ids...)
@@ -84,6 +99,7 @@ func (lc *LocationCreate) Save(ctx context.Context) (*Location, error) {
 		err  error
 		node *Location
 	)
+	lc.defaults()
 	if len(lc.hooks) == 0 {
 		if err = lc.check(); err != nil {
 			return nil, err
@@ -147,6 +163,14 @@ func (lc *LocationCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (lc *LocationCreate) defaults() {
+	if _, ok := lc.mutation.CreatedAt(); !ok {
+		v := location.DefaultCreatedAt()
+		lc.mutation.SetCreatedAt(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (lc *LocationCreate) check() error {
 	if _, ok := lc.mutation.Name(); !ok {
@@ -176,6 +200,9 @@ func (lc *LocationCreate) check() error {
 	}
 	if _, ok := lc.mutation.Config(); !ok {
 		return &ValidationError{Name: "config", err: errors.New(`db: missing required field "Location.config"`)}
+	}
+	if _, ok := lc.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`db: missing required field "Location.created_at"`)}
 	}
 	return nil
 }
@@ -252,6 +279,14 @@ func (lc *LocationCreate) createSpec() (*Location, *sqlgraph.CreateSpec) {
 		})
 		_node.Config = value
 	}
+	if value, ok := lc.mutation.CreatedAt(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: location.FieldCreatedAt,
+		})
+		_node.CreatedAt = value
+	}
 	if nodes := lc.mutation.PackagesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
@@ -288,6 +323,7 @@ func (lcb *LocationCreateBulk) Save(ctx context.Context) ([]*Location, error) {
 	for i := range lcb.builders {
 		func(i int, root context.Context) {
 			builder := lcb.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*LocationMutation)
 				if !ok {

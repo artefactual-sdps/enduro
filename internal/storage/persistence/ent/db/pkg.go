@@ -5,6 +5,7 @@ package db
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/location"
@@ -28,6 +29,8 @@ type Pkg struct {
 	Status types.PackageStatus `json:"status,omitempty"`
 	// ObjectKey holds the value of the "object_key" field.
 	ObjectKey uuid.UUID `json:"object_key,omitempty"`
+	// CreatedAt holds the value of the "created_at" field.
+	CreatedAt time.Time `json:"created_at,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the PkgQuery when eager-loading is set.
 	Edges PkgEdges `json:"edges"`
@@ -65,6 +68,8 @@ func (*Pkg) scanValues(columns []string) ([]interface{}, error) {
 			values[i] = new(sql.NullInt64)
 		case pkg.FieldName:
 			values[i] = new(sql.NullString)
+		case pkg.FieldCreatedAt:
+			values[i] = new(sql.NullTime)
 		case pkg.FieldStatus:
 			values[i] = new(types.PackageStatus)
 		case pkg.FieldAipID, pkg.FieldObjectKey:
@@ -120,6 +125,12 @@ func (pk *Pkg) assignValues(columns []string, values []interface{}) error {
 			} else if value != nil {
 				pk.ObjectKey = *value
 			}
+		case pkg.FieldCreatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field created_at", values[i])
+			} else if value.Valid {
+				pk.CreatedAt = value.Time
+			}
 		}
 	}
 	return nil
@@ -167,6 +178,9 @@ func (pk *Pkg) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("object_key=")
 	builder.WriteString(fmt.Sprintf("%v", pk.ObjectKey))
+	builder.WriteString(", ")
+	builder.WriteString("created_at=")
+	builder.WriteString(pk.CreatedAt.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }
