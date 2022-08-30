@@ -138,7 +138,7 @@ func (s *serviceImpl) Update(ctx context.Context, payload *goastorage.UpdatePayl
 	if err != nil {
 		return goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
 	}
-	// Uptade the package status to in_review
+	// Update the package status to in_review
 	err = s.UpdatePackageStatus(ctx, types.StatusInReview, payload.AipID)
 	if err != nil {
 		return goastorage.MakeNotValid(errors.New("cannot persist package"))
@@ -319,7 +319,7 @@ func (s *serviceImpl) ReadLocation(ctx context.Context, UUID uuid.UUID) (*goasto
 func (s *serviceImpl) ShowLocation(ctx context.Context, payload *goastorage.ShowLocationPayload) (*goastorage.StoredLocation, error) {
 	locationID, err := uuid.Parse(payload.UUID)
 	if err != nil {
-		return nil, goastorage.MakeNotValid(errors.New("cannot persist location"))
+		return nil, goastorage.MakeNotValid(errors.New("cannot perform operation"))
 	}
 
 	return s.ReadLocation(ctx, locationID)
@@ -328,7 +328,7 @@ func (s *serviceImpl) ShowLocation(ctx context.Context, payload *goastorage.Show
 func (s *serviceImpl) LocationPackages(ctx context.Context, payload *goastorage.LocationPackagesPayload) (goastorage.StoredStoragePackageCollection, error) {
 	locationID, err := uuid.Parse(payload.UUID)
 	if err != nil {
-		return nil, goastorage.MakeNotValid(err)
+		return nil, goastorage.MakeNotValid(errors.New("cannot perform operation"))
 	}
 
 	pkgs, err := s.storagePersistence.LocationPackages(ctx, locationID)
