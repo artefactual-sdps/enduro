@@ -24,11 +24,13 @@ describe("Breadcrumb.vue", () => {
           }),
           createRouter({
             history: createWebHistory(),
-            routes: [{ name: "packages", path: "/packages", component: {} }],
+            routes: [
+              { name: "index", path: "", component: {} },
+              { name: "packages", path: "/packages", component: {} },
+            ],
           }),
         ],
       },
-      routes: [],
     });
 
     getByRole("navigation", { name: "Breadcrumb" });

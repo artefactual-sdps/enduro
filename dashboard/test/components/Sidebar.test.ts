@@ -5,7 +5,18 @@ import { cleanup, fireEvent, render } from "@testing-library/vue";
 import { flushPromises } from "@vue/test-utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { nextTick } from "vue";
-import { createRouter, createWebHistory } from "vue-router";
+import { createRouter, createMemoryHistory } from "vue-router";
+
+const router = createRouter({
+  // Vue Router throws history.state warning when the second click is fired,
+  // createMemoryHistory does not have this problem.
+  history: createMemoryHistory(),
+  routes: [
+    { name: "index", path: "", component: {} },
+    { name: "packages", path: "/packages", component: {} },
+    { name: "locations", path: "/locations", component: {} },
+  ],
+});
 
 describe("Sidebar.vue", () => {
   afterEach(() => cleanup());
@@ -22,13 +33,7 @@ describe("Sidebar.vue", () => {
               },
             },
           }),
-          createRouter({
-            history: createWebHistory(),
-            routes: [
-              { name: "packages", path: "/packages", component: {} },
-              { name: "locations", path: "/locations", component: {} },
-            ],
-          }),
+          router,
         ],
       },
     });
@@ -41,7 +46,7 @@ describe("Sidebar.vue", () => {
     await flushPromises();
     expect(packagesLink.getAttribute("aria-current")).toEqual("page");
 
-    fireEvent.click(locationsLink);
+    await fireEvent.click(locationsLink);
     await flushPromises();
     expect(locationsLink.getAttribute("aria-current")).toEqual("page");
   });
@@ -58,6 +63,7 @@ describe("Sidebar.vue", () => {
               },
             },
           }),
+          router,
         ],
       },
     });
