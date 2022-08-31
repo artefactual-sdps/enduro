@@ -29,11 +29,11 @@ $(ENT): $(BINGO_DIR)/ent.mod
 	@echo "(re)installing $(GOBIN)/ent-v0.11.0"
 	@cd $(BINGO_DIR) && $(GO) build -mod=mod -modfile=ent.mod -o=$(GOBIN)/ent-v0.11.0 "entgo.io/ent/cmd/ent"
 
-GO_MOD_UPGRADE := $(GOBIN)/go-mod-upgrade-v0.9.0
+GO_MOD_UPGRADE := $(GOBIN)/go-mod-upgrade-v0.9.1
 $(GO_MOD_UPGRADE): $(BINGO_DIR)/go-mod-upgrade.mod
 	@# Install binary/ries using Go 1.14+ build command. This is using bwplotka/bingo-controlled, separate go module with pinned dependencies.
-	@echo "(re)installing $(GOBIN)/go-mod-upgrade-v0.9.0"
-	@cd $(BINGO_DIR) && $(GO) build -mod=mod -modfile=go-mod-upgrade.mod -o=$(GOBIN)/go-mod-upgrade-v0.9.0 "github.com/oligot/go-mod-upgrade"
+	@echo "(re)installing $(GOBIN)/go-mod-upgrade-v0.9.1"
+	@cd $(BINGO_DIR) && $(GO) build -mod=mod -modfile=go-mod-upgrade.mod -o=$(GOBIN)/go-mod-upgrade-v0.9.1 "github.com/oligot/go-mod-upgrade"
 
 GOA := $(GOBIN)/goa-v3.8.3
 $(GOA): $(BINGO_DIR)/goa.mod
