@@ -3,11 +3,11 @@ module github.com/artefactual-sdps/enduro
 go 1.19
 
 require (
-	ariga.io/atlas v0.5.0
-	ariga.io/sqlcomment v0.0.0-20211020114721-6bb67a62a61a
-	entgo.io/ent v0.11.1
-	github.com/alicebob/miniredis/v2 v2.22.0
-	github.com/aws/aws-sdk-go v1.44.70
+	ariga.io/atlas v0.6.3
+	ariga.io/sqlcomment v0.1.0
+	entgo.io/ent v0.11.3-0.20220816070906-2b54aadcce3a
+	github.com/alicebob/miniredis/v2 v2.23.0
+	github.com/aws/aws-sdk-go v1.44.88
 	github.com/fsnotify/fsnotify v1.5.4
 	github.com/go-logr/logr v1.2.3
 	github.com/go-logr/zapr v1.2.3
@@ -21,7 +21,7 @@ require (
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/jmoiron/sqlx v1.3.5
-	github.com/mattn/go-sqlite3 v1.14.14
+	github.com/mattn/go-sqlite3 v1.14.15
 	github.com/mholt/archiver/v3 v3.5.1
 	github.com/nyudlts/go-bagit v0.2.0-alpha
 	github.com/oklog/run v1.1.0
@@ -36,15 +36,15 @@ require (
 	github.com/stretchr/testify v1.8.0
 	github.com/ulikunitz/xz v0.5.10 // indirect
 	go.buf.build/grpc/go/artefactual/a3m v1.4.1
-	go.temporal.io/api v1.8.0
-	go.temporal.io/sdk v1.15.0
+	go.temporal.io/api v1.11.0
+	go.temporal.io/sdk v1.16.0
 	go.uber.org/multierr v1.8.0 // indirect
-	go.uber.org/zap v1.22.0
+	go.uber.org/zap v1.23.0
 	goa.design/goa/v3 v3.8.3
 	goa.design/plugins/v3 v3.8.3
 	gocloud.dev v0.26.0
 	golang.org/x/text v0.3.7 // indirect
-	google.golang.org/grpc v1.48.0
+	google.golang.org/grpc v1.49.0
 	google.golang.org/protobuf v1.28.1 // indirect
 	gotest.tools/v3 v3.3.0
 )
@@ -83,7 +83,7 @@ require (
 	github.com/go-openapi/inflect v0.19.0 // indirect
 	github.com/gogo/googleapis v1.4.1 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
-	github.com/gogo/status v1.1.0 // indirect
+	github.com/gogo/status v1.1.1 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
@@ -91,7 +91,7 @@ require (
 	github.com/googleapis/gax-go/v2 v2.4.0 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
-	github.com/hashicorp/hcl/v2 v2.10.0 // indirect
+	github.com/hashicorp/hcl/v2 v2.13.0 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/klauspost/compress v1.15.1 // indirect
 	github.com/klauspost/pgzip v1.2.5 // indirect
@@ -125,7 +125,7 @@ require (
 	golang.org/x/net v0.0.0-20220802222814-0bcc04d9c69b // indirect
 	golang.org/x/sys v0.0.0-20220803195053-6e608f9ce704 // indirect
 	golang.org/x/time v0.0.0-20220224211638-0e9765cccd65 // indirect
-	golang.org/x/tools v0.1.12 // indirect
+	golang.org/x/tools v0.1.13-0.20220804200503-81c7dc4e4efa // indirect
 	golang.org/x/xerrors v0.0.0-20220517211312-f3a8303e98df // indirect
 	google.golang.org/api v0.81.0 // indirect
 	google.golang.org/genproto v0.0.0-20220803205849-8f55acc8769f // indirect
