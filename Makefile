@@ -69,7 +69,7 @@ ignored:
 	$(foreach PACKAGE,$(IGNORED_PACKAGES),@echo $(PACKAGE)$(NEWLINE))
 
 lint:
-	$(GOLANGCI_LINT) run -v --timeout=5m --fix
+	$(GOLANGCI_LINT) run -c $(CURDIR)/.golangci.yml -v --timeout=5m --fix
 
 gen-goa:
 	$(GOA) gen github.com/artefactual-sdps/enduro/internal/api/design -o internal/api

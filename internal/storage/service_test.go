@@ -1524,7 +1524,6 @@ func TestServiceAddLocation(t *testing.T) {
 		})
 		assert.NilError(t, err)
 		assert.DeepEqual(t, res, &goastorage.AddLocationResult{UUID: locationID.String()})
-
 	})
 }
 
