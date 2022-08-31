@@ -3,6 +3,12 @@ import { useLayoutStore } from "@/stores/layout";
 import { createTestingPinia } from "@pinia/testing";
 import { cleanup, fireEvent, render } from "@testing-library/vue";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { createRouter, createWebHistory } from "vue-router";
+
+const router = createRouter({
+  history: createWebHistory(),
+  routes: [{ name: "index", path: "", component: {} }],
+});
 
 describe("Header.vue", () => {
   afterEach(() => cleanup());
@@ -20,6 +26,7 @@ describe("Header.vue", () => {
             },
             stubActions: false,
           }),
+          router,
         ],
       },
     });
@@ -51,6 +58,7 @@ describe("Header.vue", () => {
               layout: { breadcrumb: [{ text: "Packages" }] },
             },
           }),
+          router,
         ],
       },
     });
