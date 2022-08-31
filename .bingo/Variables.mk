@@ -47,11 +47,11 @@ $(GOLANGCI_LINT): $(BINGO_DIR)/golangci-lint.mod
 	@echo "(re)installing $(GOBIN)/golangci-lint-v1.49.0"
 	@cd $(BINGO_DIR) && $(GO) build -mod=mod -modfile=golangci-lint.mod -o=$(GOBIN)/golangci-lint-v1.49.0 "github.com/golangci/golangci-lint/cmd/golangci-lint"
 
-GOTESTSUM := $(GOBIN)/gotestsum-v1.8.1
+GOTESTSUM := $(GOBIN)/gotestsum-v1.8.2
 $(GOTESTSUM): $(BINGO_DIR)/gotestsum.mod
 	@# Install binary/ries using Go 1.14+ build command. This is using bwplotka/bingo-controlled, separate go module with pinned dependencies.
-	@echo "(re)installing $(GOBIN)/gotestsum-v1.8.1"
-	@cd $(BINGO_DIR) && $(GO) build -mod=mod -modfile=gotestsum.mod -o=$(GOBIN)/gotestsum-v1.8.1 "gotest.tools/gotestsum"
+	@echo "(re)installing $(GOBIN)/gotestsum-v1.8.2"
+	@cd $(BINGO_DIR) && $(GO) build -mod=mod -modfile=gotestsum.mod -o=$(GOBIN)/gotestsum-v1.8.2 "gotest.tools/gotestsum"
 
 MIGRATE := $(GOBIN)/migrate-v4.15.2
 $(MIGRATE): $(BINGO_DIR)/migrate.mod
