@@ -63,3 +63,6 @@ export * from './StorageUpdateNotAvailableResponseBody';
 export * from './StorageUpdateNotValidResponseBody';
 export * from './StoredLocationResponse';
 export * from './StoredStoragePackageResponse';
+export * from './UploadUploadInternalErrorResponseBody';
+export * from './UploadUploadInvalidMediaTypeResponseBody';
+export * from './UploadUploadInvalidMultipartRequestResponseBody';

@@ -24,16 +24,20 @@ import (
 	packagesvr "github.com/artefactual-sdps/enduro/internal/api/gen/http/package_/server"
 	storagesvr "github.com/artefactual-sdps/enduro/internal/api/gen/http/storage/server"
 	swaggersvr "github.com/artefactual-sdps/enduro/internal/api/gen/http/swagger/server"
+	uploadsvr "github.com/artefactual-sdps/enduro/internal/api/gen/http/upload/server"
 	"github.com/artefactual-sdps/enduro/internal/api/gen/package_"
 	"github.com/artefactual-sdps/enduro/internal/api/gen/storage"
+	"github.com/artefactual-sdps/enduro/internal/api/gen/upload"
 	intpkg "github.com/artefactual-sdps/enduro/internal/package_"
 	intstorage "github.com/artefactual-sdps/enduro/internal/storage"
+	intupload "github.com/artefactual-sdps/enduro/internal/upload"
 )
 
 func HTTPServer(
 	logger logr.Logger, config *Config,
 	pkgsvc intpkg.Service,
 	storagesvc intstorage.Service,
+	uploadsvc intupload.Service,
 ) *http.Server {
 	dec := goahttp.RequestDecoder
 	enc := goahttp.ResponseEncoder
@@ -56,6 +60,12 @@ func HTTPServer(
 	storageServer := storagesvr.New(storageEndpoints, mux, dec, enc, storageErrorHandler, nil)
 	storageServer.Download = intstorage.Download(storagesvc, mux, dec)
 	storagesvr.Mount(mux, storageServer)
+
+	// Upload service.
+	uploadEndpoints := upload.NewEndpoints(uploadsvc)
+	uploadErrorHandler := errorHandler(logger, "Upload error.")
+	uploadServer := uploadsvr.New(uploadEndpoints, mux, dec, enc, uploadErrorHandler, nil)
+	uploadsvr.Mount(mux, uploadServer)
 
 	// Swagger service.
 	swaggerService := swaggersvr.New(nil, nil, nil, nil, nil, nil, nil)

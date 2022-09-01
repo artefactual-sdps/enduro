@@ -73,6 +73,14 @@ bucket = "aips"
 [a3m]
 address = "127.0.0.1:7000"
 shareDir = "/home/a3m/.local/share/a3m/share"
+
+[upload]
+endpoint = "http://minio:9000"
+pathStyle = true
+key = "{MINIO_USER}"
+secret = "{MINIO_PASSWORD}"
+region = "us-west-1"
+bucket = "sips"
 `
 
 // Regular expression used to replace the kubeconfig token.

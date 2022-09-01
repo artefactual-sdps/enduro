@@ -36,6 +36,7 @@ IGNORED_PACKAGES := \
 	github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/schema \
 	github.com/artefactual-sdps/enduro/internal/storage/persistence/fake \
 	github.com/artefactual-sdps/enduro/internal/temporal/testutil \
+	github.com/artefactual-sdps/enduro/internal/upload/fake \
 	github.com/artefactual-sdps/enduro/internal/watcher/fake
 PACKAGES		:= $(shell go list ./...)
 TEST_PACKAGES	:= $(filter-out $(IGNORED_PACKAGES),$(PACKAGES))
@@ -92,6 +93,7 @@ gen-mock:
 	$(MOCKGEN) -destination=./internal/package_/fake/mock_package_.go -package=fake github.com/artefactual-sdps/enduro/internal/package_ Service
 	$(MOCKGEN) -destination=./internal/storage/fake/mock_storage.go -package=fake github.com/artefactual-sdps/enduro/internal/storage Service
 	$(MOCKGEN) -destination=./internal/storage/persistence/fake/mock_persistence.go -package=fake github.com/artefactual-sdps/enduro/internal/storage/persistence Storage
+	$(MOCKGEN) -destination=./internal/upload/fake/mock_upload.go -package=fake github.com/artefactual-sdps/enduro/internal/upload Service
 	$(MOCKGEN) -destination=./internal/watcher/fake/mock_watcher.go -package=fake github.com/artefactual-sdps/enduro/internal/watcher Service
 
 gen-ent:

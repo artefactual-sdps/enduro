@@ -16,6 +16,7 @@ import (
 
 	package_c "github.com/artefactual-sdps/enduro/internal/api/gen/http/package_/client"
 	storagec "github.com/artefactual-sdps/enduro/internal/api/gen/http/storage/client"
+	uploadc "github.com/artefactual-sdps/enduro/internal/api/gen/http/upload/client"
 	goahttp "goa.design/goa/v3/http"
 	goa "goa.design/goa/v3/pkg"
 )
@@ -26,6 +27,7 @@ import (
 func UsageCommands() string {
 	return `package (monitor|list|show|preservation-actions|confirm|reject|move|move-status)
 storage (submit|update|download|locations|add-location|move|move-status|reject|show|show-location|location-packages)
+upload upload
 `
 }
 
@@ -34,7 +36,8 @@ func UsageExamples() string {
 	return os.Args[0] + ` package monitor` + "\n" +
 		os.Args[0] + ` storage submit --body '{
       "name": "Est quia et praesentium a autem."
-   }' --aip-id "EBC096AD-D9EC-2F9C-CCD5-2819684939D3"` + "\n" +
+   }' --aip-id "0191B0B6-8FCE-0417-5FE7-F3E5947851AE"` + "\n" +
+		os.Args[0] + ` upload upload --content-type "multipart/󋸺񫇖󬈖𧯒󥡮; boundary=���" --stream "goa.png"` + "\n" +
 		""
 }
 
@@ -118,6 +121,12 @@ func ParseEndpoint(
 
 		storageLocationPackagesFlags    = flag.NewFlagSet("location-packages", flag.ExitOnError)
 		storageLocationPackagesUUIDFlag = storageLocationPackagesFlags.String("uuid", "REQUIRED", "")
+
+		uploadFlags = flag.NewFlagSet("upload", flag.ContinueOnError)
+
+		uploadUploadFlags           = flag.NewFlagSet("upload", flag.ExitOnError)
+		uploadUploadContentTypeFlag = uploadUploadFlags.String("content-type", "multipart/form-data; boundary=goa", "")
+		uploadUploadStreamFlag      = uploadUploadFlags.String("stream", "REQUIRED", "path to file containing the streamed request body")
 	)
 	package_Flags.Usage = package_Usage
 	package_MonitorFlags.Usage = package_MonitorUsage
@@ -142,6 +151,9 @@ func ParseEndpoint(
 	storageShowLocationFlags.Usage = storageShowLocationUsage
 	storageLocationPackagesFlags.Usage = storageLocationPackagesUsage
 
+	uploadFlags.Usage = uploadUsage
+	uploadUploadFlags.Usage = uploadUploadUsage
+
 	if err := flag.CommandLine.Parse(os.Args[1:]); err != nil {
 		return nil, nil, err
 	}
@@ -161,6 +173,8 @@ func ParseEndpoint(
 			svcf = package_Flags
 		case "storage":
 			svcf = storageFlags
+		case "upload":
+			svcf = uploadFlags
 		default:
 			return nil, nil, fmt.Errorf("unknown service %q", svcn)
 		}
@@ -238,6 +252,13 @@ func ParseEndpoint(
 
 			case "location-packages":
 				epf = storageLocationPackagesFlags
+
+			}
+
+		case "upload":
+			switch epn {
+			case "upload":
+				epf = uploadUploadFlags
 
 			}
 
@@ -326,6 +347,16 @@ func ParseEndpoint(
 				endpoint = c.LocationPackages()
 				data, err = storagec.BuildLocationPackagesPayload(*storageLocationPackagesUUIDFlag)
 			}
+		case "upload":
+			c := uploadc.NewClient(scheme, host, doer, enc, dec, restore)
+			switch epn {
+			case "upload":
+				endpoint = c.Upload()
+				data, err = uploadc.BuildUploadPayload(*uploadUploadContentTypeFlag)
+				if err == nil {
+					data, err = uploadc.BuildUploadStreamPayload(data, *uploadUploadStreamFlag)
+				}
+			}
 		}
 	}
 	if err != nil {
@@ -378,7 +409,7 @@ List all stored packages
     -cursor STRING: 
 
 Example:
-    %[1]s package list --name "Voluptatem iusto consequatur qui aut ducimus totam." --aip-id "9A05BD8A-CA8D-335E-C26E-14DB8FEBAB04" --earliest-created-time "1971-09-30T17:15:51Z" --latest-created-time "1988-06-14T22:34:25Z" --location-id "AC2E8D12-84E7-ADAA-5045-93C4FF40145F" --status "new" --cursor "Odit omnis itaque soluta sed et modi."
+    %[1]s package list --name "Voluptatem iusto consequatur qui aut ducimus totam." --aip-id "AB360986-C49D-9ED1-C841-8564F85C15A9" --earliest-created-time "1971-09-30T17:15:51Z" --latest-created-time "1988-06-14T22:34:25Z" --location-id "9609F161-371C-A63E-3657-D3B6F178B07F" --status "new" --cursor "Odit omnis itaque soluta sed et modi."
 `, os.Args[0])
 }
 
@@ -487,7 +518,7 @@ Start the submission of a package
 Example:
     %[1]s storage submit --body '{
       "name": "Est quia et praesentium a autem."
-   }' --aip-id "EBC096AD-D9EC-2F9C-CCD5-2819684939D3"
+   }' --aip-id "0191B0B6-8FCE-0417-5FE7-F3E5947851AE"
 `, os.Args[0])
 }
 
@@ -498,7 +529,7 @@ Signal the storage service that an upload is complete
     -aip-id STRING: 
 
 Example:
-    %[1]s storage update --aip-id "C14F18CD-9DAC-4197-F250-EC3FBAFE81DD"
+    %[1]s storage update --aip-id "C353393C-52D3-E5B1-A8C2-BA49F9BA7DA5"
 `, os.Args[0])
 }
 
@@ -509,7 +540,7 @@ Download package by AIPID
     -aip-id STRING: 
 
 Example:
-    %[1]s storage download --aip-id "08881150-0EBF-0710-C5E8-0B82D2C9C671"
+    %[1]s storage download --aip-id "F55E953C-3F94-1E57-76B3-19E312C289C8"
 `, os.Args[0])
 }
 
@@ -553,7 +584,7 @@ Move a package to a permanent storage location
 Example:
     %[1]s storage move --body '{
       "location_id": "Dignissimos deserunt autem."
-   }' --aip-id "84858054-1B69-3E9A-C82B-BF11FF33B1D8"
+   }' --aip-id "05AF9F85-3F51-2CC5-AA06-E15963A2BFCC"
 `, os.Args[0])
 }
 
@@ -564,7 +595,7 @@ Retrieve the status of a permanent storage location move of the package
     -aip-id STRING: 
 
 Example:
-    %[1]s storage move-status --aip-id "BD3BFBE7-02F2-99D7-D026-8BD77E75C122"
+    %[1]s storage move-status --aip-id "79D69965-CB4F-B5AD-C251-2DDAE0E285F8"
 `, os.Args[0])
 }
 
@@ -575,7 +606,7 @@ Reject a package
     -aip-id STRING: 
 
 Example:
-    %[1]s storage reject --aip-id "2E7D48F1-CD94-6874-B6D8-717D4A8FD873"
+    %[1]s storage reject --aip-id "F2B3804F-8F25-5448-962C-F0EBE08C813C"
 `, os.Args[0])
 }
 
@@ -586,7 +617,7 @@ Show package by AIPID
     -aip-id STRING: 
 
 Example:
-    %[1]s storage show --aip-id "38F93803-BFA0-82D1-0649-B0769F6F7519"
+    %[1]s storage show --aip-id "8592D8CE-5388-87CA-26CB-3AD1899F8CA9"
 `, os.Args[0])
 }
 
@@ -597,7 +628,7 @@ Show location by UUID
     -uuid STRING: 
 
 Example:
-    %[1]s storage show-location --uuid "FA72E36A-FA51-C026-0A9C-7A8A45F95FF4"
+    %[1]s storage show-location --uuid "17DDC9D3-F205-F8F5-747D-4A2F0DDDD04A"
 `, os.Args[0])
 }
 
@@ -608,6 +639,31 @@ List all the packages stored in the location with UUID
     -uuid STRING: 
 
 Example:
-    %[1]s storage location-packages --uuid "34287C80-E47A-5C59-54F8-1AC4DAC80AFD"
+    %[1]s storage location-packages --uuid "F2585014-8A98-729F-BBAB-7664BE8C6476"
+`, os.Args[0])
+}
+
+// uploadUsage displays the usage of the upload command and its subcommands.
+func uploadUsage() {
+	fmt.Fprintf(os.Stderr, `The upload service handles file submissions to the SIPs bucket.
+Usage:
+    %[1]s [globalflags] upload COMMAND [flags]
+
+COMMAND:
+    upload: Upload implements upload.
+
+Additional help:
+    %[1]s upload COMMAND --help
+`, os.Args[0])
+}
+func uploadUploadUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] upload upload -content-type STRING -stream STRING
+
+Upload implements upload.
+    -content-type STRING: 
+    -stream STRING: path to file containing the streamed request body
+
+Example:
+    %[1]s upload upload --content-type "multipart/󋸺񫇖󬈖𧯒󥡮; boundary=���" --stream "goa.png"
 `, os.Args[0])
 }

@@ -123,7 +123,6 @@ There are four services available from the host:
 - Enduro dashboard: http://localhost:3000
 - Minio console: http://localhost:7460 (username: minio, password: minio123)
 - Temporal UI: http://localhost:7440
-- Opensearch dashboards: http://localhost:7500
 
 ### Live updates
 
@@ -194,11 +193,20 @@ sure you update `/path/to/enduro` to the proper project folder in the host):
 - Host path: `/path/to/enduro/hack/sampledata/StructB-AM.zip`
 - Object name: `StructB-AM.zip`
 
+Alternatively, you can use the Enduro API to upload the file like in the
+following example:
+
+```
+curl \
+  -F "file=@/path/to/enduro/hack/sampledata/StructB-AM.zip" \
+  http://localhost:3000/api/upload/upload
+```
+
 #### Flush
 
 Also in the Tilt UI header, click the trash button to flush the existing data.
-This will recreate the MySQL databases and the MinIO buckets, delete the
-Opensearch index and restart the required resources.
+This will recreate the MySQL databases and the MinIO buckets, and restart the
+required resources.
 
 #### Generators
 

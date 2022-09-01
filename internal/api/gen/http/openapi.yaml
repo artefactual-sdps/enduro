@@ -623,6 +623,33 @@ paths:
                         type: file
             schemes:
                 - http
+    /upload/upload:
+        post:
+            tags:
+                - upload
+            summary: upload upload
+            operationId: upload#upload
+            parameters:
+                - name: Content-Type
+                  in: header
+                  description: Content-Type header, must define value for multipart boundary.
+                  required: false
+                  type: string
+                  default: multipart/form-data; boundary=goa
+                  pattern: multipart/[^;]+; boundary=.+
+            responses:
+                "204":
+                    description: No Content response.
+                "400":
+                    description: Bad Request response.
+                    schema:
+                        $ref: '#/definitions/UploadUploadInvalidMultipartRequestResponseBody'
+                "500":
+                    description: Internal Server Error response.
+                    schema:
+                        $ref: '#/definitions/UploadUploadInternalErrorResponseBody'
+            schemes:
+                - http
 definitions:
     EnduroMonitorPingEventResponseBody:
         title: 'Mediatype identifier: application/vnd.enduro.monitor-ping-event; view=default'
@@ -649,16 +676,16 @@ definitions:
         example:
             id: 11416261602626687333
             item:
-                aip_id: 7F641448-35F7-7B05-AFB4-8DFCC48CED66
+                aip_id: BCD628BE-EC66-405B-7005-21B482B9CD79
                 completed_at: "2013-05-22T12:15:50Z"
                 created_at: "1978-04-06T06:19:45Z"
                 id: 16779416702944806122
                 location_id: Reprehenderit perferendis dolorum ea consequatur quasi.
                 name: Aliquam eos in molestiae vel.
-                run_id: 1576BB1F-D21C-05AD-6677-73725A387FA6
+                run_id: F1B1633F-78C2-3DF2-9D5F-A450473EBA57
                 started_at: "2014-04-06T09:10:17Z"
                 status: abandoned
-                workflow_id: A8E7C55C-B3EA-B228-EF84-9DB3D55D57A4
+                workflow_id: 8889A6C4-91BF-D1D9-EC2A-DD7F1D616B8A
         required:
             - id
             - item
@@ -1072,16 +1099,16 @@ definitions:
         example:
             id: 5051012749053665753
             item:
-                aip_id: 7F641448-35F7-7B05-AFB4-8DFCC48CED66
+                aip_id: BCD628BE-EC66-405B-7005-21B482B9CD79
                 completed_at: "2013-05-22T12:15:50Z"
                 created_at: "1978-04-06T06:19:45Z"
                 id: 16779416702944806122
                 location_id: Reprehenderit perferendis dolorum ea consequatur quasi.
                 name: Aliquam eos in molestiae vel.
-                run_id: 1576BB1F-D21C-05AD-6677-73725A387FA6
+                run_id: F1B1633F-78C2-3DF2-9D5F-A450473EBA57
                 started_at: "2014-04-06T09:10:17Z"
                 status: abandoned
-                workflow_id: A8E7C55C-B3EA-B228-EF84-9DB3D55D57A4
+                workflow_id: 8889A6C4-91BF-D1D9-EC2A-DD7F1D616B8A
         required:
             - id
             - item
@@ -1194,7 +1221,7 @@ definitions:
             aip_id:
                 type: string
                 description: Identifier of Archivematica AIP
-                example: 4C17A184-FC45-FB3A-5AE0-6E4A3706BA95
+                example: 1B191706-6645-37C2-12DA-6685EFB4287D
                 format: uuid
             completed_at:
                 type: string
@@ -1221,7 +1248,7 @@ definitions:
             run_id:
                 type: string
                 description: Identifier of latest processing workflow run
-                example: 394C68F8-17C6-A627-AD8F-D44BA0FBD0D4
+                example: 4C17A184-FC45-FB3A-5AE0-6E4A3706BA95
                 format: uuid
             started_at:
                 type: string
@@ -1245,20 +1272,20 @@ definitions:
             workflow_id:
                 type: string
                 description: Identifier of processing workflow
-                example: 60CA5828-6E6E-1980-ACE4-2F6D802FE4E4
+                example: 394C68F8-17C6-A627-AD8F-D44BA0FBD0D4
                 format: uuid
         description: StoredPackage describes a package retrieved by the service. (default view)
         example:
-            aip_id: DAE4BBC9-23C8-09A1-921F-CE28DF03BC4A
+            aip_id: B140526E-56D0-0183-0B79-28E8969E1B3C
             completed_at: "2009-09-26T09:50:24Z"
             created_at: "1982-03-06T00:33:55Z"
             id: 2899380693554049871
             location_id: Ullam sit rerum est ipsa.
             name: Nihil ipsum sunt dolor tempora molestiae.
-            run_id: AAB57B12-5CC1-1E13-E6AC-F88295E4F868
+            run_id: DAE4BBC9-23C8-09A1-921F-CE28DF03BC4A
             started_at: "2009-06-27T00:05:25Z"
             status: new
-            workflow_id: E096A0A7-535D-C37F-3DCD-E8ACD632C8D1
+            workflow_id: AAB57B12-5CC1-1E13-E6AC-F88295E4F868
         required:
             - id
             - status
@@ -1270,36 +1297,36 @@ definitions:
             $ref: '#/definitions/EnduroStoredPackageResponseBody'
         description: EnduroStored-PackageCollectionResponseBody is the result type for an array of EnduroStored-PackageResponseBody (default view)
         example:
-            - aip_id: 7F641448-35F7-7B05-AFB4-8DFCC48CED66
+            - aip_id: BCD628BE-EC66-405B-7005-21B482B9CD79
               completed_at: "2013-05-22T12:15:50Z"
               created_at: "1978-04-06T06:19:45Z"
               id: 16779416702944806122
               location_id: Reprehenderit perferendis dolorum ea consequatur quasi.
               name: Aliquam eos in molestiae vel.
-              run_id: 1576BB1F-D21C-05AD-6677-73725A387FA6
+              run_id: F1B1633F-78C2-3DF2-9D5F-A450473EBA57
               started_at: "2014-04-06T09:10:17Z"
               status: abandoned
-              workflow_id: A8E7C55C-B3EA-B228-EF84-9DB3D55D57A4
-            - aip_id: 7F641448-35F7-7B05-AFB4-8DFCC48CED66
+              workflow_id: 8889A6C4-91BF-D1D9-EC2A-DD7F1D616B8A
+            - aip_id: BCD628BE-EC66-405B-7005-21B482B9CD79
               completed_at: "2013-05-22T12:15:50Z"
               created_at: "1978-04-06T06:19:45Z"
               id: 16779416702944806122
               location_id: Reprehenderit perferendis dolorum ea consequatur quasi.
               name: Aliquam eos in molestiae vel.
-              run_id: 1576BB1F-D21C-05AD-6677-73725A387FA6
+              run_id: F1B1633F-78C2-3DF2-9D5F-A450473EBA57
               started_at: "2014-04-06T09:10:17Z"
               status: abandoned
-              workflow_id: A8E7C55C-B3EA-B228-EF84-9DB3D55D57A4
-            - aip_id: 7F641448-35F7-7B05-AFB4-8DFCC48CED66
+              workflow_id: 8889A6C4-91BF-D1D9-EC2A-DD7F1D616B8A
+            - aip_id: BCD628BE-EC66-405B-7005-21B482B9CD79
               completed_at: "2013-05-22T12:15:50Z"
               created_at: "1978-04-06T06:19:45Z"
               id: 16779416702944806122
               location_id: Reprehenderit perferendis dolorum ea consequatur quasi.
               name: Aliquam eos in molestiae vel.
-              run_id: 1576BB1F-D21C-05AD-6677-73725A387FA6
+              run_id: F1B1633F-78C2-3DF2-9D5F-A450473EBA57
               started_at: "2014-04-06T09:10:17Z"
               status: abandoned
-              workflow_id: A8E7C55C-B3EA-B228-EF84-9DB3D55D57A4
+              workflow_id: 8889A6C4-91BF-D1D9-EC2A-DD7F1D616B8A
     PackageConfirmNotAvailableResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
@@ -1490,16 +1517,16 @@ definitions:
             package_created_event:
                 id: 5139650512771906679
                 item:
-                    aip_id: 7F641448-35F7-7B05-AFB4-8DFCC48CED66
+                    aip_id: BCD628BE-EC66-405B-7005-21B482B9CD79
                     completed_at: "2013-05-22T12:15:50Z"
                     created_at: "1978-04-06T06:19:45Z"
                     id: 16779416702944806122
                     location_id: Reprehenderit perferendis dolorum ea consequatur quasi.
                     name: Aliquam eos in molestiae vel.
-                    run_id: 1576BB1F-D21C-05AD-6677-73725A387FA6
+                    run_id: F1B1633F-78C2-3DF2-9D5F-A450473EBA57
                     started_at: "2014-04-06T09:10:17Z"
                     status: abandoned
-                    workflow_id: A8E7C55C-B3EA-B228-EF84-9DB3D55D57A4
+                    workflow_id: 8889A6C4-91BF-D1D9-EC2A-DD7F1D616B8A
             package_location_updated_event:
                 id: 10956883307350818953
                 location_id: Delectus quia sapiente aliquid.
@@ -1509,16 +1536,16 @@ definitions:
             package_updated_event:
                 id: 3540352731938442066
                 item:
-                    aip_id: 7F641448-35F7-7B05-AFB4-8DFCC48CED66
+                    aip_id: BCD628BE-EC66-405B-7005-21B482B9CD79
                     completed_at: "2013-05-22T12:15:50Z"
                     created_at: "1978-04-06T06:19:45Z"
                     id: 16779416702944806122
                     location_id: Reprehenderit perferendis dolorum ea consequatur quasi.
                     name: Aliquam eos in molestiae vel.
-                    run_id: 1576BB1F-D21C-05AD-6677-73725A387FA6
+                    run_id: F1B1633F-78C2-3DF2-9D5F-A450473EBA57
                     started_at: "2014-04-06T09:10:17Z"
                     status: abandoned
-                    workflow_id: A8E7C55C-B3EA-B228-EF84-9DB3D55D57A4
+                    workflow_id: 8889A6C4-91BF-D1D9-EC2A-DD7F1D616B8A
             preservation_action_created_event:
                 id: 1358811786190908087
                 item:
@@ -2021,7 +2048,7 @@ definitions:
             aip_id:
                 type: string
                 description: Identifier of Archivematica AIP
-                example: 7C2D3996-7ECF-5E12-276F-CE1436D6FAC3
+                example: 7EC4180F-77B0-231F-0AA8-EE62B537358D
                 format: uuid
             completed_at:
                 type: string
@@ -2048,7 +2075,7 @@ definitions:
             run_id:
                 type: string
                 description: Identifier of latest processing workflow run
-                example: AFBCBB7C-8004-B611-B6FD-506A7ADD07B4
+                example: 7C2D3996-7ECF-5E12-276F-CE1436D6FAC3
                 format: uuid
             started_at:
                 type: string
@@ -2072,20 +2099,20 @@ definitions:
             workflow_id:
                 type: string
                 description: Identifier of processing workflow
-                example: 9FE8C952-2C90-CD7E-731A-C120E7B1B6ED
+                example: AFBCBB7C-8004-B611-B6FD-506A7ADD07B4
                 format: uuid
         description: ShowResponseBody result type (default view)
         example:
-            aip_id: 07B1A7F6-0BFE-D016-9174-27BFC402D03B
+            aip_id: 0D4C4E5D-CCD2-045B-C43A-CA2A12989890
             completed_at: "1972-11-07T22:46:10Z"
             created_at: "2016-02-02T02:03:44Z"
             id: 8629537202190404440
             location_id: Ut consequatur facilis vel quisquam maxime.
             name: Quo repellendus voluptas.
-            run_id: 495DB94F-824E-E732-0B4B-502305E4ABA4
+            run_id: 07B1A7F6-0BFE-D016-9174-27BFC402D03B
             started_at: "1983-03-04T10:21:56Z"
             status: queued
-            workflow_id: 2AFA4466-554C-3755-3A53-AAE48068F107
+            workflow_id: 495DB94F-824E-E732-0B4B-502305E4ABA4
         required:
             - id
             - status
@@ -3052,3 +3079,132 @@ definitions:
             - status
             - object_key
             - created_at
+    UploadUploadInternalErrorResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+        type: object
+        properties:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
+                example: true
+            id:
+                type: string
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
+            message:
+                type: string
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
+            name:
+                type: string
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
+                example: false
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: true
+        description: Fault while processing upload. (default view)
+        example:
+            fault: true
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: false
+            timeout: true
+        required:
+            - name
+            - id
+            - message
+            - temporary
+            - timeout
+            - fault
+    UploadUploadInvalidMediaTypeResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+        type: object
+        properties:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
+                example: true
+            id:
+                type: string
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
+            message:
+                type: string
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
+            name:
+                type: string
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
+                example: false
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: false
+        description: Error returned when the Content-Type header does not define a multipart request. (default view)
+        example:
+            fault: false
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: true
+            timeout: false
+        required:
+            - name
+            - id
+            - message
+            - temporary
+            - timeout
+            - fault
+    UploadUploadInvalidMultipartRequestResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+        type: object
+        properties:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
+                example: false
+            id:
+                type: string
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
+            message:
+                type: string
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
+            name:
+                type: string
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
+                example: true
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: true
+        description: Error returned when the request body is not a valid multipart content. (default view)
+        example:
+            fault: true
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: true
+            timeout: true
+        required:
+            - name
+            - id
+            - message
+            - temporary
+            - timeout
+            - fault
