@@ -11,6 +11,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/event"
 	"github.com/artefactual-sdps/enduro/internal/storage"
 	"github.com/artefactual-sdps/enduro/internal/temporal"
+	"github.com/artefactual-sdps/enduro/internal/upload"
 	"github.com/artefactual-sdps/enduro/internal/version"
 	"github.com/artefactual-sdps/enduro/internal/watcher"
 )
@@ -28,11 +29,13 @@ type Configuration struct {
 	Temporal    temporal.Config
 	Watcher     watcher.Config
 	Storage     storage.Config
+	Upload      upload.Config
 	A3m         a3m.Config
 }
 
 func (c Configuration) Validate() error {
-	if config, ok := interface{}(c.Storage).(ConfigurationValidator); ok {
+	// TODO: should this validate all the fields in Configuration?
+	if config, ok := interface{}(c.Upload).(ConfigurationValidator); ok {
 		err := config.Validate()
 		if err != nil {
 			return err

@@ -38,6 +38,7 @@ import (
 	storage_entdb "github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db"
 	storage_workflows "github.com/artefactual-sdps/enduro/internal/storage/workflows"
 	"github.com/artefactual-sdps/enduro/internal/temporal"
+	"github.com/artefactual-sdps/enduro/internal/upload"
 	"github.com/artefactual-sdps/enduro/internal/version"
 	"github.com/artefactual-sdps/enduro/internal/watcher"
 	"github.com/artefactual-sdps/enduro/internal/workflow"
@@ -155,6 +156,17 @@ func main() {
 		}
 	}
 
+	// Set up the upload service.
+	var uploadsvc upload.Service
+	{
+		uploadsvc, err = upload.NewService(logger.WithName("upload"), cfg.Upload, upload.UPLOAD_MAX_SIZE)
+		if err != nil {
+			logger.Error(err, "Error setting up upload service.")
+			os.Exit(1)
+		}
+		defer uploadsvc.Close()
+	}
+
 	// Set up the watcher service.
 	var wsvc watcher.Service
 	{
@@ -173,7 +185,7 @@ func main() {
 
 		g.Add(
 			func() error {
-				srv = api.HTTPServer(logger, &cfg.API, pkgsvc, storagesvc)
+				srv = api.HTTPServer(logger, &cfg.API, pkgsvc, storagesvc, uploadsvc)
 				return srv.ListenAndServe()
 			},
 			func(err error) {

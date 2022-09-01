@@ -16,7 +16,7 @@ import (
 var _ = API("enduro", func() {
 	Title("Enduro API")
 	Server("enduro", func() {
-		Services("package", "storage", "swagger")
+		Services("package", "storage", "swagger", "upload")
 		Host("localhost", func() {
 			URI("http://localhost:9000")
 		})

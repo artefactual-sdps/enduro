@@ -2,6 +2,7 @@
 apis/PackageApi.ts
 apis/StorageApi.ts
 apis/SwaggerApi.ts
+apis/UploadApi.ts
 apis/index.ts
 index.ts
 models/EnduroMonitorPingEventResponseBody.ts
@@ -67,5 +68,8 @@ models/StorageUpdateNotAvailableResponseBody.ts
 models/StorageUpdateNotValidResponseBody.ts
 models/StoredLocationResponse.ts
 models/StoredStoragePackageResponse.ts
+models/UploadUploadInternalErrorResponseBody.ts
+models/UploadUploadInvalidMediaTypeResponseBody.ts
+models/UploadUploadInvalidMultipartRequestResponseBody.ts
 models/index.ts
 runtime.ts
