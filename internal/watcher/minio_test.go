@@ -49,6 +49,8 @@ func newWatcher(t *testing.T) (*miniredis.Miniredis, watcher.Watcher) {
 }
 
 func cleanup(t *testing.T, m *miniredis.Miniredis) {
+	t.Helper()
+
 	m.Close()
 }
 
