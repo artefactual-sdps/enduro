@@ -472,11 +472,7 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 		}
 	}
 
-	review, err := w.waitForReview(sessCtx)
-	if err != nil {
-		return err
-	}
-
+	review := w.waitForReview(sessCtx)
 	reviewCompletedAt := temporalsdk_workflow.Now(sessCtx).UTC()
 
 	// Set package to in progress status.
@@ -610,7 +606,7 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 	return nil
 }
 
-func (w *ProcessingWorkflow) waitForReview(ctx temporalsdk_workflow.Context) (*package_.ReviewPerformedSignal, error) {
+func (w *ProcessingWorkflow) waitForReview(ctx temporalsdk_workflow.Context) *package_.ReviewPerformedSignal {
 	var review package_.ReviewPerformedSignal
 	signalChan := temporalsdk_workflow.GetSignalChannel(ctx, package_.ReviewPerformedSignalName)
 	selector := temporalsdk_workflow.NewSelector(ctx)
@@ -618,7 +614,7 @@ func (w *ProcessingWorkflow) waitForReview(ctx temporalsdk_workflow.Context) (*p
 		_ = channel.Receive(ctx, &review)
 	})
 	selector.Select(ctx)
-	return &review, nil
+	return &review
 }
 
 func (w *ProcessingWorkflow) transferA3m(sessCtx temporalsdk_workflow.Context, tinfo *TransferInfo) error {

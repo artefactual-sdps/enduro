@@ -97,6 +97,6 @@ func errorHandler(logger logr.Logger, msg string) func(context.Context, http.Res
 			reqID = "unknown"
 		}
 		_ = json.NewEncoder(w).Encode(&errorMessage{RequestID: reqID})
-		logger.Error(err, "Package service error.", "reqID", reqID)
+		logger.Error(err, "Package service error.", "reqID", reqID, "info", msg)
 	}
 }

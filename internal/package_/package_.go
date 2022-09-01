@@ -107,7 +107,7 @@ func (svc *packageImpl) UpdateWorkflowStatus(ctx context.Context, ID uint, name 
 		ID,
 	}
 
-	if _, err := svc.updateRow(ctx, query, args); err != nil {
+	if err := svc.updateRow(ctx, query, args); err != nil {
 		return err
 	}
 
@@ -126,7 +126,7 @@ func (svc *packageImpl) SetStatus(ctx context.Context, ID uint, status Status) e
 		ID,
 	}
 
-	if _, err := svc.updateRow(ctx, query, args); err != nil {
+	if err := svc.updateRow(ctx, query, args); err != nil {
 		return err
 	}
 
@@ -148,7 +148,7 @@ func (svc *packageImpl) SetStatusInProgress(ctx context.Context, ID uint, starte
 		args = append(args, ID)
 	}
 
-	if _, err := svc.updateRow(ctx, query, args); err != nil {
+	if err := svc.updateRow(ctx, query, args); err != nil {
 		return err
 	}
 
@@ -165,7 +165,7 @@ func (svc *packageImpl) SetStatusPending(ctx context.Context, ID uint) error {
 		ID,
 	}
 
-	if _, err := svc.updateRow(ctx, query, args); err != nil {
+	if err := svc.updateRow(ctx, query, args); err != nil {
 		return err
 	}
 
@@ -182,7 +182,7 @@ func (svc *packageImpl) SetLocationID(ctx context.Context, ID uint, locationID u
 		ID,
 	}
 
-	if _, err := svc.updateRow(ctx, query, args); err != nil {
+	if err := svc.updateRow(ctx, query, args); err != nil {
 		return err
 	}
 
@@ -192,18 +192,13 @@ func (svc *packageImpl) SetLocationID(ctx context.Context, ID uint, locationID u
 	return nil
 }
 
-func (svc *packageImpl) updateRow(ctx context.Context, query string, args []interface{}) (int64, error) {
-	res, err := svc.db.ExecContext(ctx, query, args...)
+func (svc *packageImpl) updateRow(ctx context.Context, query string, args []interface{}) error {
+	_, err := svc.db.ExecContext(ctx, query, args...)
 	if err != nil {
-		return 0, fmt.Errorf("error updating package: %v", err)
+		return fmt.Errorf("error updating package: %v", err)
 	}
 
-	n, err := res.RowsAffected()
-	if err != nil {
-		return 0, fmt.Errorf("error retrieving rows affected: %v", err)
-	}
-
-	return n, nil
+	return nil
 }
 
 func (svc *packageImpl) read(ctx context.Context, ID uint) (*Package, error) {
