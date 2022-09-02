@@ -154,7 +154,7 @@ type StorageLocationNotfound struct {
 // Storage package describes a package of the storage service.
 type StoragePackage struct {
 	Name  string
-	AipID string
+	AipID uuid.UUID
 	// Status of the package
 	Status     string
 	ObjectKey  *uuid.UUID
@@ -197,7 +197,7 @@ type StoredLocationCollection []*StoredLocation
 // StoredStoragePackage is the result type of the storage service show method.
 type StoredStoragePackage struct {
 	Name  string
-	AipID string
+	AipID uuid.UUID
 	// Status of the package
 	Status     string
 	ObjectKey  uuid.UUID

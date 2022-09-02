@@ -70,8 +70,8 @@ type MoveStatusResponseBody struct {
 // ShowResponseBody is the type of the "storage" service "show" endpoint HTTP
 // response body.
 type ShowResponseBody struct {
-	Name  *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
-	AipID *string `form:"aip_id,omitempty" json:"aip_id,omitempty" xml:"aip_id,omitempty"`
+	Name  *string    `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	AipID *uuid.UUID `form:"aip_id,omitempty" json:"aip_id,omitempty" xml:"aip_id,omitempty"`
 	// Status of the package
 	Status     *string    `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
 	ObjectKey  *uuid.UUID `form:"object_key,omitempty" json:"object_key,omitempty" xml:"object_key,omitempty"`
@@ -390,8 +390,8 @@ type StoredLocationResponse struct {
 
 // StoredStoragePackageResponse is used to define fields on response body types.
 type StoredStoragePackageResponse struct {
-	Name  *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
-	AipID *string `form:"aip_id,omitempty" json:"aip_id,omitempty" xml:"aip_id,omitempty"`
+	Name  *string    `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	AipID *uuid.UUID `form:"aip_id,omitempty" json:"aip_id,omitempty" xml:"aip_id,omitempty"`
 	// Status of the package
 	Status     *string    `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
 	ObjectKey  *uuid.UUID `form:"object_key,omitempty" json:"object_key,omitempty" xml:"object_key,omitempty"`
