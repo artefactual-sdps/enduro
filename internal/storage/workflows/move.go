@@ -3,6 +3,7 @@ package workflows
 import (
 	"time"
 
+	"github.com/google/uuid"
 	temporalsdk_temporal "go.temporal.io/sdk/temporal"
 	temporalsdk_workflow "go.temporal.io/sdk/workflow"
 
@@ -101,7 +102,7 @@ func (w *StorageMoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req stor
 	return nil
 }
 
-func (w *StorageMoveWorkflow) updatePackageStatus(ctx temporalsdk_workflow.Context, st types.PackageStatus, AIPID string) error {
+func (w *StorageMoveWorkflow) updatePackageStatus(ctx temporalsdk_workflow.Context, st types.PackageStatus, aipID uuid.UUID) error {
 	activityOpts := temporalsdk_workflow.WithLocalActivityOptions(ctx, temporalsdk_workflow.LocalActivityOptions{
 		ScheduleToCloseTimeout: 5 * time.Second,
 		RetryPolicy: &temporalsdk_temporal.RetryPolicy{
@@ -113,7 +114,7 @@ func (w *StorageMoveWorkflow) updatePackageStatus(ctx temporalsdk_workflow.Conte
 	})
 
 	params := &storage.UpdatePackageStatusLocalActivityParams{
-		AIPID:  AIPID,
+		AIPID:  aipID,
 		Status: st,
 	}
 

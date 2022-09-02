@@ -28,7 +28,7 @@ func TestStorageUploadWorkflow(t *testing.T) {
 	env.ExecuteWorkflow(
 		NewStorageUploadWorkflow().Execute,
 		storage.StorageUploadWorkflowRequest{
-			AIPID: uuid.NewString(),
+			AIPID: uuid.New(),
 		},
 	)
 

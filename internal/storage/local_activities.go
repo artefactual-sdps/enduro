@@ -9,25 +9,25 @@ import (
 )
 
 type UpdatePackageLocationLocalActivityParams struct {
-	AIPID      string
+	AIPID      uuid.UUID
 	LocationID uuid.UUID
 }
 
 func UpdatePackageLocationLocalActivity(ctx context.Context, storagesvc Service, params *UpdatePackageLocationLocalActivityParams) error {
-	return storagesvc.UpdatePackageLocationID(ctx, params.LocationID, params.AIPID)
+	return storagesvc.UpdatePackageLocationID(ctx, params.AIPID, params.LocationID)
 }
 
 type UpdatePackageStatusLocalActivityParams struct {
-	AIPID  string
+	AIPID  uuid.UUID
 	Status types.PackageStatus
 }
 
 func UpdatePackageStatusLocalActivity(ctx context.Context, storagesvc Service, params *UpdatePackageStatusLocalActivityParams) error {
-	return storagesvc.UpdatePackageStatus(ctx, params.Status, params.AIPID)
+	return storagesvc.UpdatePackageStatus(ctx, params.AIPID, params.Status)
 }
 
 type DeleteFromLocationLocalActivityParams struct {
-	AIPID string
+	AIPID uuid.UUID
 }
 
 func DeleteFromLocationLocalActivity(ctx context.Context, storagesvc Service, params *DeleteFromLocationLocalActivityParams) error {

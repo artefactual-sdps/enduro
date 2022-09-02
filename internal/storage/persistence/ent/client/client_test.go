@@ -170,7 +170,7 @@ func TestUpdatePackageStatus(t *testing.T) {
 		SetStatus(types.StatusStored).
 		SaveX(context.Background())
 
-	err := c.UpdatePackageStatus(context.Background(), types.StatusRejected, p.AipID)
+	err := c.UpdatePackageStatus(context.Background(), p.AipID, types.StatusRejected)
 	assert.NilError(t, err)
 
 	entc.Pkg.Query().
@@ -219,7 +219,7 @@ func TestUpdatePackageLocation(t *testing.T) {
 		SetLocation(l1).
 		SaveX(context.Background())
 
-	err := c.UpdatePackageLocationID(context.Background(), l2.UUID, p.AipID)
+	err := c.UpdatePackageLocationID(context.Background(), p.AipID, l2.UUID)
 	assert.NilError(t, err)
 
 	entc.Pkg.Query().

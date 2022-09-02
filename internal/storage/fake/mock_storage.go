@@ -55,7 +55,7 @@ func (mr *MockServiceMockRecorder) AddLocation(arg0, arg1 interface{}) *gomock.C
 }
 
 // Delete mocks base method.
-func (m *MockService) Delete(arg0 context.Context, arg1 string) error {
+func (m *MockService) Delete(arg0 context.Context, arg1 uuid.UUID) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Delete", arg0, arg1)
 	ret0, _ := ret[0].(error)
@@ -173,7 +173,7 @@ func (mr *MockServiceMockRecorder) PackageReader(arg0, arg1 interface{}) *gomock
 }
 
 // ReadPackage mocks base method.
-func (m *MockService) ReadPackage(arg0 context.Context, arg1 string) (*storage.StoredStoragePackage, error) {
+func (m *MockService) ReadPackage(arg0 context.Context, arg1 uuid.UUID) (*storage.StoredStoragePackage, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ReadPackage", arg0, arg1)
 	ret0, _ := ret[0].(*storage.StoredStoragePackage)
@@ -261,7 +261,7 @@ func (mr *MockServiceMockRecorder) Update(arg0, arg1 interface{}) *gomock.Call {
 }
 
 // UpdatePackageLocationID mocks base method.
-func (m *MockService) UpdatePackageLocationID(arg0 context.Context, arg1 uuid.UUID, arg2 string) error {
+func (m *MockService) UpdatePackageLocationID(arg0 context.Context, arg1, arg2 uuid.UUID) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdatePackageLocationID", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
@@ -275,7 +275,7 @@ func (mr *MockServiceMockRecorder) UpdatePackageLocationID(arg0, arg1, arg2 inte
 }
 
 // UpdatePackageStatus mocks base method.
-func (m *MockService) UpdatePackageStatus(arg0 context.Context, arg1 types.PackageStatus, arg2 string) error {
+func (m *MockService) UpdatePackageStatus(arg0 context.Context, arg1 uuid.UUID, arg2 types.PackageStatus) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdatePackageStatus", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
