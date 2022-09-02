@@ -108,7 +108,7 @@ func (s *serviceImpl) Submit(ctx context.Context, payload *goastorage.SubmitPayl
 	objectKey := uuid.New()
 	_, err = s.storagePersistence.CreatePackage(ctx, &goastorage.StoragePackage{
 		Name:      payload.Name,
-		AipID:     AIPUUID.String(),
+		AipID:     AIPUUID,
 		ObjectKey: &objectKey,
 	})
 	if err != nil {
@@ -164,7 +164,7 @@ func (s *serviceImpl) Move(ctx context.Context, payload *goastorage.MovePayload)
 	}
 
 	_, err = InitStorageMoveWorkflow(ctx, s.tc, &StorageMoveWorkflowRequest{
-		AIPID:      pkg.AipID,
+		AIPID:      pkg.AipID.String(),
 		LocationID: payload.LocationID,
 	})
 	if err != nil {
@@ -250,7 +250,7 @@ func (s *serviceImpl) packageBucket(ctx context.Context, p *goastorage.StoredSto
 		return nil, "", err
 	}
 
-	return location.Bucket(), p.AipID, nil
+	return location.Bucket(), p.AipID.String(), nil
 }
 
 func (s *serviceImpl) Delete(ctx context.Context, AIPID string) error {

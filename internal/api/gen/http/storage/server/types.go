@@ -70,8 +70,8 @@ type MoveStatusResponseBody struct {
 // ShowResponseBody is the type of the "storage" service "show" endpoint HTTP
 // response body.
 type ShowResponseBody struct {
-	Name  string `form:"name" json:"name" xml:"name"`
-	AipID string `form:"aip_id" json:"aip_id" xml:"aip_id"`
+	Name  string    `form:"name" json:"name" xml:"name"`
+	AipID uuid.UUID `form:"aip_id" json:"aip_id" xml:"aip_id"`
 	// Status of the package
 	Status     string     `form:"status" json:"status" xml:"status"`
 	ObjectKey  uuid.UUID  `form:"object_key" json:"object_key" xml:"object_key"`
@@ -376,8 +376,8 @@ type StoredLocationResponse struct {
 
 // StoredStoragePackageResponse is used to define fields on response body types.
 type StoredStoragePackageResponse struct {
-	Name  string `form:"name" json:"name" xml:"name"`
-	AipID string `form:"aip_id" json:"aip_id" xml:"aip_id"`
+	Name  string    `form:"name" json:"name" xml:"name"`
+	AipID uuid.UUID `form:"aip_id" json:"aip_id" xml:"aip_id"`
 	// Status of the package
 	Status     string     `form:"status" json:"status" xml:"status"`
 	ObjectKey  uuid.UUID  `form:"object_key" json:"object_key" xml:"object_key"`

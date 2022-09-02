@@ -658,9 +658,9 @@ func TestServiceDelete(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		AIPID := "7c09fa45-cdac-4874-90af-56dc86a6e73c"
+		AIPID := uuid.MustParse("7c09fa45-cdac-4874-90af-56dc86a6e73c")
 		attrs := setUpAttrs{
-			internalLocationFactory: fakeInternalLocationFactoryWithContents(t, nil, AIPID, "foobar"),
+			internalLocationFactory: fakeInternalLocationFactoryWithContents(t, nil, AIPID.String(), "foobar"),
 		}
 		svc := setUpService(t, &attrs)
 
@@ -668,19 +668,19 @@ func TestServiceDelete(t *testing.T) {
 			EXPECT().
 			ReadPackage(
 				ctx,
-				uuid.MustParse(AIPID),
+				AIPID,
 			).
 			Return(
 				&goastorage.StoredStoragePackage{
 					AipID:      AIPID,
-					ObjectKey:  uuid.MustParse(AIPID),
+					ObjectKey:  AIPID,
 					LocationID: &uuid.Nil,
 				},
 				nil,
 			).
 			Times(1)
 
-		err := svc.Delete(ctx, AIPID)
+		err := svc.Delete(ctx, AIPID.String())
 		assert.NilError(t, err)
 	})
 
@@ -688,10 +688,10 @@ func TestServiceDelete(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		AIPID := "76a654ad-dccc-4dd3-a398-e84cd9f96415"
+		AIPID := uuid.MustParse("76a654ad-dccc-4dd3-a398-e84cd9f96415")
 		locationID := uuid.MustParse("7484e911-7fc3-40c2-acb4-91e552d05380")
 		attrs := setUpAttrs{
-			locationFactory: fakeLocationFactoryWithContents(t, nil, AIPID, "foobar"),
+			locationFactory: fakeLocationFactoryWithContents(t, nil, AIPID.String(), "foobar"),
 		}
 		svc := setUpService(t, &attrs)
 
@@ -699,12 +699,12 @@ func TestServiceDelete(t *testing.T) {
 			EXPECT().
 			ReadPackage(
 				ctx,
-				uuid.MustParse(AIPID),
+				AIPID,
 			).
 			Return(
 				&goastorage.StoredStoragePackage{
 					AipID:      AIPID,
-					ObjectKey:  uuid.MustParse(AIPID),
+					ObjectKey:  AIPID,
 					LocationID: &locationID,
 				},
 				nil,
@@ -725,7 +725,7 @@ func TestServiceDelete(t *testing.T) {
 			).
 			Times(1)
 
-		err := svc.Delete(ctx, AIPID)
+		err := svc.Delete(ctx, AIPID.String())
 		assert.NilError(t, err)
 	})
 
@@ -733,7 +733,7 @@ func TestServiceDelete(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		AIPID := "76a654ad-dccc-4dd3-a398-e84cd9f96415"
+		AIPID := uuid.MustParse("76a654ad-dccc-4dd3-a398-e84cd9f96415")
 		locationID := uuid.MustParse("7484e911-7fc3-40c2-acb4-91e552d05380")
 		attrs := setUpAttrs{
 			locationFactory: fakeLocationFactory(t, nil),
@@ -744,12 +744,12 @@ func TestServiceDelete(t *testing.T) {
 			EXPECT().
 			ReadPackage(
 				ctx,
-				uuid.MustParse(AIPID),
+				AIPID,
 			).
 			Return(
 				&goastorage.StoredStoragePackage{
 					AipID:      AIPID,
-					ObjectKey:  uuid.MustParse(AIPID),
+					ObjectKey:  AIPID,
 					LocationID: &locationID,
 				},
 				nil,
@@ -770,7 +770,7 @@ func TestServiceDelete(t *testing.T) {
 			).
 			Times(1)
 
-		err := svc.Delete(ctx, AIPID)
+		err := svc.Delete(ctx, AIPID.String())
 		assert.Error(t, err, "blob (key \"76a654ad-dccc-4dd3-a398-e84cd9f96415\") (code=NotFound): blob not found")
 	})
 
@@ -780,19 +780,19 @@ func TestServiceDelete(t *testing.T) {
 		attrs := setUpAttrs{}
 		svc := setUpService(t, &attrs)
 		ctx := context.Background()
-		AIPID := "76a654ad-dccc-4dd3-a398-e84cd9f96415"
+		AIPID := uuid.MustParse("76a654ad-dccc-4dd3-a398-e84cd9f96415")
 		locationID := uuid.MustParse("7484e911-7fc3-40c2-acb4-91e552d05380")
 
 		attrs.persistenceMock.
 			EXPECT().
 			ReadPackage(
 				ctx,
-				uuid.MustParse(AIPID),
+				AIPID,
 			).
 			Return(
 				&goastorage.StoredStoragePackage{
 					AipID:      AIPID,
-					ObjectKey:  uuid.MustParse(AIPID),
+					ObjectKey:  AIPID,
 					LocationID: &locationID,
 				},
 				nil,
@@ -811,7 +811,7 @@ func TestServiceDelete(t *testing.T) {
 			).
 			Times(1)
 
-		err := svc.Delete(ctx, AIPID)
+		err := svc.Delete(ctx, AIPID.String())
 		assert.ErrorContains(t, err, "location not found")
 	})
 
@@ -847,10 +847,10 @@ func TestPackageReader(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		AIPID := "7c09fa45-cdac-4874-90af-56dc86a6e73c"
+		AIPID := uuid.MustParse("7c09fa45-cdac-4874-90af-56dc86a6e73c")
 		locationID := uuid.MustParse("7484e911-7fc3-40c2-acb4-91e552d05380")
 		attrs := setUpAttrs{
-			locationFactory: fakeLocationFactoryWithContents(t, nil, AIPID, "contents"),
+			locationFactory: fakeLocationFactoryWithContents(t, nil, AIPID.String(), "contents"),
 		}
 		svc := setUpService(t, &attrs)
 
@@ -874,7 +874,7 @@ func TestPackageReader(t *testing.T) {
 
 		reader, err := svc.PackageReader(ctx, &goastorage.StoredStoragePackage{
 			AipID:      AIPID,
-			ObjectKey:  uuid.MustParse(AIPID),
+			ObjectKey:  AIPID,
 			LocationID: &locationID,
 		})
 		assert.NilError(t, err)
@@ -890,7 +890,7 @@ func TestPackageReader(t *testing.T) {
 		attrs := setUpAttrs{}
 		svc := setUpService(t, &attrs)
 		ctx := context.Background()
-		AIPID := "7c09fa45-cdac-4874-90af-56dc86a6e73c"
+		AIPID := uuid.MustParse("7c09fa45-cdac-4874-90af-56dc86a6e73c")
 		locationID := uuid.MustParse("7484e911-7fc3-40c2-acb4-91e552d05380")
 
 		attrs.persistenceMock.
@@ -907,7 +907,7 @@ func TestPackageReader(t *testing.T) {
 
 		_, err := svc.PackageReader(ctx, &goastorage.StoredStoragePackage{
 			AipID:      AIPID,
-			ObjectKey:  uuid.MustParse(AIPID),
+			ObjectKey:  AIPID,
 			LocationID: &locationID,
 		})
 		assert.ErrorContains(t, err, "location not found")
@@ -917,11 +917,11 @@ func TestPackageReader(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		AIPID := "7c09fa45-cdac-4874-90af-56dc86a6e73c"
+		AIPID := uuid.MustParse("7c09fa45-cdac-4874-90af-56dc86a6e73c")
 		locationID := uuid.MustParse("7484e911-7fc3-40c2-acb4-91e552d05380")
 		b := memblob.OpenBucket(nil)
 		attrs := setUpAttrs{
-			locationFactory: fakeLocationFactoryWithContents(t, b, AIPID, "foobar"),
+			locationFactory: fakeLocationFactoryWithContents(t, b, AIPID.String(), "foobar"),
 		}
 		svc := setUpService(t, &attrs)
 		b.Close()
@@ -946,7 +946,7 @@ func TestPackageReader(t *testing.T) {
 
 		_, err := svc.PackageReader(ctx, &goastorage.StoredStoragePackage{
 			AipID:      AIPID,
-			ObjectKey:  uuid.MustParse(AIPID),
+			ObjectKey:  AIPID,
 			LocationID: &locationID,
 		})
 		assert.Error(t, err, "blob: Bucket has been closed (code=FailedPrecondition)")
@@ -1132,7 +1132,7 @@ func TestServiceMove(t *testing.T) {
 				AIPID,
 			).
 			Return(
-				&goastorage.StoredStoragePackage{AipID: AIPID.String()},
+				&goastorage.StoredStoragePackage{AipID: AIPID},
 				nil,
 			).
 			Times(1)
@@ -1179,7 +1179,7 @@ func TestServiceMove(t *testing.T) {
 				AIPID,
 			).
 			Return(
-				&goastorage.StoredStoragePackage{AipID: AIPID.String()},
+				&goastorage.StoredStoragePackage{AipID: AIPID},
 				nil,
 			).
 			Times(1)
@@ -1250,7 +1250,7 @@ func TestServiceMoveStatus(t *testing.T) {
 				AIPID,
 			).
 			Return(
-				&goastorage.StoredStoragePackage{AipID: AIPID.String()},
+				&goastorage.StoredStoragePackage{AipID: AIPID},
 				nil,
 			).
 			Times(1)
@@ -1295,7 +1295,7 @@ func TestServiceMoveStatus(t *testing.T) {
 				AIPID,
 			).
 			Return(
-				&goastorage.StoredStoragePackage{AipID: AIPID.String()},
+				&goastorage.StoredStoragePackage{AipID: AIPID},
 				nil,
 			).
 			Times(1)
@@ -1340,7 +1340,7 @@ func TestServiceMoveStatus(t *testing.T) {
 				AIPID,
 			).
 			Return(
-				&goastorage.StoredStoragePackage{AipID: AIPID.String()},
+				&goastorage.StoredStoragePackage{AipID: AIPID},
 				nil,
 			).
 			Times(1)
@@ -1384,7 +1384,7 @@ func TestServiceMoveStatus(t *testing.T) {
 				AIPID,
 			).
 			Return(
-				&goastorage.StoredStoragePackage{AipID: AIPID.String()},
+				&goastorage.StoredStoragePackage{AipID: AIPID},
 				nil,
 			).
 			Times(1)
@@ -1637,7 +1637,7 @@ func TestServiceLocationPackages(t *testing.T) {
 				goastorage.StoredStoragePackageCollection{
 					{
 						Name:       "Package",
-						AipID:      "488c64cc-d89b-4916-9131-c94152dfb12e",
+						AipID:      uuid.MustParse("488c64cc-d89b-4916-9131-c94152dfb12e"),
 						Status:     "stored",
 						ObjectKey:  uuid.MustParse("e2630293-a714-4787-ab6d-e68254a6fb6a"),
 						LocationID: ref.New(locationID),
@@ -1654,7 +1654,7 @@ func TestServiceLocationPackages(t *testing.T) {
 		assert.DeepEqual(t, res, goastorage.StoredStoragePackageCollection{
 			{
 				Name:       "Package",
-				AipID:      "488c64cc-d89b-4916-9131-c94152dfb12e",
+				AipID:      uuid.MustParse("488c64cc-d89b-4916-9131-c94152dfb12e"),
 				Status:     "stored",
 				ObjectKey:  uuid.MustParse("e2630293-a714-4787-ab6d-e68254a6fb6a"),
 				LocationID: ref.New(locationID),
@@ -1670,7 +1670,7 @@ func TestServiceShow(t *testing.T) {
 	t.Run("Returns stored package", func(t *testing.T) {
 		t.Parallel()
 
-		AIPID := "9a8f43de-9e1c-4313-aaaa-c694ebe0d45f"
+		AIPID := uuid.MustParse("9a8f43de-9e1c-4313-aaaa-c694ebe0d45f")
 		attrs := &setUpAttrs{}
 		svc := setUpService(t, attrs)
 		ctx := context.Background()
@@ -1679,12 +1679,12 @@ func TestServiceShow(t *testing.T) {
 			EXPECT().
 			ReadPackage(
 				ctx,
-				uuid.MustParse(AIPID),
+				AIPID,
 			).
 			Return(
 				&goastorage.StoredStoragePackage{
 					AipID:      AIPID,
-					ObjectKey:  uuid.MustParse(AIPID),
+					ObjectKey:  AIPID,
 					LocationID: &uuid.Nil,
 				},
 				nil,
@@ -1692,12 +1692,12 @@ func TestServiceShow(t *testing.T) {
 			Times(1)
 
 		res, err := svc.Show(ctx, &goastorage.ShowPayload{
-			AipID: AIPID,
+			AipID: AIPID.String(),
 		})
 		assert.NilError(t, err)
 		assert.DeepEqual(t, res, &goastorage.StoredStoragePackage{
 			AipID:      AIPID,
-			ObjectKey:  uuid.MustParse(AIPID),
+			ObjectKey:  AIPID,
 			LocationID: &uuid.Nil,
 		})
 	})

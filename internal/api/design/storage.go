@@ -338,7 +338,9 @@ var StoragePackage = Type("StoragePackage", func() {
 	Description("Storage package describes a package of the storage service.")
 	Meta("type:generate:force", "storage")
 	Attribute("name", String)
-	Attribute("aip_id", String)
+	Attribute("aip_id", String, func() {
+		Meta("struct:field:type", "uuid.UUID", "github.com/google/uuid")
+	})
 	Attribute("status", String, "Status of the package", func() {
 		EnumStoragePackageStatus()
 		Default("unspecified")

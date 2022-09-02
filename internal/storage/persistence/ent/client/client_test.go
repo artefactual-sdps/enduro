@@ -68,13 +68,13 @@ func TestCreatePackage(t *testing.T) {
 		ctx,
 		&goastorage.StoragePackage{
 			Name:      "test_package",
-			AipID:     uuid.MustParse("488c64cc-d89b-4916-9131-c94152dfb12e").String(),
+			AipID:     uuid.MustParse("488c64cc-d89b-4916-9131-c94152dfb12e"),
 			ObjectKey: ref.New(uuid.MustParse("e2630293-a714-4787-ab6d-e68254a6fb6a")),
 		},
 	)
 	assert.NilError(t, err)
 
-	dbpkg, err := entc.Pkg.Query().Where(pkg.AipID(uuid.MustParse(p.AipID))).Only(ctx)
+	dbpkg, err := entc.Pkg.Query().Where(pkg.AipID(p.AipID)).Only(ctx)
 	assert.NilError(t, err)
 	assert.Equal(t, dbpkg.Name, "test_package")
 	assert.Equal(t, dbpkg.AipID.String(), "488c64cc-d89b-4916-9131-c94152dfb12e")
@@ -105,7 +105,7 @@ func TestListPackages(t *testing.T) {
 	assert.DeepEqual(t, pkgs, []*goastorage.StoredStoragePackage{
 		{
 			Name:       "Package",
-			AipID:      "488c64cc-d89b-4916-9131-c94152dfb12e",
+			AipID:      uuid.MustParse("488c64cc-d89b-4916-9131-c94152dfb12e"),
 			Status:     "stored",
 			ObjectKey:  uuid.MustParse("e2630293-a714-4787-ab6d-e68254a6fb6a"),
 			LocationID: nil,
@@ -113,7 +113,7 @@ func TestListPackages(t *testing.T) {
 		},
 		{
 			Name:       "Another Package",
-			AipID:      "96e182a0-31ab-4738-a620-1ff1954d9ecb",
+			AipID:      uuid.MustParse("96e182a0-31ab-4738-a620-1ff1954d9ecb"),
 			Status:     "rejected",
 			ObjectKey:  uuid.MustParse("49b0a604-6c81-458c-852a-1afa713f1fd9"),
 			LocationID: nil,
@@ -139,7 +139,7 @@ func TestReadPackage(t *testing.T) {
 		assert.NilError(t, err)
 		assert.DeepEqual(t, pkg, &goastorage.StoredStoragePackage{
 			Name:       "Package",
-			AipID:      "488c64cc-d89b-4916-9131-c94152dfb12e",
+			AipID:      uuid.MustParse("488c64cc-d89b-4916-9131-c94152dfb12e"),
 			Status:     "stored",
 			ObjectKey:  uuid.MustParse("e2630293-a714-4787-ab6d-e68254a6fb6a"),
 			LocationID: nil,
@@ -421,7 +421,7 @@ func TestLocationPackages(t *testing.T) {
 		assert.DeepEqual(t, pkgs, goastorage.StoredStoragePackageCollection{
 			{
 				Name:       "Package",
-				AipID:      "488c64cc-d89b-4916-9131-c94152dfb12e",
+				AipID:      uuid.MustParse("488c64cc-d89b-4916-9131-c94152dfb12e"),
 				Status:     "stored",
 				ObjectKey:  uuid.MustParse("e2630293-a714-4787-ab6d-e68254a6fb6a"),
 				LocationID: ref.New(locationID),

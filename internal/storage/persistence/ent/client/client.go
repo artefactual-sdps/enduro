@@ -33,11 +33,7 @@ func (c *Client) CreatePackage(ctx context.Context, goapkg *goastorage.StoragePa
 
 	q.SetName(goapkg.Name)
 
-	AIPUUID, err := uuid.Parse(goapkg.AipID)
-	if err != nil {
-		return nil, err
-	}
-	q.SetAipID(AIPUUID)
+	q.SetAipID(goapkg.AipID)
 
 	var objectKey uuid.UUID
 	if goapkg.ObjectKey != nil {
@@ -131,7 +127,7 @@ func (c *Client) UpdatePackageLocationID(ctx context.Context, locationID uuid.UU
 func pkgAsGoa(ctx context.Context, pkg *db.Pkg) *goastorage.StoredStoragePackage {
 	p := &goastorage.StoredStoragePackage{
 		Name:      pkg.Name,
-		AipID:     pkg.AipID.String(),
+		AipID:     pkg.AipID,
 		Status:    pkg.Status.String(),
 		ObjectKey: pkg.ObjectKey,
 		CreatedAt: pkg.CreatedAt.Format(time.RFC3339),
