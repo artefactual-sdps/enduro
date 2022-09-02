@@ -226,13 +226,13 @@ func TestServiceSubmit(t *testing.T) {
 		})
 		assert.Assert(t, ret == nil)
 		assert.Equal(t, err.(*goa.ServiceError).Name, "not_valid")
-		assert.ErrorContains(t, err, "invalid UUID length: 5")
+		assert.ErrorContains(t, err, "cannot perform operation")
 	})
 
 	t.Run("Returns not_available if workflow cannot be executed", func(t *testing.T) {
 		t.Parallel()
 
-		AIPID := "5ab42bc3-acc2-420b-bbd0-76efdef94828"
+		AIPID := uuid.MustParse("5ab42bc3-acc2-420b-bbd0-76efdef94828")
 		attrs := &setUpAttrs{}
 		svc := setUpService(t, attrs)
 
@@ -241,7 +241,7 @@ func TestServiceSubmit(t *testing.T) {
 				"ExecuteWorkflow",
 				mock.AnythingOfType("*context.timerCtx"),
 				temporalsdk_client.StartWorkflowOptions{
-					ID:                    "storage-upload-workflow-" + AIPID,
+					ID:                    "storage-upload-workflow-" + AIPID.String(),
 					TaskQueue:             "global",
 					WorkflowIDReusePolicy: temporalapi_enums.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE,
 				},
@@ -255,7 +255,7 @@ func TestServiceSubmit(t *testing.T) {
 			Times(1)
 
 		ret, err := svc.Submit(context.Background(), &goastorage.SubmitPayload{
-			AipID: AIPID,
+			AipID: AIPID.String(),
 		})
 		assert.Assert(t, ret == nil)
 		assert.Equal(t, err.(*goa.ServiceError).Name, "not_available")
@@ -265,7 +265,7 @@ func TestServiceSubmit(t *testing.T) {
 	t.Run("Returns not_valid if package cannot be persisted", func(t *testing.T) {
 		t.Parallel()
 
-		AIPID := "5ab42bc3-acc2-420b-bbd0-76efdef94828"
+		AIPID := uuid.MustParse("5ab42bc3-acc2-420b-bbd0-76efdef94828")
 		attrs := &setUpAttrs{}
 		svc := setUpService(t, attrs)
 		ctx := context.Background()
@@ -275,7 +275,7 @@ func TestServiceSubmit(t *testing.T) {
 				"ExecuteWorkflow",
 				mock.AnythingOfType("*context.timerCtx"),
 				temporalsdk_client.StartWorkflowOptions{
-					ID:                    "storage-upload-workflow-" + AIPID,
+					ID:                    "storage-upload-workflow-" + AIPID.String(),
 					TaskQueue:             "global",
 					WorkflowIDReusePolicy: temporalapi_enums.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE,
 				},
@@ -302,7 +302,7 @@ func TestServiceSubmit(t *testing.T) {
 
 		ret, err := svc.Submit(ctx, &goastorage.SubmitPayload{
 			Name:  "package",
-			AipID: AIPID,
+			AipID: AIPID.String(),
 		})
 		assert.Assert(t, ret == nil)
 		assert.Equal(t, err.(*goa.ServiceError).Name, "not_valid")
@@ -312,7 +312,7 @@ func TestServiceSubmit(t *testing.T) {
 	t.Run("Returns not_valid if signed URL cannot be generated", func(t *testing.T) {
 		t.Parallel()
 
-		AIPID := "5ab42bc3-acc2-420b-bbd0-76efdef94828"
+		AIPID := uuid.MustParse("5ab42bc3-acc2-420b-bbd0-76efdef94828")
 		attrs := &setUpAttrs{}
 		svc := setUpService(t, attrs)
 		ctx := context.Background()
@@ -322,7 +322,7 @@ func TestServiceSubmit(t *testing.T) {
 				"ExecuteWorkflow",
 				mock.AnythingOfType("*context.timerCtx"),
 				temporalsdk_client.StartWorkflowOptions{
-					ID:                    "storage-upload-workflow-" + AIPID,
+					ID:                    "storage-upload-workflow-" + AIPID.String(),
 					TaskQueue:             "global",
 					WorkflowIDReusePolicy: temporalapi_enums.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE,
 				},
@@ -349,7 +349,7 @@ func TestServiceSubmit(t *testing.T) {
 
 		ret, err := svc.Submit(ctx, &goastorage.SubmitPayload{
 			Name:  "package",
-			AipID: AIPID,
+			AipID: AIPID.String(),
 		})
 		assert.Assert(t, ret == nil)
 		assert.Equal(t, err.(*goa.ServiceError).Name, "not_valid")
@@ -365,7 +365,7 @@ func TestServiceSubmit(t *testing.T) {
 		b, err := fileblob.OpenBucket("/tmp", &fileblob.Options{URLSigner: fileblob.NewURLSignerHMAC(furl, []byte("1234"))})
 		assert.NilError(t, err)
 
-		AIPID := "5ab42bc3-acc2-420b-bbd0-76efdef94828"
+		AIPID := uuid.MustParse("5ab42bc3-acc2-420b-bbd0-76efdef94828")
 		attrs := &setUpAttrs{
 			internalLocationFactory: fakeInternalLocationFactory(t, b),
 		}
@@ -377,7 +377,7 @@ func TestServiceSubmit(t *testing.T) {
 				"ExecuteWorkflow",
 				mock.AnythingOfType("*context.timerCtx"),
 				temporalsdk_client.StartWorkflowOptions{
-					ID:                    "storage-upload-workflow-" + AIPID,
+					ID:                    "storage-upload-workflow-" + AIPID.String(),
 					TaskQueue:             "global",
 					WorkflowIDReusePolicy: temporalapi_enums.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE,
 				},
@@ -404,7 +404,7 @@ func TestServiceSubmit(t *testing.T) {
 
 		ret, err := svc.Submit(ctx, &goastorage.SubmitPayload{
 			Name:  "package",
-			AipID: AIPID,
+			AipID: AIPID.String(),
 		})
 		assert.Equal(t, ret.URL[0:15], "file:///tmp/dir")
 		assert.NilError(t, err)
@@ -537,25 +537,39 @@ func TestServiceList(t *testing.T) {
 func TestReject(t *testing.T) {
 	t.Parallel()
 
+	t.Run("Returns not_valid if AIPID is invalid", func(t *testing.T) {
+		t.Parallel()
+
+		AIPID := "12345"
+		attrs := &setUpAttrs{}
+		svc := setUpService(t, attrs)
+
+		err := svc.Reject(context.Background(), &goastorage.RejectPayload{
+			AipID: AIPID,
+		})
+		assert.Equal(t, err.(*goa.ServiceError).Name, "not_valid")
+		assert.ErrorContains(t, err, "cannot perform operation")
+	})
+
 	t.Run("Fails when passing an invalid UUID", func(t *testing.T) {
 		t.Parallel()
 
 		attrs := setUpAttrs{}
 		svc := setUpService(t, &attrs)
 		ctx := context.Background()
-		AIPID := "7c09fa45-cdac-4874-90af-56dc86a6e73c"
+		AIPID := uuid.MustParse("7c09fa45-cdac-4874-90af-56dc86a6e73c")
 
 		attrs.persistenceMock.
 			EXPECT().
 			UpdatePackageStatus(
 				ctx,
+				AIPID,
 				types.StatusRejected,
-				uuid.MustParse(AIPID),
 			).
 			Return(nil).
 			Times(1)
 
-		err := svc.Reject(ctx, &goastorage.RejectPayload{AipID: AIPID})
+		err := svc.Reject(ctx, &goastorage.RejectPayload{AipID: AIPID.String()})
 		assert.NilError(t, err)
 	})
 }
@@ -563,32 +577,30 @@ func TestReject(t *testing.T) {
 func TestServiceReadPackage(t *testing.T) {
 	t.Parallel()
 
-	t.Run("Fails when passing an invalid UUID", func(t *testing.T) {
-		t.Parallel()
+	attrs := setUpAttrs{}
+	svc := setUpService(t, &attrs)
+	ctx := context.Background()
+	AIPID := uuid.MustParse("76a654ad-dccc-4dd3-a398-e84cd9f96415")
 
-		attrs := setUpAttrs{}
-		svc := setUpService(t, &attrs)
-		ctx := context.Background()
+	attrs.persistenceMock.
+		EXPECT().
+		ReadPackage(
+			ctx,
+			AIPID,
+		).
+		Return(
+			&goastorage.StoredStoragePackage{},
+			nil,
+		).
+		Times(1)
 
-		pkg, err := svc.ReadPackage(ctx, "<invalid-uuid>")
-		assert.Error(t, err, "invalid UUID length: 14")
-		assert.Assert(t, pkg == nil)
-	})
+	pkg, err := svc.ReadPackage(ctx, AIPID)
+	assert.NilError(t, err)
+	assert.DeepEqual(t, pkg, &goastorage.StoredStoragePackage{})
 }
 
 func TestServiceUpdatePackageStatus(t *testing.T) {
 	t.Parallel()
-
-	t.Run("Fails when passing an invalid UUID", func(t *testing.T) {
-		t.Parallel()
-
-		attrs := setUpAttrs{}
-		svc := setUpService(t, &attrs)
-		ctx := context.Background()
-
-		err := svc.UpdatePackageStatus(ctx, types.StatusStored, "<invalid-uuid>")
-		assert.Error(t, err, "invalid UUID length: 14")
-	})
 
 	t.Run("Returns if persistence failed", func(t *testing.T) {
 		t.Parallel()
@@ -596,19 +608,19 @@ func TestServiceUpdatePackageStatus(t *testing.T) {
 		attrs := setUpAttrs{}
 		svc := setUpService(t, &attrs)
 		ctx := context.Background()
-		AIPID := "7c09fa45-cdac-4874-90af-56dc86a6e73c"
+		AIPID := uuid.MustParse("7c09fa45-cdac-4874-90af-56dc86a6e73c")
 
 		attrs.persistenceMock.
 			EXPECT().
 			UpdatePackageStatus(
 				ctx,
+				AIPID,
 				types.StatusStored,
-				uuid.MustParse(AIPID),
 			).
 			Return(errors.New("something is wrong")).
 			Times(1)
 
-		err := svc.UpdatePackageStatus(ctx, types.StatusStored, AIPID)
+		err := svc.UpdatePackageStatus(ctx, AIPID, types.StatusStored)
 		assert.Error(t, err, "something is wrong")
 	})
 }
@@ -616,37 +628,26 @@ func TestServiceUpdatePackageStatus(t *testing.T) {
 func TestServiceUpdatePackageLocationID(t *testing.T) {
 	t.Parallel()
 
-	t.Run("Fails when passing an invalid UUID", func(t *testing.T) {
-		t.Parallel()
-
-		attrs := setUpAttrs{}
-		svc := setUpService(t, &attrs)
-		ctx := context.Background()
-
-		err := svc.UpdatePackageLocationID(ctx, uuid.Nil, "<invalid-uuid>")
-		assert.Error(t, err, "invalid UUID length: 14")
-	})
-
 	t.Run("Returns if persistence failed", func(t *testing.T) {
 		t.Parallel()
 
 		attrs := setUpAttrs{}
 		svc := setUpService(t, &attrs)
 		ctx := context.Background()
-		AIPID := "7c09fa45-cdac-4874-90af-56dc86a6e73c"
+		AIPID := uuid.MustParse("7c09fa45-cdac-4874-90af-56dc86a6e73c")
 		locationID := uuid.MustParse("7484e911-7fc3-40c2-acb4-91e552d05380")
 
 		attrs.persistenceMock.
 			EXPECT().
 			UpdatePackageLocationID(
 				ctx,
+				AIPID,
 				locationID,
-				uuid.MustParse(AIPID),
 			).
 			Return(errors.New("something is wrong")).
 			Times(1)
 
-		err := svc.UpdatePackageLocationID(ctx, locationID, AIPID)
+		err := svc.UpdatePackageLocationID(ctx, AIPID, locationID)
 		assert.Error(t, err, "something is wrong")
 	})
 }
@@ -680,7 +681,7 @@ func TestServiceDelete(t *testing.T) {
 			).
 			Times(1)
 
-		err := svc.Delete(ctx, AIPID.String())
+		err := svc.Delete(ctx, AIPID)
 		assert.NilError(t, err)
 	})
 
@@ -725,7 +726,7 @@ func TestServiceDelete(t *testing.T) {
 			).
 			Times(1)
 
-		err := svc.Delete(ctx, AIPID.String())
+		err := svc.Delete(ctx, AIPID)
 		assert.NilError(t, err)
 	})
 
@@ -770,7 +771,7 @@ func TestServiceDelete(t *testing.T) {
 			).
 			Times(1)
 
-		err := svc.Delete(ctx, AIPID.String())
+		err := svc.Delete(ctx, AIPID)
 		assert.Error(t, err, "blob (key \"76a654ad-dccc-4dd3-a398-e84cd9f96415\") (code=NotFound): blob not found")
 	})
 
@@ -811,14 +812,14 @@ func TestServiceDelete(t *testing.T) {
 			).
 			Times(1)
 
-		err := svc.Delete(ctx, AIPID.String())
+		err := svc.Delete(ctx, AIPID)
 		assert.ErrorContains(t, err, "location not found")
 	})
 
 	t.Run("Fails if package does not exist", func(t *testing.T) {
 		t.Parallel()
 
-		AIPID := "76a654ad-dccc-4dd3-a398-e84cd9f96415"
+		AIPID := uuid.MustParse("76a654ad-dccc-4dd3-a398-e84cd9f96415")
 		attrs := setUpAttrs{}
 		svc := setUpService(t, &attrs)
 		ctx := context.Background()
@@ -827,11 +828,11 @@ func TestServiceDelete(t *testing.T) {
 			EXPECT().
 			ReadPackage(
 				ctx,
-				uuid.MustParse(AIPID),
+				AIPID,
 			).
 			Return(
 				nil,
-				&goastorage.StoragePackageNotfound{AipID: uuid.MustParse(AIPID), Message: "package not found"},
+				&goastorage.StoragePackageNotfound{AipID: AIPID, Message: "package not found"},
 			).
 			Times(1)
 
@@ -956,10 +957,24 @@ func TestPackageReader(t *testing.T) {
 func TestServiceUpdate(t *testing.T) {
 	t.Parallel()
 
+	t.Run("Returns not_valid if AIPID is invalid", func(t *testing.T) {
+		t.Parallel()
+
+		AIPID := "12345"
+		attrs := &setUpAttrs{}
+		svc := setUpService(t, attrs)
+
+		err := svc.Update(context.Background(), &goastorage.UpdatePayload{
+			AipID: AIPID,
+		})
+		assert.Equal(t, err.(*goa.ServiceError).Name, "not_valid")
+		assert.ErrorContains(t, err, "cannot perform operation")
+	})
+
 	t.Run("Returns not_available if workflow cannot be signaled", func(t *testing.T) {
 		t.Parallel()
 
-		AIPID := "5ab42bc3-acc2-420b-bbd0-76efdef94828"
+		AIPID := uuid.MustParse("5ab42bc3-acc2-420b-bbd0-76efdef94828")
 		attrs := &setUpAttrs{}
 		svc := setUpService(t, attrs)
 		ctx := context.Background()
@@ -968,7 +983,7 @@ func TestServiceUpdate(t *testing.T) {
 			On(
 				"SignalWorkflow",
 				ctx,
-				"storage-upload-workflow-"+AIPID,
+				"storage-upload-workflow-"+AIPID.String(),
 				"",
 				"upload-done-signal",
 				storage.UploadDoneSignal{},
@@ -979,7 +994,7 @@ func TestServiceUpdate(t *testing.T) {
 			Times(1)
 
 		err := svc.Update(ctx, &goastorage.UpdatePayload{
-			AipID: AIPID,
+			AipID: AIPID.String(),
 		})
 		assert.Equal(t, err.(*goa.ServiceError).Name, "not_available")
 		assert.ErrorContains(t, err, "cannot perform operation")
@@ -988,7 +1003,7 @@ func TestServiceUpdate(t *testing.T) {
 	t.Run("Returns not_valid if package cannot be updated", func(t *testing.T) {
 		t.Parallel()
 
-		AIPID := "5ab42bc3-acc2-420b-bbd0-76efdef94828"
+		AIPID := uuid.MustParse("5ab42bc3-acc2-420b-bbd0-76efdef94828")
 		attrs := &setUpAttrs{}
 		svc := setUpService(t, attrs)
 		ctx := context.Background()
@@ -997,7 +1012,7 @@ func TestServiceUpdate(t *testing.T) {
 			On(
 				"SignalWorkflow",
 				ctx,
-				"storage-upload-workflow-"+AIPID,
+				"storage-upload-workflow-"+AIPID.String(),
 				"",
 				"upload-done-signal",
 				storage.UploadDoneSignal{},
@@ -1011,8 +1026,8 @@ func TestServiceUpdate(t *testing.T) {
 			EXPECT().
 			UpdatePackageStatus(
 				gomock.AssignableToTypeOf(ctx),
-				types.StatusInReview,
 				gomock.Any(),
+				types.StatusInReview,
 			).
 			Return(
 				errors.New("unexpected error"),
@@ -1020,7 +1035,7 @@ func TestServiceUpdate(t *testing.T) {
 			Times(1)
 
 		err := svc.Update(ctx, &goastorage.UpdatePayload{
-			AipID: AIPID,
+			AipID: AIPID.String(),
 		})
 		assert.Equal(t, err.(*goa.ServiceError).Name, "not_valid")
 		assert.ErrorContains(t, err, "cannot persist package")
@@ -1029,7 +1044,7 @@ func TestServiceUpdate(t *testing.T) {
 	t.Run("Returns no error if package is updated", func(t *testing.T) {
 		t.Parallel()
 
-		AIPID := "5ab42bc3-acc2-420b-bbd0-76efdef94828"
+		AIPID := uuid.MustParse("5ab42bc3-acc2-420b-bbd0-76efdef94828")
 		attrs := &setUpAttrs{}
 		svc := setUpService(t, attrs)
 		ctx := context.Background()
@@ -1038,7 +1053,7 @@ func TestServiceUpdate(t *testing.T) {
 			On(
 				"SignalWorkflow",
 				ctx,
-				"storage-upload-workflow-"+AIPID,
+				"storage-upload-workflow-"+AIPID.String(),
 				"",
 				"upload-done-signal",
 				storage.UploadDoneSignal{},
@@ -1052,8 +1067,8 @@ func TestServiceUpdate(t *testing.T) {
 			EXPECT().
 			UpdatePackageStatus(
 				gomock.AssignableToTypeOf(ctx),
-				types.StatusInReview,
 				gomock.Any(),
+				types.StatusInReview,
 			).
 			Return(
 				nil,
@@ -1061,7 +1076,7 @@ func TestServiceUpdate(t *testing.T) {
 			Times(1)
 
 		err := svc.Update(ctx, &goastorage.UpdatePayload{
-			AipID: AIPID,
+			AipID: AIPID.String(),
 		})
 		assert.NilError(t, err)
 	})
@@ -1069,6 +1084,20 @@ func TestServiceUpdate(t *testing.T) {
 
 func TestServiceMove(t *testing.T) {
 	t.Parallel()
+
+	t.Run("Returns not_valid if AIPID is invalid", func(t *testing.T) {
+		t.Parallel()
+
+		AIPID := "12345"
+		attrs := &setUpAttrs{}
+		svc := setUpService(t, attrs)
+
+		err := svc.Move(context.Background(), &goastorage.MovePayload{
+			AipID: AIPID,
+		})
+		assert.Equal(t, err.(*goa.ServiceError).Name, "not_valid")
+		assert.ErrorContains(t, err, "cannot perform operation")
+	})
 
 	t.Run("Returns not found error if package does not exist", func(t *testing.T) {
 		t.Parallel()
@@ -1117,7 +1146,7 @@ func TestServiceMove(t *testing.T) {
 					WorkflowIDReusePolicy: temporalapi_enums.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE,
 				},
 				"storage-move-workflow",
-				&storage.StorageMoveWorkflowRequest{AIPID: AIPID.String(), LocationID: LocationID},
+				&storage.StorageMoveWorkflowRequest{AIPID: AIPID, LocationID: LocationID},
 			).
 			Return(
 				nil,
@@ -1164,7 +1193,7 @@ func TestServiceMove(t *testing.T) {
 					WorkflowIDReusePolicy: temporalapi_enums.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE,
 				},
 				"storage-move-workflow",
-				&storage.StorageMoveWorkflowRequest{AIPID: AIPID.String(), LocationID: LocationID},
+				&storage.StorageMoveWorkflowRequest{AIPID: AIPID, LocationID: LocationID},
 			).
 			Return(
 				&temporalsdk_mocks.WorkflowRun{},
@@ -1194,6 +1223,21 @@ func TestServiceMove(t *testing.T) {
 
 func TestServiceMoveStatus(t *testing.T) {
 	t.Parallel()
+
+	t.Run("Returns not_valid if AIPID is invalid", func(t *testing.T) {
+		t.Parallel()
+
+		AIPID := "12345"
+		attrs := &setUpAttrs{}
+		svc := setUpService(t, attrs)
+
+		res, err := svc.MoveStatus(context.Background(), &goastorage.MoveStatusPayload{
+			AipID: AIPID,
+		})
+		assert.Assert(t, res == nil)
+		assert.Equal(t, err.(*goa.ServiceError).Name, "not_valid")
+		assert.ErrorContains(t, err, "cannot perform operation")
+	})
 
 	t.Run("Returns not found error if package does not exist", func(t *testing.T) {
 		t.Parallel()
@@ -1666,6 +1710,21 @@ func TestServiceLocationPackages(t *testing.T) {
 
 func TestServiceShow(t *testing.T) {
 	t.Parallel()
+
+	t.Run("Returns not_valid if AIPID is invalid", func(t *testing.T) {
+		t.Parallel()
+
+		AIPID := "12345"
+		attrs := &setUpAttrs{}
+		svc := setUpService(t, attrs)
+
+		res, err := svc.Show(context.Background(), &goastorage.ShowPayload{
+			AipID: AIPID,
+		})
+		assert.Assert(t, res == nil)
+		assert.Equal(t, err.(*goa.ServiceError).Name, "not_valid")
+		assert.ErrorContains(t, err, "cannot perform operation")
+	})
 
 	t.Run("Returns stored package", func(t *testing.T) {
 		t.Parallel()

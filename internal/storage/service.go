@@ -36,10 +36,10 @@ type Service interface {
 
 	// Used from workflow activities.
 	Location(ctx context.Context, locationID uuid.UUID) (Location, error)
-	ReadPackage(ctx context.Context, AIPID string) (*goastorage.StoredStoragePackage, error)
-	UpdatePackageStatus(ctx context.Context, status types.PackageStatus, aipID string) error
-	UpdatePackageLocationID(ctx context.Context, locationID uuid.UUID, aipID string) error
-	Delete(ctx context.Context, AIPID string) (err error)
+	ReadPackage(ctx context.Context, aipID uuid.UUID) (*goastorage.StoredStoragePackage, error)
+	UpdatePackageStatus(ctx context.Context, aipID uuid.UUID, status types.PackageStatus) error
+	UpdatePackageLocationID(ctx context.Context, aipID, locationID uuid.UUID) error
+	Delete(ctx context.Context, aipID uuid.UUID) (err error)
 
 	// Both.
 	PackageReader(ctx context.Context, pkg *goastorage.StoredStoragePackage) (*blob.Reader, error)
@@ -95,12 +95,12 @@ func (s *serviceImpl) Location(ctx context.Context, locationID uuid.UUID) (Locat
 }
 
 func (s *serviceImpl) Submit(ctx context.Context, payload *goastorage.SubmitPayload) (*goastorage.SubmitResult, error) {
-	AIPUUID, err := uuid.Parse(payload.AipID)
+	aipID, err := uuid.Parse(payload.AipID)
 	if err != nil {
-		return nil, goastorage.MakeNotValid(err)
+		return nil, goastorage.MakeNotValid(errors.New("cannot perform operation"))
 	}
 
-	_, err = InitStorageUploadWorkflow(ctx, s.tc, &StorageUploadWorkflowRequest{AIPID: payload.AipID})
+	_, err = InitStorageUploadWorkflow(ctx, s.tc, &StorageUploadWorkflowRequest{AIPID: aipID})
 	if err != nil {
 		return nil, goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
 	}
@@ -108,7 +108,7 @@ func (s *serviceImpl) Submit(ctx context.Context, payload *goastorage.SubmitPayl
 	objectKey := uuid.New()
 	_, err = s.storagePersistence.CreatePackage(ctx, &goastorage.StoragePackage{
 		Name:      payload.Name,
-		AipID:     AIPUUID,
+		AipID:     aipID,
 		ObjectKey: &objectKey,
 	})
 	if err != nil {
@@ -132,14 +132,19 @@ func (s *serviceImpl) Submit(ctx context.Context, payload *goastorage.SubmitPayl
 }
 
 func (s *serviceImpl) Update(ctx context.Context, payload *goastorage.UpdatePayload) error {
+	aipID, err := uuid.Parse(payload.AipID)
+	if err != nil {
+		return goastorage.MakeNotValid(errors.New("cannot perform operation"))
+	}
+
 	signal := UploadDoneSignal{}
-	workflowID := fmt.Sprintf("%s-%s", StorageUploadWorkflowName, payload.AipID)
-	err := s.tc.SignalWorkflow(ctx, workflowID, "", UploadDoneSignalName, signal)
+	workflowID := fmt.Sprintf("%s-%s", StorageUploadWorkflowName, aipID)
+	err = s.tc.SignalWorkflow(ctx, workflowID, "", UploadDoneSignalName, signal)
 	if err != nil {
 		return goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
 	}
 	// Update the package status to in_review
-	err = s.UpdatePackageStatus(ctx, types.StatusInReview, payload.AipID)
+	err = s.UpdatePackageStatus(ctx, aipID, types.StatusInReview)
 	if err != nil {
 		return goastorage.MakeNotValid(errors.New("cannot persist package"))
 	}
@@ -158,13 +163,18 @@ func (s *serviceImpl) Locations(ctx context.Context) (goastorage.StoredLocationC
 }
 
 func (s *serviceImpl) Move(ctx context.Context, payload *goastorage.MovePayload) error {
-	pkg, err := s.ReadPackage(ctx, payload.AipID)
+	aipID, err := uuid.Parse(payload.AipID)
+	if err != nil {
+		return goastorage.MakeNotValid(errors.New("cannot perform operation"))
+	}
+
+	pkg, err := s.ReadPackage(ctx, aipID)
 	if err != nil {
 		return err
 	}
 
 	_, err = InitStorageMoveWorkflow(ctx, s.tc, &StorageMoveWorkflowRequest{
-		AIPID:      pkg.AipID.String(),
+		AIPID:      pkg.AipID,
 		LocationID: payload.LocationID,
 	})
 	if err != nil {
@@ -176,7 +186,12 @@ func (s *serviceImpl) Move(ctx context.Context, payload *goastorage.MovePayload)
 }
 
 func (s *serviceImpl) MoveStatus(ctx context.Context, payload *goastorage.MoveStatusPayload) (*goastorage.MoveStatusResult, error) {
-	p, err := s.ReadPackage(ctx, payload.AipID)
+	aipID, err := uuid.Parse(payload.AipID)
+	if err != nil {
+		return nil, goastorage.MakeNotValid(errors.New("cannot perform operation"))
+	}
+
+	p, err := s.ReadPackage(ctx, aipID)
 	if err != nil {
 		return nil, err
 	}
@@ -204,38 +219,33 @@ func (s *serviceImpl) MoveStatus(ctx context.Context, payload *goastorage.MoveSt
 }
 
 func (s *serviceImpl) Reject(ctx context.Context, payload *goastorage.RejectPayload) error {
-	return s.UpdatePackageStatus(ctx, types.StatusRejected, payload.AipID)
+	aipID, err := uuid.Parse(payload.AipID)
+	if err != nil {
+		return goastorage.MakeNotValid(errors.New("cannot perform operation"))
+	}
+
+	return s.UpdatePackageStatus(ctx, aipID, types.StatusRejected)
 }
 
 func (s *serviceImpl) Show(ctx context.Context, payload *goastorage.ShowPayload) (*goastorage.StoredStoragePackage, error) {
-	return s.ReadPackage(ctx, payload.AipID)
-}
-
-func (s *serviceImpl) ReadPackage(ctx context.Context, AIPID string) (*goastorage.StoredStoragePackage, error) {
-	AIPUUID, err := uuid.Parse(AIPID)
+	aipID, err := uuid.Parse(payload.AipID)
 	if err != nil {
-		return nil, err
+		return nil, goastorage.MakeNotValid(errors.New("cannot perform operation"))
 	}
 
-	return s.storagePersistence.ReadPackage(ctx, AIPUUID)
+	return s.ReadPackage(ctx, aipID)
 }
 
-func (s *serviceImpl) UpdatePackageStatus(ctx context.Context, status types.PackageStatus, AIPID string) error {
-	AIPUUID, err := uuid.Parse(AIPID)
-	if err != nil {
-		return err
-	}
-
-	return s.storagePersistence.UpdatePackageStatus(ctx, status, AIPUUID)
+func (s *serviceImpl) ReadPackage(ctx context.Context, aipID uuid.UUID) (*goastorage.StoredStoragePackage, error) {
+	return s.storagePersistence.ReadPackage(ctx, aipID)
 }
 
-func (s *serviceImpl) UpdatePackageLocationID(ctx context.Context, locationID uuid.UUID, AIPID string) error {
-	AIPUUID, err := uuid.Parse(AIPID)
-	if err != nil {
-		return err
-	}
+func (s *serviceImpl) UpdatePackageStatus(ctx context.Context, aipID uuid.UUID, status types.PackageStatus) error {
+	return s.storagePersistence.UpdatePackageStatus(ctx, aipID, status)
+}
 
-	return s.storagePersistence.UpdatePackageLocationID(ctx, locationID, AIPUUID)
+func (s *serviceImpl) UpdatePackageLocationID(ctx context.Context, aipID, locationID uuid.UUID) error {
+	return s.storagePersistence.UpdatePackageLocationID(ctx, aipID, locationID)
 }
 
 // packageBucket returns the bucket and the key of the given package.
@@ -253,8 +263,8 @@ func (s *serviceImpl) packageBucket(ctx context.Context, p *goastorage.StoredSto
 	return location.Bucket(), p.AipID.String(), nil
 }
 
-func (s *serviceImpl) Delete(ctx context.Context, AIPID string) error {
-	pkg, err := s.ReadPackage(ctx, AIPID)
+func (s *serviceImpl) Delete(ctx context.Context, aipID uuid.UUID) error {
+	pkg, err := s.ReadPackage(ctx, aipID)
 	if err != nil {
 		return err
 	}

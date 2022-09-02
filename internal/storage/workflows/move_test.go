@@ -20,16 +20,16 @@ func TestStorageMoveWorkflow(t *testing.T) {
 	s := temporalsdk_testsuite.WorkflowTestSuite{}
 	env := s.NewTestWorkflowEnvironment()
 
-	aipID := uuid.NewString()
+	aipID := uuid.New()
 	locationID := uuid.MustParse("e7452225-53d6-46f3-9f90-d0f2ee18b7cd")
 
 	// Mock services and their expected calls
 	ctrl := gomock.NewController(t)
 	storagesvc := fake.NewMockService(ctrl)
 	storagesvc.EXPECT().Delete(gomock.Any(), aipID)
-	storagesvc.EXPECT().UpdatePackageLocationID(gomock.Any(), locationID, aipID)
-	storagesvc.EXPECT().UpdatePackageStatus(gomock.Any(), types.StatusMoving, aipID)
-	storagesvc.EXPECT().UpdatePackageStatus(gomock.Any(), types.StatusStored, aipID)
+	storagesvc.EXPECT().UpdatePackageLocationID(gomock.Any(), aipID, locationID)
+	storagesvc.EXPECT().UpdatePackageStatus(gomock.Any(), aipID, types.StatusMoving)
+	storagesvc.EXPECT().UpdatePackageStatus(gomock.Any(), aipID, types.StatusStored)
 
 	// Worker activities
 	env.RegisterActivityWithOptions(activities.NewCopyToPermanentLocationActivity(storagesvc).Execute, temporalsdk_activity.RegisterOptions{Name: storage.CopyToPermanentLocationActivityName})

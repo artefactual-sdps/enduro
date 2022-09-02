@@ -157,7 +157,7 @@ func (mr *MockStorageMockRecorder) UpdatePackageLocationID(arg0, arg1, arg2 inte
 }
 
 // UpdatePackageStatus mocks base method.
-func (m *MockStorage) UpdatePackageStatus(arg0 context.Context, arg1 types.PackageStatus, arg2 uuid.UUID) error {
+func (m *MockStorage) UpdatePackageStatus(arg0 context.Context, arg1 uuid.UUID, arg2 types.PackageStatus) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdatePackageStatus", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)

@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/google/uuid"
 	goahttp "goa.design/goa/v3/http"
 
 	"github.com/artefactual-sdps/enduro/internal/api/gen/http/storage/server"
@@ -24,9 +25,15 @@ func Download(svc Service, mux goahttp.Muxer, dec func(r *http.Request) goahttp.
 		}
 		p := payload.(*goastorage.DownloadPayload)
 
+		aipID, err := uuid.Parse(p.AipID)
+		if err != nil {
+			rw.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
 		// Read storage package.
 		ctx := context.Background()
-		pkg, err := svc.ReadPackage(ctx, p.AipID)
+		pkg, err := svc.ReadPackage(ctx, aipID)
 		if err != nil {
 			rw.WriteHeader(http.StatusNotFound)
 			return

@@ -34,7 +34,7 @@ func (a *CopyToPermanentLocationActivity) Execute(ctx context.Context, params *s
 
 	bucket := l.Bucket()
 
-	writer, err := bucket.NewWriter(ctx, params.AIPID, nil)
+	writer, err := bucket.NewWriter(ctx, params.AIPID.String(), nil)
 	if err != nil {
 		return err
 	}

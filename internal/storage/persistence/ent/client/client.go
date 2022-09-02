@@ -62,15 +62,15 @@ func (c *Client) ListPackages(ctx context.Context) ([]*goastorage.StoredStorageP
 	return pkgs, err
 }
 
-func (c *Client) ReadPackage(ctx context.Context, AIPID uuid.UUID) (*goastorage.StoredStoragePackage, error) {
+func (c *Client) ReadPackage(ctx context.Context, aipID uuid.UUID) (*goastorage.StoredStoragePackage, error) {
 	pkg, err := c.c.Pkg.Query().
 		Where(
-			pkg.AipID(AIPID),
+			pkg.AipID(aipID),
 		).
 		Only(ctx)
 	if err != nil {
 		if db.IsNotFound(err) {
-			return nil, &goastorage.StoragePackageNotfound{AipID: AIPID, Message: "package not found"}
+			return nil, &goastorage.StoragePackageNotfound{AipID: aipID, Message: "package not found"}
 		} else if err != nil {
 			return nil, goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
 		}
@@ -79,10 +79,10 @@ func (c *Client) ReadPackage(ctx context.Context, AIPID uuid.UUID) (*goastorage.
 	return pkgAsGoa(ctx, pkg), nil
 }
 
-func (c *Client) UpdatePackageStatus(ctx context.Context, status types.PackageStatus, AIPID uuid.UUID) error {
+func (c *Client) UpdatePackageStatus(ctx context.Context, aipID uuid.UUID, status types.PackageStatus) error {
 	n, err := c.c.Pkg.Update().
 		Where(
-			pkg.AipID(AIPID),
+			pkg.AipID(aipID),
 		).
 		SetStatus(status).
 		Save(ctx)
@@ -97,7 +97,7 @@ func (c *Client) UpdatePackageStatus(ctx context.Context, status types.PackageSt
 	return nil
 }
 
-func (c *Client) UpdatePackageLocationID(ctx context.Context, locationID uuid.UUID, aipID uuid.UUID) error {
+func (c *Client) UpdatePackageLocationID(ctx context.Context, aipID, locationID uuid.UUID) error {
 	l, err := c.c.Location.Query().
 		Where(
 			location.UUID(locationID),

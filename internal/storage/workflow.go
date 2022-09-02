@@ -21,16 +21,16 @@ const (
 )
 
 type StorageUploadWorkflowRequest struct {
-	AIPID string
+	AIPID uuid.UUID
 }
 
 type StorageMoveWorkflowRequest struct {
-	AIPID      string
+	AIPID      uuid.UUID
 	LocationID uuid.UUID
 }
 
 type CopyToPermanentLocationActivityParams struct {
-	AIPID      string
+	AIPID      uuid.UUID
 	LocationID uuid.UUID
 }
 
