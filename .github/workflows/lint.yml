@@ -20,12 +20,15 @@ jobs:
       with:
         path: ~/.cache/golangci-lint
         key: ${{ runner.os }}-golangci-lint
+    - name: Define GOBIN
       run: |
-        echo $(go env GOPATH)/bin >> $GITHUB_PATH
-        echo $PATH
+        echo GOBIN=$(go env GOPATH)/bin >> $GITHUB_ENV
+    - name: Install bingo
+      run:
         make bingo
-        bingo get -l golangci-lint
+    - name: Install golangci-lint
+      run:
+        bingo get -v -l golangci-lint
     - name: Lint code
       run:
-        echo $(go env GOPATH)/bin >> $GITHUB_PATH
         make lint
