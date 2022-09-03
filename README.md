@@ -55,14 +55,22 @@ If using Linux, Node.js binary distributions are available from [NodeSource].
 #### Go tools
 
 We use [bingo] to manage some Go tools and binaries needed to perform various
-development operations. First, set `GOPATH` in your environment:
+development operations.
+
+bingo builds pinned tools in your `$GOBIN` path. If `$GOBIN` is undefined, we
+try to set its value by expanding `$(go env GOPATH)/bin` since it is common for
+Go developers to have previously defined `$GOPATH`.
+
+Preferably, define `$GOBIN` in your environment and include the same directory
+in your `$PATH` so your system knows where to find the executables, e.g.:
 
 ```
-export GOPATH=$HOME/go
+export GOBIN=$HOME/go/bin
+export PATH=$HOME/go/bin:$PATH
 ```
 
-Make sure that environment variable is set each time you use bingo or one of
-the tools. For example, by adding that line to your `~/.profile` file.
+We recommend to [set the environment strings permanently] - follow the link to
+know more.
 
 Then, install and list them with:
 
@@ -70,7 +78,7 @@ Then, install and list them with:
 make tools
 ```
 
-This tools will be used through Makefile rules and the Tilt UI.
+These tools will be used through Makefile rules and the Tilt UI.
 
 ### Editor
 
@@ -246,3 +254,4 @@ is sometimes not setup properly. To solve it, from the Tilt UI, restart the
 [gcc]: https://gcc.gnu.org/
 [bingo]: https://github.com/bwplotka/bingo
 [visual studio code]: https://code.visualstudio.com/
+[set the environment strings permanently]: https://unix.stackexchange.com/a/117470
