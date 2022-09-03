@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"net"
 	"net/http"
 	"net/http/pprof"
 	"os"
@@ -174,10 +173,11 @@ func main() {
 
 	// Observability server.
 	{
-		ln, err := net.Listen("tcp", cfg.DebugListen)
-		if err != nil {
-			logger.Error(err, "Error setting up the debug interface.")
-			os.Exit(1)
+		srv := &http.Server{
+			Addr:         cfg.DebugListen,
+			ReadTimeout:  time.Second * 1,
+			WriteTimeout: time.Second * 1,
+			IdleTimeout:  time.Second * 30,
 		}
 
 		g.Add(func() error {
@@ -203,9 +203,13 @@ func main() {
 			mux.Handle("/debug/pprof/heap", pprof.Handler("heap"))
 			mux.Handle("/debug/pprof/threadcreate", pprof.Handler("threadcreate"))
 
-			return http.Serve(ln, mux)
+			srv.Handler = mux
+
+			return srv.ListenAndServe()
 		}, func(error) {
-			ln.Close()
+			ctx, cancel := context.WithTimeout(ctx, time.Second*5)
+			defer cancel()
+			_ = srv.Shutdown(ctx)
 		})
 	}
 
