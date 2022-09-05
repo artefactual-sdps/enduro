@@ -519,7 +519,7 @@ func NewUpdateNotValidResponseBody(res *goa.ServiceError) *UpdateNotValidRespons
 
 // NewDownloadNotFoundResponseBody builds the HTTP response body from the
 // result of the "download" endpoint of the "storage" service.
-func NewDownloadNotFoundResponseBody(res *storage.StoragePackageNotfound) *DownloadNotFoundResponseBody {
+func NewDownloadNotFoundResponseBody(res *storage.PackageNotFound) *DownloadNotFoundResponseBody {
 	body := &DownloadNotFoundResponseBody{
 		Message: res.Message,
 		AipID:   res.AipID,
@@ -571,7 +571,7 @@ func NewMoveNotValidResponseBody(res *goa.ServiceError) *MoveNotValidResponseBod
 
 // NewMoveNotFoundResponseBody builds the HTTP response body from the result of
 // the "move" endpoint of the "storage" service.
-func NewMoveNotFoundResponseBody(res *storage.StoragePackageNotfound) *MoveNotFoundResponseBody {
+func NewMoveNotFoundResponseBody(res *storage.PackageNotFound) *MoveNotFoundResponseBody {
 	body := &MoveNotFoundResponseBody{
 		Message: res.Message,
 		AipID:   res.AipID,
@@ -595,7 +595,7 @@ func NewMoveStatusFailedDependencyResponseBody(res *goa.ServiceError) *MoveStatu
 
 // NewMoveStatusNotFoundResponseBody builds the HTTP response body from the
 // result of the "move_status" endpoint of the "storage" service.
-func NewMoveStatusNotFoundResponseBody(res *storage.StoragePackageNotfound) *MoveStatusNotFoundResponseBody {
+func NewMoveStatusNotFoundResponseBody(res *storage.PackageNotFound) *MoveStatusNotFoundResponseBody {
 	body := &MoveStatusNotFoundResponseBody{
 		Message: res.Message,
 		AipID:   res.AipID,
@@ -633,7 +633,7 @@ func NewRejectNotValidResponseBody(res *goa.ServiceError) *RejectNotValidRespons
 
 // NewRejectNotFoundResponseBody builds the HTTP response body from the result
 // of the "reject" endpoint of the "storage" service.
-func NewRejectNotFoundResponseBody(res *storage.StoragePackageNotfound) *RejectNotFoundResponseBody {
+func NewRejectNotFoundResponseBody(res *storage.PackageNotFound) *RejectNotFoundResponseBody {
 	body := &RejectNotFoundResponseBody{
 		Message: res.Message,
 		AipID:   res.AipID,
@@ -643,7 +643,7 @@ func NewRejectNotFoundResponseBody(res *storage.StoragePackageNotfound) *RejectN
 
 // NewShowNotFoundResponseBody builds the HTTP response body from the result of
 // the "show" endpoint of the "storage" service.
-func NewShowNotFoundResponseBody(res *storage.StoragePackageNotfound) *ShowNotFoundResponseBody {
+func NewShowNotFoundResponseBody(res *storage.PackageNotFound) *ShowNotFoundResponseBody {
 	body := &ShowNotFoundResponseBody{
 		Message: res.Message,
 		AipID:   res.AipID,
@@ -653,7 +653,7 @@ func NewShowNotFoundResponseBody(res *storage.StoragePackageNotfound) *ShowNotFo
 
 // NewShowLocationNotFoundResponseBody builds the HTTP response body from the
 // result of the "show_location" endpoint of the "storage" service.
-func NewShowLocationNotFoundResponseBody(res *storage.StorageLocationNotfound) *ShowLocationNotFoundResponseBody {
+func NewShowLocationNotFoundResponseBody(res *storage.LocationNotFound) *ShowLocationNotFoundResponseBody {
 	body := &ShowLocationNotFoundResponseBody{
 		Message: res.Message,
 		UUID:    res.UUID,
@@ -677,7 +677,7 @@ func NewLocationPackagesNotValidResponseBody(res *goa.ServiceError) *LocationPac
 
 // NewLocationPackagesNotFoundResponseBody builds the HTTP response body from
 // the result of the "location_packages" endpoint of the "storage" service.
-func NewLocationPackagesNotFoundResponseBody(res *storage.StorageLocationNotfound) *LocationPackagesNotFoundResponseBody {
+func NewLocationPackagesNotFoundResponseBody(res *storage.LocationNotFound) *LocationPackagesNotFoundResponseBody {
 	body := &LocationPackagesNotFoundResponseBody{
 		Message: res.Message,
 		UUID:    res.UUID,

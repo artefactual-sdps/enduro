@@ -229,7 +229,7 @@ func EncodeDownloadError(encoder func(context.Context, http.ResponseWriter) goah
 		}
 		switch en.ErrorName() {
 		case "not_found":
-			var res *storage.StoragePackageNotfound
+			var res *storage.PackageNotFound
 			errors.As(v, &res)
 			enc := encoder(ctx, w)
 			var body interface{}
@@ -408,7 +408,7 @@ func EncodeMoveError(encoder func(context.Context, http.ResponseWriter) goahttp.
 			w.WriteHeader(http.StatusBadRequest)
 			return enc.Encode(body)
 		case "not_found":
-			var res *storage.StoragePackageNotfound
+			var res *storage.PackageNotFound
 			errors.As(v, &res)
 			enc := encoder(ctx, w)
 			var body interface{}
@@ -484,7 +484,7 @@ func EncodeMoveStatusError(encoder func(context.Context, http.ResponseWriter) go
 			w.WriteHeader(http.StatusFailedDependency)
 			return enc.Encode(body)
 		case "not_found":
-			var res *storage.StoragePackageNotfound
+			var res *storage.PackageNotFound
 			errors.As(v, &res)
 			enc := encoder(ctx, w)
 			var body interface{}
@@ -570,7 +570,7 @@ func EncodeRejectError(encoder func(context.Context, http.ResponseWriter) goahtt
 			w.WriteHeader(http.StatusBadRequest)
 			return enc.Encode(body)
 		case "not_found":
-			var res *storage.StoragePackageNotfound
+			var res *storage.PackageNotFound
 			errors.As(v, &res)
 			enc := encoder(ctx, w)
 			var body interface{}
@@ -633,7 +633,7 @@ func EncodeShowError(encoder func(context.Context, http.ResponseWriter) goahttp.
 		}
 		switch en.ErrorName() {
 		case "not_found":
-			var res *storage.StoragePackageNotfound
+			var res *storage.PackageNotFound
 			errors.As(v, &res)
 			enc := encoder(ctx, w)
 			var body interface{}
@@ -696,7 +696,7 @@ func EncodeShowLocationError(encoder func(context.Context, http.ResponseWriter) 
 		}
 		switch en.ErrorName() {
 		case "not_found":
-			var res *storage.StorageLocationNotfound
+			var res *storage.LocationNotFound
 			errors.As(v, &res)
 			enc := encoder(ctx, w)
 			var body interface{}
@@ -772,7 +772,7 @@ func EncodeLocationPackagesError(encoder func(context.Context, http.ResponseWrit
 			w.WriteHeader(http.StatusBadRequest)
 			return enc.Encode(body)
 		case "not_found":
-			var res *storage.StorageLocationNotfound
+			var res *storage.LocationNotFound
 			errors.As(v, &res)
 			enc := encoder(ctx, w)
 			var body interface{}

@@ -518,8 +518,8 @@ func NewUpdateNotValid(body *UpdateNotValidResponseBody) *goa.ServiceError {
 
 // NewDownloadNotFound builds a storage service download endpoint not_found
 // error.
-func NewDownloadNotFound(body *DownloadNotFoundResponseBody) *storage.StoragePackageNotfound {
-	v := &storage.StoragePackageNotfound{
+func NewDownloadNotFound(body *DownloadNotFoundResponseBody) *storage.PackageNotFound {
+	v := &storage.PackageNotFound{
 		Message: *body.Message,
 		AipID:   *body.AipID,
 	}
@@ -593,8 +593,8 @@ func NewMoveNotValid(body *MoveNotValidResponseBody) *goa.ServiceError {
 }
 
 // NewMoveNotFound builds a storage service move endpoint not_found error.
-func NewMoveNotFound(body *MoveNotFoundResponseBody) *storage.StoragePackageNotfound {
-	v := &storage.StoragePackageNotfound{
+func NewMoveNotFound(body *MoveNotFoundResponseBody) *storage.PackageNotFound {
+	v := &storage.PackageNotFound{
 		Message: *body.Message,
 		AipID:   *body.AipID,
 	}
@@ -629,8 +629,8 @@ func NewMoveStatusFailedDependency(body *MoveStatusFailedDependencyResponseBody)
 
 // NewMoveStatusNotFound builds a storage service move_status endpoint
 // not_found error.
-func NewMoveStatusNotFound(body *MoveStatusNotFoundResponseBody) *storage.StoragePackageNotfound {
-	v := &storage.StoragePackageNotfound{
+func NewMoveStatusNotFound(body *MoveStatusNotFoundResponseBody) *storage.PackageNotFound {
+	v := &storage.PackageNotFound{
 		Message: *body.Message,
 		AipID:   *body.AipID,
 	}
@@ -668,8 +668,8 @@ func NewRejectNotValid(body *RejectNotValidResponseBody) *goa.ServiceError {
 }
 
 // NewRejectNotFound builds a storage service reject endpoint not_found error.
-func NewRejectNotFound(body *RejectNotFoundResponseBody) *storage.StoragePackageNotfound {
-	v := &storage.StoragePackageNotfound{
+func NewRejectNotFound(body *RejectNotFoundResponseBody) *storage.PackageNotFound {
+	v := &storage.PackageNotFound{
 		Message: *body.Message,
 		AipID:   *body.AipID,
 	}
@@ -693,8 +693,8 @@ func NewShowStoredStoragePackageOK(body *ShowResponseBody) *storageviews.StoredS
 }
 
 // NewShowNotFound builds a storage service show endpoint not_found error.
-func NewShowNotFound(body *ShowNotFoundResponseBody) *storage.StoragePackageNotfound {
-	v := &storage.StoragePackageNotfound{
+func NewShowNotFound(body *ShowNotFoundResponseBody) *storage.PackageNotFound {
+	v := &storage.PackageNotFound{
 		Message: *body.Message,
 		AipID:   *body.AipID,
 	}
@@ -727,8 +727,8 @@ func NewShowLocationStoredLocationOK(body *ShowLocationResponseBody) *storagevie
 
 // NewShowLocationNotFound builds a storage service show_location endpoint
 // not_found error.
-func NewShowLocationNotFound(body *ShowLocationNotFoundResponseBody) *storage.StorageLocationNotfound {
-	v := &storage.StorageLocationNotfound{
+func NewShowLocationNotFound(body *ShowLocationNotFoundResponseBody) *storage.LocationNotFound {
+	v := &storage.LocationNotFound{
 		Message: *body.Message,
 		UUID:    *body.UUID,
 	}
@@ -764,8 +764,8 @@ func NewLocationPackagesNotValid(body *LocationPackagesNotValidResponseBody) *go
 
 // NewLocationPackagesNotFound builds a storage service location_packages
 // endpoint not_found error.
-func NewLocationPackagesNotFound(body *LocationPackagesNotFoundResponseBody) *storage.StorageLocationNotfound {
-	v := &storage.StorageLocationNotfound{
+func NewLocationPackagesNotFound(body *LocationPackagesNotFoundResponseBody) *storage.LocationNotFound {
+	v := &storage.LocationNotFound{
 		Message: *body.Message,
 		UUID:    *body.UUID,
 	}

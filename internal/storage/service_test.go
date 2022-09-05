@@ -441,7 +441,7 @@ func TestServiceLocation(t *testing.T) {
 		).
 		Return(
 			nil,
-			&goastorage.StorageLocationNotfound{
+			&goastorage.LocationNotFound{
 				UUID:    uuid.MustParse("d8ea8946-dc82-4f4e-8c2d-8d3861f3297d"),
 				Message: "location not found",
 			},
@@ -461,7 +461,7 @@ func TestServiceLocation(t *testing.T) {
 		},
 		"Returns error when location cannot be found": {
 			uuid.MustParse("d8ea8946-dc82-4f4e-8c2d-8d3861f3297d"),
-			&goastorage.StorageLocationNotfound{
+			&goastorage.LocationNotFound{
 				UUID:    uuid.MustParse("d8ea8946-dc82-4f4e-8c2d-8d3861f3297d"),
 				Message: "location not found",
 			},
@@ -808,7 +808,7 @@ func TestServiceDelete(t *testing.T) {
 			).
 			Return(
 				nil,
-				&goastorage.StorageLocationNotfound{UUID: locationID, Message: "location not found"},
+				&goastorage.LocationNotFound{UUID: locationID, Message: "location not found"},
 			).
 			Times(1)
 
@@ -832,7 +832,7 @@ func TestServiceDelete(t *testing.T) {
 			).
 			Return(
 				nil,
-				&goastorage.StoragePackageNotfound{AipID: AIPID, Message: "package not found"},
+				&goastorage.PackageNotFound{AipID: AIPID, Message: "package not found"},
 			).
 			Times(1)
 
@@ -902,7 +902,7 @@ func TestPackageReader(t *testing.T) {
 			).
 			Return(
 				nil,
-				&goastorage.StorageLocationNotfound{UUID: locationID, Message: "location not found"},
+				&goastorage.LocationNotFound{UUID: locationID, Message: "location not found"},
 			).
 			Times(1)
 
@@ -1116,7 +1116,7 @@ func TestServiceMove(t *testing.T) {
 			).
 			Return(
 				nil,
-				&goastorage.StoragePackageNotfound{AipID: AIPID, Message: "package not found"},
+				&goastorage.PackageNotFound{AipID: AIPID, Message: "package not found"},
 			).
 			Times(1)
 
@@ -1255,7 +1255,7 @@ func TestServiceMoveStatus(t *testing.T) {
 			).
 			Return(
 				nil,
-				&goastorage.StoragePackageNotfound{AipID: AIPID, Message: "package not found"},
+				&goastorage.PackageNotFound{AipID: AIPID, Message: "package not found"},
 			).
 			Times(1)
 

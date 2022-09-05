@@ -93,6 +93,13 @@ type Location struct {
 	CreatedAt string
 }
 
+// Storage location not found.
+type LocationNotFound struct {
+	// Message of error
+	Message string
+	UUID    uuid.UUID
+}
+
 // LocationPackagesPayload is the payload type of the storage service
 // location_packages method.
 type LocationPackagesPayload struct {
@@ -115,6 +122,14 @@ type MoveStatusPayload struct {
 // method.
 type MoveStatusResult struct {
 	Done bool
+}
+
+// Storage package not found.
+type PackageNotFound struct {
+	// Message of error
+	Message string
+	// Identifier of missing package
+	AipID uuid.UUID
 }
 
 // RejectPayload is the payload type of the storage service reject method.
@@ -144,13 +159,6 @@ type ShowPayload struct {
 	AipID string
 }
 
-// Storage location not found.
-type StorageLocationNotfound struct {
-	// Message of error
-	Message string
-	UUID    uuid.UUID
-}
-
 // Storage package describes a package of the storage service.
 type StoragePackage struct {
 	Name  string
@@ -161,14 +169,6 @@ type StoragePackage struct {
 	LocationID *uuid.UUID
 	// Creation datetime
 	CreatedAt string
-}
-
-// Storage package not found.
-type StoragePackageNotfound struct {
-	// Message of error
-	Message string
-	// Identifier of missing package
-	AipID uuid.UUID
 }
 
 // StoredLocation is the result type of the storage service show_location
@@ -227,23 +227,23 @@ type UpdatePayload struct {
 }
 
 // Error returns an error description.
-func (e *StorageLocationNotfound) Error() string {
+func (e *LocationNotFound) Error() string {
 	return "Storage location not found."
 }
 
-// ErrorName returns "StorageLocationNotfound".
-func (e *StorageLocationNotfound) ErrorName() string {
+// ErrorName returns "LocationNotFound".
+func (e *LocationNotFound) ErrorName() string {
 	return "not_found"
 }
 
 // Error returns an error description.
-func (e *StoragePackageNotfound) Error() string {
+func (e *PackageNotFound) Error() string {
 	return "Storage package not found."
 }
 
-// ErrorName returns "StoragePackageNotfound".
-func (e *StoragePackageNotfound) ErrorName() string {
-	return e.Message
+// ErrorName returns "PackageNotFound".
+func (e *PackageNotFound) ErrorName() string {
+	return "not_found"
 }
 func (*S3Config) configVal() {}
 

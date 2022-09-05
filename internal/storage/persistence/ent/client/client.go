@@ -70,7 +70,7 @@ func (c *Client) ReadPackage(ctx context.Context, aipID uuid.UUID) (*goastorage.
 		Only(ctx)
 	if err != nil {
 		if db.IsNotFound(err) {
-			return nil, &goastorage.StoragePackageNotfound{AipID: aipID, Message: "package not found"}
+			return nil, &goastorage.PackageNotFound{AipID: aipID, Message: "package not found"}
 		} else if err != nil {
 			return nil, goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
 		}
@@ -183,7 +183,7 @@ func (c *Client) ReadLocation(ctx context.Context, locationID uuid.UUID) (*goast
 		Only(ctx)
 	if err != nil {
 		if db.IsNotFound(err) {
-			return nil, &goastorage.StorageLocationNotfound{UUID: locationID, Message: "location not found"}
+			return nil, &goastorage.LocationNotFound{UUID: locationID, Message: "location not found"}
 		} else if err != nil {
 			return nil, goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
 		}

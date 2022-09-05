@@ -531,7 +531,7 @@ func NewShowNotAvailableResponseBody(res *goa.ServiceError) *ShowNotAvailableRes
 
 // NewShowNotFoundResponseBody builds the HTTP response body from the result of
 // the "show" endpoint of the "package" service.
-func NewShowNotFoundResponseBody(res *package_.PackageNotfound) *ShowNotFoundResponseBody {
+func NewShowNotFoundResponseBody(res *package_.PackageNotFound) *ShowNotFoundResponseBody {
 	body := &ShowNotFoundResponseBody{
 		Message: res.Message,
 		ID:      res.ID,
@@ -542,7 +542,7 @@ func NewShowNotFoundResponseBody(res *package_.PackageNotfound) *ShowNotFoundRes
 // NewPreservationActionsNotFoundResponseBody builds the HTTP response body
 // from the result of the "preservation_actions" endpoint of the "package"
 // service.
-func NewPreservationActionsNotFoundResponseBody(res *package_.PackageNotfound) *PreservationActionsNotFoundResponseBody {
+func NewPreservationActionsNotFoundResponseBody(res *package_.PackageNotFound) *PreservationActionsNotFoundResponseBody {
 	body := &PreservationActionsNotFoundResponseBody{
 		Message: res.Message,
 		ID:      res.ID,
@@ -580,7 +580,7 @@ func NewConfirmNotValidResponseBody(res *goa.ServiceError) *ConfirmNotValidRespo
 
 // NewConfirmNotFoundResponseBody builds the HTTP response body from the result
 // of the "confirm" endpoint of the "package" service.
-func NewConfirmNotFoundResponseBody(res *package_.PackageNotfound) *ConfirmNotFoundResponseBody {
+func NewConfirmNotFoundResponseBody(res *package_.PackageNotFound) *ConfirmNotFoundResponseBody {
 	body := &ConfirmNotFoundResponseBody{
 		Message: res.Message,
 		ID:      res.ID,
@@ -618,7 +618,7 @@ func NewRejectNotValidResponseBody(res *goa.ServiceError) *RejectNotValidRespons
 
 // NewRejectNotFoundResponseBody builds the HTTP response body from the result
 // of the "reject" endpoint of the "package" service.
-func NewRejectNotFoundResponseBody(res *package_.PackageNotfound) *RejectNotFoundResponseBody {
+func NewRejectNotFoundResponseBody(res *package_.PackageNotFound) *RejectNotFoundResponseBody {
 	body := &RejectNotFoundResponseBody{
 		Message: res.Message,
 		ID:      res.ID,
@@ -656,7 +656,7 @@ func NewMoveNotValidResponseBody(res *goa.ServiceError) *MoveNotValidResponseBod
 
 // NewMoveNotFoundResponseBody builds the HTTP response body from the result of
 // the "move" endpoint of the "package" service.
-func NewMoveNotFoundResponseBody(res *package_.PackageNotfound) *MoveNotFoundResponseBody {
+func NewMoveNotFoundResponseBody(res *package_.PackageNotFound) *MoveNotFoundResponseBody {
 	body := &MoveNotFoundResponseBody{
 		Message: res.Message,
 		ID:      res.ID,
@@ -680,7 +680,7 @@ func NewMoveStatusFailedDependencyResponseBody(res *goa.ServiceError) *MoveStatu
 
 // NewMoveStatusNotFoundResponseBody builds the HTTP response body from the
 // result of the "move_status" endpoint of the "package" service.
-func NewMoveStatusNotFoundResponseBody(res *package_.PackageNotfound) *MoveStatusNotFoundResponseBody {
+func NewMoveStatusNotFoundResponseBody(res *package_.PackageNotFound) *MoveStatusNotFoundResponseBody {
 	body := &MoveStatusNotFoundResponseBody{
 		Message: res.Message,
 		ID:      res.ID,

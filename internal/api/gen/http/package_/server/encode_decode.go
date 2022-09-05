@@ -164,7 +164,7 @@ func EncodeShowError(encoder func(context.Context, http.ResponseWriter) goahttp.
 			w.WriteHeader(http.StatusConflict)
 			return enc.Encode(body)
 		case "not_found":
-			var res *package_.PackageNotfound
+			var res *package_.PackageNotFound
 			errors.As(v, &res)
 			enc := encoder(ctx, w)
 			var body interface{}
@@ -232,7 +232,7 @@ func EncodePreservationActionsError(encoder func(context.Context, http.ResponseW
 		}
 		switch en.ErrorName() {
 		case "not_found":
-			var res *package_.PackageNotfound
+			var res *package_.PackageNotFound
 			errors.As(v, &res)
 			enc := encoder(ctx, w)
 			var body interface{}
@@ -338,7 +338,7 @@ func EncodeConfirmError(encoder func(context.Context, http.ResponseWriter) goaht
 			w.WriteHeader(http.StatusBadRequest)
 			return enc.Encode(body)
 		case "not_found":
-			var res *package_.PackageNotfound
+			var res *package_.PackageNotFound
 			errors.As(v, &res)
 			enc := encoder(ctx, w)
 			var body interface{}
@@ -429,7 +429,7 @@ func EncodeRejectError(encoder func(context.Context, http.ResponseWriter) goahtt
 			w.WriteHeader(http.StatusBadRequest)
 			return enc.Encode(body)
 		case "not_found":
-			var res *package_.PackageNotfound
+			var res *package_.PackageNotFound
 			errors.As(v, &res)
 			enc := encoder(ctx, w)
 			var body interface{}
@@ -535,7 +535,7 @@ func EncodeMoveError(encoder func(context.Context, http.ResponseWriter) goahttp.
 			w.WriteHeader(http.StatusBadRequest)
 			return enc.Encode(body)
 		case "not_found":
-			var res *package_.PackageNotfound
+			var res *package_.PackageNotFound
 			errors.As(v, &res)
 			enc := encoder(ctx, w)
 			var body interface{}
@@ -616,7 +616,7 @@ func EncodeMoveStatusError(encoder func(context.Context, http.ResponseWriter) go
 			w.WriteHeader(http.StatusFailedDependency)
 			return enc.Encode(body)
 		case "not_found":
-			var res *package_.PackageNotfound
+			var res *package_.PackageNotFound
 			errors.As(v, &res)
 			enc := encoder(ctx, w)
 			var body interface{}

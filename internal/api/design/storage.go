@@ -182,7 +182,7 @@ var _ = Service("storage", func() {
 			Required("uuid")
 		})
 		Result(StoredLocation)
-		Error("not_found", StorageLocationNotFound, "Storage location not found")
+		Error("not_found", LocationNotFound, "Storage location not found")
 		HTTP(func() {
 			GET("/location/{uuid}")
 			Response(StatusOK)
@@ -199,7 +199,7 @@ var _ = Service("storage", func() {
 			Required("uuid")
 		})
 		Result(CollectionOf(StoredStoragePackage), func() { View("default") })
-		Error("not_found", StorageLocationNotFound, "Storage location not found")
+		Error("not_found", LocationNotFound, "Storage location not found")
 		Error("not_valid")
 		HTTP(func() {
 			GET("/location/{uuid}/packages")
@@ -215,10 +215,11 @@ var SubmitResult = Type("SubmitResult", func() {
 	Required("url")
 })
 
-var StoragePackageNotFound = Type("StoragePackageNotfound", func() {
+var StoragePackageNotFound = Type("StoragePackageNotFound", func() {
 	Description("Storage package not found.")
+	TypeName("PackageNotFound")
 	Attribute("message", String, "Message of error", func() {
-		Meta("struct:error:name")
+		Meta("struct:error:message")
 	})
 	Attribute("aip_id", String, "Identifier of missing package", func() {
 		Meta("struct:field:type", "uuid.UUID", "github.com/google/uuid")
@@ -226,8 +227,9 @@ var StoragePackageNotFound = Type("StoragePackageNotfound", func() {
 	Required("message", "aip_id")
 })
 
-var StorageLocationNotFound = Type("StorageLocationNotfound", func() {
+var LocationNotFound = Type("LocationNotFound", func() {
 	Description("Storage location not found.")
+	TypeName("LocationNotFound")
 	Attribute("message", String, "Message of error", func() {
 		Meta("struct:error:message")
 	})
