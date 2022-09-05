@@ -102,7 +102,7 @@ func TestListPackages(t *testing.T) {
 
 	pkgs, err := c.ListPackages(context.Background())
 	assert.NilError(t, err)
-	assert.DeepEqual(t, pkgs, []*goastorage.Package{
+	assert.DeepEqual(t, pkgs, goastorage.PackageCollection{
 		{
 			Name:       "Package",
 			AipID:      uuid.MustParse("488c64cc-d89b-4916-9131-c94152dfb12e"),

@@ -44,7 +44,7 @@ func (c *Client) CreatePackage(ctx context.Context, goapkg *goastorage.Package) 
 	return pkgAsGoa(ctx, pkg), nil
 }
 
-func (c *Client) ListPackages(ctx context.Context) ([]*goastorage.Package, error) {
+func (c *Client) ListPackages(ctx context.Context) (goastorage.PackageCollection, error) {
 	pkgs := []*goastorage.Package{}
 
 	res, err := c.c.Pkg.Query().All(ctx)

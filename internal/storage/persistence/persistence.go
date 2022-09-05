@@ -12,7 +12,7 @@ import (
 type Storage interface {
 	// Package.
 	CreatePackage(ctx context.Context, pkg *goastorage.Package) (*goastorage.Package, error)
-	ListPackages(ctx context.Context) ([]*goastorage.Package, error)
+	ListPackages(ctx context.Context) (goastorage.PackageCollection, error)
 	ReadPackage(ctx context.Context, aipID uuid.UUID) (*goastorage.Package, error)
 	UpdatePackageStatus(ctx context.Context, aipID uuid.UUID, status types.PackageStatus) error
 	UpdatePackageLocationID(ctx context.Context, aipID, locationID uuid.UUID) error

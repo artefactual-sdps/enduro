@@ -83,10 +83,10 @@ func (mr *MockStorageMockRecorder) ListLocations(arg0 interface{}) *gomock.Call 
 }
 
 // ListPackages mocks base method.
-func (m *MockStorage) ListPackages(arg0 context.Context) ([]*storage.Package, error) {
+func (m *MockStorage) ListPackages(arg0 context.Context) (storage.PackageCollection, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListPackages", arg0)
-	ret0, _ := ret[0].([]*storage.Package)
+	ret0, _ := ret[0].(storage.PackageCollection)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
