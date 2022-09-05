@@ -566,9 +566,9 @@ Example:
          "Type": "s3",
          "Value": "\"JSON\""
       },
-      "description": "Est sed.",
-      "name": "Quam aut sit quo.",
-      "purpose": "aip_store",
+      "description": "Maiores ducimus in eligendi et laboriosam.",
+      "name": "Consequatur doloribus sit corrupti.",
+      "purpose": "unspecified",
       "source": "minio"
    }'
 `, os.Args[0])
@@ -583,7 +583,7 @@ Move a package to a permanent storage location
 
 Example:
     %[1]s storage move --body '{
-      "location_id": "Dignissimos deserunt autem."
+      "location_id": "Nihil quod."
    }' --aip-id "05AF9F85-3F51-2CC5-AA06-E15963A2BFCC"
 `, os.Args[0])
 }

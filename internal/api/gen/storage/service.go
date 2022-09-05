@@ -25,7 +25,7 @@ type Service interface {
 	// Download package by AIPID
 	Download(context.Context, *DownloadPayload) (res []byte, err error)
 	// List locations
-	Locations(context.Context) (res StoredLocationCollection, err error)
+	Locations(context.Context) (res LocationCollection, err error)
 	// Add a storage location
 	AddLocation(context.Context, *AddLocationPayload) (res *AddLocationResult, err error)
 	// Move a package to a permanent storage location
@@ -35,11 +35,11 @@ type Service interface {
 	// Reject a package
 	Reject(context.Context, *RejectPayload) (err error)
 	// Show package by AIPID
-	Show(context.Context, *ShowPayload) (res *StoredStoragePackage, err error)
+	Show(context.Context, *ShowPayload) (res *Package, err error)
 	// Show location by UUID
-	ShowLocation(context.Context, *ShowLocationPayload) (res *StoredLocation, err error)
+	ShowLocation(context.Context, *ShowLocationPayload) (res *Location, err error)
 	// List all the packages stored in the location with UUID
-	LocationPackages(context.Context, *LocationPackagesPayload) (res StoredStoragePackageCollection, err error)
+	LocationPackages(context.Context, *LocationPackagesPayload) (res PackageCollection, err error)
 }
 
 // ServiceName is the name of the service as defined in the design. This is the
@@ -75,7 +75,7 @@ type DownloadPayload struct {
 	AipID string
 }
 
-// Location describes a physical entity used to store AIPs.
+// Location is the result type of the storage service show_location method.
 type Location struct {
 	// Name of location
 	Name string
@@ -85,12 +85,23 @@ type Location struct {
 	Source string
 	// Purpose of the location
 	Purpose string
-	UUID    *uuid.UUID
+	UUID    uuid.UUID
 	Config  interface {
 		configVal()
 	}
 	// Creation datetime
 	CreatedAt string
+}
+
+// LocationCollection is the result type of the storage service locations
+// method.
+type LocationCollection []*Location
+
+// Storage location not found.
+type LocationNotFound struct {
+	// Message of error
+	Message string
+	UUID    uuid.UUID
 }
 
 // LocationPackagesPayload is the payload type of the storage service
@@ -115,6 +126,30 @@ type MoveStatusPayload struct {
 // method.
 type MoveStatusResult struct {
 	Done bool
+}
+
+// Package is the result type of the storage service show method.
+type Package struct {
+	Name  string
+	AipID uuid.UUID
+	// Status of the package
+	Status     string
+	ObjectKey  uuid.UUID
+	LocationID *uuid.UUID
+	// Creation datetime
+	CreatedAt string
+}
+
+// PackageCollection is the result type of the storage service
+// location_packages method.
+type PackageCollection []*Package
+
+// Storage package not found.
+type PackageNotFound struct {
+	// Message of error
+	Message string
+	// Identifier of missing package
+	AipID uuid.UUID
 }
 
 // RejectPayload is the payload type of the storage service reject method.
@@ -144,72 +179,6 @@ type ShowPayload struct {
 	AipID string
 }
 
-// Storage location not found.
-type StorageLocationNotfound struct {
-	// Message of error
-	Message string
-	UUID    uuid.UUID
-}
-
-// Storage package describes a package of the storage service.
-type StoragePackage struct {
-	Name  string
-	AipID uuid.UUID
-	// Status of the package
-	Status     string
-	ObjectKey  *uuid.UUID
-	LocationID *uuid.UUID
-	// Creation datetime
-	CreatedAt string
-}
-
-// Storage package not found.
-type StoragePackageNotfound struct {
-	// Message of error
-	Message string
-	// Identifier of missing package
-	AipID uuid.UUID
-}
-
-// StoredLocation is the result type of the storage service show_location
-// method.
-type StoredLocation struct {
-	// Name of location
-	Name string
-	// Description of the location
-	Description *string
-	// Data source of the location
-	Source string
-	// Purpose of the location
-	Purpose string
-	UUID    uuid.UUID
-	Config  interface {
-		configVal()
-	}
-	// Creation datetime
-	CreatedAt string
-}
-
-// StoredLocationCollection is the result type of the storage service locations
-// method.
-type StoredLocationCollection []*StoredLocation
-
-// StoredStoragePackage is the result type of the storage service show method.
-type StoredStoragePackage struct {
-	Name  string
-	AipID uuid.UUID
-	// Status of the package
-	Status     string
-	ObjectKey  uuid.UUID
-	LocationID *uuid.UUID
-	// Creation datetime
-	CreatedAt string
-}
-
-// StoredStoragePackageCollection is the result type of the storage service
-// location_packages method.
-type StoredStoragePackageCollection []*StoredStoragePackage
-
 // SubmitPayload is the payload type of the storage service submit method.
 type SubmitPayload struct {
 	AipID string
@@ -227,23 +196,23 @@ type UpdatePayload struct {
 }
 
 // Error returns an error description.
-func (e *StorageLocationNotfound) Error() string {
+func (e *LocationNotFound) Error() string {
 	return "Storage location not found."
 }
 
-// ErrorName returns "StorageLocationNotfound".
-func (e *StorageLocationNotfound) ErrorName() string {
+// ErrorName returns "LocationNotFound".
+func (e *LocationNotFound) ErrorName() string {
 	return "not_found"
 }
 
 // Error returns an error description.
-func (e *StoragePackageNotfound) Error() string {
+func (e *PackageNotFound) Error() string {
 	return "Storage package not found."
 }
 
-// ErrorName returns "StoragePackageNotfound".
-func (e *StoragePackageNotfound) ErrorName() string {
-	return e.Message
+// ErrorName returns "PackageNotFound".
+func (e *PackageNotFound) ErrorName() string {
+	return "not_found"
 }
 func (*S3Config) configVal() {}
 
@@ -262,87 +231,80 @@ func MakeFailedDependency(err error) *goa.ServiceError {
 	return goa.NewServiceError(err, "failed_dependency", false, false, false)
 }
 
-// NewStoredLocationCollection initializes result type StoredLocationCollection
-// from viewed result type StoredLocationCollection.
-func NewStoredLocationCollection(vres storageviews.StoredLocationCollection) StoredLocationCollection {
-	return newStoredLocationCollection(vres.Projected)
+// NewLocationCollection initializes result type LocationCollection from viewed
+// result type LocationCollection.
+func NewLocationCollection(vres storageviews.LocationCollection) LocationCollection {
+	return newLocationCollection(vres.Projected)
 }
 
-// NewViewedStoredLocationCollection initializes viewed result type
-// StoredLocationCollection from result type StoredLocationCollection using the
-// given view.
-func NewViewedStoredLocationCollection(res StoredLocationCollection, view string) storageviews.StoredLocationCollection {
-	p := newStoredLocationCollectionView(res)
-	return storageviews.StoredLocationCollection{Projected: p, View: "default"}
+// NewViewedLocationCollection initializes viewed result type
+// LocationCollection from result type LocationCollection using the given view.
+func NewViewedLocationCollection(res LocationCollection, view string) storageviews.LocationCollection {
+	p := newLocationCollectionView(res)
+	return storageviews.LocationCollection{Projected: p, View: "default"}
 }
 
-// NewStoredStoragePackage initializes result type StoredStoragePackage from
-// viewed result type StoredStoragePackage.
-func NewStoredStoragePackage(vres *storageviews.StoredStoragePackage) *StoredStoragePackage {
-	return newStoredStoragePackage(vres.Projected)
+// NewPackage initializes result type Package from viewed result type Package.
+func NewPackage(vres *storageviews.Package) *Package {
+	return newPackage(vres.Projected)
 }
 
-// NewViewedStoredStoragePackage initializes viewed result type
-// StoredStoragePackage from result type StoredStoragePackage using the given
-// view.
-func NewViewedStoredStoragePackage(res *StoredStoragePackage, view string) *storageviews.StoredStoragePackage {
-	p := newStoredStoragePackageView(res)
-	return &storageviews.StoredStoragePackage{Projected: p, View: "default"}
+// NewViewedPackage initializes viewed result type Package from result type
+// Package using the given view.
+func NewViewedPackage(res *Package, view string) *storageviews.Package {
+	p := newPackageView(res)
+	return &storageviews.Package{Projected: p, View: "default"}
 }
 
-// NewStoredLocation initializes result type StoredLocation from viewed result
-// type StoredLocation.
-func NewStoredLocation(vres *storageviews.StoredLocation) *StoredLocation {
-	return newStoredLocation(vres.Projected)
+// NewLocation initializes result type Location from viewed result type
+// Location.
+func NewLocation(vres *storageviews.Location) *Location {
+	return newLocation(vres.Projected)
 }
 
-// NewViewedStoredLocation initializes viewed result type StoredLocation from
-// result type StoredLocation using the given view.
-func NewViewedStoredLocation(res *StoredLocation, view string) *storageviews.StoredLocation {
-	p := newStoredLocationView(res)
-	return &storageviews.StoredLocation{Projected: p, View: "default"}
+// NewViewedLocation initializes viewed result type Location from result type
+// Location using the given view.
+func NewViewedLocation(res *Location, view string) *storageviews.Location {
+	p := newLocationView(res)
+	return &storageviews.Location{Projected: p, View: "default"}
 }
 
-// NewStoredStoragePackageCollection initializes result type
-// StoredStoragePackageCollection from viewed result type
-// StoredStoragePackageCollection.
-func NewStoredStoragePackageCollection(vres storageviews.StoredStoragePackageCollection) StoredStoragePackageCollection {
-	return newStoredStoragePackageCollection(vres.Projected)
+// NewPackageCollection initializes result type PackageCollection from viewed
+// result type PackageCollection.
+func NewPackageCollection(vres storageviews.PackageCollection) PackageCollection {
+	return newPackageCollection(vres.Projected)
 }
 
-// NewViewedStoredStoragePackageCollection initializes viewed result type
-// StoredStoragePackageCollection from result type
-// StoredStoragePackageCollection using the given view.
-func NewViewedStoredStoragePackageCollection(res StoredStoragePackageCollection, view string) storageviews.StoredStoragePackageCollection {
-	p := newStoredStoragePackageCollectionView(res)
-	return storageviews.StoredStoragePackageCollection{Projected: p, View: "default"}
+// NewViewedPackageCollection initializes viewed result type PackageCollection
+// from result type PackageCollection using the given view.
+func NewViewedPackageCollection(res PackageCollection, view string) storageviews.PackageCollection {
+	p := newPackageCollectionView(res)
+	return storageviews.PackageCollection{Projected: p, View: "default"}
 }
 
-// newStoredLocationCollection converts projected type StoredLocationCollection
-// to service type StoredLocationCollection.
-func newStoredLocationCollection(vres storageviews.StoredLocationCollectionView) StoredLocationCollection {
-	res := make(StoredLocationCollection, len(vres))
+// newLocationCollection converts projected type LocationCollection to service
+// type LocationCollection.
+func newLocationCollection(vres storageviews.LocationCollectionView) LocationCollection {
+	res := make(LocationCollection, len(vres))
 	for i, n := range vres {
-		res[i] = newStoredLocation(n)
+		res[i] = newLocation(n)
 	}
 	return res
 }
 
-// newStoredLocationCollectionView projects result type
-// StoredLocationCollection to projected type StoredLocationCollectionView
-// using the "default" view.
-func newStoredLocationCollectionView(res StoredLocationCollection) storageviews.StoredLocationCollectionView {
-	vres := make(storageviews.StoredLocationCollectionView, len(res))
+// newLocationCollectionView projects result type LocationCollection to
+// projected type LocationCollectionView using the "default" view.
+func newLocationCollectionView(res LocationCollection) storageviews.LocationCollectionView {
+	vres := make(storageviews.LocationCollectionView, len(res))
 	for i, n := range res {
-		vres[i] = newStoredLocationView(n)
+		vres[i] = newLocationView(n)
 	}
 	return vres
 }
 
-// newStoredLocation converts projected type StoredLocation to service type
-// StoredLocation.
-func newStoredLocation(vres *storageviews.StoredLocationView) *StoredLocation {
-	res := &StoredLocation{
+// newLocation converts projected type Location to service type Location.
+func newLocation(vres *storageviews.LocationView) *Location {
+	res := &Location{
 		Description: vres.Description,
 	}
 	if vres.Name != nil {
@@ -369,10 +331,10 @@ func newStoredLocation(vres *storageviews.StoredLocationView) *StoredLocation {
 	return res
 }
 
-// newStoredLocationView projects result type StoredLocation to projected type
-// StoredLocationView using the "default" view.
-func newStoredLocationView(res *StoredLocation) *storageviews.StoredLocationView {
-	vres := &storageviews.StoredLocationView{
+// newLocationView projects result type Location to projected type LocationView
+// using the "default" view.
+func newLocationView(res *Location) *storageviews.LocationView {
+	vres := &storageviews.LocationView{
 		Name:        &res.Name,
 		Description: res.Description,
 		Source:      &res.Source,
@@ -383,10 +345,9 @@ func newStoredLocationView(res *StoredLocation) *storageviews.StoredLocationView
 	return vres
 }
 
-// newStoredStoragePackage converts projected type StoredStoragePackage to
-// service type StoredStoragePackage.
-func newStoredStoragePackage(vres *storageviews.StoredStoragePackageView) *StoredStoragePackage {
-	res := &StoredStoragePackage{
+// newPackage converts projected type Package to service type Package.
+func newPackage(vres *storageviews.PackageView) *Package {
+	res := &Package{
 		LocationID: vres.LocationID,
 	}
 	if vres.Name != nil {
@@ -410,10 +371,10 @@ func newStoredStoragePackage(vres *storageviews.StoredStoragePackageView) *Store
 	return res
 }
 
-// newStoredStoragePackageView projects result type StoredStoragePackage to
-// projected type StoredStoragePackageView using the "default" view.
-func newStoredStoragePackageView(res *StoredStoragePackage) *storageviews.StoredStoragePackageView {
-	vres := &storageviews.StoredStoragePackageView{
+// newPackageView projects result type Package to projected type PackageView
+// using the "default" view.
+func newPackageView(res *Package) *storageviews.PackageView {
+	vres := &storageviews.PackageView{
 		Name:       &res.Name,
 		AipID:      &res.AipID,
 		Status:     &res.Status,
@@ -424,24 +385,22 @@ func newStoredStoragePackageView(res *StoredStoragePackage) *storageviews.Stored
 	return vres
 }
 
-// newStoredStoragePackageCollection converts projected type
-// StoredStoragePackageCollection to service type
-// StoredStoragePackageCollection.
-func newStoredStoragePackageCollection(vres storageviews.StoredStoragePackageCollectionView) StoredStoragePackageCollection {
-	res := make(StoredStoragePackageCollection, len(vres))
+// newPackageCollection converts projected type PackageCollection to service
+// type PackageCollection.
+func newPackageCollection(vres storageviews.PackageCollectionView) PackageCollection {
+	res := make(PackageCollection, len(vres))
 	for i, n := range vres {
-		res[i] = newStoredStoragePackage(n)
+		res[i] = newPackage(n)
 	}
 	return res
 }
 
-// newStoredStoragePackageCollectionView projects result type
-// StoredStoragePackageCollection to projected type
-// StoredStoragePackageCollectionView using the "default" view.
-func newStoredStoragePackageCollectionView(res StoredStoragePackageCollection) storageviews.StoredStoragePackageCollectionView {
-	vres := make(storageviews.StoredStoragePackageCollectionView, len(res))
+// newPackageCollectionView projects result type PackageCollection to projected
+// type PackageCollectionView using the "default" view.
+func newPackageCollectionView(res PackageCollection) storageviews.PackageCollectionView {
+	vres := make(storageviews.PackageCollectionView, len(res))
 	for i, n := range res {
-		vres[i] = newStoredStoragePackageView(n)
+		vres[i] = newPackageView(n)
 	}
 	return vres
 }

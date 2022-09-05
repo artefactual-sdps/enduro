@@ -516,8 +516,8 @@ func NewShowNotAvailable(body *ShowNotAvailableResponseBody) *goa.ServiceError {
 }
 
 // NewShowNotFound builds a package service show endpoint not_found error.
-func NewShowNotFound(body *ShowNotFoundResponseBody) *package_.PackageNotfound {
-	v := &package_.PackageNotfound{
+func NewShowNotFound(body *ShowNotFoundResponseBody) *package_.PackageNotFound {
+	v := &package_.PackageNotFound{
 		Message: *body.Message,
 		ID:      *body.ID,
 	}
@@ -541,8 +541,8 @@ func NewPreservationActionsEnduroPackagePreservationActionsOK(body *Preservation
 
 // NewPreservationActionsNotFound builds a package service preservation_actions
 // endpoint not_found error.
-func NewPreservationActionsNotFound(body *PreservationActionsNotFoundResponseBody) *package_.PackageNotfound {
-	v := &package_.PackageNotfound{
+func NewPreservationActionsNotFound(body *PreservationActionsNotFoundResponseBody) *package_.PackageNotFound {
+	v := &package_.PackageNotFound{
 		Message: *body.Message,
 		ID:      *body.ID,
 	}
@@ -580,8 +580,8 @@ func NewConfirmNotValid(body *ConfirmNotValidResponseBody) *goa.ServiceError {
 }
 
 // NewConfirmNotFound builds a package service confirm endpoint not_found error.
-func NewConfirmNotFound(body *ConfirmNotFoundResponseBody) *package_.PackageNotfound {
-	v := &package_.PackageNotfound{
+func NewConfirmNotFound(body *ConfirmNotFoundResponseBody) *package_.PackageNotFound {
+	v := &package_.PackageNotFound{
 		Message: *body.Message,
 		ID:      *body.ID,
 	}
@@ -619,8 +619,8 @@ func NewRejectNotValid(body *RejectNotValidResponseBody) *goa.ServiceError {
 }
 
 // NewRejectNotFound builds a package service reject endpoint not_found error.
-func NewRejectNotFound(body *RejectNotFoundResponseBody) *package_.PackageNotfound {
-	v := &package_.PackageNotfound{
+func NewRejectNotFound(body *RejectNotFoundResponseBody) *package_.PackageNotFound {
+	v := &package_.PackageNotFound{
 		Message: *body.Message,
 		ID:      *body.ID,
 	}
@@ -658,8 +658,8 @@ func NewMoveNotValid(body *MoveNotValidResponseBody) *goa.ServiceError {
 }
 
 // NewMoveNotFound builds a package service move endpoint not_found error.
-func NewMoveNotFound(body *MoveNotFoundResponseBody) *package_.PackageNotfound {
-	v := &package_.PackageNotfound{
+func NewMoveNotFound(body *MoveNotFoundResponseBody) *package_.PackageNotFound {
+	v := &package_.PackageNotFound{
 		Message: *body.Message,
 		ID:      *body.ID,
 	}
@@ -694,8 +694,8 @@ func NewMoveStatusFailedDependency(body *MoveStatusFailedDependencyResponseBody)
 
 // NewMoveStatusNotFound builds a package service move_status endpoint
 // not_found error.
-func NewMoveStatusNotFound(body *MoveStatusNotFoundResponseBody) *package_.PackageNotfound {
-	v := &package_.PackageNotfound{
+func NewMoveStatusNotFound(body *MoveStatusNotFoundResponseBody) *package_.PackageNotFound {
+	v := &package_.PackageNotFound{
 		Message: *body.Message,
 		ID:      *body.ID,
 	}

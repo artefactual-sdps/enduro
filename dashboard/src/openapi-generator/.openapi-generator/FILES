@@ -18,6 +18,7 @@ models/EnduroPreservationActionUpdatedEventResponseBody.ts
 models/EnduroPreservationTaskCreatedEventResponseBody.ts
 models/EnduroPreservationTaskUpdatedEventResponseBody.ts
 models/EnduroStoredPackageResponseBody.ts
+models/LocationResponse.ts
 models/PackageConfirmNotAvailableResponseBody.ts
 models/PackageConfirmNotFoundResponseBody.ts
 models/PackageConfirmNotValidResponseBody.ts
@@ -36,6 +37,7 @@ models/PackagePreservationActionsResponseBody.ts
 models/PackageRejectNotAvailableResponseBody.ts
 models/PackageRejectNotFoundResponseBody.ts
 models/PackageRejectNotValidResponseBody.ts
+models/PackageResponse.ts
 models/PackageShowNotAvailableResponseBody.ts
 models/PackageShowNotFoundResponseBody.ts
 models/PackageShowResponseBody.ts
@@ -66,8 +68,6 @@ models/StorageSubmitRequestBody.ts
 models/StorageSubmitResponseBody.ts
 models/StorageUpdateNotAvailableResponseBody.ts
 models/StorageUpdateNotValidResponseBody.ts
-models/StoredLocationResponse.ts
-models/StoredStoragePackageResponse.ts
 models/UploadUploadInternalErrorResponseBody.ts
 models/UploadUploadInvalidMediaTypeResponseBody.ts
 models/UploadUploadInvalidMultipartRequestResponseBody.ts

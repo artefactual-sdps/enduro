@@ -66,10 +66,10 @@ func TestCreatePackage(t *testing.T) {
 	ctx := context.Background()
 	p, err := c.CreatePackage(
 		ctx,
-		&goastorage.StoragePackage{
+		&goastorage.Package{
 			Name:      "test_package",
 			AipID:     uuid.MustParse("488c64cc-d89b-4916-9131-c94152dfb12e"),
-			ObjectKey: ref.New(uuid.MustParse("e2630293-a714-4787-ab6d-e68254a6fb6a")),
+			ObjectKey: uuid.MustParse("e2630293-a714-4787-ab6d-e68254a6fb6a"),
 		},
 	)
 	assert.NilError(t, err)
@@ -102,7 +102,7 @@ func TestListPackages(t *testing.T) {
 
 	pkgs, err := c.ListPackages(context.Background())
 	assert.NilError(t, err)
-	assert.DeepEqual(t, pkgs, []*goastorage.StoredStoragePackage{
+	assert.DeepEqual(t, pkgs, goastorage.PackageCollection{
 		{
 			Name:       "Package",
 			AipID:      uuid.MustParse("488c64cc-d89b-4916-9131-c94152dfb12e"),
@@ -137,7 +137,7 @@ func TestReadPackage(t *testing.T) {
 
 		pkg, err := c.ReadPackage(context.Background(), uuid.MustParse("488c64cc-d89b-4916-9131-c94152dfb12e"))
 		assert.NilError(t, err)
-		assert.DeepEqual(t, pkg, &goastorage.StoredStoragePackage{
+		assert.DeepEqual(t, pkg, &goastorage.Package{
 			Name:       "Package",
 			AipID:      uuid.MustParse("488c64cc-d89b-4916-9131-c94152dfb12e"),
 			Status:     "stored",
@@ -242,7 +242,7 @@ func TestCreateLocation(t *testing.T) {
 			Description: ref.New("location description"),
 			Source:      types.LocationSourceMinIO.String(),
 			Purpose:     types.LocationPurposeAIPStore.String(),
-			UUID:        ref.New(uuid.MustParse("7a090f2c-7bd4-471c-8aa1-8c72125decd5")),
+			UUID:        uuid.MustParse("7a090f2c-7bd4-471c-8aa1-8c72125decd5"),
 		},
 		&types.LocationConfig{
 			Value: &types.S3Config{
@@ -295,7 +295,7 @@ func TestListLocations(t *testing.T) {
 
 	locations, err := c.ListLocations(context.Background())
 	assert.NilError(t, err)
-	assert.DeepEqual(t, locations, goastorage.StoredLocationCollection{
+	assert.DeepEqual(t, locations, goastorage.LocationCollection{
 		{
 			Name:        "Location",
 			Description: ref.New("location"),
@@ -356,7 +356,7 @@ func TestReadLocation(t *testing.T) {
 
 		l, err := c.ReadLocation(context.Background(), uuid.MustParse("7a090f2c-7bd4-471c-8aa1-8c72125decd5"))
 		assert.NilError(t, err)
-		assert.DeepEqual(t, l, &goastorage.StoredLocation{
+		assert.DeepEqual(t, l, &goastorage.Location{
 			Name:        "test_location",
 			Description: ref.New("location description"),
 			Source:      types.LocationSourceMinIO.String(),
@@ -418,7 +418,7 @@ func TestLocationPackages(t *testing.T) {
 
 		pkgs, err := c.LocationPackages(context.Background(), locationID)
 		assert.NilError(t, err)
-		assert.DeepEqual(t, pkgs, goastorage.StoredStoragePackageCollection{
+		assert.DeepEqual(t, pkgs, goastorage.PackageCollection{
 			{
 				Name:       "Package",
 				AipID:      uuid.MustParse("488c64cc-d89b-4916-9131-c94152dfb12e"),

@@ -229,7 +229,7 @@ func EncodeDownloadError(encoder func(context.Context, http.ResponseWriter) goah
 		}
 		switch en.ErrorName() {
 		case "not_found":
-			var res *storage.StoragePackageNotfound
+			var res *storage.PackageNotFound
 			errors.As(v, &res)
 			enc := encoder(ctx, w)
 			var body interface{}
@@ -251,9 +251,9 @@ func EncodeDownloadError(encoder func(context.Context, http.ResponseWriter) goah
 // storage locations endpoint.
 func EncodeLocationsResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
 	return func(ctx context.Context, w http.ResponseWriter, v interface{}) error {
-		res := v.(storageviews.StoredLocationCollection)
+		res := v.(storageviews.LocationCollection)
 		enc := encoder(ctx, w)
-		body := NewStoredLocationResponseCollection(res.Projected)
+		body := NewLocationResponseCollection(res.Projected)
 		w.WriteHeader(http.StatusOK)
 		return enc.Encode(body)
 	}
@@ -408,7 +408,7 @@ func EncodeMoveError(encoder func(context.Context, http.ResponseWriter) goahttp.
 			w.WriteHeader(http.StatusBadRequest)
 			return enc.Encode(body)
 		case "not_found":
-			var res *storage.StoragePackageNotfound
+			var res *storage.PackageNotFound
 			errors.As(v, &res)
 			enc := encoder(ctx, w)
 			var body interface{}
@@ -484,7 +484,7 @@ func EncodeMoveStatusError(encoder func(context.Context, http.ResponseWriter) go
 			w.WriteHeader(http.StatusFailedDependency)
 			return enc.Encode(body)
 		case "not_found":
-			var res *storage.StoragePackageNotfound
+			var res *storage.PackageNotFound
 			errors.As(v, &res)
 			enc := encoder(ctx, w)
 			var body interface{}
@@ -570,7 +570,7 @@ func EncodeRejectError(encoder func(context.Context, http.ResponseWriter) goahtt
 			w.WriteHeader(http.StatusBadRequest)
 			return enc.Encode(body)
 		case "not_found":
-			var res *storage.StoragePackageNotfound
+			var res *storage.PackageNotFound
 			errors.As(v, &res)
 			enc := encoder(ctx, w)
 			var body interface{}
@@ -592,7 +592,7 @@ func EncodeRejectError(encoder func(context.Context, http.ResponseWriter) goahtt
 // show endpoint.
 func EncodeShowResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
 	return func(ctx context.Context, w http.ResponseWriter, v interface{}) error {
-		res := v.(*storageviews.StoredStoragePackage)
+		res := v.(*storageviews.Package)
 		enc := encoder(ctx, w)
 		body := NewShowResponseBody(res.Projected)
 		w.WriteHeader(http.StatusOK)
@@ -633,7 +633,7 @@ func EncodeShowError(encoder func(context.Context, http.ResponseWriter) goahttp.
 		}
 		switch en.ErrorName() {
 		case "not_found":
-			var res *storage.StoragePackageNotfound
+			var res *storage.PackageNotFound
 			errors.As(v, &res)
 			enc := encoder(ctx, w)
 			var body interface{}
@@ -655,7 +655,7 @@ func EncodeShowError(encoder func(context.Context, http.ResponseWriter) goahttp.
 // storage show_location endpoint.
 func EncodeShowLocationResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
 	return func(ctx context.Context, w http.ResponseWriter, v interface{}) error {
-		res := v.(*storageviews.StoredLocation)
+		res := v.(*storageviews.Location)
 		enc := encoder(ctx, w)
 		body := NewShowLocationResponseBody(res.Projected)
 		w.WriteHeader(http.StatusOK)
@@ -696,7 +696,7 @@ func EncodeShowLocationError(encoder func(context.Context, http.ResponseWriter) 
 		}
 		switch en.ErrorName() {
 		case "not_found":
-			var res *storage.StorageLocationNotfound
+			var res *storage.LocationNotFound
 			errors.As(v, &res)
 			enc := encoder(ctx, w)
 			var body interface{}
@@ -718,9 +718,9 @@ func EncodeShowLocationError(encoder func(context.Context, http.ResponseWriter) 
 // the storage location_packages endpoint.
 func EncodeLocationPackagesResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
 	return func(ctx context.Context, w http.ResponseWriter, v interface{}) error {
-		res := v.(storageviews.StoredStoragePackageCollection)
+		res := v.(storageviews.PackageCollection)
 		enc := encoder(ctx, w)
-		body := NewStoredStoragePackageResponseCollection(res.Projected)
+		body := NewPackageResponseCollection(res.Projected)
 		w.WriteHeader(http.StatusOK)
 		return enc.Encode(body)
 	}
@@ -772,7 +772,7 @@ func EncodeLocationPackagesError(encoder func(context.Context, http.ResponseWrit
 			w.WriteHeader(http.StatusBadRequest)
 			return enc.Encode(body)
 		case "not_found":
-			var res *storage.StorageLocationNotfound
+			var res *storage.LocationNotFound
 			errors.As(v, &res)
 			enc := encoder(ctx, w)
 			var body interface{}
@@ -790,11 +790,10 @@ func EncodeLocationPackagesError(encoder func(context.Context, http.ResponseWrit
 	}
 }
 
-// marshalStorageviewsStoredLocationViewToStoredLocationResponse builds a value
-// of type *StoredLocationResponse from a value of type
-// *storageviews.StoredLocationView.
-func marshalStorageviewsStoredLocationViewToStoredLocationResponse(v *storageviews.StoredLocationView) *StoredLocationResponse {
-	res := &StoredLocationResponse{
+// marshalStorageviewsLocationViewToLocationResponse builds a value of type
+// *LocationResponse from a value of type *storageviews.LocationView.
+func marshalStorageviewsLocationViewToLocationResponse(v *storageviews.LocationView) *LocationResponse {
+	res := &LocationResponse{
 		Name:        *v.Name,
 		Description: v.Description,
 		Source:      *v.Source,
@@ -806,11 +805,10 @@ func marshalStorageviewsStoredLocationViewToStoredLocationResponse(v *storagevie
 	return res
 }
 
-// marshalStorageviewsStoredStoragePackageViewToStoredStoragePackageResponse
-// builds a value of type *StoredStoragePackageResponse from a value of type
-// *storageviews.StoredStoragePackageView.
-func marshalStorageviewsStoredStoragePackageViewToStoredStoragePackageResponse(v *storageviews.StoredStoragePackageView) *StoredStoragePackageResponse {
-	res := &StoredStoragePackageResponse{
+// marshalStorageviewsPackageViewToPackageResponse builds a value of type
+// *PackageResponse from a value of type *storageviews.PackageView.
+func marshalStorageviewsPackageViewToPackageResponse(v *storageviews.PackageView) *PackageResponse {
+	res := &PackageResponse{
 		Name:       *v.Name,
 		AipID:      *v.AipID,
 		Status:     *v.Status,

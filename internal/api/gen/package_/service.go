@@ -232,7 +232,7 @@ type MoveStatusResult struct {
 }
 
 // Package not found.
-type PackageNotfound struct {
+type PackageNotFound struct {
 	// Message of error
 	Message string
 	// Identifier of missing package
@@ -259,12 +259,12 @@ type ShowPayload struct {
 }
 
 // Error returns an error description.
-func (e *PackageNotfound) Error() string {
+func (e *PackageNotFound) Error() string {
 	return "Package not found."
 }
 
-// ErrorName returns "PackageNotfound".
-func (e *PackageNotfound) ErrorName() string {
+// ErrorName returns "PackageNotFound".
+func (e *PackageNotFound) ErrorName() string {
 	return "not_found"
 }
 

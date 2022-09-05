@@ -48,7 +48,7 @@ func NewClient(submit, update, download, locations, addLocation, move, moveStatu
 
 // Submit calls the "submit" endpoint of the "storage" service.
 // Submit may return the following errors:
-//   - "not_found" (type *StoragePackageNotfound): Storage package not found
+//   - "not_found" (type *PackageNotFound): Storage package not found
 //   - "not_available" (type *goa.ServiceError)
 //   - "not_valid" (type *goa.ServiceError)
 //   - error: internal error
@@ -63,7 +63,7 @@ func (c *Client) Submit(ctx context.Context, p *SubmitPayload) (res *SubmitResul
 
 // Update calls the "update" endpoint of the "storage" service.
 // Update may return the following errors:
-//   - "not_found" (type *StoragePackageNotfound): Storage package not found
+//   - "not_found" (type *PackageNotFound): Storage package not found
 //   - "not_available" (type *goa.ServiceError)
 //   - "not_valid" (type *goa.ServiceError)
 //   - error: internal error
@@ -74,7 +74,7 @@ func (c *Client) Update(ctx context.Context, p *UpdatePayload) (err error) {
 
 // Download calls the "download" endpoint of the "storage" service.
 // Download may return the following errors:
-//   - "not_found" (type *StoragePackageNotfound): Storage package not found
+//   - "not_found" (type *PackageNotFound): Storage package not found
 //   - error: internal error
 func (c *Client) Download(ctx context.Context, p *DownloadPayload) (res []byte, err error) {
 	var ires interface{}
@@ -86,13 +86,13 @@ func (c *Client) Download(ctx context.Context, p *DownloadPayload) (res []byte, 
 }
 
 // Locations calls the "locations" endpoint of the "storage" service.
-func (c *Client) Locations(ctx context.Context) (res StoredLocationCollection, err error) {
+func (c *Client) Locations(ctx context.Context) (res LocationCollection, err error) {
 	var ires interface{}
 	ires, err = c.LocationsEndpoint(ctx, nil)
 	if err != nil {
 		return
 	}
-	return ires.(StoredLocationCollection), nil
+	return ires.(LocationCollection), nil
 }
 
 // AddLocation calls the "add_location" endpoint of the "storage" service.
@@ -110,7 +110,7 @@ func (c *Client) AddLocation(ctx context.Context, p *AddLocationPayload) (res *A
 
 // Move calls the "move" endpoint of the "storage" service.
 // Move may return the following errors:
-//   - "not_found" (type *StoragePackageNotfound): Storage package not found
+//   - "not_found" (type *PackageNotFound): Storage package not found
 //   - "not_available" (type *goa.ServiceError)
 //   - "not_valid" (type *goa.ServiceError)
 //   - error: internal error
@@ -121,7 +121,7 @@ func (c *Client) Move(ctx context.Context, p *MovePayload) (err error) {
 
 // MoveStatus calls the "move_status" endpoint of the "storage" service.
 // MoveStatus may return the following errors:
-//   - "not_found" (type *StoragePackageNotfound): Storage package not found
+//   - "not_found" (type *PackageNotFound): Storage package not found
 //   - "failed_dependency" (type *goa.ServiceError)
 //   - error: internal error
 func (c *Client) MoveStatus(ctx context.Context, p *MoveStatusPayload) (res *MoveStatusResult, err error) {
@@ -135,7 +135,7 @@ func (c *Client) MoveStatus(ctx context.Context, p *MoveStatusPayload) (res *Mov
 
 // Reject calls the "reject" endpoint of the "storage" service.
 // Reject may return the following errors:
-//   - "not_found" (type *StoragePackageNotfound): Storage package not found
+//   - "not_found" (type *PackageNotFound): Storage package not found
 //   - "not_available" (type *goa.ServiceError)
 //   - "not_valid" (type *goa.ServiceError)
 //   - error: internal error
@@ -146,41 +146,41 @@ func (c *Client) Reject(ctx context.Context, p *RejectPayload) (err error) {
 
 // Show calls the "show" endpoint of the "storage" service.
 // Show may return the following errors:
-//   - "not_found" (type *StoragePackageNotfound): Storage package not found
+//   - "not_found" (type *PackageNotFound): Storage package not found
 //   - error: internal error
-func (c *Client) Show(ctx context.Context, p *ShowPayload) (res *StoredStoragePackage, err error) {
+func (c *Client) Show(ctx context.Context, p *ShowPayload) (res *Package, err error) {
 	var ires interface{}
 	ires, err = c.ShowEndpoint(ctx, p)
 	if err != nil {
 		return
 	}
-	return ires.(*StoredStoragePackage), nil
+	return ires.(*Package), nil
 }
 
 // ShowLocation calls the "show_location" endpoint of the "storage" service.
 // ShowLocation may return the following errors:
-//   - "not_found" (type *StorageLocationNotfound): Storage location not found
+//   - "not_found" (type *LocationNotFound): Storage location not found
 //   - error: internal error
-func (c *Client) ShowLocation(ctx context.Context, p *ShowLocationPayload) (res *StoredLocation, err error) {
+func (c *Client) ShowLocation(ctx context.Context, p *ShowLocationPayload) (res *Location, err error) {
 	var ires interface{}
 	ires, err = c.ShowLocationEndpoint(ctx, p)
 	if err != nil {
 		return
 	}
-	return ires.(*StoredLocation), nil
+	return ires.(*Location), nil
 }
 
 // LocationPackages calls the "location_packages" endpoint of the "storage"
 // service.
 // LocationPackages may return the following errors:
-//   - "not_found" (type *StorageLocationNotfound): Storage location not found
+//   - "not_found" (type *LocationNotFound): Storage location not found
 //   - "not_valid" (type *goa.ServiceError)
 //   - error: internal error
-func (c *Client) LocationPackages(ctx context.Context, p *LocationPackagesPayload) (res StoredStoragePackageCollection, err error) {
+func (c *Client) LocationPackages(ctx context.Context, p *LocationPackagesPayload) (res PackageCollection, err error) {
 	var ires interface{}
 	ires, err = c.LocationPackagesEndpoint(ctx, p)
 	if err != nil {
 		return
 	}
-	return ires.(StoredStoragePackageCollection), nil
+	return ires.(PackageCollection), nil
 }

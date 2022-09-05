@@ -14,68 +14,68 @@
 
 import { exists, mapValues } from '../runtime';
 /**
- * A StoredStoragePackage describes a package retrieved by the storage service. (default view)
+ * A Package describes a package retrieved by the storage service. (default view)
  * @export
- * @interface StoredStoragePackageResponse
+ * @interface PackageResponse
  */
-export interface StoredStoragePackageResponse {
+export interface PackageResponse {
     /**
      * 
      * @type {string}
-     * @memberof StoredStoragePackageResponse
+     * @memberof PackageResponse
      */
     aipId: string;
     /**
      * Creation datetime
      * @type {Date}
-     * @memberof StoredStoragePackageResponse
+     * @memberof PackageResponse
      */
     createdAt: Date;
     /**
      * 
      * @type {string}
-     * @memberof StoredStoragePackageResponse
+     * @memberof PackageResponse
      */
     locationId?: string;
     /**
      * 
      * @type {string}
-     * @memberof StoredStoragePackageResponse
+     * @memberof PackageResponse
      */
     name: string;
     /**
      * 
      * @type {string}
-     * @memberof StoredStoragePackageResponse
+     * @memberof PackageResponse
      */
     objectKey: string;
     /**
      * Status of the package
      * @type {string}
-     * @memberof StoredStoragePackageResponse
+     * @memberof PackageResponse
      */
-    status: StoredStoragePackageResponseStatusEnum;
+    status: PackageResponseStatusEnum;
 }
 
 
 /**
  * @export
  */
-export const StoredStoragePackageResponseStatusEnum = {
+export const PackageResponseStatusEnum = {
     Unspecified: 'unspecified',
     InReview: 'in_review',
     Rejected: 'rejected',
     Stored: 'stored',
     Moving: 'moving'
 } as const;
-export type StoredStoragePackageResponseStatusEnum = typeof StoredStoragePackageResponseStatusEnum[keyof typeof StoredStoragePackageResponseStatusEnum];
+export type PackageResponseStatusEnum = typeof PackageResponseStatusEnum[keyof typeof PackageResponseStatusEnum];
 
 
-export function StoredStoragePackageResponseFromJSON(json: any): StoredStoragePackageResponse {
-    return StoredStoragePackageResponseFromJSONTyped(json, false);
+export function PackageResponseFromJSON(json: any): PackageResponse {
+    return PackageResponseFromJSONTyped(json, false);
 }
 
-export function StoredStoragePackageResponseFromJSONTyped(json: any, ignoreDiscriminator: boolean): StoredStoragePackageResponse {
+export function PackageResponseFromJSONTyped(json: any, ignoreDiscriminator: boolean): PackageResponse {
     if ((json === undefined) || (json === null)) {
         return json;
     }
@@ -90,7 +90,7 @@ export function StoredStoragePackageResponseFromJSONTyped(json: any, ignoreDiscr
     };
 }
 
-export function StoredStoragePackageResponseToJSON(value?: StoredStoragePackageResponse | null): any {
+export function PackageResponseToJSON(value?: PackageResponse | null): any {
     if (value === undefined) {
         return undefined;
     }

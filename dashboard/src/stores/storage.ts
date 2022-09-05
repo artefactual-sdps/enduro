@@ -4,9 +4,9 @@ import { defineStore, acceptHMRUpdate } from "pinia";
 
 export const useStorageStore = defineStore("storage", {
   state: () => ({
-    locations: [] as Array<api.StoredLocationResponse>,
-    current: null as api.StoredLocationResponse | null,
-    current_packages: [] as Array<api.StoredStoragePackageResponse>,
+    locations: [] as Array<api.LocationResponse>,
+    current: null as api.LocationResponse | null,
+    current_packages: [] as Array<api.PackageResponse>,
   }),
   getters: {},
   actions: {

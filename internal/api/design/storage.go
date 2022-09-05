@@ -67,7 +67,7 @@ var _ = Service("storage", func() {
 	})
 	Method("locations", func() {
 		Description("List locations")
-		Result(CollectionOf(StoredLocation), func() { View("default") })
+		Result(CollectionOf(Location), func() { View("default") })
 		HTTP(func() {
 			GET("/location")
 			Response(StatusOK)
@@ -164,7 +164,7 @@ var _ = Service("storage", func() {
 			})
 			Required("aip_id")
 		})
-		Result(StoredStoragePackage)
+		Result(StoragePackage)
 		Error("not_found", StoragePackageNotFound, "Storage package not found")
 		HTTP(func() {
 			GET("/package/{aip_id}")
@@ -181,8 +181,8 @@ var _ = Service("storage", func() {
 			})
 			Required("uuid")
 		})
-		Result(StoredLocation)
-		Error("not_found", StorageLocationNotFound, "Storage location not found")
+		Result(Location)
+		Error("not_found", LocationNotFound, "Storage location not found")
 		HTTP(func() {
 			GET("/location/{uuid}")
 			Response(StatusOK)
@@ -198,8 +198,8 @@ var _ = Service("storage", func() {
 			})
 			Required("uuid")
 		})
-		Result(CollectionOf(StoredStoragePackage), func() { View("default") })
-		Error("not_found", StorageLocationNotFound, "Storage location not found")
+		Result(CollectionOf(StoragePackage), func() { View("default") })
+		Error("not_found", LocationNotFound, "Storage location not found")
 		Error("not_valid")
 		HTTP(func() {
 			GET("/location/{uuid}/packages")
@@ -215,10 +215,11 @@ var SubmitResult = Type("SubmitResult", func() {
 	Required("url")
 })
 
-var StoragePackageNotFound = Type("StoragePackageNotfound", func() {
+var StoragePackageNotFound = Type("StoragePackageNotFound", func() {
 	Description("Storage package not found.")
+	TypeName("PackageNotFound")
 	Attribute("message", String, "Message of error", func() {
-		Meta("struct:error:name")
+		Meta("struct:error:message")
 	})
 	Attribute("aip_id", String, "Identifier of missing package", func() {
 		Meta("struct:field:type", "uuid.UUID", "github.com/google/uuid")
@@ -226,8 +227,9 @@ var StoragePackageNotFound = Type("StoragePackageNotfound", func() {
 	Required("message", "aip_id")
 })
 
-var StorageLocationNotFound = Type("StorageLocationNotfound", func() {
+var LocationNotFound = Type("LocationNotFound", func() {
 	Description("Storage location not found.")
+	TypeName("LocationNotFound")
 	Attribute("message", String, "Message of error", func() {
 		Meta("struct:error:message")
 	})
@@ -237,19 +239,31 @@ var StorageLocationNotFound = Type("StorageLocationNotfound", func() {
 	Required("message", "uuid")
 })
 
-var StoredLocation = ResultType("application/vnd.enduro.stored-location", func() {
-	Description("A StoredLocation describes a location retrieved by the storage service.")
-	Reference(Location)
-	TypeName("StoredLocation")
+var Location = ResultType("application/vnd.enduro.storage-location", func() {
+	Description("A Location describes a location retrieved by the storage service.")
+	TypeName("Location")
 
 	Attributes(func() {
-		Attribute("name")
-		Attribute("description")
-		Attribute("source")
-		Attribute("purpose")
-		Attribute("uuid")
-		Attribute("config")
-		Attribute("created_at")
+		Attribute("name", String, "Name of location")
+		Attribute("description", String, "Description of the location")
+		Attribute("source", String, "Data source of the location", func() {
+			EnumLocationSource()
+			Default("unspecified")
+		})
+		Attribute("purpose", String, "Purpose of the location", func() {
+			EnumLocationPurpose()
+			Default("unspecified")
+		})
+		Attribute("uuid", String, func() {
+			Meta("struct:field:type", "uuid.UUID", "github.com/google/uuid")
+		})
+		OneOf("config", func() {
+			Attribute("s3", S3Config)
+		})
+		Attribute("created_at", String, "Creation datetime", func() {
+			Format(FormatDateTime)
+		})
+		Required("name", "source", "purpose", "uuid", "created_at")
 	})
 
 	View("default", func() {
@@ -260,8 +274,6 @@ var StoredLocation = ResultType("application/vnd.enduro.stored-location", func()
 		Attribute("uuid")
 		Attribute("created_at")
 	})
-
-	Required("name", "source", "purpose", "uuid", "created_at")
 })
 
 var EnumLocationSource = func() {
@@ -271,31 +283,6 @@ var EnumLocationSource = func() {
 var EnumLocationPurpose = func() {
 	Enum("unspecified", "aip_store")
 }
-
-var Location = Type("Location", func() {
-	Description("Location describes a physical entity used to store AIPs.")
-	Meta("type:generate:force", "storage")
-	Attribute("name", String, "Name of location")
-	Attribute("description", String, "Description of the location")
-	Attribute("source", String, "Data source of the location", func() {
-		EnumLocationSource()
-		Default("unspecified")
-	})
-	Attribute("purpose", String, "Purpose of the location", func() {
-		EnumLocationPurpose()
-		Default("unspecified")
-	})
-	Attribute("uuid", String, func() {
-		Meta("struct:field:type", "uuid.UUID", "github.com/google/uuid")
-	})
-	OneOf("config", func() {
-		Attribute("s3", S3Config)
-	})
-	Attribute("created_at", String, "Creation datetime", func() {
-		Format(FormatDateTime)
-	})
-	Required("name", "source", "purpose", "created_at")
-})
 
 var AddLocationResult = Type("AddLocationResult", func() {
 	Attribute("uuid", String)
@@ -307,18 +294,31 @@ var MoveStatusResult = Type("MoveStatusResult", func() {
 	Required("done")
 })
 
-var StoredStoragePackage = ResultType("application/vnd.enduro.stored-storage-package", func() {
-	Description("A StoredStoragePackage describes a package retrieved by the storage service.")
-	Reference(StoragePackage)
-	TypeName("StoredStoragePackage")
+var StoragePackage = ResultType("application/vnd.enduro.storage-package", func() {
+	Description("A Package describes a package retrieved by the storage service.")
+	TypeName("Package")
+
 	Attributes(func() {
-		Attribute("name")
-		Attribute("aip_id")
-		Attribute("status")
-		Attribute("object_key")
-		Attribute("location_id")
-		Attribute("created_at")
+		Attribute("name", String)
+		Attribute("aip_id", String, func() {
+			Meta("struct:field:type", "uuid.UUID", "github.com/google/uuid")
+		})
+		Attribute("status", String, "Status of the package", func() {
+			EnumStoragePackageStatus()
+			Default("unspecified")
+		})
+		Attribute("object_key", String, func() {
+			Meta("struct:field:type", "uuid.UUID", "github.com/google/uuid")
+		})
+		Attribute("location_id", String, func() {
+			Meta("struct:field:type", "uuid.UUID", "github.com/google/uuid")
+		})
+		Attribute("created_at", String, "Creation datetime", func() {
+			Format(FormatDateTime)
+		})
+		Required("name", "aip_id", "status", "object_key", "created_at")
 	})
+
 	View("default", func() {
 		Attribute("name")
 		Attribute("aip_id")
@@ -327,35 +327,11 @@ var StoredStoragePackage = ResultType("application/vnd.enduro.stored-storage-pac
 		Attribute("location_id")
 		Attribute("created_at")
 	})
-	Required("name", "aip_id", "status", "object_key", "created_at")
 })
 
 var EnumStoragePackageStatus = func() {
 	Enum("unspecified", "in_review", "rejected", "stored", "moving")
 }
-
-var StoragePackage = Type("StoragePackage", func() {
-	Description("Storage package describes a package of the storage service.")
-	Meta("type:generate:force", "storage")
-	Attribute("name", String)
-	Attribute("aip_id", String, func() {
-		Meta("struct:field:type", "uuid.UUID", "github.com/google/uuid")
-	})
-	Attribute("status", String, "Status of the package", func() {
-		EnumStoragePackageStatus()
-		Default("unspecified")
-	})
-	Attribute("object_key", String, func() {
-		Meta("struct:field:type", "uuid.UUID", "github.com/google/uuid")
-	})
-	Attribute("location_id", String, func() {
-		Meta("struct:field:type", "uuid.UUID", "github.com/google/uuid")
-	})
-	Attribute("created_at", String, "Creation datetime", func() {
-		Format(FormatDateTime)
-	})
-	Required("name", "aip_id", "status", "created_at")
-})
 
 var S3Config = Type("S3Config", func() {
 	ConvertTo(types.S3Config{})

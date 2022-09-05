@@ -53,7 +53,7 @@ type SubmitResponseBody struct {
 
 // LocationsResponseBody is the type of the "storage" service "locations"
 // endpoint HTTP response body.
-type LocationsResponseBody []*StoredLocationResponse
+type LocationsResponseBody []*LocationResponse
 
 // AddLocationResponseBody is the type of the "storage" service "add_location"
 // endpoint HTTP response body.
@@ -105,7 +105,7 @@ type ShowLocationResponseBody struct {
 
 // LocationPackagesResponseBody is the type of the "storage" service
 // "location_packages" endpoint HTTP response body.
-type LocationPackagesResponseBody []*StoredStoragePackageResponse
+type LocationPackagesResponseBody []*PackageResponse
 
 // SubmitNotAvailableResponseBody is the type of the "storage" service "submit"
 // endpoint HTTP response body for the "not_available" error.
@@ -366,8 +366,8 @@ type LocationPackagesNotFoundResponseBody struct {
 	UUID    *uuid.UUID `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
 }
 
-// StoredLocationResponse is used to define fields on response body types.
-type StoredLocationResponse struct {
+// LocationResponse is used to define fields on response body types.
+type LocationResponse struct {
 	// Name of location
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 	// Description of the location
@@ -388,8 +388,8 @@ type StoredLocationResponse struct {
 	CreatedAt *string `form:"created_at,omitempty" json:"created_at,omitempty" xml:"created_at,omitempty"`
 }
 
-// StoredStoragePackageResponse is used to define fields on response body types.
-type StoredStoragePackageResponse struct {
+// PackageResponse is used to define fields on response body types.
+type PackageResponse struct {
 	Name  *string    `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 	AipID *uuid.UUID `form:"aip_id,omitempty" json:"aip_id,omitempty" xml:"aip_id,omitempty"`
 	// Status of the package
@@ -518,8 +518,8 @@ func NewUpdateNotValid(body *UpdateNotValidResponseBody) *goa.ServiceError {
 
 // NewDownloadNotFound builds a storage service download endpoint not_found
 // error.
-func NewDownloadNotFound(body *DownloadNotFoundResponseBody) *storage.StoragePackageNotfound {
-	v := &storage.StoragePackageNotfound{
+func NewDownloadNotFound(body *DownloadNotFoundResponseBody) *storage.PackageNotFound {
+	v := &storage.PackageNotFound{
 		Message: *body.Message,
 		AipID:   *body.AipID,
 	}
@@ -527,12 +527,12 @@ func NewDownloadNotFound(body *DownloadNotFoundResponseBody) *storage.StoragePac
 	return v
 }
 
-// NewLocationsStoredLocationCollectionOK builds a "storage" service
-// "locations" endpoint result from a HTTP "OK" response.
-func NewLocationsStoredLocationCollectionOK(body LocationsResponseBody) storageviews.StoredLocationCollectionView {
-	v := make([]*storageviews.StoredLocationView, len(body))
+// NewLocationsLocationCollectionOK builds a "storage" service "locations"
+// endpoint result from a HTTP "OK" response.
+func NewLocationsLocationCollectionOK(body LocationsResponseBody) storageviews.LocationCollectionView {
+	v := make([]*storageviews.LocationView, len(body))
 	for i, val := range body {
-		v[i] = unmarshalStoredLocationResponseToStorageviewsStoredLocationView(val)
+		v[i] = unmarshalLocationResponseToStorageviewsLocationView(val)
 	}
 
 	return v
@@ -593,8 +593,8 @@ func NewMoveNotValid(body *MoveNotValidResponseBody) *goa.ServiceError {
 }
 
 // NewMoveNotFound builds a storage service move endpoint not_found error.
-func NewMoveNotFound(body *MoveNotFoundResponseBody) *storage.StoragePackageNotfound {
-	v := &storage.StoragePackageNotfound{
+func NewMoveNotFound(body *MoveNotFoundResponseBody) *storage.PackageNotFound {
+	v := &storage.PackageNotFound{
 		Message: *body.Message,
 		AipID:   *body.AipID,
 	}
@@ -629,8 +629,8 @@ func NewMoveStatusFailedDependency(body *MoveStatusFailedDependencyResponseBody)
 
 // NewMoveStatusNotFound builds a storage service move_status endpoint
 // not_found error.
-func NewMoveStatusNotFound(body *MoveStatusNotFoundResponseBody) *storage.StoragePackageNotfound {
-	v := &storage.StoragePackageNotfound{
+func NewMoveStatusNotFound(body *MoveStatusNotFoundResponseBody) *storage.PackageNotFound {
+	v := &storage.PackageNotFound{
 		Message: *body.Message,
 		AipID:   *body.AipID,
 	}
@@ -668,8 +668,8 @@ func NewRejectNotValid(body *RejectNotValidResponseBody) *goa.ServiceError {
 }
 
 // NewRejectNotFound builds a storage service reject endpoint not_found error.
-func NewRejectNotFound(body *RejectNotFoundResponseBody) *storage.StoragePackageNotfound {
-	v := &storage.StoragePackageNotfound{
+func NewRejectNotFound(body *RejectNotFoundResponseBody) *storage.PackageNotFound {
+	v := &storage.PackageNotFound{
 		Message: *body.Message,
 		AipID:   *body.AipID,
 	}
@@ -677,10 +677,10 @@ func NewRejectNotFound(body *RejectNotFoundResponseBody) *storage.StoragePackage
 	return v
 }
 
-// NewShowStoredStoragePackageOK builds a "storage" service "show" endpoint
-// result from a HTTP "OK" response.
-func NewShowStoredStoragePackageOK(body *ShowResponseBody) *storageviews.StoredStoragePackageView {
-	v := &storageviews.StoredStoragePackageView{
+// NewShowPackageOK builds a "storage" service "show" endpoint result from a
+// HTTP "OK" response.
+func NewShowPackageOK(body *ShowResponseBody) *storageviews.PackageView {
+	v := &storageviews.PackageView{
 		Name:       body.Name,
 		AipID:      body.AipID,
 		Status:     body.Status,
@@ -693,8 +693,8 @@ func NewShowStoredStoragePackageOK(body *ShowResponseBody) *storageviews.StoredS
 }
 
 // NewShowNotFound builds a storage service show endpoint not_found error.
-func NewShowNotFound(body *ShowNotFoundResponseBody) *storage.StoragePackageNotfound {
-	v := &storage.StoragePackageNotfound{
+func NewShowNotFound(body *ShowNotFoundResponseBody) *storage.PackageNotFound {
+	v := &storage.PackageNotFound{
 		Message: *body.Message,
 		AipID:   *body.AipID,
 	}
@@ -702,10 +702,10 @@ func NewShowNotFound(body *ShowNotFoundResponseBody) *storage.StoragePackageNotf
 	return v
 }
 
-// NewShowLocationStoredLocationOK builds a "storage" service "show_location"
+// NewShowLocationLocationOK builds a "storage" service "show_location"
 // endpoint result from a HTTP "OK" response.
-func NewShowLocationStoredLocationOK(body *ShowLocationResponseBody) *storageviews.StoredLocationView {
-	v := &storageviews.StoredLocationView{
+func NewShowLocationLocationOK(body *ShowLocationResponseBody) *storageviews.LocationView {
+	v := &storageviews.LocationView{
 		Name:        body.Name,
 		Description: body.Description,
 		Source:      body.Source,
@@ -727,8 +727,8 @@ func NewShowLocationStoredLocationOK(body *ShowLocationResponseBody) *storagevie
 
 // NewShowLocationNotFound builds a storage service show_location endpoint
 // not_found error.
-func NewShowLocationNotFound(body *ShowLocationNotFoundResponseBody) *storage.StorageLocationNotfound {
-	v := &storage.StorageLocationNotfound{
+func NewShowLocationNotFound(body *ShowLocationNotFoundResponseBody) *storage.LocationNotFound {
+	v := &storage.LocationNotFound{
 		Message: *body.Message,
 		UUID:    *body.UUID,
 	}
@@ -736,12 +736,12 @@ func NewShowLocationNotFound(body *ShowLocationNotFoundResponseBody) *storage.St
 	return v
 }
 
-// NewLocationPackagesStoredStoragePackageCollectionOK builds a "storage"
-// service "location_packages" endpoint result from a HTTP "OK" response.
-func NewLocationPackagesStoredStoragePackageCollectionOK(body LocationPackagesResponseBody) storageviews.StoredStoragePackageCollectionView {
-	v := make([]*storageviews.StoredStoragePackageView, len(body))
+// NewLocationPackagesPackageCollectionOK builds a "storage" service
+// "location_packages" endpoint result from a HTTP "OK" response.
+func NewLocationPackagesPackageCollectionOK(body LocationPackagesResponseBody) storageviews.PackageCollectionView {
+	v := make([]*storageviews.PackageView, len(body))
 	for i, val := range body {
-		v[i] = unmarshalStoredStoragePackageResponseToStorageviewsStoredStoragePackageView(val)
+		v[i] = unmarshalPackageResponseToStorageviewsPackageView(val)
 	}
 
 	return v
@@ -764,8 +764,8 @@ func NewLocationPackagesNotValid(body *LocationPackagesNotValidResponseBody) *go
 
 // NewLocationPackagesNotFound builds a storage service location_packages
 // endpoint not_found error.
-func NewLocationPackagesNotFound(body *LocationPackagesNotFoundResponseBody) *storage.StorageLocationNotfound {
-	v := &storage.StorageLocationNotfound{
+func NewLocationPackagesNotFound(body *LocationPackagesNotFoundResponseBody) *storage.LocationNotFound {
+	v := &storage.LocationNotFound{
 		Message: *body.Message,
 		UUID:    *body.UUID,
 	}
@@ -1147,9 +1147,8 @@ func ValidateLocationPackagesNotFoundResponseBody(body *LocationPackagesNotFound
 	return
 }
 
-// ValidateStoredLocationResponse runs the validations defined on
-// StoredLocationResponse
-func ValidateStoredLocationResponse(body *StoredLocationResponse) (err error) {
+// ValidateLocationResponse runs the validations defined on LocationResponse
+func ValidateLocationResponse(body *LocationResponse) (err error) {
 	if body.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
 	}
@@ -1194,9 +1193,8 @@ func ValidateStoredLocationResponse(body *StoredLocationResponse) (err error) {
 	return
 }
 
-// ValidateStoredStoragePackageResponse runs the validations defined on
-// StoredStoragePackageResponse
-func ValidateStoredStoragePackageResponse(body *StoredStoragePackageResponse) (err error) {
+// ValidatePackageResponse runs the validations defined on PackageResponse
+func ValidatePackageResponse(body *PackageResponse) (err error) {
 	if body.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
 	}

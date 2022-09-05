@@ -224,8 +224,9 @@ var StoredPackage = ResultType("application/vnd.enduro.stored-package", func() {
 	Required("id", "status", "created_at")
 })
 
-var PackageNotFound = Type("PackageNotfound", func() {
+var PackageNotFound = Type("PackageNotFound", func() {
 	Description("Package not found.")
+	TypeName("PackageNotFound")
 	Attribute("message", String, "Message of error", func() {
 		Meta("struct:error:message")
 	})

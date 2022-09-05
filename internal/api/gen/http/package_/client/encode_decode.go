@@ -204,7 +204,7 @@ func (c *Client) BuildShowRequest(ctx context.Context, v interface{}) (*http.Req
 // restored after having been read.
 // DecodeShowResponse may return the following errors:
 //   - "not_available" (type *goa.ServiceError): http.StatusConflict
-//   - "not_found" (type *package_.PackageNotfound): http.StatusNotFound
+//   - "not_found" (type *package_.PackageNotFound): http.StatusNotFound
 //   - error: internal error
 func DecodeShowResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
 	return func(resp *http.Response) (interface{}, error) {
@@ -303,7 +303,7 @@ func (c *Client) BuildPreservationActionsRequest(ctx context.Context, v interfac
 // by the package preservation_actions endpoint. restoreBody controls whether
 // the response body should be restored after having been read.
 // DecodePreservationActionsResponse may return the following errors:
-//   - "not_found" (type *package_.PackageNotfound): http.StatusNotFound
+//   - "not_found" (type *package_.PackageNotFound): http.StatusNotFound
 //   - error: internal error
 func DecodePreservationActionsResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
 	return func(resp *http.Response) (interface{}, error) {
@@ -405,7 +405,7 @@ func EncodeConfirmRequest(encoder func(*http.Request) goahttp.Encoder) func(*htt
 // DecodeConfirmResponse may return the following errors:
 //   - "not_available" (type *goa.ServiceError): http.StatusConflict
 //   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
-//   - "not_found" (type *package_.PackageNotfound): http.StatusNotFound
+//   - "not_found" (type *package_.PackageNotFound): http.StatusNotFound
 //   - error: internal error
 func DecodeConfirmResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
 	return func(resp *http.Response) (interface{}, error) {
@@ -504,7 +504,7 @@ func (c *Client) BuildRejectRequest(ctx context.Context, v interface{}) (*http.R
 // DecodeRejectResponse may return the following errors:
 //   - "not_available" (type *goa.ServiceError): http.StatusConflict
 //   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
-//   - "not_found" (type *package_.PackageNotfound): http.StatusNotFound
+//   - "not_found" (type *package_.PackageNotFound): http.StatusNotFound
 //   - error: internal error
 func DecodeRejectResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
 	return func(resp *http.Response) (interface{}, error) {
@@ -619,7 +619,7 @@ func EncodeMoveRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.R
 // DecodeMoveResponse may return the following errors:
 //   - "not_available" (type *goa.ServiceError): http.StatusConflict
 //   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
-//   - "not_found" (type *package_.PackageNotfound): http.StatusNotFound
+//   - "not_found" (type *package_.PackageNotFound): http.StatusNotFound
 //   - error: internal error
 func DecodeMoveResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
 	return func(resp *http.Response) (interface{}, error) {
@@ -717,7 +717,7 @@ func (c *Client) BuildMoveStatusRequest(ctx context.Context, v interface{}) (*ht
 // should be restored after having been read.
 // DecodeMoveStatusResponse may return the following errors:
 //   - "failed_dependency" (type *goa.ServiceError): http.StatusFailedDependency
-//   - "not_found" (type *package_.PackageNotfound): http.StatusNotFound
+//   - "not_found" (type *package_.PackageNotFound): http.StatusNotFound
 //   - error: internal error
 func DecodeMoveStatusResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
 	return func(resp *http.Response) (interface{}, error) {
