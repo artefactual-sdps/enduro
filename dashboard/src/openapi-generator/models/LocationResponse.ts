@@ -14,45 +14,45 @@
 
 import { exists, mapValues } from '../runtime';
 /**
- * A StoredLocation describes a location retrieved by the storage service. (default view)
+ * A Location describes a location retrieved by the storage service. (default view)
  * @export
- * @interface StoredLocationResponse
+ * @interface LocationResponse
  */
-export interface StoredLocationResponse {
+export interface LocationResponse {
     /**
      * Creation datetime
      * @type {Date}
-     * @memberof StoredLocationResponse
+     * @memberof LocationResponse
      */
     createdAt: Date;
     /**
      * Description of the location
      * @type {string}
-     * @memberof StoredLocationResponse
+     * @memberof LocationResponse
      */
     description?: string;
     /**
      * Name of location
      * @type {string}
-     * @memberof StoredLocationResponse
+     * @memberof LocationResponse
      */
     name: string;
     /**
      * Purpose of the location
      * @type {string}
-     * @memberof StoredLocationResponse
+     * @memberof LocationResponse
      */
-    purpose: StoredLocationResponsePurposeEnum;
+    purpose: LocationResponsePurposeEnum;
     /**
      * Data source of the location
      * @type {string}
-     * @memberof StoredLocationResponse
+     * @memberof LocationResponse
      */
-    source: StoredLocationResponseSourceEnum;
+    source: LocationResponseSourceEnum;
     /**
      * 
      * @type {string}
-     * @memberof StoredLocationResponse
+     * @memberof LocationResponse
      */
     uuid: string;
 }
@@ -61,27 +61,27 @@ export interface StoredLocationResponse {
 /**
  * @export
  */
-export const StoredLocationResponsePurposeEnum = {
+export const LocationResponsePurposeEnum = {
     Unspecified: 'unspecified',
     AipStore: 'aip_store'
 } as const;
-export type StoredLocationResponsePurposeEnum = typeof StoredLocationResponsePurposeEnum[keyof typeof StoredLocationResponsePurposeEnum];
+export type LocationResponsePurposeEnum = typeof LocationResponsePurposeEnum[keyof typeof LocationResponsePurposeEnum];
 
 /**
  * @export
  */
-export const StoredLocationResponseSourceEnum = {
+export const LocationResponseSourceEnum = {
     Unspecified: 'unspecified',
     Minio: 'minio'
 } as const;
-export type StoredLocationResponseSourceEnum = typeof StoredLocationResponseSourceEnum[keyof typeof StoredLocationResponseSourceEnum];
+export type LocationResponseSourceEnum = typeof LocationResponseSourceEnum[keyof typeof LocationResponseSourceEnum];
 
 
-export function StoredLocationResponseFromJSON(json: any): StoredLocationResponse {
-    return StoredLocationResponseFromJSONTyped(json, false);
+export function LocationResponseFromJSON(json: any): LocationResponse {
+    return LocationResponseFromJSONTyped(json, false);
 }
 
-export function StoredLocationResponseFromJSONTyped(json: any, ignoreDiscriminator: boolean): StoredLocationResponse {
+export function LocationResponseFromJSONTyped(json: any, ignoreDiscriminator: boolean): LocationResponse {
     if ((json === undefined) || (json === null)) {
         return json;
     }
@@ -96,7 +96,7 @@ export function StoredLocationResponseFromJSONTyped(json: any, ignoreDiscriminat
     };
 }
 
-export function StoredLocationResponseToJSON(value?: StoredLocationResponse | null): any {
+export function LocationResponseToJSON(value?: LocationResponse | null): any {
     if (value === undefined) {
         return undefined;
     }

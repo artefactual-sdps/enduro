@@ -51,9 +51,9 @@ type SubmitResponseBody struct {
 	URL string `form:"url" json:"url" xml:"url"`
 }
 
-// StoredLocationResponseCollection is the type of the "storage" service
-// "locations" endpoint HTTP response body.
-type StoredLocationResponseCollection []*StoredLocationResponse
+// LocationResponseCollection is the type of the "storage" service "locations"
+// endpoint HTTP response body.
+type LocationResponseCollection []*LocationResponse
 
 // AddLocationResponseBody is the type of the "storage" service "add_location"
 // endpoint HTTP response body.
@@ -359,8 +359,8 @@ type LocationPackagesNotFoundResponseBody struct {
 	UUID    uuid.UUID `form:"uuid" json:"uuid" xml:"uuid"`
 }
 
-// StoredLocationResponse is used to define fields on response body types.
-type StoredLocationResponse struct {
+// LocationResponse is used to define fields on response body types.
+type LocationResponse struct {
 	// Name of location
 	Name string `form:"name" json:"name" xml:"name"`
 	// Description of the location
@@ -395,12 +395,12 @@ func NewSubmitResponseBody(res *storage.SubmitResult) *SubmitResponseBody {
 	return body
 }
 
-// NewStoredLocationResponseCollection builds the HTTP response body from the
-// result of the "locations" endpoint of the "storage" service.
-func NewStoredLocationResponseCollection(res storageviews.StoredLocationCollectionView) StoredLocationResponseCollection {
-	body := make([]*StoredLocationResponse, len(res))
+// NewLocationResponseCollection builds the HTTP response body from the result
+// of the "locations" endpoint of the "storage" service.
+func NewLocationResponseCollection(res storageviews.LocationCollectionView) LocationResponseCollection {
+	body := make([]*LocationResponse, len(res))
 	for i, val := range res {
-		body[i] = marshalStorageviewsStoredLocationViewToStoredLocationResponse(val)
+		body[i] = marshalStorageviewsLocationViewToLocationResponse(val)
 	}
 	return body
 }
@@ -439,7 +439,7 @@ func NewShowResponseBody(res *storageviews.StoredStoragePackageView) *ShowRespon
 
 // NewShowLocationResponseBody builds the HTTP response body from the result of
 // the "show_location" endpoint of the "storage" service.
-func NewShowLocationResponseBody(res *storageviews.StoredLocationView) *ShowLocationResponseBody {
+func NewShowLocationResponseBody(res *storageviews.LocationView) *ShowLocationResponseBody {
 	body := &ShowLocationResponseBody{
 		Name:        *res.Name,
 		Description: res.Description,

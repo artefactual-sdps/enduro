@@ -142,17 +142,14 @@ func pkgAsGoa(ctx context.Context, pkg *db.Pkg) *goastorage.StoredStoragePackage
 	return p
 }
 
-func (c *Client) CreateLocation(ctx context.Context, location *goastorage.Location, config *types.LocationConfig) (*goastorage.StoredLocation, error) {
+func (c *Client) CreateLocation(ctx context.Context, location *goastorage.Location, config *types.LocationConfig) (*goastorage.Location, error) {
 	q := c.c.Location.Create()
 
 	q.SetName(location.Name)
 	q.SetDescription(ref.DerefZero(location.Description))
 	q.SetSource(types.NewLocationSource(location.Source))
 	q.SetPurpose(types.NewLocationPurpose(location.Purpose))
-
-	if location.UUID != nil {
-		q.SetUUID(*location.UUID)
-	}
+	q.SetUUID(location.UUID)
 
 	q.SetConfig(ref.DerefZero(config))
 
@@ -164,8 +161,8 @@ func (c *Client) CreateLocation(ctx context.Context, location *goastorage.Locati
 	return locationAsGoa(l), nil
 }
 
-func (c *Client) ListLocations(ctx context.Context) (goastorage.StoredLocationCollection, error) {
-	locations := []*goastorage.StoredLocation{}
+func (c *Client) ListLocations(ctx context.Context) (goastorage.LocationCollection, error) {
+	locations := []*goastorage.Location{}
 
 	res, err := c.c.Location.Query().All(ctx)
 	for _, item := range res {
@@ -175,7 +172,7 @@ func (c *Client) ListLocations(ctx context.Context) (goastorage.StoredLocationCo
 	return locations, err
 }
 
-func (c *Client) ReadLocation(ctx context.Context, locationID uuid.UUID) (*goastorage.StoredLocation, error) {
+func (c *Client) ReadLocation(ctx context.Context, locationID uuid.UUID) (*goastorage.Location, error) {
 	l, err := c.c.Location.Query().
 		Where(
 			location.UUID(locationID),
@@ -192,8 +189,8 @@ func (c *Client) ReadLocation(ctx context.Context, locationID uuid.UUID) (*goast
 	return locationAsGoa(l), nil
 }
 
-func locationAsGoa(loc *db.Location) *goastorage.StoredLocation {
-	l := &goastorage.StoredLocation{
+func locationAsGoa(loc *db.Location) *goastorage.Location {
+	l := &goastorage.Location{
 		Name:        loc.Name,
 		Description: &loc.Description,
 		Source:      loc.Source.String(),

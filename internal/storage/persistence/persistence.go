@@ -18,8 +18,8 @@ type Storage interface {
 	UpdatePackageLocationID(ctx context.Context, aipID, locationID uuid.UUID) error
 
 	// Location.
-	CreateLocation(ctx context.Context, location *goastorage.Location, config *types.LocationConfig) (*goastorage.StoredLocation, error)
-	ListLocations(ctx context.Context) (goastorage.StoredLocationCollection, error)
-	ReadLocation(ctx context.Context, locationID uuid.UUID) (*goastorage.StoredLocation, error)
+	CreateLocation(ctx context.Context, location *goastorage.Location, config *types.LocationConfig) (*goastorage.Location, error)
+	ListLocations(ctx context.Context) (goastorage.LocationCollection, error)
+	ReadLocation(ctx context.Context, locationID uuid.UUID) (*goastorage.Location, error)
 	LocationPackages(ctx context.Context, locationID uuid.UUID) (goastorage.StoredStoragePackageCollection, error)
 }

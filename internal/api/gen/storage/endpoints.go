@@ -96,7 +96,7 @@ func NewLocationsEndpoint(s Service) goa.Endpoint {
 		if err != nil {
 			return nil, err
 		}
-		vres := NewViewedStoredLocationCollection(res, "default")
+		vres := NewViewedLocationCollection(res, "default")
 		return vres, nil
 	}
 }
@@ -160,7 +160,7 @@ func NewShowLocationEndpoint(s Service) goa.Endpoint {
 		if err != nil {
 			return nil, err
 		}
-		vres := NewViewedStoredLocation(res, "default")
+		vres := NewViewedLocation(res, "default")
 		return vres, nil
 	}
 }

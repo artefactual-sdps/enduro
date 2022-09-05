@@ -114,10 +114,10 @@ func (mr *MockServiceMockRecorder) LocationPackages(arg0, arg1 interface{}) *gom
 }
 
 // Locations mocks base method.
-func (m *MockService) Locations(arg0 context.Context) (storage.StoredLocationCollection, error) {
+func (m *MockService) Locations(arg0 context.Context) (storage.LocationCollection, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Locations", arg0)
-	ret0, _ := ret[0].(storage.StoredLocationCollection)
+	ret0, _ := ret[0].(storage.LocationCollection)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -217,10 +217,10 @@ func (mr *MockServiceMockRecorder) Show(arg0, arg1 interface{}) *gomock.Call {
 }
 
 // ShowLocation mocks base method.
-func (m *MockService) ShowLocation(arg0 context.Context, arg1 *storage.ShowLocationPayload) (*storage.StoredLocation, error) {
+func (m *MockService) ShowLocation(arg0 context.Context, arg1 *storage.ShowLocationPayload) (*storage.Location, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ShowLocation", arg0, arg1)
-	ret0, _ := ret[0].(*storage.StoredLocation)
+	ret0, _ := ret[0].(*storage.Location)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

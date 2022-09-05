@@ -21,9 +21,9 @@ var DefaultInternalLocationFactory = func(config *LocationConfig) (Location, err
 	return NewInternalLocation(config)
 }
 
-type LocationFactory func(location *goastorage.StoredLocation) (Location, error)
+type LocationFactory func(location *goastorage.Location) (Location, error)
 
-var DefaultLocationFactory = func(location *goastorage.StoredLocation) (Location, error) {
+var DefaultLocationFactory = func(location *goastorage.Location) (Location, error) {
 	return NewLocation(location)
 }
 
@@ -54,7 +54,7 @@ func NewInternalLocation(config *LocationConfig) (*locationImpl, error) {
 	return l, nil
 }
 
-func NewLocation(location *goastorage.StoredLocation) (*locationImpl, error) {
+func NewLocation(location *goastorage.Location) (*locationImpl, error) {
 	l := &locationImpl{
 		id: location.UUID,
 	}

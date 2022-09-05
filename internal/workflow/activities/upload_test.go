@@ -20,13 +20,13 @@ type StorageService struct {
 	SubmitHandler           func(ctx context.Context, req *goastorage.SubmitPayload) (res *goastorage.SubmitResult, err error)
 	UpdateHandler           func(ctx context.Context, req *goastorage.UpdatePayload) (err error)
 	DownloadHandler         func(ctx context.Context, req *goastorage.DownloadPayload) (res []byte, err error)
-	LocationsHandler        func(ctx context.Context) (res goastorage.StoredLocationCollection, err error)
+	LocationsHandler        func(ctx context.Context) (res goastorage.LocationCollection, err error)
 	MoveHandler             func(ctx context.Context, req *goastorage.MovePayload) (err error)
 	MoveStatusHandler       func(ctx context.Context, req *goastorage.MoveStatusPayload) (res *goastorage.MoveStatusResult, err error)
 	RejectHandler           func(ctx context.Context, req *goastorage.RejectPayload) (err error)
 	ShowHandler             func(ctx context.Context, req *goastorage.ShowPayload) (res *goastorage.StoredStoragePackage, err error)
 	AddLocationHandler      func(ctx context.Context, req *goastorage.AddLocationPayload) (res *goastorage.AddLocationResult, err error)
-	ShowLocationHandler     func(ctx context.Context, req *goastorage.ShowLocationPayload) (res *goastorage.StoredLocation, err error)
+	ShowLocationHandler     func(ctx context.Context, req *goastorage.ShowLocationPayload) (res *goastorage.Location, err error)
 	LocationPackagesHandler func(ctx context.Context, req *goastorage.LocationPackagesPayload) (res goastorage.StoredStoragePackageCollection, err error)
 }
 
@@ -42,7 +42,7 @@ func (s StorageService) Download(ctx context.Context, req *goastorage.DownloadPa
 	return s.DownloadHandler(ctx, req)
 }
 
-func (s StorageService) Locations(ctx context.Context) (res goastorage.StoredLocationCollection, err error) {
+func (s StorageService) Locations(ctx context.Context) (res goastorage.LocationCollection, err error) {
 	return s.LocationsHandler(ctx)
 }
 
@@ -66,7 +66,7 @@ func (s StorageService) AddLocation(ctx context.Context, req *goastorage.AddLoca
 	return s.AddLocationHandler(ctx, req)
 }
 
-func (s StorageService) ShowLocation(ctx context.Context, req *goastorage.ShowLocationPayload) (res *goastorage.StoredLocation, err error) {
+func (s StorageService) ShowLocation(ctx context.Context, req *goastorage.ShowLocationPayload) (res *goastorage.Location, err error) {
 	return s.ShowLocationHandler(ctx, req)
 }
 

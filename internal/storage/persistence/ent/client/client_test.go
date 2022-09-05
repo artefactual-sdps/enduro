@@ -242,7 +242,7 @@ func TestCreateLocation(t *testing.T) {
 			Description: ref.New("location description"),
 			Source:      types.LocationSourceMinIO.String(),
 			Purpose:     types.LocationPurposeAIPStore.String(),
-			UUID:        ref.New(uuid.MustParse("7a090f2c-7bd4-471c-8aa1-8c72125decd5")),
+			UUID:        uuid.MustParse("7a090f2c-7bd4-471c-8aa1-8c72125decd5"),
 		},
 		&types.LocationConfig{
 			Value: &types.S3Config{
@@ -295,7 +295,7 @@ func TestListLocations(t *testing.T) {
 
 	locations, err := c.ListLocations(context.Background())
 	assert.NilError(t, err)
-	assert.DeepEqual(t, locations, goastorage.StoredLocationCollection{
+	assert.DeepEqual(t, locations, goastorage.LocationCollection{
 		{
 			Name:        "Location",
 			Description: ref.New("location"),
@@ -356,7 +356,7 @@ func TestReadLocation(t *testing.T) {
 
 		l, err := c.ReadLocation(context.Background(), uuid.MustParse("7a090f2c-7bd4-471c-8aa1-8c72125decd5"))
 		assert.NilError(t, err)
-		assert.DeepEqual(t, l, &goastorage.StoredLocation{
+		assert.DeepEqual(t, l, &goastorage.Location{
 			Name:        "test_location",
 			Description: ref.New("location description"),
 			Source:      types.LocationSourceMinIO.String(),

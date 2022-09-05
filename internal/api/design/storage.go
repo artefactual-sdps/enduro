@@ -67,7 +67,7 @@ var _ = Service("storage", func() {
 	})
 	Method("locations", func() {
 		Description("List locations")
-		Result(CollectionOf(StoredLocation), func() { View("default") })
+		Result(CollectionOf(Location), func() { View("default") })
 		HTTP(func() {
 			GET("/location")
 			Response(StatusOK)
@@ -181,7 +181,7 @@ var _ = Service("storage", func() {
 			})
 			Required("uuid")
 		})
-		Result(StoredLocation)
+		Result(Location)
 		Error("not_found", LocationNotFound, "Storage location not found")
 		HTTP(func() {
 			GET("/location/{uuid}")
@@ -239,19 +239,31 @@ var LocationNotFound = Type("LocationNotFound", func() {
 	Required("message", "uuid")
 })
 
-var StoredLocation = ResultType("application/vnd.enduro.stored-location", func() {
-	Description("A StoredLocation describes a location retrieved by the storage service.")
-	Reference(Location)
-	TypeName("StoredLocation")
+var Location = ResultType("application/vnd.enduro.stored-location", func() {
+	Description("A Location describes a location retrieved by the storage service.")
+	TypeName("Location")
 
 	Attributes(func() {
-		Attribute("name")
-		Attribute("description")
-		Attribute("source")
-		Attribute("purpose")
-		Attribute("uuid")
-		Attribute("config")
-		Attribute("created_at")
+		Attribute("name", String, "Name of location")
+		Attribute("description", String, "Description of the location")
+		Attribute("source", String, "Data source of the location", func() {
+			EnumLocationSource()
+			Default("unspecified")
+		})
+		Attribute("purpose", String, "Purpose of the location", func() {
+			EnumLocationPurpose()
+			Default("unspecified")
+		})
+		Attribute("uuid", String, func() {
+			Meta("struct:field:type", "uuid.UUID", "github.com/google/uuid")
+		})
+		OneOf("config", func() {
+			Attribute("s3", S3Config)
+		})
+		Attribute("created_at", String, "Creation datetime", func() {
+			Format(FormatDateTime)
+		})
+		Required("name", "source", "purpose", "uuid", "created_at")
 	})
 
 	View("default", func() {
@@ -262,8 +274,6 @@ var StoredLocation = ResultType("application/vnd.enduro.stored-location", func()
 		Attribute("uuid")
 		Attribute("created_at")
 	})
-
-	Required("name", "source", "purpose", "uuid", "created_at")
 })
 
 var EnumLocationSource = func() {
@@ -273,31 +283,6 @@ var EnumLocationSource = func() {
 var EnumLocationPurpose = func() {
 	Enum("unspecified", "aip_store")
 }
-
-var Location = Type("Location", func() {
-	Description("Location describes a physical entity used to store AIPs.")
-	Meta("type:generate:force", "storage")
-	Attribute("name", String, "Name of location")
-	Attribute("description", String, "Description of the location")
-	Attribute("source", String, "Data source of the location", func() {
-		EnumLocationSource()
-		Default("unspecified")
-	})
-	Attribute("purpose", String, "Purpose of the location", func() {
-		EnumLocationPurpose()
-		Default("unspecified")
-	})
-	Attribute("uuid", String, func() {
-		Meta("struct:field:type", "uuid.UUID", "github.com/google/uuid")
-	})
-	OneOf("config", func() {
-		Attribute("s3", S3Config)
-	})
-	Attribute("created_at", String, "Creation datetime", func() {
-		Format(FormatDateTime)
-	})
-	Required("name", "source", "purpose", "created_at")
-})
 
 var AddLocationResult = Type("AddLocationResult", func() {
 	Attribute("uuid", String)

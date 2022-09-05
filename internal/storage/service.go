@@ -25,13 +25,13 @@ type Service interface {
 	Submit(context.Context, *goastorage.SubmitPayload) (res *goastorage.SubmitResult, err error)
 	Update(context.Context, *goastorage.UpdatePayload) (err error)
 	Download(context.Context, *goastorage.DownloadPayload) ([]byte, error)
-	Locations(context.Context) (res goastorage.StoredLocationCollection, err error)
+	Locations(context.Context) (res goastorage.LocationCollection, err error)
 	Move(context.Context, *goastorage.MovePayload) (err error)
 	MoveStatus(context.Context, *goastorage.MoveStatusPayload) (res *goastorage.MoveStatusResult, err error)
 	Reject(context.Context, *goastorage.RejectPayload) (err error)
 	Show(context.Context, *goastorage.ShowPayload) (res *goastorage.StoredStoragePackage, err error)
 	AddLocation(context.Context, *goastorage.AddLocationPayload) (res *goastorage.AddLocationResult, err error)
-	ShowLocation(context.Context, *goastorage.ShowLocationPayload) (res *goastorage.StoredLocation, err error)
+	ShowLocation(context.Context, *goastorage.ShowLocationPayload) (res *goastorage.Location, err error)
 	LocationPackages(context.Context, *goastorage.LocationPackagesPayload) (res goastorage.StoredStoragePackageCollection, err error)
 
 	// Used from workflow activities.
@@ -158,7 +158,7 @@ func (s *serviceImpl) Download(ctx context.Context, payload *goastorage.Download
 	return []byte{}, nil
 }
 
-func (s *serviceImpl) Locations(ctx context.Context) (goastorage.StoredLocationCollection, error) {
+func (s *serviceImpl) Locations(ctx context.Context) (goastorage.LocationCollection, error) {
 	return s.storagePersistence.ListLocations(ctx)
 }
 
@@ -313,7 +313,7 @@ func (s *serviceImpl) AddLocation(ctx context.Context, payload *goastorage.AddLo
 		Description: payload.Description,
 		Source:      source.String(),
 		Purpose:     purpose.String(),
-		UUID:        &UUID,
+		UUID:        UUID,
 	}, &config)
 	if err != nil {
 		return nil, goastorage.MakeNotValid(errors.New("cannot persist location"))
@@ -322,11 +322,11 @@ func (s *serviceImpl) AddLocation(ctx context.Context, payload *goastorage.AddLo
 	return &goastorage.AddLocationResult{UUID: UUID.String()}, nil
 }
 
-func (s *serviceImpl) ReadLocation(ctx context.Context, UUID uuid.UUID) (*goastorage.StoredLocation, error) {
+func (s *serviceImpl) ReadLocation(ctx context.Context, UUID uuid.UUID) (*goastorage.Location, error) {
 	return s.storagePersistence.ReadLocation(ctx, UUID)
 }
 
-func (s *serviceImpl) ShowLocation(ctx context.Context, payload *goastorage.ShowLocationPayload) (*goastorage.StoredLocation, error) {
+func (s *serviceImpl) ShowLocation(ctx context.Context, payload *goastorage.ShowLocationPayload) (*goastorage.Location, error) {
 	locationID, err := uuid.Parse(payload.UUID)
 	if err != nil {
 		return nil, goastorage.MakeNotValid(errors.New("cannot perform operation"))

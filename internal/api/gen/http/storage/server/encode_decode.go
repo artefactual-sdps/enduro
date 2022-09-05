@@ -251,9 +251,9 @@ func EncodeDownloadError(encoder func(context.Context, http.ResponseWriter) goah
 // storage locations endpoint.
 func EncodeLocationsResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
 	return func(ctx context.Context, w http.ResponseWriter, v interface{}) error {
-		res := v.(storageviews.StoredLocationCollection)
+		res := v.(storageviews.LocationCollection)
 		enc := encoder(ctx, w)
-		body := NewStoredLocationResponseCollection(res.Projected)
+		body := NewLocationResponseCollection(res.Projected)
 		w.WriteHeader(http.StatusOK)
 		return enc.Encode(body)
 	}
@@ -655,7 +655,7 @@ func EncodeShowError(encoder func(context.Context, http.ResponseWriter) goahttp.
 // storage show_location endpoint.
 func EncodeShowLocationResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
 	return func(ctx context.Context, w http.ResponseWriter, v interface{}) error {
-		res := v.(*storageviews.StoredLocation)
+		res := v.(*storageviews.Location)
 		enc := encoder(ctx, w)
 		body := NewShowLocationResponseBody(res.Projected)
 		w.WriteHeader(http.StatusOK)
@@ -790,11 +790,10 @@ func EncodeLocationPackagesError(encoder func(context.Context, http.ResponseWrit
 	}
 }
 
-// marshalStorageviewsStoredLocationViewToStoredLocationResponse builds a value
-// of type *StoredLocationResponse from a value of type
-// *storageviews.StoredLocationView.
-func marshalStorageviewsStoredLocationViewToStoredLocationResponse(v *storageviews.StoredLocationView) *StoredLocationResponse {
-	res := &StoredLocationResponse{
+// marshalStorageviewsLocationViewToLocationResponse builds a value of type
+// *LocationResponse from a value of type *storageviews.LocationView.
+func marshalStorageviewsLocationViewToLocationResponse(v *storageviews.LocationView) *LocationResponse {
+	res := &LocationResponse{
 		Name:        *v.Name,
 		Description: v.Description,
 		Source:      *v.Source,

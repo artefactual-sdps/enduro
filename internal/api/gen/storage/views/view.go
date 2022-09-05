@@ -13,11 +13,11 @@ import (
 	goa "goa.design/goa/v3/pkg"
 )
 
-// StoredLocationCollection is the viewed result type that is projected based
-// on a view.
-type StoredLocationCollection struct {
+// LocationCollection is the viewed result type that is projected based on a
+// view.
+type LocationCollection struct {
 	// Type to project
-	Projected StoredLocationCollectionView
+	Projected LocationCollectionView
 	// View to render
 	View string
 }
@@ -31,10 +31,10 @@ type StoredStoragePackage struct {
 	View string
 }
 
-// StoredLocation is the viewed result type that is projected based on a view.
-type StoredLocation struct {
+// Location is the viewed result type that is projected based on a view.
+type Location struct {
 	// Type to project
-	Projected *StoredLocationView
+	Projected *LocationView
 	// View to render
 	View string
 }
@@ -48,12 +48,11 @@ type StoredStoragePackageCollection struct {
 	View string
 }
 
-// StoredLocationCollectionView is a type that runs validations on a projected
-// type.
-type StoredLocationCollectionView []*StoredLocationView
+// LocationCollectionView is a type that runs validations on a projected type.
+type LocationCollectionView []*LocationView
 
-// StoredLocationView is a type that runs validations on a projected type.
-type StoredLocationView struct {
+// LocationView is a type that runs validations on a projected type.
+type LocationView struct {
 	// Name of location
 	Name *string
 	// Description of the location
@@ -101,9 +100,9 @@ type StoredStoragePackageCollectionView []*StoredStoragePackageView
 func (*S3ConfigView) configVal() {}
 
 var (
-	// StoredLocationCollectionMap is a map indexing the attribute names of
-	// StoredLocationCollection by view name.
-	StoredLocationCollectionMap = map[string][]string{
+	// LocationCollectionMap is a map indexing the attribute names of
+	// LocationCollection by view name.
+	LocationCollectionMap = map[string][]string{
 		"default": {
 			"name",
 			"description",
@@ -125,9 +124,8 @@ var (
 			"created_at",
 		},
 	}
-	// StoredLocationMap is a map indexing the attribute names of StoredLocation by
-	// view name.
-	StoredLocationMap = map[string][]string{
+	// LocationMap is a map indexing the attribute names of Location by view name.
+	LocationMap = map[string][]string{
 		"default": {
 			"name",
 			"description",
@@ -151,12 +149,12 @@ var (
 	}
 )
 
-// ValidateStoredLocationCollection runs the validations defined on the viewed
-// result type StoredLocationCollection.
-func ValidateStoredLocationCollection(result StoredLocationCollection) (err error) {
+// ValidateLocationCollection runs the validations defined on the viewed result
+// type LocationCollection.
+func ValidateLocationCollection(result LocationCollection) (err error) {
 	switch result.View {
 	case "default", "":
-		err = ValidateStoredLocationCollectionView(result.Projected)
+		err = ValidateLocationCollectionView(result.Projected)
 	default:
 		err = goa.InvalidEnumValueError("view", result.View, []interface{}{"default"})
 	}
@@ -175,12 +173,12 @@ func ValidateStoredStoragePackage(result *StoredStoragePackage) (err error) {
 	return
 }
 
-// ValidateStoredLocation runs the validations defined on the viewed result
-// type StoredLocation.
-func ValidateStoredLocation(result *StoredLocation) (err error) {
+// ValidateLocation runs the validations defined on the viewed result type
+// Location.
+func ValidateLocation(result *Location) (err error) {
 	switch result.View {
 	case "default", "":
-		err = ValidateStoredLocationView(result.Projected)
+		err = ValidateLocationView(result.Projected)
 	default:
 		err = goa.InvalidEnumValueError("view", result.View, []interface{}{"default"})
 	}
@@ -199,20 +197,20 @@ func ValidateStoredStoragePackageCollection(result StoredStoragePackageCollectio
 	return
 }
 
-// ValidateStoredLocationCollectionView runs the validations defined on
-// StoredLocationCollectionView using the "default" view.
-func ValidateStoredLocationCollectionView(result StoredLocationCollectionView) (err error) {
+// ValidateLocationCollectionView runs the validations defined on
+// LocationCollectionView using the "default" view.
+func ValidateLocationCollectionView(result LocationCollectionView) (err error) {
 	for _, item := range result {
-		if err2 := ValidateStoredLocationView(item); err2 != nil {
+		if err2 := ValidateLocationView(item); err2 != nil {
 			err = goa.MergeErrors(err, err2)
 		}
 	}
 	return
 }
 
-// ValidateStoredLocationView runs the validations defined on
-// StoredLocationView using the "default" view.
-func ValidateStoredLocationView(result *StoredLocationView) (err error) {
+// ValidateLocationView runs the validations defined on LocationView using the
+// "default" view.
+func ValidateLocationView(result *LocationView) (err error) {
 	if result.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("name", "result"))
 	}

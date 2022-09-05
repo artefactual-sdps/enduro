@@ -337,13 +337,13 @@ func DecodeLocationsResponse(decoder func(*http.Response) goahttp.Decoder, resto
 			if err != nil {
 				return nil, goahttp.ErrDecodingError("storage", "locations", err)
 			}
-			p := NewLocationsStoredLocationCollectionOK(body)
+			p := NewLocationsLocationCollectionOK(body)
 			view := "default"
-			vres := storageviews.StoredLocationCollection{Projected: p, View: view}
-			if err = storageviews.ValidateStoredLocationCollection(vres); err != nil {
+			vres := storageviews.LocationCollection{Projected: p, View: view}
+			if err = storageviews.ValidateLocationCollection(vres); err != nil {
 				return nil, goahttp.ErrValidationError("storage", "locations", err)
 			}
-			res := storage.NewStoredLocationCollection(vres)
+			res := storage.NewLocationCollection(vres)
 			return res, nil
 		default:
 			body, _ := io.ReadAll(resp.Body)
@@ -890,13 +890,13 @@ func DecodeShowLocationResponse(decoder func(*http.Response) goahttp.Decoder, re
 			if err != nil {
 				return nil, goahttp.ErrDecodingError("storage", "show_location", err)
 			}
-			p := NewShowLocationStoredLocationOK(&body)
+			p := NewShowLocationLocationOK(&body)
 			view := "default"
-			vres := &storageviews.StoredLocation{Projected: p, View: view}
-			if err = storageviews.ValidateStoredLocation(vres); err != nil {
+			vres := &storageviews.Location{Projected: p, View: view}
+			if err = storageviews.ValidateLocation(vres); err != nil {
 				return nil, goahttp.ErrValidationError("storage", "show_location", err)
 			}
-			res := storage.NewStoredLocation(vres)
+			res := storage.NewLocation(vres)
 			return res, nil
 		case http.StatusNotFound:
 			var (
@@ -1018,11 +1018,10 @@ func DecodeLocationPackagesResponse(decoder func(*http.Response) goahttp.Decoder
 	}
 }
 
-// unmarshalStoredLocationResponseToStorageviewsStoredLocationView builds a
-// value of type *storageviews.StoredLocationView from a value of type
-// *StoredLocationResponse.
-func unmarshalStoredLocationResponseToStorageviewsStoredLocationView(v *StoredLocationResponse) *storageviews.StoredLocationView {
-	res := &storageviews.StoredLocationView{
+// unmarshalLocationResponseToStorageviewsLocationView builds a value of type
+// *storageviews.LocationView from a value of type *LocationResponse.
+func unmarshalLocationResponseToStorageviewsLocationView(v *LocationResponse) *storageviews.LocationView {
+	res := &storageviews.LocationView{
 		Name:        v.Name,
 		Description: v.Description,
 		Source:      v.Source,

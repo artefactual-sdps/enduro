@@ -296,7 +296,7 @@ paths:
                 "200":
                     description: OK response.
                     schema:
-                        $ref: '#/definitions/StorageStoredLocationResponseCollection'
+                        $ref: '#/definitions/StorageLocationResponseCollection'
             schemes:
                 - http
         post:
@@ -1271,6 +1271,56 @@ definitions:
               started_at: "2014-04-06T09:10:17Z"
               status: abandoned
               workflow_id: 8889A6C4-91BF-D1D9-EC2A-DD7F1D616B8A
+    LocationResponse:
+        title: 'Mediatype identifier: application/vnd.enduro.stored-location; view=default'
+        type: object
+        properties:
+            created_at:
+                type: string
+                description: Creation datetime
+                example: "2006-05-20T22:50:16Z"
+                format: date-time
+            description:
+                type: string
+                description: Description of the location
+                example: Aliquam et eos ad vel quia fuga.
+            name:
+                type: string
+                description: Name of location
+                example: Est voluptatem vel.
+            purpose:
+                type: string
+                description: Purpose of the location
+                default: unspecified
+                example: unspecified
+                enum:
+                    - unspecified
+                    - aip_store
+            source:
+                type: string
+                description: Data source of the location
+                default: unspecified
+                example: unspecified
+                enum:
+                    - unspecified
+                    - minio
+            uuid:
+                type: string
+                example: Quia et nihil et.
+        description: A Location describes a location retrieved by the storage service. (default view)
+        example:
+            created_at: "2006-07-23T01:16:17Z"
+            description: Sed aperiam sed qui id impedit.
+            name: Dolores cupiditate impedit adipisci.
+            purpose: aip_store
+            source: minio
+            uuid: A quia quia quo.
+        required:
+            - name
+            - source
+            - purpose
+            - uuid
+            - created_at
     PackageConfirmNotAvailableResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
@@ -2250,6 +2300,37 @@ definitions:
             - temporary
             - timeout
             - fault
+    StorageLocationResponseCollection:
+        title: 'Mediatype identifier: application/vnd.enduro.stored-location; type=collection; view=default'
+        type: array
+        items:
+            $ref: '#/definitions/LocationResponse'
+        description: LocationsResponseBody is the result type for an array of LocationResponse (default view)
+        example:
+            - created_at: "1986-11-11T02:54:34Z"
+              description: Officia voluptate.
+              name: Cumque qui facilis omnis.
+              purpose: unspecified
+              source: unspecified
+              uuid: Est qui cum nihil quis.
+            - created_at: "1986-11-11T02:54:34Z"
+              description: Officia voluptate.
+              name: Cumque qui facilis omnis.
+              purpose: unspecified
+              source: unspecified
+              uuid: Est qui cum nihil quis.
+            - created_at: "1986-11-11T02:54:34Z"
+              description: Officia voluptate.
+              name: Cumque qui facilis omnis.
+              purpose: unspecified
+              source: unspecified
+              uuid: Est qui cum nihil quis.
+            - created_at: "1986-11-11T02:54:34Z"
+              description: Officia voluptate.
+              name: Cumque qui facilis omnis.
+              purpose: unspecified
+              source: unspecified
+              uuid: Est qui cum nihil quis.
     StorageMoveNotAvailableResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
@@ -2677,37 +2758,6 @@ definitions:
             - status
             - object_key
             - created_at
-    StorageStoredLocationResponseCollection:
-        title: 'Mediatype identifier: application/vnd.enduro.stored-location; type=collection; view=default'
-        type: array
-        items:
-            $ref: '#/definitions/StoredLocationResponse'
-        description: LocationsResponseBody is the result type for an array of StoredLocationResponse (default view)
-        example:
-            - created_at: "1986-11-11T02:54:34Z"
-              description: Officia voluptate.
-              name: Cumque qui facilis omnis.
-              purpose: unspecified
-              source: unspecified
-              uuid: Est qui cum nihil quis.
-            - created_at: "1986-11-11T02:54:34Z"
-              description: Officia voluptate.
-              name: Cumque qui facilis omnis.
-              purpose: unspecified
-              source: unspecified
-              uuid: Est qui cum nihil quis.
-            - created_at: "1986-11-11T02:54:34Z"
-              description: Officia voluptate.
-              name: Cumque qui facilis omnis.
-              purpose: unspecified
-              source: unspecified
-              uuid: Est qui cum nihil quis.
-            - created_at: "1986-11-11T02:54:34Z"
-              description: Officia voluptate.
-              name: Cumque qui facilis omnis.
-              purpose: unspecified
-              source: unspecified
-              uuid: Est qui cum nihil quis.
     StorageStoredStoragePackageResponseCollection:
         title: 'Mediatype identifier: application/vnd.enduro.stored-storage-package; type=collection; view=default'
         type: array
@@ -2921,56 +2971,6 @@ definitions:
             - temporary
             - timeout
             - fault
-    StoredLocationResponse:
-        title: 'Mediatype identifier: application/vnd.enduro.stored-location; view=default'
-        type: object
-        properties:
-            created_at:
-                type: string
-                description: Creation datetime
-                example: "2006-05-20T22:50:16Z"
-                format: date-time
-            description:
-                type: string
-                description: Description of the location
-                example: Aliquam et eos ad vel quia fuga.
-            name:
-                type: string
-                description: Name of location
-                example: Est voluptatem vel.
-            purpose:
-                type: string
-                description: Purpose of the location
-                default: unspecified
-                example: unspecified
-                enum:
-                    - unspecified
-                    - aip_store
-            source:
-                type: string
-                description: Data source of the location
-                default: unspecified
-                example: unspecified
-                enum:
-                    - unspecified
-                    - minio
-            uuid:
-                type: string
-                example: Quia et nihil et.
-        description: A StoredLocation describes a location retrieved by the storage service. (default view)
-        example:
-            created_at: "2006-07-23T01:16:17Z"
-            description: Sed aperiam sed qui id impedit.
-            name: Dolores cupiditate impedit adipisci.
-            purpose: aip_store
-            source: minio
-            uuid: A quia quia quo.
-        required:
-            - name
-            - source
-            - purpose
-            - uuid
-            - created_at
     StoredStoragePackageResponse:
         title: 'Mediatype identifier: application/vnd.enduro.stored-storage-package; view=default'
         type: object

@@ -38,10 +38,10 @@ func (m *MockStorage) EXPECT() *MockStorageMockRecorder {
 }
 
 // CreateLocation mocks base method.
-func (m *MockStorage) CreateLocation(arg0 context.Context, arg1 *storage.Location, arg2 *types.LocationConfig) (*storage.StoredLocation, error) {
+func (m *MockStorage) CreateLocation(arg0 context.Context, arg1 *storage.Location, arg2 *types.LocationConfig) (*storage.Location, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateLocation", arg0, arg1, arg2)
-	ret0, _ := ret[0].(*storage.StoredLocation)
+	ret0, _ := ret[0].(*storage.Location)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -68,10 +68,10 @@ func (mr *MockStorageMockRecorder) CreatePackage(arg0, arg1 interface{}) *gomock
 }
 
 // ListLocations mocks base method.
-func (m *MockStorage) ListLocations(arg0 context.Context) (storage.StoredLocationCollection, error) {
+func (m *MockStorage) ListLocations(arg0 context.Context) (storage.LocationCollection, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListLocations", arg0)
-	ret0, _ := ret[0].(storage.StoredLocationCollection)
+	ret0, _ := ret[0].(storage.LocationCollection)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -113,10 +113,10 @@ func (mr *MockStorageMockRecorder) LocationPackages(arg0, arg1 interface{}) *gom
 }
 
 // ReadLocation mocks base method.
-func (m *MockStorage) ReadLocation(arg0 context.Context, arg1 uuid.UUID) (*storage.StoredLocation, error) {
+func (m *MockStorage) ReadLocation(arg0 context.Context, arg1 uuid.UUID) (*storage.Location, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ReadLocation", arg0, arg1)
-	ret0, _ := ret[0].(*storage.StoredLocation)
+	ret0, _ := ret[0].(*storage.Location)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

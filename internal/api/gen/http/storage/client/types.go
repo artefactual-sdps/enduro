@@ -53,7 +53,7 @@ type SubmitResponseBody struct {
 
 // LocationsResponseBody is the type of the "storage" service "locations"
 // endpoint HTTP response body.
-type LocationsResponseBody []*StoredLocationResponse
+type LocationsResponseBody []*LocationResponse
 
 // AddLocationResponseBody is the type of the "storage" service "add_location"
 // endpoint HTTP response body.
@@ -366,8 +366,8 @@ type LocationPackagesNotFoundResponseBody struct {
 	UUID    *uuid.UUID `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
 }
 
-// StoredLocationResponse is used to define fields on response body types.
-type StoredLocationResponse struct {
+// LocationResponse is used to define fields on response body types.
+type LocationResponse struct {
 	// Name of location
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 	// Description of the location
@@ -527,12 +527,12 @@ func NewDownloadNotFound(body *DownloadNotFoundResponseBody) *storage.PackageNot
 	return v
 }
 
-// NewLocationsStoredLocationCollectionOK builds a "storage" service
-// "locations" endpoint result from a HTTP "OK" response.
-func NewLocationsStoredLocationCollectionOK(body LocationsResponseBody) storageviews.StoredLocationCollectionView {
-	v := make([]*storageviews.StoredLocationView, len(body))
+// NewLocationsLocationCollectionOK builds a "storage" service "locations"
+// endpoint result from a HTTP "OK" response.
+func NewLocationsLocationCollectionOK(body LocationsResponseBody) storageviews.LocationCollectionView {
+	v := make([]*storageviews.LocationView, len(body))
 	for i, val := range body {
-		v[i] = unmarshalStoredLocationResponseToStorageviewsStoredLocationView(val)
+		v[i] = unmarshalLocationResponseToStorageviewsLocationView(val)
 	}
 
 	return v
@@ -702,10 +702,10 @@ func NewShowNotFound(body *ShowNotFoundResponseBody) *storage.PackageNotFound {
 	return v
 }
 
-// NewShowLocationStoredLocationOK builds a "storage" service "show_location"
+// NewShowLocationLocationOK builds a "storage" service "show_location"
 // endpoint result from a HTTP "OK" response.
-func NewShowLocationStoredLocationOK(body *ShowLocationResponseBody) *storageviews.StoredLocationView {
-	v := &storageviews.StoredLocationView{
+func NewShowLocationLocationOK(body *ShowLocationResponseBody) *storageviews.LocationView {
+	v := &storageviews.LocationView{
 		Name:        body.Name,
 		Description: body.Description,
 		Source:      body.Source,
@@ -1147,9 +1147,8 @@ func ValidateLocationPackagesNotFoundResponseBody(body *LocationPackagesNotFound
 	return
 }
 
-// ValidateStoredLocationResponse runs the validations defined on
-// StoredLocationResponse
-func ValidateStoredLocationResponse(body *StoredLocationResponse) (err error) {
+// ValidateLocationResponse runs the validations defined on LocationResponse
+func ValidateLocationResponse(body *LocationResponse) (err error) {
 	if body.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
 	}

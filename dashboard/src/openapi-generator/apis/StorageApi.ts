@@ -15,6 +15,9 @@
 
 import * as runtime from '../runtime';
 import {
+    LocationResponse,
+    LocationResponseFromJSON,
+    LocationResponseToJSON,
     StorageAddLocationNotValidResponseBody,
     StorageAddLocationNotValidResponseBodyFromJSON,
     StorageAddLocationNotValidResponseBodyToJSON,
@@ -93,9 +96,6 @@ import {
     StorageUpdateNotValidResponseBody,
     StorageUpdateNotValidResponseBodyFromJSON,
     StorageUpdateNotValidResponseBodyToJSON,
-    StoredLocationResponse,
-    StoredLocationResponseFromJSON,
-    StoredLocationResponseToJSON,
     StoredStoragePackageResponse,
     StoredStoragePackageResponseFromJSON,
     StoredStoragePackageResponseToJSON,
@@ -205,13 +205,13 @@ export interface StorageApiInterface {
      * @throws {RequiredError}
      * @memberof StorageApiInterface
      */
-    storageLocationsRaw(initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<Array<StoredLocationResponse>>>;
+    storageLocationsRaw(initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<Array<LocationResponse>>>;
 
     /**
      * List locations
      * locations storage
      */
-    storageLocations(initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<Array<StoredLocationResponse>>;
+    storageLocations(initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<Array<LocationResponse>>;
 
     /**
      * Move a package to a permanent storage location
@@ -437,7 +437,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
      * List locations
      * locations storage
      */
-    async storageLocationsRaw(initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<Array<StoredLocationResponse>>> {
+    async storageLocationsRaw(initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<Array<LocationResponse>>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -449,14 +449,14 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(StoredLocationResponseFromJSON));
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(LocationResponseFromJSON));
     }
 
     /**
      * List locations
      * locations storage
      */
-    async storageLocations(initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<Array<StoredLocationResponse>> {
+    async storageLocations(initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<Array<LocationResponse>> {
         const response = await this.storageLocationsRaw(initOverrides);
         return await response.value();
     }

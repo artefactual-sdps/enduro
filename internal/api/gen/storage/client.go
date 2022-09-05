@@ -86,13 +86,13 @@ func (c *Client) Download(ctx context.Context, p *DownloadPayload) (res []byte, 
 }
 
 // Locations calls the "locations" endpoint of the "storage" service.
-func (c *Client) Locations(ctx context.Context) (res StoredLocationCollection, err error) {
+func (c *Client) Locations(ctx context.Context) (res LocationCollection, err error) {
 	var ires interface{}
 	ires, err = c.LocationsEndpoint(ctx, nil)
 	if err != nil {
 		return
 	}
-	return ires.(StoredLocationCollection), nil
+	return ires.(LocationCollection), nil
 }
 
 // AddLocation calls the "add_location" endpoint of the "storage" service.
@@ -161,13 +161,13 @@ func (c *Client) Show(ctx context.Context, p *ShowPayload) (res *StoredStoragePa
 // ShowLocation may return the following errors:
 //   - "not_found" (type *LocationNotFound): Storage location not found
 //   - error: internal error
-func (c *Client) ShowLocation(ctx context.Context, p *ShowLocationPayload) (res *StoredLocation, err error) {
+func (c *Client) ShowLocation(ctx context.Context, p *ShowLocationPayload) (res *Location, err error) {
 	var ires interface{}
 	ires, err = c.ShowLocationEndpoint(ctx, p)
 	if err != nil {
 		return
 	}
-	return ires.(*StoredLocation), nil
+	return ires.(*Location), nil
 }
 
 // LocationPackages calls the "location_packages" endpoint of the "storage"

@@ -562,7 +562,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/StoredLocationResponseCollection'
+                                $ref: '#/components/schemas/LocationResponseCollection'
                             example:
                                 - created_at: "1986-11-11T02:54:34Z"
                                   description: Officia voluptate.
@@ -639,7 +639,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/StoredLocation'
+                                $ref: '#/components/schemas/Location'
                             example:
                                 config:
                                     Type: s3
@@ -2104,6 +2104,78 @@ components:
                 next_cursor: Iste ut animi.
             required:
                 - items
+        Location:
+            type: object
+            properties:
+                config:
+                    type: object
+                    properties:
+                        Type:
+                            type: string
+                            description: |-
+                                Union type name, one of:
+                                - "s3"
+                            example: s3
+                            enum:
+                                - s3
+                        Value:
+                            type: string
+                            description: JSON formatted union value
+                            example: '"JSON"'
+                    example:
+                        Type: s3
+                        Value: '"JSON"'
+                    required:
+                        - Type
+                        - Value
+                created_at:
+                    type: string
+                    description: Creation datetime
+                    example: "2003-10-31T06:07:05Z"
+                    format: date-time
+                description:
+                    type: string
+                    description: Description of the location
+                    example: Aut rem dolorem vel.
+                name:
+                    type: string
+                    description: Name of location
+                    example: Voluptatem rerum quod.
+                purpose:
+                    type: string
+                    description: Purpose of the location
+                    default: unspecified
+                    example: unspecified
+                    enum:
+                        - unspecified
+                        - aip_store
+                source:
+                    type: string
+                    description: Data source of the location
+                    default: unspecified
+                    example: unspecified
+                    enum:
+                        - unspecified
+                        - minio
+                uuid:
+                    type: string
+                    example: Vitae repellat et tempore omnis fugiat.
+            example:
+                config:
+                    Type: s3
+                    Value: '"JSON"'
+                created_at: "1997-09-11T21:50:01Z"
+                description: Illo rerum.
+                name: Quaerat voluptatibus sint.
+                purpose: unspecified
+                source: minio
+                uuid: Quaerat ad sunt ut quis quis molestiae.
+            required:
+                - name
+                - source
+                - purpose
+                - uuid
+                - created_at
         LocationNotFound:
             type: object
             properties:
@@ -2121,6 +2193,79 @@ components:
             required:
                 - message
                 - uuid
+        LocationResponse:
+            type: object
+            properties:
+                created_at:
+                    type: string
+                    description: Creation datetime
+                    example: "1985-10-28T04:01:39Z"
+                    format: date-time
+                description:
+                    type: string
+                    description: Description of the location
+                    example: Rerum vitae veniam accusamus asperiores labore.
+                name:
+                    type: string
+                    description: Name of location
+                    example: Totam inventore ut in harum id.
+                purpose:
+                    type: string
+                    description: Purpose of the location
+                    default: unspecified
+                    example: unspecified
+                    enum:
+                        - unspecified
+                        - aip_store
+                source:
+                    type: string
+                    description: Data source of the location
+                    default: unspecified
+                    example: minio
+                    enum:
+                        - unspecified
+                        - minio
+                uuid:
+                    type: string
+                    example: Et sed architecto aut excepturi.
+            description: A Location describes a location retrieved by the storage service. (default view)
+            example:
+                created_at: "1998-08-22T07:49:33Z"
+                description: Voluptatum accusantium quidem dicta consequatur ea cum.
+                name: Perferendis rerum dolor cupiditate quae repellat debitis.
+                purpose: unspecified
+                source: unspecified
+                uuid: Earum numquam blanditiis officiis quia consectetur cupiditate.
+            required:
+                - name
+                - source
+                - purpose
+                - uuid
+                - created_at
+        LocationResponseCollection:
+            type: array
+            items:
+                $ref: '#/components/schemas/LocationResponse'
+            description: LocationsResponseBody is the result type for an array of LocationResponse (default view)
+            example:
+                - created_at: "1986-11-11T02:54:34Z"
+                  description: Officia voluptate.
+                  name: Cumque qui facilis omnis.
+                  purpose: unspecified
+                  source: unspecified
+                  uuid: Est qui cum nihil quis.
+                - created_at: "1986-11-11T02:54:34Z"
+                  description: Officia voluptate.
+                  name: Cumque qui facilis omnis.
+                  purpose: unspecified
+                  source: unspecified
+                  uuid: Est qui cum nihil quis.
+                - created_at: "1986-11-11T02:54:34Z"
+                  description: Officia voluptate.
+                  name: Cumque qui facilis omnis.
+                  purpose: unspecified
+                  source: unspecified
+                  uuid: Est qui cum nihil quis.
         MonitorResponseBody:
             type: object
             properties:
@@ -2266,151 +2411,6 @@ components:
             required:
                 - message
                 - aip_id
-        StoredLocation:
-            type: object
-            properties:
-                config:
-                    type: object
-                    properties:
-                        Type:
-                            type: string
-                            description: |-
-                                Union type name, one of:
-                                - "s3"
-                            example: s3
-                            enum:
-                                - s3
-                        Value:
-                            type: string
-                            description: JSON formatted union value
-                            example: '"JSON"'
-                    example:
-                        Type: s3
-                        Value: '"JSON"'
-                    required:
-                        - Type
-                        - Value
-                created_at:
-                    type: string
-                    description: Creation datetime
-                    example: "2003-10-31T06:07:05Z"
-                    format: date-time
-                description:
-                    type: string
-                    description: Description of the location
-                    example: Aut rem dolorem vel.
-                name:
-                    type: string
-                    description: Name of location
-                    example: Voluptatem rerum quod.
-                purpose:
-                    type: string
-                    description: Purpose of the location
-                    default: unspecified
-                    example: unspecified
-                    enum:
-                        - unspecified
-                        - aip_store
-                source:
-                    type: string
-                    description: Data source of the location
-                    default: unspecified
-                    example: unspecified
-                    enum:
-                        - unspecified
-                        - minio
-                uuid:
-                    type: string
-                    example: Vitae repellat et tempore omnis fugiat.
-            example:
-                config:
-                    Type: s3
-                    Value: '"JSON"'
-                created_at: "1997-09-11T21:50:01Z"
-                description: Illo rerum.
-                name: Quaerat voluptatibus sint.
-                purpose: unspecified
-                source: minio
-                uuid: Quaerat ad sunt ut quis quis molestiae.
-            required:
-                - name
-                - source
-                - purpose
-                - uuid
-                - created_at
-        StoredLocationResponse:
-            type: object
-            properties:
-                created_at:
-                    type: string
-                    description: Creation datetime
-                    example: "1985-10-28T04:01:39Z"
-                    format: date-time
-                description:
-                    type: string
-                    description: Description of the location
-                    example: Rerum vitae veniam accusamus asperiores labore.
-                name:
-                    type: string
-                    description: Name of location
-                    example: Totam inventore ut in harum id.
-                purpose:
-                    type: string
-                    description: Purpose of the location
-                    default: unspecified
-                    example: unspecified
-                    enum:
-                        - unspecified
-                        - aip_store
-                source:
-                    type: string
-                    description: Data source of the location
-                    default: unspecified
-                    example: minio
-                    enum:
-                        - unspecified
-                        - minio
-                uuid:
-                    type: string
-                    example: Et sed architecto aut excepturi.
-            description: A StoredLocation describes a location retrieved by the storage service. (default view)
-            example:
-                created_at: "1998-08-22T07:49:33Z"
-                description: Voluptatum accusantium quidem dicta consequatur ea cum.
-                name: Perferendis rerum dolor cupiditate quae repellat debitis.
-                purpose: unspecified
-                source: unspecified
-                uuid: Earum numquam blanditiis officiis quia consectetur cupiditate.
-            required:
-                - name
-                - source
-                - purpose
-                - uuid
-                - created_at
-        StoredLocationResponseCollection:
-            type: array
-            items:
-                $ref: '#/components/schemas/StoredLocationResponse'
-            description: LocationsResponseBody is the result type for an array of StoredLocationResponse (default view)
-            example:
-                - created_at: "1986-11-11T02:54:34Z"
-                  description: Officia voluptate.
-                  name: Cumque qui facilis omnis.
-                  purpose: unspecified
-                  source: unspecified
-                  uuid: Est qui cum nihil quis.
-                - created_at: "1986-11-11T02:54:34Z"
-                  description: Officia voluptate.
-                  name: Cumque qui facilis omnis.
-                  purpose: unspecified
-                  source: unspecified
-                  uuid: Est qui cum nihil quis.
-                - created_at: "1986-11-11T02:54:34Z"
-                  description: Officia voluptate.
-                  name: Cumque qui facilis omnis.
-                  purpose: unspecified
-                  source: unspecified
-                  uuid: Est qui cum nihil quis.
         StoredStoragePackage:
             type: object
             properties:

@@ -161,7 +161,7 @@ func fakeLocationFactory(t *testing.T, b *blob.Bucket) storage.LocationFactory {
 		b = memblob.OpenBucket(nil)
 	}
 
-	return func(location *goastorage.StoredLocation) (storage.Location, error) {
+	return func(location *goastorage.Location) (storage.Location, error) {
 		return &fakeLocation{
 			b:  b,
 			id: location.UUID,
@@ -178,7 +178,7 @@ func fakeLocationFactoryWithContents(t *testing.T, b *blob.Bucket, objectKey, co
 	t.Cleanup(func() { b.Close() })
 	b.WriteAll(context.Background(), objectKey, []byte(contents), nil)
 
-	return func(location *goastorage.StoredLocation) (storage.Location, error) {
+	return func(location *goastorage.Location) (storage.Location, error) {
 		return &fakeLocation{
 			b:  b,
 			id: location.UUID,
@@ -428,7 +428,7 @@ func TestServiceLocation(t *testing.T) {
 			locationID,
 		).
 		Return(
-			&goastorage.StoredLocation{
+			&goastorage.Location{
 				UUID: locationID,
 			},
 			nil,
@@ -505,7 +505,7 @@ func TestServiceList(t *testing.T) {
 		attrs := &setUpAttrs{}
 		svc := setUpService(t, attrs)
 
-		storedLocations := goastorage.StoredLocationCollection{
+		storedLocations := goastorage.LocationCollection{
 			{
 				Name:        "perma-aips-1",
 				Description: ref.New("One"),
@@ -719,7 +719,7 @@ func TestServiceDelete(t *testing.T) {
 				locationID,
 			).
 			Return(
-				&goastorage.StoredLocation{
+				&goastorage.Location{
 					UUID: locationID,
 				},
 				nil,
@@ -764,7 +764,7 @@ func TestServiceDelete(t *testing.T) {
 				locationID,
 			).
 			Return(
-				&goastorage.StoredLocation{
+				&goastorage.Location{
 					UUID: locationID,
 				},
 				nil,
@@ -862,7 +862,7 @@ func TestPackageReader(t *testing.T) {
 				locationID,
 			).
 			Return(
-				&goastorage.StoredLocation{
+				&goastorage.Location{
 					UUID: locationID,
 					Config: &goastorage.S3Config{
 						Bucket: "perma-aips-1",
@@ -934,7 +934,7 @@ func TestPackageReader(t *testing.T) {
 				locationID,
 			).
 			Return(
-				&goastorage.StoredLocation{
+				&goastorage.Location{
 					UUID: locationID,
 					Config: &goastorage.S3Config{
 						Bucket: "perma-aips-1",
@@ -1496,7 +1496,7 @@ func TestServiceAddLocation(t *testing.T) {
 					Name:    "perma-aips-1",
 					Source:  types.LocationSourceMinIO.String(),
 					Purpose: types.LocationPurposeAIPStore.String(),
-					UUID:    ref.New(locationID),
+					UUID:    locationID,
 				},
 				&types.LocationConfig{
 					Value: &types.S3Config{
@@ -1542,7 +1542,7 @@ func TestServiceAddLocation(t *testing.T) {
 					Name:    "perma-aips-1",
 					Source:  types.LocationSourceMinIO.String(),
 					Purpose: types.LocationPurposeAIPStore.String(),
-					UUID:    ref.New(locationID),
+					UUID:    locationID,
 				},
 				&types.LocationConfig{
 					Value: &types.S3Config{
@@ -1552,7 +1552,7 @@ func TestServiceAddLocation(t *testing.T) {
 				},
 			).
 			Return(
-				&goastorage.StoredLocation{},
+				&goastorage.Location{},
 				nil,
 			).
 			Times(1)
@@ -1604,7 +1604,7 @@ func TestServiceShowLocation(t *testing.T) {
 				locationID,
 			).
 			Return(
-				&goastorage.StoredLocation{
+				&goastorage.Location{
 					UUID: locationID,
 				},
 				nil,
@@ -1614,7 +1614,7 @@ func TestServiceShowLocation(t *testing.T) {
 			UUID: locationID.String(),
 		})
 		assert.NilError(t, err)
-		assert.DeepEqual(t, res, &goastorage.StoredLocation{UUID: locationID})
+		assert.DeepEqual(t, res, &goastorage.Location{UUID: locationID})
 	})
 }
 
