@@ -239,7 +239,7 @@ var LocationNotFound = Type("LocationNotFound", func() {
 	Required("message", "uuid")
 })
 
-var Location = ResultType("application/vnd.enduro.stored-location", func() {
+var Location = ResultType("application/vnd.enduro.storage-location", func() {
 	Description("A Location describes a location retrieved by the storage service.")
 	TypeName("Location")
 
@@ -294,7 +294,7 @@ var MoveStatusResult = Type("MoveStatusResult", func() {
 	Required("done")
 })
 
-var StoragePackage = ResultType("application/vnd.enduro.stored-storage-package", func() {
+var StoragePackage = ResultType("application/vnd.enduro.storage-package", func() {
 	Description("A Package describes a package retrieved by the storage service.")
 	TypeName("Package")
 

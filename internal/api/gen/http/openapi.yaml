@@ -1272,7 +1272,7 @@ definitions:
               status: abandoned
               workflow_id: 8889A6C4-91BF-D1D9-EC2A-DD7F1D616B8A
     LocationResponse:
-        title: 'Mediatype identifier: application/vnd.enduro.stored-location; view=default'
+        title: 'Mediatype identifier: application/vnd.enduro.storage-location; view=default'
         type: object
         properties:
             created_at:
@@ -1973,7 +1973,7 @@ definitions:
             - timeout
             - fault
     PackageResponse:
-        title: 'Mediatype identifier: application/vnd.enduro.stored-storage-package; view=default'
+        title: 'Mediatype identifier: application/vnd.enduro.storage-package; view=default'
         type: object
         properties:
             aip_id:
@@ -2347,7 +2347,7 @@ definitions:
             - timeout
             - fault
     StorageLocationResponseCollection:
-        title: 'Mediatype identifier: application/vnd.enduro.stored-location; type=collection; view=default'
+        title: 'Mediatype identifier: application/vnd.enduro.storage-location; type=collection; view=default'
         type: array
         items:
             $ref: '#/definitions/LocationResponse'
@@ -2567,7 +2567,7 @@ definitions:
         required:
             - done
     StoragePackageResponseCollection:
-        title: 'Mediatype identifier: application/vnd.enduro.stored-storage-package; type=collection; view=default'
+        title: 'Mediatype identifier: application/vnd.enduro.storage-package; type=collection; view=default'
         type: array
         items:
             $ref: '#/definitions/PackageResponse'
@@ -2709,7 +2709,7 @@ definitions:
             - message
             - uuid
     StorageShowLocationResponseBody:
-        title: 'Mediatype identifier: application/vnd.enduro.stored-location; view=default'
+        title: 'Mediatype identifier: application/vnd.enduro.storage-location; view=default'
         type: object
         properties:
             created_at:
@@ -2778,7 +2778,7 @@ definitions:
             - message
             - aip_id
     StorageShowResponseBody:
-        title: 'Mediatype identifier: application/vnd.enduro.stored-storage-package; view=default'
+        title: 'Mediatype identifier: application/vnd.enduro.storage-package; view=default'
         type: object
         properties:
             aip_id:
