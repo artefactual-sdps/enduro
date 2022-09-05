@@ -96,9 +96,9 @@ type ShowLocationResponseBody struct {
 	CreatedAt string `form:"created_at" json:"created_at" xml:"created_at"`
 }
 
-// StoredStoragePackageResponseCollection is the type of the "storage" service
+// PackageResponseCollection is the type of the "storage" service
 // "location_packages" endpoint HTTP response body.
-type StoredStoragePackageResponseCollection []*StoredStoragePackageResponse
+type PackageResponseCollection []*PackageResponse
 
 // SubmitNotAvailableResponseBody is the type of the "storage" service "submit"
 // endpoint HTTP response body for the "not_available" error.
@@ -374,8 +374,8 @@ type LocationResponse struct {
 	CreatedAt string `form:"created_at" json:"created_at" xml:"created_at"`
 }
 
-// StoredStoragePackageResponse is used to define fields on response body types.
-type StoredStoragePackageResponse struct {
+// PackageResponse is used to define fields on response body types.
+type PackageResponse struct {
 	Name  string    `form:"name" json:"name" xml:"name"`
 	AipID uuid.UUID `form:"aip_id" json:"aip_id" xml:"aip_id"`
 	// Status of the package
@@ -425,7 +425,7 @@ func NewMoveStatusResponseBody(res *storage.MoveStatusResult) *MoveStatusRespons
 
 // NewShowResponseBody builds the HTTP response body from the result of the
 // "show" endpoint of the "storage" service.
-func NewShowResponseBody(res *storageviews.StoredStoragePackageView) *ShowResponseBody {
+func NewShowResponseBody(res *storageviews.PackageView) *ShowResponseBody {
 	body := &ShowResponseBody{
 		Name:       *res.Name,
 		AipID:      *res.AipID,
@@ -451,12 +451,12 @@ func NewShowLocationResponseBody(res *storageviews.LocationView) *ShowLocationRe
 	return body
 }
 
-// NewStoredStoragePackageResponseCollection builds the HTTP response body from
-// the result of the "location_packages" endpoint of the "storage" service.
-func NewStoredStoragePackageResponseCollection(res storageviews.StoredStoragePackageCollectionView) StoredStoragePackageResponseCollection {
-	body := make([]*StoredStoragePackageResponse, len(res))
+// NewPackageResponseCollection builds the HTTP response body from the result
+// of the "location_packages" endpoint of the "storage" service.
+func NewPackageResponseCollection(res storageviews.PackageCollectionView) PackageResponseCollection {
+	body := make([]*PackageResponse, len(res))
 	for i, val := range res {
-		body[i] = marshalStorageviewsStoredStoragePackageViewToStoredStoragePackageResponse(val)
+		body[i] = marshalStorageviewsPackageViewToPackageResponse(val)
 	}
 	return body
 }

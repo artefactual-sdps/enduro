@@ -678,7 +678,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/StoredStoragePackageResponseCollection'
+                                $ref: '#/components/schemas/PackageResponseCollection'
                             example:
                                 - aip_id: Sit rerum molestias harum aut enim quis.
                                   created_at: "1996-02-25T23:56:45Z"
@@ -732,7 +732,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/StoredStoragePackage'
+                                $ref: '#/components/schemas/Package'
                             example:
                                 aip_id: Ut dolor ut et quis.
                                 created_at: "1986-10-31T10:36:30Z"
@@ -2375,43 +2375,7 @@ components:
                 done: true
             required:
                 - done
-        PackageNotFound:
-            type: object
-            properties:
-                id:
-                    type: integer
-                    description: Identifier of missing package
-                    example: 2735047005789485515
-                message:
-                    type: string
-                    description: Message of error
-                    example: Vitae deserunt autem a et.
-            description: Package not found
-            example:
-                id: 1301249187026817066
-                message: Illo dolor dolorum ipsam.
-            required:
-                - message
-                - id
-        PackageNotFound2:
-            type: object
-            properties:
-                aip_id:
-                    type: string
-                    description: Identifier of missing package
-                    example: Porro rem.
-                message:
-                    type: string
-                    description: Message of error
-                    example: Aut fuga dolorum dolorem laborum laboriosam ut.
-            description: Storage package not found
-            example:
-                aip_id: Quia autem quam ut.
-                message: Delectus totam qui quisquam ipsa ut.
-            required:
-                - message
-                - aip_id
-        StoredStoragePackage:
+        Package:
             type: object
             properties:
                 aip_id:
@@ -2455,7 +2419,43 @@ components:
                 - status
                 - object_key
                 - created_at
-        StoredStoragePackageResponse:
+        PackageNotFound:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    description: Identifier of missing package
+                    example: 2735047005789485515
+                message:
+                    type: string
+                    description: Message of error
+                    example: Vitae deserunt autem a et.
+            description: Package not found
+            example:
+                id: 1301249187026817066
+                message: Illo dolor dolorum ipsam.
+            required:
+                - message
+                - id
+        PackageNotFound2:
+            type: object
+            properties:
+                aip_id:
+                    type: string
+                    description: Identifier of missing package
+                    example: Porro rem.
+                message:
+                    type: string
+                    description: Message of error
+                    example: Aut fuga dolorum dolorem laborum laboriosam ut.
+            description: Storage package not found
+            example:
+                aip_id: Quia autem quam ut.
+                message: Delectus totam qui quisquam ipsa ut.
+            required:
+                - message
+                - aip_id
+        PackageResponse:
             type: object
             properties:
                 aip_id:
@@ -2486,7 +2486,7 @@ components:
                         - rejected
                         - stored
                         - moving
-            description: A StoredStoragePackage describes a package retrieved by the storage service. (default view)
+            description: A Package describes a package retrieved by the storage service. (default view)
             example:
                 aip_id: Dolorem accusantium necessitatibus quaerat.
                 created_at: "1988-01-25T18:09:08Z"
@@ -2500,11 +2500,11 @@ components:
                 - status
                 - object_key
                 - created_at
-        StoredStoragePackageResponseCollection:
+        PackageResponseCollection:
             type: array
             items:
-                $ref: '#/components/schemas/StoredStoragePackageResponse'
-            description: location_packages_response_body is the result type for an array of StoredStoragePackageResponse (default view)
+                $ref: '#/components/schemas/PackageResponse'
+            description: location_packages_response_body is the result type for an array of PackageResponse (default view)
             example:
                 - aip_id: Sit rerum molestias harum aut enim quis.
                   created_at: "1996-02-25T23:56:45Z"

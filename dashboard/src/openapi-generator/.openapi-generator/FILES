@@ -37,6 +37,7 @@ models/PackagePreservationActionsResponseBody.ts
 models/PackageRejectNotAvailableResponseBody.ts
 models/PackageRejectNotFoundResponseBody.ts
 models/PackageRejectNotValidResponseBody.ts
+models/PackageResponse.ts
 models/PackageShowNotAvailableResponseBody.ts
 models/PackageShowNotFoundResponseBody.ts
 models/PackageShowResponseBody.ts
@@ -67,7 +68,6 @@ models/StorageSubmitRequestBody.ts
 models/StorageSubmitResponseBody.ts
 models/StorageUpdateNotAvailableResponseBody.ts
 models/StorageUpdateNotValidResponseBody.ts
-models/StoredStoragePackageResponse.ts
 models/UploadUploadInternalErrorResponseBody.ts
 models/UploadUploadInvalidMediaTypeResponseBody.ts
 models/UploadUploadInvalidMultipartRequestResponseBody.ts

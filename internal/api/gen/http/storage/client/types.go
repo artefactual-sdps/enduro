@@ -105,7 +105,7 @@ type ShowLocationResponseBody struct {
 
 // LocationPackagesResponseBody is the type of the "storage" service
 // "location_packages" endpoint HTTP response body.
-type LocationPackagesResponseBody []*StoredStoragePackageResponse
+type LocationPackagesResponseBody []*PackageResponse
 
 // SubmitNotAvailableResponseBody is the type of the "storage" service "submit"
 // endpoint HTTP response body for the "not_available" error.
@@ -388,8 +388,8 @@ type LocationResponse struct {
 	CreatedAt *string `form:"created_at,omitempty" json:"created_at,omitempty" xml:"created_at,omitempty"`
 }
 
-// StoredStoragePackageResponse is used to define fields on response body types.
-type StoredStoragePackageResponse struct {
+// PackageResponse is used to define fields on response body types.
+type PackageResponse struct {
 	Name  *string    `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 	AipID *uuid.UUID `form:"aip_id,omitempty" json:"aip_id,omitempty" xml:"aip_id,omitempty"`
 	// Status of the package
@@ -677,10 +677,10 @@ func NewRejectNotFound(body *RejectNotFoundResponseBody) *storage.PackageNotFoun
 	return v
 }
 
-// NewShowStoredStoragePackageOK builds a "storage" service "show" endpoint
-// result from a HTTP "OK" response.
-func NewShowStoredStoragePackageOK(body *ShowResponseBody) *storageviews.StoredStoragePackageView {
-	v := &storageviews.StoredStoragePackageView{
+// NewShowPackageOK builds a "storage" service "show" endpoint result from a
+// HTTP "OK" response.
+func NewShowPackageOK(body *ShowResponseBody) *storageviews.PackageView {
+	v := &storageviews.PackageView{
 		Name:       body.Name,
 		AipID:      body.AipID,
 		Status:     body.Status,
@@ -736,12 +736,12 @@ func NewShowLocationNotFound(body *ShowLocationNotFoundResponseBody) *storage.Lo
 	return v
 }
 
-// NewLocationPackagesStoredStoragePackageCollectionOK builds a "storage"
-// service "location_packages" endpoint result from a HTTP "OK" response.
-func NewLocationPackagesStoredStoragePackageCollectionOK(body LocationPackagesResponseBody) storageviews.StoredStoragePackageCollectionView {
-	v := make([]*storageviews.StoredStoragePackageView, len(body))
+// NewLocationPackagesPackageCollectionOK builds a "storage" service
+// "location_packages" endpoint result from a HTTP "OK" response.
+func NewLocationPackagesPackageCollectionOK(body LocationPackagesResponseBody) storageviews.PackageCollectionView {
+	v := make([]*storageviews.PackageView, len(body))
 	for i, val := range body {
-		v[i] = unmarshalStoredStoragePackageResponseToStorageviewsStoredStoragePackageView(val)
+		v[i] = unmarshalPackageResponseToStorageviewsPackageView(val)
 	}
 
 	return v
@@ -1193,9 +1193,8 @@ func ValidateLocationResponse(body *LocationResponse) (err error) {
 	return
 }
 
-// ValidateStoredStoragePackageResponse runs the validations defined on
-// StoredStoragePackageResponse
-func ValidateStoredStoragePackageResponse(body *StoredStoragePackageResponse) (err error) {
+// ValidatePackageResponse runs the validations defined on PackageResponse
+func ValidatePackageResponse(body *PackageResponse) (err error) {
 	if body.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
 	}

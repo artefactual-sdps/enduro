@@ -342,7 +342,7 @@ func TestServiceSubmit(t *testing.T) {
 				gomock.Any(),
 			).
 			Return(
-				&goastorage.StoredStoragePackage{},
+				&goastorage.Package{},
 				nil,
 			).
 			Times(1)
@@ -397,7 +397,7 @@ func TestServiceSubmit(t *testing.T) {
 				gomock.Any(),
 			).
 			Return(
-				&goastorage.StoredStoragePackage{},
+				&goastorage.Package{},
 				nil,
 			).
 			Times(1)
@@ -589,14 +589,14 @@ func TestServiceReadPackage(t *testing.T) {
 			AIPID,
 		).
 		Return(
-			&goastorage.StoredStoragePackage{},
+			&goastorage.Package{},
 			nil,
 		).
 		Times(1)
 
 	pkg, err := svc.ReadPackage(ctx, AIPID)
 	assert.NilError(t, err)
-	assert.DeepEqual(t, pkg, &goastorage.StoredStoragePackage{})
+	assert.DeepEqual(t, pkg, &goastorage.Package{})
 }
 
 func TestServiceUpdatePackageStatus(t *testing.T) {
@@ -672,7 +672,7 @@ func TestServiceDelete(t *testing.T) {
 				AIPID,
 			).
 			Return(
-				&goastorage.StoredStoragePackage{
+				&goastorage.Package{
 					AipID:      AIPID,
 					ObjectKey:  AIPID,
 					LocationID: &uuid.Nil,
@@ -703,7 +703,7 @@ func TestServiceDelete(t *testing.T) {
 				AIPID,
 			).
 			Return(
-				&goastorage.StoredStoragePackage{
+				&goastorage.Package{
 					AipID:      AIPID,
 					ObjectKey:  AIPID,
 					LocationID: &locationID,
@@ -748,7 +748,7 @@ func TestServiceDelete(t *testing.T) {
 				AIPID,
 			).
 			Return(
-				&goastorage.StoredStoragePackage{
+				&goastorage.Package{
 					AipID:      AIPID,
 					ObjectKey:  AIPID,
 					LocationID: &locationID,
@@ -791,7 +791,7 @@ func TestServiceDelete(t *testing.T) {
 				AIPID,
 			).
 			Return(
-				&goastorage.StoredStoragePackage{
+				&goastorage.Package{
 					AipID:      AIPID,
 					ObjectKey:  AIPID,
 					LocationID: &locationID,
@@ -873,7 +873,7 @@ func TestPackageReader(t *testing.T) {
 			).
 			Times(1)
 
-		reader, err := svc.PackageReader(ctx, &goastorage.StoredStoragePackage{
+		reader, err := svc.PackageReader(ctx, &goastorage.Package{
 			AipID:      AIPID,
 			ObjectKey:  AIPID,
 			LocationID: &locationID,
@@ -906,7 +906,7 @@ func TestPackageReader(t *testing.T) {
 			).
 			Times(1)
 
-		_, err := svc.PackageReader(ctx, &goastorage.StoredStoragePackage{
+		_, err := svc.PackageReader(ctx, &goastorage.Package{
 			AipID:      AIPID,
 			ObjectKey:  AIPID,
 			LocationID: &locationID,
@@ -945,7 +945,7 @@ func TestPackageReader(t *testing.T) {
 			).
 			Times(1)
 
-		_, err := svc.PackageReader(ctx, &goastorage.StoredStoragePackage{
+		_, err := svc.PackageReader(ctx, &goastorage.Package{
 			AipID:      AIPID,
 			ObjectKey:  AIPID,
 			LocationID: &locationID,
@@ -1161,7 +1161,7 @@ func TestServiceMove(t *testing.T) {
 				AIPID,
 			).
 			Return(
-				&goastorage.StoredStoragePackage{AipID: AIPID},
+				&goastorage.Package{AipID: AIPID},
 				nil,
 			).
 			Times(1)
@@ -1208,7 +1208,7 @@ func TestServiceMove(t *testing.T) {
 				AIPID,
 			).
 			Return(
-				&goastorage.StoredStoragePackage{AipID: AIPID},
+				&goastorage.Package{AipID: AIPID},
 				nil,
 			).
 			Times(1)
@@ -1294,7 +1294,7 @@ func TestServiceMoveStatus(t *testing.T) {
 				AIPID,
 			).
 			Return(
-				&goastorage.StoredStoragePackage{AipID: AIPID},
+				&goastorage.Package{AipID: AIPID},
 				nil,
 			).
 			Times(1)
@@ -1339,7 +1339,7 @@ func TestServiceMoveStatus(t *testing.T) {
 				AIPID,
 			).
 			Return(
-				&goastorage.StoredStoragePackage{AipID: AIPID},
+				&goastorage.Package{AipID: AIPID},
 				nil,
 			).
 			Times(1)
@@ -1384,7 +1384,7 @@ func TestServiceMoveStatus(t *testing.T) {
 				AIPID,
 			).
 			Return(
-				&goastorage.StoredStoragePackage{AipID: AIPID},
+				&goastorage.Package{AipID: AIPID},
 				nil,
 			).
 			Times(1)
@@ -1428,7 +1428,7 @@ func TestServiceMoveStatus(t *testing.T) {
 				AIPID,
 			).
 			Return(
-				&goastorage.StoredStoragePackage{AipID: AIPID},
+				&goastorage.Package{AipID: AIPID},
 				nil,
 			).
 			Times(1)
@@ -1678,7 +1678,7 @@ func TestServiceLocationPackages(t *testing.T) {
 				locationID,
 			).
 			Return(
-				goastorage.StoredStoragePackageCollection{
+				goastorage.PackageCollection{
 					{
 						Name:       "Package",
 						AipID:      uuid.MustParse("488c64cc-d89b-4916-9131-c94152dfb12e"),
@@ -1695,7 +1695,7 @@ func TestServiceLocationPackages(t *testing.T) {
 			UUID: locationID.String(),
 		})
 		assert.NilError(t, err)
-		assert.DeepEqual(t, res, goastorage.StoredStoragePackageCollection{
+		assert.DeepEqual(t, res, goastorage.PackageCollection{
 			{
 				Name:       "Package",
 				AipID:      uuid.MustParse("488c64cc-d89b-4916-9131-c94152dfb12e"),
@@ -1741,7 +1741,7 @@ func TestServiceShow(t *testing.T) {
 				AIPID,
 			).
 			Return(
-				&goastorage.StoredStoragePackage{
+				&goastorage.Package{
 					AipID:      AIPID,
 					ObjectKey:  AIPID,
 					LocationID: &uuid.Nil,
@@ -1754,7 +1754,7 @@ func TestServiceShow(t *testing.T) {
 			AipID: AIPID.String(),
 		})
 		assert.NilError(t, err)
-		assert.DeepEqual(t, res, &goastorage.StoredStoragePackage{
+		assert.DeepEqual(t, res, &goastorage.Package{
 			AipID:      AIPID,
 			ObjectKey:  AIPID,
 			LocationID: &uuid.Nil,

@@ -372,7 +372,7 @@ paths:
                 "200":
                     description: OK response.
                     schema:
-                        $ref: '#/definitions/StorageStoredStoragePackageResponseCollection'
+                        $ref: '#/definitions/StoragePackageResponseCollection'
                 "400":
                     description: Bad Request response.
                     schema:
@@ -1972,6 +1972,52 @@ definitions:
             - temporary
             - timeout
             - fault
+    PackageResponse:
+        title: 'Mediatype identifier: application/vnd.enduro.stored-storage-package; view=default'
+        type: object
+        properties:
+            aip_id:
+                type: string
+                example: Et id.
+            created_at:
+                type: string
+                description: Creation datetime
+                example: "1972-01-02T02:33:56Z"
+                format: date-time
+            location_id:
+                type: string
+                example: Est quos natus unde eum a et.
+            name:
+                type: string
+                example: Laborum sed corrupti non.
+            object_key:
+                type: string
+                example: Velit architecto dolorum ut rerum eveniet.
+            status:
+                type: string
+                description: Status of the package
+                default: unspecified
+                example: unspecified
+                enum:
+                    - unspecified
+                    - in_review
+                    - rejected
+                    - stored
+                    - moving
+        description: A Package describes a package retrieved by the storage service. (default view)
+        example:
+            aip_id: Voluptatem id.
+            created_at: "1973-08-14T03:19:06Z"
+            location_id: Sit nostrum.
+            name: Veniam aut qui blanditiis provident.
+            object_key: Commodi dolorem harum autem eum labore tempora.
+            status: stored
+        required:
+            - name
+            - aip_id
+            - status
+            - object_key
+            - created_at
     PackageShowNotAvailableResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
@@ -2520,6 +2566,25 @@ definitions:
             done: false
         required:
             - done
+    StoragePackageResponseCollection:
+        title: 'Mediatype identifier: application/vnd.enduro.stored-storage-package; type=collection; view=default'
+        type: array
+        items:
+            $ref: '#/definitions/PackageResponse'
+        description: location_packages_response_body is the result type for an array of PackageResponse (default view)
+        example:
+            - aip_id: Sit rerum molestias harum aut enim quis.
+              created_at: "1996-02-25T23:56:45Z"
+              location_id: Aut deserunt nostrum architecto sed.
+              name: Quis officiis amet recusandae est sint.
+              object_key: Laudantium harum sunt.
+              status: stored
+            - aip_id: Sit rerum molestias harum aut enim quis.
+              created_at: "1996-02-25T23:56:45Z"
+              location_id: Aut deserunt nostrum architecto sed.
+              name: Quis officiis amet recusandae est sint.
+              object_key: Laudantium harum sunt.
+              status: stored
     StorageRejectNotAvailableResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
@@ -2758,25 +2823,6 @@ definitions:
             - status
             - object_key
             - created_at
-    StorageStoredStoragePackageResponseCollection:
-        title: 'Mediatype identifier: application/vnd.enduro.stored-storage-package; type=collection; view=default'
-        type: array
-        items:
-            $ref: '#/definitions/StoredStoragePackageResponse'
-        description: location_packages_response_body is the result type for an array of StoredStoragePackageResponse (default view)
-        example:
-            - aip_id: Sit rerum molestias harum aut enim quis.
-              created_at: "1996-02-25T23:56:45Z"
-              location_id: Aut deserunt nostrum architecto sed.
-              name: Quis officiis amet recusandae est sint.
-              object_key: Laudantium harum sunt.
-              status: stored
-            - aip_id: Sit rerum molestias harum aut enim quis.
-              created_at: "1996-02-25T23:56:45Z"
-              location_id: Aut deserunt nostrum architecto sed.
-              name: Quis officiis amet recusandae est sint.
-              object_key: Laudantium harum sunt.
-              status: stored
     StorageSubmitNotAvailableResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
@@ -2971,52 +3017,6 @@ definitions:
             - temporary
             - timeout
             - fault
-    StoredStoragePackageResponse:
-        title: 'Mediatype identifier: application/vnd.enduro.stored-storage-package; view=default'
-        type: object
-        properties:
-            aip_id:
-                type: string
-                example: Et id.
-            created_at:
-                type: string
-                description: Creation datetime
-                example: "1972-01-02T02:33:56Z"
-                format: date-time
-            location_id:
-                type: string
-                example: Est quos natus unde eum a et.
-            name:
-                type: string
-                example: Laborum sed corrupti non.
-            object_key:
-                type: string
-                example: Velit architecto dolorum ut rerum eveniet.
-            status:
-                type: string
-                description: Status of the package
-                default: unspecified
-                example: unspecified
-                enum:
-                    - unspecified
-                    - in_review
-                    - rejected
-                    - stored
-                    - moving
-        description: A StoredStoragePackage describes a package retrieved by the storage service. (default view)
-        example:
-            aip_id: Voluptatem id.
-            created_at: "1973-08-14T03:19:06Z"
-            location_id: Sit nostrum.
-            name: Veniam aut qui blanditiis provident.
-            object_key: Commodi dolorem harum autem eum labore tempora.
-            status: stored
-        required:
-            - name
-            - aip_id
-            - status
-            - object_key
-            - created_at
     UploadUploadInternalErrorResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object

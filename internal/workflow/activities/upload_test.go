@@ -24,10 +24,10 @@ type StorageService struct {
 	MoveHandler             func(ctx context.Context, req *goastorage.MovePayload) (err error)
 	MoveStatusHandler       func(ctx context.Context, req *goastorage.MoveStatusPayload) (res *goastorage.MoveStatusResult, err error)
 	RejectHandler           func(ctx context.Context, req *goastorage.RejectPayload) (err error)
-	ShowHandler             func(ctx context.Context, req *goastorage.ShowPayload) (res *goastorage.StoredStoragePackage, err error)
+	ShowHandler             func(ctx context.Context, req *goastorage.ShowPayload) (res *goastorage.Package, err error)
 	AddLocationHandler      func(ctx context.Context, req *goastorage.AddLocationPayload) (res *goastorage.AddLocationResult, err error)
 	ShowLocationHandler     func(ctx context.Context, req *goastorage.ShowLocationPayload) (res *goastorage.Location, err error)
-	LocationPackagesHandler func(ctx context.Context, req *goastorage.LocationPackagesPayload) (res goastorage.StoredStoragePackageCollection, err error)
+	LocationPackagesHandler func(ctx context.Context, req *goastorage.LocationPackagesPayload) (res goastorage.PackageCollection, err error)
 }
 
 func (s StorageService) Submit(ctx context.Context, req *goastorage.SubmitPayload) (res *goastorage.SubmitResult, err error) {
@@ -58,7 +58,7 @@ func (s StorageService) Reject(ctx context.Context, req *goastorage.RejectPayloa
 	return s.RejectHandler(ctx, req)
 }
 
-func (s StorageService) Show(ctx context.Context, req *goastorage.ShowPayload) (res *goastorage.StoredStoragePackage, err error) {
+func (s StorageService) Show(ctx context.Context, req *goastorage.ShowPayload) (res *goastorage.Package, err error) {
 	return s.ShowHandler(ctx, req)
 }
 
@@ -70,7 +70,7 @@ func (s StorageService) ShowLocation(ctx context.Context, req *goastorage.ShowLo
 	return s.ShowLocationHandler(ctx, req)
 }
 
-func (s StorageService) LocationPackages(ctx context.Context, req *goastorage.LocationPackagesPayload) (res goastorage.StoredStoragePackageCollection, err error) {
+func (s StorageService) LocationPackages(ctx context.Context, req *goastorage.LocationPackagesPayload) (res goastorage.PackageCollection, err error) {
 	return s.LocationPackagesHandler(ctx, req)
 }
 

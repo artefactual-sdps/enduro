@@ -146,7 +146,7 @@ func NewShowEndpoint(s Service) goa.Endpoint {
 		if err != nil {
 			return nil, err
 		}
-		vres := NewViewedStoredStoragePackage(res, "default")
+		vres := NewViewedPackage(res, "default")
 		return vres, nil
 	}
 }
@@ -174,7 +174,7 @@ func NewLocationPackagesEndpoint(s Service) goa.Endpoint {
 		if err != nil {
 			return nil, err
 		}
-		vres := NewViewedStoredStoragePackageCollection(res, "default")
+		vres := NewViewedPackageCollection(res, "default")
 		return vres, nil
 	}
 }

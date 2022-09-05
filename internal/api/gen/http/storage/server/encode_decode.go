@@ -592,7 +592,7 @@ func EncodeRejectError(encoder func(context.Context, http.ResponseWriter) goahtt
 // show endpoint.
 func EncodeShowResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
 	return func(ctx context.Context, w http.ResponseWriter, v interface{}) error {
-		res := v.(*storageviews.StoredStoragePackage)
+		res := v.(*storageviews.Package)
 		enc := encoder(ctx, w)
 		body := NewShowResponseBody(res.Projected)
 		w.WriteHeader(http.StatusOK)
@@ -718,9 +718,9 @@ func EncodeShowLocationError(encoder func(context.Context, http.ResponseWriter) 
 // the storage location_packages endpoint.
 func EncodeLocationPackagesResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
 	return func(ctx context.Context, w http.ResponseWriter, v interface{}) error {
-		res := v.(storageviews.StoredStoragePackageCollection)
+		res := v.(storageviews.PackageCollection)
 		enc := encoder(ctx, w)
-		body := NewStoredStoragePackageResponseCollection(res.Projected)
+		body := NewPackageResponseCollection(res.Projected)
 		w.WriteHeader(http.StatusOK)
 		return enc.Encode(body)
 	}
@@ -805,11 +805,10 @@ func marshalStorageviewsLocationViewToLocationResponse(v *storageviews.LocationV
 	return res
 }
 
-// marshalStorageviewsStoredStoragePackageViewToStoredStoragePackageResponse
-// builds a value of type *StoredStoragePackageResponse from a value of type
-// *storageviews.StoredStoragePackageView.
-func marshalStorageviewsStoredStoragePackageViewToStoredStoragePackageResponse(v *storageviews.StoredStoragePackageView) *StoredStoragePackageResponse {
-	res := &StoredStoragePackageResponse{
+// marshalStorageviewsPackageViewToPackageResponse builds a value of type
+// *PackageResponse from a value of type *storageviews.PackageView.
+func marshalStorageviewsPackageViewToPackageResponse(v *storageviews.PackageView) *PackageResponse {
+	res := &PackageResponse{
 		Name:       *v.Name,
 		AipID:      *v.AipID,
 		Status:     *v.Status,

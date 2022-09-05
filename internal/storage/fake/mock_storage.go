@@ -99,10 +99,10 @@ func (mr *MockServiceMockRecorder) Location(arg0, arg1 interface{}) *gomock.Call
 }
 
 // LocationPackages mocks base method.
-func (m *MockService) LocationPackages(arg0 context.Context, arg1 *storage.LocationPackagesPayload) (storage.StoredStoragePackageCollection, error) {
+func (m *MockService) LocationPackages(arg0 context.Context, arg1 *storage.LocationPackagesPayload) (storage.PackageCollection, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "LocationPackages", arg0, arg1)
-	ret0, _ := ret[0].(storage.StoredStoragePackageCollection)
+	ret0, _ := ret[0].(storage.PackageCollection)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -158,7 +158,7 @@ func (mr *MockServiceMockRecorder) MoveStatus(arg0, arg1 interface{}) *gomock.Ca
 }
 
 // PackageReader mocks base method.
-func (m *MockService) PackageReader(arg0 context.Context, arg1 *storage.StoredStoragePackage) (*blob.Reader, error) {
+func (m *MockService) PackageReader(arg0 context.Context, arg1 *storage.Package) (*blob.Reader, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "PackageReader", arg0, arg1)
 	ret0, _ := ret[0].(*blob.Reader)
@@ -173,10 +173,10 @@ func (mr *MockServiceMockRecorder) PackageReader(arg0, arg1 interface{}) *gomock
 }
 
 // ReadPackage mocks base method.
-func (m *MockService) ReadPackage(arg0 context.Context, arg1 uuid.UUID) (*storage.StoredStoragePackage, error) {
+func (m *MockService) ReadPackage(arg0 context.Context, arg1 uuid.UUID) (*storage.Package, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ReadPackage", arg0, arg1)
-	ret0, _ := ret[0].(*storage.StoredStoragePackage)
+	ret0, _ := ret[0].(*storage.Package)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -202,10 +202,10 @@ func (mr *MockServiceMockRecorder) Reject(arg0, arg1 interface{}) *gomock.Call {
 }
 
 // Show mocks base method.
-func (m *MockService) Show(arg0 context.Context, arg1 *storage.ShowPayload) (*storage.StoredStoragePackage, error) {
+func (m *MockService) Show(arg0 context.Context, arg1 *storage.ShowPayload) (*storage.Package, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Show", arg0, arg1)
-	ret0, _ := ret[0].(*storage.StoredStoragePackage)
+	ret0, _ := ret[0].(*storage.Package)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

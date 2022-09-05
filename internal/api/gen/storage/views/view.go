@@ -22,11 +22,10 @@ type LocationCollection struct {
 	View string
 }
 
-// StoredStoragePackage is the viewed result type that is projected based on a
-// view.
-type StoredStoragePackage struct {
+// Package is the viewed result type that is projected based on a view.
+type Package struct {
 	// Type to project
-	Projected *StoredStoragePackageView
+	Projected *PackageView
 	// View to render
 	View string
 }
@@ -39,11 +38,11 @@ type Location struct {
 	View string
 }
 
-// StoredStoragePackageCollection is the viewed result type that is projected
-// based on a view.
-type StoredStoragePackageCollection struct {
+// PackageCollection is the viewed result type that is projected based on a
+// view.
+type PackageCollection struct {
 	// Type to project
-	Projected StoredStoragePackageCollectionView
+	Projected PackageCollectionView
 	// View to render
 	View string
 }
@@ -81,8 +80,8 @@ type S3ConfigView struct {
 	Token     *string
 }
 
-// StoredStoragePackageView is a type that runs validations on a projected type.
-type StoredStoragePackageView struct {
+// PackageView is a type that runs validations on a projected type.
+type PackageView struct {
 	Name  *string
 	AipID *uuid.UUID
 	// Status of the package
@@ -93,9 +92,8 @@ type StoredStoragePackageView struct {
 	CreatedAt *string
 }
 
-// StoredStoragePackageCollectionView is a type that runs validations on a
-// projected type.
-type StoredStoragePackageCollectionView []*StoredStoragePackageView
+// PackageCollectionView is a type that runs validations on a projected type.
+type PackageCollectionView []*PackageView
 
 func (*S3ConfigView) configVal() {}
 
@@ -112,9 +110,8 @@ var (
 			"created_at",
 		},
 	}
-	// StoredStoragePackageMap is a map indexing the attribute names of
-	// StoredStoragePackage by view name.
-	StoredStoragePackageMap = map[string][]string{
+	// PackageMap is a map indexing the attribute names of Package by view name.
+	PackageMap = map[string][]string{
 		"default": {
 			"name",
 			"aip_id",
@@ -135,9 +132,9 @@ var (
 			"created_at",
 		},
 	}
-	// StoredStoragePackageCollectionMap is a map indexing the attribute names of
-	// StoredStoragePackageCollection by view name.
-	StoredStoragePackageCollectionMap = map[string][]string{
+	// PackageCollectionMap is a map indexing the attribute names of
+	// PackageCollection by view name.
+	PackageCollectionMap = map[string][]string{
 		"default": {
 			"name",
 			"aip_id",
@@ -161,12 +158,12 @@ func ValidateLocationCollection(result LocationCollection) (err error) {
 	return
 }
 
-// ValidateStoredStoragePackage runs the validations defined on the viewed
-// result type StoredStoragePackage.
-func ValidateStoredStoragePackage(result *StoredStoragePackage) (err error) {
+// ValidatePackage runs the validations defined on the viewed result type
+// Package.
+func ValidatePackage(result *Package) (err error) {
 	switch result.View {
 	case "default", "":
-		err = ValidateStoredStoragePackageView(result.Projected)
+		err = ValidatePackageView(result.Projected)
 	default:
 		err = goa.InvalidEnumValueError("view", result.View, []interface{}{"default"})
 	}
@@ -185,12 +182,12 @@ func ValidateLocation(result *Location) (err error) {
 	return
 }
 
-// ValidateStoredStoragePackageCollection runs the validations defined on the
-// viewed result type StoredStoragePackageCollection.
-func ValidateStoredStoragePackageCollection(result StoredStoragePackageCollection) (err error) {
+// ValidatePackageCollection runs the validations defined on the viewed result
+// type PackageCollection.
+func ValidatePackageCollection(result PackageCollection) (err error) {
 	switch result.View {
 	case "default", "":
-		err = ValidateStoredStoragePackageCollectionView(result.Projected)
+		err = ValidatePackageCollectionView(result.Projected)
 	default:
 		err = goa.InvalidEnumValueError("view", result.View, []interface{}{"default"})
 	}
@@ -253,9 +250,9 @@ func ValidateS3ConfigView(result *S3ConfigView) (err error) {
 	return
 }
 
-// ValidateStoredStoragePackageView runs the validations defined on
-// StoredStoragePackageView using the "default" view.
-func ValidateStoredStoragePackageView(result *StoredStoragePackageView) (err error) {
+// ValidatePackageView runs the validations defined on PackageView using the
+// "default" view.
+func ValidatePackageView(result *PackageView) (err error) {
 	if result.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("name", "result"))
 	}
@@ -282,11 +279,11 @@ func ValidateStoredStoragePackageView(result *StoredStoragePackageView) (err err
 	return
 }
 
-// ValidateStoredStoragePackageCollectionView runs the validations defined on
-// StoredStoragePackageCollectionView using the "default" view.
-func ValidateStoredStoragePackageCollectionView(result StoredStoragePackageCollectionView) (err error) {
+// ValidatePackageCollectionView runs the validations defined on
+// PackageCollectionView using the "default" view.
+func ValidatePackageCollectionView(result PackageCollectionView) (err error) {
 	for _, item := range result {
-		if err2 := ValidateStoredStoragePackageView(item); err2 != nil {
+		if err2 := ValidatePackageView(item); err2 != nil {
 			err = goa.MergeErrors(err, err2)
 		}
 	}

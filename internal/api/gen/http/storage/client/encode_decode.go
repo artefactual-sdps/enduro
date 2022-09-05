@@ -806,13 +806,13 @@ func DecodeShowResponse(decoder func(*http.Response) goahttp.Decoder, restoreBod
 			if err != nil {
 				return nil, goahttp.ErrDecodingError("storage", "show", err)
 			}
-			p := NewShowStoredStoragePackageOK(&body)
+			p := NewShowPackageOK(&body)
 			view := "default"
-			vres := &storageviews.StoredStoragePackage{Projected: p, View: view}
-			if err = storageviews.ValidateStoredStoragePackage(vres); err != nil {
+			vres := &storageviews.Package{Projected: p, View: view}
+			if err = storageviews.ValidatePackage(vres); err != nil {
 				return nil, goahttp.ErrValidationError("storage", "show", err)
 			}
-			res := storage.NewStoredStoragePackage(vres)
+			res := storage.NewPackage(vres)
 			return res, nil
 		case http.StatusNotFound:
 			var (
@@ -975,13 +975,13 @@ func DecodeLocationPackagesResponse(decoder func(*http.Response) goahttp.Decoder
 			if err != nil {
 				return nil, goahttp.ErrDecodingError("storage", "location_packages", err)
 			}
-			p := NewLocationPackagesStoredStoragePackageCollectionOK(body)
+			p := NewLocationPackagesPackageCollectionOK(body)
 			view := "default"
-			vres := storageviews.StoredStoragePackageCollection{Projected: p, View: view}
-			if err = storageviews.ValidateStoredStoragePackageCollection(vres); err != nil {
+			vres := storageviews.PackageCollection{Projected: p, View: view}
+			if err = storageviews.ValidatePackageCollection(vres); err != nil {
 				return nil, goahttp.ErrValidationError("storage", "location_packages", err)
 			}
-			res := storage.NewStoredStoragePackageCollection(vres)
+			res := storage.NewPackageCollection(vres)
 			return res, nil
 		case http.StatusBadRequest:
 			var (
@@ -1041,11 +1041,10 @@ func unmarshalLocationResponseToStorageviewsLocationView(v *LocationResponse) *s
 	return res
 }
 
-// unmarshalStoredStoragePackageResponseToStorageviewsStoredStoragePackageView
-// builds a value of type *storageviews.StoredStoragePackageView from a value
-// of type *StoredStoragePackageResponse.
-func unmarshalStoredStoragePackageResponseToStorageviewsStoredStoragePackageView(v *StoredStoragePackageResponse) *storageviews.StoredStoragePackageView {
-	res := &storageviews.StoredStoragePackageView{
+// unmarshalPackageResponseToStorageviewsPackageView builds a value of type
+// *storageviews.PackageView from a value of type *PackageResponse.
+func unmarshalPackageResponseToStorageviewsPackageView(v *PackageResponse) *storageviews.PackageView {
+	res := &storageviews.PackageView{
 		Name:       v.Name,
 		AipID:      v.AipID,
 		Status:     v.Status,

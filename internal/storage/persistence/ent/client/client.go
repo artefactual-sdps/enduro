@@ -28,19 +28,12 @@ func NewClient(c *db.Client) *Client {
 	return &Client{c: c}
 }
 
-func (c *Client) CreatePackage(ctx context.Context, goapkg *goastorage.StoragePackage) (*goastorage.StoredStoragePackage, error) {
+func (c *Client) CreatePackage(ctx context.Context, goapkg *goastorage.Package) (*goastorage.Package, error) {
 	q := c.c.Pkg.Create()
 
 	q.SetName(goapkg.Name)
-
 	q.SetAipID(goapkg.AipID)
-
-	var objectKey uuid.UUID
-	if goapkg.ObjectKey != nil {
-		objectKey = *goapkg.ObjectKey
-	}
-	q.SetObjectKey(objectKey)
-
+	q.SetObjectKey(goapkg.ObjectKey)
 	q.SetStatus(types.NewPackageStatus(goapkg.Status))
 
 	pkg, err := q.Save(ctx)
@@ -51,8 +44,8 @@ func (c *Client) CreatePackage(ctx context.Context, goapkg *goastorage.StoragePa
 	return pkgAsGoa(ctx, pkg), nil
 }
 
-func (c *Client) ListPackages(ctx context.Context) ([]*goastorage.StoredStoragePackage, error) {
-	pkgs := []*goastorage.StoredStoragePackage{}
+func (c *Client) ListPackages(ctx context.Context) ([]*goastorage.Package, error) {
+	pkgs := []*goastorage.Package{}
 
 	res, err := c.c.Pkg.Query().All(ctx)
 	for _, item := range res {
@@ -62,7 +55,7 @@ func (c *Client) ListPackages(ctx context.Context) ([]*goastorage.StoredStorageP
 	return pkgs, err
 }
 
-func (c *Client) ReadPackage(ctx context.Context, aipID uuid.UUID) (*goastorage.StoredStoragePackage, error) {
+func (c *Client) ReadPackage(ctx context.Context, aipID uuid.UUID) (*goastorage.Package, error) {
 	pkg, err := c.c.Pkg.Query().
 		Where(
 			pkg.AipID(aipID),
@@ -124,8 +117,8 @@ func (c *Client) UpdatePackageLocationID(ctx context.Context, aipID, locationID 
 	return nil
 }
 
-func pkgAsGoa(ctx context.Context, pkg *db.Pkg) *goastorage.StoredStoragePackage {
-	p := &goastorage.StoredStoragePackage{
+func pkgAsGoa(ctx context.Context, pkg *db.Pkg) *goastorage.Package {
+	p := &goastorage.Package{
 		Name:      pkg.Name,
 		AipID:     pkg.AipID,
 		Status:    pkg.Status.String(),
@@ -216,13 +209,13 @@ func locationAsGoa(loc *db.Location) *goastorage.Location {
 	return l
 }
 
-func (c *Client) LocationPackages(ctx context.Context, locationID uuid.UUID) (goastorage.StoredStoragePackageCollection, error) {
+func (c *Client) LocationPackages(ctx context.Context, locationID uuid.UUID) (goastorage.PackageCollection, error) {
 	res, err := c.c.Location.Query().Where(location.UUID(locationID)).QueryPackages().All(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	packages := []*goastorage.StoredStoragePackage{}
+	packages := []*goastorage.Package{}
 	for _, item := range res {
 		packages = append(packages, pkgAsGoa(ctx, item))
 	}

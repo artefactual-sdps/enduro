@@ -148,13 +148,13 @@ func (c *Client) Reject(ctx context.Context, p *RejectPayload) (err error) {
 // Show may return the following errors:
 //   - "not_found" (type *PackageNotFound): Storage package not found
 //   - error: internal error
-func (c *Client) Show(ctx context.Context, p *ShowPayload) (res *StoredStoragePackage, err error) {
+func (c *Client) Show(ctx context.Context, p *ShowPayload) (res *Package, err error) {
 	var ires interface{}
 	ires, err = c.ShowEndpoint(ctx, p)
 	if err != nil {
 		return
 	}
-	return ires.(*StoredStoragePackage), nil
+	return ires.(*Package), nil
 }
 
 // ShowLocation calls the "show_location" endpoint of the "storage" service.
@@ -176,11 +176,11 @@ func (c *Client) ShowLocation(ctx context.Context, p *ShowLocationPayload) (res 
 //   - "not_found" (type *LocationNotFound): Storage location not found
 //   - "not_valid" (type *goa.ServiceError)
 //   - error: internal error
-func (c *Client) LocationPackages(ctx context.Context, p *LocationPackagesPayload) (res StoredStoragePackageCollection, err error) {
+func (c *Client) LocationPackages(ctx context.Context, p *LocationPackagesPayload) (res PackageCollection, err error) {
 	var ires interface{}
 	ires, err = c.LocationPackagesEndpoint(ctx, p)
 	if err != nil {
 		return
 	}
-	return ires.(StoredStoragePackageCollection), nil
+	return ires.(PackageCollection), nil
 }
