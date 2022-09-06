@@ -82,8 +82,9 @@ var _ Service = (*serviceImpl)(nil)
 
 func New(ctx context.Context, c *Config) (*serviceImpl, error) {
 	watchers := map[string]Watcher{}
+	minioConfigs := append(c.Minio, c.Embedded)
 
-	for _, item := range c.Minio {
+	for _, item := range minioConfigs {
 		item := item
 		w, err := NewMinioWatcher(ctx, item)
 		if err != nil {

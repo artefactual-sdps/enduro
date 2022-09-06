@@ -8,6 +8,7 @@ import (
 type Config struct {
 	Filesystem []*FilesystemConfig
 	Minio      []*MinioConfig
+	Embedded   *MinioConfig
 }
 
 func (c Config) CompletedDirs() []string {

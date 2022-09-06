@@ -20,7 +20,7 @@ redisChannel = "enduro-events"
 dsn = "enduro:enduro123@tcp(mysql:3306)/enduro"
 migrate = true
 
-[[watcher.minio]]
+[watcher.embedded]
 name = "dev-minio"
 redisAddress = "redis://redis:6379"
 redisList = "minio-events"
