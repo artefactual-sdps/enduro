@@ -29,6 +29,43 @@ spec:
       containers:
         - name: enduro-a3m-worker
           image: ghcr.io/artefactual-sdps/enduro-a3m-worker:main
+          env:
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: user
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: password
+            - name: MINIO_USER
+              valueFrom:
+                secretKeyRef:
+                  name: minio-secret
+                  key: user
+            - name: MINIO_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: minio-secret
+                  key: password
+            - name: ENDURO_DATABASE_DSN
+              value: $(MYSQL_USER):$(MYSQL_PASSWORD)@tcp(mysql:3306)/enduro
+            - name: ENDURO_STORAGE_DATABASE_DSN
+              value: $(MYSQL_USER):$(MYSQL_PASSWORD)@tcp(mysql:3306)/enduro_storage
+            - name: ENDURO_WATCHER_EMBEDDED_KEY
+              value: $(MINIO_USER)
+            - name: ENDURO_WATCHER_EMBEDDED_SECRET
+              value: $(MINIO_PASSWORD)
+            - name: ENDURO_STORAGE_INTERNAL_KEY
+              value: $(MINIO_USER)
+            - name: ENDURO_STORAGE_INTERNAL_SECRET
+              value: $(MINIO_PASSWORD)
+            - name: ENDURO_UPLOAD_KEY
+              value: $(MINIO_USER)
+            - name: ENDURO_UPLOAD_SECRET
+              value: $(MINIO_PASSWORD)
           volumeMounts:
             - name: enduro-a3m
               mountPath: /home/a3m/.local/share/a3m/share
