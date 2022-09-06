@@ -7,6 +7,11 @@ const storageStore = useStorageStore();
 
 <template>
   <div v-if="storageStore.current">
+    <div class="text-muted mb-3">
+      Showing {{ storageStore.current_packages.length }} /
+      {{ storageStore.current_packages.length }}
+    </div>
+
     <div class="table-responsive mb-3">
       <table class="table table-bordered mb-0">
         <thead>
