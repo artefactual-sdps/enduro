@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import UUID from "@/components/UUID.vue";
 import { openPackageLocationDialog } from "@/dialogs";
 import { usePackageStore } from "@/stores/package";
 
@@ -34,7 +35,7 @@ const choose = async () => {
         <span v-else-if="!packageStore.current?.locationId"
           >Not available yet.</span
         >
-        <span v-else>{{ packageStore.current.locationId }}</span>
+        <span v-else><UUID :id="packageStore.current.locationId" /></span>
       </p>
       <div class="actions" v-if="!packageStore.isRejected">
         <button
