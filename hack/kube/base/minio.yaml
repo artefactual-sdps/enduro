@@ -4,8 +4,8 @@ metadata:
   name: minio-secret
 type: Opaque
 data:
-  user: bWluaW8K # minio
-  password: bWluaW8xMjMK # minio123
+  user: bWluaW8= # minio
+  password: bWluaW8xMjM= # minio123
 ---
 apiVersion: apps/v1
 kind: Deployment
