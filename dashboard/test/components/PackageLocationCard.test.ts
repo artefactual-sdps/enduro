@@ -33,9 +33,11 @@ describe("PackageLocationCard.vue", () => {
           <!--v-if-->
           <!--v-if-->
           <h4 class=\\"card-title\\">Location</h4>
-          <p class=\\"card-text\\"><span>f8635e46-a320-4152-9a2c-98a28eeb50d1</span></p>
-          <div class=\\"actions\\"><button type=\\"button\\" class=\\"btn btn-primary btn-sm\\" disabled=\\"false\\">Choose storage location</button></div>
-        </div>
+          <p class=\\"card-text\\"><span><div class=\\"d-flex align-items-start gap-2\\"><span class=\\"font-monospace\\">f8635e46-a320-4152-9a2c-98a28eeb50d1</span>
+            <!--v-if-->
+        </div></span></p>
+        <div class=\\"actions\\"><button type=\\"button\\" class=\\"btn btn-primary btn-sm\\" disabled=\\"false\\">Choose storage location</button></div>
+      </div>
       </div>"
     `);
   });
@@ -175,9 +177,11 @@ describe("PackageLocationCard.vue", () => {
           <!--v-if-->
           <!--v-if-->
           <h4 class=\\"card-title\\">Location</h4>
-          <p class=\\"card-text\\"><span>f8635e46-a320-4152-9a2c-98a28eeb50d1</span></p>
-          <div class=\\"actions\\"><button type=\\"button\\" class=\\"btn btn-primary btn-sm\\" disabled=\\"true\\">Choose storage location</button></div>
-        </div>
+          <p class=\\"card-text\\"><span><div class=\\"d-flex align-items-start gap-2\\"><span class=\\"font-monospace\\">f8635e46-a320-4152-9a2c-98a28eeb50d1</span>
+            <!--v-if-->
+        </div></span></p>
+        <div class=\\"actions\\"><button type=\\"button\\" class=\\"btn btn-primary btn-sm\\" disabled=\\"true\\">Choose storage location</button></div>
+      </div>
       </div>"
     `);
   });

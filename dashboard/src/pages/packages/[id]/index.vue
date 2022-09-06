@@ -30,9 +30,7 @@ let toggleAll = $ref<boolean | null>(false);
           <dt>Name</dt>
           <dd>{{ packageStore.current.name }}</dd>
           <dt>AIP UUID</dt>
-          <dd>
-            <UUID :id="packageStore.current.aipId" />
-          </dd>
+          <dd><UUID :id="packageStore.current.aipId" /></dd>
           <dt>Workflow status</dt>
           <dd>
             <StatusBadge

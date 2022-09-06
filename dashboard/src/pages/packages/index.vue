@@ -85,14 +85,10 @@ const toggleLegend = () => {
                 >{{ pkg.name }}</router-link
               >
             </td>
-            <td>
-              <UUID :id="pkg.aipId" />
-            </td>
+            <td><UUID :id="pkg.aipId" /></td>
             <td>{{ $filters.formatDateTime(pkg.startedAt) }}</td>
-            <td>{{ pkg.locationId }}</td>
-            <td>
-              <StatusBadge :status="pkg.status" />
-            </td>
+            <td><UUID :id="pkg.locationId" /></td>
+            <td><StatusBadge :status="pkg.status" /></td>
           </tr>
         </tbody>
       </table>
