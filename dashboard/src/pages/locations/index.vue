@@ -17,9 +17,13 @@ const { execute, error } = useAsyncState(() => {
 
 <template>
   <div class="container-xxl">
-    <h1 class="d-flex mb-3">
+    <h1 class="d-flex mb-0">
       <IconRackServerLine class="me-3 text-dark" />Locations
     </h1>
+    <div class="text-muted mb-3">
+      Showing {{ storageStore.locations.length }} /
+      {{ storageStore.locations.length }}
+    </div>
     <PageLoadingAlert :execute="execute" :error="error" />
     <div class="table-responsive mb-3">
       <table class="table table-bordered mb-0">
