@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/spf13/viper"
 
@@ -54,6 +55,9 @@ func Read(config *Configuration, configFile string) (found bool, configFileUsed 
 	v.SetDefault("debugListen", "127.0.0.1:9001")
 	v.SetDefault("api.listen", "127.0.0.1:9000")
 	v.Set("api.appVersion", version.Version)
+	v.SetEnvPrefix("enduro")
+	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+	v.AutomaticEnv()
 
 	if configFile != "" {
 		v.SetConfigFile(configFile)
