@@ -1124,8 +1124,8 @@ func ValidateEnduroPackagePreservationActionResponseBody(body *EnduroPackagePres
 		err = goa.MergeErrors(err, goa.MissingFieldError("started_at", "body"))
 	}
 	if body.Type != nil {
-		if !(*body.Type == "create-aip" || *body.Type == "move-package") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.type", *body.Type, []interface{}{"create-aip", "move-package"}))
+		if !(*body.Type == "create-aip" || *body.Type == "create-and-review-aip" || *body.Type == "move-package") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.type", *body.Type, []interface{}{"create-aip", "create-and-review-aip", "move-package"}))
 		}
 	}
 	if body.Status != nil {

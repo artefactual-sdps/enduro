@@ -145,7 +145,7 @@ func createPreservationActionLocalActivity(ctx context.Context, pkgsvc package_.
 	return pa.ID, nil
 }
 
-func setPreservationActonStatusLocalActivity(ctx context.Context, pkgsvc package_.Service, ID uint, status package_.PreservationActionStatus) error {
+func setPreservationActionStatusLocalActivity(ctx context.Context, pkgsvc package_.Service, ID uint, status package_.PreservationActionStatus) error {
 	return pkgsvc.SetPreservationActionStatus(ctx, ID, status)
 }
 

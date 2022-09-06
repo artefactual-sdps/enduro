@@ -54,6 +54,12 @@ type ProcessingWorkflowRequest struct {
 
 	// Whether the blob is a directory (fs watcher)
 	IsDir bool
+
+	// Whether the AIP is stored automatically in the default permanent location.
+	AutoApproveAIP bool
+
+	// Location identifier for storing auto approved AIPs.
+	DefaultPermanentLocationID *uuid.UUID
 }
 
 func InitProcessingWorkflow(ctx context.Context, tc temporalsdk_client.Client, req *ProcessingWorkflowRequest) error {

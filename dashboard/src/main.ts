@@ -58,6 +58,9 @@ app.config.globalProperties.$filters = {
   ) {
     switch (value) {
       case api.EnduroPackagePreservationActionResponseBodyTypeEnum.CreateAip:
+        return "Create AIP";
+      case api.EnduroPackagePreservationActionResponseBodyTypeEnum
+        .CreateAndReviewAip:
         return "Create and Review AIP";
       case api.EnduroPackagePreservationActionResponseBodyTypeEnum.MovePackage:
         return "Move package";

@@ -95,6 +95,7 @@ export type EnduroPackagePreservationActionResponseBodyStatusEnum = typeof Endur
  */
 export const EnduroPackagePreservationActionResponseBodyTypeEnum = {
     CreateAip: 'create-aip',
+    CreateAndReviewAip: 'create-and-review-aip',
     MovePackage: 'move-package'
 } as const;
 export type EnduroPackagePreservationActionResponseBodyTypeEnum = typeof EnduroPackagePreservationActionResponseBodyTypeEnum[keyof typeof EnduroPackagePreservationActionResponseBodyTypeEnum];

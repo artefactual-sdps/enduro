@@ -111,6 +111,16 @@ type TransferInfo struct {
 	//
 	// It is populated by createPreservationActionLocalActivity .
 	PreservationActionID uint
+
+	// Whether the AIP is stored automatically in the default permanent location.
+	//
+	// It is populated via the workflow request.
+	AutoApproveAIP bool
+
+	// Location identifier for storing auto approved AIPs.
+	//
+	// It is populated via the workflow request.
+	DefaultPermanentLocationID *uuid.UUID
 }
 
 // ProcessingWorkflow orchestrates all the activities related to the processing
@@ -125,13 +135,15 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *pack
 		logger = temporalsdk_workflow.GetLogger(ctx)
 
 		tinfo = &TransferInfo{
-			PackageID:        req.PackageID,
-			WatcherName:      req.WatcherName,
-			RetentionPeriod:  req.RetentionPeriod,
-			CompletedDir:     req.CompletedDir,
-			StripTopLevelDir: req.StripTopLevelDir,
-			Key:              req.Key,
-			IsDir:            req.IsDir,
+			PackageID:                  req.PackageID,
+			WatcherName:                req.WatcherName,
+			RetentionPeriod:            req.RetentionPeriod,
+			CompletedDir:               req.CompletedDir,
+			StripTopLevelDir:           req.StripTopLevelDir,
+			Key:                        req.Key,
+			IsDir:                      req.IsDir,
+			AutoApproveAIP:             req.AutoApproveAIP,
+			DefaultPermanentLocationID: req.DefaultPermanentLocationID,
 		}
 
 		// Package status. All packages start in queued status.
@@ -297,10 +309,17 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 	// Persist the preservation action for creating the AIP.
 	{
 		{
+			var preservationActionType package_.PreservationActionType
+			if tinfo.AutoApproveAIP {
+				preservationActionType = package_.ActionTypeCreateAIP
+			} else {
+				preservationActionType = package_.ActionTypeCreateAndReviewAIP
+			}
+
 			ctx := withLocalActivityOpts(sessCtx)
 			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, createPreservationActionLocalActivity, w.pkgsvc, &createPreservationActionLocalActivityParams{
 				WorkflowID: temporalsdk_workflow.GetInfo(ctx).WorkflowExecution.ID,
-				Type:       package_.ActionTypeCreateAIP,
+				Type:       preservationActionType,
 				Status:     package_.ActionStatusInProgress,
 				StartedAt:  packageStartedAt,
 				PackageID:  tinfo.PackageID,
@@ -379,16 +398,14 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 	// Identifier of the preservation task for upload to sips bucket.
 	var uploadPreservationTaskID uint
 
-	uploadStartedAt := temporalsdk_workflow.Now(sessCtx).UTC()
-
 	// Add preservation task for upload to review bucket.
-	{
+	if !tinfo.AutoApproveAIP {
 		ctx := withLocalActivityOpts(sessCtx)
 		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, createPreservationTaskLocalActivity, w.pkgsvc, &createPreservationTaskLocalActivityParams{
 			TaskID:               uuid.NewString(),
 			Name:                 "Move AIP",
 			Status:               package_.TaskStatusInProgress,
-			StartedAt:            uploadStartedAt,
+			StartedAt:            temporalsdk_workflow.Now(sessCtx).UTC(),
 			Note:                 "Moving to review bucket",
 			PreservationActionID: tinfo.PreservationActionID,
 		}).Get(ctx, &uploadPreservationTaskID)
@@ -417,15 +434,13 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 		}
 	}
 
-	uploadCompletedAt := temporalsdk_workflow.Now(sessCtx).UTC()
-
 	// Complete preservation task for upload to review bucket.
-	{
+	if !tinfo.AutoApproveAIP {
 		ctx := withLocalActivityOpts(sessCtx)
 		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, completePreservationTaskLocalActivity, w.pkgsvc, &completePreservationTaskLocalActivityParams{
 			ID:          uploadPreservationTaskID,
 			Status:      package_.TaskStatusDone,
-			CompletedAt: uploadCompletedAt,
+			CompletedAt: temporalsdk_workflow.Now(sessCtx).UTC(),
 			Note:        ref.New("Moved to review bucket"),
 		}).Get(ctx, nil)
 		if err != nil {
@@ -433,69 +448,77 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 		}
 	}
 
-	// Set package to pending status.
-	{
-		ctx := withLocalActivityOpts(sessCtx)
-		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setStatusLocalActivity, w.pkgsvc, tinfo.PackageID, package_.StatusPending).Get(ctx, nil)
-		if err != nil {
-			return err
-		}
-	}
-
-	// Set preservation action to pending status.
-	{
-		ctx := withLocalActivityOpts(sessCtx)
-		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setPreservationActonStatusLocalActivity, w.pkgsvc, tinfo.PreservationActionID, package_.ActionStatusPending).Get(ctx, nil)
-		if err != nil {
-			return err
-		}
-	}
+	var reviewResult *package_.ReviewPerformedSignal
 
 	// Identifier of the preservation task for package review
 	var reviewPreservationTaskID uint
 
-	reviewStartedAt := temporalsdk_workflow.Now(sessCtx).UTC()
+	if tinfo.AutoApproveAIP {
+		reviewResult = &package_.ReviewPerformedSignal{
+			Accepted:   true,
+			LocationID: tinfo.DefaultPermanentLocationID,
+		}
+	} else {
+		// Set package to pending status.
+		{
+			ctx := withLocalActivityOpts(sessCtx)
+			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setStatusLocalActivity, w.pkgsvc, tinfo.PackageID, package_.StatusPending).Get(ctx, nil)
+			if err != nil {
+				return err
+			}
+		}
 
-	// Add preservation task for package review
-	{
-		ctx := withLocalActivityOpts(sessCtx)
-		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, createPreservationTaskLocalActivity, w.pkgsvc, &createPreservationTaskLocalActivityParams{
-			TaskID:               uuid.NewString(),
-			Name:                 "Review AIP",
-			Status:               package_.TaskStatusPending,
-			StartedAt:            reviewStartedAt,
-			Note:                 "Awaiting user decision",
-			PreservationActionID: tinfo.PreservationActionID,
-		}).Get(ctx, &reviewPreservationTaskID)
-		if err != nil {
-			return err
+		// Set preservation action to pending status.
+		{
+			ctx := withLocalActivityOpts(sessCtx)
+			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setPreservationActionStatusLocalActivity, w.pkgsvc, tinfo.PreservationActionID, package_.ActionStatusPending).Get(ctx, nil)
+			if err != nil {
+				return err
+			}
+		}
+
+		// Add preservation task for package review
+		{
+			ctx := withLocalActivityOpts(sessCtx)
+			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, createPreservationTaskLocalActivity, w.pkgsvc, &createPreservationTaskLocalActivityParams{
+				TaskID:               uuid.NewString(),
+				Name:                 "Review AIP",
+				Status:               package_.TaskStatusPending,
+				StartedAt:            temporalsdk_workflow.Now(sessCtx).UTC(),
+				Note:                 "Awaiting user decision",
+				PreservationActionID: tinfo.PreservationActionID,
+			}).Get(ctx, &reviewPreservationTaskID)
+			if err != nil {
+				return err
+			}
+		}
+
+		reviewResult = w.waitForReview(sessCtx)
+
+		// Set package to in progress status.
+		{
+			ctx := withLocalActivityOpts(sessCtx)
+			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setStatusLocalActivity, w.pkgsvc, tinfo.PackageID, package_.StatusInProgress).Get(ctx, nil)
+			if err != nil {
+				return err
+			}
+		}
+
+		// Set preservation action to in progress status.
+		{
+			ctx := withLocalActivityOpts(sessCtx)
+			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setPreservationActionStatusLocalActivity, w.pkgsvc, tinfo.PreservationActionID, package_.ActionStatusInProgress).Get(ctx, nil)
+			if err != nil {
+				return err
+			}
 		}
 	}
 
-	review := w.waitForReview(sessCtx)
 	reviewCompletedAt := temporalsdk_workflow.Now(sessCtx).UTC()
 
-	// Set package to in progress status.
-	{
-		ctx := withLocalActivityOpts(sessCtx)
-		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setStatusLocalActivity, w.pkgsvc, tinfo.PackageID, package_.StatusInProgress).Get(ctx, nil)
-		if err != nil {
-			return err
-		}
-	}
-
-	// Set preservation action to in progress status.
-	{
-		ctx := withLocalActivityOpts(sessCtx)
-		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setPreservationActonStatusLocalActivity, w.pkgsvc, tinfo.PreservationActionID, package_.ActionStatusInProgress).Get(ctx, nil)
-		if err != nil {
-			return err
-		}
-	}
-
-	if review.Accepted {
+	if reviewResult.Accepted {
 		// Record package confirmation in review preservation task
-		{
+		if !tinfo.AutoApproveAIP {
 			ctx := withLocalActivityOpts(sessCtx)
 			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, completePreservationTaskLocalActivity, w.pkgsvc, &completePreservationTaskLocalActivityParams{
 				ID:          reviewPreservationTaskID,
@@ -511,8 +534,6 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 		// Identifier of the preservation task for permanent storage move.
 		var movePreservationTaskID uint
 
-		moveStartedAt := temporalsdk_workflow.Now(sessCtx).UTC()
-
 		// Add preservation task for permanent storage move.
 		{
 			ctx := withLocalActivityOpts(sessCtx)
@@ -520,7 +541,7 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 				TaskID:               uuid.NewString(),
 				Name:                 "Move AIP",
 				Status:               package_.TaskStatusInProgress,
-				StartedAt:            moveStartedAt,
+				StartedAt:            temporalsdk_workflow.Now(sessCtx).UTC(),
 				Note:                 "Moving to permanent storage",
 				PreservationActionID: tinfo.PreservationActionID,
 			}).Get(ctx, &movePreservationTaskID)
@@ -534,7 +555,7 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 			activityOpts := withActivityOptsForRequest(sessCtx)
 			err := temporalsdk_workflow.ExecuteActivity(activityOpts, activities.MoveToPermanentStorageActivityName, &activities.MoveToPermanentStorageActivityParams{
 				AIPID:      tinfo.SIPID,
-				LocationID: *review.LocationID,
+				LocationID: *reviewResult.LocationID,
 			}).Get(activityOpts, nil)
 			if err != nil {
 				return err
@@ -552,16 +573,14 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 			}
 		}
 
-		moveCompletedAt := temporalsdk_workflow.Now(sessCtx).UTC()
-
 		// Complete preservation task for permanent storage move.
 		{
 			ctx := withLocalActivityOpts(sessCtx)
 			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, completePreservationTaskLocalActivity, w.pkgsvc, &completePreservationTaskLocalActivityParams{
 				ID:          movePreservationTaskID,
 				Status:      package_.TaskStatusDone,
-				CompletedAt: moveCompletedAt,
-				Note:        ref.New(fmt.Sprintf("Moved to location %s", *review.LocationID)),
+				CompletedAt: temporalsdk_workflow.Now(sessCtx).UTC(),
+				Note:        ref.New(fmt.Sprintf("Moved to location %s", *reviewResult.LocationID)),
 			}).Get(ctx, nil)
 			if err != nil {
 				return err
@@ -571,12 +590,12 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 		// Set package location
 		{
 			ctx := withLocalActivityOpts(sessCtx)
-			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setLocationIDLocalActivity, w.pkgsvc, tinfo.PackageID, *review.LocationID).Get(ctx, nil)
+			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setLocationIDLocalActivity, w.pkgsvc, tinfo.PackageID, *reviewResult.LocationID).Get(ctx, nil)
 			if err != nil {
 				return err
 			}
 		}
-	} else {
+	} else if !tinfo.AutoApproveAIP {
 		// Record package rejection in review preservation task
 		{
 			ctx := withLocalActivityOpts(sessCtx)
