@@ -2,7 +2,6 @@
 import { api } from "@/client";
 import PackageDetailsCard from "@/components/PackageDetailsCard.vue";
 import PackageLocationCard from "@/components/PackageLocationCard.vue";
-import PreservationActionCollapse from "@/components/PreservationActionCollapse.vue";
 import StatusBadge from "@/components/StatusBadge.vue";
 import UUID from "@/components/UUID.vue";
 import { usePackageStore } from "@/stores/package";
@@ -17,8 +16,6 @@ const createAipWorkflow = $computed(
         api.EnduroPackagePreservationActionResponseBodyTypeEnum.CreateAip
     )[0]
 );
-
-let toggleAll = $ref<boolean | null>(false);
 </script>
 
 <template>
@@ -63,40 +60,5 @@ let toggleAll = $ref<boolean | null>(false);
         <PackageDetailsCard />
       </div>
     </div>
-
-    <div class="d-flex">
-      <h2 class="mb-0">Preservation actions</h2>
-      <div
-        class="align-self-end ms-auto d-flex"
-        v-if="
-          packageStore.current_preservation_actions?.actions &&
-          packageStore.current_preservation_actions.actions.length > 1
-        "
-      >
-        <button
-          class="btn btn-sm btn-link p-0"
-          type="button"
-          @click="toggleAll = true"
-        >
-          Expand all
-        </button>
-        <span class="px-1">|</span>
-        <button
-          class="btn btn-sm btn-link p-0"
-          type="button"
-          @click="toggleAll = false"
-        >
-          Collapse all
-        </button>
-      </div>
-    </div>
-
-    <PreservationActionCollapse
-      :action="action"
-      :index="index"
-      v-model:toggleAll="toggleAll"
-      v-for="(action, index) in packageStore.current_preservation_actions
-        ?.actions"
-    />
   </div>
 </template>

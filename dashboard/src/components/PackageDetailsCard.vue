@@ -1,22 +1,12 @@
 <script setup lang="ts">
-import { storageServiceDownloadURL } from "@/client";
 import StatusBadge from "@/components/StatusBadge.vue";
 import { usePackageStore } from "@/stores/package";
-import { computed, watch } from "vue";
+import { computed } from "vue";
 
 const packageStore = usePackageStore();
-
-const download = () => {
-  if (!packageStore.current?.aipId) return;
-  const url = storageServiceDownloadURL(packageStore.current.aipId);
-  window.open(url, "_blank");
-};
-
 const stored = computed(() => {
   return packageStore.current?.aipId?.length;
 });
-
-watch(packageStore.ui.download, () => download());
 </script>
 
 <template>
@@ -55,7 +45,7 @@ watch(packageStore.ui.download, () => download());
             disabled: !stored,
           }"
           type="button"
-          @click="download"
+          @click="packageStore.ui.download.request"
         >
           Download
         </button>

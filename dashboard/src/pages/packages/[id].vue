@@ -1,12 +1,15 @@
 <script setup lang="ts">
+import { storageServiceDownloadURL } from "@/client";
 import PackagePendingAlert from "@/components/PackagePendingAlert.vue";
 import PageLoadingAlert from "@/components/PageLoadingAlert.vue";
 import Tabs from "@/components/Tabs.vue";
 import { usePackageStore } from "@/stores/package";
 import { useAsyncState } from "@vueuse/core";
+import { watch } from "vue";
 import { useRoute } from "vue-router";
 import IconBundleLine from "~icons/clarity/bundle-line";
 import RawIconDetailsLine from "~icons/clarity/details-line?raw&font-size=20px";
+import RawIconProcessOnVmLine from "~icons/clarity/process-on-vm-line?raw&font-size=20px";
 
 const route = useRoute();
 const packageStore = usePackageStore();
@@ -16,11 +19,24 @@ const { execute, error } = useAsyncState(
   null
 );
 
+const download = () => {
+  if (!packageStore.current?.aipId) return;
+  const url = storageServiceDownloadURL(packageStore.current.aipId);
+  window.open(url, "_blank");
+};
+
+watch(packageStore.ui.download, () => download());
+
 const tabs = [
   {
     icon: RawIconDetailsLine,
     text: "Summary",
     route: { name: "packages-id", params: { id: route.params.id } },
+  },
+  {
+    icon: RawIconProcessOnVmLine,
+    text: "Workflows",
+    route: { name: "packages-id-workflows", params: { id: route.params.id } },
   },
 ];
 </script>
