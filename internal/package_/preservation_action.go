@@ -18,6 +18,7 @@ type PreservationActionType uint
 const (
 	ActionTypeUnspecified PreservationActionType = iota
 	ActionTypeCreateAIP
+	ActionTypeCreateAndReviewAIP
 	ActionTypeMovePackage
 )
 
@@ -27,6 +28,8 @@ func NewPreservationActionType(status string) PreservationActionType {
 	switch strings.ToLower(status) {
 	case "create-aip":
 		s = ActionTypeCreateAIP
+	case "create-and-review-aip":
+		s = ActionTypeCreateAndReviewAIP
 	case "move-package":
 		s = ActionTypeMovePackage
 	default:
@@ -40,6 +43,8 @@ func (p PreservationActionType) String() string {
 	switch p {
 	case ActionTypeCreateAIP:
 		return "create-aip"
+	case ActionTypeCreateAndReviewAIP:
+		return "create-and-review-aip"
 	case ActionTypeMovePackage:
 		return "move-package"
 	}

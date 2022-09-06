@@ -595,8 +595,8 @@ func ValidateEnduroPackagePreservationActionViewSimple(result *EnduroPackagePres
 		err = goa.MergeErrors(err, goa.MissingFieldError("started_at", "result"))
 	}
 	if result.Type != nil {
-		if !(*result.Type == "create-aip" || *result.Type == "move-package") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.type", *result.Type, []interface{}{"create-aip", "move-package"}))
+		if !(*result.Type == "create-aip" || *result.Type == "create-and-review-aip" || *result.Type == "move-package") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.type", *result.Type, []interface{}{"create-aip", "create-and-review-aip", "move-package"}))
 		}
 	}
 	if result.Status != nil {
@@ -632,8 +632,8 @@ func ValidateEnduroPackagePreservationActionView(result *EnduroPackagePreservati
 		err = goa.MergeErrors(err, goa.MissingFieldError("started_at", "result"))
 	}
 	if result.Type != nil {
-		if !(*result.Type == "create-aip" || *result.Type == "move-package") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.type", *result.Type, []interface{}{"create-aip", "move-package"}))
+		if !(*result.Type == "create-aip" || *result.Type == "create-and-review-aip" || *result.Type == "move-package") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.type", *result.Type, []interface{}{"create-aip", "create-and-review-aip", "move-package"}))
 		}
 	}
 	if result.Status != nil {

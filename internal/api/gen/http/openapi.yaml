@@ -745,6 +745,7 @@ definitions:
                 example: create-aip
                 enum:
                     - create-aip
+                    - create-and-review-aip
                     - move-package
             workflow_id:
                 type: string
@@ -781,7 +782,7 @@ definitions:
                   started_at: "1988-04-18T04:18:02Z"
                   status: unspecified
                   task_id: In quia tempora exercitationem.
-            type: move-package
+            type: create-aip
             workflow_id: Nemo laborum dolor sint quia ut.
         required:
             - id
@@ -826,7 +827,7 @@ definitions:
                   started_at: "1988-04-18T04:18:02Z"
                   status: unspecified
                   task_id: In quia tempora exercitationem.
-              type: create-aip
+              type: move-package
               workflow_id: Quibusdam nihil.
             - completed_at: "1981-05-29T01:47:50Z"
               id: 2937927871246073329
@@ -858,7 +859,7 @@ definitions:
                   started_at: "1988-04-18T04:18:02Z"
                   status: unspecified
                   task_id: In quia tempora exercitationem.
-              type: create-aip
+              type: move-package
               workflow_id: Quibusdam nihil.
     EnduroPackagePreservationActionResponseBodySimple:
         title: 'Mediatype identifier: application/vnd.enduro.package-preservation-action; view=default'
@@ -895,6 +896,7 @@ definitions:
                 example: move-package
                 enum:
                     - create-aip
+                    - create-and-review-aip
                     - move-package
             workflow_id:
                 type: string
@@ -1076,7 +1078,7 @@ definitions:
                 package_id: 7737853162882572773
                 started_at: "2007-10-31T04:26:47Z"
                 status: queued
-                type: create-aip
+                type: create-and-review-aip
                 workflow_id: Eos ea error earum rerum.
         required:
             - id
@@ -1101,7 +1103,7 @@ definitions:
                 package_id: 7737853162882572773
                 started_at: "2007-10-31T04:26:47Z"
                 status: queued
-                type: create-aip
+                type: create-and-review-aip
                 workflow_id: Eos ea error earum rerum.
         required:
             - id
@@ -1548,7 +1550,7 @@ definitions:
                     package_id: 7737853162882572773
                     started_at: "2007-10-31T04:26:47Z"
                     status: queued
-                    type: create-aip
+                    type: create-and-review-aip
                     workflow_id: Eos ea error earum rerum.
             preservation_action_updated_event:
                 id: 9920045945782004348
@@ -1558,7 +1560,7 @@ definitions:
                     package_id: 7737853162882572773
                     started_at: "2007-10-31T04:26:47Z"
                     status: queued
-                    type: create-aip
+                    type: create-and-review-aip
                     workflow_id: Eos ea error earum rerum.
             preservation_task_created_event:
                 id: 1543916061766988690
@@ -1832,7 +1834,7 @@ definitions:
                       started_at: "1988-04-18T04:18:02Z"
                       status: unspecified
                       task_id: In quia tempora exercitationem.
-                  type: create-aip
+                  type: move-package
                   workflow_id: Quibusdam nihil.
                 - completed_at: "1981-05-29T01:47:50Z"
                   id: 2937927871246073329
@@ -1864,7 +1866,7 @@ definitions:
                       started_at: "1988-04-18T04:18:02Z"
                       status: unspecified
                       task_id: In quia tempora exercitationem.
-                  type: create-aip
+                  type: move-package
                   workflow_id: Quibusdam nihil.
     PackageRejectNotAvailableResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'

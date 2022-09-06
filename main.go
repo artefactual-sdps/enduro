@@ -14,6 +14,7 @@ import (
 
 	"ariga.io/sqlcomment"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 	"github.com/oklog/run"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/pflag"
@@ -45,7 +46,14 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/workflow/activities"
 )
 
-const appName = "enduro"
+const (
+	appName        = "enduro"
+	autoApproveAIP = true
+)
+
+// This represents the first permanent location defined in the
+// mysql-create-locations-job Kubernetes manifest.
+var defaultPermanentLocationID = uuid.MustParse("f2cc963f-c14d-4eaa-b950-bd207189a1f1")
 
 func main() {
 	p := pflag.NewFlagSet(appName, pflag.ExitOnError)
@@ -218,12 +226,14 @@ func main() {
 							logger.V(1).Info("Starting new workflow", "watcher", event.WatcherName, "bucket", event.Bucket, "key", event.Key, "dir", event.IsDir)
 							go func() {
 								req := package_.ProcessingWorkflowRequest{
-									WatcherName:      event.WatcherName,
-									RetentionPeriod:  event.RetentionPeriod,
-									CompletedDir:     event.CompletedDir,
-									StripTopLevelDir: event.StripTopLevelDir,
-									Key:              event.Key,
-									IsDir:            event.IsDir,
+									WatcherName:                event.WatcherName,
+									RetentionPeriod:            event.RetentionPeriod,
+									CompletedDir:               event.CompletedDir,
+									StripTopLevelDir:           event.StripTopLevelDir,
+									Key:                        event.Key,
+									IsDir:                      event.IsDir,
+									AutoApproveAIP:             autoApproveAIP,
+									DefaultPermanentLocationID: &defaultPermanentLocationID,
 								}
 								if err := package_.InitProcessingWorkflow(ctx, temporalClient, &req); err != nil {
 									logger.Error(err, "Error initializing processing workflow.")

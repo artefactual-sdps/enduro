@@ -242,7 +242,7 @@ var PreservationActions = ResultType("application/vnd.enduro.package-preservatio
 })
 
 var EnumPreservationActionType = func() {
-	Enum("create-aip", "move-package")
+	Enum("create-aip", "create-and-review-aip", "move-package")
 }
 
 var EnumPreservationActionStatus = func() {

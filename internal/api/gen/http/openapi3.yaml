@@ -515,7 +515,7 @@ paths:
                                         package_id: 7737853162882572773
                                         started_at: "2007-10-31T04:26:47Z"
                                         status: queued
-                                        type: create-aip
+                                        type: create-and-review-aip
                                         workflow_id: Eos ea error earum rerum.
                                 preservation_action_updated_event:
                                     id: 9920045945782004348
@@ -525,7 +525,7 @@ paths:
                                         package_id: 7737853162882572773
                                         started_at: "2007-10-31T04:26:47Z"
                                         status: queued
-                                        type: create-aip
+                                        type: create-and-review-aip
                                         workflow_id: Eos ea error earum rerum.
                                 preservation_task_created_event:
                                     id: 1543916061766988690
@@ -1251,9 +1251,10 @@ components:
                     $ref: '#/components/schemas/EnduroPackagePreservationTaskCollection'
                 type:
                     type: string
-                    example: move-package
+                    example: create-and-review-aip
                     enum:
                         - create-aip
+                        - create-and-review-aip
                         - move-package
                 workflow_id:
                     type: string
@@ -1428,9 +1429,10 @@ components:
                         - pending
                 type:
                     type: string
-                    example: move-package
+                    example: create-aip
                     enum:
                         - create-aip
+                        - create-and-review-aip
                         - move-package
                 workflow_id:
                     type: string
@@ -1764,7 +1766,7 @@ components:
                     package_id: 7737853162882572773
                     started_at: "2007-10-31T04:26:47Z"
                     status: queued
-                    type: create-aip
+                    type: create-and-review-aip
                     workflow_id: Eos ea error earum rerum.
             required:
                 - id
@@ -1787,7 +1789,7 @@ components:
                     package_id: 7737853162882572773
                     started_at: "2007-10-31T04:26:47Z"
                     status: queued
-                    type: create-aip
+                    type: create-and-review-aip
                     workflow_id: Eos ea error earum rerum.
             required:
                 - id
@@ -2331,7 +2333,7 @@ components:
                         package_id: 7737853162882572773
                         started_at: "2007-10-31T04:26:47Z"
                         status: queued
-                        type: create-aip
+                        type: create-and-review-aip
                         workflow_id: Eos ea error earum rerum.
                 preservation_action_updated_event:
                     id: 9920045945782004348
@@ -2341,7 +2343,7 @@ components:
                         package_id: 7737853162882572773
                         started_at: "2007-10-31T04:26:47Z"
                         status: queued
-                        type: create-aip
+                        type: create-and-review-aip
                         workflow_id: Eos ea error earum rerum.
                 preservation_task_created_event:
                     id: 1543916061766988690
