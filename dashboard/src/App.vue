@@ -21,9 +21,3 @@ import { DialogWrapper } from "vue3-promise-dialog";
     <DialogWrapper />
   </div>
 </template>
-
-<style scoped>
-main {
-  overflow-x: hidden;
-}
-</style>
