@@ -2,6 +2,7 @@
 import PackageListLegend from "@/components/PackageListLegend.vue";
 import PageLoadingAlert from "@/components/PageLoadingAlert.vue";
 import StatusBadge from "@/components/StatusBadge.vue";
+import Tabs from "@/components/Tabs.vue";
 import UUID from "@/components/UUID.vue";
 import { useLayoutStore } from "@/stores/layout";
 import { usePackageStore } from "@/stores/package";
@@ -10,12 +11,17 @@ import Tooltip from "bootstrap/js/dist/tooltip";
 import { onMounted } from "vue";
 import IconInfoFill from "~icons/akar-icons/info-fill";
 import IconBundleLine from "~icons/clarity/bundle-line";
+import RawIconBundleLine from "~icons/clarity/bundle-line?raw&font-size=20px";
+import RawIconClockLine from "~icons/clarity/clock-line?raw&font-size=20px";
+import RawIconContainerVolumeLine from "~icons/clarity/container-volume-line?raw&font-size=20px";
+import RawIconRemoveLine from "~icons/clarity/remove-line?raw&font-size=20px";
+import RawIconThumbsDownLine from "~icons/clarity/thumbs-down-line?raw&font-size=20px";
+import RawIconWarningLine from "~icons/clarity/warning-line?raw&font-size=22px";
 
 const layoutStore = useLayoutStore();
 layoutStore.updateBreadcrumb([{ text: "Packages" }]);
 
 const packageStore = usePackageStore();
-
 const { execute, error } = useAsyncState(() => {
   return packageStore.fetchPackages();
 }, null);
@@ -32,6 +38,35 @@ const toggleLegend = () => {
   showLegend = !showLegend;
   if (tooltip) tooltip.hide();
 };
+
+const tabs = [
+  { icon: RawIconBundleLine, text: "All", route: { name: "packages" } },
+  {
+    icon: RawIconWarningLine,
+    text: "Pending",
+    route: { name: "packages" },
+  },
+  {
+    icon: RawIconContainerVolumeLine,
+    text: "Stored",
+    route: { name: "packages" },
+  },
+  {
+    icon: RawIconClockLine,
+    text: "In progress",
+    route: { name: "packages" },
+  },
+  {
+    icon: RawIconThumbsDownLine,
+    text: "Rejected",
+    route: { name: "packages" },
+  },
+  {
+    icon: RawIconRemoveLine,
+    text: "Error",
+    route: { name: "packages" },
+  },
+];
 </script>
 
 <template>
@@ -46,7 +81,11 @@ const toggleLegend = () => {
     </div>
 
     <PageLoadingAlert :execute="execute" :error="error" />
+
+    <Tabs :tabs="tabs" />
+
     <PackageListLegend v-model="showLegend" />
+
     <div class="table-responsive mb-3">
       <table class="table table-bordered mb-0">
         <thead>
