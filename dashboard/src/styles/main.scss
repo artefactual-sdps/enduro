@@ -1,6 +1,11 @@
 @import "bootstrap-base.scss";
 @import "bootstrap.scss";
 
+html,
+main {
+  overflow-x: hidden;
+}
+
 button:focus:not(:focus-visible),
 .btn:focus:not(:focus-visible) {
   box-shadow: none;
