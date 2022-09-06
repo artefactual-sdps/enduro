@@ -35,8 +35,9 @@ const layoutStore = useLayoutStore();
         <ul class="list-unstyled flex-grow-1 mb-0">
           <li v-for="item in menuItems">
             <router-link
-              class="d-block py-3 text-decoration-none text-dark sidebar-link"
-              active-class="bg-primary text-white active"
+              class="d-block py-3 text-decoration-none sidebar-link"
+              active-class="active"
+              exact-active-class="exact-active"
               :to="{ name: item.routeName }"
             >
               <div class="container-fluid">
@@ -73,11 +74,22 @@ const layoutStore = useLayoutStore();
 
 <style lang="scss" scoped>
 .sidebar-link {
+  color: $dark;
+
+  &.active {
+    color: $primary;
+  }
+
+  &.exact-active {
+    color: $white;
+    background-color: $primary;
+  }
+
   &:hover,
   &:focus {
     background-color: shade-color($light, 25%) !important;
 
-    &.active {
+    &.exact-active {
       background-color: shade-color($primary, 25%) !important;
     }
   }
