@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import PageLoadingAlert from "@/components/PageLoadingAlert.vue";
+import Tabs from "@/components/Tabs.vue";
 import { useStorageStore } from "@/stores/storage";
 import { useAsyncState } from "@vueuse/core";
 import { useRoute } from "vue-router";
+import RawIconBundleLine from "~icons/clarity/bundle-line?raw&font-size=20px";
+import RawIconDetailsLine from "~icons/clarity/details-line?raw&font-size=20px";
 import IconRackServerLine from "~icons/clarity/rack-server-line";
 
 const route = useRoute();
@@ -12,6 +15,19 @@ const { execute, error } = useAsyncState(
   storageStore.fetchCurrent(route.params.id.toString()),
   null
 );
+
+const tabs = [
+  {
+    icon: RawIconDetailsLine,
+    text: "Summary",
+    route: { name: "locations-id", params: { id: route.params.id } },
+  },
+  {
+    icon: RawIconBundleLine,
+    text: "Packages",
+    route: { name: "locations-id-packages", params: { id: route.params.id } },
+  },
+];
 </script>
 
 <template>
@@ -24,31 +40,8 @@ const { execute, error } = useAsyncState(
       }}
     </h1>
 
-    <!-- Navigation tabs -->
-    <ul class="nav nav-tabs mb-3" v-if="storageStore.current">
-      <li class="nav-item">
-        <router-link
-          class="nav-link"
-          exact-active-class="active"
-          :to="{
-            name: 'locations-id',
-            params: { id: storageStore.current.uuid },
-          }"
-          >Summary</router-link
-        >
-      </li>
-      <li class="nav-item">
-        <router-link
-          class="nav-link"
-          exact-active-class="active"
-          :to="{
-            name: 'locations-id-packages',
-            params: { id: storageStore.current.uuid },
-          }"
-          >Packages</router-link
-        >
-      </li>
-    </ul>
+    <Tabs :tabs="tabs" />
+
     <router-view></router-view>
   </div>
 </template>
