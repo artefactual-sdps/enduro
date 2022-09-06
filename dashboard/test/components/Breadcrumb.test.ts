@@ -35,8 +35,8 @@ describe("Breadcrumb.vue", () => {
 
     getByRole("navigation", { name: "Breadcrumb" });
     getByRole("list");
-    getByRole("link", { name: "Packages" });
     getByRole("listitem", { current: "page" });
+    getByRole("link", { name: "Packages" });
     getByText("Package.zip");
   });
 });
