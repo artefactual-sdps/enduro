@@ -47,7 +47,7 @@ import (
 
 const (
 	appName        = "enduro"
-	autoApproveAIP = true
+	autoApproveAIP = false
 )
 
 // This represents the first permanent location defined in the

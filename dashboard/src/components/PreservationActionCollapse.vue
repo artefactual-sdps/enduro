@@ -99,19 +99,6 @@ watch($$(expandCounter), () => show());
             Started {{ $filters.formatDateTime(action.startedAt) }}
           </span>
         </div>
-
-        <!--
-    <PackageReviewAlert
-      v-model:expandCounter="expandCounter"
-      v-if="
-        action.type ==
-          api.EnduroPackagePreservationActionResponseBodyTypeEnum.CreateAip &&
-        action.status ==
-          api.EnduroPackagePreservationActionResponseBodyStatusEnum.Pending
-      "
-    />
-    -->
-        <PackageReviewAlert v-model:expandCounter="expandCounter" />
       </div>
 
       <div :class="shown ? 'col-6' : 'd-none'">

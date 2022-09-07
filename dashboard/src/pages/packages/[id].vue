@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { storageServiceDownloadURL } from "@/client";
-import PackagePendingAlert from "@/components/PackagePendingAlert.vue";
+import PackageReviewAlert from "@/components/PackageReviewAlert.vue";
 import PageLoadingAlert from "@/components/PageLoadingAlert.vue";
 import Tabs from "@/components/Tabs.vue";
 import { usePackageStore } from "@/stores/package";
@@ -45,7 +45,7 @@ const tabs = [
   <div class="container-xxl">
     <PageLoadingAlert v-if="error" :execute="execute" :error="error" />
 
-    <PackagePendingAlert v-if="packageStore.current" />
+    <PackageReviewAlert />
 
     <h1 class="d-flex mb-3" v-if="packageStore.current">
       <IconBundleLine class="me-3 text-dark" />{{ packageStore.current.name }}
