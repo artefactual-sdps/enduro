@@ -7,7 +7,7 @@ require (
 	ariga.io/sqlcomment v0.1.0
 	entgo.io/ent v0.11.3-0.20220816070906-2b54aadcce3a
 	github.com/alicebob/miniredis/v2 v2.23.0
-	github.com/aws/aws-sdk-go v1.44.88
+	github.com/aws/aws-sdk-go v1.44.91
 	github.com/fsnotify/fsnotify v1.5.4
 	github.com/go-logr/logr v1.2.3
 	github.com/go-logr/zapr v1.2.3
