@@ -1,5 +1,5 @@
-ariga.io/atlas v0.6.3 h1:MtT4OxHqkW0XgYRjvqU4bmmv+42U1lvw9u8HzJ8yK9c=
-ariga.io/atlas v0.6.3/go.mod h1:ft47uSh5hWGDCmQC9DsztZg6Xk+KagM5Ts/mZYKb9JE=
+ariga.io/atlas v0.6.4 h1:WhaB8+GP36mkphfxlK9CtuRVh2L23Sh7/xKygJdlfdg=
+ariga.io/atlas v0.6.4/go.mod h1:ft47uSh5hWGDCmQC9DsztZg6Xk+KagM5Ts/mZYKb9JE=
 ariga.io/sqlcomment v0.1.0 h1:8kQPlVe3sXpTloEFlpX5dhFAXB28i6rwq9ktqqnPx70=
 ariga.io/sqlcomment v0.1.0/go.mod h1:NT1IZMfBTQl1MUU5wgVONmnDqFRqtZrdDRgAXfc1g5k=
 bazil.org/fuse v0.0.0-20160811212531-371fbbdaa898/go.mod h1:Xbm+BRKSBEpa4q4hTSxohYNQpsxXPbPry4JJWOB3LB8=

@@ -3,7 +3,7 @@ module github.com/artefactual-sdps/enduro
 go 1.19
 
 require (
-	ariga.io/atlas v0.6.3
+	ariga.io/atlas v0.6.4
 	ariga.io/sqlcomment v0.1.0
 	entgo.io/ent v0.11.3-0.20220816070906-2b54aadcce3a
 	github.com/alicebob/miniredis/v2 v2.23.0
