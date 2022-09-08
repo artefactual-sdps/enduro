@@ -49,6 +49,8 @@ require (
 	gotest.tools/v3 v3.3.0
 )
 
+require github.com/cyphar/filepath-securejoin v0.2.3
+
 require (
 	github.com/agext/levenshtein v1.2.1 // indirect
 	github.com/alicebob/gopher-json v0.0.0-20200520072559-a9ecdc9d1d3a // indirect

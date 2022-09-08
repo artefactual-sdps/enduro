@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	securejoin "github.com/cyphar/filepath-securejoin"
 	"github.com/mholt/archiver/v3"
 	"github.com/otiai10/copy"
 
@@ -64,7 +65,7 @@ func (a *BundleActivity) Execute(ctx context.Context, params *BundleActivityPara
 		var w watcher.Watcher
 		w, err = a.wsvc.ByName(params.WatcherName)
 		if err == nil {
-			src := filepath.Join(w.Path(), params.Key)
+			src, _ := securejoin.SecureJoin(w.Path(), params.Key)
 			dst := params.TransferDir
 			res.FullPath, res.FullPathBeforeStrip, err = a.Copy(ctx, src, dst, false)
 		}
@@ -102,7 +103,7 @@ func (a *BundleActivity) Unarchiver(key, filename string) archiver.Unarchiver {
 		}
 	}
 
-	file, err := os.Open(filename)
+	file, err := os.Open(filepath.Clean(filename))
 	if err != nil {
 		return nil
 	}
@@ -127,7 +128,7 @@ func (a *BundleActivity) SingleFile(ctx context.Context, transferDir, key, tempF
 	}
 	defer dest.Close()
 
-	path := filepath.Join(transferDir, dest.Name())
+	path, _ := securejoin.SecureJoin(transferDir, dest.Name())
 	if err := os.Rename(tempFile, path); err != nil {
 		return "", fmt.Errorf("error moving file (from %s to %s): %v", tempFile, path, err)
 	}
@@ -198,7 +199,7 @@ func (a *BundleActivity) Copy(ctx context.Context, src, dst string, stripTopLeve
 // stripDirContainer strips the top-level directory of a transfer.
 func stripDirContainer(path string) (string, error) {
 	const errPrefix = "error stripping top-level dir"
-	ff, err := os.Open(path)
+	ff, err := os.Open(filepath.Clean(path))
 	if err != nil {
 		return "", fmt.Errorf("%s: cannot open path: %v", errPrefix, err)
 	}
@@ -212,7 +213,8 @@ func stripDirContainer(path string) (string, error) {
 	if !fis[0].IsDir() {
 		return "", fmt.Errorf("%s: top-level item is not a directory", errPrefix)
 	}
-	return filepath.Join(path, fis[0].Name()), nil
+	securePath, _ := securejoin.SecureJoin(path, fis[0].Name())
+	return securePath, nil
 }
 
 // unbag converts a bagged transfer into a standard Archivematica transfer.
@@ -228,7 +230,8 @@ func unbag(path string) error {
 	}
 
 	// Only continue if we have a bag.
-	_, err = os.Stat(filepath.Join(path, "bagit.txt"))
+	securePath, _ := securejoin.SecureJoin(path, "bagit.txt")
+	_, err = os.Stat(securePath)
 	if errors.Is(err, os.ErrNotExist) {
 		return nil
 	}
@@ -240,15 +243,15 @@ func unbag(path string) error {
 
 	// Move files in data up one level if 'objects' folder already exists.
 	// Otherwise, rename data to objects.
-	dataPath := filepath.Join(path, "data")
+	dataPath, _ := securejoin.SecureJoin(path, "data")
 	if fi, err := os.Stat(dataPath); !os.IsNotExist(err) && fi.IsDir() {
 		items, err := os.ReadDir(dataPath)
 		if err != nil {
 			return err
 		}
 		for _, item := range items {
-			src := filepath.Join(dataPath, item.Name())
-			dst := filepath.Join(path, filepath.Base(src))
+			src, _ := securejoin.SecureJoin(dataPath, item.Name())
+			dst, _ := securejoin.SecureJoin(path, filepath.Base(src))
 			if err := os.Rename(src, dst); err != nil {
 				return err
 			}
@@ -257,15 +260,16 @@ func unbag(path string) error {
 			return err
 		}
 	} else {
-		dst := filepath.Join(path, "objects")
+		dst, _ := securejoin.SecureJoin(path, "objects")
 		if err := os.Rename(dataPath, dst); err != nil {
 			return err
 		}
 	}
 
 	// Create metadata and submissionDocumentation directories.
-	metadataPath := filepath.Join(path, "metadata")
-	documentationPath := filepath.Join(metadataPath, "submissionDocumentation")
+	metadataPath, _ := securejoin.SecureJoin(path, "metadata")
+	documentationPath, _ := securejoin.SecureJoin(metadataPath, "submissionDocumentation")
+	//#nosec G301 -- Evaulate use of UID and GID among containers so that permission 750 could be used.
 	if err := os.MkdirAll(metadataPath, 0o775); err != nil {
 		return err
 	}
@@ -280,7 +284,8 @@ func unbag(path string) error {
 		{"manifest-sha1.txt", "checksum.sha1"},
 		{"manifest-md5.txt", "checksum.md5"},
 	} {
-		file, err := os.Open(filepath.Join(path, item[0]))
+		securePath, _ := securejoin.SecureJoin(path, item[0])
+		file, err := os.Open(securePath)
 		if err != nil {
 			if errors.Is(err, os.ErrNotExist) {
 				continue
@@ -289,7 +294,8 @@ func unbag(path string) error {
 		}
 		defer file.Close()
 
-		newFile, err := os.Create(filepath.Join(metadataPath, item[1]))
+		securePath, _ = securejoin.SecureJoin(metadataPath, item[1])
+		newFile, err := os.Create(securePath)
 		if err != nil {
 			if errors.Is(err, os.ErrNotExist) {
 				continue
@@ -326,8 +332,8 @@ func unbag(path string) error {
 		"manifest-sha512.txt",
 		"tagmanifest-sha512.txt",
 	} {
-		src := filepath.Join(path, item)
-		dst := filepath.Join(documentationPath, item)
+		src, _ := securejoin.SecureJoin(path, item)
+		dst, _ := securejoin.SecureJoin(documentationPath, item)
 		_ = os.Rename(src, dst)
 	}
 
