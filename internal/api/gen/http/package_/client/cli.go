@@ -143,7 +143,7 @@ func BuildConfirmPayload(package_ConfirmBody string, package_ConfirmID string) (
 	{
 		err = json.Unmarshal([]byte(package_ConfirmBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location_id\": \"Ut quas.\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location_id\": \"Quia et praesentium a.\",\n      \"location_name\": \"Quis blanditiis.\"\n   }'")
 		}
 	}
 	var id uint
@@ -156,7 +156,8 @@ func BuildConfirmPayload(package_ConfirmBody string, package_ConfirmID string) (
 		}
 	}
 	v := &package_.ConfirmPayload{
-		LocationID: body.LocationID,
+		LocationID:   body.LocationID,
+		LocationName: body.LocationName,
 	}
 	v.ID = id
 
@@ -190,7 +191,7 @@ func BuildMovePayload(package_MoveBody string, package_MoveID string) (*package_
 	{
 		err = json.Unmarshal([]byte(package_MoveBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location_id\": \"Temporibus iusto et.\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location_id\": \"Mollitia cumque possimus quia.\",\n      \"location_name\": \"Laudantium vel sit.\"\n   }'")
 		}
 	}
 	var id uint
@@ -203,7 +204,8 @@ func BuildMovePayload(package_MoveBody string, package_MoveID string) (*package_
 		}
 	}
 	v := &package_.MovePayload{
-		LocationID: body.LocationID,
+		LocationID:   body.LocationID,
+		LocationName: body.LocationName,
 	}
 	v.ID = id
 

@@ -87,7 +87,7 @@ func (s *MoveWorkflowTestSuite) TestSuccessfulMove() {
 	s.env.OnActivity(setStatusLocalActivity, mock.Anything, mock.Anything, pkgID, package_.StatusDone).Return(nil)
 
 	// Package location is set.
-	s.env.OnActivity(setLocationIDLocalActivity, mock.Anything, mock.Anything, pkgID, locationID).Return(nil)
+	s.env.OnActivity(setLocationLocalActivity, mock.Anything, mock.Anything, pkgID, locationID, mock.Anything).Return(nil)
 
 	// Preservation action is created with successful status.
 	s.env.OnActivity(

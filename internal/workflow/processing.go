@@ -121,6 +121,11 @@ type TransferInfo struct {
 	//
 	// It is populated via the workflow request.
 	DefaultPermanentLocationID *uuid.UUID
+
+	// Location name for storing auto approved AIPs.
+	//
+	// It is populated via the workflow request.
+	DefaultPermanentLocationName *string
 }
 
 // ProcessingWorkflow orchestrates all the activities related to the processing
@@ -135,15 +140,16 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *pack
 		logger = temporalsdk_workflow.GetLogger(ctx)
 
 		tinfo = &TransferInfo{
-			PackageID:                  req.PackageID,
-			WatcherName:                req.WatcherName,
-			RetentionPeriod:            req.RetentionPeriod,
-			CompletedDir:               req.CompletedDir,
-			StripTopLevelDir:           req.StripTopLevelDir,
-			Key:                        req.Key,
-			IsDir:                      req.IsDir,
-			AutoApproveAIP:             req.AutoApproveAIP,
-			DefaultPermanentLocationID: req.DefaultPermanentLocationID,
+			PackageID:                    req.PackageID,
+			WatcherName:                  req.WatcherName,
+			RetentionPeriod:              req.RetentionPeriod,
+			CompletedDir:                 req.CompletedDir,
+			StripTopLevelDir:             req.StripTopLevelDir,
+			Key:                          req.Key,
+			IsDir:                        req.IsDir,
+			AutoApproveAIP:               req.AutoApproveAIP,
+			DefaultPermanentLocationID:   req.DefaultPermanentLocationID,
+			DefaultPermanentLocationName: req.DefaultPermanentLocationName,
 		}
 
 		// Package status. All packages start in queued status.
@@ -455,8 +461,9 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 
 	if tinfo.AutoApproveAIP {
 		reviewResult = &package_.ReviewPerformedSignal{
-			Accepted:   true,
-			LocationID: tinfo.DefaultPermanentLocationID,
+			Accepted:     true,
+			LocationID:   tinfo.DefaultPermanentLocationID,
+			LocationName: tinfo.DefaultPermanentLocationName,
 		}
 	} else {
 		// Set package to pending status.
@@ -580,7 +587,7 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 				ID:          movePreservationTaskID,
 				Status:      package_.TaskStatusDone,
 				CompletedAt: temporalsdk_workflow.Now(sessCtx).UTC(),
-				Note:        ref.New(fmt.Sprintf("Moved to location %s", *reviewResult.LocationID)),
+				Note:        ref.New(fmt.Sprintf("Moved to location %s", *reviewResult.LocationName)),
 			}).Get(ctx, nil)
 			if err != nil {
 				return err
@@ -590,7 +597,7 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 		// Set package location
 		{
 			ctx := withLocalActivityOpts(sessCtx)
-			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setLocationIDLocalActivity, w.pkgsvc, tinfo.PackageID, *reviewResult.LocationID).Get(ctx, nil)
+			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setLocationLocalActivity, w.pkgsvc, tinfo.PackageID, *reviewResult.LocationID, *reviewResult.LocationName).Get(ctx, nil)
 			if err != nil {
 				return err
 			}

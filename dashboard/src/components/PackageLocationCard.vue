@@ -9,11 +9,15 @@ let failed = $ref<boolean | null>(null);
 
 const choose = async () => {
   failed = false;
-  const locationId = await openPackageLocationDialog(
-    packageStore.current?.locationId
+  const location = await openPackageLocationDialog(
+    packageStore.current?.locationId,
+    packageStore.current?.locationName
   );
-  if (!locationId) return;
-  const error = await packageStore.move(locationId);
+  if (!location["locationId"] || !location["locationName"]) return;
+  const error = await packageStore.move(
+    location["locationId"],
+    location["locationName"]
+  );
   if (error) {
     failed = true;
   }
@@ -35,7 +39,7 @@ const choose = async () => {
         <span v-else-if="!packageStore.current?.locationId"
           >Not available yet.</span
         >
-        <span v-else><UUID :id="packageStore.current.locationId" /></span>
+        <span v-else>{{ packageStore.current.locationName }}</span>
       </p>
       <div class="actions" v-if="!packageStore.isRejected">
         <button

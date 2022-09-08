@@ -11,13 +11,14 @@ import (
 
 // Package represents a package in the package table.
 type Package struct {
-	ID         uint          `db:"id"`
-	Name       string        `db:"name"`
-	WorkflowID string        `db:"workflow_id"`
-	RunID      string        `db:"run_id"`
-	AIPID      string        `db:"aip_id"`
-	LocationID uuid.NullUUID `db:"location_id"`
-	Status     Status        `db:"status"`
+	ID           uint          `db:"id"`
+	Name         string        `db:"name"`
+	WorkflowID   string        `db:"workflow_id"`
+	RunID        string        `db:"run_id"`
+	AIPID        string        `db:"aip_id"`
+	LocationID   uuid.NullUUID `db:"location_id"`
+	LocationName *string       `db:"location_name"`
+	Status       Status        `db:"status"`
 
 	// It defaults to CURRENT_TIMESTAMP(6) so populated as soon as possible.
 	CreatedAt time.Time `db:"created_at"`
@@ -31,7 +32,7 @@ type Package struct {
 
 // Goa returns the API representation of the package.
 func (p Package) Goa() *goapackage.EnduroStoredPackage {
-	col := goapackage.EnduroStoredPackage{
+	goapkg := goapackage.EnduroStoredPackage{
 		ID:          p.ID,
 		Name:        formatOptionalString(p.Name),
 		WorkflowID:  formatOptionalString(p.WorkflowID),
@@ -43,10 +44,11 @@ func (p Package) Goa() *goapackage.EnduroStoredPackage {
 		CompletedAt: formatOptionalTime(p.CompletedAt),
 	}
 	if p.LocationID.Valid {
-		col.LocationID = &p.LocationID.UUID
+		goapkg.LocationID = &p.LocationID.UUID
+		goapkg.LocationName = p.LocationName
 	}
 
-	return &col
+	return &goapkg
 }
 
 // formatOptionalString returns the nil value when the string is empty.

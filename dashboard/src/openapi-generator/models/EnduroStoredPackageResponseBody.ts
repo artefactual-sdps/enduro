@@ -50,6 +50,12 @@ export interface EnduroStoredPackageResponseBody {
      */
     locationId?: string;
     /**
+     * 
+     * @type {string}
+     * @memberof EnduroStoredPackageResponseBody
+     */
+    locationName?: string;
+    /**
      * Name of the package
      * @type {string}
      * @memberof EnduroStoredPackageResponseBody
@@ -113,6 +119,7 @@ export function EnduroStoredPackageResponseBodyFromJSONTyped(json: any, ignoreDi
         'createdAt': (new Date(json['created_at'])),
         'id': json['id'],
         'locationId': !exists(json, 'location_id') ? undefined : json['location_id'],
+        'locationName': !exists(json, 'location_name') ? undefined : json['location_name'],
         'name': !exists(json, 'name') ? undefined : json['name'],
         'runId': !exists(json, 'run_id') ? undefined : json['run_id'],
         'startedAt': !exists(json, 'started_at') ? undefined : (new Date(json['started_at'])),
@@ -135,6 +142,7 @@ export function EnduroStoredPackageResponseBodyToJSON(value?: EnduroStoredPackag
         'created_at': (value.createdAt.toISOString()),
         'id': value.id,
         'location_id': value.locationId,
+        'location_name': value.locationName,
         'name': value.name,
         'run_id': value.runId,
         'started_at': value.startedAt === undefined ? undefined : (value.startedAt.toISOString()),

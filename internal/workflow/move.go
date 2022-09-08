@@ -40,8 +40,9 @@ func (w *MoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req *package_.M
 	{
 		activityOpts := withActivityOptsForRequest(ctx)
 		err := temporalsdk_workflow.ExecuteActivity(activityOpts, activities.MoveToPermanentStorageActivityName, &activities.MoveToPermanentStorageActivityParams{
-			AIPID:      req.AIPID,
-			LocationID: req.LocationID,
+			AIPID:        req.AIPID,
+			LocationID:   req.LocationID,
+			LocationName: req.LocationName,
 		}).Get(activityOpts, nil)
 		if err != nil {
 			status = package_.ActionStatusError
@@ -76,7 +77,7 @@ func (w *MoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req *package_.M
 	{
 		if status != package_.ActionStatusError {
 			ctx := withLocalActivityOpts(ctx)
-			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setLocationIDLocalActivity, w.pkgsvc, req.ID, req.LocationID).Get(ctx, nil)
+			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setLocationLocalActivity, w.pkgsvc, req.ID, req.LocationID, req.LocationName).Get(ctx, nil)
 			if err != nil {
 				return err
 			}
@@ -88,13 +89,14 @@ func (w *MoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req *package_.M
 		ctx := withLocalActivityOpts(ctx)
 		completedAt := temporalsdk_workflow.Now(ctx).UTC()
 		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, saveLocationMovePreservationActionLocalActivity, w.pkgsvc, &saveLocationMovePreservationActionLocalActivityParams{
-			PackageID:   req.ID,
-			LocationID:  req.LocationID,
-			WorkflowID:  temporalsdk_workflow.GetInfo(ctx).WorkflowExecution.ID,
-			Type:        package_.ActionTypeMovePackage,
-			Status:      status,
-			StartedAt:   startedAt,
-			CompletedAt: completedAt,
+			PackageID:    req.ID,
+			LocationID:   req.LocationID,
+			LocationName: req.LocationName,
+			WorkflowID:   temporalsdk_workflow.GetInfo(ctx).WorkflowExecution.ID,
+			Type:         package_.ActionTypeMovePackage,
+			Status:       status,
+			StartedAt:    startedAt,
+			CompletedAt:  completedAt,
 		}).Get(ctx, nil)
 		if err != nil {
 			return err

@@ -91,7 +91,8 @@ var _ = Service("package", func() {
 			Attribute("location_id", String, func() {
 				Meta("struct:field:type", "uuid.UUID", "github.com/google/uuid")
 			})
-			Required("id", "location_id")
+			Attribute("location_name", String)
+			Required("id", "location_id", "location_name")
 		})
 		Error("not_found", PackageNotFound, "Package not found")
 		Error("not_available")
@@ -128,7 +129,8 @@ var _ = Service("package", func() {
 			Attribute("location_id", String, func() {
 				Meta("struct:field:type", "uuid.UUID", "github.com/google/uuid")
 			})
-			Required("id", "location_id")
+			Attribute("location_name", String)
+			Required("id", "location_id", "location_name")
 		})
 		Error("not_found", PackageNotFound, "Package not found")
 		Error("not_available")
@@ -169,6 +171,7 @@ var Package_ = Type("Package", func() {
 	Attribute("location_id", String, func() {
 		Meta("struct:field:type", "uuid.UUID", "github.com/google/uuid")
 	})
+	Attribute("location_name", String)
 	Attribute("status", String, "Status of the package", func() {
 		EnumPackageStatus()
 		Default("new")
@@ -201,6 +204,7 @@ var StoredPackage = ResultType("application/vnd.enduro.stored-package", func() {
 		Attribute("id", UInt, "Identifier of package")
 		Attribute("name")
 		Attribute("location_id")
+		Attribute("location_name")
 		Attribute("status")
 		Attribute("workflow_id")
 		Attribute("run_id")
@@ -213,6 +217,7 @@ var StoredPackage = ResultType("application/vnd.enduro.stored-package", func() {
 		Attribute("id")
 		Attribute("name")
 		Attribute("location_id")
+		Attribute("location_name")
 		Attribute("status")
 		Attribute("workflow_id")
 		Attribute("run_id")

@@ -24,8 +24,9 @@ const (
 )
 
 type ReviewPerformedSignal struct {
-	Accepted   bool
-	LocationID *uuid.UUID
+	Accepted     bool
+	LocationID   *uuid.UUID
+	LocationName *string
 }
 
 type ProcessingWorkflowRequest struct {
@@ -60,6 +61,9 @@ type ProcessingWorkflowRequest struct {
 
 	// Location identifier for storing auto approved AIPs.
 	DefaultPermanentLocationID *uuid.UUID
+
+	// Location name for storing auto approved AIPs.
+	DefaultPermanentLocationName *string
 }
 
 func InitProcessingWorkflow(ctx context.Context, tc temporalsdk_client.Client, req *ProcessingWorkflowRequest) error {
@@ -81,9 +85,10 @@ func InitProcessingWorkflow(ctx context.Context, tc temporalsdk_client.Client, r
 }
 
 type MoveWorkflowRequest struct {
-	ID         uint
-	AIPID      string
-	LocationID uuid.UUID
+	ID           uint
+	AIPID        string
+	LocationID   uuid.UUID
+	LocationName string
 }
 
 func InitMoveWorkflow(ctx context.Context, tc temporalsdk_client.Client, req *MoveWorkflowRequest) (temporalsdk_client.WorkflowRun, error) {

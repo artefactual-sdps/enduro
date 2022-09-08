@@ -72,8 +72,9 @@ type EnduroStoredPackageView struct {
 	// Identifier of package
 	ID *uint
 	// Name of the package
-	Name       *string
-	LocationID *uuid.UUID
+	Name         *string
+	LocationID   *uuid.UUID
+	LocationName *string
 	// Status of the package
 	Status *string
 	// Identifier of processing workflow
@@ -110,8 +111,9 @@ type EnduroPackageStatusUpdatedEventView struct {
 // projected type.
 type EnduroPackageLocationUpdatedEventView struct {
 	// Identifier of package
-	ID         *uint
-	LocationID *uuid.UUID
+	ID           *uint
+	LocationID   *uuid.UUID
+	LocationName *string
 }
 
 // EnduroPreservationActionCreatedEventView is a type that runs validations on
@@ -209,6 +211,7 @@ var (
 			"id",
 			"name",
 			"location_id",
+			"location_name",
 			"status",
 			"workflow_id",
 			"run_id",
@@ -262,6 +265,7 @@ var (
 		"default": {
 			"id",
 			"location_id",
+			"location_name",
 		},
 	}
 	// EnduroPreservationActionCreatedEventMap is a map indexing the attribute
@@ -558,6 +562,9 @@ func ValidateEnduroPackageLocationUpdatedEventView(result *EnduroPackageLocation
 	}
 	if result.LocationID == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("location_id", "result"))
+	}
+	if result.LocationName == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("location_name", "result"))
 	}
 	return
 }

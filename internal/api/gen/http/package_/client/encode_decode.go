@@ -818,16 +818,17 @@ func unmarshalEnduroPackageCreatedEventResponseBodyToPackageViewsEnduroPackageCr
 // of type *EnduroStoredPackageResponseBody.
 func unmarshalEnduroStoredPackageResponseBodyToPackageViewsEnduroStoredPackageView(v *EnduroStoredPackageResponseBody) *package_views.EnduroStoredPackageView {
 	res := &package_views.EnduroStoredPackageView{
-		ID:          v.ID,
-		Name:        v.Name,
-		LocationID:  v.LocationID,
-		Status:      v.Status,
-		WorkflowID:  v.WorkflowID,
-		RunID:       v.RunID,
-		AipID:       v.AipID,
-		CreatedAt:   v.CreatedAt,
-		StartedAt:   v.StartedAt,
-		CompletedAt: v.CompletedAt,
+		ID:           v.ID,
+		Name:         v.Name,
+		LocationID:   v.LocationID,
+		LocationName: v.LocationName,
+		Status:       v.Status,
+		WorkflowID:   v.WorkflowID,
+		RunID:        v.RunID,
+		AipID:        v.AipID,
+		CreatedAt:    v.CreatedAt,
+		StartedAt:    v.StartedAt,
+		CompletedAt:  v.CompletedAt,
 	}
 
 	return res
@@ -871,8 +872,9 @@ func unmarshalEnduroPackageLocationUpdatedEventResponseBodyToPackageViewsEnduroP
 		return nil
 	}
 	res := &package_views.EnduroPackageLocationUpdatedEventView{
-		ID:         v.ID,
-		LocationID: v.LocationID,
+		ID:           v.ID,
+		LocationID:   v.LocationID,
+		LocationName: v.LocationName,
 	}
 
 	return res
@@ -989,16 +991,17 @@ func unmarshalEnduroPreservationTaskUpdatedEventResponseBodyToPackageViewsEnduro
 // *EnduroStoredPackageResponseBody.
 func unmarshalEnduroStoredPackageResponseBodyToPackageEnduroStoredPackage(v *EnduroStoredPackageResponseBody) *package_.EnduroStoredPackage {
 	res := &package_.EnduroStoredPackage{
-		ID:          *v.ID,
-		Name:        v.Name,
-		LocationID:  v.LocationID,
-		Status:      *v.Status,
-		WorkflowID:  v.WorkflowID,
-		RunID:       v.RunID,
-		AipID:       v.AipID,
-		CreatedAt:   *v.CreatedAt,
-		StartedAt:   v.StartedAt,
-		CompletedAt: v.CompletedAt,
+		ID:           *v.ID,
+		Name:         v.Name,
+		LocationID:   v.LocationID,
+		LocationName: v.LocationName,
+		Status:       *v.Status,
+		WorkflowID:   v.WorkflowID,
+		RunID:        v.RunID,
+		AipID:        v.AipID,
+		CreatedAt:    *v.CreatedAt,
+		StartedAt:    v.StartedAt,
+		CompletedAt:  v.CompletedAt,
 	}
 
 	return res

@@ -19,6 +19,7 @@ describe("PackageLocationCard.vue", () => {
                 current: {
                   status: api.PackageShowResponseBodyStatusEnum.Done,
                   locationId: "f8635e46-a320-4152-9a2c-98a28eeb50d1",
+                  locationName: "perma-aips-1",
                 } as api.PackageShowResponseBody,
               },
             },
@@ -33,11 +34,9 @@ describe("PackageLocationCard.vue", () => {
           <!--v-if-->
           <!--v-if-->
           <h4 class=\\"card-title\\">Location</h4>
-          <p class=\\"card-text\\"><span><div class=\\"d-flex align-items-start gap-2\\"><span class=\\"font-monospace\\">f8635e46-a320-4152-9a2c-98a28eeb50d1</span>
-            <!--v-if-->
-        </div></span></p>
-        <div class=\\"actions\\"><button type=\\"button\\" class=\\"btn btn-primary btn-sm\\" disabled=\\"false\\">Choose storage location</button></div>
-      </div>
+          <p class=\\"card-text\\"><span>perma-aips-1</span></p>
+          <div class=\\"actions\\"><button type=\\"button\\" class=\\"btn btn-primary btn-sm\\" disabled=\\"false\\">Choose storage location</button></div>
+        </div>
       </div>"
     `);
   });
@@ -54,6 +53,7 @@ describe("PackageLocationCard.vue", () => {
                 current: {
                   status: api.PackageShowResponseBodyStatusEnum.Done,
                   locationId: "f8635e46-a320-4152-9a2c-98a28eeb50d1",
+                  locationName: "perma-aips-1",
                 } as api.PackageShowResponseBody,
               },
             },
@@ -62,7 +62,7 @@ describe("PackageLocationCard.vue", () => {
       },
     });
 
-    getByText("f8635e46-a320-4152-9a2c-98a28eeb50d1");
+    getByText("perma-aips-1");
 
     const packageStore = usePackageStore();
 
@@ -79,7 +79,12 @@ describe("PackageLocationCard.vue", () => {
 
     vi.mock("../../src/dialogs", () => {
       return {
-        openPackageLocationDialog: () => "fe675e52-c761-46d0-8605-fae4bd10303e",
+        openPackageLocationDialog: () => {
+          return {
+            locationId: "fe675e52-c761-46d0-8605-fae4bd10303e",
+            locationName: "perma-aips-2",
+          };
+        },
       };
     });
 
@@ -163,6 +168,7 @@ describe("PackageLocationCard.vue", () => {
                 current: {
                   status: api.PackageShowResponseBodyStatusEnum.InProgress,
                   locationId: "f8635e46-a320-4152-9a2c-98a28eeb50d1",
+                  locationName: "perma-aips-1",
                 } as api.PackageShowResponseBody,
               },
             },
@@ -177,11 +183,9 @@ describe("PackageLocationCard.vue", () => {
           <!--v-if-->
           <!--v-if-->
           <h4 class=\\"card-title\\">Location</h4>
-          <p class=\\"card-text\\"><span><div class=\\"d-flex align-items-start gap-2\\"><span class=\\"font-monospace\\">f8635e46-a320-4152-9a2c-98a28eeb50d1</span>
-            <!--v-if-->
-        </div></span></p>
-        <div class=\\"actions\\"><button type=\\"button\\" class=\\"btn btn-primary btn-sm\\" disabled=\\"true\\">Choose storage location</button></div>
-      </div>
+          <p class=\\"card-text\\"><span>perma-aips-1</span></p>
+          <div class=\\"actions\\"><button type=\\"button\\" class=\\"btn btn-primary btn-sm\\" disabled=\\"true\\">Choose storage location</button></div>
+        </div>
       </div>"
     `);
   });

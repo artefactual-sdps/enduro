@@ -7,6 +7,7 @@ import { closeDialog } from "vue3-promise-dialog";
 
 const props = defineProps({
   currentLocationId: { type: String, required: false },
+  currentLocationName: { type: String, required: false },
 });
 
 const storageStore = useStorageStore();
@@ -21,15 +22,20 @@ onMounted(() => {
   modal.value.show();
 });
 
-let data: string | null = null;
+type Data = {
+  locationId: string;
+  locationName: string;
+};
+
+let data: Data | null = null;
 
 useEventListener(el, "hidden.bs.modal", (e) => {
   closeDialog(data);
 });
 
-const onChoose = (locationId: string) => {
+const onChoose = (locationId: string, locationName: string) => {
   if (locationId === props.currentLocationId) return;
-  data = locationId;
+  data = { locationId: locationId, locationName: locationName };
   modal.value?.hide();
 };
 </script>
@@ -66,7 +72,7 @@ const onChoose = (locationId: string) => {
                     <button
                       v-if="item.uuid != props.currentLocationId"
                       class="btn btn-sm btn-primary"
-                      @click="onChoose(item.uuid)"
+                      @click="onChoose(item.uuid, item.name)"
                     >
                       Move
                     </button>
@@ -75,8 +81,8 @@ const onChoose = (locationId: string) => {
               </tbody>
             </table>
           </div>
-          <small class="text-muted" v-if="props.currentLocationId">
-            The current location is {{ props.currentLocationId }}.
+          <small class="text-muted" v-if="props.currentLocationName">
+            The current location is {{ props.currentLocationName }}.
           </small>
         </div>
         <div class="modal-footer">

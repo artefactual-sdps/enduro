@@ -31,6 +31,12 @@ export interface EnduroPackageLocationUpdatedEventResponseBody {
      * @memberof EnduroPackageLocationUpdatedEventResponseBody
      */
     locationId: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof EnduroPackageLocationUpdatedEventResponseBody
+     */
+    locationName: string;
 }
 
 export function EnduroPackageLocationUpdatedEventResponseBodyFromJSON(json: any): EnduroPackageLocationUpdatedEventResponseBody {
@@ -45,6 +51,7 @@ export function EnduroPackageLocationUpdatedEventResponseBodyFromJSONTyped(json:
         
         'id': json['id'],
         'locationId': json['location_id'],
+        'locationName': json['location_name'],
     };
 }
 
@@ -59,6 +66,7 @@ export function EnduroPackageLocationUpdatedEventResponseBodyToJSON(value?: Endu
         
         'id': value.id,
         'location_id': value.locationId,
+        'location_name': value.locationName,
     };
 }
 

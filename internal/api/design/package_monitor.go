@@ -112,12 +112,14 @@ var PackageLocationUpdatedEvent = ResultType("application/vnd.enduro.package-loc
 		Attribute("location_id", String, func() {
 			Meta("struct:field:type", "uuid.UUID", "github.com/google/uuid")
 		})
-		Required("id", "location_id")
+		Attribute("location_name", String)
+		Required("id", "location_id", "location_name")
 	})
 
 	View("default", func() {
 		Attribute("id")
 		Attribute("location_id")
+		Attribute("location_name")
 	})
 })
 

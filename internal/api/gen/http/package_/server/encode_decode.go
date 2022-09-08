@@ -670,16 +670,17 @@ func marshalPackageViewsEnduroPackageCreatedEventViewToEnduroPackageCreatedEvent
 // *package_views.EnduroStoredPackageView.
 func marshalPackageViewsEnduroStoredPackageViewToEnduroStoredPackageResponseBody(v *package_views.EnduroStoredPackageView) *EnduroStoredPackageResponseBody {
 	res := &EnduroStoredPackageResponseBody{
-		ID:          *v.ID,
-		Name:        v.Name,
-		LocationID:  v.LocationID,
-		Status:      *v.Status,
-		WorkflowID:  v.WorkflowID,
-		RunID:       v.RunID,
-		AipID:       v.AipID,
-		CreatedAt:   *v.CreatedAt,
-		StartedAt:   v.StartedAt,
-		CompletedAt: v.CompletedAt,
+		ID:           *v.ID,
+		Name:         v.Name,
+		LocationID:   v.LocationID,
+		LocationName: v.LocationName,
+		Status:       *v.Status,
+		WorkflowID:   v.WorkflowID,
+		RunID:        v.RunID,
+		AipID:        v.AipID,
+		CreatedAt:    *v.CreatedAt,
+		StartedAt:    v.StartedAt,
+		CompletedAt:  v.CompletedAt,
 	}
 
 	return res
@@ -725,8 +726,9 @@ func marshalPackageViewsEnduroPackageLocationUpdatedEventViewToEnduroPackageLoca
 		return nil
 	}
 	res := &EnduroPackageLocationUpdatedEventResponseBody{
-		ID:         *v.ID,
-		LocationID: *v.LocationID,
+		ID:           *v.ID,
+		LocationID:   *v.LocationID,
+		LocationName: *v.LocationName,
 	}
 
 	return res
@@ -840,16 +842,17 @@ func marshalPackageViewsEnduroPreservationTaskUpdatedEventViewToEnduroPreservati
 // *package_.EnduroStoredPackage.
 func marshalPackageEnduroStoredPackageToEnduroStoredPackageResponseBody(v *package_.EnduroStoredPackage) *EnduroStoredPackageResponseBody {
 	res := &EnduroStoredPackageResponseBody{
-		ID:          v.ID,
-		Name:        v.Name,
-		LocationID:  v.LocationID,
-		Status:      v.Status,
-		WorkflowID:  v.WorkflowID,
-		RunID:       v.RunID,
-		AipID:       v.AipID,
-		CreatedAt:   v.CreatedAt,
-		StartedAt:   v.StartedAt,
-		CompletedAt: v.CompletedAt,
+		ID:           v.ID,
+		Name:         v.Name,
+		LocationID:   v.LocationID,
+		LocationName: v.LocationName,
+		Status:       v.Status,
+		WorkflowID:   v.WorkflowID,
+		RunID:        v.RunID,
+		AipID:        v.AipID,
+		CreatedAt:    v.CreatedAt,
+		StartedAt:    v.StartedAt,
+		CompletedAt:  v.CompletedAt,
 	}
 
 	return res

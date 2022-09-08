@@ -12,8 +12,9 @@ import (
 )
 
 type MoveToPermanentStorageActivityParams struct {
-	AIPID      string
-	LocationID uuid.UUID
+	AIPID        string
+	LocationID   uuid.UUID
+	LocationName string
 }
 
 type MoveToPermanentStorageActivity struct {

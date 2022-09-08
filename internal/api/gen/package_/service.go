@@ -65,8 +65,9 @@ type MonitorClientStream interface {
 // ConfirmPayload is the payload type of the package service confirm method.
 type ConfirmPayload struct {
 	// Identifier of package to look up
-	ID         uint
-	LocationID uuid.UUID
+	ID           uint
+	LocationID   uuid.UUID
+	LocationName string
 }
 
 // EnduroMonitorEvent is the result type of the package service monitor method.
@@ -94,8 +95,9 @@ type EnduroPackageCreatedEvent struct {
 
 type EnduroPackageLocationUpdatedEvent struct {
 	// Identifier of package
-	ID         uint
-	LocationID uuid.UUID
+	ID           uint
+	LocationID   uuid.UUID
+	LocationName string
 }
 
 // PreservationAction describes a preservation action.
@@ -173,8 +175,9 @@ type EnduroStoredPackage struct {
 	// Identifier of package
 	ID uint
 	// Name of the package
-	Name       *string
-	LocationID *uuid.UUID
+	Name         *string
+	LocationID   *uuid.UUID
+	LocationName *string
 	// Status of the package
 	Status string
 	// Identifier of processing workflow
@@ -214,8 +217,9 @@ type ListResult struct {
 // MovePayload is the payload type of the package service move method.
 type MovePayload struct {
 	// Identifier of package to move
-	ID         uint
-	LocationID uuid.UUID
+	ID           uint
+	LocationID   uuid.UUID
+	LocationName string
 }
 
 // MoveStatusPayload is the payload type of the package service move_status
@@ -441,13 +445,14 @@ func newEnduroPackageCreatedEventView(res *EnduroPackageCreatedEvent) *package_v
 // service type EnduroStoredPackage.
 func newEnduroStoredPackage(vres *package_views.EnduroStoredPackageView) *EnduroStoredPackage {
 	res := &EnduroStoredPackage{
-		Name:        vres.Name,
-		LocationID:  vres.LocationID,
-		WorkflowID:  vres.WorkflowID,
-		RunID:       vres.RunID,
-		AipID:       vres.AipID,
-		StartedAt:   vres.StartedAt,
-		CompletedAt: vres.CompletedAt,
+		Name:         vres.Name,
+		LocationID:   vres.LocationID,
+		LocationName: vres.LocationName,
+		WorkflowID:   vres.WorkflowID,
+		RunID:        vres.RunID,
+		AipID:        vres.AipID,
+		StartedAt:    vres.StartedAt,
+		CompletedAt:  vres.CompletedAt,
 	}
 	if vres.ID != nil {
 		res.ID = *vres.ID
@@ -468,16 +473,17 @@ func newEnduroStoredPackage(vres *package_views.EnduroStoredPackageView) *Enduro
 // projected type EnduroStoredPackageView using the "default" view.
 func newEnduroStoredPackageView(res *EnduroStoredPackage) *package_views.EnduroStoredPackageView {
 	vres := &package_views.EnduroStoredPackageView{
-		ID:          &res.ID,
-		Name:        res.Name,
-		LocationID:  res.LocationID,
-		Status:      &res.Status,
-		WorkflowID:  res.WorkflowID,
-		RunID:       res.RunID,
-		AipID:       res.AipID,
-		CreatedAt:   &res.CreatedAt,
-		StartedAt:   res.StartedAt,
-		CompletedAt: res.CompletedAt,
+		ID:           &res.ID,
+		Name:         res.Name,
+		LocationID:   res.LocationID,
+		LocationName: res.LocationName,
+		Status:       &res.Status,
+		WorkflowID:   res.WorkflowID,
+		RunID:        res.RunID,
+		AipID:        res.AipID,
+		CreatedAt:    &res.CreatedAt,
+		StartedAt:    res.StartedAt,
+		CompletedAt:  res.CompletedAt,
 	}
 	return vres
 }
@@ -544,6 +550,9 @@ func newEnduroPackageLocationUpdatedEvent(vres *package_views.EnduroPackageLocat
 	if vres.LocationID != nil {
 		res.LocationID = *vres.LocationID
 	}
+	if vres.LocationName != nil {
+		res.LocationName = *vres.LocationName
+	}
 	return res
 }
 
@@ -552,8 +561,9 @@ func newEnduroPackageLocationUpdatedEvent(vres *package_views.EnduroPackageLocat
 // EnduroPackageLocationUpdatedEventView using the "default" view.
 func newEnduroPackageLocationUpdatedEventView(res *EnduroPackageLocationUpdatedEvent) *package_views.EnduroPackageLocationUpdatedEventView {
 	vres := &package_views.EnduroPackageLocationUpdatedEventView{
-		ID:         &res.ID,
-		LocationID: &res.LocationID,
+		ID:           &res.ID,
+		LocationID:   &res.LocationID,
+		LocationName: &res.LocationName,
 	}
 	return vres
 }
@@ -912,16 +922,17 @@ func transformPackageViewsEnduroPackageCreatedEventViewToEnduroPackageCreatedEve
 // *package_views.EnduroStoredPackageView.
 func transformPackageViewsEnduroStoredPackageViewToEnduroStoredPackage(v *package_views.EnduroStoredPackageView) *EnduroStoredPackage {
 	res := &EnduroStoredPackage{
-		ID:          *v.ID,
-		Name:        v.Name,
-		LocationID:  v.LocationID,
-		Status:      *v.Status,
-		WorkflowID:  v.WorkflowID,
-		RunID:       v.RunID,
-		AipID:       v.AipID,
-		CreatedAt:   *v.CreatedAt,
-		StartedAt:   v.StartedAt,
-		CompletedAt: v.CompletedAt,
+		ID:           *v.ID,
+		Name:         v.Name,
+		LocationID:   v.LocationID,
+		LocationName: v.LocationName,
+		Status:       *v.Status,
+		WorkflowID:   v.WorkflowID,
+		RunID:        v.RunID,
+		AipID:        v.AipID,
+		CreatedAt:    *v.CreatedAt,
+		StartedAt:    v.StartedAt,
+		CompletedAt:  v.CompletedAt,
 	}
 
 	return res
@@ -1042,16 +1053,17 @@ func transformEnduroPackageCreatedEventToPackageViewsEnduroPackageCreatedEventVi
 // *EnduroStoredPackage.
 func transformEnduroStoredPackageToPackageViewsEnduroStoredPackageView(v *EnduroStoredPackage) *package_views.EnduroStoredPackageView {
 	res := &package_views.EnduroStoredPackageView{
-		ID:          &v.ID,
-		Name:        v.Name,
-		LocationID:  v.LocationID,
-		Status:      &v.Status,
-		WorkflowID:  v.WorkflowID,
-		RunID:       v.RunID,
-		AipID:       v.AipID,
-		CreatedAt:   &v.CreatedAt,
-		StartedAt:   v.StartedAt,
-		CompletedAt: v.CompletedAt,
+		ID:           &v.ID,
+		Name:         v.Name,
+		LocationID:   v.LocationID,
+		LocationName: v.LocationName,
+		Status:       &v.Status,
+		WorkflowID:   v.WorkflowID,
+		RunID:        v.RunID,
+		AipID:        v.AipID,
+		CreatedAt:    &v.CreatedAt,
+		StartedAt:    v.StartedAt,
+		CompletedAt:  v.CompletedAt,
 	}
 
 	return res

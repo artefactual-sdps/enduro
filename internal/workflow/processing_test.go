@@ -61,6 +61,7 @@ func TestProcessingWorkflow(t *testing.T) {
 func (s *ProcessingWorkflowTestSuite) TestPackageConfirmation() {
 	pkgID := uint(1)
 	locationID := uuid.MustParse("51328c02-2b63-47be-958e-e8088aa1a61f")
+	locationName := "perma-aips-1"
 	watcherName := "watcher"
 	retentionPeriod := 1 * time.Second
 
@@ -69,7 +70,7 @@ func (s *ProcessingWorkflowTestSuite) TestPackageConfirmation() {
 		func() {
 			s.env.SignalWorkflow(
 				package_.ReviewPerformedSignalName,
-				package_.ReviewPerformedSignal{Accepted: true, LocationID: &locationID},
+				package_.ReviewPerformedSignal{Accepted: true, LocationID: &locationID, LocationName: &locationName},
 			)
 		},
 		0,
@@ -90,7 +91,7 @@ func (s *ProcessingWorkflowTestSuite) TestPackageConfirmation() {
 	s.env.OnActivity(completePreservationTaskLocalActivity, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 	s.env.OnActivity(activities.MoveToPermanentStorageActivityName, mock.Anything, mock.Anything).Return(nil)
 	s.env.OnActivity(activities.PollMoveToPermanentStorageActivityName, mock.Anything, mock.Anything).Return(nil)
-	s.env.OnActivity(setLocationIDLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
+	s.env.OnActivity(setLocationLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 	// TODO: CleanUpActivityName
 	// TODO: DeleteOriginalActivityName
 	s.env.OnActivity(updatePackageLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
@@ -112,6 +113,7 @@ func (s *ProcessingWorkflowTestSuite) TestPackageConfirmation() {
 func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 	pkgID := uint(1)
 	locationID := uuid.MustParse("51328c02-2b63-47be-958e-e8088aa1a61f")
+	locationName := "perma-aips-1"
 	watcherName := "watcher"
 	key := ""
 	retentionPeriod := 1 * time.Second
@@ -141,7 +143,7 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 	s.env.OnActivity(completePreservationTaskLocalActivity, ctx, pkgsvc, mock.AnythingOfType("*workflow.completePreservationTaskLocalActivityParams")).Return(nil).Once()
 	s.env.OnActivity(activities.MoveToPermanentStorageActivityName, sessionCtx, mock.AnythingOfType("*activities.MoveToPermanentStorageActivityParams")).Return(nil).Once()
 	s.env.OnActivity(activities.PollMoveToPermanentStorageActivityName, sessionCtx, mock.AnythingOfType("*activities.PollMoveToPermanentStorageActivityParams")).Return(nil).Once()
-	s.env.OnActivity(setLocationIDLocalActivity, ctx, pkgsvc, pkgID, locationID).Return(nil).Once()
+	s.env.OnActivity(setLocationLocalActivity, ctx, pkgsvc, pkgID, locationID, mock.Anything).Return(nil).Once()
 	s.env.OnActivity(completePreservationActionLocalActivity, ctx, pkgsvc, mock.AnythingOfType("*workflow.completePreservationActionLocalActivityParams")).Return(nil).Once()
 	// TODO: CleanUpActivityName
 	// TODO: DeleteOriginalActivityName
@@ -149,10 +151,11 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 	s.env.ExecuteWorkflow(
 		s.workflow.Execute,
 		&package_.ProcessingWorkflowRequest{
-			WatcherName:                watcherName,
-			RetentionPeriod:            &retentionPeriod,
-			AutoApproveAIP:             true,
-			DefaultPermanentLocationID: &locationID,
+			WatcherName:                  watcherName,
+			RetentionPeriod:              &retentionPeriod,
+			AutoApproveAIP:               true,
+			DefaultPermanentLocationID:   &locationID,
+			DefaultPermanentLocationName: &locationName,
 		},
 	)
 

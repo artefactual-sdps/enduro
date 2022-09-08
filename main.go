@@ -31,6 +31,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/event"
 	"github.com/artefactual-sdps/enduro/internal/log"
 	"github.com/artefactual-sdps/enduro/internal/package_"
+	"github.com/artefactual-sdps/enduro/internal/ref"
 	"github.com/artefactual-sdps/enduro/internal/storage"
 	storage_activities "github.com/artefactual-sdps/enduro/internal/storage/activities"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence"
@@ -53,6 +54,8 @@ const (
 // This represents the first permanent location defined in the
 // mysql-create-locations-job Kubernetes manifest.
 var defaultPermanentLocationID = uuid.MustParse("f2cc963f-c14d-4eaa-b950-bd207189a1f1")
+
+const defaultPermanentLocationName = "perma-aips-1"
 
 func main() {
 	p := pflag.NewFlagSet(appName, pflag.ExitOnError)
@@ -225,14 +228,15 @@ func main() {
 							logger.V(1).Info("Starting new workflow", "watcher", event.WatcherName, "bucket", event.Bucket, "key", event.Key, "dir", event.IsDir)
 							go func() {
 								req := package_.ProcessingWorkflowRequest{
-									WatcherName:                event.WatcherName,
-									RetentionPeriod:            event.RetentionPeriod,
-									CompletedDir:               event.CompletedDir,
-									StripTopLevelDir:           event.StripTopLevelDir,
-									Key:                        event.Key,
-									IsDir:                      event.IsDir,
-									AutoApproveAIP:             autoApproveAIP,
-									DefaultPermanentLocationID: &defaultPermanentLocationID,
+									WatcherName:                  event.WatcherName,
+									RetentionPeriod:              event.RetentionPeriod,
+									CompletedDir:                 event.CompletedDir,
+									StripTopLevelDir:             event.StripTopLevelDir,
+									Key:                          event.Key,
+									IsDir:                        event.IsDir,
+									AutoApproveAIP:               autoApproveAIP,
+									DefaultPermanentLocationID:   &defaultPermanentLocationID,
+									DefaultPermanentLocationName: ref.New(defaultPermanentLocationName),
 								}
 								if err := package_.InitProcessingWorkflow(ctx, temporalClient, &req); err != nil {
 									logger.Error(err, "Error initializing processing workflow.")

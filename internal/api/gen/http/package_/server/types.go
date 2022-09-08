@@ -18,13 +18,15 @@ import (
 // ConfirmRequestBody is the type of the "package" service "confirm" endpoint
 // HTTP request body.
 type ConfirmRequestBody struct {
-	LocationID *uuid.UUID `form:"location_id,omitempty" json:"location_id,omitempty" xml:"location_id,omitempty"`
+	LocationID   *uuid.UUID `form:"location_id,omitempty" json:"location_id,omitempty" xml:"location_id,omitempty"`
+	LocationName *string    `form:"location_name,omitempty" json:"location_name,omitempty" xml:"location_name,omitempty"`
 }
 
 // MoveRequestBody is the type of the "package" service "move" endpoint HTTP
 // request body.
 type MoveRequestBody struct {
-	LocationID *uuid.UUID `form:"location_id,omitempty" json:"location_id,omitempty" xml:"location_id,omitempty"`
+	LocationID   *uuid.UUID `form:"location_id,omitempty" json:"location_id,omitempty" xml:"location_id,omitempty"`
+	LocationName *string    `form:"location_name,omitempty" json:"location_name,omitempty" xml:"location_name,omitempty"`
 }
 
 // MonitorResponseBody is the type of the "package" service "monitor" endpoint
@@ -54,8 +56,9 @@ type ShowResponseBody struct {
 	// Identifier of package
 	ID uint `form:"id" json:"id" xml:"id"`
 	// Name of the package
-	Name       *string    `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
-	LocationID *uuid.UUID `form:"location_id,omitempty" json:"location_id,omitempty" xml:"location_id,omitempty"`
+	Name         *string    `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	LocationID   *uuid.UUID `form:"location_id,omitempty" json:"location_id,omitempty" xml:"location_id,omitempty"`
+	LocationName *string    `form:"location_name,omitempty" json:"location_name,omitempty" xml:"location_name,omitempty"`
 	// Status of the package
 	Status string `form:"status" json:"status" xml:"status"`
 	// Identifier of processing workflow
@@ -302,8 +305,9 @@ type EnduroStoredPackageResponseBody struct {
 	// Identifier of package
 	ID uint `form:"id" json:"id" xml:"id"`
 	// Name of the package
-	Name       *string    `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
-	LocationID *uuid.UUID `form:"location_id,omitempty" json:"location_id,omitempty" xml:"location_id,omitempty"`
+	Name         *string    `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	LocationID   *uuid.UUID `form:"location_id,omitempty" json:"location_id,omitempty" xml:"location_id,omitempty"`
+	LocationName *string    `form:"location_name,omitempty" json:"location_name,omitempty" xml:"location_name,omitempty"`
 	// Status of the package
 	Status string `form:"status" json:"status" xml:"status"`
 	// Identifier of processing workflow
@@ -340,8 +344,9 @@ type EnduroPackageStatusUpdatedEventResponseBody struct {
 // response body types.
 type EnduroPackageLocationUpdatedEventResponseBody struct {
 	// Identifier of package
-	ID         uint      `form:"id" json:"id" xml:"id"`
-	LocationID uuid.UUID `form:"location_id" json:"location_id" xml:"location_id"`
+	ID           uint      `form:"id" json:"id" xml:"id"`
+	LocationID   uuid.UUID `form:"location_id" json:"location_id" xml:"location_id"`
+	LocationName string    `form:"location_name" json:"location_name" xml:"location_name"`
 }
 
 // EnduroPreservationActionCreatedEventResponseBody is used to define fields on
@@ -479,16 +484,17 @@ func NewListResponseBody(res *package_.ListResult) *ListResponseBody {
 // "show" endpoint of the "package" service.
 func NewShowResponseBody(res *package_views.EnduroStoredPackageView) *ShowResponseBody {
 	body := &ShowResponseBody{
-		ID:          *res.ID,
-		Name:        res.Name,
-		LocationID:  res.LocationID,
-		Status:      *res.Status,
-		WorkflowID:  res.WorkflowID,
-		RunID:       res.RunID,
-		AipID:       res.AipID,
-		CreatedAt:   *res.CreatedAt,
-		StartedAt:   res.StartedAt,
-		CompletedAt: res.CompletedAt,
+		ID:           *res.ID,
+		Name:         res.Name,
+		LocationID:   res.LocationID,
+		LocationName: res.LocationName,
+		Status:       *res.Status,
+		WorkflowID:   res.WorkflowID,
+		RunID:        res.RunID,
+		AipID:        res.AipID,
+		CreatedAt:    *res.CreatedAt,
+		StartedAt:    res.StartedAt,
+		CompletedAt:  res.CompletedAt,
 	}
 	return body
 }
@@ -722,7 +728,8 @@ func NewPreservationActionsPayload(id uint) *package_.PreservationActionsPayload
 // NewConfirmPayload builds a package service confirm endpoint payload.
 func NewConfirmPayload(body *ConfirmRequestBody, id uint) *package_.ConfirmPayload {
 	v := &package_.ConfirmPayload{
-		LocationID: *body.LocationID,
+		LocationID:   *body.LocationID,
+		LocationName: *body.LocationName,
 	}
 	v.ID = id
 
@@ -740,7 +747,8 @@ func NewRejectPayload(id uint) *package_.RejectPayload {
 // NewMovePayload builds a package service move endpoint payload.
 func NewMovePayload(body *MoveRequestBody, id uint) *package_.MovePayload {
 	v := &package_.MovePayload{
-		LocationID: *body.LocationID,
+		LocationID:   *body.LocationID,
+		LocationName: *body.LocationName,
 	}
 	v.ID = id
 
@@ -760,6 +768,9 @@ func ValidateConfirmRequestBody(body *ConfirmRequestBody) (err error) {
 	if body.LocationID == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("location_id", "body"))
 	}
+	if body.LocationName == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("location_name", "body"))
+	}
 	return
 }
 
@@ -767,6 +778,9 @@ func ValidateConfirmRequestBody(body *ConfirmRequestBody) (err error) {
 func ValidateMoveRequestBody(body *MoveRequestBody) (err error) {
 	if body.LocationID == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("location_id", "body"))
+	}
+	if body.LocationName == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("location_name", "body"))
 	}
 	return
 }

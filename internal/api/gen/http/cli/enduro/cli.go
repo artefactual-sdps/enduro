@@ -35,7 +35,7 @@ upload upload
 func UsageExamples() string {
 	return os.Args[0] + ` package monitor` + "\n" +
 		os.Args[0] + ` storage submit --body '{
-      "name": "Est quia et praesentium a autem."
+      "name": "Velit esse assumenda eum sit ut quam."
    }' --aip-id "0191B0B6-8FCE-0417-5FE7-F3E5947851AE"` + "\n" +
 		os.Args[0] + ` upload upload --content-type "multipart/󋸺񫇖󬈖𧯒󥡮; boundary=���" --stream "goa.png"` + "\n" +
 		""
@@ -409,7 +409,7 @@ List all stored packages
     -cursor STRING: 
 
 Example:
-    %[1]s package list --name "Voluptatem iusto consequatur qui aut ducimus totam." --aip-id "AB360986-C49D-9ED1-C841-8564F85C15A9" --earliest-created-time "1971-09-30T17:15:51Z" --latest-created-time "1988-06-14T22:34:25Z" --location-id "9609F161-371C-A63E-3657-D3B6F178B07F" --status "new" --cursor "Odit omnis itaque soluta sed et modi."
+    %[1]s package list --name "Excepturi rem deserunt." --aip-id "AB360986-C49D-9ED1-C841-8564F85C15A9" --earliest-created-time "2009-04-11T04:10:46Z" --latest-created-time "1992-07-17T17:12:15Z" --location-id "9609F161-371C-A63E-3657-D3B6F178B07F" --status "done" --cursor "Assumenda enim iste voluptates quas sit perspiciatis."
 `, os.Args[0])
 }
 
@@ -420,7 +420,7 @@ Show package by ID
     -id UINT: Identifier of package to show
 
 Example:
-    %[1]s package show --id 18178393672110633282
+    %[1]s package show --id 14499263187360059104
 `, os.Args[0])
 }
 
@@ -431,7 +431,7 @@ List all preservation actions by ID
     -id UINT: Identifier of package to look up
 
 Example:
-    %[1]s package preservation-actions --id 5007678243935735816
+    %[1]s package preservation-actions --id 7741340463403499889
 `, os.Args[0])
 }
 
@@ -444,8 +444,9 @@ Signal the package has been reviewed and accepted
 
 Example:
     %[1]s package confirm --body '{
-      "location_id": "Ut quas."
-   }' --id 6413953064518636787
+      "location_id": "Quia et praesentium a.",
+      "location_name": "Quis blanditiis."
+   }' --id 8198661198399574710
 `, os.Args[0])
 }
 
@@ -456,7 +457,7 @@ Signal the package has been reviewed and rejected
     -id UINT: Identifier of package to look up
 
 Example:
-    %[1]s package reject --id 14757473849653299790
+    %[1]s package reject --id 8918191282983282232
 `, os.Args[0])
 }
 
@@ -469,8 +470,9 @@ Move a package to a permanent storage location
 
 Example:
     %[1]s package move --body '{
-      "location_id": "Temporibus iusto et."
-   }' --id 5413568045811429472
+      "location_id": "Mollitia cumque possimus quia.",
+      "location_name": "Laudantium vel sit."
+   }' --id 3712899822518440527
 `, os.Args[0])
 }
 
@@ -481,7 +483,7 @@ Retrieve the status of a permanent storage location move of the package
     -id UINT: Identifier of package to move
 
 Example:
-    %[1]s package move-status --id 14030264248050019902
+    %[1]s package move-status --id 8913399705115974872
 `, os.Args[0])
 }
 
@@ -517,7 +519,7 @@ Start the submission of a package
 
 Example:
     %[1]s storage submit --body '{
-      "name": "Est quia et praesentium a autem."
+      "name": "Velit esse assumenda eum sit ut quam."
    }' --aip-id "0191B0B6-8FCE-0417-5FE7-F3E5947851AE"
 `, os.Args[0])
 }
@@ -566,9 +568,9 @@ Example:
          "Type": "s3",
          "Value": "\"JSON\""
       },
-      "description": "Maiores ducimus in eligendi et laboriosam.",
-      "name": "Consequatur doloribus sit corrupti.",
-      "purpose": "unspecified",
+      "description": "Velit architecto.",
+      "name": "Et ut deleniti.",
+      "purpose": "aip_store",
       "source": "minio"
    }'
 `, os.Args[0])
@@ -583,7 +585,7 @@ Move a package to a permanent storage location
 
 Example:
     %[1]s storage move --body '{
-      "location_id": "Nihil quod."
+      "location_id": "Enim dolor officia."
    }' --aip-id "05AF9F85-3F51-2CC5-AA06-E15963A2BFCC"
 `, os.Args[0])
 }

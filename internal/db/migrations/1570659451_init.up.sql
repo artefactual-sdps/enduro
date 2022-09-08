@@ -5,6 +5,7 @@ CREATE TABLE package (
   `run_id` VARCHAR(36) NOT NULL,
   `aip_id` VARCHAR(36) NOT NULL,
   `location_id` VARCHAR(36) NULL,
+  `location_name` VARCHAR(2048) NULL,
   `status` TINYINT NOT NULL,
   `created_at` TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6) NOT NULL,
   `started_at` TIMESTAMP(6) NULL,
