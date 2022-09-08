@@ -1,0 +1,21 @@
+name: Gosec
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - dev/gosec-integration
+  schedule:
+    - cron: "45 11 * * 0"
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    env:
+      GO111MODULE: on
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v2
+      - name: Run Gosec Security Scanner
+        uses: securego/gosec@master
+        with:
+          args: "-exclude-dir=dashboard -exclude-dir=hack/genpkgs -exclude-dir=internal/storage/persistence/ent/db -exclude-dir=internal/api/gen ./..."
