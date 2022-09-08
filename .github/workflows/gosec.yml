@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - dev/gosec-integration
   schedule:
     - cron: "45 11 * * 0"
 jobs:
@@ -18,4 +17,4 @@ jobs:
       - name: Run Gosec Security Scanner
         uses: securego/gosec@master
         with:
-          args: "-exclude-dir=dashboard -exclude-dir=hack/genpkgs -exclude-dir=internal/storage/persistence/ent/db -exclude-dir=internal/api/gen ./..."
+          args: "-exclude-dir=dashboard -exclude-dir=hack/genpkgs -exclude-dir=hack/pulumi -exclude-dir=internal/storage/persistence/ent/db -exclude-dir=internal/api/gen ./..."
