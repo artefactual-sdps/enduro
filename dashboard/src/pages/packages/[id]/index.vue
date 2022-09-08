@@ -14,7 +14,10 @@ const createAipWorkflow = $computed(
     packageStore.current_preservation_actions?.actions?.filter(
       (action) =>
         action.type ===
-        api.EnduroPackagePreservationActionResponseBodyTypeEnum.CreateAip
+          api.EnduroPackagePreservationActionResponseBodyTypeEnum.CreateAip ||
+        action.type ===
+          api.EnduroPackagePreservationActionResponseBodyTypeEnum
+            .CreateAndReviewAip
     )[0]
 );
 
