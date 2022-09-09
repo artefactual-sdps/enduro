@@ -43,7 +43,7 @@ func (a *UploadActivity) Execute(ctx context.Context, params *UploadActivityPara
 		if err != nil {
 			return err
 		}
-		defer f.Close()
+		defer f.Close() //#nosec G307 -- Errors returned by Close() here do not require specific handling.
 
 		uploadReq, err := http.NewRequestWithContext(ctx, http.MethodPut, res.URL, f)
 		if err != nil {

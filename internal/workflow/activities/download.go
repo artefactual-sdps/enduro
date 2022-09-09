@@ -32,7 +32,7 @@ func (a *DownloadActivity) Execute(ctx context.Context, watcherName, key string)
 	if err != nil {
 		return "", temporal.NonRetryableError(fmt.Errorf("error creating temporary file in processing directory: %v", err))
 	}
-	defer file.Close()
+	defer file.Close() //#nosec G307 -- Errors returned by Close() here do not require specific handling.
 
 	if err := a.wsvc.Download(ctx, file, watcherName, key); err != nil {
 		return "", temporal.NonRetryableError(fmt.Errorf("error downloading blob: %v", err))

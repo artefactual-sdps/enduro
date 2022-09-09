@@ -107,7 +107,7 @@ func (a *BundleActivity) Unarchiver(key, filename string) archiver.Unarchiver {
 	if err != nil {
 		return nil
 	}
-	defer file.Close()
+	defer file.Close() //#nosec G307 -- Errors returned by Close() here do not require specific handling.
 	if u, err := archiver.ByHeader(file); err == nil {
 		return u
 	}
@@ -292,7 +292,7 @@ func unbag(path string) error {
 			}
 			return err
 		}
-		defer file.Close()
+		defer file.Close() //#nosec G307 -- Errors returned by Close() here do not require specific handling.
 
 		securePath, _ = securejoin.SecureJoin(metadataPath, item[1])
 		newFile, err := os.Create(securePath)
@@ -302,7 +302,7 @@ func unbag(path string) error {
 			}
 			return err
 		}
-		defer newFile.Close()
+		defer newFile.Close() //#nosec G307 -- Errors returned by Close() here do not require specific handling.
 
 		scanner := bufio.NewScanner(file)
 		for scanner.Scan() {
