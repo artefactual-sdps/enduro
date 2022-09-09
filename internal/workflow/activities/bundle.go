@@ -269,10 +269,11 @@ func unbag(path string) error {
 	// Create metadata and submissionDocumentation directories.
 	metadataPath, _ := securejoin.SecureJoin(path, "metadata")
 	documentationPath, _ := securejoin.SecureJoin(metadataPath, "submissionDocumentation")
-	//#nosec G301 -- Evaulate use of UID and GID among containers so that permission 750 could be used.
+	//#nosec G301 -- Evaluate use of UID and GID among containers so that permission 750 could be used.
 	if err := os.MkdirAll(metadataPath, 0o775); err != nil {
 		return err
 	}
+	//#nosec G301 -- Evaluate use of UID and GID among containers so that permission 750 could be used.
 	if err := os.MkdirAll(documentationPath, 0o775); err != nil {
 		return err
 	}
