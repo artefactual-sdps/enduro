@@ -1,6 +1,9 @@
-include .bingo/Variables.mk
+PROJECT := enduro-sdps
+MAKEDIR := hack/make
 
-SHELL=/bin/bash
+include hack/make/bootstrap.mk
+include hack/make/dep_golangci_lint.mk
+include .bingo/Variables.mk
 
 define NEWLINE
 
@@ -69,8 +72,11 @@ test-race:
 ignored:
 	$(foreach PACKAGE,$(IGNORED_PACKAGES),@echo $(PACKAGE)$(NEWLINE))
 
+golangcilint: $(GOLANGCI_LINT)
+	golangci-lint run -v --timeout=5m --fix .
+
 lint:
-	$(GOLANGCI_LINT) run -c $(CURDIR)/.golangci.yml -v --timeout=5m --fix
+	@$(MAKE) golangcilint
 
 gen-goa:
 	$(GOA) gen github.com/artefactual-sdps/enduro/internal/api/design -o internal/api
