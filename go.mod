@@ -36,8 +36,8 @@ require (
 	github.com/stretchr/testify v1.8.0
 	github.com/ulikunitz/xz v0.5.10 // indirect
 	go.buf.build/grpc/go/artefactual/a3m v1.4.1
-	go.temporal.io/api v1.11.0
-	go.temporal.io/sdk v1.16.0
+	go.temporal.io/api v1.11.1-0.20220907050538-6de5285cf463
+	go.temporal.io/sdk v1.17.0
 	go.uber.org/multierr v1.8.0 // indirect
 	go.uber.org/zap v1.23.0
 	goa.design/goa/v3 v3.8.4
@@ -122,13 +122,13 @@ require (
 	go.opentelemetry.io/otel/trace v1.3.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
-	golang.org/x/net v0.0.0-20220802222814-0bcc04d9c69b // indirect
-	golang.org/x/sys v0.0.0-20220803195053-6e608f9ce704 // indirect
+	golang.org/x/net v0.0.0-20220906165146-f3363e06e74c // indirect
+	golang.org/x/sys v0.0.0-20220906165534-d0df966e6959 // indirect
 	golang.org/x/time v0.0.0-20220224211638-0e9765cccd65 // indirect
 	golang.org/x/tools v0.1.13-0.20220804200503-81c7dc4e4efa // indirect
 	golang.org/x/xerrors v0.0.0-20220517211312-f3a8303e98df // indirect
 	google.golang.org/api v0.81.0 // indirect
-	google.golang.org/genproto v0.0.0-20220803205849-8f55acc8769f // indirect
+	google.golang.org/genproto v0.0.0-20220902135211-223410557253 // indirect
 	gopkg.in/ini.v1 v1.66.4 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
