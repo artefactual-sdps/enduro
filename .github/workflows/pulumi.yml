@@ -14,7 +14,7 @@ jobs:
         run: go mod download
         working-directory: hack/pulumi
       - name: Refresh and update Pulumi stack
-        uses: pulumi/actions@v3.19.0
+        uses: pulumi/actions@v3.19.1
         with:
           command: up
           refresh: true
