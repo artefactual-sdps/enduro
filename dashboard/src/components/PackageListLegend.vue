@@ -19,25 +19,25 @@ const show = computed(() => modelValue);
 
 const items = [
   {
-    status: api.PackageShowResponseBodyStatusEnum.Done,
+    status: api.EnduroStoredPackageStatusEnum.Done,
     description: "The current workflow or task has completed without errors.",
   },
   {
-    status: api.PackageShowResponseBodyStatusEnum.Error,
+    status: api.EnduroStoredPackageStatusEnum.Error,
     description:
       "The current workflow has encountered an error it could not resolve and failed.",
   },
   {
-    status: api.PackageShowResponseBodyStatusEnum.InProgress,
+    status: api.EnduroStoredPackageStatusEnum.InProgress,
     description: "The current workflow is still processing.",
   },
   {
-    status: api.PackageShowResponseBodyStatusEnum.Queued,
+    status: api.EnduroStoredPackageStatusEnum.Queued,
     description:
       "The current workflow is waiting for an available worker to begin.",
   },
   {
-    status: api.PackageShowResponseBodyStatusEnum.Pending,
+    status: api.EnduroStoredPackageStatusEnum.Pending,
     description: "The current workflow is awaiting a user decision.",
   },
 ];

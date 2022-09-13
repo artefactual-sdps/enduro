@@ -6,11 +6,11 @@ import { ref } from "vue";
 export const usePackageStore = defineStore("package", {
   state: () => ({
     // Package currently displayed.
-    current: null as api.PackageShowResponseBody | null,
+    current: null as api.EnduroStoredPackage | null,
 
     // Preservation actions of the current package.
     current_preservation_actions:
-      null as api.PackagePreservationActionsResponseBody | null,
+      null as api.EnduroPackagePreservationActions | null,
 
     // The current package is being moved into a new location.
     // Set to true by this client when the package is moved.
@@ -18,7 +18,7 @@ export const usePackageStore = defineStore("package", {
     locationChanging: false,
 
     // A list of packages shown during searches.
-    packages: [] as Array<api.EnduroStoredPackageResponseBody>,
+    packages: [] as Array<api.EnduroStoredPackage>,
 
     // User-interface interactions between components.
     ui: {
@@ -27,13 +27,10 @@ export const usePackageStore = defineStore("package", {
   }),
   getters: {
     isPending(): boolean {
-      return (
-        this.current?.status ==
-        api.EnduroStoredPackageResponseBodyStatusEnum.Pending
-      );
+      return this.current?.status == api.EnduroStoredPackageStatusEnum.Pending;
     },
     isDone(): boolean {
-      return this.current?.status == api.PackageShowResponseBodyStatusEnum.Done;
+      return this.current?.status == api.EnduroStoredPackageStatusEnum.Done;
     },
     isMovable(): boolean {
       return this.isDone && !this.isMoving;
@@ -47,7 +44,7 @@ export const usePackageStore = defineStore("package", {
     getActionById: (state) => {
       return (
         actionId: number
-      ): api.EnduroPackagePreservationActionResponseBody | undefined => {
+      ): api.EnduroPackagePreservationAction | undefined => {
         const x = state.current_preservation_actions?.actions?.find(
           (action) => action.id === actionId
         );
@@ -58,7 +55,7 @@ export const usePackageStore = defineStore("package", {
       return (
         actionId: number,
         taskId: number
-      ): api.EnduroPackagePreservationTaskResponseBody | undefined => {
+      ): api.EnduroPackagePreservationTask | undefined => {
         const action = state.current_preservation_actions?.actions?.find(
           (action) => action.id === actionId
         );
@@ -68,8 +65,8 @@ export const usePackageStore = defineStore("package", {
     },
   },
   actions: {
-    handleEvent(event: api.PackageMonitorResponseBody) {
-      let key: keyof api.PackageMonitorResponseBody;
+    handleEvent(event: api.MonitorResponseBody) {
+      let key: keyof api.MonitorResponseBody;
       for (key in event) {
         const payload: any = event[key];
         if (!payload) continue;
@@ -118,15 +115,14 @@ export const usePackageStore = defineStore("package", {
       try {
         await client.package.packageMove({
           id: this.current.id,
-          moveRequestBody: { locationId: locationId },
+          confirmRequestBody: { locationId: locationId },
         });
       } catch (error) {
         return error;
       }
       this.$patch((state) => {
         if (!state.current) return;
-        state.current.status =
-          api.EnduroStoredPackageResponseBodyStatusEnum.InProgress;
+        state.current.status = api.EnduroStoredPackageStatusEnum.InProgress;
         state.locationChanging = true;
       });
     },
@@ -151,16 +147,14 @@ export const usePackageStore = defineStore("package", {
         })
         .then((payload) => {
           if (!this.current) return;
-          this.current.status =
-            api.EnduroStoredPackageResponseBodyStatusEnum.InProgress;
+          this.current.status = api.EnduroStoredPackageStatusEnum.InProgress;
         });
     },
     reject() {
       if (!this.current) return;
       client.package.packageReject({ id: this.current.id }).then((payload) => {
         if (!this.current) return;
-        this.current.status =
-          api.EnduroStoredPackageResponseBodyStatusEnum.InProgress;
+        this.current.status = api.EnduroStoredPackageStatusEnum.InProgress;
       });
     },
   },
@@ -183,7 +177,7 @@ type Partial<T> = {
 };
 
 // Pairs all known events with the event handlers.
-const handlers: Partial<api.PackageMonitorResponseBody> = {
+const handlers: Partial<api.MonitorResponseBody> = {
   monitorPingEvent: handleMonitorPing,
   packageCreatedEvent: handlePackageCreated,
   packageLocationUpdatedEvent: handlePackageLocationUpdated,

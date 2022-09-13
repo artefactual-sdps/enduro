@@ -49,7 +49,7 @@ function connectPackageMonitor() {
   const socket = new WebSocket(url);
   socket.onmessage = (event: MessageEvent) => {
     const body = JSON.parse(event.data);
-    const data = api.PackageMonitorResponseBodyFromJSON(body);
+    const data = api.MonitorResponseBodyFromJSON(body);
     store.handleEvent(data);
   };
 }

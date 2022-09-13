@@ -54,35 +54,34 @@ app.config.globalProperties.$filters = {
     return humanizeDuration(moment.duration(diff).asMilliseconds());
   },
   getPreservationActionLabel(
-    value: api.EnduroPackagePreservationActionResponseBodyTypeEnum
+    value: api.EnduroPackagePreservationActionTypeEnum
   ) {
     switch (value) {
-      case api.EnduroPackagePreservationActionResponseBodyTypeEnum.CreateAip:
+      case api.EnduroPackagePreservationActionTypeEnum.CreateAip:
         return "Create AIP";
-      case api.EnduroPackagePreservationActionResponseBodyTypeEnum
-        .CreateAndReviewAip:
+      case api.EnduroPackagePreservationActionTypeEnum.CreateAndReviewAip:
         return "Create and Review AIP";
-      case api.EnduroPackagePreservationActionResponseBodyTypeEnum.MovePackage:
+      case api.EnduroPackagePreservationActionTypeEnum.MovePackage:
         return "Move package";
       default:
         return value;
     }
   },
-  getLocationSourceLabel(value: api.StorageAddLocationRequestBodySourceEnum) {
+  getLocationSourceLabel(value: api.LocationSourceEnum) {
     switch (value) {
-      case api.StorageAddLocationRequestBodySourceEnum.Minio:
+      case api.LocationSourceEnum.Minio:
         return "MinIO";
-      case api.StorageAddLocationRequestBodySourceEnum.Unspecified:
+      case api.LocationSourceEnum.Unspecified:
         return "Unspecified";
       default:
         return value;
     }
   },
-  getLocationPurposeLabel(value: api.StorageAddLocationRequestBodyPurposeEnum) {
+  getLocationPurposeLabel(value: api.LocationPurposeEnum) {
     switch (value) {
-      case api.StorageAddLocationRequestBodyPurposeEnum.AipStore:
+      case api.LocationPurposeEnum.AipStore:
         return "AIP Store";
-      case api.StorageAddLocationRequestBodyPurposeEnum.Unspecified:
+      case api.LocationPurposeEnum.Unspecified:
         return "Unspecified";
       default:
         return value;
