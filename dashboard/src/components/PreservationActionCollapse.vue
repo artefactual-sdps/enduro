@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { api } from "@/client";
+import type { api } from "@/client";
 import PackageReviewAlert from "@/components/PackageReviewAlert.vue";
 import StatusBadge from "@/components/StatusBadge.vue";
 import Collapse from "bootstrap/js/dist/collapse";
