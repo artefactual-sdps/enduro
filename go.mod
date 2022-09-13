@@ -40,8 +40,8 @@ require (
 	go.temporal.io/sdk v1.17.0
 	go.uber.org/multierr v1.8.0 // indirect
 	go.uber.org/zap v1.23.0
-	goa.design/goa/v3 v3.8.4
-	goa.design/plugins/v3 v3.8.4
+	goa.design/goa/v3 v3.8.5
+	goa.design/plugins/v3 v3.8.5
 	gocloud.dev v0.26.0
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/grpc v1.49.0
