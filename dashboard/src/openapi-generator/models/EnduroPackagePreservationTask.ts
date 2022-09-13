@@ -14,57 +14,57 @@
 
 import { exists, mapValues } from '../runtime';
 /**
- * PreservationTask describes a preservation action task. (default view)
+ * PreservationTask describes a preservation action task.
  * @export
- * @interface EnduroPackagePreservationTaskResponseBody
+ * @interface EnduroPackagePreservationTask
  */
-export interface EnduroPackagePreservationTaskResponseBody {
+export interface EnduroPackagePreservationTask {
     /**
      * 
      * @type {Date}
-     * @memberof EnduroPackagePreservationTaskResponseBody
+     * @memberof EnduroPackagePreservationTask
      */
     completedAt?: Date;
     /**
      * 
      * @type {number}
-     * @memberof EnduroPackagePreservationTaskResponseBody
+     * @memberof EnduroPackagePreservationTask
      */
     id: number;
     /**
      * 
      * @type {string}
-     * @memberof EnduroPackagePreservationTaskResponseBody
+     * @memberof EnduroPackagePreservationTask
      */
     name: string;
     /**
      * 
      * @type {string}
-     * @memberof EnduroPackagePreservationTaskResponseBody
+     * @memberof EnduroPackagePreservationTask
      */
     note?: string;
     /**
      * 
      * @type {number}
-     * @memberof EnduroPackagePreservationTaskResponseBody
+     * @memberof EnduroPackagePreservationTask
      */
     preservationActionId?: number;
     /**
      * 
      * @type {Date}
-     * @memberof EnduroPackagePreservationTaskResponseBody
+     * @memberof EnduroPackagePreservationTask
      */
     startedAt: Date;
     /**
      * 
      * @type {string}
-     * @memberof EnduroPackagePreservationTaskResponseBody
+     * @memberof EnduroPackagePreservationTask
      */
-    status: EnduroPackagePreservationTaskResponseBodyStatusEnum;
+    status: EnduroPackagePreservationTaskStatusEnum;
     /**
      * 
      * @type {string}
-     * @memberof EnduroPackagePreservationTaskResponseBody
+     * @memberof EnduroPackagePreservationTask
      */
     taskId: string;
 }
@@ -73,7 +73,7 @@ export interface EnduroPackagePreservationTaskResponseBody {
 /**
  * @export
  */
-export const EnduroPackagePreservationTaskResponseBodyStatusEnum = {
+export const EnduroPackagePreservationTaskStatusEnum = {
     Unspecified: 'unspecified',
     InProgress: 'in progress',
     Done: 'done',
@@ -81,13 +81,13 @@ export const EnduroPackagePreservationTaskResponseBodyStatusEnum = {
     Queued: 'queued',
     Pending: 'pending'
 } as const;
-export type EnduroPackagePreservationTaskResponseBodyStatusEnum = typeof EnduroPackagePreservationTaskResponseBodyStatusEnum[keyof typeof EnduroPackagePreservationTaskResponseBodyStatusEnum];
+export type EnduroPackagePreservationTaskStatusEnum = typeof EnduroPackagePreservationTaskStatusEnum[keyof typeof EnduroPackagePreservationTaskStatusEnum];
 
 
 /**
- * Check if a given object implements the EnduroPackagePreservationTaskResponseBody interface.
+ * Check if a given object implements the EnduroPackagePreservationTask interface.
  */
-export function instanceOfEnduroPackagePreservationTaskResponseBody(value: object): boolean {
+export function instanceOfEnduroPackagePreservationTask(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "id" in value;
     isInstance = isInstance && "name" in value;
@@ -98,11 +98,11 @@ export function instanceOfEnduroPackagePreservationTaskResponseBody(value: objec
     return isInstance;
 }
 
-export function EnduroPackagePreservationTaskResponseBodyFromJSON(json: any): EnduroPackagePreservationTaskResponseBody {
-    return EnduroPackagePreservationTaskResponseBodyFromJSONTyped(json, false);
+export function EnduroPackagePreservationTaskFromJSON(json: any): EnduroPackagePreservationTask {
+    return EnduroPackagePreservationTaskFromJSONTyped(json, false);
 }
 
-export function EnduroPackagePreservationTaskResponseBodyFromJSONTyped(json: any, ignoreDiscriminator: boolean): EnduroPackagePreservationTaskResponseBody {
+export function EnduroPackagePreservationTaskFromJSONTyped(json: any, ignoreDiscriminator: boolean): EnduroPackagePreservationTask {
     if ((json === undefined) || (json === null)) {
         return json;
     }
@@ -119,7 +119,7 @@ export function EnduroPackagePreservationTaskResponseBodyFromJSONTyped(json: any
     };
 }
 
-export function EnduroPackagePreservationTaskResponseBodyToJSON(value?: EnduroPackagePreservationTaskResponseBody | null): any {
+export function EnduroPackagePreservationTaskToJSON(value?: EnduroPackagePreservationTask | null): any {
     if (value === undefined) {
         return undefined;
     }
