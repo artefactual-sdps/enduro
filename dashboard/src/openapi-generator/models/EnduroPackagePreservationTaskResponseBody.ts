@@ -84,6 +84,20 @@ export const EnduroPackagePreservationTaskResponseBodyStatusEnum = {
 export type EnduroPackagePreservationTaskResponseBodyStatusEnum = typeof EnduroPackagePreservationTaskResponseBodyStatusEnum[keyof typeof EnduroPackagePreservationTaskResponseBodyStatusEnum];
 
 
+/**
+ * Check if a given object implements the EnduroPackagePreservationTaskResponseBody interface.
+ */
+export function instanceOfEnduroPackagePreservationTaskResponseBody(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "id" in value;
+    isInstance = isInstance && "name" in value;
+    isInstance = isInstance && "startedAt" in value;
+    isInstance = isInstance && "status" in value;
+    isInstance = isInstance && "taskId" in value;
+
+    return isInstance;
+}
+
 export function EnduroPackagePreservationTaskResponseBodyFromJSON(json: any): EnduroPackagePreservationTaskResponseBody {
     return EnduroPackagePreservationTaskResponseBodyFromJSONTyped(json, false);
 }

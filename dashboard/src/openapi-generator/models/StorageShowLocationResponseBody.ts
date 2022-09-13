@@ -77,6 +77,20 @@ export const StorageShowLocationResponseBodySourceEnum = {
 export type StorageShowLocationResponseBodySourceEnum = typeof StorageShowLocationResponseBodySourceEnum[keyof typeof StorageShowLocationResponseBodySourceEnum];
 
 
+/**
+ * Check if a given object implements the StorageShowLocationResponseBody interface.
+ */
+export function instanceOfStorageShowLocationResponseBody(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "createdAt" in value;
+    isInstance = isInstance && "name" in value;
+    isInstance = isInstance && "purpose" in value;
+    isInstance = isInstance && "source" in value;
+    isInstance = isInstance && "uuid" in value;
+
+    return isInstance;
+}
+
 export function StorageShowLocationResponseBodyFromJSON(json: any): StorageShowLocationResponseBody {
     return StorageShowLocationResponseBodyFromJSONTyped(json, false);
 }

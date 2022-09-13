@@ -27,6 +27,16 @@ export interface StorageMoveStatusResponseBody {
     done: boolean;
 }
 
+/**
+ * Check if a given object implements the StorageMoveStatusResponseBody interface.
+ */
+export function instanceOfStorageMoveStatusResponseBody(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "done" in value;
+
+    return isInstance;
+}
+
 export function StorageMoveStatusResponseBodyFromJSON(json: any): StorageMoveStatusResponseBody {
     return StorageMoveStatusResponseBodyFromJSONTyped(json, false);
 }

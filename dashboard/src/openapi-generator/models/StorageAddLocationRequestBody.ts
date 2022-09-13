@@ -13,8 +13,8 @@
  */
 
 import { exists, mapValues } from '../runtime';
+import type { StorageAddLocationRequestBodyConfig } from './StorageAddLocationRequestBodyConfig';
 import {
-    StorageAddLocationRequestBodyConfig,
     StorageAddLocationRequestBodyConfigFromJSON,
     StorageAddLocationRequestBodyConfigFromJSONTyped,
     StorageAddLocationRequestBodyConfigToJSON,
@@ -77,6 +77,18 @@ export const StorageAddLocationRequestBodySourceEnum = {
 } as const;
 export type StorageAddLocationRequestBodySourceEnum = typeof StorageAddLocationRequestBodySourceEnum[keyof typeof StorageAddLocationRequestBodySourceEnum];
 
+
+/**
+ * Check if a given object implements the StorageAddLocationRequestBody interface.
+ */
+export function instanceOfStorageAddLocationRequestBody(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "name" in value;
+    isInstance = isInstance && "purpose" in value;
+    isInstance = isInstance && "source" in value;
+
+    return isInstance;
+}
 
 export function StorageAddLocationRequestBodyFromJSON(json: any): StorageAddLocationRequestBody {
     return StorageAddLocationRequestBodyFromJSONTyped(json, false);

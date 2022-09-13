@@ -98,6 +98,18 @@ export const PackageShowResponseBodyStatusEnum = {
 export type PackageShowResponseBodyStatusEnum = typeof PackageShowResponseBodyStatusEnum[keyof typeof PackageShowResponseBodyStatusEnum];
 
 
+/**
+ * Check if a given object implements the PackageShowResponseBody interface.
+ */
+export function instanceOfPackageShowResponseBody(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "createdAt" in value;
+    isInstance = isInstance && "id" in value;
+    isInstance = isInstance && "status" in value;
+
+    return isInstance;
+}
+
 export function PackageShowResponseBodyFromJSON(json: any): PackageShowResponseBody {
     return PackageShowResponseBodyFromJSONTyped(json, false);
 }

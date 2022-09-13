@@ -27,6 +27,16 @@ export interface StorageMoveRequestBody {
     locationId: string;
 }
 
+/**
+ * Check if a given object implements the StorageMoveRequestBody interface.
+ */
+export function instanceOfStorageMoveRequestBody(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "locationId" in value;
+
+    return isInstance;
+}
+
 export function StorageMoveRequestBodyFromJSON(json: any): StorageMoveRequestBody {
     return StorageMoveRequestBodyFromJSONTyped(json, false);
 }

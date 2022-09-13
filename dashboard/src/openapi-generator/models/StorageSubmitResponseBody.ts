@@ -27,6 +27,16 @@ export interface StorageSubmitResponseBody {
     url: string;
 }
 
+/**
+ * Check if a given object implements the StorageSubmitResponseBody interface.
+ */
+export function instanceOfStorageSubmitResponseBody(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "url" in value;
+
+    return isInstance;
+}
+
 export function StorageSubmitResponseBodyFromJSON(json: any): StorageSubmitResponseBody {
     return StorageSubmitResponseBodyFromJSONTyped(json, false);
 }

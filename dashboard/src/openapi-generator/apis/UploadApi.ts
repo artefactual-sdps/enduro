@@ -14,11 +14,13 @@
 
 
 import * as runtime from '../runtime';
+import type {
+  UploadUploadInternalErrorResponseBody,
+  UploadUploadInvalidMultipartRequestResponseBody,
+} from '../models';
 import {
-    UploadUploadInternalErrorResponseBody,
     UploadUploadInternalErrorResponseBodyFromJSON,
     UploadUploadInternalErrorResponseBodyToJSON,
-    UploadUploadInvalidMultipartRequestResponseBody,
     UploadUploadInvalidMultipartRequestResponseBodyFromJSON,
     UploadUploadInvalidMultipartRequestResponseBodyToJSON,
 } from '../models';
@@ -42,12 +44,12 @@ export interface UploadApiInterface {
      * @throws {RequiredError}
      * @memberof UploadApiInterface
      */
-    uploadUploadRaw(requestParameters: UploadUploadRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<void>>;
+    uploadUploadRaw(requestParameters: UploadUploadRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>>;
 
     /**
      * upload upload
      */
-    uploadUpload(requestParameters: UploadUploadRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<void>;
+    uploadUpload(requestParameters: UploadUploadRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
 
 }
 
@@ -59,7 +61,7 @@ export class UploadApi extends runtime.BaseAPI implements UploadApiInterface {
     /**
      * upload upload
      */
-    async uploadUploadRaw(requestParameters: UploadUploadRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<void>> {
+    async uploadUploadRaw(requestParameters: UploadUploadRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -81,7 +83,7 @@ export class UploadApi extends runtime.BaseAPI implements UploadApiInterface {
     /**
      * upload upload
      */
-    async uploadUpload(requestParameters: UploadUploadRequest = {}, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<void> {
+    async uploadUpload(requestParameters: UploadUploadRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
         await this.uploadUploadRaw(requestParameters, initOverrides);
     }
 

@@ -33,6 +33,17 @@ export interface PackageConfirmNotFoundResponseBody {
     message: string;
 }
 
+/**
+ * Check if a given object implements the PackageConfirmNotFoundResponseBody interface.
+ */
+export function instanceOfPackageConfirmNotFoundResponseBody(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "id" in value;
+    isInstance = isInstance && "message" in value;
+
+    return isInstance;
+}
+
 export function PackageConfirmNotFoundResponseBodyFromJSON(json: any): PackageConfirmNotFoundResponseBody {
     return PackageConfirmNotFoundResponseBodyFromJSONTyped(json, false);
 }

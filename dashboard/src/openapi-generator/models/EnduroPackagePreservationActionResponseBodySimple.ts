@@ -88,6 +88,20 @@ export const EnduroPackagePreservationActionResponseBodySimpleTypeEnum = {
 export type EnduroPackagePreservationActionResponseBodySimpleTypeEnum = typeof EnduroPackagePreservationActionResponseBodySimpleTypeEnum[keyof typeof EnduroPackagePreservationActionResponseBodySimpleTypeEnum];
 
 
+/**
+ * Check if a given object implements the EnduroPackagePreservationActionResponseBodySimple interface.
+ */
+export function instanceOfEnduroPackagePreservationActionResponseBodySimple(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "id" in value;
+    isInstance = isInstance && "startedAt" in value;
+    isInstance = isInstance && "status" in value;
+    isInstance = isInstance && "type" in value;
+    isInstance = isInstance && "workflowId" in value;
+
+    return isInstance;
+}
+
 export function EnduroPackagePreservationActionResponseBodySimpleFromJSON(json: any): EnduroPackagePreservationActionResponseBodySimple {
     return EnduroPackagePreservationActionResponseBodySimpleFromJSONTyped(json, false);
 }

@@ -33,6 +33,17 @@ export interface StorageMoveNotFoundResponseBody {
     message: string;
 }
 
+/**
+ * Check if a given object implements the StorageMoveNotFoundResponseBody interface.
+ */
+export function instanceOfStorageMoveNotFoundResponseBody(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "aipId" in value;
+    isInstance = isInstance && "message" in value;
+
+    return isInstance;
+}
+
 export function StorageMoveNotFoundResponseBodyFromJSON(json: any): StorageMoveNotFoundResponseBody {
     return StorageMoveNotFoundResponseBodyFromJSONTyped(json, false);
 }

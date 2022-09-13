@@ -71,6 +71,20 @@ export const StorageShowResponseBodyStatusEnum = {
 export type StorageShowResponseBodyStatusEnum = typeof StorageShowResponseBodyStatusEnum[keyof typeof StorageShowResponseBodyStatusEnum];
 
 
+/**
+ * Check if a given object implements the StorageShowResponseBody interface.
+ */
+export function instanceOfStorageShowResponseBody(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "aipId" in value;
+    isInstance = isInstance && "createdAt" in value;
+    isInstance = isInstance && "name" in value;
+    isInstance = isInstance && "objectKey" in value;
+    isInstance = isInstance && "status" in value;
+
+    return isInstance;
+}
+
 export function StorageShowResponseBodyFromJSON(json: any): StorageShowResponseBody {
     return StorageShowResponseBodyFromJSONTyped(json, false);
 }

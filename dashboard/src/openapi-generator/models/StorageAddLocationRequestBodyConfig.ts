@@ -44,6 +44,17 @@ export const StorageAddLocationRequestBodyConfigTypeEnum = {
 export type StorageAddLocationRequestBodyConfigTypeEnum = typeof StorageAddLocationRequestBodyConfigTypeEnum[keyof typeof StorageAddLocationRequestBodyConfigTypeEnum];
 
 
+/**
+ * Check if a given object implements the StorageAddLocationRequestBodyConfig interface.
+ */
+export function instanceOfStorageAddLocationRequestBodyConfig(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "type" in value;
+    isInstance = isInstance && "value" in value;
+
+    return isInstance;
+}
+
 export function StorageAddLocationRequestBodyConfigFromJSON(json: any): StorageAddLocationRequestBodyConfig {
     return StorageAddLocationRequestBodyConfigFromJSONTyped(json, false);
 }

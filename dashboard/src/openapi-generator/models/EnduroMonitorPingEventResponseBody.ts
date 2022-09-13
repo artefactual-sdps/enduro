@@ -27,6 +27,15 @@ export interface EnduroMonitorPingEventResponseBody {
     message?: string;
 }
 
+/**
+ * Check if a given object implements the EnduroMonitorPingEventResponseBody interface.
+ */
+export function instanceOfEnduroMonitorPingEventResponseBody(value: object): boolean {
+    let isInstance = true;
+
+    return isInstance;
+}
+
 export function EnduroMonitorPingEventResponseBodyFromJSON(json: any): EnduroMonitorPingEventResponseBody {
     return EnduroMonitorPingEventResponseBodyFromJSONTyped(json, false);
 }

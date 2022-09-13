@@ -13,56 +13,56 @@
  */
 
 import { exists, mapValues } from '../runtime';
+import type { EnduroMonitorPingEventResponseBody } from './EnduroMonitorPingEventResponseBody';
 import {
-    EnduroMonitorPingEventResponseBody,
     EnduroMonitorPingEventResponseBodyFromJSON,
     EnduroMonitorPingEventResponseBodyFromJSONTyped,
     EnduroMonitorPingEventResponseBodyToJSON,
 } from './EnduroMonitorPingEventResponseBody';
+import type { EnduroPackageCreatedEventResponseBody } from './EnduroPackageCreatedEventResponseBody';
 import {
-    EnduroPackageCreatedEventResponseBody,
     EnduroPackageCreatedEventResponseBodyFromJSON,
     EnduroPackageCreatedEventResponseBodyFromJSONTyped,
     EnduroPackageCreatedEventResponseBodyToJSON,
 } from './EnduroPackageCreatedEventResponseBody';
+import type { EnduroPackageLocationUpdatedEventResponseBody } from './EnduroPackageLocationUpdatedEventResponseBody';
 import {
-    EnduroPackageLocationUpdatedEventResponseBody,
     EnduroPackageLocationUpdatedEventResponseBodyFromJSON,
     EnduroPackageLocationUpdatedEventResponseBodyFromJSONTyped,
     EnduroPackageLocationUpdatedEventResponseBodyToJSON,
 } from './EnduroPackageLocationUpdatedEventResponseBody';
+import type { EnduroPackageStatusUpdatedEventResponseBody } from './EnduroPackageStatusUpdatedEventResponseBody';
 import {
-    EnduroPackageStatusUpdatedEventResponseBody,
     EnduroPackageStatusUpdatedEventResponseBodyFromJSON,
     EnduroPackageStatusUpdatedEventResponseBodyFromJSONTyped,
     EnduroPackageStatusUpdatedEventResponseBodyToJSON,
 } from './EnduroPackageStatusUpdatedEventResponseBody';
+import type { EnduroPackageUpdatedEventResponseBody } from './EnduroPackageUpdatedEventResponseBody';
 import {
-    EnduroPackageUpdatedEventResponseBody,
     EnduroPackageUpdatedEventResponseBodyFromJSON,
     EnduroPackageUpdatedEventResponseBodyFromJSONTyped,
     EnduroPackageUpdatedEventResponseBodyToJSON,
 } from './EnduroPackageUpdatedEventResponseBody';
+import type { EnduroPreservationActionCreatedEventResponseBody } from './EnduroPreservationActionCreatedEventResponseBody';
 import {
-    EnduroPreservationActionCreatedEventResponseBody,
     EnduroPreservationActionCreatedEventResponseBodyFromJSON,
     EnduroPreservationActionCreatedEventResponseBodyFromJSONTyped,
     EnduroPreservationActionCreatedEventResponseBodyToJSON,
 } from './EnduroPreservationActionCreatedEventResponseBody';
+import type { EnduroPreservationActionUpdatedEventResponseBody } from './EnduroPreservationActionUpdatedEventResponseBody';
 import {
-    EnduroPreservationActionUpdatedEventResponseBody,
     EnduroPreservationActionUpdatedEventResponseBodyFromJSON,
     EnduroPreservationActionUpdatedEventResponseBodyFromJSONTyped,
     EnduroPreservationActionUpdatedEventResponseBodyToJSON,
 } from './EnduroPreservationActionUpdatedEventResponseBody';
+import type { EnduroPreservationTaskCreatedEventResponseBody } from './EnduroPreservationTaskCreatedEventResponseBody';
 import {
-    EnduroPreservationTaskCreatedEventResponseBody,
     EnduroPreservationTaskCreatedEventResponseBodyFromJSON,
     EnduroPreservationTaskCreatedEventResponseBodyFromJSONTyped,
     EnduroPreservationTaskCreatedEventResponseBodyToJSON,
 } from './EnduroPreservationTaskCreatedEventResponseBody';
+import type { EnduroPreservationTaskUpdatedEventResponseBody } from './EnduroPreservationTaskUpdatedEventResponseBody';
 import {
-    EnduroPreservationTaskUpdatedEventResponseBody,
     EnduroPreservationTaskUpdatedEventResponseBodyFromJSON,
     EnduroPreservationTaskUpdatedEventResponseBodyFromJSONTyped,
     EnduroPreservationTaskUpdatedEventResponseBodyToJSON,
@@ -128,6 +128,15 @@ export interface PackageMonitorResponseBody {
      * @memberof PackageMonitorResponseBody
      */
     preservationTaskUpdatedEvent?: EnduroPreservationTaskUpdatedEventResponseBody;
+}
+
+/**
+ * Check if a given object implements the PackageMonitorResponseBody interface.
+ */
+export function instanceOfPackageMonitorResponseBody(value: object): boolean {
+    let isInstance = true;
+
+    return isInstance;
 }
 
 export function PackageMonitorResponseBodyFromJSON(json: any): PackageMonitorResponseBody {

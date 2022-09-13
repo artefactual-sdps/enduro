@@ -14,68 +14,70 @@
 
 
 import * as runtime from '../runtime';
+import type {
+  PackageConfirmNotAvailableResponseBody,
+  PackageConfirmNotFoundResponseBody,
+  PackageConfirmNotValidResponseBody,
+  PackageConfirmRequestBody,
+  PackageListResponseBody,
+  PackageMonitorResponseBody,
+  PackageMoveNotAvailableResponseBody,
+  PackageMoveNotFoundResponseBody,
+  PackageMoveNotValidResponseBody,
+  PackageMoveRequestBody,
+  PackageMoveStatusFailedDependencyResponseBody,
+  PackageMoveStatusNotFoundResponseBody,
+  PackageMoveStatusResponseBody,
+  PackagePreservationActionsNotFoundResponseBody,
+  PackagePreservationActionsResponseBody,
+  PackageRejectNotAvailableResponseBody,
+  PackageRejectNotFoundResponseBody,
+  PackageRejectNotValidResponseBody,
+  PackageShowNotAvailableResponseBody,
+  PackageShowNotFoundResponseBody,
+  PackageShowResponseBody,
+} from '../models';
 import {
-    PackageConfirmNotAvailableResponseBody,
     PackageConfirmNotAvailableResponseBodyFromJSON,
     PackageConfirmNotAvailableResponseBodyToJSON,
-    PackageConfirmNotFoundResponseBody,
     PackageConfirmNotFoundResponseBodyFromJSON,
     PackageConfirmNotFoundResponseBodyToJSON,
-    PackageConfirmNotValidResponseBody,
     PackageConfirmNotValidResponseBodyFromJSON,
     PackageConfirmNotValidResponseBodyToJSON,
-    PackageConfirmRequestBody,
     PackageConfirmRequestBodyFromJSON,
     PackageConfirmRequestBodyToJSON,
-    PackageListResponseBody,
     PackageListResponseBodyFromJSON,
     PackageListResponseBodyToJSON,
-    PackageMonitorResponseBody,
     PackageMonitorResponseBodyFromJSON,
     PackageMonitorResponseBodyToJSON,
-    PackageMoveNotAvailableResponseBody,
     PackageMoveNotAvailableResponseBodyFromJSON,
     PackageMoveNotAvailableResponseBodyToJSON,
-    PackageMoveNotFoundResponseBody,
     PackageMoveNotFoundResponseBodyFromJSON,
     PackageMoveNotFoundResponseBodyToJSON,
-    PackageMoveNotValidResponseBody,
     PackageMoveNotValidResponseBodyFromJSON,
     PackageMoveNotValidResponseBodyToJSON,
-    PackageMoveRequestBody,
     PackageMoveRequestBodyFromJSON,
     PackageMoveRequestBodyToJSON,
-    PackageMoveStatusFailedDependencyResponseBody,
     PackageMoveStatusFailedDependencyResponseBodyFromJSON,
     PackageMoveStatusFailedDependencyResponseBodyToJSON,
-    PackageMoveStatusNotFoundResponseBody,
     PackageMoveStatusNotFoundResponseBodyFromJSON,
     PackageMoveStatusNotFoundResponseBodyToJSON,
-    PackageMoveStatusResponseBody,
     PackageMoveStatusResponseBodyFromJSON,
     PackageMoveStatusResponseBodyToJSON,
-    PackagePreservationActionsNotFoundResponseBody,
     PackagePreservationActionsNotFoundResponseBodyFromJSON,
     PackagePreservationActionsNotFoundResponseBodyToJSON,
-    PackagePreservationActionsResponseBody,
     PackagePreservationActionsResponseBodyFromJSON,
     PackagePreservationActionsResponseBodyToJSON,
-    PackageRejectNotAvailableResponseBody,
     PackageRejectNotAvailableResponseBodyFromJSON,
     PackageRejectNotAvailableResponseBodyToJSON,
-    PackageRejectNotFoundResponseBody,
     PackageRejectNotFoundResponseBodyFromJSON,
     PackageRejectNotFoundResponseBodyToJSON,
-    PackageRejectNotValidResponseBody,
     PackageRejectNotValidResponseBodyFromJSON,
     PackageRejectNotValidResponseBodyToJSON,
-    PackageShowNotAvailableResponseBody,
     PackageShowNotAvailableResponseBodyFromJSON,
     PackageShowNotAvailableResponseBodyToJSON,
-    PackageShowNotFoundResponseBody,
     PackageShowNotFoundResponseBodyFromJSON,
     PackageShowNotFoundResponseBodyToJSON,
-    PackageShowResponseBody,
     PackageShowResponseBodyFromJSON,
     PackageShowResponseBodyToJSON,
 } from '../models';
@@ -132,13 +134,13 @@ export interface PackageApiInterface {
      * @throws {RequiredError}
      * @memberof PackageApiInterface
      */
-    packageConfirmRaw(requestParameters: PackageConfirmRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<void>>;
+    packageConfirmRaw(requestParameters: PackageConfirmRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>>;
 
     /**
      * Signal the package has been reviewed and accepted
      * confirm package
      */
-    packageConfirm(requestParameters: PackageConfirmRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<void>;
+    packageConfirm(requestParameters: PackageConfirmRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
 
     /**
      * List all stored packages
@@ -154,13 +156,13 @@ export interface PackageApiInterface {
      * @throws {RequiredError}
      * @memberof PackageApiInterface
      */
-    packageListRaw(requestParameters: PackageListRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<PackageListResponseBody>>;
+    packageListRaw(requestParameters: PackageListRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PackageListResponseBody>>;
 
     /**
      * List all stored packages
      * list package
      */
-    packageList(requestParameters: PackageListRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<PackageListResponseBody>;
+    packageList(requestParameters: PackageListRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PackageListResponseBody>;
 
     /**
      * 
@@ -169,12 +171,12 @@ export interface PackageApiInterface {
      * @throws {RequiredError}
      * @memberof PackageApiInterface
      */
-    packageMonitorRaw(initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<void>>;
+    packageMonitorRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>>;
 
     /**
      * monitor package
      */
-    packageMonitor(initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<void>;
+    packageMonitor(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
 
     /**
      * Move a package to a permanent storage location
@@ -185,13 +187,13 @@ export interface PackageApiInterface {
      * @throws {RequiredError}
      * @memberof PackageApiInterface
      */
-    packageMoveRaw(requestParameters: PackageMoveRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<void>>;
+    packageMoveRaw(requestParameters: PackageMoveRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>>;
 
     /**
      * Move a package to a permanent storage location
      * move package
      */
-    packageMove(requestParameters: PackageMoveRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<void>;
+    packageMove(requestParameters: PackageMoveRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
 
     /**
      * Retrieve the status of a permanent storage location move of the package
@@ -201,13 +203,13 @@ export interface PackageApiInterface {
      * @throws {RequiredError}
      * @memberof PackageApiInterface
      */
-    packageMoveStatusRaw(requestParameters: PackageMoveStatusRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<PackageMoveStatusResponseBody>>;
+    packageMoveStatusRaw(requestParameters: PackageMoveStatusRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PackageMoveStatusResponseBody>>;
 
     /**
      * Retrieve the status of a permanent storage location move of the package
      * move_status package
      */
-    packageMoveStatus(requestParameters: PackageMoveStatusRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<PackageMoveStatusResponseBody>;
+    packageMoveStatus(requestParameters: PackageMoveStatusRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PackageMoveStatusResponseBody>;
 
     /**
      * List all preservation actions by ID
@@ -217,13 +219,13 @@ export interface PackageApiInterface {
      * @throws {RequiredError}
      * @memberof PackageApiInterface
      */
-    packagePreservationActionsRaw(requestParameters: PackagePreservationActionsRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<PackagePreservationActionsResponseBody>>;
+    packagePreservationActionsRaw(requestParameters: PackagePreservationActionsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PackagePreservationActionsResponseBody>>;
 
     /**
      * List all preservation actions by ID
      * preservation_actions package
      */
-    packagePreservationActions(requestParameters: PackagePreservationActionsRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<PackagePreservationActionsResponseBody>;
+    packagePreservationActions(requestParameters: PackagePreservationActionsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PackagePreservationActionsResponseBody>;
 
     /**
      * Signal the package has been reviewed and rejected
@@ -233,13 +235,13 @@ export interface PackageApiInterface {
      * @throws {RequiredError}
      * @memberof PackageApiInterface
      */
-    packageRejectRaw(requestParameters: PackageRejectRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<void>>;
+    packageRejectRaw(requestParameters: PackageRejectRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>>;
 
     /**
      * Signal the package has been reviewed and rejected
      * reject package
      */
-    packageReject(requestParameters: PackageRejectRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<void>;
+    packageReject(requestParameters: PackageRejectRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
 
     /**
      * Show package by ID
@@ -249,13 +251,13 @@ export interface PackageApiInterface {
      * @throws {RequiredError}
      * @memberof PackageApiInterface
      */
-    packageShowRaw(requestParameters: PackageShowRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<PackageShowResponseBody>>;
+    packageShowRaw(requestParameters: PackageShowRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PackageShowResponseBody>>;
 
     /**
      * Show package by ID
      * show package
      */
-    packageShow(requestParameters: PackageShowRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<PackageShowResponseBody>;
+    packageShow(requestParameters: PackageShowRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PackageShowResponseBody>;
 
 }
 
@@ -268,7 +270,7 @@ export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
      * Signal the package has been reviewed and accepted
      * confirm package
      */
-    async packageConfirmRaw(requestParameters: PackageConfirmRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<void>> {
+    async packageConfirmRaw(requestParameters: PackageConfirmRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
         if (requestParameters.id === null || requestParameters.id === undefined) {
             throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling packageConfirm.');
         }
@@ -298,7 +300,7 @@ export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
      * Signal the package has been reviewed and accepted
      * confirm package
      */
-    async packageConfirm(requestParameters: PackageConfirmRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<void> {
+    async packageConfirm(requestParameters: PackageConfirmRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
         await this.packageConfirmRaw(requestParameters, initOverrides);
     }
 
@@ -306,7 +308,7 @@ export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
      * List all stored packages
      * list package
      */
-    async packageListRaw(requestParameters: PackageListRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<PackageListResponseBody>> {
+    async packageListRaw(requestParameters: PackageListRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PackageListResponseBody>> {
         const queryParameters: any = {};
 
         if (requestParameters.name !== undefined) {
@@ -353,7 +355,7 @@ export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
      * List all stored packages
      * list package
      */
-    async packageList(requestParameters: PackageListRequest = {}, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<PackageListResponseBody> {
+    async packageList(requestParameters: PackageListRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PackageListResponseBody> {
         const response = await this.packageListRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -361,7 +363,7 @@ export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
     /**
      * monitor package
      */
-    async packageMonitorRaw(initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<void>> {
+    async packageMonitorRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -379,7 +381,7 @@ export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
     /**
      * monitor package
      */
-    async packageMonitor(initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<void> {
+    async packageMonitor(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
         await this.packageMonitorRaw(initOverrides);
     }
 
@@ -387,7 +389,7 @@ export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
      * Move a package to a permanent storage location
      * move package
      */
-    async packageMoveRaw(requestParameters: PackageMoveRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<void>> {
+    async packageMoveRaw(requestParameters: PackageMoveRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
         if (requestParameters.id === null || requestParameters.id === undefined) {
             throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling packageMove.');
         }
@@ -417,7 +419,7 @@ export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
      * Move a package to a permanent storage location
      * move package
      */
-    async packageMove(requestParameters: PackageMoveRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<void> {
+    async packageMove(requestParameters: PackageMoveRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
         await this.packageMoveRaw(requestParameters, initOverrides);
     }
 
@@ -425,7 +427,7 @@ export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
      * Retrieve the status of a permanent storage location move of the package
      * move_status package
      */
-    async packageMoveStatusRaw(requestParameters: PackageMoveStatusRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<PackageMoveStatusResponseBody>> {
+    async packageMoveStatusRaw(requestParameters: PackageMoveStatusRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PackageMoveStatusResponseBody>> {
         if (requestParameters.id === null || requestParameters.id === undefined) {
             throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling packageMoveStatus.');
         }
@@ -448,7 +450,7 @@ export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
      * Retrieve the status of a permanent storage location move of the package
      * move_status package
      */
-    async packageMoveStatus(requestParameters: PackageMoveStatusRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<PackageMoveStatusResponseBody> {
+    async packageMoveStatus(requestParameters: PackageMoveStatusRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PackageMoveStatusResponseBody> {
         const response = await this.packageMoveStatusRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -457,7 +459,7 @@ export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
      * List all preservation actions by ID
      * preservation_actions package
      */
-    async packagePreservationActionsRaw(requestParameters: PackagePreservationActionsRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<PackagePreservationActionsResponseBody>> {
+    async packagePreservationActionsRaw(requestParameters: PackagePreservationActionsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PackagePreservationActionsResponseBody>> {
         if (requestParameters.id === null || requestParameters.id === undefined) {
             throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling packagePreservationActions.');
         }
@@ -480,7 +482,7 @@ export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
      * List all preservation actions by ID
      * preservation_actions package
      */
-    async packagePreservationActions(requestParameters: PackagePreservationActionsRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<PackagePreservationActionsResponseBody> {
+    async packagePreservationActions(requestParameters: PackagePreservationActionsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PackagePreservationActionsResponseBody> {
         const response = await this.packagePreservationActionsRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -489,7 +491,7 @@ export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
      * Signal the package has been reviewed and rejected
      * reject package
      */
-    async packageRejectRaw(requestParameters: PackageRejectRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<void>> {
+    async packageRejectRaw(requestParameters: PackageRejectRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
         if (requestParameters.id === null || requestParameters.id === undefined) {
             throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling packageReject.');
         }
@@ -512,7 +514,7 @@ export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
      * Signal the package has been reviewed and rejected
      * reject package
      */
-    async packageReject(requestParameters: PackageRejectRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<void> {
+    async packageReject(requestParameters: PackageRejectRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
         await this.packageRejectRaw(requestParameters, initOverrides);
     }
 
@@ -520,7 +522,7 @@ export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
      * Show package by ID
      * show package
      */
-    async packageShowRaw(requestParameters: PackageShowRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<PackageShowResponseBody>> {
+    async packageShowRaw(requestParameters: PackageShowRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PackageShowResponseBody>> {
         if (requestParameters.id === null || requestParameters.id === undefined) {
             throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling packageShow.');
         }
@@ -543,7 +545,7 @@ export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
      * Show package by ID
      * show package
      */
-    async packageShow(requestParameters: PackageShowRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<PackageShowResponseBody> {
+    async packageShow(requestParameters: PackageShowRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PackageShowResponseBody> {
         const response = await this.packageShowRaw(requestParameters, initOverrides);
         return await response.value();
     }

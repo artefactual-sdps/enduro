@@ -57,6 +57,21 @@ export interface PackageConfirmNotAvailableResponseBody {
     timeout: boolean;
 }
 
+/**
+ * Check if a given object implements the PackageConfirmNotAvailableResponseBody interface.
+ */
+export function instanceOfPackageConfirmNotAvailableResponseBody(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "fault" in value;
+    isInstance = isInstance && "id" in value;
+    isInstance = isInstance && "message" in value;
+    isInstance = isInstance && "name" in value;
+    isInstance = isInstance && "temporary" in value;
+    isInstance = isInstance && "timeout" in value;
+
+    return isInstance;
+}
+
 export function PackageConfirmNotAvailableResponseBodyFromJSON(json: any): PackageConfirmNotAvailableResponseBody {
     return PackageConfirmNotAvailableResponseBodyFromJSONTyped(json, false);
 }

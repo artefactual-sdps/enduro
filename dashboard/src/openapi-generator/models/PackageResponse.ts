@@ -71,6 +71,20 @@ export const PackageResponseStatusEnum = {
 export type PackageResponseStatusEnum = typeof PackageResponseStatusEnum[keyof typeof PackageResponseStatusEnum];
 
 
+/**
+ * Check if a given object implements the PackageResponse interface.
+ */
+export function instanceOfPackageResponse(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "aipId" in value;
+    isInstance = isInstance && "createdAt" in value;
+    isInstance = isInstance && "name" in value;
+    isInstance = isInstance && "objectKey" in value;
+    isInstance = isInstance && "status" in value;
+
+    return isInstance;
+}
+
 export function PackageResponseFromJSON(json: any): PackageResponse {
     return PackageResponseFromJSONTyped(json, false);
 }

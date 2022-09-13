@@ -33,6 +33,17 @@ export interface EnduroPackageLocationUpdatedEventResponseBody {
     locationId: string;
 }
 
+/**
+ * Check if a given object implements the EnduroPackageLocationUpdatedEventResponseBody interface.
+ */
+export function instanceOfEnduroPackageLocationUpdatedEventResponseBody(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "id" in value;
+    isInstance = isInstance && "locationId" in value;
+
+    return isInstance;
+}
+
 export function EnduroPackageLocationUpdatedEventResponseBodyFromJSON(json: any): EnduroPackageLocationUpdatedEventResponseBody {
     return EnduroPackageLocationUpdatedEventResponseBodyFromJSONTyped(json, false);
 }

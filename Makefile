@@ -77,7 +77,7 @@ gen-goa:
 
 gen-dashboard-client:
 	@rm -rf $(CURDIR)/dashboard/src/openapi-generator
-	@docker container run --rm --user $(shell id -u):$(shell id -g) --volume $(CURDIR):/local openapitools/openapi-generator-cli:v6.0.0 \
+	@docker container run --rm --user $(shell id -u):$(shell id -g) --volume $(CURDIR):/local openapitools/openapi-generator-cli:v6.1.0 \
 		generate \
 			--input-spec /local/internal/api/gen/http/openapi.json \
 			--generator-name typescript-fetch \

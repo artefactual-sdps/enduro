@@ -57,6 +57,21 @@ export interface StorageSubmitNotAvailableResponseBody {
     timeout: boolean;
 }
 
+/**
+ * Check if a given object implements the StorageSubmitNotAvailableResponseBody interface.
+ */
+export function instanceOfStorageSubmitNotAvailableResponseBody(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "fault" in value;
+    isInstance = isInstance && "id" in value;
+    isInstance = isInstance && "message" in value;
+    isInstance = isInstance && "name" in value;
+    isInstance = isInstance && "temporary" in value;
+    isInstance = isInstance && "timeout" in value;
+
+    return isInstance;
+}
+
 export function StorageSubmitNotAvailableResponseBodyFromJSON(json: any): StorageSubmitNotAvailableResponseBody {
     return StorageSubmitNotAvailableResponseBodyFromJSONTyped(json, false);
 }

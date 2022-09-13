@@ -33,6 +33,17 @@ export interface StorageLocationPackagesNotFoundResponseBody {
     uuid: string;
 }
 
+/**
+ * Check if a given object implements the StorageLocationPackagesNotFoundResponseBody interface.
+ */
+export function instanceOfStorageLocationPackagesNotFoundResponseBody(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "message" in value;
+    isInstance = isInstance && "uuid" in value;
+
+    return isInstance;
+}
+
 export function StorageLocationPackagesNotFoundResponseBodyFromJSON(json: any): StorageLocationPackagesNotFoundResponseBody {
     return StorageLocationPackagesNotFoundResponseBodyFromJSONTyped(json, false);
 }

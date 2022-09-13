@@ -33,6 +33,17 @@ export interface PackagePreservationActionsNotFoundResponseBody {
     message: string;
 }
 
+/**
+ * Check if a given object implements the PackagePreservationActionsNotFoundResponseBody interface.
+ */
+export function instanceOfPackagePreservationActionsNotFoundResponseBody(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "id" in value;
+    isInstance = isInstance && "message" in value;
+
+    return isInstance;
+}
+
 export function PackagePreservationActionsNotFoundResponseBodyFromJSON(json: any): PackagePreservationActionsNotFoundResponseBody {
     return PackagePreservationActionsNotFoundResponseBodyFromJSONTyped(json, false);
 }

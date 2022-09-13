@@ -13,8 +13,8 @@
  */
 
 import { exists, mapValues } from '../runtime';
+import type { EnduroPackagePreservationActionResponseBody } from './EnduroPackagePreservationActionResponseBody';
 import {
-    EnduroPackagePreservationActionResponseBody,
     EnduroPackagePreservationActionResponseBodyFromJSON,
     EnduroPackagePreservationActionResponseBodyFromJSONTyped,
     EnduroPackagePreservationActionResponseBodyToJSON,
@@ -32,6 +32,15 @@ export interface PackagePreservationActionsResponseBody {
      * @memberof PackagePreservationActionsResponseBody
      */
     actions?: Array<EnduroPackagePreservationActionResponseBody>;
+}
+
+/**
+ * Check if a given object implements the PackagePreservationActionsResponseBody interface.
+ */
+export function instanceOfPackagePreservationActionsResponseBody(value: object): boolean {
+    let isInstance = true;
+
+    return isInstance;
 }
 
 export function PackagePreservationActionsResponseBodyFromJSON(json: any): PackagePreservationActionsResponseBody {
