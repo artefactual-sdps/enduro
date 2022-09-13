@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { runtime } from "@/client";
+import type { runtime } from "@/client";
 import { computed } from "@vue/reactivity";
 
 interface Props {
