@@ -3,11 +3,11 @@ module github.com/artefactual-sdps/enduro
 go 1.19
 
 require (
-	ariga.io/atlas v0.6.4
+	ariga.io/atlas v0.7.0
 	ariga.io/sqlcomment v0.1.0
 	entgo.io/ent v0.11.3-0.20220816070906-2b54aadcce3a
 	github.com/alicebob/miniredis/v2 v2.23.0
-	github.com/aws/aws-sdk-go v1.44.91
+	github.com/aws/aws-sdk-go v1.44.96
 	github.com/fsnotify/fsnotify v1.5.4
 	github.com/go-logr/logr v1.2.3
 	github.com/go-logr/zapr v1.2.3
@@ -31,13 +31,13 @@ require (
 	github.com/radovskyb/watcher v1.0.7
 	github.com/spf13/afero v1.9.2
 	github.com/spf13/pflag v1.0.5
-	github.com/spf13/viper v1.12.0
+	github.com/spf13/viper v1.13.0
 	github.com/stretchr/objx v0.4.0 // indirect
 	github.com/stretchr/testify v1.8.0
 	github.com/ulikunitz/xz v0.5.10 // indirect
 	go.buf.build/grpc/go/artefactual/a3m v1.4.1
-	go.temporal.io/api v1.11.0
-	go.temporal.io/sdk v1.16.0
+	go.temporal.io/api v1.11.1-0.20220907050538-6de5285cf463
+	go.temporal.io/sdk v1.17.0
 	go.uber.org/multierr v1.8.0 // indirect
 	go.uber.org/zap v1.23.0
 	goa.design/goa/v3 v3.8.4
@@ -102,7 +102,7 @@ require (
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/nwaples/rardecode v1.1.2 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
-	github.com/pelletier/go-toml/v2 v2.0.1 // indirect
+	github.com/pelletier/go-toml/v2 v2.0.5 // indirect
 	github.com/pierrec/lz4/v4 v4.1.12 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/prometheus/client_model v0.2.0 // indirect
@@ -112,7 +112,7 @@ require (
 	github.com/sergi/go-diff v1.2.0 // indirect
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
-	github.com/subosito/gotenv v1.3.0 // indirect
+	github.com/subosito/gotenv v1.4.1 // indirect
 	github.com/xi2/xz v0.0.0-20171230120015-48954b6210f8 // indirect
 	github.com/yuin/gopher-lua v0.0.0-20210529063254-f4c35e4016d9 // indirect
 	github.com/zach-klippenstein/goregen v0.0.0-20160303162051-795b5e3961ea // indirect
@@ -122,14 +122,14 @@ require (
 	go.opentelemetry.io/otel/trace v1.3.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
-	golang.org/x/net v0.0.0-20220802222814-0bcc04d9c69b // indirect
-	golang.org/x/sys v0.0.0-20220803195053-6e608f9ce704 // indirect
+	golang.org/x/net v0.0.0-20220906165146-f3363e06e74c // indirect
+	golang.org/x/sys v0.0.0-20220906165534-d0df966e6959 // indirect
 	golang.org/x/time v0.0.0-20220224211638-0e9765cccd65 // indirect
 	golang.org/x/tools v0.1.13-0.20220804200503-81c7dc4e4efa // indirect
 	golang.org/x/xerrors v0.0.0-20220517211312-f3a8303e98df // indirect
 	google.golang.org/api v0.81.0 // indirect
-	google.golang.org/genproto v0.0.0-20220803205849-8f55acc8769f // indirect
-	gopkg.in/ini.v1 v1.66.4 // indirect
+	google.golang.org/genproto v0.0.0-20220902135211-223410557253 // indirect
+	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
