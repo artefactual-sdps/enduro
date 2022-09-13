@@ -4,17 +4,17 @@ import { computed } from "vue";
 
 const props = defineProps<{
   status:
-    | api.EnduroStoredPackageResponseBodyStatusEnum
-    | api.EnduroPackagePreservationActionResponseBodyStatusEnum
-    | api.EnduroPackagePreservationTaskResponseBodyStatusEnum;
+    | api.EnduroStoredPackageStatusEnum
+    | api.EnduroPackagePreservationActionStatusEnum
+    | api.EnduroPackagePreservationTaskStatusEnum;
   note?: string;
 }>();
 
 const classes: {
   [key in
-    | api.EnduroStoredPackageResponseBodyStatusEnum
-    | api.EnduroPackagePreservationActionResponseBodyStatusEnum
-    | api.EnduroPackagePreservationTaskResponseBodyStatusEnum]: string;
+    | api.EnduroStoredPackageStatusEnum
+    | api.EnduroPackagePreservationActionStatusEnum
+    | api.EnduroPackagePreservationTaskStatusEnum]: string;
 } = {
   new: "text-bg-dark",
   "in progress": "text-bg-secondary",

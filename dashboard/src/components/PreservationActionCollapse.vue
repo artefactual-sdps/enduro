@@ -8,7 +8,7 @@ import IconCircleChevronDown from "~icons/akar-icons/circle-chevron-down";
 import IconCircleChevronUp from "~icons/akar-icons/circle-chevron-up";
 
 const { action, index, toggleAll } = defineProps<{
-  action: api.EnduroPackagePreservationActionResponseBody;
+  action: api.EnduroPackagePreservationAction;
   index: number;
   toggleAll: boolean | null;
 }>();
@@ -96,9 +96,9 @@ watch($$(expandCounter), () => show());
       v-model:expandCounter="expandCounter"
       v-if="
         action.type ==
-          api.EnduroPackagePreservationActionResponseBodyTypeEnum.CreateAip &&
+          api.EnduroPackagePreservationActionTypeEnum.CreateAip &&
         action.status ==
-          api.EnduroPackagePreservationActionResponseBodyStatusEnum.Pending
+          api.EnduroPackagePreservationActionStatusEnum.Pending
       "
     />
     -->

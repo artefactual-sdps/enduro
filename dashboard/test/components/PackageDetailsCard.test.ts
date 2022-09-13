@@ -19,8 +19,8 @@ describe("PackageDetailsCard.vue", () => {
               package: {
                 current: {
                   aipId: "89229d18-5554-4e0d-8c4e-d0d88afd3bae",
-                  status: api.PackageShowResponseBodyStatusEnum.Pending,
-                } as api.PackageShowResponseBody,
+                  status: api.EnduroStoredPackageStatusEnum.Pending,
+                } as api.EnduroStoredPackage,
               },
             },
           }),
@@ -51,19 +51,17 @@ describe("PackageDetailsCard.vue", () => {
             createSpy: vi.fn,
             initialState: {
               package: {
-                current: {} as api.PackageShowResponseBody,
+                current: {} as api.EnduroStoredPackage,
                 current_preservation_actions: {
                   actions: [
                     {
                       status:
-                        api.EnduroPackagePreservationTaskResponseBodyStatusEnum
-                          .Pending,
-                      type: api
-                        .EnduroPackagePreservationActionResponseBodyTypeEnum
+                        api.EnduroPackagePreservationActionStatusEnum.Pending,
+                      type: api.EnduroPackagePreservationActionTypeEnum
                         .MovePackage,
                     },
                   ],
-                } as api.PackagePreservationActionsResponseBody,
+                } as api.EnduroPackagePreservationActions,
               },
             },
           }),

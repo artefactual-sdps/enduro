@@ -17,9 +17,9 @@ describe("PackageLocationCard.vue", () => {
             initialState: {
               package: {
                 current: {
-                  status: api.PackageShowResponseBodyStatusEnum.Done,
+                  status: api.EnduroStoredPackageStatusEnum.Done,
                   locationId: "f8635e46-a320-4152-9a2c-98a28eeb50d1",
-                } as api.PackageShowResponseBody,
+                } as api.EnduroStoredPackage,
               },
             },
           }),
@@ -52,9 +52,9 @@ describe("PackageLocationCard.vue", () => {
             initialState: {
               package: {
                 current: {
-                  status: api.PackageShowResponseBodyStatusEnum.Done,
+                  status: api.EnduroStoredPackageStatusEnum.Done,
                   locationId: "f8635e46-a320-4152-9a2c-98a28eeb50d1",
-                } as api.PackageShowResponseBody,
+                } as api.EnduroStoredPackage,
               },
             },
           }),
@@ -70,8 +70,7 @@ describe("PackageLocationCard.vue", () => {
     moveMock.mockImplementation(async () => {
       packageStore.$patch((state) => {
         if (!state.current) return;
-        state.current.status =
-          api.EnduroStoredPackageResponseBodyStatusEnum.InProgress;
+        state.current.status = api.EnduroStoredPackageStatusEnum.InProgress;
         state.locationChanging = true;
       });
     });
@@ -98,8 +97,8 @@ describe("PackageLocationCard.vue", () => {
             initialState: {
               package: {
                 current: {
-                  status: api.PackageShowResponseBodyStatusEnum.InProgress,
-                } as api.PackageShowResponseBody,
+                  status: api.EnduroStoredPackageStatusEnum.InProgress,
+                } as api.EnduroStoredPackage,
               },
             },
           }),
@@ -129,9 +128,9 @@ describe("PackageLocationCard.vue", () => {
             initialState: {
               package: {
                 current: {
-                  status: api.PackageShowResponseBodyStatusEnum.Done,
+                  status: api.EnduroStoredPackageStatusEnum.Done,
                   locationId: undefined,
-                } as api.PackageShowResponseBody,
+                } as api.EnduroStoredPackage,
               },
             },
           }),
@@ -161,9 +160,9 @@ describe("PackageLocationCard.vue", () => {
             initialState: {
               package: {
                 current: {
-                  status: api.PackageShowResponseBodyStatusEnum.InProgress,
+                  status: api.EnduroStoredPackageStatusEnum.InProgress,
                   locationId: "f8635e46-a320-4152-9a2c-98a28eeb50d1",
-                } as api.PackageShowResponseBody,
+                } as api.EnduroStoredPackage,
               },
             },
           }),

@@ -17,16 +17,14 @@ describe("PreservationActionCollapse.vue", () => {
             completedAt: now,
             id: 1,
             startedAt: now,
-            status:
-              api.EnduroPackagePreservationTaskResponseBodyStatusEnum.Done,
+            status: api.EnduroPackagePreservationTaskStatusEnum.Done,
             tasks: [
               {
                 completedAt: now,
                 id: 1,
                 name: "Task 1",
                 startedAt: now,
-                status:
-                  api.EnduroPackagePreservationTaskResponseBodyStatusEnum.Done,
+                status: api.EnduroPackagePreservationTaskStatusEnum.Done,
                 taskId: "f8fa23fa-d749-497e-a5bc-39f637372c1a",
               },
               {
@@ -34,15 +32,13 @@ describe("PreservationActionCollapse.vue", () => {
                 id: 2,
                 name: "Task 2",
                 startedAt: now,
-                status:
-                  api.EnduroPackagePreservationTaskResponseBodyStatusEnum.Done,
+                status: api.EnduroPackagePreservationTaskStatusEnum.Done,
                 taskId: "66067aba-cc4f-40b0-b7f2-4eca7b3cfcf6",
               },
-            ] as api.EnduroPackagePreservationTaskResponseBody[],
-            type: api.EnduroPackagePreservationActionResponseBodyTypeEnum
-              .MovePackage,
+            ],
+            type: api.EnduroPackagePreservationActionTypeEnum.MovePackage,
             workflowId: "move-workflow-ba438fbe-c57e-41ae-b29e-65b6bb04b650",
-          } as api.EnduroPackagePreservationActionResponseBody,
+          } as api.EnduroPackagePreservationAction,
           index: 0,
           toggleAll: false,
         },
