@@ -27,6 +27,16 @@ export interface PackageConfirmRequestBody {
     locationId: string;
 }
 
+/**
+ * Check if a given object implements the PackageConfirmRequestBody interface.
+ */
+export function instanceOfPackageConfirmRequestBody(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "locationId" in value;
+
+    return isInstance;
+}
+
 export function PackageConfirmRequestBodyFromJSON(json: any): PackageConfirmRequestBody {
     return PackageConfirmRequestBodyFromJSONTyped(json, false);
 }

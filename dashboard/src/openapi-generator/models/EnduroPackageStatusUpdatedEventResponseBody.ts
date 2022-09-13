@@ -50,6 +50,17 @@ export const EnduroPackageStatusUpdatedEventResponseBodyStatusEnum = {
 export type EnduroPackageStatusUpdatedEventResponseBodyStatusEnum = typeof EnduroPackageStatusUpdatedEventResponseBodyStatusEnum[keyof typeof EnduroPackageStatusUpdatedEventResponseBodyStatusEnum];
 
 
+/**
+ * Check if a given object implements the EnduroPackageStatusUpdatedEventResponseBody interface.
+ */
+export function instanceOfEnduroPackageStatusUpdatedEventResponseBody(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "id" in value;
+    isInstance = isInstance && "status" in value;
+
+    return isInstance;
+}
+
 export function EnduroPackageStatusUpdatedEventResponseBodyFromJSON(json: any): EnduroPackageStatusUpdatedEventResponseBody {
     return EnduroPackageStatusUpdatedEventResponseBodyFromJSONTyped(json, false);
 }

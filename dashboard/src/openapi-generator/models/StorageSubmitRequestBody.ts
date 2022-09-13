@@ -27,6 +27,16 @@ export interface StorageSubmitRequestBody {
     name: string;
 }
 
+/**
+ * Check if a given object implements the StorageSubmitRequestBody interface.
+ */
+export function instanceOfStorageSubmitRequestBody(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "name" in value;
+
+    return isInstance;
+}
+
 export function StorageSubmitRequestBodyFromJSON(json: any): StorageSubmitRequestBody {
     return StorageSubmitRequestBodyFromJSONTyped(json, false);
 }

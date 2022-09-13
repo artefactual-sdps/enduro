@@ -27,6 +27,16 @@ export interface StorageAddLocationResponseBody {
     uuid: string;
 }
 
+/**
+ * Check if a given object implements the StorageAddLocationResponseBody interface.
+ */
+export function instanceOfStorageAddLocationResponseBody(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "uuid" in value;
+
+    return isInstance;
+}
+
 export function StorageAddLocationResponseBodyFromJSON(json: any): StorageAddLocationResponseBody {
     return StorageAddLocationResponseBodyFromJSONTyped(json, false);
 }

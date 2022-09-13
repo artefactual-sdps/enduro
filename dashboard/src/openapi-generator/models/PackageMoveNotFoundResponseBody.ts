@@ -33,6 +33,17 @@ export interface PackageMoveNotFoundResponseBody {
     message: string;
 }
 
+/**
+ * Check if a given object implements the PackageMoveNotFoundResponseBody interface.
+ */
+export function instanceOfPackageMoveNotFoundResponseBody(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "id" in value;
+    isInstance = isInstance && "message" in value;
+
+    return isInstance;
+}
+
 export function PackageMoveNotFoundResponseBodyFromJSON(json: any): PackageMoveNotFoundResponseBody {
     return PackageMoveNotFoundResponseBodyFromJSONTyped(json, false);
 }

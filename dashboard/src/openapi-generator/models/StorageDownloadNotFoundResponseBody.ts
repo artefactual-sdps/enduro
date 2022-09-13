@@ -33,6 +33,17 @@ export interface StorageDownloadNotFoundResponseBody {
     message: string;
 }
 
+/**
+ * Check if a given object implements the StorageDownloadNotFoundResponseBody interface.
+ */
+export function instanceOfStorageDownloadNotFoundResponseBody(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "aipId" in value;
+    isInstance = isInstance && "message" in value;
+
+    return isInstance;
+}
+
 export function StorageDownloadNotFoundResponseBodyFromJSON(json: any): StorageDownloadNotFoundResponseBody {
     return StorageDownloadNotFoundResponseBodyFromJSONTyped(json, false);
 }

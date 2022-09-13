@@ -57,6 +57,21 @@ export interface StorageSubmitNotValidResponseBody {
     timeout: boolean;
 }
 
+/**
+ * Check if a given object implements the StorageSubmitNotValidResponseBody interface.
+ */
+export function instanceOfStorageSubmitNotValidResponseBody(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "fault" in value;
+    isInstance = isInstance && "id" in value;
+    isInstance = isInstance && "message" in value;
+    isInstance = isInstance && "name" in value;
+    isInstance = isInstance && "temporary" in value;
+    isInstance = isInstance && "timeout" in value;
+
+    return isInstance;
+}
+
 export function StorageSubmitNotValidResponseBodyFromJSON(json: any): StorageSubmitNotValidResponseBody {
     return StorageSubmitNotValidResponseBodyFromJSONTyped(json, false);
 }

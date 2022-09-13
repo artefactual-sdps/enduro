@@ -27,6 +27,16 @@ export interface PackageMoveRequestBody {
     locationId: string;
 }
 
+/**
+ * Check if a given object implements the PackageMoveRequestBody interface.
+ */
+export function instanceOfPackageMoveRequestBody(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "locationId" in value;
+
+    return isInstance;
+}
+
 export function PackageMoveRequestBodyFromJSON(json: any): PackageMoveRequestBody {
     return PackageMoveRequestBodyFromJSONTyped(json, false);
 }

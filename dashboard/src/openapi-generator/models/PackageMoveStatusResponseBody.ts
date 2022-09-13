@@ -27,6 +27,16 @@ export interface PackageMoveStatusResponseBody {
     done: boolean;
 }
 
+/**
+ * Check if a given object implements the PackageMoveStatusResponseBody interface.
+ */
+export function instanceOfPackageMoveStatusResponseBody(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "done" in value;
+
+    return isInstance;
+}
+
 export function PackageMoveStatusResponseBodyFromJSON(json: any): PackageMoveStatusResponseBody {
     return PackageMoveStatusResponseBodyFromJSONTyped(json, false);
 }

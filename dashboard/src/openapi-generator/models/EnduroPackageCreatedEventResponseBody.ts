@@ -13,8 +13,8 @@
  */
 
 import { exists, mapValues } from '../runtime';
+import type { EnduroStoredPackageResponseBody } from './EnduroStoredPackageResponseBody';
 import {
-    EnduroStoredPackageResponseBody,
     EnduroStoredPackageResponseBodyFromJSON,
     EnduroStoredPackageResponseBodyFromJSONTyped,
     EnduroStoredPackageResponseBodyToJSON,
@@ -38,6 +38,17 @@ export interface EnduroPackageCreatedEventResponseBody {
      * @memberof EnduroPackageCreatedEventResponseBody
      */
     item: EnduroStoredPackageResponseBody;
+}
+
+/**
+ * Check if a given object implements the EnduroPackageCreatedEventResponseBody interface.
+ */
+export function instanceOfEnduroPackageCreatedEventResponseBody(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "id" in value;
+    isInstance = isInstance && "item" in value;
+
+    return isInstance;
 }
 
 export function EnduroPackageCreatedEventResponseBodyFromJSON(json: any): EnduroPackageCreatedEventResponseBody {

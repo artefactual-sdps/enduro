@@ -29,13 +29,13 @@ export interface SwaggerApiInterface {
      * @throws {RequiredError}
      * @memberof SwaggerApiInterface
      */
-    swaggerSwaggerSwaggerJsonRaw(initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<Blob>>;
+    swaggerSwaggerSwaggerJsonRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Blob>>;
 
     /**
      * JSON document containing the API swagger definition.
      * Download internal/api/gen/http/openapi.json
      */
-    swaggerSwaggerSwaggerJson(initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<Blob>;
+    swaggerSwaggerSwaggerJson(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Blob>;
 
 }
 
@@ -48,7 +48,7 @@ export class SwaggerApi extends runtime.BaseAPI implements SwaggerApiInterface {
      * JSON document containing the API swagger definition.
      * Download internal/api/gen/http/openapi.json
      */
-    async swaggerSwaggerSwaggerJsonRaw(initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<Blob>> {
+    async swaggerSwaggerSwaggerJsonRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Blob>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -67,7 +67,7 @@ export class SwaggerApi extends runtime.BaseAPI implements SwaggerApiInterface {
      * JSON document containing the API swagger definition.
      * Download internal/api/gen/http/openapi.json
      */
-    async swaggerSwaggerSwaggerJson(initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<Blob> {
+    async swaggerSwaggerSwaggerJson(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Blob> {
         const response = await this.swaggerSwaggerSwaggerJsonRaw(initOverrides);
         return await response.value();
     }

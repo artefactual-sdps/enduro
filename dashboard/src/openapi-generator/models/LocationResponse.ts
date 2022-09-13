@@ -77,6 +77,20 @@ export const LocationResponseSourceEnum = {
 export type LocationResponseSourceEnum = typeof LocationResponseSourceEnum[keyof typeof LocationResponseSourceEnum];
 
 
+/**
+ * Check if a given object implements the LocationResponse interface.
+ */
+export function instanceOfLocationResponse(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "createdAt" in value;
+    isInstance = isInstance && "name" in value;
+    isInstance = isInstance && "purpose" in value;
+    isInstance = isInstance && "source" in value;
+    isInstance = isInstance && "uuid" in value;
+
+    return isInstance;
+}
+
 export function LocationResponseFromJSON(json: any): LocationResponse {
     return LocationResponseFromJSONTyped(json, false);
 }

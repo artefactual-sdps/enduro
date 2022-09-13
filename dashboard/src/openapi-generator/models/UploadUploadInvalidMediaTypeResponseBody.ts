@@ -57,6 +57,21 @@ export interface UploadUploadInvalidMediaTypeResponseBody {
     timeout: boolean;
 }
 
+/**
+ * Check if a given object implements the UploadUploadInvalidMediaTypeResponseBody interface.
+ */
+export function instanceOfUploadUploadInvalidMediaTypeResponseBody(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "fault" in value;
+    isInstance = isInstance && "id" in value;
+    isInstance = isInstance && "message" in value;
+    isInstance = isInstance && "name" in value;
+    isInstance = isInstance && "temporary" in value;
+    isInstance = isInstance && "timeout" in value;
+
+    return isInstance;
+}
+
 export function UploadUploadInvalidMediaTypeResponseBodyFromJSON(json: any): UploadUploadInvalidMediaTypeResponseBody {
     return UploadUploadInvalidMediaTypeResponseBodyFromJSONTyped(json, false);
 }

@@ -57,6 +57,21 @@ export interface StorageRejectNotAvailableResponseBody {
     timeout: boolean;
 }
 
+/**
+ * Check if a given object implements the StorageRejectNotAvailableResponseBody interface.
+ */
+export function instanceOfStorageRejectNotAvailableResponseBody(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "fault" in value;
+    isInstance = isInstance && "id" in value;
+    isInstance = isInstance && "message" in value;
+    isInstance = isInstance && "name" in value;
+    isInstance = isInstance && "temporary" in value;
+    isInstance = isInstance && "timeout" in value;
+
+    return isInstance;
+}
+
 export function StorageRejectNotAvailableResponseBodyFromJSON(json: any): StorageRejectNotAvailableResponseBody {
     return StorageRejectNotAvailableResponseBodyFromJSONTyped(json, false);
 }

@@ -57,6 +57,21 @@ export interface StorageMoveStatusFailedDependencyResponseBody {
     timeout: boolean;
 }
 
+/**
+ * Check if a given object implements the StorageMoveStatusFailedDependencyResponseBody interface.
+ */
+export function instanceOfStorageMoveStatusFailedDependencyResponseBody(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "fault" in value;
+    isInstance = isInstance && "id" in value;
+    isInstance = isInstance && "message" in value;
+    isInstance = isInstance && "name" in value;
+    isInstance = isInstance && "temporary" in value;
+    isInstance = isInstance && "timeout" in value;
+
+    return isInstance;
+}
+
 export function StorageMoveStatusFailedDependencyResponseBodyFromJSON(json: any): StorageMoveStatusFailedDependencyResponseBody {
     return StorageMoveStatusFailedDependencyResponseBodyFromJSONTyped(json, false);
 }

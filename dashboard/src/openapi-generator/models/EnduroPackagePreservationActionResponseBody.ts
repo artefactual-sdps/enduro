@@ -13,8 +13,8 @@
  */
 
 import { exists, mapValues } from '../runtime';
+import type { EnduroPackagePreservationTaskResponseBody } from './EnduroPackagePreservationTaskResponseBody';
 import {
-    EnduroPackagePreservationTaskResponseBody,
     EnduroPackagePreservationTaskResponseBodyFromJSON,
     EnduroPackagePreservationTaskResponseBodyFromJSONTyped,
     EnduroPackagePreservationTaskResponseBodyToJSON,
@@ -100,6 +100,20 @@ export const EnduroPackagePreservationActionResponseBodyTypeEnum = {
 } as const;
 export type EnduroPackagePreservationActionResponseBodyTypeEnum = typeof EnduroPackagePreservationActionResponseBodyTypeEnum[keyof typeof EnduroPackagePreservationActionResponseBodyTypeEnum];
 
+
+/**
+ * Check if a given object implements the EnduroPackagePreservationActionResponseBody interface.
+ */
+export function instanceOfEnduroPackagePreservationActionResponseBody(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "id" in value;
+    isInstance = isInstance && "startedAt" in value;
+    isInstance = isInstance && "status" in value;
+    isInstance = isInstance && "type" in value;
+    isInstance = isInstance && "workflowId" in value;
+
+    return isInstance;
+}
 
 export function EnduroPackagePreservationActionResponseBodyFromJSON(json: any): EnduroPackagePreservationActionResponseBody {
     return EnduroPackagePreservationActionResponseBodyFromJSONTyped(json, false);

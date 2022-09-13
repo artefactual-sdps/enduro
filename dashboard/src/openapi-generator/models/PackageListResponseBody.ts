@@ -13,8 +13,8 @@
  */
 
 import { exists, mapValues } from '../runtime';
+import type { EnduroStoredPackageResponseBody } from './EnduroStoredPackageResponseBody';
 import {
-    EnduroStoredPackageResponseBody,
     EnduroStoredPackageResponseBodyFromJSON,
     EnduroStoredPackageResponseBodyFromJSONTyped,
     EnduroStoredPackageResponseBodyToJSON,
@@ -38,6 +38,16 @@ export interface PackageListResponseBody {
      * @memberof PackageListResponseBody
      */
     nextCursor?: string;
+}
+
+/**
+ * Check if a given object implements the PackageListResponseBody interface.
+ */
+export function instanceOfPackageListResponseBody(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "items" in value;
+
+    return isInstance;
 }
 
 export function PackageListResponseBodyFromJSON(json: any): PackageListResponseBody {
