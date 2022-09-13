@@ -4,19 +4,24 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    open-pull-requests-limit: 0
   - package-ecosystem: "gomod"
     directory: "/"
     schedule:
       interval: "weekly"
+    open-pull-requests-limit: 0
   - package-ecosystem: "docker"
     directory: "/"
     schedule:
       interval: "weekly"
+    open-pull-requests-limit: 0
   - package-ecosystem: "docker"
     directory: "/dashboard"
     schedule:
       interval: "weekly"
+    open-pull-requests-limit: 0
   - package-ecosystem: "npm"
     directory: "/dashboard"
     schedule:
       interval: "weekly"
+    open-pull-requests-limit: 0
