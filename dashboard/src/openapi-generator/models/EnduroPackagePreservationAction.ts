@@ -13,52 +13,65 @@
  */
 
 import { exists, mapValues } from '../runtime';
+import type { EnduroPackagePreservationTask } from './EnduroPackagePreservationTask';
+import {
+    EnduroPackagePreservationTaskFromJSON,
+    EnduroPackagePreservationTaskFromJSONTyped,
+    EnduroPackagePreservationTaskToJSON,
+} from './EnduroPackagePreservationTask';
+
 /**
- * PreservationAction describes a preservation action. (simple view)
+ * PreservationAction describes a preservation action.
  * @export
- * @interface EnduroPackagePreservationActionResponseBodySimple
+ * @interface EnduroPackagePreservationAction
  */
-export interface EnduroPackagePreservationActionResponseBodySimple {
+export interface EnduroPackagePreservationAction {
     /**
      * 
      * @type {Date}
-     * @memberof EnduroPackagePreservationActionResponseBodySimple
+     * @memberof EnduroPackagePreservationAction
      */
     completedAt?: Date;
     /**
      * 
      * @type {number}
-     * @memberof EnduroPackagePreservationActionResponseBodySimple
+     * @memberof EnduroPackagePreservationAction
      */
     id: number;
     /**
      * 
      * @type {number}
-     * @memberof EnduroPackagePreservationActionResponseBodySimple
+     * @memberof EnduroPackagePreservationAction
      */
     packageId?: number;
     /**
      * 
      * @type {Date}
-     * @memberof EnduroPackagePreservationActionResponseBodySimple
+     * @memberof EnduroPackagePreservationAction
      */
     startedAt: Date;
     /**
      * 
      * @type {string}
-     * @memberof EnduroPackagePreservationActionResponseBodySimple
+     * @memberof EnduroPackagePreservationAction
      */
-    status: EnduroPackagePreservationActionResponseBodySimpleStatusEnum;
+    status: EnduroPackagePreservationActionStatusEnum;
+    /**
+     * 
+     * @type {Array<EnduroPackagePreservationTask>}
+     * @memberof EnduroPackagePreservationAction
+     */
+    tasks?: Array<EnduroPackagePreservationTask>;
     /**
      * 
      * @type {string}
-     * @memberof EnduroPackagePreservationActionResponseBodySimple
+     * @memberof EnduroPackagePreservationAction
      */
-    type: EnduroPackagePreservationActionResponseBodySimpleTypeEnum;
+    type: EnduroPackagePreservationActionTypeEnum;
     /**
      * 
      * @type {string}
-     * @memberof EnduroPackagePreservationActionResponseBodySimple
+     * @memberof EnduroPackagePreservationAction
      */
     workflowId: string;
 }
@@ -67,7 +80,7 @@ export interface EnduroPackagePreservationActionResponseBodySimple {
 /**
  * @export
  */
-export const EnduroPackagePreservationActionResponseBodySimpleStatusEnum = {
+export const EnduroPackagePreservationActionStatusEnum = {
     Unspecified: 'unspecified',
     InProgress: 'in progress',
     Done: 'done',
@@ -75,23 +88,23 @@ export const EnduroPackagePreservationActionResponseBodySimpleStatusEnum = {
     Queued: 'queued',
     Pending: 'pending'
 } as const;
-export type EnduroPackagePreservationActionResponseBodySimpleStatusEnum = typeof EnduroPackagePreservationActionResponseBodySimpleStatusEnum[keyof typeof EnduroPackagePreservationActionResponseBodySimpleStatusEnum];
+export type EnduroPackagePreservationActionStatusEnum = typeof EnduroPackagePreservationActionStatusEnum[keyof typeof EnduroPackagePreservationActionStatusEnum];
 
 /**
  * @export
  */
-export const EnduroPackagePreservationActionResponseBodySimpleTypeEnum = {
+export const EnduroPackagePreservationActionTypeEnum = {
     CreateAip: 'create-aip',
     CreateAndReviewAip: 'create-and-review-aip',
     MovePackage: 'move-package'
 } as const;
-export type EnduroPackagePreservationActionResponseBodySimpleTypeEnum = typeof EnduroPackagePreservationActionResponseBodySimpleTypeEnum[keyof typeof EnduroPackagePreservationActionResponseBodySimpleTypeEnum];
+export type EnduroPackagePreservationActionTypeEnum = typeof EnduroPackagePreservationActionTypeEnum[keyof typeof EnduroPackagePreservationActionTypeEnum];
 
 
 /**
- * Check if a given object implements the EnduroPackagePreservationActionResponseBodySimple interface.
+ * Check if a given object implements the EnduroPackagePreservationAction interface.
  */
-export function instanceOfEnduroPackagePreservationActionResponseBodySimple(value: object): boolean {
+export function instanceOfEnduroPackagePreservationAction(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "id" in value;
     isInstance = isInstance && "startedAt" in value;
@@ -102,11 +115,11 @@ export function instanceOfEnduroPackagePreservationActionResponseBodySimple(valu
     return isInstance;
 }
 
-export function EnduroPackagePreservationActionResponseBodySimpleFromJSON(json: any): EnduroPackagePreservationActionResponseBodySimple {
-    return EnduroPackagePreservationActionResponseBodySimpleFromJSONTyped(json, false);
+export function EnduroPackagePreservationActionFromJSON(json: any): EnduroPackagePreservationAction {
+    return EnduroPackagePreservationActionFromJSONTyped(json, false);
 }
 
-export function EnduroPackagePreservationActionResponseBodySimpleFromJSONTyped(json: any, ignoreDiscriminator: boolean): EnduroPackagePreservationActionResponseBodySimple {
+export function EnduroPackagePreservationActionFromJSONTyped(json: any, ignoreDiscriminator: boolean): EnduroPackagePreservationAction {
     if ((json === undefined) || (json === null)) {
         return json;
     }
@@ -117,12 +130,13 @@ export function EnduroPackagePreservationActionResponseBodySimpleFromJSONTyped(j
         'packageId': !exists(json, 'package_id') ? undefined : json['package_id'],
         'startedAt': (new Date(json['started_at'])),
         'status': json['status'],
+        'tasks': !exists(json, 'tasks') ? undefined : ((json['tasks'] as Array<any>).map(EnduroPackagePreservationTaskFromJSON)),
         'type': json['type'],
         'workflowId': json['workflow_id'],
     };
 }
 
-export function EnduroPackagePreservationActionResponseBodySimpleToJSON(value?: EnduroPackagePreservationActionResponseBodySimple | null): any {
+export function EnduroPackagePreservationActionToJSON(value?: EnduroPackagePreservationAction | null): any {
     if (value === undefined) {
         return undefined;
     }
@@ -136,6 +150,7 @@ export function EnduroPackagePreservationActionResponseBodySimpleToJSON(value?: 
         'package_id': value.packageId,
         'started_at': (value.startedAt.toISOString()),
         'status': value.status,
+        'tasks': value.tasks === undefined ? undefined : ((value.tasks as Array<any>).map(EnduroPackagePreservationTaskToJSON)),
         'type': value.type,
         'workflow_id': value.workflowId,
     };
