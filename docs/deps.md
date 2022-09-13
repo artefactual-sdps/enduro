@@ -1,4 +1,4 @@
- Dependency management
+# Dependency management
 
 ## Update dependencies individually
 
@@ -19,6 +19,14 @@ available minor and patch upgrades only for our direct dependencies:
     golang.org/x/exp: v0.0.0-20230124195608-d38c7dcee874 -> v0.0.0-20230515195305-f3d0a9c9a5cc
     golang.org/x/sync: v0.1.0 -> v0.2.0
     google.golang.org/grpc: v1.54.0 -> v1.55.0
+
+Alternatively, using `make deps` (uses gomajor):
+
+    $ make deps
+    github.com/aws/aws-sdk-go: v1.45.10 [latest v1.45.11]
+    go.artefactual.dev/tools: v0.4.0 [latest v0.6.0]
+    go.uber.org/mock: v0.2.0 [latest v0.3.0]
+    gotest.tools/v3: v3.5.0 [latest v3.5.1]
 
 Update `golang.org/x/sync` individually to the latest version with:
 `go get golang.org/x/sync` or `go get golang.org/x/sync@latest` (`v0.2.0`). This
@@ -78,6 +86,64 @@ Edit `hack/make/dep_goa.mk` to update the binary installation:
 Now you can generate the code with:
 
     make gen-goa
+
+## Version updates
+
+We have configured Dependabot alerts to be generated only for security updates
+because regular version updates are frequent, generating too many pull requests.
+
+This following describes how to identify version updates in different areas of
+the project:
+
+### Automated process
+
+We don't have an automated process yet, but we suspect that we could run
+dependabote-core locally for this purpose and generate a report that could be
+delivered via Slack or email, e.g. on a weekly basis.
+
+### Manual process
+
+#### Go dependencies
+
+    make deps
+
+#### Tools under `hack/make`
+
+Review manually.
+
+#### Dashboard dependencies
+
+Run:
+
+    cd dashboard
+    npm ci
+    npm run deps
+
+#### GitHub Actions
+
+Review manually, e.g.:
+
+    git grep "uses: " .github/workflows/
+
+#### Dockerfile
+
+In:
+
+* `/Dockerfile`
+* `/dashboard/Dockerfile`
+
+What to look for?
+
+* Base images
+* Other dependencies
+
+#### Pulumi
+
+    hack/pulumi/go.mod
+
+#### Services
+
+Review manually, under `hack/kube/...`.
 
 [Modules wiki page]: https://github.com/golang/go/wiki/Modules#how-to-upgrade-and-downgrade-dependencies
 [major version suffix]: https://go.dev/ref/mod#major-version-suffixes
