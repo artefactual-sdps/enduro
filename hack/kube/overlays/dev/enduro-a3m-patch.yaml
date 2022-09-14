@@ -6,7 +6,7 @@ spec:
   template:
     spec:
       containers:
-        - name: enduro-a3m-worker
+        - name: a3m
           env:
             - name: A3M_DEBUG
               value: "true"
