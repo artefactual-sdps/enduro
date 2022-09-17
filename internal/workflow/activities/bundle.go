@@ -286,7 +286,7 @@ func unbag(path string) error {
 		{"manifest-md5.txt", "checksum.md5"},
 	} {
 		securePath, _ := securejoin.SecureJoin(path, item[0])
-		file, err := os.Open(securePath)
+		file, err := os.Open(securePath) //#nosec G304 -- Potential file inclusion not possible. item[0] is coming from controlled list.
 		if err != nil {
 			if errors.Is(err, os.ErrNotExist) {
 				continue
@@ -296,7 +296,7 @@ func unbag(path string) error {
 		defer file.Close() //#nosec G307 -- Errors returned by Close() here do not require specific handling.
 
 		securePath, _ = securejoin.SecureJoin(metadataPath, item[1])
-		newFile, err := os.Create(securePath)
+		newFile, err := os.Create(securePath) //#nosec G304 -- Potential file inclusion not possible. item[1] is coming from controlled list.
 		if err != nil {
 			if errors.Is(err, os.ErrNotExist) {
 				continue
