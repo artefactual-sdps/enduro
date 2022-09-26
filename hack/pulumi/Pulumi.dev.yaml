@@ -1,28 +1,36 @@
 config:
   aws:accessKey:
-    secure: AAABAKqXarqecwDb7uMuWLPzBSZ7H1mfwbF/5lrbdaVaAj3qGFSL0p5DIQWwVBE4Hwc7SA==
+    secure: AAABAMTd6VnZpomWBfeN8jNH+TZWb+zbpiP95KAq9eLCN6H2yVzoLD8FeYpoC8pIV+WLNw==
   aws:region: us-east-1
   aws:secretKey:
-    secure: AAABAEitC4QUd+RpumWlG4lRbzlPhNwSgXOC1OdbEFeMbzayZiIYBY3a1I8zjTnfwmLJHAXiO4qIAH+x4Cq9zr29Ews/+kB2
+    secure: AAABAE09zk4OoG0DMGZpHdokivHPPNEOdjoldaFcQYz+p5rGUt5dsGSVs6w+7hiD749ncZc4pRt7QjxGy60ZA4v+X2oJVBll
   digitalocean:token:
-    secure: AAABABbxwapTFbm0xqnnvTZc/elH6CQx9/TLeZ5MWZF2igIWLut7+NwOR7GDAG258agfG45dIHJB/SoZGA2/kRdzGtQv7FkfZ2OgLIavaQpnAkErSjsXYzLYP6tunqz5L4HdDhHyeQ==
+    secure: AAABACZMnhFSs+U6cGGsISnHlzH4FpxgKw7M353Hhx5I4qHvrc9vsHzmFtNmWdDjNEYIHnu/BIFzbXzRvtME+mA0yK6m7ObrGf58K3ys2KGx5lLB/N9gFXV/t3Q2/eUyh12r+9BABg==
   enduro:acmeEmail:
-    secure: AAABAKvx9I2Ed21IRd2szMRrWtr58atGU+9ZEG+Kcv5kB+d/jaomxCdUrA2+48Yo3qGzr/qb94tS
+    secure: AAABAK+PzYqRTc6FsiuuluSz1ys5GZxa8V3/f0X3/UD+6e1kJUxSVE0GImcpZH2V+CCtV+qzNV+D
   enduro:acmeServer: https://acme-v02.api.letsencrypt.org/directory
-  enduro:basicAuthPassword:
-    secure: AAABAKnORM4KvGQwDMtd4iS1kBXwIKlv1kCTpICpSLAqR9v/0ZJQv9Y9Ts8=
-  enduro:basicAuthUsername:
-    secure: AAABAMH5pWudMrOdOKwh0sz0vI3xyG8hoyah5sU6SHmsB7SpjBMrt6c=
   enduro:buildImages: "true"
+  enduro:dexEnduroClientId:
+    secure: AAABAA7BxLDKT+rP2ivw7V8LN9qKm/7vgb7az+V0uv5A8UkkBSDlI4XJsr354npJkjkI6KK/f3vaqIgu8q6bjA==
+  enduro:dexEnduroClientSecret:
+    secure: AAABAJNaRqWnm0m068lWQXbFIgTqc1eF+8+9Whvgz8oWdrz1CN0xRcJBD/jMWcKaxVsGXLynWbki2dJ+XhLHpA==
+  enduro:dexGithubClientId:
+    secure: AAABAF0gklwTSHP4jF1T7XSyOlSuDUHk3IyvzCrdjPPqc8ebFsn3iCsjv2fKXf7MBKiYDw==
+  enduro:dexGithubClientSecret:
+    secure: AAABAANFsRSAompV++7cHErbH1i5l/dzghWcp71hsMwrz1+w67kG3YgEkDiDVRo9G9NTVVhjrSBlzUfmEMa4jBejxYQhgp0r
+  enduro:dexTemporalClientId:
+    secure: AAABAK/TGgRDdEjNIk0qZg9n+Cvuh0IM5JMM9wPC7r2ByeVFuLAyxcERXiJ05O9FmeQWntU7O08eS5mI6UGc2w==
+  enduro:dexTemporalClientSecret:
+    secure: AAABAPHcQYLl8VXm9bBlCpWX3uxRzFPz49JQwvWoII0+GP6p/4XiWKQ39JVxWZk68bvdX0nz7rlblNLTfbmkMg==
   enduro:doToken:
-    secure: AAABAGKr4WqRtJ7aBN3hYYg7GostgknrR8+RN3EFR1U/F6X3V3vncwicnSHgfemVlT40bwTGwWgMdXT7R1b4owvy7dC8AUsRMY0LeHmtgHFwKBWylFQoZSPh5pa5w0rJW/e4HXY0dw==
+    secure: AAABAPAMleU1J3x/PDtUUQI+IVa9aq7n4c37Xy0VUL/tSHEbSQkixnum8wGsLQl41+0VnKUtrd3aescTM3PdBWAulFO8LV5rPOyB1C71itcX5dH2Qcy1okAArjxMdfvBeSWLsbj8eQ==
   enduro:minioPassword:
-    secure: AAABAC/SrWmZvSW9MRmFs+0Ebo9qd6s1p0diyBVgvhAedRpT74raqRHgf2tq
+    secure: AAABACBXazJVJDxukt6PZYFG1Vmlxti9EYwiwAa/FF02WD68k7JxlLFEfO6t
   enduro:minioUser:
-    secure: AAABALHuDZyEY2O0MliAzMX6xlZhq9MHxUf6Nwifi9DhOGSon3PDdXwU
+    secure: AAABABcsuOr/rUStUf0uGaB0VAgObapWxW1CCJiQGhYjViv8/tk76udg
   enduro:mysqlPassword:
-    secure: AAABABbbQllIyDWNbBOkasGnHgM0jmyOc+H79m+ryjHrSP5TVcKz84aECmQ=
+    secure: AAABAK6jch2gqnD3hf6u8jqJavxY4RMqfoVRwzW/IYKomLBf09TosHYzf2g=
   enduro:mysqlRootPassword:
-    secure: AAABAG/8+nKEsxRAAf3raXpnKpXADybWr5E6Cmkyt3UHoC+M8//cdRiBXzA=
+    secure: AAABADAnQIglDIsQADCf1oQl4gE+e39O4TghK69494SD4yBVRFX19SBZd/c=
   enduro:mysqlUser:
-    secure: AAABAI3wg8XJxCG60DgCZQk6bs576LYRwo5n7Gj8184yfUkw7LZwK7bOepwtRiI=
+    secure: AAABAOSVhypWf/zB5tRb4jn1ID/nfbAQpU8h54CHC8koiijSwLY4cTagmxJQNIM=
