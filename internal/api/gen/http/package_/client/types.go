@@ -84,6 +84,42 @@ type MoveStatusResponseBody struct {
 	Done *bool `form:"done,omitempty" json:"done,omitempty" xml:"done,omitempty"`
 }
 
+// MonitorRequestNotAvailableResponseBody is the type of the "package" service
+// "monitor_request" endpoint HTTP response body for the "not_available" error.
+type MonitorRequestNotAvailableResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
+// MonitorNotAvailableResponseBody is the type of the "package" service
+// "monitor" endpoint HTTP response body for the "not_available" error.
+type MonitorNotAvailableResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
 // ShowNotAvailableResponseBody is the type of the "package" service "show"
 // endpoint HTTP response body for the "not_available" error.
 type ShowNotAvailableResponseBody struct {
@@ -432,6 +468,38 @@ func NewMoveRequestBody(p *package_.MovePayload) *MoveRequestBody {
 	return body
 }
 
+// NewMonitorRequestResultOK builds a "package" service "monitor_request"
+// endpoint result from a HTTP "OK" response.
+func NewMonitorRequestResultOK(ticket *string) *package_.MonitorRequestResult {
+	v := &package_.MonitorRequestResult{}
+	v.Ticket = ticket
+
+	return v
+}
+
+// NewMonitorRequestNotAvailable builds a package service monitor_request
+// endpoint not_available error.
+func NewMonitorRequestNotAvailable(body *MonitorRequestNotAvailableResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
+// NewMonitorRequestUnauthorized builds a package service monitor_request
+// endpoint unauthorized error.
+func NewMonitorRequestUnauthorized(body string) package_.Unauthorized {
+	v := package_.Unauthorized(body)
+
+	return v
+}
+
 // NewMonitorEnduroMonitorEventOK builds a "package" service "monitor" endpoint
 // result from a HTTP "OK" response.
 func NewMonitorEnduroMonitorEventOK(body *MonitorResponseBody) *package_views.EnduroMonitorEventView {
@@ -467,6 +535,29 @@ func NewMonitorEnduroMonitorEventOK(body *MonitorResponseBody) *package_views.En
 	return v
 }
 
+// NewMonitorNotAvailable builds a package service monitor endpoint
+// not_available error.
+func NewMonitorNotAvailable(body *MonitorNotAvailableResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
+// NewMonitorUnauthorized builds a package service monitor endpoint
+// unauthorized error.
+func NewMonitorUnauthorized(body string) package_.Unauthorized {
+	v := package_.Unauthorized(body)
+
+	return v
+}
+
 // NewListResultOK builds a "package" service "list" endpoint result from a
 // HTTP "OK" response.
 func NewListResultOK(body *ListResponseBody) *package_.ListResult {
@@ -477,6 +568,14 @@ func NewListResultOK(body *ListResponseBody) *package_.ListResult {
 	for i, val := range body.Items {
 		v.Items[i] = unmarshalEnduroStoredPackageResponseBodyToPackageEnduroStoredPackage(val)
 	}
+
+	return v
+}
+
+// NewListUnauthorized builds a package service list endpoint unauthorized
+// error.
+func NewListUnauthorized(body string) package_.Unauthorized {
+	v := package_.Unauthorized(body)
 
 	return v
 }
@@ -525,6 +624,14 @@ func NewShowNotFound(body *ShowNotFoundResponseBody) *package_.PackageNotFound {
 	return v
 }
 
+// NewShowUnauthorized builds a package service show endpoint unauthorized
+// error.
+func NewShowUnauthorized(body string) package_.Unauthorized {
+	v := package_.Unauthorized(body)
+
+	return v
+}
+
 // NewPreservationActionsEnduroPackagePreservationActionsOK builds a "package"
 // service "preservation_actions" endpoint result from a HTTP "OK" response.
 func NewPreservationActionsEnduroPackagePreservationActionsOK(body *PreservationActionsResponseBody) *package_views.EnduroPackagePreservationActionsView {
@@ -546,6 +653,14 @@ func NewPreservationActionsNotFound(body *PreservationActionsNotFoundResponseBod
 		Message: *body.Message,
 		ID:      *body.ID,
 	}
+
+	return v
+}
+
+// NewPreservationActionsUnauthorized builds a package service
+// preservation_actions endpoint unauthorized error.
+func NewPreservationActionsUnauthorized(body string) package_.Unauthorized {
+	v := package_.Unauthorized(body)
 
 	return v
 }
@@ -589,6 +704,14 @@ func NewConfirmNotFound(body *ConfirmNotFoundResponseBody) *package_.PackageNotF
 	return v
 }
 
+// NewConfirmUnauthorized builds a package service confirm endpoint
+// unauthorized error.
+func NewConfirmUnauthorized(body string) package_.Unauthorized {
+	v := package_.Unauthorized(body)
+
+	return v
+}
+
 // NewRejectNotAvailable builds a package service reject endpoint not_available
 // error.
 func NewRejectNotAvailable(body *RejectNotAvailableResponseBody) *goa.ServiceError {
@@ -624,6 +747,14 @@ func NewRejectNotFound(body *RejectNotFoundResponseBody) *package_.PackageNotFou
 		Message: *body.Message,
 		ID:      *body.ID,
 	}
+
+	return v
+}
+
+// NewRejectUnauthorized builds a package service reject endpoint unauthorized
+// error.
+func NewRejectUnauthorized(body string) package_.Unauthorized {
+	v := package_.Unauthorized(body)
 
 	return v
 }
@@ -667,6 +798,14 @@ func NewMoveNotFound(body *MoveNotFoundResponseBody) *package_.PackageNotFound {
 	return v
 }
 
+// NewMoveUnauthorized builds a package service move endpoint unauthorized
+// error.
+func NewMoveUnauthorized(body string) package_.Unauthorized {
+	v := package_.Unauthorized(body)
+
+	return v
+}
+
 // NewMoveStatusResultOK builds a "package" service "move_status" endpoint
 // result from a HTTP "OK" response.
 func NewMoveStatusResultOK(body *MoveStatusResponseBody) *package_.MoveStatusResult {
@@ -703,6 +842,14 @@ func NewMoveStatusNotFound(body *MoveStatusNotFoundResponseBody) *package_.Packa
 	return v
 }
 
+// NewMoveStatusUnauthorized builds a package service move_status endpoint
+// unauthorized error.
+func NewMoveStatusUnauthorized(body string) package_.Unauthorized {
+	v := package_.Unauthorized(body)
+
+	return v
+}
+
 // ValidateListResponseBody runs the validations defined on ListResponseBody
 func ValidateListResponseBody(body *ListResponseBody) (err error) {
 	if body.Items == nil {
@@ -719,6 +866,54 @@ func ValidateListResponseBody(body *ListResponseBody) (err error) {
 func ValidateMoveStatusResponseBody(body *MoveStatusResponseBody) (err error) {
 	if body.Done == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("done", "body"))
+	}
+	return
+}
+
+// ValidateMonitorRequestNotAvailableResponseBody runs the validations defined
+// on monitor_request_not_available_response_body
+func ValidateMonitorRequestNotAvailableResponseBody(body *MonitorRequestNotAvailableResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
+// ValidateMonitorNotAvailableResponseBody runs the validations defined on
+// monitor_not_available_response_body
+func ValidateMonitorNotAvailableResponseBody(body *MonitorNotAvailableResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
 	}
 	return
 }

@@ -111,9 +111,10 @@ func NewUploadInternalErrorResponseBody(res *goa.ServiceError) *UploadInternalEr
 }
 
 // NewUploadPayload builds a upload service upload endpoint payload.
-func NewUploadPayload(contentType string) *upload.UploadPayload {
+func NewUploadPayload(contentType string, oauthToken *string) *upload.UploadPayload {
 	v := &upload.UploadPayload{}
 	v.ContentType = contentType
+	v.OauthToken = oauthToken
 
 	return v
 }

@@ -60,6 +60,10 @@ paths:
                   description: Pagination cursor
                   required: false
                   type: string
+                - name: Authorization
+                  in: header
+                  required: false
+                  type: string
             responses:
                 "200":
                     description: OK response.
@@ -67,8 +71,14 @@ paths:
                         $ref: '#/definitions/PackageListResponseBody'
                         required:
                             - items
+                "401":
+                    description: Unauthorized response.
+                    schema:
+                        type: string
             schemes:
                 - http
+            security:
+                - oauth2_header_Authorization: []
     /package/{id}:
         get:
             tags:
@@ -82,11 +92,19 @@ paths:
                   description: Identifier of package to show
                   required: true
                   type: integer
+                - name: Authorization
+                  in: header
+                  required: false
+                  type: string
             responses:
                 "200":
                     description: OK response.
                     schema:
                         $ref: '#/definitions/PackageShowResponseBody'
+                "401":
+                    description: Unauthorized response.
+                    schema:
+                        type: string
                 "404":
                     description: Not Found response.
                     schema:
@@ -100,6 +118,8 @@ paths:
                         $ref: '#/definitions/PackageShowNotAvailableResponseBody'
             schemes:
                 - http
+            security:
+                - oauth2_header_Authorization: []
     /package/{id}/confirm:
         post:
             tags:
@@ -113,6 +133,10 @@ paths:
                   description: Identifier of package to look up
                   required: true
                   type: integer
+                - name: Authorization
+                  in: header
+                  required: false
+                  type: string
                 - name: ConfirmRequestBody
                   in: body
                   required: true
@@ -127,6 +151,10 @@ paths:
                     description: Bad Request response.
                     schema:
                         $ref: '#/definitions/PackageConfirmNotValidResponseBody'
+                "401":
+                    description: Unauthorized response.
+                    schema:
+                        type: string
                 "404":
                     description: Not Found response.
                     schema:
@@ -140,6 +168,8 @@ paths:
                         $ref: '#/definitions/PackageConfirmNotAvailableResponseBody'
             schemes:
                 - http
+            security:
+                - oauth2_header_Authorization: []
     /package/{id}/move:
         get:
             tags:
@@ -153,6 +183,10 @@ paths:
                   description: Identifier of package to move
                   required: true
                   type: integer
+                - name: Authorization
+                  in: header
+                  required: false
+                  type: string
             responses:
                 "200":
                     description: OK response.
@@ -160,6 +194,10 @@ paths:
                         $ref: '#/definitions/PackageMoveStatusResponseBody'
                         required:
                             - done
+                "401":
+                    description: Unauthorized response.
+                    schema:
+                        type: string
                 "404":
                     description: Not Found response.
                     schema:
@@ -173,6 +211,8 @@ paths:
                         $ref: '#/definitions/PackageMoveStatusFailedDependencyResponseBody'
             schemes:
                 - http
+            security:
+                - oauth2_header_Authorization: []
         post:
             tags:
                 - package
@@ -185,6 +225,10 @@ paths:
                   description: Identifier of package to move
                   required: true
                   type: integer
+                - name: Authorization
+                  in: header
+                  required: false
+                  type: string
                 - name: MoveRequestBody
                   in: body
                   required: true
@@ -199,6 +243,10 @@ paths:
                     description: Bad Request response.
                     schema:
                         $ref: '#/definitions/PackageMoveNotValidResponseBody'
+                "401":
+                    description: Unauthorized response.
+                    schema:
+                        type: string
                 "404":
                     description: Not Found response.
                     schema:
@@ -212,6 +260,8 @@ paths:
                         $ref: '#/definitions/PackageMoveNotAvailableResponseBody'
             schemes:
                 - http
+            security:
+                - oauth2_header_Authorization: []
     /package/{id}/preservation-actions:
         get:
             tags:
@@ -225,11 +275,19 @@ paths:
                   description: Identifier of package to look up
                   required: true
                   type: integer
+                - name: Authorization
+                  in: header
+                  required: false
+                  type: string
             responses:
                 "200":
                     description: OK response.
                     schema:
                         $ref: '#/definitions/PackagePreservationActionsResponseBody'
+                "401":
+                    description: Unauthorized response.
+                    schema:
+                        type: string
                 "404":
                     description: Not Found response.
                     schema:
@@ -239,6 +297,8 @@ paths:
                             - id
             schemes:
                 - http
+            security:
+                - oauth2_header_Authorization: []
     /package/{id}/reject:
         post:
             tags:
@@ -252,6 +312,10 @@ paths:
                   description: Identifier of package to look up
                   required: true
                   type: integer
+                - name: Authorization
+                  in: header
+                  required: false
+                  type: string
             responses:
                 "202":
                     description: Accepted response.
@@ -259,6 +323,10 @@ paths:
                     description: Bad Request response.
                     schema:
                         $ref: '#/definitions/PackageRejectNotValidResponseBody'
+                "401":
+                    description: Unauthorized response.
+                    schema:
+                        type: string
                 "404":
                     description: Not Found response.
                     schema:
@@ -272,6 +340,8 @@ paths:
                         $ref: '#/definitions/PackageRejectNotAvailableResponseBody'
             schemes:
                 - http
+            security:
+                - oauth2_header_Authorization: []
     /package/monitor:
         get:
             tags:
@@ -283,8 +353,42 @@ paths:
                     description: Switching Protocols response.
                     schema:
                         $ref: '#/definitions/PackageMonitorResponseBody'
+                "401":
+                    description: Unauthorized response.
+                    schema:
+                        type: string
+                "500":
+                    description: Internal Server Error response.
+                    schema:
+                        $ref: '#/definitions/PackageMonitorNotAvailableResponseBody'
             schemes:
                 - ws
+        post:
+            tags:
+                - package
+            summary: monitor_request package
+            description: Request access to the /monitor WebSocket.
+            operationId: package#monitor_request
+            parameters:
+                - name: Authorization
+                  in: header
+                  required: false
+                  type: string
+            responses:
+                "200":
+                    description: OK response.
+                "401":
+                    description: Unauthorized response.
+                    schema:
+                        type: string
+                "500":
+                    description: Internal Server Error response.
+                    schema:
+                        $ref: '#/definitions/PackageMonitorRequestNotAvailableResponseBody'
+            schemes:
+                - http
+            security:
+                - oauth2_header_Authorization: []
     /storage/location:
         get:
             tags:
@@ -292,13 +396,24 @@ paths:
             summary: locations storage
             description: List locations
             operationId: storage#locations
+            parameters:
+                - name: Authorization
+                  in: header
+                  required: false
+                  type: string
             responses:
                 "200":
                     description: OK response.
                     schema:
                         $ref: '#/definitions/StorageLocationResponseCollection'
+                "401":
+                    description: Unauthorized response.
+                    schema:
+                        type: string
             schemes:
                 - http
+            security:
+                - oauth2_header_Authorization: []
         post:
             tags:
                 - storage
@@ -306,6 +421,10 @@ paths:
             description: Add a storage location
             operationId: storage#add_location
             parameters:
+                - name: Authorization
+                  in: header
+                  required: false
+                  type: string
                 - name: add_location_request_body
                   in: body
                   required: true
@@ -326,8 +445,14 @@ paths:
                     description: Bad Request response.
                     schema:
                         $ref: '#/definitions/StorageAddLocationNotValidResponseBody'
+                "401":
+                    description: Unauthorized response.
+                    schema:
+                        type: string
             schemes:
                 - http
+            security:
+                - oauth2_header_Authorization: []
     /storage/location/{uuid}:
         get:
             tags:
@@ -341,11 +466,19 @@ paths:
                   required: true
                   type: string
                   format: uuid
+                - name: Authorization
+                  in: header
+                  required: false
+                  type: string
             responses:
                 "200":
                     description: OK response.
                     schema:
                         $ref: '#/definitions/StorageShowLocationResponseBody'
+                "401":
+                    description: Unauthorized response.
+                    schema:
+                        type: string
                 "404":
                     description: Not Found response.
                     schema:
@@ -355,6 +488,8 @@ paths:
                             - uuid
             schemes:
                 - http
+            security:
+                - oauth2_header_Authorization: []
     /storage/location/{uuid}/packages:
         get:
             tags:
@@ -368,6 +503,10 @@ paths:
                   required: true
                   type: string
                   format: uuid
+                - name: Authorization
+                  in: header
+                  required: false
+                  type: string
             responses:
                 "200":
                     description: OK response.
@@ -377,6 +516,10 @@ paths:
                     description: Bad Request response.
                     schema:
                         $ref: '#/definitions/StorageLocationPackagesNotValidResponseBody'
+                "401":
+                    description: Unauthorized response.
+                    schema:
+                        type: string
                 "404":
                     description: Not Found response.
                     schema:
@@ -386,6 +529,8 @@ paths:
                             - uuid
             schemes:
                 - http
+            security:
+                - oauth2_header_Authorization: []
     /storage/package/{aip_id}:
         get:
             tags:
@@ -399,11 +544,19 @@ paths:
                   required: true
                   type: string
                   format: uuid
+                - name: Authorization
+                  in: header
+                  required: false
+                  type: string
             responses:
                 "200":
                     description: OK response.
                     schema:
                         $ref: '#/definitions/StorageShowResponseBody'
+                "401":
+                    description: Unauthorized response.
+                    schema:
+                        type: string
                 "404":
                     description: Not Found response.
                     schema:
@@ -413,6 +566,8 @@ paths:
                             - aip_id
             schemes:
                 - http
+            security:
+                - oauth2_header_Authorization: []
     /storage/package/{aip_id}/download:
         get:
             tags:
@@ -426,12 +581,20 @@ paths:
                   required: true
                   type: string
                   format: uuid
+                - name: Authorization
+                  in: header
+                  required: false
+                  type: string
             responses:
                 "200":
                     description: OK response.
                     schema:
                         type: string
                         format: byte
+                "401":
+                    description: Unauthorized response.
+                    schema:
+                        type: string
                 "404":
                     description: Not Found response.
                     schema:
@@ -441,6 +604,8 @@ paths:
                             - aip_id
             schemes:
                 - http
+            security:
+                - oauth2_header_Authorization: []
     /storage/package/{aip_id}/reject:
         post:
             tags:
@@ -454,6 +619,10 @@ paths:
                   required: true
                   type: string
                   format: uuid
+                - name: Authorization
+                  in: header
+                  required: false
+                  type: string
             responses:
                 "202":
                     description: Accepted response.
@@ -461,6 +630,10 @@ paths:
                     description: Bad Request response.
                     schema:
                         $ref: '#/definitions/StorageRejectNotValidResponseBody'
+                "401":
+                    description: Unauthorized response.
+                    schema:
+                        type: string
                 "404":
                     description: Not Found response.
                     schema:
@@ -474,6 +647,8 @@ paths:
                         $ref: '#/definitions/StorageRejectNotAvailableResponseBody'
             schemes:
                 - http
+            security:
+                - oauth2_header_Authorization: []
     /storage/package/{aip_id}/store:
         get:
             tags:
@@ -487,6 +662,10 @@ paths:
                   required: true
                   type: string
                   format: uuid
+                - name: Authorization
+                  in: header
+                  required: false
+                  type: string
             responses:
                 "200":
                     description: OK response.
@@ -494,6 +673,10 @@ paths:
                         $ref: '#/definitions/StorageMoveStatusResponseBody'
                         required:
                             - done
+                "401":
+                    description: Unauthorized response.
+                    schema:
+                        type: string
                 "404":
                     description: Not Found response.
                     schema:
@@ -507,6 +690,8 @@ paths:
                         $ref: '#/definitions/StorageMoveStatusFailedDependencyResponseBody'
             schemes:
                 - http
+            security:
+                - oauth2_header_Authorization: []
         post:
             tags:
                 - storage
@@ -519,6 +704,10 @@ paths:
                   required: true
                   type: string
                   format: uuid
+                - name: Authorization
+                  in: header
+                  required: false
+                  type: string
                 - name: MoveRequestBody
                   in: body
                   required: true
@@ -533,6 +722,10 @@ paths:
                     description: Bad Request response.
                     schema:
                         $ref: '#/definitions/StorageMoveNotValidResponseBody'
+                "401":
+                    description: Unauthorized response.
+                    schema:
+                        type: string
                 "404":
                     description: Not Found response.
                     schema:
@@ -546,6 +739,8 @@ paths:
                         $ref: '#/definitions/StorageMoveNotAvailableResponseBody'
             schemes:
                 - http
+            security:
+                - oauth2_header_Authorization: []
     /storage/package/{aip_id}/submit:
         post:
             tags:
@@ -559,6 +754,10 @@ paths:
                   required: true
                   type: string
                   format: uuid
+                - name: Authorization
+                  in: header
+                  required: false
+                  type: string
                 - name: SubmitRequestBody
                   in: body
                   required: true
@@ -577,12 +776,18 @@ paths:
                     description: Bad Request response.
                     schema:
                         $ref: '#/definitions/StorageSubmitNotValidResponseBody'
+                "401":
+                    description: Unauthorized response.
+                    schema:
+                        type: string
                 "409":
                     description: Conflict response.
                     schema:
                         $ref: '#/definitions/StorageSubmitNotAvailableResponseBody'
             schemes:
                 - http
+            security:
+                - oauth2_header_Authorization: []
     /storage/package/{aip_id}/update:
         post:
             tags:
@@ -596,6 +801,10 @@ paths:
                   required: true
                   type: string
                   format: uuid
+                - name: Authorization
+                  in: header
+                  required: false
+                  type: string
             responses:
                 "202":
                     description: Accepted response.
@@ -603,12 +812,18 @@ paths:
                     description: Bad Request response.
                     schema:
                         $ref: '#/definitions/StorageUpdateNotValidResponseBody'
+                "401":
+                    description: Unauthorized response.
+                    schema:
+                        type: string
                 "409":
                     description: Conflict response.
                     schema:
                         $ref: '#/definitions/StorageUpdateNotAvailableResponseBody'
             schemes:
                 - http
+            security:
+                - oauth2_header_Authorization: []
     /swagger/swagger.json:
         get:
             tags:
@@ -637,6 +852,10 @@ paths:
                   type: string
                   default: multipart/form-data; boundary=goa
                   pattern: multipart/[^;]+; boundary=.+
+                - name: Authorization
+                  in: header
+                  required: false
+                  type: string
             responses:
                 "204":
                     description: No Content response.
@@ -644,12 +863,18 @@ paths:
                     description: Bad Request response.
                     schema:
                         $ref: '#/definitions/UploadUploadInvalidMultipartRequestResponseBody'
+                "401":
+                    description: Unauthorized response.
+                    schema:
+                        type: string
                 "500":
                     description: Internal Server Error response.
                     schema:
                         $ref: '#/definitions/UploadUploadInternalErrorResponseBody'
             schemes:
                 - http
+            security:
+                - oauth2_header_Authorization: []
 definitions:
     EnduroMonitorPingEventResponseBody:
         title: 'Mediatype identifier: application/vnd.enduro.monitor-ping-event; view=default'
@@ -657,10 +882,10 @@ definitions:
         properties:
             message:
                 type: string
-                example: Aspernatur voluptatibus quo enim.
+                example: Qui qui ut sunt.
         description: EnduroMonitor-Ping-EventResponseBody result type (default view)
         example:
-            message: Vel sunt.
+            message: Reiciendis consequatur non est.
     EnduroPackageCreatedEventResponseBody:
         title: 'Mediatype identifier: application/vnd.enduro.package-created-event; view=default'
         type: object
@@ -668,23 +893,23 @@ definitions:
             id:
                 type: integer
                 description: Identifier of package
-                example: 356243881726260884
+                example: 5421745812559845774
                 format: int64
             item:
                 $ref: '#/definitions/EnduroStoredPackageResponseBody'
         description: EnduroPackage-Created-EventResponseBody result type (default view)
         example:
-            id: 5599780370260193842
+            id: 11924487059948103537
             item:
                 aip_id: BCD628BE-EC66-405B-7005-21B482B9CD79
-                completed_at: "2013-05-22T12:15:50Z"
-                created_at: "1978-04-06T06:19:45Z"
-                id: 16779416702944806122
-                location_id: Reprehenderit perferendis dolorum ea consequatur quasi.
-                name: Aliquam eos in molestiae vel.
+                completed_at: "2014-02-09T11:48:13Z"
+                created_at: "1983-01-14T07:41:52Z"
+                id: 651251884554398318
+                location_id: Deleniti vel.
+                name: Tenetur voluptatum quas repellat deleniti ea.
                 run_id: F1B1633F-78C2-3DF2-9D5F-A450473EBA57
-                started_at: "2014-04-06T09:10:17Z"
-                status: abandoned
+                started_at: "2012-03-06T17:13:57Z"
+                status: queued
                 workflow_id: 8889A6C4-91BF-D1D9-EC2A-DD7F1D616B8A
         required:
             - id
@@ -696,15 +921,15 @@ definitions:
             id:
                 type: integer
                 description: Identifier of package
-                example: 4364411744486175254
+                example: 754725455414948825
                 format: int64
             location_id:
                 type: string
-                example: Accusantium velit dolores aut.
+                example: Quasi et assumenda.
         description: EnduroPackage-Location-Updated-EventResponseBody result type (default view)
         example:
-            id: 8377982138009716233
-            location_id: Velit aliquam aut dicta vel ducimus velit.
+            id: 13358326405004952603
+            location_id: Amet ipsum repellendus.
         required:
             - id
             - location_id
@@ -714,23 +939,23 @@ definitions:
         properties:
             completed_at:
                 type: string
-                example: "1998-09-14T21:56:46Z"
+                example: "2001-01-25T17:09:36Z"
                 format: date-time
             id:
                 type: integer
-                example: 9007441226580041029
+                example: 15754965397137311319
                 format: int64
             package_id:
                 type: integer
-                example: 16309157576694495571
+                example: 1050741656148712541
                 format: int64
             started_at:
                 type: string
-                example: "1999-04-14T09:36:04Z"
+                example: "1971-08-19T19:35:24Z"
                 format: date-time
             status:
                 type: string
-                example: unspecified
+                example: error
                 enum:
                     - unspecified
                     - in progress
@@ -742,48 +967,40 @@ definitions:
                 $ref: '#/definitions/EnduroPackagePreservationTaskResponseBodyCollection'
             type:
                 type: string
-                example: create-aip
+                example: move-package
                 enum:
                     - create-aip
                     - create-and-review-aip
                     - move-package
             workflow_id:
                 type: string
-                example: Rerum in.
+                example: Dolor sapiente delectus doloribus qui temporibus quia.
         description: PreservationAction describes a preservation action. (default view)
         example:
-            completed_at: "2002-04-08T01:40:30Z"
-            id: 16449755803814643389
-            package_id: 3943740172079951779
-            started_at: "1971-04-10T04:53:26Z"
-            status: queued
+            completed_at: "1984-04-10T04:05:58Z"
+            id: 13605527087203501795
+            package_id: 15708647655949664130
+            started_at: "1996-02-16T06:22:21Z"
+            status: pending
             tasks:
-                - completed_at: "2002-04-11T04:56:10Z"
-                  id: 14353470093204943706
-                  name: Eum voluptate architecto accusantium sapiente sit.
-                  note: Voluptatem et velit suscipit.
-                  preservation_action_id: 6117747599740334455
-                  started_at: "1988-04-18T04:18:02Z"
+                - completed_at: "1998-05-06T21:52:00Z"
+                  id: 18346899714967173827
+                  name: Dicta saepe quo reprehenderit.
+                  note: Dolores repellat dolore et.
+                  preservation_action_id: 11768774466193469344
+                  started_at: "1989-12-10T03:48:25Z"
                   status: unspecified
-                  task_id: In quia tempora exercitationem.
-                - completed_at: "2002-04-11T04:56:10Z"
-                  id: 14353470093204943706
-                  name: Eum voluptate architecto accusantium sapiente sit.
-                  note: Voluptatem et velit suscipit.
-                  preservation_action_id: 6117747599740334455
-                  started_at: "1988-04-18T04:18:02Z"
+                  task_id: Quae debitis et sit minima.
+                - completed_at: "1998-05-06T21:52:00Z"
+                  id: 18346899714967173827
+                  name: Dicta saepe quo reprehenderit.
+                  note: Dolores repellat dolore et.
+                  preservation_action_id: 11768774466193469344
+                  started_at: "1989-12-10T03:48:25Z"
                   status: unspecified
-                  task_id: In quia tempora exercitationem.
-                - completed_at: "2002-04-11T04:56:10Z"
-                  id: 14353470093204943706
-                  name: Eum voluptate architecto accusantium sapiente sit.
-                  note: Voluptatem et velit suscipit.
-                  preservation_action_id: 6117747599740334455
-                  started_at: "1988-04-18T04:18:02Z"
-                  status: unspecified
-                  task_id: In quia tempora exercitationem.
-            type: create-aip
-            workflow_id: Nemo laborum dolor sint quia ut.
+                  task_id: Quae debitis et sit minima.
+            type: move-package
+            workflow_id: Eum voluptatem.
         required:
             - id
             - workflow_id
@@ -797,93 +1014,125 @@ definitions:
             $ref: '#/definitions/EnduroPackagePreservationActionResponseBody'
         description: EnduroPackage-Preservation-ActionCollectionResponseBody is the result type for an array of EnduroPackage-Preservation-ActionResponseBody (default view)
         example:
-            - completed_at: "1981-05-29T01:47:50Z"
-              id: 2937927871246073329
-              package_id: 11973888633943468331
-              started_at: "1994-08-23T16:38:20Z"
-              status: unspecified
+            - completed_at: "1987-11-11T10:51:18Z"
+              id: 7591242733684621138
+              package_id: 2058030403365353862
+              started_at: "1999-12-10T06:59:38Z"
+              status: queued
               tasks:
-                - completed_at: "2002-04-11T04:56:10Z"
-                  id: 14353470093204943706
-                  name: Eum voluptate architecto accusantium sapiente sit.
-                  note: Voluptatem et velit suscipit.
-                  preservation_action_id: 6117747599740334455
-                  started_at: "1988-04-18T04:18:02Z"
+                - completed_at: "1998-05-06T21:52:00Z"
+                  id: 18346899714967173827
+                  name: Dicta saepe quo reprehenderit.
+                  note: Dolores repellat dolore et.
+                  preservation_action_id: 11768774466193469344
+                  started_at: "1989-12-10T03:48:25Z"
                   status: unspecified
-                  task_id: In quia tempora exercitationem.
-                - completed_at: "2002-04-11T04:56:10Z"
-                  id: 14353470093204943706
-                  name: Eum voluptate architecto accusantium sapiente sit.
-                  note: Voluptatem et velit suscipit.
-                  preservation_action_id: 6117747599740334455
-                  started_at: "1988-04-18T04:18:02Z"
+                  task_id: Quae debitis et sit minima.
+                - completed_at: "1998-05-06T21:52:00Z"
+                  id: 18346899714967173827
+                  name: Dicta saepe quo reprehenderit.
+                  note: Dolores repellat dolore et.
+                  preservation_action_id: 11768774466193469344
+                  started_at: "1989-12-10T03:48:25Z"
                   status: unspecified
-                  task_id: In quia tempora exercitationem.
-                - completed_at: "2002-04-11T04:56:10Z"
-                  id: 14353470093204943706
-                  name: Eum voluptate architecto accusantium sapiente sit.
-                  note: Voluptatem et velit suscipit.
-                  preservation_action_id: 6117747599740334455
-                  started_at: "1988-04-18T04:18:02Z"
-                  status: unspecified
-                  task_id: In quia tempora exercitationem.
-              type: move-package
-              workflow_id: Quibusdam nihil.
-            - completed_at: "1981-05-29T01:47:50Z"
-              id: 2937927871246073329
-              package_id: 11973888633943468331
-              started_at: "1994-08-23T16:38:20Z"
-              status: unspecified
+                  task_id: Quae debitis et sit minima.
+              type: create-and-review-aip
+              workflow_id: Hic mollitia cumque possimus.
+            - completed_at: "1987-11-11T10:51:18Z"
+              id: 7591242733684621138
+              package_id: 2058030403365353862
+              started_at: "1999-12-10T06:59:38Z"
+              status: queued
               tasks:
-                - completed_at: "2002-04-11T04:56:10Z"
-                  id: 14353470093204943706
-                  name: Eum voluptate architecto accusantium sapiente sit.
-                  note: Voluptatem et velit suscipit.
-                  preservation_action_id: 6117747599740334455
-                  started_at: "1988-04-18T04:18:02Z"
+                - completed_at: "1998-05-06T21:52:00Z"
+                  id: 18346899714967173827
+                  name: Dicta saepe quo reprehenderit.
+                  note: Dolores repellat dolore et.
+                  preservation_action_id: 11768774466193469344
+                  started_at: "1989-12-10T03:48:25Z"
                   status: unspecified
-                  task_id: In quia tempora exercitationem.
-                - completed_at: "2002-04-11T04:56:10Z"
-                  id: 14353470093204943706
-                  name: Eum voluptate architecto accusantium sapiente sit.
-                  note: Voluptatem et velit suscipit.
-                  preservation_action_id: 6117747599740334455
-                  started_at: "1988-04-18T04:18:02Z"
+                  task_id: Quae debitis et sit minima.
+                - completed_at: "1998-05-06T21:52:00Z"
+                  id: 18346899714967173827
+                  name: Dicta saepe quo reprehenderit.
+                  note: Dolores repellat dolore et.
+                  preservation_action_id: 11768774466193469344
+                  started_at: "1989-12-10T03:48:25Z"
                   status: unspecified
-                  task_id: In quia tempora exercitationem.
-                - completed_at: "2002-04-11T04:56:10Z"
-                  id: 14353470093204943706
-                  name: Eum voluptate architecto accusantium sapiente sit.
-                  note: Voluptatem et velit suscipit.
-                  preservation_action_id: 6117747599740334455
-                  started_at: "1988-04-18T04:18:02Z"
+                  task_id: Quae debitis et sit minima.
+              type: create-and-review-aip
+              workflow_id: Hic mollitia cumque possimus.
+            - completed_at: "1987-11-11T10:51:18Z"
+              id: 7591242733684621138
+              package_id: 2058030403365353862
+              started_at: "1999-12-10T06:59:38Z"
+              status: queued
+              tasks:
+                - completed_at: "1998-05-06T21:52:00Z"
+                  id: 18346899714967173827
+                  name: Dicta saepe quo reprehenderit.
+                  note: Dolores repellat dolore et.
+                  preservation_action_id: 11768774466193469344
+                  started_at: "1989-12-10T03:48:25Z"
                   status: unspecified
-                  task_id: In quia tempora exercitationem.
-              type: move-package
-              workflow_id: Quibusdam nihil.
+                  task_id: Quae debitis et sit minima.
+                - completed_at: "1998-05-06T21:52:00Z"
+                  id: 18346899714967173827
+                  name: Dicta saepe quo reprehenderit.
+                  note: Dolores repellat dolore et.
+                  preservation_action_id: 11768774466193469344
+                  started_at: "1989-12-10T03:48:25Z"
+                  status: unspecified
+                  task_id: Quae debitis et sit minima.
+              type: create-and-review-aip
+              workflow_id: Hic mollitia cumque possimus.
+            - completed_at: "1987-11-11T10:51:18Z"
+              id: 7591242733684621138
+              package_id: 2058030403365353862
+              started_at: "1999-12-10T06:59:38Z"
+              status: queued
+              tasks:
+                - completed_at: "1998-05-06T21:52:00Z"
+                  id: 18346899714967173827
+                  name: Dicta saepe quo reprehenderit.
+                  note: Dolores repellat dolore et.
+                  preservation_action_id: 11768774466193469344
+                  started_at: "1989-12-10T03:48:25Z"
+                  status: unspecified
+                  task_id: Quae debitis et sit minima.
+                - completed_at: "1998-05-06T21:52:00Z"
+                  id: 18346899714967173827
+                  name: Dicta saepe quo reprehenderit.
+                  note: Dolores repellat dolore et.
+                  preservation_action_id: 11768774466193469344
+                  started_at: "1989-12-10T03:48:25Z"
+                  status: unspecified
+                  task_id: Quae debitis et sit minima.
+              type: create-and-review-aip
+              workflow_id: Hic mollitia cumque possimus.
     EnduroPackagePreservationActionResponseBodySimple:
         title: 'Mediatype identifier: application/vnd.enduro.package-preservation-action; view=default'
         type: object
         properties:
             completed_at:
                 type: string
-                example: "1987-02-13T19:42:16Z"
+                example: "1977-10-25T09:03:43Z"
                 format: date-time
             id:
                 type: integer
-                example: 2869676201435035249
+                example: 8987535617981703926
                 format: int64
             package_id:
                 type: integer
-                example: 10861939188996192456
+                example: 3701726448145747138
                 format: int64
             started_at:
                 type: string
-                example: "1995-01-01T19:38:07Z"
+                example: "2015-10-16T14:50:37Z"
                 format: date-time
             status:
                 type: string
-                example: in progress
+                example: queued
                 enum:
                     - unspecified
                     - in progress
@@ -893,23 +1142,23 @@ definitions:
                     - pending
             type:
                 type: string
-                example: move-package
+                example: create-aip
                 enum:
                     - create-aip
                     - create-and-review-aip
                     - move-package
             workflow_id:
                 type: string
-                example: Qui at quas ab voluptas commodi omnis.
+                example: Laborum consequatur reprehenderit sint sit.
         description: PreservationAction describes a preservation action. (simple view) (default view)
         example:
-            completed_at: "1983-04-02T09:30:01Z"
-            id: 14858541864475941246
-            package_id: 4999997242367877309
-            started_at: "1994-04-15T08:08:32Z"
-            status: done
-            type: create-aip
-            workflow_id: Vel aliquam similique illo ex unde distinctio.
+            completed_at: "1991-10-27T21:27:57Z"
+            id: 10266156296671289320
+            package_id: 8283122861149105107
+            started_at: "1995-03-25T21:13:36Z"
+            status: queued
+            type: create-and-review-aip
+            workflow_id: Ipsa sed quidem voluptatum aut quia.
         required:
             - id
             - workflow_id
@@ -922,29 +1171,29 @@ definitions:
         properties:
             completed_at:
                 type: string
-                example: "1975-09-05T09:24:12Z"
+                example: "1984-07-15T11:54:40Z"
                 format: date-time
             id:
                 type: integer
-                example: 6708482904236981525
+                example: 15076965613034941710
                 format: int64
             name:
                 type: string
-                example: Necessitatibus non cum.
+                example: Accusamus omnis totam nobis qui tempora itaque.
             note:
                 type: string
-                example: Ab nihil magni.
+                example: Est veritatis ut autem adipisci suscipit distinctio.
             preservation_action_id:
                 type: integer
-                example: 9485428956320170188
+                example: 1840776998093907536
                 format: int64
             started_at:
                 type: string
-                example: "1991-09-12T05:51:29Z"
+                example: "1983-06-09T14:06:55Z"
                 format: date-time
             status:
                 type: string
-                example: queued
+                example: unspecified
                 enum:
                     - unspecified
                     - in progress
@@ -954,17 +1203,17 @@ definitions:
                     - pending
             task_id:
                 type: string
-                example: Placeat quaerat.
+                example: Numquam sit sed libero exercitationem illum.
         description: PreservationTask describes a preservation action task. (default view)
         example:
-            completed_at: "2015-03-06T13:06:38Z"
-            id: 3612883446679952892
-            name: Sit vitae beatae quia.
-            note: Dolores et amet eum.
-            preservation_action_id: 9196785247302329192
-            started_at: "1972-06-16T08:11:04Z"
-            status: error
-            task_id: Adipisci doloribus.
+            completed_at: "1992-04-14T06:24:35Z"
+            id: 5330121671091434208
+            name: Quia praesentium incidunt.
+            note: Dolorem dolor saepe dolores aut quis.
+            preservation_action_id: 8861181018962639430
+            started_at: "2006-05-04T13:32:25Z"
+            status: in progress
+            task_id: Sit inventore impedit voluptates vel omnis id.
         required:
             - id
             - task_id
@@ -978,30 +1227,30 @@ definitions:
             $ref: '#/definitions/EnduroPackagePreservationTaskResponseBody'
         description: EnduroPackage-Preservation-TaskCollectionResponseBody is the result type for an array of EnduroPackage-Preservation-TaskResponseBody (default view)
         example:
-            - completed_at: "2002-04-11T04:56:10Z"
-              id: 14353470093204943706
-              name: Eum voluptate architecto accusantium sapiente sit.
-              note: Voluptatem et velit suscipit.
-              preservation_action_id: 6117747599740334455
-              started_at: "1988-04-18T04:18:02Z"
+            - completed_at: "1998-05-06T21:52:00Z"
+              id: 18346899714967173827
+              name: Dicta saepe quo reprehenderit.
+              note: Dolores repellat dolore et.
+              preservation_action_id: 11768774466193469344
+              started_at: "1989-12-10T03:48:25Z"
               status: unspecified
-              task_id: In quia tempora exercitationem.
-            - completed_at: "2002-04-11T04:56:10Z"
-              id: 14353470093204943706
-              name: Eum voluptate architecto accusantium sapiente sit.
-              note: Voluptatem et velit suscipit.
-              preservation_action_id: 6117747599740334455
-              started_at: "1988-04-18T04:18:02Z"
+              task_id: Quae debitis et sit minima.
+            - completed_at: "1998-05-06T21:52:00Z"
+              id: 18346899714967173827
+              name: Dicta saepe quo reprehenderit.
+              note: Dolores repellat dolore et.
+              preservation_action_id: 11768774466193469344
+              started_at: "1989-12-10T03:48:25Z"
               status: unspecified
-              task_id: In quia tempora exercitationem.
-            - completed_at: "2002-04-11T04:56:10Z"
-              id: 14353470093204943706
-              name: Eum voluptate architecto accusantium sapiente sit.
-              note: Voluptatem et velit suscipit.
-              preservation_action_id: 6117747599740334455
-              started_at: "1988-04-18T04:18:02Z"
+              task_id: Quae debitis et sit minima.
+            - completed_at: "1998-05-06T21:52:00Z"
+              id: 18346899714967173827
+              name: Dicta saepe quo reprehenderit.
+              note: Dolores repellat dolore et.
+              preservation_action_id: 11768774466193469344
+              started_at: "1989-12-10T03:48:25Z"
               status: unspecified
-              task_id: In quia tempora exercitationem.
+              task_id: Quae debitis et sit minima.
     EnduroPackageStatusUpdatedEventResponseBody:
         title: 'Mediatype identifier: application/vnd.enduro.package-status-updated-event; view=default'
         type: object
@@ -1009,7 +1258,7 @@ definitions:
             id:
                 type: integer
                 description: Identifier of package
-                example: 1553179553349900127
+                example: 10526702120432587197
                 format: int64
             status:
                 type: string
@@ -1025,8 +1274,8 @@ definitions:
                     - abandoned
         description: EnduroPackage-Status-Updated-EventResponseBody result type (default view)
         example:
-            id: 11149615699774680185
-            status: error
+            id: 4028348679557519506
+            status: done
         required:
             - id
             - status
@@ -1037,23 +1286,23 @@ definitions:
             id:
                 type: integer
                 description: Identifier of package
-                example: 3999311445920377580
+                example: 5718559270713871377
                 format: int64
             item:
                 $ref: '#/definitions/EnduroStoredPackageResponseBody'
         description: EnduroPackage-Updated-EventResponseBody result type (default view)
         example:
-            id: 466745797333971174
+            id: 2684399766488476840
             item:
                 aip_id: BCD628BE-EC66-405B-7005-21B482B9CD79
-                completed_at: "2013-05-22T12:15:50Z"
-                created_at: "1978-04-06T06:19:45Z"
-                id: 16779416702944806122
-                location_id: Reprehenderit perferendis dolorum ea consequatur quasi.
-                name: Aliquam eos in molestiae vel.
+                completed_at: "2014-02-09T11:48:13Z"
+                created_at: "1983-01-14T07:41:52Z"
+                id: 651251884554398318
+                location_id: Deleniti vel.
+                name: Tenetur voluptatum quas repellat deleniti ea.
                 run_id: F1B1633F-78C2-3DF2-9D5F-A450473EBA57
-                started_at: "2014-04-06T09:10:17Z"
-                status: abandoned
+                started_at: "2012-03-06T17:13:57Z"
+                status: queued
                 workflow_id: 8889A6C4-91BF-D1D9-EC2A-DD7F1D616B8A
         required:
             - id
@@ -1065,21 +1314,21 @@ definitions:
             id:
                 type: integer
                 description: Identifier of preservation action
-                example: 3139138819724042270
+                example: 8767321700770997531
                 format: int64
             item:
                 $ref: '#/definitions/EnduroPackagePreservationActionResponseBodySimple'
         description: EnduroPreservation-Action-Created-EventResponseBody result type (default view)
         example:
-            id: 8000312645361077467
+            id: 11875688747252261123
             item:
-                completed_at: "2012-10-15T09:29:37Z"
-                id: 8948259828230510671
-                package_id: 7737853162882572773
-                started_at: "2007-10-31T04:26:47Z"
-                status: queued
-                type: create-and-review-aip
-                workflow_id: Eos ea error earum rerum.
+                completed_at: "1993-08-08T11:35:15Z"
+                id: 15786071428523643767
+                package_id: 8525400506671972872
+                started_at: "1985-11-20T19:46:11Z"
+                status: pending
+                type: create-aip
+                workflow_id: Neque veritatis ut libero.
         required:
             - id
             - item
@@ -1090,21 +1339,21 @@ definitions:
             id:
                 type: integer
                 description: Identifier of preservation action
-                example: 7915302349500968060
+                example: 6801610311019669209
                 format: int64
             item:
                 $ref: '#/definitions/EnduroPackagePreservationActionResponseBodySimple'
         description: EnduroPreservation-Action-Updated-EventResponseBody result type (default view)
         example:
-            id: 6208176423503789533
+            id: 1207453366931006451
             item:
-                completed_at: "2012-10-15T09:29:37Z"
-                id: 8948259828230510671
-                package_id: 7737853162882572773
-                started_at: "2007-10-31T04:26:47Z"
-                status: queued
-                type: create-and-review-aip
-                workflow_id: Eos ea error earum rerum.
+                completed_at: "1993-08-08T11:35:15Z"
+                id: 15786071428523643767
+                package_id: 8525400506671972872
+                started_at: "1985-11-20T19:46:11Z"
+                status: pending
+                type: create-aip
+                workflow_id: Neque veritatis ut libero.
         required:
             - id
             - item
@@ -1115,22 +1364,22 @@ definitions:
             id:
                 type: integer
                 description: Identifier of preservation task
-                example: 904628927878431286
+                example: 5945043737879664432
                 format: int64
             item:
                 $ref: '#/definitions/EnduroPackagePreservationTaskResponseBody'
         description: EnduroPreservation-Task-Created-EventResponseBody result type (default view)
         example:
-            id: 11425548805111142605
+            id: 9558089841209397524
             item:
-                completed_at: "2002-04-11T04:56:10Z"
-                id: 14353470093204943706
-                name: Eum voluptate architecto accusantium sapiente sit.
-                note: Voluptatem et velit suscipit.
-                preservation_action_id: 6117747599740334455
-                started_at: "1988-04-18T04:18:02Z"
+                completed_at: "1998-05-06T21:52:00Z"
+                id: 18346899714967173827
+                name: Dicta saepe quo reprehenderit.
+                note: Dolores repellat dolore et.
+                preservation_action_id: 11768774466193469344
+                started_at: "1989-12-10T03:48:25Z"
                 status: unspecified
-                task_id: In quia tempora exercitationem.
+                task_id: Quae debitis et sit minima.
         required:
             - id
             - item
@@ -1141,22 +1390,22 @@ definitions:
             id:
                 type: integer
                 description: Identifier of preservation task
-                example: 17016072309456669215
+                example: 12123826155301123770
                 format: int64
             item:
                 $ref: '#/definitions/EnduroPackagePreservationTaskResponseBody'
         description: EnduroPreservation-Task-Updated-EventResponseBody result type (default view)
         example:
-            id: 4160869037076522302
+            id: 7149168411185192115
             item:
-                completed_at: "2002-04-11T04:56:10Z"
-                id: 14353470093204943706
-                name: Eum voluptate architecto accusantium sapiente sit.
-                note: Voluptatem et velit suscipit.
-                preservation_action_id: 6117747599740334455
-                started_at: "1988-04-18T04:18:02Z"
+                completed_at: "1998-05-06T21:52:00Z"
+                id: 18346899714967173827
+                name: Dicta saepe quo reprehenderit.
+                note: Dolores repellat dolore et.
+                preservation_action_id: 11768774466193469344
+                started_at: "1989-12-10T03:48:25Z"
                 status: unspecified
-                task_id: In quia tempora exercitationem.
+                task_id: Quae debitis et sit minima.
         required:
             - id
             - item
@@ -1172,25 +1421,25 @@ definitions:
             completed_at:
                 type: string
                 description: Completion datetime
-                example: "2004-12-24T23:34:20Z"
+                example: "2004-10-26T07:57:53Z"
                 format: date-time
             created_at:
                 type: string
                 description: Creation datetime
-                example: "1988-01-03T11:36:25Z"
+                example: "2007-01-04T03:01:35Z"
                 format: date-time
             id:
                 type: integer
                 description: Identifier of package
-                example: 18034715007040203913
+                example: 9822427864334385293
                 format: int64
             location_id:
                 type: string
-                example: Nam et rem.
+                example: Quo hic perspiciatis quia itaque.
             name:
                 type: string
                 description: Name of the package
-                example: Tenetur sed occaecati quod qui ratione.
+                example: Sit quaerat.
             run_id:
                 type: string
                 description: Identifier of latest processing workflow run
@@ -1199,13 +1448,13 @@ definitions:
             started_at:
                 type: string
                 description: Start datetime
-                example: "1998-06-07T16:20:30Z"
+                example: "1983-03-25T03:50:12Z"
                 format: date-time
             status:
                 type: string
                 description: Status of the package
                 default: new
-                example: done
+                example: abandoned
                 enum:
                     - new
                     - in progress
@@ -1223,14 +1472,14 @@ definitions:
         description: StoredPackage describes a package retrieved by the service. (default view)
         example:
             aip_id: B140526E-56D0-0183-0B79-28E8969E1B3C
-            completed_at: "1988-09-07T05:43:03Z"
-            created_at: "1985-07-13T06:57:57Z"
-            id: 3494306301916543320
-            location_id: Harum quam voluptatibus.
-            name: Ea maiores.
+            completed_at: "2011-01-08T01:57:48Z"
+            created_at: "2007-11-13T23:58:40Z"
+            id: 17534629024729984937
+            location_id: Omnis hic voluptatibus doloribus.
+            name: Culpa distinctio aspernatur tempora.
             run_id: DAE4BBC9-23C8-09A1-921F-CE28DF03BC4A
-            started_at: "1980-05-28T14:27:37Z"
-            status: error
+            started_at: "2003-02-19T18:30:02Z"
+            status: pending
             workflow_id: AAB57B12-5CC1-1E13-E6AC-F88295E4F868
         required:
             - id
@@ -1244,34 +1493,34 @@ definitions:
         description: EnduroStored-PackageCollectionResponseBody is the result type for an array of EnduroStored-PackageResponseBody (default view)
         example:
             - aip_id: BCD628BE-EC66-405B-7005-21B482B9CD79
-              completed_at: "2013-05-22T12:15:50Z"
-              created_at: "1978-04-06T06:19:45Z"
-              id: 16779416702944806122
-              location_id: Reprehenderit perferendis dolorum ea consequatur quasi.
-              name: Aliquam eos in molestiae vel.
+              completed_at: "2014-02-09T11:48:13Z"
+              created_at: "1983-01-14T07:41:52Z"
+              id: 651251884554398318
+              location_id: Deleniti vel.
+              name: Tenetur voluptatum quas repellat deleniti ea.
               run_id: F1B1633F-78C2-3DF2-9D5F-A450473EBA57
-              started_at: "2014-04-06T09:10:17Z"
-              status: abandoned
+              started_at: "2012-03-06T17:13:57Z"
+              status: queued
               workflow_id: 8889A6C4-91BF-D1D9-EC2A-DD7F1D616B8A
             - aip_id: BCD628BE-EC66-405B-7005-21B482B9CD79
-              completed_at: "2013-05-22T12:15:50Z"
-              created_at: "1978-04-06T06:19:45Z"
-              id: 16779416702944806122
-              location_id: Reprehenderit perferendis dolorum ea consequatur quasi.
-              name: Aliquam eos in molestiae vel.
+              completed_at: "2014-02-09T11:48:13Z"
+              created_at: "1983-01-14T07:41:52Z"
+              id: 651251884554398318
+              location_id: Deleniti vel.
+              name: Tenetur voluptatum quas repellat deleniti ea.
               run_id: F1B1633F-78C2-3DF2-9D5F-A450473EBA57
-              started_at: "2014-04-06T09:10:17Z"
-              status: abandoned
+              started_at: "2012-03-06T17:13:57Z"
+              status: queued
               workflow_id: 8889A6C4-91BF-D1D9-EC2A-DD7F1D616B8A
             - aip_id: BCD628BE-EC66-405B-7005-21B482B9CD79
-              completed_at: "2013-05-22T12:15:50Z"
-              created_at: "1978-04-06T06:19:45Z"
-              id: 16779416702944806122
-              location_id: Reprehenderit perferendis dolorum ea consequatur quasi.
-              name: Aliquam eos in molestiae vel.
+              completed_at: "2014-02-09T11:48:13Z"
+              created_at: "1983-01-14T07:41:52Z"
+              id: 651251884554398318
+              location_id: Deleniti vel.
+              name: Tenetur voluptatum quas repellat deleniti ea.
               run_id: F1B1633F-78C2-3DF2-9D5F-A450473EBA57
-              started_at: "2014-04-06T09:10:17Z"
-              status: abandoned
+              started_at: "2012-03-06T17:13:57Z"
+              status: queued
               workflow_id: 8889A6C4-91BF-D1D9-EC2A-DD7F1D616B8A
     LocationResponse:
         title: 'Mediatype identifier: application/vnd.enduro.storage-location; view=default'
@@ -1280,16 +1529,16 @@ definitions:
             created_at:
                 type: string
                 description: Creation datetime
-                example: "2006-05-20T22:50:16Z"
+                example: "1980-10-31T01:01:41Z"
                 format: date-time
             description:
                 type: string
                 description: Description of the location
-                example: Aliquam et eos ad vel quia fuga.
+                example: Ut aperiam eligendi mollitia.
             name:
                 type: string
                 description: Name of location
-                example: Est voluptatem vel.
+                example: Eos mollitia est officiis nostrum.
             purpose:
                 type: string
                 description: Purpose of the location
@@ -1308,15 +1557,15 @@ definitions:
                     - minio
             uuid:
                 type: string
-                example: Quia et nihil et.
+                example: Iusto et magnam et molestiae alias qui.
         description: A Location describes a location retrieved by the storage service. (default view)
         example:
-            created_at: "2006-07-23T01:16:17Z"
-            description: Sed aperiam sed qui id impedit.
-            name: Dolores cupiditate impedit adipisci.
+            created_at: "1988-01-03T08:00:37Z"
+            description: Minus ratione velit magni.
+            name: In eaque id qui inventore.
             purpose: aip_store
             source: minio
-            uuid: A quia quia quo.
+            uuid: Non non et.
         required:
             - name
             - source
@@ -1330,7 +1579,7 @@ definitions:
             fault:
                 type: boolean
                 description: Is the error a server-side fault?
-                example: false
+                example: true
             id:
                 type: string
                 description: ID is a unique identifier for this particular occurrence of the problem.
@@ -1346,7 +1595,7 @@ definitions:
             temporary:
                 type: boolean
                 description: Is the error temporary?
-                example: true
+                example: false
             timeout:
                 type: boolean
                 description: Is the error a timeout?
@@ -1373,16 +1622,16 @@ definitions:
             id:
                 type: integer
                 description: Identifier of missing package
-                example: 16207651651718285521
+                example: 5784501923841005879
                 format: int64
             message:
                 type: string
                 description: Message of error
-                example: Sint deserunt possimus possimus.
+                example: Reprehenderit tempore perspiciatis.
         description: Package not found
         example:
-            id: 3467378858405492934
-            message: Voluptatem et maiores voluptas aut.
+            id: 885027469509009085
+            message: Et nesciunt laudantium reiciendis iste.
         required:
             - message
             - id
@@ -1409,19 +1658,19 @@ definitions:
             temporary:
                 type: boolean
                 description: Is the error temporary?
-                example: true
+                example: false
             timeout:
                 type: boolean
                 description: Is the error a timeout?
-                example: false
+                example: true
         description: confirm_not_valid_response_body result type (default view)
         example:
             fault: true
             id: 123abc
             message: parameter 'p' must be an integer
             name: bad_request
-            temporary: true
-            timeout: true
+            temporary: false
+            timeout: false
         required:
             - name
             - id
@@ -1435,9 +1684,9 @@ definitions:
         properties:
             location_id:
                 type: string
-                example: Qui doloribus voluptate voluptas ipsam.
+                example: Autem culpa.
         example:
-            location_id: Blanditiis sed mollitia.
+            location_id: Tempore quo omnis neque recusandae et perferendis.
         required:
             - location_id
     PackageListResponseBody:
@@ -1448,42 +1697,138 @@ definitions:
                 $ref: '#/definitions/EnduroStoredPackageResponseBodyCollection'
             next_cursor:
                 type: string
-                example: Ratione voluptatem nesciunt.
+                example: Qui voluptas et culpa.
         example:
             items:
                 - aip_id: 288BFD74-D973-18B5-FAA5-29ADF4569AC7
-                  completed_at: "1995-07-18T05:49:13Z"
-                  created_at: "1981-10-30T20:15:45Z"
-                  id: 5523484306998041957
-                  location_id: Occaecati nesciunt.
-                  name: Nostrum deserunt aliquam quae aut.
+                  completed_at: "1997-11-06T23:35:27Z"
+                  created_at: "2015-01-01T22:15:21Z"
+                  id: 6830371197369010256
+                  location_id: Aut enim.
+                  name: A adipisci.
                   run_id: 3F59C655-AFF8-EAB8-FA17-44E154EF0557
-                  started_at: "1971-05-25T05:28:00Z"
-                  status: new
+                  started_at: "1993-12-28T08:47:26Z"
+                  status: done
                   workflow_id: A464FD15-9F47-E3CC-BD80-3B5C5830C503
                 - aip_id: 288BFD74-D973-18B5-FAA5-29ADF4569AC7
-                  completed_at: "1995-07-18T05:49:13Z"
-                  created_at: "1981-10-30T20:15:45Z"
-                  id: 5523484306998041957
-                  location_id: Occaecati nesciunt.
-                  name: Nostrum deserunt aliquam quae aut.
+                  completed_at: "1997-11-06T23:35:27Z"
+                  created_at: "2015-01-01T22:15:21Z"
+                  id: 6830371197369010256
+                  location_id: Aut enim.
+                  name: A adipisci.
                   run_id: 3F59C655-AFF8-EAB8-FA17-44E154EF0557
-                  started_at: "1971-05-25T05:28:00Z"
-                  status: new
+                  started_at: "1993-12-28T08:47:26Z"
+                  status: done
                   workflow_id: A464FD15-9F47-E3CC-BD80-3B5C5830C503
                 - aip_id: 288BFD74-D973-18B5-FAA5-29ADF4569AC7
-                  completed_at: "1995-07-18T05:49:13Z"
-                  created_at: "1981-10-30T20:15:45Z"
-                  id: 5523484306998041957
-                  location_id: Occaecati nesciunt.
-                  name: Nostrum deserunt aliquam quae aut.
+                  completed_at: "1997-11-06T23:35:27Z"
+                  created_at: "2015-01-01T22:15:21Z"
+                  id: 6830371197369010256
+                  location_id: Aut enim.
+                  name: A adipisci.
                   run_id: 3F59C655-AFF8-EAB8-FA17-44E154EF0557
-                  started_at: "1971-05-25T05:28:00Z"
-                  status: new
+                  started_at: "1993-12-28T08:47:26Z"
+                  status: done
                   workflow_id: A464FD15-9F47-E3CC-BD80-3B5C5830C503
-            next_cursor: Nihil veniam ipsa a et.
+                - aip_id: 288BFD74-D973-18B5-FAA5-29ADF4569AC7
+                  completed_at: "1997-11-06T23:35:27Z"
+                  created_at: "2015-01-01T22:15:21Z"
+                  id: 6830371197369010256
+                  location_id: Aut enim.
+                  name: A adipisci.
+                  run_id: 3F59C655-AFF8-EAB8-FA17-44E154EF0557
+                  started_at: "1993-12-28T08:47:26Z"
+                  status: done
+                  workflow_id: A464FD15-9F47-E3CC-BD80-3B5C5830C503
+            next_cursor: Fuga quibusdam suscipit.
         required:
             - items
+    PackageMonitorNotAvailableResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+        type: object
+        properties:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
+                example: false
+            id:
+                type: string
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
+            message:
+                type: string
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
+            name:
+                type: string
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
+                example: true
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: false
+        description: monitor_not_available_response_body result type (default view)
+        example:
+            fault: false
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: false
+            timeout: false
+        required:
+            - name
+            - id
+            - message
+            - temporary
+            - timeout
+            - fault
+    PackageMonitorRequestNotAvailableResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+        type: object
+        properties:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
+                example: true
+            id:
+                type: string
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
+            message:
+                type: string
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
+            name:
+                type: string
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
+                example: true
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: true
+        description: monitor_request_not_available_response_body result type (default view)
+        example:
+            fault: false
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: false
+            timeout: true
+        required:
+            - name
+            - id
+            - message
+            - temporary
+            - timeout
+            - fault
     PackageMonitorResponseBody:
         title: 'Mediatype identifier: application/vnd.enduro.monitor-event; view=default'
         type: object
@@ -1509,81 +1854,81 @@ definitions:
         description: MonitorResponseBody result type (default view)
         example:
             monitor_ping_event:
-                message: Dicta harum natus libero sed inventore dolorem.
+                message: Possimus sed natus ipsa magni.
             package_created_event:
-                id: 5139650512771906679
+                id: 7891370028970844776
                 item:
                     aip_id: BCD628BE-EC66-405B-7005-21B482B9CD79
-                    completed_at: "2013-05-22T12:15:50Z"
-                    created_at: "1978-04-06T06:19:45Z"
-                    id: 16779416702944806122
-                    location_id: Reprehenderit perferendis dolorum ea consequatur quasi.
-                    name: Aliquam eos in molestiae vel.
+                    completed_at: "2014-02-09T11:48:13Z"
+                    created_at: "1983-01-14T07:41:52Z"
+                    id: 651251884554398318
+                    location_id: Deleniti vel.
+                    name: Tenetur voluptatum quas repellat deleniti ea.
                     run_id: F1B1633F-78C2-3DF2-9D5F-A450473EBA57
-                    started_at: "2014-04-06T09:10:17Z"
-                    status: abandoned
+                    started_at: "2012-03-06T17:13:57Z"
+                    status: queued
                     workflow_id: 8889A6C4-91BF-D1D9-EC2A-DD7F1D616B8A
             package_location_updated_event:
-                id: 10956883307350818953
-                location_id: Delectus quia sapiente aliquid.
+                id: 18022404468772129768
+                location_id: Et rem ducimus iste maiores.
             package_status_updated_event:
-                id: 776285361058552077
-                status: queued
+                id: 7735108113305610599
+                status: in progress
             package_updated_event:
-                id: 3540352731938442066
+                id: 7002746353692364472
                 item:
                     aip_id: BCD628BE-EC66-405B-7005-21B482B9CD79
-                    completed_at: "2013-05-22T12:15:50Z"
-                    created_at: "1978-04-06T06:19:45Z"
-                    id: 16779416702944806122
-                    location_id: Reprehenderit perferendis dolorum ea consequatur quasi.
-                    name: Aliquam eos in molestiae vel.
+                    completed_at: "2014-02-09T11:48:13Z"
+                    created_at: "1983-01-14T07:41:52Z"
+                    id: 651251884554398318
+                    location_id: Deleniti vel.
+                    name: Tenetur voluptatum quas repellat deleniti ea.
                     run_id: F1B1633F-78C2-3DF2-9D5F-A450473EBA57
-                    started_at: "2014-04-06T09:10:17Z"
-                    status: abandoned
+                    started_at: "2012-03-06T17:13:57Z"
+                    status: queued
                     workflow_id: 8889A6C4-91BF-D1D9-EC2A-DD7F1D616B8A
             preservation_action_created_event:
-                id: 1358811786190908087
+                id: 13124819927299222419
                 item:
-                    completed_at: "2012-10-15T09:29:37Z"
-                    id: 8948259828230510671
-                    package_id: 7737853162882572773
-                    started_at: "2007-10-31T04:26:47Z"
-                    status: queued
-                    type: create-and-review-aip
-                    workflow_id: Eos ea error earum rerum.
+                    completed_at: "1993-08-08T11:35:15Z"
+                    id: 15786071428523643767
+                    package_id: 8525400506671972872
+                    started_at: "1985-11-20T19:46:11Z"
+                    status: pending
+                    type: create-aip
+                    workflow_id: Neque veritatis ut libero.
             preservation_action_updated_event:
-                id: 9920045945782004348
+                id: 17089776379191154728
                 item:
-                    completed_at: "2012-10-15T09:29:37Z"
-                    id: 8948259828230510671
-                    package_id: 7737853162882572773
-                    started_at: "2007-10-31T04:26:47Z"
-                    status: queued
-                    type: create-and-review-aip
-                    workflow_id: Eos ea error earum rerum.
+                    completed_at: "1993-08-08T11:35:15Z"
+                    id: 15786071428523643767
+                    package_id: 8525400506671972872
+                    started_at: "1985-11-20T19:46:11Z"
+                    status: pending
+                    type: create-aip
+                    workflow_id: Neque veritatis ut libero.
             preservation_task_created_event:
-                id: 1543916061766988690
+                id: 16128627276971906031
                 item:
-                    completed_at: "2002-04-11T04:56:10Z"
-                    id: 14353470093204943706
-                    name: Eum voluptate architecto accusantium sapiente sit.
-                    note: Voluptatem et velit suscipit.
-                    preservation_action_id: 6117747599740334455
-                    started_at: "1988-04-18T04:18:02Z"
+                    completed_at: "1998-05-06T21:52:00Z"
+                    id: 18346899714967173827
+                    name: Dicta saepe quo reprehenderit.
+                    note: Dolores repellat dolore et.
+                    preservation_action_id: 11768774466193469344
+                    started_at: "1989-12-10T03:48:25Z"
                     status: unspecified
-                    task_id: In quia tempora exercitationem.
+                    task_id: Quae debitis et sit minima.
             preservation_task_updated_event:
-                id: 2066674967718758770
+                id: 7701380285367853332
                 item:
-                    completed_at: "2002-04-11T04:56:10Z"
-                    id: 14353470093204943706
-                    name: Eum voluptate architecto accusantium sapiente sit.
-                    note: Voluptatem et velit suscipit.
-                    preservation_action_id: 6117747599740334455
-                    started_at: "1988-04-18T04:18:02Z"
+                    completed_at: "1998-05-06T21:52:00Z"
+                    id: 18346899714967173827
+                    name: Dicta saepe quo reprehenderit.
+                    note: Dolores repellat dolore et.
+                    preservation_action_id: 11768774466193469344
+                    started_at: "1989-12-10T03:48:25Z"
                     status: unspecified
-                    task_id: In quia tempora exercitationem.
+                    task_id: Quae debitis et sit minima.
     PackageMoveNotAvailableResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
@@ -1618,7 +1963,7 @@ definitions:
             id: 123abc
             message: parameter 'p' must be an integer
             name: bad_request
-            temporary: true
+            temporary: false
             timeout: true
         required:
             - name
@@ -1634,16 +1979,16 @@ definitions:
             id:
                 type: integer
                 description: Identifier of missing package
-                example: 5116693993044565438
+                example: 11785894289500697307
                 format: int64
             message:
                 type: string
                 description: Message of error
-                example: Atque deleniti corrupti minima.
+                example: Dolore neque voluptas quasi deserunt excepturi tempora.
         description: Package not found
         example:
-            id: 17953399653889719611
-            message: Quod similique consequatur accusamus et est.
+            id: 17957051098148170829
+            message: Nulla quod sed.
         required:
             - message
             - id
@@ -1670,7 +2015,7 @@ definitions:
             temporary:
                 type: boolean
                 description: Is the error temporary?
-                example: true
+                example: false
             timeout:
                 type: boolean
                 description: Is the error a timeout?
@@ -1681,8 +2026,8 @@ definitions:
             id: 123abc
             message: parameter 'p' must be an integer
             name: bad_request
-            temporary: true
-            timeout: true
+            temporary: false
+            timeout: false
         required:
             - name
             - id
@@ -1696,9 +2041,9 @@ definitions:
         properties:
             location_id:
                 type: string
-                example: Voluptatum fugiat nulla autem a.
+                example: Earum neque est eaque ipsam.
         example:
-            location_id: Molestiae fugit illum facere enim saepe.
+            location_id: Nisi molestias ut earum.
         required:
             - location_id
     PackageMoveStatusFailedDependencyResponseBody:
@@ -1708,7 +2053,7 @@ definitions:
             fault:
                 type: boolean
                 description: Is the error a server-side fault?
-                example: false
+                example: true
             id:
                 type: string
                 description: ID is a unique identifier for this particular occurrence of the problem.
@@ -1736,7 +2081,7 @@ definitions:
             message: parameter 'p' must be an integer
             name: bad_request
             temporary: false
-            timeout: true
+            timeout: false
         required:
             - name
             - id
@@ -1751,16 +2096,16 @@ definitions:
             id:
                 type: integer
                 description: Identifier of missing package
-                example: 12208611767736361671
+                example: 9804711940197020467
                 format: int64
             message:
                 type: string
                 description: Message of error
-                example: Nihil earum quidem et sint corporis.
+                example: Earum voluptas quidem ut.
         description: Package not found
         example:
-            id: 13110545901050052464
-            message: Omnis corporis accusamus corporis.
+            id: 8043946392141519475
+            message: Perspiciatis voluptatem corporis quisquam.
         required:
             - message
             - id
@@ -1782,16 +2127,16 @@ definitions:
             id:
                 type: integer
                 description: Identifier of missing package
-                example: 5370691859671806344
+                example: 9532455327850227570
                 format: int64
             message:
                 type: string
                 description: Message of error
-                example: Cumque sit alias expedita voluptatum facere.
+                example: Ea qui inventore quia iusto est ipsa.
         description: Package not found
         example:
-            id: 18044088302578614222
-            message: Impedit iure id recusandae.
+            id: 142717673882547522
+            message: Omnis error.
         required:
             - message
             - id
@@ -1804,70 +2149,54 @@ definitions:
         description: preservation_actions_response_body result type (default view)
         example:
             actions:
-                - completed_at: "1981-05-29T01:47:50Z"
-                  id: 2937927871246073329
-                  package_id: 11973888633943468331
-                  started_at: "1994-08-23T16:38:20Z"
-                  status: unspecified
+                - completed_at: "1987-11-11T10:51:18Z"
+                  id: 7591242733684621138
+                  package_id: 2058030403365353862
+                  started_at: "1999-12-10T06:59:38Z"
+                  status: queued
                   tasks:
-                    - completed_at: "2002-04-11T04:56:10Z"
-                      id: 14353470093204943706
-                      name: Eum voluptate architecto accusantium sapiente sit.
-                      note: Voluptatem et velit suscipit.
-                      preservation_action_id: 6117747599740334455
-                      started_at: "1988-04-18T04:18:02Z"
+                    - completed_at: "1998-05-06T21:52:00Z"
+                      id: 18346899714967173827
+                      name: Dicta saepe quo reprehenderit.
+                      note: Dolores repellat dolore et.
+                      preservation_action_id: 11768774466193469344
+                      started_at: "1989-12-10T03:48:25Z"
                       status: unspecified
-                      task_id: In quia tempora exercitationem.
-                    - completed_at: "2002-04-11T04:56:10Z"
-                      id: 14353470093204943706
-                      name: Eum voluptate architecto accusantium sapiente sit.
-                      note: Voluptatem et velit suscipit.
-                      preservation_action_id: 6117747599740334455
-                      started_at: "1988-04-18T04:18:02Z"
+                      task_id: Quae debitis et sit minima.
+                    - completed_at: "1998-05-06T21:52:00Z"
+                      id: 18346899714967173827
+                      name: Dicta saepe quo reprehenderit.
+                      note: Dolores repellat dolore et.
+                      preservation_action_id: 11768774466193469344
+                      started_at: "1989-12-10T03:48:25Z"
                       status: unspecified
-                      task_id: In quia tempora exercitationem.
-                    - completed_at: "2002-04-11T04:56:10Z"
-                      id: 14353470093204943706
-                      name: Eum voluptate architecto accusantium sapiente sit.
-                      note: Voluptatem et velit suscipit.
-                      preservation_action_id: 6117747599740334455
-                      started_at: "1988-04-18T04:18:02Z"
-                      status: unspecified
-                      task_id: In quia tempora exercitationem.
-                  type: move-package
-                  workflow_id: Quibusdam nihil.
-                - completed_at: "1981-05-29T01:47:50Z"
-                  id: 2937927871246073329
-                  package_id: 11973888633943468331
-                  started_at: "1994-08-23T16:38:20Z"
-                  status: unspecified
+                      task_id: Quae debitis et sit minima.
+                  type: create-and-review-aip
+                  workflow_id: Hic mollitia cumque possimus.
+                - completed_at: "1987-11-11T10:51:18Z"
+                  id: 7591242733684621138
+                  package_id: 2058030403365353862
+                  started_at: "1999-12-10T06:59:38Z"
+                  status: queued
                   tasks:
-                    - completed_at: "2002-04-11T04:56:10Z"
-                      id: 14353470093204943706
-                      name: Eum voluptate architecto accusantium sapiente sit.
-                      note: Voluptatem et velit suscipit.
-                      preservation_action_id: 6117747599740334455
-                      started_at: "1988-04-18T04:18:02Z"
+                    - completed_at: "1998-05-06T21:52:00Z"
+                      id: 18346899714967173827
+                      name: Dicta saepe quo reprehenderit.
+                      note: Dolores repellat dolore et.
+                      preservation_action_id: 11768774466193469344
+                      started_at: "1989-12-10T03:48:25Z"
                       status: unspecified
-                      task_id: In quia tempora exercitationem.
-                    - completed_at: "2002-04-11T04:56:10Z"
-                      id: 14353470093204943706
-                      name: Eum voluptate architecto accusantium sapiente sit.
-                      note: Voluptatem et velit suscipit.
-                      preservation_action_id: 6117747599740334455
-                      started_at: "1988-04-18T04:18:02Z"
+                      task_id: Quae debitis et sit minima.
+                    - completed_at: "1998-05-06T21:52:00Z"
+                      id: 18346899714967173827
+                      name: Dicta saepe quo reprehenderit.
+                      note: Dolores repellat dolore et.
+                      preservation_action_id: 11768774466193469344
+                      started_at: "1989-12-10T03:48:25Z"
                       status: unspecified
-                      task_id: In quia tempora exercitationem.
-                    - completed_at: "2002-04-11T04:56:10Z"
-                      id: 14353470093204943706
-                      name: Eum voluptate architecto accusantium sapiente sit.
-                      note: Voluptatem et velit suscipit.
-                      preservation_action_id: 6117747599740334455
-                      started_at: "1988-04-18T04:18:02Z"
-                      status: unspecified
-                      task_id: In quia tempora exercitationem.
-                  type: move-package
-                  workflow_id: Quibusdam nihil.
+                      task_id: Quae debitis et sit minima.
+                  type: create-and-review-aip
+                  workflow_id: Hic mollitia cumque possimus.
     PackageRejectNotAvailableResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
@@ -1875,7 +2204,7 @@ definitions:
             fault:
                 type: boolean
                 description: Is the error a server-side fault?
-                example: false
+                example: true
             id:
                 type: string
                 description: ID is a unique identifier for this particular occurrence of the problem.
@@ -1902,7 +2231,7 @@ definitions:
             id: 123abc
             message: parameter 'p' must be an integer
             name: bad_request
-            temporary: true
+            temporary: false
             timeout: false
         required:
             - name
@@ -1918,16 +2247,16 @@ definitions:
             id:
                 type: integer
                 description: Identifier of missing package
-                example: 13430087821187515717
+                example: 6450410122277393029
                 format: int64
             message:
                 type: string
                 description: Message of error
-                example: Ipsum voluptatem.
+                example: Quam neque voluptatem.
         description: Package not found
         example:
-            id: 2053981329206736399
-            message: Dolores fugit.
+            id: 1565176107733439410
+            message: Et distinctio vero quis occaecati possimus voluptatem.
         required:
             - message
             - id
@@ -1938,7 +2267,7 @@ definitions:
             fault:
                 type: boolean
                 description: Is the error a server-side fault?
-                example: true
+                example: false
             id:
                 type: string
                 description: ID is a unique identifier for this particular occurrence of the problem.
@@ -1958,15 +2287,15 @@ definitions:
             timeout:
                 type: boolean
                 description: Is the error a timeout?
-                example: true
+                example: false
         description: reject_not_valid_response_body result type (default view)
         example:
-            fault: true
+            fault: false
             id: 123abc
             message: parameter 'p' must be an integer
             name: bad_request
-            temporary: true
-            timeout: false
+            temporary: false
+            timeout: true
         required:
             - name
             - id
@@ -1980,26 +2309,26 @@ definitions:
         properties:
             aip_id:
                 type: string
-                example: Et id.
+                example: Cum alias repellendus minus rerum.
             created_at:
                 type: string
                 description: Creation datetime
-                example: "1972-01-02T02:33:56Z"
+                example: "1991-06-18T10:17:13Z"
                 format: date-time
             location_id:
                 type: string
-                example: Est quos natus unde eum a et.
+                example: Suscipit odit.
             name:
                 type: string
-                example: Laborum sed corrupti non.
+                example: Sed minus.
             object_key:
                 type: string
-                example: Velit architecto dolorum ut rerum eveniet.
+                example: Enim aut vitae asperiores.
             status:
                 type: string
                 description: Status of the package
                 default: unspecified
-                example: unspecified
+                example: rejected
                 enum:
                     - unspecified
                     - in_review
@@ -2008,12 +2337,12 @@ definitions:
                     - moving
         description: A Package describes a package retrieved by the storage service. (default view)
         example:
-            aip_id: Voluptatem id.
-            created_at: "1973-08-14T03:19:06Z"
-            location_id: Sit nostrum.
-            name: Veniam aut qui blanditiis provident.
-            object_key: Commodi dolorem harum autem eum labore tempora.
-            status: stored
+            aip_id: Ipsa dolorem voluptate error iste provident exercitationem.
+            created_at: "1987-10-10T08:20:46Z"
+            location_id: Quidem nihil placeat quia neque eos.
+            name: Magnam et repellendus.
+            object_key: Error expedita et a nulla est nulla.
+            status: unspecified
         required:
             - name
             - aip_id
@@ -2050,11 +2379,11 @@ definitions:
                 example: true
         description: show_not_available_response_body result type (default view)
         example:
-            fault: true
+            fault: false
             id: 123abc
             message: parameter 'p' must be an integer
             name: bad_request
-            temporary: false
+            temporary: true
             timeout: false
         required:
             - name
@@ -2070,16 +2399,16 @@ definitions:
             id:
                 type: integer
                 description: Identifier of missing package
-                example: 4254438110312728870
+                example: 5534796385153871729
                 format: int64
             message:
                 type: string
                 description: Message of error
-                example: Dolor labore quis aut sint recusandae eum.
+                example: Repudiandae rerum.
         description: Package not found
         example:
-            id: 8328444150931638539
-            message: Cumque eius odio eos hic et.
+            id: 15190440469838758850
+            message: Modi et enim.
         required:
             - message
             - id
@@ -2095,25 +2424,25 @@ definitions:
             completed_at:
                 type: string
                 description: Completion datetime
-                example: "2005-12-18T00:52:10Z"
+                example: "1995-08-27T05:41:53Z"
                 format: date-time
             created_at:
                 type: string
                 description: Creation datetime
-                example: "2012-09-24T02:46:57Z"
+                example: "2011-06-21T15:11:13Z"
                 format: date-time
             id:
                 type: integer
                 description: Identifier of package
-                example: 12485308261890840937
+                example: 13481458832632758345
                 format: int64
             location_id:
                 type: string
-                example: Assumenda explicabo adipisci.
+                example: In perferendis maiores aperiam praesentium voluptatum.
             name:
                 type: string
                 description: Name of the package
-                example: Odit alias maxime architecto molestiae.
+                example: Quisquam ratione.
             run_id:
                 type: string
                 description: Identifier of latest processing workflow run
@@ -2122,13 +2451,13 @@ definitions:
             started_at:
                 type: string
                 description: Start datetime
-                example: "2002-10-13T21:13:34Z"
+                example: "2006-11-07T01:19:44Z"
                 format: date-time
             status:
                 type: string
                 description: Status of the package
                 default: new
-                example: queued
+                example: done
                 enum:
                     - new
                     - in progress
@@ -2146,13 +2475,13 @@ definitions:
         description: ShowResponseBody result type (default view)
         example:
             aip_id: 0D4C4E5D-CCD2-045B-C43A-CA2A12989890
-            completed_at: "2004-09-14T05:09:23Z"
-            created_at: "1997-03-03T01:53:29Z"
-            id: 9677173436071635200
-            location_id: Qui odit velit illo.
-            name: Aliquid quia beatae dolorem.
+            completed_at: "1980-07-02T17:39:39Z"
+            created_at: "1973-12-02T23:57:31Z"
+            id: 4659741854196490493
+            location_id: Possimus ut qui voluptatem et maiores voluptas.
+            name: Recusandae debitis ut sint deserunt.
             run_id: 07B1A7F6-0BFE-D016-9174-27BFC402D03B
-            started_at: "2014-08-31T02:28:23Z"
+            started_at: "1997-04-03T01:36:48Z"
             status: abandoned
             workflow_id: 495DB94F-824E-E732-0B4B-502305E4ABA4
         required:
@@ -2166,7 +2495,7 @@ definitions:
             fault:
                 type: boolean
                 description: Is the error a server-side fault?
-                example: false
+                example: true
             id:
                 type: string
                 description: ID is a unique identifier for this particular occurrence of the problem.
@@ -2189,12 +2518,12 @@ definitions:
                 example: true
         description: add_location_not_valid_response_body result type (default view)
         example:
-            fault: true
+            fault: false
             id: 123abc
             message: parameter 'p' must be an integer
             name: bad_request
-            temporary: false
-            timeout: false
+            temporary: true
+            timeout: true
         required:
             - name
             - id
@@ -2229,10 +2558,10 @@ definitions:
                     - Value
             description:
                 type: string
-                example: Necessitatibus odit.
+                example: Blanditiis provident id.
             name:
                 type: string
-                example: Ut excepturi nesciunt.
+                example: Aliquam veniam aut.
             purpose:
                 type: string
                 example: unspecified
@@ -2249,9 +2578,9 @@ definitions:
             config:
                 Type: s3
                 Value: '"JSON"'
-            description: Deserunt officia quia rerum id earum maxime.
-            name: Sit repellendus et suscipit magni.
-            purpose: aip_store
+            description: Eum labore tempora cumque sit.
+            name: Dolorem harum.
+            purpose: unspecified
             source: minio
         required:
             - name
@@ -2263,9 +2592,9 @@ definitions:
         properties:
             uuid:
                 type: string
-                example: Autem aut quis reiciendis corporis.
+                example: Ut culpa.
         example:
-            uuid: Optio possimus id.
+            uuid: Explicabo placeat voluptatem aut.
         required:
             - uuid
     StorageDownloadNotFoundResponseBody:
@@ -2275,15 +2604,15 @@ definitions:
             aip_id:
                 type: string
                 description: Identifier of missing package
-                example: Veritatis impedit.
+                example: Maxime iste dolores.
             message:
                 type: string
                 description: Message of error
-                example: Et sunt perspiciatis sunt inventore.
+                example: Et quia iste perferendis fugit dolorum est.
         description: Storage package not found
         example:
-            aip_id: Nobis sit provident sint enim aut itaque.
-            message: Voluptatibus earum ad praesentium a odio quam.
+            aip_id: Molestiae labore.
+            message: Magnam voluptatem necessitatibus.
         required:
             - message
             - aip_id
@@ -2294,14 +2623,14 @@ definitions:
             message:
                 type: string
                 description: Message of error
-                example: Voluptatem sed.
+                example: Et aut dolorum.
             uuid:
                 type: string
-                example: Iusto doloribus nobis tempore hic dicta facilis.
+                example: Laborum autem.
         description: Storage location not found
         example:
-            message: Molestias beatae et.
-            uuid: Sequi dolores.
+            message: Aliquid sunt error.
+            uuid: Vel consequuntur exercitationem illo perferendis repellat natus.
         required:
             - message
             - uuid
@@ -2328,7 +2657,7 @@ definitions:
             temporary:
                 type: boolean
                 description: Is the error temporary?
-                example: true
+                example: false
             timeout:
                 type: boolean
                 description: Is the error a timeout?
@@ -2339,7 +2668,7 @@ definitions:
             id: 123abc
             message: parameter 'p' must be an integer
             name: bad_request
-            temporary: false
+            temporary: true
             timeout: false
         required:
             - name
@@ -2355,30 +2684,24 @@ definitions:
             $ref: '#/definitions/LocationResponse'
         description: LocationsResponseBody is the result type for an array of LocationResponse (default view)
         example:
-            - created_at: "1986-11-11T02:54:34Z"
-              description: Officia voluptate.
-              name: Cumque qui facilis omnis.
-              purpose: unspecified
+            - created_at: "1986-02-20T23:26:17Z"
+              description: Voluptatem eum in quas beatae ex voluptatum.
+              name: Ipsa minus voluptatem facere.
+              purpose: aip_store
               source: unspecified
-              uuid: Est qui cum nihil quis.
-            - created_at: "1986-11-11T02:54:34Z"
-              description: Officia voluptate.
-              name: Cumque qui facilis omnis.
-              purpose: unspecified
+              uuid: Numquam enim est dolore dolorum rem.
+            - created_at: "1986-02-20T23:26:17Z"
+              description: Voluptatem eum in quas beatae ex voluptatum.
+              name: Ipsa minus voluptatem facere.
+              purpose: aip_store
               source: unspecified
-              uuid: Est qui cum nihil quis.
-            - created_at: "1986-11-11T02:54:34Z"
-              description: Officia voluptate.
-              name: Cumque qui facilis omnis.
-              purpose: unspecified
+              uuid: Numquam enim est dolore dolorum rem.
+            - created_at: "1986-02-20T23:26:17Z"
+              description: Voluptatem eum in quas beatae ex voluptatum.
+              name: Ipsa minus voluptatem facere.
+              purpose: aip_store
               source: unspecified
-              uuid: Est qui cum nihil quis.
-            - created_at: "1986-11-11T02:54:34Z"
-              description: Officia voluptate.
-              name: Cumque qui facilis omnis.
-              purpose: unspecified
-              source: unspecified
-              uuid: Est qui cum nihil quis.
+              uuid: Numquam enim est dolore dolorum rem.
     StorageMoveNotAvailableResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
@@ -2413,7 +2736,7 @@ definitions:
             id: 123abc
             message: parameter 'p' must be an integer
             name: bad_request
-            temporary: false
+            temporary: true
             timeout: true
         required:
             - name
@@ -2429,15 +2752,15 @@ definitions:
             aip_id:
                 type: string
                 description: Identifier of missing package
-                example: Et veniam quidem aut maiores explicabo.
+                example: Repudiandae dolores.
             message:
                 type: string
                 description: Message of error
-                example: Distinctio debitis sed.
+                example: Est sapiente explicabo assumenda sequi quas.
         description: Storage package not found
         example:
-            aip_id: Animi consequatur voluptate aspernatur perspiciatis.
-            message: Sed deleniti possimus ut.
+            aip_id: Sit minus repellat inventore culpa qui sapiente.
+            message: Unde est provident sint at modi est.
         required:
             - message
             - aip_id
@@ -2471,12 +2794,12 @@ definitions:
                 example: true
         description: move_not_valid_response_body result type (default view)
         example:
-            fault: false
+            fault: true
             id: 123abc
             message: parameter 'p' must be an integer
             name: bad_request
             temporary: false
-            timeout: false
+            timeout: true
         required:
             - name
             - id
@@ -2490,9 +2813,9 @@ definitions:
         properties:
             location_id:
                 type: string
-                example: Eum voluptatem.
+                example: Sint dolorum.
         example:
-            location_id: Iure inventore assumenda laboriosam.
+            location_id: Atque consequuntur atque.
         required:
             - location_id
     StorageMoveStatusFailedDependencyResponseBody:
@@ -2502,7 +2825,7 @@ definitions:
             fault:
                 type: boolean
                 description: Is the error a server-side fault?
-                example: false
+                example: true
             id:
                 type: string
                 description: ID is a unique identifier for this particular occurrence of the problem.
@@ -2522,14 +2845,14 @@ definitions:
             timeout:
                 type: boolean
                 description: Is the error a timeout?
-                example: true
+                example: false
         description: move_status_failed_dependency_response_body result type (default view)
         example:
             fault: true
             id: 123abc
             message: parameter 'p' must be an integer
             name: bad_request
-            temporary: false
+            temporary: true
             timeout: false
         required:
             - name
@@ -2545,15 +2868,15 @@ definitions:
             aip_id:
                 type: string
                 description: Identifier of missing package
-                example: Pariatur quis voluptatem.
+                example: Molestias beatae et.
             message:
                 type: string
                 description: Message of error
-                example: Nobis et et ad unde.
+                example: Iusto doloribus nobis tempore hic dicta facilis.
         description: Storage package not found
         example:
-            aip_id: Dolores qui et natus vero architecto.
-            message: Sequi voluptas sed.
+            aip_id: Sit et voluptatem nobis autem voluptate.
+            message: Sequi dolores.
         required:
             - message
             - aip_id
@@ -2563,9 +2886,9 @@ definitions:
         properties:
             done:
                 type: boolean
-                example: false
+                example: true
         example:
-            done: false
+            done: true
         required:
             - done
     StoragePackageResponseCollection:
@@ -2575,18 +2898,24 @@ definitions:
             $ref: '#/definitions/PackageResponse'
         description: location_packages_response_body is the result type for an array of PackageResponse (default view)
         example:
-            - aip_id: Sit rerum molestias harum aut enim quis.
-              created_at: "1996-02-25T23:56:45Z"
-              location_id: Aut deserunt nostrum architecto sed.
-              name: Quis officiis amet recusandae est sint.
-              object_key: Laudantium harum sunt.
-              status: stored
-            - aip_id: Sit rerum molestias harum aut enim quis.
-              created_at: "1996-02-25T23:56:45Z"
-              location_id: Aut deserunt nostrum architecto sed.
-              name: Quis officiis amet recusandae est sint.
-              object_key: Laudantium harum sunt.
-              status: stored
+            - aip_id: Quo enim ab vel sunt velit.
+              created_at: "2005-03-30T19:55:01Z"
+              location_id: Nam et rem.
+              name: Nobis aspernatur.
+              object_key: Tenetur sed occaecati quod qui ratione.
+              status: unspecified
+            - aip_id: Quo enim ab vel sunt velit.
+              created_at: "2005-03-30T19:55:01Z"
+              location_id: Nam et rem.
+              name: Nobis aspernatur.
+              object_key: Tenetur sed occaecati quod qui ratione.
+              status: unspecified
+            - aip_id: Quo enim ab vel sunt velit.
+              created_at: "2005-03-30T19:55:01Z"
+              location_id: Nam et rem.
+              name: Nobis aspernatur.
+              object_key: Tenetur sed occaecati quod qui ratione.
+              status: unspecified
     StorageRejectNotAvailableResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
@@ -2610,19 +2939,19 @@ definitions:
             temporary:
                 type: boolean
                 description: Is the error temporary?
-                example: false
+                example: true
             timeout:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
         description: reject_not_available_response_body result type (default view)
         example:
-            fault: false
+            fault: true
             id: 123abc
             message: parameter 'p' must be an integer
             name: bad_request
             temporary: false
-            timeout: false
+            timeout: true
         required:
             - name
             - id
@@ -2637,15 +2966,15 @@ definitions:
             aip_id:
                 type: string
                 description: Identifier of missing package
-                example: Rerum sint ducimus aliquam.
+                example: Consequuntur quis.
             message:
                 type: string
                 description: Message of error
-                example: Itaque et sit error.
+                example: Rerum et distinctio illum voluptas vel nesciunt.
         description: Storage package not found
         example:
-            aip_id: Vitae incidunt rem.
-            message: Ab quo.
+            aip_id: Illo ducimus et deleniti.
+            message: Ut at beatae.
         required:
             - message
             - aip_id
@@ -2676,7 +3005,7 @@ definitions:
             timeout:
                 type: boolean
                 description: Is the error a timeout?
-                example: false
+                example: true
         description: reject_not_valid_response_body result type (default view)
         example:
             fault: false
@@ -2684,7 +3013,7 @@ definitions:
             message: parameter 'p' must be an integer
             name: bad_request
             temporary: false
-            timeout: false
+            timeout: true
         required:
             - name
             - id
@@ -2699,14 +3028,14 @@ definitions:
             message:
                 type: string
                 description: Message of error
-                example: Et voluptatem et laboriosam.
+                example: Impedit quam magnam.
             uuid:
                 type: string
-                example: Aut ut.
+                example: Modi distinctio error et.
         description: Storage location not found
         example:
-            message: Dolorum et et in eaque id qui.
-            uuid: Sequi minus ratione velit.
+            message: Quos est recusandae et voluptates et.
+            uuid: Dolorem molestias fugit eaque occaecati.
         required:
             - message
             - uuid
@@ -2717,16 +3046,16 @@ definitions:
             created_at:
                 type: string
                 description: Creation datetime
-                example: "1987-10-23T10:49:16Z"
+                example: "1980-09-23T20:58:12Z"
                 format: date-time
             description:
                 type: string
                 description: Description of the location
-                example: Aperiam architecto magnam.
+                example: Eligendi in dolor in vero adipisci sed.
             name:
                 type: string
                 description: Name of location
-                example: Assumenda sit sed suscipit recusandae.
+                example: Possimus quia deleniti.
             purpose:
                 type: string
                 description: Purpose of the location
@@ -2745,15 +3074,15 @@ definitions:
                     - minio
             uuid:
                 type: string
-                example: In saepe maiores sed expedita consequatur eaque.
+                example: Eius neque omnis soluta laudantium delectus nisi.
         description: show_location_response_body result type (default view)
         example:
-            created_at: "2007-06-15T15:07:34Z"
-            description: Necessitatibus culpa molestiae labore iure eos.
-            name: Rerum magnam.
+            created_at: "1979-08-19T05:52:23Z"
+            description: Debitis et ipsam.
+            name: Laborum dolor velit.
             purpose: unspecified
             source: unspecified
-            uuid: Nostrum dignissimos ut.
+            uuid: Earum sint et praesentium quidem.
         required:
             - name
             - source
@@ -2767,15 +3096,15 @@ definitions:
             aip_id:
                 type: string
                 description: Identifier of missing package
-                example: Quidem ut sit vitae.
+                example: In cupiditate et cumque cupiditate aut explicabo.
             message:
                 type: string
                 description: Message of error
-                example: Non earum.
+                example: Et dolor deleniti veritatis.
         description: Storage package not found
         example:
-            aip_id: Et voluptatem enim dolorem.
-            message: Voluptatem corporis.
+            aip_id: Autem excepturi quis.
+            message: Sit voluptas odit ut autem voluptas.
         required:
             - message
             - aip_id
@@ -2785,26 +3114,26 @@ definitions:
         properties:
             aip_id:
                 type: string
-                example: Qui sit consequuntur sed doloremque.
+                example: Est autem magnam porro in.
             created_at:
                 type: string
                 description: Creation datetime
-                example: "1985-01-03T05:37:56Z"
+                example: "2004-03-10T09:15:18Z"
                 format: date-time
             location_id:
                 type: string
-                example: Nisi in vel sed ratione.
+                example: Provident hic aut quod.
             name:
                 type: string
-                example: Veritatis assumenda unde nam voluptatem nemo cumque.
+                example: Tenetur iste numquam rem quo eligendi.
             object_key:
                 type: string
-                example: Debitis quod distinctio ratione culpa.
+                example: Architecto non repudiandae neque dolorem rerum.
             status:
                 type: string
                 description: Status of the package
                 default: unspecified
-                example: in_review
+                example: rejected
                 enum:
                     - unspecified
                     - in_review
@@ -2813,12 +3142,12 @@ definitions:
                     - moving
         description: ShowResponseBody result type (default view)
         example:
-            aip_id: Neque voluptatem porro omnis et distinctio vero.
-            created_at: "2002-06-11T02:25:53Z"
-            location_id: Nobis maiores commodi odit iure unde.
-            name: Omnis neque recusandae et perferendis vel.
-            object_key: Possimus voluptatem.
-            status: in_review
+            aip_id: Qui et et et voluptas perspiciatis ullam.
+            created_at: "1977-09-09T15:07:17Z"
+            location_id: Maxime et aut fuga ut.
+            name: Aut consequatur enim.
+            object_key: Vero ratione.
+            status: unspecified
         required:
             - name
             - aip_id
@@ -2832,7 +3161,7 @@ definitions:
             fault:
                 type: boolean
                 description: Is the error a server-side fault?
-                example: false
+                example: true
             id:
                 type: string
                 description: ID is a unique identifier for this particular occurrence of the problem.
@@ -2848,7 +3177,7 @@ definitions:
             temporary:
                 type: boolean
                 description: Is the error temporary?
-                example: true
+                example: false
             timeout:
                 type: boolean
                 description: Is the error a timeout?
@@ -2860,7 +3189,7 @@ definitions:
             message: parameter 'p' must be an integer
             name: bad_request
             temporary: true
-            timeout: false
+            timeout: true
         required:
             - name
             - id
@@ -2875,7 +3204,7 @@ definitions:
             fault:
                 type: boolean
                 description: Is the error a server-side fault?
-                example: true
+                example: false
             id:
                 type: string
                 description: ID is a unique identifier for this particular occurrence of the problem.
@@ -2903,7 +3232,7 @@ definitions:
             message: parameter 'p' must be an integer
             name: bad_request
             temporary: false
-            timeout: false
+            timeout: true
         required:
             - name
             - id
@@ -2917,9 +3246,9 @@ definitions:
         properties:
             name:
                 type: string
-                example: Et aliquam.
+                example: Ea doloremque odio non facere sint.
         example:
-            name: Commodi quis atque omnis pariatur alias cum.
+            name: Repudiandae expedita suscipit.
         required:
             - name
     StorageSubmitResponseBody:
@@ -2928,9 +3257,9 @@ definitions:
         properties:
             url:
                 type: string
-                example: Id possimus.
+                example: Suscipit recusandae velit aperiam architecto magnam et.
         example:
-            url: Et delectus necessitatibus veritatis veniam.
+            url: Dolorem in saepe maiores sed.
         required:
             - url
     StorageUpdateNotAvailableResponseBody:
@@ -2960,15 +3289,15 @@ definitions:
             timeout:
                 type: boolean
                 description: Is the error a timeout?
-                example: true
+                example: false
         description: update_not_available_response_body result type (default view)
         example:
-            fault: true
+            fault: false
             id: 123abc
             message: parameter 'p' must be an integer
             name: bad_request
             temporary: true
-            timeout: false
+            timeout: true
         required:
             - name
             - id
@@ -2983,7 +3312,7 @@ definitions:
             fault:
                 type: boolean
                 description: Is the error a server-side fault?
-                example: true
+                example: false
             id:
                 type: string
                 description: ID is a unique identifier for this particular occurrence of the problem.
@@ -2999,14 +3328,14 @@ definitions:
             temporary:
                 type: boolean
                 description: Is the error temporary?
-                example: true
+                example: false
             timeout:
                 type: boolean
                 description: Is the error a timeout?
-                example: true
+                example: false
         description: update_not_valid_response_body result type (default view)
         example:
-            fault: false
+            fault: true
             id: 123abc
             message: parameter 'p' must be an integer
             name: bad_request
@@ -3049,12 +3378,12 @@ definitions:
                 example: false
         description: Fault while processing upload. (default view)
         example:
-            fault: true
+            fault: false
             id: 123abc
             message: parameter 'p' must be an integer
             name: bad_request
             temporary: true
-            timeout: true
+            timeout: false
         required:
             - name
             - id
@@ -3089,7 +3418,7 @@ definitions:
             timeout:
                 type: boolean
                 description: Is the error a timeout?
-                example: true
+                example: false
         description: Error returned when the Content-Type header does not define a multipart request. (default view)
         example:
             fault: false
@@ -3112,7 +3441,7 @@ definitions:
             fault:
                 type: boolean
                 description: Is the error a server-side fault?
-                example: true
+                example: false
             id:
                 type: string
                 description: ID is a unique identifier for this particular occurrence of the problem.
@@ -3128,7 +3457,7 @@ definitions:
             temporary:
                 type: boolean
                 description: Is the error temporary?
-                example: true
+                example: false
             timeout:
                 type: boolean
                 description: Is the error a timeout?
@@ -3139,8 +3468,8 @@ definitions:
             id: 123abc
             message: parameter 'p' must be an integer
             name: bad_request
-            temporary: true
-            timeout: false
+            temporary: false
+            timeout: true
         required:
             - name
             - id
@@ -3148,3 +3477,9 @@ definitions:
             - temporary
             - timeout
             - fault
+securityDefinitions:
+    oauth2_header_Authorization:
+        type: oauth2
+        description: Secures endpoints by requiring a valid OAuth2 access token.
+        flow: application
+        tokenUrl: /oauth2/token

@@ -21,6 +21,7 @@ import (
 // Server lists the package service endpoint HTTP handlers.
 type Server struct {
 	Mounts              []*MountPoint
+	MonitorRequest      http.Handler
 	Monitor             http.Handler
 	List                http.Handler
 	Show                http.Handler
@@ -70,6 +71,7 @@ func New(
 	}
 	return &Server{
 		Mounts: []*MountPoint{
+			{"MonitorRequest", "POST", "/package/monitor"},
 			{"Monitor", "GET", "/package/monitor"},
 			{"List", "GET", "/package"},
 			{"Show", "GET", "/package/{id}"},
@@ -86,6 +88,7 @@ func New(
 			{"CORS", "OPTIONS", "/package/{id}/reject"},
 			{"CORS", "OPTIONS", "/package/{id}/move"},
 		},
+		MonitorRequest:      NewMonitorRequestHandler(e.MonitorRequest, mux, decoder, encoder, errhandler, formatter),
 		Monitor:             NewMonitorHandler(e.Monitor, mux, decoder, encoder, errhandler, formatter, upgrader, configurer.MonitorFn),
 		List:                NewListHandler(e.List, mux, decoder, encoder, errhandler, formatter),
 		Show:                NewShowHandler(e.Show, mux, decoder, encoder, errhandler, formatter),
@@ -103,6 +106,7 @@ func (s *Server) Service() string { return "package" }
 
 // Use wraps the server handlers with the given middleware.
 func (s *Server) Use(m func(http.Handler) http.Handler) {
+	s.MonitorRequest = m(s.MonitorRequest)
 	s.Monitor = m(s.Monitor)
 	s.List = m(s.List)
 	s.Show = m(s.Show)
@@ -116,6 +120,7 @@ func (s *Server) Use(m func(http.Handler) http.Handler) {
 
 // Mount configures the mux to serve the package endpoints.
 func Mount(mux goahttp.Muxer, h *Server) {
+	MountMonitorRequestHandler(mux, h.MonitorRequest)
 	MountMonitorHandler(mux, h.Monitor)
 	MountListHandler(mux, h.List)
 	MountShowHandler(mux, h.Show)
@@ -130,6 +135,57 @@ func Mount(mux goahttp.Muxer, h *Server) {
 // Mount configures the mux to serve the package endpoints.
 func (s *Server) Mount(mux goahttp.Muxer) {
 	Mount(mux, s)
+}
+
+// MountMonitorRequestHandler configures the mux to serve the "package" service
+// "monitor_request" endpoint.
+func MountMonitorRequestHandler(mux goahttp.Muxer, h http.Handler) {
+	f, ok := HandlePackageOrigin(h).(http.HandlerFunc)
+	if !ok {
+		f = func(w http.ResponseWriter, r *http.Request) {
+			h.ServeHTTP(w, r)
+		}
+	}
+	mux.Handle("POST", "/package/monitor", f)
+}
+
+// NewMonitorRequestHandler creates a HTTP handler which loads the HTTP request
+// and calls the "package" service "monitor_request" endpoint.
+func NewMonitorRequestHandler(
+	endpoint goa.Endpoint,
+	mux goahttp.Muxer,
+	decoder func(*http.Request) goahttp.Decoder,
+	encoder func(context.Context, http.ResponseWriter) goahttp.Encoder,
+	errhandler func(context.Context, http.ResponseWriter, error),
+	formatter func(err error) goahttp.Statuser,
+) http.Handler {
+	var (
+		decodeRequest  = DecodeMonitorRequestRequest(mux, decoder)
+		encodeResponse = EncodeMonitorRequestResponse(encoder)
+		encodeError    = EncodeMonitorRequestError(encoder, formatter)
+	)
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
+		ctx = context.WithValue(ctx, goa.MethodKey, "monitor_request")
+		ctx = context.WithValue(ctx, goa.ServiceKey, "package")
+		payload, err := decodeRequest(r)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		res, err := endpoint(ctx, payload)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		if err := encodeResponse(ctx, w, res); err != nil {
+			errhandler(ctx, w, err)
+		}
+	})
 }
 
 // MountMonitorHandler configures the mux to serve the "package" service
@@ -157,13 +213,20 @@ func NewMonitorHandler(
 	configurer goahttp.ConnConfigureFunc,
 ) http.Handler {
 	var (
-		encodeError = goahttp.ErrorEncoder(encoder, formatter)
+		decodeRequest = DecodeMonitorRequest(mux, decoder)
+		encodeError   = EncodeMonitorError(encoder, formatter)
 	)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
 		ctx = context.WithValue(ctx, goa.MethodKey, "monitor")
 		ctx = context.WithValue(ctx, goa.ServiceKey, "package")
-		var err error
+		payload, err := decodeRequest(r)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
 		var cancel context.CancelFunc
 		ctx, cancel = context.WithCancel(ctx)
 		v := &package_.MonitorEndpointInput{
@@ -174,6 +237,7 @@ func NewMonitorHandler(
 				w:          w,
 				r:          r,
 			},
+			Payload: payload.(*package_.MonitorPayload),
 		}
 		_, err = endpoint(ctx, v)
 		if err != nil {
@@ -215,7 +279,7 @@ func NewListHandler(
 	var (
 		decodeRequest  = DecodeListRequest(mux, decoder)
 		encodeResponse = EncodeListResponse(encoder)
-		encodeError    = goahttp.ErrorEncoder(encoder, formatter)
+		encodeError    = EncodeListError(encoder, formatter)
 	)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))

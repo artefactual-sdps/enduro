@@ -12,6 +12,7 @@ import (
 	"context"
 
 	goa "goa.design/goa/v3/pkg"
+	"goa.design/goa/v3/security"
 )
 
 // Endpoints wraps the "storage" service endpoints.
@@ -31,18 +32,20 @@ type Endpoints struct {
 
 // NewEndpoints wraps the methods of the "storage" service with endpoints.
 func NewEndpoints(s Service) *Endpoints {
+	// Casting service to Auther interface
+	a := s.(Auther)
 	return &Endpoints{
-		Submit:           NewSubmitEndpoint(s),
-		Update:           NewUpdateEndpoint(s),
-		Download:         NewDownloadEndpoint(s),
-		Locations:        NewLocationsEndpoint(s),
-		AddLocation:      NewAddLocationEndpoint(s),
-		Move:             NewMoveEndpoint(s),
-		MoveStatus:       NewMoveStatusEndpoint(s),
-		Reject:           NewRejectEndpoint(s),
-		Show:             NewShowEndpoint(s),
-		ShowLocation:     NewShowLocationEndpoint(s),
-		LocationPackages: NewLocationPackagesEndpoint(s),
+		Submit:           NewSubmitEndpoint(s, a.OAuth2Auth),
+		Update:           NewUpdateEndpoint(s, a.OAuth2Auth),
+		Download:         NewDownloadEndpoint(s, a.OAuth2Auth),
+		Locations:        NewLocationsEndpoint(s, a.OAuth2Auth),
+		AddLocation:      NewAddLocationEndpoint(s, a.OAuth2Auth),
+		Move:             NewMoveEndpoint(s, a.OAuth2Auth),
+		MoveStatus:       NewMoveStatusEndpoint(s, a.OAuth2Auth),
+		Reject:           NewRejectEndpoint(s, a.OAuth2Auth),
+		Show:             NewShowEndpoint(s, a.OAuth2Auth),
+		ShowLocation:     NewShowLocationEndpoint(s, a.OAuth2Auth),
+		LocationPackages: NewLocationPackagesEndpoint(s, a.OAuth2Auth),
 	}
 }
 
@@ -63,36 +66,121 @@ func (e *Endpoints) Use(m func(goa.Endpoint) goa.Endpoint) {
 
 // NewSubmitEndpoint returns an endpoint function that calls the method
 // "submit" of service "storage".
-func NewSubmitEndpoint(s Service) goa.Endpoint {
+func NewSubmitEndpoint(s Service, authOAuth2Fn security.AuthOAuth2Func) goa.Endpoint {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
 		p := req.(*SubmitPayload)
+		var err error
+		sc := security.OAuth2Scheme{
+			Name:           "oauth2",
+			Scopes:         []string{},
+			RequiredScopes: []string{},
+			Flows: []*security.OAuthFlow{
+				&security.OAuthFlow{
+					Type:       "client_credentials",
+					TokenURL:   "/oauth2/token",
+					RefreshURL: "/oauth2/refresh",
+				},
+			},
+		}
+		var token string
+		if p.OauthToken != nil {
+			token = *p.OauthToken
+		}
+		ctx, err = authOAuth2Fn(ctx, token, &sc)
+		if err != nil {
+			return nil, err
+		}
 		return s.Submit(ctx, p)
 	}
 }
 
 // NewUpdateEndpoint returns an endpoint function that calls the method
 // "update" of service "storage".
-func NewUpdateEndpoint(s Service) goa.Endpoint {
+func NewUpdateEndpoint(s Service, authOAuth2Fn security.AuthOAuth2Func) goa.Endpoint {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
 		p := req.(*UpdatePayload)
+		var err error
+		sc := security.OAuth2Scheme{
+			Name:           "oauth2",
+			Scopes:         []string{},
+			RequiredScopes: []string{},
+			Flows: []*security.OAuthFlow{
+				&security.OAuthFlow{
+					Type:       "client_credentials",
+					TokenURL:   "/oauth2/token",
+					RefreshURL: "/oauth2/refresh",
+				},
+			},
+		}
+		var token string
+		if p.OauthToken != nil {
+			token = *p.OauthToken
+		}
+		ctx, err = authOAuth2Fn(ctx, token, &sc)
+		if err != nil {
+			return nil, err
+		}
 		return nil, s.Update(ctx, p)
 	}
 }
 
 // NewDownloadEndpoint returns an endpoint function that calls the method
 // "download" of service "storage".
-func NewDownloadEndpoint(s Service) goa.Endpoint {
+func NewDownloadEndpoint(s Service, authOAuth2Fn security.AuthOAuth2Func) goa.Endpoint {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
 		p := req.(*DownloadPayload)
+		var err error
+		sc := security.OAuth2Scheme{
+			Name:           "oauth2",
+			Scopes:         []string{},
+			RequiredScopes: []string{},
+			Flows: []*security.OAuthFlow{
+				&security.OAuthFlow{
+					Type:       "client_credentials",
+					TokenURL:   "/oauth2/token",
+					RefreshURL: "/oauth2/refresh",
+				},
+			},
+		}
+		var token string
+		if p.OauthToken != nil {
+			token = *p.OauthToken
+		}
+		ctx, err = authOAuth2Fn(ctx, token, &sc)
+		if err != nil {
+			return nil, err
+		}
 		return s.Download(ctx, p)
 	}
 }
 
 // NewLocationsEndpoint returns an endpoint function that calls the method
 // "locations" of service "storage".
-func NewLocationsEndpoint(s Service) goa.Endpoint {
+func NewLocationsEndpoint(s Service, authOAuth2Fn security.AuthOAuth2Func) goa.Endpoint {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
-		res, err := s.Locations(ctx)
+		p := req.(*LocationsPayload)
+		var err error
+		sc := security.OAuth2Scheme{
+			Name:           "oauth2",
+			Scopes:         []string{},
+			RequiredScopes: []string{},
+			Flows: []*security.OAuthFlow{
+				&security.OAuthFlow{
+					Type:       "client_credentials",
+					TokenURL:   "/oauth2/token",
+					RefreshURL: "/oauth2/refresh",
+				},
+			},
+		}
+		var token string
+		if p.OauthToken != nil {
+			token = *p.OauthToken
+		}
+		ctx, err = authOAuth2Fn(ctx, token, &sc)
+		if err != nil {
+			return nil, err
+		}
+		res, err := s.Locations(ctx, p)
 		if err != nil {
 			return nil, err
 		}
@@ -103,45 +191,150 @@ func NewLocationsEndpoint(s Service) goa.Endpoint {
 
 // NewAddLocationEndpoint returns an endpoint function that calls the method
 // "add_location" of service "storage".
-func NewAddLocationEndpoint(s Service) goa.Endpoint {
+func NewAddLocationEndpoint(s Service, authOAuth2Fn security.AuthOAuth2Func) goa.Endpoint {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
 		p := req.(*AddLocationPayload)
+		var err error
+		sc := security.OAuth2Scheme{
+			Name:           "oauth2",
+			Scopes:         []string{},
+			RequiredScopes: []string{},
+			Flows: []*security.OAuthFlow{
+				&security.OAuthFlow{
+					Type:       "client_credentials",
+					TokenURL:   "/oauth2/token",
+					RefreshURL: "/oauth2/refresh",
+				},
+			},
+		}
+		var token string
+		if p.OauthToken != nil {
+			token = *p.OauthToken
+		}
+		ctx, err = authOAuth2Fn(ctx, token, &sc)
+		if err != nil {
+			return nil, err
+		}
 		return s.AddLocation(ctx, p)
 	}
 }
 
 // NewMoveEndpoint returns an endpoint function that calls the method "move" of
 // service "storage".
-func NewMoveEndpoint(s Service) goa.Endpoint {
+func NewMoveEndpoint(s Service, authOAuth2Fn security.AuthOAuth2Func) goa.Endpoint {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
 		p := req.(*MovePayload)
+		var err error
+		sc := security.OAuth2Scheme{
+			Name:           "oauth2",
+			Scopes:         []string{},
+			RequiredScopes: []string{},
+			Flows: []*security.OAuthFlow{
+				&security.OAuthFlow{
+					Type:       "client_credentials",
+					TokenURL:   "/oauth2/token",
+					RefreshURL: "/oauth2/refresh",
+				},
+			},
+		}
+		var token string
+		if p.OauthToken != nil {
+			token = *p.OauthToken
+		}
+		ctx, err = authOAuth2Fn(ctx, token, &sc)
+		if err != nil {
+			return nil, err
+		}
 		return nil, s.Move(ctx, p)
 	}
 }
 
 // NewMoveStatusEndpoint returns an endpoint function that calls the method
 // "move_status" of service "storage".
-func NewMoveStatusEndpoint(s Service) goa.Endpoint {
+func NewMoveStatusEndpoint(s Service, authOAuth2Fn security.AuthOAuth2Func) goa.Endpoint {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
 		p := req.(*MoveStatusPayload)
+		var err error
+		sc := security.OAuth2Scheme{
+			Name:           "oauth2",
+			Scopes:         []string{},
+			RequiredScopes: []string{},
+			Flows: []*security.OAuthFlow{
+				&security.OAuthFlow{
+					Type:       "client_credentials",
+					TokenURL:   "/oauth2/token",
+					RefreshURL: "/oauth2/refresh",
+				},
+			},
+		}
+		var token string
+		if p.OauthToken != nil {
+			token = *p.OauthToken
+		}
+		ctx, err = authOAuth2Fn(ctx, token, &sc)
+		if err != nil {
+			return nil, err
+		}
 		return s.MoveStatus(ctx, p)
 	}
 }
 
 // NewRejectEndpoint returns an endpoint function that calls the method
 // "reject" of service "storage".
-func NewRejectEndpoint(s Service) goa.Endpoint {
+func NewRejectEndpoint(s Service, authOAuth2Fn security.AuthOAuth2Func) goa.Endpoint {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
 		p := req.(*RejectPayload)
+		var err error
+		sc := security.OAuth2Scheme{
+			Name:           "oauth2",
+			Scopes:         []string{},
+			RequiredScopes: []string{},
+			Flows: []*security.OAuthFlow{
+				&security.OAuthFlow{
+					Type:       "client_credentials",
+					TokenURL:   "/oauth2/token",
+					RefreshURL: "/oauth2/refresh",
+				},
+			},
+		}
+		var token string
+		if p.OauthToken != nil {
+			token = *p.OauthToken
+		}
+		ctx, err = authOAuth2Fn(ctx, token, &sc)
+		if err != nil {
+			return nil, err
+		}
 		return nil, s.Reject(ctx, p)
 	}
 }
 
 // NewShowEndpoint returns an endpoint function that calls the method "show" of
 // service "storage".
-func NewShowEndpoint(s Service) goa.Endpoint {
+func NewShowEndpoint(s Service, authOAuth2Fn security.AuthOAuth2Func) goa.Endpoint {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
 		p := req.(*ShowPayload)
+		var err error
+		sc := security.OAuth2Scheme{
+			Name:           "oauth2",
+			Scopes:         []string{},
+			RequiredScopes: []string{},
+			Flows: []*security.OAuthFlow{
+				&security.OAuthFlow{
+					Type:       "client_credentials",
+					TokenURL:   "/oauth2/token",
+					RefreshURL: "/oauth2/refresh",
+				},
+			},
+		}
+		var token string
+		if p.OauthToken != nil {
+			token = *p.OauthToken
+		}
+		ctx, err = authOAuth2Fn(ctx, token, &sc)
+		if err != nil {
+			return nil, err
+		}
 		res, err := s.Show(ctx, p)
 		if err != nil {
 			return nil, err
@@ -153,9 +346,30 @@ func NewShowEndpoint(s Service) goa.Endpoint {
 
 // NewShowLocationEndpoint returns an endpoint function that calls the method
 // "show_location" of service "storage".
-func NewShowLocationEndpoint(s Service) goa.Endpoint {
+func NewShowLocationEndpoint(s Service, authOAuth2Fn security.AuthOAuth2Func) goa.Endpoint {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
 		p := req.(*ShowLocationPayload)
+		var err error
+		sc := security.OAuth2Scheme{
+			Name:           "oauth2",
+			Scopes:         []string{},
+			RequiredScopes: []string{},
+			Flows: []*security.OAuthFlow{
+				&security.OAuthFlow{
+					Type:       "client_credentials",
+					TokenURL:   "/oauth2/token",
+					RefreshURL: "/oauth2/refresh",
+				},
+			},
+		}
+		var token string
+		if p.OauthToken != nil {
+			token = *p.OauthToken
+		}
+		ctx, err = authOAuth2Fn(ctx, token, &sc)
+		if err != nil {
+			return nil, err
+		}
 		res, err := s.ShowLocation(ctx, p)
 		if err != nil {
 			return nil, err
@@ -167,9 +381,30 @@ func NewShowLocationEndpoint(s Service) goa.Endpoint {
 
 // NewLocationPackagesEndpoint returns an endpoint function that calls the
 // method "location_packages" of service "storage".
-func NewLocationPackagesEndpoint(s Service) goa.Endpoint {
+func NewLocationPackagesEndpoint(s Service, authOAuth2Fn security.AuthOAuth2Func) goa.Endpoint {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
 		p := req.(*LocationPackagesPayload)
+		var err error
+		sc := security.OAuth2Scheme{
+			Name:           "oauth2",
+			Scopes:         []string{},
+			RequiredScopes: []string{},
+			Flows: []*security.OAuthFlow{
+				&security.OAuthFlow{
+					Type:       "client_credentials",
+					TokenURL:   "/oauth2/token",
+					RefreshURL: "/oauth2/refresh",
+				},
+			},
+		}
+		var token string
+		if p.OauthToken != nil {
+			token = *p.OauthToken
+		}
+		ctx, err = authOAuth2Fn(ctx, token, &sc)
+		if err != nil {
+			return nil, err
+		}
 		res, err := s.LocationPackages(ctx, p)
 		if err != nil {
 			return nil, err

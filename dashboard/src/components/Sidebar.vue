@@ -1,7 +1,12 @@
 <script setup lang="ts">
 import { useLayoutStore } from "@/stores/layout";
+import Collapse from "bootstrap/js/dist/collapse";
+import { onMounted } from "vue";
 import RawIconBundleLine from "~icons/clarity/bundle-line?raw&width=2em&height=2em";
+import IconCaretLine from "~icons/clarity/caret-line";
+import RawIconLogoutLine from "~icons/clarity/logout-line?raw&width=2em&height=2em";
 import RawIconRackServerLine from "~icons/clarity/rack-server-line?raw&width=2em&height=2em";
+import RawIconUserSolid from "~icons/clarity/user-solid?raw&width=2em&height=2em";
 
 const menuItems = [
   { routeName: "packages", icon: RawIconBundleLine, text: "Packages" },
@@ -9,6 +14,11 @@ const menuItems = [
 ];
 
 const layoutStore = useLayoutStore();
+
+const collapse = $ref<HTMLElement | null>(null);
+onMounted(() => {
+  if (collapse) new Collapse(collapse);
+});
 </script>
 
 <template>
@@ -30,8 +40,11 @@ const layoutStore = useLayoutStore();
         aria-label="Close"
       ></button>
     </div>
-    <div class="offcanvas-body d-flex flex-column flex-grow-1 pt-0">
-      <nav aria-labelledby="offcanvasLabel">
+    <div class="offcanvas-body d-flex flex-grow-1 py-0">
+      <nav
+        aria-labelledby="offcanvasLabel"
+        class="flex-grow-1 d-flex flex-column"
+      >
         <ul class="list-unstyled flex-grow-1 mb-0">
           <li v-for="item in menuItems">
             <router-link
@@ -67,6 +80,80 @@ const layoutStore = useLayoutStore();
             >
           </li>
         </ul>
+        <button
+          ref="collapse"
+          type="button"
+          id="user-menu-button"
+          class="btn btn-link d-block p-0 py-3 text-decoration-none text-dark sidebar-link rounded-0 collapsed border-top"
+          data-bs-toggle="collapse"
+          data-bs-target="#user-menu"
+          aria-expanded="false"
+          aria-controls="user-menu"
+        >
+          <div class="container-fluid">
+            <div class="row">
+              <div
+                class="d-flex p-0 col-3 justify-content-end"
+                :class="
+                  layoutStore.sidebarCollapsed
+                    ? 'col-md-12 justify-content-md-center'
+                    : ''
+                "
+              >
+                <span
+                  v-html="RawIconUserSolid"
+                  class="text-primary"
+                  aria-hidden="true"
+                />
+              </div>
+              <div
+                class="col-9 d-flex align-items-center"
+                :class="
+                  layoutStore.sidebarCollapsed
+                    ? 'col-md-12 justify-content-md-center pt-md-2'
+                    : ''
+                "
+              >
+                <span class="text-truncate pe-1">{{
+                  layoutStore.getUserDisplayName
+                }}</span>
+                <IconCaretLine class="ms-auto" />
+              </div>
+            </div>
+          </div>
+        </button>
+        <div class="collapse" id="user-menu">
+          <a
+            class="d-block py-3 text-decoration-none text-dark sidebar-link"
+            @click="layoutStore.removeUser()"
+            href="#"
+          >
+            <div class="container-fluid">
+              <div class="row">
+                <div
+                  class="d-flex p-0 col-3 justify-content-end"
+                  :class="
+                    layoutStore.sidebarCollapsed
+                      ? 'col-md-12 justify-content-md-center'
+                      : ''
+                  "
+                >
+                  <span v-html="RawIconLogoutLine" aria-hidden="true" />
+                </div>
+                <div
+                  class="col-9 d-flex align-items-center"
+                  :class="
+                    layoutStore.sidebarCollapsed
+                      ? 'col-md-12 justify-content-md-center pt-md-2'
+                      : ''
+                  "
+                >
+                  Sign out
+                </div>
+              </div>
+            </div>
+          </a>
+        </div>
       </nav>
     </div>
   </div>
@@ -95,6 +182,30 @@ const layoutStore = useLayoutStore();
   }
 }
 
+#user-menu-button {
+  &:not(.collapsed) {
+    background-color: $primary !important;
+    color: $white !important;
+
+    &:hover,
+    &:focus {
+      background-color: shade-color($primary, 25%) !important;
+    }
+
+    .col-3 span {
+      color: $white !important;
+    }
+
+    .col-9 svg {
+      transform: rotate(180deg);
+    }
+  }
+
+  .sidebar.show & .col-9 svg {
+    margin-right: 2 * $spacer;
+  }
+}
+
 @media (min-width: 768px) {
   .sidebar {
     position: sticky;
@@ -109,6 +220,10 @@ const layoutStore = useLayoutStore();
     &.collapsed {
       width: $sidebar-collapsed-width;
       min-width: $sidebar-collapsed-width;
+
+      [class^="col-"] {
+        max-width: $sidebar-collapsed-width;
+      }
 
       .sidebar-link .col-9 {
         font-size: 0.75 * $font-size-base;

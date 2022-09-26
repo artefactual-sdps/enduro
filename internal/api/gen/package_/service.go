@@ -14,12 +14,15 @@ import (
 	package_views "github.com/artefactual-sdps/enduro/internal/api/gen/package_/views"
 	"github.com/google/uuid"
 	goa "goa.design/goa/v3/pkg"
+	"goa.design/goa/v3/security"
 )
 
 // The package service manages packages being transferred to a3m.
 type Service interface {
+	// Request access to the /monitor WebSocket.
+	MonitorRequest(context.Context, *MonitorRequestPayload) (res *MonitorRequestResult, err error)
 	// Monitor implements monitor.
-	Monitor(context.Context, MonitorServerStream) (err error)
+	Monitor(context.Context, *MonitorPayload, MonitorServerStream) (err error)
 	// List all stored packages
 	List(context.Context, *ListPayload) (res *ListResult, err error)
 	// Show package by ID
@@ -36,6 +39,12 @@ type Service interface {
 	MoveStatus(context.Context, *MoveStatusPayload) (res *MoveStatusResult, err error)
 }
 
+// Auther defines the authorization functions to be implemented by the service.
+type Auther interface {
+	// OAuth2Auth implements the authorization logic for the OAuth2 security scheme.
+	OAuth2Auth(ctx context.Context, token string, schema *security.OAuth2Scheme) (context.Context, error)
+}
+
 // ServiceName is the name of the service as defined in the design. This is the
 // same value that is set in the endpoint request contexts under the ServiceKey
 // key.
@@ -44,7 +53,7 @@ const ServiceName = "package"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [8]string{"monitor", "list", "show", "preservation_actions", "confirm", "reject", "move", "move_status"}
+var MethodNames = [9]string{"monitor_request", "monitor", "list", "show", "preservation_actions", "confirm", "reject", "move", "move_status"}
 
 // MonitorServerStream is the interface a "monitor" endpoint server stream must
 // satisfy.
@@ -67,6 +76,7 @@ type ConfirmPayload struct {
 	// Identifier of package to look up
 	ID         uint
 	LocationID uuid.UUID
+	OauthToken *string
 }
 
 // EnduroMonitorEvent is the result type of the package service monitor method.
@@ -202,7 +212,8 @@ type ListPayload struct {
 	LocationID          *string
 	Status              *string
 	// Pagination cursor
-	Cursor *string
+	Cursor     *string
+	OauthToken *string
 }
 
 // ListResult is the result type of the package service list method.
@@ -211,18 +222,37 @@ type ListResult struct {
 	NextCursor *string
 }
 
+// MonitorPayload is the payload type of the package service monitor method.
+type MonitorPayload struct {
+	Ticket *string
+}
+
+// MonitorRequestPayload is the payload type of the package service
+// monitor_request method.
+type MonitorRequestPayload struct {
+	OauthToken *string
+}
+
+// MonitorRequestResult is the result type of the package service
+// monitor_request method.
+type MonitorRequestResult struct {
+	Ticket *string
+}
+
 // MovePayload is the payload type of the package service move method.
 type MovePayload struct {
 	// Identifier of package to move
 	ID         uint
 	LocationID uuid.UUID
+	OauthToken *string
 }
 
 // MoveStatusPayload is the payload type of the package service move_status
 // method.
 type MoveStatusPayload struct {
 	// Identifier of package to move
-	ID uint
+	ID         uint
+	OauthToken *string
 }
 
 // MoveStatusResult is the result type of the package service move_status
@@ -243,20 +273,26 @@ type PackageNotFound struct {
 // preservation_actions method.
 type PreservationActionsPayload struct {
 	// Identifier of package to look up
-	ID uint
+	ID         uint
+	OauthToken *string
 }
 
 // RejectPayload is the payload type of the package service reject method.
 type RejectPayload struct {
 	// Identifier of package to look up
-	ID uint
+	ID         uint
+	OauthToken *string
 }
 
 // ShowPayload is the payload type of the package service show method.
 type ShowPayload struct {
 	// Identifier of package to show
-	ID uint
+	ID         uint
+	OauthToken *string
 }
+
+// Invalid token
+type Unauthorized string
 
 // Error returns an error description.
 func (e *PackageNotFound) Error() string {
@@ -266,6 +302,16 @@ func (e *PackageNotFound) Error() string {
 // ErrorName returns "PackageNotFound".
 func (e *PackageNotFound) ErrorName() string {
 	return "not_found"
+}
+
+// Error returns an error description.
+func (e Unauthorized) Error() string {
+	return "Invalid token"
+}
+
+// ErrorName returns "unauthorized".
+func (e Unauthorized) ErrorName() string {
+	return "unauthorized"
 }
 
 // MakeNotAvailable builds a goa.ServiceError from an error.

@@ -55,6 +55,10 @@ export interface PackageListRequest {
     cursor?: string;
 }
 
+export interface PackageMonitorRequest {
+    enduroWsTicket?: string;
+}
+
 export interface PackageMoveRequest {
     id: number;
     confirmRequestBody: ConfirmRequestBody;
@@ -125,16 +129,32 @@ export interface PackageApiInterface {
     /**
      * 
      * @summary monitor package
+     * @param {string} [enduroWsTicket] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof PackageApiInterface
      */
-    packageMonitorRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>>;
+    packageMonitorRaw(requestParameters: PackageMonitorRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>>;
 
     /**
      * monitor package
      */
-    packageMonitor(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
+    packageMonitor(requestParameters: PackageMonitorRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
+
+    /**
+     * Request access to the /monitor WebSocket.
+     * @summary monitor_request package
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof PackageApiInterface
+     */
+    packageMonitorRequestRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>>;
+
+    /**
+     * Request access to the /monitor WebSocket.
+     * monitor_request package
+     */
+    packageMonitorRequest(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
 
     /**
      * Move a package to a permanent storage location
@@ -243,6 +263,11 @@ export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
 
         headerParameters['Content-Type'] = 'application/json';
 
+        if (this.configuration && this.configuration.accessToken) {
+            // oauth required
+            headerParameters["Authorization"] = await this.configuration.accessToken("oauth2_header_Authorization", []);
+        }
+
         const response = await this.request({
             path: `/package/{id}/confirm`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
             method: 'POST',
@@ -299,6 +324,11 @@ export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
 
         const headerParameters: runtime.HTTPHeaders = {};
 
+        if (this.configuration && this.configuration.accessToken) {
+            // oauth required
+            headerParameters["Authorization"] = await this.configuration.accessToken("oauth2_header_Authorization", []);
+        }
+
         const response = await this.request({
             path: `/package`,
             method: 'GET',
@@ -321,7 +351,7 @@ export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
     /**
      * monitor package
      */
-    async packageMonitorRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+    async packageMonitorRaw(requestParameters: PackageMonitorRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -339,8 +369,40 @@ export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
     /**
      * monitor package
      */
-    async packageMonitor(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.packageMonitorRaw(initOverrides);
+    async packageMonitor(requestParameters: PackageMonitorRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.packageMonitorRaw(requestParameters, initOverrides);
+    }
+
+    /**
+     * Request access to the /monitor WebSocket.
+     * monitor_request package
+     */
+    async packageMonitorRequestRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            // oauth required
+            headerParameters["Authorization"] = await this.configuration.accessToken("oauth2_header_Authorization", []);
+        }
+
+        const response = await this.request({
+            path: `/package/monitor`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     * Request access to the /monitor WebSocket.
+     * monitor_request package
+     */
+    async packageMonitorRequest(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.packageMonitorRequestRaw(initOverrides);
     }
 
     /**
@@ -361,6 +423,11 @@ export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
         const headerParameters: runtime.HTTPHeaders = {};
 
         headerParameters['Content-Type'] = 'application/json';
+
+        if (this.configuration && this.configuration.accessToken) {
+            // oauth required
+            headerParameters["Authorization"] = await this.configuration.accessToken("oauth2_header_Authorization", []);
+        }
 
         const response = await this.request({
             path: `/package/{id}/move`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
@@ -394,6 +461,11 @@ export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
 
         const headerParameters: runtime.HTTPHeaders = {};
 
+        if (this.configuration && this.configuration.accessToken) {
+            // oauth required
+            headerParameters["Authorization"] = await this.configuration.accessToken("oauth2_header_Authorization", []);
+        }
+
         const response = await this.request({
             path: `/package/{id}/move`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
             method: 'GET',
@@ -425,6 +497,11 @@ export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            // oauth required
+            headerParameters["Authorization"] = await this.configuration.accessToken("oauth2_header_Authorization", []);
+        }
 
         const response = await this.request({
             path: `/package/{id}/preservation-actions`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
@@ -458,6 +535,11 @@ export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
 
         const headerParameters: runtime.HTTPHeaders = {};
 
+        if (this.configuration && this.configuration.accessToken) {
+            // oauth required
+            headerParameters["Authorization"] = await this.configuration.accessToken("oauth2_header_Authorization", []);
+        }
+
         const response = await this.request({
             path: `/package/{id}/reject`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
             method: 'POST',
@@ -488,6 +570,11 @@ export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            // oauth required
+            headerParameters["Authorization"] = await this.configuration.accessToken("oauth2_header_Authorization", []);
+        }
 
         const response = await this.request({
             path: `/package/{id}`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),

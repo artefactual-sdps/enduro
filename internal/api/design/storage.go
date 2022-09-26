@@ -8,8 +8,10 @@ import (
 
 var _ = Service("storage", func() {
 	Description("The storage service manages the storage of packages.")
+	Error("unauthorized", String, "Invalid token")
 	HTTP(func() {
 		Path("/storage")
+		Response("unauthorized", StatusUnauthorized)
 	})
 	Method("submit", func() {
 		Description("Start the submission of a package")
@@ -18,6 +20,7 @@ var _ = Service("storage", func() {
 				Format(FormatUUID)
 			})
 			Attribute("name", String)
+			AccessToken("oauth_token", String)
 			Required("aip_id", "name")
 		})
 		Result(SubmitResult)
@@ -37,6 +40,7 @@ var _ = Service("storage", func() {
 			Attribute("aip_id", String, func() {
 				Format(FormatUUID)
 			})
+			AccessToken("oauth_token", String)
 			Required("aip_id")
 		})
 		Error("not_found", StoragePackageNotFound, "Storage package not found")
@@ -55,6 +59,7 @@ var _ = Service("storage", func() {
 			Attribute("aip_id", String, func() {
 				Format(FormatUUID)
 			})
+			AccessToken("oauth_token", String)
 			Required("aip_id")
 		})
 		Result(Bytes)
@@ -67,6 +72,9 @@ var _ = Service("storage", func() {
 	})
 	Method("locations", func() {
 		Description("List locations")
+		Payload(func() {
+			AccessToken("oauth_token", String)
+		})
 		Result(CollectionOf(Location), func() { View("default") })
 		HTTP(func() {
 			GET("/location")
@@ -87,6 +95,7 @@ var _ = Service("storage", func() {
 			OneOf("config", func() {
 				Attribute("s3", S3Config)
 			})
+			AccessToken("oauth_token", String)
 			Required("name", "source", "purpose")
 		})
 		Result(AddLocationResult)
@@ -106,6 +115,7 @@ var _ = Service("storage", func() {
 			Attribute("location_id", String, func() {
 				Meta("struct:field:type", "uuid.UUID", "github.com/google/uuid")
 			})
+			AccessToken("oauth_token", String)
 			Required("aip_id", "location_id")
 		})
 		Error("not_found", StoragePackageNotFound, "Storage package not found")
@@ -125,6 +135,7 @@ var _ = Service("storage", func() {
 			Attribute("aip_id", String, func() {
 				Format(FormatUUID)
 			})
+			AccessToken("oauth_token", String)
 			Required("aip_id")
 		})
 		Result(MoveStatusResult)
@@ -143,6 +154,7 @@ var _ = Service("storage", func() {
 			Attribute("aip_id", String, func() {
 				Format(FormatUUID)
 			})
+			AccessToken("oauth_token", String)
 			Required("aip_id")
 		})
 		Error("not_found", StoragePackageNotFound, "Storage package not found")
@@ -162,6 +174,7 @@ var _ = Service("storage", func() {
 			Attribute("aip_id", String, func() {
 				Format(FormatUUID)
 			})
+			AccessToken("oauth_token", String)
 			Required("aip_id")
 		})
 		Result(StoragePackage)
@@ -179,6 +192,7 @@ var _ = Service("storage", func() {
 			Attribute("uuid", String, func() {
 				Format(FormatUUID)
 			})
+			AccessToken("oauth_token", String)
 			Required("uuid")
 		})
 		Result(Location)
@@ -196,6 +210,7 @@ var _ = Service("storage", func() {
 			Attribute("uuid", String, func() {
 				Format(FormatUUID)
 			})
+			AccessToken("oauth_token", String)
 			Required("uuid")
 		})
 		Result(CollectionOf(StoragePackage), func() { View("default") })

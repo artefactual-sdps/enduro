@@ -128,10 +128,15 @@ func (c *Client) Submit() goa.Endpoint {
 // update server.
 func (c *Client) Update() goa.Endpoint {
 	var (
+		encodeRequest  = EncodeUpdateRequest(c.encoder)
 		decodeResponse = DecodeUpdateResponse(c.decoder, c.RestoreResponseBody)
 	)
 	return func(ctx context.Context, v interface{}) (interface{}, error) {
 		req, err := c.BuildUpdateRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		err = encodeRequest(req, v)
 		if err != nil {
 			return nil, err
 		}
@@ -147,10 +152,15 @@ func (c *Client) Update() goa.Endpoint {
 // download server.
 func (c *Client) Download() goa.Endpoint {
 	var (
+		encodeRequest  = EncodeDownloadRequest(c.encoder)
 		decodeResponse = DecodeDownloadResponse(c.decoder, c.RestoreResponseBody)
 	)
 	return func(ctx context.Context, v interface{}) (interface{}, error) {
 		req, err := c.BuildDownloadRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		err = encodeRequest(req, v)
 		if err != nil {
 			return nil, err
 		}
@@ -166,10 +176,15 @@ func (c *Client) Download() goa.Endpoint {
 // service locations server.
 func (c *Client) Locations() goa.Endpoint {
 	var (
+		encodeRequest  = EncodeLocationsRequest(c.encoder)
 		decodeResponse = DecodeLocationsResponse(c.decoder, c.RestoreResponseBody)
 	)
 	return func(ctx context.Context, v interface{}) (interface{}, error) {
 		req, err := c.BuildLocationsRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		err = encodeRequest(req, v)
 		if err != nil {
 			return nil, err
 		}
@@ -233,10 +248,15 @@ func (c *Client) Move() goa.Endpoint {
 // service move_status server.
 func (c *Client) MoveStatus() goa.Endpoint {
 	var (
+		encodeRequest  = EncodeMoveStatusRequest(c.encoder)
 		decodeResponse = DecodeMoveStatusResponse(c.decoder, c.RestoreResponseBody)
 	)
 	return func(ctx context.Context, v interface{}) (interface{}, error) {
 		req, err := c.BuildMoveStatusRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		err = encodeRequest(req, v)
 		if err != nil {
 			return nil, err
 		}
@@ -252,10 +272,15 @@ func (c *Client) MoveStatus() goa.Endpoint {
 // reject server.
 func (c *Client) Reject() goa.Endpoint {
 	var (
+		encodeRequest  = EncodeRejectRequest(c.encoder)
 		decodeResponse = DecodeRejectResponse(c.decoder, c.RestoreResponseBody)
 	)
 	return func(ctx context.Context, v interface{}) (interface{}, error) {
 		req, err := c.BuildRejectRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		err = encodeRequest(req, v)
 		if err != nil {
 			return nil, err
 		}
@@ -271,10 +296,15 @@ func (c *Client) Reject() goa.Endpoint {
 // show server.
 func (c *Client) Show() goa.Endpoint {
 	var (
+		encodeRequest  = EncodeShowRequest(c.encoder)
 		decodeResponse = DecodeShowResponse(c.decoder, c.RestoreResponseBody)
 	)
 	return func(ctx context.Context, v interface{}) (interface{}, error) {
 		req, err := c.BuildShowRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		err = encodeRequest(req, v)
 		if err != nil {
 			return nil, err
 		}
@@ -290,10 +320,15 @@ func (c *Client) Show() goa.Endpoint {
 // service show_location server.
 func (c *Client) ShowLocation() goa.Endpoint {
 	var (
+		encodeRequest  = EncodeShowLocationRequest(c.encoder)
 		decodeResponse = DecodeShowLocationResponse(c.decoder, c.RestoreResponseBody)
 	)
 	return func(ctx context.Context, v interface{}) (interface{}, error) {
 		req, err := c.BuildShowLocationRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		err = encodeRequest(req, v)
 		if err != nil {
 			return nil, err
 		}
@@ -309,10 +344,15 @@ func (c *Client) ShowLocation() goa.Endpoint {
 // service location_packages server.
 func (c *Client) LocationPackages() goa.Endpoint {
 	var (
+		encodeRequest  = EncodeLocationPackagesRequest(c.encoder)
 		decodeResponse = DecodeLocationPackagesResponse(c.decoder, c.RestoreResponseBody)
 	)
 	return func(ctx context.Context, v interface{}) (interface{}, error) {
 		req, err := c.BuildLocationPackagesRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		err = encodeRequest(req, v)
 		if err != nil {
 			return nil, err
 		}

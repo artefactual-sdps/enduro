@@ -84,6 +84,42 @@ type MoveStatusResponseBody struct {
 	Done bool `form:"done" json:"done" xml:"done"`
 }
 
+// MonitorRequestNotAvailableResponseBody is the type of the "package" service
+// "monitor_request" endpoint HTTP response body for the "not_available" error.
+type MonitorRequestNotAvailableResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// MonitorNotAvailableResponseBody is the type of the "package" service
+// "monitor" endpoint HTTP response body for the "not_available" error.
+type MonitorNotAvailableResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
 // ShowNotAvailableResponseBody is the type of the "package" service "show"
 // endpoint HTTP response body for the "not_available" error.
 type ShowNotAvailableResponseBody struct {
@@ -515,6 +551,34 @@ func NewMoveStatusResponseBody(res *package_.MoveStatusResult) *MoveStatusRespon
 	return body
 }
 
+// NewMonitorRequestNotAvailableResponseBody builds the HTTP response body from
+// the result of the "monitor_request" endpoint of the "package" service.
+func NewMonitorRequestNotAvailableResponseBody(res *goa.ServiceError) *MonitorRequestNotAvailableResponseBody {
+	body := &MonitorRequestNotAvailableResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewMonitorNotAvailableResponseBody builds the HTTP response body from the
+// result of the "monitor" endpoint of the "package" service.
+func NewMonitorNotAvailableResponseBody(res *goa.ServiceError) *MonitorNotAvailableResponseBody {
+	body := &MonitorNotAvailableResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
 // NewShowNotAvailableResponseBody builds the HTTP response body from the
 // result of the "show" endpoint of the "package" service.
 func NewShowNotAvailableResponseBody(res *goa.ServiceError) *ShowNotAvailableResponseBody {
@@ -688,8 +752,25 @@ func NewMoveStatusNotFoundResponseBody(res *package_.PackageNotFound) *MoveStatu
 	return body
 }
 
+// NewMonitorRequestPayload builds a package service monitor_request endpoint
+// payload.
+func NewMonitorRequestPayload(oauthToken *string) *package_.MonitorRequestPayload {
+	v := &package_.MonitorRequestPayload{}
+	v.OauthToken = oauthToken
+
+	return v
+}
+
+// NewMonitorPayload builds a package service monitor endpoint payload.
+func NewMonitorPayload(ticket *string) *package_.MonitorPayload {
+	v := &package_.MonitorPayload{}
+	v.Ticket = ticket
+
+	return v
+}
+
 // NewListPayload builds a package service list endpoint payload.
-func NewListPayload(name *string, aipID *string, earliestCreatedTime *string, latestCreatedTime *string, locationID *string, status *string, cursor *string) *package_.ListPayload {
+func NewListPayload(name *string, aipID *string, earliestCreatedTime *string, latestCreatedTime *string, locationID *string, status *string, cursor *string, oauthToken *string) *package_.ListPayload {
 	v := &package_.ListPayload{}
 	v.Name = name
 	v.AipID = aipID
@@ -698,59 +779,66 @@ func NewListPayload(name *string, aipID *string, earliestCreatedTime *string, la
 	v.LocationID = locationID
 	v.Status = status
 	v.Cursor = cursor
+	v.OauthToken = oauthToken
 
 	return v
 }
 
 // NewShowPayload builds a package service show endpoint payload.
-func NewShowPayload(id uint) *package_.ShowPayload {
+func NewShowPayload(id uint, oauthToken *string) *package_.ShowPayload {
 	v := &package_.ShowPayload{}
 	v.ID = id
+	v.OauthToken = oauthToken
 
 	return v
 }
 
 // NewPreservationActionsPayload builds a package service preservation_actions
 // endpoint payload.
-func NewPreservationActionsPayload(id uint) *package_.PreservationActionsPayload {
+func NewPreservationActionsPayload(id uint, oauthToken *string) *package_.PreservationActionsPayload {
 	v := &package_.PreservationActionsPayload{}
 	v.ID = id
+	v.OauthToken = oauthToken
 
 	return v
 }
 
 // NewConfirmPayload builds a package service confirm endpoint payload.
-func NewConfirmPayload(body *ConfirmRequestBody, id uint) *package_.ConfirmPayload {
+func NewConfirmPayload(body *ConfirmRequestBody, id uint, oauthToken *string) *package_.ConfirmPayload {
 	v := &package_.ConfirmPayload{
 		LocationID: *body.LocationID,
 	}
 	v.ID = id
+	v.OauthToken = oauthToken
 
 	return v
 }
 
 // NewRejectPayload builds a package service reject endpoint payload.
-func NewRejectPayload(id uint) *package_.RejectPayload {
+func NewRejectPayload(id uint, oauthToken *string) *package_.RejectPayload {
 	v := &package_.RejectPayload{}
 	v.ID = id
+	v.OauthToken = oauthToken
 
 	return v
 }
 
 // NewMovePayload builds a package service move endpoint payload.
-func NewMovePayload(body *MoveRequestBody, id uint) *package_.MovePayload {
+func NewMovePayload(body *MoveRequestBody, id uint, oauthToken *string) *package_.MovePayload {
 	v := &package_.MovePayload{
 		LocationID: *body.LocationID,
 	}
 	v.ID = id
+	v.OauthToken = oauthToken
 
 	return v
 }
 
 // NewMoveStatusPayload builds a package service move_status endpoint payload.
-func NewMoveStatusPayload(id uint) *package_.MoveStatusPayload {
+func NewMoveStatusPayload(id uint, oauthToken *string) *package_.MoveStatusPayload {
 	v := &package_.MoveStatusPayload{}
 	v.ID = id
+	v.OauthToken = oauthToken
 
 	return v
 }

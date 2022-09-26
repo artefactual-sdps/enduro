@@ -9,3 +9,14 @@ declare module "*.vue" {
   const component: DefineComponent<{}, {}, any>;
   export default component;
 }
+
+interface ImportMetaEnv {
+  readonly VITE_OIDC_AUTHORITY: string;
+  readonly VITE_OIDC_CLIENT_ID: string;
+  readonly VITE_OIDC_REDIRECT_URI: string;
+  readonly VITE_OIDC_AUDIENCE_CLIENT_ID: string;
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv;
+}

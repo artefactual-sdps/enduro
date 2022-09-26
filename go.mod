@@ -5,9 +5,12 @@ go 1.19
 require (
 	ariga.io/atlas v0.7.0
 	ariga.io/sqlcomment v0.1.0
+	chainguard.dev/go-oidctest v0.2.0
 	entgo.io/ent v0.11.3-0.20220816070906-2b54aadcce3a
 	github.com/alicebob/miniredis/v2 v2.23.0
 	github.com/aws/aws-sdk-go v1.44.96
+	github.com/coreos/go-oidc/v3 v3.2.0
+	github.com/cyphar/filepath-securejoin v0.2.3
 	github.com/fsnotify/fsnotify v1.5.4
 	github.com/go-logr/logr v1.2.3
 	github.com/go-logr/zapr v1.2.3
@@ -46,10 +49,9 @@ require (
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/grpc v1.49.0
 	google.golang.org/protobuf v1.28.1 // indirect
+	gopkg.in/square/go-jose.v2 v2.6.0
 	gotest.tools/v3 v3.3.0
 )
-
-require github.com/cyphar/filepath-securejoin v0.2.3
 
 require (
 	github.com/agext/levenshtein v1.2.1 // indirect
@@ -123,13 +125,16 @@ require (
 	go.opentelemetry.io/otel v1.3.0 // indirect
 	go.opentelemetry.io/otel/trace v1.3.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
+	golang.org/x/crypto v0.0.0-20220517005047-85d78b3ac167 // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
 	golang.org/x/net v0.0.0-20220906165146-f3363e06e74c // indirect
+	golang.org/x/oauth2 v0.0.0-20220822191816-0ebed06d0094 // indirect
 	golang.org/x/sys v0.0.0-20220906165534-d0df966e6959 // indirect
 	golang.org/x/time v0.0.0-20220224211638-0e9765cccd65 // indirect
 	golang.org/x/tools v0.1.13-0.20220804200503-81c7dc4e4efa // indirect
 	golang.org/x/xerrors v0.0.0-20220517211312-f3a8303e98df // indirect
 	google.golang.org/api v0.81.0 // indirect
+	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20220902135211-223410557253 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect

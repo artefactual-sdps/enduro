@@ -14,6 +14,7 @@ import (
 	storageviews "github.com/artefactual-sdps/enduro/internal/api/gen/storage/views"
 	"github.com/google/uuid"
 	goa "goa.design/goa/v3/pkg"
+	"goa.design/goa/v3/security"
 )
 
 // The storage service manages the storage of packages.
@@ -25,7 +26,7 @@ type Service interface {
 	// Download package by AIPID
 	Download(context.Context, *DownloadPayload) (res []byte, err error)
 	// List locations
-	Locations(context.Context) (res LocationCollection, err error)
+	Locations(context.Context, *LocationsPayload) (res LocationCollection, err error)
 	// Add a storage location
 	AddLocation(context.Context, *AddLocationPayload) (res *AddLocationResult, err error)
 	// Move a package to a permanent storage location
@@ -40,6 +41,12 @@ type Service interface {
 	ShowLocation(context.Context, *ShowLocationPayload) (res *Location, err error)
 	// List all the packages stored in the location with UUID
 	LocationPackages(context.Context, *LocationPackagesPayload) (res PackageCollection, err error)
+}
+
+// Auther defines the authorization functions to be implemented by the service.
+type Auther interface {
+	// OAuth2Auth implements the authorization logic for the OAuth2 security scheme.
+	OAuth2Auth(ctx context.Context, token string, schema *security.OAuth2Scheme) (context.Context, error)
 }
 
 // ServiceName is the name of the service as defined in the design. This is the
@@ -62,6 +69,7 @@ type AddLocationPayload struct {
 	Config      interface {
 		configVal()
 	}
+	OauthToken *string
 }
 
 // AddLocationResult is the result type of the storage service add_location
@@ -72,7 +80,8 @@ type AddLocationResult struct {
 
 // DownloadPayload is the payload type of the storage service download method.
 type DownloadPayload struct {
-	AipID string
+	AipID      string
+	OauthToken *string
 }
 
 // Location is the result type of the storage service show_location method.
@@ -107,19 +116,27 @@ type LocationNotFound struct {
 // LocationPackagesPayload is the payload type of the storage service
 // location_packages method.
 type LocationPackagesPayload struct {
-	UUID string
+	UUID       string
+	OauthToken *string
+}
+
+// LocationsPayload is the payload type of the storage service locations method.
+type LocationsPayload struct {
+	OauthToken *string
 }
 
 // MovePayload is the payload type of the storage service move method.
 type MovePayload struct {
 	AipID      string
 	LocationID uuid.UUID
+	OauthToken *string
 }
 
 // MoveStatusPayload is the payload type of the storage service move_status
 // method.
 type MoveStatusPayload struct {
-	AipID string
+	AipID      string
+	OauthToken *string
 }
 
 // MoveStatusResult is the result type of the storage service move_status
@@ -154,7 +171,8 @@ type PackageNotFound struct {
 
 // RejectPayload is the payload type of the storage service reject method.
 type RejectPayload struct {
-	AipID string
+	AipID      string
+	OauthToken *string
 }
 
 type S3Config struct {
@@ -171,18 +189,21 @@ type S3Config struct {
 // ShowLocationPayload is the payload type of the storage service show_location
 // method.
 type ShowLocationPayload struct {
-	UUID string
+	UUID       string
+	OauthToken *string
 }
 
 // ShowPayload is the payload type of the storage service show method.
 type ShowPayload struct {
-	AipID string
+	AipID      string
+	OauthToken *string
 }
 
 // SubmitPayload is the payload type of the storage service submit method.
 type SubmitPayload struct {
-	AipID string
-	Name  string
+	AipID      string
+	Name       string
+	OauthToken *string
 }
 
 // SubmitResult is the result type of the storage service submit method.
@@ -192,8 +213,12 @@ type SubmitResult struct {
 
 // UpdatePayload is the payload type of the storage service update method.
 type UpdatePayload struct {
-	AipID string
+	AipID      string
+	OauthToken *string
 }
+
+// Invalid token
+type Unauthorized string
 
 // Error returns an error description.
 func (e *LocationNotFound) Error() string {
@@ -213,6 +238,16 @@ func (e *PackageNotFound) Error() string {
 // ErrorName returns "PackageNotFound".
 func (e *PackageNotFound) ErrorName() string {
 	return "not_found"
+}
+
+// Error returns an error description.
+func (e Unauthorized) Error() string {
+	return "Invalid token"
+}
+
+// ErrorName returns "unauthorized".
+func (e Unauthorized) ErrorName() string {
+	return "unauthorized"
 }
 func (*S3Config) configVal() {}
 

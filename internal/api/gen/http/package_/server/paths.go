@@ -12,6 +12,11 @@ import (
 	"fmt"
 )
 
+// MonitorRequestPackagePath returns the URL path to the package service monitor_request HTTP endpoint.
+func MonitorRequestPackagePath() string {
+	return "/package/monitor"
+}
+
 // MonitorPackagePath returns the URL path to the package service monitor HTTP endpoint.
 func MonitorPackagePath() string {
 	return "/package/monitor"

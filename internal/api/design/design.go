@@ -13,6 +13,12 @@ import (
 	cors "goa.design/plugins/v3/cors/dsl"
 )
 
+var OAuth2Auth = OAuth2Security("oauth2", func() {
+	// We only validate for now, but a flow definition is required.
+	ClientCredentialsFlow("/oauth2/token", "/oauth2/refresh")
+	Description("Secures endpoints by requiring a valid OAuth2 access token.")
+})
+
 var _ = API("enduro", func() {
 	Title("Enduro API")
 	Server("enduro", func() {
@@ -21,6 +27,7 @@ var _ = API("enduro", func() {
 			URI("http://localhost:9000")
 		})
 	})
+	Security(OAuth2Auth)
 	HTTP(func() {
 		Consumes("application/json")
 	})

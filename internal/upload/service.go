@@ -10,9 +10,12 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/go-logr/logr"
+	"goa.design/goa/v3/security"
 	"gocloud.dev/blob"
 	"gocloud.dev/blob/s3blob"
 
+	"github.com/artefactual-sdps/enduro/internal/api/auth"
+	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 	goaupload "github.com/artefactual-sdps/enduro/internal/api/gen/upload"
 )
 
@@ -30,15 +33,19 @@ type serviceImpl struct {
 	config        Config
 	bucket        *blob.Bucket
 	uploadMaxSize int
+	tokenVerifier auth.TokenVerifier
 }
 
 var _ Service = (*serviceImpl)(nil)
 
-func NewService(logger logr.Logger, config Config, uploadMaxSize int) (s *serviceImpl, err error) {
+var ErrInvalidToken error = goastorage.Unauthorized("invalid token")
+
+func NewService(logger logr.Logger, config Config, uploadMaxSize int, tokenVerifier auth.TokenVerifier) (s *serviceImpl, err error) {
 	s = &serviceImpl{
 		logger:        logger,
 		config:        config,
 		uploadMaxSize: uploadMaxSize,
+		tokenVerifier: tokenVerifier,
 	}
 
 	err = s.openBucket(config)
@@ -82,6 +89,19 @@ func (s *serviceImpl) openS3Bucket(ctx context.Context) (*blob.Bucket, error) {
 		return nil, err
 	}
 	return s3blob.OpenBucket(ctx, sess, s.config.Bucket, nil)
+}
+
+func (s *serviceImpl) OAuth2Auth(ctx context.Context, token string, scheme *security.OAuth2Scheme) (context.Context, error) {
+	ok, err := s.tokenVerifier.Verify(ctx, token)
+	if err != nil {
+		s.logger.V(1).Info("failed to verify token", "err", err)
+		return ctx, ErrInvalidToken
+	}
+	if !ok {
+		return ctx, ErrInvalidToken
+	}
+
+	return ctx, nil
 }
 
 func (s *serviceImpl) Bucket() *blob.Bucket {

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"crypto/rand"
 	"errors"
 	"fmt"
 	"net/http"
@@ -24,6 +25,7 @@ import (
 	goahttp "goa.design/goa/v3/http"
 
 	"github.com/artefactual-sdps/enduro/internal/api"
+	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	goahttpstorage "github.com/artefactual-sdps/enduro/internal/api/gen/http/storage/client"
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 	"github.com/artefactual-sdps/enduro/internal/config"
@@ -132,16 +134,44 @@ func main() {
 		os.Exit(1)
 	}
 
+	var tokenVerifier auth.TokenVerifier
+	var ticketProvider *auth.TicketProvider
+	{
+		if cfg.API.Auth.Enabled {
+			tokenVerifier, err = auth.NewOIDCTokenVerifier(ctx, cfg.API.Auth.OIDC)
+			if err != nil {
+				logger.Error(err, "Error connecting to OIDC provider.")
+				os.Exit(1)
+			}
+
+			var store auth.TicketStore
+			if cfg.API.Auth.Ticket.Redis != nil {
+				var err error
+				store, err = auth.NewRedisStore(ctx, cfg.API.Auth.Ticket.Redis)
+				if err != nil {
+					logger.Error(err, "Error creating ticket provider redis store.")
+					os.Exit(1)
+				}
+			} else {
+				store = auth.NewInMemStore()
+			}
+
+			ticketProvider = auth.NewTicketProvider(ctx, store, cfg.API.Auth.Ticket.Redis.Prefix, rand.Reader)
+			defer ticketProvider.Close()
+		} else {
+			tokenVerifier = &auth.NoopTokenVerifier{}
+		}
+	}
+
 	// Set up the package service.
 	var pkgsvc package_.Service
 	{
-		pkgsvc = package_.NewService(logger.WithName("package"), enduroDatabase, temporalClient, evsvc)
+		pkgsvc = package_.NewService(logger.WithName("package"), enduroDatabase, temporalClient, evsvc, tokenVerifier, ticketProvider)
 	}
 
 	// Set up the ent db client.
 	var storagePersistence persistence.Storage
 	{
-
 		drv := sqlcomment.NewDriver(
 			sql.OpenDB("mysql", storageDatabase),
 			sqlcomment.WithDriverVerTag(),
@@ -156,7 +186,7 @@ func main() {
 	// Set up the storage service.
 	var storagesvc storage.Service
 	{
-		storagesvc, err = storage.NewService(logger.WithName("storage"), cfg.Storage, storagePersistence, temporalClient, storage.DefaultInternalLocationFactory, storage.DefaultLocationFactory)
+		storagesvc, err = storage.NewService(logger.WithName("storage"), cfg.Storage, storagePersistence, temporalClient, storage.DefaultInternalLocationFactory, storage.DefaultLocationFactory, tokenVerifier)
 		if err != nil {
 			logger.Error(err, "Error setting up storage service.")
 			os.Exit(1)
@@ -166,7 +196,7 @@ func main() {
 	// Set up the upload service.
 	var uploadsvc upload.Service
 	{
-		uploadsvc, err = upload.NewService(logger.WithName("upload"), cfg.Upload, upload.UPLOAD_MAX_SIZE)
+		uploadsvc, err = upload.NewService(logger.WithName("upload"), cfg.Upload, upload.UPLOAD_MAX_SIZE, tokenVerifier)
 		if err != nil {
 			logger.Error(err, "Error setting up upload service.")
 			os.Exit(1)

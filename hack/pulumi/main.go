@@ -1,9 +1,11 @@
 package main
 
 import (
+	"bytes"
 	"encoding/base64"
 	"fmt"
 	"regexp"
+	"text/template"
 
 	"github.com/pulumi/pulumi-aws/sdk/v5/go/aws/route53"
 	"github.com/pulumi/pulumi-digitalocean/sdk/v4/go/digitalocean"
@@ -17,8 +19,53 @@ import (
 	"github.com/pulumi/pulumi-kubernetes/sdk/v3/go/kubernetes/yaml"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi/config"
-	"golang.org/x/crypto/bcrypt"
 )
+
+var dexCfgTmplt = template.Must(template.New("dexCfgTmplt").Parse(`issuer: {{.dexUrl}}
+storage:
+  type: mysql
+  config:
+    host: mysql
+    port: 3306
+    database: dex_db
+    user: {{.mysqlUser}}
+    password: {{.mysqlPassword}}
+    ssl:
+      mode: "false"
+web:
+  http: 0.0.0.0:5556
+  allowedOrigins: ["{{.enduroUrl}}"]
+expiry:
+  idTokens: 1h
+oauth2:
+  skipApprovalScreen: true
+staticClients:
+  - name: Enduro dashboard
+    id: enduro-dashboard
+    public: true
+    redirectURIs:
+      - {{.enduroUrl}}/user/signin-callback
+  - name: Enduro
+    id: {{.enduroClientId}}
+    secret: {{.enduroClientSecret}}
+    trustedPeers:
+      - enduro-dashboard
+  - name: Temporal
+    id: {{.temporalClientId}}
+    secret: {{.temporalClientSecret}}
+    redirectURIs:
+      - {{.temporalUrl}}/auth/sso/callback
+connectors:
+  - id: github
+    type: github
+    name: GitHub
+    config:
+      clientID: {{.githubClientId}}
+      clientSecret: {{.githubClientSecret}}
+      redirectURI: {{.dexUrl}}/callback
+      orgs:
+        - name: artefactual-sdps
+`))
 
 // Regular expression used to replace the kubeconfig token.
 var re *regexp.Regexp = regexp.MustCompile(`(?m)^(\s*token:\s)\w*$`)
@@ -152,6 +199,11 @@ func main() {
 			return err
 		}
 
+		// Generate URLs.
+		dexUrl := fmt.Sprintf("https://dex.%s.%s", subdomain, zone)
+		enduroUrl := fmt.Sprintf("https://enduro.%s.%s", subdomain, zone)
+		temporalUrl := fmt.Sprintf("https://temporal.%s.%s", subdomain, zone)
+
 		// Configure default Docker images.
 		crUrl := "registry.digitalocean.com"
 		images := map[string]pulumi.Output{
@@ -162,7 +214,15 @@ func main() {
 
 		// Build, publish and update Docker images.
 		if cfg.GetBool("buildImages") {
-			err = buildAndPublishImages(ctx, crUrl, cfg.RequireSecret("doToken"), images)
+			err = buildAndPublishImages(
+				ctx,
+				crUrl,
+				cfg.RequireSecret("doToken"),
+				images,
+				dexUrl,
+				enduroUrl,
+				cfg.RequireSecret("dexEnduroClientId"),
+			)
 			if err != nil {
 				return err
 			}
@@ -196,28 +256,10 @@ func main() {
 			return err
 		}
 
-		// Encode MySQL and Minio configuration secrets.
-		mysqlUser := cfg.RequireSecret("mysqlUser").ApplyT(func(val string) string {
-			return base64.StdEncoding.EncodeToString([]byte(val))
-		})
-		mysqlPassword := cfg.RequireSecret("mysqlPassword").ApplyT(func(val string) string {
-			return base64.StdEncoding.EncodeToString([]byte(val))
-		})
-		mysqlRootPassword := cfg.RequireSecret("mysqlRootPassword").ApplyT(func(val string) string {
-			return base64.StdEncoding.EncodeToString([]byte(val))
-		})
-		minioUser := cfg.RequireSecret("minioUser").ApplyT(func(val string) string {
-			return base64.StdEncoding.EncodeToString([]byte(val))
-		})
-		minioPassword := cfg.RequireSecret("minioPassword").ApplyT(func(val string) string {
-			return base64.StdEncoding.EncodeToString([]byte(val))
-		})
-
 		// Apply Kubernetes base Kustomization, with the following transformations:
 		// - Change Docker images to the ones from the DO CR.
 		// - Add imagePullSecrets with the CR credentials secret.
 		// - Set enduro-a3m replicas to 3.
-		// - Updates the MySQL and Minio secrets data.
 		imagePullSecrets := []map[string]interface{}{{"name": crSecret.Metadata.Name()}}
 		k8sKustomize, err := kustomize.NewDirectory(ctx, "k8s-kustomize",
 			kustomize.DirectoryArgs{
@@ -226,6 +268,13 @@ func main() {
 					func(state map[string]interface{}, opts ...pulumi.ResourceOption) {
 						name := state["metadata"].(map[string]interface{})["name"]
 						if state["kind"] == "Deployment" && name == "enduro" {
+							template := state["spec"].(map[string]interface{})["template"]
+							templateSpec := template.(map[string]interface{})["spec"]
+							containers := templateSpec.(map[string]interface{})["containers"]
+							container := containers.([]interface{})[0]
+							container.(map[string]interface{})["image"] = images["enduro"]
+							templateSpec.(map[string]interface{})["imagePullSecrets"] = imagePullSecrets
+						} else if state["kind"] == "Deployment" && name == "enduro-internal" {
 							template := state["spec"].(map[string]interface{})["template"]
 							templateSpec := template.(map[string]interface{})["spec"]
 							containers := templateSpec.(map[string]interface{})["containers"]
@@ -247,15 +296,6 @@ func main() {
 							container.(map[string]interface{})["image"] = images["enduro-a3m-worker"]
 							templateSpec.(map[string]interface{})["imagePullSecrets"] = imagePullSecrets
 							state["spec"].(map[string]interface{})["replicas"] = 3
-						} else if state["kind"] == "Secret" && name == "mysql-secret" {
-							data := state["data"].(map[string]interface{})
-							data["user"] = mysqlUser
-							data["password"] = mysqlPassword
-							data["root-password"] = mysqlRootPassword
-						} else if state["kind"] == "Secret" && name == "minio-secret" {
-							data := state["data"].(map[string]interface{})
-							data["user"] = minioUser
-							data["password"] = minioPassword
 						}
 					},
 				},
@@ -266,32 +306,123 @@ func main() {
 			return err
 		}
 
-		// Generate basic auth hash when username and password resolve.
-		basicAuth := pulumi.All(
-			cfg.RequireSecret("basicAuthUsername"),
-			cfg.RequireSecret("basicAuthPassword"),
+		// Generate Dex configuration when related secrets resolve.
+		dexConfig := pulumi.All(
+			cfg.RequireSecret("dexEnduroClientId"),
+			cfg.RequireSecret("dexEnduroClientSecret"),
+			cfg.RequireSecret("dexTemporalClientId"),
+			cfg.RequireSecret("dexTemporalClientSecret"),
+			cfg.RequireSecret("dexGithubClientId"),
+			cfg.RequireSecret("dexGithubClientSecret"),
+			cfg.RequireSecret("mysqlUser"),
+			cfg.RequireSecret("mysqlPassword"),
 		).ApplyT(func(args []interface{}) (string, error) {
-			username := args[0].(string)
-			password := args[1].(string)
-			bcryptPass, err := bcrypt.GenerateFromPassword(
-				[]byte(password), bcrypt.DefaultCost,
-			)
-			if err != nil {
+			data := map[string]interface{}{
+				"dexUrl":               dexUrl,
+				"enduroUrl":            enduroUrl,
+				"temporalUrl":          temporalUrl,
+				"enduroClientId":       args[0].(string),
+				"enduroClientSecret":   args[1].(string),
+				"temporalClientId":     args[2].(string),
+				"temporalClientSecret": args[3].(string),
+				"githubClientId":       args[4].(string),
+				"githubClientSecret":   args[5].(string),
+				"mysqlUser":            args[6].(string),
+				"mysqlPassword":        args[7].(string),
+			}
+			output := new(bytes.Buffer)
+			if err := dexCfgTmplt.Execute(output, data); err != nil {
 				return "", err
 			}
-			return base64.StdEncoding.EncodeToString([]byte(
-				username + ":" + string(bcryptPass[:]),
-			)), nil
+			return output.String(), nil
 		}).(pulumi.StringOutput)
 
-		// Create basic auth secret.
-		_, err = core.NewSecret(ctx, "basic-auth",
+		// Create Dex secret.
+		_, err = core.NewSecret(ctx, "dex-secret",
 			&core.SecretArgs{
 				Metadata: &meta.ObjectMetaArgs{
-					Name: pulumi.String("basic-auth"),
+					Name: pulumi.String("dex-secret"),
 				},
-				Data: pulumi.StringMap{
-					"auth": basicAuth,
+				StringData: pulumi.StringMap{
+					"config.yaml": dexConfig,
+				},
+				Type: pulumi.String("Opaque"),
+			},
+			pulumi.Provider(k8sProvider),
+		)
+		if err != nil {
+			return err
+		}
+
+		// Create Enduro secret.
+		_, err = core.NewSecret(ctx, "enduro-secret",
+			&core.SecretArgs{
+				Metadata: &meta.ObjectMetaArgs{
+					Name: pulumi.String("enduro-secret"),
+				},
+				StringData: pulumi.StringMap{
+					"oidc-provider-url":  pulumi.String(dexUrl),
+					"oidc-redirect-url":  pulumi.String(enduroUrl + "/user/signin-callback"),
+					"oidc-client-id":     cfg.RequireSecret("dexEnduroClientId"),
+					"oidc-client-secret": cfg.RequireSecret("dexEnduroClientSecret"),
+				},
+				Type: pulumi.String("Opaque"),
+			},
+			pulumi.Provider(k8sProvider),
+		)
+		if err != nil {
+			return err
+		}
+
+		// Create MinIO secret.
+		_, err = core.NewSecret(ctx, "minio-secret",
+			&core.SecretArgs{
+				Metadata: &meta.ObjectMetaArgs{
+					Name: pulumi.String("minio-secret"),
+				},
+				StringData: pulumi.StringMap{
+					"user":     cfg.RequireSecret("minioUser"),
+					"password": cfg.RequireSecret("minioPassword"),
+				},
+				Type: pulumi.String("Opaque"),
+			},
+			pulumi.Provider(k8sProvider),
+		)
+		if err != nil {
+			return err
+		}
+
+		// Create MySQL secret.
+		_, err = core.NewSecret(ctx, "mysql-secret",
+			&core.SecretArgs{
+				Metadata: &meta.ObjectMetaArgs{
+					Name: pulumi.String("mysql-secret"),
+				},
+				StringData: pulumi.StringMap{
+					"user":          cfg.RequireSecret("mysqlUser"),
+					"password":      cfg.RequireSecret("mysqlPassword"),
+					"root-password": cfg.RequireSecret("mysqlRootPassword"),
+				},
+				Type: pulumi.String("Opaque"),
+			},
+			pulumi.Provider(k8sProvider),
+		)
+		if err != nil {
+			return err
+		}
+
+		// Create Temporal UI secret.
+		_, err = core.NewSecret(ctx, "temporal-ui-secret",
+			&core.SecretArgs{
+				Metadata: &meta.ObjectMetaArgs{
+					Name: pulumi.String("temporal-ui-secret"),
+				},
+				StringData: pulumi.StringMap{
+					"cors-origins":       pulumi.String(temporalUrl),
+					"auth-provider-url":  pulumi.String(dexUrl),
+					"auth-callback-url":  pulumi.String(temporalUrl + "/auth/sso/callback"),
+					"auth-client-id":     cfg.RequireSecret("dexTemporalClientId"),
+					"auth-client-secret": cfg.RequireSecret("dexTemporalClientSecret"),
 				},
 				Type: pulumi.String("Opaque"),
 			},
@@ -308,6 +439,7 @@ func main() {
 			Port    int
 		}
 		endpoints := []Endpoint{
+			{Name: "dex", Service: "dex", Port: 5556},
 			{Name: "enduro", Service: "enduro-dashboard", Port: 80},
 			{Name: "minio", Service: "minio", Port: 9001},
 			{Name: "temporal", Service: "temporal-ui", Port: 8080},
@@ -347,9 +479,6 @@ func main() {
 				Metadata: &meta.ObjectMetaArgs{
 					Name: pulumi.String("ingress"),
 					Annotations: pulumi.StringMap{
-						"nginx.ingress.kubernetes.io/auth-type":       pulumi.String("basic"),
-						"nginx.ingress.kubernetes.io/auth-secret":     pulumi.String("basic-auth"),
-						"nginx.ingress.kubernetes.io/auth-realm":      pulumi.String("Authentication required!"),
 						"nginx.ingress.kubernetes.io/proxy-body-size": pulumi.String("0"),
 						"cert-manager.io/cluster-issuer":              pulumi.String("cert-issuer"),
 					},

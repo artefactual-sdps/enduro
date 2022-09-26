@@ -17,7 +17,11 @@ docker_build(
     sync("dashboard/", "/app/"),
     run(
       "npm set cache /app/.npm && npm install-clean",
-      trigger=["dashboard/package.json", "dashboard/package-lock.json"]
+      trigger=[
+        "dashboard/package.json",
+        "dashboard/package-lock.json",
+        "dashboard/.env*",
+      ]
     ),
   ]
 )
@@ -28,9 +32,12 @@ k8s_yaml(kustomize("hack/kube/overlays/dev"))
 # Enduro resources
 k8s_resource("enduro", labels=["Enduro"])
 k8s_resource("enduro-a3m", labels=["Enduro"])
+k8s_resource("enduro-internal", port_forwards="9000", labels=["Enduro"])
 k8s_resource("enduro-dashboard", port_forwards="3000", labels=["Enduro"])
 
 # Other resources
+k8s_resource("dex", port_forwards="5556", labels=["Others"])
+k8s_resource("ldap", labels=["Others"])
 k8s_resource("mysql", port_forwards="3306", labels=["Others"])
 k8s_resource(
   "minio",
@@ -108,6 +115,7 @@ cmd_button(
     kubectl rollout restart deployment temporal; \
     kubectl rollout restart deployment enduro; \
     kubectl rollout restart statefulset enduro-a3m; \
+    kubectl rollout restart deployment dex; \
     kubectl create -f hack/kube/base/mysql-create-locations-job.yaml;",
   ],
   location="nav",

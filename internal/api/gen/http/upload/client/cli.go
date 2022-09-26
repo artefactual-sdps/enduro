@@ -15,7 +15,7 @@ import (
 
 // BuildUploadPayload builds the payload for the upload upload endpoint from
 // CLI flags.
-func BuildUploadPayload(uploadUploadContentType string) (*upload.UploadPayload, error) {
+func BuildUploadPayload(uploadUploadContentType string, uploadUploadOauthToken string) (*upload.UploadPayload, error) {
 	var err error
 	var contentType string
 	{
@@ -27,8 +27,15 @@ func BuildUploadPayload(uploadUploadContentType string) (*upload.UploadPayload, 
 			}
 		}
 	}
+	var oauthToken *string
+	{
+		if uploadUploadOauthToken != "" {
+			oauthToken = &uploadUploadOauthToken
+		}
+	}
 	v := &upload.UploadPayload{}
 	v.ContentType = contentType
+	v.OauthToken = oauthToken
 
 	return v, nil
 }

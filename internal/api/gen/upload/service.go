@@ -13,12 +13,19 @@ import (
 	"io"
 
 	goa "goa.design/goa/v3/pkg"
+	"goa.design/goa/v3/security"
 )
 
 // The upload service handles file submissions to the SIPs bucket.
 type Service interface {
 	// Upload implements upload.
 	Upload(context.Context, *UploadPayload, io.ReadCloser) (err error)
+}
+
+// Auther defines the authorization functions to be implemented by the service.
+type Auther interface {
+	// OAuth2Auth implements the authorization logic for the OAuth2 security scheme.
+	OAuth2Auth(ctx context.Context, token string, schema *security.OAuth2Scheme) (context.Context, error)
 }
 
 // ServiceName is the name of the service as defined in the design. This is the
@@ -35,6 +42,20 @@ var MethodNames = [1]string{"upload"}
 type UploadPayload struct {
 	// Content-Type header, must define value for multipart boundary.
 	ContentType string
+	OauthToken  *string
+}
+
+// Invalid token
+type Unauthorized string
+
+// Error returns an error description.
+func (e Unauthorized) Error() string {
+	return "Invalid token"
+}
+
+// ErrorName returns "unauthorized".
+func (e Unauthorized) ErrorName() string {
+	return "unauthorized"
 }
 
 // MakeInvalidMediaType builds a goa.ServiceError from an error.

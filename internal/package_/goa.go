@@ -10,6 +10,7 @@ import (
 	"time"
 
 	temporalapi_enums "go.temporal.io/api/enums/v1"
+	"goa.design/goa/v3/security"
 
 	goapackage "github.com/artefactual-sdps/enduro/internal/api/gen/package_"
 	"github.com/artefactual-sdps/enduro/internal/ref"
@@ -30,9 +31,45 @@ var patternMatchingCharReplacer = strings.NewReplacer(
 	"_", "\\_",
 )
 
+var ErrInvalidToken error = goapackage.Unauthorized("invalid token")
+
+func (w *goaWrapper) OAuth2Auth(ctx context.Context, token string, scheme *security.OAuth2Scheme) (context.Context, error) {
+	ok, err := w.tokenVerifier.Verify(ctx, token)
+	if err != nil {
+		w.logger.V(1).Info("failed to verify token", "err", err)
+		return ctx, ErrInvalidToken
+	}
+	if !ok {
+		return ctx, ErrInvalidToken
+	}
+
+	return ctx, nil
+}
+
+func (w *goaWrapper) MonitorRequest(ctx context.Context, payload *goapackage.MonitorRequestPayload) (*goapackage.MonitorRequestResult, error) {
+	res := &goapackage.MonitorRequestResult{}
+	if w.ticketProvider != nil {
+		ticket, err := w.ticketProvider.Request(ctx)
+		if err != nil {
+			w.logger.Error(err, "failed to request ticket")
+			return nil, goapackage.MakeNotAvailable(errors.New("cannot perform operation"))
+		}
+		res.Ticket = &ticket
+	}
+
+	return res, nil
+}
+
 // Monitor package activity. It implements goapackage.Service.
-func (w *goaWrapper) Monitor(ctx context.Context, stream goapackage.MonitorServerStream) error {
+func (w *goaWrapper) Monitor(ctx context.Context, payload *goapackage.MonitorPayload, stream goapackage.MonitorServerStream) error {
 	defer stream.Close()
+
+	if w.ticketProvider != nil {
+		if err := w.ticketProvider.Check(ctx, *payload.Ticket); err != nil {
+			w.logger.V(1).Info("failed to check ticket", "err", err)
+			return goapackage.MakeNotAvailable(errors.New("cannot perform operation"))
+		}
+	}
 
 	// Subscribe to the event service.
 	sub, err := w.evsvc.Subscribe(ctx)

@@ -16,6 +16,7 @@ import (
 
 // Client is the "package" service client.
 type Client struct {
+	MonitorRequestEndpoint      goa.Endpoint
 	MonitorEndpoint             goa.Endpoint
 	ListEndpoint                goa.Endpoint
 	ShowEndpoint                goa.Endpoint
@@ -27,8 +28,9 @@ type Client struct {
 }
 
 // NewClient initializes a "package" service client given the endpoints.
-func NewClient(monitor, list, show, preservationActions, confirm, reject, move, moveStatus goa.Endpoint) *Client {
+func NewClient(monitorRequest, monitor, list, show, preservationActions, confirm, reject, move, moveStatus goa.Endpoint) *Client {
 	return &Client{
+		MonitorRequestEndpoint:      monitorRequest,
 		MonitorEndpoint:             monitor,
 		ListEndpoint:                list,
 		ShowEndpoint:                show,
@@ -40,10 +42,28 @@ func NewClient(monitor, list, show, preservationActions, confirm, reject, move, 
 	}
 }
 
-// Monitor calls the "monitor" endpoint of the "package" service.
-func (c *Client) Monitor(ctx context.Context) (res MonitorClientStream, err error) {
+// MonitorRequest calls the "monitor_request" endpoint of the "package" service.
+// MonitorRequest may return the following errors:
+//   - "not_available" (type *goa.ServiceError)
+//   - "unauthorized" (type Unauthorized)
+//   - error: internal error
+func (c *Client) MonitorRequest(ctx context.Context, p *MonitorRequestPayload) (res *MonitorRequestResult, err error) {
 	var ires interface{}
-	ires, err = c.MonitorEndpoint(ctx, nil)
+	ires, err = c.MonitorRequestEndpoint(ctx, p)
+	if err != nil {
+		return
+	}
+	return ires.(*MonitorRequestResult), nil
+}
+
+// Monitor calls the "monitor" endpoint of the "package" service.
+// Monitor may return the following errors:
+//   - "not_available" (type *goa.ServiceError)
+//   - "unauthorized" (type Unauthorized)
+//   - error: internal error
+func (c *Client) Monitor(ctx context.Context, p *MonitorPayload) (res MonitorClientStream, err error) {
+	var ires interface{}
+	ires, err = c.MonitorEndpoint(ctx, p)
 	if err != nil {
 		return
 	}
@@ -51,6 +71,9 @@ func (c *Client) Monitor(ctx context.Context) (res MonitorClientStream, err erro
 }
 
 // List calls the "list" endpoint of the "package" service.
+// List may return the following errors:
+//   - "unauthorized" (type Unauthorized)
+//   - error: internal error
 func (c *Client) List(ctx context.Context, p *ListPayload) (res *ListResult, err error) {
 	var ires interface{}
 	ires, err = c.ListEndpoint(ctx, p)
@@ -64,6 +87,7 @@ func (c *Client) List(ctx context.Context, p *ListPayload) (res *ListResult, err
 // Show may return the following errors:
 //   - "not_found" (type *PackageNotFound): Package not found
 //   - "not_available" (type *goa.ServiceError)
+//   - "unauthorized" (type Unauthorized)
 //   - error: internal error
 func (c *Client) Show(ctx context.Context, p *ShowPayload) (res *EnduroStoredPackage, err error) {
 	var ires interface{}
@@ -78,6 +102,7 @@ func (c *Client) Show(ctx context.Context, p *ShowPayload) (res *EnduroStoredPac
 // "package" service.
 // PreservationActions may return the following errors:
 //   - "not_found" (type *PackageNotFound): Package not found
+//   - "unauthorized" (type Unauthorized)
 //   - error: internal error
 func (c *Client) PreservationActions(ctx context.Context, p *PreservationActionsPayload) (res *EnduroPackagePreservationActions, err error) {
 	var ires interface{}
@@ -93,6 +118,7 @@ func (c *Client) PreservationActions(ctx context.Context, p *PreservationActions
 //   - "not_found" (type *PackageNotFound): Package not found
 //   - "not_available" (type *goa.ServiceError)
 //   - "not_valid" (type *goa.ServiceError)
+//   - "unauthorized" (type Unauthorized)
 //   - error: internal error
 func (c *Client) Confirm(ctx context.Context, p *ConfirmPayload) (err error) {
 	_, err = c.ConfirmEndpoint(ctx, p)
@@ -104,6 +130,7 @@ func (c *Client) Confirm(ctx context.Context, p *ConfirmPayload) (err error) {
 //   - "not_found" (type *PackageNotFound): Package not found
 //   - "not_available" (type *goa.ServiceError)
 //   - "not_valid" (type *goa.ServiceError)
+//   - "unauthorized" (type Unauthorized)
 //   - error: internal error
 func (c *Client) Reject(ctx context.Context, p *RejectPayload) (err error) {
 	_, err = c.RejectEndpoint(ctx, p)
@@ -115,6 +142,7 @@ func (c *Client) Reject(ctx context.Context, p *RejectPayload) (err error) {
 //   - "not_found" (type *PackageNotFound): Package not found
 //   - "not_available" (type *goa.ServiceError)
 //   - "not_valid" (type *goa.ServiceError)
+//   - "unauthorized" (type Unauthorized)
 //   - error: internal error
 func (c *Client) Move(ctx context.Context, p *MovePayload) (err error) {
 	_, err = c.MoveEndpoint(ctx, p)
@@ -125,6 +153,7 @@ func (c *Client) Move(ctx context.Context, p *MovePayload) (err error) {
 // MoveStatus may return the following errors:
 //   - "not_found" (type *PackageNotFound): Package not found
 //   - "failed_dependency" (type *goa.ServiceError)
+//   - "unauthorized" (type Unauthorized)
 //   - error: internal error
 func (c *Client) MoveStatus(ctx context.Context, p *MoveStatusPayload) (res *MoveStatusResult, err error) {
 	var ires interface{}

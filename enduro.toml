@@ -12,6 +12,18 @@ taskqueue = "global"
 listen = "0.0.0.0:9000"
 debug = false
 
+[api.auth]
+enabled = true
+
+[api.auth.oidc]
+providerURL = "http://dex:5556"
+clientID = "enduro"
+clientSecret = "ZXhhbXBsZS1hcHAtc2VjcmV0"
+
+[api.auth.ticket.redis]
+address = "redis://redis:6379"
+prefix = "enduro"
+
 [event]
 redisAddress = "redis://redis:6379"
 redisChannel = "enduro-events"
@@ -33,7 +45,7 @@ bucket = "sips"
 stripTopLevelDir = true
 
 [storage]
-enduroAddress = "enduro:9000"
+enduroAddress = "enduro-internal:9000"
 
 [storage.database]
 dsn = "enduro:enduro123@tcp(mysql:3306)/enduro_storage"

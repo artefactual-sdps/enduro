@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dex
+  labels:
+    app: dex
+spec:
+  selector:
+    matchLabels:
+      app: dex
+  template:
+    metadata:
+      labels:
+        app: dex
+    spec:
+      containers:
+        - name: dex
+          image: ghcr.io/dexidp/dex:v2.30.0
+          command: ["/usr/local/bin/dex", "serve", "/etc/dex/cfg/config.yaml"]
+          ports:
+            - containerPort: 5556
+          volumeMounts:
+            - name: config
+              mountPath: /etc/dex/cfg
+              readOnly: true
+          resources: {}
+      volumes:
+        - name: config
+          secret:
+            secretName: dex-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dex
+  labels:
+    app: dex
+spec:
+  selector:
+    app: dex
+  ports:
+    - port: 5556

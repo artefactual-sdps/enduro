@@ -20,6 +20,10 @@ import (
 
 // Client lists the package service endpoint HTTP clients.
 type Client struct {
+	// MonitorRequest Doer is the HTTP client used to make requests to the
+	// monitor_request endpoint.
+	MonitorRequestDoer goahttp.Doer
+
 	// Monitor Doer is the HTTP client used to make requests to the monitor
 	// endpoint.
 	MonitorDoer goahttp.Doer
@@ -78,6 +82,7 @@ func NewClient(
 		cfn = &ConnConfigurer{}
 	}
 	return &Client{
+		MonitorRequestDoer:      doer,
 		MonitorDoer:             doer,
 		ListDoer:                doer,
 		ShowDoer:                doer,
@@ -97,14 +102,43 @@ func NewClient(
 	}
 }
 
+// MonitorRequest returns an endpoint that makes HTTP requests to the package
+// service monitor_request server.
+func (c *Client) MonitorRequest() goa.Endpoint {
+	var (
+		encodeRequest  = EncodeMonitorRequestRequest(c.encoder)
+		decodeResponse = DecodeMonitorRequestResponse(c.decoder, c.RestoreResponseBody)
+	)
+	return func(ctx context.Context, v interface{}) (interface{}, error) {
+		req, err := c.BuildMonitorRequestRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		err = encodeRequest(req, v)
+		if err != nil {
+			return nil, err
+		}
+		resp, err := c.MonitorRequestDoer.Do(req)
+		if err != nil {
+			return nil, goahttp.ErrRequestError("package", "monitor_request", err)
+		}
+		return decodeResponse(resp)
+	}
+}
+
 // Monitor returns an endpoint that makes HTTP requests to the package service
 // monitor server.
 func (c *Client) Monitor() goa.Endpoint {
 	var (
+		encodeRequest  = EncodeMonitorRequest(c.encoder)
 		decodeResponse = DecodeMonitorResponse(c.decoder, c.RestoreResponseBody)
 	)
 	return func(ctx context.Context, v interface{}) (interface{}, error) {
 		req, err := c.BuildMonitorRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		err = encodeRequest(req, v)
 		if err != nil {
 			return nil, err
 		}
@@ -162,10 +196,15 @@ func (c *Client) List() goa.Endpoint {
 // show server.
 func (c *Client) Show() goa.Endpoint {
 	var (
+		encodeRequest  = EncodeShowRequest(c.encoder)
 		decodeResponse = DecodeShowResponse(c.decoder, c.RestoreResponseBody)
 	)
 	return func(ctx context.Context, v interface{}) (interface{}, error) {
 		req, err := c.BuildShowRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		err = encodeRequest(req, v)
 		if err != nil {
 			return nil, err
 		}
@@ -181,10 +220,15 @@ func (c *Client) Show() goa.Endpoint {
 // package service preservation_actions server.
 func (c *Client) PreservationActions() goa.Endpoint {
 	var (
+		encodeRequest  = EncodePreservationActionsRequest(c.encoder)
 		decodeResponse = DecodePreservationActionsResponse(c.decoder, c.RestoreResponseBody)
 	)
 	return func(ctx context.Context, v interface{}) (interface{}, error) {
 		req, err := c.BuildPreservationActionsRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		err = encodeRequest(req, v)
 		if err != nil {
 			return nil, err
 		}
@@ -224,10 +268,15 @@ func (c *Client) Confirm() goa.Endpoint {
 // reject server.
 func (c *Client) Reject() goa.Endpoint {
 	var (
+		encodeRequest  = EncodeRejectRequest(c.encoder)
 		decodeResponse = DecodeRejectResponse(c.decoder, c.RestoreResponseBody)
 	)
 	return func(ctx context.Context, v interface{}) (interface{}, error) {
 		req, err := c.BuildRejectRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		err = encodeRequest(req, v)
 		if err != nil {
 			return nil, err
 		}
@@ -267,10 +316,15 @@ func (c *Client) Move() goa.Endpoint {
 // service move_status server.
 func (c *Client) MoveStatus() goa.Endpoint {
 	var (
+		encodeRequest  = EncodeMoveStatusRequest(c.encoder)
 		decodeResponse = DecodeMoveStatusResponse(c.decoder, c.RestoreResponseBody)
 	)
 	return func(ctx context.Context, v interface{}) (interface{}, error) {
 		req, err := c.BuildMoveStatusRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		err = encodeRequest(req, v)
 		if err != nil {
 			return nil, err
 		}

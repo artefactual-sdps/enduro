@@ -10,6 +10,9 @@ func buildAndPublishImages(
 	crUrl string,
 	token pulumi.StringOutput,
 	images map[string]pulumi.Output,
+	dexUrl string,
+	enduroUrl string,
+	oidcClientId pulumi.StringOutput,
 ) error {
 	// Setup DigitalOcean container registry URL and credentials.
 	registry := token.ApplyT(func(token string) docker.ImageRegistry {
@@ -54,6 +57,11 @@ func buildAndPublishImages(
 		&docker.ImageArgs{
 			Build: &docker.DockerBuildArgs{
 				Context: pulumi.String("../../dashboard"),
+				Args: pulumi.StringMap{
+					"oidcProviderUrl":      pulumi.String(dexUrl),
+					"oidcRedirectUrl":      pulumi.String(enduroUrl + "/user/signin-callback"),
+					"oidcAudienceClientId": oidcClientId,
+				},
 			},
 			ImageName: pulumi.String(crUrl + "/artefactual/enduro-dashboard"),
 			Registry:  registry,

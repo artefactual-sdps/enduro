@@ -17,9 +17,39 @@ import (
 	goa "goa.design/goa/v3/pkg"
 )
 
+// BuildMonitorRequestPayload builds the payload for the package
+// monitor_request endpoint from CLI flags.
+func BuildMonitorRequestPayload(package_MonitorRequestOauthToken string) (*package_.MonitorRequestPayload, error) {
+	var oauthToken *string
+	{
+		if package_MonitorRequestOauthToken != "" {
+			oauthToken = &package_MonitorRequestOauthToken
+		}
+	}
+	v := &package_.MonitorRequestPayload{}
+	v.OauthToken = oauthToken
+
+	return v, nil
+}
+
+// BuildMonitorPayload builds the payload for the package monitor endpoint from
+// CLI flags.
+func BuildMonitorPayload(package_MonitorTicket string) (*package_.MonitorPayload, error) {
+	var ticket *string
+	{
+		if package_MonitorTicket != "" {
+			ticket = &package_MonitorTicket
+		}
+	}
+	v := &package_.MonitorPayload{}
+	v.Ticket = ticket
+
+	return v, nil
+}
+
 // BuildListPayload builds the payload for the package list endpoint from CLI
 // flags.
-func BuildListPayload(package_ListName string, package_ListAipID string, package_ListEarliestCreatedTime string, package_ListLatestCreatedTime string, package_ListLocationID string, package_ListStatus string, package_ListCursor string) (*package_.ListPayload, error) {
+func BuildListPayload(package_ListName string, package_ListAipID string, package_ListEarliestCreatedTime string, package_ListLatestCreatedTime string, package_ListLocationID string, package_ListStatus string, package_ListCursor string, package_ListOauthToken string) (*package_.ListPayload, error) {
 	var err error
 	var name *string
 	{
@@ -85,6 +115,12 @@ func BuildListPayload(package_ListName string, package_ListAipID string, package
 			cursor = &package_ListCursor
 		}
 	}
+	var oauthToken *string
+	{
+		if package_ListOauthToken != "" {
+			oauthToken = &package_ListOauthToken
+		}
+	}
 	v := &package_.ListPayload{}
 	v.Name = name
 	v.AipID = aipID
@@ -93,13 +129,14 @@ func BuildListPayload(package_ListName string, package_ListAipID string, package
 	v.LocationID = locationID
 	v.Status = status
 	v.Cursor = cursor
+	v.OauthToken = oauthToken
 
 	return v, nil
 }
 
 // BuildShowPayload builds the payload for the package show endpoint from CLI
 // flags.
-func BuildShowPayload(package_ShowID string) (*package_.ShowPayload, error) {
+func BuildShowPayload(package_ShowID string, package_ShowOauthToken string) (*package_.ShowPayload, error) {
 	var err error
 	var id uint
 	{
@@ -110,15 +147,22 @@ func BuildShowPayload(package_ShowID string) (*package_.ShowPayload, error) {
 			return nil, fmt.Errorf("invalid value for id, must be UINT")
 		}
 	}
+	var oauthToken *string
+	{
+		if package_ShowOauthToken != "" {
+			oauthToken = &package_ShowOauthToken
+		}
+	}
 	v := &package_.ShowPayload{}
 	v.ID = id
+	v.OauthToken = oauthToken
 
 	return v, nil
 }
 
 // BuildPreservationActionsPayload builds the payload for the package
 // preservation_actions endpoint from CLI flags.
-func BuildPreservationActionsPayload(package_PreservationActionsID string) (*package_.PreservationActionsPayload, error) {
+func BuildPreservationActionsPayload(package_PreservationActionsID string, package_PreservationActionsOauthToken string) (*package_.PreservationActionsPayload, error) {
 	var err error
 	var id uint
 	{
@@ -129,21 +173,28 @@ func BuildPreservationActionsPayload(package_PreservationActionsID string) (*pac
 			return nil, fmt.Errorf("invalid value for id, must be UINT")
 		}
 	}
+	var oauthToken *string
+	{
+		if package_PreservationActionsOauthToken != "" {
+			oauthToken = &package_PreservationActionsOauthToken
+		}
+	}
 	v := &package_.PreservationActionsPayload{}
 	v.ID = id
+	v.OauthToken = oauthToken
 
 	return v, nil
 }
 
 // BuildConfirmPayload builds the payload for the package confirm endpoint from
 // CLI flags.
-func BuildConfirmPayload(package_ConfirmBody string, package_ConfirmID string) (*package_.ConfirmPayload, error) {
+func BuildConfirmPayload(package_ConfirmBody string, package_ConfirmID string, package_ConfirmOauthToken string) (*package_.ConfirmPayload, error) {
 	var err error
 	var body ConfirmRequestBody
 	{
 		err = json.Unmarshal([]byte(package_ConfirmBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location_id\": \"Ut quas.\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location_id\": \"Dolores incidunt qui suscipit incidunt voluptatum.\"\n   }'")
 		}
 	}
 	var id uint
@@ -155,17 +206,24 @@ func BuildConfirmPayload(package_ConfirmBody string, package_ConfirmID string) (
 			return nil, fmt.Errorf("invalid value for id, must be UINT")
 		}
 	}
+	var oauthToken *string
+	{
+		if package_ConfirmOauthToken != "" {
+			oauthToken = &package_ConfirmOauthToken
+		}
+	}
 	v := &package_.ConfirmPayload{
 		LocationID: body.LocationID,
 	}
 	v.ID = id
+	v.OauthToken = oauthToken
 
 	return v, nil
 }
 
 // BuildRejectPayload builds the payload for the package reject endpoint from
 // CLI flags.
-func BuildRejectPayload(package_RejectID string) (*package_.RejectPayload, error) {
+func BuildRejectPayload(package_RejectID string, package_RejectOauthToken string) (*package_.RejectPayload, error) {
 	var err error
 	var id uint
 	{
@@ -176,21 +234,28 @@ func BuildRejectPayload(package_RejectID string) (*package_.RejectPayload, error
 			return nil, fmt.Errorf("invalid value for id, must be UINT")
 		}
 	}
+	var oauthToken *string
+	{
+		if package_RejectOauthToken != "" {
+			oauthToken = &package_RejectOauthToken
+		}
+	}
 	v := &package_.RejectPayload{}
 	v.ID = id
+	v.OauthToken = oauthToken
 
 	return v, nil
 }
 
 // BuildMovePayload builds the payload for the package move endpoint from CLI
 // flags.
-func BuildMovePayload(package_MoveBody string, package_MoveID string) (*package_.MovePayload, error) {
+func BuildMovePayload(package_MoveBody string, package_MoveID string, package_MoveOauthToken string) (*package_.MovePayload, error) {
 	var err error
 	var body MoveRequestBody
 	{
 		err = json.Unmarshal([]byte(package_MoveBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location_id\": \"Temporibus iusto et.\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location_id\": \"Deserunt facere adipisci dignissimos iusto harum sunt.\"\n   }'")
 		}
 	}
 	var id uint
@@ -202,17 +267,24 @@ func BuildMovePayload(package_MoveBody string, package_MoveID string) (*package_
 			return nil, fmt.Errorf("invalid value for id, must be UINT")
 		}
 	}
+	var oauthToken *string
+	{
+		if package_MoveOauthToken != "" {
+			oauthToken = &package_MoveOauthToken
+		}
+	}
 	v := &package_.MovePayload{
 		LocationID: body.LocationID,
 	}
 	v.ID = id
+	v.OauthToken = oauthToken
 
 	return v, nil
 }
 
 // BuildMoveStatusPayload builds the payload for the package move_status
 // endpoint from CLI flags.
-func BuildMoveStatusPayload(package_MoveStatusID string) (*package_.MoveStatusPayload, error) {
+func BuildMoveStatusPayload(package_MoveStatusID string, package_MoveStatusOauthToken string) (*package_.MoveStatusPayload, error) {
 	var err error
 	var id uint
 	{
@@ -223,8 +295,15 @@ func BuildMoveStatusPayload(package_MoveStatusID string) (*package_.MoveStatusPa
 			return nil, fmt.Errorf("invalid value for id, must be UINT")
 		}
 	}
+	var oauthToken *string
+	{
+		if package_MoveStatusOauthToken != "" {
+			oauthToken = &package_MoveStatusOauthToken
+		}
+	}
 	v := &package_.MoveStatusPayload{}
 	v.ID = id
+	v.OauthToken = oauthToken
 
 	return v, nil
 }

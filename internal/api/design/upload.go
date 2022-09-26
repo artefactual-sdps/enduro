@@ -6,8 +6,10 @@ import (
 
 var _ = Service("upload", func() {
 	Description("The upload service handles file submissions to the SIPs bucket.")
+	Error("unauthorized", String, "Invalid token")
 	HTTP(func() {
 		Path("/upload")
+		Response("unauthorized", StatusUnauthorized)
 	})
 	Method("upload", func() {
 		Payload(func() {
@@ -15,6 +17,7 @@ var _ = Service("upload", func() {
 				Default("multipart/form-data; boundary=goa")
 				Pattern("multipart/[^;]+; boundary=.+")
 			})
+			AccessToken("oauth_token", String)
 		})
 
 		Error("invalid_media_type", ErrorResult, "Error returned when the Content-Type header does not define a multipart request.")
@@ -24,6 +27,7 @@ var _ = Service("upload", func() {
 		HTTP(func() {
 			POST("/upload")
 			Header("content_type:Content-Type")
+			Header("oauth_token:Authorization")
 
 			// Bypass request body decoder code generation to alleviate need for
 			// loading the entire request body in memory. The service gets

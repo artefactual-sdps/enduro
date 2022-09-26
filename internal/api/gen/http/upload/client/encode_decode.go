@@ -15,6 +15,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strings"
 
 	upload "github.com/artefactual-sdps/enduro/internal/api/gen/upload"
 	goahttp "goa.design/goa/v3/http"
@@ -56,6 +57,14 @@ func EncodeUploadRequest(encoder func(*http.Request) goahttp.Encoder) func(*http
 			head := p.ContentType
 			req.Header.Set("Content-Type", head)
 		}
+		if p.OauthToken != nil {
+			head := *p.OauthToken
+			if !strings.Contains(head, " ") {
+				req.Header.Set("Authorization", "Bearer "+head)
+			} else {
+				req.Header.Set("Authorization", head)
+			}
+		}
 		return nil
 	}
 }
@@ -67,6 +76,7 @@ func EncodeUploadRequest(encoder func(*http.Request) goahttp.Encoder) func(*http
 //   - "invalid_media_type" (type *goa.ServiceError): http.StatusBadRequest
 //   - "invalid_multipart_request" (type *goa.ServiceError): http.StatusBadRequest
 //   - "internal_error" (type *goa.ServiceError): http.StatusInternalServerError
+//   - "unauthorized" (type upload.Unauthorized): http.StatusUnauthorized
 //   - error: internal error
 func DecodeUploadResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
 	return func(resp *http.Response) (interface{}, error) {
@@ -134,6 +144,16 @@ func DecodeUploadResponse(decoder func(*http.Response) goahttp.Decoder, restoreB
 				return nil, goahttp.ErrValidationError("upload", "upload", err)
 			}
 			return nil, NewUploadInternalError(&body)
+		case http.StatusUnauthorized:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("upload", "upload", err)
+			}
+			return nil, NewUploadUnauthorized(body)
 		default:
 			body, _ := io.ReadAll(resp.Body)
 			return nil, goahttp.ErrInvalidResponse("upload", "upload", resp.StatusCode, string(body))

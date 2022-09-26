@@ -12,6 +12,7 @@ endef
 
 IGNORED_PACKAGES := \
 	github.com/artefactual-sdps/enduro/hack/genpkgs \
+	github.com/artefactual-sdps/enduro/internal/api/auth/fake \
 	github.com/artefactual-sdps/enduro/internal/api/design \
 	github.com/artefactual-sdps/enduro/internal/api/gen/http/cli/enduro \
 	github.com/artefactual-sdps/enduro/internal/api/gen/http/package_/client \
@@ -20,11 +21,14 @@ IGNORED_PACKAGES := \
 	github.com/artefactual-sdps/enduro/internal/api/gen/http/storage/server \
 	github.com/artefactual-sdps/enduro/internal/api/gen/http/swagger/client \
 	github.com/artefactual-sdps/enduro/internal/api/gen/http/swagger/server \
+	github.com/artefactual-sdps/enduro/internal/api/gen/http/upload/client \
+	github.com/artefactual-sdps/enduro/internal/api/gen/http/upload/server \
 	github.com/artefactual-sdps/enduro/internal/api/gen/package_ \
 	github.com/artefactual-sdps/enduro/internal/api/gen/package_/views \
 	github.com/artefactual-sdps/enduro/internal/api/gen/storage \
 	github.com/artefactual-sdps/enduro/internal/api/gen/storage/views \
 	github.com/artefactual-sdps/enduro/internal/api/gen/swagger \
+	github.com/artefactual-sdps/enduro/internal/api/gen/upload \
 	github.com/artefactual-sdps/enduro/internal/batch/fake \
 	github.com/artefactual-sdps/enduro/internal/package_/fake \
 	github.com/artefactual-sdps/enduro/internal/storage/fake \
@@ -99,6 +103,7 @@ gen-mock:
 	$(MOCKGEN) -destination=./internal/storage/persistence/fake/mock_persistence.go -package=fake github.com/artefactual-sdps/enduro/internal/storage/persistence Storage
 	$(MOCKGEN) -destination=./internal/upload/fake/mock_upload.go -package=fake github.com/artefactual-sdps/enduro/internal/upload Service
 	$(MOCKGEN) -destination=./internal/watcher/fake/mock_watcher.go -package=fake github.com/artefactual-sdps/enduro/internal/watcher Service
+	$(MOCKGEN) -destination=./internal/api/auth/fake/mock_ticket_store.go -package=fake github.com/artefactual-sdps/enduro/internal/api/auth TicketStore
 
 gen-ent:
 	$(ENT) generate ./internal/storage/persistence/ent/schema --feature sql/versioned-migration --target=./internal/storage/persistence/ent/db

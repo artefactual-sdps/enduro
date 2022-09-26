@@ -19,6 +19,21 @@ spec:
           env:
             - name: ENDURO_API_ADDRESS
               value: enduro:9000
+            - name: VITE_OIDC_AUTHORITY
+              valueFrom:
+                secretKeyRef:
+                  name: enduro-secret
+                  key: oidc-provider-url
+            - name: VITE_OIDC_REDIRECT_URI
+              valueFrom:
+                secretKeyRef:
+                  name: enduro-secret
+                  key: oidc-redirect-url
+            - name: VITE_OIDC_AUDIENCE_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: enduro-secret
+                  key: oidc-client-id
           ports:
             - containerPort: 80
           resources: {}

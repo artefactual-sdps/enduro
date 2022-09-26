@@ -12,7 +12,9 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"strings"
 
+	upload "github.com/artefactual-sdps/enduro/internal/api/gen/upload"
 	goahttp "goa.design/goa/v3/http"
 	goa "goa.design/goa/v3/pkg"
 )
@@ -32,6 +34,7 @@ func DecodeUploadRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.
 	return func(r *http.Request) (interface{}, error) {
 		var (
 			contentType string
+			oauthToken  *string
 			err         error
 		)
 		contentTypeRaw := r.Header.Get("Content-Type")
@@ -41,10 +44,21 @@ func DecodeUploadRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.
 			contentType = "multipart/form-data; boundary=goa"
 		}
 		err = goa.MergeErrors(err, goa.ValidatePattern("contentType", contentType, "multipart/[^;]+; boundary=.+"))
+		oauthTokenRaw := r.Header.Get("Authorization")
+		if oauthTokenRaw != "" {
+			oauthToken = &oauthTokenRaw
+		}
 		if err != nil {
 			return nil, err
 		}
-		payload := NewUploadPayload(contentType)
+		payload := NewUploadPayload(contentType, oauthToken)
+		if payload.OauthToken != nil {
+			if strings.Contains(*payload.OauthToken, " ") {
+				// Remove authorization scheme prefix (e.g. "Bearer")
+				cred := strings.SplitN(*payload.OauthToken, " ", 2)[1]
+				payload.OauthToken = &cred
+			}
+		}
 
 		return payload, nil
 	}
@@ -98,6 +112,14 @@ func EncodeUploadError(encoder func(context.Context, http.ResponseWriter) goahtt
 			}
 			w.Header().Set("goa-error", res.ErrorName())
 			w.WriteHeader(http.StatusInternalServerError)
+			return enc.Encode(body)
+		case "unauthorized":
+			var res upload.Unauthorized
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			body := res
+			w.Header().Set("goa-error", res.ErrorName())
+			w.WriteHeader(http.StatusUnauthorized)
 			return enc.Encode(body)
 		default:
 			return encodeError(ctx, w, v)

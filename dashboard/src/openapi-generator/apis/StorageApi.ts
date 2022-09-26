@@ -303,6 +303,11 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
         headerParameters['Content-Type'] = 'application/json';
 
+        if (this.configuration && this.configuration.accessToken) {
+            // oauth required
+            headerParameters["Authorization"] = await this.configuration.accessToken("oauth2_header_Authorization", []);
+        }
+
         const response = await this.request({
             path: `/storage/location`,
             method: 'POST',
@@ -336,6 +341,11 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
         const headerParameters: runtime.HTTPHeaders = {};
 
+        if (this.configuration && this.configuration.accessToken) {
+            // oauth required
+            headerParameters["Authorization"] = await this.configuration.accessToken("oauth2_header_Authorization", []);
+        }
+
         const response = await this.request({
             path: `/storage/package/{aip_id}/download`.replace(`{${"aip_id"}}`, encodeURIComponent(String(requestParameters.aipId))),
             method: 'GET',
@@ -368,6 +378,11 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
         const headerParameters: runtime.HTTPHeaders = {};
 
+        if (this.configuration && this.configuration.accessToken) {
+            // oauth required
+            headerParameters["Authorization"] = await this.configuration.accessToken("oauth2_header_Authorization", []);
+        }
+
         const response = await this.request({
             path: `/storage/location/{uuid}/packages`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
             method: 'GET',
@@ -395,6 +410,11 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            // oauth required
+            headerParameters["Authorization"] = await this.configuration.accessToken("oauth2_header_Authorization", []);
+        }
 
         const response = await this.request({
             path: `/storage/location`,
@@ -434,6 +454,11 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
         headerParameters['Content-Type'] = 'application/json';
 
+        if (this.configuration && this.configuration.accessToken) {
+            // oauth required
+            headerParameters["Authorization"] = await this.configuration.accessToken("oauth2_header_Authorization", []);
+        }
+
         const response = await this.request({
             path: `/storage/package/{aip_id}/store`.replace(`{${"aip_id"}}`, encodeURIComponent(String(requestParameters.aipId))),
             method: 'POST',
@@ -465,6 +490,11 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            // oauth required
+            headerParameters["Authorization"] = await this.configuration.accessToken("oauth2_header_Authorization", []);
+        }
 
         const response = await this.request({
             path: `/storage/package/{aip_id}/store`.replace(`{${"aip_id"}}`, encodeURIComponent(String(requestParameters.aipId))),
@@ -498,6 +528,11 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
         const headerParameters: runtime.HTTPHeaders = {};
 
+        if (this.configuration && this.configuration.accessToken) {
+            // oauth required
+            headerParameters["Authorization"] = await this.configuration.accessToken("oauth2_header_Authorization", []);
+        }
+
         const response = await this.request({
             path: `/storage/package/{aip_id}/reject`.replace(`{${"aip_id"}}`, encodeURIComponent(String(requestParameters.aipId))),
             method: 'POST',
@@ -528,6 +563,11 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            // oauth required
+            headerParameters["Authorization"] = await this.configuration.accessToken("oauth2_header_Authorization", []);
+        }
 
         const response = await this.request({
             path: `/storage/package/{aip_id}`.replace(`{${"aip_id"}}`, encodeURIComponent(String(requestParameters.aipId))),
@@ -560,6 +600,11 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            // oauth required
+            headerParameters["Authorization"] = await this.configuration.accessToken("oauth2_header_Authorization", []);
+        }
 
         const response = await this.request({
             path: `/storage/location/{uuid}`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
@@ -599,6 +644,11 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
         headerParameters['Content-Type'] = 'application/json';
 
+        if (this.configuration && this.configuration.accessToken) {
+            // oauth required
+            headerParameters["Authorization"] = await this.configuration.accessToken("oauth2_header_Authorization", []);
+        }
+
         const response = await this.request({
             path: `/storage/package/{aip_id}/submit`.replace(`{${"aip_id"}}`, encodeURIComponent(String(requestParameters.aipId))),
             method: 'POST',
@@ -631,6 +681,11 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            // oauth required
+            headerParameters["Authorization"] = await this.configuration.accessToken("oauth2_header_Authorization", []);
+        }
 
         const response = await this.request({
             path: `/storage/package/{aip_id}/update`.replace(`{${"aip_id"}}`, encodeURIComponent(String(requestParameters.aipId))),

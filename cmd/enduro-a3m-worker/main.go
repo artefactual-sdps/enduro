@@ -19,6 +19,7 @@ import (
 	goahttp "goa.design/goa/v3/http"
 
 	"github.com/artefactual-sdps/enduro/internal/a3m"
+	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	goahttpstorage "github.com/artefactual-sdps/enduro/internal/api/gen/http/storage/client"
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 	"github.com/artefactual-sdps/enduro/internal/config"
@@ -100,7 +101,7 @@ func main() {
 	// Set up the package service.
 	var pkgsvc package_.Service
 	{
-		pkgsvc = package_.NewService(logger.WithName("package"), enduroDatabase, temporalClient, evsvc)
+		pkgsvc = package_.NewService(logger.WithName("package"), enduroDatabase, temporalClient, evsvc, &auth.NoopTokenVerifier{}, nil)
 	}
 
 	// Set up the watcher service.

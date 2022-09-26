@@ -15,6 +15,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strings"
 
 	storage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 	storageviews "github.com/artefactual-sdps/enduro/internal/api/gen/storage/views"
@@ -54,6 +55,14 @@ func EncodeSubmitRequest(encoder func(*http.Request) goahttp.Encoder) func(*http
 		if !ok {
 			return goahttp.ErrInvalidType("storage", "submit", "*storage.SubmitPayload", v)
 		}
+		if p.OauthToken != nil {
+			head := *p.OauthToken
+			if !strings.Contains(head, " ") {
+				req.Header.Set("Authorization", "Bearer "+head)
+			} else {
+				req.Header.Set("Authorization", head)
+			}
+		}
 		body := NewSubmitRequestBody(p)
 		if err := encoder(req).Encode(&body); err != nil {
 			return goahttp.ErrEncodingError("storage", "submit", err)
@@ -68,6 +77,7 @@ func EncodeSubmitRequest(encoder func(*http.Request) goahttp.Encoder) func(*http
 // DecodeSubmitResponse may return the following errors:
 //   - "not_available" (type *goa.ServiceError): http.StatusConflict
 //   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
+//   - "unauthorized" (type storage.Unauthorized): http.StatusUnauthorized
 //   - error: internal error
 func DecodeSubmitResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
 	return func(resp *http.Response) (interface{}, error) {
@@ -127,6 +137,16 @@ func DecodeSubmitResponse(decoder func(*http.Response) goahttp.Decoder, restoreB
 				return nil, goahttp.ErrValidationError("storage", "submit", err)
 			}
 			return nil, NewSubmitNotValid(&body)
+		case http.StatusUnauthorized:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "submit", err)
+			}
+			return nil, NewSubmitUnauthorized(body)
 		default:
 			body, _ := io.ReadAll(resp.Body)
 			return nil, goahttp.ErrInvalidResponse("storage", "submit", resp.StatusCode, string(body))
@@ -159,12 +179,33 @@ func (c *Client) BuildUpdateRequest(ctx context.Context, v interface{}) (*http.R
 	return req, nil
 }
 
+// EncodeUpdateRequest returns an encoder for requests sent to the storage
+// update server.
+func EncodeUpdateRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, interface{}) error {
+	return func(req *http.Request, v interface{}) error {
+		p, ok := v.(*storage.UpdatePayload)
+		if !ok {
+			return goahttp.ErrInvalidType("storage", "update", "*storage.UpdatePayload", v)
+		}
+		if p.OauthToken != nil {
+			head := *p.OauthToken
+			if !strings.Contains(head, " ") {
+				req.Header.Set("Authorization", "Bearer "+head)
+			} else {
+				req.Header.Set("Authorization", head)
+			}
+		}
+		return nil
+	}
+}
+
 // DecodeUpdateResponse returns a decoder for responses returned by the storage
 // update endpoint. restoreBody controls whether the response body should be
 // restored after having been read.
 // DecodeUpdateResponse may return the following errors:
 //   - "not_available" (type *goa.ServiceError): http.StatusConflict
 //   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
+//   - "unauthorized" (type storage.Unauthorized): http.StatusUnauthorized
 //   - error: internal error
 func DecodeUpdateResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
 	return func(resp *http.Response) (interface{}, error) {
@@ -211,6 +252,16 @@ func DecodeUpdateResponse(decoder func(*http.Response) goahttp.Decoder, restoreB
 				return nil, goahttp.ErrValidationError("storage", "update", err)
 			}
 			return nil, NewUpdateNotValid(&body)
+		case http.StatusUnauthorized:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "update", err)
+			}
+			return nil, NewUpdateUnauthorized(body)
 		default:
 			body, _ := io.ReadAll(resp.Body)
 			return nil, goahttp.ErrInvalidResponse("storage", "update", resp.StatusCode, string(body))
@@ -243,11 +294,32 @@ func (c *Client) BuildDownloadRequest(ctx context.Context, v interface{}) (*http
 	return req, nil
 }
 
+// EncodeDownloadRequest returns an encoder for requests sent to the storage
+// download server.
+func EncodeDownloadRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, interface{}) error {
+	return func(req *http.Request, v interface{}) error {
+		p, ok := v.(*storage.DownloadPayload)
+		if !ok {
+			return goahttp.ErrInvalidType("storage", "download", "*storage.DownloadPayload", v)
+		}
+		if p.OauthToken != nil {
+			head := *p.OauthToken
+			if !strings.Contains(head, " ") {
+				req.Header.Set("Authorization", "Bearer "+head)
+			} else {
+				req.Header.Set("Authorization", head)
+			}
+		}
+		return nil
+	}
+}
+
 // DecodeDownloadResponse returns a decoder for responses returned by the
 // storage download endpoint. restoreBody controls whether the response body
 // should be restored after having been read.
 // DecodeDownloadResponse may return the following errors:
 //   - "not_found" (type *storage.PackageNotFound): http.StatusNotFound
+//   - "unauthorized" (type storage.Unauthorized): http.StatusUnauthorized
 //   - error: internal error
 func DecodeDownloadResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
 	return func(resp *http.Response) (interface{}, error) {
@@ -288,6 +360,16 @@ func DecodeDownloadResponse(decoder func(*http.Response) goahttp.Decoder, restor
 				return nil, goahttp.ErrValidationError("storage", "download", err)
 			}
 			return nil, NewDownloadNotFound(&body)
+		case http.StatusUnauthorized:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "download", err)
+			}
+			return nil, NewDownloadUnauthorized(body)
 		default:
 			body, _ := io.ReadAll(resp.Body)
 			return nil, goahttp.ErrInvalidResponse("storage", "download", resp.StatusCode, string(body))
@@ -310,9 +392,32 @@ func (c *Client) BuildLocationsRequest(ctx context.Context, v interface{}) (*htt
 	return req, nil
 }
 
+// EncodeLocationsRequest returns an encoder for requests sent to the storage
+// locations server.
+func EncodeLocationsRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, interface{}) error {
+	return func(req *http.Request, v interface{}) error {
+		p, ok := v.(*storage.LocationsPayload)
+		if !ok {
+			return goahttp.ErrInvalidType("storage", "locations", "*storage.LocationsPayload", v)
+		}
+		if p.OauthToken != nil {
+			head := *p.OauthToken
+			if !strings.Contains(head, " ") {
+				req.Header.Set("Authorization", "Bearer "+head)
+			} else {
+				req.Header.Set("Authorization", head)
+			}
+		}
+		return nil
+	}
+}
+
 // DecodeLocationsResponse returns a decoder for responses returned by the
 // storage locations endpoint. restoreBody controls whether the response body
 // should be restored after having been read.
+// DecodeLocationsResponse may return the following errors:
+//   - "unauthorized" (type storage.Unauthorized): http.StatusUnauthorized
+//   - error: internal error
 func DecodeLocationsResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
 	return func(resp *http.Response) (interface{}, error) {
 		if restoreBody {
@@ -345,6 +450,16 @@ func DecodeLocationsResponse(decoder func(*http.Response) goahttp.Decoder, resto
 			}
 			res := storage.NewLocationCollection(vres)
 			return res, nil
+		case http.StatusUnauthorized:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "locations", err)
+			}
+			return nil, NewLocationsUnauthorized(body)
 		default:
 			body, _ := io.ReadAll(resp.Body)
 			return nil, goahttp.ErrInvalidResponse("storage", "locations", resp.StatusCode, string(body))
@@ -375,6 +490,14 @@ func EncodeAddLocationRequest(encoder func(*http.Request) goahttp.Encoder) func(
 		if !ok {
 			return goahttp.ErrInvalidType("storage", "add_location", "*storage.AddLocationPayload", v)
 		}
+		if p.OauthToken != nil {
+			head := *p.OauthToken
+			if !strings.Contains(head, " ") {
+				req.Header.Set("Authorization", "Bearer "+head)
+			} else {
+				req.Header.Set("Authorization", head)
+			}
+		}
 		body := NewAddLocationRequestBody(p)
 		if err := encoder(req).Encode(&body); err != nil {
 			return goahttp.ErrEncodingError("storage", "add_location", err)
@@ -388,6 +511,7 @@ func EncodeAddLocationRequest(encoder func(*http.Request) goahttp.Encoder) func(
 // body should be restored after having been read.
 // DecodeAddLocationResponse may return the following errors:
 //   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
+//   - "unauthorized" (type storage.Unauthorized): http.StatusUnauthorized
 //   - error: internal error
 func DecodeAddLocationResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
 	return func(resp *http.Response) (interface{}, error) {
@@ -433,6 +557,16 @@ func DecodeAddLocationResponse(decoder func(*http.Response) goahttp.Decoder, res
 				return nil, goahttp.ErrValidationError("storage", "add_location", err)
 			}
 			return nil, NewAddLocationNotValid(&body)
+		case http.StatusUnauthorized:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "add_location", err)
+			}
+			return nil, NewAddLocationUnauthorized(body)
 		default:
 			body, _ := io.ReadAll(resp.Body)
 			return nil, goahttp.ErrInvalidResponse("storage", "add_location", resp.StatusCode, string(body))
@@ -473,6 +607,14 @@ func EncodeMoveRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.R
 		if !ok {
 			return goahttp.ErrInvalidType("storage", "move", "*storage.MovePayload", v)
 		}
+		if p.OauthToken != nil {
+			head := *p.OauthToken
+			if !strings.Contains(head, " ") {
+				req.Header.Set("Authorization", "Bearer "+head)
+			} else {
+				req.Header.Set("Authorization", head)
+			}
+		}
 		body := NewMoveRequestBody(p)
 		if err := encoder(req).Encode(&body); err != nil {
 			return goahttp.ErrEncodingError("storage", "move", err)
@@ -488,6 +630,7 @@ func EncodeMoveRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.R
 //   - "not_available" (type *goa.ServiceError): http.StatusConflict
 //   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
 //   - "not_found" (type *storage.PackageNotFound): http.StatusNotFound
+//   - "unauthorized" (type storage.Unauthorized): http.StatusUnauthorized
 //   - error: internal error
 func DecodeMoveResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
 	return func(resp *http.Response) (interface{}, error) {
@@ -548,6 +691,16 @@ func DecodeMoveResponse(decoder func(*http.Response) goahttp.Decoder, restoreBod
 				return nil, goahttp.ErrValidationError("storage", "move", err)
 			}
 			return nil, NewMoveNotFound(&body)
+		case http.StatusUnauthorized:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "move", err)
+			}
+			return nil, NewMoveUnauthorized(body)
 		default:
 			body, _ := io.ReadAll(resp.Body)
 			return nil, goahttp.ErrInvalidResponse("storage", "move", resp.StatusCode, string(body))
@@ -580,12 +733,33 @@ func (c *Client) BuildMoveStatusRequest(ctx context.Context, v interface{}) (*ht
 	return req, nil
 }
 
+// EncodeMoveStatusRequest returns an encoder for requests sent to the storage
+// move_status server.
+func EncodeMoveStatusRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, interface{}) error {
+	return func(req *http.Request, v interface{}) error {
+		p, ok := v.(*storage.MoveStatusPayload)
+		if !ok {
+			return goahttp.ErrInvalidType("storage", "move_status", "*storage.MoveStatusPayload", v)
+		}
+		if p.OauthToken != nil {
+			head := *p.OauthToken
+			if !strings.Contains(head, " ") {
+				req.Header.Set("Authorization", "Bearer "+head)
+			} else {
+				req.Header.Set("Authorization", head)
+			}
+		}
+		return nil
+	}
+}
+
 // DecodeMoveStatusResponse returns a decoder for responses returned by the
 // storage move_status endpoint. restoreBody controls whether the response body
 // should be restored after having been read.
 // DecodeMoveStatusResponse may return the following errors:
 //   - "failed_dependency" (type *goa.ServiceError): http.StatusFailedDependency
 //   - "not_found" (type *storage.PackageNotFound): http.StatusNotFound
+//   - "unauthorized" (type storage.Unauthorized): http.StatusUnauthorized
 //   - error: internal error
 func DecodeMoveStatusResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
 	return func(resp *http.Response) (interface{}, error) {
@@ -645,6 +819,16 @@ func DecodeMoveStatusResponse(decoder func(*http.Response) goahttp.Decoder, rest
 				return nil, goahttp.ErrValidationError("storage", "move_status", err)
 			}
 			return nil, NewMoveStatusNotFound(&body)
+		case http.StatusUnauthorized:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "move_status", err)
+			}
+			return nil, NewMoveStatusUnauthorized(body)
 		default:
 			body, _ := io.ReadAll(resp.Body)
 			return nil, goahttp.ErrInvalidResponse("storage", "move_status", resp.StatusCode, string(body))
@@ -677,6 +861,26 @@ func (c *Client) BuildRejectRequest(ctx context.Context, v interface{}) (*http.R
 	return req, nil
 }
 
+// EncodeRejectRequest returns an encoder for requests sent to the storage
+// reject server.
+func EncodeRejectRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, interface{}) error {
+	return func(req *http.Request, v interface{}) error {
+		p, ok := v.(*storage.RejectPayload)
+		if !ok {
+			return goahttp.ErrInvalidType("storage", "reject", "*storage.RejectPayload", v)
+		}
+		if p.OauthToken != nil {
+			head := *p.OauthToken
+			if !strings.Contains(head, " ") {
+				req.Header.Set("Authorization", "Bearer "+head)
+			} else {
+				req.Header.Set("Authorization", head)
+			}
+		}
+		return nil
+	}
+}
+
 // DecodeRejectResponse returns a decoder for responses returned by the storage
 // reject endpoint. restoreBody controls whether the response body should be
 // restored after having been read.
@@ -684,6 +888,7 @@ func (c *Client) BuildRejectRequest(ctx context.Context, v interface{}) (*http.R
 //   - "not_available" (type *goa.ServiceError): http.StatusConflict
 //   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
 //   - "not_found" (type *storage.PackageNotFound): http.StatusNotFound
+//   - "unauthorized" (type storage.Unauthorized): http.StatusUnauthorized
 //   - error: internal error
 func DecodeRejectResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
 	return func(resp *http.Response) (interface{}, error) {
@@ -744,6 +949,16 @@ func DecodeRejectResponse(decoder func(*http.Response) goahttp.Decoder, restoreB
 				return nil, goahttp.ErrValidationError("storage", "reject", err)
 			}
 			return nil, NewRejectNotFound(&body)
+		case http.StatusUnauthorized:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "reject", err)
+			}
+			return nil, NewRejectUnauthorized(body)
 		default:
 			body, _ := io.ReadAll(resp.Body)
 			return nil, goahttp.ErrInvalidResponse("storage", "reject", resp.StatusCode, string(body))
@@ -776,11 +991,32 @@ func (c *Client) BuildShowRequest(ctx context.Context, v interface{}) (*http.Req
 	return req, nil
 }
 
+// EncodeShowRequest returns an encoder for requests sent to the storage show
+// server.
+func EncodeShowRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, interface{}) error {
+	return func(req *http.Request, v interface{}) error {
+		p, ok := v.(*storage.ShowPayload)
+		if !ok {
+			return goahttp.ErrInvalidType("storage", "show", "*storage.ShowPayload", v)
+		}
+		if p.OauthToken != nil {
+			head := *p.OauthToken
+			if !strings.Contains(head, " ") {
+				req.Header.Set("Authorization", "Bearer "+head)
+			} else {
+				req.Header.Set("Authorization", head)
+			}
+		}
+		return nil
+	}
+}
+
 // DecodeShowResponse returns a decoder for responses returned by the storage
 // show endpoint. restoreBody controls whether the response body should be
 // restored after having been read.
 // DecodeShowResponse may return the following errors:
 //   - "not_found" (type *storage.PackageNotFound): http.StatusNotFound
+//   - "unauthorized" (type storage.Unauthorized): http.StatusUnauthorized
 //   - error: internal error
 func DecodeShowResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
 	return func(resp *http.Response) (interface{}, error) {
@@ -828,6 +1064,16 @@ func DecodeShowResponse(decoder func(*http.Response) goahttp.Decoder, restoreBod
 				return nil, goahttp.ErrValidationError("storage", "show", err)
 			}
 			return nil, NewShowNotFound(&body)
+		case http.StatusUnauthorized:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "show", err)
+			}
+			return nil, NewShowUnauthorized(body)
 		default:
 			body, _ := io.ReadAll(resp.Body)
 			return nil, goahttp.ErrInvalidResponse("storage", "show", resp.StatusCode, string(body))
@@ -860,11 +1106,32 @@ func (c *Client) BuildShowLocationRequest(ctx context.Context, v interface{}) (*
 	return req, nil
 }
 
+// EncodeShowLocationRequest returns an encoder for requests sent to the
+// storage show_location server.
+func EncodeShowLocationRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, interface{}) error {
+	return func(req *http.Request, v interface{}) error {
+		p, ok := v.(*storage.ShowLocationPayload)
+		if !ok {
+			return goahttp.ErrInvalidType("storage", "show_location", "*storage.ShowLocationPayload", v)
+		}
+		if p.OauthToken != nil {
+			head := *p.OauthToken
+			if !strings.Contains(head, " ") {
+				req.Header.Set("Authorization", "Bearer "+head)
+			} else {
+				req.Header.Set("Authorization", head)
+			}
+		}
+		return nil
+	}
+}
+
 // DecodeShowLocationResponse returns a decoder for responses returned by the
 // storage show_location endpoint. restoreBody controls whether the response
 // body should be restored after having been read.
 // DecodeShowLocationResponse may return the following errors:
 //   - "not_found" (type *storage.LocationNotFound): http.StatusNotFound
+//   - "unauthorized" (type storage.Unauthorized): http.StatusUnauthorized
 //   - error: internal error
 func DecodeShowLocationResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
 	return func(resp *http.Response) (interface{}, error) {
@@ -912,6 +1179,16 @@ func DecodeShowLocationResponse(decoder func(*http.Response) goahttp.Decoder, re
 				return nil, goahttp.ErrValidationError("storage", "show_location", err)
 			}
 			return nil, NewShowLocationNotFound(&body)
+		case http.StatusUnauthorized:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "show_location", err)
+			}
+			return nil, NewShowLocationUnauthorized(body)
 		default:
 			body, _ := io.ReadAll(resp.Body)
 			return nil, goahttp.ErrInvalidResponse("storage", "show_location", resp.StatusCode, string(body))
@@ -944,12 +1221,33 @@ func (c *Client) BuildLocationPackagesRequest(ctx context.Context, v interface{}
 	return req, nil
 }
 
+// EncodeLocationPackagesRequest returns an encoder for requests sent to the
+// storage location_packages server.
+func EncodeLocationPackagesRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, interface{}) error {
+	return func(req *http.Request, v interface{}) error {
+		p, ok := v.(*storage.LocationPackagesPayload)
+		if !ok {
+			return goahttp.ErrInvalidType("storage", "location_packages", "*storage.LocationPackagesPayload", v)
+		}
+		if p.OauthToken != nil {
+			head := *p.OauthToken
+			if !strings.Contains(head, " ") {
+				req.Header.Set("Authorization", "Bearer "+head)
+			} else {
+				req.Header.Set("Authorization", head)
+			}
+		}
+		return nil
+	}
+}
+
 // DecodeLocationPackagesResponse returns a decoder for responses returned by
 // the storage location_packages endpoint. restoreBody controls whether the
 // response body should be restored after having been read.
 // DecodeLocationPackagesResponse may return the following errors:
 //   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
 //   - "not_found" (type *storage.LocationNotFound): http.StatusNotFound
+//   - "unauthorized" (type storage.Unauthorized): http.StatusUnauthorized
 //   - error: internal error
 func DecodeLocationPackagesResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
 	return func(resp *http.Response) (interface{}, error) {
@@ -1011,6 +1309,16 @@ func DecodeLocationPackagesResponse(decoder func(*http.Response) goahttp.Decoder
 				return nil, goahttp.ErrValidationError("storage", "location_packages", err)
 			}
 			return nil, NewLocationPackagesNotFound(&body)
+		case http.StatusUnauthorized:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "location_packages", err)
+			}
+			return nil, NewLocationPackagesUnauthorized(body)
 		default:
 			body, _ := io.ReadAll(resp.Body)
 			return nil, goahttp.ErrInvalidResponse("storage", "location_packages", resp.StatusCode, string(body))

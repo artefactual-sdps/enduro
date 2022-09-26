@@ -1,8 +1,8 @@
 # Enduro - Pulumi
 
 Pulumi project to manage Enduro's infrastructure in DigitalOcean Kubernetes
-clusters and AWS Route 53 records, with Let's Encrypt certificates and basic
-authentication.
+clusters and AWS Route 53 records, with Let's Encrypt certificates and
+authentication using an existing Github OAuth application.
 
 ## Requirements
 
@@ -43,13 +43,17 @@ Use the [Pulumi CLI] `config set` and `config set-all` commands to configure.
 - `aws:region`: AWS region.
 - `aws:accessKey` **secret**: AWS access key.
 - `aws:secretKey` **secret**: AWS secret key.
-- `basicAuthUsername` **secret**: Basic authentication username.
-- `basicAuthPassword` **secret**: Basic authentication password.
 - `mysqlUser` **secret**: MySQL user for the Enduro and Temporal databases.
 - `mysqlPassword` **secret**: Password for the MySQL user.
 - `mysqlRootPassword` **secret**: Password for the MySQL root user.
 - `minioUser` **secret**: MinIO user for the UI and API.
 - `minioPassword` **secret**: Password for the MinIO user.
+- `dexGithubClientId` **secret**: Client id from the Github OAuth App.
+- `dexGithubClientSecret` **secret**: Client secret from the Github OAuth App.
+- `dexEnduroClientId` **secret**: OIDC client id for Enduro.
+- `dexEnduroClientSecret` **secret**: OIDC client secret for Enduro.
+- `dexTemporalClientId` **secret**: OIDC client id for Temporal.
+- `dexTemporalClientSecret` **secret**: OIDC client secret for Temporal.
 
 ### Optional
 
@@ -73,14 +77,18 @@ pulumi config set-all \
   --plaintext route53HostedZone=example.com \
   --plaintext route53Subdomain=sub.domain \
   --plaintext clusterName=my-sdps-cluster \
-  --secret basicAuthUsername=abc123 \
-  --secret basicAuthPassword=abc123 \
   --secret mysqlUser=abc123 \
   --secret mysqlPassword=abc123 \
   --secret mysqlRootPassword=abc123 \
   --secret minioUser=abc123 \
   --secret minioPassword=abc123 \
-  --plaintext buildImages=true
+  --plaintext buildImages=true \
+  --secret dexGithubClientId=abc123 \
+  --secret dexGithubClientSecret=abc123 \
+  --secret dexEnduroClientId=abc123 \
+  --secret dexEnduroClientSecret=abc123 \
+  --secret dexTemporalClientId=abc123 \
+  --secret dexTemporalClientSecret=abc123
 ```
 
 ## Create stack

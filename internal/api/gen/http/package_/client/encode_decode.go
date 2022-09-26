@@ -14,11 +14,118 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strings"
 
 	package_ "github.com/artefactual-sdps/enduro/internal/api/gen/package_"
 	package_views "github.com/artefactual-sdps/enduro/internal/api/gen/package_/views"
 	goahttp "goa.design/goa/v3/http"
 )
+
+// BuildMonitorRequestRequest instantiates a HTTP request object with method
+// and path set to call the "package" service "monitor_request" endpoint
+func (c *Client) BuildMonitorRequestRequest(ctx context.Context, v interface{}) (*http.Request, error) {
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: MonitorRequestPackagePath()}
+	req, err := http.NewRequest("POST", u.String(), nil)
+	if err != nil {
+		return nil, goahttp.ErrInvalidURL("package", "monitor_request", u.String(), err)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
+	return req, nil
+}
+
+// EncodeMonitorRequestRequest returns an encoder for requests sent to the
+// package monitor_request server.
+func EncodeMonitorRequestRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, interface{}) error {
+	return func(req *http.Request, v interface{}) error {
+		p, ok := v.(*package_.MonitorRequestPayload)
+		if !ok {
+			return goahttp.ErrInvalidType("package", "monitor_request", "*package_.MonitorRequestPayload", v)
+		}
+		if p.OauthToken != nil {
+			head := *p.OauthToken
+			if !strings.Contains(head, " ") {
+				req.Header.Set("Authorization", "Bearer "+head)
+			} else {
+				req.Header.Set("Authorization", head)
+			}
+		}
+		return nil
+	}
+}
+
+// DecodeMonitorRequestResponse returns a decoder for responses returned by the
+// package monitor_request endpoint. restoreBody controls whether the response
+// body should be restored after having been read.
+// DecodeMonitorRequestResponse may return the following errors:
+//   - "not_available" (type *goa.ServiceError): http.StatusInternalServerError
+//   - "unauthorized" (type package_.Unauthorized): http.StatusUnauthorized
+//   - error: internal error
+func DecodeMonitorRequestResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
+	return func(resp *http.Response) (interface{}, error) {
+		if restoreBody {
+			b, err := io.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			defer func() {
+				resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			}()
+		} else {
+			defer resp.Body.Close()
+		}
+		switch resp.StatusCode {
+		case http.StatusOK:
+			var (
+				ticket    *string
+				ticketRaw string
+
+				cookies = resp.Cookies()
+			)
+			for _, c := range cookies {
+				switch c.Name {
+				case "enduro-ws-ticket":
+					ticketRaw = c.Value
+				}
+			}
+			if ticketRaw != "" {
+				ticket = &ticketRaw
+			}
+			res := NewMonitorRequestResultOK(ticket)
+			return res, nil
+		case http.StatusInternalServerError:
+			var (
+				body MonitorRequestNotAvailableResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("package", "monitor_request", err)
+			}
+			err = ValidateMonitorRequestNotAvailableResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("package", "monitor_request", err)
+			}
+			return nil, NewMonitorRequestNotAvailable(&body)
+		case http.StatusUnauthorized:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("package", "monitor_request", err)
+			}
+			return nil, NewMonitorRequestUnauthorized(body)
+		default:
+			body, _ := io.ReadAll(resp.Body)
+			return nil, goahttp.ErrInvalidResponse("package", "monitor_request", resp.StatusCode, string(body))
+		}
+	}
+}
 
 // BuildMonitorRequest instantiates a HTTP request object with method and path
 // set to call the "package" service "monitor" endpoint
@@ -42,9 +149,32 @@ func (c *Client) BuildMonitorRequest(ctx context.Context, v interface{}) (*http.
 	return req, nil
 }
 
+// EncodeMonitorRequest returns an encoder for requests sent to the package
+// monitor server.
+func EncodeMonitorRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, interface{}) error {
+	return func(req *http.Request, v interface{}) error {
+		p, ok := v.(*package_.MonitorPayload)
+		if !ok {
+			return goahttp.ErrInvalidType("package", "monitor", "*package_.MonitorPayload", v)
+		}
+		if p.Ticket != nil {
+			v := *p.Ticket
+			req.AddCookie(&http.Cookie{
+				Name:  "enduro-ws-ticket",
+				Value: v,
+			})
+		}
+		return nil
+	}
+}
+
 // DecodeMonitorResponse returns a decoder for responses returned by the
 // package monitor endpoint. restoreBody controls whether the response body
 // should be restored after having been read.
+// DecodeMonitorResponse may return the following errors:
+//   - "not_available" (type *goa.ServiceError): http.StatusInternalServerError
+//   - "unauthorized" (type package_.Unauthorized): http.StatusUnauthorized
+//   - error: internal error
 func DecodeMonitorResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
 	return func(resp *http.Response) (interface{}, error) {
 		if restoreBody {
@@ -77,6 +207,30 @@ func DecodeMonitorResponse(decoder func(*http.Response) goahttp.Decoder, restore
 			}
 			res := package_.NewEnduroMonitorEvent(vres)
 			return res, nil
+		case http.StatusInternalServerError:
+			var (
+				body MonitorNotAvailableResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("package", "monitor", err)
+			}
+			err = ValidateMonitorNotAvailableResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("package", "monitor", err)
+			}
+			return nil, NewMonitorNotAvailable(&body)
+		case http.StatusUnauthorized:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("package", "monitor", err)
+			}
+			return nil, NewMonitorUnauthorized(body)
 		default:
 			body, _ := io.ReadAll(resp.Body)
 			return nil, goahttp.ErrInvalidResponse("package", "monitor", resp.StatusCode, string(body))
@@ -106,6 +260,14 @@ func EncodeListRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.R
 		p, ok := v.(*package_.ListPayload)
 		if !ok {
 			return goahttp.ErrInvalidType("package", "list", "*package_.ListPayload", v)
+		}
+		if p.OauthToken != nil {
+			head := *p.OauthToken
+			if !strings.Contains(head, " ") {
+				req.Header.Set("Authorization", "Bearer "+head)
+			} else {
+				req.Header.Set("Authorization", head)
+			}
 		}
 		values := req.URL.Query()
 		if p.Name != nil {
@@ -137,6 +299,9 @@ func EncodeListRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.R
 // DecodeListResponse returns a decoder for responses returned by the package
 // list endpoint. restoreBody controls whether the response body should be
 // restored after having been read.
+// DecodeListResponse may return the following errors:
+//   - "unauthorized" (type package_.Unauthorized): http.StatusUnauthorized
+//   - error: internal error
 func DecodeListResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
 	return func(resp *http.Response) (interface{}, error) {
 		if restoreBody {
@@ -167,6 +332,16 @@ func DecodeListResponse(decoder func(*http.Response) goahttp.Decoder, restoreBod
 			}
 			res := NewListResultOK(&body)
 			return res, nil
+		case http.StatusUnauthorized:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("package", "list", err)
+			}
+			return nil, NewListUnauthorized(body)
 		default:
 			body, _ := io.ReadAll(resp.Body)
 			return nil, goahttp.ErrInvalidResponse("package", "list", resp.StatusCode, string(body))
@@ -199,12 +374,33 @@ func (c *Client) BuildShowRequest(ctx context.Context, v interface{}) (*http.Req
 	return req, nil
 }
 
+// EncodeShowRequest returns an encoder for requests sent to the package show
+// server.
+func EncodeShowRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, interface{}) error {
+	return func(req *http.Request, v interface{}) error {
+		p, ok := v.(*package_.ShowPayload)
+		if !ok {
+			return goahttp.ErrInvalidType("package", "show", "*package_.ShowPayload", v)
+		}
+		if p.OauthToken != nil {
+			head := *p.OauthToken
+			if !strings.Contains(head, " ") {
+				req.Header.Set("Authorization", "Bearer "+head)
+			} else {
+				req.Header.Set("Authorization", head)
+			}
+		}
+		return nil
+	}
+}
+
 // DecodeShowResponse returns a decoder for responses returned by the package
 // show endpoint. restoreBody controls whether the response body should be
 // restored after having been read.
 // DecodeShowResponse may return the following errors:
 //   - "not_available" (type *goa.ServiceError): http.StatusConflict
 //   - "not_found" (type *package_.PackageNotFound): http.StatusNotFound
+//   - "unauthorized" (type package_.Unauthorized): http.StatusUnauthorized
 //   - error: internal error
 func DecodeShowResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
 	return func(resp *http.Response) (interface{}, error) {
@@ -266,6 +462,16 @@ func DecodeShowResponse(decoder func(*http.Response) goahttp.Decoder, restoreBod
 				return nil, goahttp.ErrValidationError("package", "show", err)
 			}
 			return nil, NewShowNotFound(&body)
+		case http.StatusUnauthorized:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("package", "show", err)
+			}
+			return nil, NewShowUnauthorized(body)
 		default:
 			body, _ := io.ReadAll(resp.Body)
 			return nil, goahttp.ErrInvalidResponse("package", "show", resp.StatusCode, string(body))
@@ -299,11 +505,32 @@ func (c *Client) BuildPreservationActionsRequest(ctx context.Context, v interfac
 	return req, nil
 }
 
+// EncodePreservationActionsRequest returns an encoder for requests sent to the
+// package preservation_actions server.
+func EncodePreservationActionsRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, interface{}) error {
+	return func(req *http.Request, v interface{}) error {
+		p, ok := v.(*package_.PreservationActionsPayload)
+		if !ok {
+			return goahttp.ErrInvalidType("package", "preservation_actions", "*package_.PreservationActionsPayload", v)
+		}
+		if p.OauthToken != nil {
+			head := *p.OauthToken
+			if !strings.Contains(head, " ") {
+				req.Header.Set("Authorization", "Bearer "+head)
+			} else {
+				req.Header.Set("Authorization", head)
+			}
+		}
+		return nil
+	}
+}
+
 // DecodePreservationActionsResponse returns a decoder for responses returned
 // by the package preservation_actions endpoint. restoreBody controls whether
 // the response body should be restored after having been read.
 // DecodePreservationActionsResponse may return the following errors:
 //   - "not_found" (type *package_.PackageNotFound): http.StatusNotFound
+//   - "unauthorized" (type package_.Unauthorized): http.StatusUnauthorized
 //   - error: internal error
 func DecodePreservationActionsResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
 	return func(resp *http.Response) (interface{}, error) {
@@ -351,6 +578,16 @@ func DecodePreservationActionsResponse(decoder func(*http.Response) goahttp.Deco
 				return nil, goahttp.ErrValidationError("package", "preservation_actions", err)
 			}
 			return nil, NewPreservationActionsNotFound(&body)
+		case http.StatusUnauthorized:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("package", "preservation_actions", err)
+			}
+			return nil, NewPreservationActionsUnauthorized(body)
 		default:
 			body, _ := io.ReadAll(resp.Body)
 			return nil, goahttp.ErrInvalidResponse("package", "preservation_actions", resp.StatusCode, string(body))
@@ -391,6 +628,14 @@ func EncodeConfirmRequest(encoder func(*http.Request) goahttp.Encoder) func(*htt
 		if !ok {
 			return goahttp.ErrInvalidType("package", "confirm", "*package_.ConfirmPayload", v)
 		}
+		if p.OauthToken != nil {
+			head := *p.OauthToken
+			if !strings.Contains(head, " ") {
+				req.Header.Set("Authorization", "Bearer "+head)
+			} else {
+				req.Header.Set("Authorization", head)
+			}
+		}
 		body := NewConfirmRequestBody(p)
 		if err := encoder(req).Encode(&body); err != nil {
 			return goahttp.ErrEncodingError("package", "confirm", err)
@@ -406,6 +651,7 @@ func EncodeConfirmRequest(encoder func(*http.Request) goahttp.Encoder) func(*htt
 //   - "not_available" (type *goa.ServiceError): http.StatusConflict
 //   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
 //   - "not_found" (type *package_.PackageNotFound): http.StatusNotFound
+//   - "unauthorized" (type package_.Unauthorized): http.StatusUnauthorized
 //   - error: internal error
 func DecodeConfirmResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
 	return func(resp *http.Response) (interface{}, error) {
@@ -466,6 +712,16 @@ func DecodeConfirmResponse(decoder func(*http.Response) goahttp.Decoder, restore
 				return nil, goahttp.ErrValidationError("package", "confirm", err)
 			}
 			return nil, NewConfirmNotFound(&body)
+		case http.StatusUnauthorized:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("package", "confirm", err)
+			}
+			return nil, NewConfirmUnauthorized(body)
 		default:
 			body, _ := io.ReadAll(resp.Body)
 			return nil, goahttp.ErrInvalidResponse("package", "confirm", resp.StatusCode, string(body))
@@ -498,6 +754,26 @@ func (c *Client) BuildRejectRequest(ctx context.Context, v interface{}) (*http.R
 	return req, nil
 }
 
+// EncodeRejectRequest returns an encoder for requests sent to the package
+// reject server.
+func EncodeRejectRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, interface{}) error {
+	return func(req *http.Request, v interface{}) error {
+		p, ok := v.(*package_.RejectPayload)
+		if !ok {
+			return goahttp.ErrInvalidType("package", "reject", "*package_.RejectPayload", v)
+		}
+		if p.OauthToken != nil {
+			head := *p.OauthToken
+			if !strings.Contains(head, " ") {
+				req.Header.Set("Authorization", "Bearer "+head)
+			} else {
+				req.Header.Set("Authorization", head)
+			}
+		}
+		return nil
+	}
+}
+
 // DecodeRejectResponse returns a decoder for responses returned by the package
 // reject endpoint. restoreBody controls whether the response body should be
 // restored after having been read.
@@ -505,6 +781,7 @@ func (c *Client) BuildRejectRequest(ctx context.Context, v interface{}) (*http.R
 //   - "not_available" (type *goa.ServiceError): http.StatusConflict
 //   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
 //   - "not_found" (type *package_.PackageNotFound): http.StatusNotFound
+//   - "unauthorized" (type package_.Unauthorized): http.StatusUnauthorized
 //   - error: internal error
 func DecodeRejectResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
 	return func(resp *http.Response) (interface{}, error) {
@@ -565,6 +842,16 @@ func DecodeRejectResponse(decoder func(*http.Response) goahttp.Decoder, restoreB
 				return nil, goahttp.ErrValidationError("package", "reject", err)
 			}
 			return nil, NewRejectNotFound(&body)
+		case http.StatusUnauthorized:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("package", "reject", err)
+			}
+			return nil, NewRejectUnauthorized(body)
 		default:
 			body, _ := io.ReadAll(resp.Body)
 			return nil, goahttp.ErrInvalidResponse("package", "reject", resp.StatusCode, string(body))
@@ -605,6 +892,14 @@ func EncodeMoveRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.R
 		if !ok {
 			return goahttp.ErrInvalidType("package", "move", "*package_.MovePayload", v)
 		}
+		if p.OauthToken != nil {
+			head := *p.OauthToken
+			if !strings.Contains(head, " ") {
+				req.Header.Set("Authorization", "Bearer "+head)
+			} else {
+				req.Header.Set("Authorization", head)
+			}
+		}
 		body := NewMoveRequestBody(p)
 		if err := encoder(req).Encode(&body); err != nil {
 			return goahttp.ErrEncodingError("package", "move", err)
@@ -620,6 +915,7 @@ func EncodeMoveRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.R
 //   - "not_available" (type *goa.ServiceError): http.StatusConflict
 //   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
 //   - "not_found" (type *package_.PackageNotFound): http.StatusNotFound
+//   - "unauthorized" (type package_.Unauthorized): http.StatusUnauthorized
 //   - error: internal error
 func DecodeMoveResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
 	return func(resp *http.Response) (interface{}, error) {
@@ -680,6 +976,16 @@ func DecodeMoveResponse(decoder func(*http.Response) goahttp.Decoder, restoreBod
 				return nil, goahttp.ErrValidationError("package", "move", err)
 			}
 			return nil, NewMoveNotFound(&body)
+		case http.StatusUnauthorized:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("package", "move", err)
+			}
+			return nil, NewMoveUnauthorized(body)
 		default:
 			body, _ := io.ReadAll(resp.Body)
 			return nil, goahttp.ErrInvalidResponse("package", "move", resp.StatusCode, string(body))
@@ -712,12 +1018,33 @@ func (c *Client) BuildMoveStatusRequest(ctx context.Context, v interface{}) (*ht
 	return req, nil
 }
 
+// EncodeMoveStatusRequest returns an encoder for requests sent to the package
+// move_status server.
+func EncodeMoveStatusRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, interface{}) error {
+	return func(req *http.Request, v interface{}) error {
+		p, ok := v.(*package_.MoveStatusPayload)
+		if !ok {
+			return goahttp.ErrInvalidType("package", "move_status", "*package_.MoveStatusPayload", v)
+		}
+		if p.OauthToken != nil {
+			head := *p.OauthToken
+			if !strings.Contains(head, " ") {
+				req.Header.Set("Authorization", "Bearer "+head)
+			} else {
+				req.Header.Set("Authorization", head)
+			}
+		}
+		return nil
+	}
+}
+
 // DecodeMoveStatusResponse returns a decoder for responses returned by the
 // package move_status endpoint. restoreBody controls whether the response body
 // should be restored after having been read.
 // DecodeMoveStatusResponse may return the following errors:
 //   - "failed_dependency" (type *goa.ServiceError): http.StatusFailedDependency
 //   - "not_found" (type *package_.PackageNotFound): http.StatusNotFound
+//   - "unauthorized" (type package_.Unauthorized): http.StatusUnauthorized
 //   - error: internal error
 func DecodeMoveStatusResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
 	return func(resp *http.Response) (interface{}, error) {
@@ -777,6 +1104,16 @@ func DecodeMoveStatusResponse(decoder func(*http.Response) goahttp.Decoder, rest
 				return nil, goahttp.ErrValidationError("package", "move_status", err)
 			}
 			return nil, NewMoveStatusNotFound(&body)
+		case http.StatusUnauthorized:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("package", "move_status", err)
+			}
+			return nil, NewMoveStatusUnauthorized(body)
 		default:
 			body, _ := io.ReadAll(resp.Body)
 			return nil, goahttp.ErrInvalidResponse("package", "move_status", resp.StatusCode, string(body))

@@ -9,6 +9,7 @@
 package client
 
 import (
+	upload "github.com/artefactual-sdps/enduro/internal/api/gen/upload"
 	goa "goa.design/goa/v3/pkg"
 )
 
@@ -108,6 +109,14 @@ func NewUploadInternalError(body *UploadInternalErrorResponseBody) *goa.ServiceE
 		Timeout:   *body.Timeout,
 		Fault:     *body.Fault,
 	}
+
+	return v
+}
+
+// NewUploadUnauthorized builds a upload service upload endpoint unauthorized
+// error.
+func NewUploadUnauthorized(body string) upload.Unauthorized {
+	v := upload.Unauthorized(body)
 
 	return v
 }

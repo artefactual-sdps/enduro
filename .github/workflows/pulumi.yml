@@ -38,4 +38,5 @@ jobs:
           kubectl rollout restart deployment temporal
           kubectl rollout restart deployment enduro
           kubectl rollout restart statefulset enduro-a3m
+          kubectl rollout restart deployment dex
           kubectl create -f hack/kube/base/mysql-create-locations-job.yaml

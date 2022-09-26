@@ -22,6 +22,7 @@ import (
 	"gocloud.dev/blob/memblob"
 	"gotest.tools/v3/assert"
 
+	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 	"github.com/artefactual-sdps/enduro/internal/ref"
 	"github.com/artefactual-sdps/enduro/internal/storage"
@@ -40,6 +41,7 @@ type setUpAttrs struct {
 
 	persistenceMock    *fake.MockStorage
 	temporalClientMock *temporalsdk_mocks.Client
+	tokenVerifier      auth.TokenVerifier
 }
 
 func setUpService(t *testing.T, attrs *setUpAttrs) storage.Service {
@@ -66,6 +68,7 @@ func setUpService(t *testing.T, attrs *setUpAttrs) storage.Service {
 		temporalClientMock:      tcMock,
 		internalLocationFactory: storage.DefaultInternalLocationFactory,
 		locationFactory:         storage.DefaultLocationFactory,
+		tokenVerifier:           &auth.OIDCTokenVerifier{},
 	}
 	if attrs.logger != nil {
 		params.logger = attrs.logger
@@ -85,6 +88,9 @@ func setUpService(t *testing.T, attrs *setUpAttrs) storage.Service {
 	if attrs.locationFactory != nil {
 		params.locationFactory = attrs.locationFactory
 	}
+	if attrs.tokenVerifier != nil {
+		params.tokenVerifier = attrs.tokenVerifier
+	}
 
 	*attrs = params
 
@@ -95,6 +101,7 @@ func setUpService(t *testing.T, attrs *setUpAttrs) storage.Service {
 		*params.temporalClient,
 		params.internalLocationFactory,
 		params.locationFactory,
+		params.tokenVerifier,
 	)
 	assert.NilError(t, err)
 
@@ -206,6 +213,7 @@ func TestNewService(t *testing.T) {
 		nil,
 		storage.DefaultInternalLocationFactory,
 		storage.DefaultLocationFactory,
+		&auth.OIDCTokenVerifier{},
 	)
 
 	assert.ErrorContains(t, err, "s3blob.OpenBucket: bucketName is required")
@@ -528,7 +536,7 @@ func TestServiceList(t *testing.T) {
 			Return(storedLocations, nil).
 			Times(1)
 
-		res, err := svc.Locations(ctx)
+		res, err := svc.Locations(ctx, &goastorage.LocationsPayload{})
 		assert.NilError(t, err)
 		assert.DeepEqual(t, res, storedLocations)
 	})

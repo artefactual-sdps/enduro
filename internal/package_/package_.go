@@ -11,6 +11,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	temporalsdk_client "go.temporal.io/sdk/client"
 
+	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	goapackage "github.com/artefactual-sdps/enduro/internal/api/gen/package_"
 	"github.com/artefactual-sdps/enduro/internal/event"
 )
@@ -32,20 +33,24 @@ type Service interface {
 }
 
 type packageImpl struct {
-	logger logr.Logger
-	db     *sqlx.DB
-	tc     temporalsdk_client.Client
-	evsvc  event.EventService
+	logger         logr.Logger
+	db             *sqlx.DB
+	tc             temporalsdk_client.Client
+	evsvc          event.EventService
+	tokenVerifier  auth.TokenVerifier
+	ticketProvider *auth.TicketProvider
 }
 
 var _ Service = (*packageImpl)(nil)
 
-func NewService(logger logr.Logger, db *sql.DB, tc temporalsdk_client.Client, evsvc event.EventService) *packageImpl {
+func NewService(logger logr.Logger, db *sql.DB, tc temporalsdk_client.Client, evsvc event.EventService, tokenVerifier auth.TokenVerifier, ticketProvider *auth.TicketProvider) *packageImpl {
 	return &packageImpl{
-		logger: logger,
-		db:     sqlx.NewDb(db, "mysql"),
-		tc:     tc,
-		evsvc:  evsvc,
+		logger:         logger,
+		db:             sqlx.NewDb(db, "mysql"),
+		tc:             tc,
+		evsvc:          evsvc,
+		tokenVerifier:  tokenVerifier,
+		ticketProvider: ticketProvider,
 	}
 }
 

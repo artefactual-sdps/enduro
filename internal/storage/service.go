@@ -11,8 +11,10 @@ import (
 	"github.com/google/uuid"
 	temporalapi_enums "go.temporal.io/api/enums/v1"
 	temporalsdk_client "go.temporal.io/sdk/client"
+	"goa.design/goa/v3/security"
 	"gocloud.dev/blob"
 
+	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence"
 	"github.com/artefactual-sdps/enduro/internal/storage/types"
@@ -25,7 +27,7 @@ type Service interface {
 	Submit(context.Context, *goastorage.SubmitPayload) (res *goastorage.SubmitResult, err error)
 	Update(context.Context, *goastorage.UpdatePayload) (err error)
 	Download(context.Context, *goastorage.DownloadPayload) ([]byte, error)
-	Locations(context.Context) (res goastorage.LocationCollection, err error)
+	Locations(context.Context, *goastorage.LocationsPayload) (res goastorage.LocationCollection, err error)
 	Move(context.Context, *goastorage.MovePayload) (err error)
 	MoveStatus(context.Context, *goastorage.MoveStatusPayload) (res *goastorage.MoveStatusResult, err error)
 	Reject(context.Context, *goastorage.RejectPayload) (err error)
@@ -60,17 +62,22 @@ type serviceImpl struct {
 
 	// Factory for permanent locations.
 	locationFactory LocationFactory
+
+	tokenVerifier auth.TokenVerifier
 }
 
 var _ Service = (*serviceImpl)(nil)
 
-func NewService(logger logr.Logger, config Config, storagePersistence persistence.Storage, tc temporalsdk_client.Client, internalLocationFactory InternalLocationFactory, locationFactory LocationFactory) (s *serviceImpl, err error) {
+var ErrInvalidToken error = goastorage.Unauthorized("invalid token")
+
+func NewService(logger logr.Logger, config Config, storagePersistence persistence.Storage, tc temporalsdk_client.Client, internalLocationFactory InternalLocationFactory, locationFactory LocationFactory, tokenVerifier auth.TokenVerifier) (s *serviceImpl, err error) {
 	s = &serviceImpl{
 		logger:             logger,
 		tc:                 tc,
 		config:             config,
 		storagePersistence: storagePersistence,
 		locationFactory:    locationFactory,
+		tokenVerifier:      tokenVerifier,
 	}
 
 	s.internal, err = internalLocationFactory(&config.Internal)
@@ -79,6 +86,19 @@ func NewService(logger logr.Logger, config Config, storagePersistence persistenc
 	}
 
 	return s, nil
+}
+
+func (s *serviceImpl) OAuth2Auth(ctx context.Context, token string, scheme *security.OAuth2Scheme) (context.Context, error) {
+	ok, err := s.tokenVerifier.Verify(ctx, token)
+	if err != nil {
+		s.logger.V(1).Info("failed to verify token", "err", err)
+		return ctx, ErrInvalidToken
+	}
+	if !ok {
+		return ctx, ErrInvalidToken
+	}
+
+	return ctx, nil
 }
 
 func (s *serviceImpl) Location(ctx context.Context, locationID uuid.UUID) (Location, error) {
@@ -158,7 +178,7 @@ func (s *serviceImpl) Download(ctx context.Context, payload *goastorage.Download
 	return []byte{}, nil
 }
 
-func (s *serviceImpl) Locations(ctx context.Context) (goastorage.LocationCollection, error) {
+func (s *serviceImpl) Locations(ctx context.Context, payload *goastorage.LocationsPayload) (goastorage.LocationCollection, error) {
 	return s.storagePersistence.ListLocations(ctx)
 }
 

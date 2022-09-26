@@ -60,6 +60,11 @@ export class UploadApi extends runtime.BaseAPI implements UploadApiInterface {
             headerParameters['Content-Type'] = String(requestParameters.contentType);
         }
 
+        if (this.configuration && this.configuration.accessToken) {
+            // oauth required
+            headerParameters["Authorization"] = await this.configuration.accessToken("oauth2_header_Authorization", []);
+        }
+
         const response = await this.request({
             path: `/upload/upload`,
             method: 'POST',

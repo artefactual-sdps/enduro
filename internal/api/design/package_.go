@@ -6,16 +6,46 @@ import (
 
 var _ = Service("package", func() {
 	Description("The package service manages packages being transferred to a3m.")
+	Error("unauthorized", String, "Invalid token")
 	HTTP(func() {
 		Path("/package")
+		Response("unauthorized", StatusUnauthorized)
+	})
+	Method("monitor_request", func() {
+		Description("Request access to the /monitor WebSocket.")
+		Payload(func() {
+			AccessToken("oauth_token", String)
+		})
+		Result(func() {
+			Attribute("ticket", String)
+		})
+		Error("not_available")
+		HTTP(func() {
+			POST("/monitor")
+			Response("not_available", StatusInternalServerError)
+			Response(StatusOK, func() {
+				Cookie("ticket:enduro-ws-ticket")
+				CookieMaxAge(5)
+				CookieSecure()
+				CookieHTTPOnly()
+			})
+		})
 	})
 	Method("monitor", func() {
+		// Disable OAuth2Auth security (it validates the previous method cookie).
+		NoSecurity()
+		Payload(func() {
+			Attribute("ticket", String)
+		})
 		StreamingResult(MonitorEvent, func() {
 			View("default")
 		})
+		Error("not_available")
 		HTTP(func() {
 			GET("/monitor")
+			Response("not_available", StatusInternalServerError)
 			Response(StatusOK)
+			Cookie("ticket:enduro-ws-ticket")
 		})
 	})
 	Method("list", func() {
@@ -38,6 +68,7 @@ var _ = Service("package", func() {
 				EnumPackageStatus()
 			})
 			Attribute("cursor", String, "Pagination cursor")
+			AccessToken("oauth_token", String)
 		})
 		Result(PaginatedCollectionOf(StoredPackage))
 		HTTP(func() {
@@ -58,6 +89,7 @@ var _ = Service("package", func() {
 		Description("Show package by ID")
 		Payload(func() {
 			Attribute("id", UInt, "Identifier of package to show")
+			AccessToken("oauth_token", String)
 			Required("id")
 		})
 		Result(StoredPackage)
@@ -74,6 +106,7 @@ var _ = Service("package", func() {
 		Description("List all preservation actions by ID")
 		Payload(func() {
 			Attribute("id", UInt, "Identifier of package to look up")
+			AccessToken("oauth_token", String)
 			Required("id")
 		})
 		Result(PreservationActions)
@@ -91,6 +124,7 @@ var _ = Service("package", func() {
 			Attribute("location_id", String, func() {
 				Meta("struct:field:type", "uuid.UUID", "github.com/google/uuid")
 			})
+			AccessToken("oauth_token", String)
 			Required("id", "location_id")
 		})
 		Error("not_found", PackageNotFound, "Package not found")
@@ -108,6 +142,7 @@ var _ = Service("package", func() {
 		Description("Signal the package has been reviewed and rejected")
 		Payload(func() {
 			Attribute("id", UInt, "Identifier of package to look up")
+			AccessToken("oauth_token", String)
 			Required("id")
 		})
 		Error("not_found", PackageNotFound, "Package not found")
@@ -128,6 +163,7 @@ var _ = Service("package", func() {
 			Attribute("location_id", String, func() {
 				Meta("struct:field:type", "uuid.UUID", "github.com/google/uuid")
 			})
+			AccessToken("oauth_token", String)
 			Required("id", "location_id")
 		})
 		Error("not_found", PackageNotFound, "Package not found")
@@ -145,6 +181,7 @@ var _ = Service("package", func() {
 		Description("Retrieve the status of a permanent storage location move of the package")
 		Payload(func() {
 			Attribute("id", UInt, "Identifier of package to move")
+			AccessToken("oauth_token", String)
 			Required("id")
 		})
 		Result(MoveStatusResult)

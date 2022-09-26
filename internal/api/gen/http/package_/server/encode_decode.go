@@ -14,12 +14,153 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"strings"
 
 	package_ "github.com/artefactual-sdps/enduro/internal/api/gen/package_"
 	package_views "github.com/artefactual-sdps/enduro/internal/api/gen/package_/views"
 	goahttp "goa.design/goa/v3/http"
 	goa "goa.design/goa/v3/pkg"
 )
+
+// EncodeMonitorRequestResponse returns an encoder for responses returned by
+// the package monitor_request endpoint.
+func EncodeMonitorRequestResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
+	return func(ctx context.Context, w http.ResponseWriter, v interface{}) error {
+		res, _ := v.(*package_.MonitorRequestResult)
+		if res.Ticket != nil {
+			ticket := *res.Ticket
+			http.SetCookie(w, &http.Cookie{
+				Name:     "enduro-ws-ticket",
+				Value:    ticket,
+				MaxAge:   5,
+				Secure:   true,
+				HttpOnly: true,
+			})
+		}
+		w.WriteHeader(http.StatusOK)
+		return nil
+	}
+}
+
+// DecodeMonitorRequestRequest returns a decoder for requests sent to the
+// package monitor_request endpoint.
+func DecodeMonitorRequestRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (interface{}, error) {
+	return func(r *http.Request) (interface{}, error) {
+		var (
+			oauthToken *string
+		)
+		oauthTokenRaw := r.Header.Get("Authorization")
+		if oauthTokenRaw != "" {
+			oauthToken = &oauthTokenRaw
+		}
+		payload := NewMonitorRequestPayload(oauthToken)
+		if payload.OauthToken != nil {
+			if strings.Contains(*payload.OauthToken, " ") {
+				// Remove authorization scheme prefix (e.g. "Bearer")
+				cred := strings.SplitN(*payload.OauthToken, " ", 2)[1]
+				payload.OauthToken = &cred
+			}
+		}
+
+		return payload, nil
+	}
+}
+
+// EncodeMonitorRequestError returns an encoder for errors returned by the
+// monitor_request package endpoint.
+func EncodeMonitorRequestError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
+	encodeError := goahttp.ErrorEncoder(encoder, formatter)
+	return func(ctx context.Context, w http.ResponseWriter, v error) error {
+		var en ErrorNamer
+		if !errors.As(v, &en) {
+			return encodeError(ctx, w, v)
+		}
+		switch en.ErrorName() {
+		case "not_available":
+			var res *goa.ServiceError
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			var body interface{}
+			if formatter != nil {
+				body = formatter(res)
+			} else {
+				body = NewMonitorRequestNotAvailableResponseBody(res)
+			}
+			w.Header().Set("goa-error", res.ErrorName())
+			w.WriteHeader(http.StatusInternalServerError)
+			return enc.Encode(body)
+		case "unauthorized":
+			var res package_.Unauthorized
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			body := res
+			w.Header().Set("goa-error", res.ErrorName())
+			w.WriteHeader(http.StatusUnauthorized)
+			return enc.Encode(body)
+		default:
+			return encodeError(ctx, w, v)
+		}
+	}
+}
+
+// DecodeMonitorRequest returns a decoder for requests sent to the package
+// monitor endpoint.
+func DecodeMonitorRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (interface{}, error) {
+	return func(r *http.Request) (interface{}, error) {
+		var (
+			ticket *string
+			c      *http.Cookie
+		)
+		c, _ = r.Cookie("enduro-ws-ticket")
+		var ticketRaw string
+		if c != nil {
+			ticketRaw = c.Value
+		}
+		if ticketRaw != "" {
+			ticket = &ticketRaw
+		}
+		payload := NewMonitorPayload(ticket)
+
+		return payload, nil
+	}
+}
+
+// EncodeMonitorError returns an encoder for errors returned by the monitor
+// package endpoint.
+func EncodeMonitorError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
+	encodeError := goahttp.ErrorEncoder(encoder, formatter)
+	return func(ctx context.Context, w http.ResponseWriter, v error) error {
+		var en ErrorNamer
+		if !errors.As(v, &en) {
+			return encodeError(ctx, w, v)
+		}
+		switch en.ErrorName() {
+		case "not_available":
+			var res *goa.ServiceError
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			var body interface{}
+			if formatter != nil {
+				body = formatter(res)
+			} else {
+				body = NewMonitorNotAvailableResponseBody(res)
+			}
+			w.Header().Set("goa-error", res.ErrorName())
+			w.WriteHeader(http.StatusInternalServerError)
+			return enc.Encode(body)
+		case "unauthorized":
+			var res package_.Unauthorized
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			body := res
+			w.Header().Set("goa-error", res.ErrorName())
+			w.WriteHeader(http.StatusUnauthorized)
+			return enc.Encode(body)
+		default:
+			return encodeError(ctx, w, v)
+		}
+	}
+}
 
 // EncodeListResponse returns an encoder for responses returned by the package
 // list endpoint.
@@ -45,6 +186,7 @@ func DecodeListRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.De
 			locationID          *string
 			status              *string
 			cursor              *string
+			oauthToken          *string
 			err                 error
 		)
 		nameRaw := r.URL.Query().Get("name")
@@ -92,12 +234,47 @@ func DecodeListRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.De
 		if cursorRaw != "" {
 			cursor = &cursorRaw
 		}
+		oauthTokenRaw := r.Header.Get("Authorization")
+		if oauthTokenRaw != "" {
+			oauthToken = &oauthTokenRaw
+		}
 		if err != nil {
 			return nil, err
 		}
-		payload := NewListPayload(name, aipID, earliestCreatedTime, latestCreatedTime, locationID, status, cursor)
+		payload := NewListPayload(name, aipID, earliestCreatedTime, latestCreatedTime, locationID, status, cursor, oauthToken)
+		if payload.OauthToken != nil {
+			if strings.Contains(*payload.OauthToken, " ") {
+				// Remove authorization scheme prefix (e.g. "Bearer")
+				cred := strings.SplitN(*payload.OauthToken, " ", 2)[1]
+				payload.OauthToken = &cred
+			}
+		}
 
 		return payload, nil
+	}
+}
+
+// EncodeListError returns an encoder for errors returned by the list package
+// endpoint.
+func EncodeListError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
+	encodeError := goahttp.ErrorEncoder(encoder, formatter)
+	return func(ctx context.Context, w http.ResponseWriter, v error) error {
+		var en ErrorNamer
+		if !errors.As(v, &en) {
+			return encodeError(ctx, w, v)
+		}
+		switch en.ErrorName() {
+		case "unauthorized":
+			var res package_.Unauthorized
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			body := res
+			w.Header().Set("goa-error", res.ErrorName())
+			w.WriteHeader(http.StatusUnauthorized)
+			return enc.Encode(body)
+		default:
+			return encodeError(ctx, w, v)
+		}
 	}
 }
 
@@ -118,8 +295,9 @@ func EncodeShowResponse(encoder func(context.Context, http.ResponseWriter) goaht
 func DecodeShowRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (interface{}, error) {
 	return func(r *http.Request) (interface{}, error) {
 		var (
-			id  uint
-			err error
+			id         uint
+			oauthToken *string
+			err        error
 
 			params = mux.Vars(r)
 		)
@@ -131,10 +309,21 @@ func DecodeShowRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.De
 			}
 			id = uint(v)
 		}
+		oauthTokenRaw := r.Header.Get("Authorization")
+		if oauthTokenRaw != "" {
+			oauthToken = &oauthTokenRaw
+		}
 		if err != nil {
 			return nil, err
 		}
-		payload := NewShowPayload(id)
+		payload := NewShowPayload(id, oauthToken)
+		if payload.OauthToken != nil {
+			if strings.Contains(*payload.OauthToken, " ") {
+				// Remove authorization scheme prefix (e.g. "Bearer")
+				cred := strings.SplitN(*payload.OauthToken, " ", 2)[1]
+				payload.OauthToken = &cred
+			}
+		}
 
 		return payload, nil
 	}
@@ -176,6 +365,14 @@ func EncodeShowError(encoder func(context.Context, http.ResponseWriter) goahttp.
 			w.Header().Set("goa-error", res.ErrorName())
 			w.WriteHeader(http.StatusNotFound)
 			return enc.Encode(body)
+		case "unauthorized":
+			var res package_.Unauthorized
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			body := res
+			w.Header().Set("goa-error", res.ErrorName())
+			w.WriteHeader(http.StatusUnauthorized)
+			return enc.Encode(body)
 		default:
 			return encodeError(ctx, w, v)
 		}
@@ -199,8 +396,9 @@ func EncodePreservationActionsResponse(encoder func(context.Context, http.Respon
 func DecodePreservationActionsRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (interface{}, error) {
 	return func(r *http.Request) (interface{}, error) {
 		var (
-			id  uint
-			err error
+			id         uint
+			oauthToken *string
+			err        error
 
 			params = mux.Vars(r)
 		)
@@ -212,10 +410,21 @@ func DecodePreservationActionsRequest(mux goahttp.Muxer, decoder func(*http.Requ
 			}
 			id = uint(v)
 		}
+		oauthTokenRaw := r.Header.Get("Authorization")
+		if oauthTokenRaw != "" {
+			oauthToken = &oauthTokenRaw
+		}
 		if err != nil {
 			return nil, err
 		}
-		payload := NewPreservationActionsPayload(id)
+		payload := NewPreservationActionsPayload(id, oauthToken)
+		if payload.OauthToken != nil {
+			if strings.Contains(*payload.OauthToken, " ") {
+				// Remove authorization scheme prefix (e.g. "Bearer")
+				cred := strings.SplitN(*payload.OauthToken, " ", 2)[1]
+				payload.OauthToken = &cred
+			}
+		}
 
 		return payload, nil
 	}
@@ -243,6 +452,14 @@ func EncodePreservationActionsError(encoder func(context.Context, http.ResponseW
 			}
 			w.Header().Set("goa-error", res.ErrorName())
 			w.WriteHeader(http.StatusNotFound)
+			return enc.Encode(body)
+		case "unauthorized":
+			var res package_.Unauthorized
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			body := res
+			w.Header().Set("goa-error", res.ErrorName())
+			w.WriteHeader(http.StatusUnauthorized)
 			return enc.Encode(body)
 		default:
 			return encodeError(ctx, w, v)
@@ -280,7 +497,8 @@ func DecodeConfirmRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp
 		}
 
 		var (
-			id uint
+			id         uint
+			oauthToken *string
 
 			params = mux.Vars(r)
 		)
@@ -292,10 +510,21 @@ func DecodeConfirmRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp
 			}
 			id = uint(v)
 		}
+		oauthTokenRaw := r.Header.Get("Authorization")
+		if oauthTokenRaw != "" {
+			oauthToken = &oauthTokenRaw
+		}
 		if err != nil {
 			return nil, err
 		}
-		payload := NewConfirmPayload(&body, id)
+		payload := NewConfirmPayload(&body, id, oauthToken)
+		if payload.OauthToken != nil {
+			if strings.Contains(*payload.OauthToken, " ") {
+				// Remove authorization scheme prefix (e.g. "Bearer")
+				cred := strings.SplitN(*payload.OauthToken, " ", 2)[1]
+				payload.OauthToken = &cred
+			}
+		}
 
 		return payload, nil
 	}
@@ -350,6 +579,14 @@ func EncodeConfirmError(encoder func(context.Context, http.ResponseWriter) goaht
 			w.Header().Set("goa-error", res.ErrorName())
 			w.WriteHeader(http.StatusNotFound)
 			return enc.Encode(body)
+		case "unauthorized":
+			var res package_.Unauthorized
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			body := res
+			w.Header().Set("goa-error", res.ErrorName())
+			w.WriteHeader(http.StatusUnauthorized)
+			return enc.Encode(body)
 		default:
 			return encodeError(ctx, w, v)
 		}
@@ -370,8 +607,9 @@ func EncodeRejectResponse(encoder func(context.Context, http.ResponseWriter) goa
 func DecodeRejectRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (interface{}, error) {
 	return func(r *http.Request) (interface{}, error) {
 		var (
-			id  uint
-			err error
+			id         uint
+			oauthToken *string
+			err        error
 
 			params = mux.Vars(r)
 		)
@@ -383,10 +621,21 @@ func DecodeRejectRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.
 			}
 			id = uint(v)
 		}
+		oauthTokenRaw := r.Header.Get("Authorization")
+		if oauthTokenRaw != "" {
+			oauthToken = &oauthTokenRaw
+		}
 		if err != nil {
 			return nil, err
 		}
-		payload := NewRejectPayload(id)
+		payload := NewRejectPayload(id, oauthToken)
+		if payload.OauthToken != nil {
+			if strings.Contains(*payload.OauthToken, " ") {
+				// Remove authorization scheme prefix (e.g. "Bearer")
+				cred := strings.SplitN(*payload.OauthToken, " ", 2)[1]
+				payload.OauthToken = &cred
+			}
+		}
 
 		return payload, nil
 	}
@@ -441,6 +690,14 @@ func EncodeRejectError(encoder func(context.Context, http.ResponseWriter) goahtt
 			w.Header().Set("goa-error", res.ErrorName())
 			w.WriteHeader(http.StatusNotFound)
 			return enc.Encode(body)
+		case "unauthorized":
+			var res package_.Unauthorized
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			body := res
+			w.Header().Set("goa-error", res.ErrorName())
+			w.WriteHeader(http.StatusUnauthorized)
+			return enc.Encode(body)
 		default:
 			return encodeError(ctx, w, v)
 		}
@@ -477,7 +734,8 @@ func DecodeMoveRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.De
 		}
 
 		var (
-			id uint
+			id         uint
+			oauthToken *string
 
 			params = mux.Vars(r)
 		)
@@ -489,10 +747,21 @@ func DecodeMoveRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.De
 			}
 			id = uint(v)
 		}
+		oauthTokenRaw := r.Header.Get("Authorization")
+		if oauthTokenRaw != "" {
+			oauthToken = &oauthTokenRaw
+		}
 		if err != nil {
 			return nil, err
 		}
-		payload := NewMovePayload(&body, id)
+		payload := NewMovePayload(&body, id, oauthToken)
+		if payload.OauthToken != nil {
+			if strings.Contains(*payload.OauthToken, " ") {
+				// Remove authorization scheme prefix (e.g. "Bearer")
+				cred := strings.SplitN(*payload.OauthToken, " ", 2)[1]
+				payload.OauthToken = &cred
+			}
+		}
 
 		return payload, nil
 	}
@@ -547,6 +816,14 @@ func EncodeMoveError(encoder func(context.Context, http.ResponseWriter) goahttp.
 			w.Header().Set("goa-error", res.ErrorName())
 			w.WriteHeader(http.StatusNotFound)
 			return enc.Encode(body)
+		case "unauthorized":
+			var res package_.Unauthorized
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			body := res
+			w.Header().Set("goa-error", res.ErrorName())
+			w.WriteHeader(http.StatusUnauthorized)
+			return enc.Encode(body)
 		default:
 			return encodeError(ctx, w, v)
 		}
@@ -570,8 +847,9 @@ func EncodeMoveStatusResponse(encoder func(context.Context, http.ResponseWriter)
 func DecodeMoveStatusRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (interface{}, error) {
 	return func(r *http.Request) (interface{}, error) {
 		var (
-			id  uint
-			err error
+			id         uint
+			oauthToken *string
+			err        error
 
 			params = mux.Vars(r)
 		)
@@ -583,10 +861,21 @@ func DecodeMoveStatusRequest(mux goahttp.Muxer, decoder func(*http.Request) goah
 			}
 			id = uint(v)
 		}
+		oauthTokenRaw := r.Header.Get("Authorization")
+		if oauthTokenRaw != "" {
+			oauthToken = &oauthTokenRaw
+		}
 		if err != nil {
 			return nil, err
 		}
-		payload := NewMoveStatusPayload(id)
+		payload := NewMoveStatusPayload(id, oauthToken)
+		if payload.OauthToken != nil {
+			if strings.Contains(*payload.OauthToken, " ") {
+				// Remove authorization scheme prefix (e.g. "Bearer")
+				cred := strings.SplitN(*payload.OauthToken, " ", 2)[1]
+				payload.OauthToken = &cred
+			}
+		}
 
 		return payload, nil
 	}
@@ -627,6 +916,14 @@ func EncodeMoveStatusError(encoder func(context.Context, http.ResponseWriter) go
 			}
 			w.Header().Set("goa-error", res.ErrorName())
 			w.WriteHeader(http.StatusNotFound)
+			return enc.Encode(body)
+		case "unauthorized":
+			var res package_.Unauthorized
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			body := res
+			w.Header().Set("goa-error", res.ErrorName())
+			w.WriteHeader(http.StatusUnauthorized)
 			return enc.Encode(body)
 		default:
 			return encodeError(ctx, w, v)

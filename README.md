@@ -41,6 +41,15 @@ even against remote clusters, check Tilt's [Choosing a Local Dev Cluster] and
 Additionally, follow the [Manage Docker as a non-root user] post-install guide
 so that you don’t have to run Tilt with `sudo`.
 
+#### Dex host
+
+To make authentication work from the host browser and from within the cluster,
+the following entry needs to be added to your `/etc/hosts` file:
+
+```
+127.0.0.1 dex
+```
+
 ### Requirements for development
 
 While we run the services inside a Kubernetes cluster we recomend to install
@@ -207,7 +216,7 @@ following example:
 ```
 curl \
   -F "file=@/path/to/enduro/hack/sampledata/StructB-AM.zip" \
-  http://localhost:3000/api/upload/upload
+  http://localhost:9000/upload/upload
 ```
 
 #### Flush

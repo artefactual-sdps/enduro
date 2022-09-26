@@ -42,6 +42,12 @@ func (c Configuration) Validate() error {
 			return err
 		}
 	}
+	if config, ok := interface{}(c.API.Auth).(ConfigurationValidator); ok {
+		err := config.Validate()
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 

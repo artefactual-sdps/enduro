@@ -487,6 +487,14 @@ func NewSubmitNotValid(body *SubmitNotValidResponseBody) *goa.ServiceError {
 	return v
 }
 
+// NewSubmitUnauthorized builds a storage service submit endpoint unauthorized
+// error.
+func NewSubmitUnauthorized(body string) storage.Unauthorized {
+	v := storage.Unauthorized(body)
+
+	return v
+}
+
 // NewUpdateNotAvailable builds a storage service update endpoint not_available
 // error.
 func NewUpdateNotAvailable(body *UpdateNotAvailableResponseBody) *goa.ServiceError {
@@ -516,6 +524,14 @@ func NewUpdateNotValid(body *UpdateNotValidResponseBody) *goa.ServiceError {
 	return v
 }
 
+// NewUpdateUnauthorized builds a storage service update endpoint unauthorized
+// error.
+func NewUpdateUnauthorized(body string) storage.Unauthorized {
+	v := storage.Unauthorized(body)
+
+	return v
+}
+
 // NewDownloadNotFound builds a storage service download endpoint not_found
 // error.
 func NewDownloadNotFound(body *DownloadNotFoundResponseBody) *storage.PackageNotFound {
@@ -527,6 +543,14 @@ func NewDownloadNotFound(body *DownloadNotFoundResponseBody) *storage.PackageNot
 	return v
 }
 
+// NewDownloadUnauthorized builds a storage service download endpoint
+// unauthorized error.
+func NewDownloadUnauthorized(body string) storage.Unauthorized {
+	v := storage.Unauthorized(body)
+
+	return v
+}
+
 // NewLocationsLocationCollectionOK builds a "storage" service "locations"
 // endpoint result from a HTTP "OK" response.
 func NewLocationsLocationCollectionOK(body LocationsResponseBody) storageviews.LocationCollectionView {
@@ -534,6 +558,14 @@ func NewLocationsLocationCollectionOK(body LocationsResponseBody) storageviews.L
 	for i, val := range body {
 		v[i] = unmarshalLocationResponseToStorageviewsLocationView(val)
 	}
+
+	return v
+}
+
+// NewLocationsUnauthorized builds a storage service locations endpoint
+// unauthorized error.
+func NewLocationsUnauthorized(body string) storage.Unauthorized {
+	v := storage.Unauthorized(body)
 
 	return v
 }
@@ -559,6 +591,14 @@ func NewAddLocationNotValid(body *AddLocationNotValidResponseBody) *goa.ServiceE
 		Timeout:   *body.Timeout,
 		Fault:     *body.Fault,
 	}
+
+	return v
+}
+
+// NewAddLocationUnauthorized builds a storage service add_location endpoint
+// unauthorized error.
+func NewAddLocationUnauthorized(body string) storage.Unauthorized {
+	v := storage.Unauthorized(body)
 
 	return v
 }
@@ -602,6 +642,14 @@ func NewMoveNotFound(body *MoveNotFoundResponseBody) *storage.PackageNotFound {
 	return v
 }
 
+// NewMoveUnauthorized builds a storage service move endpoint unauthorized
+// error.
+func NewMoveUnauthorized(body string) storage.Unauthorized {
+	v := storage.Unauthorized(body)
+
+	return v
+}
+
 // NewMoveStatusResultOK builds a "storage" service "move_status" endpoint
 // result from a HTTP "OK" response.
 func NewMoveStatusResultOK(body *MoveStatusResponseBody) *storage.MoveStatusResult {
@@ -634,6 +682,14 @@ func NewMoveStatusNotFound(body *MoveStatusNotFoundResponseBody) *storage.Packag
 		Message: *body.Message,
 		AipID:   *body.AipID,
 	}
+
+	return v
+}
+
+// NewMoveStatusUnauthorized builds a storage service move_status endpoint
+// unauthorized error.
+func NewMoveStatusUnauthorized(body string) storage.Unauthorized {
+	v := storage.Unauthorized(body)
 
 	return v
 }
@@ -677,6 +733,14 @@ func NewRejectNotFound(body *RejectNotFoundResponseBody) *storage.PackageNotFoun
 	return v
 }
 
+// NewRejectUnauthorized builds a storage service reject endpoint unauthorized
+// error.
+func NewRejectUnauthorized(body string) storage.Unauthorized {
+	v := storage.Unauthorized(body)
+
+	return v
+}
+
 // NewShowPackageOK builds a "storage" service "show" endpoint result from a
 // HTTP "OK" response.
 func NewShowPackageOK(body *ShowResponseBody) *storageviews.PackageView {
@@ -698,6 +762,14 @@ func NewShowNotFound(body *ShowNotFoundResponseBody) *storage.PackageNotFound {
 		Message: *body.Message,
 		AipID:   *body.AipID,
 	}
+
+	return v
+}
+
+// NewShowUnauthorized builds a storage service show endpoint unauthorized
+// error.
+func NewShowUnauthorized(body string) storage.Unauthorized {
+	v := storage.Unauthorized(body)
 
 	return v
 }
@@ -736,6 +808,14 @@ func NewShowLocationNotFound(body *ShowLocationNotFoundResponseBody) *storage.Lo
 	return v
 }
 
+// NewShowLocationUnauthorized builds a storage service show_location endpoint
+// unauthorized error.
+func NewShowLocationUnauthorized(body string) storage.Unauthorized {
+	v := storage.Unauthorized(body)
+
+	return v
+}
+
 // NewLocationPackagesPackageCollectionOK builds a "storage" service
 // "location_packages" endpoint result from a HTTP "OK" response.
 func NewLocationPackagesPackageCollectionOK(body LocationPackagesResponseBody) storageviews.PackageCollectionView {
@@ -769,6 +849,14 @@ func NewLocationPackagesNotFound(body *LocationPackagesNotFoundResponseBody) *st
 		Message: *body.Message,
 		UUID:    *body.UUID,
 	}
+
+	return v
+}
+
+// NewLocationPackagesUnauthorized builds a storage service location_packages
+// endpoint unauthorized error.
+func NewLocationPackagesUnauthorized(body string) storage.Unauthorized {
+	v := storage.Unauthorized(body)
 
 	return v
 }

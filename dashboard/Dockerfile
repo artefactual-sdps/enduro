@@ -1,6 +1,12 @@
 # syntax = docker/dockerfile:1.4
 
 FROM node:18 AS builder
+ARG oidcProviderUrl=http://dex:5556
+ARG oidcRedirectUrl=http://localhost:3000/user/signin-callback
+ARG oidcAudienceClientId=enduro
+ENV VITE_OIDC_AUTHORITY=$oidcProviderUrl
+ENV VITE_OIDC_REDIRECT_URI=$oidcRedirectUrl
+ENV VITE_OIDC_AUDIENCE_CLIENT_ID=$oidcAudienceClientId
 WORKDIR /app
 COPY --link package.json package-lock.json ./
 RUN --mount=type=cache,target=/app/.npm \

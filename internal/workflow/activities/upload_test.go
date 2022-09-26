@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
+	"goa.design/goa/v3/security"
 	"gotest.tools/v3/assert"
 	"gotest.tools/v3/fs"
 
@@ -17,10 +18,11 @@ import (
 
 // StorageService implements goastorage.Service.
 type StorageService struct {
+	OAuth2AuthHandler       func(ctx context.Context, token string, scheme *security.OAuth2Scheme) (ctx2 context.Context, err error)
 	SubmitHandler           func(ctx context.Context, req *goastorage.SubmitPayload) (res *goastorage.SubmitResult, err error)
 	UpdateHandler           func(ctx context.Context, req *goastorage.UpdatePayload) (err error)
 	DownloadHandler         func(ctx context.Context, req *goastorage.DownloadPayload) (res []byte, err error)
-	LocationsHandler        func(ctx context.Context) (res goastorage.LocationCollection, err error)
+	LocationsHandler        func(ctx context.Context, req *goastorage.LocationsPayload) (res goastorage.LocationCollection, err error)
 	MoveHandler             func(ctx context.Context, req *goastorage.MovePayload) (err error)
 	MoveStatusHandler       func(ctx context.Context, req *goastorage.MoveStatusPayload) (res *goastorage.MoveStatusResult, err error)
 	RejectHandler           func(ctx context.Context, req *goastorage.RejectPayload) (err error)
@@ -28,6 +30,10 @@ type StorageService struct {
 	AddLocationHandler      func(ctx context.Context, req *goastorage.AddLocationPayload) (res *goastorage.AddLocationResult, err error)
 	ShowLocationHandler     func(ctx context.Context, req *goastorage.ShowLocationPayload) (res *goastorage.Location, err error)
 	LocationPackagesHandler func(ctx context.Context, req *goastorage.LocationPackagesPayload) (res goastorage.PackageCollection, err error)
+}
+
+func (s StorageService) OAuth2Auth(ctx context.Context, token string, scheme *security.OAuth2Scheme) (ctx2 context.Context, err error) {
+	return s.OAuth2AuthHandler(ctx, token, scheme)
 }
 
 func (s StorageService) Submit(ctx context.Context, req *goastorage.SubmitPayload) (res *goastorage.SubmitResult, err error) {
@@ -42,8 +48,8 @@ func (s StorageService) Download(ctx context.Context, req *goastorage.DownloadPa
 	return s.DownloadHandler(ctx, req)
 }
 
-func (s StorageService) Locations(ctx context.Context) (res goastorage.LocationCollection, err error) {
-	return s.LocationsHandler(ctx)
+func (s StorageService) Locations(ctx context.Context, req *goastorage.LocationsPayload) (res goastorage.LocationCollection, err error) {
+	return s.LocationsHandler(ctx, req)
 }
 
 func (s StorageService) Move(ctx context.Context, req *goastorage.MovePayload) (err error) {
@@ -90,6 +96,9 @@ func TestUploadActivity(t *testing.T) {
 		defer minioTestServer.Close()
 
 		fakeStorageService := StorageService{}
+		fakeStorageService.OAuth2AuthHandler = func(ctx context.Context, token string, scheme *security.OAuth2Scheme) (ctx2 context.Context, err error) {
+			return ctx, nil
+		}
 		fakeStorageService.SubmitHandler = func(ctx context.Context, req *goastorage.SubmitPayload) (res *goastorage.SubmitResult, err error) {
 			return &goastorage.SubmitResult{
 				URL: minioTestServer.URL + "/aips/foobar.7z",
@@ -132,6 +141,9 @@ func TestUploadActivity(t *testing.T) {
 		defer minioTestServer.Close()
 
 		fakeStorageService := StorageService{}
+		fakeStorageService.OAuth2AuthHandler = func(ctx context.Context, token string, scheme *security.OAuth2Scheme) (ctx2 context.Context, err error) {
+			return ctx, nil
+		}
 		fakeStorageService.SubmitHandler = func(ctx context.Context, req *goastorage.SubmitPayload) (res *goastorage.SubmitResult, err error) {
 			return &goastorage.SubmitResult{
 				URL: minioTestServer.URL + "/aips/foobar.7z",

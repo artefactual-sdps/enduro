@@ -13,6 +13,7 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"strings"
 
 	storage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 	storageviews "github.com/artefactual-sdps/enduro/internal/api/gen/storage/views"
@@ -53,17 +54,29 @@ func DecodeSubmitRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.
 		}
 
 		var (
-			aipID string
+			aipID      string
+			oauthToken *string
 
 			params = mux.Vars(r)
 		)
 		aipID = params["aip_id"]
 		err = goa.MergeErrors(err, goa.ValidateFormat("aipID", aipID, goa.FormatUUID))
 
+		oauthTokenRaw := r.Header.Get("Authorization")
+		if oauthTokenRaw != "" {
+			oauthToken = &oauthTokenRaw
+		}
 		if err != nil {
 			return nil, err
 		}
-		payload := NewSubmitPayload(&body, aipID)
+		payload := NewSubmitPayload(&body, aipID, oauthToken)
+		if payload.OauthToken != nil {
+			if strings.Contains(*payload.OauthToken, " ") {
+				// Remove authorization scheme prefix (e.g. "Bearer")
+				cred := strings.SplitN(*payload.OauthToken, " ", 2)[1]
+				payload.OauthToken = &cred
+			}
+		}
 
 		return payload, nil
 	}
@@ -105,6 +118,14 @@ func EncodeSubmitError(encoder func(context.Context, http.ResponseWriter) goahtt
 			w.Header().Set("goa-error", res.ErrorName())
 			w.WriteHeader(http.StatusBadRequest)
 			return enc.Encode(body)
+		case "unauthorized":
+			var res storage.Unauthorized
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			body := res
+			w.Header().Set("goa-error", res.ErrorName())
+			w.WriteHeader(http.StatusUnauthorized)
+			return enc.Encode(body)
 		default:
 			return encodeError(ctx, w, v)
 		}
@@ -125,18 +146,30 @@ func EncodeUpdateResponse(encoder func(context.Context, http.ResponseWriter) goa
 func DecodeUpdateRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (interface{}, error) {
 	return func(r *http.Request) (interface{}, error) {
 		var (
-			aipID string
-			err   error
+			aipID      string
+			oauthToken *string
+			err        error
 
 			params = mux.Vars(r)
 		)
 		aipID = params["aip_id"]
 		err = goa.MergeErrors(err, goa.ValidateFormat("aipID", aipID, goa.FormatUUID))
 
+		oauthTokenRaw := r.Header.Get("Authorization")
+		if oauthTokenRaw != "" {
+			oauthToken = &oauthTokenRaw
+		}
 		if err != nil {
 			return nil, err
 		}
-		payload := NewUpdatePayload(aipID)
+		payload := NewUpdatePayload(aipID, oauthToken)
+		if payload.OauthToken != nil {
+			if strings.Contains(*payload.OauthToken, " ") {
+				// Remove authorization scheme prefix (e.g. "Bearer")
+				cred := strings.SplitN(*payload.OauthToken, " ", 2)[1]
+				payload.OauthToken = &cred
+			}
+		}
 
 		return payload, nil
 	}
@@ -178,6 +211,14 @@ func EncodeUpdateError(encoder func(context.Context, http.ResponseWriter) goahtt
 			w.Header().Set("goa-error", res.ErrorName())
 			w.WriteHeader(http.StatusBadRequest)
 			return enc.Encode(body)
+		case "unauthorized":
+			var res storage.Unauthorized
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			body := res
+			w.Header().Set("goa-error", res.ErrorName())
+			w.WriteHeader(http.StatusUnauthorized)
+			return enc.Encode(body)
 		default:
 			return encodeError(ctx, w, v)
 		}
@@ -201,18 +242,30 @@ func EncodeDownloadResponse(encoder func(context.Context, http.ResponseWriter) g
 func DecodeDownloadRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (interface{}, error) {
 	return func(r *http.Request) (interface{}, error) {
 		var (
-			aipID string
-			err   error
+			aipID      string
+			oauthToken *string
+			err        error
 
 			params = mux.Vars(r)
 		)
 		aipID = params["aip_id"]
 		err = goa.MergeErrors(err, goa.ValidateFormat("aipID", aipID, goa.FormatUUID))
 
+		oauthTokenRaw := r.Header.Get("Authorization")
+		if oauthTokenRaw != "" {
+			oauthToken = &oauthTokenRaw
+		}
 		if err != nil {
 			return nil, err
 		}
-		payload := NewDownloadPayload(aipID)
+		payload := NewDownloadPayload(aipID, oauthToken)
+		if payload.OauthToken != nil {
+			if strings.Contains(*payload.OauthToken, " ") {
+				// Remove authorization scheme prefix (e.g. "Bearer")
+				cred := strings.SplitN(*payload.OauthToken, " ", 2)[1]
+				payload.OauthToken = &cred
+			}
+		}
 
 		return payload, nil
 	}
@@ -241,6 +294,14 @@ func EncodeDownloadError(encoder func(context.Context, http.ResponseWriter) goah
 			w.Header().Set("goa-error", res.ErrorName())
 			w.WriteHeader(http.StatusNotFound)
 			return enc.Encode(body)
+		case "unauthorized":
+			var res storage.Unauthorized
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			body := res
+			w.Header().Set("goa-error", res.ErrorName())
+			w.WriteHeader(http.StatusUnauthorized)
+			return enc.Encode(body)
 		default:
 			return encodeError(ctx, w, v)
 		}
@@ -256,6 +317,54 @@ func EncodeLocationsResponse(encoder func(context.Context, http.ResponseWriter) 
 		body := NewLocationResponseCollection(res.Projected)
 		w.WriteHeader(http.StatusOK)
 		return enc.Encode(body)
+	}
+}
+
+// DecodeLocationsRequest returns a decoder for requests sent to the storage
+// locations endpoint.
+func DecodeLocationsRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (interface{}, error) {
+	return func(r *http.Request) (interface{}, error) {
+		var (
+			oauthToken *string
+		)
+		oauthTokenRaw := r.Header.Get("Authorization")
+		if oauthTokenRaw != "" {
+			oauthToken = &oauthTokenRaw
+		}
+		payload := NewLocationsPayload(oauthToken)
+		if payload.OauthToken != nil {
+			if strings.Contains(*payload.OauthToken, " ") {
+				// Remove authorization scheme prefix (e.g. "Bearer")
+				cred := strings.SplitN(*payload.OauthToken, " ", 2)[1]
+				payload.OauthToken = &cred
+			}
+		}
+
+		return payload, nil
+	}
+}
+
+// EncodeLocationsError returns an encoder for errors returned by the locations
+// storage endpoint.
+func EncodeLocationsError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
+	encodeError := goahttp.ErrorEncoder(encoder, formatter)
+	return func(ctx context.Context, w http.ResponseWriter, v error) error {
+		var en ErrorNamer
+		if !errors.As(v, &en) {
+			return encodeError(ctx, w, v)
+		}
+		switch en.ErrorName() {
+		case "unauthorized":
+			var res storage.Unauthorized
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			body := res
+			w.Header().Set("goa-error", res.ErrorName())
+			w.WriteHeader(http.StatusUnauthorized)
+			return enc.Encode(body)
+		default:
+			return encodeError(ctx, w, v)
+		}
 	}
 }
 
@@ -290,7 +399,22 @@ func DecodeAddLocationRequest(mux goahttp.Muxer, decoder func(*http.Request) goa
 		if err != nil {
 			return nil, err
 		}
-		payload := NewAddLocationPayload(&body)
+
+		var (
+			oauthToken *string
+		)
+		oauthTokenRaw := r.Header.Get("Authorization")
+		if oauthTokenRaw != "" {
+			oauthToken = &oauthTokenRaw
+		}
+		payload := NewAddLocationPayload(&body, oauthToken)
+		if payload.OauthToken != nil {
+			if strings.Contains(*payload.OauthToken, " ") {
+				// Remove authorization scheme prefix (e.g. "Bearer")
+				cred := strings.SplitN(*payload.OauthToken, " ", 2)[1]
+				payload.OauthToken = &cred
+			}
+		}
 
 		return payload, nil
 	}
@@ -318,6 +442,14 @@ func EncodeAddLocationError(encoder func(context.Context, http.ResponseWriter) g
 			}
 			w.Header().Set("goa-error", res.ErrorName())
 			w.WriteHeader(http.StatusBadRequest)
+			return enc.Encode(body)
+		case "unauthorized":
+			var res storage.Unauthorized
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			body := res
+			w.Header().Set("goa-error", res.ErrorName())
+			w.WriteHeader(http.StatusUnauthorized)
 			return enc.Encode(body)
 		default:
 			return encodeError(ctx, w, v)
@@ -355,17 +487,29 @@ func DecodeMoveRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.De
 		}
 
 		var (
-			aipID string
+			aipID      string
+			oauthToken *string
 
 			params = mux.Vars(r)
 		)
 		aipID = params["aip_id"]
 		err = goa.MergeErrors(err, goa.ValidateFormat("aipID", aipID, goa.FormatUUID))
 
+		oauthTokenRaw := r.Header.Get("Authorization")
+		if oauthTokenRaw != "" {
+			oauthToken = &oauthTokenRaw
+		}
 		if err != nil {
 			return nil, err
 		}
-		payload := NewMovePayload(&body, aipID)
+		payload := NewMovePayload(&body, aipID, oauthToken)
+		if payload.OauthToken != nil {
+			if strings.Contains(*payload.OauthToken, " ") {
+				// Remove authorization scheme prefix (e.g. "Bearer")
+				cred := strings.SplitN(*payload.OauthToken, " ", 2)[1]
+				payload.OauthToken = &cred
+			}
+		}
 
 		return payload, nil
 	}
@@ -420,6 +564,14 @@ func EncodeMoveError(encoder func(context.Context, http.ResponseWriter) goahttp.
 			w.Header().Set("goa-error", res.ErrorName())
 			w.WriteHeader(http.StatusNotFound)
 			return enc.Encode(body)
+		case "unauthorized":
+			var res storage.Unauthorized
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			body := res
+			w.Header().Set("goa-error", res.ErrorName())
+			w.WriteHeader(http.StatusUnauthorized)
+			return enc.Encode(body)
 		default:
 			return encodeError(ctx, w, v)
 		}
@@ -443,18 +595,30 @@ func EncodeMoveStatusResponse(encoder func(context.Context, http.ResponseWriter)
 func DecodeMoveStatusRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (interface{}, error) {
 	return func(r *http.Request) (interface{}, error) {
 		var (
-			aipID string
-			err   error
+			aipID      string
+			oauthToken *string
+			err        error
 
 			params = mux.Vars(r)
 		)
 		aipID = params["aip_id"]
 		err = goa.MergeErrors(err, goa.ValidateFormat("aipID", aipID, goa.FormatUUID))
 
+		oauthTokenRaw := r.Header.Get("Authorization")
+		if oauthTokenRaw != "" {
+			oauthToken = &oauthTokenRaw
+		}
 		if err != nil {
 			return nil, err
 		}
-		payload := NewMoveStatusPayload(aipID)
+		payload := NewMoveStatusPayload(aipID, oauthToken)
+		if payload.OauthToken != nil {
+			if strings.Contains(*payload.OauthToken, " ") {
+				// Remove authorization scheme prefix (e.g. "Bearer")
+				cred := strings.SplitN(*payload.OauthToken, " ", 2)[1]
+				payload.OauthToken = &cred
+			}
+		}
 
 		return payload, nil
 	}
@@ -496,6 +660,14 @@ func EncodeMoveStatusError(encoder func(context.Context, http.ResponseWriter) go
 			w.Header().Set("goa-error", res.ErrorName())
 			w.WriteHeader(http.StatusNotFound)
 			return enc.Encode(body)
+		case "unauthorized":
+			var res storage.Unauthorized
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			body := res
+			w.Header().Set("goa-error", res.ErrorName())
+			w.WriteHeader(http.StatusUnauthorized)
+			return enc.Encode(body)
 		default:
 			return encodeError(ctx, w, v)
 		}
@@ -516,18 +688,30 @@ func EncodeRejectResponse(encoder func(context.Context, http.ResponseWriter) goa
 func DecodeRejectRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (interface{}, error) {
 	return func(r *http.Request) (interface{}, error) {
 		var (
-			aipID string
-			err   error
+			aipID      string
+			oauthToken *string
+			err        error
 
 			params = mux.Vars(r)
 		)
 		aipID = params["aip_id"]
 		err = goa.MergeErrors(err, goa.ValidateFormat("aipID", aipID, goa.FormatUUID))
 
+		oauthTokenRaw := r.Header.Get("Authorization")
+		if oauthTokenRaw != "" {
+			oauthToken = &oauthTokenRaw
+		}
 		if err != nil {
 			return nil, err
 		}
-		payload := NewRejectPayload(aipID)
+		payload := NewRejectPayload(aipID, oauthToken)
+		if payload.OauthToken != nil {
+			if strings.Contains(*payload.OauthToken, " ") {
+				// Remove authorization scheme prefix (e.g. "Bearer")
+				cred := strings.SplitN(*payload.OauthToken, " ", 2)[1]
+				payload.OauthToken = &cred
+			}
+		}
 
 		return payload, nil
 	}
@@ -582,6 +766,14 @@ func EncodeRejectError(encoder func(context.Context, http.ResponseWriter) goahtt
 			w.Header().Set("goa-error", res.ErrorName())
 			w.WriteHeader(http.StatusNotFound)
 			return enc.Encode(body)
+		case "unauthorized":
+			var res storage.Unauthorized
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			body := res
+			w.Header().Set("goa-error", res.ErrorName())
+			w.WriteHeader(http.StatusUnauthorized)
+			return enc.Encode(body)
 		default:
 			return encodeError(ctx, w, v)
 		}
@@ -605,18 +797,30 @@ func EncodeShowResponse(encoder func(context.Context, http.ResponseWriter) goaht
 func DecodeShowRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (interface{}, error) {
 	return func(r *http.Request) (interface{}, error) {
 		var (
-			aipID string
-			err   error
+			aipID      string
+			oauthToken *string
+			err        error
 
 			params = mux.Vars(r)
 		)
 		aipID = params["aip_id"]
 		err = goa.MergeErrors(err, goa.ValidateFormat("aipID", aipID, goa.FormatUUID))
 
+		oauthTokenRaw := r.Header.Get("Authorization")
+		if oauthTokenRaw != "" {
+			oauthToken = &oauthTokenRaw
+		}
 		if err != nil {
 			return nil, err
 		}
-		payload := NewShowPayload(aipID)
+		payload := NewShowPayload(aipID, oauthToken)
+		if payload.OauthToken != nil {
+			if strings.Contains(*payload.OauthToken, " ") {
+				// Remove authorization scheme prefix (e.g. "Bearer")
+				cred := strings.SplitN(*payload.OauthToken, " ", 2)[1]
+				payload.OauthToken = &cred
+			}
+		}
 
 		return payload, nil
 	}
@@ -645,6 +849,14 @@ func EncodeShowError(encoder func(context.Context, http.ResponseWriter) goahttp.
 			w.Header().Set("goa-error", res.ErrorName())
 			w.WriteHeader(http.StatusNotFound)
 			return enc.Encode(body)
+		case "unauthorized":
+			var res storage.Unauthorized
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			body := res
+			w.Header().Set("goa-error", res.ErrorName())
+			w.WriteHeader(http.StatusUnauthorized)
+			return enc.Encode(body)
 		default:
 			return encodeError(ctx, w, v)
 		}
@@ -668,18 +880,30 @@ func EncodeShowLocationResponse(encoder func(context.Context, http.ResponseWrite
 func DecodeShowLocationRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (interface{}, error) {
 	return func(r *http.Request) (interface{}, error) {
 		var (
-			uuid string
-			err  error
+			uuid       string
+			oauthToken *string
+			err        error
 
 			params = mux.Vars(r)
 		)
 		uuid = params["uuid"]
 		err = goa.MergeErrors(err, goa.ValidateFormat("uuid", uuid, goa.FormatUUID))
 
+		oauthTokenRaw := r.Header.Get("Authorization")
+		if oauthTokenRaw != "" {
+			oauthToken = &oauthTokenRaw
+		}
 		if err != nil {
 			return nil, err
 		}
-		payload := NewShowLocationPayload(uuid)
+		payload := NewShowLocationPayload(uuid, oauthToken)
+		if payload.OauthToken != nil {
+			if strings.Contains(*payload.OauthToken, " ") {
+				// Remove authorization scheme prefix (e.g. "Bearer")
+				cred := strings.SplitN(*payload.OauthToken, " ", 2)[1]
+				payload.OauthToken = &cred
+			}
+		}
 
 		return payload, nil
 	}
@@ -708,6 +932,14 @@ func EncodeShowLocationError(encoder func(context.Context, http.ResponseWriter) 
 			w.Header().Set("goa-error", res.ErrorName())
 			w.WriteHeader(http.StatusNotFound)
 			return enc.Encode(body)
+		case "unauthorized":
+			var res storage.Unauthorized
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			body := res
+			w.Header().Set("goa-error", res.ErrorName())
+			w.WriteHeader(http.StatusUnauthorized)
+			return enc.Encode(body)
 		default:
 			return encodeError(ctx, w, v)
 		}
@@ -731,18 +963,30 @@ func EncodeLocationPackagesResponse(encoder func(context.Context, http.ResponseW
 func DecodeLocationPackagesRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (interface{}, error) {
 	return func(r *http.Request) (interface{}, error) {
 		var (
-			uuid string
-			err  error
+			uuid       string
+			oauthToken *string
+			err        error
 
 			params = mux.Vars(r)
 		)
 		uuid = params["uuid"]
 		err = goa.MergeErrors(err, goa.ValidateFormat("uuid", uuid, goa.FormatUUID))
 
+		oauthTokenRaw := r.Header.Get("Authorization")
+		if oauthTokenRaw != "" {
+			oauthToken = &oauthTokenRaw
+		}
 		if err != nil {
 			return nil, err
 		}
-		payload := NewLocationPackagesPayload(uuid)
+		payload := NewLocationPackagesPayload(uuid, oauthToken)
+		if payload.OauthToken != nil {
+			if strings.Contains(*payload.OauthToken, " ") {
+				// Remove authorization scheme prefix (e.g. "Bearer")
+				cred := strings.SplitN(*payload.OauthToken, " ", 2)[1]
+				payload.OauthToken = &cred
+			}
+		}
 
 		return payload, nil
 	}
@@ -783,6 +1027,14 @@ func EncodeLocationPackagesError(encoder func(context.Context, http.ResponseWrit
 			}
 			w.Header().Set("goa-error", res.ErrorName())
 			w.WriteHeader(http.StatusNotFound)
+			return enc.Encode(body)
+		case "unauthorized":
+			var res storage.Unauthorized
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			body := res
+			w.Header().Set("goa-error", res.ErrorName())
+			w.WriteHeader(http.StatusUnauthorized)
 			return enc.Encode(body)
 		default:
 			return encodeError(ctx, w, v)

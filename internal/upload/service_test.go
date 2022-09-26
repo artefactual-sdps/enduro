@@ -11,6 +11,7 @@ import (
 	_ "gocloud.dev/blob/memblob"
 	"gotest.tools/v3/assert"
 
+	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	goaupload "github.com/artefactual-sdps/enduro/internal/api/gen/upload"
 	"github.com/artefactual-sdps/enduro/internal/ref"
 	"github.com/artefactual-sdps/enduro/internal/upload"
@@ -20,6 +21,7 @@ type setUpAttrs struct {
 	logger        *logr.Logger
 	config        *upload.Config
 	uploadMaxSize *int
+	tokenVerifier auth.TokenVerifier
 }
 
 func setUpService(t *testing.T, attrs *setUpAttrs) upload.Service {
@@ -29,6 +31,7 @@ func setUpService(t *testing.T, attrs *setUpAttrs) upload.Service {
 		logger:        ref.New(logr.Discard()),
 		config:        ref.New(upload.Config{URL: "mem://my-bucket"}),
 		uploadMaxSize: ref.New(upload.UPLOAD_MAX_SIZE),
+		tokenVerifier: &auth.OIDCTokenVerifier{},
 	}
 	if attrs.logger != nil {
 		params.logger = attrs.logger
@@ -39,11 +42,15 @@ func setUpService(t *testing.T, attrs *setUpAttrs) upload.Service {
 	if attrs.uploadMaxSize != nil {
 		params.uploadMaxSize = attrs.uploadMaxSize
 	}
+	if attrs.tokenVerifier != nil {
+		params.tokenVerifier = attrs.tokenVerifier
+	}
 
 	s, err := upload.NewService(
 		*params.logger,
 		*params.config,
 		*params.uploadMaxSize,
+		params.tokenVerifier,
 	)
 	assert.NilError(t, err)
 
@@ -72,6 +79,7 @@ func TestNewService(t *testing.T) {
 		logr.Discard(),
 		upload.Config{URL: "mem://my-bucket"},
 		upload.UPLOAD_MAX_SIZE,
+		&auth.OIDCTokenVerifier{},
 	)
 	assert.NilError(t, err)
 }
