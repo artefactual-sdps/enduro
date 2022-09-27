@@ -11,14 +11,27 @@ import (
 
 const TicketTTL = time.Second * 5
 
+// TicketProvider issues WebSocket authentication tickets.
 type TicketProvider struct {
-	store  TicketStore
+	// Internal store used to persist tickets. When nil, the provider is no-op.
+	store TicketStore
+
+	// Tickets are prefixed to allow for sharing a space with other instances.
 	prefix string
-	ttl    time.Duration
+
+	// Tickets will be considered expired when ttl is exceeded.
+	ttl time.Duration
+
+	// The source of randomness used in the ticket generator.
 	rander io.Reader
 }
 
+// NewTicketProvider creates a new TicketProvider.
 func NewTicketProvider(ctx context.Context, store TicketStore, prefix string, rander io.Reader) *TicketProvider {
+	if store == nil {
+		return &TicketProvider{}
+	}
+
 	if rander == nil {
 		rander = rand.Reader
 	}
@@ -33,6 +46,10 @@ func NewTicketProvider(ctx context.Context, store TicketStore, prefix string, ra
 
 // Request a new ticket.
 func (t *TicketProvider) Request(ctx context.Context) (string, error) {
+	if t.store == nil {
+		return "", nil
+	}
+
 	ticket, err := t.ticket()
 	if err != nil {
 		return "", fmt.Errorf("error creating ticket: %v", err)
@@ -49,6 +66,10 @@ func (t *TicketProvider) Request(ctx context.Context) (string, error) {
 // Check that a ticket is known to the provider, not including tickets that
 // exceeded the time-to-live attribute.
 func (t *TicketProvider) Check(ctx context.Context, ticket string) error {
+	if t.store == nil {
+		return nil
+	}
+
 	err := t.store.GetDel(ctx, t.storeKey(ticket))
 	if err != nil {
 		return fmt.Errorf("error retrieving ticket: %v", err)
@@ -73,5 +94,9 @@ func (t TicketProvider) ticket() (string, error) {
 
 // Close closes the provider, releasing resources associated to the store.
 func (t *TicketProvider) Close() error {
+	if t.store == nil {
+		return nil
+	}
+
 	return t.store.Close()
 }

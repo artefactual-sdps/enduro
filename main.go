@@ -134,8 +134,8 @@ func main() {
 		os.Exit(1)
 	}
 
+	// Set up the OIDC token verifier.
 	var tokenVerifier auth.TokenVerifier
-	var ticketProvider *auth.TicketProvider
 	{
 		if cfg.API.Auth.Enabled {
 			tokenVerifier, err = auth.NewOIDCTokenVerifier(ctx, cfg.API.Auth.OIDC)
@@ -143,8 +143,16 @@ func main() {
 				logger.Error(err, "Error connecting to OIDC provider.")
 				os.Exit(1)
 			}
+		} else {
+			tokenVerifier = &auth.NoopTokenVerifier{}
+		}
+	}
 
-			var store auth.TicketStore
+	// Set up the WebSocket ticket provider.
+	var ticketProvider *auth.TicketProvider
+	{
+		var store auth.TicketStore
+		if cfg.API.Auth.Enabled {
 			if cfg.API.Auth.Ticket.Redis != nil {
 				var err error
 				store, err = auth.NewRedisStore(ctx, cfg.API.Auth.Ticket.Redis)
@@ -155,12 +163,9 @@ func main() {
 			} else {
 				store = auth.NewInMemStore()
 			}
-
-			ticketProvider = auth.NewTicketProvider(ctx, store, cfg.API.Auth.Ticket.Redis.Prefix, rand.Reader)
-			defer ticketProvider.Close()
-		} else {
-			tokenVerifier = &auth.NoopTokenVerifier{}
 		}
+		ticketProvider = auth.NewTicketProvider(ctx, store, cfg.API.Auth.Ticket.Redis.Prefix, rand.Reader)
+		defer ticketProvider.Close()
 	}
 
 	// Set up the package service.
