@@ -16,9 +16,6 @@ type TicketProvider struct {
 	// Internal store used to persist tickets. When nil, the provider is no-op.
 	store TicketStore
 
-	// Tickets are prefixed to allow for sharing a space with other instances.
-	prefix string
-
 	// Tickets will be considered expired when ttl is exceeded.
 	ttl time.Duration
 
@@ -26,8 +23,9 @@ type TicketProvider struct {
 	rander io.Reader
 }
 
-// NewTicketProvider creates a new TicketProvider.
-func NewTicketProvider(ctx context.Context, store TicketStore, prefix string, rander io.Reader) *TicketProvider {
+// NewTicketProvider creates a new TicketProvider. The provider is no-op when
+// the store is nil.
+func NewTicketProvider(ctx context.Context, store TicketStore, rander io.Reader) *TicketProvider {
 	if store == nil {
 		return &TicketProvider{}
 	}
@@ -38,7 +36,6 @@ func NewTicketProvider(ctx context.Context, store TicketStore, prefix string, ra
 
 	return &TicketProvider{
 		store:  store,
-		prefix: prefix,
 		ttl:    TicketTTL,
 		rander: rander,
 	}
@@ -55,7 +52,7 @@ func (t *TicketProvider) Request(ctx context.Context) (string, error) {
 		return "", fmt.Errorf("error creating ticket: %v", err)
 	}
 
-	err = t.store.SetEX(ctx, t.storeKey(ticket), t.ttl)
+	err = t.store.SetEX(ctx, ticket, t.ttl)
 	if err != nil {
 		return "", fmt.Errorf("error storing ticket: %v", err)
 	}
@@ -70,16 +67,12 @@ func (t *TicketProvider) Check(ctx context.Context, ticket string) error {
 		return nil
 	}
 
-	err := t.store.GetDel(ctx, t.storeKey(ticket))
+	err := t.store.GetDel(ctx, ticket)
 	if err != nil {
 		return fmt.Errorf("error retrieving ticket: %v", err)
 	}
 
 	return nil
-}
-
-func (t TicketProvider) storeKey(ticket string) string {
-	return t.prefix + ":session:" + ticket
 }
 
 func (t TicketProvider) ticket() (string, error) {

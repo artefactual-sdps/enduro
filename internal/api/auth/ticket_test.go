@@ -34,7 +34,8 @@ func TestTicketProviderNop(t *testing.T) {
 func TestTicketProviderRequest(t *testing.T) {
 	t.Parallel()
 
-	prefix := "prefix"
+	rander := rand.New(rand.NewSource(1)) //#nosec
+	ticket := "Uv38ByGCZU8WP18PmmIdcpVmx00QA3xNe7sEB9Hixkk"
 
 	t.Run("Generates a ticket on request", func(t *testing.T) {
 		t.Parallel()
@@ -45,15 +46,14 @@ func TestTicketProviderRequest(t *testing.T) {
 		store := fake.NewMockTicketStore(ctrl)
 
 		store.EXPECT().
-			SetEX(gomock.Any(), "prefix:session:Uv38ByGCZU8WP18PmmIdcpVmx00QA3xNe7sEB9Hixkk", auth.TicketTTL).
+			SetEX(gomock.Any(), ticket, auth.TicketTTL).
 			Return(nil)
 
-		rander := rand.New(rand.NewSource(1)) //#nosec
-		provider := auth.NewTicketProvider(ctx, store, prefix, rander)
+		provider := auth.NewTicketProvider(ctx, store, rander)
 
 		ticket, err := provider.Request(ctx)
 		assert.NilError(t, err)
-		assert.Equal(t, ticket, "Uv38ByGCZU8WP18PmmIdcpVmx00QA3xNe7sEB9Hixkk")
+		assert.Equal(t, ticket, ticket)
 	})
 
 	t.Run("Fails when the source of randomness errors", func(t *testing.T) {
@@ -65,7 +65,7 @@ func TestTicketProviderRequest(t *testing.T) {
 		store := fake.NewMockTicketStore(ctrl)
 
 		rander := iotest.ErrReader(errors.New("rand source error"))
-		provider := auth.NewTicketProvider(ctx, store, prefix, rander)
+		provider := auth.NewTicketProvider(ctx, store, rander)
 
 		ticket, err := provider.Request(ctx)
 		assert.Error(t, err, "error creating ticket: rand source error")
@@ -81,11 +81,11 @@ func TestTicketProviderRequest(t *testing.T) {
 		store := fake.NewMockTicketStore(ctrl)
 
 		store.EXPECT().
-			SetEX(gomock.Any(), "prefix:session:Uv38ByGCZU8WP18PmmIdcpVmx00QA3xNe7sEB9Hixkk", auth.TicketTTL).
+			SetEX(gomock.Any(), ticket, auth.TicketTTL).
 			Return(errors.New("fake error"))
 
 		rander := rand.New(rand.NewSource(1)) //#nosec
-		provider := auth.NewTicketProvider(ctx, store, prefix, rander)
+		provider := auth.NewTicketProvider(ctx, store, rander)
 
 		ticket, err := provider.Request(ctx)
 		assert.Error(t, err, "error storing ticket: fake error")
@@ -96,7 +96,7 @@ func TestTicketProviderRequest(t *testing.T) {
 func TestTicketProviderCheck(t *testing.T) {
 	t.Parallel()
 
-	prefix := "prefix"
+	ticket := "Uv38ByGCZU8WP18PmmIdcpVmx00QA3xNe7sEB9Hixkk"
 
 	t.Run("Checks the existence of a ticket", func(t *testing.T) {
 		t.Parallel()
@@ -107,13 +107,13 @@ func TestTicketProviderCheck(t *testing.T) {
 		store := fake.NewMockTicketStore(ctrl)
 
 		store.EXPECT().
-			GetDel(gomock.Any(), "prefix:session:Uv38ByGCZU8WP18PmmIdcpVmx00QA3xNe7sEB9Hixkk").
+			GetDel(gomock.Any(), ticket).
 			Return(nil)
 
 		rander := rand.New(rand.NewSource(1)) //#nosec
-		provider := auth.NewTicketProvider(ctx, store, prefix, rander)
+		provider := auth.NewTicketProvider(ctx, store, rander)
 
-		err := provider.Check(ctx, "Uv38ByGCZU8WP18PmmIdcpVmx00QA3xNe7sEB9Hixkk")
+		err := provider.Check(ctx, ticket)
 		assert.NilError(t, err)
 	})
 
@@ -126,13 +126,13 @@ func TestTicketProviderCheck(t *testing.T) {
 		store := fake.NewMockTicketStore(ctrl)
 
 		store.EXPECT().
-			GetDel(gomock.Any(), "prefix:session:Uv38ByGCZU8WP18PmmIdcpVmx00QA3xNe7sEB9Hixkk").
+			GetDel(gomock.Any(), ticket).
 			Return(errors.New("fake error"))
 
 		rander := rand.New(rand.NewSource(1)) //#nosec
-		provider := auth.NewTicketProvider(ctx, store, prefix, rander)
+		provider := auth.NewTicketProvider(ctx, store, rander)
 
-		err := provider.Check(ctx, "Uv38ByGCZU8WP18PmmIdcpVmx00QA3xNe7sEB9Hixkk")
+		err := provider.Check(ctx, ticket)
 		assert.Error(t, err, "error retrieving ticket: fake error")
 	})
 }
@@ -147,6 +147,6 @@ func TestTicketProviderClose(t *testing.T) {
 
 	store.EXPECT().Close().Return(nil)
 
-	provider := auth.NewTicketProvider(ctx, store, "prefix", nil)
+	provider := auth.NewTicketProvider(ctx, store, nil)
 	assert.NilError(t, provider.Close())
 }

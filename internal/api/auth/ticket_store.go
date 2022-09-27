@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 	"errors"
+	"strings"
 	"sync"
 	"time"
 
@@ -13,41 +14,64 @@ import (
 type TicketStore interface {
 	// SetEX persists a key with a timeout.
 	SetEX(ctx context.Context, key string, ttl time.Duration) error
-	// GetDel checks whether a key exists in the store. It returns a non-nil
-	// error if the key was not found or expired.
+	// GetDel checks whether a key exists in the store. It returns
+	// ErrKeyNotFound if the key was not found or expired.
 	GetDel(ctx context.Context, key string) error
 	// Close the client.
 	Close() error
 }
 
+var ErrKeyNotFound = errors.New("key not found")
+
 // RedisStore is an implementation of TicketStore based on Redis.
 type RedisStore struct {
 	client redis.UniversalClient
+
+	// Keys will be prefixed to allow for sharing the same list with other apps.
+	prefix string
 }
 
 var _ TicketStore = (*RedisStore)(nil)
+
+const (
+	// Components used to build keys, e.g. prefix:ticket:key.
+	keySeparator  = ":"
+	keyClassifier = "ticket"
+)
 
 func NewRedisStore(ctx context.Context, cfg *RedisConfig) (*RedisStore, error) {
 	opts, err := redis.ParseURL(cfg.Address)
 	if err != nil {
 		return nil, err
 	}
-	return &RedisStore{client: redis.NewClient(opts).WithContext(ctx)}, nil
+
+	return &RedisStore{
+		client: redis.NewClient(opts).WithContext(ctx),
+		prefix: strings.TrimSuffix(cfg.Prefix, keySeparator),
+	}, nil
+}
+
+// key generates the final key to be stored including the configured prefix.
+func (s *RedisStore) key(key string) string {
+	return strings.Join([]string{s.prefix, keyClassifier, key}, keySeparator)
 }
 
 func (s *RedisStore) SetEX(ctx context.Context, key string, ttl time.Duration) error {
-	return s.client.SetEX(ctx, key, "", ttl).Err()
+	return s.client.SetEX(ctx, s.key(key), "", ttl).Err()
 }
 
 func (s *RedisStore) GetDel(ctx context.Context, key string) error {
-	return s.client.GetDel(ctx, key).Err()
+	if err := s.client.GetDel(ctx, s.key(key)).Err(); err == redis.Nil {
+		return ErrKeyNotFound
+	} else if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (s *RedisStore) Close() error {
 	return s.client.Close()
 }
-
-var ErrKeyNotFound = errors.New("key not found")
 
 type InMemStore struct {
 	keys map[string]*InMemKey

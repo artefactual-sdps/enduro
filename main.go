@@ -164,7 +164,7 @@ func main() {
 				store = auth.NewInMemStore()
 			}
 		}
-		ticketProvider = auth.NewTicketProvider(ctx, store, cfg.API.Auth.Ticket.Redis.Prefix, rand.Reader)
+		ticketProvider = auth.NewTicketProvider(ctx, store, rand.Reader)
 		defer ticketProvider.Close()
 	}
 
