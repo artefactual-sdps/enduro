@@ -50,7 +50,7 @@ func TestRedisStore(t *testing.T) {
 
 		store, err := auth.NewRedisStore(ctx, &auth.RedisConfig{
 			Address: "redis://" + redisServer.Addr(),
-			Prefix:  "foo",
+			Prefix:  "prefix",
 		})
 		assert.NilError(t, err)
 
@@ -58,14 +58,36 @@ func TestRedisStore(t *testing.T) {
 		assert.NilError(t, err)
 
 		// It should find the item.
-		cmd := redisClient.Get(ctx, storeKey)
+		cmd := redisClient.Get(ctx, "prefix:ticket:"+storeKey)
 		assert.NilError(t, cmd.Err())
 		assert.Equal(t, cmd.Val(), "")
 
-		// It should error when key is expired.
+		// It should error as keys can only be used once.
 		redisServer.FastForward(time.Minute)
-		cmd = redisClient.Get(ctx, storeKey)
-		assert.Error(t, cmd.Err(), "redis: nil")
+		cmd = redisClient.Get(ctx, "prefix:ticket:"+storeKey)
+		assert.ErrorIs(t, cmd.Err(), redis.Nil)
+	})
+
+	t.Run("Handles prefix config with trailing separator", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		redisServer := miniredis.RunT(t)
+		redisClient := redis.NewClient(&redis.Options{Addr: redisServer.Addr()})
+
+		store, err := auth.NewRedisStore(ctx, &auth.RedisConfig{
+			Address: "redis://" + redisServer.Addr(),
+			Prefix:  "prefix:",
+		})
+		assert.NilError(t, err)
+
+		err = store.SetEX(ctx, storeKey, time.Second)
+		assert.NilError(t, err)
+
+		// It should find the item.
+		cmd := redisClient.Get(ctx, "prefix:ticket:"+storeKey)
+		assert.NilError(t, cmd.Err())
+		assert.Equal(t, cmd.Val(), "")
 	})
 
 	t.Run("Checks the ticket", func(t *testing.T) {
@@ -75,12 +97,12 @@ func TestRedisStore(t *testing.T) {
 		redisServer := miniredis.RunT(t)
 		redisClient := redis.NewClient(&redis.Options{Addr: redisServer.Addr()})
 
-		err := redisClient.SetEX(ctx, storeKey, "", time.Minute).Err()
+		err := redisClient.SetEX(ctx, "prefix:ticket:"+storeKey, "", time.Minute).Err()
 		assert.NilError(t, err)
 
 		store, err := auth.NewRedisStore(ctx, &auth.RedisConfig{
 			Address: "redis://" + redisServer.Addr(),
-			Prefix:  "foo",
+			Prefix:  "prefix",
 		})
 		assert.NilError(t, err)
 
@@ -88,7 +110,7 @@ func TestRedisStore(t *testing.T) {
 		assert.NilError(t, store.GetDel(ctx, storeKey))
 
 		// It returns an error as the key was removed in the previous operation.
-		assert.Error(t, store.GetDel(ctx, storeKey), "redis: nil")
+		assert.ErrorIs(t, store.GetDel(ctx, storeKey), auth.ErrKeyNotFound)
 	})
 
 	t.Run("Fails checking an expired ticket", func(t *testing.T) {
@@ -98,18 +120,18 @@ func TestRedisStore(t *testing.T) {
 		redisServer := miniredis.RunT(t)
 		redisClient := redis.NewClient(&redis.Options{Addr: redisServer.Addr()})
 
-		err := redisClient.SetEX(ctx, storeKey, "", time.Second*5).Err()
+		err := redisClient.SetEX(ctx, "prefix:ticket:"+storeKey, "", time.Second*5).Err()
 		assert.NilError(t, err)
 
 		store, err := auth.NewRedisStore(ctx, &auth.RedisConfig{
 			Address: "redis://" + redisServer.Addr(),
-			Prefix:  "foo",
+			Prefix:  "prefix",
 		})
 		assert.NilError(t, err)
 
 		redisServer.FastForward(time.Minute)
 
-		assert.Error(t, store.GetDel(ctx, storeKey), "redis: nil")
+		assert.ErrorIs(t, store.GetDel(ctx, storeKey), auth.ErrKeyNotFound)
 	})
 
 	t.Run("Closes the client", func(t *testing.T) {
@@ -120,12 +142,12 @@ func TestRedisStore(t *testing.T) {
 
 		store, err := auth.NewRedisStore(ctx, &auth.RedisConfig{
 			Address: "redis://" + redisServer.Addr(),
-			Prefix:  "foo",
+			Prefix:  "prefix",
 		})
 		assert.NilError(t, err)
 
 		store.Close() // Close the client.
-		assert.Error(t, store.SetEX(ctx, "x", time.Second), "redis: client is closed")
+		assert.Error(t, store.SetEX(ctx, "key", time.Second), "redis: client is closed")
 	})
 }
 
