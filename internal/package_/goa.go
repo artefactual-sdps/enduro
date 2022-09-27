@@ -48,12 +48,14 @@ func (w *goaWrapper) OAuth2Auth(ctx context.Context, token string, scheme *secur
 
 func (w *goaWrapper) MonitorRequest(ctx context.Context, payload *goapackage.MonitorRequestPayload) (*goapackage.MonitorRequestResult, error) {
 	res := &goapackage.MonitorRequestResult{}
-	if w.ticketProvider != nil {
-		ticket, err := w.ticketProvider.Request(ctx)
-		if err != nil {
-			w.logger.Error(err, "failed to request ticket")
-			return nil, goapackage.MakeNotAvailable(errors.New("cannot perform operation"))
-		}
+
+	ticket, err := w.ticketProvider.Request(ctx)
+	if err != nil {
+		w.logger.Error(err, "failed to request ticket")
+		return nil, goapackage.MakeNotAvailable(errors.New("cannot perform operation"))
+	}
+	// Do not set cookie unless a ticket is provided.
+	if ticket != "" {
 		res.Ticket = &ticket
 	}
 
@@ -64,11 +66,10 @@ func (w *goaWrapper) MonitorRequest(ctx context.Context, payload *goapackage.Mon
 func (w *goaWrapper) Monitor(ctx context.Context, payload *goapackage.MonitorPayload, stream goapackage.MonitorServerStream) error {
 	defer stream.Close()
 
-	if w.ticketProvider != nil {
-		if err := w.ticketProvider.Check(ctx, *payload.Ticket); err != nil {
-			w.logger.V(1).Info("failed to check ticket", "err", err)
-			return goapackage.MakeNotAvailable(errors.New("cannot perform operation"))
-		}
+	// Verify the ticket.
+	if err := w.ticketProvider.Check(ctx, *payload.Ticket); err != nil {
+		w.logger.V(1).Info("failed to check ticket", "err", err)
+		return goapackage.MakeNotAvailable(errors.New("cannot perform operation"))
 	}
 
 	// Subscribe to the event service.

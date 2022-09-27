@@ -14,6 +14,23 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/api/auth/fake"
 )
 
+func TestTicketProviderNop(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	provider := auth.NewTicketProvider(ctx, nil, nil)
+
+	ticket, err := provider.Request(ctx)
+	assert.NilError(t, err)
+	assert.Equal(t, ticket, "")
+
+	err = provider.Check(ctx, ticket)
+	assert.NilError(t, err)
+
+	err = provider.Close()
+	assert.NilError(t, err)
+}
+
 func TestTicketProviderRequest(t *testing.T) {
 	t.Parallel()
 
