@@ -186,6 +186,13 @@ type S3Config struct {
 	Token     *string
 }
 
+type SFTPConfig struct {
+	Address   string
+	Username  string
+	Password  string
+	Directory string
+}
+
 // ShowLocationPayload is the payload type of the storage service show_location
 // method.
 type ShowLocationPayload struct {
@@ -249,7 +256,8 @@ func (e Unauthorized) Error() string {
 func (e Unauthorized) ErrorName() string {
 	return "unauthorized"
 }
-func (*S3Config) configVal() {}
+func (*S3Config) configVal()   {}
+func (*SFTPConfig) configVal() {}
 
 // MakeNotAvailable builds a goa.ServiceError from an error.
 func MakeNotAvailable(err error) *goa.ServiceError {

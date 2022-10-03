@@ -204,6 +204,13 @@ func locationAsGoa(loc *db.Location) *goastorage.Location {
 			Secret:    &c.Secret,
 			Token:     &c.Token,
 		}
+	case *types.SFTPConfig:
+		l.Config = &goastorage.SFTPConfig{
+			Address:   c.Address,
+			Username:  c.Username,
+			Password:  c.Password,
+			Directory: c.Directory,
+		}
 	}
 
 	return l

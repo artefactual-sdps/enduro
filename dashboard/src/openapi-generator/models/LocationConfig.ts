@@ -16,21 +16,21 @@ import { exists, mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface AddLocationRequestBodyConfig
+ * @interface LocationConfig
  */
-export interface AddLocationRequestBodyConfig {
+export interface LocationConfig {
     /**
      * Union type name, one of:
      * - "s3"
      * - "sftp"
      * @type {string}
-     * @memberof AddLocationRequestBodyConfig
+     * @memberof LocationConfig
      */
-    type: AddLocationRequestBodyConfigTypeEnum;
+    type: LocationConfigTypeEnum;
     /**
      * JSON formatted union value
      * @type {string}
-     * @memberof AddLocationRequestBodyConfig
+     * @memberof LocationConfig
      */
     value: string;
 }
@@ -39,17 +39,17 @@ export interface AddLocationRequestBodyConfig {
 /**
  * @export
  */
-export const AddLocationRequestBodyConfigTypeEnum = {
+export const LocationConfigTypeEnum = {
     S3: 's3',
     Sftp: 'sftp'
 } as const;
-export type AddLocationRequestBodyConfigTypeEnum = typeof AddLocationRequestBodyConfigTypeEnum[keyof typeof AddLocationRequestBodyConfigTypeEnum];
+export type LocationConfigTypeEnum = typeof LocationConfigTypeEnum[keyof typeof LocationConfigTypeEnum];
 
 
 /**
- * Check if a given object implements the AddLocationRequestBodyConfig interface.
+ * Check if a given object implements the LocationConfig interface.
  */
-export function instanceOfAddLocationRequestBodyConfig(value: object): boolean {
+export function instanceOfLocationConfig(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "type" in value;
     isInstance = isInstance && "value" in value;
@@ -57,11 +57,11 @@ export function instanceOfAddLocationRequestBodyConfig(value: object): boolean {
     return isInstance;
 }
 
-export function AddLocationRequestBodyConfigFromJSON(json: any): AddLocationRequestBodyConfig {
-    return AddLocationRequestBodyConfigFromJSONTyped(json, false);
+export function LocationConfigFromJSON(json: any): LocationConfig {
+    return LocationConfigFromJSONTyped(json, false);
 }
 
-export function AddLocationRequestBodyConfigFromJSONTyped(json: any, ignoreDiscriminator: boolean): AddLocationRequestBodyConfig {
+export function LocationConfigFromJSONTyped(json: any, ignoreDiscriminator: boolean): LocationConfig {
     if ((json === undefined) || (json === null)) {
         return json;
     }
@@ -72,7 +72,7 @@ export function AddLocationRequestBodyConfigFromJSONTyped(json: any, ignoreDiscr
     };
 }
 
-export function AddLocationRequestBodyConfigToJSON(value?: AddLocationRequestBodyConfig | null): any {
+export function LocationConfigToJSON(value?: LocationConfig | null): any {
     if (value === undefined) {
         return undefined;
     }

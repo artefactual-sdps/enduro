@@ -27,6 +27,7 @@ models/EnduroStoredPackage.ts
 models/EnduroStoredPackageResponseBody.ts
 models/ListResponseBody.ts
 models/Location.ts
+models/LocationConfig.ts
 models/LocationNotFound.ts
 models/LocationResponse.ts
 models/ModelError.ts

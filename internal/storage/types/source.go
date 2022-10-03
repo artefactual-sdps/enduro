@@ -11,6 +11,7 @@ type LocationSource uint
 const (
 	LocationSourceUnspecified LocationSource = iota
 	LocationSourceMinIO
+	LocationSourceSFTP
 )
 
 func NewLocationSource(source string) LocationSource {
@@ -19,6 +20,8 @@ func NewLocationSource(source string) LocationSource {
 	switch strings.ToLower(source) {
 	case "minio":
 		s = LocationSourceMinIO
+	case "sftp":
+		s = LocationSourceSFTP
 	default:
 		s = LocationSourceUnspecified
 	}
@@ -30,6 +33,8 @@ func (s LocationSource) String() string {
 	switch s {
 	case LocationSourceMinIO:
 		return "minio"
+	case LocationSourceSFTP:
+		return "sftp"
 	}
 	return "unspecified"
 }
@@ -38,6 +43,7 @@ func (s LocationSource) Values() []string {
 	return []string{
 		LocationSourceUnspecified.String(),
 		LocationSourceMinIO.String(),
+		LocationSourceSFTP.String(),
 	}
 }
 

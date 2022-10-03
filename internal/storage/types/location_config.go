@@ -16,6 +16,8 @@ func (c LocationConfig) MarshalJSON() ([]byte, error) {
 	switch c := c.Value.(type) {
 	case *S3Config:
 		types.S3 = c
+	case *SFTPConfig:
+		types.SFTPConfig = c
 	default:
 		return nil, fmt.Errorf("unsupported config type: %T", c)
 	}
@@ -34,6 +36,8 @@ func (c *LocationConfig) UnmarshalJSON(blob []byte) error {
 	// TODO: return error if we have more than one config assigned (mutually exclusive)
 	case types.S3 != nil:
 		c.Value = types.S3
+	case types.SFTPConfig != nil:
+		c.Value = types.SFTPConfig
 	default:
 		return errors.New("undefined configuration document")
 	}
@@ -64,6 +68,22 @@ func (c S3Config) Valid() bool {
 	return true
 }
 
+type SFTPConfig struct {
+	Address   string `json:"address"`
+	Username  string `json:"username"`
+	Password  string `json:"password"`
+	Directory string `json:"directory"`
+}
+
+func (c SFTPConfig) Valid() bool {
+	if c.Address == "" || c.Username == "" || c.Password == "" {
+		return false
+	}
+
+	return true
+}
+
 type configTypes struct {
-	S3 *S3Config `json:"s3,omitempty"`
+	S3         *S3Config   `json:"s3,omitempty"`
+	SFTPConfig *SFTPConfig `json:"sftp,omitempty"`
 }

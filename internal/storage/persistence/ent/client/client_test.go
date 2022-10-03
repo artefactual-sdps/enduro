@@ -287,8 +287,11 @@ func TestListLocations(t *testing.T) {
 		SetPurpose(types.LocationPurposeAIPStore).
 		SetUUID(uuid.MustParse("7ba9a118-a662-4047-8547-64bc752b91c6")).
 		SetConfig(types.LocationConfig{
-			Value: &types.S3Config{
-				Bucket: "perma-aips-2",
+			Value: &types.SFTPConfig{
+				Address:   "sftp:22",
+				Username:  "user",
+				Password:  "secret",
+				Directory: "upload",
 			},
 		}).
 		SaveX(context.Background())
@@ -320,14 +323,11 @@ func TestListLocations(t *testing.T) {
 			Purpose:     "aip_store",
 			UUID:        uuid.MustParse("7ba9a118-a662-4047-8547-64bc752b91c6"),
 			CreatedAt:   "2013-02-03T19:54:00Z",
-			Config: &goastorage.S3Config{
-				Bucket:    "perma-aips-2",
-				Endpoint:  ref.New(""),
-				PathStyle: ref.New(false),
-				Profile:   ref.New(""),
-				Key:       ref.New(""),
-				Secret:    ref.New(""),
-				Token:     ref.New(""),
+			Config: &goastorage.SFTPConfig{
+				Address:   "sftp:22",
+				Username:  "user",
+				Password:  "secret",
+				Directory: "upload",
 			},
 		},
 	})

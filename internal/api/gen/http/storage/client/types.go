@@ -33,6 +33,7 @@ type AddLocationRequestBody struct {
 	Config      *struct {
 		// Union type name, one of:
 		// - "s3"
+		// - "sftp"
 		Type string `form:"Type" json:"Type" xml:"Type"`
 		// JSON formatted union value
 		Value string `form:"Value" json:"Value" xml:"Value"`
@@ -95,6 +96,7 @@ type ShowLocationResponseBody struct {
 	Config  *struct {
 		// Union type name, one of:
 		// - "s3"
+		// - "sftp"
 		Type *string `form:"Type" json:"Type" xml:"Type"`
 		// JSON formatted union value
 		Value *string `form:"Value" json:"Value" xml:"Value"`
@@ -380,6 +382,7 @@ type LocationResponse struct {
 	Config  *struct {
 		// Union type name, one of:
 		// - "s3"
+		// - "sftp"
 		Type *string `form:"Type" json:"Type" xml:"Type"`
 		// JSON formatted union value
 		Value *string `form:"Value" json:"Value" xml:"Value"`
@@ -424,10 +427,13 @@ func NewAddLocationRequestBody(p *storage.AddLocationPayload) *AddLocationReques
 		switch p.Config.(type) {
 		case *storage.S3Config:
 			name = "s3"
+		case *storage.SFTPConfig:
+			name = "sftp"
 		}
 		body.Config = &struct {
 			// Union type name, one of:
 			// - "s3"
+			// - "sftp"
 			Type string `form:"Type" json:"Type" xml:"Type"`
 			// JSON formatted union value
 			Value string `form:"Value" json:"Value" xml:"Value"`
@@ -789,6 +795,10 @@ func NewShowLocationLocationOK(body *ShowLocationResponseBody) *storageviews.Loc
 		switch *body.Config.Type {
 		case "s3":
 			var val *storageviews.S3ConfigView
+			json.Unmarshal([]byte(*body.Config.Value), &val)
+			v.Config = val
+		case "sftp":
+			var val *storageviews.SFTPConfigView
 			json.Unmarshal([]byte(*body.Config.Value), &val)
 			v.Config = val
 		}
@@ -1253,8 +1263,8 @@ func ValidateLocationResponse(body *LocationResponse) (err error) {
 		err = goa.MergeErrors(err, goa.MissingFieldError("created_at", "body"))
 	}
 	if body.Source != nil {
-		if !(*body.Source == "unspecified" || *body.Source == "minio") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.source", *body.Source, []interface{}{"unspecified", "minio"}))
+		if !(*body.Source == "unspecified" || *body.Source == "minio" || *body.Source == "sftp") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.source", *body.Source, []interface{}{"unspecified", "minio", "sftp"}))
 		}
 	}
 	if body.Purpose != nil {
@@ -1270,8 +1280,8 @@ func ValidateLocationResponse(body *LocationResponse) (err error) {
 			err = goa.MergeErrors(err, goa.MissingFieldError("Value", "body.config"))
 		}
 		if body.Config.Type != nil {
-			if !(*body.Config.Type == "s3") {
-				err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.config.Type", *body.Config.Type, []interface{}{"s3"}))
+			if !(*body.Config.Type == "s3" || *body.Config.Type == "sftp") {
+				err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.config.Type", *body.Config.Type, []interface{}{"s3", "sftp"}))
 			}
 		}
 	}

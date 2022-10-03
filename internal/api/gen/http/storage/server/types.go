@@ -33,6 +33,7 @@ type AddLocationRequestBody struct {
 	Config      *struct {
 		// Union type name, one of:
 		// - "s3"
+		// - "sftp"
 		Type *string `form:"Type" json:"Type" xml:"Type"`
 		// JSON formatted union value
 		Value *string `form:"Value" json:"Value" xml:"Value"`
@@ -736,6 +737,10 @@ func NewAddLocationPayload(body *AddLocationRequestBody, oauthToken *string) *st
 			var val *storage.S3Config
 			json.Unmarshal([]byte(*body.Config.Value), &val)
 			v.Config = val
+		case "sftp":
+			var val *storage.SFTPConfig
+			json.Unmarshal([]byte(*body.Config.Value), &val)
+			v.Config = val
 		}
 	}
 	v.OauthToken = oauthToken
@@ -822,8 +827,8 @@ func ValidateAddLocationRequestBody(body *AddLocationRequestBody) (err error) {
 		err = goa.MergeErrors(err, goa.MissingFieldError("purpose", "body"))
 	}
 	if body.Source != nil {
-		if !(*body.Source == "unspecified" || *body.Source == "minio") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.source", *body.Source, []interface{}{"unspecified", "minio"}))
+		if !(*body.Source == "unspecified" || *body.Source == "minio" || *body.Source == "sftp") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.source", *body.Source, []interface{}{"unspecified", "minio", "sftp"}))
 		}
 	}
 	if body.Purpose != nil {
@@ -839,8 +844,8 @@ func ValidateAddLocationRequestBody(body *AddLocationRequestBody) (err error) {
 			err = goa.MergeErrors(err, goa.MissingFieldError("Value", "body.config"))
 		}
 		if body.Config.Type != nil {
-			if !(*body.Config.Type == "s3") {
-				err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.config.Type", *body.Config.Type, []interface{}{"s3"}))
+			if !(*body.Config.Type == "s3" || *body.Config.Type == "sftp") {
+				err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.config.Type", *body.Config.Type, []interface{}{"s3", "sftp"}))
 			}
 		}
 	}

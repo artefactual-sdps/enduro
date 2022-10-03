@@ -1343,6 +1343,10 @@ func unmarshalLocationResponseToStorageviewsLocationView(v *LocationResponse) *s
 			var val *storageviews.S3ConfigView
 			json.Unmarshal([]byte(*v.Config.Value), &val)
 			res.Config = val
+		case "sftp":
+			var val *storageviews.SFTPConfigView
+			json.Unmarshal([]byte(*v.Config.Value), &val)
+			res.Config = val
 		}
 	}
 

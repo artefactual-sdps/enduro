@@ -128,15 +128,15 @@ func BuildAddLocationPayload(storageAddLocationBody string, storageAddLocationOa
 		if err != nil {
 			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"config\": {\n         \"Type\": \"s3\",\n         \"Value\": \"\\\"JSON\\\"\"\n      },\n      \"description\": \"Architecto sed voluptas quasi vel.\",\n      \"name\": \"Repellat commodi.\",\n      \"purpose\": \"aip_store\",\n      \"source\": \"unspecified\"\n   }'")
 		}
-		if !(body.Source == "unspecified" || body.Source == "minio") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.source", body.Source, []interface{}{"unspecified", "minio"}))
+		if !(body.Source == "unspecified" || body.Source == "minio" || body.Source == "sftp") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.source", body.Source, []interface{}{"unspecified", "minio", "sftp"}))
 		}
 		if !(body.Purpose == "unspecified" || body.Purpose == "aip_store") {
 			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.purpose", body.Purpose, []interface{}{"unspecified", "aip_store"}))
 		}
 		if body.Config != nil {
-			if !(body.Config.Type == "s3") {
-				err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.config.Type", body.Config.Type, []interface{}{"s3"}))
+			if !(body.Config.Type == "s3" || body.Config.Type == "sftp") {
+				err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.config.Type", body.Config.Type, []interface{}{"s3", "sftp"}))
 			}
 		}
 		if err != nil {
@@ -159,6 +159,10 @@ func BuildAddLocationPayload(storageAddLocationBody string, storageAddLocationOa
 		switch body.Config.Type {
 		case "s3":
 			var val *storage.S3Config
+			json.Unmarshal([]byte(body.Config.Value), &val)
+			v.Config = val
+		case "sftp":
+			var val *storage.SFTPConfig
 			json.Unmarshal([]byte(body.Config.Value), &val)
 			v.Config = val
 		}
