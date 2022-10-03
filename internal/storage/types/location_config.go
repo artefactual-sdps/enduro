@@ -1,9 +1,17 @@
 package types
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/url"
+
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/rukavina/sftpblob"
+	"gocloud.dev/blob"
+	"gocloud.dev/blob/s3blob"
 )
 
 type LocationConfig struct {
@@ -47,6 +55,7 @@ func (c *LocationConfig) UnmarshalJSON(blob []byte) error {
 
 type configVal interface {
 	Valid() bool
+	OpenBucket() (*blob.Bucket, error)
 }
 
 type S3Config struct {
@@ -68,6 +77,23 @@ func (c S3Config) Valid() bool {
 	return true
 }
 
+func (c S3Config) OpenBucket() (*blob.Bucket, error) {
+	sessOpts := session.Options{}
+	sessOpts.Config.WithRegion(c.Region)
+	sessOpts.Config.WithEndpoint(c.Endpoint)
+	sessOpts.Config.WithS3ForcePathStyle(c.PathStyle)
+	sessOpts.Config.WithCredentials(
+		credentials.NewStaticCredentials(
+			c.Key, c.Secret, c.Token,
+		),
+	)
+	sess, err := session.NewSessionWithOptions(sessOpts)
+	if err != nil {
+		return nil, err
+	}
+	return s3blob.OpenBucket(context.Background(), sess, c.Bucket, nil)
+}
+
 type SFTPConfig struct {
 	Address   string `json:"address"`
 	Username  string `json:"username"`
@@ -81,6 +107,17 @@ func (c SFTPConfig) Valid() bool {
 	}
 
 	return true
+}
+
+func (c SFTPConfig) OpenBucket() (*blob.Bucket, error) {
+	sftpUrl := fmt.Sprintf("sftp://%s:%s@%s/%s", c.Username, c.Password, c.Address, c.Directory)
+
+	url, err := url.Parse(sftpUrl)
+	if err != nil {
+		return nil, err
+	}
+
+	return sftpblob.OpenBucket(url, nil)
 }
 
 type configTypes struct {
