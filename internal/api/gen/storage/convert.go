@@ -38,3 +38,14 @@ func (t *S3Config) ConvertToS3Config() *types.S3Config {
 	}
 	return v
 }
+
+// ConvertToSFTPConfig creates an instance of SFTPConfig initialized from t.
+func (t *SFTPConfig) ConvertToSFTPConfig() *types.SFTPConfig {
+	v := &types.SFTPConfig{
+		Address:   t.Address,
+		Username:  t.Username,
+		Password:  t.Password,
+		Directory: t.Directory,
+	}
+	return v
+}

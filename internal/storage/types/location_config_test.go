@@ -33,6 +33,20 @@ func TestLocationConfig(t *testing.T) {
 		assert.DeepEqual(t, string(blob), `{"s3":{"bucket":"perma-aips-1","region":"eu-west-1"}}`)
 		assert.Equal(t, cfg.Value.Valid(), true)
 
+		// Valid SFTP config.
+		cfg = types.LocationConfig{
+			Value: &types.SFTPConfig{
+				Address:   "sftp:22",
+				Username:  "user",
+				Password:  "secret",
+				Directory: "upload",
+			},
+		}
+		blob, err = json.Marshal(cfg)
+		assert.NilError(t, err)
+		assert.DeepEqual(t, string(blob), `{"sftp":{"address":"sftp:22","username":"user","password":"secret","directory":"upload"}}`)
+		assert.Equal(t, cfg.Value.Valid(), true)
+
 		// Invalid S3 config.
 		cfg = types.LocationConfig{
 			Value: &types.S3Config{
@@ -42,6 +56,19 @@ func TestLocationConfig(t *testing.T) {
 		blob, err = json.Marshal(cfg)
 		assert.NilError(t, err)
 		assert.DeepEqual(t, string(blob), `{"s3":{"bucket":"perma-aips-1","region":""}}`)
+		assert.Equal(t, cfg.Value.Valid(), false)
+
+		// Invalid SFTP config.
+		cfg = types.LocationConfig{
+			Value: &types.SFTPConfig{
+				Address:   "sftp:22",
+				Username:  "user",
+				Directory: "upload",
+			},
+		}
+		blob, err = json.Marshal(cfg)
+		assert.NilError(t, err)
+		assert.DeepEqual(t, string(blob), `{"sftp":{"address":"sftp:22","username":"user","password":"","directory":"upload"}}`)
 		assert.Equal(t, cfg.Value.Valid(), false)
 	})
 
@@ -57,6 +84,20 @@ func TestLocationConfig(t *testing.T) {
 			Value: &types.S3Config{
 				Bucket: "perma-aips-1",
 				Region: "eu-west-1",
+			},
+		})
+
+		// SFTP Config
+		blob = []byte(`{"sftp":{"address":"sftp:22","username":"user","password":"secret","directory":"upload"}}`)
+		cfg = types.LocationConfig{}
+		err = json.Unmarshal(blob, &cfg)
+		assert.NilError(t, err)
+		assert.DeepEqual(t, cfg, types.LocationConfig{
+			Value: &types.SFTPConfig{
+				Address:   "sftp:22",
+				Username:  "user",
+				Password:  "secret",
+				Directory: "upload",
 			},
 		})
 

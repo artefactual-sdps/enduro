@@ -71,7 +71,7 @@ var (
 // SourceValidator is a validator for the "source" field enum values. It is called by the builders before save.
 func SourceValidator(s types.LocationSource) error {
 	switch s.String() {
-	case "unspecified", "minio":
+	case "unspecified", "minio", "sftp":
 		return nil
 	default:
 		return fmt.Errorf("location: invalid enum value for source field: %q", s)

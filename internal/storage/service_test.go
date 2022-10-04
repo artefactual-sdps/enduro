@@ -216,7 +216,7 @@ func TestNewService(t *testing.T) {
 		&auth.OIDCTokenVerifier{},
 	)
 
-	assert.ErrorContains(t, err, "s3blob.OpenBucket: bucketName is required")
+	assert.ErrorContains(t, err, "invalid configuration")
 }
 
 func TestServiceSubmit(t *testing.T) {

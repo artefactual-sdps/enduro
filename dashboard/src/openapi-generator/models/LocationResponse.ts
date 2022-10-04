@@ -72,7 +72,8 @@ export type LocationResponsePurposeEnum = typeof LocationResponsePurposeEnum[key
  */
 export const LocationResponseSourceEnum = {
     Unspecified: 'unspecified',
-    Minio: 'minio'
+    Minio: 'minio',
+    Sftp: 'sftp'
 } as const;
 export type LocationResponseSourceEnum = typeof LocationResponseSourceEnum[keyof typeof LocationResponseSourceEnum];
 

@@ -73,6 +73,8 @@ app.config.globalProperties.$filters = {
     switch (value) {
       case api.LocationSourceEnum.Minio:
         return "MinIO";
+      case api.LocationSourceEnum.Sftp:
+        return "SFTP";
       case api.LocationSourceEnum.Unspecified:
         return "Unspecified";
       default:

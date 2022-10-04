@@ -13,12 +13,12 @@
  */
 
 import { exists, mapValues } from '../runtime';
-import type { AddLocationRequestBodyConfig } from './AddLocationRequestBodyConfig';
+import type { LocationConfig } from './LocationConfig';
 import {
-    AddLocationRequestBodyConfigFromJSON,
-    AddLocationRequestBodyConfigFromJSONTyped,
-    AddLocationRequestBodyConfigToJSON,
-} from './AddLocationRequestBodyConfig';
+    LocationConfigFromJSON,
+    LocationConfigFromJSONTyped,
+    LocationConfigToJSON,
+} from './LocationConfig';
 
 /**
  * 
@@ -28,10 +28,10 @@ import {
 export interface Location {
     /**
      * 
-     * @type {AddLocationRequestBodyConfig}
+     * @type {LocationConfig}
      * @memberof Location
      */
-    config?: AddLocationRequestBodyConfig;
+    config?: LocationConfig;
     /**
      * Creation datetime
      * @type {Date}
@@ -85,7 +85,8 @@ export type LocationPurposeEnum = typeof LocationPurposeEnum[keyof typeof Locati
  */
 export const LocationSourceEnum = {
     Unspecified: 'unspecified',
-    Minio: 'minio'
+    Minio: 'minio',
+    Sftp: 'sftp'
 } as const;
 export type LocationSourceEnum = typeof LocationSourceEnum[keyof typeof LocationSourceEnum];
 
@@ -114,7 +115,7 @@ export function LocationFromJSONTyped(json: any, ignoreDiscriminator: boolean): 
     }
     return {
         
-        'config': !exists(json, 'config') ? undefined : AddLocationRequestBodyConfigFromJSON(json['config']),
+        'config': !exists(json, 'config') ? undefined : LocationConfigFromJSON(json['config']),
         'createdAt': (new Date(json['created_at'])),
         'description': !exists(json, 'description') ? undefined : json['description'],
         'name': json['name'],
@@ -133,7 +134,7 @@ export function LocationToJSON(value?: Location | null): any {
     }
     return {
         
-        'config': AddLocationRequestBodyConfigToJSON(value.config),
+        'config': LocationConfigToJSON(value.config),
         'created_at': (value.createdAt.toISOString()),
         'description': value.description,
         'name': value.name,

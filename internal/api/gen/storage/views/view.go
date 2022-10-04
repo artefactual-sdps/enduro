@@ -80,6 +80,14 @@ type S3ConfigView struct {
 	Token     *string
 }
 
+// SFTPConfigView is a type that runs validations on a projected type.
+type SFTPConfigView struct {
+	Address   *string
+	Username  *string
+	Password  *string
+	Directory *string
+}
+
 // PackageView is a type that runs validations on a projected type.
 type PackageView struct {
 	Name  *string
@@ -95,7 +103,8 @@ type PackageView struct {
 // PackageCollectionView is a type that runs validations on a projected type.
 type PackageCollectionView []*PackageView
 
-func (*S3ConfigView) configVal() {}
+func (*S3ConfigView) configVal()   {}
+func (*SFTPConfigView) configVal() {}
 
 var (
 	// LocationCollectionMap is a map indexing the attribute names of
@@ -224,8 +233,8 @@ func ValidateLocationView(result *LocationView) (err error) {
 		err = goa.MergeErrors(err, goa.MissingFieldError("created_at", "result"))
 	}
 	if result.Source != nil {
-		if !(*result.Source == "unspecified" || *result.Source == "minio") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.source", *result.Source, []interface{}{"unspecified", "minio"}))
+		if !(*result.Source == "unspecified" || *result.Source == "minio" || *result.Source == "sftp") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.source", *result.Source, []interface{}{"unspecified", "minio", "sftp"}))
 		}
 	}
 	if result.Purpose != nil {
@@ -246,6 +255,23 @@ func ValidateS3ConfigView(result *S3ConfigView) (err error) {
 	}
 	if result.Region == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("region", "result"))
+	}
+	return
+}
+
+// ValidateSFTPConfigView runs the validations defined on SFTPConfigView.
+func ValidateSFTPConfigView(result *SFTPConfigView) (err error) {
+	if result.Address == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("address", "result"))
+	}
+	if result.Username == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("username", "result"))
+	}
+	if result.Password == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("password", "result"))
+	}
+	if result.Directory == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("directory", "result"))
 	}
 	return
 }

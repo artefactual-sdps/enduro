@@ -686,25 +686,25 @@ paths:
                                   description: Voluptatem eum in quas beatae ex voluptatum.
                                   name: Ipsa minus voluptatem facere.
                                   purpose: aip_store
-                                  source: unspecified
+                                  source: minio
                                   uuid: Numquam enim est dolore dolorum rem.
                                 - created_at: "1986-02-20T23:26:17Z"
                                   description: Voluptatem eum in quas beatae ex voluptatum.
                                   name: Ipsa minus voluptatem facere.
                                   purpose: aip_store
-                                  source: unspecified
+                                  source: minio
                                   uuid: Numquam enim est dolore dolorum rem.
                                 - created_at: "1986-02-20T23:26:17Z"
                                   description: Voluptatem eum in quas beatae ex voluptatum.
                                   name: Ipsa minus voluptatem facere.
                                   purpose: aip_store
-                                  source: unspecified
+                                  source: minio
                                   uuid: Numquam enim est dolore dolorum rem.
                                 - created_at: "1986-02-20T23:26:17Z"
                                   description: Voluptatem eum in quas beatae ex voluptatum.
                                   name: Ipsa minus voluptatem facere.
                                   purpose: aip_store
-                                  source: unspecified
+                                  source: minio
                                   uuid: Numquam enim est dolore dolorum rem.
                 "401":
                     description: 'unauthorized: Unauthorized response.'
@@ -1355,15 +1355,17 @@ components:
                             description: |-
                                 Union type name, one of:
                                 - "s3"
+                                - "sftp"
                             example: s3
                             enum:
                                 - s3
+                                - sftp
                         Value:
                             type: string
                             description: JSON formatted union value
                             example: '"JSON"'
                     example:
-                        Type: s3
+                        Type: sftp
                         Value: '"JSON"'
                     required:
                         - Type
@@ -1382,18 +1384,19 @@ components:
                         - aip_store
                 source:
                     type: string
-                    example: minio
+                    example: unspecified
                     enum:
                         - unspecified
                         - minio
+                        - sftp
             example:
                 config:
-                    Type: s3
+                    Type: sftp
                     Value: '"JSON"'
                 description: Voluptas qui velit excepturi explicabo error omnis.
                 name: Velit et molestias eum unde officia consequatur.
                 purpose: unspecified
-                source: minio
+                source: unspecified
             required:
                 - name
                 - source
@@ -2371,9 +2374,11 @@ components:
                             description: |-
                                 Union type name, one of:
                                 - "s3"
+                                - "sftp"
                             example: s3
                             enum:
                                 - s3
+                                - sftp
                         Value:
                             type: string
                             description: JSON formatted union value
@@ -2413,6 +2418,7 @@ components:
                     enum:
                         - unspecified
                         - minio
+                        - sftp
                 uuid:
                     type: string
                     example: Excepturi aperiam veritatis voluptate et.
@@ -2424,7 +2430,7 @@ components:
                 description: Corporis voluptatum rerum tenetur molestiae.
                 name: Ut sint ullam deleniti.
                 purpose: unspecified
-                source: minio
+                source: sftp
                 uuid: Id quasi.
             required:
                 - name
@@ -2477,10 +2483,11 @@ components:
                     type: string
                     description: Data source of the location
                     default: unspecified
-                    example: minio
+                    example: sftp
                     enum:
                         - unspecified
                         - minio
+                        - sftp
                 uuid:
                     type: string
                     example: Et quis sunt ratione dolorem debitis aut.
@@ -2508,13 +2515,13 @@ components:
                   description: Voluptatem eum in quas beatae ex voluptatum.
                   name: Ipsa minus voluptatem facere.
                   purpose: aip_store
-                  source: unspecified
+                  source: minio
                   uuid: Numquam enim est dolore dolorum rem.
                 - created_at: "1986-02-20T23:26:17Z"
                   description: Voluptatem eum in quas beatae ex voluptatum.
                   name: Ipsa minus voluptatem facere.
                   purpose: aip_store
-                  source: unspecified
+                  source: minio
                   uuid: Numquam enim est dolore dolorum rem.
         MonitorResponseBody:
             type: object
