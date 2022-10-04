@@ -32,6 +32,7 @@ require (
 	github.com/pborman/uuid v1.2.1 // indirect
 	github.com/prometheus/client_golang v1.13.0
 	github.com/radovskyb/watcher v1.0.7
+	github.com/rukavina/sftpblob v0.0.0-20201030103652-e8e9601e6511
 	github.com/spf13/afero v1.9.2
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.13.0
@@ -43,8 +44,8 @@ require (
 	go.temporal.io/sdk v1.17.0
 	go.uber.org/multierr v1.8.0 // indirect
 	go.uber.org/zap v1.23.0
-	goa.design/goa/v3 v3.8.5
-	goa.design/plugins/v3 v3.8.5
+	goa.design/goa/v3 v3.9.1
+	goa.design/plugins/v3 v3.9.1
 	gocloud.dev v0.26.0
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/grpc v1.49.0
@@ -99,6 +100,7 @@ require (
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/klauspost/compress v1.15.1 // indirect
 	github.com/klauspost/pgzip v1.2.5 // indirect
+	github.com/kr/fs v0.1.0 // indirect
 	github.com/magiconair/properties v1.8.6 // indirect
 	github.com/manveru/faker v0.0.0-20171103152722-9fbc68a78c4d // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.2-0.20181231171920-c182affec369 // indirect
@@ -108,6 +110,8 @@ require (
 	github.com/pelletier/go-toml v1.9.5 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.5 // indirect
 	github.com/pierrec/lz4/v4 v4.1.12 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
+	github.com/pkg/sftp v1.13.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/prometheus/client_model v0.2.0 // indirect
 	github.com/prometheus/common v0.37.0 // indirect
