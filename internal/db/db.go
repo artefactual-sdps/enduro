@@ -39,10 +39,10 @@ func Connect(ds string) (db *sql.DB, err error) {
 
 	db = sql.OpenDB(conn)
 
-	// Set reasonable sizes on the built-in pool.
-	db.SetMaxOpenConns(30)
-	db.SetMaxIdleConns(30)
-	db.SetConnMaxLifetime(time.Minute)
+	// Set reasonable defaults in the built-in pool.
+	db.SetMaxOpenConns(100)
+	db.SetMaxIdleConns(10)
+	db.SetConnMaxLifetime(time.Hour)
 
 	// Register Prometheus collector.
 	c := prometheus.NewGaugeFunc(
