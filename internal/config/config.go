@@ -13,7 +13,6 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/storage"
 	"github.com/artefactual-sdps/enduro/internal/temporal"
 	"github.com/artefactual-sdps/enduro/internal/upload"
-	"github.com/artefactual-sdps/enduro/internal/version"
 	"github.com/artefactual-sdps/enduro/internal/watcher"
 )
 
@@ -60,7 +59,6 @@ func Read(config *Configuration, configFile string) (found bool, configFileUsed 
 	v.SetConfigName("enduro")
 	v.SetDefault("debugListen", "127.0.0.1:9001")
 	v.SetDefault("api.listen", "127.0.0.1:9000")
-	v.Set("api.appVersion", version.Version)
 	v.SetEnvPrefix("enduro")
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	v.AutomaticEnv()
