@@ -6,7 +6,7 @@ debugListen = "127.0.0.1:9001"
 [temporal]
 namespace = "default"
 address = "temporal:7233"
-taskqueue = "global"
+taskQueue = "global"
 
 [api]
 listen = "0.0.0.0:9000"
