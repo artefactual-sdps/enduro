@@ -33,6 +33,6 @@ var _ = API("enduro", func() {
 	})
 	cors.Origin("*", func() {
 		cors.Methods("GET", "HEAD", "POST", "PUT", "DELETE", "OPTIONS")
-		cors.Headers("Authorization")
+		cors.Headers("Authorization", "Content-Type")
 	})
 })
