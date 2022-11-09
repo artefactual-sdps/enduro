@@ -81,9 +81,11 @@ export PATH=$HOME/go/bin:$PATH
 We recommend to [set the environment strings permanently] - follow the link to
 know more.
 
-Then, install and list them with:
+Then, clone this repository and install those tools:
 
 ```
+git clone git@github.com:artefactual-sdps/enduro.git
+cd enduro
 make tools
 ```
 
@@ -116,10 +118,11 @@ Make sure kubectl is available and configured to use that cluster:
 kubectl config view
 ```
 
-Clone this repository and move into its folder:
+Clone this repository and move into its folder if you have not done that
+previously:
 
 ```
-git clone https://github.com/artefactual-sdps/enduro.git
+git clone git@github.com:artefactual-sdps/enduro.git
 cd enduro
 ```
 
