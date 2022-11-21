@@ -47,8 +47,8 @@ require (
 	goa.design/goa/v3 v3.9.1
 	goa.design/plugins/v3 v3.9.1
 	gocloud.dev v0.27.0
-	golang.org/x/text v0.3.7 // indirect
-	google.golang.org/grpc v1.50.0
+	golang.org/x/text v0.4.0 // indirect
+	google.golang.org/grpc v1.51.0
 	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/square/go-jose.v2 v2.6.0
 	gotest.tools/v3 v3.4.0
