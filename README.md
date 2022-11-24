@@ -39,7 +39,9 @@ even against remote clusters, check Tilt's [Choosing a Local Dev Cluster] and
 [Install] documentation for more information to install these requirements.
 
 Additionally, follow the [Manage Docker as a non-root user] post-install guide
-so that you don’t have to run Tilt with `sudo`.
+so that you don’t have to run Tilt with `sudo`. *Note that managing Docker as a
+non-root user is **different** from running the docker daemon as a non-root user
+(rootless).*
 
 #### Dex host
 
@@ -49,6 +51,8 @@ the following entry needs to be added to your `/etc/hosts` file:
 ```
 127.0.0.1 dex
 ```
+For Windows/WSL2 users, open Notepad, as an Administrator, and then add the above
+to your `etc/hosts` file located like `C:/Windows/System32/drivers/etc/hosts`.
 
 ### Requirements for development
 
@@ -181,18 +185,11 @@ To remove the resources created by Tilt in the cluster, execute:
 tilt down
 ```
 
-However, that won't remove all the persistent volumes at the moment, to do so
-run:
-
-```
-kubectl delete pvc,pv --all
-```
-
 ### Delete the cluster
 
-Deleting the cluster will remove all the resources from above, but it will also
-remove the container registry with the Docker images and the cluster container
-from the host. With k3d, run:
+Deleting the cluster will remove all the resources from above and delete the PV in 
+the environment, but it will also remove the container registry with the Docker images 
+and the cluster container from the host. With k3d, run:
 
 ```
 k3d cluster delete sdps-local
