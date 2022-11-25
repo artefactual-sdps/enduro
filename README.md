@@ -184,12 +184,11 @@ To remove the resources created by Tilt in the cluster, execute:
 ```
 tilt down
 ```
+Note that it will take some time to delete the persistent volumes when you run `tilt down` and flushing the existing data does not delete the cluster. To delete the volumes immediately, you can delete the cluster. 
 
 ### Delete the cluster
 
-Deleting the cluster will remove all the resources from above and delete the PV in 
-the environment, but it will also remove the container registry with the Docker images 
-and the cluster container from the host. With k3d, run:
+Deleting the cluster will remove all the resources immediatly, deleting cluster container from the host. With k3d, run: 
 
 ```
 k3d cluster delete sdps-local
