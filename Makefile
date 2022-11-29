@@ -67,11 +67,13 @@ tools: bingo
 tparse:
 	@$(GO) test -count=1 -json -cover  $(TEST_PACKAGES) | $(TPARSE) -follow -all -notests
 
+TFORMAT := short
+
 test:
-	@$(GOTESTSUM) $(TEST_PACKAGES)
+	@$(GOTESTSUM) --format=$(TFORMAT) $(TEST_PACKAGES)
 
 test-race:
-	@$(GOTESTSUM) $(TEST_PACKAGES) -- -race
+	@$(GOTESTSUM) --format=$(TFORMAT) $(TEST_PACKAGES) -- -race
 
 ignored:
 	$(foreach PACKAGE,$(IGNORED_PACKAGES),@echo $(PACKAGE)$(NEWLINE))
