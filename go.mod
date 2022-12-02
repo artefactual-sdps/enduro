@@ -44,8 +44,8 @@ require (
 	go.temporal.io/sdk v1.17.0
 	go.uber.org/multierr v1.8.0 // indirect
 	go.uber.org/zap v1.24.0
-	goa.design/goa/v3 v3.9.1
-	goa.design/plugins/v3 v3.9.1
+	goa.design/goa/v3 v3.10.2
+	goa.design/plugins/v3 v3.10.2
 	gocloud.dev v0.27.0
 	golang.org/x/text v0.4.0 // indirect
 	google.golang.org/grpc v1.51.0
@@ -129,14 +129,14 @@ require (
 	go.opencensus.io v0.23.0 // indirect
 	go.opentelemetry.io/otel v1.7.0 // indirect
 	go.opentelemetry.io/otel/trace v1.7.0 // indirect
-	go.uber.org/atomic v1.9.0 // indirect
-	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa // indirect
-	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
+	go.uber.org/atomic v1.10.0 // indirect
+	golang.org/x/crypto v0.1.0 // indirect
+	golang.org/x/mod v0.6.0 // indirect
 	golang.org/x/net v0.1.0 // indirect
 	golang.org/x/oauth2 v0.0.0-20221014153046-6fdb5e3db783 // indirect
 	golang.org/x/sys v0.1.0 // indirect
 	golang.org/x/time v0.0.0-20220722155302-e5dcc9cfc0b9 // indirect
-	golang.org/x/tools v0.1.13-0.20220804200503-81c7dc4e4efa // indirect
+	golang.org/x/tools v0.2.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
 	google.golang.org/api v0.102.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
