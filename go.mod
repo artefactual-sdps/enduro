@@ -3,10 +3,10 @@ module github.com/artefactual-sdps/enduro
 go 1.19
 
 require (
-	ariga.io/atlas v0.7.2
+	ariga.io/atlas v0.7.3-0.20221011160332-3ca609863edd
 	ariga.io/sqlcomment v0.1.0
 	chainguard.dev/go-oidctest v0.2.0
-	entgo.io/ent v0.11.3
+	entgo.io/ent v0.11.4
 	github.com/alicebob/miniredis/v2 v2.23.1
 	github.com/aws/aws-sdk-go v1.44.150
 	github.com/coreos/go-oidc/v3 v3.4.0
