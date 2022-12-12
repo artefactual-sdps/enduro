@@ -3,7 +3,7 @@
 // HTTP request path constructors for the storage service.
 //
 // Command:
-// $ goa-v3.9.1 gen github.com/artefactual-sdps/enduro/internal/api/design -o
+// $ goa-v3.10.2 gen github.com/artefactual-sdps/enduro/internal/api/design -o
 // internal/api
 
 package client
