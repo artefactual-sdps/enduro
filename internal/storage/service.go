@@ -23,18 +23,7 @@ import (
 var SubmitURLExpirationTime = 15 * time.Minute
 
 type Service interface {
-	// Used in the Goa API.
-	Submit(context.Context, *goastorage.SubmitPayload) (res *goastorage.SubmitResult, err error)
-	Update(context.Context, *goastorage.UpdatePayload) (err error)
-	Download(context.Context, *goastorage.DownloadPayload) ([]byte, error)
-	Locations(context.Context, *goastorage.LocationsPayload) (res goastorage.LocationCollection, err error)
-	Move(context.Context, *goastorage.MovePayload) (err error)
-	MoveStatus(context.Context, *goastorage.MoveStatusPayload) (res *goastorage.MoveStatusResult, err error)
-	Reject(context.Context, *goastorage.RejectPayload) (err error)
-	Show(context.Context, *goastorage.ShowPayload) (res *goastorage.Package, err error)
-	AddLocation(context.Context, *goastorage.AddLocationPayload) (res *goastorage.AddLocationResult, err error)
-	ShowLocation(context.Context, *goastorage.ShowLocationPayload) (res *goastorage.Location, err error)
-	LocationPackages(context.Context, *goastorage.LocationPackagesPayload) (res goastorage.PackageCollection, err error)
+	goastorage.Service
 
 	// Used from workflow activities.
 	Location(ctx context.Context, locationID uuid.UUID) (Location, error)
