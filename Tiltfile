@@ -29,6 +29,13 @@ docker_build(
 # All Kubernetes resources
 k8s_yaml(kustomize("hack/kube/overlays/dev"))
 
+load('ext://dotenv', 'dotenv')
+dotenv(fn=".tilt.env")
+
+trigger_mode = TRIGGER_MODE_AUTO
+if os.environ.get('TRIGGER_MODE_MANUAL', ''):
+  trigger_mode = TRIGGER_MODE_MANUAL
+
 # Enduro resources
 k8s_resource("enduro", labels=["Enduro"], trigger_mode=TRIGGER_MODE_MANUAL)
 k8s_resource("enduro-a3m", labels=["Enduro"], trigger_mode=TRIGGER_MODE_MANUAL)
