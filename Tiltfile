@@ -30,10 +30,10 @@ docker_build(
 k8s_yaml(kustomize("hack/kube/overlays/dev"))
 
 # Enduro resources
-k8s_resource("enduro", labels=["Enduro"])
-k8s_resource("enduro-a3m", labels=["Enduro"])
-k8s_resource("enduro-internal", port_forwards="9000", labels=["Enduro"])
-k8s_resource("enduro-dashboard", port_forwards="3000", labels=["Enduro"])
+k8s_resource("enduro", labels=["Enduro"], trigger_mode=TRIGGER_MODE_MANUAL)
+k8s_resource("enduro-a3m", labels=["Enduro"], trigger_mode=TRIGGER_MODE_MANUAL)
+k8s_resource("enduro-internal", port_forwards="9000", labels=["Enduro"], trigger_mode=TRIGGER_MODE_MANUAL)
+k8s_resource("enduro-dashboard", port_forwards="3000", labels=["Enduro"], trigger_mode=TRIGGER_MODE_MANUAL)
 
 # Other resources
 k8s_resource("dex", port_forwards="5556", labels=["Others"])
