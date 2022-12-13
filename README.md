@@ -150,14 +150,17 @@ There are four services available from the host:
 
 ### Live updates
 
-Tilt will watch for file changes in the project folder and it will sync those
-changes, rebuild the Docker images and recreate the resources when necessary.
-The `enduro-dashboard` uses Vite to serve the application in development with
-hot reload. The `enduro` and `enduro-a3m-worker` services require rebuilding
-the entire images - these will take longer to update.
+Tilt, by default, will watch for file changes in the project folder and it will 
+sync those changes, rebuild the Docker images and recreate the resources when 
+necessary. However, we have *disabled* auto-load within the Tiltfile to reduce
+the use of hardware resources. There are refresh buttons on each resource in the 
+Tilt UI that allow triggering manual updates and re-executing jobs and local 
+resources. You can also set the `trigger_mode` env string to `TRIGGER_MODE_AUTO`
+within your local `.tilt.env` file to override this change and enable auto mode.
 
-Additionally, there are refresh buttons on each resource in the Tilt UI that
-allow triggering manual updates and re-executing jobs and local resources.
+The `enduro-dashboard` uses Vite to serve the application in development 
+with hot reload. The `enduro` and `enduro-a3m-worker` services require rebuilding
+the entire images - these will take longer to update.
 
 ### Stop/start the environment
 
