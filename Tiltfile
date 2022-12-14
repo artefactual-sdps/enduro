@@ -1,6 +1,16 @@
 version_settings(constraint=">=0.22.2")
 load("ext://uibutton", "cmd_button", "text_input")
 
+def dotenv(fn):
+  """Read environment strings from a file."""
+  f = read_file(fn, default="")
+  lines = str(f).splitlines()
+  for line in lines:
+    v = line.split('=', 1)
+    if len(v) < 2:
+      continue
+    os.putenv(v[0], v[1])
+
 # Docker images
 docker_build("enduro:dev", context=".")
 docker_build(
@@ -29,18 +39,17 @@ docker_build(
 # All Kubernetes resources
 k8s_yaml(kustomize("hack/kube/overlays/dev"))
 
-load('ext://dotenv', 'dotenv')
+# Configure trigger mode
 dotenv(fn=".tilt.env")
-
 trigger_mode = TRIGGER_MODE_AUTO
 if os.environ.get('TRIGGER_MODE_MANUAL', ''):
   trigger_mode = TRIGGER_MODE_MANUAL
 
 # Enduro resources
-k8s_resource("enduro", labels=["Enduro"], trigger_mode=TRIGGER_MODE_MANUAL)
-k8s_resource("enduro-a3m", labels=["Enduro"], trigger_mode=TRIGGER_MODE_MANUAL)
-k8s_resource("enduro-internal", port_forwards="9000", labels=["Enduro"], trigger_mode=TRIGGER_MODE_MANUAL)
-k8s_resource("enduro-dashboard", port_forwards="3000", labels=["Enduro"], trigger_mode=TRIGGER_MODE_MANUAL)
+k8s_resource("enduro", labels=["Enduro"], trigger_mode=trigger_mode)
+k8s_resource("enduro-a3m", labels=["Enduro"], trigger_mode=trigger_mode)
+k8s_resource("enduro-internal", port_forwards="9000", labels=["Enduro"], trigger_mode=trigger_mode)
+k8s_resource("enduro-dashboard", port_forwards="3000", labels=["Enduro"], trigger_mode=trigger_mode)
 
 # Other resources
 k8s_resource("dex", port_forwards="5556", labels=["Others"])
