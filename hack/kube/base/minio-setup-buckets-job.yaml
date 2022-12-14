@@ -7,16 +7,6 @@ spec:
   template:
     spec:
       restartPolicy: OnFailure
-      initContainers:
-        - name: check-minio
-          image: busybox
-          imagePullPolicy: IfNotPresent
-          command:
-            [
-              "sh",
-              "-c",
-              "until nslookup minio; do echo waiting for minio service; sleep 1; done;",
-            ]
       containers:
         - name: setup-buckets
           image: minio/mc
