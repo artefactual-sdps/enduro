@@ -1,15 +1,6 @@
 version_settings(constraint=">=0.22.2")
 load("ext://uibutton", "cmd_button", "text_input")
-
-def dotenv(fn):
-  """Read environment strings from a file."""
-  f = read_file(fn, default="")
-  lines = str(f).splitlines()
-  for line in lines:
-    v = line.split('=', 1)
-    if len(v) < 2:
-      continue
-    os.putenv(v[0], v[1])
+load('ext://dotenv', 'dotenv')
 
 # Docker images
 docker_build("enduro:dev", context=".")
@@ -40,7 +31,9 @@ docker_build(
 k8s_yaml(kustomize("hack/kube/overlays/dev"))
 
 # Configure trigger mode
-dotenv(fn=".tilt.env")
+dotenv_path = ".tilt.env"
+if os.path.exists(dotenv_path):
+  dotenv(fn=dotenv_path)
 trigger_mode = TRIGGER_MODE_AUTO
 if os.environ.get('TRIGGER_MODE_MANUAL', ''):
   trigger_mode = TRIGGER_MODE_MANUAL
