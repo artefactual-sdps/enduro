@@ -1,4 +1,5 @@
 version_settings(constraint=">=0.22.2")
+secret_settings(disable_scrub=True)
 load("ext://uibutton", "cmd_button", "text_input")
 load('ext://dotenv', 'dotenv')
 
