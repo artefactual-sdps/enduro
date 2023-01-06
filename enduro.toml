@@ -5,7 +5,7 @@ debugListen = "127.0.0.1:9001"
 
 [temporal]
 namespace = "default"
-address = "temporal:7233"
+address = "temporal.sdps:7233"
 taskQueue = "global"
 
 [api]
@@ -21,22 +21,22 @@ clientID = "enduro"
 clientSecret = "ZXhhbXBsZS1hcHAtc2VjcmV0"
 
 [api.auth.ticket.redis]
-address = "redis://redis:6379"
+address = "redis://redis.sdps:6379"
 prefix = "enduro"
 
 [event]
-redisAddress = "redis://redis:6379"
+redisAddress = "redis://redis.sdps:6379"
 redisChannel = "enduro-events"
 
 [database]
-dsn = "enduro:enduro123@tcp(mysql:3306)/enduro"
+dsn = "enduro:enduro123@tcp(mysql.sdps:3306)/enduro"
 migrate = true
 
 [watcher.embedded]
 name = "dev-minio"
-redisAddress = "redis://redis:6379"
+redisAddress = "redis://redis.sdps:6379"
 redisList = "minio-events"
-endpoint = "http://minio:9000"
+endpoint = "http://minio.sdps:9000"
 pathStyle = true
 key = "minio"
 secret = "minio123"
@@ -48,11 +48,11 @@ stripTopLevelDir = true
 enduroAddress = "enduro-internal:9000"
 
 [storage.database]
-dsn = "enduro:enduro123@tcp(mysql:3306)/enduro_storage"
+dsn = "enduro:enduro123@tcp(mysql.sdps:3306)/enduro_storage"
 migrate = true
 
 [storage.internal]
-endpoint = "http://minio:9000"
+endpoint = "http://minio.sdps:9000"
 pathStyle = true
 key = "minio"
 secret = "minio123"
@@ -64,7 +64,7 @@ address = "127.0.0.1:7000"
 shareDir = "/home/a3m/.local/share/a3m/share"
 
 [upload]
-endpoint = "http://minio:9000"
+endpoint = "http://minio.sdps:9000"
 pathStyle = true
 key = "minio"
 secret = "minio123"

@@ -18,7 +18,7 @@ spec:
           image: ghcr.io/artefactual-sdps/enduro-dashboard:main
           env:
             - name: ENDURO_API_ADDRESS
-              value: enduro:9000
+              value: enduro.sdps:9000
             - name: VITE_OIDC_AUTHORITY
               valueFrom:
                 secretKeyRef:

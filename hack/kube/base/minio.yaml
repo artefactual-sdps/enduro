@@ -21,7 +21,7 @@ spec:
             [
               "sh",
               "-c",
-              "until echo STATUS | nc -w 2 redis 6379; do echo waiting for redis to start; sleep 1; done;",
+              "until echo STATUS | nc -w 2 redis.sdps 6379; do echo waiting for redis to start; sleep 1; done;",
             ]
       containers:
         - name: minio
@@ -42,7 +42,7 @@ spec:
             - name: MINIO_NOTIFY_REDIS_ENABLE_PRIMARY
               value: "on"
             - name: MINIO_NOTIFY_REDIS_ADDRESS_PRIMARY
-              value: "redis:6379"
+              value: "redis.sdps:6379"
             - name: MINIO_NOTIFY_REDIS_KEY_PRIMARY
               value: "minio-events"
             - name: MINIO_NOTIFY_REDIS_FORMAT_PRIMARY

@@ -18,7 +18,7 @@ spec:
           image: temporalio/ui:0.13.2
           env:
             - name: TEMPORAL_ADDRESS
-              value: temporal:7233
+              value: temporal.sdps:7233
             - name: TEMPORAL_UI_PORT
               value: "8080"
             - name: TEMPORAL_CORS_ORIGINS

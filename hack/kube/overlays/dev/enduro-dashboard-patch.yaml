@@ -9,7 +9,7 @@ spec:
         - name: enduro-dashboard
           env:
             - name: ENDURO_API_ADDRESS
-              value: http://enduro:9000
+              value: http://enduro.sdps:9000
           ports:
             - containerPort: 80
               $patch: delete
