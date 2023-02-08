@@ -79,7 +79,7 @@ ignored:
 	$(foreach PACKAGE,$(IGNORED_PACKAGES),@echo $(PACKAGE)$(NEWLINE))
 
 golangcilint: $(GOLANGCI_LINT)
-	golangci-lint run -v --timeout=5m --fix .
+	golangci-lint run -v --timeout=5m --fix
 
 lint:
 	@$(MAKE) golangcilint
