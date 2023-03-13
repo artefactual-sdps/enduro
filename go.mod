@@ -7,7 +7,7 @@ require (
 	ariga.io/sqlcomment v0.1.0
 	chainguard.dev/go-oidctest v0.2.0
 	entgo.io/ent v0.11.4
-	github.com/alicebob/miniredis/v2 v2.23.1
+	github.com/alicebob/miniredis/v2 v2.30.1
 	github.com/aws/aws-sdk-go v1.44.159
 	github.com/coreos/go-oidc/v3 v3.4.0
 	github.com/cyphar/filepath-securejoin v0.2.3
@@ -123,7 +123,7 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/subosito/gotenv v1.4.1 // indirect
 	github.com/xi2/xz v0.0.0-20171230120015-48954b6210f8 // indirect
-	github.com/yuin/gopher-lua v0.0.0-20220504180219-658193537a64 // indirect
+	github.com/yuin/gopher-lua v1.1.0 // indirect
 	github.com/zach-klippenstein/goregen v0.0.0-20160303162051-795b5e3961ea // indirect
 	github.com/zclconf/go-cty v1.8.0 // indirect
 	go.opencensus.io v0.23.0 // indirect
