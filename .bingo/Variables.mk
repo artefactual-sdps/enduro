@@ -47,11 +47,11 @@ $(GOTESTSUM): $(BINGO_DIR)/gotestsum.mod
 	@echo "(re)installing $(GOBIN)/gotestsum-v1.8.2"
 	@cd $(BINGO_DIR) && GOWORK=off $(GO) build -mod=mod -modfile=gotestsum.mod -o=$(GOBIN)/gotestsum-v1.8.2 "gotest.tools/gotestsum"
 
-MIGRATE := $(GOBIN)/migrate-v4.15.2
+MIGRATE := $(GOBIN)/migrate-v4.16.0
 $(MIGRATE): $(BINGO_DIR)/migrate.mod
 	@# Install binary/ries using Go 1.14+ build command. This is using bwplotka/bingo-controlled, separate go module with pinned dependencies.
-	@echo "(re)installing $(GOBIN)/migrate-v4.15.2"
-	@cd $(BINGO_DIR) && GOWORK=off $(GO) build -tags=mysql -mod=mod -modfile=migrate.mod -o=$(GOBIN)/migrate-v4.15.2 "github.com/golang-migrate/migrate/v4/cmd/migrate"
+	@echo "(re)installing $(GOBIN)/migrate-v4.16.0"
+	@cd $(BINGO_DIR) && GOWORK=off $(GO) build -tags=mysql -mod=mod -modfile=migrate.mod -o=$(GOBIN)/migrate-v4.16.0 "github.com/golang-migrate/migrate/v4/cmd/migrate"
 
 MOCKGEN := $(GOBIN)/mockgen-v1.6.0
 $(MOCKGEN): $(BINGO_DIR)/mockgen.mod
