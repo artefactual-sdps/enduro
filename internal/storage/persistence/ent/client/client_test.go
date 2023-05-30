@@ -24,7 +24,7 @@ import (
 
 func fakeNow() time.Time {
 	const longForm = "Jan 2, 2006 at 3:04pm (MST)"
-	t, _ := time.Parse(longForm, "Feb 3, 2013 at 7:54pm (PST)")
+	t, _ := time.Parse(longForm, "Feb 3, 2013 at 7:54pm (UTC)")
 	return t
 }
 
