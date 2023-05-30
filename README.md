@@ -59,7 +59,7 @@ to your `etc/hosts` file located like `C:/Windows/System32/drivers/etc/hosts`.
 While we run the services inside a Kubernetes cluster we recomend to install
 Go, Node and other tools locally to ease the development process.
 
-- [Go] (1.19+)
+- [Go] (1.20+)
 - [NPM and Node] (18+)
 - GNU [Make] and [GCC]
 
@@ -150,15 +150,15 @@ There are four services available from the host:
 
 ### Live updates
 
-Tilt, by default, will watch for file changes in the project folder and it will 
-sync those changes, rebuild the Docker images and recreate the resources when 
+Tilt, by default, will watch for file changes in the project folder and it will
+sync those changes, rebuild the Docker images and recreate the resources when
 necessary. However, we have *disabled* auto-load within the Tiltfile to reduce
-the use of hardware resources. There are refresh buttons on each resource in the 
-Tilt UI that allow triggering manual updates and re-executing jobs and local 
+the use of hardware resources. There are refresh buttons on each resource in the
+Tilt UI that allow triggering manual updates and re-executing jobs and local
 resources. You can also set the `trigger_mode` env string to `TRIGGER_MODE_AUTO`
 within your local `.tilt.env` file to override this change and enable auto mode.
 
-The `enduro-dashboard` uses Vite to serve the application in development 
+The `enduro-dashboard` uses Vite to serve the application in development
 with hot reload. The `enduro` and `enduro-a3m-worker` services require rebuilding
 the entire images - these will take longer to update.
 
@@ -187,14 +187,14 @@ To remove the resources created by Tilt in the cluster, execute:
 ```
 tilt down
 ```
-Note that it will take some time to delete the persistent volumes when you 
-run `tilt down` and flushing the existing data does not delete the cluster. 
-To delete the volumes immediately, you can delete the cluster. 
+Note that it will take some time to delete the persistent volumes when you
+run `tilt down` and flushing the existing data does not delete the cluster.
+To delete the volumes immediately, you can delete the cluster.
 
 ### Delete the cluster
 
-Deleting the cluster will remove all the resources immediatly, deleting 
-cluster container from the host. With k3d, run: 
+Deleting the cluster will remove all the resources immediatly, deleting
+cluster container from the host. With k3d, run:
 
 ```
 k3d cluster delete sdps-local

@@ -14,9 +14,9 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v3
         with:
-          go-version: 1.19.x
+          go-version: 1.20.x
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:
-          version: v1.49.0
+          version: v1.52.2
           args: --timeout=5m ./...
