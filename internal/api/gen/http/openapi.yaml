@@ -901,16 +901,16 @@ definitions:
         example:
             id: 11924487059948103537
             item:
-                aip_id: BCD628BE-EC66-405B-7005-21B482B9CD79
+                aip_id: 3F26893A-3834-876C-7B7F-8F0F9B1B8008
                 completed_at: "2014-02-09T11:48:13Z"
                 created_at: "1983-01-14T07:41:52Z"
                 id: 651251884554398318
                 location_id: Deleniti vel.
                 name: Tenetur voluptatum quas repellat deleniti ea.
-                run_id: F1B1633F-78C2-3DF2-9D5F-A450473EBA57
+                run_id: 3A3DE380-583C-407C-8F95-FA54AC32B65B
                 started_at: "2012-03-06T17:13:57Z"
                 status: queued
-                workflow_id: 8889A6C4-91BF-D1D9-EC2A-DD7F1D616B8A
+                workflow_id: F43D0BA5-8936-99FB-60B3-950FDEFAED0C
         required:
             - id
             - item
@@ -1294,16 +1294,16 @@ definitions:
         example:
             id: 2684399766488476840
             item:
-                aip_id: BCD628BE-EC66-405B-7005-21B482B9CD79
+                aip_id: 3F26893A-3834-876C-7B7F-8F0F9B1B8008
                 completed_at: "2014-02-09T11:48:13Z"
                 created_at: "1983-01-14T07:41:52Z"
                 id: 651251884554398318
                 location_id: Deleniti vel.
                 name: Tenetur voluptatum quas repellat deleniti ea.
-                run_id: F1B1633F-78C2-3DF2-9D5F-A450473EBA57
+                run_id: 3A3DE380-583C-407C-8F95-FA54AC32B65B
                 started_at: "2012-03-06T17:13:57Z"
                 status: queued
-                workflow_id: 8889A6C4-91BF-D1D9-EC2A-DD7F1D616B8A
+                workflow_id: F43D0BA5-8936-99FB-60B3-950FDEFAED0C
         required:
             - id
             - item
@@ -1416,7 +1416,7 @@ definitions:
             aip_id:
                 type: string
                 description: Identifier of Archivematica AIP
-                example: 1B191706-6645-37C2-12DA-6685EFB4287D
+                example: 7049A200-7A75-1CA6-AE85-7BC47B1B96AE
                 format: uuid
             completed_at:
                 type: string
@@ -1443,7 +1443,7 @@ definitions:
             run_id:
                 type: string
                 description: Identifier of latest processing workflow run
-                example: 4C17A184-FC45-FB3A-5AE0-6E4A3706BA95
+                example: 0F5F4586-5603-49C0-C402-D6FAF650215B
                 format: uuid
             started_at:
                 type: string
@@ -1467,20 +1467,20 @@ definitions:
             workflow_id:
                 type: string
                 description: Identifier of processing workflow
-                example: 394C68F8-17C6-A627-AD8F-D44BA0FBD0D4
+                example: 901477E0-170A-78EA-B352-21807138C062
                 format: uuid
         description: StoredPackage describes a package retrieved by the service. (default view)
         example:
-            aip_id: B140526E-56D0-0183-0B79-28E8969E1B3C
+            aip_id: 9361ABEF-DCD8-4A72-FF94-AB96E1328EF5
             completed_at: "2011-01-08T01:57:48Z"
             created_at: "2007-11-13T23:58:40Z"
             id: 17534629024729984937
             location_id: Omnis hic voluptatibus doloribus.
             name: Culpa distinctio aspernatur tempora.
-            run_id: DAE4BBC9-23C8-09A1-921F-CE28DF03BC4A
+            run_id: 0612EB39-9051-4DDD-A148-9D037308540C
             started_at: "2003-02-19T18:30:02Z"
             status: pending
-            workflow_id: AAB57B12-5CC1-1E13-E6AC-F88295E4F868
+            workflow_id: F6E4949D-F2D0-7C22-AB3E-C1F6CD82F429
         required:
             - id
             - status
@@ -1492,36 +1492,36 @@ definitions:
             $ref: '#/definitions/EnduroStoredPackageResponseBody'
         description: EnduroStored-PackageCollectionResponseBody is the result type for an array of EnduroStored-PackageResponseBody (default view)
         example:
-            - aip_id: BCD628BE-EC66-405B-7005-21B482B9CD79
+            - aip_id: 3F26893A-3834-876C-7B7F-8F0F9B1B8008
               completed_at: "2014-02-09T11:48:13Z"
               created_at: "1983-01-14T07:41:52Z"
               id: 651251884554398318
               location_id: Deleniti vel.
               name: Tenetur voluptatum quas repellat deleniti ea.
-              run_id: F1B1633F-78C2-3DF2-9D5F-A450473EBA57
+              run_id: 3A3DE380-583C-407C-8F95-FA54AC32B65B
               started_at: "2012-03-06T17:13:57Z"
               status: queued
-              workflow_id: 8889A6C4-91BF-D1D9-EC2A-DD7F1D616B8A
-            - aip_id: BCD628BE-EC66-405B-7005-21B482B9CD79
+              workflow_id: F43D0BA5-8936-99FB-60B3-950FDEFAED0C
+            - aip_id: 3F26893A-3834-876C-7B7F-8F0F9B1B8008
               completed_at: "2014-02-09T11:48:13Z"
               created_at: "1983-01-14T07:41:52Z"
               id: 651251884554398318
               location_id: Deleniti vel.
               name: Tenetur voluptatum quas repellat deleniti ea.
-              run_id: F1B1633F-78C2-3DF2-9D5F-A450473EBA57
+              run_id: 3A3DE380-583C-407C-8F95-FA54AC32B65B
               started_at: "2012-03-06T17:13:57Z"
               status: queued
-              workflow_id: 8889A6C4-91BF-D1D9-EC2A-DD7F1D616B8A
-            - aip_id: BCD628BE-EC66-405B-7005-21B482B9CD79
+              workflow_id: F43D0BA5-8936-99FB-60B3-950FDEFAED0C
+            - aip_id: 3F26893A-3834-876C-7B7F-8F0F9B1B8008
               completed_at: "2014-02-09T11:48:13Z"
               created_at: "1983-01-14T07:41:52Z"
               id: 651251884554398318
               location_id: Deleniti vel.
               name: Tenetur voluptatum quas repellat deleniti ea.
-              run_id: F1B1633F-78C2-3DF2-9D5F-A450473EBA57
+              run_id: 3A3DE380-583C-407C-8F95-FA54AC32B65B
               started_at: "2012-03-06T17:13:57Z"
               status: queued
-              workflow_id: 8889A6C4-91BF-D1D9-EC2A-DD7F1D616B8A
+              workflow_id: F43D0BA5-8936-99FB-60B3-950FDEFAED0C
     LocationResponse:
         title: 'Mediatype identifier: application/vnd.enduro.storage-location; view=default'
         type: object
@@ -1701,46 +1701,46 @@ definitions:
                 example: Qui voluptas et culpa.
         example:
             items:
-                - aip_id: 288BFD74-D973-18B5-FAA5-29ADF4569AC7
+                - aip_id: E9C8AEB2-92EE-D91F-C4EB-4FAAA9872210
                   completed_at: "1997-11-06T23:35:27Z"
                   created_at: "2015-01-01T22:15:21Z"
                   id: 6830371197369010256
                   location_id: Aut enim.
                   name: A adipisci.
-                  run_id: 3F59C655-AFF8-EAB8-FA17-44E154EF0557
+                  run_id: 307B59D8-4E42-A902-211A-04EF0EE9F60A
                   started_at: "1993-12-28T08:47:26Z"
                   status: done
-                  workflow_id: A464FD15-9F47-E3CC-BD80-3B5C5830C503
-                - aip_id: 288BFD74-D973-18B5-FAA5-29ADF4569AC7
+                  workflow_id: 7C75582E-F6E7-8D48-3FBC-CA0C766DF63A
+                - aip_id: E9C8AEB2-92EE-D91F-C4EB-4FAAA9872210
                   completed_at: "1997-11-06T23:35:27Z"
                   created_at: "2015-01-01T22:15:21Z"
                   id: 6830371197369010256
                   location_id: Aut enim.
                   name: A adipisci.
-                  run_id: 3F59C655-AFF8-EAB8-FA17-44E154EF0557
+                  run_id: 307B59D8-4E42-A902-211A-04EF0EE9F60A
                   started_at: "1993-12-28T08:47:26Z"
                   status: done
-                  workflow_id: A464FD15-9F47-E3CC-BD80-3B5C5830C503
-                - aip_id: 288BFD74-D973-18B5-FAA5-29ADF4569AC7
+                  workflow_id: 7C75582E-F6E7-8D48-3FBC-CA0C766DF63A
+                - aip_id: E9C8AEB2-92EE-D91F-C4EB-4FAAA9872210
                   completed_at: "1997-11-06T23:35:27Z"
                   created_at: "2015-01-01T22:15:21Z"
                   id: 6830371197369010256
                   location_id: Aut enim.
                   name: A adipisci.
-                  run_id: 3F59C655-AFF8-EAB8-FA17-44E154EF0557
+                  run_id: 307B59D8-4E42-A902-211A-04EF0EE9F60A
                   started_at: "1993-12-28T08:47:26Z"
                   status: done
-                  workflow_id: A464FD15-9F47-E3CC-BD80-3B5C5830C503
-                - aip_id: 288BFD74-D973-18B5-FAA5-29ADF4569AC7
+                  workflow_id: 7C75582E-F6E7-8D48-3FBC-CA0C766DF63A
+                - aip_id: E9C8AEB2-92EE-D91F-C4EB-4FAAA9872210
                   completed_at: "1997-11-06T23:35:27Z"
                   created_at: "2015-01-01T22:15:21Z"
                   id: 6830371197369010256
                   location_id: Aut enim.
                   name: A adipisci.
-                  run_id: 3F59C655-AFF8-EAB8-FA17-44E154EF0557
+                  run_id: 307B59D8-4E42-A902-211A-04EF0EE9F60A
                   started_at: "1993-12-28T08:47:26Z"
                   status: done
-                  workflow_id: A464FD15-9F47-E3CC-BD80-3B5C5830C503
+                  workflow_id: 7C75582E-F6E7-8D48-3FBC-CA0C766DF63A
             next_cursor: Fuga quibusdam suscipit.
         required:
             - items
@@ -1859,16 +1859,16 @@ definitions:
             package_created_event:
                 id: 7891370028970844776
                 item:
-                    aip_id: BCD628BE-EC66-405B-7005-21B482B9CD79
+                    aip_id: 3F26893A-3834-876C-7B7F-8F0F9B1B8008
                     completed_at: "2014-02-09T11:48:13Z"
                     created_at: "1983-01-14T07:41:52Z"
                     id: 651251884554398318
                     location_id: Deleniti vel.
                     name: Tenetur voluptatum quas repellat deleniti ea.
-                    run_id: F1B1633F-78C2-3DF2-9D5F-A450473EBA57
+                    run_id: 3A3DE380-583C-407C-8F95-FA54AC32B65B
                     started_at: "2012-03-06T17:13:57Z"
                     status: queued
-                    workflow_id: 8889A6C4-91BF-D1D9-EC2A-DD7F1D616B8A
+                    workflow_id: F43D0BA5-8936-99FB-60B3-950FDEFAED0C
             package_location_updated_event:
                 id: 18022404468772129768
                 location_id: Et rem ducimus iste maiores.
@@ -1878,16 +1878,16 @@ definitions:
             package_updated_event:
                 id: 7002746353692364472
                 item:
-                    aip_id: BCD628BE-EC66-405B-7005-21B482B9CD79
+                    aip_id: 3F26893A-3834-876C-7B7F-8F0F9B1B8008
                     completed_at: "2014-02-09T11:48:13Z"
                     created_at: "1983-01-14T07:41:52Z"
                     id: 651251884554398318
                     location_id: Deleniti vel.
                     name: Tenetur voluptatum quas repellat deleniti ea.
-                    run_id: F1B1633F-78C2-3DF2-9D5F-A450473EBA57
+                    run_id: 3A3DE380-583C-407C-8F95-FA54AC32B65B
                     started_at: "2012-03-06T17:13:57Z"
                     status: queued
-                    workflow_id: 8889A6C4-91BF-D1D9-EC2A-DD7F1D616B8A
+                    workflow_id: F43D0BA5-8936-99FB-60B3-950FDEFAED0C
             preservation_action_created_event:
                 id: 13124819927299222419
                 item:
@@ -2420,7 +2420,7 @@ definitions:
             aip_id:
                 type: string
                 description: Identifier of Archivematica AIP
-                example: 7EC4180F-77B0-231F-0AA8-EE62B537358D
+                example: F0BF8C35-1784-3657-BA70-277DA2969081
                 format: uuid
             completed_at:
                 type: string
@@ -2447,7 +2447,7 @@ definitions:
             run_id:
                 type: string
                 description: Identifier of latest processing workflow run
-                example: 7C2D3996-7ECF-5E12-276F-CE1436D6FAC3
+                example: 8FDCB3B4-F32A-FF2C-49E5-56BAEBF6579D
                 format: uuid
             started_at:
                 type: string
@@ -2471,20 +2471,20 @@ definitions:
             workflow_id:
                 type: string
                 description: Identifier of processing workflow
-                example: AFBCBB7C-8004-B611-B6FD-506A7ADD07B4
+                example: 62EB48D1-AAD6-DF60-3179-241A360E76C8
                 format: uuid
         description: ShowResponseBody result type (default view)
         example:
-            aip_id: 0D4C4E5D-CCD2-045B-C43A-CA2A12989890
+            aip_id: A8837B0B-3CB8-A92D-1C38-99288CA5CF81
             completed_at: "1980-07-02T17:39:39Z"
             created_at: "1973-12-02T23:57:31Z"
             id: 4659741854196490493
             location_id: Possimus ut qui voluptatem et maiores voluptas.
             name: Recusandae debitis ut sint deserunt.
-            run_id: 07B1A7F6-0BFE-D016-9174-27BFC402D03B
+            run_id: 67AB6C69-5B8F-0688-AD7E-17C9083D1730
             started_at: "1997-04-03T01:36:48Z"
             status: abandoned
-            workflow_id: 495DB94F-824E-E732-0B4B-502305E4ABA4
+            workflow_id: 7D92F8DB-B37C-83A8-9D90-22DB17A2C9F6
         required:
             - id
             - status
