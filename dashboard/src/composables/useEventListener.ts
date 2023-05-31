@@ -1,4 +1,5 @@
-import { onBeforeUnmount, onMounted, Ref } from "vue";
+import { onBeforeUnmount, onMounted } from "vue";
+import type { Ref } from "vue";
 
 function useEventListener(
   element: Ref<HTMLElement | null>,

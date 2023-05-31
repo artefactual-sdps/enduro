@@ -18,7 +18,11 @@ pinia.use(PiniaDebounce(debounce));
 const app = createApp(App);
 app.use(router);
 app.use(pinia);
-app.use(PromiseDialog);
+app.use({
+  install: (app: any): any => {
+    PromiseDialog.install(app, {});
+  }
+});
 app.mount("#app");
 
 auth.getUser().then((user) => {
