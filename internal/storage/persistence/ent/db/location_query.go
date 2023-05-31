@@ -19,13 +19,10 @@ import (
 // LocationQuery is the builder for querying Location entities.
 type LocationQuery struct {
 	config
-	limit      *int
-	offset     *int
-	unique     *bool
-	order      []OrderFunc
-	fields     []string
-	predicates []predicate.Location
-	// eager-loading edges.
+	ctx          *QueryContext
+	order        []location.OrderOption
+	inters       []Interceptor
+	predicates   []predicate.Location
 	withPackages *PkgQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -38,34 +35,34 @@ func (lq *LocationQuery) Where(ps ...predicate.Location) *LocationQuery {
 	return lq
 }
 
-// Limit adds a limit step to the query.
+// Limit the number of records to be returned by this query.
 func (lq *LocationQuery) Limit(limit int) *LocationQuery {
-	lq.limit = &limit
+	lq.ctx.Limit = &limit
 	return lq
 }
 
-// Offset adds an offset step to the query.
+// Offset to start from.
 func (lq *LocationQuery) Offset(offset int) *LocationQuery {
-	lq.offset = &offset
+	lq.ctx.Offset = &offset
 	return lq
 }
 
 // Unique configures the query builder to filter duplicate records on query.
 // By default, unique is set to true, and can be disabled using this method.
 func (lq *LocationQuery) Unique(unique bool) *LocationQuery {
-	lq.unique = &unique
+	lq.ctx.Unique = &unique
 	return lq
 }
 
-// Order adds an order step to the query.
-func (lq *LocationQuery) Order(o ...OrderFunc) *LocationQuery {
+// Order specifies how the records should be ordered.
+func (lq *LocationQuery) Order(o ...location.OrderOption) *LocationQuery {
 	lq.order = append(lq.order, o...)
 	return lq
 }
 
 // QueryPackages chains the current query on the "packages" edge.
 func (lq *LocationQuery) QueryPackages() *PkgQuery {
-	query := &PkgQuery{config: lq.config}
+	query := (&PkgClient{config: lq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := lq.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -88,7 +85,7 @@ func (lq *LocationQuery) QueryPackages() *PkgQuery {
 // First returns the first Location entity from the query.
 // Returns a *NotFoundError when no Location was found.
 func (lq *LocationQuery) First(ctx context.Context) (*Location, error) {
-	nodes, err := lq.Limit(1).All(ctx)
+	nodes, err := lq.Limit(1).All(setContextOp(ctx, lq.ctx, "First"))
 	if err != nil {
 		return nil, err
 	}
@@ -111,7 +108,7 @@ func (lq *LocationQuery) FirstX(ctx context.Context) *Location {
 // Returns a *NotFoundError when no Location ID was found.
 func (lq *LocationQuery) FirstID(ctx context.Context) (id int, err error) {
 	var ids []int
-	if ids, err = lq.Limit(1).IDs(ctx); err != nil {
+	if ids, err = lq.Limit(1).IDs(setContextOp(ctx, lq.ctx, "FirstID")); err != nil {
 		return
 	}
 	if len(ids) == 0 {
@@ -134,7 +131,7 @@ func (lq *LocationQuery) FirstIDX(ctx context.Context) int {
 // Returns a *NotSingularError when more than one Location entity is found.
 // Returns a *NotFoundError when no Location entities are found.
 func (lq *LocationQuery) Only(ctx context.Context) (*Location, error) {
-	nodes, err := lq.Limit(2).All(ctx)
+	nodes, err := lq.Limit(2).All(setContextOp(ctx, lq.ctx, "Only"))
 	if err != nil {
 		return nil, err
 	}
@@ -162,7 +159,7 @@ func (lq *LocationQuery) OnlyX(ctx context.Context) *Location {
 // Returns a *NotFoundError when no entities are found.
 func (lq *LocationQuery) OnlyID(ctx context.Context) (id int, err error) {
 	var ids []int
-	if ids, err = lq.Limit(2).IDs(ctx); err != nil {
+	if ids, err = lq.Limit(2).IDs(setContextOp(ctx, lq.ctx, "OnlyID")); err != nil {
 		return
 	}
 	switch len(ids) {
@@ -187,10 +184,12 @@ func (lq *LocationQuery) OnlyIDX(ctx context.Context) int {
 
 // All executes the query and returns a list of Locations.
 func (lq *LocationQuery) All(ctx context.Context) ([]*Location, error) {
+	ctx = setContextOp(ctx, lq.ctx, "All")
 	if err := lq.prepareQuery(ctx); err != nil {
 		return nil, err
 	}
-	return lq.sqlAll(ctx)
+	qr := querierAll[[]*Location, *LocationQuery]()
+	return withInterceptors[[]*Location](ctx, lq, qr, lq.inters)
 }
 
 // AllX is like All, but panics if an error occurs.
@@ -203,9 +202,12 @@ func (lq *LocationQuery) AllX(ctx context.Context) []*Location {
 }
 
 // IDs executes the query and returns a list of Location IDs.
-func (lq *LocationQuery) IDs(ctx context.Context) ([]int, error) {
-	var ids []int
-	if err := lq.Select(location.FieldID).Scan(ctx, &ids); err != nil {
+func (lq *LocationQuery) IDs(ctx context.Context) (ids []int, err error) {
+	if lq.ctx.Unique == nil && lq.path != nil {
+		lq.Unique(true)
+	}
+	ctx = setContextOp(ctx, lq.ctx, "IDs")
+	if err = lq.Select(location.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
 	return ids, nil
@@ -222,10 +224,11 @@ func (lq *LocationQuery) IDsX(ctx context.Context) []int {
 
 // Count returns the count of the given query.
 func (lq *LocationQuery) Count(ctx context.Context) (int, error) {
+	ctx = setContextOp(ctx, lq.ctx, "Count")
 	if err := lq.prepareQuery(ctx); err != nil {
 		return 0, err
 	}
-	return lq.sqlCount(ctx)
+	return withInterceptors[int](ctx, lq, querierCount[*LocationQuery](), lq.inters)
 }
 
 // CountX is like Count, but panics if an error occurs.
@@ -239,10 +242,15 @@ func (lq *LocationQuery) CountX(ctx context.Context) int {
 
 // Exist returns true if the query has elements in the graph.
 func (lq *LocationQuery) Exist(ctx context.Context) (bool, error) {
-	if err := lq.prepareQuery(ctx); err != nil {
-		return false, err
+	ctx = setContextOp(ctx, lq.ctx, "Exist")
+	switch _, err := lq.FirstID(ctx); {
+	case IsNotFound(err):
+		return false, nil
+	case err != nil:
+		return false, fmt.Errorf("db: check existence: %w", err)
+	default:
+		return true, nil
 	}
-	return lq.sqlExist(ctx)
 }
 
 // ExistX is like Exist, but panics if an error occurs.
@@ -262,22 +270,21 @@ func (lq *LocationQuery) Clone() *LocationQuery {
 	}
 	return &LocationQuery{
 		config:       lq.config,
-		limit:        lq.limit,
-		offset:       lq.offset,
-		order:        append([]OrderFunc{}, lq.order...),
+		ctx:          lq.ctx.Clone(),
+		order:        append([]location.OrderOption{}, lq.order...),
+		inters:       append([]Interceptor{}, lq.inters...),
 		predicates:   append([]predicate.Location{}, lq.predicates...),
 		withPackages: lq.withPackages.Clone(),
 		// clone intermediate query.
-		sql:    lq.sql.Clone(),
-		path:   lq.path,
-		unique: lq.unique,
+		sql:  lq.sql.Clone(),
+		path: lq.path,
 	}
 }
 
 // WithPackages tells the query-builder to eager-load the nodes that are connected to
 // the "packages" edge. The optional arguments are used to configure the query builder of the edge.
 func (lq *LocationQuery) WithPackages(opts ...func(*PkgQuery)) *LocationQuery {
-	query := &PkgQuery{config: lq.config}
+	query := (&PkgClient{config: lq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
@@ -300,16 +307,11 @@ func (lq *LocationQuery) WithPackages(opts ...func(*PkgQuery)) *LocationQuery {
 //		Aggregate(db.Count()).
 //		Scan(ctx, &v)
 func (lq *LocationQuery) GroupBy(field string, fields ...string) *LocationGroupBy {
-	grbuild := &LocationGroupBy{config: lq.config}
-	grbuild.fields = append([]string{field}, fields...)
-	grbuild.path = func(ctx context.Context) (prev *sql.Selector, err error) {
-		if err := lq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		return lq.sqlQuery(ctx), nil
-	}
+	lq.ctx.Fields = append([]string{field}, fields...)
+	grbuild := &LocationGroupBy{build: lq}
+	grbuild.flds = &lq.ctx.Fields
 	grbuild.label = location.Label
-	grbuild.flds, grbuild.scan = &grbuild.fields, grbuild.Scan
+	grbuild.scan = grbuild.Scan
 	return grbuild
 }
 
@@ -326,15 +328,30 @@ func (lq *LocationQuery) GroupBy(field string, fields ...string) *LocationGroupB
 //		Select(location.FieldName).
 //		Scan(ctx, &v)
 func (lq *LocationQuery) Select(fields ...string) *LocationSelect {
-	lq.fields = append(lq.fields, fields...)
-	selbuild := &LocationSelect{LocationQuery: lq}
-	selbuild.label = location.Label
-	selbuild.flds, selbuild.scan = &lq.fields, selbuild.Scan
-	return selbuild
+	lq.ctx.Fields = append(lq.ctx.Fields, fields...)
+	sbuild := &LocationSelect{LocationQuery: lq}
+	sbuild.label = location.Label
+	sbuild.flds, sbuild.scan = &lq.ctx.Fields, sbuild.Scan
+	return sbuild
+}
+
+// Aggregate returns a LocationSelect configured with the given aggregations.
+func (lq *LocationQuery) Aggregate(fns ...AggregateFunc) *LocationSelect {
+	return lq.Select().Aggregate(fns...)
 }
 
 func (lq *LocationQuery) prepareQuery(ctx context.Context) error {
-	for _, f := range lq.fields {
+	for _, inter := range lq.inters {
+		if inter == nil {
+			return fmt.Errorf("db: uninitialized interceptor (forgotten import db/runtime?)")
+		}
+		if trv, ok := inter.(Traverser); ok {
+			if err := trv.Traverse(ctx, lq); err != nil {
+				return err
+			}
+		}
+	}
+	for _, f := range lq.ctx.Fields {
 		if !location.ValidColumn(f) {
 			return &ValidationError{Name: f, err: fmt.Errorf("db: invalid field %q for query", f)}
 		}
@@ -357,10 +374,10 @@ func (lq *LocationQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Loc
 			lq.withPackages != nil,
 		}
 	)
-	_spec.ScanValues = func(columns []string) ([]interface{}, error) {
+	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Location).scanValues(nil, columns)
 	}
-	_spec.Assign = func(columns []string, values []interface{}) error {
+	_spec.Assign = func(columns []string, values []any) error {
 		node := &Location{config: lq.config}
 		nodes = append(nodes, node)
 		node.Edges.loadedTypes = loadedTypes
@@ -375,69 +392,65 @@ func (lq *LocationQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Loc
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-
 	if query := lq.withPackages; query != nil {
-		fks := make([]driver.Value, 0, len(nodes))
-		nodeids := make(map[int]*Location)
-		for i := range nodes {
-			fks = append(fks, nodes[i].ID)
-			nodeids[nodes[i].ID] = nodes[i]
-			nodes[i].Edges.Packages = []*Pkg{}
-		}
-		query.Where(predicate.Pkg(func(s *sql.Selector) {
-			s.Where(sql.InValues(location.PackagesColumn, fks...))
-		}))
-		neighbors, err := query.All(ctx)
-		if err != nil {
+		if err := lq.loadPackages(ctx, query, nodes,
+			func(n *Location) { n.Edges.Packages = []*Pkg{} },
+			func(n *Location, e *Pkg) { n.Edges.Packages = append(n.Edges.Packages, e) }); err != nil {
 			return nil, err
 		}
-		for _, n := range neighbors {
-			fk := n.LocationID
-			node, ok := nodeids[fk]
-			if !ok {
-				return nil, fmt.Errorf(`unexpected foreign-key "location_id" returned %v for node %v`, fk, n.ID)
-			}
-			node.Edges.Packages = append(node.Edges.Packages, n)
+	}
+	return nodes, nil
+}
+
+func (lq *LocationQuery) loadPackages(ctx context.Context, query *PkgQuery, nodes []*Location, init func(*Location), assign func(*Location, *Pkg)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*Location)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
 		}
 	}
-
-	return nodes, nil
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(pkg.FieldLocationID)
+	}
+	query.Where(predicate.Pkg(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(location.PackagesColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.LocationID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "location_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
 }
 
 func (lq *LocationQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := lq.querySpec()
-	_spec.Node.Columns = lq.fields
-	if len(lq.fields) > 0 {
-		_spec.Unique = lq.unique != nil && *lq.unique
+	_spec.Node.Columns = lq.ctx.Fields
+	if len(lq.ctx.Fields) > 0 {
+		_spec.Unique = lq.ctx.Unique != nil && *lq.ctx.Unique
 	}
 	return sqlgraph.CountNodes(ctx, lq.driver, _spec)
 }
 
-func (lq *LocationQuery) sqlExist(ctx context.Context) (bool, error) {
-	n, err := lq.sqlCount(ctx)
-	if err != nil {
-		return false, fmt.Errorf("db: check existence: %w", err)
-	}
-	return n > 0, nil
-}
-
 func (lq *LocationQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := &sqlgraph.QuerySpec{
-		Node: &sqlgraph.NodeSpec{
-			Table:   location.Table,
-			Columns: location.Columns,
-			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeInt,
-				Column: location.FieldID,
-			},
-		},
-		From:   lq.sql,
-		Unique: true,
-	}
-	if unique := lq.unique; unique != nil {
+	_spec := sqlgraph.NewQuerySpec(location.Table, location.Columns, sqlgraph.NewFieldSpec(location.FieldID, field.TypeInt))
+	_spec.From = lq.sql
+	if unique := lq.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
+	} else if lq.path != nil {
+		_spec.Unique = true
 	}
-	if fields := lq.fields; len(fields) > 0 {
+	if fields := lq.ctx.Fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, location.FieldID)
 		for i := range fields {
@@ -453,10 +466,10 @@ func (lq *LocationQuery) querySpec() *sqlgraph.QuerySpec {
 			}
 		}
 	}
-	if limit := lq.limit; limit != nil {
+	if limit := lq.ctx.Limit; limit != nil {
 		_spec.Limit = *limit
 	}
-	if offset := lq.offset; offset != nil {
+	if offset := lq.ctx.Offset; offset != nil {
 		_spec.Offset = *offset
 	}
 	if ps := lq.order; len(ps) > 0 {
@@ -472,7 +485,7 @@ func (lq *LocationQuery) querySpec() *sqlgraph.QuerySpec {
 func (lq *LocationQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	builder := sql.Dialect(lq.driver.Dialect())
 	t1 := builder.Table(location.Table)
-	columns := lq.fields
+	columns := lq.ctx.Fields
 	if len(columns) == 0 {
 		columns = location.Columns
 	}
@@ -481,7 +494,7 @@ func (lq *LocationQuery) sqlQuery(ctx context.Context) *sql.Selector {
 		selector = lq.sql
 		selector.Select(selector.Columns(columns...)...)
 	}
-	if lq.unique != nil && *lq.unique {
+	if lq.ctx.Unique != nil && *lq.ctx.Unique {
 		selector.Distinct()
 	}
 	for _, p := range lq.predicates {
@@ -490,12 +503,12 @@ func (lq *LocationQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	for _, p := range lq.order {
 		p(selector)
 	}
-	if offset := lq.offset; offset != nil {
+	if offset := lq.ctx.Offset; offset != nil {
 		// limit is mandatory for offset clause. We start
 		// with default value, and override it below if needed.
 		selector.Offset(*offset).Limit(math.MaxInt32)
 	}
-	if limit := lq.limit; limit != nil {
+	if limit := lq.ctx.Limit; limit != nil {
 		selector.Limit(*limit)
 	}
 	return selector
@@ -503,13 +516,8 @@ func (lq *LocationQuery) sqlQuery(ctx context.Context) *sql.Selector {
 
 // LocationGroupBy is the group-by builder for Location entities.
 type LocationGroupBy struct {
-	config
 	selector
-	fields []string
-	fns    []AggregateFunc
-	// intermediate query (i.e. traversal path).
-	sql  *sql.Selector
-	path func(context.Context) (*sql.Selector, error)
+	build *LocationQuery
 }
 
 // Aggregate adds the given aggregation functions to the group-by query.
@@ -518,74 +526,77 @@ func (lgb *LocationGroupBy) Aggregate(fns ...AggregateFunc) *LocationGroupBy {
 	return lgb
 }
 
-// Scan applies the group-by query and scans the result into the given value.
-func (lgb *LocationGroupBy) Scan(ctx context.Context, v interface{}) error {
-	query, err := lgb.path(ctx)
-	if err != nil {
+// Scan applies the selector query and scans the result into the given value.
+func (lgb *LocationGroupBy) Scan(ctx context.Context, v any) error {
+	ctx = setContextOp(ctx, lgb.build.ctx, "GroupBy")
+	if err := lgb.build.prepareQuery(ctx); err != nil {
 		return err
 	}
-	lgb.sql = query
-	return lgb.sqlScan(ctx, v)
+	return scanWithInterceptors[*LocationQuery, *LocationGroupBy](ctx, lgb.build, lgb, lgb.build.inters, v)
 }
 
-func (lgb *LocationGroupBy) sqlScan(ctx context.Context, v interface{}) error {
-	for _, f := range lgb.fields {
-		if !location.ValidColumn(f) {
-			return &ValidationError{Name: f, err: fmt.Errorf("invalid field %q for group-by", f)}
-		}
+func (lgb *LocationGroupBy) sqlScan(ctx context.Context, root *LocationQuery, v any) error {
+	selector := root.sqlQuery(ctx).Select()
+	aggregation := make([]string, 0, len(lgb.fns))
+	for _, fn := range lgb.fns {
+		aggregation = append(aggregation, fn(selector))
 	}
-	selector := lgb.sqlQuery()
+	if len(selector.SelectedColumns()) == 0 {
+		columns := make([]string, 0, len(*lgb.flds)+len(lgb.fns))
+		for _, f := range *lgb.flds {
+			columns = append(columns, selector.C(f))
+		}
+		columns = append(columns, aggregation...)
+		selector.Select(columns...)
+	}
+	selector.GroupBy(selector.Columns(*lgb.flds...)...)
 	if err := selector.Err(); err != nil {
 		return err
 	}
 	rows := &sql.Rows{}
 	query, args := selector.Query()
-	if err := lgb.driver.Query(ctx, query, args, rows); err != nil {
+	if err := lgb.build.driver.Query(ctx, query, args, rows); err != nil {
 		return err
 	}
 	defer rows.Close()
 	return sql.ScanSlice(rows, v)
 }
 
-func (lgb *LocationGroupBy) sqlQuery() *sql.Selector {
-	selector := lgb.sql.Select()
-	aggregation := make([]string, 0, len(lgb.fns))
-	for _, fn := range lgb.fns {
-		aggregation = append(aggregation, fn(selector))
-	}
-	// If no columns were selected in a custom aggregation function, the default
-	// selection is the fields used for "group-by", and the aggregation functions.
-	if len(selector.SelectedColumns()) == 0 {
-		columns := make([]string, 0, len(lgb.fields)+len(lgb.fns))
-		for _, f := range lgb.fields {
-			columns = append(columns, selector.C(f))
-		}
-		columns = append(columns, aggregation...)
-		selector.Select(columns...)
-	}
-	return selector.GroupBy(selector.Columns(lgb.fields...)...)
-}
-
 // LocationSelect is the builder for selecting fields of Location entities.
 type LocationSelect struct {
 	*LocationQuery
 	selector
-	// intermediate query (i.e. traversal path).
-	sql *sql.Selector
+}
+
+// Aggregate adds the given aggregation functions to the selector query.
+func (ls *LocationSelect) Aggregate(fns ...AggregateFunc) *LocationSelect {
+	ls.fns = append(ls.fns, fns...)
+	return ls
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (ls *LocationSelect) Scan(ctx context.Context, v interface{}) error {
+func (ls *LocationSelect) Scan(ctx context.Context, v any) error {
+	ctx = setContextOp(ctx, ls.ctx, "Select")
 	if err := ls.prepareQuery(ctx); err != nil {
 		return err
 	}
-	ls.sql = ls.LocationQuery.sqlQuery(ctx)
-	return ls.sqlScan(ctx, v)
+	return scanWithInterceptors[*LocationQuery, *LocationSelect](ctx, ls.LocationQuery, ls, ls.inters, v)
 }
 
-func (ls *LocationSelect) sqlScan(ctx context.Context, v interface{}) error {
+func (ls *LocationSelect) sqlScan(ctx context.Context, root *LocationQuery, v any) error {
+	selector := root.sqlQuery(ctx)
+	aggregation := make([]string, 0, len(ls.fns))
+	for _, fn := range ls.fns {
+		aggregation = append(aggregation, fn(selector))
+	}
+	switch n := len(*ls.selector.flds); {
+	case n == 0 && len(aggregation) > 0:
+		selector.Select(aggregation...)
+	case n != 0 && len(aggregation) > 0:
+		selector.AppendSelect(aggregation...)
+	}
 	rows := &sql.Rows{}
-	query, args := ls.sql.Query()
+	query, args := selector.Query()
 	if err := ls.driver.Query(ctx, query, args, rows); err != nil {
 		return err
 	}

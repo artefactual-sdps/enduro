@@ -18,13 +18,10 @@ import (
 // PkgQuery is the builder for querying Pkg entities.
 type PkgQuery struct {
 	config
-	limit      *int
-	offset     *int
-	unique     *bool
-	order      []OrderFunc
-	fields     []string
-	predicates []predicate.Pkg
-	// eager-loading edges.
+	ctx          *QueryContext
+	order        []pkg.OrderOption
+	inters       []Interceptor
+	predicates   []predicate.Pkg
 	withLocation *LocationQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -37,34 +34,34 @@ func (pq *PkgQuery) Where(ps ...predicate.Pkg) *PkgQuery {
 	return pq
 }
 
-// Limit adds a limit step to the query.
+// Limit the number of records to be returned by this query.
 func (pq *PkgQuery) Limit(limit int) *PkgQuery {
-	pq.limit = &limit
+	pq.ctx.Limit = &limit
 	return pq
 }
 
-// Offset adds an offset step to the query.
+// Offset to start from.
 func (pq *PkgQuery) Offset(offset int) *PkgQuery {
-	pq.offset = &offset
+	pq.ctx.Offset = &offset
 	return pq
 }
 
 // Unique configures the query builder to filter duplicate records on query.
 // By default, unique is set to true, and can be disabled using this method.
 func (pq *PkgQuery) Unique(unique bool) *PkgQuery {
-	pq.unique = &unique
+	pq.ctx.Unique = &unique
 	return pq
 }
 
-// Order adds an order step to the query.
-func (pq *PkgQuery) Order(o ...OrderFunc) *PkgQuery {
+// Order specifies how the records should be ordered.
+func (pq *PkgQuery) Order(o ...pkg.OrderOption) *PkgQuery {
 	pq.order = append(pq.order, o...)
 	return pq
 }
 
 // QueryLocation chains the current query on the "location" edge.
 func (pq *PkgQuery) QueryLocation() *LocationQuery {
-	query := &LocationQuery{config: pq.config}
+	query := (&LocationClient{config: pq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := pq.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -87,7 +84,7 @@ func (pq *PkgQuery) QueryLocation() *LocationQuery {
 // First returns the first Pkg entity from the query.
 // Returns a *NotFoundError when no Pkg was found.
 func (pq *PkgQuery) First(ctx context.Context) (*Pkg, error) {
-	nodes, err := pq.Limit(1).All(ctx)
+	nodes, err := pq.Limit(1).All(setContextOp(ctx, pq.ctx, "First"))
 	if err != nil {
 		return nil, err
 	}
@@ -110,7 +107,7 @@ func (pq *PkgQuery) FirstX(ctx context.Context) *Pkg {
 // Returns a *NotFoundError when no Pkg ID was found.
 func (pq *PkgQuery) FirstID(ctx context.Context) (id int, err error) {
 	var ids []int
-	if ids, err = pq.Limit(1).IDs(ctx); err != nil {
+	if ids, err = pq.Limit(1).IDs(setContextOp(ctx, pq.ctx, "FirstID")); err != nil {
 		return
 	}
 	if len(ids) == 0 {
@@ -133,7 +130,7 @@ func (pq *PkgQuery) FirstIDX(ctx context.Context) int {
 // Returns a *NotSingularError when more than one Pkg entity is found.
 // Returns a *NotFoundError when no Pkg entities are found.
 func (pq *PkgQuery) Only(ctx context.Context) (*Pkg, error) {
-	nodes, err := pq.Limit(2).All(ctx)
+	nodes, err := pq.Limit(2).All(setContextOp(ctx, pq.ctx, "Only"))
 	if err != nil {
 		return nil, err
 	}
@@ -161,7 +158,7 @@ func (pq *PkgQuery) OnlyX(ctx context.Context) *Pkg {
 // Returns a *NotFoundError when no entities are found.
 func (pq *PkgQuery) OnlyID(ctx context.Context) (id int, err error) {
 	var ids []int
-	if ids, err = pq.Limit(2).IDs(ctx); err != nil {
+	if ids, err = pq.Limit(2).IDs(setContextOp(ctx, pq.ctx, "OnlyID")); err != nil {
 		return
 	}
 	switch len(ids) {
@@ -186,10 +183,12 @@ func (pq *PkgQuery) OnlyIDX(ctx context.Context) int {
 
 // All executes the query and returns a list of Pkgs.
 func (pq *PkgQuery) All(ctx context.Context) ([]*Pkg, error) {
+	ctx = setContextOp(ctx, pq.ctx, "All")
 	if err := pq.prepareQuery(ctx); err != nil {
 		return nil, err
 	}
-	return pq.sqlAll(ctx)
+	qr := querierAll[[]*Pkg, *PkgQuery]()
+	return withInterceptors[[]*Pkg](ctx, pq, qr, pq.inters)
 }
 
 // AllX is like All, but panics if an error occurs.
@@ -202,9 +201,12 @@ func (pq *PkgQuery) AllX(ctx context.Context) []*Pkg {
 }
 
 // IDs executes the query and returns a list of Pkg IDs.
-func (pq *PkgQuery) IDs(ctx context.Context) ([]int, error) {
-	var ids []int
-	if err := pq.Select(pkg.FieldID).Scan(ctx, &ids); err != nil {
+func (pq *PkgQuery) IDs(ctx context.Context) (ids []int, err error) {
+	if pq.ctx.Unique == nil && pq.path != nil {
+		pq.Unique(true)
+	}
+	ctx = setContextOp(ctx, pq.ctx, "IDs")
+	if err = pq.Select(pkg.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
 	return ids, nil
@@ -221,10 +223,11 @@ func (pq *PkgQuery) IDsX(ctx context.Context) []int {
 
 // Count returns the count of the given query.
 func (pq *PkgQuery) Count(ctx context.Context) (int, error) {
+	ctx = setContextOp(ctx, pq.ctx, "Count")
 	if err := pq.prepareQuery(ctx); err != nil {
 		return 0, err
 	}
-	return pq.sqlCount(ctx)
+	return withInterceptors[int](ctx, pq, querierCount[*PkgQuery](), pq.inters)
 }
 
 // CountX is like Count, but panics if an error occurs.
@@ -238,10 +241,15 @@ func (pq *PkgQuery) CountX(ctx context.Context) int {
 
 // Exist returns true if the query has elements in the graph.
 func (pq *PkgQuery) Exist(ctx context.Context) (bool, error) {
-	if err := pq.prepareQuery(ctx); err != nil {
-		return false, err
+	ctx = setContextOp(ctx, pq.ctx, "Exist")
+	switch _, err := pq.FirstID(ctx); {
+	case IsNotFound(err):
+		return false, nil
+	case err != nil:
+		return false, fmt.Errorf("db: check existence: %w", err)
+	default:
+		return true, nil
 	}
-	return pq.sqlExist(ctx)
 }
 
 // ExistX is like Exist, but panics if an error occurs.
@@ -261,22 +269,21 @@ func (pq *PkgQuery) Clone() *PkgQuery {
 	}
 	return &PkgQuery{
 		config:       pq.config,
-		limit:        pq.limit,
-		offset:       pq.offset,
-		order:        append([]OrderFunc{}, pq.order...),
+		ctx:          pq.ctx.Clone(),
+		order:        append([]pkg.OrderOption{}, pq.order...),
+		inters:       append([]Interceptor{}, pq.inters...),
 		predicates:   append([]predicate.Pkg{}, pq.predicates...),
 		withLocation: pq.withLocation.Clone(),
 		// clone intermediate query.
-		sql:    pq.sql.Clone(),
-		path:   pq.path,
-		unique: pq.unique,
+		sql:  pq.sql.Clone(),
+		path: pq.path,
 	}
 }
 
 // WithLocation tells the query-builder to eager-load the nodes that are connected to
 // the "location" edge. The optional arguments are used to configure the query builder of the edge.
 func (pq *PkgQuery) WithLocation(opts ...func(*LocationQuery)) *PkgQuery {
-	query := &LocationQuery{config: pq.config}
+	query := (&LocationClient{config: pq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
@@ -299,16 +306,11 @@ func (pq *PkgQuery) WithLocation(opts ...func(*LocationQuery)) *PkgQuery {
 //		Aggregate(db.Count()).
 //		Scan(ctx, &v)
 func (pq *PkgQuery) GroupBy(field string, fields ...string) *PkgGroupBy {
-	grbuild := &PkgGroupBy{config: pq.config}
-	grbuild.fields = append([]string{field}, fields...)
-	grbuild.path = func(ctx context.Context) (prev *sql.Selector, err error) {
-		if err := pq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		return pq.sqlQuery(ctx), nil
-	}
+	pq.ctx.Fields = append([]string{field}, fields...)
+	grbuild := &PkgGroupBy{build: pq}
+	grbuild.flds = &pq.ctx.Fields
 	grbuild.label = pkg.Label
-	grbuild.flds, grbuild.scan = &grbuild.fields, grbuild.Scan
+	grbuild.scan = grbuild.Scan
 	return grbuild
 }
 
@@ -325,15 +327,30 @@ func (pq *PkgQuery) GroupBy(field string, fields ...string) *PkgGroupBy {
 //		Select(pkg.FieldName).
 //		Scan(ctx, &v)
 func (pq *PkgQuery) Select(fields ...string) *PkgSelect {
-	pq.fields = append(pq.fields, fields...)
-	selbuild := &PkgSelect{PkgQuery: pq}
-	selbuild.label = pkg.Label
-	selbuild.flds, selbuild.scan = &pq.fields, selbuild.Scan
-	return selbuild
+	pq.ctx.Fields = append(pq.ctx.Fields, fields...)
+	sbuild := &PkgSelect{PkgQuery: pq}
+	sbuild.label = pkg.Label
+	sbuild.flds, sbuild.scan = &pq.ctx.Fields, sbuild.Scan
+	return sbuild
+}
+
+// Aggregate returns a PkgSelect configured with the given aggregations.
+func (pq *PkgQuery) Aggregate(fns ...AggregateFunc) *PkgSelect {
+	return pq.Select().Aggregate(fns...)
 }
 
 func (pq *PkgQuery) prepareQuery(ctx context.Context) error {
-	for _, f := range pq.fields {
+	for _, inter := range pq.inters {
+		if inter == nil {
+			return fmt.Errorf("db: uninitialized interceptor (forgotten import db/runtime?)")
+		}
+		if trv, ok := inter.(Traverser); ok {
+			if err := trv.Traverse(ctx, pq); err != nil {
+				return err
+			}
+		}
+	}
+	for _, f := range pq.ctx.Fields {
 		if !pkg.ValidColumn(f) {
 			return &ValidationError{Name: f, err: fmt.Errorf("db: invalid field %q for query", f)}
 		}
@@ -356,10 +373,10 @@ func (pq *PkgQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Pkg, err
 			pq.withLocation != nil,
 		}
 	)
-	_spec.ScanValues = func(columns []string) ([]interface{}, error) {
+	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Pkg).scanValues(nil, columns)
 	}
-	_spec.Assign = func(columns []string, values []interface{}) error {
+	_spec.Assign = func(columns []string, values []any) error {
 		node := &Pkg{config: pq.config}
 		nodes = append(nodes, node)
 		node.Edges.loadedTypes = loadedTypes
@@ -374,76 +391,72 @@ func (pq *PkgQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Pkg, err
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-
 	if query := pq.withLocation; query != nil {
-		ids := make([]int, 0, len(nodes))
-		nodeids := make(map[int][]*Pkg)
-		for i := range nodes {
-			fk := nodes[i].LocationID
-			if _, ok := nodeids[fk]; !ok {
-				ids = append(ids, fk)
-			}
-			nodeids[fk] = append(nodeids[fk], nodes[i])
-		}
-		query.Where(location.IDIn(ids...))
-		neighbors, err := query.All(ctx)
-		if err != nil {
+		if err := pq.loadLocation(ctx, query, nodes, nil,
+			func(n *Pkg, e *Location) { n.Edges.Location = e }); err != nil {
 			return nil, err
 		}
-		for _, n := range neighbors {
-			nodes, ok := nodeids[n.ID]
-			if !ok {
-				return nil, fmt.Errorf(`unexpected foreign-key "location_id" returned %v`, n.ID)
-			}
-			for i := range nodes {
-				nodes[i].Edges.Location = n
-			}
+	}
+	return nodes, nil
+}
+
+func (pq *PkgQuery) loadLocation(ctx context.Context, query *LocationQuery, nodes []*Pkg, init func(*Pkg), assign func(*Pkg, *Location)) error {
+	ids := make([]int, 0, len(nodes))
+	nodeids := make(map[int][]*Pkg)
+	for i := range nodes {
+		fk := nodes[i].LocationID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(location.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "location_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
 		}
 	}
-
-	return nodes, nil
+	return nil
 }
 
 func (pq *PkgQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := pq.querySpec()
-	_spec.Node.Columns = pq.fields
-	if len(pq.fields) > 0 {
-		_spec.Unique = pq.unique != nil && *pq.unique
+	_spec.Node.Columns = pq.ctx.Fields
+	if len(pq.ctx.Fields) > 0 {
+		_spec.Unique = pq.ctx.Unique != nil && *pq.ctx.Unique
 	}
 	return sqlgraph.CountNodes(ctx, pq.driver, _spec)
 }
 
-func (pq *PkgQuery) sqlExist(ctx context.Context) (bool, error) {
-	n, err := pq.sqlCount(ctx)
-	if err != nil {
-		return false, fmt.Errorf("db: check existence: %w", err)
-	}
-	return n > 0, nil
-}
-
 func (pq *PkgQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := &sqlgraph.QuerySpec{
-		Node: &sqlgraph.NodeSpec{
-			Table:   pkg.Table,
-			Columns: pkg.Columns,
-			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeInt,
-				Column: pkg.FieldID,
-			},
-		},
-		From:   pq.sql,
-		Unique: true,
-	}
-	if unique := pq.unique; unique != nil {
+	_spec := sqlgraph.NewQuerySpec(pkg.Table, pkg.Columns, sqlgraph.NewFieldSpec(pkg.FieldID, field.TypeInt))
+	_spec.From = pq.sql
+	if unique := pq.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
+	} else if pq.path != nil {
+		_spec.Unique = true
 	}
-	if fields := pq.fields; len(fields) > 0 {
+	if fields := pq.ctx.Fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, pkg.FieldID)
 		for i := range fields {
 			if fields[i] != pkg.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if pq.withLocation != nil {
+			_spec.Node.AddColumnOnce(pkg.FieldLocationID)
 		}
 	}
 	if ps := pq.predicates; len(ps) > 0 {
@@ -453,10 +466,10 @@ func (pq *PkgQuery) querySpec() *sqlgraph.QuerySpec {
 			}
 		}
 	}
-	if limit := pq.limit; limit != nil {
+	if limit := pq.ctx.Limit; limit != nil {
 		_spec.Limit = *limit
 	}
-	if offset := pq.offset; offset != nil {
+	if offset := pq.ctx.Offset; offset != nil {
 		_spec.Offset = *offset
 	}
 	if ps := pq.order; len(ps) > 0 {
@@ -472,7 +485,7 @@ func (pq *PkgQuery) querySpec() *sqlgraph.QuerySpec {
 func (pq *PkgQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	builder := sql.Dialect(pq.driver.Dialect())
 	t1 := builder.Table(pkg.Table)
-	columns := pq.fields
+	columns := pq.ctx.Fields
 	if len(columns) == 0 {
 		columns = pkg.Columns
 	}
@@ -481,7 +494,7 @@ func (pq *PkgQuery) sqlQuery(ctx context.Context) *sql.Selector {
 		selector = pq.sql
 		selector.Select(selector.Columns(columns...)...)
 	}
-	if pq.unique != nil && *pq.unique {
+	if pq.ctx.Unique != nil && *pq.ctx.Unique {
 		selector.Distinct()
 	}
 	for _, p := range pq.predicates {
@@ -490,12 +503,12 @@ func (pq *PkgQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	for _, p := range pq.order {
 		p(selector)
 	}
-	if offset := pq.offset; offset != nil {
+	if offset := pq.ctx.Offset; offset != nil {
 		// limit is mandatory for offset clause. We start
 		// with default value, and override it below if needed.
 		selector.Offset(*offset).Limit(math.MaxInt32)
 	}
-	if limit := pq.limit; limit != nil {
+	if limit := pq.ctx.Limit; limit != nil {
 		selector.Limit(*limit)
 	}
 	return selector
@@ -503,13 +516,8 @@ func (pq *PkgQuery) sqlQuery(ctx context.Context) *sql.Selector {
 
 // PkgGroupBy is the group-by builder for Pkg entities.
 type PkgGroupBy struct {
-	config
 	selector
-	fields []string
-	fns    []AggregateFunc
-	// intermediate query (i.e. traversal path).
-	sql  *sql.Selector
-	path func(context.Context) (*sql.Selector, error)
+	build *PkgQuery
 }
 
 // Aggregate adds the given aggregation functions to the group-by query.
@@ -518,74 +526,77 @@ func (pgb *PkgGroupBy) Aggregate(fns ...AggregateFunc) *PkgGroupBy {
 	return pgb
 }
 
-// Scan applies the group-by query and scans the result into the given value.
-func (pgb *PkgGroupBy) Scan(ctx context.Context, v interface{}) error {
-	query, err := pgb.path(ctx)
-	if err != nil {
+// Scan applies the selector query and scans the result into the given value.
+func (pgb *PkgGroupBy) Scan(ctx context.Context, v any) error {
+	ctx = setContextOp(ctx, pgb.build.ctx, "GroupBy")
+	if err := pgb.build.prepareQuery(ctx); err != nil {
 		return err
 	}
-	pgb.sql = query
-	return pgb.sqlScan(ctx, v)
+	return scanWithInterceptors[*PkgQuery, *PkgGroupBy](ctx, pgb.build, pgb, pgb.build.inters, v)
 }
 
-func (pgb *PkgGroupBy) sqlScan(ctx context.Context, v interface{}) error {
-	for _, f := range pgb.fields {
-		if !pkg.ValidColumn(f) {
-			return &ValidationError{Name: f, err: fmt.Errorf("invalid field %q for group-by", f)}
-		}
+func (pgb *PkgGroupBy) sqlScan(ctx context.Context, root *PkgQuery, v any) error {
+	selector := root.sqlQuery(ctx).Select()
+	aggregation := make([]string, 0, len(pgb.fns))
+	for _, fn := range pgb.fns {
+		aggregation = append(aggregation, fn(selector))
 	}
-	selector := pgb.sqlQuery()
+	if len(selector.SelectedColumns()) == 0 {
+		columns := make([]string, 0, len(*pgb.flds)+len(pgb.fns))
+		for _, f := range *pgb.flds {
+			columns = append(columns, selector.C(f))
+		}
+		columns = append(columns, aggregation...)
+		selector.Select(columns...)
+	}
+	selector.GroupBy(selector.Columns(*pgb.flds...)...)
 	if err := selector.Err(); err != nil {
 		return err
 	}
 	rows := &sql.Rows{}
 	query, args := selector.Query()
-	if err := pgb.driver.Query(ctx, query, args, rows); err != nil {
+	if err := pgb.build.driver.Query(ctx, query, args, rows); err != nil {
 		return err
 	}
 	defer rows.Close()
 	return sql.ScanSlice(rows, v)
 }
 
-func (pgb *PkgGroupBy) sqlQuery() *sql.Selector {
-	selector := pgb.sql.Select()
-	aggregation := make([]string, 0, len(pgb.fns))
-	for _, fn := range pgb.fns {
-		aggregation = append(aggregation, fn(selector))
-	}
-	// If no columns were selected in a custom aggregation function, the default
-	// selection is the fields used for "group-by", and the aggregation functions.
-	if len(selector.SelectedColumns()) == 0 {
-		columns := make([]string, 0, len(pgb.fields)+len(pgb.fns))
-		for _, f := range pgb.fields {
-			columns = append(columns, selector.C(f))
-		}
-		columns = append(columns, aggregation...)
-		selector.Select(columns...)
-	}
-	return selector.GroupBy(selector.Columns(pgb.fields...)...)
-}
-
 // PkgSelect is the builder for selecting fields of Pkg entities.
 type PkgSelect struct {
 	*PkgQuery
 	selector
-	// intermediate query (i.e. traversal path).
-	sql *sql.Selector
+}
+
+// Aggregate adds the given aggregation functions to the selector query.
+func (ps *PkgSelect) Aggregate(fns ...AggregateFunc) *PkgSelect {
+	ps.fns = append(ps.fns, fns...)
+	return ps
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (ps *PkgSelect) Scan(ctx context.Context, v interface{}) error {
+func (ps *PkgSelect) Scan(ctx context.Context, v any) error {
+	ctx = setContextOp(ctx, ps.ctx, "Select")
 	if err := ps.prepareQuery(ctx); err != nil {
 		return err
 	}
-	ps.sql = ps.PkgQuery.sqlQuery(ctx)
-	return ps.sqlScan(ctx, v)
+	return scanWithInterceptors[*PkgQuery, *PkgSelect](ctx, ps.PkgQuery, ps, ps.inters, v)
 }
 
-func (ps *PkgSelect) sqlScan(ctx context.Context, v interface{}) error {
+func (ps *PkgSelect) sqlScan(ctx context.Context, root *PkgQuery, v any) error {
+	selector := root.sqlQuery(ctx)
+	aggregation := make([]string, 0, len(ps.fns))
+	for _, fn := range ps.fns {
+		aggregation = append(aggregation, fn(selector))
+	}
+	switch n := len(*ps.selector.flds); {
+	case n == 0 && len(aggregation) > 0:
+		selector.Select(aggregation...)
+	case n != 0 && len(aggregation) > 0:
+		selector.AppendSelect(aggregation...)
+	}
 	rows := &sql.Rows{}
-	query, args := ps.sql.Query()
+	query, args := selector.Query()
 	if err := ps.driver.Query(ctx, query, args, rows); err != nil {
 		return err
 	}

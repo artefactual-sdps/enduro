@@ -4,17 +4,18 @@ package db
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/migrate"
 
-	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/location"
-	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/pkg"
-
+	"entgo.io/ent"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/location"
+	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/pkg"
 )
 
 // Client is the client that holds all ent builders.
@@ -30,7 +31,7 @@ type Client struct {
 
 // NewClient creates a new client configured with the given options.
 func NewClient(opts ...Option) *Client {
-	cfg := config{log: log.Println, hooks: &hooks{}}
+	cfg := config{log: log.Println, hooks: &hooks{}, inters: &inters{}}
 	cfg.options(opts...)
 	client := &Client{config: cfg}
 	client.init()
@@ -41,6 +42,55 @@ func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.Location = NewLocationClient(c.config)
 	c.Pkg = NewPkgClient(c.config)
+}
+
+type (
+	// config is the configuration for the client and its builder.
+	config struct {
+		// driver used for executing database requests.
+		driver dialect.Driver
+		// debug enable a debug logging.
+		debug bool
+		// log used for logging on debug mode.
+		log func(...any)
+		// hooks to execute on mutations.
+		hooks *hooks
+		// interceptors to execute on queries.
+		inters *inters
+	}
+	// Option function to configure the client.
+	Option func(*config)
+)
+
+// options applies the options on the config object.
+func (c *config) options(opts ...Option) {
+	for _, opt := range opts {
+		opt(c)
+	}
+	if c.debug {
+		c.driver = dialect.Debug(c.driver, c.log)
+	}
+}
+
+// Debug enables debug logging on the ent.Driver.
+func Debug() Option {
+	return func(c *config) {
+		c.debug = true
+	}
+}
+
+// Log sets the logging function for debug mode.
+func Log(fn func(...any)) Option {
+	return func(c *config) {
+		c.log = fn
+	}
+}
+
+// Driver configures the client driver.
+func Driver(driver dialect.Driver) Option {
+	return func(c *config) {
+		c.driver = driver
+	}
 }
 
 // Open opens a database/sql.DB specified by the driver name and
@@ -63,7 +113,7 @@ func Open(driverName, dataSourceName string, options ...Option) (*Client, error)
 // is used until the transaction is committed or rolled back.
 func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	if _, ok := c.driver.(*txDriver); ok {
-		return nil, fmt.Errorf("db: cannot start a transaction within a transaction")
+		return nil, errors.New("db: cannot start a transaction within a transaction")
 	}
 	tx, err := newTx(ctx, c.driver)
 	if err != nil {
@@ -82,7 +132,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 // BeginTx returns a transactional client with specified options.
 func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) {
 	if _, ok := c.driver.(*txDriver); ok {
-		return nil, fmt.Errorf("ent: cannot start a transaction within a transaction")
+		return nil, errors.New("ent: cannot start a transaction within a transaction")
 	}
 	tx, err := c.driver.(interface {
 		BeginTx(context.Context, *sql.TxOptions) (dialect.Tx, error)
@@ -129,6 +179,25 @@ func (c *Client) Use(hooks ...Hook) {
 	c.Pkg.Use(hooks...)
 }
 
+// Intercept adds the query interceptors to all the entity clients.
+// In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
+func (c *Client) Intercept(interceptors ...Interceptor) {
+	c.Location.Intercept(interceptors...)
+	c.Pkg.Intercept(interceptors...)
+}
+
+// Mutate implements the ent.Mutator interface.
+func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
+	switch m := m.(type) {
+	case *LocationMutation:
+		return c.Location.mutate(ctx, m)
+	case *PkgMutation:
+		return c.Pkg.mutate(ctx, m)
+	default:
+		return nil, fmt.Errorf("db: unknown mutation type %T", m)
+	}
+}
+
 // LocationClient is a client for the Location schema.
 type LocationClient struct {
 	config
@@ -143,6 +212,12 @@ func NewLocationClient(c config) *LocationClient {
 // A call to `Use(f, g, h)` equals to `location.Hooks(f(g(h())))`.
 func (c *LocationClient) Use(hooks ...Hook) {
 	c.hooks.Location = append(c.hooks.Location, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `location.Intercept(f(g(h())))`.
+func (c *LocationClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Location = append(c.inters.Location, interceptors...)
 }
 
 // Create returns a builder for creating a Location entity.
@@ -185,7 +260,7 @@ func (c *LocationClient) DeleteOne(l *Location) *LocationDeleteOne {
 	return c.DeleteOneID(l.ID)
 }
 
-// DeleteOne returns a builder for deleting the given entity by its id.
+// DeleteOneID returns a builder for deleting the given entity by its id.
 func (c *LocationClient) DeleteOneID(id int) *LocationDeleteOne {
 	builder := c.Delete().Where(location.ID(id))
 	builder.mutation.id = &id
@@ -197,6 +272,8 @@ func (c *LocationClient) DeleteOneID(id int) *LocationDeleteOne {
 func (c *LocationClient) Query() *LocationQuery {
 	return &LocationQuery{
 		config: c.config,
+		ctx:    &QueryContext{Type: TypeLocation},
+		inters: c.Interceptors(),
 	}
 }
 
@@ -216,8 +293,8 @@ func (c *LocationClient) GetX(ctx context.Context, id int) *Location {
 
 // QueryPackages queries the packages edge of a Location.
 func (c *LocationClient) QueryPackages(l *Location) *PkgQuery {
-	query := &PkgQuery{config: c.config}
-	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+	query := (&PkgClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := l.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(location.Table, location.FieldID, id),
@@ -235,6 +312,26 @@ func (c *LocationClient) Hooks() []Hook {
 	return c.hooks.Location
 }
 
+// Interceptors returns the client interceptors.
+func (c *LocationClient) Interceptors() []Interceptor {
+	return c.inters.Location
+}
+
+func (c *LocationClient) mutate(ctx context.Context, m *LocationMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&LocationCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&LocationUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&LocationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&LocationDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("db: unknown Location mutation op: %q", m.Op())
+	}
+}
+
 // PkgClient is a client for the Pkg schema.
 type PkgClient struct {
 	config
@@ -249,6 +346,12 @@ func NewPkgClient(c config) *PkgClient {
 // A call to `Use(f, g, h)` equals to `pkg.Hooks(f(g(h())))`.
 func (c *PkgClient) Use(hooks ...Hook) {
 	c.hooks.Pkg = append(c.hooks.Pkg, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `pkg.Intercept(f(g(h())))`.
+func (c *PkgClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Pkg = append(c.inters.Pkg, interceptors...)
 }
 
 // Create returns a builder for creating a Pkg entity.
@@ -291,7 +394,7 @@ func (c *PkgClient) DeleteOne(pk *Pkg) *PkgDeleteOne {
 	return c.DeleteOneID(pk.ID)
 }
 
-// DeleteOne returns a builder for deleting the given entity by its id.
+// DeleteOneID returns a builder for deleting the given entity by its id.
 func (c *PkgClient) DeleteOneID(id int) *PkgDeleteOne {
 	builder := c.Delete().Where(pkg.ID(id))
 	builder.mutation.id = &id
@@ -303,6 +406,8 @@ func (c *PkgClient) DeleteOneID(id int) *PkgDeleteOne {
 func (c *PkgClient) Query() *PkgQuery {
 	return &PkgQuery{
 		config: c.config,
+		ctx:    &QueryContext{Type: TypePkg},
+		inters: c.Interceptors(),
 	}
 }
 
@@ -322,8 +427,8 @@ func (c *PkgClient) GetX(ctx context.Context, id int) *Pkg {
 
 // QueryLocation queries the location edge of a Pkg.
 func (c *PkgClient) QueryLocation(pk *Pkg) *LocationQuery {
-	query := &LocationQuery{config: c.config}
-	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+	query := (&LocationClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := pk.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(pkg.Table, pkg.FieldID, id),
@@ -340,3 +445,33 @@ func (c *PkgClient) QueryLocation(pk *Pkg) *LocationQuery {
 func (c *PkgClient) Hooks() []Hook {
 	return c.hooks.Pkg
 }
+
+// Interceptors returns the client interceptors.
+func (c *PkgClient) Interceptors() []Interceptor {
+	return c.inters.Pkg
+}
+
+func (c *PkgClient) mutate(ctx context.Context, m *PkgMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&PkgCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&PkgUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&PkgUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&PkgDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("db: unknown Pkg mutation op: %q", m.Op())
+	}
+}
+
+// hooks and interceptors per client, for fast access.
+type (
+	hooks struct {
+		Location, Pkg []ent.Hook
+	}
+	inters struct {
+		Location, Pkg []ent.Interceptor
+	}
+)

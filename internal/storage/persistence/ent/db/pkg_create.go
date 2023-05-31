@@ -87,50 +87,8 @@ func (pc *PkgCreate) Mutation() *PkgMutation {
 
 // Save creates the Pkg in the database.
 func (pc *PkgCreate) Save(ctx context.Context) (*Pkg, error) {
-	var (
-		err  error
-		node *Pkg
-	)
 	pc.defaults()
-	if len(pc.hooks) == 0 {
-		if err = pc.check(); err != nil {
-			return nil, err
-		}
-		node, err = pc.sqlSave(ctx)
-	} else {
-		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
-			mutation, ok := m.(*PkgMutation)
-			if !ok {
-				return nil, fmt.Errorf("unexpected mutation type %T", m)
-			}
-			if err = pc.check(); err != nil {
-				return nil, err
-			}
-			pc.mutation = mutation
-			if node, err = pc.sqlSave(ctx); err != nil {
-				return nil, err
-			}
-			mutation.id = &node.ID
-			mutation.done = true
-			return node, err
-		})
-		for i := len(pc.hooks) - 1; i >= 0; i-- {
-			if pc.hooks[i] == nil {
-				return nil, fmt.Errorf("db: uninitialized hook (forgotten import db/runtime?)")
-			}
-			mut = pc.hooks[i](mut)
-		}
-		v, err := mut.Mutate(ctx, pc.mutation)
-		if err != nil {
-			return nil, err
-		}
-		nv, ok := v.(*Pkg)
-		if !ok {
-			return nil, fmt.Errorf("unexpected node type %T returned from PkgMutation", v)
-		}
-		node = nv
-	}
-	return node, err
+	return withHooks(ctx, pc.sqlSave, pc.mutation, pc.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
@@ -189,6 +147,9 @@ func (pc *PkgCreate) check() error {
 }
 
 func (pc *PkgCreate) sqlSave(ctx context.Context) (*Pkg, error) {
+	if err := pc.check(); err != nil {
+		return nil, err
+	}
 	_node, _spec := pc.createSpec()
 	if err := sqlgraph.CreateNode(ctx, pc.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
@@ -198,58 +159,34 @@ func (pc *PkgCreate) sqlSave(ctx context.Context) (*Pkg, error) {
 	}
 	id := _spec.ID.Value.(int64)
 	_node.ID = int(id)
+	pc.mutation.id = &_node.ID
+	pc.mutation.done = true
 	return _node, nil
 }
 
 func (pc *PkgCreate) createSpec() (*Pkg, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Pkg{config: pc.config}
-		_spec = &sqlgraph.CreateSpec{
-			Table: pkg.Table,
-			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeInt,
-				Column: pkg.FieldID,
-			},
-		}
+		_spec = sqlgraph.NewCreateSpec(pkg.Table, sqlgraph.NewFieldSpec(pkg.FieldID, field.TypeInt))
 	)
 	if value, ok := pc.mutation.Name(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: pkg.FieldName,
-		})
+		_spec.SetField(pkg.FieldName, field.TypeString, value)
 		_node.Name = value
 	}
 	if value, ok := pc.mutation.AipID(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeUUID,
-			Value:  value,
-			Column: pkg.FieldAipID,
-		})
+		_spec.SetField(pkg.FieldAipID, field.TypeUUID, value)
 		_node.AipID = value
 	}
 	if value, ok := pc.mutation.Status(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeEnum,
-			Value:  value,
-			Column: pkg.FieldStatus,
-		})
+		_spec.SetField(pkg.FieldStatus, field.TypeEnum, value)
 		_node.Status = value
 	}
 	if value, ok := pc.mutation.ObjectKey(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeUUID,
-			Value:  value,
-			Column: pkg.FieldObjectKey,
-		})
+		_spec.SetField(pkg.FieldObjectKey, field.TypeUUID, value)
 		_node.ObjectKey = value
 	}
 	if value, ok := pc.mutation.CreatedAt(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeTime,
-			Value:  value,
-			Column: pkg.FieldCreatedAt,
-		})
+		_spec.SetField(pkg.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
 	}
 	if nodes := pc.mutation.LocationIDs(); len(nodes) > 0 {
@@ -260,10 +197,7 @@ func (pc *PkgCreate) createSpec() (*Pkg, *sqlgraph.CreateSpec) {
 			Columns: []string{pkg.LocationColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: location.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(location.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -299,8 +233,8 @@ func (pcb *PkgCreateBulk) Save(ctx context.Context) ([]*Pkg, error) {
 					return nil, err
 				}
 				builder.mutation = mutation
-				nodes[i], specs[i] = builder.createSpec()
 				var err error
+				nodes[i], specs[i] = builder.createSpec()
 				if i < len(mutators)-1 {
 					_, err = mutators[i+1].Mutate(root, pcb.builders[i+1].mutation)
 				} else {
