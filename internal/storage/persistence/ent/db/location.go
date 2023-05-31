@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/location"
 	"github.com/artefactual-sdps/enduro/internal/storage/types"
@@ -35,7 +36,8 @@ type Location struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the LocationQuery when eager-loading is set.
-	Edges LocationEdges `json:"edges"`
+	Edges        LocationEdges `json:"edges"`
+	selectValues sql.SelectValues
 }
 
 // LocationEdges holds the relations/edges for other nodes in the graph.
@@ -57,8 +59,8 @@ func (e LocationEdges) PackagesOrErr() ([]*Pkg, error) {
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
-func (*Location) scanValues(columns []string) ([]interface{}, error) {
-	values := make([]interface{}, len(columns))
+func (*Location) scanValues(columns []string) ([]any, error) {
+	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
 		case location.FieldConfig:
@@ -76,7 +78,7 @@ func (*Location) scanValues(columns []string) ([]interface{}, error) {
 		case location.FieldUUID:
 			values[i] = new(uuid.UUID)
 		default:
-			return nil, fmt.Errorf("unexpected column %q for type Location", columns[i])
+			values[i] = new(sql.UnknownType)
 		}
 	}
 	return values, nil
@@ -84,7 +86,7 @@ func (*Location) scanValues(columns []string) ([]interface{}, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the Location fields.
-func (l *Location) assignValues(columns []string, values []interface{}) error {
+func (l *Location) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -140,21 +142,29 @@ func (l *Location) assignValues(columns []string, values []interface{}) error {
 			} else if value.Valid {
 				l.CreatedAt = value.Time
 			}
+		default:
+			l.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
 }
 
+// Value returns the ent.Value that was dynamically selected and assigned to the Location.
+// This includes values selected through modifiers, order, etc.
+func (l *Location) Value(name string) (ent.Value, error) {
+	return l.selectValues.Get(name)
+}
+
 // QueryPackages queries the "packages" edge of the Location entity.
 func (l *Location) QueryPackages() *PkgQuery {
-	return (&LocationClient{config: l.config}).QueryPackages(l)
+	return NewLocationClient(l.config).QueryPackages(l)
 }
 
 // Update returns a builder for updating this Location.
 // Note that you need to call Location.Unwrap() before calling this method if this Location
 // was returned from a transaction, and the transaction was committed or rolled back.
 func (l *Location) Update() *LocationUpdateOne {
-	return (&LocationClient{config: l.config}).UpdateOne(l)
+	return NewLocationClient(l.config).UpdateOne(l)
 }
 
 // Unwrap unwraps the Location entity that was returned from a transaction after it was closed,
@@ -199,9 +209,3 @@ func (l *Location) String() string {
 
 // Locations is a parsable slice of Location.
 type Locations []*Location
-
-func (l Locations) config(cfg config) {
-	for _i := range l {
-		l[_i].config = cfg
-	}
-}

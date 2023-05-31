@@ -15,11 +15,10 @@ type LocationFunc func(context.Context, *db.LocationMutation) (db.Value, error)
 
 // Mutate calls f(ctx, m).
 func (f LocationFunc) Mutate(ctx context.Context, m db.Mutation) (db.Value, error) {
-	mv, ok := m.(*db.LocationMutation)
-	if !ok {
-		return nil, fmt.Errorf("unexpected mutation type %T. expect *db.LocationMutation", m)
+	if mv, ok := m.(*db.LocationMutation); ok {
+		return f(ctx, mv)
 	}
-	return f(ctx, mv)
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *db.LocationMutation", m)
 }
 
 // The PkgFunc type is an adapter to allow the use of ordinary
@@ -28,11 +27,10 @@ type PkgFunc func(context.Context, *db.PkgMutation) (db.Value, error)
 
 // Mutate calls f(ctx, m).
 func (f PkgFunc) Mutate(ctx context.Context, m db.Mutation) (db.Value, error) {
-	mv, ok := m.(*db.PkgMutation)
-	if !ok {
-		return nil, fmt.Errorf("unexpected mutation type %T. expect *db.PkgMutation", m)
+	if mv, ok := m.(*db.PkgMutation); ok {
+		return f(ctx, mv)
 	}
-	return f(ctx, mv)
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *db.PkgMutation", m)
 }
 
 // Condition is a hook condition function.

@@ -3,6 +3,7 @@ MAKEDIR := hack/make
 
 include hack/make/bootstrap.mk
 include hack/make/dep_golangci_lint.mk
+include hack/make/dep_ent.mk
 include .bingo/Variables.mk
 
 define NEWLINE
@@ -107,7 +108,9 @@ gen-mock:
 	$(MOCKGEN) -destination=./internal/watcher/fake/mock_watcher.go -package=fake github.com/artefactual-sdps/enduro/internal/watcher Service
 	$(MOCKGEN) -destination=./internal/api/auth/fake/mock_ticket_store.go -package=fake github.com/artefactual-sdps/enduro/internal/api/auth TicketStore
 
-gen-ent:
-	$(ENT) generate ./internal/storage/persistence/ent/schema --feature sql/versioned-migration --target=./internal/storage/persistence/ent/db
+gen-ent: $(ENT)  ## Generate Ent assets.
+	ent generate ./internal/storage/persistence/ent/schema \
+		--feature sql/versioned-migration \
+		--target=./internal/storage/persistence/ent/db
 
 .PHONY: *

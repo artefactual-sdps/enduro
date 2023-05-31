@@ -92,40 +92,7 @@ func (pu *PkgUpdate) ClearLocation() *PkgUpdate {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (pu *PkgUpdate) Save(ctx context.Context) (int, error) {
-	var (
-		err      error
-		affected int
-	)
-	if len(pu.hooks) == 0 {
-		if err = pu.check(); err != nil {
-			return 0, err
-		}
-		affected, err = pu.sqlSave(ctx)
-	} else {
-		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
-			mutation, ok := m.(*PkgMutation)
-			if !ok {
-				return nil, fmt.Errorf("unexpected mutation type %T", m)
-			}
-			if err = pu.check(); err != nil {
-				return 0, err
-			}
-			pu.mutation = mutation
-			affected, err = pu.sqlSave(ctx)
-			mutation.done = true
-			return affected, err
-		})
-		for i := len(pu.hooks) - 1; i >= 0; i-- {
-			if pu.hooks[i] == nil {
-				return 0, fmt.Errorf("db: uninitialized hook (forgotten import db/runtime?)")
-			}
-			mut = pu.hooks[i](mut)
-		}
-		if _, err := mut.Mutate(ctx, pu.mutation); err != nil {
-			return 0, err
-		}
-	}
-	return affected, err
+	return withHooks(ctx, pu.sqlSave, pu.mutation, pu.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
@@ -161,16 +128,10 @@ func (pu *PkgUpdate) check() error {
 }
 
 func (pu *PkgUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	_spec := &sqlgraph.UpdateSpec{
-		Node: &sqlgraph.NodeSpec{
-			Table:   pkg.Table,
-			Columns: pkg.Columns,
-			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeInt,
-				Column: pkg.FieldID,
-			},
-		},
+	if err := pu.check(); err != nil {
+		return n, err
 	}
+	_spec := sqlgraph.NewUpdateSpec(pkg.Table, pkg.Columns, sqlgraph.NewFieldSpec(pkg.FieldID, field.TypeInt))
 	if ps := pu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -179,32 +140,16 @@ func (pu *PkgUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 	}
 	if value, ok := pu.mutation.Name(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: pkg.FieldName,
-		})
+		_spec.SetField(pkg.FieldName, field.TypeString, value)
 	}
 	if value, ok := pu.mutation.AipID(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeUUID,
-			Value:  value,
-			Column: pkg.FieldAipID,
-		})
+		_spec.SetField(pkg.FieldAipID, field.TypeUUID, value)
 	}
 	if value, ok := pu.mutation.Status(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeEnum,
-			Value:  value,
-			Column: pkg.FieldStatus,
-		})
+		_spec.SetField(pkg.FieldStatus, field.TypeEnum, value)
 	}
 	if value, ok := pu.mutation.ObjectKey(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeUUID,
-			Value:  value,
-			Column: pkg.FieldObjectKey,
-		})
+		_spec.SetField(pkg.FieldObjectKey, field.TypeUUID, value)
 	}
 	if pu.mutation.LocationCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -214,10 +159,7 @@ func (pu *PkgUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{pkg.LocationColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: location.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(location.FieldID, field.TypeInt),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -230,10 +172,7 @@ func (pu *PkgUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{pkg.LocationColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: location.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(location.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -249,6 +188,7 @@ func (pu *PkgUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		return 0, err
 	}
+	pu.mutation.done = true
 	return n, nil
 }
 
@@ -320,6 +260,12 @@ func (puo *PkgUpdateOne) ClearLocation() *PkgUpdateOne {
 	return puo
 }
 
+// Where appends a list predicates to the PkgUpdate builder.
+func (puo *PkgUpdateOne) Where(ps ...predicate.Pkg) *PkgUpdateOne {
+	puo.mutation.Where(ps...)
+	return puo
+}
+
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
 func (puo *PkgUpdateOne) Select(field string, fields ...string) *PkgUpdateOne {
@@ -329,46 +275,7 @@ func (puo *PkgUpdateOne) Select(field string, fields ...string) *PkgUpdateOne {
 
 // Save executes the query and returns the updated Pkg entity.
 func (puo *PkgUpdateOne) Save(ctx context.Context) (*Pkg, error) {
-	var (
-		err  error
-		node *Pkg
-	)
-	if len(puo.hooks) == 0 {
-		if err = puo.check(); err != nil {
-			return nil, err
-		}
-		node, err = puo.sqlSave(ctx)
-	} else {
-		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
-			mutation, ok := m.(*PkgMutation)
-			if !ok {
-				return nil, fmt.Errorf("unexpected mutation type %T", m)
-			}
-			if err = puo.check(); err != nil {
-				return nil, err
-			}
-			puo.mutation = mutation
-			node, err = puo.sqlSave(ctx)
-			mutation.done = true
-			return node, err
-		})
-		for i := len(puo.hooks) - 1; i >= 0; i-- {
-			if puo.hooks[i] == nil {
-				return nil, fmt.Errorf("db: uninitialized hook (forgotten import db/runtime?)")
-			}
-			mut = puo.hooks[i](mut)
-		}
-		v, err := mut.Mutate(ctx, puo.mutation)
-		if err != nil {
-			return nil, err
-		}
-		nv, ok := v.(*Pkg)
-		if !ok {
-			return nil, fmt.Errorf("unexpected node type %T returned from PkgMutation", v)
-		}
-		node = nv
-	}
-	return node, err
+	return withHooks(ctx, puo.sqlSave, puo.mutation, puo.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
@@ -404,16 +311,10 @@ func (puo *PkgUpdateOne) check() error {
 }
 
 func (puo *PkgUpdateOne) sqlSave(ctx context.Context) (_node *Pkg, err error) {
-	_spec := &sqlgraph.UpdateSpec{
-		Node: &sqlgraph.NodeSpec{
-			Table:   pkg.Table,
-			Columns: pkg.Columns,
-			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeInt,
-				Column: pkg.FieldID,
-			},
-		},
+	if err := puo.check(); err != nil {
+		return _node, err
 	}
+	_spec := sqlgraph.NewUpdateSpec(pkg.Table, pkg.Columns, sqlgraph.NewFieldSpec(pkg.FieldID, field.TypeInt))
 	id, ok := puo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`db: missing "Pkg.id" for update`)}
@@ -439,32 +340,16 @@ func (puo *PkgUpdateOne) sqlSave(ctx context.Context) (_node *Pkg, err error) {
 		}
 	}
 	if value, ok := puo.mutation.Name(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: pkg.FieldName,
-		})
+		_spec.SetField(pkg.FieldName, field.TypeString, value)
 	}
 	if value, ok := puo.mutation.AipID(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeUUID,
-			Value:  value,
-			Column: pkg.FieldAipID,
-		})
+		_spec.SetField(pkg.FieldAipID, field.TypeUUID, value)
 	}
 	if value, ok := puo.mutation.Status(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeEnum,
-			Value:  value,
-			Column: pkg.FieldStatus,
-		})
+		_spec.SetField(pkg.FieldStatus, field.TypeEnum, value)
 	}
 	if value, ok := puo.mutation.ObjectKey(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeUUID,
-			Value:  value,
-			Column: pkg.FieldObjectKey,
-		})
+		_spec.SetField(pkg.FieldObjectKey, field.TypeUUID, value)
 	}
 	if puo.mutation.LocationCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -474,10 +359,7 @@ func (puo *PkgUpdateOne) sqlSave(ctx context.Context) (_node *Pkg, err error) {
 			Columns: []string{pkg.LocationColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: location.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(location.FieldID, field.TypeInt),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -490,10 +372,7 @@ func (puo *PkgUpdateOne) sqlSave(ctx context.Context) (_node *Pkg, err error) {
 			Columns: []string{pkg.LocationColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: location.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(location.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -512,5 +391,6 @@ func (puo *PkgUpdateOne) sqlSave(ctx context.Context) (_node *Pkg, err error) {
 		}
 		return nil, err
 	}
+	puo.mutation.done = true
 	return _node, nil
 }

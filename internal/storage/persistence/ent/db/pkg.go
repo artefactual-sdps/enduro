@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/location"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/pkg"
@@ -33,7 +34,8 @@ type Pkg struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the PkgQuery when eager-loading is set.
-	Edges PkgEdges `json:"edges"`
+	Edges        PkgEdges `json:"edges"`
+	selectValues sql.SelectValues
 }
 
 // PkgEdges holds the relations/edges for other nodes in the graph.
@@ -50,8 +52,7 @@ type PkgEdges struct {
 func (e PkgEdges) LocationOrErr() (*Location, error) {
 	if e.loadedTypes[0] {
 		if e.Location == nil {
-			// The edge location was loaded in eager-loading,
-			// but was not found.
+			// Edge was loaded but was not found.
 			return nil, &NotFoundError{label: location.Label}
 		}
 		return e.Location, nil
@@ -60,8 +61,8 @@ func (e PkgEdges) LocationOrErr() (*Location, error) {
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
-func (*Pkg) scanValues(columns []string) ([]interface{}, error) {
-	values := make([]interface{}, len(columns))
+func (*Pkg) scanValues(columns []string) ([]any, error) {
+	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
 		case pkg.FieldID, pkg.FieldLocationID:
@@ -75,7 +76,7 @@ func (*Pkg) scanValues(columns []string) ([]interface{}, error) {
 		case pkg.FieldAipID, pkg.FieldObjectKey:
 			values[i] = new(uuid.UUID)
 		default:
-			return nil, fmt.Errorf("unexpected column %q for type Pkg", columns[i])
+			values[i] = new(sql.UnknownType)
 		}
 	}
 	return values, nil
@@ -83,7 +84,7 @@ func (*Pkg) scanValues(columns []string) ([]interface{}, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the Pkg fields.
-func (pk *Pkg) assignValues(columns []string, values []interface{}) error {
+func (pk *Pkg) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -131,21 +132,29 @@ func (pk *Pkg) assignValues(columns []string, values []interface{}) error {
 			} else if value.Valid {
 				pk.CreatedAt = value.Time
 			}
+		default:
+			pk.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
 }
 
+// Value returns the ent.Value that was dynamically selected and assigned to the Pkg.
+// This includes values selected through modifiers, order, etc.
+func (pk *Pkg) Value(name string) (ent.Value, error) {
+	return pk.selectValues.Get(name)
+}
+
 // QueryLocation queries the "location" edge of the Pkg entity.
 func (pk *Pkg) QueryLocation() *LocationQuery {
-	return (&PkgClient{config: pk.config}).QueryLocation(pk)
+	return NewPkgClient(pk.config).QueryLocation(pk)
 }
 
 // Update returns a builder for updating this Pkg.
 // Note that you need to call Pkg.Unwrap() before calling this method if this Pkg
 // was returned from a transaction, and the transaction was committed or rolled back.
 func (pk *Pkg) Update() *PkgUpdateOne {
-	return (&PkgClient{config: pk.config}).UpdateOne(pk)
+	return NewPkgClient(pk.config).UpdateOne(pk)
 }
 
 // Unwrap unwraps the Pkg entity that was returned from a transaction after it was closed,
@@ -187,9 +196,3 @@ func (pk *Pkg) String() string {
 
 // Pkgs is a parsable slice of Pkg.
 type Pkgs []*Pkg
-
-func (pk Pkgs) config(cfg config) {
-	for _i := range pk {
-		pk[_i].config = cfg
-	}
-}

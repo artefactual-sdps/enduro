@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/artefactual-sdps/enduro/internal/storage/types"
 )
 
@@ -73,4 +75,56 @@ func StatusValidator(s types.PackageStatus) error {
 	default:
 		return fmt.Errorf("pkg: invalid enum value for status field: %q", s)
 	}
+}
+
+// OrderOption defines the ordering options for the Pkg queries.
+type OrderOption func(*sql.Selector)
+
+// ByID orders the results by the id field.
+func ByID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByName orders the results by the name field.
+func ByName(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldName, opts...).ToFunc()
+}
+
+// ByAipID orders the results by the aip_id field.
+func ByAipID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAipID, opts...).ToFunc()
+}
+
+// ByLocationID orders the results by the location_id field.
+func ByLocationID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldLocationID, opts...).ToFunc()
+}
+
+// ByStatus orders the results by the status field.
+func ByStatus(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldStatus, opts...).ToFunc()
+}
+
+// ByObjectKey orders the results by the object_key field.
+func ByObjectKey(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldObjectKey, opts...).ToFunc()
+}
+
+// ByCreatedAt orders the results by the created_at field.
+func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
+}
+
+// ByLocationField orders the results by location field.
+func ByLocationField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newLocationStep(), sql.OrderByField(field, opts...))
+	}
+}
+func newLocationStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(LocationInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, false, LocationTable, LocationColumn),
+	)
 }

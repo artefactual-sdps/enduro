@@ -23,12 +23,6 @@ $(BINGO): $(BINGO_DIR)/bingo.mod
 	@echo "(re)installing $(GOBIN)/bingo-v0.8.0"
 	@cd $(BINGO_DIR) && GOWORK=off $(GO) build -mod=mod -modfile=bingo.mod -o=$(GOBIN)/bingo-v0.8.0 "github.com/bwplotka/bingo"
 
-ENT := $(GOBIN)/ent-v0.11.0
-$(ENT): $(BINGO_DIR)/ent.mod
-	@# Install binary/ries using Go 1.14+ build command. This is using bwplotka/bingo-controlled, separate go module with pinned dependencies.
-	@echo "(re)installing $(GOBIN)/ent-v0.11.0"
-	@cd $(BINGO_DIR) && GOWORK=off $(GO) build -mod=mod -modfile=ent.mod -o=$(GOBIN)/ent-v0.11.0 "entgo.io/ent/cmd/ent"
-
 GO_MOD_UPGRADE := $(GOBIN)/go-mod-upgrade-v0.9.1
 $(GO_MOD_UPGRADE): $(BINGO_DIR)/go-mod-upgrade.mod
 	@# Install binary/ries using Go 1.14+ build command. This is using bwplotka/bingo-controlled, separate go module with pinned dependencies.
