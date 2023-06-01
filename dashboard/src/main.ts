@@ -21,7 +21,7 @@ app.use(pinia);
 app.use({
   install: (app: any): any => {
     PromiseDialog.install(app, {});
-  }
+  },
 });
 app.mount("#app");
 

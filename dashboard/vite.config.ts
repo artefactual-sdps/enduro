@@ -1,4 +1,5 @@
 import vue from "@vitejs/plugin-vue";
+import ReactivityTransform from "@vue-macros/reactivity-transform/vite";
 import { fileURLToPath, URL } from "node:url";
 import Icons from "unplugin-icons/vite";
 import Pages from "vite-plugin-pages";
@@ -7,7 +8,8 @@ import { defineConfig } from "vitest/config";
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
-    vue({ reactivityTransform: true }),
+    vue({}),
+    ReactivityTransform(),
     Pages(),
     Icons({ compiler: "vue3" }),
   ],
