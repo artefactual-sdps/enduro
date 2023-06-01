@@ -29,11 +29,11 @@ $(GO_MOD_UPGRADE): $(BINGO_DIR)/go-mod-upgrade.mod
 	@echo "(re)installing $(GOBIN)/go-mod-upgrade-v0.9.1"
 	@cd $(BINGO_DIR) && GOWORK=off $(GO) build -mod=mod -modfile=go-mod-upgrade.mod -o=$(GOBIN)/go-mod-upgrade-v0.9.1 "github.com/oligot/go-mod-upgrade"
 
-GOTESTSUM := $(GOBIN)/gotestsum-v1.8.2
+GOTESTSUM := $(GOBIN)/gotestsum-v1.10.0
 $(GOTESTSUM): $(BINGO_DIR)/gotestsum.mod
 	@# Install binary/ries using Go 1.14+ build command. This is using bwplotka/bingo-controlled, separate go module with pinned dependencies.
-	@echo "(re)installing $(GOBIN)/gotestsum-v1.8.2"
-	@cd $(BINGO_DIR) && GOWORK=off $(GO) build -mod=mod -modfile=gotestsum.mod -o=$(GOBIN)/gotestsum-v1.8.2 "gotest.tools/gotestsum"
+	@echo "(re)installing $(GOBIN)/gotestsum-v1.10.0"
+	@cd $(BINGO_DIR) && GOWORK=off $(GO) build -mod=mod -modfile=gotestsum.mod -o=$(GOBIN)/gotestsum-v1.10.0 "gotest.tools/gotestsum"
 
 MIGRATE := $(GOBIN)/migrate-v4.16.0
 $(MIGRATE): $(BINGO_DIR)/migrate.mod
@@ -47,9 +47,9 @@ $(MOCKGEN): $(BINGO_DIR)/mockgen.mod
 	@echo "(re)installing $(GOBIN)/mockgen-v1.6.0"
 	@cd $(BINGO_DIR) && GOWORK=off $(GO) build -mod=mod -modfile=mockgen.mod -o=$(GOBIN)/mockgen-v1.6.0 "github.com/golang/mock/mockgen"
 
-TPARSE := $(GOBIN)/tparse-v0.11.1
+TPARSE := $(GOBIN)/tparse-v0.12.2
 $(TPARSE): $(BINGO_DIR)/tparse.mod
 	@# Install binary/ries using Go 1.14+ build command. This is using bwplotka/bingo-controlled, separate go module with pinned dependencies.
-	@echo "(re)installing $(GOBIN)/tparse-v0.11.1"
-	@cd $(BINGO_DIR) && GOWORK=off $(GO) build -mod=mod -modfile=tparse.mod -o=$(GOBIN)/tparse-v0.11.1 "github.com/mfridman/tparse"
+	@echo "(re)installing $(GOBIN)/tparse-v0.12.2"
+	@cd $(BINGO_DIR) && GOWORK=off $(GO) build -mod=mod -modfile=tparse.mod -o=$(GOBIN)/tparse-v0.12.2 "github.com/mfridman/tparse"
 
