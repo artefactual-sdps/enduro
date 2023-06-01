@@ -4,6 +4,7 @@ MAKEDIR := hack/make
 include hack/make/bootstrap.mk
 include hack/make/dep_golangci_lint.mk
 include hack/make/dep_ent.mk
+include hack/make/dep_goa.mk
 include .bingo/Variables.mk
 
 define NEWLINE
@@ -85,8 +86,8 @@ golangcilint: $(GOLANGCI_LINT)
 lint:
 	@$(MAKE) golangcilint
 
-gen-goa:
-	$(GOA) gen github.com/artefactual-sdps/enduro/internal/api/design -o internal/api
+gen-goa: $(GOA)  ## Generate Goa assets.
+	goa gen github.com/artefactual-sdps/enduro/internal/api/design -o internal/api
 
 gen-dashboard-client:
 	@rm -rf $(CURDIR)/dashboard/src/openapi-generator
