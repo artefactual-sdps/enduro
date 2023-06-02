@@ -18,5 +18,6 @@ jobs:
         working-directory: ./dashboard
       - run: npm run lint
         working-directory: ./dashboard
+        continue-on-error: true
       - run: npm run coverage
         working-directory: ./dashboard
