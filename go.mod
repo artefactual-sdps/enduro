@@ -42,10 +42,10 @@ require (
 	go.buf.build/grpc/go/artefactual/a3m v1.4.3
 	go.temporal.io/api v1.21.0
 	go.temporal.io/sdk v1.23.0
-	go.uber.org/multierr v1.8.0 // indirect
+	go.uber.org/multierr v1.9.0 // indirect
 	go.uber.org/zap v1.24.0
 	goa.design/goa/v3 v3.11.3
-	goa.design/plugins/v3 v3.10.2
+	goa.design/plugins/v3 v3.11.3
 	gocloud.dev v0.27.0
 	golang.org/x/text v0.9.0 // indirect
 	google.golang.org/grpc v1.55.0
