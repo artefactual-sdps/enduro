@@ -1,6 +1,6 @@
 # syntax = docker/dockerfile:1.4
 
-FROM node:19 AS builder
+FROM node:20 AS builder
 ARG oidcProviderUrl=http://dex:5556
 ARG oidcRedirectUrl=http://localhost:3000/user/signin-callback
 ARG oidcAudienceClientId=enduro
