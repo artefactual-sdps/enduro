@@ -28,7 +28,7 @@ require (
 	github.com/mholt/archiver/v3 v3.5.1
 	github.com/nyudlts/go-bagit v0.2.0-alpha
 	github.com/oklog/run v1.1.0
-	github.com/otiai10/copy v1.9.0
+	github.com/otiai10/copy v1.11.0
 	github.com/pborman/uuid v1.2.1 // indirect
 	github.com/prometheus/client_golang v1.14.0
 	github.com/radovskyb/watcher v1.0.7
