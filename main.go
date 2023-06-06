@@ -212,7 +212,7 @@ func main() {
 	// Set up the watcher service.
 	var wsvc watcher.Service
 	{
-		wsvc, err = watcher.New(ctx, &cfg.Watcher)
+		wsvc, err = watcher.New(ctx, logger.WithName("watcher"), &cfg.Watcher)
 		if err != nil {
 			logger.Error(err, "Error setting up watchers.")
 			os.Exit(1)

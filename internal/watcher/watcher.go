@@ -9,6 +9,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/go-logr/logr"
 	"gocloud.dev/blob"
 )
 
@@ -80,13 +81,13 @@ type serviceImpl struct {
 
 var _ Service = (*serviceImpl)(nil)
 
-func New(ctx context.Context, c *Config) (*serviceImpl, error) {
+func New(ctx context.Context, logger logr.Logger, c *Config) (*serviceImpl, error) {
 	watchers := map[string]Watcher{}
 	minioConfigs := append(c.Minio, c.Embedded)
 
 	for _, item := range minioConfigs {
 		item := item
-		w, err := NewMinioWatcher(ctx, item)
+		w, err := NewMinioWatcher(ctx, logger, item)
 		if err != nil {
 			return nil, err
 		}

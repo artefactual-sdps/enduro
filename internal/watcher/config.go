@@ -41,17 +41,18 @@ type FilesystemConfig struct {
 
 // See minio.go for more.
 type MinioConfig struct {
-	Name         string
-	RedisAddress string
-	RedisList    string
-	Region       string
-	Endpoint     string
-	PathStyle    bool
-	Profile      string
-	Key          string
-	Secret       string
-	Token        string
-	Bucket       string
+	Name            string
+	RedisAddress    string
+	RedisList       string
+	RedisFailedList string
+	Region          string
+	Endpoint        string
+	PathStyle       bool
+	Profile         string
+	Key             string
+	Secret          string
+	Token           string
+	Bucket          string
 
 	RetentionPeriod  *time.Duration
 	StripTopLevelDir bool

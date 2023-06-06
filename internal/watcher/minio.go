@@ -10,6 +10,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/go-logr/logr"
 	"github.com/go-redis/redis/v8"
 	"gocloud.dev/blob"
 	"gocloud.dev/blob/s3blob"
@@ -17,10 +18,12 @@ import (
 
 // minioWatcher implements a Watcher for watching lists in Redis.
 type minioWatcher struct {
-	client   *redis.Client
-	sess     *session.Session
-	listName string
-	bucket   string
+	client     *redis.Client
+	sess       *session.Session
+	logger     logr.Logger
+	listName   string
+	failedList string
+	bucket     string
 	*commonWatcherImpl
 }
 
@@ -33,7 +36,7 @@ var _ Watcher = (*minioWatcher)(nil)
 
 const redisPopTimeout = time.Second * 2
 
-func NewMinioWatcher(ctx context.Context, config *MinioConfig) (*minioWatcher, error) {
+func NewMinioWatcher(ctx context.Context, logger logr.Logger, config *MinioConfig) (*minioWatcher, error) {
 	opts, err := redis.ParseURL(config.RedisAddress)
 	if err != nil {
 		return nil, err
@@ -59,12 +62,17 @@ func NewMinioWatcher(ctx context.Context, config *MinioConfig) (*minioWatcher, e
 	if err != nil {
 		return nil, err
 	}
+	if config.RedisFailedList == "" {
+		config.RedisFailedList = config.RedisList + "-dead"
+	}
 
 	return &minioWatcher{
-		client:   client,
-		sess:     sess,
-		listName: config.RedisList,
-		bucket:   config.Bucket,
+		client:     client,
+		sess:       sess,
+		listName:   config.RedisList,
+		failedList: config.RedisFailedList,
+		logger:     logger,
+		bucket:     config.Bucket,
 		commonWatcherImpl: &commonWatcherImpl{
 			name:             config.Name,
 			retentionPeriod:  config.RetentionPeriod,
@@ -74,7 +82,7 @@ func NewMinioWatcher(ctx context.Context, config *MinioConfig) (*minioWatcher, e
 }
 
 func (w *minioWatcher) Watch(ctx context.Context) (*BlobEvent, error) {
-	event, err := w.blpop(ctx)
+	event, err := w.pop(ctx)
 	if err != nil {
 		if errors.Is(err, redis.Nil) {
 			err = ErrWatchTimeout
@@ -91,15 +99,21 @@ func (w *minioWatcher) Path() string {
 	return ""
 }
 
-func (w *minioWatcher) blpop(ctx context.Context) (*BlobEvent, error) {
-	val, err := w.client.BLPop(ctx, redisPopTimeout, w.listName).Result()
+func (w *minioWatcher) pop(ctx context.Context) (*BlobEvent, error) {
+	val, err := w.client.BLMove(ctx, w.listName, w.failedList, "RIGHT", "LEFT", redisPopTimeout).Result()
 	if err != nil {
 		return nil, fmt.Errorf("error retrieving from Redis list: %w", err)
 	}
 
-	event, err := w.event(val[1])
+	event, err := w.event(val)
 	if err != nil {
-		return nil, fmt.Errorf("ereror processing item received: %w", err)
+		return nil, fmt.Errorf("error processing item received: %w", err)
+	}
+
+	if _, err := w.client.LRem(ctx, w.failedList, 1, val).Result(); err != nil {
+		w.logger.Error(err, "Error removing message from failed list.", "list", w.failedList)
+	} else {
+		w.logger.V(2).Info("Successfully removed messages.")
 	}
 
 	return event, nil
