@@ -19,9 +19,9 @@ import (
 
 // Server lists the swagger service endpoint HTTP handlers.
 type Server struct {
-	Mounts                        []*MountPoint
-	CORS                          http.Handler
-	InternalAPIGenHTTPOpenapiJSON http.Handler
+	Mounts             []*MountPoint
+	CORS               http.Handler
+	GenHTTPOpenapiJSON http.Handler
 }
 
 // MountPoint holds information about the mounted endpoints.
@@ -48,18 +48,18 @@ func New(
 	encoder func(context.Context, http.ResponseWriter) goahttp.Encoder,
 	errhandler func(context.Context, http.ResponseWriter, error),
 	formatter func(ctx context.Context, err error) goahttp.Statuser,
-	fileSystemInternalAPIGenHTTPOpenapiJSON http.FileSystem,
+	fileSystemGenHTTPOpenapiJSON http.FileSystem,
 ) *Server {
-	if fileSystemInternalAPIGenHTTPOpenapiJSON == nil {
-		fileSystemInternalAPIGenHTTPOpenapiJSON = http.Dir(".")
+	if fileSystemGenHTTPOpenapiJSON == nil {
+		fileSystemGenHTTPOpenapiJSON = http.Dir(".")
 	}
 	return &Server{
 		Mounts: []*MountPoint{
 			{"CORS", "OPTIONS", "/swagger/swagger.json"},
-			{"internal/api/gen/http/openapi.json", "GET", "/swagger/swagger.json"},
+			{"gen/http/openapi.json", "GET", "/swagger/swagger.json"},
 		},
-		CORS:                          NewCORSHandler(),
-		InternalAPIGenHTTPOpenapiJSON: http.FileServer(fileSystemInternalAPIGenHTTPOpenapiJSON),
+		CORS:               NewCORSHandler(),
+		GenHTTPOpenapiJSON: http.FileServer(fileSystemGenHTTPOpenapiJSON),
 	}
 }
 
@@ -77,7 +77,7 @@ func (s *Server) MethodNames() []string { return swagger.MethodNames[:] }
 // Mount configures the mux to serve the swagger endpoints.
 func Mount(mux goahttp.Muxer, h *Server) {
 	MountCORSHandler(mux, h.CORS)
-	MountInternalAPIGenHTTPOpenapiJSON(mux, goahttp.Replace("", "/internal/api/gen/http/openapi.json", h.InternalAPIGenHTTPOpenapiJSON))
+	MountGenHTTPOpenapiJSON(mux, goahttp.Replace("", "/gen/http/openapi.json", h.GenHTTPOpenapiJSON))
 }
 
 // Mount configures the mux to serve the swagger endpoints.
@@ -85,9 +85,9 @@ func (s *Server) Mount(mux goahttp.Muxer) {
 	Mount(mux, s)
 }
 
-// MountInternalAPIGenHTTPOpenapiJSON configures the mux to serve GET request
-// made to "/swagger/swagger.json".
-func MountInternalAPIGenHTTPOpenapiJSON(mux goahttp.Muxer, h http.Handler) {
+// MountGenHTTPOpenapiJSON configures the mux to serve GET request made to
+// "/swagger/swagger.json".
+func MountGenHTTPOpenapiJSON(mux goahttp.Muxer, h http.Handler) {
 	mux.Handle("GET", "/swagger/swagger.json", HandleSwaggerOrigin(h).ServeHTTP)
 }
 
