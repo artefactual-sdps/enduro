@@ -35,9 +35,9 @@ k8s_yaml(kustomize("hack/kube/overlays/dev"))
 dotenv_path = ".tilt.env"
 if os.path.exists(dotenv_path):
   dotenv(fn=dotenv_path)
-trigger_mode = TRIGGER_MODE_AUTO
-if os.environ.get('TRIGGER_MODE_MANUAL', ''):
-  trigger_mode = TRIGGER_MODE_MANUAL
+trigger_mode = TRIGGER_MODE_MANUAL
+if os.environ.get('TRIGGER_MODE_AUTO', ''):
+  trigger_mode = TRIGGER_MODE_AUTO
 
 # Enduro resources
 k8s_resource("enduro", labels=["Enduro"], trigger_mode=trigger_mode)
