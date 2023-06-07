@@ -34,7 +34,8 @@ import (
 )
 
 func HTTPServer(
-	logger logr.Logger, config *Config,
+	logger logr.Logger,
+	config *Config,
 	pkgsvc intpkg.Service,
 	storagesvc intstorage.Service,
 	uploadsvc intupload.Service,
