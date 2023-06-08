@@ -36,8 +36,8 @@ func UsageExamples() string {
 	return os.Args[0] + ` package monitor-request --oauth-token "Sequi magnam ea et."` + "\n" +
 		os.Args[0] + ` storage submit --body '{
       "name": "Aperiam velit."
-   }' --aip-id "04cc9034-0095-11ee-ab84-00e04c68012e" --oauth-token "Eligendi et."` + "\n" +
-		os.Args[0] + ` upload upload --content-type "multipart/󗫺; boundary=�����" --oauth-token "Ea facilis laboriosam odio veritatis laborum." --stream "goa.png"` + "\n" +
+   }' --aip-id "73d81854-061b-11ee-8ae3-9cb6d0ba4ddb" --oauth-token "Eligendi et."` + "\n" +
+		os.Args[0] + ` upload upload --content-type "multipart/𺳲; boundary=�����" --oauth-token "Ea facilis laboriosam odio veritatis laborum." --stream "goa.png"` + "\n" +
 		""
 }
 
@@ -421,7 +421,7 @@ func package_MonitorRequestUsage() {
 	fmt.Fprintf(os.Stderr, `%[1]s [flags] package monitor-request -oauth-token STRING
 
 Request access to the /monitor WebSocket.
-    -oauth-token STRING:
+    -oauth-token STRING: 
 
 Example:
     %[1]s package monitor-request --oauth-token "Sequi magnam ea et."
@@ -432,7 +432,7 @@ func package_MonitorUsage() {
 	fmt.Fprintf(os.Stderr, `%[1]s [flags] package monitor -ticket STRING
 
 Monitor implements monitor.
-    -ticket STRING:
+    -ticket STRING: 
 
 Example:
     %[1]s package monitor --ticket "In dolor vel quia."
@@ -443,17 +443,17 @@ func package_ListUsage() {
 	fmt.Fprintf(os.Stderr, `%[1]s [flags] package list -name STRING -aip-id STRING -earliest-created-time STRING -latest-created-time STRING -location-id STRING -status STRING -cursor STRING -oauth-token STRING
 
 List all stored packages
-    -name STRING:
-    -aip-id STRING:
-    -earliest-created-time STRING:
-    -latest-created-time STRING:
-    -location-id STRING:
-    -status STRING:
-    -cursor STRING:
-    -oauth-token STRING:
+    -name STRING: 
+    -aip-id STRING: 
+    -earliest-created-time STRING: 
+    -latest-created-time STRING: 
+    -location-id STRING: 
+    -status STRING: 
+    -cursor STRING: 
+    -oauth-token STRING: 
 
 Example:
-    %[1]s package list --name "Praesentium commodi voluptas doloribus." --aip-id "04cb0bc6-0095-11ee-ab84-00e04c68012e" --earliest-created-time "2014-12-03T22:37:50Z" --latest-created-time "1997-09-03T04:44:31Z" --location-id "04cb124e-0095-11ee-ab84-00e04c68012e" --status "pending" --cursor "Dolorem cum optio non." --oauth-token "Officia sint et quae quisquam soluta."
+    %[1]s package list --name "Praesentium commodi voluptas doloribus." --aip-id "73d6d189-061b-11ee-8ae3-9cb6d0ba4ddb" --earliest-created-time "2014-12-03T22:37:50Z" --latest-created-time "1997-09-03T04:44:31Z" --location-id "73d6d8dd-061b-11ee-8ae3-9cb6d0ba4ddb" --status "pending" --cursor "Dolorem cum optio non." --oauth-token "Officia sint et quae quisquam soluta."
 `, os.Args[0])
 }
 
@@ -462,7 +462,7 @@ func package_ShowUsage() {
 
 Show package by ID
     -id UINT: Identifier of package to show
-    -oauth-token STRING:
+    -oauth-token STRING: 
 
 Example:
     %[1]s package show --id 3983109351319738004 --oauth-token "Laudantium ex molestiae omnis dolorem."
@@ -474,7 +474,7 @@ func package_PreservationActionsUsage() {
 
 List all preservation actions by ID
     -id UINT: Identifier of package to look up
-    -oauth-token STRING:
+    -oauth-token STRING: 
 
 Example:
     %[1]s package preservation-actions --id 2136184843597290354 --oauth-token "Ex dolor inventore qui ipsum doloribus."
@@ -485,9 +485,9 @@ func package_ConfirmUsage() {
 	fmt.Fprintf(os.Stderr, `%[1]s [flags] package confirm -body JSON -id UINT -oauth-token STRING
 
 Signal the package has been reviewed and accepted
-    -body JSON:
+    -body JSON: 
     -id UINT: Identifier of package to look up
-    -oauth-token STRING:
+    -oauth-token STRING: 
 
 Example:
     %[1]s package confirm --body '{
@@ -501,7 +501,7 @@ func package_RejectUsage() {
 
 Signal the package has been reviewed and rejected
     -id UINT: Identifier of package to look up
-    -oauth-token STRING:
+    -oauth-token STRING: 
 
 Example:
     %[1]s package reject --id 15224931863355052653 --oauth-token "Corporis quidem."
@@ -512,9 +512,9 @@ func package_MoveUsage() {
 	fmt.Fprintf(os.Stderr, `%[1]s [flags] package move -body JSON -id UINT -oauth-token STRING
 
 Move a package to a permanent storage location
-    -body JSON:
+    -body JSON: 
     -id UINT: Identifier of package to move
-    -oauth-token STRING:
+    -oauth-token STRING: 
 
 Example:
     %[1]s package move --body '{
@@ -528,7 +528,7 @@ func package_MoveStatusUsage() {
 
 Retrieve the status of a permanent storage location move of the package
     -id UINT: Identifier of package to move
-    -oauth-token STRING:
+    -oauth-token STRING: 
 
 Example:
     %[1]s package move-status --id 700503041087328012 --oauth-token "Ex sint laboriosam perspiciatis fugit ipsam quo."
@@ -562,14 +562,14 @@ func storageSubmitUsage() {
 	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage submit -body JSON -aip-id STRING -oauth-token STRING
 
 Start the submission of a package
-    -body JSON:
-    -aip-id STRING:
-    -oauth-token STRING:
+    -body JSON: 
+    -aip-id STRING: 
+    -oauth-token STRING: 
 
 Example:
     %[1]s storage submit --body '{
       "name": "Aperiam velit."
-   }' --aip-id "04cc9034-0095-11ee-ab84-00e04c68012e" --oauth-token "Eligendi et."
+   }' --aip-id "73d81854-061b-11ee-8ae3-9cb6d0ba4ddb" --oauth-token "Eligendi et."
 `, os.Args[0])
 }
 
@@ -577,11 +577,11 @@ func storageUpdateUsage() {
 	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage update -aip-id STRING -oauth-token STRING
 
 Signal the storage service that an upload is complete
-    -aip-id STRING:
-    -oauth-token STRING:
+    -aip-id STRING: 
+    -oauth-token STRING: 
 
 Example:
-    %[1]s storage update --aip-id "04ccb189-0095-11ee-ab84-00e04c68012e" --oauth-token "Beatae assumenda esse consequatur reiciendis ratione nam."
+    %[1]s storage update --aip-id "73d83644-061b-11ee-8ae3-9cb6d0ba4ddb" --oauth-token "Beatae assumenda esse consequatur reiciendis ratione nam."
 `, os.Args[0])
 }
 
@@ -589,11 +589,11 @@ func storageDownloadUsage() {
 	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage download -aip-id STRING -oauth-token STRING
 
 Download package by AIPID
-    -aip-id STRING:
-    -oauth-token STRING:
+    -aip-id STRING: 
+    -oauth-token STRING: 
 
 Example:
-    %[1]s storage download --aip-id "04cccc1e-0095-11ee-ab84-00e04c68012e" --oauth-token "Similique ab error voluptas sint voluptatibus quo."
+    %[1]s storage download --aip-id "73d84ebc-061b-11ee-8ae3-9cb6d0ba4ddb" --oauth-token "Similique ab error voluptas sint voluptatibus quo."
 `, os.Args[0])
 }
 
@@ -601,7 +601,7 @@ func storageLocationsUsage() {
 	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage locations -oauth-token STRING
 
 List locations
-    -oauth-token STRING:
+    -oauth-token STRING: 
 
 Example:
     %[1]s storage locations --oauth-token "Perspiciatis dignissimos sapiente."
@@ -612,8 +612,8 @@ func storageAddLocationUsage() {
 	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage add-location -body JSON -oauth-token STRING
 
 Add a storage location
-    -body JSON:
-    -oauth-token STRING:
+    -body JSON: 
+    -oauth-token STRING: 
 
 Example:
     %[1]s storage add-location --body '{
@@ -633,14 +633,14 @@ func storageMoveUsage() {
 	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage move -body JSON -aip-id STRING -oauth-token STRING
 
 Move a package to a permanent storage location
-    -body JSON:
-    -aip-id STRING:
-    -oauth-token STRING:
+    -body JSON: 
+    -aip-id STRING: 
+    -oauth-token STRING: 
 
 Example:
     %[1]s storage move --body '{
       "location_id": "Enim quis vel ipsa laudantium harum sunt."
-   }' --aip-id "04cd19d4-0095-11ee-ab84-00e04c68012e" --oauth-token "Nobis nostrum aut iusto fugit sunt."
+   }' --aip-id "73d898f9-061b-11ee-8ae3-9cb6d0ba4ddb" --oauth-token "Nobis nostrum aut iusto fugit sunt."
 `, os.Args[0])
 }
 
@@ -648,11 +648,11 @@ func storageMoveStatusUsage() {
 	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage move-status -aip-id STRING -oauth-token STRING
 
 Retrieve the status of a permanent storage location move of the package
-    -aip-id STRING:
-    -oauth-token STRING:
+    -aip-id STRING: 
+    -oauth-token STRING: 
 
 Example:
-    %[1]s storage move-status --aip-id "04cd3b04-0095-11ee-ab84-00e04c68012e" --oauth-token "Omnis aspernatur sunt illo facilis."
+    %[1]s storage move-status --aip-id "73d8bc1e-061b-11ee-8ae3-9cb6d0ba4ddb" --oauth-token "Omnis aspernatur sunt illo facilis."
 `, os.Args[0])
 }
 
@@ -660,11 +660,11 @@ func storageRejectUsage() {
 	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage reject -aip-id STRING -oauth-token STRING
 
 Reject a package
-    -aip-id STRING:
-    -oauth-token STRING:
+    -aip-id STRING: 
+    -oauth-token STRING: 
 
 Example:
-    %[1]s storage reject --aip-id "04cd543c-0095-11ee-ab84-00e04c68012e" --oauth-token "Ut perspiciatis quis provident adipisci reprehenderit accusamus."
+    %[1]s storage reject --aip-id "73d8d8f2-061b-11ee-8ae3-9cb6d0ba4ddb" --oauth-token "Ut perspiciatis quis provident adipisci reprehenderit accusamus."
 `, os.Args[0])
 }
 
@@ -672,11 +672,11 @@ func storageShowUsage() {
 	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage show -aip-id STRING -oauth-token STRING
 
 Show package by AIPID
-    -aip-id STRING:
-    -oauth-token STRING:
+    -aip-id STRING: 
+    -oauth-token STRING: 
 
 Example:
-    %[1]s storage show --aip-id "04cd72a5-0095-11ee-ab84-00e04c68012e" --oauth-token "Quo odit qui numquam totam."
+    %[1]s storage show --aip-id "73d8ff57-061b-11ee-8ae3-9cb6d0ba4ddb" --oauth-token "Quo odit qui numquam totam."
 `, os.Args[0])
 }
 
@@ -684,11 +684,11 @@ func storageShowLocationUsage() {
 	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage show-location -uuid STRING -oauth-token STRING
 
 Show location by UUID
-    -uuid STRING:
-    -oauth-token STRING:
+    -uuid STRING: 
+    -oauth-token STRING: 
 
 Example:
-    %[1]s storage show-location --uuid "04cd8d96-0095-11ee-ab84-00e04c68012e" --oauth-token "Ut fugit cum consequatur non eos consequuntur."
+    %[1]s storage show-location --uuid "73d91a18-061b-11ee-8ae3-9cb6d0ba4ddb" --oauth-token "Ut fugit cum consequatur non eos consequuntur."
 `, os.Args[0])
 }
 
@@ -696,11 +696,11 @@ func storageLocationPackagesUsage() {
 	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage location-packages -uuid STRING -oauth-token STRING
 
 List all the packages stored in the location with UUID
-    -uuid STRING:
-    -oauth-token STRING:
+    -uuid STRING: 
+    -oauth-token STRING: 
 
 Example:
-    %[1]s storage location-packages --uuid "04cdad8b-0095-11ee-ab84-00e04c68012e" --oauth-token "Nostrum possimus fugiat beatae."
+    %[1]s storage location-packages --uuid "73d93bb8-061b-11ee-8ae3-9cb6d0ba4ddb" --oauth-token "Nostrum possimus fugiat beatae."
 `, os.Args[0])
 }
 
@@ -721,11 +721,11 @@ func uploadUploadUsage() {
 	fmt.Fprintf(os.Stderr, `%[1]s [flags] upload upload -content-type STRING -oauth-token STRING -stream STRING
 
 Upload implements upload.
-    -content-type STRING:
-    -oauth-token STRING:
+    -content-type STRING: 
+    -oauth-token STRING: 
     -stream STRING: path to file containing the streamed request body
 
 Example:
-    %[1]s upload upload --content-type "multipart/󗫺; boundary=�����" --oauth-token "Ea facilis laboriosam odio veritatis laborum." --stream "goa.png"
+    %[1]s upload upload --content-type "multipart/𺳲; boundary=�����" --oauth-token "Ea facilis laboriosam odio veritatis laborum." --stream "goa.png"
 `, os.Args[0])
 }

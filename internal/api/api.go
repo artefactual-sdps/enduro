@@ -10,6 +10,7 @@ package api
 
 import (
 	"context"
+	"embed"
 	"encoding/json"
 	"net/http"
 	"os"
@@ -32,6 +33,9 @@ import (
 	intstorage "github.com/artefactual-sdps/enduro/internal/storage"
 	intupload "github.com/artefactual-sdps/enduro/internal/upload"
 )
+
+//go:embed gen/http/openapi.json
+var openAPIJSON embed.FS
 
 func HTTPServer(
 	logger logr.Logger, config *Config,
@@ -68,7 +72,7 @@ func HTTPServer(
 	uploadsvr.Mount(mux, uploadServer)
 
 	// Swagger service.
-	swaggerService := swaggersvr.New(nil, nil, nil, nil, nil, nil, nil)
+	swaggerService := swaggersvr.New(nil, nil, nil, nil, nil, nil, http.FS(openAPIJSON))
 	swaggersvr.Mount(mux, swaggerService)
 
 	// Global middlewares.
