@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/alicebob/miniredis/v2"
+	"github.com/go-logr/logr"
 	"gotest.tools/v3/poll"
 
 	"github.com/artefactual-sdps/enduro/internal/watcher"
@@ -40,7 +41,8 @@ func newWatcher(t *testing.T) (*miniredis.Miniredis, watcher.Watcher) {
 	}
 
 	var w watcher.Watcher
-	w, err = watcher.NewMinioWatcher(context.Background(), &config)
+	logger := logr.Discard()
+	w, err = watcher.NewMinioWatcher(context.Background(), logger, &config)
 	if err != nil {
 		t.Fatal(err)
 	}
