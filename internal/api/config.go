@@ -9,4 +9,5 @@ type Config struct {
 	Debug      bool
 	AppVersion string
 	Auth       auth.Config
+	CORSOrigin string
 }

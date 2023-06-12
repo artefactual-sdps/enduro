@@ -31,7 +31,7 @@ var _ = API("enduro", func() {
 	HTTP(func() {
 		Consumes("application/json")
 	})
-	cors.Origin("*", func() {
+	cors.Origin("$ENDURO_API_CORS_ORIGIN", func() {
 		cors.Methods("GET", "HEAD", "POST", "PUT", "DELETE", "OPTIONS")
 		cors.Headers("Authorization", "Content-Type")
 	})

@@ -11,6 +11,7 @@ package server
 import (
 	"context"
 	"net/http"
+	"os"
 
 	package_ "github.com/artefactual-sdps/enduro/internal/api/gen/package_"
 	goahttp "goa.design/goa/v3/http"
@@ -631,6 +632,10 @@ func NewCORSHandler() http.Handler {
 // HandlePackageOrigin applies the CORS response headers corresponding to the
 // origin for the service package.
 func HandlePackageOrigin(h http.Handler) http.Handler {
+	originStr0, present := os.LookupEnv("ENDURO_API_CORS_ORIGIN")
+	if !present {
+		panic("CORS origin environment variable \"ENDURO_API_CORS_ORIGIN\" not set!")
+	}
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		origin := r.Header.Get("Origin")
 		if origin == "" {
@@ -638,7 +643,7 @@ func HandlePackageOrigin(h http.Handler) http.Handler {
 			h.ServeHTTP(w, r)
 			return
 		}
-		if cors.MatchOrigin(origin, "*") {
+		if cors.MatchOrigin(origin, originStr0) {
 			w.Header().Set("Access-Control-Allow-Origin", origin)
 			w.Header().Set("Vary", "Origin")
 			if acrm := r.Header.Get("Access-Control-Request-Method"); acrm != "" {
