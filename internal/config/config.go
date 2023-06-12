@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/spf13/viper"
@@ -87,5 +88,26 @@ func Read(config *Configuration, configFile string) (found bool, configFileUsed 
 
 	configFileUsed = v.ConfigFileUsed()
 
+	if err := setCORSOriginEnv(config); err != nil {
+		return found, configFileUsed, fmt.Errorf(
+			"failed to set CORS Origin environment variable: %w", err,
+		)
+	}
+
 	return found, configFileUsed, nil
+}
+
+// setCORSOriginEnv sets the CORS Origin environment variable needed by
+// Goa-generated code for the API.
+func setCORSOriginEnv(config *Configuration) error {
+	if config.API.CORSOrigin == "" {
+		// Default to the API URI to disallow all cross-origin requests.
+		config.API.CORSOrigin = config.API.Listen
+	}
+
+	if err := os.Setenv("ENDURO_API_CORS_ORIGIN", config.API.CORSOrigin); err != nil {
+		return err
+	}
+
+	return nil
 }

@@ -36,8 +36,8 @@ func UsageExamples() string {
 	return os.Args[0] + ` package monitor-request --oauth-token "Sequi magnam ea et."` + "\n" +
 		os.Args[0] + ` storage submit --body '{
       "name": "Aperiam velit."
-   }' --aip-id "73d81854-061b-11ee-8ae3-9cb6d0ba4ddb" --oauth-token "Eligendi et."` + "\n" +
-		os.Args[0] + ` upload upload --content-type "multipart/𺳲; boundary=�����" --oauth-token "Ea facilis laboriosam odio veritatis laborum." --stream "goa.png"` + "\n" +
+   }' --aip-id "35f1295c-0978-11ee-b244-9cb6d0ba4ddb" --oauth-token "Eligendi et."` + "\n" +
+		os.Args[0] + ` upload upload --content-type "multipart/氹򿒹🢪󒓡󅝾󟓓; boundary=�" --oauth-token "Ea facilis laboriosam odio veritatis laborum." --stream "goa.png"` + "\n" +
 		""
 }
 
@@ -453,7 +453,7 @@ List all stored packages
     -oauth-token STRING: 
 
 Example:
-    %[1]s package list --name "Praesentium commodi voluptas doloribus." --aip-id "73d6d189-061b-11ee-8ae3-9cb6d0ba4ddb" --earliest-created-time "2014-12-03T22:37:50Z" --latest-created-time "1997-09-03T04:44:31Z" --location-id "73d6d8dd-061b-11ee-8ae3-9cb6d0ba4ddb" --status "pending" --cursor "Dolorem cum optio non." --oauth-token "Officia sint et quae quisquam soluta."
+    %[1]s package list --name "Praesentium commodi voluptas doloribus." --aip-id "35eeefba-0978-11ee-b244-9cb6d0ba4ddb" --earliest-created-time "2014-12-03T22:37:50Z" --latest-created-time "1997-09-03T04:44:31Z" --location-id "35eef98f-0978-11ee-b244-9cb6d0ba4ddb" --status "pending" --cursor "Dolorem cum optio non." --oauth-token "Officia sint et quae quisquam soluta."
 `, os.Args[0])
 }
 
@@ -569,7 +569,7 @@ Start the submission of a package
 Example:
     %[1]s storage submit --body '{
       "name": "Aperiam velit."
-   }' --aip-id "73d81854-061b-11ee-8ae3-9cb6d0ba4ddb" --oauth-token "Eligendi et."
+   }' --aip-id "35f1295c-0978-11ee-b244-9cb6d0ba4ddb" --oauth-token "Eligendi et."
 `, os.Args[0])
 }
 
@@ -581,7 +581,7 @@ Signal the storage service that an upload is complete
     -oauth-token STRING: 
 
 Example:
-    %[1]s storage update --aip-id "73d83644-061b-11ee-8ae3-9cb6d0ba4ddb" --oauth-token "Beatae assumenda esse consequatur reiciendis ratione nam."
+    %[1]s storage update --aip-id "35f15abb-0978-11ee-b244-9cb6d0ba4ddb" --oauth-token "Beatae assumenda esse consequatur reiciendis ratione nam."
 `, os.Args[0])
 }
 
@@ -593,7 +593,7 @@ Download package by AIPID
     -oauth-token STRING: 
 
 Example:
-    %[1]s storage download --aip-id "73d84ebc-061b-11ee-8ae3-9cb6d0ba4ddb" --oauth-token "Similique ab error voluptas sint voluptatibus quo."
+    %[1]s storage download --aip-id "35f1818e-0978-11ee-b244-9cb6d0ba4ddb" --oauth-token "Similique ab error voluptas sint voluptatibus quo."
 `, os.Args[0])
 }
 
@@ -640,7 +640,7 @@ Move a package to a permanent storage location
 Example:
     %[1]s storage move --body '{
       "location_id": "Enim quis vel ipsa laudantium harum sunt."
-   }' --aip-id "73d898f9-061b-11ee-8ae3-9cb6d0ba4ddb" --oauth-token "Nobis nostrum aut iusto fugit sunt."
+   }' --aip-id "35f1d3cc-0978-11ee-b244-9cb6d0ba4ddb" --oauth-token "Nobis nostrum aut iusto fugit sunt."
 `, os.Args[0])
 }
 
@@ -652,7 +652,7 @@ Retrieve the status of a permanent storage location move of the package
     -oauth-token STRING: 
 
 Example:
-    %[1]s storage move-status --aip-id "73d8bc1e-061b-11ee-8ae3-9cb6d0ba4ddb" --oauth-token "Omnis aspernatur sunt illo facilis."
+    %[1]s storage move-status --aip-id "35f1f93e-0978-11ee-b244-9cb6d0ba4ddb" --oauth-token "Omnis aspernatur sunt illo facilis."
 `, os.Args[0])
 }
 
@@ -664,7 +664,7 @@ Reject a package
     -oauth-token STRING: 
 
 Example:
-    %[1]s storage reject --aip-id "73d8d8f2-061b-11ee-8ae3-9cb6d0ba4ddb" --oauth-token "Ut perspiciatis quis provident adipisci reprehenderit accusamus."
+    %[1]s storage reject --aip-id "35f213cb-0978-11ee-b244-9cb6d0ba4ddb" --oauth-token "Ut perspiciatis quis provident adipisci reprehenderit accusamus."
 `, os.Args[0])
 }
 
@@ -676,7 +676,7 @@ Show package by AIPID
     -oauth-token STRING: 
 
 Example:
-    %[1]s storage show --aip-id "73d8ff57-061b-11ee-8ae3-9cb6d0ba4ddb" --oauth-token "Quo odit qui numquam totam."
+    %[1]s storage show --aip-id "35f234f4-0978-11ee-b244-9cb6d0ba4ddb" --oauth-token "Quo odit qui numquam totam."
 `, os.Args[0])
 }
 
@@ -688,7 +688,7 @@ Show location by UUID
     -oauth-token STRING: 
 
 Example:
-    %[1]s storage show-location --uuid "73d91a18-061b-11ee-8ae3-9cb6d0ba4ddb" --oauth-token "Ut fugit cum consequatur non eos consequuntur."
+    %[1]s storage show-location --uuid "35f255aa-0978-11ee-b244-9cb6d0ba4ddb" --oauth-token "Ut fugit cum consequatur non eos consequuntur."
 `, os.Args[0])
 }
 
@@ -700,7 +700,7 @@ List all the packages stored in the location with UUID
     -oauth-token STRING: 
 
 Example:
-    %[1]s storage location-packages --uuid "73d93bb8-061b-11ee-8ae3-9cb6d0ba4ddb" --oauth-token "Nostrum possimus fugiat beatae."
+    %[1]s storage location-packages --uuid "35f27e28-0978-11ee-b244-9cb6d0ba4ddb" --oauth-token "Nostrum possimus fugiat beatae."
 `, os.Args[0])
 }
 
@@ -726,6 +726,6 @@ Upload implements upload.
     -stream STRING: path to file containing the streamed request body
 
 Example:
-    %[1]s upload upload --content-type "multipart/𺳲; boundary=�����" --oauth-token "Ea facilis laboriosam odio veritatis laborum." --stream "goa.png"
+    %[1]s upload upload --content-type "multipart/氹򿒹🢪󒓡󅝾󟓓; boundary=�" --oauth-token "Ea facilis laboriosam odio veritatis laborum." --stream "goa.png"
 `, os.Args[0])
 }

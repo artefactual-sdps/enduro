@@ -11,6 +11,7 @@ taskQueue = "global"
 [api]
 listen = "0.0.0.0:9000"
 debug = false
+corsOrigin = "http://localhost"
 
 [api.auth]
 enabled = true
