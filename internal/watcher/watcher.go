@@ -18,9 +18,18 @@ var (
 	ErrBucketMismatch = errors.New("bucket mismatch")
 )
 
+type Cleanup func(ctx context.Context) error
+
+func noopCleanup(ctx context.Context) error {
+	return nil
+}
+
 type Watcher interface {
 	// Watch waits until a blob is dispatched.
-	Watch(ctx context.Context) (*BlobEvent, error)
+	// After the event is successfully processed by the receiver, the returned
+	// Cleanup function must be executed to mark the event as processed.
+	// Implementors must not return a nil function.
+	Watch(ctx context.Context) (*BlobEvent, Cleanup, error)
 
 	// OpenBucket returns the bucket where the blobs can be found.
 	OpenBucket(ctx context.Context) (*blob.Bucket, error)

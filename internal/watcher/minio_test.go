@@ -63,7 +63,7 @@ func TestWatcherReturnsErrWhenNoMessages(t *testing.T) {
 	// TODO: slow test, should inject smaller timeout.
 
 	check := func(t poll.LogT) poll.Result {
-		_, err := w.Watch(context.Background())
+		_, _, err := w.Watch(context.Background())
 
 		if err == nil {
 			return poll.Error(errors.New("watched did not return an error"))
@@ -86,7 +86,7 @@ func TestWatcherReturnsErrOnInvalidMessages(t *testing.T) {
 	m.Lpush("minio-events", "{}")
 
 	check := func(t poll.LogT) poll.Result {
-		_, err := w.Watch(context.Background())
+		_, _, err := w.Watch(context.Background())
 
 		if err == nil {
 			return poll.Error(errors.New("watched did not return an error"))
@@ -163,7 +163,7 @@ func TestWatcherReturnsErrOnMessageInWrongBucket(t *testing.T) {
 ]`)
 
 	check := func(t poll.LogT) poll.Result {
-		_, err := w.Watch(context.Background())
+		_, _, err := w.Watch(context.Background())
 
 		if err == nil {
 			return poll.Error(errors.New("watched did not return an error"))
@@ -239,7 +239,7 @@ func TestWatcherReturnsOnValidMessage(t *testing.T) {
 ]`)
 
 	check := func(t poll.LogT) poll.Result {
-		event, err := w.Watch(context.Background())
+		event, _, err := w.Watch(context.Background())
 		if err != nil {
 			return poll.Error(fmt.Errorf("watcher return an error unexpectedly: %w", err))
 		}
@@ -277,7 +277,7 @@ func TestWatcherReturnsDecodedObjectKey(t *testing.T) {
 ]`)
 
 	check := func(t poll.LogT) poll.Result {
-		event, err := w.Watch(context.Background())
+		event, _, err := w.Watch(context.Background())
 		if err != nil {
 			return poll.Error(fmt.Errorf("watcher return an error unexpectedly: %w", err))
 		}
@@ -315,7 +315,7 @@ func TestWatcherReturnsErrOnInvalidObjectKey(t *testing.T) {
 ]`)
 
 	check := func(t poll.LogT) poll.Result {
-		_, err := w.Watch(context.Background())
+		_, _, err := w.Watch(context.Background())
 
 		if err == nil {
 			return poll.Error(errors.New("watched did not return an error"))
