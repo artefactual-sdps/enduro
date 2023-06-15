@@ -72,7 +72,8 @@ type EnduroStoredPackageView struct {
 	// Identifier of package
 	ID *uint
 	// Name of the package
-	Name       *string
+	Name *string
+	// Identifier of storage location
 	LocationID *uuid.UUID
 	// Status of the package
 	Status *string
@@ -80,7 +81,7 @@ type EnduroStoredPackageView struct {
 	WorkflowID *string
 	// Identifier of latest processing workflow run
 	RunID *string
-	// Identifier of Archivematica AIP
+	// Identifier of AIP
 	AipID *string
 	// Creation datetime
 	CreatedAt *string
@@ -110,7 +111,8 @@ type EnduroPackageStatusUpdatedEventView struct {
 // projected type.
 type EnduroPackageLocationUpdatedEventView struct {
 	// Identifier of package
-	ID         *uint
+	ID *uint
+	// Identifier of storage location
 	LocationID *uuid.UUID
 }
 

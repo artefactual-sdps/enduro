@@ -43,6 +43,7 @@ type AddLocationRequestBody struct {
 // MoveRequestBody is the type of the "storage" service "move" endpoint HTTP
 // request body.
 type MoveRequestBody struct {
+	// Identifier of storage location
 	LocationID uuid.UUID `form:"location_id" json:"location_id" xml:"location_id"`
 }
 
@@ -74,8 +75,9 @@ type ShowResponseBody struct {
 	Name  *string    `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 	AipID *uuid.UUID `form:"aip_id,omitempty" json:"aip_id,omitempty" xml:"aip_id,omitempty"`
 	// Status of the package
-	Status     *string    `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
-	ObjectKey  *uuid.UUID `form:"object_key,omitempty" json:"object_key,omitempty" xml:"object_key,omitempty"`
+	Status    *string    `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
+	ObjectKey *uuid.UUID `form:"object_key,omitempty" json:"object_key,omitempty" xml:"object_key,omitempty"`
+	// Identifier of storage location
 	LocationID *uuid.UUID `form:"location_id,omitempty" json:"location_id,omitempty" xml:"location_id,omitempty"`
 	// Creation datetime
 	CreatedAt *string `form:"created_at,omitempty" json:"created_at,omitempty" xml:"created_at,omitempty"`
@@ -396,8 +398,9 @@ type PackageResponse struct {
 	Name  *string    `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 	AipID *uuid.UUID `form:"aip_id,omitempty" json:"aip_id,omitempty" xml:"aip_id,omitempty"`
 	// Status of the package
-	Status     *string    `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
-	ObjectKey  *uuid.UUID `form:"object_key,omitempty" json:"object_key,omitempty" xml:"object_key,omitempty"`
+	Status    *string    `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
+	ObjectKey *uuid.UUID `form:"object_key,omitempty" json:"object_key,omitempty" xml:"object_key,omitempty"`
+	// Identifier of storage location
 	LocationID *uuid.UUID `form:"location_id,omitempty" json:"location_id,omitempty" xml:"location_id,omitempty"`
 	// Creation datetime
 	CreatedAt *string `form:"created_at,omitempty" json:"created_at,omitempty" xml:"created_at,omitempty"`

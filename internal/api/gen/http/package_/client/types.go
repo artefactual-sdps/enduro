@@ -18,12 +18,14 @@ import (
 // ConfirmRequestBody is the type of the "package" service "confirm" endpoint
 // HTTP request body.
 type ConfirmRequestBody struct {
+	// Identifier of storage location
 	LocationID uuid.UUID `form:"location_id" json:"location_id" xml:"location_id"`
 }
 
 // MoveRequestBody is the type of the "package" service "move" endpoint HTTP
 // request body.
 type MoveRequestBody struct {
+	// Identifier of storage location
 	LocationID uuid.UUID `form:"location_id" json:"location_id" xml:"location_id"`
 }
 
@@ -54,7 +56,8 @@ type ShowResponseBody struct {
 	// Identifier of package
 	ID *uint `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
 	// Name of the package
-	Name       *string    `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// Identifier of storage location
 	LocationID *uuid.UUID `form:"location_id,omitempty" json:"location_id,omitempty" xml:"location_id,omitempty"`
 	// Status of the package
 	Status *string `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
@@ -62,7 +65,7 @@ type ShowResponseBody struct {
 	WorkflowID *string `form:"workflow_id,omitempty" json:"workflow_id,omitempty" xml:"workflow_id,omitempty"`
 	// Identifier of latest processing workflow run
 	RunID *string `form:"run_id,omitempty" json:"run_id,omitempty" xml:"run_id,omitempty"`
-	// Identifier of Archivematica AIP
+	// Identifier of AIP
 	AipID *string `form:"aip_id,omitempty" json:"aip_id,omitempty" xml:"aip_id,omitempty"`
 	// Creation datetime
 	CreatedAt *string `form:"created_at,omitempty" json:"created_at,omitempty" xml:"created_at,omitempty"`
@@ -338,7 +341,8 @@ type EnduroStoredPackageResponseBody struct {
 	// Identifier of package
 	ID *uint `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
 	// Name of the package
-	Name       *string    `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// Identifier of storage location
 	LocationID *uuid.UUID `form:"location_id,omitempty" json:"location_id,omitempty" xml:"location_id,omitempty"`
 	// Status of the package
 	Status *string `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
@@ -346,7 +350,7 @@ type EnduroStoredPackageResponseBody struct {
 	WorkflowID *string `form:"workflow_id,omitempty" json:"workflow_id,omitempty" xml:"workflow_id,omitempty"`
 	// Identifier of latest processing workflow run
 	RunID *string `form:"run_id,omitempty" json:"run_id,omitempty" xml:"run_id,omitempty"`
-	// Identifier of Archivematica AIP
+	// Identifier of AIP
 	AipID *string `form:"aip_id,omitempty" json:"aip_id,omitempty" xml:"aip_id,omitempty"`
 	// Creation datetime
 	CreatedAt *string `form:"created_at,omitempty" json:"created_at,omitempty" xml:"created_at,omitempty"`
@@ -376,7 +380,8 @@ type EnduroPackageStatusUpdatedEventResponseBody struct {
 // response body types.
 type EnduroPackageLocationUpdatedEventResponseBody struct {
 	// Identifier of package
-	ID         *uint      `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	ID *uint `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Identifier of storage location
 	LocationID *uuid.UUID `form:"location_id,omitempty" json:"location_id,omitempty" xml:"location_id,omitempty"`
 }
 

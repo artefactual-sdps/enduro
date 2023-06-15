@@ -43,6 +43,7 @@ type AddLocationRequestBody struct {
 // MoveRequestBody is the type of the "storage" service "move" endpoint HTTP
 // request body.
 type MoveRequestBody struct {
+	// Identifier of storage location
 	LocationID *uuid.UUID `form:"location_id,omitempty" json:"location_id,omitempty" xml:"location_id,omitempty"`
 }
 
@@ -74,8 +75,9 @@ type ShowResponseBody struct {
 	Name  string    `form:"name" json:"name" xml:"name"`
 	AipID uuid.UUID `form:"aip_id" json:"aip_id" xml:"aip_id"`
 	// Status of the package
-	Status     string     `form:"status" json:"status" xml:"status"`
-	ObjectKey  uuid.UUID  `form:"object_key" json:"object_key" xml:"object_key"`
+	Status    string    `form:"status" json:"status" xml:"status"`
+	ObjectKey uuid.UUID `form:"object_key" json:"object_key" xml:"object_key"`
+	// Identifier of storage location
 	LocationID *uuid.UUID `form:"location_id,omitempty" json:"location_id,omitempty" xml:"location_id,omitempty"`
 	// Creation datetime
 	CreatedAt string `form:"created_at" json:"created_at" xml:"created_at"`
@@ -380,8 +382,9 @@ type PackageResponse struct {
 	Name  string    `form:"name" json:"name" xml:"name"`
 	AipID uuid.UUID `form:"aip_id" json:"aip_id" xml:"aip_id"`
 	// Status of the package
-	Status     string     `form:"status" json:"status" xml:"status"`
-	ObjectKey  uuid.UUID  `form:"object_key" json:"object_key" xml:"object_key"`
+	Status    string    `form:"status" json:"status" xml:"status"`
+	ObjectKey uuid.UUID `form:"object_key" json:"object_key" xml:"object_key"`
+	// Identifier of storage location
 	LocationID *uuid.UUID `form:"location_id,omitempty" json:"location_id,omitempty" xml:"location_id,omitempty"`
 	// Creation datetime
 	CreatedAt string `form:"created_at" json:"created_at" xml:"created_at"`
