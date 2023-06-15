@@ -194,7 +194,7 @@ func BuildConfirmPayload(package_ConfirmBody string, package_ConfirmID string, p
 	{
 		err = json.Unmarshal([]byte(package_ConfirmBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location_id\": \"Dolores incidunt qui suscipit incidunt voluptatum.\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location_id\": \"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"\n   }'")
 		}
 	}
 	var id uint
@@ -255,7 +255,7 @@ func BuildMovePayload(package_MoveBody string, package_MoveID string, package_Mo
 	{
 		err = json.Unmarshal([]byte(package_MoveBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location_id\": \"Deserunt facere adipisci dignissimos iusto harum sunt.\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location_id\": \"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"\n   }'")
 		}
 	}
 	var id uint

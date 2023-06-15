@@ -16,9 +16,7 @@ var _ = Service("storage", func() {
 	Method("submit", func() {
 		Description("Start the submission of a package")
 		Payload(func() {
-			Attribute("aip_id", String, func() {
-				Format(FormatUUID)
-			})
+			AttributeUUID("aip_id", "Identifier of AIP")
 			Attribute("name", String)
 			AccessToken("oauth_token", String)
 			Required("aip_id", "name")
@@ -37,9 +35,7 @@ var _ = Service("storage", func() {
 	Method("update", func() {
 		Description("Signal the storage service that an upload is complete")
 		Payload(func() {
-			Attribute("aip_id", String, func() {
-				Format(FormatUUID)
-			})
+			AttributeUUID("aip_id", "Identifier of AIP")
 			AccessToken("oauth_token", String)
 			Required("aip_id")
 		})
@@ -56,9 +52,7 @@ var _ = Service("storage", func() {
 	Method("download", func() {
 		Description("Download package by AIPID")
 		Payload(func() {
-			Attribute("aip_id", String, func() {
-				Format(FormatUUID)
-			})
+			AttributeUUID("aip_id", "Identifier of AIP")
 			AccessToken("oauth_token", String)
 			Required("aip_id")
 		})
@@ -110,12 +104,8 @@ var _ = Service("storage", func() {
 	Method("move", func() {
 		Description("Move a package to a permanent storage location")
 		Payload(func() {
-			Attribute("aip_id", String, func() {
-				Format(FormatUUID)
-			})
-			Attribute("location_id", String, func() {
-				Meta("struct:field:type", "uuid.UUID", "github.com/google/uuid")
-			})
+			AttributeUUID("aip_id", "Identifier of AIP")
+			TypedAttributeUUID("location_id", "Identifier of storage location")
 			AccessToken("oauth_token", String)
 			Required("aip_id", "location_id")
 		})
@@ -133,9 +123,7 @@ var _ = Service("storage", func() {
 	Method("move_status", func() {
 		Description("Retrieve the status of a permanent storage location move of the package")
 		Payload(func() {
-			Attribute("aip_id", String, func() {
-				Format(FormatUUID)
-			})
+			AttributeUUID("aip_id", "Identifier of AIP")
 			AccessToken("oauth_token", String)
 			Required("aip_id")
 		})
@@ -152,9 +140,7 @@ var _ = Service("storage", func() {
 	Method("reject", func() {
 		Description("Reject a package")
 		Payload(func() {
-			Attribute("aip_id", String, func() {
-				Format(FormatUUID)
-			})
+			AttributeUUID("aip_id", "Identifier of AIP")
 			AccessToken("oauth_token", String)
 			Required("aip_id")
 		})
@@ -172,9 +158,7 @@ var _ = Service("storage", func() {
 	Method("show", func() {
 		Description("Show package by AIPID")
 		Payload(func() {
-			Attribute("aip_id", String, func() {
-				Format(FormatUUID)
-			})
+			AttributeUUID("aip_id", "Identifier of AIP")
 			AccessToken("oauth_token", String)
 			Required("aip_id")
 		})
@@ -190,9 +174,7 @@ var _ = Service("storage", func() {
 		Description("Show location by UUID")
 		Payload(func() {
 			// TODO: explore how we can use uuid.UUID that are also URL params.
-			Attribute("uuid", String, func() {
-				Format(FormatUUID)
-			})
+			AttributeUUID("uuid", "Identifier of location")
 			AccessToken("oauth_token", String)
 			Required("uuid")
 		})
@@ -208,9 +190,7 @@ var _ = Service("storage", func() {
 		Description("List all the packages stored in the location with UUID")
 		Payload(func() {
 			// TODO: explore how we can use uuid.UUID that are also URL params.
-			Attribute("uuid", String, func() {
-				Format(FormatUUID)
-			})
+			AttributeUUID("uuid", "Identifier of location")
 			AccessToken("oauth_token", String)
 			Required("uuid")
 		})
@@ -327,9 +307,7 @@ var StoragePackage = ResultType("application/vnd.enduro.storage-package", func()
 		Attribute("object_key", String, func() {
 			Meta("struct:field:type", "uuid.UUID", "github.com/google/uuid")
 		})
-		Attribute("location_id", String, func() {
-			Meta("struct:field:type", "uuid.UUID", "github.com/google/uuid")
-		})
+		TypedAttributeUUID("location_id", "Identifier of storage location")
 		Attribute("created_at", String, "Creation datetime", func() {
 			Format(FormatDateTime)
 		})

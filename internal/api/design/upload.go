@@ -16,6 +16,7 @@ var _ = Service("upload", func() {
 			Attribute("content_type", String, "Content-Type header, must define value for multipart boundary.", func() {
 				Default("multipart/form-data; boundary=goa")
 				Pattern("multipart/[^;]+; boundary=.+")
+				Example("multipart/form-data; boundary=goa")
 			})
 			AccessToken("oauth_token", String)
 		})

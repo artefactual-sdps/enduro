@@ -93,8 +93,9 @@ type PackageView struct {
 	Name  *string
 	AipID *uuid.UUID
 	// Status of the package
-	Status     *string
-	ObjectKey  *uuid.UUID
+	Status    *string
+	ObjectKey *uuid.UUID
+	// Identifier of storage location
 	LocationID *uuid.UUID
 	// Creation datetime
 	CreatedAt *string

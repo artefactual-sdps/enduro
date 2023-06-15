@@ -33,11 +33,11 @@ upload upload
 
 // UsageExamples produces an example of a valid invocation of the CLI tool.
 func UsageExamples() string {
-	return os.Args[0] + ` package monitor-request --oauth-token "Sequi magnam ea et."` + "\n" +
+	return os.Args[0] + ` package monitor-request --oauth-token "abc123"` + "\n" +
 		os.Args[0] + ` storage submit --body '{
-      "name": "Aperiam velit."
-   }' --aip-id "35f1295c-0978-11ee-b244-9cb6d0ba4ddb" --oauth-token "Eligendi et."` + "\n" +
-		os.Args[0] + ` upload upload --content-type "multipart/氹򿒹🢪󒓡󅝾󟓓; boundary=�" --oauth-token "Ea facilis laboriosam odio veritatis laborum." --stream "goa.png"` + "\n" +
+      "name": "abc123"
+   }' --aip-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --oauth-token "abc123"` + "\n" +
+		os.Args[0] + ` upload upload --content-type "multipart/form-data; boundary=goa" --oauth-token "abc123" --stream "goa.png"` + "\n" +
 		""
 }
 
@@ -101,15 +101,15 @@ func ParseEndpoint(
 
 		storageSubmitFlags          = flag.NewFlagSet("submit", flag.ExitOnError)
 		storageSubmitBodyFlag       = storageSubmitFlags.String("body", "REQUIRED", "")
-		storageSubmitAipIDFlag      = storageSubmitFlags.String("aip-id", "REQUIRED", "")
+		storageSubmitAipIDFlag      = storageSubmitFlags.String("aip-id", "REQUIRED", "Identifier of AIP")
 		storageSubmitOauthTokenFlag = storageSubmitFlags.String("oauth-token", "", "")
 
 		storageUpdateFlags          = flag.NewFlagSet("update", flag.ExitOnError)
-		storageUpdateAipIDFlag      = storageUpdateFlags.String("aip-id", "REQUIRED", "")
+		storageUpdateAipIDFlag      = storageUpdateFlags.String("aip-id", "REQUIRED", "Identifier of AIP")
 		storageUpdateOauthTokenFlag = storageUpdateFlags.String("oauth-token", "", "")
 
 		storageDownloadFlags          = flag.NewFlagSet("download", flag.ExitOnError)
-		storageDownloadAipIDFlag      = storageDownloadFlags.String("aip-id", "REQUIRED", "")
+		storageDownloadAipIDFlag      = storageDownloadFlags.String("aip-id", "REQUIRED", "Identifier of AIP")
 		storageDownloadOauthTokenFlag = storageDownloadFlags.String("oauth-token", "", "")
 
 		storageLocationsFlags          = flag.NewFlagSet("locations", flag.ExitOnError)
@@ -121,27 +121,27 @@ func ParseEndpoint(
 
 		storageMoveFlags          = flag.NewFlagSet("move", flag.ExitOnError)
 		storageMoveBodyFlag       = storageMoveFlags.String("body", "REQUIRED", "")
-		storageMoveAipIDFlag      = storageMoveFlags.String("aip-id", "REQUIRED", "")
+		storageMoveAipIDFlag      = storageMoveFlags.String("aip-id", "REQUIRED", "Identifier of AIP")
 		storageMoveOauthTokenFlag = storageMoveFlags.String("oauth-token", "", "")
 
 		storageMoveStatusFlags          = flag.NewFlagSet("move-status", flag.ExitOnError)
-		storageMoveStatusAipIDFlag      = storageMoveStatusFlags.String("aip-id", "REQUIRED", "")
+		storageMoveStatusAipIDFlag      = storageMoveStatusFlags.String("aip-id", "REQUIRED", "Identifier of AIP")
 		storageMoveStatusOauthTokenFlag = storageMoveStatusFlags.String("oauth-token", "", "")
 
 		storageRejectFlags          = flag.NewFlagSet("reject", flag.ExitOnError)
-		storageRejectAipIDFlag      = storageRejectFlags.String("aip-id", "REQUIRED", "")
+		storageRejectAipIDFlag      = storageRejectFlags.String("aip-id", "REQUIRED", "Identifier of AIP")
 		storageRejectOauthTokenFlag = storageRejectFlags.String("oauth-token", "", "")
 
 		storageShowFlags          = flag.NewFlagSet("show", flag.ExitOnError)
-		storageShowAipIDFlag      = storageShowFlags.String("aip-id", "REQUIRED", "")
+		storageShowAipIDFlag      = storageShowFlags.String("aip-id", "REQUIRED", "Identifier of AIP")
 		storageShowOauthTokenFlag = storageShowFlags.String("oauth-token", "", "")
 
 		storageShowLocationFlags          = flag.NewFlagSet("show-location", flag.ExitOnError)
-		storageShowLocationUUIDFlag       = storageShowLocationFlags.String("uuid", "REQUIRED", "")
+		storageShowLocationUUIDFlag       = storageShowLocationFlags.String("uuid", "REQUIRED", "Identifier of location")
 		storageShowLocationOauthTokenFlag = storageShowLocationFlags.String("oauth-token", "", "")
 
 		storageLocationPackagesFlags          = flag.NewFlagSet("location-packages", flag.ExitOnError)
-		storageLocationPackagesUUIDFlag       = storageLocationPackagesFlags.String("uuid", "REQUIRED", "")
+		storageLocationPackagesUUIDFlag       = storageLocationPackagesFlags.String("uuid", "REQUIRED", "Identifier of location")
 		storageLocationPackagesOauthTokenFlag = storageLocationPackagesFlags.String("oauth-token", "", "")
 
 		uploadFlags = flag.NewFlagSet("upload", flag.ContinueOnError)
@@ -424,7 +424,7 @@ Request access to the /monitor WebSocket.
     -oauth-token STRING: 
 
 Example:
-    %[1]s package monitor-request --oauth-token "Sequi magnam ea et."
+    %[1]s package monitor-request --oauth-token "abc123"
 `, os.Args[0])
 }
 
@@ -435,7 +435,7 @@ Monitor implements monitor.
     -ticket STRING: 
 
 Example:
-    %[1]s package monitor --ticket "In dolor vel quia."
+    %[1]s package monitor --ticket "abc123"
 `, os.Args[0])
 }
 
@@ -453,7 +453,7 @@ List all stored packages
     -oauth-token STRING: 
 
 Example:
-    %[1]s package list --name "Praesentium commodi voluptas doloribus." --aip-id "35eeefba-0978-11ee-b244-9cb6d0ba4ddb" --earliest-created-time "2014-12-03T22:37:50Z" --latest-created-time "1997-09-03T04:44:31Z" --location-id "35eef98f-0978-11ee-b244-9cb6d0ba4ddb" --status "pending" --cursor "Dolorem cum optio non." --oauth-token "Officia sint et quae quisquam soluta."
+    %[1]s package list --name "abc123" --aip-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --earliest-created-time "1970-01-01T00:00:01Z" --latest-created-time "1970-01-01T00:00:01Z" --location-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --status "in progress" --cursor "abc123" --oauth-token "abc123"
 `, os.Args[0])
 }
 
@@ -465,7 +465,7 @@ Show package by ID
     -oauth-token STRING: 
 
 Example:
-    %[1]s package show --id 3983109351319738004 --oauth-token "Laudantium ex molestiae omnis dolorem."
+    %[1]s package show --id 1 --oauth-token "abc123"
 `, os.Args[0])
 }
 
@@ -477,7 +477,7 @@ List all preservation actions by ID
     -oauth-token STRING: 
 
 Example:
-    %[1]s package preservation-actions --id 2136184843597290354 --oauth-token "Ex dolor inventore qui ipsum doloribus."
+    %[1]s package preservation-actions --id 1 --oauth-token "abc123"
 `, os.Args[0])
 }
 
@@ -491,8 +491,8 @@ Signal the package has been reviewed and accepted
 
 Example:
     %[1]s package confirm --body '{
-      "location_id": "Dolores incidunt qui suscipit incidunt voluptatum."
-   }' --id 1733850269006432962 --oauth-token "Aliquam inventore repudiandae."
+      "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+   }' --id 1 --oauth-token "abc123"
 `, os.Args[0])
 }
 
@@ -504,7 +504,7 @@ Signal the package has been reviewed and rejected
     -oauth-token STRING: 
 
 Example:
-    %[1]s package reject --id 15224931863355052653 --oauth-token "Corporis quidem."
+    %[1]s package reject --id 1 --oauth-token "abc123"
 `, os.Args[0])
 }
 
@@ -518,8 +518,8 @@ Move a package to a permanent storage location
 
 Example:
     %[1]s package move --body '{
-      "location_id": "Deserunt facere adipisci dignissimos iusto harum sunt."
-   }' --id 14277423626709309636 --oauth-token "Ullam quaerat sunt nihil ipsam."
+      "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+   }' --id 1 --oauth-token "abc123"
 `, os.Args[0])
 }
 
@@ -531,7 +531,7 @@ Retrieve the status of a permanent storage location move of the package
     -oauth-token STRING: 
 
 Example:
-    %[1]s package move-status --id 700503041087328012 --oauth-token "Ex sint laboriosam perspiciatis fugit ipsam quo."
+    %[1]s package move-status --id 1 --oauth-token "abc123"
 `, os.Args[0])
 }
 
@@ -563,13 +563,13 @@ func storageSubmitUsage() {
 
 Start the submission of a package
     -body JSON: 
-    -aip-id STRING: 
+    -aip-id STRING: Identifier of AIP
     -oauth-token STRING: 
 
 Example:
     %[1]s storage submit --body '{
-      "name": "Aperiam velit."
-   }' --aip-id "35f1295c-0978-11ee-b244-9cb6d0ba4ddb" --oauth-token "Eligendi et."
+      "name": "abc123"
+   }' --aip-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --oauth-token "abc123"
 `, os.Args[0])
 }
 
@@ -577,11 +577,11 @@ func storageUpdateUsage() {
 	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage update -aip-id STRING -oauth-token STRING
 
 Signal the storage service that an upload is complete
-    -aip-id STRING: 
+    -aip-id STRING: Identifier of AIP
     -oauth-token STRING: 
 
 Example:
-    %[1]s storage update --aip-id "35f15abb-0978-11ee-b244-9cb6d0ba4ddb" --oauth-token "Beatae assumenda esse consequatur reiciendis ratione nam."
+    %[1]s storage update --aip-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --oauth-token "abc123"
 `, os.Args[0])
 }
 
@@ -589,11 +589,11 @@ func storageDownloadUsage() {
 	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage download -aip-id STRING -oauth-token STRING
 
 Download package by AIPID
-    -aip-id STRING: 
+    -aip-id STRING: Identifier of AIP
     -oauth-token STRING: 
 
 Example:
-    %[1]s storage download --aip-id "35f1818e-0978-11ee-b244-9cb6d0ba4ddb" --oauth-token "Similique ab error voluptas sint voluptatibus quo."
+    %[1]s storage download --aip-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --oauth-token "abc123"
 `, os.Args[0])
 }
 
@@ -604,7 +604,7 @@ List locations
     -oauth-token STRING: 
 
 Example:
-    %[1]s storage locations --oauth-token "Perspiciatis dignissimos sapiente."
+    %[1]s storage locations --oauth-token "abc123"
 `, os.Args[0])
 }
 
@@ -618,14 +618,14 @@ Add a storage location
 Example:
     %[1]s storage add-location --body '{
       "config": {
-         "Type": "s3",
+         "Type": "sftp",
          "Value": "\"JSON\""
       },
-      "description": "Architecto sed voluptas quasi vel.",
-      "name": "Repellat commodi.",
+      "description": "abc123",
+      "name": "abc123",
       "purpose": "aip_store",
-      "source": "unspecified"
-   }' --oauth-token "Dolore voluptas eos."
+      "source": "minio"
+   }' --oauth-token "abc123"
 `, os.Args[0])
 }
 
@@ -634,13 +634,13 @@ func storageMoveUsage() {
 
 Move a package to a permanent storage location
     -body JSON: 
-    -aip-id STRING: 
+    -aip-id STRING: Identifier of AIP
     -oauth-token STRING: 
 
 Example:
     %[1]s storage move --body '{
-      "location_id": "Enim quis vel ipsa laudantium harum sunt."
-   }' --aip-id "35f1d3cc-0978-11ee-b244-9cb6d0ba4ddb" --oauth-token "Nobis nostrum aut iusto fugit sunt."
+      "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+   }' --aip-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --oauth-token "abc123"
 `, os.Args[0])
 }
 
@@ -648,11 +648,11 @@ func storageMoveStatusUsage() {
 	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage move-status -aip-id STRING -oauth-token STRING
 
 Retrieve the status of a permanent storage location move of the package
-    -aip-id STRING: 
+    -aip-id STRING: Identifier of AIP
     -oauth-token STRING: 
 
 Example:
-    %[1]s storage move-status --aip-id "35f1f93e-0978-11ee-b244-9cb6d0ba4ddb" --oauth-token "Omnis aspernatur sunt illo facilis."
+    %[1]s storage move-status --aip-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --oauth-token "abc123"
 `, os.Args[0])
 }
 
@@ -660,11 +660,11 @@ func storageRejectUsage() {
 	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage reject -aip-id STRING -oauth-token STRING
 
 Reject a package
-    -aip-id STRING: 
+    -aip-id STRING: Identifier of AIP
     -oauth-token STRING: 
 
 Example:
-    %[1]s storage reject --aip-id "35f213cb-0978-11ee-b244-9cb6d0ba4ddb" --oauth-token "Ut perspiciatis quis provident adipisci reprehenderit accusamus."
+    %[1]s storage reject --aip-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --oauth-token "abc123"
 `, os.Args[0])
 }
 
@@ -672,11 +672,11 @@ func storageShowUsage() {
 	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage show -aip-id STRING -oauth-token STRING
 
 Show package by AIPID
-    -aip-id STRING: 
+    -aip-id STRING: Identifier of AIP
     -oauth-token STRING: 
 
 Example:
-    %[1]s storage show --aip-id "35f234f4-0978-11ee-b244-9cb6d0ba4ddb" --oauth-token "Quo odit qui numquam totam."
+    %[1]s storage show --aip-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --oauth-token "abc123"
 `, os.Args[0])
 }
 
@@ -684,11 +684,11 @@ func storageShowLocationUsage() {
 	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage show-location -uuid STRING -oauth-token STRING
 
 Show location by UUID
-    -uuid STRING: 
+    -uuid STRING: Identifier of location
     -oauth-token STRING: 
 
 Example:
-    %[1]s storage show-location --uuid "35f255aa-0978-11ee-b244-9cb6d0ba4ddb" --oauth-token "Ut fugit cum consequatur non eos consequuntur."
+    %[1]s storage show-location --uuid "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --oauth-token "abc123"
 `, os.Args[0])
 }
 
@@ -696,11 +696,11 @@ func storageLocationPackagesUsage() {
 	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage location-packages -uuid STRING -oauth-token STRING
 
 List all the packages stored in the location with UUID
-    -uuid STRING: 
+    -uuid STRING: Identifier of location
     -oauth-token STRING: 
 
 Example:
-    %[1]s storage location-packages --uuid "35f27e28-0978-11ee-b244-9cb6d0ba4ddb" --oauth-token "Nostrum possimus fugiat beatae."
+    %[1]s storage location-packages --uuid "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --oauth-token "abc123"
 `, os.Args[0])
 }
 
@@ -726,6 +726,6 @@ Upload implements upload.
     -stream STRING: path to file containing the streamed request body
 
 Example:
-    %[1]s upload upload --content-type "multipart/氹򿒹🢪󒓡󅝾󟓓; boundary=�" --oauth-token "Ea facilis laboriosam odio veritatis laborum." --stream "goa.png"
+    %[1]s upload upload --content-type "multipart/form-data; boundary=goa" --oauth-token "abc123" --stream "goa.png"
 `, os.Args[0])
 }

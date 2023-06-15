@@ -10,6 +10,7 @@ package design
 
 import (
 	. "goa.design/goa/v3/dsl"
+	"goa.design/goa/v3/expr"
 	cors "goa.design/plugins/v3/cors/dsl"
 )
 
@@ -21,6 +22,7 @@ var OAuth2Auth = OAuth2Security("oauth2", func() {
 
 var _ = API("enduro", func() {
 	Title("Enduro API")
+	Randomizer(expr.NewDeterministicRandomizer())
 	Server("enduro", func() {
 		Services("package", "storage", "swagger", "upload")
 		Host("localhost", func() {

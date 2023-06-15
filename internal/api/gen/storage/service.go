@@ -80,6 +80,7 @@ type AddLocationResult struct {
 
 // DownloadPayload is the payload type of the storage service download method.
 type DownloadPayload struct {
+	// Identifier of AIP
 	AipID      string
 	OauthToken *string
 }
@@ -116,6 +117,7 @@ type LocationNotFound struct {
 // LocationPackagesPayload is the payload type of the storage service
 // location_packages method.
 type LocationPackagesPayload struct {
+	// Identifier of location
 	UUID       string
 	OauthToken *string
 }
@@ -127,7 +129,9 @@ type LocationsPayload struct {
 
 // MovePayload is the payload type of the storage service move method.
 type MovePayload struct {
-	AipID      string
+	// Identifier of AIP
+	AipID string
+	// Identifier of storage location
 	LocationID uuid.UUID
 	OauthToken *string
 }
@@ -135,6 +139,7 @@ type MovePayload struct {
 // MoveStatusPayload is the payload type of the storage service move_status
 // method.
 type MoveStatusPayload struct {
+	// Identifier of AIP
 	AipID      string
 	OauthToken *string
 }
@@ -150,8 +155,9 @@ type Package struct {
 	Name  string
 	AipID uuid.UUID
 	// Status of the package
-	Status     string
-	ObjectKey  uuid.UUID
+	Status    string
+	ObjectKey uuid.UUID
+	// Identifier of storage location
 	LocationID *uuid.UUID
 	// Creation datetime
 	CreatedAt string
@@ -171,6 +177,7 @@ type PackageNotFound struct {
 
 // RejectPayload is the payload type of the storage service reject method.
 type RejectPayload struct {
+	// Identifier of AIP
 	AipID      string
 	OauthToken *string
 }
@@ -196,18 +203,21 @@ type SFTPConfig struct {
 // ShowLocationPayload is the payload type of the storage service show_location
 // method.
 type ShowLocationPayload struct {
+	// Identifier of location
 	UUID       string
 	OauthToken *string
 }
 
 // ShowPayload is the payload type of the storage service show method.
 type ShowPayload struct {
+	// Identifier of AIP
 	AipID      string
 	OauthToken *string
 }
 
 // SubmitPayload is the payload type of the storage service submit method.
 type SubmitPayload struct {
+	// Identifier of AIP
 	AipID      string
 	Name       string
 	OauthToken *string
@@ -220,6 +230,7 @@ type SubmitResult struct {
 
 // UpdatePayload is the payload type of the storage service update method.
 type UpdatePayload struct {
+	// Identifier of AIP
 	AipID      string
 	OauthToken *string
 }

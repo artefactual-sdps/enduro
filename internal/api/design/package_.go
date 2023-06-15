@@ -52,18 +52,14 @@ var _ = Service("package", func() {
 		Description("List all stored packages")
 		Payload(func() {
 			Attribute("name", String)
-			Attribute("aip_id", String, func() {
-				Format(FormatUUID)
-			})
+			AttributeUUID("aip_id", "Identifier of AIP")
 			Attribute("earliest_created_time", String, func() {
 				Format(FormatDateTime)
 			})
 			Attribute("latest_created_time", String, func() {
 				Format(FormatDateTime)
 			})
-			Attribute("location_id", String, func() {
-				Format(FormatUUID)
-			})
+			AttributeUUID("location_id", "Identifier of storage location")
 			Attribute("status", String, func() {
 				EnumPackageStatus()
 			})
@@ -121,9 +117,7 @@ var _ = Service("package", func() {
 		Description("Signal the package has been reviewed and accepted")
 		Payload(func() {
 			Attribute("id", UInt, "Identifier of package to look up")
-			Attribute("location_id", String, func() {
-				Meta("struct:field:type", "uuid.UUID", "github.com/google/uuid")
-			})
+			TypedAttributeUUID("location_id", "Identifier of storage location")
 			AccessToken("oauth_token", String)
 			Required("id", "location_id")
 		})
@@ -160,9 +154,7 @@ var _ = Service("package", func() {
 		Description("Move a package to a permanent storage location")
 		Payload(func() {
 			Attribute("id", UInt, "Identifier of package to move")
-			Attribute("location_id", String, func() {
-				Meta("struct:field:type", "uuid.UUID", "github.com/google/uuid")
-			})
+			TypedAttributeUUID("location_id", "Identifier of storage location")
 			AccessToken("oauth_token", String)
 			Required("id", "location_id")
 		})
@@ -203,22 +195,14 @@ var EnumPackageStatus = func() {
 var Package_ = Type("Package", func() {
 	Description("Package describes a package to be stored.")
 	Attribute("name", String, "Name of the package")
-	Attribute("location_id", String, func() {
-		Meta("struct:field:type", "uuid.UUID", "github.com/google/uuid")
-	})
+	TypedAttributeUUID("location_id", "Identifier of storage location")
 	Attribute("status", String, "Status of the package", func() {
 		EnumPackageStatus()
 		Default("new")
 	})
-	Attribute("workflow_id", String, "Identifier of processing workflow", func() {
-		Format(FormatUUID)
-	})
-	Attribute("run_id", String, "Identifier of latest processing workflow run", func() {
-		Format(FormatUUID)
-	})
-	Attribute("aip_id", String, "Identifier of Archivematica AIP", func() {
-		Format(FormatUUID)
-	})
+	AttributeUUID("workflow_id", "Identifier of processing workflow")
+	AttributeUUID("run_id", "Identifier of latest processing workflow run")
+	AttributeUUID("aip_id", "Identifier of AIP")
 	Attribute("created_at", String, "Creation datetime", func() {
 		Format(FormatDateTime)
 	})

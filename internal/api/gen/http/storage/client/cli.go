@@ -24,7 +24,7 @@ func BuildSubmitPayload(storageSubmitBody string, storageSubmitAipID string, sto
 	{
 		err = json.Unmarshal([]byte(storageSubmitBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"name\": \"Aperiam velit.\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"name\": \"abc123\"\n   }'")
 		}
 	}
 	var aipID string
@@ -123,7 +123,7 @@ func BuildAddLocationPayload(storageAddLocationBody string, storageAddLocationOa
 	{
 		err = json.Unmarshal([]byte(storageAddLocationBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"config\": {\n         \"Type\": \"s3\",\n         \"Value\": \"\\\"JSON\\\"\"\n      },\n      \"description\": \"Architecto sed voluptas quasi vel.\",\n      \"name\": \"Repellat commodi.\",\n      \"purpose\": \"aip_store\",\n      \"source\": \"unspecified\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"config\": {\n         \"Type\": \"sftp\",\n         \"Value\": \"\\\"JSON\\\"\"\n      },\n      \"description\": \"abc123\",\n      \"name\": \"abc123\",\n      \"purpose\": \"aip_store\",\n      \"source\": \"minio\"\n   }'")
 		}
 		if !(body.Source == "unspecified" || body.Source == "minio" || body.Source == "sftp") {
 			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.source", body.Source, []any{"unspecified", "minio", "sftp"}))
@@ -177,7 +177,7 @@ func BuildMovePayload(storageMoveBody string, storageMoveAipID string, storageMo
 	{
 		err = json.Unmarshal([]byte(storageMoveBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location_id\": \"Enim quis vel ipsa laudantium harum sunt.\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location_id\": \"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"\n   }'")
 		}
 	}
 	var aipID string

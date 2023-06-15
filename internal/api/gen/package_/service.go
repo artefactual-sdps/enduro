@@ -74,7 +74,8 @@ type MonitorClientStream interface {
 // ConfirmPayload is the payload type of the package service confirm method.
 type ConfirmPayload struct {
 	// Identifier of package to look up
-	ID         uint
+	ID uint
+	// Identifier of storage location
 	LocationID uuid.UUID
 	OauthToken *string
 }
@@ -104,7 +105,8 @@ type EnduroPackageCreatedEvent struct {
 
 type EnduroPackageLocationUpdatedEvent struct {
 	// Identifier of package
-	ID         uint
+	ID uint
+	// Identifier of storage location
 	LocationID uuid.UUID
 }
 
@@ -183,7 +185,8 @@ type EnduroStoredPackage struct {
 	// Identifier of package
 	ID uint
 	// Name of the package
-	Name       *string
+	Name *string
+	// Identifier of storage location
 	LocationID *uuid.UUID
 	// Status of the package
 	Status string
@@ -191,7 +194,7 @@ type EnduroStoredPackage struct {
 	WorkflowID *string
 	// Identifier of latest processing workflow run
 	RunID *string
-	// Identifier of Archivematica AIP
+	// Identifier of AIP
 	AipID *string
 	// Creation datetime
 	CreatedAt string
@@ -205,12 +208,14 @@ type EnduroStoredPackageCollection []*EnduroStoredPackage
 
 // ListPayload is the payload type of the package service list method.
 type ListPayload struct {
-	Name                *string
+	Name *string
+	// Identifier of AIP
 	AipID               *string
 	EarliestCreatedTime *string
 	LatestCreatedTime   *string
-	LocationID          *string
-	Status              *string
+	// Identifier of storage location
+	LocationID *string
+	Status     *string
 	// Pagination cursor
 	Cursor     *string
 	OauthToken *string
@@ -242,7 +247,8 @@ type MonitorRequestResult struct {
 // MovePayload is the payload type of the package service move method.
 type MovePayload struct {
 	// Identifier of package to move
-	ID         uint
+	ID uint
+	// Identifier of storage location
 	LocationID uuid.UUID
 	OauthToken *string
 }
