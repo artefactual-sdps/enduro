@@ -71,9 +71,9 @@ Update the dependency:
     go get goa.design/goa/v3/cmd/goa@v3.11.3
     go mod tidy
 
-Update the binary installation with:
+Edit `hack/make/dep_goa.mk` to update the binary installation:
 
-    bingo get -l goa.design/goa/v3/cmd/goa@v3.11.3
+    GOA_VERSION ?= 0.11.10
 
 Now you can generate the code with:
 
