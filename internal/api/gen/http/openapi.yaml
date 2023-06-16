@@ -2376,10 +2376,12 @@ definitions:
                             Union type name, one of:
                             - "s3"
                             - "sftp"
+                            - "url"
                         example: sftp
                         enum:
                             - s3
                             - sftp
+                            - url
                     Value:
                         type: string
                         description: JSON formatted union value

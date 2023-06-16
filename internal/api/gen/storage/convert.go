@@ -49,3 +49,11 @@ func (t *SFTPConfig) ConvertToSFTPConfig() *types.SFTPConfig {
 	}
 	return v
 }
+
+// ConvertToURLConfig creates an instance of URLConfig initialized from t.
+func (t *URLConfig) ConvertToURLConfig() *types.URLConfig {
+	v := &types.URLConfig{
+		URL: t.URL,
+	}
+	return v
+}

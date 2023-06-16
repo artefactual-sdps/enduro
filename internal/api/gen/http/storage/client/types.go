@@ -34,6 +34,7 @@ type AddLocationRequestBody struct {
 		// Union type name, one of:
 		// - "s3"
 		// - "sftp"
+		// - "url"
 		Type string `form:"Type" json:"Type" xml:"Type"`
 		// JSON formatted union value
 		Value string `form:"Value" json:"Value" xml:"Value"`
@@ -99,6 +100,7 @@ type ShowLocationResponseBody struct {
 		// Union type name, one of:
 		// - "s3"
 		// - "sftp"
+		// - "url"
 		Type *string `form:"Type" json:"Type" xml:"Type"`
 		// JSON formatted union value
 		Value *string `form:"Value" json:"Value" xml:"Value"`
@@ -385,6 +387,7 @@ type LocationResponse struct {
 		// Union type name, one of:
 		// - "s3"
 		// - "sftp"
+		// - "url"
 		Type *string `form:"Type" json:"Type" xml:"Type"`
 		// JSON formatted union value
 		Value *string `form:"Value" json:"Value" xml:"Value"`
@@ -432,11 +435,14 @@ func NewAddLocationRequestBody(p *storage.AddLocationPayload) *AddLocationReques
 			name = "s3"
 		case *storage.SFTPConfig:
 			name = "sftp"
+		case *storage.URLConfig:
+			name = "url"
 		}
 		body.Config = &struct {
 			// Union type name, one of:
 			// - "s3"
 			// - "sftp"
+			// - "url"
 			Type string `form:"Type" json:"Type" xml:"Type"`
 			// JSON formatted union value
 			Value string `form:"Value" json:"Value" xml:"Value"`
@@ -802,6 +808,10 @@ func NewShowLocationLocationOK(body *ShowLocationResponseBody) *storageviews.Loc
 			v.Config = val
 		case "sftp":
 			var val *storageviews.SFTPConfigView
+			json.Unmarshal([]byte(*body.Config.Value), &val)
+			v.Config = val
+		case "url":
+			var val *storageviews.URLConfigView
 			json.Unmarshal([]byte(*body.Config.Value), &val)
 			v.Config = val
 		}
@@ -1283,8 +1293,8 @@ func ValidateLocationResponse(body *LocationResponse) (err error) {
 			err = goa.MergeErrors(err, goa.MissingFieldError("Value", "body.config"))
 		}
 		if body.Config.Type != nil {
-			if !(*body.Config.Type == "s3" || *body.Config.Type == "sftp") {
-				err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.config.Type", *body.Config.Type, []any{"s3", "sftp"}))
+			if !(*body.Config.Type == "s3" || *body.Config.Type == "sftp" || *body.Config.Type == "url") {
+				err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.config.Type", *body.Config.Type, []any{"s3", "sftp", "url"}))
 			}
 		}
 	}

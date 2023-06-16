@@ -228,6 +228,10 @@ type SubmitResult struct {
 	URL string
 }
 
+type URLConfig struct {
+	URL string
+}
+
 // UpdatePayload is the payload type of the storage service update method.
 type UpdatePayload struct {
 	// Identifier of AIP
@@ -290,6 +294,7 @@ func (e Unauthorized) GoaErrorName() string {
 }
 func (*S3Config) configVal()   {}
 func (*SFTPConfig) configVal() {}
+func (*URLConfig) configVal()  {}
 
 // MakeNotAvailable builds a goa.ServiceError from an error.
 func MakeNotAvailable(err error) *goa.ServiceError {
