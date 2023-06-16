@@ -34,6 +34,7 @@ type AddLocationRequestBody struct {
 		// Union type name, one of:
 		// - "s3"
 		// - "sftp"
+		// - "url"
 		Type *string `form:"Type" json:"Type" xml:"Type"`
 		// JSON formatted union value
 		Value *string `form:"Value" json:"Value" xml:"Value"`
@@ -744,6 +745,10 @@ func NewAddLocationPayload(body *AddLocationRequestBody, oauthToken *string) *st
 			var val *storage.SFTPConfig
 			json.Unmarshal([]byte(*body.Config.Value), &val)
 			v.Config = val
+		case "url":
+			var val *storage.URLConfig
+			json.Unmarshal([]byte(*body.Config.Value), &val)
+			v.Config = val
 		}
 	}
 	v.OauthToken = oauthToken
@@ -847,8 +852,8 @@ func ValidateAddLocationRequestBody(body *AddLocationRequestBody) (err error) {
 			err = goa.MergeErrors(err, goa.MissingFieldError("Value", "body.config"))
 		}
 		if body.Config.Type != nil {
-			if !(*body.Config.Type == "s3" || *body.Config.Type == "sftp") {
-				err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.config.Type", *body.Config.Type, []any{"s3", "sftp"}))
+			if !(*body.Config.Type == "s3" || *body.Config.Type == "sftp" || *body.Config.Type == "url") {
+				err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.config.Type", *body.Config.Type, []any{"s3", "sftp", "url"}))
 			}
 		}
 	}

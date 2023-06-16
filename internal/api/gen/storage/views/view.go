@@ -88,6 +88,11 @@ type SFTPConfigView struct {
 	Directory *string
 }
 
+// URLConfigView is a type that runs validations on a projected type.
+type URLConfigView struct {
+	URL *string
+}
+
 // PackageView is a type that runs validations on a projected type.
 type PackageView struct {
 	Name  *string
@@ -106,6 +111,7 @@ type PackageCollectionView []*PackageView
 
 func (*S3ConfigView) configVal()   {}
 func (*SFTPConfigView) configVal() {}
+func (*URLConfigView) configVal()  {}
 
 var (
 	// LocationCollectionMap is a map indexing the attribute names of
@@ -273,6 +279,14 @@ func ValidateSFTPConfigView(result *SFTPConfigView) (err error) {
 	}
 	if result.Directory == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("directory", "result"))
+	}
+	return
+}
+
+// ValidateURLConfigView runs the validations defined on URLConfigView.
+func ValidateURLConfigView(result *URLConfigView) (err error) {
+	if result.URL == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("url", "result"))
 	}
 	return
 }

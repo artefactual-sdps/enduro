@@ -132,8 +132,8 @@ func BuildAddLocationPayload(storageAddLocationBody string, storageAddLocationOa
 			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.purpose", body.Purpose, []any{"unspecified", "aip_store"}))
 		}
 		if body.Config != nil {
-			if !(body.Config.Type == "s3" || body.Config.Type == "sftp") {
-				err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.config.Type", body.Config.Type, []any{"s3", "sftp"}))
+			if !(body.Config.Type == "s3" || body.Config.Type == "sftp" || body.Config.Type == "url") {
+				err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.config.Type", body.Config.Type, []any{"s3", "sftp", "url"}))
 			}
 		}
 		if err != nil {
@@ -160,6 +160,10 @@ func BuildAddLocationPayload(storageAddLocationBody string, storageAddLocationOa
 			v.Config = val
 		case "sftp":
 			var val *storage.SFTPConfig
+			json.Unmarshal([]byte(body.Config.Value), &val)
+			v.Config = val
+		case "url":
+			var val *storage.URLConfig
 			json.Unmarshal([]byte(body.Config.Value), &val)
 			v.Config = val
 		}

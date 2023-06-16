@@ -89,6 +89,7 @@ var _ = Service("storage", func() {
 			OneOf("config", func() {
 				Attribute("s3", S3Config)
 				Attribute("sftp", SFTPConfig)
+				Attribute("url", URLConfig)
 			})
 			AccessToken("oauth_token", String)
 			Required("name", "source", "purpose")
@@ -256,6 +257,7 @@ var Location = ResultType("application/vnd.enduro.storage-location", func() {
 		OneOf("config", func() {
 			Attribute("s3", S3Config)
 			Attribute("sftp", SFTPConfig)
+			Attribute("url", URLConfig)
 		})
 		Attribute("created_at", String, "Creation datetime", func() {
 			Format(FormatDateTime)
@@ -352,4 +354,10 @@ var SFTPConfig = Type("SFTPConfig", func() {
 	Attribute("directory", String)
 
 	Required("address", "username", "password", "directory")
+})
+
+var URLConfig = Type("URLConfig", func() {
+	ConvertTo(types.URLConfig{})
+	Attribute("url", String)
+	Required("url")
 })
