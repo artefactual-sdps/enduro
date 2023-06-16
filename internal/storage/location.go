@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"context"
 	"errors"
 	"fmt"
 
@@ -35,10 +36,41 @@ type locationImpl struct {
 }
 
 func NewInternalLocation(config *LocationConfig) (*locationImpl, error) {
-	l := &locationImpl{
-		id: uuid.Nil,
+	var (
+		b   *blob.Bucket
+		err error
+	)
+
+	if config.URL != "" {
+		b, err = openURLBucket(config)
+	} else {
+		b, err = openS3Bucket(config)
+	}
+	if err != nil {
+		return nil, err
 	}
 
+	return &locationImpl{
+		id:     uuid.Nil,
+		bucket: b,
+	}, nil
+}
+
+func openURLBucket(config *LocationConfig) (*blob.Bucket, error) {
+	c := types.URLConfig{URL: config.URL}
+	if !c.Valid() {
+		return nil, errors.New("invalid configuration")
+	}
+
+	b, err := c.OpenBucket(context.Background())
+	if err != nil {
+		return nil, err
+	}
+
+	return b, nil
+}
+
+func openS3Bucket(config *LocationConfig) (*blob.Bucket, error) {
 	s3Config := &types.S3Config{
 		Region:    config.Region,
 		Endpoint:  config.Endpoint,
@@ -49,18 +81,16 @@ func NewInternalLocation(config *LocationConfig) (*locationImpl, error) {
 		Token:     config.Token,
 		Bucket:    config.Bucket,
 	}
-
 	if !s3Config.Valid() {
 		return nil, errors.New("invalid configuration")
 	}
 
-	if b, err := s3Config.OpenBucket(); err != nil {
+	b, err := s3Config.OpenBucket(context.Background())
+	if err != nil {
 		return nil, err
-	} else {
-		l.bucket = b
 	}
 
-	return l, nil
+	return b, nil
 }
 
 func NewLocation(location *goastorage.Location) (*locationImpl, error) {
@@ -70,6 +100,8 @@ func NewLocation(location *goastorage.Location) (*locationImpl, error) {
 
 	var config types.LocationConfig
 	switch c := location.Config.(type) {
+	case *goastorage.URLConfig:
+		config.Value = c.ConvertToURLConfig()
 	case *goastorage.S3Config:
 		config.Value = c.ConvertToS3Config()
 	case *goastorage.SFTPConfig:
@@ -82,7 +114,7 @@ func NewLocation(location *goastorage.Location) (*locationImpl, error) {
 		return nil, errors.New("invalid configuration")
 	}
 
-	if b, err := config.Value.OpenBucket(); err != nil {
+	if b, err := config.Value.OpenBucket(context.Background()); err != nil {
 		return nil, err
 	} else {
 		l.bucket = b
