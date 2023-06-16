@@ -230,8 +230,6 @@ The setup of the Minio buckets and the communication between Minio and Redis
 is sometimes not setup properly. To solve it, from the Tilt UI, restart the
 `minio` resource and then trigger the `minio-setup-buckets` resource.
 
-[national health archive (nha)]: https://www.piql.com/norwegians-digital-health-data-to-be-preserved-for-future-generations/
-[national center for truth and reconciliation (nctr)]: https://nctr.ca/about/about-the-nctr/our-mandate/
 [docker]: https://docs.docker.com/get-docker/
 [kubectl]: https://kubernetes.io/docs/tasks/tools/#kubectl
 [tilt]: https://docs.tilt.dev/tutorial/1-prerequisites.html#install-tilt
