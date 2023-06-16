@@ -26,6 +26,8 @@ func (c LocationConfig) MarshalJSON() ([]byte, error) {
 		types.S3 = c
 	case *SFTPConfig:
 		types.SFTPConfig = c
+	case *URLConfig:
+		types.URLConfig = c
 	default:
 		return nil, fmt.Errorf("unsupported config type: %T", c)
 	}
@@ -46,6 +48,8 @@ func (c *LocationConfig) UnmarshalJSON(blob []byte) error {
 		c.Value = types.S3
 	case types.SFTPConfig != nil:
 		c.Value = types.SFTPConfig
+	case types.URLConfig != nil:
+		c.Value = types.URLConfig
 	default:
 		return errors.New("undefined configuration document")
 	}
@@ -55,7 +59,7 @@ func (c *LocationConfig) UnmarshalJSON(blob []byte) error {
 
 type configVal interface {
 	Valid() bool
-	OpenBucket() (*blob.Bucket, error)
+	OpenBucket(context.Context) (*blob.Bucket, error)
 }
 
 type S3Config struct {
@@ -77,7 +81,7 @@ func (c S3Config) Valid() bool {
 	return true
 }
 
-func (c S3Config) OpenBucket() (*blob.Bucket, error) {
+func (c S3Config) OpenBucket(ctx context.Context) (*blob.Bucket, error) {
 	sessOpts := session.Options{}
 	sessOpts.Config.WithRegion(c.Region)
 	sessOpts.Config.WithEndpoint(c.Endpoint)
@@ -91,7 +95,7 @@ func (c S3Config) OpenBucket() (*blob.Bucket, error) {
 	if err != nil {
 		return nil, err
 	}
-	return s3blob.OpenBucket(context.Background(), sess, c.Bucket, nil)
+	return s3blob.OpenBucket(ctx, sess, c.Bucket, nil)
 }
 
 type SFTPConfig struct {
@@ -109,7 +113,7 @@ func (c SFTPConfig) Valid() bool {
 	return true
 }
 
-func (c SFTPConfig) OpenBucket() (*blob.Bucket, error) {
+func (c SFTPConfig) OpenBucket(ctx context.Context) (*blob.Bucket, error) {
 	sftpUrl := fmt.Sprintf("sftp://%s:%s@%s/%s", c.Username, c.Password, c.Address, c.Directory)
 
 	url, err := url.Parse(sftpUrl)
@@ -120,7 +124,25 @@ func (c SFTPConfig) OpenBucket() (*blob.Bucket, error) {
 	return sftpblob.OpenBucket(url, nil)
 }
 
+type URLConfig struct {
+	URL string `json:"url"`
+}
+
+func (c URLConfig) Valid() bool {
+	return c.URL != ""
+}
+
+func (c URLConfig) OpenBucket(ctx context.Context) (*blob.Bucket, error) {
+	b, err := blob.OpenBucket(ctx, c.URL)
+	if err != nil {
+		return nil, fmt.Errorf("open bucket by URL: %v", err)
+	}
+
+	return b, nil
+}
+
 type configTypes struct {
 	S3         *S3Config   `json:"s3,omitempty"`
 	SFTPConfig *SFTPConfig `json:"sftp,omitempty"`
+	URLConfig  *URLConfig  `json:"url,omitempty"`
 }
