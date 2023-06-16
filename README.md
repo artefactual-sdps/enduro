@@ -34,3 +34,5 @@ fault-tolerant workflows suited for preservation.
 
 - [Filenotify documentation](./internal/filenotify/README.md)
 
+[national health archive (nha)]: https://www.piql.com/norwegians-digital-health-data-to-be-preserved-for-future-generations/
+[national center for truth and reconciliation (nctr)]: https://nctr.ca/about/about-the-nctr/our-mandate/
