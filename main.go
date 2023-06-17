@@ -250,7 +250,7 @@ func main() {
 						case <-done:
 							return nil
 						default:
-							event, err := cur.Watch(ctx)
+							event, clean, err := cur.Watch(ctx)
 							if err != nil {
 								if !errors.Is(err, watcher.ErrWatchTimeout) {
 									logger.Error(err, "Error monitoring watcher interface.", "watcher", cur)
@@ -271,6 +271,8 @@ func main() {
 								}
 								if err := package_.InitProcessingWorkflow(ctx, temporalClient, &req); err != nil {
 									logger.Error(err, "Error initializing processing workflow.")
+								} else {
+									_ = clean(ctx)
 								}
 							}()
 						}

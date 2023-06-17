@@ -116,20 +116,20 @@ func (w *filesystemWatcher) loop() {
 	}
 }
 
-func (w *filesystemWatcher) Watch(ctx context.Context) (*BlobEvent, error) {
+func (w *filesystemWatcher) Watch(ctx context.Context) (*BlobEvent, Cleanup, error) {
 	fsevent, ok := <-w.ch
 	if !ok {
-		return nil, ErrWatchTimeout
+		return nil, noopCleanup, ErrWatchTimeout
 	}
 	info, err := os.Stat(fsevent.Name)
 	if err != nil {
-		return nil, fmt.Errorf("error in file stat check: %s", err)
+		return nil, noopCleanup, fmt.Errorf("error in file stat check: %s", err)
 	}
 	rel, err := filepath.Rel(w.path, fsevent.Name)
 	if err != nil {
-		return nil, fmt.Errorf("error generating relative path of fsvent.Name %s - %w", fsevent.Name, err)
+		return nil, noopCleanup, fmt.Errorf("error generating relative path of fsvent.Name %s - %w", fsevent.Name, err)
 	}
-	return NewBlobEvent(w, rel, info.IsDir()), nil
+	return NewBlobEvent(w, rel, info.IsDir()), noopCleanup, nil
 }
 
 func (w *filesystemWatcher) Path() string {

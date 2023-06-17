@@ -63,7 +63,7 @@ func NewMinioWatcher(ctx context.Context, logger logr.Logger, config *MinioConfi
 		return nil, err
 	}
 	if config.RedisFailedList == "" {
-		config.RedisFailedList = config.RedisList + "-dead"
+		config.RedisFailedList = config.RedisList + "-failed"
 	}
 
 	return &minioWatcher{
@@ -81,42 +81,53 @@ func NewMinioWatcher(ctx context.Context, logger logr.Logger, config *MinioConfi
 	}, nil
 }
 
-func (w *minioWatcher) Watch(ctx context.Context) (*BlobEvent, error) {
-	event, err := w.pop(ctx)
+func (w *minioWatcher) Watch(ctx context.Context) (*BlobEvent, Cleanup, error) {
+	event, val, err := w.pop(ctx)
 	if err != nil {
 		if errors.Is(err, redis.Nil) {
 			err = ErrWatchTimeout
 		}
-		return nil, err
+		return nil, noopCleanup, err
 	}
 	if event.Bucket != w.bucket {
-		return nil, ErrBucketMismatch
+		return nil, noopCleanup, ErrBucketMismatch
 	}
-	return event, nil
+	cleanup := w.rem(val)
+
+	return event, cleanup, nil
 }
 
 func (w *minioWatcher) Path() string {
 	return ""
 }
 
-func (w *minioWatcher) pop(ctx context.Context) (*BlobEvent, error) {
+// rem return a function that allows items from the failed list to be safely removed
+// in the event of a workflow or some other type of redis error.
+func (w *minioWatcher) rem(val string) func(ctx context.Context) error {
+	return func(ctx context.Context) error {
+		logger := w.logger.WithValues("list", w.failedList)
+		if _, err := w.client.LRem(ctx, w.failedList, 1, val).Result(); err != nil {
+			logger.Error(err, "Error removing message from failed list.")
+			return err
+		}
+		logger.V(2).Info("Successfully removed message(s).")
+
+		return nil
+	}
+}
+
+func (w *minioWatcher) pop(ctx context.Context) (*BlobEvent, string, error) {
 	val, err := w.client.BLMove(ctx, w.listName, w.failedList, "RIGHT", "LEFT", redisPopTimeout).Result()
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving from Redis list: %w", err)
+		return nil, "", fmt.Errorf("error retrieving from Redis list: %w", err)
 	}
 
 	event, err := w.event(val)
 	if err != nil {
-		return nil, fmt.Errorf("error processing item received: %w", err)
+		return nil, "", fmt.Errorf("error processing item received: %w", err)
 	}
 
-	if _, err := w.client.LRem(ctx, w.failedList, 1, val).Result(); err != nil {
-		w.logger.Error(err, "Error removing message from failed list.", "list", w.failedList)
-	} else {
-		w.logger.V(2).Info("Successfully removed messages.")
-	}
-
-	return event, nil
+	return event, val, nil
 }
 
 // event processes Minio-specific events delivered via Redis. We expect a
