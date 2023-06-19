@@ -22,6 +22,7 @@ import (
 
 var SubmitURLExpirationTime = 15 * time.Minute
 
+// Service provides an interface for persisting storage data.
 type Service interface {
 	goastorage.Service
 
@@ -59,7 +60,15 @@ var _ Service = (*serviceImpl)(nil)
 
 var ErrInvalidToken error = goastorage.Unauthorized("invalid token")
 
-func NewService(logger logr.Logger, config Config, storagePersistence persistence.Storage, tc temporalsdk_client.Client, internalLocationFactory InternalLocationFactory, locationFactory LocationFactory, tokenVerifier auth.TokenVerifier) (s *serviceImpl, err error) {
+func NewService(
+	logger logr.Logger,
+	config Config,
+	storagePersistence persistence.Storage,
+	tc temporalsdk_client.Client,
+	internalLocationFactory InternalLocationFactory,
+	locationFactory LocationFactory,
+	tokenVerifier auth.TokenVerifier,
+) (s *serviceImpl, err error) {
 	s = &serviceImpl{
 		logger:             logger,
 		tc:                 tc,
@@ -77,7 +86,11 @@ func NewService(logger logr.Logger, config Config, storagePersistence persistenc
 	return s, nil
 }
 
-func (s *serviceImpl) OAuth2Auth(ctx context.Context, token string, scheme *security.OAuth2Scheme) (context.Context, error) {
+func (s *serviceImpl) OAuth2Auth(
+	ctx context.Context,
+	token string,
+	scheme *security.OAuth2Scheme,
+) (context.Context, error) {
 	ok, err := s.tokenVerifier.Verify(ctx, token)
 	if err != nil {
 		s.logger.V(1).Info("failed to verify token", "err", err)
@@ -331,6 +344,12 @@ func (s *serviceImpl) AddLocation(ctx context.Context, payload *goastorage.AddLo
 	return &goastorage.AddLocationResult{UUID: UUID.String()}, nil
 }
 
+// ReadLocation retrieves location data for location UUID from the persistence
+// layer.
+//
+// A `goastorage.LocationNotFound` error is returned if location UUID doesn't
+// exist. A `goa.ServiceError` "not_available" error is returned for all other
+// errors.
 func (s *serviceImpl) ReadLocation(ctx context.Context, UUID uuid.UUID) (*goastorage.Location, error) {
 	return s.storagePersistence.ReadLocation(ctx, UUID)
 }
