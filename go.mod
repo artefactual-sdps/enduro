@@ -30,7 +30,7 @@ require (
 	github.com/oklog/run v1.1.0
 	github.com/otiai10/copy v1.11.0
 	github.com/pborman/uuid v1.2.1 // indirect
-	github.com/prometheus/client_golang v1.14.0
+	github.com/prometheus/client_golang v1.16.0
 	github.com/radovskyb/watcher v1.0.7
 	github.com/rukavina/sftpblob v0.0.0-20201030103652-e8e9601e6511
 	github.com/spf13/afero v1.9.5
@@ -117,8 +117,8 @@ require (
 	github.com/pkg/sftp v1.13.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/prometheus/client_model v0.3.0 // indirect
-	github.com/prometheus/common v0.39.0 // indirect
-	github.com/prometheus/procfs v0.8.0 // indirect
+	github.com/prometheus/common v0.42.0 // indirect
+	github.com/prometheus/procfs v0.10.1 // indirect
 	github.com/robfig/cron v1.2.0 // indirect
 	github.com/sergi/go-diff v1.3.1 // indirect
 	github.com/spf13/cast v1.5.0 // indirect
