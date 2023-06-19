@@ -16,7 +16,7 @@
     "@pinia/plugin-debounce": "^0.1.0",
     "@types/humanize-duration": "^3.27.1",
     "@vitest/coverage-c8": "^0.32.0",
-    "@vueuse/core": "^10.1.2",
+    "@vueuse/core": "^10.2.0",
     "humanize-duration": "^3.28.0",
     "moment": "^2.29.4",
     "oidc-client-ts": "^2.2.4",
