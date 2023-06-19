@@ -41,7 +41,7 @@ require (
 	github.com/ulikunitz/xz v0.5.10 // indirect
 	go.buf.build/grpc/go/artefactual/a3m v1.4.3
 	go.temporal.io/api v1.22.0
-	go.temporal.io/sdk v1.23.0
+	go.temporal.io/sdk v1.23.1
 	go.uber.org/multierr v1.9.0 // indirect
 	go.uber.org/zap v1.24.0
 	goa.design/goa/v3 v3.11.3
