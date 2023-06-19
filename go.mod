@@ -39,7 +39,7 @@ require (
 	github.com/stretchr/objx v0.5.0 // indirect
 	github.com/stretchr/testify v1.8.4
 	github.com/ulikunitz/xz v0.5.10 // indirect
-	go.buf.build/grpc/go/artefactual/a3m v1.4.3
+	go.buf.build/grpc/go/artefactual/a3m v1.4.4
 	go.temporal.io/api v1.22.0
 	go.temporal.io/sdk v1.23.0
 	go.uber.org/multierr v1.9.0 // indirect
