@@ -206,17 +206,19 @@ func (f staticRand) Read(buf []byte) (n int, err error) {
 func TestNewService(t *testing.T) {
 	t.Parallel()
 
-	_, err := storage.NewService(
-		logr.Discard(),
-		storage.Config{},
-		nil,
-		nil,
-		storage.DefaultInternalLocationFactory,
-		storage.DefaultLocationFactory,
-		&auth.OIDCTokenVerifier{},
-	)
+	t.Run("Errors on invalid configuration", func(t *testing.T) {
+		_, err := storage.NewService(
+			logr.Discard(),
+			storage.Config{},
+			nil,
+			nil,
+			storage.DefaultInternalLocationFactory,
+			storage.DefaultLocationFactory,
+			&auth.OIDCTokenVerifier{},
+		)
 
-	assert.ErrorContains(t, err, "invalid configuration")
+		assert.ErrorContains(t, err, "invalid configuration")
+	})
 }
 
 func TestServiceSubmit(t *testing.T) {
@@ -887,6 +889,7 @@ func TestPackageReader(t *testing.T) {
 			LocationID: &locationID,
 		})
 		assert.NilError(t, err)
+		defer reader.Close()
 
 		blob, err := io.ReadAll(reader)
 		assert.NilError(t, err)
