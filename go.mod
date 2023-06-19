@@ -12,7 +12,7 @@ require (
 	github.com/coreos/go-oidc/v3 v3.6.0
 	github.com/cyphar/filepath-securejoin v0.2.3
 	github.com/fsnotify/fsnotify v1.6.0
-	github.com/go-logr/logr v1.2.3
+	github.com/go-logr/logr v1.2.4
 	github.com/go-logr/zapr v1.2.3
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/go-sql-driver/mysql v1.7.1
