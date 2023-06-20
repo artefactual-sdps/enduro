@@ -11,14 +11,14 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/go-logr/logr"
-	"github.com/go-redis/redis/v8"
+	"github.com/redis/go-redis/v9"
 	"gocloud.dev/blob"
 	"gocloud.dev/blob/s3blob"
 )
 
 // minioWatcher implements a Watcher for watching lists in Redis.
 type minioWatcher struct {
-	client     *redis.Client
+	client     redis.UniversalClient
 	sess       *session.Session
 	logger     logr.Logger
 	listName   string
@@ -42,7 +42,7 @@ func NewMinioWatcher(ctx context.Context, logger logr.Logger, config *MinioConfi
 		return nil, err
 	}
 
-	client := redis.NewClient(opts).WithContext(ctx)
+	client := redis.NewClient(opts)
 
 	sessOpts := session.Options{}
 	sessOpts.Config.WithRegion(config.Region)

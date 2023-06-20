@@ -7,13 +7,13 @@ import (
 	"sync"
 	"time"
 
-	"github.com/go-redis/redis/v8"
+	"github.com/redis/go-redis/v9"
 )
 
 // TicketStore persists expirable tickets.
 type TicketStore interface {
-	// SetEX persists a key with a timeout.
-	SetEX(ctx context.Context, key string, ttl time.Duration) error
+	// SetEx persists a key with a timeout.
+	SetEx(ctx context.Context, key string, ttl time.Duration) error
 	// GetDel checks whether a key exists in the store. It returns
 	// ErrKeyNotFound if the key was not found or expired.
 	GetDel(ctx context.Context, key string) error
@@ -46,7 +46,7 @@ func NewRedisStore(ctx context.Context, cfg *RedisConfig) (*RedisStore, error) {
 	}
 
 	return &RedisStore{
-		client: redis.NewClient(opts).WithContext(ctx),
+		client: redis.NewClient(opts),
 		prefix: strings.TrimSuffix(cfg.Prefix, keySeparator),
 	}, nil
 }
@@ -56,8 +56,8 @@ func (s *RedisStore) key(key string) string {
 	return strings.Join([]string{s.prefix, keyClassifier, key}, keySeparator)
 }
 
-func (s *RedisStore) SetEX(ctx context.Context, key string, ttl time.Duration) error {
-	return s.client.SetEX(ctx, s.key(key), "", ttl).Err()
+func (s *RedisStore) SetEx(ctx context.Context, key string, ttl time.Duration) error {
+	return s.client.SetEx(ctx, s.key(key), "", ttl).Err()
 }
 
 func (s *RedisStore) GetDel(ctx context.Context, key string) error {
@@ -89,7 +89,7 @@ func NewInMemStore() *InMemStore {
 	}
 }
 
-func (s *InMemStore) SetEX(ctx context.Context, key string, ttl time.Duration) error {
+func (s *InMemStore) SetEx(ctx context.Context, key string, ttl time.Duration) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 

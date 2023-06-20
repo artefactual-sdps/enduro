@@ -5,13 +5,13 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/go-redis/redis/v8"
+	"github.com/redis/go-redis/v9"
 
 	goapackage "github.com/artefactual-sdps/enduro/internal/api/gen/package_"
 )
 
 type EventServiceRedisImpl struct {
-	client *redis.Client
+	client redis.UniversalClient
 	cfg    *Config
 }
 
@@ -51,7 +51,7 @@ type SubscriptionRedisImpl struct {
 
 var _ Subscription = (*SubscriptionRedisImpl)(nil)
 
-func NewSubscriptionRedis(c *redis.Client, channel string) Subscription {
+func NewSubscriptionRedis(c redis.UniversalClient, channel string) Subscription {
 	ctx := context.Background()
 	pubsub := c.Subscribe(ctx, channel)
 	// Call Receive to force the connection to wait a response from
