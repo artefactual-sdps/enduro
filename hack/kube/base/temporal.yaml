@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: temporal
-          image: temporalio/auto-setup:1.16.2
+          image: temporalio/auto-setup:1.20.3
           env:
             - name: DB
               value: mysql

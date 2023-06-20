@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: temporal-ui
-          image: temporalio/ui:0.13.2
+          image: temporalio/ui:2.16.1
           env:
             - name: TEMPORAL_ADDRESS
               value: temporal.sdps:7233
