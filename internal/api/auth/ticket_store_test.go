@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/alicebob/miniredis/v2"
-	"github.com/go-redis/redis/v8"
+	"github.com/redis/go-redis/v9"
 	"gotest.tools/v3/assert"
 
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
@@ -54,7 +54,7 @@ func TestRedisStore(t *testing.T) {
 		})
 		assert.NilError(t, err)
 
-		err = store.SetEX(ctx, storeKey, time.Second)
+		err = store.SetEx(ctx, storeKey, time.Second)
 		assert.NilError(t, err)
 
 		// It should find the item.
@@ -81,7 +81,7 @@ func TestRedisStore(t *testing.T) {
 		})
 		assert.NilError(t, err)
 
-		err = store.SetEX(ctx, storeKey, time.Second)
+		err = store.SetEx(ctx, storeKey, time.Second)
 		assert.NilError(t, err)
 
 		// It should find the item.
@@ -97,7 +97,7 @@ func TestRedisStore(t *testing.T) {
 		redisServer := miniredis.RunT(t)
 		redisClient := redis.NewClient(&redis.Options{Addr: redisServer.Addr()})
 
-		err := redisClient.SetEX(ctx, "prefix:ticket:"+storeKey, "", time.Minute).Err()
+		err := redisClient.SetEx(ctx, "prefix:ticket:"+storeKey, "", time.Minute).Err()
 		assert.NilError(t, err)
 
 		store, err := auth.NewRedisStore(ctx, &auth.RedisConfig{
@@ -120,7 +120,7 @@ func TestRedisStore(t *testing.T) {
 		redisServer := miniredis.RunT(t)
 		redisClient := redis.NewClient(&redis.Options{Addr: redisServer.Addr()})
 
-		err := redisClient.SetEX(ctx, "prefix:ticket:"+storeKey, "", time.Second*5).Err()
+		err := redisClient.SetEx(ctx, "prefix:ticket:"+storeKey, "", time.Second*5).Err()
 		assert.NilError(t, err)
 
 		store, err := auth.NewRedisStore(ctx, &auth.RedisConfig{
@@ -147,7 +147,7 @@ func TestRedisStore(t *testing.T) {
 		assert.NilError(t, err)
 
 		store.Close() // Close the client.
-		assert.Error(t, store.SetEX(ctx, "key", time.Second), "redis: client is closed")
+		assert.Error(t, store.SetEx(ctx, "key", time.Second), "redis: client is closed")
 	})
 }
 
@@ -162,7 +162,7 @@ func TestInMemStore(t *testing.T) {
 		defer store.Close()
 
 		// It stores the ticket.
-		err := store.SetEX(ctx, "ticket", time.Second)
+		err := store.SetEx(ctx, "ticket", time.Second)
 		assert.NilError(t, err)
 
 		// It returns non-nil indicating that the ticket was found
@@ -179,7 +179,7 @@ func TestInMemStore(t *testing.T) {
 		store := auth.NewInMemStore()
 		defer store.Close()
 
-		err := store.SetEX(ctx, "ticket", time.Nanosecond)
+		err := store.SetEx(ctx, "ticket", time.Nanosecond)
 		assert.NilError(t, err)
 
 		// ttl was one billionth of a second, should be expired already.

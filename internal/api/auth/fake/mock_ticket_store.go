@@ -63,16 +63,16 @@ func (mr *MockTicketStoreMockRecorder) GetDel(arg0, arg1 interface{}) *gomock.Ca
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDel", reflect.TypeOf((*MockTicketStore)(nil).GetDel), arg0, arg1)
 }
 
-// SetEX mocks base method.
-func (m *MockTicketStore) SetEX(arg0 context.Context, arg1 string, arg2 time.Duration) error {
+// SetEx mocks base method.
+func (m *MockTicketStore) SetEx(arg0 context.Context, arg1 string, arg2 time.Duration) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SetEX", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "SetEx", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// SetEX indicates an expected call of SetEX.
-func (mr *MockTicketStoreMockRecorder) SetEX(arg0, arg1, arg2 interface{}) *gomock.Call {
+// SetEx indicates an expected call of SetEx.
+func (mr *MockTicketStoreMockRecorder) SetEx(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetEX", reflect.TypeOf((*MockTicketStore)(nil).SetEX), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetEx", reflect.TypeOf((*MockTicketStore)(nil).SetEx), arg0, arg1, arg2)
 }

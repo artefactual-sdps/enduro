@@ -46,7 +46,7 @@ func TestTicketProviderRequest(t *testing.T) {
 		store := fake.NewMockTicketStore(ctrl)
 
 		store.EXPECT().
-			SetEX(gomock.Any(), ticket, auth.TicketTTL).
+			SetEx(gomock.Any(), ticket, auth.TicketTTL).
 			Return(nil)
 
 		provider := auth.NewTicketProvider(ctx, store, rander)
@@ -81,7 +81,7 @@ func TestTicketProviderRequest(t *testing.T) {
 		store := fake.NewMockTicketStore(ctrl)
 
 		store.EXPECT().
-			SetEX(gomock.Any(), ticket, auth.TicketTTL).
+			SetEx(gomock.Any(), ticket, auth.TicketTTL).
 			Return(errors.New("fake error"))
 
 		rander := rand.New(rand.NewSource(1)) //#nosec

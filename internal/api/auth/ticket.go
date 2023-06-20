@@ -52,7 +52,7 @@ func (t *TicketProvider) Request(ctx context.Context) (string, error) {
 		return "", fmt.Errorf("error creating ticket: %v", err)
 	}
 
-	err = t.store.SetEX(ctx, ticket, t.ttl)
+	err = t.store.SetEx(ctx, ticket, t.ttl)
 	if err != nil {
 		return "", fmt.Errorf("error storing ticket: %v", err)
 	}
