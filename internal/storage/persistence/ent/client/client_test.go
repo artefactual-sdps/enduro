@@ -263,6 +263,40 @@ func TestCreateLocation(t *testing.T) {
 	assert.DeepEqual(t, dblocation.Config.Value, &types.S3Config{Bucket: "perma-aips-1"})
 }
 
+func TestCreateURLLocation(t *testing.T) {
+	t.Parallel()
+
+	entc, c := setUpClient(t)
+	ctx := context.Background()
+
+	l, err := c.CreateLocation(
+		ctx,
+		&goastorage.Location{
+			Name:        "test_url_location",
+			Description: ref.New("location description"),
+			Source:      types.LocationSourceMinIO.String(),
+			Purpose:     types.LocationPurposeAIPStore.String(),
+			UUID:        uuid.MustParse("7a090f2c-7bd4-471c-8aa1-8c72125decd5"),
+		},
+		&types.LocationConfig{
+			Value: &types.URLConfig{
+				URL: "mem://",
+			},
+		},
+	)
+	assert.NilError(t, err)
+
+	dblocation, err := entc.Location.Query().Where(location.UUID(l.UUID)).Only(ctx)
+	assert.NilError(t, err)
+	assert.Equal(t, dblocation.Name, "test_url_location")
+	assert.Equal(t, dblocation.Description, "location description")
+	assert.Equal(t, dblocation.Source, types.LocationSourceMinIO)
+	assert.Equal(t, dblocation.Purpose, types.LocationPurposeAIPStore)
+	assert.Equal(t, dblocation.UUID.String(), "7a090f2c-7bd4-471c-8aa1-8c72125decd5")
+	assert.Equal(t, dblocation.CreatedAt, time.Date(2013, time.February, 3, 19, 54, 0, 0, time.UTC))
+	assert.DeepEqual(t, dblocation.Config.Value, &types.URLConfig{URL: "mem://"})
+}
+
 func TestListLocations(t *testing.T) {
 	t.Parallel()
 
@@ -292,6 +326,18 @@ func TestListLocations(t *testing.T) {
 				Username:  "user",
 				Password:  "secret",
 				Directory: "upload",
+			},
+		}).
+		SaveX(context.Background())
+	entc.Location.Create().
+		SetName("URL Location").
+		SetDescription("URL location").
+		SetSource(types.LocationSourceMinIO).
+		SetPurpose(types.LocationPurposeUnspecified).
+		SetUUID(uuid.MustParse("f0b91bce-dddc-4e15-b1ae-19007685204b")).
+		SetConfig(types.LocationConfig{
+			Value: &types.URLConfig{
+				URL: "mem://",
 			},
 		}).
 		SaveX(context.Background())
@@ -328,6 +374,17 @@ func TestListLocations(t *testing.T) {
 				Username:  "user",
 				Password:  "secret",
 				Directory: "upload",
+			},
+		},
+		{
+			Name:        "URL Location",
+			Description: ref.New("URL location"),
+			Source:      "minio",
+			Purpose:     "unspecified",
+			UUID:        uuid.MustParse("f0b91bce-dddc-4e15-b1ae-19007685204b"),
+			CreatedAt:   "2013-02-03T19:54:00Z",
+			Config: &goastorage.URLConfig{
+				URL: "mem://",
 			},
 		},
 	})

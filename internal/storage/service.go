@@ -50,9 +50,6 @@ type serviceImpl struct {
 	// Persistence client.
 	storagePersistence persistence.Storage
 
-	// Factory for permanent locations.
-	locationFactory LocationFactory
-
 	tokenVerifier auth.TokenVerifier
 }
 
@@ -65,8 +62,6 @@ func NewService(
 	config Config,
 	storagePersistence persistence.Storage,
 	tc temporalsdk_client.Client,
-	internalLocationFactory InternalLocationFactory,
-	locationFactory LocationFactory,
 	tokenVerifier auth.TokenVerifier,
 ) (s *serviceImpl, err error) {
 	s = &serviceImpl{
@@ -74,14 +69,14 @@ func NewService(
 		tc:                 tc,
 		config:             config,
 		storagePersistence: storagePersistence,
-		locationFactory:    locationFactory,
 		tokenVerifier:      tokenVerifier,
 	}
 
-	s.internal, err = internalLocationFactory(&config.Internal)
+	l, err := NewInternalLocation(&config.Internal)
 	if err != nil {
 		return nil, err
 	}
+	s.internal = l
 
 	return s, nil
 }
@@ -108,12 +103,12 @@ func (s *serviceImpl) Location(ctx context.Context, locationID uuid.UUID) (Locat
 		return s.internal, nil
 	}
 
-	l, err := s.ReadLocation(ctx, locationID)
+	goaLoc, err := s.ReadLocation(ctx, locationID)
 	if err != nil {
 		return nil, err
 	}
 
-	return s.locationFactory(l)
+	return NewLocation(goaLoc)
 }
 
 func (s *serviceImpl) Submit(ctx context.Context, payload *goastorage.SubmitPayload) (*goastorage.SubmitResult, error) {
@@ -134,17 +129,22 @@ func (s *serviceImpl) Submit(ctx context.Context, payload *goastorage.SubmitPayl
 		ObjectKey: objectKey,
 	})
 	if err != nil {
-		return nil, goastorage.MakeNotValid(errors.New("cannot persist package"))
+		return nil, goastorage.MakeNotValid(errors.New("cannot create package"))
 	}
 
-	bucket := s.internal.Bucket()
+	bucket, err := s.internal.OpenBucket(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer bucket.Close()
+
 	opts := &blob.SignedURLOptions{
 		Expiry: SubmitURLExpirationTime,
 		Method: http.MethodPut,
 	}
 	url, err := bucket.SignedURL(ctx, objectKey.String(), opts)
 	if err != nil {
-		return nil, goastorage.MakeNotValid(errors.New("cannot persist package"))
+		return nil, goastorage.MakeNotValid(errors.New("cannot sign URL"))
 	}
 
 	result := &goastorage.SubmitResult{
@@ -168,7 +168,7 @@ func (s *serviceImpl) Update(ctx context.Context, payload *goastorage.UpdatePayl
 	// Update the package status to in_review
 	err = s.UpdatePackageStatus(ctx, aipID, types.StatusInReview)
 	if err != nil {
-		return goastorage.MakeNotValid(errors.New("cannot persist package"))
+		return goastorage.MakeNotValid(errors.New("cannot update package status"))
 	}
 
 	return nil
@@ -270,19 +270,18 @@ func (s *serviceImpl) UpdatePackageLocationID(ctx context.Context, aipID, locati
 	return s.storagePersistence.UpdatePackageLocationID(ctx, aipID, locationID)
 }
 
-// packageBucket returns the bucket and the key of the given package.
-func (s *serviceImpl) packageBucket(ctx context.Context, p *goastorage.Package) (*blob.Bucket, string, error) {
+// packageLocation returns the bucket and the key of the given package.
+func (s *serviceImpl) packageLocation(ctx context.Context, p *goastorage.Package) (Location, string, error) {
 	// Package is still in the internal processing bucket.
 	if p.LocationID == nil || *p.LocationID == uuid.Nil {
-		return s.internal.Bucket(), p.ObjectKey.String(), nil
+		return s.internal, p.ObjectKey.String(), nil
 	}
 
 	location, err := s.Location(ctx, *p.LocationID)
 	if err != nil {
 		return nil, "", err
 	}
-
-	return location.Bucket(), p.AipID.String(), nil
+	return location, p.AipID.String(), nil
 }
 
 func (s *serviceImpl) Delete(ctx context.Context, aipID uuid.UUID) error {
@@ -291,19 +290,31 @@ func (s *serviceImpl) Delete(ctx context.Context, aipID uuid.UUID) error {
 		return err
 	}
 
-	bucket, key, err := s.packageBucket(ctx, pkg)
+	location, key, err := s.packageLocation(ctx, pkg)
 	if err != nil {
 		return err
 	}
+
+	bucket, err := location.OpenBucket(ctx)
+	if err != nil {
+		return err
+	}
+	defer bucket.Close()
 
 	return bucket.Delete(ctx, key)
 }
 
 func (s *serviceImpl) PackageReader(ctx context.Context, pkg *goastorage.Package) (*blob.Reader, error) {
-	bucket, key, err := s.packageBucket(ctx, pkg)
+	location, key, err := s.packageLocation(ctx, pkg)
 	if err != nil {
 		return nil, err
 	}
+
+	bucket, err := location.OpenBucket(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer bucket.Close()
 
 	reader, err := bucket.NewReader(ctx, key, nil)
 	if err != nil {
@@ -320,6 +331,8 @@ func (s *serviceImpl) AddLocation(ctx context.Context, payload *goastorage.AddLo
 
 	var config types.LocationConfig
 	switch c := payload.Config.(type) {
+	case *goastorage.URLConfig:
+		config.Value = c.ConvertToURLConfig()
 	case *goastorage.S3Config:
 		config.Value = c.ConvertToS3Config()
 	default:

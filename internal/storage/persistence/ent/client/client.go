@@ -211,6 +211,10 @@ func locationAsGoa(loc *db.Location) *goastorage.Location {
 			Password:  c.Password,
 			Directory: c.Directory,
 		}
+	case *types.URLConfig:
+		l.Config = &goastorage.URLConfig{
+			URL: c.URL,
+		}
 	}
 
 	return l
