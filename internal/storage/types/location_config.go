@@ -14,8 +14,19 @@ import (
 	"gocloud.dev/blob/s3blob"
 )
 
+type configVal interface {
+	Valid() bool
+	OpenBucket(context.Context) (*blob.Bucket, error)
+}
+
 type LocationConfig struct {
 	Value configVal
+}
+
+type configTypes struct {
+	S3         *S3Config   `json:"s3,omitempty"`
+	SFTPConfig *SFTPConfig `json:"sftp,omitempty"`
+	URLConfig  *URLConfig  `json:"url,omitempty"`
 }
 
 func (c LocationConfig) MarshalJSON() ([]byte, error) {
@@ -55,11 +66,6 @@ func (c *LocationConfig) UnmarshalJSON(blob []byte) error {
 	}
 
 	return nil
-}
-
-type configVal interface {
-	Valid() bool
-	OpenBucket(context.Context) (*blob.Bucket, error)
 }
 
 type S3Config struct {
@@ -139,10 +145,4 @@ func (c URLConfig) OpenBucket(ctx context.Context) (*blob.Bucket, error) {
 	}
 
 	return b, nil
-}
-
-type configTypes struct {
-	S3         *S3Config   `json:"s3,omitempty"`
-	SFTPConfig *SFTPConfig `json:"sftp,omitempty"`
-	URLConfig  *URLConfig  `json:"url,omitempty"`
 }

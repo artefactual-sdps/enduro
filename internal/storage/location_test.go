@@ -24,7 +24,7 @@ func TestNewInternalLocation(t *testing.T) {
 		{
 			name: "Returns an internal URL location",
 			config: &storage.LocationConfig{
-				URL: "mem:///test-bucket",
+				URL: "mem://",
 			},
 			canAccess: true,
 		},
@@ -34,13 +34,6 @@ func TestNewInternalLocation(t *testing.T) {
 				URL: "",
 			},
 			errMsg: "invalid configuration",
-		},
-		{
-			name: "Errors on an invalid URL location",
-			config: &storage.LocationConfig{
-				URL: "foo:///test-bucket",
-			},
-			errMsg: `open bucket by URL: open blob.Bucket: no driver registered for "foo" for URL "foo:///test-bucket"; available schemes: file, mem, s3, sftp`,
 		},
 	}
 	for _, tc := range tests {
@@ -54,16 +47,8 @@ func TestNewInternalLocation(t *testing.T) {
 				assert.Error(t, err, tc.errMsg)
 				return
 			}
-
 			assert.NilError(t, err)
-			defer loc.Close()
-
-			y, err := loc.Bucket().IsAccessible(context.Background())
-			assert.NilError(t, err)
-			assert.Equal(t, y, tc.canAccess)
-
-			err = loc.Close()
-			assert.NilError(t, err)
+			assert.Equal(t, loc.UUID(), uuid.Nil)
 		})
 	}
 }
@@ -84,7 +69,31 @@ func TestNewLocation(t *testing.T) {
 			location: &goastorage.Location{
 				UUID: locationID,
 				Config: &goastorage.URLConfig{
-					URL: "mem:///test-bucket",
+					URL: "mem://",
+				},
+			},
+			uuid: locationID,
+		},
+		{
+			name: "Returns an S3 location",
+			location: &goastorage.Location{
+				UUID: locationID,
+				Config: &goastorage.S3Config{
+					Bucket: "perma-aips-1",
+					Region: "planet-earth",
+				},
+			},
+			uuid: locationID,
+		},
+		{
+			name: "Returns an SFTP location",
+			location: &goastorage.Location{
+				UUID: locationID,
+				Config: &goastorage.SFTPConfig{
+					Address:   "sftp.example.com",
+					Username:  "test",
+					Password:  "Test123!",
+					Directory: "deposit",
 				},
 			},
 			uuid: locationID,
@@ -96,16 +105,6 @@ func TestNewLocation(t *testing.T) {
 				Config: &goastorage.URLConfig{},
 			},
 			errMsg: "invalid configuration",
-		},
-		{
-			name: "Errors on an invalid URL schema",
-			location: &goastorage.Location{
-				UUID: locationID,
-				Config: &goastorage.URLConfig{
-					URL: "foo:///test-bucket",
-				},
-			},
-			errMsg: `open bucket by URL: open blob.Bucket: no driver registered for "foo" for URL "foo:///test-bucket"`,
 		},
 	}
 	for _, tc := range tests {
@@ -121,13 +120,61 @@ func TestNewLocation(t *testing.T) {
 			}
 
 			assert.NilError(t, err)
-			defer loc.Close()
-
 			assert.Equal(t, loc.UUID(), tc.uuid)
-			assert.Assert(t, loc.Bucket() != nil)
+		})
+	}
+}
 
-			err = loc.Close()
+func TestLocation_Bucket(t *testing.T) {
+	t.Parallel()
+
+	locationID := uuid.MustParse("314bbf3e-2fb0-4d86-910f-0c1bdfeda3a1")
+
+	tests := []struct {
+		name     string
+		location *goastorage.Location
+		uuid     uuid.UUID
+		errMsg   string
+	}{
+		{
+			name: "Returns a URL config bucket",
+			location: &goastorage.Location{
+				UUID: locationID,
+				Config: &goastorage.URLConfig{
+					URL: "mem://",
+				},
+			},
+			uuid: locationID,
+		},
+		{
+			name: "Errors on an invalid bucket driver",
+			location: &goastorage.Location{
+				UUID: locationID,
+				Config: &goastorage.URLConfig{
+					URL: "foo://test-bucket",
+				},
+			},
+			errMsg: `open bucket by URL: open blob.Bucket: no driver registered for "foo" for URL "foo://test-bucket"`,
+		},
+	}
+	for _, tc := range tests {
+		tc := tc
+
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			loc, err := storage.NewLocation(tc.location)
+
 			assert.NilError(t, err)
+
+			b, err := loc.OpenBucket(context.Background())
+			if tc.errMsg != "" {
+				assert.ErrorContains(t, err, tc.errMsg)
+				return
+			}
+			defer b.Close()
+
+			assert.Assert(t, b != nil)
 		})
 	}
 }

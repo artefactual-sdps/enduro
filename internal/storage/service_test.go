@@ -3,8 +3,8 @@ package storage_test
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
-	"net/url"
 	"testing"
 
 	"github.com/go-logr/logr"
@@ -18,9 +18,9 @@ import (
 	temporalsdk_mocks "go.temporal.io/sdk/mocks"
 	goa "goa.design/goa/v3/pkg"
 	"gocloud.dev/blob"
-	"gocloud.dev/blob/fileblob"
-	"gocloud.dev/blob/memblob"
+	_ "gocloud.dev/blob/fileblob"
 	"gotest.tools/v3/assert"
+	tfs "gotest.tools/v3/fs"
 
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
@@ -32,12 +32,10 @@ import (
 )
 
 type setUpAttrs struct {
-	logger                  *logr.Logger
-	config                  *storage.Config
-	persistence             *persistence.Storage
-	temporalClient          *temporalsdk_client.Client
-	internalLocationFactory storage.InternalLocationFactory
-	locationFactory         storage.LocationFactory
+	logger         *logr.Logger
+	config         *storage.Config
+	persistence    *persistence.Storage
+	temporalClient *temporalsdk_client.Client
 
 	persistenceMock    *fake.MockStorage
 	temporalClientMock *temporalsdk_mocks.Client
@@ -53,22 +51,20 @@ func setUpService(t *testing.T, attrs *setUpAttrs) storage.Service {
 	tcMock := &temporalsdk_mocks.Client{}
 	var tc temporalsdk_client.Client = tcMock
 
+	td := tfs.NewDir(t, "enduro-service-test")
+
 	params := setUpAttrs{
 		logger: ref.New(logr.Discard()),
-		config: ref.New(storage.Config{
+		config: &storage.Config{
 			Internal: storage.LocationConfig{
-				Name:   "",
-				Bucket: "internal",
-				Region: "eu-west-2",
+				URL: "file://" + td.Path(),
 			},
-		}),
-		persistence:             &ps,
-		persistenceMock:         psMock,
-		temporalClient:          &tc,
-		temporalClientMock:      tcMock,
-		internalLocationFactory: storage.DefaultInternalLocationFactory,
-		locationFactory:         storage.DefaultLocationFactory,
-		tokenVerifier:           &auth.OIDCTokenVerifier{},
+		},
+		persistence:        &ps,
+		persistenceMock:    psMock,
+		temporalClient:     &tc,
+		temporalClientMock: tcMock,
+		tokenVerifier:      &auth.OIDCTokenVerifier{},
 	}
 	if attrs.logger != nil {
 		params.logger = attrs.logger
@@ -82,12 +78,6 @@ func setUpService(t *testing.T, attrs *setUpAttrs) storage.Service {
 	if attrs.temporalClient != nil {
 		params.temporalClient = attrs.temporalClient
 	}
-	if attrs.internalLocationFactory != nil {
-		params.internalLocationFactory = attrs.internalLocationFactory
-	}
-	if attrs.locationFactory != nil {
-		params.locationFactory = attrs.locationFactory
-	}
 	if attrs.tokenVerifier != nil {
 		params.tokenVerifier = attrs.tokenVerifier
 	}
@@ -99,8 +89,6 @@ func setUpService(t *testing.T, attrs *setUpAttrs) storage.Service {
 		*params.config,
 		*params.persistence,
 		*params.temporalClient,
-		params.internalLocationFactory,
-		params.locationFactory,
 		params.tokenVerifier,
 	)
 	assert.NilError(t, err)
@@ -108,89 +96,15 @@ func setUpService(t *testing.T, attrs *setUpAttrs) storage.Service {
 	return s
 }
 
-type fakeLocation struct {
-	b  *blob.Bucket
-	id uuid.UUID
-}
-
-func (l *fakeLocation) UUID() uuid.UUID {
-	return l.id
-}
-
-func (l *fakeLocation) Bucket() *blob.Bucket {
-	return l.b
-}
-
-func (l *fakeLocation) Close() error {
-	return nil
-}
-
-func fakeInternalLocationFactory(t *testing.T, b *blob.Bucket) storage.InternalLocationFactory {
+// writeTestBlob writes a test blob with the given key to the bucket at urlstr.
+func writeTestBlob(ctx context.Context, t *testing.T, urlstr, key string) {
 	t.Helper()
 
-	t.Cleanup(func() { b.Close() })
-
-	if b == nil {
-		b = memblob.OpenBucket(nil)
-	}
-
-	return func(config *storage.LocationConfig) (storage.Location, error) {
-		return &fakeLocation{
-			b:  b,
-			id: uuid.Nil,
-		}, nil
-	}
-}
-
-func fakeInternalLocationFactoryWithContents(t *testing.T, b *blob.Bucket, objectKey, contents string) storage.InternalLocationFactory {
-	t.Helper()
-
-	if b == nil {
-		b = memblob.OpenBucket(nil)
-	}
-	t.Cleanup(func() { b.Close() })
-	b.WriteAll(context.Background(), objectKey, []byte(contents), nil)
-
-	return func(config *storage.LocationConfig) (storage.Location, error) {
-		return &fakeLocation{
-			b:  b,
-			id: uuid.Nil,
-		}, nil
-	}
-}
-
-func fakeLocationFactory(t *testing.T, b *blob.Bucket) storage.LocationFactory {
-	t.Helper()
-
-	t.Cleanup(func() { b.Close() })
-
-	if b == nil {
-		b = memblob.OpenBucket(nil)
-	}
-
-	return func(location *goastorage.Location) (storage.Location, error) {
-		return &fakeLocation{
-			b:  b,
-			id: location.UUID,
-		}, nil
-	}
-}
-
-func fakeLocationFactoryWithContents(t *testing.T, b *blob.Bucket, objectKey, contents string) storage.LocationFactory {
-	t.Helper()
-
-	if b == nil {
-		b = memblob.OpenBucket(nil)
-	}
-	t.Cleanup(func() { b.Close() })
-	b.WriteAll(context.Background(), objectKey, []byte(contents), nil)
-
-	return func(location *goastorage.Location) (storage.Location, error) {
-		return &fakeLocation{
-			b:  b,
-			id: location.UUID,
-		}, nil
-	}
+	b, err := blob.OpenBucket(ctx, urlstr)
+	assert.NilError(t, err)
+	defer b.Close()
+	err = b.WriteAll(ctx, key, []byte("Testing 1-2-3!"), nil)
+	assert.NilError(t, err)
 }
 
 // io.Reader used as number generator for making UUIDs predictable
@@ -212,8 +126,6 @@ func TestNewService(t *testing.T) {
 			storage.Config{},
 			nil,
 			nil,
-			storage.DefaultInternalLocationFactory,
-			storage.DefaultLocationFactory,
 			&auth.OIDCTokenVerifier{},
 		)
 
@@ -316,7 +228,7 @@ func TestServiceSubmit(t *testing.T) {
 		})
 		assert.Assert(t, ret == nil)
 		assert.Equal(t, err.(*goa.ServiceError).Name, "not_valid")
-		assert.ErrorContains(t, err, "cannot persist package")
+		assert.ErrorContains(t, err, "cannot create package")
 	})
 
 	t.Run("Returns not_valid if signed URL cannot be generated", func(t *testing.T) {
@@ -363,23 +275,26 @@ func TestServiceSubmit(t *testing.T) {
 		})
 		assert.Assert(t, ret == nil)
 		assert.Equal(t, err.(*goa.ServiceError).Name, "not_valid")
-		assert.ErrorContains(t, err, "cannot persist package")
+		assert.ErrorContains(t, err, "cannot sign URL")
 	})
 
 	t.Run("Returns signed URL", func(t *testing.T) {
 		t.Parallel()
 
-		// Fake internal location, using fileblob because it can generate signed URLs.
-		furl, err := url.Parse("file:///tmp/dir")
-		assert.NilError(t, err)
-		b, err := fileblob.OpenBucket("/tmp", &fileblob.Options{URLSigner: fileblob.NewURLSignerHMAC(furl, []byte("1234"))})
-		assert.NilError(t, err)
+		td := tfs.NewDir(t, "enduro-service-test")
 
-		AIPID := uuid.MustParse("5ab42bc3-acc2-420b-bbd0-76efdef94828")
-		attrs := &setUpAttrs{
-			internalLocationFactory: fakeInternalLocationFactory(t, b),
+		attrs := setUpAttrs{
+			config: &storage.Config{
+				Internal: storage.LocationConfig{
+					URL: fmt.Sprintf(
+						"file://%s?base_url=file://tmp/dir&secret_key_path=fake/signing.key",
+						td.Path(),
+					),
+				},
+			},
 		}
-		svc := setUpService(t, attrs)
+		aipID := uuid.MustParse("5ab42bc3-acc2-420b-bbd0-76efdef94828")
+		svc := setUpService(t, &attrs)
 		ctx := context.Background()
 
 		attrs.temporalClientMock.
@@ -387,12 +302,12 @@ func TestServiceSubmit(t *testing.T) {
 				"ExecuteWorkflow",
 				mock.AnythingOfType("*context.timerCtx"),
 				temporalsdk_client.StartWorkflowOptions{
-					ID:                    "storage-upload-workflow-" + AIPID.String(),
+					ID:                    "storage-upload-workflow-" + aipID.String(),
 					TaskQueue:             "global",
 					WorkflowIDReusePolicy: temporalapi_enums.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE,
 				},
 				"storage-upload-workflow",
-				&storage.StorageUploadWorkflowRequest{AIPID: AIPID},
+				&storage.StorageUploadWorkflowRequest{AIPID: aipID},
 			).
 			Return(
 				&temporalsdk_mocks.WorkflowRun{},
@@ -414,21 +329,19 @@ func TestServiceSubmit(t *testing.T) {
 
 		ret, err := svc.Submit(ctx, &goastorage.SubmitPayload{
 			Name:  "package",
-			AipID: AIPID.String(),
+			AipID: aipID.String(),
 		})
-		assert.Equal(t, ret.URL[0:15], "file:///tmp/dir")
 		assert.NilError(t, err)
+		assert.Equal(t, ret.URL[0:15], "file://tmp/dir?")
 	})
 }
 
 func TestServiceLocation(t *testing.T) {
 	t.Parallel()
 
-	attrs := &setUpAttrs{
-		locationFactory: fakeLocationFactory(t, nil),
-	}
+	var attrs setUpAttrs
 	ctx := context.Background()
-	svc := setUpService(t, attrs)
+	svc := setUpService(t, &attrs)
 	locationID := uuid.MustParse("50110114-55ac-4567-b74f-9def601c6293")
 
 	attrs.persistenceMock.
@@ -440,6 +353,9 @@ func TestServiceLocation(t *testing.T) {
 		Return(
 			&goastorage.Location{
 				UUID: locationID,
+				Config: &goastorage.URLConfig{
+					URL: "mem://",
+				},
 			},
 			nil,
 		).Times(1)
@@ -669,29 +585,31 @@ func TestServiceDelete(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		AIPID := uuid.MustParse("7c09fa45-cdac-4874-90af-56dc86a6e73c")
-		attrs := setUpAttrs{
-			internalLocationFactory: fakeInternalLocationFactoryWithContents(t, nil, AIPID.String(), "foobar"),
-		}
+		aipID := uuid.MustParse("7c09fa45-cdac-4874-90af-56dc86a6e73c")
+
+		var attrs setUpAttrs
 		svc := setUpService(t, &attrs)
+
+		// Write a test blob to the internal bucket.
+		writeTestBlob(ctx, t, "file://"+attrs.config.Internal.URL, aipID.String())
 
 		attrs.persistenceMock.
 			EXPECT().
 			ReadPackage(
 				ctx,
-				AIPID,
+				aipID,
 			).
 			Return(
 				&goastorage.Package{
-					AipID:      AIPID,
-					ObjectKey:  AIPID,
+					AipID:      aipID,
+					ObjectKey:  aipID,
 					LocationID: &uuid.Nil,
 				},
 				nil,
 			).
 			Times(1)
 
-		err := svc.Delete(ctx, AIPID)
+		err := svc.Delete(ctx, aipID)
 		assert.NilError(t, err)
 	})
 
@@ -699,23 +617,26 @@ func TestServiceDelete(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		AIPID := uuid.MustParse("76a654ad-dccc-4dd3-a398-e84cd9f96415")
+		aipID := uuid.MustParse("76a654ad-dccc-4dd3-a398-e84cd9f96415")
 		locationID := uuid.MustParse("7484e911-7fc3-40c2-acb4-91e552d05380")
-		attrs := setUpAttrs{
-			locationFactory: fakeLocationFactoryWithContents(t, nil, AIPID.String(), "foobar"),
-		}
+		td := tfs.NewDir(t, "enduro-service-test")
+
+		var attrs setUpAttrs
 		svc := setUpService(t, &attrs)
+
+		// Write a test blob to the perma location.
+		writeTestBlob(ctx, t, "file://"+td.Path(), aipID.String())
 
 		attrs.persistenceMock.
 			EXPECT().
 			ReadPackage(
 				ctx,
-				AIPID,
+				aipID,
 			).
 			Return(
 				&goastorage.Package{
-					AipID:      AIPID,
-					ObjectKey:  AIPID,
+					AipID:      aipID,
+					ObjectKey:  aipID,
 					LocationID: &locationID,
 				},
 				nil,
@@ -731,12 +652,15 @@ func TestServiceDelete(t *testing.T) {
 			Return(
 				&goastorage.Location{
 					UUID: locationID,
+					Config: &goastorage.URLConfig{
+						URL: "file://" + td.Path(),
+					},
 				},
 				nil,
 			).
 			Times(1)
 
-		err := svc.Delete(ctx, AIPID)
+		err := svc.Delete(ctx, aipID)
 		assert.NilError(t, err)
 	})
 
@@ -744,23 +668,23 @@ func TestServiceDelete(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		AIPID := uuid.MustParse("76a654ad-dccc-4dd3-a398-e84cd9f96415")
+		aipID := uuid.MustParse("76a654ad-dccc-4dd3-a398-e84cd9f96415")
 		locationID := uuid.MustParse("7484e911-7fc3-40c2-acb4-91e552d05380")
-		attrs := setUpAttrs{
-			locationFactory: fakeLocationFactory(t, nil),
-		}
+		td := tfs.NewDir(t, "enduro-service-test")
+
+		var attrs setUpAttrs
 		svc := setUpService(t, &attrs)
 
 		attrs.persistenceMock.
 			EXPECT().
 			ReadPackage(
 				ctx,
-				AIPID,
+				aipID,
 			).
 			Return(
 				&goastorage.Package{
-					AipID:      AIPID,
-					ObjectKey:  AIPID,
+					AipID:      aipID,
+					ObjectKey:  aipID,
 					LocationID: &locationID,
 				},
 				nil,
@@ -776,13 +700,19 @@ func TestServiceDelete(t *testing.T) {
 			Return(
 				&goastorage.Location{
 					UUID: locationID,
+					Config: &goastorage.URLConfig{
+						URL: "file://" + td.Path(),
+					},
 				},
 				nil,
 			).
 			Times(1)
 
-		err := svc.Delete(ctx, AIPID)
-		assert.Error(t, err, "blob (key \"76a654ad-dccc-4dd3-a398-e84cd9f96415\") (code=NotFound): blob not found")
+		err := svc.Delete(ctx, aipID)
+		assert.Error(t, err, fmt.Sprintf(
+			"blob (key \"76a654ad-dccc-4dd3-a398-e84cd9f96415\") (code=NotFound): remove %s/76a654ad-dccc-4dd3-a398-e84cd9f96415: no such file or directory",
+			td.Path(),
+		))
 	})
 
 	t.Run("Fails if location is not available", func(t *testing.T) {
@@ -858,12 +788,15 @@ func TestPackageReader(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		AIPID := uuid.MustParse("7c09fa45-cdac-4874-90af-56dc86a6e73c")
+		aipID := uuid.MustParse("7c09fa45-cdac-4874-90af-56dc86a6e73c")
 		locationID := uuid.MustParse("7484e911-7fc3-40c2-acb4-91e552d05380")
-		attrs := setUpAttrs{
-			locationFactory: fakeLocationFactoryWithContents(t, nil, AIPID.String(), "contents"),
-		}
+		td := tfs.NewDir(t, "enduro-service-test")
+
+		var attrs setUpAttrs
 		svc := setUpService(t, &attrs)
+
+		// Write a test blob to the bucket.
+		writeTestBlob(ctx, t, "file://"+td.Path(), aipID.String())
 
 		attrs.persistenceMock.
 			EXPECT().
@@ -874,9 +807,8 @@ func TestPackageReader(t *testing.T) {
 			Return(
 				&goastorage.Location{
 					UUID: locationID,
-					Config: &goastorage.S3Config{
-						Bucket: "perma-aips-1",
-						Region: "planet-earth",
+					Config: &goastorage.URLConfig{
+						URL: "file://" + td.Path(),
 					},
 				},
 				nil,
@@ -884,8 +816,8 @@ func TestPackageReader(t *testing.T) {
 			Times(1)
 
 		reader, err := svc.PackageReader(ctx, &goastorage.Package{
-			AipID:      AIPID,
-			ObjectKey:  AIPID,
+			AipID:      aipID,
+			ObjectKey:  aipID,
 			LocationID: &locationID,
 		})
 		assert.NilError(t, err)
@@ -893,7 +825,7 @@ func TestPackageReader(t *testing.T) {
 
 		blob, err := io.ReadAll(reader)
 		assert.NilError(t, err)
-		assert.Equal(t, string(blob), "contents")
+		assert.Equal(t, string(blob), "Testing 1-2-3!")
 	})
 
 	t.Run("Fails if the location is not available", func(t *testing.T) {
@@ -929,14 +861,11 @@ func TestPackageReader(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		AIPID := uuid.MustParse("7c09fa45-cdac-4874-90af-56dc86a6e73c")
+		aipID := uuid.MustParse("7c09fa45-cdac-4874-90af-56dc86a6e73c")
 		locationID := uuid.MustParse("7484e911-7fc3-40c2-acb4-91e552d05380")
-		b := memblob.OpenBucket(nil)
-		attrs := setUpAttrs{
-			locationFactory: fakeLocationFactoryWithContents(t, b, AIPID.String(), "foobar"),
-		}
+
+		var attrs setUpAttrs
 		svc := setUpService(t, &attrs)
-		b.Close()
 
 		attrs.persistenceMock.
 			EXPECT().
@@ -947,9 +876,8 @@ func TestPackageReader(t *testing.T) {
 			Return(
 				&goastorage.Location{
 					UUID: locationID,
-					Config: &goastorage.S3Config{
-						Bucket: "perma-aips-1",
-						Region: "planet-earth",
+					Config: &goastorage.URLConfig{
+						URL: "mem://",
 					},
 				},
 				nil,
@@ -957,11 +885,11 @@ func TestPackageReader(t *testing.T) {
 			Times(1)
 
 		_, err := svc.PackageReader(ctx, &goastorage.Package{
-			AipID:      AIPID,
-			ObjectKey:  AIPID,
+			AipID:      aipID,
+			ObjectKey:  aipID,
 			LocationID: &locationID,
 		})
-		assert.Error(t, err, "blob: Bucket has been closed (code=FailedPrecondition)")
+		assert.Error(t, err, "blob (key \"7c09fa45-cdac-4874-90af-56dc86a6e73c\") (code=NotFound): blob not found")
 	})
 }
 
@@ -1049,7 +977,7 @@ func TestServiceUpdate(t *testing.T) {
 			AipID: AIPID.String(),
 		})
 		assert.Equal(t, err.(*goa.ServiceError).Name, "not_valid")
-		assert.ErrorContains(t, err, "cannot persist package")
+		assert.ErrorContains(t, err, "cannot update package status")
 	})
 
 	t.Run("Returns no error if package is updated", func(t *testing.T) {
@@ -1580,6 +1508,49 @@ func TestServiceAddLocation(t *testing.T) {
 		assert.NilError(t, err)
 		assert.DeepEqual(t, res, &goastorage.AddLocationResult{UUID: locationID.String()})
 	})
+
+	t.Run("Returns location with URL config", func(t *testing.T) {
+		t.Cleanup(func() { uuid.SetRand(nil) })
+
+		uuid.SetRand(staticRand{})
+		locationID := uuid.MustParse("00010203-0405-4607-8809-0a0b0c0d0e0f")
+		attrs := &setUpAttrs{}
+		svc := setUpService(t, attrs)
+		ctx := context.Background()
+
+		attrs.persistenceMock.
+			EXPECT().
+			CreateLocation(
+				gomock.AssignableToTypeOf(ctx),
+				&goastorage.Location{
+					Name:    "perma-aips-1",
+					Source:  types.LocationSourceMinIO.String(),
+					Purpose: types.LocationPurposeAIPStore.String(),
+					UUID:    locationID,
+				},
+				&types.LocationConfig{
+					Value: &types.URLConfig{
+						URL: "mem://",
+					},
+				},
+			).
+			Return(
+				&goastorage.Location{},
+				nil,
+			).
+			Times(1)
+
+		res, err := svc.AddLocation(ctx, &goastorage.AddLocationPayload{
+			Name:    "perma-aips-1",
+			Source:  types.LocationSourceMinIO.String(),
+			Purpose: types.LocationPurposeAIPStore.String(),
+			Config: &goastorage.URLConfig{
+				URL: "mem://",
+			},
+		})
+		assert.NilError(t, err)
+		assert.DeepEqual(t, res, &goastorage.AddLocationResult{UUID: locationID.String()})
+	})
 }
 
 func TestServiceShowLocation(t *testing.T) {
@@ -1695,7 +1666,7 @@ func TestServiceLocationPackages(t *testing.T) {
 						AipID:      uuid.MustParse("488c64cc-d89b-4916-9131-c94152dfb12e"),
 						Status:     "stored",
 						ObjectKey:  uuid.MustParse("e2630293-a714-4787-ab6d-e68254a6fb6a"),
-						LocationID: ref.New(locationID),
+						LocationID: &locationID,
 						CreatedAt:  "2013-02-03T19:54:00Z",
 					},
 				},
@@ -1712,7 +1683,7 @@ func TestServiceLocationPackages(t *testing.T) {
 				AipID:      uuid.MustParse("488c64cc-d89b-4916-9131-c94152dfb12e"),
 				Status:     "stored",
 				ObjectKey:  uuid.MustParse("e2630293-a714-4787-ab6d-e68254a6fb6a"),
-				LocationID: ref.New(locationID),
+				LocationID: &locationID,
 				CreatedAt:  "2013-02-03T19:54:00Z",
 			},
 		})
