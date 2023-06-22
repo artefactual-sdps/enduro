@@ -32,7 +32,9 @@ func TestStorageMoveWorkflow(t *testing.T) {
 	storagesvc.EXPECT().UpdatePackageStatus(gomock.Any(), aipID, types.StatusStored)
 
 	// Worker activities
-	env.RegisterActivityWithOptions(activities.NewCopyToPermanentLocationActivity(storagesvc).Execute, temporalsdk_activity.RegisterOptions{Name: storage.CopyToPermanentLocationActivityName})
+	env.RegisterActivityWithOptions(activities.NewCopyToPermanentLocationActivity(storagesvc).Execute, temporalsdk_activity.RegisterOptions{
+		Name: storage.CopyToPermanentLocationActivityName,
+	})
 	env.OnActivity(storage.CopyToPermanentLocationActivityName, mock.Anything, mock.Anything).Return(nil)
 
 	env.ExecuteWorkflow(

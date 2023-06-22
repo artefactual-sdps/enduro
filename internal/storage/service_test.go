@@ -142,7 +142,9 @@ func fakeInternalLocationFactory(t *testing.T, b *blob.Bucket) storage.InternalL
 	}
 }
 
-func fakeInternalLocationFactoryWithContents(t *testing.T, b *blob.Bucket, objectKey, contents string) storage.InternalLocationFactory {
+func fakeInternalLocationFactoryWithContents(t *testing.T, b *blob.Bucket,
+	objectKey, contents string,
+) storage.InternalLocationFactory {
 	t.Helper()
 
 	if b == nil {
@@ -372,7 +374,9 @@ func TestServiceSubmit(t *testing.T) {
 		// Fake internal location, using fileblob because it can generate signed URLs.
 		furl, err := url.Parse("file:///tmp/dir")
 		assert.NilError(t, err)
-		b, err := fileblob.OpenBucket("/tmp", &fileblob.Options{URLSigner: fileblob.NewURLSignerHMAC(furl, []byte("1234"))})
+		b, err := fileblob.OpenBucket("/tmp", &fileblob.Options{
+			URLSigner: fileblob.NewURLSignerHMAC(furl, []byte("1234")),
+		})
 		assert.NilError(t, err)
 
 		AIPID := uuid.MustParse("5ab42bc3-acc2-420b-bbd0-76efdef94828")

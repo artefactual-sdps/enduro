@@ -51,7 +51,8 @@ func Download(svc Service, mux goahttp.Muxer, dec func(r *http.Request) goahttp.
 
 		rw.Header().Add("Content-Type", reader.ContentType())
 		rw.Header().Add("Content-Length", strconv.FormatInt(reader.Size(), 10))
-		rw.Header().Add("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", filename))
+		rw.Header().Add("Content-Disposition",
+			fmt.Sprintf("attachment; filename=\"%s\"", filename))
 
 		// Copy reader contents into the response.
 		_, err = io.Copy(rw, reader)

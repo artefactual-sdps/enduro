@@ -145,7 +145,9 @@ func (a *BundleActivity) SingleFile(ctx context.Context, transferDir, key, tempF
 }
 
 // Bundle a transfer with the contents found in the archive.
-func (a *BundleActivity) Bundle(ctx context.Context, unar archiver.Unarchiver, transferDir, key, tempFile string, stripTopLevelDir bool) (string, string, error) {
+func (a *BundleActivity) Bundle(ctx context.Context, unar archiver.Unarchiver,
+	transferDir, key, tempFile string, stripTopLevelDir bool,
+) (string, string, error) {
 	// Create a new directory for our transfer with the name randomized.
 	const prefix = "enduro"
 	tempDir, err := os.MkdirTemp(transferDir, prefix)

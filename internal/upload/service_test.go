@@ -95,7 +95,9 @@ func TestServiceUpload(t *testing.T) {
 		ctx := context.Background()
 		r := io.NopCloser(strings.NewReader(multipartBody))
 
-		err := svc.Upload(ctx, &goaupload.UploadPayload{ContentType: "multipart/form-data; boundary=foobar"}, r)
+		err := svc.Upload(ctx, &goaupload.UploadPayload{
+			ContentType: "multipart/form-data; boundary=foobar",
+		}, r)
 		assert.NilError(t, err)
 
 		b := svc.Bucket()
@@ -132,7 +134,9 @@ func TestServiceUpload(t *testing.T) {
 		ctx := context.Background()
 		r := io.NopCloser(strings.NewReader(multipartBody))
 
-		err := svc.Upload(ctx, &goaupload.UploadPayload{ContentType: "multipart/form-data; boundary=foobar"}, r)
+		err := svc.Upload(ctx, &goaupload.UploadPayload{
+			ContentType: "multipart/form-data; boundary=foobar",
+		}, r)
 		assert.Equal(t, err.(*goa.ServiceError).Name, "invalid_multipart_request")
 		assert.ErrorContains(t, err, "invalid multipart request")
 	})

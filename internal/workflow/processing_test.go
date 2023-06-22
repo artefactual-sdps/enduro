@@ -39,13 +39,27 @@ func (s *ProcessingWorkflowTestSuite) SetupTest() {
 	pkgsvc := packagefake.NewMockService(ctrl)
 	wsvc := watcherfake.NewMockService(ctrl)
 
-	s.env.RegisterActivityWithOptions(activities.NewDownloadActivity(wsvc).Execute, temporalsdk_activity.RegisterOptions{Name: activities.DownloadActivityName})
-	s.env.RegisterActivityWithOptions(activities.NewBundleActivity(wsvc).Execute, temporalsdk_activity.RegisterOptions{Name: activities.BundleActivityName})
-	s.env.RegisterActivityWithOptions(a3m.NewCreateAIPActivity(logger, &a3m.Config{}, pkgsvc).Execute, temporalsdk_activity.RegisterOptions{Name: a3m.CreateAIPActivityName})
-	s.env.RegisterActivityWithOptions(activities.NewUploadActivity(nil).Execute, temporalsdk_activity.RegisterOptions{Name: activities.UploadActivityName})
-	s.env.RegisterActivityWithOptions(activities.NewMoveToPermanentStorageActivity(nil).Execute, temporalsdk_activity.RegisterOptions{Name: activities.MoveToPermanentStorageActivityName})
-	s.env.RegisterActivityWithOptions(activities.NewPollMoveToPermanentStorageActivity(nil).Execute, temporalsdk_activity.RegisterOptions{Name: activities.PollMoveToPermanentStorageActivityName})
-	s.env.RegisterActivityWithOptions(activities.NewRejectPackageActivity(nil).Execute, temporalsdk_activity.RegisterOptions{Name: activities.RejectPackageActivityName})
+	s.env.RegisterActivityWithOptions(activities.NewDownloadActivity(wsvc).Execute, temporalsdk_activity.RegisterOptions{
+		Name: activities.DownloadActivityName,
+	})
+	s.env.RegisterActivityWithOptions(activities.NewBundleActivity(wsvc).Execute, temporalsdk_activity.RegisterOptions{
+		Name: activities.BundleActivityName,
+	})
+	s.env.RegisterActivityWithOptions(a3m.NewCreateAIPActivity(logger, &a3m.Config{}, pkgsvc).Execute, temporalsdk_activity.RegisterOptions{
+		Name: a3m.CreateAIPActivityName,
+	})
+	s.env.RegisterActivityWithOptions(activities.NewUploadActivity(nil).Execute, temporalsdk_activity.RegisterOptions{
+		Name: activities.UploadActivityName,
+	})
+	s.env.RegisterActivityWithOptions(activities.NewMoveToPermanentStorageActivity(nil).Execute, temporalsdk_activity.RegisterOptions{
+		Name: activities.MoveToPermanentStorageActivityName,
+	})
+	s.env.RegisterActivityWithOptions(activities.NewPollMoveToPermanentStorageActivity(nil).Execute, temporalsdk_activity.RegisterOptions{
+		Name: activities.PollMoveToPermanentStorageActivityName,
+	})
+	s.env.RegisterActivityWithOptions(activities.NewRejectPackageActivity(nil).Execute, temporalsdk_activity.RegisterOptions{
+		Name: activities.RejectPackageActivityName,
+	})
 
 	s.workflow = NewProcessingWorkflow(logger, pkgsvc, wsvc)
 }
@@ -77,16 +91,20 @@ func (s *ProcessingWorkflowTestSuite) TestPackageConfirmation() {
 
 	// Activity mocks/assertions sequence
 	s.env.OnActivity(createPackageLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(pkgID, nil)
-	s.env.OnActivity(setStatusInProgressLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
+	s.env.OnActivity(setStatusInProgressLocalActivity, mock.Anything, mock.Anything,
+		mock.Anything, mock.Anything).Return(nil)
 	s.env.OnActivity(createPreservationActionLocalActivity, mock.Anything, mock.Anything, mock.Anything).Return(uint(0), nil)
 	s.env.OnActivity(activities.DownloadActivityName, mock.Anything, mock.Anything, mock.Anything).Return("", nil)
-	s.env.OnActivity(activities.BundleActivityName, mock.Anything, mock.Anything).Return(&activities.BundleActivityResult{FullPath: "/tmp/aip", FullPathBeforeStrip: "/tmp/aip"}, nil)
+	s.env.OnActivity(activities.BundleActivityName, mock.Anything, mock.Anything).Return(&activities.BundleActivityResult{
+		FullPath: "/tmp/aip", FullPathBeforeStrip: "/tmp/aip",
+	}, nil)
 	s.env.OnActivity(a3m.CreateAIPActivityName, mock.Anything, mock.Anything).Return(nil, nil)
 	s.env.OnActivity(updatePackageLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 	s.env.OnActivity(createPreservationTaskLocalActivity, mock.Anything, mock.Anything, mock.Anything).Return(uint(0), nil)
 	s.env.OnActivity(activities.UploadActivityName, mock.Anything, mock.Anything).Return(nil)
 	s.env.OnActivity(setStatusLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
-	s.env.OnActivity(setPreservationActionStatusLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
+	s.env.OnActivity(setPreservationActionStatusLocalActivity, mock.Anything, mock.Anything,
+		mock.Anything, mock.Anything).Return(nil)
 	s.env.OnActivity(completePreservationTaskLocalActivity, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 	s.env.OnActivity(activities.MoveToPermanentStorageActivityName, mock.Anything, mock.Anything).Return(nil)
 	s.env.OnActivity(activities.PollMoveToPermanentStorageActivityName, mock.Anything, mock.Anything).Return(nil)
@@ -128,21 +146,35 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 		pkgsvc,
 		&createPackageLocalActivityParams{Key: key, Status: package_.StatusQueued},
 	).Return(pkgID, nil).Once()
-	s.env.OnActivity(setStatusInProgressLocalActivity, ctx, pkgsvc, pkgID, mock.AnythingOfType("time.Time")).Return(nil).Once()
-	s.env.OnActivity(createPreservationActionLocalActivity, ctx, pkgsvc, mock.AnythingOfType("*workflow.createPreservationActionLocalActivityParams")).Return(uint(0), nil).Once()
+	s.env.OnActivity(setStatusInProgressLocalActivity, ctx, pkgsvc, pkgID,
+		mock.AnythingOfType("time.Time")).Return(nil).Once()
+	s.env.OnActivity(createPreservationActionLocalActivity, ctx, pkgsvc,
+		mock.AnythingOfType("*workflow.createPreservationActionLocalActivityParams")).Return(uint(0), nil).Once()
 	s.env.OnActivity(activities.DownloadActivityName, sessionCtx, watcherName, key).Return("", nil).Once()
-	s.env.OnActivity(activities.BundleActivityName, sessionCtx, mock.AnythingOfType("*activities.BundleActivityParams")).Return(&activities.BundleActivityResult{FullPath: "/tmp/aip", FullPathBeforeStrip: "/tmp/aip"}, nil).Once()
-	s.env.OnActivity(a3m.CreateAIPActivityName, sessionCtx, mock.AnythingOfType("*a3m.CreateAIPActivityParams")).Return(nil, nil).Once()
-	s.env.OnActivity(updatePackageLocalActivity, ctx, logger, pkgsvc, mock.AnythingOfType("*workflow.updatePackageLocalActivityParams")).Return(nil).Times(2)
-	s.env.OnActivity(createPreservationTaskLocalActivity, ctx, pkgsvc, mock.AnythingOfType("*workflow.createPreservationTaskLocalActivityParams")).Return(uint(0), nil).Once()
-	s.env.OnActivity(activities.UploadActivityName, sessionCtx, mock.AnythingOfType("*activities.UploadActivityParams")).Return(nil).Once()
+	s.env.OnActivity(activities.BundleActivityName, sessionCtx,
+		mock.AnythingOfType("*activities.BundleActivityParams")).Return(&activities.BundleActivityResult{
+		FullPath: "/tmp/aip", FullPathBeforeStrip: "/tmp/aip",
+	}, nil).Once()
+	s.env.OnActivity(a3m.CreateAIPActivityName, sessionCtx,
+		mock.AnythingOfType("*a3m.CreateAIPActivityParams")).Return(nil, nil).Once()
+	s.env.OnActivity(updatePackageLocalActivity, ctx, logger, pkgsvc,
+		mock.AnythingOfType("*workflow.updatePackageLocalActivityParams")).Return(nil).Times(2)
+	s.env.OnActivity(createPreservationTaskLocalActivity, ctx, pkgsvc,
+		mock.AnythingOfType("*workflow.createPreservationTaskLocalActivityParams")).Return(uint(0), nil).Once()
+	s.env.OnActivity(activities.UploadActivityName, sessionCtx,
+		mock.AnythingOfType("*activities.UploadActivityParams")).Return(nil).Once()
 	s.env.OnActivity(setStatusLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil).Never()
-	s.env.OnActivity(setPreservationActionStatusLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil).Never()
-	s.env.OnActivity(completePreservationTaskLocalActivity, ctx, pkgsvc, mock.AnythingOfType("*workflow.completePreservationTaskLocalActivityParams")).Return(nil).Once()
-	s.env.OnActivity(activities.MoveToPermanentStorageActivityName, sessionCtx, mock.AnythingOfType("*activities.MoveToPermanentStorageActivityParams")).Return(nil).Once()
-	s.env.OnActivity(activities.PollMoveToPermanentStorageActivityName, sessionCtx, mock.AnythingOfType("*activities.PollMoveToPermanentStorageActivityParams")).Return(nil).Once()
+	s.env.OnActivity(setPreservationActionStatusLocalActivity, mock.Anything, mock.Anything,
+		mock.Anything, mock.Anything).Return(nil).Never()
+	s.env.OnActivity(completePreservationTaskLocalActivity, ctx, pkgsvc,
+		mock.AnythingOfType("*workflow.completePreservationTaskLocalActivityParams")).Return(nil).Once()
+	s.env.OnActivity(activities.MoveToPermanentStorageActivityName, sessionCtx,
+		mock.AnythingOfType("*activities.MoveToPermanentStorageActivityParams")).Return(nil).Once()
+	s.env.OnActivity(activities.PollMoveToPermanentStorageActivityName, sessionCtx,
+		mock.AnythingOfType("*activities.PollMoveToPermanentStorageActivityParams")).Return(nil).Once()
 	s.env.OnActivity(setLocationIDLocalActivity, ctx, pkgsvc, pkgID, locationID).Return(nil).Once()
-	s.env.OnActivity(completePreservationActionLocalActivity, ctx, pkgsvc, mock.AnythingOfType("*workflow.completePreservationActionLocalActivityParams")).Return(nil).Once()
+	s.env.OnActivity(completePreservationActionLocalActivity, ctx, pkgsvc,
+		mock.AnythingOfType("*workflow.completePreservationActionLocalActivityParams")).Return(nil).Once()
 	// TODO: CleanUpActivityName
 	// TODO: DeleteOriginalActivityName
 
@@ -178,18 +210,23 @@ func (s *ProcessingWorkflowTestSuite) TestPackageRejection() {
 
 	// Activity mocks/assertions sequence
 	s.env.OnActivity(createPackageLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(pkgID, nil)
-	s.env.OnActivity(setStatusInProgressLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
+	s.env.OnActivity(setStatusInProgressLocalActivity, mock.Anything, mock.Anything,
+		mock.Anything, mock.Anything).Return(nil)
 	s.env.OnActivity(createPreservationActionLocalActivity, mock.Anything, mock.Anything, mock.Anything).Return(uint(0), nil)
 	s.env.OnActivity(activities.DownloadActivityName, mock.Anything, mock.Anything, mock.Anything).Return("", nil)
-	s.env.OnActivity(activities.BundleActivityName, mock.Anything, mock.Anything).Return(&activities.BundleActivityResult{FullPath: "/tmp/aip", FullPathBeforeStrip: "/tmp/aip"}, nil)
+	s.env.OnActivity(activities.BundleActivityName, mock.Anything, mock.Anything).Return(&activities.BundleActivityResult{
+		FullPath: "/tmp/aip", FullPathBeforeStrip: "/tmp/aip",
+	}, nil)
 	s.env.OnActivity(a3m.CreateAIPActivityName, mock.Anything, mock.Anything).Return(nil, nil)
 	s.env.OnActivity(updatePackageLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 	s.env.OnActivity(completePreservationTaskLocalActivity, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 	s.env.OnActivity(activities.UploadActivityName, mock.Anything, mock.Anything).Return(nil)
 	s.env.OnActivity(setStatusLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
-	s.env.OnActivity(setPreservationActionStatusLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
+	s.env.OnActivity(setPreservationActionStatusLocalActivity, mock.Anything, mock.Anything,
+		mock.Anything, mock.Anything).Return(nil)
 	s.env.OnActivity(createPreservationTaskLocalActivity, mock.Anything, mock.Anything, mock.Anything).Return(uint(0), nil)
-	s.env.OnActivity(activities.RejectPackageActivityName, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
+	s.env.OnActivity(activities.RejectPackageActivityName, mock.Anything, mock.Anything,
+		mock.Anything, mock.Anything).Return(nil)
 	// TODO: CleanUpActivityName
 	// TODO: DeleteOriginalActivityName
 	s.env.OnActivity(updatePackageLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)

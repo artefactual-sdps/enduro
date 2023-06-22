@@ -22,7 +22,8 @@ var _ = Service("upload", func() {
 		})
 
 		Error("invalid_media_type", ErrorResult, "Error returned when the Content-Type header does not define a multipart request.")
-		Error("invalid_multipart_request", ErrorResult, "Error returned when the request body is not a valid multipart content.")
+		Error("invalid_multipart_request", ErrorResult,
+			"Error returned when the request body is not a valid multipart content.")
 		Error("internal_error", ErrorResult, "Fault while processing upload.")
 
 		HTTP(func() {

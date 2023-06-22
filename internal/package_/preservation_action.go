@@ -218,13 +218,25 @@ type PreservationTask struct {
 	PreservationActionID uint `db:"preservation_action_id"`
 }
 
-func (w *goaWrapper) PreservationActions(ctx context.Context, payload *goapackage.PreservationActionsPayload) (*goapackage.EnduroPackagePreservationActions, error) {
+func (w *goaWrapper) PreservationActions(ctx context.Context,
+	payload *goapackage.PreservationActionsPayload,
+) (*goapackage.EnduroPackagePreservationActions, error) {
 	goapkg, err := w.Show(ctx, &goapackage.ShowPayload{ID: payload.ID})
 	if err != nil {
 		return nil, err
 	}
 
-	query := "SELECT id, workflow_id, type, status, CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at, CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at FROM preservation_action WHERE package_id = ? ORDER BY started_at DESC"
+	query := `
+SELECT id,
+	workflow_id,
+	TYPE,
+	status,
+	CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at,
+	CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at
+FROM preservation_action
+WHERE package_id = ?
+ORDER BY started_at DESC
+`
 	args := []interface{}{goapkg.ID}
 
 	rows, err := w.db.QueryxContext(ctx, query, args...)
@@ -248,7 +260,17 @@ func (w *goaWrapper) PreservationActions(ctx context.Context, payload *goapackag
 			CompletedAt: formatOptionalTime(pa.CompletedAt),
 		}
 
-		ptQuery := "SELECT id, task_id, name, status, CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at, CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at, note FROM preservation_task WHERE preservation_action_id = ?"
+		ptQuery := `
+SELECT id,
+	task_id,
+	name,
+	status,
+	CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at,
+	CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at,
+	note
+FROM preservation_task
+WHERE preservation_action_id = ?
+`
 		ptQueryArgs := []interface{}{pa.ID}
 
 		ptRows, err := w.db.QueryxContext(ctx, ptQuery, ptQueryArgs...)
@@ -346,7 +368,9 @@ func (svc *packageImpl) SetPreservationActionStatus(ctx context.Context, ID uint
 	return nil
 }
 
-func (svc *packageImpl) CompletePreservationAction(ctx context.Context, ID uint, status PreservationActionStatus, completedAt time.Time) error {
+func (svc *packageImpl) CompletePreservationAction(ctx context.Context, ID uint,
+	status PreservationActionStatus, completedAt time.Time,
+) error {
 	query := `UPDATE preservation_action SET status = ?, completed_at = ? WHERE id = ?`
 	args := []interface{}{
 		status,
@@ -408,7 +432,9 @@ func (svc *packageImpl) CreatePreservationTask(ctx context.Context, pt *Preserva
 	return nil
 }
 
-func (svc *packageImpl) CompletePreservationTask(ctx context.Context, ID uint, status PreservationTaskStatus, completedAt time.Time, note *string) error {
+func (svc *packageImpl) CompletePreservationTask(ctx context.Context, ID uint,
+	status PreservationTaskStatus, completedAt time.Time, note *string,
+) error {
 	var query string
 	args := []interface{}{}
 

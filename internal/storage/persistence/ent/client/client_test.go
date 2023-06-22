@@ -135,7 +135,8 @@ func TestReadPackage(t *testing.T) {
 			SetStatus(types.StatusStored).
 			SaveX(context.Background())
 
-		pkg, err := c.ReadPackage(context.Background(), uuid.MustParse("488c64cc-d89b-4916-9131-c94152dfb12e"))
+		pkg, err := c.ReadPackage(context.Background(),
+			uuid.MustParse("488c64cc-d89b-4916-9131-c94152dfb12e"))
 		assert.NilError(t, err)
 		assert.DeepEqual(t, pkg, &goastorage.Package{
 			Name:       "Package",
@@ -152,7 +153,8 @@ func TestReadPackage(t *testing.T) {
 
 		_, c := setUpClient(t)
 
-		l, err := c.ReadPackage(context.Background(), uuid.MustParse("488c64cc-d89b-4916-9131-c94152dfb12e"))
+		l, err := c.ReadPackage(context.Background(),
+			uuid.MustParse("488c64cc-d89b-4916-9131-c94152dfb12e"))
 		assert.Assert(t, l == nil)
 		assert.ErrorContains(t, err, "package not found")
 	})
@@ -354,7 +356,8 @@ func TestReadLocation(t *testing.T) {
 			}).
 			SaveX(context.Background())
 
-		l, err := c.ReadLocation(context.Background(), uuid.MustParse("7a090f2c-7bd4-471c-8aa1-8c72125decd5"))
+		l, err := c.ReadLocation(context.Background(),
+			uuid.MustParse("7a090f2c-7bd4-471c-8aa1-8c72125decd5"))
 		assert.NilError(t, err)
 		assert.DeepEqual(t, l, &goastorage.Location{
 			Name:        "test_location",
@@ -380,7 +383,8 @@ func TestReadLocation(t *testing.T) {
 
 		_, c := setUpClient(t)
 
-		l, err := c.ReadLocation(context.Background(), uuid.MustParse("7a090f2c-7bd4-471c-8aa1-8c72125decd5"))
+		l, err := c.ReadLocation(context.Background(),
+			uuid.MustParse("7a090f2c-7bd4-471c-8aa1-8c72125decd5"))
 		assert.Assert(t, l == nil)
 		assert.ErrorContains(t, err, "location not found")
 	})

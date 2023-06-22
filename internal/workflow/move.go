@@ -30,7 +30,8 @@ func (w *MoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req *package_.M
 	// Set package to in progress status.
 	{
 		ctx := withLocalActivityOpts(ctx)
-		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setStatusLocalActivity, w.pkgsvc, req.ID, package_.StatusInProgress).Get(ctx, nil)
+		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setStatusLocalActivity,
+			w.pkgsvc, req.ID, package_.StatusInProgress).Get(ctx, nil)
 		if err != nil {
 			return err
 		}
@@ -39,10 +40,11 @@ func (w *MoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req *package_.M
 	// Move package to permanent storage
 	{
 		activityOpts := withActivityOptsForRequest(ctx)
-		err := temporalsdk_workflow.ExecuteActivity(activityOpts, activities.MoveToPermanentStorageActivityName, &activities.MoveToPermanentStorageActivityParams{
-			AIPID:      req.AIPID,
-			LocationID: req.LocationID,
-		}).Get(activityOpts, nil)
+		err := temporalsdk_workflow.ExecuteActivity(activityOpts,
+			activities.MoveToPermanentStorageActivityName, &activities.MoveToPermanentStorageActivityParams{
+				AIPID:      req.AIPID,
+				LocationID: req.LocationID,
+			}).Get(activityOpts, nil)
 		if err != nil {
 			status = package_.ActionStatusError
 		}
@@ -52,9 +54,10 @@ func (w *MoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req *package_.M
 	{
 		if status != package_.ActionStatusError {
 			activityOpts := withActivityOptsForLongLivedRequest(ctx)
-			err := temporalsdk_workflow.ExecuteActivity(activityOpts, activities.PollMoveToPermanentStorageActivityName, &activities.PollMoveToPermanentStorageActivityParams{
-				AIPID: req.AIPID,
-			}).Get(activityOpts, nil)
+			err := temporalsdk_workflow.ExecuteActivity(activityOpts,
+				activities.PollMoveToPermanentStorageActivityName, &activities.PollMoveToPermanentStorageActivityParams{
+					AIPID: req.AIPID,
+				}).Get(activityOpts, nil)
 			if err != nil {
 				status = package_.ActionStatusError
 			}
@@ -66,7 +69,8 @@ func (w *MoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req *package_.M
 	// Set package to done status.
 	{
 		ctx := withLocalActivityOpts(ctx)
-		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setStatusLocalActivity, w.pkgsvc, req.ID, package_.StatusDone).Get(ctx, nil)
+		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setStatusLocalActivity,
+			w.pkgsvc, req.ID, package_.StatusDone).Get(ctx, nil)
 		if err != nil {
 			return err
 		}
@@ -76,7 +80,8 @@ func (w *MoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req *package_.M
 	{
 		if status != package_.ActionStatusError {
 			ctx := withLocalActivityOpts(ctx)
-			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setLocationIDLocalActivity, w.pkgsvc, req.ID, req.LocationID).Get(ctx, nil)
+			err := temporalsdk_workflow.ExecuteLocalActivity(ctx,
+				setLocationIDLocalActivity, w.pkgsvc, req.ID, req.LocationID).Get(ctx, nil)
 			if err != nil {
 				return err
 			}
@@ -87,15 +92,16 @@ func (w *MoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req *package_.M
 	{
 		ctx := withLocalActivityOpts(ctx)
 		completedAt := temporalsdk_workflow.Now(ctx).UTC()
-		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, saveLocationMovePreservationActionLocalActivity, w.pkgsvc, &saveLocationMovePreservationActionLocalActivityParams{
-			PackageID:   req.ID,
-			LocationID:  req.LocationID,
-			WorkflowID:  temporalsdk_workflow.GetInfo(ctx).WorkflowExecution.ID,
-			Type:        package_.ActionTypeMovePackage,
-			Status:      status,
-			StartedAt:   startedAt,
-			CompletedAt: completedAt,
-		}).Get(ctx, nil)
+		err := temporalsdk_workflow.ExecuteLocalActivity(ctx,
+			saveLocationMovePreservationActionLocalActivity, w.pkgsvc, &saveLocationMovePreservationActionLocalActivityParams{
+				PackageID:   req.ID,
+				LocationID:  req.LocationID,
+				WorkflowID:  temporalsdk_workflow.GetInfo(ctx).WorkflowExecution.ID,
+				Type:        package_.ActionTypeMovePackage,
+				Status:      status,
+				StartedAt:   startedAt,
+				CompletedAt: completedAt,
+			}).Get(ctx, nil)
 		if err != nil {
 			return err
 		}

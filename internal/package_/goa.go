@@ -116,7 +116,19 @@ func (w *goaWrapper) Monitor(ctx context.Context, payload *goapackage.MonitorPay
 
 // List all stored packages. It implements goapackage.Service.
 func (w *goaWrapper) List(ctx context.Context, payload *goapackage.ListPayload) (*goapackage.ListResult, error) {
-	query := "SELECT id, name, workflow_id, run_id, aip_id, location_id, status, CONVERT_TZ(created_at, @@session.time_zone, '+00:00') AS created_at, CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at, CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at FROM package"
+	query := `
+SELECT id,
+	name,
+	workflow_id,
+	run_id,
+	aip_id,
+	location_id,
+	status,
+	CONVERT_TZ(created_at, @@session.time_zone, '+00:00') AS created_at,
+	CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at,
+	CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at
+FROM PACKAGE
+`
 	args := []interface{}{}
 
 	// We extract one extra item so we can tell the next cursor.

@@ -101,7 +101,8 @@ func main() {
 	// Set up the package service.
 	var pkgsvc package_.Service
 	{
-		pkgsvc = package_.NewService(logger.WithName("package"), enduroDatabase, temporalClient, evsvc, &auth.NoopTokenVerifier{}, nil)
+		pkgsvc = package_.NewService(logger.WithName("package"), enduroDatabase,
+			temporalClient, evsvc, &auth.NoopTokenVerifier{}, nil)
 	}
 
 	// Set up the watcher service.
@@ -131,13 +132,22 @@ func main() {
 			os.Exit(1)
 		}
 
-		w.RegisterActivityWithOptions(activities.NewDownloadActivity(wsvc).Execute, temporalsdk_activity.RegisterOptions{Name: activities.DownloadActivityName})
-		w.RegisterActivityWithOptions(activities.NewBundleActivity(wsvc).Execute, temporalsdk_activity.RegisterOptions{Name: activities.BundleActivityName})
-		w.RegisterActivityWithOptions(a3m.NewCreateAIPActivity(logger, &cfg.A3m, pkgsvc).Execute, temporalsdk_activity.RegisterOptions{Name: a3m.CreateAIPActivityName})
-		w.RegisterActivityWithOptions(activities.NewCleanUpActivity().Execute, temporalsdk_activity.RegisterOptions{Name: activities.CleanUpActivityName})
+		w.RegisterActivityWithOptions(activities.NewDownloadActivity(wsvc).Execute, temporalsdk_activity.RegisterOptions{
+			Name: activities.DownloadActivityName,
+		})
+		w.RegisterActivityWithOptions(activities.NewBundleActivity(wsvc).Execute, temporalsdk_activity.RegisterOptions{
+			Name: activities.BundleActivityName,
+		})
+		w.RegisterActivityWithOptions(a3m.NewCreateAIPActivity(logger, &cfg.A3m, pkgsvc).Execute, temporalsdk_activity.RegisterOptions{
+			Name: a3m.CreateAIPActivityName,
+		})
+		w.RegisterActivityWithOptions(activities.NewCleanUpActivity().Execute, temporalsdk_activity.RegisterOptions{
+			Name: activities.CleanUpActivityName,
+		})
 
 		httpClient := &http.Client{Timeout: time.Second}
-		storageHttpClient := goahttpstorage.NewClient("http", cfg.Storage.EnduroAddress, httpClient, goahttp.RequestEncoder, goahttp.ResponseDecoder, false)
+		storageHttpClient := goahttpstorage.NewClient("http", cfg.Storage.EnduroAddress,
+			httpClient, goahttp.RequestEncoder, goahttp.ResponseDecoder, false)
 		storageClient := goastorage.NewClient(
 			storageHttpClient.Submit(),
 			storageHttpClient.Update(),
@@ -151,11 +161,21 @@ func main() {
 			storageHttpClient.ShowLocation(),
 			storageHttpClient.LocationPackages(),
 		)
-		w.RegisterActivityWithOptions(activities.NewUploadActivity(storageClient).Execute, temporalsdk_activity.RegisterOptions{Name: activities.UploadActivityName})
+		w.RegisterActivityWithOptions(activities.NewUploadActivity(storageClient).Execute, temporalsdk_activity.RegisterOptions{
+			Name: activities.UploadActivityName,
+		})
 
-		w.RegisterActivityWithOptions(activities.NewMoveToPermanentStorageActivity(storageClient).Execute, temporalsdk_activity.RegisterOptions{Name: activities.MoveToPermanentStorageActivityName})
-		w.RegisterActivityWithOptions(activities.NewPollMoveToPermanentStorageActivity(storageClient).Execute, temporalsdk_activity.RegisterOptions{Name: activities.PollMoveToPermanentStorageActivityName})
-		w.RegisterActivityWithOptions(activities.NewRejectPackageActivity(storageClient).Execute, temporalsdk_activity.RegisterOptions{Name: activities.RejectPackageActivityName})
+		w.RegisterActivityWithOptions(activities.NewMoveToPermanentStorageActivity(
+			storageClient).Execute, temporalsdk_activity.RegisterOptions{
+			Name: activities.MoveToPermanentStorageActivityName,
+		})
+		w.RegisterActivityWithOptions(activities.NewPollMoveToPermanentStorageActivity(
+			storageClient).Execute, temporalsdk_activity.RegisterOptions{
+			Name: activities.PollMoveToPermanentStorageActivityName,
+		})
+		w.RegisterActivityWithOptions(activities.NewRejectPackageActivity(storageClient).Execute, temporalsdk_activity.RegisterOptions{
+			Name: activities.RejectPackageActivityName,
+		})
 
 		g.Add(
 			func() error {

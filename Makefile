@@ -79,10 +79,16 @@ test-race:  ## Run all tests with the race detector.
 ignored:  ## Print a list of packages ignored by tests.
 	$(foreach PACKAGE,$(IGNORED_PACKAGES),@echo $(PACKAGE)$(NEWLINE))
 
+format-line-length: $(GOLANGCI_LINT)  # Fix line-length formatting issues with gofumpt.
+	@golangci-lint cache clean
+	@$(MAKE) lint GOFUMPT_SPLIT_LONG_LINES=on
+	@golangci-lint cache clean
+
 lint: OUT_FORMAT ?= colored-line-number
 lint: LINT_FLAGS ?= --timeout=5m --fix
+lint: export GOFUMPT_SPLIT_LONG_LINES ?= off
 lint: $(GOLANGCI_LINT)  ## Lint the project Go files with golangci-lint.
-	golangci-lint run --out-format $(OUT_FORMAT) $(LINT_FLAGS)
+	@golangci-lint run --out-format $(OUT_FORMAT) $(LINT_FLAGS)
 
 gen-goa: $(GOA)  ## Generate Goa assets.
 	goa gen github.com/artefactual-sdps/enduro/internal/api/design -o internal/api

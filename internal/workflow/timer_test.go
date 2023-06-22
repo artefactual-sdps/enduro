@@ -66,5 +66,6 @@ func TestTimer(t *testing.T) {
 
 	// Workflow should end with an error: deadline exceeded.
 	assert.Equal(t, env.IsWorkflowCompleted(), true)
-	assert.ErrorContains(t, env.GetWorkflowError(), fmt.Sprintf("deadline exceeded: %s", deadline))
+	assert.ErrorContains(t, env.GetWorkflowError(),
+		fmt.Sprintf("deadline exceeded: %s", deadline))
 }

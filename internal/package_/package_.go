@@ -20,7 +20,8 @@ type Service interface {
 	// Goa returns an implementation of the goapackage Service.
 	Goa() goapackage.Service
 	Create(context.Context, *Package) error
-	UpdateWorkflowStatus(ctx context.Context, ID uint, name string, workflowID, runID, aipID string, status Status, storedAt time.Time) error
+	UpdateWorkflowStatus(ctx context.Context, ID uint, name string, workflowID, runID, aipID string,
+		status Status, storedAt time.Time) error
 	SetStatus(ctx context.Context, ID uint, status Status) error
 	SetStatusInProgress(ctx context.Context, ID uint, startedAt time.Time) error
 	SetStatusPending(ctx context.Context, ID uint) error
@@ -29,7 +30,8 @@ type Service interface {
 	SetPreservationActionStatus(ctx context.Context, ID uint, status PreservationActionStatus) error
 	CompletePreservationAction(ctx context.Context, ID uint, status PreservationActionStatus, completedAt time.Time) error
 	CreatePreservationTask(ctx context.Context, pt *PreservationTask) error
-	CompletePreservationTask(ctx context.Context, ID uint, status PreservationTaskStatus, completedAt time.Time, note *string) error
+	CompletePreservationTask(ctx context.Context, ID uint, status PreservationTaskStatus,
+		completedAt time.Time, note *string) error
 }
 
 type packageImpl struct {
@@ -43,7 +45,9 @@ type packageImpl struct {
 
 var _ Service = (*packageImpl)(nil)
 
-func NewService(logger logr.Logger, db *sql.DB, tc temporalsdk_client.Client, evsvc event.EventService, tokenVerifier auth.TokenVerifier, ticketProvider *auth.TicketProvider) *packageImpl {
+func NewService(logger logr.Logger, db *sql.DB, tc temporalsdk_client.Client,
+	evsvc event.EventService, tokenVerifier auth.TokenVerifier, ticketProvider *auth.TicketProvider,
+) *packageImpl {
 	return &packageImpl{
 		logger:         logger,
 		db:             sqlx.NewDb(db, "mysql"),
@@ -91,7 +95,9 @@ func (svc *packageImpl) Create(ctx context.Context, pkg *Package) error {
 	return nil
 }
 
-func (svc *packageImpl) UpdateWorkflowStatus(ctx context.Context, ID uint, name string, workflowID, runID, aipID string, status Status, storedAt time.Time) error {
+func (svc *packageImpl) UpdateWorkflowStatus(ctx context.Context, ID uint, name string,
+	workflowID, runID, aipID string, status Status, storedAt time.Time,
+) error {
 	// Ensure that storedAt is reset during retries.
 	completedAt := &storedAt
 	if status == StatusInProgress {
@@ -207,7 +213,20 @@ func (svc *packageImpl) updateRow(ctx context.Context, query string, args []inte
 }
 
 func (svc *packageImpl) read(ctx context.Context, ID uint) (*Package, error) {
-	query := "SELECT id, name, workflow_id, run_id, aip_id, location_id, status, CONVERT_TZ(created_at, @@session.time_zone, '+00:00') AS created_at, CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at, CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at FROM package WHERE id = ?"
+	query := `
+SELECT id,
+	name,
+	workflow_id,
+	run_id,
+	aip_id,
+	location_id,
+	status,
+	CONVERT_TZ(created_at, @@session.time_zone, '+00:00') AS created_at,
+	CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at,
+	CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at
+FROM PACKAGE
+WHERE id = ?
+`
 	args := []interface{}{ID}
 	c := Package{}
 

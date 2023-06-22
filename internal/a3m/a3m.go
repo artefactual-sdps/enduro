@@ -114,7 +114,9 @@ func (a *CreateAIPActivity) Execute(ctx context.Context, opts *CreateAIPActivity
 				result.UUID = submitResp.Id
 
 				for {
-					readResp, err := c.TransferClient.Read(ctx, &a3m_transferservice.ReadRequest{Id: result.UUID})
+					readResp, err := c.TransferClient.Read(ctx, &a3m_transferservice.ReadRequest{
+						Id: result.UUID,
+					})
 					if err != nil {
 						return err
 					}
@@ -128,7 +130,8 @@ func (a *CreateAIPActivity) Execute(ctx context.Context, opts *CreateAIPActivity
 						return err
 					}
 
-					if readResp.Status == a3m_transferservice.PackageStatus_PACKAGE_STATUS_FAILED || readResp.Status == a3m_transferservice.PackageStatus_PACKAGE_STATUS_REJECTED {
+					if readResp.Status == a3m_transferservice.PackageStatus_PACKAGE_STATUS_FAILED ||
+						readResp.Status == a3m_transferservice.PackageStatus_PACKAGE_STATUS_REJECTED {
 						return errors.New("package failed or rejected")
 					}
 

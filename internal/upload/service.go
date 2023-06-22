@@ -40,7 +40,9 @@ var _ Service = (*serviceImpl)(nil)
 
 var ErrInvalidToken error = goastorage.Unauthorized("invalid token")
 
-func NewService(logger logr.Logger, config Config, uploadMaxSize int, tokenVerifier auth.TokenVerifier) (s *serviceImpl, err error) {
+func NewService(logger logr.Logger, config Config, uploadMaxSize int,
+	tokenVerifier auth.TokenVerifier,
+) (s *serviceImpl, err error) {
 	s = &serviceImpl{
 		logger:        logger,
 		config:        config,
@@ -128,7 +130,8 @@ func (s *serviceImpl) Upload(ctx context.Context, payload *goaupload.UploadPaylo
 		return nil
 	}
 	if err != nil {
-		return goaupload.MakeInvalidMultipartRequest(errors.New("invalid multipart request"))
+		return goaupload.MakeInvalidMultipartRequest(
+			errors.New("invalid multipart request"))
 	}
 
 	w, err := s.bucket.NewWriter(ctx, part.FileName(), &blob.WriterOptions{})
