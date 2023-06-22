@@ -82,7 +82,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	logger.Info("Starting...", "version", version.Version, "pid", os.Getpid())
+	logger.Info("Starting...", "version", version.Long, "pid", os.Getpid())
 
 	if configFileFound {
 		logger.Info("Configuration file loaded.", "path", configFileUsed)

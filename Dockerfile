@@ -12,7 +12,7 @@ COPY --link . .
 FROM build-go AS build-enduro
 RUN --mount=type=cache,target=/go/pkg/mod \
 	--mount=type=cache,target=/root/.cache/go-build \
-	go build -o /out/enduro .
+	go build -o /out/enduro ./cmd/enduro-ctl
 
 FROM build-go AS build-enduro-a3m-worker
 RUN --mount=type=cache,target=/go/pkg/mod \
