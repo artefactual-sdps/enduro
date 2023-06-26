@@ -22,7 +22,7 @@ require (
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/mattn/go-sqlite3 v1.14.17
 	github.com/mholt/archiver/v3 v3.5.1
-	github.com/nyudlts/go-bagit v0.2.0-alpha
+	github.com/nyudlts/go-bagit v0.2.1-alpha
 	github.com/oklog/run v1.1.0
 	github.com/otiai10/copy v1.12.0
 	github.com/prometheus/client_golang v1.16.0
