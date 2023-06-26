@@ -18,6 +18,7 @@ import (
 	"github.com/oklog/run"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/pflag"
+	"go.artefactual.dev/tools/log"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
 	temporalsdk_client "go.temporal.io/sdk/client"
 	temporalsdk_worker "go.temporal.io/sdk/worker"
@@ -31,7 +32,6 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/config"
 	"github.com/artefactual-sdps/enduro/internal/db"
 	"github.com/artefactual-sdps/enduro/internal/event"
-	"github.com/artefactual-sdps/enduro/internal/log"
 	"github.com/artefactual-sdps/enduro/internal/package_"
 	"github.com/artefactual-sdps/enduro/internal/storage"
 	storage_activities "github.com/artefactual-sdps/enduro/internal/storage/activities"
@@ -76,11 +76,12 @@ func main() {
 		os.Exit(1)
 	}
 
-	logger, err := log.Logger(appName, cfg.Debug)
-	if err != nil {
-		fmt.Printf("Failed to create logger: %v\n", err)
-		os.Exit(1)
-	}
+	logger := log.New(os.Stderr,
+		log.WithName(appName),
+		log.WithDebug(cfg.Debug),
+		log.WithLevel(cfg.Verbosity),
+	)
+	defer log.Sync(logger)
 
 	logger.Info("Starting...", "version", version.Version, "pid", os.Getpid())
 

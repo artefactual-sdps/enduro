@@ -22,6 +22,7 @@ type ConfigurationValidator interface {
 }
 
 type Configuration struct {
+	Verbosity   int
 	Debug       bool
 	DebugListen string
 	API         api.Config

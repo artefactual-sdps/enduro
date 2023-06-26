@@ -2,6 +2,7 @@
 
 debug = true
 debugListen = "127.0.0.1:9001"
+verbosity = 2
 
 [temporal]
 namespace = "default"

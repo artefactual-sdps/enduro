@@ -13,7 +13,6 @@ require (
 	github.com/cyphar/filepath-securejoin v0.2.3
 	github.com/fsnotify/fsnotify v1.6.0
 	github.com/go-logr/logr v1.2.4
-	github.com/go-logr/zapr v1.2.4
 	github.com/go-sql-driver/mysql v1.7.1
 	github.com/golang-migrate/migrate/v4 v4.16.2
 	github.com/golang/mock v1.6.0
@@ -33,10 +32,10 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.16.0
 	github.com/stretchr/testify v1.8.4
+	go.artefactual.dev/tools v0.1.0
 	go.buf.build/grpc/go/artefactual/a3m v1.4.4
 	go.temporal.io/api v1.23.0
 	go.temporal.io/sdk v1.23.1
-	go.uber.org/zap v1.24.0
 	goa.design/goa/v3 v3.11.3
 	goa.design/plugins/v3 v3.11.3
 	gocloud.dev v0.30.0
@@ -79,6 +78,7 @@ require (
 	github.com/facebookgo/clock v0.0.0-20150410010913-600d898af40a // indirect
 	github.com/go-jose/go-jose/v3 v3.0.0 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
+	github.com/go-logr/zapr v1.2.4 // indirect
 	github.com/go-openapi/inflect v0.19.0 // indirect
 	github.com/gogo/googleapis v1.4.1 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
@@ -129,6 +129,7 @@ require (
 	go.opentelemetry.io/otel/trace v1.14.0 // indirect
 	go.uber.org/atomic v1.11.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
+	go.uber.org/zap v1.24.0 // indirect
 	golang.org/x/crypto v0.10.0 // indirect
 	golang.org/x/mod v0.10.0 // indirect
 	golang.org/x/net v0.11.0 // indirect
