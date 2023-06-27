@@ -8,7 +8,7 @@ require (
 	chainguard.dev/go-oidctest v0.2.0
 	entgo.io/ent v0.12.3
 	github.com/alicebob/miniredis/v2 v2.30.3
-	github.com/aws/aws-sdk-go v1.44.285
+	github.com/aws/aws-sdk-go v1.44.290
 	github.com/coreos/go-oidc/v3 v3.6.0
 	github.com/cyphar/filepath-securejoin v0.2.3
 	github.com/fsnotify/fsnotify v1.6.0
@@ -39,7 +39,7 @@ require (
 	goa.design/goa/v3 v3.11.3
 	goa.design/plugins/v3 v3.11.3
 	gocloud.dev v0.30.0
-	google.golang.org/grpc v1.56.0
+	google.golang.org/grpc v1.56.1
 	gopkg.in/square/go-jose.v2 v2.6.0
 	gotest.tools/v3 v3.4.0
 )
