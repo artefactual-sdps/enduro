@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"runtime"
 	"strings"
+	"time"
 
 	"github.com/go-logr/logr"
 )
@@ -42,4 +43,18 @@ func versionHeaderMiddleware(version string) func(http.Handler) http.Handler {
 			h.ServeHTTP(w, r)
 		})
 	}
+}
+
+// writeTimeout sets the write deadline for writing the response. A zero value
+// means no timeout.
+func writeTimeout(h http.Handler, timeout time.Duration) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		rc := http.NewResponseController(w)
+		var deadline time.Time
+		if timeout != 0 {
+			deadline = time.Now().Add(timeout)
+		}
+		_ = rc.SetWriteDeadline(deadline)
+		h.ServeHTTP(w, r)
+	})
 }
