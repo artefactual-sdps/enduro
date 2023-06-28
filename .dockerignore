@@ -4,4 +4,5 @@
 !enduro.toml
 !go.mod
 !go.sum
-!main.go
+!version.go
+!VERSION.txt
