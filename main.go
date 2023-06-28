@@ -94,7 +94,7 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	enduroDatabase, err := db.Connect(cfg.Database.DSN)
+	enduroDatabase, err := db.Connect(cfg.Database.Driver, cfg.Database.DSN)
 	if err != nil {
 		logger.Error(err, "Enduro database configuration failed.")
 		os.Exit(1)
@@ -106,7 +106,7 @@ func main() {
 		}
 	}
 
-	storageDatabase, err := db.Connect(cfg.Storage.Database.DSN)
+	storageDatabase, err := db.Connect(cfg.Storage.Database.Driver, cfg.Storage.Database.DSN)
 	if err != nil {
 		logger.Error(err, "Storage database configuration failed.")
 		os.Exit(1)
@@ -179,7 +179,7 @@ func main() {
 	var storagePersistence persistence.Storage
 	{
 		drv := sqlcomment.NewDriver(
-			sql.OpenDB("mysql", storageDatabase),
+			sql.OpenDB(cfg.Database.Driver, storageDatabase),
 			sqlcomment.WithDriverVerTag(),
 			sqlcomment.WithTags(sqlcomment.Tags{
 				sqlcomment.KeyApplication: appName,
