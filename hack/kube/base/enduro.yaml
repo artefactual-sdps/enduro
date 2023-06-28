@@ -21,7 +21,7 @@ spec:
             [
               "sh",
               "-c",
-              "until echo STATUS | nc -w 2 temporal.sdps 7233; do echo waiting for temporal to start; sleep 1; done;",
+              "until echo STATUS | nc -w 2 temporal.enduro 7233; do echo waiting for temporal to start; sleep 1; done;",
             ]
       containers:
         - name: enduro
@@ -48,9 +48,9 @@ spec:
                   name: minio-secret
                   key: password
             - name: ENDURO_DATABASE_DSN
-              value: $(MYSQL_USER):$(MYSQL_PASSWORD)@tcp(mysql.sdps:3306)/enduro
+              value: $(MYSQL_USER):$(MYSQL_PASSWORD)@tcp(mysql.enduro:3306)/enduro
             - name: ENDURO_STORAGE_DATABASE_DSN
-              value: $(MYSQL_USER):$(MYSQL_PASSWORD)@tcp(mysql.sdps:3306)/enduro_storage
+              value: $(MYSQL_USER):$(MYSQL_PASSWORD)@tcp(mysql.enduro:3306)/enduro_storage
             - name: ENDURO_WATCHER_EMBEDDED_KEY
               value: "$(MINIO_USER)"
             - name: ENDURO_WATCHER_EMBEDDED_SECRET
