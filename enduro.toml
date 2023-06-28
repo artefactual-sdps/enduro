@@ -31,6 +31,7 @@ redisAddress = "redis://redis.enduro-sdps:6379"
 redisChannel = "enduro-events"
 
 [database]
+driver = "mysql"
 dsn = "enduro:enduro123@tcp(mysql.enduro-sdps:3306)/enduro"
 migrate = true
 
@@ -50,6 +51,7 @@ stripTopLevelDir = true
 enduroAddress = "enduro-internal:9000"
 
 [storage.database]
+driver = "mysql"
 dsn = "enduro:enduro123@tcp(mysql.enduro-sdps:3306)/enduro_storage"
 migrate = true
 

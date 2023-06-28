@@ -3,7 +3,7 @@ module github.com/artefactual-sdps/enduro
 go 1.20
 
 require (
-	ariga.io/atlas v0.12.0
+	ariga.io/atlas v0.12.1
 	ariga.io/sqlcomment v0.1.0
 	buf.build/gen/go/artefactual/a3m/grpc/go v1.3.0-20230508184533-2e9432075630.1
 	buf.build/gen/go/artefactual/a3m/protocolbuffers/go v1.31.0-20230508184533-2e9432075630.1

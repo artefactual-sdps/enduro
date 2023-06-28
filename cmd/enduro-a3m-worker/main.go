@@ -75,7 +75,7 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	enduroDatabase, err := db.Connect(cfg.Database.DSN)
+	enduroDatabase, err := db.Connect(cfg.Database.Driver, cfg.Database.DSN)
 	if err != nil {
 		logger.Error(err, "Enduro database configuration failed.")
 		os.Exit(1)

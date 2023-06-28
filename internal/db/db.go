@@ -4,12 +4,14 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
+	"runtime"
 	"time"
 
 	mysqldriver "github.com/go-sql-driver/mysql"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/mysql"
 	"github.com/golang-migrate/migrate/v4/source"
+	_ "github.com/mattn/go-sqlite3"
 	"github.com/prometheus/client_golang/prometheus"
 
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence"
@@ -18,11 +20,26 @@ import (
 // Wait up to five minutes is another process is already on it.
 const lockTimeout = time.Minute * 5
 
-// Connect returns the database handler which is safe for concurrent access.
-func Connect(ds string) (db *sql.DB, err error) {
-	config, err := mysqldriver.ParseDSN(ds)
+// Connect returns a database handler.
+func Connect(driver, dsn string) (db *sql.DB, err error) {
+	switch driver {
+	case "mysql":
+		db, err = ConnectMySQL(dsn)
+	case "sqlite3":
+		db, err = ConnectSQLite(dsn)
+	default:
+		return nil, fmt.Errorf("unsupported database driver: %q", driver)
+	}
+
+	return db, err
+}
+
+// ConnectMySQL returns a MySQL database handler which is safe for concurrent
+// access.
+func ConnectMySQL(dsn string) (db *sql.DB, err error) {
+	config, err := mysqldriver.ParseDSN(dsn)
 	if err != nil {
-		return nil, fmt.Errorf("error parsing dsn: %w (%s)", err, ds)
+		return nil, fmt.Errorf("error parsing dsn: %w (%s)", err, dsn)
 	}
 	config.Collation = "utf8mb4_unicode_ci"
 	config.Loc = time.UTC
@@ -62,6 +79,33 @@ func Connect(ds string) (db *sql.DB, err error) {
 	return db, nil
 }
 
+// ConnectSQLite returns a SQLlite database handler which is NOT safe for
+// concurrent access.
+func ConnectSQLite(dsn string) (db *sql.DB, err error) {
+	db, err = sql.Open("sqlite3", dsn)
+
+	conns := runtime.NumCPU()
+	db.SetMaxOpenConns(conns)
+	db.SetMaxIdleConns(conns)
+	db.SetConnMaxLifetime(0)
+	db.SetConnMaxIdleTime(0)
+
+	pragmas := []string{
+		"journa_mode=WAL",
+		"synchronous=OFF",
+		"foreign_keys=ON",
+		"tempo_store=MEMORY",
+		"busy_timeout=1000", // Used with "_txlock=immediate" or "BEGIN IMMEDIATE".
+	}
+	for _, pragma := range pragmas {
+		if _, err := db.Exec("PRAGMA " + pragma); err != nil {
+			return nil, err
+		}
+	}
+
+	return db, err
+}
+
 func MigrateEnduroDatabase(db *sql.DB) error {
 	src, err := enduroSourceDriver()
 	if err != nil {
@@ -82,6 +126,11 @@ func MigrateEnduroStorageDatabase(db *sql.DB) error {
 
 // up migrates the database.
 func up(db *sql.DB, src source.Driver) error {
+	_, ok := db.Driver().(*mysqldriver.MySQLDriver)
+	if !ok {
+		return fmt.Errorf("only MySQL migrations are supported")
+	}
+
 	m, err := newMigrate(db, src)
 	if err != nil {
 		return fmt.Errorf("error creating golang-migrate object: %v", err)
