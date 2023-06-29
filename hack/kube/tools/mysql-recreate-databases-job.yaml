@@ -25,7 +25,7 @@ spec:
           command: [
               "sh",
               "-c",
-              'mysql -h mysql.enduro -u root -p$MYSQL_ROOT_PASSWORD --execute "
+              'mysql -h mysql.enduro-sdps -u root -p$MYSQL_ROOT_PASSWORD --execute "
               DROP DATABASE IF EXISTS enduro;
               CREATE DATABASE IF NOT EXISTS enduro;
               GRANT ALL PRIVILEGES ON enduro.* TO ''$MYSQL_USER''@''%'';

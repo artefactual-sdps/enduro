@@ -1,6 +1,6 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namespace: enduro
+namespace: enduro-sdps
 resources:
   - dex.yaml
   - enduro-a3m.yaml
