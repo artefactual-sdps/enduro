@@ -3,6 +3,8 @@
 ARG TARGET=enduro
 
 FROM golang:1.20.5-alpine AS build-go
+LABEL maintainer="Artefactual Systems Inc <info@artefactual.com>"
+USER root
 WORKDIR /src
 ENV CGO_ENABLED=0
 COPY --link go.* ./
@@ -10,6 +12,10 @@ RUN --mount=type=cache,target=/go/pkg/mod go mod download
 COPY --link . .
 
 FROM build-go AS build-enduro
+ARG VERSION_PATH
+ARG VERSION_LONG
+ARG VERSION_SHORT
+ARG VERSION_GIT_HASH
 RUN --mount=type=cache,target=/go/pkg/mod \
 	--mount=type=cache,target=/root/.cache/go-build \
     go build -trimpath -o /out/enduro \
