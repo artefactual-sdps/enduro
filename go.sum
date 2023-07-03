@@ -2256,8 +2256,8 @@ github.com/zclconf/go-cty v1.13.2/go.mod h1:YKQzy/7pZ7iq2jNFzy5go57xdxdWoLLpaEp4
 github.com/zeebo/assert v1.3.0/go.mod h1:Pq9JiuJQpG8JLJdtkwrJESF0Foym2/D9XMU5ciN/wJ0=
 github.com/zeebo/xxh3 v1.0.2/go.mod h1:5NWz9Sef7zIDm2JHfFlcQvNekmcEl9ekUZQQKCYaDcA=
 github.com/zenazn/goji v0.9.0/go.mod h1:7S9M489iMyHBNxwZnk9/EHS098H4/F6TATF2mIxtB1Q=
-go.artefactual.dev/tools v0.1.0 h1:+UTyUXQbvq32X0AuIjkfoVvrEdxIvzsCyj+vWjxLGQ0=
-go.artefactual.dev/tools v0.1.0/go.mod h1:VM9uoKuK6IcDIitYuWvqyaxxLajGxJHDbqnwNfgaCpU=
+go.artefactual.dev/tools v0.3.0 h1:0Lq91Xo5hwn7Xcy2pYnytKocEmTZmzagzNXyjMtv0Ps=
+go.artefactual.dev/tools v0.3.0/go.mod h1:bPOawySv59dJUPitqreJTLgeQkQvA5E2JGQj/zpunJ0=
 go.buf.build/grpc/go/artefactual/a3m v1.4.4 h1:I4aNVeT6Xr+k2YEveJqfizYjpHUGsRHwT2kd1WDjHks=
 go.buf.build/grpc/go/artefactual/a3m v1.4.4/go.mod h1:tBpIEx51OU6XDAomUk4Ov+JLNp/3zCtocDEkhAzkm8Q=
 go.etcd.io/bbolt v1.3.2/go.mod h1:IbVyRI1SCnLcuJnV2u8VeU0CEYM7e686BmAb1XKL+uU=

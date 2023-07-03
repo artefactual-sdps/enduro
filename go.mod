@@ -32,7 +32,7 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.16.0
 	github.com/stretchr/testify v1.8.4
-	go.artefactual.dev/tools v0.1.0
+	go.artefactual.dev/tools v0.3.0
 	go.buf.build/grpc/go/artefactual/a3m v1.4.4
 	go.temporal.io/api v1.23.0
 	go.temporal.io/sdk v1.23.1
