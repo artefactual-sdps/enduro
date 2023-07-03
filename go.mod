@@ -41,7 +41,7 @@ require (
 	gocloud.dev v0.30.0
 	google.golang.org/grpc v1.56.1
 	gopkg.in/square/go-jose.v2 v2.6.0
-	gotest.tools/v3 v3.4.0
+	gotest.tools/v3 v3.5.0
 )
 
 require (
