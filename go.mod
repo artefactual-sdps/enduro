@@ -7,8 +7,8 @@ require (
 	ariga.io/sqlcomment v0.1.0
 	chainguard.dev/go-oidctest v0.2.0
 	entgo.io/ent v0.12.3
-	github.com/alicebob/miniredis/v2 v2.30.3
-	github.com/aws/aws-sdk-go v1.44.291
+	github.com/alicebob/miniredis/v2 v2.30.4
+	github.com/aws/aws-sdk-go v1.44.295
 	github.com/coreos/go-oidc/v3 v3.6.0
 	github.com/cyphar/filepath-securejoin v0.2.3
 	github.com/fsnotify/fsnotify v1.6.0
@@ -32,7 +32,7 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.16.0
 	github.com/stretchr/testify v1.8.4
-	go.artefactual.dev/tools v0.1.0
+	go.artefactual.dev/tools v0.3.0
 	go.buf.build/grpc/go/artefactual/a3m v1.4.4
 	go.temporal.io/api v1.23.0
 	go.temporal.io/sdk v1.23.1
@@ -41,7 +41,7 @@ require (
 	gocloud.dev v0.30.0
 	google.golang.org/grpc v1.56.1
 	gopkg.in/square/go-jose.v2 v2.6.0
-	gotest.tools/v3 v3.4.0
+	gotest.tools/v3 v3.5.0
 )
 
 require (
