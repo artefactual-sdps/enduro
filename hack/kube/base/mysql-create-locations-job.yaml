@@ -38,9 +38,9 @@ spec:
             - >
               KEY=$(echo $MINIO_USER | iconv -t utf-8) && 
               SECRET=$(echo $MINIO_PASSWORD | iconv -t utf-8) &&
-              LOC_1='{"s3": {"bucket": "perma-aips-1", "region": "us-west-1", "endpoint": "http://minio.sdps:9000", "path_style": true, "key": "'$KEY'", "secret": "'$SECRET'"}}' &&
-              LOC_2='{"s3": {"bucket": "perma-aips-2", "region": "us-west-1", "endpoint": "http://minio.sdps:9000", "path_style": true, "key": "'$KEY'", "secret": "'$SECRET'"}}' &&
-              mysql -h mysql.sdps -u $MYSQL_USER -p$MYSQL_PASSWORD --execute "
+              LOC_1='{"s3": {"bucket": "perma-aips-1", "region": "us-west-1", "endpoint": "http://minio.enduro-sdps:9000", "path_style": true, "key": "'$KEY'", "secret": "'$SECRET'"}}' &&
+              LOC_2='{"s3": {"bucket": "perma-aips-2", "region": "us-west-1", "endpoint": "http://minio.enduro-sdps:9000", "path_style": true, "key": "'$KEY'", "secret": "'$SECRET'"}}' &&
+              mysql -h mysql.enduro-sdps -u $MYSQL_USER -p$MYSQL_PASSWORD --execute "
                 INSERT IGNORE INTO enduro_storage.location (name, description, source, purpose, uuid, created_at, config)
                 VALUES ('perma-aips-1', '', 'minio', 'aip_store', 'f2cc963f-c14d-4eaa-b950-bd207189a1f1', NOW(), '$LOC_1');
                 INSERT IGNORE INTO enduro_storage.location (name, description, source, purpose, uuid, created_at, config)

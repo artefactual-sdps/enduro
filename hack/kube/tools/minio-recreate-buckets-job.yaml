@@ -25,7 +25,7 @@ spec:
           command: [
               "sh",
               "-c",
-              "mc alias set enduro http://minio.sdps:9000 ${MINIO_USER} ${MINIO_PASSWORD};
+              "mc alias set enduro http://minio.enduro-sdps:9000 ${MINIO_USER} ${MINIO_PASSWORD};
               mc rb --force --dangerous enduro;
               mc mb enduro/sips --ignore-existing;
               mc mb enduro/aips --ignore-existing;

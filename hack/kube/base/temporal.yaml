@@ -32,7 +32,7 @@ spec:
                   name: mysql-secret
                   key: password
             - name: MYSQL_SEEDS
-              value: mysql.sdps
+              value: mysql.enduro-sdps
             - name: DYNAMIC_CONFIG_FILE_PATH
               value: config/dynamicconfig/development.yaml
           ports:
