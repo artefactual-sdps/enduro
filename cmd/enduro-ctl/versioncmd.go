@@ -13,7 +13,7 @@ import (
 )
 
 func versionCommand(rootConfig *rootcmd.Config, out io.Writer) *ffcli.Command {
-	fs := flag.NewFlagSet("sdps-api-ctl version", flag.ExitOnError)
+	fs := flag.NewFlagSet("enduro-ctl version", flag.ExitOnError)
 	rootConfig.RegisterFlags(fs)
 
 	return &ffcli.Command{

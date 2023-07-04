@@ -16,12 +16,12 @@ type Config struct {
 func New() (*ffcli.Command, *Config) {
 	var cfg Config
 
-	fs := flag.NewFlagSet("sdps-api-ctl", flag.ExitOnError)
+	fs := flag.NewFlagSet("enduro-ctl", flag.ExitOnError)
 	cfg.RegisterFlags(fs)
 
 	return &ffcli.Command{
-		Name:       "sdps-api-ctl",
-		ShortUsage: "sdps-api-ctl [flags] <subcommand> [flags] [<arg>...]",
+		Name:       "enduro-ctl",
+		ShortUsage: "enduro-ctl [flags] <subcommand> [flags] [<arg>...]",
 		FlagSet:    fs,
 		Exec:       cfg.Exec,
 	}, &cfg
