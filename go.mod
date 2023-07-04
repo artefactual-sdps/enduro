@@ -25,6 +25,7 @@ require (
 	github.com/nyudlts/go-bagit v0.2.0-alpha
 	github.com/oklog/run v1.1.0
 	github.com/otiai10/copy v1.12.0
+	github.com/peterbourgon/ff/v3 v3.3.2
 	github.com/prometheus/client_golang v1.16.0
 	github.com/radovskyb/watcher v1.0.7
 	github.com/redis/go-redis/v9 v9.0.5

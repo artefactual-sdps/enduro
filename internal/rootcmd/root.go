@@ -4,12 +4,17 @@ import (
 	"context"
 	"flag"
 
-	"github.com/artefactual-sdps/internal/config"
+	"github.com/artefactual-sdps/enduro/internal/config"
 	"github.com/peterbourgon/ff/v3/ffcli"
 )
 
+type Config struct {
+	config.Configuration
+	Verbose bool
+}
+
 func New() (*ffcli.Command, *Config) {
-	var cfg config.Configuration
+	var cfg Config
 
 	fs := flag.NewFlagSet("sdps-api-ctl", flag.ExitOnError)
 	cfg.RegisterFlags(fs)

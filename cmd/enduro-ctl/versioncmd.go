@@ -8,8 +8,8 @@ import (
 
 	"github.com/peterbourgon/ff/v3/ffcli"
 
-	"github.com/artefactual-sdps/internal/rootcmd"
-	"github.com/artefactual-sdps/internal/version"
+	"github.com/artefactual-sdps/enduro/internal/rootcmd"
+	"github.com/artefactual-sdps/enduro/internal/version"
 )
 
 func versionCommand(rootConfig *rootcmd.Config, out io.Writer) *ffcli.Command {
