@@ -16,6 +16,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
 	"github.com/oklog/run"
+	"github.com/peterbourgon/ff/v3/ffcli"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/pflag"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
@@ -33,6 +34,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/event"
 	"github.com/artefactual-sdps/enduro/internal/log"
 	"github.com/artefactual-sdps/enduro/internal/package_"
+	"github.com/artefactual-sdps/enduro/internal/rootcmd"
 	"github.com/artefactual-sdps/enduro/internal/storage"
 	storage_activities "github.com/artefactual-sdps/enduro/internal/storage/activities"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence"
@@ -68,9 +70,9 @@ func main() {
 		os.Exit(0)
 	}
 
-	var cfg config.Configuration
+	var cfg rootcmd.Config
 	configFile, _ := p.GetString("config")
-	configFileFound, configFileUsed, err := config.Read(&cfg, configFile)
+	configFileFound, configFileUsed, err := config.Read(&cfg.Configuration, configFile)
 	if err != nil {
 		fmt.Printf("Failed to read configuration: %v\n", err)
 		os.Exit(1)
