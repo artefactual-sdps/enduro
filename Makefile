@@ -44,7 +44,6 @@ IGNORED_PACKAGES := \
 	github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/runtime \
 	github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/schema \
 	github.com/artefactual-sdps/enduro/internal/storage/persistence/fake \
-	github.com/artefactual-sdps/enduro/internal/temporal/testutil \
 	github.com/artefactual-sdps/enduro/internal/upload/fake \
 	github.com/artefactual-sdps/enduro/internal/watcher/fake
 PACKAGES		:= $(shell go list ./...)
