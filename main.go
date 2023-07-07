@@ -83,7 +83,7 @@ func main() {
 	)
 	defer log.Sync(logger)
 
-	logger.Info("Starting...", "version", version.Version, "pid", os.Getpid())
+	logger.Info("Starting...", "version", version.Long, "pid", os.Getpid())
 
 	if configFileFound {
 		logger.Info("Configuration file loaded.", "path", configFileUsed)

@@ -1,32 +1,69 @@
+// Package version provides the version that the binary was built at.
 package version
 
 import (
+	_ "embed"
 	"fmt"
-	"runtime"
 	"runtime/debug"
+	"strings"
 )
+
+//go:embed VERSION.txt
+var version string
 
 var (
-	Version   = "(dev-version)"
-	GitCommit = "(dev-commit)"
-	BuildTime = "(dev-buildtime)"
-	GoVersion = runtime.Version()
+	// Long is a full version number for this build.
+	Long = ""
+
+	// Short is a short version number for this build.
+	Short = ""
+
+	// GitCommit is the git commit of the build.
+	GitCommit = ""
+
+	// GitDirty is the vcs.modified setting returned by debug.ReadBuildInfo.
+	GitDirty bool
 )
 
-var buildInfoReader = debug.ReadBuildInfo
+func init() {
+	if Long != "" && Short != "" {
+		// Built in the recommended way, using build_dist.sh.
+		return
+	}
 
-func Info(appName string) string {
-	info, ok := buildInfoReader()
-	if ok {
-		for _, item := range info.Settings {
-			if item.Key == "vcs.revision" {
-				GitCommit = item.Value
+	bi, ok := debug.ReadBuildInfo()
+	if !ok {
+		Long = strings.TrimSpace(version) + "-ERR-BuildInfo"
+		Short = Long
+		return
+	}
+	var dirty string // "-dirty" suffix if dirty
+	var commitHashAbbrev, commitDate string
+	for _, s := range bi.Settings {
+		switch s.Key {
+		case "vcs.revision":
+			GitCommit = s.Value
+			if len(s.Value) >= 9 {
+				commitHashAbbrev = s.Value[:9]
 			}
-			if item.Key == "vcs.modified" && item.Value == "true" {
-				GitCommit = "!" + GitCommit
+		case "vcs.time":
+			if len(s.Value) >= len("yyyy-mm-dd") {
+				commitDate = s.Value[:len("yyyy-mm-dd")]
+				commitDate = strings.ReplaceAll(commitDate, "-", "")
+			}
+		case "vcs.modified":
+			if s.Value == "true" {
+				dirty = "-dirty"
+				GitDirty = true
 			}
 		}
 	}
-	return fmt.Sprintf("%s version %s (commit=%s) built on %s using %s",
-		appName, Version, GitCommit, BuildTime, GoVersion)
+
+	// Backup path, using Go 1.18's built-in git stamping.
+	Short = strings.TrimSpace(version) + "-dev" + commitDate
+	Long = Short + "-t" + commitHashAbbrev + dirty
+}
+
+func Info(appName string) string {
+	return fmt.Sprintf("%s version %s", appName, Long)
 }

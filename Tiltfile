@@ -4,11 +4,15 @@ load("ext://uibutton", "cmd_button", "text_input")
 load('ext://dotenv', 'dotenv')
 
 # Docker images
-docker_build("enduro:dev", context=".")
-docker_build(
-  "enduro-a3m-worker:dev",
-  context=".",
-  target="enduro-a3m-worker"
+custom_build(
+  ref="enduro:dev",
+  command=["hack/build_docker.sh", "enduro"],
+  deps=["."],
+)
+custom_build(
+  ref="enduro-a3m-worker:dev",
+  command=["hack/build_docker.sh", "enduro-a3m-worker"],
+  deps=["."],
 )
 docker_build(
   "enduro-dashboard:dev",

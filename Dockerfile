@@ -10,14 +10,29 @@ RUN --mount=type=cache,target=/go/pkg/mod go mod download
 COPY --link . .
 
 FROM build-go AS build-enduro
+ARG VERSION_PATH
+ARG VERSION_LONG
+ARG VERSION_SHORT
+ARG VERSION_GIT_HASH
 RUN --mount=type=cache,target=/go/pkg/mod \
 	--mount=type=cache,target=/root/.cache/go-build \
-	go build -o /out/enduro .
+	go build \
+		-trimpath \
+		-ldflags="-X '${VERSION_PATH}.Long=${VERSION_LONG}' -X '${VERSION_PATH}.Short=${VERSION_SHORT}' -X '${VERSION_PATH}.GitCommit=${VERSION_GIT_HASH}'" \
+		-o /out/enduro .
 
 FROM build-go AS build-enduro-a3m-worker
+ARG VERSION_PATH
+ARG VERSION_LONG
+ARG VERSION_SHORT
+ARG VERSION_GIT_HASH
 RUN --mount=type=cache,target=/go/pkg/mod \
 	--mount=type=cache,target=/root/.cache/go-build \
-	go build -o /out/enduro-a3m-worker ./cmd/enduro-a3m-worker
+	go build \
+		-trimpath \
+		-ldflags="-X '${VERSION_PATH}.Long=${VERSION_LONG}' -X '${VERSION_PATH}.Short=${VERSION_SHORT}' -X '${VERSION_PATH}.GitCommit=${VERSION_GIT_HASH}'" \
+		-o /out/enduro-a3m-worker \
+		./cmd/enduro-a3m-worker
 
 FROM alpine:3.18.2 AS base
 ARG USER_ID=1000
