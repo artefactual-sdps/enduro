@@ -2,7 +2,7 @@
 
 ARG TARGET=enduro
 
-FROM golang:1.20.5-alpine AS build-go
+FROM golang:1.20.6-alpine AS build-go
 WORKDIR /src
 ENV CGO_ENABLED=0
 COPY --link go.* ./
