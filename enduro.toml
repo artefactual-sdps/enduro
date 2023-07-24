@@ -65,6 +65,23 @@ bucket = "aips"
 address = "127.0.0.1:7000"
 shareDir = "/home/a3m/.local/share/a3m/share"
 
+[a3m.processing]
+AssignUuidsToDirectories                     = true
+ExamineContents                              = true
+GenerateTransferStructureReport              = true
+DocumentEmptyDirectories                     = true
+ExtractPackages                              = true
+DeletePackagesAfterExtraction                = true
+IdentifyTransfer                             = true
+IdentifySubmissionAndMetadata                = true
+IdentifyBeforeNormalization                  = true
+Normalize                                    = true
+TranscribeFiles                              = true
+PerformPolicyChecksOnOriginals               = true
+PerformPolicyChecksOnPreservationDerivatives = true
+AipCompressionLevel                          = 1
+AipCompressionAlgorithm                      = 6
+
 [upload]
 endpoint = "http://minio.enduro-sdps:9000"
 pathStyle = true

@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	a3m_transferservice "buf.build/gen/go/artefactual/a3m/protocolbuffers/go/a3m/api/transferservice/v1beta1"
+	transferservice "buf.build/gen/go/artefactual/a3m/protocolbuffers/go/a3m/api/transferservice/v1beta1"
 	"github.com/go-logr/logr"
 	"github.com/oklog/run"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
@@ -15,7 +15,10 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/package_"
 )
 
-const CreateAIPActivityName = "create-aip-activity"
+const (
+	appName               = "enduro"
+	CreateAIPActivityName = "create-aip-activity"
+)
 
 type CreateAIPActivity struct {
 	logger logr.Logger
@@ -84,25 +87,25 @@ func (a *CreateAIPActivity) Execute(ctx context.Context, opts *CreateAIPActivity
 
 				submitResp, err := c.TransferClient.Submit(
 					ctx,
-					&a3m_transferservice.SubmitRequest{
-						Name: "enduro",
+					&transferservice.SubmitRequest{
+						Name: appName,
 						Url:  fmt.Sprintf("file://%s", opts.Path),
-						Config: &a3m_transferservice.ProcessingConfig{
-							AssignUuidsToDirectories:                     true,
-							ExamineContents:                              false,
-							GenerateTransferStructureReport:              true,
-							DocumentEmptyDirectories:                     true,
-							ExtractPackages:                              true,
-							DeletePackagesAfterExtraction:                false,
-							IdentifyTransfer:                             true,
-							IdentifySubmissionAndMetadata:                true,
-							IdentifyBeforeNormalization:                  true,
-							Normalize:                                    true,
-							TranscribeFiles:                              true,
-							PerformPolicyChecksOnOriginals:               true,
-							PerformPolicyChecksOnPreservationDerivatives: true,
-							AipCompressionLevel:                          1,
-							AipCompressionAlgorithm:                      a3m_transferservice.ProcessingConfig_AIP_COMPRESSION_ALGORITHM_S7_BZIP2,
+						Config: &transferservice.ProcessingConfig{
+							AssignUuidsToDirectories:                     a.cfg.AssignUuidsToDirectories,
+							ExamineContents:                              a.cfg.ExamineContents,
+							GenerateTransferStructureReport:              a.cfg.GenerateTransferStructureReport,
+							DocumentEmptyDirectories:                     a.cfg.DocumentEmptyDirectories,
+							ExtractPackages:                              a.cfg.ExtractPackages,
+							DeletePackagesAfterExtraction:                a.cfg.DeletePackagesAfterExtraction,
+							IdentifyTransfer:                             a.cfg.IdentifyTransfer,
+							IdentifySubmissionAndMetadata:                a.cfg.IdentifySubmissionAndMetadata,
+							IdentifyBeforeNormalization:                  a.cfg.IdentifyBeforeNormalization,
+							Normalize:                                    a.cfg.Normalize,
+							TranscribeFiles:                              a.cfg.TranscribeFiles,
+							PerformPolicyChecksOnOriginals:               a.cfg.PerformPolicyChecksOnOriginals,
+							PerformPolicyChecksOnPreservationDerivatives: a.cfg.PerformPolicyChecksOnPreservationDerivatives,
+							AipCompressionLevel:                          int32(a.cfg.AipCompressionLevel),
+							AipCompressionAlgorithm:                      a.cfg.AipCompressionAlgorithm,
 						},
 					},
 					grpc.WaitForReady(true),
@@ -114,12 +117,12 @@ func (a *CreateAIPActivity) Execute(ctx context.Context, opts *CreateAIPActivity
 				result.UUID = submitResp.Id
 
 				for {
-					readResp, err := c.TransferClient.Read(ctx, &a3m_transferservice.ReadRequest{Id: result.UUID})
+					readResp, err := c.TransferClient.Read(ctx, &transferservice.ReadRequest{Id: result.UUID})
 					if err != nil {
 						return err
 					}
 
-					if readResp.Status == a3m_transferservice.PackageStatus_PACKAGE_STATUS_PROCESSING {
+					if readResp.Status == transferservice.PackageStatus_PACKAGE_STATUS_PROCESSING {
 						continue
 					}
 
@@ -128,11 +131,11 @@ func (a *CreateAIPActivity) Execute(ctx context.Context, opts *CreateAIPActivity
 						return err
 					}
 
-					if readResp.Status == a3m_transferservice.PackageStatus_PACKAGE_STATUS_FAILED || readResp.Status == a3m_transferservice.PackageStatus_PACKAGE_STATUS_REJECTED {
+					if readResp.Status == transferservice.PackageStatus_PACKAGE_STATUS_FAILED || readResp.Status == transferservice.PackageStatus_PACKAGE_STATUS_REJECTED {
 						return errors.New("package failed or rejected")
 					}
 
-					result.Path = fmt.Sprintf("%s/completed/%s-%s.7z", a.cfg.ShareDir, "enduro", result.UUID)
+					result.Path = fmt.Sprintf("%s/completed/%s-%s.7z", a.cfg.ShareDir, appName, result.UUID)
 					a.logger.Info("We have run a3m successfully", "path", result.Path)
 
 					break
@@ -152,12 +155,12 @@ func (a *CreateAIPActivity) Execute(ctx context.Context, opts *CreateAIPActivity
 	return result, nil
 }
 
-func savePreservationTasks(ctx context.Context, jobs []*a3m_transferservice.Job, pkgsvc package_.Service, paID uint) error {
-	jobStatusToPreservationTaskStatus := map[a3m_transferservice.Job_Status]package_.PreservationTaskStatus{
-		a3m_transferservice.Job_STATUS_UNSPECIFIED: package_.TaskStatusUnspecified,
-		a3m_transferservice.Job_STATUS_COMPLETE:    package_.TaskStatusDone,
-		a3m_transferservice.Job_STATUS_PROCESSING:  package_.TaskStatusInProgress,
-		a3m_transferservice.Job_STATUS_FAILED:      package_.TaskStatusError,
+func savePreservationTasks(ctx context.Context, jobs []*transferservice.Job, pkgsvc package_.Service, paID uint) error {
+	jobStatusToPreservationTaskStatus := map[transferservice.Job_Status]package_.PreservationTaskStatus{
+		transferservice.Job_STATUS_UNSPECIFIED: package_.TaskStatusUnspecified,
+		transferservice.Job_STATUS_COMPLETE:    package_.TaskStatusDone,
+		transferservice.Job_STATUS_PROCESSING:  package_.TaskStatusInProgress,
+		transferservice.Job_STATUS_FAILED:      package_.TaskStatusError,
 	}
 
 	for _, job := range jobs {
