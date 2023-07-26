@@ -22,4 +22,3 @@ images:
     newTag: dev
 patchesStrategicMerge:
   - enduro-a3m-patch.yaml
-  - enduro-dashboard-patch.yaml

@@ -17,6 +17,8 @@ custom_build(
 docker_build(
   "enduro-dashboard:dev",
   context="dashboard",
+  # Comment the following line to serve the app with Nginx instead of the Vite
+  # dev server
   target="builder",
   live_update=[
     fall_back_on("dashboard/vite.config.js"),
@@ -47,7 +49,7 @@ if os.environ.get('TRIGGER_MODE_AUTO', ''):
 k8s_resource("enduro", labels=["Enduro"], trigger_mode=trigger_mode)
 k8s_resource("enduro-a3m", labels=["Enduro"], trigger_mode=trigger_mode)
 k8s_resource("enduro-internal", port_forwards="9000", labels=["Enduro"], trigger_mode=trigger_mode)
-k8s_resource("enduro-dashboard", port_forwards="3000", labels=["Enduro"], trigger_mode=trigger_mode)
+k8s_resource("enduro-dashboard", port_forwards="8080:80", labels=["Enduro"], trigger_mode=trigger_mode)
 
 # Other resources
 k8s_resource("dex", port_forwards="5556", labels=["Others"])
