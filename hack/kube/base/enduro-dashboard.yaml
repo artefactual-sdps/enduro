@@ -24,6 +24,11 @@ spec:
                 secretKeyRef:
                   name: enduro-secret
                   key: oidc-provider-url
+            - name: VITE_OIDC_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: enduro-secret
+                  key: oidc-client-id
             - name: VITE_OIDC_REDIRECT_URI
               valueFrom:
                 secretKeyRef:
@@ -33,7 +38,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: enduro-secret
-                  key: oidc-client-id
+                  key: oidc-audience-client-id
           ports:
             - containerPort: 80
           resources: {}

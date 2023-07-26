@@ -125,7 +125,7 @@ documentation to know more about it.
 
 There are four services available from the host:
 
-- Enduro dashboard: http://localhost:3000
+- Enduro dashboard: http://localhost:8080
 - Minio console: http://localhost:7460 (username: minio, password: minio123)
 - Temporal UI: http://localhost:7440
 
