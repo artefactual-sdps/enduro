@@ -1,12 +1,6 @@
 # syntax = docker/dockerfile:1.4
 
 FROM node:20 AS builder
-ARG oidcProviderUrl=http://dex:5556
-ARG oidcRedirectUrl=http://localhost:3000/user/signin-callback
-ARG oidcAudienceClientId=enduro
-ENV VITE_OIDC_AUTHORITY=$oidcProviderUrl
-ENV VITE_OIDC_REDIRECT_URI=$oidcRedirectUrl
-ENV VITE_OIDC_AUDIENCE_CLIENT_ID=$oidcAudienceClientId
 WORKDIR /app
 COPY --link package.json package-lock.json ./
 RUN --mount=type=cache,target=/app/.npm \
@@ -16,9 +10,12 @@ RUN npm run build
 CMD npm run dev
 
 FROM nginx:alpine
-WORKDIR /usr/share/nginx/html
-RUN rm -rf ./*
+RUN apk add --no-cache bash
+
+ENV ENDURO_DASHBOARD_DIST=/dist
+WORKDIR $ENDURO_DASHBOARD_DIST
 COPY --from=builder --link /app/dist .
+
 COPY <<EOF /etc/nginx/templates/default.conf.template
 upstream backend {
     least_conn;
@@ -44,3 +41,8 @@ server {
     }
 }
 EOF
+
+# Run inject-vite-envs.sh on Nginx start
+ENV ENDURO_DASHBOARD_ROOT=/usr/share/nginx/html
+COPY --link ./hack/inject-vite-envs.sh /docker-entrypoint.d/50-inject-vite-envs.sh
+RUN chmod +x /docker-entrypoint.d/50-inject-vite-envs.sh
