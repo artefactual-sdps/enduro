@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: temporal-ui
-          image: temporalio/ui:2.16.1
+          image: temporalio/ui:2.16.2
           env:
             - name: TEMPORAL_ADDRESS
               value: temporal.enduro-sdps:7233
@@ -48,6 +48,8 @@ spec:
                 secretKeyRef:
                   name: temporal-ui-secret
                   key: auth-client-secret
+            - name: TEMPORAL_AUTH_SCOPES
+              value: openid,profile,email
           ports:
             - containerPort: 8080
           resources: {}
