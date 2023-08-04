@@ -12,13 +12,20 @@ case "$TARGET" in
 	"enduro")
 		IMAGE_NAME="enduro"
 		TARGET="enduro"
+		FOLDER="."
 		;;
 	"enduro-a3m-worker")
 		IMAGE_NAME="enduro-a3m-worker"
 		TARGET="enduro-a3m-worker"
+		FOLDER="."
+		;;
+        "enduro-dashboard")
+		IMAGE_NAME="enduro-dashboard"
+		TARGET="enduro-dashboard"
+		FOLDER="dashboard"
 		;;
 	*)
-		echo "Accepted values: enduro, enduro-a3m-worker.";
+		echo "Accepted values: enduro, enduro-a3m-worker, enduro-dashboard.";
 		exit 1;
 		;;
 esac
@@ -32,11 +39,11 @@ BUILD_OPTS="${BUILD_OPTS:-}"
 
 env DOCKER_BUILDKIT=1 docker build \
 	-t "$IMAGE_NAME" \
-	-f "Dockerfile" \
+	-f "$FOLDER/Dockerfile" \
 	--build-arg="TARGET=$TARGET" \
 	--build-arg="VERSION_PATH=$VERSION_PATH" \
 	--build-arg="VERSION_LONG=$VERSION_LONG" \
 	--build-arg="VERSION_SHORT=$VERSION_SHORT" \
 	--build-arg="VERSION_GIT_HASH=$VERSION_GIT_HASH" \
 	$BUILD_OPTS \
-		.
+        $FOLDER
