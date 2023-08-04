@@ -12,6 +12,11 @@ CMD npm run dev
 FROM nginx:alpine
 RUN apk add --no-cache bash
 
+ARG VERSION_PATH
+ARG VERSION_LONG
+ARG VERSION_SHORT
+ARG VERSION_GIT_HASH
+
 ENV ENDURO_DASHBOARD_DIST=/dist
 WORKDIR $ENDURO_DASHBOARD_DIST
 COPY --from=builder --link /app/dist .
@@ -45,4 +50,5 @@ EOF
 # Run inject-vite-envs.sh on Nginx start
 ENV ENDURO_DASHBOARD_ROOT=/usr/share/nginx/html
 COPY --link ./hack/inject-vite-envs.sh /docker-entrypoint.d/50-inject-vite-envs.sh
-RUN chmod +x /docker-entrypoint.d/50-inject-vite-envs.sh
+RUN echo "echo Starting enduro-dashboard version=${VERSION_LONG}" > /docker-entrypoint.d/55-stamping.sh
+RUN chmod +x /docker-entrypoint.d/50-inject-vite-envs.sh /docker-entrypoint.d/55-stamping.sh
