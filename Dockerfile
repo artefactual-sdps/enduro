@@ -1,8 +1,9 @@
 # syntax = docker/dockerfile:1.4
 
 ARG TARGET=enduro
+ARG GO_VERSION
 
-FROM golang:1.20.5-alpine AS build-go
+FROM golang:${GO_VERSION}-alpine AS build-go
 WORKDIR /src
 ENV CGO_ENABLED=0
 COPY --link go.* ./
