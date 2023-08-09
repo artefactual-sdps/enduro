@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"time"
 
+	a3m_transferservice "buf.build/gen/go/artefactual/a3m/protocolbuffers/go/a3m/api/transferservice/v1beta1"
 	"github.com/go-logr/logr"
 	"github.com/oklog/run"
-	a3m_transferservice "go.buf.build/grpc/go/artefactual/a3m/a3m/api/transferservice/v1beta1"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
 	"google.golang.org/grpc"
 
