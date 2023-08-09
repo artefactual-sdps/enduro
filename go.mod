@@ -5,6 +5,8 @@ go 1.20
 require (
 	ariga.io/atlas v0.12.0
 	ariga.io/sqlcomment v0.1.0
+	buf.build/gen/go/artefactual/a3m/grpc/go v1.3.0-20230508184533-2e9432075630.1
+	buf.build/gen/go/artefactual/a3m/protocolbuffers/go v1.31.0-20230508184533-2e9432075630.1
 	chainguard.dev/go-oidctest v0.2.0
 	entgo.io/ent v0.12.3
 	github.com/alicebob/miniredis/v2 v2.30.4
@@ -33,7 +35,6 @@ require (
 	github.com/spf13/viper v1.16.0
 	github.com/stretchr/testify v1.8.4
 	go.artefactual.dev/tools v0.3.0
-	go.buf.build/grpc/go/artefactual/a3m v1.4.4
 	go.temporal.io/api v1.23.0
 	go.temporal.io/sdk v1.23.1
 	goa.design/goa/v3 v3.11.3
@@ -142,7 +143,7 @@ require (
 	google.golang.org/api v0.128.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230530153820-e85fd2cbaebc // indirect
-	google.golang.org/protobuf v1.30.0 // indirect
+	google.golang.org/protobuf v1.31.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
