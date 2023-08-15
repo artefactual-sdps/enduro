@@ -35,7 +35,7 @@ RUN --mount=type=cache,target=/go/pkg/mod \
 		-o /out/enduro-a3m-worker \
 		./cmd/enduro-a3m-worker
 
-FROM alpine:3.18.2 AS base
+FROM alpine:3.18.3 AS base
 ARG USER_ID=1000
 ARG GROUP_ID=1000
 RUN addgroup -g ${GROUP_ID} -S enduro
