@@ -107,6 +107,9 @@ gen-mock:  ## Generate mocks.
 	$(MOCKGEN) -destination=./internal/api/auth/fake/mock_ticket_store.go -package=fake github.com/artefactual-sdps/enduro/internal/api/auth TicketStore
 
 gen-ent: $(ENT)  ## Generate Ent assets.
+	ent generate ./internal/persistence/ent/schema \
+		--feature sql/versioned-migration \
+		--target=./internal/persistence/ent/db
 	ent generate ./internal/storage/persistence/ent/schema \
 		--feature sql/versioned-migration \
 		--target=./internal/storage/persistence/ent/db
