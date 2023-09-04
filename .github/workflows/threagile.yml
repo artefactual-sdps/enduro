@@ -10,7 +10,7 @@ jobs:
     steps:
       # Checkout the repo
       - name: Checkout Workspace
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # Run Threagile
       - name: Run Threagile
