@@ -10,7 +10,7 @@ require (
 	chainguard.dev/go-oidctest v0.2.0
 	entgo.io/ent v0.12.3
 	github.com/alicebob/miniredis/v2 v2.30.4
-	github.com/aws/aws-sdk-go v1.44.295
+	github.com/aws/aws-sdk-go v1.45.2
 	github.com/coreos/go-oidc/v3 v3.6.0
 	github.com/cyphar/filepath-securejoin v0.2.3
 	github.com/fsnotify/fsnotify v1.6.0
