@@ -63,6 +63,89 @@ in the Archivematica documentation.
 
 ### Upload to Minio
 
-### View tasks in Temporal
+1. In Minio, navigate to the Object Browser and select your upload bucket. In
+   this example, the upload bucket is called `sips`.
 
-### Retrieve AIPs
+   ![The Object Browser page in Minio. The body of the page shows four buckets:
+   aips, perma-aips1, perma-aips2, and sips.](screenshots/minio-buckets.jpeg)
+
+2. Click on **Upload** and then select **Upload file**. This will open a file
+   browser.
+
+   ![The sips bucket page in Minio, with the Upload button circled in red. The
+   bucket contains two transfers already.](screenshots/minio-upload.jpeg)
+
+3. In the file browser, locate your transfer package and upload it to Minio.
+   Once the progress bar has completed, Enduro will begin processing the transfer. 
+
+### View tasks in Enduro
+
+1. In Enduro, navigate to the Packages tab. The list of packages will show the
+   most recent package first. You will also see the UUID of the package, when
+   processing started, and the UUID of the location where the package is stored.
+   The Status column will display one of five possible statuses:
+
+   * **Done**: The current workflow or task has completed without errors.
+   * **Error**: The current workflow has encountered an error it could not resolve
+     and failed.
+   * **In Progress**: The current workflow is still processing.
+   * **Queued**: The current workflow is waiting for an available worker to begin.
+   * **Pending**: The current workflow is awaiting a user decision.
+
+   ![The Packages tab in Enduro. The body of the screen shows a table that lists
+   all of the packages that have been processed by the Enduro
+   instance.](screenshots/enduro-packages-tab.jpeg)
+
+2. For more information about the package, click on the name of the package to
+   access the package detail page.
+
+   ![The package detail page in Enduro. The body of the screen shows a table that lists
+   all of the packages that have been processed by the Enduro
+   instance.](screenshots/enduro-package-detail.jpeg)
+
+3. At the bottom of the package detail page, there is a list of **Preservation
+   actions** undertaken on each package. Clicking on the arrow will open a list
+   showing all the tasks that comprise the preservation action.
+
+   ![alt](screenshots/enduro-preservation-actions-expand.jpeg)
+
+## Download AIP
+
+1. If your AIP has been successfully processed, the workflow status for the
+   Create AIP Preservation Action should be set to Done. This is shown in two
+   different places on the page - in the **AIP creation details** section of the
+   main body of the page as well as under **Preservation actions** at the
+   bottom.
+
+   ![alt](screenshots/enduro-create-aip-done.jpeg)
+
+2. You can download the AIP by clicking on **Download** in the **Package
+   details** section.
+
+### Move AIP
+
+You can move packages to other storage locations that have been connected to the
+Enduro instance. In this example, all of the storage locations are configured
+through Minio.
+
+1. On the package detail page in Enduro, select **Choose storage location**.
+
+   ![alt](screenshots/enduro-choose-storage-location.jpeg)
+
+2. All storage locations will be displayed in the pop-up window. Storage
+   locations that are available will have a **Move** button to the right of the
+   location name. If there is no Move button, the package is either already
+   stored in that location or the location is available for some other reason.
+   Select **Move** to move the package to your preferred location.
+
+   ![alt](screenshots/enduro-available-storage-locations.jpeg)
+
+3. An admonition will appear indicating that the package is being moved. You may
+   need to refresh the page to see that the package has been successfully moved.
+
+4. A new Preservation Action called **Move package** will appear at the bottom
+   of the page. You can click on the arrow to see more information about the
+   move.
+
+   ![alt](screenshots/enduro-move-preservation-action.jpeg)
+
