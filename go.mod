@@ -12,7 +12,7 @@ require (
 	github.com/alicebob/miniredis/v2 v2.30.4
 	github.com/aws/aws-sdk-go v1.44.295
 	github.com/coreos/go-oidc/v3 v3.6.0
-	github.com/cyphar/filepath-securejoin v0.2.3
+	github.com/cyphar/filepath-securejoin v0.2.4
 	github.com/fsnotify/fsnotify v1.6.0
 	github.com/go-logr/logr v1.2.4
 	github.com/go-sql-driver/mysql v1.7.1
