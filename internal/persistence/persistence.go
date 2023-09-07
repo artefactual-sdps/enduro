@@ -18,6 +18,11 @@ var (
 	ErrInternal = errors.New("internal error")
 )
 
+type (
+	PackageUpdater func(*package_.Package) (*package_.Package, error)
+)
+
 type Service interface {
 	CreatePackage(context.Context, *package_.Package) (*package_.Package, error)
+	UpdatePackage(context.Context, uint, PackageUpdater) (*package_.Package, error)
 }

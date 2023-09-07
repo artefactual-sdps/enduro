@@ -39,14 +39,18 @@ func newDBErrorWithDetails(err error, details string) error {
 	return fmt.Errorf("%w: %s", newDBError(err), details)
 }
 
-func newRequiredFieldError(field string) error {
-	return fmt.Errorf("%w: field %q is required", persistence.ErrNotValid, field)
-}
-
 func newParseError(err error, field string) error {
 	if err == nil {
 		return nil
 	}
 
 	return fmt.Errorf("%w: parse error: field %q: %v", persistence.ErrNotValid, field, err)
+}
+
+func newRequiredFieldError(field string) error {
+	return fmt.Errorf("%w: field %q is required", persistence.ErrNotValid, field)
+}
+
+func newUpdaterError(err error) error {
+	return fmt.Errorf("%w: updater error: %v", persistence.ErrNotValid, err)
 }
