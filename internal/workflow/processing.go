@@ -16,6 +16,7 @@ import (
 	temporalsdk_workflow "go.temporal.io/sdk/workflow"
 
 	"github.com/artefactual-sdps/enduro/internal/a3m"
+	"github.com/artefactual-sdps/enduro/internal/fsutil"
 	"github.com/artefactual-sdps/enduro/internal/package_"
 	"github.com/artefactual-sdps/enduro/internal/ref"
 	"github.com/artefactual-sdps/enduro/internal/temporal"
@@ -73,6 +74,10 @@ type TransferInfo struct {
 	//
 	// It is populated by createPreservationActionLocalActivity .
 	PreservationActionID uint
+}
+
+func (t *TransferInfo) Name() string {
+	return fsutil.BaseNoExt(t.Key)
 }
 
 // ProcessingWorkflow orchestrates all the activities related to the processing
@@ -590,6 +595,7 @@ func (w *ProcessingWorkflow) transferA3m(sessCtx temporalsdk_workflow.Context, t
 	})
 
 	params := &a3m.CreateAIPActivityParams{
+		Name:                 tinfo.Name(),
 		Path:                 tinfo.Bundle.FullPath,
 		PreservationActionID: tinfo.PreservationActionID,
 	}

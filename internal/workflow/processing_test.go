@@ -12,6 +12,7 @@ import (
 	temporalsdk_testsuite "go.temporal.io/sdk/testsuite"
 	temporalsdk_worker "go.temporal.io/sdk/worker"
 	"go.uber.org/mock/gomock"
+	"gotest.tools/v3/assert"
 
 	"github.com/artefactual-sdps/enduro/internal/a3m"
 	"github.com/artefactual-sdps/enduro/internal/package_"
@@ -28,6 +29,13 @@ type ProcessingWorkflowTestSuite struct {
 
 	// Each test registers the workflow with a different name to avoid dups.
 	workflow *ProcessingWorkflow
+}
+
+func TestTransferInfo_Name(t *testing.T) {
+	t.Run("Returns name of transfer", func(t *testing.T) {
+		tinfo := TransferInfo{Key: "somename.tar.gz"}
+		assert.Equal(t, tinfo.Name(), "somename")
+	})
 }
 
 func (s *ProcessingWorkflowTestSuite) SetupTest() {

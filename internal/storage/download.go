@@ -12,9 +12,12 @@ import (
 
 	"github.com/artefactual-sdps/enduro/internal/api/gen/http/storage/server"
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
+	"github.com/artefactual-sdps/enduro/internal/fsutil"
 )
 
-// Download returns an HTTP handler that se
+// Download returns an HTTP handler that sets the headers for the AIP when it is downloaded.
+// The headers are the Content Type, Content Length, and the Content Disposition.
+// If there is an error with the file download, it will return http-status not found (404).
 func Download(svc Service, mux goahttp.Muxer, dec func(r *http.Request) goahttp.Decoder) http.HandlerFunc {
 	return func(rw http.ResponseWriter, req *http.Request) {
 		// Decode request payload.
@@ -47,7 +50,7 @@ func Download(svc Service, mux goahttp.Muxer, dec func(r *http.Request) goahttp.
 		}
 		defer reader.Close()
 
-		filename := fmt.Sprintf("enduro-%s.7z", pkg.AipID)
+		filename := fmt.Sprintf("%s-%s.7z", fsutil.BaseNoExt(pkg.Name), pkg.AipID)
 
 		rw.Header().Add("Content-Type", reader.ContentType())
 		rw.Header().Add("Content-Length", strconv.FormatInt(reader.Size(), 10))

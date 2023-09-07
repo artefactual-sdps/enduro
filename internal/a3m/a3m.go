@@ -15,10 +15,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/package_"
 )
 
-const (
-	appName               = "enduro"
-	CreateAIPActivityName = "create-aip-activity"
-)
+const CreateAIPActivityName = "create-aip-activity"
 
 type CreateAIPActivity struct {
 	logger logr.Logger
@@ -27,6 +24,7 @@ type CreateAIPActivity struct {
 }
 
 type CreateAIPActivityParams struct {
+	Name                 string
 	Path                 string
 	PreservationActionID uint
 }
@@ -88,7 +86,7 @@ func (a *CreateAIPActivity) Execute(ctx context.Context, opts *CreateAIPActivity
 				submitResp, err := c.TransferClient.Submit(
 					ctx,
 					&transferservice.SubmitRequest{
-						Name: appName,
+						Name: opts.Name,
 						Url:  fmt.Sprintf("file://%s", opts.Path),
 						Config: &transferservice.ProcessingConfig{
 							AssignUuidsToDirectories:                     a.cfg.AssignUuidsToDirectories,
@@ -135,7 +133,7 @@ func (a *CreateAIPActivity) Execute(ctx context.Context, opts *CreateAIPActivity
 						return errors.New("package failed or rejected")
 					}
 
-					result.Path = fmt.Sprintf("%s/completed/%s-%s.7z", a.cfg.ShareDir, appName, result.UUID)
+					result.Path = fmt.Sprintf("%s/completed/%s-%s.7z", a.cfg.ShareDir, opts.Name, result.UUID)
 					a.logger.Info("We have run a3m successfully", "path", result.Path)
 
 					break

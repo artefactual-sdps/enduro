@@ -3,12 +3,22 @@ package fsutil
 import (
 	"errors"
 	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/otiai10/copy"
 )
 
 // Used for testing.
 var Renamer = os.Rename
+
+func BaseNoExt(path string) string {
+	base := filepath.Base(path)
+	if idx := strings.IndexByte(base, '.'); idx != -1 {
+		return base[:idx]
+	}
+	return base
+}
 
 // Move moves files or directories. It copies the contents when the move op
 // failes because source and destination do not share the same filesystem.
