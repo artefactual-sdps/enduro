@@ -40,7 +40,7 @@ to your `etc/hosts` file located like `C:/Windows/System32/drivers/etc/hosts`.
 While we run the services inside a Kubernetes cluster we recomend to install
 Go, Node and other tools locally to ease the development process.
 
-- [Go] (1.20+)
+- [Go] (1.21+)
 - [NPM and Node] (18+)
 - GNU [Make] and [GCC]
 
