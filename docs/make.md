@@ -5,12 +5,6 @@ The Makefile provides developer utility scripts via command line `make` tasks.
 Running `make` with no arguments (or `make help`) prints the help message. Some
 targets are described below with greater detail.
 
-## make tools
-
-`make tools` installs all developer binaries
-managed by [bingo](https://github.com/bwplotka/bingo), and outputs a list of
-these binaries and their installed versions.
-
 ## make gen-mock
 
 `make gen-mock` generates mock interfaces with [mockgen](https://github.com/golang/mock).

@@ -5,7 +5,7 @@
 In Go, tests are executed with `go test`. Use `go help test` to see all the
 options provided. A simple example:
 
-    go test -v ./pkg/isr/...
+    $ go test -v ./pkg/isr/...
 
 With flag `-v`, `go test` prints the full output include logging.
 
@@ -27,8 +27,8 @@ You can use `make test-race` to achieve the same.
 
 ## `gotestsum`
 
-For convenience, we use a [gotestsum] (installed via bingo). It is a `go test`
-runner that produces more readable output and additional options. E.g.:
+For convenience, we use [gotestsum]. It is a `go test` runner that produces more
+readable output and additional options, e.g.:
 
     $ gotestsum --format=testname ./pkg/isr
 
@@ -40,7 +40,7 @@ Our `make test` uses `gotestsum`.
 
 ## `tparse`
 
-Similarly, we use [tparse] (installed via bingo) to produce coverage reports.
+Similarly, we use [tparse] to produce coverage reports.
 
     $ go test -count=1 -json ./pkg/isr/... | tparse
     ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
