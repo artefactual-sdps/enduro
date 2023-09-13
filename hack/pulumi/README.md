@@ -6,7 +6,7 @@ authentication using an existing Github OAuth application.
 
 ## Requirements
 
-- [Go] (v1.20+)
+- [Go] (v1.21+)
 - [Pulumi] (v3.35.3+)
 
 To build new images, [Docker] (v18.09+) is also required and [BuildKit builds]
