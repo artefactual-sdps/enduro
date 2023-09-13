@@ -46,36 +46,6 @@ Go, Node and other tools locally to ease the development process.
 
 If using Linux, Node.js binary distributions are available from [NodeSource].
 
-#### Go tools
-
-We use [bingo] to manage some Go tools and binaries needed to perform various
-development operations.
-
-bingo builds pinned tools in your `$GOBIN` path. If `$GOBIN` is undefined, we
-try to set its value by expanding `$(go env GOPATH)/bin` since it is common for
-Go developers to have previously defined `$GOPATH`.
-
-Preferably, define `$GOBIN` in your environment and include the same directory
-in your `$PATH` so your system knows where to find the executables, e.g.:
-
-```
-export GOBIN=$HOME/go/bin
-export PATH=$HOME/go/bin:$PATH
-```
-
-We recommend to [set the environment strings permanently] - follow the link to
-know more.
-
-Then, clone this repository and install those tools:
-
-```
-git clone git@github.com:artefactual-sdps/enduro.git
-cd enduro
-make tools
-```
-
-These tools will be used through Makefile rules and the Tilt UI.
-
 ### Editor
 
 As source-code editor, we strongly recommended [Visual Studio Code] for its
@@ -245,6 +215,4 @@ is sometimes not setup properly. To solve it, from the Tilt UI, restart the
 [nodesource]: https://github.com/nodesource/distributions
 [make]: https://www.gnu.org/software/make/
 [gcc]: https://gcc.gnu.org/
-[bingo]: https://github.com/bwplotka/bingo
 [visual studio code]: https://code.visualstudio.com/
-[set the environment strings permanently]: https://unix.stackexchange.com/a/117470
