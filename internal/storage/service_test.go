@@ -8,7 +8,6 @@ import (
 	"testing"
 
 	"github.com/go-logr/logr"
-	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
 	temporalapi_enums "go.temporal.io/api/enums/v1"
@@ -16,6 +15,7 @@ import (
 	temporalapi_workflowservice "go.temporal.io/api/workflowservice/v1"
 	temporalsdk_client "go.temporal.io/sdk/client"
 	temporalsdk_mocks "go.temporal.io/sdk/mocks"
+	"go.uber.org/mock/gomock"
 	goa "goa.design/goa/v3/pkg"
 	"gocloud.dev/blob"
 	_ "gocloud.dev/blob/fileblob"

@@ -9,7 +9,7 @@ import (
 	reflect "reflect"
 	time "time"
 
-	gomock "github.com/golang/mock/gomock"
+	gomock "go.uber.org/mock/gomock"
 )
 
 // MockTicketStore is a mock of TicketStore interface.
@@ -44,9 +44,33 @@ func (m *MockTicketStore) Close() error {
 }
 
 // Close indicates an expected call of Close.
-func (mr *MockTicketStoreMockRecorder) Close() *gomock.Call {
+func (mr *MockTicketStoreMockRecorder) Close() *TicketStoreCloseCall {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Close", reflect.TypeOf((*MockTicketStore)(nil).Close))
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Close", reflect.TypeOf((*MockTicketStore)(nil).Close))
+	return &TicketStoreCloseCall{Call: call}
+}
+
+// TicketStoreCloseCall wrap *gomock.Call
+type TicketStoreCloseCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *TicketStoreCloseCall) Return(arg0 error) *TicketStoreCloseCall {
+	c.Call = c.Call.Return(arg0)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *TicketStoreCloseCall) Do(f func() error) *TicketStoreCloseCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *TicketStoreCloseCall) DoAndReturn(f func() error) *TicketStoreCloseCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
 }
 
 // GetDel mocks base method.
@@ -58,9 +82,33 @@ func (m *MockTicketStore) GetDel(arg0 context.Context, arg1 string) error {
 }
 
 // GetDel indicates an expected call of GetDel.
-func (mr *MockTicketStoreMockRecorder) GetDel(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockTicketStoreMockRecorder) GetDel(arg0, arg1 interface{}) *TicketStoreGetDelCall {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDel", reflect.TypeOf((*MockTicketStore)(nil).GetDel), arg0, arg1)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDel", reflect.TypeOf((*MockTicketStore)(nil).GetDel), arg0, arg1)
+	return &TicketStoreGetDelCall{Call: call}
+}
+
+// TicketStoreGetDelCall wrap *gomock.Call
+type TicketStoreGetDelCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *TicketStoreGetDelCall) Return(arg0 error) *TicketStoreGetDelCall {
+	c.Call = c.Call.Return(arg0)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *TicketStoreGetDelCall) Do(f func(context.Context, string) error) *TicketStoreGetDelCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *TicketStoreGetDelCall) DoAndReturn(f func(context.Context, string) error) *TicketStoreGetDelCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
 }
 
 // SetEx mocks base method.
@@ -72,7 +120,31 @@ func (m *MockTicketStore) SetEx(arg0 context.Context, arg1 string, arg2 time.Dur
 }
 
 // SetEx indicates an expected call of SetEx.
-func (mr *MockTicketStoreMockRecorder) SetEx(arg0, arg1, arg2 interface{}) *gomock.Call {
+func (mr *MockTicketStoreMockRecorder) SetEx(arg0, arg1, arg2 interface{}) *TicketStoreSetExCall {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetEx", reflect.TypeOf((*MockTicketStore)(nil).SetEx), arg0, arg1, arg2)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetEx", reflect.TypeOf((*MockTicketStore)(nil).SetEx), arg0, arg1, arg2)
+	return &TicketStoreSetExCall{Call: call}
+}
+
+// TicketStoreSetExCall wrap *gomock.Call
+type TicketStoreSetExCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *TicketStoreSetExCall) Return(arg0 error) *TicketStoreSetExCall {
+	c.Call = c.Call.Return(arg0)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *TicketStoreSetExCall) Do(f func(context.Context, string, time.Duration) error) *TicketStoreSetExCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *TicketStoreSetExCall) DoAndReturn(f func(context.Context, string, time.Duration) error) *TicketStoreSetExCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
 }

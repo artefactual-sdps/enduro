@@ -10,7 +10,7 @@ import (
 	reflect "reflect"
 
 	upload "github.com/artefactual-sdps/enduro/internal/api/gen/upload"
-	gomock "github.com/golang/mock/gomock"
+	gomock "go.uber.org/mock/gomock"
 	blob "gocloud.dev/blob"
 )
 
@@ -46,9 +46,33 @@ func (m *MockService) Bucket() *blob.Bucket {
 }
 
 // Bucket indicates an expected call of Bucket.
-func (mr *MockServiceMockRecorder) Bucket() *gomock.Call {
+func (mr *MockServiceMockRecorder) Bucket() *ServiceBucketCall {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Bucket", reflect.TypeOf((*MockService)(nil).Bucket))
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Bucket", reflect.TypeOf((*MockService)(nil).Bucket))
+	return &ServiceBucketCall{Call: call}
+}
+
+// ServiceBucketCall wrap *gomock.Call
+type ServiceBucketCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *ServiceBucketCall) Return(arg0 *blob.Bucket) *ServiceBucketCall {
+	c.Call = c.Call.Return(arg0)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *ServiceBucketCall) Do(f func() *blob.Bucket) *ServiceBucketCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *ServiceBucketCall) DoAndReturn(f func() *blob.Bucket) *ServiceBucketCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
 }
 
 // Close mocks base method.
@@ -60,9 +84,33 @@ func (m *MockService) Close() error {
 }
 
 // Close indicates an expected call of Close.
-func (mr *MockServiceMockRecorder) Close() *gomock.Call {
+func (mr *MockServiceMockRecorder) Close() *ServiceCloseCall {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Close", reflect.TypeOf((*MockService)(nil).Close))
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Close", reflect.TypeOf((*MockService)(nil).Close))
+	return &ServiceCloseCall{Call: call}
+}
+
+// ServiceCloseCall wrap *gomock.Call
+type ServiceCloseCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *ServiceCloseCall) Return(arg0 error) *ServiceCloseCall {
+	c.Call = c.Call.Return(arg0)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *ServiceCloseCall) Do(f func() error) *ServiceCloseCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *ServiceCloseCall) DoAndReturn(f func() error) *ServiceCloseCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
 }
 
 // Upload mocks base method.
@@ -74,7 +122,31 @@ func (m *MockService) Upload(arg0 context.Context, arg1 *upload.UploadPayload, a
 }
 
 // Upload indicates an expected call of Upload.
-func (mr *MockServiceMockRecorder) Upload(arg0, arg1, arg2 interface{}) *gomock.Call {
+func (mr *MockServiceMockRecorder) Upload(arg0, arg1, arg2 interface{}) *ServiceUploadCall {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Upload", reflect.TypeOf((*MockService)(nil).Upload), arg0, arg1, arg2)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Upload", reflect.TypeOf((*MockService)(nil).Upload), arg0, arg1, arg2)
+	return &ServiceUploadCall{Call: call}
+}
+
+// ServiceUploadCall wrap *gomock.Call
+type ServiceUploadCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *ServiceUploadCall) Return(arg0 error) *ServiceUploadCall {
+	c.Call = c.Call.Return(arg0)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *ServiceUploadCall) Do(f func(context.Context, *upload.UploadPayload, io.ReadCloser) error) *ServiceUploadCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *ServiceUploadCall) DoAndReturn(f func(context.Context, *upload.UploadPayload, io.ReadCloser) error) *ServiceUploadCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
 }
