@@ -5,13 +5,13 @@ import (
 	"testing"
 
 	"github.com/go-logr/logr"
-	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
 	temporalsdk_testsuite "go.temporal.io/sdk/testsuite"
 	temporalsdk_worker "go.temporal.io/sdk/worker"
+	"go.uber.org/mock/gomock"
 
 	"github.com/artefactual-sdps/enduro/internal/package_"
 	packagefake "github.com/artefactual-sdps/enduro/internal/package_/fake"

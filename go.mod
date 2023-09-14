@@ -17,7 +17,6 @@ require (
 	github.com/go-logr/logr v1.2.4
 	github.com/go-sql-driver/mysql v1.7.1
 	github.com/golang-migrate/migrate/v4 v4.16.2
-	github.com/golang/mock v1.6.0
 	github.com/google/go-cmp v0.5.9
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/websocket v1.5.0
@@ -38,6 +37,7 @@ require (
 	go.artefactual.dev/tools v0.3.0
 	go.temporal.io/api v1.23.0
 	go.temporal.io/sdk v1.23.1
+	go.uber.org/mock v0.2.0
 	goa.design/goa/v3 v3.11.3
 	goa.design/plugins/v3 v3.11.3
 	gocloud.dev v0.30.0
@@ -86,6 +86,7 @@ require (
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/gogo/status v1.1.1 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
+	github.com/golang/mock v1.6.0 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/wire v0.5.0 // indirect

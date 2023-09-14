@@ -3,12 +3,12 @@ package workflows
 import (
 	"testing"
 
-	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
 	temporalsdk_testsuite "go.temporal.io/sdk/testsuite"
+	"go.uber.org/mock/gomock"
 
 	"github.com/artefactual-sdps/enduro/internal/storage"
 	"github.com/artefactual-sdps/enduro/internal/storage/activities"
