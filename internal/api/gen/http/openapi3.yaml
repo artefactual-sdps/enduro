@@ -108,6 +108,7 @@ paths:
                             schema:
                                 type: string
                                 example: abc123
+                            example: abc123
             security:
                 - oauth2_header_Authorization: []
     /package/{id}:
@@ -152,12 +153,16 @@ paths:
                             schema:
                                 type: string
                                 example: abc123
+                            example: abc123
                 "404":
                     description: 'not_found: Package not found'
                     content:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/PackageNotFound'
+                            example:
+                                id: 1
+                                message: abc123
                 "409":
                     description: 'not_available: Conflict response.'
                     content:
@@ -194,11 +199,6 @@ paths:
             responses:
                 "202":
                     description: Accepted response.
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                format: binary
                 "400":
                     description: 'not_valid: Bad Request response.'
                     content:
@@ -212,12 +212,16 @@ paths:
                             schema:
                                 type: string
                                 example: abc123
+                            example: abc123
                 "404":
                     description: 'not_found: Package not found'
                     content:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/PackageNotFound'
+                            example:
+                                id: 1
+                                message: abc123
                 "409":
                     description: 'not_available: Conflict response.'
                     content:
@@ -259,12 +263,16 @@ paths:
                             schema:
                                 type: string
                                 example: abc123
+                            example: abc123
                 "404":
                     description: 'not_found: Package not found'
                     content:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/PackageNotFound'
+                            example:
+                                id: 1
+                                message: abc123
                 "424":
                     description: 'failed_dependency: Failed Dependency response.'
                     content:
@@ -300,11 +308,6 @@ paths:
             responses:
                 "202":
                     description: Accepted response.
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                format: binary
                 "400":
                     description: 'not_valid: Bad Request response.'
                     content:
@@ -318,12 +321,16 @@ paths:
                             schema:
                                 type: string
                                 example: abc123
+                            example: abc123
                 "404":
                     description: 'not_found: Package not found'
                     content:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/PackageNotFound'
+                            example:
+                                id: 1
+                                message: abc123
                 "409":
                     description: 'not_available: Conflict response.'
                     content:
@@ -381,12 +388,16 @@ paths:
                             schema:
                                 type: string
                                 example: abc123
+                            example: abc123
                 "404":
                     description: 'not_found: Package not found'
                     content:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/PackageNotFound'
+                            example:
+                                id: 1
+                                message: abc123
             security:
                 - oauth2_header_Authorization: []
     /package/{id}/reject:
@@ -409,11 +420,6 @@ paths:
             responses:
                 "202":
                     description: Accepted response.
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                format: binary
                 "400":
                     description: 'not_valid: Bad Request response.'
                     content:
@@ -427,12 +433,16 @@ paths:
                             schema:
                                 type: string
                                 example: abc123
+                            example: abc123
                 "404":
                     description: 'not_found: Package not found'
                     content:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/PackageNotFound'
+                            example:
+                                id: 1
+                                message: abc123
                 "409":
                     description: 'not_available: Conflict response.'
                     content:
@@ -546,6 +556,7 @@ paths:
                             schema:
                                 type: string
                                 example: abc123
+                            example: abc123
                 "500":
                     description: 'not_available: Internal Server Error response.'
                     content:
@@ -561,11 +572,6 @@ paths:
             responses:
                 "200":
                     description: OK response.
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                format: binary
                 "401":
                     description: 'unauthorized: Unauthorized response.'
                     content:
@@ -573,6 +579,7 @@ paths:
                             schema:
                                 type: string
                                 example: abc123
+                            example: abc123
                 "500":
                     description: 'not_available: Internal Server Error response.'
                     content:
@@ -609,6 +616,7 @@ paths:
                             schema:
                                 type: string
                                 example: abc123
+                            example: abc123
             security:
                 - oauth2_header_Authorization: []
         post:
@@ -653,6 +661,7 @@ paths:
                             schema:
                                 type: string
                                 example: abc123
+                            example: abc123
             security:
                 - oauth2_header_Authorization: []
     /storage/location/{uuid}:
@@ -697,12 +706,16 @@ paths:
                             schema:
                                 type: string
                                 example: abc123
+                            example: abc123
                 "404":
                     description: 'not_found: Storage location not found'
                     content:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/LocationNotFound'
+                            example:
+                                message: abc123
+                                uuid: abc123
             security:
                 - oauth2_header_Authorization: []
     /storage/location/{uuid}/packages:
@@ -750,12 +763,16 @@ paths:
                             schema:
                                 type: string
                                 example: abc123
+                            example: abc123
                 "404":
                     description: 'not_found: Storage location not found'
                     content:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/LocationNotFound'
+                            example:
+                                message: abc123
+                                uuid: abc123
             security:
                 - oauth2_header_Authorization: []
     /storage/package/{aip_id}:
@@ -797,12 +814,16 @@ paths:
                             schema:
                                 type: string
                                 example: abc123
+                            example: abc123
                 "404":
                     description: 'not_found: Storage package not found'
                     content:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/PackageNotFound2'
+                            example:
+                                aip_id: abc123
+                                message: abc123
             security:
                 - oauth2_header_Authorization: []
     /storage/package/{aip_id}/download:
@@ -852,12 +873,16 @@ paths:
                             schema:
                                 type: string
                                 example: abc123
+                            example: abc123
                 "404":
                     description: 'not_found: Storage package not found'
                     content:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/PackageNotFound2'
+                            example:
+                                aip_id: abc123
+                                message: abc123
             security:
                 - oauth2_header_Authorization: []
     /storage/package/{aip_id}/reject:
@@ -881,11 +906,6 @@ paths:
             responses:
                 "202":
                     description: Accepted response.
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                format: binary
                 "400":
                     description: 'not_valid: Bad Request response.'
                     content:
@@ -899,12 +919,16 @@ paths:
                             schema:
                                 type: string
                                 example: abc123
+                            example: abc123
                 "404":
                     description: 'not_found: Storage package not found'
                     content:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/PackageNotFound2'
+                            example:
+                                aip_id: abc123
+                                message: abc123
                 "409":
                     description: 'not_available: Conflict response.'
                     content:
@@ -947,12 +971,16 @@ paths:
                             schema:
                                 type: string
                                 example: abc123
+                            example: abc123
                 "404":
                     description: 'not_found: Storage package not found'
                     content:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/PackageNotFound2'
+                            example:
+                                aip_id: abc123
+                                message: abc123
                 "424":
                     description: 'failed_dependency: Failed Dependency response.'
                     content:
@@ -989,11 +1017,6 @@ paths:
             responses:
                 "202":
                     description: Accepted response.
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                format: binary
                 "400":
                     description: 'not_valid: Bad Request response.'
                     content:
@@ -1007,12 +1030,16 @@ paths:
                             schema:
                                 type: string
                                 example: abc123
+                            example: abc123
                 "404":
                     description: 'not_found: Storage package not found'
                     content:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/PackageNotFound2'
+                            example:
+                                aip_id: abc123
+                                message: abc123
                 "409":
                     description: 'not_available: Conflict response.'
                     content:
@@ -1069,6 +1096,7 @@ paths:
                             schema:
                                 type: string
                                 example: abc123
+                            example: abc123
                 "409":
                     description: 'not_available: Conflict response.'
                     content:
@@ -1098,11 +1126,6 @@ paths:
             responses:
                 "202":
                     description: Accepted response.
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                format: binary
                 "400":
                     description: 'not_valid: Bad Request response.'
                     content:
@@ -1116,6 +1139,7 @@ paths:
                             schema:
                                 type: string
                                 example: abc123
+                            example: abc123
                 "409":
                     description: 'not_available: Conflict response.'
                     content:
@@ -1170,6 +1194,7 @@ paths:
                             schema:
                                 type: string
                                 example: abc123
+                            example: abc123
                 "500":
                     description: 'internal_error: Fault while processing upload.'
                     content:
@@ -1313,7 +1338,7 @@ components:
             required:
                 - id
                 - location_id
-        EnduroPackagePreservationActionResponseBody:
+        EnduroPackagePreservationAction:
             type: object
             properties:
                 completed_at:
@@ -1341,7 +1366,7 @@ components:
                         - queued
                         - pending
                 tasks:
-                    $ref: '#/components/schemas/EnduroPackagePreservationTaskResponseBodyCollection'
+                    $ref: '#/components/schemas/EnduroPackagePreservationTaskCollection'
                 type:
                     type: string
                     example: create-and-review-aip
@@ -1352,7 +1377,7 @@ components:
                 workflow_id:
                     type: string
                     example: abc123
-            description: PreservationAction describes a preservation action. (default view)
+            description: PreservationAction describes a preservation action.
             example:
                 completed_at: "1970-01-01T00:00:01Z"
                 id: 1
@@ -1376,11 +1401,10 @@ components:
                 - type
                 - status
                 - started_at
-        EnduroPackagePreservationActionResponseBodyCollection:
+        EnduroPackagePreservationActionCollection:
             type: array
             items:
-                $ref: '#/components/schemas/EnduroPackagePreservationActionResponseBody'
-            description: EnduroPackage-Preservation-ActionCollectionResponseBody is the result type for an array of EnduroPackage-Preservation-ActionResponseBody (default view)
+                $ref: '#/components/schemas/EnduroPackagePreservationAction'
             example:
                 - completed_at: "1970-01-01T00:00:01Z"
                   id: 1
@@ -1450,26 +1474,11 @@ components:
                 - type
                 - status
                 - started_at
-        EnduroPackagePreservationActionResponseBodySimpleCollection:
-            type: array
-            items:
-                $ref: '#/components/schemas/EnduroPackagePreservationActionResponseBodySimple'
-            description: EnduroPackage-Preservation-ActionCollectionResponseBody is the result type for an array of EnduroPackage-Preservation-ActionResponseBody (simple view)
-            example:
-                - completed_at: "1970-01-01T00:00:01Z"
-                  id: 1
-                  package_id: 1
-                  started_at: "1970-01-01T00:00:01Z"
-                  status: in progress
-                  type: create-and-review-aip
-                  workflow_id: abc123
         EnduroPackagePreservationActions:
             type: object
             properties:
                 actions:
-                    anyOf:
-                        - $ref: '#/components/schemas/EnduroPackagePreservationActionResponseBodySimpleCollection'
-                        - $ref: '#/components/schemas/EnduroPackagePreservationActionResponseBodyCollection'
+                    $ref: '#/components/schemas/EnduroPackagePreservationActionCollection'
             example:
                 actions:
                     - completed_at: "1970-01-01T00:00:01Z"
@@ -1488,6 +1497,71 @@ components:
                           task_id: abc123
                       type: create-and-review-aip
                       workflow_id: abc123
+        EnduroPackagePreservationTask:
+            type: object
+            properties:
+                completed_at:
+                    type: string
+                    example: "1970-01-01T00:00:01Z"
+                    format: date-time
+                id:
+                    type: integer
+                    example: 1
+                name:
+                    type: string
+                    example: abc123
+                note:
+                    type: string
+                    example: abc123
+                preservation_action_id:
+                    type: integer
+                    example: 1
+                started_at:
+                    type: string
+                    example: "1970-01-01T00:00:01Z"
+                    format: date-time
+                status:
+                    type: string
+                    example: in progress
+                    enum:
+                        - unspecified
+                        - in progress
+                        - done
+                        - error
+                        - queued
+                        - pending
+                task_id:
+                    type: string
+                    example: abc123
+            description: PreservationTask describes a preservation action task.
+            example:
+                completed_at: "1970-01-01T00:00:01Z"
+                id: 1
+                name: abc123
+                note: abc123
+                preservation_action_id: 1
+                started_at: "1970-01-01T00:00:01Z"
+                status: in progress
+                task_id: abc123
+            required:
+                - id
+                - task_id
+                - name
+                - status
+                - started_at
+        EnduroPackagePreservationTaskCollection:
+            type: array
+            items:
+                $ref: '#/components/schemas/EnduroPackagePreservationTask'
+            example:
+                - completed_at: "1970-01-01T00:00:01Z"
+                  id: 1
+                  name: abc123
+                  note: abc123
+                  preservation_action_id: 1
+                  started_at: "1970-01-01T00:00:01Z"
+                  status: in progress
+                  task_id: abc123
         EnduroPackagePreservationTaskResponseBody:
             type: object
             properties:
@@ -1540,20 +1614,6 @@ components:
                 - name
                 - status
                 - started_at
-        EnduroPackagePreservationTaskResponseBodyCollection:
-            type: array
-            items:
-                $ref: '#/components/schemas/EnduroPackagePreservationTaskResponseBody'
-            description: EnduroPackage-Preservation-TaskCollectionResponseBody is the result type for an array of EnduroPackage-Preservation-TaskResponseBody (default view)
-            example:
-                - completed_at: "1970-01-01T00:00:01Z"
-                  id: 1
-                  name: abc123
-                  note: abc123
-                  preservation_action_id: 1
-                  started_at: "1970-01-01T00:00:01Z"
-                  status: in progress
-                  task_id: abc123
         EnduroPackageStatusUpdatedEventResponseBody:
             type: object
             properties:
@@ -1893,9 +1953,12 @@ components:
                     description: Is the error a timeout?
                     example: false
             example:
-                id: 3F1FKVRR
-                message: Value of ID must be an integer
+                fault: false
+                id: 123abc
+                message: parameter 'p' must be an integer
                 name: bad_request
+                temporary: false
+                timeout: false
             required:
                 - name
                 - id
