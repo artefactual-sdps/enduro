@@ -6,17 +6,16 @@ import (
 	"io"
 	"mime"
 	"mime/multipart"
+	"time"
 
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/go-logr/logr"
 	"goa.design/goa/v3/security"
 	"gocloud.dev/blob"
-	"gocloud.dev/blob/s3blob"
 
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 	goaupload "github.com/artefactual-sdps/enduro/internal/api/gen/upload"
+	"github.com/artefactual-sdps/enduro/internal/bucket"
 )
 
 const UPLOAD_MAX_SIZE = 102400000 // 100 MB
@@ -48,7 +47,10 @@ func NewService(logger logr.Logger, config Config, uploadMaxSize int, tokenVerif
 		tokenVerifier: tokenVerifier,
 	}
 
-	err = s.openBucket(config)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*2)
+	defer cancel()
+
+	err = s.openBucket(ctx, config)
 	if err != nil {
 		return nil, err
 	}
@@ -56,39 +58,24 @@ func NewService(logger logr.Logger, config Config, uploadMaxSize int, tokenVerif
 	return s, nil
 }
 
-func (s *serviceImpl) openBucket(config Config) error {
-	var err error
-	var b *blob.Bucket
-	ctx := context.Background()
-
-	if config.URL != "" {
-		b, err = blob.OpenBucket(ctx, config.URL)
-	} else {
-		b, err = s.openS3Bucket(ctx)
-	}
-	if err != nil {
+func (s *serviceImpl) openBucket(ctx context.Context, config Config) error {
+	if b, err := bucket.Open(ctx, &bucket.Config{
+		URL:       config.URL,
+		Endpoint:  config.Endpoint,
+		Bucket:    config.Bucket,
+		AccessKey: config.Key,
+		SecretKey: config.Secret,
+		Token:     config.Token,
+		Profile:   config.Profile,
+		Region:    config.Region,
+		PathStyle: config.PathStyle,
+	}); err != nil {
 		return err
+	} else {
+		s.bucket = b
 	}
-	s.bucket = b
 
 	return nil
-}
-
-func (s *serviceImpl) openS3Bucket(ctx context.Context) (*blob.Bucket, error) {
-	sessOpts := session.Options{}
-	sessOpts.Config.WithRegion(s.config.Region)
-	sessOpts.Config.WithEndpoint(s.config.Endpoint)
-	sessOpts.Config.WithS3ForcePathStyle(s.config.PathStyle)
-	sessOpts.Config.WithCredentials(
-		credentials.NewStaticCredentials(
-			s.config.Key, s.config.Secret, s.config.Token,
-		),
-	)
-	sess, err := session.NewSessionWithOptions(sessOpts)
-	if err != nil {
-		return nil, err
-	}
-	return s3blob.OpenBucket(ctx, sess, s.config.Bucket, nil)
 }
 
 func (s *serviceImpl) OAuth2Auth(ctx context.Context, token string, scheme *security.OAuth2Scheme) (context.Context, error) {

@@ -8,22 +8,20 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/go-logr/logr"
 	"github.com/redis/go-redis/v9"
 	"gocloud.dev/blob"
-	"gocloud.dev/blob/s3blob"
+
+	"github.com/artefactual-sdps/enduro/internal/bucket"
 )
 
 // minioWatcher implements a Watcher for watching lists in Redis.
 type minioWatcher struct {
-	client     redis.UniversalClient
-	sess       *session.Session
-	logger     logr.Logger
-	listName   string
-	failedList string
-	bucket     string
+	client       redis.UniversalClient
+	logger       logr.Logger
+	listName     string
+	failedList   string
+	bucketConfig *bucket.Config
 	*commonWatcherImpl
 }
 
@@ -41,38 +39,29 @@ func NewMinioWatcher(ctx context.Context, logger logr.Logger, config *MinioConfi
 	if err != nil {
 		return nil, err
 	}
-
 	client := redis.NewClient(opts)
 
-	sessOpts := session.Options{}
-	sessOpts.Config.WithRegion(config.Region)
-	if config.Profile != "" {
-		sessOpts.Profile = config.Profile
+	bucketConfig := &bucket.Config{
+		Endpoint:  config.Endpoint,
+		Bucket:    config.Bucket,
+		AccessKey: config.Key,
+		SecretKey: config.Secret,
+		Token:     config.Token,
+		Profile:   config.Profile,
+		Region:    config.Region,
+		PathStyle: config.PathStyle,
 	}
-	if config.Endpoint != "" {
-		sessOpts.Config.WithEndpoint(config.Endpoint)
-	}
-	if config.PathStyle {
-		sessOpts.Config.WithS3ForcePathStyle(config.PathStyle)
-	}
-	if config.Key != "" && config.Secret != "" {
-		sessOpts.Config.WithCredentials(credentials.NewStaticCredentials(config.Key, config.Secret, config.Token))
-	}
-	sess, err := session.NewSessionWithOptions(sessOpts)
-	if err != nil {
-		return nil, err
-	}
+
 	if config.RedisFailedList == "" {
 		config.RedisFailedList = config.RedisList + "-failed"
 	}
 
 	return &minioWatcher{
-		client:     client,
-		sess:       sess,
-		listName:   config.RedisList,
-		failedList: config.RedisFailedList,
-		logger:     logger,
-		bucket:     config.Bucket,
+		client:       client,
+		listName:     config.RedisList,
+		failedList:   config.RedisFailedList,
+		logger:       logger,
+		bucketConfig: bucketConfig,
 		commonWatcherImpl: &commonWatcherImpl{
 			name:             config.Name,
 			retentionPeriod:  config.RetentionPeriod,
@@ -89,7 +78,7 @@ func (w *minioWatcher) Watch(ctx context.Context) (*BlobEvent, Cleanup, error) {
 		}
 		return nil, noopCleanup, err
 	}
-	if event.Bucket != w.bucket {
+	if event.Bucket != w.bucketConfig.Bucket {
 		return nil, noopCleanup, ErrBucketMismatch
 	}
 	cleanup := w.rem(val)
@@ -155,5 +144,5 @@ func (w *minioWatcher) event(blob string) (*BlobEvent, error) {
 }
 
 func (w *minioWatcher) OpenBucket(ctx context.Context) (*blob.Bucket, error) {
-	return s3blob.OpenBucket(ctx, w.sess, w.bucket, nil)
+	return bucket.Open(ctx, w.bucketConfig)
 }
