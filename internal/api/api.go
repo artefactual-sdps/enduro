@@ -32,6 +32,7 @@ import (
 	intpkg "github.com/artefactual-sdps/enduro/internal/package_"
 	intstorage "github.com/artefactual-sdps/enduro/internal/storage"
 	intupload "github.com/artefactual-sdps/enduro/internal/upload"
+	"github.com/artefactual-sdps/enduro/internal/version"
 )
 
 //go:embed gen/http/openapi.json
@@ -79,7 +80,7 @@ func HTTPServer(
 	var handler http.Handler = mux
 	handler = recoverMiddleware(logger)(handler)
 	handler = goahttpmwr.RequestID()(handler)
-	handler = versionHeaderMiddleware(config.AppVersion)(handler)
+	handler = versionHeaderMiddleware(version.Short)(handler)
 	if config.Debug {
 		handler = goahttpmwr.Log(loggerAdapter(logger))(handler)
 		handler = goahttpmwr.Debug(mux, os.Stdout)(handler)
