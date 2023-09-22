@@ -30,3 +30,13 @@ jobs:
           git diff go.sum
           exit 1
         fi
+        if [ ! -z "$(git status --porcelain go.work)" ]; then
+          printf "go.work has modifications\n"
+          git diff go.work
+          exit 1
+        fi
+        if [ ! -z "$(git status --porcelain go.work.sum)" ]; then
+          printf "go.work.sum has modifications\n"
+          git diff go.work.sum
+          exit 1
+        fi
