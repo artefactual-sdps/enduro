@@ -7,7 +7,6 @@ import (
 type Config struct {
 	Listen     string
 	Debug      bool
-	AppVersion string
 	Auth       auth.Config
 	CORSOrigin string
 }
