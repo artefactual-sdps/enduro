@@ -68,31 +68,6 @@ k8s_resource("temporal-ui", port_forwards="7440:8080", labels=["Others"])
 # Tools
 k8s_resource("minio-setup-buckets", labels=["Tools"])
 k8s_resource("mysql-create-locations", labels=["Tools"])
-local_resource(
-  "gen-goa",
-  cmd="make gen-goa",
-  auto_init=False,
-  trigger_mode=TRIGGER_MODE_MANUAL,
-  deps=["internal/api"],
-  ignore=["internal/api/gen"],
-  labels=["Tools"]
-)
-local_resource(
-  "gen-dashboard-client",
-  cmd="make gen-dashboard-client",
-  auto_init=False,
-  trigger_mode=TRIGGER_MODE_MANUAL,
-  deps=["internal/api/gen"],
-  labels=["Tools"]
-)
-local_resource(
-  "gen-ent",
-  cmd="make gen-ent",
-  auto_init=False,
-  trigger_mode=TRIGGER_MODE_MANUAL,
-  deps=["internal/storage/persistence/ent/schema"],
-  labels=["Tools"]
-)
 
 # Buttons
 cmd_button(
