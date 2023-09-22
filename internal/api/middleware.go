@@ -16,13 +16,13 @@ func recoverMiddleware(logger logr.Logger) func(http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			defer func() {
 				if rec := recover(); rec != nil {
-					// Don't recover if the request is aborted, otherwise the
-					// request can't detect the error.
+					// Don't recover if the request is aborted, as this would
+					// prevent the client from detecting the error.
 					if rec == http.ErrAbortHandler {
 						panic(rec)
 					}
 
-					// Prepare error message and log it.
+					// Prepare the error message and log it.
 					b := strings.Builder{}
 					switch x := rec.(type) {
 					case string:
