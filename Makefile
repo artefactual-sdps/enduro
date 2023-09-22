@@ -1,5 +1,18 @@
 PROJECT := enduro-sdps
 MAKEDIR := hack/make
+SHELL   := /bin/bash
+
+.DEFAULT_GOAL := help
+.PHONY: *
+
+DBG_MAKEFILE ?=
+ifeq ($(DBG_MAKEFILE),1)
+    $(warning ***** starting Makefile for goal(s) "$(MAKECMDGOALS)")
+    $(warning ***** $(shell date))
+else
+    # If we're not debugging the Makefile, don't echo recipes.
+    MAKEFLAGS += -s
+endif
 
 include hack/make/bootstrap.mk
 include hack/make/dep_ent.mk
@@ -17,46 +30,22 @@ define NEWLINE
 endef
 
 IGNORED_PACKAGES := \
-	github.com/artefactual-sdps/enduro/hack/genpkgs \
-	github.com/artefactual-sdps/enduro/internal/api/auth/fake \
+	github.com/artefactual-sdps/enduro/hack/% \
+	github.com/artefactual-sdps/enduro/%/fake \
 	github.com/artefactual-sdps/enduro/internal/api/design \
-	github.com/artefactual-sdps/enduro/internal/api/gen/http/cli/enduro \
-	github.com/artefactual-sdps/enduro/internal/api/gen/http/package_/client \
-	github.com/artefactual-sdps/enduro/internal/api/gen/http/package_/server \
-	github.com/artefactual-sdps/enduro/internal/api/gen/http/storage/client \
-	github.com/artefactual-sdps/enduro/internal/api/gen/http/storage/server \
-	github.com/artefactual-sdps/enduro/internal/api/gen/http/swagger/client \
-	github.com/artefactual-sdps/enduro/internal/api/gen/http/swagger/server \
-	github.com/artefactual-sdps/enduro/internal/api/gen/http/upload/client \
-	github.com/artefactual-sdps/enduro/internal/api/gen/http/upload/server \
-	github.com/artefactual-sdps/enduro/internal/api/gen/package_ \
-	github.com/artefactual-sdps/enduro/internal/api/gen/package_/views \
-	github.com/artefactual-sdps/enduro/internal/api/gen/storage \
-	github.com/artefactual-sdps/enduro/internal/api/gen/storage/views \
-	github.com/artefactual-sdps/enduro/internal/api/gen/swagger \
-	github.com/artefactual-sdps/enduro/internal/api/gen/upload \
-	github.com/artefactual-sdps/enduro/internal/batch/fake \
-	github.com/artefactual-sdps/enduro/internal/package_/fake \
-	github.com/artefactual-sdps/enduro/internal/storage/fake \
+	github.com/artefactual-sdps/enduro/internal/api/gen/% \
+	github.com/artefactual-sdps/enduro/internal/persistence/ent/db \
+	github.com/artefactual-sdps/enduro/internal/persistence/ent/db/% \
+	github.com/artefactual-sdps/enduro/internal/persistence/ent/schema \
 	github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db \
-	github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/enttest \
-	github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/hook \
-	github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/location \
-	github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/migrate \
-	github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/pkg \
-	github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/predicate \
-	github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/runtime \
-	github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/schema \
-	github.com/artefactual-sdps/enduro/internal/storage/persistence/fake \
-	github.com/artefactual-sdps/enduro/internal/upload/fake \
-	github.com/artefactual-sdps/enduro/internal/watcher/fake
-PACKAGES		:= $(shell go list ./...)
-TEST_PACKAGES	:= $(filter-out $(IGNORED_PACKAGES),$(PACKAGES))
+	github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/% \
+	github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/schema
+PACKAGES := $(shell go list ./...)
+TEST_PACKAGES := $(filter-out $(IGNORED_PACKAGES),$(PACKAGES))
+TEST_IGNORED_PACKAGES := $(filter $(IGNORED_PACKAGES),$(PACKAGES))
 TFORMAT := short
 
 export PATH:=$(GOBIN):$(PATH)
-
-.DEFAULT_GOAL := help
 
 env:  ## Print Go env variables.
 	go env
@@ -73,8 +62,11 @@ test: $(GOTESTSUM)  ## Run all tests and outputs a summary using gotestsum.
 test-race: $(GOTESTSUM)  ## Run all tests with the race detector.
 	@gotestsum --format=$(TFORMAT) $(TEST_PACKAGES) -- -race
 
-ignored:  ## Print a list of packages ignored by tests.
-	$(foreach PACKAGE,$(IGNORED_PACKAGES),@echo $(PACKAGE)$(NEWLINE))
+list-tested-packages:  ## Print a list of packages being tested.
+	$(foreach PACKAGE,$(TEST_PACKAGES),@echo $(PACKAGE)$(NEWLINE))
+
+list-ignored-packages:  ## Print a list of packages ignored in testing.
+	$(foreach PACKAGE,$(TEST_IGNORED_PACKAGES),@echo $(PACKAGE)$(NEWLINE))
 
 lint: OUT_FORMAT ?= colored-line-number
 lint: LINT_FLAGS ?= --timeout=5m --fix
@@ -119,5 +111,3 @@ tilt-trigger-internal:  ## Restart enduro-internal and wait until ready.
 
 help:  ## Show this help.
 	@grep -hE '^[A-Za-z0-9_ \-]*?:.*##.*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
-
-.PHONY: *
