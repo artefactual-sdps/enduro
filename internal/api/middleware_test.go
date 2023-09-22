@@ -27,7 +27,7 @@ func TestRescoverMiddleware(t *testing.T) {
 
 	mw(handler).ServeHTTP(w, req)
 
-	assert.Assert(t, cmp.Contains(logged, "\"msg\"=\"panic error\""))
+	assert.Assert(t, cmp.Contains(logged, "\"msg\"=\"Panic error recovered.\""))
 	assert.Assert(t, cmp.Contains(logged, "\"error\"=\"panic: opsie"))
 }
 
