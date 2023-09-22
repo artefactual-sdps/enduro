@@ -113,6 +113,10 @@ gen-ent: $(ENT)  ## Generate Ent assets.
 		--feature sql/versioned-migration \
 		--target=./internal/storage/persistence/ent/db
 
+tilt-trigger-internal:  ## Restart enduro-internal and wait until ready.
+	@tilt trigger enduro-internal
+	@tilt wait --for=condition=Ready uiresource/enduro-internal
+
 help:  ## Show this help.
 	@grep -hE '^[A-Za-z0-9_ \-]*?:.*##.*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
