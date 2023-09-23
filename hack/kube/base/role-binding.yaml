@@ -1,0 +1,12 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: pod-access-role-binding
+  namespace: enduro-sdps
+subjects:
+  - kind: ServiceAccount
+    name: enduro-serviceaccount
+roleRef:
+  kind: Role
+  name: pod-access-role
+  apiGroup: rbac.authorization.k8s.io

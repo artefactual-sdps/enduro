@@ -13,5 +13,8 @@ resources:
   - mysql.yaml
   - namespace.yaml
   - redis.yaml
+  - role.yaml
+  - role-binding.yaml
+  - serviceaccount.yaml
   - temporal-ui.yaml
   - temporal.yaml
