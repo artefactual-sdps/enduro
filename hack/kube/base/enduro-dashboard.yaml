@@ -13,6 +13,7 @@ spec:
       labels:
         app: enduro-dashboard
     spec:
+      serviceAccountName: sdps
       containers:
         - name: enduro-dashboard
           image: ghcr.io/artefactual-sdps/enduro-dashboard:main

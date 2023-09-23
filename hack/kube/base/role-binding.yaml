@@ -1,0 +1,12 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: secure-sdps
+  namespace: enduro-sdps
+subjects:
+  - kind: ServiceAccount
+    name: sdps
+roleRef:
+  kind: Role
+  name: secure
+  apiGroup: rbac.authorization.k8s.io

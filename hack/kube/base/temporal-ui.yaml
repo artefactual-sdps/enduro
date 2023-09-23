@@ -13,6 +13,7 @@ spec:
       labels:
         app: temporal-ui
     spec:
+      serviceAccountName: sdps
       containers:
         - name: temporal-ui
           image: temporalio/ui:2.16.2

@@ -13,6 +13,7 @@ spec:
       labels:
         app: enduro
     spec:
+      serviceAccountName: sdps
       initContainers:
         - name: check-temporal
           image: busybox

@@ -13,6 +13,7 @@ spec:
       labels:
         app: dex
     spec:
+      serviceAccountName: sdps
       containers:
         - name: dex
           image: ghcr.io/dexidp/dex:v2.30.0

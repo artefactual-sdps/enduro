@@ -13,6 +13,7 @@ spec:
       labels:
         app: minio
     spec:
+      serviceAccountName: sdps
       initContainers:
         - name: check-redis
           image: busybox

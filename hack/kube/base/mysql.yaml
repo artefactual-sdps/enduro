@@ -13,6 +13,7 @@ spec:
       labels:
         app: mysql
     spec:
+      serviceAccountName: sdps
       containers:
         - name: mysql
           image: mysql:8.0

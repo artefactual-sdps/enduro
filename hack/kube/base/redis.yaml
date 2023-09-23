@@ -13,6 +13,7 @@ spec:
       labels:
         app: redis
     spec:
+      serviceAccountName: sdps
       containers:
         - name: redis
           image: redis:7
