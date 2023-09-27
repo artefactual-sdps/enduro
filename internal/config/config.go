@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/artefactual-sdps/enduro/internal/a3m"
+	"github.com/artefactual-sdps/enduro/internal/am"
 	"github.com/artefactual-sdps/enduro/internal/api"
 	"github.com/artefactual-sdps/enduro/internal/db"
 	"github.com/artefactual-sdps/enduro/internal/event"
@@ -22,17 +23,19 @@ type ConfigurationValidator interface {
 }
 
 type Configuration struct {
-	Verbosity   int
-	Debug       bool
-	DebugListen string
-	API         api.Config
-	Event       event.Config
-	Database    db.Config
-	Temporal    temporal.Config
-	Watcher     watcher.Config
-	Storage     storage.Config
-	Upload      upload.Config
-	A3m         a3m.Config
+	Verbosity        int
+	Debug            bool
+	DebugListen      string
+	UseArchivematica bool
+	API              api.Config
+	Event            event.Config
+	Database         db.Config
+	Temporal         temporal.Config
+	Watcher          watcher.Config
+	Storage          storage.Config
+	Upload           upload.Config
+	A3m              a3m.Config
+	Am               am.Config
 }
 
 func (c Configuration) Validate() error {
