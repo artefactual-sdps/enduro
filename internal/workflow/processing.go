@@ -16,6 +16,7 @@ import (
 	temporalsdk_workflow "go.temporal.io/sdk/workflow"
 
 	"github.com/artefactual-sdps/enduro/internal/a3m"
+	"github.com/artefactual-sdps/enduro/internal/am"
 	"github.com/artefactual-sdps/enduro/internal/fsutil"
 	"github.com/artefactual-sdps/enduro/internal/package_"
 	"github.com/artefactual-sdps/enduro/internal/ref"
@@ -584,31 +585,7 @@ func (w *ProcessingWorkflow) waitForReview(ctx temporalsdk_workflow.Context) *pa
 	selector.Select(ctx)
 	return &review
 }
-func (w *ProcessingWorkflow) transferAM(sessCtx temporalsdk_workflow.Context, tinfo *TransferInfo) error {
-	activityOpts := temporalsdk_workflow.WithActivityOptions(sessCtx, temporalsdk_workflow.ActivityOptions{
-		StartToCloseTimeout: time.Hour * 24,
-		HeartbeatTimeout:    time.Second * 5,
-		RetryPolicy: &temporalsdk_temporal.RetryPolicy{
-			MaximumAttempts: 1,
-		},
-	})
 
-	params := &am.CreateAIPActivityParams{
-		Name:                 tinfo.Name(),
-		Path:                 tinfo.Bundle.FullPath,
-		PreservationActionID: tinfo.PreservationActionID,
-	}
-
-	result := am.CreateAIPActivityResult{}
-	err := temporalsdk_workflow.ExecuteActivity(activityOpts, a3m.CreateAIPActivityName, params).Get(sessCtx, &result)
-
-	tinfo.SIPID = result.UUID
-	tinfo.AIPPath = result.Path
-	tinfo.StoredAt = temporalsdk_workflow.Now(sessCtx).UTC()
-
-	return err
-
-}
 func (w *ProcessingWorkflow) transferA3m(sessCtx temporalsdk_workflow.Context, tinfo *TransferInfo) error {
 	activityOpts := temporalsdk_workflow.WithActivityOptions(sessCtx, temporalsdk_workflow.ActivityOptions{
 		StartToCloseTimeout: time.Hour * 24,
@@ -632,4 +609,30 @@ func (w *ProcessingWorkflow) transferA3m(sessCtx temporalsdk_workflow.Context, t
 	tinfo.StoredAt = temporalsdk_workflow.Now(sessCtx).UTC()
 
 	return err
+}
+
+func (w *ProcessingWorkflow) transferAM(sessCtx temporalsdk_workflow.Context, tinfo *TransferInfo) error {
+	activityOpts := temporalsdk_workflow.WithActivityOptions(sessCtx, temporalsdk_workflow.ActivityOptions{
+		StartToCloseTimeout: time.Hour * 24,
+		HeartbeatTimeout:    time.Second * 5,
+		RetryPolicy: &temporalsdk_temporal.RetryPolicy{
+			MaximumAttempts: 1,
+		},
+	})
+
+	params := &am.CreateAIPActivityParams{
+		Name:                 tinfo.Name(),
+		Path:                 tinfo.Bundle.FullPath,
+		PreservationActionID: tinfo.PreservationActionID,
+	}
+
+	result := am.CreateAIPActivityResult{}
+	err := temporalsdk_workflow.ExecuteActivity(activityOpts, am.CreateAIPActivityName, params).Get(sessCtx, &result)
+
+	tinfo.SIPID = result.UUID
+	tinfo.AIPPath = result.Path
+	tinfo.StoredAt = temporalsdk_workflow.Now(sessCtx).UTC()
+
+	return err
+
 }

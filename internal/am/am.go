@@ -9,6 +9,7 @@ import (
 
 	"github.com/artefactual-sdps/enduro/internal/package_"
 	"github.com/go-logr/logr"
+	"github.com/google/uuid"
 	"github.com/oklog/run"
 	"go.artefactual.dev/amclient"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
@@ -80,41 +81,19 @@ func (a *CreateAIPActivity) Execute(ctx context.Context, opts *CreateAIPActivity
 
 				c := amclient.NewClient(&client, a.cfg.Address, a.cfg.User, a.cfg.Key)
 
-				req, err := c.NewRequest(
-					childCtx,
-					"Get",
-					fmt.Sprintf("file://%s", opts.Path),
-					&Processing{
-						AssignUuidsToDirectories:                     a.cfg.AssignUuidsToDirectories,
-						ExamineContents:                              a.cfg.ExamineContents,
-						GenerateTransferStructureReport:              a.cfg.GenerateTransferStructureReport,
-						DocumentEmptyDirectories:                     a.cfg.DocumentEmptyDirectories,
-						ExtractPackages:                              a.cfg.ExtractPackages,
-						DeletePackagesAfterExtraction:                a.cfg.DeletePackagesAfterExtraction,
-						IdentifyTransfer:                             a.cfg.IdentifyTransfer,
-						IdentifySubmissionAndMetadata:                a.cfg.IdentifySubmissionAndMetadata,
-						IdentifyBeforeNormalization:                  a.cfg.IdentifyBeforeNormalization,
-						Normalize:                                    a.cfg.Normalize,
-						TranscribeFiles:                              a.cfg.TranscribeFiles,
-						PerformPolicyChecksOnOriginals:               a.cfg.PerformPolicyChecksOnOriginals,
-						PerformPolicyChecksOnPreservationDerivatives: a.cfg.PerformPolicyChecksOnPreservationDerivatives,
-						AipCompressionLevel:                          a.cfg.AipCompressionLevel,
-						AipCompressionAlgorithm:                      a.cfg.AipCompressionAlgorithm,
-					},
-				)
-				if err != nil {
-					return err
-				}
+				// Start transfer
+				payload, resp, err := c.Package.Create(childCtx, &amclient.PackageCreateRequest{
+					Name: opts.Name,
+					Type: "standard",
+					Path: opts.Path,
+					// ProcessingConfig:
+					AutoApprove: true,
+					Accession:   uuid.New().String(),
+				})
 
-				resp, err := c.Do(
-					ctx,
-					req,
-					nil,
-				)
-				if err != nil {
-					return err
-				}
-				result.UUID = resp.Body.Read()
+				//
+
+				result.UUID = payload.ID
 				for {
 					err := amclient.CheckResponse(resp.Response)
 					if err != nil {
