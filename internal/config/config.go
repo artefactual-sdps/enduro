@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/artefactual-sdps/enduro/internal/a3m"
+	"github.com/artefactual-sdps/enduro/internal/am"
 	"github.com/artefactual-sdps/enduro/internal/api"
 	"github.com/artefactual-sdps/enduro/internal/db"
 	"github.com/artefactual-sdps/enduro/internal/event"
@@ -33,6 +34,7 @@ type Configuration struct {
 	Storage     storage.Config
 	Upload      upload.Config
 	A3m         a3m.Config
+	Am          am.Config
 }
 
 func (c Configuration) Validate() error {
