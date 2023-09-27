@@ -34,7 +34,7 @@ type ProcessingWorkflowTestSuite struct {
 func TestTransferInfo_Name(t *testing.T) {
 	t.Run("Returns name of transfer", func(t *testing.T) {
 		tinfo := TransferInfo{}
-		tinfo.Key = "somename.tar.gz"
+		tinfo.req.Key = "somename.tar.gz"
 		assert.Equal(t, tinfo.Name(), "somename")
 	})
 }
