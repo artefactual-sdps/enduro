@@ -102,12 +102,18 @@ func (a *CreateAIPActivity) Execute(ctx context.Context, opts *CreateAIPActivity
 				}
 
 				result.UUID = payload.ID
+				var sipID string
 				for {
+
+					// c.Jobs.List(childCtx, )
+					{ // Poll
+
+					}
+
 					err := amclient.CheckResponse(resp.Response)
 					if err != nil {
 						return errors.New("package failed or rejected")
 					}
-
 					err = savePreservationTasks(ctx, c.Jobs, a.pkgsvc, opts.PreservationActionID)
 					if err != nil {
 						return err
@@ -133,7 +139,7 @@ func (a *CreateAIPActivity) Execute(ctx context.Context, opts *CreateAIPActivity
 	return result, nil
 }
 
-func savePreservationTasks(ctx context.Context, jobs amclient.JobsService, pkgsvc package_.Service, paID uint) error {
+func savePreservationTasks(ctx context.Context, jobs []*amclient.Job, pkgsvc package_.Service, paID uint) error {
 	jobStatusToPreservationTaskStatus := map[amclient.JobStatus]package_.PreservationTaskStatus{
 		amclient.JobStatusUnknown: package_.TaskStatusUnspecified,
 		// amclient.JobStatusUserInput: [TODO: this may be required]
@@ -142,8 +148,7 @@ func savePreservationTasks(ctx context.Context, jobs amclient.JobsService, pkgsv
 		amclient.JobStatusFailed:     package_.TaskStatusError,
 	}
 
-	js, _, err := jobs.List(ctx)
-	for _, job := range js {
+	for _, job := range jobs {
 		pt := package_.PreservationTask{
 			TaskID:               job.ID,
 			Name:                 job.Name,
