@@ -11,6 +11,7 @@ require (
 	entgo.io/ent v0.12.3
 	github.com/alicebob/miniredis/v2 v2.30.5
 	github.com/aws/aws-sdk-go v1.45.10
+	github.com/cenkalti/backoff/v3 v3.2.2
 	github.com/coreos/go-oidc/v3 v3.6.0
 	github.com/cyphar/filepath-securejoin v0.2.4
 	github.com/fsnotify/fsnotify v1.6.0
