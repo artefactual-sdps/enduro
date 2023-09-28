@@ -8,12 +8,12 @@ import (
 	"time"
 
 	"github.com/artefactual-sdps/enduro/internal/package_"
+	"github.com/artefactual-sdps/enduro/internal/temporal"
 	"github.com/go-logr/logr"
 	"github.com/google/uuid"
 	"github.com/oklog/run"
 	"go.artefactual.dev/amclient"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
-	temporalsdk_worker "go.temporal.io/sdk/worker"
 )
 
 const CreateAIPActivityName = "create-aip-activity"
@@ -95,7 +95,7 @@ func (a *CreateAIPActivity) Execute(ctx context.Context, opts *CreateAIPActivity
 					if resp != nil {
 						switch {
 						case resp.StatusCode == http.StatusForbidden:
-							return temporalsdk_worker.NewNonRetryableError(fmt.Errorf("authentication error: %v", err))
+							return temporal.NonRetryableError(fmt.Errorf("authentication error: %v", err))
 						}
 					}
 					return err
@@ -133,22 +133,25 @@ func (a *CreateAIPActivity) Execute(ctx context.Context, opts *CreateAIPActivity
 	return result, nil
 }
 
-func savePreservationTasks(ctx context.Context, jobs []*transferservice.Job, pkgsvc package_.Service, paID uint) error {
-	jobStatusToPreservationTaskStatus := map[transferservice.Job_Status]package_.PreservationTaskStatus{
-		Job_STATUS_UNSPECIFIED: package_.TaskStatusUnspecified,
-		Job_STATUS_COMPLETE:    package_.TaskStatusDone,
-		Job_STATUS_PROCESSING:  package_.TaskStatusInProgress,
-		Job_STATUS_FAILED:      package_.TaskStatusError,
+func savePreservationTasks(ctx context.Context, jobs amclient.JobsService, pkgsvc package_.Service, paID uint) error {
+	jobStatusToPreservationTaskStatus := map[amclient.JobStatus]package_.PreservationTaskStatus{
+		amclient.JobStatusUnknown: package_.TaskStatusUnspecified,
+		// amclient.JobStatusUserInput: [TODO: this may be required]
+		amclient.JobStatusComplete:   package_.TaskStatusDone,
+		amclient.JobStatusProcessing: package_.TaskStatusInProgress,
+		amclient.JobStatusFailed:     package_.TaskStatusError,
 	}
 
-	for _, job := range jobs {
+	js, _, err := jobs.List(ctx)
+	for _, job := range js {
 		pt := package_.PreservationTask{
-			TaskID:               job.Id,
+			TaskID:               job.ID,
 			Name:                 job.Name,
 			Status:               jobStatusToPreservationTaskStatus[job.Status],
 			PreservationActionID: paID,
 		}
-		pt.StartedAt.Time = job.StartTime.AsTime()
+		// TODO: We probably should get the startedAt time from the Job.
+		pt.StartedAt.Time = time.Now()
 		err := pkgsvc.CreatePreservationTask(ctx, &pt)
 		if err != nil {
 			return err
