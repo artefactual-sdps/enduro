@@ -27,9 +27,15 @@ func (a *PollTransferActivity) Execute(ctx context.Context, params *PollTransfer
 	c := amclient.NewClient(&client, a.cfg.Address, a.cfg.User, a.cfg.Key)
 	resp, httpResp, err := c.Transfer.Status(ctx, params.TransferID)
 	if err != nil {
-		if amclient.CheckResponse(httpResp.Response) != nil {
-			return nil, temporal.NonRetryableError(err)
-		}
+		return nil, temporal.NonRetryableError(err)
 	}
+	if amclient.CheckResponse(httpResp.Response) != nil {
+		return nil, temporal.NonRetryableError(err)
+	}
+
+	if resp.SIPID == "" {
+		return nil, temporal.ContinuePollingError()
+	}
+
 	return &PollTransferResponse{SIPID: resp.SIPID}, err
 }

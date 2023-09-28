@@ -18,3 +18,7 @@ func NonRetryableError(err error) error {
 		fmt.Sprintf("non retryable error: %v", err.Error()), "", nil, nil,
 	)
 }
+
+func ContinuePollingError() error {
+	return temporalsdk_temporal.NewApplicationError("Continue polling", "polling", nil)
+}

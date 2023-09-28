@@ -2,7 +2,6 @@ package am
 
 import (
 	context "context"
-	"errors"
 	"fmt"
 	"net/http"
 	"time"
@@ -47,7 +46,6 @@ func (a *CreateAIPActivity) Execute(ctx context.Context, opts *CreateAIPActivity
 	result := &CreateAIPActivityResult{}
 
 	var g run.Group
-
 	{
 		cancel := make(chan struct{})
 
@@ -102,28 +100,8 @@ func (a *CreateAIPActivity) Execute(ctx context.Context, opts *CreateAIPActivity
 				}
 
 				result.UUID = payload.ID
-				var sipID string
-				for {
 
-					// c.Jobs.List(childCtx, )
-					{ // Poll
-
-					}
-
-					err := amclient.CheckResponse(resp.Response)
-					if err != nil {
-						return errors.New("package failed or rejected")
-					}
-					err = savePreservationTasks(ctx, c.Jobs, a.pkgsvc, opts.PreservationActionID)
-					if err != nil {
-						return err
-					}
-
-					result.Path = fmt.Sprintf("%s/completed/%s-%s.7z", a.cfg.ShareDir, opts.Name, result.UUID)
-					a.logger.Info("We have run Archivematica successfully", "path", result.Path)
-
-					break
-				}
+				savePreservationTasks(childCtx)
 
 				return nil
 			},
