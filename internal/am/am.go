@@ -13,6 +13,7 @@ import (
 	"github.com/oklog/run"
 	"go.artefactual.dev/amclient"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
+	temporalsdk_worker "go.temporal.io/sdk/worker"
 )
 
 const CreateAIPActivityName = "create-aip-activity"
@@ -90,18 +91,21 @@ func (a *CreateAIPActivity) Execute(ctx context.Context, opts *CreateAIPActivity
 					AutoApprove: true,
 					Accession:   uuid.New().String(),
 				})
-
-				//
+				if err != nil {
+					if resp != nil {
+						switch {
+						case resp.StatusCode == http.StatusForbidden:
+							return temporalsdk_worker.NewNonRetryableError(fmt.Errorf("authentication error: %v", err))
+						}
+					}
+					return err
+				}
 
 				result.UUID = payload.ID
 				for {
 					err := amclient.CheckResponse(resp.Response)
 					if err != nil {
 						return errors.New("package failed or rejected")
-					}
-
-					if resp.StatusCode == am.PACKAGE_STATUS_PROCESSING {
-						continue
 					}
 
 					err = savePreservationTasks(ctx, c.Jobs, a.pkgsvc, opts.PreservationActionID)
