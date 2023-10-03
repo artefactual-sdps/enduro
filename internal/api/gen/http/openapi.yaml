@@ -2384,11 +2384,11 @@ definitions:
                             - url
                     Value:
                         type: string
-                        description: JSON formatted union value
-                        example: '"JSON"'
+                        description: JSON encoded union value
+                        example: '{"address":"abc123","directory":"abc123","password":"abc123","username":"abc123"}'
                 example:
                     Type: sftp
-                    Value: '"JSON"'
+                    Value: '{"address":"abc123","directory":"abc123","password":"abc123","username":"abc123"}'
                 required:
                     - Type
                     - Value
@@ -2414,7 +2414,7 @@ definitions:
         example:
             config:
                 Type: sftp
-                Value: '"JSON"'
+                Value: '{"address":"abc123","directory":"abc123","password":"abc123","username":"abc123"}'
             description: abc123
             name: abc123
             purpose: aip_store
