@@ -1,4 +1,4 @@
-name: Worfklowcheck
+name: Workflowcheck
 on:
   pull_request:
   push:
