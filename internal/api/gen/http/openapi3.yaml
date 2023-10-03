@@ -572,6 +572,12 @@ paths:
             responses:
                 "200":
                     description: OK response.
+                    headers:
+                        Set-Cookie:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
                 "401":
                     description: 'unauthorized: Unauthorized response.'
                     content:
@@ -634,7 +640,7 @@ paths:
                         example:
                             config:
                                 Type: sftp
-                                Value: '"JSON"'
+                                Value: '{"address":"abc123","directory":"abc123","password":"abc123","username":"abc123"}'
                             description: abc123
                             name: abc123
                             purpose: aip_store
@@ -692,7 +698,7 @@ paths:
                             example:
                                 config:
                                     Type: sftp
-                                    Value: '"JSON"'
+                                    Value: '{"address":"abc123","directory":"abc123","password":"abc123","username":"abc123"}'
                                 created_at: "1970-01-01T00:00:01Z"
                                 description: abc123
                                 name: abc123
@@ -1225,11 +1231,11 @@ components:
                                 - url
                         Value:
                             type: string
-                            description: JSON formatted union value
-                            example: '"JSON"'
+                            description: JSON encoded union value
+                            example: '{"address":"abc123","directory":"abc123","password":"abc123","username":"abc123"}'
                     example:
                         Type: sftp
-                        Value: '"JSON"'
+                        Value: '{"address":"abc123","directory":"abc123","password":"abc123","username":"abc123"}'
                     required:
                         - Type
                         - Value
@@ -1255,7 +1261,7 @@ components:
             example:
                 config:
                     Type: sftp
-                    Value: '"JSON"'
+                    Value: '{"address":"abc123","directory":"abc123","password":"abc123","username":"abc123"}'
                 description: abc123
                 name: abc123
                 purpose: aip_store
@@ -2009,11 +2015,11 @@ components:
                                 - url
                         Value:
                             type: string
-                            description: JSON formatted union value
-                            example: '"JSON"'
+                            description: JSON encoded union value
+                            example: '{"address":"abc123","directory":"abc123","password":"abc123","username":"abc123"}'
                     example:
                         Type: sftp
-                        Value: '"JSON"'
+                        Value: '{"address":"abc123","directory":"abc123","password":"abc123","username":"abc123"}'
                     required:
                         - Type
                         - Value
@@ -2053,7 +2059,7 @@ components:
             example:
                 config:
                     Type: sftp
-                    Value: '"JSON"'
+                    Value: '{"address":"abc123","directory":"abc123","password":"abc123","username":"abc123"}'
                 created_at: "1970-01-01T00:00:01Z"
                 description: abc123
                 name: abc123
