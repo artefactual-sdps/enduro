@@ -13,7 +13,7 @@ const storageStore = useStorageStore();
 
 const { execute, error } = useAsyncState(
   storageStore.fetchCurrent(route.params.id.toString()),
-  null
+  null,
 );
 
 const tabs = [

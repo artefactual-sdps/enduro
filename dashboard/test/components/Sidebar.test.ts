@@ -73,14 +73,14 @@ describe("Sidebar.vue", () => {
     await nextTick();
 
     expect(container.firstElementChild?.getAttribute("class")).toContain(
-      "collapsed"
+      "collapsed",
     );
 
     layoutStore.sidebarCollapsed = false;
     await nextTick();
 
     expect(container.firstElementChild?.getAttribute("class")).not.toContain(
-      "collapsed"
+      "collapsed",
     );
   });
 });

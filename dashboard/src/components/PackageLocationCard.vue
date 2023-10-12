@@ -10,7 +10,7 @@ let failed = $ref<boolean | null>(null);
 const choose = async () => {
   failed = false;
   const locationId = await openPackageLocationDialog(
-    packageStore.current?.locationId
+    packageStore.current?.locationId,
   );
   if (!locationId) return;
   const error = await packageStore.move(locationId);

@@ -60,7 +60,7 @@ app.config.globalProperties.$filters = {
     return humanizeDuration(moment.duration(diff).asMilliseconds());
   },
   getPreservationActionLabel(
-    value: api.EnduroPackagePreservationActionTypeEnum
+    value: api.EnduroPackagePreservationActionTypeEnum,
   ) {
     switch (value) {
       case api.EnduroPackagePreservationActionTypeEnum.CreateAip:

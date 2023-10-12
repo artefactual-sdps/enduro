@@ -15,8 +15,8 @@ const createAipWorkflow = $computed(
       (action) =>
         action.type === api.EnduroPackagePreservationActionTypeEnum.CreateAip ||
         action.type ===
-          api.EnduroPackagePreservationActionTypeEnum.CreateAndReviewAip
-    )[0]
+          api.EnduroPackagePreservationActionTypeEnum.CreateAndReviewAip,
+    )[0],
 );
 
 let toggleAll = $ref<boolean | null>(false);
@@ -52,7 +52,7 @@ let toggleAll = $ref<boolean | null>(false);
               {{
                 $filters.formatDuration(
                   createAipWorkflow.startedAt,
-                  createAipWorkflow.completedAt
+                  createAipWorkflow.completedAt,
                 )
               }})
             </div>

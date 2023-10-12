@@ -43,10 +43,10 @@ export const usePackageStore = defineStore("package", {
     },
     getActionById: (state) => {
       return (
-        actionId: number
+        actionId: number,
       ): api.EnduroPackagePreservationAction | undefined => {
         const x = state.current_preservation_actions?.actions?.find(
-          (action) => action.id === actionId
+          (action) => action.id === actionId,
         );
         return x;
       };
@@ -54,10 +54,10 @@ export const usePackageStore = defineStore("package", {
     getTaskById: (state) => {
       return (
         actionId: number,
-        taskId: number
+        taskId: number,
       ): api.EnduroPackagePreservationTask | undefined => {
         const action = state.current_preservation_actions?.actions?.find(
-          (action) => action.id === actionId
+          (action) => action.id === actionId,
         );
         if (!action) return;
         return action.tasks?.find((task) => task.id === taskId);
@@ -192,14 +192,14 @@ const handlers: Partial<api.MonitorResponseBody> = {
 function handleMonitorPing(event: api.EnduroMonitorPingEventResponseBody) {}
 
 function handlePackageCreated(
-  event: api.EnduroPackageCreatedEventResponseBody
+  event: api.EnduroPackageCreatedEventResponseBody,
 ) {
   const store = usePackageStore();
   store.fetchPackagesDebounced();
 }
 
 function handlePackageUpdated(
-  event: api.EnduroPackageUpdatedEventResponseBody
+  event: api.EnduroPackageUpdatedEventResponseBody,
 ) {
   const store = usePackageStore();
   store.fetchPackagesDebounced();
@@ -208,7 +208,7 @@ function handlePackageUpdated(
 }
 
 function handlePackageStatusUpdated(
-  event: api.EnduroPackageStatusUpdatedEventResponseBody
+  event: api.EnduroPackageStatusUpdatedEventResponseBody,
 ) {
   const store = usePackageStore();
   store.fetchPackagesDebounced();
@@ -217,7 +217,7 @@ function handlePackageStatusUpdated(
 }
 
 function handlePackageLocationUpdated(
-  event: api.EnduroPackageLocationUpdatedEventResponseBody
+  event: api.EnduroPackageLocationUpdatedEventResponseBody,
 ) {
   const store = usePackageStore();
   store.fetchPackagesDebounced();
@@ -229,7 +229,7 @@ function handlePackageLocationUpdated(
 }
 
 function handlePreservationActionCreated(
-  event: api.EnduroPreservationActionCreatedEventResponseBody
+  event: api.EnduroPreservationActionCreatedEventResponseBody,
 ) {
   const store = usePackageStore();
 
@@ -241,7 +241,7 @@ function handlePreservationActionCreated(
 }
 
 function handlePreservationActionUpdated(
-  event: api.EnduroPreservationActionUpdatedEventResponseBody
+  event: api.EnduroPreservationActionUpdatedEventResponseBody,
 ) {
   const store = usePackageStore();
 
@@ -255,7 +255,7 @@ function handlePreservationActionUpdated(
 }
 
 function handlePreservationTaskCreated(
-  event: api.EnduroPreservationTaskCreatedEventResponseBody
+  event: api.EnduroPreservationTaskCreatedEventResponseBody,
 ) {
   const store = usePackageStore();
 
@@ -270,7 +270,7 @@ function handlePreservationTaskCreated(
 }
 
 function handlePreservationTaskUpdated(
-  event: api.EnduroPreservationTaskUpdatedEventResponseBody
+  event: api.EnduroPreservationTaskUpdatedEventResponseBody,
 ) {
   const store = usePackageStore();
 

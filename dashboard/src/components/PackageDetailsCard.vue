@@ -37,7 +37,7 @@ watch(packageStore.ui.download, () => download());
             "
             :note="
               $filters.getPreservationActionLabel(
-                packageStore.current_preservation_actions?.actions[0].type
+                packageStore.current_preservation_actions?.actions[0].type,
               )
             "
           />
