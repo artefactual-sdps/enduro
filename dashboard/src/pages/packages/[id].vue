@@ -13,7 +13,7 @@ const packageStore = usePackageStore();
 
 const { execute, error } = useAsyncState(
   packageStore.fetchCurrent(route.params.id.toString()),
-  null
+  null,
 );
 
 const tabs = [

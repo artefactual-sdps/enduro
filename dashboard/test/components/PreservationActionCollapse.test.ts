@@ -61,7 +61,7 @@ describe("PreservationActionCollapse.vue", () => {
             },
           },
         },
-      }
+      },
     );
 
     getByText("Move package");
