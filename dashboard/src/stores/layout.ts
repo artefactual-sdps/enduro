@@ -2,9 +2,10 @@ import auth from "@/auth";
 import router from "@/router";
 import type { User } from "oidc-client-ts";
 import { defineStore } from "pinia";
+import type { RouteLocation } from "vue-router";
 
 type BreadcrumbItem = {
-  routeName?: string;
+  route?: RouteLocation;
   text?: string;
 };
 
@@ -41,7 +42,7 @@ export const useLayoutStore = defineStore("layout", {
       // https://github.com/dexidp/dex/issues/1697.
       auth.removeUser().then(() => {
         this.user = null;
-        router.push({ name: "index" });
+        router.push({ name: "/" });
       });
     },
   },

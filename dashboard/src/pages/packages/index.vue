@@ -81,7 +81,7 @@ const toggleLegend = () => {
             <td scope="row">{{ pkg.id }}</td>
             <td>
               <router-link
-                :to="{ name: 'packages-id', params: { id: pkg.id } }"
+                :to="{ name: '/packages/[id]/', params: { id: pkg.id } }"
                 >{{ pkg.name }}</router-link
               >
             </td>

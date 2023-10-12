@@ -16,7 +16,7 @@ describe("Breadcrumb.vue", () => {
             initialState: {
               layout: {
                 breadcrumb: [
-                  { routeName: "packages", text: "Packages" },
+                  { route: { name: "packages" }, text: "Packages" },
                   { text: "Package.zip" },
                 ],
               },
