@@ -12,9 +12,17 @@ jobs:
     env:
       GO111MODULE: on
     steps:
-      - name: Checkout Source
-        uses: actions/checkout@v4
-      - name: Run Gosec Security Scanner
-        uses: securego/gosec@master
-        with:
-          args: "-exclude-dir=dashboard -exclude-dir=hack/genpkgs -exclude-dir=hack/pulumi -exclude-dir=internal/storage/persistence/ent/db -exclude-dir=internal/api/gen ./..."
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: Read Go version
+      id: go_version
+      run: echo "go_version=$(cat .go-version)" >> $GITHUB_OUTPUT
+    - name: Install Go (${{ steps.go_version.outputs.go_version }})
+      uses: actions/setup-go@v4
+      with:
+        go-version: ${{ steps.go_version.outputs.go_version }}
+        cache: true
+    - name: Install Gosec Security Scanner
+      run: go install github.com/securego/gosec/v2/cmd/gosec@latest
+    - name: Run Gosec Security Scanner
+      run: gosec -exclude-dir=dashboard -exclude-dir=hack/ -exclude-dir=internal/api/gen -exclude-dir=internal/persistence/ent/db -exclude-dir=internal/persistence/ent/db ./...
