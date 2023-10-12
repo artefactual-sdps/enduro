@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"reflect"
 
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/migrate"
 
@@ -109,11 +110,14 @@ func Open(driverName, dataSourceName string, options ...Option) (*Client, error)
 	}
 }
 
+// ErrTxStarted is returned when trying to start a new transaction from a transactional client.
+var ErrTxStarted = errors.New("db: cannot start a transaction within a transaction")
+
 // Tx returns a new transactional client. The provided context
 // is used until the transaction is committed or rolled back.
 func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	if _, ok := c.driver.(*txDriver); ok {
-		return nil, errors.New("db: cannot start a transaction within a transaction")
+		return nil, ErrTxStarted
 	}
 	tx, err := newTx(ctx, c.driver)
 	if err != nil {
@@ -228,6 +232,21 @@ func (c *LocationClient) Create() *LocationCreate {
 
 // CreateBulk returns a builder for creating a bulk of Location entities.
 func (c *LocationClient) CreateBulk(builders ...*LocationCreate) *LocationCreateBulk {
+	return &LocationCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *LocationClient) MapCreateBulk(slice any, setFunc func(*LocationCreate, int)) *LocationCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &LocationCreateBulk{err: fmt.Errorf("calling to LocationClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*LocationCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
 	return &LocationCreateBulk{config: c.config, builders: builders}
 }
 
@@ -362,6 +381,21 @@ func (c *PkgClient) Create() *PkgCreate {
 
 // CreateBulk returns a builder for creating a bulk of Pkg entities.
 func (c *PkgClient) CreateBulk(builders ...*PkgCreate) *PkgCreateBulk {
+	return &PkgCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *PkgClient) MapCreateBulk(slice any, setFunc func(*PkgCreate, int)) *PkgCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &PkgCreateBulk{err: fmt.Errorf("calling to PkgClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*PkgCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
 	return &PkgCreateBulk{config: c.config, builders: builders}
 }
 

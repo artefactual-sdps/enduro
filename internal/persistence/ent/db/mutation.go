@@ -1360,6 +1360,7 @@ func (m *PreservationActionMutation) ResetPackageID() {
 // ClearPackage clears the "package" edge to the Pkg entity.
 func (m *PreservationActionMutation) ClearPackage() {
 	m.cleared_package = true
+	m.clearedFields[preservationaction.FieldPackageID] = struct{}{}
 }
 
 // PackageCleared reports if the "package" edge to the Pkg entity was cleared.
@@ -2181,6 +2182,7 @@ func (m *PreservationTaskMutation) SetActionID(id int) {
 // ClearAction clears the "action" edge to the PreservationAction entity.
 func (m *PreservationTaskMutation) ClearAction() {
 	m.clearedaction = true
+	m.clearedFields[preservationtask.FieldPreservationActionID] = struct{}{}
 }
 
 // ActionCleared reports if the "action" edge to the PreservationAction entity was cleared.

@@ -211,11 +211,15 @@ func (ptc *PreservationTaskCreate) createSpec() (*PreservationTask, *sqlgraph.Cr
 // PreservationTaskCreateBulk is the builder for creating many PreservationTask entities in bulk.
 type PreservationTaskCreateBulk struct {
 	config
+	err      error
 	builders []*PreservationTaskCreate
 }
 
 // Save creates the PreservationTask entities in the database.
 func (ptcb *PreservationTaskCreateBulk) Save(ctx context.Context) ([]*PreservationTask, error) {
+	if ptcb.err != nil {
+		return nil, ptcb.err
+	}
 	specs := make([]*sqlgraph.CreateSpec, len(ptcb.builders))
 	nodes := make([]*PreservationTask, len(ptcb.builders))
 	mutators := make([]Mutator, len(ptcb.builders))
