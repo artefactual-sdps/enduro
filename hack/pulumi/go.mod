@@ -1,6 +1,6 @@
 module enduro
 
-go 1.21.1
+go 1.21.3
 
 require (
 	github.com/pulumi/pulumi-aws/sdk/v5 v5.9.1
