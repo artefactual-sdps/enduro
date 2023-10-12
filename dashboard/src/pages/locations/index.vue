@@ -41,7 +41,7 @@ const { execute, error } = useAsyncState(() => {
           <tr v-for="(item, index) in storageStore.locations">
             <td>
               <router-link
-                :to="{ name: 'locations-id', params: { id: item.uuid } }"
+                :to="{ name: '/locations/[id]/', params: { id: item.uuid } }"
                 >{{ item.name }}</router-link
               >
             </td>

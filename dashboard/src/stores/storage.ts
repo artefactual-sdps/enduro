@@ -1,6 +1,7 @@
 import { api, client } from "@/client";
 import { useLayoutStore } from "@/stores/layout";
 import { defineStore, acceptHMRUpdate } from "pinia";
+import router from "@/router";
 
 export const useStorageStore = defineStore("storage", {
   state: () => ({
@@ -22,7 +23,7 @@ export const useStorageStore = defineStore("storage", {
       // Update breadcrumb. TODO: should this be done in the component?
       const layoutStore = useLayoutStore();
       layoutStore.updateBreadcrumb([
-        { routeName: "locations", text: "Locations" },
+        { route: router.resolve({ name: "/locations/" }), text: "Locations" },
         { text: this.current.name },
       ]);
 

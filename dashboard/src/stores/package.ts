@@ -1,5 +1,6 @@
 import { api, client } from "@/client";
 import { useLayoutStore } from "@/stores/layout";
+import router from "@/router";
 import { defineStore, acceptHMRUpdate } from "pinia";
 import { ref } from "vue";
 
@@ -87,8 +88,9 @@ export const usePackageStore = defineStore("package", {
 
       // Update breadcrumb. TODO: should this be done in the component?
       const layoutStore = useLayoutStore();
+
       layoutStore.updateBreadcrumb([
-        { routeName: "packages", text: "Packages" },
+        { route: router.resolve('/packages/'), text: "Packages" },
         { text: this.current.name },
       ]);
 

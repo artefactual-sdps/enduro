@@ -54,7 +54,7 @@ onMounted(() => {
       <router-link
         class="navbar-brand h1 mb-0 me-auto p-3 px-2 text-primary text-decoration-none d-flex align-items-center"
         :class="layoutStore.sidebarCollapsed ? '' : 'ms-2'"
-        :to="{ name: 'index' }"
+        :to="{ name: '/' }"
       >
         <img src="/logo.png" alt="" height="30" class="me-2" />
         Enduro

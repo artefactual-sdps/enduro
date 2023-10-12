@@ -1,13 +1,16 @@
 <script setup lang="ts">
 import type { FunctionalComponent, SVGAttributes } from "vue";
+import type { RouteLocationResolved } from "vue-router/auto";
 
 const { tabs } = defineProps<{
   tabs: {
     icon: FunctionalComponent<SVGAttributes, {}>;
     text: string;
-    route: { name: string; params?: {} };
+    route: RouteLocationResolved;
   }[];
 }>();
+
+
 </script>
 
 <template>

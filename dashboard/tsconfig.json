@@ -19,11 +19,12 @@
     }
   },
   "include": [
-    "src/**/*.ts",
-    "src/**/*.d.ts",
-    "src/**/*.tsx",
-    "src/**/*.vue",
-    "test/**/*.ts"
+    "./src/**/*.ts",
+    "./src/**/*.d.ts",
+    "./src/**/*.tsx",
+    "./src/**/*.vue",
+    "./test/**/*.ts",
+    "./typed-router.d.ts"
   ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

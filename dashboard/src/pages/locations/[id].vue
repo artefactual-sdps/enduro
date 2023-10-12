@@ -3,12 +3,13 @@ import PageLoadingAlert from "@/components/PageLoadingAlert.vue";
 import Tabs from "@/components/Tabs.vue";
 import { useStorageStore } from "@/stores/storage";
 import { useAsyncState } from "@vueuse/core";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router/auto";
 import RawIconBundleLine from "~icons/clarity/bundle-line?raw&font-size=20px";
 import RawIconDetailsLine from "~icons/clarity/details-line?raw&font-size=20px";
 import IconRackServerLine from "~icons/clarity/rack-server-line";
 
-const route = useRoute();
+const route = useRoute("/locations/[id]");
+const router = useRouter();
 const storageStore = useStorageStore();
 
 const { execute, error } = useAsyncState(
@@ -20,12 +21,12 @@ const tabs = [
   {
     icon: RawIconDetailsLine,
     text: "Summary",
-    route: { name: "locations-id", params: { id: route.params.id } },
+    route: router.resolve({ name: "/locations/[id]/", params: { id: route.params.id } }),
   },
   {
     icon: RawIconBundleLine,
     text: "Packages",
-    route: { name: "locations-id-packages", params: { id: route.params.id } },
+    route: router.resolve({ name: "/locations/[id]/packages", params: { id: route.params.id } }),
   },
 ];
 </script>

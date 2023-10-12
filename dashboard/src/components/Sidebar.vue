@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useLayoutStore } from "@/stores/layout";
+import { useRouter } from "vue-router/auto";
 import Collapse from "bootstrap/js/dist/collapse";
 import { onMounted } from "vue";
 import RawIconBundleLine from "~icons/clarity/bundle-line?raw&width=2em&height=2em";
@@ -8,9 +9,11 @@ import RawIconLogoutLine from "~icons/clarity/logout-line?raw&width=2em&height=2
 import RawIconRackServerLine from "~icons/clarity/rack-server-line?raw&width=2em&height=2em";
 import RawIconUserSolid from "~icons/clarity/user-solid?raw&width=2em&height=2em";
 
+const router = useRouter();
+
 const menuItems = [
-  { routeName: "packages", icon: RawIconBundleLine, text: "Packages" },
-  { routeName: "locations", icon: RawIconRackServerLine, text: "Locations" },
+  { route: router.resolve("/packages/"), icon: RawIconBundleLine, text: "Packages" },
+  { route: router.resolve("/locations/"), icon: RawIconRackServerLine, text: "Locations" },
 ];
 
 const layoutStore = useLayoutStore();
@@ -51,7 +54,7 @@ onMounted(() => {
               class="d-block py-3 text-decoration-none sidebar-link"
               active-class="active"
               exact-active-class="exact-active"
-              :to="{ name: item.routeName }"
+              :to="item.route"
             >
               <div class="container-fluid">
                 <div class="row">

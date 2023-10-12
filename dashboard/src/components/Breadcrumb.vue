@@ -10,12 +10,12 @@ const layoutStore = useLayoutStore();
       <li
         v-for="item in layoutStore.breadcrumb"
         class="breadcrumb-item"
-        :class="!item.routeName ? 'active' : ''"
-        :aria-current="!item.routeName ? 'page' : undefined"
+        :class="!item.route ? 'active' : ''"
+        :aria-current="!item.route ? 'page' : undefined"
       >
         <router-link
-          :to="{ name: item.routeName }"
-          v-if="item.routeName"
+          :to="item.route"
+          v-if="item.route"
           class="text-primary"
           >{{ item.text }}</router-link
         >
