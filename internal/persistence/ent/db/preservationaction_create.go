@@ -223,11 +223,15 @@ func (pac *PreservationActionCreate) createSpec() (*PreservationAction, *sqlgrap
 // PreservationActionCreateBulk is the builder for creating many PreservationAction entities in bulk.
 type PreservationActionCreateBulk struct {
 	config
+	err      error
 	builders []*PreservationActionCreate
 }
 
 // Save creates the PreservationAction entities in the database.
 func (pacb *PreservationActionCreateBulk) Save(ctx context.Context) ([]*PreservationAction, error) {
+	if pacb.err != nil {
+		return nil, pacb.err
+	}
 	specs := make([]*sqlgraph.CreateSpec, len(pacb.builders))
 	nodes := make([]*PreservationAction, len(pacb.builders))
 	mutators := make([]Mutator, len(pacb.builders))

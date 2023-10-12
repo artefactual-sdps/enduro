@@ -212,11 +212,15 @@ func (pc *PkgCreate) createSpec() (*Pkg, *sqlgraph.CreateSpec) {
 // PkgCreateBulk is the builder for creating many Pkg entities in bulk.
 type PkgCreateBulk struct {
 	config
+	err      error
 	builders []*PkgCreate
 }
 
 // Save creates the Pkg entities in the database.
 func (pcb *PkgCreateBulk) Save(ctx context.Context) ([]*Pkg, error) {
+	if pcb.err != nil {
+		return nil, pcb.err
+	}
 	specs := make([]*sqlgraph.CreateSpec, len(pcb.builders))
 	nodes := make([]*Pkg, len(pcb.builders))
 	mutators := make([]Mutator, len(pcb.builders))

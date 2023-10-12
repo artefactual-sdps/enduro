@@ -1123,6 +1123,7 @@ func (m *PkgMutation) ResetCreatedAt() {
 // ClearLocation clears the "location" edge to the Location entity.
 func (m *PkgMutation) ClearLocation() {
 	m.clearedlocation = true
+	m.clearedFields[pkg.FieldLocationID] = struct{}{}
 }
 
 // LocationCleared reports if the "location" edge to the Location entity was cleared.
