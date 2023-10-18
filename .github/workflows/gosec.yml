@@ -25,4 +25,11 @@ jobs:
     - name: Install Gosec Security Scanner
       run: go install github.com/securego/gosec/v2/cmd/gosec@latest
     - name: Run Gosec Security Scanner
-      run: gosec -exclude-dir=dashboard -exclude-dir=hack/ -exclude-dir=internal/api/gen -exclude-dir=internal/persistence/ent/db -exclude-dir=internal/persistence/ent/db ./...
+      run: >
+        gosec
+        -exclude-dir=dashboard
+        -exclude-dir=hack/
+        -exclude-dir=internal/api/gen
+        -exclude-dir=internal/persistence/ent/db
+        -exclude-dir=internal/storage/persistence/ent/db
+        ./...
