@@ -117,6 +117,17 @@ gen-ent: $(ENT)
 		--feature sql/versioned-migration \
 		--target=./internal/storage/persistence/ent/db
 
+gosec: # @HELP Run gosec security scanner
+gosec:
+	go install github.com/securego/gosec/v2/cmd/gosec@latest
+	gosec \
+		-exclude-dir=dashboard \
+		-exclude-dir=hack \
+		-exclude-dir=internal/api/gen \
+		-exclude-dir=internal/persistence/ent/db \
+		-exclude-dir=internal/storage/persistence/ent/db \
+		./...
+
 tilt-trigger-internal: # @HELP Restart enduro-internal and wait until ready.
 tilt-trigger-internal:
 	@tilt trigger enduro-internal
