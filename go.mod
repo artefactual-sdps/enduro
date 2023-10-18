@@ -13,7 +13,9 @@ require (
 	github.com/aws/aws-sdk-go v1.45.25
 	github.com/coreos/go-oidc/v3 v3.7.0
 	github.com/cyphar/filepath-securejoin v0.2.4
+	github.com/dolmen-go/contextio v1.0.0
 	github.com/fsnotify/fsnotify v1.6.0
+	github.com/gliderlabs/ssh v0.3.5
 	github.com/go-logr/logr v1.2.4
 	github.com/go-sql-driver/mysql v1.7.1
 	github.com/golang-migrate/migrate/v4 v4.16.2
@@ -27,6 +29,7 @@ require (
 	github.com/nyudlts/go-bagit v0.2.0-alpha
 	github.com/oklog/run v1.1.0
 	github.com/otiai10/copy v1.14.0
+	github.com/pkg/sftp v1.13.1
 	github.com/prometheus/client_golang v1.17.0
 	github.com/radovskyb/watcher v1.0.7
 	github.com/redis/go-redis/v9 v9.2.1
@@ -42,6 +45,7 @@ require (
 	goa.design/goa/v3 v3.13.2
 	goa.design/plugins/v3 v3.13.2
 	gocloud.dev v0.34.0
+	golang.org/x/crypto v0.14.0
 	google.golang.org/grpc v1.59.0
 	gopkg.in/square/go-jose.v2 v2.6.0
 	gotest.tools/v3 v3.5.1
@@ -52,6 +56,7 @@ require (
 	github.com/agext/levenshtein v1.2.3 // indirect
 	github.com/alicebob/gopher-json v0.0.0-20200520072559-a9ecdc9d1d3a // indirect
 	github.com/andybalholm/brotli v1.0.4 // indirect
+	github.com/anmitsu/go-shlex v0.0.0-20200514113438-38f4b401e2be // indirect
 	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect
 	github.com/aws/aws-sdk-go-v2 v1.20.0 // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.4.11 // indirect
@@ -113,7 +118,6 @@ require (
 	github.com/pelletier/go-toml/v2 v2.1.0 // indirect
 	github.com/pierrec/lz4/v4 v4.1.16 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
-	github.com/pkg/sftp v1.13.1 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/prometheus/client_model v0.4.1-0.20230718164431-9a2bf3000d16 // indirect
 	github.com/prometheus/common v0.44.0 // indirect
@@ -136,7 +140,6 @@ require (
 	go.uber.org/atomic v1.11.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.26.0 // indirect
-	golang.org/x/crypto v0.14.0 // indirect
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9 // indirect
 	golang.org/x/mod v0.12.0 // indirect
 	golang.org/x/net v0.17.0 // indirect
