@@ -17,8 +17,8 @@ import (
 )
 
 func TestUploadTransferActivity(t *testing.T) {
-	remotePath := "/var/archivematica/transferDir"
 	transferName := "fake_bag"
+	filename := "fake_bag.zip"
 	td := tfs.NewDir(t, "enduro-upload-transfer-test",
 		tfs.WithFile(transferName, "Testing 1-2-3!"),
 	)
@@ -34,39 +34,37 @@ func TestUploadTransferActivity(t *testing.T) {
 		{
 			name: "Returns bytes uploaded",
 			params: am.UploadTransferActivityParams{
-				LocalPath:  td.Join(transferName),
-				RemotePath: remotePath,
-				Filename:   transferName,
+				FullPath: td.Join(transferName),
+				Filename: filename,
 			},
 			recorder: func(m *sftp_fake.MockServiceMockRecorder) {
 				var t *os.File
-				m.Upload(gomock.AssignableToTypeOf(t), remotePath+"/"+transferName).
-					Return(int64(14), nil)
+				m.Upload(gomock.AssignableToTypeOf(t), filename).
+					Return(int64(14), "/transfer_dir/"+filename, nil)
 			},
 			want: am.UploadTransferActivityResult{
 				BytesCopied: int64(14),
+				RemotePath:  "/transfer_dir/" + filename,
 			},
 		},
 		{
 			name: "Errors when local file can't be read",
 			params: am.UploadTransferActivityParams{
-				LocalPath:  td.Join("missing"),
-				RemotePath: remotePath,
-				Filename:   transferName,
+				FullPath: td.Join("missing"),
+				Filename: filename,
 			},
 			errMsg: fmt.Sprintf("upload transfer: open %s: no such file or directory", td.Join("missing")),
 		},
 		{
 			name: "Errors when upload fails",
 			params: am.UploadTransferActivityParams{
-				LocalPath:  td.Join(transferName),
-				RemotePath: remotePath,
-				Filename:   transferName,
+				FullPath: td.Join(transferName),
+				Filename: filename,
 			},
 			recorder: func(m *sftp_fake.MockServiceMockRecorder) {
 				var t *os.File
-				m.Upload(gomock.AssignableToTypeOf(t), remotePath+"/"+transferName).
-					Return(0, errors.New("SSH: failed to connect: dial tcp 127.0.0.1:2200: connect: connection refused"))
+				m.Upload(gomock.AssignableToTypeOf(t), filename).
+					Return(0, "", errors.New("SSH: failed to connect: dial tcp 127.0.0.1:2200: connect: connection refused"))
 			},
 			errMsg: "upload transfer: SSH: failed to connect: dial tcp 127.0.0.1:2200: connect: connection refused",
 		},

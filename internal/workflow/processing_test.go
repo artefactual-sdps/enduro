@@ -19,6 +19,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/am"
 	"github.com/artefactual-sdps/enduro/internal/package_"
 	packagefake "github.com/artefactual-sdps/enduro/internal/package_/fake"
+	sftp_fake "github.com/artefactual-sdps/enduro/internal/sftp/fake"
 	watcherfake "github.com/artefactual-sdps/enduro/internal/watcher/fake"
 	"github.com/artefactual-sdps/enduro/internal/workflow/activities"
 )
@@ -49,6 +50,7 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(useAm bool) {
 	logger := logr.Discard()
 	pkgsvc := packagefake.NewMockService(ctrl)
 	wsvc := watcherfake.NewMockService(ctrl)
+	sftpSvc := sftp_fake.NewMockService(ctrl)
 
 	s.env.RegisterActivityWithOptions(activities.NewDownloadActivity(wsvc).Execute, temporalsdk_activity.RegisterOptions{Name: activities.DownloadActivityName})
 	s.env.RegisterActivityWithOptions(activities.NewBundleActivity(wsvc).Execute, temporalsdk_activity.RegisterOptions{Name: activities.BundleActivityName})
@@ -61,9 +63,14 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(useAm bool) {
 	s.env.RegisterActivityWithOptions(activities.NewDeleteOriginalActivity(wsvc).Execute, temporalsdk_activity.RegisterOptions{Name: activities.DeleteOriginalActivityName})
 
 	// Archivematica activities
-	s.env.RegisterActivityWithOptions(am.NewStartTransferActivity(
-		logger, &am.Config{}, amclienttest.NewMockPackageService(ctrl),
-	).Execute, temporalsdk_activity.RegisterOptions{Name: am.StartTransferActivityName})
+	s.env.RegisterActivityWithOptions(
+		am.NewUploadTransferActivity(sftpSvc).Execute,
+		temporalsdk_activity.RegisterOptions{Name: am.UploadTransferActivityName},
+	)
+	s.env.RegisterActivityWithOptions(
+		am.NewStartTransferActivity(logger, &am.Config{}, amclienttest.NewMockPackageService(ctrl)).Execute,
+		temporalsdk_activity.RegisterOptions{Name: am.StartTransferActivityName},
+	)
 	s.env.RegisterActivityWithOptions(am.NewPollTransferActivity(
 		logger, &am.Config{}, amclienttest.NewMockTransferService(ctrl),
 	).Execute, temporalsdk_activity.RegisterOptions{Name: am.PollTransferActivityName})
@@ -186,7 +193,7 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 	s.NoError(s.env.GetWorkflowResult(nil))
 }
 
-func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP_AM() {
+func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	s.SetupWorkflowTest(true)
 	pkgID := uint(1)
 	locationID := uuid.MustParse("51328c02-2b63-47be-958e-e8088aa1a61f")
@@ -210,17 +217,16 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP_AM() {
 	s.env.OnActivity(createPreservationActionLocalActivity, ctx, pkgsvc, mock.AnythingOfType("*workflow.createPreservationActionLocalActivityParams")).Return(uint(0), nil).Once()
 	s.env.OnActivity(activities.DownloadActivityName, sessionCtx, watcherName, key).Return("", nil).Once()
 	s.env.OnActivity(activities.BundleActivityName, sessionCtx, mock.AnythingOfType("*activities.BundleActivityParams")).Return(&activities.BundleActivityResult{FullPath: "/tmp/aip", FullPathBeforeStrip: "/tmp/aip"}, nil).Once()
+	s.env.OnActivity(
+		am.UploadTransferActivityName, sessionCtx, mock.AnythingOfType("*am.UploadTransferActivityParams"),
+	).Return(
+		&am.UploadTransferActivityResult{RemotePath: "/transfer_dir/aip"},
+		nil,
+	)
 	s.env.OnActivity(am.StartTransferActivityName, sessionCtx, mock.AnythingOfType("*am.StartTransferActivityParams")).Return(nil, nil).Once()
 	s.env.OnActivity(am.PollTransferActivityName, sessionCtx, mock.AnythingOfType("*am.PollTransferActivityParams")).Return(nil, nil).Once()
 	s.env.OnActivity(updatePackageLocalActivity, ctx, logger, pkgsvc, mock.AnythingOfType("*workflow.updatePackageLocalActivityParams")).Return(nil).Times(2)
-	s.env.OnActivity(createPreservationTaskLocalActivity, ctx, pkgsvc, mock.AnythingOfType("*workflow.createPreservationTaskLocalActivityParams")).Return(uint(0), nil).Once()
-	s.env.OnActivity(activities.UploadActivityName, sessionCtx, mock.AnythingOfType("*activities.UploadActivityParams")).Return(nil).Once()
 	s.env.OnActivity(setStatusLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil).Never()
-	s.env.OnActivity(setPreservationActionStatusLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil).Never()
-	s.env.OnActivity(completePreservationTaskLocalActivity, ctx, pkgsvc, mock.AnythingOfType("*workflow.completePreservationTaskLocalActivityParams")).Return(nil).Once()
-	s.env.OnActivity(activities.MoveToPermanentStorageActivityName, sessionCtx, mock.AnythingOfType("*activities.MoveToPermanentStorageActivityParams")).Return(nil).Once()
-	s.env.OnActivity(activities.PollMoveToPermanentStorageActivityName, sessionCtx, mock.AnythingOfType("*activities.PollMoveToPermanentStorageActivityParams")).Return(nil).Once()
-	s.env.OnActivity(setLocationIDLocalActivity, ctx, pkgsvc, pkgID, locationID).Return(nil).Once()
 	s.env.OnActivity(completePreservationActionLocalActivity, ctx, pkgsvc, mock.AnythingOfType("*workflow.completePreservationActionLocalActivityParams")).Return(nil).Once()
 	s.env.OnActivity(activities.CleanUpActivityName, sessionCtx, mock.AnythingOfType("*activities.CleanUpActivityParams")).Return(nil).Once()
 	s.env.OnActivity(activities.DeleteOriginalActivityName, sessionCtx, "watcher", "").Return(nil).Once()

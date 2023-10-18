@@ -359,6 +359,12 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 		}).Get(activityOpts, nil)
 	}
 
+	// For the Archivematica workflow AIP creation, review, and storage will be
+	// handled entirely by Archivematica and the AM Storage Service.
+	if w.useArchivematica {
+		return nil
+	}
+
 	// Identifier of the preservation task for upload to sips bucket.
 	var uploadPreservationTaskID uint
 
@@ -626,6 +632,8 @@ func (w *ProcessingWorkflow) transferA3m(sessCtx temporalsdk_workflow.Context, t
 }
 
 func (w *ProcessingWorkflow) transferAM(sessCtx temporalsdk_workflow.Context, tinfo *TransferInfo) error {
+	var err error
+
 	activityOpts := temporalsdk_workflow.WithActivityOptions(sessCtx, temporalsdk_workflow.ActivityOptions{
 		StartToCloseTimeout: time.Second * 10,
 		RetryPolicy: &temporalsdk_temporal.RetryPolicy{
@@ -635,13 +643,26 @@ func (w *ProcessingWorkflow) transferAM(sessCtx temporalsdk_workflow.Context, ti
 		},
 	})
 
+	uploadResult := am.UploadTransferActivityResult{}
+	err = temporalsdk_workflow.ExecuteActivity(
+		activityOpts,
+		am.UploadTransferActivityName,
+		&am.UploadTransferActivityParams{
+			FullPath: tinfo.Bundle.FullPath,
+			Filename: tinfo.req.Key,
+		},
+	).Get(sessCtx, &uploadResult)
+	if err != nil {
+		return err
+	}
+
 	result := am.StartTransferActivityResult{}
-	err := temporalsdk_workflow.ExecuteActivity(
+	err = temporalsdk_workflow.ExecuteActivity(
 		activityOpts,
 		am.StartTransferActivityName,
 		&am.StartTransferActivityParams{
 			Name: tinfo.Name(),
-			Path: tinfo.Bundle.FullPath,
+			Path: uploadResult.RemotePath,
 		},
 	).Get(sessCtx, &result)
 	if err != nil {

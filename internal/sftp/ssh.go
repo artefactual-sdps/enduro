@@ -45,6 +45,7 @@ func SSHConnect(cfg Config) (*ssh.Client, error) {
 
 	// Configure the SSH client.
 	sshConfig := &ssh.ClientConfig{
+		User: cfg.User,
 		Auth: []ssh.AuthMethod{
 			ssh.PublicKeys(signer),
 		},
@@ -56,7 +57,7 @@ func SSHConnect(cfg Config) (*ssh.Client, error) {
 	address := net.JoinHostPort(cfg.Host, cfg.Port)
 	conn, err := ssh.Dial("tcp", address, sshConfig)
 	if err != nil {
-		return nil, fmt.Errorf("failed to connect: %w", err)
+		return nil, fmt.Errorf("failed to connect to %s: %w", address, err)
 	}
 
 	return conn, nil

@@ -11,13 +11,13 @@ import (
 const UploadTransferActivityName = "UploadTransferActivity"
 
 type UploadTransferActivityParams struct {
-	LocalPath  string
-	RemotePath string
-	Filename   string
+	FullPath string
+	Filename string
 }
 
 type UploadTransferActivityResult struct {
 	BytesCopied int64
+	RemotePath  string
 }
 
 type UploadTransferActivity struct {
@@ -30,18 +30,20 @@ func NewUploadTransferActivity(svc sftp.Service) *UploadTransferActivity {
 	}
 }
 
-func (a *UploadTransferActivity) Execute(ctx context.Context, params UploadTransferActivityParams) (*UploadTransferActivityResult, error) {
-	src, err := os.Open(params.LocalPath)
+func (a *UploadTransferActivity) Execute(ctx context.Context, params *UploadTransferActivityParams) (*UploadTransferActivityResult, error) {
+	src, err := os.Open(params.FullPath)
 	if err != nil {
 		return nil, fmt.Errorf("upload transfer: %v", err)
 	}
 	defer src.Close()
 
-	dest := params.RemotePath + "/" + params.Filename
-	bytes, err := a.sftpSvc.Upload(src, dest)
+	bytes, path, err := a.sftpSvc.Upload(src, params.Filename)
 	if err != nil {
 		return nil, fmt.Errorf("upload transfer: %v", err)
 	}
 
-	return &UploadTransferActivityResult{BytesCopied: bytes}, nil
+	return &UploadTransferActivityResult{
+		BytesCopied: bytes,
+		RemotePath:  path,
+	}, nil
 }

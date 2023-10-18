@@ -39,12 +39,13 @@ func (m *MockService) EXPECT() *MockServiceMockRecorder {
 }
 
 // Upload mocks base method.
-func (m *MockService) Upload(arg0 io.Reader, arg1 string) (int64, error) {
+func (m *MockService) Upload(arg0 io.Reader, arg1 string) (int64, string, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Upload", arg0, arg1)
 	ret0, _ := ret[0].(int64)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret1, _ := ret[1].(string)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
 }
 
 // Upload indicates an expected call of Upload.
@@ -60,19 +61,19 @@ type ServiceUploadCall struct {
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *ServiceUploadCall) Return(arg0 int64, arg1 error) *ServiceUploadCall {
-	c.Call = c.Call.Return(arg0, arg1)
+func (c *ServiceUploadCall) Return(arg0 int64, arg1 string, arg2 error) *ServiceUploadCall {
+	c.Call = c.Call.Return(arg0, arg1, arg2)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *ServiceUploadCall) Do(f func(io.Reader, string) (int64, error)) *ServiceUploadCall {
+func (c *ServiceUploadCall) Do(f func(io.Reader, string) (int64, string, error)) *ServiceUploadCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *ServiceUploadCall) DoAndReturn(f func(io.Reader, string) (int64, error)) *ServiceUploadCall {
+func (c *ServiceUploadCall) DoAndReturn(f func(io.Reader, string) (int64, string, error)) *ServiceUploadCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/pkg/sftp"
 	"golang.org/x/crypto/ssh"
@@ -28,26 +30,42 @@ func NewGoClient(cfg Config) *GoClient {
 }
 
 // Upload writes the data from src to the remote file at dest and returns the
-// number of bytes written.  A new SFTP connection is opened before writing, and
-// closed when the upload is complete.
-func (c *GoClient) Upload(src io.Reader, dest string) (int64, error) {
+// number of bytes written and the full path of the uploaded file.  A new
+// SFTP connection is opened before writing, and closed when the upload is
+// complete.
+func (c *GoClient) Upload(src io.Reader, dest string) (int64, string, error) {
 	if err := c.dial(); err != nil {
-		return 0, err
+		return 0, "", err
 	}
 	defer c.close()
 
-	// Note: Some SFTP servers don't support O_RDWR mode.
-	w, err := c.sftp.OpenFile(dest, (os.O_WRONLY | os.O_CREATE | os.O_TRUNC))
+	// Confirm that remote directory exists.
+	_, err := c.sftp.Lstat(c.cfg.RemoteDir)
 	if err != nil {
-		return 0, fmt.Errorf("SFTP: couldn't create remote file %q: %w", dest, err)
+		if errors.Is(err, os.ErrNotExist) {
+			return 0, "", fmt.Errorf("SFTP: remote dir %q doesn't exist", c.cfg.RemoteDir)
+		}
+		return 0, "", fmt.Errorf("SFTP: couldn't lstat %q: %w", c.cfg.RemoteDir, err)
+	}
+
+	// Build remote filepath.
+	if c.cfg.RemoteDir != "" {
+		dest = filepath.Clean(strings.TrimRight(c.cfg.RemoteDir, "/") + "/" + dest)
+	}
+
+	// Use OpenFile with flags because some SFTP servers don't support the
+	// O_RDWR mode used by sftp.Create().
+	w, err := c.sftp.OpenFile(dest, os.O_WRONLY|os.O_CREATE|os.O_TRUNC)
+	if err != nil {
+		return 0, "", fmt.Errorf("SFTP: couldn't create remote file %q: %w", dest, err)
 	}
 
 	bytes, err := io.Copy(w, src)
 	if err != nil {
-		return 0, fmt.Errorf("SFTP: failed to write to %q: %w", dest, err)
+		return 0, "", fmt.Errorf("SFTP: failed to write to %q: %w", dest, err)
 	}
 
-	return bytes, nil
+	return bytes, dest, nil
 }
 
 // Dial connects to an SSH host then creates an SFTP client on the connection.

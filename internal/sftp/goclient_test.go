@@ -114,6 +114,8 @@ func startSFTPServer() (*ssh.Server, error) {
 }
 
 func TestGoClient(t *testing.T) {
+	testDir := tfs.NewDir(t, "sftp_test")
+
 	srv, err := startSFTPServer()
 	if err != nil {
 		t.Fatalf("Failed to start SFTP server: %v", err)
@@ -123,18 +125,12 @@ func TestGoClient(t *testing.T) {
 	// Give the server 100ms to start.
 	time.Sleep(100 * time.Millisecond)
 
-	type results struct {
-		Bytes int64
-		Paths []tfs.PathOp
-	}
-
 	type test struct {
 		name    string
 		cfg     sftp.Config
-		want    results
+		want    []tfs.PathOp
 		wantErr string
 	}
-
 	for _, tc := range []test{
 		{
 			name: "Uploads a file using a key with no passphrase",
@@ -145,11 +141,9 @@ func TestGoClient(t *testing.T) {
 				PrivateKey: sftp.PrivateKey{
 					Path: "./testdata/clientkeys/test_ed25519",
 				},
+				RemoteDir: testDir.Path(),
 			},
-			want: results{
-				Bytes: 13,
-				Paths: []tfs.PathOp{tfs.WithFile("test.txt", "Testing 1-2-3")},
-			},
+			want: []tfs.PathOp{tfs.WithFile("test.txt", "Testing 1-2-3")},
 		},
 		{
 			name: "Uploads a file using a key with a passphrase",
@@ -161,11 +155,9 @@ func TestGoClient(t *testing.T) {
 					Path:       "./testdata/clientkeys/test_pass_rsa",
 					Passphrase: "Backpack-Spirits6-Bronzing",
 				},
+				RemoteDir: testDir.Path(),
 			},
-			want: results{
-				Bytes: 13,
-				Paths: []tfs.PathOp{tfs.WithFile("test.txt", "Testing 1-2-3")},
-			},
+			want: []tfs.PathOp{tfs.WithFile("test.txt", "Testing 1-2-3")},
 		},
 		{
 			name: "Errors when the key passphrase is wrong",
@@ -190,7 +182,7 @@ func TestGoClient(t *testing.T) {
 					Path: "./testdata/clientkeys/test_ed25519",
 				},
 			},
-			wantErr: "SSH: failed to connect: dial tcp 127.0.0.1:2200: connect: connection refused",
+			wantErr: "SSH: failed to connect to 127.0.0.1:2200: dial tcp 127.0.0.1:2200: connect: connection refused",
 		},
 		{
 			name: "Errors when the private key is not recognized",
@@ -202,7 +194,7 @@ func TestGoClient(t *testing.T) {
 					Path: "./testdata/clientkeys/test_unk_ed25519",
 				},
 			},
-			wantErr: "SSH: failed to connect: ssh: handshake failed: ssh: unable to authenticate, attempted methods [none publickey], no supported methods remain",
+			wantErr: "SSH: failed to connect to 127.0.0.1:2222: ssh: handshake failed: ssh: unable to authenticate, attempted methods [none publickey], no supported methods remain",
 		},
 		{
 			name: "Errors when the host key is not in known_hosts",
@@ -214,7 +206,7 @@ func TestGoClient(t *testing.T) {
 					Path: "./testdata/clientkeys/test_ed25519",
 				},
 			},
-			wantErr: "SSH: failed to connect: ssh: handshake failed: knownhosts: key is unknown",
+			wantErr: "SSH: failed to connect to 127.0.0.1:2222: ssh: handshake failed: knownhosts: key is unknown",
 		},
 		{
 			name: "Errors when the known_hosts file doesn't exist",
@@ -233,20 +225,19 @@ func TestGoClient(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			sftpc := sftp.NewGoClient(tc.cfg)
+			c := sftp.NewGoClient(tc.cfg)
 			src := strings.NewReader("Testing 1-2-3")
-			dest := tfs.NewDir(t, "sftp_test")
 
-			bytes, err := sftpc.Upload(src, dest.Join("test.txt"))
-
+			bytes, path, err := c.Upload(src, "test.txt")
 			if tc.wantErr != "" {
 				assert.Error(t, err, tc.wantErr)
 				return
 			}
 
 			assert.NilError(t, err)
-			assert.Equal(t, bytes, tc.want.Bytes)
-			assert.Assert(t, tfs.Equal(dest.Path(), tfs.Expected(t, tc.want.Paths...)))
+			assert.Equal(t, bytes, int64(13))
+			assert.Equal(t, path, testDir.Join("test.txt"))
+			assert.Assert(t, tfs.Equal(testDir.Path(), tfs.Expected(t, tc.want...)))
 		})
 	}
 }

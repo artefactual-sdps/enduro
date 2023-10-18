@@ -30,10 +30,11 @@ func TestStartTransferActivity(t *testing.T) {
 		m.Create(
 			mockutil.Context(),
 			&amclient.PackageCreateRequest{
-				Name:        opts.Name,
-				Type:        "standard",
-				Path:        opts.Path,
-				AutoApprove: true,
+				Name:             opts.Name,
+				Type:             "standard",
+				Path:             opts.Path,
+				ProcessingConfig: "automated",
+				AutoApprove:      true,
 			},
 		).Return(
 			&amclient.PackageCreateResponse{ID: transferID},
@@ -57,10 +58,11 @@ func TestStartTransferActivity(t *testing.T) {
 				mpsmr.Create(
 					mockutil.Context(),
 					&amclient.PackageCreateRequest{
-						Name:        opts.Name,
-						Type:        "standard",
-						Path:        opts.Path,
-						AutoApprove: true,
+						Name:             opts.Name,
+						Type:             "standard",
+						Path:             opts.Path,
+						ProcessingConfig: "automated",
+						AutoApprove:      true,
 					},
 				).Return(
 					&amclient.PackageCreateResponse{ID: transferID},

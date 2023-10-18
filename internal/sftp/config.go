@@ -3,15 +3,34 @@ package sftp
 import "path/filepath"
 
 type Config struct {
+	// Host address, e.g. 127.0.0.1 (default), sftp.example.org.
 	Host string
+
+	// User name.
+	User string
+
+	// Host port (default: 22).
 	Port string
 
+	// Path to known_hosts file as per https://linux.die.net/man/8/sshd
+	// "SSH_KNOWN_HOSTS FILE FORMAT" (default: "$HOME/.ssh/known_hosts"). The
+	// known_hosts file must include the public key of the SFTP server for
+	// authentication to succeed.
 	KnownHostsFile string
-	PrivateKey     PrivateKey
+
+	// Private key used for authentication.
+	PrivateKey PrivateKey
+
+	// Default directory on SFTP server for file transfers.
+	RemoteDir string
 }
 
 type PrivateKey struct {
-	Path       string
+	// Path to private key file used for authentication (default:
+	// "$HOME/.ssh/id_rsa")
+	Path string
+
+	// Passphrase (if any) used to decrypt private key.
 	Passphrase string
 }
 

@@ -5,5 +5,5 @@ import (
 )
 
 type Service interface {
-	Upload(src io.Reader, dest string) (int64, error)
+	Upload(src io.Reader, dest string) (int64, string, error)
 }

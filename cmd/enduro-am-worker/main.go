@@ -18,13 +18,11 @@ import (
 	temporalsdk_activity "go.temporal.io/sdk/activity"
 	temporalsdk_client "go.temporal.io/sdk/client"
 	temporalsdk_worker "go.temporal.io/sdk/worker"
-	goahttp "goa.design/goa/v3/http"
 
 	"github.com/artefactual-sdps/enduro/internal/am"
-	goahttpstorage "github.com/artefactual-sdps/enduro/internal/api/gen/http/storage/client"
-	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 	"github.com/artefactual-sdps/enduro/internal/config"
 	"github.com/artefactual-sdps/enduro/internal/db"
+	"github.com/artefactual-sdps/enduro/internal/sftp"
 	"github.com/artefactual-sdps/enduro/internal/temporal"
 	"github.com/artefactual-sdps/enduro/internal/version"
 	"github.com/artefactual-sdps/enduro/internal/watcher"
@@ -120,31 +118,14 @@ func main() {
 
 		client := http.Client{Timeout: time.Second * 10}
 		amclient := amclient.NewClient(&client, cfg.Am.Address, cfg.Am.User, cfg.Am.Key)
+		sftpSvc := sftp.NewGoClient(cfg.Am.SFTP)
 
 		w.RegisterActivityWithOptions(activities.NewDownloadActivity(wsvc).Execute, temporalsdk_activity.RegisterOptions{Name: activities.DownloadActivityName})
 		w.RegisterActivityWithOptions(activities.NewBundleActivity(wsvc).Execute, temporalsdk_activity.RegisterOptions{Name: activities.BundleActivityName})
+		w.RegisterActivityWithOptions(am.NewUploadTransferActivity(sftpSvc).Execute, temporalsdk_activity.RegisterOptions{Name: am.UploadTransferActivityName})
 		w.RegisterActivityWithOptions(am.NewStartTransferActivity(logger, &cfg.Am, amclient.Package).Execute, temporalsdk_activity.RegisterOptions{Name: am.StartTransferActivityName})
 		w.RegisterActivityWithOptions(am.NewPollTransferActivity(logger, &cfg.Am, amclient.Transfer).Execute, temporalsdk_activity.RegisterOptions{Name: am.PollTransferActivityName})
 		w.RegisterActivityWithOptions(activities.NewCleanUpActivity().Execute, temporalsdk_activity.RegisterOptions{Name: activities.CleanUpActivityName})
-
-		httpClient := &http.Client{Timeout: time.Second}
-		storageHttpClient := goahttpstorage.NewClient("http", cfg.Storage.EnduroAddress, httpClient, goahttp.RequestEncoder, goahttp.ResponseDecoder, false)
-		storageClient := goastorage.NewClient(
-			storageHttpClient.Submit(),
-			storageHttpClient.Update(),
-			storageHttpClient.Download(),
-			storageHttpClient.Locations(),
-			storageHttpClient.AddLocation(),
-			storageHttpClient.Move(),
-			storageHttpClient.MoveStatus(),
-			storageHttpClient.Reject(),
-			storageHttpClient.Show(),
-			storageHttpClient.ShowLocation(),
-			storageHttpClient.LocationPackages(),
-		)
-		w.RegisterActivityWithOptions(activities.NewUploadActivity(storageClient).Execute, temporalsdk_activity.RegisterOptions{Name: activities.UploadActivityName})
-
-		w.RegisterActivityWithOptions(activities.NewRejectPackageActivity(storageClient).Execute, temporalsdk_activity.RegisterOptions{Name: activities.RejectPackageActivityName})
 
 		g.Add(
 			func() error {
