@@ -1,3 +1,4 @@
+typed-router.d.ts
 coverage/**
 dist/**
 node_modules/**

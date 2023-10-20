@@ -13,12 +13,9 @@ const layoutStore = useLayoutStore();
         :class="!item.route ? 'active' : ''"
         :aria-current="!item.route ? 'page' : undefined"
       >
-        <router-link
-          :to="item.route"
-          v-if="item.route"
-          class="text-primary"
-          >{{ item.text }}</router-link
-        >
+        <router-link :to="item.route" v-if="item.route" class="text-primary">{{
+          item.text
+        }}</router-link>
         <template v-else>{{ item.text }}</template>
       </li>
     </ol>

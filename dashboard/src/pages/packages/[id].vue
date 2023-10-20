@@ -21,7 +21,10 @@ const tabs = [
   {
     icon: RawIconDetailsLine,
     text: "Summary",
-    route: router.resolve({ name: "/packages/[id]/", params: { id: route.params.id } }),
+    route: router.resolve({
+      name: "/packages/[id]/",
+      params: { id: route.params.id },
+    }),
   },
 ];
 </script>

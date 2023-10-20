@@ -9,8 +9,6 @@ const { tabs } = defineProps<{
     route: RouteLocationResolved;
   }[];
 }>();
-
-
 </script>
 
 <template>

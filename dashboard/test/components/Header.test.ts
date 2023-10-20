@@ -7,9 +7,7 @@ import { createRouter, createWebHistory } from "vue-router";
 
 const router = createRouter({
   history: createWebHistory(),
-  routes: [
-    { name: "/", path: "/", component: {} },
-  ],
+  routes: [{ name: "/", path: "/", component: {} }],
 });
 
 describe("Header.vue", () => {
