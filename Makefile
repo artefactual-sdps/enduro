@@ -19,6 +19,7 @@ include hack/make/dep_ent.mk
 include hack/make/dep_goa.mk
 include hack/make/dep_golangci_lint.mk
 include hack/make/dep_gomajor.mk
+include hack/make/dep_gosec.mk
 include hack/make/dep_gotestsum.mk
 include hack/make/dep_migrate.mk
 include hack/make/dep_mockgen.mk
@@ -117,9 +118,8 @@ gen-ent: $(ENT)
 		--feature sql/versioned-migration \
 		--target=./internal/storage/persistence/ent/db
 
-gosec: # @HELP Run gosec security scanner
-gosec:
-	go install github.com/securego/gosec/v2/cmd/gosec@latest
+gosec: # @HELP Run gosec security scanner.
+gosec: $(GOSEC)
 	gosec \
 		-exclude-dir=dashboard \
 		-exclude-dir=hack \
