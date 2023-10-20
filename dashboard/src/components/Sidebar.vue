@@ -12,8 +12,16 @@ import RawIconUserSolid from "~icons/clarity/user-solid?raw&width=2em&height=2em
 const router = useRouter();
 
 const menuItems = [
-  { route: router.resolve("/packages/"), icon: RawIconBundleLine, text: "Packages" },
-  { route: router.resolve("/locations/"), icon: RawIconRackServerLine, text: "Locations" },
+  {
+    route: router.resolve("/packages/"),
+    icon: RawIconBundleLine,
+    text: "Packages",
+  },
+  {
+    route: router.resolve("/locations/"),
+    icon: RawIconRackServerLine,
+    text: "Locations",
+  },
 ];
 
 const layoutStore = useLayoutStore();

@@ -9,7 +9,7 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
   plugins: [
     VueRouter({
-      routesFolder: "src/pages"
+      routesFolder: "src/pages",
     }),
     vue({}),
     ReactivityTransform(),
