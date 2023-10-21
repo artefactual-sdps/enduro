@@ -10,11 +10,10 @@ type Config struct {
 	User string
 
 	// Archivematica API key.
-	Key string
+	APIKey string
 
-	// Directory where transfers are deposited for processing (must be readable
-	// by Archivematica).
-	ShareDir string
+	// Archivematica processing configuration to use (default: "automated").
+	ProcessingConfig string
 
 	// SFTP configuration for uploading transfers to Archivematica.
 	SFTP sftp.Config

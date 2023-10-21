@@ -117,14 +117,14 @@ func main() {
 		}
 
 		client := http.Client{Timeout: time.Second * 10}
-		amclient := amclient.NewClient(&client, cfg.Am.Address, cfg.Am.User, cfg.Am.Key)
-		sftpSvc := sftp.NewGoClient(cfg.Am.SFTP)
+		amclient := amclient.NewClient(&client, cfg.AM.Address, cfg.AM.User, cfg.AM.APIKey)
+		sftpSvc := sftp.NewGoClient(cfg.AM.SFTP)
 
 		w.RegisterActivityWithOptions(activities.NewDownloadActivity(wsvc).Execute, temporalsdk_activity.RegisterOptions{Name: activities.DownloadActivityName})
 		w.RegisterActivityWithOptions(activities.NewBundleActivity(wsvc).Execute, temporalsdk_activity.RegisterOptions{Name: activities.BundleActivityName})
 		w.RegisterActivityWithOptions(am.NewUploadTransferActivity(sftpSvc).Execute, temporalsdk_activity.RegisterOptions{Name: am.UploadTransferActivityName})
-		w.RegisterActivityWithOptions(am.NewStartTransferActivity(logger, &cfg.Am, amclient.Package).Execute, temporalsdk_activity.RegisterOptions{Name: am.StartTransferActivityName})
-		w.RegisterActivityWithOptions(am.NewPollTransferActivity(logger, &cfg.Am, amclient.Transfer).Execute, temporalsdk_activity.RegisterOptions{Name: am.PollTransferActivityName})
+		w.RegisterActivityWithOptions(am.NewStartTransferActivity(logger, &cfg.AM, amclient.Package).Execute, temporalsdk_activity.RegisterOptions{Name: am.StartTransferActivityName})
+		w.RegisterActivityWithOptions(am.NewPollTransferActivity(logger, &cfg.AM, amclient.Transfer).Execute, temporalsdk_activity.RegisterOptions{Name: am.PollTransferActivityName})
 		w.RegisterActivityWithOptions(activities.NewCleanUpActivity().Execute, temporalsdk_activity.RegisterOptions{Name: activities.CleanUpActivityName})
 
 		g.Add(

@@ -1,9 +1,12 @@
 # This is the configuration file valid for the development environment.
+#
+# A config option key (e.g. "debug") must appear here in order to set the value
+# via environment variable (e.g. "ENDURO_DEBUG=false").
 
 debug = true
 debugListen = "127.0.0.1:9001"
 verbosity = 2
-useArchivematica = false
+useArchivematica = true
 
 [temporal]
 namespace = "default"
@@ -86,8 +89,20 @@ AipCompressionLevel                          = 1
 AipCompressionAlgorithm                      = 6
 
 [am]
-# address = "127.0.0.1:7000"
-# shareDir = "/home/a3m/.local/share/a3m/share"
+address = "https://pipeline3.analyst.archivematica.net"
+user = "" # Secret: set with env var ENDURO_AM_USER.
+apiKey = "" # Secret: set with env var ENDURO_AM_APIKEY.
+processingConfig = "automated"
+
+[am.sftp]
+host = "enduro-temporal.ss.analyst.archivematica.net" # This should be the Storage Service hostname.
+user = "artefactual"
+knownHostsFile = "/etc/ssh/known_hosts"
+remoteDir = "/transfer_source"
+
+[am.sftp.privateKey]
+path = "/etc/ssh/id_ed25519"
+passphrase = "" # Secret: set (if required) with env var ENDURO_AM_SFTP_PRIVATEKEY_PASSPHRASE.
 
 [upload]
 endpoint = "http://minio.enduro-sdps:9000"

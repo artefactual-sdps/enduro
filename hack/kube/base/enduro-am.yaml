@@ -1,0 +1,105 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: enduro-am
+  labels:
+    app: enduro-am
+spec:
+  serviceName: enduro-am
+  selector:
+    matchLabels:
+      app: enduro-am
+  template:
+    metadata:
+      labels:
+        app: enduro-am
+    spec:
+      serviceAccountName: sdps
+      securityContext:
+        fsGroup: 1000
+      initContainers:
+        - name: check-temporal
+          image: busybox
+          imagePullPolicy: IfNotPresent
+          command:
+            [
+              "sh",
+              "-c",
+              "until echo STATUS | nc -w 2 temporal.enduro-sdps 7233; do echo waiting for temporal to start; sleep 1; done;",
+            ]
+      containers:
+        - name: enduro-am-worker
+          image: ghcr.io/artefactual-sdps/enduro-am-worker:main
+          env:
+            - name: ENDURO_AM_USER
+              valueFrom:
+                secretKeyRef:
+                  name: am-secret
+                  key: enduro_am_user
+            - name: ENDURO_AM_APIKEY
+              valueFrom:
+                secretKeyRef:
+                  name: am-secret
+                  key: enduro_am_api_key
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: user
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: password
+            - name: MINIO_USER
+              valueFrom:
+                secretKeyRef:
+                  name: minio-secret
+                  key: user
+            - name: MINIO_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: minio-secret
+                  key: password
+            - name: ENDURO_DATABASE_DSN
+              value: $(MYSQL_USER):$(MYSQL_PASSWORD)@tcp(mysql.enduro-sdps:3306)/enduro
+            - name: ENDURO_STORAGE_DATABASE_DSN
+              value: $(MYSQL_USER):$(MYSQL_PASSWORD)@tcp(mysql.enduro-sdps:3306)/enduro_storage
+            - name: ENDURO_WATCHER_EMBEDDED_KEY
+              value: $(MINIO_USER)
+            - name: ENDURO_WATCHER_EMBEDDED_SECRET
+              value: $(MINIO_PASSWORD)
+            - name: ENDURO_STORAGE_INTERNAL_KEY
+              value: $(MINIO_USER)
+            - name: ENDURO_STORAGE_INTERNAL_SECRET
+              value: $(MINIO_PASSWORD)
+            - name: ENDURO_UPLOAD_KEY
+              value: $(MINIO_USER)
+            - name: ENDURO_UPLOAD_SECRET
+              value: $(MINIO_PASSWORD)
+          volumeMounts:
+            - name: enduro-a3m
+              mountPath: /home/a3m/.local/share/a3m/share
+            - name: ssh-volume
+              mountPath: "/etc/ssh"
+              readOnly: true
+      volumes:
+        - name: ssh-volume
+          secret:
+            secretName: am-secret
+            items:
+              - key: enduro_id_ed25519
+                defaultMode: 0600
+                path: id_ed25519
+              - key: enduro_known_hosts
+                defaultMode: 0644
+                path: known_hosts
+  volumeClaimTemplates:
+    - metadata:
+        name: enduro-a3m
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 10Gi

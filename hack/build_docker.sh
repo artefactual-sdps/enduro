@@ -14,18 +14,23 @@ case "$TARGET" in
 		TARGET="enduro"
 		FOLDER="."
 		;;
+	"enduro-am-worker")
+		IMAGE_NAME="enduro-am-worker"
+		TARGET="enduro-am-worker"
+		FOLDER="."
+		;;
 	"enduro-a3m-worker")
 		IMAGE_NAME="enduro-a3m-worker"
 		TARGET="enduro-a3m-worker"
 		FOLDER="."
 		;;
-        "enduro-dashboard")
+    "enduro-dashboard")
 		IMAGE_NAME="enduro-dashboard"
 		TARGET="enduro-dashboard"
 		FOLDER="dashboard"
 		;;
 	*)
-		echo "Accepted values: enduro, enduro-a3m-worker, enduro-dashboard.";
+		echo "Accepted values: enduro, enduro-am-worker, enduro-a3m-worker, enduro-dashboard.";
 		exit 1;
 		;;
 esac

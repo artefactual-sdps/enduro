@@ -35,7 +35,7 @@ type Configuration struct {
 	Storage          storage.Config
 	Upload           upload.Config
 	A3m              a3m.Config
-	Am               am.Config
+	AM               am.Config
 }
 
 func (c Configuration) Validate() error {

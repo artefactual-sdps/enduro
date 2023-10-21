@@ -1,0 +1,12 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: enduro
+spec:
+  template:
+    spec:
+      containers:
+        - name: enduro
+          env:
+            - name: ENDURO_USEARCHIVEMATICA
+              value: "true"

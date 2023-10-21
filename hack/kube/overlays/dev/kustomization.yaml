@@ -14,6 +14,9 @@ images:
   - name: ghcr.io/artefactual-sdps/enduro:main
     newName: enduro
     newTag: dev
+  - name: ghcr.io/artefactual-sdps/enduro-am-worker:main
+    newName: enduro-am-worker
+    newTag: dev
   - name: ghcr.io/artefactual-sdps/enduro-a3m-worker:main
     newName: enduro-a3m-worker
     newTag: dev
@@ -21,4 +24,6 @@ images:
     newName: enduro-dashboard
     newTag: dev
 patchesStrategicMerge:
+  - enduro-patch.yaml
+  - enduro-am-patch.yaml
   - enduro-a3m-patch.yaml

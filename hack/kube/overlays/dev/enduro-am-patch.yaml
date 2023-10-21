@@ -1,0 +1,12 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: enduro-am
+spec:
+  template:
+    spec:
+      containers:
+        - name: enduro-am-worker
+          env:
+            - name: ENDURO_USEARCHIVEMATICA
+              value: "true"

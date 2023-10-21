@@ -10,6 +10,11 @@ custom_build(
   deps=["."],
 )
 custom_build(
+  ref="enduro-am-worker:dev",
+  command=["hack/build_docker.sh", "enduro-am-worker"],
+  deps=["."],
+)
+custom_build(
   ref="enduro-a3m-worker:dev",
   command=["hack/build_docker.sh", "enduro-a3m-worker"],
   deps=["."],
@@ -47,6 +52,7 @@ if os.environ.get('TRIGGER_MODE_AUTO', ''):
 
 # Enduro resources
 k8s_resource("enduro", labels=["Enduro"], trigger_mode=trigger_mode)
+k8s_resource("enduro-am", labels=["Enduro"], trigger_mode=trigger_mode)
 k8s_resource("enduro-a3m", labels=["Enduro"], trigger_mode=trigger_mode)
 k8s_resource("enduro-internal", port_forwards="9000", labels=["Enduro"], trigger_mode=trigger_mode)
 k8s_resource("enduro-dashboard", port_forwards="8080:80", labels=["Enduro"], trigger_mode=trigger_mode)
@@ -98,13 +104,14 @@ cmd_button(
   argv=[
     "sh",
     "-c",
-    "kubectl config set-context --current --namespace sdps; \
+    "kubectl config set-context --current --namespace enduro-sdps; \
     kubectl delete job --all; \
     kubectl create -f hack/kube/tools/mysql-recreate-databases-job.yaml; \
     kubectl create -f hack/kube/tools/minio-recreate-buckets-job.yaml; \
     kubectl wait --for=condition=complete --timeout=120s job --all; \
     kubectl rollout restart deployment temporal; \
     kubectl rollout restart deployment enduro; \
+    kubectl rollout restart statefulset enduro-am; \
     kubectl rollout restart statefulset enduro-a3m; \
     kubectl rollout restart deployment dex; \
     kubectl create -f hack/kube/base/mysql-create-locations-job.yaml;",

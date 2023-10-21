@@ -3,6 +3,7 @@ kind: Kustomization
 namespace: enduro-sdps
 resources:
   - dex.yaml
+  - enduro-am.yaml
   - enduro-a3m.yaml
   - enduro-dashboard.yaml
   - enduro-internal.yaml
