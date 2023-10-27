@@ -125,7 +125,7 @@ func main() {
 		w.RegisterActivityWithOptions(am.NewUploadTransferActivity(sftpSvc).Execute, temporalsdk_activity.RegisterOptions{Name: am.UploadTransferActivityName})
 		w.RegisterActivityWithOptions(am.NewStartTransferActivity(logger, &cfg.AM, amclient.Package).Execute, temporalsdk_activity.RegisterOptions{Name: am.StartTransferActivityName})
 		w.RegisterActivityWithOptions(am.NewPollTransferActivity(logger, &cfg.AM, amclient.Transfer).Execute, temporalsdk_activity.RegisterOptions{Name: am.PollTransferActivityName})
-		w.RegisterActivityWithOptions(activities.NewCleanUpActivity().Execute, temporalsdk_activity.RegisterOptions{Name: activities.CleanUpActivityName})
+		w.RegisterActivityWithOptions(activities.NewCleanUpActivity(logger).Execute, temporalsdk_activity.RegisterOptions{Name: activities.CleanUpActivityName})
 
 		g.Add(
 			func() error {

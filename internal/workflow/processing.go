@@ -30,6 +30,7 @@ type ProcessingWorkflow struct {
 	pkgsvc           package_.Service
 	wsvc             watcher.Service
 	useArchivematica bool
+	cleanUpPaths     []string
 }
 
 func NewProcessingWorkflow(logger logr.Logger, pkgsvc package_.Service, wsvc watcher.Service, useAm bool) *ProcessingWorkflow {
@@ -322,17 +323,13 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 				return err
 			}
 		}
+		w.cleanUpPath(tinfo.Bundle.FullPathBeforeStrip)
 	}
 
 	// Delete local temporary files.
 	defer func() {
-		// TODO: call clean up here to enforce that we always destroy TempDir.
-		if tinfo.Bundle.FullPathBeforeStrip != "" {
 			activityOpts := withActivityOptsForRequest(sessCtx)
-			_ = temporalsdk_workflow.ExecuteActivity(activityOpts, activities.CleanUpActivityName, &activities.CleanUpActivityParams{
-				FullPath: tinfo.Bundle.FullPathBeforeStrip,
-			}).Get(activityOpts, nil)
-		}
+		_ = temporalsdk_workflow.ExecuteActivity(activityOpts, activities.CleanUpActivityName, &activities.CleanUpActivityParams{Paths: w.cleanUpPaths}).Get(activityOpts, nil)
 	}()
 
 	{
@@ -689,4 +686,12 @@ func (w *ProcessingWorkflow) transferAM(sessCtx temporalsdk_workflow.Context, ti
 	tinfo.StoredAt = temporalsdk_workflow.Now(sessCtx).UTC()
 
 	return nil
+}
+
+func (w *ProcessingWorkflow) cleanUpPath(path string) {
+	if path == "" {
+		return
+	}
+
+	w.cleanUpPaths = append(w.cleanUpPaths, path)
 }

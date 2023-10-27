@@ -4,26 +4,36 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"strings"
+
+	"github.com/go-logr/logr"
 )
 
 // CleanUpActivity removes the contents that we've created in the TS location.
-type CleanUpActivity struct{}
+type CleanUpActivity struct {
+	logger logr.Logger
+}
 
-func NewCleanUpActivity() *CleanUpActivity {
-	return &CleanUpActivity{}
+func NewCleanUpActivity(logger logr.Logger) *CleanUpActivity {
+	return &CleanUpActivity{logger: logger}
 }
 
 type CleanUpActivityParams struct {
-	FullPath string
+	Paths []string
 }
 
 func (a *CleanUpActivity) Execute(ctx context.Context, params *CleanUpActivityParams) error {
-	if params == nil || params.FullPath == "" {
-		return fmt.Errorf("error processing parameters: missing or empty")
+	if params == nil || params.Paths == nil {
+		a.logger.V(2).Info("CleanUpActivity: no paths to clean up.")
+		return nil
 	}
 
-	if err := os.RemoveAll(params.FullPath); err != nil {
-		return fmt.Errorf("error removing transfer directory: %v", err)
+	a.logger.V(2).Info("Executing CleanUpActivity", "Paths", strings.Join(params.Paths, ","))
+
+	for _, path := range params.Paths {
+		if err := os.RemoveAll(path); err != nil {
+			return fmt.Errorf("clean up: %v", err)
+		}
 	}
 
 	return nil
