@@ -59,10 +59,14 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(useAm bool) {
 	s.env.RegisterActivityWithOptions(activities.NewMoveToPermanentStorageActivity(nil).Execute, temporalsdk_activity.RegisterOptions{Name: activities.MoveToPermanentStorageActivityName})
 	s.env.RegisterActivityWithOptions(activities.NewPollMoveToPermanentStorageActivity(nil).Execute, temporalsdk_activity.RegisterOptions{Name: activities.PollMoveToPermanentStorageActivityName})
 	s.env.RegisterActivityWithOptions(activities.NewRejectPackageActivity(nil).Execute, temporalsdk_activity.RegisterOptions{Name: activities.RejectPackageActivityName})
-	s.env.RegisterActivityWithOptions(activities.NewCleanUpActivity().Execute, temporalsdk_activity.RegisterOptions{Name: activities.CleanUpActivityName})
+	s.env.RegisterActivityWithOptions(activities.NewCleanUpActivity(logger).Execute, temporalsdk_activity.RegisterOptions{Name: activities.CleanUpActivityName})
 	s.env.RegisterActivityWithOptions(activities.NewDeleteOriginalActivity(wsvc).Execute, temporalsdk_activity.RegisterOptions{Name: activities.DeleteOriginalActivityName})
 
 	// Archivematica activities
+	s.env.RegisterActivityWithOptions(
+		activities.NewZipActivity(logger).Execute,
+		temporalsdk_activity.RegisterOptions{Name: activities.ZipActivityName},
+	)
 	s.env.RegisterActivityWithOptions(
 		am.NewUploadTransferActivity(sftpSvc).Execute,
 		temporalsdk_activity.RegisterOptions{Name: am.UploadTransferActivityName},
@@ -217,14 +221,21 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	s.env.OnActivity(createPreservationActionLocalActivity, ctx, pkgsvc, mock.AnythingOfType("*workflow.createPreservationActionLocalActivityParams")).Return(uint(0), nil).Once()
 	s.env.OnActivity(activities.DownloadActivityName, sessionCtx, watcherName, key).Return("", nil).Once()
 	s.env.OnActivity(activities.BundleActivityName, sessionCtx, mock.AnythingOfType("*activities.BundleActivityParams")).Return(&activities.BundleActivityResult{FullPath: "/tmp/aip", FullPathBeforeStrip: "/tmp/aip"}, nil).Once()
-	s.env.OnActivity(
-		am.UploadTransferActivityName, sessionCtx, mock.AnythingOfType("*am.UploadTransferActivityParams"),
-	).Return(
-		&am.UploadTransferActivityResult{RemotePath: "/transfer_dir/aip"},
-		nil,
-	)
-	s.env.OnActivity(am.StartTransferActivityName, sessionCtx, mock.AnythingOfType("*am.StartTransferActivityParams")).Return(nil, nil).Once()
-	s.env.OnActivity(am.PollTransferActivityName, sessionCtx, mock.AnythingOfType("*am.PollTransferActivityParams")).Return(nil, nil).Once()
+
+	// AM specific activities.
+	s.env.OnActivity(activities.ZipActivityName,
+		sessionCtx, mock.AnythingOfType("*activities.ZipActivityParams"),
+	).Return(&activities.ZipActivityResult{Path: "/transfer_dir/aip.zip"}, nil).Once()
+	s.env.OnActivity(am.UploadTransferActivityName,
+		sessionCtx, mock.AnythingOfType("*am.UploadTransferActivityParams"),
+	).Return(&am.UploadTransferActivityResult{RemotePath: "/transfer_source/aip.zip"}, nil).Once()
+	s.env.OnActivity(am.StartTransferActivityName,
+		sessionCtx, mock.AnythingOfType("*am.StartTransferActivityParams"),
+	).Return(nil, nil).Once()
+	s.env.OnActivity(am.PollTransferActivityName,
+		sessionCtx, mock.AnythingOfType("*am.PollTransferActivityParams"),
+	).Return(nil, nil).Once()
+
 	s.env.OnActivity(updatePackageLocalActivity, ctx, logger, pkgsvc, mock.AnythingOfType("*workflow.updatePackageLocalActivityParams")).Return(nil).Times(2)
 	s.env.OnActivity(setStatusLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil).Never()
 	s.env.OnActivity(completePreservationActionLocalActivity, ctx, pkgsvc, mock.AnythingOfType("*workflow.completePreservationActionLocalActivityParams")).Return(nil).Once()

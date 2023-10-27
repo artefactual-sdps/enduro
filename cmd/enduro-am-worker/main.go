@@ -122,6 +122,7 @@ func main() {
 
 		w.RegisterActivityWithOptions(activities.NewDownloadActivity(wsvc).Execute, temporalsdk_activity.RegisterOptions{Name: activities.DownloadActivityName})
 		w.RegisterActivityWithOptions(activities.NewBundleActivity(wsvc).Execute, temporalsdk_activity.RegisterOptions{Name: activities.BundleActivityName})
+		w.RegisterActivityWithOptions(activities.NewZipActivity(logger).Execute, temporalsdk_activity.RegisterOptions{Name: activities.ZipActivityName})
 		w.RegisterActivityWithOptions(am.NewUploadTransferActivity(sftpSvc).Execute, temporalsdk_activity.RegisterOptions{Name: am.UploadTransferActivityName})
 		w.RegisterActivityWithOptions(am.NewStartTransferActivity(logger, &cfg.AM, amclient.Package).Execute, temporalsdk_activity.RegisterOptions{Name: am.StartTransferActivityName})
 		w.RegisterActivityWithOptions(am.NewPollTransferActivity(logger, &cfg.AM, amclient.Transfer).Execute, temporalsdk_activity.RegisterOptions{Name: am.PollTransferActivityName})

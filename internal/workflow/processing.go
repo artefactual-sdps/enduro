@@ -328,7 +328,7 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 
 	// Delete local temporary files.
 	defer func() {
-			activityOpts := withActivityOptsForRequest(sessCtx)
+		activityOpts := withActivityOptsForRequest(sessCtx)
 		_ = temporalsdk_workflow.ExecuteActivity(activityOpts, activities.CleanUpActivityName, &activities.CleanUpActivityParams{Paths: w.cleanUpPaths}).Get(activityOpts, nil)
 	}()
 
@@ -631,7 +631,33 @@ func (w *ProcessingWorkflow) transferA3m(sessCtx temporalsdk_workflow.Context, t
 func (w *ProcessingWorkflow) transferAM(sessCtx temporalsdk_workflow.Context, tinfo *TransferInfo) error {
 	var err error
 
-	activityOpts := temporalsdk_workflow.WithActivityOptions(sessCtx, temporalsdk_workflow.ActivityOptions{
+	// Zip transfer.
+	var zip activities.ZipActivityResult
+	activityOpts := withActivityOptsForLongLivedRequest(sessCtx)
+	err = temporalsdk_workflow.ExecuteActivity(
+		activityOpts,
+		activities.ZipActivityName,
+		&activities.ZipActivityParams{SourceDir: tinfo.Bundle.FullPath},
+	).Get(activityOpts, &zip)
+	if err != nil {
+		return err
+	}
+	w.cleanUpPath(zip.Path) // Delete when workflow completes.
+
+	uploadResult := am.UploadTransferActivityResult{}
+	err = temporalsdk_workflow.ExecuteActivity(
+		activityOpts,
+		am.UploadTransferActivityName,
+		&am.UploadTransferActivityParams{
+			FullPath: zip.Path,
+			Filename: tinfo.req.Key,
+		},
+	).Get(activityOpts, &uploadResult)
+	if err != nil {
+		return err
+	}
+
+	activityOpts = temporalsdk_workflow.WithActivityOptions(sessCtx, temporalsdk_workflow.ActivityOptions{
 		StartToCloseTimeout: time.Second * 10,
 		RetryPolicy: &temporalsdk_temporal.RetryPolicy{
 			InitialInterval:    time.Second * 10,
@@ -639,19 +665,6 @@ func (w *ProcessingWorkflow) transferAM(sessCtx temporalsdk_workflow.Context, ti
 			MaximumAttempts:    3,
 		},
 	})
-
-	uploadResult := am.UploadTransferActivityResult{}
-	err = temporalsdk_workflow.ExecuteActivity(
-		activityOpts,
-		am.UploadTransferActivityName,
-		&am.UploadTransferActivityParams{
-			FullPath: tinfo.Bundle.FullPath,
-			Filename: tinfo.req.Key,
-		},
-	).Get(sessCtx, &uploadResult)
-	if err != nil {
-		return err
-	}
 
 	result := am.StartTransferActivityResult{}
 	err = temporalsdk_workflow.ExecuteActivity(
@@ -661,7 +674,7 @@ func (w *ProcessingWorkflow) transferAM(sessCtx temporalsdk_workflow.Context, ti
 			Name: tinfo.Name(),
 			Path: uploadResult.RemotePath,
 		},
-	).Get(sessCtx, &result)
+	).Get(activityOpts, &result)
 	if err != nil {
 		return err
 	}
@@ -676,7 +689,7 @@ func (w *ProcessingWorkflow) transferAM(sessCtx temporalsdk_workflow.Context, ti
 	})
 	err = temporalsdk_workflow.ExecuteActivity(pollOpts, am.PollTransferActivityName, am.PollTransferActivityParams{
 		TransferID: result.UUID,
-	}).Get(sessCtx, &pollResult)
+	}).Get(pollOpts, &pollResult)
 	if err != nil {
 		return err
 	}
