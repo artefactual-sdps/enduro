@@ -31,7 +31,7 @@ func TestStartTransferActivity(t *testing.T) {
 			mockutil.Context(),
 			&amclient.PackageCreateRequest{
 				Name:             opts.Name,
-				Type:             "standard",
+				Type:             "zipfile",
 				Path:             opts.Path,
 				ProcessingConfig: "automated",
 				AutoApprove:      true,
@@ -59,7 +59,7 @@ func TestStartTransferActivity(t *testing.T) {
 					mockutil.Context(),
 					&amclient.PackageCreateRequest{
 						Name:             opts.Name,
-						Type:             "standard",
+						Type:             "zipfile",
 						Path:             opts.Path,
 						ProcessingConfig: "automated",
 						AutoApprove:      true,

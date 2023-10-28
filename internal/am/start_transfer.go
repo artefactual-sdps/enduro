@@ -38,6 +38,8 @@ func NewStartTransferActivity(logger logr.Logger, cfg *Config, amps amclient.Pac
 // returned.  An error response will return a retryable or non-retryable
 // temporal.ApplicationError, depending on the nature of the error.
 func (a *StartTransferActivity) Execute(ctx context.Context, opts *StartTransferActivityParams) (*StartTransferActivityResult, error) {
+	a.logger.Info("Executing StartTransferActivity", "Name", opts.Name, "Path", opts.Path)
+
 	processingConfig := a.cfg.ProcessingConfig
 	if processingConfig == "" {
 		processingConfig = "automated" // Default value.
@@ -45,7 +47,7 @@ func (a *StartTransferActivity) Execute(ctx context.Context, opts *StartTransfer
 
 	payload, resp, err := a.amps.Create(ctx, &amclient.PackageCreateRequest{
 		Name:             opts.Name,
-		Type:             "standard",
+		Type:             "zipfile",
 		Path:             opts.Path,
 		ProcessingConfig: processingConfig,
 		AutoApprove:      true,
