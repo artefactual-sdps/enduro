@@ -347,6 +347,10 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 		var err error
 		if w.useArchivematica {
 			err = w.transferAM(sessCtx, tinfo)
+			if err != nil {
+				return err
+			}
+			err = w.ingestAM(sessCtx, tinfo)
 		} else {
 			err = w.transferA3m(sessCtx, tinfo)
 		}
@@ -674,6 +678,28 @@ func (w *ProcessingWorkflow) transferAM(sessCtx temporalsdk_workflow.Context, ti
 	tinfo.SIPID = pollResult.SIPID
 	tinfo.AIPPath = pollResult.Path
 	tinfo.StoredAt = temporalsdk_workflow.Now(sessCtx).UTC()
+
+	return nil
+}
+
+func (w *ProcessingWorkflow) ingestAM(sessCtx temporalsdk_workflow.Context, tinfo *TransferInfo) error {
+	// Start ingest/create aip and poll
+	params := &am.CreateAIPActivityParams{
+		UUID: tinfo.SIPID,
+	}
+
+	pollOpts := temporalsdk_workflow.WithActivityOptions(sessCtx, temporalsdk_workflow.ActivityOptions{
+		StartToCloseTimeout: time.Second * 10,
+		RetryPolicy: &temporalsdk_temporal.RetryPolicy{
+			InitialInterval:    time.Second * 10,
+			BackoffCoefficient: 1.0,
+		},
+	})
+
+	err := temporalsdk_workflow.ExecuteActivity(pollOpts, am.CreateAIPActivityName, params).Get(sessCtx, nil)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
