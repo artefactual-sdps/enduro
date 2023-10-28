@@ -38,7 +38,7 @@ func (a *CreateAIPActivity) Execute(ctx context.Context, opts *CreateAIPActivity
 	// Start ingest
 	payload, resp, err := a.amis.Status(childCtx, opts.UUID)
 	if err != nil {
-		return temporal.HTTPStatusCodeError(resp.StatusCode, err)
+		return convertAMClientError(resp, err)
 	}
 	// Check the ingest status, if it is ok, return no err.
 	if ok, err := ingestStatus(payload); !ok {

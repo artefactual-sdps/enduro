@@ -26,7 +26,6 @@ func TestCreateAIPActivity_Execute(t *testing.T) {
 	tests := []struct {
 		name       string
 		mockFunc   func(amis *amclienttest.MockIngestServiceMockRecorder)
-		wantErr    bool
 		errMessage string
 	}{
 		{
@@ -40,7 +39,6 @@ func TestCreateAIPActivity_Execute(t *testing.T) {
 					nil,
 				)
 			},
-			wantErr: false,
 		},
 		{
 			name: "Returns an invalid credentials error",
@@ -53,7 +51,6 @@ func TestCreateAIPActivity_Execute(t *testing.T) {
 					errors.New("status code error"),
 				)
 			},
-			wantErr:    true,
 			errMessage: "invalid Archivematica credentials",
 		},
 		{
@@ -67,7 +64,6 @@ func TestCreateAIPActivity_Execute(t *testing.T) {
 					errors.New("status code error"),
 				)
 			},
-			wantErr:    true,
 			errMessage: "insufficient Archivematica permissions",
 		},
 		{
@@ -81,7 +77,6 @@ func TestCreateAIPActivity_Execute(t *testing.T) {
 					errors.New("status code error"),
 				)
 			},
-			wantErr:    true,
 			errMessage: "Archivematica transfer not found",
 		},
 		{
@@ -95,7 +90,6 @@ func TestCreateAIPActivity_Execute(t *testing.T) {
 					nil,
 				)
 			},
-			wantErr:    true,
 			errMessage: "Continue polling",
 		},
 		{
@@ -109,7 +103,6 @@ func TestCreateAIPActivity_Execute(t *testing.T) {
 					nil,
 				)
 			},
-			wantErr:    true,
 			errMessage: "ingest is in a state that we can't handle",
 		},
 	}
@@ -132,13 +125,12 @@ func TestCreateAIPActivity_Execute(t *testing.T) {
 			tt.mockFunc(amisMock.EXPECT())
 
 			_, err := env.ExecuteActivity(am.CreateAIPActivityName, opts)
-			if tt.wantErr {
-				if tt.errMessage != "" {
-					assert.ErrorContains(t, err, tt.errMessage)
-					return
-				}
+			if tt.errMessage != "" {
+				assert.ErrorContains(t, err, tt.errMessage)
+				return
 			}
 
+			assert.NilError(t, err)
 		})
 	}
 }
