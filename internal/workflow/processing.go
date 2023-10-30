@@ -296,7 +296,7 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 			// TODO: even if TempFile is defined, we should confirm that the file is
 			// locally available in disk, just in case we're in the context of a
 			// session retry where a different worker is doing the work. In that
-			// case, the activity whould be executed again.
+			// case, the activity would be executed again.
 			if tinfo.TempFile == "" {
 				activityOpts := withActivityOptsForLongLivedRequest(sessCtx)
 				err := temporalsdk_workflow.ExecuteActivity(activityOpts, activities.DownloadActivityName, tinfo.req.WatcherName, tinfo.req.Key).Get(activityOpts, &tinfo.TempFile)
@@ -306,31 +306,6 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 			}
 		}
 	}
-
-	// Bundle.
-	{
-		if tinfo.Bundle == (activities.BundleActivityResult{}) {
-			activityOpts := withActivityOptsForLongLivedRequest(sessCtx)
-			err := temporalsdk_workflow.ExecuteActivity(activityOpts, activities.BundleActivityName, &activities.BundleActivityParams{
-				WatcherName:      tinfo.req.WatcherName,
-				TransferDir:      "/home/a3m/.local/share/a3m/share",
-				Key:              tinfo.req.Key,
-				IsDir:            tinfo.req.IsDir,
-				TempFile:         tinfo.TempFile,
-				StripTopLevelDir: tinfo.req.StripTopLevelDir,
-			}).Get(activityOpts, &tinfo.Bundle)
-			if err != nil {
-				return err
-			}
-		}
-		w.cleanUpPath(tinfo.Bundle.FullPathBeforeStrip)
-	}
-
-	// Delete local temporary files.
-	defer func() {
-		activityOpts := withActivityOptsForRequest(sessCtx)
-		_ = temporalsdk_workflow.ExecuteActivity(activityOpts, activities.CleanUpActivityName, &activities.CleanUpActivityParams{Paths: w.cleanUpPaths}).Get(activityOpts, nil)
-	}()
 
 	{
 		var err error
@@ -604,6 +579,31 @@ func (w *ProcessingWorkflow) waitForReview(ctx temporalsdk_workflow.Context) *pa
 }
 
 func (w *ProcessingWorkflow) transferA3m(sessCtx temporalsdk_workflow.Context, tinfo *TransferInfo) error {
+	// Bundle.
+	{
+		if tinfo.Bundle == (activities.BundleActivityResult{}) {
+			activityOpts := withActivityOptsForLongLivedRequest(sessCtx)
+			err := temporalsdk_workflow.ExecuteActivity(activityOpts, activities.BundleActivityName, &activities.BundleActivityParams{
+				WatcherName:      tinfo.req.WatcherName,
+				TransferDir:      "/home/a3m/.local/share/a3m/share",
+				Key:              tinfo.req.Key,
+				IsDir:            tinfo.req.IsDir,
+				TempFile:         tinfo.TempFile,
+				StripTopLevelDir: tinfo.req.StripTopLevelDir,
+			}).Get(activityOpts, &tinfo.Bundle)
+			if err != nil {
+				return err
+			}
+		}
+		w.cleanUpPath(tinfo.Bundle.FullPathBeforeStrip)
+	}
+
+	// Delete local temporary files.
+	defer func() {
+		activityOpts := withActivityOptsForRequest(sessCtx)
+		_ = temporalsdk_workflow.ExecuteActivity(activityOpts, activities.CleanUpActivityName, &activities.CleanUpActivityParams{Paths: w.cleanUpPaths}).Get(activityOpts, nil)
+	}()
+
 	activityOpts := temporalsdk_workflow.WithActivityOptions(sessCtx, temporalsdk_workflow.ActivityOptions{
 		StartToCloseTimeout: time.Hour * 24,
 		HeartbeatTimeout:    time.Second * 5,
@@ -631,25 +631,14 @@ func (w *ProcessingWorkflow) transferA3m(sessCtx temporalsdk_workflow.Context, t
 func (w *ProcessingWorkflow) transferAM(sessCtx temporalsdk_workflow.Context, tinfo *TransferInfo) error {
 	var err error
 
-	// Zip transfer.
-	var zip activities.ZipActivityResult
 	activityOpts := withActivityOptsForLongLivedRequest(sessCtx)
-	err = temporalsdk_workflow.ExecuteActivity(
-		activityOpts,
-		activities.ZipActivityName,
-		&activities.ZipActivityParams{SourceDir: tinfo.Bundle.FullPath},
-	).Get(activityOpts, &zip)
-	if err != nil {
-		return err
-	}
-	w.cleanUpPath(zip.Path) // Delete when workflow completes.
 
 	uploadResult := am.UploadTransferActivityResult{}
 	err = temporalsdk_workflow.ExecuteActivity(
 		activityOpts,
 		am.UploadTransferActivityName,
 		&am.UploadTransferActivityParams{
-			FullPath: zip.Path,
+			FullPath: tinfo.TempFile,
 			Filename: tinfo.req.Key,
 		},
 	).Get(activityOpts, &uploadResult)
