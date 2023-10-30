@@ -15,6 +15,7 @@ import (
 	"ariga.io/sqlcomment"
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
+	"github.com/hashicorp/go-cleanhttp"
 	"github.com/oklog/run"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/pflag"
@@ -307,7 +308,7 @@ func main() {
 
 		w.RegisterWorkflowWithOptions(workflow.NewMoveWorkflow(logger, pkgsvc).Execute, temporalsdk_workflow.RegisterOptions{Name: package_.MoveWorkflowName})
 
-		httpClient := &http.Client{Timeout: time.Second}
+		httpClient := cleanhttp.DefaultPooledClient()
 		storageHttpClient := goahttpstorage.NewClient("http", cfg.Storage.EnduroAddress, httpClient, goahttp.RequestEncoder, goahttp.ResponseDecoder, false)
 		storageClient := goastorage.NewClient(
 			storageHttpClient.Submit(),

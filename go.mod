@@ -20,6 +20,7 @@ require (
 	github.com/google/go-cmp v0.6.0
 	github.com/google/uuid v1.3.1
 	github.com/gorilla/websocket v1.5.0
+	github.com/hashicorp/go-cleanhttp v0.5.2
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/mattn/go-sqlite3 v1.14.17
 	github.com/mholt/archiver/v3 v3.5.1

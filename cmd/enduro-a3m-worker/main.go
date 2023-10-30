@@ -10,6 +10,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/hashicorp/go-cleanhttp"
 	"github.com/oklog/run"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/pflag"
@@ -137,7 +138,7 @@ func main() {
 		w.RegisterActivityWithOptions(a3m.NewCreateAIPActivity(logger, &cfg.A3m, pkgsvc).Execute, temporalsdk_activity.RegisterOptions{Name: a3m.CreateAIPActivityName})
 		w.RegisterActivityWithOptions(activities.NewCleanUpActivity().Execute, temporalsdk_activity.RegisterOptions{Name: activities.CleanUpActivityName})
 
-		httpClient := &http.Client{Timeout: time.Second}
+		httpClient := cleanhttp.DefaultPooledClient()
 		storageHttpClient := goahttpstorage.NewClient("http", cfg.Storage.EnduroAddress, httpClient, goahttp.RequestEncoder, goahttp.ResponseDecoder, false)
 		storageClient := goastorage.NewClient(
 			storageHttpClient.Submit(),
