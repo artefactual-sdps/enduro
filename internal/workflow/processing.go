@@ -16,6 +16,7 @@ import (
 	temporalsdk_workflow "go.temporal.io/sdk/workflow"
 
 	"github.com/artefactual-sdps/enduro/internal/a3m"
+	"github.com/artefactual-sdps/enduro/internal/am"
 	"github.com/artefactual-sdps/enduro/internal/fsutil"
 	"github.com/artefactual-sdps/enduro/internal/package_"
 	"github.com/artefactual-sdps/enduro/internal/ref"
@@ -25,16 +26,18 @@ import (
 )
 
 type ProcessingWorkflow struct {
-	logger logr.Logger
-	pkgsvc package_.Service
-	wsvc   watcher.Service
+	logger           logr.Logger
+	pkgsvc           package_.Service
+	wsvc             watcher.Service
+	useArchivematica bool
 }
 
-func NewProcessingWorkflow(logger logr.Logger, pkgsvc package_.Service, wsvc watcher.Service) *ProcessingWorkflow {
+func NewProcessingWorkflow(logger logr.Logger, pkgsvc package_.Service, wsvc watcher.Service, useAm bool) *ProcessingWorkflow {
 	return &ProcessingWorkflow{
-		logger: logger,
-		pkgsvc: pkgsvc,
-		wsvc:   wsvc,
+		logger:           logger,
+		pkgsvc:           pkgsvc,
+		wsvc:             wsvc,
+		useArchivematica: useAm,
 	}
 }
 
@@ -161,13 +164,20 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *pack
 	// Activities running within a session.
 	{
 		var sessErr error
+		var taskQueue string
 		maxAttempts := 5
 
+		if w.useArchivematica {
+			taskQueue = temporal.AmWorkerTaskQueue
+		} else {
+			taskQueue = temporal.A3mWorkerTaskQueue
+		}
+
+		activityOpts := temporalsdk_workflow.WithActivityOptions(ctx, temporalsdk_workflow.ActivityOptions{
+			StartToCloseTimeout: time.Minute,
+			TaskQueue:           taskQueue,
+		})
 		for attempt := 1; attempt <= maxAttempts; attempt++ {
-			activityOpts := temporalsdk_workflow.WithActivityOptions(ctx, temporalsdk_workflow.ActivityOptions{
-				StartToCloseTimeout: time.Minute,
-				TaskQueue:           temporal.A3mWorkerTaskQueue,
-			})
 			sessCtx, err := temporalsdk_workflow.CreateSession(activityOpts, &temporalsdk_workflow.SessionOptions{
 				CreationTimeout:  forever,
 				ExecutionTimeout: forever,
@@ -326,7 +336,12 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 	}()
 
 	{
-		err := w.transferA3m(sessCtx, tinfo)
+		var err error
+		if w.useArchivematica {
+			err = w.transferAM(sessCtx, tinfo)
+		} else {
+			err = w.transferA3m(sessCtx, tinfo)
+		}
 		if err != nil {
 			return err
 		}
@@ -608,4 +623,49 @@ func (w *ProcessingWorkflow) transferA3m(sessCtx temporalsdk_workflow.Context, t
 	tinfo.StoredAt = temporalsdk_workflow.Now(sessCtx).UTC()
 
 	return err
+}
+
+func (w *ProcessingWorkflow) transferAM(sessCtx temporalsdk_workflow.Context, tinfo *TransferInfo) error {
+	activityOpts := temporalsdk_workflow.WithActivityOptions(sessCtx, temporalsdk_workflow.ActivityOptions{
+		StartToCloseTimeout: time.Second * 10,
+		RetryPolicy: &temporalsdk_temporal.RetryPolicy{
+			InitialInterval:    time.Second * 10,
+			BackoffCoefficient: 1.0,
+			MaximumAttempts:    3,
+		},
+	})
+
+	result := am.StartTransferActivityResult{}
+	err := temporalsdk_workflow.ExecuteActivity(
+		activityOpts,
+		am.StartTransferActivityName,
+		&am.StartTransferActivityParams{
+			Name: tinfo.Name(),
+			Path: tinfo.Bundle.FullPath,
+		},
+	).Get(sessCtx, &result)
+	if err != nil {
+		return err
+	}
+
+	var pollResult am.PollTransferActivityResult
+	pollOpts := temporalsdk_workflow.WithActivityOptions(sessCtx, temporalsdk_workflow.ActivityOptions{
+		StartToCloseTimeout: time.Second * 10,
+		RetryPolicy: &temporalsdk_temporal.RetryPolicy{
+			InitialInterval:    time.Second * 10,
+			BackoffCoefficient: 1.0,
+		},
+	})
+	err = temporalsdk_workflow.ExecuteActivity(pollOpts, am.PollTransferActivityName, am.PollTransferActivityParams{
+		TransferID: result.UUID,
+	}).Get(sessCtx, &pollResult)
+	if err != nil {
+		return err
+	}
+
+	tinfo.SIPID = pollResult.SIPID
+	tinfo.AIPPath = pollResult.Path
+	tinfo.StoredAt = temporalsdk_workflow.Now(sessCtx).UTC()
+
+	return nil
 }

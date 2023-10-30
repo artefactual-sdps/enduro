@@ -35,6 +35,7 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.17.0
 	github.com/stretchr/testify v1.8.4
+	go.artefactual.dev/amclient v0.2.0
 	go.artefactual.dev/tools v0.8.0
 	go.temporal.io/api v1.24.0
 	go.temporal.io/sdk v1.25.1
@@ -93,6 +94,7 @@ require (
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/wire v0.5.0 // indirect
 	github.com/googleapis/gax-go/v2 v2.12.0 // indirect
+	github.com/gorilla/schema v1.2.0 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect

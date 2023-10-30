@@ -3,6 +3,7 @@
 debug = true
 debugListen = "127.0.0.1:9001"
 verbosity = 2
+useArchivematica = false
 
 [temporal]
 namespace = "default"
@@ -83,6 +84,10 @@ PerformPolicyChecksOnOriginals               = true
 PerformPolicyChecksOnPreservationDerivatives = true
 AipCompressionLevel                          = 1
 AipCompressionAlgorithm                      = 6
+
+[am]
+# address = "127.0.0.1:7000"
+# shareDir = "/home/a3m/.local/share/a3m/share"
 
 [upload]
 endpoint = "http://minio.enduro-sdps:9000"
