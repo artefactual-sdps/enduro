@@ -19,6 +19,7 @@ jobs:
         go-version: ${{ steps.go_version.outputs.go_version }}
     - name: Check go.mod
       run: |
+        go mod download
         go mod tidy
         if [ ! -z "$(git status --porcelain go.mod)" ]; then
           printf "go.mod has modifications\n"
