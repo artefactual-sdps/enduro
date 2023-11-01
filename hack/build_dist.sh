@@ -24,8 +24,9 @@ LONG="${SHORT}$long_suffix"
 GIT_HASH="$git_hash"
 VERSION_PATH="$version_path"
 
-if [ "$1" = "shellvars" ]; then
-	cat <<EOF
+case "$1" in
+"shellvars")
+   cat <<EOF
 VERSION_MINOR="$MINOR"
 VERSION_SHORT="$SHORT"
 VERSION_LONG="$LONG"
@@ -33,8 +34,22 @@ VERSION_GIT_HASH="$GIT_HASH"
 VERSION_PATH="$VERSION_PATH"
 EOF
 	exit 0
-fi
+ ;;
+ "enduro")
+	TARGET=enduro
+        TARGETPATH=.
+ ;;
+ "enduro-a3m-worker")
+	TARGET=enduro-a3m-worker
+        TARGETPATH=./cmd/enduro-a3m-worker/
+ ;;
+ "enduro-am-worker")
+	TARGET=enduro-am-worker
+        TARGETPATH=./cmd/enduro-am-worker/
+ ;;
+
+ esac
 
 ldflags="-X ${VERSION_PATH}.Long=${LONG} -X ${VERSION_PATH}.Short=${SHORT} -X ${VERSION_PATH}.GitCommit=${GIT_HASH}"
 
-exec go build -ldflags "$ldflags" "$@"
+exec go build -ldflags "$ldflags" -o "$TARGET" "$TARGETPATH"
