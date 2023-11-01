@@ -6,18 +6,44 @@ uses a3m to preserve digital objects.
 ## What is SDPS Enduro?
 
 Enduro is a tool that was developed to automate the processing of transfers in 
-multiple Archivematica pipelines. It uses [Minio](https://min.io/) for object
-storage and [Temporal](https://temporal.io/) to manage the workflow.
+multiple Archivematica pipelines.
 
-The a3m project is a streamlined version of Archivematica that is wholly focused
-on AIP creation. It does not have external dependencies, integration with access
-sytems, search capabilities, or a graphical interface. It was designed to reduce
-the bulk of Archivematica's extraneous functions for users operating at a large
-scale, who are more focused on throughput of digital objects for preservation.
+This version of Enduro uses [a3m](https://github.com/artefactual-labs/a3m)
+instead of Archivematica to preserve digital objects, alongside
+[MinIO](https://min.io/) for object storage and [Temporal](https://temporal.io/)
+to manage the workflow. This combination of tools is intended to be lightweight,
+scalable, and easy to install.
 
-This version of Enduro uses a3m instead of Archivematica to preserve digital
-objects. This combination of tools is intended to be lightweight, scalable, and 
-easy to install.
+### Components
+
+#### MinIO
+
+[MinIO](https://min.io/) is a flexible, high performance object storage
+platform. Enduro uses MinIO as its storage back-end for both uploading
+submission information packages (SIPs) and storing archival information packages
+(AIPs). Material intended for preservation can be uploaded to MinIO either
+through the user interface or via command line using the [MinIO
+client](https://min.io/docs/minio/linux/reference/minio-mc.html). Any time new
+content is uploaded to a designated bucket in MinIO, a transfer is started in
+Enduro.
+
+#### Temporal
+
+[Temporal](https://temporal.io/) is responsible for orchestrating Enduro's
+workflows - that is, for kicking off tasks, managing them, and recording them as
+auditable events. It also manages retries and timeouts, resulting in a reliable
+platform that can process digital objects for preservation in a highly automated
+environment.
+
+#### a3m
+
+[a3m](https://github.com/artefactual-labs/a3m) is a streamlined version of
+[Archivematica](https://archivematica.org) that is wholly focused on AIP
+creation. It does not have external dependencies, integration with access
+systems, search capabilities, or a graphical interface. It was designed to
+reduce the bulk of Archivematica's extraneous functions for users operating at a
+large scale who are more focused on throughput of digital objects for
+preservation.
 
 ## Creating an AIP
 
@@ -33,8 +59,6 @@ preservation actions) that can be configured to suit a variety of preservation
 needs. However, it is not currently possible to set these configurations in the
 user interface. Instead, preservation actions can be configured by editing a
 config file.
-
-1. 
 
 ### Prepare digital objects
 
@@ -67,21 +91,21 @@ please see [Unzipped and zipped
 bags](https://www.archivematica.org/docs/latest/user-manual/transfer/bags/#bags)
 in the Archivematica documentation.
 
-### Upload to Minio
+### Upload to MinIO
 
-1. In Minio, navigate to the Object Browser and select your upload bucket. In
+1. In MinIO, navigate to the Object Browser and select your upload bucket. In
    this example, the upload bucket is called `sips`.
 
-   ![The Object Browser page in Minio. The body of the page shows four buckets:
+   ![The Object Browser page in MinIO. The body of the page shows four buckets:
    aips, perma-aips1, perma-aips2, and sips.](screenshots/minio-buckets.jpeg)
 
 2. Click on **Upload** and then select **Upload file**. This will open a file
    browser.
 
-   ![The sips bucket page in Minio, with the Upload button circled in red. The
+   ![The sips bucket page in MinIO, with the Upload button circled in red. The
    bucket contains two transfers already.](screenshots/minio-upload.jpeg)
 
-3. In the file browser, locate your transfer package and upload it to Minio.
+3. In the file browser, locate your transfer package and upload it to MinIO.
    Once the progress bar has completed, Enduro will begin processing the
    transfer. 
 
@@ -165,6 +189,14 @@ material into an AIP:
   in the Archivematica documentation for more information.
 * **Store AIP**: stores the AIP in the configured storage location.
 
+### Troubleshooting
+
+If there is an error in any preservation action, the outcome will be listed as
+"Error" or (another status? TBC). Currently, the easiest way to analyze an error
+as a front-end user is to look at the list of jobs in Temporal, Enduro's
+workflow engine, and read the job output.
+
+
 ## Download AIP
 
 1. If your AIP has been successfully processed, the workflow status for the
@@ -182,7 +214,7 @@ material into an AIP:
 
 You can move packages to other storage locations that have been connected to the
 Enduro instance. In this example, all of the storage locations are configured
-through Minio.
+through MinIO.
 
 1. On the package detail page in Enduro, select **Choose storage location**.
 
