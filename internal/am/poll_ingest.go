@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-logr/logr"
 	"go.artefactual.dev/amclient"
+	temporalsdk_activity "go.temporal.io/sdk/activity"
 
 	"github.com/artefactual-sdps/enduro/internal/temporal"
 )
@@ -32,20 +33,25 @@ func NewPollIngestActivity(logger logr.Logger, cfg *Config, amis amclient.Ingest
 }
 
 func (a *PollIngestActivity) Execute(ctx context.Context, opts *PollIngestActivityParams) error {
-	childCtx, cancel := context.WithTimeout(ctx, time.Second*10)
-	defer cancel()
-
-	// Start ingest
-	payload, resp, err := a.amis.Status(childCtx, opts.UUID)
-	if err != nil {
-		return convertAMClientError(resp, err)
+	// Start Heartbeating
+	for {
+		time.Sleep(time.Second)
+		temporalsdk_activity.RecordHeartbeat(ctx, nil)
+		// Start ingest
+		payload, resp, err := a.amis.Status(ctx, opts.UUID)
+		if err != nil {
+			return convertAMClientError(resp, err)
+		}
+		// Check the ingest status, if it is ok, return no err.
+		if ok, err := ingestStatus(payload); !ok {
+			switch payload.Status {
+			case "gpProcessing":
+				continue
+			}
+			return err
+		}
+		return nil
 	}
-	// Check the ingest status, if it is ok, return no err.
-	if ok, err := ingestStatus(payload); !ok {
-		return err
-	}
-
-	return nil
 }
 
 // IngestStatus returns a false bool when the SIP is not fully ingested and an error if it failed.

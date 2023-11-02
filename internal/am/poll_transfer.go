@@ -5,10 +5,10 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/artefactual-sdps/enduro/internal/temporal"
 	"github.com/go-logr/logr"
 	"go.artefactual.dev/amclient"
-
-	"github.com/artefactual-sdps/enduro/internal/temporal"
+	temporalsdk_activity "go.temporal.io/sdk/activity"
 )
 
 const PollTransferActivityName = "poll-transfer-activity"
@@ -45,23 +45,36 @@ func NewPollTransferActivity(logger logr.Logger, cfg *Config, amts amclient.Tran
 // temporal.NonRetryableApplicationError to indicate a non-recoverable failure
 // state that prevents the workflow from continuing.
 func (a *PollTransferActivity) Execute(ctx context.Context, params *PollTransferActivityParams) (*PollTransferActivityResult, error) {
-	resp, httpResp, err := a.amts.Status(ctx, params.TransferID)
-	if err != nil {
-		return nil, convertAMClientError(httpResp, err)
+	// Start Heartbeating
+	for {
+		temporalsdk_activity.RecordHeartbeat(ctx, nil)
+		resp, httpResp, err := a.amts.Status(ctx, params.TransferID)
+		if err != nil {
+			return nil, convertAMClientError(httpResp, err)
+		}
+		if ok, err := transferStatusCheck(resp); !ok {
+			if resp.Status == "PROCESSING" {
+				continue
+			}
+			return nil, err
+		}
+		return &PollTransferActivityResult{SIPID: resp.SIPID, Path: resp.Path}, nil
 	}
+}
 
+func transferStatusCheck(resp *amclient.TransferStatusResponse) (bool, error) {
 	switch resp.Status {
 	case "PROCESSING":
-		return nil, temporal.ContinuePollingError()
+		return false, nil
 	case "REJECTED", "FAILED", "USER_INPUT":
-		return nil, temporal.NonRetryableError(fmt.Errorf("Invalid Archivematica transfer status: %s", resp.Status))
+		return false, temporal.NonRetryableError(fmt.Errorf("Invalid Archivematica transfer status: %s", resp.Status))
 	case "COMPLETE":
 		if resp.SIPID == "BACKLOG" {
-			return nil, temporal.NonRetryableError(errors.New("Archivematica transfer sent to backlog"))
+			return false, temporal.NonRetryableError(errors.New("Archivematica transfer sent to backlog"))
 		}
-
-		return &PollTransferActivityResult{SIPID: resp.SIPID, Path: resp.Path}, err
+		return true, nil
 	default:
-		return nil, temporal.NonRetryableError(fmt.Errorf("Unknown Archivematica transfer status: %s", resp.Status))
+		return false, temporal.NonRetryableError(fmt.Errorf("Unknown Archivematica transfer status: %s", resp.Status))
+
 	}
 }

@@ -17,7 +17,6 @@ import (
 	"gotest.tools/v3/assert"
 
 	"github.com/artefactual-sdps/enduro/internal/am"
-	"github.com/artefactual-sdps/enduro/internal/temporal"
 )
 
 func TestPollTransferActivity(t *testing.T) {
@@ -89,21 +88,6 @@ func TestPollTransferActivity(t *testing.T) {
 			wantErr: "Unknown Archivematica transfer status: UNKNOWN",
 		},
 		{
-			name: "Returns a continue polling error",
-			mockr: func(m *amclienttest.MockTransferServiceMockRecorder, statusCode int) {
-				m.Status(
-					mockutil.Context(),
-					transferID,
-				).Return(
-					&amclient.TransferStatusResponse{Status: "PROCESSING"},
-					&amclient.Response{},
-					nil,
-				)
-			},
-			wantErr:      temporal.ContinuePollingError().Error(),
-			retryableErr: true,
-		},
-		{
 			name: "Returns a non-retryable status failed error",
 			mockr: func(m *amclienttest.MockTransferServiceMockRecorder, statusCode int) {
 				m.Status(
@@ -135,6 +119,7 @@ func TestPollTransferActivity(t *testing.T) {
 			statusCode: http.StatusNotFound,
 			wantErr:    "Archivematica transfer not found",
 		},
+		// 	TODO: continue polling
 	} {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {

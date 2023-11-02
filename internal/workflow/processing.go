@@ -661,14 +661,7 @@ func (w *ProcessingWorkflow) transferAM(sessCtx temporalsdk_workflow.Context, ti
 	}
 
 	var pollResult am.PollTransferActivityResult
-	pollOpts := temporalsdk_workflow.WithActivityOptions(sessCtx, temporalsdk_workflow.ActivityOptions{
-		StartToCloseTimeout: time.Second * 10,
-		RetryPolicy: &temporalsdk_temporal.RetryPolicy{
-			InitialInterval:    time.Second * 10,
-			BackoffCoefficient: 1.0,
-		},
-	})
-	err = temporalsdk_workflow.ExecuteActivity(pollOpts, am.PollTransferActivityName, am.PollTransferActivityParams{
+	err = temporalsdk_workflow.ExecuteActivity(sessCtx, am.PollTransferActivityName, am.PollTransferActivityParams{
 		TransferID: result.UUID,
 	}).Get(sessCtx, &pollResult)
 	if err != nil {
@@ -688,15 +681,7 @@ func (w *ProcessingWorkflow) ingestAM(sessCtx temporalsdk_workflow.Context, tinf
 		UUID: tinfo.SIPID,
 	}
 
-	pollOpts := temporalsdk_workflow.WithActivityOptions(sessCtx, temporalsdk_workflow.ActivityOptions{
-		StartToCloseTimeout: time.Second * 10,
-		RetryPolicy: &temporalsdk_temporal.RetryPolicy{
-			InitialInterval:    time.Second * 10,
-			BackoffCoefficient: 1.0,
-		},
-	})
-
-	err := temporalsdk_workflow.ExecuteActivity(pollOpts, am.PollIngestActivityName, params).Get(sessCtx, nil)
+	err := temporalsdk_workflow.ExecuteActivity(sessCtx, am.PollIngestActivityName, params).Get(sessCtx, nil)
 	if err != nil {
 		return err
 	}

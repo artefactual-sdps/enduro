@@ -80,19 +80,6 @@ func TestPollIngestActivity_Execute(t *testing.T) {
 			errMessage: "Archivematica transfer not found",
 		},
 		{
-			name: "Returns a continue polling error",
-			mockFunc: func(amisMock *amclienttest.MockIngestServiceMockRecorder) {
-				amisMock.Status(gomock.Any(), gomock.Any()).Return(
-					&amclient.IngestStatusResponse{Status: "gpPROCESSING"},
-					&amclient.Response{
-						Response: &http.Response{StatusCode: http.StatusOK},
-					},
-					nil,
-				)
-			},
-			errMessage: "Continue polling",
-		},
-		{
 			name: "Returns a failed error",
 			mockFunc: func(amisMock *amclienttest.MockIngestServiceMockRecorder) {
 				amisMock.Status(gomock.Any(), gomock.Any()).Return(
@@ -105,6 +92,7 @@ func TestPollIngestActivity_Execute(t *testing.T) {
 			},
 			errMessage: "ingest is in a state that we can't handle",
 		},
+		// 	TODO: continue polling
 	}
 
 	for _, tt := range tests {
