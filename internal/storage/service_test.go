@@ -56,6 +56,7 @@ func setUpService(t *testing.T, attrs *setUpAttrs) storage.Service {
 	params := setUpAttrs{
 		logger: ref.New(logr.Discard()),
 		config: &storage.Config{
+			TaskQueue: "global",
 			Internal: storage.LocationConfig{
 				URL: "file://" + td.Path(),
 			},
@@ -168,7 +169,10 @@ func TestServiceSubmit(t *testing.T) {
 					WorkflowIDReusePolicy: temporalapi_enums.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE,
 				},
 				"storage-upload-workflow",
-				&storage.StorageUploadWorkflowRequest{AIPID: AIPID},
+				&storage.StorageUploadWorkflowRequest{
+					AIPID:     AIPID,
+					TaskQueue: "global",
+				},
 			).
 			Return(
 				nil,
@@ -191,7 +195,6 @@ func TestServiceSubmit(t *testing.T) {
 		attrs := &setUpAttrs{}
 		svc := setUpService(t, attrs)
 		ctx := context.Background()
-
 		attrs.temporalClientMock.
 			On(
 				"ExecuteWorkflow",
@@ -202,7 +205,10 @@ func TestServiceSubmit(t *testing.T) {
 					WorkflowIDReusePolicy: temporalapi_enums.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE,
 				},
 				"storage-upload-workflow",
-				&storage.StorageUploadWorkflowRequest{AIPID: AIPID},
+				&storage.StorageUploadWorkflowRequest{
+					AIPID:     AIPID,
+					TaskQueue: "global",
+				},
 			).
 			Return(
 				&temporalsdk_mocks.WorkflowRun{},
@@ -249,7 +255,10 @@ func TestServiceSubmit(t *testing.T) {
 					WorkflowIDReusePolicy: temporalapi_enums.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE,
 				},
 				"storage-upload-workflow",
-				&storage.StorageUploadWorkflowRequest{AIPID: AIPID},
+				&storage.StorageUploadWorkflowRequest{
+					AIPID:     AIPID,
+					TaskQueue: "global",
+				},
 			).
 			Return(
 				&temporalsdk_mocks.WorkflowRun{},
@@ -285,6 +294,7 @@ func TestServiceSubmit(t *testing.T) {
 
 		attrs := setUpAttrs{
 			config: &storage.Config{
+				TaskQueue: "global",
 				Internal: storage.LocationConfig{
 					URL: fmt.Sprintf(
 						"file://%s?base_url=file://tmp/dir&secret_key_path=fake/signing.key",
@@ -307,7 +317,10 @@ func TestServiceSubmit(t *testing.T) {
 					WorkflowIDReusePolicy: temporalapi_enums.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE,
 				},
 				"storage-upload-workflow",
-				&storage.StorageUploadWorkflowRequest{AIPID: aipID},
+				&storage.StorageUploadWorkflowRequest{
+					AIPID:     aipID,
+					TaskQueue: "global",
+				},
 			).
 			Return(
 				&temporalsdk_mocks.WorkflowRun{},
@@ -1085,7 +1098,7 @@ func TestServiceMove(t *testing.T) {
 					WorkflowIDReusePolicy: temporalapi_enums.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE,
 				},
 				"storage-move-workflow",
-				&storage.StorageMoveWorkflowRequest{AIPID: AIPID, LocationID: LocationID},
+				&storage.StorageMoveWorkflowRequest{AIPID: AIPID, LocationID: LocationID, TaskQueue: "global"},
 			).
 			Return(
 				nil,
@@ -1132,7 +1145,7 @@ func TestServiceMove(t *testing.T) {
 					WorkflowIDReusePolicy: temporalapi_enums.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE,
 				},
 				"storage-move-workflow",
-				&storage.StorageMoveWorkflowRequest{AIPID: AIPID, LocationID: LocationID},
+				&storage.StorageMoveWorkflowRequest{AIPID: AIPID, LocationID: LocationID, TaskQueue: "global"},
 			).
 			Return(
 				&temporalsdk_mocks.WorkflowRun{},
@@ -1212,6 +1225,7 @@ func TestServiceMoveStatus(t *testing.T) {
 		attrs := &setUpAttrs{}
 		svc := setUpService(t, attrs)
 		ctx := context.Background()
+		attrs.config.TaskQueue = "global"
 
 		attrs.temporalClientMock.
 			On(
@@ -1253,6 +1267,7 @@ func TestServiceMoveStatus(t *testing.T) {
 		attrs := &setUpAttrs{}
 		svc := setUpService(t, attrs)
 		ctx := context.Background()
+		attrs.config.TaskQueue = "global"
 
 		attrs.temporalClientMock.
 			On(

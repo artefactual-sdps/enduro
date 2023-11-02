@@ -3,10 +3,11 @@ package a3m
 import transferservice "buf.build/gen/go/artefactual/a3m/protocolbuffers/go/a3m/api/transferservice/v1beta1"
 
 type Config struct {
-	Address string
-	Name    string
+	Name      string
+	ShareDir  string
+	TaskQueue string
+	Address   string
 	Processing
-	ShareDir string
 }
 
 // The `Processing` struct represents a configuration for processing various tasks in the transferservice.

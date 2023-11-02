@@ -40,6 +40,7 @@ func TestStorageMoveWorkflow(t *testing.T) {
 		storage.StorageMoveWorkflowRequest{
 			AIPID:      aipID,
 			LocationID: locationID,
+			TaskQueue:  "global",
 		},
 	)
 

@@ -8,8 +8,6 @@ import (
 	"github.com/google/uuid"
 	temporalsdk_api_enums "go.temporal.io/api/enums/v1"
 	temporalsdk_client "go.temporal.io/sdk/client"
-
-	"github.com/artefactual-sdps/enduro/internal/temporal"
 )
 
 const (
@@ -60,6 +58,10 @@ type ProcessingWorkflowRequest struct {
 
 	// Location identifier for storing auto approved AIPs.
 	DefaultPermanentLocationID *uuid.UUID
+
+	// Task queues used for starting new workflows.
+	TaskQueue    string
+	A3mTaskQueue string
 }
 
 func InitProcessingWorkflow(ctx context.Context, tc temporalsdk_client.Client, req *ProcessingWorkflowRequest) error {
@@ -72,7 +74,7 @@ func InitProcessingWorkflow(ctx context.Context, tc temporalsdk_client.Client, r
 
 	opts := temporalsdk_client.StartWorkflowOptions{
 		ID:                    req.WorkflowID,
-		TaskQueue:             temporal.GlobalTaskQueue,
+		TaskQueue:             req.TaskQueue,
 		WorkflowIDReusePolicy: temporalsdk_api_enums.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE,
 	}
 	_, err := tc.ExecuteWorkflow(ctx, opts, ProcessingWorkflowName, req)
@@ -84,6 +86,7 @@ type MoveWorkflowRequest struct {
 	ID         uint
 	AIPID      string
 	LocationID uuid.UUID
+	TaskQueue  string
 }
 
 func InitMoveWorkflow(ctx context.Context, tc temporalsdk_client.Client, req *MoveWorkflowRequest) (temporalsdk_client.WorkflowRun, error) {
@@ -92,7 +95,7 @@ func InitMoveWorkflow(ctx context.Context, tc temporalsdk_client.Client, req *Mo
 
 	opts := temporalsdk_client.StartWorkflowOptions{
 		ID:                    fmt.Sprintf("%s-%s", MoveWorkflowName, req.AIPID),
-		TaskQueue:             temporal.GlobalTaskQueue,
+		TaskQueue:             req.TaskQueue,
 		WorkflowIDReusePolicy: temporalsdk_api_enums.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE,
 	}
 	exec, err := tc.ExecuteWorkflow(ctx, opts, MoveWorkflowName, req)

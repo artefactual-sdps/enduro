@@ -162,6 +162,8 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 			RetentionPeriod:            &retentionPeriod,
 			AutoApproveAIP:             true,
 			DefaultPermanentLocationID: &locationID,
+			TaskQueue:                  "global",
+			A3mTaskQueue:               "a3m",
 		},
 	)
 

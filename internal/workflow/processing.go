@@ -19,7 +19,6 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/fsutil"
 	"github.com/artefactual-sdps/enduro/internal/package_"
 	"github.com/artefactual-sdps/enduro/internal/ref"
-	"github.com/artefactual-sdps/enduro/internal/temporal"
 	"github.com/artefactual-sdps/enduro/internal/watcher"
 	"github.com/artefactual-sdps/enduro/internal/workflow/activities"
 )
@@ -74,6 +73,12 @@ type TransferInfo struct {
 	//
 	// It is populated by createPreservationActionLocalActivity .
 	PreservationActionID uint
+
+	// Identifier of the preservation system task queue name
+	//
+	// It is populated by the workflow request.
+	GlobalTaskQueue string
+	A3mTaskQueue    string
 }
 
 func (t *TransferInfo) Name() string {
@@ -92,7 +97,9 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *pack
 		logger = temporalsdk_workflow.GetLogger(ctx)
 
 		tinfo = &TransferInfo{
-			req: *req,
+			req:             *req,
+			GlobalTaskQueue: req.TaskQueue,
+			A3mTaskQueue:    req.A3mTaskQueue,
 		}
 
 		// Package status. All packages start in queued status.
@@ -166,7 +173,7 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *pack
 		for attempt := 1; attempt <= maxAttempts; attempt++ {
 			activityOpts := temporalsdk_workflow.WithActivityOptions(ctx, temporalsdk_workflow.ActivityOptions{
 				StartToCloseTimeout: time.Minute,
-				TaskQueue:           temporal.A3mWorkerTaskQueue,
+				TaskQueue:           tinfo.A3mTaskQueue,
 			})
 			sessCtx, err := temporalsdk_workflow.CreateSession(activityOpts, &temporalsdk_workflow.SessionOptions{
 				CreationTimeout:  forever,

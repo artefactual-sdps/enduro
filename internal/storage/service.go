@@ -117,7 +117,10 @@ func (s *serviceImpl) Submit(ctx context.Context, payload *goastorage.SubmitPayl
 		return nil, goastorage.MakeNotValid(errors.New("cannot perform operation"))
 	}
 
-	_, err = InitStorageUploadWorkflow(ctx, s.tc, &StorageUploadWorkflowRequest{AIPID: aipID})
+	_, err = InitStorageUploadWorkflow(ctx, s.tc, &StorageUploadWorkflowRequest{
+		AIPID:     aipID,
+		TaskQueue: s.config.TaskQueue,
+	})
 	if err != nil {
 		return nil, goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
 	}
@@ -198,6 +201,7 @@ func (s *serviceImpl) Move(ctx context.Context, payload *goastorage.MovePayload)
 	_, err = InitStorageMoveWorkflow(ctx, s.tc, &StorageMoveWorkflowRequest{
 		AIPID:      pkg.AipID,
 		LocationID: payload.LocationID,
+		TaskQueue:  s.config.TaskQueue,
 	})
 	if err != nil {
 		s.logger.Error(err, "error initializing move workflow")

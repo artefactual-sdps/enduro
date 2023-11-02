@@ -254,6 +254,7 @@ func (w *goaWrapper) Move(ctx context.Context, payload *goapackage.MovePayload) 
 		ID:         payload.ID,
 		AIPID:      *goapkg.AipID,
 		LocationID: payload.LocationID,
+		TaskQueue:  w.taskQueue,
 	})
 	if err != nil {
 		w.logger.Error(err, "error initializing move workflow")
