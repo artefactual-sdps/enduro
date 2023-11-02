@@ -5,23 +5,18 @@ The Makefile provides developer utility scripts via command line `make` tasks.
 Running `make` with no arguments (or `make help`) prints the help message. Some
 targets are described below with greater detail.
 
+Dependencies are downloaded automatically.
+
 ## make gen-mock
 
 `make gen-mock` generates mock interfaces with [mockgen](https://github.com/golang/mock).
 
 New mocks can be added to the project by adding a new `mockgen` line to `Makefile` that specifies the mock details (e.g. source, destination, package).
 
-## make golangci-lint
-
-`make golangci-lint` lints the project Go files with
-[golangci-lint](https://github.com/golangci/golangci-lint).
-
-If `golangci-lint` is not installed with the expected version then the binary
-will be downloaded and installed before it is run.
-
 ## make lint
 
-`make lint` is an alias for `make golangci-lint`.
+`make lint` lints the project Go files with
+[golangci-lint](https://github.com/golangci/golangci-lint).
 
 ## make test
 
