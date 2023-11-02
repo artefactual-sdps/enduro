@@ -60,6 +60,8 @@ func Read(config *Configuration, configFile string) (found bool, configFileUsed 
 	v.AddConfigPath("/etc")
 	v.SetConfigName("enduro")
 	v.SetDefault("api.processing", a3m.ProcessingDefault)
+	v.SetDefault("a3m.taskqueue", temporal.A3mWorkerTaskQueue)
+	v.SetDefault("temporal.taskqueue", temporal.GlobalTaskQueue)
 	v.SetDefault("debugListen", "127.0.0.1:9001")
 	v.SetDefault("api.listen", "127.0.0.1:9000")
 	v.SetEnvPrefix("enduro")

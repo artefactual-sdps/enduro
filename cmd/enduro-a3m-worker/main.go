@@ -103,7 +103,7 @@ func main() {
 	// Set up the package service.
 	var pkgsvc package_.Service
 	{
-		pkgsvc = package_.NewService(logger.WithName("package"), enduroDatabase, temporalClient, evsvc, &auth.NoopTokenVerifier{}, nil)
+		pkgsvc = package_.NewService(logger.WithName("package"), enduroDatabase, temporalClient, evsvc, &auth.NoopTokenVerifier{}, nil, cfg.Temporal.TaskQueue)
 	}
 
 	// Set up the watcher service.
@@ -127,7 +127,7 @@ func main() {
 			MaxConcurrentSessionExecutionSize:  1000,
 			MaxConcurrentActivityExecutionSize: 1,
 		}
-		w := temporalsdk_worker.New(temporalClient, temporal.A3mWorkerTaskQueue, workerOpts)
+		w := temporalsdk_worker.New(temporalClient, cfg.A3m.TaskQueue, workerOpts)
 		if err != nil {
 			logger.Error(err, "Error creating Temporal worker.")
 			os.Exit(1)

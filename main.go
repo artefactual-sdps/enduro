@@ -173,7 +173,7 @@ func main() {
 	// Set up the package service.
 	var pkgsvc package_.Service
 	{
-		pkgsvc = package_.NewService(logger.WithName("package"), enduroDatabase, temporalClient, evsvc, tokenVerifier, ticketProvider)
+		pkgsvc = package_.NewService(logger.WithName("package"), enduroDatabase, temporalClient, evsvc, tokenVerifier, ticketProvider, cfg.Temporal.TaskQueue)
 	}
 
 	// Set up the ent db client.
@@ -270,6 +270,8 @@ func main() {
 									IsDir:                      event.IsDir,
 									AutoApproveAIP:             autoApproveAIP,
 									DefaultPermanentLocationID: &defaultPermanentLocationID,
+									TaskQueue:                  cfg.Temporal.TaskQueue,
+									A3mTaskQueue:               cfg.A3m.TaskQueue,
 								}
 								if err := package_.InitProcessingWorkflow(ctx, temporalClient, &req); err != nil {
 									logger.Error(err, "Error initializing processing workflow.")
@@ -291,7 +293,7 @@ func main() {
 	{
 		done := make(chan struct{})
 		workerOpts := temporalsdk_worker.Options{}
-		w := temporalsdk_worker.New(temporalClient, temporal.GlobalTaskQueue, workerOpts)
+		w := temporalsdk_worker.New(temporalClient, cfg.Temporal.TaskQueue, workerOpts)
 		if err != nil {
 			logger.Error(err, "Error creating Temporal worker.")
 			os.Exit(1)
@@ -306,7 +308,7 @@ func main() {
 
 		w.RegisterActivityWithOptions(storage_activities.NewCopyToPermanentLocationActivity(storagesvc).Execute, temporalsdk_activity.RegisterOptions{Name: storage.CopyToPermanentLocationActivityName})
 
-		w.RegisterWorkflowWithOptions(workflow.NewMoveWorkflow(logger, pkgsvc).Execute, temporalsdk_workflow.RegisterOptions{Name: package_.MoveWorkflowName})
+		w.RegisterWorkflowWithOptions(workflow.NewMoveWorkflow(logger, pkgsvc, cfg.Temporal.TaskQueue).Execute, temporalsdk_workflow.RegisterOptions{Name: package_.MoveWorkflowName})
 
 		httpClient := cleanhttp.DefaultPooledClient()
 		storageHttpClient := goahttpstorage.NewClient("http", cfg.Storage.EnduroAddress, httpClient, goahttp.RequestEncoder, goahttp.ResponseDecoder, false)

@@ -39,11 +39,12 @@ type packageImpl struct {
 	evsvc          event.EventService
 	tokenVerifier  auth.TokenVerifier
 	ticketProvider *auth.TicketProvider
+	taskQueue      string
 }
 
 var _ Service = (*packageImpl)(nil)
 
-func NewService(logger logr.Logger, db *sql.DB, tc temporalsdk_client.Client, evsvc event.EventService, tokenVerifier auth.TokenVerifier, ticketProvider *auth.TicketProvider) *packageImpl {
+func NewService(logger logr.Logger, db *sql.DB, tc temporalsdk_client.Client, evsvc event.EventService, tokenVerifier auth.TokenVerifier, ticketProvider *auth.TicketProvider, taskQueue string) *packageImpl {
 	return &packageImpl{
 		logger:         logger,
 		db:             sqlx.NewDb(db, "mysql"),
@@ -51,6 +52,7 @@ func NewService(logger logr.Logger, db *sql.DB, tc temporalsdk_client.Client, ev
 		evsvc:          evsvc,
 		tokenVerifier:  tokenVerifier,
 		ticketProvider: ticketProvider,
+		taskQueue:      taskQueue,
 	}
 }
 

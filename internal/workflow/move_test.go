@@ -15,6 +15,7 @@ import (
 
 	"github.com/artefactual-sdps/enduro/internal/package_"
 	packagefake "github.com/artefactual-sdps/enduro/internal/package_/fake"
+	"github.com/artefactual-sdps/enduro/internal/temporal"
 	"github.com/artefactual-sdps/enduro/internal/workflow/activities"
 )
 
@@ -45,7 +46,7 @@ func (s *MoveWorkflowTestSuite) SetupTest() {
 		temporalsdk_activity.RegisterOptions{Name: activities.PollMoveToPermanentStorageActivityName},
 	)
 
-	s.workflow = NewMoveWorkflow(logger, pkgsvc)
+	s.workflow = NewMoveWorkflow(logger, pkgsvc, "global")
 }
 
 func (s *MoveWorkflowTestSuite) AfterTest(suiteName, testName string) {
@@ -103,6 +104,7 @@ func (s *MoveWorkflowTestSuite) TestSuccessfulMove() {
 			ID:         pkgID,
 			AIPID:      AIPID,
 			LocationID: locationID,
+			TaskQueue:  temporal.GlobalTaskQueue,
 		},
 	)
 

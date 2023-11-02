@@ -1,6 +1,7 @@
 package storage
 
 type Config struct {
+	TaskQueue     string
 	EnduroAddress string
 	Internal      LocationConfig
 	Database      Database
