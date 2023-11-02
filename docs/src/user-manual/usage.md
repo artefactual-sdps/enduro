@@ -1,7 +1,5 @@
 # Usage
 
-## Creating an AIP
-
 This documentation is a work in progress. Since a3m is a derivative of
 Archivematica, you can refer to the [Archivematica
 documentation](https://archivematica.org/docs/latest/) for much more detailed
@@ -150,7 +148,6 @@ If there is an error in any preservation action, the outcome will be listed as
 "Error" or (another status? TBC). Currently, the easiest way to analyze an error
 as a front-end user is to look at the list of jobs in Temporal, Enduro's
 workflow engine, and read the job output.
-
 
 ## Download AIP
 
