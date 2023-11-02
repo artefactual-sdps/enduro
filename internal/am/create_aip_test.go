@@ -17,11 +17,11 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/am"
 )
 
-func TestCreateAIPActivity_Execute(t *testing.T) {
+func TestPollIngestActivity_Execute(t *testing.T) {
 	// Initializations
 	logger := logr.Discard()
 	cfg := &am.Config{}
-	opts := &am.CreateAIPActivityParams{UUID: uuid.New().String()}
+	opts := &am.PollIngestActivityParams{UUID: uuid.New().String()}
 	// Define the test cases
 	tests := []struct {
 		name       string
@@ -114,17 +114,17 @@ func TestCreateAIPActivity_Execute(t *testing.T) {
 			ts := &temporalsdk_testsuite.WorkflowTestSuite{}
 			env := ts.NewTestActivityEnvironment()
 			amisMock := amclienttest.NewMockIngestService(gomock.NewController(t))
-			createAIPActivity := am.NewCreateAIPActivity(logger, cfg, amisMock)
+			pollIngestActivity := am.NewPollIngestActivity(logger, cfg, amisMock)
 
 			env.RegisterActivityWithOptions(
-				createAIPActivity.Execute,
+				pollIngestActivity.Execute,
 				temporalsdk_activity.RegisterOptions{
-					Name: am.CreateAIPActivityName,
+					Name: am.PollIngestActivityName,
 				},
 			)
 			tt.mockFunc(amisMock.EXPECT())
 
-			_, err := env.ExecuteActivity(am.CreateAIPActivityName, opts)
+			_, err := env.ExecuteActivity(am.PollIngestActivityName, opts)
 			if tt.errMessage != "" {
 				assert.ErrorContains(t, err, tt.errMessage)
 				return

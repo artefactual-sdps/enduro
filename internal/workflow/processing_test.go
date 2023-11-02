@@ -67,9 +67,9 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(useAm bool) {
 	s.env.RegisterActivityWithOptions(am.NewPollTransferActivity(
 		logger, &am.Config{}, amclienttest.NewMockTransferService(ctrl),
 	).Execute, temporalsdk_activity.RegisterOptions{Name: am.PollTransferActivityName})
-	s.env.RegisterActivityWithOptions(am.NewCreateAIPActivity(
+	s.env.RegisterActivityWithOptions(am.NewPollIngestActivity(
 		logger, &am.Config{}, amclienttest.NewMockIngestService(ctrl),
-	).Execute, temporalsdk_activity.RegisterOptions{Name: am.CreateAIPActivityName})
+	).Execute, temporalsdk_activity.RegisterOptions{Name: am.PollIngestActivityName})
 
 	s.workflow = NewProcessingWorkflow(logger, pkgsvc, wsvc, useAm)
 }
@@ -215,7 +215,7 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP_AM() {
 	s.env.OnActivity(activities.BundleActivityName, sessionCtx, mock.AnythingOfType("*activities.BundleActivityParams")).Return(&activities.BundleActivityResult{FullPath: "/tmp/aip", FullPathBeforeStrip: "/tmp/aip"}, nil).Once()
 	s.env.OnActivity(am.StartTransferActivityName, sessionCtx, mock.AnythingOfType("*am.StartTransferActivityParams")).Return(nil, nil).Once()
 	s.env.OnActivity(am.PollTransferActivityName, sessionCtx, mock.AnythingOfType("*am.PollTransferActivityParams")).Return(nil, nil).Once()
-	s.env.OnActivity(am.CreateAIPActivityName, sessionCtx, mock.AnythingOfType("*am.CreateAIPActivityParams")).Return(nil).Once()
+	s.env.OnActivity(am.PollIngestActivityName, sessionCtx, mock.AnythingOfType("*am.PollIngestActivityParams")).Return(nil).Once()
 	s.env.OnActivity(updatePackageLocalActivity, ctx, logger, pkgsvc, mock.AnythingOfType("*workflow.updatePackageLocalActivityParams")).Return(nil).Times(2)
 	s.env.OnActivity(createPreservationTaskLocalActivity, ctx, pkgsvc, mock.AnythingOfType("*workflow.createPreservationTaskLocalActivityParams")).Return(uint(0), nil).Once()
 	s.env.OnActivity(activities.UploadActivityName, sessionCtx, mock.AnythingOfType("*activities.UploadActivityParams")).Return(nil).Once()

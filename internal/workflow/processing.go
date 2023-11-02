@@ -684,7 +684,7 @@ func (w *ProcessingWorkflow) transferAM(sessCtx temporalsdk_workflow.Context, ti
 
 func (w *ProcessingWorkflow) ingestAM(sessCtx temporalsdk_workflow.Context, tinfo *TransferInfo) error {
 	// Start ingest/create aip and poll
-	params := &am.CreateAIPActivityParams{
+	params := &am.PollIngestActivityParams{
 		UUID: tinfo.SIPID,
 	}
 
@@ -696,7 +696,7 @@ func (w *ProcessingWorkflow) ingestAM(sessCtx temporalsdk_workflow.Context, tinf
 		},
 	})
 
-	err := temporalsdk_workflow.ExecuteActivity(pollOpts, am.CreateAIPActivityName, params).Get(sessCtx, nil)
+	err := temporalsdk_workflow.ExecuteActivity(pollOpts, am.PollIngestActivityName, params).Get(sessCtx, nil)
 	if err != nil {
 		return err
 	}

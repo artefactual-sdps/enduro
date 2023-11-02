@@ -11,27 +11,27 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/temporal"
 )
 
-const CreateAIPActivityName = "create-am-aip-activity"
+const PollIngestActivityName = "poll-ingest-activity"
 
-type CreateAIPActivity struct {
+type PollIngestActivity struct {
 	logger logr.Logger
 	cfg    *Config
 	amis   amclient.IngestService
 }
 
-type CreateAIPActivityParams struct {
+type PollIngestActivityParams struct {
 	UUID string
 }
 
-func NewCreateAIPActivity(logger logr.Logger, cfg *Config, amis amclient.IngestService) *CreateAIPActivity {
-	return &CreateAIPActivity{
+func NewPollIngestActivity(logger logr.Logger, cfg *Config, amis amclient.IngestService) *PollIngestActivity {
+	return &PollIngestActivity{
 		logger: logger,
 		cfg:    cfg,
 		amis:   amis,
 	}
 }
 
-func (a *CreateAIPActivity) Execute(ctx context.Context, opts *CreateAIPActivityParams) error {
+func (a *PollIngestActivity) Execute(ctx context.Context, opts *PollIngestActivityParams) error {
 	childCtx, cancel := context.WithTimeout(ctx, time.Second*10)
 	defer cancel()
 
