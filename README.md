@@ -30,6 +30,10 @@ fault-tolerant workflows suited for preservation.
 - [Dashboard Development](./dashboard/README.md)
 - [Dashboard Styles](./dashboard/styles/README.md)
 
+## User documentation resources
+
+- [User manual](https://enduro.readthedocs.io/user-manual/intro/)
+
 ## Misc
 
 - [Filenotify documentation](./internal/filenotify/README.md)
