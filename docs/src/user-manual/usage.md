@@ -49,14 +49,14 @@ in the Archivematica documentation.
 1. In MinIO, navigate to the Object Browser and select your upload bucket. In
    this example, the upload bucket is called `sips`.
 
-   ![The Object Browser page in MinIO. The body of the page shows four buckets:
-   aips, perma-aips1, perma-aips2, and sips.](screenshots/minio-buckets.jpeg)
+    ![The Object Browser page in MinIO. The body of the page shows four buckets:
+    aips, perma-aips1, perma-aips2, and sips.](screenshots/minio-buckets.jpeg)
 
 2. Click on **Upload** and then select **Upload file**. This will open a file
    browser.
 
-   ![The sips bucket page in MinIO, with the Upload button circled in red. The
-   bucket contains two transfers already.](screenshots/minio-upload.jpeg)
+    ![The sips bucket page in MinIO, with the Upload button circled in red. The
+    bucket contains two transfers already.](screenshots/minio-upload.jpeg)
 
 3. In the file browser, locate your transfer package and upload it to MinIO.
    Once the progress bar has completed, Enduro will begin processing the
@@ -69,29 +69,29 @@ in the Archivematica documentation.
    processing started, and the UUID of the location where the package is stored.
    The Status column will display one of five possible statuses:
 
-   * **Done**: The current workflow or task has completed without errors.
-   * **Error**: The current workflow has encountered an error it could not
-     resolve and failed.
-   * **In Progress**: The current workflow is still processing.
-   * **Queued**: The current workflow is waiting for an available worker to begin.
-   * **Pending**: The current workflow is awaiting a user decision.
+    * **Done**: The current workflow or task has completed without errors.
+    * **Error**: The current workflow has encountered an error it could not
+      resolve and failed.
+    * **In Progress**: The current workflow is still processing.
+    * **Queued**: The current workflow is waiting for an available worker to begin.
+    * **Pending**: The current workflow is awaiting a user decision.
 
-   ![The Packages tab in Enduro. The body of the screen shows a table that lists
-   all of the packages that have been processed by the Enduro
-   instance.](screenshots/enduro-packages-tab.jpeg)
+    ![The Packages tab in Enduro. The body of the screen shows a table that lists
+    all of the packages that have been processed by the Enduro
+    instance.](screenshots/enduro-packages-tab.jpeg)
 
-1. For more information about the package, click on the name of the package to
+2. For more information about the package, click on the name of the package to
    access the package detail page.
 
-   ![The package detail page in Enduro. The body of the screen shows a table that lists
-   all of the packages that have been processed by the Enduro
-   instance.](screenshots/enduro-package-detail.jpeg)
+    ![The package detail page in Enduro. The body of the screen shows a table that lists
+    all of the packages that have been processed by the Enduro
+    instance.](screenshots/enduro-package-detail.jpeg)
 
-2. At the bottom of the package detail page, there is a list of **Preservation
+3. At the bottom of the package detail page, there is a list of **Preservation
    actions** undertaken on each package. Clicking on the arrow will open a list
    showing all the tasks that comprise the preservation action.
 
-   ![alt](screenshots/enduro-preservation-actions-expand.jpeg)
+    ![alt](screenshots/enduro-preservation-actions-expand.jpeg)
 
 ### Preservation actions
 
@@ -142,13 +142,6 @@ material into an AIP:
   in the Archivematica documentation for more information.
 * **Store AIP**: stores the AIP in the configured storage location.
 
-### Troubleshooting
-
-If there is an error in any preservation action, the outcome will be listed as
-"Error" or (another status? TBC). Currently, the easiest way to analyze an error
-as a front-end user is to look at the list of jobs in Temporal, Enduro's
-workflow engine, and read the job output.
-
 ## Download AIP
 
 1. If your AIP has been successfully processed, the workflow status for the
@@ -157,7 +150,7 @@ workflow engine, and read the job output.
    main body of the page as well as under **Preservation actions** at the
    bottom.
 
-   ![alt](screenshots/enduro-create-aip-done.jpeg)
+    ![alt](screenshots/enduro-create-aip-done.jpeg)
 
 2. You can download the AIP by clicking on **Download** in the **Package
    details** section.
@@ -170,7 +163,7 @@ through MinIO.
 
 1. On the package detail page in Enduro, select **Choose storage location**.
 
-   ![alt](screenshots/enduro-choose-storage-location.jpeg)
+    ![alt](screenshots/enduro-choose-storage-location.jpeg)
 
 2. All storage locations will be displayed in the pop-up window. Storage
    locations that are available will have a **Move** button to the right of the
@@ -178,7 +171,7 @@ through MinIO.
    stored in that location or the location is available for some other reason.
    Select **Move** to move the package to your preferred location.
 
-   ![alt](screenshots/enduro-available-storage-locations.jpeg)
+    ![alt](screenshots/enduro-available-storage-locations.jpeg)
 
 3. An admonition will appear indicating that the package is being moved. You may
    need to refresh the page to see that the package has been successfully moved.
@@ -187,4 +180,11 @@ through MinIO.
    of the page. You can click on the arrow to see more information about the
    move.
 
-   ![alt](screenshots/enduro-move-preservation-action.jpeg)
+    ![alt](screenshots/enduro-move-preservation-action.jpeg)
+
+## Troubleshooting
+
+If there is an error in any preservation action, the outcome will be listed as
+"Error" or (another status? TBC). Currently, the easiest way to analyze an error
+as a front-end user is to look at the list of jobs in Temporal, Enduro's
+workflow engine, and read the job output.
