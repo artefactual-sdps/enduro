@@ -142,13 +142,6 @@ material into an AIP:
   in the Archivematica documentation for more information.
 * **Store AIP**: stores the AIP in the configured storage location.
 
-### Troubleshooting
-
-If there is an error in any preservation action, the outcome will be listed as
-"Error" or (another status? TBC). Currently, the easiest way to analyze an error
-as a front-end user is to look at the list of jobs in Temporal, Enduro's
-workflow engine, and read the job output.
-
 ## Download AIP
 
 1. If your AIP has been successfully processed, the workflow status for the
@@ -188,3 +181,10 @@ through MinIO.
    move.
 
    ![alt](screenshots/enduro-move-preservation-action.jpeg)
+
+## Troubleshooting
+
+If there is an error in any preservation action, the outcome will be listed as
+"Error" or (another status? TBC). Currently, the easiest way to analyze an error
+as a front-end user is to look at the list of jobs in Temporal, Enduro's
+workflow engine, and read the job output.
