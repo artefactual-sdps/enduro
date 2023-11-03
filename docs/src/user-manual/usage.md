@@ -49,14 +49,14 @@ in the Archivematica documentation.
 1. In MinIO, navigate to the Object Browser and select your upload bucket. In
    this example, the upload bucket is called `sips`.
 
-   ![The Object Browser page in MinIO. The body of the page shows four buckets:
-   aips, perma-aips1, perma-aips2, and sips.](screenshots/minio-buckets.jpeg)
+    ![The Object Browser page in MinIO. The body of the page shows four buckets:
+    aips, perma-aips1, perma-aips2, and sips.](screenshots/minio-buckets.jpeg)
 
 2. Click on **Upload** and then select **Upload file**. This will open a file
    browser.
 
-   ![The sips bucket page in MinIO, with the Upload button circled in red. The
-   bucket contains two transfers already.](screenshots/minio-upload.jpeg)
+    ![The sips bucket page in MinIO, with the Upload button circled in red. The
+    bucket contains two transfers already.](screenshots/minio-upload.jpeg)
 
 3. In the file browser, locate your transfer package and upload it to MinIO.
    Once the progress bar has completed, Enduro will begin processing the
