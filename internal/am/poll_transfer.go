@@ -4,6 +4,7 @@ import (
 	context "context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/artefactual-sdps/enduro/internal/temporal"
 	"github.com/go-logr/logr"
@@ -21,6 +22,7 @@ type PollTransferActivity struct {
 	logger logr.Logger
 	cfg    *Config
 	amts   amclient.TransferService
+	dur    time.Duration
 }
 
 type PollTransferActivityResult struct {
@@ -28,8 +30,8 @@ type PollTransferActivityResult struct {
 	Path  string
 }
 
-func NewPollTransferActivity(logger logr.Logger, cfg *Config, amts amclient.TransferService) *PollTransferActivity {
-	return &PollTransferActivity{logger: logger, cfg: cfg, amts: amts}
+func NewPollTransferActivity(logger logr.Logger, cfg *Config, amts amclient.TransferService, dur time.Duration) *PollTransferActivity {
+	return &PollTransferActivity{logger: logger, cfg: cfg, amts: amts, dur: dur}
 }
 
 // Execute sends a transfer status request to the Archivematica API. If a SIP
@@ -47,6 +49,7 @@ func NewPollTransferActivity(logger logr.Logger, cfg *Config, amts amclient.Tran
 func (a *PollTransferActivity) Execute(ctx context.Context, params *PollTransferActivityParams) (*PollTransferActivityResult, error) {
 	// Start Heartbeating
 	for {
+		time.Sleep(a.dur)
 		temporalsdk_activity.RecordHeartbeat(ctx, nil)
 		resp, httpResp, err := a.amts.Status(ctx, params.TransferID)
 		if err != nil {

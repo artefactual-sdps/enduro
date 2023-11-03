@@ -49,6 +49,7 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(useAm bool) {
 	logger := logr.Discard()
 	pkgsvc := packagefake.NewMockService(ctrl)
 	wsvc := watcherfake.NewMockService(ctrl)
+	dur := time.Millisecond
 
 	s.env.RegisterActivityWithOptions(activities.NewDownloadActivity(wsvc).Execute, temporalsdk_activity.RegisterOptions{Name: activities.DownloadActivityName})
 	s.env.RegisterActivityWithOptions(activities.NewBundleActivity(wsvc).Execute, temporalsdk_activity.RegisterOptions{Name: activities.BundleActivityName})
@@ -66,10 +67,10 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(useAm bool) {
 	).Execute, temporalsdk_activity.RegisterOptions{Name: am.StartTransferActivityName})
 	s.env.RegisterActivityWithOptions(am.NewPollTransferActivity(
 		logger, &am.Config{}, amclienttest.NewMockTransferService(ctrl),
-	).Execute, temporalsdk_activity.RegisterOptions{Name: am.PollTransferActivityName})
+		dur).Execute, temporalsdk_activity.RegisterOptions{Name: am.PollTransferActivityName})
 	s.env.RegisterActivityWithOptions(am.NewPollIngestActivity(
 		logger, &am.Config{}, amclienttest.NewMockIngestService(ctrl),
-	).Execute, temporalsdk_activity.RegisterOptions{Name: am.PollIngestActivityName})
+		dur).Execute, temporalsdk_activity.RegisterOptions{Name: am.PollIngestActivityName})
 
 	s.workflow = NewProcessingWorkflow(logger, pkgsvc, wsvc, useAm)
 }

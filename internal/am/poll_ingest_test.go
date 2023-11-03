@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 	"testing"
+	"time"
 
 	"github.com/go-logr/logr"
 	"github.com/google/uuid"
@@ -22,6 +23,7 @@ func TestPollIngestActivity_Execute(t *testing.T) {
 	logger := logr.Discard()
 	cfg := &am.Config{}
 	opts := &am.PollIngestActivityParams{UUID: uuid.New().String()}
+	dur := 10 * time.Second
 	// Define the test cases
 	tests := []struct {
 		name       string
@@ -102,7 +104,7 @@ func TestPollIngestActivity_Execute(t *testing.T) {
 			ts := &temporalsdk_testsuite.WorkflowTestSuite{}
 			env := ts.NewTestActivityEnvironment()
 			amisMock := amclienttest.NewMockIngestService(gomock.NewController(t))
-			pollIngestActivity := am.NewPollIngestActivity(logger, cfg, amisMock)
+			pollIngestActivity := am.NewPollIngestActivity(logger, cfg, amisMock, dur)
 
 			env.RegisterActivityWithOptions(
 				pollIngestActivity.Execute,

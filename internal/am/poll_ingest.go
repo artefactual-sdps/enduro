@@ -18,13 +18,14 @@ type PollIngestActivity struct {
 	logger logr.Logger
 	cfg    *Config
 	amis   amclient.IngestService
+	dur    time.Duration
 }
 
 type PollIngestActivityParams struct {
 	UUID string
 }
 
-func NewPollIngestActivity(logger logr.Logger, cfg *Config, amis amclient.IngestService) *PollIngestActivity {
+func NewPollIngestActivity(logger logr.Logger, cfg *Config, amis amclient.IngestService, dur time.Duration) *PollIngestActivity {
 	return &PollIngestActivity{
 		logger: logger,
 		cfg:    cfg,
@@ -35,7 +36,7 @@ func NewPollIngestActivity(logger logr.Logger, cfg *Config, amis amclient.Ingest
 func (a *PollIngestActivity) Execute(ctx context.Context, opts *PollIngestActivityParams) error {
 	// Start Heartbeating
 	for {
-		time.Sleep(time.Second)
+		time.Sleep(a.dur)
 		temporalsdk_activity.RecordHeartbeat(ctx, nil)
 		// Start ingest
 		payload, resp, err := a.amis.Status(ctx, opts.UUID)

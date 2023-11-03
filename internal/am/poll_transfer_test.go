@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 	"testing"
+	"time"
 
 	"github.com/go-logr/logr"
 	"github.com/google/uuid"
@@ -23,7 +24,7 @@ func TestPollTransferActivity(t *testing.T) {
 	transferID := uuid.New().String()
 	sipID := uuid.New().String()
 	path := "/var/archivematica/fake/sip"
-
+	dur := 10 * time.Second
 	httpError := func(m *amclienttest.MockTransferServiceMockRecorder, statusCode int) {
 		m.Status(
 			mockutil.Context(),
@@ -135,7 +136,7 @@ func TestPollTransferActivity(t *testing.T) {
 			}
 
 			env.RegisterActivityWithOptions(
-				am.NewPollTransferActivity(logr.Discard(), &am.Config{}, amts).Execute,
+				am.NewPollTransferActivity(logr.Discard(), &am.Config{}, amts, dur).Execute,
 				temporalsdk_activity.RegisterOptions{
 					Name: am.PollTransferActivityName,
 				},
