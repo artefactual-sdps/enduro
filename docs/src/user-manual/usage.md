@@ -69,25 +69,25 @@ in the Archivematica documentation.
    processing started, and the UUID of the location where the package is stored.
    The Status column will display one of five possible statuses:
 
-   * **Done**: The current workflow or task has completed without errors.
-   * **Error**: The current workflow has encountered an error it could not
-     resolve and failed.
-   * **In Progress**: The current workflow is still processing.
-   * **Queued**: The current workflow is waiting for an available worker to begin.
-   * **Pending**: The current workflow is awaiting a user decision.
+    * **Done**: The current workflow or task has completed without errors.
+    * **Error**: The current workflow has encountered an error it could not
+      resolve and failed.
+    * **In Progress**: The current workflow is still processing.
+    * **Queued**: The current workflow is waiting for an available worker to begin.
+    * **Pending**: The current workflow is awaiting a user decision.
 
    ![The Packages tab in Enduro. The body of the screen shows a table that lists
    all of the packages that have been processed by the Enduro
    instance.](screenshots/enduro-packages-tab.jpeg)
 
-1. For more information about the package, click on the name of the package to
+2. For more information about the package, click on the name of the package to
    access the package detail page.
 
    ![The package detail page in Enduro. The body of the screen shows a table that lists
    all of the packages that have been processed by the Enduro
    instance.](screenshots/enduro-package-detail.jpeg)
 
-2. At the bottom of the package detail page, there is a list of **Preservation
+3. At the bottom of the package detail page, there is a list of **Preservation
    actions** undertaken on each package. Clicking on the arrow will open a list
    showing all the tasks that comprise the preservation action.
 
@@ -142,13 +142,6 @@ material into an AIP:
   in the Archivematica documentation for more information.
 * **Store AIP**: stores the AIP in the configured storage location.
 
-### Troubleshooting
-
-If there is an error in any preservation action, the outcome will be listed as
-"Error" or (another status? TBC). Currently, the easiest way to analyze an error
-as a front-end user is to look at the list of jobs in Temporal, Enduro's
-workflow engine, and read the job output.
-
 ## Download AIP
 
 1. If your AIP has been successfully processed, the workflow status for the
@@ -157,7 +150,7 @@ workflow engine, and read the job output.
    main body of the page as well as under **Preservation actions** at the
    bottom.
 
-   ![alt](screenshots/enduro-create-aip-done.jpeg)
+    ![alt](screenshots/enduro-create-aip-done.jpeg)
 
 2. You can download the AIP by clicking on **Download** in the **Package
    details** section.
@@ -188,3 +181,10 @@ through MinIO.
    move.
 
    ![alt](screenshots/enduro-move-preservation-action.jpeg)
+
+### Troubleshooting
+
+If there is an error in any preservation action, the outcome will be listed as
+"Error" or (another status? TBC). Currently, the easiest way to analyze an error
+as a front-end user is to look at the list of jobs in Temporal, Enduro's
+workflow engine, and read the job output.
