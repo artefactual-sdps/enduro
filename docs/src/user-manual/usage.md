@@ -76,22 +76,22 @@ in the Archivematica documentation.
     * **Queued**: The current workflow is waiting for an available worker to begin.
     * **Pending**: The current workflow is awaiting a user decision.
 
-   ![The Packages tab in Enduro. The body of the screen shows a table that lists
-   all of the packages that have been processed by the Enduro
-   instance.](screenshots/enduro-packages-tab.jpeg)
+    ![The Packages tab in Enduro. The body of the screen shows a table that lists
+    all of the packages that have been processed by the Enduro
+    instance.](screenshots/enduro-packages-tab.jpeg)
 
 2. For more information about the package, click on the name of the package to
    access the package detail page.
 
-   ![The package detail page in Enduro. The body of the screen shows a table that lists
-   all of the packages that have been processed by the Enduro
-   instance.](screenshots/enduro-package-detail.jpeg)
+    ![The package detail page in Enduro. The body of the screen shows a table that lists
+    all of the packages that have been processed by the Enduro
+    instance.](screenshots/enduro-package-detail.jpeg)
 
 3. At the bottom of the package detail page, there is a list of **Preservation
    actions** undertaken on each package. Clicking on the arrow will open a list
    showing all the tasks that comprise the preservation action.
 
-   ![alt](screenshots/enduro-preservation-actions-expand.jpeg)
+    ![alt](screenshots/enduro-preservation-actions-expand.jpeg)
 
 ### Preservation actions
 
@@ -163,7 +163,7 @@ through MinIO.
 
 1. On the package detail page in Enduro, select **Choose storage location**.
 
-   ![alt](screenshots/enduro-choose-storage-location.jpeg)
+    ![alt](screenshots/enduro-choose-storage-location.jpeg)
 
 2. All storage locations will be displayed in the pop-up window. Storage
    locations that are available will have a **Move** button to the right of the
@@ -171,7 +171,7 @@ through MinIO.
    stored in that location or the location is available for some other reason.
    Select **Move** to move the package to your preferred location.
 
-   ![alt](screenshots/enduro-available-storage-locations.jpeg)
+    ![alt](screenshots/enduro-available-storage-locations.jpeg)
 
 3. An admonition will appear indicating that the package is being moved. You may
    need to refresh the page to see that the package has been successfully moved.
@@ -180,9 +180,9 @@ through MinIO.
    of the page. You can click on the arrow to see more information about the
    move.
 
-   ![alt](screenshots/enduro-move-preservation-action.jpeg)
+    ![alt](screenshots/enduro-move-preservation-action.jpeg)
 
-### Troubleshooting
+## Troubleshooting
 
 If there is an error in any preservation action, the outcome will be listed as
 "Error" or (another status? TBC). Currently, the easiest way to analyze an error
