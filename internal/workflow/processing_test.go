@@ -19,6 +19,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/am"
 	"github.com/artefactual-sdps/enduro/internal/package_"
 	packagefake "github.com/artefactual-sdps/enduro/internal/package_/fake"
+	"github.com/artefactual-sdps/enduro/internal/temporal"
 	watcherfake "github.com/artefactual-sdps/enduro/internal/watcher/fake"
 	"github.com/artefactual-sdps/enduro/internal/workflow/activities"
 )
@@ -41,7 +42,7 @@ func TestTransferInfo_Name(t *testing.T) {
 	})
 }
 
-func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(useAm bool) {
+func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(taskQueue string) {
 	s.env = s.NewTestWorkflowEnvironment()
 	s.env.SetWorkerOptions(temporalsdk_worker.Options{EnableSessionWorker: true})
 
@@ -71,8 +72,7 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(useAm bool) {
 	s.env.RegisterActivityWithOptions(am.NewPollIngestActivity(
 		logger, &am.Config{}, amclienttest.NewMockIngestService(ctrl),
 		dur).Execute, temporalsdk_activity.RegisterOptions{Name: am.PollIngestActivityName})
-
-	s.workflow = NewProcessingWorkflow(logger, pkgsvc, wsvc, useAm)
+	s.workflow = NewProcessingWorkflow(logger, pkgsvc, wsvc, taskQueue)
 }
 
 func (s *ProcessingWorkflowTestSuite) AfterTest(suiteName, testName string) {
@@ -84,7 +84,7 @@ func TestProcessingWorkflow(t *testing.T) {
 }
 
 func (s *ProcessingWorkflowTestSuite) TestPackageConfirmation() {
-	s.SetupWorkflowTest(false)
+	s.SetupWorkflowTest(temporal.A3mWorkerTaskQueue)
 	pkgID := uint(1)
 	ctx := mock.AnythingOfType("*context.valueCtx")
 	locationID := uuid.MustParse("51328c02-2b63-47be-958e-e8088aa1a61f")
@@ -139,7 +139,7 @@ func (s *ProcessingWorkflowTestSuite) TestPackageConfirmation() {
 }
 
 func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
-	s.SetupWorkflowTest(false)
+	s.SetupWorkflowTest(temporal.A3mWorkerTaskQueue)
 	pkgID := uint(1)
 	locationID := uuid.MustParse("51328c02-2b63-47be-958e-e8088aa1a61f")
 	watcherName := "watcher"
@@ -191,7 +191,7 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 }
 
 func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP_AM() {
-	s.SetupWorkflowTest(true)
+	s.SetupWorkflowTest(temporal.AmWorkerTaskQueue)
 	pkgID := uint(1)
 	locationID := uuid.MustParse("51328c02-2b63-47be-958e-e8088aa1a61f")
 	watcherName := "watcher"
@@ -247,7 +247,7 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP_AM() {
 }
 
 func (s *ProcessingWorkflowTestSuite) TestPackageRejection() {
-	s.SetupWorkflowTest(false)
+	s.SetupWorkflowTest(temporal.A3mWorkerTaskQueue)
 	pkgID := uint(1)
 	watcherName := "watcher"
 	retentionPeriod := 1 * time.Second

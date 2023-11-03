@@ -6,10 +6,11 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/artefactual-sdps/enduro/internal/temporal"
 	"github.com/go-logr/logr"
 	"go.artefactual.dev/amclient"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
+
+	"github.com/artefactual-sdps/enduro/internal/temporal"
 )
 
 const PollTransferActivityName = "poll-transfer-activity"

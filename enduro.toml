@@ -3,7 +3,6 @@
 debug = true
 debugListen = "127.0.0.1:9001"
 verbosity = 2
-useArchivematica = false
 
 [temporal]
 namespace = "default"
@@ -63,6 +62,10 @@ key = "minio"
 secret = "minio123"
 region = "us-west-1"
 bucket = "aips"
+
+# Change the taskqueue setting to your prefered preservation system, by default it is a3m.
+[preservation]
+taskqueue = "a3m"
 
 [a3m]
 address = "127.0.0.1:7000"

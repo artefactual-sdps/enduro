@@ -12,6 +12,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/api"
 	"github.com/artefactual-sdps/enduro/internal/db"
 	"github.com/artefactual-sdps/enduro/internal/event"
+	"github.com/artefactual-sdps/enduro/internal/pres"
 	"github.com/artefactual-sdps/enduro/internal/storage"
 	"github.com/artefactual-sdps/enduro/internal/temporal"
 	"github.com/artefactual-sdps/enduro/internal/upload"
@@ -23,19 +24,19 @@ type ConfigurationValidator interface {
 }
 
 type Configuration struct {
-	Verbosity        int
-	Debug            bool
-	DebugListen      string
-	UseArchivematica bool
-	API              api.Config
-	Event            event.Config
-	Database         db.Config
-	Temporal         temporal.Config
-	Watcher          watcher.Config
-	Storage          storage.Config
-	Upload           upload.Config
-	A3m              a3m.Config
-	Am               am.Config
+	Verbosity    int
+	Debug        bool
+	DebugListen  string
+	API          api.Config
+	Event        event.Config
+	Database     db.Config
+	Temporal     temporal.Config
+	Watcher      watcher.Config
+	Storage      storage.Config
+	Upload       upload.Config
+	A3m          a3m.Config
+	Am           am.Config
+	Preservation pres.Config
 }
 
 func (c Configuration) Validate() error {
@@ -63,7 +64,7 @@ func Read(config *Configuration, configFile string) (found bool, configFileUsed 
 	v.AddConfigPath("/etc")
 	v.SetConfigName("enduro")
 	v.SetDefault("api.processing", a3m.ProcessingDefault)
-	v.SetDefault("a3m.taskqueue", temporal.A3mWorkerTaskQueue)
+	v.SetDefault("preservation.taskqueue", temporal.A3mWorkerTaskQueue)
 	v.SetDefault("temporal.taskqueue", temporal.GlobalTaskQueue)
 	v.SetDefault("debugListen", "127.0.0.1:9001")
 	v.SetDefault("api.listen", "127.0.0.1:9000")

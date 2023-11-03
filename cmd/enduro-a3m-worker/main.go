@@ -127,7 +127,7 @@ func main() {
 			MaxConcurrentSessionExecutionSize:  1000,
 			MaxConcurrentActivityExecutionSize: 1,
 		}
-		w := temporalsdk_worker.New(temporalClient, cfg.A3m.TaskQueue, workerOpts)
+		w := temporalsdk_worker.New(temporalClient, temporal.A3mWorkerTaskQueue, workerOpts)
 		if err != nil {
 			logger.Error(err, "Error creating Temporal worker.")
 			os.Exit(1)

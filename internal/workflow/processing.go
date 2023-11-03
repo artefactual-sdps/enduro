@@ -26,18 +26,18 @@ import (
 )
 
 type ProcessingWorkflow struct {
-	logger           logr.Logger
-	pkgsvc           package_.Service
-	wsvc             watcher.Service
-	useArchivematica bool
+	logger                logr.Logger
+	pkgsvc                package_.Service
+	wsvc                  watcher.Service
+	preservationTaskQueue string
 }
 
-func NewProcessingWorkflow(logger logr.Logger, pkgsvc package_.Service, wsvc watcher.Service, useAm bool) *ProcessingWorkflow {
+func NewProcessingWorkflow(logger logr.Logger, pkgsvc package_.Service, wsvc watcher.Service, preservationTaskQueue string) *ProcessingWorkflow {
 	return &ProcessingWorkflow{
-		logger:           logger,
-		pkgsvc:           pkgsvc,
-		wsvc:             wsvc,
-		useArchivematica: useAm,
+		logger:                logger,
+		pkgsvc:                pkgsvc,
+		wsvc:                  wsvc,
+		preservationTaskQueue: preservationTaskQueue,
 	}
 }
 
@@ -172,18 +172,11 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *pack
 	// Activities running within a session.
 	{
 		var sessErr error
-		var taskQueue string
 		maxAttempts := 5
-
-		if w.useArchivematica {
-			taskQueue = temporal.AmWorkerTaskQueue
-		} else {
-			taskQueue = temporal.A3mWorkerTaskQueue
-		}
 
 		activityOpts := temporalsdk_workflow.WithActivityOptions(ctx, temporalsdk_workflow.ActivityOptions{
 			StartToCloseTimeout: time.Minute,
-			TaskQueue:           taskQueue,
+			TaskQueue:           w.preservationTaskQueue,
 		})
 		for attempt := 1; attempt <= maxAttempts; attempt++ {
 			sessCtx, err := temporalsdk_workflow.CreateSession(activityOpts, &temporalsdk_workflow.SessionOptions{
@@ -345,7 +338,7 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 
 	{
 		var err error
-		if w.useArchivematica {
+		if w.preservationTaskQueue == temporal.AmWorkerTaskQueue {
 			err = w.transferAM(sessCtx, tinfo)
 			if err != nil {
 				return err
