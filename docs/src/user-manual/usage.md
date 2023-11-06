@@ -5,7 +5,7 @@ Archivematica, you can refer to the [Archivematica
 documentation](https://archivematica.org/docs/latest/) for much more detailed
 explanations of specific facets of the system.
 
-### Configuring preservation actions
+## Configuring preservation actions
 
 Similar to Archivematica, a3m consists of a series of processing tasks (called
 preservation actions) that can be configured to suit a variety of preservation
@@ -13,7 +13,7 @@ needs. However, it is not currently possible to set these configurations in the
 user interface. Instead, preservation actions can be configured by editing a
 config file.
 
-### Prepare digital objects
+## Prepare digital objects
 
 Digital objects and their metadata can be packaged in a few different ways for
 upload to the system. a3m is format-agnostic, meaning that it can accept any
@@ -44,7 +44,7 @@ please see [Unzipped and zipped
 bags](https://www.archivematica.org/docs/latest/user-manual/transfer/bags/#bags)
 in the Archivematica documentation.
 
-### Upload to MinIO
+## Upload to MinIO
 
 1. In MinIO, navigate to the Object Browser and select your upload bucket. In
    this example, the upload bucket is called `sips`.
@@ -62,7 +62,7 @@ in the Archivematica documentation.
    Once the progress bar has completed, Enduro will begin processing the
    transfer.
 
-### View tasks in Enduro
+## View tasks in Enduro
 
 1. In Enduro, navigate to the Packages tab. The list of packages will show the
    most recent package first. You will also see the UUID of the package, when
@@ -93,7 +93,7 @@ in the Archivematica documentation.
 
     ![alt](screenshots/enduro-preservation-actions-expand.jpeg)
 
-### Preservation actions
+## Preservation actions
 
 a3m performs the following actions, amongst others, to transform your digital
 material into an AIP:

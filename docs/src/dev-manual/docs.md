@@ -31,8 +31,16 @@ Optionally, synchronize the environment:
 
 ## Writing workflow
 
-Run the builtin development server with live reloading support:
+Run the builtin development server with live reloading support, which should
+be accessible under <http://127.0.0.1:8000/>.
 
     mkdocs serve
 
-The docs servers should be accessible under http://127.0.0.1:8000/.
+Run the following command to perform some basic linting before pushing your
+changes to GitHub:
+
+    pre-commit run --all-files
+
+The previous command uses `markdownlint-cli` to lint the docs using a library
+of [rules](https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md).
+Please follow the link to troubleshoot any linting issues.

@@ -4,10 +4,18 @@
 #
 #    pip-compile
 #
+cfgv==3.4.0
+    # via pre-commit
 click==8.1.7
     # via mkdocs
+distlib==0.3.7
+    # via virtualenv
+filelock==3.13.1
+    # via virtualenv
 ghp-import==2.1.0
     # via mkdocs
+identify==2.5.31
+    # via pre-commit
 jinja2==3.1.2
     # via mkdocs
 markdown==3.5.1
@@ -29,21 +37,33 @@ mkdocs-autorefs==0.5.0
     # via -r requirements.in
 mkdocs-literate-nav==0.6.1
     # via -r requirements.in
+nodeenv==1.8.0
+    # via pre-commit
 packaging==23.2
     # via mkdocs
 pathspec==0.11.2
     # via mkdocs
 platformdirs==3.11.0
-    # via mkdocs
+    # via
+    #   mkdocs
+    #   virtualenv
+pre-commit==3.5.0
+    # via -r requirements.in
 python-dateutil==2.8.2
     # via ghp-import
 pyyaml==6.0.1
     # via
     #   mkdocs
+    #   pre-commit
     #   pyyaml-env-tag
 pyyaml-env-tag==0.1
     # via mkdocs
 six==1.16.0
     # via python-dateutil
+virtualenv==20.24.6
+    # via pre-commit
 watchdog==3.0.0
     # via mkdocs
+
+# The following packages are considered to be unsafe in a requirements file:
+# setuptools
