@@ -1,0 +1,15 @@
+repos:
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v4.5.0
+  hooks:
+  - id: end-of-file-fixer
+    exclude: |
+      (?x)^(
+        dashboard/src/openapi-generator|
+        internal/api/gen
+      )
+- repo: https://github.com/igorshubovych/markdownlint-cli
+  rev: v0.37.0
+  hooks:
+  - id: markdownlint
+    files: 'docs/.*(?<!\.rst)$'

@@ -21,4 +21,3 @@ jobs:
         run: go install go.temporal.io/sdk/contrib/tools/workflowcheck@latest
       - name: Run workflowcheck
         run: workflowcheck ./...
-

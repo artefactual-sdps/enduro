@@ -11,7 +11,8 @@ Dependencies are downloaded automatically.
 
 `make gen-mock` generates mock interfaces with [mockgen](https://github.com/golang/mock).
 
-New mocks can be added to the project by adding a new `mockgen` line to `Makefile` that specifies the mock details (e.g. source, destination, package).
+New mocks can be added to the project by adding a new `mockgen` line to
+`Makefile` that specifies the mock details (e.g. source, destination, package).
 
 ## make lint
 

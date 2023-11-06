@@ -115,10 +115,10 @@ Don't use the [Temporal Go SDK logger] if possible.
 We want to avoid excessive error logging. As [Dave Cheney suggested], there are
 just two things that we should log:
 
-- _Things that users care about when using your software._<br />
+- _Things that users care about when using your software._\
   Mostly errors, using `logger.Error()`. Use `logger.Info()` very sparely.
 - _Things that developers care about when they are developing or debugging
-  software._<br/>
+  software._\
   Use V-Levels (gte 1), e.g.: `logger.V(1).Info()`.
 
 ## How do I choose my V-levels? (from the logr docs)
