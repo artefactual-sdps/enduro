@@ -26,18 +26,18 @@ import (
 )
 
 type ProcessingWorkflow struct {
-	logger           logr.Logger
-	pkgsvc           package_.Service
-	wsvc             watcher.Service
-	useArchivematica bool
+	logger                logr.Logger
+	pkgsvc                package_.Service
+	wsvc                  watcher.Service
+	preservationTaskQueue string
 }
 
-func NewProcessingWorkflow(logger logr.Logger, pkgsvc package_.Service, wsvc watcher.Service, useAM bool) *ProcessingWorkflow {
+func NewProcessingWorkflow(logger logr.Logger, pkgsvc package_.Service, wsvc watcher.Service, presTQ string) *ProcessingWorkflow {
 	return &ProcessingWorkflow{
-		logger:           logger,
-		pkgsvc:           pkgsvc,
-		wsvc:             wsvc,
-		useArchivematica: useAM,
+		logger:                logger,
+		pkgsvc:                pkgsvc,
+		wsvc:                  wsvc,
+		preservationTaskQueue: presTQ,
 	}
 }
 
@@ -172,20 +172,13 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *pack
 	// Activities running within a session.
 	{
 		var sessErr error
-		var taskQueue string
 		maxAttempts := 5
 
-		if w.useArchivematica {
-			taskQueue = temporal.AmWorkerTaskQueue
-		} else {
-			taskQueue = tinfo.A3mTaskQueue
-		}
-
+		activityOpts := temporalsdk_workflow.WithActivityOptions(ctx, temporalsdk_workflow.ActivityOptions{
+			StartToCloseTimeout: time.Minute,
+			TaskQueue:           w.preservationTaskQueue,
+		})
 		for attempt := 1; attempt <= maxAttempts; attempt++ {
-			activityOpts := temporalsdk_workflow.WithActivityOptions(ctx, temporalsdk_workflow.ActivityOptions{
-				StartToCloseTimeout: time.Minute,
-				TaskQueue:           taskQueue,
-			})
 			sessCtx, err := temporalsdk_workflow.CreateSession(activityOpts, &temporalsdk_workflow.SessionOptions{
 				CreationTimeout:  forever,
 				ExecutionTimeout: forever,
@@ -319,7 +312,7 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 		// For the a3m workflow bundle the transfer to a shared directory also
 		// mounted by the a3m container.
 		var transferDir string
-		if !w.useArchivematica {
+		if w.preservationTaskQueue == temporal.A3mWorkerTaskQueue {
 			transferDir = "/home/a3m/.local/share/a3m/share"
 		}
 
@@ -353,7 +346,7 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 	// Do preservation activities.
 	{
 		var err error
-		if w.useArchivematica {
+		if w.preservationTaskQueue == temporal.AmWorkerTaskQueue {
 			err = w.transferAM(sessCtx, tinfo)
 		} else {
 			err = w.transferA3m(sessCtx, tinfo)
@@ -377,7 +370,7 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 
 	// Stop here for the the Archivematica workflow. AIP creation, review, and
 	// storage are handled entirely by Archivematica and the AM Storage Service.
-	if w.useArchivematica {
+	if w.preservationTaskQueue == temporal.AmWorkerTaskQueue {
 		return nil
 	}
 

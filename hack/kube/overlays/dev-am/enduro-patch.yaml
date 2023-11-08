@@ -8,5 +8,5 @@ spec:
       containers:
         - name: enduro
           env:
-            - name: ENDURO_USEARCHIVEMATICA
-              value: "true"
+            - name: ENDURO_PRESERVATION_TASKQUEUE
+              value: "am"

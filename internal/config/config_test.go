@@ -50,14 +50,13 @@ func TestConfig(t *testing.T) {
 		// Zero value defaults.
 		assert.Equal(t, c.Verbosity, 0)
 		assert.Equal(t, c.Debug, false)
-		assert.Equal(t, c.UseArchivematica, false)
 		assert.Equal(t, c.Database.DSN, "")
 
 		// Valued defaults.
 		assert.Equal(t, c.DebugListen, "127.0.0.1:9001")
 		assert.Equal(t, c.A3m.Processing, a3m.ProcessingDefault)
-		assert.Equal(t, c.A3m.TaskQueue, temporal.A3mWorkerTaskQueue)
 		assert.Equal(t, c.API.Listen, "127.0.0.1:9000")
+		assert.Equal(t, c.Preservation.TaskQueue, temporal.A3mWorkerTaskQueue)
 		assert.Equal(t, c.Storage.TaskQueue, temporal.GlobalTaskQueue)
 		assert.Equal(t, c.Temporal.TaskQueue, temporal.GlobalTaskQueue)
 	})
