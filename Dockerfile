@@ -66,6 +66,14 @@ COPY --from=build-enduro-a3m-worker --link /src/enduro.toml /home/enduro/.config
 CMD ["/home/enduro/bin/enduro-a3m-worker", "--config", "/home/enduro/.config/enduro.toml"]
 
 FROM base AS enduro-am-worker
+ENV PYTHONUNBUFFERED=1
+USER root
+RUN apk add --update --no-cache python3 && \
+	ln -sf python3 /usr/bin/python && \
+	python3 -m ensurepip
+USER enduro
+RUN pip3 install --no-cache --upgrade pip lxml bagit==v1.8.1
+COPY --from=build-enduro-am-worker --link /src/hack/sampledata/xsd/* /
 COPY --from=build-enduro-am-worker --link /out/enduro-am-worker /home/enduro/bin/enduro-am-worker
 COPY --from=build-enduro-am-worker --link /src/enduro.toml /home/enduro/.config/enduro.toml
 CMD ["/home/enduro/bin/enduro-am-worker", "--config", "/home/enduro/.config/enduro.toml"]

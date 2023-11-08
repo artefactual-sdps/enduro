@@ -20,6 +20,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/am"
 	"github.com/artefactual-sdps/enduro/internal/fsutil"
 	"github.com/artefactual-sdps/enduro/internal/package_"
+	"github.com/artefactual-sdps/enduro/internal/sfa"
 	"github.com/artefactual-sdps/enduro/internal/temporal"
 	"github.com/artefactual-sdps/enduro/internal/watcher"
 	"github.com/artefactual-sdps/enduro/internal/workflow/activities"
@@ -305,6 +306,17 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 				}
 			}
 		}
+	}
+
+	// SFA-Preprocessing activities only are meant to be used with Archivematica.
+	if w.taskQueue == temporal.AmWorkerTaskQueue {
+		path, err := sfa.ExecuteActivities(sessCtx, tinfo.TempFile, tinfo.req.Key)
+		if err != nil {
+			return err
+		}
+
+		// Skip bundle activity.
+		tinfo.Bundle.FullPath = path
 	}
 
 	// Bundle.
@@ -653,6 +665,12 @@ func (w *ProcessingWorkflow) transferAM(sessCtx temporalsdk_workflow.Context, ti
 	if err != nil {
 		return err
 	}
+
+	defer func() {
+		if err != nil {
+			err = errors.Join(err, sfa.SendToFailedSIPs(sessCtx, zipResult.Path, tinfo.req.Key))
+		}
+	}()
 
 	// Upload transfer to AMSS.
 	activityOpts = temporalsdk_workflow.WithActivityOptions(sessCtx,

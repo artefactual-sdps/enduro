@@ -23,6 +23,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/am"
 	"github.com/artefactual-sdps/enduro/internal/config"
 	"github.com/artefactual-sdps/enduro/internal/db"
+	"github.com/artefactual-sdps/enduro/internal/sfa"
 	"github.com/artefactual-sdps/enduro/internal/sftp"
 	"github.com/artefactual-sdps/enduro/internal/temporal"
 	"github.com/artefactual-sdps/enduro/internal/version"
@@ -157,6 +158,12 @@ func main() {
 			activities.NewCleanUpActivity().Execute,
 			temporalsdk_activity.RegisterOptions{Name: activities.CleanUpActivityName},
 		)
+
+		// SFA-preprocessing activities.
+		if err := sfa.RegisterActivities(ctx, w, cfg); err != nil {
+			logger.Error(err, "Error setting up SFA preprocessing activities.")
+			os.Exit(1)
+		}
 
 		g.Add(
 			func() error {

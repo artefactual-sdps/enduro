@@ -46,7 +46,7 @@ func (a *StartTransferActivity) Execute(ctx context.Context, opts *StartTransfer
 
 	payload, resp, err := a.amps.Create(ctx, &amclient.PackageCreateRequest{
 		Name:             opts.Name,
-		Type:             "zipfile",
+		Type:             "zipped bag",
 		Path:             opts.Path,
 		ProcessingConfig: processingConfig,
 		AutoApprove:      true,

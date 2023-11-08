@@ -28,6 +28,8 @@ spec:
               "-c",
               "mc alias set enduro http://minio.enduro-sdps:9000 ${MINIO_USER} ${MINIO_PASSWORD};
               mc mb enduro/sips --ignore-existing;
+              mc mb enduro/failed-transfers --ignore-existing;
+              mc mb enduro/failed-sips --ignore-existing;
               mc mb enduro/aips --ignore-existing;
               mc mb enduro/perma-aips-1 --ignore-existing;
               mc mb enduro/perma-aips-2 --ignore-existing;

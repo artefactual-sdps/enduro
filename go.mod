@@ -33,6 +33,7 @@ require (
 	github.com/prometheus/client_golang v1.17.0
 	github.com/radovskyb/watcher v1.0.7
 	github.com/redis/go-redis/v9 v9.2.1
+	github.com/richardlehane/siegfried v1.10.1
 	github.com/rukavina/sftpblob v0.0.0-20201030103652-e8e9601e6511
 	github.com/spf13/afero v1.10.0
 	github.com/spf13/pflag v1.0.5
@@ -124,7 +125,14 @@ require (
 	github.com/prometheus/client_model v0.4.1-0.20230718164431-9a2bf3000d16 // indirect
 	github.com/prometheus/common v0.44.0 // indirect
 	github.com/prometheus/procfs v0.11.1 // indirect
+	github.com/richardlehane/characterize v1.0.0 // indirect
+	github.com/richardlehane/match v1.0.5 // indirect
+	github.com/richardlehane/mscfb v1.0.4 // indirect
+	github.com/richardlehane/msoleps v1.0.3 // indirect
+	github.com/richardlehane/xmldetect v1.0.2 // indirect
 	github.com/robfig/cron v1.2.0 // indirect
+	github.com/ross-spencer/spargo v0.4.1 // indirect
+	github.com/ross-spencer/wikiprov v0.2.0 // indirect
 	github.com/sagikazarmark/locafero v0.3.0 // indirect
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
 	github.com/sergi/go-diff v1.3.1 // indirect
@@ -143,6 +151,7 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.26.0 // indirect
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9 // indirect
+	golang.org/x/image v0.6.0 // indirect
 	golang.org/x/mod v0.13.0 // indirect
 	golang.org/x/net v0.17.0 // indirect
 	golang.org/x/oauth2 v0.13.0 // indirect
