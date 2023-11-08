@@ -24,27 +24,28 @@ import (
 // ServerAddress is the test SFTP server address.
 const serverAddress = "127.0.0.1:2222"
 
-// PubkeyHandler handles checking the client's public key against the keys in
-// the authorized_keys file.
-func pubkeyHandler(ctx ssh.Context, key ssh.PublicKey) bool {
+// pubkeyHandler returns a handler that checks the client's public key against
+// the keys in the authorized_keys file.
+func pubKeyHandler(t *testing.T, ctx ssh.Context, key ssh.PublicKey) bool {
 	file, err := os.Open("./testdata/authorized_keys")
 	if err != nil {
-		log.Fatalf("SFTP server: couldn't open authorized_keys file: %s", err)
+		t.Fatalf("SFTP server: couldn't open authorized_keys file: %s", err)
 	}
+
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		allowed, _, _, _, err := ssh.ParseAuthorizedKey([]byte(scanner.Text()))
 		if err != nil {
-			log.Fatalf("SFTP server: couldn't parse authorized keys: %s", err)
+			t.Fatalf("SFTP server: couldn't parse authorized keys: %s", err)
 		}
 		if ssh.KeysEqual(key, allowed) {
 			return true
 		}
 	}
 
-	log.Println("SFTP server: unknown key provided.")
+	t.Log("SFTP server: unknown key provided.")
 	return false
 }
 
@@ -101,7 +102,9 @@ func startSFTPServer(t *testing.T, addr string) *ssh.Server {
 			io.WriteString(s, fmt.Sprintf("public key used by %s:\n", s.User()))
 			s.Write(authorizedKey)
 		},
-		PublicKeyHandler: pubkeyHandler,
+		PublicKeyHandler: func(ctx ssh.Context, key ssh.PublicKey) bool {
+			return pubKeyHandler(t, ctx, key)
+		},
 		SubsystemHandlers: map[string]ssh.SubsystemHandler{
 			"sftp": sftpHandler,
 		},
