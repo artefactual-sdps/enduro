@@ -92,7 +92,7 @@ func main() {
 		logger.Info("Configuration file not found.")
 	}
 
-	logger.V(1).Info("Preservation system", "UseArchivematica", cfg.UseArchivematica)
+	logger.V(1).Info("Preservation config", "TaskQueue", cfg.Preservation.TaskQueue)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -273,7 +273,7 @@ func main() {
 									AutoApproveAIP:             autoApproveAIP,
 									DefaultPermanentLocationID: &defaultPermanentLocationID,
 									TaskQueue:                  cfg.Temporal.TaskQueue,
-									A3mTaskQueue:               cfg.A3m.TaskQueue,
+									A3mTaskQueue:               cfg.Preservation.TaskQueue,
 								}
 								if err := package_.InitProcessingWorkflow(ctx, temporalClient, &req); err != nil {
 									logger.Error(err, "Error initializing processing workflow.")
@@ -301,7 +301,7 @@ func main() {
 			os.Exit(1)
 		}
 
-		w.RegisterWorkflowWithOptions(workflow.NewProcessingWorkflow(logger, pkgsvc, wsvc, cfg.UseArchivematica).Execute, temporalsdk_workflow.RegisterOptions{Name: package_.ProcessingWorkflowName})
+		w.RegisterWorkflowWithOptions(workflow.NewProcessingWorkflow(logger, pkgsvc, wsvc, cfg.Preservation.TaskQueue).Execute, temporalsdk_workflow.RegisterOptions{Name: package_.ProcessingWorkflowName})
 		w.RegisterActivityWithOptions(activities.NewDeleteOriginalActivity(wsvc).Execute, temporalsdk_activity.RegisterOptions{Name: activities.DeleteOriginalActivityName})
 		w.RegisterActivityWithOptions(activities.NewDisposeOriginalActivity(wsvc).Execute, temporalsdk_activity.RegisterOptions{Name: activities.DisposeOriginalActivityName})
 

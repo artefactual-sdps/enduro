@@ -59,8 +59,8 @@ spec:
               value: $(MINIO_USER)
             - name: ENDURO_WATCHER_EMBEDDED_SECRET
               value: $(MINIO_PASSWORD)
-            - name: ENDURO_USEARCHIVEMATICA
-              value: "true"
+            - name: ENDURO_PRESERVATION_TASKQUEUE
+              value: "am"
             - name: ENDURO_AM_SFTP_HOST
               valueFrom:
                 secretKeyRef:
