@@ -25,14 +25,15 @@ type Configuration struct {
 	Verbosity   int
 	Debug       bool
 	DebugListen string
-	API         api.Config
-	Event       event.Config
-	Database    db.Config
-	Temporal    temporal.Config
-	Watcher     watcher.Config
-	Storage     storage.Config
-	Upload      upload.Config
-	A3m         a3m.Config
+
+	A3m      a3m.Config
+	API      api.Config
+	Database db.Config
+	Event    event.Config
+	Storage  storage.Config
+	Temporal temporal.Config
+	Upload   upload.Config
+	Watcher  watcher.Config
 }
 
 func (c Configuration) Validate() error {
@@ -59,8 +60,9 @@ func Read(config *Configuration, configFile string) (found bool, configFileUsed 
 	v.AddConfigPath("$HOME/.config/")
 	v.AddConfigPath("/etc")
 	v.SetConfigName("enduro")
-	v.SetDefault("api.processing", a3m.ProcessingDefault)
+	v.SetDefault("a3m.processing", a3m.ProcessingDefault)
 	v.SetDefault("a3m.taskqueue", temporal.A3mWorkerTaskQueue)
+	v.SetDefault("storage.taskqueue", temporal.GlobalTaskQueue)
 	v.SetDefault("temporal.taskqueue", temporal.GlobalTaskQueue)
 	v.SetDefault("debugListen", "127.0.0.1:9001")
 	v.SetDefault("api.listen", "127.0.0.1:9000")
