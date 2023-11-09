@@ -9,11 +9,11 @@ import (
 	"strings"
 	"time"
 
+	"go.artefactual.dev/tools/ref"
 	temporalapi_enums "go.temporal.io/api/enums/v1"
 	"goa.design/goa/v3/security"
 
 	goapackage "github.com/artefactual-sdps/enduro/internal/api/gen/package_"
-	"github.com/artefactual-sdps/enduro/internal/ref"
 )
 
 var ErrBulkStatusUnavailable = errors.New("bulk status unavailable")

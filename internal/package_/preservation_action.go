@@ -8,9 +8,10 @@ import (
 	"strings"
 	"time"
 
+	"go.artefactual.dev/tools/ref"
+
 	goapackage "github.com/artefactual-sdps/enduro/internal/api/gen/package_"
 	"github.com/artefactual-sdps/enduro/internal/event"
-	"github.com/artefactual-sdps/enduro/internal/ref"
 )
 
 type PreservationActionType uint

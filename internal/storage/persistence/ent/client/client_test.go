@@ -9,10 +9,10 @@ import (
 	"entgo.io/ent"
 	"github.com/google/uuid"
 	_ "github.com/mattn/go-sqlite3"
+	"go.artefactual.dev/tools/ref"
 	"gotest.tools/v3/assert"
 
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
-	"github.com/artefactual-sdps/enduro/internal/ref"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/client"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/enttest"

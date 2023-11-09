@@ -7,13 +7,13 @@ import (
 	"testing"
 
 	"github.com/go-logr/logr"
+	"go.artefactual.dev/tools/ref"
 	goa "goa.design/goa/v3/pkg"
 	_ "gocloud.dev/blob/memblob"
 	"gotest.tools/v3/assert"
 
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	goaupload "github.com/artefactual-sdps/enduro/internal/api/gen/upload"
-	"github.com/artefactual-sdps/enduro/internal/ref"
 	"github.com/artefactual-sdps/enduro/internal/upload"
 )
 

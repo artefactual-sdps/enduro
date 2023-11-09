@@ -8,11 +8,11 @@ import (
 
 	"github.com/alicebob/miniredis/v2"
 	"github.com/redis/go-redis/v9"
+	"go.artefactual.dev/tools/ref"
 	"gotest.tools/v3/assert"
 
 	goapackage "github.com/artefactual-sdps/enduro/internal/api/gen/package_"
 	"github.com/artefactual-sdps/enduro/internal/event"
-	"github.com/artefactual-sdps/enduro/internal/ref"
 )
 
 func TestEventServiceRedisPublish(t *testing.T) {
