@@ -94,11 +94,13 @@ documentation to know more about it.
 
 ## Access
 
-There are four services available from the host:
+There are three services available from the host:
 
-- Enduro dashboard: <http://localhost:8080>
-- Minio console: <http://localhost:7460> (username: minio, password: minio123)
-- Temporal UI: <http://localhost:7440>
+| Service         | URL                         | Username            | Password   |
+|-----------------|-----------------------------|---------------------|------------|
+| Dashboard       | <http://localhost:8080>     | `admin@example.com` | `admin`    |
+| MinIO console   | <http://localhost:7460>     | `minio`             | `minio123` |
+| Temporal UI     | <http://localhost:7440>     | `admin@example.com` | `admin`    |
 
 ## Live updates
 
