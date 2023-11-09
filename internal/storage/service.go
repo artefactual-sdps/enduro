@@ -122,6 +122,7 @@ func (s *serviceImpl) Submit(ctx context.Context, payload *goastorage.SubmitPayl
 		TaskQueue: s.config.TaskQueue,
 	})
 	if err != nil {
+		s.logger.Error(err, "storage service: InitStorageUploadWorkflow")
 		return nil, goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
 	}
 
