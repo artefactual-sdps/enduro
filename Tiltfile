@@ -98,7 +98,7 @@ cmd_button(
   argv=[
     "sh",
     "-c",
-    "kubectl config set-context --current --namespace sdps; \
+    "kubectl config set-context --current --namespace enduro-sdps; \
     kubectl delete job --all; \
     kubectl create -f hack/kube/tools/mysql-recreate-databases-job.yaml; \
     kubectl create -f hack/kube/tools/minio-recreate-buckets-job.yaml; \
