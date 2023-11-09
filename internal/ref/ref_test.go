@@ -3,9 +3,8 @@ package ref_test
 import (
 	"testing"
 
+	"go.artefactual.dev/tools/ref"
 	"gotest.tools/v3/assert"
-
-	"github.com/artefactual-sdps/enduro/internal/ref"
 )
 
 func TestNew(t *testing.T) {
