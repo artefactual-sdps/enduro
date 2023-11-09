@@ -17,26 +17,14 @@ It's a **proof of concept** at its very early stages. It aims to cover our
 client's needs while exploring new and innovative ways to build durable and
 fault-tolerant workflows suited for preservation.
 
-## Development documentation resources
-
-- [Local/Development environment](./docs/devel.md)
-- [Dependency management](./docs/deps.md)
-- [Makefile](./docs/make.md)
-- [Release](./docs/release.md)
-- [Testing](./docs/testing.md)
-
-## Dashboard documentation resources
-
-- [Dashboard Development](./dashboard/README.md)
-- [Dashboard Styles](./dashboard/styles/README.md)
-
 ## User documentation resources
 
-- [User manual](https://enduro.readthedocs.io/user-manual/intro/)
+- [User manual](https://enduro.readthedocs.io/user-manual/)
 
-## Misc
+## Development documentation resources
 
-- [Filenotify documentation](./internal/filenotify/README.md)
+- [Developer manual](https://enduro.readthedocs.io/dev-manual/)
+
 
 [national health archive (nha)]: https://www.piql.com/norwegians-digital-health-data-to-be-preserved-for-future-generations/
 [national center for truth and reconciliation (nctr)]: https://nctr.ca/about/about-the-nctr/our-mandate/
