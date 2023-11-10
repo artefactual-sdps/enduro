@@ -193,7 +193,7 @@ func main() {
 	// Set up the storage service.
 	var storagesvc storage.Service
 	{
-		storagesvc, err = storage.NewService(logger.WithName("storage"), cfg.Storage, storagePersistence, temporalClient, tokenVerifier)
+		storagesvc, err = storage.NewService(logger.WithName("storage"), cfg.Storage, storagePersistence, temporalClient, tokenVerifier, rand.Reader)
 		if err != nil {
 			logger.Error(err, "Error setting up storage service.")
 			os.Exit(1)

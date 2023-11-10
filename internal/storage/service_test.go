@@ -91,6 +91,7 @@ func setUpService(t *testing.T, attrs *setUpAttrs) storage.Service {
 		*params.persistence,
 		*params.temporalClient,
 		params.tokenVerifier,
+		staticRand{},
 	)
 	assert.NilError(t, err)
 
@@ -128,6 +129,7 @@ func TestNewService(t *testing.T) {
 			nil,
 			nil,
 			&auth.OIDCTokenVerifier{},
+			nil,
 		)
 
 		assert.ErrorContains(t, err, "invalid configuration")
@@ -1434,9 +1436,6 @@ func TestServiceAddLocation(t *testing.T) {
 	})
 
 	t.Run("Returns not_valid if cannot persist location", func(t *testing.T) {
-		t.Cleanup(func() { uuid.SetRand(nil) })
-
-		uuid.SetRand(staticRand{})
 		locationID := uuid.MustParse("00010203-0405-4607-8809-0a0b0c0d0e0f")
 		attrs := &setUpAttrs{}
 		svc := setUpService(t, attrs)
@@ -1480,9 +1479,6 @@ func TestServiceAddLocation(t *testing.T) {
 	})
 
 	t.Run("Returns result with location UUID", func(t *testing.T) {
-		t.Cleanup(func() { uuid.SetRand(nil) })
-
-		uuid.SetRand(staticRand{})
 		locationID := uuid.MustParse("00010203-0405-4607-8809-0a0b0c0d0e0f")
 		attrs := &setUpAttrs{}
 		svc := setUpService(t, attrs)
@@ -1525,9 +1521,6 @@ func TestServiceAddLocation(t *testing.T) {
 	})
 
 	t.Run("Returns location with URL config", func(t *testing.T) {
-		t.Cleanup(func() { uuid.SetRand(nil) })
-
-		uuid.SetRand(staticRand{})
 		locationID := uuid.MustParse("00010203-0405-4607-8809-0a0b0c0d0e0f")
 		attrs := &setUpAttrs{}
 		svc := setUpService(t, attrs)
