@@ -1,10 +1,8 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
-set -o errexit
-set -o pipefail
-set -o nounset
+set -eu
 
-curdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+curdir=$(cd "$(dirname "$0")" && pwd)
 
 cd ${curdir}/..
 
@@ -17,9 +15,9 @@ cd ${curdir}/..
 #  $ go tool cover -func=html
 #
 
-go list ./... \
-	| grep -v "/artefactual-sdps/enduro/hack" \
-	| grep -v "/artefactual-sdps/enduro/internal/api/gen" \
-	| grep -v "/artefactual-sdps/enduro/internal/api/design" \
-	| grep -v "/fake" \
-	| paste -sd","
+go list ./... |
+	grep -v "/artefactual-sdps/enduro/hack" |
+	grep -v "/artefactual-sdps/enduro/internal/api/gen" |
+	grep -v "/artefactual-sdps/enduro/internal/api/design" |
+	grep -v "/fake" |
+	paste -sd","

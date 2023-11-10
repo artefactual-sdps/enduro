@@ -25,7 +25,7 @@ GIT_HASH="$git_hash"
 VERSION_PATH="$version_path"
 
 if [ "$1" = "shellvars" ]; then
-	cat <<EOF
+	cat << EOF
 VERSION_MINOR="$MINOR"
 VERSION_SHORT="$SHORT"
 VERSION_LONG="$LONG"

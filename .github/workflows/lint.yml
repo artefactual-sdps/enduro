@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - main
-      - dev/golangci-lint
 name: Lint
 jobs:
   golangci-lint:
@@ -23,3 +22,10 @@ jobs:
         with:
           version: v1.54.2
           args: --timeout=5m ./...
+  shfmt:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Run shfmt
+        run: make shfmt

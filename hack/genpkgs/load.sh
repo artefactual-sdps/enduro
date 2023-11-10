@@ -1,11 +1,8 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
-set -o errexit
-set -o pipefail
-set -o nounset
-set -o xtrace
+set -eux
 
-__dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+__dir=$(cd "$(dirname "$0")" && pwd)
 
 go run ${__dir}/main.go > ${__dir}/data.csv
 
