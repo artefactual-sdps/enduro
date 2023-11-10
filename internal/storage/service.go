@@ -2,8 +2,10 @@ package storage
 
 import (
 	"context"
+	"crypto/rand"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"time"
 
@@ -50,7 +52,11 @@ type serviceImpl struct {
 	// Persistence client.
 	storagePersistence persistence.Storage
 
+	// OAuth 2.0 token verifier.
 	tokenVerifier auth.TokenVerifier
+
+	// Random number generator
+	rander io.Reader
 }
 
 var _ Service = (*serviceImpl)(nil)
@@ -63,6 +69,7 @@ func NewService(
 	storagePersistence persistence.Storage,
 	tc temporalsdk_client.Client,
 	tokenVerifier auth.TokenVerifier,
+	rander io.Reader,
 ) (s *serviceImpl, err error) {
 	s = &serviceImpl{
 		logger:             logger,
@@ -70,6 +77,11 @@ func NewService(
 		config:             config,
 		storagePersistence: storagePersistence,
 		tokenVerifier:      tokenVerifier,
+		rander:             rander,
+	}
+
+	if s.rander == nil {
+		s.rander = rand.Reader
 	}
 
 	l, err := NewInternalLocation(&config.Internal)
@@ -126,7 +138,8 @@ func (s *serviceImpl) Submit(ctx context.Context, payload *goastorage.SubmitPayl
 		return nil, goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
 	}
 
-	objectKey := uuid.New()
+	objectKey := uuid.Must(uuid.NewRandomFromReader(s.rander))
+
 	_, err = s.storagePersistence.CreatePackage(ctx, &goastorage.Package{
 		Name:      payload.Name,
 		AipID:     aipID,
@@ -332,7 +345,7 @@ func (s *serviceImpl) PackageReader(ctx context.Context, pkg *goastorage.Package
 func (s *serviceImpl) AddLocation(ctx context.Context, payload *goastorage.AddLocationPayload) (res *goastorage.AddLocationResult, err error) {
 	source := types.NewLocationSource(payload.Source)
 	purpose := types.NewLocationPurpose(payload.Purpose)
-	UUID := uuid.New()
+	UUID := uuid.Must(uuid.NewRandomFromReader(s.rander))
 
 	var config types.LocationConfig
 	switch c := payload.Config.(type) {
