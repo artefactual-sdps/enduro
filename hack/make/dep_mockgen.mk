@@ -7,10 +7,10 @@ MOCKGEN_VERSION ?= 0.3.0
 
 MOCKGEN := $(CACHE_VERSIONS)/mockgen/$(MOCKGEN_VERSION)
 $(MOCKGEN):
-	@rm -f $(CACHE_BIN)/mockgen
-	@mkdir -p $(CACHE_BIN)
-	@env GOBIN=$(CACHE_BIN) go install go.uber.org/mock/mockgen@v$(MOCKGEN_VERSION)
-	@chmod +x $(CACHE_BIN)/mockgen
-	@rm -rf $(dir $(MOCKGEN))
-	@mkdir -p $(dir $(MOCKGEN))
-	@touch $(MOCKGEN)
+	rm -f $(CACHE_BIN)/mockgen
+	mkdir -p $(CACHE_BIN)
+	env GOBIN=$(CACHE_BIN) go install go.uber.org/mock/mockgen@v$(MOCKGEN_VERSION)
+	chmod +x $(CACHE_BIN)/mockgen
+	rm -rf $(dir $(MOCKGEN))
+	mkdir -p $(dir $(MOCKGEN))
+	touch $(MOCKGEN)

@@ -11,10 +11,10 @@ ENT_VERSION ?= 0.12.4
 
 ENT := $(CACHE_VERSIONS)/ent/$(ENT_VERSION)
 $(ENT):
-	@rm -f $(CACHE_BIN)/ent
-	@mkdir -p $(CACHE_BIN)
-	@env GOBIN=$(CACHE_BIN) go install entgo.io/ent/cmd/ent@v$(ENT_VERSION)
-	@chmod +x $(CACHE_BIN)/ent
-	@rm -rf $(dir $(ENT))
-	@mkdir -p $(dir $(ENT))
-	@touch $(ENT)
+	rm -f $(CACHE_BIN)/ent
+	mkdir -p $(CACHE_BIN)
+	env GOBIN=$(CACHE_BIN) go install entgo.io/ent/cmd/ent@v$(ENT_VERSION)
+	chmod +x $(CACHE_BIN)/ent
+	rm -rf $(dir $(ENT))
+	mkdir -p $(dir $(ENT))
+	touch $(ENT)
