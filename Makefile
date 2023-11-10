@@ -45,7 +45,6 @@ IGNORED_PACKAGES := \
 PACKAGES := $(shell go list ./...)
 TEST_PACKAGES := $(filter-out $(IGNORED_PACKAGES),$(PACKAGES))
 TEST_IGNORED_PACKAGES := $(filter $(IGNORED_PACKAGES),$(PACKAGES))
-TFORMAT := short
 
 export PATH:=$(GOBIN):$(PATH)
 
@@ -62,12 +61,19 @@ tparse: $(TPARSE)
 	go test -count=1 -json -cover $(TEST_PACKAGES) | tparse -follow -all -notests
 
 test: # @HELP Run all tests and output a summary using gotestsum.
+test: TFORMAT ?= short
+test: GOTEST_FLAGS ?=
+test: COMBINED_FLAGS ?= $(GOTEST_FLAGS) $(TEST_PACKAGES)
 test: $(GOTESTSUM)
-	gotestsum --format=$(TFORMAT) $(TEST_PACKAGES)
+	gotestsum --format=$(TFORMAT) -- $(COMBINED_FLAGS)
 
 test-race: # @HELP Run all tests with the race detector.
-test-race: $(GOTESTSUM)
-	gotestsum --format=$(TFORMAT) $(TEST_PACKAGES) -- -race
+test-race:
+	$(MAKE) test GOTEST_FLAGS="-race"
+
+test-ci: # @HELP Run all tests in CI with coverage and the race detector.
+test-ci:
+	$(MAKE) test GOTEST_FLAGS="-race -coverprofile=covreport -covermode=atomic"
 
 list-tested-packages: # @HELP Print a list of packages being tested.
 list-tested-packages:
