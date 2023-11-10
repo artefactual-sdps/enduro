@@ -23,6 +23,7 @@ include hack/make/dep_gosec.mk
 include hack/make/dep_gotestsum.mk
 include hack/make/dep_migrate.mk
 include hack/make/dep_mockgen.mk
+include hack/make/dep_shfmt.mk
 include hack/make/dep_tparse.mk
 
 define NEWLINE
@@ -118,6 +119,20 @@ gen-ent: $(ENT)
 	ent generate ./internal/storage/persistence/ent/schema \
 		--feature sql/versioned-migration \
 		--target=./internal/storage/persistence/ent/db
+
+shfmt: SHELL_PROGRAMS := $(shell find $(CURDIR)/hack -name *.sh)
+shfmt: $(SHFMT) # @HELP Run shfmt to format shell programs in the hack directory.
+	shfmt \
+		--list \
+		--write \
+		--diff \
+		--simplify \
+		--language-dialect=posix \
+		--indent=0 \
+		--case-indent \
+		--space-redirects \
+		--func-next-line \
+			$(SHELL_PROGRAMS)
 
 gosec: # @HELP Run gosec security scanner.
 gosec: $(GOSEC)

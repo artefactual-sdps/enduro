@@ -5,7 +5,7 @@ set -eu
 TARGET=${1:-}
 if [ -z "$TARGET" ]; then
 	echo "Service name must be supplied, e.g.:"
-	echo "\t $ `basename "$0"` enduro"
+	echo "\t $ $(basename "$0") enduro"
 	exit 1
 fi
 case "$TARGET" in
@@ -19,14 +19,14 @@ case "$TARGET" in
 		TARGET="enduro-a3m-worker"
 		FOLDER="."
 		;;
-        "enduro-dashboard")
+	"enduro-dashboard")
 		IMAGE_NAME="enduro-dashboard"
 		TARGET="enduro-dashboard"
 		FOLDER="dashboard"
 		;;
 	*)
-		echo "Accepted values: enduro, enduro-a3m-worker, enduro-dashboard.";
-		exit 1;
+		echo "Accepted values: enduro, enduro-a3m-worker, enduro-dashboard."
+		exit 1
 		;;
 esac
 
@@ -38,7 +38,10 @@ IMAGE_NAME="${TILT_EXPECTED_REF:-$DEFAULT_IMAGE_NAME}"
 BUILD_OPTS="${BUILD_OPTS:-}"
 
 GO_VERSION=$(cat .go-version)
-test -n "$GO_VERSION" || { echo "Error: .go-version is empty."; exit 1; }
+test -n "$GO_VERSION" || {
+	echo "Error: .go-version is empty."
+	exit 1
+}
 
 env DOCKER_BUILDKIT=1 docker build \
 	-t "$IMAGE_NAME" \
@@ -50,4 +53,4 @@ env DOCKER_BUILDKIT=1 docker build \
 	--build-arg="VERSION_SHORT=$VERSION_SHORT" \
 	--build-arg="VERSION_GIT_HASH=$VERSION_GIT_HASH" \
 	$BUILD_OPTS \
-		$FOLDER
+	$FOLDER
