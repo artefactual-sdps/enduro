@@ -887,64 +887,6 @@ paths:
             security:
                 - oauth2_header_Authorization: []
 definitions:
-    EnduroMonitorPingEventResponseBody:
-        title: 'Mediatype identifier: application/vnd.enduro.monitor-ping-event; view=default'
-        type: object
-        properties:
-            message:
-                type: string
-                example: abc123
-        description: EnduroMonitor-Ping-EventResponseBody result type (default view)
-        example:
-            message: abc123
-    EnduroPackageCreatedEventResponseBody:
-        title: 'Mediatype identifier: application/vnd.enduro.package-created-event; view=default'
-        type: object
-        properties:
-            id:
-                type: integer
-                description: Identifier of package
-                example: 1
-                format: int64
-            item:
-                $ref: '#/definitions/EnduroStoredPackageResponseBody'
-        description: EnduroPackage-Created-EventResponseBody result type (default view)
-        example:
-            id: 1
-            item:
-                aip_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                completed_at: "1970-01-01T00:00:01Z"
-                created_at: "1970-01-01T00:00:01Z"
-                id: 1
-                location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                name: abc123
-                run_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                started_at: "1970-01-01T00:00:01Z"
-                status: in progress
-                workflow_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-        required:
-            - id
-            - item
-    EnduroPackageLocationUpdatedEventResponseBody:
-        title: 'Mediatype identifier: application/vnd.enduro.package-location-updated-event; view=default'
-        type: object
-        properties:
-            id:
-                type: integer
-                description: Identifier of package
-                example: 1
-                format: int64
-            location_id:
-                type: string
-                description: Identifier of storage location
-                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-        description: EnduroPackage-Location-Updated-EventResponseBody result type (default view)
-        example:
-            id: 1
-            location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-        required:
-            - id
-            - location_id
     EnduroPackagePreservationActionResponseBody:
         title: 'Mediatype identifier: application/vnd.enduro.package-preservation-action; view=default'
         type: object
@@ -1034,61 +976,6 @@ definitions:
                   task_id: abc123
               type: create-and-review-aip
               workflow_id: abc123
-    EnduroPackagePreservationActionResponseBodySimple:
-        title: 'Mediatype identifier: application/vnd.enduro.package-preservation-action; view=default'
-        type: object
-        properties:
-            completed_at:
-                type: string
-                example: "1970-01-01T00:00:01Z"
-                format: date-time
-            id:
-                type: integer
-                example: 1
-                format: int64
-            package_id:
-                type: integer
-                example: 1
-                format: int64
-            started_at:
-                type: string
-                example: "1970-01-01T00:00:01Z"
-                format: date-time
-            status:
-                type: string
-                example: in progress
-                enum:
-                    - unspecified
-                    - in progress
-                    - done
-                    - error
-                    - queued
-                    - pending
-            type:
-                type: string
-                example: create-and-review-aip
-                enum:
-                    - create-aip
-                    - create-and-review-aip
-                    - move-package
-            workflow_id:
-                type: string
-                example: abc123
-        description: PreservationAction describes a preservation action. (simple view) (default view)
-        example:
-            completed_at: "1970-01-01T00:00:01Z"
-            id: 1
-            package_id: 1
-            started_at: "1970-01-01T00:00:01Z"
-            status: in progress
-            type: create-and-review-aip
-            workflow_id: abc123
-        required:
-            - id
-            - workflow_id
-            - type
-            - status
-            - started_at
     EnduroPackagePreservationTaskResponseBody:
         title: 'Mediatype identifier: application/vnd.enduro.package-preservation-task; view=default'
         type: object
@@ -1159,164 +1046,6 @@ definitions:
               started_at: "1970-01-01T00:00:01Z"
               status: in progress
               task_id: abc123
-    EnduroPackageStatusUpdatedEventResponseBody:
-        title: 'Mediatype identifier: application/vnd.enduro.package-status-updated-event; view=default'
-        type: object
-        properties:
-            id:
-                type: integer
-                description: Identifier of package
-                example: 1
-                format: int64
-            status:
-                type: string
-                example: in progress
-                enum:
-                    - new
-                    - in progress
-                    - done
-                    - error
-                    - unknown
-                    - queued
-                    - pending
-                    - abandoned
-        description: EnduroPackage-Status-Updated-EventResponseBody result type (default view)
-        example:
-            id: 1
-            status: in progress
-        required:
-            - id
-            - status
-    EnduroPackageUpdatedEventResponseBody:
-        title: 'Mediatype identifier: application/vnd.enduro.package-updated-event; view=default'
-        type: object
-        properties:
-            id:
-                type: integer
-                description: Identifier of package
-                example: 1
-                format: int64
-            item:
-                $ref: '#/definitions/EnduroStoredPackageResponseBody'
-        description: EnduroPackage-Updated-EventResponseBody result type (default view)
-        example:
-            id: 1
-            item:
-                aip_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                completed_at: "1970-01-01T00:00:01Z"
-                created_at: "1970-01-01T00:00:01Z"
-                id: 1
-                location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                name: abc123
-                run_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                started_at: "1970-01-01T00:00:01Z"
-                status: in progress
-                workflow_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-        required:
-            - id
-            - item
-    EnduroPreservationActionCreatedEventResponseBody:
-        title: 'Mediatype identifier: application/vnd.enduro.preservation-action-created-event; view=default'
-        type: object
-        properties:
-            id:
-                type: integer
-                description: Identifier of preservation action
-                example: 1
-                format: int64
-            item:
-                $ref: '#/definitions/EnduroPackagePreservationActionResponseBodySimple'
-        description: EnduroPreservation-Action-Created-EventResponseBody result type (default view)
-        example:
-            id: 1
-            item:
-                completed_at: "1970-01-01T00:00:01Z"
-                id: 1
-                package_id: 1
-                started_at: "1970-01-01T00:00:01Z"
-                status: in progress
-                type: create-and-review-aip
-                workflow_id: abc123
-        required:
-            - id
-            - item
-    EnduroPreservationActionUpdatedEventResponseBody:
-        title: 'Mediatype identifier: application/vnd.enduro.preservation-action-updated-event; view=default'
-        type: object
-        properties:
-            id:
-                type: integer
-                description: Identifier of preservation action
-                example: 1
-                format: int64
-            item:
-                $ref: '#/definitions/EnduroPackagePreservationActionResponseBodySimple'
-        description: EnduroPreservation-Action-Updated-EventResponseBody result type (default view)
-        example:
-            id: 1
-            item:
-                completed_at: "1970-01-01T00:00:01Z"
-                id: 1
-                package_id: 1
-                started_at: "1970-01-01T00:00:01Z"
-                status: in progress
-                type: create-and-review-aip
-                workflow_id: abc123
-        required:
-            - id
-            - item
-    EnduroPreservationTaskCreatedEventResponseBody:
-        title: 'Mediatype identifier: application/vnd.enduro.preservation-task-created-event; view=default'
-        type: object
-        properties:
-            id:
-                type: integer
-                description: Identifier of preservation task
-                example: 1
-                format: int64
-            item:
-                $ref: '#/definitions/EnduroPackagePreservationTaskResponseBody'
-        description: EnduroPreservation-Task-Created-EventResponseBody result type (default view)
-        example:
-            id: 1
-            item:
-                completed_at: "1970-01-01T00:00:01Z"
-                id: 1
-                name: abc123
-                note: abc123
-                preservation_action_id: 1
-                started_at: "1970-01-01T00:00:01Z"
-                status: in progress
-                task_id: abc123
-        required:
-            - id
-            - item
-    EnduroPreservationTaskUpdatedEventResponseBody:
-        title: 'Mediatype identifier: application/vnd.enduro.preservation-task-updated-event; view=default'
-        type: object
-        properties:
-            id:
-                type: integer
-                description: Identifier of preservation task
-                example: 1
-                format: int64
-            item:
-                $ref: '#/definitions/EnduroPackagePreservationTaskResponseBody'
-        description: EnduroPreservation-Task-Updated-EventResponseBody result type (default view)
-        example:
-            id: 1
-            item:
-                completed_at: "1970-01-01T00:00:01Z"
-                id: 1
-                name: abc123
-                note: abc123
-                preservation_action_id: 1
-                started_at: "1970-01-01T00:00:01Z"
-                status: in progress
-                task_id: abc123
-        required:
-            - id
-            - item
     EnduroStoredPackageResponseBody:
         title: 'Mediatype identifier: application/vnd.enduro.stored-package; view=default'
         type: object
@@ -1691,105 +1420,50 @@ definitions:
             - timeout
             - fault
     PackageMonitorResponseBody:
-        title: 'Mediatype identifier: application/vnd.enduro.monitor-event; view=default'
+        title: PackageMonitorResponseBody
         type: object
         properties:
-            monitor_ping_event:
-                $ref: '#/definitions/EnduroMonitorPingEventResponseBody'
-            package_created_event:
-                $ref: '#/definitions/EnduroPackageCreatedEventResponseBody'
-            package_location_updated_event:
-                $ref: '#/definitions/EnduroPackageLocationUpdatedEventResponseBody'
-            package_status_updated_event:
-                $ref: '#/definitions/EnduroPackageStatusUpdatedEventResponseBody'
-            package_updated_event:
-                $ref: '#/definitions/EnduroPackageUpdatedEventResponseBody'
-            preservation_action_created_event:
-                $ref: '#/definitions/EnduroPreservationActionCreatedEventResponseBody'
-            preservation_action_updated_event:
-                $ref: '#/definitions/EnduroPreservationActionUpdatedEventResponseBody'
-            preservation_task_created_event:
-                $ref: '#/definitions/EnduroPreservationTaskCreatedEventResponseBody'
-            preservation_task_updated_event:
-                $ref: '#/definitions/EnduroPreservationTaskUpdatedEventResponseBody'
-        description: MonitorResponseBody result type (default view)
+            event:
+                type: object
+                properties:
+                    Type:
+                        type: string
+                        description: |-
+                            Union type name, one of:
+                            - "monitor_ping_event"
+                            - "package_created_event"
+                            - "package_updated_event"
+                            - "package_status_updated_event"
+                            - "package_location_updated_event"
+                            - "preservation_action_created_event"
+                            - "preservation_action_updated_event"
+                            - "preservation_task_created_event"
+                            - "preservation_task_updated_event"
+                        example: package_created_event
+                        enum:
+                            - monitor_ping_event
+                            - package_created_event
+                            - package_updated_event
+                            - package_status_updated_event
+                            - package_location_updated_event
+                            - preservation_action_created_event
+                            - preservation_action_updated_event
+                            - preservation_task_created_event
+                            - preservation_task_updated_event
+                    Value:
+                        type: string
+                        description: JSON encoded union value
+                        example: '{"id":1,"item":{"aip_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","id":1,"location_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","name":"abc123","run_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","started_at":"1970-01-01T00:00:01Z","status":"in progress","workflow_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}}'
+                example:
+                    Type: package_created_event
+                    Value: '{"id":1,"item":{"aip_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","id":1,"location_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","name":"abc123","run_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","started_at":"1970-01-01T00:00:01Z","status":"in progress","workflow_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}}'
+                required:
+                    - Type
+                    - Value
         example:
-            monitor_ping_event:
-                message: abc123
-            package_created_event:
-                id: 1
-                item:
-                    aip_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                    completed_at: "1970-01-01T00:00:01Z"
-                    created_at: "1970-01-01T00:00:01Z"
-                    id: 1
-                    location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                    name: abc123
-                    run_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                    started_at: "1970-01-01T00:00:01Z"
-                    status: in progress
-                    workflow_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-            package_location_updated_event:
-                id: 1
-                location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-            package_status_updated_event:
-                id: 1
-                status: in progress
-            package_updated_event:
-                id: 1
-                item:
-                    aip_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                    completed_at: "1970-01-01T00:00:01Z"
-                    created_at: "1970-01-01T00:00:01Z"
-                    id: 1
-                    location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                    name: abc123
-                    run_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                    started_at: "1970-01-01T00:00:01Z"
-                    status: in progress
-                    workflow_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-            preservation_action_created_event:
-                id: 1
-                item:
-                    completed_at: "1970-01-01T00:00:01Z"
-                    id: 1
-                    package_id: 1
-                    started_at: "1970-01-01T00:00:01Z"
-                    status: in progress
-                    type: create-and-review-aip
-                    workflow_id: abc123
-            preservation_action_updated_event:
-                id: 1
-                item:
-                    completed_at: "1970-01-01T00:00:01Z"
-                    id: 1
-                    package_id: 1
-                    started_at: "1970-01-01T00:00:01Z"
-                    status: in progress
-                    type: create-and-review-aip
-                    workflow_id: abc123
-            preservation_task_created_event:
-                id: 1
-                item:
-                    completed_at: "1970-01-01T00:00:01Z"
-                    id: 1
-                    name: abc123
-                    note: abc123
-                    preservation_action_id: 1
-                    started_at: "1970-01-01T00:00:01Z"
-                    status: in progress
-                    task_id: abc123
-            preservation_task_updated_event:
-                id: 1
-                item:
-                    completed_at: "1970-01-01T00:00:01Z"
-                    id: 1
-                    name: abc123
-                    note: abc123
-                    preservation_action_id: 1
-                    started_at: "1970-01-01T00:00:01Z"
-                    status: in progress
-                    task_id: abc123
+            event:
+                Type: package_created_event
+                Value: '{"id":1,"item":{"aip_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","id":1,"location_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","name":"abc123","run_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","started_at":"1970-01-01T00:00:01Z","status":"in progress","workflow_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}}'
     PackageMoveNotAvailableResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object

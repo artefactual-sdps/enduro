@@ -1,8 +1,10 @@
 import { api, client } from "@/client";
+import { MonitorEventEventTypeEnum } from "@/openapi-generator";
 import { useLayoutStore } from "@/stores/layout";
 import router from "@/router";
 import { defineStore, acceptHMRUpdate } from "pinia";
 import { ref } from "vue";
+import { mapKeys, snakeCase } from "lodash-es";
 
 export const usePackageStore = defineStore("package", {
   state: () => ({
@@ -66,15 +68,10 @@ export const usePackageStore = defineStore("package", {
     },
   },
   actions: {
-    handleEvent(event: api.MonitorResponseBody) {
-      let key: keyof api.MonitorResponseBody;
-      for (key in event) {
-        const payload: any = event[key];
-        if (!payload) continue;
-        const handler = handlers[key];
-        handler(payload);
-        break;
-      }
+    handleEvent(event: api.MonitorEventEvent) {
+      const json = JSON.parse(event.value);
+      const value = mapKeys(json, (value, key) => snakeCase(key));
+      handlers[event.type](value);
     },
     async fetchCurrent(id: string) {
       this.$reset();
@@ -169,58 +166,54 @@ if (import.meta.hot) {
   import.meta.hot.accept(acceptHMRUpdate(usePackageStore, import.meta.hot));
 }
 
-// Event handler function.
-type Handler<T> = (event: T) => void;
-
-// Utility that constructs a type with all properties of T set to required,
-// mapping them to the event handlers.
-type Partial<T> = {
-  [P in keyof T]-?: Handler<NonNullable<T[P]>>;
+const handlers: {
+  [key in api.MonitorEventEventTypeEnum]: (data: any) => void;
+} = {
+  [MonitorEventEventTypeEnum.MonitorPingEvent]: handleMonitorPing,
+  [MonitorEventEventTypeEnum.PackageCreatedEvent]: handlePackageCreated,
+  [MonitorEventEventTypeEnum.PackageUpdatedEvent]: handlePackageUpdated,
+  [MonitorEventEventTypeEnum.PackageStatusUpdatedEvent]:
+    handlePackageStatusUpdated,
+  [MonitorEventEventTypeEnum.PackageLocationUpdatedEvent]:
+    handlePackageLocationUpdated,
+  [MonitorEventEventTypeEnum.PreservationActionCreatedEvent]:
+    handlePreservationActionCreated,
+  [MonitorEventEventTypeEnum.PreservationActionUpdatedEvent]:
+    handlePreservationActionUpdated,
+  [MonitorEventEventTypeEnum.PreservationTaskCreatedEvent]:
+    handlePreservationTaskCreated,
+  [MonitorEventEventTypeEnum.PreservationTaskUpdatedEvent]:
+    handlePreservationTaskUpdated,
 };
 
-// Pairs all known events with the event handlers.
-const handlers: Partial<api.MonitorResponseBody> = {
-  monitorPingEvent: handleMonitorPing,
-  packageCreatedEvent: handlePackageCreated,
-  packageLocationUpdatedEvent: handlePackageLocationUpdated,
-  packageStatusUpdatedEvent: handlePackageStatusUpdated,
-  packageUpdatedEvent: handlePackageUpdated,
-  preservationActionCreatedEvent: handlePreservationActionCreated,
-  preservationActionUpdatedEvent: handlePreservationActionUpdated,
-  preservationTaskCreatedEvent: handlePreservationTaskCreated,
-  preservationTaskUpdatedEvent: handlePreservationTaskUpdated,
-};
+function handleMonitorPing(data: any) {
+  const event = api.MonitorPingEventFromJSON(data);
+}
 
-function handleMonitorPing(event: api.EnduroMonitorPingEventResponseBody) {}
-
-function handlePackageCreated(
-  event: api.EnduroPackageCreatedEventResponseBody,
-) {
+function handlePackageCreated(data: any) {
+  const event = api.PackageCreatedEventFromJSON(data);
   const store = usePackageStore();
   store.fetchPackagesDebounced();
 }
 
-function handlePackageUpdated(
-  event: api.EnduroPackageUpdatedEventResponseBody,
-) {
+function handlePackageUpdated(data: any) {
+  const event = api.PackageUpdatedEventFromJSON(data);
   const store = usePackageStore();
   store.fetchPackagesDebounced();
   if (store.$state.current?.id != event.id) return;
   Object.assign(store.$state.current, event.item);
 }
 
-function handlePackageStatusUpdated(
-  event: api.EnduroPackageStatusUpdatedEventResponseBody,
-) {
+function handlePackageStatusUpdated(data: any) {
+  const event = api.PackageStatusUpdatedEventFromJSON(data);
   const store = usePackageStore();
   store.fetchPackagesDebounced();
   if (store.$state.current?.id != event.id) return;
   store.$state.current.status = event.status;
 }
 
-function handlePackageLocationUpdated(
-  event: api.EnduroPackageLocationUpdatedEventResponseBody,
-) {
+function handlePackageLocationUpdated(data: any) {
+  const event = api.PackageLocationUpdatedEventFromJSON(data);
   const store = usePackageStore();
   store.fetchPackagesDebounced();
   store.$patch((state) => {
@@ -230,9 +223,8 @@ function handlePackageLocationUpdated(
   });
 }
 
-function handlePreservationActionCreated(
-  event: api.EnduroPreservationActionCreatedEventResponseBody,
-) {
+function handlePreservationActionCreated(data: any) {
+  const event = api.PreservationActionCreatedEventFromJSON(data);
   const store = usePackageStore();
 
   // Ignore event if it does not relate to the current package.
@@ -242,9 +234,8 @@ function handlePreservationActionCreated(
   store.current_preservation_actions?.actions?.unshift(event.item);
 }
 
-function handlePreservationActionUpdated(
-  event: api.EnduroPreservationActionUpdatedEventResponseBody,
-) {
+function handlePreservationActionUpdated(data: any) {
+  const event = api.PreservationActionUpdatedEventFromJSON(data);
   const store = usePackageStore();
 
   // Ignore event if it does not relate to the current package.
@@ -256,9 +247,8 @@ function handlePreservationActionUpdated(
   Object.assign(action, event.item);
 }
 
-function handlePreservationTaskCreated(
-  event: api.EnduroPreservationTaskCreatedEventResponseBody,
-) {
+function handlePreservationTaskCreated(data: any) {
+  const event = api.PreservationTaskCreatedEventFromJSON(data);
   const store = usePackageStore();
 
   // Find and update the action.
@@ -271,9 +261,8 @@ function handlePreservationTaskCreated(
   }
 }
 
-function handlePreservationTaskUpdated(
-  event: api.EnduroPreservationTaskUpdatedEventResponseBody,
-) {
+function handlePreservationTaskUpdated(data: any) {
+  const event = api.PreservationTaskUpdatedEventFromJSON(data);
   const store = usePackageStore();
 
   if (!event.item.preservationActionId) return;

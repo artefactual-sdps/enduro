@@ -14,29 +14,29 @@
 
 import { exists, mapValues } from '../runtime';
 /**
- * EnduroPackage-Location-Updated-EventResponseBody result type (default view)
+ * 
  * @export
- * @interface EnduroPackageLocationUpdatedEventResponseBody
+ * @interface PackageLocationUpdatedEvent
  */
-export interface EnduroPackageLocationUpdatedEventResponseBody {
+export interface PackageLocationUpdatedEvent {
     /**
      * Identifier of package
      * @type {number}
-     * @memberof EnduroPackageLocationUpdatedEventResponseBody
+     * @memberof PackageLocationUpdatedEvent
      */
     id: number;
     /**
      * Identifier of storage location
      * @type {string}
-     * @memberof EnduroPackageLocationUpdatedEventResponseBody
+     * @memberof PackageLocationUpdatedEvent
      */
     locationId: string;
 }
 
 /**
- * Check if a given object implements the EnduroPackageLocationUpdatedEventResponseBody interface.
+ * Check if a given object implements the PackageLocationUpdatedEvent interface.
  */
-export function instanceOfEnduroPackageLocationUpdatedEventResponseBody(value: object): boolean {
+export function instanceOfPackageLocationUpdatedEvent(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "id" in value;
     isInstance = isInstance && "locationId" in value;
@@ -44,11 +44,11 @@ export function instanceOfEnduroPackageLocationUpdatedEventResponseBody(value: o
     return isInstance;
 }
 
-export function EnduroPackageLocationUpdatedEventResponseBodyFromJSON(json: any): EnduroPackageLocationUpdatedEventResponseBody {
-    return EnduroPackageLocationUpdatedEventResponseBodyFromJSONTyped(json, false);
+export function PackageLocationUpdatedEventFromJSON(json: any): PackageLocationUpdatedEvent {
+    return PackageLocationUpdatedEventFromJSONTyped(json, false);
 }
 
-export function EnduroPackageLocationUpdatedEventResponseBodyFromJSONTyped(json: any, ignoreDiscriminator: boolean): EnduroPackageLocationUpdatedEventResponseBody {
+export function PackageLocationUpdatedEventFromJSONTyped(json: any, ignoreDiscriminator: boolean): PackageLocationUpdatedEvent {
     if ((json === undefined) || (json === null)) {
         return json;
     }
@@ -59,7 +59,7 @@ export function EnduroPackageLocationUpdatedEventResponseBodyFromJSONTyped(json:
     };
 }
 
-export function EnduroPackageLocationUpdatedEventResponseBodyToJSON(value?: EnduroPackageLocationUpdatedEventResponseBody | null): any {
+export function PackageLocationUpdatedEventToJSON(value?: PackageLocationUpdatedEvent | null): any {
     if (value === undefined) {
         return undefined;
     }

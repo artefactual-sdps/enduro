@@ -86,7 +86,7 @@ func (svc *packageImpl) Create(ctx context.Context, pkg *Package) error {
 	pkg.ID = uint(id)
 
 	if pkg, err := svc.Goa().Show(ctx, &goapackage.ShowPayload{ID: uint(id)}); err == nil {
-		ev := &goapackage.EnduroPackageCreatedEvent{ID: uint(id), Item: pkg}
+		ev := &goapackage.PackageCreatedEvent{ID: uint(id), Item: pkg}
 		event.PublishEvent(ctx, svc.evsvc, ev)
 	}
 
@@ -119,7 +119,7 @@ func (svc *packageImpl) UpdateWorkflowStatus(ctx context.Context, ID uint, name 
 	}
 
 	if pkg, err := svc.Goa().Show(ctx, &goapackage.ShowPayload{ID: ID}); err == nil {
-		ev := &goapackage.EnduroPackageUpdatedEvent{ID: uint(ID), Item: pkg}
+		ev := &goapackage.PackageUpdatedEvent{ID: uint(ID), Item: pkg}
 		event.PublishEvent(ctx, svc.evsvc, ev)
 	}
 
@@ -137,7 +137,7 @@ func (svc *packageImpl) SetStatus(ctx context.Context, ID uint, status Status) e
 		return err
 	}
 
-	ev := &goapackage.EnduroPackageStatusUpdatedEvent{ID: uint(ID), Status: status.String()}
+	ev := &goapackage.PackageStatusUpdatedEvent{ID: uint(ID), Status: status.String()}
 	event.PublishEvent(ctx, svc.evsvc, ev)
 
 	return nil
@@ -159,7 +159,7 @@ func (svc *packageImpl) SetStatusInProgress(ctx context.Context, ID uint, starte
 		return err
 	}
 
-	ev := &goapackage.EnduroPackageStatusUpdatedEvent{ID: uint(ID), Status: StatusInProgress.String()}
+	ev := &goapackage.PackageStatusUpdatedEvent{ID: uint(ID), Status: StatusInProgress.String()}
 	event.PublishEvent(ctx, svc.evsvc, ev)
 
 	return nil
@@ -176,7 +176,7 @@ func (svc *packageImpl) SetStatusPending(ctx context.Context, ID uint) error {
 		return err
 	}
 
-	ev := &goapackage.EnduroPackageStatusUpdatedEvent{ID: uint(ID), Status: StatusPending.String()}
+	ev := &goapackage.PackageStatusUpdatedEvent{ID: uint(ID), Status: StatusPending.String()}
 	event.PublishEvent(ctx, svc.evsvc, ev)
 
 	return nil
@@ -193,7 +193,7 @@ func (svc *packageImpl) SetLocationID(ctx context.Context, ID uint, locationID u
 		return err
 	}
 
-	ev := &goapackage.EnduroPackageLocationUpdatedEvent{ID: uint(ID), LocationID: locationID}
+	ev := &goapackage.PackageLocationUpdatedEvent{ID: uint(ID), LocationID: locationID}
 	event.PublishEvent(ctx, svc.evsvc, ev)
 
 	return nil

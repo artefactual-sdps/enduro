@@ -7,14 +7,17 @@ import (
 	"time"
 
 	"github.com/alicebob/miniredis/v2"
+	"github.com/go-logr/logr/testr"
 	"github.com/redis/go-redis/v9"
 	"go.artefactual.dev/tools/ref"
 	"gotest.tools/v3/assert"
 
+	"github.com/artefactual-sdps/enduro/internal/api/gen/http/package_/server"
 	goapackage "github.com/artefactual-sdps/enduro/internal/api/gen/package_"
 	"github.com/artefactual-sdps/enduro/internal/event"
 )
 
+// Confirm that PublishEvent is streaming events via Redis.
 func TestEventServiceRedisPublish(t *testing.T) {
 	t.Parallel()
 
@@ -49,23 +52,24 @@ func TestEventServiceRedisPublish(t *testing.T) {
 		RedisAddress: "redis://" + s.Addr(),
 		RedisChannel: channel,
 	}
-	svc, err := event.NewEventServiceRedis(&cfg)
+	svc, err := event.NewEventServiceRedis(testr.New(t), &cfg)
 	assert.NilError(t, err)
 
-	svc.PublishEvent(&goapackage.EnduroMonitorEvent{
-		MonitorPingEvent: &goapackage.EnduroMonitorPingEvent{
+	svc.PublishEvent(&goapackage.MonitorEvent{
+		Event: &goapackage.MonitorPingEvent{
 			Message: ref.New("hello"),
 		},
 	})
 
 	select {
 	case ret := <-input:
-		assert.DeepEqual(t, ret.Payload, `{"MonitorPingEvent":{"Message":"hello"},"PackageCreatedEvent":null,"PackageUpdatedEvent":null,"PackageStatusUpdatedEvent":null,"PackageLocationUpdatedEvent":null,"PreservationActionCreatedEvent":null,"PreservationActionUpdatedEvent":null,"PreservationTaskCreatedEvent":null,"PreservationTaskUpdatedEvent":null}`)
+		assert.DeepEqual(t, ret.Payload, `{"event":{"Type":"monitor_ping_event","Value":"{\"Message\":\"hello\"}"}}`)
 	case <-time.After(10 * time.Second):
 		t.Fatal("timeout!")
 	}
 }
 
+// Confirm that Subscribe is capturing events received via Redis.
 func TestEventServiceRedisSubscribe(t *testing.T) {
 	t.Parallel()
 
@@ -76,7 +80,7 @@ func TestEventServiceRedisSubscribe(t *testing.T) {
 		RedisAddress: "redis://" + s.Addr(),
 		RedisChannel: "enduro-events",
 	}
-	svc, err := event.NewEventServiceRedis(&cfg)
+	svc, err := event.NewEventServiceRedis(testr.New(t), &cfg)
 	assert.NilError(t, err)
 
 	sub, err := svc.Subscribe(ctx)
@@ -88,12 +92,12 @@ func TestEventServiceRedisSubscribe(t *testing.T) {
 	c := redis.NewClient(&redis.Options{
 		Addr: s.Addr(),
 	})
-	ev := goapackage.EnduroMonitorEvent{
-		MonitorPingEvent: &goapackage.EnduroMonitorPingEvent{
+	ev := goapackage.MonitorEvent{
+		Event: &goapackage.MonitorPingEvent{
 			Message: ref.New("hello"),
 		},
 	}
-	blob, err := json.Marshal(ev)
+	blob, err := json.Marshal(server.NewMonitorResponseBody(&ev))
 	assert.NilError(t, err)
 
 	err = c.Publish(ctx, cfg.RedisChannel, blob).Err()

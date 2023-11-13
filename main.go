@@ -130,7 +130,7 @@ func main() {
 	}
 
 	// Set up the event service.
-	evsvc, err := event.NewEventServiceRedis(&cfg.Event)
+	evsvc, err := event.NewEventServiceRedis(logger.WithName("events"), &cfg.Event)
 	if err != nil {
 		logger.Error(err, "Error creating Event service.")
 		os.Exit(1)

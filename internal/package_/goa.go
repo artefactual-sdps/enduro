@@ -80,8 +80,8 @@ func (w *goaWrapper) Monitor(ctx context.Context, payload *goapackage.MonitorPay
 	defer sub.Close()
 
 	// Say hello to be nice.
-	event := &goapackage.EnduroMonitorPingEvent{Message: ref.New("Hello")}
-	if err := stream.Send(&goapackage.EnduroMonitorEvent{MonitorPingEvent: event}); err != nil {
+	event := &goapackage.MonitorPingEvent{Message: ref.New("Hello")}
+	if err := stream.Send(&goapackage.MonitorEvent{Event: event}); err != nil {
 		return err
 	}
 
@@ -97,8 +97,8 @@ func (w *goaWrapper) Monitor(ctx context.Context, payload *goapackage.MonitorPay
 			return nil
 
 		case <-ticker.C:
-			event := &goapackage.EnduroMonitorPingEvent{Message: ref.New("Ping")}
-			if err := stream.Send(&goapackage.EnduroMonitorEvent{MonitorPingEvent: event}); err != nil {
+			event := &goapackage.MonitorPingEvent{Message: ref.New("Ping")}
+			if err := stream.Send(&goapackage.MonitorEvent{Event: event}); err != nil {
 				return nil
 			}
 

@@ -51,9 +51,9 @@ func NewConnConfigurer(fn goahttp.ConnConfigureFunc) *ConnConfigurer {
 	}
 }
 
-// Send streams instances of "package_.EnduroMonitorEvent" to the "monitor"
-// endpoint websocket connection.
-func (s *MonitorServerStream) Send(v *package_.EnduroMonitorEvent) error {
+// Send streams instances of "package_.MonitorEvent" to the "monitor" endpoint
+// websocket connection.
+func (s *MonitorServerStream) Send(v *package_.MonitorEvent) error {
 	var err error
 	// Upgrade the HTTP connection to a websocket connection only once. Connection
 	// upgrade is done here so that authorization logic in the endpoint is executed
@@ -72,8 +72,8 @@ func (s *MonitorServerStream) Send(v *package_.EnduroMonitorEvent) error {
 	if err != nil {
 		return err
 	}
-	res := package_.NewViewedEnduroMonitorEvent(v, "default")
-	body := NewMonitorResponseBody(res.Projected)
+	res := v
+	body := NewMonitorResponseBody(res)
 	return s.conn.WriteJSON(body)
 }
 
