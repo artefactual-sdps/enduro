@@ -1705,7 +1705,7 @@
         },
         "security": [
           {
-            "oauth2_header_Authorization": []
+            "oauth2_header_Authorization": null
           }
         ],
         "summary": "list package",
@@ -1902,7 +1902,7 @@
         },
         "security": [
           {
-            "oauth2_header_Authorization": []
+            "oauth2_header_Authorization": null
           }
         ],
         "summary": "monitor_request package",
@@ -1991,7 +1991,7 @@
         },
         "security": [
           {
-            "oauth2_header_Authorization": []
+            "oauth2_header_Authorization": null
           }
         ],
         "summary": "show package",
@@ -2084,7 +2084,7 @@
         },
         "security": [
           {
-            "oauth2_header_Authorization": []
+            "oauth2_header_Authorization": null
           }
         ],
         "summary": "confirm package",
@@ -2164,7 +2164,7 @@
         },
         "security": [
           {
-            "oauth2_header_Authorization": []
+            "oauth2_header_Authorization": null
           }
         ],
         "summary": "move_status package",
@@ -2255,7 +2255,7 @@
         },
         "security": [
           {
-            "oauth2_header_Authorization": []
+            "oauth2_header_Authorization": null
           }
         ],
         "summary": "move package",
@@ -2347,7 +2347,7 @@
         },
         "security": [
           {
-            "oauth2_header_Authorization": []
+            "oauth2_header_Authorization": null
           }
         ],
         "summary": "preservation_actions package",
@@ -2427,7 +2427,7 @@
         },
         "security": [
           {
-            "oauth2_header_Authorization": []
+            "oauth2_header_Authorization": null
           }
         ],
         "summary": "reject package",
@@ -2476,7 +2476,7 @@
         },
         "security": [
           {
-            "oauth2_header_Authorization": []
+            "oauth2_header_Authorization": null
           }
         ],
         "summary": "locations storage",
@@ -2546,7 +2546,7 @@
         },
         "security": [
           {
-            "oauth2_header_Authorization": []
+            "oauth2_header_Authorization": null
           }
         ],
         "summary": "add_location storage",
@@ -2626,7 +2626,7 @@
         },
         "security": [
           {
-            "oauth2_header_Authorization": []
+            "oauth2_header_Authorization": null
           }
         ],
         "summary": "show_location storage",
@@ -2714,7 +2714,7 @@
         },
         "security": [
           {
-            "oauth2_header_Authorization": []
+            "oauth2_header_Authorization": null
           }
         ],
         "summary": "location_packages storage",
@@ -2790,7 +2790,7 @@
         },
         "security": [
           {
-            "oauth2_header_Authorization": []
+            "oauth2_header_Authorization": null
           }
         ],
         "summary": "show storage",
@@ -2861,7 +2861,7 @@
         },
         "security": [
           {
-            "oauth2_header_Authorization": []
+            "oauth2_header_Authorization": null
           }
         ],
         "summary": "download storage",
@@ -2942,7 +2942,7 @@
         },
         "security": [
           {
-            "oauth2_header_Authorization": []
+            "oauth2_header_Authorization": null
           }
         ],
         "summary": "reject storage",
@@ -3023,7 +3023,7 @@
         },
         "security": [
           {
-            "oauth2_header_Authorization": []
+            "oauth2_header_Authorization": null
           }
         ],
         "summary": "move_status storage",
@@ -3115,7 +3115,7 @@
         },
         "security": [
           {
-            "oauth2_header_Authorization": []
+            "oauth2_header_Authorization": null
           }
         ],
         "summary": "move storage",
@@ -3205,7 +3205,7 @@
         },
         "security": [
           {
-            "oauth2_header_Authorization": []
+            "oauth2_header_Authorization": null
           }
         ],
         "summary": "submit storage",
@@ -3272,7 +3272,7 @@
         },
         "security": [
           {
-            "oauth2_header_Authorization": []
+            "oauth2_header_Authorization": null
           }
         ],
         "summary": "update storage",
@@ -3292,7 +3292,7 @@
         },
         "security": [
           {
-            "oauth2__": []
+            "oauth2__": null
           }
         ],
         "summary": "Download gen/http/openapi.json",
@@ -3359,7 +3359,7 @@
         },
         "security": [
           {
-            "oauth2_header_Authorization": []
+            "oauth2_header_Authorization": null
           }
         ],
         "summary": "upload upload",
@@ -3371,7 +3371,7 @@
   },
   "security": [
     {
-      "oauth2__": []
+      "oauth2__": null
     }
   ],
   "servers": [
