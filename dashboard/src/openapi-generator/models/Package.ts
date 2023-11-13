@@ -32,7 +32,7 @@ export interface Package {
      */
     createdAt: Date;
     /**
-     * 
+     * Identifier of storage location
      * @type {string}
      * @memberof Package
      */

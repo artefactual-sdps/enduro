@@ -27,7 +27,7 @@ import type {
   PackageResponse,
   SubmitRequestBody,
   SubmitResult,
-} from '../models';
+} from '../models/index';
 import {
     AddLocationRequestBodyFromJSON,
     AddLocationRequestBodyToJSON,
@@ -53,7 +53,7 @@ import {
     SubmitRequestBodyToJSON,
     SubmitResultFromJSON,
     SubmitResultToJSON,
-} from '../models';
+} from '../models/index';
 
 export interface StorageAddLocationRequest {
     addLocationRequestBody: AddLocationRequestBody;
@@ -123,7 +123,7 @@ export interface StorageApiInterface {
     /**
      * Download package by AIPID
      * @summary download storage
-     * @param {string} aipId 
+     * @param {string} aipId Identifier of AIP
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof StorageApiInterface
@@ -139,7 +139,7 @@ export interface StorageApiInterface {
     /**
      * List all the packages stored in the location with UUID
      * @summary location_packages storage
-     * @param {string} uuid 
+     * @param {string} uuid Identifier of location
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof StorageApiInterface
@@ -170,7 +170,7 @@ export interface StorageApiInterface {
     /**
      * Move a package to a permanent storage location
      * @summary move storage
-     * @param {string} aipId 
+     * @param {string} aipId Identifier of AIP
      * @param {ConfirmRequestBody} confirmRequestBody 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -187,7 +187,7 @@ export interface StorageApiInterface {
     /**
      * Retrieve the status of a permanent storage location move of the package
      * @summary move_status storage
-     * @param {string} aipId 
+     * @param {string} aipId Identifier of AIP
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof StorageApiInterface
@@ -203,7 +203,7 @@ export interface StorageApiInterface {
     /**
      * Reject a package
      * @summary reject storage
-     * @param {string} aipId 
+     * @param {string} aipId Identifier of AIP
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof StorageApiInterface
@@ -219,7 +219,7 @@ export interface StorageApiInterface {
     /**
      * Show package by AIPID
      * @summary show storage
-     * @param {string} aipId 
+     * @param {string} aipId Identifier of AIP
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof StorageApiInterface
@@ -235,7 +235,7 @@ export interface StorageApiInterface {
     /**
      * Show location by UUID
      * @summary show_location storage
-     * @param {string} uuid 
+     * @param {string} uuid Identifier of location
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof StorageApiInterface
@@ -251,7 +251,7 @@ export interface StorageApiInterface {
     /**
      * Start the submission of a package
      * @summary submit storage
-     * @param {string} aipId 
+     * @param {string} aipId Identifier of AIP
      * @param {SubmitRequestBody} submitRequestBody 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -268,7 +268,7 @@ export interface StorageApiInterface {
     /**
      * Signal the storage service that an upload is complete
      * @summary update storage
-     * @param {string} aipId 
+     * @param {string} aipId Identifier of AIP
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof StorageApiInterface

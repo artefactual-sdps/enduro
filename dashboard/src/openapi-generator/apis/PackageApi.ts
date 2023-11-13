@@ -22,7 +22,7 @@ import type {
   MonitorResponseBody,
   MoveStatusResult,
   PackageNotFound,
-} from '../models';
+} from '../models/index';
 import {
     ConfirmRequestBodyFromJSON,
     ConfirmRequestBodyToJSON,
@@ -38,7 +38,7 @@ import {
     MoveStatusResultToJSON,
     PackageNotFoundFromJSON,
     PackageNotFoundToJSON,
-} from '../models';
+} from '../models/index';
 
 export interface PackageConfirmRequest {
     id: number;
@@ -108,10 +108,10 @@ export interface PackageApiInterface {
      * List all stored packages
      * @summary list package
      * @param {string} [name] 
-     * @param {string} [aipId] 
+     * @param {string} [aipId] Identifier of AIP
      * @param {Date} [earliestCreatedTime] 
      * @param {Date} [latestCreatedTime] 
-     * @param {string} [locationId] 
+     * @param {string} [locationId] Identifier of storage location
      * @param {'new' | 'in progress' | 'done' | 'error' | 'unknown' | 'queued' | 'pending' | 'abandoned'} [status] 
      * @param {string} [cursor] Pagination cursor
      * @param {*} [options] Override http request option.

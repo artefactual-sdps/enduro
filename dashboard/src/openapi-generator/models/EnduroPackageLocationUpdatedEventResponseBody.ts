@@ -26,7 +26,7 @@ export interface EnduroPackageLocationUpdatedEventResponseBody {
      */
     id: number;
     /**
-     * 
+     * Identifier of storage location
      * @type {string}
      * @memberof EnduroPackageLocationUpdatedEventResponseBody
      */

@@ -32,7 +32,7 @@ export interface PackageResponse {
      */
     createdAt: Date;
     /**
-     * 
+     * Identifier of storage location
      * @type {string}
      * @memberof PackageResponse
      */
