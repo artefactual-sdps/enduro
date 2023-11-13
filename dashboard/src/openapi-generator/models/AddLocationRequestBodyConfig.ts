@@ -23,12 +23,13 @@ export interface AddLocationRequestBodyConfig {
      * Union type name, one of:
      * - "s3"
      * - "sftp"
+     * - "url"
      * @type {string}
      * @memberof AddLocationRequestBodyConfig
      */
     type: AddLocationRequestBodyConfigTypeEnum;
     /**
-     * JSON formatted union value
+     * JSON encoded union value
      * @type {string}
      * @memberof AddLocationRequestBodyConfig
      */
@@ -41,7 +42,8 @@ export interface AddLocationRequestBodyConfig {
  */
 export const AddLocationRequestBodyConfigTypeEnum = {
     S3: 's3',
-    Sftp: 'sftp'
+    Sftp: 'sftp',
+    Url: 'url'
 } as const;
 export type AddLocationRequestBodyConfigTypeEnum = typeof AddLocationRequestBodyConfigTypeEnum[keyof typeof AddLocationRequestBodyConfigTypeEnum];
 

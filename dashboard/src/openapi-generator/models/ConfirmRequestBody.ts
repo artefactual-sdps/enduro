@@ -20,7 +20,7 @@ import { exists, mapValues } from '../runtime';
  */
 export interface ConfirmRequestBody {
     /**
-     * 
+     * Identifier of storage location
      * @type {string}
      * @memberof ConfirmRequestBody
      */

@@ -20,7 +20,7 @@ import { exists, mapValues } from '../runtime';
  */
 export interface EnduroStoredPackage {
     /**
-     * Identifier of Archivematica AIP
+     * Identifier of AIP
      * @type {string}
      * @memberof EnduroStoredPackage
      */
@@ -44,7 +44,7 @@ export interface EnduroStoredPackage {
      */
     id: number;
     /**
-     * 
+     * Identifier of storage location
      * @type {string}
      * @memberof EnduroStoredPackage
      */

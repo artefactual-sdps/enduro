@@ -24,7 +24,7 @@ import * as runtime from '../runtime';
 export interface SwaggerApiInterface {
     /**
      * JSON document containing the API swagger definition.
-     * @summary Download internal/api/gen/http/openapi.json
+     * @summary Download gen/http/openapi.json
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof SwaggerApiInterface
@@ -33,7 +33,7 @@ export interface SwaggerApiInterface {
 
     /**
      * JSON document containing the API swagger definition.
-     * Download internal/api/gen/http/openapi.json
+     * Download gen/http/openapi.json
      */
     swaggerSwaggerSwaggerJson(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
 
@@ -46,7 +46,7 @@ export class SwaggerApi extends runtime.BaseAPI implements SwaggerApiInterface {
 
     /**
      * JSON document containing the API swagger definition.
-     * Download internal/api/gen/http/openapi.json
+     * Download gen/http/openapi.json
      */
     async swaggerSwaggerSwaggerJsonRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
         const queryParameters: any = {};
@@ -65,7 +65,7 @@ export class SwaggerApi extends runtime.BaseAPI implements SwaggerApiInterface {
 
     /**
      * JSON document containing the API swagger definition.
-     * Download internal/api/gen/http/openapi.json
+     * Download gen/http/openapi.json
      */
     async swaggerSwaggerSwaggerJson(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
         await this.swaggerSwaggerSwaggerJsonRaw(initOverrides);

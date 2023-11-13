@@ -13,12 +13,12 @@
  */
 
 import { exists, mapValues } from '../runtime';
-import type { LocationConfig } from './LocationConfig';
+import type { AddLocationRequestBodyConfig } from './AddLocationRequestBodyConfig';
 import {
-    LocationConfigFromJSON,
-    LocationConfigFromJSONTyped,
-    LocationConfigToJSON,
-} from './LocationConfig';
+    AddLocationRequestBodyConfigFromJSON,
+    AddLocationRequestBodyConfigFromJSONTyped,
+    AddLocationRequestBodyConfigToJSON,
+} from './AddLocationRequestBodyConfig';
 
 /**
  * 
@@ -28,10 +28,10 @@ import {
 export interface Location {
     /**
      * 
-     * @type {LocationConfig}
+     * @type {AddLocationRequestBodyConfig}
      * @memberof Location
      */
-    config?: LocationConfig;
+    config?: AddLocationRequestBodyConfig;
     /**
      * Creation datetime
      * @type {Date}
@@ -115,7 +115,7 @@ export function LocationFromJSONTyped(json: any, ignoreDiscriminator: boolean): 
     }
     return {
         
-        'config': !exists(json, 'config') ? undefined : LocationConfigFromJSON(json['config']),
+        'config': !exists(json, 'config') ? undefined : AddLocationRequestBodyConfigFromJSON(json['config']),
         'createdAt': (new Date(json['created_at'])),
         'description': !exists(json, 'description') ? undefined : json['description'],
         'name': json['name'],
@@ -134,7 +134,7 @@ export function LocationToJSON(value?: Location | null): any {
     }
     return {
         
-        'config': LocationConfigToJSON(value.config),
+        'config': AddLocationRequestBodyConfigToJSON(value.config),
         'created_at': (value.createdAt.toISOString()),
         'description': value.description,
         'name': value.name,

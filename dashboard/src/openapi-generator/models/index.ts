@@ -22,7 +22,6 @@ export * from './EnduroStoredPackage';
 export * from './EnduroStoredPackageResponseBody';
 export * from './ListResponseBody';
 export * from './Location';
-export * from './LocationConfig';
 export * from './LocationNotFound';
 export * from './LocationResponse';
 export * from './ModelError';
