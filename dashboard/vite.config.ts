@@ -67,5 +67,7 @@ export default defineConfig({
     coverage: {
       exclude: ["src/openapi-generator/**", "test/**"],
     },
+    // Needed by vue-testing-library.
+    globals: true,
   },
 });
