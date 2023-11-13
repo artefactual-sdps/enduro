@@ -92,6 +92,15 @@ lint: $(GOLANGCI_LINT)
 gen-goa: # @HELP Generate Goa assets.
 gen-goa: $(GOA)
 	goa gen github.com/artefactual-sdps/enduro/internal/api/design -o internal/api
+	$(MAKE) gen-goa-json-pretty
+
+gen-goa-json-pretty: HTTP_DIR = "internal/api/gen/http"
+gen-goa-json-pretty: JSON_FILES = $(shell find $(HTTP_DIR) -type f -name "*.json" | sort -u)
+gen-goa-json-pretty: $(JQ)
+	for f in $(JSON_FILES); \
+		do (cat "$$f" | jq -S '.' >> "$$f".sorted && mv "$$f".sorted "$$f") \
+			&& echo "Formatting $$f with jq" || exit 1; \
+	done
 
 gen-dashboard-client: # @HELP Generate the Dashboard web client from the OpenAPI spec.
 gen-dashboard-client:
