@@ -12,6 +12,7 @@ import (
 	"context"
 	"io"
 
+	"github.com/google/uuid"
 	goa "goa.design/goa/v3/pkg"
 	"goa.design/goa/v3/security"
 )
@@ -37,6 +38,109 @@ const ServiceName = "upload"
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
 var MethodNames = [1]string{"upload"}
+
+// PreservationAction describes a preservation action.
+type EnduroPackagePreservationAction struct {
+	ID          uint
+	WorkflowID  string
+	Type        string
+	Status      string
+	StartedAt   string
+	CompletedAt *string
+	Tasks       EnduroPackagePreservationTaskCollection
+	PackageID   *uint
+}
+
+// PreservationTask describes a preservation action task.
+type EnduroPackagePreservationTask struct {
+	ID                   uint
+	TaskID               string
+	Name                 string
+	Status               string
+	StartedAt            string
+	CompletedAt          *string
+	Note                 *string
+	PreservationActionID *uint
+}
+
+type EnduroPackagePreservationTaskCollection []*EnduroPackagePreservationTask
+
+// StoredPackage describes a package retrieved by the service.
+type EnduroStoredPackage struct {
+	// Identifier of package
+	ID uint
+	// Name of the package
+	Name *string
+	// Identifier of storage location
+	LocationID *uuid.UUID
+	// Status of the package
+	Status string
+	// Identifier of processing workflow
+	WorkflowID *string
+	// Identifier of latest processing workflow run
+	RunID *string
+	// Identifier of AIP
+	AipID *string
+	// Creation datetime
+	CreatedAt string
+	// Start datetime
+	StartedAt *string
+	// Completion datetime
+	CompletedAt *string
+}
+
+type MonitorPingEvent struct {
+	Message *string
+}
+
+type PackageCreatedEvent struct {
+	// Identifier of package
+	ID   uint
+	Item *EnduroStoredPackage
+}
+
+type PackageLocationUpdatedEvent struct {
+	// Identifier of package
+	ID uint
+	// Identifier of storage location
+	LocationID uuid.UUID
+}
+
+type PackageStatusUpdatedEvent struct {
+	// Identifier of package
+	ID     uint
+	Status string
+}
+
+type PackageUpdatedEvent struct {
+	// Identifier of package
+	ID   uint
+	Item *EnduroStoredPackage
+}
+
+type PreservationActionCreatedEvent struct {
+	// Identifier of preservation action
+	ID   uint
+	Item *EnduroPackagePreservationAction
+}
+
+type PreservationActionUpdatedEvent struct {
+	// Identifier of preservation action
+	ID   uint
+	Item *EnduroPackagePreservationAction
+}
+
+type PreservationTaskCreatedEvent struct {
+	// Identifier of preservation task
+	ID   uint
+	Item *EnduroPackagePreservationTask
+}
+
+type PreservationTaskUpdatedEvent struct {
+	// Identifier of preservation task
+	ID   uint
+	Item *EnduroPackagePreservationTask
+}
 
 // UploadPayload is the payload type of the upload service upload method.
 type UploadPayload struct {

@@ -12,7 +12,6 @@ import (
 	"io"
 
 	package_ "github.com/artefactual-sdps/enduro/internal/api/gen/package_"
-	package_views "github.com/artefactual-sdps/enduro/internal/api/gen/package_/views"
 	"github.com/gorilla/websocket"
 	goahttp "goa.design/goa/v3/http"
 )
@@ -37,11 +36,11 @@ func NewConnConfigurer(fn goahttp.ConnConfigureFunc) *ConnConfigurer {
 	}
 }
 
-// Recv reads instances of "package_.EnduroMonitorEvent" from the "monitor"
-// endpoint websocket connection.
-func (s *MonitorClientStream) Recv() (*package_.EnduroMonitorEvent, error) {
+// Recv reads instances of "package_.MonitorEvent" from the "monitor" endpoint
+// websocket connection.
+func (s *MonitorClientStream) Recv() (*package_.MonitorEvent, error) {
 	var (
-		rv   *package_.EnduroMonitorEvent
+		rv   *package_.MonitorEvent
 		body MonitorResponseBody
 		err  error
 	)
@@ -53,10 +52,10 @@ func (s *MonitorClientStream) Recv() (*package_.EnduroMonitorEvent, error) {
 	if err != nil {
 		return rv, err
 	}
-	res := NewMonitorEnduroMonitorEventOK(&body)
-	vres := &package_views.EnduroMonitorEvent{res, "default"}
-	if err := package_views.ValidateEnduroMonitorEvent(vres); err != nil {
-		return rv, goahttp.ErrValidationError("package", "monitor", err)
+	err = ValidateMonitorResponseBody(&body)
+	if err != nil {
+		return rv, err
 	}
-	return package_.NewEnduroMonitorEvent(vres), nil
+	res := NewMonitorEventOK(&body)
+	return res, nil
 }

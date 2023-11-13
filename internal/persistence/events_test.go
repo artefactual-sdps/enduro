@@ -77,7 +77,7 @@ func TestCreatePackage(t *testing.T) {
 	// Verify subscriber received the event.
 	select {
 	case ev := <-sub.C():
-		assert.Assert(t, ev.PackageCreatedEvent != nil)
+		assert.Assert(t, ev.Event != nil)
 	default:
 		t.Fatal("expected event")
 	}
@@ -136,7 +136,7 @@ func TestUpdatePackage(t *testing.T) {
 	// Verify subscriber received the event.
 	select {
 	case ev := <-sub.C():
-		assert.Assert(t, ev.PackageUpdatedEvent != nil)
+		assert.Assert(t, ev.Event != nil)
 	default:
 		t.Fatal("expected event")
 	}

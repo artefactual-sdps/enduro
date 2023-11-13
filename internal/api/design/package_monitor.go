@@ -4,177 +4,145 @@ import (
 	. "goa.design/goa/v3/dsl"
 )
 
-var MonitorEvent = ResultType("application/vnd.enduro.monitor-event", func() {
-	// TODO: use OneOf when possible.
-	Attributes(func() {
+//
+// We use a couple of Meta attributes in this file that are important for the
+// generator to produce the expected results:
+//
+//   - Meta("type:generate:force")
+//     It guarantees that the schema is included in the OpenAPI spec when it
+//     is only listed as a member of an union type (OneOf).
+//
+//   - Meta("openapi:typename", "MonitorPingEvent")
+//     It guarantees that the schema is not omitted because there is another
+//     type structurally equivalent, which is the default behavior in Goa.
+//
+
+var MonitorEvent = Type("MonitorEvent", func() {
+	OneOf("event", func() {
 		Attribute(
 			"monitor_ping_event",
 			MonitorPingEvent,
-			func() { View("default") },
 		)
 		Attribute(
 			"package_created_event",
 			PackageCreatedEvent,
-			func() { View("default") },
 		)
 		Attribute(
 			"package_updated_event",
 			PackageUpdatedEvent,
-			func() { View("default") },
 		)
 		Attribute(
 			"package_status_updated_event",
 			PackageStatusUpdatedEvent,
-			func() { View("default") },
 		)
 		Attribute(
 			"package_location_updated_event",
 			PackageLocationUpdatedEvent,
-			func() { View("default") },
 		)
 		Attribute(
 			"preservation_action_created_event",
 			PreservationActionCreatedEvent,
-			func() { View("default") },
 		)
 		Attribute(
 			"preservation_action_updated_event",
 			PreservationActionUpdatedEvent,
-			func() { View("default") },
 		)
 		Attribute(
 			"preservation_task_created_event",
 			PreservationTaskCreatedEvent,
-			func() { View("default") },
 		)
 		Attribute(
 			"preservation_task_updated_event",
 			PreservationTaskUpdatedEvent,
-			func() { View("default") },
 		)
 	})
 })
 
-var MonitorPingEvent = ResultType("application/vnd.enduro.monitor-ping-event", func() {
-	Attributes(func() {
-		Attribute("message", String)
-	})
+var MonitorPingEvent = Type("MonitorPingEvent", func() {
+	Attribute("message", String)
 
-	View("default", func() {
-		Attribute("message")
-	})
+	Meta("type:generate:force")
+	Meta("openapi:typename", "MonitorPingEvent")
 })
 
-var PackageCreatedEvent = ResultType("application/vnd.enduro.package-created-event", func() {
-	Attributes(func() {
-		Attribute("id", UInt, "Identifier of package")
-		Attribute("item", StoredPackage, func() { View("default") })
-		Required("id", "item")
-	})
+var PackageCreatedEvent = Type("PackageCreatedEvent", func() {
+	Attribute("id", UInt, "Identifier of package")
+	Attribute("item", StoredPackage, func() { View("default") })
+	Required("id", "item")
 
-	View("default", func() {
-		Attribute("id")
-		Attribute("item")
-	})
+	Meta("type:generate:force")
+	Meta("openapi:typename", "PackageCreatedEvent")
 })
 
-var PackageUpdatedEvent = ResultType("application/vnd.enduro.package-updated-event", func() {
-	Attributes(func() {
-		Attribute("id", UInt, "Identifier of package")
-		Attribute("item", StoredPackage, func() { View("default") })
-		Required("id", "item")
-	})
+var PackageUpdatedEvent = Type("PackageUpdatedEvent", func() {
+	Attribute("id", UInt, "Identifier of package")
+	Attribute("item", StoredPackage, func() { View("default") })
+	Required("id", "item")
 
-	View("default", func() {
-		Attribute("id")
-		Attribute("item")
-	})
+	Meta("type:generate:force")
+	Meta("openapi:typename", "PackageUpdatedEvent")
 })
 
-var PackageStatusUpdatedEvent = ResultType("application/vnd.enduro.package-status-updated-event", func() {
-	Attributes(func() {
-		Attribute("id", UInt, "Identifier of package")
-		Attribute("status", String, func() {
-			EnumPackageStatus()
-		})
-		Required("id", "status")
+var PackageStatusUpdatedEvent = Type("PackageStatusUpdatedEvent", func() {
+	Attribute("id", UInt, "Identifier of package")
+	Attribute("status", String, func() {
+		EnumPackageStatus()
 	})
+	Required("id", "status")
 
-	View("default", func() {
-		Attribute("id")
-		Attribute("status")
-	})
+	Meta("type:generate:force")
+	Meta("openapi:typename", "PackageStatusUpdatedEvent")
 })
 
-var PackageLocationUpdatedEvent = ResultType("application/vnd.enduro.package-location-updated-event", func() {
-	Attributes(func() {
-		Attribute("id", UInt, "Identifier of package")
-		TypedAttributeUUID("location_id", "Identifier of storage location")
-		Required("id", "location_id")
-	})
+var PackageLocationUpdatedEvent = Type("PackageLocationUpdatedEvent", func() {
+	Attribute("id", UInt, "Identifier of package")
+	TypedAttributeUUID("location_id", "Identifier of storage location")
+	Required("id", "location_id")
 
-	View("default", func() {
-		Attribute("id")
-		Attribute("location_id")
-	})
+	Meta("type:generate:force")
+	Meta("openapi:typename", "PackageLocationUpdatedEvent")
 })
 
-var PreservationActionCreatedEvent = ResultType("application/vnd.enduro.preservation-action-created-event", func() {
-	Attributes(func() {
-		Attribute("id", UInt, "Identifier of preservation action")
-		Attribute("item", PreservationAction, func() {
-			View("simple")
-		})
-		Required("id", "item")
+var PreservationActionCreatedEvent = Type("PreservationActionCreatedEvent", func() {
+	Attribute("id", UInt, "Identifier of preservation action")
+	Attribute("item", PreservationAction, func() {
+		View("simple")
 	})
+	Required("id", "item")
 
-	View("default", func() {
-		Attribute("id")
-		Attribute("item")
-	})
+	Meta("type:generate:force")
+	Meta("openapi:typename", "PreservationActionCreatedEvent")
 })
 
-var PreservationActionUpdatedEvent = ResultType("application/vnd.enduro.preservation-action-updated-event", func() {
-	Attributes(func() {
-		Attribute("id", UInt, "Identifier of preservation action")
-		Attribute("item", PreservationAction, func() {
-			View("simple")
-		})
-		Required("id", "item")
+var PreservationActionUpdatedEvent = Type("PreservationActionUpdatedEvent", func() {
+	Attribute("id", UInt, "Identifier of preservation action")
+	Attribute("item", PreservationAction, func() {
+		View("simple")
 	})
+	Required("id", "item")
 
-	View("default", func() {
-		Attribute("id")
-		Attribute("item")
-	})
+	Meta("type:generate:force")
+	Meta("openapi:typename", "PreservationActionUpdatedEvent")
 })
 
-var PreservationTaskCreatedEvent = ResultType("application/vnd.enduro.preservation-task-created-event", func() {
-	Attributes(func() {
-		Attribute("id", UInt, "Identifier of preservation task")
-		Attribute("item", PreservationTask, func() {
-			View("default")
-		})
-		Required("id", "item")
+var PreservationTaskCreatedEvent = Type("PreservationTaskCreatedEvent", func() {
+	Attribute("id", UInt, "Identifier of preservation task")
+	Attribute("item", PreservationTask, func() {
+		View("default")
 	})
+	Required("id", "item")
 
-	View("default", func() {
-		Attribute("id")
-		Attribute("item")
-	})
+	Meta("type:generate:force")
+	Meta("openapi:typename", "PreservationTaskCreatedEvent")
 })
 
-var PreservationTaskUpdatedEvent = ResultType("application/vnd.enduro.preservation-task-updated-event", func() {
-	Attributes(func() {
-		Attribute("id", UInt, "Identifier of preservation task")
-		Attribute("item", PreservationTask, func() {
-			View("default")
-		})
-		Required("id", "item")
+var PreservationTaskUpdatedEvent = Type("PreservationTaskUpdatedEvent", func() {
+	Attribute("id", UInt, "Identifier of preservation task")
+	Attribute("item", PreservationTask, func() {
+		View("default")
 	})
+	Required("id", "item")
 
-	View("default", func() {
-		Attribute("id")
-		Attribute("item")
-	})
+	Meta("type:generate:force")
+	Meta("openapi:typename", "PreservationTaskUpdatedEvent")
 })

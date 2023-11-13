@@ -7,27 +7,27 @@ import (
 )
 
 func PublishEvent(ctx context.Context, events EventService, event interface{}) {
-	update := &goapackage.EnduroMonitorEvent{}
+	update := &goapackage.MonitorEvent{}
 
 	switch v := event.(type) {
-	case *goapackage.EnduroMonitorPingEvent:
-		update.MonitorPingEvent = v
-	case *goapackage.EnduroPackageCreatedEvent:
-		update.PackageCreatedEvent = v
-	case *goapackage.EnduroPackageUpdatedEvent:
-		update.PackageUpdatedEvent = v
-	case *goapackage.EnduroPackageStatusUpdatedEvent:
-		update.PackageStatusUpdatedEvent = v
-	case *goapackage.EnduroPackageLocationUpdatedEvent:
-		update.PackageLocationUpdatedEvent = v
-	case *goapackage.EnduroPreservationActionCreatedEvent:
-		update.PreservationActionCreatedEvent = v
-	case *goapackage.EnduroPreservationActionUpdatedEvent:
-		update.PreservationActionUpdatedEvent = v
-	case *goapackage.EnduroPreservationTaskCreatedEvent:
-		update.PreservationTaskCreatedEvent = v
-	case *goapackage.EnduroPreservationTaskUpdatedEvent:
-		update.PreservationTaskUpdatedEvent = v
+	case *goapackage.MonitorPingEvent:
+		update.Event = v
+	case *goapackage.PackageCreatedEvent:
+		update.Event = v
+	case *goapackage.PackageUpdatedEvent:
+		update.Event = v
+	case *goapackage.PackageStatusUpdatedEvent:
+		update.Event = v
+	case *goapackage.PackageLocationUpdatedEvent:
+		update.Event = v
+	case *goapackage.PreservationActionCreatedEvent:
+		update.Event = v
+	case *goapackage.PreservationActionUpdatedEvent:
+		update.Event = v
+	case *goapackage.PreservationTaskCreatedEvent:
+		update.Event = v
+	case *goapackage.PreservationTaskUpdatedEvent:
+		update.Event = v
 	default:
 		panic("tried to publish unexpected event")
 	}

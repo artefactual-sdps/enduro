@@ -14,33 +14,33 @@
 
 import { exists, mapValues } from '../runtime';
 /**
- * EnduroMonitor-Ping-EventResponseBody result type (default view)
+ * 
  * @export
- * @interface EnduroMonitorPingEventResponseBody
+ * @interface MonitorPingEvent
  */
-export interface EnduroMonitorPingEventResponseBody {
+export interface MonitorPingEvent {
     /**
      * 
      * @type {string}
-     * @memberof EnduroMonitorPingEventResponseBody
+     * @memberof MonitorPingEvent
      */
     message?: string;
 }
 
 /**
- * Check if a given object implements the EnduroMonitorPingEventResponseBody interface.
+ * Check if a given object implements the MonitorPingEvent interface.
  */
-export function instanceOfEnduroMonitorPingEventResponseBody(value: object): boolean {
+export function instanceOfMonitorPingEvent(value: object): boolean {
     let isInstance = true;
 
     return isInstance;
 }
 
-export function EnduroMonitorPingEventResponseBodyFromJSON(json: any): EnduroMonitorPingEventResponseBody {
-    return EnduroMonitorPingEventResponseBodyFromJSONTyped(json, false);
+export function MonitorPingEventFromJSON(json: any): MonitorPingEvent {
+    return MonitorPingEventFromJSONTyped(json, false);
 }
 
-export function EnduroMonitorPingEventResponseBodyFromJSONTyped(json: any, ignoreDiscriminator: boolean): EnduroMonitorPingEventResponseBody {
+export function MonitorPingEventFromJSONTyped(json: any, ignoreDiscriminator: boolean): MonitorPingEvent {
     if ((json === undefined) || (json === null)) {
         return json;
     }
@@ -50,7 +50,7 @@ export function EnduroMonitorPingEventResponseBodyFromJSONTyped(json: any, ignor
     };
 }
 
-export function EnduroMonitorPingEventResponseBodyToJSON(value?: EnduroMonitorPingEventResponseBody | null): any {
+export function MonitorPingEventToJSON(value?: MonitorPingEvent | null): any {
     if (value === undefined) {
         return undefined;
     }

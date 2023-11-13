@@ -37,9 +37,7 @@ var _ = Service("package", func() {
 		Payload(func() {
 			Attribute("ticket", String)
 		})
-		StreamingResult(MonitorEvent, func() {
-			View("default")
-		})
+		StreamingResult(MonitorEvent)
 		Error("not_available")
 		HTTP(func() {
 			GET("/monitor")

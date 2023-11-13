@@ -58,8 +58,8 @@ var MethodNames = [9]string{"monitor_request", "monitor", "list", "show", "prese
 // MonitorServerStream is the interface a "monitor" endpoint server stream must
 // satisfy.
 type MonitorServerStream interface {
-	// Send streams instances of "EnduroMonitorEvent".
-	Send(*EnduroMonitorEvent) error
+	// Send streams instances of "MonitorEvent".
+	Send(*MonitorEvent) error
 	// Close closes the stream.
 	Close() error
 }
@@ -67,8 +67,8 @@ type MonitorServerStream interface {
 // MonitorClientStream is the interface a "monitor" endpoint client stream must
 // satisfy.
 type MonitorClientStream interface {
-	// Recv reads instances of "EnduroMonitorEvent" from the stream.
-	Recv() (*EnduroMonitorEvent, error)
+	// Recv reads instances of "MonitorEvent" from the stream.
+	Recv() (*MonitorEvent, error)
 }
 
 // ConfirmPayload is the payload type of the package service confirm method.
@@ -78,36 +78,6 @@ type ConfirmPayload struct {
 	// Identifier of storage location
 	LocationID uuid.UUID
 	OauthToken *string
-}
-
-// EnduroMonitorEvent is the result type of the package service monitor method.
-type EnduroMonitorEvent struct {
-	MonitorPingEvent               *EnduroMonitorPingEvent
-	PackageCreatedEvent            *EnduroPackageCreatedEvent
-	PackageUpdatedEvent            *EnduroPackageUpdatedEvent
-	PackageStatusUpdatedEvent      *EnduroPackageStatusUpdatedEvent
-	PackageLocationUpdatedEvent    *EnduroPackageLocationUpdatedEvent
-	PreservationActionCreatedEvent *EnduroPreservationActionCreatedEvent
-	PreservationActionUpdatedEvent *EnduroPreservationActionUpdatedEvent
-	PreservationTaskCreatedEvent   *EnduroPreservationTaskCreatedEvent
-	PreservationTaskUpdatedEvent   *EnduroPreservationTaskUpdatedEvent
-}
-
-type EnduroMonitorPingEvent struct {
-	Message *string
-}
-
-type EnduroPackageCreatedEvent struct {
-	// Identifier of package
-	ID   uint
-	Item *EnduroStoredPackage
-}
-
-type EnduroPackageLocationUpdatedEvent struct {
-	// Identifier of package
-	ID uint
-	// Identifier of storage location
-	LocationID uuid.UUID
 }
 
 // PreservationAction describes a preservation action.
@@ -143,42 +113,6 @@ type EnduroPackagePreservationTask struct {
 }
 
 type EnduroPackagePreservationTaskCollection []*EnduroPackagePreservationTask
-
-type EnduroPackageStatusUpdatedEvent struct {
-	// Identifier of package
-	ID     uint
-	Status string
-}
-
-type EnduroPackageUpdatedEvent struct {
-	// Identifier of package
-	ID   uint
-	Item *EnduroStoredPackage
-}
-
-type EnduroPreservationActionCreatedEvent struct {
-	// Identifier of preservation action
-	ID   uint
-	Item *EnduroPackagePreservationAction
-}
-
-type EnduroPreservationActionUpdatedEvent struct {
-	// Identifier of preservation action
-	ID   uint
-	Item *EnduroPackagePreservationAction
-}
-
-type EnduroPreservationTaskCreatedEvent struct {
-	// Identifier of preservation task
-	ID   uint
-	Item *EnduroPackagePreservationTask
-}
-
-type EnduroPreservationTaskUpdatedEvent struct {
-	// Identifier of preservation task
-	ID   uint
-	Item *EnduroPackagePreservationTask
-}
 
 // EnduroStoredPackage is the result type of the package service show method.
 type EnduroStoredPackage struct {
@@ -227,9 +161,20 @@ type ListResult struct {
 	NextCursor *string
 }
 
+// MonitorEvent is the result type of the package service monitor method.
+type MonitorEvent struct {
+	Event interface {
+		eventVal()
+	}
+}
+
 // MonitorPayload is the payload type of the package service monitor method.
 type MonitorPayload struct {
 	Ticket *string
+}
+
+type MonitorPingEvent struct {
+	Message *string
 }
 
 // MonitorRequestPayload is the payload type of the package service
@@ -267,6 +212,19 @@ type MoveStatusResult struct {
 	Done bool
 }
 
+type PackageCreatedEvent struct {
+	// Identifier of package
+	ID   uint
+	Item *EnduroStoredPackage
+}
+
+type PackageLocationUpdatedEvent struct {
+	// Identifier of package
+	ID uint
+	// Identifier of storage location
+	LocationID uuid.UUID
+}
+
 // Package not found.
 type PackageNotFound struct {
 	// Message of error
@@ -275,12 +233,48 @@ type PackageNotFound struct {
 	ID uint
 }
 
+type PackageStatusUpdatedEvent struct {
+	// Identifier of package
+	ID     uint
+	Status string
+}
+
+type PackageUpdatedEvent struct {
+	// Identifier of package
+	ID   uint
+	Item *EnduroStoredPackage
+}
+
+type PreservationActionCreatedEvent struct {
+	// Identifier of preservation action
+	ID   uint
+	Item *EnduroPackagePreservationAction
+}
+
+type PreservationActionUpdatedEvent struct {
+	// Identifier of preservation action
+	ID   uint
+	Item *EnduroPackagePreservationAction
+}
+
 // PreservationActionsPayload is the payload type of the package service
 // preservation_actions method.
 type PreservationActionsPayload struct {
 	// Identifier of package to look up
 	ID         uint
 	OauthToken *string
+}
+
+type PreservationTaskCreatedEvent struct {
+	// Identifier of preservation task
+	ID   uint
+	Item *EnduroPackagePreservationTask
+}
+
+type PreservationTaskUpdatedEvent struct {
+	// Identifier of preservation task
+	ID   uint
+	Item *EnduroPackagePreservationTask
 }
 
 // RejectPayload is the payload type of the package service reject method.
@@ -333,6 +327,15 @@ func (e Unauthorized) ErrorName() string {
 func (e Unauthorized) GoaErrorName() string {
 	return "unauthorized"
 }
+func (*MonitorPingEvent) eventVal()               {}
+func (*PackageCreatedEvent) eventVal()            {}
+func (*PackageLocationUpdatedEvent) eventVal()    {}
+func (*PackageStatusUpdatedEvent) eventVal()      {}
+func (*PackageUpdatedEvent) eventVal()            {}
+func (*PreservationActionCreatedEvent) eventVal() {}
+func (*PreservationActionUpdatedEvent) eventVal() {}
+func (*PreservationTaskCreatedEvent) eventVal()   {}
+func (*PreservationTaskUpdatedEvent) eventVal()   {}
 
 // MakeNotAvailable builds a goa.ServiceError from an error.
 func MakeNotAvailable(err error) *goa.ServiceError {
@@ -347,19 +350,6 @@ func MakeNotValid(err error) *goa.ServiceError {
 // MakeFailedDependency builds a goa.ServiceError from an error.
 func MakeFailedDependency(err error) *goa.ServiceError {
 	return goa.NewServiceError(err, "failed_dependency", false, false, false)
-}
-
-// NewEnduroMonitorEvent initializes result type EnduroMonitorEvent from viewed
-// result type EnduroMonitorEvent.
-func NewEnduroMonitorEvent(vres *package_views.EnduroMonitorEvent) *EnduroMonitorEvent {
-	return newEnduroMonitorEvent(vres.Projected)
-}
-
-// NewViewedEnduroMonitorEvent initializes viewed result type
-// EnduroMonitorEvent from result type EnduroMonitorEvent using the given view.
-func NewViewedEnduroMonitorEvent(res *EnduroMonitorEvent, view string) *package_views.EnduroMonitorEvent {
-	p := newEnduroMonitorEventView(res)
-	return &package_views.EnduroMonitorEvent{Projected: p, View: "default"}
 }
 
 // NewEnduroStoredPackage initializes result type EnduroStoredPackage from
@@ -389,118 +379,6 @@ func NewEnduroPackagePreservationActions(vres *package_views.EnduroPackagePreser
 func NewViewedEnduroPackagePreservationActions(res *EnduroPackagePreservationActions, view string) *package_views.EnduroPackagePreservationActions {
 	p := newEnduroPackagePreservationActionsView(res)
 	return &package_views.EnduroPackagePreservationActions{Projected: p, View: "default"}
-}
-
-// newEnduroMonitorEvent converts projected type EnduroMonitorEvent to service
-// type EnduroMonitorEvent.
-func newEnduroMonitorEvent(vres *package_views.EnduroMonitorEventView) *EnduroMonitorEvent {
-	res := &EnduroMonitorEvent{}
-	if vres.PackageCreatedEvent != nil {
-		res.PackageCreatedEvent = transformPackageViewsEnduroPackageCreatedEventViewToEnduroPackageCreatedEvent(vres.PackageCreatedEvent)
-	}
-	if vres.PackageStatusUpdatedEvent != nil {
-		res.PackageStatusUpdatedEvent = transformPackageViewsEnduroPackageStatusUpdatedEventViewToEnduroPackageStatusUpdatedEvent(vres.PackageStatusUpdatedEvent)
-	}
-	if vres.PreservationActionCreatedEvent != nil {
-		res.PreservationActionCreatedEvent = transformPackageViewsEnduroPreservationActionCreatedEventViewToEnduroPreservationActionCreatedEvent(vres.PreservationActionCreatedEvent)
-	}
-	if vres.PreservationTaskCreatedEvent != nil {
-		res.PreservationTaskCreatedEvent = transformPackageViewsEnduroPreservationTaskCreatedEventViewToEnduroPreservationTaskCreatedEvent(vres.PreservationTaskCreatedEvent)
-	}
-	if vres.MonitorPingEvent != nil {
-		res.MonitorPingEvent = newEnduroMonitorPingEvent(vres.MonitorPingEvent)
-	}
-	if vres.PackageUpdatedEvent != nil {
-		res.PackageUpdatedEvent = newEnduroPackageUpdatedEvent(vres.PackageUpdatedEvent)
-	}
-	if vres.PackageLocationUpdatedEvent != nil {
-		res.PackageLocationUpdatedEvent = newEnduroPackageLocationUpdatedEvent(vres.PackageLocationUpdatedEvent)
-	}
-	if vres.PreservationActionUpdatedEvent != nil {
-		res.PreservationActionUpdatedEvent = newEnduroPreservationActionUpdatedEvent(vres.PreservationActionUpdatedEvent)
-	}
-	if vres.PreservationTaskUpdatedEvent != nil {
-		res.PreservationTaskUpdatedEvent = newEnduroPreservationTaskUpdatedEvent(vres.PreservationTaskUpdatedEvent)
-	}
-	return res
-}
-
-// newEnduroMonitorEventView projects result type EnduroMonitorEvent to
-// projected type EnduroMonitorEventView using the "default" view.
-func newEnduroMonitorEventView(res *EnduroMonitorEvent) *package_views.EnduroMonitorEventView {
-	vres := &package_views.EnduroMonitorEventView{}
-	if res.PackageCreatedEvent != nil {
-		vres.PackageCreatedEvent = transformEnduroPackageCreatedEventToPackageViewsEnduroPackageCreatedEventView(res.PackageCreatedEvent)
-	}
-	if res.PackageStatusUpdatedEvent != nil {
-		vres.PackageStatusUpdatedEvent = transformEnduroPackageStatusUpdatedEventToPackageViewsEnduroPackageStatusUpdatedEventView(res.PackageStatusUpdatedEvent)
-	}
-	if res.PreservationActionCreatedEvent != nil {
-		vres.PreservationActionCreatedEvent = transformEnduroPreservationActionCreatedEventToPackageViewsEnduroPreservationActionCreatedEventView(res.PreservationActionCreatedEvent)
-	}
-	if res.PreservationTaskCreatedEvent != nil {
-		vres.PreservationTaskCreatedEvent = transformEnduroPreservationTaskCreatedEventToPackageViewsEnduroPreservationTaskCreatedEventView(res.PreservationTaskCreatedEvent)
-	}
-	if res.MonitorPingEvent != nil {
-		vres.MonitorPingEvent = newEnduroMonitorPingEventView(res.MonitorPingEvent)
-	}
-	if res.PackageUpdatedEvent != nil {
-		vres.PackageUpdatedEvent = newEnduroPackageUpdatedEventView(res.PackageUpdatedEvent)
-	}
-	if res.PackageLocationUpdatedEvent != nil {
-		vres.PackageLocationUpdatedEvent = newEnduroPackageLocationUpdatedEventView(res.PackageLocationUpdatedEvent)
-	}
-	if res.PreservationActionUpdatedEvent != nil {
-		vres.PreservationActionUpdatedEvent = newEnduroPreservationActionUpdatedEventView(res.PreservationActionUpdatedEvent)
-	}
-	if res.PreservationTaskUpdatedEvent != nil {
-		vres.PreservationTaskUpdatedEvent = newEnduroPreservationTaskUpdatedEventView(res.PreservationTaskUpdatedEvent)
-	}
-	return vres
-}
-
-// newEnduroMonitorPingEvent converts projected type EnduroMonitorPingEvent to
-// service type EnduroMonitorPingEvent.
-func newEnduroMonitorPingEvent(vres *package_views.EnduroMonitorPingEventView) *EnduroMonitorPingEvent {
-	res := &EnduroMonitorPingEvent{
-		Message: vres.Message,
-	}
-	return res
-}
-
-// newEnduroMonitorPingEventView projects result type EnduroMonitorPingEvent to
-// projected type EnduroMonitorPingEventView using the "default" view.
-func newEnduroMonitorPingEventView(res *EnduroMonitorPingEvent) *package_views.EnduroMonitorPingEventView {
-	vres := &package_views.EnduroMonitorPingEventView{
-		Message: res.Message,
-	}
-	return vres
-}
-
-// newEnduroPackageCreatedEvent converts projected type
-// EnduroPackageCreatedEvent to service type EnduroPackageCreatedEvent.
-func newEnduroPackageCreatedEvent(vres *package_views.EnduroPackageCreatedEventView) *EnduroPackageCreatedEvent {
-	res := &EnduroPackageCreatedEvent{}
-	if vres.ID != nil {
-		res.ID = *vres.ID
-	}
-	if vres.Item != nil {
-		res.Item = newEnduroStoredPackage(vres.Item)
-	}
-	return res
-}
-
-// newEnduroPackageCreatedEventView projects result type
-// EnduroPackageCreatedEvent to projected type EnduroPackageCreatedEventView
-// using the "default" view.
-func newEnduroPackageCreatedEventView(res *EnduroPackageCreatedEvent) *package_views.EnduroPackageCreatedEventView {
-	vres := &package_views.EnduroPackageCreatedEventView{
-		ID: &res.ID,
-	}
-	if res.Item != nil {
-		vres.Item = newEnduroStoredPackageView(res.Item)
-	}
-	return vres
 }
 
 // newEnduroStoredPackage converts projected type EnduroStoredPackage to
@@ -548,105 +426,68 @@ func newEnduroStoredPackageView(res *EnduroStoredPackage) *package_views.EnduroS
 	return vres
 }
 
-// newEnduroPackageUpdatedEvent converts projected type
-// EnduroPackageUpdatedEvent to service type EnduroPackageUpdatedEvent.
-func newEnduroPackageUpdatedEvent(vres *package_views.EnduroPackageUpdatedEventView) *EnduroPackageUpdatedEvent {
-	res := &EnduroPackageUpdatedEvent{}
-	if vres.ID != nil {
-		res.ID = *vres.ID
-	}
-	if vres.Item != nil {
-		res.Item = newEnduroStoredPackage(vres.Item)
+// newEnduroPackagePreservationActions converts projected type
+// EnduroPackagePreservationActions to service type
+// EnduroPackagePreservationActions.
+func newEnduroPackagePreservationActions(vres *package_views.EnduroPackagePreservationActionsView) *EnduroPackagePreservationActions {
+	res := &EnduroPackagePreservationActions{}
+	if vres.Actions != nil {
+		res.Actions = newEnduroPackagePreservationActionCollection(vres.Actions)
 	}
 	return res
 }
 
-// newEnduroPackageUpdatedEventView projects result type
-// EnduroPackageUpdatedEvent to projected type EnduroPackageUpdatedEventView
-// using the "default" view.
-func newEnduroPackageUpdatedEventView(res *EnduroPackageUpdatedEvent) *package_views.EnduroPackageUpdatedEventView {
-	vres := &package_views.EnduroPackageUpdatedEventView{
-		ID: &res.ID,
-	}
-	if res.Item != nil {
-		vres.Item = newEnduroStoredPackageView(res.Item)
+// newEnduroPackagePreservationActionsView projects result type
+// EnduroPackagePreservationActions to projected type
+// EnduroPackagePreservationActionsView using the "default" view.
+func newEnduroPackagePreservationActionsView(res *EnduroPackagePreservationActions) *package_views.EnduroPackagePreservationActionsView {
+	vres := &package_views.EnduroPackagePreservationActionsView{}
+	if res.Actions != nil {
+		vres.Actions = newEnduroPackagePreservationActionCollectionView(res.Actions)
 	}
 	return vres
 }
 
-// newEnduroPackageStatusUpdatedEvent converts projected type
-// EnduroPackageStatusUpdatedEvent to service type
-// EnduroPackageStatusUpdatedEvent.
-func newEnduroPackageStatusUpdatedEvent(vres *package_views.EnduroPackageStatusUpdatedEventView) *EnduroPackageStatusUpdatedEvent {
-	res := &EnduroPackageStatusUpdatedEvent{}
-	if vres.ID != nil {
-		res.ID = *vres.ID
-	}
-	if vres.Status != nil {
-		res.Status = *vres.Status
+// newEnduroPackagePreservationActionCollectionSimple converts projected type
+// EnduroPackagePreservationActionCollection to service type
+// EnduroPackagePreservationActionCollection.
+func newEnduroPackagePreservationActionCollectionSimple(vres package_views.EnduroPackagePreservationActionCollectionView) EnduroPackagePreservationActionCollection {
+	res := make(EnduroPackagePreservationActionCollection, len(vres))
+	for i, n := range vres {
+		res[i] = newEnduroPackagePreservationActionSimple(n)
 	}
 	return res
 }
 
-// newEnduroPackageStatusUpdatedEventView projects result type
-// EnduroPackageStatusUpdatedEvent to projected type
-// EnduroPackageStatusUpdatedEventView using the "default" view.
-func newEnduroPackageStatusUpdatedEventView(res *EnduroPackageStatusUpdatedEvent) *package_views.EnduroPackageStatusUpdatedEventView {
-	vres := &package_views.EnduroPackageStatusUpdatedEventView{
-		ID:     &res.ID,
-		Status: &res.Status,
+// newEnduroPackagePreservationActionCollection converts projected type
+// EnduroPackagePreservationActionCollection to service type
+// EnduroPackagePreservationActionCollection.
+func newEnduroPackagePreservationActionCollection(vres package_views.EnduroPackagePreservationActionCollectionView) EnduroPackagePreservationActionCollection {
+	res := make(EnduroPackagePreservationActionCollection, len(vres))
+	for i, n := range vres {
+		res[i] = newEnduroPackagePreservationAction(n)
+	}
+	return res
+}
+
+// newEnduroPackagePreservationActionCollectionViewSimple projects result type
+// EnduroPackagePreservationActionCollection to projected type
+// EnduroPackagePreservationActionCollectionView using the "simple" view.
+func newEnduroPackagePreservationActionCollectionViewSimple(res EnduroPackagePreservationActionCollection) package_views.EnduroPackagePreservationActionCollectionView {
+	vres := make(package_views.EnduroPackagePreservationActionCollectionView, len(res))
+	for i, n := range res {
+		vres[i] = newEnduroPackagePreservationActionViewSimple(n)
 	}
 	return vres
 }
 
-// newEnduroPackageLocationUpdatedEvent converts projected type
-// EnduroPackageLocationUpdatedEvent to service type
-// EnduroPackageLocationUpdatedEvent.
-func newEnduroPackageLocationUpdatedEvent(vres *package_views.EnduroPackageLocationUpdatedEventView) *EnduroPackageLocationUpdatedEvent {
-	res := &EnduroPackageLocationUpdatedEvent{}
-	if vres.ID != nil {
-		res.ID = *vres.ID
-	}
-	if vres.LocationID != nil {
-		res.LocationID = *vres.LocationID
-	}
-	return res
-}
-
-// newEnduroPackageLocationUpdatedEventView projects result type
-// EnduroPackageLocationUpdatedEvent to projected type
-// EnduroPackageLocationUpdatedEventView using the "default" view.
-func newEnduroPackageLocationUpdatedEventView(res *EnduroPackageLocationUpdatedEvent) *package_views.EnduroPackageLocationUpdatedEventView {
-	vres := &package_views.EnduroPackageLocationUpdatedEventView{
-		ID:         &res.ID,
-		LocationID: &res.LocationID,
-	}
-	return vres
-}
-
-// newEnduroPreservationActionCreatedEvent converts projected type
-// EnduroPreservationActionCreatedEvent to service type
-// EnduroPreservationActionCreatedEvent.
-func newEnduroPreservationActionCreatedEvent(vres *package_views.EnduroPreservationActionCreatedEventView) *EnduroPreservationActionCreatedEvent {
-	res := &EnduroPreservationActionCreatedEvent{}
-	if vres.ID != nil {
-		res.ID = *vres.ID
-	}
-	if vres.Item != nil {
-		res.Item = newEnduroPackagePreservationActionSimple(vres.Item)
-	}
-	return res
-}
-
-// newEnduroPreservationActionCreatedEventView projects result type
-// EnduroPreservationActionCreatedEvent to projected type
-// EnduroPreservationActionCreatedEventView using the "default" view.
-func newEnduroPreservationActionCreatedEventView(res *EnduroPreservationActionCreatedEvent) *package_views.EnduroPreservationActionCreatedEventView {
-	vres := &package_views.EnduroPreservationActionCreatedEventView{
-		ID: &res.ID,
-	}
-	if res.Item != nil {
-		vres.Item = newEnduroPackagePreservationActionViewSimple(res.Item)
+// newEnduroPackagePreservationActionCollectionView projects result type
+// EnduroPackagePreservationActionCollection to projected type
+// EnduroPackagePreservationActionCollectionView using the "default" view.
+func newEnduroPackagePreservationActionCollectionView(res EnduroPackagePreservationActionCollection) package_views.EnduroPackagePreservationActionCollectionView {
+	vres := make(package_views.EnduroPackagePreservationActionCollectionView, len(res))
+	for i, n := range res {
+		vres[i] = newEnduroPackagePreservationActionView(n)
 	}
 	return vres
 }
@@ -807,412 +648,4 @@ func newEnduroPackagePreservationTaskView(res *EnduroPackagePreservationTask) *p
 		PreservationActionID: res.PreservationActionID,
 	}
 	return vres
-}
-
-// newEnduroPreservationActionUpdatedEvent converts projected type
-// EnduroPreservationActionUpdatedEvent to service type
-// EnduroPreservationActionUpdatedEvent.
-func newEnduroPreservationActionUpdatedEvent(vres *package_views.EnduroPreservationActionUpdatedEventView) *EnduroPreservationActionUpdatedEvent {
-	res := &EnduroPreservationActionUpdatedEvent{}
-	if vres.ID != nil {
-		res.ID = *vres.ID
-	}
-	if vres.Item != nil {
-		res.Item = newEnduroPackagePreservationActionSimple(vres.Item)
-	}
-	return res
-}
-
-// newEnduroPreservationActionUpdatedEventView projects result type
-// EnduroPreservationActionUpdatedEvent to projected type
-// EnduroPreservationActionUpdatedEventView using the "default" view.
-func newEnduroPreservationActionUpdatedEventView(res *EnduroPreservationActionUpdatedEvent) *package_views.EnduroPreservationActionUpdatedEventView {
-	vres := &package_views.EnduroPreservationActionUpdatedEventView{
-		ID: &res.ID,
-	}
-	if res.Item != nil {
-		vres.Item = newEnduroPackagePreservationActionViewSimple(res.Item)
-	}
-	return vres
-}
-
-// newEnduroPreservationTaskCreatedEvent converts projected type
-// EnduroPreservationTaskCreatedEvent to service type
-// EnduroPreservationTaskCreatedEvent.
-func newEnduroPreservationTaskCreatedEvent(vres *package_views.EnduroPreservationTaskCreatedEventView) *EnduroPreservationTaskCreatedEvent {
-	res := &EnduroPreservationTaskCreatedEvent{}
-	if vres.ID != nil {
-		res.ID = *vres.ID
-	}
-	if vres.Item != nil {
-		res.Item = newEnduroPackagePreservationTask(vres.Item)
-	}
-	return res
-}
-
-// newEnduroPreservationTaskCreatedEventView projects result type
-// EnduroPreservationTaskCreatedEvent to projected type
-// EnduroPreservationTaskCreatedEventView using the "default" view.
-func newEnduroPreservationTaskCreatedEventView(res *EnduroPreservationTaskCreatedEvent) *package_views.EnduroPreservationTaskCreatedEventView {
-	vres := &package_views.EnduroPreservationTaskCreatedEventView{
-		ID: &res.ID,
-	}
-	if res.Item != nil {
-		vres.Item = newEnduroPackagePreservationTaskView(res.Item)
-	}
-	return vres
-}
-
-// newEnduroPreservationTaskUpdatedEvent converts projected type
-// EnduroPreservationTaskUpdatedEvent to service type
-// EnduroPreservationTaskUpdatedEvent.
-func newEnduroPreservationTaskUpdatedEvent(vres *package_views.EnduroPreservationTaskUpdatedEventView) *EnduroPreservationTaskUpdatedEvent {
-	res := &EnduroPreservationTaskUpdatedEvent{}
-	if vres.ID != nil {
-		res.ID = *vres.ID
-	}
-	if vres.Item != nil {
-		res.Item = newEnduroPackagePreservationTask(vres.Item)
-	}
-	return res
-}
-
-// newEnduroPreservationTaskUpdatedEventView projects result type
-// EnduroPreservationTaskUpdatedEvent to projected type
-// EnduroPreservationTaskUpdatedEventView using the "default" view.
-func newEnduroPreservationTaskUpdatedEventView(res *EnduroPreservationTaskUpdatedEvent) *package_views.EnduroPreservationTaskUpdatedEventView {
-	vres := &package_views.EnduroPreservationTaskUpdatedEventView{
-		ID: &res.ID,
-	}
-	if res.Item != nil {
-		vres.Item = newEnduroPackagePreservationTaskView(res.Item)
-	}
-	return vres
-}
-
-// newEnduroPackagePreservationActions converts projected type
-// EnduroPackagePreservationActions to service type
-// EnduroPackagePreservationActions.
-func newEnduroPackagePreservationActions(vres *package_views.EnduroPackagePreservationActionsView) *EnduroPackagePreservationActions {
-	res := &EnduroPackagePreservationActions{}
-	if vres.Actions != nil {
-		res.Actions = newEnduroPackagePreservationActionCollection(vres.Actions)
-	}
-	return res
-}
-
-// newEnduroPackagePreservationActionsView projects result type
-// EnduroPackagePreservationActions to projected type
-// EnduroPackagePreservationActionsView using the "default" view.
-func newEnduroPackagePreservationActionsView(res *EnduroPackagePreservationActions) *package_views.EnduroPackagePreservationActionsView {
-	vres := &package_views.EnduroPackagePreservationActionsView{}
-	if res.Actions != nil {
-		vres.Actions = newEnduroPackagePreservationActionCollectionView(res.Actions)
-	}
-	return vres
-}
-
-// newEnduroPackagePreservationActionCollectionSimple converts projected type
-// EnduroPackagePreservationActionCollection to service type
-// EnduroPackagePreservationActionCollection.
-func newEnduroPackagePreservationActionCollectionSimple(vres package_views.EnduroPackagePreservationActionCollectionView) EnduroPackagePreservationActionCollection {
-	res := make(EnduroPackagePreservationActionCollection, len(vres))
-	for i, n := range vres {
-		res[i] = newEnduroPackagePreservationActionSimple(n)
-	}
-	return res
-}
-
-// newEnduroPackagePreservationActionCollection converts projected type
-// EnduroPackagePreservationActionCollection to service type
-// EnduroPackagePreservationActionCollection.
-func newEnduroPackagePreservationActionCollection(vres package_views.EnduroPackagePreservationActionCollectionView) EnduroPackagePreservationActionCollection {
-	res := make(EnduroPackagePreservationActionCollection, len(vres))
-	for i, n := range vres {
-		res[i] = newEnduroPackagePreservationAction(n)
-	}
-	return res
-}
-
-// newEnduroPackagePreservationActionCollectionViewSimple projects result type
-// EnduroPackagePreservationActionCollection to projected type
-// EnduroPackagePreservationActionCollectionView using the "simple" view.
-func newEnduroPackagePreservationActionCollectionViewSimple(res EnduroPackagePreservationActionCollection) package_views.EnduroPackagePreservationActionCollectionView {
-	vres := make(package_views.EnduroPackagePreservationActionCollectionView, len(res))
-	for i, n := range res {
-		vres[i] = newEnduroPackagePreservationActionViewSimple(n)
-	}
-	return vres
-}
-
-// newEnduroPackagePreservationActionCollectionView projects result type
-// EnduroPackagePreservationActionCollection to projected type
-// EnduroPackagePreservationActionCollectionView using the "default" view.
-func newEnduroPackagePreservationActionCollectionView(res EnduroPackagePreservationActionCollection) package_views.EnduroPackagePreservationActionCollectionView {
-	vres := make(package_views.EnduroPackagePreservationActionCollectionView, len(res))
-	for i, n := range res {
-		vres[i] = newEnduroPackagePreservationActionView(n)
-	}
-	return vres
-}
-
-// transformPackageViewsEnduroPackageCreatedEventViewToEnduroPackageCreatedEvent
-// builds a value of type *EnduroPackageCreatedEvent from a value of type
-// *package_views.EnduroPackageCreatedEventView.
-func transformPackageViewsEnduroPackageCreatedEventViewToEnduroPackageCreatedEvent(v *package_views.EnduroPackageCreatedEventView) *EnduroPackageCreatedEvent {
-	if v == nil {
-		return nil
-	}
-	res := &EnduroPackageCreatedEvent{
-		ID: *v.ID,
-	}
-	if v.Item != nil {
-		res.Item = transformPackageViewsEnduroStoredPackageViewToEnduroStoredPackage(v.Item)
-	}
-
-	return res
-}
-
-// transformPackageViewsEnduroStoredPackageViewToEnduroStoredPackage builds a
-// value of type *EnduroStoredPackage from a value of type
-// *package_views.EnduroStoredPackageView.
-func transformPackageViewsEnduroStoredPackageViewToEnduroStoredPackage(v *package_views.EnduroStoredPackageView) *EnduroStoredPackage {
-	res := &EnduroStoredPackage{
-		ID:          *v.ID,
-		Name:        v.Name,
-		LocationID:  v.LocationID,
-		Status:      *v.Status,
-		WorkflowID:  v.WorkflowID,
-		RunID:       v.RunID,
-		AipID:       v.AipID,
-		CreatedAt:   *v.CreatedAt,
-		StartedAt:   v.StartedAt,
-		CompletedAt: v.CompletedAt,
-	}
-
-	return res
-}
-
-// transformPackageViewsEnduroPackageStatusUpdatedEventViewToEnduroPackageStatusUpdatedEvent
-// builds a value of type *EnduroPackageStatusUpdatedEvent from a value of type
-// *package_views.EnduroPackageStatusUpdatedEventView.
-func transformPackageViewsEnduroPackageStatusUpdatedEventViewToEnduroPackageStatusUpdatedEvent(v *package_views.EnduroPackageStatusUpdatedEventView) *EnduroPackageStatusUpdatedEvent {
-	if v == nil {
-		return nil
-	}
-	res := &EnduroPackageStatusUpdatedEvent{
-		ID:     *v.ID,
-		Status: *v.Status,
-	}
-
-	return res
-}
-
-// transformPackageViewsEnduroPreservationActionCreatedEventViewToEnduroPreservationActionCreatedEvent
-// builds a value of type *EnduroPreservationActionCreatedEvent from a value of
-// type *package_views.EnduroPreservationActionCreatedEventView.
-func transformPackageViewsEnduroPreservationActionCreatedEventViewToEnduroPreservationActionCreatedEvent(v *package_views.EnduroPreservationActionCreatedEventView) *EnduroPreservationActionCreatedEvent {
-	if v == nil {
-		return nil
-	}
-	res := &EnduroPreservationActionCreatedEvent{
-		ID: *v.ID,
-	}
-	if v.Item != nil {
-		res.Item = transformPackageViewsEnduroPackagePreservationActionViewToEnduroPackagePreservationAction(v.Item)
-	}
-
-	return res
-}
-
-// transformPackageViewsEnduroPackagePreservationActionViewToEnduroPackagePreservationAction
-// builds a value of type *EnduroPackagePreservationAction from a value of type
-// *package_views.EnduroPackagePreservationActionView.
-func transformPackageViewsEnduroPackagePreservationActionViewToEnduroPackagePreservationAction(v *package_views.EnduroPackagePreservationActionView) *EnduroPackagePreservationAction {
-	res := &EnduroPackagePreservationAction{
-		ID:          *v.ID,
-		WorkflowID:  *v.WorkflowID,
-		Type:        *v.Type,
-		Status:      *v.Status,
-		StartedAt:   *v.StartedAt,
-		CompletedAt: v.CompletedAt,
-		PackageID:   v.PackageID,
-	}
-	if v.Tasks != nil {
-		res.Tasks = make([]*EnduroPackagePreservationTask, len(v.Tasks))
-		for i, val := range v.Tasks {
-			res.Tasks[i] = transformPackageViewsEnduroPackagePreservationTaskViewToEnduroPackagePreservationTask(val)
-		}
-	}
-
-	return res
-}
-
-// transformPackageViewsEnduroPackagePreservationTaskViewToEnduroPackagePreservationTask
-// builds a value of type *EnduroPackagePreservationTask from a value of type
-// *package_views.EnduroPackagePreservationTaskView.
-func transformPackageViewsEnduroPackagePreservationTaskViewToEnduroPackagePreservationTask(v *package_views.EnduroPackagePreservationTaskView) *EnduroPackagePreservationTask {
-	if v == nil {
-		return nil
-	}
-	res := &EnduroPackagePreservationTask{
-		ID:                   *v.ID,
-		TaskID:               *v.TaskID,
-		Name:                 *v.Name,
-		Status:               *v.Status,
-		StartedAt:            *v.StartedAt,
-		CompletedAt:          v.CompletedAt,
-		Note:                 v.Note,
-		PreservationActionID: v.PreservationActionID,
-	}
-
-	return res
-}
-
-// transformPackageViewsEnduroPreservationTaskCreatedEventViewToEnduroPreservationTaskCreatedEvent
-// builds a value of type *EnduroPreservationTaskCreatedEvent from a value of
-// type *package_views.EnduroPreservationTaskCreatedEventView.
-func transformPackageViewsEnduroPreservationTaskCreatedEventViewToEnduroPreservationTaskCreatedEvent(v *package_views.EnduroPreservationTaskCreatedEventView) *EnduroPreservationTaskCreatedEvent {
-	if v == nil {
-		return nil
-	}
-	res := &EnduroPreservationTaskCreatedEvent{
-		ID: *v.ID,
-	}
-	if v.Item != nil {
-		res.Item = transformPackageViewsEnduroPackagePreservationTaskViewToEnduroPackagePreservationTask(v.Item)
-	}
-
-	return res
-}
-
-// transformEnduroPackageCreatedEventToPackageViewsEnduroPackageCreatedEventView
-// builds a value of type *package_views.EnduroPackageCreatedEventView from a
-// value of type *EnduroPackageCreatedEvent.
-func transformEnduroPackageCreatedEventToPackageViewsEnduroPackageCreatedEventView(v *EnduroPackageCreatedEvent) *package_views.EnduroPackageCreatedEventView {
-	if v == nil {
-		return nil
-	}
-	res := &package_views.EnduroPackageCreatedEventView{
-		ID: &v.ID,
-	}
-	if v.Item != nil {
-		res.Item = transformEnduroStoredPackageToPackageViewsEnduroStoredPackageView(v.Item)
-	}
-
-	return res
-}
-
-// transformEnduroStoredPackageToPackageViewsEnduroStoredPackageView builds a
-// value of type *package_views.EnduroStoredPackageView from a value of type
-// *EnduroStoredPackage.
-func transformEnduroStoredPackageToPackageViewsEnduroStoredPackageView(v *EnduroStoredPackage) *package_views.EnduroStoredPackageView {
-	res := &package_views.EnduroStoredPackageView{
-		ID:          &v.ID,
-		Name:        v.Name,
-		LocationID:  v.LocationID,
-		Status:      &v.Status,
-		WorkflowID:  v.WorkflowID,
-		RunID:       v.RunID,
-		AipID:       v.AipID,
-		CreatedAt:   &v.CreatedAt,
-		StartedAt:   v.StartedAt,
-		CompletedAt: v.CompletedAt,
-	}
-
-	return res
-}
-
-// transformEnduroPackageStatusUpdatedEventToPackageViewsEnduroPackageStatusUpdatedEventView
-// builds a value of type *package_views.EnduroPackageStatusUpdatedEventView
-// from a value of type *EnduroPackageStatusUpdatedEvent.
-func transformEnduroPackageStatusUpdatedEventToPackageViewsEnduroPackageStatusUpdatedEventView(v *EnduroPackageStatusUpdatedEvent) *package_views.EnduroPackageStatusUpdatedEventView {
-	if v == nil {
-		return nil
-	}
-	res := &package_views.EnduroPackageStatusUpdatedEventView{
-		ID:     &v.ID,
-		Status: &v.Status,
-	}
-
-	return res
-}
-
-// transformEnduroPreservationActionCreatedEventToPackageViewsEnduroPreservationActionCreatedEventView
-// builds a value of type
-// *package_views.EnduroPreservationActionCreatedEventView from a value of type
-// *EnduroPreservationActionCreatedEvent.
-func transformEnduroPreservationActionCreatedEventToPackageViewsEnduroPreservationActionCreatedEventView(v *EnduroPreservationActionCreatedEvent) *package_views.EnduroPreservationActionCreatedEventView {
-	if v == nil {
-		return nil
-	}
-	res := &package_views.EnduroPreservationActionCreatedEventView{
-		ID: &v.ID,
-	}
-	if v.Item != nil {
-		res.Item = transformEnduroPackagePreservationActionToPackageViewsEnduroPackagePreservationActionView(v.Item)
-	}
-
-	return res
-}
-
-// transformEnduroPackagePreservationActionToPackageViewsEnduroPackagePreservationActionView
-// builds a value of type *package_views.EnduroPackagePreservationActionView
-// from a value of type *EnduroPackagePreservationAction.
-func transformEnduroPackagePreservationActionToPackageViewsEnduroPackagePreservationActionView(v *EnduroPackagePreservationAction) *package_views.EnduroPackagePreservationActionView {
-	res := &package_views.EnduroPackagePreservationActionView{
-		ID:          &v.ID,
-		WorkflowID:  &v.WorkflowID,
-		Type:        &v.Type,
-		Status:      &v.Status,
-		StartedAt:   &v.StartedAt,
-		CompletedAt: v.CompletedAt,
-		PackageID:   v.PackageID,
-	}
-	if v.Tasks != nil {
-		res.Tasks = make([]*package_views.EnduroPackagePreservationTaskView, len(v.Tasks))
-		for i, val := range v.Tasks {
-			res.Tasks[i] = transformEnduroPackagePreservationTaskToPackageViewsEnduroPackagePreservationTaskView(val)
-		}
-	}
-
-	return res
-}
-
-// transformEnduroPackagePreservationTaskToPackageViewsEnduroPackagePreservationTaskView
-// builds a value of type *package_views.EnduroPackagePreservationTaskView from
-// a value of type *EnduroPackagePreservationTask.
-func transformEnduroPackagePreservationTaskToPackageViewsEnduroPackagePreservationTaskView(v *EnduroPackagePreservationTask) *package_views.EnduroPackagePreservationTaskView {
-	if v == nil {
-		return nil
-	}
-	res := &package_views.EnduroPackagePreservationTaskView{
-		ID:                   &v.ID,
-		TaskID:               &v.TaskID,
-		Name:                 &v.Name,
-		Status:               &v.Status,
-		StartedAt:            &v.StartedAt,
-		CompletedAt:          v.CompletedAt,
-		Note:                 v.Note,
-		PreservationActionID: v.PreservationActionID,
-	}
-
-	return res
-}
-
-// transformEnduroPreservationTaskCreatedEventToPackageViewsEnduroPreservationTaskCreatedEventView
-// builds a value of type *package_views.EnduroPreservationTaskCreatedEventView
-// from a value of type *EnduroPreservationTaskCreatedEvent.
-func transformEnduroPreservationTaskCreatedEventToPackageViewsEnduroPreservationTaskCreatedEventView(v *EnduroPreservationTaskCreatedEvent) *package_views.EnduroPreservationTaskCreatedEventView {
-	if v == nil {
-		return nil
-	}
-	res := &package_views.EnduroPreservationTaskCreatedEventView{
-		ID: &v.ID,
-	}
-	if v.Item != nil {
-		res.Item = transformEnduroPackagePreservationTaskToPackageViewsEnduroPackagePreservationTaskView(v.Item)
-	}
-
-	return res
 }

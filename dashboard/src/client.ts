@@ -1,7 +1,6 @@
 import auth from "./auth";
 import * as api from "./openapi-generator";
 import * as runtime from "./openapi-generator/runtime";
-import router from "./router";
 import { usePackageStore } from "./stores/package";
 import { useLayoutStore } from "@/stores/layout";
 
@@ -52,8 +51,10 @@ function connectPackageMonitor() {
   const socket = new WebSocket(url);
   socket.onmessage = (event: MessageEvent) => {
     const body = JSON.parse(event.data);
-    const data = api.MonitorResponseBodyFromJSON(body);
-    store.handleEvent(data);
+    const data = api.MonitorEventFromJSON(body);
+    if (data.event) {
+      store.handleEvent(data.event);
+    }
   };
 }
 

@@ -9,6 +9,8 @@
 package client
 
 import (
+	"encoding/json"
+
 	package_ "github.com/artefactual-sdps/enduro/internal/api/gen/package_"
 	package_views "github.com/artefactual-sdps/enduro/internal/api/gen/package_/views"
 	"github.com/google/uuid"
@@ -32,15 +34,21 @@ type MoveRequestBody struct {
 // MonitorResponseBody is the type of the "package" service "monitor" endpoint
 // HTTP response body.
 type MonitorResponseBody struct {
-	MonitorPingEvent               *EnduroMonitorPingEventResponseBody               `form:"monitor_ping_event,omitempty" json:"monitor_ping_event,omitempty" xml:"monitor_ping_event,omitempty"`
-	PackageCreatedEvent            *EnduroPackageCreatedEventResponseBody            `form:"package_created_event,omitempty" json:"package_created_event,omitempty" xml:"package_created_event,omitempty"`
-	PackageUpdatedEvent            *EnduroPackageUpdatedEventResponseBody            `form:"package_updated_event,omitempty" json:"package_updated_event,omitempty" xml:"package_updated_event,omitempty"`
-	PackageStatusUpdatedEvent      *EnduroPackageStatusUpdatedEventResponseBody      `form:"package_status_updated_event,omitempty" json:"package_status_updated_event,omitempty" xml:"package_status_updated_event,omitempty"`
-	PackageLocationUpdatedEvent    *EnduroPackageLocationUpdatedEventResponseBody    `form:"package_location_updated_event,omitempty" json:"package_location_updated_event,omitempty" xml:"package_location_updated_event,omitempty"`
-	PreservationActionCreatedEvent *EnduroPreservationActionCreatedEventResponseBody `form:"preservation_action_created_event,omitempty" json:"preservation_action_created_event,omitempty" xml:"preservation_action_created_event,omitempty"`
-	PreservationActionUpdatedEvent *EnduroPreservationActionUpdatedEventResponseBody `form:"preservation_action_updated_event,omitempty" json:"preservation_action_updated_event,omitempty" xml:"preservation_action_updated_event,omitempty"`
-	PreservationTaskCreatedEvent   *EnduroPreservationTaskCreatedEventResponseBody   `form:"preservation_task_created_event,omitempty" json:"preservation_task_created_event,omitempty" xml:"preservation_task_created_event,omitempty"`
-	PreservationTaskUpdatedEvent   *EnduroPreservationTaskUpdatedEventResponseBody   `form:"preservation_task_updated_event,omitempty" json:"preservation_task_updated_event,omitempty" xml:"preservation_task_updated_event,omitempty"`
+	Event *struct {
+		// Union type name, one of:
+		// - "monitor_ping_event"
+		// - "package_created_event"
+		// - "package_updated_event"
+		// - "package_status_updated_event"
+		// - "package_location_updated_event"
+		// - "preservation_action_created_event"
+		// - "preservation_action_updated_event"
+		// - "preservation_task_created_event"
+		// - "preservation_task_updated_event"
+		Type *string `form:"Type" json:"Type" xml:"Type"`
+		// JSON encoded union value
+		Value *string `form:"Value" json:"Value" xml:"Value"`
+	} `form:"event,omitempty" json:"event,omitempty" xml:"event,omitempty"`
 }
 
 // ListResponseBody is the type of the "package" service "list" endpoint HTTP
@@ -321,19 +329,9 @@ type MoveStatusNotFoundResponseBody struct {
 	ID *uint `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
 }
 
-// EnduroMonitorPingEventResponseBody is used to define fields on response body
-// types.
-type EnduroMonitorPingEventResponseBody struct {
-	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
-}
-
-// EnduroPackageCreatedEventResponseBody is used to define fields on response
-// body types.
-type EnduroPackageCreatedEventResponseBody struct {
-	// Identifier of package
-	ID   *uint                            `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
-	Item *EnduroStoredPackageResponseBody `form:"item,omitempty" json:"item,omitempty" xml:"item,omitempty"`
-}
+// EnduroStoredPackageCollectionResponseBody is used to define fields on
+// response body types.
+type EnduroStoredPackageCollectionResponseBody []*EnduroStoredPackageResponseBody
 
 // EnduroStoredPackageResponseBody is used to define fields on response body
 // types.
@@ -360,38 +358,9 @@ type EnduroStoredPackageResponseBody struct {
 	CompletedAt *string `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
 }
 
-// EnduroPackageUpdatedEventResponseBody is used to define fields on response
-// body types.
-type EnduroPackageUpdatedEventResponseBody struct {
-	// Identifier of package
-	ID   *uint                            `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
-	Item *EnduroStoredPackageResponseBody `form:"item,omitempty" json:"item,omitempty" xml:"item,omitempty"`
-}
-
-// EnduroPackageStatusUpdatedEventResponseBody is used to define fields on
-// response body types.
-type EnduroPackageStatusUpdatedEventResponseBody struct {
-	// Identifier of package
-	ID     *uint   `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
-	Status *string `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
-}
-
-// EnduroPackageLocationUpdatedEventResponseBody is used to define fields on
-// response body types.
-type EnduroPackageLocationUpdatedEventResponseBody struct {
-	// Identifier of package
-	ID *uint `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
-	// Identifier of storage location
-	LocationID *uuid.UUID `form:"location_id,omitempty" json:"location_id,omitempty" xml:"location_id,omitempty"`
-}
-
-// EnduroPreservationActionCreatedEventResponseBody is used to define fields on
-// response body types.
-type EnduroPreservationActionCreatedEventResponseBody struct {
-	// Identifier of preservation action
-	ID   *uint                                        `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
-	Item *EnduroPackagePreservationActionResponseBody `form:"item,omitempty" json:"item,omitempty" xml:"item,omitempty"`
-}
+// EnduroPackagePreservationActionCollectionResponseBody is used to define
+// fields on response body types.
+type EnduroPackagePreservationActionCollectionResponseBody []*EnduroPackagePreservationActionResponseBody
 
 // EnduroPackagePreservationActionResponseBody is used to define fields on
 // response body types.
@@ -422,38 +391,6 @@ type EnduroPackagePreservationTaskResponseBody struct {
 	Note                 *string `form:"note,omitempty" json:"note,omitempty" xml:"note,omitempty"`
 	PreservationActionID *uint   `form:"preservation_action_id,omitempty" json:"preservation_action_id,omitempty" xml:"preservation_action_id,omitempty"`
 }
-
-// EnduroPreservationActionUpdatedEventResponseBody is used to define fields on
-// response body types.
-type EnduroPreservationActionUpdatedEventResponseBody struct {
-	// Identifier of preservation action
-	ID   *uint                                        `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
-	Item *EnduroPackagePreservationActionResponseBody `form:"item,omitempty" json:"item,omitempty" xml:"item,omitempty"`
-}
-
-// EnduroPreservationTaskCreatedEventResponseBody is used to define fields on
-// response body types.
-type EnduroPreservationTaskCreatedEventResponseBody struct {
-	// Identifier of preservation task
-	ID   *uint                                      `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
-	Item *EnduroPackagePreservationTaskResponseBody `form:"item,omitempty" json:"item,omitempty" xml:"item,omitempty"`
-}
-
-// EnduroPreservationTaskUpdatedEventResponseBody is used to define fields on
-// response body types.
-type EnduroPreservationTaskUpdatedEventResponseBody struct {
-	// Identifier of preservation task
-	ID   *uint                                      `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
-	Item *EnduroPackagePreservationTaskResponseBody `form:"item,omitempty" json:"item,omitempty" xml:"item,omitempty"`
-}
-
-// EnduroStoredPackageCollectionResponseBody is used to define fields on
-// response body types.
-type EnduroStoredPackageCollectionResponseBody []*EnduroStoredPackageResponseBody
-
-// EnduroPackagePreservationActionCollectionResponseBody is used to define
-// fields on response body types.
-type EnduroPackagePreservationActionCollectionResponseBody []*EnduroPackagePreservationActionResponseBody
 
 // NewConfirmRequestBody builds the HTTP request body from the payload of the
 // "confirm" endpoint of the "package" service.
@@ -505,36 +442,49 @@ func NewMonitorRequestUnauthorized(body string) package_.Unauthorized {
 	return v
 }
 
-// NewMonitorEnduroMonitorEventOK builds a "package" service "monitor" endpoint
-// result from a HTTP "OK" response.
-func NewMonitorEnduroMonitorEventOK(body *MonitorResponseBody) *package_views.EnduroMonitorEventView {
-	v := &package_views.EnduroMonitorEventView{}
-	if body.MonitorPingEvent != nil {
-		v.MonitorPingEvent = unmarshalEnduroMonitorPingEventResponseBodyToPackageViewsEnduroMonitorPingEventView(body.MonitorPingEvent)
-	}
-	if body.PackageCreatedEvent != nil {
-		v.PackageCreatedEvent = unmarshalEnduroPackageCreatedEventResponseBodyToPackageViewsEnduroPackageCreatedEventView(body.PackageCreatedEvent)
-	}
-	if body.PackageUpdatedEvent != nil {
-		v.PackageUpdatedEvent = unmarshalEnduroPackageUpdatedEventResponseBodyToPackageViewsEnduroPackageUpdatedEventView(body.PackageUpdatedEvent)
-	}
-	if body.PackageStatusUpdatedEvent != nil {
-		v.PackageStatusUpdatedEvent = unmarshalEnduroPackageStatusUpdatedEventResponseBodyToPackageViewsEnduroPackageStatusUpdatedEventView(body.PackageStatusUpdatedEvent)
-	}
-	if body.PackageLocationUpdatedEvent != nil {
-		v.PackageLocationUpdatedEvent = unmarshalEnduroPackageLocationUpdatedEventResponseBodyToPackageViewsEnduroPackageLocationUpdatedEventView(body.PackageLocationUpdatedEvent)
-	}
-	if body.PreservationActionCreatedEvent != nil {
-		v.PreservationActionCreatedEvent = unmarshalEnduroPreservationActionCreatedEventResponseBodyToPackageViewsEnduroPreservationActionCreatedEventView(body.PreservationActionCreatedEvent)
-	}
-	if body.PreservationActionUpdatedEvent != nil {
-		v.PreservationActionUpdatedEvent = unmarshalEnduroPreservationActionUpdatedEventResponseBodyToPackageViewsEnduroPreservationActionUpdatedEventView(body.PreservationActionUpdatedEvent)
-	}
-	if body.PreservationTaskCreatedEvent != nil {
-		v.PreservationTaskCreatedEvent = unmarshalEnduroPreservationTaskCreatedEventResponseBodyToPackageViewsEnduroPreservationTaskCreatedEventView(body.PreservationTaskCreatedEvent)
-	}
-	if body.PreservationTaskUpdatedEvent != nil {
-		v.PreservationTaskUpdatedEvent = unmarshalEnduroPreservationTaskUpdatedEventResponseBodyToPackageViewsEnduroPreservationTaskUpdatedEventView(body.PreservationTaskUpdatedEvent)
+// NewMonitorEventOK builds a "package" service "monitor" endpoint result from
+// a HTTP "OK" response.
+func NewMonitorEventOK(body *MonitorResponseBody) *package_.MonitorEvent {
+	v := &package_.MonitorEvent{}
+	if body.Event != nil {
+		switch *body.Event.Type {
+		case "monitor_ping_event":
+			var val *package_.MonitorPingEvent
+			json.Unmarshal([]byte(*body.Event.Value), &val)
+			v.Event = val
+		case "package_created_event":
+			var val *package_.PackageCreatedEvent
+			json.Unmarshal([]byte(*body.Event.Value), &val)
+			v.Event = val
+		case "package_updated_event":
+			var val *package_.PackageUpdatedEvent
+			json.Unmarshal([]byte(*body.Event.Value), &val)
+			v.Event = val
+		case "package_status_updated_event":
+			var val *package_.PackageStatusUpdatedEvent
+			json.Unmarshal([]byte(*body.Event.Value), &val)
+			v.Event = val
+		case "package_location_updated_event":
+			var val *package_.PackageLocationUpdatedEvent
+			json.Unmarshal([]byte(*body.Event.Value), &val)
+			v.Event = val
+		case "preservation_action_created_event":
+			var val *package_.PreservationActionCreatedEvent
+			json.Unmarshal([]byte(*body.Event.Value), &val)
+			v.Event = val
+		case "preservation_action_updated_event":
+			var val *package_.PreservationActionUpdatedEvent
+			json.Unmarshal([]byte(*body.Event.Value), &val)
+			v.Event = val
+		case "preservation_task_created_event":
+			var val *package_.PreservationTaskCreatedEvent
+			json.Unmarshal([]byte(*body.Event.Value), &val)
+			v.Event = val
+		case "preservation_task_updated_event":
+			var val *package_.PreservationTaskUpdatedEvent
+			json.Unmarshal([]byte(*body.Event.Value), &val)
+			v.Event = val
+		}
 	}
 
 	return v
@@ -853,6 +803,25 @@ func NewMoveStatusUnauthorized(body string) package_.Unauthorized {
 	v := package_.Unauthorized(body)
 
 	return v
+}
+
+// ValidateMonitorResponseBody runs the validations defined on
+// MonitorResponseBody
+func ValidateMonitorResponseBody(body *MonitorResponseBody) (err error) {
+	if body.Event != nil {
+		if body.Event.Type == nil {
+			err = goa.MergeErrors(err, goa.MissingFieldError("Type", "body.event"))
+		}
+		if body.Event.Value == nil {
+			err = goa.MergeErrors(err, goa.MissingFieldError("Value", "body.event"))
+		}
+		if body.Event.Type != nil {
+			if !(*body.Event.Type == "monitor_ping_event" || *body.Event.Type == "package_created_event" || *body.Event.Type == "package_updated_event" || *body.Event.Type == "package_status_updated_event" || *body.Event.Type == "package_location_updated_event" || *body.Event.Type == "preservation_action_created_event" || *body.Event.Type == "preservation_action_updated_event" || *body.Event.Type == "preservation_task_created_event" || *body.Event.Type == "preservation_task_updated_event") {
+				err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.event.Type", *body.Event.Type, []any{"monitor_ping_event", "package_created_event", "package_updated_event", "package_status_updated_event", "package_location_updated_event", "preservation_action_created_event", "preservation_action_updated_event", "preservation_task_created_event", "preservation_task_updated_event"}))
+			}
+		}
+	}
+	return
 }
 
 // ValidateListResponseBody runs the validations defined on ListResponseBody
@@ -1189,18 +1158,14 @@ func ValidateMoveStatusNotFoundResponseBody(body *MoveStatusNotFoundResponseBody
 	return
 }
 
-// ValidateEnduroPackageCreatedEventResponseBody runs the validations defined
-// on EnduroPackage-Created-EventResponseBody
-func ValidateEnduroPackageCreatedEventResponseBody(body *EnduroPackageCreatedEventResponseBody) (err error) {
-	if body.ID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
-	}
-	if body.Item == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("item", "body"))
-	}
-	if body.Item != nil {
-		if err2 := ValidateEnduroStoredPackageResponseBody(body.Item); err2 != nil {
-			err = goa.MergeErrors(err, err2)
+// ValidateEnduroStoredPackageCollectionResponseBody runs the validations
+// defined on EnduroStored-PackageCollectionResponseBody
+func ValidateEnduroStoredPackageCollectionResponseBody(body EnduroStoredPackageCollectionResponseBody) (err error) {
+	for _, e := range body {
+		if e != nil {
+			if err2 := ValidateEnduroStoredPackageResponseBody(e); err2 != nil {
+				err = goa.MergeErrors(err, err2)
+			}
 		}
 	}
 	return
@@ -1244,64 +1209,15 @@ func ValidateEnduroStoredPackageResponseBody(body *EnduroStoredPackageResponseBo
 	return
 }
 
-// ValidateEnduroPackageUpdatedEventResponseBody runs the validations defined
-// on EnduroPackage-Updated-EventResponseBody
-func ValidateEnduroPackageUpdatedEventResponseBody(body *EnduroPackageUpdatedEventResponseBody) (err error) {
-	if body.ID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
-	}
-	if body.Item == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("item", "body"))
-	}
-	if body.Item != nil {
-		if err2 := ValidateEnduroStoredPackageResponseBody(body.Item); err2 != nil {
-			err = goa.MergeErrors(err, err2)
-		}
-	}
-	return
-}
-
-// ValidateEnduroPackageStatusUpdatedEventResponseBody runs the validations
-// defined on EnduroPackage-Status-Updated-EventResponseBody
-func ValidateEnduroPackageStatusUpdatedEventResponseBody(body *EnduroPackageStatusUpdatedEventResponseBody) (err error) {
-	if body.ID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
-	}
-	if body.Status == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("status", "body"))
-	}
-	if body.Status != nil {
-		if !(*body.Status == "new" || *body.Status == "in progress" || *body.Status == "done" || *body.Status == "error" || *body.Status == "unknown" || *body.Status == "queued" || *body.Status == "pending" || *body.Status == "abandoned") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []any{"new", "in progress", "done", "error", "unknown", "queued", "pending", "abandoned"}))
-		}
-	}
-	return
-}
-
-// ValidateEnduroPackageLocationUpdatedEventResponseBody runs the validations
-// defined on EnduroPackage-Location-Updated-EventResponseBody
-func ValidateEnduroPackageLocationUpdatedEventResponseBody(body *EnduroPackageLocationUpdatedEventResponseBody) (err error) {
-	if body.ID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
-	}
-	if body.LocationID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("location_id", "body"))
-	}
-	return
-}
-
-// ValidateEnduroPreservationActionCreatedEventResponseBody runs the
-// validations defined on EnduroPreservation-Action-Created-EventResponseBody
-func ValidateEnduroPreservationActionCreatedEventResponseBody(body *EnduroPreservationActionCreatedEventResponseBody) (err error) {
-	if body.ID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
-	}
-	if body.Item == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("item", "body"))
-	}
-	if body.Item != nil {
-		if err2 := ValidateEnduroPackagePreservationActionResponseBody(body.Item); err2 != nil {
-			err = goa.MergeErrors(err, err2)
+// ValidateEnduroPackagePreservationActionCollectionResponseBody runs the
+// validations defined on
+// EnduroPackage-Preservation-ActionCollectionResponseBody
+func ValidateEnduroPackagePreservationActionCollectionResponseBody(body EnduroPackagePreservationActionCollectionResponseBody) (err error) {
+	for _, e := range body {
+		if e != nil {
+			if err2 := ValidateEnduroPackagePreservationActionResponseBody(e); err2 != nil {
+				err = goa.MergeErrors(err, err2)
+			}
 		}
 	}
 	return
@@ -1390,84 +1306,6 @@ func ValidateEnduroPackagePreservationTaskResponseBody(body *EnduroPackagePreser
 	}
 	if body.CompletedAt != nil {
 		err = goa.MergeErrors(err, goa.ValidateFormat("body.completed_at", *body.CompletedAt, goa.FormatDateTime))
-	}
-	return
-}
-
-// ValidateEnduroPreservationActionUpdatedEventResponseBody runs the
-// validations defined on EnduroPreservation-Action-Updated-EventResponseBody
-func ValidateEnduroPreservationActionUpdatedEventResponseBody(body *EnduroPreservationActionUpdatedEventResponseBody) (err error) {
-	if body.ID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
-	}
-	if body.Item == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("item", "body"))
-	}
-	if body.Item != nil {
-		if err2 := ValidateEnduroPackagePreservationActionResponseBody(body.Item); err2 != nil {
-			err = goa.MergeErrors(err, err2)
-		}
-	}
-	return
-}
-
-// ValidateEnduroPreservationTaskCreatedEventResponseBody runs the validations
-// defined on EnduroPreservation-Task-Created-EventResponseBody
-func ValidateEnduroPreservationTaskCreatedEventResponseBody(body *EnduroPreservationTaskCreatedEventResponseBody) (err error) {
-	if body.ID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
-	}
-	if body.Item == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("item", "body"))
-	}
-	if body.Item != nil {
-		if err2 := ValidateEnduroPackagePreservationTaskResponseBody(body.Item); err2 != nil {
-			err = goa.MergeErrors(err, err2)
-		}
-	}
-	return
-}
-
-// ValidateEnduroPreservationTaskUpdatedEventResponseBody runs the validations
-// defined on EnduroPreservation-Task-Updated-EventResponseBody
-func ValidateEnduroPreservationTaskUpdatedEventResponseBody(body *EnduroPreservationTaskUpdatedEventResponseBody) (err error) {
-	if body.ID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
-	}
-	if body.Item == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("item", "body"))
-	}
-	if body.Item != nil {
-		if err2 := ValidateEnduroPackagePreservationTaskResponseBody(body.Item); err2 != nil {
-			err = goa.MergeErrors(err, err2)
-		}
-	}
-	return
-}
-
-// ValidateEnduroStoredPackageCollectionResponseBody runs the validations
-// defined on EnduroStored-PackageCollectionResponseBody
-func ValidateEnduroStoredPackageCollectionResponseBody(body EnduroStoredPackageCollectionResponseBody) (err error) {
-	for _, e := range body {
-		if e != nil {
-			if err2 := ValidateEnduroStoredPackageResponseBody(e); err2 != nil {
-				err = goa.MergeErrors(err, err2)
-			}
-		}
-	}
-	return
-}
-
-// ValidateEnduroPackagePreservationActionCollectionResponseBody runs the
-// validations defined on
-// EnduroPackage-Preservation-ActionCollectionResponseBody
-func ValidateEnduroPackagePreservationActionCollectionResponseBody(body EnduroPackagePreservationActionCollectionResponseBody) (err error) {
-	for _, e := range body {
-		if e != nil {
-			if err2 := ValidateEnduroPackagePreservationActionResponseBody(e); err2 != nil {
-				err = goa.MergeErrors(err, err2)
-			}
-		}
 	}
 	return
 }

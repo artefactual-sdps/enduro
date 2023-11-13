@@ -85,6 +85,56 @@ type DownloadPayload struct {
 	OauthToken *string
 }
 
+// PreservationAction describes a preservation action.
+type EnduroPackagePreservationAction struct {
+	ID          uint
+	WorkflowID  string
+	Type        string
+	Status      string
+	StartedAt   string
+	CompletedAt *string
+	Tasks       EnduroPackagePreservationTaskCollection
+	PackageID   *uint
+}
+
+// PreservationTask describes a preservation action task.
+type EnduroPackagePreservationTask struct {
+	ID                   uint
+	TaskID               string
+	Name                 string
+	Status               string
+	StartedAt            string
+	CompletedAt          *string
+	Note                 *string
+	PreservationActionID *uint
+}
+
+type EnduroPackagePreservationTaskCollection []*EnduroPackagePreservationTask
+
+// StoredPackage describes a package retrieved by the service.
+type EnduroStoredPackage struct {
+	// Identifier of package
+	ID uint
+	// Name of the package
+	Name *string
+	// Identifier of storage location
+	LocationID *uuid.UUID
+	// Status of the package
+	Status string
+	// Identifier of processing workflow
+	WorkflowID *string
+	// Identifier of latest processing workflow run
+	RunID *string
+	// Identifier of AIP
+	AipID *string
+	// Creation datetime
+	CreatedAt string
+	// Start datetime
+	StartedAt *string
+	// Completion datetime
+	CompletedAt *string
+}
+
 // Location is the result type of the storage service show_location method.
 type Location struct {
 	// Name of location
@@ -127,6 +177,10 @@ type LocationsPayload struct {
 	OauthToken *string
 }
 
+type MonitorPingEvent struct {
+	Message *string
+}
+
 // MovePayload is the payload type of the storage service move method.
 type MovePayload struct {
 	// Identifier of AIP
@@ -167,12 +221,61 @@ type Package struct {
 // location_packages method.
 type PackageCollection []*Package
 
+type PackageCreatedEvent struct {
+	// Identifier of package
+	ID   uint
+	Item *EnduroStoredPackage
+}
+
+type PackageLocationUpdatedEvent struct {
+	// Identifier of package
+	ID uint
+	// Identifier of storage location
+	LocationID uuid.UUID
+}
+
 // Storage package not found.
 type PackageNotFound struct {
 	// Message of error
 	Message string
 	// Identifier of missing package
 	AipID uuid.UUID
+}
+
+type PackageStatusUpdatedEvent struct {
+	// Identifier of package
+	ID     uint
+	Status string
+}
+
+type PackageUpdatedEvent struct {
+	// Identifier of package
+	ID   uint
+	Item *EnduroStoredPackage
+}
+
+type PreservationActionCreatedEvent struct {
+	// Identifier of preservation action
+	ID   uint
+	Item *EnduroPackagePreservationAction
+}
+
+type PreservationActionUpdatedEvent struct {
+	// Identifier of preservation action
+	ID   uint
+	Item *EnduroPackagePreservationAction
+}
+
+type PreservationTaskCreatedEvent struct {
+	// Identifier of preservation task
+	ID   uint
+	Item *EnduroPackagePreservationTask
+}
+
+type PreservationTaskUpdatedEvent struct {
+	// Identifier of preservation task
+	ID   uint
+	Item *EnduroPackagePreservationTask
 }
 
 // RejectPayload is the payload type of the storage service reject method.

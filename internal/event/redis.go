@@ -5,61 +5,74 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/go-logr/logr"
 	"github.com/redis/go-redis/v9"
 
+	"github.com/artefactual-sdps/enduro/internal/api/gen/http/package_/client"
+	"github.com/artefactual-sdps/enduro/internal/api/gen/http/package_/server"
 	goapackage "github.com/artefactual-sdps/enduro/internal/api/gen/package_"
 )
 
 type EventServiceRedisImpl struct {
+	logger logr.Logger
 	client redis.UniversalClient
 	cfg    *Config
 }
 
 var _ EventService = (*EventServiceRedisImpl)(nil)
 
-func NewEventServiceRedis(cfg *Config) (EventService, error) {
+func NewEventServiceRedis(logger logr.Logger, cfg *Config) (EventService, error) {
 	opts, err := redis.ParseURL(cfg.RedisAddress)
 	if err != nil {
 		return nil, err
 	}
 	return &EventServiceRedisImpl{
+		logger: logger,
 		client: redis.NewClient(opts),
 		cfg:    cfg,
 	}, nil
 }
 
-func (s *EventServiceRedisImpl) PublishEvent(event *goapackage.EnduroMonitorEvent) {
+func (s *EventServiceRedisImpl) PublishEvent(event *goapackage.MonitorEvent) {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
 
-	blob, _ := json.Marshal(event)
-	_ = s.client.Publish(ctx, s.cfg.RedisChannel, blob).Err()
+	blob, err := json.Marshal(server.NewMonitorResponseBody(event))
+	if err != nil {
+		s.logger.Error(err, "Error encoding monitor event.")
+	}
+
+	if err := s.client.Publish(ctx, s.cfg.RedisChannel, blob).Err(); err != nil {
+		s.logger.Error(err, "Error publishing monitor event.")
+	}
 }
 
 func (s *EventServiceRedisImpl) Subscribe(ctx context.Context) (Subscription, error) {
-	sub := NewSubscriptionRedis(s.client, s.cfg.RedisChannel)
+	sub := NewSubscriptionRedis(s.logger, s.client, s.cfg.RedisChannel)
 
 	return sub, nil
 }
 
 // SubscriptionRedisImpl represents a stream of user-related events.
 type SubscriptionRedisImpl struct {
+	logger logr.Logger
 	pubsub *redis.PubSub
-	c      chan *goapackage.EnduroMonitorEvent // channel of events
+	c      chan *goapackage.MonitorEvent // channel of events
 	stopCh chan struct{}
 }
 
 var _ Subscription = (*SubscriptionRedisImpl)(nil)
 
-func NewSubscriptionRedis(c redis.UniversalClient, channel string) Subscription {
+func NewSubscriptionRedis(logger logr.Logger, c redis.UniversalClient, channel string) Subscription {
 	ctx := context.Background()
 	pubsub := c.Subscribe(ctx, channel)
 	// Call Receive to force the connection to wait a response from
 	// Redis so the subscription is active immediately.
 	_, _ = pubsub.Receive(ctx)
 	sub := SubscriptionRedisImpl{
+		logger: logger,
 		pubsub: pubsub,
-		c:      make(chan *goapackage.EnduroMonitorEvent, EventBufferSize),
+		c:      make(chan *goapackage.MonitorEvent, EventBufferSize),
 		stopCh: make(chan struct{}),
 	}
 	go sub.loop()
@@ -72,10 +85,16 @@ func (s *SubscriptionRedisImpl) loop() {
 	for {
 		select {
 		case msg := <-ch:
-			event := goapackage.EnduroMonitorEvent{}
-			if err := json.Unmarshal([]byte(msg.Payload), &event); err == nil {
-				s.c <- &event
+			payload := client.MonitorResponseBody{}
+			if err := json.Unmarshal([]byte(msg.Payload), &payload); err != nil {
+				s.logger.Error(err, "Error decoding monitor event.")
+				continue
 			}
+			if err := client.ValidateMonitorResponseBody(&payload); err != nil {
+				s.logger.Error(err, "Monitor event is invalid.")
+				continue
+			}
+			s.c <- client.NewMonitorEventOK(&payload)
 		case <-s.stopCh:
 			return
 		}
@@ -90,6 +109,6 @@ func (s *SubscriptionRedisImpl) Close() error {
 }
 
 // C returns a receive-only channel of user-related events.
-func (s *SubscriptionRedisImpl) C() <-chan *goapackage.EnduroMonitorEvent {
+func (s *SubscriptionRedisImpl) C() <-chan *goapackage.MonitorEvent {
 	return s.c
 }

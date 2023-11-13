@@ -9,6 +9,8 @@
 package server
 
 import (
+	"encoding/json"
+
 	package_ "github.com/artefactual-sdps/enduro/internal/api/gen/package_"
 	package_views "github.com/artefactual-sdps/enduro/internal/api/gen/package_/views"
 	"github.com/google/uuid"
@@ -32,15 +34,21 @@ type MoveRequestBody struct {
 // MonitorResponseBody is the type of the "package" service "monitor" endpoint
 // HTTP response body.
 type MonitorResponseBody struct {
-	MonitorPingEvent               *EnduroMonitorPingEventResponseBody               `form:"monitor_ping_event,omitempty" json:"monitor_ping_event,omitempty" xml:"monitor_ping_event,omitempty"`
-	PackageCreatedEvent            *EnduroPackageCreatedEventResponseBody            `form:"package_created_event,omitempty" json:"package_created_event,omitempty" xml:"package_created_event,omitempty"`
-	PackageUpdatedEvent            *EnduroPackageUpdatedEventResponseBody            `form:"package_updated_event,omitempty" json:"package_updated_event,omitempty" xml:"package_updated_event,omitempty"`
-	PackageStatusUpdatedEvent      *EnduroPackageStatusUpdatedEventResponseBody      `form:"package_status_updated_event,omitempty" json:"package_status_updated_event,omitempty" xml:"package_status_updated_event,omitempty"`
-	PackageLocationUpdatedEvent    *EnduroPackageLocationUpdatedEventResponseBody    `form:"package_location_updated_event,omitempty" json:"package_location_updated_event,omitempty" xml:"package_location_updated_event,omitempty"`
-	PreservationActionCreatedEvent *EnduroPreservationActionCreatedEventResponseBody `form:"preservation_action_created_event,omitempty" json:"preservation_action_created_event,omitempty" xml:"preservation_action_created_event,omitempty"`
-	PreservationActionUpdatedEvent *EnduroPreservationActionUpdatedEventResponseBody `form:"preservation_action_updated_event,omitempty" json:"preservation_action_updated_event,omitempty" xml:"preservation_action_updated_event,omitempty"`
-	PreservationTaskCreatedEvent   *EnduroPreservationTaskCreatedEventResponseBody   `form:"preservation_task_created_event,omitempty" json:"preservation_task_created_event,omitempty" xml:"preservation_task_created_event,omitempty"`
-	PreservationTaskUpdatedEvent   *EnduroPreservationTaskUpdatedEventResponseBody   `form:"preservation_task_updated_event,omitempty" json:"preservation_task_updated_event,omitempty" xml:"preservation_task_updated_event,omitempty"`
+	Event *struct {
+		// Union type name, one of:
+		// - "monitor_ping_event"
+		// - "package_created_event"
+		// - "package_updated_event"
+		// - "package_status_updated_event"
+		// - "package_location_updated_event"
+		// - "preservation_action_created_event"
+		// - "preservation_action_updated_event"
+		// - "preservation_task_created_event"
+		// - "preservation_task_updated_event"
+		Type string `form:"Type" json:"Type" xml:"Type"`
+		// JSON encoded union value
+		Value string `form:"Value" json:"Value" xml:"Value"`
+	} `form:"event,omitempty" json:"event,omitempty" xml:"event,omitempty"`
 }
 
 // ListResponseBody is the type of the "package" service "list" endpoint HTTP
@@ -321,19 +329,9 @@ type MoveStatusNotFoundResponseBody struct {
 	ID uint `form:"id" json:"id" xml:"id"`
 }
 
-// EnduroMonitorPingEventResponseBody is used to define fields on response body
-// types.
-type EnduroMonitorPingEventResponseBody struct {
-	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
-}
-
-// EnduroPackageCreatedEventResponseBody is used to define fields on response
-// body types.
-type EnduroPackageCreatedEventResponseBody struct {
-	// Identifier of package
-	ID   uint                             `form:"id" json:"id" xml:"id"`
-	Item *EnduroStoredPackageResponseBody `form:"item" json:"item" xml:"item"`
-}
+// EnduroStoredPackageCollectionResponseBody is used to define fields on
+// response body types.
+type EnduroStoredPackageCollectionResponseBody []*EnduroStoredPackageResponseBody
 
 // EnduroStoredPackageResponseBody is used to define fields on response body
 // types.
@@ -360,92 +358,6 @@ type EnduroStoredPackageResponseBody struct {
 	CompletedAt *string `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
 }
 
-// EnduroPackageUpdatedEventResponseBody is used to define fields on response
-// body types.
-type EnduroPackageUpdatedEventResponseBody struct {
-	// Identifier of package
-	ID   uint                             `form:"id" json:"id" xml:"id"`
-	Item *EnduroStoredPackageResponseBody `form:"item" json:"item" xml:"item"`
-}
-
-// EnduroPackageStatusUpdatedEventResponseBody is used to define fields on
-// response body types.
-type EnduroPackageStatusUpdatedEventResponseBody struct {
-	// Identifier of package
-	ID     uint   `form:"id" json:"id" xml:"id"`
-	Status string `form:"status" json:"status" xml:"status"`
-}
-
-// EnduroPackageLocationUpdatedEventResponseBody is used to define fields on
-// response body types.
-type EnduroPackageLocationUpdatedEventResponseBody struct {
-	// Identifier of package
-	ID uint `form:"id" json:"id" xml:"id"`
-	// Identifier of storage location
-	LocationID uuid.UUID `form:"location_id" json:"location_id" xml:"location_id"`
-}
-
-// EnduroPreservationActionCreatedEventResponseBody is used to define fields on
-// response body types.
-type EnduroPreservationActionCreatedEventResponseBody struct {
-	// Identifier of preservation action
-	ID   uint                                               `form:"id" json:"id" xml:"id"`
-	Item *EnduroPackagePreservationActionResponseBodySimple `form:"item" json:"item" xml:"item"`
-}
-
-// EnduroPackagePreservationActionResponseBodySimple is used to define fields
-// on response body types.
-type EnduroPackagePreservationActionResponseBodySimple struct {
-	ID          uint    `form:"id" json:"id" xml:"id"`
-	WorkflowID  string  `form:"workflow_id" json:"workflow_id" xml:"workflow_id"`
-	Type        string  `form:"type" json:"type" xml:"type"`
-	Status      string  `form:"status" json:"status" xml:"status"`
-	StartedAt   string  `form:"started_at" json:"started_at" xml:"started_at"`
-	CompletedAt *string `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
-	PackageID   *uint   `form:"package_id,omitempty" json:"package_id,omitempty" xml:"package_id,omitempty"`
-}
-
-// EnduroPreservationActionUpdatedEventResponseBody is used to define fields on
-// response body types.
-type EnduroPreservationActionUpdatedEventResponseBody struct {
-	// Identifier of preservation action
-	ID   uint                                               `form:"id" json:"id" xml:"id"`
-	Item *EnduroPackagePreservationActionResponseBodySimple `form:"item" json:"item" xml:"item"`
-}
-
-// EnduroPreservationTaskCreatedEventResponseBody is used to define fields on
-// response body types.
-type EnduroPreservationTaskCreatedEventResponseBody struct {
-	// Identifier of preservation task
-	ID   uint                                       `form:"id" json:"id" xml:"id"`
-	Item *EnduroPackagePreservationTaskResponseBody `form:"item" json:"item" xml:"item"`
-}
-
-// EnduroPackagePreservationTaskResponseBody is used to define fields on
-// response body types.
-type EnduroPackagePreservationTaskResponseBody struct {
-	ID                   uint    `form:"id" json:"id" xml:"id"`
-	TaskID               string  `form:"task_id" json:"task_id" xml:"task_id"`
-	Name                 string  `form:"name" json:"name" xml:"name"`
-	Status               string  `form:"status" json:"status" xml:"status"`
-	StartedAt            string  `form:"started_at" json:"started_at" xml:"started_at"`
-	CompletedAt          *string `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
-	Note                 *string `form:"note,omitempty" json:"note,omitempty" xml:"note,omitempty"`
-	PreservationActionID *uint   `form:"preservation_action_id,omitempty" json:"preservation_action_id,omitempty" xml:"preservation_action_id,omitempty"`
-}
-
-// EnduroPreservationTaskUpdatedEventResponseBody is used to define fields on
-// response body types.
-type EnduroPreservationTaskUpdatedEventResponseBody struct {
-	// Identifier of preservation task
-	ID   uint                                       `form:"id" json:"id" xml:"id"`
-	Item *EnduroPackagePreservationTaskResponseBody `form:"item" json:"item" xml:"item"`
-}
-
-// EnduroStoredPackageCollectionResponseBody is used to define fields on
-// response body types.
-type EnduroStoredPackageCollectionResponseBody []*EnduroStoredPackageResponseBody
-
 // EnduroPackagePreservationActionResponseBodyCollection is used to define
 // fields on response body types.
 type EnduroPackagePreservationActionResponseBodyCollection []*EnduroPackagePreservationActionResponseBody
@@ -467,36 +379,64 @@ type EnduroPackagePreservationActionResponseBody struct {
 // on response body types.
 type EnduroPackagePreservationTaskResponseBodyCollection []*EnduroPackagePreservationTaskResponseBody
 
+// EnduroPackagePreservationTaskResponseBody is used to define fields on
+// response body types.
+type EnduroPackagePreservationTaskResponseBody struct {
+	ID                   uint    `form:"id" json:"id" xml:"id"`
+	TaskID               string  `form:"task_id" json:"task_id" xml:"task_id"`
+	Name                 string  `form:"name" json:"name" xml:"name"`
+	Status               string  `form:"status" json:"status" xml:"status"`
+	StartedAt            string  `form:"started_at" json:"started_at" xml:"started_at"`
+	CompletedAt          *string `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
+	Note                 *string `form:"note,omitempty" json:"note,omitempty" xml:"note,omitempty"`
+	PreservationActionID *uint   `form:"preservation_action_id,omitempty" json:"preservation_action_id,omitempty" xml:"preservation_action_id,omitempty"`
+}
+
 // NewMonitorResponseBody builds the HTTP response body from the result of the
 // "monitor" endpoint of the "package" service.
-func NewMonitorResponseBody(res *package_views.EnduroMonitorEventView) *MonitorResponseBody {
+func NewMonitorResponseBody(res *package_.MonitorEvent) *MonitorResponseBody {
 	body := &MonitorResponseBody{}
-	if res.MonitorPingEvent != nil {
-		body.MonitorPingEvent = marshalPackageViewsEnduroMonitorPingEventViewToEnduroMonitorPingEventResponseBody(res.MonitorPingEvent)
-	}
-	if res.PackageCreatedEvent != nil {
-		body.PackageCreatedEvent = marshalPackageViewsEnduroPackageCreatedEventViewToEnduroPackageCreatedEventResponseBody(res.PackageCreatedEvent)
-	}
-	if res.PackageUpdatedEvent != nil {
-		body.PackageUpdatedEvent = marshalPackageViewsEnduroPackageUpdatedEventViewToEnduroPackageUpdatedEventResponseBody(res.PackageUpdatedEvent)
-	}
-	if res.PackageStatusUpdatedEvent != nil {
-		body.PackageStatusUpdatedEvent = marshalPackageViewsEnduroPackageStatusUpdatedEventViewToEnduroPackageStatusUpdatedEventResponseBody(res.PackageStatusUpdatedEvent)
-	}
-	if res.PackageLocationUpdatedEvent != nil {
-		body.PackageLocationUpdatedEvent = marshalPackageViewsEnduroPackageLocationUpdatedEventViewToEnduroPackageLocationUpdatedEventResponseBody(res.PackageLocationUpdatedEvent)
-	}
-	if res.PreservationActionCreatedEvent != nil {
-		body.PreservationActionCreatedEvent = marshalPackageViewsEnduroPreservationActionCreatedEventViewToEnduroPreservationActionCreatedEventResponseBody(res.PreservationActionCreatedEvent)
-	}
-	if res.PreservationActionUpdatedEvent != nil {
-		body.PreservationActionUpdatedEvent = marshalPackageViewsEnduroPreservationActionUpdatedEventViewToEnduroPreservationActionUpdatedEventResponseBody(res.PreservationActionUpdatedEvent)
-	}
-	if res.PreservationTaskCreatedEvent != nil {
-		body.PreservationTaskCreatedEvent = marshalPackageViewsEnduroPreservationTaskCreatedEventViewToEnduroPreservationTaskCreatedEventResponseBody(res.PreservationTaskCreatedEvent)
-	}
-	if res.PreservationTaskUpdatedEvent != nil {
-		body.PreservationTaskUpdatedEvent = marshalPackageViewsEnduroPreservationTaskUpdatedEventViewToEnduroPreservationTaskUpdatedEventResponseBody(res.PreservationTaskUpdatedEvent)
+	if res.Event != nil {
+		js, _ := json.Marshal(res.Event)
+		var name string
+		switch res.Event.(type) {
+		case *package_.MonitorPingEvent:
+			name = "monitor_ping_event"
+		case *package_.PackageCreatedEvent:
+			name = "package_created_event"
+		case *package_.PackageUpdatedEvent:
+			name = "package_updated_event"
+		case *package_.PackageStatusUpdatedEvent:
+			name = "package_status_updated_event"
+		case *package_.PackageLocationUpdatedEvent:
+			name = "package_location_updated_event"
+		case *package_.PreservationActionCreatedEvent:
+			name = "preservation_action_created_event"
+		case *package_.PreservationActionUpdatedEvent:
+			name = "preservation_action_updated_event"
+		case *package_.PreservationTaskCreatedEvent:
+			name = "preservation_task_created_event"
+		case *package_.PreservationTaskUpdatedEvent:
+			name = "preservation_task_updated_event"
+		}
+		body.Event = &struct {
+			// Union type name, one of:
+			// - "monitor_ping_event"
+			// - "package_created_event"
+			// - "package_updated_event"
+			// - "package_status_updated_event"
+			// - "package_location_updated_event"
+			// - "preservation_action_created_event"
+			// - "preservation_action_updated_event"
+			// - "preservation_task_created_event"
+			// - "preservation_task_updated_event"
+			Type string `form:"Type" json:"Type" xml:"Type"`
+			// JSON encoded union value
+			Value string `form:"Value" json:"Value" xml:"Value"`
+		}{
+			Type:  name,
+			Value: string(js),
+		}
 	}
 	return body
 }

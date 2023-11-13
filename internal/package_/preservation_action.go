@@ -320,7 +320,7 @@ func (svc *packageImpl) CreatePreservationAction(ctx context.Context, pa *Preser
 	pa.ID = uint(id)
 
 	if item, err := svc.readPreservationAction(ctx, pa.ID); err == nil {
-		ev := &goapackage.EnduroPreservationActionCreatedEvent{ID: pa.ID, Item: item}
+		ev := &goapackage.PreservationActionCreatedEvent{ID: pa.ID, Item: item}
 		event.PublishEvent(ctx, svc.evsvc, ev)
 	}
 
@@ -340,7 +340,7 @@ func (svc *packageImpl) SetPreservationActionStatus(ctx context.Context, ID uint
 	}
 
 	if item, err := svc.readPreservationAction(ctx, ID); err == nil {
-		ev := &goapackage.EnduroPreservationActionUpdatedEvent{ID: ID, Item: item}
+		ev := &goapackage.PreservationActionUpdatedEvent{ID: ID, Item: item}
 		event.PublishEvent(ctx, svc.evsvc, ev)
 	}
 
@@ -361,7 +361,7 @@ func (svc *packageImpl) CompletePreservationAction(ctx context.Context, ID uint,
 	}
 
 	if item, err := svc.readPreservationAction(ctx, ID); err == nil {
-		ev := &goapackage.EnduroPreservationActionUpdatedEvent{ID: ID, Item: item}
+		ev := &goapackage.PreservationActionUpdatedEvent{ID: ID, Item: item}
 		event.PublishEvent(ctx, svc.evsvc, ev)
 	}
 
@@ -402,7 +402,7 @@ func (svc *packageImpl) CreatePreservationTask(ctx context.Context, pt *Preserva
 	pt.ID = uint(id)
 
 	if item, err := svc.readPreservationTask(ctx, pt.ID); err == nil {
-		ev := &goapackage.EnduroPreservationTaskCreatedEvent{ID: pt.ID, Item: item}
+		ev := &goapackage.PreservationTaskCreatedEvent{ID: pt.ID, Item: item}
 		event.PublishEvent(ctx, svc.evsvc, ev)
 	}
 
@@ -427,7 +427,7 @@ func (svc *packageImpl) CompletePreservationTask(ctx context.Context, ID uint, s
 	}
 
 	if item, err := svc.readPreservationTask(ctx, ID); err == nil {
-		ev := &goapackage.EnduroPreservationTaskUpdatedEvent{ID: ID, Item: item}
+		ev := &goapackage.PreservationTaskUpdatedEvent{ID: ID, Item: item}
 		event.PublishEvent(ctx, svc.evsvc, ev)
 	}
 

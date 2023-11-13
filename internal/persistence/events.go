@@ -34,7 +34,7 @@ func (m *eventManager) CreatePackage(ctx context.Context, pkg *package_.Package)
 	}
 
 	// Publish a "package created" event.
-	ev := &goapackage.EnduroPackageCreatedEvent{ID: uint(pkg.ID), Item: pkg.Goa()}
+	ev := &goapackage.PackageCreatedEvent{ID: uint(pkg.ID), Item: pkg.Goa()}
 	event.PublishEvent(ctx, m.evsvc, ev)
 
 	return pkg, nil
@@ -53,7 +53,7 @@ func (m *eventManager) UpdatePackage(ctx context.Context, id uint, updater Packa
 	}
 
 	// Publish a "package updated" event.
-	ev := &goapackage.EnduroPackageUpdatedEvent{ID: pkg.ID, Item: pkg.Goa()}
+	ev := &goapackage.PackageUpdatedEvent{ID: pkg.ID, Item: pkg.Goa()}
 	event.PublishEvent(ctx, m.evsvc, ev)
 
 	return pkg, nil
