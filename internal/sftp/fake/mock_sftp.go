@@ -39,6 +39,44 @@ func (m *MockClient) EXPECT() *MockClientMockRecorder {
 	return m.recorder
 }
 
+// Delete mocks base method.
+func (m *MockClient) Delete(arg0 context.Context, arg1 string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Delete", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Delete indicates an expected call of Delete.
+func (mr *MockClientMockRecorder) Delete(arg0, arg1 any) *ClientDeleteCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockClient)(nil).Delete), arg0, arg1)
+	return &ClientDeleteCall{Call: call}
+}
+
+// ClientDeleteCall wrap *gomock.Call
+type ClientDeleteCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *ClientDeleteCall) Return(arg0 error) *ClientDeleteCall {
+	c.Call = c.Call.Return(arg0)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *ClientDeleteCall) Do(f func(context.Context, string) error) *ClientDeleteCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *ClientDeleteCall) DoAndReturn(f func(context.Context, string) error) *ClientDeleteCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
 // Upload mocks base method.
 func (m *MockClient) Upload(arg0 context.Context, arg1 io.Reader, arg2 string) (int64, string, error) {
 	m.ctrl.T.Helper()

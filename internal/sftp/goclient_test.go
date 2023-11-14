@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"io/fs"
 	"log"
 	"net"
 	"os"
@@ -143,7 +144,7 @@ func startSFTPServer(t *testing.T, addr string) *ssh.Server {
 	return &srv
 }
 
-func TestGoClient(t *testing.T) {
+func UploadTest(t *testing.T) {
 	host, port, err := net.SplitHostPort(serverAddress)
 	if err != nil {
 		t.Fatalf("Bad server address: %s", serverAddress)
@@ -309,6 +310,82 @@ func TestGoClient(t *testing.T) {
 			assert.Equal(t, bytes, tc.want.Bytes)
 			assert.Equal(t, remotePath, tc.cfg.RemoteDir+"/"+tc.params.dest)
 			assert.Assert(t, tfs.Equal(remoteDir.Path(), tfs.Expected(t, tc.want.Paths...)))
+		})
+	}
+}
+
+func DeleteTest(t *testing.T) {
+	host, port, err := net.SplitHostPort(serverAddress)
+	if err != nil {
+		t.Fatalf("Bad server address: %s", serverAddress)
+	}
+
+	_ = startSFTPServer(t, serverAddress)
+
+	type test struct {
+		name     string
+		cfg      sftp.Config
+		filemode fs.FileMode
+		filename string
+		wantErr  string
+	}
+	for _, tc := range []test{
+		{
+			name: "Deletes a file",
+			cfg: sftp.Config{
+				Host:           host,
+				Port:           port,
+				KnownHostsFile: "./testdata/known_hosts",
+				PrivateKey: sftp.PrivateKey{
+					Path: "./testdata/clientkeys/test_ed25519",
+				},
+			},
+			filemode: 777,
+			filename: "test.txt",
+		},
+		{
+			name: "Errors when file doesn't exist",
+			cfg: sftp.Config{
+				Host:           host,
+				Port:           port,
+				KnownHostsFile: "./testdata/known_hosts",
+				PrivateKey: sftp.PrivateKey{
+					Path: "./testdata/clientkeys/test_ed25519",
+				},
+			},
+			filemode: 777,
+			filename: "error.txt",
+			wantErr:  "SFTP: file does not exist:",
+		},
+		{
+			name: "Errors when there are insufficient permissions",
+			cfg: sftp.Config{
+				Host:           host,
+				Port:           port,
+				KnownHostsFile: "./testdata/known_hosts",
+				PrivateKey: sftp.PrivateKey{
+					Path: "./testdata/clientkeys/test_ed25519",
+				},
+			},
+			filemode: 400,
+			filename: "error.txt",
+			wantErr:  "SFTP: insufficient permissions to delete file:",
+		},
+	} {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			sftpc := sftp.NewGoClient(logr.Discard(), tc.cfg)
+			dest := tfs.NewDir(t, "sftp_test", tfs.WithMode(tc.filemode), tfs.WithFile("test.txt", ""))
+			err := sftpc.Delete(context.Background(), dest.Join(tc.filename))
+
+			if tc.wantErr != "" {
+				assert.ErrorContains(t, err, tc.wantErr)
+				return
+			}
+
+			assert.NilError(t, err)
 		})
 	}
 }

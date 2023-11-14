@@ -14,4 +14,6 @@ type Client interface {
 	// Upload transfers data from the provided source reader to a specified
 	// destination on the SFTP server.
 	Upload(ctx context.Context, src io.Reader, dest string) (bytes int64, remotePath string, err error)
+	// Delete removes data from the provided dest on the SFTP server.
+	Delete(ctx context.Context, dest string) (err error)
 }

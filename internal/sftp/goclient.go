@@ -64,6 +64,26 @@ func (c *GoClient) Upload(ctx context.Context, src io.Reader, dest string) (int6
 	return bytes, remotePath, nil
 }
 
+// Delete removes the data from dest, a new SFTP connection is opened before
+// removing the file, and closed when the delete is complete.
+func (c *GoClient) Delete(ctx context.Context, dest string) error {
+	if err := c.dial(); err != nil {
+		return fmt.Errorf("SFTP: unable to dial: %w", err)
+	}
+	defer c.close()
+
+	// Delete the file
+	if err := c.sftp.Remove(dest); err != nil {
+		if os.IsNotExist(err) {
+			return fmt.Errorf("SFTP: file does not exist: %w", err)
+		} else if os.IsPermission(err) {
+			return fmt.Errorf("SFTP: insufficient permissions to delete file: %w", err)
+		}
+		return fmt.Errorf("SFTP: unable to remove file %q: %v", dest, err)
+	}
+	return nil
+}
+
 // Dial connects to an SSH host then creates an SFTP client on the connection.
 // When the clients are no longer needed, close() must be called to prevent
 // leaks.
