@@ -92,6 +92,8 @@ func main() {
 		logger.Info("Configuration file not found.")
 	}
 
+	logger.V(1).Info("Preservation system", "UseArchivematica", cfg.UseArchivematica)
+
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -299,7 +301,7 @@ func main() {
 			os.Exit(1)
 		}
 
-		w.RegisterWorkflowWithOptions(workflow.NewProcessingWorkflow(logger, pkgsvc, wsvc).Execute, temporalsdk_workflow.RegisterOptions{Name: package_.ProcessingWorkflowName})
+		w.RegisterWorkflowWithOptions(workflow.NewProcessingWorkflow(logger, pkgsvc, wsvc, cfg.UseArchivematica).Execute, temporalsdk_workflow.RegisterOptions{Name: package_.ProcessingWorkflowName})
 		w.RegisterActivityWithOptions(activities.NewDeleteOriginalActivity(wsvc).Execute, temporalsdk_activity.RegisterOptions{Name: activities.DeleteOriginalActivityName})
 		w.RegisterActivityWithOptions(activities.NewDisposeOriginalActivity(wsvc).Execute, temporalsdk_activity.RegisterOptions{Name: activities.DisposeOriginalActivityName})
 

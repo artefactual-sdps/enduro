@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/gliderlabs/ssh"
+	"github.com/go-logr/logr"
 	gosftp "github.com/pkg/sftp"
 	gossh "golang.org/x/crypto/ssh"
 	"gotest.tools/v3/assert"
@@ -159,6 +160,10 @@ func TestGoClient(t *testing.T) {
 	defer listener.Close()
 	badHost, badPort, _ := net.SplitHostPort(listener.Addr().String())
 
+	type params struct {
+		src  io.Reader
+		dest string
+	}
 	type results struct {
 		Bytes int64
 		Paths []tfs.PathOp
@@ -167,6 +172,7 @@ func TestGoClient(t *testing.T) {
 	type test struct {
 		name    string
 		cfg     sftp.Config
+		params  params
 		want    results
 		wantErr string
 	}
@@ -180,6 +186,10 @@ func TestGoClient(t *testing.T) {
 				PrivateKey: sftp.PrivateKey{
 					Path: "./testdata/clientkeys/test_ed25519",
 				},
+			},
+			params: params{
+				src:  strings.NewReader("Testing 1-2-3"),
+				dest: "test.txt",
 			},
 			want: results{
 				Bytes: 13,
@@ -197,6 +207,10 @@ func TestGoClient(t *testing.T) {
 					Passphrase: "Backpack-Spirits6-Bronzing",
 				},
 			},
+			params: params{
+				src:  strings.NewReader("Testing 1-2-3"),
+				dest: "test.txt",
+			},
 			want: results{
 				Bytes: 13,
 				Paths: []tfs.PathOp{tfs.WithFile("test.txt", "Testing 1-2-3")},
@@ -213,6 +227,10 @@ func TestGoClient(t *testing.T) {
 					Passphrase: "wrong",
 				},
 			},
+			params: params{
+				src:  strings.NewReader("Testing 1-2-3"),
+				dest: "test.txt",
+			},
 			wantErr: "SSH: parse private key with passphrase: x509: decryption password incorrect",
 		},
 		{
@@ -224,6 +242,10 @@ func TestGoClient(t *testing.T) {
 				PrivateKey: sftp.PrivateKey{
 					Path: "./testdata/clientkeys/test_ed25519",
 				},
+			},
+			params: params{
+				src:  strings.NewReader("Testing 1-2-3"),
+				dest: "test.txt",
 			},
 			wantErr: fmt.Sprintf(
 				"SSH: connect: dial tcp %s:%s: connect: connection refused",
@@ -271,11 +293,12 @@ func TestGoClient(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			sftpc := sftp.NewGoClient(tc.cfg)
-			src := strings.NewReader("Testing 1-2-3")
-			dest := tfs.NewDir(t, "sftp_test")
+			// Use a unique RemoteDir for each test.
+			remoteDir := tfs.NewDir(t, "sftp_test_remote")
+			tc.cfg.RemoteDir = remoteDir.Path()
 
-			bytes, err := sftpc.Upload(context.Background(), src, dest.Join("test.txt"))
+			sftpc := sftp.NewGoClient(logr.Discard(), tc.cfg)
+			bytes, remotePath, err := sftpc.Upload(context.Background(), tc.params.src, tc.params.dest)
 
 			if tc.wantErr != "" {
 				assert.Error(t, err, tc.wantErr)
@@ -284,7 +307,8 @@ func TestGoClient(t *testing.T) {
 
 			assert.NilError(t, err)
 			assert.Equal(t, bytes, tc.want.Bytes)
-			assert.Assert(t, tfs.Equal(dest.Path(), tfs.Expected(t, tc.want.Paths...)))
+			assert.Equal(t, remotePath, tc.cfg.RemoteDir+"/"+tc.params.dest)
+			assert.Assert(t, tfs.Equal(remoteDir.Path(), tfs.Expected(t, tc.want.Paths...)))
 		})
 	}
 }

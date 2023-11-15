@@ -50,6 +50,7 @@ func TestConfig(t *testing.T) {
 		// Zero value defaults.
 		assert.Equal(t, c.Verbosity, 0)
 		assert.Equal(t, c.Debug, false)
+		assert.Equal(t, c.UseArchivematica, false)
 		assert.Equal(t, c.Database.DSN, "")
 
 		// Valued defaults.

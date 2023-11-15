@@ -14,6 +14,11 @@ custom_build(
   command=["hack/build_docker.sh", "enduro-a3m-worker"],
   deps=["."],
 )
+custom_build(
+  ref="enduro-am-worker:dev",
+  command=["hack/build_docker.sh", "enduro-am-worker"],
+  deps=["."],
+)
 docker_build(
   "enduro-dashboard:dev",
   context="dashboard",
@@ -34,13 +39,18 @@ docker_build(
   ]
 )
 
-# All Kubernetes resources
-k8s_yaml(kustomize("hack/kube/overlays/dev"))
-
-# Configure trigger mode
+# Load tilt env file if it exists
 dotenv_path = ".tilt.env"
 if os.path.exists(dotenv_path):
   dotenv(fn=dotenv_path)
+
+# Set kube config directory
+kube_config = os.environ.get('ENDURO_KUBE_CONFIG', 'hack/kube/overlays/dev')
+
+# All Kubernetes resources
+k8s_yaml(kustomize(kube_config))
+
+# Configure trigger mode
 trigger_mode = TRIGGER_MODE_MANUAL
 if os.environ.get('TRIGGER_MODE_AUTO', ''):
   trigger_mode = TRIGGER_MODE_AUTO
@@ -48,6 +58,7 @@ if os.environ.get('TRIGGER_MODE_AUTO', ''):
 # Enduro resources
 k8s_resource("enduro", labels=["Enduro"], trigger_mode=trigger_mode)
 k8s_resource("enduro-a3m", labels=["Enduro"], trigger_mode=trigger_mode)
+k8s_resource("enduro-am", labels=["Enduro"], trigger_mode=trigger_mode)
 k8s_resource("enduro-internal", port_forwards="9000", labels=["Enduro"], trigger_mode=trigger_mode)
 k8s_resource("enduro-dashboard", port_forwards="8080:80", labels=["Enduro"], trigger_mode=trigger_mode)
 
@@ -106,6 +117,7 @@ cmd_button(
     kubectl rollout restart deployment temporal; \
     kubectl rollout restart deployment enduro; \
     kubectl rollout restart statefulset enduro-a3m; \
+    kubectl rollout restart statefulset enduro-am; \
     kubectl rollout restart deployment dex; \
     kubectl create -f hack/kube/base/mysql-create-locations-job.yaml;",
   ],
