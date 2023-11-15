@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/go-logr/logr"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/knownhosts"
 )
@@ -16,7 +17,7 @@ import (
 //
 // Only private key authentication is currently supported, with or without a
 // passphrase.
-func sshConnect(cfg Config) (*ssh.Client, error) {
+func sshConnect(logger logr.Logger, cfg Config) (*ssh.Client, error) {
 	// Load private key for authentication.
 	keyBytes, err := os.ReadFile(filepath.Clean(cfg.PrivateKey.Path)) // #nosec G304 -- File data is validated below
 	if err != nil {
@@ -50,12 +51,14 @@ func sshConnect(cfg Config) (*ssh.Client, error) {
 		},
 		HostKeyCallback: hostcallback,
 		Timeout:         5 * time.Second,
+		User:            cfg.User,
 	}
 
 	// Connect to the server.
 	address := net.JoinHostPort(cfg.Host, cfg.Port)
 	conn, err := ssh.Dial("tcp", address, sshConfig)
 	if err != nil {
+		logger.V(2).Info("SSH dial failed", "address", address, "user", cfg.User)
 		return nil, fmt.Errorf("connect: %v", err)
 	}
 

@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/artefactual-sdps/enduro/internal/a3m"
+	"github.com/artefactual-sdps/enduro/internal/am"
 	"github.com/artefactual-sdps/enduro/internal/api"
 	"github.com/artefactual-sdps/enduro/internal/db"
 	"github.com/artefactual-sdps/enduro/internal/event"
@@ -22,11 +23,13 @@ type ConfigurationValidator interface {
 }
 
 type Configuration struct {
-	Verbosity   int
-	Debug       bool
-	DebugListen string
+	Verbosity        int
+	Debug            bool
+	DebugListen      string
+	UseArchivematica bool
 
 	A3m      a3m.Config
+	AM       am.Config
 	API      api.Config
 	Database db.Config
 	Event    event.Config

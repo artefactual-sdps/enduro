@@ -17,23 +17,27 @@ import (
 	temporalsdk_workflow "go.temporal.io/sdk/workflow"
 
 	"github.com/artefactual-sdps/enduro/internal/a3m"
+	"github.com/artefactual-sdps/enduro/internal/am"
 	"github.com/artefactual-sdps/enduro/internal/fsutil"
 	"github.com/artefactual-sdps/enduro/internal/package_"
+	"github.com/artefactual-sdps/enduro/internal/temporal"
 	"github.com/artefactual-sdps/enduro/internal/watcher"
 	"github.com/artefactual-sdps/enduro/internal/workflow/activities"
 )
 
 type ProcessingWorkflow struct {
-	logger logr.Logger
-	pkgsvc package_.Service
-	wsvc   watcher.Service
+	logger           logr.Logger
+	pkgsvc           package_.Service
+	wsvc             watcher.Service
+	useArchivematica bool
 }
 
-func NewProcessingWorkflow(logger logr.Logger, pkgsvc package_.Service, wsvc watcher.Service) *ProcessingWorkflow {
+func NewProcessingWorkflow(logger logr.Logger, pkgsvc package_.Service, wsvc watcher.Service, useAM bool) *ProcessingWorkflow {
 	return &ProcessingWorkflow{
-		logger: logger,
-		pkgsvc: pkgsvc,
-		wsvc:   wsvc,
+		logger:           logger,
+		pkgsvc:           pkgsvc,
+		wsvc:             wsvc,
+		useArchivematica: useAM,
 	}
 }
 
@@ -168,12 +172,19 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *pack
 	// Activities running within a session.
 	{
 		var sessErr error
+		var taskQueue string
 		maxAttempts := 5
+
+		if w.useArchivematica {
+			taskQueue = temporal.AmWorkerTaskQueue
+		} else {
+			taskQueue = tinfo.A3mTaskQueue
+		}
 
 		for attempt := 1; attempt <= maxAttempts; attempt++ {
 			activityOpts := temporalsdk_workflow.WithActivityOptions(ctx, temporalsdk_workflow.ActivityOptions{
 				StartToCloseTimeout: time.Minute,
-				TaskQueue:           tinfo.A3mTaskQueue,
+				TaskQueue:           taskQueue,
 			})
 			sessCtx, err := temporalsdk_workflow.CreateSession(activityOpts, &temporalsdk_workflow.SessionOptions{
 				CreationTimeout:  forever,
@@ -305,11 +316,18 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 
 	// Bundle.
 	{
+		// For the a3m workflow bundle the transfer to a shared directory also
+		// mounted by the a3m container.
+		var transferDir string
+		if !w.useArchivematica {
+			transferDir = "/home/a3m/.local/share/a3m/share"
+		}
+
 		if tinfo.Bundle == (activities.BundleActivityResult{}) {
 			activityOpts := withActivityOptsForLongLivedRequest(sessCtx)
 			err := temporalsdk_workflow.ExecuteActivity(activityOpts, activities.BundleActivityName, &activities.BundleActivityParams{
 				WatcherName:      tinfo.req.WatcherName,
-				TransferDir:      "/home/a3m/.local/share/a3m/share",
+				TransferDir:      transferDir,
 				Key:              tinfo.req.Key,
 				IsDir:            tinfo.req.IsDir,
 				TempFile:         tinfo.TempFile,
@@ -332,8 +350,14 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 		}
 	}()
 
+	// Do preservation activities.
 	{
-		err := w.transferA3m(sessCtx, tinfo)
+		var err error
+		if w.useArchivematica {
+			err = w.transferAM(sessCtx, tinfo)
+		} else {
+			err = w.transferA3m(sessCtx, tinfo)
+		}
 		if err != nil {
 			return err
 		}
@@ -349,6 +373,12 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 			StoredAt:  tinfo.StoredAt,
 			Status:    package_.StatusInProgress,
 		}).Get(activityOpts, nil)
+	}
+
+	// Stop here for the the Archivematica workflow. AIP creation, review, and
+	// storage are handled entirely by Archivematica and the AM Storage Service.
+	if w.useArchivematica {
+		return nil
 	}
 
 	// Identifier of the preservation task for upload to sips bucket.
@@ -615,4 +645,47 @@ func (w *ProcessingWorkflow) transferA3m(sessCtx temporalsdk_workflow.Context, t
 	tinfo.StoredAt = temporalsdk_workflow.Now(sessCtx).UTC()
 
 	return err
+}
+
+func (w *ProcessingWorkflow) transferAM(sessCtx temporalsdk_workflow.Context, tinfo *TransferInfo) error {
+	var err error
+
+	activityOpts := withActivityOptsForLongLivedRequest(sessCtx)
+	var zipResult activities.ZipActivityResult
+	err = temporalsdk_workflow.ExecuteActivity(
+		activityOpts,
+		activities.ZipActivityName,
+		&activities.ZipActivityParams{SourceDir: tinfo.Bundle.FullPath},
+	).Get(activityOpts, &zipResult)
+	if err != nil {
+		return err
+	}
+
+	activityOpts = temporalsdk_workflow.WithActivityOptions(sessCtx,
+		temporalsdk_workflow.ActivityOptions{
+			StartToCloseTimeout: time.Hour * 2,
+			RetryPolicy: &temporalsdk_temporal.RetryPolicy{
+				InitialInterval:    time.Second * 5,
+				BackoffCoefficient: 2,
+				MaximumAttempts:    3,
+				NonRetryableErrorTypes: []string{
+					"TemporalTimeout:StartToClose",
+				},
+			},
+		},
+	)
+	uploadResult := am.UploadTransferActivityResult{}
+	err = temporalsdk_workflow.ExecuteActivity(
+		activityOpts,
+		am.UploadTransferActivityName,
+		&am.UploadTransferActivityParams{
+			SourcePath: zipResult.Path,
+			Filename:   tinfo.req.Key,
+		},
+	).Get(activityOpts, &uploadResult)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

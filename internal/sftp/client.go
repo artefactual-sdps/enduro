@@ -13,5 +13,5 @@ import (
 type Client interface {
 	// Upload transfers data from the provided source reader to a specified
 	// destination on the SFTP server.
-	Upload(ctx context.Context, src io.Reader, dest string) (bytes int64, err error)
+	Upload(ctx context.Context, src io.Reader, dest string) (bytes int64, remotePath string, err error)
 }

@@ -3,6 +3,7 @@
 debug = true
 debugListen = "127.0.0.1:9001"
 verbosity = 2
+useArchivematica = false
 
 [temporal]
 namespace = "default"
@@ -83,6 +84,16 @@ PerformPolicyChecksOnOriginals               = true
 PerformPolicyChecksOnPreservationDerivatives = true
 AipCompressionLevel                          = 1
 AipCompressionAlgorithm                      = 6
+
+[am.sftp]
+host = "" # The Archivematica Storage Service hostname.
+user = ""
+knownHostsFile = ""
+remoteDir = "/transfer_source"
+
+[am.sftp.privateKey]
+path = ""
+passphrase = "" # Secret: set (if required) with env var ENDURO_AM_SFTP_PRIVATEKEY_PASSPHRASE.
 
 [upload]
 endpoint = "http://minio.enduro-sdps:9000"

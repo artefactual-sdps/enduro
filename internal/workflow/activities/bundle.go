@@ -49,7 +49,7 @@ func (a *BundleActivity) Execute(ctx context.Context, params *BundleActivityPara
 	)
 
 	if params.TransferDir == "" {
-		params.TransferDir, err = os.MkdirTemp("", "*-enduro-a3m-worker")
+		params.TransferDir, err = os.MkdirTemp("", "*-enduro-transfer")
 		if err != nil {
 			return nil, err
 		}

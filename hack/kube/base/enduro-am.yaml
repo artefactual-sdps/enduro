@@ -1,0 +1,92 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: enduro-am
+  labels:
+    app: enduro-am
+spec:
+  serviceName: enduro-am
+  selector:
+    matchLabels:
+      app: enduro-am
+  template:
+    metadata:
+      labels:
+        app: enduro-am
+    spec:
+      serviceAccountName: sdps
+      securityContext:
+        fsGroup: 1000
+      initContainers:
+        - name: check-temporal
+          image: busybox
+          imagePullPolicy: IfNotPresent
+          command:
+            [
+              "sh",
+              "-c",
+              "until echo STATUS | nc -w 2 temporal.enduro-sdps 7233; do echo waiting for temporal to start; sleep 1; done;",
+            ]
+      containers:
+        - name: enduro-am-worker
+          image: ghcr.io/artefactual-sdps/enduro-am-worker:main
+          env:
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: user
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: password
+            - name: MINIO_USER
+              valueFrom:
+                secretKeyRef:
+                  name: minio-secret
+                  key: user
+            - name: MINIO_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: minio-secret
+                  key: password
+            - name: ENDURO_DATABASE_DSN
+              value: $(MYSQL_USER):$(MYSQL_PASSWORD)@tcp(mysql.enduro-sdps:3306)/enduro
+            - name: ENDURO_STORAGE_DATABASE_DSN
+              value: $(MYSQL_USER):$(MYSQL_PASSWORD)@tcp(mysql.enduro-sdps:3306)/enduro_storage
+            - name: ENDURO_WATCHER_EMBEDDED_KEY
+              value: $(MINIO_USER)
+            - name: ENDURO_WATCHER_EMBEDDED_SECRET
+              value: $(MINIO_PASSWORD)
+            - name: ENDURO_USEARCHIVEMATICA
+              value: "true"
+            - name: ENDURO_AM_SFTP_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: enduro-am-secret
+                  key: sftp_host
+            - name: ENDURO_AM_SFTP_USER
+              valueFrom:
+                secretKeyRef:
+                  name: enduro-am-secret
+                  key: sftp_user
+            - name: ENDURO_AM_SFTP_KNOWNHOSTSFILE
+              value: "/etc/ssh/known_hosts"
+            - name: ENDURO_AM_SFTP_PRIVATEKEY_PATH
+              value: "/etc/ssh/id_ed25519"
+          volumeMounts:
+            - name: ssh-volume
+              mountPath: "/etc/ssh"
+              readOnly: true
+      volumes:
+        - name: ssh-volume
+          secret:
+            secretName: enduro-am-secret
+            items:
+              - key: id_ed25519
+                defaultMode: 0600
+                path: id_ed25519
+              - key: known_hosts
+                defaultMode: 0644
+                path: known_hosts

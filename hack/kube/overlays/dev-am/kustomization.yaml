@@ -19,6 +19,10 @@ images:
     newTag: dev
 patches:
   - target:
-      kind: StatefulSet
-      name: enduro-a3m
-    path: enduro-a3m-patch.yaml
+      kind: Deployment
+      name: enduro-internal
+    path: enduro-internal-patch.yaml
+  - target:
+      kind: Deployment
+      name: enduro
+    path: enduro-patch.yaml

@@ -4,6 +4,7 @@ namespace: enduro-sdps
 resources:
   - dex.yaml
   - enduro-a3m.yaml
+  - enduro-am.yaml
   - enduro-dashboard.yaml
   - enduro-internal.yaml
   - enduro.yaml
