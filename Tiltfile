@@ -3,22 +3,29 @@ secret_settings(disable_scrub=True)
 load("ext://uibutton", "cmd_button", "text_input")
 load('ext://dotenv', 'dotenv')
 
+# Set preservation system (default: 'a3m')
+PRES_SYS = os.environ.get('ENDURO_PRES_SYSTEM', 'a3m')
+
 # Docker images
 custom_build(
   ref="enduro:dev",
   command=["hack/build_docker.sh", "enduro"],
   deps=["."],
 )
-custom_build(
-  ref="enduro-a3m-worker:dev",
-  command=["hack/build_docker.sh", "enduro-a3m-worker"],
-  deps=["."],
-)
-custom_build(
-  ref="enduro-am-worker:dev",
-  command=["hack/build_docker.sh", "enduro-am-worker"],
-  deps=["."],
-)
+
+if PRES_SYS == 'am':
+  custom_build(
+    ref="enduro-am-worker:dev",
+    command=["hack/build_docker.sh", "enduro-am-worker"],
+    deps=["."],
+  )
+else:
+  custom_build(
+    ref="enduro-a3m-worker:dev",
+    command=["hack/build_docker.sh", "enduro-a3m-worker"],
+    deps=["."],
+  )
+
 docker_build(
   "enduro-dashboard:dev",
   context="dashboard",
@@ -44,11 +51,13 @@ dotenv_path = ".tilt.env"
 if os.path.exists(dotenv_path):
   dotenv(fn=dotenv_path)
 
-# Set kube config directory
-kube_config = os.environ.get('ENDURO_KUBE_CONFIG', 'hack/kube/overlays/dev')
+# Get kube overlay path
+KUBE_OVERLAY = 'hack/kube/overlays/dev-a3m'
+if PRES_SYS == 'am':
+  KUBE_OVERLAY = 'hack/kube/overlays/dev-am'
 
-# All Kubernetes resources
-k8s_yaml(kustomize(kube_config))
+# Load Kubernetes resources
+k8s_yaml(kustomize(KUBE_OVERLAY))
 
 # Configure trigger mode
 trigger_mode = TRIGGER_MODE_MANUAL
@@ -57,10 +66,13 @@ if os.environ.get('TRIGGER_MODE_AUTO', ''):
 
 # Enduro resources
 k8s_resource("enduro", labels=["Enduro"], trigger_mode=trigger_mode)
-k8s_resource("enduro-a3m", labels=["Enduro"], trigger_mode=trigger_mode)
-k8s_resource("enduro-am", labels=["Enduro"], trigger_mode=trigger_mode)
 k8s_resource("enduro-internal", port_forwards="9000", labels=["Enduro"], trigger_mode=trigger_mode)
 k8s_resource("enduro-dashboard", port_forwards="8080:80", labels=["Enduro"], trigger_mode=trigger_mode)
+
+if PRES_SYS == 'am':
+  k8s_resource("enduro-am", labels=["Enduro"], trigger_mode=trigger_mode)
+else:
+  k8s_resource("enduro-a3m", labels=["Enduro"], trigger_mode=trigger_mode)
 
 # Other resources
 k8s_resource("dex", port_forwards="5556", labels=["Others"])
@@ -116,10 +128,9 @@ cmd_button(
     kubectl wait --for=condition=complete --timeout=120s job --all; \
     kubectl rollout restart deployment temporal; \
     kubectl rollout restart deployment enduro; \
-    kubectl rollout restart statefulset enduro-a3m; \
-    kubectl rollout restart statefulset enduro-am; \
+    kubectl rollout restart statefulset enduro-{pres_sys}; \
     kubectl rollout restart deployment dex; \
-    kubectl create -f hack/kube/base/mysql-create-locations-job.yaml;",
+    kubectl create -f hack/kube/base/mysql-create-locations-job.yaml;".format(pres_sys=PRES_SYS),
   ],
   location="nav",
   icon_name="delete",
