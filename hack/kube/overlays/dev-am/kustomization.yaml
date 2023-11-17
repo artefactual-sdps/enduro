@@ -4,12 +4,10 @@ namespace: enduro-sdps
 resources:
   - ../../base
   - ../../components/dev
+  - enduro-am.yaml
 images:
   - name: ghcr.io/artefactual-sdps/enduro:main
     newName: enduro
-    newTag: dev
-  - name: ghcr.io/artefactual-sdps/enduro-a3m-worker:main
-    newName: enduro-a3m-worker
     newTag: dev
   - name: ghcr.io/artefactual-sdps/enduro-am-worker:main
     newName: enduro-am-worker
