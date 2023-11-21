@@ -5,7 +5,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"io/fs"
 	"log"
 	"net"
 	"os"
@@ -18,6 +17,7 @@ import (
 	gosftp "github.com/pkg/sftp"
 	gossh "golang.org/x/crypto/ssh"
 	"gotest.tools/v3/assert"
+	"gotest.tools/v3/fs"
 	tfs "gotest.tools/v3/fs"
 
 	"github.com/artefactual-sdps/enduro/internal/sftp"
@@ -144,7 +144,7 @@ func startSFTPServer(t *testing.T, addr string) *ssh.Server {
 	return &srv
 }
 
-func UploadTest(t *testing.T) {
+func TestUpload(t *testing.T) {
 	host, port, err := net.SplitHostPort(serverAddress)
 	if err != nil {
 		t.Fatalf("Bad server address: %s", serverAddress)
@@ -314,7 +314,7 @@ func UploadTest(t *testing.T) {
 	}
 }
 
-func DeleteTest(t *testing.T) {
+func TestDelete(t *testing.T) {
 	host, port, err := net.SplitHostPort(serverAddress)
 	if err != nil {
 		t.Fatalf("Bad server address: %s", serverAddress)
@@ -322,70 +322,85 @@ func DeleteTest(t *testing.T) {
 
 	_ = startSFTPServer(t, serverAddress)
 
+	type params struct {
+		fsOps       []tfs.PathOp // The state of the filesystem served by the SFTP server.
+		restrictDir string       // Set 0o555 on dir to reproduce permission issues.
+		file        string       // The file that we will delete.
+	}
+
 	type test struct {
-		name     string
-		cfg      sftp.Config
-		filemode fs.FileMode
-		filename string
-		wantErr  string
+		name    string
+		params  params
+		wantFs  []tfs.PathOp
+		wantErr string
 	}
 	for _, tc := range []test{
 		{
 			name: "Deletes a file",
-			cfg: sftp.Config{
-				Host:           host,
-				Port:           port,
-				KnownHostsFile: "./testdata/known_hosts",
-				PrivateKey: sftp.PrivateKey{
-					Path: "./testdata/clientkeys/test_ed25519",
+			params: params{
+				fsOps: []tfs.PathOp{
+					fs.WithFile("test.txt", ""),
 				},
+				file: "test.txt",
 			},
-			filemode: 777,
-			filename: "test.txt",
+			wantFs: []tfs.PathOp{},
 		},
 		{
 			name: "Errors when file doesn't exist",
-			cfg: sftp.Config{
-				Host:           host,
-				Port:           port,
-				KnownHostsFile: "./testdata/known_hosts",
-				PrivateKey: sftp.PrivateKey{
-					Path: "./testdata/clientkeys/test_ed25519",
+			params: params{
+				fsOps: []tfs.PathOp{
+					// File test.txt must be non-existent.
 				},
+				file: "test.txt",
 			},
-			filemode: 777,
-			filename: "error.txt",
-			wantErr:  "SFTP: file does not exist:",
+			wantErr: "SFTP: unable to remove file \"test.txt\": file does not exist",
 		},
 		{
 			name: "Errors when there are insufficient permissions",
-			cfg: sftp.Config{
-				Host:           host,
-				Port:           port,
-				KnownHostsFile: "./testdata/known_hosts",
-				PrivateKey: sftp.PrivateKey{
-					Path: "./testdata/clientkeys/test_ed25519",
+			params: params{
+				fsOps: []tfs.PathOp{
+					fs.WithDir("restricted",
+						fs.WithFile("test.txt", ""),
+					),
 				},
+				restrictDir: "restricted",
+				file:        "restricted/test.txt",
 			},
-			filemode: 400,
-			filename: "error.txt",
-			wantErr:  "SFTP: insufficient permissions to delete file:",
+			wantErr: "SFTP: unable to remove file \"restricted/test.txt\": failure (SSH_FX_FAILURE)",
 		},
 	} {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			sftpc := sftp.NewGoClient(logr.Discard(), tc.cfg)
-			dest := tfs.NewDir(t, "sftp_test", tfs.WithMode(tc.filemode), tfs.WithFile("test.txt", ""))
-			err := sftpc.Delete(context.Background(), dest.Join(tc.filename))
+			cfg := sftp.Config{
+				Host:           host,
+				Port:           port,
+				KnownHostsFile: "./testdata/known_hosts",
+				PrivateKey: sftp.PrivateKey{
+					Path: "./testdata/clientkeys/test_ed25519",
+				},
+			}
+
+			// Use a unique RemoteDir for each test.
+			remoteDir := tfs.NewDir(t, "sftp_test_remote", tc.params.fsOps...)
+			cfg.RemoteDir = remoteDir.Path()
+			if tc.params.restrictDir != "" {
+				err := os.Chmod(remoteDir.Join(tc.params.restrictDir), 0o555)
+				assert.NilError(t, err)
+			}
+
+			sftpc := sftp.NewGoClient(logr.Discard(), cfg)
+
+			err = sftpc.Delete(context.Background(), tc.params.file)
 
 			if tc.wantErr != "" {
-				assert.ErrorContains(t, err, tc.wantErr)
+				assert.Error(t, err, tc.wantErr)
 				return
 			}
 
 			assert.NilError(t, err)
+			assert.Assert(t, tfs.Equal(remoteDir.Path(), tfs.Expected(t, tc.wantFs...)))
 		})
 	}
 }
