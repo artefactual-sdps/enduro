@@ -5,7 +5,10 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"os"
+	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/dolmen-go/contextio"
@@ -64,7 +67,7 @@ func (c *GoClient) Upload(ctx context.Context, src io.Reader, dest string) (int6
 	return bytes, remotePath, nil
 }
 
-// Delete removes the data from dest, a new SFTP connection is opened before
+// Delete removes the data from dest. A new SFTP connection is opened before
 // removing the file, and closed when the delete is complete.
 func (c *GoClient) Delete(ctx context.Context, dest string) error {
 	if err := c.dial(); err != nil {
@@ -72,15 +75,21 @@ func (c *GoClient) Delete(ctx context.Context, dest string) error {
 	}
 	defer c.close()
 
-	// Delete the file
-	if err := c.sftp.Remove(dest); err != nil {
-		if os.IsNotExist(err) {
-			return fmt.Errorf("SFTP: file does not exist: %w", err)
-		} else if os.IsPermission(err) {
-			return fmt.Errorf("SFTP: insufficient permissions to delete file: %w", err)
+	// SFTP assumes that "/" is used as the directory separator. See:
+	// https://datatracker.ietf.org/doc/html/draft-ietf-secsh-filexfer-02#section-6.2
+	remotePath := strings.TrimSuffix(c.cfg.RemoteDir, "/") + "/" + dest
+
+	if err := c.sftp.Remove(remotePath); err != nil {
+		head := fmt.Sprintf("SFTP: unable to remove file %q", dest)
+		if errors.Is(err, fs.ErrNotExist) || errors.Is(err, fs.ErrPermission) {
+			return fmt.Errorf("%s: %w", head, err)
 		}
-		return fmt.Errorf("SFTP: unable to remove file %q: %v", dest, err)
+		if statusErr, ok := err.(*sftp.StatusError); ok {
+			return fmt.Errorf("%s: %s", head, formatStatusError(statusErr))
+		}
+		return fmt.Errorf("%s: %v", head, err)
 	}
+
 	return nil
 }
 
@@ -120,4 +129,24 @@ func (c *GoClient) close() error {
 	}
 
 	return errs
+}
+
+var statusCodeRegex = regexp.MustCompile(`\(SSH_[A-Z_]+\)$`)
+
+// formatStatusError extracts/formats the SFTP status error code and message.
+func formatStatusError(err *sftp.StatusError) string {
+	var (
+		code    string
+		codeMsg = err.FxCode()
+	)
+
+	// Find the first match in the error, removing surrounding parentheses.
+	matches := statusCodeRegex.FindStringSubmatch(err.Error())
+	if len(matches) > 0 {
+		code = matches[0][1 : len(matches[0])-1]
+	} else {
+		code = strconv.FormatUint(uint64(err.Code), 10)
+	}
+
+	return fmt.Sprintf("%s (%s)", codeMsg, code)
 }
