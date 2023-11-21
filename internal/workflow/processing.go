@@ -26,18 +26,18 @@ import (
 )
 
 type ProcessingWorkflow struct {
-	logger                logr.Logger
-	pkgsvc                package_.Service
-	wsvc                  watcher.Service
-	preservationTaskQueue string
+	logger    logr.Logger
+	pkgsvc    package_.Service
+	wsvc      watcher.Service
+	taskQueue string
 }
 
-func NewProcessingWorkflow(logger logr.Logger, pkgsvc package_.Service, wsvc watcher.Service, presTQ string) *ProcessingWorkflow {
+func NewProcessingWorkflow(logger logr.Logger, pkgsvc package_.Service, wsvc watcher.Service, taskQueue string) *ProcessingWorkflow {
 	return &ProcessingWorkflow{
-		logger:                logger,
-		pkgsvc:                pkgsvc,
-		wsvc:                  wsvc,
-		preservationTaskQueue: presTQ,
+		logger:    logger,
+		pkgsvc:    pkgsvc,
+		wsvc:      wsvc,
+		taskQueue: taskQueue,
 	}
 }
 
@@ -81,8 +81,8 @@ type TransferInfo struct {
 	// Identifier of the preservation system task queue name
 	//
 	// It is populated by the workflow request.
-	GlobalTaskQueue string
-	A3mTaskQueue    string
+	GlobalTaskQueue       string
+	PreservationTaskQueue string
 }
 
 func (t *TransferInfo) Name() string {
@@ -101,9 +101,9 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *pack
 		logger = temporalsdk_workflow.GetLogger(ctx)
 
 		tinfo = &TransferInfo{
-			req:             *req,
-			GlobalTaskQueue: req.TaskQueue,
-			A3mTaskQueue:    req.A3mTaskQueue,
+			req:                   *req,
+			GlobalTaskQueue:       req.GlobalTaskQueue,
+			PreservationTaskQueue: req.PreservationTaskQueue,
 		}
 
 		// Package status. All packages start in queued status.
@@ -176,7 +176,7 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *pack
 
 		activityOpts := temporalsdk_workflow.WithActivityOptions(ctx, temporalsdk_workflow.ActivityOptions{
 			StartToCloseTimeout: time.Minute,
-			TaskQueue:           w.preservationTaskQueue,
+			TaskQueue:           w.taskQueue,
 		})
 		for attempt := 1; attempt <= maxAttempts; attempt++ {
 			sessCtx, err := temporalsdk_workflow.CreateSession(activityOpts, &temporalsdk_workflow.SessionOptions{
@@ -312,7 +312,7 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 		// For the a3m workflow bundle the transfer to a shared directory also
 		// mounted by the a3m container.
 		var transferDir string
-		if w.preservationTaskQueue == temporal.A3mWorkerTaskQueue {
+		if w.taskQueue == temporal.A3mWorkerTaskQueue {
 			transferDir = "/home/a3m/.local/share/a3m/share"
 		}
 
@@ -346,7 +346,7 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 	// Do preservation activities.
 	{
 		var err error
-		if w.preservationTaskQueue == temporal.AmWorkerTaskQueue {
+		if w.taskQueue == temporal.AmWorkerTaskQueue {
 			err = w.transferAM(sessCtx, tinfo)
 		} else {
 			err = w.transferA3m(sessCtx, tinfo)
@@ -368,9 +368,8 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 		}).Get(activityOpts, nil)
 	}
 
-	// Stop here for the the Archivematica workflow. AIP creation, review, and
-	// storage are handled entirely by Archivematica and the AM Storage Service.
-	if w.preservationTaskQueue == temporal.AmWorkerTaskQueue {
+	// Stop here for the Archivematica workflow.
+	if w.taskQueue == temporal.AmWorkerTaskQueue {
 		return nil
 	}
 
@@ -643,6 +642,7 @@ func (w *ProcessingWorkflow) transferA3m(sessCtx temporalsdk_workflow.Context, t
 func (w *ProcessingWorkflow) transferAM(sessCtx temporalsdk_workflow.Context, tinfo *TransferInfo) error {
 	var err error
 
+	// Zip transfer.
 	activityOpts := withActivityOptsForLongLivedRequest(sessCtx)
 	var zipResult activities.ZipActivityResult
 	err = temporalsdk_workflow.ExecuteActivity(
@@ -654,6 +654,7 @@ func (w *ProcessingWorkflow) transferAM(sessCtx temporalsdk_workflow.Context, ti
 		return err
 	}
 
+	// Upload transfer to AMSS.
 	activityOpts = temporalsdk_workflow.WithActivityOptions(sessCtx,
 		temporalsdk_workflow.ActivityOptions{
 			StartToCloseTimeout: time.Hour * 2,
@@ -673,6 +674,21 @@ func (w *ProcessingWorkflow) transferAM(sessCtx temporalsdk_workflow.Context, ti
 		am.UploadTransferActivityName,
 		&am.UploadTransferActivityParams{SourcePath: zipResult.Path},
 	).Get(activityOpts, &uploadResult)
+	if err != nil {
+		return err
+	}
+
+	// Start AM transfer.
+	activityOpts = withActivityOptsForRequest(sessCtx)
+	startTransferResult := am.StartTransferActivityResult{}
+	err = temporalsdk_workflow.ExecuteActivity(
+		activityOpts,
+		am.StartTransferActivityName,
+		&am.StartTransferActivityParams{
+			Name: tinfo.req.Key,
+			Path: uploadResult.RemotePath,
+		},
+	).Get(activityOpts, &startTransferResult)
 	if err != nil {
 		return err
 	}

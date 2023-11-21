@@ -55,7 +55,7 @@ func TestUploadTransferActivity(t *testing.T) {
 			params: am.UploadTransferActivityParams{
 				SourcePath: td.Join("missing"),
 			},
-			errMsg: fmt.Sprintf("upload transfer: open %s: no such file or directory", td.Join("missing")),
+			errMsg: fmt.Sprintf("UploadTransferActivity: open %s: no such file or directory", td.Join("missing")),
 		},
 		{
 			name: "Errors when upload fails",
@@ -74,7 +74,7 @@ func TestUploadTransferActivity(t *testing.T) {
 					errors.New("SSH: failed to connect: dial tcp 127.0.0.1:2200: connect: connection refused"),
 				)
 			},
-			errMsg: "upload transfer: SSH: failed to connect: dial tcp 127.0.0.1:2200: connect: connection refused",
+			errMsg: "UploadTransferActivity: SSH: failed to connect: dial tcp 127.0.0.1:2200: connect: connection refused",
 		},
 	} {
 		tt := tt

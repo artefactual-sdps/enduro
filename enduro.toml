@@ -88,6 +88,12 @@ PerformPolicyChecksOnPreservationDerivatives = true
 AipCompressionLevel                          = 1
 AipCompressionAlgorithm                      = 6
 
+[am]
+address = ""
+user = "" # Secret: set with env var ENDURO_AM_USER.
+apiKey = "" # Secret: set with env var ENDURO_AM_APIKEY.
+processingConfig = "automated"
+
 [am.sftp]
 host = "" # The Archivematica Storage Service hostname.
 user = ""

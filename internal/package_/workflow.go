@@ -60,8 +60,8 @@ type ProcessingWorkflowRequest struct {
 	DefaultPermanentLocationID *uuid.UUID
 
 	// Task queues used for starting new workflows.
-	TaskQueue    string
-	A3mTaskQueue string
+	GlobalTaskQueue       string
+	PreservationTaskQueue string
 }
 
 func InitProcessingWorkflow(ctx context.Context, tc temporalsdk_client.Client, req *ProcessingWorkflowRequest) error {
@@ -74,7 +74,7 @@ func InitProcessingWorkflow(ctx context.Context, tc temporalsdk_client.Client, r
 
 	opts := temporalsdk_client.StartWorkflowOptions{
 		ID:                    req.WorkflowID,
-		TaskQueue:             req.TaskQueue,
+		TaskQueue:             req.GlobalTaskQueue,
 		WorkflowIDReusePolicy: temporalsdk_api_enums.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE,
 	}
 	_, err := tc.ExecuteWorkflow(ctx, opts, ProcessingWorkflowName, req)

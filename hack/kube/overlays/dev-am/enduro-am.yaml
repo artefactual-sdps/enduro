@@ -61,6 +61,21 @@ spec:
               value: $(MINIO_PASSWORD)
             - name: ENDURO_PRESERVATION_TASKQUEUE
               value: "am"
+            - name: ENDURO_AM_ADDRESS
+              valueFrom:
+                secretKeyRef:
+                  name: enduro-am-secret
+                  key: address
+            - name: ENDURO_AM_USER
+              valueFrom:
+                secretKeyRef:
+                  name: enduro-am-secret
+                  key: user
+            - name: ENDURO_AM_APIKEY
+              valueFrom:
+                secretKeyRef:
+                  name: enduro-am-secret
+                  key: api_key
             - name: ENDURO_AM_SFTP_HOST
               valueFrom:
                 secretKeyRef:
