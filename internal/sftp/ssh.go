@@ -1,6 +1,7 @@
 package sftp
 
 import (
+	"context"
 	"fmt"
 	"net"
 	"os"
@@ -17,7 +18,7 @@ import (
 //
 // Only private key authentication is currently supported, with or without a
 // passphrase.
-func sshConnect(logger logr.Logger, cfg Config) (*ssh.Client, error) {
+func sshConnect(ctx context.Context, logger logr.Logger, cfg Config) (*ssh.Client, error) {
 	// Load private key for authentication.
 	keyBytes, err := os.ReadFile(filepath.Clean(cfg.PrivateKey.Path)) // #nosec G304 -- File data is validated below
 	if err != nil {
@@ -56,11 +57,19 @@ func sshConnect(logger logr.Logger, cfg Config) (*ssh.Client, error) {
 
 	// Connect to the server.
 	address := net.JoinHostPort(cfg.Host, cfg.Port)
-	conn, err := ssh.Dial("tcp", address, sshConfig)
+
+	dialer := &net.Dialer{}
+	conn, err := dialer.DialContext(ctx, "tcp", address)
 	if err != nil {
 		logger.V(2).Info("SSH dial failed", "address", address, "user", cfg.User)
 		return nil, fmt.Errorf("connect: %v", err)
 	}
 
-	return conn, nil
+	sshConn, chans, reqs, err := ssh.NewClientConn(conn, address, sshConfig)
+	if err != nil {
+		logger.V(2).Info("SSH dial failed", "address", address, "user", cfg.User)
+		return nil, fmt.Errorf("connect: %v", err)
+	}
+
+	return ssh.NewClient(sshConn, chans, reqs), nil
 }
