@@ -10,9 +10,11 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/hashicorp/go-cleanhttp"
 	"github.com/oklog/run"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/pflag"
+	"go.artefactual.dev/amclient"
 	"go.artefactual.dev/tools/log"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
 	temporalsdk_client "go.temporal.io/sdk/client"
@@ -114,6 +116,9 @@ func main() {
 			os.Exit(1)
 		}
 
+		httpClient := cleanhttp.DefaultPooledClient()
+		amc := amclient.NewClient(httpClient, cfg.AM.Address, cfg.AM.User, cfg.AM.APIKey)
+
 		w.RegisterActivityWithOptions(
 			activities.NewDownloadActivity(wsvc).Execute,
 			temporalsdk_activity.RegisterOptions{Name: activities.DownloadActivityName},
@@ -129,7 +134,14 @@ func main() {
 			am.NewUploadTransferActivity(logger, sftp.NewGoClient(logger, cfg.AM.SFTP)).Execute,
 			temporalsdk_activity.RegisterOptions{Name: am.UploadTransferActivityName},
 		)
-		w.RegisterActivityWithOptions(activities.NewCleanUpActivity().Execute, temporalsdk_activity.RegisterOptions{Name: activities.CleanUpActivityName})
+		w.RegisterActivityWithOptions(
+			am.NewStartTransferActivity(logger, &cfg.AM, amc.Package).Execute,
+			temporalsdk_activity.RegisterOptions{Name: am.StartTransferActivityName},
+		)
+		w.RegisterActivityWithOptions(
+			activities.NewCleanUpActivity().Execute,
+			temporalsdk_activity.RegisterOptions{Name: activities.CleanUpActivityName},
+		)
 
 		g.Add(
 			func() error {

@@ -272,8 +272,8 @@ func main() {
 									IsDir:                      event.IsDir,
 									AutoApproveAIP:             autoApproveAIP,
 									DefaultPermanentLocationID: &defaultPermanentLocationID,
-									TaskQueue:                  cfg.Temporal.TaskQueue,
-									A3mTaskQueue:               cfg.Preservation.TaskQueue,
+									GlobalTaskQueue:            cfg.Temporal.TaskQueue,
+									PreservationTaskQueue:      cfg.Preservation.TaskQueue,
 								}
 								if err := package_.InitProcessingWorkflow(ctx, temporalClient, &req); err != nil {
 									logger.Error(err, "Error initializing processing workflow.")

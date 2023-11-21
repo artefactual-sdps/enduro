@@ -32,19 +32,17 @@ func NewUploadTransferActivity(logger logr.Logger, client sftp.Client) *UploadTr
 }
 
 func (a *UploadTransferActivity) Execute(ctx context.Context, params *UploadTransferActivityParams) (*UploadTransferActivityResult, error) {
-	a.logger.V(1).Info("Execute UploadTransferActivity",
-		"SourcePath", params.SourcePath,
-	)
+	a.logger.V(1).Info("Execute UploadTransferActivity", "SourcePath", params.SourcePath)
 
 	src, err := os.Open(params.SourcePath)
 	if err != nil {
-		return nil, fmt.Errorf("upload transfer: %v", err)
+		return nil, fmt.Errorf("%s: %v", UploadTransferActivityName, err)
 	}
 	defer src.Close()
 
 	bytes, path, err := a.client.Upload(ctx, src, filepath.Base(params.SourcePath))
 	if err != nil {
-		return nil, fmt.Errorf("upload transfer: %v", err)
+		return nil, fmt.Errorf("%s: %v", UploadTransferActivityName, err)
 	}
 
 	return &UploadTransferActivityResult{
