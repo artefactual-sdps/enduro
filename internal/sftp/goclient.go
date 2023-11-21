@@ -41,7 +41,7 @@ func NewGoClient(logger logr.Logger, cfg Config) *GoClient {
 //
 // Upload is not thread safe.
 func (c *GoClient) Upload(ctx context.Context, src io.Reader, dest string) (int64, string, error) {
-	if err := c.dial(); err != nil {
+	if err := c.dial(ctx); err != nil {
 		return 0, "", err
 	}
 	defer c.close()
@@ -70,7 +70,7 @@ func (c *GoClient) Upload(ctx context.Context, src io.Reader, dest string) (int6
 // Delete removes the data from dest. A new SFTP connection is opened before
 // removing the file, and closed when the delete is complete.
 func (c *GoClient) Delete(ctx context.Context, dest string) error {
-	if err := c.dial(); err != nil {
+	if err := c.dial(ctx); err != nil {
 		return fmt.Errorf("SFTP: unable to dial: %w", err)
 	}
 	defer c.close()
@@ -96,10 +96,10 @@ func (c *GoClient) Delete(ctx context.Context, dest string) error {
 // Dial connects to an SSH host then creates an SFTP client on the connection.
 // When the clients are no longer needed, close() must be called to prevent
 // leaks.
-func (c *GoClient) dial() error {
+func (c *GoClient) dial(ctx context.Context) error {
 	var err error
 
-	c.ssh, err = sshConnect(c.logger, c.cfg)
+	c.ssh, err = sshConnect(ctx, c.logger, c.cfg)
 	if err != nil {
 		return fmt.Errorf("SSH: %v", err)
 	}
