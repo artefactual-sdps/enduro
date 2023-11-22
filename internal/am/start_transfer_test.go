@@ -68,7 +68,7 @@ func TestStartTransferActivity(t *testing.T) {
 					nil,
 				)
 			},
-			want: am.StartTransferActivityResult{UUID: transferID},
+			want: am.StartTransferActivityResult{TransferID: transferID},
 		},
 		{
 			name:   "Returns an invalid credentials error",
@@ -86,7 +86,7 @@ func TestStartTransferActivity(t *testing.T) {
 			name:   "Returns a not found error",
 			amcr:   amcrDefault,
 			st:     http.Response{StatusCode: http.StatusNotFound},
-			errMsg: "Archivematica transfer not found",
+			errMsg: "Archivematica resource not found",
 		},
 	} {
 		tt := tt
@@ -120,7 +120,7 @@ func TestStartTransferActivity(t *testing.T) {
 			var r am.StartTransferActivityResult
 			err = future.Get(&r)
 			assert.NilError(t, err)
-			assert.DeepEqual(t, r, am.StartTransferActivityResult{UUID: transferID})
+			assert.DeepEqual(t, r, am.StartTransferActivityResult{TransferID: transferID})
 		})
 	}
 }

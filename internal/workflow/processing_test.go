@@ -76,6 +76,10 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(taskQueue string) {
 		am.NewStartTransferActivity(logger, &am.Config{}, amclienttest.NewMockPackageService(ctrl)).Execute,
 		temporalsdk_activity.RegisterOptions{Name: am.StartTransferActivityName},
 	)
+	s.env.RegisterActivityWithOptions(
+		am.NewPollTransferActivity(logger, &am.Config{}, amclienttest.NewMockTransferService(ctrl)).Execute,
+		temporalsdk_activity.RegisterOptions{Name: am.PollTransferActivityName},
+	)
 
 	s.workflow = NewProcessingWorkflow(logger, pkgsvc, wsvc, taskQueue)
 }
@@ -198,16 +202,19 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 
 func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	s.SetupWorkflowTest(temporal.AmWorkerTaskQueue)
+
 	pkgID := uint(1)
 	locationID := uuid.MustParse("51328c02-2b63-47be-958e-e8088aa1a61f")
+	transferID := uuid.MustParse("65233405-771e-4f7e-b2d9-b08439570ba2")
+	sipID := uuid.MustParse("9e8161cc-2815-4d6f-8a75-f003c41b257b")
 	watcherName := "watcher"
 	key := "transfer.tgz"
+
 	retentionPeriod := 1 * time.Second
 	ctx := mock.AnythingOfType("*context.valueCtx")
 	sessionCtx := mock.AnythingOfType("*context.timerCtx")
 	logger := s.workflow.logger
 	pkgsvc := s.workflow.pkgsvc
-	sipID := uuid.MustParse("9e8161cc-2815-4d6f-8a75-f003c41b257b")
 
 	// Activity mocks/assertions sequence
 	s.env.OnActivity(
@@ -231,7 +238,10 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	).Return(&am.UploadTransferActivityResult{RemotePath: "transfer.zip"}, nil).Once()
 	s.env.OnActivity(am.StartTransferActivityName,
 		sessionCtx, &am.StartTransferActivityParams{Name: key, Path: "transfer.zip"},
-	).Return(&am.StartTransferActivityResult{UUID: sipID.String()}, nil).Once()
+	).Return(&am.StartTransferActivityResult{TransferID: transferID.String()}, nil).Once()
+	s.env.OnActivity(am.PollTransferActivityName,
+		sessionCtx, &am.PollTransferActivityParams{TransferID: transferID.String()},
+	).Return(&am.PollTransferActivityResult{SIPID: sipID.String()}, nil).Once()
 
 	// Post-preservation activities.
 	s.env.OnActivity(updatePackageLocalActivity, ctx, logger, pkgsvc, mock.AnythingOfType("*workflow.updatePackageLocalActivityParams")).Return(nil).Once()
@@ -248,6 +258,7 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 			AutoApproveAIP:             true,
 			DefaultPermanentLocationID: &locationID,
 			Key:                        key,
+			TransferDeadline:           time.Second,
 		},
 	)
 

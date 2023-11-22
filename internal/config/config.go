@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/spf13/viper"
 
@@ -70,6 +71,7 @@ func Read(config *Configuration, configFile string) (found bool, configFileUsed 
 	v.SetDefault("temporal.taskqueue", temporal.GlobalTaskQueue)
 	v.SetDefault("debugListen", "127.0.0.1:9001")
 	v.SetDefault("api.listen", "127.0.0.1:9000")
+	v.SetDefault("am.pollInterval", 10*time.Second)
 	v.SetEnvPrefix("enduro")
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	v.AutomaticEnv()
