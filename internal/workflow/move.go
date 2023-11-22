@@ -9,16 +9,14 @@ import (
 )
 
 type MoveWorkflow struct {
-	logger    logr.Logger
-	pkgsvc    package_.Service
-	taskQueue string
+	logger logr.Logger
+	pkgsvc package_.Service
 }
 
-func NewMoveWorkflow(logger logr.Logger, pkgsvc package_.Service, taskQueue string) *MoveWorkflow {
+func NewMoveWorkflow(logger logr.Logger, pkgsvc package_.Service) *MoveWorkflow {
 	return &MoveWorkflow{
-		logger:    logger,
-		pkgsvc:    pkgsvc,
-		taskQueue: taskQueue,
+		logger: logger,
+		pkgsvc: pkgsvc,
 	}
 }
 
