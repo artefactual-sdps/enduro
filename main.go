@@ -310,7 +310,7 @@ func main() {
 
 		w.RegisterActivityWithOptions(storage_activities.NewCopyToPermanentLocationActivity(storagesvc).Execute, temporalsdk_activity.RegisterOptions{Name: storage.CopyToPermanentLocationActivityName})
 
-		w.RegisterWorkflowWithOptions(workflow.NewMoveWorkflow(logger, pkgsvc, cfg.Temporal.TaskQueue).Execute, temporalsdk_workflow.RegisterOptions{Name: package_.MoveWorkflowName})
+		w.RegisterWorkflowWithOptions(workflow.NewMoveWorkflow(logger, pkgsvc).Execute, temporalsdk_workflow.RegisterOptions{Name: package_.MoveWorkflowName})
 
 		httpClient := cleanhttp.DefaultPooledClient()
 		storageHttpClient := goahttpstorage.NewClient("http", cfg.Storage.EnduroAddress, httpClient, goahttp.RequestEncoder, goahttp.ResponseDecoder, false)

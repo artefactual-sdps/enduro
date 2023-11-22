@@ -46,7 +46,7 @@ func (s *MoveWorkflowTestSuite) SetupTest() {
 		temporalsdk_activity.RegisterOptions{Name: activities.PollMoveToPermanentStorageActivityName},
 	)
 
-	s.workflow = NewMoveWorkflow(logger, pkgsvc, "global")
+	s.workflow = NewMoveWorkflow(logger, pkgsvc)
 }
 
 func (s *MoveWorkflowTestSuite) AfterTest(suiteName, testName string) {
