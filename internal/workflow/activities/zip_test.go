@@ -1,7 +1,8 @@
 package activities_test
 
 import (
-	"os"
+	"archive/zip"
+	"fmt"
 	"testing"
 
 	"github.com/go-logr/logr"
@@ -14,39 +15,78 @@ import (
 )
 
 func TestZipActivity(t *testing.T) {
-	t.Run("Zips a directory", func(t *testing.T) {
-		t.Parallel()
+	transferName := "my_transfer"
+	contents := tfs.WithDir(transferName,
+		tfs.WithDir("subdir",
+			tfs.WithFile("abc.txt", "Testing A-B-C"),
+		),
+		tfs.WithFile("123.txt", "Testing 1-2-3!"),
+	)
+	td := tfs.NewDir(t, "enduro-zip-test", contents)
+	restrictedDir := tfs.NewDir(t, "enduro-zip-restricted", tfs.WithMode(0o555))
 
-		transferName := "my_transfer"
-		contents := tfs.WithDir(transferName,
-			tfs.WithDir("subdir",
-				tfs.WithFile("abc.txt", "Testing A-B-C"),
-			),
-			tfs.WithFile("123.txt", "Testing 1-2-3"),
-		)
-		td := tfs.NewDir(t, "enduro-zip-test", contents)
-
-		ts := &temporalsdk_testsuite.WorkflowTestSuite{}
-		env := ts.NewTestActivityEnvironment()
-		env.RegisterActivityWithOptions(
-			activities.NewZipActivity(logr.Discard()).Execute,
-			temporalsdk_activity.RegisterOptions{
-				Name: activities.ZipActivityName,
+	type test struct {
+		name    string
+		params  activities.ZipActivityParams
+		want    map[string]int64
+		wantErr string
+	}
+	for _, tc := range []test{
+		{
+			name:   "Zips a directory",
+			params: activities.ZipActivityParams{SourceDir: td.Join(transferName)},
+			want: map[string]int64{
+				"my_transfer/123.txt":        14,
+				"my_transfer/subdir/abc.txt": 13,
 			},
-		)
+		},
+		{
+			name:    "Errors when SourceDir is missing",
+			wantErr: "ZipActivity: missing source dir",
+		},
+		{
+			name: "Errors when dest is not writable",
+			params: activities.ZipActivityParams{
+				SourceDir: td.Join(transferName),
+				DestPath:  restrictedDir.Join(transferName + ".zip"),
+			},
+			wantErr: fmt.Sprintf("ZipActivity: create: open %s: permission denied", restrictedDir.Join(transferName+".zip")),
+		},
+	} {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 
-		fut, err := env.ExecuteActivity(activities.ZipActivityName,
-			activities.ZipActivityParams{SourceDir: td.Join(transferName)},
-		)
-		assert.NilError(t, err)
+			ts := &temporalsdk_testsuite.WorkflowTestSuite{}
+			env := ts.NewTestActivityEnvironment()
+			env.RegisterActivityWithOptions(
+				activities.NewZipActivity(logr.Discard()).Execute,
+				temporalsdk_activity.RegisterOptions{
+					Name: activities.ZipActivityName,
+				},
+			)
 
-		var res activities.ZipActivityResult
-		_ = fut.Get(&res)
-		assert.DeepEqual(t, res, activities.ZipActivityResult{Path: td.Join(transferName + ".zip")})
+			fut, err := env.ExecuteActivity(activities.ZipActivityName, tc.params)
+			if tc.wantErr != "" {
+				assert.ErrorContains(t, err, tc.wantErr)
+				return
+			}
+			assert.NilError(t, err)
 
-		// Confirm that a zip file was created with some contents.
-		i, err := os.Lstat(td.Join(transferName + ".zip"))
-		assert.NilError(t, err)
-		assert.Assert(t, i.Size() > int64(0))
-	})
+			var res activities.ZipActivityResult
+			_ = fut.Get(&res)
+			assert.DeepEqual(t, res, activities.ZipActivityResult{Path: td.Join(transferName + ".zip")})
+
+			// Confirm the zip has the expected contents.
+			rc, err := zip.OpenReader(td.Join(transferName + ".zip"))
+			assert.NilError(t, err)
+			t.Cleanup(func() { rc.Close() })
+
+			files := make(map[string]int64, len(rc.File))
+			for _, f := range rc.File {
+				files[f.Name] = f.FileInfo().Size()
+			}
+			assert.DeepEqual(t, files, tc.want)
+		})
+	}
 }

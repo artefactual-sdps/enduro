@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/go-logr/logr"
 
@@ -14,7 +15,6 @@ const UploadTransferActivityName = "UploadTransferActivity"
 
 type UploadTransferActivityParams struct {
 	SourcePath string
-	Filename   string
 }
 
 type UploadTransferActivityResult struct {
@@ -34,7 +34,6 @@ func NewUploadTransferActivity(logger logr.Logger, client sftp.Client) *UploadTr
 func (a *UploadTransferActivity) Execute(ctx context.Context, params *UploadTransferActivityParams) (*UploadTransferActivityResult, error) {
 	a.logger.V(1).Info("Execute UploadTransferActivity",
 		"SourcePath", params.SourcePath,
-		"Filename", params.Filename,
 	)
 
 	src, err := os.Open(params.SourcePath)
@@ -43,7 +42,7 @@ func (a *UploadTransferActivity) Execute(ctx context.Context, params *UploadTran
 	}
 	defer src.Close()
 
-	bytes, path, err := a.client.Upload(ctx, src, params.Filename)
+	bytes, path, err := a.client.Upload(ctx, src, filepath.Base(params.SourcePath))
 	if err != nil {
 		return nil, fmt.Errorf("upload transfer: %v", err)
 	}

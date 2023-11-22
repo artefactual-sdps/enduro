@@ -3,7 +3,6 @@ package activities
 import (
 	"archive/zip"
 	"context"
-	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -35,21 +34,24 @@ func NewZipActivity(logger logr.Logger) *zipActivity {
 // params.SourceDir. If params.DestPath is not specified then params.SourceDir
 // + ".zip" will be used.
 func (a *zipActivity) Execute(ctx context.Context, params *ZipActivityParams) (*ZipActivityResult, error) {
-	a.logger.V(1).Info("Executing ZipActivity", "sourceDir", params.SourceDir, "DestPath", params.DestPath)
+	a.logger.V(1).Info("Executing ZipActivity",
+		"SourceDir", params.SourceDir,
+		"DestPath", params.DestPath,
+	)
 
 	if params.SourceDir == "" {
-		return nil, errors.New("zip: missing source directory")
+		return nil, fmt.Errorf("%s: missing source dir", ZipActivityName)
 	}
 
-	var dest string
+	dest := params.DestPath
 	if params.DestPath == "" {
 		dest = params.SourceDir + ".zip"
-		a.logger.V(1).Info("ZipActivity dest changed", "dest", dest)
+		a.logger.V(1).Info(ZipActivityName+": dest changed", "dest", dest)
 	}
 
 	w, err := os.Create(dest) // #nosec G304 -- trusted path
 	if err != nil {
-		return nil, fmt.Errorf("zip: couldn't create file: %v", err)
+		return nil, fmt.Errorf("%s: create: %v", ZipActivityName, err)
 	}
 	defer w.Close()
 
@@ -65,7 +67,13 @@ func (a *zipActivity) Execute(ctx context.Context, params *ZipActivityParams) (*
 			return nil
 		}
 
-		f, err := z.Create(path)
+		// Include SourceDir in the zip paths, but not its parent dirs.
+		p, err := filepath.Rel(filepath.Dir(params.SourceDir), path)
+		if err != nil {
+			return err
+		}
+
+		f, err := z.Create(p)
 		if err != nil {
 			return err
 		}
@@ -83,7 +91,7 @@ func (a *zipActivity) Execute(ctx context.Context, params *ZipActivityParams) (*
 		return nil
 	})
 	if err != nil {
-		return nil, fmt.Errorf("zip: %v", err)
+		return nil, fmt.Errorf("%s: add files: %v", ZipActivityName, err)
 	}
 
 	return &ZipActivityResult{Path: dest}, nil
