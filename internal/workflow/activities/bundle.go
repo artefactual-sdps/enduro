@@ -12,10 +12,10 @@ import (
 	securejoin "github.com/cyphar/filepath-securejoin"
 	"github.com/mholt/archiver/v3"
 	"github.com/otiai10/copy"
+	temporal_tools "go.artefactual.dev/tools/temporal"
 
 	"github.com/artefactual-sdps/enduro/internal/bagit"
 	"github.com/artefactual-sdps/enduro/internal/bundler"
-	"github.com/artefactual-sdps/enduro/internal/temporal"
 	"github.com/artefactual-sdps/enduro/internal/watcher"
 )
 
@@ -57,7 +57,7 @@ func (a *BundleActivity) Execute(ctx context.Context, params *BundleActivityPara
 
 	defer func() {
 		if err != nil {
-			err = temporal.NonRetryableError(err)
+			err = temporal_tools.NewNonRetryableError(err)
 		}
 	}()
 
@@ -79,12 +79,12 @@ func (a *BundleActivity) Execute(ctx context.Context, params *BundleActivityPara
 		}
 	}
 	if err != nil {
-		return nil, temporal.NonRetryableError(err)
+		return nil, temporal_tools.NewNonRetryableError(err)
 	}
 
 	err = unbag(res.FullPath)
 	if err != nil {
-		return nil, temporal.NonRetryableError(err)
+		return nil, temporal_tools.NewNonRetryableError(err)
 	}
 
 	res.RelPath, err = filepath.Rel(params.TransferDir, res.FullPath)

@@ -2,6 +2,7 @@ package config_test
 
 import (
 	"testing"
+	"time"
 
 	"gotest.tools/v3/assert"
 	"gotest.tools/v3/fs"
@@ -59,5 +60,6 @@ func TestConfig(t *testing.T) {
 		assert.Equal(t, c.Preservation.TaskQueue, temporal.A3mWorkerTaskQueue)
 		assert.Equal(t, c.Storage.TaskQueue, temporal.GlobalTaskQueue)
 		assert.Equal(t, c.Temporal.TaskQueue, temporal.GlobalTaskQueue)
+		assert.Equal(t, c.AM.PollInterval, 10*time.Second)
 	})
 }

@@ -1,6 +1,10 @@
 package am
 
-import "github.com/artefactual-sdps/enduro/internal/sftp"
+import (
+	"time"
+
+	"github.com/artefactual-sdps/enduro/internal/sftp"
+)
 
 type Config struct {
 	// Archivematica server address.
@@ -17,4 +21,11 @@ type Config struct {
 
 	// SFTP configuration for uploading transfers to Archivematica.
 	SFTP sftp.Config
+
+	// PollInterval is the time to wait between poll requests to the AM API.
+	PollInterval time.Duration
+
+	// TransferDeadline is the maximum time to wait for a transfer to complete.
+	// Set to zero for no deadline.
+	TransferDeadline time.Duration
 }

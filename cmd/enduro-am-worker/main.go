@@ -139,6 +139,10 @@ func main() {
 			temporalsdk_activity.RegisterOptions{Name: am.StartTransferActivityName},
 		)
 		w.RegisterActivityWithOptions(
+			am.NewPollTransferActivity(logger, &cfg.AM, amc.Transfer).Execute,
+			temporalsdk_activity.RegisterOptions{Name: am.PollTransferActivityName},
+		)
+		w.RegisterActivityWithOptions(
 			activities.NewCleanUpActivity().Execute,
 			temporalsdk_activity.RegisterOptions{Name: activities.CleanUpActivityName},
 		)

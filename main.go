@@ -274,6 +274,8 @@ func main() {
 									DefaultPermanentLocationID: &defaultPermanentLocationID,
 									GlobalTaskQueue:            cfg.Temporal.TaskQueue,
 									PreservationTaskQueue:      cfg.Preservation.TaskQueue,
+									PollInterval:               cfg.AM.PollInterval,
+									TransferDeadline:           cfg.AM.TransferDeadline,
 								}
 								if err := package_.InitProcessingWorkflow(ctx, temporalClient, &req); err != nil {
 									logger.Error(err, "Error initializing processing workflow.")

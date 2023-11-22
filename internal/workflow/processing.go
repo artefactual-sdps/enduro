@@ -680,7 +680,7 @@ func (w *ProcessingWorkflow) transferAM(sessCtx temporalsdk_workflow.Context, ti
 
 	// Start AM transfer.
 	activityOpts = withActivityOptsForRequest(sessCtx)
-	startTransferResult := am.StartTransferActivityResult{}
+	transferResult := am.StartTransferActivityResult{}
 	err = temporalsdk_workflow.ExecuteActivity(
 		activityOpts,
 		am.StartTransferActivityName,
@@ -688,10 +688,37 @@ func (w *ProcessingWorkflow) transferAM(sessCtx temporalsdk_workflow.Context, ti
 			Name: tinfo.req.Key,
 			Path: uploadResult.RemotePath,
 		},
-	).Get(activityOpts, &startTransferResult)
+	).Get(activityOpts, &transferResult)
 	if err != nil {
 		return err
 	}
+
+	// Poll transfer status.
+	activityOpts = temporalsdk_workflow.WithActivityOptions(
+		sessCtx,
+		temporalsdk_workflow.ActivityOptions{
+			HeartbeatTimeout:       2 * tinfo.req.PollInterval,
+			ScheduleToCloseTimeout: tinfo.req.TransferDeadline,
+			RetryPolicy: &temporalsdk_temporal.RetryPolicy{
+				InitialInterval:    5 * time.Second,
+				BackoffCoefficient: 2,
+				MaximumInterval:    time.Minute,
+				MaximumAttempts:    5,
+			},
+		},
+	)
+	var pollTransferResult am.PollTransferActivityResult
+	err = temporalsdk_workflow.ExecuteActivity(
+		activityOpts,
+		am.PollTransferActivityName,
+		am.PollTransferActivityParams{TransferID: transferResult.TransferID}, //nolint:gosimple
+	).Get(activityOpts, &pollTransferResult)
+	if err != nil {
+		return err
+	}
+
+	// Set SIP ID.
+	tinfo.SIPID = pollTransferResult.SIPID
 
 	return nil
 }

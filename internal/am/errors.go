@@ -2,28 +2,39 @@ package am
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	"go.artefactual.dev/amclient"
-
-	"github.com/artefactual-sdps/enduro/internal/temporal"
+	temporal_tools "go.artefactual.dev/tools/temporal"
 )
 
 // ConvertAMClientError converts an Archivematica API response to a
 // non-retryable temporal ApplicationError if the response is guaranteed not to
 // change in subsequent requests.
 func convertAMClientError(resp *amclient.Response, err error) error {
-	if resp != nil {
-		switch resp.Response.StatusCode {
-		case http.StatusUnauthorized:
-			return temporal.NonRetryableError(errors.New("invalid Archivematica credentials"))
-		case http.StatusForbidden:
-			return temporal.NonRetryableError(errors.New("insufficient Archivematica permissions"))
-		case http.StatusNotFound:
-			return temporal.NonRetryableError(errors.New("Archivematica transfer not found"))
-		}
+	if resp == nil || resp.Response == nil {
+		return err
 	}
 
-	// Retry any client requests that don't return one of the above responses.
-	return err
+	switch {
+	case resp.Response.StatusCode == http.StatusUnauthorized:
+		return temporal_tools.NewNonRetryableError(errors.New("invalid Archivematica credentials"))
+	case resp.Response.StatusCode == http.StatusForbidden:
+		return temporal_tools.NewNonRetryableError(errors.New("insufficient Archivematica permissions"))
+	case resp.Response.StatusCode == http.StatusNotFound:
+		return temporal_tools.NewNonRetryableError(errors.New("Archivematica resource not found"))
+	// Archivematica returns a "400 Bad request" code when transfer or ingest
+	// status are "in progress", so the request should be retried.
+	case resp.Response.StatusCode == http.StatusBadRequest:
+		return errors.New("Archivematica response: 400 Bad request")
+	// All status codes between 401 and 499 are non-retryable.
+	case resp.Response.StatusCode >= 401 && resp.Response.StatusCode < 500:
+		return temporal_tools.NewNonRetryableError(
+			fmt.Errorf("Archivematica error: %s", resp.Response.Status),
+		)
+	}
+
+	// Retry any requests that don't return one of the above status codes.
+	return fmt.Errorf("Archivematica error: %s", resp.Response.Status)
 }

@@ -21,7 +21,7 @@ type StartTransferActivityParams struct {
 }
 
 type StartTransferActivityResult struct {
-	UUID string
+	TransferID string
 }
 
 func NewStartTransferActivity(logger logr.Logger, cfg *Config, amps amclient.PackageService) *StartTransferActivity {
@@ -37,7 +37,7 @@ func NewStartTransferActivity(logger logr.Logger, cfg *Config, amps amclient.Pac
 // returned.  An error response will return a retryable or non-retryable
 // temporal.ApplicationError, depending on the nature of the error.
 func (a *StartTransferActivity) Execute(ctx context.Context, opts *StartTransferActivityParams) (*StartTransferActivityResult, error) {
-	a.logger.Info("Executing StartTransferActivity", "Name", opts.Name, "Path", opts.Path)
+	a.logger.V(1).Info("Executing StartTransferActivity", "Name", opts.Name, "Path", opts.Path)
 
 	processingConfig := a.cfg.ProcessingConfig
 	if processingConfig == "" {
@@ -55,5 +55,5 @@ func (a *StartTransferActivity) Execute(ctx context.Context, opts *StartTransfer
 		return nil, convertAMClientError(resp, err)
 	}
 
-	return &StartTransferActivityResult{UUID: payload.ID}, nil
+	return &StartTransferActivityResult{TransferID: payload.ID}, nil
 }

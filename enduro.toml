@@ -94,6 +94,15 @@ user = "" # Secret: set with env var ENDURO_AM_USER.
 apiKey = "" # Secret: set with env var ENDURO_AM_APIKEY.
 processingConfig = "automated"
 
+# pollInterval is the time to wait between AM polling requests in a string
+# format compatible with https://pkg.go.dev/time#ParseDuration (Default: 10s).
+pollInterval = "10s"
+
+# transferDeadline is the maximum time to wait for a transfer to complete in a
+# format compatible with https://pkg.go.dev/time#ParseDuration. Set to "0" for
+# no time limit.
+transferDeadline = "1h"
+
 [am.sftp]
 host = "" # The Archivematica Storage Service hostname.
 user = ""

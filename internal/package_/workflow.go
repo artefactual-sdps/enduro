@@ -62,6 +62,13 @@ type ProcessingWorkflowRequest struct {
 	// Task queues used for starting new workflows.
 	GlobalTaskQueue       string
 	PreservationTaskQueue string
+
+	// PollInterval is the time to wait between poll requests to the AM API.
+	PollInterval time.Duration
+
+	// TransferDeadline is the maximum time to wait for a transfer to complete.
+	// Set to zero for no deadline.
+	TransferDeadline time.Duration
 }
 
 func InitProcessingWorkflow(ctx context.Context, tc temporalsdk_client.Client, req *ProcessingWorkflowRequest) error {
