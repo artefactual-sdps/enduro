@@ -73,6 +73,12 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(taskQueue string) {
 		temporalsdk_activity.RegisterOptions{Name: am.UploadTransferActivityName},
 	)
 	s.env.RegisterActivityWithOptions(
+		am.NewDeleteTransferActivity(logger, sftpc).Execute,
+		temporalsdk_activity.RegisterOptions{
+			Name: am.DeleteTransferActivityName,
+		},
+	)
+	s.env.RegisterActivityWithOptions(
 		am.NewStartTransferActivity(logger, &am.Config{}, amclienttest.NewMockPackageService(ctrl)).Execute,
 		temporalsdk_activity.RegisterOptions{Name: am.StartTransferActivityName},
 	)
@@ -249,6 +255,9 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	s.env.OnActivity(am.PollIngestActivityName,
 		sessionCtx, &am.PollIngestActivityParams{SIPID: sipID.String()},
 	).Return(&am.PollIngestActivityResult{Status: "COMPLETE"}, nil).Once()
+	s.env.OnActivity(am.DeleteTransferActivityName,
+		sessionCtx, &am.DeleteTransferActivityParams{Destination: "transfer.zip"},
+	).Return(nil).Once()
 
 	// Post-preservation activities.
 	s.env.OnActivity(updatePackageLocalActivity, ctx, logger, pkgsvc, mock.AnythingOfType("*workflow.updatePackageLocalActivityParams")).Return(nil).Once()

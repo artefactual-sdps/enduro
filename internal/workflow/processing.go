@@ -718,7 +718,7 @@ func (w *ProcessingWorkflow) transferAM(sessCtx temporalsdk_workflow.Context, ti
 		return err
 	}
 
-	// Set SIP ID.
+	// Set SP ID.
 	tinfo.SIPID = pollTransferResult.SIPID
 
 	// Poll ingest status.
@@ -734,6 +734,15 @@ func (w *ProcessingWorkflow) transferAM(sessCtx temporalsdk_workflow.Context, ti
 
 	// Set AIP "stored at" time.
 	tinfo.StoredAt = temporalsdk_workflow.Now(sessCtx).UTC()
+
+	// Delete transfer.
+	activityOpts = withActivityOptsForRequest(sessCtx)
+	err = temporalsdk_workflow.ExecuteActivity(activityOpts, am.DeleteTransferActivityName, am.DeleteTransferActivityParams{
+		Destination: uploadResult.RemotePath,
+	}).Get(activityOpts, nil)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
