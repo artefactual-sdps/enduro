@@ -20,9 +20,9 @@ even against remote clusters, check Tilt's [Choosing a Local Dev Cluster] and
 [Install] documentation for more information to install these requirements.
 
 Additionally, follow the [Manage Docker as a non-root user] post-install guide
-so that you don’t have to run Tilt with `sudo`. *Note that managing Docker as a
+so that you don’t have to run Tilt with `sudo`. _Note that managing Docker as a
 non-root user is **different** from running the docker daemon as a non-root user
-(rootless).*
+(rootless)._
 
 ### Dex host
 
@@ -96,11 +96,11 @@ documentation to know more about it.
 
 There are three services available from the host:
 
-| Service         | URL                         | Username            | Password   |
-|-----------------|-----------------------------|---------------------|------------|
-| Dashboard       | <http://localhost:8080>     | `admin@example.com` | `admin`    |
-| MinIO console   | <http://localhost:7460>     | `minio`             | `minio123` |
-| Temporal UI     | <http://localhost:7440>     | `admin@example.com` | `admin`    |
+| Service       | URL                     | Username            | Password   |
+| ------------- | ----------------------- | ------------------- | ---------- |
+| Dashboard     | <http://localhost:8080> | `admin@example.com` | `admin`    |
+| MinIO console | <http://localhost:7460> | `minio`             | `minio123` |
+| Temporal UI   | <http://localhost:7440> | `admin@example.com` | `admin`    |
 
 ## Live updates
 
@@ -154,6 +154,25 @@ cluster container from the host. With k3d, run:
 ```bash
 k3d cluster delete sdps-local
 ```
+
+## Tilt environment configuration
+
+A few configuration options can be changed by having a `.tilt.env` file
+located in the root of the project. Example:
+
+```text
+TRIGGER_MODE_AUTO=true
+ENDURO_PRES_SYSTEM=a3m
+```
+
+### TRIGGER_MODE_AUTO
+
+Enables live updates on code changes for the enduro services.
+
+### ENDURO_PRES_SYSTEM
+
+Determines the preservation system between Archivematica (`am`) and a3m
+(`a3m`). Defaults to a3m.
 
 ## Tilt UI helpers
 

@@ -3,8 +3,15 @@ secret_settings(disable_scrub=True)
 load("ext://uibutton", "cmd_button", "text_input")
 load('ext://dotenv', 'dotenv')
 
-# Set preservation system (default: 'a3m')
+# Load tilt env file if it exists
+dotenv_path = ".tilt.env"
+if os.path.exists(dotenv_path):
+  dotenv(fn=dotenv_path)
+
+# Get preservation system (default: 'a3m')
 PRES_SYS = os.environ.get('ENDURO_PRES_SYSTEM', 'a3m')
+if PRES_SYS not in ("a3m", "am"):
+  fail("Invalid ENDURO_PRES_SYSTEM: {pres_sys}.".format(pres_sys=PRES_SYS))
 
 # Docker images
 custom_build(
@@ -45,11 +52,6 @@ docker_build(
     ),
   ]
 )
-
-# Load tilt env file if it exists
-dotenv_path = ".tilt.env"
-if os.path.exists(dotenv_path):
-  dotenv(fn=dotenv_path)
 
 # Get kube overlay path
 KUBE_OVERLAY = 'hack/kube/overlays/dev-a3m'
