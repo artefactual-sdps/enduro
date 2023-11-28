@@ -50,4 +50,3 @@ Useful information to provide includes:
 To suggest a new feature or an enhancement to an existing feature, select
 **Feature request** from the issue templates and fill out the fields with as
 much information as possible.
-
