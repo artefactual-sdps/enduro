@@ -80,6 +80,10 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(taskQueue string) {
 		am.NewPollTransferActivity(logger, &am.Config{}, amclienttest.NewMockTransferService(ctrl)).Execute,
 		temporalsdk_activity.RegisterOptions{Name: am.PollTransferActivityName},
 	)
+	s.env.RegisterActivityWithOptions(
+		am.NewPollIngestActivity(logger, &am.Config{}, amclienttest.NewMockIngestService(ctrl)).Execute,
+		temporalsdk_activity.RegisterOptions{Name: am.PollIngestActivityName},
+	)
 
 	s.workflow = NewProcessingWorkflow(logger, pkgsvc, wsvc, taskQueue)
 }
@@ -242,6 +246,9 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	s.env.OnActivity(am.PollTransferActivityName,
 		sessionCtx, &am.PollTransferActivityParams{TransferID: transferID.String()},
 	).Return(&am.PollTransferActivityResult{SIPID: sipID.String()}, nil).Once()
+	s.env.OnActivity(am.PollIngestActivityName,
+		sessionCtx, &am.PollIngestActivityParams{SIPID: sipID.String()},
+	).Return(&am.PollIngestActivityResult{Status: "COMPLETE"}, nil).Once()
 
 	// Post-preservation activities.
 	s.env.OnActivity(updatePackageLocalActivity, ctx, logger, pkgsvc, mock.AnythingOfType("*workflow.updatePackageLocalActivityParams")).Return(nil).Once()
