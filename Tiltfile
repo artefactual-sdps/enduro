@@ -13,6 +13,9 @@ PRES_SYS = os.environ.get('ENDURO_PRES_SYSTEM', 'a3m')
 if PRES_SYS not in ("a3m", "am"):
   fail("Invalid ENDURO_PRES_SYSTEM: {pres_sys}.".format(pres_sys=PRES_SYS))
 
+true = ("true", "1", "yes", "t", "y")
+LOCAL_A3M = os.environ.get("LOCAL_A3M", "").lower() in true
+
 # Docker images
 custom_build(
   ref="enduro:dev",
@@ -32,6 +35,8 @@ else:
     command=["hack/build_docker.sh", "enduro-a3m-worker"],
     deps=["."],
   )
+  if LOCAL_A3M:
+    docker_build("ghcr.io/artefactual-labs/a3m", context="../a3m")
 
 docker_build(
   "enduro-dashboard:dev",
@@ -63,7 +68,7 @@ k8s_yaml(kustomize(KUBE_OVERLAY))
 
 # Configure trigger mode
 trigger_mode = TRIGGER_MODE_MANUAL
-if os.environ.get('TRIGGER_MODE_AUTO', ''):
+if os.environ.get('TRIGGER_MODE_AUTO', '').lower() in true:
   trigger_mode = TRIGGER_MODE_AUTO
 
 # Enduro resources

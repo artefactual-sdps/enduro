@@ -163,6 +163,7 @@ located in the root of the project. Example:
 ```text
 TRIGGER_MODE_AUTO=true
 ENDURO_PRES_SYSTEM=a3m
+LOCAL_A3M=true
 ```
 
 ### TRIGGER_MODE_AUTO
@@ -173,6 +174,11 @@ Enables live updates on code changes for the enduro services.
 
 Determines the preservation system between Archivematica (`am`) and a3m
 (`a3m`). Defaults to a3m.
+
+### LOCAL_A3M
+
+Build and use a local version of a3m. Requires to have the `a3m` repository
+cloned as a sibling of this repository folder.
 
 ## Tilt UI helpers
 
