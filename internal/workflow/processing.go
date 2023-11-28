@@ -732,5 +732,8 @@ func (w *ProcessingWorkflow) transferAM(sessCtx temporalsdk_workflow.Context, ti
 		return err
 	}
 
+	// Set AIP "stored at" time.
+	tinfo.StoredAt = temporalsdk_workflow.Now(sessCtx).UTC()
+
 	return nil
 }
