@@ -19,14 +19,13 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/am"
 )
 
-func TestPollTransferActivity(t *testing.T) {
-	transferID := uuid.New().String()
+func TestPollIngestActivity(t *testing.T) {
 	sipID := uuid.New().String()
 	path := "/var/archivematica/fake/sip"
-	httpError := func(m *amclienttest.MockTransferServiceMockRecorder, statusCode int) {
+	httpError := func(m *amclienttest.MockIngestServiceMockRecorder, statusCode int) {
 		m.Status(
 			mockutil.Context(),
-			transferID,
+			sipID,
 		).Return(
 			nil,
 			&amclient.Response{Response: &http.Response{StatusCode: statusCode}},
@@ -37,20 +36,20 @@ func TestPollTransferActivity(t *testing.T) {
 	type test struct {
 		name         string
 		statusCode   int
-		mockr        func(*amclienttest.MockTransferServiceMockRecorder, int)
-		want         am.PollTransferActivityResult
+		mockr        func(*amclienttest.MockIngestServiceMockRecorder, int)
+		want         am.PollIngestActivityResult
 		wantErr      string
 		retryableErr bool
 	}
 	for _, tt := range []test{
 		{
 			name: "Polls twice then returns successfully",
-			mockr: func(m *amclienttest.MockTransferServiceMockRecorder, statusCode int) {
+			mockr: func(m *amclienttest.MockIngestServiceMockRecorder, statusCode int) {
 				// AM sometimes returns a "400 Bad Request" error when a
 				// transfer is processing.
 				m.Status(
 					mockutil.Context(),
-					transferID,
+					sipID,
 				).Return(
 					nil,
 					&amclient.Response{
@@ -65,9 +64,9 @@ func TestPollTransferActivity(t *testing.T) {
 				// processing.
 				m.Status(
 					mockutil.Context(),
-					transferID,
+					sipID,
 				).Return(
-					&amclient.TransferStatusResponse{Status: "PROCESSING"},
+					&amclient.IngestStatusResponse{Status: "PROCESSING"},
 					&amclient.Response{
 						Response: &http.Response{StatusCode: http.StatusOK, Status: "200 OK"},
 					},
@@ -75,38 +74,24 @@ func TestPollTransferActivity(t *testing.T) {
 				)
 				m.Status(
 					mockutil.Context(),
-					transferID,
+					sipID,
 				).Return(
-					&amclient.TransferStatusResponse{Status: "COMPLETE", SIPID: sipID, Path: path},
+					&amclient.IngestStatusResponse{Status: "COMPLETE", SIPID: sipID, Path: path},
 					nil,
 					nil,
 				)
 			},
-			want:         am.PollTransferActivityResult{SIPID: sipID, Path: path},
+			want:         am.PollIngestActivityResult{Status: "COMPLETE"},
 			retryableErr: true,
 		},
 		{
-			name: "Non-retryable error because SIP is in BACKLOG",
-			mockr: func(m *amclienttest.MockTransferServiceMockRecorder, statusCode int) {
-				m.Status(
-					mockutil.Context(),
-					transferID,
-				).Return(
-					&amclient.TransferStatusResponse{Status: "COMPLETE", SIPID: "BACKLOG", Path: path},
-					&amclient.Response{},
-					nil,
-				)
-			},
-			wantErr: "Archivematica SIP sent to backlog",
-		},
-		{
 			name: "Non-retryable error from an unknown response status",
-			mockr: func(m *amclienttest.MockTransferServiceMockRecorder, statusCode int) {
+			mockr: func(m *amclienttest.MockIngestServiceMockRecorder, statusCode int) {
 				m.Status(
 					mockutil.Context(),
-					transferID,
+					sipID,
 				).Return(
-					&amclient.TransferStatusResponse{Status: "UNKNOWN"},
+					&amclient.IngestStatusResponse{Status: "UNKNOWN"},
 					nil,
 					nil,
 				)
@@ -114,13 +99,13 @@ func TestPollTransferActivity(t *testing.T) {
 			wantErr: "Unknown Archivematica response status: UNKNOWN",
 		},
 		{
-			name: "Non-retryable error because transfer failed",
-			mockr: func(m *amclienttest.MockTransferServiceMockRecorder, statusCode int) {
+			name: "Non-retryable error because ingest failed",
+			mockr: func(m *amclienttest.MockIngestServiceMockRecorder, statusCode int) {
 				m.Status(
 					mockutil.Context(),
-					transferID,
+					sipID,
 				).Return(
-					&amclient.TransferStatusResponse{Status: "FAILED"},
+					&amclient.IngestStatusResponse{Status: "FAILED"},
 					nil,
 					nil,
 				)
@@ -153,26 +138,26 @@ func TestPollTransferActivity(t *testing.T) {
 			ts := &temporalsdk_testsuite.WorkflowTestSuite{}
 			env := ts.NewTestActivityEnvironment()
 			ctrl := gomock.NewController(t)
-			amts := amclienttest.NewMockTransferService(ctrl)
+			msvc := amclienttest.NewMockIngestService(ctrl)
 
 			if tt.mockr != nil {
-				tt.mockr(amts.EXPECT(), tt.statusCode)
+				tt.mockr(msvc.EXPECT(), tt.statusCode)
 			}
 
 			env.RegisterActivityWithOptions(
-				am.NewPollTransferActivity(
+				am.NewPollIngestActivity(
 					logr.Discard(),
 					&am.Config{PollInterval: time.Millisecond * 10},
-					amts,
+					msvc,
 				).Execute,
 				temporalsdk_activity.RegisterOptions{
-					Name: am.PollTransferActivityName,
+					Name: am.PollIngestActivityName,
 				},
 			)
 
 			enc, err := env.ExecuteActivity(
-				am.PollTransferActivityName,
-				am.PollTransferActivityParams{TransferID: transferID},
+				am.PollIngestActivityName,
+				am.PollIngestActivityParams{SIPID: sipID},
 			)
 			if tt.wantErr != "" {
 				assert.ErrorContains(t, err, tt.wantErr)
@@ -182,7 +167,7 @@ func TestPollTransferActivity(t *testing.T) {
 			}
 			assert.NilError(t, err)
 
-			var r am.PollTransferActivityResult
+			var r am.PollIngestActivityResult
 			enc.Get(&r)
 			assert.DeepEqual(t, r, tt.want)
 		})

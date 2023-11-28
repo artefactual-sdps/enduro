@@ -143,6 +143,10 @@ func main() {
 			temporalsdk_activity.RegisterOptions{Name: am.PollTransferActivityName},
 		)
 		w.RegisterActivityWithOptions(
+			am.NewPollIngestActivity(logger, &cfg.AM, amc.Ingest).Execute,
+			temporalsdk_activity.RegisterOptions{Name: am.PollIngestActivityName},
+		)
+		w.RegisterActivityWithOptions(
 			activities.NewCleanUpActivity().Execute,
 			temporalsdk_activity.RegisterOptions{Name: activities.CleanUpActivityName},
 		)

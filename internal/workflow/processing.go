@@ -693,8 +693,7 @@ func (w *ProcessingWorkflow) transferAM(sessCtx temporalsdk_workflow.Context, ti
 		return err
 	}
 
-	// Poll transfer status.
-	activityOpts = temporalsdk_workflow.WithActivityOptions(
+	pollOpts := temporalsdk_workflow.WithActivityOptions(
 		sessCtx,
 		temporalsdk_workflow.ActivityOptions{
 			HeartbeatTimeout:       2 * tinfo.req.PollInterval,
@@ -707,18 +706,31 @@ func (w *ProcessingWorkflow) transferAM(sessCtx temporalsdk_workflow.Context, ti
 			},
 		},
 	)
+
+	// Poll transfer status.
 	var pollTransferResult am.PollTransferActivityResult
 	err = temporalsdk_workflow.ExecuteActivity(
-		activityOpts,
+		pollOpts,
 		am.PollTransferActivityName,
 		am.PollTransferActivityParams{TransferID: transferResult.TransferID}, //nolint:gosimple
-	).Get(activityOpts, &pollTransferResult)
+	).Get(pollOpts, &pollTransferResult)
 	if err != nil {
 		return err
 	}
 
 	// Set SIP ID.
 	tinfo.SIPID = pollTransferResult.SIPID
+
+	// Poll ingest status.
+	var pollIngestResult am.PollIngestActivityResult
+	err = temporalsdk_workflow.ExecuteActivity(
+		pollOpts,
+		am.PollIngestActivityName,
+		am.PollIngestActivityParams{SIPID: tinfo.SIPID},
+	).Get(pollOpts, &pollIngestResult)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
