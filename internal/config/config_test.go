@@ -54,12 +54,14 @@ func TestConfig(t *testing.T) {
 		assert.Equal(t, c.Database.DSN, "")
 
 		// Valued defaults.
-		assert.Equal(t, c.DebugListen, "127.0.0.1:9001")
+		assert.Equal(t, c.A3m.Capacity, 1)
 		assert.Equal(t, c.A3m.Processing, a3m.ProcessingDefault)
+		assert.Equal(t, c.AM.Capacity, 1)
+		assert.Equal(t, c.AM.PollInterval, 10*time.Second)
 		assert.Equal(t, c.API.Listen, "127.0.0.1:9000")
+		assert.Equal(t, c.DebugListen, "127.0.0.1:9001")
 		assert.Equal(t, c.Preservation.TaskQueue, temporal.A3mWorkerTaskQueue)
 		assert.Equal(t, c.Storage.TaskQueue, temporal.GlobalTaskQueue)
 		assert.Equal(t, c.Temporal.TaskQueue, temporal.GlobalTaskQueue)
-		assert.Equal(t, c.AM.PollInterval, 10*time.Second)
 	})
 }

@@ -22,6 +22,10 @@ type Config struct {
 	// SFTP configuration for uploading transfers to Archivematica.
 	SFTP sftp.Config
 
+	// Capacity sets the maximum number of worker sessions the worker can
+	// handle at one time (default: 1).
+	Capacity int
+
 	// PollInterval is the time to wait between poll requests to the AM API.
 	PollInterval time.Duration
 

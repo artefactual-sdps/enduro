@@ -120,11 +120,13 @@ func main() {
 
 	// Activity worker.
 	{
+		logger.V(1).Info("a3m worker config", "capacity", cfg.A3m.Capacity)
+
 		done := make(chan struct{})
 		workerOpts := temporalsdk_worker.Options{
 			DisableWorkflowWorker:              true,
 			EnableSessionWorker:                true,
-			MaxConcurrentSessionExecutionSize:  1000,
+			MaxConcurrentSessionExecutionSize:  cfg.A3m.Capacity,
 			MaxConcurrentActivityExecutionSize: 1,
 		}
 		w := temporalsdk_worker.New(temporalClient, temporal.A3mWorkerTaskQueue, workerOpts)
