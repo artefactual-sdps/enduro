@@ -71,6 +71,10 @@ taskqueue = "a3m"
 address = "127.0.0.1:7000"
 shareDir = "/home/a3m/.local/share/a3m/share"
 
+# capacity limits the number of transfers a worker can process at one time
+# (default: 1)
+capacity = 1
+
 [a3m.processing]
 AssignUuidsToDirectories                     = true
 ExamineContents                              = true
@@ -93,6 +97,10 @@ address = ""
 user = "" # Secret: set with env var ENDURO_AM_USER.
 apiKey = "" # Secret: set with env var ENDURO_AM_APIKEY.
 processingConfig = "automated"
+
+# capacity limits the number of transfers a worker can process at one time
+# (default: 1)
+capacity = 1
 
 # pollInterval is the time to wait between AM polling requests in a string
 # format compatible with https://pkg.go.dev/time#ParseDuration (Default: 10s).
