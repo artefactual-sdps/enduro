@@ -16,6 +16,9 @@ nav:
   - "Issues": "https://github.com/artefactual-sdps/enduro/issues"
   - "License": "https://github.com/artefactual-sdps/enduro/blob/main/LICENSE"
 
+markdown_extensions:
+  - admonition
+
 plugins:
 - autorefs
 - literate-nav:

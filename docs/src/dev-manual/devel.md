@@ -173,7 +173,8 @@ Enables live updates on code changes for the enduro services.
 ### ENDURO_PRES_SYSTEM
 
 Determines the preservation system between Archivematica (`am`) and a3m
-(`a3m`). Defaults to a3m.
+(`a3m`), defaults to `a3m`. Check the [Working with Archivematica] docs if you
+are planning to use Archivematica as preservation system.
 
 ### LOCAL_A3M
 
@@ -245,3 +246,4 @@ is sometimes not setup properly. To solve it, from the Tilt UI, restart the
 [make]: https://www.gnu.org/software/make/
 [gcc]: https://gcc.gnu.org/
 [visual studio code]: https://code.visualstudio.com/
+[working with archivematica]: archivematica.md
