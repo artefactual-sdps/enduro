@@ -24,3 +24,11 @@ patches:
       kind: Deployment
       name: enduro
     path: enduro-patch.yaml
+secretGenerator:
+  - name: enduro-am-secret
+    behavior: replace
+    envs:
+      - .am.secret
+    files:
+      - .id_ed25519.secret
+      - .known_hosts.secret

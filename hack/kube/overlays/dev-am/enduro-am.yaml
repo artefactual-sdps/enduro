@@ -81,15 +81,30 @@ spec:
                 secretKeyRef:
                   name: enduro-am-secret
                   key: sftp_host
+            - name: ENDURO_AM_SFTP_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: enduro-am-secret
+                  key: sftp_port
             - name: ENDURO_AM_SFTP_USER
               valueFrom:
                 secretKeyRef:
                   name: enduro-am-secret
                   key: sftp_user
+            - name: ENDURO_AM_SFTP_REMOTEDIR
+              valueFrom:
+                secretKeyRef:
+                  name: enduro-am-secret
+                  key: sftp_remote_dir
             - name: ENDURO_AM_SFTP_KNOWNHOSTSFILE
               value: "/etc/ssh/known_hosts"
             - name: ENDURO_AM_SFTP_PRIVATEKEY_PATH
               value: "/etc/ssh/id_ed25519"
+            - name: ENDURO_AM_SFTP_PRIVATEKEY_PASSPHRASE
+              valueFrom:
+                secretKeyRef:
+                  name: enduro-am-secret
+                  key: sftp_private_key_passphrase
           volumeMounts:
             - name: ssh-volume
               mountPath: "/etc/ssh"
@@ -99,9 +114,9 @@ spec:
           secret:
             secretName: enduro-am-secret
             items:
-              - key: id_ed25519
+              - key: .id_ed25519.secret
                 defaultMode: 0600
                 path: id_ed25519
-              - key: known_hosts
+              - key: .known_hosts.secret
                 defaultMode: 0644
                 path: known_hosts

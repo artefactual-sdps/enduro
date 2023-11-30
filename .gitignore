@@ -2,4 +2,4 @@
 /covreport
 /dist
 /.tilt.env
-/*.secret
+*.secret
