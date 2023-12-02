@@ -10,13 +10,13 @@ import (
 )
 
 var (
-	// errWorkOngoing indicates work is ongoing and polling should continue.
-	errWorkOngoing = errors.New("work ongoing")
+	// ErrWorkOngoing indicates work is ongoing and polling should continue.
+	ErrWorkOngoing = errors.New("work ongoing")
 
-	// errBadRequest respresents an AM "400 Bad request" response, which can
+	// ErrBadRequest respresents an AM "400 Bad request" response, which can
 	// occur while a transfer or ingest is still processing and may require
 	// special handling.
-	errBadRequest = errors.New("Archivematica response: 400 Bad request")
+	ErrBadRequest = errors.New("Archivematica response: 400 Bad request")
 )
 
 // ConvertAMClientError converts an Archivematica API response to a
@@ -30,7 +30,7 @@ func convertAMClientError(resp *amclient.Response, err error) error {
 	switch {
 	case resp.Response.StatusCode == http.StatusBadRequest:
 		// Allow retries for "400 Bad request" errors.
-		return errBadRequest
+		return ErrBadRequest
 	case resp.Response.StatusCode == http.StatusUnauthorized:
 		return temporal_tools.NewNonRetryableError(errors.New("invalid Archivematica credentials"))
 	case resp.Response.StatusCode == http.StatusForbidden:
