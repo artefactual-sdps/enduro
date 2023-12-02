@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-logr/logr"
 	"github.com/google/uuid"
+	"github.com/jonboulle/clockwork"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 	"go.artefactual.dev/amclient/amclienttest"
@@ -47,6 +48,7 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(taskQueue string) {
 	s.env = s.NewTestWorkflowEnvironment()
 	s.env.SetWorkerOptions(temporalsdk_worker.Options{EnableSessionWorker: true})
 
+	clock := clockwork.NewFakeClock()
 	ctrl := gomock.NewController(s.T())
 	logger := logr.Discard()
 	pkgsvc := packagefake.NewMockService(ctrl)
@@ -83,7 +85,14 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(taskQueue string) {
 		temporalsdk_activity.RegisterOptions{Name: am.StartTransferActivityName},
 	)
 	s.env.RegisterActivityWithOptions(
-		am.NewPollTransferActivity(logger, &am.Config{}, amclienttest.NewMockTransferService(ctrl)).Execute,
+		am.NewPollTransferActivity(
+			logger,
+			&am.Config{},
+			clock,
+			amclienttest.NewMockJobsService(ctrl),
+			pkgsvc,
+			amclienttest.NewMockTransferService(ctrl),
+		).Execute,
 		temporalsdk_activity.RegisterOptions{Name: am.PollTransferActivityName},
 	)
 	s.env.RegisterActivityWithOptions(

@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/go-cleanhttp"
+	"github.com/jonboulle/clockwork"
 	"github.com/oklog/run"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/pflag"
@@ -21,8 +22,11 @@ import (
 	temporalsdk_worker "go.temporal.io/sdk/worker"
 
 	"github.com/artefactual-sdps/enduro/internal/am"
+	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	"github.com/artefactual-sdps/enduro/internal/config"
 	"github.com/artefactual-sdps/enduro/internal/db"
+	"github.com/artefactual-sdps/enduro/internal/event"
+	"github.com/artefactual-sdps/enduro/internal/package_"
 	"github.com/artefactual-sdps/enduro/internal/sftp"
 	"github.com/artefactual-sdps/enduro/internal/temporal"
 	"github.com/artefactual-sdps/enduro/internal/version"
@@ -99,6 +103,19 @@ func main() {
 		}
 	}
 
+	// Set up the event service.
+	evsvc, err := event.NewEventServiceRedis(logger.WithName("events"), &cfg.Event)
+	if err != nil {
+		logger.Error(err, "Error creating Event service.")
+		os.Exit(1)
+	}
+
+	// Set up the package service.
+	var pkgsvc package_.Service
+	{
+		pkgsvc = package_.NewService(logger.WithName("package"), enduroDatabase, temporalClient, evsvc, &auth.NoopTokenVerifier{}, nil, cfg.Temporal.TaskQueue)
+	}
+
 	var g run.Group
 
 	// Activity worker.
@@ -146,7 +163,14 @@ func main() {
 			temporalsdk_activity.RegisterOptions{Name: am.StartTransferActivityName},
 		)
 		w.RegisterActivityWithOptions(
-			am.NewPollTransferActivity(logger, &cfg.AM, amc.Transfer).Execute,
+			am.NewPollTransferActivity(
+				logger,
+				&cfg.AM,
+				clockwork.NewRealClock(),
+				amc.Jobs,
+				pkgsvc,
+				amc.Transfer,
+			).Execute,
 			temporalsdk_activity.RegisterOptions{Name: am.PollTransferActivityName},
 		)
 		w.RegisterActivityWithOptions(

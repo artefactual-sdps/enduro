@@ -712,7 +712,10 @@ func (w *ProcessingWorkflow) transferAM(sessCtx temporalsdk_workflow.Context, ti
 	err = temporalsdk_workflow.ExecuteActivity(
 		pollOpts,
 		am.PollTransferActivityName,
-		am.PollTransferActivityParams{TransferID: transferResult.TransferID}, //nolint:gosimple
+		am.PollTransferActivityParams{
+			PresActionID: tinfo.PreservationActionID,
+			TransferID:   transferResult.TransferID,
+		},
 	).Get(pollOpts, &pollTransferResult)
 	if err != nil {
 		return err

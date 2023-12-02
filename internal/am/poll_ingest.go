@@ -50,7 +50,7 @@ func (a *PollIngestActivity) Execute(ctx context.Context, params *PollIngestActi
 		case <-ticker.C:
 			reqCtx, cancel := context.WithTimeout(ctx, a.cfg.PollInterval/2)
 			resp, httpResp, err := a.poll(reqCtx, params.SIPID, cancel)
-			if err == errWorkOngoing {
+			if err == ErrWorkOngoing {
 				// Send a heartbeat then continue polling after the poll interval.
 				temporalsdk_activity.RecordHeartbeat(ctx, fmt.Sprintf("Last HTTP response: %v", httpResp.Status))
 				continue
@@ -83,8 +83,8 @@ func (a *PollIngestActivity) poll(ctx context.Context, transferID string, cancel
 		amErr := convertAMClientError(httpResp, err)
 
 		// Continue polling on a "400 Bad request" response.
-		if amErr == errBadRequest {
-			return resp, httpResp, errWorkOngoing
+		if amErr == ErrBadRequest {
+			return resp, httpResp, ErrWorkOngoing
 		}
 
 		return resp, httpResp, amErr
@@ -98,5 +98,5 @@ func (a *PollIngestActivity) poll(ctx context.Context, transferID string, cancel
 		return resp, httpResp, nil
 	}
 
-	return resp, httpResp, errWorkOngoing
+	return resp, httpResp, ErrWorkOngoing
 }
