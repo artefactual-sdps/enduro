@@ -2,6 +2,7 @@ package sftp_test
 
 import (
 	"bufio"
+	"bytes"
 	"context"
 	"fmt"
 	"io"
@@ -22,9 +23,6 @@ import (
 
 	"github.com/artefactual-sdps/enduro/internal/sftp"
 )
-
-// ServerAddress is the test SFTP server address.
-const serverAddress = "127.0.0.1:2222"
 
 // pubkeyHandler returns a handler that checks the client's public key against
 // the keys in the authorized_keys file.
@@ -90,12 +88,16 @@ func sftpHandler(sess ssh.Session) {
 	}
 }
 
-// StartSFTPServer starts a test SFTP server, and returns a pointer to the
-// server.
-func startSFTPServer(t *testing.T, addr string) *ssh.Server {
+// StartSFTPServer starts a test SFTP server, and returns its host and port.
+func startSFTPServer(t *testing.T) (string, string) {
 	t.Helper()
 
-	var err error
+	ln, err := net.Listen("tcp", "127.0.0.1:0")
+	assert.NilError(t, err)
+
+	addr := ln.Addr().String()
+	host, port, err := net.SplitHostPort(addr)
+	assert.NilError(t, err)
 
 	srv := ssh.Server{
 		Addr: addr,
@@ -111,6 +113,7 @@ func startSFTPServer(t *testing.T, addr string) *ssh.Server {
 			"sftp": sftpHandler,
 		},
 	}
+	t.Cleanup(func() { _ = srv.Close() })
 
 	signer, err := hostKeySigner()
 	if err != nil {
@@ -120,7 +123,7 @@ func startSFTPServer(t *testing.T, addr string) *ssh.Server {
 
 	errCh := make(chan error, 1)
 	go func() {
-		errCh <- srv.ListenAndServe()
+		errCh <- srv.Serve(ln)
 	}()
 
 	// Wait for the server to be ready
@@ -140,26 +143,22 @@ func startSFTPServer(t *testing.T, addr string) *ssh.Server {
 		}
 	}()
 
-	t.Cleanup(func() { srv.Close() })
-	return &srv
+	return host, port
 }
 
 func TestUpload(t *testing.T) {
-	host, port, err := net.SplitHostPort(serverAddress)
-	if err != nil {
-		t.Fatalf("Bad server address: %s", serverAddress)
-	}
+	t.Parallel()
 
-	_ = startSFTPServer(t, serverAddress)
+	host, port := startSFTPServer(t)
 
 	// Start a listener on an open port and use the address to test a bad SFTP
 	// server address.
-	listener, err := net.Listen("tcp", "127.0.0.1:0")
+	ln, err := net.Listen("tcp", "127.0.0.1:0")
 	if err != nil {
 		t.Fatalf("Couldn't start listener: %v", err)
 	}
-	defer listener.Close()
-	badHost, badPort, _ := net.SplitHostPort(listener.Addr().String())
+	defer ln.Close()
+	badHost, badPort, _ := net.SplitHostPort(ln.Addr().String())
 
 	type params struct {
 		src  io.Reader
@@ -183,7 +182,7 @@ func TestUpload(t *testing.T) {
 			cfg: sftp.Config{
 				Host:           host,
 				Port:           port,
-				KnownHostsFile: "./testdata/known_hosts",
+				KnownHostsFile: knownHostsFile(t, host, port),
 				PrivateKey: sftp.PrivateKey{
 					Path: "./testdata/clientkeys/test_ed25519",
 				},
@@ -202,7 +201,7 @@ func TestUpload(t *testing.T) {
 			cfg: sftp.Config{
 				Host:           host,
 				Port:           port,
-				KnownHostsFile: "./testdata/known_hosts",
+				KnownHostsFile: knownHostsFile(t, host, port),
 				PrivateKey: sftp.PrivateKey{
 					Path:       "./testdata/clientkeys/test_pass_rsa",
 					Passphrase: "Backpack-Spirits6-Bronzing",
@@ -222,7 +221,7 @@ func TestUpload(t *testing.T) {
 			cfg: sftp.Config{
 				Host:           host,
 				Port:           port,
-				KnownHostsFile: "./testdata/known_hosts",
+				KnownHostsFile: knownHostsFile(t, host, port),
 				PrivateKey: sftp.PrivateKey{
 					Path:       "./testdata/clientkeys/test_pass_rsa",
 					Passphrase: "wrong",
@@ -239,7 +238,7 @@ func TestUpload(t *testing.T) {
 			cfg: sftp.Config{
 				Host:           badHost,
 				Port:           badPort,
-				KnownHostsFile: "./testdata/known_hosts",
+				KnownHostsFile: knownHostsFile(t, host, port),
 				PrivateKey: sftp.PrivateKey{
 					Path: "./testdata/clientkeys/test_ed25519",
 				},
@@ -258,7 +257,7 @@ func TestUpload(t *testing.T) {
 			cfg: sftp.Config{
 				Host:           host,
 				Port:           port,
-				KnownHostsFile: "./testdata/known_hosts",
+				KnownHostsFile: knownHostsFile(t, host, port),
 				PrivateKey: sftp.PrivateKey{
 					Path: "./testdata/clientkeys/test_unk_ed25519",
 				},
@@ -315,12 +314,7 @@ func TestUpload(t *testing.T) {
 }
 
 func TestDelete(t *testing.T) {
-	host, port, err := net.SplitHostPort(serverAddress)
-	if err != nil {
-		t.Fatalf("Bad server address: %s", serverAddress)
-	}
-
-	_ = startSFTPServer(t, serverAddress)
+	t.Parallel()
 
 	type params struct {
 		fsOps       []tfs.PathOp // The state of the filesystem served by the SFTP server.
@@ -373,10 +367,12 @@ func TestDelete(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
+			host, port := startSFTPServer(t)
+
 			cfg := sftp.Config{
 				Host:           host,
 				Port:           port,
-				KnownHostsFile: "./testdata/known_hosts",
+				KnownHostsFile: knownHostsFile(t, host, port),
 				PrivateKey: sftp.PrivateKey{
 					Path: "./testdata/clientkeys/test_ed25519",
 				},
@@ -391,8 +387,7 @@ func TestDelete(t *testing.T) {
 			}
 
 			sftpc := sftp.NewGoClient(logr.Discard(), cfg)
-
-			err = sftpc.Delete(context.Background(), tc.params.file)
+			err := sftpc.Delete(context.Background(), tc.params.file)
 
 			if tc.wantErr != "" {
 				assert.Error(t, err, tc.wantErr)
@@ -403,4 +398,17 @@ func TestDelete(t *testing.T) {
 			assert.Assert(t, tfs.Equal(remoteDir.Path(), tfs.Expected(t, tc.wantFs...)))
 		})
 	}
+}
+
+// knownHostsFile returns the path to a known_hosts file with the given host:port.
+func knownHostsFile(t *testing.T, host, port string) string {
+	t.Helper()
+
+	blob, err := os.ReadFile("./testdata/known_hosts")
+	assert.NilError(t, err)
+
+	addr := fmt.Sprintf("[%s]:%s", host, port)
+	blob = bytes.Replace(blob, []byte("[127.0.0.1]:2222"), []byte(addr), 1)
+
+	return fs.NewFile(t, "", fs.WithBytes(blob)).Path()
 }
