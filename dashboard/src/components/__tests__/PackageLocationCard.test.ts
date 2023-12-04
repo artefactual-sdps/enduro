@@ -28,15 +28,17 @@ describe("PackageLocationCard.vue", () => {
     });
 
     expect(html()).toMatchInlineSnapshot(`
-      "<div class=\\"card mb-3\\">
-        <div class=\\"card-body\\">
+      "<div class="card mb-3">
+        <div class="card-body">
           <!--v-if-->
           <!--v-if-->
-          <h4 class=\\"card-title\\">Location</h4>
-          <p class=\\"card-text\\"><span><div class=\\"d-flex align-items-start gap-2\\"><span class=\\"font-monospace\\">f8635e46-a320-4152-9a2c-98a28eeb50d1</span>
-            <!--v-if-->
+          <h4 class="card-title">Location</h4>
+          <p class="card-text"><span><div class="d-flex align-items-start gap-2"><span class="font-monospace">f8635e46-a320-4152-9a2c-98a28eeb50d1</span><button class="btn btn-sm btn-link link-secondary p-0" data-bs-toggle="tooltip" data-bs-title="Copy to clipboard">
+              <!-- Copied visual hint. -->
+              <!-- Copy icon. --><span><svg viewBox="0 0 24 24" width="1.2em" height="1.2em" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M8 4v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7.242a2 2 0 0 0-.602-1.43L16.083 2.57A2 2 0 0 0 14.685 2H10a2 2 0 0 0-2 2Z"></path><path d="M16 18v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h2"></path></g></svg><span class="visually-hidden">Copy to clipboard</span></span>
+            </button>
         </div></span></p>
-        <div class=\\"actions\\"><button type=\\"button\\" class=\\"btn btn-primary btn-sm\\">Choose storage location</button></div>
+        <div class="actions"><button type="button" class="btn btn-primary btn-sm">Choose storage location</button></div>
       </div>
       </div>"
     `);
@@ -76,7 +78,7 @@ describe("PackageLocationCard.vue", () => {
     });
     packageStore.move = moveMock;
 
-    vi.mock("../../src/dialogs", () => {
+    vi.mock("@/dialogs", () => {
       return {
         openPackageLocationDialog: () => "fe675e52-c761-46d0-8605-fae4bd10303e",
       };
@@ -107,13 +109,13 @@ describe("PackageLocationCard.vue", () => {
     });
 
     expect(html()).toMatchInlineSnapshot(`
-      "<div class=\\"card mb-3\\">
-        <div class=\\"card-body\\">
+      "<div class="card mb-3">
+        <div class="card-body">
           <!--v-if-->
           <!--v-if-->
-          <h4 class=\\"card-title\\">Location</h4>
-          <p class=\\"card-text\\"><span>Not available yet.</span></p>
-          <div class=\\"actions\\"><button type=\\"button\\" class=\\"btn btn-primary btn-sm\\" disabled=\\"\\">Choose storage location</button></div>
+          <h4 class="card-title">Location</h4>
+          <p class="card-text"><span>Not available yet.</span></p>
+          <div class="actions"><button type="button" class="btn btn-primary btn-sm" disabled="">Choose storage location</button></div>
         </div>
       </div>"
     `);
@@ -139,12 +141,12 @@ describe("PackageLocationCard.vue", () => {
     });
 
     expect(html()).toMatchInlineSnapshot(`
-      "<div class=\\"card mb-3\\">
-        <div class=\\"card-body\\">
+      "<div class="card mb-3">
+        <div class="card-body">
           <!--v-if-->
           <!--v-if-->
-          <h4 class=\\"card-title\\">Location</h4>
-          <p class=\\"card-text\\"><span>Package rejected.</span></p>
+          <h4 class="card-title">Location</h4>
+          <p class="card-text"><span>Package rejected.</span></p>
           <!--v-if-->
         </div>
       </div>"
@@ -171,15 +173,17 @@ describe("PackageLocationCard.vue", () => {
     });
 
     expect(html()).toMatchInlineSnapshot(`
-      "<div class=\\"card mb-3\\">
-        <div class=\\"card-body\\">
+      "<div class="card mb-3">
+        <div class="card-body">
           <!--v-if-->
           <!--v-if-->
-          <h4 class=\\"card-title\\">Location</h4>
-          <p class=\\"card-text\\"><span><div class=\\"d-flex align-items-start gap-2\\"><span class=\\"font-monospace\\">f8635e46-a320-4152-9a2c-98a28eeb50d1</span>
-            <!--v-if-->
+          <h4 class="card-title">Location</h4>
+          <p class="card-text"><span><div class="d-flex align-items-start gap-2"><span class="font-monospace">f8635e46-a320-4152-9a2c-98a28eeb50d1</span><button class="btn btn-sm btn-link link-secondary p-0" data-bs-toggle="tooltip" data-bs-title="Copy to clipboard">
+              <!-- Copied visual hint. -->
+              <!-- Copy icon. --><span><svg viewBox="0 0 24 24" width="1.2em" height="1.2em" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M8 4v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7.242a2 2 0 0 0-.602-1.43L16.083 2.57A2 2 0 0 0 14.685 2H10a2 2 0 0 0-2 2Z"></path><path d="M16 18v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h2"></path></g></svg><span class="visually-hidden">Copy to clipboard</span></span>
+            </button>
         </div></span></p>
-        <div class=\\"actions\\"><button type=\\"button\\" class=\\"btn btn-primary btn-sm\\" disabled=\\"\\">Choose storage location</button></div>
+        <div class="actions"><button type="button" class="btn btn-primary btn-sm" disabled="">Choose storage location</button></div>
       </div>
       </div>"
     `);

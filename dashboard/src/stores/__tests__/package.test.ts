@@ -1,4 +1,4 @@
-import { usePackageStore } from "../../src/stores/package";
+import { usePackageStore } from "@/stores/package";
 import { setActivePinia, createPinia } from "pinia";
 import { expect, describe, it, beforeEach } from "vitest";
 

@@ -21,7 +21,9 @@ describe("UUID.vue", () => {
   });
 
   it("should copy to clipboard", async () => {
-    Object.assign(navigator, { clipboard: { writeText: vi.fn() } });
+    Object.defineProperty(navigator, "clipboard", {
+      value: { writeText: vi.fn() },
+    });
 
     const { getByRole, findByRole } = render(UUID, { props: { id: uuid } });
 
