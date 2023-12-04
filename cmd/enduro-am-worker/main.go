@@ -119,6 +119,7 @@ func main() {
 		}
 
 		httpClient := cleanhttp.DefaultPooledClient()
+		sftpClient := sftp.NewGoClient(logger, cfg.AM.SFTP)
 		amc := amclient.NewClient(httpClient, cfg.AM.Address, cfg.AM.User, cfg.AM.APIKey)
 
 		w.RegisterActivityWithOptions(
@@ -133,8 +134,12 @@ func main() {
 			activities.NewZipActivity(logger).Execute, temporalsdk_activity.RegisterOptions{Name: activities.ZipActivityName},
 		)
 		w.RegisterActivityWithOptions(
-			am.NewUploadTransferActivity(logger, sftp.NewGoClient(logger, cfg.AM.SFTP)).Execute,
+			am.NewUploadTransferActivity(logger, sftpClient).Execute,
 			temporalsdk_activity.RegisterOptions{Name: am.UploadTransferActivityName},
+		)
+		w.RegisterActivityWithOptions(
+			am.NewDeleteTransferActivity(logger, sftpClient).Execute,
+			temporalsdk_activity.RegisterOptions{Name: am.DeleteTransferActivityName},
 		)
 		w.RegisterActivityWithOptions(
 			am.NewStartTransferActivity(logger, &cfg.AM, amc.Package).Execute,
