@@ -1,9 +1,9 @@
+import { fileURLToPath, URL } from "node:url";
+import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import ReactivityTransform from "@vue-macros/reactivity-transform/vite";
-import { fileURLToPath, URL } from "node:url";
 import Icons from "unplugin-icons/vite";
 import VueRouter from "unplugin-vue-router/vite";
-import { defineConfig } from "vitest/config";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -15,16 +15,6 @@ export default defineConfig({
     ReactivityTransform(),
     Icons({ compiler: "vue3" }),
   ],
-  // Use esbuild deps optimization at build time.
-  // https://vitejs.dev/guide/migration.html#using-esbuild-deps-optimization-at-build-time
-  build: {
-    commonjsOptions: {
-      include: [],
-    },
-  },
-  optimizeDeps: {
-    disabled: false,
-  },
   server: {
     port: 80,
     strictPort: true,
@@ -57,17 +47,5 @@ export default defineConfig({
         additionalData: `@import "src/styles/bootstrap-base.scss";`,
       },
     },
-  },
-  test: {
-    environment: "happy-dom",
-    restoreMocks: true,
-    sequence: {
-      shuffle: true,
-    },
-    coverage: {
-      exclude: ["src/openapi-generator/**", "test/**"],
-    },
-    // Needed by vue-testing-library.
-    globals: true,
   },
 });

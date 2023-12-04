@@ -1,4 +1,4 @@
-import { useLayoutStore } from "../../src/stores/layout";
+import { useLayoutStore } from "@/stores/layout";
 import { flushPromises } from "@vue/test-utils";
 import { User } from "oidc-client-ts";
 import { setActivePinia, createPinia } from "pinia";
