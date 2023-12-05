@@ -19,7 +19,10 @@ type UploadTransferActivityParams struct {
 
 type UploadTransferActivityResult struct {
 	BytesCopied int64
-	RemotePath  string
+	// Full path including `remoteDir` config path.
+	RemoteFullPath string
+	// Relative path to the `remoteDir` config path.
+	RemoteRelativePath string
 }
 
 type UploadTransferActivity struct {
@@ -40,13 +43,15 @@ func (a *UploadTransferActivity) Execute(ctx context.Context, params *UploadTran
 	}
 	defer src.Close()
 
-	bytes, path, err := a.client.Upload(ctx, src, filepath.Base(params.SourcePath))
+	filename := filepath.Base(params.SourcePath)
+	bytes, path, err := a.client.Upload(ctx, src, filename)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %v", UploadTransferActivityName, err)
 	}
 
 	return &UploadTransferActivityResult{
-		BytesCopied: bytes,
-		RemotePath:  path,
+		BytesCopied:        bytes,
+		RemoteFullPath:     path,
+		RemoteRelativePath: filename,
 	}, nil
 }

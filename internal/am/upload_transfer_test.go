@@ -46,8 +46,9 @@ func TestUploadTransferActivity(t *testing.T) {
 				).Return(int64(14), "/transfer_dir/"+filename, nil)
 			},
 			want: am.UploadTransferActivityResult{
-				BytesCopied: int64(14),
-				RemotePath:  "/transfer_dir/" + filename,
+				BytesCopied:        int64(14),
+				RemoteFullPath:     "/transfer_dir/" + filename,
+				RemoteRelativePath: filename,
 			},
 		},
 		{

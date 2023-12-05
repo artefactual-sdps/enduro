@@ -245,7 +245,7 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	).Return(&activities.ZipActivityResult{Path: "/tmp/transfer.zip"}, nil)
 	s.env.OnActivity(am.UploadTransferActivityName,
 		sessionCtx, &am.UploadTransferActivityParams{SourcePath: "/tmp/transfer.zip"},
-	).Return(&am.UploadTransferActivityResult{RemotePath: "transfer.zip"}, nil).Once()
+	).Return(&am.UploadTransferActivityResult{RemoteFullPath: "transfer.zip", RemoteRelativePath: "transfer.zip"}, nil).Once()
 	s.env.OnActivity(am.StartTransferActivityName,
 		sessionCtx, &am.StartTransferActivityParams{Name: key, Path: "transfer.zip"},
 	).Return(&am.StartTransferActivityResult{TransferID: transferID.String()}, nil).Once()

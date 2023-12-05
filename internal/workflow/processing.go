@@ -686,7 +686,7 @@ func (w *ProcessingWorkflow) transferAM(sessCtx temporalsdk_workflow.Context, ti
 		am.StartTransferActivityName,
 		&am.StartTransferActivityParams{
 			Name: tinfo.req.Key,
-			Path: uploadResult.RemotePath,
+			Path: uploadResult.RemoteFullPath,
 		},
 	).Get(activityOpts, &transferResult)
 	if err != nil {
@@ -738,7 +738,7 @@ func (w *ProcessingWorkflow) transferAM(sessCtx temporalsdk_workflow.Context, ti
 	// Delete transfer.
 	activityOpts = withActivityOptsForRequest(sessCtx)
 	err = temporalsdk_workflow.ExecuteActivity(activityOpts, am.DeleteTransferActivityName, am.DeleteTransferActivityParams{
-		Destination: uploadResult.RemotePath,
+		Destination: uploadResult.RemoteRelativePath,
 	}).Get(activityOpts, nil)
 	if err != nil {
 		return err
