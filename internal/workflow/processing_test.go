@@ -89,14 +89,21 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(taskQueue string) {
 			logger,
 			&am.Config{},
 			clock,
+			amclienttest.NewMockTransferService(ctrl),
 			amclienttest.NewMockJobsService(ctrl),
 			pkgsvc,
-			amclienttest.NewMockTransferService(ctrl),
 		).Execute,
 		temporalsdk_activity.RegisterOptions{Name: am.PollTransferActivityName},
 	)
 	s.env.RegisterActivityWithOptions(
-		am.NewPollIngestActivity(logger, &am.Config{}, amclienttest.NewMockIngestService(ctrl)).Execute,
+		am.NewPollIngestActivity(
+			logger,
+			&am.Config{},
+			clock,
+			amclienttest.NewMockIngestService(ctrl),
+			amclienttest.NewMockJobsService(ctrl),
+			pkgsvc,
+		).Execute,
 		temporalsdk_activity.RegisterOptions{Name: am.PollIngestActivityName},
 	)
 

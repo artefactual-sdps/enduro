@@ -26,9 +26,9 @@ type PollTransferActivity struct {
 	logger logr.Logger
 	cfg    *Config
 	clock  clockwork.Clock
+	tfrSvc amclient.TransferService
 	jobSvc amclient.JobsService
 	pkgSvc package_.Service
-	tfrSvc amclient.TransferService
 }
 
 type PollTransferActivityResult struct {
@@ -41,9 +41,9 @@ func NewPollTransferActivity(
 	logger logr.Logger,
 	cfg *Config,
 	clock clockwork.Clock,
+	tfrSvc amclient.TransferService,
 	jobSvc amclient.JobsService,
 	pkgSvc package_.Service,
-	tfrSvc amclient.TransferService,
 ) *PollTransferActivity {
 	return &PollTransferActivity{
 		logger: logger,

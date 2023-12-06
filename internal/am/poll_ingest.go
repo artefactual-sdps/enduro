@@ -6,28 +6,50 @@ import (
 	"time"
 
 	"github.com/go-logr/logr"
+	"github.com/jonboulle/clockwork"
 	"go.artefactual.dev/amclient"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
+
+	"github.com/artefactual-sdps/enduro/internal/package_"
 )
 
 const PollIngestActivityName = "poll-ingest-activity"
 
 type PollIngestActivityParams struct {
-	SIPID string
+	PresActionID uint
+	SIPID        string
 }
 
 type PollIngestActivity struct {
 	logger logr.Logger
 	cfg    *Config
-	svc    amclient.IngestService
+	clock  clockwork.Clock
+	ingSvc amclient.IngestService
+	jobSvc amclient.JobsService
+	pkgSvc package_.Service
 }
 
 type PollIngestActivityResult struct {
-	Status string
+	Status        string
+	PresTaskCount int
 }
 
-func NewPollIngestActivity(logger logr.Logger, cfg *Config, svc amclient.IngestService) *PollIngestActivity {
-	return &PollIngestActivity{logger: logger, cfg: cfg, svc: svc}
+func NewPollIngestActivity(
+	logger logr.Logger,
+	cfg *Config,
+	clock clockwork.Clock,
+	ingSvc amclient.IngestService,
+	jobSvc amclient.JobsService,
+	pkgSvc package_.Service,
+) *PollIngestActivity {
+	return &PollIngestActivity{
+		logger: logger,
+		cfg:    cfg,
+		clock:  clock,
+		ingSvc: ingSvc,
+		jobSvc: jobSvc,
+		pkgSvc: pkgSvc,
+	}
 }
 
 // Execute polls Archivematica for the status of an ingest and returns when
@@ -38,8 +60,13 @@ func NewPollIngestActivity(logger logr.Logger, cfg *Config, svc amclient.IngestS
 // a temporal.NonRetryableApplicationError to indicate that processing can not
 // continue.
 func (a *PollIngestActivity) Execute(ctx context.Context, params *PollIngestActivityParams) (*PollIngestActivityResult, error) {
-	a.logger.V(1).Info("Executing PollIngestActivity", "SIPID", params.SIPID)
+	a.logger.V(1).Info("Executing PollIngestActivity",
+		"PresActionID", params.PresActionID,
+		"SIPID", params.SIPID,
+	)
 
+	var taskCount int
+	jobTracker := NewJobTracker(a.clock, a.jobSvc, a.pkgSvc, params.PresActionID)
 	ticker := time.NewTicker(a.cfg.PollInterval)
 	defer ticker.Stop()
 
@@ -48,18 +75,24 @@ func (a *PollIngestActivity) Execute(ctx context.Context, params *PollIngestActi
 		case <-ctx.Done():
 			return nil, ctx.Err()
 		case <-ticker.C:
-			reqCtx, cancel := context.WithTimeout(ctx, a.cfg.PollInterval/2)
-			resp, httpResp, err := a.poll(reqCtx, params.SIPID, cancel)
+			resp, count, err := a.poll(ctx, jobTracker, params.SIPID)
 			if err == ErrWorkOngoing {
+				taskCount += count
+
 				// Send a heartbeat then continue polling after the poll interval.
-				temporalsdk_activity.RecordHeartbeat(ctx, fmt.Sprintf("Last HTTP response: %v", httpResp.Status))
+				temporalsdk_activity.RecordHeartbeat(ctx, fmt.Sprintf("preservation tasks completed: %d", taskCount))
 				continue
 			}
 			if err != nil {
 				return nil, err
 			}
 
-			return &PollIngestActivityResult{Status: resp.Status}, nil
+			taskCount += count
+
+			return &PollIngestActivityResult{
+				Status:        resp.Status,
+				PresTaskCount: taskCount,
+			}, nil
 		}
 	}
 }
@@ -68,35 +101,60 @@ func (a *PollIngestActivity) Execute(ctx context.Context, params *PollIngestActi
 // result if ingest processing is complete. An errWorkOngoing error indicates
 // work is ongoing and polling should continue. All other errors should
 // terminate polling.
-func (a *PollIngestActivity) poll(ctx context.Context, transferID string, cancel context.CancelFunc) (*amclient.IngestStatusResponse, *amclient.Response, error) {
-	// Cancel the context timer when we return so it doesn't wait for the
-	// timeout deadline to expire.
+func (a *PollIngestActivity) poll(ctx context.Context, jobTracker *JobTracker, transferID string) (*amclient.IngestStatusResponse, int, error) {
+	var stillWorking bool
+
+	// Add a context timeout to prevent missing the heartbeat deadline.
+	ctx, cancel := context.WithTimeout(ctx, a.cfg.PollInterval)
 	defer cancel()
 
-	resp, httpResp, err := a.svc.Status(ctx, transferID)
+	resp, err := a.ingestStatus(ctx, transferID)
 	if err != nil {
-		a.logger.V(2).Info("Poll ingest error",
-			"StatusCode", httpResp.StatusCode,
-			"Status", httpResp.Status,
-		)
-
-		amErr := convertAMClientError(httpResp, err)
-
-		// Continue polling on a "400 Bad request" response.
-		if amErr == ErrBadRequest {
-			return resp, httpResp, ErrWorkOngoing
+		switch err {
+		case ErrBadRequest:
+			// Continue polling on a "400 Bad request" response, but don't try
+			// and save jobs progress; the jobs endpoint will most likely return
+			// a 400 error or an empty jobs list.
+			return resp, 0, ErrWorkOngoing
+		case ErrWorkOngoing:
+			// Save job progress before returning.
+			stillWorking = true
+		default:
+			return nil, 0, err
 		}
+	}
 
-		return resp, httpResp, amErr
+	// Save job progress as preservation tasks.
+	count, err := jobTracker.SavePreservationTasks(ctx, transferID)
+	if err == ErrBadRequest {
+		// Continue polling on a "400 Bad request" response.
+		return resp, 0, ErrWorkOngoing
+	}
+	if err != nil {
+		return nil, 0, fmt.Errorf("save preservation tasks: %v", err)
+	}
+
+	// Continue polling.
+	if stillWorking {
+		return resp, count, ErrWorkOngoing
+	}
+
+	return resp, count, nil
+}
+
+func (a *PollIngestActivity) ingestStatus(ctx context.Context, transferID string) (*amclient.IngestStatusResponse, error) {
+	resp, httpResp, err := a.ingSvc.Status(ctx, transferID)
+	if err != nil {
+		return resp, convertAMClientError(httpResp, err)
 	}
 
 	complete, err := isComplete(resp.Status)
 	if err != nil {
-		return resp, httpResp, err
+		return resp, err
 	}
 	if complete {
-		return resp, httpResp, nil
+		return resp, nil
 	}
 
-	return resp, httpResp, ErrWorkOngoing
+	return resp, ErrWorkOngoing
 }

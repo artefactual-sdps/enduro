@@ -111,9 +111,9 @@ func main() {
 	}
 
 	// Set up the package service.
-	var pkgsvc package_.Service
+	var pkgSvc package_.Service
 	{
-		pkgsvc = package_.NewService(logger.WithName("package"), enduroDatabase, temporalClient, evsvc, &auth.NoopTokenVerifier{}, nil, cfg.Temporal.TaskQueue)
+		pkgSvc = package_.NewService(logger.WithName("package"), enduroDatabase, temporalClient, evsvc, &auth.NoopTokenVerifier{}, nil, cfg.Temporal.TaskQueue)
 	}
 
 	var g run.Group
@@ -167,14 +167,21 @@ func main() {
 				logger,
 				&cfg.AM,
 				clockwork.NewRealClock(),
-				amc.Jobs,
-				pkgsvc,
 				amc.Transfer,
+				amc.Jobs,
+				pkgSvc,
 			).Execute,
 			temporalsdk_activity.RegisterOptions{Name: am.PollTransferActivityName},
 		)
 		w.RegisterActivityWithOptions(
-			am.NewPollIngestActivity(logger, &cfg.AM, amc.Ingest).Execute,
+			am.NewPollIngestActivity(
+				logger,
+				&cfg.AM,
+				clockwork.NewRealClock(),
+				amc.Ingest,
+				amc.Jobs,
+				pkgSvc,
+			).Execute,
 			temporalsdk_activity.RegisterOptions{Name: am.PollIngestActivityName},
 		)
 		w.RegisterActivityWithOptions(

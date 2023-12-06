@@ -42,27 +42,27 @@ func TestPollTransferActivity(t *testing.T) {
 
 	jobs := []amclient.Job{
 		{
-			ID:           "f60018ac-da79-4769-9509-c6c41d5efe7e",
-			LinkID:       "70669a5b-01e4-4ea0-ac70-10292f87da05",
-			Microservice: "Verify SIP compliance",
-			Name:         "Move to processing directory",
+			ID:           "e6e01ebb-a8f4-459d-b9a9-c6a8103e4750",
+			Name:         "Extract zipped transfer",
 			Status:       amclient.JobStatusComplete,
+			Microservice: "Approve transfer",
+			LinkID:       "541f5994-73b0-45bb-9cb5-367c06a21be7",
 			Tasks: []amclient.Task{
 				{
-					ID:       "c134198c-9485-4f68-8d94-4da1e03b5e1b",
+					ID:       "11566538-66c5-4a20-aa70-77f7a9fa83d5",
 					ExitCode: 0,
 				},
 			},
 		},
 		{
-			ID:           "c2128d39-2ace-47c5-8cac-39ded8d9c9ef",
-			LinkID:       "208d441b-6938-44f9-b54a-bd73f05bc764",
-			Microservice: "Verify SIP compliance",
-			Name:         "Verify SIP compliance",
+			ID:           "2bcdb038-8861-4ea7-a7bb-01d58efac38c",
+			Name:         "Set transfer type: Standard",
 			Status:       amclient.JobStatusComplete,
+			Microservice: "Verify transfer compliance",
+			LinkID:       "045c43ae-d6cf-44f7-97d6-c8a602748565",
 			Tasks: []amclient.Task{
 				{
-					ID:       "6f5beca3-71ad-446c-8f19-3bc4dea16c9b",
+					ID:       "53666170-0397-4962-8736-23295444b036",
 					ExitCode: 0,
 				},
 			},
@@ -294,9 +294,9 @@ func TestPollTransferActivity(t *testing.T) {
 					logr.Discard(),
 					&am.Config{PollInterval: time.Millisecond * 10},
 					clockwork.NewFakeClockAt(ttime),
+					trfSvc,
 					jobSvc,
 					pkgSvc,
-					trfSvc,
 				).Execute,
 				temporalsdk_activity.RegisterOptions{
 					Name: am.PollTransferActivityName,
