@@ -104,15 +104,14 @@ func (b *Bundler) Write(name string, r io.Reader) error {
 	if err != nil {
 		return fmt.Errorf("error writing file: %w", err)
 	}
-	defer func() {
-		_ = file.Close()
-	}()
+	defer file.Close()
 
 	if _, err := io.Copy(file, r); err != nil {
 		return fmt.Errorf("error writing file: %w", err)
 	}
 
-	return nil
+	// Return any error returned by `file.Close()`.
+	return file.Close()
 }
 
 func (b *Bundler) Bundle() error {
