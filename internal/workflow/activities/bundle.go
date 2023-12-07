@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	securejoin "github.com/cyphar/filepath-securejoin"
+	"github.com/go-logr/logr"
 	"github.com/mholt/archiver/v3"
 	"github.com/otiai10/copy"
 	temporal_tools "go.artefactual.dev/tools/temporal"
@@ -20,20 +21,35 @@ import (
 )
 
 type BundleActivity struct {
-	wsvc watcher.Service
+	logger logr.Logger
+	wsvc   watcher.Service
 }
 
-func NewBundleActivity(wsvc watcher.Service) *BundleActivity {
-	return &BundleActivity{wsvc: wsvc}
+func NewBundleActivity(logger logr.Logger, wsvc watcher.Service) *BundleActivity {
+	return &BundleActivity{logger: logger, wsvc: wsvc}
 }
 
 type BundleActivityParams struct {
-	WatcherName      string
-	TransferDir      string
-	Key              string
-	TempFile         string
+	// WatcherName is the name of the watcher that saw the transfer deposit.
+	WatcherName string
+
+	// TransferDir is the target directory for the bundled package.
+	TransferDir string
+
+	// Key is the blob (file) name of the transfer.
+	Key string
+
+	// TempFile is the path to a downloaded transfer file.
+	TempFile string
+
+	// StripTopLevelDir indicates that the top-level directory in an archive
+	// transfer (e.g. zip, tar) should be removed from the bundled package
+	// filepaths when true.
 	StripTopLevelDir bool
-	IsDir            bool
+
+	// IsDir indicates that the transfer is a local directory when true. If true
+	// the transfer will be copied to TransferDir without modification.
+	IsDir bool
 }
 
 type BundleActivityResult struct {
@@ -48,18 +64,21 @@ func (a *BundleActivity) Execute(ctx context.Context, params *BundleActivityPara
 		err error
 	)
 
+	a.logger.V(1).Info("Executing BundleActivity",
+		"WatcherName", params.WatcherName,
+		"TransferDir", params.TransferDir,
+		"Key", params.Key,
+		"TempFile", params.TempFile,
+		"StripTopLevelDir", params.StripTopLevelDir,
+		"IsDir", params.IsDir,
+	)
+
 	if params.TransferDir == "" {
 		params.TransferDir, err = os.MkdirTemp("", "*-enduro-transfer")
 		if err != nil {
 			return nil, err
 		}
 	}
-
-	defer func() {
-		if err != nil {
-			err = temporal_tools.NewNonRetryableError(err)
-		}
-	}()
 
 	if params.IsDir {
 		var w watcher.Watcher
@@ -89,10 +108,13 @@ func (a *BundleActivity) Execute(ctx context.Context, params *BundleActivityPara
 
 	res.RelPath, err = filepath.Rel(params.TransferDir, res.FullPath)
 	if err != nil {
-		return nil, fmt.Errorf("error calculating relative path to transfer (base=%q, target=%q): %v", params.TransferDir, res.FullPath, err)
+		return nil, temporal_tools.NewNonRetryableError(fmt.Errorf(
+			"error calculating relative path to transfer (base=%q, target=%q): %v",
+			params.TransferDir, res.FullPath, err,
+		))
 	}
 
-	return res, err
+	return res, nil
 }
 
 // Unarchiver returns the unarchiver suited for the archival format.

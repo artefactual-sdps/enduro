@@ -144,7 +144,7 @@ func main() {
 			temporalsdk_activity.RegisterOptions{Name: activities.DownloadActivityName},
 		)
 		w.RegisterActivityWithOptions(
-			activities.NewBundleActivity(wsvc).Execute,
+			activities.NewBundleActivity(logger, wsvc).Execute,
 			temporalsdk_activity.RegisterOptions{Name: activities.BundleActivityName},
 		)
 		w.RegisterActivityWithOptions(

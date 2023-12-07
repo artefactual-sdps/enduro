@@ -314,27 +314,32 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 
 	// Bundle.
 	{
-		// For the a3m workflow bundle the transfer to a shared directory also
-		// mounted by the a3m container.
+		// For the a3m workflow bundle the transfer to a directory shared with
+		// the a3m container.
 		var transferDir string
 		if w.taskQueue == temporal.A3mWorkerTaskQueue {
 			transferDir = "/home/a3m/.local/share/a3m/share"
 		}
 
-		if tinfo.Bundle == (activities.BundleActivityResult{}) {
-			activityOpts := withActivityOptsForLongLivedRequest(sessCtx)
-			err := temporalsdk_workflow.ExecuteActivity(activityOpts, activities.BundleActivityName, &activities.BundleActivityParams{
+		activityOpts := withActivityOptsForLongLivedRequest(sessCtx)
+		var bundleResult activities.BundleActivityResult
+		err := temporalsdk_workflow.ExecuteActivity(
+			activityOpts,
+			activities.BundleActivityName,
+			&activities.BundleActivityParams{
 				WatcherName:      tinfo.req.WatcherName,
 				TransferDir:      transferDir,
 				Key:              tinfo.req.Key,
 				IsDir:            tinfo.req.IsDir,
 				TempFile:         tinfo.TempFile,
 				StripTopLevelDir: tinfo.req.StripTopLevelDir,
-			}).Get(activityOpts, &tinfo.Bundle)
-			if err != nil {
-				return err
-			}
+			},
+		).Get(activityOpts, &bundleResult)
+		if err != nil {
+			return err
 		}
+
+		tinfo.Bundle = bundleResult
 	}
 
 	// Delete local temporary files.
