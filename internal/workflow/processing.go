@@ -298,11 +298,16 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 			// session retry where a different worker is doing the work. In that
 			// case, the activity whould be executed again.
 			if tinfo.TempFile == "" {
+				var downloadResult activities.DownloadActivityResult
 				activityOpts := withActivityOptsForLongLivedRequest(sessCtx)
-				err := temporalsdk_workflow.ExecuteActivity(activityOpts, activities.DownloadActivityName, tinfo.req.WatcherName, tinfo.req.Key).Get(activityOpts, &tinfo.TempFile)
+				err := temporalsdk_workflow.ExecuteActivity(activityOpts, activities.DownloadActivityName, &activities.DownloadActivityParams{
+					Key:         tinfo.req.Key,
+					WatcherName: tinfo.req.WatcherName,
+				}).Get(activityOpts, &downloadResult)
 				if err != nil {
 					return err
 				}
+				tinfo.TempFile = downloadResult.Path
 			}
 		}
 	}

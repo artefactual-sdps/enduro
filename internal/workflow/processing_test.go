@@ -55,7 +55,7 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(taskQueue string) {
 	wsvc := watcherfake.NewMockService(ctrl)
 	sftpc := sftp_fake.NewMockClient(ctrl)
 
-	s.env.RegisterActivityWithOptions(activities.NewDownloadActivity(wsvc).Execute, temporalsdk_activity.RegisterOptions{Name: activities.DownloadActivityName})
+	s.env.RegisterActivityWithOptions(activities.NewDownloadActivity(logger, wsvc).Execute, temporalsdk_activity.RegisterOptions{Name: activities.DownloadActivityName})
 	s.env.RegisterActivityWithOptions(activities.NewBundleActivity(wsvc).Execute, temporalsdk_activity.RegisterOptions{Name: activities.BundleActivityName})
 	s.env.RegisterActivityWithOptions(a3m.NewCreateAIPActivity(logger, &a3m.Config{}, pkgsvc).Execute, temporalsdk_activity.RegisterOptions{Name: a3m.CreateAIPActivityName})
 	s.env.RegisterActivityWithOptions(activities.NewUploadActivity(nil).Execute, temporalsdk_activity.RegisterOptions{Name: activities.UploadActivityName})
@@ -122,11 +122,12 @@ func (s *ProcessingWorkflowTestSuite) TestPackageConfirmation() {
 	s.SetupWorkflowTest(temporal.A3mWorkerTaskQueue)
 	pkgID := uint(1)
 	ctx := mock.AnythingOfType("*context.valueCtx")
+	sessionCtx := mock.AnythingOfType("*context.timerCtx")
 	locationID := uuid.MustParse("51328c02-2b63-47be-958e-e8088aa1a61f")
+	key := "transfer.zip"
 	watcherName := "watcher"
 	retentionPeriod := 1 * time.Second
 	pkgsvc := s.workflow.pkgsvc
-	sessionCtx := mock.AnythingOfType("*context.timerCtx")
 
 	// Signal handler that mimics package confirmation
 	s.env.RegisterDelayedCallback(
@@ -143,7 +144,10 @@ func (s *ProcessingWorkflowTestSuite) TestPackageConfirmation() {
 	s.env.OnActivity(createPackageLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(pkgID, nil)
 	s.env.OnActivity(setStatusInProgressLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 	s.env.OnActivity(createPreservationActionLocalActivity, mock.Anything, mock.Anything, mock.Anything).Return(uint(0), nil)
-	s.env.OnActivity(activities.DownloadActivityName, mock.Anything, mock.Anything, mock.Anything).Return("", nil)
+	s.env.OnActivity(activities.DownloadActivityName, sessionCtx, &activities.DownloadActivityParams{
+		Key:         key,
+		WatcherName: watcherName,
+	}).Return(&activities.DownloadActivityResult{Path: "/tmp/blob-123456"}, nil)
 	s.env.OnActivity(activities.BundleActivityName, mock.Anything, mock.Anything).Return(&activities.BundleActivityResult{FullPath: "/tmp/aip", FullPathBeforeStrip: "/tmp/aip"}, nil)
 	s.env.OnActivity(a3m.CreateAIPActivityName, mock.Anything, mock.Anything).Return(nil, nil)
 	s.env.OnActivity(updatePackageLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
@@ -157,13 +161,14 @@ func (s *ProcessingWorkflowTestSuite) TestPackageConfirmation() {
 	s.env.OnActivity(setLocationIDLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 	s.env.OnActivity(completePreservationActionLocalActivity, ctx, pkgsvc, mock.AnythingOfType("*workflow.completePreservationActionLocalActivityParams")).Return(nil).Once()
 	s.env.OnActivity(activities.CleanUpActivityName, sessionCtx, mock.AnythingOfType("*activities.CleanUpActivityParams")).Return(nil).Once()
-	s.env.OnActivity(activities.DeleteOriginalActivityName, sessionCtx, "watcher", "").Return(nil).Once()
+	s.env.OnActivity(activities.DeleteOriginalActivityName, sessionCtx, watcherName, key).Return(nil).Once()
 	s.env.OnActivity(updatePackageLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 	s.env.OnActivity(completePreservationActionLocalActivity, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 
 	s.env.ExecuteWorkflow(
 		s.workflow.Execute,
 		&package_.ProcessingWorkflowRequest{
+			Key:             "transfer.zip",
 			WatcherName:     watcherName,
 			RetentionPeriod: &retentionPeriod,
 			AutoApproveAIP:  false,
@@ -179,7 +184,7 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 	pkgID := uint(1)
 	locationID := uuid.MustParse("51328c02-2b63-47be-958e-e8088aa1a61f")
 	watcherName := "watcher"
-	key := ""
+	key := "transfer.zip"
 	retentionPeriod := 1 * time.Second
 	ctx := mock.AnythingOfType("*context.valueCtx")
 	sessionCtx := mock.AnythingOfType("*context.timerCtx")
@@ -196,7 +201,10 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 	).Return(pkgID, nil).Once()
 	s.env.OnActivity(setStatusInProgressLocalActivity, ctx, pkgsvc, pkgID, mock.AnythingOfType("time.Time")).Return(nil).Once()
 	s.env.OnActivity(createPreservationActionLocalActivity, ctx, pkgsvc, mock.AnythingOfType("*workflow.createPreservationActionLocalActivityParams")).Return(uint(0), nil).Once()
-	s.env.OnActivity(activities.DownloadActivityName, sessionCtx, watcherName, key).Return("", nil).Once()
+	s.env.OnActivity(activities.DownloadActivityName, sessionCtx, &activities.DownloadActivityParams{
+		Key:         "transfer.zip",
+		WatcherName: watcherName,
+	}).Return(&activities.DownloadActivityResult{Path: "/tmp/blob-123456"}, nil)
 	s.env.OnActivity(activities.BundleActivityName, sessionCtx, mock.AnythingOfType("*activities.BundleActivityParams")).Return(&activities.BundleActivityResult{FullPath: "/tmp/aip", FullPathBeforeStrip: "/tmp/aip"}, nil).Once()
 	s.env.OnActivity(a3m.CreateAIPActivityName, sessionCtx, mock.AnythingOfType("*a3m.CreateAIPActivityParams")).Return(nil, nil).Once()
 	s.env.OnActivity(updatePackageLocalActivity, ctx, logger, pkgsvc, mock.AnythingOfType("*workflow.updatePackageLocalActivityParams")).Return(nil).Times(2)
@@ -210,11 +218,12 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 	s.env.OnActivity(setLocationIDLocalActivity, ctx, pkgsvc, pkgID, locationID).Return(nil).Once()
 	s.env.OnActivity(completePreservationActionLocalActivity, ctx, pkgsvc, mock.AnythingOfType("*workflow.completePreservationActionLocalActivityParams")).Return(nil).Once()
 	s.env.OnActivity(activities.CleanUpActivityName, sessionCtx, mock.AnythingOfType("*activities.CleanUpActivityParams")).Return(nil).Once()
-	s.env.OnActivity(activities.DeleteOriginalActivityName, sessionCtx, "watcher", "").Return(nil).Once()
+	s.env.OnActivity(activities.DeleteOriginalActivityName, sessionCtx, watcherName, key).Return(nil).Once()
 
 	s.env.ExecuteWorkflow(
 		s.workflow.Execute,
 		&package_.ProcessingWorkflowRequest{
+			Key:                        key,
 			WatcherName:                watcherName,
 			RetentionPeriod:            &retentionPeriod,
 			AutoApproveAIP:             true,
@@ -234,7 +243,7 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	transferID := uuid.MustParse("65233405-771e-4f7e-b2d9-b08439570ba2")
 	sipID := uuid.MustParse("9e8161cc-2815-4d6f-8a75-f003c41b257b")
 	watcherName := "watcher"
-	key := "transfer.tgz"
+	key := "transfer.zip"
 
 	retentionPeriod := 1 * time.Second
 	ctx := mock.AnythingOfType("*context.valueCtx")
@@ -252,7 +261,10 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	).Return(pkgID, nil).Once()
 	s.env.OnActivity(setStatusInProgressLocalActivity, ctx, pkgsvc, pkgID, mock.AnythingOfType("time.Time")).Return(nil).Once()
 	s.env.OnActivity(createPreservationActionLocalActivity, ctx, pkgsvc, mock.AnythingOfType("*workflow.createPreservationActionLocalActivityParams")).Return(uint(0), nil).Once()
-	s.env.OnActivity(activities.DownloadActivityName, sessionCtx, watcherName, key).Return("", nil).Once()
+	s.env.OnActivity(activities.DownloadActivityName, sessionCtx, &activities.DownloadActivityParams{
+		Key:         key,
+		WatcherName: watcherName,
+	}).Return(&activities.DownloadActivityResult{Path: "/tmp/blob-123456"}, nil)
 	s.env.OnActivity(activities.BundleActivityName, mock.Anything, mock.Anything).Return(&activities.BundleActivityResult{FullPath: "/tmp/transfer", FullPathBeforeStrip: "/tmp/transfer"}, nil)
 
 	// Archivematica specific activities.
@@ -280,7 +292,7 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	s.env.OnActivity(setStatusLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil).Never()
 	s.env.OnActivity(completePreservationActionLocalActivity, ctx, pkgsvc, mock.AnythingOfType("*workflow.completePreservationActionLocalActivityParams")).Return(nil).Once()
 	s.env.OnActivity(activities.CleanUpActivityName, sessionCtx, mock.AnythingOfType("*activities.CleanUpActivityParams")).Return(nil).Once()
-	s.env.OnActivity(activities.DeleteOriginalActivityName, sessionCtx, "watcher", key).Return(nil).Once()
+	s.env.OnActivity(activities.DeleteOriginalActivityName, sessionCtx, watcherName, key).Return(nil).Once()
 
 	s.env.ExecuteWorkflow(
 		s.workflow.Execute,
@@ -301,6 +313,7 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 func (s *ProcessingWorkflowTestSuite) TestPackageRejection() {
 	s.SetupWorkflowTest(temporal.A3mWorkerTaskQueue)
 	pkgID := uint(1)
+	key := "transfer.zip"
 	watcherName := "watcher"
 	retentionPeriod := 1 * time.Second
 	sessionCtx := mock.AnythingOfType("*context.timerCtx")
@@ -320,7 +333,10 @@ func (s *ProcessingWorkflowTestSuite) TestPackageRejection() {
 	s.env.OnActivity(createPackageLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(pkgID, nil)
 	s.env.OnActivity(setStatusInProgressLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 	s.env.OnActivity(createPreservationActionLocalActivity, mock.Anything, mock.Anything, mock.Anything).Return(uint(0), nil)
-	s.env.OnActivity(activities.DownloadActivityName, mock.Anything, mock.Anything, mock.Anything).Return("", nil)
+	s.env.OnActivity(activities.DownloadActivityName, sessionCtx, &activities.DownloadActivityParams{
+		Key:         key,
+		WatcherName: watcherName,
+	}).Return(&activities.DownloadActivityResult{Path: "/tmp/blob-123456"}, nil)
 	s.env.OnActivity(activities.BundleActivityName, mock.Anything, mock.Anything).Return(&activities.BundleActivityResult{FullPath: "/tmp/aip", FullPathBeforeStrip: "/tmp/aip"}, nil)
 	s.env.OnActivity(a3m.CreateAIPActivityName, mock.Anything, mock.Anything).Return(nil, nil)
 	s.env.OnActivity(updatePackageLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
@@ -331,13 +347,14 @@ func (s *ProcessingWorkflowTestSuite) TestPackageRejection() {
 	s.env.OnActivity(createPreservationTaskLocalActivity, mock.Anything, mock.Anything, mock.Anything).Return(uint(0), nil)
 	s.env.OnActivity(activities.RejectPackageActivityName, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 	s.env.OnActivity(activities.CleanUpActivityName, sessionCtx, mock.AnythingOfType("*activities.CleanUpActivityParams")).Return(nil).Once()
-	s.env.OnActivity(activities.DeleteOriginalActivityName, sessionCtx, "watcher", "").Return(nil).Once()
+	s.env.OnActivity(activities.DeleteOriginalActivityName, sessionCtx, watcherName, key).Return(nil).Once()
 	s.env.OnActivity(updatePackageLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 	s.env.OnActivity(completePreservationActionLocalActivity, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 
 	s.env.ExecuteWorkflow(
 		s.workflow.Execute,
 		&package_.ProcessingWorkflowRequest{
+			Key:             "transfer.zip",
 			WatcherName:     watcherName,
 			RetentionPeriod: &retentionPeriod,
 			AutoApproveAIP:  false,
