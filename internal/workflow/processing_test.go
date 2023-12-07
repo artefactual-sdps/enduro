@@ -56,7 +56,7 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(taskQueue string) {
 	sftpc := sftp_fake.NewMockClient(ctrl)
 
 	s.env.RegisterActivityWithOptions(activities.NewDownloadActivity(logger, wsvc).Execute, temporalsdk_activity.RegisterOptions{Name: activities.DownloadActivityName})
-	s.env.RegisterActivityWithOptions(activities.NewBundleActivity(wsvc).Execute, temporalsdk_activity.RegisterOptions{Name: activities.BundleActivityName})
+	s.env.RegisterActivityWithOptions(activities.NewBundleActivity(logger, wsvc).Execute, temporalsdk_activity.RegisterOptions{Name: activities.BundleActivityName})
 	s.env.RegisterActivityWithOptions(a3m.NewCreateAIPActivity(logger, &a3m.Config{}, pkgsvc).Execute, temporalsdk_activity.RegisterOptions{Name: a3m.CreateAIPActivityName})
 	s.env.RegisterActivityWithOptions(activities.NewUploadActivity(nil).Execute, temporalsdk_activity.RegisterOptions{Name: activities.UploadActivityName})
 	s.env.RegisterActivityWithOptions(activities.NewMoveToPermanentStorageActivity(nil).Execute, temporalsdk_activity.RegisterOptions{Name: activities.MoveToPermanentStorageActivityName})
@@ -144,11 +144,29 @@ func (s *ProcessingWorkflowTestSuite) TestPackageConfirmation() {
 	s.env.OnActivity(createPackageLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(pkgID, nil)
 	s.env.OnActivity(setStatusInProgressLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 	s.env.OnActivity(createPreservationActionLocalActivity, mock.Anything, mock.Anything, mock.Anything).Return(uint(0), nil)
-	s.env.OnActivity(activities.DownloadActivityName, sessionCtx, &activities.DownloadActivityParams{
-		Key:         key,
-		WatcherName: watcherName,
-	}).Return(&activities.DownloadActivityResult{Path: "/tmp/blob-123456"}, nil)
-	s.env.OnActivity(activities.BundleActivityName, mock.Anything, mock.Anything).Return(&activities.BundleActivityResult{FullPath: "/tmp/aip", FullPathBeforeStrip: "/tmp/aip"}, nil)
+
+	s.env.OnActivity(activities.DownloadActivityName, sessionCtx,
+		&activities.DownloadActivityParams{Key: key, WatcherName: watcherName},
+	).Return(
+		&activities.DownloadActivityResult{Path: "/tmp/enduro123456/" + key}, nil,
+	)
+
+	s.env.OnActivity(activities.BundleActivityName, sessionCtx,
+		&activities.BundleActivityParams{
+			WatcherName: watcherName,
+			TransferDir: "/home/a3m/.local/share/a3m/share",
+			Key:         key,
+			TempFile:    "/tmp/enduro123456/" + key,
+		},
+	).Return(
+		&activities.BundleActivityResult{
+			RelPath:             "enduro4162369760/transfer",
+			FullPath:            "/tmp/2098266580-enduro-transfer/enduro4162369760/transfer",
+			FullPathBeforeStrip: "/tmp/2098266580-enduro-transfer/enduro4162369760",
+		},
+		nil,
+	)
+
 	s.env.OnActivity(a3m.CreateAIPActivityName, mock.Anything, mock.Anything).Return(nil, nil)
 	s.env.OnActivity(updatePackageLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 	s.env.OnActivity(createPreservationTaskLocalActivity, mock.Anything, mock.Anything, mock.Anything).Return(uint(0), nil)
@@ -201,11 +219,29 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 	).Return(pkgID, nil).Once()
 	s.env.OnActivity(setStatusInProgressLocalActivity, ctx, pkgsvc, pkgID, mock.AnythingOfType("time.Time")).Return(nil).Once()
 	s.env.OnActivity(createPreservationActionLocalActivity, ctx, pkgsvc, mock.AnythingOfType("*workflow.createPreservationActionLocalActivityParams")).Return(uint(0), nil).Once()
-	s.env.OnActivity(activities.DownloadActivityName, sessionCtx, &activities.DownloadActivityParams{
-		Key:         "transfer.zip",
-		WatcherName: watcherName,
-	}).Return(&activities.DownloadActivityResult{Path: "/tmp/blob-123456"}, nil)
-	s.env.OnActivity(activities.BundleActivityName, sessionCtx, mock.AnythingOfType("*activities.BundleActivityParams")).Return(&activities.BundleActivityResult{FullPath: "/tmp/aip", FullPathBeforeStrip: "/tmp/aip"}, nil).Once()
+
+	s.env.OnActivity(activities.DownloadActivityName, sessionCtx,
+		&activities.DownloadActivityParams{Key: key, WatcherName: watcherName},
+	).Return(
+		&activities.DownloadActivityResult{Path: "/tmp/enduro123456/" + key}, nil,
+	)
+
+	s.env.OnActivity(activities.BundleActivityName, sessionCtx,
+		&activities.BundleActivityParams{
+			WatcherName: watcherName,
+			TransferDir: "/home/a3m/.local/share/a3m/share",
+			Key:         key,
+			TempFile:    "/tmp/enduro123456/" + key,
+		},
+	).Return(
+		&activities.BundleActivityResult{
+			RelPath:             "enduro4162369760/transfer",
+			FullPath:            "/tmp/2098266580-enduro-transfer/enduro4162369760/transfer",
+			FullPathBeforeStrip: "/tmp/2098266580-enduro-transfer/enduro4162369760",
+		},
+		nil,
+	)
+
 	s.env.OnActivity(a3m.CreateAIPActivityName, sessionCtx, mock.AnythingOfType("*a3m.CreateAIPActivityParams")).Return(nil, nil).Once()
 	s.env.OnActivity(updatePackageLocalActivity, ctx, logger, pkgsvc, mock.AnythingOfType("*workflow.updatePackageLocalActivityParams")).Return(nil).Times(2)
 	s.env.OnActivity(createPreservationTaskLocalActivity, ctx, pkgsvc, mock.AnythingOfType("*workflow.createPreservationTaskLocalActivityParams")).Return(uint(0), nil).Once()
@@ -252,40 +288,73 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	pkgsvc := s.workflow.pkgsvc
 
 	// Activity mocks/assertions sequence
-	s.env.OnActivity(
-		createPackageLocalActivity,
-		ctx,
+	s.env.OnActivity(createPackageLocalActivity, ctx,
 		logger,
 		pkgsvc,
 		&createPackageLocalActivityParams{Key: key, Status: package_.StatusQueued},
-	).Return(pkgID, nil).Once()
-	s.env.OnActivity(setStatusInProgressLocalActivity, ctx, pkgsvc, pkgID, mock.AnythingOfType("time.Time")).Return(nil).Once()
-	s.env.OnActivity(createPreservationActionLocalActivity, ctx, pkgsvc, mock.AnythingOfType("*workflow.createPreservationActionLocalActivityParams")).Return(uint(0), nil).Once()
-	s.env.OnActivity(activities.DownloadActivityName, sessionCtx, &activities.DownloadActivityParams{
-		Key:         key,
-		WatcherName: watcherName,
-	}).Return(&activities.DownloadActivityResult{Path: "/tmp/blob-123456"}, nil)
-	s.env.OnActivity(activities.BundleActivityName, mock.Anything, mock.Anything).Return(&activities.BundleActivityResult{FullPath: "/tmp/transfer", FullPathBeforeStrip: "/tmp/transfer"}, nil)
+	).Return(pkgID, nil)
+
+	s.env.OnActivity(setStatusInProgressLocalActivity, ctx, pkgsvc, pkgID, mock.AnythingOfType("time.Time")).Return(nil)
+
+	s.env.OnActivity(createPreservationActionLocalActivity, ctx,
+		pkgsvc, mock.AnythingOfType("*workflow.createPreservationActionLocalActivityParams"),
+	).Return(uint(0), nil)
+
+	s.env.OnActivity(activities.DownloadActivityName, sessionCtx,
+		&activities.DownloadActivityParams{Key: key, WatcherName: watcherName},
+	).Return(
+		&activities.DownloadActivityResult{Path: "/tmp/enduro123456/" + key}, nil,
+	)
+
+	s.env.OnActivity(activities.BundleActivityName, sessionCtx,
+		&activities.BundleActivityParams{
+			WatcherName: watcherName,
+			Key:         key,
+			TempFile:    "/tmp/enduro123456/" + key,
+		},
+	).Return(
+		&activities.BundleActivityResult{
+			RelPath:             "enduro4162369760/transfer",
+			FullPath:            "/tmp/2098266580-enduro-transfer/enduro4162369760/transfer",
+			FullPathBeforeStrip: "/tmp/2098266580-enduro-transfer/enduro4162369760",
+		},
+		nil,
+	)
 
 	// Archivematica specific activities.
-	s.env.OnActivity(activities.ZipActivityName,
-		sessionCtx, &activities.ZipActivityParams{SourceDir: "/tmp/transfer"},
-	).Return(&activities.ZipActivityResult{Path: "/tmp/transfer.zip"}, nil)
-	s.env.OnActivity(am.UploadTransferActivityName,
-		sessionCtx, &am.UploadTransferActivityParams{SourcePath: "/tmp/transfer.zip"},
-	).Return(&am.UploadTransferActivityResult{RemoteFullPath: "transfer.zip", RemoteRelativePath: "transfer.zip"}, nil).Once()
-	s.env.OnActivity(am.StartTransferActivityName,
-		sessionCtx, &am.StartTransferActivityParams{Name: key, Path: "transfer.zip"},
-	).Return(&am.StartTransferActivityResult{TransferID: transferID.String()}, nil).Once()
-	s.env.OnActivity(am.PollTransferActivityName,
-		sessionCtx, &am.PollTransferActivityParams{TransferID: transferID.String()},
-	).Return(&am.PollTransferActivityResult{SIPID: sipID.String()}, nil).Once()
-	s.env.OnActivity(am.PollIngestActivityName,
-		sessionCtx, &am.PollIngestActivityParams{SIPID: sipID.String()},
-	).Return(&am.PollIngestActivityResult{Status: "COMPLETE"}, nil).Once()
-	s.env.OnActivity(am.DeleteTransferActivityName,
-		sessionCtx, &am.DeleteTransferActivityParams{Destination: "transfer.zip"},
-	).Return(nil).Once()
+	s.env.OnActivity(activities.ZipActivityName, sessionCtx,
+		&activities.ZipActivityParams{SourceDir: "/tmp/2098266580-enduro-transfer/enduro4162369760/transfer"},
+	).Return(
+		&activities.ZipActivityResult{Path: "/tmp/2098266580-enduro-transfer/enduro4162369760/transfer.zip"}, nil,
+	)
+
+	s.env.OnActivity(am.UploadTransferActivityName, sessionCtx,
+		&am.UploadTransferActivityParams{SourcePath: "/tmp/2098266580-enduro-transfer/enduro4162369760/transfer.zip"},
+	).Return(
+		&am.UploadTransferActivityResult{RemoteFullPath: "transfer.zip", RemoteRelativePath: "transfer.zip"}, nil,
+	)
+
+	s.env.OnActivity(am.StartTransferActivityName, sessionCtx,
+		&am.StartTransferActivityParams{Name: key, Path: "transfer.zip"},
+	).Return(
+		&am.StartTransferActivityResult{TransferID: transferID.String()}, nil,
+	)
+
+	s.env.OnActivity(am.PollTransferActivityName, sessionCtx,
+		&am.PollTransferActivityParams{TransferID: transferID.String()},
+	).Return(
+		&am.PollTransferActivityResult{SIPID: sipID.String()}, nil,
+	)
+
+	s.env.OnActivity(am.PollIngestActivityName, sessionCtx,
+		&am.PollIngestActivityParams{SIPID: sipID.String()},
+	).Return(
+		&am.PollIngestActivityResult{Status: "COMPLETE"}, nil,
+	)
+
+	s.env.OnActivity(am.DeleteTransferActivityName, sessionCtx,
+		&am.DeleteTransferActivityParams{Destination: "transfer.zip"},
+	).Return(nil)
 
 	// Post-preservation activities.
 	s.env.OnActivity(updatePackageLocalActivity, ctx, logger, pkgsvc, mock.AnythingOfType("*workflow.updatePackageLocalActivityParams")).Return(nil).Once()
@@ -333,11 +402,29 @@ func (s *ProcessingWorkflowTestSuite) TestPackageRejection() {
 	s.env.OnActivity(createPackageLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(pkgID, nil)
 	s.env.OnActivity(setStatusInProgressLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 	s.env.OnActivity(createPreservationActionLocalActivity, mock.Anything, mock.Anything, mock.Anything).Return(uint(0), nil)
-	s.env.OnActivity(activities.DownloadActivityName, sessionCtx, &activities.DownloadActivityParams{
-		Key:         key,
-		WatcherName: watcherName,
-	}).Return(&activities.DownloadActivityResult{Path: "/tmp/blob-123456"}, nil)
-	s.env.OnActivity(activities.BundleActivityName, mock.Anything, mock.Anything).Return(&activities.BundleActivityResult{FullPath: "/tmp/aip", FullPathBeforeStrip: "/tmp/aip"}, nil)
+
+	s.env.OnActivity(activities.DownloadActivityName, sessionCtx,
+		&activities.DownloadActivityParams{Key: key, WatcherName: watcherName},
+	).Return(
+		&activities.DownloadActivityResult{Path: "/tmp/enduro123456/" + key}, nil,
+	)
+
+	s.env.OnActivity(activities.BundleActivityName, sessionCtx,
+		&activities.BundleActivityParams{
+			WatcherName: watcherName,
+			TransferDir: "/home/a3m/.local/share/a3m/share",
+			Key:         key,
+			TempFile:    "/tmp/enduro123456/" + key,
+		},
+	).Return(
+		&activities.BundleActivityResult{
+			RelPath:             "enduro4162369760/transfer",
+			FullPath:            "/tmp/2098266580-enduro-transfer/enduro4162369760/transfer",
+			FullPathBeforeStrip: "/tmp/2098266580-enduro-transfer/enduro4162369760",
+		},
+		nil,
+	)
+
 	s.env.OnActivity(a3m.CreateAIPActivityName, mock.Anything, mock.Anything).Return(nil, nil)
 	s.env.OnActivity(updatePackageLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 	s.env.OnActivity(completePreservationTaskLocalActivity, mock.Anything, mock.Anything, mock.Anything).Return(nil)

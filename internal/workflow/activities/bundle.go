@@ -5,11 +5,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
 
 	securejoin "github.com/cyphar/filepath-securejoin"
+	"github.com/go-logr/logr"
 	"github.com/mholt/archiver/v3"
 	"github.com/otiai10/copy"
 	temporal_tools "go.artefactual.dev/tools/temporal"
@@ -19,21 +21,41 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/watcher"
 )
 
+const (
+	ModeDir  = 0o750
+	ModeFile = 0o640
+)
+
 type BundleActivity struct {
-	wsvc watcher.Service
+	logger logr.Logger
+	wsvc   watcher.Service
 }
 
-func NewBundleActivity(wsvc watcher.Service) *BundleActivity {
-	return &BundleActivity{wsvc: wsvc}
+func NewBundleActivity(logger logr.Logger, wsvc watcher.Service) *BundleActivity {
+	return &BundleActivity{logger: logger, wsvc: wsvc}
 }
 
 type BundleActivityParams struct {
-	WatcherName      string
-	TransferDir      string
-	Key              string
-	TempFile         string
+	// WatcherName is the name of the watcher that saw the transfer deposit.
+	WatcherName string
+
+	// TransferDir is the target directory for the bundled package.
+	TransferDir string
+
+	// Key is the blob (file) name of the transfer.
+	Key string
+
+	// TempFile is the path to a downloaded transfer file.
+	TempFile string
+
+	// StripTopLevelDir indicates that the top-level directory in an archive
+	// transfer (e.g. zip, tar) should be removed from the bundled package
+	// filepaths when true.
 	StripTopLevelDir bool
-	IsDir            bool
+
+	// IsDir indicates that the transfer is a local directory when true. If true
+	// the transfer will be copied to TransferDir without modification.
+	IsDir bool
 }
 
 type BundleActivityResult struct {
@@ -48,18 +70,21 @@ func (a *BundleActivity) Execute(ctx context.Context, params *BundleActivityPara
 		err error
 	)
 
+	a.logger.V(1).Info("Executing BundleActivity",
+		"WatcherName", params.WatcherName,
+		"TransferDir", params.TransferDir,
+		"Key", params.Key,
+		"TempFile", params.TempFile,
+		"StripTopLevelDir", params.StripTopLevelDir,
+		"IsDir", params.IsDir,
+	)
+
 	if params.TransferDir == "" {
 		params.TransferDir, err = os.MkdirTemp("", "*-enduro-transfer")
 		if err != nil {
 			return nil, err
 		}
 	}
-
-	defer func() {
-		if err != nil {
-			err = temporal_tools.NewNonRetryableError(err)
-		}
-	}()
 
 	if params.IsDir {
 		var w watcher.Watcher
@@ -89,10 +114,19 @@ func (a *BundleActivity) Execute(ctx context.Context, params *BundleActivityPara
 
 	res.RelPath, err = filepath.Rel(params.TransferDir, res.FullPath)
 	if err != nil {
-		return nil, fmt.Errorf("error calculating relative path to transfer (base=%q, target=%q): %v", params.TransferDir, res.FullPath, err)
+		return nil, temporal_tools.NewNonRetryableError(fmt.Errorf(
+			"error calculating relative path to transfer (base=%q, target=%q): %v",
+			params.TransferDir, res.FullPath, err,
+		))
 	}
 
-	return res, err
+	if err = setPermissions(res.FullPath); err != nil {
+		return nil, temporal_tools.NewNonRetryableError(
+			fmt.Errorf("set permissions: %v", err),
+		)
+	}
+
+	return res, nil
 }
 
 // Unarchiver returns the unarchiver suited for the archival format.
@@ -133,10 +167,6 @@ func (a *BundleActivity) SingleFile(ctx context.Context, transferDir, key, tempF
 		return "", fmt.Errorf("error moving file (from %s to %s): %v", tempFile, path, err)
 	}
 
-	if err := os.Chmod(path, os.FileMode(0o755)); err != nil {
-		return "", fmt.Errorf("error changing file mode: %v", err)
-	}
-
 	if err := b.Bundle(); err != nil {
 		return "", fmt.Errorf("error bundling the transfer: %v", err)
 	}
@@ -152,7 +182,6 @@ func (a *BundleActivity) Bundle(ctx context.Context, unar archiver.Unarchiver, t
 	if err != nil {
 		return "", "", fmt.Errorf("error creating temporary directory: %s", err)
 	}
-	_ = os.Chmod(tempDir, os.FileMode(0o755))
 
 	if err := unar.Unarchive(tempFile, tempDir); err != nil {
 		return "", "", fmt.Errorf("error unarchiving file: %v", err)
@@ -179,7 +208,6 @@ func (a *BundleActivity) Copy(ctx context.Context, src, dst string, stripTopLeve
 	if err != nil {
 		return "", "", fmt.Errorf("error creating temporary directory: %s", err)
 	}
-	_ = os.Chmod(tempDir, os.FileMode(0o755))
 
 	if err := copy.Copy(src, tempDir); err != nil {
 		return "", "", fmt.Errorf("error copying transfer: %v", err)
@@ -203,6 +231,8 @@ func stripDirContainer(path string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("%s: cannot open path: %v", errPrefix, err)
 	}
+	defer ff.Close()
+
 	fis, err := ff.Readdir(2)
 	if err != nil {
 		return "", fmt.Errorf("%s: error reading dir: %v", errPrefix, err)
@@ -268,14 +298,13 @@ func unbag(path string) error {
 
 	// Create metadata and submissionDocumentation directories.
 	metadataPath, _ := securejoin.SecureJoin(path, "metadata")
-	documentationPath, _ := securejoin.SecureJoin(metadataPath, "submissionDocumentation")
-	//#nosec G301 -- Evaluate use of UID and GID among containers so that permission 750 could be used.
-	err = os.MkdirAll(metadataPath, 0o775)
+	err = os.MkdirAll(metadataPath, ModeDir)
 	if err != nil {
 		return err
 	}
-	//#nosec G301 -- Evaluate use of UID and GID among containers so that permission 750 could be used.
-	err = os.MkdirAll(documentationPath, 0o775)
+
+	docPath, _ := securejoin.SecureJoin(metadataPath, "submissionDocumentation")
+	err = os.MkdirAll(docPath, ModeDir)
 	if err != nil {
 		return err
 	}
@@ -295,7 +324,7 @@ func unbag(path string) error {
 			}
 			return err
 		}
-		defer file.Close() //#nosec G307 -- Errors returned by Close() here do not require specific handling.
+		defer file.Close()
 
 		securePath, _ = securejoin.SecureJoin(metadataPath, item[1])
 		newFile, err := os.Create(securePath) //#nosec G304 -- Potential file inclusion not possible. item[1] is coming from controlled list.
@@ -305,7 +334,7 @@ func unbag(path string) error {
 			}
 			return err
 		}
-		defer newFile.Close() //#nosec G307 -- Errors returned by Close() here do not require specific handling.
+		defer newFile.Close()
 
 		scanner := bufio.NewScanner(file)
 		for scanner.Scan() {
@@ -336,9 +365,30 @@ func unbag(path string) error {
 		"tagmanifest-sha512.txt",
 	} {
 		src, _ := securejoin.SecureJoin(path, item)
-		dst, _ := securejoin.SecureJoin(documentationPath, item)
+		dst, _ := securejoin.SecureJoin(docPath, item)
 		_ = os.Rename(src, dst)
 	}
 
 	return nil
+}
+
+func setPermissions(root string) error {
+	err := filepath.WalkDir(root,
+		func(path string, d os.DirEntry, err error) error {
+			if err != nil {
+				return err
+			}
+
+			mode := fs.FileMode(ModeFile)
+			if d.IsDir() {
+				mode = fs.FileMode(ModeDir)
+			}
+
+			_ = os.Chmod(path, mode)
+
+			return nil
+		},
+	)
+
+	return err
 }
