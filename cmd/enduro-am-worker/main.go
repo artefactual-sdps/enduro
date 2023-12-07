@@ -140,7 +140,7 @@ func main() {
 		amc := amclient.NewClient(httpClient, cfg.AM.Address, cfg.AM.User, cfg.AM.APIKey)
 
 		w.RegisterActivityWithOptions(
-			activities.NewDownloadActivity(wsvc).Execute,
+			activities.NewDownloadActivity(logger, wsvc).Execute,
 			temporalsdk_activity.RegisterOptions{Name: activities.DownloadActivityName},
 		)
 		w.RegisterActivityWithOptions(
