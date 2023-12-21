@@ -360,7 +360,7 @@ func TestDelete(t *testing.T) {
 				restrictDir: "restricted",
 				file:        "restricted/test.txt",
 			},
-			wantErr: "SFTP: unable to remove file \"restricted/test.txt\": failure (SSH_FX_FAILURE)",
+			wantErr: "SFTP: unable to remove file \"restricted/test.txt\": permission denied",
 		},
 	} {
 		tc := tc

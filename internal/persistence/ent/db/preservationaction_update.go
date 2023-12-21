@@ -36,10 +36,26 @@ func (pau *PreservationActionUpdate) SetWorkflowID(s string) *PreservationAction
 	return pau
 }
 
+// SetNillableWorkflowID sets the "workflow_id" field if the given value is not nil.
+func (pau *PreservationActionUpdate) SetNillableWorkflowID(s *string) *PreservationActionUpdate {
+	if s != nil {
+		pau.SetWorkflowID(*s)
+	}
+	return pau
+}
+
 // SetType sets the "type" field.
 func (pau *PreservationActionUpdate) SetType(i int8) *PreservationActionUpdate {
 	pau.mutation.ResetType()
 	pau.mutation.SetType(i)
+	return pau
+}
+
+// SetNillableType sets the "type" field if the given value is not nil.
+func (pau *PreservationActionUpdate) SetNillableType(i *int8) *PreservationActionUpdate {
+	if i != nil {
+		pau.SetType(*i)
+	}
 	return pau
 }
 
@@ -56,6 +72,14 @@ func (pau *PreservationActionUpdate) SetStatus(i int8) *PreservationActionUpdate
 	return pau
 }
 
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (pau *PreservationActionUpdate) SetNillableStatus(i *int8) *PreservationActionUpdate {
+	if i != nil {
+		pau.SetStatus(*i)
+	}
+	return pau
+}
+
 // AddStatus adds i to the "status" field.
 func (pau *PreservationActionUpdate) AddStatus(i int8) *PreservationActionUpdate {
 	pau.mutation.AddStatus(i)
@@ -68,15 +92,39 @@ func (pau *PreservationActionUpdate) SetStartedAt(t time.Time) *PreservationActi
 	return pau
 }
 
+// SetNillableStartedAt sets the "started_at" field if the given value is not nil.
+func (pau *PreservationActionUpdate) SetNillableStartedAt(t *time.Time) *PreservationActionUpdate {
+	if t != nil {
+		pau.SetStartedAt(*t)
+	}
+	return pau
+}
+
 // SetCompletedAt sets the "completed_at" field.
 func (pau *PreservationActionUpdate) SetCompletedAt(t time.Time) *PreservationActionUpdate {
 	pau.mutation.SetCompletedAt(t)
 	return pau
 }
 
+// SetNillableCompletedAt sets the "completed_at" field if the given value is not nil.
+func (pau *PreservationActionUpdate) SetNillableCompletedAt(t *time.Time) *PreservationActionUpdate {
+	if t != nil {
+		pau.SetCompletedAt(*t)
+	}
+	return pau
+}
+
 // SetPackageID sets the "package_id" field.
 func (pau *PreservationActionUpdate) SetPackageID(i int) *PreservationActionUpdate {
 	pau.mutation.SetPackageID(i)
+	return pau
+}
+
+// SetNillablePackageID sets the "package_id" field if the given value is not nil.
+func (pau *PreservationActionUpdate) SetNillablePackageID(i *int) *PreservationActionUpdate {
+	if i != nil {
+		pau.SetPackageID(*i)
+	}
 	return pau
 }
 
@@ -305,10 +353,26 @@ func (pauo *PreservationActionUpdateOne) SetWorkflowID(s string) *PreservationAc
 	return pauo
 }
 
+// SetNillableWorkflowID sets the "workflow_id" field if the given value is not nil.
+func (pauo *PreservationActionUpdateOne) SetNillableWorkflowID(s *string) *PreservationActionUpdateOne {
+	if s != nil {
+		pauo.SetWorkflowID(*s)
+	}
+	return pauo
+}
+
 // SetType sets the "type" field.
 func (pauo *PreservationActionUpdateOne) SetType(i int8) *PreservationActionUpdateOne {
 	pauo.mutation.ResetType()
 	pauo.mutation.SetType(i)
+	return pauo
+}
+
+// SetNillableType sets the "type" field if the given value is not nil.
+func (pauo *PreservationActionUpdateOne) SetNillableType(i *int8) *PreservationActionUpdateOne {
+	if i != nil {
+		pauo.SetType(*i)
+	}
 	return pauo
 }
 
@@ -325,6 +389,14 @@ func (pauo *PreservationActionUpdateOne) SetStatus(i int8) *PreservationActionUp
 	return pauo
 }
 
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (pauo *PreservationActionUpdateOne) SetNillableStatus(i *int8) *PreservationActionUpdateOne {
+	if i != nil {
+		pauo.SetStatus(*i)
+	}
+	return pauo
+}
+
 // AddStatus adds i to the "status" field.
 func (pauo *PreservationActionUpdateOne) AddStatus(i int8) *PreservationActionUpdateOne {
 	pauo.mutation.AddStatus(i)
@@ -337,15 +409,39 @@ func (pauo *PreservationActionUpdateOne) SetStartedAt(t time.Time) *Preservation
 	return pauo
 }
 
+// SetNillableStartedAt sets the "started_at" field if the given value is not nil.
+func (pauo *PreservationActionUpdateOne) SetNillableStartedAt(t *time.Time) *PreservationActionUpdateOne {
+	if t != nil {
+		pauo.SetStartedAt(*t)
+	}
+	return pauo
+}
+
 // SetCompletedAt sets the "completed_at" field.
 func (pauo *PreservationActionUpdateOne) SetCompletedAt(t time.Time) *PreservationActionUpdateOne {
 	pauo.mutation.SetCompletedAt(t)
 	return pauo
 }
 
+// SetNillableCompletedAt sets the "completed_at" field if the given value is not nil.
+func (pauo *PreservationActionUpdateOne) SetNillableCompletedAt(t *time.Time) *PreservationActionUpdateOne {
+	if t != nil {
+		pauo.SetCompletedAt(*t)
+	}
+	return pauo
+}
+
 // SetPackageID sets the "package_id" field.
 func (pauo *PreservationActionUpdateOne) SetPackageID(i int) *PreservationActionUpdateOne {
 	pauo.mutation.SetPackageID(i)
+	return pauo
+}
+
+// SetNillablePackageID sets the "package_id" field if the given value is not nil.
+func (pauo *PreservationActionUpdateOne) SetNillablePackageID(i *int) *PreservationActionUpdateOne {
+	if i != nil {
+		pauo.SetPackageID(*i)
+	}
 	return pauo
 }
 

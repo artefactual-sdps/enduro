@@ -36,9 +36,25 @@ func (pu *PkgUpdate) SetName(s string) *PkgUpdate {
 	return pu
 }
 
+// SetNillableName sets the "name" field if the given value is not nil.
+func (pu *PkgUpdate) SetNillableName(s *string) *PkgUpdate {
+	if s != nil {
+		pu.SetName(*s)
+	}
+	return pu
+}
+
 // SetAipID sets the "aip_id" field.
 func (pu *PkgUpdate) SetAipID(u uuid.UUID) *PkgUpdate {
 	pu.mutation.SetAipID(u)
+	return pu
+}
+
+// SetNillableAipID sets the "aip_id" field if the given value is not nil.
+func (pu *PkgUpdate) SetNillableAipID(u *uuid.UUID) *PkgUpdate {
+	if u != nil {
+		pu.SetAipID(*u)
+	}
 	return pu
 }
 
@@ -68,9 +84,25 @@ func (pu *PkgUpdate) SetStatus(ts types.PackageStatus) *PkgUpdate {
 	return pu
 }
 
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (pu *PkgUpdate) SetNillableStatus(ts *types.PackageStatus) *PkgUpdate {
+	if ts != nil {
+		pu.SetStatus(*ts)
+	}
+	return pu
+}
+
 // SetObjectKey sets the "object_key" field.
 func (pu *PkgUpdate) SetObjectKey(u uuid.UUID) *PkgUpdate {
 	pu.mutation.SetObjectKey(u)
+	return pu
+}
+
+// SetNillableObjectKey sets the "object_key" field if the given value is not nil.
+func (pu *PkgUpdate) SetNillableObjectKey(u *uuid.UUID) *PkgUpdate {
+	if u != nil {
+		pu.SetObjectKey(*u)
+	}
 	return pu
 }
 
@@ -206,9 +238,25 @@ func (puo *PkgUpdateOne) SetName(s string) *PkgUpdateOne {
 	return puo
 }
 
+// SetNillableName sets the "name" field if the given value is not nil.
+func (puo *PkgUpdateOne) SetNillableName(s *string) *PkgUpdateOne {
+	if s != nil {
+		puo.SetName(*s)
+	}
+	return puo
+}
+
 // SetAipID sets the "aip_id" field.
 func (puo *PkgUpdateOne) SetAipID(u uuid.UUID) *PkgUpdateOne {
 	puo.mutation.SetAipID(u)
+	return puo
+}
+
+// SetNillableAipID sets the "aip_id" field if the given value is not nil.
+func (puo *PkgUpdateOne) SetNillableAipID(u *uuid.UUID) *PkgUpdateOne {
+	if u != nil {
+		puo.SetAipID(*u)
+	}
 	return puo
 }
 
@@ -238,9 +286,25 @@ func (puo *PkgUpdateOne) SetStatus(ts types.PackageStatus) *PkgUpdateOne {
 	return puo
 }
 
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (puo *PkgUpdateOne) SetNillableStatus(ts *types.PackageStatus) *PkgUpdateOne {
+	if ts != nil {
+		puo.SetStatus(*ts)
+	}
+	return puo
+}
+
 // SetObjectKey sets the "object_key" field.
 func (puo *PkgUpdateOne) SetObjectKey(u uuid.UUID) *PkgUpdateOne {
 	puo.mutation.SetObjectKey(u)
+	return puo
+}
+
+// SetNillableObjectKey sets the "object_key" field if the given value is not nil.
+func (puo *PkgUpdateOne) SetNillableObjectKey(u *uuid.UUID) *PkgUpdateOne {
+	if u != nil {
+		puo.SetObjectKey(*u)
+	}
 	return puo
 }
 
