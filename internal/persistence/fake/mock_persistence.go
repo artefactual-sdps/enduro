@@ -5,6 +5,7 @@
 //
 //	mockgen -typed -destination=./internal/persistence/fake/mock_persistence.go -package=fake github.com/artefactual-sdps/enduro/internal/persistence Service
 //
+
 // Package fake is a generated GoMock package.
 package fake
 
@@ -50,31 +51,31 @@ func (m *MockService) CreatePackage(arg0 context.Context, arg1 *package_.Package
 }
 
 // CreatePackage indicates an expected call of CreatePackage.
-func (mr *MockServiceMockRecorder) CreatePackage(arg0, arg1 any) *ServiceCreatePackageCall {
+func (mr *MockServiceMockRecorder) CreatePackage(arg0, arg1 any) *MockServiceCreatePackageCall {
 	mr.mock.ctrl.T.Helper()
 	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreatePackage", reflect.TypeOf((*MockService)(nil).CreatePackage), arg0, arg1)
-	return &ServiceCreatePackageCall{Call: call}
+	return &MockServiceCreatePackageCall{Call: call}
 }
 
-// ServiceCreatePackageCall wrap *gomock.Call
-type ServiceCreatePackageCall struct {
+// MockServiceCreatePackageCall wrap *gomock.Call
+type MockServiceCreatePackageCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *ServiceCreatePackageCall) Return(arg0 *package_.Package, arg1 error) *ServiceCreatePackageCall {
+func (c *MockServiceCreatePackageCall) Return(arg0 *package_.Package, arg1 error) *MockServiceCreatePackageCall {
 	c.Call = c.Call.Return(arg0, arg1)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *ServiceCreatePackageCall) Do(f func(context.Context, *package_.Package) (*package_.Package, error)) *ServiceCreatePackageCall {
+func (c *MockServiceCreatePackageCall) Do(f func(context.Context, *package_.Package) (*package_.Package, error)) *MockServiceCreatePackageCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *ServiceCreatePackageCall) DoAndReturn(f func(context.Context, *package_.Package) (*package_.Package, error)) *ServiceCreatePackageCall {
+func (c *MockServiceCreatePackageCall) DoAndReturn(f func(context.Context, *package_.Package) (*package_.Package, error)) *MockServiceCreatePackageCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
@@ -89,31 +90,31 @@ func (m *MockService) UpdatePackage(arg0 context.Context, arg1 uint, arg2 persis
 }
 
 // UpdatePackage indicates an expected call of UpdatePackage.
-func (mr *MockServiceMockRecorder) UpdatePackage(arg0, arg1, arg2 any) *ServiceUpdatePackageCall {
+func (mr *MockServiceMockRecorder) UpdatePackage(arg0, arg1, arg2 any) *MockServiceUpdatePackageCall {
 	mr.mock.ctrl.T.Helper()
 	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdatePackage", reflect.TypeOf((*MockService)(nil).UpdatePackage), arg0, arg1, arg2)
-	return &ServiceUpdatePackageCall{Call: call}
+	return &MockServiceUpdatePackageCall{Call: call}
 }
 
-// ServiceUpdatePackageCall wrap *gomock.Call
-type ServiceUpdatePackageCall struct {
+// MockServiceUpdatePackageCall wrap *gomock.Call
+type MockServiceUpdatePackageCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *ServiceUpdatePackageCall) Return(arg0 *package_.Package, arg1 error) *ServiceUpdatePackageCall {
+func (c *MockServiceUpdatePackageCall) Return(arg0 *package_.Package, arg1 error) *MockServiceUpdatePackageCall {
 	c.Call = c.Call.Return(arg0, arg1)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *ServiceUpdatePackageCall) Do(f func(context.Context, uint, persistence.PackageUpdater) (*package_.Package, error)) *ServiceUpdatePackageCall {
+func (c *MockServiceUpdatePackageCall) Do(f func(context.Context, uint, persistence.PackageUpdater) (*package_.Package, error)) *MockServiceUpdatePackageCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *ServiceUpdatePackageCall) DoAndReturn(f func(context.Context, uint, persistence.PackageUpdater) (*package_.Package, error)) *ServiceUpdatePackageCall {
+func (c *MockServiceUpdatePackageCall) DoAndReturn(f func(context.Context, uint, persistence.PackageUpdater) (*package_.Package, error)) *MockServiceUpdatePackageCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

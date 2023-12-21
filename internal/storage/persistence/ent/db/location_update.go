@@ -36,9 +36,25 @@ func (lu *LocationUpdate) SetName(s string) *LocationUpdate {
 	return lu
 }
 
+// SetNillableName sets the "name" field if the given value is not nil.
+func (lu *LocationUpdate) SetNillableName(s *string) *LocationUpdate {
+	if s != nil {
+		lu.SetName(*s)
+	}
+	return lu
+}
+
 // SetDescription sets the "description" field.
 func (lu *LocationUpdate) SetDescription(s string) *LocationUpdate {
 	lu.mutation.SetDescription(s)
+	return lu
+}
+
+// SetNillableDescription sets the "description" field if the given value is not nil.
+func (lu *LocationUpdate) SetNillableDescription(s *string) *LocationUpdate {
+	if s != nil {
+		lu.SetDescription(*s)
+	}
 	return lu
 }
 
@@ -48,9 +64,25 @@ func (lu *LocationUpdate) SetSource(ts types.LocationSource) *LocationUpdate {
 	return lu
 }
 
+// SetNillableSource sets the "source" field if the given value is not nil.
+func (lu *LocationUpdate) SetNillableSource(ts *types.LocationSource) *LocationUpdate {
+	if ts != nil {
+		lu.SetSource(*ts)
+	}
+	return lu
+}
+
 // SetPurpose sets the "purpose" field.
 func (lu *LocationUpdate) SetPurpose(tp types.LocationPurpose) *LocationUpdate {
 	lu.mutation.SetPurpose(tp)
+	return lu
+}
+
+// SetNillablePurpose sets the "purpose" field if the given value is not nil.
+func (lu *LocationUpdate) SetNillablePurpose(tp *types.LocationPurpose) *LocationUpdate {
+	if tp != nil {
+		lu.SetPurpose(*tp)
+	}
 	return lu
 }
 
@@ -60,9 +92,25 @@ func (lu *LocationUpdate) SetUUID(u uuid.UUID) *LocationUpdate {
 	return lu
 }
 
+// SetNillableUUID sets the "uuid" field if the given value is not nil.
+func (lu *LocationUpdate) SetNillableUUID(u *uuid.UUID) *LocationUpdate {
+	if u != nil {
+		lu.SetUUID(*u)
+	}
+	return lu
+}
+
 // SetConfig sets the "config" field.
 func (lu *LocationUpdate) SetConfig(tc types.LocationConfig) *LocationUpdate {
 	lu.mutation.SetConfig(tc)
+	return lu
+}
+
+// SetNillableConfig sets the "config" field if the given value is not nil.
+func (lu *LocationUpdate) SetNillableConfig(tc *types.LocationConfig) *LocationUpdate {
+	if tc != nil {
+		lu.SetConfig(*tc)
+	}
 	return lu
 }
 
@@ -250,9 +298,25 @@ func (luo *LocationUpdateOne) SetName(s string) *LocationUpdateOne {
 	return luo
 }
 
+// SetNillableName sets the "name" field if the given value is not nil.
+func (luo *LocationUpdateOne) SetNillableName(s *string) *LocationUpdateOne {
+	if s != nil {
+		luo.SetName(*s)
+	}
+	return luo
+}
+
 // SetDescription sets the "description" field.
 func (luo *LocationUpdateOne) SetDescription(s string) *LocationUpdateOne {
 	luo.mutation.SetDescription(s)
+	return luo
+}
+
+// SetNillableDescription sets the "description" field if the given value is not nil.
+func (luo *LocationUpdateOne) SetNillableDescription(s *string) *LocationUpdateOne {
+	if s != nil {
+		luo.SetDescription(*s)
+	}
 	return luo
 }
 
@@ -262,9 +326,25 @@ func (luo *LocationUpdateOne) SetSource(ts types.LocationSource) *LocationUpdate
 	return luo
 }
 
+// SetNillableSource sets the "source" field if the given value is not nil.
+func (luo *LocationUpdateOne) SetNillableSource(ts *types.LocationSource) *LocationUpdateOne {
+	if ts != nil {
+		luo.SetSource(*ts)
+	}
+	return luo
+}
+
 // SetPurpose sets the "purpose" field.
 func (luo *LocationUpdateOne) SetPurpose(tp types.LocationPurpose) *LocationUpdateOne {
 	luo.mutation.SetPurpose(tp)
+	return luo
+}
+
+// SetNillablePurpose sets the "purpose" field if the given value is not nil.
+func (luo *LocationUpdateOne) SetNillablePurpose(tp *types.LocationPurpose) *LocationUpdateOne {
+	if tp != nil {
+		luo.SetPurpose(*tp)
+	}
 	return luo
 }
 
@@ -274,9 +354,25 @@ func (luo *LocationUpdateOne) SetUUID(u uuid.UUID) *LocationUpdateOne {
 	return luo
 }
 
+// SetNillableUUID sets the "uuid" field if the given value is not nil.
+func (luo *LocationUpdateOne) SetNillableUUID(u *uuid.UUID) *LocationUpdateOne {
+	if u != nil {
+		luo.SetUUID(*u)
+	}
+	return luo
+}
+
 // SetConfig sets the "config" field.
 func (luo *LocationUpdateOne) SetConfig(tc types.LocationConfig) *LocationUpdateOne {
 	luo.mutation.SetConfig(tc)
+	return luo
+}
+
+// SetNillableConfig sets the "config" field if the given value is not nil.
+func (luo *LocationUpdateOne) SetNillableConfig(tc *types.LocationConfig) *LocationUpdateOne {
+	if tc != nil {
+		luo.SetConfig(*tc)
+	}
 	return luo
 }
 

@@ -6,7 +6,7 @@ $(call _assert_var,CACHE_VERSIONS)
 $(call _assert_var,CACHE_BIN)
 
 # Keep in sync with the goa version in go.mod.
-GOA_VERSION ?= 3.14.0
+GOA_VERSION ?= 3.14.1
 
 GOA := $(CACHE_VERSIONS)/goa/$(GOA_VERSION)
 $(GOA):

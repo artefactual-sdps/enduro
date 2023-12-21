@@ -36,9 +36,25 @@ func (ptu *PreservationTaskUpdate) SetTaskID(u uuid.UUID) *PreservationTaskUpdat
 	return ptu
 }
 
+// SetNillableTaskID sets the "task_id" field if the given value is not nil.
+func (ptu *PreservationTaskUpdate) SetNillableTaskID(u *uuid.UUID) *PreservationTaskUpdate {
+	if u != nil {
+		ptu.SetTaskID(*u)
+	}
+	return ptu
+}
+
 // SetName sets the "name" field.
 func (ptu *PreservationTaskUpdate) SetName(s string) *PreservationTaskUpdate {
 	ptu.mutation.SetName(s)
+	return ptu
+}
+
+// SetNillableName sets the "name" field if the given value is not nil.
+func (ptu *PreservationTaskUpdate) SetNillableName(s *string) *PreservationTaskUpdate {
+	if s != nil {
+		ptu.SetName(*s)
+	}
 	return ptu
 }
 
@@ -46,6 +62,14 @@ func (ptu *PreservationTaskUpdate) SetName(s string) *PreservationTaskUpdate {
 func (ptu *PreservationTaskUpdate) SetStatus(i int8) *PreservationTaskUpdate {
 	ptu.mutation.ResetStatus()
 	ptu.mutation.SetStatus(i)
+	return ptu
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (ptu *PreservationTaskUpdate) SetNillableStatus(i *int8) *PreservationTaskUpdate {
+	if i != nil {
+		ptu.SetStatus(*i)
+	}
 	return ptu
 }
 
@@ -61,9 +85,25 @@ func (ptu *PreservationTaskUpdate) SetStartedAt(t time.Time) *PreservationTaskUp
 	return ptu
 }
 
+// SetNillableStartedAt sets the "started_at" field if the given value is not nil.
+func (ptu *PreservationTaskUpdate) SetNillableStartedAt(t *time.Time) *PreservationTaskUpdate {
+	if t != nil {
+		ptu.SetStartedAt(*t)
+	}
+	return ptu
+}
+
 // SetCompletedAt sets the "completed_at" field.
 func (ptu *PreservationTaskUpdate) SetCompletedAt(t time.Time) *PreservationTaskUpdate {
 	ptu.mutation.SetCompletedAt(t)
+	return ptu
+}
+
+// SetNillableCompletedAt sets the "completed_at" field if the given value is not nil.
+func (ptu *PreservationTaskUpdate) SetNillableCompletedAt(t *time.Time) *PreservationTaskUpdate {
+	if t != nil {
+		ptu.SetCompletedAt(*t)
+	}
 	return ptu
 }
 
@@ -73,9 +113,25 @@ func (ptu *PreservationTaskUpdate) SetNote(s string) *PreservationTaskUpdate {
 	return ptu
 }
 
+// SetNillableNote sets the "note" field if the given value is not nil.
+func (ptu *PreservationTaskUpdate) SetNillableNote(s *string) *PreservationTaskUpdate {
+	if s != nil {
+		ptu.SetNote(*s)
+	}
+	return ptu
+}
+
 // SetPreservationActionID sets the "preservation_action_id" field.
 func (ptu *PreservationTaskUpdate) SetPreservationActionID(i int) *PreservationTaskUpdate {
 	ptu.mutation.SetPreservationActionID(i)
+	return ptu
+}
+
+// SetNillablePreservationActionID sets the "preservation_action_id" field if the given value is not nil.
+func (ptu *PreservationTaskUpdate) SetNillablePreservationActionID(i *int) *PreservationTaskUpdate {
+	if i != nil {
+		ptu.SetPreservationActionID(*i)
+	}
 	return ptu
 }
 
@@ -229,9 +285,25 @@ func (ptuo *PreservationTaskUpdateOne) SetTaskID(u uuid.UUID) *PreservationTaskU
 	return ptuo
 }
 
+// SetNillableTaskID sets the "task_id" field if the given value is not nil.
+func (ptuo *PreservationTaskUpdateOne) SetNillableTaskID(u *uuid.UUID) *PreservationTaskUpdateOne {
+	if u != nil {
+		ptuo.SetTaskID(*u)
+	}
+	return ptuo
+}
+
 // SetName sets the "name" field.
 func (ptuo *PreservationTaskUpdateOne) SetName(s string) *PreservationTaskUpdateOne {
 	ptuo.mutation.SetName(s)
+	return ptuo
+}
+
+// SetNillableName sets the "name" field if the given value is not nil.
+func (ptuo *PreservationTaskUpdateOne) SetNillableName(s *string) *PreservationTaskUpdateOne {
+	if s != nil {
+		ptuo.SetName(*s)
+	}
 	return ptuo
 }
 
@@ -239,6 +311,14 @@ func (ptuo *PreservationTaskUpdateOne) SetName(s string) *PreservationTaskUpdate
 func (ptuo *PreservationTaskUpdateOne) SetStatus(i int8) *PreservationTaskUpdateOne {
 	ptuo.mutation.ResetStatus()
 	ptuo.mutation.SetStatus(i)
+	return ptuo
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (ptuo *PreservationTaskUpdateOne) SetNillableStatus(i *int8) *PreservationTaskUpdateOne {
+	if i != nil {
+		ptuo.SetStatus(*i)
+	}
 	return ptuo
 }
 
@@ -254,9 +334,25 @@ func (ptuo *PreservationTaskUpdateOne) SetStartedAt(t time.Time) *PreservationTa
 	return ptuo
 }
 
+// SetNillableStartedAt sets the "started_at" field if the given value is not nil.
+func (ptuo *PreservationTaskUpdateOne) SetNillableStartedAt(t *time.Time) *PreservationTaskUpdateOne {
+	if t != nil {
+		ptuo.SetStartedAt(*t)
+	}
+	return ptuo
+}
+
 // SetCompletedAt sets the "completed_at" field.
 func (ptuo *PreservationTaskUpdateOne) SetCompletedAt(t time.Time) *PreservationTaskUpdateOne {
 	ptuo.mutation.SetCompletedAt(t)
+	return ptuo
+}
+
+// SetNillableCompletedAt sets the "completed_at" field if the given value is not nil.
+func (ptuo *PreservationTaskUpdateOne) SetNillableCompletedAt(t *time.Time) *PreservationTaskUpdateOne {
+	if t != nil {
+		ptuo.SetCompletedAt(*t)
+	}
 	return ptuo
 }
 
@@ -266,9 +362,25 @@ func (ptuo *PreservationTaskUpdateOne) SetNote(s string) *PreservationTaskUpdate
 	return ptuo
 }
 
+// SetNillableNote sets the "note" field if the given value is not nil.
+func (ptuo *PreservationTaskUpdateOne) SetNillableNote(s *string) *PreservationTaskUpdateOne {
+	if s != nil {
+		ptuo.SetNote(*s)
+	}
+	return ptuo
+}
+
 // SetPreservationActionID sets the "preservation_action_id" field.
 func (ptuo *PreservationTaskUpdateOne) SetPreservationActionID(i int) *PreservationTaskUpdateOne {
 	ptuo.mutation.SetPreservationActionID(i)
+	return ptuo
+}
+
+// SetNillablePreservationActionID sets the "preservation_action_id" field if the given value is not nil.
+func (ptuo *PreservationTaskUpdateOne) SetNillablePreservationActionID(i *int) *PreservationTaskUpdateOne {
+	if i != nil {
+		ptuo.SetPreservationActionID(*i)
+	}
 	return ptuo
 }
 

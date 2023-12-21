@@ -36,9 +36,25 @@ func (pu *PkgUpdate) SetName(s string) *PkgUpdate {
 	return pu
 }
 
+// SetNillableName sets the "name" field if the given value is not nil.
+func (pu *PkgUpdate) SetNillableName(s *string) *PkgUpdate {
+	if s != nil {
+		pu.SetName(*s)
+	}
+	return pu
+}
+
 // SetWorkflowID sets the "workflow_id" field.
 func (pu *PkgUpdate) SetWorkflowID(s string) *PkgUpdate {
 	pu.mutation.SetWorkflowID(s)
+	return pu
+}
+
+// SetNillableWorkflowID sets the "workflow_id" field if the given value is not nil.
+func (pu *PkgUpdate) SetNillableWorkflowID(s *string) *PkgUpdate {
+	if s != nil {
+		pu.SetWorkflowID(*s)
+	}
 	return pu
 }
 
@@ -48,9 +64,25 @@ func (pu *PkgUpdate) SetRunID(u uuid.UUID) *PkgUpdate {
 	return pu
 }
 
+// SetNillableRunID sets the "run_id" field if the given value is not nil.
+func (pu *PkgUpdate) SetNillableRunID(u *uuid.UUID) *PkgUpdate {
+	if u != nil {
+		pu.SetRunID(*u)
+	}
+	return pu
+}
+
 // SetAipID sets the "aip_id" field.
 func (pu *PkgUpdate) SetAipID(u uuid.UUID) *PkgUpdate {
 	pu.mutation.SetAipID(u)
+	return pu
+}
+
+// SetNillableAipID sets the "aip_id" field if the given value is not nil.
+func (pu *PkgUpdate) SetNillableAipID(u *uuid.UUID) *PkgUpdate {
+	if u != nil {
+		pu.SetAipID(*u)
+	}
 	return pu
 }
 
@@ -78,6 +110,14 @@ func (pu *PkgUpdate) ClearLocationID() *PkgUpdate {
 func (pu *PkgUpdate) SetStatus(i int8) *PkgUpdate {
 	pu.mutation.ResetStatus()
 	pu.mutation.SetStatus(i)
+	return pu
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (pu *PkgUpdate) SetNillableStatus(i *int8) *PkgUpdate {
+	if i != nil {
+		pu.SetStatus(*i)
+	}
 	return pu
 }
 
@@ -311,9 +351,25 @@ func (puo *PkgUpdateOne) SetName(s string) *PkgUpdateOne {
 	return puo
 }
 
+// SetNillableName sets the "name" field if the given value is not nil.
+func (puo *PkgUpdateOne) SetNillableName(s *string) *PkgUpdateOne {
+	if s != nil {
+		puo.SetName(*s)
+	}
+	return puo
+}
+
 // SetWorkflowID sets the "workflow_id" field.
 func (puo *PkgUpdateOne) SetWorkflowID(s string) *PkgUpdateOne {
 	puo.mutation.SetWorkflowID(s)
+	return puo
+}
+
+// SetNillableWorkflowID sets the "workflow_id" field if the given value is not nil.
+func (puo *PkgUpdateOne) SetNillableWorkflowID(s *string) *PkgUpdateOne {
+	if s != nil {
+		puo.SetWorkflowID(*s)
+	}
 	return puo
 }
 
@@ -323,9 +379,25 @@ func (puo *PkgUpdateOne) SetRunID(u uuid.UUID) *PkgUpdateOne {
 	return puo
 }
 
+// SetNillableRunID sets the "run_id" field if the given value is not nil.
+func (puo *PkgUpdateOne) SetNillableRunID(u *uuid.UUID) *PkgUpdateOne {
+	if u != nil {
+		puo.SetRunID(*u)
+	}
+	return puo
+}
+
 // SetAipID sets the "aip_id" field.
 func (puo *PkgUpdateOne) SetAipID(u uuid.UUID) *PkgUpdateOne {
 	puo.mutation.SetAipID(u)
+	return puo
+}
+
+// SetNillableAipID sets the "aip_id" field if the given value is not nil.
+func (puo *PkgUpdateOne) SetNillableAipID(u *uuid.UUID) *PkgUpdateOne {
+	if u != nil {
+		puo.SetAipID(*u)
+	}
 	return puo
 }
 
@@ -353,6 +425,14 @@ func (puo *PkgUpdateOne) ClearLocationID() *PkgUpdateOne {
 func (puo *PkgUpdateOne) SetStatus(i int8) *PkgUpdateOne {
 	puo.mutation.ResetStatus()
 	puo.mutation.SetStatus(i)
+	return puo
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (puo *PkgUpdateOne) SetNillableStatus(i *int8) *PkgUpdateOne {
+	if i != nil {
+		puo.SetStatus(*i)
+	}
 	return puo
 }
 
