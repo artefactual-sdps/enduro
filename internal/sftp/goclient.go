@@ -101,7 +101,7 @@ func (c *GoClient) dial(ctx context.Context) (*connection, error) {
 
 	conn.ssh, err = sshConnect(ctx, c.logger, c.cfg)
 	if err != nil {
-		return nil, fmt.Errorf("SSH: %v", err)
+		return nil, err
 	}
 
 	conn.sftp, err = sftp.NewClient(conn.ssh)

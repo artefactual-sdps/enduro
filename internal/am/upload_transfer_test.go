@@ -8,6 +8,7 @@ import (
 
 	"github.com/go-logr/logr"
 	"go.artefactual.dev/tools/mockutil"
+	"go.artefactual.dev/tools/temporal"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
 	temporalsdk_testsuite "go.temporal.io/sdk/testsuite"
 	"go.uber.org/mock/gomock"
@@ -15,6 +16,7 @@ import (
 	tfs "gotest.tools/v3/fs"
 
 	"github.com/artefactual-sdps/enduro/internal/am"
+	"github.com/artefactual-sdps/enduro/internal/sftp"
 	sftp_fake "github.com/artefactual-sdps/enduro/internal/sftp/fake"
 )
 
@@ -25,11 +27,12 @@ func TestUploadTransferActivity(t *testing.T) {
 	)
 
 	type test struct {
-		name     string
-		params   am.UploadTransferActivityParams
-		want     am.UploadTransferActivityResult
-		recorder func(*sftp_fake.MockClientMockRecorder)
-		errMsg   string
+		name            string
+		params          am.UploadTransferActivityParams
+		recorder        func(*sftp_fake.MockClientMockRecorder)
+		want            am.UploadTransferActivityResult
+		wantErr         string
+		wantNonRetryErr bool
 	}
 	for _, tt := range []test{
 		{
@@ -56,10 +59,10 @@ func TestUploadTransferActivity(t *testing.T) {
 			params: am.UploadTransferActivityParams{
 				SourcePath: td.Join("missing"),
 			},
-			errMsg: fmt.Sprintf("UploadTransferActivity: open %s: no such file or directory", td.Join("missing")),
+			wantErr: fmt.Sprintf("activity error (type: UploadTransferActivity, scheduledEventID: 0, startedEventID: 0, identity: ): UploadTransferActivity: open %s: no such file or directory", td.Join("missing")),
 		},
 		{
-			name: "Errors when upload fails",
+			name: "Retryable error when SSH connection fails",
 			params: am.UploadTransferActivityParams{
 				SourcePath: td.Join(filename),
 			},
@@ -72,10 +75,32 @@ func TestUploadTransferActivity(t *testing.T) {
 				).Return(
 					0,
 					"",
-					errors.New("SSH: failed to connect: dial tcp 127.0.0.1:2200: connect: connection refused"),
+					errors.New("ssh: failed to connect: dial tcp 127.0.0.1:2200: connect: connection refused"),
 				)
 			},
-			errMsg: "UploadTransferActivity: SSH: failed to connect: dial tcp 127.0.0.1:2200: connect: connection refused",
+			wantErr: "activity error (type: UploadTransferActivity, scheduledEventID: 0, startedEventID: 0, identity: ): UploadTransferActivity: ssh: failed to connect: dial tcp 127.0.0.1:2200: connect: connection refused",
+		},
+		{
+			name: "Non-retryable error when authentication fails",
+			params: am.UploadTransferActivityParams{
+				SourcePath: td.Join(filename),
+			},
+			recorder: func(m *sftp_fake.MockClientMockRecorder) {
+				var t *os.File
+				m.Upload(
+					mockutil.Context(),
+					gomock.AssignableToTypeOf(t),
+					filename,
+				).Return(
+					0,
+					"",
+					sftp.NewAuthError(
+						errors.New("ssh: handshake failed: ssh: unable to authenticate, attempted methods [none publickey], no supported methods remain"),
+					),
+				)
+			},
+			wantErr:         "activity error (type: UploadTransferActivity, scheduledEventID: 0, startedEventID: 0, identity: ): UploadTransferActivity: ssh: handshake failed: ssh: unable to authenticate, attempted methods [none publickey], no supported methods remain",
+			wantNonRetryErr: true,
 		},
 	} {
 		tt := tt
@@ -98,8 +123,9 @@ func TestUploadTransferActivity(t *testing.T) {
 			)
 
 			fut, err := env.ExecuteActivity(am.UploadTransferActivityName, tt.params)
-			if tt.errMsg != "" {
-				assert.ErrorContains(t, err, tt.errMsg)
+			if tt.wantErr != "" {
+				assert.Error(t, err, tt.wantErr)
+				assert.Assert(t, temporal.NonRetryableError(err) == tt.wantNonRetryErr)
 				return
 			}
 
