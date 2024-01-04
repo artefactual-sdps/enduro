@@ -5,6 +5,22 @@ import (
 	"io"
 )
 
+type AuthError struct {
+	err error
+}
+
+func (e *AuthError) Error() string {
+	return e.err.Error()
+}
+
+func (e *AuthError) Unwrap() error {
+	return e.err
+}
+
+func NewAuthError(e error) *AuthError {
+	return &AuthError{err: e}
+}
+
 // A Client manages the transmission of data over SFTP.
 //
 // Implementations of the Client interface handle the connection details,

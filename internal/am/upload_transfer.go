@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/go-logr/logr"
+	"go.artefactual.dev/tools/temporal"
 
 	"github.com/artefactual-sdps/enduro/internal/sftp"
 )
@@ -46,7 +47,14 @@ func (a *UploadTransferActivity) Execute(ctx context.Context, params *UploadTran
 	filename := filepath.Base(params.SourcePath)
 	bytes, path, err := a.client.Upload(ctx, src, filename)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %v", UploadTransferActivityName, err)
+		e := fmt.Errorf("%s: %v", UploadTransferActivityName, err)
+
+		switch err.(type) {
+		case *sftp.AuthError:
+			return nil, temporal.NewNonRetryableError(e)
+		default:
+			return nil, e
+		}
 	}
 
 	return &UploadTransferActivityResult{
