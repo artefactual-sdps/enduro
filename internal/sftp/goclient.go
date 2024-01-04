@@ -21,9 +21,6 @@ import (
 type GoClient struct {
 	cfg    Config
 	logger logr.Logger
-
-	ssh  *ssh.Client
-	sftp *sftp.Client
 }
 
 var _ Client = (*GoClient)(nil)
@@ -38,20 +35,19 @@ func NewGoClient(logger logr.Logger, cfg Config) *GoClient {
 // Upload writes the data from src to the remote file at dest and returns the
 // number of bytes written.  A new SFTP connection is opened before writing, and
 // closed when the upload is complete or cancelled.
-//
-// Upload is not thread safe.
 func (c *GoClient) Upload(ctx context.Context, src io.Reader, dest string) (int64, string, error) {
-	if err := c.dial(ctx); err != nil {
+	conn, err := c.dial(ctx)
+	if err != nil {
 		return 0, "", err
 	}
-	defer c.close()
+	defer conn.close()
 
 	// SFTP assumes that "/" is used as the directory separator. See:
 	// https://datatracker.ietf.org/doc/html/draft-ietf-secsh-filexfer-02#section-6.2
 	remotePath := strings.TrimSuffix(c.cfg.RemoteDir, "/") + "/" + dest
 
 	// Note: Some SFTP servers don't support O_RDWR mode.
-	w, err := c.sftp.OpenFile(remotePath, (os.O_WRONLY | os.O_CREATE | os.O_TRUNC))
+	w, err := conn.sftp.OpenFile(remotePath, (os.O_WRONLY | os.O_CREATE | os.O_TRUNC))
 	if err != nil {
 		return 0, "", fmt.Errorf("SFTP: open remote file %q: %v", dest, err)
 	}
@@ -70,16 +66,17 @@ func (c *GoClient) Upload(ctx context.Context, src io.Reader, dest string) (int6
 // Delete removes the data from dest. A new SFTP connection is opened before
 // removing the file, and closed when the delete is complete.
 func (c *GoClient) Delete(ctx context.Context, dest string) error {
-	if err := c.dial(ctx); err != nil {
+	conn, err := c.dial(ctx)
+	if err != nil {
 		return fmt.Errorf("SFTP: unable to dial: %w", err)
 	}
-	defer c.close()
+	defer conn.close()
 
 	// SFTP assumes that "/" is used as the directory separator. See:
 	// https://datatracker.ietf.org/doc/html/draft-ietf-secsh-filexfer-02#section-6.2
 	remotePath := strings.TrimSuffix(c.cfg.RemoteDir, "/") + "/" + dest
 
-	if err := c.sftp.Remove(remotePath); err != nil {
+	if err := conn.sftp.Remove(remotePath); err != nil {
 		head := fmt.Sprintf("SFTP: unable to remove file %q", dest)
 		if errors.Is(err, fs.ErrNotExist) || errors.Is(err, fs.ErrPermission) {
 			return fmt.Errorf("%s: %w", head, err)
@@ -93,42 +90,27 @@ func (c *GoClient) Delete(ctx context.Context, dest string) error {
 	return nil
 }
 
-// Dial connects to an SSH host then creates an SFTP client on the connection.
-// When the clients are no longer needed, close() must be called to prevent
-// leaks.
-func (c *GoClient) dial(ctx context.Context) error {
-	var err error
+// Dial connects to an SSH host, creates an SFTP client on the connection, then
+// returns conn. When conn is no longer needed, conn.close() must be called to
+// prevent leaks.
+func (c *GoClient) dial(ctx context.Context) (*connection, error) {
+	var (
+		conn connection
+		err  error
+	)
 
-	c.ssh, err = sshConnect(ctx, c.logger, c.cfg)
+	conn.ssh, err = sshConnect(ctx, c.logger, c.cfg)
 	if err != nil {
-		return fmt.Errorf("SSH: %v", err)
+		return nil, fmt.Errorf("SSH: %v", err)
 	}
 
-	c.sftp, err = sftp.NewClient(c.ssh)
+	conn.sftp, err = sftp.NewClient(conn.ssh)
 	if err != nil {
-		return fmt.Errorf("start SFTP subsystem: %v", err)
+		_ = conn.ssh.Close()
+		return nil, fmt.Errorf("start SFTP subsystem: %v", err)
 	}
 
-	return nil
-}
-
-// Close closes the SFTP client first, then the SSH client.
-func (c *GoClient) close() error {
-	var errs error
-
-	if c.sftp != nil {
-		if err := c.sftp.Close(); err != nil {
-			errs = errors.Join(err, errs)
-		}
-	}
-
-	if c.ssh != nil {
-		if err := c.ssh.Close(); err != nil {
-			errs = errors.Join(err, errs)
-		}
-	}
-
-	return errs
+	return &conn, nil
 }
 
 var statusCodeRegex = regexp.MustCompile(`\(SSH_[A-Z_]+\)$`)
@@ -149,4 +131,28 @@ func formatStatusError(err *sftp.StatusError) string {
 	}
 
 	return fmt.Sprintf("%s (%s)", codeMsg, code)
+}
+
+type connection struct {
+	ssh  *ssh.Client
+	sftp *sftp.Client
+}
+
+// close closes the SFTP client first, then the SSH client.
+func (conn *connection) close() error {
+	var errs error
+
+	if conn.sftp != nil {
+		if err := conn.sftp.Close(); err != nil {
+			errs = errors.Join(err, errs)
+		}
+	}
+
+	if conn.ssh != nil {
+		if err := conn.ssh.Close(); err != nil {
+			errs = errors.Join(err, errs)
+		}
+	}
+
+	return errs
 }
