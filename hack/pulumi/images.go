@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/pulumi/pulumi-docker/sdk/v3/go/docker"
+	"github.com/pulumi/pulumi-docker/sdk/v4/go/docker"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
@@ -15,13 +15,13 @@ func buildAndPublishImages(
 	oidcClientId pulumi.StringOutput,
 ) error {
 	// Setup DigitalOcean container registry URL and credentials.
-	registry := token.ApplyT(func(token string) docker.ImageRegistry {
-		return docker.ImageRegistry{
-			Server:   crUrl,
-			Username: token,
-			Password: token,
+	registry := token.ApplyT(func(token string) docker.Registry {
+		return docker.Registry{
+			Server:   &crUrl,
+			Username: &token,
+			Password: &token,
 		}
-	}).(docker.ImageRegistryOutput)
+	}).(docker.RegistryOutput)
 
 	// Build and publish enduro image.
 	enduroImage, err := docker.NewImage(ctx, "enduro-image",
