@@ -9,3 +9,5 @@ resources:
   - minio-secret.yaml
   - mysql-secret.yaml
   - temporal-ui-secret.yaml
+  - grafana-agent.yaml
+  - grafana-tempo.yaml

@@ -129,3 +129,8 @@ key = "minio"
 secret = "minio123"
 region = "us-west-1"
 bucket = "sips"
+
+[telemetry.traces]
+enabled = false
+address = ""
+samplingRatio = 1.0
