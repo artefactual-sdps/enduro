@@ -99,6 +99,10 @@ k8s_resource("temporal-ui", port_forwards="7440:8080", labels=["Others"])
 k8s_resource("minio-setup-buckets", labels=["Tools"])
 k8s_resource("mysql-create-locations", labels=["Tools"])
 
+# Observability
+k8s_resource("grafana-agent", labels=["Observability"])
+k8s_resource("grafana-tempo", labels=["Observability"])
+
 # Buttons
 cmd_button(
   "minio-upload",

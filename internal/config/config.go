@@ -15,6 +15,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/event"
 	"github.com/artefactual-sdps/enduro/internal/pres"
 	"github.com/artefactual-sdps/enduro/internal/storage"
+	"github.com/artefactual-sdps/enduro/internal/telemetry"
 	"github.com/artefactual-sdps/enduro/internal/temporal"
 	"github.com/artefactual-sdps/enduro/internal/upload"
 	"github.com/artefactual-sdps/enduro/internal/watcher"
@@ -39,6 +40,7 @@ type Configuration struct {
 	Temporal     temporal.Config
 	Upload       upload.Config
 	Watcher      watcher.Config
+	Telemetry    telemetry.Config
 }
 
 func (c Configuration) Validate() error {

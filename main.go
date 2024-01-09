@@ -20,6 +20,8 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/pflag"
 	"go.artefactual.dev/tools/log"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/codes"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
 	temporalsdk_client "go.temporal.io/sdk/client"
 	temporalsdk_worker "go.temporal.io/sdk/worker"
@@ -40,6 +42,7 @@ import (
 	storage_entclient "github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/client"
 	storage_entdb "github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db"
 	storage_workflows "github.com/artefactual-sdps/enduro/internal/storage/workflows"
+	"github.com/artefactual-sdps/enduro/internal/telemetry"
 	"github.com/artefactual-sdps/enduro/internal/temporal"
 	"github.com/artefactual-sdps/enduro/internal/upload"
 	"github.com/artefactual-sdps/enduro/internal/version"
@@ -97,6 +100,16 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
+	// Set up the tracer provider.
+	tp, shutdown, err := telemetry.TracerProvider(ctx, logger, cfg.Telemetry, appName, version.Long)
+	if err != nil {
+		logger.Error(err, "Error creating tracer provider.")
+		os.Exit(1)
+	}
+	defer func() { _ = shutdown(ctx) }()
+	tracer := tp.Tracer("enduro")
+
+	// Set up the Enduro database client handler.
 	enduroDatabase, err := db.Connect(cfg.Database.Driver, cfg.Database.DSN)
 	if err != nil {
 		logger.Error(err, "Enduro database configuration failed.")
@@ -108,7 +121,16 @@ func main() {
 			os.Exit(1)
 		}
 	}
+	_, span := tracer.Start(ctx, "enduro-db-ping")
+	span.SetAttributes(attribute.String("db.driver", cfg.Database.Driver))
+	if err := enduroDatabase.Ping(); err != nil {
+		span.SetStatus(codes.Error, "ping failed")
+		span.RecordError(err)
+	}
+	span.AddEvent("Connected!")
+	span.End()
 
+	// Set up the Storage database client handler.
 	storageDatabase, err := db.Connect(cfg.Storage.Database.Driver, cfg.Storage.Database.DSN)
 	if err != nil {
 		logger.Error(err, "Storage database configuration failed.")
@@ -120,6 +142,14 @@ func main() {
 			os.Exit(1)
 		}
 	}
+	_, span = tracer.Start(ctx, "storage-db-ping")
+	span.SetAttributes(attribute.String("db.driver", cfg.Storage.Database.Driver))
+	if err := storageDatabase.Ping(); err != nil {
+		span.SetStatus(codes.Error, "ping failed")
+		span.RecordError(err)
+	}
+	span.AddEvent("Connected!")
+	span.End()
 
 	temporalClient, err := temporalsdk_client.Dial(temporalsdk_client.Options{
 		Namespace: cfg.Temporal.Namespace,
