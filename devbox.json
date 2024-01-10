@@ -1,11 +1,14 @@
 {
   "packages": [
-    "go_1_20@latest",
     "kubectl@latest",
     "tilt@latest",
     "k3d@latest",
     "nodejs_20@latest",
-    "git@latest"
+    "git@latest",
+    "go_1_21@latest",
+    "docker@latest",
+    "python3@latest",
+    "markdownlint-cli@latest"
   ],
   "shell": {
     "init_hook": [

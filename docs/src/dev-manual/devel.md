@@ -1,9 +1,20 @@
 # Local/Development environment
 
+## Requirements
+
+### Quickstart with Devbox
+
+Devbox is currently an experimental approach to managing and sharing our
+developer environments quickly and efficiently, it is not however _well
+tested_.
+
+First install [Devbox]. After installing Devbox, run `devbox shell`. Continue
+the instructions [here](#dex-host).
+
+### Standard installation
+
 Enduro uses Tilt to set up a local environment building the Docker images in a
 Kubernetes cluster. It has been tested with k3d, Minikube and Kind.
-
-## Requirements
 
 - [Docker] (v18.09+)
 - [kubectl]
@@ -247,3 +258,4 @@ is sometimes not setup properly. To solve it, from the Tilt UI, restart the
 [gcc]: https://gcc.gnu.org/
 [visual studio code]: https://code.visualstudio.com/
 [working with archivematica]: archivematica.md
+[devbox]: https://www.jetpack.io/devbox/docs/quickstart/#install-devbox
