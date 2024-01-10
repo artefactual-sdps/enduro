@@ -43,6 +43,7 @@ func HTTPServer(
 	pkgsvc intpkg.Service,
 	storagesvc intstorage.Service,
 	uploadsvc intupload.Service,
+	preservationTaskQueue string,
 ) *http.Server {
 	dec := goahttp.RequestDecoder
 	enc := goahttp.ResponseEncoder
@@ -63,7 +64,7 @@ func HTTPServer(
 	storageEndpoints := storage.NewEndpoints(storagesvc)
 	storageErrorHandler := errorHandler(logger, "Storage error.")
 	storageServer := storagesvr.New(storageEndpoints, mux, dec, enc, storageErrorHandler, nil)
-	storageServer.Download = writeTimeout(intstorage.Download(storagesvc, mux, dec), 0)
+	storageServer.Download = writeTimeout(intstorage.Download(storagesvc, mux, preservationTaskQueue, dec), 0)
 	storagesvr.Mount(mux, storageServer)
 
 	// Upload service.

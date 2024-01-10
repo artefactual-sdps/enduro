@@ -231,7 +231,7 @@ func main() {
 
 		g.Add(
 			func() error {
-				srv = api.HTTPServer(logger, &cfg.API, pkgsvc, storagesvc, uploadsvc)
+				srv = api.HTTPServer(logger, &cfg.API, pkgsvc, storagesvc, uploadsvc, cfg.Preservation.TaskQueue)
 				return srv.ListenAndServe()
 			},
 			func(err error) {

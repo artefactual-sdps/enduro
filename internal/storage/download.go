@@ -18,7 +18,7 @@ import (
 // Download returns an HTTP handler that sets the headers for the AIP when it is downloaded.
 // The headers are the Content Type, Content Length, and the Content Disposition.
 // If there is an error with the file download, it will return http-status not found (404).
-func Download(svc Service, mux goahttp.Muxer, dec func(r *http.Request) goahttp.Decoder) http.HandlerFunc {
+func Download(svc Service, mux goahttp.Muxer, preservationTaskQueue string, dec func(r *http.Request) goahttp.Decoder) http.HandlerFunc {
 	return func(rw http.ResponseWriter, req *http.Request) {
 		// Decode request payload.
 		payload, err := server.DecodeDownloadRequest(mux, dec)(req)
@@ -42,6 +42,10 @@ func Download(svc Service, mux goahttp.Muxer, dec func(r *http.Request) goahttp.
 			return
 		}
 
+		// Download aip from the archivematica storage service if preservationTaskQueue field is set to am
+		if preservationTaskQueue == "am" {
+			panic("Not Implemented")
+		}
 		// Get MinIO bucket reader for object key.
 		reader, err := svc.PackageReader(ctx, pkg)
 		if err != nil {
