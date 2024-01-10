@@ -9,6 +9,7 @@ import (
 
 	"github.com/google/uuid"
 	goahttp "goa.design/goa/v3/http"
+	"gocloud.dev/blob"
 
 	"github.com/artefactual-sdps/enduro/internal/api/gen/http/storage/server"
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
@@ -43,14 +44,16 @@ func Download(svc Service, mux goahttp.Muxer, preservationTaskQueue string, dec 
 		}
 
 		// Download aip from the archivematica storage service if preservationTaskQueue field is set to am
+		var reader *blob.Reader
 		if preservationTaskQueue == "am" {
 			panic("Not Implemented")
-		}
-		// Get MinIO bucket reader for object key.
-		reader, err := svc.PackageReader(ctx, pkg)
-		if err != nil {
-			rw.WriteHeader(http.StatusNotFound)
-			return
+		} else if preservationTaskQueue == "a3m" {
+			// Get MinIO bucket reader for object key.
+			reader, err = svc.PackageReader(ctx, pkg)
+			if err != nil {
+				rw.WriteHeader(http.StatusNotFound)
+				return
+			}
 		}
 		defer reader.Close()
 
