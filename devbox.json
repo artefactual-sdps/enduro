@@ -1,0 +1,20 @@
+{
+  "packages": [
+    "go_1_20@latest",
+    "kubectl@latest",
+    "tilt@latest",
+    "k3d@latest",
+    "nodejs_20@latest",
+    "git@latest"
+  ],
+  "shell": {
+    "init_hook": [
+      "echo 'Welcome to devbox!' > /dev/null"
+    ],
+    "scripts": {
+      "test": [
+        "echo \"Error: no test specified\" && exit 1"
+      ]
+    }
+  }
+}
