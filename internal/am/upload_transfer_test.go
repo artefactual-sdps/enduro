@@ -94,12 +94,12 @@ func TestUploadTransferActivity(t *testing.T) {
 				).Return(
 					0,
 					"",
-					sftp.NewAuthError(
-						errors.New("ssh: handshake failed: ssh: unable to authenticate, attempted methods [none publickey], no supported methods remain"),
-					),
+					&sftp.AuthError{
+						Message: "ssh: handshake failed: ssh: unable to authenticate, attempted methods [none publickey], no supported methods remain",
+					},
 				)
 			},
-			wantErr:         "activity error (type: UploadTransferActivity, scheduledEventID: 0, startedEventID: 0, identity: ): UploadTransferActivity: ssh: handshake failed: ssh: unable to authenticate, attempted methods [none publickey], no supported methods remain",
+			wantErr:         "activity error (type: UploadTransferActivity, scheduledEventID: 0, startedEventID: 0, identity: ): UploadTransferActivity: auth: ssh: handshake failed: ssh: unable to authenticate, attempted methods [none publickey], no supported methods remain",
 			wantNonRetryErr: true,
 		},
 	} {

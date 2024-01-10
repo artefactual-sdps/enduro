@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"bytes"
 	"context"
-	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -233,9 +232,9 @@ func TestUpload(t *testing.T) {
 				src:  strings.NewReader("Testing 1-2-3"),
 				dest: "test.txt",
 			},
-			wantErr: sftp.NewAuthError(
-				errors.New("ssh: parse private key with passphrase: x509: decryption password incorrect"),
-			),
+			wantErr: &sftp.AuthError{
+				Message: "ssh: parse private key with passphrase: x509: decryption password incorrect",
+			},
 		},
 		{
 			name: "Errors when the SFTP server isn't there",
@@ -266,9 +265,9 @@ func TestUpload(t *testing.T) {
 					Path: "./testdata/clientkeys/test_unk_ed25519",
 				},
 			},
-			wantErr: sftp.NewAuthError(
-				errors.New("ssh: handshake failed: ssh: unable to authenticate, attempted methods [none publickey], no supported methods remain"),
-			),
+			wantErr: &sftp.AuthError{
+				Message: "ssh: handshake failed: ssh: unable to authenticate, attempted methods [none publickey], no supported methods remain",
+			},
 		},
 		{
 			name: "Errors when the host key is not in known_hosts",
@@ -280,9 +279,9 @@ func TestUpload(t *testing.T) {
 					Path: "./testdata/clientkeys/test_ed25519",
 				},
 			},
-			wantErr: sftp.NewAuthError(
-				errors.New("ssh: handshake failed: knownhosts: key is unknown"),
-			),
+			wantErr: &sftp.AuthError{
+				Message: "ssh: handshake failed: knownhosts: key is unknown",
+			},
 		},
 		{
 			name: "Errors when the known_hosts file doesn't exist",
@@ -294,9 +293,9 @@ func TestUpload(t *testing.T) {
 					Path: "./testdata/clientkeys/test_ed25519",
 				},
 			},
-			wantErr: sftp.NewAuthError(
-				errors.New("ssh: parse known_hosts: open testdata/missing: no such file or directory"),
-			),
+			wantErr: &sftp.AuthError{
+				Message: "ssh: parse known_hosts: open testdata/missing: no such file or directory",
+			},
 		},
 	} {
 		tc := tc

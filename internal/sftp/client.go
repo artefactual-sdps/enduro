@@ -2,23 +2,20 @@ package sftp
 
 import (
 	"context"
+	"fmt"
 	"io"
 )
 
 type AuthError struct {
-	err error
+	Message string
 }
 
 func (e *AuthError) Error() string {
-	return e.err.Error()
+	return fmt.Sprintf("auth: %s", e.Message)
 }
 
-func (e *AuthError) Unwrap() error {
-	return e.err
-}
-
-func NewAuthError(e error) *AuthError {
-	return &AuthError{err: e}
+func NewAuthError(e error) error {
+	return &AuthError{Message: e.Error()}
 }
 
 // A Client manages the transmission of data over SFTP.
