@@ -18,7 +18,7 @@ import (
 // returns a client connection.
 //
 // Only private key authentication is currently supported, with or without a
-// passphrase.SSH: %v",
+// passphrase.
 func sshConnect(ctx context.Context, logger logr.Logger, cfg Config) (*ssh.Client, error) {
 	// Load private key for authentication.
 	keyBytes, err := os.ReadFile(filepath.Clean(cfg.PrivateKey.Path)) // #nosec G304 -- File data is validated below
