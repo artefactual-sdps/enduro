@@ -14,7 +14,44 @@ inside the cluster, and they are not tracked in the repository.
 
 !!! note
 
-    If you modify these files in a running environment, you need to refresh the
+    The secret generator is used via Tilt so users CANNOT manually apply
+    the Kubernetes commands for these operations. Understanding the way these
+    files are used is NOT required to work with Archivematica.
+
+### Quick Checklist for Configuration Files
+
+- **[ ] .am.secret File:**
+  - Location: `hack/kube/overlays/dev-am/.am.secret`
+  - **Contents to Check:**
+    - AM API address (e.g.,`http://host.k3d.internal:62080`)
+    - User credentials(`user=test`, `api_key=test`)
+    - SFTP configuration
+    details (`sftp_host=`, `sftp_port=`, `sftp_user=`,
+    `sftp_remote_dir=`, `sftp_private_key_passphrase=`).
+- **[ ] .id_ed25519.secret File:**
+  - Location: `hack/kube/overlays/dev-am/.id_ed25519.secret`
+  - **Contents to Check:**
+    - SSH private key (Ensure it starts with `-----BEGIN
+    OPENSSH PRIVATE KEY-----` and ends with `-----END
+    OPENSSH PRIVATE KEY-----`)
+- **[ ] .known_hosts.secret File:**
+  - Location: `hack/kube/overlays/dev-am/.known_hosts.secret`
+  - **Contents to Check:**
+    - Known hosts entries (Look for entries starting with
+    `|1|` and containing `ssh-rsa`, `ecdsa-sha2-nistp256`,
+    `ssh-ed25519` etc.)
+- **[ ] .tilt.env File:**
+  - Location: `root/`
+  - **Contents to Check:**
+    - ENDURO_PRES_SYSTEM = "am"
+- **[ ] enduro.toml File:**
+  - Location: `root/`
+  - **Contents to Check:**
+    - Preservation Taskqueue variable must be set to "am"
+
+!!! note
+
+    If you modify these files in a running environment, you NEED to refresh the
     `(Tiltfile)` (fist) and the `enduro-am` (second) resources in the Tilt UI
     to apply those changes inside the cluster.
 
@@ -47,4 +84,20 @@ Known hosts needed for a seamless connection to the SFTP server:
     |1|0OoDhmFh2UJAjMRqU68Fq1tpJUI=|Yk0nWoBneUp5ByxpuuMrc/GWrM0= ecdsa-sha2-nistp256 ...
     |1|rc8AmaUEs81zyOtVSk4dGM7snaE=|tuYxgEJdh2T1WwDh5rHfN1jrVIs= ssh-ed25519 ...
 
+### `root/.tilt.env`
+
+Enduro preservation system value needed for the Archivematica container:
+
+    ENDURO_PRES_SYSTEM = "am"
+
+There is more information on the configuration of the [Tilt Environment].
+
+### `root/enduro.toml`
+
+Preservation system value needed for workflow to be Archvimatica specific:
+
+	[Preservation]
+	taskqueue = "am" 
+
 [kustomize secret generator]: https://kubernetes.io/docs/tasks/configmap-secret/managing-secret-using-kustomize/#create-a-secret
+[tilt environment]: (../devel.md#-tilt-enviroment-configuration)
