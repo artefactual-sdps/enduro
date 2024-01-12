@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 )
 
+// Config represents the configuration needed to connect to an SFTP server.
 type Config struct {
 	// Host address, e.g. 127.0.0.1 (default), sftp.example.org.
 	Host string
@@ -28,12 +29,13 @@ type Config struct {
 	RemoteDir string
 }
 
+// PrivateKey represents a SSH private key, with an optional passphrase.
 type PrivateKey struct {
 	// Path to private key file used for authentication (default:
 	// "$HOME/.ssh/id_rsa")
 	Path string
 
-	// Passphrase (if any) used to decrypt private key.
+	// Passphrase (if any) used to decrypt the private key.
 	Passphrase string
 }
 

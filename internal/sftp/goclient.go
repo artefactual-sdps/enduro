@@ -9,12 +9,10 @@ import (
 	"os"
 	"regexp"
 	"strconv"
-	"strings"
 
 	"github.com/dolmen-go/contextio"
 	"github.com/go-logr/logr"
 	"github.com/pkg/sftp"
-	"golang.org/x/crypto/ssh"
 )
 
 // GoClient implements the SFTP service using native Go SSH and SFTP packages.
@@ -32,51 +30,18 @@ func NewGoClient(logger logr.Logger, cfg Config) *GoClient {
 	return &GoClient{cfg: cfg, logger: logger}
 }
 
-// Upload writes the data from src to the remote file at dest and returns the
-// number of bytes written.  A new SFTP connection is opened before writing, and
-// closed when the upload is complete or cancelled.
-func (c *GoClient) Upload(ctx context.Context, src io.Reader, dest string) (int64, string, error) {
-	conn, err := c.dial(ctx)
-	if err != nil {
-		return 0, "", err
-	}
-	defer conn.close()
-
-	// SFTP assumes that "/" is used as the directory separator. See:
-	// https://datatracker.ietf.org/doc/html/draft-ietf-secsh-filexfer-02#section-6.2
-	remotePath := strings.TrimSuffix(c.cfg.RemoteDir, "/") + "/" + dest
-
-	// Note: Some SFTP servers don't support O_RDWR mode.
-	w, err := conn.sftp.OpenFile(remotePath, (os.O_WRONLY | os.O_CREATE | os.O_TRUNC))
-	if err != nil {
-		return 0, "", fmt.Errorf("SFTP: open remote file %q: %v", dest, err)
-	}
-	defer w.Close()
-
-	// Use contextio to stop the upload if a context cancellation signal is
-	// received.
-	bytes, err := io.Copy(contextio.NewWriter(ctx, w), contextio.NewReader(ctx, src))
-	if err != nil {
-		return 0, "", fmt.Errorf("SFTP: upload to %q: %v", dest, err)
-	}
-
-	return bytes, remotePath, nil
-}
-
 // Delete removes the data from dest. A new SFTP connection is opened before
 // removing the file, and closed when the delete is complete.
 func (c *GoClient) Delete(ctx context.Context, dest string) error {
+	remotePath := sftp.Join(c.cfg.RemoteDir, dest)
+
 	conn, err := c.dial(ctx)
 	if err != nil {
-		return fmt.Errorf("SFTP: unable to dial: %w", err)
+		return fmt.Errorf("sftp: dial: %v", err)
 	}
-	defer conn.close()
+	defer conn.Close()
 
-	// SFTP assumes that "/" is used as the directory separator. See:
-	// https://datatracker.ietf.org/doc/html/draft-ietf-secsh-filexfer-02#section-6.2
-	remotePath := strings.TrimSuffix(c.cfg.RemoteDir, "/") + "/" + dest
-
-	if err := conn.sftp.Remove(remotePath); err != nil {
+	if err := conn.Remove(remotePath); err != nil {
 		head := fmt.Sprintf("SFTP: unable to remove file %q", dest)
 		if errors.Is(err, fs.ErrNotExist) || errors.Is(err, fs.ErrPermission) {
 			return fmt.Errorf("%s: %w", head, err)
@@ -90,7 +55,33 @@ func (c *GoClient) Delete(ctx context.Context, dest string) error {
 	return nil
 }
 
-// Dial connects to an SSH host, creates an SFTP client on the connection, then
+// Upload asynchronously copies the src data to dest over an SFTP connection.
+//
+// When Upload is called it starts the upload in an asynchronous goroutine, then
+// immediately returns the full remote path, and an AsyncUpload struct that
+// provides access to the upload status and progress.
+//
+// When the upload completes, the `AsyncUpload.Done()` channel is sent a `true`
+// value. If an error occurs during the upload the error is sent to the
+// `AsyncUpload.Error()` channel and the upload is terminated. If a ctx
+// cancellation signal is received, the `ctx.Err()` error will be sent to the
+// `AsyncUpload.Error()` channel, and the upload is terminated.
+func (c *GoClient) Upload(ctx context.Context, src io.Reader, dest string) (string, AsyncUpload, error) {
+	remotePath := sftp.Join(c.cfg.RemoteDir, dest)
+
+	conn, err := c.dial(ctx)
+	if err != nil {
+		return "", nil, err
+	}
+
+	// Asynchronously upload file.
+	upload := NewAsyncUpload(conn)
+	go remoteCopy(ctx, &upload, src, remotePath)
+
+	return remotePath, &upload, nil
+}
+
+// dial connects to an SSH host, creates an SFTP client on the connection, then
 // returns conn. When conn is no longer needed, conn.close() must be called to
 // prevent leaks.
 func (c *GoClient) dial(ctx context.Context) (*connection, error) {
@@ -99,18 +90,47 @@ func (c *GoClient) dial(ctx context.Context) (*connection, error) {
 		err  error
 	)
 
-	conn.ssh, err = sshConnect(ctx, c.logger, c.cfg)
+	conn.sshClient, err = sshConnect(ctx, c.logger, c.cfg)
 	if err != nil {
 		return nil, err
 	}
 
-	conn.sftp, err = sftp.NewClient(conn.ssh)
+	conn.Client, err = sftp.NewClient(conn.sshClient)
 	if err != nil {
-		_ = conn.ssh.Close()
+		_ = conn.sshClient.Close()
 		return nil, fmt.Errorf("start SFTP subsystem: %v", err)
 	}
 
 	return &conn, nil
+}
+
+// remoteCopy copies data from the src reader to a remote file at dest, and
+// updates upload progress asynchronously. Upload status and progress will be
+// sent to the upload struct via the `upload.Done()` and `upload.Error()` channels.
+func remoteCopy(ctx context.Context, upload *AsyncUploadImpl, src io.Reader, dest string) {
+	defer upload.Close()
+
+	// Note: Some SFTP servers don't support O_RDWR mode.
+	w, err := upload.conn.OpenFile(dest, (os.O_WRONLY | os.O_CREATE | os.O_TRUNC))
+	if err != nil {
+		upload.Err() <- fmt.Errorf("sftp: open remote file %q: %v", dest, err)
+		return
+	}
+	defer w.Close()
+
+	// Write the number of bytes copied to upload.
+	src = contextio.NewReader(ctx, src)
+	src = io.TeeReader(src, upload)
+
+	// Use contextio to stop the upload if a context cancellation signal is
+	// received.
+	_, err = io.Copy(contextio.NewWriter(ctx, w), src)
+	if err != nil {
+		upload.Err() <- fmt.Errorf("remote copy: %v", err)
+		return
+	}
+
+	upload.Done() <- true
 }
 
 var statusCodeRegex = regexp.MustCompile(`\(SSH_[A-Z_]+\)$`)
@@ -131,28 +151,4 @@ func formatStatusError(err *sftp.StatusError) string {
 	}
 
 	return fmt.Sprintf("%s (%s)", codeMsg, code)
-}
-
-type connection struct {
-	ssh  *ssh.Client
-	sftp *sftp.Client
-}
-
-// close closes the SFTP client first, then the SSH client.
-func (conn *connection) close() error {
-	var errs error
-
-	if conn.sftp != nil {
-		if err := conn.sftp.Close(); err != nil {
-			errs = errors.Join(err, errs)
-		}
-	}
-
-	if conn.ssh != nil {
-		if err := conn.ssh.Close(); err != nil {
-			errs = errors.Join(err, errs)
-		}
-	}
-
-	return errs
 }

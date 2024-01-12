@@ -27,10 +27,10 @@ func TestDeleteTransferActivity(t *testing.T) {
 	)
 
 	type test struct {
-		name     string
-		params   am.DeleteTransferActivityParams
-		recorder func(*sftp_fake.MockClientMockRecorder, am.DeleteTransferActivityParams)
-		errMsg   string
+		name   string
+		params am.DeleteTransferActivityParams
+		mock   func(*gomock.Controller) *sftp_fake.MockClient
+		errMsg string
 	}
 	for _, tt := range []test{
 		{
@@ -38,11 +38,13 @@ func TestDeleteTransferActivity(t *testing.T) {
 			params: am.DeleteTransferActivityParams{
 				Destination: td.Path(),
 			},
-			recorder: func(m *sftp_fake.MockClientMockRecorder, params am.DeleteTransferActivityParams) {
-				m.Delete(
-					mockutil.Context(),
-					params.Destination,
-				).Return(nil)
+			mock: func(ctrl *gomock.Controller) *sftp_fake.MockClient {
+				client := sftp_fake.NewMockClient(ctrl)
+				client.EXPECT().
+					Delete(mockutil.Context(), td.Path()).
+					Return(nil)
+
+				return client
 			},
 		},
 		{
@@ -50,13 +52,15 @@ func TestDeleteTransferActivity(t *testing.T) {
 			params: am.DeleteTransferActivityParams{
 				Destination: td.Join("missing"),
 			},
-			recorder: func(m *sftp_fake.MockClientMockRecorder, params am.DeleteTransferActivityParams) {
-				m.Delete(
-					mockutil.Context(),
-					params.Destination,
-				).Return(
-					errors.New("SFTP: unable to remove file \"test.txt\": file does not exist"),
-				)
+			mock: func(ctrl *gomock.Controller) *sftp_fake.MockClient {
+				client := sftp_fake.NewMockClient(ctrl)
+				client.EXPECT().
+					Delete(mockutil.Context(), td.Join("missing")).
+					Return(
+						errors.New("SFTP: unable to remove file \"test.txt\": file does not exist"),
+					)
+
+				return client
 			},
 			errMsg: fmt.Sprintf("delete transfer: path: %q: %v", td.Join("missing"), errors.New("SFTP: unable to remove file \"test.txt\": file does not exist")),
 		},
@@ -65,13 +69,15 @@ func TestDeleteTransferActivity(t *testing.T) {
 			params: am.DeleteTransferActivityParams{
 				Destination: td.Join(filename),
 			},
-			recorder: func(m *sftp_fake.MockClientMockRecorder, params am.DeleteTransferActivityParams) {
-				m.Delete(
-					mockutil.Context(),
-					params.Destination,
-				).Return(
-					errors.New("SSH: failed to connect: dial tcp 127.0.0.1:2200: connect: connection refused"),
-				)
+			mock: func(ctrl *gomock.Controller) *sftp_fake.MockClient {
+				client := sftp_fake.NewMockClient(ctrl)
+				client.EXPECT().
+					Delete(mockutil.Context(), td.Join(filename)).
+					Return(
+						errors.New("SSH: failed to connect: dial tcp 127.0.0.1:2200: connect: connection refused"),
+					)
+
+				return client
 			},
 			errMsg: fmt.Sprintf("delete transfer: path: %q: %v", td.Join(filename), errors.New("SSH: failed to connect: dial tcp 127.0.0.1:2200: connect: connection refused")),
 		},
@@ -82,14 +88,10 @@ func TestDeleteTransferActivity(t *testing.T) {
 
 			ts := &temporalsdk_testsuite.WorkflowTestSuite{}
 			env := ts.NewTestActivityEnvironment()
-			msvc := sftp_fake.NewMockClient(gomock.NewController(t))
-
-			if tt.recorder != nil {
-				tt.recorder(msvc.EXPECT(), tt.params)
-			}
+			ctrl := gomock.NewController(t)
 
 			env.RegisterActivityWithOptions(
-				am.NewDeleteTransferActivity(logr.Discard(), msvc).Execute,
+				am.NewDeleteTransferActivity(logr.Discard(), tt.mock(ctrl)).Execute,
 				temporalsdk_activity.RegisterOptions{
 					Name: am.DeleteTransferActivityName,
 				},
