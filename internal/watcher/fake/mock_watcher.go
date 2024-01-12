@@ -5,7 +5,6 @@
 //
 //	mockgen -typed -destination=./internal/watcher/fake/mock_watcher.go -package=fake github.com/artefactual-sdps/enduro/internal/watcher Watcher
 //
-
 // Package fake is a generated GoMock package.
 package fake
 
@@ -51,31 +50,31 @@ func (m *MockWatcher) CompletedDir() string {
 }
 
 // CompletedDir indicates an expected call of CompletedDir.
-func (mr *MockWatcherMockRecorder) CompletedDir() *MockWatcherCompletedDirCall {
+func (mr *MockWatcherMockRecorder) CompletedDir() *WatcherCompletedDirCall {
 	mr.mock.ctrl.T.Helper()
 	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CompletedDir", reflect.TypeOf((*MockWatcher)(nil).CompletedDir))
-	return &MockWatcherCompletedDirCall{Call: call}
+	return &WatcherCompletedDirCall{Call: call}
 }
 
-// MockWatcherCompletedDirCall wrap *gomock.Call
-type MockWatcherCompletedDirCall struct {
+// WatcherCompletedDirCall wrap *gomock.Call
+type WatcherCompletedDirCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockWatcherCompletedDirCall) Return(arg0 string) *MockWatcherCompletedDirCall {
+func (c *WatcherCompletedDirCall) Return(arg0 string) *WatcherCompletedDirCall {
 	c.Call = c.Call.Return(arg0)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockWatcherCompletedDirCall) Do(f func() string) *MockWatcherCompletedDirCall {
+func (c *WatcherCompletedDirCall) Do(f func() string) *WatcherCompletedDirCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockWatcherCompletedDirCall) DoAndReturn(f func() string) *MockWatcherCompletedDirCall {
+func (c *WatcherCompletedDirCall) DoAndReturn(f func() string) *WatcherCompletedDirCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
@@ -90,31 +89,31 @@ func (m *MockWatcher) OpenBucket(arg0 context.Context) (*blob.Bucket, error) {
 }
 
 // OpenBucket indicates an expected call of OpenBucket.
-func (mr *MockWatcherMockRecorder) OpenBucket(arg0 any) *MockWatcherOpenBucketCall {
+func (mr *MockWatcherMockRecorder) OpenBucket(arg0 any) *WatcherOpenBucketCall {
 	mr.mock.ctrl.T.Helper()
 	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OpenBucket", reflect.TypeOf((*MockWatcher)(nil).OpenBucket), arg0)
-	return &MockWatcherOpenBucketCall{Call: call}
+	return &WatcherOpenBucketCall{Call: call}
 }
 
-// MockWatcherOpenBucketCall wrap *gomock.Call
-type MockWatcherOpenBucketCall struct {
+// WatcherOpenBucketCall wrap *gomock.Call
+type WatcherOpenBucketCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockWatcherOpenBucketCall) Return(arg0 *blob.Bucket, arg1 error) *MockWatcherOpenBucketCall {
+func (c *WatcherOpenBucketCall) Return(arg0 *blob.Bucket, arg1 error) *WatcherOpenBucketCall {
 	c.Call = c.Call.Return(arg0, arg1)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockWatcherOpenBucketCall) Do(f func(context.Context) (*blob.Bucket, error)) *MockWatcherOpenBucketCall {
+func (c *WatcherOpenBucketCall) Do(f func(context.Context) (*blob.Bucket, error)) *WatcherOpenBucketCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockWatcherOpenBucketCall) DoAndReturn(f func(context.Context) (*blob.Bucket, error)) *MockWatcherOpenBucketCall {
+func (c *WatcherOpenBucketCall) DoAndReturn(f func(context.Context) (*blob.Bucket, error)) *WatcherOpenBucketCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
@@ -128,31 +127,31 @@ func (m *MockWatcher) Path() string {
 }
 
 // Path indicates an expected call of Path.
-func (mr *MockWatcherMockRecorder) Path() *MockWatcherPathCall {
+func (mr *MockWatcherMockRecorder) Path() *WatcherPathCall {
 	mr.mock.ctrl.T.Helper()
 	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Path", reflect.TypeOf((*MockWatcher)(nil).Path))
-	return &MockWatcherPathCall{Call: call}
+	return &WatcherPathCall{Call: call}
 }
 
-// MockWatcherPathCall wrap *gomock.Call
-type MockWatcherPathCall struct {
+// WatcherPathCall wrap *gomock.Call
+type WatcherPathCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockWatcherPathCall) Return(arg0 string) *MockWatcherPathCall {
+func (c *WatcherPathCall) Return(arg0 string) *WatcherPathCall {
 	c.Call = c.Call.Return(arg0)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockWatcherPathCall) Do(f func() string) *MockWatcherPathCall {
+func (c *WatcherPathCall) Do(f func() string) *WatcherPathCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockWatcherPathCall) DoAndReturn(f func() string) *MockWatcherPathCall {
+func (c *WatcherPathCall) DoAndReturn(f func() string) *WatcherPathCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
@@ -166,31 +165,31 @@ func (m *MockWatcher) RetentionPeriod() *time.Duration {
 }
 
 // RetentionPeriod indicates an expected call of RetentionPeriod.
-func (mr *MockWatcherMockRecorder) RetentionPeriod() *MockWatcherRetentionPeriodCall {
+func (mr *MockWatcherMockRecorder) RetentionPeriod() *WatcherRetentionPeriodCall {
 	mr.mock.ctrl.T.Helper()
 	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RetentionPeriod", reflect.TypeOf((*MockWatcher)(nil).RetentionPeriod))
-	return &MockWatcherRetentionPeriodCall{Call: call}
+	return &WatcherRetentionPeriodCall{Call: call}
 }
 
-// MockWatcherRetentionPeriodCall wrap *gomock.Call
-type MockWatcherRetentionPeriodCall struct {
+// WatcherRetentionPeriodCall wrap *gomock.Call
+type WatcherRetentionPeriodCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockWatcherRetentionPeriodCall) Return(arg0 *time.Duration) *MockWatcherRetentionPeriodCall {
+func (c *WatcherRetentionPeriodCall) Return(arg0 *time.Duration) *WatcherRetentionPeriodCall {
 	c.Call = c.Call.Return(arg0)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockWatcherRetentionPeriodCall) Do(f func() *time.Duration) *MockWatcherRetentionPeriodCall {
+func (c *WatcherRetentionPeriodCall) Do(f func() *time.Duration) *WatcherRetentionPeriodCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockWatcherRetentionPeriodCall) DoAndReturn(f func() *time.Duration) *MockWatcherRetentionPeriodCall {
+func (c *WatcherRetentionPeriodCall) DoAndReturn(f func() *time.Duration) *WatcherRetentionPeriodCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
@@ -204,31 +203,31 @@ func (m *MockWatcher) String() string {
 }
 
 // String indicates an expected call of String.
-func (mr *MockWatcherMockRecorder) String() *MockWatcherStringCall {
+func (mr *MockWatcherMockRecorder) String() *WatcherStringCall {
 	mr.mock.ctrl.T.Helper()
 	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "String", reflect.TypeOf((*MockWatcher)(nil).String))
-	return &MockWatcherStringCall{Call: call}
+	return &WatcherStringCall{Call: call}
 }
 
-// MockWatcherStringCall wrap *gomock.Call
-type MockWatcherStringCall struct {
+// WatcherStringCall wrap *gomock.Call
+type WatcherStringCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockWatcherStringCall) Return(arg0 string) *MockWatcherStringCall {
+func (c *WatcherStringCall) Return(arg0 string) *WatcherStringCall {
 	c.Call = c.Call.Return(arg0)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockWatcherStringCall) Do(f func() string) *MockWatcherStringCall {
+func (c *WatcherStringCall) Do(f func() string) *WatcherStringCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockWatcherStringCall) DoAndReturn(f func() string) *MockWatcherStringCall {
+func (c *WatcherStringCall) DoAndReturn(f func() string) *WatcherStringCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
@@ -242,31 +241,31 @@ func (m *MockWatcher) StripTopLevelDir() bool {
 }
 
 // StripTopLevelDir indicates an expected call of StripTopLevelDir.
-func (mr *MockWatcherMockRecorder) StripTopLevelDir() *MockWatcherStripTopLevelDirCall {
+func (mr *MockWatcherMockRecorder) StripTopLevelDir() *WatcherStripTopLevelDirCall {
 	mr.mock.ctrl.T.Helper()
 	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StripTopLevelDir", reflect.TypeOf((*MockWatcher)(nil).StripTopLevelDir))
-	return &MockWatcherStripTopLevelDirCall{Call: call}
+	return &WatcherStripTopLevelDirCall{Call: call}
 }
 
-// MockWatcherStripTopLevelDirCall wrap *gomock.Call
-type MockWatcherStripTopLevelDirCall struct {
+// WatcherStripTopLevelDirCall wrap *gomock.Call
+type WatcherStripTopLevelDirCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockWatcherStripTopLevelDirCall) Return(arg0 bool) *MockWatcherStripTopLevelDirCall {
+func (c *WatcherStripTopLevelDirCall) Return(arg0 bool) *WatcherStripTopLevelDirCall {
 	c.Call = c.Call.Return(arg0)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockWatcherStripTopLevelDirCall) Do(f func() bool) *MockWatcherStripTopLevelDirCall {
+func (c *WatcherStripTopLevelDirCall) Do(f func() bool) *WatcherStripTopLevelDirCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockWatcherStripTopLevelDirCall) DoAndReturn(f func() bool) *MockWatcherStripTopLevelDirCall {
+func (c *WatcherStripTopLevelDirCall) DoAndReturn(f func() bool) *WatcherStripTopLevelDirCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
@@ -282,31 +281,31 @@ func (m *MockWatcher) Watch(arg0 context.Context) (*watcher.BlobEvent, watcher.C
 }
 
 // Watch indicates an expected call of Watch.
-func (mr *MockWatcherMockRecorder) Watch(arg0 any) *MockWatcherWatchCall {
+func (mr *MockWatcherMockRecorder) Watch(arg0 any) *WatcherWatchCall {
 	mr.mock.ctrl.T.Helper()
 	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Watch", reflect.TypeOf((*MockWatcher)(nil).Watch), arg0)
-	return &MockWatcherWatchCall{Call: call}
+	return &WatcherWatchCall{Call: call}
 }
 
-// MockWatcherWatchCall wrap *gomock.Call
-type MockWatcherWatchCall struct {
+// WatcherWatchCall wrap *gomock.Call
+type WatcherWatchCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockWatcherWatchCall) Return(arg0 *watcher.BlobEvent, arg1 watcher.Cleanup, arg2 error) *MockWatcherWatchCall {
+func (c *WatcherWatchCall) Return(arg0 *watcher.BlobEvent, arg1 watcher.Cleanup, arg2 error) *WatcherWatchCall {
 	c.Call = c.Call.Return(arg0, arg1, arg2)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockWatcherWatchCall) Do(f func(context.Context) (*watcher.BlobEvent, watcher.Cleanup, error)) *MockWatcherWatchCall {
+func (c *WatcherWatchCall) Do(f func(context.Context) (*watcher.BlobEvent, watcher.Cleanup, error)) *WatcherWatchCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockWatcherWatchCall) DoAndReturn(f func(context.Context) (*watcher.BlobEvent, watcher.Cleanup, error)) *MockWatcherWatchCall {
+func (c *WatcherWatchCall) DoAndReturn(f func(context.Context) (*watcher.BlobEvent, watcher.Cleanup, error)) *WatcherWatchCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

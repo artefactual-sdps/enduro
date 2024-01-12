@@ -5,7 +5,6 @@
 //
 //	mockgen -typed -destination=./internal/sftp/fake/mock_sftp.go -package=fake github.com/artefactual-sdps/enduro/internal/sftp Client
 //
-
 // Package fake is a generated GoMock package.
 package fake
 
@@ -49,31 +48,31 @@ func (m *MockClient) Delete(arg0 context.Context, arg1 string) error {
 }
 
 // Delete indicates an expected call of Delete.
-func (mr *MockClientMockRecorder) Delete(arg0, arg1 any) *MockClientDeleteCall {
+func (mr *MockClientMockRecorder) Delete(arg0, arg1 any) *ClientDeleteCall {
 	mr.mock.ctrl.T.Helper()
 	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockClient)(nil).Delete), arg0, arg1)
-	return &MockClientDeleteCall{Call: call}
+	return &ClientDeleteCall{Call: call}
 }
 
-// MockClientDeleteCall wrap *gomock.Call
-type MockClientDeleteCall struct {
+// ClientDeleteCall wrap *gomock.Call
+type ClientDeleteCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockClientDeleteCall) Return(arg0 error) *MockClientDeleteCall {
+func (c *ClientDeleteCall) Return(arg0 error) *ClientDeleteCall {
 	c.Call = c.Call.Return(arg0)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockClientDeleteCall) Do(f func(context.Context, string) error) *MockClientDeleteCall {
+func (c *ClientDeleteCall) Do(f func(context.Context, string) error) *ClientDeleteCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockClientDeleteCall) DoAndReturn(f func(context.Context, string) error) *MockClientDeleteCall {
+func (c *ClientDeleteCall) DoAndReturn(f func(context.Context, string) error) *ClientDeleteCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
@@ -89,31 +88,31 @@ func (m *MockClient) Upload(arg0 context.Context, arg1 io.Reader, arg2 string) (
 }
 
 // Upload indicates an expected call of Upload.
-func (mr *MockClientMockRecorder) Upload(arg0, arg1, arg2 any) *MockClientUploadCall {
+func (mr *MockClientMockRecorder) Upload(arg0, arg1, arg2 any) *ClientUploadCall {
 	mr.mock.ctrl.T.Helper()
 	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Upload", reflect.TypeOf((*MockClient)(nil).Upload), arg0, arg1, arg2)
-	return &MockClientUploadCall{Call: call}
+	return &ClientUploadCall{Call: call}
 }
 
-// MockClientUploadCall wrap *gomock.Call
-type MockClientUploadCall struct {
+// ClientUploadCall wrap *gomock.Call
+type ClientUploadCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockClientUploadCall) Return(arg0 int64, arg1 string, arg2 error) *MockClientUploadCall {
+func (c *ClientUploadCall) Return(arg0 int64, arg1 string, arg2 error) *ClientUploadCall {
 	c.Call = c.Call.Return(arg0, arg1, arg2)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockClientUploadCall) Do(f func(context.Context, io.Reader, string) (int64, string, error)) *MockClientUploadCall {
+func (c *ClientUploadCall) Do(f func(context.Context, io.Reader, string) (int64, string, error)) *ClientUploadCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockClientUploadCall) DoAndReturn(f func(context.Context, io.Reader, string) (int64, string, error)) *MockClientUploadCall {
+func (c *ClientUploadCall) DoAndReturn(f func(context.Context, io.Reader, string) (int64, string, error)) *ClientUploadCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

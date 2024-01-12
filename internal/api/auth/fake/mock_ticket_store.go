@@ -5,7 +5,6 @@
 //
 //	mockgen -typed -destination=./internal/api/auth/fake/mock_ticket_store.go -package=fake github.com/artefactual-sdps/enduro/internal/api/auth TicketStore
 //
-
 // Package fake is a generated GoMock package.
 package fake
 
@@ -49,31 +48,31 @@ func (m *MockTicketStore) Close() error {
 }
 
 // Close indicates an expected call of Close.
-func (mr *MockTicketStoreMockRecorder) Close() *MockTicketStoreCloseCall {
+func (mr *MockTicketStoreMockRecorder) Close() *TicketStoreCloseCall {
 	mr.mock.ctrl.T.Helper()
 	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Close", reflect.TypeOf((*MockTicketStore)(nil).Close))
-	return &MockTicketStoreCloseCall{Call: call}
+	return &TicketStoreCloseCall{Call: call}
 }
 
-// MockTicketStoreCloseCall wrap *gomock.Call
-type MockTicketStoreCloseCall struct {
+// TicketStoreCloseCall wrap *gomock.Call
+type TicketStoreCloseCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockTicketStoreCloseCall) Return(arg0 error) *MockTicketStoreCloseCall {
+func (c *TicketStoreCloseCall) Return(arg0 error) *TicketStoreCloseCall {
 	c.Call = c.Call.Return(arg0)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockTicketStoreCloseCall) Do(f func() error) *MockTicketStoreCloseCall {
+func (c *TicketStoreCloseCall) Do(f func() error) *TicketStoreCloseCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockTicketStoreCloseCall) DoAndReturn(f func() error) *MockTicketStoreCloseCall {
+func (c *TicketStoreCloseCall) DoAndReturn(f func() error) *TicketStoreCloseCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
@@ -87,31 +86,31 @@ func (m *MockTicketStore) GetDel(arg0 context.Context, arg1 string) error {
 }
 
 // GetDel indicates an expected call of GetDel.
-func (mr *MockTicketStoreMockRecorder) GetDel(arg0, arg1 any) *MockTicketStoreGetDelCall {
+func (mr *MockTicketStoreMockRecorder) GetDel(arg0, arg1 any) *TicketStoreGetDelCall {
 	mr.mock.ctrl.T.Helper()
 	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDel", reflect.TypeOf((*MockTicketStore)(nil).GetDel), arg0, arg1)
-	return &MockTicketStoreGetDelCall{Call: call}
+	return &TicketStoreGetDelCall{Call: call}
 }
 
-// MockTicketStoreGetDelCall wrap *gomock.Call
-type MockTicketStoreGetDelCall struct {
+// TicketStoreGetDelCall wrap *gomock.Call
+type TicketStoreGetDelCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockTicketStoreGetDelCall) Return(arg0 error) *MockTicketStoreGetDelCall {
+func (c *TicketStoreGetDelCall) Return(arg0 error) *TicketStoreGetDelCall {
 	c.Call = c.Call.Return(arg0)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockTicketStoreGetDelCall) Do(f func(context.Context, string) error) *MockTicketStoreGetDelCall {
+func (c *TicketStoreGetDelCall) Do(f func(context.Context, string) error) *TicketStoreGetDelCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockTicketStoreGetDelCall) DoAndReturn(f func(context.Context, string) error) *MockTicketStoreGetDelCall {
+func (c *TicketStoreGetDelCall) DoAndReturn(f func(context.Context, string) error) *TicketStoreGetDelCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
@@ -125,31 +124,31 @@ func (m *MockTicketStore) SetEx(arg0 context.Context, arg1 string, arg2 time.Dur
 }
 
 // SetEx indicates an expected call of SetEx.
-func (mr *MockTicketStoreMockRecorder) SetEx(arg0, arg1, arg2 any) *MockTicketStoreSetExCall {
+func (mr *MockTicketStoreMockRecorder) SetEx(arg0, arg1, arg2 any) *TicketStoreSetExCall {
 	mr.mock.ctrl.T.Helper()
 	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetEx", reflect.TypeOf((*MockTicketStore)(nil).SetEx), arg0, arg1, arg2)
-	return &MockTicketStoreSetExCall{Call: call}
+	return &TicketStoreSetExCall{Call: call}
 }
 
-// MockTicketStoreSetExCall wrap *gomock.Call
-type MockTicketStoreSetExCall struct {
+// TicketStoreSetExCall wrap *gomock.Call
+type TicketStoreSetExCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockTicketStoreSetExCall) Return(arg0 error) *MockTicketStoreSetExCall {
+func (c *TicketStoreSetExCall) Return(arg0 error) *TicketStoreSetExCall {
 	c.Call = c.Call.Return(arg0)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockTicketStoreSetExCall) Do(f func(context.Context, string, time.Duration) error) *MockTicketStoreSetExCall {
+func (c *TicketStoreSetExCall) Do(f func(context.Context, string, time.Duration) error) *TicketStoreSetExCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockTicketStoreSetExCall) DoAndReturn(f func(context.Context, string, time.Duration) error) *MockTicketStoreSetExCall {
+func (c *TicketStoreSetExCall) DoAndReturn(f func(context.Context, string, time.Duration) error) *TicketStoreSetExCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
