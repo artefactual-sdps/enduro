@@ -71,7 +71,7 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(taskQueue string) {
 		temporalsdk_activity.RegisterOptions{Name: activities.ZipActivityName},
 	)
 	s.env.RegisterActivityWithOptions(
-		am.NewUploadTransferActivity(logger, sftpc).Execute,
+		am.NewUploadTransferActivity(logger, sftpc, 10*time.Second).Execute,
 		temporalsdk_activity.RegisterOptions{Name: am.UploadTransferActivityName},
 	)
 	s.env.RegisterActivityWithOptions(

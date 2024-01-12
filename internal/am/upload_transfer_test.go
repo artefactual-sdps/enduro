@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/go-logr/logr"
 	"go.artefactual.dev/tools/mockutil"
@@ -29,7 +30,7 @@ func TestUploadTransferActivity(t *testing.T) {
 	type test struct {
 		name            string
 		params          am.UploadTransferActivityParams
-		recorder        func(*sftp_fake.MockClientMockRecorder)
+		mock            func(*gomock.Controller) (sftp.Client, sftp.AsyncUpload)
 		want            am.UploadTransferActivityResult
 		wantErr         string
 		wantNonRetryErr bool
@@ -40,13 +41,33 @@ func TestUploadTransferActivity(t *testing.T) {
 			params: am.UploadTransferActivityParams{
 				SourcePath: td.Join(filename),
 			},
-			recorder: func(m *sftp_fake.MockClientMockRecorder) {
-				var t *os.File
-				m.Upload(
-					mockutil.Context(),
-					gomock.AssignableToTypeOf(t),
-					filename,
-				).Return(int64(14), "/transfer_dir/"+filename, nil)
+			mock: func(ctrl *gomock.Controller) (sftp.Client, sftp.AsyncUpload) {
+				var fp *os.File
+
+				client := sftp_fake.NewMockClient(ctrl)
+				upload := sftp_fake.NewMockAsyncUpload(ctrl)
+
+				client.EXPECT().
+					Upload(
+						mockutil.Context(),
+						gomock.AssignableToTypeOf(fp),
+						filename,
+					).
+					Return("/transfer_dir/"+filename, upload, nil)
+
+				doneCh := make(chan bool, 1)
+				upload.EXPECT().Done().Return(doneCh).Times(2)
+
+				errCh := make(chan error, 1)
+				upload.EXPECT().Err().Return(errCh).Times(2)
+
+				upload.EXPECT().Bytes().DoAndReturn(func() int64 {
+					doneCh <- true
+					return int64(7)
+				})
+				upload.EXPECT().Bytes().Return(14)
+
+				return client, upload
 			},
 			want: am.UploadTransferActivityResult{
 				BytesCopied:        int64(14),
@@ -66,17 +87,23 @@ func TestUploadTransferActivity(t *testing.T) {
 			params: am.UploadTransferActivityParams{
 				SourcePath: td.Join(filename),
 			},
-			recorder: func(m *sftp_fake.MockClientMockRecorder) {
-				var t *os.File
-				m.Upload(
-					mockutil.Context(),
-					gomock.AssignableToTypeOf(t),
-					filename,
-				).Return(
-					0,
-					"",
-					errors.New("ssh: failed to connect: dial tcp 127.0.0.1:2200: connect: connection refused"),
-				)
+			mock: func(ctrl *gomock.Controller) (sftp.Client, sftp.AsyncUpload) {
+				var fp *os.File
+
+				client := sftp_fake.NewMockClient(ctrl)
+				client.EXPECT().
+					Upload(
+						mockutil.Context(),
+						gomock.AssignableToTypeOf(fp),
+						filename,
+					).
+					Return(
+						"",
+						nil,
+						errors.New("ssh: failed to connect: dial tcp 127.0.0.1:2200: connect: connection refused"),
+					)
+
+				return client, nil
 			},
 			wantErr: "activity error (type: UploadTransferActivity, scheduledEventID: 0, startedEventID: 0, identity: ): UploadTransferActivity: ssh: failed to connect: dial tcp 127.0.0.1:2200: connect: connection refused",
 		},
@@ -85,19 +112,25 @@ func TestUploadTransferActivity(t *testing.T) {
 			params: am.UploadTransferActivityParams{
 				SourcePath: td.Join(filename),
 			},
-			recorder: func(m *sftp_fake.MockClientMockRecorder) {
-				var t *os.File
-				m.Upload(
-					mockutil.Context(),
-					gomock.AssignableToTypeOf(t),
-					filename,
-				).Return(
-					0,
-					"",
-					&sftp.AuthError{
-						Message: "ssh: handshake failed: ssh: unable to authenticate, attempted methods [none publickey], no supported methods remain",
-					},
-				)
+			mock: func(ctrl *gomock.Controller) (sftp.Client, sftp.AsyncUpload) {
+				var fp *os.File
+
+				client := sftp_fake.NewMockClient(ctrl)
+				client.EXPECT().
+					Upload(
+						mockutil.Context(),
+						gomock.AssignableToTypeOf(fp),
+						filename,
+					).
+					Return(
+						"",
+						nil,
+						&sftp.AuthError{
+							Message: "ssh: handshake failed: ssh: unable to authenticate, attempted methods [none publickey], no supported methods remain",
+						},
+					)
+
+				return client, nil
 			},
 			wantErr:         "activity error (type: UploadTransferActivity, scheduledEventID: 0, startedEventID: 0, identity: ): UploadTransferActivity: auth: ssh: handshake failed: ssh: unable to authenticate, attempted methods [none publickey], no supported methods remain",
 			wantNonRetryErr: true,
@@ -109,14 +142,15 @@ func TestUploadTransferActivity(t *testing.T) {
 
 			ts := &temporalsdk_testsuite.WorkflowTestSuite{}
 			env := ts.NewTestActivityEnvironment()
-			msvc := sftp_fake.NewMockClient(gomock.NewController(t))
+			ctrl := gomock.NewController(t)
 
-			if tt.recorder != nil {
-				tt.recorder(msvc.EXPECT())
+			var client sftp.Client
+			if tt.mock != nil {
+				client, _ = tt.mock(ctrl)
 			}
 
 			env.RegisterActivityWithOptions(
-				am.NewUploadTransferActivity(logr.Discard(), msvc).Execute,
+				am.NewUploadTransferActivity(logr.Discard(), client, 2*time.Millisecond).Execute,
 				temporalsdk_activity.RegisterOptions{
 					Name: am.UploadTransferActivityName,
 				},

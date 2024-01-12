@@ -668,6 +668,7 @@ func (w *ProcessingWorkflow) transferAM(sessCtx temporalsdk_workflow.Context, ti
 	activityOpts = temporalsdk_workflow.WithActivityOptions(sessCtx,
 		temporalsdk_workflow.ActivityOptions{
 			StartToCloseTimeout: time.Hour * 2,
+			HeartbeatTimeout:    2 * tinfo.req.PollInterval,
 			RetryPolicy: &temporalsdk_temporal.RetryPolicy{
 				InitialInterval:    time.Second * 5,
 				BackoffCoefficient: 2,
@@ -706,8 +707,8 @@ func (w *ProcessingWorkflow) transferAM(sessCtx temporalsdk_workflow.Context, ti
 	pollOpts := temporalsdk_workflow.WithActivityOptions(
 		sessCtx,
 		temporalsdk_workflow.ActivityOptions{
-			HeartbeatTimeout:       2 * tinfo.req.PollInterval,
-			ScheduleToCloseTimeout: tinfo.req.TransferDeadline,
+			HeartbeatTimeout:    2 * tinfo.req.PollInterval,
+			StartToCloseTimeout: tinfo.req.TransferDeadline,
 			RetryPolicy: &temporalsdk_temporal.RetryPolicy{
 				InitialInterval:    5 * time.Second,
 				BackoffCoefficient: 2,

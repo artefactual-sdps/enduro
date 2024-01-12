@@ -179,7 +179,7 @@ func TestUpload(t *testing.T) {
 	}
 	for _, tc := range []test{
 		{
-			name: "Uploads a file using a key with no passphrase",
+			name: "Uploads a file using private key auth",
 			cfg: sftp.Config{
 				Host:           host,
 				Port:           port,
@@ -198,7 +198,7 @@ func TestUpload(t *testing.T) {
 			},
 		},
 		{
-			name: "Uploads a file using a key with a passphrase",
+			name: "Uploads a file using private key + password auth",
 			cfg: sftp.Config{
 				Host:           host,
 				Port:           port,
@@ -306,19 +306,25 @@ func TestUpload(t *testing.T) {
 			remoteDir := tfs.NewDir(t, "sftp_test_remote")
 			tc.cfg.RemoteDir = remoteDir.Path()
 
-			sftpc := sftp.NewGoClient(logr.Discard(), tc.cfg)
-			bytes, remotePath, err := sftpc.Upload(context.Background(), tc.params.src, tc.params.dest)
-
+			client := sftp.NewGoClient(logr.Discard(), tc.cfg)
+			remotePath, upload, err := client.Upload(context.Background(), tc.params.src, tc.params.dest)
 			if tc.wantErr != nil {
 				assert.Error(t, err, tc.wantErr.Error())
 				assert.Assert(t, reflect.TypeOf(err) == reflect.TypeOf(tc.wantErr))
 				return
 			}
-
 			assert.NilError(t, err)
-			assert.Equal(t, bytes, tc.want.Bytes)
+
 			assert.Equal(t, remotePath, tc.cfg.RemoteDir+"/"+tc.params.dest)
-			assert.Assert(t, tfs.Equal(remoteDir.Path(), tfs.Expected(t, tc.want.Paths...)))
+			assert.Equal(t, upload.Bytes(), int64(0)) // Upload hasn't started yet.
+
+			select {
+			case <-upload.Done():
+				assert.Equal(t, upload.Bytes(), tc.want.Bytes)
+				assert.Assert(t, tfs.Equal(remoteDir.Path(), tfs.Expected(t, tc.want.Paths...)))
+			case err = <-upload.Err():
+				t.Fatal(err)
+			}
 		})
 	}
 }
@@ -396,9 +402,8 @@ func TestDelete(t *testing.T) {
 				assert.NilError(t, err)
 			}
 
-			sftpc := sftp.NewGoClient(logr.Discard(), cfg)
-			err := sftpc.Delete(context.Background(), tc.params.file)
-
+			client := sftp.NewGoClient(logr.Discard(), cfg)
+			err := client.Delete(context.Background(), tc.params.file)
 			if tc.wantErr != "" {
 				assert.Error(t, err, tc.wantErr)
 				return

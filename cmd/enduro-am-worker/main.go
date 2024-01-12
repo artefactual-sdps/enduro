@@ -151,7 +151,7 @@ func main() {
 			activities.NewZipActivity(logger).Execute, temporalsdk_activity.RegisterOptions{Name: activities.ZipActivityName},
 		)
 		w.RegisterActivityWithOptions(
-			am.NewUploadTransferActivity(logger, sftpClient).Execute,
+			am.NewUploadTransferActivity(logger, sftpClient, cfg.AM.PollInterval).Execute,
 			temporalsdk_activity.RegisterOptions{Name: am.UploadTransferActivityName},
 		)
 		w.RegisterActivityWithOptions(
