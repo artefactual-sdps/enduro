@@ -21,7 +21,7 @@ func (a *CopyToPermanentLocationActivity) Execute(ctx context.Context, params *s
 		return err
 	}
 
-	reader, err := a.storagesvc.PackageReader(ctx, p)
+	reader, _, err := a.storagesvc.PackageReader(ctx, p)
 	if err != nil {
 		return err
 	}

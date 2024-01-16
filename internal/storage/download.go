@@ -62,14 +62,11 @@ func Download(svc Service, mux goahttp.Muxer, dec func(r *http.Request) goahttp.
 		}
 
 		fillResponseBlob(rw, reader, filename)
-		return
-
 	}
 }
 
 // Fill the header and body of the http response with the blob's response information.
 func fillResponseBlob(rw http.ResponseWriter, responseInfo *blob.Reader, filename string) {
-
 	rw.Header().Add("Content-Type", responseInfo.ContentType())
 	rw.Header().Add("Content-Length", strconv.FormatInt(responseInfo.Size(), 10))
 	rw.Header().Add("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", filename))
@@ -80,12 +77,10 @@ func fillResponseBlob(rw http.ResponseWriter, responseInfo *blob.Reader, filenam
 		rw.WriteHeader(http.StatusNotFound)
 		return
 	}
-
 }
 
 // Fill the header and body of the http response with the resps's response information.
 func fillResponseResp(rw http.ResponseWriter, responseInfo *http.Response, filename string) {
-
 	rw.Header().Add("Content-Type", responseInfo.Header.Get("Content-Type"))
 	rw.Header().Add("Content-Length", responseInfo.Header.Get("Content-Length"))
 	rw.Header().Add("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", filename))
@@ -96,5 +91,4 @@ func fillResponseResp(rw http.ResponseWriter, responseInfo *http.Response, filen
 		rw.WriteHeader(http.StatusNotFound)
 		return
 	}
-
 }

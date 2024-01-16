@@ -830,7 +830,7 @@ func TestPackageReader(t *testing.T) {
 			).
 			Times(1)
 
-		reader, err := svc.PackageReader(ctx, &goastorage.Package{
+		reader, _, err := svc.PackageReader(ctx, &goastorage.Package{
 			AipID:      aipID,
 			ObjectKey:  aipID,
 			LocationID: &locationID,
@@ -864,7 +864,7 @@ func TestPackageReader(t *testing.T) {
 			).
 			Times(1)
 
-		_, err := svc.PackageReader(ctx, &goastorage.Package{
+		_, _, err := svc.PackageReader(ctx, &goastorage.Package{
 			AipID:      AIPID,
 			ObjectKey:  AIPID,
 			LocationID: &locationID,
@@ -899,7 +899,7 @@ func TestPackageReader(t *testing.T) {
 			).
 			Times(1)
 
-		_, err := svc.PackageReader(ctx, &goastorage.Package{
+		_, _, err := svc.PackageReader(ctx, &goastorage.Package{
 			AipID:      aipID,
 			ObjectKey:  aipID,
 			LocationID: &locationID,

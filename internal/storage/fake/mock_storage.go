@@ -5,11 +5,13 @@
 //
 //	mockgen -typed -destination=./internal/storage/fake/mock_storage.go -package=fake github.com/artefactual-sdps/enduro/internal/storage Service
 //
+
 // Package fake is a generated GoMock package.
 package fake
 
 import (
 	context "context"
+	http "net/http"
 	reflect "reflect"
 
 	storage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
@@ -53,31 +55,31 @@ func (m *MockService) AddLocation(arg0 context.Context, arg1 *storage.AddLocatio
 }
 
 // AddLocation indicates an expected call of AddLocation.
-func (mr *MockServiceMockRecorder) AddLocation(arg0, arg1 any) *ServiceAddLocationCall {
+func (mr *MockServiceMockRecorder) AddLocation(arg0, arg1 any) *MockServiceAddLocationCall {
 	mr.mock.ctrl.T.Helper()
 	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddLocation", reflect.TypeOf((*MockService)(nil).AddLocation), arg0, arg1)
-	return &ServiceAddLocationCall{Call: call}
+	return &MockServiceAddLocationCall{Call: call}
 }
 
-// ServiceAddLocationCall wrap *gomock.Call
-type ServiceAddLocationCall struct {
+// MockServiceAddLocationCall wrap *gomock.Call
+type MockServiceAddLocationCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *ServiceAddLocationCall) Return(arg0 *storage.AddLocationResult, arg1 error) *ServiceAddLocationCall {
+func (c *MockServiceAddLocationCall) Return(arg0 *storage.AddLocationResult, arg1 error) *MockServiceAddLocationCall {
 	c.Call = c.Call.Return(arg0, arg1)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *ServiceAddLocationCall) Do(f func(context.Context, *storage.AddLocationPayload) (*storage.AddLocationResult, error)) *ServiceAddLocationCall {
+func (c *MockServiceAddLocationCall) Do(f func(context.Context, *storage.AddLocationPayload) (*storage.AddLocationResult, error)) *MockServiceAddLocationCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *ServiceAddLocationCall) DoAndReturn(f func(context.Context, *storage.AddLocationPayload) (*storage.AddLocationResult, error)) *ServiceAddLocationCall {
+func (c *MockServiceAddLocationCall) DoAndReturn(f func(context.Context, *storage.AddLocationPayload) (*storage.AddLocationResult, error)) *MockServiceAddLocationCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
@@ -91,31 +93,31 @@ func (m *MockService) Delete(arg0 context.Context, arg1 uuid.UUID) error {
 }
 
 // Delete indicates an expected call of Delete.
-func (mr *MockServiceMockRecorder) Delete(arg0, arg1 any) *ServiceDeleteCall {
+func (mr *MockServiceMockRecorder) Delete(arg0, arg1 any) *MockServiceDeleteCall {
 	mr.mock.ctrl.T.Helper()
 	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockService)(nil).Delete), arg0, arg1)
-	return &ServiceDeleteCall{Call: call}
+	return &MockServiceDeleteCall{Call: call}
 }
 
-// ServiceDeleteCall wrap *gomock.Call
-type ServiceDeleteCall struct {
+// MockServiceDeleteCall wrap *gomock.Call
+type MockServiceDeleteCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *ServiceDeleteCall) Return(arg0 error) *ServiceDeleteCall {
+func (c *MockServiceDeleteCall) Return(arg0 error) *MockServiceDeleteCall {
 	c.Call = c.Call.Return(arg0)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *ServiceDeleteCall) Do(f func(context.Context, uuid.UUID) error) *ServiceDeleteCall {
+func (c *MockServiceDeleteCall) Do(f func(context.Context, uuid.UUID) error) *MockServiceDeleteCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *ServiceDeleteCall) DoAndReturn(f func(context.Context, uuid.UUID) error) *ServiceDeleteCall {
+func (c *MockServiceDeleteCall) DoAndReturn(f func(context.Context, uuid.UUID) error) *MockServiceDeleteCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
@@ -130,31 +132,31 @@ func (m *MockService) Download(arg0 context.Context, arg1 *storage.DownloadPaylo
 }
 
 // Download indicates an expected call of Download.
-func (mr *MockServiceMockRecorder) Download(arg0, arg1 any) *ServiceDownloadCall {
+func (mr *MockServiceMockRecorder) Download(arg0, arg1 any) *MockServiceDownloadCall {
 	mr.mock.ctrl.T.Helper()
 	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Download", reflect.TypeOf((*MockService)(nil).Download), arg0, arg1)
-	return &ServiceDownloadCall{Call: call}
+	return &MockServiceDownloadCall{Call: call}
 }
 
-// ServiceDownloadCall wrap *gomock.Call
-type ServiceDownloadCall struct {
+// MockServiceDownloadCall wrap *gomock.Call
+type MockServiceDownloadCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *ServiceDownloadCall) Return(arg0 []byte, arg1 error) *ServiceDownloadCall {
+func (c *MockServiceDownloadCall) Return(arg0 []byte, arg1 error) *MockServiceDownloadCall {
 	c.Call = c.Call.Return(arg0, arg1)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *ServiceDownloadCall) Do(f func(context.Context, *storage.DownloadPayload) ([]byte, error)) *ServiceDownloadCall {
+func (c *MockServiceDownloadCall) Do(f func(context.Context, *storage.DownloadPayload) ([]byte, error)) *MockServiceDownloadCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *ServiceDownloadCall) DoAndReturn(f func(context.Context, *storage.DownloadPayload) ([]byte, error)) *ServiceDownloadCall {
+func (c *MockServiceDownloadCall) DoAndReturn(f func(context.Context, *storage.DownloadPayload) ([]byte, error)) *MockServiceDownloadCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
@@ -169,31 +171,31 @@ func (m *MockService) Location(arg0 context.Context, arg1 uuid.UUID) (storage0.L
 }
 
 // Location indicates an expected call of Location.
-func (mr *MockServiceMockRecorder) Location(arg0, arg1 any) *ServiceLocationCall {
+func (mr *MockServiceMockRecorder) Location(arg0, arg1 any) *MockServiceLocationCall {
 	mr.mock.ctrl.T.Helper()
 	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Location", reflect.TypeOf((*MockService)(nil).Location), arg0, arg1)
-	return &ServiceLocationCall{Call: call}
+	return &MockServiceLocationCall{Call: call}
 }
 
-// ServiceLocationCall wrap *gomock.Call
-type ServiceLocationCall struct {
+// MockServiceLocationCall wrap *gomock.Call
+type MockServiceLocationCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *ServiceLocationCall) Return(arg0 storage0.Location, arg1 error) *ServiceLocationCall {
+func (c *MockServiceLocationCall) Return(arg0 storage0.Location, arg1 error) *MockServiceLocationCall {
 	c.Call = c.Call.Return(arg0, arg1)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *ServiceLocationCall) Do(f func(context.Context, uuid.UUID) (storage0.Location, error)) *ServiceLocationCall {
+func (c *MockServiceLocationCall) Do(f func(context.Context, uuid.UUID) (storage0.Location, error)) *MockServiceLocationCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *ServiceLocationCall) DoAndReturn(f func(context.Context, uuid.UUID) (storage0.Location, error)) *ServiceLocationCall {
+func (c *MockServiceLocationCall) DoAndReturn(f func(context.Context, uuid.UUID) (storage0.Location, error)) *MockServiceLocationCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
@@ -208,31 +210,31 @@ func (m *MockService) LocationPackages(arg0 context.Context, arg1 *storage.Locat
 }
 
 // LocationPackages indicates an expected call of LocationPackages.
-func (mr *MockServiceMockRecorder) LocationPackages(arg0, arg1 any) *ServiceLocationPackagesCall {
+func (mr *MockServiceMockRecorder) LocationPackages(arg0, arg1 any) *MockServiceLocationPackagesCall {
 	mr.mock.ctrl.T.Helper()
 	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LocationPackages", reflect.TypeOf((*MockService)(nil).LocationPackages), arg0, arg1)
-	return &ServiceLocationPackagesCall{Call: call}
+	return &MockServiceLocationPackagesCall{Call: call}
 }
 
-// ServiceLocationPackagesCall wrap *gomock.Call
-type ServiceLocationPackagesCall struct {
+// MockServiceLocationPackagesCall wrap *gomock.Call
+type MockServiceLocationPackagesCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *ServiceLocationPackagesCall) Return(arg0 storage.PackageCollection, arg1 error) *ServiceLocationPackagesCall {
+func (c *MockServiceLocationPackagesCall) Return(arg0 storage.PackageCollection, arg1 error) *MockServiceLocationPackagesCall {
 	c.Call = c.Call.Return(arg0, arg1)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *ServiceLocationPackagesCall) Do(f func(context.Context, *storage.LocationPackagesPayload) (storage.PackageCollection, error)) *ServiceLocationPackagesCall {
+func (c *MockServiceLocationPackagesCall) Do(f func(context.Context, *storage.LocationPackagesPayload) (storage.PackageCollection, error)) *MockServiceLocationPackagesCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *ServiceLocationPackagesCall) DoAndReturn(f func(context.Context, *storage.LocationPackagesPayload) (storage.PackageCollection, error)) *ServiceLocationPackagesCall {
+func (c *MockServiceLocationPackagesCall) DoAndReturn(f func(context.Context, *storage.LocationPackagesPayload) (storage.PackageCollection, error)) *MockServiceLocationPackagesCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
@@ -247,31 +249,31 @@ func (m *MockService) Locations(arg0 context.Context, arg1 *storage.LocationsPay
 }
 
 // Locations indicates an expected call of Locations.
-func (mr *MockServiceMockRecorder) Locations(arg0, arg1 any) *ServiceLocationsCall {
+func (mr *MockServiceMockRecorder) Locations(arg0, arg1 any) *MockServiceLocationsCall {
 	mr.mock.ctrl.T.Helper()
 	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Locations", reflect.TypeOf((*MockService)(nil).Locations), arg0, arg1)
-	return &ServiceLocationsCall{Call: call}
+	return &MockServiceLocationsCall{Call: call}
 }
 
-// ServiceLocationsCall wrap *gomock.Call
-type ServiceLocationsCall struct {
+// MockServiceLocationsCall wrap *gomock.Call
+type MockServiceLocationsCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *ServiceLocationsCall) Return(arg0 storage.LocationCollection, arg1 error) *ServiceLocationsCall {
+func (c *MockServiceLocationsCall) Return(arg0 storage.LocationCollection, arg1 error) *MockServiceLocationsCall {
 	c.Call = c.Call.Return(arg0, arg1)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *ServiceLocationsCall) Do(f func(context.Context, *storage.LocationsPayload) (storage.LocationCollection, error)) *ServiceLocationsCall {
+func (c *MockServiceLocationsCall) Do(f func(context.Context, *storage.LocationsPayload) (storage.LocationCollection, error)) *MockServiceLocationsCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *ServiceLocationsCall) DoAndReturn(f func(context.Context, *storage.LocationsPayload) (storage.LocationCollection, error)) *ServiceLocationsCall {
+func (c *MockServiceLocationsCall) DoAndReturn(f func(context.Context, *storage.LocationsPayload) (storage.LocationCollection, error)) *MockServiceLocationsCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
@@ -285,31 +287,31 @@ func (m *MockService) Move(arg0 context.Context, arg1 *storage.MovePayload) erro
 }
 
 // Move indicates an expected call of Move.
-func (mr *MockServiceMockRecorder) Move(arg0, arg1 any) *ServiceMoveCall {
+func (mr *MockServiceMockRecorder) Move(arg0, arg1 any) *MockServiceMoveCall {
 	mr.mock.ctrl.T.Helper()
 	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Move", reflect.TypeOf((*MockService)(nil).Move), arg0, arg1)
-	return &ServiceMoveCall{Call: call}
+	return &MockServiceMoveCall{Call: call}
 }
 
-// ServiceMoveCall wrap *gomock.Call
-type ServiceMoveCall struct {
+// MockServiceMoveCall wrap *gomock.Call
+type MockServiceMoveCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *ServiceMoveCall) Return(arg0 error) *ServiceMoveCall {
+func (c *MockServiceMoveCall) Return(arg0 error) *MockServiceMoveCall {
 	c.Call = c.Call.Return(arg0)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *ServiceMoveCall) Do(f func(context.Context, *storage.MovePayload) error) *ServiceMoveCall {
+func (c *MockServiceMoveCall) Do(f func(context.Context, *storage.MovePayload) error) *MockServiceMoveCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *ServiceMoveCall) DoAndReturn(f func(context.Context, *storage.MovePayload) error) *ServiceMoveCall {
+func (c *MockServiceMoveCall) DoAndReturn(f func(context.Context, *storage.MovePayload) error) *MockServiceMoveCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
@@ -324,70 +326,71 @@ func (m *MockService) MoveStatus(arg0 context.Context, arg1 *storage.MoveStatusP
 }
 
 // MoveStatus indicates an expected call of MoveStatus.
-func (mr *MockServiceMockRecorder) MoveStatus(arg0, arg1 any) *ServiceMoveStatusCall {
+func (mr *MockServiceMockRecorder) MoveStatus(arg0, arg1 any) *MockServiceMoveStatusCall {
 	mr.mock.ctrl.T.Helper()
 	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MoveStatus", reflect.TypeOf((*MockService)(nil).MoveStatus), arg0, arg1)
-	return &ServiceMoveStatusCall{Call: call}
+	return &MockServiceMoveStatusCall{Call: call}
 }
 
-// ServiceMoveStatusCall wrap *gomock.Call
-type ServiceMoveStatusCall struct {
+// MockServiceMoveStatusCall wrap *gomock.Call
+type MockServiceMoveStatusCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *ServiceMoveStatusCall) Return(arg0 *storage.MoveStatusResult, arg1 error) *ServiceMoveStatusCall {
+func (c *MockServiceMoveStatusCall) Return(arg0 *storage.MoveStatusResult, arg1 error) *MockServiceMoveStatusCall {
 	c.Call = c.Call.Return(arg0, arg1)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *ServiceMoveStatusCall) Do(f func(context.Context, *storage.MoveStatusPayload) (*storage.MoveStatusResult, error)) *ServiceMoveStatusCall {
+func (c *MockServiceMoveStatusCall) Do(f func(context.Context, *storage.MoveStatusPayload) (*storage.MoveStatusResult, error)) *MockServiceMoveStatusCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *ServiceMoveStatusCall) DoAndReturn(f func(context.Context, *storage.MoveStatusPayload) (*storage.MoveStatusResult, error)) *ServiceMoveStatusCall {
+func (c *MockServiceMoveStatusCall) DoAndReturn(f func(context.Context, *storage.MoveStatusPayload) (*storage.MoveStatusResult, error)) *MockServiceMoveStatusCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
 
 // PackageReader mocks base method.
-func (m *MockService) PackageReader(arg0 context.Context, arg1 *storage.Package) (*blob.Reader, error) {
+func (m *MockService) PackageReader(arg0 context.Context, arg1 *storage.Package) (*blob.Reader, *http.Response, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "PackageReader", arg0, arg1)
 	ret0, _ := ret[0].(*blob.Reader)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret1, _ := ret[1].(*http.Response)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
 }
 
 // PackageReader indicates an expected call of PackageReader.
-func (mr *MockServiceMockRecorder) PackageReader(arg0, arg1 any) *ServicePackageReaderCall {
+func (mr *MockServiceMockRecorder) PackageReader(arg0, arg1 any) *MockServicePackageReaderCall {
 	mr.mock.ctrl.T.Helper()
 	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PackageReader", reflect.TypeOf((*MockService)(nil).PackageReader), arg0, arg1)
-	return &ServicePackageReaderCall{Call: call}
+	return &MockServicePackageReaderCall{Call: call}
 }
 
-// ServicePackageReaderCall wrap *gomock.Call
-type ServicePackageReaderCall struct {
+// MockServicePackageReaderCall wrap *gomock.Call
+type MockServicePackageReaderCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *ServicePackageReaderCall) Return(arg0 *blob.Reader, arg1 error) *ServicePackageReaderCall {
-	c.Call = c.Call.Return(arg0, arg1)
+func (c *MockServicePackageReaderCall) Return(arg0 *blob.Reader, arg1 *http.Response, arg2 error) *MockServicePackageReaderCall {
+	c.Call = c.Call.Return(arg0, arg1, arg2)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *ServicePackageReaderCall) Do(f func(context.Context, *storage.Package) (*blob.Reader, error)) *ServicePackageReaderCall {
+func (c *MockServicePackageReaderCall) Do(f func(context.Context, *storage.Package) (*blob.Reader, *http.Response, error)) *MockServicePackageReaderCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *ServicePackageReaderCall) DoAndReturn(f func(context.Context, *storage.Package) (*blob.Reader, error)) *ServicePackageReaderCall {
+func (c *MockServicePackageReaderCall) DoAndReturn(f func(context.Context, *storage.Package) (*blob.Reader, *http.Response, error)) *MockServicePackageReaderCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
@@ -402,31 +405,31 @@ func (m *MockService) ReadPackage(arg0 context.Context, arg1 uuid.UUID) (*storag
 }
 
 // ReadPackage indicates an expected call of ReadPackage.
-func (mr *MockServiceMockRecorder) ReadPackage(arg0, arg1 any) *ServiceReadPackageCall {
+func (mr *MockServiceMockRecorder) ReadPackage(arg0, arg1 any) *MockServiceReadPackageCall {
 	mr.mock.ctrl.T.Helper()
 	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadPackage", reflect.TypeOf((*MockService)(nil).ReadPackage), arg0, arg1)
-	return &ServiceReadPackageCall{Call: call}
+	return &MockServiceReadPackageCall{Call: call}
 }
 
-// ServiceReadPackageCall wrap *gomock.Call
-type ServiceReadPackageCall struct {
+// MockServiceReadPackageCall wrap *gomock.Call
+type MockServiceReadPackageCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *ServiceReadPackageCall) Return(arg0 *storage.Package, arg1 error) *ServiceReadPackageCall {
+func (c *MockServiceReadPackageCall) Return(arg0 *storage.Package, arg1 error) *MockServiceReadPackageCall {
 	c.Call = c.Call.Return(arg0, arg1)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *ServiceReadPackageCall) Do(f func(context.Context, uuid.UUID) (*storage.Package, error)) *ServiceReadPackageCall {
+func (c *MockServiceReadPackageCall) Do(f func(context.Context, uuid.UUID) (*storage.Package, error)) *MockServiceReadPackageCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *ServiceReadPackageCall) DoAndReturn(f func(context.Context, uuid.UUID) (*storage.Package, error)) *ServiceReadPackageCall {
+func (c *MockServiceReadPackageCall) DoAndReturn(f func(context.Context, uuid.UUID) (*storage.Package, error)) *MockServiceReadPackageCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
@@ -440,31 +443,31 @@ func (m *MockService) Reject(arg0 context.Context, arg1 *storage.RejectPayload) 
 }
 
 // Reject indicates an expected call of Reject.
-func (mr *MockServiceMockRecorder) Reject(arg0, arg1 any) *ServiceRejectCall {
+func (mr *MockServiceMockRecorder) Reject(arg0, arg1 any) *MockServiceRejectCall {
 	mr.mock.ctrl.T.Helper()
 	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Reject", reflect.TypeOf((*MockService)(nil).Reject), arg0, arg1)
-	return &ServiceRejectCall{Call: call}
+	return &MockServiceRejectCall{Call: call}
 }
 
-// ServiceRejectCall wrap *gomock.Call
-type ServiceRejectCall struct {
+// MockServiceRejectCall wrap *gomock.Call
+type MockServiceRejectCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *ServiceRejectCall) Return(arg0 error) *ServiceRejectCall {
+func (c *MockServiceRejectCall) Return(arg0 error) *MockServiceRejectCall {
 	c.Call = c.Call.Return(arg0)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *ServiceRejectCall) Do(f func(context.Context, *storage.RejectPayload) error) *ServiceRejectCall {
+func (c *MockServiceRejectCall) Do(f func(context.Context, *storage.RejectPayload) error) *MockServiceRejectCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *ServiceRejectCall) DoAndReturn(f func(context.Context, *storage.RejectPayload) error) *ServiceRejectCall {
+func (c *MockServiceRejectCall) DoAndReturn(f func(context.Context, *storage.RejectPayload) error) *MockServiceRejectCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
@@ -479,31 +482,31 @@ func (m *MockService) Show(arg0 context.Context, arg1 *storage.ShowPayload) (*st
 }
 
 // Show indicates an expected call of Show.
-func (mr *MockServiceMockRecorder) Show(arg0, arg1 any) *ServiceShowCall {
+func (mr *MockServiceMockRecorder) Show(arg0, arg1 any) *MockServiceShowCall {
 	mr.mock.ctrl.T.Helper()
 	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Show", reflect.TypeOf((*MockService)(nil).Show), arg0, arg1)
-	return &ServiceShowCall{Call: call}
+	return &MockServiceShowCall{Call: call}
 }
 
-// ServiceShowCall wrap *gomock.Call
-type ServiceShowCall struct {
+// MockServiceShowCall wrap *gomock.Call
+type MockServiceShowCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *ServiceShowCall) Return(arg0 *storage.Package, arg1 error) *ServiceShowCall {
+func (c *MockServiceShowCall) Return(arg0 *storage.Package, arg1 error) *MockServiceShowCall {
 	c.Call = c.Call.Return(arg0, arg1)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *ServiceShowCall) Do(f func(context.Context, *storage.ShowPayload) (*storage.Package, error)) *ServiceShowCall {
+func (c *MockServiceShowCall) Do(f func(context.Context, *storage.ShowPayload) (*storage.Package, error)) *MockServiceShowCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *ServiceShowCall) DoAndReturn(f func(context.Context, *storage.ShowPayload) (*storage.Package, error)) *ServiceShowCall {
+func (c *MockServiceShowCall) DoAndReturn(f func(context.Context, *storage.ShowPayload) (*storage.Package, error)) *MockServiceShowCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
@@ -518,31 +521,31 @@ func (m *MockService) ShowLocation(arg0 context.Context, arg1 *storage.ShowLocat
 }
 
 // ShowLocation indicates an expected call of ShowLocation.
-func (mr *MockServiceMockRecorder) ShowLocation(arg0, arg1 any) *ServiceShowLocationCall {
+func (mr *MockServiceMockRecorder) ShowLocation(arg0, arg1 any) *MockServiceShowLocationCall {
 	mr.mock.ctrl.T.Helper()
 	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ShowLocation", reflect.TypeOf((*MockService)(nil).ShowLocation), arg0, arg1)
-	return &ServiceShowLocationCall{Call: call}
+	return &MockServiceShowLocationCall{Call: call}
 }
 
-// ServiceShowLocationCall wrap *gomock.Call
-type ServiceShowLocationCall struct {
+// MockServiceShowLocationCall wrap *gomock.Call
+type MockServiceShowLocationCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *ServiceShowLocationCall) Return(arg0 *storage.Location, arg1 error) *ServiceShowLocationCall {
+func (c *MockServiceShowLocationCall) Return(arg0 *storage.Location, arg1 error) *MockServiceShowLocationCall {
 	c.Call = c.Call.Return(arg0, arg1)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *ServiceShowLocationCall) Do(f func(context.Context, *storage.ShowLocationPayload) (*storage.Location, error)) *ServiceShowLocationCall {
+func (c *MockServiceShowLocationCall) Do(f func(context.Context, *storage.ShowLocationPayload) (*storage.Location, error)) *MockServiceShowLocationCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *ServiceShowLocationCall) DoAndReturn(f func(context.Context, *storage.ShowLocationPayload) (*storage.Location, error)) *ServiceShowLocationCall {
+func (c *MockServiceShowLocationCall) DoAndReturn(f func(context.Context, *storage.ShowLocationPayload) (*storage.Location, error)) *MockServiceShowLocationCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
@@ -557,31 +560,31 @@ func (m *MockService) Submit(arg0 context.Context, arg1 *storage.SubmitPayload) 
 }
 
 // Submit indicates an expected call of Submit.
-func (mr *MockServiceMockRecorder) Submit(arg0, arg1 any) *ServiceSubmitCall {
+func (mr *MockServiceMockRecorder) Submit(arg0, arg1 any) *MockServiceSubmitCall {
 	mr.mock.ctrl.T.Helper()
 	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Submit", reflect.TypeOf((*MockService)(nil).Submit), arg0, arg1)
-	return &ServiceSubmitCall{Call: call}
+	return &MockServiceSubmitCall{Call: call}
 }
 
-// ServiceSubmitCall wrap *gomock.Call
-type ServiceSubmitCall struct {
+// MockServiceSubmitCall wrap *gomock.Call
+type MockServiceSubmitCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *ServiceSubmitCall) Return(arg0 *storage.SubmitResult, arg1 error) *ServiceSubmitCall {
+func (c *MockServiceSubmitCall) Return(arg0 *storage.SubmitResult, arg1 error) *MockServiceSubmitCall {
 	c.Call = c.Call.Return(arg0, arg1)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *ServiceSubmitCall) Do(f func(context.Context, *storage.SubmitPayload) (*storage.SubmitResult, error)) *ServiceSubmitCall {
+func (c *MockServiceSubmitCall) Do(f func(context.Context, *storage.SubmitPayload) (*storage.SubmitResult, error)) *MockServiceSubmitCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *ServiceSubmitCall) DoAndReturn(f func(context.Context, *storage.SubmitPayload) (*storage.SubmitResult, error)) *ServiceSubmitCall {
+func (c *MockServiceSubmitCall) DoAndReturn(f func(context.Context, *storage.SubmitPayload) (*storage.SubmitResult, error)) *MockServiceSubmitCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
@@ -595,31 +598,31 @@ func (m *MockService) Update(arg0 context.Context, arg1 *storage.UpdatePayload) 
 }
 
 // Update indicates an expected call of Update.
-func (mr *MockServiceMockRecorder) Update(arg0, arg1 any) *ServiceUpdateCall {
+func (mr *MockServiceMockRecorder) Update(arg0, arg1 any) *MockServiceUpdateCall {
 	mr.mock.ctrl.T.Helper()
 	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockService)(nil).Update), arg0, arg1)
-	return &ServiceUpdateCall{Call: call}
+	return &MockServiceUpdateCall{Call: call}
 }
 
-// ServiceUpdateCall wrap *gomock.Call
-type ServiceUpdateCall struct {
+// MockServiceUpdateCall wrap *gomock.Call
+type MockServiceUpdateCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *ServiceUpdateCall) Return(arg0 error) *ServiceUpdateCall {
+func (c *MockServiceUpdateCall) Return(arg0 error) *MockServiceUpdateCall {
 	c.Call = c.Call.Return(arg0)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *ServiceUpdateCall) Do(f func(context.Context, *storage.UpdatePayload) error) *ServiceUpdateCall {
+func (c *MockServiceUpdateCall) Do(f func(context.Context, *storage.UpdatePayload) error) *MockServiceUpdateCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *ServiceUpdateCall) DoAndReturn(f func(context.Context, *storage.UpdatePayload) error) *ServiceUpdateCall {
+func (c *MockServiceUpdateCall) DoAndReturn(f func(context.Context, *storage.UpdatePayload) error) *MockServiceUpdateCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
@@ -633,31 +636,31 @@ func (m *MockService) UpdatePackageLocationID(arg0 context.Context, arg1, arg2 u
 }
 
 // UpdatePackageLocationID indicates an expected call of UpdatePackageLocationID.
-func (mr *MockServiceMockRecorder) UpdatePackageLocationID(arg0, arg1, arg2 any) *ServiceUpdatePackageLocationIDCall {
+func (mr *MockServiceMockRecorder) UpdatePackageLocationID(arg0, arg1, arg2 any) *MockServiceUpdatePackageLocationIDCall {
 	mr.mock.ctrl.T.Helper()
 	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdatePackageLocationID", reflect.TypeOf((*MockService)(nil).UpdatePackageLocationID), arg0, arg1, arg2)
-	return &ServiceUpdatePackageLocationIDCall{Call: call}
+	return &MockServiceUpdatePackageLocationIDCall{Call: call}
 }
 
-// ServiceUpdatePackageLocationIDCall wrap *gomock.Call
-type ServiceUpdatePackageLocationIDCall struct {
+// MockServiceUpdatePackageLocationIDCall wrap *gomock.Call
+type MockServiceUpdatePackageLocationIDCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *ServiceUpdatePackageLocationIDCall) Return(arg0 error) *ServiceUpdatePackageLocationIDCall {
+func (c *MockServiceUpdatePackageLocationIDCall) Return(arg0 error) *MockServiceUpdatePackageLocationIDCall {
 	c.Call = c.Call.Return(arg0)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *ServiceUpdatePackageLocationIDCall) Do(f func(context.Context, uuid.UUID, uuid.UUID) error) *ServiceUpdatePackageLocationIDCall {
+func (c *MockServiceUpdatePackageLocationIDCall) Do(f func(context.Context, uuid.UUID, uuid.UUID) error) *MockServiceUpdatePackageLocationIDCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *ServiceUpdatePackageLocationIDCall) DoAndReturn(f func(context.Context, uuid.UUID, uuid.UUID) error) *ServiceUpdatePackageLocationIDCall {
+func (c *MockServiceUpdatePackageLocationIDCall) DoAndReturn(f func(context.Context, uuid.UUID, uuid.UUID) error) *MockServiceUpdatePackageLocationIDCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
@@ -671,31 +674,31 @@ func (m *MockService) UpdatePackageStatus(arg0 context.Context, arg1 uuid.UUID, 
 }
 
 // UpdatePackageStatus indicates an expected call of UpdatePackageStatus.
-func (mr *MockServiceMockRecorder) UpdatePackageStatus(arg0, arg1, arg2 any) *ServiceUpdatePackageStatusCall {
+func (mr *MockServiceMockRecorder) UpdatePackageStatus(arg0, arg1, arg2 any) *MockServiceUpdatePackageStatusCall {
 	mr.mock.ctrl.T.Helper()
 	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdatePackageStatus", reflect.TypeOf((*MockService)(nil).UpdatePackageStatus), arg0, arg1, arg2)
-	return &ServiceUpdatePackageStatusCall{Call: call}
+	return &MockServiceUpdatePackageStatusCall{Call: call}
 }
 
-// ServiceUpdatePackageStatusCall wrap *gomock.Call
-type ServiceUpdatePackageStatusCall struct {
+// MockServiceUpdatePackageStatusCall wrap *gomock.Call
+type MockServiceUpdatePackageStatusCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *ServiceUpdatePackageStatusCall) Return(arg0 error) *ServiceUpdatePackageStatusCall {
+func (c *MockServiceUpdatePackageStatusCall) Return(arg0 error) *MockServiceUpdatePackageStatusCall {
 	c.Call = c.Call.Return(arg0)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *ServiceUpdatePackageStatusCall) Do(f func(context.Context, uuid.UUID, types.PackageStatus) error) *ServiceUpdatePackageStatusCall {
+func (c *MockServiceUpdatePackageStatusCall) Do(f func(context.Context, uuid.UUID, types.PackageStatus) error) *MockServiceUpdatePackageStatusCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *ServiceUpdatePackageStatusCall) DoAndReturn(f func(context.Context, uuid.UUID, types.PackageStatus) error) *ServiceUpdatePackageStatusCall {
+func (c *MockServiceUpdatePackageStatusCall) DoAndReturn(f func(context.Context, uuid.UUID, types.PackageStatus) error) *MockServiceUpdatePackageStatusCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
