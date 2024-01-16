@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
 
 	"github.com/google/uuid"
 	"gocloud.dev/blob"
@@ -15,6 +16,9 @@ import (
 type Location interface {
 	UUID() uuid.UUID
 	OpenBucket(ctx context.Context) (*blob.Bucket, error)
+	// OpenSS or Open Storage Service is like Open Bucket but instead of a bucket it returns the
+	// http response from the external storage service it has requested content from.
+	OpenSS(ctx context.Context) (*http.Response, error)
 }
 
 type locationImpl struct {
@@ -87,4 +91,21 @@ func (l *locationImpl) OpenBucket(ctx context.Context) (*blob.Bucket, error) {
 		return nil, err
 	}
 	return b, nil
+}
+
+type NotExternLocation error
+
+func (l *locationImpl) OpenSS(ctx context.Context) (*http.Response, error) {
+	// Open ss takes the location url on the config and resolves the location via a new request to that url
+	// not sure if I can even get this, it is a bit confusing to understand how to grab the config
+	// url := l
+	// resp, err, := http.NewRequestWithContext(ctx, l, nil)
+	// return resp, nil
+
+	var foo bool
+	if !foo {
+		var err NotExternLocation
+		return nil, err
+	}
+	panic("not implemented")
 }

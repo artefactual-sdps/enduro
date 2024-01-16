@@ -36,7 +36,7 @@ type Service interface {
 	Delete(ctx context.Context, aipID uuid.UUID) (err error)
 
 	// Both.
-	PackageReader(ctx context.Context, pkg *goastorage.Package) (*blob.Reader, error)
+	PackageReader(ctx context.Context, pkg *goastorage.Package) (*blob.Reader, *http.Response, error)
 }
 
 type serviceImpl struct {
@@ -322,24 +322,38 @@ func (s *serviceImpl) Delete(ctx context.Context, aipID uuid.UUID) error {
 	return bucket.Delete(ctx, key)
 }
 
-func (s *serviceImpl) PackageReader(ctx context.Context, pkg *goastorage.Package) (*blob.Reader, error) {
+func (s *serviceImpl) PackageReader(ctx context.Context, pkg *goastorage.Package) (*blob.Reader, *http.Response, error) {
+	// Get the url given the package.
 	location, key, err := s.packageLocation(ctx, pkg)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
+	}
+
+	resp, err := location.OpenSS(ctx)
+
+	// If it is an external location and the response is not nil then
+	// there was an error that occurred with the external storage service
+	// Alternatively, openss could return a boolean telling us that the value is an external service.
+	if _, ok := err.(NotExternLocation); !ok {
+		if resp == nil {
+			return nil, nil, err
+		}
+
+		return nil, resp, nil
 	}
 
 	bucket, err := location.OpenBucket(ctx)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	defer bucket.Close()
 
 	reader, err := bucket.NewReader(ctx, key, nil)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	return reader, nil
+	return reader, nil, nil
 }
 
 func (s *serviceImpl) AddLocation(ctx context.Context, payload *goastorage.AddLocationPayload) (res *goastorage.AddLocationResult, err error) {

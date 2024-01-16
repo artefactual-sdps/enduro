@@ -9,6 +9,7 @@ import (
 
 	"github.com/google/uuid"
 	goahttp "goa.design/goa/v3/http"
+	"gocloud.dev/blob"
 
 	"github.com/artefactual-sdps/enduro/internal/api/gen/http/storage/server"
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
@@ -43,7 +44,11 @@ func Download(svc Service, mux goahttp.Muxer, dec func(r *http.Request) goahttp.
 		}
 
 		// Get MinIO bucket reader for object key.
-		reader, err := svc.PackageReader(ctx, pkg)
+		// Package reader returns an external processes' return (such as an AIP from archivematica) given by a particular package
+		// we can encapsulate the return into something else later besides an anytype, we might even do a type switch depending on
+		// configuration.
+		reader, resp, err := svc.PackageReader(ctx, pkg)
+		_ = resp
 		if err != nil {
 			rw.WriteHeader(http.StatusNotFound)
 			return
@@ -51,16 +56,45 @@ func Download(svc Service, mux goahttp.Muxer, dec func(r *http.Request) goahttp.
 		defer reader.Close()
 
 		filename := fmt.Sprintf("%s-%s.7z", fsutil.BaseNoExt(pkg.Name), pkg.AipID)
-
-		rw.Header().Add("Content-Type", reader.ContentType())
-		rw.Header().Add("Content-Length", strconv.FormatInt(reader.Size(), 10))
-		rw.Header().Add("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", filename))
-
-		// Copy reader contents into the response.
-		_, err = io.Copy(rw, reader)
-		if err != nil {
-			rw.WriteHeader(http.StatusNotFound)
+		if reader == nil {
+			fillResponseResp(rw, resp, filename)
 			return
 		}
+
+		fillResponseBlob(rw, reader, filename)
+		return
+
 	}
+}
+
+// Fill the header and body of the http response with the blob's response information.
+func fillResponseBlob(rw http.ResponseWriter, responseInfo *blob.Reader, filename string) {
+
+	rw.Header().Add("Content-Type", responseInfo.ContentType())
+	rw.Header().Add("Content-Length", strconv.FormatInt(responseInfo.Size(), 10))
+	rw.Header().Add("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", filename))
+
+	// Copy reader contents into the response.
+	_, err := io.Copy(rw, responseInfo)
+	if err != nil {
+		rw.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+}
+
+// Fill the header and body of the http response with the resps's response information.
+func fillResponseResp(rw http.ResponseWriter, responseInfo *http.Response, filename string) {
+
+	rw.Header().Add("Content-Type", responseInfo.Header.Get("Content-Type"))
+	rw.Header().Add("Content-Length", responseInfo.Header.Get("Content-Length"))
+	rw.Header().Add("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", filename))
+
+	// Copy reader contents into the response.
+	_, err := io.Copy(rw, responseInfo.Body)
+	if err != nil {
+		rw.WriteHeader(http.StatusNotFound)
+		return
+	}
+
 }
