@@ -20,7 +20,7 @@ inside the cluster, and they are not tracked in the repository.
 
 ### Quick Checklist for Configuration Files
 
-- .am.secret File:
+#### .am.secret File:
   - Location: `hack/kube/overlays/dev-am/.am.secret`
   - **Contents to Check:**
     - AM API address (e.g.,`http://host.k3d.internal:62080`)
@@ -28,23 +28,23 @@ inside the cluster, and they are not tracked in the repository.
     - SFTP configuration
     details (`sftp_host=`, `sftp_port=`, `sftp_user=`,
     `sftp_remote_dir=`, `sftp_private_key_passphrase=`).
-- .id_ed25519.secret File:
+#### .id_ed25519.secret File:
   - Location: `hack/kube/overlays/dev-am/.id_ed25519.secret`
   - **Contents to Check:**
     - SSH private key (Ensure it starts with `-----BEGIN
     OPENSSH PRIVATE KEY-----` and ends with `-----END
     OPENSSH PRIVATE KEY-----`)
-- .known_hosts.secret File:
+#### .known_hosts.secret File:
   - Location: `hack/kube/overlays/dev-am/.known_hosts.secret`
   - **Contents to Check:**
     - Known hosts entries (Look for entries starting with
     `|1|` and containing `ssh-rsa`, `ecdsa-sha2-nistp256`,
     `ssh-ed25519` etc.)
-- .tilt.env File:
+#### .tilt.env File:
   - Location: `root/`
   - **Contents to Check:**
     - ENDURO_PRES_SYSTEM = "am"
-- enduro.toml File:
+#### enduro.toml File:
   - Location: `root/`
   - **Contents to Check:**
     - Preservation Taskqueue variable must be set to "am"
