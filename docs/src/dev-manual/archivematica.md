@@ -18,36 +18,45 @@ inside the cluster, and they are not tracked in the repository.
     the Kubernetes commands for these operations. Understanding the way these
     files are used is NOT required to work with Archivematica.
 
-### Quick Checklist for Configuration Files
+### Quick checklist for configuration files
 
-- [ ] .am.secret File:
-  - Location: `hack/kube/overlays/dev-am/.am.secret`
-  - **Contents to Check:**
+#### `.am.secret`
+
+- Location: `hack/kube/overlays/dev-am/.am.secret`
+- **Contents to check:**
     - AM API address (e.g.,`http://host.k3d.internal:62080`)
-    - User credentials(`user=test`, `api_key=test`)
+    - User credentials (`user=test`, `api_key=test`)
     - SFTP configuration
-    details (`sftp_host=`, `sftp_port=`, `sftp_user=`,
-    `sftp_remote_dir=`, `sftp_private_key_passphrase=`).
-- [ ] .id_ed25519.secret File:
-  - Location: `hack/kube/overlays/dev-am/.id_ed25519.secret`
-  - **Contents to Check:**
+      details (`sftp_host=`, `sftp_port=`, `sftp_user=`, `sftp_remote_dir=`,
+      `sftp_private_key_passphrase=`).
+
+#### `.id_ed25519.secret`
+
+- Location: `hack/kube/overlays/dev-am/.id_ed25519.secret`
+- **Contents to check:**
     - SSH private key (Ensure it starts with `-----BEGIN
-    OPENSSH PRIVATE KEY-----` and ends with `-----END
-    OPENSSH PRIVATE KEY-----`)
-- [ ] .known_hosts.secret File:
-  - Location: `hack/kube/overlays/dev-am/.known_hosts.secret`
-  - **Contents to Check:**
+      OPENSSH PRIVATE KEY-----` and ends with `-----END
+      OPENSSH PRIVATE KEY-----`)
+
+#### `.known_hosts.secret`
+
+- Location: `hack/kube/overlays/dev-am/.known_hosts.secret`
+- **Contents to check:**
     - Known hosts entries (Look for entries starting with
-    `|1|` and containing `ssh-rsa`, `ecdsa-sha2-nistp256`,
-    `ssh-ed25519` etc.)
-- [ ] .tilt.env File:
-  - Location: `root/`
-  - **Contents to Check:**
-    - ENDURO_PRES_SYSTEM = "am"
-- [ ] enduro.toml File:
-  - Location: `root/`
-  - **Contents to Check:**
-    - Preservation Taskqueue variable must be set to "am"
+      `|1|` and containing `ssh-rsa`, `ecdsa-sha2-nistp256`,
+      `ssh-ed25519` etc.)
+
+#### `.tilt.env`
+
+- Location: `root/`
+- **Contents to check:**
+    - `ENDURO_PRES_SYSTEM = "am"`
+
+#### `enduro.toml`
+
+- Location: `root/`
+- **Contents to check:**
+    - `[preservation] taskQueue` variable must be set to "am"
 
 !!! note
 
@@ -96,8 +105,8 @@ There is more information on the configuration of the [Tilt Environment].
 
 Preservation system value needed for workflow to be Archvimatica specific:
 
-	[Preservation]
-	taskqueue = "am"
+    [preservation]
+    taskqueue = "am"
 
 [kustomize secret generator]: https://kubernetes.io/docs/tasks/configmap-secret/managing-secret-using-kustomize/#create-a-secret
-[tilt environment]: (devel.md#-tilt-enviroment-configuration)
+[tilt environment]: devel.md#tilt-environment-configuration
