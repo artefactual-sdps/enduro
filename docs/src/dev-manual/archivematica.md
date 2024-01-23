@@ -25,7 +25,7 @@ inside the cluster, and they are not tracked in the repository.
 - Location: `hack/kube/overlays/dev-am/.am.secret`
 - **Contents to Check:**
   - AM API address (e.g.,`http://host.k3d.internal:62080`)
-  - User credentials(`user=test`, `api_key=test`)
+  - User credentials (`user=test`, `api_key=test`)
   - SFTP configuration
   details (`sftp_host=`, `sftp_port=`, `sftp_user=`,
   `sftp_remote_dir=`, `sftp_private_key_passphrase=`).
@@ -49,13 +49,13 @@ inside the cluster, and they are not tracked in the repository.
 #### .tilt.env File
 
 - Location: `root/`
-- **Contents to Check:**
+- **Contents to check:**
   - ENDURO_PRES_SYSTEM = "am"
 
 #### enduro.toml File
 
 - Location: `root/`
-- **Contents to Check:**
+- **Contents to check:**
   - Preservation Taskqueue variable must be set to "am"
 
 !!! note
