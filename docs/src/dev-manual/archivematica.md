@@ -105,8 +105,8 @@ There is more information on the configuration of the [Tilt Environment].
 
 Preservation system value needed for workflow to be Archvimatica specific:
 
-	[Preservation]
-	taskqueue = "am"
+    [Preservation]
+    taskqueue = "am"
 
 [kustomize secret generator]: https://kubernetes.io/docs/tasks/configmap-secret/managing-secret-using-kustomize/#create-a-secret
 [tilt environment]: (devel.md#-tilt-enviroment-configuration)
