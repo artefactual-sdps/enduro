@@ -20,7 +20,7 @@ inside the cluster, and they are not tracked in the repository.
 
 ### Quick Checklist for Configuration Files
 
-#### .am.secret File
+#### `.am.secret` file
 
 - Location: `hack/kube/overlays/dev-am/.am.secret`
 - **Contents to Check:**
@@ -30,7 +30,7 @@ inside the cluster, and they are not tracked in the repository.
   details (`sftp_host=`, `sftp_port=`, `sftp_user=`,
   `sftp_remote_dir=`, `sftp_private_key_passphrase=`).
 
-#### .id_ed25519.secret File
+#### `.id_ed25519.secret` file
 
 - Location: `hack/kube/overlays/dev-am/.id_ed25519.secret`
 - **Contents to Check:**
@@ -38,7 +38,7 @@ inside the cluster, and they are not tracked in the repository.
   OPENSSH PRIVATE KEY-----` and ends with `-----END
   OPENSSH PRIVATE KEY-----`)
 
-#### .known_hosts.secret File
+#### `.known_hosts.secret` file
 
 - Location: `hack/kube/overlays/dev-am/.known_hosts.secret`
 - **Contents to Check:**
@@ -46,13 +46,13 @@ inside the cluster, and they are not tracked in the repository.
       `|1|` and containing `ssh-rsa`, `ecdsa-sha2-nistp256`,
       `ssh-ed25519` etc.)
 
-#### .tilt.env File
+#### `.tilt.env` file
 
 - Location: `root/`
 - **Contents to check:**
   - ENDURO_PRES_SYSTEM = "am"
 
-#### enduro.toml File
+#### `enduro.toml` file
 
 - Location: `root/`
 - **Contents to check:**
