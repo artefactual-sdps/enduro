@@ -23,25 +23,25 @@ inside the cluster, and they are not tracked in the repository.
 #### `.am.secret` file
 
 - Location: `hack/kube/overlays/dev-am/.am.secret`
-- **Contents to Check:**
-  - AM API address (e.g.,`http://host.k3d.internal:62080`)
-  - User credentials (`user=test`, `api_key=test`)
-  - SFTP configuration
+- **Contents to check:**
+    - AM API address (e.g.,`http://host.k3d.internal:62080`)
+    - User credentials (`user=test`, `api_key=test`)
+    - SFTP configuration
   details (`sftp_host=`, `sftp_port=`, `sftp_user=`,
   `sftp_remote_dir=`, `sftp_private_key_passphrase=`).
 
 #### `.id_ed25519.secret` file
 
 - Location: `hack/kube/overlays/dev-am/.id_ed25519.secret`
-- **Contents to Check:**
-  - SSH private key (Ensure it starts with `-----BEGIN
+- **Contents to check:**
+    - SSH private key (Ensure it starts with `-----BEGIN
   OPENSSH PRIVATE KEY-----` and ends with `-----END
   OPENSSH PRIVATE KEY-----`)
 
 #### `.known_hosts.secret` file
 
 - Location: `hack/kube/overlays/dev-am/.known_hosts.secret`
-- **Contents to Check:**
+- **Contents to check:**
     - Known hosts entries (Look for entries starting with
       `|1|` and containing `ssh-rsa`, `ecdsa-sha2-nistp256`,
       `ssh-ed25519` etc.)
@@ -50,13 +50,13 @@ inside the cluster, and they are not tracked in the repository.
 
 - Location: `root/`
 - **Contents to check:**
-  - ENDURO_PRES_SYSTEM = "am"
+    - ENDURO_PRES_SYSTEM = "am"
 
 #### `enduro.toml` file
 
 - Location: `root/`
 - **Contents to check:**
-  - Preservation Taskqueue variable must be set to "am"
+    - Preservation Taskqueue variable must be set to "am"
 
 !!! note
 
