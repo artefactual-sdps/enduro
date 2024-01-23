@@ -141,6 +141,26 @@
         }
       }
     },
+    "python311Packages.pip-tools@latest": {
+      "last_modified": "2024-01-22T00:24:37Z",
+      "resolved": "github:NixOS/nixpkgs/5f5210aa20e343b7e35f40c033000db0ef80d7b9#python311Packages.pip-tools",
+      "source": "devbox-search",
+      "version": "7.3.0",
+      "systems": {
+        "aarch64-darwin": {
+          "store_path": "/nix/store/hxm9acby91qg3n4av7q9sj10qc97hdqn-python3.11-pip-tools-7.3.0"
+        },
+        "aarch64-linux": {
+          "store_path": "/nix/store/khv8lran538mq5yhnzm3q41326ksl4s5-python3.11-pip-tools-7.3.0"
+        },
+        "x86_64-darwin": {
+          "store_path": "/nix/store/2jjncjgdv5365ma5y0vh59czl4df8n39-python3.11-pip-tools-7.3.0"
+        },
+        "x86_64-linux": {
+          "store_path": "/nix/store/64hism84ji4grqwzsd4xf1vgbvkzqy4s-python3.11-pip-tools-7.3.0"
+        }
+      }
+    },
     "python3@latest": {
       "last_modified": "2023-12-13T22:54:10Z",
       "plugin_version": "0.0.3",
