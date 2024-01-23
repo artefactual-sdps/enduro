@@ -42,9 +42,9 @@ inside the cluster, and they are not tracked in the repository.
 
 - Location: `hack/kube/overlays/dev-am/.known_hosts.secret`
 - **Contents to Check:**
-  - Known hosts entries (Look for entries starting with
-  `|1|` and containing `ssh-rsa`, `ecdsa-sha2-nistp256`,
-  `ssh-ed25519` etc.)
+    - Known hosts entries (Look for entries starting with
+      `|1|` and containing `ssh-rsa`, `ecdsa-sha2-nistp256`,
+      `ssh-ed25519` etc.)
 
 #### .tilt.env File
 
