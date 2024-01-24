@@ -7,4 +7,7 @@
     "code_blocks": false,
     "tables": false,
   },
+  "MD007": {
+    "indent": 4
+  }
 }
