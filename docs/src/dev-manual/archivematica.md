@@ -50,7 +50,7 @@ inside the cluster, and they are not tracked in the repository.
 
 - Location: `root/`
 - **Contents to check:**
-    - ENDURO_PRES_SYSTEM = "am"
+    - `ENDURO_PRES_SYSTEM = "am"`
 
 #### `enduro.toml` file
 
