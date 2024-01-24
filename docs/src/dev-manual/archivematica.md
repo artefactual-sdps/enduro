@@ -18,7 +18,7 @@ inside the cluster, and they are not tracked in the repository.
     the Kubernetes commands for these operations. Understanding the way these
     files are used is NOT required to work with Archivematica.
 
-### Quick Checklist for Configuration Files
+### Quick checklist for configuration files
 
 #### `.am.secret` file
 
