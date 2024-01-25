@@ -5,6 +5,7 @@
 //
 //	mockgen -typed -destination=./internal/sftp/fake/mock_sftp.go -package=fake github.com/artefactual-sdps/enduro/internal/sftp Client,AsyncUpload
 //
+
 // Package fake is a generated GoMock package.
 package fake
 
@@ -49,31 +50,31 @@ func (m *MockClient) Delete(arg0 context.Context, arg1 string) error {
 }
 
 // Delete indicates an expected call of Delete.
-func (mr *MockClientMockRecorder) Delete(arg0, arg1 any) *ClientDeleteCall {
+func (mr *MockClientMockRecorder) Delete(arg0, arg1 any) *MockClientDeleteCall {
 	mr.mock.ctrl.T.Helper()
 	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockClient)(nil).Delete), arg0, arg1)
-	return &ClientDeleteCall{Call: call}
+	return &MockClientDeleteCall{Call: call}
 }
 
-// ClientDeleteCall wrap *gomock.Call
-type ClientDeleteCall struct {
+// MockClientDeleteCall wrap *gomock.Call
+type MockClientDeleteCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *ClientDeleteCall) Return(arg0 error) *ClientDeleteCall {
+func (c *MockClientDeleteCall) Return(arg0 error) *MockClientDeleteCall {
 	c.Call = c.Call.Return(arg0)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *ClientDeleteCall) Do(f func(context.Context, string) error) *ClientDeleteCall {
+func (c *MockClientDeleteCall) Do(f func(context.Context, string) error) *MockClientDeleteCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *ClientDeleteCall) DoAndReturn(f func(context.Context, string) error) *ClientDeleteCall {
+func (c *MockClientDeleteCall) DoAndReturn(f func(context.Context, string) error) *MockClientDeleteCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
@@ -89,31 +90,31 @@ func (m *MockClient) Upload(arg0 context.Context, arg1 io.Reader, arg2 string) (
 }
 
 // Upload indicates an expected call of Upload.
-func (mr *MockClientMockRecorder) Upload(arg0, arg1, arg2 any) *ClientUploadCall {
+func (mr *MockClientMockRecorder) Upload(arg0, arg1, arg2 any) *MockClientUploadCall {
 	mr.mock.ctrl.T.Helper()
 	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Upload", reflect.TypeOf((*MockClient)(nil).Upload), arg0, arg1, arg2)
-	return &ClientUploadCall{Call: call}
+	return &MockClientUploadCall{Call: call}
 }
 
-// ClientUploadCall wrap *gomock.Call
-type ClientUploadCall struct {
+// MockClientUploadCall wrap *gomock.Call
+type MockClientUploadCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *ClientUploadCall) Return(arg0 string, arg1 sftp.AsyncUpload, arg2 error) *ClientUploadCall {
+func (c *MockClientUploadCall) Return(arg0 string, arg1 sftp.AsyncUpload, arg2 error) *MockClientUploadCall {
 	c.Call = c.Call.Return(arg0, arg1, arg2)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *ClientUploadCall) Do(f func(context.Context, io.Reader, string) (string, sftp.AsyncUpload, error)) *ClientUploadCall {
+func (c *MockClientUploadCall) Do(f func(context.Context, io.Reader, string) (string, sftp.AsyncUpload, error)) *MockClientUploadCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *ClientUploadCall) DoAndReturn(f func(context.Context, io.Reader, string) (string, sftp.AsyncUpload, error)) *ClientUploadCall {
+func (c *MockClientUploadCall) DoAndReturn(f func(context.Context, io.Reader, string) (string, sftp.AsyncUpload, error)) *MockClientUploadCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
@@ -150,31 +151,31 @@ func (m *MockAsyncUpload) Bytes() int64 {
 }
 
 // Bytes indicates an expected call of Bytes.
-func (mr *MockAsyncUploadMockRecorder) Bytes() *AsyncUploadBytesCall {
+func (mr *MockAsyncUploadMockRecorder) Bytes() *MockAsyncUploadBytesCall {
 	mr.mock.ctrl.T.Helper()
 	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Bytes", reflect.TypeOf((*MockAsyncUpload)(nil).Bytes))
-	return &AsyncUploadBytesCall{Call: call}
+	return &MockAsyncUploadBytesCall{Call: call}
 }
 
-// AsyncUploadBytesCall wrap *gomock.Call
-type AsyncUploadBytesCall struct {
+// MockAsyncUploadBytesCall wrap *gomock.Call
+type MockAsyncUploadBytesCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *AsyncUploadBytesCall) Return(arg0 int64) *AsyncUploadBytesCall {
+func (c *MockAsyncUploadBytesCall) Return(arg0 int64) *MockAsyncUploadBytesCall {
 	c.Call = c.Call.Return(arg0)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *AsyncUploadBytesCall) Do(f func() int64) *AsyncUploadBytesCall {
+func (c *MockAsyncUploadBytesCall) Do(f func() int64) *MockAsyncUploadBytesCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *AsyncUploadBytesCall) DoAndReturn(f func() int64) *AsyncUploadBytesCall {
+func (c *MockAsyncUploadBytesCall) DoAndReturn(f func() int64) *MockAsyncUploadBytesCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
@@ -188,31 +189,31 @@ func (m *MockAsyncUpload) Close() error {
 }
 
 // Close indicates an expected call of Close.
-func (mr *MockAsyncUploadMockRecorder) Close() *AsyncUploadCloseCall {
+func (mr *MockAsyncUploadMockRecorder) Close() *MockAsyncUploadCloseCall {
 	mr.mock.ctrl.T.Helper()
 	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Close", reflect.TypeOf((*MockAsyncUpload)(nil).Close))
-	return &AsyncUploadCloseCall{Call: call}
+	return &MockAsyncUploadCloseCall{Call: call}
 }
 
-// AsyncUploadCloseCall wrap *gomock.Call
-type AsyncUploadCloseCall struct {
+// MockAsyncUploadCloseCall wrap *gomock.Call
+type MockAsyncUploadCloseCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *AsyncUploadCloseCall) Return(arg0 error) *AsyncUploadCloseCall {
+func (c *MockAsyncUploadCloseCall) Return(arg0 error) *MockAsyncUploadCloseCall {
 	c.Call = c.Call.Return(arg0)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *AsyncUploadCloseCall) Do(f func() error) *AsyncUploadCloseCall {
+func (c *MockAsyncUploadCloseCall) Do(f func() error) *MockAsyncUploadCloseCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *AsyncUploadCloseCall) DoAndReturn(f func() error) *AsyncUploadCloseCall {
+func (c *MockAsyncUploadCloseCall) DoAndReturn(f func() error) *MockAsyncUploadCloseCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
@@ -226,31 +227,31 @@ func (m *MockAsyncUpload) Done() chan bool {
 }
 
 // Done indicates an expected call of Done.
-func (mr *MockAsyncUploadMockRecorder) Done() *AsyncUploadDoneCall {
+func (mr *MockAsyncUploadMockRecorder) Done() *MockAsyncUploadDoneCall {
 	mr.mock.ctrl.T.Helper()
 	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Done", reflect.TypeOf((*MockAsyncUpload)(nil).Done))
-	return &AsyncUploadDoneCall{Call: call}
+	return &MockAsyncUploadDoneCall{Call: call}
 }
 
-// AsyncUploadDoneCall wrap *gomock.Call
-type AsyncUploadDoneCall struct {
+// MockAsyncUploadDoneCall wrap *gomock.Call
+type MockAsyncUploadDoneCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *AsyncUploadDoneCall) Return(arg0 chan bool) *AsyncUploadDoneCall {
+func (c *MockAsyncUploadDoneCall) Return(arg0 chan bool) *MockAsyncUploadDoneCall {
 	c.Call = c.Call.Return(arg0)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *AsyncUploadDoneCall) Do(f func() chan bool) *AsyncUploadDoneCall {
+func (c *MockAsyncUploadDoneCall) Do(f func() chan bool) *MockAsyncUploadDoneCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *AsyncUploadDoneCall) DoAndReturn(f func() chan bool) *AsyncUploadDoneCall {
+func (c *MockAsyncUploadDoneCall) DoAndReturn(f func() chan bool) *MockAsyncUploadDoneCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
@@ -264,31 +265,31 @@ func (m *MockAsyncUpload) Err() chan error {
 }
 
 // Err indicates an expected call of Err.
-func (mr *MockAsyncUploadMockRecorder) Err() *AsyncUploadErrCall {
+func (mr *MockAsyncUploadMockRecorder) Err() *MockAsyncUploadErrCall {
 	mr.mock.ctrl.T.Helper()
 	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Err", reflect.TypeOf((*MockAsyncUpload)(nil).Err))
-	return &AsyncUploadErrCall{Call: call}
+	return &MockAsyncUploadErrCall{Call: call}
 }
 
-// AsyncUploadErrCall wrap *gomock.Call
-type AsyncUploadErrCall struct {
+// MockAsyncUploadErrCall wrap *gomock.Call
+type MockAsyncUploadErrCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *AsyncUploadErrCall) Return(arg0 chan error) *AsyncUploadErrCall {
+func (c *MockAsyncUploadErrCall) Return(arg0 chan error) *MockAsyncUploadErrCall {
 	c.Call = c.Call.Return(arg0)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *AsyncUploadErrCall) Do(f func() chan error) *AsyncUploadErrCall {
+func (c *MockAsyncUploadErrCall) Do(f func() chan error) *MockAsyncUploadErrCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *AsyncUploadErrCall) DoAndReturn(f func() chan error) *AsyncUploadErrCall {
+func (c *MockAsyncUploadErrCall) DoAndReturn(f func() chan error) *MockAsyncUploadErrCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
@@ -303,31 +304,31 @@ func (m *MockAsyncUpload) Write(arg0 []byte) (int, error) {
 }
 
 // Write indicates an expected call of Write.
-func (mr *MockAsyncUploadMockRecorder) Write(arg0 any) *AsyncUploadWriteCall {
+func (mr *MockAsyncUploadMockRecorder) Write(arg0 any) *MockAsyncUploadWriteCall {
 	mr.mock.ctrl.T.Helper()
 	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Write", reflect.TypeOf((*MockAsyncUpload)(nil).Write), arg0)
-	return &AsyncUploadWriteCall{Call: call}
+	return &MockAsyncUploadWriteCall{Call: call}
 }
 
-// AsyncUploadWriteCall wrap *gomock.Call
-type AsyncUploadWriteCall struct {
+// MockAsyncUploadWriteCall wrap *gomock.Call
+type MockAsyncUploadWriteCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *AsyncUploadWriteCall) Return(arg0 int, arg1 error) *AsyncUploadWriteCall {
+func (c *MockAsyncUploadWriteCall) Return(arg0 int, arg1 error) *MockAsyncUploadWriteCall {
 	c.Call = c.Call.Return(arg0, arg1)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *AsyncUploadWriteCall) Do(f func([]byte) (int, error)) *AsyncUploadWriteCall {
+func (c *MockAsyncUploadWriteCall) Do(f func([]byte) (int, error)) *MockAsyncUploadWriteCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *AsyncUploadWriteCall) DoAndReturn(f func([]byte) (int, error)) *AsyncUploadWriteCall {
+func (c *MockAsyncUploadWriteCall) DoAndReturn(f func([]byte) (int, error)) *MockAsyncUploadWriteCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
