@@ -1,5 +1,6 @@
 # This file must be used with "source hack/activate.fish" *from fish*
-# (https://fishshell.com/). You cannot run it directly.
+# (https://fishshell.com/docs/current/cmds/source.html). You cannot run it
+# directly.
 
 function deactivate -d "Exit virtual environment and return to normal shell environment"
     if test -n "$_OLD_VIRTUAL_PATH"
@@ -9,7 +10,7 @@ function deactivate -d "Exit virtual environment and return to normal shell envi
 
     if test -n "$_OLD_FISH_PROMPT_OVERRIDE"
         set -e _OLD_FISH_PROMPT_OVERRIDE
-        # prevents error when using nested fish instances (Issue #93858)
+        # Prevents error when using nested fish instances (Issue #93858).
         if functions -q _old_fish_prompt
             functions -e fish_prompt
             functions -c _old_fish_prompt fish_prompt
