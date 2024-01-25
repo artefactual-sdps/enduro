@@ -62,7 +62,9 @@ func (jt *JobTracker) SavePreservationTasks(ctx context.Context, unitID string) 
 
 // list requests a job list for unitID from the Archivematica jobs endpoint.
 func (jt *JobTracker) list(ctx context.Context, unitID string) ([]amclient.Job, error) {
-	jobs, httpResp, err := jt.jobSvc.List(ctx, unitID, &amclient.JobsListRequest{})
+	jobs, httpResp, err := jt.jobSvc.List(ctx, unitID, &amclient.JobsListRequest{
+		Detailed: true,
+	})
 	if err != nil {
 		return nil, convertAMClientError(httpResp, err)
 	}
@@ -82,10 +84,6 @@ func (jt *JobTracker) savePreservationTasks(ctx context.Context, jobs []amclient
 
 		pt := ConvertJobToPreservationTask(job)
 		pt.PreservationActionID = jt.presActionID
-
-		now := sql.NullTime{Time: jt.clock.Now(), Valid: true}
-		pt.StartedAt = now
-		pt.CompletedAt = now
 
 		err := jt.pkgSvc.CreatePreservationTask(ctx, &pt)
 		if err != nil {
@@ -115,9 +113,38 @@ func filterSavedJobs(jobs []amclient.Job, saved map[string]struct{}) []amclient.
 // ConvertJobToPreservationTask converts an amclient.Job to a
 // package_.PreservationTask.
 func ConvertJobToPreservationTask(job amclient.Job) package_.PreservationTask {
+	st, co := jobTimeRange(job)
 	return package_.PreservationTask{
-		TaskID: job.ID,
-		Name:   job.Name,
-		Status: jobStatusToPreservationTaskStatus[job.Status],
+		TaskID:      job.ID,
+		Name:        job.Name,
+		Status:      jobStatusToPreservationTaskStatus[job.Status],
+		StartedAt:   st,
+		CompletedAt: co,
 	}
+}
+
+// jobTimeRange calculates the overall start and end times for a job.
+func jobTimeRange(job amclient.Job) (sql.NullTime, sql.NullTime) {
+	if len(job.Tasks) == 0 {
+		return sql.NullTime{}, sql.NullTime{}
+	}
+	st := job.Tasks[0].StartedAt.Time
+	ct := job.Tasks[0].CompletedAt.Time
+
+	for _, t := range job.Tasks[1:] {
+		// Update st to the earliest task start time.
+		if st.After(t.StartedAt.Time) {
+			st = t.StartedAt.Time
+		}
+		// Update ct to the latest task completion time.
+		if ct.Before(t.CompletedAt.Time) {
+			ct = t.CompletedAt.Time
+		}
+	}
+
+	// Emit NULLs if we see the zero value.
+	start := sql.NullTime{Time: st, Valid: !st.IsZero()}
+	end := sql.NullTime{Time: ct, Valid: !ct.IsZero()}
+
+	return start, end
 }
