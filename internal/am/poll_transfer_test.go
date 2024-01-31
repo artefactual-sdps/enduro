@@ -1,7 +1,6 @@
 package am_test
 
 import (
-	"database/sql"
 	"net/http"
 	"testing"
 	"time"
@@ -29,16 +28,10 @@ var (
 
 func TestPollTransferActivity(t *testing.T) {
 	t.Parallel()
-
 	transferID := uuid.New().String()
 	presActionID := uint(1)
 	sipID := uuid.New().String()
 	path := "/var/archivematica/fake/sip"
-	ttime, err := time.Parse(time.RFC3339, "2023-12-05T12:02:00Z")
-	if err != nil {
-		t.Fatal("Invalid test time")
-	}
-	nullTime := sql.NullTime{Time: ttime, Valid: true}
 
 	jobs := []amclient.Job{
 		{
@@ -49,8 +42,13 @@ func TestPollTransferActivity(t *testing.T) {
 			LinkID:       "541f5994-73b0-45bb-9cb5-367c06a21be7",
 			Tasks: []amclient.Task{
 				{
-					ID:       "11566538-66c5-4a20-aa70-77f7a9fa83d5",
-					ExitCode: 0,
+					ID:          "11566538-66c5-4a20-aa70-77f7a9fa83d5",
+					ExitCode:    0,
+					Filename:    "Images-94ade01c-49ce-49e0-9cc3-805575c676d0",
+					CreatedAt:   amclient.TaskDateTime{Time: time.Date(2024, time.January, 18, 1, 27, 49, 0, time.UTC)},
+					StartedAt:   amclient.TaskDateTime{Time: time.Date(2024, time.January, 18, 1, 27, 49, 0, time.UTC)},
+					CompletedAt: amclient.TaskDateTime{Time: time.Date(2024, time.January, 18, 1, 27, 49, 0, time.UTC)},
+					Duration:    amclient.TaskDuration(time.Second / 2),
 				},
 			},
 		},
@@ -62,8 +60,12 @@ func TestPollTransferActivity(t *testing.T) {
 			LinkID:       "045c43ae-d6cf-44f7-97d6-c8a602748565",
 			Tasks: []amclient.Task{
 				{
-					ID:       "53666170-0397-4962-8736-23295444b036",
-					ExitCode: 0,
+					ID:        "53666170-0397-4962-8736-23295444b036",
+					ExitCode:  0,
+					FileID:    "",
+					Filename:  "Images-94ade01c-49ce-49e0-9cc3-805575c676d0",
+					CreatedAt: amclient.TaskDateTime{Time: time.Date(2024, time.January, 18, 1, 27, 49, 0, time.UTC)},
+					Duration:  amclient.TaskDuration(time.Second / 2),
 				},
 			},
 		},
@@ -124,7 +126,9 @@ func TestPollTransferActivity(t *testing.T) {
 				m.List(
 					mockutil.Context(),
 					transferID,
-					&amclient.JobsListRequest{},
+					&amclient.JobsListRequest{
+						Detailed: true,
+					},
 				).Return(
 					jobs,
 					&amclient.Response{Response: &http200Resp},
@@ -136,7 +140,9 @@ func TestPollTransferActivity(t *testing.T) {
 				m.List(
 					mockutil.Context(),
 					transferID,
-					&amclient.JobsListRequest{},
+					&amclient.JobsListRequest{
+						Detailed: true,
+					},
 				).Return(
 					jobs,
 					&amclient.Response{Response: &http200Resp},
@@ -148,9 +154,8 @@ func TestPollTransferActivity(t *testing.T) {
 				for _, job := range jobs {
 					pt := am.ConvertJobToPreservationTask(job)
 					pt.PreservationActionID = presActionID
-					pt.CompletedAt = nullTime
-					pt.StartedAt = nullTime
 					m.CreatePreservationTask(mockutil.Context(), &pt).Return(nil)
+
 				}
 			},
 			want: am.PollTransferActivityResult{
@@ -293,7 +298,7 @@ func TestPollTransferActivity(t *testing.T) {
 				am.NewPollTransferActivity(
 					logr.Discard(),
 					&am.Config{PollInterval: time.Millisecond * 10},
-					clockwork.NewFakeClockAt(ttime),
+					clockwork.NewFakeClock(),
 					trfSvc,
 					jobSvc,
 					pkgSvc,

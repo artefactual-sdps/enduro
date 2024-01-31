@@ -1,7 +1,6 @@
 package am_test
 
 import (
-	"database/sql"
 	"net/http"
 	"testing"
 	"time"
@@ -25,7 +24,6 @@ import (
 
 func TestPollIngestActivity(t *testing.T) {
 	clock := clockwork.NewFakeClock()
-	nullTime := sql.NullTime{Time: clock.Now(), Valid: true}
 	path := "/var/archivematica/fake/sip"
 	presActionID := uint(2)
 	sipID := uuid.New().String()
@@ -50,8 +48,12 @@ func TestPollIngestActivity(t *testing.T) {
 			LinkID:       "70669a5b-01e4-4ea0-ac70-10292f87da05",
 			Tasks: []amclient.Task{
 				{
-					ID:       "9dc0b71a-cbb1-40f4-9fa4-647cc16c8ed5",
-					ExitCode: 0,
+					ID:          "9dc0b71a-cbb1-40f4-9fa4-647cc16c8ed5",
+					ExitCode:    0,
+					CreatedAt:   amclient.TaskDateTime{Time: time.Date(2024, time.January, 18, 1, 27, 49, 0, time.UTC)},
+					StartedAt:   amclient.TaskDateTime{Time: time.Date(2024, time.January, 18, 1, 27, 49, 0, time.UTC)},
+					CompletedAt: amclient.TaskDateTime{Time: time.Date(2024, time.January, 18, 1, 27, 49, 0, time.UTC)},
+					Duration:    amclient.TaskDuration(time.Second / 2),
 				},
 			},
 		},
@@ -63,8 +65,10 @@ func TestPollIngestActivity(t *testing.T) {
 			LinkID:       "208d441b-6938-44f9-b54a-bd73f05bc764",
 			Tasks: []amclient.Task{
 				{
-					ID:       "6f5beca3-71ad-446c-8f19-3bc4dea16c9b",
-					ExitCode: 0,
+					ID:        "6f5beca3-71ad-446c-8f19-3bc4dea16c9b",
+					ExitCode:  0,
+					CreatedAt: amclient.TaskDateTime{Time: time.Date(2024, time.January, 18, 1, 27, 49, 0, time.UTC)},
+					Duration:  amclient.TaskDuration(time.Second / 2),
 				},
 			},
 		},
@@ -127,7 +131,9 @@ func TestPollIngestActivity(t *testing.T) {
 				m.List(
 					mockutil.Context(),
 					sipID,
-					&amclient.JobsListRequest{},
+					&amclient.JobsListRequest{
+						Detailed: true,
+					},
 				).Return(
 					jobs[:1],
 					&amclient.Response{Response: &http200Resp},
@@ -138,7 +144,9 @@ func TestPollIngestActivity(t *testing.T) {
 				m.List(
 					mockutil.Context(),
 					sipID,
-					&amclient.JobsListRequest{},
+					&amclient.JobsListRequest{
+						Detailed: true,
+					},
 				).Return(
 					jobs,
 					&amclient.Response{Response: &http200Resp},
@@ -150,8 +158,7 @@ func TestPollIngestActivity(t *testing.T) {
 				for i, job := range jobs {
 					pt := am.ConvertJobToPreservationTask(job)
 					pt.PreservationActionID = presActionID
-					pt.CompletedAt = nullTime
-					pt.StartedAt = nullTime
+
 					tasks[i] = &pt
 				}
 
