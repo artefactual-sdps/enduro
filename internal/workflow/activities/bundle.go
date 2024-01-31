@@ -98,6 +98,9 @@ func (a *BundleActivity) Execute(ctx context.Context, params *BundleActivityPara
 		unar := a.Unarchiver(params.Key, params.TempFile)
 		if unar == nil {
 			res.FullPath, err = a.SingleFile(ctx, params.TransferDir, params.Key, params.TempFile)
+			if err != nil {
+				err = fmt.Errorf("bundle single file: %v", err)
+			}
 			res.FullPathBeforeStrip = res.FullPath
 		} else {
 			res.FullPath, res.FullPathBeforeStrip, err = a.Bundle(ctx, unar, params.TransferDir, params.Key, params.TempFile, params.StripTopLevelDir)
@@ -150,25 +153,27 @@ func (a *BundleActivity) Unarchiver(key, filename string) archiver.Unarchiver {
 }
 
 // SingleFile bundles a transfer with the downloaded blob in it.
+//
+// TODO: Write metadata.csv and checksum files to the metadata dir.
 func (a *BundleActivity) SingleFile(ctx context.Context, transferDir, key, tempFile string) (string, error) {
 	b, err := bundler.NewBundlerWithTempDir(transferDir)
 	if err != nil {
-		return "", fmt.Errorf("error creating bundle: %v", err)
+		return "", fmt.Errorf("create bundler: %v", err)
 	}
 
-	dest, err := b.Create(filepath.Join("objects", key))
+	src, err := os.Open(tempFile) // #nosec G304 -- trusted file path.
 	if err != nil {
-		return "", fmt.Errorf("error creating file: %v", err)
+		return "", fmt.Errorf("open source file: %v", err)
 	}
-	defer dest.Close()
+	defer src.Close()
 
-	path, _ := securejoin.SecureJoin(transferDir, dest.Name())
-	if err := os.Rename(tempFile, path); err != nil {
-		return "", fmt.Errorf("error moving file (from %s to %s): %v", tempFile, path, err)
+	err = b.Write(filepath.Join("objects", key), src)
+	if err != nil {
+		return "", fmt.Errorf("write file: %v", err)
 	}
 
 	if err := b.Bundle(); err != nil {
-		return "", fmt.Errorf("error bundling the transfer: %v", err)
+		return "", fmt.Errorf("write bundle: %v", err)
 	}
 
 	return b.FullBaseFsPath(), nil
