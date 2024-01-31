@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"reflect"
 	"time"
 
 	"gocloud.dev/blob"
@@ -18,16 +19,18 @@ import (
 var errNotImplemented = errors.New("not implemented")
 
 type bucket struct {
-	URL string `json:"string"`
+	Options
 }
 
 type Options struct {
-	URL string `json:"string"`
+	URL     string `json:"string"`
+	Timeout time.Duration
+	Base    string
 }
 
 func openBucket(opts *Options) (driver.Bucket, error) {
 	return &bucket{
-		URL: opts.URL,
+		*opts,
 	}, nil
 }
 
@@ -60,14 +63,21 @@ func (b *bucket) ListPaged(ctx context.Context, opts *driver.ListOptions) (*driv
 }
 
 func (b *bucket) NewRangeReader(ctx context.Context, key string, offset, length int64, opts *driver.ReaderOptions) (driver.Reader, error) {
+	if reflect.ValueOf(b.Timeout).IsZero() {
+		b.Timeout = time.Second
+	}
 	client := &http.Client{
-		Timeout: time.Second,
+		Timeout: b.Timeout,
 	}
 	bu, err := url.Parse(b.URL)
 	if err != nil {
 		return nil, err
 	}
-	says, err := url.Parse("./" + key)
+	path, err := url.JoinPath(b.Base, key)
+	if err != nil {
+		return nil, err
+	}
+	says, err := url.Parse(path)
 	if err != nil {
 		return nil, err
 	}
