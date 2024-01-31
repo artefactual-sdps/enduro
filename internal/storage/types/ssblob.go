@@ -18,13 +18,17 @@ import (
 var errNotImplemented = errors.New("not implemented")
 
 type bucket struct {
-	c URLConfig
+	URL string `json:"string"`
 }
 
-type Options struct{}
+type Options struct {
+	URL string `json:"string"`
+}
 
-func openBucket(_ *Options) (driver.Bucket, error) {
-	return &bucket{}, nil
+func openBucket(opts *Options) (driver.Bucket, error) {
+	return &bucket{
+		URL: opts.URL,
+	}, nil
 }
 
 func OpenBucket(opts *Options) (*blob.Bucket, error) {
@@ -59,7 +63,7 @@ func (b *bucket) NewRangeReader(ctx context.Context, key string, offset, length 
 	client := &http.Client{
 		Timeout: time.Second,
 	}
-	bu, err := url.Parse()
+	bu, err := url.Parse(b.URL)
 	if err != nil {
 		return nil, err
 	}
@@ -99,7 +103,7 @@ func (b *bucket) Close() error {
 	return nil
 }
 
-// reader should be able to read an AIP object from Storage Service using *http.Client.
+// Reader should be able to read an AIP object from Storage Service using *http.Client.
 type reader struct {
 	r     io.ReadCloser
 	attrs driver.ReaderAttributes

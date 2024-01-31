@@ -15,7 +15,7 @@ func TestBucket(t *testing.T) {
 	assert.NilError(t, err)
 	defer bucket.Close()
 
-	r, err := bucket.NewReader(context.Background(), "64273703-f1f6-4588-85bd-5facc852a1be", nil)
+	r, err := bucket.NewReader(context.Background(), "", nil)
 	assert.NilError(t, err)
 
 	n, err := io.ReadAll(r)
