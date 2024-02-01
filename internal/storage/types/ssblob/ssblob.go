@@ -1,30 +1,29 @@
 // Package ssblob provides a blob implementation for the Archivematica Storage
 // Service. Use OpenBucket to construct a *blob.Bucket.
-package types
+package ssblob
 
 import (
 	"context"
-	"errors"
 	"io"
 	"net/http"
 	"net/url"
-	"reflect"
-	"time"
 
 	"gocloud.dev/blob"
 	"gocloud.dev/blob/driver"
 	"gocloud.dev/gcerrors"
 )
 
-var errNotImplemented = errors.New("not implemented")
+type NotImplemented error
+
+var errNotImpl NotImplemented
 
 type bucket struct {
 	Options
 }
 
 type Options struct {
+	Context context.Context
 	URL     string `json:"string"`
-	Timeout time.Duration
 	Base    string
 }
 
@@ -55,23 +54,21 @@ func (b *bucket) ErrorAs(error, interface{}) bool {
 }
 
 func (b *bucket) Attributes(ctx context.Context, key string) (*driver.Attributes, error) {
-	return nil, errNotImplemented
+	return nil, errNotImpl
 }
 
 func (b *bucket) ListPaged(ctx context.Context, opts *driver.ListOptions) (*driver.ListPage, error) {
-	return nil, errNotImplemented
+	return nil, errNotImpl
 }
 
 func (b *bucket) NewRangeReader(ctx context.Context, key string, offset, length int64, opts *driver.ReaderOptions) (driver.Reader, error) {
-	if reflect.ValueOf(b.Timeout).IsZero() {
-		b.Timeout = time.Second
-	}
-	client := &http.Client{
-		Timeout: b.Timeout,
-	}
+	client := http.Client{}
 	bu, err := url.Parse(b.URL)
 	if err != nil {
 		return nil, err
+	}
+	if b.Base == "" {
+		b.Base = "."
 	}
 	path, err := url.JoinPath(b.Base, key)
 	if err != nil {
@@ -81,7 +78,11 @@ func (b *bucket) NewRangeReader(ctx context.Context, key string, offset, length 
 	if err != nil {
 		return nil, err
 	}
-	resp, err := client.Get(bu.ResolveReference(says).String())
+	req, err := http.NewRequestWithContext(ctx, "GET", bu.ResolveReference(says).String(), nil)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -94,19 +95,19 @@ func (b *bucket) NewRangeReader(ctx context.Context, key string, offset, length 
 }
 
 func (b *bucket) NewTypedWriter(ctx context.Context, key, contentType string, opts *driver.WriterOptions) (driver.Writer, error) {
-	return nil, errNotImplemented
+	return nil, errNotImpl
 }
 
 func (b *bucket) Copy(ctx context.Context, dstKey, srcKey string, opts *driver.CopyOptions) error {
-	return errNotImplemented
+	return errNotImpl
 }
 
 func (b *bucket) Delete(ctx context.Context, key string) error {
-	return errNotImplemented
+	return errNotImpl
 }
 
 func (b *bucket) SignedURL(ctx context.Context, key string, opts *driver.SignedURLOptions) (string, error) {
-	return "", errNotImplemented
+	return "", errNotImpl
 }
 
 func (b *bucket) Close() error {

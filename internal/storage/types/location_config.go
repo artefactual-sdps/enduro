@@ -6,12 +6,15 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
+	"reflect"
 
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/rukavina/sftpblob"
 	"gocloud.dev/blob"
 	"gocloud.dev/blob/s3blob"
+
+	"github.com/artefactual-sdps/enduro/internal/storage/types/ssblob"
 )
 
 type configVal interface {
@@ -27,6 +30,7 @@ type configTypes struct {
 	S3         *S3Config   `json:"s3,omitempty"`
 	SFTPConfig *SFTPConfig `json:"sftp,omitempty"`
 	URLConfig  *URLConfig  `json:"url,omitempty"`
+	SSConfig   *SSConfig   `json:"ss,omitempty"`
 }
 
 func (c LocationConfig) MarshalJSON() ([]byte, error) {
@@ -53,14 +57,26 @@ func (c *LocationConfig) UnmarshalJSON(blob []byte) error {
 		return err
 	}
 
+	errMultipleConfig := errors.New("multiple config values have been assigned")
 	switch {
-	// TODO: return error if we have more than one config assigned (mutually exclusive)
 	case types.S3 != nil:
 		c.Value = types.S3
 	case types.SFTPConfig != nil:
+		if reflect.ValueOf(c.Value).IsValid() {
+			return errMultipleConfig
+		}
 		c.Value = types.SFTPConfig
 	case types.URLConfig != nil:
+		if reflect.ValueOf(c.Value).IsValid() {
+			return errMultipleConfig
+		}
 		c.Value = types.URLConfig
+	case types.SSConfig != nil:
+		if reflect.ValueOf(c.Value).IsValid() {
+			return errMultipleConfig
+		}
+		c.Value = types.SSConfig
+
 	default:
 		return errors.New("undefined configuration document")
 	}
@@ -143,6 +159,25 @@ func (c URLConfig) OpenBucket(ctx context.Context) (*blob.Bucket, error) {
 	if err != nil {
 		return nil, fmt.Errorf("open bucket by URL: %v", err)
 	}
+	return b, nil
+}
 
+type SSConfig struct {
+	SS string `json:"url"`
+}
+
+func (c SSConfig) Valid() bool {
+	return c.SS != ""
+}
+
+func (c SSConfig) OpenBucket(ctx context.Context) (*blob.Bucket, error) {
+	opts := ssblob.Options{
+		Context: ctx,
+		URL:     c.SS,
+	}
+	b, err := ssblob.OpenBucket(&opts)
+	if err != nil {
+		return nil, fmt.Errorf("open bucket by Storage Service: %v", err)
+	}
 	return b, nil
 }
