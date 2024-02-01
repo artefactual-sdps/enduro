@@ -109,6 +109,26 @@ func TestLocationConfig(t *testing.T) {
 		err = json.Unmarshal(blob, &cfg)
 		assert.Error(t, err, "undefined configuration document")
 		assert.DeepEqual(t, cfg, types.LocationConfig{})
+
+		// It rejects multiple configs.
+		blob = []byte(`{
+			"s3":{"bucket":"perma-aips-1","region":"eu-west-1"},
+			"sftp":{"address":"sftp:22","username":"user","password":"secret","directory":"upload"}
+		}`)
+		cfg = types.LocationConfig{}
+		err = json.Unmarshal(blob, &cfg)
+		assert.Error(t, err, "multiple config values have been assigned")
+		assert.DeepEqual(t, cfg, types.LocationConfig{})
+
+		// It rejects multiple configs (2).
+		blob = []byte(`{
+			"sftp":{"address":"sftp:22","username":"user","password":"secret","directory":"upload"},
+			"s3":{"bucket":"perma-aips-1","region":"eu-west-1"}
+		}`)
+		cfg = types.LocationConfig{}
+		err = json.Unmarshal(blob, &cfg)
+		assert.Error(t, err, "multiple config values have been assigned")
+		assert.DeepEqual(t, cfg, types.LocationConfig{})
 	})
 }
 
