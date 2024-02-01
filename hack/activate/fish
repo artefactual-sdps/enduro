@@ -1,4 +1,4 @@
-# This file must be used with "source hack/activate.fish" *from fish*
+# This file must be used with "source hack/activate/fish" *from fish*
 # (https://fishshell.com/docs/current/cmds/source.html). You cannot run it
 # directly.
 
