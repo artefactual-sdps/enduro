@@ -29,7 +29,8 @@ end
 # Unset irrelevant variables.
 deactivate nondestructive
 
-set -gx VIRTUAL_ENV "$HOME/.cache/enduro-sdps/Linux/x86_64/bin"
+set -l arch (uname -m)
+set -gx VIRTUAL_ENV "$HOME/.cache/enduro-sdps/Linux/$arch/bin"
 
 set -gx _OLD_VIRTUAL_PATH $PATH
 set -gx PATH "$VIRTUAL_ENV" $PATH
