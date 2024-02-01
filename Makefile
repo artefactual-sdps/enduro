@@ -26,6 +26,18 @@ include hack/make/dep_mockgen.mk
 include hack/make/dep_shfmt.mk
 include hack/make/dep_tparse.mk
 
+# Lazy-evaluated list of tools.
+TOOLS = $(ENT) \
+	$(GOA) \
+	$(GOLANGCI_LINT) \
+	$(GOMAJOR) \
+	$(GOSEC) \
+	$(GOTESTSUM) \
+	$(MIGRATE) \
+	$(MOCKGEN) \
+	$(SHFMT) \
+	$(TPARSE)
+
 define NEWLINE
 
 
@@ -47,6 +59,9 @@ TEST_PACKAGES := $(filter-out $(IGNORED_PACKAGES),$(PACKAGES))
 TEST_IGNORED_PACKAGES := $(filter $(IGNORED_PACKAGES),$(PACKAGES))
 
 export PATH:=$(GOBIN):$(PATH)
+
+tools: # @HELP Install tools.
+tools: $(TOOLS)
 
 env: # @HELP Print Go env variables.
 env:
