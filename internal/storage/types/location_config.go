@@ -52,8 +52,17 @@ func (c LocationConfig) MarshalJSON() ([]byte, error) {
 }
 
 func (c *LocationConfig) UnmarshalJSON(blob []byte) error {
-	types := configTypes{}
+	// Raise an error if the doc describes multiple configs.
+	keys := map[string]json.RawMessage{}
+	err := json.Unmarshal(blob, &keys)
+	if err != nil {
+		return err
+	}
+	if len(keys) > 1 {
+		return errors.New("multiple config values have been assigned")
+	}
 
+	types := configTypes{}
 	if err := json.Unmarshal(blob, &types); err != nil {
 		return err
 	}
