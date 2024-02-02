@@ -4,32 +4,46 @@ package ssblob
 
 import (
 	"context"
+	"errors"
 	"io"
 	"net/http"
 	"net/url"
+	"reflect"
 
+	"github.com/hashicorp/go-cleanhttp"
 	"gocloud.dev/blob"
 	"gocloud.dev/blob/driver"
 	"gocloud.dev/gcerrors"
 )
 
-type NotImplemented error
-
-var errNotImpl NotImplemented
+var (
+	errNotImplemented = errors.New("not implemented")
+	errNotFound       = errors.New("blob not found")
+)
 
 type bucket struct {
-	Options
+	Options Options
+	client  *http.Client
 }
 
 type Options struct {
-	Context context.Context
-	URL     string `json:"string"`
-	Base    string
+	URL      string
+	Key      string
+	Username string
+	Client   *http.Client
 }
 
 func openBucket(opts *Options) (driver.Bucket, error) {
+	// Will use the http client we pass with options if it is given.
+	var cl *http.Client
+	if reflect.ValueOf(opts.Client).IsZero() {
+		cl = cleanhttp.DefaultPooledClient()
+	} else {
+		cl = opts.Client
+	}
 	return &bucket{
-		*opts,
+		Options: *opts,
+		client:  cl,
 	}, nil
 }
 
@@ -41,8 +55,15 @@ func OpenBucket(opts *Options) (*blob.Bucket, error) {
 	return blob.NewBucket(drv), nil
 }
 
-func (b *bucket) ErrorCode(error) gcerrors.ErrorCode {
-	return gcerrors.Unknown
+func (b *bucket) ErrorCode(err error) gcerrors.ErrorCode {
+	switch err {
+	case errNotFound:
+		return gcerrors.NotFound
+	case errNotImplemented:
+		return gcerrors.Unimplemented
+	default:
+		return gcerrors.Unknown
+	}
 }
 
 func (b *bucket) As(i interface{}) bool {
@@ -54,23 +75,22 @@ func (b *bucket) ErrorAs(error, interface{}) bool {
 }
 
 func (b *bucket) Attributes(ctx context.Context, key string) (*driver.Attributes, error) {
-	return nil, errNotImpl
+	return nil, errNotImplemented
 }
 
 func (b *bucket) ListPaged(ctx context.Context, opts *driver.ListOptions) (*driver.ListPage, error) {
-	return nil, errNotImpl
+	return nil, errNotImplemented
 }
 
 func (b *bucket) NewRangeReader(ctx context.Context, key string, offset, length int64, opts *driver.ReaderOptions) (driver.Reader, error) {
-	client := http.Client{}
-	bu, err := url.Parse(b.URL)
+	bu, err := url.Parse(b.Options.URL)
 	if err != nil {
 		return nil, err
 	}
-	if b.Base == "" {
-		b.Base = "."
+	if key != "" {
+		b.Options.Key = key
 	}
-	path, err := url.JoinPath(b.Base, key)
+	path, err := url.JoinPath(b.Options.URL, b.Options.Key, b.Options.Username)
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +102,7 @@ func (b *bucket) NewRangeReader(ctx context.Context, key string, offset, length 
 	if err != nil {
 		return nil, err
 	}
-	resp, err := client.Do(req)
+	resp, err := b.client.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -95,26 +115,26 @@ func (b *bucket) NewRangeReader(ctx context.Context, key string, offset, length 
 }
 
 func (b *bucket) NewTypedWriter(ctx context.Context, key, contentType string, opts *driver.WriterOptions) (driver.Writer, error) {
-	return nil, errNotImpl
+	return nil, errNotImplemented
 }
 
 func (b *bucket) Copy(ctx context.Context, dstKey, srcKey string, opts *driver.CopyOptions) error {
-	return errNotImpl
+	return errNotImplemented
 }
 
 func (b *bucket) Delete(ctx context.Context, key string) error {
-	return errNotImpl
+	return errNotImplemented
 }
 
 func (b *bucket) SignedURL(ctx context.Context, key string, opts *driver.SignedURLOptions) (string, error) {
-	return "", errNotImpl
+	return "", errNotImplemented
 }
 
 func (b *bucket) Close() error {
 	return nil
 }
 
-// Reader should be able to read an AIP object from Storage Service using *http.Client.
+// reader should be able to read an AIP object from Storage Service using *http.Client.
 type reader struct {
 	r     io.ReadCloser
 	attrs driver.ReaderAttributes

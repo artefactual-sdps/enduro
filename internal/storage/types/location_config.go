@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
-	"reflect"
 
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -14,7 +13,7 @@ import (
 	"gocloud.dev/blob"
 	"gocloud.dev/blob/s3blob"
 
-	"github.com/artefactual-sdps/enduro/internal/storage/types/ssblob"
+	"github.com/artefactual-sdps/enduro/internal/storage/ssblob"
 )
 
 type configVal interface {
@@ -57,24 +56,14 @@ func (c *LocationConfig) UnmarshalJSON(blob []byte) error {
 		return err
 	}
 
-	errMultipleConfig := errors.New("multiple config values have been assigned")
 	switch {
 	case types.S3 != nil:
 		c.Value = types.S3
 	case types.SFTPConfig != nil:
-		if reflect.ValueOf(c.Value).IsValid() {
-			return errMultipleConfig
-		}
 		c.Value = types.SFTPConfig
 	case types.URLConfig != nil:
-		if reflect.ValueOf(c.Value).IsValid() {
-			return errMultipleConfig
-		}
 		c.Value = types.URLConfig
 	case types.SSConfig != nil:
-		if reflect.ValueOf(c.Value).IsValid() {
-			return errMultipleConfig
-		}
 		c.Value = types.SSConfig
 
 	default:
@@ -163,17 +152,20 @@ func (c URLConfig) OpenBucket(ctx context.Context) (*blob.Bucket, error) {
 }
 
 type SSConfig struct {
-	SS string `json:"url"`
+	URL      string `json:"url"`
+	Username string `json:"username"`
+	APIKey   string `json:"api_key"`
 }
 
 func (c SSConfig) Valid() bool {
-	return c.SS != ""
+	return c.URL != "" && c.APIKey != ""
 }
 
 func (c SSConfig) OpenBucket(ctx context.Context) (*blob.Bucket, error) {
 	opts := ssblob.Options{
-		Context: ctx,
-		URL:     c.SS,
+		URL:      c.URL,
+		Key:      c.APIKey,
+		Username: c.Username,
 	}
 	b, err := ssblob.OpenBucket(&opts)
 	if err != nil {

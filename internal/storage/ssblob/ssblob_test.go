@@ -3,11 +3,13 @@ package ssblob_test
 import (
 	"context"
 	"io"
+	// "net/http"
+	// "net/http/httptest"
 	"testing"
 
 	"gotest.tools/v3/assert"
 
-	"github.com/artefactual-sdps/enduro/internal/storage/types/ssblob"
+	"github.com/artefactual-sdps/enduro/internal/storage/ssblob"
 )
 
 // fix tests to work for archivematica storage service. Add proper mocks etc for this I am not sure how exactly to go about it.
@@ -15,8 +17,12 @@ func TestBucket(t *testing.T) {
 	t.Parallel()
 
 	opts := ssblob.Options{
-		URL:  "https://cataas.com/cat/says/",
-		Base: ".",
+		URL: "https://cataas.com/cat/says/",
+		// Client: httptest.NewRecorder(http.HandleFunc(
+		// 	"", func(w http.ResponseWriter, r *http.Request) {
+		// 		return "heloo", nil
+		// 	},
+		// )),
 	}
 	t.Run("Basic download from the amss", func(t *testing.T) {
 		t.Parallel()
