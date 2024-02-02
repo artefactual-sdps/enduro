@@ -60,7 +60,6 @@ func TestDownloadActivity(t *testing.T) {
 			wantErr: fmt.Sprintf("activity error (type: download-activity, scheduledEventID: 0, startedEventID: 0, identity: ): download blob: error loading watcher: unknown watcher %s", watcherName),
 		},
 	} {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 

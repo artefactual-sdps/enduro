@@ -95,7 +95,6 @@ func New(ctx context.Context, logger logr.Logger, c *Config) (*serviceImpl, erro
 	minioConfigs := append(c.Minio, c.Embedded)
 
 	for _, item := range minioConfigs {
-		item := item
 		w, err := NewMinioWatcher(ctx, logger, item)
 		if err != nil {
 			return nil, err
@@ -105,7 +104,6 @@ func New(ctx context.Context, logger logr.Logger, c *Config) (*serviceImpl, erro
 	}
 
 	for _, item := range c.Filesystem {
-		item := item
 		w, err := NewFilesystemWatcher(ctx, item)
 		if err != nil {
 			return nil, err
@@ -127,7 +125,6 @@ func (svc *serviceImpl) Watchers() []Watcher {
 
 	ww := []Watcher{}
 	for _, item := range svc.watchers {
-		item := item
 		ww = append(ww, item)
 	}
 

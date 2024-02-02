@@ -94,7 +94,6 @@ func TestLocationConfigEncoding(t *testing.T) {
 			wantErr: "json: error calling MarshalJSON for type types.LocationConfig: unsupported config type: <nil>",
 		},
 	} {
-		tt := tt
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
@@ -210,7 +209,6 @@ func TestLocationConfigDecoding(t *testing.T) {
 			wantErr: "multiple config values have been assigned",
 		},
 	} {
-		tt := tt
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 

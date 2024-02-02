@@ -298,7 +298,6 @@ func TestUpload(t *testing.T) {
 			},
 		},
 	} {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -379,7 +378,6 @@ func TestDelete(t *testing.T) {
 			wantErr: "SFTP: unable to remove file \"restricted/test.txt\": permission denied",
 		},
 	} {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 

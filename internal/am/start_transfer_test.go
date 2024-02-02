@@ -89,7 +89,6 @@ func TestStartTransferActivity(t *testing.T) {
 			errMsg: "Archivematica resource not found",
 		},
 	} {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
