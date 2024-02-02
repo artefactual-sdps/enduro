@@ -147,7 +147,6 @@ func TestJobTracker(t *testing.T) {
 			wantErr:    "invalid Archivematica credentials",
 		},
 	} {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -270,7 +269,6 @@ func TestConvertJobToPreservationTask(t *testing.T) {
 			want: package_.PreservationTask{},
 		},
 	} {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 

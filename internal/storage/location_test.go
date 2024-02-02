@@ -37,8 +37,6 @@ func TestNewInternalLocation(t *testing.T) {
 		},
 	}
 	for _, tc := range tests {
-		tc := tc
-
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -108,8 +106,6 @@ func TestNewLocation(t *testing.T) {
 		},
 	}
 	for _, tc := range tests {
-		tc := tc
-
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -158,8 +154,6 @@ func TestLocation_Bucket(t *testing.T) {
 		},
 	}
 	for _, tc := range tests {
-		tc := tc
-
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 

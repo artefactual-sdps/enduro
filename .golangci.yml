@@ -42,3 +42,6 @@ linters-settings:
     exclude-generated: false
     severity: low
     confidence: low
+  govet:
+    disable:
+      - loopclosure

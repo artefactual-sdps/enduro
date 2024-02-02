@@ -38,7 +38,6 @@ func TestPackageStatus(t *testing.T) {
 			status: types.StatusMoving,
 		},
 	} {
-		tt := tt
 		t.Run(tt.code, func(t *testing.T) {
 			t.Parallel()
 
