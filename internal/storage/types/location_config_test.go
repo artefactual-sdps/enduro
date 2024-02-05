@@ -3,6 +3,9 @@ package types_test
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	_ "gocloud.dev/blob/memblob"
@@ -49,6 +52,21 @@ func TestLocationConfig(t *testing.T) {
 		assert.Equal(t, string(blob), `{"sftp":{"address":"sftp:22","username":"user","password":"secret","directory":"upload"}}`)
 		assert.Equal(t, cfg.Value.Valid(), true)
 
+		// Valid SS config.
+		handler := http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {})
+		srv := httptest.NewServer(handler)
+		cfg = types.LocationConfig{
+			Value: &types.SSConfig{
+				URL:    srv.URL,
+				APIKey: "secret",
+			},
+		}
+		testSSConfig := fmt.Sprintf(`{"ss":{"url":"%s","username":"","api_key":"secret"}}`, srv.URL)
+		blob, err = json.Marshal(cfg)
+		assert.NilError(t, err)
+		assert.Equal(t, string(blob), testSSConfig)
+		assert.Equal(t, cfg.Value.Valid(), true)
+
 		// Invalid S3 config.
 		cfg = types.LocationConfig{
 			Value: &types.S3Config{
@@ -71,6 +89,18 @@ func TestLocationConfig(t *testing.T) {
 		blob, err = json.Marshal(cfg)
 		assert.NilError(t, err)
 		assert.Equal(t, string(blob), `{"sftp":{"address":"sftp:22","username":"user","password":"","directory":"upload"}}`)
+		assert.Equal(t, cfg.Value.Valid(), false)
+
+		// Invalid SS config.
+		cfg = types.LocationConfig{
+			Value: &types.SSConfig{
+				URL: srv.URL,
+			},
+		}
+		blob, err = json.Marshal(cfg)
+		assert.NilError(t, err)
+		testSSConfig = fmt.Sprintf(`{"ss":{"url":"%s","username":"","api_key":""}}`, srv.URL)
+		assert.Equal(t, string(blob), testSSConfig)
 		assert.Equal(t, cfg.Value.Valid(), false)
 	})
 

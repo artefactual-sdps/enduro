@@ -42,6 +42,8 @@ func (c LocationConfig) MarshalJSON() ([]byte, error) {
 		types.SFTPConfig = c
 	case *URLConfig:
 		types.URLConfig = c
+	case *SSConfig:
+		types.SSConfig = c
 	default:
 		return nil, fmt.Errorf("unsupported config type: %T", c)
 	}

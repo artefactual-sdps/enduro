@@ -8,7 +8,6 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"reflect"
 
 	"github.com/hashicorp/go-cleanhttp"
 	"gocloud.dev/blob"
@@ -30,17 +29,11 @@ type Options struct {
 	URL      string
 	Key      string
 	Username string
-	Client   *http.Client
 }
 
 func openBucket(opts *Options) (driver.Bucket, error) {
 	// Will use the http client we pass with options if it is given.
-	var cl *http.Client
-	if reflect.ValueOf(opts.Client).IsZero() {
-		cl = cleanhttp.DefaultPooledClient()
-	} else {
-		cl = opts.Client
-	}
+	cl := cleanhttp.DefaultPooledClient()
 	return &bucket{
 		Options: *opts,
 		client:  cl,

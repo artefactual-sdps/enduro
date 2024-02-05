@@ -21,11 +21,8 @@ func TestBucket(t *testing.T) {
 	srv := httptest.NewServer(
 		handler,
 	)
-	cl := srv.Client()
-
 	opts := ssblob.Options{
-		URL:    srv.URL,
-		Client: cl,
+		URL: srv.URL,
 	}
 	t.Run("Basic download from the amss", func(t *testing.T) {
 		t.Parallel()
