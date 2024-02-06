@@ -56,7 +56,7 @@ func (c *LocationConfig) UnmarshalJSON(blob []byte) error {
 	keys := map[string]json.RawMessage{}
 	err := json.Unmarshal(blob, &keys)
 	if err != nil {
-		return err
+		return errors.New("undefined configuration format")
 	}
 	if len(keys) > 1 {
 		return errors.New("multiple config values have been assigned")
