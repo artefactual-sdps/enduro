@@ -23,6 +23,8 @@ jobs:
     - name: Test
       run: make test-ci
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v4
       with:
         file: covreport
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
