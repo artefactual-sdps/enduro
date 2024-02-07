@@ -18,6 +18,9 @@ jobs:
         with:
           go-version: ${{ steps.go_version.outputs.go_version }}
       - name: Install workflowcheck
-        run: go install go.temporal.io/sdk/contrib/tools/workflowcheck@latest
+        run: |
+           # This is not working in go1.22: go.temporal.io/sdk/contrib/tools/workflowcheck@latest
+           # Wait until https://github.com/temporalio/sdk-go/pull/1379 is merged.
+           go install github.com/sevein/sdk-go/contrib/tools/workflowcheck@5ad6087
       - name: Run workflowcheck
         run: workflowcheck ./...
