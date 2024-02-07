@@ -5,9 +5,11 @@ package ssblob
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
+	"strconv"
 
 	"github.com/hashicorp/go-cleanhttp"
 	"gocloud.dev/blob"
@@ -80,34 +82,40 @@ func (b *bucket) NewRangeReader(ctx context.Context, key string, offset, length 
 	if err != nil {
 		return nil, err
 	}
-	if key != "" {
-		b.Options.Key = key
-	}
-	path, err := url.JoinPath(b.Options.URL, b.Options.Key, b.Options.Username)
+
+	bu = bu.JoinPath(key, "download")
+	req, err := http.NewRequestWithContext(ctx, "GET", bu.String(), nil)
 	if err != nil {
 		return nil, err
 	}
-	says, err := url.Parse(path)
-	if err != nil {
-		return nil, err
+	// Set up the auth headers for AMSS.
+	if b.Options.Username != "" {
+		req.Header.Set("Username", b.Options.Username)
 	}
-	req, err := http.NewRequestWithContext(ctx, "GET", bu.ResolveReference(says).String(), nil)
-	if err != nil {
-		return nil, err
-	}
+	req.Header.Set("ApiKey", b.Options.Key)
 	resp, err := b.client.Do(req)
 	if err != nil {
 		return nil, err
 	}
+
+	if resp.StatusCode >= 400 {
+		return nil, fmt.Errorf(strconv.Itoa(resp.StatusCode))
+	}
+
 	return &reader{
 		r: resp.Body,
 		attrs: driver.ReaderAttributes{
 			ContentType: resp.Header.Get("Content-Type"),
+			Size:        resp.ContentLength,
 		},
 	}, nil
 }
 
 func (b *bucket) NewTypedWriter(ctx context.Context, key, contentType string, opts *driver.WriterOptions) (driver.Writer, error) {
+	return nil, errNotImplemented
+}
+
+func (b *bucket) NewWriter(ctx context.Context, key, opts *driver.WriterOptions) (driver.Writer, error) {
 	return nil, errNotImplemented
 }
 
@@ -120,6 +128,7 @@ func (b *bucket) Delete(ctx context.Context, key string) error {
 }
 
 func (b *bucket) SignedURL(ctx context.Context, key string, opts *driver.SignedURLOptions) (string, error) {
+	// Return a rawURL with joined with the key and the download appended to it for retrieval of the aip.
 	return "", errNotImplemented
 }
 

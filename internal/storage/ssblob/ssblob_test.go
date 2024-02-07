@@ -1,7 +1,10 @@
 package ssblob_test
 
 import (
+	"archive/zip"
+	"bytes"
 	"context"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -14,30 +17,115 @@ import (
 
 func TestBucket(t *testing.T) {
 	t.Parallel()
-	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "image/jpeg")
-		w.Write([]byte("hello"))
-	})
-	srv := httptest.NewServer(
-		handler,
-	)
-	opts := ssblob.Options{
-		URL: srv.URL,
+
+	middleware := func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.Header.Get("Username") != "test@example.com" && r.Header.Get("ApiKey") != "api_key_example" {
+				w.WriteHeader(http.StatusUnauthorized)
+				return
+			}
+
+			next.ServeHTTP(w, r)
+		})
 	}
-	t.Run("Basic download from the amss", func(t *testing.T) {
-		t.Parallel()
 
-		bucket, err := ssblob.OpenBucket(&opts)
-		assert.NilError(t, err)
-		defer bucket.Close()
+	type test struct {
+		name, want, wantErr string
+		ssblob.Options
+		handler http.Handler
+	}
+	for _, tt := range []test{
+		{
+			name: "Download a package from the AMSS",
+			want: "hello AMSS",
+			Options: ssblob.Options{
+				Key:      "api_key_example",
+				Username: "test@example.com",
+			},
+			handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				w.Header().Set("Content-Type", "application/zip")
+				zipWriter := zip.NewWriter(w)
+				defer zipWriter.Close()
+				zw, _ := zipWriter.Create("Storage-Service-AIP")
+				zw.Write([]byte("hello AMSS"))
+			}),
+		},
+		{
+			name:    "Return an error when the server fails",
+			wantErr: fmt.Sprint(http.StatusInternalServerError),
+			Options: ssblob.Options{
+				Key:      "api_key_example",
+				Username: "test@example.com",
+			},
+			handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				w.WriteHeader(http.StatusInternalServerError)
+				w.Header().Set("Content-Type", "application/zip")
+			}),
+		},
+		{
+			name:    "Return an error when request has no auth",
+			wantErr: fmt.Sprint(http.StatusUnauthorized),
+			handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			}),
+		},
+	} {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 
-		r, err := bucket.NewReader(context.Background(), "64273703-f1f6-4588-85bd-5facc852a1be", nil)
-		assert.NilError(t, err)
+			srv := httptest.NewServer(
+				middleware(tt.handler),
+			)
+			defer srv.Close()
 
-		n, err := io.ReadAll(r)
-		assert.NilError(t, err)
-		assert.Assert(t, len(n) > 0)
-		// change content type
-		assert.Equal(t, r.ContentType(), "image/jpeg")
-	})
+			opts := ssblob.Options{
+				URL:      srv.URL,
+				Username: tt.Options.Username,
+				Key:      tt.Options.Key,
+			}
+
+			bucket, err := ssblob.OpenBucket(&opts)
+			if err != nil {
+				assert.Error(t, err, tt.wantErr)
+				return
+			}
+			defer bucket.Close()
+
+			r, err := bucket.NewReader(context.Background(), "", nil)
+			// We check if the header of the response is an http error code.
+			if err != nil {
+				assert.ErrorContains(t, err, tt.wantErr)
+				return
+			}
+			defer r.Close()
+
+			n, err := io.ReadAll(r)
+			if err != nil {
+				assert.Error(t, err, tt.wantErr)
+				return
+			}
+
+			zr, err := zip.NewReader(bytes.NewReader(n), int64(len(n)))
+			if err != nil {
+				assert.Error(t, err, tt.wantErr)
+				return
+			}
+
+			file, err := zr.Open("Storage-Service-AIP")
+			if err != nil {
+				assert.Error(t, err, tt.wantErr)
+				return
+			}
+			defer file.Close()
+
+			bytes, err := io.ReadAll(file)
+			if err != nil {
+				assert.Error(t, err, tt.wantErr)
+				return
+			}
+
+			assert.DeepEqual(t, tt.want, string(bytes))
+			assert.Equal(t, r.ContentType(), "application/zip")
+		})
+	}
 }
