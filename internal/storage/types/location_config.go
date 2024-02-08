@@ -160,14 +160,14 @@ type SSConfig struct {
 }
 
 func (c SSConfig) Valid() bool {
-	return c.URL != "" && c.APIKey != ""
+	return c.URL != "" && c.Username != "" && c.APIKey != ""
 }
 
 func (c SSConfig) OpenBucket(ctx context.Context) (*blob.Bucket, error) {
 	opts := ssblob.Options{
 		URL:      c.URL,
-		Key:      c.APIKey,
 		Username: c.Username,
+		Key:      c.APIKey,
 	}
 	b, err := ssblob.OpenBucket(&opts)
 	if err != nil {

@@ -9,7 +9,6 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"strconv"
 
 	"github.com/hashicorp/go-cleanhttp"
 	"gocloud.dev/blob"
@@ -17,13 +16,19 @@ import (
 	"gocloud.dev/gcerrors"
 )
 
-var (
-	errNotImplemented = errors.New("not implemented")
-	errNotFound       = errors.New("blob not found")
-)
+var errNotImplemented = errors.New("not implemented")
+
+type APIError struct {
+	Status string
+	Code   int
+}
+
+func (err *APIError) Error() string {
+	return err.Status
+}
 
 type bucket struct {
-	Options Options
+	baseURL *url.URL
 	client  *http.Client
 }
 
@@ -34,11 +39,19 @@ type Options struct {
 }
 
 func openBucket(opts *Options) (driver.Bucket, error) {
-	// Will use the http client we pass with options if it is given.
-	cl := cleanhttp.DefaultPooledClient()
+	u, err := url.Parse(opts.URL)
+	if err != nil {
+		return nil, err
+	}
+	client := &http.Client{
+		Transport: &transport{
+			key: fmt.Sprintf("%s:%s", opts.Username, opts.Key),
+			t:   cleanhttp.DefaultPooledTransport(),
+		},
+	}
 	return &bucket{
-		Options: *opts,
-		client:  cl,
+		baseURL: u,
+		client:  client,
 	}, nil
 }
 
@@ -51,9 +64,19 @@ func OpenBucket(opts *Options) (*blob.Bucket, error) {
 }
 
 func (b *bucket) ErrorCode(err error) gcerrors.ErrorCode {
+	if err, ok := err.(*APIError); ok {
+		switch {
+		case err.Code == http.StatusNotFound:
+			return gcerrors.NotFound
+		case err.Code == http.StatusUnauthorized:
+			return gcerrors.PermissionDenied
+		case err.Code >= 400:
+			return gcerrors.Unknown
+		case err.Code >= 500:
+			return gcerrors.Internal
+		}
+	}
 	switch err {
-	case errNotFound:
-		return gcerrors.NotFound
 	case errNotImplemented:
 		return gcerrors.Unimplemented
 	default:
@@ -62,10 +85,22 @@ func (b *bucket) ErrorCode(err error) gcerrors.ErrorCode {
 }
 
 func (b *bucket) As(i interface{}) bool {
-	return false
+	p, ok := i.(**http.Client)
+	if !ok {
+		return false
+	}
+	*p = b.client
+	return true
 }
 
-func (b *bucket) ErrorAs(error, interface{}) bool {
+func (b *bucket) ErrorAs(err error, i interface{}) bool {
+	switch v := err.(type) {
+	case *APIError:
+		if p, ok := i.(**APIError); ok {
+			*p = v
+			return true
+		}
+	}
 	return false
 }
 
@@ -78,28 +113,19 @@ func (b *bucket) ListPaged(ctx context.Context, opts *driver.ListOptions) (*driv
 }
 
 func (b *bucket) NewRangeReader(ctx context.Context, key string, offset, length int64, opts *driver.ReaderOptions) (driver.Reader, error) {
-	bu, err := url.Parse(b.Options.URL)
+	url := b.baseURL.JoinPath("api/v2/file", key, "download")
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url.String(), nil)
 	if err != nil {
 		return nil, err
 	}
 
-	bu = bu.JoinPath(key, "download")
-	req, err := http.NewRequestWithContext(ctx, "GET", bu.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-	// Set up the auth headers for AMSS.
-	if b.Options.Username != "" {
-		req.Header.Set("Username", b.Options.Username)
-	}
-	req.Header.Set("ApiKey", b.Options.Key)
 	resp, err := b.client.Do(req)
 	if err != nil {
 		return nil, err
 	}
 
 	if resp.StatusCode >= 400 {
-		return nil, fmt.Errorf(strconv.Itoa(resp.StatusCode))
+		return nil, &APIError{Status: resp.Status, Code: resp.StatusCode}
 	}
 
 	return &reader{
@@ -115,10 +141,6 @@ func (b *bucket) NewTypedWriter(ctx context.Context, key, contentType string, op
 	return nil, errNotImplemented
 }
 
-func (b *bucket) NewWriter(ctx context.Context, key, opts *driver.WriterOptions) (driver.Writer, error) {
-	return nil, errNotImplemented
-}
-
 func (b *bucket) Copy(ctx context.Context, dstKey, srcKey string, opts *driver.CopyOptions) error {
 	return errNotImplemented
 }
@@ -128,7 +150,6 @@ func (b *bucket) Delete(ctx context.Context, key string) error {
 }
 
 func (b *bucket) SignedURL(ctx context.Context, key string, opts *driver.SignedURLOptions) (string, error) {
-	// Return a rawURL with joined with the key and the download appended to it for retrieval of the aip.
 	return "", errNotImplemented
 }
 
@@ -154,4 +175,6 @@ func (r *reader) Attributes() *driver.ReaderAttributes {
 	return &r.attrs
 }
 
-func (r *reader) As(i interface{}) bool { return false }
+func (r *reader) As(i interface{}) bool {
+	return false
+}

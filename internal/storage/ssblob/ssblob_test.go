@@ -1,131 +1,116 @@
 package ssblob_test
 
 import (
-	"archive/zip"
-	"bytes"
 	"context"
-	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
+	"gocloud.dev/blob"
+	"gocloud.dev/gcerrors"
 	"gotest.tools/v3/assert"
 
 	"github.com/artefactual-sdps/enduro/internal/storage/ssblob"
 )
 
+// setUpTest creates a ssblob bucket configured against a fake SS API.
+func setUpTest(t *testing.T, h http.HandlerFunc, opts *ssblob.Options) *blob.Bucket {
+	t.Helper()
+
+	if opts == nil {
+		opts = &ssblob.Options{}
+	}
+
+	srv := httptest.NewServer(h)
+	t.Cleanup(func() { srv.Close() })
+	opts.URL = srv.URL
+
+	b, err := ssblob.OpenBucket(opts)
+	assert.NilError(t, err)
+	t.Cleanup(func() { b.Close() })
+
+	return b
+}
+
 func TestBucket(t *testing.T) {
 	t.Parallel()
 
-	middleware := func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			if r.Header.Get("Username") != "test@example.com" && r.Header.Get("ApiKey") != "api_key_example" {
-				w.WriteHeader(http.StatusUnauthorized)
-				return
-			}
+	t.Run("Downloads an AIP from SS", func(t *testing.T) {
+		t.Parallel()
 
-			next.ServeHTTP(w, r)
-		})
-	}
+		b := setUpTest(t,
+			func(w http.ResponseWriter, r *http.Request) {
+				assert.Equal(t, r.Header.Get("Authorization"), "ApiKey test:test")
+				assert.Equal(t, r.URL.Path, "/api/v2/file/2db707f3-3cd2-44b7-9012-9b68eb10d207/download")
 
-	type test struct {
-		name, want, wantErr string
-		ssblob.Options
-		handler http.Handler
-	}
-	for _, tt := range []test{
-		{
-			name: "Download a package from the AMSS",
-			want: "hello AMSS",
-			Options: ssblob.Options{
-				Key:      "api_key_example",
-				Username: "test@example.com",
+				w.Header().Set("Content-Type", "text/plain")
+				w.Header().Set("Content-Disposition", "attachment; filename=\"hello.txt\"")
+				_, err := w.Write([]byte("Hello World!"))
+				assert.NilError(t, err)
 			},
-			handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				w.Header().Set("Content-Type", "application/zip")
-				zipWriter := zip.NewWriter(w)
-				defer zipWriter.Close()
-				zw, _ := zipWriter.Create("Storage-Service-AIP")
-				zw.Write([]byte("hello AMSS"))
-			}),
-		},
-		{
-			name:    "Return an error when the server fails",
-			wantErr: fmt.Sprint(http.StatusInternalServerError),
-			Options: ssblob.Options{
-				Key:      "api_key_example",
-				Username: "test@example.com",
+			&ssblob.Options{
+				Username: "test",
+				Key:      "test",
 			},
-			handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				w.WriteHeader(http.StatusInternalServerError)
-				w.Header().Set("Content-Type", "application/zip")
-			}),
-		},
-		{
-			name:    "Return an error when request has no auth",
-			wantErr: fmt.Sprint(http.StatusUnauthorized),
-			handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			}),
-		},
-	} {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
+		)
 
-			srv := httptest.NewServer(
-				middleware(tt.handler),
-			)
-			defer srv.Close()
+		r, err := b.NewReader(context.Background(), "2db707f3-3cd2-44b7-9012-9b68eb10d207", nil)
+		assert.NilError(t, err)
+		defer r.Close()
 
-			opts := ssblob.Options{
-				URL:      srv.URL,
-				Username: tt.Options.Username,
-				Key:      tt.Options.Key,
-			}
+		blob, err := io.ReadAll(r)
+		assert.NilError(t, err)
+		assert.DeepEqual(t, string(blob), "Hello World!")
+		assert.Equal(t, r.ContentType(), "text/plain")
+	})
 
-			bucket, err := ssblob.OpenBucket(&opts)
-			if err != nil {
-				assert.Error(t, err, tt.wantErr)
-				return
-			}
-			defer bucket.Close()
+	t.Run("Gives access to underlying HTTP client", func(t *testing.T) {
+		t.Parallel()
 
-			r, err := bucket.NewReader(context.Background(), "", nil)
-			// We check if the header of the response is an http error code.
-			if err != nil {
-				assert.ErrorContains(t, err, tt.wantErr)
-				return
-			}
-			defer r.Close()
+		b := setUpTest(t, nil, nil)
 
-			n, err := io.ReadAll(r)
-			if err != nil {
-				assert.Error(t, err, tt.wantErr)
-				return
-			}
+		var client *http.Client
+		assert.Equal(t, b.As(&client), true)
+	})
 
-			zr, err := zip.NewReader(bytes.NewReader(n), int64(len(n)))
-			if err != nil {
-				assert.Error(t, err, tt.wantErr)
-				return
-			}
+	t.Run("Returns an error if the AIP is not found", func(t *testing.T) {
+		t.Parallel()
 
-			file, err := zr.Open("Storage-Service-AIP")
-			if err != nil {
-				assert.Error(t, err, tt.wantErr)
-				return
-			}
-			defer file.Close()
+		b := setUpTest(t, func(w http.ResponseWriter, r *http.Request) {
+			http.Error(w, "AIP not found.", http.StatusNotFound)
+		}, nil)
 
-			bytes, err := io.ReadAll(file)
-			if err != nil {
-				assert.Error(t, err, tt.wantErr)
-				return
-			}
+		r, err := b.NewReader(context.Background(), "2db707f3-3cd2-44b7-9012-9b68eb10d207", nil)
+		assert.Equal(t, gcerrors.Code(err), gcerrors.NotFound)
+		assert.Assert(t, r == nil)
 
-			assert.DeepEqual(t, tt.want, string(bytes))
-			assert.Equal(t, r.ContentType(), "application/zip")
+		apiErr := &ssblob.APIError{}
+		assert.Equal(t, b.ErrorAs(err, &apiErr), true)
+		assert.Equal(t, apiErr.Code, http.StatusNotFound)
+	})
+
+	t.Run("Returns an error if the request is unauthorized", func(t *testing.T) {
+		t.Parallel()
+
+		b := setUpTest(t, func(w http.ResponseWriter, r *http.Request) {
+			http.Error(w, "User is unauthorized.", http.StatusUnauthorized)
+		}, nil)
+
+		r, err := b.NewReader(context.Background(), "2db707f3-3cd2-44b7-9012-9b68eb10d207", nil)
+		assert.Equal(t, gcerrors.Code(err), gcerrors.PermissionDenied)
+		assert.Assert(t, r == nil)
+
+		apiErr := &ssblob.APIError{}
+		assert.Equal(t, b.ErrorAs(err, &apiErr), true)
+		assert.Equal(t, apiErr.Code, http.StatusUnauthorized)
+	})
+
+	t.Run("Returns an error if the URL is invalid", func(t *testing.T) {
+		b, err := ssblob.OpenBucket(&ssblob.Options{
+			URL: string([]byte{0x7f}), // DEL character is rejected.
 		})
-	}
+		assert.ErrorContains(t, err, "net/url: invalid control character in URL")
+		assert.Assert(t, b == nil)
+	})
 }
