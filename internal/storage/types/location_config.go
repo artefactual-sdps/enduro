@@ -12,6 +12,8 @@ import (
 	"github.com/rukavina/sftpblob"
 	"gocloud.dev/blob"
 	"gocloud.dev/blob/s3blob"
+
+	"github.com/artefactual-sdps/enduro/internal/storage/ssblob"
 )
 
 type configVal interface {
@@ -27,6 +29,7 @@ type configTypes struct {
 	S3         *S3Config   `json:"s3,omitempty"`
 	SFTPConfig *SFTPConfig `json:"sftp,omitempty"`
 	URLConfig  *URLConfig  `json:"url,omitempty"`
+	SSConfig   *SSConfig   `json:"ss,omitempty"`
 }
 
 func (c LocationConfig) MarshalJSON() ([]byte, error) {
@@ -39,6 +42,8 @@ func (c LocationConfig) MarshalJSON() ([]byte, error) {
 		types.SFTPConfig = c
 	case *URLConfig:
 		types.URLConfig = c
+	case *SSConfig:
+		types.SSConfig = c
 	default:
 		return nil, fmt.Errorf("unsupported config type: %T", c)
 	}
@@ -54,13 +59,15 @@ func (c *LocationConfig) UnmarshalJSON(blob []byte) error {
 	}
 
 	switch {
-	// TODO: return error if we have more than one config assigned (mutually exclusive)
 	case types.S3 != nil:
 		c.Value = types.S3
 	case types.SFTPConfig != nil:
 		c.Value = types.SFTPConfig
 	case types.URLConfig != nil:
 		c.Value = types.URLConfig
+	case types.SSConfig != nil:
+		c.Value = types.SSConfig
+
 	default:
 		return errors.New("undefined configuration document")
 	}
@@ -143,6 +150,28 @@ func (c URLConfig) OpenBucket(ctx context.Context) (*blob.Bucket, error) {
 	if err != nil {
 		return nil, fmt.Errorf("open bucket by URL: %v", err)
 	}
+	return b, nil
+}
 
+type SSConfig struct {
+	URL      string `json:"url"`
+	Username string `json:"username"`
+	APIKey   string `json:"api_key"`
+}
+
+func (c SSConfig) Valid() bool {
+	return c.URL != "" && c.Username != "" && c.APIKey != ""
+}
+
+func (c SSConfig) OpenBucket(ctx context.Context) (*blob.Bucket, error) {
+	opts := ssblob.Options{
+		URL:      c.URL,
+		Username: c.Username,
+		Key:      c.APIKey,
+	}
+	b, err := ssblob.OpenBucket(&opts)
+	if err != nil {
+		return nil, fmt.Errorf("open bucket by Storage Service: %v", err)
+	}
 	return b, nil
 }

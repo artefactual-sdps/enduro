@@ -49,6 +49,20 @@ func TestLocationConfig(t *testing.T) {
 		assert.Equal(t, string(blob), `{"sftp":{"address":"sftp:22","username":"user","password":"secret","directory":"upload"}}`)
 		assert.Equal(t, cfg.Value.Valid(), true)
 
+		// Valid SS config.
+		cfg = types.LocationConfig{
+			Value: &types.SSConfig{
+				URL:      "http://127.0.0.1:62081",
+				Username: "test",
+				APIKey:   "secret",
+			},
+		}
+		testSSConfig := `{"ss":{"url":"http://127.0.0.1:62081","username":"test","api_key":"secret"}}`
+		blob, err = json.Marshal(cfg)
+		assert.NilError(t, err)
+		assert.Equal(t, string(blob), testSSConfig)
+		assert.Equal(t, cfg.Value.Valid(), true)
+
 		// Invalid S3 config.
 		cfg = types.LocationConfig{
 			Value: &types.S3Config{
@@ -71,6 +85,16 @@ func TestLocationConfig(t *testing.T) {
 		blob, err = json.Marshal(cfg)
 		assert.NilError(t, err)
 		assert.Equal(t, string(blob), `{"sftp":{"address":"sftp:22","username":"user","password":"","directory":"upload"}}`)
+		assert.Equal(t, cfg.Value.Valid(), false)
+
+		// Invalid SS config.
+		cfg = types.LocationConfig{
+			Value: &types.SSConfig{},
+		}
+		blob, err = json.Marshal(cfg)
+		assert.NilError(t, err)
+		testSSConfig = `{"ss":{"url":"","username":"","api_key":""}}`
+		assert.Equal(t, string(blob), testSSConfig)
 		assert.Equal(t, cfg.Value.Valid(), false)
 	})
 
@@ -100,6 +124,27 @@ func TestLocationConfig(t *testing.T) {
 				Username:  "user",
 				Password:  "secret",
 				Directory: "upload",
+			},
+		})
+
+		// SS config.
+		cfg = types.LocationConfig{
+			Value: &types.SSConfig{
+				URL:      "http://127.0.0.1:62081",
+				Username: "test",
+				APIKey:   "secret",
+			},
+		}
+		testSSConfig := `{"ss":{"url":"http://127.0.0.1:62081","username":"test","api_key":"secret"}}`
+		blob = []byte(testSSConfig)
+		cfg = types.LocationConfig{}
+		err = json.Unmarshal(blob, &cfg)
+		assert.NilError(t, err)
+		assert.DeepEqual(t, cfg, types.LocationConfig{
+			Value: &types.SSConfig{
+				URL:      "http://127.0.0.1:62081",
+				Username: "test",
+				APIKey:   "secret",
 			},
 		})
 
