@@ -17,11 +17,24 @@ jobs:
         uses: actions/setup-go@v4
         with:
           go-version: ${{ steps.go_version.outputs.go_version }}
-      - name: Run golangci-lint
-        uses: golangci/golangci-lint-action@v3
+      - name: Get date
+        id: get-date
+        shell: bash
+        run: |
+          echo "::set-output name=date::$(date -u "+%Y-%m")"
+      - name: Restore golangci-lint cache
+        uses: actions/cache@v4
+        timeout-minutes: 10
+        continue-on-error: true
         with:
-          version: v1.54.2
-          args: --timeout=5m ./...
+          path: ${{ runner.temp }}/golangci-lint-cache
+          key: ${{ runner.os }}-golangci-lint-cache-${{ steps.get-date.outputs.date }}
+          restore-keys: |
+            ${{ runner.os }}-golangci-lint-cache-
+      - name: Run golangci-lint
+        run: make lint
+        env:
+          GOLANGCI_LINT_CACHE: ${{ runner.temp }}/golangci-lint-cache
   shfmt:
     runs-on: ubuntu-latest
     steps:
