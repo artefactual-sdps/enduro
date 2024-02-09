@@ -25,6 +25,7 @@ include hack/make/dep_migrate.mk
 include hack/make/dep_mockgen.mk
 include hack/make/dep_shfmt.mk
 include hack/make/dep_tparse.mk
+include hack/make/dep_workflowcheck.mk
 
 # Lazy-evaluated list of tools.
 TOOLS = $(ENT) \
@@ -36,7 +37,8 @@ TOOLS = $(ENT) \
 	$(MIGRATE) \
 	$(MOCKGEN) \
 	$(SHFMT) \
-	$(TPARSE)
+	$(TPARSE) \
+	$(WORKFLOWCHECK)
 
 define NEWLINE
 
@@ -179,6 +181,10 @@ tilt-trigger-internal: # @HELP Restart enduro-internal and wait until ready.
 tilt-trigger-internal:
 	tilt trigger enduro-internal
 	tilt wait --for=condition=Ready uiresource/enduro-internal
+
+workflowcheck: # @HELP Detect non-determinism in workflow functions.
+workflowcheck: $(WORKFLOWCHECK)
+	workflowcheck ./...
 
 help: # @HELP Print this message.
 help:
