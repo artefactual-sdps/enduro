@@ -69,14 +69,16 @@ func TestOpen(t *testing.T) {
 	}
 
 	for name, tc := range tests {
-		tc := tc
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
 			b, err := bucket.Open(context.Background(), tc.config)
+			// We should definitely close buckets when we are testing!
+			// This throws a lint error which should be ignored!
+			defer b.Close()
 
 			if tc.errMsg != "" {
-				assert.Assert(t, b == nil)
+				assert.Equal(t, b, nil)
 				assert.Error(t, err, tc.errMsg)
 				return
 			}
