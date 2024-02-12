@@ -38,14 +38,29 @@ func Open(ctx context.Context, c *Config) (*blob.Bucket, error) {
 		return nil, errors.New("config is undefined")
 	}
 
+	var (
+		b   *blob.Bucket
+		err error
+	)
+
 	if c.URL != "" {
-		b, err := blob.OpenBucket(ctx, c.URL)
-		if err != nil {
-			return nil, fmt.Errorf("open bucket from URL %q: %v", c.URL, err)
-		}
-		return b, nil
+		b, err = openWithURL(ctx, c.URL)
+	} else {
+		b, err = openWithConfig(ctx, c)
 	}
 
+	return b, err
+}
+
+func openWithURL(ctx context.Context, url string) (*blob.Bucket, error) {
+	b, err := blob.OpenBucket(ctx, url)
+	if err != nil {
+		return nil, fmt.Errorf("open bucket from URL %q: %v", url, err)
+	}
+	return b, nil
+}
+
+func openWithConfig(ctx context.Context, c *Config) (*blob.Bucket, error) {
 	addr := c.Endpoint
 	if u, err := url.Parse(c.Endpoint); err == nil {
 		if !strings.HasPrefix(u.Scheme, "http") {
@@ -65,10 +80,7 @@ func Open(ctx context.Context, c *Config) (*blob.Bucket, error) {
 		config.WithEndpointResolverWithOptions(
 			aws.EndpointResolverWithOptionsFunc(
 				func(service, region string, options ...interface{}) (aws.Endpoint, error) {
-					if service == s3.ServiceID {
-						return aws.Endpoint{URL: addr}, nil
-					}
-					return aws.Endpoint{}, &aws.EndpointNotFoundError{}
+					return aws.Endpoint{URL: addr}, nil
 				},
 			),
 		),

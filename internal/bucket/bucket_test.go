@@ -6,6 +6,7 @@ import (
 
 	s3v2 "github.com/aws/aws-sdk-go-v2/service/s3"
 	"gocloud.dev/blob"
+	_ "gocloud.dev/blob/fileblob"
 	_ "gocloud.dev/blob/memblob"
 	"gotest.tools/v3/assert"
 
@@ -33,6 +34,7 @@ func TestOpen(t *testing.T) {
 				Region:    "region",
 				AccessKey: "access",
 				SecretKey: "secret",
+				PathStyle: true,
 			},
 			require: func(b *blob.Bucket) {
 				var client *s3v2.Client
@@ -40,7 +42,7 @@ func TestOpen(t *testing.T) {
 
 				opts := client.Options()
 				assert.Equal(t, opts.Region, "region")
-				assert.Equal(t, opts.UsePathStyle, false)
+				assert.Equal(t, opts.UsePathStyle, true)
 
 				_, err := client.ListBuckets(context.Background(), &s3v2.ListBucketsInput{})
 				assert.ErrorContains(t, err, "http://foobar:12345/?x-id=ListBuckets")
@@ -58,13 +60,35 @@ func TestOpen(t *testing.T) {
 				var client *s3v2.Client
 				assert.Equal(t, b.As(&client), true)
 
-				opts := client.Options()
-				assert.Equal(t, opts.Region, "region")
-				assert.Equal(t, opts.UsePathStyle, false)
-
 				_, err := client.ListBuckets(context.Background(), &s3v2.ListBucketsInput{})
 				assert.ErrorContains(t, err, "http://foobar:12345/?x-id=ListBuckets")
 			},
+		},
+		"Rejects nil config": {
+			config: nil,
+			errMsg: "config is undefined",
+		},
+		"Rejects non-existent shared config profile": {
+			config: &bucket.Config{
+				Profile: "profile",
+			},
+			errMsg: "load AWS default config: failed to get shared config profile, profile",
+		},
+		"Rejects URL-based config with unknown scheme": {
+			config: &bucket.Config{
+				URL: "unknown://",
+			},
+			errMsg: `open bucket from URL "unknown://": open blob.Bucket: no driver registered for "unknown" for URL "unknown:"; available schemes: file, mem, s3`,
+		},
+		"Rejects bucket with empty name": {
+			config: &bucket.Config{
+				Endpoint:  "foobar:12345",
+				Bucket:    "",
+				Region:    "region",
+				AccessKey: "access",
+				SecretKey: "secret",
+			},
+			errMsg: "open bucket: s3blob.OpenBucket: bucketName is required",
 		},
 	}
 
@@ -73,12 +97,12 @@ func TestOpen(t *testing.T) {
 			t.Parallel()
 
 			b, err := bucket.Open(context.Background(), tc.config)
-			// We should definitely close buckets when we are testing!
-			// This throws a lint error which should be ignored!
-			defer b.Close()
+			if b != nil {
+				defer b.Close()
+			}
 
 			if tc.errMsg != "" {
-				assert.Equal(t, b, nil)
+				assert.Assert(t, b == nil)
 				assert.Error(t, err, tc.errMsg)
 				return
 			}
