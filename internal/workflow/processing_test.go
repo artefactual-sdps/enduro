@@ -18,8 +18,10 @@ import (
 
 	"github.com/artefactual-sdps/enduro/internal/a3m"
 	"github.com/artefactual-sdps/enduro/internal/am"
+	"github.com/artefactual-sdps/enduro/internal/config"
 	"github.com/artefactual-sdps/enduro/internal/package_"
 	packagefake "github.com/artefactual-sdps/enduro/internal/package_/fake"
+	"github.com/artefactual-sdps/enduro/internal/pres"
 	sftp_fake "github.com/artefactual-sdps/enduro/internal/sftp/fake"
 	"github.com/artefactual-sdps/enduro/internal/temporal"
 	watcherfake "github.com/artefactual-sdps/enduro/internal/watcher/fake"
@@ -32,7 +34,11 @@ type ProcessingWorkflowTestSuite struct {
 
 	env *temporalsdk_testsuite.TestWorkflowEnvironment
 
-	// Each test registers the workflow with a different name to avoid dups.
+	// Each test creates its own temporary transfer directory.
+	transferDir string
+
+	// Each test registers the workflow with a different name to avoid
+	// duplicates.
 	workflow *ProcessingWorkflow
 }
 
@@ -47,10 +53,15 @@ func TestTransferInfo_Name(t *testing.T) {
 func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(taskQueue string) {
 	s.env = s.NewTestWorkflowEnvironment()
 	s.env.SetWorkerOptions(temporalsdk_worker.Options{EnableSessionWorker: true})
+	s.transferDir = s.T().TempDir()
 
 	clock := clockwork.NewFakeClock()
 	ctrl := gomock.NewController(s.T())
 	logger := logr.Discard()
+	cfg := config.Configuration{
+		Preservation: pres.Config{TaskQueue: taskQueue},
+		A3m:          a3m.Config{ShareDir: s.transferDir},
+	}
 	pkgsvc := packagefake.NewMockService(ctrl)
 	wsvc := watcherfake.NewMockService(ctrl)
 	sftpc := sftp_fake.NewMockClient(ctrl)
@@ -87,7 +98,7 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(taskQueue string) {
 	s.env.RegisterActivityWithOptions(
 		am.NewPollTransferActivity(
 			logger,
-			&am.Config{},
+			&cfg.AM,
 			clock,
 			amclienttest.NewMockTransferService(ctrl),
 			amclienttest.NewMockJobsService(ctrl),
@@ -98,7 +109,7 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(taskQueue string) {
 	s.env.RegisterActivityWithOptions(
 		am.NewPollIngestActivity(
 			logger,
-			&am.Config{},
+			&cfg.AM,
 			clock,
 			amclienttest.NewMockIngestService(ctrl),
 			amclienttest.NewMockJobsService(ctrl),
@@ -107,7 +118,7 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(taskQueue string) {
 		temporalsdk_activity.RegisterOptions{Name: am.PollIngestActivityName},
 	)
 
-	s.workflow = NewProcessingWorkflow(logger, pkgsvc, wsvc, taskQueue)
+	s.workflow = NewProcessingWorkflow(logger, cfg, pkgsvc, wsvc)
 }
 
 func (s *ProcessingWorkflowTestSuite) AfterTest(suiteName, testName string) {
@@ -154,7 +165,7 @@ func (s *ProcessingWorkflowTestSuite) TestPackageConfirmation() {
 	s.env.OnActivity(activities.BundleActivityName, sessionCtx,
 		&activities.BundleActivityParams{
 			WatcherName: watcherName,
-			TransferDir: "/home/a3m/.local/share/a3m/share",
+			TransferDir: s.transferDir,
 			Key:         key,
 			TempFile:    "/tmp/enduro123456/" + key,
 		},
@@ -229,7 +240,7 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 	s.env.OnActivity(activities.BundleActivityName, sessionCtx,
 		&activities.BundleActivityParams{
 			WatcherName: watcherName,
-			TransferDir: "/home/a3m/.local/share/a3m/share",
+			TransferDir: s.transferDir,
 			Key:         key,
 			TempFile:    "/tmp/enduro123456/" + key,
 		},
@@ -412,7 +423,7 @@ func (s *ProcessingWorkflowTestSuite) TestPackageRejection() {
 	s.env.OnActivity(activities.BundleActivityName, sessionCtx,
 		&activities.BundleActivityParams{
 			WatcherName: watcherName,
-			TransferDir: "/home/a3m/.local/share/a3m/share",
+			TransferDir: s.transferDir,
 			Key:         key,
 			TempFile:    "/tmp/enduro123456/" + key,
 		},
