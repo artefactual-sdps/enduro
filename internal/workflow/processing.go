@@ -18,6 +18,7 @@ import (
 
 	"github.com/artefactual-sdps/enduro/internal/a3m"
 	"github.com/artefactual-sdps/enduro/internal/am"
+	"github.com/artefactual-sdps/enduro/internal/config"
 	"github.com/artefactual-sdps/enduro/internal/fsutil"
 	"github.com/artefactual-sdps/enduro/internal/package_"
 	"github.com/artefactual-sdps/enduro/internal/temporal"
@@ -26,18 +27,23 @@ import (
 )
 
 type ProcessingWorkflow struct {
-	logger    logr.Logger
-	pkgsvc    package_.Service
-	wsvc      watcher.Service
-	taskQueue string
+	logger logr.Logger
+	cfg    config.Configuration
+	pkgsvc package_.Service
+	wsvc   watcher.Service
 }
 
-func NewProcessingWorkflow(logger logr.Logger, pkgsvc package_.Service, wsvc watcher.Service, taskQueue string) *ProcessingWorkflow {
+func NewProcessingWorkflow(
+	logger logr.Logger,
+	cfg config.Configuration,
+	pkgsvc package_.Service,
+	wsvc watcher.Service,
+) *ProcessingWorkflow {
 	return &ProcessingWorkflow{
-		logger:    logger,
-		pkgsvc:    pkgsvc,
-		wsvc:      wsvc,
-		taskQueue: taskQueue,
+		logger: logger,
+		cfg:    cfg,
+		pkgsvc: pkgsvc,
+		wsvc:   wsvc,
 	}
 }
 
@@ -176,7 +182,7 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *pack
 
 		activityOpts := temporalsdk_workflow.WithActivityOptions(ctx, temporalsdk_workflow.ActivityOptions{
 			StartToCloseTimeout: time.Minute,
-			TaskQueue:           w.taskQueue,
+			TaskQueue:           w.cfg.Preservation.TaskQueue,
 		})
 		for attempt := 1; attempt <= maxAttempts; attempt++ {
 			sessCtx, err := temporalsdk_workflow.CreateSession(activityOpts, &temporalsdk_workflow.SessionOptions{
@@ -317,8 +323,8 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 		// For the a3m workflow bundle the transfer to a directory shared with
 		// the a3m container.
 		var transferDir string
-		if w.taskQueue == temporal.A3mWorkerTaskQueue {
-			transferDir = "/home/a3m/.local/share/a3m/share"
+		if w.cfg.Preservation.TaskQueue == temporal.A3mWorkerTaskQueue {
+			transferDir = w.cfg.A3m.ShareDir
 		}
 
 		activityOpts := withActivityOptsForLongLivedRequest(sessCtx)
@@ -356,7 +362,7 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 	// Do preservation activities.
 	{
 		var err error
-		if w.taskQueue == temporal.AmWorkerTaskQueue {
+		if w.cfg.Preservation.TaskQueue == temporal.AmWorkerTaskQueue {
 			err = w.transferAM(sessCtx, tinfo)
 		} else {
 			err = w.transferA3m(sessCtx, tinfo)
@@ -379,7 +385,7 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 	}
 
 	// Stop here for the Archivematica workflow.
-	if w.taskQueue == temporal.AmWorkerTaskQueue {
+	if w.cfg.Preservation.TaskQueue == temporal.AmWorkerTaskQueue {
 		return nil
 	}
 
