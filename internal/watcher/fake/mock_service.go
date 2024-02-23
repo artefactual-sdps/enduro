@@ -11,7 +11,6 @@ package fake
 
 import (
 	context "context"
-	io "io"
 	reflect "reflect"
 
 	watcher "github.com/artefactual-sdps/enduro/internal/watcher"
@@ -157,7 +156,7 @@ func (c *MockServiceDisposeCall) DoAndReturn(f func(context.Context, string, str
 }
 
 // Download mocks base method.
-func (m *MockService) Download(arg0 context.Context, arg1 io.Writer, arg2, arg3 string) error {
+func (m *MockService) Download(arg0 context.Context, arg1, arg2, arg3 string) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Download", arg0, arg1, arg2, arg3)
 	ret0, _ := ret[0].(error)
@@ -183,13 +182,13 @@ func (c *MockServiceDownloadCall) Return(arg0 error) *MockServiceDownloadCall {
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockServiceDownloadCall) Do(f func(context.Context, io.Writer, string, string) error) *MockServiceDownloadCall {
+func (c *MockServiceDownloadCall) Do(f func(context.Context, string, string, string) error) *MockServiceDownloadCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockServiceDownloadCall) DoAndReturn(f func(context.Context, io.Writer, string, string) error) *MockServiceDownloadCall {
+func (c *MockServiceDownloadCall) DoAndReturn(f func(context.Context, string, string, string) error) *MockServiceDownloadCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

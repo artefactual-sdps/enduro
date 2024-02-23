@@ -10,9 +10,11 @@ import (
 	"runtime"
 
 	"github.com/fsnotify/fsnotify"
+	cp "github.com/otiai10/copy"
 	"gocloud.dev/blob"
-	"gocloud.dev/blob/fileblob"
+	_ "gocloud.dev/blob/fileblob"
 
+	"github.com/artefactual-sdps/enduro/internal/bucket"
 	"github.com/artefactual-sdps/enduro/internal/filenotify"
 	"github.com/artefactual-sdps/enduro/internal/fsutil"
 )
@@ -20,7 +22,8 @@ import (
 // filesystemWatcher implements a Watcher for watching paths in a local filesystem.
 type filesystemWatcher struct {
 	ctx   context.Context
-	fsw   filenotify.FileWatcher
+	cfg   *FilesystemConfig
+	fw    filenotify.FileWatcher
 	ch    chan *fsnotify.Event
 	path  string
 	regex *regexp.Regexp
@@ -30,6 +33,8 @@ type filesystemWatcher struct {
 var _ Watcher = (*filesystemWatcher)(nil)
 
 func NewFilesystemWatcher(ctx context.Context, config *FilesystemConfig) (*filesystemWatcher, error) {
+	config.setDefaults()
+
 	stat, err := os.Stat(config.Path)
 	if err != nil {
 		return nil, fmt.Errorf("error looking up stat info: %w", err)
@@ -53,20 +58,15 @@ func NewFilesystemWatcher(ctx context.Context, config *FilesystemConfig) (*files
 		return nil, errors.New("cannot use completedDir and retentionPeriod simultaneously")
 	}
 
-	// The inotify API isn't always available, fall back to polling.
-	var fsw filenotify.FileWatcher
-	if config.Inotify && runtime.GOOS != "windows" {
-		fsw, err = filenotify.New()
-	} else {
-		fsw, err = filenotify.NewPollingWatcher()
-	}
+	fw, err := fileWatcher(config)
 	if err != nil {
-		return nil, fmt.Errorf("error creating filesystem watcher: %w", err)
+		return nil, err
 	}
 
 	w := &filesystemWatcher{
 		ctx:   ctx,
-		fsw:   fsw,
+		cfg:   config,
+		fw:    fw,
 		ch:    make(chan *fsnotify.Event, 100),
 		path:  abspath,
 		regex: regex,
@@ -80,17 +80,38 @@ func NewFilesystemWatcher(ctx context.Context, config *FilesystemConfig) (*files
 
 	go w.loop()
 
-	if err := fsw.Add(abspath); err != nil {
+	if err := fw.Add(abspath); err != nil {
 		return nil, fmt.Errorf("error configuring filesystem watcher: %w", err)
 	}
 
 	return w, nil
 }
 
+func fileWatcher(cfg *FilesystemConfig) (filenotify.FileWatcher, error) {
+	var (
+		fsw filenotify.FileWatcher
+		err error
+	)
+
+	// The inotify API isn't always available, fall back to polling.
+	if cfg.Inotify && runtime.GOOS != "windows" {
+		fsw, err = filenotify.New(filenotify.Config{PollInterval: cfg.PollInterval})
+	} else {
+		fsw, err = filenotify.NewPollingWatcher(
+			filenotify.Config{PollInterval: cfg.PollInterval},
+		)
+	}
+	if err != nil {
+		return nil, fmt.Errorf("error creating filesystem watcher: %w", err)
+	}
+
+	return fsw, nil
+}
+
 func (w *filesystemWatcher) loop() {
 	for {
 		select {
-		case event, ok := <-w.fsw.Events():
+		case event, ok := <-w.fw.Events():
 			if !ok {
 				continue
 			}
@@ -104,12 +125,12 @@ func (w *filesystemWatcher) loop() {
 				continue
 			}
 			w.ch <- &event
-		case _, ok := <-w.fsw.Errors():
+		case _, ok := <-w.fw.Errors():
 			if !ok {
 				continue
 			}
 		case <-w.ctx.Done():
-			_ = w.fsw.Close()
+			_ = w.fw.Close()
 			close(w.ch)
 			return
 		}
@@ -136,8 +157,10 @@ func (w *filesystemWatcher) Path() string {
 	return w.path
 }
 
-func (w *filesystemWatcher) OpenBucket(context.Context) (*blob.Bucket, error) {
-	return fileblob.OpenBucket(w.path, nil)
+func (w *filesystemWatcher) OpenBucket(ctx context.Context) (*blob.Bucket, error) {
+	return bucket.Open(ctx, &bucket.Config{
+		URL: fmt.Sprintf("file://%s", w.path),
+	})
 }
 
 func (w *filesystemWatcher) RemoveAll(key string) error {
@@ -153,4 +176,16 @@ func (w *filesystemWatcher) Dispose(key string) error {
 	dst := filepath.Join(w.completedDir, key)
 
 	return fsutil.Move(src, dst)
+}
+
+// Download recursively copies the contents of key to dest. Key may be the name
+// of a directory or file.
+func (w *filesystemWatcher) Download(ctx context.Context, dest, key string) error {
+	src := filepath.Clean(filepath.Join(w.path, key))
+	dest = filepath.Clean(filepath.Join(dest, key))
+	if err := cp.Copy(src, dest); err != nil {
+		return fmt.Errorf("filesystem watcher: download: %v", err)
+	}
+
+	return nil
 }

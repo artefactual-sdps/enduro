@@ -80,6 +80,44 @@ func (c *MockWatcherCompletedDirCall) DoAndReturn(f func() string) *MockWatcherC
 	return c
 }
 
+// Download mocks base method.
+func (m *MockWatcher) Download(arg0 context.Context, arg1, arg2 string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Download", arg0, arg1, arg2)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Download indicates an expected call of Download.
+func (mr *MockWatcherMockRecorder) Download(arg0, arg1, arg2 any) *MockWatcherDownloadCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Download", reflect.TypeOf((*MockWatcher)(nil).Download), arg0, arg1, arg2)
+	return &MockWatcherDownloadCall{Call: call}
+}
+
+// MockWatcherDownloadCall wrap *gomock.Call
+type MockWatcherDownloadCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockWatcherDownloadCall) Return(arg0 error) *MockWatcherDownloadCall {
+	c.Call = c.Call.Return(arg0)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockWatcherDownloadCall) Do(f func(context.Context, string, string) error) *MockWatcherDownloadCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockWatcherDownloadCall) DoAndReturn(f func(context.Context, string, string) error) *MockWatcherDownloadCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
 // OpenBucket mocks base method.
 func (m *MockWatcher) OpenBucket(arg0 context.Context) (*blob.Bucket, error) {
 	m.ctrl.T.Helper()

@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io"
 	"os"
 	"sync"
 	"time"
@@ -31,8 +30,12 @@ type Watcher interface {
 	// Implementors must not return a nil function.
 	Watch(ctx context.Context) (*BlobEvent, Cleanup, error)
 
+	// Download copies the file or directory identified by key to dest.
+	Download(ctx context.Context, dest, key string) error
+
 	// OpenBucket returns the bucket where the blobs can be found.
 	OpenBucket(ctx context.Context) (*blob.Bucket, error)
+
 	RetentionPeriod() *time.Duration
 	CompletedDir() string
 	StripTopLevelDir() bool
@@ -73,8 +76,9 @@ type Service interface {
 	// Return a watcher given its name.
 	ByName(name string) (Watcher, error)
 
-	// Download blob given an event.
-	Download(ctx context.Context, w io.Writer, watcherName, key string) error
+	// Download copies the watcherName file or directory identified by key to
+	// dest.
+	Download(ctx context.Context, dest, watcherName, key string) error
 
 	// Delete blob given an event.
 	Delete(ctx context.Context, watcherName, key string) error
@@ -147,29 +151,13 @@ func (svc *serviceImpl) ByName(name string) (Watcher, error) {
 	return svc.watcher(name)
 }
 
-func (svc *serviceImpl) Download(ctx context.Context, writer io.Writer, watcherName, key string) error {
+func (svc *serviceImpl) Download(ctx context.Context, dest, watcherName, key string) error {
 	w, err := svc.watcher(watcherName)
 	if err != nil {
 		return err
 	}
 
-	bucket, err := w.OpenBucket(ctx)
-	if err != nil {
-		return fmt.Errorf("error opening bucket: %w", err)
-	}
-	defer bucket.Close()
-
-	reader, err := bucket.NewReader(ctx, key, nil)
-	if err != nil {
-		return fmt.Errorf("error creating reader: %w", err)
-	}
-	defer reader.Close()
-
-	if _, err := io.Copy(writer, reader); err != nil {
-		return fmt.Errorf("error copying blob: %w", err)
-	}
-
-	return nil
+	return w.Download(ctx, dest, key)
 }
 
 func (svc *serviceImpl) Delete(ctx context.Context, watcherName, key string) error {
