@@ -1,4 +1,4 @@
-package filenotify
+package filenotify_test
 
 import (
 	"fmt"
@@ -8,10 +8,16 @@ import (
 	"time"
 
 	"github.com/fsnotify/fsnotify"
+
+	"github.com/artefactual-sdps/enduro/internal/filenotify"
 )
 
+const pollInterval = time.Millisecond * 5
+
 func TestPollerEvent(t *testing.T) {
-	w, err := NewPollingWatcher()
+	w, err := filenotify.NewPollingWatcher(
+		filenotify.Config{PollInterval: pollInterval},
+	)
 	if err != nil {
 		t.Fatal("error creating poller")
 	}
@@ -44,7 +50,7 @@ func TestPollerEvent(t *testing.T) {
 	}
 }
 
-func assertEvent(w FileWatcher, eType fsnotify.Op) error {
+func assertEvent(w filenotify.FileWatcher, eType fsnotify.Op) error {
 	var err error
 	select {
 	case e := <-w.Events():
@@ -53,7 +59,7 @@ func assertEvent(w FileWatcher, eType fsnotify.Op) error {
 		}
 	case e := <-w.Errors():
 		err = fmt.Errorf("got unexpected error waiting for events %v: %v", eType, e)
-	case <-time.After(watchWaitTime * 3):
+	case <-time.After(pollInterval * 2):
 		err = fmt.Errorf("timeout waiting for event %v", eType)
 	}
 	return err

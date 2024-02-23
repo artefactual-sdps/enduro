@@ -35,8 +35,6 @@ func NewDownloadActivity(logger logr.Logger, wsvc watcher.Service) *DownloadActi
 }
 
 func (a *DownloadActivity) Execute(ctx context.Context, params *DownloadActivityParams) (*DownloadActivityResult, error) {
-	var err error
-
 	a.logger.V(1).Info("Executing DownloadActivity",
 		"Key", params.Key,
 		"WatcherName", params.WatcherName,
@@ -48,14 +46,8 @@ func (a *DownloadActivity) Execute(ctx context.Context, params *DownloadActivity
 	}
 
 	dest := filepath.Clean(filepath.Join(destDir, params.Key))
-	writer, err := os.Create(dest)
-	if err != nil {
-		return nil, fmt.Errorf("create file: %v", err)
-	}
-	defer writer.Close() //#nosec G307 -- Errors returned by Close() here do not require specific handling.
-
-	if err := a.wsvc.Download(ctx, writer, params.WatcherName, params.Key); err != nil {
-		return nil, temporal_tools.NewNonRetryableError(fmt.Errorf("download blob: %v", err))
+	if err := a.wsvc.Download(ctx, dest, params.WatcherName, params.Key); err != nil {
+		return nil, temporal_tools.NewNonRetryableError(fmt.Errorf("download: %v", err))
 	}
 
 	return &DownloadActivityResult{Path: dest}, nil

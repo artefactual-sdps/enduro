@@ -5,6 +5,8 @@ import (
 	"time"
 )
 
+const defaultPollInterval = 200 * time.Millisecond
+
 type Config struct {
 	Filesystem []*FilesystemConfig
 	Minio      []*MinioConfig
@@ -29,14 +31,24 @@ func (c Config) CompletedDirs() []string {
 
 // See filesystem.go for more.
 type FilesystemConfig struct {
-	Name    string
-	Path    string
-	Inotify bool
-	Ignore  string
+	Name         string
+	Path         string
+	CompletedDir string
+	Ignore       string
+	Inotify      bool
 
 	RetentionPeriod  *time.Duration
-	CompletedDir     string
 	StripTopLevelDir bool
+
+	// PollInterval sets the length of time between filesystem polls (default:
+	// 200ms). If Inotify is true then PollInterval is ignored.
+	PollInterval time.Duration
+}
+
+func (cfg *FilesystemConfig) setDefaults() {
+	if cfg.PollInterval == 0 {
+		cfg.PollInterval = defaultPollInterval
+	}
 }
 
 // See minio.go for more.
@@ -53,6 +65,7 @@ type MinioConfig struct {
 	Secret          string
 	Token           string
 	Bucket          string
+	URL             string
 
 	RetentionPeriod  *time.Duration
 	StripTopLevelDir bool

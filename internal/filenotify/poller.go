@@ -1,14 +1,9 @@
 package filenotify
 
 import (
-	"time"
-
 	"github.com/fsnotify/fsnotify"
 	"github.com/radovskyb/watcher"
 )
-
-// watchWaitTime is the time to wait between file poll loops
-const watchWaitTime = 200 * time.Millisecond
 
 // filePoller is used to poll files for changes, especially in cases where fsnotify
 // can't be run (e.g. when inotify handles are exhausted)
@@ -33,9 +28,9 @@ func (w *filePoller) loop() {
 			switch event.Op {
 			case watcher.Create:
 				op = fsnotify.Create
-			case watcher.Rename:
-				fallthrough
 			case watcher.Move:
+				fallthrough
+			case watcher.Rename:
 				op = fsnotify.Rename
 			default:
 				continue

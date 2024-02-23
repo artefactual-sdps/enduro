@@ -4,11 +4,17 @@
 package filenotify
 
 import (
+	"time"
+
 	"github.com/fsnotify/fsnotify"
 	"github.com/radovskyb/watcher"
 )
 
-// FileWatcher is an interface for implementing file notification watchers
+type Config struct {
+	PollInterval time.Duration
+}
+
+// FileWatcher is an interface for implementing file notification watchers.
 type FileWatcher interface {
 	Events() <-chan fsnotify.Event
 	Errors() <-chan error
@@ -18,11 +24,11 @@ type FileWatcher interface {
 }
 
 // New tries to use an fs-event watcher, and falls back to the poller if there is an error
-func New() (FileWatcher, error) {
+func New(cfg Config) (FileWatcher, error) {
 	if watcher, err := NewEventWatcher(); err == nil {
 		return watcher, nil
 	}
-	return NewPollingWatcher()
+	return NewPollingWatcher(cfg)
 }
 
 // NewEventWatcher returns an fs-event based file watcher
@@ -37,7 +43,7 @@ func NewEventWatcher() (FileWatcher, error) {
 }
 
 // NewPollingWatcher returns a poll-based file watcher
-func NewPollingWatcher() (FileWatcher, error) {
+func NewPollingWatcher(cfg Config) (FileWatcher, error) {
 	poller := &filePoller{
 		wr:     watcher.New(),
 		events: make(chan fsnotify.Event),
@@ -49,7 +55,7 @@ func NewPollingWatcher() (FileWatcher, error) {
 	done := make(chan error)
 	{
 		go func() {
-			err := poller.wr.Start(watchWaitTime)
+			err := poller.wr.Start(cfg.PollInterval)
 			if err != nil {
 				done <- err
 			}

@@ -10,12 +10,14 @@ import (
 
 	"github.com/alicebob/miniredis/v2"
 	"github.com/go-logr/logr"
+	"gotest.tools/v3/assert"
+	"gotest.tools/v3/fs"
 	"gotest.tools/v3/poll"
 
 	"github.com/artefactual-sdps/enduro/internal/watcher"
 )
 
-func newWatcher(t *testing.T) (*miniredis.Miniredis, watcher.Watcher) {
+func newWatcher(t *testing.T, updateCfg func(c *watcher.MinioConfig)) (*miniredis.Miniredis, watcher.Watcher) {
 	t.Helper()
 
 	m, err := miniredis.Run()
@@ -24,7 +26,9 @@ func newWatcher(t *testing.T) (*miniredis.Miniredis, watcher.Watcher) {
 	}
 
 	dur := time.Duration(time.Second)
-	config := watcher.MinioConfig{
+
+	// Default config.
+	config := &watcher.MinioConfig{
 		Name:             "minio-watcher",
 		RedisAddress:     fmt.Sprintf("redis://%s", m.Addr()),
 		RedisList:        "minio-events",
@@ -40,9 +44,12 @@ func newWatcher(t *testing.T) (*miniredis.Miniredis, watcher.Watcher) {
 		StripTopLevelDir: true,
 	}
 
-	var w watcher.Watcher
-	logger := logr.Discard()
-	w, err = watcher.NewMinioWatcher(context.Background(), logger, &config)
+	// Modify default config.
+	if updateCfg != nil {
+		updateCfg(config)
+	}
+
+	w, err := watcher.NewMinioWatcher(context.Background(), logr.Discard(), config)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -57,7 +64,7 @@ func cleanup(t *testing.T, m *miniredis.Miniredis) {
 }
 
 func TestWatcherReturnsErrWhenNoMessages(t *testing.T) {
-	m, w := newWatcher(t)
+	m, w := newWatcher(t, nil)
 	defer cleanup(t, m)
 
 	// TODO: slow test, should inject smaller timeout.
@@ -80,7 +87,7 @@ func TestWatcherReturnsErrWhenNoMessages(t *testing.T) {
 }
 
 func TestWatcherReturnsErrOnInvalidMessages(t *testing.T) {
-	m, w := newWatcher(t)
+	m, w := newWatcher(t, nil)
 	defer cleanup(t, m)
 
 	m.Lpush("minio-events", "{}")
@@ -103,7 +110,7 @@ func TestWatcherReturnsErrOnInvalidMessages(t *testing.T) {
 }
 
 func TestWatcherReturnsErrOnMessageInWrongBucket(t *testing.T) {
-	m, w := newWatcher(t)
+	m, w := newWatcher(t, nil)
 	defer cleanup(t, m)
 
 	// Message with a bucket we're not watching.
@@ -180,7 +187,7 @@ func TestWatcherReturnsErrOnMessageInWrongBucket(t *testing.T) {
 }
 
 func TestWatcherReturnsOnValidMessage(t *testing.T) {
-	m, w := newWatcher(t)
+	m, w := newWatcher(t, nil)
 	defer cleanup(t, m)
 
 	m.Lpush("minio-events", `[
@@ -254,7 +261,7 @@ func TestWatcherReturnsOnValidMessage(t *testing.T) {
 }
 
 func TestWatcherReturnsDecodedObjectKey(t *testing.T) {
-	m, w := newWatcher(t)
+	m, w := newWatcher(t, nil)
 	defer cleanup(t, m)
 
 	// Message with an encoded object key
@@ -292,7 +299,7 @@ func TestWatcherReturnsDecodedObjectKey(t *testing.T) {
 }
 
 func TestWatcherReturnsErrOnInvalidObjectKey(t *testing.T) {
-	m, w := newWatcher(t)
+	m, w := newWatcher(t, nil)
 	defer cleanup(t, m)
 
 	// Message with an invalid encoded object key
@@ -327,4 +334,28 @@ func TestWatcherReturnsErrOnInvalidObjectKey(t *testing.T) {
 	}
 
 	poll.WaitOn(t, check, poll.WithTimeout(time.Second*3))
+}
+
+func TestMinioWatcherDownload(t *testing.T) {
+	t.Run("Downloads a file", func(t *testing.T) {
+		t.Parallel()
+
+		wd := fs.NewDir(t, "enduro-test-minio-watcher",
+			fs.WithFile("test", "A test file."),
+		)
+		m, w := newWatcher(t, func(c *watcher.MinioConfig) {
+			c.URL = fmt.Sprintf("file://%s", wd.Path())
+		})
+		defer cleanup(t, m)
+
+		dest := fs.NewDir(t, "enduro-test-minio-watcher")
+		err := w.Download(context.Background(), dest.Join("test"), "test")
+		assert.NilError(t, err)
+		assert.Assert(t, fs.Equal(
+			dest.Path(),
+			fs.Expected(t,
+				fs.WithFile("test", "A test file.", fs.WithMode(0o600)),
+			),
+		))
+	})
 }

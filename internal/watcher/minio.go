@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"net/url"
+	"os"
 	"time"
 
 	"github.com/go-logr/logr"
@@ -50,6 +52,7 @@ func NewMinioWatcher(ctx context.Context, logger logr.Logger, config *MinioConfi
 		Profile:   config.Profile,
 		Region:    config.Region,
 		PathStyle: config.PathStyle,
+		URL:       config.URL,
 	}
 
 	if config.RedisFailedList == "" {
@@ -145,4 +148,34 @@ func (w *minioWatcher) event(blob string) (*BlobEvent, error) {
 
 func (w *minioWatcher) OpenBucket(ctx context.Context) (*blob.Bucket, error) {
 	return bucket.Open(ctx, w.bucketConfig)
+}
+
+// Download copies the contents of the blob identified by key to dest.
+func (w *minioWatcher) Download(ctx context.Context, dest, key string) error {
+	bucket, err := w.OpenBucket(ctx)
+	if err != nil {
+		return fmt.Errorf("error opening bucket: %w", err)
+	}
+	defer bucket.Close()
+
+	reader, err := bucket.NewReader(ctx, key, nil)
+	if err != nil {
+		return fmt.Errorf("error creating reader: %w", err)
+	}
+	defer reader.Close()
+
+	writer, err := os.Create(dest) // #nosec G304 -- trusted file path.
+	if err != nil {
+		return fmt.Errorf("error creating writer: %w", err)
+	}
+	defer writer.Close()
+
+	if _, err := io.Copy(writer, reader); err != nil {
+		return fmt.Errorf("error copying blob: %w", err)
+	}
+
+	// Try to set the file mode but ignore any errors.
+	_ = os.Chmod(dest, 0o600)
+
+	return nil
 }

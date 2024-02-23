@@ -3,7 +3,6 @@ package activities_test
 import (
 	"context"
 	"fmt"
-	"io"
 	"os"
 	"testing"
 
@@ -20,7 +19,7 @@ import (
 )
 
 func TestDownloadActivity(t *testing.T) {
-	key := "transfer.zip"
+	key := "jabber.txt"
 	watcherName := "watcher"
 
 	type test struct {
@@ -38,9 +37,15 @@ func TestDownloadActivity(t *testing.T) {
 				WatcherName: watcherName,
 			},
 			rec: func(r *watcherfake.MockServiceMockRecorder) {
-				r.Download(mockutil.Context(), gomock.AssignableToTypeOf((*os.File)(nil)), watcherName, key).
-					DoAndReturn(func(ctx context.Context, w io.Writer, watcherName, key string) error {
-						_, err := w.Write([]byte("’Twas brillig, and the slithy toves Did gyre and gimble in the wabe:"))
+				var T string
+				r.Download(mockutil.Context(), gomock.AssignableToTypeOf(T), watcherName, key).
+					DoAndReturn(func(ctx context.Context, dest, watcherName, key string) error {
+						w, err := os.Create(dest)
+						if err != nil {
+							return err
+						}
+
+						_, err = w.Write([]byte("’Twas brillig, and the slithy toves Did gyre and gimble in the wabe:"))
 						return err
 					})
 			},
@@ -53,11 +58,12 @@ func TestDownloadActivity(t *testing.T) {
 				WatcherName: watcherName,
 			},
 			rec: func(r *watcherfake.MockServiceMockRecorder) {
-				r.Download(mockutil.Context(), gomock.AssignableToTypeOf((*os.File)(nil)), watcherName, key).Return(
+				var T string
+				r.Download(mockutil.Context(), gomock.AssignableToTypeOf(T), watcherName, key).Return(
 					fmt.Errorf("error loading watcher: unknown watcher %s", watcherName),
 				)
 			},
-			wantErr: fmt.Sprintf("activity error (type: download-activity, scheduledEventID: 0, startedEventID: 0, identity: ): download blob: error loading watcher: unknown watcher %s", watcherName),
+			wantErr: fmt.Sprintf("activity error (type: download-activity, scheduledEventID: 0, startedEventID: 0, identity: ): download: error loading watcher: unknown watcher %s", watcherName),
 		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
