@@ -136,7 +136,7 @@ func main() {
 		}
 
 		w.RegisterActivityWithOptions(activities.NewDownloadActivity(logger, wsvc).Execute, temporalsdk_activity.RegisterOptions{Name: activities.DownloadActivityName})
-		w.RegisterActivityWithOptions(activities.NewBundleActivity(logger, wsvc).Execute, temporalsdk_activity.RegisterOptions{Name: activities.BundleActivityName})
+		w.RegisterActivityWithOptions(activities.NewBundleActivity(logger).Execute, temporalsdk_activity.RegisterOptions{Name: activities.BundleActivityName})
 		w.RegisterActivityWithOptions(a3m.NewCreateAIPActivity(logger, &cfg.A3m, pkgsvc).Execute, temporalsdk_activity.RegisterOptions{Name: a3m.CreateAIPActivityName})
 		w.RegisterActivityWithOptions(activities.NewCleanUpActivity().Execute, temporalsdk_activity.RegisterOptions{Name: activities.CleanUpActivityName})
 

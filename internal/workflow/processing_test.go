@@ -67,7 +67,7 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(taskQueue string) {
 	sftpc := sftp_fake.NewMockClient(ctrl)
 
 	s.env.RegisterActivityWithOptions(activities.NewDownloadActivity(logger, wsvc).Execute, temporalsdk_activity.RegisterOptions{Name: activities.DownloadActivityName})
-	s.env.RegisterActivityWithOptions(activities.NewBundleActivity(logger, wsvc).Execute, temporalsdk_activity.RegisterOptions{Name: activities.BundleActivityName})
+	s.env.RegisterActivityWithOptions(activities.NewBundleActivity(logger).Execute, temporalsdk_activity.RegisterOptions{Name: activities.BundleActivityName})
 	s.env.RegisterActivityWithOptions(a3m.NewCreateAIPActivity(logger, &a3m.Config{}, pkgsvc).Execute, temporalsdk_activity.RegisterOptions{Name: a3m.CreateAIPActivityName})
 	s.env.RegisterActivityWithOptions(activities.NewUploadActivity(nil).Execute, temporalsdk_activity.RegisterOptions{Name: activities.UploadActivityName})
 	s.env.RegisterActivityWithOptions(activities.NewMoveToPermanentStorageActivity(nil).Execute, temporalsdk_activity.RegisterOptions{Name: activities.MoveToPermanentStorageActivityName})
@@ -164,10 +164,8 @@ func (s *ProcessingWorkflowTestSuite) TestPackageConfirmation() {
 
 	s.env.OnActivity(activities.BundleActivityName, sessionCtx,
 		&activities.BundleActivityParams{
-			WatcherName: watcherName,
+			SourcePath:  "/tmp/enduro123456/" + key,
 			TransferDir: s.transferDir,
-			Key:         key,
-			TempFile:    "/tmp/enduro123456/" + key,
 		},
 	).Return(
 		&activities.BundleActivityResult{
@@ -239,10 +237,8 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 
 	s.env.OnActivity(activities.BundleActivityName, sessionCtx,
 		&activities.BundleActivityParams{
-			WatcherName: watcherName,
+			SourcePath:  "/tmp/enduro123456/" + key,
 			TransferDir: s.transferDir,
-			Key:         key,
-			TempFile:    "/tmp/enduro123456/" + key,
 		},
 	).Return(
 		&activities.BundleActivityResult{
@@ -319,9 +315,7 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 
 	s.env.OnActivity(activities.BundleActivityName, sessionCtx,
 		&activities.BundleActivityParams{
-			WatcherName: watcherName,
-			Key:         key,
-			TempFile:    "/tmp/enduro123456/" + key,
+			SourcePath: "/tmp/enduro123456/" + key,
 		},
 	).Return(
 		&activities.BundleActivityResult{
@@ -422,10 +416,8 @@ func (s *ProcessingWorkflowTestSuite) TestPackageRejection() {
 
 	s.env.OnActivity(activities.BundleActivityName, sessionCtx,
 		&activities.BundleActivityParams{
-			WatcherName: watcherName,
+			SourcePath:  "/tmp/enduro123456/" + key,
 			TransferDir: s.transferDir,
-			Key:         key,
-			TempFile:    "/tmp/enduro123456/" + key,
 		},
 	).Return(
 		&activities.BundleActivityResult{

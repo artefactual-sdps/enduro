@@ -333,12 +333,10 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 			activityOpts,
 			activities.BundleActivityName,
 			&activities.BundleActivityParams{
-				WatcherName:      tinfo.req.WatcherName,
+				SourcePath:       tinfo.TempFile,
 				TransferDir:      transferDir,
-				Key:              tinfo.req.Key,
-				IsDir:            tinfo.req.IsDir,
-				TempFile:         tinfo.TempFile,
 				StripTopLevelDir: tinfo.req.StripTopLevelDir,
+				IsDir:            tinfo.req.IsDir,
 			},
 		).Get(activityOpts, &bundleResult)
 		if err != nil {

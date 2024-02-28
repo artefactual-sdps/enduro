@@ -18,7 +18,6 @@ import (
 
 	"github.com/artefactual-sdps/enduro/internal/bagit"
 	"github.com/artefactual-sdps/enduro/internal/bundler"
-	"github.com/artefactual-sdps/enduro/internal/watcher"
 )
 
 const (
@@ -28,25 +27,18 @@ const (
 
 type BundleActivity struct {
 	logger logr.Logger
-	wsvc   watcher.Service
 }
 
-func NewBundleActivity(logger logr.Logger, wsvc watcher.Service) *BundleActivity {
-	return &BundleActivity{logger: logger, wsvc: wsvc}
+func NewBundleActivity(logger logr.Logger) *BundleActivity {
+	return &BundleActivity{logger: logger}
 }
 
 type BundleActivityParams struct {
-	// WatcherName is the name of the watcher that saw the transfer deposit.
-	WatcherName string
+	// SourcePath is the path of the transfer file or directory.
+	SourcePath string
 
 	// TransferDir is the target directory for the bundled package.
 	TransferDir string
-
-	// Key is the blob (file) name of the transfer.
-	Key string
-
-	// TempFile is the path to a downloaded transfer file.
-	TempFile string
 
 	// StripTopLevelDir indicates that the top-level directory in an archive
 	// transfer (e.g. zip, tar) should be removed from the bundled package
@@ -71,10 +63,8 @@ func (a *BundleActivity) Execute(ctx context.Context, params *BundleActivityPara
 	)
 
 	a.logger.V(1).Info("Executing BundleActivity",
-		"WatcherName", params.WatcherName,
+		"SourcePath", params.SourcePath,
 		"TransferDir", params.TransferDir,
-		"Key", params.Key,
-		"TempFile", params.TempFile,
 		"StripTopLevelDir", params.StripTopLevelDir,
 		"IsDir", params.IsDir,
 	)
@@ -87,23 +77,22 @@ func (a *BundleActivity) Execute(ctx context.Context, params *BundleActivityPara
 	}
 
 	if params.IsDir {
-		var w watcher.Watcher
-		w, err = a.wsvc.ByName(params.WatcherName)
-		if err == nil {
-			src, _ := securejoin.SecureJoin(w.Path(), params.Key)
-			dst := params.TransferDir
-			res.FullPath, res.FullPathBeforeStrip, err = a.Copy(ctx, src, dst, false)
-		}
+		res.FullPath, res.FullPathBeforeStrip, err = a.Copy(
+			ctx,
+			params.SourcePath,
+			params.TransferDir,
+			false,
+		)
 	} else {
-		unar := a.Unarchiver(params.Key, params.TempFile)
+		unar := a.Unarchiver(params.SourcePath)
 		if unar == nil {
-			res.FullPath, err = a.SingleFile(ctx, params.TransferDir, params.Key, params.TempFile)
+			res.FullPath, err = a.SingleFile(ctx, params.TransferDir, params.SourcePath)
 			if err != nil {
 				err = fmt.Errorf("bundle single file: %v", err)
 			}
 			res.FullPathBeforeStrip = res.FullPath
 		} else {
-			res.FullPath, res.FullPathBeforeStrip, err = a.Bundle(ctx, unar, params.TransferDir, params.Key, params.TempFile, params.StripTopLevelDir)
+			res.FullPath, res.FullPathBeforeStrip, err = a.Bundle(ctx, unar, params.TransferDir, params.SourcePath, params.StripTopLevelDir)
 		}
 	}
 	if err != nil {
@@ -133,19 +122,20 @@ func (a *BundleActivity) Execute(ctx context.Context, params *BundleActivityPara
 }
 
 // Unarchiver returns the unarchiver suited for the archival format.
-func (a *BundleActivity) Unarchiver(key, filename string) archiver.Unarchiver {
-	if iface, err := archiver.ByExtension(key); err == nil {
+func (a *BundleActivity) Unarchiver(sourcePath string) archiver.Unarchiver {
+	if iface, err := archiver.ByExtension(filepath.Base(sourcePath)); err == nil {
 		if u, ok := iface.(archiver.Unarchiver); ok {
 			return u
 		}
 	}
 
-	file, err := os.Open(filepath.Clean(filename))
+	r, err := os.Open(sourcePath) // #nosec G304 -- trusted file path.
 	if err != nil {
 		return nil
 	}
-	defer file.Close() //#nosec G307 -- Errors returned by Close() here do not require specific handling.
-	if u, err := archiver.ByHeader(file); err == nil {
+	defer r.Close()
+
+	if u, err := archiver.ByHeader(r); err == nil {
 		return u
 	}
 
@@ -155,19 +145,19 @@ func (a *BundleActivity) Unarchiver(key, filename string) archiver.Unarchiver {
 // SingleFile bundles a transfer with the downloaded blob in it.
 //
 // TODO: Write metadata.csv and checksum files to the metadata dir.
-func (a *BundleActivity) SingleFile(ctx context.Context, transferDir, key, tempFile string) (string, error) {
+func (a *BundleActivity) SingleFile(ctx context.Context, transferDir, sourcePath string) (string, error) {
 	b, err := bundler.NewBundlerWithTempDir(transferDir)
 	if err != nil {
 		return "", fmt.Errorf("create bundler: %v", err)
 	}
 
-	src, err := os.Open(tempFile) // #nosec G304 -- trusted file path.
+	src, err := os.Open(sourcePath) // #nosec G304 -- trusted file path.
 	if err != nil {
 		return "", fmt.Errorf("open source file: %v", err)
 	}
 	defer src.Close()
 
-	err = b.Write(filepath.Join("objects", key), src)
+	err = b.Write(filepath.Join("objects", filepath.Base(sourcePath)), src)
 	if err != nil {
 		return "", fmt.Errorf("write file: %v", err)
 	}
@@ -180,7 +170,7 @@ func (a *BundleActivity) SingleFile(ctx context.Context, transferDir, key, tempF
 }
 
 // Bundle a transfer with the contents found in the archive.
-func (a *BundleActivity) Bundle(ctx context.Context, unar archiver.Unarchiver, transferDir, key, tempFile string, stripTopLevelDir bool) (string, string, error) {
+func (a *BundleActivity) Bundle(ctx context.Context, unar archiver.Unarchiver, transferDir, sourcePath string, stripTopLevelDir bool) (string, string, error) {
 	// Create a new directory for our transfer with the name randomized.
 	const prefix = "enduro"
 	tempDir, err := os.MkdirTemp(transferDir, prefix)
@@ -188,7 +178,7 @@ func (a *BundleActivity) Bundle(ctx context.Context, unar archiver.Unarchiver, t
 		return "", "", fmt.Errorf("error creating temporary directory: %s", err)
 	}
 
-	if err := unar.Unarchive(tempFile, tempDir); err != nil {
+	if err := unar.Unarchive(sourcePath, tempDir); err != nil {
 		return "", "", fmt.Errorf("error unarchiving file: %v", err)
 	}
 
@@ -201,7 +191,7 @@ func (a *BundleActivity) Bundle(ctx context.Context, unar archiver.Unarchiver, t
 	}
 
 	// Delete the archive. We still have a copy in the watched source.
-	_ = os.Remove(tempFile)
+	_ = os.Remove(sourcePath)
 
 	return tempDir, tempDirBeforeStrip, nil
 }
