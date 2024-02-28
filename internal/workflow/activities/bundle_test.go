@@ -8,37 +8,30 @@ import (
 	"go.artefactual.dev/tools/temporal"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
 	temporalsdk_testsuite "go.temporal.io/sdk/testsuite"
-	"go.uber.org/mock/gomock"
 	"gotest.tools/v3/assert"
 	"gotest.tools/v3/fs"
 
-	watcherfake "github.com/artefactual-sdps/enduro/internal/watcher/fake"
 	"github.com/artefactual-sdps/enduro/internal/workflow/activities"
 )
 
 func TestBundleActivity(t *testing.T) {
-	watcherName := "watcher"
 	sourceDir := fs.NewDir(t, "enduro-bundle-test",
 		fs.FromDir("../../testdata"),
 	)
 	destDir := fs.NewDir(t, "enduro-bundle-test")
 
 	type test struct {
-		name     string
-		params   *activities.BundleActivityParams
-		msvc     func(*gomock.Controller) *watcherfake.MockService
-		watchRec func(*watcherfake.MockWatcherMockRecorder)
-		wantFs   fs.Manifest
-		wantErr  string
+		name    string
+		params  *activities.BundleActivityParams
+		wantFs  fs.Manifest
+		wantErr string
 	}
 	for _, tt := range []test{
 		{
 			name: "Bundles a single file",
 			params: &activities.BundleActivityParams{
-				WatcherName: watcherName,
+				SourcePath:  sourceDir.Join("single_file_transfer", "small.txt"),
 				TransferDir: destDir.Path(),
-				Key:         "small.txt",
-				TempFile:    sourceDir.Join("single_file_transfer", "small.txt"),
 			},
 			wantFs: fs.Expected(t, fs.WithMode(activities.ModeDir),
 				fs.WithDir("objects", fs.WithMode(activities.ModeDir),
@@ -52,31 +45,9 @@ func TestBundleActivity(t *testing.T) {
 		{
 			name: "Bundles a local standard transfer directory",
 			params: &activities.BundleActivityParams{
-				WatcherName: watcherName,
+				SourcePath:  sourceDir.Join("standard_transfer", "small"),
 				TransferDir: destDir.Path(),
-				Key:         "small",
-				TempFile:    sourceDir.Join("standard_transfer", "small"),
 				IsDir:       true,
-			},
-			msvc: func(ctrl *gomock.Controller) *watcherfake.MockService {
-				svc := watcherfake.NewMockService(ctrl)
-				watcher := watcherfake.NewMockWatcher(ctrl)
-
-				svc.EXPECT().
-					ByName(watcherName).
-					Return(
-						watcher,
-						nil,
-					)
-
-				watcher.EXPECT().
-					Path().
-					Return(sourceDir.Join("standard_transfer"))
-
-				return svc
-			},
-			watchRec: func(watcher *watcherfake.MockWatcherMockRecorder) {
-				watcher.Path().Return(sourceDir.Join("standard_transfer"))
 			},
 			wantFs: fs.Expected(t, fs.WithMode(activities.ModeDir),
 				fs.WithFile("small.txt", "I am a small file.\n", fs.WithMode(activities.ModeFile)),
@@ -85,10 +56,8 @@ func TestBundleActivity(t *testing.T) {
 		{
 			name: "Bundles a zipped standard transfer",
 			params: &activities.BundleActivityParams{
-				WatcherName:      watcherName,
+				SourcePath:       sourceDir.Join("zipped_transfer", "small.zip"),
 				TransferDir:      destDir.Path(),
-				Key:              "small.zip",
-				TempFile:         sourceDir.Join("zipped_transfer", "small.zip"),
 				StripTopLevelDir: true,
 			},
 			wantFs: fs.Expected(t, fs.WithMode(activities.ModeDir),
@@ -98,10 +67,8 @@ func TestBundleActivity(t *testing.T) {
 		{
 			name: "Bundles a tarred and gzipped bag transfer",
 			params: &activities.BundleActivityParams{
-				WatcherName:      watcherName,
+				SourcePath:       sourceDir.Join("gzipped_bag", "small_bag.tgz"),
 				TransferDir:      destDir.Path(),
-				Key:              "small_bag.tgz",
-				TempFile:         sourceDir.Join("gzipped_bag", "small_bag.tgz"),
 				StripTopLevelDir: true,
 			},
 			wantFs: fs.Expected(t, fs.WithMode(activities.ModeDir),
@@ -157,17 +124,10 @@ e91f941be5973ff71f1dccbdd1a32d598881893a7f21be516aca743da38b1689 bagit.txt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			var wsvc *watcherfake.MockService
-
 			ts := &temporalsdk_testsuite.WorkflowTestSuite{}
 			env := ts.NewTestActivityEnvironment()
-			ctrl := gomock.NewController(t)
-			if tt.msvc != nil {
-				wsvc = tt.msvc(ctrl)
-			}
-
 			env.RegisterActivityWithOptions(
-				activities.NewBundleActivity(logr.Discard(), wsvc).Execute,
+				activities.NewBundleActivity(logr.Discard()).Execute,
 				temporalsdk_activity.RegisterOptions{
 					Name: activities.BundleActivityName,
 				},
