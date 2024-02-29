@@ -110,3 +110,28 @@ func TestMove(t *testing.T) {
 		assert.Assert(t, fs.Equal(dst, srcManifest))
 	})
 }
+
+func TestSetFileModes(t *testing.T) {
+	td := fs.NewDir(t, "enduro-test-fsutil",
+		fs.WithDir("transfer", fs.WithMode(0o755),
+			fs.WithFile("test1", "I'm a test file.", fs.WithMode(0o644)),
+			fs.WithDir("subdir", fs.WithMode(0o755),
+				fs.WithFile("test2", "Another test file.", fs.WithMode(0o644)),
+			),
+		),
+	)
+
+	err := fsutil.SetFileModes(td.Join("transfer"), 0o700, 0o600)
+	assert.NilError(t, err)
+	assert.Assert(t, fs.Equal(
+		td.Path(),
+		fs.Expected(t,
+			fs.WithDir("transfer", fs.WithMode(0o700),
+				fs.WithFile("test1", "I'm a test file.", fs.WithMode(0o600)),
+				fs.WithDir("subdir", fs.WithMode(0o700),
+					fs.WithFile("test2", "Another test file.", fs.WithMode(0o600)),
+				),
+			),
+		),
+	))
+}

@@ -12,7 +12,6 @@ import (
 
 	securejoin "github.com/cyphar/filepath-securejoin"
 	"github.com/go-logr/logr"
-	"github.com/mholt/archiver/v3"
 	"github.com/otiai10/copy"
 	temporal_tools "go.artefactual.dev/tools/temporal"
 
@@ -51,9 +50,7 @@ type BundleActivityParams struct {
 }
 
 type BundleActivityResult struct {
-	RelPath             string // Path of the transfer relative to the transfer directory.
-	FullPath            string // Full path to the transfer in the worker running the session.
-	FullPathBeforeStrip string // Same as FullPath but includes the top-level dir even when stripped.
+	FullPath string // Full path to the transfer in the worker running the session.
 }
 
 func (a *BundleActivity) Execute(ctx context.Context, params *BundleActivityParams) (*BundleActivityResult, error) {
@@ -77,22 +74,14 @@ func (a *BundleActivity) Execute(ctx context.Context, params *BundleActivityPara
 	}
 
 	if params.IsDir {
-		res.FullPath, res.FullPathBeforeStrip, err = a.Copy(
-			ctx,
-			params.SourcePath,
-			params.TransferDir,
-			false,
-		)
+		res.FullPath, err = a.Bundle(ctx, params.SourcePath, params.TransferDir)
+		if err != nil {
+			err = fmt.Errorf("bundle dir: %v", err)
+		}
 	} else {
-		unar := a.Unarchiver(params.SourcePath)
-		if unar == nil {
-			res.FullPath, err = a.SingleFile(ctx, params.TransferDir, params.SourcePath)
-			if err != nil {
-				err = fmt.Errorf("bundle single file: %v", err)
-			}
-			res.FullPathBeforeStrip = res.FullPath
-		} else {
-			res.FullPath, res.FullPathBeforeStrip, err = a.Bundle(ctx, unar, params.TransferDir, params.SourcePath, params.StripTopLevelDir)
+		res.FullPath, err = a.SingleFile(ctx, params.SourcePath, params.TransferDir)
+		if err != nil {
+			err = fmt.Errorf("bundle single file: %v", err)
 		}
 	}
 	if err != nil {
@@ -101,51 +90,28 @@ func (a *BundleActivity) Execute(ctx context.Context, params *BundleActivityPara
 
 	err = unbag(res.FullPath)
 	if err != nil {
-		return nil, temporal_tools.NewNonRetryableError(err)
-	}
-
-	res.RelPath, err = filepath.Rel(params.TransferDir, res.FullPath)
-	if err != nil {
-		return nil, temporal_tools.NewNonRetryableError(fmt.Errorf(
-			"error calculating relative path to transfer (base=%q, target=%q): %v",
-			params.TransferDir, res.FullPath, err,
-		))
+		return nil, temporal_tools.NewNonRetryableError(
+			fmt.Errorf("bundle: unbag: %v", err),
+		)
 	}
 
 	if err = setPermissions(res.FullPath); err != nil {
 		return nil, temporal_tools.NewNonRetryableError(
-			fmt.Errorf("set permissions: %v", err),
+			fmt.Errorf("bundle: set permissions: %v", err),
 		)
 	}
 
 	return res, nil
 }
 
-// Unarchiver returns the unarchiver suited for the archival format.
-func (a *BundleActivity) Unarchiver(sourcePath string) archiver.Unarchiver {
-	if iface, err := archiver.ByExtension(filepath.Base(sourcePath)); err == nil {
-		if u, ok := iface.(archiver.Unarchiver); ok {
-			return u
-		}
-	}
-
-	r, err := os.Open(sourcePath) // #nosec G304 -- trusted file path.
-	if err != nil {
-		return nil
-	}
-	defer r.Close()
-
-	if u, err := archiver.ByHeader(r); err == nil {
-		return u
-	}
-
-	return nil
-}
-
 // SingleFile bundles a transfer with the downloaded blob in it.
 //
 // TODO: Write metadata.csv and checksum files to the metadata dir.
-func (a *BundleActivity) SingleFile(ctx context.Context, transferDir, sourcePath string) (string, error) {
+func (a *BundleActivity) SingleFile(
+	ctx context.Context,
+	sourcePath string,
+	transferDir string,
+) (string, error) {
 	b, err := bundler.NewBundlerWithTempDir(transferDir)
 	if err != nil {
 		return "", fmt.Errorf("create bundler: %v", err)
@@ -170,76 +136,35 @@ func (a *BundleActivity) SingleFile(ctx context.Context, transferDir, sourcePath
 }
 
 // Bundle a transfer with the contents found in the archive.
-func (a *BundleActivity) Bundle(ctx context.Context, unar archiver.Unarchiver, transferDir, sourcePath string, stripTopLevelDir bool) (string, string, error) {
-	// Create a new directory for our transfer with the name randomized.
-	const prefix = "enduro"
-	tempDir, err := os.MkdirTemp(transferDir, prefix)
+func (a *BundleActivity) Bundle(
+	ctx context.Context,
+	sourcePath string,
+	transferDir string,
+) (string, error) {
+	tempDir, err := a.Copy(ctx, sourcePath, transferDir)
 	if err != nil {
-		return "", "", fmt.Errorf("error creating temporary directory: %s", err)
-	}
-
-	if err := unar.Unarchive(sourcePath, tempDir); err != nil {
-		return "", "", fmt.Errorf("error unarchiving file: %v", err)
-	}
-
-	tempDirBeforeStrip := tempDir
-	if stripTopLevelDir {
-		tempDir, err = stripDirContainer(tempDir)
-		if err != nil {
-			return "", "", err
-		}
+		return "", fmt.Errorf("bundle: %v", err)
 	}
 
 	// Delete the archive. We still have a copy in the watched source.
 	_ = os.Remove(sourcePath)
 
-	return tempDir, tempDirBeforeStrip, nil
+	return tempDir, nil
 }
 
 // Copy a transfer in the given destination using an intermediate temp. directory.
-func (a *BundleActivity) Copy(ctx context.Context, src, dst string, stripTopLevelDir bool) (string, string, error) {
+func (a *BundleActivity) Copy(ctx context.Context, src, dst string) (string, error) {
 	const prefix = "enduro"
 	tempDir, err := os.MkdirTemp(dst, prefix)
 	if err != nil {
-		return "", "", fmt.Errorf("error creating temporary directory: %s", err)
+		return "", fmt.Errorf("error creating temporary directory: %s", err)
 	}
 
 	if err := copy.Copy(src, tempDir); err != nil {
-		return "", "", fmt.Errorf("error copying transfer: %v", err)
+		return "", fmt.Errorf("error copying transfer: %v", err)
 	}
 
-	tempDirBeforeStrip := tempDir
-	if stripTopLevelDir {
-		tempDir, err = stripDirContainer(tempDir)
-		if err != nil {
-			return "", "", err
-		}
-	}
-
-	return tempDir, tempDirBeforeStrip, nil
-}
-
-// stripDirContainer strips the top-level directory of a transfer.
-func stripDirContainer(path string) (string, error) {
-	const errPrefix = "error stripping top-level dir"
-	ff, err := os.Open(filepath.Clean(path))
-	if err != nil {
-		return "", fmt.Errorf("%s: cannot open path: %v", errPrefix, err)
-	}
-	defer ff.Close()
-
-	fis, err := ff.Readdir(2)
-	if err != nil {
-		return "", fmt.Errorf("%s: error reading dir: %v", errPrefix, err)
-	}
-	if len(fis) != 1 {
-		return "", fmt.Errorf("%s: directory has more than one child", errPrefix)
-	}
-	if !fis[0].IsDir() {
-		return "", fmt.Errorf("%s: top-level item is not a directory", errPrefix)
-	}
-	securePath, _ := securejoin.SecureJoin(path, fis[0].Name())
-	return securePath, nil
+	return tempDir, nil
 }
 
 // unbag converts a bagged transfer into a standard Archivematica transfer.

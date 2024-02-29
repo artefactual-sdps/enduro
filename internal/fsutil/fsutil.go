@@ -2,6 +2,8 @@ package fsutil
 
 import (
 	"errors"
+	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -47,4 +49,26 @@ func Move(src, dst string) error {
 	}
 
 	return err
+}
+
+// SetFileModes recursively sets the file mode of root and its contents.
+func SetFileModes(root string, dirMode, fileMode int) error {
+	return filepath.WalkDir(root,
+		func(path string, d os.DirEntry, err error) error {
+			if err != nil {
+				return err
+			}
+
+			mode := fs.FileMode(fileMode)
+			if d.IsDir() {
+				mode = fs.FileMode(dirMode)
+			}
+
+			if err := os.Chmod(path, mode); err != nil {
+				return fmt.Errorf("set permissions: %v", err)
+			}
+
+			return nil
+		},
+	)
 }

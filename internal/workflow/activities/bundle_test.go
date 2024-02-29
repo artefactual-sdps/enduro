@@ -54,22 +54,11 @@ func TestBundleActivity(t *testing.T) {
 			),
 		},
 		{
-			name: "Bundles a zipped standard transfer",
+			name: "Bundles a BagIt transfer",
 			params: &activities.BundleActivityParams{
-				SourcePath:       sourceDir.Join("zipped_transfer", "small.zip"),
-				TransferDir:      destDir.Path(),
-				StripTopLevelDir: true,
-			},
-			wantFs: fs.Expected(t, fs.WithMode(activities.ModeDir),
-				fs.WithFile("small.txt", "I am a small file.\n", fs.WithMode(activities.ModeFile)),
-			),
-		},
-		{
-			name: "Bundles a tarred and gzipped bag transfer",
-			params: &activities.BundleActivityParams{
-				SourcePath:       sourceDir.Join("gzipped_bag", "small_bag.tgz"),
-				TransferDir:      destDir.Path(),
-				StripTopLevelDir: true,
+				SourcePath:  sourceDir.Join("bag", "small_bag"),
+				TransferDir: destDir.Path(),
+				IsDir:       true,
 			},
 			wantFs: fs.Expected(t, fs.WithMode(activities.ModeDir),
 				fs.WithFile(
@@ -148,16 +137,11 @@ e91f941be5973ff71f1dccbdd1a32d598881893a7f21be516aca743da38b1689 bagit.txt
 			if tt.wantFs != (fs.Manifest{}) {
 				assert.Assert(t, fs.Equal(res.FullPath, tt.wantFs))
 			}
-
-			if tt.params.StripTopLevelDir {
-				assert.Equal(t, res.FullPathBeforeStrip, filepath.Dir(res.FullPath))
-			} else {
-				assert.Equal(t, res.FullPathBeforeStrip, res.FullPath)
-			}
-
-			p, err := filepath.Rel(destDir.Path(), res.FullPath)
 			assert.NilError(t, err)
-			assert.Equal(t, res.RelPath, p)
+
+			rp, err := filepath.Rel(tt.params.TransferDir, res.FullPath)
+			assert.NilError(t, err)
+			assert.Assert(t, len(rp) > 0)
 		})
 	}
 }

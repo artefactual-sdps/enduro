@@ -67,6 +67,7 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(taskQueue string) {
 	sftpc := sftp_fake.NewMockClient(ctrl)
 
 	s.env.RegisterActivityWithOptions(activities.NewDownloadActivity(logger, wsvc).Execute, temporalsdk_activity.RegisterOptions{Name: activities.DownloadActivityName})
+	s.env.RegisterActivityWithOptions(activities.NewUnarchiveActivity(logger).Execute, temporalsdk_activity.RegisterOptions{Name: activities.UnarchiveActivityName})
 	s.env.RegisterActivityWithOptions(activities.NewBundleActivity(logger).Execute, temporalsdk_activity.RegisterOptions{Name: activities.BundleActivityName})
 	s.env.RegisterActivityWithOptions(a3m.NewCreateAIPActivity(logger, &a3m.Config{}, pkgsvc).Execute, temporalsdk_activity.RegisterOptions{Name: a3m.CreateAIPActivityName})
 	s.env.RegisterActivityWithOptions(activities.NewUploadActivity(nil).Execute, temporalsdk_activity.RegisterOptions{Name: activities.UploadActivityName})
@@ -162,16 +163,20 @@ func (s *ProcessingWorkflowTestSuite) TestPackageConfirmation() {
 		&activities.DownloadActivityResult{Path: "/tmp/enduro123456/" + key}, nil,
 	)
 
+	s.env.OnActivity(activities.UnarchiveActivityName, sessionCtx,
+		&activities.UnarchiveParams{SourcePath: "/tmp/enduro123456/" + key},
+	).Return(
+		&activities.UnarchiveResult{DestPath: "/tmp/enduro123456/extract"}, nil,
+	)
+
 	s.env.OnActivity(activities.BundleActivityName, sessionCtx,
 		&activities.BundleActivityParams{
-			SourcePath:  "/tmp/enduro123456/" + key,
+			SourcePath:  "/tmp/enduro123456/extract",
 			TransferDir: s.transferDir,
 		},
 	).Return(
 		&activities.BundleActivityResult{
-			RelPath:             "enduro4162369760/transfer",
-			FullPath:            "/tmp/2098266580-enduro-transfer/enduro4162369760/transfer",
-			FullPathBeforeStrip: "/tmp/2098266580-enduro-transfer/enduro4162369760",
+			FullPath: "/tmp/2098266580-enduro-transfer/enduro4162369760/transfer",
 		},
 		nil,
 	)
@@ -235,16 +240,20 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 		&activities.DownloadActivityResult{Path: "/tmp/enduro123456/" + key}, nil,
 	)
 
+	s.env.OnActivity(activities.UnarchiveActivityName, sessionCtx,
+		&activities.UnarchiveParams{SourcePath: "/tmp/enduro123456/" + key},
+	).Return(
+		&activities.UnarchiveResult{DestPath: "/tmp/enduro123456/extract"}, nil,
+	)
+
 	s.env.OnActivity(activities.BundleActivityName, sessionCtx,
 		&activities.BundleActivityParams{
-			SourcePath:  "/tmp/enduro123456/" + key,
+			SourcePath:  "/tmp/enduro123456/extract",
 			TransferDir: s.transferDir,
 		},
 	).Return(
 		&activities.BundleActivityResult{
-			RelPath:             "enduro4162369760/transfer",
-			FullPath:            "/tmp/2098266580-enduro-transfer/enduro4162369760/transfer",
-			FullPathBeforeStrip: "/tmp/2098266580-enduro-transfer/enduro4162369760",
+			FullPath: "/tmp/2098266580-enduro-transfer/enduro4162369760/transfer",
 		},
 		nil,
 	)
@@ -313,15 +322,17 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 		&activities.DownloadActivityResult{Path: "/tmp/enduro123456/" + key}, nil,
 	)
 
+	s.env.OnActivity(activities.UnarchiveActivityName, sessionCtx,
+		&activities.UnarchiveParams{SourcePath: "/tmp/enduro123456/" + key},
+	).Return(
+		&activities.UnarchiveResult{DestPath: "/tmp/enduro123456/extract"}, nil,
+	)
+
 	s.env.OnActivity(activities.BundleActivityName, sessionCtx,
-		&activities.BundleActivityParams{
-			SourcePath: "/tmp/enduro123456/" + key,
-		},
+		&activities.BundleActivityParams{SourcePath: "/tmp/enduro123456/extract"},
 	).Return(
 		&activities.BundleActivityResult{
-			RelPath:             "enduro4162369760/transfer",
-			FullPath:            "/tmp/2098266580-enduro-transfer/enduro4162369760/transfer",
-			FullPathBeforeStrip: "/tmp/2098266580-enduro-transfer/enduro4162369760",
+			FullPath: "/tmp/2098266580-enduro-transfer/enduro4162369760/transfer",
 		},
 		nil,
 	)
@@ -414,16 +425,20 @@ func (s *ProcessingWorkflowTestSuite) TestPackageRejection() {
 		&activities.DownloadActivityResult{Path: "/tmp/enduro123456/" + key}, nil,
 	)
 
+	s.env.OnActivity(activities.UnarchiveActivityName, sessionCtx,
+		&activities.UnarchiveParams{SourcePath: "/tmp/enduro123456/" + key},
+	).Return(
+		&activities.UnarchiveResult{DestPath: "/tmp/enduro123456/extract"}, nil,
+	)
+
 	s.env.OnActivity(activities.BundleActivityName, sessionCtx,
 		&activities.BundleActivityParams{
-			SourcePath:  "/tmp/enduro123456/" + key,
+			SourcePath:  "/tmp/enduro123456/extract",
 			TransferDir: s.transferDir,
 		},
 	).Return(
 		&activities.BundleActivityResult{
-			RelPath:             "enduro4162369760/transfer",
-			FullPath:            "/tmp/2098266580-enduro-transfer/enduro4162369760/transfer",
-			FullPathBeforeStrip: "/tmp/2098266580-enduro-transfer/enduro4162369760",
+			FullPath: "/tmp/2098266580-enduro-transfer/enduro4162369760/transfer",
 		},
 		nil,
 	)
