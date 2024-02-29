@@ -7,12 +7,10 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/rukavina/sftpblob"
 	"gocloud.dev/blob"
-	"gocloud.dev/blob/s3blob"
 
+	"github.com/artefactual-sdps/enduro/internal/bucket"
 	"github.com/artefactual-sdps/enduro/internal/storage/ssblob"
 )
 
@@ -104,20 +102,16 @@ func (c S3Config) Valid() bool {
 }
 
 func (c S3Config) OpenBucket(ctx context.Context) (*blob.Bucket, error) {
-	sessOpts := session.Options{}
-	sessOpts.Config.WithRegion(c.Region)
-	sessOpts.Config.WithEndpoint(c.Endpoint)
-	sessOpts.Config.WithS3ForcePathStyle(c.PathStyle)
-	sessOpts.Config.WithCredentials(
-		credentials.NewStaticCredentials(
-			c.Key, c.Secret, c.Token,
-		),
-	)
-	sess, err := session.NewSessionWithOptions(sessOpts)
-	if err != nil {
-		return nil, err
-	}
-	return s3blob.OpenBucket(ctx, sess, c.Bucket, nil)
+	return bucket.Open(ctx, &bucket.Config{
+		Endpoint:  c.Endpoint,
+		Bucket:    c.Bucket,
+		AccessKey: c.Key,
+		SecretKey: c.Secret,
+		Token:     c.Token,
+		Profile:   c.Profile,
+		Region:    c.Region,
+		PathStyle: c.PathStyle,
+	})
 }
 
 type SFTPConfig struct {
