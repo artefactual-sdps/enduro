@@ -53,10 +53,8 @@ type TransferInfo struct {
 	// It is populated by the workflow request.
 	req package_.ProcessingWorkflowRequest
 
-	// TempFile is the temporary location where the blob is downloaded.
-	//
-	// It is populated by the workflow with the result of DownloadActivity.
-	TempFile string
+	// TempPath is the temporary location of a working copy of the transfer.
+	TempPath string
 
 	// SIPID given by a3m.
 	//
@@ -298,24 +296,35 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 
 	// Download.
 	{
-		if tinfo.req.WatcherName != "" && !tinfo.req.IsDir {
-			// TODO: even if TempFile is defined, we should confirm that the file is
-			// locally available in disk, just in case we're in the context of a
-			// session retry where a different worker is doing the work. In that
-			// case, the activity whould be executed again.
-			if tinfo.TempFile == "" {
-				var downloadResult activities.DownloadActivityResult
-				activityOpts := withActivityOptsForLongLivedRequest(sessCtx)
-				err := temporalsdk_workflow.ExecuteActivity(activityOpts, activities.DownloadActivityName, &activities.DownloadActivityParams{
-					Key:         tinfo.req.Key,
-					WatcherName: tinfo.req.WatcherName,
-				}).Get(activityOpts, &downloadResult)
-				if err != nil {
-					return err
-				}
-				tinfo.TempFile = downloadResult.Path
-			}
+		var downloadResult activities.DownloadActivityResult
+		activityOpts := withActivityOptsForLongLivedRequest(sessCtx)
+		err := temporalsdk_workflow.ExecuteActivity(activityOpts, activities.DownloadActivityName, &activities.DownloadActivityParams{
+			Key:         tinfo.req.Key,
+			WatcherName: tinfo.req.WatcherName,
+		}).Get(activityOpts, &downloadResult)
+		if err != nil {
+			return err
 		}
+		tinfo.TempPath = downloadResult.Path
+	}
+
+	// Unarchive.
+	{
+		activityOpts := withActivityOptsForLocalAction(sessCtx)
+		var result activities.UnarchiveResult
+		err := temporalsdk_workflow.ExecuteActivity(
+			activityOpts,
+			activities.UnarchiveActivityName,
+			&activities.UnarchiveParams{
+				SourcePath:       tinfo.TempPath,
+				StripTopLevelDir: tinfo.req.StripTopLevelDir,
+			},
+		).Get(activityOpts, &result)
+		if err != nil {
+			return err
+		}
+		tinfo.TempPath = result.DestPath
+		tinfo.req.IsDir = result.IsDir
 	}
 
 	// Bundle.
@@ -333,7 +342,7 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 			activityOpts,
 			activities.BundleActivityName,
 			&activities.BundleActivityParams{
-				SourcePath:       tinfo.TempFile,
+				SourcePath:       tinfo.TempPath,
 				TransferDir:      transferDir,
 				StripTopLevelDir: tinfo.req.StripTopLevelDir,
 				IsDir:            tinfo.req.IsDir,
@@ -349,10 +358,10 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 	// Delete local temporary files.
 	defer func() {
 		// TODO: call clean up here to enforce that we always destroy TempDir.
-		if tinfo.Bundle.FullPathBeforeStrip != "" {
+		if tinfo.Bundle.FullPath != "" {
 			activityOpts := withActivityOptsForRequest(sessCtx)
 			_ = temporalsdk_workflow.ExecuteActivity(activityOpts, activities.CleanUpActivityName, &activities.CleanUpActivityParams{
-				FullPath: tinfo.Bundle.FullPathBeforeStrip,
+				FullPath: tinfo.Bundle.FullPath,
 			}).Get(activityOpts, nil)
 		}
 	}()

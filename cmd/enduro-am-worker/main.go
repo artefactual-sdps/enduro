@@ -166,6 +166,10 @@ func main() {
 			temporalsdk_activity.RegisterOptions{Name: activities.DownloadActivityName},
 		)
 		w.RegisterActivityWithOptions(
+			activities.NewUnarchiveActivity(logger).Execute,
+			temporalsdk_activity.RegisterOptions{Name: activities.UnarchiveActivityName},
+		)
+		w.RegisterActivityWithOptions(
 			activities.NewBundleActivity(logger).Execute,
 			temporalsdk_activity.RegisterOptions{Name: activities.BundleActivityName},
 		)
