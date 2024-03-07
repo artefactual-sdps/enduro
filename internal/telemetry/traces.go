@@ -8,7 +8,7 @@ import (
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
 	otelsdk_resource "go.opentelemetry.io/otel/sdk/resource"
 	otelsdk_trace "go.opentelemetry.io/otel/sdk/trace"
-	semconv "go.opentelemetry.io/otel/semconv/v1.17.0"
+	semconv "go.opentelemetry.io/otel/semconv/v1.24.0"
 	"go.opentelemetry.io/otel/trace"
 	"go.opentelemetry.io/otel/trace/noop"
 	"google.golang.org/grpc"
@@ -39,7 +39,7 @@ func TracerProvider(ctx context.Context, logger logr.Logger, cfg Config, appName
 		return nil, nil, fmt.Errorf("TracerProvider: new exporter: %v", err)
 	}
 
-	resource, _ := otelsdk_resource.Merge(
+	resource, err := otelsdk_resource.Merge(
 		otelsdk_resource.Default(),
 		otelsdk_resource.NewWithAttributes(
 			semconv.SchemaURL,
@@ -47,6 +47,9 @@ func TracerProvider(ctx context.Context, logger logr.Logger, cfg Config, appName
 			semconv.ServiceVersion(appVersion),
 		),
 	)
+	if err != nil {
+		return nil, nil, fmt.Errorf("TracerProvider: new resource: %v", err)
+	}
 
 	var ratio float64 = 1
 	if cfg.Traces.SamplingRatio != nil {

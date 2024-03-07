@@ -18,6 +18,8 @@ import (
 
 	"github.com/go-logr/logr"
 	"github.com/gorilla/websocket"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+	"go.opentelemetry.io/otel/trace"
 	goahttp "goa.design/goa/v3/http"
 	goahttpmwr "goa.design/goa/v3/http/middleware"
 	"goa.design/goa/v3/middleware"
@@ -39,7 +41,9 @@ import (
 var openAPIJSON embed.FS
 
 func HTTPServer(
-	logger logr.Logger, config *Config,
+	logger logr.Logger,
+	tp trace.TracerProvider,
+	config *Config,
 	pkgsvc intpkg.Service,
 	storagesvc intstorage.Service,
 	uploadsvc intupload.Service,
@@ -79,6 +83,7 @@ func HTTPServer(
 	// Global middlewares.
 	var handler http.Handler = mux
 	handler = recoverMiddleware(logger)(handler)
+	handler = otelhttp.NewHandler(handler, "enduro/internal/api", otelhttp.WithTracerProvider(tp))
 	handler = goahttpmwr.RequestID()(handler)
 	handler = versionHeaderMiddleware(version.Short)(handler)
 	if config.Debug {
