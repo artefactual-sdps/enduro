@@ -12,8 +12,10 @@ coverage:
   range: "25...75"
 
 ignore:
-- "build"
-- "hack"
-- "dashboard"
-- "fake"
-- "gen"
+- "dashboard/"
+- "docs/"
+- "hack/"
+- "internal/**/fake/"
+- "internal/**/gen/"
+- "internal/**/ent/db/"
+- "internal/**/ent/schema/"
