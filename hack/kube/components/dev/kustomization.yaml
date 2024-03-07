@@ -11,3 +11,4 @@ resources:
   - temporal-ui-secret.yaml
   - grafana-agent.yaml
   - grafana-tempo.yaml
+  - grafana.yaml
