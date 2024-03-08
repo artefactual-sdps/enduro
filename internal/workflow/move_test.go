@@ -63,7 +63,7 @@ func (s *MoveWorkflowTestSuite) TestSuccessfulMove() {
 	locationID := uuid.MustParse("51328c02-2b63-47be-958e-e8088aa1a61f")
 
 	// Package is set to in progress status.
-	s.env.OnActivity(setStatusLocalActivity, mock.Anything, mock.Anything, pkgID, package_.StatusInProgress).Return(nil)
+	s.env.OnActivity(setStatusLocalActivity, mock.Anything, mock.Anything, pkgID, package_.StatusInProgress).Return(nil, nil)
 
 	// Move operation succeeds.
 	s.env.OnActivity(
@@ -73,7 +73,7 @@ func (s *MoveWorkflowTestSuite) TestSuccessfulMove() {
 			AIPID:      AIPID,
 			LocationID: locationID,
 		},
-	).Return(nil)
+	).Return(nil, nil)
 
 	// Polling of move operation succeeds.
 	s.env.OnActivity(
@@ -82,13 +82,13 @@ func (s *MoveWorkflowTestSuite) TestSuccessfulMove() {
 		&activities.PollMoveToPermanentStorageActivityParams{
 			AIPID: AIPID,
 		},
-	).Return(nil)
+	).Return(nil, nil)
 
 	// Package is set back to done status.
-	s.env.OnActivity(setStatusLocalActivity, mock.Anything, mock.Anything, pkgID, package_.StatusDone).Return(nil)
+	s.env.OnActivity(setStatusLocalActivity, mock.Anything, mock.Anything, pkgID, package_.StatusDone).Return(nil, nil)
 
 	// Package location is set.
-	s.env.OnActivity(setLocationIDLocalActivity, mock.Anything, mock.Anything, pkgID, locationID).Return(nil)
+	s.env.OnActivity(setLocationIDLocalActivity, mock.Anything, mock.Anything, pkgID, locationID).Return(nil, nil)
 
 	// Preservation action is created with successful status.
 	s.env.OnActivity(
@@ -96,7 +96,7 @@ func (s *MoveWorkflowTestSuite) TestSuccessfulMove() {
 		mock.Anything,
 		mock.Anything,
 		mock.Anything,
-	).Return(nil)
+	).Return(nil, nil)
 
 	s.env.ExecuteWorkflow(
 		s.workflow.Execute,
@@ -118,7 +118,7 @@ func (s *MoveWorkflowTestSuite) TestFailedMove() {
 	locationID := uuid.MustParse("51328c02-2b63-47be-958e-e8088aa1a61f")
 
 	// Package is set to in progress status.
-	s.env.OnActivity(setStatusLocalActivity, mock.Anything, mock.Anything, pkgID, package_.StatusInProgress).Return(nil)
+	s.env.OnActivity(setStatusLocalActivity, mock.Anything, mock.Anything, pkgID, package_.StatusInProgress).Return(nil, nil)
 
 	// Move operation fails.
 	s.env.OnActivity(
@@ -128,10 +128,10 @@ func (s *MoveWorkflowTestSuite) TestFailedMove() {
 			AIPID:      AIPID,
 			LocationID: locationID,
 		},
-	).Return(errors.New("error moving package"))
+	).Return(nil, errors.New("error moving package"))
 
 	// Package is set back to done status.
-	s.env.OnActivity(setStatusLocalActivity, mock.Anything, mock.Anything, pkgID, package_.StatusDone).Return(nil)
+	s.env.OnActivity(setStatusLocalActivity, mock.Anything, mock.Anything, pkgID, package_.StatusDone).Return(nil, nil)
 
 	// Preservation action is created with failed status.
 	s.env.OnActivity(
@@ -139,7 +139,7 @@ func (s *MoveWorkflowTestSuite) TestFailedMove() {
 		mock.Anything,
 		mock.Anything,
 		mock.Anything,
-	).Return(nil)
+	).Return(nil, nil)
 
 	s.env.ExecuteWorkflow(
 		s.workflow.Execute,

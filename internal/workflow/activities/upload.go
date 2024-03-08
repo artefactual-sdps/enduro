@@ -20,13 +20,15 @@ type UploadActivity struct {
 	storageClient *goastorage.Client
 }
 
+type UploadActivityResult struct{}
+
 func NewUploadActivity(storageClient *goastorage.Client) *UploadActivity {
 	return &UploadActivity{
 		storageClient: storageClient,
 	}
 }
 
-func (a *UploadActivity) Execute(ctx context.Context, params *UploadActivityParams) error {
+func (a *UploadActivity) Execute(ctx context.Context, params *UploadActivityParams) (*UploadActivityResult, error) {
 	childCtx, cancel := context.WithTimeout(ctx, time.Second*5)
 	defer cancel()
 	res, err := a.storageClient.Submit(childCtx, &goastorage.SubmitPayload{
@@ -34,37 +36,37 @@ func (a *UploadActivity) Execute(ctx context.Context, params *UploadActivityPara
 		Name:  params.Name,
 	})
 	if err != nil {
-		return err
+		return &UploadActivityResult{}, err
 	}
 
 	// Upload to MinIO using the upload pre-signed URL.
 	{
 		f, err := os.Open(params.AIPPath)
 		if err != nil {
-			return err
+			return &UploadActivityResult{}, err
 		}
 		defer f.Close() //#nosec G307 -- Errors returned by Close() here do not require specific handling.
 
 		uploadReq, err := http.NewRequestWithContext(ctx, http.MethodPut, res.URL, f)
 		if err != nil {
-			return nil
+			return &UploadActivityResult{}, nil
 		}
 		fi, err := f.Stat()
 		if err != nil {
-			return err
+			return &UploadActivityResult{}, err
 		}
 		uploadReq.ContentLength = fi.Size()
 		if err != nil {
-			return err
+			return &UploadActivityResult{}, err
 		}
 
 		minioClient := &http.Client{}
 		resp, err := minioClient.Do(uploadReq)
 		if err != nil {
-			return err
+			return &UploadActivityResult{}, err
 		}
 		if resp.StatusCode != http.StatusOK {
-			return errors.New("unexpected status code returned")
+			return &UploadActivityResult{}, errors.New("unexpected status code returned")
 		}
 	}
 
@@ -72,5 +74,5 @@ func (a *UploadActivity) Execute(ctx context.Context, params *UploadActivityPara
 	defer cancel()
 	err = a.storageClient.Update(childCtx, &goastorage.UpdatePayload{AipID: params.AIPID})
 
-	return err
+	return &UploadActivityResult{}, err
 }

@@ -33,7 +33,7 @@ func TestStorageMoveWorkflow(t *testing.T) {
 
 	// Worker activities
 	env.RegisterActivityWithOptions(activities.NewCopyToPermanentLocationActivity(storagesvc).Execute, temporalsdk_activity.RegisterOptions{Name: storage.CopyToPermanentLocationActivityName})
-	env.OnActivity(storage.CopyToPermanentLocationActivityName, mock.Anything, mock.Anything).Return(nil)
+	env.OnActivity(storage.CopyToPermanentLocationActivityName, mock.Anything, mock.Anything).Return(nil, nil)
 
 	env.ExecuteWorkflow(
 		NewStorageMoveWorkflow(storagesvc).Execute,

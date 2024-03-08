@@ -40,7 +40,7 @@ func (a *zipActivity) Execute(ctx context.Context, params *ZipActivityParams) (*
 	)
 
 	if params.SourceDir == "" {
-		return nil, fmt.Errorf("%s: missing source dir", ZipActivityName)
+		return &ZipActivityResult{}, fmt.Errorf("%s: missing source dir", ZipActivityName)
 	}
 
 	dest := params.DestPath
@@ -51,7 +51,7 @@ func (a *zipActivity) Execute(ctx context.Context, params *ZipActivityParams) (*
 
 	w, err := os.Create(dest) // #nosec G304 -- trusted path
 	if err != nil {
-		return nil, fmt.Errorf("%s: create: %v", ZipActivityName, err)
+		return &ZipActivityResult{}, fmt.Errorf("%s: create: %v", ZipActivityName, err)
 	}
 	defer w.Close()
 
@@ -91,7 +91,7 @@ func (a *zipActivity) Execute(ctx context.Context, params *ZipActivityParams) (*
 		return nil
 	})
 	if err != nil {
-		return nil, fmt.Errorf("%s: add files: %v", ZipActivityName, err)
+		return &ZipActivityResult{}, fmt.Errorf("%s: add files: %v", ZipActivityName, err)
 	}
 
 	return &ZipActivityResult{Path: dest}, nil

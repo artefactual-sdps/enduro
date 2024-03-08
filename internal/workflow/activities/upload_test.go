@@ -128,7 +128,7 @@ func TestUploadActivity(t *testing.T) {
 
 		activity := NewUploadActivity(storageClient)
 
-		err := activity.Execute(context.Background(), &UploadActivityParams{
+		_, err := activity.Execute(context.Background(), &UploadActivityParams{
 			AIPPath: tmpDir.Join("aip.7z"),
 			AIPID:   uuid.New().String(),
 			Name:    "aip.7z",
@@ -173,7 +173,7 @@ func TestUploadActivity(t *testing.T) {
 
 		activity := NewUploadActivity(storageClient)
 
-		err := activity.Execute(context.Background(), &UploadActivityParams{
+		_, err := activity.Execute(context.Background(), &UploadActivityParams{
 			AIPPath: tmpDir.Join("aip.7z"),
 			AIPID:   uuid.New().String(),
 			Name:    "aip.7z",

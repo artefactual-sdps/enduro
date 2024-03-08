@@ -16,6 +16,8 @@ type MoveToPermanentStorageActivityParams struct {
 	LocationID uuid.UUID
 }
 
+type MoveToPermanentStorageActivityResult struct{}
+
 type MoveToPermanentStorageActivity struct {
 	storageClient *goastorage.Client
 }
@@ -26,7 +28,7 @@ func NewMoveToPermanentStorageActivity(storageClient *goastorage.Client) *MoveTo
 	}
 }
 
-func (a *MoveToPermanentStorageActivity) Execute(ctx context.Context, params *MoveToPermanentStorageActivityParams) error {
+func (a *MoveToPermanentStorageActivity) Execute(ctx context.Context, params *MoveToPermanentStorageActivityParams) (*MoveToPermanentStorageActivityResult, error) {
 	childCtx, cancel := context.WithTimeout(ctx, time.Second*5)
 	defer cancel()
 
@@ -35,7 +37,7 @@ func (a *MoveToPermanentStorageActivity) Execute(ctx context.Context, params *Mo
 		LocationID: params.LocationID,
 	})
 
-	return err
+	return &MoveToPermanentStorageActivityResult{}, err
 }
 
 type PollMoveToPermanentStorageActivityParams struct {
@@ -46,13 +48,15 @@ type PollMoveToPermanentStorageActivity struct {
 	storageClient *goastorage.Client
 }
 
+type PollMoveToPermanentStorageActivityResult struct{}
+
 func NewPollMoveToPermanentStorageActivity(storageClient *goastorage.Client) *PollMoveToPermanentStorageActivity {
 	return &PollMoveToPermanentStorageActivity{
 		storageClient: storageClient,
 	}
 }
 
-func (a *PollMoveToPermanentStorageActivity) Execute(ctx context.Context, params *PollMoveToPermanentStorageActivityParams) error {
+func (a *PollMoveToPermanentStorageActivity) Execute(ctx context.Context, params *PollMoveToPermanentStorageActivityParams) (*PollMoveToPermanentStorageActivityResult, error) {
 	var g run.Group
 
 	{
@@ -105,7 +109,7 @@ func (a *PollMoveToPermanentStorageActivity) Execute(ctx context.Context, params
 	}
 
 	err := g.Run()
-	return err
+	return &PollMoveToPermanentStorageActivityResult{}, err
 }
 
 type RejectPackageActivityParams struct {
@@ -116,13 +120,15 @@ type RejectPackageActivity struct {
 	storageClient *goastorage.Client
 }
 
+type RejectPackageActivityResult struct{}
+
 func NewRejectPackageActivity(storageClient *goastorage.Client) *RejectPackageActivity {
 	return &RejectPackageActivity{
 		storageClient: storageClient,
 	}
 }
 
-func (a *RejectPackageActivity) Execute(ctx context.Context, params *RejectPackageActivityParams) error {
+func (a *RejectPackageActivity) Execute(ctx context.Context, params *RejectPackageActivityParams) (*RejectPackageActivityResult, error) {
 	childCtx, cancel := context.WithTimeout(ctx, time.Second*5)
 	defer cancel()
 
@@ -130,5 +136,5 @@ func (a *RejectPackageActivity) Execute(ctx context.Context, params *RejectPacka
 		AipID: params.AIPID,
 	})
 
-	return err
+	return &RejectPackageActivityResult{}, err
 }

@@ -10,10 +10,12 @@ type DisposeOriginalActivity struct {
 	wsvc watcher.Service
 }
 
+type DisposeOriginalActivityResult struct{}
+
 func NewDisposeOriginalActivity(wsvc watcher.Service) *DisposeOriginalActivity {
 	return &DisposeOriginalActivity{wsvc: wsvc}
 }
 
-func (a *DisposeOriginalActivity) Execute(ctx context.Context, watcherName, completedDir, key string) error {
-	return a.wsvc.Dispose(ctx, watcherName, key)
+func (a *DisposeOriginalActivity) Execute(ctx context.Context, watcherName, completedDir, key string) (*DisposeOriginalActivityResult, error) {
+	return &DisposeOriginalActivityResult{}, a.wsvc.Dispose(ctx, watcherName, key)
 }

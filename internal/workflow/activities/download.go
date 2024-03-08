@@ -43,16 +43,17 @@ func (a *DownloadActivity) Execute(ctx context.Context, params *DownloadActivity
 
 	destDir, err := os.MkdirTemp("", "enduro")
 	if err != nil {
-		return nil, temporal_tools.NewNonRetryableError(fmt.Errorf("make temp dir: %v", err))
+		return &DownloadActivityResult{}, temporal_tools.NewNonRetryableError(fmt.Errorf("make temp dir: %v", err))
 	}
 
 	dest := filepath.Clean(filepath.Join(destDir, params.Key))
 
 	ctx, span := trace.SpanFromContext(ctx).TracerProvider().Tracer(DownloadActivityName).Start(ctx, "download")
 	if err := a.wsvc.Download(ctx, dest, params.WatcherName, params.Key); err != nil {
+
 		span.RecordError(err)
 		span.End()
-		return nil, temporal_tools.NewNonRetryableError(fmt.Errorf("download: %v", err))
+		return &DownloadActivityResult{}, temporal_tools.NewNonRetryableError(fmt.Errorf("download: %v", err))
 	}
 	span.End()
 

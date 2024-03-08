@@ -17,14 +17,16 @@ type CleanUpActivityParams struct {
 	FullPath string
 }
 
-func (a *CleanUpActivity) Execute(ctx context.Context, params *CleanUpActivityParams) error {
+type CleanUpActivityResult struct{}
+
+func (a *CleanUpActivity) Execute(ctx context.Context, params *CleanUpActivityParams) (*CleanUpActivityResult, error) {
 	if params == nil || params.FullPath == "" {
-		return fmt.Errorf("error processing parameters: missing or empty")
+		return &CleanUpActivityResult{}, fmt.Errorf("error processing parameters: missing or empty")
 	}
 
 	if err := os.RemoveAll(params.FullPath); err != nil {
-		return fmt.Errorf("error removing transfer directory: %v", err)
+		return &CleanUpActivityResult{}, fmt.Errorf("error removing transfer directory: %v", err)
 	}
 
-	return nil
+	return &CleanUpActivityResult{}, nil
 }
