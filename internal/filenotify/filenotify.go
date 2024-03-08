@@ -48,10 +48,12 @@ func NewPollingWatcher(cfg Config) (FileWatcher, error) {
 		wr:     watcher.New(),
 		events: make(chan fsnotify.Event),
 		errors: make(chan error),
+		done:   make(chan struct{}),
 	}
 	poller.wr.FilterOps(watcher.Create, watcher.Rename, watcher.Move)
 	go poller.loop()
 
+	// Block until radovskyb's watcher is started.
 	done := make(chan error)
 	{
 		go func() {
