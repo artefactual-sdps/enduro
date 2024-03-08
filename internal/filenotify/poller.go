@@ -1,6 +1,9 @@
 package filenotify
 
 import (
+	"errors"
+	"time"
+
 	"github.com/fsnotify/fsnotify"
 	"github.com/radovskyb/watcher"
 )
@@ -16,6 +19,9 @@ type filePoller struct {
 
 	// errors is the channel to listen to for watch errors.
 	errors chan error
+
+	// done signals that the loop is done when the channel is closed.
+	done chan struct{}
 }
 
 // loop captures and transform radovskyb's watcher into fsnotify events.
@@ -43,6 +49,7 @@ func (w *filePoller) loop() {
 		case err := <-w.wr.Error:
 			w.errors <- err
 		case <-w.wr.Closed:
+			close(w.done)
 			return
 		}
 	}
@@ -70,5 +77,10 @@ func (w *filePoller) Errors() <-chan error {
 func (w *filePoller) Close() error {
 	w.wr.Close()
 
-	return nil
+	select {
+	case <-w.done:
+		return nil
+	case <-time.After(time.Second * 5):
+		return errors.New("filePoller.Close timeout")
+	}
 }
