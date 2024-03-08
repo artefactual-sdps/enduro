@@ -37,7 +37,7 @@ because it gets the latest versions of all the direct and indirect dependencies
 of `golang.org/x/sync`.
 
 Avoid `go get -u ./...` or `go get -u=patch ./...` because it gets the latest
-versions of all the dependencies of ou rapplication.
+versions of all the dependencies of our application.
 
 ## Major dependency updates
 
@@ -92,8 +92,8 @@ Now you can generate the code with:
 We have configured Dependabot alerts to be generated only for security updates
 because regular version updates are frequent, generating too many pull requests.
 
-This following describes how to identify version updates in different areas of
-the project:
+The following sections describe how to identify version updates in different
+areas of the project.
 
 ### Automated process
 
@@ -127,7 +127,7 @@ Review manually, e.g.:
 
 #### Dockerfile
 
-In:
+Review manually in:
 
 * `/Dockerfile`
 * `/dashboard/Dockerfile`
