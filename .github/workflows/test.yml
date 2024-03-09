@@ -22,22 +22,8 @@ jobs:
         cache: true
     - name: Test
       run: make test-ci
-    - name: Determine skip-codecov
-      id: skip-codecov
-      with:
-        script: |
-          const { repo, owner } = context.repo;
-          const { data: commit } = await github.rest.repos.getCommit({
-              owner,
-              repo,
-              ref: '${{ github.event.pull_request.head.sha || github.event.after }}'
-          });
-          const commitMesasge = commit.commit.message;
-          const skip = commitMessage.includes("[skip codecov]") || commitMessage.includes("[skip-codecov]");
-          core.setOutput("skip", skip);
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v4
-      if: steps.skip-codecov.outputs.skip != "true"
       with:
         file: covreport
       env:
