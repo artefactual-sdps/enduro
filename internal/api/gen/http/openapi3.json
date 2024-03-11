@@ -136,10 +136,12 @@
           },
           "id": {
             "example": 1,
+            "format": "int64",
             "type": "integer"
           },
           "package_id": {
             "example": 1,
+            "format": "int64",
             "type": "integer"
           },
           "started_at": {
@@ -267,6 +269,7 @@
           },
           "id": {
             "example": 1,
+            "format": "int64",
             "type": "integer"
           },
           "name": {
@@ -279,6 +282,7 @@
           },
           "preservation_action_id": {
             "example": 1,
+            "format": "int64",
             "type": "integer"
           },
           "started_at": {
@@ -366,6 +370,7 @@
           "id": {
             "description": "Identifier of package",
             "example": 1,
+            "format": "int64",
             "type": "integer"
           },
           "location_id": {
@@ -866,6 +871,7 @@
           "id": {
             "description": "Identifier of package",
             "example": 1,
+            "format": "int64",
             "type": "integer"
           },
           "item": {
@@ -887,6 +893,7 @@
           "id": {
             "description": "Identifier of package",
             "example": 1,
+            "format": "int64",
             "type": "integer"
           },
           "location_id": {
@@ -911,6 +918,7 @@
           "id": {
             "description": "Identifier of missing package",
             "example": 1,
+            "format": "int64",
             "type": "integer"
           },
           "message": {
@@ -1032,6 +1040,7 @@
           "id": {
             "description": "Identifier of package",
             "example": 1,
+            "format": "int64",
             "type": "integer"
           },
           "status": {
@@ -1075,6 +1084,7 @@
           "id": {
             "description": "Identifier of package",
             "example": 1,
+            "format": "int64",
             "type": "integer"
           },
           "item": {
@@ -1116,6 +1126,7 @@
           "id": {
             "description": "Identifier of preservation action",
             "example": 1,
+            "format": "int64",
             "type": "integer"
           },
           "item": {
@@ -1157,6 +1168,7 @@
           "id": {
             "description": "Identifier of preservation action",
             "example": 1,
+            "format": "int64",
             "type": "integer"
           },
           "item": {
@@ -1187,6 +1199,7 @@
           "id": {
             "description": "Identifier of preservation task",
             "example": 1,
+            "format": "int64",
             "type": "integer"
           },
           "item": {
@@ -1217,6 +1230,7 @@
           "id": {
             "description": "Identifier of preservation task",
             "example": 1,
+            "format": "int64",
             "type": "integer"
           },
           "item": {
@@ -1276,7 +1290,7 @@
   },
   "info": {
     "title": "Enduro API",
-    "version": "1.0"
+    "version": "0.0.1"
   },
   "openapi": "3.0.3",
   "paths": {
@@ -1419,7 +1433,7 @@
         },
         "security": [
           {
-            "oauth2_header_Authorization": null
+            "oauth2_header_Authorization": []
           }
         ],
         "summary": "list package",
@@ -1529,7 +1543,7 @@
         },
         "security": [
           {
-            "oauth2_header_Authorization": null
+            "oauth2_header_Authorization": []
           }
         ],
         "summary": "monitor_request package",
@@ -1552,6 +1566,7 @@
             "schema": {
               "description": "Identifier of package to show",
               "example": 1,
+              "format": "int64",
               "type": "integer"
             }
           }
@@ -1618,7 +1633,7 @@
         },
         "security": [
           {
-            "oauth2_header_Authorization": null
+            "oauth2_header_Authorization": []
           }
         ],
         "summary": "show package",
@@ -1641,6 +1656,7 @@
             "schema": {
               "description": "Identifier of package to look up",
               "example": 1,
+              "format": "int64",
               "type": "integer"
             }
           }
@@ -1711,7 +1727,7 @@
         },
         "security": [
           {
-            "oauth2_header_Authorization": null
+            "oauth2_header_Authorization": []
           }
         ],
         "summary": "confirm package",
@@ -1734,6 +1750,7 @@
             "schema": {
               "description": "Identifier of package to move",
               "example": 1,
+              "format": "int64",
               "type": "integer"
             }
           }
@@ -1791,7 +1808,7 @@
         },
         "security": [
           {
-            "oauth2_header_Authorization": null
+            "oauth2_header_Authorization": []
           }
         ],
         "summary": "move_status package",
@@ -1812,6 +1829,7 @@
             "schema": {
               "description": "Identifier of package to move",
               "example": 1,
+              "format": "int64",
               "type": "integer"
             }
           }
@@ -1882,7 +1900,7 @@
         },
         "security": [
           {
-            "oauth2_header_Authorization": null
+            "oauth2_header_Authorization": []
           }
         ],
         "summary": "move package",
@@ -1905,6 +1923,7 @@
             "schema": {
               "description": "Identifier of package to look up",
               "example": 1,
+              "format": "int64",
               "type": "integer"
             }
           }
@@ -1974,7 +1993,7 @@
         },
         "security": [
           {
-            "oauth2_header_Authorization": null
+            "oauth2_header_Authorization": []
           }
         ],
         "summary": "preservation_actions package",
@@ -1997,6 +2016,7 @@
             "schema": {
               "description": "Identifier of package to look up",
               "example": 1,
+              "format": "int64",
               "type": "integer"
             }
           }
@@ -2054,7 +2074,7 @@
         },
         "security": [
           {
-            "oauth2_header_Authorization": null
+            "oauth2_header_Authorization": []
           }
         ],
         "summary": "reject package",
@@ -2103,7 +2123,7 @@
         },
         "security": [
           {
-            "oauth2_header_Authorization": null
+            "oauth2_header_Authorization": []
           }
         ],
         "summary": "locations storage",
@@ -2173,7 +2193,7 @@
         },
         "security": [
           {
-            "oauth2_header_Authorization": null
+            "oauth2_header_Authorization": []
           }
         ],
         "summary": "add_location storage",
@@ -2253,7 +2273,7 @@
         },
         "security": [
           {
-            "oauth2_header_Authorization": null
+            "oauth2_header_Authorization": []
           }
         ],
         "summary": "show_location storage",
@@ -2341,7 +2361,7 @@
         },
         "security": [
           {
-            "oauth2_header_Authorization": null
+            "oauth2_header_Authorization": []
           }
         ],
         "summary": "location_packages storage",
@@ -2417,7 +2437,7 @@
         },
         "security": [
           {
-            "oauth2_header_Authorization": null
+            "oauth2_header_Authorization": []
           }
         ],
         "summary": "show storage",
@@ -2488,7 +2508,7 @@
         },
         "security": [
           {
-            "oauth2_header_Authorization": null
+            "oauth2_header_Authorization": []
           }
         ],
         "summary": "download storage",
@@ -2569,7 +2589,7 @@
         },
         "security": [
           {
-            "oauth2_header_Authorization": null
+            "oauth2_header_Authorization": []
           }
         ],
         "summary": "reject storage",
@@ -2650,7 +2670,7 @@
         },
         "security": [
           {
-            "oauth2_header_Authorization": null
+            "oauth2_header_Authorization": []
           }
         ],
         "summary": "move_status storage",
@@ -2742,7 +2762,7 @@
         },
         "security": [
           {
-            "oauth2_header_Authorization": null
+            "oauth2_header_Authorization": []
           }
         ],
         "summary": "move storage",
@@ -2832,7 +2852,7 @@
         },
         "security": [
           {
-            "oauth2_header_Authorization": null
+            "oauth2_header_Authorization": []
           }
         ],
         "summary": "submit storage",
@@ -2899,7 +2919,7 @@
         },
         "security": [
           {
-            "oauth2_header_Authorization": null
+            "oauth2_header_Authorization": []
           }
         ],
         "summary": "update storage",
@@ -2919,7 +2939,7 @@
         },
         "security": [
           {
-            "oauth2__": null
+            "oauth2__": []
           }
         ],
         "summary": "Download gen/http/openapi.json",
@@ -2986,7 +3006,7 @@
         },
         "security": [
           {
-            "oauth2_header_Authorization": null
+            "oauth2_header_Authorization": []
           }
         ],
         "summary": "upload upload",
@@ -2998,7 +3018,7 @@
   },
   "security": [
     {
-      "oauth2__": null
+      "oauth2__": []
     }
   ],
   "servers": [
