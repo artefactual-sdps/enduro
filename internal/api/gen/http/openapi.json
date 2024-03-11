@@ -2613,7 +2613,7 @@
   "host": "localhost:9000",
   "info": {
     "title": "Enduro API",
-    "version": ""
+    "version": "0.0.1"
   },
   "paths": {
     "/package": {
