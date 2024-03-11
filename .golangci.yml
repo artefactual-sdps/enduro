@@ -34,6 +34,8 @@ linters-settings:
     no-unaliased: true
     no-extra-aliases: false
     alias:
+      - pkg: go.temporal.io/sdk/contrib/(\w+)
+        alias: temporalsdk_contrib_$1
       - pkg: go.temporal.io/sdk/(\w+)
         alias: temporalsdk_$1
       - pkg: go.temporal.io/api/(\w+)
