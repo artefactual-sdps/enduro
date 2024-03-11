@@ -8,6 +8,7 @@ import (
 
 	"github.com/go-logr/logr"
 	temporal_tools "go.artefactual.dev/tools/temporal"
+	"go.opentelemetry.io/otel/trace"
 
 	"github.com/artefactual-sdps/enduro/internal/watcher"
 )
@@ -46,9 +47,14 @@ func (a *DownloadActivity) Execute(ctx context.Context, params *DownloadActivity
 	}
 
 	dest := filepath.Clean(filepath.Join(destDir, params.Key))
+
+	ctx, span := trace.SpanFromContext(ctx).TracerProvider().Tracer(DownloadActivityName).Start(ctx, "download")
 	if err := a.wsvc.Download(ctx, dest, params.WatcherName, params.Key); err != nil {
+		span.RecordError(err)
+		span.End()
 		return nil, temporal_tools.NewNonRetryableError(fmt.Errorf("download: %v", err))
 	}
+	span.End()
 
 	return &DownloadActivityResult{Path: dest}, nil
 }

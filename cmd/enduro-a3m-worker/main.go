@@ -17,6 +17,8 @@ import (
 	"go.artefactual.dev/tools/log"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
 	temporalsdk_client "go.temporal.io/sdk/client"
+	temporalsdk_contrib_opentelemetry "go.temporal.io/sdk/contrib/opentelemetry"
+	temporalsdk_interceptor "go.temporal.io/sdk/interceptor"
 	temporalsdk_worker "go.temporal.io/sdk/worker"
 	goahttp "goa.design/goa/v3/http"
 
@@ -91,10 +93,21 @@ func main() {
 		os.Exit(1)
 	}
 
+	// Set up the Temporal client.
+	tracingInterceptor, err := temporalsdk_contrib_opentelemetry.NewTracingInterceptor(
+		temporalsdk_contrib_opentelemetry.TracerOptions{
+			Tracer: tp.Tracer("temporal-sdk-go"),
+		},
+	)
+	if err != nil {
+		logger.Error(err, "Unable to create OpenTelemetry interceptor.")
+		os.Exit(1)
+	}
 	temporalClient, err := temporalsdk_client.Dial(temporalsdk_client.Options{
-		Namespace: cfg.Temporal.Namespace,
-		HostPort:  cfg.Temporal.Address,
-		Logger:    temporal.Logger(logger.WithName("temporal-client")),
+		Namespace:    cfg.Temporal.Namespace,
+		HostPort:     cfg.Temporal.Address,
+		Logger:       temporal.Logger(logger.WithName("temporal-client")),
+		Interceptors: []temporalsdk_interceptor.ClientInterceptor{tracingInterceptor},
 	})
 	if err != nil {
 		logger.Error(err, "Error creating Temporal client.")
