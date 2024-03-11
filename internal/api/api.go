@@ -82,9 +82,8 @@ func HTTPServer(
 
 	// Global middlewares.
 	var handler http.Handler = mux
-	handler = recoverMiddleware(logger)(handler)
+	handler = recoverMiddleware(logger)(mux)
 	handler = otelhttp.NewHandler(handler, "enduro/internal/api", otelhttp.WithTracerProvider(tp))
-	handler = goahttpmwr.RequestID()(handler)
 	handler = versionHeaderMiddleware(version.Short)(handler)
 	if config.Debug {
 		handler = goahttpmwr.Log(loggerAdapter(logger))(handler)
