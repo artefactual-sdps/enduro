@@ -12,6 +12,7 @@ import (
 	. "goa.design/goa/v3/dsl"
 	"goa.design/goa/v3/expr"
 	cors "goa.design/plugins/v3/cors/dsl"
+	_ "goa.design/plugins/v3/otel"
 )
 
 var OAuth2Auth = OAuth2Security("oauth2", func() {

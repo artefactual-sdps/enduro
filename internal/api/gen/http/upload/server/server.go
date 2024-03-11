@@ -14,6 +14,7 @@ import (
 	"os"
 
 	upload "github.com/artefactual-sdps/enduro/internal/api/gen/upload"
+	otelhttp "go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	goahttp "goa.design/goa/v3/http"
 	goa "goa.design/goa/v3/pkg"
 	"goa.design/plugins/v3/cors"
@@ -93,7 +94,7 @@ func MountUploadHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("POST", "/upload/upload", f)
+	mux.Handle("POST", "/upload/upload", otelhttp.WithRouteTag("/upload/upload", f).ServeHTTP)
 }
 
 // NewUploadHandler creates a HTTP handler which loads the HTTP request and

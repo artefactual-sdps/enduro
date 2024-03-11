@@ -82,11 +82,11 @@ func HTTPServer(
 
 	// Global middlewares.
 	var handler http.Handler = mux
-	handler = recoverMiddleware(logger)(mux)
-	handler = otelhttp.NewHandler(handler, "enduro/internal/api", otelhttp.WithTracerProvider(tp))
+	handler = recoverMiddleware(logger)(handler)
+	handler = otelhttp.NewHandler(handler, "api", otelhttp.WithTracerProvider(tp))
 	handler = versionHeaderMiddleware(version.Short)(handler)
 	if config.Debug {
-		handler = goahttpmwr.Log(loggerAdapter(logger))(handler)
+		handler = goahttpmwr.Log(loggerAdapter(logger))(handler) //nolint SA1019: deprecated - use OpenTelemetry.
 		handler = goahttpmwr.Debug(mux, os.Stdout)(handler)
 	}
 
