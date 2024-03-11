@@ -32,7 +32,9 @@ metadata:
 data:
   grafana.ini: |
     [analytics]
+    reporting_enabled = false
     check_for_updates = true
+    check_for_plugin_updates = true
     [grafana_net]
     url = https://grafana.net
     [log]

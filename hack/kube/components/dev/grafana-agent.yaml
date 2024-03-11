@@ -235,6 +235,7 @@ spec:
             - --storage.path=/tmp/agent
             - --server.http.listen-addr=0.0.0.0:80
             - --server.http.ui-path-prefix=/
+            - --disable-reporting
           env:
             - name: AGENT_MODE
               value: flow
