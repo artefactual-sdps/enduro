@@ -28,6 +28,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/event"
 	"github.com/artefactual-sdps/enduro/internal/package_"
 	"github.com/artefactual-sdps/enduro/internal/sftp"
+	"github.com/artefactual-sdps/enduro/internal/telemetry"
 	"github.com/artefactual-sdps/enduro/internal/temporal"
 	"github.com/artefactual-sdps/enduro/internal/version"
 	"github.com/artefactual-sdps/enduro/internal/watcher"
@@ -76,7 +77,15 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	enduroDatabase, err := db.Connect(cfg.Database.Driver, cfg.Database.DSN)
+	// Set up the tracer provider.
+	tp, shutdown, err := telemetry.TracerProvider(ctx, logger, cfg.Telemetry, appName, version.Long)
+	if err != nil {
+		logger.Error(err, "Error creating tracer provider.")
+		os.Exit(1)
+	}
+	defer func() { _ = shutdown(ctx) }()
+
+	enduroDatabase, err := db.Connect(ctx, tp, cfg.Database.Driver, cfg.Database.DSN)
 	if err != nil {
 		logger.Error(err, "Enduro database configuration failed.")
 		os.Exit(1)

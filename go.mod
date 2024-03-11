@@ -9,6 +9,7 @@ require (
 	buf.build/gen/go/artefactual/a3m/protocolbuffers/go v1.31.0-20230508184533-2e9432075630.2
 	chainguard.dev/go-oidctest v0.2.0
 	entgo.io/ent v0.12.5
+	github.com/XSAM/otelsql v0.29.0
 	github.com/alicebob/miniredis/v2 v2.31.0
 	github.com/aws/aws-sdk-go-v2 v1.24.0
 	github.com/aws/aws-sdk-go-v2/config v1.26.2

@@ -1,10 +1,12 @@
 package db
 
 import (
+	"context"
 	"os"
 	"testing"
 
 	_ "github.com/mattn/go-sqlite3"
+	"go.opentelemetry.io/otel/trace/noop"
 	"gotest.tools/v3/assert"
 )
 
@@ -15,7 +17,7 @@ func TestConnect(t *testing.T) {
 		t.Parallel()
 
 		dbfile := "/tmp/enduro-test.db"
-		db, err := Connect("sqlite3", dbfile)
+		db, err := Connect(context.Background(), noop.NewTracerProvider(), "sqlite3", dbfile)
 		assert.NilError(t, err)
 		defer func() {
 			db.Close()
@@ -51,7 +53,7 @@ func TestMigrateEnduroDatabase(t *testing.T) {
 		t.Parallel()
 
 		dbfile := "/tmp/enduro-migrate-test.db"
-		db, err := Connect("sqlite3", dbfile)
+		db, err := Connect(context.Background(), noop.NewTracerProvider(), "sqlite3", dbfile)
 		assert.NilError(t, err)
 		defer func() {
 			db.Close()
@@ -59,6 +61,6 @@ func TestMigrateEnduroDatabase(t *testing.T) {
 		}()
 
 		err = MigrateEnduroDatabase(db)
-		assert.Error(t, err, "only MySQL migrations are supported")
+		assert.Error(t, err, "error creating golang-migrate object: error creating migrate driver: no such function: DATABASE in line 0: SELECT DATABASE()")
 	})
 }
