@@ -1,18 +1,23 @@
 package db
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"os"
 	"runtime"
 	"time"
 
+	"github.com/XSAM/otelsql"
 	mysqldriver "github.com/go-sql-driver/mysql"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/mysql"
 	"github.com/golang-migrate/migrate/v4/source"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/prometheus/client_golang/prometheus"
+	"go.opentelemetry.io/otel/codes"
+	semconv "go.opentelemetry.io/otel/semconv/v1.18.0"
+	"go.opentelemetry.io/otel/trace"
 
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence"
 )
@@ -21,22 +26,30 @@ import (
 const lockTimeout = time.Minute * 5
 
 // Connect returns a database handler.
-func Connect(driver, dsn string) (db *sql.DB, err error) {
+func Connect(ctx context.Context, tp trace.TracerProvider, driver, dsn string) (db *sql.DB, err error) {
 	switch driver {
 	case "mysql":
-		db, err = ConnectMySQL(dsn)
+		db, err = ConnectMySQL(tp, dsn)
 	case "sqlite3":
-		db, err = ConnectSQLite(dsn)
+		db, err = ConnectSQLite(tp, dsn)
 	default:
 		return nil, fmt.Errorf("unsupported database driver: %q", driver)
 	}
+
+	// Verify connection.
+	ctx, span := tp.Tracer("db.verify").Start(ctx, "sql.ping")
+	if err := db.PingContext(ctx); err != nil {
+		span.SetStatus(codes.Error, "ping failed")
+		span.RecordError(err)
+	}
+	span.End()
 
 	return db, err
 }
 
 // ConnectMySQL returns a MySQL database handler which is safe for concurrent
 // access.
-func ConnectMySQL(dsn string) (db *sql.DB, err error) {
+func ConnectMySQL(tp trace.TracerProvider, dsn string) (db *sql.DB, err error) {
 	config, err := mysqldriver.ParseDSN(dsn)
 	if err != nil {
 		return nil, fmt.Errorf("error parsing dsn: %w (%s)", err, dsn)
@@ -54,7 +67,14 @@ func ConnectMySQL(dsn string) (db *sql.DB, err error) {
 		return nil, fmt.Errorf("error creating connector: %w", err)
 	}
 
-	db = sql.OpenDB(conn)
+	db = otelsql.OpenDB(conn,
+		otelsql.WithAttributes(semconv.DBSystemMySQL),
+		otelsql.WithTracerProvider(tp),
+		otelsql.WithSpanOptions(otelsql.SpanOptions{
+			Ping:           true,
+			DisableErrSkip: true,
+		}),
+	)
 
 	// Set reasonable defaults in the built-in pool.
 	db.SetMaxOpenConns(100)
@@ -81,8 +101,14 @@ func ConnectMySQL(dsn string) (db *sql.DB, err error) {
 
 // ConnectSQLite returns a SQLlite database handler which is NOT safe for
 // concurrent access.
-func ConnectSQLite(dsn string) (db *sql.DB, err error) {
-	db, err = sql.Open("sqlite3", dsn)
+func ConnectSQLite(tp trace.TracerProvider, dsn string) (db *sql.DB, err error) {
+	db, err = otelsql.Open("sqlite3", dsn,
+		otelsql.WithAttributes(semconv.DBSystemSqlite),
+		otelsql.WithTracerProvider(tp),
+		otelsql.WithSpanOptions(otelsql.SpanOptions{
+			Ping: true,
+		}),
+	)
 
 	conns := runtime.NumCPU()
 	db.SetMaxOpenConns(conns)
@@ -126,11 +152,6 @@ func MigrateEnduroStorageDatabase(db *sql.DB) error {
 
 // up migrates the database.
 func up(db *sql.DB, src source.Driver) error {
-	_, ok := db.Driver().(*mysqldriver.MySQLDriver)
-	if !ok {
-		return fmt.Errorf("only MySQL migrations are supported")
-	}
-
 	m, err := newMigrate(db, src)
 	if err != nil {
 		return fmt.Errorf("error creating golang-migrate object: %v", err)
