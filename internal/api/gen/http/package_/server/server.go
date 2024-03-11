@@ -14,6 +14,7 @@ import (
 	"os"
 
 	package_ "github.com/artefactual-sdps/enduro/internal/api/gen/package_"
+	otelhttp "go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	goahttp "goa.design/goa/v3/http"
 	goa "goa.design/goa/v3/pkg"
 	"goa.design/plugins/v3/cors"
@@ -144,7 +145,7 @@ func MountMonitorRequestHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("POST", "/package/monitor", f)
+	mux.Handle("POST", "/package/monitor", otelhttp.WithRouteTag("/package/monitor", f).ServeHTTP)
 }
 
 // NewMonitorRequestHandler creates a HTTP handler which loads the HTTP request
@@ -195,7 +196,7 @@ func MountMonitorHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("GET", "/package/monitor", f)
+	mux.Handle("GET", "/package/monitor", otelhttp.WithRouteTag("/package/monitor", f).ServeHTTP)
 }
 
 // NewMonitorHandler creates a HTTP handler which loads the HTTP request and
@@ -261,7 +262,7 @@ func MountListHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("GET", "/package", f)
+	mux.Handle("GET", "/package", otelhttp.WithRouteTag("/package", f).ServeHTTP)
 }
 
 // NewListHandler creates a HTTP handler which loads the HTTP request and calls
@@ -312,7 +313,7 @@ func MountShowHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("GET", "/package/{id}", f)
+	mux.Handle("GET", "/package/{id}", otelhttp.WithRouteTag("/package/{id}", f).ServeHTTP)
 }
 
 // NewShowHandler creates a HTTP handler which loads the HTTP request and calls
@@ -363,7 +364,7 @@ func MountPreservationActionsHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("GET", "/package/{id}/preservation-actions", f)
+	mux.Handle("GET", "/package/{id}/preservation-actions", otelhttp.WithRouteTag("/package/{id}/preservation-actions", f).ServeHTTP)
 }
 
 // NewPreservationActionsHandler creates a HTTP handler which loads the HTTP
@@ -414,7 +415,7 @@ func MountConfirmHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("POST", "/package/{id}/confirm", f)
+	mux.Handle("POST", "/package/{id}/confirm", otelhttp.WithRouteTag("/package/{id}/confirm", f).ServeHTTP)
 }
 
 // NewConfirmHandler creates a HTTP handler which loads the HTTP request and
@@ -465,7 +466,7 @@ func MountRejectHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("POST", "/package/{id}/reject", f)
+	mux.Handle("POST", "/package/{id}/reject", otelhttp.WithRouteTag("/package/{id}/reject", f).ServeHTTP)
 }
 
 // NewRejectHandler creates a HTTP handler which loads the HTTP request and
@@ -516,7 +517,7 @@ func MountMoveHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("POST", "/package/{id}/move", f)
+	mux.Handle("POST", "/package/{id}/move", otelhttp.WithRouteTag("/package/{id}/move", f).ServeHTTP)
 }
 
 // NewMoveHandler creates a HTTP handler which loads the HTTP request and calls
@@ -567,7 +568,7 @@ func MountMoveStatusHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("GET", "/package/{id}/move", f)
+	mux.Handle("GET", "/package/{id}/move", otelhttp.WithRouteTag("/package/{id}/move", f).ServeHTTP)
 }
 
 // NewMoveStatusHandler creates a HTTP handler which loads the HTTP request and

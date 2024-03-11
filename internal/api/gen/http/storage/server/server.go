@@ -14,6 +14,7 @@ import (
 	"os"
 
 	storage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
+	otelhttp "go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	goahttp "goa.design/goa/v3/http"
 	goa "goa.design/goa/v3/pkg"
 	"goa.design/plugins/v3/cors"
@@ -151,7 +152,7 @@ func MountSubmitHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("POST", "/storage/package/{aip_id}/submit", f)
+	mux.Handle("POST", "/storage/package/{aip_id}/submit", otelhttp.WithRouteTag("/storage/package/{aip_id}/submit", f).ServeHTTP)
 }
 
 // NewSubmitHandler creates a HTTP handler which loads the HTTP request and
@@ -202,7 +203,7 @@ func MountUpdateHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("POST", "/storage/package/{aip_id}/update", f)
+	mux.Handle("POST", "/storage/package/{aip_id}/update", otelhttp.WithRouteTag("/storage/package/{aip_id}/update", f).ServeHTTP)
 }
 
 // NewUpdateHandler creates a HTTP handler which loads the HTTP request and
@@ -253,7 +254,7 @@ func MountDownloadHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("GET", "/storage/package/{aip_id}/download", f)
+	mux.Handle("GET", "/storage/package/{aip_id}/download", otelhttp.WithRouteTag("/storage/package/{aip_id}/download", f).ServeHTTP)
 }
 
 // NewDownloadHandler creates a HTTP handler which loads the HTTP request and
@@ -304,7 +305,7 @@ func MountLocationsHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("GET", "/storage/location", f)
+	mux.Handle("GET", "/storage/location", otelhttp.WithRouteTag("/storage/location", f).ServeHTTP)
 }
 
 // NewLocationsHandler creates a HTTP handler which loads the HTTP request and
@@ -355,7 +356,7 @@ func MountAddLocationHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("POST", "/storage/location", f)
+	mux.Handle("POST", "/storage/location", otelhttp.WithRouteTag("/storage/location", f).ServeHTTP)
 }
 
 // NewAddLocationHandler creates a HTTP handler which loads the HTTP request
@@ -406,7 +407,7 @@ func MountMoveHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("POST", "/storage/package/{aip_id}/store", f)
+	mux.Handle("POST", "/storage/package/{aip_id}/store", otelhttp.WithRouteTag("/storage/package/{aip_id}/store", f).ServeHTTP)
 }
 
 // NewMoveHandler creates a HTTP handler which loads the HTTP request and calls
@@ -457,7 +458,7 @@ func MountMoveStatusHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("GET", "/storage/package/{aip_id}/store", f)
+	mux.Handle("GET", "/storage/package/{aip_id}/store", otelhttp.WithRouteTag("/storage/package/{aip_id}/store", f).ServeHTTP)
 }
 
 // NewMoveStatusHandler creates a HTTP handler which loads the HTTP request and
@@ -508,7 +509,7 @@ func MountRejectHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("POST", "/storage/package/{aip_id}/reject", f)
+	mux.Handle("POST", "/storage/package/{aip_id}/reject", otelhttp.WithRouteTag("/storage/package/{aip_id}/reject", f).ServeHTTP)
 }
 
 // NewRejectHandler creates a HTTP handler which loads the HTTP request and
@@ -559,7 +560,7 @@ func MountShowHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("GET", "/storage/package/{aip_id}", f)
+	mux.Handle("GET", "/storage/package/{aip_id}", otelhttp.WithRouteTag("/storage/package/{aip_id}", f).ServeHTTP)
 }
 
 // NewShowHandler creates a HTTP handler which loads the HTTP request and calls
@@ -610,7 +611,7 @@ func MountShowLocationHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("GET", "/storage/location/{uuid}", f)
+	mux.Handle("GET", "/storage/location/{uuid}", otelhttp.WithRouteTag("/storage/location/{uuid}", f).ServeHTTP)
 }
 
 // NewShowLocationHandler creates a HTTP handler which loads the HTTP request
@@ -661,7 +662,7 @@ func MountLocationPackagesHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("GET", "/storage/location/{uuid}/packages", f)
+	mux.Handle("GET", "/storage/location/{uuid}/packages", otelhttp.WithRouteTag("/storage/location/{uuid}/packages", f).ServeHTTP)
 }
 
 // NewLocationPackagesHandler creates a HTTP handler which loads the HTTP
