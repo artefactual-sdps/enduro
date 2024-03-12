@@ -308,14 +308,14 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 		tinfo.TempPath = downloadResult.Path
 	}
 
-	// Unarchive.
-	{
+	// Unarchive the transfer if it's not a directory.
+	if !tinfo.req.IsDir {
 		activityOpts := withActivityOptsForLocalAction(sessCtx)
-		var result activities.UnarchiveResult
+		var result activities.UnarchiveActivityResult
 		err := temporalsdk_workflow.ExecuteActivity(
 			activityOpts,
 			activities.UnarchiveActivityName,
-			&activities.UnarchiveParams{
+			&activities.UnarchiveActivityParams{
 				SourcePath:       tinfo.TempPath,
 				StripTopLevelDir: tinfo.req.StripTopLevelDir,
 			},
@@ -342,10 +342,9 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 			activityOpts,
 			activities.BundleActivityName,
 			&activities.BundleActivityParams{
-				SourcePath:       tinfo.TempPath,
-				TransferDir:      transferDir,
-				StripTopLevelDir: tinfo.req.StripTopLevelDir,
-				IsDir:            tinfo.req.IsDir,
+				SourcePath:  tinfo.TempPath,
+				TransferDir: transferDir,
+				IsDir:       tinfo.req.IsDir,
 			},
 		).Get(activityOpts, &bundleResult)
 		if err != nil {

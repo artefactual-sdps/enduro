@@ -56,18 +56,18 @@ e91f941be5973ff71f1dccbdd1a32d598881893a7f21be516aca743da38b1689 bagit.txt
 func TestUnarchiveActivity(t *testing.T) {
 	type test struct {
 		name    string
-		params  *activities.UnarchiveParams
-		want    *activities.UnarchiveResult
+		params  *activities.UnarchiveActivityParams
+		want    *activities.UnarchiveActivityResult
 		wantFs  fs.Manifest
 		wantErr string
 	}
 	for _, tt := range []test{
 		{
 			name: "Unarchives a zipped standard transfer",
-			params: &activities.UnarchiveParams{
+			params: &activities.UnarchiveActivityParams{
 				SourcePath: filepath.Join("zipped_transfer", "small.zip"),
 			},
-			want: &activities.UnarchiveResult{
+			want: &activities.UnarchiveActivityResult{
 				DestPath: filepath.Join("zipped_transfer", "extract"),
 				IsDir:    true,
 			},
@@ -82,11 +82,11 @@ func TestUnarchiveActivity(t *testing.T) {
 		},
 		{
 			name: "Unarchives a zipped transfer and strips the top-level dir",
-			params: &activities.UnarchiveParams{
+			params: &activities.UnarchiveActivityParams{
 				SourcePath:       filepath.Join("zipped_transfer", "small.zip"),
 				StripTopLevelDir: true,
 			},
-			want: &activities.UnarchiveResult{
+			want: &activities.UnarchiveActivityResult{
 				DestPath: filepath.Join("zipped_transfer", "extract"),
 				IsDir:    true,
 			},
@@ -99,10 +99,10 @@ func TestUnarchiveActivity(t *testing.T) {
 		},
 		{
 			name: "Unarchives a tarred and gzipped bag transfer",
-			params: &activities.UnarchiveParams{
+			params: &activities.UnarchiveActivityParams{
 				SourcePath: filepath.Join("gzipped_bag", "small_bag.tgz"),
 			},
-			want: &activities.UnarchiveResult{
+			want: &activities.UnarchiveActivityResult{
 				DestPath: filepath.Join("gzipped_bag", "extract"),
 				IsDir:    true,
 			},
@@ -115,11 +115,11 @@ func TestUnarchiveActivity(t *testing.T) {
 		},
 		{
 			name: "Unarchives a tgz bag transfer and strips top-level dir",
-			params: &activities.UnarchiveParams{
+			params: &activities.UnarchiveActivityParams{
 				SourcePath:       filepath.Join("gzipped_bag", "small_bag.tgz"),
 				StripTopLevelDir: true,
 			},
-			want: &activities.UnarchiveResult{
+			want: &activities.UnarchiveActivityResult{
 				DestPath: filepath.Join("gzipped_bag", "extract"),
 				IsDir:    true,
 			},
@@ -129,21 +129,11 @@ func TestUnarchiveActivity(t *testing.T) {
 			)...),
 		},
 		{
-			name: "Returns a directory path unaltered",
-			params: &activities.UnarchiveParams{
-				SourcePath: filepath.Join("bag", "small_bag"),
-			},
-			want: &activities.UnarchiveResult{
-				DestPath: filepath.Join("bag", "small_bag"),
-				IsDir:    true,
-			},
-		},
-		{
 			name: "Returns a non-archive file path unaltered",
-			params: &activities.UnarchiveParams{
+			params: &activities.UnarchiveActivityParams{
 				SourcePath: filepath.Join("single_file_transfer", "small.txt"),
 			},
-			want: &activities.UnarchiveResult{
+			want: &activities.UnarchiveActivityResult{
 				DestPath: filepath.Join("single_file_transfer", "small.txt"),
 			},
 		},
@@ -174,7 +164,7 @@ func TestUnarchiveActivity(t *testing.T) {
 			}
 			assert.NilError(t, err)
 
-			var res activities.UnarchiveResult
+			var res activities.UnarchiveActivityResult
 			_ = enc.Get(&res)
 
 			if tt.want != nil {

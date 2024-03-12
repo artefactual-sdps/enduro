@@ -20,16 +20,16 @@ type UnarchiveActivity struct {
 	logger logr.Logger
 }
 
-type UnarchiveParams struct {
-	// SourcePath is the path of the transfer to be unarchived.
+type UnarchiveActivityParams struct {
+	// SourcePath is the path of the archive file to be extracted.
 	SourcePath string
 
 	// StripTopLevelDir indicates whether the top-level "container" directory of
-	// the archive should be excluded from the destination directory.
+	// the archive should be removed from extract directory.
 	StripTopLevelDir bool
 }
 
-type UnarchiveResult struct {
+type UnarchiveActivityResult struct {
 	// DestPath is the path to the extracted archive contents.
 	DestPath string
 
@@ -41,20 +41,14 @@ func NewUnarchiveActivity(logger logr.Logger) *UnarchiveActivity {
 	return &UnarchiveActivity{logger: logger}
 }
 
-// Execute attempts to unarchive the contents of SourcePath to a temporary
-// directory. If SourcePath points to a directory or a non-archive file then the
-// path is returned, unaltered, as DestPath.
-func (a *UnarchiveActivity) Execute(ctx context.Context, params *UnarchiveParams) (*UnarchiveResult, error) {
-	a.logger.V(1).Info("Executing UnarchiveActivity", "Path", params.SourcePath)
-
-	fi, err := os.Stat(params.SourcePath)
-	if err != nil {
-		return nil, fmt.Errorf("unarchive: stat: %v", err)
-	}
-	if fi.IsDir() {
-		a.logger.V(2).Info("Unarchive: skipping directory")
-		return &UnarchiveResult{DestPath: params.SourcePath, IsDir: true}, nil
-	}
+// Execute attempts to unarchive the archive file at SourcePath to a temporary
+// directory to DestPath. If SourcePath points to a non-archive file then the
+// returned DestPath will be equal to SourcePath.
+func (a *UnarchiveActivity) Execute(ctx context.Context, params *UnarchiveActivityParams) (*UnarchiveActivityResult, error) {
+	a.logger.V(1).Info("Executing UnarchiveActivity",
+		"SourcePath", params.SourcePath,
+		"StripTopLevelDir", params.StripTopLevelDir,
+	)
 
 	u, err := unarchiver(params.SourcePath)
 	if err != nil {
@@ -62,9 +56,9 @@ func (a *UnarchiveActivity) Execute(ctx context.Context, params *UnarchiveParams
 	}
 	if u == nil {
 		// Couldn't find an unarchiver, so this is probably a regular file.
-		// Return the source path unaltered, and IsDir false.
-		a.logger.V(2).Info("Unarchive: not an archive, skipping")
-		return &UnarchiveResult{DestPath: params.SourcePath}, nil
+		// Return the source path unaltered, and IsDir as false.
+		a.logger.V(2).Info("Unarchive: not an archive, skipping.")
+		return &UnarchiveActivityResult{DestPath: params.SourcePath}, nil
 	}
 
 	dest := filepath.Join(filepath.Dir(params.SourcePath), "extract")
@@ -83,10 +77,10 @@ func (a *UnarchiveActivity) Execute(ctx context.Context, params *UnarchiveParams
 	}
 
 	if err := os.Remove(params.SourcePath); err != nil {
-		a.logger.V(1).Info("Unarchive: couldn't delete source archive: %v", err)
+		a.logger.Error(err, "Unarchive: couldn't delete source archive.")
 	}
 
-	return &UnarchiveResult{DestPath: dest, IsDir: true}, err
+	return &UnarchiveActivityResult{DestPath: dest, IsDir: true}, err
 }
 
 // Unarchiver returns the unarchiver suited for the archival format.
@@ -126,7 +120,7 @@ func stripDirContainer(dir string) error {
 	// Move the top-level directory and contents to tmpPath.
 	tmpPath := filepath.Join(tmpDir, tld)
 	if err := os.Rename(filepath.Join(dir, tld), tmpPath); err != nil {
-		return fmt.Errorf("move: %v", err)
+		return fmt.Errorf("move to temp dir: %v", err)
 	}
 
 	// Move the TLD contents back to the original path.
@@ -136,7 +130,7 @@ func stripDirContainer(dir string) error {
 		}
 
 		if err := os.Rename(path, filepath.Join(dir, d.Name())); err != nil {
-			return fmt.Errorf("move to temp dir: %v", err)
+			return fmt.Errorf("move to original dir: %v", err)
 		}
 
 		// Don't descend into sub-directories.
@@ -147,7 +141,7 @@ func stripDirContainer(dir string) error {
 		return nil
 	})
 	if err != nil {
-		return fmt.Errorf("move back to top-level dir: %v", err)
+		return fmt.Errorf("walk dir: %v", err)
 	}
 
 	return nil
@@ -159,19 +153,22 @@ func stripDirContainer(dir string) error {
 func topLevelDir(path string) (string, error) {
 	r, err := os.Open(filepath.Clean(path))
 	if err != nil {
-		return "", fmt.Errorf("cannot open path: %v", err)
+		return "", fmt.Errorf("open path: %v", err)
 	}
 	defer r.Close()
 
 	fis, err := r.Readdir(2)
 	if err != nil {
-		return "", fmt.Errorf("error reading dir: %v", err)
+		return "", fmt.Errorf("read dir: %v", err)
 	}
-	if len(fis) != 1 {
+	if len(fis) == 0 {
+		return "", fmt.Errorf("directory %q is empty", path)
+	}
+	if len(fis) > 1 {
 		return "", fmt.Errorf("directory %q has more than one child", path)
 	}
 	if !fis[0].IsDir() {
-		return "", fmt.Errorf("top-level item %q is not a directory", path+fis[0].Name())
+		return "", fmt.Errorf("%q is not a directory", path+fis[0].Name())
 	}
 
 	return fis[0].Name(), nil
