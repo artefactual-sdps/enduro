@@ -10,8 +10,9 @@ import (
 	"go.uber.org/mock/gomock"
 	"gotest.tools/v3/assert"
 
+	"github.com/artefactual-sdps/enduro/internal/datatypes"
+	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/event"
-	"github.com/artefactual-sdps/enduro/internal/package_"
 	"github.com/artefactual-sdps/enduro/internal/persistence"
 	mockclient "github.com/artefactual-sdps/enduro/internal/persistence/fake"
 )
@@ -32,44 +33,44 @@ func TestCreatePackage(t *testing.T) {
 	msvc.
 		EXPECT().
 		CreatePackage(mockutil.Context(),
-			&package_.Package{
+			&datatypes.Package{
 				Name:       "Fake package",
 				WorkflowID: "workflow-1",
 				RunID:      "d1fec389-d50f-423f-843f-a510584cc02c",
 				AIPID:      "57e9d085-5716-43d2-bad9-bba3c9a74bd8",
-				Status:     package_.StatusInProgress,
+				Status:     enums.PackageStatusInProgress,
 				StartedAt:  sql.NullTime{Time: StartedAt, Valid: true},
 			},
 		).
-		Return(&package_.Package{
+		Return(&datatypes.Package{
 			ID:         1,
 			Name:       "Fake package",
 			WorkflowID: "workflow-1",
 			RunID:      "d1fec389-d50f-423f-843f-a510584cc02c",
 			AIPID:      "57e9d085-5716-43d2-bad9-bba3c9a74bd8",
-			Status:     package_.StatusInProgress,
+			Status:     enums.PackageStatusInProgress,
 			CreatedAt:  CreatedAt,
 			StartedAt:  sql.NullTime{Time: StartedAt, Valid: true},
 		}, nil)
 
 	svc := persistence.WithEvents(evsvc, msvc)
-	got, err := svc.CreatePackage(ctx, &package_.Package{
+	got, err := svc.CreatePackage(ctx, &datatypes.Package{
 		Name:       "Fake package",
 		WorkflowID: "workflow-1",
 		RunID:      "d1fec389-d50f-423f-843f-a510584cc02c",
 		AIPID:      "57e9d085-5716-43d2-bad9-bba3c9a74bd8",
-		Status:     package_.StatusInProgress,
+		Status:     enums.PackageStatusInProgress,
 		StartedAt:  sql.NullTime{Time: StartedAt, Valid: true},
 	})
 
 	assert.NilError(t, err)
-	assert.DeepEqual(t, got, &package_.Package{
+	assert.DeepEqual(t, got, &datatypes.Package{
 		ID:         1,
 		Name:       "Fake package",
 		WorkflowID: "workflow-1",
 		RunID:      "d1fec389-d50f-423f-843f-a510584cc02c",
 		AIPID:      "57e9d085-5716-43d2-bad9-bba3c9a74bd8",
-		Status:     package_.StatusInProgress,
+		Status:     enums.PackageStatusInProgress,
 		CreatedAt:  CreatedAt,
 		StartedAt:  sql.NullTime{Time: StartedAt, Valid: true},
 	})
@@ -97,37 +98,37 @@ func TestUpdatePackage(t *testing.T) {
 		UpdatePackage(mockutil.Context(), uint(1), mockutil.Func(
 			"updates package",
 			func(updater persistence.PackageUpdater) error {
-				_, err := updater(&package_.Package{})
+				_, err := updater(&datatypes.Package{})
 				return err
 			}),
 		).
-		Return(&package_.Package{
+		Return(&datatypes.Package{
 			ID:          1,
 			Name:        "Fake package",
 			WorkflowID:  "workflow-1",
 			RunID:       "d1fec389-d50f-423f-843f-a510584cc02c",
 			AIPID:       "57e9d085-5716-43d2-bad9-bba3c9a74bd8",
-			Status:      package_.StatusDone,
+			Status:      enums.PackageStatusDone,
 			CreatedAt:   CreatedAt,
 			StartedAt:   sql.NullTime{Time: StartedAt, Valid: true},
 			CompletedAt: sql.NullTime{Time: completed, Valid: true},
 		}, nil)
 
 	svc := persistence.WithEvents(evsvc, msvc)
-	got, err := svc.UpdatePackage(ctx, uint(1), func(pkg *package_.Package) (*package_.Package, error) {
-		pkg.Status = package_.StatusDone
+	got, err := svc.UpdatePackage(ctx, uint(1), func(pkg *datatypes.Package) (*datatypes.Package, error) {
+		pkg.Status = enums.PackageStatusDone
 		pkg.CompletedAt = sql.NullTime{Time: completed, Valid: true}
 		return pkg, nil
 	})
 
 	assert.NilError(t, err)
-	assert.DeepEqual(t, got, &package_.Package{
+	assert.DeepEqual(t, got, &datatypes.Package{
 		ID:          1,
 		Name:        "Fake package",
 		WorkflowID:  "workflow-1",
 		RunID:       "d1fec389-d50f-423f-843f-a510584cc02c",
 		AIPID:       "57e9d085-5716-43d2-bad9-bba3c9a74bd8",
-		Status:      package_.StatusDone,
+		Status:      enums.PackageStatusDone,
 		CreatedAt:   CreatedAt,
 		StartedAt:   sql.NullTime{Time: StartedAt, Valid: true},
 		CompletedAt: sql.NullTime{Time: completed, Valid: true},

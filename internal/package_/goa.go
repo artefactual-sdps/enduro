@@ -14,6 +14,8 @@ import (
 	"goa.design/goa/v3/security"
 
 	goapackage "github.com/artefactual-sdps/enduro/internal/api/gen/package_"
+	"github.com/artefactual-sdps/enduro/internal/datatypes"
+	"github.com/artefactual-sdps/enduro/internal/enums"
 )
 
 var ErrBulkStatusUnavailable = errors.New("bulk status unavailable")
@@ -139,7 +141,7 @@ func (w *goaWrapper) List(ctx context.Context, payload *goapackage.ListPayload) 
 		conds = append(conds, [2]string{"AND", "location_id = ?"})
 	}
 	if payload.Status != nil {
-		args = append(args, NewStatus(*payload.Status))
+		args = append(args, enums.NewPackageStatus(*payload.Status))
 		conds = append(conds, [2]string{"AND", "status = ?"})
 	}
 	if payload.EarliestCreatedTime != nil {
@@ -175,7 +177,7 @@ func (w *goaWrapper) List(ctx context.Context, payload *goapackage.ListPayload) 
 
 	cols := []*goapackage.EnduroStoredPackage{}
 	for rows.Next() {
-		c := Package{}
+		c := datatypes.Package{}
 		if err := rows.StructScan(&c); err != nil {
 			return nil, fmt.Errorf("error scanning database result: %w", err)
 		}

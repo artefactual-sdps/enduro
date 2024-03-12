@@ -13,15 +13,18 @@ import (
 
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	goapackage "github.com/artefactual-sdps/enduro/internal/api/gen/package_"
+	"github.com/artefactual-sdps/enduro/internal/datatypes"
+	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/event"
+	"github.com/artefactual-sdps/enduro/internal/persistence"
 )
 
 type Service interface {
 	// Goa returns an implementation of the goapackage Service.
 	Goa() goapackage.Service
-	Create(context.Context, *Package) error
-	UpdateWorkflowStatus(ctx context.Context, ID uint, name string, workflowID, runID, aipID string, status Status, storedAt time.Time) error
-	SetStatus(ctx context.Context, ID uint, status Status) error
+	Create(context.Context, *datatypes.Package) error
+	UpdateWorkflowStatus(ctx context.Context, ID uint, name string, workflowID, runID, aipID string, status enums.PackageStatus, storedAt time.Time) error
+	SetStatus(ctx context.Context, ID uint, status enums.PackageStatus) error
 	SetStatusInProgress(ctx context.Context, ID uint, startedAt time.Time) error
 	SetStatusPending(ctx context.Context, ID uint) error
 	SetLocationID(ctx context.Context, ID uint, locationID uuid.UUID) error
@@ -37,6 +40,7 @@ type packageImpl struct {
 	db             *sqlx.DB
 	tc             temporalsdk_client.Client
 	evsvc          event.EventService
+	perSvc         persistence.Service
 	tokenVerifier  auth.TokenVerifier
 	ticketProvider *auth.TicketProvider
 	taskQueue      string
@@ -44,12 +48,22 @@ type packageImpl struct {
 
 var _ Service = (*packageImpl)(nil)
 
-func NewService(logger logr.Logger, db *sql.DB, tc temporalsdk_client.Client, evsvc event.EventService, tokenVerifier auth.TokenVerifier, ticketProvider *auth.TicketProvider, taskQueue string) *packageImpl {
+func NewService(
+	logger logr.Logger,
+	db *sql.DB,
+	tc temporalsdk_client.Client,
+	evsvc event.EventService,
+	psvc persistence.Service,
+	tokenVerifier auth.TokenVerifier,
+	ticketProvider *auth.TicketProvider,
+	taskQueue string,
+) *packageImpl {
 	return &packageImpl{
 		logger:         logger,
 		db:             sqlx.NewDb(db, "mysql"),
 		tc:             tc,
 		evsvc:          evsvc,
+		perSvc:         psvc,
 		tokenVerifier:  tokenVerifier,
 		ticketProvider: ticketProvider,
 		taskQueue:      taskQueue,
@@ -62,7 +76,7 @@ func (svc *packageImpl) Goa() goapackage.Service {
 	}
 }
 
-func (svc *packageImpl) Create(ctx context.Context, pkg *Package) error {
+func (svc *packageImpl) Create(ctx context.Context, pkg *datatypes.Package) error {
 	query := `INSERT INTO package (name, workflow_id, run_id, aip_id, location_id, status) VALUES (?, ?, ?, ?, ?, ?)`
 	args := []interface{}{
 		pkg.Name,
@@ -93,10 +107,10 @@ func (svc *packageImpl) Create(ctx context.Context, pkg *Package) error {
 	return nil
 }
 
-func (svc *packageImpl) UpdateWorkflowStatus(ctx context.Context, ID uint, name string, workflowID, runID, aipID string, status Status, storedAt time.Time) error {
+func (svc *packageImpl) UpdateWorkflowStatus(ctx context.Context, ID uint, name string, workflowID, runID, aipID string, status enums.PackageStatus, storedAt time.Time) error {
 	// Ensure that storedAt is reset during retries.
 	completedAt := &storedAt
-	if status == StatusInProgress {
+	if status == enums.PackageStatusInProgress {
 		completedAt = nil
 	}
 	if completedAt != nil && completedAt.IsZero() {
@@ -126,7 +140,7 @@ func (svc *packageImpl) UpdateWorkflowStatus(ctx context.Context, ID uint, name 
 	return nil
 }
 
-func (svc *packageImpl) SetStatus(ctx context.Context, ID uint, status Status) error {
+func (svc *packageImpl) SetStatus(ctx context.Context, ID uint, status enums.PackageStatus) error {
 	query := `UPDATE package SET status = ? WHERE id = ?`
 	args := []interface{}{
 		status,
@@ -145,7 +159,7 @@ func (svc *packageImpl) SetStatus(ctx context.Context, ID uint, status Status) e
 
 func (svc *packageImpl) SetStatusInProgress(ctx context.Context, ID uint, startedAt time.Time) error {
 	var query string
-	args := []interface{}{StatusInProgress}
+	args := []interface{}{enums.PackageStatusInProgress}
 
 	if !startedAt.IsZero() {
 		query = `UPDATE package SET status = ?, started_at = ? WHERE id = ?`
@@ -159,7 +173,7 @@ func (svc *packageImpl) SetStatusInProgress(ctx context.Context, ID uint, starte
 		return err
 	}
 
-	ev := &goapackage.PackageStatusUpdatedEvent{ID: uint(ID), Status: StatusInProgress.String()}
+	ev := &goapackage.PackageStatusUpdatedEvent{ID: uint(ID), Status: enums.PackageStatusInProgress.String()}
 	event.PublishEvent(ctx, svc.evsvc, ev)
 
 	return nil
@@ -168,7 +182,7 @@ func (svc *packageImpl) SetStatusInProgress(ctx context.Context, ID uint, starte
 func (svc *packageImpl) SetStatusPending(ctx context.Context, ID uint) error {
 	query := `UPDATE package SET status = ?, WHERE id = ?`
 	args := []interface{}{
-		StatusPending,
+		enums.PackageStatusPending,
 		ID,
 	}
 
@@ -176,7 +190,7 @@ func (svc *packageImpl) SetStatusPending(ctx context.Context, ID uint) error {
 		return err
 	}
 
-	ev := &goapackage.PackageStatusUpdatedEvent{ID: uint(ID), Status: StatusPending.String()}
+	ev := &goapackage.PackageStatusUpdatedEvent{ID: uint(ID), Status: enums.PackageStatusPending.String()}
 	event.PublishEvent(ctx, svc.evsvc, ev)
 
 	return nil
@@ -208,10 +222,10 @@ func (svc *packageImpl) updateRow(ctx context.Context, query string, args []inte
 	return nil
 }
 
-func (svc *packageImpl) read(ctx context.Context, ID uint) (*Package, error) {
+func (svc *packageImpl) read(ctx context.Context, ID uint) (*datatypes.Package, error) {
 	query := "SELECT id, name, workflow_id, run_id, aip_id, location_id, status, CONVERT_TZ(created_at, @@session.time_zone, '+00:00') AS created_at, CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at, CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at FROM package WHERE id = ?"
 	args := []interface{}{ID}
-	c := Package{}
+	c := datatypes.Package{}
 
 	if err := svc.db.GetContext(ctx, &c, query, args...); err != nil {
 		return nil, err

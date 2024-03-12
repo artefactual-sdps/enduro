@@ -4,6 +4,7 @@ import (
 	"github.com/go-logr/logr"
 	temporalsdk_workflow "go.temporal.io/sdk/workflow"
 
+	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/package_"
 	"github.com/artefactual-sdps/enduro/internal/workflow/activities"
 )
@@ -30,7 +31,7 @@ func (w *MoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req *package_.M
 	// Set package to in progress status.
 	{
 		ctx := withLocalActivityOpts(ctx)
-		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setStatusLocalActivity, w.pkgsvc, req.ID, package_.StatusInProgress).Get(ctx, nil)
+		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setStatusLocalActivity, w.pkgsvc, req.ID, enums.PackageStatusInProgress).Get(ctx, nil)
 		if err != nil {
 			return err
 		}
@@ -66,7 +67,7 @@ func (w *MoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req *package_.M
 	// Set package to done status.
 	{
 		ctx := withLocalActivityOpts(ctx)
-		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setStatusLocalActivity, w.pkgsvc, req.ID, package_.StatusDone).Get(ctx, nil)
+		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setStatusLocalActivity, w.pkgsvc, req.ID, enums.PackageStatusDone).Get(ctx, nil)
 		if err != nil {
 			return err
 		}
