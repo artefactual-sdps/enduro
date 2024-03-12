@@ -5,7 +5,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -17,6 +16,7 @@ import (
 
 	"github.com/artefactual-sdps/enduro/internal/bagit"
 	"github.com/artefactual-sdps/enduro/internal/bundler"
+	"github.com/artefactual-sdps/enduro/internal/fsutil"
 )
 
 const (
@@ -39,11 +39,6 @@ type BundleActivityParams struct {
 	// TransferDir is the target directory for the bundled package.
 	TransferDir string
 
-	// StripTopLevelDir indicates that the top-level directory in an archive
-	// transfer (e.g. zip, tar) should be removed from the bundled package
-	// filepaths when true.
-	StripTopLevelDir bool
-
 	// IsDir indicates that the transfer is a local directory when true. If true
 	// the transfer will be copied to TransferDir without modification.
 	IsDir bool
@@ -62,7 +57,6 @@ func (a *BundleActivity) Execute(ctx context.Context, params *BundleActivityPara
 	a.logger.V(1).Info("Executing BundleActivity",
 		"SourcePath", params.SourcePath,
 		"TransferDir", params.TransferDir,
-		"StripTopLevelDir", params.StripTopLevelDir,
 		"IsDir", params.IsDir,
 	)
 
@@ -95,7 +89,7 @@ func (a *BundleActivity) Execute(ctx context.Context, params *BundleActivityPara
 		)
 	}
 
-	if err = setPermissions(res.FullPath); err != nil {
+	if err = fsutil.SetFileModes(res.FullPath, ModeDir, ModeFile); err != nil {
 		return nil, temporal_tools.NewNonRetryableError(
 			fmt.Errorf("bundle: set permissions: %v", err),
 		)
@@ -290,25 +284,4 @@ func unbag(path string) error {
 	}
 
 	return nil
-}
-
-func setPermissions(root string) error {
-	err := filepath.WalkDir(root,
-		func(path string, d os.DirEntry, err error) error {
-			if err != nil {
-				return err
-			}
-
-			mode := fs.FileMode(ModeFile)
-			if d.IsDir() {
-				mode = fs.FileMode(ModeDir)
-			}
-
-			_ = os.Chmod(path, mode)
-
-			return nil
-		},
-	)
-
-	return err
 }
