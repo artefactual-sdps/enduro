@@ -11,6 +11,7 @@ import (
 	"go.artefactual.dev/tools/ref"
 
 	goapackage "github.com/artefactual-sdps/enduro/internal/api/gen/package_"
+	"github.com/artefactual-sdps/enduro/internal/db"
 	"github.com/artefactual-sdps/enduro/internal/event"
 )
 
@@ -245,8 +246,8 @@ func (w *goaWrapper) PreservationActions(ctx context.Context, payload *goapackag
 			WorkflowID:  pa.WorkflowID,
 			Type:        pa.Type.String(),
 			Status:      pa.Status.String(),
-			StartedAt:   formatTime(pa.StartedAt.Time),
-			CompletedAt: formatOptionalTime(pa.CompletedAt),
+			StartedAt:   db.FormatTime(pa.StartedAt.Time),
+			CompletedAt: db.FormatOptionalTime(pa.CompletedAt),
 		}
 
 		ptQuery := "SELECT id, task_id, name, status, CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at, CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at, note FROM preservation_task WHERE preservation_action_id = ?"
@@ -269,8 +270,8 @@ func (w *goaWrapper) PreservationActions(ctx context.Context, payload *goapackag
 				TaskID:      pt.TaskID,
 				Name:        pt.Name,
 				Status:      pt.Status.String(),
-				StartedAt:   formatTime(pt.StartedAt.Time),
-				CompletedAt: formatOptionalTime(pt.CompletedAt),
+				StartedAt:   db.FormatTime(pt.StartedAt.Time),
+				CompletedAt: db.FormatOptionalTime(pt.CompletedAt),
 				Note:        &pt.Note,
 			}
 			preservation_tasks = append(preservation_tasks, goapt)
@@ -460,8 +461,8 @@ func (svc *packageImpl) readPreservationAction(ctx context.Context, ID uint) (*g
 		WorkflowID:  dbItem.WorkflowID,
 		Type:        dbItem.Type.String(),
 		Status:      dbItem.Status.String(),
-		StartedAt:   ref.DerefZero(formatOptionalTime(dbItem.StartedAt)),
-		CompletedAt: formatOptionalTime(dbItem.CompletedAt),
+		StartedAt:   ref.DerefZero(db.FormatOptionalTime(dbItem.StartedAt)),
+		CompletedAt: db.FormatOptionalTime(dbItem.CompletedAt),
 		PackageID:   ref.New(dbItem.PackageID),
 	}
 
@@ -495,8 +496,8 @@ func (svc *packageImpl) readPreservationTask(ctx context.Context, ID uint) (*goa
 		TaskID:               dbItem.TaskID,
 		Name:                 dbItem.Name,
 		Status:               dbItem.Status.String(),
-		StartedAt:            ref.DerefZero(formatOptionalTime(dbItem.StartedAt)),
-		CompletedAt:          formatOptionalTime(dbItem.CompletedAt),
+		StartedAt:            ref.DerefZero(db.FormatOptionalTime(dbItem.StartedAt)),
+		CompletedAt:          db.FormatOptionalTime(dbItem.CompletedAt),
 		Note:                 ref.New(dbItem.Note),
 		PreservationActionID: ref.New(dbItem.PreservationActionID),
 	}

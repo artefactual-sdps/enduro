@@ -10,6 +10,8 @@ import (
 	"syscall"
 	"time"
 
+	"ariga.io/sqlcomment"
+	"entgo.io/ent/dialect/sql"
 	"github.com/hashicorp/go-cleanhttp"
 	"github.com/oklog/run"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -30,6 +32,9 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/db"
 	"github.com/artefactual-sdps/enduro/internal/event"
 	"github.com/artefactual-sdps/enduro/internal/package_"
+	"github.com/artefactual-sdps/enduro/internal/persistence"
+	entclient "github.com/artefactual-sdps/enduro/internal/persistence/ent/client"
+	entdb "github.com/artefactual-sdps/enduro/internal/persistence/ent/db"
 	"github.com/artefactual-sdps/enduro/internal/telemetry"
 	"github.com/artefactual-sdps/enduro/internal/temporal"
 	"github.com/artefactual-sdps/enduro/internal/version"
@@ -121,10 +126,33 @@ func main() {
 		os.Exit(1)
 	}
 
+	// Set up the persistence service.
+	var perSvc persistence.Service
+	{
+		drv := sqlcomment.NewDriver(
+			sql.OpenDB(cfg.Database.Driver, enduroDatabase),
+			sqlcomment.WithDriverVerTag(),
+			sqlcomment.WithTags(sqlcomment.Tags{
+				sqlcomment.KeyApplication: appName,
+			}),
+		)
+		client := entdb.NewClient(entdb.Driver(drv))
+		perSvc = entclient.New(logger.WithName("persistence"), client)
+	}
+
 	// Set up the package service.
 	var pkgsvc package_.Service
 	{
-		pkgsvc = package_.NewService(logger.WithName("package"), enduroDatabase, temporalClient, evsvc, &auth.NoopTokenVerifier{}, nil, cfg.Temporal.TaskQueue)
+		pkgsvc = package_.NewService(
+			logger.WithName("package"),
+			enduroDatabase,
+			temporalClient,
+			evsvc,
+			perSvc,
+			&auth.NoopTokenVerifier{},
+			nil,
+			cfg.Temporal.TaskQueue,
+		)
 	}
 
 	// Set up the watcher service.

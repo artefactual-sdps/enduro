@@ -1,4 +1,4 @@
-package package_
+package enums_test
 
 import (
 	"encoding/json"
@@ -6,6 +6,8 @@ import (
 	"testing"
 
 	"gotest.tools/v3/assert"
+
+	"github.com/artefactual-sdps/enduro/internal/enums"
 )
 
 func TestStatus(t *testing.T) {
@@ -13,41 +15,41 @@ func TestStatus(t *testing.T) {
 
 	tests := []struct {
 		str string
-		val Status
+		val enums.PackageStatus
 	}{
 		{
 			str: "new",
-			val: StatusNew,
+			val: enums.PackageStatusNew,
 		},
 		{
 			str: "in progress",
-			val: StatusInProgress,
+			val: enums.PackageStatusInProgress,
 		},
 		{
 			str: "done",
-			val: StatusDone,
+			val: enums.PackageStatusDone,
 		},
 		{
 			str: "error",
-			val: StatusError,
+			val: enums.PackageStatusError,
 		},
 		{
 			str: "queued",
-			val: StatusQueued,
+			val: enums.PackageStatusQueued,
 		},
 		{
 			str: "abandoned",
-			val: StatusAbandoned,
+			val: enums.PackageStatusAbandoned,
 		},
 		{
 			str: "pending",
-			val: StatusPending,
+			val: enums.PackageStatusPending,
 		},
 	}
 	for _, tc := range tests {
 		t.Run(fmt.Sprintf("Status_%s", tc.str), func(t *testing.T) {
-			s := NewStatus(tc.str)
-			assert.Assert(t, s != StatusUnknown)
+			s := enums.NewPackageStatus(tc.str)
+			assert.Assert(t, s != enums.PackageStatusUnknown)
 			assert.Equal(t, s, tc.val)
 
 			assert.Equal(t, s.String(), tc.str)
@@ -57,15 +59,15 @@ func TestStatus(t *testing.T) {
 			assert.DeepEqual(t, b, []byte("\""+tc.str+"\""))
 
 			json.Unmarshal([]byte("\""+tc.str+"\""), &s)
-			assert.Assert(t, s != StatusUnknown)
+			assert.Assert(t, s != enums.PackageStatusUnknown)
 			assert.Equal(t, s, tc.val)
 		})
 	}
 }
 
 func TestStatusUnknown(t *testing.T) {
-	s := NewStatus("?")
+	s := enums.NewPackageStatus("?")
 
-	assert.Equal(t, s, StatusUnknown)
-	assert.Equal(t, s.String(), StatusUnknown.String())
+	assert.Equal(t, s, enums.PackageStatusUnknown)
+	assert.Equal(t, s.String(), enums.PackageStatusUnknown.String())
 }

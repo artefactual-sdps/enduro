@@ -15,6 +15,8 @@ import (
 	time "time"
 
 	package_ "github.com/artefactual-sdps/enduro/internal/api/gen/package_"
+	datatypes "github.com/artefactual-sdps/enduro/internal/datatypes"
+	enums "github.com/artefactual-sdps/enduro/internal/enums"
 	package_0 "github.com/artefactual-sdps/enduro/internal/package_"
 	uuid "github.com/google/uuid"
 	gomock "go.uber.org/mock/gomock"
@@ -120,7 +122,7 @@ func (c *MockServiceCompletePreservationTaskCall) DoAndReturn(f func(context.Con
 }
 
 // Create mocks base method.
-func (m *MockService) Create(arg0 context.Context, arg1 *package_0.Package) error {
+func (m *MockService) Create(arg0 context.Context, arg1 *datatypes.Package) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", arg0, arg1)
 	ret0, _ := ret[0].(error)
@@ -146,13 +148,13 @@ func (c *MockServiceCreateCall) Return(arg0 error) *MockServiceCreateCall {
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockServiceCreateCall) Do(f func(context.Context, *package_0.Package) error) *MockServiceCreateCall {
+func (c *MockServiceCreateCall) Do(f func(context.Context, *datatypes.Package) error) *MockServiceCreateCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockServiceCreateCall) DoAndReturn(f func(context.Context, *package_0.Package) error) *MockServiceCreateCall {
+func (c *MockServiceCreateCall) DoAndReturn(f func(context.Context, *datatypes.Package) error) *MockServiceCreateCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
@@ -348,7 +350,7 @@ func (c *MockServiceSetPreservationActionStatusCall) DoAndReturn(f func(context.
 }
 
 // SetStatus mocks base method.
-func (m *MockService) SetStatus(arg0 context.Context, arg1 uint, arg2 package_0.Status) error {
+func (m *MockService) SetStatus(arg0 context.Context, arg1 uint, arg2 enums.PackageStatus) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SetStatus", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
@@ -374,13 +376,13 @@ func (c *MockServiceSetStatusCall) Return(arg0 error) *MockServiceSetStatusCall 
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockServiceSetStatusCall) Do(f func(context.Context, uint, package_0.Status) error) *MockServiceSetStatusCall {
+func (c *MockServiceSetStatusCall) Do(f func(context.Context, uint, enums.PackageStatus) error) *MockServiceSetStatusCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockServiceSetStatusCall) DoAndReturn(f func(context.Context, uint, package_0.Status) error) *MockServiceSetStatusCall {
+func (c *MockServiceSetStatusCall) DoAndReturn(f func(context.Context, uint, enums.PackageStatus) error) *MockServiceSetStatusCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
@@ -462,7 +464,7 @@ func (c *MockServiceSetStatusPendingCall) DoAndReturn(f func(context.Context, ui
 }
 
 // UpdateWorkflowStatus mocks base method.
-func (m *MockService) UpdateWorkflowStatus(arg0 context.Context, arg1 uint, arg2, arg3, arg4, arg5 string, arg6 package_0.Status, arg7 time.Time) error {
+func (m *MockService) UpdateWorkflowStatus(arg0 context.Context, arg1 uint, arg2, arg3, arg4, arg5 string, arg6 enums.PackageStatus, arg7 time.Time) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateWorkflowStatus", arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
 	ret0, _ := ret[0].(error)
@@ -488,13 +490,13 @@ func (c *MockServiceUpdateWorkflowStatusCall) Return(arg0 error) *MockServiceUpd
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockServiceUpdateWorkflowStatusCall) Do(f func(context.Context, uint, string, string, string, string, package_0.Status, time.Time) error) *MockServiceUpdateWorkflowStatusCall {
+func (c *MockServiceUpdateWorkflowStatusCall) Do(f func(context.Context, uint, string, string, string, string, enums.PackageStatus, time.Time) error) *MockServiceUpdateWorkflowStatusCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockServiceUpdateWorkflowStatusCall) DoAndReturn(f func(context.Context, uint, string, string, string, string, package_0.Status, time.Time) error) *MockServiceUpdateWorkflowStatusCall {
+func (c *MockServiceUpdateWorkflowStatusCall) DoAndReturn(f func(context.Context, uint, string, string, string, string, enums.PackageStatus, time.Time) error) *MockServiceUpdateWorkflowStatusCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

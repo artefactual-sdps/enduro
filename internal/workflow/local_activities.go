@@ -9,18 +9,20 @@ import (
 	"github.com/google/uuid"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
 
+	"github.com/artefactual-sdps/enduro/internal/datatypes"
+	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/package_"
 )
 
 type createPackageLocalActivityParams struct {
 	Key    string
-	Status package_.Status
+	Status enums.PackageStatus
 }
 
 func createPackageLocalActivity(ctx context.Context, logger logr.Logger, pkgsvc package_.Service, params *createPackageLocalActivityParams) (uint, error) {
 	info := temporalsdk_activity.GetInfo(ctx)
 
-	col := &package_.Package{
+	col := &datatypes.Package{
 		Name:       params.Key,
 		WorkflowID: info.WorkflowExecution.ID,
 		RunID:      info.WorkflowExecution.RunID,
@@ -40,7 +42,7 @@ type updatePackageLocalActivityParams struct {
 	Key       string
 	SIPID     string
 	StoredAt  time.Time
-	Status    package_.Status
+	Status    enums.PackageStatus
 }
 
 type updatePackageLocalActivityResult struct{}
@@ -74,7 +76,7 @@ func setStatusInProgressLocalActivity(ctx context.Context, pkgsvc package_.Servi
 
 type setStatusLocalActivityResult struct{}
 
-func setStatusLocalActivity(ctx context.Context, pkgsvc package_.Service, pkgID uint, status package_.Status) (*setStatusLocalActivityResult, error) {
+func setStatusLocalActivity(ctx context.Context, pkgsvc package_.Service, pkgID uint, status enums.PackageStatus) (*setStatusLocalActivityResult, error) {
 	return &setStatusLocalActivityResult{}, pkgsvc.SetStatus(ctx, pkgID, status)
 }
 

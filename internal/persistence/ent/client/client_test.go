@@ -13,7 +13,8 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 	"gotest.tools/v3/assert"
 
-	"github.com/artefactual-sdps/enduro/internal/package_"
+	"github.com/artefactual-sdps/enduro/internal/datatypes"
+	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/persistence"
 	entclient "github.com/artefactual-sdps/enduro/internal/persistence/ent/client"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db"
@@ -45,7 +46,7 @@ func TestNew(t *testing.T) {
 			SetWorkflowID("12345").
 			SetRunID(runID).
 			SetAipID(aipID).
-			SetStatus(int8(package_.NewStatus("in progress"))).
+			SetStatus(int8(enums.NewPackageStatus("in progress"))).
 			Save(context.Background())
 
 		assert.NilError(t, err)
@@ -53,7 +54,7 @@ func TestNew(t *testing.T) {
 		assert.Equal(t, p.WorkflowID, "12345")
 		assert.Equal(t, p.RunID, runID)
 		assert.Equal(t, p.AipID, aipID)
-		assert.Equal(t, p.Status, int8(package_.StatusInProgress))
+		assert.Equal(t, p.Status, int8(enums.PackageStatusInProgress))
 	})
 }
 
@@ -65,36 +66,36 @@ func TestCreatePackage(t *testing.T) {
 	completed := sql.NullTime{Time: started.Time.Add(time.Second), Valid: true}
 
 	type params struct {
-		pkg *package_.Package
+		pkg *datatypes.Package
 	}
 	tests := []struct {
 		name    string
 		args    params
-		want    *package_.Package
+		want    *datatypes.Package
 		wantErr string
 	}{
 		{
 			name: "Saves a new package in the DB",
 			args: params{
-				pkg: &package_.Package{
+				pkg: &datatypes.Package{
 					Name:        "Test package 1",
 					WorkflowID:  "workflow-1",
 					RunID:       runID.String(),
 					AIPID:       aipID.String(),
 					LocationID:  locID,
-					Status:      package_.StatusInProgress,
+					Status:      enums.PackageStatusInProgress,
 					StartedAt:   started,
 					CompletedAt: completed,
 				},
 			},
-			want: &package_.Package{
+			want: &datatypes.Package{
 				ID:          1,
 				Name:        "Test package 1",
 				WorkflowID:  "workflow-1",
 				RunID:       runID.String(),
 				AIPID:       aipID.String(),
 				LocationID:  locID,
-				Status:      package_.StatusInProgress,
+				Status:      enums.PackageStatusInProgress,
 				CreatedAt:   time.Now(),
 				StartedAt:   started,
 				CompletedAt: completed,
@@ -103,35 +104,35 @@ func TestCreatePackage(t *testing.T) {
 		{
 			name: "Saves a package with missing optional fields",
 			args: params{
-				pkg: &package_.Package{
+				pkg: &datatypes.Package{
 					Name:       "Test package 2",
 					WorkflowID: "workflow-2",
 					RunID:      runID.String(),
 					AIPID:      aipID.String(),
-					Status:     package_.StatusInProgress,
+					Status:     enums.PackageStatusInProgress,
 				},
 			},
-			want: &package_.Package{
+			want: &datatypes.Package{
 				ID:         1,
 				Name:       "Test package 2",
 				WorkflowID: "workflow-2",
 				RunID:      runID.String(),
 				AIPID:      aipID.String(),
-				Status:     package_.StatusInProgress,
+				Status:     enums.PackageStatusInProgress,
 				CreatedAt:  time.Now(),
 			},
 		},
 		{
 			name: "Required field error for missing Name",
 			args: params{
-				pkg: &package_.Package{},
+				pkg: &datatypes.Package{},
 			},
 			wantErr: "invalid data error: field \"Name\" is required",
 		},
 		{
 			name: "Required field error for missing WorkflowID",
 			args: params{
-				pkg: &package_.Package{
+				pkg: &datatypes.Package{
 					Name: "Missing WorkflowID",
 				},
 			},
@@ -140,7 +141,7 @@ func TestCreatePackage(t *testing.T) {
 		{
 			name: "Required field error for missing AIPID",
 			args: params{
-				pkg: &package_.Package{
+				pkg: &datatypes.Package{
 					Name:       "Missing AIPID",
 					WorkflowID: "workflow-12345",
 					RunID:      runID.String(),
@@ -151,7 +152,7 @@ func TestCreatePackage(t *testing.T) {
 		{
 			name: "Required field error for missing RunID",
 			args: params{
-				pkg: &package_.Package{
+				pkg: &datatypes.Package{
 					Name:       "Missing RunID",
 					WorkflowID: "workflow-12345",
 				},
@@ -161,7 +162,7 @@ func TestCreatePackage(t *testing.T) {
 		{
 			name: "Errors on invalid RunID",
 			args: params{
-				pkg: &package_.Package{
+				pkg: &datatypes.Package{
 					Name:       "Invalid package 1",
 					WorkflowID: "workflow-invalid",
 					RunID:      "Bad UUID",
@@ -172,7 +173,7 @@ func TestCreatePackage(t *testing.T) {
 		{
 			name: "Errors on invalid AIPID",
 			args: params{
-				pkg: &package_.Package{
+				pkg: &datatypes.Package{
 					Name:       "Invalid package 2",
 					WorkflowID: "workflow-invalid",
 					RunID:      runID.String(),
@@ -233,50 +234,50 @@ func TestUpdatePackage(t *testing.T) {
 	completed2 := sql.NullTime{Time: started2.Time.Add(time.Second), Valid: true}
 
 	type params struct {
-		pkg     *package_.Package
+		pkg     *datatypes.Package
 		updater persistence.PackageUpdater
 	}
 	tests := []struct {
 		name    string
 		args    params
-		want    *package_.Package
+		want    *datatypes.Package
 		wantErr string
 	}{
 		{
 			name: "Updates all package columns",
 			args: params{
-				pkg: &package_.Package{
+				pkg: &datatypes.Package{
 					Name:        "Test package",
 					WorkflowID:  "workflow-1",
 					RunID:       runID.String(),
 					AIPID:       aipID.String(),
 					LocationID:  locID,
-					Status:      package_.StatusInProgress,
+					Status:      enums.PackageStatusInProgress,
 					StartedAt:   started,
 					CompletedAt: completed,
 				},
-				updater: func(p *package_.Package) (*package_.Package, error) {
+				updater: func(p *datatypes.Package) (*datatypes.Package, error) {
 					p.ID = 100 // No-op, can't update ID.
 					p.Name = "Updated package"
 					p.WorkflowID = "workflow-2"
 					p.RunID = runID2.String()
 					p.AIPID = aipID2.String()
 					p.LocationID = locID2
-					p.Status = package_.StatusDone
+					p.Status = enums.PackageStatusDone
 					p.CreatedAt = started2.Time // No-op, can't update CreatedAt.
 					p.StartedAt = started2
 					p.CompletedAt = completed2
 					return p, nil
 				},
 			},
-			want: &package_.Package{
+			want: &datatypes.Package{
 				ID:          1,
 				Name:        "Updated package",
 				WorkflowID:  "workflow-2",
 				RunID:       runID2.String(),
 				AIPID:       aipID2.String(),
 				LocationID:  locID2,
-				Status:      package_.StatusDone,
+				Status:      enums.PackageStatusDone,
 				CreatedAt:   time.Now(),
 				StartedAt:   started2,
 				CompletedAt: completed2,
@@ -285,27 +286,27 @@ func TestUpdatePackage(t *testing.T) {
 		{
 			name: "Only updates selected columns",
 			args: params{
-				pkg: &package_.Package{
+				pkg: &datatypes.Package{
 					Name:       "Test package",
 					WorkflowID: "workflow-1",
 					RunID:      runID.String(),
 					AIPID:      aipID.String(),
-					Status:     package_.StatusInProgress,
+					Status:     enums.PackageStatusInProgress,
 					StartedAt:  started,
 				},
-				updater: func(p *package_.Package) (*package_.Package, error) {
-					p.Status = package_.StatusDone
+				updater: func(p *datatypes.Package) (*datatypes.Package, error) {
+					p.Status = enums.PackageStatusDone
 					p.CompletedAt = completed
 					return p, nil
 				},
 			},
-			want: &package_.Package{
+			want: &datatypes.Package{
 				ID:          1,
 				Name:        "Test package",
 				WorkflowID:  "workflow-1",
 				RunID:       runID.String(),
 				AIPID:       aipID.String(),
-				Status:      package_.StatusDone,
+				Status:      enums.PackageStatusDone,
 				CreatedAt:   time.Now(),
 				StartedAt:   started,
 				CompletedAt: completed,
@@ -314,7 +315,7 @@ func TestUpdatePackage(t *testing.T) {
 		{
 			name: "Errors when package to update is not found",
 			args: params{
-				updater: func(p *package_.Package) (*package_.Package, error) {
+				updater: func(p *datatypes.Package) (*datatypes.Package, error) {
 					return nil, fmt.Errorf("Bad input")
 				},
 			},
@@ -323,13 +324,13 @@ func TestUpdatePackage(t *testing.T) {
 		{
 			name: "Errors when the updater errors",
 			args: params{
-				pkg: &package_.Package{
+				pkg: &datatypes.Package{
 					Name:       "Test package",
 					WorkflowID: "workflow-1",
 					RunID:      runID.String(),
 					AIPID:      aipID.String(),
 				},
-				updater: func(p *package_.Package) (*package_.Package, error) {
+				updater: func(p *datatypes.Package) (*datatypes.Package, error) {
 					return nil, fmt.Errorf("Bad input")
 				},
 			},
@@ -338,13 +339,13 @@ func TestUpdatePackage(t *testing.T) {
 		{
 			name: "Errors when updater sets an invalid RunID",
 			args: params{
-				pkg: &package_.Package{
+				pkg: &datatypes.Package{
 					Name:       "Test package",
 					WorkflowID: "workflow-1",
 					RunID:      runID.String(),
 					AIPID:      aipID.String(),
 				},
-				updater: func(p *package_.Package) (*package_.Package, error) {
+				updater: func(p *datatypes.Package) (*datatypes.Package, error) {
 					p.RunID = "Bad UUID"
 					return p, nil
 				},
@@ -354,13 +355,13 @@ func TestUpdatePackage(t *testing.T) {
 		{
 			name: "Errors when updater sets an invalid AIPID",
 			args: params{
-				pkg: &package_.Package{
+				pkg: &datatypes.Package{
 					Name:       "Test package",
 					WorkflowID: "workflow-1",
 					RunID:      runID.String(),
 					AIPID:      aipID.String(),
 				},
-				updater: func(p *package_.Package) (*package_.Package, error) {
+				updater: func(p *datatypes.Package) (*datatypes.Package, error) {
 					p.AIPID = "Bad UUID"
 					return p, nil
 				},

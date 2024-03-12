@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/artefactual-sdps/enduro/internal/package_"
+	"github.com/artefactual-sdps/enduro/internal/datatypes"
 )
 
 var (
@@ -19,10 +19,10 @@ var (
 )
 
 type (
-	PackageUpdater func(*package_.Package) (*package_.Package, error)
+	PackageUpdater func(*datatypes.Package) (*datatypes.Package, error)
 )
 
 type Service interface {
-	CreatePackage(context.Context, *package_.Package) (*package_.Package, error)
-	UpdatePackage(context.Context, uint, PackageUpdater) (*package_.Package, error)
+	CreatePackage(context.Context, *datatypes.Package) (*datatypes.Package, error)
+	UpdatePackage(context.Context, uint, PackageUpdater) (*datatypes.Package, error)
 }

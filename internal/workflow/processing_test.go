@@ -19,6 +19,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/a3m"
 	"github.com/artefactual-sdps/enduro/internal/am"
 	"github.com/artefactual-sdps/enduro/internal/config"
+	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/package_"
 	packagefake "github.com/artefactual-sdps/enduro/internal/package_/fake"
 	"github.com/artefactual-sdps/enduro/internal/pres"
@@ -233,7 +234,7 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 		ctx,
 		logger,
 		pkgsvc,
-		&createPackageLocalActivityParams{Key: key, Status: package_.StatusQueued},
+		&createPackageLocalActivityParams{Key: key, Status: enums.PackageStatusQueued},
 	).Return(pkgID, nil).Once()
 	s.env.OnActivity(setStatusInProgressLocalActivity, ctx, pkgsvc, pkgID, mock.AnythingOfType("time.Time")).Return(nil, nil).Once()
 	s.env.OnActivity(createPreservationActionLocalActivity, ctx, pkgsvc, mock.AnythingOfType("*workflow.createPreservationActionLocalActivityParams")).Return(uint(0), nil).Once()
@@ -309,7 +310,7 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	s.env.OnActivity(createPackageLocalActivity, ctx,
 		logger,
 		pkgsvc,
-		&createPackageLocalActivityParams{Key: key, Status: package_.StatusQueued},
+		&createPackageLocalActivityParams{Key: key, Status: enums.PackageStatusQueued},
 	).Return(pkgID, nil)
 
 	s.env.OnActivity(setStatusInProgressLocalActivity, ctx, pkgsvc, pkgID, mock.AnythingOfType("time.Time")).Return(nil, nil)

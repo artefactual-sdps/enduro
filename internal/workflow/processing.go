@@ -19,6 +19,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/a3m"
 	"github.com/artefactual-sdps/enduro/internal/am"
 	"github.com/artefactual-sdps/enduro/internal/config"
+	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/fsutil"
 	"github.com/artefactual-sdps/enduro/internal/package_"
 	"github.com/artefactual-sdps/enduro/internal/temporal"
@@ -111,7 +112,7 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *pack
 		}
 
 		// Package status. All packages start in queued status.
-		status = package_.StatusQueued
+		status = enums.PackageStatusQueued
 
 		// Create AIP preservation action status.
 		paStatus = package_.ActionStatusUnspecified
@@ -147,8 +148,8 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *pack
 	// workflow function returns.
 	defer func() {
 		// Mark as failed unless it completed successfully or it was abandoned.
-		if status != package_.StatusDone && status != package_.StatusAbandoned {
-			status = package_.StatusError
+		if status != enums.PackageStatusDone && status != enums.PackageStatusAbandoned {
+			status = enums.PackageStatusError
 		}
 
 		// Use disconnected context so it also runs after cancellation.
@@ -221,14 +222,14 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *pack
 			return sessErr
 		}
 
-		status = package_.StatusDone
+		status = enums.PackageStatusDone
 
 		paStatus = package_.ActionStatusDone
 	}
 
 	// Schedule deletion of the original in the watched data source.
 	{
-		if status == package_.StatusDone {
+		if status == enums.PackageStatusDone {
 			if tinfo.req.RetentionPeriod != nil {
 				err := temporalsdk_workflow.NewTimer(ctx, *tinfo.req.RetentionPeriod).Get(ctx, nil)
 				if err != nil {
@@ -386,7 +387,7 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 			Key:       tinfo.req.Key,
 			SIPID:     tinfo.SIPID,
 			StoredAt:  tinfo.StoredAt,
-			Status:    package_.StatusInProgress,
+			Status:    enums.PackageStatusInProgress,
 		}).Get(activityOpts, nil)
 	}
 
@@ -462,7 +463,7 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 		// Set package to pending status.
 		{
 			ctx := withLocalActivityOpts(sessCtx)
-			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setStatusLocalActivity, w.pkgsvc, tinfo.req.PackageID, package_.StatusPending).Get(ctx, nil)
+			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setStatusLocalActivity, w.pkgsvc, tinfo.req.PackageID, enums.PackageStatusPending).Get(ctx, nil)
 			if err != nil {
 				return err
 			}
@@ -498,7 +499,7 @@ func (w *ProcessingWorkflow) SessionHandler(sessCtx temporalsdk_workflow.Context
 		// Set package to in progress status.
 		{
 			ctx := withLocalActivityOpts(sessCtx)
-			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setStatusLocalActivity, w.pkgsvc, tinfo.req.PackageID, package_.StatusInProgress).Get(ctx, nil)
+			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setStatusLocalActivity, w.pkgsvc, tinfo.req.PackageID, enums.PackageStatusInProgress).Get(ctx, nil)
 			if err != nil {
 				return err
 			}
