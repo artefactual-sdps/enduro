@@ -77,32 +77,13 @@ func (svc *packageImpl) Goa() goapackage.Service {
 }
 
 func (svc *packageImpl) Create(ctx context.Context, pkg *datatypes.Package) error {
-	query := `INSERT INTO package (name, workflow_id, run_id, aip_id, location_id, status) VALUES (?, ?, ?, ?, ?, ?)`
-	args := []interface{}{
-		pkg.Name,
-		pkg.WorkflowID,
-		pkg.RunID,
-		pkg.AIPID,
-		pkg.LocationID,
-		pkg.Status,
-	}
-
-	res, err := svc.db.ExecContext(ctx, query, args...)
+	pkg, err := svc.perSvc.CreatePackage(ctx, pkg)
 	if err != nil {
-		return fmt.Errorf("error inserting package: %w", err)
+		return fmt.Errorf("package: create: %v", err)
 	}
 
-	var id int64
-	if id, err = res.LastInsertId(); err != nil {
-		return fmt.Errorf("error retrieving insert ID: %w", err)
-	}
-
-	pkg.ID = uint(id)
-
-	if pkg, err := svc.Goa().Show(ctx, &goapackage.ShowPayload{ID: uint(id)}); err == nil {
-		ev := &goapackage.PackageCreatedEvent{ID: uint(id), Item: pkg}
-		event.PublishEvent(ctx, svc.evsvc, ev)
-	}
+	ev := &goapackage.PackageCreatedEvent{ID: uint(pkg.ID), Item: pkg.Goa()}
+	event.PublishEvent(ctx, svc.evsvc, ev)
 
 	return nil
 }
