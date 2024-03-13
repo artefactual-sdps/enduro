@@ -121,6 +121,6 @@ func errorHandler(logger logr.Logger, msg string) func(context.Context, http.Res
 			_ = json.NewEncoder(w).Encode(&errorMessage{RequestID: reqID})
 		}
 
-		logger.Error(err, "Service error.", "reqID", reqID, "ws", ws)
+		logger.Error(err, "Service error.", "reqID", reqID, "ws", ws, "msg", msg)
 	}
 }

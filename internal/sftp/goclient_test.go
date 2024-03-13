@@ -27,7 +27,7 @@ import (
 
 // pubkeyHandler returns a handler that checks the client's public key against
 // the keys in the authorized_keys file.
-func pubKeyHandler(t *testing.T, ctx ssh.Context, key ssh.PublicKey) bool {
+func pubKeyHandler(t *testing.T, key ssh.PublicKey) bool {
 	file, err := os.Open("./testdata/authorized_keys")
 	if err != nil {
 		t.Fatalf("SFTP server: couldn't open authorized_keys file: %s", err)
@@ -108,7 +108,7 @@ func startSFTPServer(t *testing.T) (string, string) {
 			s.Write(authorizedKey)
 		},
 		PublicKeyHandler: func(ctx ssh.Context, key ssh.PublicKey) bool {
-			return pubKeyHandler(t, ctx, key)
+			return pubKeyHandler(t, key)
 		},
 		SubsystemHandlers: map[string]ssh.SubsystemHandler{
 			"sftp": sftpHandler,

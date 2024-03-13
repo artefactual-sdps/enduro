@@ -11,7 +11,7 @@ linters:
     - gofumpt
     - importas
     - gci
-#    - unparam  // https://github.com/golangci/golangci-lint/issues/3711
+    - unparam
     - gosec
 
 issues:
