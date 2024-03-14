@@ -9,7 +9,8 @@
     "docker@latest",
     "python3@latest",
     "markdownlint-cli@latest",
-    "python311Packages.pip-tools@latest"
+    "python311Packages.pip-tools@latest",
+    "go_1_22@latest"
   ],
   "shell": {
     "init_hook": [
