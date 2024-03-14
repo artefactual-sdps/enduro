@@ -4,6 +4,11 @@
   "compilerOptions": {
     "composite": true,
     "lib": [],
-    "types": ["node", "jsdom"]
+    "types": [
+      "node",
+      "jsdom",
+      "@vue-macros/reactivity-transform/macros-global",
+      "unplugin-vue-router/client"
+    ]
   }
 }
