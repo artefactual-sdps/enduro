@@ -15,7 +15,7 @@ var (
 		{Name: "name", Type: field.TypeString, Size: 2048},
 		{Name: "workflow_id", Type: field.TypeString, Size: 255},
 		{Name: "run_id", Type: field.TypeUUID, Unique: true},
-		{Name: "aip_id", Type: field.TypeUUID, Unique: true},
+		{Name: "aip_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "location_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "status", Type: field.TypeInt8},
 		{Name: "created_at", Type: field.TypeTime},

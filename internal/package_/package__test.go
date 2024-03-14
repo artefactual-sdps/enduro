@@ -3,10 +3,10 @@ package package__test
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"testing"
 
 	"github.com/go-logr/logr"
-	"github.com/google/uuid"
 	"go.artefactual.dev/tools/mockutil"
 	temporalsdk_mocks "go.temporal.io/sdk/mocks"
 	"go.uber.org/mock/gomock"
@@ -38,29 +38,71 @@ func testSvc(t *testing.T) (package_.Service, *persistence_fake.MockService) {
 	return pkgSvc, psvc
 }
 
-func TestPackage(t *testing.T) {
-	t.Run("Create a package", func(t *testing.T) {
-		testPkg := datatypes.Package{
-			Name:       "test",
-			WorkflowID: "4258090a-e27b-4fd9-a76b-28deb3d16813",
-			RunID:      "8f3a5756-6bc5-4d82-846d-59442dd6ad8f",
-			AIPID:      "99698bb5-2eb0-4cf5-aebf-0da2efe7ce94",
-			LocationID: uuid.NullUUID{
-				UUID:  uuid.MustParse("a0075fc6-13bb-4ed4-b485-5d363fc7d048"),
-				Valid: true,
+func TestCreatePackage(t *testing.T) {
+	type test struct {
+		name    string
+		pkg     datatypes.Package
+		mock    func(*persistence_fake.MockService, datatypes.Package) *persistence_fake.MockService
+		wantErr string
+	}
+	for _, tt := range []test{
+		{
+			name: "creates a package",
+			pkg: datatypes.Package{
+				Name:       "test",
+				WorkflowID: "4258090a-e27b-4fd9-a76b-28deb3d16813",
+				RunID:      "8f3a5756-6bc5-4d82-846d-59442dd6ad8f",
+				Status:     enums.NewPackageStatus("new"),
 			},
-			Status: enums.NewPackageStatus("new"),
-		}
-
-		pkgSvc, perSvc := testSvc(t)
-		perSvc.EXPECT().CreatePackage(mockutil.Context(), &testPkg).DoAndReturn(
-			func(ctx context.Context, p *datatypes.Package) (*datatypes.Package, error) {
-				p.ID = 1
-				return p, nil
+			mock: func(svc *persistence_fake.MockService, p datatypes.Package) *persistence_fake.MockService {
+				svc.EXPECT().
+					CreatePackage(mockutil.Context(), &p).
+					DoAndReturn(
+						func(ctx context.Context, p *datatypes.Package) (*datatypes.Package, error) {
+							p.ID = 1
+							return p, nil
+						},
+					)
+				return svc
 			},
-		)
+		},
+		{
+			name: "errors creating a package with a missing RunID",
+			pkg: datatypes.Package{
+				Name:       "test",
+				WorkflowID: "4258090a-e27b-4fd9-a76b-28deb3d16813",
+				Status:     enums.NewPackageStatus("new"),
+			},
+			mock: func(svc *persistence_fake.MockService, p datatypes.Package) *persistence_fake.MockService {
+				svc.EXPECT().
+					CreatePackage(mockutil.Context(), &p).
+					DoAndReturn(
+						func(ctx context.Context, p *datatypes.Package) (*datatypes.Package, error) {
+							return p, fmt.Errorf("invalid data error: field \"RunID\" is required")
+						},
+					)
+				return svc
+			},
+			wantErr: "package: create: invalid data error: field \"RunID\" is required",
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 
-		err := pkgSvc.Create(context.Background(), &testPkg)
-		assert.NilError(t, err)
-	})
+			pkgSvc, perSvc := testSvc(t)
+			if tt.mock != nil {
+				tt.mock(perSvc, tt.pkg)
+			}
+
+			pkg := tt.pkg
+			err := pkgSvc.Create(context.Background(), &pkg)
+
+			if tt.wantErr != "" {
+				assert.Error(t, err, tt.wantErr)
+				return
+			}
+
+			assert.NilError(t, err)
+		})
+	}
 }

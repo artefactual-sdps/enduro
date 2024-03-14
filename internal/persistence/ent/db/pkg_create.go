@@ -46,6 +46,14 @@ func (pc *PkgCreate) SetAipID(u uuid.UUID) *PkgCreate {
 	return pc
 }
 
+// SetNillableAipID sets the "aip_id" field if the given value is not nil.
+func (pc *PkgCreate) SetNillableAipID(u *uuid.UUID) *PkgCreate {
+	if u != nil {
+		pc.SetAipID(*u)
+	}
+	return pc
+}
+
 // SetLocationID sets the "location_id" field.
 func (pc *PkgCreate) SetLocationID(u uuid.UUID) *PkgCreate {
 	pc.mutation.SetLocationID(u)
@@ -174,9 +182,6 @@ func (pc *PkgCreate) check() error {
 	}
 	if _, ok := pc.mutation.RunID(); !ok {
 		return &ValidationError{Name: "run_id", err: errors.New(`db: missing required field "Pkg.run_id"`)}
-	}
-	if _, ok := pc.mutation.AipID(); !ok {
-		return &ValidationError{Name: "aip_id", err: errors.New(`db: missing required field "Pkg.aip_id"`)}
 	}
 	if _, ok := pc.mutation.Status(); !ok {
 		return &ValidationError{Name: "status", err: errors.New(`db: missing required field "Pkg.status"`)}

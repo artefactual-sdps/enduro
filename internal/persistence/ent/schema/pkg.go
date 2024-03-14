@@ -38,7 +38,7 @@ func (Pkg) Fields() []ent.Field {
 		field.UUID("run_id", uuid.UUID{}).
 			Unique(),
 		field.UUID("aip_id", uuid.UUID{}).
-			Unique(),
+			Optional(),
 		field.UUID("location_id", uuid.UUID{}).
 			Optional(),
 		field.Int8("status"),

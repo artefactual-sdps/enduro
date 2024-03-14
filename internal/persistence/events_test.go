@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/google/uuid"
 	"go.artefactual.dev/tools/mockutil"
 	"go.uber.org/mock/gomock"
 	"gotest.tools/v3/assert"
@@ -24,6 +25,10 @@ var (
 
 func TestCreatePackage(t *testing.T) {
 	ctx := context.Background()
+	aipID := uuid.NullUUID{
+		UUID:  uuid.MustParse("57e9d085-5716-43d2-bad9-bba3c9a74bd8"),
+		Valid: true,
+	}
 
 	evsvc := event.NewEventServiceInMemImpl()
 	sub, err := evsvc.Subscribe(ctx)
@@ -37,7 +42,7 @@ func TestCreatePackage(t *testing.T) {
 				Name:       "Fake package",
 				WorkflowID: "workflow-1",
 				RunID:      "d1fec389-d50f-423f-843f-a510584cc02c",
-				AIPID:      "57e9d085-5716-43d2-bad9-bba3c9a74bd8",
+				AIPID:      aipID,
 				Status:     enums.PackageStatusInProgress,
 				StartedAt:  sql.NullTime{Time: StartedAt, Valid: true},
 			},
@@ -47,7 +52,7 @@ func TestCreatePackage(t *testing.T) {
 			Name:       "Fake package",
 			WorkflowID: "workflow-1",
 			RunID:      "d1fec389-d50f-423f-843f-a510584cc02c",
-			AIPID:      "57e9d085-5716-43d2-bad9-bba3c9a74bd8",
+			AIPID:      aipID,
 			Status:     enums.PackageStatusInProgress,
 			CreatedAt:  CreatedAt,
 			StartedAt:  sql.NullTime{Time: StartedAt, Valid: true},
@@ -58,7 +63,7 @@ func TestCreatePackage(t *testing.T) {
 		Name:       "Fake package",
 		WorkflowID: "workflow-1",
 		RunID:      "d1fec389-d50f-423f-843f-a510584cc02c",
-		AIPID:      "57e9d085-5716-43d2-bad9-bba3c9a74bd8",
+		AIPID:      aipID,
 		Status:     enums.PackageStatusInProgress,
 		StartedAt:  sql.NullTime{Time: StartedAt, Valid: true},
 	})
@@ -69,7 +74,7 @@ func TestCreatePackage(t *testing.T) {
 		Name:       "Fake package",
 		WorkflowID: "workflow-1",
 		RunID:      "d1fec389-d50f-423f-843f-a510584cc02c",
-		AIPID:      "57e9d085-5716-43d2-bad9-bba3c9a74bd8",
+		AIPID:      aipID,
 		Status:     enums.PackageStatusInProgress,
 		CreatedAt:  CreatedAt,
 		StartedAt:  sql.NullTime{Time: StartedAt, Valid: true},
@@ -86,6 +91,10 @@ func TestCreatePackage(t *testing.T) {
 
 func TestUpdatePackage(t *testing.T) {
 	ctx := context.Background()
+	aipID := uuid.NullUUID{
+		UUID:  uuid.MustParse("57e9d085-5716-43d2-bad9-bba3c9a74bd8"),
+		Valid: true,
+	}
 	completed := time.Now()
 
 	evsvc := event.NewEventServiceInMemImpl()
@@ -107,7 +116,7 @@ func TestUpdatePackage(t *testing.T) {
 			Name:        "Fake package",
 			WorkflowID:  "workflow-1",
 			RunID:       "d1fec389-d50f-423f-843f-a510584cc02c",
-			AIPID:       "57e9d085-5716-43d2-bad9-bba3c9a74bd8",
+			AIPID:       aipID,
 			Status:      enums.PackageStatusDone,
 			CreatedAt:   CreatedAt,
 			StartedAt:   sql.NullTime{Time: StartedAt, Valid: true},
@@ -127,7 +136,7 @@ func TestUpdatePackage(t *testing.T) {
 		Name:        "Fake package",
 		WorkflowID:  "workflow-1",
 		RunID:       "d1fec389-d50f-423f-843f-a510584cc02c",
-		AIPID:       "57e9d085-5716-43d2-bad9-bba3c9a74bd8",
+		AIPID:       aipID,
 		Status:      enums.PackageStatusDone,
 		CreatedAt:   CreatedAt,
 		StartedAt:   sql.NullTime{Time: StartedAt, Valid: true},

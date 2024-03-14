@@ -60,7 +60,7 @@ func TestNew(t *testing.T) {
 
 func TestCreatePackage(t *testing.T) {
 	runID := uuid.New()
-	aipID := uuid.New()
+	aipID := uuid.NullUUID{UUID: uuid.New(), Valid: true}
 	locID := uuid.NullUUID{UUID: uuid.New(), Valid: true}
 	started := sql.NullTime{Time: time.Now(), Valid: true}
 	completed := sql.NullTime{Time: started.Time.Add(time.Second), Valid: true}
@@ -81,7 +81,7 @@ func TestCreatePackage(t *testing.T) {
 					Name:        "Test package 1",
 					WorkflowID:  "workflow-1",
 					RunID:       runID.String(),
-					AIPID:       aipID.String(),
+					AIPID:       aipID,
 					LocationID:  locID,
 					Status:      enums.PackageStatusInProgress,
 					StartedAt:   started,
@@ -93,7 +93,7 @@ func TestCreatePackage(t *testing.T) {
 				Name:        "Test package 1",
 				WorkflowID:  "workflow-1",
 				RunID:       runID.String(),
-				AIPID:       aipID.String(),
+				AIPID:       aipID,
 				LocationID:  locID,
 				Status:      enums.PackageStatusInProgress,
 				CreatedAt:   time.Now(),
@@ -108,7 +108,6 @@ func TestCreatePackage(t *testing.T) {
 					Name:       "Test package 2",
 					WorkflowID: "workflow-2",
 					RunID:      runID.String(),
-					AIPID:      aipID.String(),
 					Status:     enums.PackageStatusInProgress,
 				},
 			},
@@ -117,7 +116,6 @@ func TestCreatePackage(t *testing.T) {
 				Name:       "Test package 2",
 				WorkflowID: "workflow-2",
 				RunID:      runID.String(),
-				AIPID:      aipID.String(),
 				Status:     enums.PackageStatusInProgress,
 				CreatedAt:  time.Now(),
 			},
@@ -139,17 +137,6 @@ func TestCreatePackage(t *testing.T) {
 			wantErr: "invalid data error: field \"WorkflowID\" is required",
 		},
 		{
-			name: "Required field error for missing AIPID",
-			args: params{
-				pkg: &datatypes.Package{
-					Name:       "Missing AIPID",
-					WorkflowID: "workflow-12345",
-					RunID:      runID.String(),
-				},
-			},
-			wantErr: "invalid data error: field \"AIPID\" is required",
-		},
-		{
 			name: "Required field error for missing RunID",
 			args: params{
 				pkg: &datatypes.Package{
@@ -169,18 +156,6 @@ func TestCreatePackage(t *testing.T) {
 				},
 			},
 			wantErr: "invalid data error: parse error: field \"RunID\": invalid UUID length: 8",
-		},
-		{
-			name: "Errors on invalid AIPID",
-			args: params{
-				pkg: &datatypes.Package{
-					Name:       "Invalid package 2",
-					WorkflowID: "workflow-invalid",
-					RunID:      runID.String(),
-					AIPID:      "Bad UUID",
-				},
-			},
-			wantErr: "invalid data error: parse error: field \"AIPID\": invalid UUID length: 8",
 		},
 	}
 	for _, tt := range tests {
@@ -209,8 +184,14 @@ func TestUpdatePackage(t *testing.T) {
 	runID := uuid.MustParse("c5f7c35a-d5a6-4e00-b4da-b036ce5b40bc")
 	runID2 := uuid.MustParse("c04d0191-d7ce-46dd-beff-92d6830082ff")
 
-	aipID := uuid.MustParse("e2ace0da-8697-453d-9ea1-4c9b62309e54")
-	aipID2 := uuid.MustParse("7d085541-af56-4444-9ce2-d6401ff4c97b")
+	aipID := uuid.NullUUID{
+		UUID:  uuid.MustParse("e2ace0da-8697-453d-9ea1-4c9b62309e54"),
+		Valid: true,
+	}
+	aipID2 := uuid.NullUUID{
+		UUID:  uuid.MustParse("7d085541-af56-4444-9ce2-d6401ff4c97b"),
+		Valid: true,
+	}
 
 	locID := uuid.NullUUID{
 		UUID:  uuid.MustParse("146182ff-9923-4869-bca1-0bbc0f822025"),
@@ -250,7 +231,7 @@ func TestUpdatePackage(t *testing.T) {
 					Name:        "Test package",
 					WorkflowID:  "workflow-1",
 					RunID:       runID.String(),
-					AIPID:       aipID.String(),
+					AIPID:       aipID,
 					LocationID:  locID,
 					Status:      enums.PackageStatusInProgress,
 					StartedAt:   started,
@@ -261,7 +242,7 @@ func TestUpdatePackage(t *testing.T) {
 					p.Name = "Updated package"
 					p.WorkflowID = "workflow-2"
 					p.RunID = runID2.String()
-					p.AIPID = aipID2.String()
+					p.AIPID = aipID2
 					p.LocationID = locID2
 					p.Status = enums.PackageStatusDone
 					p.CreatedAt = started2.Time // No-op, can't update CreatedAt.
@@ -275,7 +256,7 @@ func TestUpdatePackage(t *testing.T) {
 				Name:        "Updated package",
 				WorkflowID:  "workflow-2",
 				RunID:       runID2.String(),
-				AIPID:       aipID2.String(),
+				AIPID:       aipID2,
 				LocationID:  locID2,
 				Status:      enums.PackageStatusDone,
 				CreatedAt:   time.Now(),
@@ -290,7 +271,7 @@ func TestUpdatePackage(t *testing.T) {
 					Name:       "Test package",
 					WorkflowID: "workflow-1",
 					RunID:      runID.String(),
-					AIPID:      aipID.String(),
+					AIPID:      aipID,
 					Status:     enums.PackageStatusInProgress,
 					StartedAt:  started,
 				},
@@ -305,7 +286,7 @@ func TestUpdatePackage(t *testing.T) {
 				Name:        "Test package",
 				WorkflowID:  "workflow-1",
 				RunID:       runID.String(),
-				AIPID:       aipID.String(),
+				AIPID:       aipID,
 				Status:      enums.PackageStatusDone,
 				CreatedAt:   time.Now(),
 				StartedAt:   started,
@@ -328,7 +309,7 @@ func TestUpdatePackage(t *testing.T) {
 					Name:       "Test package",
 					WorkflowID: "workflow-1",
 					RunID:      runID.String(),
-					AIPID:      aipID.String(),
+					AIPID:      aipID,
 				},
 				updater: func(p *datatypes.Package) (*datatypes.Package, error) {
 					return nil, fmt.Errorf("Bad input")
@@ -343,7 +324,7 @@ func TestUpdatePackage(t *testing.T) {
 					Name:       "Test package",
 					WorkflowID: "workflow-1",
 					RunID:      runID.String(),
-					AIPID:      aipID.String(),
+					AIPID:      aipID,
 				},
 				updater: func(p *datatypes.Package) (*datatypes.Package, error) {
 					p.RunID = "Bad UUID"
@@ -351,22 +332,6 @@ func TestUpdatePackage(t *testing.T) {
 				},
 			},
 			wantErr: "invalid data error: parse error: field \"RunID\": invalid UUID length: 8",
-		},
-		{
-			name: "Errors when updater sets an invalid AIPID",
-			args: params{
-				pkg: &datatypes.Package{
-					Name:       "Test package",
-					WorkflowID: "workflow-1",
-					RunID:      runID.String(),
-					AIPID:      aipID.String(),
-				},
-				updater: func(p *datatypes.Package) (*datatypes.Package, error) {
-					p.AIPID = "Bad UUID"
-					return p, nil
-				},
-			},
-			wantErr: "invalid data error: parse error: field \"AIPID\": invalid UUID length: 8",
 		},
 	}
 	for _, tt := range tests {

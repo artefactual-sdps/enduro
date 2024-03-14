@@ -86,6 +86,12 @@ func (pu *PkgUpdate) SetNillableAipID(u *uuid.UUID) *PkgUpdate {
 	return pu
 }
 
+// ClearAipID clears the value of the "aip_id" field.
+func (pu *PkgUpdate) ClearAipID() *PkgUpdate {
+	pu.mutation.ClearAipID()
+	return pu
+}
+
 // SetLocationID sets the "location_id" field.
 func (pu *PkgUpdate) SetLocationID(u uuid.UUID) *PkgUpdate {
 	pu.mutation.SetLocationID(u)
@@ -256,6 +262,9 @@ func (pu *PkgUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := pu.mutation.AipID(); ok {
 		_spec.SetField(pkg.FieldAipID, field.TypeUUID, value)
 	}
+	if pu.mutation.AipIDCleared() {
+		_spec.ClearField(pkg.FieldAipID, field.TypeUUID)
+	}
 	if value, ok := pu.mutation.LocationID(); ok {
 		_spec.SetField(pkg.FieldLocationID, field.TypeUUID, value)
 	}
@@ -398,6 +407,12 @@ func (puo *PkgUpdateOne) SetNillableAipID(u *uuid.UUID) *PkgUpdateOne {
 	if u != nil {
 		puo.SetAipID(*u)
 	}
+	return puo
+}
+
+// ClearAipID clears the value of the "aip_id" field.
+func (puo *PkgUpdateOne) ClearAipID() *PkgUpdateOne {
+	puo.mutation.ClearAipID()
 	return puo
 }
 
@@ -600,6 +615,9 @@ func (puo *PkgUpdateOne) sqlSave(ctx context.Context) (_node *Pkg, err error) {
 	}
 	if value, ok := puo.mutation.AipID(); ok {
 		_spec.SetField(pkg.FieldAipID, field.TypeUUID, value)
+	}
+	if puo.mutation.AipIDCleared() {
+		_spec.ClearField(pkg.FieldAipID, field.TypeUUID)
 	}
 	if value, ok := puo.mutation.LocationID(); ok {
 		_spec.SetField(pkg.FieldLocationID, field.TypeUUID, value)

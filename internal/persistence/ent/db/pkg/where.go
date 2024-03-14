@@ -311,6 +311,16 @@ func AipIDLTE(v uuid.UUID) predicate.Pkg {
 	return predicate.Pkg(sql.FieldLTE(FieldAipID, v))
 }
 
+// AipIDIsNil applies the IsNil predicate on the "aip_id" field.
+func AipIDIsNil() predicate.Pkg {
+	return predicate.Pkg(sql.FieldIsNull(FieldAipID))
+}
+
+// AipIDNotNil applies the NotNil predicate on the "aip_id" field.
+func AipIDNotNil() predicate.Pkg {
+	return predicate.Pkg(sql.FieldNotNull(FieldAipID))
+}
+
 // LocationIDEQ applies the EQ predicate on the "location_id" field.
 func LocationIDEQ(v uuid.UUID) predicate.Pkg {
 	return predicate.Pkg(sql.FieldEQ(FieldLocationID, v))
