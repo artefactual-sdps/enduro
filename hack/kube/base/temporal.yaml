@@ -16,7 +16,7 @@ spec:
       serviceAccountName: sdps
       containers:
         - name: temporal
-          image: temporalio/auto-setup:1.22.2
+          image: temporalio/auto-setup:1.22.6
           env:
             - name: DB
               value: mysql
