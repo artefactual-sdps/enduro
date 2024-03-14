@@ -50,12 +50,10 @@ type PreservationActionEdges struct {
 // PackageOrErr returns the Package value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e PreservationActionEdges) PackageOrErr() (*Pkg, error) {
-	if e.loadedTypes[0] {
-		if e.Package == nil {
-			// Edge was loaded but was not found.
-			return nil, &NotFoundError{label: pkg.Label}
-		}
+	if e.Package != nil {
 		return e.Package, nil
+	} else if e.loadedTypes[0] {
+		return nil, &NotFoundError{label: pkg.Label}
 	}
 	return nil, &NotLoadedError{edge: "package"}
 }

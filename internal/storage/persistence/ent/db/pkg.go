@@ -50,12 +50,10 @@ type PkgEdges struct {
 // LocationOrErr returns the Location value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e PkgEdges) LocationOrErr() (*Location, error) {
-	if e.loadedTypes[0] {
-		if e.Location == nil {
-			// Edge was loaded but was not found.
-			return nil, &NotFoundError{label: location.Label}
-		}
+	if e.Location != nil {
 		return e.Location, nil
+	} else if e.loadedTypes[0] {
+		return nil, &NotFoundError{label: location.Label}
 	}
 	return nil, &NotLoadedError{edge: "location"}
 }
