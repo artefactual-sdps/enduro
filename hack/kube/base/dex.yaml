@@ -16,7 +16,7 @@ spec:
       serviceAccountName: sdps
       containers:
         - name: dex
-          image: ghcr.io/dexidp/dex:v2.30.0
+          image: ghcr.io/dexidp/dex:v2.38.0
           command: ["/usr/local/bin/dex", "serve", "/etc/dex/cfg/config.yaml"]
           ports:
             - containerPort: 5556

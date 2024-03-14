@@ -16,7 +16,7 @@ spec:
       serviceAccountName: sdps
       containers:
         - name: temporal-ui
-          image: temporalio/ui:2.21.0
+          image: temporalio/ui:2.25.0
           env:
             - name: TEMPORAL_ADDRESS
               value: temporal.enduro-sdps:7233
