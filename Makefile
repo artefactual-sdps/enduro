@@ -186,6 +186,10 @@ workflowcheck: # @HELP Detect non-determinism in workflow functions.
 workflowcheck: $(WORKFLOWCHECK)
 	workflowcheck ./...
 
+db: # @HELP Opens the MySQL shell connected to the enduro development database.
+db:
+	mysql -h127.0.0.1 -P3306 -uroot -proot123 enduro
+
 help: # @HELP Print this message.
 help:
 	echo "TARGETS:"
