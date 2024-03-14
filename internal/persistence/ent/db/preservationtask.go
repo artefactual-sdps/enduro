@@ -51,12 +51,10 @@ type PreservationTaskEdges struct {
 // ActionOrErr returns the Action value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e PreservationTaskEdges) ActionOrErr() (*PreservationAction, error) {
-	if e.loadedTypes[0] {
-		if e.Action == nil {
-			// Edge was loaded but was not found.
-			return nil, &NotFoundError{label: preservationaction.Label}
-		}
+	if e.Action != nil {
 		return e.Action, nil
+	} else if e.loadedTypes[0] {
+		return nil, &NotFoundError{label: preservationaction.Label}
 	}
 	return nil, &NotLoadedError{edge: "action"}
 }

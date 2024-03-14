@@ -19,5 +19,5 @@ jobs:
           go-version: ${{ steps.go_version.outputs.go_version }}
       - name: Check atlas.sum
         run: |
-          go run -mod=mod ariga.io/atlas/cmd/atlas@v0.5.0 \
+          go run -mod=mod ariga.io/atlas/cmd/atlas@v0.13.1 \
             migrate validate --dir "file://./internal/storage/persistence/migrations"
