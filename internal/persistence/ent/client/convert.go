@@ -21,6 +21,11 @@ func convertPkgToPackage(pkg *db.Pkg) *datatypes.Package {
 		completed = sql.NullTime{Time: pkg.CompletedAt, Valid: true}
 	}
 
+	var aipID uuid.NullUUID
+	if pkg.AipID != uuid.Nil {
+		aipID = uuid.NullUUID{UUID: pkg.AipID, Valid: true}
+	}
+
 	var locID uuid.NullUUID
 	if pkg.LocationID != uuid.Nil {
 		locID = uuid.NullUUID{UUID: pkg.LocationID, Valid: true}
@@ -29,11 +34,11 @@ func convertPkgToPackage(pkg *db.Pkg) *datatypes.Package {
 	return &datatypes.Package{
 		ID:          uint(pkg.ID),
 		Name:        pkg.Name,
-		LocationID:  locID,
-		Status:      enums.PackageStatus(pkg.Status),
 		WorkflowID:  pkg.WorkflowID,
 		RunID:       pkg.RunID.String(),
-		AIPID:       pkg.AipID.String(),
+		AIPID:       aipID,
+		LocationID:  locID,
+		Status:      enums.PackageStatus(pkg.Status),
 		CreatedAt:   pkg.CreatedAt,
 		StartedAt:   started,
 		CompletedAt: completed,

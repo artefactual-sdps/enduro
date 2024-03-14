@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"go.artefactual.dev/tools/ref"
 
 	goapackage "github.com/artefactual-sdps/enduro/internal/api/gen/package_"
 	"github.com/artefactual-sdps/enduro/internal/db"
@@ -17,8 +18,8 @@ type Package struct {
 	Name       string              `db:"name"`
 	WorkflowID string              `db:"workflow_id"`
 	RunID      string              `db:"run_id"`
-	AIPID      string              `db:"aip_id"`
-	LocationID uuid.NullUUID       `db:"location_id"`
+	AIPID      uuid.NullUUID       `db:"aip_id"`      // Nullable.
+	LocationID uuid.NullUUID       `db:"location_id"` // Nullable.
 	Status     enums.PackageStatus `db:"status"`
 
 	// It defaults to CURRENT_TIMESTAMP(6) so populated as soon as possible.
@@ -38,11 +39,13 @@ func (p Package) Goa() *goapackage.EnduroStoredPackage {
 		Name:        db.FormatOptionalString(p.Name),
 		WorkflowID:  db.FormatOptionalString(p.WorkflowID),
 		RunID:       db.FormatOptionalString(p.RunID),
-		AipID:       db.FormatOptionalString(p.AIPID),
 		Status:      p.Status.String(),
 		CreatedAt:   db.FormatTime(p.CreatedAt),
 		StartedAt:   db.FormatOptionalTime(p.StartedAt),
 		CompletedAt: db.FormatOptionalTime(p.CompletedAt),
+	}
+	if p.AIPID.Valid {
+		col.AipID = ref.New(p.AIPID.UUID.String())
 	}
 	if p.LocationID.Valid {
 		col.LocationID = &p.LocationID.UUID

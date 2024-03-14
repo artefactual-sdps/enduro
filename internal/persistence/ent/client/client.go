@@ -47,22 +47,16 @@ func (c *client) CreatePackage(ctx context.Context, pkg *datatypes.Package) (*da
 		return nil, newParseError(err, "RunID")
 	}
 
-	if pkg.AIPID == "" {
-		return nil, newRequiredFieldError("AIPID")
-	}
-	aipID, err := uuid.Parse(pkg.AIPID)
-	if err != nil {
-		return nil, newParseError(err, "AIPID")
-	}
-
 	q := c.ent.Pkg.Create().
 		SetName(pkg.Name).
 		SetWorkflowID(pkg.WorkflowID).
 		SetRunID(runID).
-		SetAipID(aipID).
 		SetStatus(int8(pkg.Status))
 
 	// Add optional fields.
+	if pkg.AIPID.Valid {
+		q.SetAipID(pkg.AIPID.UUID)
+	}
 	if pkg.LocationID.Valid {
 		q.SetLocationID(pkg.LocationID.UUID)
 	}
@@ -111,20 +105,17 @@ func (c *client) UpdatePackage(ctx context.Context, id uint, updater persistence
 		return nil, rollback(tx, newParseError(err, "RunID"))
 	}
 
-	aipID, err := uuid.Parse(up.AIPID)
-	if err != nil {
-		return nil, rollback(tx, newParseError(err, "AIPID"))
-	}
-
 	// Set required column values.
 	q := tx.Pkg.UpdateOneID(int(id)).
 		SetName(up.Name).
 		SetWorkflowID(up.WorkflowID).
 		SetRunID(runID).
-		SetAipID(aipID).
 		SetStatus(int8(up.Status))
 
 	// Set nullable column values.
+	if up.AIPID.Valid {
+		q.SetAipID(up.AIPID.UUID)
+	}
 	if up.LocationID.Valid {
 		q.SetLocationID(up.LocationID.UUID)
 	}

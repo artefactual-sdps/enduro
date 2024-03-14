@@ -294,9 +294,22 @@ func (m *PkgMutation) OldAipID(ctx context.Context) (v uuid.UUID, err error) {
 	return oldValue.AipID, nil
 }
 
+// ClearAipID clears the value of the "aip_id" field.
+func (m *PkgMutation) ClearAipID() {
+	m.aip_id = nil
+	m.clearedFields[pkg.FieldAipID] = struct{}{}
+}
+
+// AipIDCleared returns if the "aip_id" field was cleared in this mutation.
+func (m *PkgMutation) AipIDCleared() bool {
+	_, ok := m.clearedFields[pkg.FieldAipID]
+	return ok
+}
+
 // ResetAipID resets all changes to the "aip_id" field.
 func (m *PkgMutation) ResetAipID() {
 	m.aip_id = nil
+	delete(m.clearedFields, pkg.FieldAipID)
 }
 
 // SetLocationID sets the "location_id" field.
@@ -824,6 +837,9 @@ func (m *PkgMutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *PkgMutation) ClearedFields() []string {
 	var fields []string
+	if m.FieldCleared(pkg.FieldAipID) {
+		fields = append(fields, pkg.FieldAipID)
+	}
 	if m.FieldCleared(pkg.FieldLocationID) {
 		fields = append(fields, pkg.FieldLocationID)
 	}
@@ -847,6 +863,9 @@ func (m *PkgMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *PkgMutation) ClearField(name string) error {
 	switch name {
+	case pkg.FieldAipID:
+		m.ClearAipID()
+		return nil
 	case pkg.FieldLocationID:
 		m.ClearLocationID()
 		return nil
