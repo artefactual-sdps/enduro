@@ -10,6 +10,7 @@ import (
 
 	"github.com/alicebob/miniredis/v2"
 	"github.com/go-logr/logr"
+	"go.opentelemetry.io/otel/trace/noop"
 	"gotest.tools/v3/assert"
 	"gotest.tools/v3/fs"
 	"gotest.tools/v3/poll"
@@ -49,7 +50,7 @@ func newWatcher(t *testing.T, updateCfg func(c *watcher.MinioConfig)) (*miniredi
 		updateCfg(config)
 	}
 
-	w, err := watcher.NewMinioWatcher(context.Background(), logr.Discard(), config)
+	w, err := watcher.NewMinioWatcher(context.Background(), noop.NewTracerProvider(), logr.Discard(), config)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -69,8 +70,6 @@ func TestWatcherReturnsErrWhenNoMessages(t *testing.T) {
 	})
 	defer cleanup(t, m)
 
-	// TODO: slow test, should inject smaller timeout.
-
 	check := func(t poll.LogT) poll.Result {
 		_, _, err := w.Watch(context.Background())
 
@@ -85,7 +84,7 @@ func TestWatcherReturnsErrWhenNoMessages(t *testing.T) {
 		return poll.Success()
 	}
 
-	poll.WaitOn(t, check, poll.WithTimeout(time.Second*3))
+	poll.WaitOn(t, check, poll.WithTimeout(time.Second*2))
 }
 
 func TestWatcherReturnsErrOnInvalidMessages(t *testing.T) {

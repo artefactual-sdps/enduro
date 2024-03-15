@@ -20,6 +20,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/pflag"
 	"go.artefactual.dev/tools/log"
+	"go.opentelemetry.io/otel/codes"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
 	temporalsdk_client "go.temporal.io/sdk/client"
 	temporalsdk_contrib_opentelemetry "go.temporal.io/sdk/contrib/opentelemetry"
@@ -156,7 +157,7 @@ func main() {
 	}
 
 	// Set up the event service.
-	evsvc, err := event.NewEventServiceRedis(logger.WithName("events"), &cfg.Event)
+	evsvc, err := event.NewEventServiceRedis(logger.WithName("events"), tp, &cfg.Event)
 	if err != nil {
 		logger.Error(err, "Error creating Event service.")
 		os.Exit(1)
@@ -183,7 +184,7 @@ func main() {
 		if cfg.API.Auth.Enabled {
 			if cfg.API.Auth.Ticket.Redis != nil {
 				var err error
-				store, err = auth.NewRedisStore(ctx, cfg.API.Auth.Ticket.Redis)
+				store, err = auth.NewRedisStore(ctx, tp, cfg.API.Auth.Ticket.Redis)
 				if err != nil {
 					logger.Error(err, "Error creating ticket provider redis store.")
 					os.Exit(1)
@@ -240,7 +241,7 @@ func main() {
 	// Set up the watcher service.
 	var wsvc watcher.Service
 	{
-		wsvc, err = watcher.New(ctx, logger.WithName("watcher"), &cfg.Watcher)
+		wsvc, err = watcher.New(ctx, tp, logger.WithName("watcher"), &cfg.Watcher)
 		if err != nil {
 			logger.Error(err, "Error setting up watchers.")
 			os.Exit(1)
@@ -270,7 +271,6 @@ func main() {
 	{
 		for _, w := range wsvc.Watchers() {
 			done := make(chan struct{})
-			cur := w
 			g.Add(
 				func() error {
 					for {
@@ -278,15 +278,20 @@ func main() {
 						case <-done:
 							return nil
 						default:
-							event, clean, err := cur.Watch(ctx)
+							ctx, span := tp.Tracer("enduro").Start(ctx, "watcher.poll")
+							event, clean, err := w.Watch(ctx)
 							if err != nil {
 								if !errors.Is(err, watcher.ErrWatchTimeout) {
-									logger.Error(err, "Error monitoring watcher interface.", "watcher", cur)
+									logger.Error(err, "Error monitoring watcher interface.", "watcher", w)
+									span.RecordError(err)
+									span.SetStatus(codes.Error, err.Error())
 								}
+								span.End()
 								continue
 							}
 							logger.V(1).Info("Starting new workflow", "watcher", event.WatcherName, "bucket", event.Bucket, "key", event.Key, "dir", event.IsDir)
 							go func() {
+								defer span.End()
 								req := package_.ProcessingWorkflowRequest{
 									WatcherName:                event.WatcherName,
 									RetentionPeriod:            event.RetentionPeriod,
@@ -303,8 +308,13 @@ func main() {
 								}
 								if err := package_.InitProcessingWorkflow(ctx, temporalClient, &req); err != nil {
 									logger.Error(err, "Error initializing processing workflow.")
+									span.RecordError(err)
+									span.SetStatus(codes.Error, err.Error())
 								} else {
-									_ = clean(ctx)
+									if err := clean(ctx); err != nil {
+										span.RecordError(err)
+										span.SetStatus(codes.Error, err.Error())
+									}
 								}
 							}()
 						}

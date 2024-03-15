@@ -32,5 +32,5 @@ func PublishEvent(ctx context.Context, events EventService, event interface{}) {
 		panic("tried to publish unexpected event")
 	}
 
-	events.PublishEvent(update)
+	events.PublishEvent(ctx, update)
 }

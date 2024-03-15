@@ -11,7 +11,9 @@ import (
 	"time"
 
 	"github.com/go-logr/logr"
+	"github.com/redis/go-redis/extra/redisotel/v9"
 	"github.com/redis/go-redis/v9"
+	"go.opentelemetry.io/otel/trace"
 	"gocloud.dev/blob"
 
 	"github.com/artefactual-sdps/enduro/internal/bucket"
@@ -35,12 +37,20 @@ type MinioEventSet struct {
 
 var _ Watcher = (*minioWatcher)(nil)
 
-func NewMinioWatcher(ctx context.Context, logger logr.Logger, config *MinioConfig) (*minioWatcher, error) {
+func NewMinioWatcher(ctx context.Context, tp trace.TracerProvider, logger logr.Logger, config *MinioConfig) (*minioWatcher, error) {
 	opts, err := redis.ParseURL(config.RedisAddress)
 	if err != nil {
 		return nil, err
 	}
+
 	client := redis.NewClient(opts)
+	if err := redisotel.InstrumentTracing(
+		client,
+		redisotel.WithTracerProvider(tp),
+		redisotel.WithDBStatement(false),
+	); err != nil {
+		return nil, fmt.Errorf("instrument redis client tracing: %v", err)
+	}
 
 	bucketConfig := &bucket.Config{
 		Endpoint:  config.Endpoint,

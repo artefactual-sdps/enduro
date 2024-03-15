@@ -10,6 +10,7 @@ import (
 	"github.com/go-logr/logr/testr"
 	"github.com/redis/go-redis/v9"
 	"go.artefactual.dev/tools/ref"
+	"go.opentelemetry.io/otel/trace/noop"
 	"gotest.tools/v3/assert"
 
 	"github.com/artefactual-sdps/enduro/internal/api/gen/http/package_/server"
@@ -52,10 +53,10 @@ func TestEventServiceRedisPublish(t *testing.T) {
 		RedisAddress: "redis://" + s.Addr(),
 		RedisChannel: channel,
 	}
-	svc, err := event.NewEventServiceRedis(testr.New(t), &cfg)
+	svc, err := event.NewEventServiceRedis(testr.New(t), noop.NewTracerProvider(), &cfg)
 	assert.NilError(t, err)
 
-	svc.PublishEvent(&goapackage.MonitorEvent{
+	svc.PublishEvent(ctx, &goapackage.MonitorEvent{
 		Event: &goapackage.MonitorPingEvent{
 			Message: ref.New("hello"),
 		},
@@ -80,7 +81,7 @@ func TestEventServiceRedisSubscribe(t *testing.T) {
 		RedisAddress: "redis://" + s.Addr(),
 		RedisChannel: "enduro-events",
 	}
-	svc, err := event.NewEventServiceRedis(testr.New(t), &cfg)
+	svc, err := event.NewEventServiceRedis(testr.New(t), noop.NewTracerProvider(), &cfg)
 	assert.NilError(t, err)
 
 	sub, err := svc.Subscribe(ctx)
