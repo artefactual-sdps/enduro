@@ -23,6 +23,7 @@ type minioWatcher struct {
 	logger       logr.Logger
 	listName     string
 	failedList   string
+	pollInterval time.Duration
 	bucketConfig *bucket.Config
 	*commonWatcherImpl
 }
@@ -33,8 +34,6 @@ type MinioEventSet struct {
 }
 
 var _ Watcher = (*minioWatcher)(nil)
-
-const redisPopTimeout = time.Second * 2
 
 func NewMinioWatcher(ctx context.Context, logger logr.Logger, config *MinioConfig) (*minioWatcher, error) {
 	opts, err := redis.ParseURL(config.RedisAddress)
@@ -59,10 +58,18 @@ func NewMinioWatcher(ctx context.Context, logger logr.Logger, config *MinioConfi
 		config.RedisFailedList = config.RedisList + "-failed"
 	}
 
+	pollInterval := config.PollInterval
+	if pollInterval == 0 {
+		pollInterval = time.Minute // Sane default
+	} else if pollInterval < time.Second {
+		pollInterval = time.Second // Must be at least 1s.
+	}
+
 	return &minioWatcher{
 		client:       client,
 		listName:     config.RedisList,
 		failedList:   config.RedisFailedList,
+		pollInterval: pollInterval,
 		logger:       logger,
 		bucketConfig: bucketConfig,
 		commonWatcherImpl: &commonWatcherImpl{
@@ -109,7 +116,7 @@ func (w *minioWatcher) rem(val string) func(ctx context.Context) error {
 }
 
 func (w *minioWatcher) pop(ctx context.Context) (*BlobEvent, string, error) {
-	val, err := w.client.BLMove(ctx, w.listName, w.failedList, "RIGHT", "LEFT", redisPopTimeout).Result()
+	val, err := w.client.BLMove(ctx, w.listName, w.failedList, "RIGHT", "LEFT", w.pollInterval).Result()
 	if err != nil {
 		return nil, "", fmt.Errorf("error retrieving from Redis list: %w", err)
 	}

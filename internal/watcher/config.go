@@ -69,4 +69,7 @@ type MinioConfig struct {
 
 	RetentionPeriod  *time.Duration
 	StripTopLevelDir bool
+
+	// PollInterval sets the length of time between Redis polls (default: 1s).
+	PollInterval time.Duration
 }
