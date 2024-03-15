@@ -164,15 +164,16 @@ func TestCreatePackage(t *testing.T) {
 
 			_, svc := setUpClient(t, logr.Discard())
 			ctx := context.Background()
+			pkg := *tt.args.pkg // Make a local copy of pkg.
 
-			pkg, err := svc.CreatePackage(ctx, tt.args.pkg)
+			err := svc.CreatePackage(ctx, &pkg)
 			if tt.wantErr != "" {
 				assert.Error(t, err, tt.wantErr)
 				return
 			}
 			assert.NilError(t, err)
 
-			assert.DeepEqual(t, pkg, tt.want,
+			assert.DeepEqual(t, &pkg, tt.want,
 				cmpopts.EquateApproxTime(time.Millisecond*100),
 				cmpopts.IgnoreUnexported(db.Pkg{}, db.PkgEdges{}),
 			)
@@ -343,18 +344,20 @@ func TestUpdatePackage(t *testing.T) {
 
 			var id uint
 			if tt.args.pkg != nil {
-				pkg, err := svc.CreatePackage(ctx, tt.args.pkg)
+				pkg := *tt.args.pkg // Make a local copy of pkg.
+				err := svc.CreatePackage(ctx, &pkg)
 				assert.NilError(t, err)
+
 				id = pkg.ID
 			}
 
-			pkg, err := svc.UpdatePackage(ctx, id, tt.args.updater)
+			pp, err := svc.UpdatePackage(ctx, id, tt.args.updater)
 			if tt.wantErr != "" {
 				assert.Error(t, err, tt.wantErr)
 				return
 			}
 
-			assert.DeepEqual(t, pkg, tt.want,
+			assert.DeepEqual(t, pp, tt.want,
 				cmpopts.EquateApproxTime(time.Millisecond*100),
 				cmpopts.IgnoreUnexported(db.Pkg{}, db.PkgEdges{}),
 			)

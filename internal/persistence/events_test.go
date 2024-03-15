@@ -47,29 +47,27 @@ func TestCreatePackage(t *testing.T) {
 				StartedAt:  sql.NullTime{Time: StartedAt, Valid: true},
 			},
 		).
-		Return(&datatypes.Package{
-			ID:         1,
-			Name:       "Fake package",
-			WorkflowID: "workflow-1",
-			RunID:      "d1fec389-d50f-423f-843f-a510584cc02c",
-			AIPID:      aipID,
-			Status:     enums.PackageStatusInProgress,
-			CreatedAt:  CreatedAt,
-			StartedAt:  sql.NullTime{Time: StartedAt, Valid: true},
-		}, nil)
+		DoAndReturn(func(ctx context.Context, p *datatypes.Package) error {
+			p.ID = 1
+			p.CreatedAt = CreatedAt
+
+			return nil
+		})
 
 	svc := persistence.WithEvents(evsvc, msvc)
-	got, err := svc.CreatePackage(ctx, &datatypes.Package{
+	pkg := datatypes.Package{
 		Name:       "Fake package",
 		WorkflowID: "workflow-1",
 		RunID:      "d1fec389-d50f-423f-843f-a510584cc02c",
 		AIPID:      aipID,
 		Status:     enums.PackageStatusInProgress,
 		StartedAt:  sql.NullTime{Time: StartedAt, Valid: true},
-	})
+	}
+
+	err = svc.CreatePackage(ctx, &pkg)
 
 	assert.NilError(t, err)
-	assert.DeepEqual(t, got, &datatypes.Package{
+	assert.DeepEqual(t, pkg, datatypes.Package{
 		ID:         1,
 		Name:       "Fake package",
 		WorkflowID: "workflow-1",

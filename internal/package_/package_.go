@@ -76,14 +76,19 @@ func (svc *packageImpl) Goa() goapackage.Service {
 	}
 }
 
+// Create persists pkg to the data store then updates it from the data store,
+// adding generated data (e.g. ID, CreatedAt).
 func (svc *packageImpl) Create(ctx context.Context, pkg *datatypes.Package) error {
-	pkg, err := svc.perSvc.CreatePackage(ctx, pkg)
+	err := svc.perSvc.CreatePackage(ctx, pkg)
 	if err != nil {
 		return fmt.Errorf("package: create: %v", err)
 	}
 
-	ev := &goapackage.PackageCreatedEvent{ID: uint(pkg.ID), Item: pkg.Goa()}
-	event.PublishEvent(ctx, svc.evsvc, ev)
+	event.PublishEvent(
+		ctx,
+		svc.evsvc,
+		&goapackage.PackageCreatedEvent{ID: uint(pkg.ID), Item: pkg.Goa()},
+	)
 
 	return nil
 }
