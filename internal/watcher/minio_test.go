@@ -64,7 +64,9 @@ func cleanup(t *testing.T, m *miniredis.Miniredis) {
 }
 
 func TestWatcherReturnsErrWhenNoMessages(t *testing.T) {
-	m, w := newWatcher(t, nil)
+	m, w := newWatcher(t, func(c *watcher.MinioConfig) {
+		c.PollInterval = time.Second
+	})
 	defer cleanup(t, m)
 
 	// TODO: slow test, should inject smaller timeout.
