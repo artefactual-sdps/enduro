@@ -23,6 +23,9 @@ type (
 )
 
 type Service interface {
-	CreatePackage(context.Context, *datatypes.Package) (*datatypes.Package, error)
+	// CreatePackage persists the given Package to the data store then updates
+	// the Package from the data store, adding auto-generated data
+	// (e.g. ID, CreatedAt).
+	CreatePackage(context.Context, *datatypes.Package) error
 	UpdatePackage(context.Context, uint, PackageUpdater) (*datatypes.Package, error)
 }

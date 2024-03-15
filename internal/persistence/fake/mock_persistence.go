@@ -42,12 +42,11 @@ func (m *MockService) EXPECT() *MockServiceMockRecorder {
 }
 
 // CreatePackage mocks base method.
-func (m *MockService) CreatePackage(arg0 context.Context, arg1 *datatypes.Package) (*datatypes.Package, error) {
+func (m *MockService) CreatePackage(arg0 context.Context, arg1 *datatypes.Package) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreatePackage", arg0, arg1)
-	ret0, _ := ret[0].(*datatypes.Package)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // CreatePackage indicates an expected call of CreatePackage.
@@ -63,19 +62,19 @@ type MockServiceCreatePackageCall struct {
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockServiceCreatePackageCall) Return(arg0 *datatypes.Package, arg1 error) *MockServiceCreatePackageCall {
-	c.Call = c.Call.Return(arg0, arg1)
+func (c *MockServiceCreatePackageCall) Return(arg0 error) *MockServiceCreatePackageCall {
+	c.Call = c.Call.Return(arg0)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockServiceCreatePackageCall) Do(f func(context.Context, *datatypes.Package) (*datatypes.Package, error)) *MockServiceCreatePackageCall {
+func (c *MockServiceCreatePackageCall) Do(f func(context.Context, *datatypes.Package) error) *MockServiceCreatePackageCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockServiceCreatePackageCall) DoAndReturn(f func(context.Context, *datatypes.Package) (*datatypes.Package, error)) *MockServiceCreatePackageCall {
+func (c *MockServiceCreatePackageCall) DoAndReturn(f func(context.Context, *datatypes.Package) error) *MockServiceCreatePackageCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/go-logr/logr"
 	"go.artefactual.dev/tools/mockutil"
@@ -58,9 +59,10 @@ func TestCreatePackage(t *testing.T) {
 				svc.EXPECT().
 					CreatePackage(mockutil.Context(), &p).
 					DoAndReturn(
-						func(ctx context.Context, p *datatypes.Package) (*datatypes.Package, error) {
+						func(ctx context.Context, p *datatypes.Package) error {
 							p.ID = 1
-							return p, nil
+							p.CreatedAt = time.Date(2024, 3, 14, 15, 57, 25, 0, time.UTC)
+							return nil
 						},
 					)
 				return svc
@@ -77,8 +79,8 @@ func TestCreatePackage(t *testing.T) {
 				svc.EXPECT().
 					CreatePackage(mockutil.Context(), &p).
 					DoAndReturn(
-						func(ctx context.Context, p *datatypes.Package) (*datatypes.Package, error) {
-							return p, fmt.Errorf("invalid data error: field \"RunID\" is required")
+						func(ctx context.Context, p *datatypes.Package) error {
+							return fmt.Errorf("invalid data error: field \"RunID\" is required")
 						},
 					)
 				return svc
