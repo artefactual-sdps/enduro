@@ -10,6 +10,13 @@ coverage:
   precision: 2
   round: down
   range: "25...75"
+  status:
+    project:
+      default:
+        threshold: 0.1%
+    patch:
+      default:
+        threshold: 0.1%
 
 ignore:
 - "dashboard/"
