@@ -3,10 +3,13 @@ package event
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/go-logr/logr"
+	"github.com/redis/go-redis/extra/redisotel/v9"
 	"github.com/redis/go-redis/v9"
+	"go.opentelemetry.io/otel/trace"
 
 	"github.com/artefactual-sdps/enduro/internal/api/gen/http/package_/client"
 	"github.com/artefactual-sdps/enduro/internal/api/gen/http/package_/server"
@@ -21,20 +24,30 @@ type EventServiceRedisImpl struct {
 
 var _ EventService = (*EventServiceRedisImpl)(nil)
 
-func NewEventServiceRedis(logger logr.Logger, cfg *Config) (EventService, error) {
+func NewEventServiceRedis(logger logr.Logger, tp trace.TracerProvider, cfg *Config) (EventService, error) {
 	opts, err := redis.ParseURL(cfg.RedisAddress)
 	if err != nil {
 		return nil, err
 	}
+
+	client := redis.NewClient(opts)
+	if err := redisotel.InstrumentTracing(
+		client,
+		redisotel.WithTracerProvider(tp),
+		redisotel.WithDBStatement(false),
+	); err != nil {
+		return nil, fmt.Errorf("instrument redis client tracing: %v", err)
+	}
+
 	return &EventServiceRedisImpl{
 		logger: logger,
-		client: redis.NewClient(opts),
+		client: client,
 		cfg:    cfg,
 	}, nil
 }
 
-func (s *EventServiceRedisImpl) PublishEvent(event *goapackage.MonitorEvent) {
-	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+func (s *EventServiceRedisImpl) PublishEvent(ctx context.Context, event *goapackage.MonitorEvent) {
+	ctx, cancel := context.WithTimeout(ctx, 1*time.Second)
 	defer cancel()
 
 	blob, err := json.Marshal(server.NewMonitorResponseBody(event))
@@ -48,7 +61,7 @@ func (s *EventServiceRedisImpl) PublishEvent(event *goapackage.MonitorEvent) {
 }
 
 func (s *EventServiceRedisImpl) Subscribe(ctx context.Context) (Subscription, error) {
-	sub := NewSubscriptionRedis(s.logger, s.client, s.cfg.RedisChannel)
+	sub := NewSubscriptionRedis(ctx, s.logger, s.client, s.cfg.RedisChannel)
 
 	return sub, nil
 }
@@ -63,8 +76,7 @@ type SubscriptionRedisImpl struct {
 
 var _ Subscription = (*SubscriptionRedisImpl)(nil)
 
-func NewSubscriptionRedis(logger logr.Logger, c redis.UniversalClient, channel string) Subscription {
-	ctx := context.Background()
+func NewSubscriptionRedis(ctx context.Context, logger logr.Logger, c redis.UniversalClient, channel string) Subscription {
 	pubsub := c.Subscribe(ctx, channel)
 	// Call Receive to force the connection to wait a response from
 	// Redis so the subscription is active immediately.

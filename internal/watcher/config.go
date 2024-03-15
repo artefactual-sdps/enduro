@@ -57,6 +57,7 @@ type MinioConfig struct {
 	RedisAddress    string
 	RedisList       string
 	RedisFailedList string
+	RedisPopTimeout time.Duration
 	Region          string
 	Endpoint        string
 	PathStyle       bool

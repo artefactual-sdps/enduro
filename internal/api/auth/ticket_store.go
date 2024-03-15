@@ -3,11 +3,14 @@ package auth
 import (
 	"context"
 	"errors"
+	"fmt"
 	"strings"
 	"sync"
 	"time"
 
+	"github.com/redis/go-redis/extra/redisotel/v9"
 	"github.com/redis/go-redis/v9"
+	"go.opentelemetry.io/otel/trace"
 )
 
 // TicketStore persists expirable tickets.
@@ -39,14 +42,23 @@ const (
 	keyClassifier = "ticket"
 )
 
-func NewRedisStore(ctx context.Context, cfg *RedisConfig) (*RedisStore, error) {
+func NewRedisStore(ctx context.Context, tp trace.TracerProvider, cfg *RedisConfig) (*RedisStore, error) {
 	opts, err := redis.ParseURL(cfg.Address)
 	if err != nil {
 		return nil, err
 	}
 
+	client := redis.NewClient(opts)
+	if err := redisotel.InstrumentTracing(
+		client,
+		redisotel.WithTracerProvider(tp),
+		redisotel.WithDBStatement(false),
+	); err != nil {
+		return nil, fmt.Errorf("instrument redis client tracing: %v", err)
+	}
+
 	return &RedisStore{
-		client: redis.NewClient(opts),
+		client: client,
 		prefix: strings.TrimSuffix(cfg.Prefix, keySeparator),
 	}, nil
 }

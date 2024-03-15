@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/go-logr/logr"
+	"go.opentelemetry.io/otel/trace"
 	"gocloud.dev/blob"
 )
 
@@ -94,12 +95,12 @@ type serviceImpl struct {
 
 var _ Service = (*serviceImpl)(nil)
 
-func New(ctx context.Context, logger logr.Logger, c *Config) (*serviceImpl, error) {
+func New(ctx context.Context, tp trace.TracerProvider, logger logr.Logger, c *Config) (*serviceImpl, error) {
 	watchers := map[string]Watcher{}
 	minioConfigs := append(c.Minio, c.Embedded)
 
 	for _, item := range minioConfigs {
-		w, err := NewMinioWatcher(ctx, logger, item)
+		w, err := NewMinioWatcher(ctx, tp, logger, item)
 		if err != nil {
 			return nil, err
 		}

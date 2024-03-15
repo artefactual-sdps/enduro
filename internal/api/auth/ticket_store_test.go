@@ -7,6 +7,7 @@ import (
 
 	"github.com/alicebob/miniredis/v2"
 	"github.com/redis/go-redis/v9"
+	"go.opentelemetry.io/otel/trace/noop"
 	"gotest.tools/v3/assert"
 
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
@@ -16,13 +17,14 @@ func TestRedisStore(t *testing.T) {
 	t.Parallel()
 
 	storeKey := "key"
+	tp := noop.NewTracerProvider()
 
 	t.Run("Fails when parsing invalid URL", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
 
-		_, err := auth.NewRedisStore(ctx, &auth.RedisConfig{
+		_, err := auth.NewRedisStore(ctx, tp, &auth.RedisConfig{
 			Address: "scheme://unknown",
 		})
 		assert.Error(t, err, "redis: invalid URL scheme: scheme")
@@ -32,7 +34,7 @@ func TestRedisStore(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		s, err := auth.NewRedisStore(ctx, &auth.RedisConfig{
+		s, err := auth.NewRedisStore(ctx, tp, &auth.RedisConfig{
 			Address: "redis://127.0.0.1:12345",
 		})
 		assert.NilError(t, err)
@@ -48,7 +50,7 @@ func TestRedisStore(t *testing.T) {
 		redisServer := miniredis.RunT(t)
 		redisClient := redis.NewClient(&redis.Options{Addr: redisServer.Addr()})
 
-		store, err := auth.NewRedisStore(ctx, &auth.RedisConfig{
+		store, err := auth.NewRedisStore(ctx, tp, &auth.RedisConfig{
 			Address: "redis://" + redisServer.Addr(),
 			Prefix:  "prefix",
 		})
@@ -75,7 +77,7 @@ func TestRedisStore(t *testing.T) {
 		redisServer := miniredis.RunT(t)
 		redisClient := redis.NewClient(&redis.Options{Addr: redisServer.Addr()})
 
-		store, err := auth.NewRedisStore(ctx, &auth.RedisConfig{
+		store, err := auth.NewRedisStore(ctx, tp, &auth.RedisConfig{
 			Address: "redis://" + redisServer.Addr(),
 			Prefix:  "prefix:",
 		})
@@ -100,7 +102,7 @@ func TestRedisStore(t *testing.T) {
 		err := redisClient.SetEx(ctx, "prefix:ticket:"+storeKey, "", time.Minute).Err()
 		assert.NilError(t, err)
 
-		store, err := auth.NewRedisStore(ctx, &auth.RedisConfig{
+		store, err := auth.NewRedisStore(ctx, tp, &auth.RedisConfig{
 			Address: "redis://" + redisServer.Addr(),
 			Prefix:  "prefix",
 		})
@@ -123,7 +125,7 @@ func TestRedisStore(t *testing.T) {
 		err := redisClient.SetEx(ctx, "prefix:ticket:"+storeKey, "", time.Second*5).Err()
 		assert.NilError(t, err)
 
-		store, err := auth.NewRedisStore(ctx, &auth.RedisConfig{
+		store, err := auth.NewRedisStore(ctx, tp, &auth.RedisConfig{
 			Address: "redis://" + redisServer.Addr(),
 			Prefix:  "prefix",
 		})
@@ -140,7 +142,7 @@ func TestRedisStore(t *testing.T) {
 		ctx := context.Background()
 		redisServer := miniredis.RunT(t)
 
-		store, err := auth.NewRedisStore(ctx, &auth.RedisConfig{
+		store, err := auth.NewRedisStore(ctx, tp, &auth.RedisConfig{
 			Address: "redis://" + redisServer.Addr(),
 			Prefix:  "prefix",
 		})

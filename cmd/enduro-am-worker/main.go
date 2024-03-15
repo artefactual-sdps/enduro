@@ -118,7 +118,7 @@ func main() {
 	// Set up the watcher service.
 	var wsvc watcher.Service
 	{
-		wsvc, err = watcher.New(ctx, logger.WithName("watcher"), &cfg.Watcher)
+		wsvc, err = watcher.New(ctx, tp, logger.WithName("watcher"), &cfg.Watcher)
 		if err != nil {
 			logger.Error(err, "Error setting up watchers.")
 			os.Exit(1)
@@ -126,7 +126,7 @@ func main() {
 	}
 
 	// Set up the event service.
-	evsvc, err := event.NewEventServiceRedis(logger.WithName("events"), &cfg.Event)
+	evsvc, err := event.NewEventServiceRedis(logger.WithName("events"), tp, &cfg.Event)
 	if err != nil {
 		logger.Error(err, "Error creating Event service.")
 		os.Exit(1)

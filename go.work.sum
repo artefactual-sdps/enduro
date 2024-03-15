@@ -992,6 +992,8 @@ github.com/aws/aws-sdk-go-v2/service/kms v1.26.3 h1:li5dFiK1tkAFXvOC9QPWAVWqTu8Z
 github.com/aws/aws-sdk-go-v2/service/kms v1.26.3/go.mod h1:N3++/sLV97B8Zliz7KRqNcojOX7iMBZWKiuit5FKtH0=
 github.com/aws/aws-sdk-go-v2/service/kms v1.29.2 h1:3UaqodPQqPh5XowXJ9fWM4TQqwuftYYFvej+RI5uIO8=
 github.com/aws/aws-sdk-go-v2/service/kms v1.29.2/go.mod h1:elLDaj+1RNl9Ovn3dB6dWLVo5WQ+VLSUMKegl7N96fY=
+github.com/aws/aws-sdk-go-v2/service/s3 v1.52.1 h1:Y/TTvxMdYwNvhzolvneV1wEEN/ncQUSd1AnzFGTMPqM=
+github.com/aws/aws-sdk-go-v2/service/s3 v1.52.1/go.mod h1:MGTaf3x/+z7ZGugCGvepnx2DS6+caCYYqKhzVoLNYPk=
 github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.20.1 h1:AD8gRAXAXDU9+XTm0Q3D+NBsMCX4TlpN/qnNYbbQLO4=
 github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.20.1/go.mod h1:aFRHxQ3V4bs/uVQYpg8Wm6szKWuB2KnraKcIGp5JS/I=
 github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.23.3 h1:NurfTBFmaehSiWMv5drydRWs3On0kwoBe1gWYFt+5ws=
@@ -1020,7 +1022,6 @@ github.com/aymerick/douceur v0.2.0 h1:Mv+mAeH1Q+n9Fr+oyamOlAkUNPWPlA8PPGR0QAaYuP
 github.com/aymerick/douceur v0.2.0/go.mod h1:wlT5vV2O3h55X9m7iVYN0TBM0NH/MmbLnd30/FjWUq4=
 github.com/benbjohnson/clock v1.1.0 h1:Q92kusRqC1XV2MjkWETPvjJVqKetz1OzxZB7mHJLju8=
 github.com/boombuler/barcode v1.0.1 h1:NDBbPmhS+EqABEs5Kg3n/5ZNjy73Pz7SIV+KCeqyXcs=
-github.com/bsm/ginkgo/v2 v2.7.0/go.mod h1:AiKlXPm7ItEHNc/2+OkrNG4E0ITzojb9/xWzvQ9XZ9w=
 github.com/bwesterb/go-ristretto v1.2.0/go.mod h1:fUIoIZaG73pV5biE2Blr2xEzDoMj7NFEuV9ekS419A0=
 github.com/bwesterb/go-ristretto v1.2.3 h1:1w53tCkGhCQ5djbat3+MH0BAQ5Kfgbt56UZQ/JMzngw=
 github.com/ccojocar/zxcvbn-go v1.0.1 h1:+sxrANSCj6CdadkcMnvde/GWU1vZiiXRbqYSCalV4/4=

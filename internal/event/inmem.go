@@ -26,7 +26,7 @@ func NewEventServiceInMemImpl() *EventServiceInMemImpl {
 //
 // If user's channel is full then the user is disconnected. This is to prevent
 // slow users from blocking progress.
-func (s *EventServiceInMemImpl) PublishEvent(event *goapackage.MonitorEvent) {
+func (s *EventServiceInMemImpl) PublishEvent(ctx context.Context, event *goapackage.MonitorEvent) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
