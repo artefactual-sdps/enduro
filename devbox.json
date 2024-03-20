@@ -5,7 +5,6 @@
     "k3d@latest",
     "nodejs_20@latest",
     "git@latest",
-    "go_1_21@latest",
     "docker@latest",
     "python3@latest",
     "markdownlint-cli@latest",
