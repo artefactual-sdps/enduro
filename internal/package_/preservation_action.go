@@ -460,7 +460,7 @@ func (svc *packageImpl) readPreservationAction(ctx context.Context, ID uint) (*g
 		WorkflowID:  dbItem.WorkflowID,
 		Type:        dbItem.Type.String(),
 		Status:      dbItem.Status.String(),
-		StartedAt:   ref.Deref(formatOptionalTime(dbItem.StartedAt)),
+		StartedAt:   ref.DerefZero(formatOptionalTime(dbItem.StartedAt)),
 		CompletedAt: formatOptionalTime(dbItem.CompletedAt),
 		PackageID:   ref.New(dbItem.PackageID),
 	}
@@ -495,7 +495,7 @@ func (svc *packageImpl) readPreservationTask(ctx context.Context, ID uint) (*goa
 		TaskID:               dbItem.TaskID,
 		Name:                 dbItem.Name,
 		Status:               dbItem.Status.String(),
-		StartedAt:            ref.Deref(formatOptionalTime(dbItem.StartedAt)),
+		StartedAt:            ref.DerefZero(formatOptionalTime(dbItem.StartedAt)),
 		CompletedAt:          formatOptionalTime(dbItem.CompletedAt),
 		Note:                 ref.New(dbItem.Note),
 		PreservationActionID: ref.New(dbItem.PreservationActionID),
