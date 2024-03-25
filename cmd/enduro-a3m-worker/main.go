@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"net/http/httptrace"
 	"net/http/pprof"
 	"os"
 	"os/signal"
@@ -17,6 +18,8 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/pflag"
 	"go.artefactual.dev/tools/log"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
 	temporalsdk_client "go.temporal.io/sdk/client"
 	temporalsdk_contrib_opentelemetry "go.temporal.io/sdk/contrib/opentelemetry"
@@ -206,6 +209,13 @@ func main() {
 		)
 
 		httpClient := cleanhttp.DefaultPooledClient()
+		httpClient.Transport = otelhttp.NewTransport(
+			httpClient.Transport,
+			otelhttp.WithTracerProvider(tp),
+			otelhttp.WithClientTrace(func(ctx context.Context) *httptrace.ClientTrace {
+				return otelhttptrace.NewClientTrace(ctx)
+			}),
+		)
 		storageHttpClient := goahttpstorage.NewClient(
 			"http",
 			cfg.Storage.EnduroAddress,

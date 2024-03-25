@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"net/http/httptrace"
 	"net/http/pprof"
 	"os"
 	"os/signal"
@@ -19,6 +20,8 @@ import (
 	"github.com/spf13/pflag"
 	"go.artefactual.dev/amclient"
 	"go.artefactual.dev/tools/log"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
 	temporalsdk_client "go.temporal.io/sdk/client"
 	temporalsdk_contrib_opentelemetry "go.temporal.io/sdk/contrib/opentelemetry"
@@ -186,8 +189,16 @@ func main() {
 		}
 
 		httpClient := cleanhttp.DefaultPooledClient()
-		sftpClient := sftp.NewGoClient(logger, cfg.AM.SFTP)
+		httpClient.Transport = otelhttp.NewTransport(
+			httpClient.Transport,
+			otelhttp.WithTracerProvider(tp),
+			otelhttp.WithClientTrace(func(ctx context.Context) *httptrace.ClientTrace {
+				return otelhttptrace.NewClientTrace(ctx)
+			}),
+		)
 		amc := amclient.NewClient(httpClient, cfg.AM.Address, cfg.AM.User, cfg.AM.APIKey)
+
+		sftpClient := sftp.NewGoClient(logger, cfg.AM.SFTP)
 
 		w.RegisterActivityWithOptions(
 			activities.NewDownloadActivity(logger, wsvc).Execute,
