@@ -140,7 +140,10 @@ func main() {
 			}),
 		)
 		client := entdb.NewClient(entdb.Driver(drv))
-		perSvc = entclient.New(logger.WithName("persistence"), client)
+		perSvc = persistence.WithTelemetry(
+			entclient.New(logger.WithName("persistence"), client),
+			tp.Tracer("persistence"),
+		)
 	}
 
 	// Set up the package service.

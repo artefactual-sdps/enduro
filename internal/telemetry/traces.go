@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-logr/logr"
 	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
 	"go.opentelemetry.io/otel/propagation"
 	otelsdk_resource "go.opentelemetry.io/otel/sdk/resource"
@@ -77,4 +78,9 @@ func TracerProvider(
 	logger.V(1).Info("Using OTel gRPC tracer provider.", "addr", cfg.Traces.Address, "ratio", ratio)
 
 	return tp, shutdown, nil
+}
+
+func RecordError(span trace.Span, err error) {
+	span.SetStatus(codes.Error, "Operation failed.")
+	span.RecordError(err)
 }
