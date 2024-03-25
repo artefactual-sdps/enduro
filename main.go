@@ -214,7 +214,10 @@ func main() {
 			}),
 		)
 		client := entdb.NewClient(entdb.Driver(drv))
-		perSvc = entclient.New(logger.WithName("persistence"), client)
+		perSvc = persistence.WithTelemetry(
+			entclient.New(logger.WithName("persistence"), client),
+			tp.Tracer("persistence"),
+		)
 	}
 
 	// Set up the package service.
@@ -232,7 +235,7 @@ func main() {
 		)
 	}
 
-	// Set up the ent db client.
+	// Set up the storage persistence layer.
 	var storagePersistence storage_persistence.Storage
 	{
 		drv := sqlcomment.NewDriver(
@@ -243,7 +246,10 @@ func main() {
 			}),
 		)
 		client := storage_entdb.NewClient(storage_entdb.Driver(drv))
-		storagePersistence = storage_entclient.NewClient(client)
+		storagePersistence = storage_persistence.WithTelemetry(
+			storage_entclient.NewClient(client),
+			tp.Tracer("storage/persistence"),
+		)
 	}
 
 	// Set up the storage service.
