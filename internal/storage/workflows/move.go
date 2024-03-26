@@ -46,7 +46,8 @@ func (w *StorageMoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req stor
 		err := temporalsdk_workflow.ExecuteActivity(activityOpts, storage.CopyToPermanentLocationActivityName, &storage.CopyToPermanentLocationActivityParams{
 			AIPID:      req.AIPID,
 			LocationID: req.LocationID,
-		}).Get(activityOpts, nil)
+		}).
+			Get(activityOpts, nil)
 		if err != nil {
 			return err
 		}
@@ -66,7 +67,8 @@ func (w *StorageMoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req stor
 		})
 		err := temporalsdk_workflow.ExecuteLocalActivity(activityOpts, storage.DeleteFromLocationLocalActivity, w.storagesvc, &storage.DeleteFromLocationLocalActivityParams{
 			AIPID: req.AIPID,
-		}).Get(activityOpts, nil)
+		}).
+			Get(activityOpts, nil)
 		if err != nil {
 			return err
 		}
@@ -86,7 +88,8 @@ func (w *StorageMoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req stor
 		err := temporalsdk_workflow.ExecuteLocalActivity(activityOpts, storage.UpdatePackageLocationLocalActivity, w.storagesvc, &storage.UpdatePackageLocationLocalActivityParams{
 			AIPID:      req.AIPID,
 			LocationID: req.LocationID,
-		}).Get(activityOpts, nil)
+		}).
+			Get(activityOpts, nil)
 		if err != nil {
 			return err
 		}
@@ -102,7 +105,11 @@ func (w *StorageMoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req stor
 	return nil
 }
 
-func (w *StorageMoveWorkflow) updatePackageStatus(ctx temporalsdk_workflow.Context, st types.PackageStatus, aipID uuid.UUID) error {
+func (w *StorageMoveWorkflow) updatePackageStatus(
+	ctx temporalsdk_workflow.Context,
+	st types.PackageStatus,
+	aipID uuid.UUID,
+) error {
 	activityOpts := temporalsdk_workflow.WithLocalActivityOptions(ctx, temporalsdk_workflow.LocalActivityOptions{
 		ScheduleToCloseTimeout: 5 * time.Second,
 		RetryPolicy: &temporalsdk_temporal.RetryPolicy{
@@ -118,5 +125,6 @@ func (w *StorageMoveWorkflow) updatePackageStatus(ctx temporalsdk_workflow.Conte
 		Status: st,
 	}
 
-	return temporalsdk_workflow.ExecuteLocalActivity(activityOpts, storage.UpdatePackageStatusLocalActivity, w.storagesvc, params).Get(activityOpts, nil)
+	return temporalsdk_workflow.ExecuteLocalActivity(activityOpts, storage.UpdatePackageStatusLocalActivity, w.storagesvc, params).
+		Get(activityOpts, nil)
 }

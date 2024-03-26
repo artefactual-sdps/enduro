@@ -26,7 +26,10 @@ func NewDeleteTransferActivity(logger logr.Logger, client sftp.Client) *DeleteTr
 	return &DeleteTransferActivity{client: client, logger: logger}
 }
 
-func (a *DeleteTransferActivity) Execute(ctx context.Context, params *DeleteTransferActivityParams) (*DeleteTransferActivityResult, error) {
+func (a *DeleteTransferActivity) Execute(
+	ctx context.Context,
+	params *DeleteTransferActivityParams,
+) (*DeleteTransferActivityResult, error) {
 	a.logger.V(1).Info("Execute DeleteTransferActivity",
 		"destination", params.Destination,
 	)

@@ -23,16 +23,33 @@ type Service interface {
 	// Goa returns an implementation of the goapackage Service.
 	Goa() goapackage.Service
 	Create(context.Context, *datatypes.Package) error
-	UpdateWorkflowStatus(ctx context.Context, ID uint, name, workflowID, runID, aipID string, status enums.PackageStatus, storedAt time.Time) error
+	UpdateWorkflowStatus(
+		ctx context.Context,
+		ID uint,
+		name, workflowID, runID, aipID string,
+		status enums.PackageStatus,
+		storedAt time.Time,
+	) error
 	SetStatus(ctx context.Context, ID uint, status enums.PackageStatus) error
 	SetStatusInProgress(ctx context.Context, ID uint, startedAt time.Time) error
 	SetStatusPending(ctx context.Context, ID uint) error
 	SetLocationID(ctx context.Context, ID uint, locationID uuid.UUID) error
 	CreatePreservationAction(ctx context.Context, pa *PreservationAction) error
 	SetPreservationActionStatus(ctx context.Context, ID uint, status PreservationActionStatus) error
-	CompletePreservationAction(ctx context.Context, ID uint, status PreservationActionStatus, completedAt time.Time) error
+	CompletePreservationAction(
+		ctx context.Context,
+		ID uint,
+		status PreservationActionStatus,
+		completedAt time.Time,
+	) error
 	CreatePreservationTask(ctx context.Context, pt *PreservationTask) error
-	CompletePreservationTask(ctx context.Context, ID uint, status PreservationTaskStatus, completedAt time.Time, note *string) error
+	CompletePreservationTask(
+		ctx context.Context,
+		ID uint,
+		status PreservationTaskStatus,
+		completedAt time.Time,
+		note *string,
+	) error
 }
 
 type packageImpl struct {
@@ -93,7 +110,13 @@ func (svc *packageImpl) Create(ctx context.Context, pkg *datatypes.Package) erro
 	return nil
 }
 
-func (svc *packageImpl) UpdateWorkflowStatus(ctx context.Context, ID uint, name, workflowID, runID, aipID string, status enums.PackageStatus, storedAt time.Time) error {
+func (svc *packageImpl) UpdateWorkflowStatus(
+	ctx context.Context,
+	ID uint,
+	name, workflowID, runID, aipID string,
+	status enums.PackageStatus,
+	storedAt time.Time,
+) error {
 	// Ensure that storedAt is reset during retries.
 	completedAt := &storedAt
 	if status == enums.PackageStatusInProgress {

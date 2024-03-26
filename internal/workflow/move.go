@@ -31,7 +31,8 @@ func (w *MoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req *package_.M
 	// Set package to in progress status.
 	{
 		ctx := withLocalActivityOpts(ctx)
-		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setStatusLocalActivity, w.pkgsvc, req.ID, enums.PackageStatusInProgress).Get(ctx, nil)
+		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setStatusLocalActivity, w.pkgsvc, req.ID, enums.PackageStatusInProgress).
+			Get(ctx, nil)
 		if err != nil {
 			return err
 		}
@@ -43,7 +44,8 @@ func (w *MoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req *package_.M
 		err := temporalsdk_workflow.ExecuteActivity(activityOpts, activities.MoveToPermanentStorageActivityName, &activities.MoveToPermanentStorageActivityParams{
 			AIPID:      req.AIPID,
 			LocationID: req.LocationID,
-		}).Get(activityOpts, nil)
+		}).
+			Get(activityOpts, nil)
 		if err != nil {
 			status = package_.ActionStatusError
 		}
@@ -55,7 +57,8 @@ func (w *MoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req *package_.M
 			activityOpts := withActivityOptsForLongLivedRequest(ctx)
 			err := temporalsdk_workflow.ExecuteActivity(activityOpts, activities.PollMoveToPermanentStorageActivityName, &activities.PollMoveToPermanentStorageActivityParams{
 				AIPID: req.AIPID,
-			}).Get(activityOpts, nil)
+			}).
+				Get(activityOpts, nil)
 			if err != nil {
 				status = package_.ActionStatusError
 			}
@@ -67,7 +70,8 @@ func (w *MoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req *package_.M
 	// Set package to done status.
 	{
 		ctx := withLocalActivityOpts(ctx)
-		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setStatusLocalActivity, w.pkgsvc, req.ID, enums.PackageStatusDone).Get(ctx, nil)
+		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setStatusLocalActivity, w.pkgsvc, req.ID, enums.PackageStatusDone).
+			Get(ctx, nil)
 		if err != nil {
 			return err
 		}
@@ -77,7 +81,8 @@ func (w *MoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req *package_.M
 	{
 		if status != package_.ActionStatusError {
 			ctx := withLocalActivityOpts(ctx)
-			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setLocationIDLocalActivity, w.pkgsvc, req.ID, req.LocationID).Get(ctx, nil)
+			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setLocationIDLocalActivity, w.pkgsvc, req.ID, req.LocationID).
+				Get(ctx, nil)
 			if err != nil {
 				return err
 			}
@@ -96,7 +101,8 @@ func (w *MoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req *package_.M
 			Status:      status,
 			StartedAt:   startedAt,
 			CompletedAt: completedAt,
-		}).Get(ctx, nil)
+		}).
+			Get(ctx, nil)
 		if err != nil {
 			return err
 		}

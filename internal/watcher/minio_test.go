@@ -252,7 +252,9 @@ func TestWatcherReturnsOnValidMessage(t *testing.T) {
 			return poll.Error(fmt.Errorf("watcher return an error unexpectedly: %w", err))
 		}
 		if event.Bucket != "bucket" || event.Key != "list-email-draft.txt" {
-			return poll.Error(fmt.Errorf("received unexpected event attributes (bucket %s, key %s)", event.Bucket, event.Key))
+			return poll.Error(
+				fmt.Errorf("received unexpected event attributes (bucket %s, key %s)", event.Bucket, event.Key),
+			)
 		}
 
 		return poll.Success()

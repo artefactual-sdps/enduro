@@ -37,7 +37,12 @@ type MinioEventSet struct {
 
 var _ Watcher = (*minioWatcher)(nil)
 
-func NewMinioWatcher(ctx context.Context, tp trace.TracerProvider, logger logr.Logger, config *MinioConfig) (*minioWatcher, error) {
+func NewMinioWatcher(
+	ctx context.Context,
+	tp trace.TracerProvider,
+	logger logr.Logger,
+	config *MinioConfig,
+) (*minioWatcher, error) {
 	opts, err := redis.ParseURL(config.RedisAddress)
 	if err != nil {
 		return nil, err

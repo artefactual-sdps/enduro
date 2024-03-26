@@ -76,7 +76,12 @@ type SubscriptionRedisImpl struct {
 
 var _ Subscription = (*SubscriptionRedisImpl)(nil)
 
-func NewSubscriptionRedis(ctx context.Context, logger logr.Logger, c redis.UniversalClient, channel string) Subscription {
+func NewSubscriptionRedis(
+	ctx context.Context,
+	logger logr.Logger,
+	c redis.UniversalClient,
+	channel string,
+) Subscription {
 	pubsub := c.Subscribe(ctx, channel)
 	// Call Receive to force the connection to wait a response from
 	// Redis so the subscription is active immediately.

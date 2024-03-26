@@ -87,7 +87,11 @@ func (c *client) CreatePackage(ctx context.Context, pkg *datatypes.Package) erro
 //
 // The package "ID" and "CreatedAt" field values can not be updated with this
 // method.
-func (c *client) UpdatePackage(ctx context.Context, id uint, updater persistence.PackageUpdater) (*datatypes.Package, error) {
+func (c *client) UpdatePackage(
+	ctx context.Context,
+	id uint,
+	updater persistence.PackageUpdater,
+) (*datatypes.Package, error) {
 	tx, err := c.ent.BeginTx(ctx, nil)
 	if err != nil {
 		return nil, newDBError(err)

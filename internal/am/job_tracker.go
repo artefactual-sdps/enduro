@@ -32,7 +32,12 @@ type JobTracker struct {
 	savedIDs map[string]struct{}
 }
 
-func NewJobTracker(clock clockwork.Clock, jobSvc amclient.JobsService, pkgSvc package_.Service, presActionID uint) *JobTracker {
+func NewJobTracker(
+	clock clockwork.Clock,
+	jobSvc amclient.JobsService,
+	pkgSvc package_.Service,
+	presActionID uint,
+) *JobTracker {
 	return &JobTracker{
 		clock:  clock,
 		jobSvc: jobSvc,

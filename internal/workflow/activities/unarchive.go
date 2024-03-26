@@ -44,7 +44,10 @@ func NewUnarchiveActivity(logger logr.Logger) *UnarchiveActivity {
 // Execute attempts to unarchive the archive file at SourcePath to a temporary
 // directory to DestPath. If SourcePath points to a non-archive file then the
 // returned DestPath will be equal to SourcePath.
-func (a *UnarchiveActivity) Execute(ctx context.Context, params *UnarchiveActivityParams) (*UnarchiveActivityResult, error) {
+func (a *UnarchiveActivity) Execute(
+	ctx context.Context,
+	params *UnarchiveActivityParams,
+) (*UnarchiveActivityResult, error) {
 	a.logger.V(1).Info("Executing UnarchiveActivity",
 		"SourcePath", params.SourcePath,
 		"StripTopLevelDir", params.StripTopLevelDir,

@@ -17,7 +17,10 @@ func NewTimer() *Timer {
 	return &Timer{}
 }
 
-func (t *Timer) WithTimeout(ctx temporalsdk_workflow.Context, d time.Duration) (temporalsdk_workflow.Context, temporalsdk_workflow.CancelFunc) {
+func (t *Timer) WithTimeout(
+	ctx temporalsdk_workflow.Context,
+	d time.Duration,
+) (temporalsdk_workflow.Context, temporalsdk_workflow.CancelFunc) {
 	logger := temporalsdk_workflow.GetLogger(ctx)
 
 	timedCtx, cancelHandler := temporalsdk_workflow.WithCancel(ctx)

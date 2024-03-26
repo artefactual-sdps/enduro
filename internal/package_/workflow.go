@@ -96,7 +96,11 @@ type MoveWorkflowRequest struct {
 	TaskQueue  string
 }
 
-func InitMoveWorkflow(ctx context.Context, tc temporalsdk_client.Client, req *MoveWorkflowRequest) (temporalsdk_client.WorkflowRun, error) {
+func InitMoveWorkflow(
+	ctx context.Context,
+	tc temporalsdk_client.Client,
+	req *MoveWorkflowRequest,
+) (temporalsdk_client.WorkflowRun, error) {
 	ctx, cancel := context.WithTimeout(ctx, time.Second*5)
 	defer cancel()
 

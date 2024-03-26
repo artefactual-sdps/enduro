@@ -112,7 +112,12 @@ func (b *bucket) ListPaged(ctx context.Context, opts *driver.ListOptions) (*driv
 	return nil, errNotImplemented
 }
 
-func (b *bucket) NewRangeReader(ctx context.Context, key string, offset, length int64, opts *driver.ReaderOptions) (driver.Reader, error) {
+func (b *bucket) NewRangeReader(
+	ctx context.Context,
+	key string,
+	offset, length int64,
+	opts *driver.ReaderOptions,
+) (driver.Reader, error) {
 	url := b.baseURL.JoinPath("api/v2/file", key, "download")
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url.String(), nil)
 	if err != nil {
@@ -137,7 +142,11 @@ func (b *bucket) NewRangeReader(ctx context.Context, key string, offset, length 
 	}, nil
 }
 
-func (b *bucket) NewTypedWriter(ctx context.Context, key, contentType string, opts *driver.WriterOptions) (driver.Writer, error) {
+func (b *bucket) NewTypedWriter(
+	ctx context.Context,
+	key, contentType string,
+	opts *driver.WriterOptions,
+) (driver.Writer, error) {
 	return nil, errNotImplemented
 }
 

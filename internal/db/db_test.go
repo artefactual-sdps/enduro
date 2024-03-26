@@ -61,6 +61,10 @@ func TestMigrateEnduroDatabase(t *testing.T) {
 		}()
 
 		err = MigrateEnduroDatabase(db)
-		assert.Error(t, err, "error creating golang-migrate object: error creating migrate driver: no such function: DATABASE in line 0: SELECT DATABASE()")
+		assert.Error(
+			t,
+			err,
+			"error creating golang-migrate object: error creating migrate driver: no such function: DATABASE in line 0: SELECT DATABASE()",
+		)
 	})
 }

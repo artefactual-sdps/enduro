@@ -36,7 +36,11 @@ type CopyToPermanentLocationActivityParams struct {
 
 type UploadDoneSignal struct{}
 
-func InitStorageUploadWorkflow(ctx context.Context, tc temporalsdk_client.Client, req *StorageUploadWorkflowRequest) (temporalsdk_client.WorkflowRun, error) {
+func InitStorageUploadWorkflow(
+	ctx context.Context,
+	tc temporalsdk_client.Client,
+	req *StorageUploadWorkflowRequest,
+) (temporalsdk_client.WorkflowRun, error) {
 	ctx, cancel := context.WithTimeout(ctx, time.Second*5)
 	defer cancel()
 
@@ -48,7 +52,11 @@ func InitStorageUploadWorkflow(ctx context.Context, tc temporalsdk_client.Client
 	return tc.ExecuteWorkflow(ctx, opts, StorageUploadWorkflowName, req)
 }
 
-func InitStorageMoveWorkflow(ctx context.Context, tc temporalsdk_client.Client, req *StorageMoveWorkflowRequest) (temporalsdk_client.WorkflowRun, error) {
+func InitStorageMoveWorkflow(
+	ctx context.Context,
+	tc temporalsdk_client.Client,
+	req *StorageMoveWorkflowRequest,
+) (temporalsdk_client.WorkflowRun, error) {
 	ctx, cancel := context.WithTimeout(ctx, time.Second*5)
 	defer cancel()
 

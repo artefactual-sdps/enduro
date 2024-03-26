@@ -39,7 +39,12 @@ var _ Service = (*serviceImpl)(nil)
 
 var ErrInvalidToken error = goastorage.Unauthorized("invalid token")
 
-func NewService(logger logr.Logger, config Config, uploadMaxSize int, tokenVerifier auth.TokenVerifier) (s *serviceImpl, err error) {
+func NewService(
+	logger logr.Logger,
+	config Config,
+	uploadMaxSize int,
+	tokenVerifier auth.TokenVerifier,
+) (s *serviceImpl, err error) {
 	s = &serviceImpl{
 		logger:        logger,
 		config:        config,
@@ -78,7 +83,11 @@ func (s *serviceImpl) openBucket(ctx context.Context, config Config) error {
 	return nil
 }
 
-func (s *serviceImpl) OAuth2Auth(ctx context.Context, token string, scheme *security.OAuth2Scheme) (context.Context, error) {
+func (s *serviceImpl) OAuth2Auth(
+	ctx context.Context,
+	token string,
+	scheme *security.OAuth2Scheme,
+) (context.Context, error) {
 	ok, err := s.tokenVerifier.Verify(ctx, token)
 	if err != nil {
 		s.logger.V(1).Info("failed to verify token", "err", err)

@@ -65,7 +65,10 @@ func NewPollTransferActivity(
 // A transfer status of "REJECTED", "FAILED", "USER_INPUT", or "BACKLOG" returns
 // a temporal.NonRetryableApplicationError to indicate that processing can not
 // continue.
-func (a *PollTransferActivity) Execute(ctx context.Context, params *PollTransferActivityParams) (*PollTransferActivityResult, error) {
+func (a *PollTransferActivity) Execute(
+	ctx context.Context,
+	params *PollTransferActivityParams,
+) (*PollTransferActivityResult, error) {
 	var taskCount int
 
 	a.logger.V(1).Info("Executing PollTransferActivity",
@@ -108,7 +111,11 @@ func (a *PollTransferActivity) Execute(ctx context.Context, params *PollTransfer
 //
 // If the transfer is still in progress or completed successfully, poll saves
 // the AM jobs progress as preservation tasks via JobTracker.
-func (a *PollTransferActivity) poll(ctx context.Context, jobTracker *JobTracker, transferID string) (*amclient.TransferStatusResponse, int, error) {
+func (a *PollTransferActivity) poll(
+	ctx context.Context,
+	jobTracker *JobTracker,
+	transferID string,
+) (*amclient.TransferStatusResponse, int, error) {
 	var stillWorking bool
 
 	// Add a context timeout to prevent missing the heartbeat deadline.
@@ -149,7 +156,10 @@ func (a *PollTransferActivity) poll(ctx context.Context, jobTracker *JobTracker,
 	return resp, count, nil
 }
 
-func (a *PollTransferActivity) transferStatus(ctx context.Context, transferID string) (*amclient.TransferStatusResponse, error) {
+func (a *PollTransferActivity) transferStatus(
+	ctx context.Context,
+	transferID string,
+) (*amclient.TransferStatusResponse, error) {
 	resp, httpResp, err := a.tfrSvc.Status(ctx, transferID)
 	if err != nil {
 		return resp, convertAMClientError(httpResp, err)

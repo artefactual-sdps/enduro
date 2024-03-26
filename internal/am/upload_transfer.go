@@ -53,7 +53,10 @@ func NewUploadTransferActivity(
 }
 
 // Execute copies the source transfer to the destination via SFTP.
-func (a *UploadTransferActivity) Execute(ctx context.Context, params *UploadTransferActivityParams) (*UploadTransferActivityResult, error) {
+func (a *UploadTransferActivity) Execute(
+	ctx context.Context,
+	params *UploadTransferActivityParams,
+) (*UploadTransferActivityResult, error) {
 	a.logger.V(1).Info("Execute UploadTransferActivity", "SourcePath", params.SourcePath)
 
 	src, err := os.Open(params.SourcePath)

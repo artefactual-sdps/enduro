@@ -17,7 +17,10 @@ func NewCopyToPermanentLocationActivity(storagesvc storage.Service) *CopyToPerma
 	return &CopyToPermanentLocationActivity{storagesvc: storagesvc}
 }
 
-func (a *CopyToPermanentLocationActivity) Execute(ctx context.Context, params *storage.CopyToPermanentLocationActivityParams) (*CopyToPermanentLocationActivityResult, error) {
+func (a *CopyToPermanentLocationActivity) Execute(
+	ctx context.Context,
+	params *storage.CopyToPermanentLocationActivityParams,
+) (*CopyToPermanentLocationActivityResult, error) {
 	p, err := a.storagesvc.ReadPackage(ctx, params.AIPID)
 	if err != nil {
 		return &CopyToPermanentLocationActivityResult{}, err
