@@ -18,6 +18,7 @@ include hack/make/bootstrap.mk
 include hack/make/dep_ent.mk
 include hack/make/dep_goa.mk
 include hack/make/dep_golangci_lint.mk
+include hack/make/dep_golines.mk
 include hack/make/dep_gomajor.mk
 include hack/make/dep_gosec.mk
 include hack/make/dep_gotestsum.mk
@@ -31,6 +32,7 @@ include hack/make/dep_workflowcheck.mk
 TOOLS = $(ENT) \
 	$(GOA) \
 	$(GOLANGCI_LINT) \
+	$(GOLINES) \
 	$(GOMAJOR) \
 	$(GOSEC) \
 	$(GOTESTSUM) \
@@ -72,6 +74,18 @@ env:
 deps: # @HELP List available module dependency updates.
 deps: $(GOMAJOR)
 	gomajor list
+
+golines: # @HELP Run the golines formatter to fix long lines.
+golines: $(GOLINES)
+	golines \
+		--base-formatter=goimports \
+		--chain-split-dots \
+		--ignored-dirs="$(TEST_IGNORED_PACKAGES)" \
+		--max-len=120 \
+		--reformat-tags \
+		--shorten-comments \
+		--write-output \
+		.
 
 tparse: # @HELP Run all tests and output a coverage report using tparse.
 tparse: $(TPARSE)
