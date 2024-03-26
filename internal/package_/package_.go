@@ -23,7 +23,7 @@ type Service interface {
 	// Goa returns an implementation of the goapackage Service.
 	Goa() goapackage.Service
 	Create(context.Context, *datatypes.Package) error
-	UpdateWorkflowStatus(ctx context.Context, ID uint, name string, workflowID, runID, aipID string, status enums.PackageStatus, storedAt time.Time) error
+	UpdateWorkflowStatus(ctx context.Context, ID uint, name, workflowID, runID, aipID string, status enums.PackageStatus, storedAt time.Time) error
 	SetStatus(ctx context.Context, ID uint, status enums.PackageStatus) error
 	SetStatusInProgress(ctx context.Context, ID uint, startedAt time.Time) error
 	SetStatusPending(ctx context.Context, ID uint) error
@@ -93,7 +93,7 @@ func (svc *packageImpl) Create(ctx context.Context, pkg *datatypes.Package) erro
 	return nil
 }
 
-func (svc *packageImpl) UpdateWorkflowStatus(ctx context.Context, ID uint, name string, workflowID, runID, aipID string, status enums.PackageStatus, storedAt time.Time) error {
+func (svc *packageImpl) UpdateWorkflowStatus(ctx context.Context, ID uint, name, workflowID, runID, aipID string, status enums.PackageStatus, storedAt time.Time) error {
 	// Ensure that storedAt is reset during retries.
 	completedAt := &storedAt
 	if status == enums.PackageStatusInProgress {
