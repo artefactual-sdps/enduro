@@ -34,6 +34,13 @@ export const useLayoutStore = defineStore("layout", {
     updateBreadcrumb(breadcrumb: Array<BreadcrumbItem>) {
       this.breadcrumb = breadcrumb;
     },
+    // Load the currently authenticated user.
+    async loadUser() {
+      if (this.user === null) {
+        const user = await auth.getUser();
+        this.setUser(user);
+      }
+    },
     setUser(user: User | null) {
       this.user = user;
     },

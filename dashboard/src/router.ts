@@ -6,9 +6,12 @@ const router = createRouter({
   strict: false,
 });
 
-router.beforeEach((to, _, next) => {
+const publicRoutes: Array<string> = ["/user/signin", "/user/signin-callback"];
+
+// Send unauthenticated users to the sign-in page.
+router.beforeEach(async (to, _, next) => {
   const layoutStore = useLayoutStore();
-  const publicRoutes: Array<string> = ["/user/signin", "/user/signin-callback"];
+  await layoutStore.loadUser();
   const routeName = to.name?.toString() || "";
   if (!layoutStore.isUserValid && !publicRoutes.includes(routeName)) {
     next({ name: "/user/signin" });
