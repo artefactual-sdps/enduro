@@ -270,6 +270,16 @@ func StartedAtLTE(v time.Time) predicate.PreservationAction {
 	return predicate.PreservationAction(sql.FieldLTE(FieldStartedAt, v))
 }
 
+// StartedAtIsNil applies the IsNil predicate on the "started_at" field.
+func StartedAtIsNil() predicate.PreservationAction {
+	return predicate.PreservationAction(sql.FieldIsNull(FieldStartedAt))
+}
+
+// StartedAtNotNil applies the NotNil predicate on the "started_at" field.
+func StartedAtNotNil() predicate.PreservationAction {
+	return predicate.PreservationAction(sql.FieldNotNull(FieldStartedAt))
+}
+
 // CompletedAtEQ applies the EQ predicate on the "completed_at" field.
 func CompletedAtEQ(v time.Time) predicate.PreservationAction {
 	return predicate.PreservationAction(sql.FieldEQ(FieldCompletedAt, v))
@@ -308,6 +318,16 @@ func CompletedAtLT(v time.Time) predicate.PreservationAction {
 // CompletedAtLTE applies the LTE predicate on the "completed_at" field.
 func CompletedAtLTE(v time.Time) predicate.PreservationAction {
 	return predicate.PreservationAction(sql.FieldLTE(FieldCompletedAt, v))
+}
+
+// CompletedAtIsNil applies the IsNil predicate on the "completed_at" field.
+func CompletedAtIsNil() predicate.PreservationAction {
+	return predicate.PreservationAction(sql.FieldIsNull(FieldCompletedAt))
+}
+
+// CompletedAtNotNil applies the NotNil predicate on the "completed_at" field.
+func CompletedAtNotNil() predicate.PreservationAction {
+	return predicate.PreservationAction(sql.FieldNotNull(FieldCompletedAt))
 }
 
 // PackageIDEQ applies the EQ predicate on the "package_id" field.

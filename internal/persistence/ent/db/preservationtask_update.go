@@ -93,6 +93,12 @@ func (ptu *PreservationTaskUpdate) SetNillableStartedAt(t *time.Time) *Preservat
 	return ptu
 }
 
+// ClearStartedAt clears the value of the "started_at" field.
+func (ptu *PreservationTaskUpdate) ClearStartedAt() *PreservationTaskUpdate {
+	ptu.mutation.ClearStartedAt()
+	return ptu
+}
+
 // SetCompletedAt sets the "completed_at" field.
 func (ptu *PreservationTaskUpdate) SetCompletedAt(t time.Time) *PreservationTaskUpdate {
 	ptu.mutation.SetCompletedAt(t)
@@ -104,6 +110,12 @@ func (ptu *PreservationTaskUpdate) SetNillableCompletedAt(t *time.Time) *Preserv
 	if t != nil {
 		ptu.SetCompletedAt(*t)
 	}
+	return ptu
+}
+
+// ClearCompletedAt clears the value of the "completed_at" field.
+func (ptu *PreservationTaskUpdate) ClearCompletedAt() *PreservationTaskUpdate {
+	ptu.mutation.ClearCompletedAt()
 	return ptu
 }
 
@@ -224,8 +236,14 @@ func (ptu *PreservationTaskUpdate) sqlSave(ctx context.Context) (n int, err erro
 	if value, ok := ptu.mutation.StartedAt(); ok {
 		_spec.SetField(preservationtask.FieldStartedAt, field.TypeTime, value)
 	}
+	if ptu.mutation.StartedAtCleared() {
+		_spec.ClearField(preservationtask.FieldStartedAt, field.TypeTime)
+	}
 	if value, ok := ptu.mutation.CompletedAt(); ok {
 		_spec.SetField(preservationtask.FieldCompletedAt, field.TypeTime, value)
+	}
+	if ptu.mutation.CompletedAtCleared() {
+		_spec.ClearField(preservationtask.FieldCompletedAt, field.TypeTime)
 	}
 	if value, ok := ptu.mutation.Note(); ok {
 		_spec.SetField(preservationtask.FieldNote, field.TypeString, value)
@@ -342,6 +360,12 @@ func (ptuo *PreservationTaskUpdateOne) SetNillableStartedAt(t *time.Time) *Prese
 	return ptuo
 }
 
+// ClearStartedAt clears the value of the "started_at" field.
+func (ptuo *PreservationTaskUpdateOne) ClearStartedAt() *PreservationTaskUpdateOne {
+	ptuo.mutation.ClearStartedAt()
+	return ptuo
+}
+
 // SetCompletedAt sets the "completed_at" field.
 func (ptuo *PreservationTaskUpdateOne) SetCompletedAt(t time.Time) *PreservationTaskUpdateOne {
 	ptuo.mutation.SetCompletedAt(t)
@@ -353,6 +377,12 @@ func (ptuo *PreservationTaskUpdateOne) SetNillableCompletedAt(t *time.Time) *Pre
 	if t != nil {
 		ptuo.SetCompletedAt(*t)
 	}
+	return ptuo
+}
+
+// ClearCompletedAt clears the value of the "completed_at" field.
+func (ptuo *PreservationTaskUpdateOne) ClearCompletedAt() *PreservationTaskUpdateOne {
+	ptuo.mutation.ClearCompletedAt()
 	return ptuo
 }
 
@@ -503,8 +533,14 @@ func (ptuo *PreservationTaskUpdateOne) sqlSave(ctx context.Context) (_node *Pres
 	if value, ok := ptuo.mutation.StartedAt(); ok {
 		_spec.SetField(preservationtask.FieldStartedAt, field.TypeTime, value)
 	}
+	if ptuo.mutation.StartedAtCleared() {
+		_spec.ClearField(preservationtask.FieldStartedAt, field.TypeTime)
+	}
 	if value, ok := ptuo.mutation.CompletedAt(); ok {
 		_spec.SetField(preservationtask.FieldCompletedAt, field.TypeTime, value)
+	}
+	if ptuo.mutation.CompletedAtCleared() {
+		_spec.ClearField(preservationtask.FieldCompletedAt, field.TypeTime)
 	}
 	if value, ok := ptuo.mutation.Note(); ok {
 		_spec.SetField(preservationtask.FieldNote, field.TypeString, value)

@@ -29,8 +29,10 @@ func (PreservationAction) Fields() []ent.Field {
 			}),
 		field.Int8("type"),
 		field.Int8("status"),
-		field.Time("started_at"),
-		field.Time("completed_at"),
+		field.Time("started_at").
+			Optional(),
+		field.Time("completed_at").
+			Optional(),
 		field.Int("package_id").
 			Positive(),
 	}

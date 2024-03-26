@@ -1299,9 +1299,22 @@ func (m *PreservationActionMutation) OldStartedAt(ctx context.Context) (v time.T
 	return oldValue.StartedAt, nil
 }
 
+// ClearStartedAt clears the value of the "started_at" field.
+func (m *PreservationActionMutation) ClearStartedAt() {
+	m.started_at = nil
+	m.clearedFields[preservationaction.FieldStartedAt] = struct{}{}
+}
+
+// StartedAtCleared returns if the "started_at" field was cleared in this mutation.
+func (m *PreservationActionMutation) StartedAtCleared() bool {
+	_, ok := m.clearedFields[preservationaction.FieldStartedAt]
+	return ok
+}
+
 // ResetStartedAt resets all changes to the "started_at" field.
 func (m *PreservationActionMutation) ResetStartedAt() {
 	m.started_at = nil
+	delete(m.clearedFields, preservationaction.FieldStartedAt)
 }
 
 // SetCompletedAt sets the "completed_at" field.
@@ -1335,9 +1348,22 @@ func (m *PreservationActionMutation) OldCompletedAt(ctx context.Context) (v time
 	return oldValue.CompletedAt, nil
 }
 
+// ClearCompletedAt clears the value of the "completed_at" field.
+func (m *PreservationActionMutation) ClearCompletedAt() {
+	m.completed_at = nil
+	m.clearedFields[preservationaction.FieldCompletedAt] = struct{}{}
+}
+
+// CompletedAtCleared returns if the "completed_at" field was cleared in this mutation.
+func (m *PreservationActionMutation) CompletedAtCleared() bool {
+	_, ok := m.clearedFields[preservationaction.FieldCompletedAt]
+	return ok
+}
+
 // ResetCompletedAt resets all changes to the "completed_at" field.
 func (m *PreservationActionMutation) ResetCompletedAt() {
 	m.completed_at = nil
+	delete(m.clearedFields, preservationaction.FieldCompletedAt)
 }
 
 // SetPackageID sets the "package_id" field.
@@ -1658,7 +1684,14 @@ func (m *PreservationActionMutation) AddField(name string, value ent.Value) erro
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *PreservationActionMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(preservationaction.FieldStartedAt) {
+		fields = append(fields, preservationaction.FieldStartedAt)
+	}
+	if m.FieldCleared(preservationaction.FieldCompletedAt) {
+		fields = append(fields, preservationaction.FieldCompletedAt)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -1671,6 +1704,14 @@ func (m *PreservationActionMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *PreservationActionMutation) ClearField(name string) error {
+	switch name {
+	case preservationaction.FieldStartedAt:
+		m.ClearStartedAt()
+		return nil
+	case preservationaction.FieldCompletedAt:
+		m.ClearCompletedAt()
+		return nil
+	}
 	return fmt.Errorf("unknown PreservationAction nullable field %s", name)
 }
 
@@ -2080,9 +2121,22 @@ func (m *PreservationTaskMutation) OldStartedAt(ctx context.Context) (v time.Tim
 	return oldValue.StartedAt, nil
 }
 
+// ClearStartedAt clears the value of the "started_at" field.
+func (m *PreservationTaskMutation) ClearStartedAt() {
+	m.started_at = nil
+	m.clearedFields[preservationtask.FieldStartedAt] = struct{}{}
+}
+
+// StartedAtCleared returns if the "started_at" field was cleared in this mutation.
+func (m *PreservationTaskMutation) StartedAtCleared() bool {
+	_, ok := m.clearedFields[preservationtask.FieldStartedAt]
+	return ok
+}
+
 // ResetStartedAt resets all changes to the "started_at" field.
 func (m *PreservationTaskMutation) ResetStartedAt() {
 	m.started_at = nil
+	delete(m.clearedFields, preservationtask.FieldStartedAt)
 }
 
 // SetCompletedAt sets the "completed_at" field.
@@ -2116,9 +2170,22 @@ func (m *PreservationTaskMutation) OldCompletedAt(ctx context.Context) (v time.T
 	return oldValue.CompletedAt, nil
 }
 
+// ClearCompletedAt clears the value of the "completed_at" field.
+func (m *PreservationTaskMutation) ClearCompletedAt() {
+	m.completed_at = nil
+	m.clearedFields[preservationtask.FieldCompletedAt] = struct{}{}
+}
+
+// CompletedAtCleared returns if the "completed_at" field was cleared in this mutation.
+func (m *PreservationTaskMutation) CompletedAtCleared() bool {
+	_, ok := m.clearedFields[preservationtask.FieldCompletedAt]
+	return ok
+}
+
 // ResetCompletedAt resets all changes to the "completed_at" field.
 func (m *PreservationTaskMutation) ResetCompletedAt() {
 	m.completed_at = nil
+	delete(m.clearedFields, preservationtask.FieldCompletedAt)
 }
 
 // SetNote sets the "note" field.
@@ -2436,7 +2503,14 @@ func (m *PreservationTaskMutation) AddField(name string, value ent.Value) error 
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *PreservationTaskMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(preservationtask.FieldStartedAt) {
+		fields = append(fields, preservationtask.FieldStartedAt)
+	}
+	if m.FieldCleared(preservationtask.FieldCompletedAt) {
+		fields = append(fields, preservationtask.FieldCompletedAt)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -2449,6 +2523,14 @@ func (m *PreservationTaskMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *PreservationTaskMutation) ClearField(name string) error {
+	switch name {
+	case preservationtask.FieldStartedAt:
+		m.ClearStartedAt()
+		return nil
+	case preservationtask.FieldCompletedAt:
+		m.ClearCompletedAt()
+		return nil
+	}
 	return fmt.Errorf("unknown PreservationTask nullable field %s", name)
 }
 
