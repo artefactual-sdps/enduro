@@ -246,7 +246,14 @@ func main() {
 	// Set up the storage service.
 	var storagesvc storage.Service
 	{
-		storagesvc, err = storage.NewService(logger.WithName("storage"), cfg.Storage, storagePersistence, temporalClient, tokenVerifier, rand.Reader)
+		storagesvc, err = storage.NewService(
+			logger.WithName("storage"),
+			cfg.Storage,
+			storagePersistence,
+			temporalClient,
+			tokenVerifier,
+			rand.Reader,
+		)
 		if err != nil {
 			logger.Error(err, "Error setting up storage service.")
 			os.Exit(1)
@@ -315,7 +322,8 @@ func main() {
 								span.End()
 								continue
 							}
-							logger.V(1).Info("Starting new workflow", "watcher", event.WatcherName, "bucket", event.Bucket, "key", event.Key, "dir", event.IsDir)
+							logger.V(1).
+								Info("Starting new workflow", "watcher", event.WatcherName, "bucket", event.Bucket, "key", event.Key, "dir", event.IsDir)
 							go func() {
 								defer span.End()
 								req := package_.ProcessingWorkflowRequest{
@@ -363,19 +371,47 @@ func main() {
 			os.Exit(1)
 		}
 
-		w.RegisterWorkflowWithOptions(workflow.NewProcessingWorkflow(logger, cfg, pkgsvc, wsvc).Execute, temporalsdk_workflow.RegisterOptions{Name: package_.ProcessingWorkflowName})
-		w.RegisterActivityWithOptions(activities.NewDeleteOriginalActivity(wsvc).Execute, temporalsdk_activity.RegisterOptions{Name: activities.DeleteOriginalActivityName})
-		w.RegisterActivityWithOptions(activities.NewDisposeOriginalActivity(wsvc).Execute, temporalsdk_activity.RegisterOptions{Name: activities.DisposeOriginalActivityName})
+		w.RegisterWorkflowWithOptions(
+			workflow.NewProcessingWorkflow(logger, cfg, pkgsvc, wsvc).Execute,
+			temporalsdk_workflow.RegisterOptions{Name: package_.ProcessingWorkflowName},
+		)
+		w.RegisterActivityWithOptions(
+			activities.NewDeleteOriginalActivity(wsvc).Execute,
+			temporalsdk_activity.RegisterOptions{Name: activities.DeleteOriginalActivityName},
+		)
+		w.RegisterActivityWithOptions(
+			activities.NewDisposeOriginalActivity(wsvc).Execute,
+			temporalsdk_activity.RegisterOptions{Name: activities.DisposeOriginalActivityName},
+		)
 
-		w.RegisterWorkflowWithOptions(storage_workflows.NewStorageUploadWorkflow().Execute, temporalsdk_workflow.RegisterOptions{Name: storage.StorageUploadWorkflowName})
-		w.RegisterWorkflowWithOptions(storage_workflows.NewStorageMoveWorkflow(storagesvc).Execute, temporalsdk_workflow.RegisterOptions{Name: storage.StorageMoveWorkflowName})
+		w.RegisterWorkflowWithOptions(
+			storage_workflows.NewStorageUploadWorkflow().Execute,
+			temporalsdk_workflow.RegisterOptions{Name: storage.StorageUploadWorkflowName},
+		)
+		w.RegisterWorkflowWithOptions(
+			storage_workflows.NewStorageMoveWorkflow(storagesvc).Execute,
+			temporalsdk_workflow.RegisterOptions{Name: storage.StorageMoveWorkflowName},
+		)
 
-		w.RegisterActivityWithOptions(storage_activities.NewCopyToPermanentLocationActivity(storagesvc).Execute, temporalsdk_activity.RegisterOptions{Name: storage.CopyToPermanentLocationActivityName})
+		w.RegisterActivityWithOptions(
+			storage_activities.NewCopyToPermanentLocationActivity(storagesvc).Execute,
+			temporalsdk_activity.RegisterOptions{Name: storage.CopyToPermanentLocationActivityName},
+		)
 
-		w.RegisterWorkflowWithOptions(workflow.NewMoveWorkflow(logger, pkgsvc).Execute, temporalsdk_workflow.RegisterOptions{Name: package_.MoveWorkflowName})
+		w.RegisterWorkflowWithOptions(
+			workflow.NewMoveWorkflow(logger, pkgsvc).Execute,
+			temporalsdk_workflow.RegisterOptions{Name: package_.MoveWorkflowName},
+		)
 
 		httpClient := cleanhttp.DefaultPooledClient()
-		storageHttpClient := goahttpstorage.NewClient("http", cfg.Storage.EnduroAddress, httpClient, goahttp.RequestEncoder, goahttp.ResponseDecoder, false)
+		storageHttpClient := goahttpstorage.NewClient(
+			"http",
+			cfg.Storage.EnduroAddress,
+			httpClient,
+			goahttp.RequestEncoder,
+			goahttp.ResponseDecoder,
+			false,
+		)
 		storageClient := goastorage.NewClient(
 			storageHttpClient.Submit(),
 			storageHttpClient.Update(),
@@ -389,8 +425,14 @@ func main() {
 			storageHttpClient.ShowLocation(),
 			storageHttpClient.LocationPackages(),
 		)
-		w.RegisterActivityWithOptions(activities.NewMoveToPermanentStorageActivity(storageClient).Execute, temporalsdk_activity.RegisterOptions{Name: activities.MoveToPermanentStorageActivityName})
-		w.RegisterActivityWithOptions(activities.NewPollMoveToPermanentStorageActivity(storageClient).Execute, temporalsdk_activity.RegisterOptions{Name: activities.PollMoveToPermanentStorageActivityName})
+		w.RegisterActivityWithOptions(
+			activities.NewMoveToPermanentStorageActivity(storageClient).Execute,
+			temporalsdk_activity.RegisterOptions{Name: activities.MoveToPermanentStorageActivityName},
+		)
+		w.RegisterActivityWithOptions(
+			activities.NewPollMoveToPermanentStorageActivity(storageClient).Execute,
+			temporalsdk_activity.RegisterOptions{Name: activities.PollMoveToPermanentStorageActivityName},
+		)
 
 		g.Add(
 			func() error {

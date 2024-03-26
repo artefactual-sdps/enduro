@@ -16,6 +16,9 @@ func NewDeleteOriginalActivity(wsvc watcher.Service) *DeleteOriginalActivity {
 	return &DeleteOriginalActivity{wsvc: wsvc}
 }
 
-func (a *DeleteOriginalActivity) Execute(ctx context.Context, watcherName, key string) (*DeleteOriginalActivityResult, error) {
+func (a *DeleteOriginalActivity) Execute(
+	ctx context.Context,
+	watcherName, key string,
+) (*DeleteOriginalActivityResult, error) {
 	return &DeleteOriginalActivityResult{}, a.wsvc.Delete(ctx, watcherName, key)
 }

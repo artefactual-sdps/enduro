@@ -36,7 +36,10 @@ func NewStartTransferActivity(logger logr.Logger, cfg *Config, amps amclient.Pac
 // "auto-approved" transfer. If the request is successful a transfer UUID is
 // returned.  An error response will return a retryable or non-retryable
 // temporal.ApplicationError, depending on the nature of the error.
-func (a *StartTransferActivity) Execute(ctx context.Context, opts *StartTransferActivityParams) (*StartTransferActivityResult, error) {
+func (a *StartTransferActivity) Execute(
+	ctx context.Context,
+	opts *StartTransferActivityParams,
+) (*StartTransferActivityResult, error) {
 	a.logger.V(1).Info("Executing StartTransferActivity", "Name", opts.Name, "Path", opts.Path)
 
 	processingConfig := a.cfg.ProcessingConfig

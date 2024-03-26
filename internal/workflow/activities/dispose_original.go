@@ -16,6 +16,9 @@ func NewDisposeOriginalActivity(wsvc watcher.Service) *DisposeOriginalActivity {
 	return &DisposeOriginalActivity{wsvc: wsvc}
 }
 
-func (a *DisposeOriginalActivity) Execute(ctx context.Context, watcherName, completedDir, key string) (*DisposeOriginalActivityResult, error) {
+func (a *DisposeOriginalActivity) Execute(
+	ctx context.Context,
+	watcherName, completedDir, key string,
+) (*DisposeOriginalActivityResult, error) {
 	return &DisposeOriginalActivityResult{}, a.wsvc.Dispose(ctx, watcherName, key)
 }

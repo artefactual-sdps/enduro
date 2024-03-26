@@ -17,9 +17,15 @@ import (
 
 // TracerProvider provides Tracers that are used by instrumentation code to
 // trace computational workflows.
-func TracerProvider(ctx context.Context, logger logr.Logger, cfg Config, appName, appVersion string) (trace.TracerProvider, ShutdownProvider, error) {
+func TracerProvider(
+	ctx context.Context,
+	logger logr.Logger,
+	cfg Config,
+	appName, appVersion string,
+) (trace.TracerProvider, ShutdownProvider, error) {
 	if !cfg.Traces.Enabled || cfg.Traces.Address == "" {
-		logger.V(1).Info("Tracing system is disabled.", "enabled", cfg.Traces.Enabled, "addr", cfg.Traces.Address, "sampling-ration", cfg.Traces.SamplingRatio)
+		logger.V(1).
+			Info("Tracing system is disabled.", "enabled", cfg.Traces.Enabled, "addr", cfg.Traces.Address, "sampling-ration", cfg.Traces.SamplingRatio)
 		shutdown := func(context.Context) error { return nil }
 		return noop.NewTracerProvider(), shutdown, nil
 	}

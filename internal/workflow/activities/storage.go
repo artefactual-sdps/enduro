@@ -28,7 +28,10 @@ func NewMoveToPermanentStorageActivity(storageClient *goastorage.Client) *MoveTo
 	}
 }
 
-func (a *MoveToPermanentStorageActivity) Execute(ctx context.Context, params *MoveToPermanentStorageActivityParams) (*MoveToPermanentStorageActivityResult, error) {
+func (a *MoveToPermanentStorageActivity) Execute(
+	ctx context.Context,
+	params *MoveToPermanentStorageActivityParams,
+) (*MoveToPermanentStorageActivityResult, error) {
 	childCtx, cancel := context.WithTimeout(ctx, time.Second*5)
 	defer cancel()
 
@@ -56,7 +59,10 @@ func NewPollMoveToPermanentStorageActivity(storageClient *goastorage.Client) *Po
 	}
 }
 
-func (a *PollMoveToPermanentStorageActivity) Execute(ctx context.Context, params *PollMoveToPermanentStorageActivityParams) (*PollMoveToPermanentStorageActivityResult, error) {
+func (a *PollMoveToPermanentStorageActivity) Execute(
+	ctx context.Context,
+	params *PollMoveToPermanentStorageActivityParams,
+) (*PollMoveToPermanentStorageActivityResult, error) {
 	var g run.Group
 
 	{
@@ -128,7 +134,10 @@ func NewRejectPackageActivity(storageClient *goastorage.Client) *RejectPackageAc
 	}
 }
 
-func (a *RejectPackageActivity) Execute(ctx context.Context, params *RejectPackageActivityParams) (*RejectPackageActivityResult, error) {
+func (a *RejectPackageActivity) Execute(
+	ctx context.Context,
+	params *RejectPackageActivityParams,
+) (*RejectPackageActivityResult, error) {
 	childCtx, cancel := context.WithTimeout(ctx, time.Second*5)
 	defer cancel()
 

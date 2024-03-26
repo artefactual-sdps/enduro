@@ -64,7 +64,8 @@ func (s *MoveWorkflowTestSuite) TestSuccessfulMove() {
 	locationID := uuid.MustParse("51328c02-2b63-47be-958e-e8088aa1a61f")
 
 	// Package is set to in progress status.
-	s.env.OnActivity(setStatusLocalActivity, mock.Anything, mock.Anything, pkgID, enums.PackageStatusInProgress).Return(nil, nil)
+	s.env.OnActivity(setStatusLocalActivity, mock.Anything, mock.Anything, pkgID, enums.PackageStatusInProgress).
+		Return(nil, nil)
 
 	// Move operation succeeds.
 	s.env.OnActivity(
@@ -86,7 +87,8 @@ func (s *MoveWorkflowTestSuite) TestSuccessfulMove() {
 	).Return(nil, nil)
 
 	// Package is set back to done status.
-	s.env.OnActivity(setStatusLocalActivity, mock.Anything, mock.Anything, pkgID, enums.PackageStatusDone).Return(nil, nil)
+	s.env.OnActivity(setStatusLocalActivity, mock.Anything, mock.Anything, pkgID, enums.PackageStatusDone).
+		Return(nil, nil)
 
 	// Package location is set.
 	s.env.OnActivity(setLocationIDLocalActivity, mock.Anything, mock.Anything, pkgID, locationID).Return(nil, nil)
@@ -119,7 +121,8 @@ func (s *MoveWorkflowTestSuite) TestFailedMove() {
 	locationID := uuid.MustParse("51328c02-2b63-47be-958e-e8088aa1a61f")
 
 	// Package is set to in progress status.
-	s.env.OnActivity(setStatusLocalActivity, mock.Anything, mock.Anything, pkgID, enums.PackageStatusInProgress).Return(nil, nil)
+	s.env.OnActivity(setStatusLocalActivity, mock.Anything, mock.Anything, pkgID, enums.PackageStatusInProgress).
+		Return(nil, nil)
 
 	// Move operation fails.
 	s.env.OnActivity(
@@ -132,7 +135,8 @@ func (s *MoveWorkflowTestSuite) TestFailedMove() {
 	).Return(nil, errors.New("error moving package"))
 
 	// Package is set back to done status.
-	s.env.OnActivity(setStatusLocalActivity, mock.Anything, mock.Anything, pkgID, enums.PackageStatusDone).Return(nil, nil)
+	s.env.OnActivity(setStatusLocalActivity, mock.Anything, mock.Anything, pkgID, enums.PackageStatusDone).
+		Return(nil, nil)
 
 	// Preservation action is created with failed status.
 	s.env.OnActivity(

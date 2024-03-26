@@ -35,7 +35,11 @@ var patternMatchingCharReplacer = strings.NewReplacer(
 
 var ErrInvalidToken error = goapackage.Unauthorized("invalid token")
 
-func (w *goaWrapper) OAuth2Auth(ctx context.Context, token string, scheme *security.OAuth2Scheme) (context.Context, error) {
+func (w *goaWrapper) OAuth2Auth(
+	ctx context.Context,
+	token string,
+	scheme *security.OAuth2Scheme,
+) (context.Context, error) {
 	ok, err := w.tokenVerifier.Verify(ctx, token)
 	if err != nil {
 		w.logger.V(1).Info("failed to verify token", "err", err)
@@ -48,7 +52,10 @@ func (w *goaWrapper) OAuth2Auth(ctx context.Context, token string, scheme *secur
 	return ctx, nil
 }
 
-func (w *goaWrapper) MonitorRequest(ctx context.Context, payload *goapackage.MonitorRequestPayload) (*goapackage.MonitorRequestResult, error) {
+func (w *goaWrapper) MonitorRequest(
+	ctx context.Context,
+	payload *goapackage.MonitorRequestPayload,
+) (*goapackage.MonitorRequestResult, error) {
 	res := &goapackage.MonitorRequestResult{}
 
 	ticket, err := w.ticketProvider.Request(ctx)
@@ -65,7 +72,11 @@ func (w *goaWrapper) MonitorRequest(ctx context.Context, payload *goapackage.Mon
 }
 
 // Monitor package activity. It implements goapackage.Service.
-func (w *goaWrapper) Monitor(ctx context.Context, payload *goapackage.MonitorPayload, stream goapackage.MonitorServerStream) error {
+func (w *goaWrapper) Monitor(
+	ctx context.Context,
+	payload *goapackage.MonitorPayload,
+	stream goapackage.MonitorServerStream,
+) error {
 	defer stream.Close()
 
 	// Verify the ticket.
@@ -200,7 +211,10 @@ func (w *goaWrapper) List(ctx context.Context, payload *goapackage.ListPayload) 
 }
 
 // Show package by ID. It implements goapackage.Service.
-func (w *goaWrapper) Show(ctx context.Context, payload *goapackage.ShowPayload) (*goapackage.EnduroStoredPackage, error) {
+func (w *goaWrapper) Show(
+	ctx context.Context,
+	payload *goapackage.ShowPayload,
+) (*goapackage.EnduroStoredPackage, error) {
 	c, err := w.read(ctx, payload.ID)
 	if err == sql.ErrNoRows {
 		return nil, &goapackage.PackageNotFound{ID: payload.ID, Message: "package not found"}
@@ -266,7 +280,10 @@ func (w *goaWrapper) Move(ctx context.Context, payload *goapackage.MovePayload) 
 	return nil
 }
 
-func (w *goaWrapper) MoveStatus(ctx context.Context, payload *goapackage.MoveStatusPayload) (*goapackage.MoveStatusResult, error) {
+func (w *goaWrapper) MoveStatus(
+	ctx context.Context,
+	payload *goapackage.MoveStatusPayload,
+) (*goapackage.MoveStatusResult, error) {
 	goapkg, err := w.Show(ctx, &goapackage.ShowPayload{ID: payload.ID})
 	if err != nil {
 		return nil, goapackage.MakeFailedDependency(errors.New("cannot perform operation"))

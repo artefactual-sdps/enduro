@@ -59,7 +59,10 @@ func NewPollIngestActivity(
 // A response status of "REJECTED", "FAILED", "USER_INPUT", or "BACKLOG" returns
 // a temporal.NonRetryableApplicationError to indicate that processing can not
 // continue.
-func (a *PollIngestActivity) Execute(ctx context.Context, params *PollIngestActivityParams) (*PollIngestActivityResult, error) {
+func (a *PollIngestActivity) Execute(
+	ctx context.Context,
+	params *PollIngestActivityParams,
+) (*PollIngestActivityResult, error) {
 	a.logger.V(1).Info("Executing PollIngestActivity",
 		"PresActionID", params.PresActionID,
 		"SIPID", params.SIPID,
@@ -101,7 +104,11 @@ func (a *PollIngestActivity) Execute(ctx context.Context, params *PollIngestActi
 // result if ingest processing is complete. An errWorkOngoing error indicates
 // work is ongoing and polling should continue. All other errors should
 // terminate polling.
-func (a *PollIngestActivity) poll(ctx context.Context, jobTracker *JobTracker, transferID string) (*amclient.IngestStatusResponse, int, error) {
+func (a *PollIngestActivity) poll(
+	ctx context.Context,
+	jobTracker *JobTracker,
+	transferID string,
+) (*amclient.IngestStatusResponse, int, error) {
 	var stillWorking bool
 
 	// Add a context timeout to prevent missing the heartbeat deadline.
@@ -142,7 +149,10 @@ func (a *PollIngestActivity) poll(ctx context.Context, jobTracker *JobTracker, t
 	return resp, count, nil
 }
 
-func (a *PollIngestActivity) ingestStatus(ctx context.Context, transferID string) (*amclient.IngestStatusResponse, error) {
+func (a *PollIngestActivity) ingestStatus(
+	ctx context.Context,
+	transferID string,
+) (*amclient.IngestStatusResponse, error) {
 	resp, httpResp, err := a.ingSvc.Status(ctx, transferID)
 	if err != nil {
 		return resp, convertAMClientError(httpResp, err)

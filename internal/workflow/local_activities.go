@@ -19,7 +19,12 @@ type createPackageLocalActivityParams struct {
 	Status enums.PackageStatus
 }
 
-func createPackageLocalActivity(ctx context.Context, logger logr.Logger, pkgsvc package_.Service, params *createPackageLocalActivityParams) (uint, error) {
+func createPackageLocalActivity(
+	ctx context.Context,
+	logger logr.Logger,
+	pkgsvc package_.Service,
+	params *createPackageLocalActivityParams,
+) (uint, error) {
 	info := temporalsdk_activity.GetInfo(ctx)
 
 	col := &datatypes.Package{
@@ -47,7 +52,12 @@ type updatePackageLocalActivityParams struct {
 
 type updatePackageLocalActivityResult struct{}
 
-func updatePackageLocalActivity(ctx context.Context, logger logr.Logger, pkgsvc package_.Service, params *updatePackageLocalActivityParams) (*updatePackageLocalActivityResult, error) {
+func updatePackageLocalActivity(
+	ctx context.Context,
+	logger logr.Logger,
+	pkgsvc package_.Service,
+	params *updatePackageLocalActivityParams,
+) (*updatePackageLocalActivityResult, error) {
 	info := temporalsdk_activity.GetInfo(ctx)
 
 	err := pkgsvc.UpdateWorkflowStatus(
@@ -70,19 +80,34 @@ func updatePackageLocalActivity(ctx context.Context, logger logr.Logger, pkgsvc 
 
 type setStatusInProgressLocalActivityResult struct{}
 
-func setStatusInProgressLocalActivity(ctx context.Context, pkgsvc package_.Service, pkgID uint, startedAt time.Time) (*setStatusInProgressLocalActivityResult, error) {
+func setStatusInProgressLocalActivity(
+	ctx context.Context,
+	pkgsvc package_.Service,
+	pkgID uint,
+	startedAt time.Time,
+) (*setStatusInProgressLocalActivityResult, error) {
 	return &setStatusInProgressLocalActivityResult{}, pkgsvc.SetStatusInProgress(ctx, pkgID, startedAt)
 }
 
 type setStatusLocalActivityResult struct{}
 
-func setStatusLocalActivity(ctx context.Context, pkgsvc package_.Service, pkgID uint, status enums.PackageStatus) (*setStatusLocalActivityResult, error) {
+func setStatusLocalActivity(
+	ctx context.Context,
+	pkgsvc package_.Service,
+	pkgID uint,
+	status enums.PackageStatus,
+) (*setStatusLocalActivityResult, error) {
 	return &setStatusLocalActivityResult{}, pkgsvc.SetStatus(ctx, pkgID, status)
 }
 
 type setLocationIDLocalActivityResult struct{}
 
-func setLocationIDLocalActivity(ctx context.Context, pkgsvc package_.Service, pkgID uint, locationID uuid.UUID) (*setLocationIDLocalActivityResult, error) {
+func setLocationIDLocalActivity(
+	ctx context.Context,
+	pkgsvc package_.Service,
+	pkgID uint,
+	locationID uuid.UUID,
+) (*setLocationIDLocalActivityResult, error) {
 	return &setLocationIDLocalActivityResult{}, pkgsvc.SetLocationID(ctx, pkgID, locationID)
 }
 
@@ -98,7 +123,11 @@ type saveLocationMovePreservationActionLocalActivityParams struct {
 
 type saveLocationMovePreservationActionLocalActivityResult struct{}
 
-func saveLocationMovePreservationActionLocalActivity(ctx context.Context, pkgsvc package_.Service, params *saveLocationMovePreservationActionLocalActivityParams) (*saveLocationMovePreservationActionLocalActivityResult, error) {
+func saveLocationMovePreservationActionLocalActivity(
+	ctx context.Context,
+	pkgsvc package_.Service,
+	params *saveLocationMovePreservationActionLocalActivityParams,
+) (*saveLocationMovePreservationActionLocalActivityResult, error) {
 	paID, err := createPreservationActionLocalActivity(ctx, pkgsvc, &createPreservationActionLocalActivityParams{
 		WorkflowID:  params.WorkflowID,
 		Type:        params.Type,
@@ -140,7 +169,11 @@ type createPreservationActionLocalActivityParams struct {
 	PackageID   uint
 }
 
-func createPreservationActionLocalActivity(ctx context.Context, pkgsvc package_.Service, params *createPreservationActionLocalActivityParams) (uint, error) {
+func createPreservationActionLocalActivity(
+	ctx context.Context,
+	pkgsvc package_.Service,
+	params *createPreservationActionLocalActivityParams,
+) (uint, error) {
 	pa := package_.PreservationAction{
 		WorkflowID: params.WorkflowID,
 		Type:       params.Type,
@@ -159,7 +192,12 @@ func createPreservationActionLocalActivity(ctx context.Context, pkgsvc package_.
 
 type setPreservationActionStatusLocalActivityResult struct{}
 
-func setPreservationActionStatusLocalActivity(ctx context.Context, pkgsvc package_.Service, ID uint, status package_.PreservationActionStatus) (*setPreservationActionStatusLocalActivityResult, error) {
+func setPreservationActionStatusLocalActivity(
+	ctx context.Context,
+	pkgsvc package_.Service,
+	ID uint,
+	status package_.PreservationActionStatus,
+) (*setPreservationActionStatusLocalActivityResult, error) {
 	return &setPreservationActionStatusLocalActivityResult{}, pkgsvc.SetPreservationActionStatus(ctx, ID, status)
 }
 
@@ -171,8 +209,17 @@ type completePreservationActionLocalActivityParams struct {
 
 type completePreservationActionLocalActivityResult struct{}
 
-func completePreservationActionLocalActivity(ctx context.Context, pkgsvc package_.Service, params *completePreservationActionLocalActivityParams) (*completePreservationActionLocalActivityResult, error) {
-	return &completePreservationActionLocalActivityResult{}, pkgsvc.CompletePreservationAction(ctx, params.PreservationActionID, params.Status, params.CompletedAt)
+func completePreservationActionLocalActivity(
+	ctx context.Context,
+	pkgsvc package_.Service,
+	params *completePreservationActionLocalActivityParams,
+) (*completePreservationActionLocalActivityResult, error) {
+	return &completePreservationActionLocalActivityResult{}, pkgsvc.CompletePreservationAction(
+		ctx,
+		params.PreservationActionID,
+		params.Status,
+		params.CompletedAt,
+	)
 }
 
 type createPreservationTaskLocalActivityParams struct {
@@ -185,7 +232,11 @@ type createPreservationTaskLocalActivityParams struct {
 	PreservationActionID uint
 }
 
-func createPreservationTaskLocalActivity(ctx context.Context, pkgsvc package_.Service, params *createPreservationTaskLocalActivityParams) (uint, error) {
+func createPreservationTaskLocalActivity(
+	ctx context.Context,
+	pkgsvc package_.Service,
+	params *createPreservationTaskLocalActivityParams,
+) (uint, error) {
 	pt := package_.PreservationTask{
 		TaskID:               params.TaskID,
 		Name:                 params.Name,
@@ -212,6 +263,16 @@ type completePreservationTaskLocalActivityParams struct {
 
 type completePreservationTaskLocalActivityResult struct{}
 
-func completePreservationTaskLocalActivity(ctx context.Context, pkgsvc package_.Service, params *completePreservationTaskLocalActivityParams) (*completePreservationTaskLocalActivityResult, error) {
-	return &completePreservationTaskLocalActivityResult{}, pkgsvc.CompletePreservationTask(ctx, params.ID, params.Status, params.CompletedAt, params.Note)
+func completePreservationTaskLocalActivity(
+	ctx context.Context,
+	pkgsvc package_.Service,
+	params *completePreservationTaskLocalActivityParams,
+) (*completePreservationTaskLocalActivityResult, error) {
+	return &completePreservationTaskLocalActivityResult{}, pkgsvc.CompletePreservationTask(
+		ctx,
+		params.ID,
+		params.Status,
+		params.CompletedAt,
+		params.Note,
+	)
 }

@@ -42,7 +42,10 @@ func NewCreateAIPActivity(logger logr.Logger, cfg *Config, pkgsvc package_.Servi
 	}
 }
 
-func (a *CreateAIPActivity) Execute(ctx context.Context, opts *CreateAIPActivityParams) (*CreateAIPActivityResult, error) {
+func (a *CreateAIPActivity) Execute(
+	ctx context.Context,
+	opts *CreateAIPActivityParams,
+) (*CreateAIPActivityResult, error) {
 	result := &CreateAIPActivityResult{}
 
 	var g run.Group
@@ -129,7 +132,8 @@ func (a *CreateAIPActivity) Execute(ctx context.Context, opts *CreateAIPActivity
 						return err
 					}
 
-					if readResp.Status == transferservice.PackageStatus_PACKAGE_STATUS_FAILED || readResp.Status == transferservice.PackageStatus_PACKAGE_STATUS_REJECTED {
+					if readResp.Status == transferservice.PackageStatus_PACKAGE_STATUS_FAILED ||
+						readResp.Status == transferservice.PackageStatus_PACKAGE_STATUS_REJECTED {
 						return errors.New("package failed or rejected")
 					}
 

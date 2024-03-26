@@ -35,7 +35,10 @@ func NewDownloadActivity(logger logr.Logger, wsvc watcher.Service) *DownloadActi
 	}
 }
 
-func (a *DownloadActivity) Execute(ctx context.Context, params *DownloadActivityParams) (*DownloadActivityResult, error) {
+func (a *DownloadActivity) Execute(
+	ctx context.Context,
+	params *DownloadActivityParams,
+) (*DownloadActivityResult, error) {
 	a.logger.V(1).Info("Executing DownloadActivity",
 		"Key", params.Key,
 		"WatcherName", params.WatcherName,

@@ -21,7 +21,8 @@ func sameOriginChecker(logger logr.Logger) func(r *http.Request) bool {
 		}
 		eq := equalASCIIFold(u.Host, r.Host)
 		if !eq {
-			logger.V(1).Info("WebSocket client rejected (origin and host not equal)", "origin-host", u.Host, "request-host", r.Host)
+			logger.V(1).
+				Info("WebSocket client rejected (origin and host not equal)", "origin-host", u.Host, "request-host", r.Host)
 		}
 		return eq
 	}

@@ -68,7 +68,8 @@ func sshConnect(ctx context.Context, logger logr.Logger, cfg Config) (*ssh.Clien
 
 	sshConn, chans, reqs, err := ssh.NewClientConn(conn, address, sshConfig)
 	if err != nil {
-		if strings.Contains(err.Error(), "ssh: unable to authenticate") || strings.Contains(err.Error(), "knownhosts: key is unknown") {
+		if strings.Contains(err.Error(), "ssh: unable to authenticate") ||
+			strings.Contains(err.Error(), "knownhosts: key is unknown") {
 			logger.V(2).Info("ssh: authentication failed", "address", address, "user", cfg.User)
 			return nil, NewAuthError(err)
 		}

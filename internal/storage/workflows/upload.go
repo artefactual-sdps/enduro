@@ -12,7 +12,10 @@ func NewStorageUploadWorkflow() *StorageUploadWorkflow {
 	return &StorageUploadWorkflow{}
 }
 
-func (w *StorageUploadWorkflow) Execute(ctx temporalsdk_workflow.Context, req storage.StorageUploadWorkflowRequest) error {
+func (w *StorageUploadWorkflow) Execute(
+	ctx temporalsdk_workflow.Context,
+	req storage.StorageUploadWorkflowRequest,
+) error {
 	var signal storage.UploadDoneSignal
 	timerFuture := temporalsdk_workflow.NewTimer(ctx, storage.SubmitURLExpirationTime)
 	signalChan := temporalsdk_workflow.GetSignalChannel(ctx, storage.UploadDoneSignalName)

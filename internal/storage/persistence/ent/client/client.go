@@ -135,7 +135,11 @@ func pkgAsGoa(ctx context.Context, pkg *db.Pkg) *goastorage.Package {
 	return p
 }
 
-func (c *Client) CreateLocation(ctx context.Context, location *goastorage.Location, config *types.LocationConfig) (*goastorage.Location, error) {
+func (c *Client) CreateLocation(
+	ctx context.Context,
+	location *goastorage.Location,
+	config *types.LocationConfig,
+) (*goastorage.Location, error) {
 	q := c.c.Location.Create()
 
 	q.SetName(location.Name)

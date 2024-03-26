@@ -20,8 +20,12 @@ func isComplete(status string) (bool, error) {
 	case "PROCESSING", "":
 		return false, nil
 	case "REJECTED", "FAILED", "USER_INPUT":
-		return false, temporal_tools.NewNonRetryableError(fmt.Errorf("Invalid Archivematica response status: %s", status))
+		return false, temporal_tools.NewNonRetryableError(
+			fmt.Errorf("Invalid Archivematica response status: %s", status),
+		)
 	default:
-		return false, temporal_tools.NewNonRetryableError(fmt.Errorf("Unknown Archivematica response status: %s", status))
+		return false, temporal_tools.NewNonRetryableError(
+			fmt.Errorf("Unknown Archivematica response status: %s", status),
+		)
 	}
 }
