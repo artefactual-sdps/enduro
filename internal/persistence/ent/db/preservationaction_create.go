@@ -46,9 +46,25 @@ func (pac *PreservationActionCreate) SetStartedAt(t time.Time) *PreservationActi
 	return pac
 }
 
+// SetNillableStartedAt sets the "started_at" field if the given value is not nil.
+func (pac *PreservationActionCreate) SetNillableStartedAt(t *time.Time) *PreservationActionCreate {
+	if t != nil {
+		pac.SetStartedAt(*t)
+	}
+	return pac
+}
+
 // SetCompletedAt sets the "completed_at" field.
 func (pac *PreservationActionCreate) SetCompletedAt(t time.Time) *PreservationActionCreate {
 	pac.mutation.SetCompletedAt(t)
+	return pac
+}
+
+// SetNillableCompletedAt sets the "completed_at" field if the given value is not nil.
+func (pac *PreservationActionCreate) SetNillableCompletedAt(t *time.Time) *PreservationActionCreate {
+	if t != nil {
+		pac.SetCompletedAt(*t)
+	}
 	return pac
 }
 
@@ -120,12 +136,6 @@ func (pac *PreservationActionCreate) check() error {
 	}
 	if _, ok := pac.mutation.Status(); !ok {
 		return &ValidationError{Name: "status", err: errors.New(`db: missing required field "PreservationAction.status"`)}
-	}
-	if _, ok := pac.mutation.StartedAt(); !ok {
-		return &ValidationError{Name: "started_at", err: errors.New(`db: missing required field "PreservationAction.started_at"`)}
-	}
-	if _, ok := pac.mutation.CompletedAt(); !ok {
-		return &ValidationError{Name: "completed_at", err: errors.New(`db: missing required field "PreservationAction.completed_at"`)}
 	}
 	if _, ok := pac.mutation.PackageID(); !ok {
 		return &ValidationError{Name: "package_id", err: errors.New(`db: missing required field "PreservationAction.package_id"`)}

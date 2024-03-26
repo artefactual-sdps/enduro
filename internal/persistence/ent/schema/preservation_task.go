@@ -30,8 +30,10 @@ func (PreservationTask) Fields() []ent.Field {
 				Size: 2048,
 			}),
 		field.Int8("status"),
-		field.Time("started_at"),
-		field.Time("completed_at"),
+		field.Time("started_at").
+			Optional(),
+		field.Time("completed_at").
+			Optional(),
 		field.Text("note"),
 		field.Int("preservation_action_id").
 			Positive(),

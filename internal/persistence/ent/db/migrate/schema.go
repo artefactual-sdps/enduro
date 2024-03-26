@@ -69,8 +69,8 @@ var (
 		{Name: "workflow_id", Type: field.TypeString, Size: 255},
 		{Name: "type", Type: field.TypeInt8},
 		{Name: "status", Type: field.TypeInt8},
-		{Name: "started_at", Type: field.TypeTime},
-		{Name: "completed_at", Type: field.TypeTime},
+		{Name: "started_at", Type: field.TypeTime, Nullable: true},
+		{Name: "completed_at", Type: field.TypeTime, Nullable: true},
 		{Name: "package_id", Type: field.TypeInt},
 	}
 	// PreservationActionTable holds the schema information for the "preservation_action" table.
@@ -93,8 +93,8 @@ var (
 		{Name: "task_id", Type: field.TypeUUID},
 		{Name: "name", Type: field.TypeString, Size: 2048},
 		{Name: "status", Type: field.TypeInt8},
-		{Name: "started_at", Type: field.TypeTime},
-		{Name: "completed_at", Type: field.TypeTime},
+		{Name: "started_at", Type: field.TypeTime, Nullable: true},
+		{Name: "completed_at", Type: field.TypeTime, Nullable: true},
 		{Name: "note", Type: field.TypeString, Size: 2147483647},
 		{Name: "preservation_action_id", Type: field.TypeInt},
 	}

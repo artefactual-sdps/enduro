@@ -100,6 +100,12 @@ func (pau *PreservationActionUpdate) SetNillableStartedAt(t *time.Time) *Preserv
 	return pau
 }
 
+// ClearStartedAt clears the value of the "started_at" field.
+func (pau *PreservationActionUpdate) ClearStartedAt() *PreservationActionUpdate {
+	pau.mutation.ClearStartedAt()
+	return pau
+}
+
 // SetCompletedAt sets the "completed_at" field.
 func (pau *PreservationActionUpdate) SetCompletedAt(t time.Time) *PreservationActionUpdate {
 	pau.mutation.SetCompletedAt(t)
@@ -111,6 +117,12 @@ func (pau *PreservationActionUpdate) SetNillableCompletedAt(t *time.Time) *Prese
 	if t != nil {
 		pau.SetCompletedAt(*t)
 	}
+	return pau
+}
+
+// ClearCompletedAt clears the value of the "completed_at" field.
+func (pau *PreservationActionUpdate) ClearCompletedAt() *PreservationActionUpdate {
+	pau.mutation.ClearCompletedAt()
 	return pau
 }
 
@@ -250,8 +262,14 @@ func (pau *PreservationActionUpdate) sqlSave(ctx context.Context) (n int, err er
 	if value, ok := pau.mutation.StartedAt(); ok {
 		_spec.SetField(preservationaction.FieldStartedAt, field.TypeTime, value)
 	}
+	if pau.mutation.StartedAtCleared() {
+		_spec.ClearField(preservationaction.FieldStartedAt, field.TypeTime)
+	}
 	if value, ok := pau.mutation.CompletedAt(); ok {
 		_spec.SetField(preservationaction.FieldCompletedAt, field.TypeTime, value)
+	}
+	if pau.mutation.CompletedAtCleared() {
+		_spec.ClearField(preservationaction.FieldCompletedAt, field.TypeTime)
 	}
 	if pau.mutation.PackageCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -417,6 +435,12 @@ func (pauo *PreservationActionUpdateOne) SetNillableStartedAt(t *time.Time) *Pre
 	return pauo
 }
 
+// ClearStartedAt clears the value of the "started_at" field.
+func (pauo *PreservationActionUpdateOne) ClearStartedAt() *PreservationActionUpdateOne {
+	pauo.mutation.ClearStartedAt()
+	return pauo
+}
+
 // SetCompletedAt sets the "completed_at" field.
 func (pauo *PreservationActionUpdateOne) SetCompletedAt(t time.Time) *PreservationActionUpdateOne {
 	pauo.mutation.SetCompletedAt(t)
@@ -428,6 +452,12 @@ func (pauo *PreservationActionUpdateOne) SetNillableCompletedAt(t *time.Time) *P
 	if t != nil {
 		pauo.SetCompletedAt(*t)
 	}
+	return pauo
+}
+
+// ClearCompletedAt clears the value of the "completed_at" field.
+func (pauo *PreservationActionUpdateOne) ClearCompletedAt() *PreservationActionUpdateOne {
+	pauo.mutation.ClearCompletedAt()
 	return pauo
 }
 
@@ -597,8 +627,14 @@ func (pauo *PreservationActionUpdateOne) sqlSave(ctx context.Context) (_node *Pr
 	if value, ok := pauo.mutation.StartedAt(); ok {
 		_spec.SetField(preservationaction.FieldStartedAt, field.TypeTime, value)
 	}
+	if pauo.mutation.StartedAtCleared() {
+		_spec.ClearField(preservationaction.FieldStartedAt, field.TypeTime)
+	}
 	if value, ok := pauo.mutation.CompletedAt(); ok {
 		_spec.SetField(preservationaction.FieldCompletedAt, field.TypeTime, value)
+	}
+	if pauo.mutation.CompletedAtCleared() {
+		_spec.ClearField(preservationaction.FieldCompletedAt, field.TypeTime)
 	}
 	if pauo.mutation.PackageCleared() {
 		edge := &sqlgraph.EdgeSpec{

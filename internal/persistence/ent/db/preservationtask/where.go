@@ -276,6 +276,16 @@ func StartedAtLTE(v time.Time) predicate.PreservationTask {
 	return predicate.PreservationTask(sql.FieldLTE(FieldStartedAt, v))
 }
 
+// StartedAtIsNil applies the IsNil predicate on the "started_at" field.
+func StartedAtIsNil() predicate.PreservationTask {
+	return predicate.PreservationTask(sql.FieldIsNull(FieldStartedAt))
+}
+
+// StartedAtNotNil applies the NotNil predicate on the "started_at" field.
+func StartedAtNotNil() predicate.PreservationTask {
+	return predicate.PreservationTask(sql.FieldNotNull(FieldStartedAt))
+}
+
 // CompletedAtEQ applies the EQ predicate on the "completed_at" field.
 func CompletedAtEQ(v time.Time) predicate.PreservationTask {
 	return predicate.PreservationTask(sql.FieldEQ(FieldCompletedAt, v))
@@ -314,6 +324,16 @@ func CompletedAtLT(v time.Time) predicate.PreservationTask {
 // CompletedAtLTE applies the LTE predicate on the "completed_at" field.
 func CompletedAtLTE(v time.Time) predicate.PreservationTask {
 	return predicate.PreservationTask(sql.FieldLTE(FieldCompletedAt, v))
+}
+
+// CompletedAtIsNil applies the IsNil predicate on the "completed_at" field.
+func CompletedAtIsNil() predicate.PreservationTask {
+	return predicate.PreservationTask(sql.FieldIsNull(FieldCompletedAt))
+}
+
+// CompletedAtNotNil applies the NotNil predicate on the "completed_at" field.
+func CompletedAtNotNil() predicate.PreservationTask {
+	return predicate.PreservationTask(sql.FieldNotNull(FieldCompletedAt))
 }
 
 // NoteEQ applies the EQ predicate on the "note" field.

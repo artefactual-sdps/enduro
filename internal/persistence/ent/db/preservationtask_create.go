@@ -46,9 +46,25 @@ func (ptc *PreservationTaskCreate) SetStartedAt(t time.Time) *PreservationTaskCr
 	return ptc
 }
 
+// SetNillableStartedAt sets the "started_at" field if the given value is not nil.
+func (ptc *PreservationTaskCreate) SetNillableStartedAt(t *time.Time) *PreservationTaskCreate {
+	if t != nil {
+		ptc.SetStartedAt(*t)
+	}
+	return ptc
+}
+
 // SetCompletedAt sets the "completed_at" field.
 func (ptc *PreservationTaskCreate) SetCompletedAt(t time.Time) *PreservationTaskCreate {
 	ptc.mutation.SetCompletedAt(t)
+	return ptc
+}
+
+// SetNillableCompletedAt sets the "completed_at" field if the given value is not nil.
+func (ptc *PreservationTaskCreate) SetNillableCompletedAt(t *time.Time) *PreservationTaskCreate {
+	if t != nil {
+		ptc.SetCompletedAt(*t)
+	}
 	return ptc
 }
 
@@ -117,12 +133,6 @@ func (ptc *PreservationTaskCreate) check() error {
 	}
 	if _, ok := ptc.mutation.Status(); !ok {
 		return &ValidationError{Name: "status", err: errors.New(`db: missing required field "PreservationTask.status"`)}
-	}
-	if _, ok := ptc.mutation.StartedAt(); !ok {
-		return &ValidationError{Name: "started_at", err: errors.New(`db: missing required field "PreservationTask.started_at"`)}
-	}
-	if _, ok := ptc.mutation.CompletedAt(); !ok {
-		return &ValidationError{Name: "completed_at", err: errors.New(`db: missing required field "PreservationTask.completed_at"`)}
 	}
 	if _, ok := ptc.mutation.Note(); !ok {
 		return &ValidationError{Name: "note", err: errors.New(`db: missing required field "PreservationTask.note"`)}
