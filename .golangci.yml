@@ -30,6 +30,8 @@ linters-settings:
       - prefix(github.com/artefactual-sdps/enduro)
     section-separators:
       - newLine
+  gofumpt:
+    extra-rules: true
   importas:
     no-unaliased: true
     no-extra-aliases: false
