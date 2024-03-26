@@ -1,8 +1,6 @@
 import App from "./App.vue";
-import auth from "./auth";
-import { client, api } from "./client";
+import { api } from "./client";
 import router from "./router";
-import { useLayoutStore } from "./stores/layout";
 import "./styles/main.scss";
 import { PiniaDebounce } from "@pinia/plugin-debounce";
 import humanizeDuration from "humanize-duration";
@@ -24,15 +22,6 @@ app.use({
   },
 });
 app.mount("#app");
-
-auth.getUser().then((user) => {
-  useLayoutStore().setUser(user);
-  if (user) {
-    client.package.packageMonitorRequest().then(() => {
-      client.connectPackageMonitor();
-    });
-  }
-});
 
 interface Filters {
   [key: string]: (...value: any[]) => string;

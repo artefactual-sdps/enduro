@@ -1,10 +1,24 @@
 <script setup lang="ts">
+import { watch } from "vue";
+import { client } from "@/client";
 import { useLayoutStore } from "./stores/layout";
 import Header from "@/components/Header.vue";
 import Sidebar from "@/components/Sidebar.vue";
 import { DialogWrapper } from "vue3-promise-dialog";
 
 const layoutStore = useLayoutStore();
+
+// Connect to the package monitor API when the user is loaded successfully.
+watch(
+  () => layoutStore.isUserValid,
+  (valid) => {
+    if (valid) {
+      client.package.packageMonitorRequest().then(() => {
+        client.connectPackageMonitor();
+      });
+    }
+  },
+);
 </script>
 
 <template>
