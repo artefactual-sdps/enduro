@@ -204,7 +204,7 @@ func main() {
 		sftpClient := sftp.NewGoClient(logger, cfg.AM.SFTP)
 
 		w.RegisterActivityWithOptions(
-			activities.NewDownloadActivity(logger, wsvc).Execute,
+			activities.NewDownloadActivity(logger, tp.Tracer(activities.DownloadActivityName), wsvc).Execute,
 			temporalsdk_activity.RegisterOptions{Name: activities.DownloadActivityName},
 		)
 		w.RegisterActivityWithOptions(

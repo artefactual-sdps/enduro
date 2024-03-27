@@ -10,12 +10,14 @@ import (
 	temporal_tools "go.artefactual.dev/tools/temporal"
 	"go.opentelemetry.io/otel/trace"
 
+	"github.com/artefactual-sdps/enduro/internal/telemetry"
 	"github.com/artefactual-sdps/enduro/internal/watcher"
 )
 
 // DownloadActivity downloads the blob into the processing directory.
 type DownloadActivity struct {
 	logger logr.Logger
+	tracer trace.Tracer
 	wsvc   watcher.Service
 }
 
@@ -28,9 +30,10 @@ type DownloadActivityResult struct {
 	Path string
 }
 
-func NewDownloadActivity(logger logr.Logger, wsvc watcher.Service) *DownloadActivity {
+func NewDownloadActivity(logger logr.Logger, tracer trace.Tracer, wsvc watcher.Service) *DownloadActivity {
 	return &DownloadActivity{
 		logger: logger,
+		tracer: tracer,
 		wsvc:   wsvc,
 	}
 }
@@ -51,11 +54,9 @@ func (a *DownloadActivity) Execute(
 
 	dest := filepath.Clean(filepath.Join(destDir, params.Key))
 
-	ctx, span := trace.SpanFromContext(ctx).TracerProvider().Tracer(DownloadActivityName).Start(ctx, "download")
+	ctx, span := a.tracer.Start(ctx, "download")
 	if err := a.wsvc.Download(ctx, dest, params.WatcherName, params.Key); err != nil {
-
-		span.RecordError(err)
-		span.End()
+		telemetry.RecordError(span, err)
 		return &DownloadActivityResult{}, temporal_tools.NewNonRetryableError(fmt.Errorf("download: %v", err))
 	}
 	span.End()

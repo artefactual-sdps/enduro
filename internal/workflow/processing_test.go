@@ -10,6 +10,7 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 	"go.artefactual.dev/amclient/amclienttest"
+	"go.opentelemetry.io/otel/trace/noop"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
 	temporalsdk_testsuite "go.temporal.io/sdk/testsuite"
 	temporalsdk_worker "go.temporal.io/sdk/worker"
@@ -74,7 +75,7 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(taskQueue string) {
 	sftpc := sftp_fake.NewMockClient(ctrl)
 
 	s.env.RegisterActivityWithOptions(
-		activities.NewDownloadActivity(logger, wsvc).Execute,
+		activities.NewDownloadActivity(logger, noop.Tracer{}, wsvc).Execute,
 		temporalsdk_activity.RegisterOptions{Name: activities.DownloadActivityName},
 	)
 	s.env.RegisterActivityWithOptions(
@@ -86,7 +87,7 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(taskQueue string) {
 		temporalsdk_activity.RegisterOptions{Name: activities.BundleActivityName},
 	)
 	s.env.RegisterActivityWithOptions(
-		a3m.NewCreateAIPActivity(logger, &a3m.Config{}, pkgsvc).Execute,
+		a3m.NewCreateAIPActivity(logger, noop.Tracer{}, &a3m.Config{}, pkgsvc).Execute,
 		temporalsdk_activity.RegisterOptions{Name: a3m.CreateAIPActivityName},
 	)
 	s.env.RegisterActivityWithOptions(

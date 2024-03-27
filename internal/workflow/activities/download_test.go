@@ -9,6 +9,7 @@ import (
 	"github.com/go-logr/logr"
 	"go.artefactual.dev/tools/mockutil"
 	"go.artefactual.dev/tools/temporal"
+	"go.opentelemetry.io/otel/trace/noop"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
 	temporalsdk_testsuite "go.temporal.io/sdk/testsuite"
 	"go.uber.org/mock/gomock"
@@ -77,7 +78,7 @@ func TestDownloadActivity(t *testing.T) {
 			}
 
 			env.RegisterActivityWithOptions(
-				activities.NewDownloadActivity(logr.Discard(), wsvc).Execute,
+				activities.NewDownloadActivity(logr.Discard(), noop.Tracer{}, wsvc).Execute,
 				temporalsdk_activity.RegisterOptions{
 					Name: activities.DownloadActivityName,
 				},
