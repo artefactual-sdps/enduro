@@ -9,18 +9,21 @@ import (
 	transferservice "buf.build/gen/go/artefactual/a3m/protocolbuffers/go/a3m/api/transferservice/v1beta1"
 	"github.com/go-logr/logr"
 	"github.com/oklog/run"
+	"go.opentelemetry.io/otel/trace"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
 	"google.golang.org/grpc"
 
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/package_"
+	"github.com/artefactual-sdps/enduro/internal/telemetry"
 )
 
 const CreateAIPActivityName = "create-aip-activity"
 
 type CreateAIPActivity struct {
 	logger logr.Logger
+	tracer trace.Tracer
 	cfg    *Config
 	pkgsvc package_.Service
 }
@@ -36,9 +39,15 @@ type CreateAIPActivityResult struct {
 	UUID string
 }
 
-func NewCreateAIPActivity(logger logr.Logger, cfg *Config, pkgsvc package_.Service) *CreateAIPActivity {
+func NewCreateAIPActivity(
+	logger logr.Logger,
+	tracer trace.Tracer,
+	cfg *Config,
+	pkgsvc package_.Service,
+) *CreateAIPActivity {
 	return &CreateAIPActivity{
 		logger: logger,
+		tracer: tracer,
 		cfg:    cfg,
 		pkgsvc: pkgsvc,
 	}
@@ -129,7 +138,7 @@ func (a *CreateAIPActivity) Execute(
 						continue
 					}
 
-					err = savePreservationTasks(ctx, readResp.Jobs, a.pkgsvc, opts.PreservationActionID)
+					err = savePreservationTasks(ctx, a.tracer, readResp.Jobs, a.pkgsvc, opts.PreservationActionID)
 					if err != nil {
 						return err
 					}
@@ -159,7 +168,16 @@ func (a *CreateAIPActivity) Execute(
 	return result, nil
 }
 
-func savePreservationTasks(ctx context.Context, jobs []*transferservice.Job, pkgsvc package_.Service, paID uint) error {
+func savePreservationTasks(
+	ctx context.Context,
+	tracer trace.Tracer,
+	jobs []*transferservice.Job,
+	pkgsvc package_.Service,
+	paID uint,
+) error {
+	ctx, span := tracer.Start(ctx, "savePreservationTasks")
+	defer span.End()
+
 	jobStatusToPreservationTaskStatus := map[transferservice.Job_Status]enums.PreservationTaskStatus{
 		transferservice.Job_STATUS_UNSPECIFIED: enums.PreservationTaskStatusUnspecified,
 		transferservice.Job_STATUS_COMPLETE:    enums.PreservationTaskStatusDone,
@@ -177,6 +195,7 @@ func savePreservationTasks(ctx context.Context, jobs []*transferservice.Job, pkg
 		pt.StartedAt.Time = job.StartTime.AsTime()
 		err := pkgsvc.CreatePreservationTask(ctx, &pt)
 		if err != nil {
+			telemetry.RecordError(span, err)
 			return err
 		}
 	}
