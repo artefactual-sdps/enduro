@@ -12,6 +12,8 @@ import (
 	temporalsdk_activity "go.temporal.io/sdk/activity"
 	"google.golang.org/grpc"
 
+	"github.com/artefactual-sdps/enduro/internal/datatypes"
+	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/package_"
 )
 
@@ -158,15 +160,15 @@ func (a *CreateAIPActivity) Execute(
 }
 
 func savePreservationTasks(ctx context.Context, jobs []*transferservice.Job, pkgsvc package_.Service, paID uint) error {
-	jobStatusToPreservationTaskStatus := map[transferservice.Job_Status]package_.PreservationTaskStatus{
-		transferservice.Job_STATUS_UNSPECIFIED: package_.TaskStatusUnspecified,
-		transferservice.Job_STATUS_COMPLETE:    package_.TaskStatusDone,
-		transferservice.Job_STATUS_PROCESSING:  package_.TaskStatusInProgress,
-		transferservice.Job_STATUS_FAILED:      package_.TaskStatusError,
+	jobStatusToPreservationTaskStatus := map[transferservice.Job_Status]enums.PreservationTaskStatus{
+		transferservice.Job_STATUS_UNSPECIFIED: enums.PreservationTaskStatusUnspecified,
+		transferservice.Job_STATUS_COMPLETE:    enums.PreservationTaskStatusDone,
+		transferservice.Job_STATUS_PROCESSING:  enums.PreservationTaskStatusInProgress,
+		transferservice.Job_STATUS_FAILED:      enums.PreservationTaskStatusError,
 	}
 
 	for _, job := range jobs {
-		pt := package_.PreservationTask{
+		pt := datatypes.PreservationTask{
 			TaskID:               job.Id,
 			Name:                 job.Name,
 			Status:               jobStatusToPreservationTaskStatus[job.Status],

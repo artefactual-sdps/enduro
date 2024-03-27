@@ -418,7 +418,7 @@ func (w *ProcessingWorkflow) SessionHandler(
 		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, createPreservationTaskLocalActivity, w.pkgsvc, &createPreservationTaskLocalActivityParams{
 			TaskID:               uuid.NewString(),
 			Name:                 "Move AIP",
-			Status:               package_.TaskStatusInProgress,
+			Status:               enums.PreservationTaskStatusInProgress,
 			StartedAt:            temporalsdk_workflow.Now(sessCtx).UTC(),
 			Note:                 "Moving to review bucket",
 			PreservationActionID: tinfo.PreservationActionID,
@@ -455,7 +455,7 @@ func (w *ProcessingWorkflow) SessionHandler(
 		ctx := withLocalActivityOpts(sessCtx)
 		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, completePreservationTaskLocalActivity, w.pkgsvc, &completePreservationTaskLocalActivityParams{
 			ID:          uploadPreservationTaskID,
-			Status:      package_.TaskStatusDone,
+			Status:      enums.PreservationTaskStatusDone,
 			CompletedAt: temporalsdk_workflow.Now(sessCtx).UTC(),
 			Note:        ref.New("Moved to review bucket"),
 		}).
@@ -500,7 +500,7 @@ func (w *ProcessingWorkflow) SessionHandler(
 			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, createPreservationTaskLocalActivity, w.pkgsvc, &createPreservationTaskLocalActivityParams{
 				TaskID:               uuid.NewString(),
 				Name:                 "Review AIP",
-				Status:               package_.TaskStatusPending,
+				Status:               enums.PreservationTaskStatusPending,
 				StartedAt:            temporalsdk_workflow.Now(sessCtx).UTC(),
 				Note:                 "Awaiting user decision",
 				PreservationActionID: tinfo.PreservationActionID,
@@ -539,7 +539,7 @@ func (w *ProcessingWorkflow) SessionHandler(
 			ctx := withLocalActivityOpts(sessCtx)
 			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, completePreservationTaskLocalActivity, w.pkgsvc, &completePreservationTaskLocalActivityParams{
 				ID:          reviewPreservationTaskID,
-				Status:      package_.TaskStatusDone,
+				Status:      enums.PreservationTaskStatusDone,
 				CompletedAt: reviewCompletedAt,
 				Note:        ref.New("Reviewed and accepted"),
 			}).
@@ -558,7 +558,7 @@ func (w *ProcessingWorkflow) SessionHandler(
 			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, createPreservationTaskLocalActivity, w.pkgsvc, &createPreservationTaskLocalActivityParams{
 				TaskID:               uuid.NewString(),
 				Name:                 "Move AIP",
-				Status:               package_.TaskStatusInProgress,
+				Status:               enums.PreservationTaskStatusInProgress,
 				StartedAt:            temporalsdk_workflow.Now(sessCtx).UTC(),
 				Note:                 "Moving to permanent storage",
 				PreservationActionID: tinfo.PreservationActionID,
@@ -599,7 +599,7 @@ func (w *ProcessingWorkflow) SessionHandler(
 			ctx := withLocalActivityOpts(sessCtx)
 			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, completePreservationTaskLocalActivity, w.pkgsvc, &completePreservationTaskLocalActivityParams{
 				ID:          movePreservationTaskID,
-				Status:      package_.TaskStatusDone,
+				Status:      enums.PreservationTaskStatusDone,
 				CompletedAt: temporalsdk_workflow.Now(sessCtx).UTC(),
 				Note:        ref.New(fmt.Sprintf("Moved to location %s", *reviewResult.LocationID)),
 			}).
@@ -624,7 +624,7 @@ func (w *ProcessingWorkflow) SessionHandler(
 			ctx := withLocalActivityOpts(sessCtx)
 			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, completePreservationTaskLocalActivity, w.pkgsvc, &completePreservationTaskLocalActivityParams{
 				ID:          reviewPreservationTaskID,
-				Status:      package_.TaskStatusDone,
+				Status:      enums.PreservationTaskStatusDone,
 				CompletedAt: reviewCompletedAt,
 				Note:        ref.New("Reviewed and rejected"),
 			}).Get(ctx, nil)

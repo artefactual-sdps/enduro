@@ -42,11 +42,11 @@ type Service interface {
 		status PreservationActionStatus,
 		completedAt time.Time,
 	) error
-	CreatePreservationTask(ctx context.Context, pt *PreservationTask) error
+	CreatePreservationTask(ctx context.Context, pt *datatypes.PreservationTask) error
 	CompletePreservationTask(
 		ctx context.Context,
 		ID uint,
-		status PreservationTaskStatus,
+		status enums.PreservationTaskStatus,
 		completedAt time.Time,
 		note *string,
 	) error

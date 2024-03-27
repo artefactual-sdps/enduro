@@ -7,14 +7,16 @@ import (
 	"github.com/jonboulle/clockwork"
 	"go.artefactual.dev/amclient"
 
+	"github.com/artefactual-sdps/enduro/internal/datatypes"
+	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/package_"
 )
 
-var jobStatusToPreservationTaskStatus = map[amclient.JobStatus]package_.PreservationTaskStatus{
-	amclient.JobStatusUnknown:    package_.TaskStatusUnspecified,
-	amclient.JobStatusComplete:   package_.TaskStatusDone,
-	amclient.JobStatusProcessing: package_.TaskStatusInProgress,
-	amclient.JobStatusFailed:     package_.TaskStatusError,
+var jobStatusToPreservationTaskStatus = map[amclient.JobStatus]enums.PreservationTaskStatus{
+	amclient.JobStatusUnknown:    enums.PreservationTaskStatusUnspecified,
+	amclient.JobStatusComplete:   enums.PreservationTaskStatusDone,
+	amclient.JobStatusProcessing: enums.PreservationTaskStatusInProgress,
+	amclient.JobStatusFailed:     enums.PreservationTaskStatusError,
 }
 
 type JobTracker struct {
@@ -116,10 +118,10 @@ func filterSavedJobs(jobs []amclient.Job, saved map[string]struct{}) []amclient.
 }
 
 // ConvertJobToPreservationTask converts an amclient.Job to a
-// package_.PreservationTask.
-func ConvertJobToPreservationTask(job amclient.Job) package_.PreservationTask {
+// datatypes.PreservationTask.
+func ConvertJobToPreservationTask(job amclient.Job) datatypes.PreservationTask {
 	st, co := jobTimeRange(job)
-	return package_.PreservationTask{
+	return datatypes.PreservationTask{
 		TaskID:      job.ID,
 		Name:        job.Name,
 		Status:      jobStatusToPreservationTaskStatus[job.Status],

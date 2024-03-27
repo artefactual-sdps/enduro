@@ -5,8 +5,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/artefactual-sdps/enduro/internal/db"
 	"gotest.tools/v3/assert"
+
+	"github.com/artefactual-sdps/enduro/internal/db"
 )
 
 func TestFormatOptionalString(t *testing.T) {
