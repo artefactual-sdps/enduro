@@ -28,4 +28,6 @@ type Service interface {
 	// (e.g. ID, CreatedAt).
 	CreatePackage(context.Context, *datatypes.Package) error
 	UpdatePackage(context.Context, uint, PackageUpdater) (*datatypes.Package, error)
+
+	CreatePreservationTask(context.Context, *datatypes.PreservationTask) error
 }

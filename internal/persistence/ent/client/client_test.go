@@ -29,27 +29,52 @@ func setUpClient(t *testing.T, logger logr.Logger) (*db.Client, persistence.Serv
 	return entc, c
 }
 
+func createPackage(
+	entc *db.Client,
+	name string,
+	status enums.PackageStatus,
+) (*db.Pkg, error) {
+	runID := uuid.MustParse("aee9644d-6397-4b34-92f7-442ad3dd3b13")
+	aipID := uuid.MustParse("30223842-0650-4f79-80bd-7bf43b810656")
+
+	return entc.Pkg.Create().
+		SetName(name).
+		SetWorkflowID("12345").
+		SetRunID(runID).
+		SetAipID(aipID).
+		SetStatus(int8(status)).
+		Save(context.Background())
+}
+
+func createPreservationAction(
+	entc *db.Client,
+	pkgID int,
+	status enums.PreservationActionStatus,
+) (*db.PreservationAction, error) {
+	return entc.PreservationAction.Create().
+		SetWorkflowID("12345").
+		SetType(int8(enums.PreservationActionTypeCreateAIP)).
+		SetStatus(int8(status)).
+		SetPackageID(pkgID).
+		Save(context.Background())
+}
+
 func TestNew(t *testing.T) {
 	t.Run("Returns a working ent DB client", func(t *testing.T) {
 		t.Parallel()
 
 		entc, _ := setUpClient(t, logr.Discard())
-		runID := uuid.New()
-		aipID := uuid.New()
-
-		p, err := entc.Pkg.Create().
-			SetName("testing 1-2-3").
-			SetWorkflowID("12345").
-			SetRunID(runID).
-			SetAipID(aipID).
-			SetStatus(int8(enums.NewPackageStatus("in progress"))).
-			Save(context.Background())
-
+		p, err := createPackage(
+			entc,
+			"testing 1-2-3",
+			enums.NewPackageStatus("in progress"),
+		)
 		assert.NilError(t, err)
+
 		assert.Equal(t, p.Name, "testing 1-2-3")
 		assert.Equal(t, p.WorkflowID, "12345")
-		assert.Equal(t, p.RunID, runID)
-		assert.Equal(t, p.AipID, aipID)
+		assert.Equal(t, p.RunID, uuid.MustParse("aee9644d-6397-4b34-92f7-442ad3dd3b13"))
+		assert.Equal(t, p.AipID, uuid.MustParse("30223842-0650-4f79-80bd-7bf43b810656"))
 		assert.Equal(t, p.Status, int8(enums.PackageStatusInProgress))
 	})
 }
