@@ -26,7 +26,7 @@ func (w *MoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req *package_.M
 	startedAt := temporalsdk_workflow.Now(ctx).UTC()
 
 	// Assume the preservation action will be successful.
-	status := package_.ActionStatusDone
+	status := enums.PreservationActionStatusDone
 
 	// Set package to in progress status.
 	{
@@ -47,20 +47,20 @@ func (w *MoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req *package_.M
 		}).
 			Get(activityOpts, nil)
 		if err != nil {
-			status = package_.ActionStatusError
+			status = enums.PreservationActionStatusError
 		}
 	}
 
 	// Poll package move to permanent storage
 	{
-		if status != package_.ActionStatusError {
+		if status != enums.PreservationActionStatusError {
 			activityOpts := withActivityOptsForLongLivedRequest(ctx)
 			err := temporalsdk_workflow.ExecuteActivity(activityOpts, activities.PollMoveToPermanentStorageActivityName, &activities.PollMoveToPermanentStorageActivityParams{
 				AIPID: req.AIPID,
 			}).
 				Get(activityOpts, nil)
 			if err != nil {
-				status = package_.ActionStatusError
+				status = enums.PreservationActionStatusError
 			}
 		}
 	}
@@ -79,7 +79,7 @@ func (w *MoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req *package_.M
 
 	// Set package location.
 	{
-		if status != package_.ActionStatusError {
+		if status != enums.PreservationActionStatusError {
 			ctx := withLocalActivityOpts(ctx)
 			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setLocationIDLocalActivity, w.pkgsvc, req.ID, req.LocationID).
 				Get(ctx, nil)
@@ -97,7 +97,7 @@ func (w *MoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req *package_.M
 			PackageID:   req.ID,
 			LocationID:  req.LocationID,
 			WorkflowID:  temporalsdk_workflow.GetInfo(ctx).WorkflowExecution.ID,
-			Type:        package_.ActionTypeMovePackage,
+			Type:        enums.PreservationActionTypeMovePackage,
 			Status:      status,
 			StartedAt:   startedAt,
 			CompletedAt: completedAt,

@@ -2,10 +2,7 @@ package package_
 
 import (
 	"context"
-	"database/sql"
-	"encoding/json"
 	"fmt"
-	"strings"
 	"time"
 
 	"go.artefactual.dev/tools/ref"
@@ -13,137 +10,9 @@ import (
 	goapackage "github.com/artefactual-sdps/enduro/internal/api/gen/package_"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/db"
+	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/event"
 )
-
-type PreservationActionType uint
-
-const (
-	ActionTypeUnspecified PreservationActionType = iota
-	ActionTypeCreateAIP
-	ActionTypeCreateAndReviewAIP
-	ActionTypeMovePackage
-)
-
-func NewPreservationActionType(status string) PreservationActionType {
-	var s PreservationActionType
-
-	switch strings.ToLower(status) {
-	case "create-aip":
-		s = ActionTypeCreateAIP
-	case "create-and-review-aip":
-		s = ActionTypeCreateAndReviewAIP
-	case "move-package":
-		s = ActionTypeMovePackage
-	default:
-		s = ActionTypeUnspecified
-	}
-
-	return s
-}
-
-func (p PreservationActionType) String() string {
-	switch p {
-	case ActionTypeCreateAIP:
-		return "create-aip"
-	case ActionTypeCreateAndReviewAIP:
-		return "create-and-review-aip"
-	case ActionTypeMovePackage:
-		return "move-package"
-	}
-
-	return "unspecified"
-}
-
-func (p PreservationActionType) MarshalJSON() ([]byte, error) {
-	return json.Marshal(p.String())
-}
-
-func (p *PreservationActionType) UnmarshalJSON(b []byte) error {
-	var s string
-	if err := json.Unmarshal(b, &s); err != nil {
-		return err
-	}
-
-	*p = NewPreservationActionType(s)
-
-	return nil
-}
-
-type PreservationActionStatus uint
-
-const (
-	ActionStatusUnspecified PreservationActionStatus = iota
-	ActionStatusInProgress
-	ActionStatusDone
-	ActionStatusError
-	ActionStatusQueued
-	ActionStatusPending
-)
-
-func NewPreservationActionStatus(status string) PreservationActionStatus {
-	var s PreservationActionStatus
-
-	switch strings.ToLower(status) {
-	case "in progress":
-		s = ActionStatusInProgress
-	case "done":
-		s = ActionStatusDone
-	case "error":
-		s = ActionStatusError
-	case "queued":
-		s = ActionStatusQueued
-	case "pending":
-		s = ActionStatusPending
-	default:
-		s = ActionStatusUnspecified
-	}
-
-	return s
-}
-
-func (p PreservationActionStatus) String() string {
-	switch p {
-	case ActionStatusInProgress:
-		return "in progress"
-	case ActionStatusDone:
-		return "done"
-	case ActionStatusError:
-		return "error"
-	case ActionStatusQueued:
-		return "queued"
-	case ActionStatusPending:
-		return "pending"
-	}
-
-	return "unspecified"
-}
-
-func (p PreservationActionStatus) MarshalJSON() ([]byte, error) {
-	return json.Marshal(p.String())
-}
-
-func (p *PreservationActionStatus) UnmarshalJSON(b []byte) error {
-	var s string
-	if err := json.Unmarshal(b, &s); err != nil {
-		return err
-	}
-
-	*p = NewPreservationActionStatus(s)
-
-	return nil
-}
-
-// PreservationAction represents a preservation action in the preservation_action table.
-type PreservationAction struct {
-	ID          uint                     `db:"id"`
-	WorkflowID  string                   `db:"workflow_id"`
-	Type        PreservationActionType   `db:"type"`
-	Status      PreservationActionStatus `db:"status"`
-	StartedAt   sql.NullTime             `db:"started_at"`
-	CompletedAt sql.NullTime             `db:"completed_at"`
-	PackageID   uint                     `db:"package_id"`
-}
 
 func (w *goaWrapper) PreservationActions(
 	ctx context.Context,
@@ -165,7 +34,7 @@ func (w *goaWrapper) PreservationActions(
 
 	preservation_actions := []*goapackage.EnduroPackagePreservationAction{}
 	for rows.Next() {
-		pa := PreservationAction{}
+		pa := datatypes.PreservationAction{}
 		if err := rows.StructScan(&pa); err != nil {
 			return nil, fmt.Errorf("error scanning database result: %w", err)
 		}
@@ -216,7 +85,7 @@ func (w *goaWrapper) PreservationActions(
 	return result, nil
 }
 
-func (svc *packageImpl) CreatePreservationAction(ctx context.Context, pa *PreservationAction) error {
+func (svc *packageImpl) CreatePreservationAction(ctx context.Context, pa *datatypes.PreservationAction) error {
 	startedAt := &pa.StartedAt.Time
 	completedAt := &pa.CompletedAt.Time
 	if pa.StartedAt.Time.IsZero() {
@@ -259,7 +128,7 @@ func (svc *packageImpl) CreatePreservationAction(ctx context.Context, pa *Preser
 func (svc *packageImpl) SetPreservationActionStatus(
 	ctx context.Context,
 	ID uint,
-	status PreservationActionStatus,
+	status enums.PreservationActionStatus,
 ) error {
 	query := `UPDATE preservation_action SET status = ? WHERE id = ?`
 	args := []interface{}{
@@ -283,7 +152,7 @@ func (svc *packageImpl) SetPreservationActionStatus(
 func (svc *packageImpl) CompletePreservationAction(
 	ctx context.Context,
 	ID uint,
-	status PreservationActionStatus,
+	status enums.PreservationActionStatus,
 	completedAt time.Time,
 ) error {
 	query := `UPDATE preservation_action SET status = ?, completed_at = ? WHERE id = ?`
@@ -324,7 +193,7 @@ func (svc *packageImpl) readPreservationAction(
 		WHERE preservation_action.id = ?
 	`
 	args := []interface{}{ID}
-	dbItem := PreservationAction{}
+	dbItem := datatypes.PreservationAction{}
 
 	if err := svc.db.GetContext(ctx, &dbItem, query, args...); err != nil {
 		return nil, err
