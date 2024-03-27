@@ -15,42 +15,16 @@ import (
 )
 
 func (svc *packageImpl) CreatePreservationTask(ctx context.Context, pt *datatypes.PreservationTask) error {
-	startedAt := &pt.StartedAt.Time
-	completedAt := &pt.CompletedAt.Time
-	if pt.StartedAt.Time.IsZero() {
-		startedAt = nil
-	}
-	if pt.CompletedAt.Time.IsZero() {
-		completedAt = nil
-	}
-
-	query := `INSERT INTO preservation_task (task_id, name, status, started_at, completed_at, note, preservation_action_id) VALUES (?, ?, ?, ?, ?, ?, ?)`
-	args := []interface{}{
-		pt.TaskID,
-		pt.Name,
-		pt.Status,
-		startedAt,
-		completedAt,
-		pt.Note,
-		pt.PreservationActionID,
-	}
-
-	res, err := svc.db.ExecContext(ctx, query, args...)
+	err := svc.perSvc.CreatePreservationTask(ctx, pt)
 	if err != nil {
-		return fmt.Errorf("error inserting preservation task: %w", err)
+		return fmt.Errorf("preservation task: create: %v", err)
 	}
 
-	var id int64
-	if id, err = res.LastInsertId(); err != nil {
-		return fmt.Errorf("error retrieving insert ID: %w", err)
+	ev := &goapackage.PreservationTaskCreatedEvent{
+		ID:   pt.ID,
+		Item: preservationTaskToGoa(pt),
 	}
-
-	pt.ID = uint(id)
-
-	if item, err := svc.readPreservationTask(ctx, pt.ID); err == nil {
-		ev := &goapackage.PreservationTaskCreatedEvent{ID: pt.ID, Item: item}
-		event.PublishEvent(ctx, svc.evsvc, ev)
-	}
+	event.PublishEvent(ctx, svc.evsvc, ev)
 
 	return nil
 }
