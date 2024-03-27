@@ -17,8 +17,8 @@ import (
 	"gotest.tools/v3/assert"
 
 	"github.com/artefactual-sdps/enduro/internal/am"
+	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
-	"github.com/artefactual-sdps/enduro/internal/package_"
 	fake_package "github.com/artefactual-sdps/enduro/internal/package_/fake"
 )
 
@@ -181,7 +181,7 @@ func TestConvertJobToPreservationTask(t *testing.T) {
 	type test struct {
 		name string
 		job  amclient.Job
-		want package_.PreservationTask
+		want datatypes.PreservationTask
 	}
 
 	for _, tt := range []test{
@@ -212,10 +212,10 @@ func TestConvertJobToPreservationTask(t *testing.T) {
 					},
 				},
 			},
-			want: package_.PreservationTask{
+			want: datatypes.PreservationTask{
 				TaskID: "f60018ac-da79-4769-9509-c6c41d5efe7e",
 				Name:   "Move to processing directory",
-				Status: package_.PreservationTaskStatus(enums.PackageStatusDone),
+				Status: enums.PreservationTaskStatus(enums.PackageStatusDone),
 				StartedAt: sql.NullTime{
 					Time:  time.Date(2024, time.January, 18, 1, 27, 49, 0, time.UTC),
 					Valid: true,
@@ -253,10 +253,10 @@ func TestConvertJobToPreservationTask(t *testing.T) {
 					},
 				},
 			},
-			want: package_.PreservationTask{
+			want: datatypes.PreservationTask{
 				TaskID: "c2128d39-2ace-47c5-8cac-39ded8d9c9ef",
 				Name:   "Verify SIP compliance",
-				Status: package_.PreservationTaskStatus(enums.PackageStatusInProgress),
+				Status: enums.PreservationTaskStatus(enums.PackageStatusInProgress),
 				StartedAt: sql.NullTime{
 					Time:  time.Date(2024, time.January, 18, 1, 27, 49, 0, time.UTC),
 					Valid: true,
@@ -267,7 +267,7 @@ func TestConvertJobToPreservationTask(t *testing.T) {
 		{
 			name: "Returns NULL timestamps in the job has no tasks",
 			job:  amclient.Job{},
-			want: package_.PreservationTask{},
+			want: datatypes.PreservationTask{},
 		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {

@@ -84,7 +84,7 @@ func (c *MockServiceCompletePreservationActionCall) DoAndReturn(f func(context.C
 }
 
 // CompletePreservationTask mocks base method.
-func (m *MockService) CompletePreservationTask(arg0 context.Context, arg1 uint, arg2 package_0.PreservationTaskStatus, arg3 time.Time, arg4 *string) error {
+func (m *MockService) CompletePreservationTask(arg0 context.Context, arg1 uint, arg2 enums.PreservationTaskStatus, arg3 time.Time, arg4 *string) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CompletePreservationTask", arg0, arg1, arg2, arg3, arg4)
 	ret0, _ := ret[0].(error)
@@ -110,13 +110,13 @@ func (c *MockServiceCompletePreservationTaskCall) Return(arg0 error) *MockServic
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockServiceCompletePreservationTaskCall) Do(f func(context.Context, uint, package_0.PreservationTaskStatus, time.Time, *string) error) *MockServiceCompletePreservationTaskCall {
+func (c *MockServiceCompletePreservationTaskCall) Do(f func(context.Context, uint, enums.PreservationTaskStatus, time.Time, *string) error) *MockServiceCompletePreservationTaskCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockServiceCompletePreservationTaskCall) DoAndReturn(f func(context.Context, uint, package_0.PreservationTaskStatus, time.Time, *string) error) *MockServiceCompletePreservationTaskCall {
+func (c *MockServiceCompletePreservationTaskCall) DoAndReturn(f func(context.Context, uint, enums.PreservationTaskStatus, time.Time, *string) error) *MockServiceCompletePreservationTaskCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
@@ -198,7 +198,7 @@ func (c *MockServiceCreatePreservationActionCall) DoAndReturn(f func(context.Con
 }
 
 // CreatePreservationTask mocks base method.
-func (m *MockService) CreatePreservationTask(arg0 context.Context, arg1 *package_0.PreservationTask) error {
+func (m *MockService) CreatePreservationTask(arg0 context.Context, arg1 *datatypes.PreservationTask) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreatePreservationTask", arg0, arg1)
 	ret0, _ := ret[0].(error)
@@ -224,13 +224,13 @@ func (c *MockServiceCreatePreservationTaskCall) Return(arg0 error) *MockServiceC
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockServiceCreatePreservationTaskCall) Do(f func(context.Context, *package_0.PreservationTask) error) *MockServiceCreatePreservationTaskCall {
+func (c *MockServiceCreatePreservationTaskCall) Do(f func(context.Context, *datatypes.PreservationTask) error) *MockServiceCreatePreservationTaskCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockServiceCreatePreservationTaskCall) DoAndReturn(f func(context.Context, *package_0.PreservationTask) error) *MockServiceCreatePreservationTaskCall {
+func (c *MockServiceCreatePreservationTaskCall) DoAndReturn(f func(context.Context, *datatypes.PreservationTask) error) *MockServiceCreatePreservationTaskCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

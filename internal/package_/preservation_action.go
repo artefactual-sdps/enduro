@@ -11,6 +11,7 @@ import (
 	"go.artefactual.dev/tools/ref"
 
 	goapackage "github.com/artefactual-sdps/enduro/internal/api/gen/package_"
+	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/db"
 	"github.com/artefactual-sdps/enduro/internal/event"
 )
@@ -144,82 +145,6 @@ type PreservationAction struct {
 	PackageID   uint                     `db:"package_id"`
 }
 
-type PreservationTaskStatus uint
-
-const (
-	TaskStatusUnspecified PreservationTaskStatus = iota
-	TaskStatusInProgress
-	TaskStatusDone
-	TaskStatusError
-	TaskStatusQueued
-	TaskStatusPending
-)
-
-func NewPreservationTaskStatus(status string) PreservationTaskStatus {
-	var s PreservationTaskStatus
-
-	switch strings.ToLower(status) {
-	case "in progress":
-		s = TaskStatusInProgress
-	case "done":
-		s = TaskStatusDone
-	case "error":
-		s = TaskStatusError
-	case "queued":
-		s = TaskStatusQueued
-	case "pending":
-		s = TaskStatusPending
-	default:
-		s = TaskStatusUnspecified
-	}
-
-	return s
-}
-
-func (p PreservationTaskStatus) String() string {
-	switch p {
-	case TaskStatusInProgress:
-		return "in progress"
-	case TaskStatusDone:
-		return "done"
-	case TaskStatusError:
-		return "error"
-	case TaskStatusQueued:
-		return "queued"
-	case TaskStatusPending:
-		return "pending"
-	}
-
-	return "unspecified"
-}
-
-func (p PreservationTaskStatus) MarshalJSON() ([]byte, error) {
-	return json.Marshal(p.String())
-}
-
-func (p *PreservationTaskStatus) UnmarshalJSON(b []byte) error {
-	var s string
-	if err := json.Unmarshal(b, &s); err != nil {
-		return err
-	}
-
-	*p = NewPreservationTaskStatus(s)
-
-	return nil
-}
-
-// PreservationTask represents a preservation action task in the preservation_task table.
-type PreservationTask struct {
-	ID                   uint                   `db:"id"`
-	TaskID               string                 `db:"task_id"`
-	Name                 string                 `db:"name"`
-	Status               PreservationTaskStatus `db:"status"`
-	StartedAt            sql.NullTime           `db:"started_at"`
-	CompletedAt          sql.NullTime           `db:"completed_at"`
-	Note                 string
-	PreservationActionID uint `db:"preservation_action_id"`
-}
-
 func (w *goaWrapper) PreservationActions(
 	ctx context.Context,
 	payload *goapackage.PreservationActionsPayload,
@@ -264,7 +189,7 @@ func (w *goaWrapper) PreservationActions(
 
 		preservation_tasks := []*goapackage.EnduroPackagePreservationTask{}
 		for ptRows.Next() {
-			pt := PreservationTask{}
+			pt := datatypes.PreservationTask{}
 			if err := ptRows.StructScan(&pt); err != nil {
 				return nil, fmt.Errorf("error scanning database result: %w", err)
 			}
@@ -381,78 +306,6 @@ func (svc *packageImpl) CompletePreservationAction(
 	return nil
 }
 
-func (svc *packageImpl) CreatePreservationTask(ctx context.Context, pt *PreservationTask) error {
-	startedAt := &pt.StartedAt.Time
-	completedAt := &pt.CompletedAt.Time
-	if pt.StartedAt.Time.IsZero() {
-		startedAt = nil
-	}
-	if pt.CompletedAt.Time.IsZero() {
-		completedAt = nil
-	}
-
-	query := `INSERT INTO preservation_task (task_id, name, status, started_at, completed_at, note, preservation_action_id) VALUES (?, ?, ?, ?, ?, ?, ?)`
-	args := []interface{}{
-		pt.TaskID,
-		pt.Name,
-		pt.Status,
-		startedAt,
-		completedAt,
-		pt.Note,
-		pt.PreservationActionID,
-	}
-
-	res, err := svc.db.ExecContext(ctx, query, args...)
-	if err != nil {
-		return fmt.Errorf("error inserting preservation task: %w", err)
-	}
-
-	var id int64
-	if id, err = res.LastInsertId(); err != nil {
-		return fmt.Errorf("error retrieving insert ID: %w", err)
-	}
-
-	pt.ID = uint(id)
-
-	if item, err := svc.readPreservationTask(ctx, pt.ID); err == nil {
-		ev := &goapackage.PreservationTaskCreatedEvent{ID: pt.ID, Item: item}
-		event.PublishEvent(ctx, svc.evsvc, ev)
-	}
-
-	return nil
-}
-
-func (svc *packageImpl) CompletePreservationTask(
-	ctx context.Context,
-	ID uint,
-	status PreservationTaskStatus,
-	completedAt time.Time,
-	note *string,
-) error {
-	var query string
-	args := []interface{}{}
-
-	if note != nil {
-		query = `UPDATE preservation_task SET note = ?, status = ?, completed_at = ? WHERE id = ?`
-		args = append(args, note, status, completedAt, ID)
-	} else {
-		query = `UPDATE preservation_task SET status = ?, completed_at = ? WHERE id = ?`
-		args = append(args, status, completedAt, ID)
-	}
-
-	_, err := svc.db.ExecContext(ctx, query, args...)
-	if err != nil {
-		return fmt.Errorf("error updating preservation task: %w", err)
-	}
-
-	if item, err := svc.readPreservationTask(ctx, ID); err == nil {
-		ev := &goapackage.PreservationTaskUpdatedEvent{ID: ID, Item: item}
-		event.PublishEvent(ctx, svc.evsvc, ev)
-	}
-
-	return nil
-}
-
 func (svc *packageImpl) readPreservationAction(
 	ctx context.Context,
 	ID uint,
@@ -485,45 +338,6 @@ func (svc *packageImpl) readPreservationAction(
 		StartedAt:   ref.DerefZero(db.FormatOptionalTime(dbItem.StartedAt)),
 		CompletedAt: db.FormatOptionalTime(dbItem.CompletedAt),
 		PackageID:   ref.New(dbItem.PackageID),
-	}
-
-	return &item, nil
-}
-
-func (svc *packageImpl) readPreservationTask(
-	ctx context.Context,
-	ID uint,
-) (*goapackage.EnduroPackagePreservationTask, error) {
-	query := `
-		SELECT
-			preservation_task.id,
-			preservation_task.task_id,
-			preservation_task.name,
-			preservation_task.status,
-			CONVERT_TZ(preservation_task.started_at, @@session.time_zone, '+00:00') AS started_at,
-			CONVERT_TZ(preservation_task.completed_at, @@session.time_zone, '+00:00') AS completed_at,
-			preservation_task.note,
-			preservation_task.preservation_action_id
-		FROM preservation_task
-		LEFT JOIN preservation_action ON (preservation_task.preservation_action_id = preservation_action.id)
-		WHERE preservation_task.id = ?
-	`
-	args := []interface{}{ID}
-	dbItem := PreservationTask{}
-
-	if err := svc.db.GetContext(ctx, &dbItem, query, args...); err != nil {
-		return nil, err
-	}
-
-	item := goapackage.EnduroPackagePreservationTask{
-		ID:                   dbItem.ID,
-		TaskID:               dbItem.TaskID,
-		Name:                 dbItem.Name,
-		Status:               dbItem.Status.String(),
-		StartedAt:            ref.DerefZero(db.FormatOptionalTime(dbItem.StartedAt)),
-		CompletedAt:          db.FormatOptionalTime(dbItem.CompletedAt),
-		Note:                 ref.New(dbItem.Note),
-		PreservationActionID: ref.New(dbItem.PreservationActionID),
 	}
 
 	return &item, nil

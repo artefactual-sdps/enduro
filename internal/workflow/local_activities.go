@@ -140,14 +140,14 @@ func saveLocationMovePreservationActionLocalActivity(
 		return &saveLocationMovePreservationActionLocalActivityResult{}, err
 	}
 
-	actionStatusToTaskStatus := map[package_.PreservationActionStatus]package_.PreservationTaskStatus{
-		package_.ActionStatusUnspecified: package_.TaskStatusUnspecified,
-		package_.ActionStatusDone:        package_.TaskStatusDone,
-		package_.ActionStatusInProgress:  package_.TaskStatusInProgress,
-		package_.ActionStatusError:       package_.TaskStatusError,
+	actionStatusToTaskStatus := map[package_.PreservationActionStatus]enums.PreservationTaskStatus{
+		package_.ActionStatusUnspecified: enums.PreservationTaskStatusUnspecified,
+		package_.ActionStatusDone:        enums.PreservationTaskStatusDone,
+		package_.ActionStatusInProgress:  enums.PreservationTaskStatusInProgress,
+		package_.ActionStatusError:       enums.PreservationTaskStatusError,
 	}
 
-	pt := package_.PreservationTask{
+	pt := datatypes.PreservationTask{
 		TaskID:               uuid.NewString(),
 		Name:                 "Move AIP",
 		Status:               actionStatusToTaskStatus[params.Status],
@@ -225,7 +225,7 @@ func completePreservationActionLocalActivity(
 type createPreservationTaskLocalActivityParams struct {
 	TaskID               string
 	Name                 string
-	Status               package_.PreservationTaskStatus
+	Status               enums.PreservationTaskStatus
 	StartedAt            time.Time
 	CompletedAt          time.Time
 	Note                 string
@@ -237,7 +237,7 @@ func createPreservationTaskLocalActivity(
 	pkgsvc package_.Service,
 	params *createPreservationTaskLocalActivityParams,
 ) (uint, error) {
-	pt := package_.PreservationTask{
+	pt := datatypes.PreservationTask{
 		TaskID:               params.TaskID,
 		Name:                 params.Name,
 		Status:               params.Status,
@@ -256,7 +256,7 @@ func createPreservationTaskLocalActivity(
 
 type completePreservationTaskLocalActivityParams struct {
 	ID          uint
-	Status      package_.PreservationTaskStatus
+	Status      enums.PreservationTaskStatus
 	CompletedAt time.Time
 	Note        *string
 }

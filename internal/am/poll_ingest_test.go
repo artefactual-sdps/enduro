@@ -18,7 +18,7 @@ import (
 	"gotest.tools/v3/assert"
 
 	"github.com/artefactual-sdps/enduro/internal/am"
-	"github.com/artefactual-sdps/enduro/internal/package_"
+	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	fake_package "github.com/artefactual-sdps/enduro/internal/package_/fake"
 )
 
@@ -154,7 +154,7 @@ func TestPollIngestActivity(t *testing.T) {
 				)
 			},
 			pkgRec: func(m *fake_package.MockServiceMockRecorder) {
-				tasks := make([]*package_.PreservationTask, len(jobs))
+				tasks := make([]*datatypes.PreservationTask, len(jobs))
 				for i, job := range jobs {
 					pt := am.ConvertJobToPreservationTask(job)
 					pt.PreservationActionID = presActionID
