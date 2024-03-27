@@ -115,8 +115,8 @@ type saveLocationMovePreservationActionLocalActivityParams struct {
 	PackageID   uint
 	LocationID  uuid.UUID
 	WorkflowID  string
-	Type        package_.PreservationActionType
-	Status      package_.PreservationActionStatus
+	Type        enums.PreservationActionType
+	Status      enums.PreservationActionStatus
 	StartedAt   time.Time
 	CompletedAt time.Time
 }
@@ -140,11 +140,11 @@ func saveLocationMovePreservationActionLocalActivity(
 		return &saveLocationMovePreservationActionLocalActivityResult{}, err
 	}
 
-	actionStatusToTaskStatus := map[package_.PreservationActionStatus]enums.PreservationTaskStatus{
-		package_.ActionStatusUnspecified: enums.PreservationTaskStatusUnspecified,
-		package_.ActionStatusDone:        enums.PreservationTaskStatusDone,
-		package_.ActionStatusInProgress:  enums.PreservationTaskStatusInProgress,
-		package_.ActionStatusError:       enums.PreservationTaskStatusError,
+	actionStatusToTaskStatus := map[enums.PreservationActionStatus]enums.PreservationTaskStatus{
+		enums.PreservationActionStatusUnspecified: enums.PreservationTaskStatusUnspecified,
+		enums.PreservationActionStatusDone:        enums.PreservationTaskStatusDone,
+		enums.PreservationActionStatusInProgress:  enums.PreservationTaskStatusInProgress,
+		enums.PreservationActionStatusError:       enums.PreservationTaskStatusError,
 	}
 
 	pt := datatypes.PreservationTask{
@@ -162,8 +162,8 @@ func saveLocationMovePreservationActionLocalActivity(
 
 type createPreservationActionLocalActivityParams struct {
 	WorkflowID  string
-	Type        package_.PreservationActionType
-	Status      package_.PreservationActionStatus
+	Type        enums.PreservationActionType
+	Status      enums.PreservationActionStatus
 	StartedAt   time.Time
 	CompletedAt time.Time
 	PackageID   uint
@@ -174,7 +174,7 @@ func createPreservationActionLocalActivity(
 	pkgsvc package_.Service,
 	params *createPreservationActionLocalActivityParams,
 ) (uint, error) {
-	pa := package_.PreservationAction{
+	pa := datatypes.PreservationAction{
 		WorkflowID: params.WorkflowID,
 		Type:       params.Type,
 		Status:     params.Status,
@@ -196,14 +196,14 @@ func setPreservationActionStatusLocalActivity(
 	ctx context.Context,
 	pkgsvc package_.Service,
 	ID uint,
-	status package_.PreservationActionStatus,
+	status enums.PreservationActionStatus,
 ) (*setPreservationActionStatusLocalActivityResult, error) {
 	return &setPreservationActionStatusLocalActivityResult{}, pkgsvc.SetPreservationActionStatus(ctx, ID, status)
 }
 
 type completePreservationActionLocalActivityParams struct {
 	PreservationActionID uint
-	Status               package_.PreservationActionStatus
+	Status               enums.PreservationActionStatus
 	CompletedAt          time.Time
 }
 

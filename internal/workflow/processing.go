@@ -115,7 +115,7 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *pack
 		status = enums.PackageStatusQueued
 
 		// Create AIP preservation action status.
-		paStatus = package_.ActionStatusUnspecified
+		paStatus = enums.PreservationActionStatusUnspecified
 	)
 
 	// Persist package as early as possible.
@@ -165,8 +165,8 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *pack
 		}).
 			Get(activityOpts, nil)
 
-		if paStatus != package_.ActionStatusDone {
-			paStatus = package_.ActionStatusError
+		if paStatus != enums.PreservationActionStatusDone {
+			paStatus = enums.PreservationActionStatusError
 		}
 
 		_ = temporalsdk_workflow.ExecuteLocalActivity(activityOpts, completePreservationActionLocalActivity, w.pkgsvc, &completePreservationActionLocalActivityParams{
@@ -228,7 +228,7 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *pack
 
 		status = enums.PackageStatusDone
 
-		paStatus = package_.ActionStatusDone
+		paStatus = enums.PreservationActionStatusDone
 	}
 
 	// Schedule deletion of the original in the watched data source.
@@ -283,18 +283,18 @@ func (w *ProcessingWorkflow) SessionHandler(
 	// Persist the preservation action for creating the AIP.
 	{
 		{
-			var preservationActionType package_.PreservationActionType
+			var preservationActionType enums.PreservationActionType
 			if tinfo.req.AutoApproveAIP {
-				preservationActionType = package_.ActionTypeCreateAIP
+				preservationActionType = enums.PreservationActionTypeCreateAIP
 			} else {
-				preservationActionType = package_.ActionTypeCreateAndReviewAIP
+				preservationActionType = enums.PreservationActionTypeCreateAndReviewAIP
 			}
 
 			ctx := withLocalActivityOpts(sessCtx)
 			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, createPreservationActionLocalActivity, w.pkgsvc, &createPreservationActionLocalActivityParams{
 				WorkflowID: temporalsdk_workflow.GetInfo(ctx).WorkflowExecution.ID,
 				Type:       preservationActionType,
-				Status:     package_.ActionStatusInProgress,
+				Status:     enums.PreservationActionStatusInProgress,
 				StartedAt:  packageStartedAt,
 				PackageID:  tinfo.req.PackageID,
 			}).
@@ -488,7 +488,7 @@ func (w *ProcessingWorkflow) SessionHandler(
 		// Set preservation action to pending status.
 		{
 			ctx := withLocalActivityOpts(sessCtx)
-			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setPreservationActionStatusLocalActivity, w.pkgsvc, tinfo.PreservationActionID, package_.ActionStatusPending).Get(ctx, nil)
+			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setPreservationActionStatusLocalActivity, w.pkgsvc, tinfo.PreservationActionID, enums.PreservationActionStatusPending).Get(ctx, nil)
 			if err != nil {
 				return err
 			}
@@ -524,7 +524,7 @@ func (w *ProcessingWorkflow) SessionHandler(
 		// Set preservation action to in progress status.
 		{
 			ctx := withLocalActivityOpts(sessCtx)
-			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setPreservationActionStatusLocalActivity, w.pkgsvc, tinfo.PreservationActionID, package_.ActionStatusInProgress).Get(ctx, nil)
+			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setPreservationActionStatusLocalActivity, w.pkgsvc, tinfo.PreservationActionID, enums.PreservationActionStatusInProgress).Get(ctx, nil)
 			if err != nil {
 				return err
 			}
