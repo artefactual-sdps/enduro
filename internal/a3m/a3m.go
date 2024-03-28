@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 
+	"buf.build/gen/go/artefactual/a3m/grpc/go/a3m/api/transferservice/v1beta1/transferservicev1beta1grpc"
 	transferservice "buf.build/gen/go/artefactual/a3m/protocolbuffers/go/a3m/api/transferservice/v1beta1"
 	"github.com/go-logr/logr"
 	"github.com/oklog/run"
@@ -24,6 +25,7 @@ const CreateAIPActivityName = "create-aip-activity"
 type CreateAIPActivity struct {
 	logger logr.Logger
 	tracer trace.Tracer
+	client transferservicev1beta1grpc.TransferServiceClient
 	cfg    *Config
 	pkgsvc package_.Service
 }
@@ -42,12 +44,14 @@ type CreateAIPActivityResult struct {
 func NewCreateAIPActivity(
 	logger logr.Logger,
 	tracer trace.Tracer,
+	client transferservicev1beta1grpc.TransferServiceClient,
 	cfg *Config,
 	pkgsvc package_.Service,
 ) *CreateAIPActivity {
 	return &CreateAIPActivity{
 		logger: logger,
 		tracer: tracer,
+		client: client,
 		cfg:    cfg,
 		pkgsvc: pkgsvc,
 	}
@@ -89,15 +93,7 @@ func (a *CreateAIPActivity) Execute(
 	{
 		g.Add(
 			func() error {
-				childCtx, cancel := context.WithTimeout(ctx, time.Second*10)
-				defer cancel()
-
-				c, err := NewClient(childCtx, a.cfg.Address)
-				if err != nil {
-					return err
-				}
-
-				submitResp, err := c.TransferClient.Submit(
+				submitResp, err := a.client.Submit(
 					ctx,
 					&transferservice.SubmitRequest{
 						Name: opts.Name,
@@ -129,7 +125,7 @@ func (a *CreateAIPActivity) Execute(
 				result.UUID = submitResp.Id
 
 				for {
-					readResp, err := c.TransferClient.Read(ctx, &transferservice.ReadRequest{Id: result.UUID})
+					readResp, err := a.client.Read(ctx, &transferservice.ReadRequest{Id: result.UUID})
 					if err != nil {
 						return err
 					}

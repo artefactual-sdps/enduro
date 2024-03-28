@@ -171,6 +171,16 @@ func main() {
 		}
 	}
 
+	// Set up the a3m gRPC client.
+	var a3mClient *a3m.Client
+	{
+		a3mClient, err = a3m.NewClient(ctx, tp, cfg.A3m.Address)
+		if err != nil {
+			logger.Error(err, "Error setting up the a3m client.")
+			os.Exit(1)
+		}
+	}
+
 	var g run.Group
 
 	// Activity worker.
@@ -203,7 +213,7 @@ func main() {
 			temporalsdk_activity.RegisterOptions{Name: activities.BundleActivityName},
 		)
 		w.RegisterActivityWithOptions(
-			a3m.NewCreateAIPActivity(logger, tp.Tracer(a3m.CreateAIPActivityName), &cfg.A3m, pkgsvc).Execute,
+			a3m.NewCreateAIPActivity(logger, tp.Tracer(a3m.CreateAIPActivityName), a3mClient.TransferClient, &cfg.A3m, pkgsvc).Execute,
 			temporalsdk_activity.RegisterOptions{Name: a3m.CreateAIPActivityName},
 		)
 		w.RegisterActivityWithOptions(

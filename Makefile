@@ -147,6 +147,7 @@ gen-dashboard-client:
 
 gen-mock: # @HELP Generate mocks.
 gen-mock: $(MOCKGEN)
+	mockgen -typed -destination=./internal/a3m/fake/mock_transfer_service_client.go -package=fake buf.build/gen/go/artefactual/a3m/grpc/go/a3m/api/transferservice/v1beta1/transferservicev1beta1grpc TransferServiceClient
 	mockgen -typed -destination=./internal/api/auth/fake/mock_ticket_store.go -package=fake github.com/artefactual-sdps/enduro/internal/api/auth TicketStore
 	mockgen -typed -destination=./internal/package_/fake/mock_package_.go -package=fake github.com/artefactual-sdps/enduro/internal/package_ Service
 	mockgen -typed -destination=./internal/persistence/fake/mock_persistence.go -package=fake github.com/artefactual-sdps/enduro/internal/persistence Service

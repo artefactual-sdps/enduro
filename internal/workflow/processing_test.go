@@ -18,6 +18,7 @@ import (
 	"gotest.tools/v3/assert"
 
 	"github.com/artefactual-sdps/enduro/internal/a3m"
+	a3mfake "github.com/artefactual-sdps/enduro/internal/a3m/fake"
 	"github.com/artefactual-sdps/enduro/internal/am"
 	"github.com/artefactual-sdps/enduro/internal/config"
 	"github.com/artefactual-sdps/enduro/internal/enums"
@@ -70,6 +71,7 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(taskQueue string) {
 		Preservation: pres.Config{TaskQueue: taskQueue},
 		A3m:          a3m.Config{ShareDir: s.transferDir},
 	}
+	a3mTransferServiceClient := a3mfake.NewMockTransferServiceClient(ctrl)
 	pkgsvc := packagefake.NewMockService(ctrl)
 	wsvc := watcherfake.NewMockService(ctrl)
 	sftpc := sftp_fake.NewMockClient(ctrl)
@@ -87,7 +89,7 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(taskQueue string) {
 		temporalsdk_activity.RegisterOptions{Name: activities.BundleActivityName},
 	)
 	s.env.RegisterActivityWithOptions(
-		a3m.NewCreateAIPActivity(logger, noop.Tracer{}, &a3m.Config{}, pkgsvc).Execute,
+		a3m.NewCreateAIPActivity(logger, noop.Tracer{}, a3mTransferServiceClient, &a3m.Config{}, pkgsvc).Execute,
 		temporalsdk_activity.RegisterOptions{Name: a3m.CreateAIPActivityName},
 	)
 	s.env.RegisterActivityWithOptions(
