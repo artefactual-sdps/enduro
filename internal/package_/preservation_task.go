@@ -29,7 +29,13 @@ func (svc *packageImpl) CreatePreservationTask(ctx context.Context, pt *datatype
 	return nil
 }
 
-func (svc *packageImpl) CompletePreservationTask(ctx context.Context, ID uint, status enums.PreservationTaskStatus, completedAt time.Time, note *string) error {
+func (svc *packageImpl) CompletePreservationTask(
+	ctx context.Context,
+	ID uint,
+	status enums.PreservationTaskStatus,
+	completedAt time.Time,
+	note *string,
+) error {
 	var query string
 	args := []interface{}{}
 
@@ -54,7 +60,10 @@ func (svc *packageImpl) CompletePreservationTask(ctx context.Context, ID uint, s
 	return nil
 }
 
-func (svc *packageImpl) readPreservationTask(ctx context.Context, ID uint) (*goapackage.EnduroPackagePreservationTask, error) {
+func (svc *packageImpl) readPreservationTask(
+	ctx context.Context,
+	ID uint,
+) (*goapackage.EnduroPackagePreservationTask, error) {
 	query := `
 		SELECT
 			preservation_task.id,
