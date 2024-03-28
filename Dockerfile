@@ -20,7 +20,8 @@ RUN --mount=type=cache,target=/go/pkg/mod \
 	go build \
 	-trimpath \
 	-ldflags="-X '${VERSION_PATH}.Long=${VERSION_LONG}' -X '${VERSION_PATH}.Short=${VERSION_SHORT}' -X '${VERSION_PATH}.GitCommit=${VERSION_GIT_HASH}'" \
-	-o /out/enduro .
+	-o /out/enduro \
+	./cmd/enduro
 
 FROM build-go AS build-enduro-a3m-worker
 ARG VERSION_PATH
