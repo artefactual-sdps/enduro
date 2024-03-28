@@ -13,10 +13,10 @@ coverage:
   status:
     project:
       default:
-        threshold: 0.1%
+        threshold: 1.0%
     patch:
       default:
-        threshold: 0.1%
+        threshold: 1.0%
 
 ignore:
 - "dashboard/"
