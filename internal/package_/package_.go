@@ -36,7 +36,12 @@ type Service interface {
 	SetLocationID(ctx context.Context, ID uint, locationID uuid.UUID) error
 	CreatePreservationAction(ctx context.Context, pa *datatypes.PreservationAction) error
 	SetPreservationActionStatus(ctx context.Context, ID uint, status enums.PreservationActionStatus) error
-	CompletePreservationAction(ctx context.Context, ID uint, status enums.PreservationActionStatus, completedAt time.Time) error
+	CompletePreservationAction(
+		ctx context.Context,
+		ID uint,
+		status enums.PreservationActionStatus,
+		completedAt time.Time,
+	) error
 	CreatePreservationTask(ctx context.Context, pt *datatypes.PreservationTask) error
 	CompletePreservationTask(
 		ctx context.Context,
