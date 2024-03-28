@@ -131,6 +131,7 @@ func (a *CreateAIPActivity) Execute(
 					}
 
 					if readResp.Status == transferservice.PackageStatus_PACKAGE_STATUS_PROCESSING {
+						time.Sleep(time.Second / 2)
 						continue
 					}
 
