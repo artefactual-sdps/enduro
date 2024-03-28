@@ -190,6 +190,13 @@ gosec: $(GOSEC)
 		-exclude-dir=internal/storage/persistence/ent/db \
 		./...
 
+upload-sample-transfer: # @HELP Upload sample transfer (small.zip).
+upload-sample-transfer: ADDRESS ?= localhost:9000
+upload-sample-transfer:
+	curl \
+		-F "file=@$(CURDIR)/internal/testdata/zipped_transfer/small.zip" \
+		http://$(ADDRESS)/upload/upload
+
 tilt-trigger-internal: # @HELP Restart enduro-internal and wait until ready.
 tilt-trigger-internal:
 	tilt trigger enduro-internal
