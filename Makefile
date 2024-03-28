@@ -78,7 +78,6 @@ deps: $(GOMAJOR)
 golines: # @HELP Run the golines formatter to fix long lines.
 golines: $(GOLINES)
 	golines \
-		--base-formatter=goimports \
 		--chain-split-dots \
 		--ignored-dirs="$(TEST_IGNORED_PACKAGES)" \
 		--max-len=120 \
