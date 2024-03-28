@@ -69,7 +69,7 @@ func TestCreateAIPActivity(t *testing.T) {
 		Status: enums.PreservationTaskStatusDone,
 		StartedAt: sql.NullTime{
 			Time:  time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC),
-			Valid: false,
+			Valid: true,
 		},
 	})
 

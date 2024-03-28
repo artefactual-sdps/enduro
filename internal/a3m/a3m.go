@@ -2,6 +2,7 @@ package a3m
 
 import (
 	context "context"
+	"database/sql"
 	"errors"
 	"fmt"
 	"time"
@@ -184,12 +185,15 @@ func savePreservationTasks(
 
 	for _, job := range jobs {
 		pt := datatypes.PreservationTask{
-			TaskID:               job.Id,
-			Name:                 job.Name,
-			Status:               jobStatusToPreservationTaskStatus[job.Status],
+			TaskID: job.Id,
+			Name:   job.Name,
+			Status: jobStatusToPreservationTaskStatus[job.Status],
+			StartedAt: sql.NullTime{
+				Time:  job.StartTime.AsTime(),
+				Valid: true,
+			},
 			PreservationActionID: paID,
 		}
-		pt.StartedAt.Time = job.StartTime.AsTime()
 		err := pkgsvc.CreatePreservationTask(ctx, &pt)
 		if err != nil {
 			telemetry.RecordError(span, err)
