@@ -22,7 +22,7 @@ spec:
             [
               "sh",
               "-c",
-              "until echo STATUS | nc -w 2 redis.enduro-sdps 6379; do echo waiting for redis to start; sleep 1; done;",
+              "until nc -w 2 -vz redis.enduro-sdps 6379; do echo waiting for redis to start; sleep 1; done;",
             ]
       containers:
         - name: minio
