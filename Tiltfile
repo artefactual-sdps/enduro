@@ -148,3 +148,17 @@ cmd_button(
   icon_name="delete",
   text="Flush"
 )
+cmd_button(
+  "sip-copy",
+  argv=[
+    "sh",
+    "-c",
+    "hack/cp_sip.sh enduro-internal $SIP_PATH",
+  ],
+  resource="enduro-internal",
+  icon_name="file_copy",
+  text="SIP copy",
+  inputs=[
+    text_input("SIP_PATH", label="SIP path"),
+  ]
+)
