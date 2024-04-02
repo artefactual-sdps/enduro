@@ -19,7 +19,8 @@ var (
 )
 
 type (
-	PackageUpdater func(*datatypes.Package) (*datatypes.Package, error)
+	PackageUpdater  func(*datatypes.Package) (*datatypes.Package, error)
+	PresTaskUpdater func(*datatypes.PreservationTask) (*datatypes.PreservationTask, error)
 )
 
 type Service interface {
@@ -30,4 +31,5 @@ type Service interface {
 	UpdatePackage(context.Context, uint, PackageUpdater) (*datatypes.Package, error)
 
 	CreatePreservationTask(context.Context, *datatypes.PreservationTask) error
+	UpdatePreservationTask(ctx context.Context, id uint, updater PresTaskUpdater) (*datatypes.PreservationTask, error)
 }
