@@ -53,12 +53,13 @@ FROM alpine:3.18.2 AS base
 ARG USER_ID=1000
 ARG GROUP_ID=1000
 RUN addgroup -g ${GROUP_ID} -S enduro
-RUN adduser -u ${USER_ID} -S -D enduro enduro
+RUN adduser -u ${USER_ID} -S -D -G enduro enduro
 USER enduro
 
 FROM base AS enduro
 COPY --from=build-enduro --link /out/enduro /home/enduro/bin/enduro
 COPY --from=build-enduro --link /src/enduro.toml /home/enduro/.config/enduro.toml
+RUN mkdir -p /home/enduro/sips
 CMD ["/home/enduro/bin/enduro", "--config", "/home/enduro/.config/enduro.toml"]
 
 FROM base AS enduro-a3m-worker

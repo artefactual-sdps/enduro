@@ -47,6 +47,12 @@ region = "us-west-1"
 bucket = "sips"
 stripTopLevelDir = true
 
+[[watcher.filesystem]]
+name = "dev-fs"
+path = "/home/enduro/sips"
+inotify = true
+stripTopLevelDir = true
+
 [storage]
 enduroAddress = "enduro-internal:9000"
 
