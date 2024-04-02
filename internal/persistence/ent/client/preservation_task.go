@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
+	"github.com/artefactual-sdps/enduro/internal/persistence"
 )
 
 func (c *client) CreatePreservationTask(ctx context.Context, pt *datatypes.PreservationTask) error {
@@ -52,4 +53,57 @@ func (c *client) CreatePreservationTask(ctx context.Context, pt *datatypes.Prese
 	*pt = *convertPreservationTask(r)
 
 	return nil
+}
+
+func (c *client) UpdatePreservationTask(
+	ctx context.Context,
+	id uint,
+	updater persistence.PresTaskUpdater,
+) (*datatypes.PreservationTask, error) {
+	tx, err := c.ent.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, newDBErrorWithDetails(err, "update preservation task")
+	}
+
+	pt, err := tx.PreservationTask.Get(ctx, int(id))
+	if err != nil {
+		return nil, rollback(tx, newDBError(err))
+	}
+
+	up, err := updater(convertPreservationTask(pt))
+	if err != nil {
+		return nil, rollback(tx, newUpdaterError(err))
+	}
+
+	// Set required column values.
+	taskID, err := uuid.Parse(up.TaskID)
+	if err != nil {
+		return nil, rollback(tx, newParseError(err, "TaskID"))
+	}
+
+	q := tx.PreservationTask.UpdateOneID(int(id)).
+		SetTaskID(taskID).
+		SetName(up.Name).
+		SetStatus(int8(up.Status)).
+		SetNote(up.Note).
+		SetPreservationActionID(int(up.PreservationActionID))
+
+	// Set nullable column values.
+	if up.StartedAt.Valid {
+		q.SetStartedAt(up.StartedAt.Time)
+	}
+	if up.CompletedAt.Valid {
+		q.SetCompletedAt(up.CompletedAt.Time)
+	}
+
+	// Save changes.
+	pt, err = q.Save(ctx)
+	if err != nil {
+		return nil, rollback(tx, newDBError(err))
+	}
+	if err = tx.Commit(); err != nil {
+		return nil, rollback(tx, newDBError(err))
+	}
+
+	return convertPreservationTask(pt), nil
 }
