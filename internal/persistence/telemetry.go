@@ -70,3 +70,21 @@ func (w *wrapper) CreatePreservationTask(ctx context.Context, pt *datatypes.Pres
 
 	return nil
 }
+
+func (w *wrapper) UpdatePreservationTask(
+	ctx context.Context,
+	id uint,
+	updater PresTaskUpdater,
+) (*datatypes.PreservationTask, error) {
+	ctx, span := w.tracer.Start(ctx, "UpdatePreservationTask")
+	defer span.End()
+	span.SetAttributes(attribute.Int("id", int(id)))
+
+	r, err := w.wrapped.UpdatePreservationTask(ctx, id, updater)
+	if err != nil {
+		telemetry.RecordError(span, err)
+		return nil, updateError(err, "UpdatePreservationTask")
+	}
+
+	return r, nil
+}
