@@ -3,15 +3,18 @@ package package__test
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"testing"
 	"time"
 
 	"go.artefactual.dev/tools/mockutil"
+	"go.artefactual.dev/tools/ref"
 	"gotest.tools/v3/assert"
 
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
+	"github.com/artefactual-sdps/enduro/internal/persistence"
 	persistence_fake "github.com/artefactual-sdps/enduro/internal/persistence/fake"
 )
 
@@ -122,6 +125,174 @@ func TestCreatePreservationTask(t *testing.T) {
 
 			pt := tt.pt
 			err := pkgSvc.CreatePreservationTask(context.Background(), &pt)
+
+			if tt.wantErr != "" {
+				assert.Error(t, err, tt.wantErr)
+				return
+			}
+
+			assert.NilError(t, err)
+			assert.DeepEqual(t, pt, tt.want)
+		})
+	}
+}
+
+func TestCompletePreservationTask(t *testing.T) {
+	completedAt := time.Date(2024, 4, 2, 10, 35, 32, 0, time.UTC)
+
+	type args struct {
+		id          uint
+		status      enums.PreservationTaskStatus
+		completedAt time.Time
+		note        *string
+	}
+	type test struct {
+		name string
+		args args
+		mock func(
+			*persistence_fake.MockService,
+			*datatypes.PreservationTask,
+		) *persistence_fake.MockService
+		want    datatypes.PreservationTask
+		wantErr string
+	}
+	for _, tt := range []test{
+		{
+			name: "Updates a preservation task with note",
+			args: args{
+				id:          1,
+				status:      enums.PreservationTaskStatusDone,
+				completedAt: completedAt,
+				note:        ref.New("Reviewed and accepted"),
+			},
+			mock: func(
+				svc *persistence_fake.MockService,
+				pt *datatypes.PreservationTask,
+			) *persistence_fake.MockService {
+				svc.EXPECT().
+					UpdatePreservationTask(
+						mockutil.Context(),
+						uint(1),
+						mockutil.Func(
+							"should update preservation task",
+							func(updater persistence.PresTaskUpdater) error {
+								_, err := updater(&datatypes.PreservationTask{})
+								return err
+							},
+						),
+					).
+					DoAndReturn(
+						func(
+							ctx context.Context,
+							id uint,
+							updater persistence.PresTaskUpdater,
+						) (*datatypes.PreservationTask, error) {
+							pt, err := updater(pt)
+							return pt, err
+						},
+					)
+				return svc
+			},
+			want: datatypes.PreservationTask{
+				ID:     1,
+				Status: enums.PreservationTaskStatusDone,
+				CompletedAt: sql.NullTime{
+					Time:  completedAt,
+					Valid: true,
+				},
+				Note: "Reviewed and accepted",
+			},
+		},
+		{
+			name: "Updates a preservation task without note",
+			args: args{
+				id:          1,
+				status:      enums.PreservationTaskStatusDone,
+				completedAt: completedAt,
+			},
+			mock: func(
+				svc *persistence_fake.MockService,
+				pt *datatypes.PreservationTask,
+			) *persistence_fake.MockService {
+				svc.EXPECT().
+					UpdatePreservationTask(
+						mockutil.Context(),
+						uint(1),
+						mockutil.Func(
+							"should update preservation task",
+							func(updater persistence.PresTaskUpdater) error {
+								_, err := updater(&datatypes.PreservationTask{})
+								return err
+							},
+						),
+					).
+					DoAndReturn(
+						func(
+							ctx context.Context,
+							id uint,
+							updater persistence.PresTaskUpdater,
+						) (*datatypes.PreservationTask, error) {
+							pt, err := updater(pt)
+							return pt, err
+						},
+					)
+				return svc
+			},
+			want: datatypes.PreservationTask{
+				ID:     1,
+				Status: enums.PreservationTaskStatusDone,
+				CompletedAt: sql.NullTime{
+					Time:  completedAt,
+					Valid: true,
+				},
+			},
+		},
+		{
+			name: "Errors on persistence error",
+			args: args{id: 2},
+			mock: func(
+				svc *persistence_fake.MockService,
+				pt *datatypes.PreservationTask,
+			) *persistence_fake.MockService {
+				svc.EXPECT().
+					UpdatePreservationTask(
+						mockutil.Context(),
+						uint(2),
+						mockutil.Func(
+							"should update preservation task",
+							func(updater persistence.PresTaskUpdater) error {
+								_, err := updater(&datatypes.PreservationTask{})
+								return err
+							},
+						),
+					).
+					Return(
+						nil,
+						errors.New("not found error: db: preservation_task not found"),
+					)
+				return svc
+			},
+			wantErr: "error updating preservation task: not found error: db: preservation_task not found",
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			pkgSvc, perSvc := testSvc(t)
+			pt := datatypes.PreservationTask{
+				ID: 1,
+			}
+			if tt.mock != nil {
+				tt.mock(perSvc, &pt)
+			}
+
+			err := pkgSvc.CompletePreservationTask(
+				context.Background(),
+				tt.args.id,
+				tt.args.status,
+				tt.args.completedAt,
+				tt.args.note,
+			)
 
 			if tt.wantErr != "" {
 				assert.Error(t, err, tt.wantErr)
