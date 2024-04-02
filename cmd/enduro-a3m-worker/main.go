@@ -213,7 +213,13 @@ func main() {
 			temporalsdk_activity.RegisterOptions{Name: activities.BundleActivityName},
 		)
 		w.RegisterActivityWithOptions(
-			a3m.NewCreateAIPActivity(logger, tp.Tracer(a3m.CreateAIPActivityName), a3mClient.TransferClient, &cfg.A3m, pkgsvc).Execute,
+			a3m.NewCreateAIPActivity(
+				logger,
+				tp.Tracer(a3m.CreateAIPActivityName),
+				a3mClient.TransferClient,
+				&cfg.A3m,
+				pkgsvc,
+			).Execute,
 			temporalsdk_activity.RegisterOptions{Name: a3m.CreateAIPActivityName},
 		)
 		w.RegisterActivityWithOptions(
