@@ -74,7 +74,13 @@ func TestCreateAIPActivity(t *testing.T) {
 	})
 
 	env.RegisterActivityWithOptions(
-		a3m.NewCreateAIPActivity(logr.Discard(), noop.Tracer{}, a3mTransferServiceClient, &a3m.Config{}, pkgSvc).Execute,
+		a3m.NewCreateAIPActivity(
+			logr.Discard(),
+			noop.Tracer{},
+			a3mTransferServiceClient,
+			&a3m.Config{},
+			pkgSvc,
+		).Execute,
 		temporalsdk_activity.RegisterOptions{
 			Name: a3m.CreateAIPActivityName,
 		},
