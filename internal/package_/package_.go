@@ -50,6 +50,8 @@ type Service interface {
 		completedAt time.Time,
 		note *string,
 	) error
+
+	HasDuplicate(ctx context.Context, ID uint) (bool, error)
 }
 
 type packageImpl struct {
@@ -241,4 +243,14 @@ func (svc *packageImpl) read(ctx context.Context, ID uint) (*datatypes.Package, 
 	}
 
 	return &c, nil
+}
+
+func (svc *packageImpl) HasDuplicate(ctx context.Context, ID uint) (bool, error) {
+	query := `SELECT EXISTS(SELECT 1 FROM package c1 WHERE c1.name = (SELECT name FROM package WHERE id = ?) AND p1.id <> ? AND p1.status NOT IN (3, 6))`
+	var exists bool
+	err := svc.db.GetContext(ctx, &exists, query, ID, ID)
+	if err != nil {
+		return false, fmt.Errorf("sql error: %v", err)
+	}
+	return exists, nil
 }
