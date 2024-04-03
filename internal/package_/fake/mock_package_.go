@@ -272,6 +272,45 @@ func (c *MockServiceGoaCall) DoAndReturn(f func() package_.Service) *MockService
 	return c
 }
 
+// HasDuplicate mocks base method.
+func (m *MockService) HasDuplicate(arg0 context.Context, arg1 uint) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "HasDuplicate", arg0, arg1)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// HasDuplicate indicates an expected call of HasDuplicate.
+func (mr *MockServiceMockRecorder) HasDuplicate(arg0, arg1 any) *MockServiceHasDuplicateCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HasDuplicate", reflect.TypeOf((*MockService)(nil).HasDuplicate), arg0, arg1)
+	return &MockServiceHasDuplicateCall{Call: call}
+}
+
+// MockServiceHasDuplicateCall wrap *gomock.Call
+type MockServiceHasDuplicateCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockServiceHasDuplicateCall) Return(arg0 bool, arg1 error) *MockServiceHasDuplicateCall {
+	c.Call = c.Call.Return(arg0, arg1)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockServiceHasDuplicateCall) Do(f func(context.Context, uint) (bool, error)) *MockServiceHasDuplicateCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockServiceHasDuplicateCall) DoAndReturn(f func(context.Context, uint) (bool, error)) *MockServiceHasDuplicateCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
 // SetLocationID mocks base method.
 func (m *MockService) SetLocationID(arg0 context.Context, arg1 uint, arg2 uuid.UUID) error {
 	m.ctrl.T.Helper()

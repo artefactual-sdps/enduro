@@ -310,6 +310,9 @@ func (w *goaWrapper) MoveStatus(
 		done = true
 	case temporalapi_enums.WORKFLOW_EXECUTION_STATUS_RUNNING:
 		done = false
+
+	default:
+		return nil, goapackage.MakeFailedDependency(errors.New("not implemented"))
 	}
 
 	return &goapackage.MoveStatusResult{Done: done}, nil
