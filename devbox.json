@@ -9,7 +9,8 @@
     "python3@latest",
     "markdownlint-cli@latest",
     "python311Packages.pip-tools@latest",
-    "go_1_22@latest"
+    "go_1_22@latest",
+    "mysql@latest"
   ],
   "shell": {
     "init_hook": [
