@@ -184,6 +184,7 @@ shfmt: $(SHFMT) # @HELP Run shfmt to format shell programs in the hack directory
 gosec: # @HELP Run gosec security scanner.
 gosec: $(GOSEC)
 	gosec \
+		-terse \
 		-exclude-dir=dashboard \
 		-exclude-dir=hack \
 		-exclude-dir=internal/api/gen \
@@ -210,6 +211,15 @@ workflowcheck: $(WORKFLOWCHECK)
 db: # @HELP Opens the MySQL shell connected to the enduro development database.
 db:
 	mysql -h127.0.0.1 -P3306 -uroot -proot123 enduro
+
+pre-commit: # @HELP Check that code is ready to commit.
+pre-commit:
+	$(MAKE) -j lint \
+	golines \
+	gosec \
+	shfmt \
+	test-race \
+	workflowcheck \
 
 help: # @HELP Print this message.
 help:
