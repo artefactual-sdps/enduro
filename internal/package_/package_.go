@@ -246,7 +246,7 @@ func (svc *packageImpl) read(ctx context.Context, ID uint) (*datatypes.Package, 
 }
 
 func (svc *packageImpl) HasDuplicate(ctx context.Context, ID uint) (bool, error) {
-	query := `SELECT EXISTS(SELECT 1 FROM package c1 WHERE c1.name = (SELECT name FROM package WHERE id = ?) AND p1.id <> ? AND p1.status NOT IN (3, 6))`
+	query := `SELECT EXISTS(SELECT 1 FROM package p1 WHERE p1.name = (SELECT name FROM package WHERE id = ?) AND p1.id <> ? AND p1.status NOT IN (3, 6))`
 	var exists bool
 	err := svc.db.GetContext(ctx, &exists, query, ID, ID)
 	if err != nil {
