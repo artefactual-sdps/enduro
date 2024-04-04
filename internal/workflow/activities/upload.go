@@ -49,16 +49,15 @@ func (a *UploadActivity) Execute(ctx context.Context, params *UploadActivityPara
 
 		uploadReq, err := http.NewRequestWithContext(ctx, http.MethodPut, res.URL, f)
 		if err != nil {
-			return &UploadActivityResult{}, nil
+			return &UploadActivityResult{}, err
 		}
+
 		fi, err := f.Stat()
 		if err != nil {
 			return &UploadActivityResult{}, err
 		}
+
 		uploadReq.ContentLength = fi.Size()
-		if err != nil {
-			return &UploadActivityResult{}, err
-		}
 
 		minioClient := &http.Client{}
 		resp, err := minioClient.Do(uploadReq)
