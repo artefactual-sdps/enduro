@@ -2,15 +2,16 @@ package activities
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"io"
 	"io/fs"
 	"os"
 	"path/filepath"
 
 	"github.com/go-logr/logr"
-	"github.com/mholt/archiver/v3"
-
-	"github.com/artefactual-sdps/enduro/internal/fsutil"
+	"github.com/google/safeopen"
+	"github.com/mholt/archiver/v4"
 )
 
 const UnarchiveActivityName = "unarchive-activity"
@@ -53,30 +54,40 @@ func (a *UnarchiveActivity) Execute(
 		"StripTopLevelDir", params.StripTopLevelDir,
 	)
 
-	u, err := unarchiver(params.SourcePath)
+	f, err := os.Open(params.SourcePath)
 	if err != nil {
-		return nil, fmt.Errorf("unarchive: unarchiver: %v", err)
+		return nil, fmt.Errorf("unarchive: open: %v", err)
 	}
-	if u == nil {
-		// Couldn't find an unarchiver, so this is probably a regular file.
-		// Return the source path unaltered, and IsDir as false.
-		a.logger.V(2).Info("Unarchive: not an archive, skipping.")
-		return &UnarchiveActivityResult{DestPath: params.SourcePath}, nil
+	defer f.Close()
+
+	format, r, err := archiver.Identify(params.SourcePath, f)
+	if err != nil {
+		if errors.Is(err, archiver.ErrNoMatch) {
+			// Couldn't match an archive format, so this is probably a regular
+			// file. Return the source path unaltered, and IsDir as false.
+			a.logger.V(2).Info("Unarchive: not an archive, skipping.")
+			return &UnarchiveActivityResult{DestPath: params.SourcePath}, nil
+		}
+		return nil, fmt.Errorf("unarchive: identify: %v", err)
 	}
 
 	dest := filepath.Join(filepath.Dir(params.SourcePath), "extract")
-	if err := u.Unarchive(params.SourcePath, dest); err != nil {
-		return nil, fmt.Errorf("unarchive: unarchive: %v", err)
+	if ex, ok := format.(archiver.Extractor); ok {
+		if err := os.MkdirAll(dest, ModeDir); err != nil {
+			return nil, fmt.Errorf("unarchive: make dest dir: %v", err)
+		}
+
+		if err := ex.Extract(ctx, r, nil, destFileHandler(dest)); err != nil {
+			return nil, fmt.Errorf("unarchive: extract: %v", err)
+		}
+	} else {
+		return nil, fmt.Errorf("can't extract: %q", params.SourcePath)
 	}
 
 	if params.StripTopLevelDir {
 		if err = stripDirContainer(dest); err != nil {
 			return nil, fmt.Errorf("unarchive: strip top-level dir: %v", err)
 		}
-	}
-
-	if err := fsutil.SetFileModes(dest, ModeDir, ModeFile); err != nil {
-		return nil, fmt.Errorf("unarchive: %v", err)
 	}
 
 	if err := os.Remove(params.SourcePath); err != nil {
@@ -86,25 +97,40 @@ func (a *UnarchiveActivity) Execute(
 	return &UnarchiveActivityResult{DestPath: dest, IsDir: true}, err
 }
 
-// Unarchiver returns the unarchiver suited for the archival format.
-func unarchiver(filename string) (archiver.Unarchiver, error) {
-	if iface, err := archiver.ByExtension(filename); err == nil {
-		if u, ok := iface.(archiver.Unarchiver); ok {
-			return u, nil
+func destFileHandler(dest string) archiver.FileHandler {
+	return func(ctx context.Context, f archiver.File) error {
+		path := filepath.Join(dest, f.NameInArchive)
+		if f.IsDir() {
+			if err := os.Mkdir(path, ModeDir); err != nil {
+				return fmt.Errorf("mkdir: %v", err)
+			}
+
+			return nil
 		}
-	}
 
-	file, err := os.Open(filepath.Clean(filename))
-	if err != nil {
-		return nil, fmt.Errorf("open file: %v", err)
-	}
-	defer file.Close()
+		df, err := safeopen.CreateBeneath(dest, f.NameInArchive)
+		if err != nil {
+			return fmt.Errorf("create: %v", err)
+		}
+		defer df.Close()
 
-	if u, err := archiver.ByHeader(file); err == nil {
-		return u, nil
-	}
+		if err := df.Chmod(ModeFile); err != nil {
+			return fmt.Errorf("chmod: %v", err)
+		}
 
-	return nil, nil
+		r, err := f.Open()
+		if err != nil {
+			return fmt.Errorf("open: %v", err)
+		}
+		defer r.Close()
+
+		_, err = io.Copy(df, r)
+		if err != nil {
+			return fmt.Errorf("copy: %v", err)
+		}
+
+		return nil
+	}
 }
 
 // stripDirContainer strips the top-level directory of a transfer.
