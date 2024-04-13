@@ -169,14 +169,21 @@ list-ignored-packages: # @HELP Print a list of packages ignored in testing.
 list-ignored-packages:
 	$(foreach PACKAGE,$(TEST_IGNORED_PACKAGES),@echo $(PACKAGE)$(NEWLINE))
 
+mod-tidy: # @HELP Synchronize mod files with current code dependencies.
+mod-tidy:
+	go mod download
+	go mod tidy
+
 pre-commit: # @HELP Check that code is ready to commit.
 pre-commit:
-	$(MAKE) -j lint \
-	golines \
-	gosec \
-	shfmt \
-	test-race \
-	workflowcheck \
+	$(MAKE) -j \
+		golines \
+		gosec \
+		lint \
+		mod-tidy \
+		shfmt \
+		test-race \
+		workflowcheck \
 
 shfmt: SHELL_PROGRAMS := $(shell find $(CURDIR)/hack -name *.sh)
 shfmt: $(SHFMT) # @HELP Run shfmt to format shell programs in the hack directory.
