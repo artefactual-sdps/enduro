@@ -21,6 +21,8 @@ type file struct {
 }
 
 func TestFileSystemWatcher(t *testing.T) {
+	t.Parallel()
+
 	td := fs.NewDir(t, "enduro-test-fs-watcher")
 	type test struct {
 		name   string

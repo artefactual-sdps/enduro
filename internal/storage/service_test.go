@@ -123,6 +123,8 @@ func TestNewService(t *testing.T) {
 	t.Parallel()
 
 	t.Run("Errors on invalid configuration", func(t *testing.T) {
+		t.Parallel()
+
 		_, err := storage.NewService(
 			logr.Discard(),
 			storage.Config{},

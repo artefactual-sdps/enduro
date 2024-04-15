@@ -19,6 +19,8 @@ import (
 )
 
 func TestStartTransferActivity(t *testing.T) {
+	t.Parallel()
+
 	transferID := uuid.New().String()
 	opts := am.StartTransferActivityParams{
 		Name: "Testing",

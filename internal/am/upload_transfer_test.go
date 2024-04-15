@@ -22,6 +22,8 @@ import (
 )
 
 func TestUploadTransferActivity(t *testing.T) {
+	t.Parallel()
+
 	filename := "transfer.zip"
 	td := tfs.NewDir(t, "enduro-upload-transfer-test",
 		tfs.WithFile(filename, "Testing 1-2-3!"),

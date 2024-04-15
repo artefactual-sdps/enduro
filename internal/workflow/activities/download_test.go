@@ -20,6 +20,8 @@ import (
 )
 
 func TestDownloadActivity(t *testing.T) {
+	t.Parallel()
+
 	key := "jabber.txt"
 	watcherName := "watcher"
 

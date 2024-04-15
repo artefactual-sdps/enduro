@@ -43,6 +43,8 @@ func addDBFixtures(
 }
 
 func TestCreatePreservationTask(t *testing.T) {
+	t.Parallel()
+
 	taskID := "ef0193bf-a622-4a8b-b860-cda605a426b5"
 	started := sql.NullTime{Time: time.Now(), Valid: true}
 	completed := sql.NullTime{Time: started.Time.Add(time.Second), Valid: true}
@@ -153,6 +155,8 @@ func TestCreatePreservationTask(t *testing.T) {
 }
 
 func TestUpdatePreservationTask(t *testing.T) {
+	t.Parallel()
+
 	taskID := uuid.MustParse("c5f7c35a-d5a6-4e00-b4da-b036ce5b40bc")
 	taskID2 := uuid.MustParse("c04d0191-d7ce-46dd-beff-92d6830082ff")
 

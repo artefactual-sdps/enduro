@@ -19,6 +19,8 @@ import (
 )
 
 func TestCreatePreservationTask(t *testing.T) {
+	t.Parallel()
+
 	taskID := "a499e8fc-7309-4e26-b39d-d8ab68466c27"
 
 	type test struct {
@@ -138,6 +140,8 @@ func TestCreatePreservationTask(t *testing.T) {
 }
 
 func TestCompletePreservationTask(t *testing.T) {
+	t.Parallel()
+
 	completedAt := time.Date(2024, 4, 2, 10, 35, 32, 0, time.UTC)
 
 	type args struct {

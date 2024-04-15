@@ -23,6 +23,8 @@ import (
 )
 
 func TestPollIngestActivity(t *testing.T) {
+	t.Parallel()
+
 	clock := clockwork.NewFakeClock()
 	path := "/var/archivematica/fake/sip"
 	presActionID := uint(2)

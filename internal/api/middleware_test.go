@@ -13,6 +13,8 @@ import (
 )
 
 func TestRescoverMiddleware(t *testing.T) {
+	t.Parallel()
+
 	req := httptest.NewRequest("GET", "http://example.com/foo", nil)
 	w := httptest.NewRecorder()
 
@@ -32,6 +34,8 @@ func TestRescoverMiddleware(t *testing.T) {
 }
 
 func TestVersionHeaderMiddleware(t *testing.T) {
+	t.Parallel()
+
 	req := httptest.NewRequest("GET", "http://example.com/foo", nil)
 	w := httptest.NewRecorder()
 
@@ -55,6 +59,8 @@ func TestWriteTimeout(t *testing.T) {
 	})
 
 	t.Run("Sets a write timeout", func(t *testing.T) {
+		t.Parallel()
+
 		ts := httptest.NewServer(writeTimeout(h, time.Microsecond))
 		defer ts.Close()
 
@@ -63,6 +69,8 @@ func TestWriteTimeout(t *testing.T) {
 	})
 
 	t.Run("Sets an unlimited write timeout", func(t *testing.T) {
+		t.Parallel()
+
 		ts := httptest.NewServer(writeTimeout(h, 0))
 		defer ts.Close()
 

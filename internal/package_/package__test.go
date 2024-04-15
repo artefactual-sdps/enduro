@@ -40,6 +40,8 @@ func testSvc(t *testing.T) (package_.Service, *persistence_fake.MockService) {
 }
 
 func TestCreatePackage(t *testing.T) {
+	t.Parallel()
+
 	type test struct {
 		name    string
 		pkg     datatypes.Package
