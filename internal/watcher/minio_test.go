@@ -340,6 +340,8 @@ func TestWatcherReturnsErrOnInvalidObjectKey(t *testing.T) {
 }
 
 func TestMinioWatcherDownload(t *testing.T) {
+	t.Parallel()
+
 	t.Run("Downloads a file", func(t *testing.T) {
 		t.Parallel()
 

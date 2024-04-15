@@ -11,6 +11,8 @@ import (
 )
 
 func TestFormatOptionalString(t *testing.T) {
+	t.Parallel()
+
 	t.Run("Returns nil pointer for an empty string", func(t *testing.T) {
 		t.Parallel()
 		got := db.FormatOptionalString("")
@@ -25,6 +27,8 @@ func TestFormatOptionalString(t *testing.T) {
 }
 
 func TestFormatOptionalTime(t *testing.T) {
+	t.Parallel()
+
 	t.Run("Returns nil pointer for null time", func(t *testing.T) {
 		t.Parallel()
 		got := db.FormatOptionalTime(sql.NullTime{})

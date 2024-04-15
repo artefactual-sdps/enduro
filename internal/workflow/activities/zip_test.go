@@ -15,6 +15,8 @@ import (
 )
 
 func TestZipActivity(t *testing.T) {
+	t.Parallel()
+
 	transferName := "my_transfer"
 	contents := tfs.WithDir(transferName,
 		tfs.WithDir("subdir",

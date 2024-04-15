@@ -19,6 +19,8 @@ import (
 )
 
 func TestCreatePackage(t *testing.T) {
+	t.Parallel()
+
 	runID := uuid.New()
 	aipID := uuid.NullUUID{UUID: uuid.New(), Valid: true}
 	locID := uuid.NullUUID{UUID: uuid.New(), Valid: true}
@@ -142,6 +144,8 @@ func TestCreatePackage(t *testing.T) {
 }
 
 func TestUpdatePackage(t *testing.T) {
+	t.Parallel()
+
 	runID := uuid.MustParse("c5f7c35a-d5a6-4e00-b4da-b036ce5b40bc")
 	runID2 := uuid.MustParse("c04d0191-d7ce-46dd-beff-92d6830082ff")
 

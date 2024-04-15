@@ -15,6 +15,8 @@ import (
 )
 
 func TestBundleActivity(t *testing.T) {
+	t.Parallel()
+
 	sourceDir := fs.NewDir(t, "enduro-bundle-test",
 		fs.FromDir("../../testdata"),
 	)

@@ -48,6 +48,8 @@ func TestStatus(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(fmt.Sprintf("Status_%s", tc.str), func(t *testing.T) {
+			t.Parallel()
+
 			s := enums.NewPackageStatus(tc.str)
 			assert.Assert(t, s != enums.PackageStatusUnknown)
 			assert.Equal(t, s, tc.val)
@@ -66,6 +68,8 @@ func TestStatus(t *testing.T) {
 }
 
 func TestStatusUnknown(t *testing.T) {
+	t.Parallel()
+
 	s := enums.NewPackageStatus("?")
 
 	assert.Equal(t, s, enums.PackageStatusUnknown)
