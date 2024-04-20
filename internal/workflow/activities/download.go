@@ -22,8 +22,9 @@ type DownloadActivity struct {
 }
 
 type DownloadActivityParams struct {
-	Key         string
-	WatcherName string
+	Key             string
+	WatcherName     string
+	DestinationPath string
 }
 
 type DownloadActivityResult struct {
@@ -47,7 +48,7 @@ func (a *DownloadActivity) Execute(
 		"WatcherName", params.WatcherName,
 	)
 
-	destDir, err := os.MkdirTemp("", "enduro")
+	destDir, err := os.MkdirTemp(params.DestinationPath, "enduro")
 	if err != nil {
 		return &DownloadActivityResult{}, temporal_tools.NewNonRetryableError(fmt.Errorf("make temp dir: %v", err))
 	}

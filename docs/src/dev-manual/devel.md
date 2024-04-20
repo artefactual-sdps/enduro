@@ -192,6 +192,14 @@ are planning to use Archivematica as preservation system.
 Build and use a local version of a3m. Requires to have the `a3m` repository
 cloned as a sibling of this repository folder.
 
+### PREPROCESSING_PATH
+
+Relative path to a preprocessing child workflow repository. It loads a Tiltfile
+called `Tiltfile.enduro` from that repository and mounts a presistent volume
+claim (PVC) in the preservation system pod. That PVC must be defined in the
+preprocessing and be called `preprocessing-pvc`. Check the [Preprocessing child
+workflow] docs to configure the child workflow execution.
+
 ## Tilt UI helpers
 
 ### Upload to Minio
@@ -259,3 +267,4 @@ is sometimes not setup properly. To solve it, from the Tilt UI, restart the
 [visual studio code]: https://code.visualstudio.com/
 [working with archivematica]: archivematica.md
 [devbox]: https://www.jetpack.io/devbox/docs/quickstart/#install-devbox
+[preprocessing child workflow]: preprocessing.md
