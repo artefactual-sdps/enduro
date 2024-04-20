@@ -1,6 +1,7 @@
 package config
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -13,6 +14,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/api"
 	"github.com/artefactual-sdps/enduro/internal/db"
 	"github.com/artefactual-sdps/enduro/internal/event"
+	"github.com/artefactual-sdps/enduro/internal/preprocessing"
 	"github.com/artefactual-sdps/enduro/internal/pres"
 	"github.com/artefactual-sdps/enduro/internal/storage"
 	"github.com/artefactual-sdps/enduro/internal/telemetry"
@@ -26,38 +28,31 @@ type ConfigurationValidator interface {
 }
 
 type Configuration struct {
-	Verbosity   int
 	Debug       bool
 	DebugListen string
+	Verbosity   int
 
-	A3m          a3m.Config
-	AM           am.Config
-	API          api.Config
-	Database     db.Config
-	Event        event.Config
-	Preservation pres.Config
-	Storage      storage.Config
-	Temporal     temporal.Config
-	Upload       upload.Config
-	Watcher      watcher.Config
-	Telemetry    telemetry.Config
+	A3m           a3m.Config
+	AM            am.Config
+	API           api.Config
+	Database      db.Config
+	Event         event.Config
+	Preprocessing preprocessing.Config
+	Preservation  pres.Config
+	Storage       storage.Config
+	Temporal      temporal.Config
+	Upload        upload.Config
+	Watcher       watcher.Config
+	Telemetry     telemetry.Config
 }
 
 func (c Configuration) Validate() error {
 	// TODO: should this validate all the fields in Configuration?
-	if config, ok := interface{}(c.Upload).(ConfigurationValidator); ok {
-		err := config.Validate()
-		if err != nil {
-			return err
-		}
-	}
-	if config, ok := interface{}(c.API.Auth).(ConfigurationValidator); ok {
-		err := config.Validate()
-		if err != nil {
-			return err
-		}
-	}
-	return nil
+	apiAuthErr := c.API.Auth.Validate()
+	preprocessingErr := c.Preprocessing.Validate()
+	uploadErr := c.Upload.Validate()
+
+	return errors.Join(apiAuthErr, preprocessingErr, uploadErr)
 }
 
 func Read(config *Configuration, configFile string) (found bool, configFileUsed string, err error) {
