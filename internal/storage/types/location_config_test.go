@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	_ "gocloud.dev/blob/memblob"
+	"gocloud.dev/gcerrors"
 	"gotest.tools/v3/assert"
 
 	"github.com/artefactual-sdps/enduro/internal/storage/types"
@@ -129,6 +130,16 @@ func TestLocationConfigDecoding(t *testing.T) {
 					Bucket: "perma-aips-1",
 					Region: "eu-west-1",
 				},
+			},
+			extra: func(c types.LocationConfig) {
+				b, err := c.Value.OpenBucket(context.Background())
+				assert.NilError(t, err)
+				defer b.Close()
+
+				// Use it even though we know it's not accessible.
+				_, err = b.IsAccessible(context.Background())
+				assert.ErrorContains(t, err, "static credentials are empty")
+				assert.Equal(t, gcerrors.Code(err), gcerrors.Unknown)
 			},
 		},
 		"Decodes SFTP config": {

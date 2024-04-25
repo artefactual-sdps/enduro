@@ -8,9 +8,9 @@ import (
 	"net/url"
 
 	"github.com/rukavina/sftpblob"
+	"go.artefactual.dev/tools/bucket"
 	"gocloud.dev/blob"
 
-	"github.com/artefactual-sdps/enduro/internal/bucket"
 	"github.com/artefactual-sdps/enduro/internal/storage/ssblob"
 )
 
@@ -102,7 +102,7 @@ func (c S3Config) Valid() bool {
 }
 
 func (c S3Config) OpenBucket(ctx context.Context) (*blob.Bucket, error) {
-	return bucket.Open(ctx, &bucket.Config{
+	return bucket.NewWithConfig(ctx, &bucket.Config{
 		Endpoint:  c.Endpoint,
 		Bucket:    c.Bucket,
 		AccessKey: c.Key,

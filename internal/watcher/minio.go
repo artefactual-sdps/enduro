@@ -13,10 +13,9 @@ import (
 	"github.com/go-logr/logr"
 	"github.com/redis/go-redis/extra/redisotel/v9"
 	"github.com/redis/go-redis/v9"
+	"go.artefactual.dev/tools/bucket"
 	"go.opentelemetry.io/otel/trace"
 	"gocloud.dev/blob"
-
-	"github.com/artefactual-sdps/enduro/internal/bucket"
 )
 
 // minioWatcher implements a Watcher for watching lists in Redis.
@@ -169,7 +168,7 @@ func (w *minioWatcher) event(blob string) (*BlobEvent, error) {
 }
 
 func (w *minioWatcher) OpenBucket(ctx context.Context) (*blob.Bucket, error) {
-	return bucket.Open(ctx, w.bucketConfig)
+	return bucket.NewWithConfig(ctx, w.bucketConfig)
 }
 
 // Download copies the contents of the blob identified by key to dest.
