@@ -11,10 +11,10 @@ import (
 
 	"github.com/fsnotify/fsnotify"
 	cp "github.com/otiai10/copy"
+	"go.artefactual.dev/tools/bucket"
 	"gocloud.dev/blob"
 	_ "gocloud.dev/blob/fileblob"
 
-	"github.com/artefactual-sdps/enduro/internal/bucket"
 	"github.com/artefactual-sdps/enduro/internal/filenotify"
 	"github.com/artefactual-sdps/enduro/internal/fsutil"
 )
@@ -158,7 +158,7 @@ func (w *filesystemWatcher) Path() string {
 }
 
 func (w *filesystemWatcher) OpenBucket(ctx context.Context) (*blob.Bucket, error) {
-	return bucket.Open(ctx, &bucket.Config{
+	return bucket.NewWithConfig(ctx, &bucket.Config{
 		URL: fmt.Sprintf("file://%s", w.path),
 	})
 }

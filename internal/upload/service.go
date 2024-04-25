@@ -9,13 +9,13 @@ import (
 	"time"
 
 	"github.com/go-logr/logr"
+	"go.artefactual.dev/tools/bucket"
 	"goa.design/goa/v3/security"
 	"gocloud.dev/blob"
 
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 	goaupload "github.com/artefactual-sdps/enduro/internal/api/gen/upload"
-	"github.com/artefactual-sdps/enduro/internal/bucket"
 )
 
 const UPLOAD_MAX_SIZE = 102400000 // 100 MB
@@ -64,7 +64,7 @@ func NewService(
 }
 
 func (s *serviceImpl) openBucket(ctx context.Context, config Config) error {
-	if b, err := bucket.Open(ctx, &bucket.Config{
+	if b, err := bucket.NewWithConfig(ctx, &bucket.Config{
 		URL:       config.URL,
 		Endpoint:  config.Endpoint,
 		Bucket:    config.Bucket,
