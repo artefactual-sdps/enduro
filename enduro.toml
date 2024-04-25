@@ -162,3 +162,19 @@ sharedPath = "/home/enduro/preprocessing"
 namespace = "default"
 taskQueue = "preprocessing"
 workflowName = "preprocessing"
+
+[failedtransfers]
+endpoint = "http://minio.enduro-sdps:9000"
+pathStyle = true
+key = "minio"
+secret = "minio123"
+region = "us-west-1"
+bucket = "failed-transfers"
+
+[failedsips]
+endpoint = "http://minio.enduro-sdps:9000"
+pathStyle = true
+key = "minio"
+secret = "minio123"
+region = "us-west-1"
+bucket = "failed-sips"
