@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/artefactual-sdps/temporal-activities/archive"
 	"github.com/spf13/viper"
 
 	"github.com/artefactual-sdps/enduro/internal/a3m"
@@ -32,18 +33,19 @@ type Configuration struct {
 	DebugListen string
 	Verbosity   int
 
-	A3m           a3m.Config
-	AM            am.Config
-	API           api.Config
-	Database      db.Config
-	Event         event.Config
-	Preprocessing preprocessing.Config
-	Preservation  pres.Config
-	Storage       storage.Config
-	Temporal      temporal.Config
-	Upload        upload.Config
-	Watcher       watcher.Config
-	Telemetry     telemetry.Config
+	A3m             a3m.Config
+	AM              am.Config
+	API             api.Config
+	Database        db.Config
+	Event           event.Config
+	ExtractActivity archive.Config
+	Preprocessing   preprocessing.Config
+	Preservation    pres.Config
+	Storage         storage.Config
+	Temporal        temporal.Config
+	Upload          upload.Config
+	Watcher         watcher.Config
+	Telemetry       telemetry.Config
 }
 
 func (c Configuration) Validate() error {

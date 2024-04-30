@@ -11,9 +11,11 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/artefactual-sdps/temporal-activities/archive"
 	"github.com/go-logr/logr"
 	"github.com/google/uuid"
 	"go.artefactual.dev/tools/ref"
+	temporal_tools "go.artefactual.dev/tools/temporal"
 	temporalapi_enums "go.temporal.io/api/enums/v1"
 	temporalsdk_temporal "go.temporal.io/sdk/temporal"
 	temporalsdk_workflow "go.temporal.io/sdk/workflow"
@@ -56,6 +58,10 @@ func NewProcessingWorkflow(
 type TransferInfo struct {
 	// It is populated by the workflow request.
 	req package_.ProcessingWorkflowRequest
+
+	// IsDir indicates whether the current working copy of the transfer is a
+	// filesystem directory.
+	IsDir bool
 
 	// TempPath is the temporary location of a working copy of the transfer.
 	TempPath string
@@ -110,6 +116,7 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *pack
 
 		tinfo = &TransferInfo{
 			req:                   *req,
+			IsDir:                 req.IsDir,
 			GlobalTaskQueue:       req.GlobalTaskQueue,
 			PreservationTaskQueue: req.PreservationTaskQueue,
 		}
@@ -328,22 +335,25 @@ func (w *ProcessingWorkflow) SessionHandler(
 	}
 
 	// Unarchive the transfer if it's not a directory and it's not part of the preprocessing child workflow.
-	if !tinfo.req.IsDir && (!w.cfg.Preprocessing.Enabled || !w.cfg.Preprocessing.Extract) {
+	if !tinfo.IsDir && (!w.cfg.Preprocessing.Enabled || !w.cfg.Preprocessing.Extract) {
 		activityOpts := withActivityOptsForLocalAction(sessCtx)
-		var result activities.UnarchiveActivityResult
+		var result archive.ExtractActivityResult
 		err := temporalsdk_workflow.ExecuteActivity(
 			activityOpts,
-			activities.UnarchiveActivityName,
-			&activities.UnarchiveActivityParams{
-				SourcePath:       tinfo.TempPath,
-				StripTopLevelDir: tinfo.req.StripTopLevelDir,
-			},
+			archive.ExtractActivityName,
+			&archive.ExtractActivityParams{SourcePath: tinfo.TempPath},
 		).Get(activityOpts, &result)
 		if err != nil {
-			return err
+			switch err {
+			case archive.ErrInvalidArchive:
+				// Not an archive file, bundle the source file as-is.
+			default:
+				return temporal_tools.NewNonRetryableError(err)
+			}
+		} else {
+			tinfo.TempPath = result.ExtractPath
+			tinfo.IsDir = true
 		}
-		tinfo.TempPath = result.DestPath
-		tinfo.req.IsDir = result.IsDir
 	}
 
 	// Preprocessing child workflow.
@@ -368,7 +378,7 @@ func (w *ProcessingWorkflow) SessionHandler(
 			&activities.BundleActivityParams{
 				SourcePath:  tinfo.TempPath,
 				TransferDir: transferDir,
-				IsDir:       tinfo.req.IsDir,
+				IsDir:       tinfo.IsDir,
 			},
 		).Get(activityOpts, &bundleResult)
 		if err != nil {
@@ -840,7 +850,7 @@ func (w *ProcessingWorkflow) preprocessing(ctx temporalsdk_workflow.Context, tin
 	}
 
 	tinfo.TempPath = filepath.Join(w.cfg.Preprocessing.SharedPath, filepath.Clean(result.RelativePath))
-	tinfo.req.IsDir = true
+	tinfo.IsDir = true
 
 	return nil
 }
