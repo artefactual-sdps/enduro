@@ -26,14 +26,18 @@ clientSecret = "ZXhhbXBsZS1hcHAtc2VjcmV0"
 address = "redis://redis.enduro-sdps:6379"
 prefix = "enduro"
 
-[event]
-redisAddress = "redis://redis.enduro-sdps:6379"
-redisChannel = "enduro-events"
-
 [database]
 driver = "mysql"
 dsn = "enduro:enduro123@tcp(mysql.enduro-sdps:3306)/enduro"
 migrate = true
+
+[event]
+redisAddress = "redis://redis.enduro-sdps:6379"
+redisChannel = "enduro-events"
+
+[extractActivity]
+dirMode = "0o700"
+fileMode = "0o600"
 
 [watcher.embedded]
 name = "dev-minio"

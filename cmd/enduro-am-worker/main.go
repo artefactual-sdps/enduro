@@ -13,6 +13,7 @@ import (
 
 	"ariga.io/sqlcomment"
 	"entgo.io/ent/dialect/sql"
+	"github.com/artefactual-sdps/temporal-activities/archive"
 	"github.com/hashicorp/go-cleanhttp"
 	"github.com/jonboulle/clockwork"
 	"github.com/oklog/run"
@@ -208,8 +209,8 @@ func main() {
 			temporalsdk_activity.RegisterOptions{Name: activities.DownloadActivityName},
 		)
 		w.RegisterActivityWithOptions(
-			activities.NewUnarchiveActivity(logger).Execute,
-			temporalsdk_activity.RegisterOptions{Name: activities.UnarchiveActivityName},
+			archive.NewExtractActivity(cfg.ExtractActivity).Execute,
+			temporalsdk_activity.RegisterOptions{Name: archive.ExtractActivityName},
 		)
 		w.RegisterActivityWithOptions(
 			activities.NewBundleActivity(logger).Execute,

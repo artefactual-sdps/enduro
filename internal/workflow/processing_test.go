@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/artefactual-sdps/temporal-activities/archive"
 	"github.com/go-logr/logr"
 	"github.com/google/uuid"
 	"github.com/jonboulle/clockwork"
@@ -92,8 +93,8 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(taskQueue string, ppConf
 		temporalsdk_activity.RegisterOptions{Name: activities.DownloadActivityName},
 	)
 	s.env.RegisterActivityWithOptions(
-		activities.NewUnarchiveActivity(logger).Execute,
-		temporalsdk_activity.RegisterOptions{Name: activities.UnarchiveActivityName},
+		archive.NewExtractActivity(cfg.ExtractActivity).Execute,
+		temporalsdk_activity.RegisterOptions{Name: archive.ExtractActivityName},
 	)
 	s.env.RegisterActivityWithOptions(
 		activities.NewBundleActivity(logger).Execute,
@@ -222,16 +223,17 @@ func (s *ProcessingWorkflowTestSuite) TestPackageConfirmation() {
 		&activities.DownloadActivityResult{Path: tempPath + "/" + key}, nil,
 	)
 
-	s.env.OnActivity(activities.UnarchiveActivityName, sessionCtx,
-		&activities.UnarchiveActivityParams{SourcePath: tempPath + "/" + key},
+	s.env.OnActivity(archive.ExtractActivityName, sessionCtx,
+		&archive.ExtractActivityParams{SourcePath: tempPath + "/" + key},
 	).Return(
-		&activities.UnarchiveActivityResult{DestPath: extractPath}, nil,
+		&archive.ExtractActivityResult{ExtractPath: extractPath}, nil,
 	)
 
 	s.env.OnActivity(activities.BundleActivityName, sessionCtx,
 		&activities.BundleActivityParams{
 			SourcePath:  extractPath,
 			TransferDir: s.transferDir,
+			IsDir:       true,
 		},
 	).Return(
 		&activities.BundleActivityResult{FullPath: transferPath},
@@ -313,16 +315,17 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 		&activities.DownloadActivityResult{Path: tempPath + "/" + key}, nil,
 	)
 
-	s.env.OnActivity(activities.UnarchiveActivityName, sessionCtx,
-		&activities.UnarchiveActivityParams{SourcePath: tempPath + "/" + key},
+	s.env.OnActivity(archive.ExtractActivityName, sessionCtx,
+		&archive.ExtractActivityParams{SourcePath: tempPath + "/" + key},
 	).Return(
-		&activities.UnarchiveActivityResult{DestPath: extractPath}, nil,
+		&archive.ExtractActivityResult{ExtractPath: extractPath}, nil,
 	)
 
 	s.env.OnActivity(activities.BundleActivityName, sessionCtx,
 		&activities.BundleActivityParams{
 			SourcePath:  extractPath,
 			TransferDir: s.transferDir,
+			IsDir:       true,
 		},
 	).Return(
 		&activities.BundleActivityResult{FullPath: transferPath},
@@ -416,14 +419,19 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 		&activities.DownloadActivityResult{Path: tempPath + "/" + key}, nil,
 	)
 
-	s.env.OnActivity(activities.UnarchiveActivityName, sessionCtx,
-		&activities.UnarchiveActivityParams{SourcePath: tempPath + "/" + key},
+	s.env.OnActivity(archive.ExtractActivityName, sessionCtx,
+		&archive.ExtractActivityParams{SourcePath: tempPath + "/" + key},
 	).Return(
-		&activities.UnarchiveActivityResult{DestPath: extractPath}, nil,
+		&archive.ExtractActivityResult{ExtractPath: extractPath}, nil,
 	)
 
-	s.env.OnActivity(activities.BundleActivityName, sessionCtx,
-		&activities.BundleActivityParams{SourcePath: extractPath},
+	s.env.OnActivity(
+		activities.BundleActivityName,
+		sessionCtx,
+		&activities.BundleActivityParams{
+			SourcePath: extractPath,
+			IsDir:      true,
+		},
 	).Return(
 		&activities.BundleActivityResult{
 			FullPath: transferPath,
@@ -533,16 +541,17 @@ func (s *ProcessingWorkflowTestSuite) TestPackageRejection() {
 		&activities.DownloadActivityResult{Path: tempPath + "/" + key}, nil,
 	)
 
-	s.env.OnActivity(activities.UnarchiveActivityName, sessionCtx,
-		&activities.UnarchiveActivityParams{SourcePath: tempPath + "/" + key},
+	s.env.OnActivity(archive.ExtractActivityName, sessionCtx,
+		&archive.ExtractActivityParams{SourcePath: tempPath + "/" + key},
 	).Return(
-		&activities.UnarchiveActivityResult{DestPath: extractPath}, nil,
+		&archive.ExtractActivityResult{ExtractPath: extractPath}, nil,
 	)
 
 	s.env.OnActivity(activities.BundleActivityName, sessionCtx,
 		&activities.BundleActivityParams{
 			SourcePath:  extractPath,
 			TransferDir: s.transferDir,
+			IsDir:       true,
 		},
 	).Return(
 		&activities.BundleActivityResult{FullPath: transferPath},
