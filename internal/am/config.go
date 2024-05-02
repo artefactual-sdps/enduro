@@ -32,4 +32,7 @@ type Config struct {
 	// TransferDeadline is the maximum time to wait for a transfer to complete.
 	// Set to zero for no deadline.
 	TransferDeadline time.Duration
+
+	// Local UUID for the Archivematica Storage Service location.
+	AMSSLocationID string
 }

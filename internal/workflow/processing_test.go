@@ -70,19 +70,19 @@ func preprocessingChildWorkflow(
 	return nil, nil
 }
 
-func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(taskQueue string, ppConfig preprocessing.Config) {
+func (s *ProcessingWorkflowTestSuite) CreateTransferDir() string {
+	s.transferDir = s.T().TempDir()
+
+	return s.transferDir
+}
+
+func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(cfg config.Configuration) {
 	s.env = s.NewTestWorkflowEnvironment()
 	s.env.SetWorkerOptions(temporalsdk_worker.Options{EnableSessionWorker: true})
-	s.transferDir = s.T().TempDir()
 
 	clock := clockwork.NewFakeClock()
 	ctrl := gomock.NewController(s.T())
 	logger := logr.Discard()
-	cfg := config.Configuration{
-		Preservation:  pres.Config{TaskQueue: taskQueue},
-		A3m:           a3m.Config{ShareDir: s.transferDir},
-		Preprocessing: ppConfig,
-	}
 	a3mTransferServiceClient := a3mfake.NewMockTransferServiceClient(ctrl)
 	pkgsvc := packagefake.NewMockService(ctrl)
 	wsvc := watcherfake.NewMockService(ctrl)
@@ -188,7 +188,12 @@ func TestProcessingWorkflow(t *testing.T) {
 }
 
 func (s *ProcessingWorkflowTestSuite) TestPackageConfirmation() {
-	s.SetupWorkflowTest(temporal.A3mWorkerTaskQueue, preprocessing.Config{})
+	cfg := config.Configuration{
+		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
+		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
+	}
+	s.SetupWorkflowTest(cfg)
+
 	pkgID := uint(1)
 	ctx := mock.AnythingOfType("*context.valueCtx")
 	sessionCtx := mock.AnythingOfType("*context.timerCtx")
@@ -283,7 +288,12 @@ func (s *ProcessingWorkflowTestSuite) TestPackageConfirmation() {
 }
 
 func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
-	s.SetupWorkflowTest(temporal.A3mWorkerTaskQueue, preprocessing.Config{})
+	cfg := config.Configuration{
+		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
+		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
+	}
+	s.SetupWorkflowTest(cfg)
+
 	pkgID := uint(1)
 	locationID := uuid.MustParse("51328c02-2b63-47be-958e-e8088aa1a61f")
 	watcherName := "watcher"
@@ -384,18 +394,24 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 }
 
 func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
-	s.SetupWorkflowTest(temporal.AmWorkerTaskQueue, preprocessing.Config{})
-
 	pkgID := uint(1)
+	amssLocationID := "cf3059dd-4565-4fe9-92fe-b16d1a777403"
 	locationID := uuid.MustParse("51328c02-2b63-47be-958e-e8088aa1a61f")
 	transferID := uuid.MustParse("65233405-771e-4f7e-b2d9-b08439570ba2")
 	sipID := uuid.MustParse("9e8161cc-2815-4d6f-8a75-f003c41b257b")
 	watcherName := "watcher"
 	key := "transfer.zip"
 	retentionPeriod := 1 * time.Second
-
 	ctx := mock.AnythingOfType("*context.valueCtx")
 	sessionCtx := mock.AnythingOfType("*context.timerCtx")
+
+	cfg := config.Configuration{
+		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
+		AM:           am.Config{AMSSLocationID: amssLocationID},
+		Preservation: pres.Config{TaskQueue: temporal.AmWorkerTaskQueue},
+	}
+	s.SetupWorkflowTest(cfg)
+
 	logger := s.workflow.logger
 	pkgsvc := s.workflow.pkgsvc
 
@@ -473,6 +489,12 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 		&am.PollIngestActivityResult{Status: "COMPLETE"}, nil,
 	)
 
+	s.env.OnActivity(setLocationIDLocalActivity, ctx,
+		pkgsvc,
+		pkgID,
+		uuid.MustParse(amssLocationID),
+	).Return(&setLocationIDLocalActivityResult{}, nil)
+
 	s.env.OnActivity(am.DeleteTransferActivityName, sessionCtx,
 		&am.DeleteTransferActivityParams{Destination: "transfer.zip"},
 	).Return(nil, nil)
@@ -509,7 +531,12 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 }
 
 func (s *ProcessingWorkflowTestSuite) TestPackageRejection() {
-	s.SetupWorkflowTest(temporal.A3mWorkerTaskQueue, preprocessing.Config{})
+	cfg := config.Configuration{
+		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
+		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
+	}
+	s.SetupWorkflowTest(cfg)
+
 	pkgID := uint(1)
 	key := "transfer.zip"
 	watcherName := "watcher"
@@ -596,17 +623,22 @@ func (s *ProcessingWorkflowTestSuite) TestPackageRejection() {
 }
 
 func (s *ProcessingWorkflowTestSuite) TestPreprocessingChildWorkflow() {
-	ppConfig := preprocessing.Config{
-		Enabled:    true,
-		Extract:    true,
-		SharedPath: "/home/enduro/preprocessing/",
-		Temporal: preprocessing.Temporal{
-			Namespace:    "default",
-			TaskQueue:    "preprocessing",
-			WorkflowName: "preprocessing",
+	cfg := config.Configuration{
+		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
+		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
+		Preprocessing: preprocessing.Config{
+			Enabled:    true,
+			Extract:    true,
+			SharedPath: "/home/enduro/preprocessing/",
+			Temporal: preprocessing.Temporal{
+				Namespace:    "default",
+				TaskQueue:    "preprocessing",
+				WorkflowName: "preprocessing",
+			},
 		},
 	}
-	s.SetupWorkflowTest(temporal.A3mWorkerTaskQueue, ppConfig)
+	s.SetupWorkflowTest(cfg)
+
 	pkgID := uint(1)
 	locationID := uuid.MustParse("51328c02-2b63-47be-958e-e8088aa1a61f")
 	watcherName := "watcher"
@@ -632,20 +664,20 @@ func (s *ProcessingWorkflowTestSuite) TestPreprocessingChildWorkflow() {
 		Return(uint(0), nil).
 		Once()
 
-	downloadDest := strings.Replace(tempPath, "/tmp/", ppConfig.SharedPath, 1) + "/" + key
+	downloadDest := strings.Replace(tempPath, "/tmp/", cfg.Preprocessing.SharedPath, 1) + "/" + key
 	s.env.OnActivity(activities.DownloadActivityName, sessionCtx,
-		&activities.DownloadActivityParams{Key: key, WatcherName: watcherName, DestinationPath: ppConfig.SharedPath},
+		&activities.DownloadActivityParams{Key: key, WatcherName: watcherName, DestinationPath: cfg.Preprocessing.SharedPath},
 	).Return(
 		&activities.DownloadActivityResult{Path: downloadDest}, nil,
 	)
 
-	prepDest := strings.Replace(extractPath, "/tmp/", ppConfig.SharedPath, 1)
+	prepDest := strings.Replace(extractPath, "/tmp/", cfg.Preprocessing.SharedPath, 1)
 	s.env.OnWorkflow(
 		preprocessingChildWorkflow,
 		mock.Anything,
-		&preprocessing.WorkflowParams{RelativePath: strings.TrimPrefix(downloadDest, ppConfig.SharedPath)},
+		&preprocessing.WorkflowParams{RelativePath: strings.TrimPrefix(downloadDest, cfg.Preprocessing.SharedPath)},
 	).Return(
-		&preprocessing.WorkflowResult{RelativePath: strings.TrimPrefix(prepDest, ppConfig.SharedPath)},
+		&preprocessing.WorkflowResult{RelativePath: strings.TrimPrefix(prepDest, cfg.Preprocessing.SharedPath)},
 		nil,
 	)
 

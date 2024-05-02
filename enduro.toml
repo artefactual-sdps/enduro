@@ -115,6 +115,9 @@ pollInterval = "10s"
 # no time limit.
 transferDeadline = "1h"
 
+# amssLocationId is the UUID of our AMSS location in the storage database.
+amssLocationId = "e0ed8b2a-8ae2-4546-b5d8-f0090919df04"
+
 [am.sftp]
 host = "" # The Archivematica Storage Service hostname.
 port = ""
