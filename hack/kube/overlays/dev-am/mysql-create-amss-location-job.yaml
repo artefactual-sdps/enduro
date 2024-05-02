@@ -1,0 +1,49 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mysql-create-amss-location
+spec:
+  backoffLimit: 100
+  template:
+    spec:
+      serviceAccountName: sdps
+      restartPolicy: OnFailure
+      containers:
+        - name: create-locations
+          image: mysql:8.0
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: user
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: password
+            - name: AMSS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: enduro-am-secret
+                  key: amss_url
+            - name: AMSS_USER
+              valueFrom:
+                secretKeyRef:
+                  name: enduro-am-secret
+                  key: amss_user
+            - name: AMSS_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: enduro-am-secret
+                  key: amss_api_key
+          command:
+            - sh
+            - -c
+            - >
+              LOC_AMSS='{"amss": {"url": "'$AMSS_URL'", "api_key": "'$AMSS_API_KEY'", "username": "'$AMSS_USER'"}}' &&
+              mysql -h mysql.enduro-sdps -u $MYSQL_USER -p$MYSQL_PASSWORD --execute "
+                INSERT IGNORE INTO enduro_storage.location (name, description, source, purpose, uuid, created_at, config)
+                VALUES ('amss', '', 'amss', 'aip_store', 'e0ed8b2a-8ae2-4546-b5d8-f0090919df04', NOW(), '$LOC_AMSS');
+              " && echo "AMSS location created"
