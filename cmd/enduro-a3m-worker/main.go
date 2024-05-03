@@ -246,6 +246,7 @@ func main() {
 		)
 		storageClient := goastorage.NewClient(
 			storageHttpClient.Submit(),
+			storageHttpClient.Create(),
 			storageHttpClient.Update(),
 			storageHttpClient.Download(),
 			storageHttpClient.Locations(),

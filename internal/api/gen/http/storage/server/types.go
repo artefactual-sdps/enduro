@@ -23,6 +23,21 @@ type SubmitRequestBody struct {
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 }
 
+// CreateRequestBody is the type of the "storage" service "create" endpoint
+// HTTP request body.
+type CreateRequestBody struct {
+	// Identifier of AIP
+	AipID *string `form:"aip_id,omitempty" json:"aip_id,omitempty" xml:"aip_id,omitempty"`
+	// Name of the package
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ObjectKey of AIP
+	ObjectKey *string `form:"object_key,omitempty" json:"object_key,omitempty" xml:"object_key,omitempty"`
+	// Status of the package
+	Status *string `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
+	// Identifier of the package's storage location
+	LocationID *uuid.UUID `form:"location_id,omitempty" json:"location_id,omitempty" xml:"location_id,omitempty"`
+}
+
 // AddLocationRequestBody is the type of the "storage" service "add_location"
 // endpoint HTTP request body.
 type AddLocationRequestBody struct {
@@ -52,6 +67,20 @@ type MoveRequestBody struct {
 // HTTP response body.
 type SubmitResponseBody struct {
 	URL string `form:"url" json:"url" xml:"url"`
+}
+
+// CreateResponseBody is the type of the "storage" service "create" endpoint
+// HTTP response body.
+type CreateResponseBody struct {
+	Name  string    `form:"name" json:"name" xml:"name"`
+	AipID uuid.UUID `form:"aip_id" json:"aip_id" xml:"aip_id"`
+	// Status of the package
+	Status    string    `form:"status" json:"status" xml:"status"`
+	ObjectKey uuid.UUID `form:"object_key" json:"object_key" xml:"object_key"`
+	// Identifier of storage location
+	LocationID *uuid.UUID `form:"location_id,omitempty" json:"location_id,omitempty" xml:"location_id,omitempty"`
+	// Creation datetime
+	CreatedAt string `form:"created_at" json:"created_at" xml:"created_at"`
 }
 
 // LocationResponseCollection is the type of the "storage" service "locations"
@@ -125,6 +154,24 @@ type SubmitNotAvailableResponseBody struct {
 // SubmitNotValidResponseBody is the type of the "storage" service "submit"
 // endpoint HTTP response body for the "not_valid" error.
 type SubmitNotValidResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// CreateNotValidResponseBody is the type of the "storage" service "create"
+// endpoint HTTP response body for the "not_valid" error.
+type CreateNotValidResponseBody struct {
 	// Name is the name of this class of errors.
 	Name string `form:"name" json:"name" xml:"name"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -400,6 +447,20 @@ func NewSubmitResponseBody(res *storage.SubmitResult) *SubmitResponseBody {
 	return body
 }
 
+// NewCreateResponseBody builds the HTTP response body from the result of the
+// "create" endpoint of the "storage" service.
+func NewCreateResponseBody(res *storageviews.PackageView) *CreateResponseBody {
+	body := &CreateResponseBody{
+		Name:       *res.Name,
+		AipID:      *res.AipID,
+		Status:     *res.Status,
+		ObjectKey:  *res.ObjectKey,
+		LocationID: res.LocationID,
+		CreatedAt:  *res.CreatedAt,
+	}
+	return body
+}
+
 // NewLocationResponseCollection builds the HTTP response body from the result
 // of the "locations" endpoint of the "storage" service.
 func NewLocationResponseCollection(res storageviews.LocationCollectionView) LocationResponseCollection {
@@ -484,6 +545,20 @@ func NewSubmitNotAvailableResponseBody(res *goa.ServiceError) *SubmitNotAvailabl
 // of the "submit" endpoint of the "storage" service.
 func NewSubmitNotValidResponseBody(res *goa.ServiceError) *SubmitNotValidResponseBody {
 	body := &SubmitNotValidResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewCreateNotValidResponseBody builds the HTTP response body from the result
+// of the "create" endpoint of the "storage" service.
+func NewCreateNotValidResponseBody(res *goa.ServiceError) *CreateNotValidResponseBody {
+	body := &CreateNotValidResponseBody{
 		Name:      res.Name,
 		ID:        res.ID,
 		Message:   res.Message,
@@ -701,6 +776,25 @@ func NewSubmitPayload(body *SubmitRequestBody, aipID string, oauthToken *string)
 	return v
 }
 
+// NewCreatePayload builds a storage service create endpoint payload.
+func NewCreatePayload(body *CreateRequestBody, oauthToken *string) *storage.CreatePayload {
+	v := &storage.CreatePayload{
+		AipID:      *body.AipID,
+		Name:       *body.Name,
+		ObjectKey:  *body.ObjectKey,
+		LocationID: body.LocationID,
+	}
+	if body.Status != nil {
+		v.Status = *body.Status
+	}
+	if body.Status == nil {
+		v.Status = "unspecified"
+	}
+	v.OauthToken = oauthToken
+
+	return v
+}
+
 // NewUpdatePayload builds a storage service update endpoint payload.
 func NewUpdatePayload(aipID string, oauthToken *string) *storage.UpdatePayload {
 	v := &storage.UpdatePayload{}
@@ -818,6 +912,31 @@ func NewLocationPackagesPayload(uuid string, oauthToken *string) *storage.Locati
 func ValidateSubmitRequestBody(body *SubmitRequestBody) (err error) {
 	if body.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	return
+}
+
+// ValidateCreateRequestBody runs the validations defined on CreateRequestBody
+func ValidateCreateRequestBody(body *CreateRequestBody) (err error) {
+	if body.AipID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("aip_id", "body"))
+	}
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ObjectKey == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("object_key", "body"))
+	}
+	if body.AipID != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("body.aip_id", *body.AipID, goa.FormatUUID))
+	}
+	if body.ObjectKey != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("body.object_key", *body.ObjectKey, goa.FormatUUID))
+	}
+	if body.Status != nil {
+		if !(*body.Status == "unspecified" || *body.Status == "in_review" || *body.Status == "rejected" || *body.Status == "stored" || *body.Status == "moving") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []any{"unspecified", "in_review", "rejected", "stored", "moving"}))
+		}
 	}
 	return
 }

@@ -23,6 +23,21 @@ type SubmitRequestBody struct {
 	Name string `form:"name" json:"name" xml:"name"`
 }
 
+// CreateRequestBody is the type of the "storage" service "create" endpoint
+// HTTP request body.
+type CreateRequestBody struct {
+	// Identifier of AIP
+	AipID string `form:"aip_id" json:"aip_id" xml:"aip_id"`
+	// Name of the package
+	Name string `form:"name" json:"name" xml:"name"`
+	// ObjectKey of AIP
+	ObjectKey string `form:"object_key" json:"object_key" xml:"object_key"`
+	// Status of the package
+	Status string `form:"status" json:"status" xml:"status"`
+	// Identifier of the package's storage location
+	LocationID *uuid.UUID `form:"location_id,omitempty" json:"location_id,omitempty" xml:"location_id,omitempty"`
+}
+
 // AddLocationRequestBody is the type of the "storage" service "add_location"
 // endpoint HTTP request body.
 type AddLocationRequestBody struct {
@@ -52,6 +67,20 @@ type MoveRequestBody struct {
 // HTTP response body.
 type SubmitResponseBody struct {
 	URL *string `form:"url,omitempty" json:"url,omitempty" xml:"url,omitempty"`
+}
+
+// CreateResponseBody is the type of the "storage" service "create" endpoint
+// HTTP response body.
+type CreateResponseBody struct {
+	Name  *string    `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	AipID *uuid.UUID `form:"aip_id,omitempty" json:"aip_id,omitempty" xml:"aip_id,omitempty"`
+	// Status of the package
+	Status    *string    `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
+	ObjectKey *uuid.UUID `form:"object_key,omitempty" json:"object_key,omitempty" xml:"object_key,omitempty"`
+	// Identifier of storage location
+	LocationID *uuid.UUID `form:"location_id,omitempty" json:"location_id,omitempty" xml:"location_id,omitempty"`
+	// Creation datetime
+	CreatedAt *string `form:"created_at,omitempty" json:"created_at,omitempty" xml:"created_at,omitempty"`
 }
 
 // LocationsResponseBody is the type of the "storage" service "locations"
@@ -134,6 +163,24 @@ type SubmitNotAvailableResponseBody struct {
 // SubmitNotValidResponseBody is the type of the "storage" service "submit"
 // endpoint HTTP response body for the "not_valid" error.
 type SubmitNotValidResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
+// CreateNotValidResponseBody is the type of the "storage" service "create"
+// endpoint HTTP response body for the "not_valid" error.
+type CreateNotValidResponseBody struct {
 	// Name is the name of this class of errors.
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -418,6 +465,25 @@ func NewSubmitRequestBody(p *storage.SubmitPayload) *SubmitRequestBody {
 	return body
 }
 
+// NewCreateRequestBody builds the HTTP request body from the payload of the
+// "create" endpoint of the "storage" service.
+func NewCreateRequestBody(p *storage.CreatePayload) *CreateRequestBody {
+	body := &CreateRequestBody{
+		AipID:      p.AipID,
+		Name:       p.Name,
+		ObjectKey:  p.ObjectKey,
+		Status:     p.Status,
+		LocationID: p.LocationID,
+	}
+	{
+		var zero string
+		if body.Status == zero {
+			body.Status = "unspecified"
+		}
+	}
+	return body
+}
+
 // NewAddLocationRequestBody builds the HTTP request body from the payload of
 // the "add_location" endpoint of the "storage" service.
 func NewAddLocationRequestBody(p *storage.AddLocationPayload) *AddLocationRequestBody {
@@ -505,6 +571,43 @@ func NewSubmitNotValid(body *SubmitNotValidResponseBody) *goa.ServiceError {
 // NewSubmitUnauthorized builds a storage service submit endpoint unauthorized
 // error.
 func NewSubmitUnauthorized(body string) storage.Unauthorized {
+	v := storage.Unauthorized(body)
+
+	return v
+}
+
+// NewCreatePackageOK builds a "storage" service "create" endpoint result from
+// a HTTP "OK" response.
+func NewCreatePackageOK(body *CreateResponseBody) *storageviews.PackageView {
+	v := &storageviews.PackageView{
+		Name:       body.Name,
+		AipID:      body.AipID,
+		Status:     body.Status,
+		ObjectKey:  body.ObjectKey,
+		LocationID: body.LocationID,
+		CreatedAt:  body.CreatedAt,
+	}
+
+	return v
+}
+
+// NewCreateNotValid builds a storage service create endpoint not_valid error.
+func NewCreateNotValid(body *CreateNotValidResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
+// NewCreateUnauthorized builds a storage service create endpoint unauthorized
+// error.
+func NewCreateUnauthorized(body string) storage.Unauthorized {
 	v := storage.Unauthorized(body)
 
 	return v
@@ -937,6 +1040,30 @@ func ValidateSubmitNotAvailableResponseBody(body *SubmitNotAvailableResponseBody
 // ValidateSubmitNotValidResponseBody runs the validations defined on
 // submit_not_valid_response_body
 func ValidateSubmitNotValidResponseBody(body *SubmitNotValidResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
+// ValidateCreateNotValidResponseBody runs the validations defined on
+// create_not_valid_response_body
+func ValidateCreateNotValidResponseBody(body *CreateNotValidResponseBody) (err error) {
 	if body.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
 	}

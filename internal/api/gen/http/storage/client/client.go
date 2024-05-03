@@ -21,6 +21,9 @@ type Client struct {
 	// Submit Doer is the HTTP client used to make requests to the submit endpoint.
 	SubmitDoer goahttp.Doer
 
+	// Create Doer is the HTTP client used to make requests to the create endpoint.
+	CreateDoer goahttp.Doer
+
 	// Update Doer is the HTTP client used to make requests to the update endpoint.
 	UpdateDoer goahttp.Doer
 
@@ -81,6 +84,7 @@ func NewClient(
 ) *Client {
 	return &Client{
 		SubmitDoer:           doer,
+		CreateDoer:           doer,
 		UpdateDoer:           doer,
 		DownloadDoer:         doer,
 		LocationsDoer:        doer,
@@ -119,6 +123,30 @@ func (c *Client) Submit() goa.Endpoint {
 		resp, err := c.SubmitDoer.Do(req)
 		if err != nil {
 			return nil, goahttp.ErrRequestError("storage", "submit", err)
+		}
+		return decodeResponse(resp)
+	}
+}
+
+// Create returns an endpoint that makes HTTP requests to the storage service
+// create server.
+func (c *Client) Create() goa.Endpoint {
+	var (
+		encodeRequest  = EncodeCreateRequest(c.encoder)
+		decodeResponse = DecodeCreateResponse(c.decoder, c.RestoreResponseBody)
+	)
+	return func(ctx context.Context, v any) (any, error) {
+		req, err := c.BuildCreateRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		err = encodeRequest(req, v)
+		if err != nil {
+			return nil, err
+		}
+		resp, err := c.CreateDoer.Do(req)
+		if err != nil {
+			return nil, goahttp.ErrRequestError("storage", "create", err)
 		}
 		return decodeResponse(resp)
 	}

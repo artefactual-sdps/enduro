@@ -20,6 +20,7 @@ import (
 type StorageService struct {
 	OAuth2AuthHandler       func(ctx context.Context, token string, scheme *security.OAuth2Scheme) (ctx2 context.Context, err error)
 	SubmitHandler           func(ctx context.Context, req *goastorage.SubmitPayload) (res *goastorage.SubmitResult, err error)
+	CreateHandler           func(ctx context.Context, req *goastorage.CreatePayload) (res *goastorage.Package, err error)
 	UpdateHandler           func(ctx context.Context, req *goastorage.UpdatePayload) (err error)
 	DownloadHandler         func(ctx context.Context, req *goastorage.DownloadPayload) (res []byte, err error)
 	LocationsHandler        func(ctx context.Context, req *goastorage.LocationsPayload) (res goastorage.LocationCollection, err error)
@@ -45,6 +46,13 @@ func (s StorageService) Submit(
 	req *goastorage.SubmitPayload,
 ) (res *goastorage.SubmitResult, err error) {
 	return s.SubmitHandler(ctx, req)
+}
+
+func (s StorageService) Create(
+	ctx context.Context,
+	req *goastorage.CreatePayload,
+) (res *goastorage.Package, err error) {
+	return s.CreateHandler(ctx, req)
 }
 
 func (s StorageService) Update(ctx context.Context, req *goastorage.UpdatePayload) (err error) {
@@ -133,6 +141,7 @@ func TestUploadActivity(t *testing.T) {
 		endpoints := goastorage.NewEndpoints(fakeStorageService)
 		storageClient := goastorage.NewClient(
 			endpoints.Submit,
+			endpoints.Create,
 			endpoints.Update,
 			endpoints.Download,
 			endpoints.Locations,
@@ -178,6 +187,7 @@ func TestUploadActivity(t *testing.T) {
 		endpoints := goastorage.NewEndpoints(fakeStorageService)
 		storageClient := goastorage.NewClient(
 			endpoints.Submit,
+			endpoints.Create,
 			endpoints.Update,
 			endpoints.Download,
 			endpoints.Locations,

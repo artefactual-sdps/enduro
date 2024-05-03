@@ -17,6 +17,11 @@ func SubmitStoragePath(aipID string) string {
 	return fmt.Sprintf("/storage/package/%v/submit", aipID)
 }
 
+// CreateStoragePath returns the URL path to the storage service create HTTP endpoint.
+func CreateStoragePath() string {
+	return "/storage/package"
+}
+
 // UpdateStoragePath returns the URL path to the storage service update HTTP endpoint.
 func UpdateStoragePath(aipID string) string {
 	return fmt.Sprintf("/storage/package/%v/update", aipID)

@@ -26,7 +26,7 @@ import (
 //	command (subcommand1|subcommand2|...)
 func UsageCommands() string {
 	return `package (monitor-request|monitor|list|show|preservation-actions|confirm|reject|move|move-status)
-storage (submit|update|download|locations|add-location|move|move-status|reject|show|show-location|location-packages)
+storage (submit|create|update|download|locations|add-location|move|move-status|reject|show|show-location|location-packages)
 upload upload
 `
 }
@@ -104,6 +104,10 @@ func ParseEndpoint(
 		storageSubmitAipIDFlag      = storageSubmitFlags.String("aip-id", "REQUIRED", "Identifier of AIP")
 		storageSubmitOauthTokenFlag = storageSubmitFlags.String("oauth-token", "", "")
 
+		storageCreateFlags          = flag.NewFlagSet("create", flag.ExitOnError)
+		storageCreateBodyFlag       = storageCreateFlags.String("body", "REQUIRED", "")
+		storageCreateOauthTokenFlag = storageCreateFlags.String("oauth-token", "", "")
+
 		storageUpdateFlags          = flag.NewFlagSet("update", flag.ExitOnError)
 		storageUpdateAipIDFlag      = storageUpdateFlags.String("aip-id", "REQUIRED", "Identifier of AIP")
 		storageUpdateOauthTokenFlag = storageUpdateFlags.String("oauth-token", "", "")
@@ -164,6 +168,7 @@ func ParseEndpoint(
 
 	storageFlags.Usage = storageUsage
 	storageSubmitFlags.Usage = storageSubmitUsage
+	storageCreateFlags.Usage = storageCreateUsage
 	storageUpdateFlags.Usage = storageUpdateUsage
 	storageDownloadFlags.Usage = storageDownloadUsage
 	storageLocationsFlags.Usage = storageLocationsUsage
@@ -249,6 +254,9 @@ func ParseEndpoint(
 			switch epn {
 			case "submit":
 				epf = storageSubmitFlags
+
+			case "create":
+				epf = storageCreateFlags
 
 			case "update":
 				epf = storageUpdateFlags
@@ -346,6 +354,9 @@ func ParseEndpoint(
 			case "submit":
 				endpoint = c.Submit()
 				data, err = storagec.BuildSubmitPayload(*storageSubmitBodyFlag, *storageSubmitAipIDFlag, *storageSubmitOauthTokenFlag)
+			case "create":
+				endpoint = c.Create()
+				data, err = storagec.BuildCreatePayload(*storageCreateBodyFlag, *storageCreateOauthTokenFlag)
 			case "update":
 				endpoint = c.Update()
 				data, err = storagec.BuildUpdatePayload(*storageUpdateAipIDFlag, *storageUpdateOauthTokenFlag)
@@ -543,6 +554,7 @@ Usage:
 
 COMMAND:
     submit: Start the submission of a package
+    create: Create a new package
     update: Signal the storage service that an upload is complete
     download: Download package by AIPID
     locations: List locations
@@ -570,6 +582,24 @@ Example:
     %[1]s storage submit --body '{
       "name": "abc123"
    }' --aip-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --oauth-token "abc123"
+`, os.Args[0])
+}
+
+func storageCreateUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage create -body JSON -oauth-token STRING
+
+Create a new package
+    -body JSON: 
+    -oauth-token STRING: 
+
+Example:
+    %[1]s storage create --body '{
+      "aip_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+      "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+      "name": "abc123",
+      "object_key": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+      "status": "in_review"
+   }' --oauth-token "abc123"
 `, os.Args[0])
 }
 

@@ -17,6 +17,7 @@ import (
 // Client is the "storage" service client.
 type Client struct {
 	SubmitEndpoint           goa.Endpoint
+	CreateEndpoint           goa.Endpoint
 	UpdateEndpoint           goa.Endpoint
 	DownloadEndpoint         goa.Endpoint
 	LocationsEndpoint        goa.Endpoint
@@ -30,9 +31,10 @@ type Client struct {
 }
 
 // NewClient initializes a "storage" service client given the endpoints.
-func NewClient(submit, update, download, locations, addLocation, move, moveStatus, reject, show, showLocation, locationPackages goa.Endpoint) *Client {
+func NewClient(submit, create, update, download, locations, addLocation, move, moveStatus, reject, show, showLocation, locationPackages goa.Endpoint) *Client {
 	return &Client{
 		SubmitEndpoint:           submit,
+		CreateEndpoint:           create,
 		UpdateEndpoint:           update,
 		DownloadEndpoint:         download,
 		LocationsEndpoint:        locations,
@@ -60,6 +62,20 @@ func (c *Client) Submit(ctx context.Context, p *SubmitPayload) (res *SubmitResul
 		return
 	}
 	return ires.(*SubmitResult), nil
+}
+
+// Create calls the "create" endpoint of the "storage" service.
+// Create may return the following errors:
+//   - "not_valid" (type *goa.ServiceError)
+//   - "unauthorized" (type Unauthorized)
+//   - error: internal error
+func (c *Client) Create(ctx context.Context, p *CreatePayload) (res *Package, err error) {
+	var ires any
+	ires, err = c.CreateEndpoint(ctx, p)
+	if err != nil {
+		return
+	}
+	return ires.(*Package), nil
 }
 
 // Update calls the "update" endpoint of the "storage" service.
