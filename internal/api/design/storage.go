@@ -32,6 +32,28 @@ var _ = Service("storage", func() {
 			Response("not_valid", StatusBadRequest)
 		})
 	})
+	Method("create", func() {
+		Description("Create a new package")
+		Payload(func() {
+			AttributeUUID("aip_id", "Identifier of AIP")
+			Attribute("name", String, "Name of the package")
+			AttributeUUID("object_key", "ObjectKey of AIP")
+			Attribute("status", String, "Status of the package", func() {
+				EnumStoragePackageStatus()
+				Default("unspecified")
+			})
+			TypedAttributeUUID("location_id", "Identifier of the package's storage location")
+			AccessToken("oauth_token", String)
+			Required("aip_id", "name", "object_key")
+		})
+		Result(StoragePackage)
+		Error("not_valid")
+		HTTP(func() {
+			POST("/package")
+			Response(StatusOK)
+			Response("not_valid", StatusBadRequest)
+		})
+	})
 	Method("update", func() {
 		Description("Signal the storage service that an upload is complete")
 		Payload(func() {

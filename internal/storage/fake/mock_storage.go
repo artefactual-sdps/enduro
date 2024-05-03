@@ -83,6 +83,45 @@ func (c *MockServiceAddLocationCall) DoAndReturn(f func(context.Context, *storag
 	return c
 }
 
+// Create mocks base method.
+func (m *MockService) Create(arg0 context.Context, arg1 *storage.CreatePayload) (*storage.Package, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Create", arg0, arg1)
+	ret0, _ := ret[0].(*storage.Package)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Create indicates an expected call of Create.
+func (mr *MockServiceMockRecorder) Create(arg0, arg1 any) *MockServiceCreateCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockService)(nil).Create), arg0, arg1)
+	return &MockServiceCreateCall{Call: call}
+}
+
+// MockServiceCreateCall wrap *gomock.Call
+type MockServiceCreateCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockServiceCreateCall) Return(arg0 *storage.Package, arg1 error) *MockServiceCreateCall {
+	c.Call = c.Call.Return(arg0, arg1)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockServiceCreateCall) Do(f func(context.Context, *storage.CreatePayload) (*storage.Package, error)) *MockServiceCreateCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockServiceCreateCall) DoAndReturn(f func(context.Context, *storage.CreatePayload) (*storage.Package, error)) *MockServiceCreateCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
 // Delete mocks base method.
 func (m *MockService) Delete(arg0 context.Context, arg1 uuid.UUID) error {
 	m.ctrl.T.Helper()

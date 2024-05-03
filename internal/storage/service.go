@@ -170,6 +170,28 @@ func (s *serviceImpl) Submit(ctx context.Context, payload *goastorage.SubmitPayl
 	return result, nil
 }
 
+func (s *serviceImpl) Create(ctx context.Context, payload *goastorage.CreatePayload) (*goastorage.Package, error) {
+	aipID, err := uuid.Parse(payload.AipID)
+	if err != nil {
+		return nil, goastorage.MakeNotValid(errors.New("cannot perform operation"))
+	}
+
+	objKey, err := uuid.Parse(payload.ObjectKey)
+	if err != nil {
+		return nil, goastorage.MakeNotValid(errors.New("cannot perform operation"))
+	}
+
+	p := &goastorage.Package{
+		Name:       payload.Name,
+		AipID:      aipID,
+		Status:     payload.Status,
+		ObjectKey:  objKey,
+		LocationID: payload.LocationID,
+	}
+
+	return s.storagePersistence.CreatePackage(ctx, p)
+}
+
 func (s *serviceImpl) Update(ctx context.Context, payload *goastorage.UpdatePayload) error {
 	aipID, err := uuid.Parse(payload.AipID)
 	if err != nil {

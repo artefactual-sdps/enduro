@@ -50,6 +50,49 @@ func BuildSubmitPayload(storageSubmitBody string, storageSubmitAipID string, sto
 	return v, nil
 }
 
+// BuildCreatePayload builds the payload for the storage create endpoint from
+// CLI flags.
+func BuildCreatePayload(storageCreateBody string, storageCreateOauthToken string) (*storage.CreatePayload, error) {
+	var err error
+	var body CreateRequestBody
+	{
+		err = json.Unmarshal([]byte(storageCreateBody), &body)
+		if err != nil {
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"aip_id\": \"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\n      \"location_id\": \"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\n      \"name\": \"abc123\",\n      \"object_key\": \"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\n      \"status\": \"in_review\"\n   }'")
+		}
+		err = goa.MergeErrors(err, goa.ValidateFormat("body.aip_id", body.AipID, goa.FormatUUID))
+		err = goa.MergeErrors(err, goa.ValidateFormat("body.object_key", body.ObjectKey, goa.FormatUUID))
+		if !(body.Status == "unspecified" || body.Status == "in_review" || body.Status == "rejected" || body.Status == "stored" || body.Status == "moving") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", body.Status, []any{"unspecified", "in_review", "rejected", "stored", "moving"}))
+		}
+		if err != nil {
+			return nil, err
+		}
+	}
+	var oauthToken *string
+	{
+		if storageCreateOauthToken != "" {
+			oauthToken = &storageCreateOauthToken
+		}
+	}
+	v := &storage.CreatePayload{
+		AipID:      body.AipID,
+		Name:       body.Name,
+		ObjectKey:  body.ObjectKey,
+		Status:     body.Status,
+		LocationID: body.LocationID,
+	}
+	{
+		var zero string
+		if v.Status == zero {
+			v.Status = "unspecified"
+		}
+	}
+	v.OauthToken = oauthToken
+
+	return v, nil
+}
+
 // BuildUpdatePayload builds the payload for the storage update endpoint from
 // CLI flags.
 func BuildUpdatePayload(storageUpdateAipID string, storageUpdateOauthToken string) (*storage.UpdatePayload, error) {

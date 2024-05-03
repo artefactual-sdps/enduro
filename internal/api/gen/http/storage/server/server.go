@@ -24,6 +24,7 @@ import (
 type Server struct {
 	Mounts           []*MountPoint
 	Submit           http.Handler
+	Create           http.Handler
 	Update           http.Handler
 	Download         http.Handler
 	Locations        http.Handler
@@ -65,6 +66,7 @@ func New(
 	return &Server{
 		Mounts: []*MountPoint{
 			{"Submit", "POST", "/storage/package/{aip_id}/submit"},
+			{"Create", "POST", "/storage/package"},
 			{"Update", "POST", "/storage/package/{aip_id}/update"},
 			{"Download", "GET", "/storage/package/{aip_id}/download"},
 			{"Locations", "GET", "/storage/location"},
@@ -76,6 +78,7 @@ func New(
 			{"ShowLocation", "GET", "/storage/location/{uuid}"},
 			{"LocationPackages", "GET", "/storage/location/{uuid}/packages"},
 			{"CORS", "OPTIONS", "/storage/package/{aip_id}/submit"},
+			{"CORS", "OPTIONS", "/storage/package"},
 			{"CORS", "OPTIONS", "/storage/package/{aip_id}/update"},
 			{"CORS", "OPTIONS", "/storage/package/{aip_id}/download"},
 			{"CORS", "OPTIONS", "/storage/location"},
@@ -86,6 +89,7 @@ func New(
 			{"CORS", "OPTIONS", "/storage/location/{uuid}/packages"},
 		},
 		Submit:           NewSubmitHandler(e.Submit, mux, decoder, encoder, errhandler, formatter),
+		Create:           NewCreateHandler(e.Create, mux, decoder, encoder, errhandler, formatter),
 		Update:           NewUpdateHandler(e.Update, mux, decoder, encoder, errhandler, formatter),
 		Download:         NewDownloadHandler(e.Download, mux, decoder, encoder, errhandler, formatter),
 		Locations:        NewLocationsHandler(e.Locations, mux, decoder, encoder, errhandler, formatter),
@@ -106,6 +110,7 @@ func (s *Server) Service() string { return "storage" }
 // Use wraps the server handlers with the given middleware.
 func (s *Server) Use(m func(http.Handler) http.Handler) {
 	s.Submit = m(s.Submit)
+	s.Create = m(s.Create)
 	s.Update = m(s.Update)
 	s.Download = m(s.Download)
 	s.Locations = m(s.Locations)
@@ -125,6 +130,7 @@ func (s *Server) MethodNames() []string { return storage.MethodNames[:] }
 // Mount configures the mux to serve the storage endpoints.
 func Mount(mux goahttp.Muxer, h *Server) {
 	MountSubmitHandler(mux, h.Submit)
+	MountCreateHandler(mux, h.Create)
 	MountUpdateHandler(mux, h.Update)
 	MountDownloadHandler(mux, h.Download)
 	MountLocationsHandler(mux, h.Locations)
@@ -173,6 +179,57 @@ func NewSubmitHandler(
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
 		ctx = context.WithValue(ctx, goa.MethodKey, "submit")
+		ctx = context.WithValue(ctx, goa.ServiceKey, "storage")
+		payload, err := decodeRequest(r)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		res, err := endpoint(ctx, payload)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		if err := encodeResponse(ctx, w, res); err != nil {
+			errhandler(ctx, w, err)
+		}
+	})
+}
+
+// MountCreateHandler configures the mux to serve the "storage" service
+// "create" endpoint.
+func MountCreateHandler(mux goahttp.Muxer, h http.Handler) {
+	f, ok := HandleStorageOrigin(h).(http.HandlerFunc)
+	if !ok {
+		f = func(w http.ResponseWriter, r *http.Request) {
+			h.ServeHTTP(w, r)
+		}
+	}
+	mux.Handle("POST", "/storage/package", otelhttp.WithRouteTag("/storage/package", f).ServeHTTP)
+}
+
+// NewCreateHandler creates a HTTP handler which loads the HTTP request and
+// calls the "storage" service "create" endpoint.
+func NewCreateHandler(
+	endpoint goa.Endpoint,
+	mux goahttp.Muxer,
+	decoder func(*http.Request) goahttp.Decoder,
+	encoder func(context.Context, http.ResponseWriter) goahttp.Encoder,
+	errhandler func(context.Context, http.ResponseWriter, error),
+	formatter func(ctx context.Context, err error) goahttp.Statuser,
+) http.Handler {
+	var (
+		decodeRequest  = DecodeCreateRequest(mux, decoder)
+		encodeResponse = EncodeCreateResponse(encoder)
+		encodeError    = EncodeCreateError(encoder, formatter)
+	)
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
+		ctx = context.WithValue(ctx, goa.MethodKey, "create")
 		ctx = context.WithValue(ctx, goa.ServiceKey, "storage")
 		payload, err := decodeRequest(r)
 		if err != nil {
@@ -709,6 +766,7 @@ func NewLocationPackagesHandler(
 func MountCORSHandler(mux goahttp.Muxer, h http.Handler) {
 	h = HandleStorageOrigin(h)
 	mux.Handle("OPTIONS", "/storage/package/{aip_id}/submit", h.ServeHTTP)
+	mux.Handle("OPTIONS", "/storage/package", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/storage/package/{aip_id}/update", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/storage/package/{aip_id}/download", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/storage/location", h.ServeHTTP)

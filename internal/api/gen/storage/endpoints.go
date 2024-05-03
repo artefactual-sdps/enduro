@@ -18,6 +18,7 @@ import (
 // Endpoints wraps the "storage" service endpoints.
 type Endpoints struct {
 	Submit           goa.Endpoint
+	Create           goa.Endpoint
 	Update           goa.Endpoint
 	Download         goa.Endpoint
 	Locations        goa.Endpoint
@@ -36,6 +37,7 @@ func NewEndpoints(s Service) *Endpoints {
 	a := s.(Auther)
 	return &Endpoints{
 		Submit:           NewSubmitEndpoint(s, a.OAuth2Auth),
+		Create:           NewCreateEndpoint(s, a.OAuth2Auth),
 		Update:           NewUpdateEndpoint(s, a.OAuth2Auth),
 		Download:         NewDownloadEndpoint(s, a.OAuth2Auth),
 		Locations:        NewLocationsEndpoint(s, a.OAuth2Auth),
@@ -52,6 +54,7 @@ func NewEndpoints(s Service) *Endpoints {
 // Use applies the given middleware to all the "storage" service endpoints.
 func (e *Endpoints) Use(m func(goa.Endpoint) goa.Endpoint) {
 	e.Submit = m(e.Submit)
+	e.Create = m(e.Create)
 	e.Update = m(e.Update)
 	e.Download = m(e.Download)
 	e.Locations = m(e.Locations)
@@ -91,6 +94,41 @@ func NewSubmitEndpoint(s Service, authOAuth2Fn security.AuthOAuth2Func) goa.Endp
 			return nil, err
 		}
 		return s.Submit(ctx, p)
+	}
+}
+
+// NewCreateEndpoint returns an endpoint function that calls the method
+// "create" of service "storage".
+func NewCreateEndpoint(s Service, authOAuth2Fn security.AuthOAuth2Func) goa.Endpoint {
+	return func(ctx context.Context, req any) (any, error) {
+		p := req.(*CreatePayload)
+		var err error
+		sc := security.OAuth2Scheme{
+			Name:           "oauth2",
+			Scopes:         []string{},
+			RequiredScopes: []string{},
+			Flows: []*security.OAuthFlow{
+				&security.OAuthFlow{
+					Type:       "client_credentials",
+					TokenURL:   "/oauth2/token",
+					RefreshURL: "/oauth2/refresh",
+				},
+			},
+		}
+		var token string
+		if p.OauthToken != nil {
+			token = *p.OauthToken
+		}
+		ctx, err = authOAuth2Fn(ctx, token, &sc)
+		if err != nil {
+			return nil, err
+		}
+		res, err := s.Create(ctx, p)
+		if err != nil {
+			return nil, err
+		}
+		vres := NewViewedPackage(res, "default")
+		return vres, nil
 	}
 }
 
