@@ -1,0 +1,26 @@
+name: Trivy
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions: read-all
+
+jobs:
+  trivy:
+    name: Run Trivy for IaC Security Analysis
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner in repo mode
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: "config"
+          exit-code: "1"
+          severity: "CRITICAL,HIGH,MEDIUM"
+        env:
+          TRIVY_MISCONFIG_SCANNERS: dockerfile
