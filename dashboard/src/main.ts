@@ -36,13 +36,13 @@ declare module "@vue/runtime-core" {
 app.config.globalProperties.$filters = {
   formatDateTimeString(value: string) {
     const date = new Date(value);
-    return date.toLocaleString();
+    return moment(String(date)).format("YYYY-MM-DD HH:mm:ss");
   },
   formatDateTime(value: Date | undefined) {
     if (!value) {
       return "";
     }
-    return value.toLocaleString();
+    return moment(String(value)).format("YYYY-MM-DD HH:mm:ss");
   },
   formatDuration(from: Date, to: Date) {
     const diff = moment(to).diff(from);
