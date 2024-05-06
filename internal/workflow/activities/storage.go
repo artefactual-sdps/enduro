@@ -2,21 +2,25 @@ package activities
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/oklog/run"
+	"go.artefactual.dev/tools/temporal"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
+	goa "goa.design/goa/v3/pkg"
 
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
+	"github.com/artefactual-sdps/enduro/internal/storage"
 )
 
-type CreatePackageActivity struct {
-	storageClient *goastorage.Client
+type CreateStoragePackageActivity struct {
+	client storage.Client
 }
 
-type CreatePackageActivityParams struct {
+type CreateStoragePackageActivityParams struct {
 	Name       string
 	AIPID      string
 	ObjectKey  string
@@ -24,19 +28,22 @@ type CreatePackageActivityParams struct {
 	LocationID string
 }
 
-type CreatePackageActivityResult struct {
-	*goastorage.Package
+type CreateStoragePackageActivityResult struct {
+	CreatedAt string
 }
 
-func NewCreatePackageActivity(storageClient *goastorage.Client) *CreatePackageActivity {
-	return &CreatePackageActivity{storageClient: storageClient}
+func NewCreateStoragePackageActivity(client storage.Client) *CreateStoragePackageActivity {
+	return &CreateStoragePackageActivity{client: client}
 }
 
-func (a *CreatePackageActivity) Execute(
+func (a *CreateStoragePackageActivity) Execute(
 	ctx context.Context,
-	params *CreatePackageActivityParams,
-) (*CreatePackageActivityResult, error) {
-	payload := &goastorage.CreatePayload{
+	params *CreateStoragePackageActivityParams,
+) (*CreateStoragePackageActivityResult, error) {
+	logger := temporal.GetLogger(ctx)
+	logger.V(1).Info("Executing CreateStoragePackageActivity", "params", params)
+
+	payload := goastorage.CreatePayload{
 		AipID:     params.AIPID,
 		Name:      params.Name,
 		Status:    params.Status,
@@ -46,17 +53,33 @@ func (a *CreatePackageActivity) Execute(
 	if params.LocationID != "" {
 		locID, err := uuid.Parse(params.LocationID)
 		if err != nil {
-			return nil, fmt.Errorf("invalid location ID: %v", err)
+			return nil, temporal.NewNonRetryableError(
+				fmt.Errorf("%s: invalid location ID: %v", CreateStoragePackageActivityName, err),
+			)
 		}
 		payload.LocationID = &locID
 	}
 
-	pkg, err := a.storageClient.Create(ctx, payload)
+	pkg, err := a.client.Create(ctx, &payload)
 	if err != nil {
-		return nil, err
+		if errors.Is(err, goastorage.Unauthorized("unauthorized")) {
+			return nil, temporal.NewNonRetryableError(
+				fmt.Errorf("%s: %v", CreateStoragePackageActivityName, err),
+			)
+		}
+
+		if serr, ok := err.(*goa.ServiceError); ok {
+			if serr.Name == "not_valid" {
+				return nil, temporal.NewNonRetryableError(
+					fmt.Errorf("%s: %v", CreateStoragePackageActivityName, err),
+				)
+			}
+		}
+
+		return nil, fmt.Errorf("%s: %v", CreateStoragePackageActivityName, err)
 	}
 
-	return &CreatePackageActivityResult{pkg}, nil
+	return &CreateStoragePackageActivityResult{CreatedAt: pkg.CreatedAt}, nil
 }
 
 type MoveToPermanentStorageActivityParams struct {
