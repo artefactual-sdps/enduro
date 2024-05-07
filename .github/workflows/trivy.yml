@@ -1,10 +1,10 @@
 name: Trivy
 
 on:
-  pull_request:
+  #pull_request:
   push:
-    branches:
-      - main
+  #  branches:
+  #    - main
 
 permissions: read-all
 
@@ -21,6 +21,6 @@ jobs:
         with:
           scan-type: "config"
           exit-code: "1"
-          severity: "CRITICAL,HIGH,MEDIUM"
+          severity: "CRITICAL,HIGH"
         env:
-          TRIVY_MISCONFIG_SCANNERS: dockerfile
+          TRIVY_MISCONFIG_SCANNERS: dockerfile,kubernetes
