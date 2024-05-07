@@ -36,6 +36,22 @@ func (c *Client) CreatePackage(ctx context.Context, goapkg *goastorage.Package) 
 	q.SetObjectKey(goapkg.ObjectKey)
 	q.SetStatus(types.NewPackageStatus(goapkg.Status))
 
+	if goapkg.LocationID != nil {
+		id, err := c.c.Location.Query().
+			Where(location.UUID(*goapkg.LocationID)).
+			OnlyID(ctx)
+		if err != nil {
+			if db.IsNotFound(err) {
+				return nil, &goastorage.LocationNotFound{
+					UUID: *goapkg.LocationID, Message: "location not found",
+				}
+			} else {
+				return nil, goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
+			}
+		}
+		q.SetLocationID(id)
+	}
+
 	pkg, err := q.Save(ctx)
 	if err != nil {
 		return nil, err
@@ -64,7 +80,7 @@ func (c *Client) ReadPackage(ctx context.Context, aipID uuid.UUID) (*goastorage.
 	if err != nil {
 		if db.IsNotFound(err) {
 			return nil, &goastorage.PackageNotFound{AipID: aipID, Message: "package not found"}
-		} else if err != nil {
+		} else {
 			return nil, goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
 		}
 	}
@@ -178,7 +194,7 @@ func (c *Client) ReadLocation(ctx context.Context, locationID uuid.UUID) (*goast
 	if err != nil {
 		if db.IsNotFound(err) {
 			return nil, &goastorage.LocationNotFound{UUID: locationID, Message: "location not found"}
-		} else if err != nil {
+		} else {
 			return nil, goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
 		}
 	}

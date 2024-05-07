@@ -173,12 +173,12 @@ func (s *serviceImpl) Submit(ctx context.Context, payload *goastorage.SubmitPayl
 func (s *serviceImpl) Create(ctx context.Context, payload *goastorage.CreatePayload) (*goastorage.Package, error) {
 	aipID, err := uuid.Parse(payload.AipID)
 	if err != nil {
-		return nil, goastorage.MakeNotValid(errors.New("cannot perform operation"))
+		return nil, goastorage.MakeNotValid(errors.New("invalid aip_id"))
 	}
 
 	objKey, err := uuid.Parse(payload.ObjectKey)
 	if err != nil {
-		return nil, goastorage.MakeNotValid(errors.New("cannot perform operation"))
+		return nil, goastorage.MakeNotValid(errors.New("invalid object_key"))
 	}
 
 	p := &goastorage.Package{

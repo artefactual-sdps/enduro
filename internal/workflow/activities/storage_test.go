@@ -95,10 +95,10 @@ func TestCreatePackageActivity(t *testing.T) {
 						LocationID: ref.New(uuid.MustParse("92c3934d-8911-4ce4-8a44-ffa72a0b5720")),
 					},
 				).Return(
-					nil, goastorage.MakeNotValid(errors.New("invalid request")),
+					nil, goastorage.MakeNotValid(errors.New("invalid aip_id")),
 				)
 			},
-			wantErr: "activity error (type: create-storage-package-activity, scheduledEventID: 0, startedEventID: 0, identity: ): create-storage-package-activity: invalid request",
+			wantErr: "activity error (type: create-storage-package-activity, scheduledEventID: 0, startedEventID: 0, identity: ): create-storage-package-activity: invalid aip_id",
 		},
 		{
 			name: "Errors on invalid authorization",

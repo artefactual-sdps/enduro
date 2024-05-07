@@ -426,7 +426,7 @@ func TestServiceCreate(t *testing.T) {
 		})
 		assert.Assert(t, ret == nil)
 		assert.Equal(t, err.(*goa.ServiceError).Name, "not_valid")
-		assert.ErrorContains(t, err, "cannot perform operation")
+		assert.Error(t, err, "invalid aip_id")
 	})
 
 	t.Run("Returns not_valid if ObjectKey is invalid", func(t *testing.T) {
@@ -441,7 +441,7 @@ func TestServiceCreate(t *testing.T) {
 		})
 		assert.Assert(t, ret == nil)
 		assert.Equal(t, err.(*goa.ServiceError).Name, "not_valid")
-		assert.ErrorContains(t, err, "cannot perform operation")
+		assert.Error(t, err, "invalid object_key")
 	})
 }
 
