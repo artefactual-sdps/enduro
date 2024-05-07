@@ -61,25 +61,90 @@ func setUpClient(t *testing.T) (*db.Client, *client.Client) {
 func TestCreatePackage(t *testing.T) {
 	t.Parallel()
 
-	entc, c := setUpClient(t)
+	type test struct {
+		name    string
+		params  *goastorage.Package
+		want    *goastorage.Package
+		wantErr string
+	}
 
-	ctx := context.Background()
-	p, err := c.CreatePackage(
-		ctx,
-		&goastorage.Package{
-			Name:      "test_package",
-			AipID:     uuid.MustParse("488c64cc-d89b-4916-9131-c94152dfb12e"),
-			ObjectKey: uuid.MustParse("e2630293-a714-4787-ab6d-e68254a6fb6a"),
+	for _, tt := range []test{
+		{
+			name: "Creates a package with minimal data",
+			params: &goastorage.Package{
+				Name:      "test_package",
+				AipID:     uuid.MustParse("488c64cc-d89b-4916-9131-c94152dfb12e"),
+				ObjectKey: uuid.MustParse("e2630293-a714-4787-ab6d-e68254a6fb6a"),
+			},
+			want: &goastorage.Package{
+				Name:      "test_package",
+				AipID:     uuid.MustParse("488c64cc-d89b-4916-9131-c94152dfb12e"),
+				ObjectKey: uuid.MustParse("e2630293-a714-4787-ab6d-e68254a6fb6a"),
+				Status:    "unspecified",
+				CreatedAt: fakeNow().Format(time.RFC3339),
+			},
 		},
-	)
-	assert.NilError(t, err)
+		{
+			name: "Creates a package with all data",
+			params: &goastorage.Package{
+				Name:       "test_package",
+				AipID:      uuid.MustParse("488c64cc-d89b-4916-9131-c94152dfb12e"),
+				ObjectKey:  uuid.MustParse("e2630293-a714-4787-ab6d-e68254a6fb6a"),
+				Status:     "stored",
+				LocationID: ref.New(uuid.MustParse("a06a155c-9cf0-4416-a2b6-e90e58ef3186")),
+			},
+			want: &goastorage.Package{
+				Name:       "test_package",
+				AipID:      uuid.MustParse("488c64cc-d89b-4916-9131-c94152dfb12e"),
+				ObjectKey:  uuid.MustParse("e2630293-a714-4787-ab6d-e68254a6fb6a"),
+				Status:     "stored",
+				LocationID: ref.New(uuid.MustParse("a06a155c-9cf0-4416-a2b6-e90e58ef3186")),
+				CreatedAt:  fakeNow().Format(time.RFC3339),
+			},
+		},
+		{
+			name: "Errors if locationID is not found",
+			params: &goastorage.Package{
+				Name:       "test_package",
+				AipID:      uuid.MustParse("488c64cc-d89b-4916-9131-c94152dfb12e"),
+				ObjectKey:  uuid.MustParse("e2630293-a714-4787-ab6d-e68254a6fb6a"),
+				LocationID: ref.New(uuid.MustParse("f1508f95-cab7-447f-b6a2-e01bf7c64558")),
+			},
+			wantErr: "Storage location not found.",
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 
-	dbpkg, err := entc.Pkg.Query().Where(pkg.AipID(p.AipID)).Only(ctx)
-	assert.NilError(t, err)
-	assert.Equal(t, dbpkg.Name, "test_package")
-	assert.Equal(t, dbpkg.AipID.String(), "488c64cc-d89b-4916-9131-c94152dfb12e")
-	assert.Equal(t, dbpkg.ObjectKey.String(), "e2630293-a714-4787-ab6d-e68254a6fb6a")
-	assert.Equal(t, dbpkg.CreatedAt, time.Date(2013, time.February, 3, 19, 54, 0, 0, time.UTC))
+			ctx := context.Background()
+			entc, c := setUpClient(t)
+			_, err := entc.Location.Create().
+				SetName("Location 1").
+				SetDescription("MinIO AIP store").
+				SetSource(types.LocationSourceMinIO).
+				SetPurpose(types.LocationPurposeAIPStore).
+				SetUUID(uuid.MustParse("a06a155c-9cf0-4416-a2b6-e90e58ef3186")).
+				SetConfig(types.LocationConfig{
+					Value: &types.S3Config{
+						Bucket: "perma-aips-1",
+						Region: "eu-west-1",
+					},
+				}).
+				Save(ctx)
+			if err != nil {
+				t.Fatalf("Couldn't create test location: %v", err)
+			}
+
+			got, err := c.CreatePackage(ctx, tt.params)
+			if tt.wantErr != "" {
+				assert.Error(t, err, tt.wantErr)
+				return
+			}
+
+			assert.NilError(t, err)
+			assert.DeepEqual(t, got, tt.want)
+		})
+	}
 }
 
 func TestListPackages(t *testing.T) {

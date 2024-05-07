@@ -824,7 +824,7 @@ func (w *ProcessingWorkflow) transferAM(sessCtx temporalsdk_workflow.Context, ti
 		}
 	}
 
-	// Create storage package and set location.
+	// Create storage package record and set location to AMSS location.
 	{
 		activityOpts := withLocalActivityOpts(sessCtx)
 		err := temporalsdk_workflow.ExecuteActivity(
