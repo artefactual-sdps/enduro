@@ -13,8 +13,8 @@ import (
 )
 
 // ConvertToSSConfig creates an instance of SSConfig initialized from t.
-func (t *AMSSConfig) ConvertToSSConfig() *types.SSConfig {
-	v := &types.SSConfig{
+func (t *AMSSConfig) ConvertToSSConfig() *types.AMSSConfig {
+	v := &types.AMSSConfig{
 		APIKey:   t.APIKey,
 		URL:      t.URL,
 		Username: t.Username,

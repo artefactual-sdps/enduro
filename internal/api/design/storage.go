@@ -355,7 +355,7 @@ var EnumStoragePackageStatus = func() {
 }
 
 var AMSSConfig = Type("AMSSConfig", func() {
-	ConvertTo(types.SSConfig{})
+	ConvertTo(types.AMSSConfig{})
 
 	Attribute("api_key", String)
 	Attribute("url", String)

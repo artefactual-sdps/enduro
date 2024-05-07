@@ -97,6 +97,18 @@ func TestNewLocation(t *testing.T) {
 			uuid: locationID,
 		},
 		{
+			name: "Returns an AMSS location",
+			location: &goastorage.Location{
+				UUID: locationID,
+				Config: &goastorage.AMSSConfig{
+					APIKey:   "Secret1",
+					URL:      "http://localhost:8080",
+					Username: "test",
+				},
+			},
+			uuid: locationID,
+		},
+		{
 			name: "Errors when URL Config is empty",
 			location: &goastorage.Location{
 				UUID:   locationID,

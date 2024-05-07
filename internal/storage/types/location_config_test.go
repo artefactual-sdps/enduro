@@ -50,15 +50,15 @@ func TestLocationConfigEncoding(t *testing.T) {
 			},
 			want: `{"url":{"url":"mem://"}}`,
 		},
-		"Encodes valid SS config": {
+		"Encodes valid AMSS config": {
 			config: types.LocationConfig{
-				Value: &types.SSConfig{
+				Value: &types.AMSSConfig{
 					URL:      "http://127.0.0.1:62081",
 					Username: "test",
 					APIKey:   "secret",
 				},
 			},
-			want: `{"ss":{"url":"http://127.0.0.1:62081","username":"test","api_key":"secret"}}`,
+			want: `{"amss":{"url":"http://127.0.0.1:62081","username":"test","api_key":"secret"}}`,
 		},
 		"Rejects invalid S3 config": {
 			config: types.LocationConfig{
@@ -83,11 +83,11 @@ func TestLocationConfigEncoding(t *testing.T) {
 			want:        `{"url":{"url":""}}`,
 			wantInvalid: true,
 		},
-		"Rejects invalid SS config": {
+		"Rejects invalid AMSS config": {
 			config: types.LocationConfig{
-				Value: &types.SSConfig{},
+				Value: &types.AMSSConfig{},
 			},
-			want:        `{"ss":{"url":"","username":"","api_key":""}}`,
+			want:        `{"amss":{"url":"","username":"","api_key":""}}`,
 			wantInvalid: true,
 		},
 		"Rejects invalid config": {
@@ -171,9 +171,9 @@ func TestLocationConfigDecoding(t *testing.T) {
 			},
 		},
 		"Decodes SS config": {
-			blob: `{"ss":{"url":"http://127.0.0.1:62081","username":"test","api_key":"secret"}}`,
+			blob: `{"amss":{"url":"http://127.0.0.1:62081","username":"test","api_key":"secret"}}`,
 			want: types.LocationConfig{
-				Value: &types.SSConfig{
+				Value: &types.AMSSConfig{
 					URL:      "http://127.0.0.1:62081",
 					Username: "test",
 					APIKey:   "secret",

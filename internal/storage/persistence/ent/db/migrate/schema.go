@@ -14,7 +14,7 @@ var (
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "name", Type: field.TypeString, Size: 2048},
 		{Name: "description", Type: field.TypeString, Size: 2048},
-		{Name: "source", Type: field.TypeEnum, Enums: []string{"unspecified", "minio", "sftp"}},
+		{Name: "source", Type: field.TypeEnum, Enums: []string{"unspecified", "minio", "sftp", "amss"}},
 		{Name: "purpose", Type: field.TypeEnum, Enums: []string{"unspecified", "aip_store"}},
 		{Name: "uuid", Type: field.TypeUUID, Unique: true},
 		{Name: "config", Type: field.TypeJSON},
