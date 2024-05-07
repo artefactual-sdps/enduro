@@ -2,7 +2,8 @@
 //
 //  1. Make changes to schema files (internal/storage/persistence/ent/schema),
 //  2. Re-generate (make gen-ent),
-//  3. Run:
+//  3. Drop any existing database tables or delete and re-create the database,
+//  4. Run:
 //     $ go run ./cmd/migrate/ \
 //     --config="./enduro.toml" \
 //     --dsn="mysql://enduro:enduro123@tcp(localhost:3306)/enduro_storage" \
