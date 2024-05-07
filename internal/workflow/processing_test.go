@@ -80,13 +80,11 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(cfg config.Configuration
 	s.env = s.NewTestWorkflowEnvironment()
 	s.env.SetWorkerOptions(temporalsdk_worker.Options{EnableSessionWorker: true})
 
-	clock := clockwork.NewFakeClock()
 	ctrl := gomock.NewController(s.T())
 	logger := logr.Discard()
 	a3mTransferServiceClient := a3mfake.NewMockTransferServiceClient(ctrl)
 	pkgsvc := packagefake.NewMockService(ctrl)
 	wsvc := watcherfake.NewMockService(ctrl)
-	sftpc := sftp_fake.NewMockClient(ctrl)
 
 	s.env.RegisterActivityWithOptions(
 		activities.NewDownloadActivity(logger, noop.Tracer{}, wsvc).Execute,
@@ -129,7 +127,28 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(cfg config.Configuration
 		temporalsdk_activity.RegisterOptions{Name: activities.DeleteOriginalActivityName},
 	)
 
-	// Archivematica activities
+	// Set up AM taskqueue.
+	if cfg.Preservation.TaskQueue == temporal.AmWorkerTaskQueue {
+		s.setupAMWorkflowTest(logger, &cfg.AM, ctrl, pkgsvc)
+	}
+
+	s.env.RegisterWorkflowWithOptions(
+		preprocessingChildWorkflow,
+		temporalsdk_workflow.RegisterOptions{Name: "preprocessing"},
+	)
+
+	s.workflow = NewProcessingWorkflow(logger, cfg, pkgsvc, wsvc)
+}
+
+func (s *ProcessingWorkflowTestSuite) setupAMWorkflowTest(
+	logger logr.Logger,
+	cfg *am.Config,
+	ctrl *gomock.Controller,
+	pkgsvc package_.Service,
+) {
+	clock := clockwork.NewFakeClock()
+	sftpc := sftp_fake.NewMockClient(ctrl)
+
 	s.env.RegisterActivityWithOptions(
 		activities.NewZipActivity(logger).Execute,
 		temporalsdk_activity.RegisterOptions{Name: activities.ZipActivityName},
@@ -151,7 +170,7 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(cfg config.Configuration
 	s.env.RegisterActivityWithOptions(
 		am.NewPollTransferActivity(
 			logger,
-			&cfg.AM,
+			cfg,
 			clock,
 			amclienttest.NewMockTransferService(ctrl),
 			amclienttest.NewMockJobsService(ctrl),
@@ -162,7 +181,7 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(cfg config.Configuration
 	s.env.RegisterActivityWithOptions(
 		am.NewPollIngestActivity(
 			logger,
-			&cfg.AM,
+			cfg,
 			clock,
 			amclienttest.NewMockIngestService(ctrl),
 			amclienttest.NewMockJobsService(ctrl),
@@ -171,12 +190,10 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(cfg config.Configuration
 		temporalsdk_activity.RegisterOptions{Name: am.PollIngestActivityName},
 	)
 
-	s.env.RegisterWorkflowWithOptions(
-		preprocessingChildWorkflow,
-		temporalsdk_workflow.RegisterOptions{Name: "preprocessing"},
+	s.env.RegisterActivityWithOptions(
+		activities.NewCreateStoragePackageActivity(nil).Execute,
+		temporalsdk_activity.RegisterOptions{Name: activities.CreateStoragePackageActivityName},
 	)
-
-	s.workflow = NewProcessingWorkflow(logger, cfg, pkgsvc, wsvc)
 }
 
 func (s *ProcessingWorkflowTestSuite) AfterTest(suiteName, testName string) {
@@ -495,6 +512,16 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 		uuid.MustParse(amssLocationID),
 	).Return(&setLocationIDLocalActivityResult{}, nil)
 
+	s.env.OnActivity(activities.CreateStoragePackageActivityName, sessionCtx,
+		&activities.CreateStoragePackageActivityParams{
+			Name:       key,
+			AIPID:      sipID.String(),
+			ObjectKey:  sipID.String(),
+			Status:     "stored",
+			LocationID: cfg.AM.AMSSLocationID,
+		},
+	).Return(&activities.CreateStoragePackageActivityResult{}, nil)
+
 	s.env.OnActivity(am.DeleteTransferActivityName, sessionCtx,
 		&am.DeleteTransferActivityParams{Destination: "transfer.zip"},
 	).Return(nil, nil)
@@ -666,7 +693,11 @@ func (s *ProcessingWorkflowTestSuite) TestPreprocessingChildWorkflow() {
 
 	downloadDest := strings.Replace(tempPath, "/tmp/", cfg.Preprocessing.SharedPath, 1) + "/" + key
 	s.env.OnActivity(activities.DownloadActivityName, sessionCtx,
-		&activities.DownloadActivityParams{Key: key, WatcherName: watcherName, DestinationPath: cfg.Preprocessing.SharedPath},
+		&activities.DownloadActivityParams{
+			Key:             key,
+			WatcherName:     watcherName,
+			DestinationPath: cfg.Preprocessing.SharedPath,
+		},
 	).Return(
 		&activities.DownloadActivityResult{Path: downloadDest}, nil,
 	)
@@ -675,9 +706,13 @@ func (s *ProcessingWorkflowTestSuite) TestPreprocessingChildWorkflow() {
 	s.env.OnWorkflow(
 		preprocessingChildWorkflow,
 		mock.Anything,
-		&preprocessing.WorkflowParams{RelativePath: strings.TrimPrefix(downloadDest, cfg.Preprocessing.SharedPath)},
+		&preprocessing.WorkflowParams{
+			RelativePath: strings.TrimPrefix(downloadDest, cfg.Preprocessing.SharedPath),
+		},
 	).Return(
-		&preprocessing.WorkflowResult{RelativePath: strings.TrimPrefix(prepDest, cfg.Preprocessing.SharedPath)},
+		&preprocessing.WorkflowResult{
+			RelativePath: strings.TrimPrefix(prepDest, cfg.Preprocessing.SharedPath),
+		},
 		nil,
 	)
 

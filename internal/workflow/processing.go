@@ -824,6 +824,25 @@ func (w *ProcessingWorkflow) transferAM(sessCtx temporalsdk_workflow.Context, ti
 		}
 	}
 
+	// Create storage package and set location.
+	{
+		activityOpts := withLocalActivityOpts(sessCtx)
+		err := temporalsdk_workflow.ExecuteActivity(
+			activityOpts,
+			activities.CreateStoragePackageActivityName,
+			&activities.CreateStoragePackageActivityParams{
+				Name:       tinfo.req.Key,
+				AIPID:      tinfo.SIPID,
+				ObjectKey:  tinfo.SIPID,
+				LocationID: w.cfg.AM.AMSSLocationID,
+				Status:     "stored",
+			}).
+			Get(activityOpts, nil)
+		if err != nil {
+			return err
+		}
+	}
+
 	// Delete transfer.
 	activityOpts = withActivityOptsForRequest(sessCtx)
 	err = temporalsdk_workflow.ExecuteActivity(activityOpts, am.DeleteTransferActivityName, am.DeleteTransferActivityParams{
