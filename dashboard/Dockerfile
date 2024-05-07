@@ -35,7 +35,7 @@ upstream backend {
     server \${ENDURO_API_ADDRESS};
 }
 server {
-    listen 80;
+    listen 8080;
     root /usr/share/nginx/html;
     absolute_redirect off;
     location /api/package/monitor {

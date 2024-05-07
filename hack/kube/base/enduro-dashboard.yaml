@@ -41,7 +41,7 @@ spec:
                   name: enduro-secret
                   key: oidc-audience-client-id
           ports:
-            - containerPort: 80
+            - containerPort: 8080
           resources: {}
 ---
 apiVersion: v1
@@ -55,3 +55,4 @@ spec:
     app: enduro-dashboard
   ports:
     - port: 80
+      targetPort: 8080

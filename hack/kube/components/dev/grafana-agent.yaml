@@ -193,7 +193,7 @@ spec:
   ports:
     - name: http-metrics
       port: 80
-      targetPort: 80
+      targetPort: 8080
       protocol: "TCP"
     - name: otlp-grpc
       port: 4317
@@ -233,7 +233,7 @@ spec:
             - run
             - /etc/agent/config.river
             - --storage.path=/tmp/agent
-            - --server.http.listen-addr=0.0.0.0:80
+            - --server.http.listen-addr=0.0.0.0:8080
             - --server.http.ui-path-prefix=/
             - --disable-reporting
           env:
@@ -246,7 +246,7 @@ spec:
                 fieldRef:
                   fieldPath: spec.nodeName
           ports:
-            - containerPort: 80
+            - containerPort: 8080
               name: http-metrics
             - containerPort: 4317
               name: otlp-grpc
@@ -255,7 +255,7 @@ spec:
           readinessProbe:
             httpGet:
               path: /-/ready
-              port: 80
+              port: 8080
             initialDelaySeconds: 10
             timeoutSeconds: 1
           volumeMounts:
@@ -265,7 +265,7 @@ spec:
           image: docker.io/jimmidyson/configmap-reload:v0.8.0
           args:
             - --volume-dir=/etc/agent
-            - --webhook-url=http://localhost:80/-/reload
+            - --webhook-url=http://localhost:8080/-/reload
           volumeMounts:
             - name: config
               mountPath: /etc/agent

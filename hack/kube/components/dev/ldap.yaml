@@ -22,8 +22,10 @@ spec:
               value: try
             - name: LDAP_SEED_INTERNAL_LDIF_PATH
               value: /tmp/ldif
+            - name: LDAPS_PORT
+              value: "1636"
           ports:
-            - containerPort: 636
+            - containerPort: 1636
           volumeMounts:
             - name: config
               mountPath: /tmp/ldif
@@ -45,6 +47,7 @@ spec:
     app: ldap
   ports:
     - port: 636
+      targetPort: 1636
 ---
 kind: ConfigMap
 apiVersion: v1
