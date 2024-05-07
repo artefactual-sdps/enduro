@@ -1448,6 +1448,10 @@ func unmarshalLocationResponseToStorageviewsLocationView(v *LocationResponse) *s
 	}
 	if v.Config != nil {
 		switch *v.Config.Type {
+		case "amss":
+			var val *storageviews.AMSSConfigView
+			json.Unmarshal([]byte(*v.Config.Value), &val)
+			res.Config = val
 		case "s3":
 			var val *storageviews.S3ConfigView
 			json.Unmarshal([]byte(*v.Config.Value), &val)

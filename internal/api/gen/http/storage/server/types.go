@@ -47,6 +47,7 @@ type AddLocationRequestBody struct {
 	Purpose     *string `form:"purpose,omitempty" json:"purpose,omitempty" xml:"purpose,omitempty"`
 	Config      *struct {
 		// Union type name, one of:
+		// - "amss"
 		// - "s3"
 		// - "sftp"
 		// - "url"
@@ -831,6 +832,10 @@ func NewAddLocationPayload(body *AddLocationRequestBody, oauthToken *string) *st
 	}
 	if body.Config != nil {
 		switch *body.Config.Type {
+		case "amss":
+			var val *storage.AMSSConfig
+			json.Unmarshal([]byte(*body.Config.Value), &val)
+			v.Config = val
 		case "s3":
 			var val *storage.S3Config
 			json.Unmarshal([]byte(*body.Config.Value), &val)
@@ -954,8 +959,8 @@ func ValidateAddLocationRequestBody(body *AddLocationRequestBody) (err error) {
 		err = goa.MergeErrors(err, goa.MissingFieldError("purpose", "body"))
 	}
 	if body.Source != nil {
-		if !(*body.Source == "unspecified" || *body.Source == "minio" || *body.Source == "sftp") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.source", *body.Source, []any{"unspecified", "minio", "sftp"}))
+		if !(*body.Source == "unspecified" || *body.Source == "minio" || *body.Source == "sftp" || *body.Source == "amss") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.source", *body.Source, []any{"unspecified", "minio", "sftp", "amss"}))
 		}
 	}
 	if body.Purpose != nil {
@@ -971,8 +976,8 @@ func ValidateAddLocationRequestBody(body *AddLocationRequestBody) (err error) {
 			err = goa.MergeErrors(err, goa.MissingFieldError("Value", "body.config"))
 		}
 		if body.Config.Type != nil {
-			if !(*body.Config.Type == "s3" || *body.Config.Type == "sftp" || *body.Config.Type == "url") {
-				err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.config.Type", *body.Config.Type, []any{"s3", "sftp", "url"}))
+			if !(*body.Config.Type == "amss" || *body.Config.Type == "s3" || *body.Config.Type == "sftp" || *body.Config.Type == "url") {
+				err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.config.Type", *body.Config.Type, []any{"amss", "s3", "sftp", "url"}))
 			}
 		}
 	}

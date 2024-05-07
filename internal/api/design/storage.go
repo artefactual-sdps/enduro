@@ -109,6 +109,7 @@ var _ = Service("storage", func() {
 				EnumLocationPurpose()
 			})
 			OneOf("config", func() {
+				Attribute("amss", AMSSConfig)
 				Attribute("s3", S3Config)
 				Attribute("sftp", SFTPConfig)
 				Attribute("url", URLConfig)
@@ -277,6 +278,7 @@ var Location = ResultType("application/vnd.enduro.storage-location", func() {
 			Meta("struct:field:type", "uuid.UUID", "github.com/google/uuid")
 		})
 		OneOf("config", func() {
+			Attribute("amss", AMSSConfig)
 			Attribute("s3", S3Config)
 			Attribute("sftp", SFTPConfig)
 			Attribute("url", URLConfig)
@@ -298,7 +300,7 @@ var Location = ResultType("application/vnd.enduro.storage-location", func() {
 })
 
 var EnumLocationSource = func() {
-	Enum("unspecified", "minio", "sftp")
+	Enum("unspecified", "minio", "sftp", "amss")
 }
 
 var EnumLocationPurpose = func() {
@@ -351,6 +353,16 @@ var StoragePackage = ResultType("application/vnd.enduro.storage-package", func()
 var EnumStoragePackageStatus = func() {
 	Enum("unspecified", "in_review", "rejected", "stored", "moving")
 }
+
+var AMSSConfig = Type("AMSSConfig", func() {
+	ConvertTo(types.SSConfig{})
+
+	Attribute("api_key", String)
+	Attribute("url", String)
+	Attribute("username", String)
+
+	Required("api_key", "url", "username")
+})
 
 var S3Config = Type("S3Config", func() {
 	ConvertTo(types.S3Config{})

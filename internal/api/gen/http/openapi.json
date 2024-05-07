@@ -362,7 +362,8 @@
           "enum": [
             "unspecified",
             "minio",
-            "sftp"
+            "sftp",
+            "amss"
           ],
           "example": "minio",
           "type": "string"
@@ -1438,8 +1439,8 @@
     "StorageAddLocationRequestBody": {
       "example": {
         "config": {
-          "Type": "sftp",
-          "Value": "{\"address\":\"abc123\",\"directory\":\"abc123\",\"password\":\"abc123\",\"username\":\"abc123\"}"
+          "Type": "s3",
+          "Value": "{\"bucket\":\"abc123\",\"endpoint\":\"abc123\",\"key\":\"abc123\",\"path_style\":false,\"profile\":\"abc123\",\"region\":\"abc123\",\"secret\":\"abc123\",\"token\":\"abc123\"}"
         },
         "description": "abc123",
         "name": "abc123",
@@ -1449,23 +1450,24 @@
       "properties": {
         "config": {
           "example": {
-            "Type": "sftp",
-            "Value": "{\"address\":\"abc123\",\"directory\":\"abc123\",\"password\":\"abc123\",\"username\":\"abc123\"}"
+            "Type": "s3",
+            "Value": "{\"bucket\":\"abc123\",\"endpoint\":\"abc123\",\"key\":\"abc123\",\"path_style\":false,\"profile\":\"abc123\",\"region\":\"abc123\",\"secret\":\"abc123\",\"token\":\"abc123\"}"
           },
           "properties": {
             "Type": {
-              "description": "Union type name, one of:\n- \"s3\"\n- \"sftp\"\n- \"url\"",
+              "description": "Union type name, one of:\n- \"amss\"\n- \"s3\"\n- \"sftp\"\n- \"url\"",
               "enum": [
+                "amss",
                 "s3",
                 "sftp",
                 "url"
               ],
-              "example": "sftp",
+              "example": "s3",
               "type": "string"
             },
             "Value": {
               "description": "JSON encoded union value",
-              "example": "{\"address\":\"abc123\",\"directory\":\"abc123\",\"password\":\"abc123\",\"username\":\"abc123\"}",
+              "example": "{\"bucket\":\"abc123\",\"endpoint\":\"abc123\",\"key\":\"abc123\",\"path_style\":false,\"profile\":\"abc123\",\"region\":\"abc123\",\"secret\":\"abc123\",\"token\":\"abc123\"}",
               "type": "string"
             }
           },
@@ -1495,7 +1497,8 @@
           "enum": [
             "unspecified",
             "minio",
-            "sftp"
+            "sftp",
+            "amss"
           ],
           "example": "minio",
           "type": "string"
@@ -2267,7 +2270,8 @@
           "enum": [
             "unspecified",
             "minio",
-            "sftp"
+            "sftp",
+            "amss"
           ],
           "example": "minio",
           "type": "string"
