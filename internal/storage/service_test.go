@@ -6,10 +6,12 @@ import (
 	"fmt"
 	"io"
 	"testing"
+	"time"
 
 	"github.com/go-logr/logr"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
+	"go.artefactual.dev/tools/mockutil"
 	"go.artefactual.dev/tools/ref"
 	temporalapi_enums "go.temporal.io/api/enums/v1"
 	temporalapi_workflow "go.temporal.io/api/workflow/v1"
@@ -350,6 +352,96 @@ func TestServiceSubmit(t *testing.T) {
 		})
 		assert.NilError(t, err)
 		assert.Equal(t, ret.URL[0:15], "file://tmp/dir?")
+	})
+}
+
+func TestServiceCreate(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Creates a new package", func(t *testing.T) {
+		t.Parallel()
+
+		aipID := "f5fddd8c-570b-48d3-8426-78c03f24fa78"
+		name := "Package 1"
+		objKey := "79451b19-58c3-4359-b73d-ff609640753f"
+		status := "stored"
+		locID := uuid.MustParse("c5b96474-9a1e-45cf-8d7c-5268221ac918")
+		created := time.Date(2024, 5, 3, 14, 55, 2, 22, time.UTC)
+
+		attrs := setUpAttrs{}
+		svc := setUpService(t, &attrs)
+
+		attrs.persistenceMock.
+			EXPECT().
+			CreatePackage(
+				mockutil.Context(),
+				&goastorage.Package{
+					Name:       name,
+					AipID:      uuid.MustParse(aipID),
+					Status:     status,
+					ObjectKey:  uuid.MustParse(objKey),
+					LocationID: &locID,
+				},
+			).
+			Return(
+				&goastorage.Package{
+					Name:       name,
+					AipID:      uuid.MustParse(aipID),
+					Status:     status,
+					ObjectKey:  uuid.MustParse(objKey),
+					LocationID: &locID,
+					CreatedAt:  created.Format(time.DateTime),
+				},
+				nil,
+			)
+
+		got, err := svc.Create(context.Background(), &goastorage.CreatePayload{
+			AipID:      aipID,
+			Name:       name,
+			ObjectKey:  objKey,
+			Status:     status,
+			LocationID: &locID,
+		})
+
+		assert.NilError(t, err)
+		assert.DeepEqual(t, got, &goastorage.Package{
+			AipID:      uuid.MustParse(aipID),
+			Name:       name,
+			ObjectKey:  uuid.MustParse(objKey),
+			Status:     status,
+			LocationID: &locID,
+			CreatedAt:  created.Format(time.DateTime),
+		})
+	})
+
+	t.Run("Returns not_valid if AIPID is invalid", func(t *testing.T) {
+		t.Parallel()
+
+		AIPID := "12345"
+		attrs := &setUpAttrs{}
+		svc := setUpService(t, attrs)
+
+		ret, err := svc.Create(context.Background(), &goastorage.CreatePayload{
+			AipID: AIPID,
+		})
+		assert.Assert(t, ret == nil)
+		assert.Equal(t, err.(*goa.ServiceError).Name, "not_valid")
+		assert.ErrorContains(t, err, "cannot perform operation")
+	})
+
+	t.Run("Returns not_valid if ObjectKey is invalid", func(t *testing.T) {
+		t.Parallel()
+
+		attrs := &setUpAttrs{}
+		svc := setUpService(t, attrs)
+
+		ret, err := svc.Create(context.Background(), &goastorage.CreatePayload{
+			AipID:     "f5fddd8c-570b-48d3-8426-78c03f24fa78",
+			ObjectKey: "12345",
+		})
+		assert.Assert(t, ret == nil)
+		assert.Equal(t, err.(*goa.ServiceError).Name, "not_valid")
+		assert.ErrorContains(t, err, "cannot perform operation")
 	})
 }
 

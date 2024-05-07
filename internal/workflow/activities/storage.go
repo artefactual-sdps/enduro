@@ -2,6 +2,7 @@ package activities
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -10,6 +11,53 @@ import (
 
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 )
+
+type CreatePackageActivity struct {
+	storageClient *goastorage.Client
+}
+
+type CreatePackageActivityParams struct {
+	Name       string
+	AIPID      string
+	ObjectKey  string
+	Status     string
+	LocationID string
+}
+
+type CreatePackageActivityResult struct {
+	*goastorage.Package
+}
+
+func NewCreatePackageActivity(storageClient *goastorage.Client) *CreatePackageActivity {
+	return &CreatePackageActivity{storageClient: storageClient}
+}
+
+func (a *CreatePackageActivity) Execute(
+	ctx context.Context,
+	params *CreatePackageActivityParams,
+) (*CreatePackageActivityResult, error) {
+	payload := &goastorage.CreatePayload{
+		AipID:     params.AIPID,
+		Name:      params.Name,
+		Status:    params.Status,
+		ObjectKey: params.ObjectKey,
+	}
+
+	if params.LocationID != "" {
+		locID, err := uuid.Parse(params.LocationID)
+		if err != nil {
+			return nil, fmt.Errorf("invalid location ID: %v", err)
+		}
+		payload.LocationID = &locID
+	}
+
+	pkg, err := a.storageClient.Create(ctx, payload)
+	if err != nil {
+		return nil, err
+	}
+
+	return &CreatePackageActivityResult{pkg}, nil
+}
 
 type MoveToPermanentStorageActivityParams struct {
 	AIPID      string

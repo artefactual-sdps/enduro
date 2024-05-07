@@ -7,6 +7,7 @@ const (
 	CleanUpActivityName                    = "clean-up-activity"
 	DeleteOriginalActivityName             = "delete-original-activity"
 	DisposeOriginalActivityName            = "dispose-original-activity"
+	CreateStoragePackageActivityName       = "create-storage-package-activity"
 	MoveToPermanentStorageActivityName     = "move-to-permanent-storage-activity"
 	PollMoveToPermanentStorageActivityName = "poll-move-to-permanent-storage-activity"
 	RejectPackageActivityName              = "reject-package-activity"
