@@ -114,6 +114,8 @@ watch($$(expandCounter), () => show());
           <tr>
             <th scope="col">Task #</th>
             <th scope="col">Name</th>
+            <th scope="col">Start</th>
+            <th scope="col">End</th>
             <th scope="col">Outcome</th>
             <th scope="col">Notes</th>
           </tr>
@@ -125,6 +127,8 @@ watch($$(expandCounter), () => show());
           >
             <td>{{ action.tasks.length - index }}</td>
             <td>{{ task.name }}</td>
+            <td>{{ $filters.formatDateTime(task.startedAt) }}</td>
+            <td>{{ $filters.formatDateTime(task.completedAt) }}</td>
             <td>
               <StatusBadge :status="task.status" />
             </td>
