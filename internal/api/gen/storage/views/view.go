@@ -81,6 +81,13 @@ type LocationView struct {
 	CreatedAt *string
 }
 
+// AMSSConfigView is a type that runs validations on a projected type.
+type AMSSConfigView struct {
+	APIKey   *string
+	URL      *string
+	Username *string
+}
+
 // S3ConfigView is a type that runs validations on a projected type.
 type S3ConfigView struct {
 	Bucket    *string
@@ -109,6 +116,7 @@ type URLConfigView struct {
 // PackageCollectionView is a type that runs validations on a projected type.
 type PackageCollectionView []*PackageView
 
+func (*AMSSConfigView) configVal() {}
 func (*S3ConfigView) configVal()   {}
 func (*SFTPConfigView) configVal() {}
 func (*URLConfigView) configVal()  {}
@@ -269,8 +277,8 @@ func ValidateLocationView(result *LocationView) (err error) {
 		err = goa.MergeErrors(err, goa.MissingFieldError("created_at", "result"))
 	}
 	if result.Source != nil {
-		if !(*result.Source == "unspecified" || *result.Source == "minio" || *result.Source == "sftp") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.source", *result.Source, []any{"unspecified", "minio", "sftp"}))
+		if !(*result.Source == "unspecified" || *result.Source == "minio" || *result.Source == "sftp" || *result.Source == "amss") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.source", *result.Source, []any{"unspecified", "minio", "sftp", "amss"}))
 		}
 	}
 	if result.Purpose != nil {
@@ -280,6 +288,20 @@ func ValidateLocationView(result *LocationView) (err error) {
 	}
 	if result.CreatedAt != nil {
 		err = goa.MergeErrors(err, goa.ValidateFormat("result.created_at", *result.CreatedAt, goa.FormatDateTime))
+	}
+	return
+}
+
+// ValidateAMSSConfigView runs the validations defined on AMSSConfigView.
+func ValidateAMSSConfigView(result *AMSSConfigView) (err error) {
+	if result.APIKey == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("api_key", "result"))
+	}
+	if result.URL == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("url", "result"))
+	}
+	if result.Username == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("username", "result"))
 	}
 	return
 }

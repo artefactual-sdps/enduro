@@ -572,8 +572,8 @@ paths:
                             $ref: '#/components/schemas/AddLocationRequestBody'
                         example:
                             config:
-                                Type: sftp
-                                Value: '{"address":"abc123","directory":"abc123","password":"abc123","username":"abc123"}'
+                                Type: s3
+                                Value: '{"bucket":"abc123","endpoint":"abc123","key":"abc123","path_style":false,"profile":"abc123","region":"abc123","secret":"abc123","token":"abc123"}'
                             description: abc123
                             name: abc123
                             purpose: aip_store
@@ -630,8 +630,8 @@ paths:
                                 $ref: '#/components/schemas/Location'
                             example:
                                 config:
-                                    Type: sftp
-                                    Value: '{"address":"abc123","directory":"abc123","password":"abc123","username":"abc123"}'
+                                    Type: s3
+                                    Value: '{"bucket":"abc123","endpoint":"abc123","key":"abc123","path_style":false,"profile":"abc123","region":"abc123","secret":"abc123","token":"abc123"}'
                                 created_at: "1970-01-01T00:00:01Z"
                                 description: abc123
                                 name: abc123
@@ -1203,21 +1203,23 @@ components:
                             type: string
                             description: |-
                                 Union type name, one of:
+                                - "amss"
                                 - "s3"
                                 - "sftp"
                                 - "url"
-                            example: sftp
+                            example: s3
                             enum:
+                                - amss
                                 - s3
                                 - sftp
                                 - url
                         Value:
                             type: string
                             description: JSON encoded union value
-                            example: '{"address":"abc123","directory":"abc123","password":"abc123","username":"abc123"}'
+                            example: '{"bucket":"abc123","endpoint":"abc123","key":"abc123","path_style":false,"profile":"abc123","region":"abc123","secret":"abc123","token":"abc123"}'
                     example:
-                        Type: sftp
-                        Value: '{"address":"abc123","directory":"abc123","password":"abc123","username":"abc123"}'
+                        Type: s3
+                        Value: '{"bucket":"abc123","endpoint":"abc123","key":"abc123","path_style":false,"profile":"abc123","region":"abc123","secret":"abc123","token":"abc123"}'
                     required:
                         - Type
                         - Value
@@ -1240,10 +1242,11 @@ components:
                         - unspecified
                         - minio
                         - sftp
+                        - amss
             example:
                 config:
-                    Type: sftp
-                    Value: '{"address":"abc123","directory":"abc123","password":"abc123","username":"abc123"}'
+                    Type: s3
+                    Value: '{"bucket":"abc123","endpoint":"abc123","key":"abc123","path_style":false,"profile":"abc123","region":"abc123","secret":"abc123","token":"abc123"}'
                 description: abc123
                 name: abc123
                 purpose: aip_store
@@ -1656,21 +1659,23 @@ components:
                             type: string
                             description: |-
                                 Union type name, one of:
+                                - "amss"
                                 - "s3"
                                 - "sftp"
                                 - "url"
-                            example: sftp
+                            example: s3
                             enum:
+                                - amss
                                 - s3
                                 - sftp
                                 - url
                         Value:
                             type: string
                             description: JSON encoded union value
-                            example: '{"address":"abc123","directory":"abc123","password":"abc123","username":"abc123"}'
+                            example: '{"bucket":"abc123","endpoint":"abc123","key":"abc123","path_style":false,"profile":"abc123","region":"abc123","secret":"abc123","token":"abc123"}'
                     example:
-                        Type: sftp
-                        Value: '{"address":"abc123","directory":"abc123","password":"abc123","username":"abc123"}'
+                        Type: s3
+                        Value: '{"bucket":"abc123","endpoint":"abc123","key":"abc123","path_style":false,"profile":"abc123","region":"abc123","secret":"abc123","token":"abc123"}'
                     required:
                         - Type
                         - Value
@@ -1704,13 +1709,14 @@ components:
                         - unspecified
                         - minio
                         - sftp
+                        - amss
                 uuid:
                     type: string
                     example: abc123
             example:
                 config:
-                    Type: sftp
-                    Value: '{"address":"abc123","directory":"abc123","password":"abc123","username":"abc123"}'
+                    Type: s3
+                    Value: '{"bucket":"abc123","endpoint":"abc123","key":"abc123","path_style":false,"profile":"abc123","region":"abc123","secret":"abc123","token":"abc123"}'
                 created_at: "1970-01-01T00:00:01Z"
                 description: abc123
                 name: abc123
@@ -1773,6 +1779,7 @@ components:
                         - unspecified
                         - minio
                         - sftp
+                        - amss
                 uuid:
                     type: string
                     example: abc123

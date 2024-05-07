@@ -67,6 +67,12 @@ const ServiceName = "storage"
 // MethodKey key.
 var MethodNames = [12]string{"submit", "create", "update", "download", "locations", "add_location", "move", "move_status", "reject", "show", "show_location", "location_packages"}
 
+type AMSSConfig struct {
+	APIKey   string
+	URL      string
+	Username string
+}
+
 // AddLocationPayload is the payload type of the storage service add_location
 // method.
 type AddLocationPayload struct {
@@ -418,6 +424,7 @@ func (e Unauthorized) ErrorName() string {
 func (e Unauthorized) GoaErrorName() string {
 	return "unauthorized"
 }
+func (*AMSSConfig) configVal() {}
 func (*S3Config) configVal()   {}
 func (*SFTPConfig) configVal() {}
 func (*URLConfig) configVal()  {}

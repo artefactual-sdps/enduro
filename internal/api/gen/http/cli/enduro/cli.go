@@ -648,8 +648,8 @@ Add a storage location
 Example:
     %[1]s storage add-location --body '{
       "config": {
-         "Type": "sftp",
-         "Value": "{\"address\":\"abc123\",\"directory\":\"abc123\",\"password\":\"abc123\",\"username\":\"abc123\"}"
+         "Type": "s3",
+         "Value": "{\"bucket\":\"abc123\",\"endpoint\":\"abc123\",\"key\":\"abc123\",\"path_style\":false,\"profile\":\"abc123\",\"region\":\"abc123\",\"secret\":\"abc123\",\"token\":\"abc123\"}"
       },
       "description": "abc123",
       "name": "abc123",

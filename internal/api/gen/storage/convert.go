@@ -12,6 +12,16 @@ import (
 	types "github.com/artefactual-sdps/enduro/internal/storage/types"
 )
 
+// ConvertToSSConfig creates an instance of SSConfig initialized from t.
+func (t *AMSSConfig) ConvertToSSConfig() *types.SSConfig {
+	v := &types.SSConfig{
+		APIKey:   t.APIKey,
+		URL:      t.URL,
+		Username: t.Username,
+	}
+	return v
+}
+
 // ConvertToS3Config creates an instance of S3Config initialized from t.
 func (t *S3Config) ConvertToS3Config() *types.S3Config {
 	v := &types.S3Config{
