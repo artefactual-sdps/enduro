@@ -406,6 +406,20 @@ func TestListLocations(t *testing.T) {
 			},
 		}).
 		SaveX(context.Background())
+	entc.Location.Create().
+		SetName("AMSS Location").
+		SetDescription("AMSS Location").
+		SetSource(types.LocationSourceAMSS).
+		SetPurpose(types.LocationPurposeAIPStore).
+		SetUUID(uuid.MustParse("e0ed8b2a-8ae2-4546-b5d8-f0090919df04")).
+		SetConfig(types.LocationConfig{
+			Value: &types.AMSSConfig{
+				APIKey:   "Secret1",
+				URL:      "http://127.0.0.1:62081/",
+				Username: "analyst",
+			},
+		}).
+		SaveX(context.Background())
 
 	locations, err := c.ListLocations(context.Background())
 	assert.NilError(t, err)
@@ -450,6 +464,19 @@ func TestListLocations(t *testing.T) {
 			CreatedAt:   "2013-02-03T19:54:00Z",
 			Config: &goastorage.URLConfig{
 				URL: "mem://",
+			},
+		},
+		{
+			Name:        "AMSS Location",
+			Description: ref.New("AMSS Location"),
+			Source:      "amss",
+			Purpose:     "aip_store",
+			UUID:        uuid.MustParse("e0ed8b2a-8ae2-4546-b5d8-f0090919df04"),
+			CreatedAt:   "2013-02-03T19:54:00Z",
+			Config: &goastorage.AMSSConfig{
+				APIKey:   "Secret1",
+				URL:      "http://127.0.0.1:62081/",
+				Username: "analyst",
 			},
 		},
 	})
