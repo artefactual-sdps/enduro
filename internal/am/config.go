@@ -33,6 +33,7 @@ type Config struct {
 	// Set to zero for no deadline.
 	TransferDeadline time.Duration
 
-	// Local UUID for the Archivematica Storage Service location.
+	// AMSSLocationID is the local UUID of the Archivematica Storage Service
+	// storage location.
 	AMSSLocationID string
 }
