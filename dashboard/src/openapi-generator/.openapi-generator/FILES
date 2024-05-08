@@ -9,6 +9,7 @@ models/AddLocationRequestBody.ts
 models/AddLocationRequestBodyConfig.ts
 models/AddLocationResult.ts
 models/ConfirmRequestBody.ts
+models/CreateRequestBody.ts
 models/EnduroPackagePreservationAction.ts
 models/EnduroPackagePreservationActions.ts
 models/EnduroPackagePreservationTask.ts
