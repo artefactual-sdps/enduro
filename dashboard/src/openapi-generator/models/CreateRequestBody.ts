@@ -14,97 +14,88 @@
 
 import { exists, mapValues } from '../runtime';
 /**
- * A Package describes a package retrieved by the storage service. (default view)
+ * 
  * @export
- * @interface PackageResponse
+ * @interface CreateRequestBody
  */
-export interface PackageResponse {
+export interface CreateRequestBody {
     /**
-     * 
+     * Identifier of AIP
      * @type {string}
-     * @memberof PackageResponse
+     * @memberof CreateRequestBody
      */
     aipId: string;
     /**
-     * Creation datetime
-     * @type {Date}
-     * @memberof PackageResponse
-     */
-    createdAt: Date;
-    /**
-     * Identifier of storage location
+     * Identifier of the package's storage location
      * @type {string}
-     * @memberof PackageResponse
+     * @memberof CreateRequestBody
      */
     locationId?: string;
     /**
-     * 
+     * Name of the package
      * @type {string}
-     * @memberof PackageResponse
+     * @memberof CreateRequestBody
      */
     name: string;
     /**
-     * 
+     * ObjectKey of AIP
      * @type {string}
-     * @memberof PackageResponse
+     * @memberof CreateRequestBody
      */
     objectKey: string;
     /**
      * Status of the package
      * @type {string}
-     * @memberof PackageResponse
+     * @memberof CreateRequestBody
      */
-    status: PackageResponseStatusEnum;
+    status?: CreateRequestBodyStatusEnum;
 }
 
 
 /**
  * @export
  */
-export const PackageResponseStatusEnum = {
+export const CreateRequestBodyStatusEnum = {
     Unspecified: 'unspecified',
     InReview: 'in_review',
     Rejected: 'rejected',
     Stored: 'stored',
     Moving: 'moving'
 } as const;
-export type PackageResponseStatusEnum = typeof PackageResponseStatusEnum[keyof typeof PackageResponseStatusEnum];
+export type CreateRequestBodyStatusEnum = typeof CreateRequestBodyStatusEnum[keyof typeof CreateRequestBodyStatusEnum];
 
 
 /**
- * Check if a given object implements the PackageResponse interface.
+ * Check if a given object implements the CreateRequestBody interface.
  */
-export function instanceOfPackageResponse(value: object): boolean {
+export function instanceOfCreateRequestBody(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "aipId" in value;
-    isInstance = isInstance && "createdAt" in value;
     isInstance = isInstance && "name" in value;
     isInstance = isInstance && "objectKey" in value;
-    isInstance = isInstance && "status" in value;
 
     return isInstance;
 }
 
-export function PackageResponseFromJSON(json: any): PackageResponse {
-    return PackageResponseFromJSONTyped(json, false);
+export function CreateRequestBodyFromJSON(json: any): CreateRequestBody {
+    return CreateRequestBodyFromJSONTyped(json, false);
 }
 
-export function PackageResponseFromJSONTyped(json: any, ignoreDiscriminator: boolean): PackageResponse {
+export function CreateRequestBodyFromJSONTyped(json: any, ignoreDiscriminator: boolean): CreateRequestBody {
     if ((json === undefined) || (json === null)) {
         return json;
     }
     return {
         
         'aipId': json['aip_id'],
-        'createdAt': (new Date(json['created_at'])),
         'locationId': !exists(json, 'location_id') ? undefined : json['location_id'],
         'name': json['name'],
         'objectKey': json['object_key'],
-        'status': json['status'],
+        'status': !exists(json, 'status') ? undefined : json['status'],
     };
 }
 
-export function PackageResponseToJSON(value?: PackageResponse | null): any {
+export function CreateRequestBodyToJSON(value?: CreateRequestBody | null): any {
     if (value === undefined) {
         return undefined;
     }
@@ -114,7 +105,6 @@ export function PackageResponseToJSON(value?: PackageResponse | null): any {
     return {
         
         'aip_id': value.aipId,
-        'created_at': (value.createdAt.toISOString()),
         'location_id': value.locationId,
         'name': value.name,
         'object_key': value.objectKey,

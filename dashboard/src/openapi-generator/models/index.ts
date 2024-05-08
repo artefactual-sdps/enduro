@@ -4,6 +4,7 @@ export * from './AddLocationRequestBody';
 export * from './AddLocationRequestBodyConfig';
 export * from './AddLocationResult';
 export * from './ConfirmRequestBody';
+export * from './CreateRequestBody';
 export * from './EnduroPackagePreservationAction';
 export * from './EnduroPackagePreservationActions';
 export * from './EnduroPackagePreservationTask';
