@@ -12,10 +12,8 @@ import (
 
 const fileMode = os.FileMode(0o755)
 
-// Bundler helps create Archivematica transfers in the filesystem.
-//
-// It is a simpler alternative to amclient.TransferSession that does not concern
-// with the submission of the transfer.
+// The Bundler simplifies the creation of Archivematica transfers ready for
+// submission, complete with checksums and metadata files.
 type Bundler struct {
 	fs afero.Fs
 
@@ -52,7 +50,8 @@ func NewBundler(fs afero.Fs) (*Bundler, error) {
 }
 
 // NewBundlerWithTempDir returns a bundler based on a temporary directory
-// created under the path given.
+// created under the path given, e.g. the path to a transfer source location in
+// the filesystem.
 func NewBundlerWithTempDir(path string) (*Bundler, error) {
 	mode := os.FileMode(0o755)
 	osFs := afero.NewOsFs()

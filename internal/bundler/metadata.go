@@ -22,19 +22,6 @@ func NewMetadataSet(fs afero.Fs) *MetadataSet {
 	}
 }
 
-// Entries returns all entries that were created.
-func (m *MetadataSet) Entries() map[string][][2]string {
-	// MetadataSet doesn't have a mutex yet but once it's used, it should be
-	// locked right here.
-
-	// Make a copy so the returned value won't race with future log requests.
-	entries := make(map[string][][2]string)
-	for k, v := range m.entries {
-		entries[k] = v
-	}
-	return entries
-}
-
 func (m *MetadataSet) Add(name, field, value string) {
 	m.entries[name] = append(m.entries[name], [2]string{field, value})
 }
@@ -58,6 +45,7 @@ func (m *MetadataSet) Write() error {
 	defer writer.Flush()
 
 	// Build a list of fields with max. total of occurrences found
+	total := 0
 	occurrences := map[string]int{}
 	for _, entry := range m.entries {
 		for _, pair := range entry { // Pair ("dc.title", "title 1")
@@ -69,16 +57,15 @@ func (m *MetadataSet) Write() error {
 			}
 			if c, ok := occurrences[pair[0]]; !ok || (ok && o > c) {
 				occurrences[pair[0]] = o
+				total += o
 			}
 		}
 	}
 
-	// Build a list of fields
-	fields := []string{}
-	for field, o := range occurrences {
-		for range o {
-			fields = append(fields, field)
-		}
+	// Build a list of fields with pre-allocated capacity.
+	fields := make([]string, 0, total)
+	for field := range occurrences {
+		fields = append(fields, field)
 	}
 	sort.Strings(fields)
 
