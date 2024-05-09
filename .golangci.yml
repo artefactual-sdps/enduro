@@ -10,6 +10,8 @@ linters:
     - unparam
     - gosec
     - tparallel
+    - contextcheck
+    - intrange
 
 issues:
   exclude-dirs:
