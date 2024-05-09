@@ -1,9 +1,5 @@
 run:
   deadline: 60s
-  skip-dirs:
-    - dashboard
-    - hack
-    - internal/storage/persistence/ent/schema
 
 linters:
   enable:
@@ -16,6 +12,10 @@ linters:
     - tparallel
 
 issues:
+  exclude-dirs:
+    - dashboard
+    - hack
+    - internal/storage/persistence/ent/schema
   exclude-rules:
     - path: _test\.go
       linters:
