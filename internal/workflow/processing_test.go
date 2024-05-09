@@ -423,8 +423,10 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	sessionCtx := mock.AnythingOfType("*context.timerCtx")
 
 	cfg := config.Configuration{
-		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
-		AM:           am.Config{AMSSLocationID: "cf3059dd-4565-4fe9-92fe-b16d1a777403"},
+		A3m: a3m.Config{ShareDir: s.CreateTransferDir()},
+		AM: am.Config{
+			AMSSLocationID: uuid.MustParse("cf3059dd-4565-4fe9-92fe-b16d1a777403"),
+		},
 		Preservation: pres.Config{TaskQueue: temporal.AmWorkerTaskQueue},
 	}
 	s.SetupWorkflowTest(cfg)
@@ -509,7 +511,7 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	s.env.OnActivity(setLocationIDLocalActivity, ctx,
 		pkgsvc,
 		pkgID,
-		uuid.MustParse(cfg.AM.AMSSLocationID),
+		cfg.AM.AMSSLocationID,
 	).Return(&setLocationIDLocalActivityResult{}, nil)
 
 	s.env.OnActivity(activities.CreateStoragePackageActivityName, sessionCtx,

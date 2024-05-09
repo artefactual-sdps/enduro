@@ -4,10 +4,13 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"reflect"
 	"strings"
 	"time"
 
 	"github.com/artefactual-sdps/temporal-activities/archive"
+	"github.com/google/uuid"
+	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/viper"
 
 	"github.com/artefactual-sdps/enduro/internal/a3m"
@@ -90,7 +93,15 @@ func Read(config *Configuration, configFile string) (found bool, configFileUsed 
 		return found, configFileUsed, fmt.Errorf("failed to read configuration file: %w", err)
 	}
 
-	err = v.Unmarshal(config)
+	decodeHookFunc := mapstructure.ComposeDecodeHookFunc(
+		// These are the viper DecodeHookFunc defaults.
+		mapstructure.StringToTimeDurationHookFunc(),
+		mapstructure.StringToSliceHookFunc(","),
+		// StringToUUIDHookFunc is a custom string to UUID decoder.
+		stringToUUIDHookFunc(),
+	)
+
+	err = v.Unmarshal(config, viper.DecodeHook(decodeHookFunc))
 	if err != nil {
 		return found, configFileUsed, fmt.Errorf("failed to unmarshal configuration: %w", err)
 	}
@@ -123,4 +134,19 @@ func setCORSOriginEnv(config *Configuration) error {
 	}
 
 	return nil
+}
+
+// stringToUUIDHookFunc decodes a string to a uuid.UUID. Copied from
+// https://github.com/go-saas/kit/blob/main/pkg/mapstructure/mapstructure.go
+func stringToUUIDHookFunc() mapstructure.DecodeHookFunc {
+	return func(f, t reflect.Type, data interface{}) (interface{}, error) {
+		if f.Kind() != reflect.String {
+			return data, nil
+		}
+		if t != reflect.TypeOf(uuid.UUID{}) {
+			return data, nil
+		}
+
+		return uuid.Parse(data.(string))
+	}
 }

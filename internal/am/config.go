@@ -3,6 +3,8 @@ package am
 import (
 	"time"
 
+	"github.com/google/uuid"
+
 	"github.com/artefactual-sdps/enduro/internal/sftp"
 )
 
@@ -35,5 +37,5 @@ type Config struct {
 
 	// AMSSLocationID is the local UUID of the Archivematica Storage Service
 	// storage location.
-	AMSSLocationID string
+	AMSSLocationID uuid.UUID
 }

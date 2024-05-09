@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/google/uuid"
 	"gotest.tools/v3/assert"
 	"gotest.tools/v3/fs"
 
@@ -18,10 +19,17 @@ debugListen = "127.0.0.1:9001"
 
 [temporal]
 address = "host:port"
+
+[am]
+AMSSLocationID = "2d3aba70-035d-43f5-8d73-c97f35237006"
 `
 
 func TestConfig(t *testing.T) {
+	t.Parallel()
+
 	t.Run("Loads toml configs", func(t *testing.T) {
+		t.Parallel()
+
 		tmpDir := fs.NewDir(
 			t, "",
 			fs.WithFile(
@@ -38,9 +46,14 @@ func TestConfig(t *testing.T) {
 		assert.Equal(t, found, true)
 		assert.Equal(t, configFileUsed, configFile)
 		assert.Equal(t, c.Temporal.Address, "host:port")
+
+		// Test that a UUID config is decoded correctly.
+		assert.Equal(t, c.AM.AMSSLocationID, uuid.MustParse("2d3aba70-035d-43f5-8d73-c97f35237006"))
 	})
 
 	t.Run("Sets default configs", func(t *testing.T) {
+		t.Parallel()
+
 		var c config.Configuration
 		found, configFileUsed, err := config.Read(&c, "")
 

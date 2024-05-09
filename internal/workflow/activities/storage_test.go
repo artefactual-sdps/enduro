@@ -42,7 +42,7 @@ func TestCreatePackageActivity(t *testing.T) {
 				AIPID:      aipID.String(),
 				ObjectKey:  objectKey.String(),
 				Status:     "stored",
-				LocationID: locationID.String(),
+				LocationID: locationID,
 			},
 			mockCalls: func(m *storage_fake.MockClientMockRecorder) {
 				m.Create(
@@ -71,24 +71,13 @@ func TestCreatePackageActivity(t *testing.T) {
 			},
 		},
 		{
-			name: "Errors on invalid locationID",
-			params: &activities.CreateStoragePackageActivityParams{
-				Name:       "Package 1",
-				AIPID:      aipID.String(),
-				ObjectKey:  objectKey.String(),
-				Status:     "stored",
-				LocationID: "12345",
-			},
-			wantErr: "activity error (type: create-storage-package-activity, scheduledEventID: 0, startedEventID: 0, identity: ): create-storage-package-activity: invalid location ID: invalid UUID length: 5",
-		},
-		{
 			name: "Errors on invalid AIP ID",
 			params: &activities.CreateStoragePackageActivityParams{
 				Name:       "Package 1",
 				AIPID:      "12345",
 				ObjectKey:  objectKey.String(),
 				Status:     "stored",
-				LocationID: locationID.String(),
+				LocationID: locationID,
 			},
 			mockCalls: func(m *storage_fake.MockClientMockRecorder) {
 				m.Create(
@@ -113,7 +102,7 @@ func TestCreatePackageActivity(t *testing.T) {
 				AIPID:      aipID.String(),
 				ObjectKey:  objectKey.String(),
 				Status:     "stored",
-				LocationID: locationID.String(),
+				LocationID: locationID,
 			},
 			mockCalls: func(m *storage_fake.MockClientMockRecorder) {
 				m.Create(
