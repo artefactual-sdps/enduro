@@ -817,7 +817,7 @@ func (w *ProcessingWorkflow) transferAM(sessCtx temporalsdk_workflow.Context, ti
 			setLocationIDLocalActivity,
 			w.pkgsvc,
 			tinfo.req.PackageID,
-			uuid.MustParse(w.cfg.AM.AMSSLocationID),
+			w.cfg.AM.AMSSLocationID,
 		).Get(ctx, nil)
 		if err != nil {
 			return err

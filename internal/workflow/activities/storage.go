@@ -25,7 +25,7 @@ type CreateStoragePackageActivityParams struct {
 	AIPID      string
 	ObjectKey  string
 	Status     string
-	LocationID string
+	LocationID uuid.UUID
 }
 
 type CreateStoragePackageActivityResult struct {
@@ -50,14 +50,8 @@ func (a *CreateStoragePackageActivity) Execute(
 		ObjectKey: params.ObjectKey,
 	}
 
-	if params.LocationID != "" {
-		locID, err := uuid.Parse(params.LocationID)
-		if err != nil {
-			return nil, temporal.NewNonRetryableError(
-				fmt.Errorf("%s: invalid location ID: %v", CreateStoragePackageActivityName, err),
-			)
-		}
-		payload.LocationID = &locID
+	if params.LocationID != uuid.Nil {
+		payload.LocationID = &params.LocationID
 	}
 
 	pkg, err := a.client.Create(ctx, &payload)

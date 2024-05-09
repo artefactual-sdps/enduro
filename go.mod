@@ -27,6 +27,7 @@ require (
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/jonboulle/clockwork v0.4.0
 	github.com/mattn/go-sqlite3 v1.14.22
+	github.com/mitchellh/mapstructure v1.5.0
 	github.com/nyudlts/go-bagit v0.2.0-alpha
 	github.com/oklog/run v1.1.0
 	github.com/otiai10/copy v1.14.0
@@ -132,7 +133,6 @@ require (
 	github.com/manveru/faker v0.0.0-20171103152722-9fbc68a78c4d // indirect
 	github.com/mholt/archiver/v4 v4.0.0-alpha.8 // indirect
 	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
-	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/nwaples/rardecode/v2 v2.0.0-beta.2 // indirect
 	github.com/pborman/uuid v1.2.1 // indirect
 	github.com/pelletier/go-toml/v2 v2.1.1 // indirect
