@@ -18,6 +18,12 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/workflow/activities"
 )
 
+var (
+	aipID      = uuid.MustParse("488c64cc-d89b-4916-9131-c94152dfb12e")
+	locationID = uuid.MustParse("a06a155c-9cf0-4416-a2b6-e90e58ef3186")
+	objectKey  = uuid.MustParse("e2630293-a714-4787-ab6d-e68254a6fb6a")
+)
+
 func TestCreatePackageActivity(t *testing.T) {
 	t.Parallel()
 
@@ -33,28 +39,28 @@ func TestCreatePackageActivity(t *testing.T) {
 			name: "Creates a new package",
 			params: &activities.CreateStoragePackageActivityParams{
 				Name:       "Package 1",
-				AIPID:      "88e5a5fc-5c74-40e8-aa50-d6542b45f251",
-				ObjectKey:  "3776a8f2-5ad5-4b4e-80c7-a888d9229cc1",
+				AIPID:      aipID.String(),
+				ObjectKey:  objectKey.String(),
 				Status:     "stored",
-				LocationID: "92c3934d-8911-4ce4-8a44-ffa72a0b5720",
+				LocationID: locationID.String(),
 			},
 			mockCalls: func(m *storage_fake.MockClientMockRecorder) {
 				m.Create(
 					mockutil.Context(),
 					&goastorage.CreatePayload{
 						Name:       "Package 1",
-						AipID:      "88e5a5fc-5c74-40e8-aa50-d6542b45f251",
-						ObjectKey:  "3776a8f2-5ad5-4b4e-80c7-a888d9229cc1",
+						AipID:      aipID.String(),
+						ObjectKey:  objectKey.String(),
 						Status:     "stored",
-						LocationID: ref.New(uuid.MustParse("92c3934d-8911-4ce4-8a44-ffa72a0b5720")),
+						LocationID: ref.New(locationID),
 					},
 				).Return(
 					&goastorage.Package{
 						Name:       "Package 1",
-						AipID:      uuid.MustParse("88e5a5fc-5c74-40e8-aa50-d6542b45f251"),
-						ObjectKey:  uuid.MustParse("3776a8f2-5ad5-4b4e-80c7-a888d9229cc1"),
+						AipID:      aipID,
+						ObjectKey:  objectKey,
 						Status:     "stored",
-						LocationID: ref.New(uuid.MustParse("92c3934d-8911-4ce4-8a44-ffa72a0b5720")),
+						LocationID: ref.New(locationID),
 						CreatedAt:  "2024-05-03 16:02:25",
 					},
 					nil,
@@ -68,8 +74,8 @@ func TestCreatePackageActivity(t *testing.T) {
 			name: "Errors on invalid locationID",
 			params: &activities.CreateStoragePackageActivityParams{
 				Name:       "Package 1",
-				AIPID:      "88e5a5fc-5c74-40e8-aa50-d6542b45f251",
-				ObjectKey:  "3776a8f2-5ad5-4b4e-80c7-a888d9229cc1",
+				AIPID:      aipID.String(),
+				ObjectKey:  objectKey.String(),
 				Status:     "stored",
 				LocationID: "12345",
 			},
@@ -80,9 +86,9 @@ func TestCreatePackageActivity(t *testing.T) {
 			params: &activities.CreateStoragePackageActivityParams{
 				Name:       "Package 1",
 				AIPID:      "12345",
-				ObjectKey:  "3776a8f2-5ad5-4b4e-80c7-a888d9229cc1",
+				ObjectKey:  objectKey.String(),
 				Status:     "stored",
-				LocationID: "92c3934d-8911-4ce4-8a44-ffa72a0b5720",
+				LocationID: locationID.String(),
 			},
 			mockCalls: func(m *storage_fake.MockClientMockRecorder) {
 				m.Create(
@@ -90,9 +96,9 @@ func TestCreatePackageActivity(t *testing.T) {
 					&goastorage.CreatePayload{
 						Name:       "Package 1",
 						AipID:      "12345",
-						ObjectKey:  "3776a8f2-5ad5-4b4e-80c7-a888d9229cc1",
+						ObjectKey:  objectKey.String(),
 						Status:     "stored",
-						LocationID: ref.New(uuid.MustParse("92c3934d-8911-4ce4-8a44-ffa72a0b5720")),
+						LocationID: ref.New(locationID),
 					},
 				).Return(
 					nil, goastorage.MakeNotValid(errors.New("invalid aip_id")),
@@ -104,20 +110,20 @@ func TestCreatePackageActivity(t *testing.T) {
 			name: "Errors on invalid authorization",
 			params: &activities.CreateStoragePackageActivityParams{
 				Name:       "Package 1",
-				AIPID:      "88e5a5fc-5c74-40e8-aa50-d6542b45f251",
-				ObjectKey:  "3776a8f2-5ad5-4b4e-80c7-a888d9229cc1",
+				AIPID:      aipID.String(),
+				ObjectKey:  objectKey.String(),
 				Status:     "stored",
-				LocationID: "92c3934d-8911-4ce4-8a44-ffa72a0b5720",
+				LocationID: locationID.String(),
 			},
 			mockCalls: func(m *storage_fake.MockClientMockRecorder) {
 				m.Create(
 					mockutil.Context(),
 					&goastorage.CreatePayload{
 						Name:       "Package 1",
-						AipID:      "88e5a5fc-5c74-40e8-aa50-d6542b45f251",
-						ObjectKey:  "3776a8f2-5ad5-4b4e-80c7-a888d9229cc1",
+						AipID:      aipID.String(),
+						ObjectKey:  objectKey.String(),
 						Status:     "stored",
-						LocationID: ref.New(uuid.MustParse("92c3934d-8911-4ce4-8a44-ffa72a0b5720")),
+						LocationID: ref.New(locationID),
 					},
 				).Return(
 					nil, goastorage.Unauthorized("unauthorized"),

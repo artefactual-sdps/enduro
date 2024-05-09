@@ -41,6 +41,12 @@ const (
 	transferPath string = "/tmp/2098266580-enduro-transfer/enduro4162369760/transfer"
 )
 
+var (
+	locationID = uuid.MustParse("a06a155c-9cf0-4416-a2b6-e90e58ef3186")
+	transferID = uuid.MustParse("65233405-771e-4f7e-b2d9-b08439570ba2")
+	sipID      = uuid.MustParse("9e8161cc-2815-4d6f-8a75-f003c41b257b")
+)
+
 type ProcessingWorkflowTestSuite struct {
 	suite.Suite
 	temporalsdk_testsuite.WorkflowTestSuite
@@ -214,7 +220,6 @@ func (s *ProcessingWorkflowTestSuite) TestPackageConfirmation() {
 	pkgID := uint(1)
 	ctx := mock.AnythingOfType("*context.valueCtx")
 	sessionCtx := mock.AnythingOfType("*context.timerCtx")
-	locationID := uuid.MustParse("51328c02-2b63-47be-958e-e8088aa1a61f")
 	key := "transfer.zip"
 	watcherName := "watcher"
 	retentionPeriod := 1 * time.Second
@@ -312,7 +317,6 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 	s.SetupWorkflowTest(cfg)
 
 	pkgID := uint(1)
-	locationID := uuid.MustParse("51328c02-2b63-47be-958e-e8088aa1a61f")
 	watcherName := "watcher"
 	key := "transfer.zip"
 	retentionPeriod := 1 * time.Second
@@ -412,10 +416,6 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 
 func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	pkgID := uint(1)
-	amssLocationID := "cf3059dd-4565-4fe9-92fe-b16d1a777403"
-	locationID := uuid.MustParse("51328c02-2b63-47be-958e-e8088aa1a61f")
-	transferID := uuid.MustParse("65233405-771e-4f7e-b2d9-b08439570ba2")
-	sipID := uuid.MustParse("9e8161cc-2815-4d6f-8a75-f003c41b257b")
 	watcherName := "watcher"
 	key := "transfer.zip"
 	retentionPeriod := 1 * time.Second
@@ -424,7 +424,7 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 
 	cfg := config.Configuration{
 		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
-		AM:           am.Config{AMSSLocationID: amssLocationID},
+		AM:           am.Config{AMSSLocationID: "cf3059dd-4565-4fe9-92fe-b16d1a777403"},
 		Preservation: pres.Config{TaskQueue: temporal.AmWorkerTaskQueue},
 	}
 	s.SetupWorkflowTest(cfg)
@@ -509,7 +509,7 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	s.env.OnActivity(setLocationIDLocalActivity, ctx,
 		pkgsvc,
 		pkgID,
-		uuid.MustParse(amssLocationID),
+		uuid.MustParse(cfg.AM.AMSSLocationID),
 	).Return(&setLocationIDLocalActivityResult{}, nil)
 
 	s.env.OnActivity(activities.CreateStoragePackageActivityName, sessionCtx,
@@ -667,7 +667,6 @@ func (s *ProcessingWorkflowTestSuite) TestPreprocessingChildWorkflow() {
 	s.SetupWorkflowTest(cfg)
 
 	pkgID := uint(1)
-	locationID := uuid.MustParse("51328c02-2b63-47be-958e-e8088aa1a61f")
 	watcherName := "watcher"
 	key := "transfer.zip"
 	retentionPeriod := 1 * time.Second
