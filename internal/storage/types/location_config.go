@@ -27,7 +27,7 @@ type configTypes struct {
 	S3         *S3Config   `json:"s3,omitempty"`
 	SFTPConfig *SFTPConfig `json:"sftp,omitempty"`
 	URLConfig  *URLConfig  `json:"url,omitempty"`
-	SSConfig   *AMSSConfig `json:"amss,omitempty"`
+	AMSSConfig *AMSSConfig `json:"amss,omitempty"`
 }
 
 func (c LocationConfig) MarshalJSON() ([]byte, error) {
@@ -41,7 +41,7 @@ func (c LocationConfig) MarshalJSON() ([]byte, error) {
 	case *URLConfig:
 		types.URLConfig = c
 	case *AMSSConfig:
-		types.SSConfig = c
+		types.AMSSConfig = c
 	default:
 		return nil, fmt.Errorf("unsupported config type: %T", c)
 	}
@@ -72,8 +72,8 @@ func (c *LocationConfig) UnmarshalJSON(blob []byte) error {
 		c.Value = types.SFTPConfig
 	case types.URLConfig != nil:
 		c.Value = types.URLConfig
-	case types.SSConfig != nil:
-		c.Value = types.SSConfig
+	case types.AMSSConfig != nil:
+		c.Value = types.AMSSConfig
 
 	default:
 		return errors.New("undefined configuration document")
