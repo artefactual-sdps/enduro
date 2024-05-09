@@ -252,7 +252,7 @@ func (w *goaWrapper) Reject(ctx context.Context, payload *goapackage.RejectPaylo
 	signal := ReviewPerformedSignal{
 		Accepted: false,
 	}
-	err = w.tc.SignalWorkflow(context.Background(), *goapkg.WorkflowID, "", ReviewPerformedSignalName, signal)
+	err = w.tc.SignalWorkflow(ctx, *goapkg.WorkflowID, "", ReviewPerformedSignalName, signal)
 	if err != nil {
 		return goapackage.MakeNotAvailable(errors.New("cannot perform operation"))
 	}

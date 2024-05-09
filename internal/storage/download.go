@@ -1,7 +1,6 @@
 package storage
 
 import (
-	"context"
 	"fmt"
 	"io"
 	"net/http"
@@ -35,7 +34,7 @@ func Download(svc Service, mux goahttp.Muxer, dec func(r *http.Request) goahttp.
 		}
 
 		// Read storage package.
-		ctx := context.Background()
+		ctx := req.Context()
 		pkg, err := svc.ReadPackage(ctx, aipID)
 		if err != nil {
 			rw.WriteHeader(http.StatusNotFound)
