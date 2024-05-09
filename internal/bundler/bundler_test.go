@@ -55,10 +55,15 @@ func TestNewBundlerWithTempDir(t *testing.T) {
 			// allow other local users (e.g., the default Archivematica user) to
 			// access the contents. This might not be the best approach.
 			dirMode,
-			fs.WithDir("metadata",
+			fs.WithDir(
+				"metadata",
 				fs.WithFile("checksum.md5", "552e21cd4cd9918678e3c1a0df491bc3 foobar.txt\n", fileMode),
 				fs.WithFile("checksum.sha1", "37aa63c77398d954473262e1a0057c1e632eda77 foobar.txt\n", fileMode),
-				fs.WithFile("checksum.sha256", "b94f6f125c79e3a5ffaa826f584c10d52ada669e6762051b826b55776d05aed2 foobar.txt\n", fileMode),
+				fs.WithFile(
+					"checksum.sha256",
+					"b94f6f125c79e3a5ffaa826f584c10d52ada669e6762051b826b55776d05aed2 foobar.txt\n",
+					fileMode,
+				),
 				fs.WithFile("metadata.csv", `filename,dc.description,dc.title
 foobar.txt,,Foobar
 notes.txt,Some notes,Notes

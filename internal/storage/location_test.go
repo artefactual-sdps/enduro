@@ -54,8 +54,6 @@ func TestNewInternalLocation(t *testing.T) {
 func TestNewLocation(t *testing.T) {
 	t.Parallel()
 
-	locationID := uuid.MustParse("314bbf3e-2fb0-4d86-910f-0c1bdfeda3a1")
-
 	tests := []struct {
 		name     string
 		location *goastorage.Location
@@ -135,8 +133,6 @@ func TestNewLocation(t *testing.T) {
 
 func TestLocation_Bucket(t *testing.T) {
 	t.Parallel()
-
-	locationID := uuid.MustParse("314bbf3e-2fb0-4d86-910f-0c1bdfeda3a1")
 
 	tests := []struct {
 		name     string
