@@ -38,16 +38,26 @@ spec:
                 secretKeyRef:
                   name: enduro-am-secret
                   key: amss_api_key
+            - name: AMSS_LOCATION_ID
+              valueFrom:
+                secretKeyRef:
+                  name: enduro-am-secret
+                  key: amss_location_id
           command:
             - sh
             - -c
             - |
-              if [[ -n "${AMSS_URL}" && -n "${AMSS_USER}" && -n "${AMSS_API_KEY}" ]]
+              if [[
+                -n "${AMSS_URL}" &&
+                -n "${AMSS_USER}" &&
+                -n "${AMSS_API_KEY}" &&
+                -n "${AMSS_LOCATION_ID}"
+              ]]
               then
                 LOC_AMSS='{"amss": {"url": "'$AMSS_URL'", "username": "'$AMSS_USER'", "api_key": "'$AMSS_API_KEY'"}}'
                 mysql -h mysql.enduro-sdps -u $MYSQL_USER -p$MYSQL_PASSWORD --execute "
                   INSERT IGNORE INTO enduro_storage.location (name, description, source, purpose, uuid, created_at, config)
-                  VALUES ('amss', '', 'amss', 'aip_store', 'e0ed8b2a-8ae2-4546-b5d8-f0090919df04', NOW(), '$LOC_AMSS');
+                  VALUES ('amss', '', 'amss', 'aip_store', '$AMSS_LOCATION_ID', NOW(), '$LOC_AMSS');
                 " && echo "AMSS location created"
               else
                 echo "Skipping - missing one or more of AMSS_URL, AMSS_USER, AMSS_API_KEY"

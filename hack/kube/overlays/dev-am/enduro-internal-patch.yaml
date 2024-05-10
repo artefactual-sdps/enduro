@@ -10,3 +10,8 @@ spec:
           env:
             - name: ENDURO_PRESERVATION_TASKQUEUE
               value: "am"
+            - name: ENDURO_STORAGE_DEFAULTPERMANENTLOCATIONID
+              valueFrom:
+                secretKeyRef:
+                  name: enduro-am-secret
+                  key: amss_location_id

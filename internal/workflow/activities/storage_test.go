@@ -42,7 +42,7 @@ func TestCreatePackageActivity(t *testing.T) {
 				AIPID:      aipID.String(),
 				ObjectKey:  objectKey.String(),
 				Status:     "stored",
-				LocationID: locationID,
+				LocationID: &locationID,
 			},
 			mockCalls: func(m *storage_fake.MockClientMockRecorder) {
 				m.Create(
@@ -77,7 +77,7 @@ func TestCreatePackageActivity(t *testing.T) {
 				AIPID:      "12345",
 				ObjectKey:  objectKey.String(),
 				Status:     "stored",
-				LocationID: locationID,
+				LocationID: &locationID,
 			},
 			mockCalls: func(m *storage_fake.MockClientMockRecorder) {
 				m.Create(
@@ -102,7 +102,7 @@ func TestCreatePackageActivity(t *testing.T) {
 				AIPID:      aipID.String(),
 				ObjectKey:  objectKey.String(),
 				Status:     "stored",
-				LocationID: locationID,
+				LocationID: &locationID,
 			},
 			mockCalls: func(m *storage_fake.MockClientMockRecorder) {
 				m.Create(
