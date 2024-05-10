@@ -29,6 +29,10 @@ inside the cluster, and they are not tracked in the repository.
     - SFTP configuration
       details (`sftp_host=`, `sftp_port=`, `sftp_user=`, `sftp_remote_dir=`,
       `sftp_private_key_passphrase=`).
+    - Archivematica Storage Service credentials(`amss_url=`,
+      `amss_user=`, `amss_api_key=`). These credentials are used by the
+      *mysql-create-amss-location-job.yaml* job to add an AMSS location to the
+      *enduro_storage* database.
 
 #### `.id_ed25519.secret`
 
@@ -76,6 +80,9 @@ AM API and SFTP configuration:
     sftp_user=archivematica
     sftp_remote_dir=/enduro_transfers
     sftp_private_key_passphrase=
+    amss_url=http://host.k3d.internal:62081
+    amss_user=test
+    amss_api_key=secret
 
 ### `hack/kube/overlays/dev-am/.id_ed25519.secret`
 
@@ -107,6 +114,17 @@ Preservation system value needed for workflow to be Archvimatica specific:
 
     [preservation]
     taskqueue = "am"
+
+An amssLocationId is needed for AIP download:
+
+    [am]
+    amssLocationId = "e0ed8b2a-8ae2-4546-b5d8-f0090919df04"
+
+!!! note
+
+    The amssLocationId UUID must match the AMSS location ID in the
+    *enduro_storage* database — it does *not* need to match the actual location
+    UUID in the AM Storage Service.
 
 [kustomize secret generator]: https://kubernetes.io/docs/tasks/configmap-secret/managing-secret-using-kustomize/#create-a-secret
 [tilt environment]: devel.md#tilt-environment-configuration
