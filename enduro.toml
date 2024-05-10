@@ -54,6 +54,12 @@ stripTopLevelDir = true
 [storage]
 enduroAddress = "enduro-internal:9000"
 
+# defaultPermanentLocationId is the UUID of the storage location used for
+# permanent AIP storage in the "auto-approve" processing workflow. The value of
+# "f2cc963f-c14d-4eaa-b950-bd207189a1f1" represents the first permanent location
+# defined in the mysql-create-locations-job.yaml Kubernetes manifest.
+defaultPermanentLocationId = "f2cc963f-c14d-4eaa-b950-bd207189a1f1"
+
 [storage.database]
 driver = "mysql"
 dsn = "enduro:enduro123@tcp(mysql.enduro-sdps:3306)/enduro_storage"
@@ -114,9 +120,6 @@ pollInterval = "10s"
 # format compatible with https://pkg.go.dev/time#ParseDuration. Set to "0" for
 # no time limit.
 transferDeadline = "1h"
-
-# amssLocationId is the UUID of our AMSS location in the storage database.
-amssLocationId = "e0ed8b2a-8ae2-4546-b5d8-f0090919df04"
 
 [am.sftp]
 host = "" # The Archivematica Storage Service hostname.

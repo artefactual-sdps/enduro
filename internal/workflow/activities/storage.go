@@ -25,7 +25,7 @@ type CreateStoragePackageActivityParams struct {
 	AIPID      string
 	ObjectKey  string
 	Status     string
-	LocationID uuid.UUID
+	LocationID *uuid.UUID
 }
 
 type CreateStoragePackageActivityResult struct {
@@ -44,14 +44,11 @@ func (a *CreateStoragePackageActivity) Execute(
 	logger.V(1).Info("Executing CreateStoragePackageActivity", "params", params)
 
 	payload := goastorage.CreatePayload{
-		AipID:     params.AIPID,
-		Name:      params.Name,
-		Status:    params.Status,
-		ObjectKey: params.ObjectKey,
-	}
-
-	if params.LocationID != uuid.Nil {
-		payload.LocationID = &params.LocationID
+		AipID:      params.AIPID,
+		Name:       params.Name,
+		Status:     params.Status,
+		ObjectKey:  params.ObjectKey,
+		LocationID: params.LocationID,
 	}
 
 	pkg, err := a.client.Create(ctx, &payload)

@@ -15,7 +15,6 @@ import (
 
 	"ariga.io/sqlcomment"
 	"entgo.io/ent/dialect/sql"
-	"github.com/google/uuid"
 	"github.com/hashicorp/go-cleanhttp"
 	"github.com/oklog/run"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -62,10 +61,6 @@ const (
 	appName        = "enduro"
 	autoApproveAIP = true
 )
-
-// This represents the first permanent location defined in the
-// mysql-create-locations-job Kubernetes manifest.
-var defaultPermanentLocationID = uuid.MustParse("f2cc963f-c14d-4eaa-b950-bd207189a1f1")
 
 func main() {
 	p := pflag.NewFlagSet(appName, pflag.ExitOnError)
@@ -343,7 +338,7 @@ func main() {
 									Key:                        event.Key,
 									IsDir:                      event.IsDir,
 									AutoApproveAIP:             autoApproveAIP,
-									DefaultPermanentLocationID: &defaultPermanentLocationID,
+									DefaultPermanentLocationID: &cfg.Storage.DefaultPermanentLocationID,
 									GlobalTaskQueue:            cfg.Temporal.TaskQueue,
 									PreservationTaskQueue:      cfg.Preservation.TaskQueue,
 									PollInterval:               cfg.AM.PollInterval,

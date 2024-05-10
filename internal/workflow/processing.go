@@ -817,7 +817,7 @@ func (w *ProcessingWorkflow) transferAM(sessCtx temporalsdk_workflow.Context, ti
 			setLocationIDLocalActivity,
 			w.pkgsvc,
 			tinfo.req.PackageID,
-			w.cfg.AM.AMSSLocationID,
+			ref.DerefZero(tinfo.req.DefaultPermanentLocationID),
 		).Get(ctx, nil)
 		if err != nil {
 			return err
@@ -834,7 +834,7 @@ func (w *ProcessingWorkflow) transferAM(sessCtx temporalsdk_workflow.Context, ti
 				Name:       tinfo.req.Key,
 				AIPID:      tinfo.SIPID,
 				ObjectKey:  tinfo.SIPID,
-				LocationID: w.cfg.AM.AMSSLocationID,
+				LocationID: tinfo.req.DefaultPermanentLocationID,
 				Status:     "stored",
 			}).
 			Get(activityOpts, nil)

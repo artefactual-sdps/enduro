@@ -30,6 +30,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/preprocessing"
 	"github.com/artefactual-sdps/enduro/internal/pres"
 	sftp_fake "github.com/artefactual-sdps/enduro/internal/sftp/fake"
+	"github.com/artefactual-sdps/enduro/internal/storage"
 	"github.com/artefactual-sdps/enduro/internal/temporal"
 	watcherfake "github.com/artefactual-sdps/enduro/internal/watcher/fake"
 	"github.com/artefactual-sdps/enduro/internal/workflow/activities"
@@ -42,9 +43,10 @@ const (
 )
 
 var (
-	locationID = uuid.MustParse("a06a155c-9cf0-4416-a2b6-e90e58ef3186")
-	transferID = uuid.MustParse("65233405-771e-4f7e-b2d9-b08439570ba2")
-	sipID      = uuid.MustParse("9e8161cc-2815-4d6f-8a75-f003c41b257b")
+	locationID     = uuid.MustParse("f2cc963f-c14d-4eaa-b950-bd207189a1f1")
+	amssLocationID = uuid.MustParse("e0ed8b2a-8ae2-4546-b5d8-f0090919df04")
+	transferID     = uuid.MustParse("65233405-771e-4f7e-b2d9-b08439570ba2")
+	sipID          = uuid.MustParse("9e8161cc-2815-4d6f-8a75-f003c41b257b")
 )
 
 type ProcessingWorkflowTestSuite struct {
@@ -214,6 +216,9 @@ func (s *ProcessingWorkflowTestSuite) TestPackageConfirmation() {
 	cfg := config.Configuration{
 		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
 		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
+		Storage: storage.Config{
+			DefaultPermanentLocationID: locationID,
+		},
 	}
 	s.SetupWorkflowTest(cfg)
 
@@ -313,6 +318,9 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 	cfg := config.Configuration{
 		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
 		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
+		Storage: storage.Config{
+			DefaultPermanentLocationID: locationID,
+		},
 	}
 	s.SetupWorkflowTest(cfg)
 
@@ -406,7 +414,7 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 			WatcherName:                watcherName,
 			RetentionPeriod:            &retentionPeriod,
 			AutoApproveAIP:             true,
-			DefaultPermanentLocationID: &locationID,
+			DefaultPermanentLocationID: &cfg.Storage.DefaultPermanentLocationID,
 		},
 	)
 
@@ -423,11 +431,11 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	sessionCtx := mock.AnythingOfType("*context.timerCtx")
 
 	cfg := config.Configuration{
-		A3m: a3m.Config{ShareDir: s.CreateTransferDir()},
-		AM: am.Config{
-			AMSSLocationID: uuid.MustParse("cf3059dd-4565-4fe9-92fe-b16d1a777403"),
-		},
+		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
 		Preservation: pres.Config{TaskQueue: temporal.AmWorkerTaskQueue},
+		Storage: storage.Config{
+			DefaultPermanentLocationID: amssLocationID,
+		},
 	}
 	s.SetupWorkflowTest(cfg)
 
@@ -511,7 +519,7 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	s.env.OnActivity(setLocationIDLocalActivity, ctx,
 		pkgsvc,
 		pkgID,
-		cfg.AM.AMSSLocationID,
+		amssLocationID,
 	).Return(&setLocationIDLocalActivityResult{}, nil)
 
 	s.env.OnActivity(activities.CreateStoragePackageActivityName, sessionCtx,
@@ -520,7 +528,7 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 			AIPID:      sipID.String(),
 			ObjectKey:  sipID.String(),
 			Status:     "stored",
-			LocationID: cfg.AM.AMSSLocationID,
+			LocationID: &amssLocationID,
 		},
 	).Return(&activities.CreateStoragePackageActivityResult{}, nil)
 
@@ -549,7 +557,7 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 			WatcherName:                watcherName,
 			RetentionPeriod:            &retentionPeriod,
 			AutoApproveAIP:             true,
-			DefaultPermanentLocationID: &locationID,
+			DefaultPermanentLocationID: &cfg.Storage.DefaultPermanentLocationID,
 			Key:                        key,
 			TransferDeadline:           time.Second,
 		},
@@ -563,6 +571,9 @@ func (s *ProcessingWorkflowTestSuite) TestPackageRejection() {
 	cfg := config.Configuration{
 		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
 		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
+		Storage: storage.Config{
+			DefaultPermanentLocationID: locationID,
+		},
 	}
 	s.SetupWorkflowTest(cfg)
 
@@ -664,6 +675,9 @@ func (s *ProcessingWorkflowTestSuite) TestPreprocessingChildWorkflow() {
 				TaskQueue:    "preprocessing",
 				WorkflowName: "preprocessing",
 			},
+		},
+		Storage: storage.Config{
+			DefaultPermanentLocationID: locationID,
 		},
 	}
 	s.SetupWorkflowTest(cfg)
@@ -771,7 +785,7 @@ func (s *ProcessingWorkflowTestSuite) TestPreprocessingChildWorkflow() {
 			WatcherName:                watcherName,
 			RetentionPeriod:            &retentionPeriod,
 			AutoApproveAIP:             true,
-			DefaultPermanentLocationID: &locationID,
+			DefaultPermanentLocationID: &cfg.Storage.DefaultPermanentLocationID,
 		},
 	)
 

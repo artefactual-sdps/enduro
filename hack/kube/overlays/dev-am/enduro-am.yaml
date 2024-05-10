@@ -55,6 +55,11 @@ spec:
               value: $(MYSQL_USER):$(MYSQL_PASSWORD)@tcp(mysql.enduro-sdps:3306)/enduro
             - name: ENDURO_STORAGE_DATABASE_DSN
               value: $(MYSQL_USER):$(MYSQL_PASSWORD)@tcp(mysql.enduro-sdps:3306)/enduro_storage
+            - name: ENDURO_STORAGE_DEFAULTPERMANENTLOCATIONID
+              valueFrom:
+                secretKeyRef:
+                  name: enduro-am-secret
+                  key: amss_location_id
             - name: ENDURO_WATCHER_EMBEDDED_KEY
               value: $(MINIO_USER)
             - name: ENDURO_WATCHER_EMBEDDED_SECRET

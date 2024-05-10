@@ -20,8 +20,8 @@ debugListen = "127.0.0.1:9001"
 [temporal]
 address = "host:port"
 
-[am]
-AMSSLocationID = "2d3aba70-035d-43f5-8d73-c97f35237006"
+[storage]
+defaultPermanentLocationId = "f2cc963f-c14d-4eaa-b950-bd207189a1f1"
 `
 
 func TestConfig(t *testing.T) {
@@ -48,7 +48,7 @@ func TestConfig(t *testing.T) {
 		assert.Equal(t, c.Temporal.Address, "host:port")
 
 		// Test that a UUID config is decoded correctly.
-		assert.Equal(t, c.AM.AMSSLocationID, uuid.MustParse("2d3aba70-035d-43f5-8d73-c97f35237006"))
+		assert.Equal(t, c.Storage.DefaultPermanentLocationID, uuid.MustParse("f2cc963f-c14d-4eaa-b950-bd207189a1f1"))
 	})
 
 	t.Run("Sets default configs", func(t *testing.T) {

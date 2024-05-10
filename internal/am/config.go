@@ -3,8 +3,6 @@ package am
 import (
 	"time"
 
-	"github.com/google/uuid"
-
 	"github.com/artefactual-sdps/enduro/internal/sftp"
 )
 
@@ -34,8 +32,4 @@ type Config struct {
 	// TransferDeadline is the maximum time to wait for a transfer to complete.
 	// Set to zero for no deadline.
 	TransferDeadline time.Duration
-
-	// AMSSLocationID is the local UUID of the Archivematica Storage Service
-	// storage location.
-	AMSSLocationID uuid.UUID
 }

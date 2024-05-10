@@ -1,10 +1,13 @@
 package storage
 
+import "github.com/google/uuid"
+
 type Config struct {
-	TaskQueue     string
-	EnduroAddress string
-	Internal      LocationConfig
-	Database      Database
+	TaskQueue                  string
+	EnduroAddress              string
+	DefaultPermanentLocationID uuid.UUID
+	Internal                   LocationConfig
+	Database                   Database
 }
 
 type Database struct {
