@@ -2,10 +2,10 @@
 
 FROM node:20 AS builder
 WORKDIR /app
-COPY --link package.json package-lock.json ./
+COPY --link package.json package-lock.json /app/
 RUN --mount=type=cache,target=/app/.npm \
     npm set cache /app/.npm && npm install-clean
-COPY --link . .
+COPY --link . /app/
 RUN npm run build
 CMD npm run dev
 
