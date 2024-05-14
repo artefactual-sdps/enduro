@@ -12,14 +12,6 @@ CMD npm run dev
 FROM nginx:alpine
 RUN apk add --no-cache bash
 
-ARG USER_ID=1000
-ARG GROUP_ID=1000
-RUN addgroup -g ${GROUP_ID} -S nginx
-RUN adduser -u ${USER_ID} -S -D nginx nginx
-USER nginx
-
-RUN chown -R nginx:nginx /var/cache/nginx /var/run /usr/share/nginx/html
-
 ARG VERSION_PATH
 ARG VERSION_LONG
 ARG VERSION_SHORT
