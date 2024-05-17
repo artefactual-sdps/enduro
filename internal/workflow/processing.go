@@ -386,7 +386,7 @@ func (w *ProcessingWorkflow) SessionHandler(
 	}
 
 	// Bundle.
-	{
+	if !w.cfg.Preprocessing.Enabled {
 		// For the a3m workflow bundle the transfer to a directory shared with
 		// the a3m container.
 		var transferDir string
@@ -911,7 +911,7 @@ func (w *ProcessingWorkflow) preprocessing(ctx temporalsdk_workflow.Context, tin
 		return err
 	}
 
-	tinfo.TempPath = filepath.Join(w.cfg.Preprocessing.SharedPath, filepath.Clean(result.RelativePath))
+	tinfo.Bundle.FullPath = filepath.Join(w.cfg.Preprocessing.SharedPath, filepath.Clean(result.RelativePath))
 	tinfo.IsDir = true
 
 	return nil
