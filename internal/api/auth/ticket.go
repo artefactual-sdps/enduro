@@ -62,12 +62,16 @@ func (t *TicketProvider) Request(ctx context.Context) (string, error) {
 
 // Check that a ticket is known to the provider, not including tickets that
 // exceeded the time-to-live attribute.
-func (t *TicketProvider) Check(ctx context.Context, ticket string) error {
+func (t *TicketProvider) Check(ctx context.Context, ticket *string) error {
 	if t.store == nil {
 		return nil
 	}
 
-	err := t.store.GetDel(ctx, ticket)
+	if ticket == nil {
+		return fmt.Errorf("missing ticket to retrieve")
+	}
+
+	err := t.store.GetDel(ctx, *ticket)
 	if err != nil {
 		return fmt.Errorf("error retrieving ticket: %v", err)
 	}

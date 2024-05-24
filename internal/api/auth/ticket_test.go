@@ -24,7 +24,7 @@ func TestTicketProviderNop(t *testing.T) {
 	assert.NilError(t, err)
 	assert.Equal(t, ticket, "")
 
-	err = provider.Check(ctx, ticket)
+	err = provider.Check(ctx, &ticket)
 	assert.NilError(t, err)
 
 	err = provider.Close()
@@ -113,7 +113,7 @@ func TestTicketProviderCheck(t *testing.T) {
 		rander := rand.New(rand.NewSource(1)) //#nosec
 		provider := auth.NewTicketProvider(ctx, store, rander)
 
-		err := provider.Check(ctx, ticket)
+		err := provider.Check(ctx, &ticket)
 		assert.NilError(t, err)
 	})
 
@@ -132,8 +132,30 @@ func TestTicketProviderCheck(t *testing.T) {
 		rander := rand.New(rand.NewSource(1)) //#nosec
 		provider := auth.NewTicketProvider(ctx, store, rander)
 
-		err := provider.Check(ctx, ticket)
+		err := provider.Check(ctx, &ticket)
 		assert.Error(t, err, "error retrieving ticket: fake error")
+	})
+
+	t.Run("Fails when the ticket is not sent and the store exists", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		rander := rand.New(rand.NewSource(1)) //#nosec
+		provider := auth.NewTicketProvider(ctx, &auth.InMemStore{}, rander)
+
+		err := provider.Check(ctx, nil)
+		assert.Error(t, err, "missing ticket to retrieve")
+	})
+
+	t.Run("Always checks without store", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		rander := rand.New(rand.NewSource(1)) //#nosec
+		provider := auth.NewTicketProvider(ctx, nil, rander)
+
+		err := provider.Check(ctx, nil)
+		assert.NilError(t, err)
 	})
 }
 

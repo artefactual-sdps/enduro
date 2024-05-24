@@ -80,7 +80,7 @@ func (w *goaWrapper) Monitor(
 	defer stream.Close()
 
 	// Verify the ticket.
-	if err := w.ticketProvider.Check(ctx, *payload.Ticket); err != nil {
+	if err := w.ticketProvider.Check(ctx, payload.Ticket); err != nil {
 		w.logger.V(1).Info("failed to check ticket", "err", err)
 		return goapackage.MakeNotAvailable(errors.New("cannot perform operation"))
 	}
