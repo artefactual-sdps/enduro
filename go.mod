@@ -11,7 +11,7 @@ require (
 	entgo.io/ent v0.13.1
 	github.com/XSAM/otelsql v0.29.0
 	github.com/alicebob/miniredis/v2 v2.32.1
-	github.com/artefactual-sdps/temporal-activities v0.0.0-20240429162703-eae3871dc67b
+	github.com/artefactual-sdps/temporal-activities v0.0.0-20240530153613-e610eaf238ed
 	github.com/coreos/go-oidc/v3 v3.9.0
 	github.com/cyphar/filepath-securejoin v0.2.4
 	github.com/dolmen-go/contextio v1.0.0
@@ -28,7 +28,7 @@ require (
 	github.com/jonboulle/clockwork v0.4.0
 	github.com/mattn/go-sqlite3 v1.14.22
 	github.com/mitchellh/mapstructure v1.5.0
-	github.com/nyudlts/go-bagit v0.2.0-alpha
+	github.com/nyudlts/go-bagit v0.3.0-alpha.0.20240515212815-8dab411c23af
 	github.com/oklog/run v1.1.0
 	github.com/otiai10/copy v1.14.0
 	github.com/pkg/sftp v1.13.6
@@ -42,7 +42,7 @@ require (
 	github.com/spf13/viper v1.18.2
 	github.com/stretchr/testify v1.9.0
 	go.artefactual.dev/amclient v0.3.0
-	go.artefactual.dev/tools v0.10.0
+	go.artefactual.dev/tools v0.14.0
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.49.0
 	go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace v0.49.0
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.49.0

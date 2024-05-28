@@ -9,9 +9,11 @@ import (
 	"errors"
 	"fmt"
 	"path/filepath"
+	"slices"
 	"time"
 
 	"github.com/artefactual-sdps/temporal-activities/archive"
+	"github.com/artefactual-sdps/temporal-activities/filesys"
 	"github.com/go-logr/logr"
 	"github.com/google/uuid"
 	"go.artefactual.dev/tools/ref"
@@ -101,6 +103,44 @@ type TransferInfo struct {
 
 func (t *TransferInfo) Name() string {
 	return fsutil.BaseNoExt(t.req.Key)
+}
+
+// cleanupRegistry contains items that should be cleaned up when a workflow
+// session completes.
+type cleanupRegistry struct {
+	// tempDirs are working directories registered for deletion during cleanup.
+	tempDirs []string
+}
+
+// registerPath registers a filepath for deletion when a workflow session
+// completes.
+func (c *cleanupRegistry) registerPath(path string) {
+	if path == "" || slices.Contains(c.tempDirs, path) {
+		return
+	}
+	c.tempDirs = append(c.tempDirs, path)
+}
+
+func (w *ProcessingWorkflow) sessionCleanup(ctx temporalsdk_workflow.Context, cleanup *cleanupRegistry) {
+	ctx = temporalsdk_workflow.WithActivityOptions(ctx, temporalsdk_workflow.ActivityOptions{
+		StartToCloseTimeout: time.Second,
+		RetryPolicy: &temporalsdk_temporal.RetryPolicy{
+			MaximumAttempts: 1,
+		},
+	})
+
+	err := temporalsdk_workflow.ExecuteActivity(
+		ctx,
+		filesys.RemoveActivityName,
+		filesys.RemoveActivityParams{Paths: cleanup.tempDirs},
+	).Get(ctx, nil)
+	if err != nil {
+		w.logger.V(1).Info("session cleanup: error(s) removing temporary directories",
+			"errors", err.Error(),
+		)
+	}
+
+	temporalsdk_workflow.CompleteSession(ctx)
 }
 
 // ProcessingWorkflow orchestrates all the activities related to the processing
@@ -276,7 +316,8 @@ func (w *ProcessingWorkflow) SessionHandler(
 	attempt int,
 	tinfo *TransferInfo,
 ) error {
-	defer temporalsdk_workflow.CompleteSession(sessCtx)
+	var cleanup cleanupRegistry
+	defer w.sessionCleanup(sessCtx, &cleanup)
 
 	packageStartedAt := temporalsdk_workflow.Now(sessCtx).UTC()
 
@@ -332,6 +373,9 @@ func (w *ProcessingWorkflow) SessionHandler(
 			return err
 		}
 		tinfo.TempPath = downloadResult.Path
+
+		// Delete download tmp dir when session ends.
+		cleanup.registerPath(filepath.Dir(downloadResult.Path))
 	}
 
 	// Unarchive the transfer if it's not a directory and it's not part of the preprocessing child workflow.
@@ -361,7 +405,7 @@ func (w *ProcessingWorkflow) SessionHandler(
 		return err
 	}
 
-	// Bundle.
+	// Bundle transfer as an Archivematica standard transfer.
 	{
 		// For the a3m workflow bundle the transfer to a directory shared with
 		// the a3m container.
@@ -386,19 +430,10 @@ func (w *ProcessingWorkflow) SessionHandler(
 		}
 
 		tinfo.Bundle = bundleResult
-	}
 
-	// Delete local temporary files.
-	defer func() {
-		// TODO: call clean up here to enforce that we always destroy TempDir.
-		if tinfo.Bundle.FullPath != "" {
-			activityOpts := withActivityOptsForRequest(sessCtx)
-			_ = temporalsdk_workflow.ExecuteActivity(activityOpts, activities.CleanUpActivityName, &activities.CleanUpActivityParams{
-				FullPath: tinfo.Bundle.FullPath,
-			}).
-				Get(activityOpts, nil)
-		}
-	}()
+		// Delete bundled transfer when session ends.
+		cleanup.registerPath(bundleResult.FullPath)
+	}
 
 	// Do preservation activities.
 	{
@@ -698,12 +733,15 @@ func (w *ProcessingWorkflow) transferA3m(sessCtx temporalsdk_workflow.Context, t
 
 	result := a3m.CreateAIPActivityResult{}
 	err := temporalsdk_workflow.ExecuteActivity(activityOpts, a3m.CreateAIPActivityName, params).Get(sessCtx, &result)
+	if err != nil {
+		return err
+	}
 
 	tinfo.SIPID = result.UUID
 	tinfo.AIPPath = result.Path
 	tinfo.StoredAt = temporalsdk_workflow.Now(sessCtx).UTC()
 
-	return err
+	return nil
 }
 
 func (w *ProcessingWorkflow) transferAM(sessCtx temporalsdk_workflow.Context, tinfo *TransferInfo) error {
