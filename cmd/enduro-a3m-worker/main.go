@@ -14,6 +14,7 @@ import (
 	"ariga.io/sqlcomment"
 	"entgo.io/ent/dialect/sql"
 	"github.com/artefactual-sdps/temporal-activities/archive"
+	"github.com/artefactual-sdps/temporal-activities/filesys"
 	"github.com/hashicorp/go-cleanhttp"
 	"github.com/oklog/run"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -224,8 +225,8 @@ func main() {
 			temporalsdk_activity.RegisterOptions{Name: a3m.CreateAIPActivityName},
 		)
 		w.RegisterActivityWithOptions(
-			activities.NewCleanUpActivity().Execute,
-			temporalsdk_activity.RegisterOptions{Name: activities.CleanUpActivityName},
+			filesys.NewRemoveActivity().Execute,
+			temporalsdk_activity.RegisterOptions{Name: filesys.RemoveActivityName},
 		)
 
 		httpClient := cleanhttp.DefaultPooledClient()

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/artefactual-sdps/temporal-activities/archive"
+	"github.com/artefactual-sdps/temporal-activities/filesys"
 	"github.com/go-logr/logr"
 	"github.com/google/uuid"
 	"github.com/jonboulle/clockwork"
@@ -39,7 +40,7 @@ import (
 const (
 	tempPath     string = "/tmp/enduro123456"
 	extractPath  string = "/tmp/enduro123456/extract"
-	transferPath string = "/tmp/2098266580-enduro-transfer/enduro4162369760/transfer"
+	transferPath string = "/home/a3m/.local/share/a3m/share/enduro2985726865"
 )
 
 var (
@@ -127,8 +128,8 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(cfg config.Configuration
 		temporalsdk_activity.RegisterOptions{Name: activities.RejectPackageActivityName},
 	)
 	s.env.RegisterActivityWithOptions(
-		activities.NewCleanUpActivity().Execute,
-		temporalsdk_activity.RegisterOptions{Name: activities.CleanUpActivityName},
+		filesys.NewRemoveActivity().Execute,
+		temporalsdk_activity.RegisterOptions{Name: filesys.RemoveActivityName},
 	)
 	s.env.RegisterActivityWithOptions(
 		activities.NewDeleteOriginalActivity(wsvc).Execute,
@@ -291,9 +292,11 @@ func (s *ProcessingWorkflowTestSuite) TestPackageConfirmation() {
 	s.env.OnActivity(completePreservationActionLocalActivity, ctx, pkgsvc, mock.AnythingOfType("*workflow.completePreservationActionLocalActivityParams")).
 		Return(nil, nil).
 		Once()
-	s.env.OnActivity(activities.CleanUpActivityName, sessionCtx, mock.AnythingOfType("*activities.CleanUpActivityParams")).
-		Return(nil, nil).
-		Once()
+	s.env.OnActivity(
+		filesys.RemoveActivityName,
+		sessionCtx,
+		&filesys.RemoveActivityParams{Paths: []string{tempPath, transferPath}},
+	).Return(&filesys.RemoveActivityResult{}, nil)
 	s.env.OnActivity(activities.DeleteOriginalActivityName, sessionCtx, watcherName, key).Return(nil, nil).Once()
 	s.env.OnActivity(updatePackageLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, nil)
@@ -402,9 +405,11 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 	s.env.OnActivity(completePreservationActionLocalActivity, ctx, pkgsvc, mock.AnythingOfType("*workflow.completePreservationActionLocalActivityParams")).
 		Return(nil, nil).
 		Once()
-	s.env.OnActivity(activities.CleanUpActivityName, sessionCtx, mock.AnythingOfType("*activities.CleanUpActivityParams")).
-		Return(nil, nil).
-		Once()
+	s.env.OnActivity(
+		filesys.RemoveActivityName,
+		sessionCtx,
+		&filesys.RemoveActivityParams{Paths: []string{tempPath, transferPath}},
+	).Return(&filesys.RemoveActivityResult{}, nil)
 	s.env.OnActivity(activities.DeleteOriginalActivityName, sessionCtx, watcherName, key).Return(nil, nil).Once()
 
 	s.env.ExecuteWorkflow(
@@ -546,9 +551,11 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	s.env.OnActivity(completePreservationActionLocalActivity, ctx, pkgsvc, mock.AnythingOfType("*workflow.completePreservationActionLocalActivityParams")).
 		Return(nil, nil).
 		Once()
-	s.env.OnActivity(activities.CleanUpActivityName, sessionCtx, mock.AnythingOfType("*activities.CleanUpActivityParams")).
-		Return(nil, nil).
-		Once()
+	s.env.OnActivity(
+		filesys.RemoveActivityName,
+		sessionCtx,
+		&filesys.RemoveActivityParams{Paths: []string{tempPath, transferPath}},
+	).Return(&filesys.RemoveActivityResult{}, nil)
 	s.env.OnActivity(activities.DeleteOriginalActivityName, sessionCtx, watcherName, key).Return(nil, nil).Once()
 
 	s.env.ExecuteWorkflow(
@@ -639,9 +646,11 @@ func (s *ProcessingWorkflowTestSuite) TestPackageRejection() {
 		Return(uint(0), nil)
 	s.env.OnActivity(activities.RejectPackageActivityName, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, nil)
-	s.env.OnActivity(activities.CleanUpActivityName, sessionCtx, mock.AnythingOfType("*activities.CleanUpActivityParams")).
-		Return(nil, nil).
-		Once()
+	s.env.OnActivity(
+		filesys.RemoveActivityName,
+		sessionCtx,
+		&filesys.RemoveActivityParams{Paths: []string{tempPath, transferPath}},
+	).Return(&filesys.RemoveActivityResult{}, nil)
 	s.env.OnActivity(activities.DeleteOriginalActivityName, sessionCtx, watcherName, key).Return(nil, nil).Once()
 	s.env.OnActivity(updatePackageLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, nil)
@@ -691,6 +700,9 @@ func (s *ProcessingWorkflowTestSuite) TestPreprocessingChildWorkflow() {
 	logger := s.workflow.logger
 	pkgsvc := s.workflow.pkgsvc
 
+	downloadDir := strings.Replace(tempPath, "/tmp/", cfg.Preprocessing.SharedPath, 1)
+	prepDest := strings.Replace(extractPath, "/tmp/", cfg.Preprocessing.SharedPath, 1)
+
 	// Activity mocks/assertions sequence
 	s.env.OnActivity(
 		createPackageLocalActivity,
@@ -705,8 +717,6 @@ func (s *ProcessingWorkflowTestSuite) TestPreprocessingChildWorkflow() {
 	s.env.OnActivity(createPreservationActionLocalActivity, ctx, pkgsvc, mock.AnythingOfType("*workflow.createPreservationActionLocalActivityParams")).
 		Return(uint(0), nil).
 		Once()
-
-	downloadDest := strings.Replace(tempPath, "/tmp/", cfg.Preprocessing.SharedPath, 1) + "/" + key
 	s.env.OnActivity(activities.DownloadActivityName, sessionCtx,
 		&activities.DownloadActivityParams{
 			Key:             key,
@@ -714,15 +724,13 @@ func (s *ProcessingWorkflowTestSuite) TestPreprocessingChildWorkflow() {
 			DestinationPath: cfg.Preprocessing.SharedPath,
 		},
 	).Return(
-		&activities.DownloadActivityResult{Path: downloadDest}, nil,
+		&activities.DownloadActivityResult{Path: downloadDir + "/" + key}, nil,
 	)
-
-	prepDest := strings.Replace(extractPath, "/tmp/", cfg.Preprocessing.SharedPath, 1)
 	s.env.OnWorkflow(
 		preprocessingChildWorkflow,
 		mock.Anything,
 		&preprocessing.WorkflowParams{
-			RelativePath: strings.TrimPrefix(downloadDest, cfg.Preprocessing.SharedPath),
+			RelativePath: strings.TrimPrefix(downloadDir+"/"+key, cfg.Preprocessing.SharedPath),
 		},
 	).Return(
 		&preprocessing.WorkflowResult{
@@ -773,9 +781,11 @@ func (s *ProcessingWorkflowTestSuite) TestPreprocessingChildWorkflow() {
 	s.env.OnActivity(completePreservationActionLocalActivity, ctx, pkgsvc, mock.AnythingOfType("*workflow.completePreservationActionLocalActivityParams")).
 		Return(nil, nil).
 		Once()
-	s.env.OnActivity(activities.CleanUpActivityName, sessionCtx, mock.AnythingOfType("*activities.CleanUpActivityParams")).
-		Return(nil, nil).
-		Once()
+	s.env.OnActivity(
+		filesys.RemoveActivityName,
+		sessionCtx,
+		&filesys.RemoveActivityParams{Paths: []string{downloadDir, transferPath}},
+	).Return(&filesys.RemoveActivityResult{}, nil)
 	s.env.OnActivity(activities.DeleteOriginalActivityName, sessionCtx, watcherName, key).Return(nil, nil).Once()
 
 	s.env.ExecuteWorkflow(
