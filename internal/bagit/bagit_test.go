@@ -27,7 +27,17 @@ func TestBagit(t *testing.T) {
 	)
 	assert.ErrorContains(
 		t,
-		bagit.Complete("./tests/test-bagged-transfer-with-invalid-checksums"),
+		bagit.Complete("./tests/nobag"),
+		"- ERROR - input ./tests/nobag directory does not exist",
+	)
+	assert.ErrorContains(
+		t,
+		bagit.Valid("./tests/test-bagged-transfer-with-invalid-checksums"),
 		"Bag validation failed: data/adios.txt sha256 validation failed",
+	)
+	assert.ErrorContains(
+		t,
+		bagit.Valid("./tests/nobag"),
+		"- ERROR - input ./tests/nobag directory does not exist",
 	)
 }
