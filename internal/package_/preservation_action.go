@@ -85,42 +85,20 @@ func (w *goaWrapper) PreservationActions(
 	return result, nil
 }
 
-func (svc *packageImpl) CreatePreservationAction(ctx context.Context, pa *datatypes.PreservationAction) error {
-	startedAt := &pa.StartedAt.Time
-	completedAt := &pa.CompletedAt.Time
-	if pa.StartedAt.Time.IsZero() {
-		startedAt = nil
-	}
-	if pa.CompletedAt.Time.IsZero() {
-		completedAt = nil
-	}
-
-	query := `INSERT INTO preservation_action (workflow_id, type, status, started_at, completed_at, package_id) VALUES (?, ?, ?, ?, ?, ?)`
-	args := []interface{}{
-		pa.WorkflowID,
-		pa.Type,
-		pa.Status,
-		startedAt,
-		completedAt,
-		pa.PackageID,
-	}
-
-	res, err := svc.db.ExecContext(ctx, query, args...)
+func (svc *packageImpl) CreatePreservationAction(
+	ctx context.Context,
+	pa *datatypes.PreservationAction,
+) error {
+	err := svc.perSvc.CreatePreservationAction(ctx, pa)
 	if err != nil {
-		return fmt.Errorf("error inserting preservation action: %w", err)
+		return fmt.Errorf("preservation action: create: %v", err)
 	}
 
-	var id int64
-	if id, err = res.LastInsertId(); err != nil {
-		return fmt.Errorf("error retrieving insert ID: %w", err)
+	ev := &goapackage.PreservationActionCreatedEvent{
+		ID:   pa.ID,
+		Item: preservationActionToGoa(pa),
 	}
-
-	pa.ID = uint(id)
-
-	if item, err := svc.readPreservationAction(ctx, pa.ID); err == nil {
-		ev := &goapackage.PreservationActionCreatedEvent{ID: pa.ID, Item: item}
-		event.PublishEvent(ctx, svc.evsvc, ev)
-	}
+	event.PublishEvent(ctx, svc.evsvc, ev)
 
 	return nil
 }
