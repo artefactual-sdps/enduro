@@ -111,6 +111,39 @@ var _ = Service("package", func() {
 			Response("not_found", StatusNotFound)
 		})
 	})
+	Method("create_preservation_action", func() {
+		Description("Create a preservation action for a package")
+		Payload(func() {
+			Attribute("package_id", UInt, "Identifier of the package")
+			Attribute("workflow_id", String, "Identifier of the workflow that performed the action")
+			Attribute("type", String, "Type of the action", func() {
+				EnumPreservationActionType()
+			})
+			Attribute("status", String, "Status of the action", func() {
+				EnumPreservationActionStatus()
+				Default("unspecified")
+			})
+			Attribute("started_at", String, "Start datetime", func() {
+				Format(FormatDateTime)
+			})
+			Attribute("completed_at", String, "Completion datetime", func() {
+				Format(FormatDateTime)
+			})
+			AccessToken("oauth_token", String)
+			Required("package_id", "workflow_id", "type")
+		})
+		Result(PreservationAction, func() {
+			View("default")
+		})
+		Error("not_found", PackageNotFound, "Package not found")
+		Error("not_valid")
+		HTTP(func() {
+			POST("/{package_id}/preservation-action")
+			Response(StatusOK)
+			Response("not_found", StatusNotFound)
+			Response("not_valid", StatusBadRequest)
+		})
+	})
 	Method("confirm", func() {
 		Description("Signal the package has been reviewed and accepted")
 		Payload(func() {

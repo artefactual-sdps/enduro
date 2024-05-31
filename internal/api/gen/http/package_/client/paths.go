@@ -37,6 +37,11 @@ func PreservationActionsPackagePath(id uint) string {
 	return fmt.Sprintf("/package/%v/preservation-actions", id)
 }
 
+// CreatePreservationActionPackagePath returns the URL path to the package service create_preservation_action HTTP endpoint.
+func CreatePreservationActionPackagePath(packageID uint) string {
+	return fmt.Sprintf("/package/%v/preservation-action", packageID)
+}
+
 // ConfirmPackagePath returns the URL path to the package service confirm HTTP endpoint.
 func ConfirmPackagePath(id uint) string {
 	return fmt.Sprintf("/package/%v/confirm", id)

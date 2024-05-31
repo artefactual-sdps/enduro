@@ -532,6 +532,226 @@
       "title": "PackageConfirmRequestBody",
       "type": "object"
     },
+    "PackageCreatePreservationActionNotFoundResponseBody": {
+      "description": "Package not found",
+      "example": {
+        "id": 1,
+        "message": "abc123"
+      },
+      "properties": {
+        "id": {
+          "description": "Identifier of missing package",
+          "example": 1,
+          "format": "int64",
+          "type": "integer"
+        },
+        "message": {
+          "description": "Message of error",
+          "example": "abc123",
+          "type": "string"
+        }
+      },
+      "required": [
+        "message",
+        "id"
+      ],
+      "title": "PackageCreatePreservationActionNotFoundResponseBody",
+      "type": "object"
+    },
+    "PackageCreatePreservationActionNotValidResponseBody": {
+      "description": "create_preservation_action_not_valid_response_body result type (default view)",
+      "example": {
+        "fault": false,
+        "id": "123abc",
+        "message": "parameter 'p' must be an integer",
+        "name": "bad_request",
+        "temporary": false,
+        "timeout": false
+      },
+      "properties": {
+        "fault": {
+          "description": "Is the error a server-side fault?",
+          "example": false,
+          "type": "boolean"
+        },
+        "id": {
+          "description": "ID is a unique identifier for this particular occurrence of the problem.",
+          "example": "123abc",
+          "type": "string"
+        },
+        "message": {
+          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
+          "example": "parameter 'p' must be an integer",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the name of this class of errors.",
+          "example": "bad_request",
+          "type": "string"
+        },
+        "temporary": {
+          "description": "Is the error temporary?",
+          "example": false,
+          "type": "boolean"
+        },
+        "timeout": {
+          "description": "Is the error a timeout?",
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "id",
+        "message",
+        "temporary",
+        "timeout",
+        "fault"
+      ],
+      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
+      "type": "object"
+    },
+    "PackageCreatePreservationActionRequestBody": {
+      "example": {
+        "completed_at": "1970-01-01T00:00:01Z",
+        "started_at": "1970-01-01T00:00:01Z",
+        "status": "in progress",
+        "type": "create-and-review-aip",
+        "workflow_id": "abc123"
+      },
+      "properties": {
+        "completed_at": {
+          "description": "Completion datetime",
+          "example": "1970-01-01T00:00:01Z",
+          "format": "date-time",
+          "type": "string"
+        },
+        "started_at": {
+          "description": "Start datetime",
+          "example": "1970-01-01T00:00:01Z",
+          "format": "date-time",
+          "type": "string"
+        },
+        "status": {
+          "default": "unspecified",
+          "description": "Status of the action",
+          "enum": [
+            "unspecified",
+            "in progress",
+            "done",
+            "error",
+            "queued",
+            "pending"
+          ],
+          "example": "in progress",
+          "type": "string"
+        },
+        "type": {
+          "description": "Type of the action",
+          "enum": [
+            "create-aip",
+            "create-and-review-aip",
+            "move-package"
+          ],
+          "example": "create-and-review-aip",
+          "type": "string"
+        },
+        "workflow_id": {
+          "description": "Identifier of the workflow that performed the action",
+          "example": "abc123",
+          "type": "string"
+        }
+      },
+      "required": [
+        "workflow_id",
+        "type"
+      ],
+      "title": "PackageCreatePreservationActionRequestBody",
+      "type": "object"
+    },
+    "PackageCreatePreservationActionResponseBody": {
+      "description": "create_preservation_action_response_body result type (default view)",
+      "example": {
+        "completed_at": "1970-01-01T00:00:01Z",
+        "id": 1,
+        "package_id": 1,
+        "started_at": "1970-01-01T00:00:01Z",
+        "status": "in progress",
+        "tasks": [
+          {
+            "completed_at": "1970-01-01T00:00:01Z",
+            "id": 1,
+            "name": "abc123",
+            "note": "abc123",
+            "preservation_action_id": 1,
+            "started_at": "1970-01-01T00:00:01Z",
+            "status": "in progress",
+            "task_id": "abc123"
+          }
+        ],
+        "type": "create-and-review-aip",
+        "workflow_id": "abc123"
+      },
+      "properties": {
+        "completed_at": {
+          "example": "1970-01-01T00:00:01Z",
+          "format": "date-time",
+          "type": "string"
+        },
+        "id": {
+          "example": 1,
+          "format": "int64",
+          "type": "integer"
+        },
+        "package_id": {
+          "example": 1,
+          "format": "int64",
+          "type": "integer"
+        },
+        "started_at": {
+          "example": "1970-01-01T00:00:01Z",
+          "format": "date-time",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "unspecified",
+            "in progress",
+            "done",
+            "error",
+            "queued",
+            "pending"
+          ],
+          "example": "in progress",
+          "type": "string"
+        },
+        "tasks": {
+          "$ref": "#/definitions/EnduroPackagePreservationTaskResponseBodyCollection"
+        },
+        "type": {
+          "enum": [
+            "create-aip",
+            "create-and-review-aip",
+            "move-package"
+          ],
+          "example": "create-and-review-aip",
+          "type": "string"
+        },
+        "workflow_id": {
+          "example": "abc123",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "workflow_id",
+        "type",
+        "status",
+        "started_at"
+      ],
+      "title": "Mediatype identifier: application/vnd.enduro.package-preservation-action; view=default",
+      "type": "object"
+    },
     "PackageListResponseBody": {
       "example": {
         "items": [
@@ -3358,6 +3578,81 @@
           }
         ],
         "summary": "reject package",
+        "tags": [
+          "package"
+        ]
+      }
+    },
+    "/package/{package_id}/preservation-action": {
+      "post": {
+        "description": "Create a preservation action for a package",
+        "operationId": "package#create_preservation_action",
+        "parameters": [
+          {
+            "description": "Identifier of the package",
+            "in": "path",
+            "name": "package_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "create_preservation_action_request_body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PackageCreatePreservationActionRequestBody",
+              "required": [
+                "workflow_id",
+                "type"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK response.",
+            "schema": {
+              "$ref": "#/definitions/PackageCreatePreservationActionResponseBody"
+            }
+          },
+          "400": {
+            "description": "Bad Request response.",
+            "schema": {
+              "$ref": "#/definitions/PackageCreatePreservationActionNotValidResponseBody"
+            }
+          },
+          "401": {
+            "description": "Unauthorized response.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "404": {
+            "description": "Not Found response.",
+            "schema": {
+              "$ref": "#/definitions/PackageCreatePreservationActionNotFoundResponseBody",
+              "required": [
+                "message",
+                "id"
+              ]
+            }
+          }
+        },
+        "schemes": [
+          "http"
+        ],
+        "security": [
+          {
+            "oauth2_header_Authorization": []
+          }
+        ],
+        "summary": "create_preservation_action package",
         "tags": [
           "package"
         ]

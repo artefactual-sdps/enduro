@@ -16,29 +16,31 @@ import (
 
 // Client is the "package" service client.
 type Client struct {
-	MonitorRequestEndpoint      goa.Endpoint
-	MonitorEndpoint             goa.Endpoint
-	ListEndpoint                goa.Endpoint
-	ShowEndpoint                goa.Endpoint
-	PreservationActionsEndpoint goa.Endpoint
-	ConfirmEndpoint             goa.Endpoint
-	RejectEndpoint              goa.Endpoint
-	MoveEndpoint                goa.Endpoint
-	MoveStatusEndpoint          goa.Endpoint
+	MonitorRequestEndpoint           goa.Endpoint
+	MonitorEndpoint                  goa.Endpoint
+	ListEndpoint                     goa.Endpoint
+	ShowEndpoint                     goa.Endpoint
+	PreservationActionsEndpoint      goa.Endpoint
+	CreatePreservationActionEndpoint goa.Endpoint
+	ConfirmEndpoint                  goa.Endpoint
+	RejectEndpoint                   goa.Endpoint
+	MoveEndpoint                     goa.Endpoint
+	MoveStatusEndpoint               goa.Endpoint
 }
 
 // NewClient initializes a "package" service client given the endpoints.
-func NewClient(monitorRequest, monitor, list, show, preservationActions, confirm, reject, move, moveStatus goa.Endpoint) *Client {
+func NewClient(monitorRequest, monitor, list, show, preservationActions, createPreservationAction, confirm, reject, move, moveStatus goa.Endpoint) *Client {
 	return &Client{
-		MonitorRequestEndpoint:      monitorRequest,
-		MonitorEndpoint:             monitor,
-		ListEndpoint:                list,
-		ShowEndpoint:                show,
-		PreservationActionsEndpoint: preservationActions,
-		ConfirmEndpoint:             confirm,
-		RejectEndpoint:              reject,
-		MoveEndpoint:                move,
-		MoveStatusEndpoint:          moveStatus,
+		MonitorRequestEndpoint:           monitorRequest,
+		MonitorEndpoint:                  monitor,
+		ListEndpoint:                     list,
+		ShowEndpoint:                     show,
+		PreservationActionsEndpoint:      preservationActions,
+		CreatePreservationActionEndpoint: createPreservationAction,
+		ConfirmEndpoint:                  confirm,
+		RejectEndpoint:                   reject,
+		MoveEndpoint:                     move,
+		MoveStatusEndpoint:               moveStatus,
 	}
 }
 
@@ -111,6 +113,22 @@ func (c *Client) PreservationActions(ctx context.Context, p *PreservationActions
 		return
 	}
 	return ires.(*EnduroPackagePreservationActions), nil
+}
+
+// CreatePreservationAction calls the "create_preservation_action" endpoint of
+// the "package" service.
+// CreatePreservationAction may return the following errors:
+//   - "not_found" (type *PackageNotFound): Package not found
+//   - "not_valid" (type *goa.ServiceError)
+//   - "unauthorized" (type Unauthorized)
+//   - error: internal error
+func (c *Client) CreatePreservationAction(ctx context.Context, p *CreatePreservationActionPayload) (res *EnduroPackagePreservationAction, err error) {
+	var ires any
+	ires, err = c.CreatePreservationActionEndpoint(ctx, p)
+	if err != nil {
+		return
+	}
+	return ires.(*EnduroPackagePreservationAction), nil
 }
 
 // Confirm calls the "confirm" endpoint of the "package" service.

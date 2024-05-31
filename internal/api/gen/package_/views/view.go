@@ -31,6 +31,15 @@ type EnduroPackagePreservationActions struct {
 	View string
 }
 
+// EnduroPackagePreservationAction is the viewed result type that is projected
+// based on a view.
+type EnduroPackagePreservationAction struct {
+	// Type to project
+	Projected *EnduroPackagePreservationActionView
+	// View to render
+	View string
+}
+
 // EnduroStoredPackageView is a type that runs validations on a projected type.
 type EnduroStoredPackageView struct {
 	// Identifier of package
@@ -119,9 +128,9 @@ var (
 			"actions",
 		},
 	}
-	// EnduroPackagePreservationActionCollectionMap is a map indexing the attribute
-	// names of EnduroPackagePreservationActionCollection by view name.
-	EnduroPackagePreservationActionCollectionMap = map[string][]string{
+	// EnduroPackagePreservationActionMap is a map indexing the attribute names of
+	// EnduroPackagePreservationAction by view name.
+	EnduroPackagePreservationActionMap = map[string][]string{
 		"simple": {
 			"id",
 			"workflow_id",
@@ -142,9 +151,9 @@ var (
 			"package_id",
 		},
 	}
-	// EnduroPackagePreservationActionMap is a map indexing the attribute names of
-	// EnduroPackagePreservationAction by view name.
-	EnduroPackagePreservationActionMap = map[string][]string{
+	// EnduroPackagePreservationActionCollectionMap is a map indexing the attribute
+	// names of EnduroPackagePreservationActionCollection by view name.
+	EnduroPackagePreservationActionCollectionMap = map[string][]string{
 		"simple": {
 			"id",
 			"workflow_id",
@@ -215,6 +224,20 @@ func ValidateEnduroPackagePreservationActions(result *EnduroPackagePreservationA
 		err = ValidateEnduroPackagePreservationActionsView(result.Projected)
 	default:
 		err = goa.InvalidEnumValueError("view", result.View, []any{"default"})
+	}
+	return
+}
+
+// ValidateEnduroPackagePreservationAction runs the validations defined on the
+// viewed result type EnduroPackagePreservationAction.
+func ValidateEnduroPackagePreservationAction(result *EnduroPackagePreservationAction) (err error) {
+	switch result.View {
+	case "simple":
+		err = ValidateEnduroPackagePreservationActionViewSimple(result.Projected)
+	case "default", "":
+		err = ValidateEnduroPackagePreservationActionView(result.Projected)
+	default:
+		err = goa.InvalidEnumValueError("view", result.View, []any{"simple", "default"})
 	}
 	return
 }

@@ -186,6 +186,66 @@ func BuildPreservationActionsPayload(package_PreservationActionsID string, packa
 	return v, nil
 }
 
+// BuildCreatePreservationActionPayload builds the payload for the package
+// create_preservation_action endpoint from CLI flags.
+func BuildCreatePreservationActionPayload(package_CreatePreservationActionBody string, package_CreatePreservationActionPackageID string, package_CreatePreservationActionOauthToken string) (*package_.CreatePreservationActionPayload, error) {
+	var err error
+	var body CreatePreservationActionRequestBody
+	{
+		err = json.Unmarshal([]byte(package_CreatePreservationActionBody), &body)
+		if err != nil {
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"completed_at\": \"1970-01-01T00:00:01Z\",\n      \"started_at\": \"1970-01-01T00:00:01Z\",\n      \"status\": \"in progress\",\n      \"type\": \"create-and-review-aip\",\n      \"workflow_id\": \"abc123\"\n   }'")
+		}
+		if !(body.Type == "create-aip" || body.Type == "create-and-review-aip" || body.Type == "move-package") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.type", body.Type, []any{"create-aip", "create-and-review-aip", "move-package"}))
+		}
+		if !(body.Status == "unspecified" || body.Status == "in progress" || body.Status == "done" || body.Status == "error" || body.Status == "queued" || body.Status == "pending") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", body.Status, []any{"unspecified", "in progress", "done", "error", "queued", "pending"}))
+		}
+		if body.StartedAt != nil {
+			err = goa.MergeErrors(err, goa.ValidateFormat("body.started_at", *body.StartedAt, goa.FormatDateTime))
+		}
+		if body.CompletedAt != nil {
+			err = goa.MergeErrors(err, goa.ValidateFormat("body.completed_at", *body.CompletedAt, goa.FormatDateTime))
+		}
+		if err != nil {
+			return nil, err
+		}
+	}
+	var packageID uint
+	{
+		var v uint64
+		v, err = strconv.ParseUint(package_CreatePreservationActionPackageID, 10, strconv.IntSize)
+		packageID = uint(v)
+		if err != nil {
+			return nil, fmt.Errorf("invalid value for packageID, must be UINT")
+		}
+	}
+	var oauthToken *string
+	{
+		if package_CreatePreservationActionOauthToken != "" {
+			oauthToken = &package_CreatePreservationActionOauthToken
+		}
+	}
+	v := &package_.CreatePreservationActionPayload{
+		WorkflowID:  body.WorkflowID,
+		Type:        body.Type,
+		Status:      body.Status,
+		StartedAt:   body.StartedAt,
+		CompletedAt: body.CompletedAt,
+	}
+	{
+		var zero string
+		if v.Status == zero {
+			v.Status = "unspecified"
+		}
+	}
+	v.PackageID = packageID
+	v.OauthToken = oauthToken
+
+	return v, nil
+}
+
 // BuildConfirmPayload builds the payload for the package confirm endpoint from
 // CLI flags.
 func BuildConfirmPayload(package_ConfirmBody string, package_ConfirmID string, package_ConfirmOauthToken string) (*package_.ConfirmPayload, error) {

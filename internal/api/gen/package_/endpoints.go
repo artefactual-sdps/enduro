@@ -17,15 +17,16 @@ import (
 
 // Endpoints wraps the "package" service endpoints.
 type Endpoints struct {
-	MonitorRequest      goa.Endpoint
-	Monitor             goa.Endpoint
-	List                goa.Endpoint
-	Show                goa.Endpoint
-	PreservationActions goa.Endpoint
-	Confirm             goa.Endpoint
-	Reject              goa.Endpoint
-	Move                goa.Endpoint
-	MoveStatus          goa.Endpoint
+	MonitorRequest           goa.Endpoint
+	Monitor                  goa.Endpoint
+	List                     goa.Endpoint
+	Show                     goa.Endpoint
+	PreservationActions      goa.Endpoint
+	CreatePreservationAction goa.Endpoint
+	Confirm                  goa.Endpoint
+	Reject                   goa.Endpoint
+	Move                     goa.Endpoint
+	MoveStatus               goa.Endpoint
 }
 
 // MonitorEndpointInput holds both the payload and the server stream of the
@@ -42,15 +43,16 @@ func NewEndpoints(s Service) *Endpoints {
 	// Casting service to Auther interface
 	a := s.(Auther)
 	return &Endpoints{
-		MonitorRequest:      NewMonitorRequestEndpoint(s, a.OAuth2Auth),
-		Monitor:             NewMonitorEndpoint(s),
-		List:                NewListEndpoint(s, a.OAuth2Auth),
-		Show:                NewShowEndpoint(s, a.OAuth2Auth),
-		PreservationActions: NewPreservationActionsEndpoint(s, a.OAuth2Auth),
-		Confirm:             NewConfirmEndpoint(s, a.OAuth2Auth),
-		Reject:              NewRejectEndpoint(s, a.OAuth2Auth),
-		Move:                NewMoveEndpoint(s, a.OAuth2Auth),
-		MoveStatus:          NewMoveStatusEndpoint(s, a.OAuth2Auth),
+		MonitorRequest:           NewMonitorRequestEndpoint(s, a.OAuth2Auth),
+		Monitor:                  NewMonitorEndpoint(s),
+		List:                     NewListEndpoint(s, a.OAuth2Auth),
+		Show:                     NewShowEndpoint(s, a.OAuth2Auth),
+		PreservationActions:      NewPreservationActionsEndpoint(s, a.OAuth2Auth),
+		CreatePreservationAction: NewCreatePreservationActionEndpoint(s, a.OAuth2Auth),
+		Confirm:                  NewConfirmEndpoint(s, a.OAuth2Auth),
+		Reject:                   NewRejectEndpoint(s, a.OAuth2Auth),
+		Move:                     NewMoveEndpoint(s, a.OAuth2Auth),
+		MoveStatus:               NewMoveStatusEndpoint(s, a.OAuth2Auth),
 	}
 }
 
@@ -61,6 +63,7 @@ func (e *Endpoints) Use(m func(goa.Endpoint) goa.Endpoint) {
 	e.List = m(e.List)
 	e.Show = m(e.Show)
 	e.PreservationActions = m(e.PreservationActions)
+	e.CreatePreservationAction = m(e.CreatePreservationAction)
 	e.Confirm = m(e.Confirm)
 	e.Reject = m(e.Reject)
 	e.Move = m(e.Move)
@@ -202,6 +205,41 @@ func NewPreservationActionsEndpoint(s Service, authOAuth2Fn security.AuthOAuth2F
 			return nil, err
 		}
 		vres := NewViewedEnduroPackagePreservationActions(res, "default")
+		return vres, nil
+	}
+}
+
+// NewCreatePreservationActionEndpoint returns an endpoint function that calls
+// the method "create_preservation_action" of service "package".
+func NewCreatePreservationActionEndpoint(s Service, authOAuth2Fn security.AuthOAuth2Func) goa.Endpoint {
+	return func(ctx context.Context, req any) (any, error) {
+		p := req.(*CreatePreservationActionPayload)
+		var err error
+		sc := security.OAuth2Scheme{
+			Name:           "oauth2",
+			Scopes:         []string{},
+			RequiredScopes: []string{},
+			Flows: []*security.OAuthFlow{
+				&security.OAuthFlow{
+					Type:       "client_credentials",
+					TokenURL:   "/oauth2/token",
+					RefreshURL: "/oauth2/refresh",
+				},
+			},
+		}
+		var token string
+		if p.OauthToken != nil {
+			token = *p.OauthToken
+		}
+		ctx, err = authOAuth2Fn(ctx, token, &sc)
+		if err != nil {
+			return nil, err
+		}
+		res, err := s.CreatePreservationAction(ctx, p)
+		if err != nil {
+			return nil, err
+		}
+		vres := NewViewedEnduroPackagePreservationAction(res, "default")
 		return vres, nil
 	}
 }

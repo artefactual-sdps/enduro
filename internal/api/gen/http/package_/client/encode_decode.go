@@ -593,6 +593,141 @@ func DecodePreservationActionsResponse(decoder func(*http.Response) goahttp.Deco
 	}
 }
 
+// BuildCreatePreservationActionRequest instantiates a HTTP request object with
+// method and path set to call the "package" service
+// "create_preservation_action" endpoint
+func (c *Client) BuildCreatePreservationActionRequest(ctx context.Context, v any) (*http.Request, error) {
+	var (
+		packageID uint
+	)
+	{
+		p, ok := v.(*package_.CreatePreservationActionPayload)
+		if !ok {
+			return nil, goahttp.ErrInvalidType("package", "create_preservation_action", "*package_.CreatePreservationActionPayload", v)
+		}
+		packageID = p.PackageID
+	}
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: CreatePreservationActionPackagePath(packageID)}
+	req, err := http.NewRequest("POST", u.String(), nil)
+	if err != nil {
+		return nil, goahttp.ErrInvalidURL("package", "create_preservation_action", u.String(), err)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
+	return req, nil
+}
+
+// EncodeCreatePreservationActionRequest returns an encoder for requests sent
+// to the package create_preservation_action server.
+func EncodeCreatePreservationActionRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, any) error {
+	return func(req *http.Request, v any) error {
+		p, ok := v.(*package_.CreatePreservationActionPayload)
+		if !ok {
+			return goahttp.ErrInvalidType("package", "create_preservation_action", "*package_.CreatePreservationActionPayload", v)
+		}
+		if p.OauthToken != nil {
+			head := *p.OauthToken
+			if !strings.Contains(head, " ") {
+				req.Header.Set("Authorization", "Bearer "+head)
+			} else {
+				req.Header.Set("Authorization", head)
+			}
+		}
+		body := NewCreatePreservationActionRequestBody(p)
+		if err := encoder(req).Encode(&body); err != nil {
+			return goahttp.ErrEncodingError("package", "create_preservation_action", err)
+		}
+		return nil
+	}
+}
+
+// DecodeCreatePreservationActionResponse returns a decoder for responses
+// returned by the package create_preservation_action endpoint. restoreBody
+// controls whether the response body should be restored after having been read.
+// DecodeCreatePreservationActionResponse may return the following errors:
+//   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
+//   - "not_found" (type *package_.PackageNotFound): http.StatusNotFound
+//   - "unauthorized" (type package_.Unauthorized): http.StatusUnauthorized
+//   - error: internal error
+func DecodeCreatePreservationActionResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
+	return func(resp *http.Response) (any, error) {
+		if restoreBody {
+			b, err := io.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			defer func() {
+				resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			}()
+		} else {
+			defer resp.Body.Close()
+		}
+		switch resp.StatusCode {
+		case http.StatusOK:
+			var (
+				body CreatePreservationActionResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("package", "create_preservation_action", err)
+			}
+			p := NewCreatePreservationActionEnduroPackagePreservationActionOK(&body)
+			view := "default"
+			vres := &package_views.EnduroPackagePreservationAction{Projected: p, View: view}
+			if err = package_views.ValidateEnduroPackagePreservationAction(vres); err != nil {
+				return nil, goahttp.ErrValidationError("package", "create_preservation_action", err)
+			}
+			res := package_.NewEnduroPackagePreservationAction(vres)
+			return res, nil
+		case http.StatusBadRequest:
+			var (
+				body CreatePreservationActionNotValidResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("package", "create_preservation_action", err)
+			}
+			err = ValidateCreatePreservationActionNotValidResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("package", "create_preservation_action", err)
+			}
+			return nil, NewCreatePreservationActionNotValid(&body)
+		case http.StatusNotFound:
+			var (
+				body CreatePreservationActionNotFoundResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("package", "create_preservation_action", err)
+			}
+			err = ValidateCreatePreservationActionNotFoundResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("package", "create_preservation_action", err)
+			}
+			return nil, NewCreatePreservationActionNotFound(&body)
+		case http.StatusUnauthorized:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("package", "create_preservation_action", err)
+			}
+			return nil, NewCreatePreservationActionUnauthorized(body)
+		default:
+			body, _ := io.ReadAll(resp.Body)
+			return nil, goahttp.ErrInvalidResponse("package", "create_preservation_action", resp.StatusCode, string(body))
+		}
+	}
+}
+
 // BuildConfirmRequest instantiates a HTTP request object with method and path
 // set to call the "package" service "confirm" endpoint
 func (c *Client) BuildConfirmRequest(ctx context.Context, v any) (*http.Request, error) {

@@ -17,6 +17,21 @@ import (
 	goa "goa.design/goa/v3/pkg"
 )
 
+// CreatePreservationActionRequestBody is the type of the "package" service
+// "create_preservation_action" endpoint HTTP request body.
+type CreatePreservationActionRequestBody struct {
+	// Identifier of the workflow that performed the action
+	WorkflowID *string `form:"workflow_id,omitempty" json:"workflow_id,omitempty" xml:"workflow_id,omitempty"`
+	// Type of the action
+	Type *string `form:"type,omitempty" json:"type,omitempty" xml:"type,omitempty"`
+	// Status of the action
+	Status *string `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
+	// Start datetime
+	StartedAt *string `form:"started_at,omitempty" json:"started_at,omitempty" xml:"started_at,omitempty"`
+	// Completion datetime
+	CompletedAt *string `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
+}
+
 // ConfirmRequestBody is the type of the "package" service "confirm" endpoint
 // HTTP request body.
 type ConfirmRequestBody struct {
@@ -87,6 +102,19 @@ type ShowResponseBody struct {
 // "preservation_actions" endpoint HTTP response body.
 type PreservationActionsResponseBody struct {
 	Actions EnduroPackagePreservationActionResponseBodyCollection `form:"actions,omitempty" json:"actions,omitempty" xml:"actions,omitempty"`
+}
+
+// CreatePreservationActionResponseBody is the type of the "package" service
+// "create_preservation_action" endpoint HTTP response body.
+type CreatePreservationActionResponseBody struct {
+	ID          uint                                                `form:"id" json:"id" xml:"id"`
+	WorkflowID  string                                              `form:"workflow_id" json:"workflow_id" xml:"workflow_id"`
+	Type        string                                              `form:"type" json:"type" xml:"type"`
+	Status      string                                              `form:"status" json:"status" xml:"status"`
+	StartedAt   string                                              `form:"started_at" json:"started_at" xml:"started_at"`
+	CompletedAt *string                                             `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
+	Tasks       EnduroPackagePreservationTaskResponseBodyCollection `form:"tasks,omitempty" json:"tasks,omitempty" xml:"tasks,omitempty"`
+	PackageID   *uint                                               `form:"package_id,omitempty" json:"package_id,omitempty" xml:"package_id,omitempty"`
 }
 
 // MoveStatusResponseBody is the type of the "package" service "move_status"
@@ -161,6 +189,35 @@ type ShowNotFoundResponseBody struct {
 // PreservationActionsNotFoundResponseBody is the type of the "package" service
 // "preservation_actions" endpoint HTTP response body for the "not_found" error.
 type PreservationActionsNotFoundResponseBody struct {
+	// Message of error
+	Message string `form:"message" json:"message" xml:"message"`
+	// Identifier of missing package
+	ID uint `form:"id" json:"id" xml:"id"`
+}
+
+// CreatePreservationActionNotValidResponseBody is the type of the "package"
+// service "create_preservation_action" endpoint HTTP response body for the
+// "not_valid" error.
+type CreatePreservationActionNotValidResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// CreatePreservationActionNotFoundResponseBody is the type of the "package"
+// service "create_preservation_action" endpoint HTTP response body for the
+// "not_found" error.
+type CreatePreservationActionNotFoundResponseBody struct {
 	// Message of error
 	Message string `form:"message" json:"message" xml:"message"`
 	// Identifier of missing package
@@ -489,6 +546,28 @@ func NewPreservationActionsResponseBody(res *package_views.EnduroPackagePreserva
 	return body
 }
 
+// NewCreatePreservationActionResponseBody builds the HTTP response body from
+// the result of the "create_preservation_action" endpoint of the "package"
+// service.
+func NewCreatePreservationActionResponseBody(res *package_views.EnduroPackagePreservationActionView) *CreatePreservationActionResponseBody {
+	body := &CreatePreservationActionResponseBody{
+		ID:          *res.ID,
+		WorkflowID:  *res.WorkflowID,
+		Type:        *res.Type,
+		Status:      *res.Status,
+		StartedAt:   *res.StartedAt,
+		CompletedAt: res.CompletedAt,
+		PackageID:   res.PackageID,
+	}
+	if res.Tasks != nil {
+		body.Tasks = make([]*EnduroPackagePreservationTaskResponseBody, len(res.Tasks))
+		for i, val := range res.Tasks {
+			body.Tasks[i] = marshalPackageViewsEnduroPackagePreservationTaskViewToEnduroPackagePreservationTaskResponseBody(val)
+		}
+	}
+	return body
+}
+
 // NewMoveStatusResponseBody builds the HTTP response body from the result of
 // the "move_status" endpoint of the "package" service.
 func NewMoveStatusResponseBody(res *package_.MoveStatusResult) *MoveStatusResponseBody {
@@ -555,6 +634,32 @@ func NewShowNotFoundResponseBody(res *package_.PackageNotFound) *ShowNotFoundRes
 // service.
 func NewPreservationActionsNotFoundResponseBody(res *package_.PackageNotFound) *PreservationActionsNotFoundResponseBody {
 	body := &PreservationActionsNotFoundResponseBody{
+		Message: res.Message,
+		ID:      res.ID,
+	}
+	return body
+}
+
+// NewCreatePreservationActionNotValidResponseBody builds the HTTP response
+// body from the result of the "create_preservation_action" endpoint of the
+// "package" service.
+func NewCreatePreservationActionNotValidResponseBody(res *goa.ServiceError) *CreatePreservationActionNotValidResponseBody {
+	body := &CreatePreservationActionNotValidResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewCreatePreservationActionNotFoundResponseBody builds the HTTP response
+// body from the result of the "create_preservation_action" endpoint of the
+// "package" service.
+func NewCreatePreservationActionNotFoundResponseBody(res *package_.PackageNotFound) *CreatePreservationActionNotFoundResponseBody {
+	body := &CreatePreservationActionNotFoundResponseBody{
 		Message: res.Message,
 		ID:      res.ID,
 	}
@@ -750,6 +855,27 @@ func NewPreservationActionsPayload(id uint, oauthToken *string) *package_.Preser
 	return v
 }
 
+// NewCreatePreservationActionPayload builds a package service
+// create_preservation_action endpoint payload.
+func NewCreatePreservationActionPayload(body *CreatePreservationActionRequestBody, packageID uint, oauthToken *string) *package_.CreatePreservationActionPayload {
+	v := &package_.CreatePreservationActionPayload{
+		WorkflowID:  *body.WorkflowID,
+		Type:        *body.Type,
+		StartedAt:   body.StartedAt,
+		CompletedAt: body.CompletedAt,
+	}
+	if body.Status != nil {
+		v.Status = *body.Status
+	}
+	if body.Status == nil {
+		v.Status = "unspecified"
+	}
+	v.PackageID = packageID
+	v.OauthToken = oauthToken
+
+	return v
+}
+
 // NewConfirmPayload builds a package service confirm endpoint payload.
 func NewConfirmPayload(body *ConfirmRequestBody, id uint, oauthToken *string) *package_.ConfirmPayload {
 	v := &package_.ConfirmPayload{
@@ -788,6 +914,34 @@ func NewMoveStatusPayload(id uint, oauthToken *string) *package_.MoveStatusPaylo
 	v.OauthToken = oauthToken
 
 	return v
+}
+
+// ValidateCreatePreservationActionRequestBody runs the validations defined on
+// create_preservation_action_request_body
+func ValidateCreatePreservationActionRequestBody(body *CreatePreservationActionRequestBody) (err error) {
+	if body.WorkflowID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("workflow_id", "body"))
+	}
+	if body.Type == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("type", "body"))
+	}
+	if body.Type != nil {
+		if !(*body.Type == "create-aip" || *body.Type == "create-and-review-aip" || *body.Type == "move-package") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.type", *body.Type, []any{"create-aip", "create-and-review-aip", "move-package"}))
+		}
+	}
+	if body.Status != nil {
+		if !(*body.Status == "unspecified" || *body.Status == "in progress" || *body.Status == "done" || *body.Status == "error" || *body.Status == "queued" || *body.Status == "pending") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []any{"unspecified", "in progress", "done", "error", "queued", "pending"}))
+		}
+	}
+	if body.StartedAt != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("body.started_at", *body.StartedAt, goa.FormatDateTime))
+	}
+	if body.CompletedAt != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("body.completed_at", *body.CompletedAt, goa.FormatDateTime))
+	}
+	return
 }
 
 // ValidateConfirmRequestBody runs the validations defined on ConfirmRequestBody

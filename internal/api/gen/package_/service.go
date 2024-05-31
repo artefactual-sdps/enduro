@@ -29,6 +29,8 @@ type Service interface {
 	Show(context.Context, *ShowPayload) (res *EnduroStoredPackage, err error)
 	// List all preservation actions by ID
 	PreservationActions(context.Context, *PreservationActionsPayload) (res *EnduroPackagePreservationActions, err error)
+	// Create a preservation action for a package
+	CreatePreservationAction(context.Context, *CreatePreservationActionPayload) (res *EnduroPackagePreservationAction, err error)
 	// Signal the package has been reviewed and accepted
 	Confirm(context.Context, *ConfirmPayload) (err error)
 	// Signal the package has been reviewed and rejected
@@ -59,7 +61,7 @@ const ServiceName = "package"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [9]string{"monitor_request", "monitor", "list", "show", "preservation_actions", "confirm", "reject", "move", "move_status"}
+var MethodNames = [10]string{"monitor_request", "monitor", "list", "show", "preservation_actions", "create_preservation_action", "confirm", "reject", "move", "move_status"}
 
 // MonitorServerStream is the interface a "monitor" endpoint server stream must
 // satisfy.
@@ -86,7 +88,26 @@ type ConfirmPayload struct {
 	OauthToken *string
 }
 
-// PreservationAction describes a preservation action.
+// CreatePreservationActionPayload is the payload type of the package service
+// create_preservation_action method.
+type CreatePreservationActionPayload struct {
+	// Identifier of the package
+	PackageID uint
+	// Identifier of the workflow that performed the action
+	WorkflowID string
+	// Type of the action
+	Type string
+	// Status of the action
+	Status string
+	// Start datetime
+	StartedAt *string
+	// Completion datetime
+	CompletedAt *string
+	OauthToken  *string
+}
+
+// EnduroPackagePreservationAction is the result type of the package service
+// create_preservation_action method.
 type EnduroPackagePreservationAction struct {
 	ID          uint
 	WorkflowID  string
@@ -385,6 +406,36 @@ func NewEnduroPackagePreservationActions(vres *package_views.EnduroPackagePreser
 func NewViewedEnduroPackagePreservationActions(res *EnduroPackagePreservationActions, view string) *package_views.EnduroPackagePreservationActions {
 	p := newEnduroPackagePreservationActionsView(res)
 	return &package_views.EnduroPackagePreservationActions{Projected: p, View: "default"}
+}
+
+// NewEnduroPackagePreservationAction initializes result type
+// EnduroPackagePreservationAction from viewed result type
+// EnduroPackagePreservationAction.
+func NewEnduroPackagePreservationAction(vres *package_views.EnduroPackagePreservationAction) *EnduroPackagePreservationAction {
+	var res *EnduroPackagePreservationAction
+	switch vres.View {
+	case "simple":
+		res = newEnduroPackagePreservationActionSimple(vres.Projected)
+	case "default", "":
+		res = newEnduroPackagePreservationAction(vres.Projected)
+	}
+	return res
+}
+
+// NewViewedEnduroPackagePreservationAction initializes viewed result type
+// EnduroPackagePreservationAction from result type
+// EnduroPackagePreservationAction using the given view.
+func NewViewedEnduroPackagePreservationAction(res *EnduroPackagePreservationAction, view string) *package_views.EnduroPackagePreservationAction {
+	var vres *package_views.EnduroPackagePreservationAction
+	switch view {
+	case "simple":
+		p := newEnduroPackagePreservationActionViewSimple(res)
+		vres = &package_views.EnduroPackagePreservationAction{Projected: p, View: "simple"}
+	case "default", "":
+		p := newEnduroPackagePreservationActionView(res)
+		vres = &package_views.EnduroPackagePreservationAction{Projected: p, View: "default"}
+	}
+	return vres
 }
 
 // newEnduroStoredPackage converts projected type EnduroStoredPackage to

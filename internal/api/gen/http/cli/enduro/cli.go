@@ -25,7 +25,7 @@ import (
 //
 //	command (subcommand1|subcommand2|...)
 func UsageCommands() string {
-	return `package (monitor-request|monitor|list|show|preservation-actions|confirm|reject|move|move-status)
+	return `package (monitor-request|monitor|list|show|preservation-actions|create-preservation-action|confirm|reject|move|move-status)
 storage (submit|create|update|download|locations|add-location|move|move-status|reject|show|show-location|location-packages)
 upload upload
 `
@@ -78,6 +78,11 @@ func ParseEndpoint(
 		package_PreservationActionsFlags          = flag.NewFlagSet("preservation-actions", flag.ExitOnError)
 		package_PreservationActionsIDFlag         = package_PreservationActionsFlags.String("id", "REQUIRED", "Identifier of package to look up")
 		package_PreservationActionsOauthTokenFlag = package_PreservationActionsFlags.String("oauth-token", "", "")
+
+		package_CreatePreservationActionFlags          = flag.NewFlagSet("create-preservation-action", flag.ExitOnError)
+		package_CreatePreservationActionBodyFlag       = package_CreatePreservationActionFlags.String("body", "REQUIRED", "")
+		package_CreatePreservationActionPackageIDFlag  = package_CreatePreservationActionFlags.String("package-id", "REQUIRED", "Identifier of the package")
+		package_CreatePreservationActionOauthTokenFlag = package_CreatePreservationActionFlags.String("oauth-token", "", "")
 
 		package_ConfirmFlags          = flag.NewFlagSet("confirm", flag.ExitOnError)
 		package_ConfirmBodyFlag       = package_ConfirmFlags.String("body", "REQUIRED", "")
@@ -161,6 +166,7 @@ func ParseEndpoint(
 	package_ListFlags.Usage = package_ListUsage
 	package_ShowFlags.Usage = package_ShowUsage
 	package_PreservationActionsFlags.Usage = package_PreservationActionsUsage
+	package_CreatePreservationActionFlags.Usage = package_CreatePreservationActionUsage
 	package_ConfirmFlags.Usage = package_ConfirmUsage
 	package_RejectFlags.Usage = package_RejectUsage
 	package_MoveFlags.Usage = package_MoveUsage
@@ -235,6 +241,9 @@ func ParseEndpoint(
 
 			case "preservation-actions":
 				epf = package_PreservationActionsFlags
+
+			case "create-preservation-action":
+				epf = package_CreatePreservationActionFlags
 
 			case "confirm":
 				epf = package_ConfirmFlags
@@ -335,6 +344,9 @@ func ParseEndpoint(
 			case "preservation-actions":
 				endpoint = c.PreservationActions()
 				data, err = package_c.BuildPreservationActionsPayload(*package_PreservationActionsIDFlag, *package_PreservationActionsOauthTokenFlag)
+			case "create-preservation-action":
+				endpoint = c.CreatePreservationAction()
+				data, err = package_c.BuildCreatePreservationActionPayload(*package_CreatePreservationActionBodyFlag, *package_CreatePreservationActionPackageIDFlag, *package_CreatePreservationActionOauthTokenFlag)
 			case "confirm":
 				endpoint = c.Confirm()
 				data, err = package_c.BuildConfirmPayload(*package_ConfirmBodyFlag, *package_ConfirmIDFlag, *package_ConfirmOauthTokenFlag)
@@ -419,6 +431,7 @@ COMMAND:
     list: List all stored packages
     show: Show package by ID
     preservation-actions: List all preservation actions by ID
+    create-preservation-action: Create a preservation action for a package
     confirm: Signal the package has been reviewed and accepted
     reject: Signal the package has been reviewed and rejected
     move: Move a package to a permanent storage location
@@ -489,6 +502,25 @@ List all preservation actions by ID
 
 Example:
     %[1]s package preservation-actions --id 1 --oauth-token "abc123"
+`, os.Args[0])
+}
+
+func package_CreatePreservationActionUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] package create-preservation-action -body JSON -package-id UINT -oauth-token STRING
+
+Create a preservation action for a package
+    -body JSON: 
+    -package-id UINT: Identifier of the package
+    -oauth-token STRING: 
+
+Example:
+    %[1]s package create-preservation-action --body '{
+      "completed_at": "1970-01-01T00:00:01Z",
+      "started_at": "1970-01-01T00:00:01Z",
+      "status": "in progress",
+      "type": "create-and-review-aip",
+      "workflow_id": "abc123"
+   }' --package-id 1 --oauth-token "abc123"
 `, os.Args[0])
 }
 

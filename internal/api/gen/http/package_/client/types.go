@@ -17,6 +17,21 @@ import (
 	goa "goa.design/goa/v3/pkg"
 )
 
+// CreatePreservationActionRequestBody is the type of the "package" service
+// "create_preservation_action" endpoint HTTP request body.
+type CreatePreservationActionRequestBody struct {
+	// Identifier of the workflow that performed the action
+	WorkflowID string `form:"workflow_id" json:"workflow_id" xml:"workflow_id"`
+	// Type of the action
+	Type string `form:"type" json:"type" xml:"type"`
+	// Status of the action
+	Status string `form:"status" json:"status" xml:"status"`
+	// Start datetime
+	StartedAt *string `form:"started_at,omitempty" json:"started_at,omitempty" xml:"started_at,omitempty"`
+	// Completion datetime
+	CompletedAt *string `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
+}
+
 // ConfirmRequestBody is the type of the "package" service "confirm" endpoint
 // HTTP request body.
 type ConfirmRequestBody struct {
@@ -87,6 +102,19 @@ type ShowResponseBody struct {
 // "preservation_actions" endpoint HTTP response body.
 type PreservationActionsResponseBody struct {
 	Actions EnduroPackagePreservationActionCollectionResponseBody `form:"actions,omitempty" json:"actions,omitempty" xml:"actions,omitempty"`
+}
+
+// CreatePreservationActionResponseBody is the type of the "package" service
+// "create_preservation_action" endpoint HTTP response body.
+type CreatePreservationActionResponseBody struct {
+	ID          *uint                                               `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	WorkflowID  *string                                             `form:"workflow_id,omitempty" json:"workflow_id,omitempty" xml:"workflow_id,omitempty"`
+	Type        *string                                             `form:"type,omitempty" json:"type,omitempty" xml:"type,omitempty"`
+	Status      *string                                             `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
+	StartedAt   *string                                             `form:"started_at,omitempty" json:"started_at,omitempty" xml:"started_at,omitempty"`
+	CompletedAt *string                                             `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
+	Tasks       EnduroPackagePreservationTaskCollectionResponseBody `form:"tasks,omitempty" json:"tasks,omitempty" xml:"tasks,omitempty"`
+	PackageID   *uint                                               `form:"package_id,omitempty" json:"package_id,omitempty" xml:"package_id,omitempty"`
 }
 
 // MoveStatusResponseBody is the type of the "package" service "move_status"
@@ -161,6 +189,35 @@ type ShowNotFoundResponseBody struct {
 // PreservationActionsNotFoundResponseBody is the type of the "package" service
 // "preservation_actions" endpoint HTTP response body for the "not_found" error.
 type PreservationActionsNotFoundResponseBody struct {
+	// Message of error
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Identifier of missing package
+	ID *uint `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+}
+
+// CreatePreservationActionNotValidResponseBody is the type of the "package"
+// service "create_preservation_action" endpoint HTTP response body for the
+// "not_valid" error.
+type CreatePreservationActionNotValidResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
+// CreatePreservationActionNotFoundResponseBody is the type of the "package"
+// service "create_preservation_action" endpoint HTTP response body for the
+// "not_found" error.
+type CreatePreservationActionNotFoundResponseBody struct {
 	// Message of error
 	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
 	// Identifier of missing package
@@ -392,6 +449,26 @@ type EnduroPackagePreservationTaskResponseBody struct {
 	PreservationActionID *uint   `form:"preservation_action_id,omitempty" json:"preservation_action_id,omitempty" xml:"preservation_action_id,omitempty"`
 }
 
+// NewCreatePreservationActionRequestBody builds the HTTP request body from the
+// payload of the "create_preservation_action" endpoint of the "package"
+// service.
+func NewCreatePreservationActionRequestBody(p *package_.CreatePreservationActionPayload) *CreatePreservationActionRequestBody {
+	body := &CreatePreservationActionRequestBody{
+		WorkflowID:  p.WorkflowID,
+		Type:        p.Type,
+		Status:      p.Status,
+		StartedAt:   p.StartedAt,
+		CompletedAt: p.CompletedAt,
+	}
+	{
+		var zero string
+		if body.Status == zero {
+			body.Status = "unspecified"
+		}
+	}
+	return body
+}
+
 // NewConfirmRequestBody builds the HTTP request body from the payload of the
 // "confirm" endpoint of the "package" service.
 func NewConfirmRequestBody(p *package_.ConfirmPayload) *ConfirmRequestBody {
@@ -615,6 +692,63 @@ func NewPreservationActionsNotFound(body *PreservationActionsNotFoundResponseBod
 // NewPreservationActionsUnauthorized builds a package service
 // preservation_actions endpoint unauthorized error.
 func NewPreservationActionsUnauthorized(body string) package_.Unauthorized {
+	v := package_.Unauthorized(body)
+
+	return v
+}
+
+// NewCreatePreservationActionEnduroPackagePreservationActionOK builds a
+// "package" service "create_preservation_action" endpoint result from a HTTP
+// "OK" response.
+func NewCreatePreservationActionEnduroPackagePreservationActionOK(body *CreatePreservationActionResponseBody) *package_views.EnduroPackagePreservationActionView {
+	v := &package_views.EnduroPackagePreservationActionView{
+		ID:          body.ID,
+		WorkflowID:  body.WorkflowID,
+		Type:        body.Type,
+		Status:      body.Status,
+		StartedAt:   body.StartedAt,
+		CompletedAt: body.CompletedAt,
+		PackageID:   body.PackageID,
+	}
+	if body.Tasks != nil {
+		v.Tasks = make([]*package_views.EnduroPackagePreservationTaskView, len(body.Tasks))
+		for i, val := range body.Tasks {
+			v.Tasks[i] = unmarshalEnduroPackagePreservationTaskResponseBodyToPackageViewsEnduroPackagePreservationTaskView(val)
+		}
+	}
+
+	return v
+}
+
+// NewCreatePreservationActionNotValid builds a package service
+// create_preservation_action endpoint not_valid error.
+func NewCreatePreservationActionNotValid(body *CreatePreservationActionNotValidResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
+// NewCreatePreservationActionNotFound builds a package service
+// create_preservation_action endpoint not_found error.
+func NewCreatePreservationActionNotFound(body *CreatePreservationActionNotFoundResponseBody) *package_.PackageNotFound {
+	v := &package_.PackageNotFound{
+		Message: *body.Message,
+		ID:      *body.ID,
+	}
+
+	return v
+}
+
+// NewCreatePreservationActionUnauthorized builds a package service
+// create_preservation_action endpoint unauthorized error.
+func NewCreatePreservationActionUnauthorized(body string) package_.Unauthorized {
 	v := package_.Unauthorized(body)
 
 	return v
@@ -933,6 +1067,42 @@ func ValidateShowNotFoundResponseBody(body *ShowNotFoundResponseBody) (err error
 // ValidatePreservationActionsNotFoundResponseBody runs the validations defined
 // on preservation_actions_not_found_response_body
 func ValidatePreservationActionsNotFoundResponseBody(body *PreservationActionsNotFoundResponseBody) (err error) {
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	return
+}
+
+// ValidateCreatePreservationActionNotValidResponseBody runs the validations
+// defined on create_preservation_action_not_valid_response_body
+func ValidateCreatePreservationActionNotValidResponseBody(body *CreatePreservationActionNotValidResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
+// ValidateCreatePreservationActionNotFoundResponseBody runs the validations
+// defined on create_preservation_action_not_found_response_body
+func ValidateCreatePreservationActionNotFoundResponseBody(body *CreatePreservationActionNotFoundResponseBody) (err error) {
 	if body.Message == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
 	}

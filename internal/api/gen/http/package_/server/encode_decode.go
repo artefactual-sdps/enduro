@@ -467,6 +467,122 @@ func EncodePreservationActionsError(encoder func(context.Context, http.ResponseW
 	}
 }
 
+// EncodeCreatePreservationActionResponse returns an encoder for responses
+// returned by the package create_preservation_action endpoint.
+func EncodeCreatePreservationActionResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, any) error {
+	return func(ctx context.Context, w http.ResponseWriter, v any) error {
+		res := v.(*package_views.EnduroPackagePreservationAction)
+		enc := encoder(ctx, w)
+		body := NewCreatePreservationActionResponseBody(res.Projected)
+		w.WriteHeader(http.StatusOK)
+		return enc.Encode(body)
+	}
+}
+
+// DecodeCreatePreservationActionRequest returns a decoder for requests sent to
+// the package create_preservation_action endpoint.
+func DecodeCreatePreservationActionRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (any, error) {
+	return func(r *http.Request) (any, error) {
+		var (
+			body CreatePreservationActionRequestBody
+			err  error
+		)
+		err = decoder(r).Decode(&body)
+		if err != nil {
+			if err == io.EOF {
+				return nil, goa.MissingPayloadError()
+			}
+			return nil, goa.DecodePayloadError(err.Error())
+		}
+		err = ValidateCreatePreservationActionRequestBody(&body)
+		if err != nil {
+			return nil, err
+		}
+
+		var (
+			packageID  uint
+			oauthToken *string
+
+			params = mux.Vars(r)
+		)
+		{
+			packageIDRaw := params["package_id"]
+			v, err2 := strconv.ParseUint(packageIDRaw, 10, strconv.IntSize)
+			if err2 != nil {
+				err = goa.MergeErrors(err, goa.InvalidFieldTypeError("package_id", packageIDRaw, "unsigned integer"))
+			}
+			packageID = uint(v)
+		}
+		oauthTokenRaw := r.Header.Get("Authorization")
+		if oauthTokenRaw != "" {
+			oauthToken = &oauthTokenRaw
+		}
+		if err != nil {
+			return nil, err
+		}
+		payload := NewCreatePreservationActionPayload(&body, packageID, oauthToken)
+		if payload.OauthToken != nil {
+			if strings.Contains(*payload.OauthToken, " ") {
+				// Remove authorization scheme prefix (e.g. "Bearer")
+				cred := strings.SplitN(*payload.OauthToken, " ", 2)[1]
+				payload.OauthToken = &cred
+			}
+		}
+
+		return payload, nil
+	}
+}
+
+// EncodeCreatePreservationActionError returns an encoder for errors returned
+// by the create_preservation_action package endpoint.
+func EncodeCreatePreservationActionError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(ctx context.Context, err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
+	encodeError := goahttp.ErrorEncoder(encoder, formatter)
+	return func(ctx context.Context, w http.ResponseWriter, v error) error {
+		var en goa.GoaErrorNamer
+		if !errors.As(v, &en) {
+			return encodeError(ctx, w, v)
+		}
+		switch en.GoaErrorName() {
+		case "not_valid":
+			var res *goa.ServiceError
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			var body any
+			if formatter != nil {
+				body = formatter(ctx, res)
+			} else {
+				body = NewCreatePreservationActionNotValidResponseBody(res)
+			}
+			w.Header().Set("goa-error", res.GoaErrorName())
+			w.WriteHeader(http.StatusBadRequest)
+			return enc.Encode(body)
+		case "not_found":
+			var res *package_.PackageNotFound
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			var body any
+			if formatter != nil {
+				body = formatter(ctx, res)
+			} else {
+				body = NewCreatePreservationActionNotFoundResponseBody(res)
+			}
+			w.Header().Set("goa-error", res.GoaErrorName())
+			w.WriteHeader(http.StatusNotFound)
+			return enc.Encode(body)
+		case "unauthorized":
+			var res package_.Unauthorized
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			body := res
+			w.Header().Set("goa-error", res.GoaErrorName())
+			w.WriteHeader(http.StatusUnauthorized)
+			return enc.Encode(body)
+		default:
+			return encodeError(ctx, w, v)
+		}
+	}
+}
+
 // EncodeConfirmResponse returns an encoder for responses returned by the
 // package confirm endpoint.
 func EncodeConfirmResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, any) error {

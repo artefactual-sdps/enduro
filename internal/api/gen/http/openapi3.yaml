@@ -457,6 +457,85 @@ paths:
                                 $ref: '#/components/schemas/Error'
             security:
                 - oauth2_header_Authorization: []
+    /package/{package_id}/preservation-action:
+        post:
+            tags:
+                - package
+            summary: create_preservation_action package
+            description: Create a preservation action for a package
+            operationId: package#create_preservation_action
+            parameters:
+                - name: package_id
+                  in: path
+                  description: Identifier of the package
+                  required: true
+                  schema:
+                    type: integer
+                    description: Identifier of the package
+                    example: 1
+                    format: int64
+                  example: 1
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreatePreservationActionRequestBody'
+                        example:
+                            completed_at: "1970-01-01T00:00:01Z"
+                            started_at: "1970-01-01T00:00:01Z"
+                            status: in progress
+                            type: create-and-review-aip
+                            workflow_id: abc123
+            responses:
+                "200":
+                    description: OK response.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/CreatePreservationActionResponseBody'
+                            example:
+                                completed_at: "1970-01-01T00:00:01Z"
+                                id: 1
+                                package_id: 1
+                                started_at: "1970-01-01T00:00:01Z"
+                                status: in progress
+                                tasks:
+                                    - completed_at: "1970-01-01T00:00:01Z"
+                                      id: 1
+                                      name: abc123
+                                      note: abc123
+                                      preservation_action_id: 1
+                                      started_at: "1970-01-01T00:00:01Z"
+                                      status: in progress
+                                      task_id: abc123
+                                type: create-and-review-aip
+                                workflow_id: abc123
+                "400":
+                    description: 'not_valid: Bad Request response.'
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                "401":
+                    description: 'unauthorized: Unauthorized response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
+                "404":
+                    description: 'not_found: Package not found'
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/PackageNotFound'
+                            example:
+                                id: 1
+                                message: abc123
+            security:
+                - oauth2_header_Authorization: []
     /package/monitor:
         get:
             tags:
@@ -1276,6 +1355,117 @@ components:
                 location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
             required:
                 - location_id
+        CreatePreservationActionRequestBody:
+            type: object
+            properties:
+                completed_at:
+                    type: string
+                    description: Completion datetime
+                    example: "1970-01-01T00:00:01Z"
+                    format: date-time
+                started_at:
+                    type: string
+                    description: Start datetime
+                    example: "1970-01-01T00:00:01Z"
+                    format: date-time
+                status:
+                    type: string
+                    description: Status of the action
+                    default: unspecified
+                    example: in progress
+                    enum:
+                        - unspecified
+                        - in progress
+                        - done
+                        - error
+                        - queued
+                        - pending
+                type:
+                    type: string
+                    description: Type of the action
+                    example: create-and-review-aip
+                    enum:
+                        - create-aip
+                        - create-and-review-aip
+                        - move-package
+                workflow_id:
+                    type: string
+                    description: Identifier of the workflow that performed the action
+                    example: abc123
+            example:
+                completed_at: "1970-01-01T00:00:01Z"
+                started_at: "1970-01-01T00:00:01Z"
+                status: in progress
+                type: create-and-review-aip
+                workflow_id: abc123
+            required:
+                - workflow_id
+                - type
+        CreatePreservationActionResponseBody:
+            type: object
+            properties:
+                completed_at:
+                    type: string
+                    example: "1970-01-01T00:00:01Z"
+                    format: date-time
+                id:
+                    type: integer
+                    example: 1
+                    format: int64
+                package_id:
+                    type: integer
+                    example: 1
+                    format: int64
+                started_at:
+                    type: string
+                    example: "1970-01-01T00:00:01Z"
+                    format: date-time
+                status:
+                    type: string
+                    example: in progress
+                    enum:
+                        - unspecified
+                        - in progress
+                        - done
+                        - error
+                        - queued
+                        - pending
+                tasks:
+                    $ref: '#/components/schemas/EnduroPackagePreservationTaskResponseBodyCollection'
+                type:
+                    type: string
+                    example: create-and-review-aip
+                    enum:
+                        - create-aip
+                        - create-and-review-aip
+                        - move-package
+                workflow_id:
+                    type: string
+                    example: abc123
+            description: create_preservation_action_response_body result type (default view)
+            example:
+                completed_at: "1970-01-01T00:00:01Z"
+                id: 1
+                package_id: 1
+                started_at: "1970-01-01T00:00:01Z"
+                status: in progress
+                tasks:
+                    - completed_at: "1970-01-01T00:00:01Z"
+                      id: 1
+                      name: abc123
+                      note: abc123
+                      preservation_action_id: 1
+                      started_at: "1970-01-01T00:00:01Z"
+                      status: in progress
+                      task_id: abc123
+                type: create-and-review-aip
+                workflow_id: abc123
+            required:
+                - id
+                - workflow_id
+                - type
+                - status
+                - started_at
         CreateRequestBody:
             type: object
             properties:
@@ -1485,6 +1675,74 @@ components:
             type: array
             items:
                 $ref: '#/components/schemas/EnduroPackagePreservationTask'
+            example:
+                - completed_at: "1970-01-01T00:00:01Z"
+                  id: 1
+                  name: abc123
+                  note: abc123
+                  preservation_action_id: 1
+                  started_at: "1970-01-01T00:00:01Z"
+                  status: in progress
+                  task_id: abc123
+        EnduroPackagePreservationTaskResponseBody:
+            type: object
+            properties:
+                completed_at:
+                    type: string
+                    example: "1970-01-01T00:00:01Z"
+                    format: date-time
+                id:
+                    type: integer
+                    example: 1
+                    format: int64
+                name:
+                    type: string
+                    example: abc123
+                note:
+                    type: string
+                    example: abc123
+                preservation_action_id:
+                    type: integer
+                    example: 1
+                    format: int64
+                started_at:
+                    type: string
+                    example: "1970-01-01T00:00:01Z"
+                    format: date-time
+                status:
+                    type: string
+                    example: in progress
+                    enum:
+                        - unspecified
+                        - in progress
+                        - done
+                        - error
+                        - queued
+                        - pending
+                task_id:
+                    type: string
+                    example: abc123
+            description: PreservationTask describes a preservation action task. (default view)
+            example:
+                completed_at: "1970-01-01T00:00:01Z"
+                id: 1
+                name: abc123
+                note: abc123
+                preservation_action_id: 1
+                started_at: "1970-01-01T00:00:01Z"
+                status: in progress
+                task_id: abc123
+            required:
+                - id
+                - task_id
+                - name
+                - status
+                - started_at
+        EnduroPackagePreservationTaskResponseBodyCollection:
+            type: array
+            items:
+                $ref: '#/components/schemas/EnduroPackagePreservationTaskResponseBody'
+            description: EnduroPackage-Preservation-TaskCollectionResponseBody is the result type for an array of EnduroPackage-Preservation-TaskResponseBody (default view)
             example:
                 - completed_at: "1970-01-01T00:00:01Z"
                   id: 1

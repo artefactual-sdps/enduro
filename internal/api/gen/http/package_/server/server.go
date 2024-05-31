@@ -22,17 +22,18 @@ import (
 
 // Server lists the package service endpoint HTTP handlers.
 type Server struct {
-	Mounts              []*MountPoint
-	MonitorRequest      http.Handler
-	Monitor             http.Handler
-	List                http.Handler
-	Show                http.Handler
-	PreservationActions http.Handler
-	Confirm             http.Handler
-	Reject              http.Handler
-	Move                http.Handler
-	MoveStatus          http.Handler
-	CORS                http.Handler
+	Mounts                   []*MountPoint
+	MonitorRequest           http.Handler
+	Monitor                  http.Handler
+	List                     http.Handler
+	Show                     http.Handler
+	PreservationActions      http.Handler
+	CreatePreservationAction http.Handler
+	Confirm                  http.Handler
+	Reject                   http.Handler
+	Move                     http.Handler
+	MoveStatus               http.Handler
+	CORS                     http.Handler
 }
 
 // MountPoint holds information about the mounted endpoints.
@@ -72,6 +73,7 @@ func New(
 			{"List", "GET", "/package"},
 			{"Show", "GET", "/package/{id}"},
 			{"PreservationActions", "GET", "/package/{id}/preservation-actions"},
+			{"CreatePreservationAction", "POST", "/package/{package_id}/preservation-action"},
 			{"Confirm", "POST", "/package/{id}/confirm"},
 			{"Reject", "POST", "/package/{id}/reject"},
 			{"Move", "POST", "/package/{id}/move"},
@@ -80,20 +82,22 @@ func New(
 			{"CORS", "OPTIONS", "/package"},
 			{"CORS", "OPTIONS", "/package/{id}"},
 			{"CORS", "OPTIONS", "/package/{id}/preservation-actions"},
+			{"CORS", "OPTIONS", "/package/{package_id}/preservation-action"},
 			{"CORS", "OPTIONS", "/package/{id}/confirm"},
 			{"CORS", "OPTIONS", "/package/{id}/reject"},
 			{"CORS", "OPTIONS", "/package/{id}/move"},
 		},
-		MonitorRequest:      NewMonitorRequestHandler(e.MonitorRequest, mux, decoder, encoder, errhandler, formatter),
-		Monitor:             NewMonitorHandler(e.Monitor, mux, decoder, encoder, errhandler, formatter, upgrader, configurer.MonitorFn),
-		List:                NewListHandler(e.List, mux, decoder, encoder, errhandler, formatter),
-		Show:                NewShowHandler(e.Show, mux, decoder, encoder, errhandler, formatter),
-		PreservationActions: NewPreservationActionsHandler(e.PreservationActions, mux, decoder, encoder, errhandler, formatter),
-		Confirm:             NewConfirmHandler(e.Confirm, mux, decoder, encoder, errhandler, formatter),
-		Reject:              NewRejectHandler(e.Reject, mux, decoder, encoder, errhandler, formatter),
-		Move:                NewMoveHandler(e.Move, mux, decoder, encoder, errhandler, formatter),
-		MoveStatus:          NewMoveStatusHandler(e.MoveStatus, mux, decoder, encoder, errhandler, formatter),
-		CORS:                NewCORSHandler(),
+		MonitorRequest:           NewMonitorRequestHandler(e.MonitorRequest, mux, decoder, encoder, errhandler, formatter),
+		Monitor:                  NewMonitorHandler(e.Monitor, mux, decoder, encoder, errhandler, formatter, upgrader, configurer.MonitorFn),
+		List:                     NewListHandler(e.List, mux, decoder, encoder, errhandler, formatter),
+		Show:                     NewShowHandler(e.Show, mux, decoder, encoder, errhandler, formatter),
+		PreservationActions:      NewPreservationActionsHandler(e.PreservationActions, mux, decoder, encoder, errhandler, formatter),
+		CreatePreservationAction: NewCreatePreservationActionHandler(e.CreatePreservationAction, mux, decoder, encoder, errhandler, formatter),
+		Confirm:                  NewConfirmHandler(e.Confirm, mux, decoder, encoder, errhandler, formatter),
+		Reject:                   NewRejectHandler(e.Reject, mux, decoder, encoder, errhandler, formatter),
+		Move:                     NewMoveHandler(e.Move, mux, decoder, encoder, errhandler, formatter),
+		MoveStatus:               NewMoveStatusHandler(e.MoveStatus, mux, decoder, encoder, errhandler, formatter),
+		CORS:                     NewCORSHandler(),
 	}
 }
 
@@ -107,6 +111,7 @@ func (s *Server) Use(m func(http.Handler) http.Handler) {
 	s.List = m(s.List)
 	s.Show = m(s.Show)
 	s.PreservationActions = m(s.PreservationActions)
+	s.CreatePreservationAction = m(s.CreatePreservationAction)
 	s.Confirm = m(s.Confirm)
 	s.Reject = m(s.Reject)
 	s.Move = m(s.Move)
@@ -124,6 +129,7 @@ func Mount(mux goahttp.Muxer, h *Server) {
 	MountListHandler(mux, h.List)
 	MountShowHandler(mux, h.Show)
 	MountPreservationActionsHandler(mux, h.PreservationActions)
+	MountCreatePreservationActionHandler(mux, h.CreatePreservationAction)
 	MountConfirmHandler(mux, h.Confirm)
 	MountRejectHandler(mux, h.Reject)
 	MountMoveHandler(mux, h.Move)
@@ -406,6 +412,58 @@ func NewPreservationActionsHandler(
 	})
 }
 
+// MountCreatePreservationActionHandler configures the mux to serve the
+// "package" service "create_preservation_action" endpoint.
+func MountCreatePreservationActionHandler(mux goahttp.Muxer, h http.Handler) {
+	f, ok := HandlePackageOrigin(h).(http.HandlerFunc)
+	if !ok {
+		f = func(w http.ResponseWriter, r *http.Request) {
+			h.ServeHTTP(w, r)
+		}
+	}
+	mux.Handle("POST", "/package/{package_id}/preservation-action", otelhttp.WithRouteTag("/package/{package_id}/preservation-action", f).ServeHTTP)
+}
+
+// NewCreatePreservationActionHandler creates a HTTP handler which loads the
+// HTTP request and calls the "package" service "create_preservation_action"
+// endpoint.
+func NewCreatePreservationActionHandler(
+	endpoint goa.Endpoint,
+	mux goahttp.Muxer,
+	decoder func(*http.Request) goahttp.Decoder,
+	encoder func(context.Context, http.ResponseWriter) goahttp.Encoder,
+	errhandler func(context.Context, http.ResponseWriter, error),
+	formatter func(ctx context.Context, err error) goahttp.Statuser,
+) http.Handler {
+	var (
+		decodeRequest  = DecodeCreatePreservationActionRequest(mux, decoder)
+		encodeResponse = EncodeCreatePreservationActionResponse(encoder)
+		encodeError    = EncodeCreatePreservationActionError(encoder, formatter)
+	)
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
+		ctx = context.WithValue(ctx, goa.MethodKey, "create_preservation_action")
+		ctx = context.WithValue(ctx, goa.ServiceKey, "package")
+		payload, err := decodeRequest(r)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		res, err := endpoint(ctx, payload)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		if err := encodeResponse(ctx, w, res); err != nil {
+			errhandler(ctx, w, err)
+		}
+	})
+}
+
 // MountConfirmHandler configures the mux to serve the "package" service
 // "confirm" endpoint.
 func MountConfirmHandler(mux goahttp.Muxer, h http.Handler) {
@@ -618,6 +676,7 @@ func MountCORSHandler(mux goahttp.Muxer, h http.Handler) {
 	mux.Handle("OPTIONS", "/package", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/package/{id}", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/package/{id}/preservation-actions", h.ServeHTTP)
+	mux.Handle("OPTIONS", "/package/{package_id}/preservation-action", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/package/{id}/confirm", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/package/{id}/reject", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/package/{id}/move", h.ServeHTTP)
