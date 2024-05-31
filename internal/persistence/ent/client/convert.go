@@ -45,6 +45,30 @@ func convertPkgToPackage(pkg *db.Pkg) *datatypes.Package {
 	}
 }
 
+// convertPreservationAction converts an entgo `db.PreservationAction`
+// representation to a `datatypes.PreservationAction` representation.
+func convertPreservationAction(pa *db.PreservationAction) *datatypes.PreservationAction {
+	var started sql.NullTime
+	if !pa.StartedAt.IsZero() {
+		started = sql.NullTime{Time: pa.StartedAt, Valid: true}
+	}
+
+	var completed sql.NullTime
+	if !pa.CompletedAt.IsZero() {
+		completed = sql.NullTime{Time: pa.CompletedAt, Valid: true}
+	}
+
+	return &datatypes.PreservationAction{
+		ID:          uint(pa.ID),
+		WorkflowID:  pa.WorkflowID,
+		Type:        enums.PreservationActionType(pa.Type),
+		Status:      enums.PreservationActionStatus(pa.Status),
+		StartedAt:   started,
+		CompletedAt: completed,
+		PackageID:   uint(pa.PackageID),
+	}
+}
+
 // convertPreservationTask converts an entgo `db.PreservationTask` representation
 // to a `datatypes.PreservationTask` representation.
 func convertPreservationTask(pt *db.PreservationTask) *datatypes.PreservationTask {

@@ -30,6 +30,8 @@ type Service interface {
 	CreatePackage(context.Context, *datatypes.Package) error
 	UpdatePackage(context.Context, uint, PackageUpdater) (*datatypes.Package, error)
 
+	CreatePreservationAction(context.Context, *datatypes.PreservationAction) error
+
 	CreatePreservationTask(context.Context, *datatypes.PreservationTask) error
 	UpdatePreservationTask(ctx context.Context, id uint, updater PresTaskUpdater) (*datatypes.PreservationTask, error)
 }

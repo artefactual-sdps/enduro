@@ -79,6 +79,44 @@ func (c *MockServiceCreatePackageCall) DoAndReturn(f func(context.Context, *data
 	return c
 }
 
+// CreatePreservationAction mocks base method.
+func (m *MockService) CreatePreservationAction(arg0 context.Context, arg1 *datatypes.PreservationAction) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreatePreservationAction", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreatePreservationAction indicates an expected call of CreatePreservationAction.
+func (mr *MockServiceMockRecorder) CreatePreservationAction(arg0, arg1 any) *MockServiceCreatePreservationActionCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreatePreservationAction", reflect.TypeOf((*MockService)(nil).CreatePreservationAction), arg0, arg1)
+	return &MockServiceCreatePreservationActionCall{Call: call}
+}
+
+// MockServiceCreatePreservationActionCall wrap *gomock.Call
+type MockServiceCreatePreservationActionCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockServiceCreatePreservationActionCall) Return(arg0 error) *MockServiceCreatePreservationActionCall {
+	c.Call = c.Call.Return(arg0)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockServiceCreatePreservationActionCall) Do(f func(context.Context, *datatypes.PreservationAction) error) *MockServiceCreatePreservationActionCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockServiceCreatePreservationActionCall) DoAndReturn(f func(context.Context, *datatypes.PreservationAction) error) *MockServiceCreatePreservationActionCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
 // CreatePreservationTask mocks base method.
 func (m *MockService) CreatePreservationTask(arg0 context.Context, arg1 *datatypes.PreservationTask) error {
 	m.ctrl.T.Helper()
