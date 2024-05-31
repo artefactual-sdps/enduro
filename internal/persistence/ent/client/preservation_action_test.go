@@ -16,7 +16,7 @@ import (
 func TestCreatePreservationAction(t *testing.T) {
 	t.Parallel()
 
-	workflowID := "e7d664f1-b70b-4f34-8b51-565b2bca7ad0"
+	workflowID := "processing-workflow-720db1d4-825c-4911-9a20-61c212cf23ff"
 	started := sql.NullTime{Time: time.Now(), Valid: true}
 	completed := sql.NullTime{Time: started.Time.Add(time.Second), Valid: true}
 

@@ -13,8 +13,10 @@ import (
 	temporalapi_enums "go.temporal.io/api/enums/v1"
 	"goa.design/goa/v3/security"
 
+	"github.com/artefactual-sdps/enduro/internal/api/gen/package_"
 	goapackage "github.com/artefactual-sdps/enduro/internal/api/gen/package_"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
+	"github.com/artefactual-sdps/enduro/internal/db"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 )
 
@@ -223,6 +225,91 @@ func (w *goaWrapper) Show(
 	}
 
 	return c.Goa(), nil
+}
+
+func (w *goaWrapper) PreservationActions(
+	ctx context.Context,
+	payload *goapackage.PreservationActionsPayload,
+) (*goapackage.EnduroPackagePreservationActions, error) {
+	goapkg, err := w.Show(ctx, &goapackage.ShowPayload{ID: payload.ID})
+	if err != nil {
+		return nil, err
+	}
+
+	query := "SELECT id, workflow_id, type, status, CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at, CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at FROM preservation_action WHERE package_id = ? ORDER BY started_at DESC"
+	args := []interface{}{goapkg.ID}
+
+	rows, err := w.db.QueryxContext(ctx, query, args...)
+	if err != nil {
+		return nil, fmt.Errorf("error querying the database: %w", err)
+	}
+	defer rows.Close()
+
+	preservation_actions := []*goapackage.EnduroPackagePreservationAction{}
+	for rows.Next() {
+		pa := datatypes.PreservationAction{}
+		if err := rows.StructScan(&pa); err != nil {
+			return nil, fmt.Errorf("error scanning database result: %w", err)
+		}
+		goapa := &goapackage.EnduroPackagePreservationAction{
+			ID:          pa.ID,
+			WorkflowID:  pa.WorkflowID,
+			Type:        pa.Type.String(),
+			Status:      pa.Status.String(),
+			StartedAt:   db.FormatTime(pa.StartedAt.Time),
+			CompletedAt: db.FormatOptionalTime(pa.CompletedAt),
+		}
+
+		ptQuery := "SELECT id, task_id, name, status, CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at, CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at, note FROM preservation_task WHERE preservation_action_id = ?"
+		ptQueryArgs := []interface{}{pa.ID}
+
+		ptRows, err := w.db.QueryxContext(ctx, ptQuery, ptQueryArgs...)
+		if err != nil {
+			return nil, fmt.Errorf("error querying the database: %w", err)
+		}
+		defer ptRows.Close()
+
+		preservation_tasks := []*goapackage.EnduroPackagePreservationTask{}
+		for ptRows.Next() {
+			pt := datatypes.PreservationTask{}
+			if err := ptRows.StructScan(&pt); err != nil {
+				return nil, fmt.Errorf("error scanning database result: %w", err)
+			}
+			goapt := &goapackage.EnduroPackagePreservationTask{
+				ID:          pt.ID,
+				TaskID:      pt.TaskID,
+				Name:        pt.Name,
+				Status:      pt.Status.String(),
+				StartedAt:   db.FormatTime(pt.StartedAt.Time),
+				CompletedAt: db.FormatOptionalTime(pt.CompletedAt),
+				Note:        &pt.Note,
+			}
+			preservation_tasks = append(preservation_tasks, goapt)
+		}
+
+		goapa.Tasks = preservation_tasks
+		preservation_actions = append(preservation_actions, goapa)
+	}
+
+	result := &goapackage.EnduroPackagePreservationActions{
+		Actions: preservation_actions,
+	}
+
+	return result, nil
+}
+
+func (w *goaWrapper) CreatePreservationAction(
+	ctx context.Context,
+	payload *package_.CreatePreservationActionPayload,
+) (*package_.EnduroPackagePreservationAction, error) {
+	pa := GoaToPreservationAction(payload)
+
+	err := w.packageImpl.CreatePreservationAction(ctx, pa)
+	if err != nil {
+		return nil, err
+	}
+
+	return preservationActionToGoa(pa), nil
 }
 
 func (w *goaWrapper) Confirm(ctx context.Context, payload *goapackage.ConfirmPayload) error {
