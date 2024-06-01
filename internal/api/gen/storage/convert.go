@@ -12,8 +12,8 @@ import (
 	types "github.com/artefactual-sdps/enduro/internal/storage/types"
 )
 
-// ConvertToSSConfig creates an instance of SSConfig initialized from t.
-func (t *AMSSConfig) ConvertToSSConfig() *types.AMSSConfig {
+// ConvertToAMSSConfig creates an instance of AMSSConfig initialized from t.
+func (t *AMSSConfig) ConvertToAMSSConfig() *types.AMSSConfig {
 	v := &types.AMSSConfig{
 		APIKey:   t.APIKey,
 		URL:      t.URL,
