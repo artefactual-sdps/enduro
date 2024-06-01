@@ -64,7 +64,7 @@ func NewLocation(location *goastorage.Location) (Location, error) {
 	case *goastorage.SFTPConfig:
 		config.Value = c.ConvertToSFTPConfig()
 	case *goastorage.AMSSConfig:
-		config.Value = c.ConvertToSSConfig()
+		config.Value = c.ConvertToAMSSConfig()
 	default:
 		return nil, fmt.Errorf("unsupported config type: %T", c)
 	}
