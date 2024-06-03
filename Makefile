@@ -237,3 +237,31 @@ upload-sample-transfer:
 workflowcheck: # @HELP Detect non-determinism in workflow functions.
 workflowcheck: $(WORKFLOWCHECK)
 	workflowcheck ./...
+
+cluster-start: # @HELP Start cluster.
+	k3d cluster start sdps-local
+	tilt up
+
+cluster-stop: # @HELP Stop cluster.
+	k3d cluster stop sdps-local
+	tilt down
+
+cluster-rebuild: # @HELP Rebuild cluster.
+	k3d cluster stop sdps-local
+	tilt down
+	kubectl config set-context --current --namespace sdps-local
+	echo
+	echo "*******************************************************************************"
+	echo "After deleting the volumes/cluster you'll see the status of the core pods being"
+	echo "created."
+	echo
+	echo "After all pods are running or completed, press CTRL-C and start the cluster."
+	echo "****************************************************************************************"
+	echo
+	echo "Press [enter] to continue..."
+	read
+	kubectl delete pvc,pv --all
+	k3d cluster delete sdps-local
+	docker system prune --all
+	k3d cluster create sdps-local --registry-create sdps-registry
+	watch kubectl get pod -A
