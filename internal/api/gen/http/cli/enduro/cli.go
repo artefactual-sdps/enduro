@@ -33,11 +33,11 @@ upload upload
 
 // UsageExamples produces an example of a valid invocation of the CLI tool.
 func UsageExamples() string {
-	return os.Args[0] + ` package monitor-request --oauth-token "abc123"` + "\n" +
+	return os.Args[0] + ` package monitor-request --token "abc123"` + "\n" +
 		os.Args[0] + ` storage submit --body '{
       "name": "abc123"
-   }' --aip-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --oauth-token "abc123"` + "\n" +
-		os.Args[0] + ` upload upload --content-type "multipart/form-data; boundary=goa" --oauth-token "abc123" --stream "goa.png"` + "\n" +
+   }' --aip-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --token "abc123"` + "\n" +
+		os.Args[0] + ` upload upload --content-type "multipart/form-data; boundary=goa" --token "abc123" --stream "goa.png"` + "\n" +
 		""
 }
 
@@ -55,8 +55,8 @@ func ParseEndpoint(
 	var (
 		package_Flags = flag.NewFlagSet("package", flag.ContinueOnError)
 
-		package_MonitorRequestFlags          = flag.NewFlagSet("monitor-request", flag.ExitOnError)
-		package_MonitorRequestOauthTokenFlag = package_MonitorRequestFlags.String("oauth-token", "", "")
+		package_MonitorRequestFlags     = flag.NewFlagSet("monitor-request", flag.ExitOnError)
+		package_MonitorRequestTokenFlag = package_MonitorRequestFlags.String("token", "", "")
 
 		package_MonitorFlags      = flag.NewFlagSet("monitor", flag.ExitOnError)
 		package_MonitorTicketFlag = package_MonitorFlags.String("ticket", "", "")
@@ -69,90 +69,90 @@ func ParseEndpoint(
 		package_ListLocationIDFlag          = package_ListFlags.String("location-id", "", "")
 		package_ListStatusFlag              = package_ListFlags.String("status", "", "")
 		package_ListCursorFlag              = package_ListFlags.String("cursor", "", "")
-		package_ListOauthTokenFlag          = package_ListFlags.String("oauth-token", "", "")
+		package_ListTokenFlag               = package_ListFlags.String("token", "", "")
 
-		package_ShowFlags          = flag.NewFlagSet("show", flag.ExitOnError)
-		package_ShowIDFlag         = package_ShowFlags.String("id", "REQUIRED", "Identifier of package to show")
-		package_ShowOauthTokenFlag = package_ShowFlags.String("oauth-token", "", "")
+		package_ShowFlags     = flag.NewFlagSet("show", flag.ExitOnError)
+		package_ShowIDFlag    = package_ShowFlags.String("id", "REQUIRED", "Identifier of package to show")
+		package_ShowTokenFlag = package_ShowFlags.String("token", "", "")
 
-		package_PreservationActionsFlags          = flag.NewFlagSet("preservation-actions", flag.ExitOnError)
-		package_PreservationActionsIDFlag         = package_PreservationActionsFlags.String("id", "REQUIRED", "Identifier of package to look up")
-		package_PreservationActionsOauthTokenFlag = package_PreservationActionsFlags.String("oauth-token", "", "")
+		package_PreservationActionsFlags     = flag.NewFlagSet("preservation-actions", flag.ExitOnError)
+		package_PreservationActionsIDFlag    = package_PreservationActionsFlags.String("id", "REQUIRED", "Identifier of package to look up")
+		package_PreservationActionsTokenFlag = package_PreservationActionsFlags.String("token", "", "")
 
-		package_ConfirmFlags          = flag.NewFlagSet("confirm", flag.ExitOnError)
-		package_ConfirmBodyFlag       = package_ConfirmFlags.String("body", "REQUIRED", "")
-		package_ConfirmIDFlag         = package_ConfirmFlags.String("id", "REQUIRED", "Identifier of package to look up")
-		package_ConfirmOauthTokenFlag = package_ConfirmFlags.String("oauth-token", "", "")
+		package_ConfirmFlags     = flag.NewFlagSet("confirm", flag.ExitOnError)
+		package_ConfirmBodyFlag  = package_ConfirmFlags.String("body", "REQUIRED", "")
+		package_ConfirmIDFlag    = package_ConfirmFlags.String("id", "REQUIRED", "Identifier of package to look up")
+		package_ConfirmTokenFlag = package_ConfirmFlags.String("token", "", "")
 
-		package_RejectFlags          = flag.NewFlagSet("reject", flag.ExitOnError)
-		package_RejectIDFlag         = package_RejectFlags.String("id", "REQUIRED", "Identifier of package to look up")
-		package_RejectOauthTokenFlag = package_RejectFlags.String("oauth-token", "", "")
+		package_RejectFlags     = flag.NewFlagSet("reject", flag.ExitOnError)
+		package_RejectIDFlag    = package_RejectFlags.String("id", "REQUIRED", "Identifier of package to look up")
+		package_RejectTokenFlag = package_RejectFlags.String("token", "", "")
 
-		package_MoveFlags          = flag.NewFlagSet("move", flag.ExitOnError)
-		package_MoveBodyFlag       = package_MoveFlags.String("body", "REQUIRED", "")
-		package_MoveIDFlag         = package_MoveFlags.String("id", "REQUIRED", "Identifier of package to move")
-		package_MoveOauthTokenFlag = package_MoveFlags.String("oauth-token", "", "")
+		package_MoveFlags     = flag.NewFlagSet("move", flag.ExitOnError)
+		package_MoveBodyFlag  = package_MoveFlags.String("body", "REQUIRED", "")
+		package_MoveIDFlag    = package_MoveFlags.String("id", "REQUIRED", "Identifier of package to move")
+		package_MoveTokenFlag = package_MoveFlags.String("token", "", "")
 
-		package_MoveStatusFlags          = flag.NewFlagSet("move-status", flag.ExitOnError)
-		package_MoveStatusIDFlag         = package_MoveStatusFlags.String("id", "REQUIRED", "Identifier of package to move")
-		package_MoveStatusOauthTokenFlag = package_MoveStatusFlags.String("oauth-token", "", "")
+		package_MoveStatusFlags     = flag.NewFlagSet("move-status", flag.ExitOnError)
+		package_MoveStatusIDFlag    = package_MoveStatusFlags.String("id", "REQUIRED", "Identifier of package to move")
+		package_MoveStatusTokenFlag = package_MoveStatusFlags.String("token", "", "")
 
 		storageFlags = flag.NewFlagSet("storage", flag.ContinueOnError)
 
-		storageSubmitFlags          = flag.NewFlagSet("submit", flag.ExitOnError)
-		storageSubmitBodyFlag       = storageSubmitFlags.String("body", "REQUIRED", "")
-		storageSubmitAipIDFlag      = storageSubmitFlags.String("aip-id", "REQUIRED", "Identifier of AIP")
-		storageSubmitOauthTokenFlag = storageSubmitFlags.String("oauth-token", "", "")
+		storageSubmitFlags     = flag.NewFlagSet("submit", flag.ExitOnError)
+		storageSubmitBodyFlag  = storageSubmitFlags.String("body", "REQUIRED", "")
+		storageSubmitAipIDFlag = storageSubmitFlags.String("aip-id", "REQUIRED", "Identifier of AIP")
+		storageSubmitTokenFlag = storageSubmitFlags.String("token", "", "")
 
-		storageCreateFlags          = flag.NewFlagSet("create", flag.ExitOnError)
-		storageCreateBodyFlag       = storageCreateFlags.String("body", "REQUIRED", "")
-		storageCreateOauthTokenFlag = storageCreateFlags.String("oauth-token", "", "")
+		storageCreateFlags     = flag.NewFlagSet("create", flag.ExitOnError)
+		storageCreateBodyFlag  = storageCreateFlags.String("body", "REQUIRED", "")
+		storageCreateTokenFlag = storageCreateFlags.String("token", "", "")
 
-		storageUpdateFlags          = flag.NewFlagSet("update", flag.ExitOnError)
-		storageUpdateAipIDFlag      = storageUpdateFlags.String("aip-id", "REQUIRED", "Identifier of AIP")
-		storageUpdateOauthTokenFlag = storageUpdateFlags.String("oauth-token", "", "")
+		storageUpdateFlags     = flag.NewFlagSet("update", flag.ExitOnError)
+		storageUpdateAipIDFlag = storageUpdateFlags.String("aip-id", "REQUIRED", "Identifier of AIP")
+		storageUpdateTokenFlag = storageUpdateFlags.String("token", "", "")
 
-		storageDownloadFlags          = flag.NewFlagSet("download", flag.ExitOnError)
-		storageDownloadAipIDFlag      = storageDownloadFlags.String("aip-id", "REQUIRED", "Identifier of AIP")
-		storageDownloadOauthTokenFlag = storageDownloadFlags.String("oauth-token", "", "")
+		storageDownloadFlags     = flag.NewFlagSet("download", flag.ExitOnError)
+		storageDownloadAipIDFlag = storageDownloadFlags.String("aip-id", "REQUIRED", "Identifier of AIP")
+		storageDownloadTokenFlag = storageDownloadFlags.String("token", "", "")
 
-		storageLocationsFlags          = flag.NewFlagSet("locations", flag.ExitOnError)
-		storageLocationsOauthTokenFlag = storageLocationsFlags.String("oauth-token", "", "")
+		storageLocationsFlags     = flag.NewFlagSet("locations", flag.ExitOnError)
+		storageLocationsTokenFlag = storageLocationsFlags.String("token", "", "")
 
-		storageAddLocationFlags          = flag.NewFlagSet("add-location", flag.ExitOnError)
-		storageAddLocationBodyFlag       = storageAddLocationFlags.String("body", "REQUIRED", "")
-		storageAddLocationOauthTokenFlag = storageAddLocationFlags.String("oauth-token", "", "")
+		storageAddLocationFlags     = flag.NewFlagSet("add-location", flag.ExitOnError)
+		storageAddLocationBodyFlag  = storageAddLocationFlags.String("body", "REQUIRED", "")
+		storageAddLocationTokenFlag = storageAddLocationFlags.String("token", "", "")
 
-		storageMoveFlags          = flag.NewFlagSet("move", flag.ExitOnError)
-		storageMoveBodyFlag       = storageMoveFlags.String("body", "REQUIRED", "")
-		storageMoveAipIDFlag      = storageMoveFlags.String("aip-id", "REQUIRED", "Identifier of AIP")
-		storageMoveOauthTokenFlag = storageMoveFlags.String("oauth-token", "", "")
+		storageMoveFlags     = flag.NewFlagSet("move", flag.ExitOnError)
+		storageMoveBodyFlag  = storageMoveFlags.String("body", "REQUIRED", "")
+		storageMoveAipIDFlag = storageMoveFlags.String("aip-id", "REQUIRED", "Identifier of AIP")
+		storageMoveTokenFlag = storageMoveFlags.String("token", "", "")
 
-		storageMoveStatusFlags          = flag.NewFlagSet("move-status", flag.ExitOnError)
-		storageMoveStatusAipIDFlag      = storageMoveStatusFlags.String("aip-id", "REQUIRED", "Identifier of AIP")
-		storageMoveStatusOauthTokenFlag = storageMoveStatusFlags.String("oauth-token", "", "")
+		storageMoveStatusFlags     = flag.NewFlagSet("move-status", flag.ExitOnError)
+		storageMoveStatusAipIDFlag = storageMoveStatusFlags.String("aip-id", "REQUIRED", "Identifier of AIP")
+		storageMoveStatusTokenFlag = storageMoveStatusFlags.String("token", "", "")
 
-		storageRejectFlags          = flag.NewFlagSet("reject", flag.ExitOnError)
-		storageRejectAipIDFlag      = storageRejectFlags.String("aip-id", "REQUIRED", "Identifier of AIP")
-		storageRejectOauthTokenFlag = storageRejectFlags.String("oauth-token", "", "")
+		storageRejectFlags     = flag.NewFlagSet("reject", flag.ExitOnError)
+		storageRejectAipIDFlag = storageRejectFlags.String("aip-id", "REQUIRED", "Identifier of AIP")
+		storageRejectTokenFlag = storageRejectFlags.String("token", "", "")
 
-		storageShowFlags          = flag.NewFlagSet("show", flag.ExitOnError)
-		storageShowAipIDFlag      = storageShowFlags.String("aip-id", "REQUIRED", "Identifier of AIP")
-		storageShowOauthTokenFlag = storageShowFlags.String("oauth-token", "", "")
+		storageShowFlags     = flag.NewFlagSet("show", flag.ExitOnError)
+		storageShowAipIDFlag = storageShowFlags.String("aip-id", "REQUIRED", "Identifier of AIP")
+		storageShowTokenFlag = storageShowFlags.String("token", "", "")
 
-		storageShowLocationFlags          = flag.NewFlagSet("show-location", flag.ExitOnError)
-		storageShowLocationUUIDFlag       = storageShowLocationFlags.String("uuid", "REQUIRED", "Identifier of location")
-		storageShowLocationOauthTokenFlag = storageShowLocationFlags.String("oauth-token", "", "")
+		storageShowLocationFlags     = flag.NewFlagSet("show-location", flag.ExitOnError)
+		storageShowLocationUUIDFlag  = storageShowLocationFlags.String("uuid", "REQUIRED", "Identifier of location")
+		storageShowLocationTokenFlag = storageShowLocationFlags.String("token", "", "")
 
-		storageLocationPackagesFlags          = flag.NewFlagSet("location-packages", flag.ExitOnError)
-		storageLocationPackagesUUIDFlag       = storageLocationPackagesFlags.String("uuid", "REQUIRED", "Identifier of location")
-		storageLocationPackagesOauthTokenFlag = storageLocationPackagesFlags.String("oauth-token", "", "")
+		storageLocationPackagesFlags     = flag.NewFlagSet("location-packages", flag.ExitOnError)
+		storageLocationPackagesUUIDFlag  = storageLocationPackagesFlags.String("uuid", "REQUIRED", "Identifier of location")
+		storageLocationPackagesTokenFlag = storageLocationPackagesFlags.String("token", "", "")
 
 		uploadFlags = flag.NewFlagSet("upload", flag.ContinueOnError)
 
 		uploadUploadFlags           = flag.NewFlagSet("upload", flag.ExitOnError)
 		uploadUploadContentTypeFlag = uploadUploadFlags.String("content-type", "multipart/form-data; boundary=goa", "")
-		uploadUploadOauthTokenFlag  = uploadUploadFlags.String("oauth-token", "", "")
+		uploadUploadTokenFlag       = uploadUploadFlags.String("token", "", "")
 		uploadUploadStreamFlag      = uploadUploadFlags.String("stream", "REQUIRED", "path to file containing the streamed request body")
 	)
 	package_Flags.Usage = package_Usage
@@ -322,78 +322,78 @@ func ParseEndpoint(
 			switch epn {
 			case "monitor-request":
 				endpoint = c.MonitorRequest()
-				data, err = package_c.BuildMonitorRequestPayload(*package_MonitorRequestOauthTokenFlag)
+				data, err = package_c.BuildMonitorRequestPayload(*package_MonitorRequestTokenFlag)
 			case "monitor":
 				endpoint = c.Monitor()
 				data, err = package_c.BuildMonitorPayload(*package_MonitorTicketFlag)
 			case "list":
 				endpoint = c.List()
-				data, err = package_c.BuildListPayload(*package_ListNameFlag, *package_ListAipIDFlag, *package_ListEarliestCreatedTimeFlag, *package_ListLatestCreatedTimeFlag, *package_ListLocationIDFlag, *package_ListStatusFlag, *package_ListCursorFlag, *package_ListOauthTokenFlag)
+				data, err = package_c.BuildListPayload(*package_ListNameFlag, *package_ListAipIDFlag, *package_ListEarliestCreatedTimeFlag, *package_ListLatestCreatedTimeFlag, *package_ListLocationIDFlag, *package_ListStatusFlag, *package_ListCursorFlag, *package_ListTokenFlag)
 			case "show":
 				endpoint = c.Show()
-				data, err = package_c.BuildShowPayload(*package_ShowIDFlag, *package_ShowOauthTokenFlag)
+				data, err = package_c.BuildShowPayload(*package_ShowIDFlag, *package_ShowTokenFlag)
 			case "preservation-actions":
 				endpoint = c.PreservationActions()
-				data, err = package_c.BuildPreservationActionsPayload(*package_PreservationActionsIDFlag, *package_PreservationActionsOauthTokenFlag)
+				data, err = package_c.BuildPreservationActionsPayload(*package_PreservationActionsIDFlag, *package_PreservationActionsTokenFlag)
 			case "confirm":
 				endpoint = c.Confirm()
-				data, err = package_c.BuildConfirmPayload(*package_ConfirmBodyFlag, *package_ConfirmIDFlag, *package_ConfirmOauthTokenFlag)
+				data, err = package_c.BuildConfirmPayload(*package_ConfirmBodyFlag, *package_ConfirmIDFlag, *package_ConfirmTokenFlag)
 			case "reject":
 				endpoint = c.Reject()
-				data, err = package_c.BuildRejectPayload(*package_RejectIDFlag, *package_RejectOauthTokenFlag)
+				data, err = package_c.BuildRejectPayload(*package_RejectIDFlag, *package_RejectTokenFlag)
 			case "move":
 				endpoint = c.Move()
-				data, err = package_c.BuildMovePayload(*package_MoveBodyFlag, *package_MoveIDFlag, *package_MoveOauthTokenFlag)
+				data, err = package_c.BuildMovePayload(*package_MoveBodyFlag, *package_MoveIDFlag, *package_MoveTokenFlag)
 			case "move-status":
 				endpoint = c.MoveStatus()
-				data, err = package_c.BuildMoveStatusPayload(*package_MoveStatusIDFlag, *package_MoveStatusOauthTokenFlag)
+				data, err = package_c.BuildMoveStatusPayload(*package_MoveStatusIDFlag, *package_MoveStatusTokenFlag)
 			}
 		case "storage":
 			c := storagec.NewClient(scheme, host, doer, enc, dec, restore)
 			switch epn {
 			case "submit":
 				endpoint = c.Submit()
-				data, err = storagec.BuildSubmitPayload(*storageSubmitBodyFlag, *storageSubmitAipIDFlag, *storageSubmitOauthTokenFlag)
+				data, err = storagec.BuildSubmitPayload(*storageSubmitBodyFlag, *storageSubmitAipIDFlag, *storageSubmitTokenFlag)
 			case "create":
 				endpoint = c.Create()
-				data, err = storagec.BuildCreatePayload(*storageCreateBodyFlag, *storageCreateOauthTokenFlag)
+				data, err = storagec.BuildCreatePayload(*storageCreateBodyFlag, *storageCreateTokenFlag)
 			case "update":
 				endpoint = c.Update()
-				data, err = storagec.BuildUpdatePayload(*storageUpdateAipIDFlag, *storageUpdateOauthTokenFlag)
+				data, err = storagec.BuildUpdatePayload(*storageUpdateAipIDFlag, *storageUpdateTokenFlag)
 			case "download":
 				endpoint = c.Download()
-				data, err = storagec.BuildDownloadPayload(*storageDownloadAipIDFlag, *storageDownloadOauthTokenFlag)
+				data, err = storagec.BuildDownloadPayload(*storageDownloadAipIDFlag, *storageDownloadTokenFlag)
 			case "locations":
 				endpoint = c.Locations()
-				data, err = storagec.BuildLocationsPayload(*storageLocationsOauthTokenFlag)
+				data, err = storagec.BuildLocationsPayload(*storageLocationsTokenFlag)
 			case "add-location":
 				endpoint = c.AddLocation()
-				data, err = storagec.BuildAddLocationPayload(*storageAddLocationBodyFlag, *storageAddLocationOauthTokenFlag)
+				data, err = storagec.BuildAddLocationPayload(*storageAddLocationBodyFlag, *storageAddLocationTokenFlag)
 			case "move":
 				endpoint = c.Move()
-				data, err = storagec.BuildMovePayload(*storageMoveBodyFlag, *storageMoveAipIDFlag, *storageMoveOauthTokenFlag)
+				data, err = storagec.BuildMovePayload(*storageMoveBodyFlag, *storageMoveAipIDFlag, *storageMoveTokenFlag)
 			case "move-status":
 				endpoint = c.MoveStatus()
-				data, err = storagec.BuildMoveStatusPayload(*storageMoveStatusAipIDFlag, *storageMoveStatusOauthTokenFlag)
+				data, err = storagec.BuildMoveStatusPayload(*storageMoveStatusAipIDFlag, *storageMoveStatusTokenFlag)
 			case "reject":
 				endpoint = c.Reject()
-				data, err = storagec.BuildRejectPayload(*storageRejectAipIDFlag, *storageRejectOauthTokenFlag)
+				data, err = storagec.BuildRejectPayload(*storageRejectAipIDFlag, *storageRejectTokenFlag)
 			case "show":
 				endpoint = c.Show()
-				data, err = storagec.BuildShowPayload(*storageShowAipIDFlag, *storageShowOauthTokenFlag)
+				data, err = storagec.BuildShowPayload(*storageShowAipIDFlag, *storageShowTokenFlag)
 			case "show-location":
 				endpoint = c.ShowLocation()
-				data, err = storagec.BuildShowLocationPayload(*storageShowLocationUUIDFlag, *storageShowLocationOauthTokenFlag)
+				data, err = storagec.BuildShowLocationPayload(*storageShowLocationUUIDFlag, *storageShowLocationTokenFlag)
 			case "location-packages":
 				endpoint = c.LocationPackages()
-				data, err = storagec.BuildLocationPackagesPayload(*storageLocationPackagesUUIDFlag, *storageLocationPackagesOauthTokenFlag)
+				data, err = storagec.BuildLocationPackagesPayload(*storageLocationPackagesUUIDFlag, *storageLocationPackagesTokenFlag)
 			}
 		case "upload":
 			c := uploadc.NewClient(scheme, host, doer, enc, dec, restore)
 			switch epn {
 			case "upload":
 				endpoint = c.Upload()
-				data, err = uploadc.BuildUploadPayload(*uploadUploadContentTypeFlag, *uploadUploadOauthTokenFlag)
+				data, err = uploadc.BuildUploadPayload(*uploadUploadContentTypeFlag, *uploadUploadTokenFlag)
 				if err == nil {
 					data, err = uploadc.BuildUploadStreamPayload(data, *uploadUploadStreamFlag)
 				}
@@ -429,13 +429,13 @@ Additional help:
 `, os.Args[0])
 }
 func package_MonitorRequestUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] package monitor-request -oauth-token STRING
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] package monitor-request -token STRING
 
 Request access to the /monitor WebSocket.
-    -oauth-token STRING: 
+    -token STRING: 
 
 Example:
-    %[1]s package monitor-request --oauth-token "abc123"
+    %[1]s package monitor-request --token "abc123"
 `, os.Args[0])
 }
 
@@ -451,7 +451,7 @@ Example:
 }
 
 func package_ListUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] package list -name STRING -aip-id STRING -earliest-created-time STRING -latest-created-time STRING -location-id STRING -status STRING -cursor STRING -oauth-token STRING
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] package list -name STRING -aip-id STRING -earliest-created-time STRING -latest-created-time STRING -location-id STRING -status STRING -cursor STRING -token STRING
 
 List all stored packages
     -name STRING: 
@@ -461,88 +461,88 @@ List all stored packages
     -location-id STRING: 
     -status STRING: 
     -cursor STRING: 
-    -oauth-token STRING: 
+    -token STRING: 
 
 Example:
-    %[1]s package list --name "abc123" --aip-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --earliest-created-time "1970-01-01T00:00:01Z" --latest-created-time "1970-01-01T00:00:01Z" --location-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --status "in progress" --cursor "abc123" --oauth-token "abc123"
+    %[1]s package list --name "abc123" --aip-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --earliest-created-time "1970-01-01T00:00:01Z" --latest-created-time "1970-01-01T00:00:01Z" --location-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --status "in progress" --cursor "abc123" --token "abc123"
 `, os.Args[0])
 }
 
 func package_ShowUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] package show -id UINT -oauth-token STRING
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] package show -id UINT -token STRING
 
 Show package by ID
     -id UINT: Identifier of package to show
-    -oauth-token STRING: 
+    -token STRING: 
 
 Example:
-    %[1]s package show --id 1 --oauth-token "abc123"
+    %[1]s package show --id 1 --token "abc123"
 `, os.Args[0])
 }
 
 func package_PreservationActionsUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] package preservation-actions -id UINT -oauth-token STRING
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] package preservation-actions -id UINT -token STRING
 
 List all preservation actions by ID
     -id UINT: Identifier of package to look up
-    -oauth-token STRING: 
+    -token STRING: 
 
 Example:
-    %[1]s package preservation-actions --id 1 --oauth-token "abc123"
+    %[1]s package preservation-actions --id 1 --token "abc123"
 `, os.Args[0])
 }
 
 func package_ConfirmUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] package confirm -body JSON -id UINT -oauth-token STRING
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] package confirm -body JSON -id UINT -token STRING
 
 Signal the package has been reviewed and accepted
     -body JSON: 
     -id UINT: Identifier of package to look up
-    -oauth-token STRING: 
+    -token STRING: 
 
 Example:
     %[1]s package confirm --body '{
       "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
-   }' --id 1 --oauth-token "abc123"
+   }' --id 1 --token "abc123"
 `, os.Args[0])
 }
 
 func package_RejectUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] package reject -id UINT -oauth-token STRING
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] package reject -id UINT -token STRING
 
 Signal the package has been reviewed and rejected
     -id UINT: Identifier of package to look up
-    -oauth-token STRING: 
+    -token STRING: 
 
 Example:
-    %[1]s package reject --id 1 --oauth-token "abc123"
+    %[1]s package reject --id 1 --token "abc123"
 `, os.Args[0])
 }
 
 func package_MoveUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] package move -body JSON -id UINT -oauth-token STRING
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] package move -body JSON -id UINT -token STRING
 
 Move a package to a permanent storage location
     -body JSON: 
     -id UINT: Identifier of package to move
-    -oauth-token STRING: 
+    -token STRING: 
 
 Example:
     %[1]s package move --body '{
       "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
-   }' --id 1 --oauth-token "abc123"
+   }' --id 1 --token "abc123"
 `, os.Args[0])
 }
 
 func package_MoveStatusUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] package move-status -id UINT -oauth-token STRING
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] package move-status -id UINT -token STRING
 
 Retrieve the status of a permanent storage location move of the package
     -id UINT: Identifier of package to move
-    -oauth-token STRING: 
+    -token STRING: 
 
 Example:
-    %[1]s package move-status --id 1 --oauth-token "abc123"
+    %[1]s package move-status --id 1 --token "abc123"
 `, os.Args[0])
 }
 
@@ -571,26 +571,26 @@ Additional help:
 `, os.Args[0])
 }
 func storageSubmitUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage submit -body JSON -aip-id STRING -oauth-token STRING
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage submit -body JSON -aip-id STRING -token STRING
 
 Start the submission of a package
     -body JSON: 
     -aip-id STRING: Identifier of AIP
-    -oauth-token STRING: 
+    -token STRING: 
 
 Example:
     %[1]s storage submit --body '{
       "name": "abc123"
-   }' --aip-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --oauth-token "abc123"
+   }' --aip-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --token "abc123"
 `, os.Args[0])
 }
 
 func storageCreateUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage create -body JSON -oauth-token STRING
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage create -body JSON -token STRING
 
 Create a new package
     -body JSON: 
-    -oauth-token STRING: 
+    -token STRING: 
 
 Example:
     %[1]s storage create --body '{
@@ -599,51 +599,51 @@ Example:
       "name": "abc123",
       "object_key": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
       "status": "in_review"
-   }' --oauth-token "abc123"
+   }' --token "abc123"
 `, os.Args[0])
 }
 
 func storageUpdateUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage update -aip-id STRING -oauth-token STRING
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage update -aip-id STRING -token STRING
 
 Signal the storage service that an upload is complete
     -aip-id STRING: Identifier of AIP
-    -oauth-token STRING: 
+    -token STRING: 
 
 Example:
-    %[1]s storage update --aip-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --oauth-token "abc123"
+    %[1]s storage update --aip-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --token "abc123"
 `, os.Args[0])
 }
 
 func storageDownloadUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage download -aip-id STRING -oauth-token STRING
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage download -aip-id STRING -token STRING
 
 Download package by AIPID
     -aip-id STRING: Identifier of AIP
-    -oauth-token STRING: 
+    -token STRING: 
 
 Example:
-    %[1]s storage download --aip-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --oauth-token "abc123"
+    %[1]s storage download --aip-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --token "abc123"
 `, os.Args[0])
 }
 
 func storageLocationsUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage locations -oauth-token STRING
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage locations -token STRING
 
 List locations
-    -oauth-token STRING: 
+    -token STRING: 
 
 Example:
-    %[1]s storage locations --oauth-token "abc123"
+    %[1]s storage locations --token "abc123"
 `, os.Args[0])
 }
 
 func storageAddLocationUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage add-location -body JSON -oauth-token STRING
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage add-location -body JSON -token STRING
 
 Add a storage location
     -body JSON: 
-    -oauth-token STRING: 
+    -token STRING: 
 
 Example:
     %[1]s storage add-location --body '{
@@ -655,82 +655,82 @@ Example:
       "name": "abc123",
       "purpose": "aip_store",
       "source": "minio"
-   }' --oauth-token "abc123"
+   }' --token "abc123"
 `, os.Args[0])
 }
 
 func storageMoveUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage move -body JSON -aip-id STRING -oauth-token STRING
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage move -body JSON -aip-id STRING -token STRING
 
 Move a package to a permanent storage location
     -body JSON: 
     -aip-id STRING: Identifier of AIP
-    -oauth-token STRING: 
+    -token STRING: 
 
 Example:
     %[1]s storage move --body '{
       "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
-   }' --aip-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --oauth-token "abc123"
+   }' --aip-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --token "abc123"
 `, os.Args[0])
 }
 
 func storageMoveStatusUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage move-status -aip-id STRING -oauth-token STRING
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage move-status -aip-id STRING -token STRING
 
 Retrieve the status of a permanent storage location move of the package
     -aip-id STRING: Identifier of AIP
-    -oauth-token STRING: 
+    -token STRING: 
 
 Example:
-    %[1]s storage move-status --aip-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --oauth-token "abc123"
+    %[1]s storage move-status --aip-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --token "abc123"
 `, os.Args[0])
 }
 
 func storageRejectUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage reject -aip-id STRING -oauth-token STRING
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage reject -aip-id STRING -token STRING
 
 Reject a package
     -aip-id STRING: Identifier of AIP
-    -oauth-token STRING: 
+    -token STRING: 
 
 Example:
-    %[1]s storage reject --aip-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --oauth-token "abc123"
+    %[1]s storage reject --aip-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --token "abc123"
 `, os.Args[0])
 }
 
 func storageShowUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage show -aip-id STRING -oauth-token STRING
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage show -aip-id STRING -token STRING
 
 Show package by AIPID
     -aip-id STRING: Identifier of AIP
-    -oauth-token STRING: 
+    -token STRING: 
 
 Example:
-    %[1]s storage show --aip-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --oauth-token "abc123"
+    %[1]s storage show --aip-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --token "abc123"
 `, os.Args[0])
 }
 
 func storageShowLocationUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage show-location -uuid STRING -oauth-token STRING
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage show-location -uuid STRING -token STRING
 
 Show location by UUID
     -uuid STRING: Identifier of location
-    -oauth-token STRING: 
+    -token STRING: 
 
 Example:
-    %[1]s storage show-location --uuid "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --oauth-token "abc123"
+    %[1]s storage show-location --uuid "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --token "abc123"
 `, os.Args[0])
 }
 
 func storageLocationPackagesUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage location-packages -uuid STRING -oauth-token STRING
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage location-packages -uuid STRING -token STRING
 
 List all the packages stored in the location with UUID
     -uuid STRING: Identifier of location
-    -oauth-token STRING: 
+    -token STRING: 
 
 Example:
-    %[1]s storage location-packages --uuid "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --oauth-token "abc123"
+    %[1]s storage location-packages --uuid "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --token "abc123"
 `, os.Args[0])
 }
 
@@ -748,14 +748,14 @@ Additional help:
 `, os.Args[0])
 }
 func uploadUploadUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] upload upload -content-type STRING -oauth-token STRING -stream STRING
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] upload upload -content-type STRING -token STRING -stream STRING
 
 Upload implements upload.
     -content-type STRING: 
-    -oauth-token STRING: 
+    -token STRING: 
     -stream STRING: path to file containing the streamed request body
 
 Example:
-    %[1]s upload upload --content-type "multipart/form-data; boundary=goa" --oauth-token "abc123" --stream "goa.png"
+    %[1]s upload upload --content-type "multipart/form-data; boundary=goa" --token "abc123" --stream "goa.png"
 `, os.Args[0])
 }

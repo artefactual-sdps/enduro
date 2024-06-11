@@ -18,7 +18,7 @@ var _ = Service("upload", func() {
 				Pattern("multipart/[^;]+; boundary=.+")
 				Example("multipart/form-data; boundary=goa")
 			})
-			AccessToken("oauth_token", String)
+			Token("token", String)
 		})
 
 		Error(
@@ -36,7 +36,6 @@ var _ = Service("upload", func() {
 		HTTP(func() {
 			POST("/upload")
 			Header("content_type:Content-Type")
-			Header("oauth_token:Authorization")
 
 			// Bypass request body decoder code generation to alleviate need for
 			// loading the entire request body in memory. The service gets

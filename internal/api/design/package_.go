@@ -14,7 +14,7 @@ var _ = Service("package", func() {
 	Method("monitor_request", func() {
 		Description("Request access to the /monitor WebSocket.")
 		Payload(func() {
-			AccessToken("oauth_token", String)
+			Token("token", String)
 		})
 		Result(func() {
 			Attribute("ticket", String)
@@ -32,7 +32,7 @@ var _ = Service("package", func() {
 		})
 	})
 	Method("monitor", func() {
-		// Disable OAuth2Auth security (it validates the previous method cookie).
+		// Disable JWTAuth security (it validates the previous method cookie).
 		NoSecurity()
 		Payload(func() {
 			Attribute("ticket", String)
@@ -62,7 +62,7 @@ var _ = Service("package", func() {
 				EnumPackageStatus()
 			})
 			Attribute("cursor", String, "Pagination cursor")
-			AccessToken("oauth_token", String)
+			Token("token", String)
 		})
 		Result(PaginatedCollectionOf(StoredPackage))
 		HTTP(func() {
@@ -83,7 +83,7 @@ var _ = Service("package", func() {
 		Description("Show package by ID")
 		Payload(func() {
 			Attribute("id", UInt, "Identifier of package to show")
-			AccessToken("oauth_token", String)
+			Token("token", String)
 			Required("id")
 		})
 		Result(StoredPackage)
@@ -100,7 +100,7 @@ var _ = Service("package", func() {
 		Description("List all preservation actions by ID")
 		Payload(func() {
 			Attribute("id", UInt, "Identifier of package to look up")
-			AccessToken("oauth_token", String)
+			Token("token", String)
 			Required("id")
 		})
 		Result(PreservationActions)
@@ -116,7 +116,7 @@ var _ = Service("package", func() {
 		Payload(func() {
 			Attribute("id", UInt, "Identifier of package to look up")
 			TypedAttributeUUID("location_id", "Identifier of storage location")
-			AccessToken("oauth_token", String)
+			Token("token", String)
 			Required("id", "location_id")
 		})
 		Error("not_found", PackageNotFound, "Package not found")
@@ -134,7 +134,7 @@ var _ = Service("package", func() {
 		Description("Signal the package has been reviewed and rejected")
 		Payload(func() {
 			Attribute("id", UInt, "Identifier of package to look up")
-			AccessToken("oauth_token", String)
+			Token("token", String)
 			Required("id")
 		})
 		Error("not_found", PackageNotFound, "Package not found")
@@ -153,7 +153,7 @@ var _ = Service("package", func() {
 		Payload(func() {
 			Attribute("id", UInt, "Identifier of package to move")
 			TypedAttributeUUID("location_id", "Identifier of storage location")
-			AccessToken("oauth_token", String)
+			Token("token", String)
 			Required("id", "location_id")
 		})
 		Error("not_found", PackageNotFound, "Package not found")
@@ -171,7 +171,7 @@ var _ = Service("package", func() {
 		Description("Retrieve the status of a permanent storage location move of the package")
 		Payload(func() {
 			Attribute("id", UInt, "Identifier of package to move")
-			AccessToken("oauth_token", String)
+			Token("token", String)
 			Required("id")
 		})
 		Result(MoveStatusResult)

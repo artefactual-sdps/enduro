@@ -2877,7 +2877,7 @@
         ],
         "security": [
           {
-            "oauth2_header_Authorization": []
+            "jwt_header_Authorization": []
           }
         ],
         "summary": "list package",
@@ -2950,7 +2950,7 @@
         ],
         "security": [
           {
-            "oauth2_header_Authorization": []
+            "jwt_header_Authorization": []
           }
         ],
         "summary": "monitor_request package",
@@ -3013,7 +3013,7 @@
         ],
         "security": [
           {
-            "oauth2_header_Authorization": []
+            "jwt_header_Authorization": []
           }
         ],
         "summary": "show package",
@@ -3090,7 +3090,7 @@
         ],
         "security": [
           {
-            "oauth2_header_Authorization": []
+            "jwt_header_Authorization": []
           }
         ],
         "summary": "confirm package",
@@ -3156,7 +3156,7 @@
         ],
         "security": [
           {
-            "oauth2_header_Authorization": []
+            "jwt_header_Authorization": []
           }
         ],
         "summary": "move_status package",
@@ -3231,7 +3231,7 @@
         ],
         "security": [
           {
-            "oauth2_header_Authorization": []
+            "jwt_header_Authorization": []
           }
         ],
         "summary": "move package",
@@ -3288,7 +3288,7 @@
         ],
         "security": [
           {
-            "oauth2_header_Authorization": []
+            "jwt_header_Authorization": []
           }
         ],
         "summary": "preservation_actions package",
@@ -3354,7 +3354,7 @@
         ],
         "security": [
           {
-            "oauth2_header_Authorization": []
+            "jwt_header_Authorization": []
           }
         ],
         "summary": "reject package",
@@ -3394,7 +3394,7 @@
         ],
         "security": [
           {
-            "oauth2_header_Authorization": []
+            "jwt_header_Authorization": []
           }
         ],
         "summary": "locations storage",
@@ -3454,7 +3454,7 @@
         ],
         "security": [
           {
-            "oauth2_header_Authorization": []
+            "jwt_header_Authorization": []
           }
         ],
         "summary": "add_location storage",
@@ -3512,7 +3512,7 @@
         ],
         "security": [
           {
-            "oauth2_header_Authorization": []
+            "jwt_header_Authorization": []
           }
         ],
         "summary": "show_location storage",
@@ -3576,7 +3576,7 @@
         ],
         "security": [
           {
-            "oauth2_header_Authorization": []
+            "jwt_header_Authorization": []
           }
         ],
         "summary": "location_packages storage",
@@ -3635,7 +3635,7 @@
         ],
         "security": [
           {
-            "oauth2_header_Authorization": []
+            "jwt_header_Authorization": []
           }
         ],
         "summary": "create storage",
@@ -3693,7 +3693,7 @@
         ],
         "security": [
           {
-            "oauth2_header_Authorization": []
+            "jwt_header_Authorization": []
           }
         ],
         "summary": "show storage",
@@ -3752,7 +3752,7 @@
         ],
         "security": [
           {
-            "oauth2_header_Authorization": []
+            "jwt_header_Authorization": []
           }
         ],
         "summary": "download storage",
@@ -3819,7 +3819,7 @@
         ],
         "security": [
           {
-            "oauth2_header_Authorization": []
+            "jwt_header_Authorization": []
           }
         ],
         "summary": "reject storage",
@@ -3886,7 +3886,7 @@
         ],
         "security": [
           {
-            "oauth2_header_Authorization": []
+            "jwt_header_Authorization": []
           }
         ],
         "summary": "move_status storage",
@@ -3962,7 +3962,7 @@
         ],
         "security": [
           {
-            "oauth2_header_Authorization": []
+            "jwt_header_Authorization": []
           }
         ],
         "summary": "move storage",
@@ -4036,7 +4036,7 @@
         ],
         "security": [
           {
-            "oauth2_header_Authorization": []
+            "jwt_header_Authorization": []
           }
         ],
         "summary": "submit storage",
@@ -4093,7 +4093,7 @@
         ],
         "security": [
           {
-            "oauth2_header_Authorization": []
+            "jwt_header_Authorization": []
           }
         ],
         "summary": "update storage",
@@ -4171,7 +4171,7 @@
         ],
         "security": [
           {
-            "oauth2_header_Authorization": []
+            "jwt_header_Authorization": []
           }
         ],
         "summary": "upload upload",
@@ -4187,11 +4187,11 @@
     "application/gob"
   ],
   "securityDefinitions": {
-    "oauth2_header_Authorization": {
-      "description": "Secures endpoints by requiring a valid OAuth2 access token.",
-      "flow": "application",
-      "tokenUrl": "/oauth2/token",
-      "type": "oauth2"
+    "jwt_header_Authorization": {
+      "description": "Secures endpoint by requiring a valid JWT token.",
+      "in": "header",
+      "name": "Authorization",
+      "type": "apiKey"
     }
   },
   "swagger": "2.0"

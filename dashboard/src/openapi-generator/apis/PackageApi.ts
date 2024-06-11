@@ -264,10 +264,13 @@ export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
         headerParameters['Content-Type'] = 'application/json';
 
         if (this.configuration && this.configuration.accessToken) {
-            // oauth required
-            headerParameters["Authorization"] = await this.configuration.accessToken("oauth2_header_Authorization", []);
-        }
+            const token = this.configuration.accessToken;
+            const tokenString = await token("jwt_header_Authorization", []);
 
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
         const response = await this.request({
             path: `/package/{id}/confirm`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
             method: 'POST',
@@ -325,10 +328,13 @@ export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
         const headerParameters: runtime.HTTPHeaders = {};
 
         if (this.configuration && this.configuration.accessToken) {
-            // oauth required
-            headerParameters["Authorization"] = await this.configuration.accessToken("oauth2_header_Authorization", []);
-        }
+            const token = this.configuration.accessToken;
+            const tokenString = await token("jwt_header_Authorization", []);
 
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
         const response = await this.request({
             path: `/package`,
             method: 'GET',
@@ -383,10 +389,13 @@ export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
         const headerParameters: runtime.HTTPHeaders = {};
 
         if (this.configuration && this.configuration.accessToken) {
-            // oauth required
-            headerParameters["Authorization"] = await this.configuration.accessToken("oauth2_header_Authorization", []);
-        }
+            const token = this.configuration.accessToken;
+            const tokenString = await token("jwt_header_Authorization", []);
 
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
         const response = await this.request({
             path: `/package/monitor`,
             method: 'POST',
@@ -425,10 +434,13 @@ export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
         headerParameters['Content-Type'] = 'application/json';
 
         if (this.configuration && this.configuration.accessToken) {
-            // oauth required
-            headerParameters["Authorization"] = await this.configuration.accessToken("oauth2_header_Authorization", []);
-        }
+            const token = this.configuration.accessToken;
+            const tokenString = await token("jwt_header_Authorization", []);
 
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
         const response = await this.request({
             path: `/package/{id}/move`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
             method: 'POST',
@@ -462,10 +474,13 @@ export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
         const headerParameters: runtime.HTTPHeaders = {};
 
         if (this.configuration && this.configuration.accessToken) {
-            // oauth required
-            headerParameters["Authorization"] = await this.configuration.accessToken("oauth2_header_Authorization", []);
-        }
+            const token = this.configuration.accessToken;
+            const tokenString = await token("jwt_header_Authorization", []);
 
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
         const response = await this.request({
             path: `/package/{id}/move`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
             method: 'GET',
@@ -499,10 +514,13 @@ export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
         const headerParameters: runtime.HTTPHeaders = {};
 
         if (this.configuration && this.configuration.accessToken) {
-            // oauth required
-            headerParameters["Authorization"] = await this.configuration.accessToken("oauth2_header_Authorization", []);
-        }
+            const token = this.configuration.accessToken;
+            const tokenString = await token("jwt_header_Authorization", []);
 
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
         const response = await this.request({
             path: `/package/{id}/preservation-actions`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
             method: 'GET',
@@ -536,10 +554,13 @@ export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
         const headerParameters: runtime.HTTPHeaders = {};
 
         if (this.configuration && this.configuration.accessToken) {
-            // oauth required
-            headerParameters["Authorization"] = await this.configuration.accessToken("oauth2_header_Authorization", []);
-        }
+            const token = this.configuration.accessToken;
+            const tokenString = await token("jwt_header_Authorization", []);
 
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
         const response = await this.request({
             path: `/package/{id}/reject`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
             method: 'POST',
@@ -572,10 +593,13 @@ export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
         const headerParameters: runtime.HTTPHeaders = {};
 
         if (this.configuration && this.configuration.accessToken) {
-            // oauth required
-            headerParameters["Authorization"] = await this.configuration.accessToken("oauth2_header_Authorization", []);
-        }
+            const token = this.configuration.accessToken;
+            const tokenString = await token("jwt_header_Authorization", []);
 
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
         const response = await this.request({
             path: `/package/{id}`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
             method: 'GET',

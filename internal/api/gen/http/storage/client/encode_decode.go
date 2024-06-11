@@ -55,8 +55,8 @@ func EncodeSubmitRequest(encoder func(*http.Request) goahttp.Encoder) func(*http
 		if !ok {
 			return goahttp.ErrInvalidType("storage", "submit", "*storage.SubmitPayload", v)
 		}
-		if p.OauthToken != nil {
-			head := *p.OauthToken
+		if p.Token != nil {
+			head := *p.Token
 			if !strings.Contains(head, " ") {
 				req.Header.Set("Authorization", "Bearer "+head)
 			} else {
@@ -177,8 +177,8 @@ func EncodeCreateRequest(encoder func(*http.Request) goahttp.Encoder) func(*http
 		if !ok {
 			return goahttp.ErrInvalidType("storage", "create", "*storage.CreatePayload", v)
 		}
-		if p.OauthToken != nil {
-			head := *p.OauthToken
+		if p.Token != nil {
+			head := *p.Token
 			if !strings.Contains(head, " ") {
 				req.Header.Set("Authorization", "Bearer "+head)
 			} else {
@@ -296,8 +296,8 @@ func EncodeUpdateRequest(encoder func(*http.Request) goahttp.Encoder) func(*http
 		if !ok {
 			return goahttp.ErrInvalidType("storage", "update", "*storage.UpdatePayload", v)
 		}
-		if p.OauthToken != nil {
-			head := *p.OauthToken
+		if p.Token != nil {
+			head := *p.Token
 			if !strings.Contains(head, " ") {
 				req.Header.Set("Authorization", "Bearer "+head)
 			} else {
@@ -411,8 +411,8 @@ func EncodeDownloadRequest(encoder func(*http.Request) goahttp.Encoder) func(*ht
 		if !ok {
 			return goahttp.ErrInvalidType("storage", "download", "*storage.DownloadPayload", v)
 		}
-		if p.OauthToken != nil {
-			head := *p.OauthToken
+		if p.Token != nil {
+			head := *p.Token
 			if !strings.Contains(head, " ") {
 				req.Header.Set("Authorization", "Bearer "+head)
 			} else {
@@ -509,8 +509,8 @@ func EncodeLocationsRequest(encoder func(*http.Request) goahttp.Encoder) func(*h
 		if !ok {
 			return goahttp.ErrInvalidType("storage", "locations", "*storage.LocationsPayload", v)
 		}
-		if p.OauthToken != nil {
-			head := *p.OauthToken
+		if p.Token != nil {
+			head := *p.Token
 			if !strings.Contains(head, " ") {
 				req.Header.Set("Authorization", "Bearer "+head)
 			} else {
@@ -599,8 +599,8 @@ func EncodeAddLocationRequest(encoder func(*http.Request) goahttp.Encoder) func(
 		if !ok {
 			return goahttp.ErrInvalidType("storage", "add_location", "*storage.AddLocationPayload", v)
 		}
-		if p.OauthToken != nil {
-			head := *p.OauthToken
+		if p.Token != nil {
+			head := *p.Token
 			if !strings.Contains(head, " ") {
 				req.Header.Set("Authorization", "Bearer "+head)
 			} else {
@@ -716,8 +716,8 @@ func EncodeMoveRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.R
 		if !ok {
 			return goahttp.ErrInvalidType("storage", "move", "*storage.MovePayload", v)
 		}
-		if p.OauthToken != nil {
-			head := *p.OauthToken
+		if p.Token != nil {
+			head := *p.Token
 			if !strings.Contains(head, " ") {
 				req.Header.Set("Authorization", "Bearer "+head)
 			} else {
@@ -850,8 +850,8 @@ func EncodeMoveStatusRequest(encoder func(*http.Request) goahttp.Encoder) func(*
 		if !ok {
 			return goahttp.ErrInvalidType("storage", "move_status", "*storage.MoveStatusPayload", v)
 		}
-		if p.OauthToken != nil {
-			head := *p.OauthToken
+		if p.Token != nil {
+			head := *p.Token
 			if !strings.Contains(head, " ") {
 				req.Header.Set("Authorization", "Bearer "+head)
 			} else {
@@ -978,8 +978,8 @@ func EncodeRejectRequest(encoder func(*http.Request) goahttp.Encoder) func(*http
 		if !ok {
 			return goahttp.ErrInvalidType("storage", "reject", "*storage.RejectPayload", v)
 		}
-		if p.OauthToken != nil {
-			head := *p.OauthToken
+		if p.Token != nil {
+			head := *p.Token
 			if !strings.Contains(head, " ") {
 				req.Header.Set("Authorization", "Bearer "+head)
 			} else {
@@ -1108,8 +1108,8 @@ func EncodeShowRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.R
 		if !ok {
 			return goahttp.ErrInvalidType("storage", "show", "*storage.ShowPayload", v)
 		}
-		if p.OauthToken != nil {
-			head := *p.OauthToken
+		if p.Token != nil {
+			head := *p.Token
 			if !strings.Contains(head, " ") {
 				req.Header.Set("Authorization", "Bearer "+head)
 			} else {
@@ -1223,8 +1223,8 @@ func EncodeShowLocationRequest(encoder func(*http.Request) goahttp.Encoder) func
 		if !ok {
 			return goahttp.ErrInvalidType("storage", "show_location", "*storage.ShowLocationPayload", v)
 		}
-		if p.OauthToken != nil {
-			head := *p.OauthToken
+		if p.Token != nil {
+			head := *p.Token
 			if !strings.Contains(head, " ") {
 				req.Header.Set("Authorization", "Bearer "+head)
 			} else {
@@ -1338,8 +1338,8 @@ func EncodeLocationPackagesRequest(encoder func(*http.Request) goahttp.Encoder) 
 		if !ok {
 			return goahttp.ErrInvalidType("storage", "location_packages", "*storage.LocationPackagesPayload", v)
 		}
-		if p.OauthToken != nil {
-			head := *p.OauthToken
+		if p.Token != nil {
+			head := *p.Token
 			if !strings.Contains(head, " ") {
 				req.Header.Set("Authorization", "Bearer "+head)
 			} else {

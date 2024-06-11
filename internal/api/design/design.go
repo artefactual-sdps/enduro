@@ -15,10 +15,8 @@ import (
 	_ "goa.design/plugins/v3/otel"
 )
 
-var OAuth2Auth = OAuth2Security("oauth2", func() {
-	// We only validate for now, but a flow definition is required.
-	ClientCredentialsFlow("/oauth2/token", "/oauth2/refresh")
-	Description("Secures endpoints by requiring a valid OAuth2 access token.")
+var JWTAuth = JWTSecurity("jwt", func() {
+	Description("Secures endpoint by requiring a valid JWT token.")
 })
 
 var _ = API("enduro", func() {
@@ -30,7 +28,7 @@ var _ = API("enduro", func() {
 			URI("http://localhost:9000")
 		})
 	})
-	Security(OAuth2Auth)
+	Security(JWTAuth)
 	HTTP(func() {
 		Consumes("application/json")
 	})

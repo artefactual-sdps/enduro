@@ -35,7 +35,7 @@ func NewEndpoints(s Service) *Endpoints {
 	// Casting service to Auther interface
 	a := s.(Auther)
 	return &Endpoints{
-		Upload: NewUploadEndpoint(s, a.OAuth2Auth),
+		Upload: NewUploadEndpoint(s, a.JWTAuth),
 	}
 }
 
@@ -46,27 +46,20 @@ func (e *Endpoints) Use(m func(goa.Endpoint) goa.Endpoint) {
 
 // NewUploadEndpoint returns an endpoint function that calls the method
 // "upload" of service "upload".
-func NewUploadEndpoint(s Service, authOAuth2Fn security.AuthOAuth2Func) goa.Endpoint {
+func NewUploadEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
 	return func(ctx context.Context, req any) (any, error) {
 		ep := req.(*UploadRequestData)
 		var err error
-		sc := security.OAuth2Scheme{
-			Name:           "oauth2",
+		sc := security.JWTScheme{
+			Name:           "jwt",
 			Scopes:         []string{},
 			RequiredScopes: []string{},
-			Flows: []*security.OAuthFlow{
-				&security.OAuthFlow{
-					Type:       "client_credentials",
-					TokenURL:   "/oauth2/token",
-					RefreshURL: "/oauth2/refresh",
-				},
-			},
 		}
 		var token string
-		if ep.Payload.OauthToken != nil {
-			token = *ep.Payload.OauthToken
+		if ep.Payload.Token != nil {
+			token = *ep.Payload.Token
 		}
-		ctx, err = authOAuth2Fn(ctx, token, &sc)
+		ctx, err = authJWTFn(ctx, token, &sc)
 		if err != nil {
 			return nil, err
 		}

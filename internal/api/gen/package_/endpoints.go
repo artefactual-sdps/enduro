@@ -42,15 +42,15 @@ func NewEndpoints(s Service) *Endpoints {
 	// Casting service to Auther interface
 	a := s.(Auther)
 	return &Endpoints{
-		MonitorRequest:      NewMonitorRequestEndpoint(s, a.OAuth2Auth),
+		MonitorRequest:      NewMonitorRequestEndpoint(s, a.JWTAuth),
 		Monitor:             NewMonitorEndpoint(s),
-		List:                NewListEndpoint(s, a.OAuth2Auth),
-		Show:                NewShowEndpoint(s, a.OAuth2Auth),
-		PreservationActions: NewPreservationActionsEndpoint(s, a.OAuth2Auth),
-		Confirm:             NewConfirmEndpoint(s, a.OAuth2Auth),
-		Reject:              NewRejectEndpoint(s, a.OAuth2Auth),
-		Move:                NewMoveEndpoint(s, a.OAuth2Auth),
-		MoveStatus:          NewMoveStatusEndpoint(s, a.OAuth2Auth),
+		List:                NewListEndpoint(s, a.JWTAuth),
+		Show:                NewShowEndpoint(s, a.JWTAuth),
+		PreservationActions: NewPreservationActionsEndpoint(s, a.JWTAuth),
+		Confirm:             NewConfirmEndpoint(s, a.JWTAuth),
+		Reject:              NewRejectEndpoint(s, a.JWTAuth),
+		Move:                NewMoveEndpoint(s, a.JWTAuth),
+		MoveStatus:          NewMoveStatusEndpoint(s, a.JWTAuth),
 	}
 }
 
@@ -69,27 +69,20 @@ func (e *Endpoints) Use(m func(goa.Endpoint) goa.Endpoint) {
 
 // NewMonitorRequestEndpoint returns an endpoint function that calls the method
 // "monitor_request" of service "package".
-func NewMonitorRequestEndpoint(s Service, authOAuth2Fn security.AuthOAuth2Func) goa.Endpoint {
+func NewMonitorRequestEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
 	return func(ctx context.Context, req any) (any, error) {
 		p := req.(*MonitorRequestPayload)
 		var err error
-		sc := security.OAuth2Scheme{
-			Name:           "oauth2",
+		sc := security.JWTScheme{
+			Name:           "jwt",
 			Scopes:         []string{},
 			RequiredScopes: []string{},
-			Flows: []*security.OAuthFlow{
-				&security.OAuthFlow{
-					Type:       "client_credentials",
-					TokenURL:   "/oauth2/token",
-					RefreshURL: "/oauth2/refresh",
-				},
-			},
 		}
 		var token string
-		if p.OauthToken != nil {
-			token = *p.OauthToken
+		if p.Token != nil {
+			token = *p.Token
 		}
-		ctx, err = authOAuth2Fn(ctx, token, &sc)
+		ctx, err = authJWTFn(ctx, token, &sc)
 		if err != nil {
 			return nil, err
 		}
@@ -108,27 +101,20 @@ func NewMonitorEndpoint(s Service) goa.Endpoint {
 
 // NewListEndpoint returns an endpoint function that calls the method "list" of
 // service "package".
-func NewListEndpoint(s Service, authOAuth2Fn security.AuthOAuth2Func) goa.Endpoint {
+func NewListEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
 	return func(ctx context.Context, req any) (any, error) {
 		p := req.(*ListPayload)
 		var err error
-		sc := security.OAuth2Scheme{
-			Name:           "oauth2",
+		sc := security.JWTScheme{
+			Name:           "jwt",
 			Scopes:         []string{},
 			RequiredScopes: []string{},
-			Flows: []*security.OAuthFlow{
-				&security.OAuthFlow{
-					Type:       "client_credentials",
-					TokenURL:   "/oauth2/token",
-					RefreshURL: "/oauth2/refresh",
-				},
-			},
 		}
 		var token string
-		if p.OauthToken != nil {
-			token = *p.OauthToken
+		if p.Token != nil {
+			token = *p.Token
 		}
-		ctx, err = authOAuth2Fn(ctx, token, &sc)
+		ctx, err = authJWTFn(ctx, token, &sc)
 		if err != nil {
 			return nil, err
 		}
@@ -138,27 +124,20 @@ func NewListEndpoint(s Service, authOAuth2Fn security.AuthOAuth2Func) goa.Endpoi
 
 // NewShowEndpoint returns an endpoint function that calls the method "show" of
 // service "package".
-func NewShowEndpoint(s Service, authOAuth2Fn security.AuthOAuth2Func) goa.Endpoint {
+func NewShowEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
 	return func(ctx context.Context, req any) (any, error) {
 		p := req.(*ShowPayload)
 		var err error
-		sc := security.OAuth2Scheme{
-			Name:           "oauth2",
+		sc := security.JWTScheme{
+			Name:           "jwt",
 			Scopes:         []string{},
 			RequiredScopes: []string{},
-			Flows: []*security.OAuthFlow{
-				&security.OAuthFlow{
-					Type:       "client_credentials",
-					TokenURL:   "/oauth2/token",
-					RefreshURL: "/oauth2/refresh",
-				},
-			},
 		}
 		var token string
-		if p.OauthToken != nil {
-			token = *p.OauthToken
+		if p.Token != nil {
+			token = *p.Token
 		}
-		ctx, err = authOAuth2Fn(ctx, token, &sc)
+		ctx, err = authJWTFn(ctx, token, &sc)
 		if err != nil {
 			return nil, err
 		}
@@ -173,27 +152,20 @@ func NewShowEndpoint(s Service, authOAuth2Fn security.AuthOAuth2Func) goa.Endpoi
 
 // NewPreservationActionsEndpoint returns an endpoint function that calls the
 // method "preservation_actions" of service "package".
-func NewPreservationActionsEndpoint(s Service, authOAuth2Fn security.AuthOAuth2Func) goa.Endpoint {
+func NewPreservationActionsEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
 	return func(ctx context.Context, req any) (any, error) {
 		p := req.(*PreservationActionsPayload)
 		var err error
-		sc := security.OAuth2Scheme{
-			Name:           "oauth2",
+		sc := security.JWTScheme{
+			Name:           "jwt",
 			Scopes:         []string{},
 			RequiredScopes: []string{},
-			Flows: []*security.OAuthFlow{
-				&security.OAuthFlow{
-					Type:       "client_credentials",
-					TokenURL:   "/oauth2/token",
-					RefreshURL: "/oauth2/refresh",
-				},
-			},
 		}
 		var token string
-		if p.OauthToken != nil {
-			token = *p.OauthToken
+		if p.Token != nil {
+			token = *p.Token
 		}
-		ctx, err = authOAuth2Fn(ctx, token, &sc)
+		ctx, err = authJWTFn(ctx, token, &sc)
 		if err != nil {
 			return nil, err
 		}
@@ -208,27 +180,20 @@ func NewPreservationActionsEndpoint(s Service, authOAuth2Fn security.AuthOAuth2F
 
 // NewConfirmEndpoint returns an endpoint function that calls the method
 // "confirm" of service "package".
-func NewConfirmEndpoint(s Service, authOAuth2Fn security.AuthOAuth2Func) goa.Endpoint {
+func NewConfirmEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
 	return func(ctx context.Context, req any) (any, error) {
 		p := req.(*ConfirmPayload)
 		var err error
-		sc := security.OAuth2Scheme{
-			Name:           "oauth2",
+		sc := security.JWTScheme{
+			Name:           "jwt",
 			Scopes:         []string{},
 			RequiredScopes: []string{},
-			Flows: []*security.OAuthFlow{
-				&security.OAuthFlow{
-					Type:       "client_credentials",
-					TokenURL:   "/oauth2/token",
-					RefreshURL: "/oauth2/refresh",
-				},
-			},
 		}
 		var token string
-		if p.OauthToken != nil {
-			token = *p.OauthToken
+		if p.Token != nil {
+			token = *p.Token
 		}
-		ctx, err = authOAuth2Fn(ctx, token, &sc)
+		ctx, err = authJWTFn(ctx, token, &sc)
 		if err != nil {
 			return nil, err
 		}
@@ -238,27 +203,20 @@ func NewConfirmEndpoint(s Service, authOAuth2Fn security.AuthOAuth2Func) goa.End
 
 // NewRejectEndpoint returns an endpoint function that calls the method
 // "reject" of service "package".
-func NewRejectEndpoint(s Service, authOAuth2Fn security.AuthOAuth2Func) goa.Endpoint {
+func NewRejectEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
 	return func(ctx context.Context, req any) (any, error) {
 		p := req.(*RejectPayload)
 		var err error
-		sc := security.OAuth2Scheme{
-			Name:           "oauth2",
+		sc := security.JWTScheme{
+			Name:           "jwt",
 			Scopes:         []string{},
 			RequiredScopes: []string{},
-			Flows: []*security.OAuthFlow{
-				&security.OAuthFlow{
-					Type:       "client_credentials",
-					TokenURL:   "/oauth2/token",
-					RefreshURL: "/oauth2/refresh",
-				},
-			},
 		}
 		var token string
-		if p.OauthToken != nil {
-			token = *p.OauthToken
+		if p.Token != nil {
+			token = *p.Token
 		}
-		ctx, err = authOAuth2Fn(ctx, token, &sc)
+		ctx, err = authJWTFn(ctx, token, &sc)
 		if err != nil {
 			return nil, err
 		}
@@ -268,27 +226,20 @@ func NewRejectEndpoint(s Service, authOAuth2Fn security.AuthOAuth2Func) goa.Endp
 
 // NewMoveEndpoint returns an endpoint function that calls the method "move" of
 // service "package".
-func NewMoveEndpoint(s Service, authOAuth2Fn security.AuthOAuth2Func) goa.Endpoint {
+func NewMoveEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
 	return func(ctx context.Context, req any) (any, error) {
 		p := req.(*MovePayload)
 		var err error
-		sc := security.OAuth2Scheme{
-			Name:           "oauth2",
+		sc := security.JWTScheme{
+			Name:           "jwt",
 			Scopes:         []string{},
 			RequiredScopes: []string{},
-			Flows: []*security.OAuthFlow{
-				&security.OAuthFlow{
-					Type:       "client_credentials",
-					TokenURL:   "/oauth2/token",
-					RefreshURL: "/oauth2/refresh",
-				},
-			},
 		}
 		var token string
-		if p.OauthToken != nil {
-			token = *p.OauthToken
+		if p.Token != nil {
+			token = *p.Token
 		}
-		ctx, err = authOAuth2Fn(ctx, token, &sc)
+		ctx, err = authJWTFn(ctx, token, &sc)
 		if err != nil {
 			return nil, err
 		}
@@ -298,27 +249,20 @@ func NewMoveEndpoint(s Service, authOAuth2Fn security.AuthOAuth2Func) goa.Endpoi
 
 // NewMoveStatusEndpoint returns an endpoint function that calls the method
 // "move_status" of service "package".
-func NewMoveStatusEndpoint(s Service, authOAuth2Fn security.AuthOAuth2Func) goa.Endpoint {
+func NewMoveStatusEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
 	return func(ctx context.Context, req any) (any, error) {
 		p := req.(*MoveStatusPayload)
 		var err error
-		sc := security.OAuth2Scheme{
-			Name:           "oauth2",
+		sc := security.JWTScheme{
+			Name:           "jwt",
 			Scopes:         []string{},
 			RequiredScopes: []string{},
-			Flows: []*security.OAuthFlow{
-				&security.OAuthFlow{
-					Type:       "client_credentials",
-					TokenURL:   "/oauth2/token",
-					RefreshURL: "/oauth2/refresh",
-				},
-			},
 		}
 		var token string
-		if p.OauthToken != nil {
-			token = *p.OauthToken
+		if p.Token != nil {
+			token = *p.Token
 		}
-		ctx, err = authOAuth2Fn(ctx, token, &sc)
+		ctx, err = authJWTFn(ctx, token, &sc)
 		if err != nil {
 			return nil, err
 		}

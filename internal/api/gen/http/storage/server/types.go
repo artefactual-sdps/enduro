@@ -767,18 +767,18 @@ func NewLocationPackagesNotFoundResponseBody(res *storage.LocationNotFound) *Loc
 }
 
 // NewSubmitPayload builds a storage service submit endpoint payload.
-func NewSubmitPayload(body *SubmitRequestBody, aipID string, oauthToken *string) *storage.SubmitPayload {
+func NewSubmitPayload(body *SubmitRequestBody, aipID string, token *string) *storage.SubmitPayload {
 	v := &storage.SubmitPayload{
 		Name: *body.Name,
 	}
 	v.AipID = aipID
-	v.OauthToken = oauthToken
+	v.Token = token
 
 	return v
 }
 
 // NewCreatePayload builds a storage service create endpoint payload.
-func NewCreatePayload(body *CreateRequestBody, oauthToken *string) *storage.CreatePayload {
+func NewCreatePayload(body *CreateRequestBody, token *string) *storage.CreatePayload {
 	v := &storage.CreatePayload{
 		AipID:      *body.AipID,
 		Name:       *body.Name,
@@ -791,39 +791,39 @@ func NewCreatePayload(body *CreateRequestBody, oauthToken *string) *storage.Crea
 	if body.Status == nil {
 		v.Status = "unspecified"
 	}
-	v.OauthToken = oauthToken
+	v.Token = token
 
 	return v
 }
 
 // NewUpdatePayload builds a storage service update endpoint payload.
-func NewUpdatePayload(aipID string, oauthToken *string) *storage.UpdatePayload {
+func NewUpdatePayload(aipID string, token *string) *storage.UpdatePayload {
 	v := &storage.UpdatePayload{}
 	v.AipID = aipID
-	v.OauthToken = oauthToken
+	v.Token = token
 
 	return v
 }
 
 // NewDownloadPayload builds a storage service download endpoint payload.
-func NewDownloadPayload(aipID string, oauthToken *string) *storage.DownloadPayload {
+func NewDownloadPayload(aipID string, token *string) *storage.DownloadPayload {
 	v := &storage.DownloadPayload{}
 	v.AipID = aipID
-	v.OauthToken = oauthToken
+	v.Token = token
 
 	return v
 }
 
 // NewLocationsPayload builds a storage service locations endpoint payload.
-func NewLocationsPayload(oauthToken *string) *storage.LocationsPayload {
+func NewLocationsPayload(token *string) *storage.LocationsPayload {
 	v := &storage.LocationsPayload{}
-	v.OauthToken = oauthToken
+	v.Token = token
 
 	return v
 }
 
 // NewAddLocationPayload builds a storage service add_location endpoint payload.
-func NewAddLocationPayload(body *AddLocationRequestBody, oauthToken *string) *storage.AddLocationPayload {
+func NewAddLocationPayload(body *AddLocationRequestBody, token *string) *storage.AddLocationPayload {
 	v := &storage.AddLocationPayload{
 		Name:        *body.Name,
 		Description: body.Description,
@@ -850,65 +850,65 @@ func NewAddLocationPayload(body *AddLocationRequestBody, oauthToken *string) *st
 			v.Config = val
 		}
 	}
-	v.OauthToken = oauthToken
+	v.Token = token
 
 	return v
 }
 
 // NewMovePayload builds a storage service move endpoint payload.
-func NewMovePayload(body *MoveRequestBody, aipID string, oauthToken *string) *storage.MovePayload {
+func NewMovePayload(body *MoveRequestBody, aipID string, token *string) *storage.MovePayload {
 	v := &storage.MovePayload{
 		LocationID: *body.LocationID,
 	}
 	v.AipID = aipID
-	v.OauthToken = oauthToken
+	v.Token = token
 
 	return v
 }
 
 // NewMoveStatusPayload builds a storage service move_status endpoint payload.
-func NewMoveStatusPayload(aipID string, oauthToken *string) *storage.MoveStatusPayload {
+func NewMoveStatusPayload(aipID string, token *string) *storage.MoveStatusPayload {
 	v := &storage.MoveStatusPayload{}
 	v.AipID = aipID
-	v.OauthToken = oauthToken
+	v.Token = token
 
 	return v
 }
 
 // NewRejectPayload builds a storage service reject endpoint payload.
-func NewRejectPayload(aipID string, oauthToken *string) *storage.RejectPayload {
+func NewRejectPayload(aipID string, token *string) *storage.RejectPayload {
 	v := &storage.RejectPayload{}
 	v.AipID = aipID
-	v.OauthToken = oauthToken
+	v.Token = token
 
 	return v
 }
 
 // NewShowPayload builds a storage service show endpoint payload.
-func NewShowPayload(aipID string, oauthToken *string) *storage.ShowPayload {
+func NewShowPayload(aipID string, token *string) *storage.ShowPayload {
 	v := &storage.ShowPayload{}
 	v.AipID = aipID
-	v.OauthToken = oauthToken
+	v.Token = token
 
 	return v
 }
 
 // NewShowLocationPayload builds a storage service show_location endpoint
 // payload.
-func NewShowLocationPayload(uuid string, oauthToken *string) *storage.ShowLocationPayload {
+func NewShowLocationPayload(uuid string, token *string) *storage.ShowLocationPayload {
 	v := &storage.ShowLocationPayload{}
 	v.UUID = uuid
-	v.OauthToken = oauthToken
+	v.Token = token
 
 	return v
 }
 
 // NewLocationPackagesPayload builds a storage service location_packages
 // endpoint payload.
-func NewLocationPackagesPayload(uuid string, oauthToken *string) *storage.LocationPackagesPayload {
+func NewLocationPackagesPayload(uuid string, token *string) *storage.LocationPackagesPayload {
 	v := &storage.LocationPackagesPayload{}
 	v.UUID = uuid
-	v.OauthToken = oauthToken
+	v.Token = token
 
 	return v
 }

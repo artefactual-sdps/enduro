@@ -110,7 +110,7 @@ paths:
                                 example: abc123
                             example: abc123
             security:
-                - oauth2_header_Authorization: []
+                - jwt_header_Authorization: []
     /package/{id}:
         get:
             tags:
@@ -171,7 +171,7 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/Error'
             security:
-                - oauth2_header_Authorization: []
+                - jwt_header_Authorization: []
     /package/{id}/confirm:
         post:
             tags:
@@ -231,7 +231,7 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/Error'
             security:
-                - oauth2_header_Authorization: []
+                - jwt_header_Authorization: []
     /package/{id}/move:
         get:
             tags:
@@ -283,7 +283,7 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/Error'
             security:
-                - oauth2_header_Authorization: []
+                - jwt_header_Authorization: []
         post:
             tags:
                 - package
@@ -342,7 +342,7 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/Error'
             security:
-                - oauth2_header_Authorization: []
+                - jwt_header_Authorization: []
     /package/{id}/preservation-actions:
         get:
             tags:
@@ -404,7 +404,7 @@ paths:
                                 id: 1
                                 message: abc123
             security:
-                - oauth2_header_Authorization: []
+                - jwt_header_Authorization: []
     /package/{id}/reject:
         post:
             tags:
@@ -456,7 +456,7 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/Error'
             security:
-                - oauth2_header_Authorization: []
+                - jwt_header_Authorization: []
     /package/monitor:
         get:
             tags:
@@ -526,7 +526,7 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/Error'
             security:
-                - oauth2_header_Authorization: []
+                - jwt_header_Authorization: []
     /storage/location:
         get:
             tags:
@@ -557,7 +557,7 @@ paths:
                                 example: abc123
                             example: abc123
             security:
-                - oauth2_header_Authorization: []
+                - jwt_header_Authorization: []
         post:
             tags:
                 - storage
@@ -602,7 +602,7 @@ paths:
                                 example: abc123
                             example: abc123
             security:
-                - oauth2_header_Authorization: []
+                - jwt_header_Authorization: []
     /storage/location/{uuid}:
         get:
             tags:
@@ -656,7 +656,7 @@ paths:
                                 message: abc123
                                 uuid: abc123
             security:
-                - oauth2_header_Authorization: []
+                - jwt_header_Authorization: []
     /storage/location/{uuid}/packages:
         get:
             tags:
@@ -713,7 +713,7 @@ paths:
                                 message: abc123
                                 uuid: abc123
             security:
-                - oauth2_header_Authorization: []
+                - jwt_header_Authorization: []
     /storage/package:
         post:
             tags:
@@ -762,7 +762,7 @@ paths:
                                 example: abc123
                             example: abc123
             security:
-                - oauth2_header_Authorization: []
+                - jwt_header_Authorization: []
     /storage/package/{aip_id}:
         get:
             tags:
@@ -813,7 +813,7 @@ paths:
                                 aip_id: abc123
                                 message: abc123
             security:
-                - oauth2_header_Authorization: []
+                - jwt_header_Authorization: []
     /storage/package/{aip_id}/download:
         get:
             tags:
@@ -872,7 +872,7 @@ paths:
                                 aip_id: abc123
                                 message: abc123
             security:
-                - oauth2_header_Authorization: []
+                - jwt_header_Authorization: []
     /storage/package/{aip_id}/reject:
         post:
             tags:
@@ -924,7 +924,7 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/Error'
             security:
-                - oauth2_header_Authorization: []
+                - jwt_header_Authorization: []
     /storage/package/{aip_id}/store:
         get:
             tags:
@@ -976,7 +976,7 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/Error'
             security:
-                - oauth2_header_Authorization: []
+                - jwt_header_Authorization: []
         post:
             tags:
                 - storage
@@ -1035,7 +1035,7 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/Error'
             security:
-                - oauth2_header_Authorization: []
+                - jwt_header_Authorization: []
     /storage/package/{aip_id}/submit:
         post:
             tags:
@@ -1092,7 +1092,7 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/Error'
             security:
-                - oauth2_header_Authorization: []
+                - jwt_header_Authorization: []
     /storage/package/{aip_id}/update:
         post:
             tags:
@@ -1135,7 +1135,7 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/Error'
             security:
-                - oauth2_header_Authorization: []
+                - jwt_header_Authorization: []
     /swagger/swagger.json:
         get:
             tags:
@@ -1147,7 +1147,7 @@ paths:
                 "200":
                     description: File downloaded
             security:
-                - oauth2__: []
+                - jwt_header_: []
     /upload/upload:
         post:
             tags:
@@ -1190,7 +1190,7 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/Error'
             security:
-                - oauth2_header_Authorization: []
+                - jwt_header_Authorization: []
 components:
     schemas:
         AddLocationRequestBody:
@@ -2240,14 +2240,10 @@ components:
             required:
                 - url
     securitySchemes:
-        oauth2_header_Authorization:
-            type: oauth2
-            description: Secures endpoints by requiring a valid OAuth2 access token.
-            flows:
-                clientCredentials:
-                    tokenUrl: /oauth2/token
-                    refreshUrl: /oauth2/refresh
-                    scopes: {}
+        jwt_header_Authorization:
+            type: http
+            description: Secures endpoint by requiring a valid JWT token.
+            scheme: bearer
 tags:
     - name: package
       description: The package service manages packages being transferred to a3m.
@@ -2258,4 +2254,4 @@ tags:
     - name: upload
       description: The upload service handles file submissions to the SIPs bucket.
 security:
-    - oauth2__: []
+    - jwt_header_: []

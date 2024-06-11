@@ -25,8 +25,8 @@ type Service interface {
 
 // Auther defines the authorization functions to be implemented by the service.
 type Auther interface {
-	// OAuth2Auth implements the authorization logic for the OAuth2 security scheme.
-	OAuth2Auth(ctx context.Context, token string, schema *security.OAuth2Scheme) (context.Context, error)
+	// JWTAuth implements the authorization logic for the JWT security scheme.
+	JWTAuth(ctx context.Context, token string, schema *security.JWTScheme) (context.Context, error)
 }
 
 // APIName is the name of the API as defined in the design.
@@ -152,7 +152,7 @@ type PreservationTaskUpdatedEvent struct {
 type UploadPayload struct {
 	// Content-Type header, must define value for multipart boundary.
 	ContentType string
-	OauthToken  *string
+	Token       *string
 }
 
 // Invalid token

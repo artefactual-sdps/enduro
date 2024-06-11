@@ -57,8 +57,8 @@ func EncodeUploadRequest(encoder func(*http.Request) goahttp.Encoder) func(*http
 			head := p.ContentType
 			req.Header.Set("Content-Type", head)
 		}
-		if p.OauthToken != nil {
-			head := *p.OauthToken
+		if p.Token != nil {
+			head := *p.Token
 			if !strings.Contains(head, " ") {
 				req.Header.Set("Authorization", "Bearer "+head)
 			} else {

@@ -18,7 +18,7 @@ var _ = Service("storage", func() {
 		Payload(func() {
 			AttributeUUID("aip_id", "Identifier of AIP")
 			Attribute("name", String)
-			AccessToken("oauth_token", String)
+			Token("token", String)
 			Required("aip_id", "name")
 		})
 		Result(SubmitResult)
@@ -43,7 +43,7 @@ var _ = Service("storage", func() {
 				Default("unspecified")
 			})
 			TypedAttributeUUID("location_id", "Identifier of the package's storage location")
-			AccessToken("oauth_token", String)
+			Token("token", String)
 			Required("aip_id", "name", "object_key")
 		})
 		Result(StoragePackage)
@@ -58,7 +58,7 @@ var _ = Service("storage", func() {
 		Description("Signal the storage service that an upload is complete")
 		Payload(func() {
 			AttributeUUID("aip_id", "Identifier of AIP")
-			AccessToken("oauth_token", String)
+			Token("token", String)
 			Required("aip_id")
 		})
 		Error("not_found", StoragePackageNotFound, "Storage package not found")
@@ -75,7 +75,7 @@ var _ = Service("storage", func() {
 		Description("Download package by AIPID")
 		Payload(func() {
 			AttributeUUID("aip_id", "Identifier of AIP")
-			AccessToken("oauth_token", String)
+			Token("token", String)
 			Required("aip_id")
 		})
 		Result(Bytes)
@@ -89,7 +89,7 @@ var _ = Service("storage", func() {
 	Method("locations", func() {
 		Description("List locations")
 		Payload(func() {
-			AccessToken("oauth_token", String)
+			Token("token", String)
 		})
 		Result(CollectionOf(Location), func() { View("default") })
 		HTTP(func() {
@@ -114,7 +114,7 @@ var _ = Service("storage", func() {
 				Attribute("sftp", SFTPConfig)
 				Attribute("url", URLConfig)
 			})
-			AccessToken("oauth_token", String)
+			Token("token", String)
 			Required("name", "source", "purpose")
 		})
 		Result(AddLocationResult)
@@ -130,7 +130,7 @@ var _ = Service("storage", func() {
 		Payload(func() {
 			AttributeUUID("aip_id", "Identifier of AIP")
 			TypedAttributeUUID("location_id", "Identifier of storage location")
-			AccessToken("oauth_token", String)
+			Token("token", String)
 			Required("aip_id", "location_id")
 		})
 		Error("not_found", StoragePackageNotFound, "Storage package not found")
@@ -148,7 +148,7 @@ var _ = Service("storage", func() {
 		Description("Retrieve the status of a permanent storage location move of the package")
 		Payload(func() {
 			AttributeUUID("aip_id", "Identifier of AIP")
-			AccessToken("oauth_token", String)
+			Token("token", String)
 			Required("aip_id")
 		})
 		Result(MoveStatusResult)
@@ -165,7 +165,7 @@ var _ = Service("storage", func() {
 		Description("Reject a package")
 		Payload(func() {
 			AttributeUUID("aip_id", "Identifier of AIP")
-			AccessToken("oauth_token", String)
+			Token("token", String)
 			Required("aip_id")
 		})
 		Error("not_found", StoragePackageNotFound, "Storage package not found")
@@ -183,7 +183,7 @@ var _ = Service("storage", func() {
 		Description("Show package by AIPID")
 		Payload(func() {
 			AttributeUUID("aip_id", "Identifier of AIP")
-			AccessToken("oauth_token", String)
+			Token("token", String)
 			Required("aip_id")
 		})
 		Result(StoragePackage)
@@ -199,7 +199,7 @@ var _ = Service("storage", func() {
 		Payload(func() {
 			// TODO: explore how we can use uuid.UUID that are also URL params.
 			AttributeUUID("uuid", "Identifier of location")
-			AccessToken("oauth_token", String)
+			Token("token", String)
 			Required("uuid")
 		})
 		Result(Location)
@@ -215,7 +215,7 @@ var _ = Service("storage", func() {
 		Payload(func() {
 			// TODO: explore how we can use uuid.UUID that are also URL params.
 			AttributeUUID("uuid", "Identifier of location")
-			AccessToken("oauth_token", String)
+			Token("token", String)
 			Required("uuid")
 		})
 		Result(CollectionOf(StoragePackage), func() { View("default") })

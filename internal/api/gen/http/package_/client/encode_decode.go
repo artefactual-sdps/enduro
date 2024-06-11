@@ -44,8 +44,8 @@ func EncodeMonitorRequestRequest(encoder func(*http.Request) goahttp.Encoder) fu
 		if !ok {
 			return goahttp.ErrInvalidType("package", "monitor_request", "*package_.MonitorRequestPayload", v)
 		}
-		if p.OauthToken != nil {
-			head := *p.OauthToken
+		if p.Token != nil {
+			head := *p.Token
 			if !strings.Contains(head, " ") {
 				req.Header.Set("Authorization", "Bearer "+head)
 			} else {
@@ -259,8 +259,8 @@ func EncodeListRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.R
 		if !ok {
 			return goahttp.ErrInvalidType("package", "list", "*package_.ListPayload", v)
 		}
-		if p.OauthToken != nil {
-			head := *p.OauthToken
+		if p.Token != nil {
+			head := *p.Token
 			if !strings.Contains(head, " ") {
 				req.Header.Set("Authorization", "Bearer "+head)
 			} else {
@@ -380,8 +380,8 @@ func EncodeShowRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.R
 		if !ok {
 			return goahttp.ErrInvalidType("package", "show", "*package_.ShowPayload", v)
 		}
-		if p.OauthToken != nil {
-			head := *p.OauthToken
+		if p.Token != nil {
+			head := *p.Token
 			if !strings.Contains(head, " ") {
 				req.Header.Set("Authorization", "Bearer "+head)
 			} else {
@@ -511,8 +511,8 @@ func EncodePreservationActionsRequest(encoder func(*http.Request) goahttp.Encode
 		if !ok {
 			return goahttp.ErrInvalidType("package", "preservation_actions", "*package_.PreservationActionsPayload", v)
 		}
-		if p.OauthToken != nil {
-			head := *p.OauthToken
+		if p.Token != nil {
+			head := *p.Token
 			if !strings.Contains(head, " ") {
 				req.Header.Set("Authorization", "Bearer "+head)
 			} else {
@@ -626,8 +626,8 @@ func EncodeConfirmRequest(encoder func(*http.Request) goahttp.Encoder) func(*htt
 		if !ok {
 			return goahttp.ErrInvalidType("package", "confirm", "*package_.ConfirmPayload", v)
 		}
-		if p.OauthToken != nil {
-			head := *p.OauthToken
+		if p.Token != nil {
+			head := *p.Token
 			if !strings.Contains(head, " ") {
 				req.Header.Set("Authorization", "Bearer "+head)
 			} else {
@@ -760,8 +760,8 @@ func EncodeRejectRequest(encoder func(*http.Request) goahttp.Encoder) func(*http
 		if !ok {
 			return goahttp.ErrInvalidType("package", "reject", "*package_.RejectPayload", v)
 		}
-		if p.OauthToken != nil {
-			head := *p.OauthToken
+		if p.Token != nil {
+			head := *p.Token
 			if !strings.Contains(head, " ") {
 				req.Header.Set("Authorization", "Bearer "+head)
 			} else {
@@ -890,8 +890,8 @@ func EncodeMoveRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.R
 		if !ok {
 			return goahttp.ErrInvalidType("package", "move", "*package_.MovePayload", v)
 		}
-		if p.OauthToken != nil {
-			head := *p.OauthToken
+		if p.Token != nil {
+			head := *p.Token
 			if !strings.Contains(head, " ") {
 				req.Header.Set("Authorization", "Bearer "+head)
 			} else {
@@ -1024,8 +1024,8 @@ func EncodeMoveStatusRequest(encoder func(*http.Request) goahttp.Encoder) func(*
 		if !ok {
 			return goahttp.ErrInvalidType("package", "move_status", "*package_.MoveStatusPayload", v)
 		}
-		if p.OauthToken != nil {
-			head := *p.OauthToken
+		if p.Token != nil {
+			head := *p.Token
 			if !strings.Contains(head, " ") {
 				req.Header.Set("Authorization", "Bearer "+head)
 			} else {

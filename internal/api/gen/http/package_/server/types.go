@@ -701,9 +701,9 @@ func NewMoveStatusNotFoundResponseBody(res *package_.PackageNotFound) *MoveStatu
 
 // NewMonitorRequestPayload builds a package service monitor_request endpoint
 // payload.
-func NewMonitorRequestPayload(oauthToken *string) *package_.MonitorRequestPayload {
+func NewMonitorRequestPayload(token *string) *package_.MonitorRequestPayload {
 	v := &package_.MonitorRequestPayload{}
-	v.OauthToken = oauthToken
+	v.Token = token
 
 	return v
 }
@@ -717,7 +717,7 @@ func NewMonitorPayload(ticket *string) *package_.MonitorPayload {
 }
 
 // NewListPayload builds a package service list endpoint payload.
-func NewListPayload(name *string, aipID *string, earliestCreatedTime *string, latestCreatedTime *string, locationID *string, status *string, cursor *string, oauthToken *string) *package_.ListPayload {
+func NewListPayload(name *string, aipID *string, earliestCreatedTime *string, latestCreatedTime *string, locationID *string, status *string, cursor *string, token *string) *package_.ListPayload {
 	v := &package_.ListPayload{}
 	v.Name = name
 	v.AipID = aipID
@@ -726,66 +726,66 @@ func NewListPayload(name *string, aipID *string, earliestCreatedTime *string, la
 	v.LocationID = locationID
 	v.Status = status
 	v.Cursor = cursor
-	v.OauthToken = oauthToken
+	v.Token = token
 
 	return v
 }
 
 // NewShowPayload builds a package service show endpoint payload.
-func NewShowPayload(id uint, oauthToken *string) *package_.ShowPayload {
+func NewShowPayload(id uint, token *string) *package_.ShowPayload {
 	v := &package_.ShowPayload{}
 	v.ID = id
-	v.OauthToken = oauthToken
+	v.Token = token
 
 	return v
 }
 
 // NewPreservationActionsPayload builds a package service preservation_actions
 // endpoint payload.
-func NewPreservationActionsPayload(id uint, oauthToken *string) *package_.PreservationActionsPayload {
+func NewPreservationActionsPayload(id uint, token *string) *package_.PreservationActionsPayload {
 	v := &package_.PreservationActionsPayload{}
 	v.ID = id
-	v.OauthToken = oauthToken
+	v.Token = token
 
 	return v
 }
 
 // NewConfirmPayload builds a package service confirm endpoint payload.
-func NewConfirmPayload(body *ConfirmRequestBody, id uint, oauthToken *string) *package_.ConfirmPayload {
+func NewConfirmPayload(body *ConfirmRequestBody, id uint, token *string) *package_.ConfirmPayload {
 	v := &package_.ConfirmPayload{
 		LocationID: *body.LocationID,
 	}
 	v.ID = id
-	v.OauthToken = oauthToken
+	v.Token = token
 
 	return v
 }
 
 // NewRejectPayload builds a package service reject endpoint payload.
-func NewRejectPayload(id uint, oauthToken *string) *package_.RejectPayload {
+func NewRejectPayload(id uint, token *string) *package_.RejectPayload {
 	v := &package_.RejectPayload{}
 	v.ID = id
-	v.OauthToken = oauthToken
+	v.Token = token
 
 	return v
 }
 
 // NewMovePayload builds a package service move endpoint payload.
-func NewMovePayload(body *MoveRequestBody, id uint, oauthToken *string) *package_.MovePayload {
+func NewMovePayload(body *MoveRequestBody, id uint, token *string) *package_.MovePayload {
 	v := &package_.MovePayload{
 		LocationID: *body.LocationID,
 	}
 	v.ID = id
-	v.OauthToken = oauthToken
+	v.Token = token
 
 	return v
 }
 
 // NewMoveStatusPayload builds a package service move_status endpoint payload.
-func NewMoveStatusPayload(id uint, oauthToken *string) *package_.MoveStatusPayload {
+func NewMoveStatusPayload(id uint, token *string) *package_.MoveStatusPayload {
 	v := &package_.MoveStatusPayload{}
 	v.ID = id
-	v.OauthToken = oauthToken
+	v.Token = token
 
 	return v
 }

@@ -83,10 +83,10 @@ func (s *serviceImpl) openBucket(ctx context.Context, config Config) error {
 	return nil
 }
 
-func (s *serviceImpl) OAuth2Auth(
+func (s *serviceImpl) JWTAuth(
 	ctx context.Context,
 	token string,
-	scheme *security.OAuth2Scheme,
+	scheme *security.JWTScheme,
 ) (context.Context, error) {
 	ok, err := s.tokenVerifier.Verify(ctx, token)
 	if err != nil {

@@ -47,8 +47,8 @@ type Service interface {
 
 // Auther defines the authorization functions to be implemented by the service.
 type Auther interface {
-	// OAuth2Auth implements the authorization logic for the OAuth2 security scheme.
-	OAuth2Auth(ctx context.Context, token string, schema *security.OAuth2Scheme) (context.Context, error)
+	// JWTAuth implements the authorization logic for the JWT security scheme.
+	JWTAuth(ctx context.Context, token string, schema *security.JWTScheme) (context.Context, error)
 }
 
 // APIName is the name of the API as defined in the design.
@@ -83,7 +83,7 @@ type AddLocationPayload struct {
 	Config      interface {
 		configVal()
 	}
-	OauthToken *string
+	Token *string
 }
 
 // AddLocationResult is the result type of the storage service add_location
@@ -104,14 +104,14 @@ type CreatePayload struct {
 	Status string
 	// Identifier of the package's storage location
 	LocationID *uuid.UUID
-	OauthToken *string
+	Token      *string
 }
 
 // DownloadPayload is the payload type of the storage service download method.
 type DownloadPayload struct {
 	// Identifier of AIP
-	AipID      string
-	OauthToken *string
+	AipID string
+	Token *string
 }
 
 // PreservationAction describes a preservation action.
@@ -197,13 +197,13 @@ type LocationNotFound struct {
 // location_packages method.
 type LocationPackagesPayload struct {
 	// Identifier of location
-	UUID       string
-	OauthToken *string
+	UUID  string
+	Token *string
 }
 
 // LocationsPayload is the payload type of the storage service locations method.
 type LocationsPayload struct {
-	OauthToken *string
+	Token *string
 }
 
 type MonitorPingEvent struct {
@@ -216,15 +216,15 @@ type MovePayload struct {
 	AipID string
 	// Identifier of storage location
 	LocationID uuid.UUID
-	OauthToken *string
+	Token      *string
 }
 
 // MoveStatusPayload is the payload type of the storage service move_status
 // method.
 type MoveStatusPayload struct {
 	// Identifier of AIP
-	AipID      string
-	OauthToken *string
+	AipID string
+	Token *string
 }
 
 // MoveStatusResult is the result type of the storage service move_status
@@ -310,8 +310,8 @@ type PreservationTaskUpdatedEvent struct {
 // RejectPayload is the payload type of the storage service reject method.
 type RejectPayload struct {
 	// Identifier of AIP
-	AipID      string
-	OauthToken *string
+	AipID string
+	Token *string
 }
 
 type S3Config struct {
@@ -336,23 +336,23 @@ type SFTPConfig struct {
 // method.
 type ShowLocationPayload struct {
 	// Identifier of location
-	UUID       string
-	OauthToken *string
+	UUID  string
+	Token *string
 }
 
 // ShowPayload is the payload type of the storage service show method.
 type ShowPayload struct {
 	// Identifier of AIP
-	AipID      string
-	OauthToken *string
+	AipID string
+	Token *string
 }
 
 // SubmitPayload is the payload type of the storage service submit method.
 type SubmitPayload struct {
 	// Identifier of AIP
-	AipID      string
-	Name       string
-	OauthToken *string
+	AipID string
+	Name  string
+	Token *string
 }
 
 // SubmitResult is the result type of the storage service submit method.
@@ -367,8 +367,8 @@ type URLConfig struct {
 // UpdatePayload is the payload type of the storage service update method.
 type UpdatePayload struct {
 	// Identifier of AIP
-	AipID      string
-	OauthToken *string
+	AipID string
+	Token *string
 }
 
 // Invalid token

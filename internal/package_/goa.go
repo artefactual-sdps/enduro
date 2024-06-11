@@ -36,10 +36,10 @@ var patternMatchingCharReplacer = strings.NewReplacer(
 
 var ErrInvalidToken error = goapackage.Unauthorized("invalid token")
 
-func (w *goaWrapper) OAuth2Auth(
+func (w *goaWrapper) JWTAuth(
 	ctx context.Context,
 	token string,
-	scheme *security.OAuth2Scheme,
+	scheme *security.JWTScheme,
 ) (context.Context, error) {
 	ok, err := w.tokenVerifier.Verify(ctx, token)
 	if err != nil {

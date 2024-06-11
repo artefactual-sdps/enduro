@@ -18,7 +18,7 @@ import (
 
 // BuildSubmitPayload builds the payload for the storage submit endpoint from
 // CLI flags.
-func BuildSubmitPayload(storageSubmitBody string, storageSubmitAipID string, storageSubmitOauthToken string) (*storage.SubmitPayload, error) {
+func BuildSubmitPayload(storageSubmitBody string, storageSubmitAipID string, storageSubmitToken string) (*storage.SubmitPayload, error) {
 	var err error
 	var body SubmitRequestBody
 	{
@@ -35,24 +35,24 @@ func BuildSubmitPayload(storageSubmitBody string, storageSubmitAipID string, sto
 			return nil, err
 		}
 	}
-	var oauthToken *string
+	var token *string
 	{
-		if storageSubmitOauthToken != "" {
-			oauthToken = &storageSubmitOauthToken
+		if storageSubmitToken != "" {
+			token = &storageSubmitToken
 		}
 	}
 	v := &storage.SubmitPayload{
 		Name: body.Name,
 	}
 	v.AipID = aipID
-	v.OauthToken = oauthToken
+	v.Token = token
 
 	return v, nil
 }
 
 // BuildCreatePayload builds the payload for the storage create endpoint from
 // CLI flags.
-func BuildCreatePayload(storageCreateBody string, storageCreateOauthToken string) (*storage.CreatePayload, error) {
+func BuildCreatePayload(storageCreateBody string, storageCreateToken string) (*storage.CreatePayload, error) {
 	var err error
 	var body CreateRequestBody
 	{
@@ -69,10 +69,10 @@ func BuildCreatePayload(storageCreateBody string, storageCreateOauthToken string
 			return nil, err
 		}
 	}
-	var oauthToken *string
+	var token *string
 	{
-		if storageCreateOauthToken != "" {
-			oauthToken = &storageCreateOauthToken
+		if storageCreateToken != "" {
+			token = &storageCreateToken
 		}
 	}
 	v := &storage.CreatePayload{
@@ -88,14 +88,14 @@ func BuildCreatePayload(storageCreateBody string, storageCreateOauthToken string
 			v.Status = "unspecified"
 		}
 	}
-	v.OauthToken = oauthToken
+	v.Token = token
 
 	return v, nil
 }
 
 // BuildUpdatePayload builds the payload for the storage update endpoint from
 // CLI flags.
-func BuildUpdatePayload(storageUpdateAipID string, storageUpdateOauthToken string) (*storage.UpdatePayload, error) {
+func BuildUpdatePayload(storageUpdateAipID string, storageUpdateToken string) (*storage.UpdatePayload, error) {
 	var err error
 	var aipID string
 	{
@@ -105,22 +105,22 @@ func BuildUpdatePayload(storageUpdateAipID string, storageUpdateOauthToken strin
 			return nil, err
 		}
 	}
-	var oauthToken *string
+	var token *string
 	{
-		if storageUpdateOauthToken != "" {
-			oauthToken = &storageUpdateOauthToken
+		if storageUpdateToken != "" {
+			token = &storageUpdateToken
 		}
 	}
 	v := &storage.UpdatePayload{}
 	v.AipID = aipID
-	v.OauthToken = oauthToken
+	v.Token = token
 
 	return v, nil
 }
 
 // BuildDownloadPayload builds the payload for the storage download endpoint
 // from CLI flags.
-func BuildDownloadPayload(storageDownloadAipID string, storageDownloadOauthToken string) (*storage.DownloadPayload, error) {
+func BuildDownloadPayload(storageDownloadAipID string, storageDownloadToken string) (*storage.DownloadPayload, error) {
 	var err error
 	var aipID string
 	{
@@ -130,37 +130,37 @@ func BuildDownloadPayload(storageDownloadAipID string, storageDownloadOauthToken
 			return nil, err
 		}
 	}
-	var oauthToken *string
+	var token *string
 	{
-		if storageDownloadOauthToken != "" {
-			oauthToken = &storageDownloadOauthToken
+		if storageDownloadToken != "" {
+			token = &storageDownloadToken
 		}
 	}
 	v := &storage.DownloadPayload{}
 	v.AipID = aipID
-	v.OauthToken = oauthToken
+	v.Token = token
 
 	return v, nil
 }
 
 // BuildLocationsPayload builds the payload for the storage locations endpoint
 // from CLI flags.
-func BuildLocationsPayload(storageLocationsOauthToken string) (*storage.LocationsPayload, error) {
-	var oauthToken *string
+func BuildLocationsPayload(storageLocationsToken string) (*storage.LocationsPayload, error) {
+	var token *string
 	{
-		if storageLocationsOauthToken != "" {
-			oauthToken = &storageLocationsOauthToken
+		if storageLocationsToken != "" {
+			token = &storageLocationsToken
 		}
 	}
 	v := &storage.LocationsPayload{}
-	v.OauthToken = oauthToken
+	v.Token = token
 
 	return v, nil
 }
 
 // BuildAddLocationPayload builds the payload for the storage add_location
 // endpoint from CLI flags.
-func BuildAddLocationPayload(storageAddLocationBody string, storageAddLocationOauthToken string) (*storage.AddLocationPayload, error) {
+func BuildAddLocationPayload(storageAddLocationBody string, storageAddLocationToken string) (*storage.AddLocationPayload, error) {
 	var err error
 	var body AddLocationRequestBody
 	{
@@ -183,10 +183,10 @@ func BuildAddLocationPayload(storageAddLocationBody string, storageAddLocationOa
 			return nil, err
 		}
 	}
-	var oauthToken *string
+	var token *string
 	{
-		if storageAddLocationOauthToken != "" {
-			oauthToken = &storageAddLocationOauthToken
+		if storageAddLocationToken != "" {
+			token = &storageAddLocationToken
 		}
 	}
 	v := &storage.AddLocationPayload{
@@ -215,14 +215,14 @@ func BuildAddLocationPayload(storageAddLocationBody string, storageAddLocationOa
 			v.Config = val
 		}
 	}
-	v.OauthToken = oauthToken
+	v.Token = token
 
 	return v, nil
 }
 
 // BuildMovePayload builds the payload for the storage move endpoint from CLI
 // flags.
-func BuildMovePayload(storageMoveBody string, storageMoveAipID string, storageMoveOauthToken string) (*storage.MovePayload, error) {
+func BuildMovePayload(storageMoveBody string, storageMoveAipID string, storageMoveToken string) (*storage.MovePayload, error) {
 	var err error
 	var body MoveRequestBody
 	{
@@ -239,24 +239,24 @@ func BuildMovePayload(storageMoveBody string, storageMoveAipID string, storageMo
 			return nil, err
 		}
 	}
-	var oauthToken *string
+	var token *string
 	{
-		if storageMoveOauthToken != "" {
-			oauthToken = &storageMoveOauthToken
+		if storageMoveToken != "" {
+			token = &storageMoveToken
 		}
 	}
 	v := &storage.MovePayload{
 		LocationID: body.LocationID,
 	}
 	v.AipID = aipID
-	v.OauthToken = oauthToken
+	v.Token = token
 
 	return v, nil
 }
 
 // BuildMoveStatusPayload builds the payload for the storage move_status
 // endpoint from CLI flags.
-func BuildMoveStatusPayload(storageMoveStatusAipID string, storageMoveStatusOauthToken string) (*storage.MoveStatusPayload, error) {
+func BuildMoveStatusPayload(storageMoveStatusAipID string, storageMoveStatusToken string) (*storage.MoveStatusPayload, error) {
 	var err error
 	var aipID string
 	{
@@ -266,22 +266,22 @@ func BuildMoveStatusPayload(storageMoveStatusAipID string, storageMoveStatusOaut
 			return nil, err
 		}
 	}
-	var oauthToken *string
+	var token *string
 	{
-		if storageMoveStatusOauthToken != "" {
-			oauthToken = &storageMoveStatusOauthToken
+		if storageMoveStatusToken != "" {
+			token = &storageMoveStatusToken
 		}
 	}
 	v := &storage.MoveStatusPayload{}
 	v.AipID = aipID
-	v.OauthToken = oauthToken
+	v.Token = token
 
 	return v, nil
 }
 
 // BuildRejectPayload builds the payload for the storage reject endpoint from
 // CLI flags.
-func BuildRejectPayload(storageRejectAipID string, storageRejectOauthToken string) (*storage.RejectPayload, error) {
+func BuildRejectPayload(storageRejectAipID string, storageRejectToken string) (*storage.RejectPayload, error) {
 	var err error
 	var aipID string
 	{
@@ -291,22 +291,22 @@ func BuildRejectPayload(storageRejectAipID string, storageRejectOauthToken strin
 			return nil, err
 		}
 	}
-	var oauthToken *string
+	var token *string
 	{
-		if storageRejectOauthToken != "" {
-			oauthToken = &storageRejectOauthToken
+		if storageRejectToken != "" {
+			token = &storageRejectToken
 		}
 	}
 	v := &storage.RejectPayload{}
 	v.AipID = aipID
-	v.OauthToken = oauthToken
+	v.Token = token
 
 	return v, nil
 }
 
 // BuildShowPayload builds the payload for the storage show endpoint from CLI
 // flags.
-func BuildShowPayload(storageShowAipID string, storageShowOauthToken string) (*storage.ShowPayload, error) {
+func BuildShowPayload(storageShowAipID string, storageShowToken string) (*storage.ShowPayload, error) {
 	var err error
 	var aipID string
 	{
@@ -316,22 +316,22 @@ func BuildShowPayload(storageShowAipID string, storageShowOauthToken string) (*s
 			return nil, err
 		}
 	}
-	var oauthToken *string
+	var token *string
 	{
-		if storageShowOauthToken != "" {
-			oauthToken = &storageShowOauthToken
+		if storageShowToken != "" {
+			token = &storageShowToken
 		}
 	}
 	v := &storage.ShowPayload{}
 	v.AipID = aipID
-	v.OauthToken = oauthToken
+	v.Token = token
 
 	return v, nil
 }
 
 // BuildShowLocationPayload builds the payload for the storage show_location
 // endpoint from CLI flags.
-func BuildShowLocationPayload(storageShowLocationUUID string, storageShowLocationOauthToken string) (*storage.ShowLocationPayload, error) {
+func BuildShowLocationPayload(storageShowLocationUUID string, storageShowLocationToken string) (*storage.ShowLocationPayload, error) {
 	var err error
 	var uuid string
 	{
@@ -341,22 +341,22 @@ func BuildShowLocationPayload(storageShowLocationUUID string, storageShowLocatio
 			return nil, err
 		}
 	}
-	var oauthToken *string
+	var token *string
 	{
-		if storageShowLocationOauthToken != "" {
-			oauthToken = &storageShowLocationOauthToken
+		if storageShowLocationToken != "" {
+			token = &storageShowLocationToken
 		}
 	}
 	v := &storage.ShowLocationPayload{}
 	v.UUID = uuid
-	v.OauthToken = oauthToken
+	v.Token = token
 
 	return v, nil
 }
 
 // BuildLocationPackagesPayload builds the payload for the storage
 // location_packages endpoint from CLI flags.
-func BuildLocationPackagesPayload(storageLocationPackagesUUID string, storageLocationPackagesOauthToken string) (*storage.LocationPackagesPayload, error) {
+func BuildLocationPackagesPayload(storageLocationPackagesUUID string, storageLocationPackagesToken string) (*storage.LocationPackagesPayload, error) {
 	var err error
 	var uuid string
 	{
@@ -366,15 +366,15 @@ func BuildLocationPackagesPayload(storageLocationPackagesUUID string, storageLoc
 			return nil, err
 		}
 	}
-	var oauthToken *string
+	var token *string
 	{
-		if storageLocationPackagesOauthToken != "" {
-			oauthToken = &storageLocationPackagesOauthToken
+		if storageLocationPackagesToken != "" {
+			token = &storageLocationPackagesToken
 		}
 	}
 	v := &storage.LocationPackagesPayload{}
 	v.UUID = uuid
-	v.OauthToken = oauthToken
+	v.Token = token
 
 	return v, nil
 }

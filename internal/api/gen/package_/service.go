@@ -41,8 +41,8 @@ type Service interface {
 
 // Auther defines the authorization functions to be implemented by the service.
 type Auther interface {
-	// OAuth2Auth implements the authorization logic for the OAuth2 security scheme.
-	OAuth2Auth(ctx context.Context, token string, schema *security.OAuth2Scheme) (context.Context, error)
+	// JWTAuth implements the authorization logic for the JWT security scheme.
+	JWTAuth(ctx context.Context, token string, schema *security.JWTScheme) (context.Context, error)
 }
 
 // APIName is the name of the API as defined in the design.
@@ -83,7 +83,7 @@ type ConfirmPayload struct {
 	ID uint
 	// Identifier of storage location
 	LocationID uuid.UUID
-	OauthToken *string
+	Token      *string
 }
 
 // PreservationAction describes a preservation action.
@@ -157,8 +157,8 @@ type ListPayload struct {
 	LocationID *string
 	Status     *string
 	// Pagination cursor
-	Cursor     *string
-	OauthToken *string
+	Cursor *string
+	Token  *string
 }
 
 // ListResult is the result type of the package service list method.
@@ -186,7 +186,7 @@ type MonitorPingEvent struct {
 // MonitorRequestPayload is the payload type of the package service
 // monitor_request method.
 type MonitorRequestPayload struct {
-	OauthToken *string
+	Token *string
 }
 
 // MonitorRequestResult is the result type of the package service
@@ -201,15 +201,15 @@ type MovePayload struct {
 	ID uint
 	// Identifier of storage location
 	LocationID uuid.UUID
-	OauthToken *string
+	Token      *string
 }
 
 // MoveStatusPayload is the payload type of the package service move_status
 // method.
 type MoveStatusPayload struct {
 	// Identifier of package to move
-	ID         uint
-	OauthToken *string
+	ID    uint
+	Token *string
 }
 
 // MoveStatusResult is the result type of the package service move_status
@@ -267,8 +267,8 @@ type PreservationActionUpdatedEvent struct {
 // preservation_actions method.
 type PreservationActionsPayload struct {
 	// Identifier of package to look up
-	ID         uint
-	OauthToken *string
+	ID    uint
+	Token *string
 }
 
 type PreservationTaskCreatedEvent struct {
@@ -286,15 +286,15 @@ type PreservationTaskUpdatedEvent struct {
 // RejectPayload is the payload type of the package service reject method.
 type RejectPayload struct {
 	// Identifier of package to look up
-	ID         uint
-	OauthToken *string
+	ID    uint
+	Token *string
 }
 
 // ShowPayload is the payload type of the package service show method.
 type ShowPayload struct {
 	// Identifier of package to show
-	ID         uint
-	OauthToken *string
+	ID    uint
+	Token *string
 }
 
 // Invalid token

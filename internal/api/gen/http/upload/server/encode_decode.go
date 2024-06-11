@@ -34,7 +34,7 @@ func DecodeUploadRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.
 	return func(r *http.Request) (any, error) {
 		var (
 			contentType string
-			oauthToken  *string
+			token       *string
 			err         error
 		)
 		contentTypeRaw := r.Header.Get("Content-Type")
@@ -44,19 +44,19 @@ func DecodeUploadRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.
 			contentType = "multipart/form-data; boundary=goa"
 		}
 		err = goa.MergeErrors(err, goa.ValidatePattern("content_type", contentType, "multipart/[^;]+; boundary=.+"))
-		oauthTokenRaw := r.Header.Get("Authorization")
-		if oauthTokenRaw != "" {
-			oauthToken = &oauthTokenRaw
+		tokenRaw := r.Header.Get("Authorization")
+		if tokenRaw != "" {
+			token = &tokenRaw
 		}
 		if err != nil {
 			return nil, err
 		}
-		payload := NewUploadPayload(contentType, oauthToken)
-		if payload.OauthToken != nil {
-			if strings.Contains(*payload.OauthToken, " ") {
+		payload := NewUploadPayload(contentType, token)
+		if payload.Token != nil {
+			if strings.Contains(*payload.Token, " ") {
 				// Remove authorization scheme prefix (e.g. "Bearer")
-				cred := strings.SplitN(*payload.OauthToken, " ", 2)[1]
-				payload.OauthToken = &cred
+				cred := strings.SplitN(*payload.Token, " ", 2)[1]
+				payload.Token = &cred
 			}
 		}
 

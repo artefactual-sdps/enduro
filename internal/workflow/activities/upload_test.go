@@ -18,7 +18,7 @@ import (
 
 // StorageService implements goastorage.Service.
 type StorageService struct {
-	OAuth2AuthHandler       func(ctx context.Context, token string, scheme *security.OAuth2Scheme) (ctx2 context.Context, err error)
+	JWTAuthHandler          func(ctx context.Context, token string, scheme *security.JWTScheme) (ctx2 context.Context, err error)
 	SubmitHandler           func(ctx context.Context, req *goastorage.SubmitPayload) (res *goastorage.SubmitResult, err error)
 	CreateHandler           func(ctx context.Context, req *goastorage.CreatePayload) (res *goastorage.Package, err error)
 	UpdateHandler           func(ctx context.Context, req *goastorage.UpdatePayload) (err error)
@@ -33,12 +33,12 @@ type StorageService struct {
 	LocationPackagesHandler func(ctx context.Context, req *goastorage.LocationPackagesPayload) (res goastorage.PackageCollection, err error)
 }
 
-func (s StorageService) OAuth2Auth(
+func (s StorageService) JWTAuth(
 	ctx context.Context,
 	token string,
-	scheme *security.OAuth2Scheme,
+	scheme *security.JWTScheme,
 ) (ctx2 context.Context, err error) {
-	return s.OAuth2AuthHandler(ctx, token, scheme)
+	return s.JWTAuthHandler(ctx, token, scheme)
 }
 
 func (s StorageService) Submit(
@@ -126,7 +126,7 @@ func TestUploadActivity(t *testing.T) {
 		defer minioTestServer.Close()
 
 		fakeStorageService := StorageService{}
-		fakeStorageService.OAuth2AuthHandler = func(ctx context.Context, token string, scheme *security.OAuth2Scheme) (ctx2 context.Context, err error) {
+		fakeStorageService.JWTAuthHandler = func(ctx context.Context, token string, scheme *security.JWTScheme) (ctx2 context.Context, err error) {
 			return ctx, nil
 		}
 		fakeStorageService.SubmitHandler = func(ctx context.Context, req *goastorage.SubmitPayload) (res *goastorage.SubmitResult, err error) {
@@ -172,7 +172,7 @@ func TestUploadActivity(t *testing.T) {
 		defer minioTestServer.Close()
 
 		fakeStorageService := StorageService{}
-		fakeStorageService.OAuth2AuthHandler = func(ctx context.Context, token string, scheme *security.OAuth2Scheme) (ctx2 context.Context, err error) {
+		fakeStorageService.JWTAuthHandler = func(ctx context.Context, token string, scheme *security.JWTScheme) (ctx2 context.Context, err error) {
 			return ctx, nil
 		}
 		fakeStorageService.SubmitHandler = func(ctx context.Context, req *goastorage.SubmitPayload) (res *goastorage.SubmitResult, err error) {
