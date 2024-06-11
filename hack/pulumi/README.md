@@ -48,10 +48,9 @@ Use the [Pulumi CLI] `config set` and `config set-all` commands to configure.
 - `mysqlRootPassword` **secret**: Password for the MySQL root user.
 - `minioUser` **secret**: MinIO user for the UI and API.
 - `minioPassword` **secret**: Password for the MinIO user.
+- `dexEnduroClientId` **secret**: OIDC client id for Enduro.
 - `dexGithubClientId` **secret**: Client id from the Github OAuth App.
 - `dexGithubClientSecret` **secret**: Client secret from the Github OAuth App.
-- `dexEnduroClientId` **secret**: OIDC client id for Enduro.
-- `dexEnduroClientSecret` **secret**: OIDC client secret for Enduro.
 - `dexTemporalClientId` **secret**: OIDC client id for Temporal.
 - `dexTemporalClientSecret` **secret**: OIDC client secret for Temporal.
 
@@ -83,10 +82,9 @@ pulumi config set-all \
   --secret minioUser=abc123 \
   --secret minioPassword=abc123 \
   --plaintext buildImages=true \
+  --secret dexEnduroClientId=abc123 \
   --secret dexGithubClientId=abc123 \
   --secret dexGithubClientSecret=abc123 \
-  --secret dexEnduroClientId=abc123 \
-  --secret dexEnduroClientSecret=abc123 \
   --secret dexTemporalClientId=abc123 \
   --secret dexTemporalClientSecret=abc123
 ```

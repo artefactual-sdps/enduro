@@ -40,16 +40,11 @@ expiry:
 oauth2:
   skipApprovalScreen: true
 staticClients:
-  - name: Enduro dashboard
-    id: enduro-dashboard
+  - name: Enduro
+    id: {{.enduroClientId}}
     public: true
     redirectURIs:
       - {{.enduroUrl}}/user/signin-callback
-  - name: Enduro
-    id: {{.enduroClientId}}
-    secret: {{.enduroClientSecret}}
-    trustedPeers:
-      - enduro-dashboard
   - name: Temporal
     id: {{.temporalClientId}}
     secret: {{.temporalClientSecret}}
@@ -309,7 +304,6 @@ func main() {
 		// Generate Dex configuration when related secrets resolve.
 		dexConfig := pulumi.All(
 			cfg.RequireSecret("dexEnduroClientId"),
-			cfg.RequireSecret("dexEnduroClientSecret"),
 			cfg.RequireSecret("dexTemporalClientId"),
 			cfg.RequireSecret("dexTemporalClientSecret"),
 			cfg.RequireSecret("dexGithubClientId"),
@@ -322,13 +316,12 @@ func main() {
 				"enduroUrl":            enduroUrl,
 				"temporalUrl":          temporalUrl,
 				"enduroClientId":       args[0].(string),
-				"enduroClientSecret":   args[1].(string),
-				"temporalClientId":     args[2].(string),
-				"temporalClientSecret": args[3].(string),
-				"githubClientId":       args[4].(string),
-				"githubClientSecret":   args[5].(string),
-				"mysqlUser":            args[6].(string),
-				"mysqlPassword":        args[7].(string),
+				"temporalClientId":     args[1].(string),
+				"temporalClientSecret": args[2].(string),
+				"githubClientId":       args[3].(string),
+				"githubClientSecret":   args[4].(string),
+				"mysqlUser":            args[5].(string),
+				"mysqlPassword":        args[6].(string),
 			}
 			output := new(bytes.Buffer)
 			if err := dexCfgTmplt.Execute(output, data); err != nil {
@@ -361,10 +354,9 @@ func main() {
 					Name: pulumi.String("enduro-secret"),
 				},
 				StringData: pulumi.StringMap{
-					"oidc-provider-url":  pulumi.String(dexUrl),
-					"oidc-redirect-url":  pulumi.String(enduroUrl + "/user/signin-callback"),
-					"oidc-client-id":     cfg.RequireSecret("dexEnduroClientId"),
-					"oidc-client-secret": cfg.RequireSecret("dexEnduroClientSecret"),
+					"oidc-provider-url": pulumi.String(dexUrl),
+					"oidc-redirect-url": pulumi.String(enduroUrl + "/user/signin-callback"),
+					"oidc-client-id":    cfg.RequireSecret("dexEnduroClientId"),
 				},
 				Type: pulumi.String("Opaque"),
 			},

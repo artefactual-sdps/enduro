@@ -11,9 +11,8 @@ type Config struct {
 }
 
 type OIDCConfig struct {
-	ProviderURL  string
-	ClientID     string
-	ClientSecret string
+	ProviderURL string
+	ClientID    string
 }
 
 type TicketConfig struct {

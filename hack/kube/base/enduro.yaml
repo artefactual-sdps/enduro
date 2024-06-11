@@ -74,11 +74,6 @@ spec:
                 secretKeyRef:
                   name: enduro-secret
                   key: oidc-client-id
-            - name: ENDURO_API_AUTH_OIDC_CLIENTSECRET
-              valueFrom:
-                secretKeyRef:
-                  name: enduro-secret
-                  key: oidc-client-secret
             - name: ENDURO_TELEMETRY_TRACES_ENABLED
               value: "true"
             - name: ENDURO_TELEMETRY_TRACES_ADDRESS

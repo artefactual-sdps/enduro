@@ -58,9 +58,9 @@ func buildAndPublishImages(
 			Build: &docker.DockerBuildArgs{
 				Context: pulumi.String("../../dashboard"),
 				Args: pulumi.StringMap{
-					"oidcProviderUrl":      pulumi.String(dexUrl),
-					"oidcRedirectUrl":      pulumi.String(enduroUrl + "/user/signin-callback"),
-					"oidcAudienceClientId": oidcClientId,
+					"oidcProviderUrl": pulumi.String(dexUrl),
+					"oidcRedirectUrl": pulumi.String(enduroUrl + "/user/signin-callback"),
+					"oidcClientId":    oidcClientId,
 				},
 			},
 			ImageName: pulumi.String(crUrl + "/artefactual/enduro-dashboard"),

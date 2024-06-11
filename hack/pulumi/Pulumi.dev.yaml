@@ -12,8 +12,6 @@ config:
   enduro:buildImages: "true"
   enduro:dexEnduroClientId:
     secure: AAABAL1e3EQVvFMXx3l6+Mbnz4MNbxJiUGYuHHRlvb+SJa6z5yr6dqh4MUDBOm/FI6EKJ1I81dr8JrFVoIpCfg==
-  enduro:dexEnduroClientSecret:
-    secure: AAABALHIxTdf3LB0YSXEM4PATIJFO0VQ19IQezz5L0EIRw8pW84TiilKoBVaDz/IrgRaWKrNMphW4hQ4r6n9ow==
   enduro:dexGithubClientId:
     secure: AAABAKlSL/LxC0m9UXnb5Me5RW87+WWWGPTcmCGZA+Ny4MERBh9axB6r1A0MliE0IEvFzA==
   enduro:dexGithubClientSecret:

@@ -20,7 +20,6 @@ enabled = true
 [api.auth.oidc]
 providerURL = "http://dex:5556"
 clientID = "enduro"
-clientSecret = "ZXhhbXBsZS1hcHAtc2VjcmV0"
 
 [api.auth.ticket.redis]
 address = "redis://redis.enduro-sdps:6379"
