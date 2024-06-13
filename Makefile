@@ -16,6 +16,7 @@ endif
 
 include hack/make/bootstrap.mk
 include hack/make/dep_ent.mk
+include hack/make/dep_go_enums.mk
 include hack/make/dep_goa.mk
 include hack/make/dep_golangci_lint.mk
 include hack/make/dep_golines.mk
@@ -30,6 +31,7 @@ include hack/make/dep_workflowcheck.mk
 
 # Lazy-evaluated list of tools.
 TOOLS = $(ENT) \
+	$(GO_ENUM) \
 	$(GOA) \
 	$(GOLANGCI_LINT) \
 	$(GOLINES) \
@@ -61,6 +63,8 @@ IGNORED_PACKAGES := \
 PACKAGES := $(shell go list ./...)
 TEST_PACKAGES := $(filter-out $(IGNORED_PACKAGES),$(PACKAGES))
 TEST_IGNORED_PACKAGES := $(filter $(IGNORED_PACKAGES),$(PACKAGES))
+
+
 
 export PATH:=$(GOBIN):$(PATH)
 
@@ -97,6 +101,12 @@ gen-ent: $(ENT)
 	ent generate ./internal/storage/persistence/ent/schema \
 		--feature sql/versioned-migration \
 		--target=./internal/storage/persistence/ent/db
+
+gen-enums: # @HELP Generate go-enum assets.
+gen-enums: ENUM_FLAGS = --names --template=$(CURDIR)/hack/make/enums.tmpl
+gen-enums: $(GO_ENUM)
+	go-enum $(ENUM_FLAGS) \
+	-f internal/enums/preprocessing_task_outcome.go
 
 gen-goa: # @HELP Generate Goa assets.
 gen-goa: $(GOA)

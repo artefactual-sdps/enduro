@@ -1,6 +1,7 @@
 package workflow
 
 import (
+	"math/rand"
 	"strings"
 	"testing"
 	"time"
@@ -35,6 +36,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/temporal"
 	watcherfake "github.com/artefactual-sdps/enduro/internal/watcher/fake"
 	"github.com/artefactual-sdps/enduro/internal/workflow/activities"
+	"github.com/artefactual-sdps/enduro/internal/workflow/localact"
 )
 
 const (
@@ -94,6 +96,7 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(cfg config.Configuration
 	a3mTransferServiceClient := a3mfake.NewMockTransferServiceClient(ctrl)
 	pkgsvc := packagefake.NewMockService(ctrl)
 	wsvc := watcherfake.NewMockService(ctrl)
+	rng := rand.New(rand.NewSource(1)) // #nosec: G404
 
 	s.env.RegisterActivityWithOptions(
 		activities.NewDownloadActivity(logger, noop.Tracer{}, wsvc).Execute,
@@ -146,7 +149,7 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(cfg config.Configuration
 		temporalsdk_workflow.RegisterOptions{Name: "preprocessing"},
 	)
 
-	s.workflow = NewProcessingWorkflow(logger, cfg, pkgsvc, wsvc)
+	s.workflow = NewProcessingWorkflow(logger, cfg, rng, pkgsvc, wsvc)
 }
 
 func (s *ProcessingWorkflowTestSuite) setupAMWorkflowTest(
@@ -715,7 +718,7 @@ func (s *ProcessingWorkflowTestSuite) TestPreprocessingChildWorkflow() {
 		Return(nil, nil).
 		Once()
 	s.env.OnActivity(createPreservationActionLocalActivity, ctx, pkgsvc, mock.AnythingOfType("*workflow.createPreservationActionLocalActivityParams")).
-		Return(uint(0), nil).
+		Return(uint(101), nil).
 		Once()
 	s.env.OnActivity(activities.DownloadActivityName, sessionCtx,
 		&activities.DownloadActivityParams{
@@ -728,14 +731,46 @@ func (s *ProcessingWorkflowTestSuite) TestPreprocessingChildWorkflow() {
 	)
 	s.env.OnWorkflow(
 		preprocessingChildWorkflow,
-		mock.Anything,
+		mock.AnythingOfType("*internal.valueCtx"),
 		&preprocessing.WorkflowParams{
 			RelativePath: strings.TrimPrefix(downloadDir+"/"+key, cfg.Preprocessing.SharedPath),
 		},
 	).Return(
 		&preprocessing.WorkflowResult{
+			Outcome:      preprocessing.OutcomeSuccess,
 			RelativePath: strings.TrimPrefix(prepDest, cfg.Preprocessing.SharedPath),
+			PreservationTasks: []preprocessing.Task{
+				{
+					Name:        "Identify SIP structure",
+					Message:     "SIP structure identified: VecteurAIP",
+					Outcome:     enums.PreprocessingTaskOutcomeSuccess,
+					StartedAt:   time.Date(2024, 6, 14, 10, 5, 32, 0, time.UTC),
+					CompletedAt: time.Date(2024, 6, 14, 10, 5, 33, 0, time.UTC),
+				},
+			},
 		},
+		nil,
+	)
+
+	s.env.OnActivity(
+		localact.SavePreprocessingTasksActivity,
+		ctx,
+		localact.SavePreprocessingTasksActivityParams{
+			PkgSvc:               pkgsvc,
+			RNG:                  rand.New(rand.NewSource(1)), // #nosec: G404
+			PreservationActionID: 101,
+			Tasks: []preprocessing.Task{
+				{
+					Name:        "Identify SIP structure",
+					Message:     "SIP structure identified: VecteurAIP",
+					Outcome:     enums.PreprocessingTaskOutcomeSuccess,
+					StartedAt:   time.Date(2024, 6, 14, 10, 5, 32, 0, time.UTC),
+					CompletedAt: time.Date(2024, 6, 14, 10, 5, 33, 0, time.UTC),
+				},
+			},
+		},
+	).Return(
+		&localact.SavePreprocessingTasksActivityResult{Count: 1},
 		nil,
 	)
 

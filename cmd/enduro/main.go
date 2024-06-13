@@ -376,7 +376,7 @@ func main() {
 		}
 
 		w.RegisterWorkflowWithOptions(
-			workflow.NewProcessingWorkflow(logger, cfg, pkgsvc, wsvc).Execute,
+			workflow.NewProcessingWorkflow(logger, cfg, rand.Reader, pkgsvc, wsvc).Execute,
 			temporalsdk_workflow.RegisterOptions{Name: package_.ProcessingWorkflowName},
 		)
 		w.RegisterActivityWithOptions(
