@@ -8,6 +8,7 @@ package workflow
 import (
 	"errors"
 	"fmt"
+	"io"
 	"path/filepath"
 	"slices"
 	"time"
@@ -32,11 +33,13 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/temporal"
 	"github.com/artefactual-sdps/enduro/internal/watcher"
 	"github.com/artefactual-sdps/enduro/internal/workflow/activities"
+	"github.com/artefactual-sdps/enduro/internal/workflow/localact"
 )
 
 type ProcessingWorkflow struct {
 	logger logr.Logger
 	cfg    config.Configuration
+	rng    io.Reader
 	pkgsvc package_.Service
 	wsvc   watcher.Service
 }
@@ -44,12 +47,14 @@ type ProcessingWorkflow struct {
 func NewProcessingWorkflow(
 	logger logr.Logger,
 	cfg config.Configuration,
+	rng io.Reader,
 	pkgsvc package_.Service,
 	wsvc watcher.Service,
 ) *ProcessingWorkflow {
 	return &ProcessingWorkflow{
 		logger: logger,
 		cfg:    cfg,
+		rng:    rng,
 		pkgsvc: pkgsvc,
 		wsvc:   wsvc,
 	}
@@ -911,18 +916,48 @@ func (w *ProcessingWorkflow) preprocessing(ctx temporalsdk_workflow.Context, tin
 		WorkflowID:        fmt.Sprintf("%s-%s", w.cfg.Preprocessing.Temporal.WorkflowName, uuid.New().String()),
 		ParentClosePolicy: temporalapi_enums.PARENT_CLOSE_POLICY_TERMINATE,
 	})
-	var result preprocessing.WorkflowResult
+	var ppResult preprocessing.WorkflowResult
 	err = temporalsdk_workflow.ExecuteChildWorkflow(
 		preCtx,
 		w.cfg.Preprocessing.Temporal.WorkflowName,
 		preprocessing.WorkflowParams{RelativePath: relPath},
-	).Get(preCtx, &result)
+	).Get(preCtx, &ppResult)
 	if err != nil {
 		return err
 	}
 
-	tinfo.TempPath = filepath.Join(w.cfg.Preprocessing.SharedPath, filepath.Clean(result.RelativePath))
+	tinfo.TempPath = filepath.Join(w.cfg.Preprocessing.SharedPath, filepath.Clean(ppResult.RelativePath))
 	tinfo.IsDir = true
+
+	// Save preprocessing preservation task data.
+	if len(ppResult.PreservationTasks) > 0 {
+		opts := withLocalActivityOpts(ctx)
+		var savePPTasksResult localact.SavePreprocessingTasksActivityResult
+		err = temporalsdk_workflow.ExecuteLocalActivity(
+			opts,
+			localact.SavePreprocessingTasksActivity,
+			localact.SavePreprocessingTasksActivityParams{
+				PkgSvc:               w.pkgsvc,
+				RNG:                  w.rng,
+				PreservationActionID: tinfo.PreservationActionID,
+				Tasks:                ppResult.PreservationTasks,
+			},
+		).Get(opts, &savePPTasksResult)
+		if err != nil {
+			return err
+		}
+
+		switch ppResult.Outcome {
+		case preprocessing.OutcomeSuccess:
+			return nil
+		case preprocessing.OutcomeSystemError:
+			return errors.New("preprocessing workflow: system error")
+		case preprocessing.OutcomeContentError:
+			return errors.New("preprocessing workflow: validation failed")
+		default:
+			return fmt.Errorf("preprocessing workflow: unknown outcome %d", ppResult.Outcome)
+		}
+	}
 
 	return nil
 }

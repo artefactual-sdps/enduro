@@ -1,0 +1,38 @@
+// Values implements the entgo.io/ent/schema/field EnumValues interface.
+func (x {{.enum.Name}}) Values() []string {
+    return {{.enum.Name}}Names()
+}
+
+// {{.enum.Name}}Interfaces returns an interface list of possible values of {{.enum.Name}}.
+func {{.enum.Name}}Interfaces() []interface{} {
+	var tmp []interface{}
+	for _, v := range _{{.enum.Name}}Names {
+		tmp = append(tmp, v)
+	}
+	return tmp
+}
+
+// Parse{{.enum.Name}}WithDefault attempts to convert a string to a ContentType.
+// It returns the default value if name is empty.
+func Parse{{.enum.Name}}WithDefault(name string) ({{.enum.Name}}, error) {
+    if name == "" {
+	    return _{{.enum.Name}}Value[_{{.enum.Name}}Names[0]], nil
+    }
+	if x, ok := _{{.enum.Name}}Value[name]; ok {
+		return x, nil
+	}
+	return {{.enum.Name}}(""), fmt.Errorf("%s is not a valid {{.enum.Name}}, try [%s]", name, strings.Join(_{{.enum.Name}}Names, ", "))
+}
+
+// Normalize{{.enum.Name}} attempts to parse a and normalize string as content type.
+// It returns the input untouched if name fails to be parsed.
+// Example:
+//	
+//  "enUM" will be normalized (if possible) to "Enum"
+func Normalize{{.enum.Name}}(name string) string {
+    res, err := Parse{{.enum.Name}}(name)
+    if err != nil {
+	return name
+    }
+    return res.String()
+}
