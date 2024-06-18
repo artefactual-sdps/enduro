@@ -88,7 +88,8 @@ func ParsePreprocessingTaskOutcomeWithDefault(name string) (PreprocessingTaskOut
 	if x, ok := _PreprocessingTaskOutcomeValue[name]; ok {
 		return x, nil
 	}
-	return PreprocessingTaskOutcome(""), fmt.Errorf("%s is not a valid PreprocessingTaskOutcome, try [%s]", name, strings.Join(_PreprocessingTaskOutcomeNames, ", "))
+	var e PreprocessingTaskOutcome
+	return e, fmt.Errorf("%s is not a valid PreprocessingTaskOutcome, try [%s]", name, strings.Join(_PreprocessingTaskOutcomeNames, ", "))
 }
 
 // NormalizePreprocessingTaskOutcome attempts to parse a and normalize string as content type.

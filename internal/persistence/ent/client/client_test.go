@@ -69,7 +69,7 @@ func TestNew(t *testing.T) {
 		p, err := createPackage(
 			entc,
 			"testing 1-2-3",
-			enums.NewPackageStatus("in progress"),
+			enums.PackageStatusInProgress,
 		)
 		assert.NilError(t, err)
 

@@ -55,7 +55,7 @@ func TestCreatePackage(t *testing.T) {
 				Name:       "test",
 				WorkflowID: "4258090a-e27b-4fd9-a76b-28deb3d16813",
 				RunID:      "8f3a5756-6bc5-4d82-846d-59442dd6ad8f",
-				Status:     enums.NewPackageStatus("new"),
+				Status:     enums.PackageStatusQueued,
 			},
 			mock: func(svc *persistence_fake.MockService, p datatypes.Package) *persistence_fake.MockService {
 				svc.EXPECT().
@@ -75,7 +75,7 @@ func TestCreatePackage(t *testing.T) {
 			pkg: datatypes.Package{
 				Name:       "test",
 				WorkflowID: "4258090a-e27b-4fd9-a76b-28deb3d16813",
-				Status:     enums.NewPackageStatus("new"),
+				Status:     enums.PackageStatusQueued,
 			},
 			mock: func(svc *persistence_fake.MockService, p datatypes.Package) *persistence_fake.MockService {
 				svc.EXPECT().

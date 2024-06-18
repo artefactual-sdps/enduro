@@ -153,8 +153,11 @@ func (w *goaWrapper) List(ctx context.Context, payload *goapackage.ListPayload) 
 		conds = append(conds, [2]string{"AND", "location_id = ?"})
 	}
 	if payload.Status != nil {
-		args = append(args, enums.NewPackageStatus(*payload.Status))
-		conds = append(conds, [2]string{"AND", "status = ?"})
+		s, err := enums.ParsePackageStatus(*payload.Status)
+		if err == nil {
+			args = append(args, s)
+			conds = append(conds, [2]string{"AND", "status = ?"})
+		}
 	}
 	if payload.EarliestCreatedTime != nil {
 		args = append(args, payload.EarliestCreatedTime)

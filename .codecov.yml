@@ -22,6 +22,7 @@ ignore:
 - "dashboard/"
 - "docs/"
 - "hack/"
+- "internal/enums"
 - "internal/**/fake/"
 - "internal/**/gen/"
 - "internal/**/ent/db/"
