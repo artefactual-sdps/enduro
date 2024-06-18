@@ -10,15 +10,13 @@ config:
     secure: AAABAPWNMTvNGMHYkbO7TGxLnpeM1S2OVkjnjejlz5aKcpuGOLn6wHy9f6XY3EniyGgkxfGAc4rZ
   enduro:acmeServer: https://acme-v02.api.letsencrypt.org/directory
   enduro:buildImages: "true"
-  enduro:dexEnduroClientId:
-    secure: AAABAL1e3EQVvFMXx3l6+Mbnz4MNbxJiUGYuHHRlvb+SJa6z5yr6dqh4MUDBOm/FI6EKJ1I81dr8JrFVoIpCfg==
-  enduro:dexGithubClientId:
-    secure: AAABAKlSL/LxC0m9UXnb5Me5RW87+WWWGPTcmCGZA+Ny4MERBh9axB6r1A0MliE0IEvFzA==
-  enduro:dexGithubClientSecret:
+  enduro:oidcUrl:
     secure: AAABAEjQL7bhkalsw9WgvBh/r6LplXCXsRLmUtEJiehrL00gUPKCHUhjia8/FRvQv2qCMaf98SN6c3dgTE1T4lZBJLCvkI4u
-  enduro:dexTemporalClientId:
+  enduro:oidcEnduroClientId:
+    secure: AAABAL1e3EQVvFMXx3l6+Mbnz4MNbxJiUGYuHHRlvb+SJa6z5yr6dqh4MUDBOm/FI6EKJ1I81dr8JrFVoIpCfg==
+  enduro:oidcTemporalClientId:
     secure: AAABABIQyRAm3JnsQyt7XHvm0U+ha2Srkb5W10isZ4W4FtFsI9vdMWQZ52QzNTTHjRSp5xKzhrrpDj2hPlfnSQ==
-  enduro:dexTemporalClientSecret:
+  enduro:oidcTemporalClientSecret:
     secure: AAABAO8wjf2S4UlF9iVne78C8k+sGf42VLcDRmx1zcnJX8xclFUVVF2xWBXYY/rVlxvpUSRLV3mfSOrktY2T8w==
   enduro:doToken:
     secure: AAABAMoETbs11pPZrd8S1WMCdnaaILVqC3EjNI0LY+lpNUc4V5HKlZBHcskvRr+RgKosKEH93jy9hbw/AEITt4zKfD5JQXnxp3CoVAF2mN4Wn4XFbG7ZN0QHO5P3K9qey1+3MzIkxw==

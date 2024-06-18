@@ -88,6 +88,4 @@ data:
       GRANT ALL PRIVILEGES ON temporal.* TO '$MYSQL_USER'@'%';
       CREATE DATABASE IF NOT EXISTS temporal_visibility;
       GRANT ALL PRIVILEGES ON temporal_visibility.* TO '$MYSQL_USER'@'%';
-      CREATE DATABASE IF NOT EXISTS dex_db;
-      GRANT ALL PRIVILEGES ON dex_db.* TO '$MYSQL_USER'@'%';
     "

@@ -9,7 +9,7 @@ developer environments quickly and efficiently, it is not however _well
 tested_.
 
 First install [Devbox]. After installing Devbox, run `devbox shell`. Continue
-the instructions [here](#dex-host).
+the instructions [here](#keycloak-host).
 
 ### Standard installation
 
@@ -35,13 +35,13 @@ so that you don’t have to run Tilt with `sudo`. _Note that managing Docker as 
 non-root user is **different** from running the docker daemon as a non-root user
 (rootless)._
 
-### Dex host
+### Keycloak host
 
 To make authentication work from the host browser and from within the cluster,
 the following entry needs to be added to your `/etc/hosts` file:
 
 ```text
-127.0.0.1 dex
+127.0.0.1 keycloak
 ```
 
 For Windows/WSL2 users, open Notepad, as an Administrator, and then add the above
@@ -105,13 +105,15 @@ documentation to know more about it.
 
 ## Access
 
-There are three services available from the host:
+There are four services available from the host, three of them using SSO with
+Keycloack:
 
-| Service       | URL                     | Username            | Password   |
-| ------------- | ----------------------- | ------------------- | ---------- |
-| Dashboard     | <http://localhost:8080> | `admin@example.com` | `admin`    |
-| MinIO console | <http://localhost:7460> | `minio`             | `minio123` |
-| Temporal UI   | <http://localhost:7440> | `admin@example.com` | `admin`    |
+| Service       | URL                     | Username    | Password       |
+| ------------- | ----------------------- | ----------- | -------------- |
+| Dashboard     | <http://localhost:8080> | `admin`     | `admin123`     |
+| MinIO console | <http://localhost:7460> | `admin`     | `admin123`     |
+| Temporal UI   | <http://localhost:7440> | `admin`     | `admin123`     |
+| Keycloack     | <http://localhost:7470> | `keycloack` | `keycloack123` |
 
 ## Live updates
 

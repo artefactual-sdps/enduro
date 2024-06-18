@@ -45,8 +45,7 @@ export const useLayoutStore = defineStore("layout", {
       this.user = user;
     },
     removeUser() {
-      // Dex doesn't allow to end sessions upstream:
-      // https://github.com/dexidp/dex/issues/1697.
+      // TODO: end session upstream.
       auth.removeUser().then(() => {
         this.user = null;
         router.push({ name: "/" });

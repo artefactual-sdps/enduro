@@ -1,11 +1,9 @@
 package main
 
 import (
-	"bytes"
 	"encoding/base64"
 	"fmt"
 	"regexp"
-	"text/template"
 
 	"github.com/pulumi/pulumi-aws/sdk/v6/go/aws/route53"
 	"github.com/pulumi/pulumi-digitalocean/sdk/v4/go/digitalocean"
@@ -20,47 +18,6 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi/config"
 )
-
-var dexCfgTmplt = template.Must(template.New("dexCfgTmplt").Parse(`issuer: {{.dexUrl}}
-storage:
-  type: mysql
-  config:
-    host: mysql
-    port: 3306
-    database: dex_db
-    user: {{.mysqlUser}}
-    password: {{.mysqlPassword}}
-    ssl:
-      mode: "false"
-web:
-  http: 0.0.0.0:5556
-  allowedOrigins: ["{{.enduroUrl}}"]
-expiry:
-  idTokens: 1h
-oauth2:
-  skipApprovalScreen: true
-staticClients:
-  - name: Enduro
-    id: {{.enduroClientId}}
-    public: true
-    redirectURIs:
-      - {{.enduroUrl}}/user/signin-callback
-  - name: Temporal
-    id: {{.temporalClientId}}
-    secret: {{.temporalClientSecret}}
-    redirectURIs:
-      - {{.temporalUrl}}/auth/sso/callback
-connectors:
-  - id: github
-    type: github
-    name: GitHub
-    config:
-      clientID: {{.githubClientId}}
-      clientSecret: {{.githubClientSecret}}
-      redirectURI: {{.dexUrl}}/callback
-      orgs:
-        - name: artefactual-sdps
-`))
 
 // Regular expression used to replace the kubeconfig token.
 var re *regexp.Regexp = regexp.MustCompile(`(?m)^(\s*token:\s)\w*$`)
@@ -195,7 +152,6 @@ func main() {
 		}
 
 		// Generate URLs.
-		dexUrl := fmt.Sprintf("https://dex.%s.%s", subdomain, zone)
 		enduroUrl := fmt.Sprintf("https://enduro.%s.%s", subdomain, zone)
 		temporalUrl := fmt.Sprintf("https://temporal.%s.%s", subdomain, zone)
 
@@ -214,9 +170,9 @@ func main() {
 				crUrl,
 				cfg.RequireSecret("doToken"),
 				images,
-				dexUrl,
 				enduroUrl,
-				cfg.RequireSecret("dexEnduroClientId"),
+				cfg.RequireSecret("oidcUrl"),
+				cfg.RequireSecret("oidcEnduroClientId"),
 			)
 			if err != nil {
 				return err
@@ -301,52 +257,6 @@ func main() {
 			return err
 		}
 
-		// Generate Dex configuration when related secrets resolve.
-		dexConfig := pulumi.All(
-			cfg.RequireSecret("dexEnduroClientId"),
-			cfg.RequireSecret("dexTemporalClientId"),
-			cfg.RequireSecret("dexTemporalClientSecret"),
-			cfg.RequireSecret("dexGithubClientId"),
-			cfg.RequireSecret("dexGithubClientSecret"),
-			cfg.RequireSecret("mysqlUser"),
-			cfg.RequireSecret("mysqlPassword"),
-		).ApplyT(func(args []interface{}) (string, error) {
-			data := map[string]interface{}{
-				"dexUrl":               dexUrl,
-				"enduroUrl":            enduroUrl,
-				"temporalUrl":          temporalUrl,
-				"enduroClientId":       args[0].(string),
-				"temporalClientId":     args[1].(string),
-				"temporalClientSecret": args[2].(string),
-				"githubClientId":       args[3].(string),
-				"githubClientSecret":   args[4].(string),
-				"mysqlUser":            args[5].(string),
-				"mysqlPassword":        args[6].(string),
-			}
-			output := new(bytes.Buffer)
-			if err := dexCfgTmplt.Execute(output, data); err != nil {
-				return "", err
-			}
-			return output.String(), nil
-		}).(pulumi.StringOutput)
-
-		// Create Dex secret.
-		_, err = core.NewSecret(ctx, "dex-secret",
-			&core.SecretArgs{
-				Metadata: &meta.ObjectMetaArgs{
-					Name: pulumi.String("dex-secret"),
-				},
-				StringData: pulumi.StringMap{
-					"config.yaml": dexConfig,
-				},
-				Type: pulumi.String("Opaque"),
-			},
-			pulumi.Provider(k8sProvider),
-		)
-		if err != nil {
-			return err
-		}
-
 		// Create Enduro secret.
 		_, err = core.NewSecret(ctx, "enduro-secret",
 			&core.SecretArgs{
@@ -354,9 +264,9 @@ func main() {
 					Name: pulumi.String("enduro-secret"),
 				},
 				StringData: pulumi.StringMap{
-					"oidc-provider-url": pulumi.String(dexUrl),
+					"oidc-provider-url": cfg.RequireSecret("oidcUrl"),
 					"oidc-redirect-url": pulumi.String(enduroUrl + "/user/signin-callback"),
-					"oidc-client-id":    cfg.RequireSecret("dexEnduroClientId"),
+					"oidc-client-id":    cfg.RequireSecret("oidcEnduroClientId"),
 				},
 				Type: pulumi.String("Opaque"),
 			},
@@ -411,10 +321,10 @@ func main() {
 				},
 				StringData: pulumi.StringMap{
 					"cors-origins":       pulumi.String(temporalUrl),
-					"auth-provider-url":  pulumi.String(dexUrl),
+					"auth-provider-url":  cfg.RequireSecret("oidcUrl"),
 					"auth-callback-url":  pulumi.String(temporalUrl + "/auth/sso/callback"),
-					"auth-client-id":     cfg.RequireSecret("dexTemporalClientId"),
-					"auth-client-secret": cfg.RequireSecret("dexTemporalClientSecret"),
+					"auth-client-id":     cfg.RequireSecret("oidcTemporalClientId"),
+					"auth-client-secret": cfg.RequireSecret("oidcTemporalClientSecret"),
 				},
 				Type: pulumi.String("Opaque"),
 			},
@@ -431,7 +341,6 @@ func main() {
 			Port    int
 		}
 		endpoints := []Endpoint{
-			{Name: "dex", Service: "dex", Port: 5556},
 			{Name: "enduro", Service: "enduro-dashboard", Port: 80},
 			{Name: "minio", Service: "minio", Port: 9001},
 			{Name: "temporal", Service: "temporal-ui", Port: 8080},

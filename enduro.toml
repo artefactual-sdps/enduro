@@ -18,7 +18,7 @@ corsOrigin = "http://localhost"
 enabled = true
 
 [api.auth.oidc]
-providerURL = "http://dex:5556"
+providerURL = "http://keycloak:7470/realms/enduro"
 clientID = "enduro"
 
 [api.auth.ticket.redis]

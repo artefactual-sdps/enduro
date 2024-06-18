@@ -109,13 +109,11 @@ else:
   k8s_resource("enduro-a3m", labels=["Enduro"], trigger_mode=trigger_mode)
 
 # Other resources
-k8s_resource("dex", port_forwards="5556", labels=["Others"])
-k8s_resource("ldap", labels=["Others"])
+k8s_resource("keycloak", port_forwards="7470", labels=["Others"])
 k8s_resource("mysql", port_forwards="3306", labels=["Others"])
 k8s_resource(
   "minio",
-  port_forwards=["7460:9001",
-  "0.0.0.0:7461:9000"],
+  port_forwards=["7460:9001", "0.0.0.0:7461:9000"],
   labels=["Others"]
 )
 k8s_resource("redis", labels=["Others"])
@@ -170,7 +168,6 @@ cmd_button(
     kubectl rollout restart deployment temporal; \
     kubectl rollout restart deployment enduro; \
     kubectl rollout restart statefulset enduro-{pres_sys}; \
-    kubectl rollout restart deployment dex; \
     kubectl create -f hack/kube/base/mysql-create-locations-job.yaml;".format(pres_sys=PRES_SYS),
   ],
   location="nav",

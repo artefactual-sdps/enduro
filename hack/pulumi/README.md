@@ -2,7 +2,7 @@
 
 Pulumi project to manage Enduro's infrastructure in DigitalOcean Kubernetes
 clusters and AWS Route 53 records, with Let's Encrypt certificates and
-authentication using an existing Github OAuth application.
+authentication using an existing OIDC provider.
 
 ## Requirements
 
@@ -48,11 +48,10 @@ Use the [Pulumi CLI] `config set` and `config set-all` commands to configure.
 - `mysqlRootPassword` **secret**: Password for the MySQL root user.
 - `minioUser` **secret**: MinIO user for the UI and API.
 - `minioPassword` **secret**: Password for the MinIO user.
-- `dexEnduroClientId` **secret**: OIDC client id for Enduro.
-- `dexGithubClientId` **secret**: Client id from the Github OAuth App.
-- `dexGithubClientSecret` **secret**: Client secret from the Github OAuth App.
-- `dexTemporalClientId` **secret**: OIDC client id for Temporal.
-- `dexTemporalClientSecret` **secret**: OIDC client secret for Temporal.
+- `oidcUrl` **secret**: OIDC provider URL.
+- `oidcEnduroClientId` **secret**: OIDC client id for Enduro.
+- `oidcTemporalClientId` **secret**: OIDC client id for Temporal.
+- `oidcTemporalClientSecret` **secret**: OIDC client secret for Temporal.
 
 ### Optional
 
@@ -82,11 +81,10 @@ pulumi config set-all \
   --secret minioUser=abc123 \
   --secret minioPassword=abc123 \
   --plaintext buildImages=true \
-  --secret dexEnduroClientId=abc123 \
-  --secret dexGithubClientId=abc123 \
-  --secret dexGithubClientSecret=abc123 \
-  --secret dexTemporalClientId=abc123 \
-  --secret dexTemporalClientSecret=abc123
+  --secret oidcUrl=abc123 \
+  --secret oidcEnduroClientId=abc123 \
+  --secret oidcTemporalClientId=abc123 \
+  --secret oidcTemporalClientSecret=abc123
 ```
 
 ## Create stack
