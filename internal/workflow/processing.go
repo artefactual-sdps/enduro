@@ -946,18 +946,16 @@ func (w *ProcessingWorkflow) preprocessing(ctx temporalsdk_workflow.Context, tin
 		if err != nil {
 			return err
 		}
-
-		switch ppResult.Outcome {
-		case preprocessing.OutcomeSuccess:
-			return nil
-		case preprocessing.OutcomeSystemError:
-			return errors.New("preprocessing workflow: system error")
-		case preprocessing.OutcomeContentError:
-			return errors.New("preprocessing workflow: validation failed")
-		default:
-			return fmt.Errorf("preprocessing workflow: unknown outcome %d", ppResult.Outcome)
-		}
 	}
 
-	return nil
+	switch ppResult.Outcome {
+	case preprocessing.OutcomeSuccess:
+		return nil
+	case preprocessing.OutcomeSystemError:
+		return errors.New("preprocessing workflow: system error")
+	case preprocessing.OutcomeContentError:
+		return errors.New("preprocessing workflow: validation failed")
+	default:
+		return fmt.Errorf("preprocessing workflow: unknown outcome %d", ppResult.Outcome)
+	}
 }
