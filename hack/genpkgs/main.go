@@ -4,26 +4,23 @@ import (
 	"encoding/csv"
 	"fmt"
 	"log"
-	"math/rand"
 	"os"
 	"strconv"
-	"time"
 
 	"github.com/google/uuid"
 )
 
 const (
 	// How many records we want to generate.
-	datasetSize = 2500000
+	datasetSize = 10000
 
 	// Size of each batch that we write to the CSV.
 	batchSize = 100
 )
 
 func main() {
-	rand.Seed(time.Now().UnixNano())
-
 	w := csv.NewWriter(os.Stdout)
+
 	var c int
 	for {
 		c++
@@ -37,6 +34,8 @@ func main() {
 			break
 		}
 	}
+
+	w.Flush()
 	if err := w.Error(); err != nil {
 		log.Fatal(err)
 	}
@@ -47,17 +46,17 @@ func id() string {
 }
 
 func gen(c int) []string {
-	i := id()
 	const doneStatus string = "2"
 	return []string{
 		strconv.Itoa(c),
-		fmt.Sprintf("DPJ-SIP-%s.tar", i),            // name
+		fmt.Sprintf("DPJ-SIP-%s.tar", id()),         // name
 		fmt.Sprintf("processing-workflow-%s", id()), // workflow_id
-		id(),                         // run_id
-		id(),                         // aip_id
-		doneStatus,                   // status
-		"2019-11-21 17:36:10.738582", // created_at
-		"2019-11-21 17:36:10.738582", // started_at
-		"2019-11-21 17:42:10.738582", // completed_at
+		id(),                  // run_id
+		id(),                  // aip_id
+		id(),                  // location_id
+		doneStatus,            // status
+		"2019-11-21 17:36:10", // created_at
+		"2019-11-21 17:36:11", // started_at
+		"2019-11-21 17:42:12", // completed_at
 	}
 }
