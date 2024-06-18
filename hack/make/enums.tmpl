@@ -21,13 +21,14 @@ func Parse{{.enum.Name}}WithDefault(name string) ({{.enum.Name}}, error) {
 	if x, ok := _{{.enum.Name}}Value[name]; ok {
 		return x, nil
 	}
-	return {{.enum.Name}}(""), fmt.Errorf("%s is not a valid {{.enum.Name}}, try [%s]", name, strings.Join(_{{.enum.Name}}Names, ", "))
+	var e {{.enum.Name}}
+	return e, fmt.Errorf("%s is not a valid {{.enum.Name}}, try [%s]", name, strings.Join(_{{.enum.Name}}Names, ", "))
 }
 
 // Normalize{{.enum.Name}} attempts to parse a and normalize string as content type.
 // It returns the input untouched if name fails to be parsed.
 // Example:
-//	
+//
 //  "enUM" will be normalized (if possible) to "Enum"
 func Normalize{{.enum.Name}}(name string) string {
     res, err := Parse{{.enum.Name}}(name)

@@ -121,12 +121,12 @@ func TestCreatePreservationTask(t *testing.T) {
 			pkg, _ := createPackage(
 				entc,
 				"Test package",
-				enums.PackageStatusInProgress,
+				enums.PackageStatusDone,
 			)
 			pa, _ := createPreservationAction(
 				entc,
 				pkg.ID,
-				enums.PreservationActionStatusInProgress,
+				enums.PreservationActionStatusDone,
 			)
 
 			pt := *tt.args.pt // Make a local copy of pt.
