@@ -23,6 +23,15 @@ export const usePackageStore = defineStore("package", {
     // A list of packages shown during searches.
     packages: [] as Array<api.EnduroStoredPackage>,
 
+    // Cursor for this page of packages.
+    cursor: 0,
+
+    // Cursor for next page of packages.
+    nextCursor: 0,
+
+    // A list of previous page cursors.
+    prevCursors: [] as Array<number>,
+
     // User-interface interactions between components.
     ui: {
       download: new UIRequest(),
@@ -43,6 +52,12 @@ export const usePackageStore = defineStore("package", {
     },
     isRejected(): boolean {
       return this.isDone && this.current?.locationId === undefined;
+    },
+    hasNextPage(): boolean {
+      return this.nextCursor != 0;
+    },
+    hasPrevPage(): boolean {
+      return this.prevCursors.length > 0;
     },
     getActionById: (state) => {
       return (
@@ -103,8 +118,11 @@ export const usePackageStore = defineStore("package", {
       ]);
     },
     async fetchPackages() {
-      const resp = await client.package.packageList();
+      const resp = await client.package.packageList({
+        cursor: this.cursor > 0 ? this.cursor.toString() : undefined,
+      });
       this.packages = resp.items;
+      this.nextCursor = Number(resp.nextCursor);
     },
     async fetchPackagesDebounced() {
       return this.fetchPackages();
@@ -155,6 +173,21 @@ export const usePackageStore = defineStore("package", {
         if (!this.current) return;
         this.current.status = api.EnduroStoredPackageStatusEnum.InProgress;
       });
+    },
+    nextPage() {
+      if (this.nextCursor == 0) {
+        return;
+      }
+      this.prevCursors.push(this.cursor);
+      this.cursor = this.nextCursor;
+      this.fetchPackages();
+    },
+    prevPage() {
+      let prev = this.prevCursors.pop();
+      if (prev !== undefined) {
+        this.cursor = prev;
+        this.fetchPackages();
+      }
     },
   },
   debounce: {
