@@ -113,6 +113,13 @@ func NewUploadInternalError(body *UploadInternalErrorResponseBody) *goa.ServiceE
 	return v
 }
 
+// NewUploadForbidden builds a upload service upload endpoint forbidden error.
+func NewUploadForbidden(body string) upload.Forbidden {
+	v := upload.Forbidden(body)
+
+	return v
+}
+
 // NewUploadUnauthorized builds a upload service upload endpoint unauthorized
 // error.
 func NewUploadUnauthorized(body string) upload.Unauthorized {

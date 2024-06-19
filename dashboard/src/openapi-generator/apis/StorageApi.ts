@@ -112,7 +112,7 @@ export interface StorageUpdateRequest {
  */
 export interface StorageApiInterface {
     /**
-     * Add a storage location
+     * Create a storage location
      * @summary add_location storage
      * @param {AddLocationRequestBody} addLocationRequestBody 
      * @param {*} [options] Override http request option.
@@ -122,7 +122,7 @@ export interface StorageApiInterface {
     storageAddLocationRaw(requestParameters: StorageAddLocationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AddLocationResult>>;
 
     /**
-     * Add a storage location
+     * Create a storage location
      * add_location storage
      */
     storageAddLocation(requestParameters: StorageAddLocationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AddLocationResult>;
@@ -289,7 +289,7 @@ export interface StorageApiInterface {
     storageSubmit(requestParameters: StorageSubmitRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SubmitResult>;
 
     /**
-     * Signal the storage service that an upload is complete
+     * Signal that a package submission is complete
      * @summary update storage
      * @param {string} aipId Identifier of AIP
      * @param {*} [options] Override http request option.
@@ -299,7 +299,7 @@ export interface StorageApiInterface {
     storageUpdateRaw(requestParameters: StorageUpdateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>>;
 
     /**
-     * Signal the storage service that an upload is complete
+     * Signal that a package submission is complete
      * update storage
      */
     storageUpdate(requestParameters: StorageUpdateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
@@ -312,7 +312,7 @@ export interface StorageApiInterface {
 export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
     /**
-     * Add a storage location
+     * Create a storage location
      * add_location storage
      */
     async storageAddLocationRaw(requestParameters: StorageAddLocationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AddLocationResult>> {
@@ -346,7 +346,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
     }
 
     /**
-     * Add a storage location
+     * Create a storage location
      * add_location storage
      */
     async storageAddLocation(requestParameters: StorageAddLocationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AddLocationResult> {
@@ -766,7 +766,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
     }
 
     /**
-     * Signal the storage service that an upload is complete
+     * Signal that a package submission is complete
      * update storage
      */
     async storageUpdateRaw(requestParameters: StorageUpdateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
@@ -797,7 +797,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
     }
 
     /**
-     * Signal the storage service that an upload is complete
+     * Signal that a package submission is complete
      * update storage
      */
     async storageUpdate(requestParameters: StorageUpdateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {

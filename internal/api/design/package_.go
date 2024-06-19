@@ -6,13 +6,24 @@ import (
 
 var _ = Service("package", func() {
 	Description("The package service manages packages being transferred to a3m.")
-	Error("unauthorized", String, "Invalid token")
+	Error("unauthorized", String, "Unauthorized")
+	Error("forbidden", String, "Forbidden")
 	HTTP(func() {
 		Path("/package")
 		Response("unauthorized", StatusUnauthorized)
+		Response("forbidden", StatusForbidden)
 	})
 	Method("monitor_request", func() {
-		Description("Request access to the /monitor WebSocket.")
+		Description("Request access to the /monitor WebSocket")
+		// For now, the monitor websocket requires all the scopes from this service.
+		Security(JWTAuth, func() {
+			Scope("package:list")
+			Scope("package:listActions")
+			Scope("package:move")
+			Scope("package:read")
+			Scope("package:review")
+			Scope("package:upload")
+		})
 		Payload(func() {
 			Token("token", String)
 		})
@@ -32,6 +43,7 @@ var _ = Service("package", func() {
 		})
 	})
 	Method("monitor", func() {
+		Description("Obtain access to the /monitor WebSocket")
 		// Disable JWTAuth security (it validates the previous method cookie).
 		NoSecurity()
 		Payload(func() {
@@ -48,6 +60,9 @@ var _ = Service("package", func() {
 	})
 	Method("list", func() {
 		Description("List all stored packages")
+		Security(JWTAuth, func() {
+			Scope("package:list")
+		})
 		Payload(func() {
 			Attribute("name", String)
 			AttributeUUID("aip_id", "Identifier of AIP")
@@ -81,6 +96,9 @@ var _ = Service("package", func() {
 	})
 	Method("show", func() {
 		Description("Show package by ID")
+		Security(JWTAuth, func() {
+			Scope("package:read")
+		})
 		Payload(func() {
 			Attribute("id", UInt, "Identifier of package to show")
 			Token("token", String)
@@ -98,6 +116,9 @@ var _ = Service("package", func() {
 	})
 	Method("preservation_actions", func() {
 		Description("List all preservation actions by ID")
+		Security(JWTAuth, func() {
+			Scope("package:listActions")
+		})
 		Payload(func() {
 			Attribute("id", UInt, "Identifier of package to look up")
 			Token("token", String)
@@ -113,6 +134,9 @@ var _ = Service("package", func() {
 	})
 	Method("confirm", func() {
 		Description("Signal the package has been reviewed and accepted")
+		Security(JWTAuth, func() {
+			Scope("package:review")
+		})
 		Payload(func() {
 			Attribute("id", UInt, "Identifier of package to look up")
 			TypedAttributeUUID("location_id", "Identifier of storage location")
@@ -132,6 +156,9 @@ var _ = Service("package", func() {
 	})
 	Method("reject", func() {
 		Description("Signal the package has been reviewed and rejected")
+		Security(JWTAuth, func() {
+			Scope("package:review")
+		})
 		Payload(func() {
 			Attribute("id", UInt, "Identifier of package to look up")
 			Token("token", String)
@@ -150,6 +177,9 @@ var _ = Service("package", func() {
 	})
 	Method("move", func() {
 		Description("Move a package to a permanent storage location")
+		Security(JWTAuth, func() {
+			Scope("package:move")
+		})
 		Payload(func() {
 			Attribute("id", UInt, "Identifier of package to move")
 			TypedAttributeUUID("location_id", "Identifier of storage location")
@@ -169,6 +199,9 @@ var _ = Service("package", func() {
 	})
 	Method("move_status", func() {
 		Description("Retrieve the status of a permanent storage location move of the package")
+		Security(JWTAuth, func() {
+			Scope("package:move")
+		})
 		Payload(func() {
 			Attribute("id", UInt, "Identifier of package to move")
 			Token("token", String)

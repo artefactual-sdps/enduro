@@ -53,7 +53,7 @@ func (a *CreateStoragePackageActivity) Execute(
 
 	pkg, err := a.client.Create(ctx, &payload)
 	if err != nil {
-		if errors.Is(err, goastorage.Unauthorized("unauthorized")) {
+		if errors.Is(err, goastorage.Unauthorized("Unauthorized")) {
 			return nil, temporal.NewNonRetryableError(
 				fmt.Errorf("%s: %v", CreateStoragePackageActivityName, err),
 			)

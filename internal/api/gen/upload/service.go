@@ -19,7 +19,7 @@ import (
 
 // The upload service handles file submissions to the SIPs bucket.
 type Service interface {
-	// Upload implements upload.
+	// Upload a package to trigger an ingest workflow
 	Upload(context.Context, *UploadPayload, io.ReadCloser) (err error)
 }
 
@@ -155,12 +155,32 @@ type UploadPayload struct {
 	Token       *string
 }
 
-// Invalid token
+// Forbidden
+type Forbidden string
+
+// Unauthorized
 type Unauthorized string
 
 // Error returns an error description.
+func (e Forbidden) Error() string {
+	return "Forbidden"
+}
+
+// ErrorName returns "forbidden".
+//
+// Deprecated: Use GoaErrorName - https://github.com/goadesign/goa/issues/3105
+func (e Forbidden) ErrorName() string {
+	return e.GoaErrorName()
+}
+
+// GoaErrorName returns "forbidden".
+func (e Forbidden) GoaErrorName() string {
+	return "forbidden"
+}
+
+// Error returns an error description.
 func (e Unauthorized) Error() string {
-	return "Invalid token"
+	return "Unauthorized"
 }
 
 // ErrorName returns "unauthorized".

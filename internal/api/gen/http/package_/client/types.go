@@ -434,6 +434,14 @@ func NewMonitorRequestNotAvailable(body *MonitorRequestNotAvailableResponseBody)
 	return v
 }
 
+// NewMonitorRequestForbidden builds a package service monitor_request endpoint
+// forbidden error.
+func NewMonitorRequestForbidden(body string) package_.Forbidden {
+	v := package_.Forbidden(body)
+
+	return v
+}
+
 // NewMonitorRequestUnauthorized builds a package service monitor_request
 // endpoint unauthorized error.
 func NewMonitorRequestUnauthorized(body string) package_.Unauthorized {
@@ -505,6 +513,14 @@ func NewMonitorNotAvailable(body *MonitorNotAvailableResponseBody) *goa.ServiceE
 	return v
 }
 
+// NewMonitorForbidden builds a package service monitor endpoint forbidden
+// error.
+func NewMonitorForbidden(body string) package_.Forbidden {
+	v := package_.Forbidden(body)
+
+	return v
+}
+
 // NewMonitorUnauthorized builds a package service monitor endpoint
 // unauthorized error.
 func NewMonitorUnauthorized(body string) package_.Unauthorized {
@@ -523,6 +539,13 @@ func NewListResultOK(body *ListResponseBody) *package_.ListResult {
 	for i, val := range body.Items {
 		v.Items[i] = unmarshalEnduroStoredPackageResponseBodyToPackageEnduroStoredPackage(val)
 	}
+
+	return v
+}
+
+// NewListForbidden builds a package service list endpoint forbidden error.
+func NewListForbidden(body string) package_.Forbidden {
+	v := package_.Forbidden(body)
 
 	return v
 }
@@ -579,6 +602,13 @@ func NewShowNotFound(body *ShowNotFoundResponseBody) *package_.PackageNotFound {
 	return v
 }
 
+// NewShowForbidden builds a package service show endpoint forbidden error.
+func NewShowForbidden(body string) package_.Forbidden {
+	v := package_.Forbidden(body)
+
+	return v
+}
+
 // NewShowUnauthorized builds a package service show endpoint unauthorized
 // error.
 func NewShowUnauthorized(body string) package_.Unauthorized {
@@ -608,6 +638,14 @@ func NewPreservationActionsNotFound(body *PreservationActionsNotFoundResponseBod
 		Message: *body.Message,
 		ID:      *body.ID,
 	}
+
+	return v
+}
+
+// NewPreservationActionsForbidden builds a package service
+// preservation_actions endpoint forbidden error.
+func NewPreservationActionsForbidden(body string) package_.Forbidden {
+	v := package_.Forbidden(body)
 
 	return v
 }
@@ -659,6 +697,14 @@ func NewConfirmNotFound(body *ConfirmNotFoundResponseBody) *package_.PackageNotF
 	return v
 }
 
+// NewConfirmForbidden builds a package service confirm endpoint forbidden
+// error.
+func NewConfirmForbidden(body string) package_.Forbidden {
+	v := package_.Forbidden(body)
+
+	return v
+}
+
 // NewConfirmUnauthorized builds a package service confirm endpoint
 // unauthorized error.
 func NewConfirmUnauthorized(body string) package_.Unauthorized {
@@ -702,6 +748,13 @@ func NewRejectNotFound(body *RejectNotFoundResponseBody) *package_.PackageNotFou
 		Message: *body.Message,
 		ID:      *body.ID,
 	}
+
+	return v
+}
+
+// NewRejectForbidden builds a package service reject endpoint forbidden error.
+func NewRejectForbidden(body string) package_.Forbidden {
+	v := package_.Forbidden(body)
 
 	return v
 }
@@ -753,6 +806,13 @@ func NewMoveNotFound(body *MoveNotFoundResponseBody) *package_.PackageNotFound {
 	return v
 }
 
+// NewMoveForbidden builds a package service move endpoint forbidden error.
+func NewMoveForbidden(body string) package_.Forbidden {
+	v := package_.Forbidden(body)
+
+	return v
+}
+
 // NewMoveUnauthorized builds a package service move endpoint unauthorized
 // error.
 func NewMoveUnauthorized(body string) package_.Unauthorized {
@@ -793,6 +853,14 @@ func NewMoveStatusNotFound(body *MoveStatusNotFoundResponseBody) *package_.Packa
 		Message: *body.Message,
 		ID:      *body.ID,
 	}
+
+	return v
+}
+
+// NewMoveStatusForbidden builds a package service move_status endpoint
+// forbidden error.
+func NewMoveStatusForbidden(body string) package_.Forbidden {
+	v := package_.Forbidden(body)
 
 	return v
 }

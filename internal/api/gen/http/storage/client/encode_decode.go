@@ -22,6 +22,126 @@ import (
 	goahttp "goa.design/goa/v3/http"
 )
 
+// BuildCreateRequest instantiates a HTTP request object with method and path
+// set to call the "storage" service "create" endpoint
+func (c *Client) BuildCreateRequest(ctx context.Context, v any) (*http.Request, error) {
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: CreateStoragePath()}
+	req, err := http.NewRequest("POST", u.String(), nil)
+	if err != nil {
+		return nil, goahttp.ErrInvalidURL("storage", "create", u.String(), err)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
+	return req, nil
+}
+
+// EncodeCreateRequest returns an encoder for requests sent to the storage
+// create server.
+func EncodeCreateRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, any) error {
+	return func(req *http.Request, v any) error {
+		p, ok := v.(*storage.CreatePayload)
+		if !ok {
+			return goahttp.ErrInvalidType("storage", "create", "*storage.CreatePayload", v)
+		}
+		if p.Token != nil {
+			head := *p.Token
+			if !strings.Contains(head, " ") {
+				req.Header.Set("Authorization", "Bearer "+head)
+			} else {
+				req.Header.Set("Authorization", head)
+			}
+		}
+		body := NewCreateRequestBody(p)
+		if err := encoder(req).Encode(&body); err != nil {
+			return goahttp.ErrEncodingError("storage", "create", err)
+		}
+		return nil
+	}
+}
+
+// DecodeCreateResponse returns a decoder for responses returned by the storage
+// create endpoint. restoreBody controls whether the response body should be
+// restored after having been read.
+// DecodeCreateResponse may return the following errors:
+//   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
+//   - "forbidden" (type storage.Forbidden): http.StatusForbidden
+//   - "unauthorized" (type storage.Unauthorized): http.StatusUnauthorized
+//   - error: internal error
+func DecodeCreateResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
+	return func(resp *http.Response) (any, error) {
+		if restoreBody {
+			b, err := io.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			defer func() {
+				resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			}()
+		} else {
+			defer resp.Body.Close()
+		}
+		switch resp.StatusCode {
+		case http.StatusOK:
+			var (
+				body CreateResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "create", err)
+			}
+			p := NewCreatePackageOK(&body)
+			view := "default"
+			vres := &storageviews.Package{Projected: p, View: view}
+			if err = storageviews.ValidatePackage(vres); err != nil {
+				return nil, goahttp.ErrValidationError("storage", "create", err)
+			}
+			res := storage.NewPackage(vres)
+			return res, nil
+		case http.StatusBadRequest:
+			var (
+				body CreateNotValidResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "create", err)
+			}
+			err = ValidateCreateNotValidResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "create", err)
+			}
+			return nil, NewCreateNotValid(&body)
+		case http.StatusForbidden:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "create", err)
+			}
+			return nil, NewCreateForbidden(body)
+		case http.StatusUnauthorized:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "create", err)
+			}
+			return nil, NewCreateUnauthorized(body)
+		default:
+			body, _ := io.ReadAll(resp.Body)
+			return nil, goahttp.ErrInvalidResponse("storage", "create", resp.StatusCode, string(body))
+		}
+	}
+}
+
 // BuildSubmitRequest instantiates a HTTP request object with method and path
 // set to call the "storage" service "submit" endpoint
 func (c *Client) BuildSubmitRequest(ctx context.Context, v any) (*http.Request, error) {
@@ -77,6 +197,7 @@ func EncodeSubmitRequest(encoder func(*http.Request) goahttp.Encoder) func(*http
 // DecodeSubmitResponse may return the following errors:
 //   - "not_available" (type *goa.ServiceError): http.StatusConflict
 //   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
+//   - "forbidden" (type storage.Forbidden): http.StatusForbidden
 //   - "unauthorized" (type storage.Unauthorized): http.StatusUnauthorized
 //   - error: internal error
 func DecodeSubmitResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
@@ -137,6 +258,16 @@ func DecodeSubmitResponse(decoder func(*http.Response) goahttp.Decoder, restoreB
 				return nil, goahttp.ErrValidationError("storage", "submit", err)
 			}
 			return nil, NewSubmitNotValid(&body)
+		case http.StatusForbidden:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "submit", err)
+			}
+			return nil, NewSubmitForbidden(body)
 		case http.StatusUnauthorized:
 			var (
 				body string
@@ -150,115 +281,6 @@ func DecodeSubmitResponse(decoder func(*http.Response) goahttp.Decoder, restoreB
 		default:
 			body, _ := io.ReadAll(resp.Body)
 			return nil, goahttp.ErrInvalidResponse("storage", "submit", resp.StatusCode, string(body))
-		}
-	}
-}
-
-// BuildCreateRequest instantiates a HTTP request object with method and path
-// set to call the "storage" service "create" endpoint
-func (c *Client) BuildCreateRequest(ctx context.Context, v any) (*http.Request, error) {
-	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: CreateStoragePath()}
-	req, err := http.NewRequest("POST", u.String(), nil)
-	if err != nil {
-		return nil, goahttp.ErrInvalidURL("storage", "create", u.String(), err)
-	}
-	if ctx != nil {
-		req = req.WithContext(ctx)
-	}
-
-	return req, nil
-}
-
-// EncodeCreateRequest returns an encoder for requests sent to the storage
-// create server.
-func EncodeCreateRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, any) error {
-	return func(req *http.Request, v any) error {
-		p, ok := v.(*storage.CreatePayload)
-		if !ok {
-			return goahttp.ErrInvalidType("storage", "create", "*storage.CreatePayload", v)
-		}
-		if p.Token != nil {
-			head := *p.Token
-			if !strings.Contains(head, " ") {
-				req.Header.Set("Authorization", "Bearer "+head)
-			} else {
-				req.Header.Set("Authorization", head)
-			}
-		}
-		body := NewCreateRequestBody(p)
-		if err := encoder(req).Encode(&body); err != nil {
-			return goahttp.ErrEncodingError("storage", "create", err)
-		}
-		return nil
-	}
-}
-
-// DecodeCreateResponse returns a decoder for responses returned by the storage
-// create endpoint. restoreBody controls whether the response body should be
-// restored after having been read.
-// DecodeCreateResponse may return the following errors:
-//   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
-//   - "unauthorized" (type storage.Unauthorized): http.StatusUnauthorized
-//   - error: internal error
-func DecodeCreateResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
-	return func(resp *http.Response) (any, error) {
-		if restoreBody {
-			b, err := io.ReadAll(resp.Body)
-			if err != nil {
-				return nil, err
-			}
-			resp.Body = io.NopCloser(bytes.NewBuffer(b))
-			defer func() {
-				resp.Body = io.NopCloser(bytes.NewBuffer(b))
-			}()
-		} else {
-			defer resp.Body.Close()
-		}
-		switch resp.StatusCode {
-		case http.StatusOK:
-			var (
-				body CreateResponseBody
-				err  error
-			)
-			err = decoder(resp).Decode(&body)
-			if err != nil {
-				return nil, goahttp.ErrDecodingError("storage", "create", err)
-			}
-			p := NewCreatePackageOK(&body)
-			view := "default"
-			vres := &storageviews.Package{Projected: p, View: view}
-			if err = storageviews.ValidatePackage(vres); err != nil {
-				return nil, goahttp.ErrValidationError("storage", "create", err)
-			}
-			res := storage.NewPackage(vres)
-			return res, nil
-		case http.StatusBadRequest:
-			var (
-				body CreateNotValidResponseBody
-				err  error
-			)
-			err = decoder(resp).Decode(&body)
-			if err != nil {
-				return nil, goahttp.ErrDecodingError("storage", "create", err)
-			}
-			err = ValidateCreateNotValidResponseBody(&body)
-			if err != nil {
-				return nil, goahttp.ErrValidationError("storage", "create", err)
-			}
-			return nil, NewCreateNotValid(&body)
-		case http.StatusUnauthorized:
-			var (
-				body string
-				err  error
-			)
-			err = decoder(resp).Decode(&body)
-			if err != nil {
-				return nil, goahttp.ErrDecodingError("storage", "create", err)
-			}
-			return nil, NewCreateUnauthorized(body)
-		default:
-			body, _ := io.ReadAll(resp.Body)
-			return nil, goahttp.ErrInvalidResponse("storage", "create", resp.StatusCode, string(body))
 		}
 	}
 }
@@ -314,6 +336,7 @@ func EncodeUpdateRequest(encoder func(*http.Request) goahttp.Encoder) func(*http
 // DecodeUpdateResponse may return the following errors:
 //   - "not_available" (type *goa.ServiceError): http.StatusConflict
 //   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
+//   - "forbidden" (type storage.Forbidden): http.StatusForbidden
 //   - "unauthorized" (type storage.Unauthorized): http.StatusUnauthorized
 //   - error: internal error
 func DecodeUpdateResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
@@ -361,6 +384,16 @@ func DecodeUpdateResponse(decoder func(*http.Response) goahttp.Decoder, restoreB
 				return nil, goahttp.ErrValidationError("storage", "update", err)
 			}
 			return nil, NewUpdateNotValid(&body)
+		case http.StatusForbidden:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "update", err)
+			}
+			return nil, NewUpdateForbidden(body)
 		case http.StatusUnauthorized:
 			var (
 				body string
@@ -428,6 +461,7 @@ func EncodeDownloadRequest(encoder func(*http.Request) goahttp.Encoder) func(*ht
 // should be restored after having been read.
 // DecodeDownloadResponse may return the following errors:
 //   - "not_found" (type *storage.PackageNotFound): http.StatusNotFound
+//   - "forbidden" (type storage.Forbidden): http.StatusForbidden
 //   - "unauthorized" (type storage.Unauthorized): http.StatusUnauthorized
 //   - error: internal error
 func DecodeDownloadResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
@@ -469,6 +503,16 @@ func DecodeDownloadResponse(decoder func(*http.Response) goahttp.Decoder, restor
 				return nil, goahttp.ErrValidationError("storage", "download", err)
 			}
 			return nil, NewDownloadNotFound(&body)
+		case http.StatusForbidden:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "download", err)
+			}
+			return nil, NewDownloadForbidden(body)
 		case http.StatusUnauthorized:
 			var (
 				body string
@@ -482,203 +526,6 @@ func DecodeDownloadResponse(decoder func(*http.Response) goahttp.Decoder, restor
 		default:
 			body, _ := io.ReadAll(resp.Body)
 			return nil, goahttp.ErrInvalidResponse("storage", "download", resp.StatusCode, string(body))
-		}
-	}
-}
-
-// BuildLocationsRequest instantiates a HTTP request object with method and
-// path set to call the "storage" service "locations" endpoint
-func (c *Client) BuildLocationsRequest(ctx context.Context, v any) (*http.Request, error) {
-	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: LocationsStoragePath()}
-	req, err := http.NewRequest("GET", u.String(), nil)
-	if err != nil {
-		return nil, goahttp.ErrInvalidURL("storage", "locations", u.String(), err)
-	}
-	if ctx != nil {
-		req = req.WithContext(ctx)
-	}
-
-	return req, nil
-}
-
-// EncodeLocationsRequest returns an encoder for requests sent to the storage
-// locations server.
-func EncodeLocationsRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, any) error {
-	return func(req *http.Request, v any) error {
-		p, ok := v.(*storage.LocationsPayload)
-		if !ok {
-			return goahttp.ErrInvalidType("storage", "locations", "*storage.LocationsPayload", v)
-		}
-		if p.Token != nil {
-			head := *p.Token
-			if !strings.Contains(head, " ") {
-				req.Header.Set("Authorization", "Bearer "+head)
-			} else {
-				req.Header.Set("Authorization", head)
-			}
-		}
-		return nil
-	}
-}
-
-// DecodeLocationsResponse returns a decoder for responses returned by the
-// storage locations endpoint. restoreBody controls whether the response body
-// should be restored after having been read.
-// DecodeLocationsResponse may return the following errors:
-//   - "unauthorized" (type storage.Unauthorized): http.StatusUnauthorized
-//   - error: internal error
-func DecodeLocationsResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
-	return func(resp *http.Response) (any, error) {
-		if restoreBody {
-			b, err := io.ReadAll(resp.Body)
-			if err != nil {
-				return nil, err
-			}
-			resp.Body = io.NopCloser(bytes.NewBuffer(b))
-			defer func() {
-				resp.Body = io.NopCloser(bytes.NewBuffer(b))
-			}()
-		} else {
-			defer resp.Body.Close()
-		}
-		switch resp.StatusCode {
-		case http.StatusOK:
-			var (
-				body LocationsResponseBody
-				err  error
-			)
-			err = decoder(resp).Decode(&body)
-			if err != nil {
-				return nil, goahttp.ErrDecodingError("storage", "locations", err)
-			}
-			p := NewLocationsLocationCollectionOK(body)
-			view := "default"
-			vres := storageviews.LocationCollection{Projected: p, View: view}
-			if err = storageviews.ValidateLocationCollection(vres); err != nil {
-				return nil, goahttp.ErrValidationError("storage", "locations", err)
-			}
-			res := storage.NewLocationCollection(vres)
-			return res, nil
-		case http.StatusUnauthorized:
-			var (
-				body string
-				err  error
-			)
-			err = decoder(resp).Decode(&body)
-			if err != nil {
-				return nil, goahttp.ErrDecodingError("storage", "locations", err)
-			}
-			return nil, NewLocationsUnauthorized(body)
-		default:
-			body, _ := io.ReadAll(resp.Body)
-			return nil, goahttp.ErrInvalidResponse("storage", "locations", resp.StatusCode, string(body))
-		}
-	}
-}
-
-// BuildAddLocationRequest instantiates a HTTP request object with method and
-// path set to call the "storage" service "add_location" endpoint
-func (c *Client) BuildAddLocationRequest(ctx context.Context, v any) (*http.Request, error) {
-	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: AddLocationStoragePath()}
-	req, err := http.NewRequest("POST", u.String(), nil)
-	if err != nil {
-		return nil, goahttp.ErrInvalidURL("storage", "add_location", u.String(), err)
-	}
-	if ctx != nil {
-		req = req.WithContext(ctx)
-	}
-
-	return req, nil
-}
-
-// EncodeAddLocationRequest returns an encoder for requests sent to the storage
-// add_location server.
-func EncodeAddLocationRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, any) error {
-	return func(req *http.Request, v any) error {
-		p, ok := v.(*storage.AddLocationPayload)
-		if !ok {
-			return goahttp.ErrInvalidType("storage", "add_location", "*storage.AddLocationPayload", v)
-		}
-		if p.Token != nil {
-			head := *p.Token
-			if !strings.Contains(head, " ") {
-				req.Header.Set("Authorization", "Bearer "+head)
-			} else {
-				req.Header.Set("Authorization", head)
-			}
-		}
-		body := NewAddLocationRequestBody(p)
-		if err := encoder(req).Encode(&body); err != nil {
-			return goahttp.ErrEncodingError("storage", "add_location", err)
-		}
-		return nil
-	}
-}
-
-// DecodeAddLocationResponse returns a decoder for responses returned by the
-// storage add_location endpoint. restoreBody controls whether the response
-// body should be restored after having been read.
-// DecodeAddLocationResponse may return the following errors:
-//   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
-//   - "unauthorized" (type storage.Unauthorized): http.StatusUnauthorized
-//   - error: internal error
-func DecodeAddLocationResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
-	return func(resp *http.Response) (any, error) {
-		if restoreBody {
-			b, err := io.ReadAll(resp.Body)
-			if err != nil {
-				return nil, err
-			}
-			resp.Body = io.NopCloser(bytes.NewBuffer(b))
-			defer func() {
-				resp.Body = io.NopCloser(bytes.NewBuffer(b))
-			}()
-		} else {
-			defer resp.Body.Close()
-		}
-		switch resp.StatusCode {
-		case http.StatusCreated:
-			var (
-				body AddLocationResponseBody
-				err  error
-			)
-			err = decoder(resp).Decode(&body)
-			if err != nil {
-				return nil, goahttp.ErrDecodingError("storage", "add_location", err)
-			}
-			err = ValidateAddLocationResponseBody(&body)
-			if err != nil {
-				return nil, goahttp.ErrValidationError("storage", "add_location", err)
-			}
-			res := NewAddLocationResultCreated(&body)
-			return res, nil
-		case http.StatusBadRequest:
-			var (
-				body AddLocationNotValidResponseBody
-				err  error
-			)
-			err = decoder(resp).Decode(&body)
-			if err != nil {
-				return nil, goahttp.ErrDecodingError("storage", "add_location", err)
-			}
-			err = ValidateAddLocationNotValidResponseBody(&body)
-			if err != nil {
-				return nil, goahttp.ErrValidationError("storage", "add_location", err)
-			}
-			return nil, NewAddLocationNotValid(&body)
-		case http.StatusUnauthorized:
-			var (
-				body string
-				err  error
-			)
-			err = decoder(resp).Decode(&body)
-			if err != nil {
-				return nil, goahttp.ErrDecodingError("storage", "add_location", err)
-			}
-			return nil, NewAddLocationUnauthorized(body)
-		default:
-			body, _ := io.ReadAll(resp.Body)
-			return nil, goahttp.ErrInvalidResponse("storage", "add_location", resp.StatusCode, string(body))
 		}
 	}
 }
@@ -739,6 +586,7 @@ func EncodeMoveRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.R
 //   - "not_available" (type *goa.ServiceError): http.StatusConflict
 //   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
 //   - "not_found" (type *storage.PackageNotFound): http.StatusNotFound
+//   - "forbidden" (type storage.Forbidden): http.StatusForbidden
 //   - "unauthorized" (type storage.Unauthorized): http.StatusUnauthorized
 //   - error: internal error
 func DecodeMoveResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
@@ -800,6 +648,16 @@ func DecodeMoveResponse(decoder func(*http.Response) goahttp.Decoder, restoreBod
 				return nil, goahttp.ErrValidationError("storage", "move", err)
 			}
 			return nil, NewMoveNotFound(&body)
+		case http.StatusForbidden:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "move", err)
+			}
+			return nil, NewMoveForbidden(body)
 		case http.StatusUnauthorized:
 			var (
 				body string
@@ -868,6 +726,7 @@ func EncodeMoveStatusRequest(encoder func(*http.Request) goahttp.Encoder) func(*
 // DecodeMoveStatusResponse may return the following errors:
 //   - "failed_dependency" (type *goa.ServiceError): http.StatusFailedDependency
 //   - "not_found" (type *storage.PackageNotFound): http.StatusNotFound
+//   - "forbidden" (type storage.Forbidden): http.StatusForbidden
 //   - "unauthorized" (type storage.Unauthorized): http.StatusUnauthorized
 //   - error: internal error
 func DecodeMoveStatusResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
@@ -928,6 +787,16 @@ func DecodeMoveStatusResponse(decoder func(*http.Response) goahttp.Decoder, rest
 				return nil, goahttp.ErrValidationError("storage", "move_status", err)
 			}
 			return nil, NewMoveStatusNotFound(&body)
+		case http.StatusForbidden:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "move_status", err)
+			}
+			return nil, NewMoveStatusForbidden(body)
 		case http.StatusUnauthorized:
 			var (
 				body string
@@ -997,6 +866,7 @@ func EncodeRejectRequest(encoder func(*http.Request) goahttp.Encoder) func(*http
 //   - "not_available" (type *goa.ServiceError): http.StatusConflict
 //   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
 //   - "not_found" (type *storage.PackageNotFound): http.StatusNotFound
+//   - "forbidden" (type storage.Forbidden): http.StatusForbidden
 //   - "unauthorized" (type storage.Unauthorized): http.StatusUnauthorized
 //   - error: internal error
 func DecodeRejectResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
@@ -1058,6 +928,16 @@ func DecodeRejectResponse(decoder func(*http.Response) goahttp.Decoder, restoreB
 				return nil, goahttp.ErrValidationError("storage", "reject", err)
 			}
 			return nil, NewRejectNotFound(&body)
+		case http.StatusForbidden:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "reject", err)
+			}
+			return nil, NewRejectForbidden(body)
 		case http.StatusUnauthorized:
 			var (
 				body string
@@ -1125,6 +1005,7 @@ func EncodeShowRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.R
 // restored after having been read.
 // DecodeShowResponse may return the following errors:
 //   - "not_found" (type *storage.PackageNotFound): http.StatusNotFound
+//   - "forbidden" (type storage.Forbidden): http.StatusForbidden
 //   - "unauthorized" (type storage.Unauthorized): http.StatusUnauthorized
 //   - error: internal error
 func DecodeShowResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
@@ -1173,6 +1054,16 @@ func DecodeShowResponse(decoder func(*http.Response) goahttp.Decoder, restoreBod
 				return nil, goahttp.ErrValidationError("storage", "show", err)
 			}
 			return nil, NewShowNotFound(&body)
+		case http.StatusForbidden:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "show", err)
+			}
+			return nil, NewShowForbidden(body)
 		case http.StatusUnauthorized:
 			var (
 				body string
@@ -1186,6 +1077,225 @@ func DecodeShowResponse(decoder func(*http.Response) goahttp.Decoder, restoreBod
 		default:
 			body, _ := io.ReadAll(resp.Body)
 			return nil, goahttp.ErrInvalidResponse("storage", "show", resp.StatusCode, string(body))
+		}
+	}
+}
+
+// BuildLocationsRequest instantiates a HTTP request object with method and
+// path set to call the "storage" service "locations" endpoint
+func (c *Client) BuildLocationsRequest(ctx context.Context, v any) (*http.Request, error) {
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: LocationsStoragePath()}
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		return nil, goahttp.ErrInvalidURL("storage", "locations", u.String(), err)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
+	return req, nil
+}
+
+// EncodeLocationsRequest returns an encoder for requests sent to the storage
+// locations server.
+func EncodeLocationsRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, any) error {
+	return func(req *http.Request, v any) error {
+		p, ok := v.(*storage.LocationsPayload)
+		if !ok {
+			return goahttp.ErrInvalidType("storage", "locations", "*storage.LocationsPayload", v)
+		}
+		if p.Token != nil {
+			head := *p.Token
+			if !strings.Contains(head, " ") {
+				req.Header.Set("Authorization", "Bearer "+head)
+			} else {
+				req.Header.Set("Authorization", head)
+			}
+		}
+		return nil
+	}
+}
+
+// DecodeLocationsResponse returns a decoder for responses returned by the
+// storage locations endpoint. restoreBody controls whether the response body
+// should be restored after having been read.
+// DecodeLocationsResponse may return the following errors:
+//   - "forbidden" (type storage.Forbidden): http.StatusForbidden
+//   - "unauthorized" (type storage.Unauthorized): http.StatusUnauthorized
+//   - error: internal error
+func DecodeLocationsResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
+	return func(resp *http.Response) (any, error) {
+		if restoreBody {
+			b, err := io.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			defer func() {
+				resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			}()
+		} else {
+			defer resp.Body.Close()
+		}
+		switch resp.StatusCode {
+		case http.StatusOK:
+			var (
+				body LocationsResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "locations", err)
+			}
+			p := NewLocationsLocationCollectionOK(body)
+			view := "default"
+			vres := storageviews.LocationCollection{Projected: p, View: view}
+			if err = storageviews.ValidateLocationCollection(vres); err != nil {
+				return nil, goahttp.ErrValidationError("storage", "locations", err)
+			}
+			res := storage.NewLocationCollection(vres)
+			return res, nil
+		case http.StatusForbidden:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "locations", err)
+			}
+			return nil, NewLocationsForbidden(body)
+		case http.StatusUnauthorized:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "locations", err)
+			}
+			return nil, NewLocationsUnauthorized(body)
+		default:
+			body, _ := io.ReadAll(resp.Body)
+			return nil, goahttp.ErrInvalidResponse("storage", "locations", resp.StatusCode, string(body))
+		}
+	}
+}
+
+// BuildAddLocationRequest instantiates a HTTP request object with method and
+// path set to call the "storage" service "add_location" endpoint
+func (c *Client) BuildAddLocationRequest(ctx context.Context, v any) (*http.Request, error) {
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: AddLocationStoragePath()}
+	req, err := http.NewRequest("POST", u.String(), nil)
+	if err != nil {
+		return nil, goahttp.ErrInvalidURL("storage", "add_location", u.String(), err)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
+	return req, nil
+}
+
+// EncodeAddLocationRequest returns an encoder for requests sent to the storage
+// add_location server.
+func EncodeAddLocationRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, any) error {
+	return func(req *http.Request, v any) error {
+		p, ok := v.(*storage.AddLocationPayload)
+		if !ok {
+			return goahttp.ErrInvalidType("storage", "add_location", "*storage.AddLocationPayload", v)
+		}
+		if p.Token != nil {
+			head := *p.Token
+			if !strings.Contains(head, " ") {
+				req.Header.Set("Authorization", "Bearer "+head)
+			} else {
+				req.Header.Set("Authorization", head)
+			}
+		}
+		body := NewAddLocationRequestBody(p)
+		if err := encoder(req).Encode(&body); err != nil {
+			return goahttp.ErrEncodingError("storage", "add_location", err)
+		}
+		return nil
+	}
+}
+
+// DecodeAddLocationResponse returns a decoder for responses returned by the
+// storage add_location endpoint. restoreBody controls whether the response
+// body should be restored after having been read.
+// DecodeAddLocationResponse may return the following errors:
+//   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
+//   - "forbidden" (type storage.Forbidden): http.StatusForbidden
+//   - "unauthorized" (type storage.Unauthorized): http.StatusUnauthorized
+//   - error: internal error
+func DecodeAddLocationResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
+	return func(resp *http.Response) (any, error) {
+		if restoreBody {
+			b, err := io.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			defer func() {
+				resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			}()
+		} else {
+			defer resp.Body.Close()
+		}
+		switch resp.StatusCode {
+		case http.StatusCreated:
+			var (
+				body AddLocationResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "add_location", err)
+			}
+			err = ValidateAddLocationResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "add_location", err)
+			}
+			res := NewAddLocationResultCreated(&body)
+			return res, nil
+		case http.StatusBadRequest:
+			var (
+				body AddLocationNotValidResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "add_location", err)
+			}
+			err = ValidateAddLocationNotValidResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "add_location", err)
+			}
+			return nil, NewAddLocationNotValid(&body)
+		case http.StatusForbidden:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "add_location", err)
+			}
+			return nil, NewAddLocationForbidden(body)
+		case http.StatusUnauthorized:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "add_location", err)
+			}
+			return nil, NewAddLocationUnauthorized(body)
+		default:
+			body, _ := io.ReadAll(resp.Body)
+			return nil, goahttp.ErrInvalidResponse("storage", "add_location", resp.StatusCode, string(body))
 		}
 	}
 }
@@ -1240,6 +1350,7 @@ func EncodeShowLocationRequest(encoder func(*http.Request) goahttp.Encoder) func
 // body should be restored after having been read.
 // DecodeShowLocationResponse may return the following errors:
 //   - "not_found" (type *storage.LocationNotFound): http.StatusNotFound
+//   - "forbidden" (type storage.Forbidden): http.StatusForbidden
 //   - "unauthorized" (type storage.Unauthorized): http.StatusUnauthorized
 //   - error: internal error
 func DecodeShowLocationResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
@@ -1288,6 +1399,16 @@ func DecodeShowLocationResponse(decoder func(*http.Response) goahttp.Decoder, re
 				return nil, goahttp.ErrValidationError("storage", "show_location", err)
 			}
 			return nil, NewShowLocationNotFound(&body)
+		case http.StatusForbidden:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "show_location", err)
+			}
+			return nil, NewShowLocationForbidden(body)
 		case http.StatusUnauthorized:
 			var (
 				body string
@@ -1356,6 +1477,7 @@ func EncodeLocationPackagesRequest(encoder func(*http.Request) goahttp.Encoder) 
 // DecodeLocationPackagesResponse may return the following errors:
 //   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
 //   - "not_found" (type *storage.LocationNotFound): http.StatusNotFound
+//   - "forbidden" (type storage.Forbidden): http.StatusForbidden
 //   - "unauthorized" (type storage.Unauthorized): http.StatusUnauthorized
 //   - error: internal error
 func DecodeLocationPackagesResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
@@ -1418,6 +1540,16 @@ func DecodeLocationPackagesResponse(decoder func(*http.Response) goahttp.Decoder
 				return nil, goahttp.ErrValidationError("storage", "location_packages", err)
 			}
 			return nil, NewLocationPackagesNotFound(&body)
+		case http.StatusForbidden:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "location_packages", err)
+			}
+			return nil, NewLocationPackagesForbidden(body)
 		case http.StatusUnauthorized:
 			var (
 				body string

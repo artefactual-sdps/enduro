@@ -19,18 +19,14 @@ import (
 
 // The storage service manages the storage of packages.
 type Service interface {
-	// Start the submission of a package
-	Submit(context.Context, *SubmitPayload) (res *SubmitResult, err error)
 	// Create a new package
 	Create(context.Context, *CreatePayload) (res *Package, err error)
-	// Signal the storage service that an upload is complete
+	// Start the submission of a package
+	Submit(context.Context, *SubmitPayload) (res *SubmitResult, err error)
+	// Signal that a package submission is complete
 	Update(context.Context, *UpdatePayload) (err error)
 	// Download package by AIPID
 	Download(context.Context, *DownloadPayload) (res []byte, err error)
-	// List locations
-	Locations(context.Context, *LocationsPayload) (res LocationCollection, err error)
-	// Add a storage location
-	AddLocation(context.Context, *AddLocationPayload) (res *AddLocationResult, err error)
 	// Move a package to a permanent storage location
 	Move(context.Context, *MovePayload) (err error)
 	// Retrieve the status of a permanent storage location move of the package
@@ -39,6 +35,10 @@ type Service interface {
 	Reject(context.Context, *RejectPayload) (err error)
 	// Show package by AIPID
 	Show(context.Context, *ShowPayload) (res *Package, err error)
+	// List locations
+	Locations(context.Context, *LocationsPayload) (res LocationCollection, err error)
+	// Create a storage location
+	AddLocation(context.Context, *AddLocationPayload) (res *AddLocationResult, err error)
 	// Show location by UUID
 	ShowLocation(context.Context, *ShowLocationPayload) (res *Location, err error)
 	// List all the packages stored in the location with UUID
@@ -65,7 +65,7 @@ const ServiceName = "storage"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [12]string{"submit", "create", "update", "download", "locations", "add_location", "move", "move_status", "reject", "show", "show_location", "location_packages"}
+var MethodNames = [12]string{"create", "submit", "update", "download", "move", "move_status", "reject", "show", "locations", "add_location", "show_location", "location_packages"}
 
 type AMSSConfig struct {
 	APIKey   string
@@ -371,7 +371,10 @@ type UpdatePayload struct {
 	Token *string
 }
 
-// Invalid token
+// Forbidden
+type Forbidden string
+
+// Unauthorized
 type Unauthorized string
 
 // Error returns an error description.
@@ -409,8 +412,25 @@ func (e *PackageNotFound) GoaErrorName() string {
 }
 
 // Error returns an error description.
+func (e Forbidden) Error() string {
+	return "Forbidden"
+}
+
+// ErrorName returns "forbidden".
+//
+// Deprecated: Use GoaErrorName - https://github.com/goadesign/goa/issues/3105
+func (e Forbidden) ErrorName() string {
+	return e.GoaErrorName()
+}
+
+// GoaErrorName returns "forbidden".
+func (e Forbidden) GoaErrorName() string {
+	return "forbidden"
+}
+
+// Error returns an error description.
 func (e Unauthorized) Error() string {
-	return "Invalid token"
+	return "Unauthorized"
 }
 
 // ErrorName returns "unauthorized".
@@ -429,14 +449,14 @@ func (*S3Config) configVal()   {}
 func (*SFTPConfig) configVal() {}
 func (*URLConfig) configVal()  {}
 
-// MakeNotAvailable builds a goa.ServiceError from an error.
-func MakeNotAvailable(err error) *goa.ServiceError {
-	return goa.NewServiceError(err, "not_available", false, false, false)
-}
-
 // MakeNotValid builds a goa.ServiceError from an error.
 func MakeNotValid(err error) *goa.ServiceError {
 	return goa.NewServiceError(err, "not_valid", false, false, false)
+}
+
+// MakeNotAvailable builds a goa.ServiceError from an error.
+func MakeNotAvailable(err error) *goa.ServiceError {
+	return goa.NewServiceError(err, "not_available", false, false, false)
 }
 
 // MakeFailedDependency builds a goa.ServiceError from an error.

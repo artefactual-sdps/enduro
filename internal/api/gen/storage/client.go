@@ -16,58 +16,43 @@ import (
 
 // Client is the "storage" service client.
 type Client struct {
-	SubmitEndpoint           goa.Endpoint
 	CreateEndpoint           goa.Endpoint
+	SubmitEndpoint           goa.Endpoint
 	UpdateEndpoint           goa.Endpoint
 	DownloadEndpoint         goa.Endpoint
-	LocationsEndpoint        goa.Endpoint
-	AddLocationEndpoint      goa.Endpoint
 	MoveEndpoint             goa.Endpoint
 	MoveStatusEndpoint       goa.Endpoint
 	RejectEndpoint           goa.Endpoint
 	ShowEndpoint             goa.Endpoint
+	LocationsEndpoint        goa.Endpoint
+	AddLocationEndpoint      goa.Endpoint
 	ShowLocationEndpoint     goa.Endpoint
 	LocationPackagesEndpoint goa.Endpoint
 }
 
 // NewClient initializes a "storage" service client given the endpoints.
-func NewClient(submit, create, update, download, locations, addLocation, move, moveStatus, reject, show, showLocation, locationPackages goa.Endpoint) *Client {
+func NewClient(create, submit, update, download, move, moveStatus, reject, show, locations, addLocation, showLocation, locationPackages goa.Endpoint) *Client {
 	return &Client{
-		SubmitEndpoint:           submit,
 		CreateEndpoint:           create,
+		SubmitEndpoint:           submit,
 		UpdateEndpoint:           update,
 		DownloadEndpoint:         download,
-		LocationsEndpoint:        locations,
-		AddLocationEndpoint:      addLocation,
 		MoveEndpoint:             move,
 		MoveStatusEndpoint:       moveStatus,
 		RejectEndpoint:           reject,
 		ShowEndpoint:             show,
+		LocationsEndpoint:        locations,
+		AddLocationEndpoint:      addLocation,
 		ShowLocationEndpoint:     showLocation,
 		LocationPackagesEndpoint: locationPackages,
 	}
-}
-
-// Submit calls the "submit" endpoint of the "storage" service.
-// Submit may return the following errors:
-//   - "not_found" (type *PackageNotFound): Storage package not found
-//   - "not_available" (type *goa.ServiceError)
-//   - "not_valid" (type *goa.ServiceError)
-//   - "unauthorized" (type Unauthorized)
-//   - error: internal error
-func (c *Client) Submit(ctx context.Context, p *SubmitPayload) (res *SubmitResult, err error) {
-	var ires any
-	ires, err = c.SubmitEndpoint(ctx, p)
-	if err != nil {
-		return
-	}
-	return ires.(*SubmitResult), nil
 }
 
 // Create calls the "create" endpoint of the "storage" service.
 // Create may return the following errors:
 //   - "not_valid" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
+//   - "forbidden" (type Forbidden)
 //   - error: internal error
 func (c *Client) Create(ctx context.Context, p *CreatePayload) (res *Package, err error) {
 	var ires any
@@ -78,12 +63,30 @@ func (c *Client) Create(ctx context.Context, p *CreatePayload) (res *Package, er
 	return ires.(*Package), nil
 }
 
+// Submit calls the "submit" endpoint of the "storage" service.
+// Submit may return the following errors:
+//   - "not_found" (type *PackageNotFound): Storage package not found
+//   - "not_available" (type *goa.ServiceError)
+//   - "not_valid" (type *goa.ServiceError)
+//   - "unauthorized" (type Unauthorized)
+//   - "forbidden" (type Forbidden)
+//   - error: internal error
+func (c *Client) Submit(ctx context.Context, p *SubmitPayload) (res *SubmitResult, err error) {
+	var ires any
+	ires, err = c.SubmitEndpoint(ctx, p)
+	if err != nil {
+		return
+	}
+	return ires.(*SubmitResult), nil
+}
+
 // Update calls the "update" endpoint of the "storage" service.
 // Update may return the following errors:
 //   - "not_found" (type *PackageNotFound): Storage package not found
 //   - "not_available" (type *goa.ServiceError)
 //   - "not_valid" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
+//   - "forbidden" (type Forbidden)
 //   - error: internal error
 func (c *Client) Update(ctx context.Context, p *UpdatePayload) (err error) {
 	_, err = c.UpdateEndpoint(ctx, p)
@@ -94,6 +97,7 @@ func (c *Client) Update(ctx context.Context, p *UpdatePayload) (err error) {
 // Download may return the following errors:
 //   - "not_found" (type *PackageNotFound): Storage package not found
 //   - "unauthorized" (type Unauthorized)
+//   - "forbidden" (type Forbidden)
 //   - error: internal error
 func (c *Client) Download(ctx context.Context, p *DownloadPayload) (res []byte, err error) {
 	var ires any
@@ -104,39 +108,13 @@ func (c *Client) Download(ctx context.Context, p *DownloadPayload) (res []byte, 
 	return ires.([]byte), nil
 }
 
-// Locations calls the "locations" endpoint of the "storage" service.
-// Locations may return the following errors:
-//   - "unauthorized" (type Unauthorized)
-//   - error: internal error
-func (c *Client) Locations(ctx context.Context, p *LocationsPayload) (res LocationCollection, err error) {
-	var ires any
-	ires, err = c.LocationsEndpoint(ctx, p)
-	if err != nil {
-		return
-	}
-	return ires.(LocationCollection), nil
-}
-
-// AddLocation calls the "add_location" endpoint of the "storage" service.
-// AddLocation may return the following errors:
-//   - "not_valid" (type *goa.ServiceError)
-//   - "unauthorized" (type Unauthorized)
-//   - error: internal error
-func (c *Client) AddLocation(ctx context.Context, p *AddLocationPayload) (res *AddLocationResult, err error) {
-	var ires any
-	ires, err = c.AddLocationEndpoint(ctx, p)
-	if err != nil {
-		return
-	}
-	return ires.(*AddLocationResult), nil
-}
-
 // Move calls the "move" endpoint of the "storage" service.
 // Move may return the following errors:
 //   - "not_found" (type *PackageNotFound): Storage package not found
 //   - "not_available" (type *goa.ServiceError)
 //   - "not_valid" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
+//   - "forbidden" (type Forbidden)
 //   - error: internal error
 func (c *Client) Move(ctx context.Context, p *MovePayload) (err error) {
 	_, err = c.MoveEndpoint(ctx, p)
@@ -148,6 +126,7 @@ func (c *Client) Move(ctx context.Context, p *MovePayload) (err error) {
 //   - "not_found" (type *PackageNotFound): Storage package not found
 //   - "failed_dependency" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
+//   - "forbidden" (type Forbidden)
 //   - error: internal error
 func (c *Client) MoveStatus(ctx context.Context, p *MoveStatusPayload) (res *MoveStatusResult, err error) {
 	var ires any
@@ -164,6 +143,7 @@ func (c *Client) MoveStatus(ctx context.Context, p *MoveStatusPayload) (res *Mov
 //   - "not_available" (type *goa.ServiceError)
 //   - "not_valid" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
+//   - "forbidden" (type Forbidden)
 //   - error: internal error
 func (c *Client) Reject(ctx context.Context, p *RejectPayload) (err error) {
 	_, err = c.RejectEndpoint(ctx, p)
@@ -174,6 +154,7 @@ func (c *Client) Reject(ctx context.Context, p *RejectPayload) (err error) {
 // Show may return the following errors:
 //   - "not_found" (type *PackageNotFound): Storage package not found
 //   - "unauthorized" (type Unauthorized)
+//   - "forbidden" (type Forbidden)
 //   - error: internal error
 func (c *Client) Show(ctx context.Context, p *ShowPayload) (res *Package, err error) {
 	var ires any
@@ -184,10 +165,40 @@ func (c *Client) Show(ctx context.Context, p *ShowPayload) (res *Package, err er
 	return ires.(*Package), nil
 }
 
+// Locations calls the "locations" endpoint of the "storage" service.
+// Locations may return the following errors:
+//   - "unauthorized" (type Unauthorized)
+//   - "forbidden" (type Forbidden)
+//   - error: internal error
+func (c *Client) Locations(ctx context.Context, p *LocationsPayload) (res LocationCollection, err error) {
+	var ires any
+	ires, err = c.LocationsEndpoint(ctx, p)
+	if err != nil {
+		return
+	}
+	return ires.(LocationCollection), nil
+}
+
+// AddLocation calls the "add_location" endpoint of the "storage" service.
+// AddLocation may return the following errors:
+//   - "not_valid" (type *goa.ServiceError)
+//   - "unauthorized" (type Unauthorized)
+//   - "forbidden" (type Forbidden)
+//   - error: internal error
+func (c *Client) AddLocation(ctx context.Context, p *AddLocationPayload) (res *AddLocationResult, err error) {
+	var ires any
+	ires, err = c.AddLocationEndpoint(ctx, p)
+	if err != nil {
+		return
+	}
+	return ires.(*AddLocationResult), nil
+}
+
 // ShowLocation calls the "show_location" endpoint of the "storage" service.
 // ShowLocation may return the following errors:
 //   - "not_found" (type *LocationNotFound): Storage location not found
 //   - "unauthorized" (type Unauthorized)
+//   - "forbidden" (type Forbidden)
 //   - error: internal error
 func (c *Client) ShowLocation(ctx context.Context, p *ShowLocationPayload) (res *Location, err error) {
 	var ires any
@@ -204,6 +215,7 @@ func (c *Client) ShowLocation(ctx context.Context, p *ShowLocationPayload) (res 
 //   - "not_found" (type *LocationNotFound): Storage location not found
 //   - "not_valid" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
+//   - "forbidden" (type Forbidden)
 //   - error: internal error
 func (c *Client) LocationPackages(ctx context.Context, p *LocationPackagesPayload) (res PackageCollection, err error) {
 	var ires any

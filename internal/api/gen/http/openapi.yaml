@@ -15,7 +15,11 @@ paths:
             tags:
                 - package
             summary: list package
-            description: List all stored packages
+            description: |-
+                List all stored packages
+
+                **Required security scopes for jwt**:
+                  * `package:list`
             operationId: package#list
             parameters:
                 - name: name
@@ -77,6 +81,10 @@ paths:
                     description: Unauthorized response.
                     schema:
                         type: string
+                "403":
+                    description: Forbidden response.
+                    schema:
+                        type: string
             schemes:
                 - http
             security:
@@ -86,7 +94,11 @@ paths:
             tags:
                 - package
             summary: show package
-            description: Show package by ID
+            description: |-
+                Show package by ID
+
+                **Required security scopes for jwt**:
+                  * `package:read`
             operationId: package#show
             parameters:
                 - name: id
@@ -105,6 +117,10 @@ paths:
                         $ref: '#/definitions/PackageShowResponseBody'
                 "401":
                     description: Unauthorized response.
+                    schema:
+                        type: string
+                "403":
+                    description: Forbidden response.
                     schema:
                         type: string
                 "404":
@@ -127,7 +143,11 @@ paths:
             tags:
                 - package
             summary: confirm package
-            description: Signal the package has been reviewed and accepted
+            description: |-
+                Signal the package has been reviewed and accepted
+
+                **Required security scopes for jwt**:
+                  * `package:review`
             operationId: package#confirm
             parameters:
                 - name: id
@@ -157,6 +177,10 @@ paths:
                     description: Unauthorized response.
                     schema:
                         type: string
+                "403":
+                    description: Forbidden response.
+                    schema:
+                        type: string
                 "404":
                     description: Not Found response.
                     schema:
@@ -177,7 +201,11 @@ paths:
             tags:
                 - package
             summary: move_status package
-            description: Retrieve the status of a permanent storage location move of the package
+            description: |-
+                Retrieve the status of a permanent storage location move of the package
+
+                **Required security scopes for jwt**:
+                  * `package:move`
             operationId: package#move_status
             parameters:
                 - name: id
@@ -200,6 +228,10 @@ paths:
                     description: Unauthorized response.
                     schema:
                         type: string
+                "403":
+                    description: Forbidden response.
+                    schema:
+                        type: string
                 "404":
                     description: Not Found response.
                     schema:
@@ -219,7 +251,11 @@ paths:
             tags:
                 - package
             summary: move package
-            description: Move a package to a permanent storage location
+            description: |-
+                Move a package to a permanent storage location
+
+                **Required security scopes for jwt**:
+                  * `package:move`
             operationId: package#move
             parameters:
                 - name: id
@@ -249,6 +285,10 @@ paths:
                     description: Unauthorized response.
                     schema:
                         type: string
+                "403":
+                    description: Forbidden response.
+                    schema:
+                        type: string
                 "404":
                     description: Not Found response.
                     schema:
@@ -269,7 +309,11 @@ paths:
             tags:
                 - package
             summary: preservation_actions package
-            description: List all preservation actions by ID
+            description: |-
+                List all preservation actions by ID
+
+                **Required security scopes for jwt**:
+                  * `package:listActions`
             operationId: package#preservation_actions
             parameters:
                 - name: id
@@ -290,6 +334,10 @@ paths:
                     description: Unauthorized response.
                     schema:
                         type: string
+                "403":
+                    description: Forbidden response.
+                    schema:
+                        type: string
                 "404":
                     description: Not Found response.
                     schema:
@@ -306,7 +354,11 @@ paths:
             tags:
                 - package
             summary: reject package
-            description: Signal the package has been reviewed and rejected
+            description: |-
+                Signal the package has been reviewed and rejected
+
+                **Required security scopes for jwt**:
+                  * `package:review`
             operationId: package#reject
             parameters:
                 - name: id
@@ -329,6 +381,10 @@ paths:
                     description: Unauthorized response.
                     schema:
                         type: string
+                "403":
+                    description: Forbidden response.
+                    schema:
+                        type: string
                 "404":
                     description: Not Found response.
                     schema:
@@ -349,6 +405,7 @@ paths:
             tags:
                 - package
             summary: monitor package
+            description: Obtain access to the /monitor WebSocket
             operationId: package#monitor
             responses:
                 "101":
@@ -357,6 +414,10 @@ paths:
                         $ref: '#/definitions/PackageMonitorResponseBody'
                 "401":
                     description: Unauthorized response.
+                    schema:
+                        type: string
+                "403":
+                    description: Forbidden response.
                     schema:
                         type: string
                 "500":
@@ -369,7 +430,16 @@ paths:
             tags:
                 - package
             summary: monitor_request package
-            description: Request access to the /monitor WebSocket.
+            description: |-
+                Request access to the /monitor WebSocket
+
+                **Required security scopes for jwt**:
+                  * `package:list`
+                  * `package:listActions`
+                  * `package:move`
+                  * `package:read`
+                  * `package:review`
+                  * `package:upload`
             operationId: package#monitor_request
             parameters:
                 - name: Authorization
@@ -381,6 +451,10 @@ paths:
                     description: OK response.
                 "401":
                     description: Unauthorized response.
+                    schema:
+                        type: string
+                "403":
+                    description: Forbidden response.
                     schema:
                         type: string
                 "500":
@@ -396,7 +470,11 @@ paths:
             tags:
                 - storage
             summary: locations storage
-            description: List locations
+            description: |-
+                List locations
+
+                **Required security scopes for jwt**:
+                  * `storage:location:list`
             operationId: storage#locations
             parameters:
                 - name: Authorization
@@ -412,6 +490,10 @@ paths:
                     description: Unauthorized response.
                     schema:
                         type: string
+                "403":
+                    description: Forbidden response.
+                    schema:
+                        type: string
             schemes:
                 - http
             security:
@@ -420,7 +502,11 @@ paths:
             tags:
                 - storage
             summary: add_location storage
-            description: Add a storage location
+            description: |-
+                Create a storage location
+
+                **Required security scopes for jwt**:
+                  * `storage:location:create`
             operationId: storage#add_location
             parameters:
                 - name: Authorization
@@ -451,6 +537,10 @@ paths:
                     description: Unauthorized response.
                     schema:
                         type: string
+                "403":
+                    description: Forbidden response.
+                    schema:
+                        type: string
             schemes:
                 - http
             security:
@@ -460,7 +550,11 @@ paths:
             tags:
                 - storage
             summary: show_location storage
-            description: Show location by UUID
+            description: |-
+                Show location by UUID
+
+                **Required security scopes for jwt**:
+                  * `storage:location:read`
             operationId: storage#show_location
             parameters:
                 - name: uuid
@@ -482,6 +576,10 @@ paths:
                     description: Unauthorized response.
                     schema:
                         type: string
+                "403":
+                    description: Forbidden response.
+                    schema:
+                        type: string
                 "404":
                     description: Not Found response.
                     schema:
@@ -498,7 +596,11 @@ paths:
             tags:
                 - storage
             summary: location_packages storage
-            description: List all the packages stored in the location with UUID
+            description: |-
+                List all the packages stored in the location with UUID
+
+                **Required security scopes for jwt**:
+                  * `storage:location:listPackages`
             operationId: storage#location_packages
             parameters:
                 - name: uuid
@@ -524,6 +626,10 @@ paths:
                     description: Unauthorized response.
                     schema:
                         type: string
+                "403":
+                    description: Forbidden response.
+                    schema:
+                        type: string
                 "404":
                     description: Not Found response.
                     schema:
@@ -540,7 +646,11 @@ paths:
             tags:
                 - storage
             summary: create storage
-            description: Create a new package
+            description: |-
+                Create a new package
+
+                **Required security scopes for jwt**:
+                  * `storage:package:create`
             operationId: storage#create
             parameters:
                 - name: Authorization
@@ -569,6 +679,10 @@ paths:
                     description: Unauthorized response.
                     schema:
                         type: string
+                "403":
+                    description: Forbidden response.
+                    schema:
+                        type: string
             schemes:
                 - http
             security:
@@ -578,7 +692,11 @@ paths:
             tags:
                 - storage
             summary: show storage
-            description: Show package by AIPID
+            description: |-
+                Show package by AIPID
+
+                **Required security scopes for jwt**:
+                  * `storage:package:read`
             operationId: storage#show
             parameters:
                 - name: aip_id
@@ -600,6 +718,10 @@ paths:
                     description: Unauthorized response.
                     schema:
                         type: string
+                "403":
+                    description: Forbidden response.
+                    schema:
+                        type: string
                 "404":
                     description: Not Found response.
                     schema:
@@ -616,7 +738,11 @@ paths:
             tags:
                 - storage
             summary: download storage
-            description: Download package by AIPID
+            description: |-
+                Download package by AIPID
+
+                **Required security scopes for jwt**:
+                  * `storage:package:download`
             operationId: storage#download
             parameters:
                 - name: aip_id
@@ -639,6 +765,10 @@ paths:
                     description: Unauthorized response.
                     schema:
                         type: string
+                "403":
+                    description: Forbidden response.
+                    schema:
+                        type: string
                 "404":
                     description: Not Found response.
                     schema:
@@ -655,7 +785,11 @@ paths:
             tags:
                 - storage
             summary: reject storage
-            description: Reject a package
+            description: |-
+                Reject a package
+
+                **Required security scopes for jwt**:
+                  * `storage:package:review`
             operationId: storage#reject
             parameters:
                 - name: aip_id
@@ -679,6 +813,10 @@ paths:
                     description: Unauthorized response.
                     schema:
                         type: string
+                "403":
+                    description: Forbidden response.
+                    schema:
+                        type: string
                 "404":
                     description: Not Found response.
                     schema:
@@ -699,7 +837,11 @@ paths:
             tags:
                 - storage
             summary: move_status storage
-            description: Retrieve the status of a permanent storage location move of the package
+            description: |-
+                Retrieve the status of a permanent storage location move of the package
+
+                **Required security scopes for jwt**:
+                  * `storage:package:move`
             operationId: storage#move_status
             parameters:
                 - name: aip_id
@@ -723,6 +865,10 @@ paths:
                     description: Unauthorized response.
                     schema:
                         type: string
+                "403":
+                    description: Forbidden response.
+                    schema:
+                        type: string
                 "404":
                     description: Not Found response.
                     schema:
@@ -742,7 +888,11 @@ paths:
             tags:
                 - storage
             summary: move storage
-            description: Move a package to a permanent storage location
+            description: |-
+                Move a package to a permanent storage location
+
+                **Required security scopes for jwt**:
+                  * `storage:package:move`
             operationId: storage#move
             parameters:
                 - name: aip_id
@@ -773,6 +923,10 @@ paths:
                     description: Unauthorized response.
                     schema:
                         type: string
+                "403":
+                    description: Forbidden response.
+                    schema:
+                        type: string
                 "404":
                     description: Not Found response.
                     schema:
@@ -793,7 +947,11 @@ paths:
             tags:
                 - storage
             summary: submit storage
-            description: Start the submission of a package
+            description: |-
+                Start the submission of a package
+
+                **Required security scopes for jwt**:
+                  * `storage:package:submit`
             operationId: storage#submit
             parameters:
                 - name: aip_id
@@ -828,6 +986,10 @@ paths:
                     description: Unauthorized response.
                     schema:
                         type: string
+                "403":
+                    description: Forbidden response.
+                    schema:
+                        type: string
                 "409":
                     description: Conflict response.
                     schema:
@@ -841,7 +1003,11 @@ paths:
             tags:
                 - storage
             summary: update storage
-            description: Signal the storage service that an upload is complete
+            description: |-
+                Signal that a package submission is complete
+
+                **Required security scopes for jwt**:
+                  * `storage:package:submit`
             operationId: storage#update
             parameters:
                 - name: aip_id
@@ -863,6 +1029,10 @@ paths:
                         $ref: '#/definitions/StorageUpdateNotValidResponseBody'
                 "401":
                     description: Unauthorized response.
+                    schema:
+                        type: string
+                "403":
+                    description: Forbidden response.
                     schema:
                         type: string
                 "409":
@@ -892,6 +1062,11 @@ paths:
             tags:
                 - upload
             summary: upload upload
+            description: |-
+                Upload a package to trigger an ingest workflow
+
+                **Required security scopes for jwt**:
+                  * `package:upload`
             operationId: upload#upload
             parameters:
                 - name: Content-Type
@@ -914,6 +1089,10 @@ paths:
                         $ref: '#/definitions/UploadUploadInvalidMultipartRequestResponseBody'
                 "401":
                     description: Unauthorized response.
+                    schema:
+                        type: string
+                "403":
+                    description: Forbidden response.
                     schema:
                         type: string
                 "500":
@@ -3146,6 +3325,25 @@ definitions:
 securityDefinitions:
     jwt_header_Authorization:
         type: apiKey
-        description: Secures endpoint by requiring a valid JWT token.
+        description: |-
+            Secures endpoint by requiring a valid JWT token.
+
+            **Security Scopes**:
+              * `package:list`: no description
+              * `package:listActions`: no description
+              * `package:move`: no description
+              * `package:read`: no description
+              * `package:review`: no description
+              * `package:upload`: no description
+              * `storage:location:create`: no description
+              * `storage:location:list`: no description
+              * `storage:location:listPackages`: no description
+              * `storage:location:read`: no description
+              * `storage:package:create`: no description
+              * `storage:package:download`: no description
+              * `storage:package:move`: no description
+              * `storage:package:read`: no description
+              * `storage:package:review`: no description
+              * `storage:package:submit`: no description
         name: Authorization
         in: header

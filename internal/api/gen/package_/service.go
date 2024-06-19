@@ -19,9 +19,9 @@ import (
 
 // The package service manages packages being transferred to a3m.
 type Service interface {
-	// Request access to the /monitor WebSocket.
+	// Request access to the /monitor WebSocket
 	MonitorRequest(context.Context, *MonitorRequestPayload) (res *MonitorRequestResult, err error)
-	// Monitor implements monitor.
+	// Obtain access to the /monitor WebSocket
 	Monitor(context.Context, *MonitorPayload, MonitorServerStream) (err error)
 	// List all stored packages
 	List(context.Context, *ListPayload) (res *ListResult, err error)
@@ -297,7 +297,10 @@ type ShowPayload struct {
 	Token *string
 }
 
-// Invalid token
+// Forbidden
+type Forbidden string
+
+// Unauthorized
 type Unauthorized string
 
 // Error returns an error description.
@@ -318,8 +321,25 @@ func (e *PackageNotFound) GoaErrorName() string {
 }
 
 // Error returns an error description.
+func (e Forbidden) Error() string {
+	return "Forbidden"
+}
+
+// ErrorName returns "forbidden".
+//
+// Deprecated: Use GoaErrorName - https://github.com/goadesign/goa/issues/3105
+func (e Forbidden) ErrorName() string {
+	return e.GoaErrorName()
+}
+
+// GoaErrorName returns "forbidden".
+func (e Forbidden) GoaErrorName() string {
+	return "forbidden"
+}
+
+// Error returns an error description.
 func (e Unauthorized) Error() string {
-	return "Invalid token"
+	return "Unauthorized"
 }
 
 // ErrorName returns "unauthorized".

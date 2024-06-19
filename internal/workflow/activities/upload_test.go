@@ -140,16 +140,16 @@ func TestUploadActivity(t *testing.T) {
 
 		endpoints := goastorage.NewEndpoints(fakeStorageService)
 		storageClient := goastorage.NewClient(
-			endpoints.Submit,
 			endpoints.Create,
+			endpoints.Submit,
 			endpoints.Update,
 			endpoints.Download,
-			endpoints.Locations,
-			endpoints.AddLocation,
 			endpoints.Move,
 			endpoints.MoveStatus,
 			endpoints.Reject,
 			endpoints.Show,
+			endpoints.Locations,
+			endpoints.AddLocation,
 			endpoints.ShowLocation,
 			endpoints.LocationPackages,
 		)
@@ -186,16 +186,16 @@ func TestUploadActivity(t *testing.T) {
 
 		endpoints := goastorage.NewEndpoints(fakeStorageService)
 		storageClient := goastorage.NewClient(
-			endpoints.Submit,
 			endpoints.Create,
+			endpoints.Submit,
 			endpoints.Update,
 			endpoints.Download,
-			endpoints.Locations,
-			endpoints.AddLocation,
 			endpoints.Move,
 			endpoints.MoveStatus,
 			endpoints.Reject,
 			endpoints.Show,
+			endpoints.Locations,
+			endpoints.AddLocation,
 			endpoints.ShowLocation,
 			endpoints.LocationPackages,
 		)

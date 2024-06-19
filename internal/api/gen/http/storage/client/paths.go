@@ -12,14 +12,14 @@ import (
 	"fmt"
 )
 
-// SubmitStoragePath returns the URL path to the storage service submit HTTP endpoint.
-func SubmitStoragePath(aipID string) string {
-	return fmt.Sprintf("/storage/package/%v/submit", aipID)
-}
-
 // CreateStoragePath returns the URL path to the storage service create HTTP endpoint.
 func CreateStoragePath() string {
 	return "/storage/package"
+}
+
+// SubmitStoragePath returns the URL path to the storage service submit HTTP endpoint.
+func SubmitStoragePath(aipID string) string {
+	return fmt.Sprintf("/storage/package/%v/submit", aipID)
 }
 
 // UpdateStoragePath returns the URL path to the storage service update HTTP endpoint.
@@ -30,16 +30,6 @@ func UpdateStoragePath(aipID string) string {
 // DownloadStoragePath returns the URL path to the storage service download HTTP endpoint.
 func DownloadStoragePath(aipID string) string {
 	return fmt.Sprintf("/storage/package/%v/download", aipID)
-}
-
-// LocationsStoragePath returns the URL path to the storage service locations HTTP endpoint.
-func LocationsStoragePath() string {
-	return "/storage/location"
-}
-
-// AddLocationStoragePath returns the URL path to the storage service add_location HTTP endpoint.
-func AddLocationStoragePath() string {
-	return "/storage/location"
 }
 
 // MoveStoragePath returns the URL path to the storage service move HTTP endpoint.
@@ -60,6 +50,16 @@ func RejectStoragePath(aipID string) string {
 // ShowStoragePath returns the URL path to the storage service show HTTP endpoint.
 func ShowStoragePath(aipID string) string {
 	return fmt.Sprintf("/storage/package/%v", aipID)
+}
+
+// LocationsStoragePath returns the URL path to the storage service locations HTTP endpoint.
+func LocationsStoragePath() string {
+	return "/storage/location"
+}
+
+// AddLocationStoragePath returns the URL path to the storage service add_location HTTP endpoint.
+func AddLocationStoragePath() string {
+	return "/storage/location"
 }
 
 // ShowLocationStoragePath returns the URL path to the storage service show_location HTTP endpoint.

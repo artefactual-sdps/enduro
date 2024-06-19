@@ -26,7 +26,7 @@ import (
 //	command (subcommand1|subcommand2|...)
 func UsageCommands() string {
 	return `package (monitor-request|monitor|list|show|preservation-actions|confirm|reject|move|move-status)
-storage (submit|create|update|download|locations|add-location|move|move-status|reject|show|show-location|location-packages)
+storage (create|submit|update|download|move|move-status|reject|show|locations|add-location|show-location|location-packages)
 upload upload
 `
 }
@@ -34,9 +34,13 @@ upload upload
 // UsageExamples produces an example of a valid invocation of the CLI tool.
 func UsageExamples() string {
 	return os.Args[0] + ` package monitor-request --token "abc123"` + "\n" +
-		os.Args[0] + ` storage submit --body '{
-      "name": "abc123"
-   }' --aip-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --token "abc123"` + "\n" +
+		os.Args[0] + ` storage create --body '{
+      "aip_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+      "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+      "name": "abc123",
+      "object_key": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+      "status": "in_review"
+   }' --token "abc123"` + "\n" +
 		os.Args[0] + ` upload upload --content-type "multipart/form-data; boundary=goa" --token "abc123" --stream "goa.png"` + "\n" +
 		""
 }
@@ -99,14 +103,14 @@ func ParseEndpoint(
 
 		storageFlags = flag.NewFlagSet("storage", flag.ContinueOnError)
 
+		storageCreateFlags     = flag.NewFlagSet("create", flag.ExitOnError)
+		storageCreateBodyFlag  = storageCreateFlags.String("body", "REQUIRED", "")
+		storageCreateTokenFlag = storageCreateFlags.String("token", "", "")
+
 		storageSubmitFlags     = flag.NewFlagSet("submit", flag.ExitOnError)
 		storageSubmitBodyFlag  = storageSubmitFlags.String("body", "REQUIRED", "")
 		storageSubmitAipIDFlag = storageSubmitFlags.String("aip-id", "REQUIRED", "Identifier of AIP")
 		storageSubmitTokenFlag = storageSubmitFlags.String("token", "", "")
-
-		storageCreateFlags     = flag.NewFlagSet("create", flag.ExitOnError)
-		storageCreateBodyFlag  = storageCreateFlags.String("body", "REQUIRED", "")
-		storageCreateTokenFlag = storageCreateFlags.String("token", "", "")
 
 		storageUpdateFlags     = flag.NewFlagSet("update", flag.ExitOnError)
 		storageUpdateAipIDFlag = storageUpdateFlags.String("aip-id", "REQUIRED", "Identifier of AIP")
@@ -115,13 +119,6 @@ func ParseEndpoint(
 		storageDownloadFlags     = flag.NewFlagSet("download", flag.ExitOnError)
 		storageDownloadAipIDFlag = storageDownloadFlags.String("aip-id", "REQUIRED", "Identifier of AIP")
 		storageDownloadTokenFlag = storageDownloadFlags.String("token", "", "")
-
-		storageLocationsFlags     = flag.NewFlagSet("locations", flag.ExitOnError)
-		storageLocationsTokenFlag = storageLocationsFlags.String("token", "", "")
-
-		storageAddLocationFlags     = flag.NewFlagSet("add-location", flag.ExitOnError)
-		storageAddLocationBodyFlag  = storageAddLocationFlags.String("body", "REQUIRED", "")
-		storageAddLocationTokenFlag = storageAddLocationFlags.String("token", "", "")
 
 		storageMoveFlags     = flag.NewFlagSet("move", flag.ExitOnError)
 		storageMoveBodyFlag  = storageMoveFlags.String("body", "REQUIRED", "")
@@ -139,6 +136,13 @@ func ParseEndpoint(
 		storageShowFlags     = flag.NewFlagSet("show", flag.ExitOnError)
 		storageShowAipIDFlag = storageShowFlags.String("aip-id", "REQUIRED", "Identifier of AIP")
 		storageShowTokenFlag = storageShowFlags.String("token", "", "")
+
+		storageLocationsFlags     = flag.NewFlagSet("locations", flag.ExitOnError)
+		storageLocationsTokenFlag = storageLocationsFlags.String("token", "", "")
+
+		storageAddLocationFlags     = flag.NewFlagSet("add-location", flag.ExitOnError)
+		storageAddLocationBodyFlag  = storageAddLocationFlags.String("body", "REQUIRED", "")
+		storageAddLocationTokenFlag = storageAddLocationFlags.String("token", "", "")
 
 		storageShowLocationFlags     = flag.NewFlagSet("show-location", flag.ExitOnError)
 		storageShowLocationUUIDFlag  = storageShowLocationFlags.String("uuid", "REQUIRED", "Identifier of location")
@@ -167,16 +171,16 @@ func ParseEndpoint(
 	package_MoveStatusFlags.Usage = package_MoveStatusUsage
 
 	storageFlags.Usage = storageUsage
-	storageSubmitFlags.Usage = storageSubmitUsage
 	storageCreateFlags.Usage = storageCreateUsage
+	storageSubmitFlags.Usage = storageSubmitUsage
 	storageUpdateFlags.Usage = storageUpdateUsage
 	storageDownloadFlags.Usage = storageDownloadUsage
-	storageLocationsFlags.Usage = storageLocationsUsage
-	storageAddLocationFlags.Usage = storageAddLocationUsage
 	storageMoveFlags.Usage = storageMoveUsage
 	storageMoveStatusFlags.Usage = storageMoveStatusUsage
 	storageRejectFlags.Usage = storageRejectUsage
 	storageShowFlags.Usage = storageShowUsage
+	storageLocationsFlags.Usage = storageLocationsUsage
+	storageAddLocationFlags.Usage = storageAddLocationUsage
 	storageShowLocationFlags.Usage = storageShowLocationUsage
 	storageLocationPackagesFlags.Usage = storageLocationPackagesUsage
 
@@ -252,23 +256,17 @@ func ParseEndpoint(
 
 		case "storage":
 			switch epn {
-			case "submit":
-				epf = storageSubmitFlags
-
 			case "create":
 				epf = storageCreateFlags
+
+			case "submit":
+				epf = storageSubmitFlags
 
 			case "update":
 				epf = storageUpdateFlags
 
 			case "download":
 				epf = storageDownloadFlags
-
-			case "locations":
-				epf = storageLocationsFlags
-
-			case "add-location":
-				epf = storageAddLocationFlags
 
 			case "move":
 				epf = storageMoveFlags
@@ -281,6 +279,12 @@ func ParseEndpoint(
 
 			case "show":
 				epf = storageShowFlags
+
+			case "locations":
+				epf = storageLocationsFlags
+
+			case "add-location":
+				epf = storageAddLocationFlags
 
 			case "show-location":
 				epf = storageShowLocationFlags
@@ -351,24 +355,18 @@ func ParseEndpoint(
 		case "storage":
 			c := storagec.NewClient(scheme, host, doer, enc, dec, restore)
 			switch epn {
-			case "submit":
-				endpoint = c.Submit()
-				data, err = storagec.BuildSubmitPayload(*storageSubmitBodyFlag, *storageSubmitAipIDFlag, *storageSubmitTokenFlag)
 			case "create":
 				endpoint = c.Create()
 				data, err = storagec.BuildCreatePayload(*storageCreateBodyFlag, *storageCreateTokenFlag)
+			case "submit":
+				endpoint = c.Submit()
+				data, err = storagec.BuildSubmitPayload(*storageSubmitBodyFlag, *storageSubmitAipIDFlag, *storageSubmitTokenFlag)
 			case "update":
 				endpoint = c.Update()
 				data, err = storagec.BuildUpdatePayload(*storageUpdateAipIDFlag, *storageUpdateTokenFlag)
 			case "download":
 				endpoint = c.Download()
 				data, err = storagec.BuildDownloadPayload(*storageDownloadAipIDFlag, *storageDownloadTokenFlag)
-			case "locations":
-				endpoint = c.Locations()
-				data, err = storagec.BuildLocationsPayload(*storageLocationsTokenFlag)
-			case "add-location":
-				endpoint = c.AddLocation()
-				data, err = storagec.BuildAddLocationPayload(*storageAddLocationBodyFlag, *storageAddLocationTokenFlag)
 			case "move":
 				endpoint = c.Move()
 				data, err = storagec.BuildMovePayload(*storageMoveBodyFlag, *storageMoveAipIDFlag, *storageMoveTokenFlag)
@@ -381,6 +379,12 @@ func ParseEndpoint(
 			case "show":
 				endpoint = c.Show()
 				data, err = storagec.BuildShowPayload(*storageShowAipIDFlag, *storageShowTokenFlag)
+			case "locations":
+				endpoint = c.Locations()
+				data, err = storagec.BuildLocationsPayload(*storageLocationsTokenFlag)
+			case "add-location":
+				endpoint = c.AddLocation()
+				data, err = storagec.BuildAddLocationPayload(*storageAddLocationBodyFlag, *storageAddLocationTokenFlag)
 			case "show-location":
 				endpoint = c.ShowLocation()
 				data, err = storagec.BuildShowLocationPayload(*storageShowLocationUUIDFlag, *storageShowLocationTokenFlag)
@@ -414,8 +418,8 @@ Usage:
     %[1]s [globalflags] package COMMAND [flags]
 
 COMMAND:
-    monitor-request: Request access to the /monitor WebSocket.
-    monitor: Monitor implements monitor.
+    monitor-request: Request access to the /monitor WebSocket
+    monitor: Obtain access to the /monitor WebSocket
     list: List all stored packages
     show: Show package by ID
     preservation-actions: List all preservation actions by ID
@@ -431,7 +435,7 @@ Additional help:
 func package_MonitorRequestUsage() {
 	fmt.Fprintf(os.Stderr, `%[1]s [flags] package monitor-request -token STRING
 
-Request access to the /monitor WebSocket.
+Request access to the /monitor WebSocket
     -token STRING: 
 
 Example:
@@ -442,7 +446,7 @@ Example:
 func package_MonitorUsage() {
 	fmt.Fprintf(os.Stderr, `%[1]s [flags] package monitor -ticket STRING
 
-Monitor implements monitor.
+Obtain access to the /monitor WebSocket
     -ticket STRING: 
 
 Example:
@@ -553,16 +557,16 @@ Usage:
     %[1]s [globalflags] storage COMMAND [flags]
 
 COMMAND:
-    submit: Start the submission of a package
     create: Create a new package
-    update: Signal the storage service that an upload is complete
+    submit: Start the submission of a package
+    update: Signal that a package submission is complete
     download: Download package by AIPID
-    locations: List locations
-    add-location: Add a storage location
     move: Move a package to a permanent storage location
     move-status: Retrieve the status of a permanent storage location move of the package
     reject: Reject a package
     show: Show package by AIPID
+    locations: List locations
+    add-location: Create a storage location
     show-location: Show location by UUID
     location-packages: List all the packages stored in the location with UUID
 
@@ -570,21 +574,6 @@ Additional help:
     %[1]s storage COMMAND --help
 `, os.Args[0])
 }
-func storageSubmitUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage submit -body JSON -aip-id STRING -token STRING
-
-Start the submission of a package
-    -body JSON: 
-    -aip-id STRING: Identifier of AIP
-    -token STRING: 
-
-Example:
-    %[1]s storage submit --body '{
-      "name": "abc123"
-   }' --aip-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --token "abc123"
-`, os.Args[0])
-}
-
 func storageCreateUsage() {
 	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage create -body JSON -token STRING
 
@@ -603,10 +592,25 @@ Example:
 `, os.Args[0])
 }
 
+func storageSubmitUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage submit -body JSON -aip-id STRING -token STRING
+
+Start the submission of a package
+    -body JSON: 
+    -aip-id STRING: Identifier of AIP
+    -token STRING: 
+
+Example:
+    %[1]s storage submit --body '{
+      "name": "abc123"
+   }' --aip-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --token "abc123"
+`, os.Args[0])
+}
+
 func storageUpdateUsage() {
 	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage update -aip-id STRING -token STRING
 
-Signal the storage service that an upload is complete
+Signal that a package submission is complete
     -aip-id STRING: Identifier of AIP
     -token STRING: 
 
@@ -624,38 +628,6 @@ Download package by AIPID
 
 Example:
     %[1]s storage download --aip-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --token "abc123"
-`, os.Args[0])
-}
-
-func storageLocationsUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage locations -token STRING
-
-List locations
-    -token STRING: 
-
-Example:
-    %[1]s storage locations --token "abc123"
-`, os.Args[0])
-}
-
-func storageAddLocationUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage add-location -body JSON -token STRING
-
-Add a storage location
-    -body JSON: 
-    -token STRING: 
-
-Example:
-    %[1]s storage add-location --body '{
-      "config": {
-         "Type": "s3",
-         "Value": "{\"bucket\":\"abc123\",\"endpoint\":\"abc123\",\"key\":\"abc123\",\"path_style\":false,\"profile\":\"abc123\",\"region\":\"abc123\",\"secret\":\"abc123\",\"token\":\"abc123\"}"
-      },
-      "description": "abc123",
-      "name": "abc123",
-      "purpose": "aip_store",
-      "source": "minio"
-   }' --token "abc123"
 `, os.Args[0])
 }
 
@@ -710,6 +682,38 @@ Example:
 `, os.Args[0])
 }
 
+func storageLocationsUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage locations -token STRING
+
+List locations
+    -token STRING: 
+
+Example:
+    %[1]s storage locations --token "abc123"
+`, os.Args[0])
+}
+
+func storageAddLocationUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage add-location -body JSON -token STRING
+
+Create a storage location
+    -body JSON: 
+    -token STRING: 
+
+Example:
+    %[1]s storage add-location --body '{
+      "config": {
+         "Type": "s3",
+         "Value": "{\"bucket\":\"abc123\",\"endpoint\":\"abc123\",\"key\":\"abc123\",\"path_style\":false,\"profile\":\"abc123\",\"region\":\"abc123\",\"secret\":\"abc123\",\"token\":\"abc123\"}"
+      },
+      "description": "abc123",
+      "name": "abc123",
+      "purpose": "aip_store",
+      "source": "minio"
+   }' --token "abc123"
+`, os.Args[0])
+}
+
 func storageShowLocationUsage() {
 	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage show-location -uuid STRING -token STRING
 
@@ -741,7 +745,7 @@ Usage:
     %[1]s [globalflags] upload COMMAND [flags]
 
 COMMAND:
-    upload: Upload implements upload.
+    upload: Upload a package to trigger an ingest workflow
 
 Additional help:
     %[1]s upload COMMAND --help
@@ -750,7 +754,7 @@ Additional help:
 func uploadUploadUsage() {
 	fmt.Fprintf(os.Stderr, `%[1]s [flags] upload upload -content-type STRING -token STRING -stream STRING
 
-Upload implements upload.
+Upload a package to trigger an ingest workflow
     -content-type STRING: 
     -token STRING: 
     -stream STRING: path to file containing the streamed request body

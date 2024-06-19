@@ -6,12 +6,18 @@ import (
 
 var _ = Service("upload", func() {
 	Description("The upload service handles file submissions to the SIPs bucket.")
-	Error("unauthorized", String, "Invalid token")
+	Error("unauthorized", String, "Unauthorized")
+	Error("forbidden", String, "Forbidden")
 	HTTP(func() {
 		Path("/upload")
 		Response("unauthorized", StatusUnauthorized)
+		Response("forbidden", StatusForbidden)
 	})
 	Method("upload", func() {
+		Description("Upload a package to trigger an ingest workflow")
+		Security(JWTAuth, func() {
+			Scope("package:upload")
+		})
 		Payload(func() {
 			Attribute("content_type", String, "Content-Type header, must define value for multipart boundary.", func() {
 				Default("multipart/form-data; boundary=goa")

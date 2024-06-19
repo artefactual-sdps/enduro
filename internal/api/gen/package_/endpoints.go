@@ -75,8 +75,8 @@ func NewMonitorRequestEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.En
 		var err error
 		sc := security.JWTScheme{
 			Name:           "jwt",
-			Scopes:         []string{},
-			RequiredScopes: []string{},
+			Scopes:         []string{"package:list", "package:listActions", "package:move", "package:read", "package:review", "package:upload", "storage:location:create", "storage:location:list", "storage:location:listPackages", "storage:location:read", "storage:package:create", "storage:package:download", "storage:package:move", "storage:package:read", "storage:package:review", "storage:package:submit"},
+			RequiredScopes: []string{"package:list", "package:listActions", "package:move", "package:read", "package:review", "package:upload"},
 		}
 		var token string
 		if p.Token != nil {
@@ -107,8 +107,8 @@ func NewListEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
 		var err error
 		sc := security.JWTScheme{
 			Name:           "jwt",
-			Scopes:         []string{},
-			RequiredScopes: []string{},
+			Scopes:         []string{"package:list", "package:listActions", "package:move", "package:read", "package:review", "package:upload", "storage:location:create", "storage:location:list", "storage:location:listPackages", "storage:location:read", "storage:package:create", "storage:package:download", "storage:package:move", "storage:package:read", "storage:package:review", "storage:package:submit"},
+			RequiredScopes: []string{"package:list"},
 		}
 		var token string
 		if p.Token != nil {
@@ -130,8 +130,8 @@ func NewShowEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
 		var err error
 		sc := security.JWTScheme{
 			Name:           "jwt",
-			Scopes:         []string{},
-			RequiredScopes: []string{},
+			Scopes:         []string{"package:list", "package:listActions", "package:move", "package:read", "package:review", "package:upload", "storage:location:create", "storage:location:list", "storage:location:listPackages", "storage:location:read", "storage:package:create", "storage:package:download", "storage:package:move", "storage:package:read", "storage:package:review", "storage:package:submit"},
+			RequiredScopes: []string{"package:read"},
 		}
 		var token string
 		if p.Token != nil {
@@ -158,8 +158,8 @@ func NewPreservationActionsEndpoint(s Service, authJWTFn security.AuthJWTFunc) g
 		var err error
 		sc := security.JWTScheme{
 			Name:           "jwt",
-			Scopes:         []string{},
-			RequiredScopes: []string{},
+			Scopes:         []string{"package:list", "package:listActions", "package:move", "package:read", "package:review", "package:upload", "storage:location:create", "storage:location:list", "storage:location:listPackages", "storage:location:read", "storage:package:create", "storage:package:download", "storage:package:move", "storage:package:read", "storage:package:review", "storage:package:submit"},
+			RequiredScopes: []string{"package:listActions"},
 		}
 		var token string
 		if p.Token != nil {
@@ -186,8 +186,8 @@ func NewConfirmEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint 
 		var err error
 		sc := security.JWTScheme{
 			Name:           "jwt",
-			Scopes:         []string{},
-			RequiredScopes: []string{},
+			Scopes:         []string{"package:list", "package:listActions", "package:move", "package:read", "package:review", "package:upload", "storage:location:create", "storage:location:list", "storage:location:listPackages", "storage:location:read", "storage:package:create", "storage:package:download", "storage:package:move", "storage:package:read", "storage:package:review", "storage:package:submit"},
+			RequiredScopes: []string{"package:review"},
 		}
 		var token string
 		if p.Token != nil {
@@ -209,8 +209,8 @@ func NewRejectEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
 		var err error
 		sc := security.JWTScheme{
 			Name:           "jwt",
-			Scopes:         []string{},
-			RequiredScopes: []string{},
+			Scopes:         []string{"package:list", "package:listActions", "package:move", "package:read", "package:review", "package:upload", "storage:location:create", "storage:location:list", "storage:location:listPackages", "storage:location:read", "storage:package:create", "storage:package:download", "storage:package:move", "storage:package:read", "storage:package:review", "storage:package:submit"},
+			RequiredScopes: []string{"package:review"},
 		}
 		var token string
 		if p.Token != nil {
@@ -232,8 +232,8 @@ func NewMoveEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
 		var err error
 		sc := security.JWTScheme{
 			Name:           "jwt",
-			Scopes:         []string{},
-			RequiredScopes: []string{},
+			Scopes:         []string{"package:list", "package:listActions", "package:move", "package:read", "package:review", "package:upload", "storage:location:create", "storage:location:list", "storage:location:listPackages", "storage:location:read", "storage:package:create", "storage:package:download", "storage:package:move", "storage:package:read", "storage:package:review", "storage:package:submit"},
+			RequiredScopes: []string{"package:move"},
 		}
 		var token string
 		if p.Token != nil {
@@ -255,8 +255,8 @@ func NewMoveStatusEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoi
 		var err error
 		sc := security.JWTScheme{
 			Name:           "jwt",
-			Scopes:         []string{},
-			RequiredScopes: []string{},
+			Scopes:         []string{"package:list", "package:listActions", "package:move", "package:read", "package:review", "package:upload", "storage:location:create", "storage:location:list", "storage:location:listPackages", "storage:location:read", "storage:package:create", "storage:package:download", "storage:package:move", "storage:package:read", "storage:package:review", "storage:package:submit"},
+			RequiredScopes: []string{"package:move"},
 		}
 		var token string
 		if p.Token != nil {

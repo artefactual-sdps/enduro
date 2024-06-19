@@ -15,11 +15,39 @@ debug = false
 corsOrigin = "http://localhost"
 
 [api.auth]
+# Enable API authentication. OIDC is the only protocol supported at the
+# moment. When enabled the API verifies the access token submitted with 
+# each request. The API client is responsible for obtaining an access
+# token from the provider.
 enabled = true
 
 [api.auth.oidc]
+# OIDC provider URL. Required when auth. is enabled.
 providerURL = "http://keycloak:7470/realms/enduro"
+# OIDC client ID. The client ID must be included in the `aud` claim of
+# the access token. Required when auth. is enabled. 
 clientID = "enduro"
+
+[api.auth.oidc.abac]
+# Enable Attribute Based Access Control (ABAC). If enabled, the API will
+# check a configurable multivalue claim against required attributes based
+# on each endpoint configuration.
+enabled = false
+# Claim path of the Enduro attributes within the access token. If the claim
+# path is nested then include all fields separated by `claimPathSeparator`
+# (see below). E.g. "attributes.enduro" with `claimPathSeparator = "."`. 
+# Required when ABAC is enabled.
+claimPath = "enduro"
+# Separator used to split the claim path fields. The default value of "" will
+# try to match the claim path as-is to a top-level field from the access token.
+claimPathSeparator = ""
+# Add a prefix to filter the values of the configured claim. If the claim
+# contains values unrelated to Enduro's ABAC, the values relevant to Enduro
+# should be prefixed so they are the only values used for access control.
+# For example, a claim with values ["enduro:*", "unrelated"] will be filtered
+# to a value of ["*"] when `claimValuePrefix = "enduro:"`. The default "" will
+# not filter any value.
+claimValuePrefix = ""
 
 [api.auth.ticket.redis]
 address = "redis://redis.enduro-sdps:6379"

@@ -127,7 +127,7 @@ export interface PackageApiInterface {
     packageList(requestParameters: PackageListRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ListResponseBody>;
 
     /**
-     * 
+     * Obtain access to the /monitor WebSocket
      * @summary monitor package
      * @param {string} [enduroWsTicket] 
      * @param {*} [options] Override http request option.
@@ -137,12 +137,13 @@ export interface PackageApiInterface {
     packageMonitorRaw(requestParameters: PackageMonitorRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>>;
 
     /**
+     * Obtain access to the /monitor WebSocket
      * monitor package
      */
     packageMonitor(requestParameters: PackageMonitorRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
 
     /**
-     * Request access to the /monitor WebSocket.
+     * Request access to the /monitor WebSocket
      * @summary monitor_request package
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -151,7 +152,7 @@ export interface PackageApiInterface {
     packageMonitorRequestRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>>;
 
     /**
-     * Request access to the /monitor WebSocket.
+     * Request access to the /monitor WebSocket
      * monitor_request package
      */
     packageMonitorRequest(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
@@ -355,6 +356,7 @@ export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
     }
 
     /**
+     * Obtain access to the /monitor WebSocket
      * monitor package
      */
     async packageMonitorRaw(requestParameters: PackageMonitorRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
@@ -373,6 +375,7 @@ export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
     }
 
     /**
+     * Obtain access to the /monitor WebSocket
      * monitor package
      */
     async packageMonitor(requestParameters: PackageMonitorRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
@@ -380,7 +383,7 @@ export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
     }
 
     /**
-     * Request access to the /monitor WebSocket.
+     * Request access to the /monitor WebSocket
      * monitor_request package
      */
     async packageMonitorRequestRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
@@ -407,7 +410,7 @@ export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
     }
 
     /**
-     * Request access to the /monitor WebSocket.
+     * Request access to the /monitor WebSocket
      * monitor_request package
      */
     async packageMonitorRequest(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {

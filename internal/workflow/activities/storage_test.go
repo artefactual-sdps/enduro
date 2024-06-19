@@ -115,10 +115,10 @@ func TestCreatePackageActivity(t *testing.T) {
 						LocationID: ref.New(locationID),
 					},
 				).Return(
-					nil, goastorage.Unauthorized("unauthorized"),
+					nil, goastorage.Unauthorized("Unauthorized"),
 				)
 			},
-			wantErr: "activity error (type: create-storage-package-activity, scheduledEventID: 0, startedEventID: 0, identity: ): create-storage-package-activity: Invalid token",
+			wantErr: "activity error (type: create-storage-package-activity, scheduledEventID: 0, startedEventID: 0, identity: ): create-storage-package-activity: Unauthorized",
 		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {

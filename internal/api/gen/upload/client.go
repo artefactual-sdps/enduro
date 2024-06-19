@@ -33,6 +33,7 @@ func NewClient(upload goa.Endpoint) *Client {
 //   - "invalid_multipart_request" (type *goa.ServiceError): Error returned when the request body is not a valid multipart content.
 //   - "internal_error" (type *goa.ServiceError): Fault while processing upload.
 //   - "unauthorized" (type Unauthorized)
+//   - "forbidden" (type Forbidden)
 //   - error: internal error
 func (c *Client) Upload(ctx context.Context, p *UploadPayload, req io.ReadCloser) (err error) {
 	_, err = c.UploadEndpoint(ctx, &UploadRequestData{Payload: p, Body: req})

@@ -18,11 +18,11 @@ import (
 
 // Client lists the storage service endpoint HTTP clients.
 type Client struct {
-	// Submit Doer is the HTTP client used to make requests to the submit endpoint.
-	SubmitDoer goahttp.Doer
-
 	// Create Doer is the HTTP client used to make requests to the create endpoint.
 	CreateDoer goahttp.Doer
+
+	// Submit Doer is the HTTP client used to make requests to the submit endpoint.
+	SubmitDoer goahttp.Doer
 
 	// Update Doer is the HTTP client used to make requests to the update endpoint.
 	UpdateDoer goahttp.Doer
@@ -30,14 +30,6 @@ type Client struct {
 	// Download Doer is the HTTP client used to make requests to the download
 	// endpoint.
 	DownloadDoer goahttp.Doer
-
-	// Locations Doer is the HTTP client used to make requests to the locations
-	// endpoint.
-	LocationsDoer goahttp.Doer
-
-	// AddLocation Doer is the HTTP client used to make requests to the
-	// add_location endpoint.
-	AddLocationDoer goahttp.Doer
 
 	// Move Doer is the HTTP client used to make requests to the move endpoint.
 	MoveDoer goahttp.Doer
@@ -51,6 +43,14 @@ type Client struct {
 
 	// Show Doer is the HTTP client used to make requests to the show endpoint.
 	ShowDoer goahttp.Doer
+
+	// Locations Doer is the HTTP client used to make requests to the locations
+	// endpoint.
+	LocationsDoer goahttp.Doer
+
+	// AddLocation Doer is the HTTP client used to make requests to the
+	// add_location endpoint.
+	AddLocationDoer goahttp.Doer
 
 	// ShowLocation Doer is the HTTP client used to make requests to the
 	// show_location endpoint.
@@ -83,16 +83,16 @@ func NewClient(
 	restoreBody bool,
 ) *Client {
 	return &Client{
-		SubmitDoer:           doer,
 		CreateDoer:           doer,
+		SubmitDoer:           doer,
 		UpdateDoer:           doer,
 		DownloadDoer:         doer,
-		LocationsDoer:        doer,
-		AddLocationDoer:      doer,
 		MoveDoer:             doer,
 		MoveStatusDoer:       doer,
 		RejectDoer:           doer,
 		ShowDoer:             doer,
+		LocationsDoer:        doer,
+		AddLocationDoer:      doer,
 		ShowLocationDoer:     doer,
 		LocationPackagesDoer: doer,
 		CORSDoer:             doer,
@@ -101,30 +101,6 @@ func NewClient(
 		host:                 host,
 		decoder:              dec,
 		encoder:              enc,
-	}
-}
-
-// Submit returns an endpoint that makes HTTP requests to the storage service
-// submit server.
-func (c *Client) Submit() goa.Endpoint {
-	var (
-		encodeRequest  = EncodeSubmitRequest(c.encoder)
-		decodeResponse = DecodeSubmitResponse(c.decoder, c.RestoreResponseBody)
-	)
-	return func(ctx context.Context, v any) (any, error) {
-		req, err := c.BuildSubmitRequest(ctx, v)
-		if err != nil {
-			return nil, err
-		}
-		err = encodeRequest(req, v)
-		if err != nil {
-			return nil, err
-		}
-		resp, err := c.SubmitDoer.Do(req)
-		if err != nil {
-			return nil, goahttp.ErrRequestError("storage", "submit", err)
-		}
-		return decodeResponse(resp)
 	}
 }
 
@@ -147,6 +123,30 @@ func (c *Client) Create() goa.Endpoint {
 		resp, err := c.CreateDoer.Do(req)
 		if err != nil {
 			return nil, goahttp.ErrRequestError("storage", "create", err)
+		}
+		return decodeResponse(resp)
+	}
+}
+
+// Submit returns an endpoint that makes HTTP requests to the storage service
+// submit server.
+func (c *Client) Submit() goa.Endpoint {
+	var (
+		encodeRequest  = EncodeSubmitRequest(c.encoder)
+		decodeResponse = DecodeSubmitResponse(c.decoder, c.RestoreResponseBody)
+	)
+	return func(ctx context.Context, v any) (any, error) {
+		req, err := c.BuildSubmitRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		err = encodeRequest(req, v)
+		if err != nil {
+			return nil, err
+		}
+		resp, err := c.SubmitDoer.Do(req)
+		if err != nil {
+			return nil, goahttp.ErrRequestError("storage", "submit", err)
 		}
 		return decodeResponse(resp)
 	}
@@ -195,54 +195,6 @@ func (c *Client) Download() goa.Endpoint {
 		resp, err := c.DownloadDoer.Do(req)
 		if err != nil {
 			return nil, goahttp.ErrRequestError("storage", "download", err)
-		}
-		return decodeResponse(resp)
-	}
-}
-
-// Locations returns an endpoint that makes HTTP requests to the storage
-// service locations server.
-func (c *Client) Locations() goa.Endpoint {
-	var (
-		encodeRequest  = EncodeLocationsRequest(c.encoder)
-		decodeResponse = DecodeLocationsResponse(c.decoder, c.RestoreResponseBody)
-	)
-	return func(ctx context.Context, v any) (any, error) {
-		req, err := c.BuildLocationsRequest(ctx, v)
-		if err != nil {
-			return nil, err
-		}
-		err = encodeRequest(req, v)
-		if err != nil {
-			return nil, err
-		}
-		resp, err := c.LocationsDoer.Do(req)
-		if err != nil {
-			return nil, goahttp.ErrRequestError("storage", "locations", err)
-		}
-		return decodeResponse(resp)
-	}
-}
-
-// AddLocation returns an endpoint that makes HTTP requests to the storage
-// service add_location server.
-func (c *Client) AddLocation() goa.Endpoint {
-	var (
-		encodeRequest  = EncodeAddLocationRequest(c.encoder)
-		decodeResponse = DecodeAddLocationResponse(c.decoder, c.RestoreResponseBody)
-	)
-	return func(ctx context.Context, v any) (any, error) {
-		req, err := c.BuildAddLocationRequest(ctx, v)
-		if err != nil {
-			return nil, err
-		}
-		err = encodeRequest(req, v)
-		if err != nil {
-			return nil, err
-		}
-		resp, err := c.AddLocationDoer.Do(req)
-		if err != nil {
-			return nil, goahttp.ErrRequestError("storage", "add_location", err)
 		}
 		return decodeResponse(resp)
 	}
@@ -339,6 +291,54 @@ func (c *Client) Show() goa.Endpoint {
 		resp, err := c.ShowDoer.Do(req)
 		if err != nil {
 			return nil, goahttp.ErrRequestError("storage", "show", err)
+		}
+		return decodeResponse(resp)
+	}
+}
+
+// Locations returns an endpoint that makes HTTP requests to the storage
+// service locations server.
+func (c *Client) Locations() goa.Endpoint {
+	var (
+		encodeRequest  = EncodeLocationsRequest(c.encoder)
+		decodeResponse = DecodeLocationsResponse(c.decoder, c.RestoreResponseBody)
+	)
+	return func(ctx context.Context, v any) (any, error) {
+		req, err := c.BuildLocationsRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		err = encodeRequest(req, v)
+		if err != nil {
+			return nil, err
+		}
+		resp, err := c.LocationsDoer.Do(req)
+		if err != nil {
+			return nil, goahttp.ErrRequestError("storage", "locations", err)
+		}
+		return decodeResponse(resp)
+	}
+}
+
+// AddLocation returns an endpoint that makes HTTP requests to the storage
+// service add_location server.
+func (c *Client) AddLocation() goa.Endpoint {
+	var (
+		encodeRequest  = EncodeAddLocationRequest(c.encoder)
+		decodeResponse = DecodeAddLocationResponse(c.decoder, c.RestoreResponseBody)
+	)
+	return func(ctx context.Context, v any) (any, error) {
+		req, err := c.BuildAddLocationRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		err = encodeRequest(req, v)
+		if err != nil {
+			return nil, err
+		}
+		resp, err := c.AddLocationDoer.Do(req)
+		if err != nil {
+			return nil, goahttp.ErrRequestError("storage", "add_location", err)
 		}
 		return decodeResponse(resp)
 	}

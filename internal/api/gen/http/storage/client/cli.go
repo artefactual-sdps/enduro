@@ -16,40 +16,6 @@ import (
 	goa "goa.design/goa/v3/pkg"
 )
 
-// BuildSubmitPayload builds the payload for the storage submit endpoint from
-// CLI flags.
-func BuildSubmitPayload(storageSubmitBody string, storageSubmitAipID string, storageSubmitToken string) (*storage.SubmitPayload, error) {
-	var err error
-	var body SubmitRequestBody
-	{
-		err = json.Unmarshal([]byte(storageSubmitBody), &body)
-		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"name\": \"abc123\"\n   }'")
-		}
-	}
-	var aipID string
-	{
-		aipID = storageSubmitAipID
-		err = goa.MergeErrors(err, goa.ValidateFormat("aip_id", aipID, goa.FormatUUID))
-		if err != nil {
-			return nil, err
-		}
-	}
-	var token *string
-	{
-		if storageSubmitToken != "" {
-			token = &storageSubmitToken
-		}
-	}
-	v := &storage.SubmitPayload{
-		Name: body.Name,
-	}
-	v.AipID = aipID
-	v.Token = token
-
-	return v, nil
-}
-
 // BuildCreatePayload builds the payload for the storage create endpoint from
 // CLI flags.
 func BuildCreatePayload(storageCreateBody string, storageCreateToken string) (*storage.CreatePayload, error) {
@@ -88,6 +54,40 @@ func BuildCreatePayload(storageCreateBody string, storageCreateToken string) (*s
 			v.Status = "unspecified"
 		}
 	}
+	v.Token = token
+
+	return v, nil
+}
+
+// BuildSubmitPayload builds the payload for the storage submit endpoint from
+// CLI flags.
+func BuildSubmitPayload(storageSubmitBody string, storageSubmitAipID string, storageSubmitToken string) (*storage.SubmitPayload, error) {
+	var err error
+	var body SubmitRequestBody
+	{
+		err = json.Unmarshal([]byte(storageSubmitBody), &body)
+		if err != nil {
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"name\": \"abc123\"\n   }'")
+		}
+	}
+	var aipID string
+	{
+		aipID = storageSubmitAipID
+		err = goa.MergeErrors(err, goa.ValidateFormat("aip_id", aipID, goa.FormatUUID))
+		if err != nil {
+			return nil, err
+		}
+	}
+	var token *string
+	{
+		if storageSubmitToken != "" {
+			token = &storageSubmitToken
+		}
+	}
+	v := &storage.SubmitPayload{
+		Name: body.Name,
+	}
+	v.AipID = aipID
 	v.Token = token
 
 	return v, nil
@@ -138,83 +138,6 @@ func BuildDownloadPayload(storageDownloadAipID string, storageDownloadToken stri
 	}
 	v := &storage.DownloadPayload{}
 	v.AipID = aipID
-	v.Token = token
-
-	return v, nil
-}
-
-// BuildLocationsPayload builds the payload for the storage locations endpoint
-// from CLI flags.
-func BuildLocationsPayload(storageLocationsToken string) (*storage.LocationsPayload, error) {
-	var token *string
-	{
-		if storageLocationsToken != "" {
-			token = &storageLocationsToken
-		}
-	}
-	v := &storage.LocationsPayload{}
-	v.Token = token
-
-	return v, nil
-}
-
-// BuildAddLocationPayload builds the payload for the storage add_location
-// endpoint from CLI flags.
-func BuildAddLocationPayload(storageAddLocationBody string, storageAddLocationToken string) (*storage.AddLocationPayload, error) {
-	var err error
-	var body AddLocationRequestBody
-	{
-		err = json.Unmarshal([]byte(storageAddLocationBody), &body)
-		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"config\": {\n         \"Type\": \"s3\",\n         \"Value\": \"{\\\"bucket\\\":\\\"abc123\\\",\\\"endpoint\\\":\\\"abc123\\\",\\\"key\\\":\\\"abc123\\\",\\\"path_style\\\":false,\\\"profile\\\":\\\"abc123\\\",\\\"region\\\":\\\"abc123\\\",\\\"secret\\\":\\\"abc123\\\",\\\"token\\\":\\\"abc123\\\"}\"\n      },\n      \"description\": \"abc123\",\n      \"name\": \"abc123\",\n      \"purpose\": \"aip_store\",\n      \"source\": \"minio\"\n   }'")
-		}
-		if !(body.Source == "unspecified" || body.Source == "minio" || body.Source == "sftp" || body.Source == "amss") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.source", body.Source, []any{"unspecified", "minio", "sftp", "amss"}))
-		}
-		if !(body.Purpose == "unspecified" || body.Purpose == "aip_store") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.purpose", body.Purpose, []any{"unspecified", "aip_store"}))
-		}
-		if body.Config != nil {
-			if !(body.Config.Type == "amss" || body.Config.Type == "s3" || body.Config.Type == "sftp" || body.Config.Type == "url") {
-				err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.config.Type", body.Config.Type, []any{"amss", "s3", "sftp", "url"}))
-			}
-		}
-		if err != nil {
-			return nil, err
-		}
-	}
-	var token *string
-	{
-		if storageAddLocationToken != "" {
-			token = &storageAddLocationToken
-		}
-	}
-	v := &storage.AddLocationPayload{
-		Name:        body.Name,
-		Description: body.Description,
-		Source:      body.Source,
-		Purpose:     body.Purpose,
-	}
-	if body.Config != nil {
-		switch body.Config.Type {
-		case "amss":
-			var val *storage.AMSSConfig
-			json.Unmarshal([]byte(body.Config.Value), &val)
-			v.Config = val
-		case "s3":
-			var val *storage.S3Config
-			json.Unmarshal([]byte(body.Config.Value), &val)
-			v.Config = val
-		case "sftp":
-			var val *storage.SFTPConfig
-			json.Unmarshal([]byte(body.Config.Value), &val)
-			v.Config = val
-		case "url":
-			var val *storage.URLConfig
-			json.Unmarshal([]byte(body.Config.Value), &val)
-			v.Config = val
-		}
-	}
 	v.Token = token
 
 	return v, nil
@@ -324,6 +247,83 @@ func BuildShowPayload(storageShowAipID string, storageShowToken string) (*storag
 	}
 	v := &storage.ShowPayload{}
 	v.AipID = aipID
+	v.Token = token
+
+	return v, nil
+}
+
+// BuildLocationsPayload builds the payload for the storage locations endpoint
+// from CLI flags.
+func BuildLocationsPayload(storageLocationsToken string) (*storage.LocationsPayload, error) {
+	var token *string
+	{
+		if storageLocationsToken != "" {
+			token = &storageLocationsToken
+		}
+	}
+	v := &storage.LocationsPayload{}
+	v.Token = token
+
+	return v, nil
+}
+
+// BuildAddLocationPayload builds the payload for the storage add_location
+// endpoint from CLI flags.
+func BuildAddLocationPayload(storageAddLocationBody string, storageAddLocationToken string) (*storage.AddLocationPayload, error) {
+	var err error
+	var body AddLocationRequestBody
+	{
+		err = json.Unmarshal([]byte(storageAddLocationBody), &body)
+		if err != nil {
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"config\": {\n         \"Type\": \"s3\",\n         \"Value\": \"{\\\"bucket\\\":\\\"abc123\\\",\\\"endpoint\\\":\\\"abc123\\\",\\\"key\\\":\\\"abc123\\\",\\\"path_style\\\":false,\\\"profile\\\":\\\"abc123\\\",\\\"region\\\":\\\"abc123\\\",\\\"secret\\\":\\\"abc123\\\",\\\"token\\\":\\\"abc123\\\"}\"\n      },\n      \"description\": \"abc123\",\n      \"name\": \"abc123\",\n      \"purpose\": \"aip_store\",\n      \"source\": \"minio\"\n   }'")
+		}
+		if !(body.Source == "unspecified" || body.Source == "minio" || body.Source == "sftp" || body.Source == "amss") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.source", body.Source, []any{"unspecified", "minio", "sftp", "amss"}))
+		}
+		if !(body.Purpose == "unspecified" || body.Purpose == "aip_store") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.purpose", body.Purpose, []any{"unspecified", "aip_store"}))
+		}
+		if body.Config != nil {
+			if !(body.Config.Type == "amss" || body.Config.Type == "s3" || body.Config.Type == "sftp" || body.Config.Type == "url") {
+				err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.config.Type", body.Config.Type, []any{"amss", "s3", "sftp", "url"}))
+			}
+		}
+		if err != nil {
+			return nil, err
+		}
+	}
+	var token *string
+	{
+		if storageAddLocationToken != "" {
+			token = &storageAddLocationToken
+		}
+	}
+	v := &storage.AddLocationPayload{
+		Name:        body.Name,
+		Description: body.Description,
+		Source:      body.Source,
+		Purpose:     body.Purpose,
+	}
+	if body.Config != nil {
+		switch body.Config.Type {
+		case "amss":
+			var val *storage.AMSSConfig
+			json.Unmarshal([]byte(body.Config.Value), &val)
+			v.Config = val
+		case "s3":
+			var val *storage.S3Config
+			json.Unmarshal([]byte(body.Config.Value), &val)
+			v.Config = val
+		case "sftp":
+			var val *storage.SFTPConfig
+			json.Unmarshal([]byte(body.Config.Value), &val)
+			v.Config = val
+		case "url":
+			var val *storage.URLConfig
+			json.Unmarshal([]byte(body.Config.Value), &val)
+			v.Config = val
+		}
+	}
 	v.Token = token
 
 	return v, nil

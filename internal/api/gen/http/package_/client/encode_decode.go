@@ -61,6 +61,7 @@ func EncodeMonitorRequestRequest(encoder func(*http.Request) goahttp.Encoder) fu
 // body should be restored after having been read.
 // DecodeMonitorRequestResponse may return the following errors:
 //   - "not_available" (type *goa.ServiceError): http.StatusInternalServerError
+//   - "forbidden" (type package_.Forbidden): http.StatusForbidden
 //   - "unauthorized" (type package_.Unauthorized): http.StatusUnauthorized
 //   - error: internal error
 func DecodeMonitorRequestResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
@@ -110,6 +111,16 @@ func DecodeMonitorRequestResponse(decoder func(*http.Response) goahttp.Decoder, 
 				return nil, goahttp.ErrValidationError("package", "monitor_request", err)
 			}
 			return nil, NewMonitorRequestNotAvailable(&body)
+		case http.StatusForbidden:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("package", "monitor_request", err)
+			}
+			return nil, NewMonitorRequestForbidden(body)
 		case http.StatusUnauthorized:
 			var (
 				body string
@@ -173,6 +184,7 @@ func EncodeMonitorRequest(encoder func(*http.Request) goahttp.Encoder) func(*htt
 // should be restored after having been read.
 // DecodeMonitorResponse may return the following errors:
 //   - "not_available" (type *goa.ServiceError): http.StatusInternalServerError
+//   - "forbidden" (type package_.Forbidden): http.StatusForbidden
 //   - "unauthorized" (type package_.Unauthorized): http.StatusUnauthorized
 //   - error: internal error
 func DecodeMonitorResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
@@ -219,6 +231,16 @@ func DecodeMonitorResponse(decoder func(*http.Response) goahttp.Decoder, restore
 				return nil, goahttp.ErrValidationError("package", "monitor", err)
 			}
 			return nil, NewMonitorNotAvailable(&body)
+		case http.StatusForbidden:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("package", "monitor", err)
+			}
+			return nil, NewMonitorForbidden(body)
 		case http.StatusUnauthorized:
 			var (
 				body string
@@ -298,6 +320,7 @@ func EncodeListRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.R
 // list endpoint. restoreBody controls whether the response body should be
 // restored after having been read.
 // DecodeListResponse may return the following errors:
+//   - "forbidden" (type package_.Forbidden): http.StatusForbidden
 //   - "unauthorized" (type package_.Unauthorized): http.StatusUnauthorized
 //   - error: internal error
 func DecodeListResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
@@ -330,6 +353,16 @@ func DecodeListResponse(decoder func(*http.Response) goahttp.Decoder, restoreBod
 			}
 			res := NewListResultOK(&body)
 			return res, nil
+		case http.StatusForbidden:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("package", "list", err)
+			}
+			return nil, NewListForbidden(body)
 		case http.StatusUnauthorized:
 			var (
 				body string
@@ -398,6 +431,7 @@ func EncodeShowRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.R
 // DecodeShowResponse may return the following errors:
 //   - "not_available" (type *goa.ServiceError): http.StatusConflict
 //   - "not_found" (type *package_.PackageNotFound): http.StatusNotFound
+//   - "forbidden" (type package_.Forbidden): http.StatusForbidden
 //   - "unauthorized" (type package_.Unauthorized): http.StatusUnauthorized
 //   - error: internal error
 func DecodeShowResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
@@ -460,6 +494,16 @@ func DecodeShowResponse(decoder func(*http.Response) goahttp.Decoder, restoreBod
 				return nil, goahttp.ErrValidationError("package", "show", err)
 			}
 			return nil, NewShowNotFound(&body)
+		case http.StatusForbidden:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("package", "show", err)
+			}
+			return nil, NewShowForbidden(body)
 		case http.StatusUnauthorized:
 			var (
 				body string
@@ -528,6 +572,7 @@ func EncodePreservationActionsRequest(encoder func(*http.Request) goahttp.Encode
 // the response body should be restored after having been read.
 // DecodePreservationActionsResponse may return the following errors:
 //   - "not_found" (type *package_.PackageNotFound): http.StatusNotFound
+//   - "forbidden" (type package_.Forbidden): http.StatusForbidden
 //   - "unauthorized" (type package_.Unauthorized): http.StatusUnauthorized
 //   - error: internal error
 func DecodePreservationActionsResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
@@ -576,6 +621,16 @@ func DecodePreservationActionsResponse(decoder func(*http.Response) goahttp.Deco
 				return nil, goahttp.ErrValidationError("package", "preservation_actions", err)
 			}
 			return nil, NewPreservationActionsNotFound(&body)
+		case http.StatusForbidden:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("package", "preservation_actions", err)
+			}
+			return nil, NewPreservationActionsForbidden(body)
 		case http.StatusUnauthorized:
 			var (
 				body string
@@ -649,6 +704,7 @@ func EncodeConfirmRequest(encoder func(*http.Request) goahttp.Encoder) func(*htt
 //   - "not_available" (type *goa.ServiceError): http.StatusConflict
 //   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
 //   - "not_found" (type *package_.PackageNotFound): http.StatusNotFound
+//   - "forbidden" (type package_.Forbidden): http.StatusForbidden
 //   - "unauthorized" (type package_.Unauthorized): http.StatusUnauthorized
 //   - error: internal error
 func DecodeConfirmResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
@@ -710,6 +766,16 @@ func DecodeConfirmResponse(decoder func(*http.Response) goahttp.Decoder, restore
 				return nil, goahttp.ErrValidationError("package", "confirm", err)
 			}
 			return nil, NewConfirmNotFound(&body)
+		case http.StatusForbidden:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("package", "confirm", err)
+			}
+			return nil, NewConfirmForbidden(body)
 		case http.StatusUnauthorized:
 			var (
 				body string
@@ -779,6 +845,7 @@ func EncodeRejectRequest(encoder func(*http.Request) goahttp.Encoder) func(*http
 //   - "not_available" (type *goa.ServiceError): http.StatusConflict
 //   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
 //   - "not_found" (type *package_.PackageNotFound): http.StatusNotFound
+//   - "forbidden" (type package_.Forbidden): http.StatusForbidden
 //   - "unauthorized" (type package_.Unauthorized): http.StatusUnauthorized
 //   - error: internal error
 func DecodeRejectResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
@@ -840,6 +907,16 @@ func DecodeRejectResponse(decoder func(*http.Response) goahttp.Decoder, restoreB
 				return nil, goahttp.ErrValidationError("package", "reject", err)
 			}
 			return nil, NewRejectNotFound(&body)
+		case http.StatusForbidden:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("package", "reject", err)
+			}
+			return nil, NewRejectForbidden(body)
 		case http.StatusUnauthorized:
 			var (
 				body string
@@ -913,6 +990,7 @@ func EncodeMoveRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.R
 //   - "not_available" (type *goa.ServiceError): http.StatusConflict
 //   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
 //   - "not_found" (type *package_.PackageNotFound): http.StatusNotFound
+//   - "forbidden" (type package_.Forbidden): http.StatusForbidden
 //   - "unauthorized" (type package_.Unauthorized): http.StatusUnauthorized
 //   - error: internal error
 func DecodeMoveResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
@@ -974,6 +1052,16 @@ func DecodeMoveResponse(decoder func(*http.Response) goahttp.Decoder, restoreBod
 				return nil, goahttp.ErrValidationError("package", "move", err)
 			}
 			return nil, NewMoveNotFound(&body)
+		case http.StatusForbidden:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("package", "move", err)
+			}
+			return nil, NewMoveForbidden(body)
 		case http.StatusUnauthorized:
 			var (
 				body string
@@ -1042,6 +1130,7 @@ func EncodeMoveStatusRequest(encoder func(*http.Request) goahttp.Encoder) func(*
 // DecodeMoveStatusResponse may return the following errors:
 //   - "failed_dependency" (type *goa.ServiceError): http.StatusFailedDependency
 //   - "not_found" (type *package_.PackageNotFound): http.StatusNotFound
+//   - "forbidden" (type package_.Forbidden): http.StatusForbidden
 //   - "unauthorized" (type package_.Unauthorized): http.StatusUnauthorized
 //   - error: internal error
 func DecodeMoveStatusResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
@@ -1102,6 +1191,16 @@ func DecodeMoveStatusResponse(decoder func(*http.Response) goahttp.Decoder, rest
 				return nil, goahttp.ErrValidationError("package", "move_status", err)
 			}
 			return nil, NewMoveStatusNotFound(&body)
+		case http.StatusForbidden:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("package", "move_status", err)
+			}
+			return nil, NewMoveStatusForbidden(body)
 		case http.StatusUnauthorized:
 			var (
 				body string

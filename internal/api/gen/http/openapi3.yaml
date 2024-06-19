@@ -109,8 +109,17 @@ paths:
                                 type: string
                                 example: abc123
                             example: abc123
+                "403":
+                    description: 'forbidden: Forbidden response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
             security:
-                - jwt_header_Authorization: []
+                - jwt_header_Authorization:
+                    - package:list
     /package/{id}:
         get:
             tags:
@@ -155,6 +164,14 @@ paths:
                                 type: string
                                 example: abc123
                             example: abc123
+                "403":
+                    description: 'forbidden: Forbidden response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
                 "404":
                     description: 'not_found: Package not found'
                     content:
@@ -171,7 +188,8 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/Error'
             security:
-                - jwt_header_Authorization: []
+                - jwt_header_Authorization:
+                    - package:read
     /package/{id}/confirm:
         post:
             tags:
@@ -215,6 +233,14 @@ paths:
                                 type: string
                                 example: abc123
                             example: abc123
+                "403":
+                    description: 'forbidden: Forbidden response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
                 "404":
                     description: 'not_found: Package not found'
                     content:
@@ -231,7 +257,8 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/Error'
             security:
-                - jwt_header_Authorization: []
+                - jwt_header_Authorization:
+                    - package:review
     /package/{id}/move:
         get:
             tags:
@@ -267,6 +294,14 @@ paths:
                                 type: string
                                 example: abc123
                             example: abc123
+                "403":
+                    description: 'forbidden: Forbidden response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
                 "404":
                     description: 'not_found: Package not found'
                     content:
@@ -283,7 +318,8 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/Error'
             security:
-                - jwt_header_Authorization: []
+                - jwt_header_Authorization:
+                    - package:move
         post:
             tags:
                 - package
@@ -326,6 +362,14 @@ paths:
                                 type: string
                                 example: abc123
                             example: abc123
+                "403":
+                    description: 'forbidden: Forbidden response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
                 "404":
                     description: 'not_found: Package not found'
                     content:
@@ -342,7 +386,8 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/Error'
             security:
-                - jwt_header_Authorization: []
+                - jwt_header_Authorization:
+                    - package:move
     /package/{id}/preservation-actions:
         get:
             tags:
@@ -394,6 +439,14 @@ paths:
                                 type: string
                                 example: abc123
                             example: abc123
+                "403":
+                    description: 'forbidden: Forbidden response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
                 "404":
                     description: 'not_found: Package not found'
                     content:
@@ -404,7 +457,8 @@ paths:
                                 id: 1
                                 message: abc123
             security:
-                - jwt_header_Authorization: []
+                - jwt_header_Authorization:
+                    - package:listActions
     /package/{id}/reject:
         post:
             tags:
@@ -440,6 +494,14 @@ paths:
                                 type: string
                                 example: abc123
                             example: abc123
+                "403":
+                    description: 'forbidden: Forbidden response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
                 "404":
                     description: 'not_found: Package not found'
                     content:
@@ -456,12 +518,14 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/Error'
             security:
-                - jwt_header_Authorization: []
+                - jwt_header_Authorization:
+                    - package:review
     /package/monitor:
         get:
             tags:
                 - package
             summary: monitor package
+            description: Obtain access to the /monitor WebSocket
             operationId: package#monitor
             parameters:
                 - name: enduro-ws-ticket
@@ -490,6 +554,14 @@ paths:
                                 type: string
                                 example: abc123
                             example: abc123
+                "403":
+                    description: 'forbidden: Forbidden response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
                 "500":
                     description: 'not_available: Internal Server Error response.'
                     content:
@@ -500,7 +572,7 @@ paths:
             tags:
                 - package
             summary: monitor_request package
-            description: Request access to the /monitor WebSocket.
+            description: Request access to the /monitor WebSocket
             operationId: package#monitor_request
             responses:
                 "200":
@@ -519,6 +591,14 @@ paths:
                                 type: string
                                 example: abc123
                             example: abc123
+                "403":
+                    description: 'forbidden: Forbidden response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
                 "500":
                     description: 'not_available: Internal Server Error response.'
                     content:
@@ -526,7 +606,13 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/Error'
             security:
-                - jwt_header_Authorization: []
+                - jwt_header_Authorization:
+                    - package:list
+                    - package:listActions
+                    - package:move
+                    - package:read
+                    - package:review
+                    - package:upload
     /storage/location:
         get:
             tags:
@@ -556,13 +642,22 @@ paths:
                                 type: string
                                 example: abc123
                             example: abc123
+                "403":
+                    description: 'forbidden: Forbidden response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
             security:
-                - jwt_header_Authorization: []
+                - jwt_header_Authorization:
+                    - storage:location:list
         post:
             tags:
                 - storage
             summary: add_location storage
-            description: Add a storage location
+            description: Create a storage location
             operationId: storage#add_location
             requestBody:
                 required: true
@@ -601,8 +696,17 @@ paths:
                                 type: string
                                 example: abc123
                             example: abc123
+                "403":
+                    description: 'forbidden: Forbidden response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
             security:
-                - jwt_header_Authorization: []
+                - jwt_header_Authorization:
+                    - storage:location:create
     /storage/location/{uuid}:
         get:
             tags:
@@ -646,6 +750,14 @@ paths:
                                 type: string
                                 example: abc123
                             example: abc123
+                "403":
+                    description: 'forbidden: Forbidden response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
                 "404":
                     description: 'not_found: Storage location not found'
                     content:
@@ -656,7 +768,8 @@ paths:
                                 message: abc123
                                 uuid: abc123
             security:
-                - jwt_header_Authorization: []
+                - jwt_header_Authorization:
+                    - storage:location:read
     /storage/location/{uuid}/packages:
         get:
             tags:
@@ -703,6 +816,14 @@ paths:
                                 type: string
                                 example: abc123
                             example: abc123
+                "403":
+                    description: 'forbidden: Forbidden response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
                 "404":
                     description: 'not_found: Storage location not found'
                     content:
@@ -713,7 +834,8 @@ paths:
                                 message: abc123
                                 uuid: abc123
             security:
-                - jwt_header_Authorization: []
+                - jwt_header_Authorization:
+                    - storage:location:listPackages
     /storage/package:
         post:
             tags:
@@ -761,8 +883,17 @@ paths:
                                 type: string
                                 example: abc123
                             example: abc123
+                "403":
+                    description: 'forbidden: Forbidden response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
             security:
-                - jwt_header_Authorization: []
+                - jwt_header_Authorization:
+                    - storage:package:create
     /storage/package/{aip_id}:
         get:
             tags:
@@ -803,6 +934,14 @@ paths:
                                 type: string
                                 example: abc123
                             example: abc123
+                "403":
+                    description: 'forbidden: Forbidden response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
                 "404":
                     description: 'not_found: Storage package not found'
                     content:
@@ -813,7 +952,8 @@ paths:
                                 aip_id: abc123
                                 message: abc123
             security:
-                - jwt_header_Authorization: []
+                - jwt_header_Authorization:
+                    - storage:package:read
     /storage/package/{aip_id}/download:
         get:
             tags:
@@ -862,6 +1002,14 @@ paths:
                                 type: string
                                 example: abc123
                             example: abc123
+                "403":
+                    description: 'forbidden: Forbidden response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
                 "404":
                     description: 'not_found: Storage package not found'
                     content:
@@ -872,7 +1020,8 @@ paths:
                                 aip_id: abc123
                                 message: abc123
             security:
-                - jwt_header_Authorization: []
+                - jwt_header_Authorization:
+                    - storage:package:download
     /storage/package/{aip_id}/reject:
         post:
             tags:
@@ -908,6 +1057,14 @@ paths:
                                 type: string
                                 example: abc123
                             example: abc123
+                "403":
+                    description: 'forbidden: Forbidden response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
                 "404":
                     description: 'not_found: Storage package not found'
                     content:
@@ -924,7 +1081,8 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/Error'
             security:
-                - jwt_header_Authorization: []
+                - jwt_header_Authorization:
+                    - storage:package:review
     /storage/package/{aip_id}/store:
         get:
             tags:
@@ -960,6 +1118,14 @@ paths:
                                 type: string
                                 example: abc123
                             example: abc123
+                "403":
+                    description: 'forbidden: Forbidden response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
                 "404":
                     description: 'not_found: Storage package not found'
                     content:
@@ -976,7 +1142,8 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/Error'
             security:
-                - jwt_header_Authorization: []
+                - jwt_header_Authorization:
+                    - storage:package:move
         post:
             tags:
                 - storage
@@ -1019,6 +1186,14 @@ paths:
                                 type: string
                                 example: abc123
                             example: abc123
+                "403":
+                    description: 'forbidden: Forbidden response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
                 "404":
                     description: 'not_found: Storage package not found'
                     content:
@@ -1035,7 +1210,8 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/Error'
             security:
-                - jwt_header_Authorization: []
+                - jwt_header_Authorization:
+                    - storage:package:move
     /storage/package/{aip_id}/submit:
         post:
             tags:
@@ -1085,6 +1261,14 @@ paths:
                                 type: string
                                 example: abc123
                             example: abc123
+                "403":
+                    description: 'forbidden: Forbidden response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
                 "409":
                     description: 'not_available: Conflict response.'
                     content:
@@ -1092,13 +1276,14 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/Error'
             security:
-                - jwt_header_Authorization: []
+                - jwt_header_Authorization:
+                    - storage:package:submit
     /storage/package/{aip_id}/update:
         post:
             tags:
                 - storage
             summary: update storage
-            description: Signal the storage service that an upload is complete
+            description: Signal that a package submission is complete
             operationId: storage#update
             parameters:
                 - name: aip_id
@@ -1128,6 +1313,14 @@ paths:
                                 type: string
                                 example: abc123
                             example: abc123
+                "403":
+                    description: 'forbidden: Forbidden response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
                 "409":
                     description: 'not_available: Conflict response.'
                     content:
@@ -1135,7 +1328,8 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/Error'
             security:
-                - jwt_header_Authorization: []
+                - jwt_header_Authorization:
+                    - storage:package:submit
     /swagger/swagger.json:
         get:
             tags:
@@ -1153,6 +1347,7 @@ paths:
             tags:
                 - upload
             summary: upload upload
+            description: Upload a package to trigger an ingest workflow
             operationId: upload#upload
             parameters:
                 - name: Content-Type
@@ -1183,6 +1378,14 @@ paths:
                                 type: string
                                 example: abc123
                             example: abc123
+                "403":
+                    description: 'forbidden: Forbidden response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
                 "500":
                     description: 'internal_error: Fault while processing upload.'
                     content:
@@ -1190,7 +1393,8 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/Error'
             security:
-                - jwt_header_Authorization: []
+                - jwt_header_Authorization:
+                    - package:upload
 components:
     schemas:
         AddLocationRequestBody:

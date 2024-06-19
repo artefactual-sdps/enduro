@@ -35,6 +35,11 @@ spec:
                 secretKeyRef:
                   name: enduro-secret
                   key: oidc-redirect-url
+            - name: VITE_OIDC_EXTRA_SCOPES
+              valueFrom:
+                secretKeyRef:
+                  name: enduro-secret
+                  key: oidc-extra-scopes
           ports:
             - containerPort: 80
           resources: {}

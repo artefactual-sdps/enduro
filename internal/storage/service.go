@@ -61,7 +61,10 @@ type serviceImpl struct {
 
 var _ Service = (*serviceImpl)(nil)
 
-var ErrInvalidToken error = goastorage.Unauthorized("invalid token")
+var (
+	ErrUnauthorized error = goastorage.Unauthorized("Unauthorized")
+	ErrForbidden    error = goastorage.Forbidden("Forbidden")
+)
 
 func NewService(
 	logger logr.Logger,
@@ -98,14 +101,19 @@ func (s *serviceImpl) JWTAuth(
 	token string,
 	scheme *security.JWTScheme,
 ) (context.Context, error) {
-	ok, err := s.tokenVerifier.Verify(ctx, token)
+	claims, err := s.tokenVerifier.Verify(ctx, token)
 	if err != nil {
-		s.logger.V(1).Info("failed to verify token", "err", err)
-		return ctx, ErrInvalidToken
+		if !errors.Is(err, auth.ErrUnauthorized) {
+			s.logger.V(1).Info("failed to verify token", "err", err)
+		}
+		return ctx, ErrUnauthorized
 	}
-	if !ok {
-		return ctx, ErrInvalidToken
+
+	if !claims.CheckAttributes(scheme.RequiredScopes) {
+		return ctx, ErrForbidden
 	}
+
+	ctx = auth.WithUserClaims(ctx, claims)
 
 	return ctx, nil
 }

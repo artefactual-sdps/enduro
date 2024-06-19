@@ -2786,7 +2786,7 @@
   "paths": {
     "/package": {
       "get": {
-        "description": "List all stored packages",
+        "description": "List all stored packages\n\n**Required security scopes for jwt**:\n  * `package:list`",
         "operationId": "package#list",
         "parameters": [
           {
@@ -2870,6 +2870,12 @@
             "schema": {
               "type": "string"
             }
+          },
+          "403": {
+            "description": "Forbidden response.",
+            "schema": {
+              "type": "string"
+            }
           }
         },
         "schemes": [
@@ -2888,6 +2894,7 @@
     },
     "/package/monitor": {
       "get": {
+        "description": "Obtain access to the /monitor WebSocket",
         "operationId": "package#monitor",
         "responses": {
           "101": {
@@ -2898,6 +2905,12 @@
           },
           "401": {
             "description": "Unauthorized response.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "403": {
+            "description": "Forbidden response.",
             "schema": {
               "type": "string"
             }
@@ -2918,7 +2931,7 @@
         ]
       },
       "post": {
-        "description": "Request access to the /monitor WebSocket.",
+        "description": "Request access to the /monitor WebSocket\n\n**Required security scopes for jwt**:\n  * `package:list`\n  * `package:listActions`\n  * `package:move`\n  * `package:read`\n  * `package:review`\n  * `package:upload`",
         "operationId": "package#monitor_request",
         "parameters": [
           {
@@ -2934,6 +2947,12 @@
           },
           "401": {
             "description": "Unauthorized response.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "403": {
+            "description": "Forbidden response.",
             "schema": {
               "type": "string"
             }
@@ -2961,7 +2980,7 @@
     },
     "/package/{id}": {
       "get": {
-        "description": "Show package by ID",
+        "description": "Show package by ID\n\n**Required security scopes for jwt**:\n  * `package:read`",
         "operationId": "package#show",
         "parameters": [
           {
@@ -2987,6 +3006,12 @@
           },
           "401": {
             "description": "Unauthorized response.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "403": {
+            "description": "Forbidden response.",
             "schema": {
               "type": "string"
             }
@@ -3024,7 +3049,7 @@
     },
     "/package/{id}/confirm": {
       "post": {
-        "description": "Signal the package has been reviewed and accepted",
+        "description": "Signal the package has been reviewed and accepted\n\n**Required security scopes for jwt**:\n  * `package:review`",
         "operationId": "package#confirm",
         "parameters": [
           {
@@ -3068,6 +3093,12 @@
               "type": "string"
             }
           },
+          "403": {
+            "description": "Forbidden response.",
+            "schema": {
+              "type": "string"
+            }
+          },
           "404": {
             "description": "Not Found response.",
             "schema": {
@@ -3101,7 +3132,7 @@
     },
     "/package/{id}/move": {
       "get": {
-        "description": "Retrieve the status of a permanent storage location move of the package",
+        "description": "Retrieve the status of a permanent storage location move of the package\n\n**Required security scopes for jwt**:\n  * `package:move`",
         "operationId": "package#move_status",
         "parameters": [
           {
@@ -3130,6 +3161,12 @@
           },
           "401": {
             "description": "Unauthorized response.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "403": {
+            "description": "Forbidden response.",
             "schema": {
               "type": "string"
             }
@@ -3165,7 +3202,7 @@
         ]
       },
       "post": {
-        "description": "Move a package to a permanent storage location",
+        "description": "Move a package to a permanent storage location\n\n**Required security scopes for jwt**:\n  * `package:move`",
         "operationId": "package#move",
         "parameters": [
           {
@@ -3209,6 +3246,12 @@
               "type": "string"
             }
           },
+          "403": {
+            "description": "Forbidden response.",
+            "schema": {
+              "type": "string"
+            }
+          },
           "404": {
             "description": "Not Found response.",
             "schema": {
@@ -3242,7 +3285,7 @@
     },
     "/package/{id}/preservation-actions": {
       "get": {
-        "description": "List all preservation actions by ID",
+        "description": "List all preservation actions by ID\n\n**Required security scopes for jwt**:\n  * `package:listActions`",
         "operationId": "package#preservation_actions",
         "parameters": [
           {
@@ -3268,6 +3311,12 @@
           },
           "401": {
             "description": "Unauthorized response.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "403": {
+            "description": "Forbidden response.",
             "schema": {
               "type": "string"
             }
@@ -3299,7 +3348,7 @@
     },
     "/package/{id}/reject": {
       "post": {
-        "description": "Signal the package has been reviewed and rejected",
+        "description": "Signal the package has been reviewed and rejected\n\n**Required security scopes for jwt**:\n  * `package:review`",
         "operationId": "package#reject",
         "parameters": [
           {
@@ -3328,6 +3377,12 @@
           },
           "401": {
             "description": "Unauthorized response.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "403": {
+            "description": "Forbidden response.",
             "schema": {
               "type": "string"
             }
@@ -3365,7 +3420,7 @@
     },
     "/storage/location": {
       "get": {
-        "description": "List locations",
+        "description": "List locations\n\n**Required security scopes for jwt**:\n  * `storage:location:list`",
         "operationId": "storage#locations",
         "parameters": [
           {
@@ -3387,6 +3442,12 @@
             "schema": {
               "type": "string"
             }
+          },
+          "403": {
+            "description": "Forbidden response.",
+            "schema": {
+              "type": "string"
+            }
           }
         },
         "schemes": [
@@ -3403,7 +3464,7 @@
         ]
       },
       "post": {
-        "description": "Add a storage location",
+        "description": "Create a storage location\n\n**Required security scopes for jwt**:\n  * `storage:location:create`",
         "operationId": "storage#add_location",
         "parameters": [
           {
@@ -3447,6 +3508,12 @@
             "schema": {
               "type": "string"
             }
+          },
+          "403": {
+            "description": "Forbidden response.",
+            "schema": {
+              "type": "string"
+            }
           }
         },
         "schemes": [
@@ -3465,7 +3532,7 @@
     },
     "/storage/location/{uuid}": {
       "get": {
-        "description": "Show location by UUID",
+        "description": "Show location by UUID\n\n**Required security scopes for jwt**:\n  * `storage:location:read`",
         "operationId": "storage#show_location",
         "parameters": [
           {
@@ -3492,6 +3559,12 @@
           },
           "401": {
             "description": "Unauthorized response.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "403": {
+            "description": "Forbidden response.",
             "schema": {
               "type": "string"
             }
@@ -3523,7 +3596,7 @@
     },
     "/storage/location/{uuid}/packages": {
       "get": {
-        "description": "List all the packages stored in the location with UUID",
+        "description": "List all the packages stored in the location with UUID\n\n**Required security scopes for jwt**:\n  * `storage:location:listPackages`",
         "operationId": "storage#location_packages",
         "parameters": [
           {
@@ -3560,6 +3633,12 @@
               "type": "string"
             }
           },
+          "403": {
+            "description": "Forbidden response.",
+            "schema": {
+              "type": "string"
+            }
+          },
           "404": {
             "description": "Not Found response.",
             "schema": {
@@ -3587,7 +3666,7 @@
     },
     "/storage/package": {
       "post": {
-        "description": "Create a new package",
+        "description": "Create a new package\n\n**Required security scopes for jwt**:\n  * `storage:package:create`",
         "operationId": "storage#create",
         "parameters": [
           {
@@ -3628,6 +3707,12 @@
             "schema": {
               "type": "string"
             }
+          },
+          "403": {
+            "description": "Forbidden response.",
+            "schema": {
+              "type": "string"
+            }
           }
         },
         "schemes": [
@@ -3646,7 +3731,7 @@
     },
     "/storage/package/{aip_id}": {
       "get": {
-        "description": "Show package by AIPID",
+        "description": "Show package by AIPID\n\n**Required security scopes for jwt**:\n  * `storage:package:read`",
         "operationId": "storage#show",
         "parameters": [
           {
@@ -3673,6 +3758,12 @@
           },
           "401": {
             "description": "Unauthorized response.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "403": {
+            "description": "Forbidden response.",
             "schema": {
               "type": "string"
             }
@@ -3704,7 +3795,7 @@
     },
     "/storage/package/{aip_id}/download": {
       "get": {
-        "description": "Download package by AIPID",
+        "description": "Download package by AIPID\n\n**Required security scopes for jwt**:\n  * `storage:package:download`",
         "operationId": "storage#download",
         "parameters": [
           {
@@ -3736,6 +3827,12 @@
               "type": "string"
             }
           },
+          "403": {
+            "description": "Forbidden response.",
+            "schema": {
+              "type": "string"
+            }
+          },
           "404": {
             "description": "Not Found response.",
             "schema": {
@@ -3763,7 +3860,7 @@
     },
     "/storage/package/{aip_id}/reject": {
       "post": {
-        "description": "Reject a package",
+        "description": "Reject a package\n\n**Required security scopes for jwt**:\n  * `storage:package:review`",
         "operationId": "storage#reject",
         "parameters": [
           {
@@ -3793,6 +3890,12 @@
           },
           "401": {
             "description": "Unauthorized response.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "403": {
+            "description": "Forbidden response.",
             "schema": {
               "type": "string"
             }
@@ -3830,7 +3933,7 @@
     },
     "/storage/package/{aip_id}/store": {
       "get": {
-        "description": "Retrieve the status of a permanent storage location move of the package",
+        "description": "Retrieve the status of a permanent storage location move of the package\n\n**Required security scopes for jwt**:\n  * `storage:package:move`",
         "operationId": "storage#move_status",
         "parameters": [
           {
@@ -3860,6 +3963,12 @@
           },
           "401": {
             "description": "Unauthorized response.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "403": {
+            "description": "Forbidden response.",
             "schema": {
               "type": "string"
             }
@@ -3895,7 +4004,7 @@
         ]
       },
       "post": {
-        "description": "Move a package to a permanent storage location",
+        "description": "Move a package to a permanent storage location\n\n**Required security scopes for jwt**:\n  * `storage:package:move`",
         "operationId": "storage#move",
         "parameters": [
           {
@@ -3940,6 +4049,12 @@
               "type": "string"
             }
           },
+          "403": {
+            "description": "Forbidden response.",
+            "schema": {
+              "type": "string"
+            }
+          },
           "404": {
             "description": "Not Found response.",
             "schema": {
@@ -3973,7 +4088,7 @@
     },
     "/storage/package/{aip_id}/submit": {
       "post": {
-        "description": "Start the submission of a package",
+        "description": "Start the submission of a package\n\n**Required security scopes for jwt**:\n  * `storage:package:submit`",
         "operationId": "storage#submit",
         "parameters": [
           {
@@ -4024,6 +4139,12 @@
               "type": "string"
             }
           },
+          "403": {
+            "description": "Forbidden response.",
+            "schema": {
+              "type": "string"
+            }
+          },
           "409": {
             "description": "Conflict response.",
             "schema": {
@@ -4047,7 +4168,7 @@
     },
     "/storage/package/{aip_id}/update": {
       "post": {
-        "description": "Signal the storage service that an upload is complete",
+        "description": "Signal that a package submission is complete\n\n**Required security scopes for jwt**:\n  * `storage:package:submit`",
         "operationId": "storage#update",
         "parameters": [
           {
@@ -4077,6 +4198,12 @@
           },
           "401": {
             "description": "Unauthorized response.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "403": {
+            "description": "Forbidden response.",
             "schema": {
               "type": "string"
             }
@@ -4125,6 +4252,7 @@
     },
     "/upload/upload": {
       "post": {
+        "description": "Upload a package to trigger an ingest workflow\n\n**Required security scopes for jwt**:\n  * `package:upload`",
         "operationId": "upload#upload",
         "parameters": [
           {
@@ -4159,6 +4287,12 @@
               "type": "string"
             }
           },
+          "403": {
+            "description": "Forbidden response.",
+            "schema": {
+              "type": "string"
+            }
+          },
           "500": {
             "description": "Internal Server Error response.",
             "schema": {
@@ -4188,7 +4322,7 @@
   ],
   "securityDefinitions": {
     "jwt_header_Authorization": {
-      "description": "Secures endpoint by requiring a valid JWT token.",
+      "description": "Secures endpoint by requiring a valid JWT token.\n\n**Security Scopes**:\n  * `package:list`: no description\n  * `package:listActions`: no description\n  * `package:move`: no description\n  * `package:read`: no description\n  * `package:review`: no description\n  * `package:upload`: no description\n  * `storage:location:create`: no description\n  * `storage:location:list`: no description\n  * `storage:location:listPackages`: no description\n  * `storage:location:read`: no description\n  * `storage:package:create`: no description\n  * `storage:package:download`: no description\n  * `storage:package:move`: no description\n  * `storage:package:read`: no description\n  * `storage:package:review`: no description\n  * `storage:package:submit`: no description",
       "in": "header",
       "name": "Authorization",
       "type": "apiKey"

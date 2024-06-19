@@ -27,7 +27,7 @@ export interface UploadUploadRequest {
  */
 export interface UploadApiInterface {
     /**
-     * 
+     * Upload a package to trigger an ingest workflow
      * @summary upload upload
      * @param {string} [contentType] Content-Type header, must define value for multipart boundary.
      * @param {*} [options] Override http request option.
@@ -37,6 +37,7 @@ export interface UploadApiInterface {
     uploadUploadRaw(requestParameters: UploadUploadRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>>;
 
     /**
+     * Upload a package to trigger an ingest workflow
      * upload upload
      */
     uploadUpload(requestParameters: UploadUploadRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
@@ -49,6 +50,7 @@ export interface UploadApiInterface {
 export class UploadApi extends runtime.BaseAPI implements UploadApiInterface {
 
     /**
+     * Upload a package to trigger an ingest workflow
      * upload upload
      */
     async uploadUploadRaw(requestParameters: UploadUploadRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
@@ -79,6 +81,7 @@ export class UploadApi extends runtime.BaseAPI implements UploadApiInterface {
     }
 
     /**
+     * Upload a package to trigger an ingest workflow
      * upload upload
      */
     async uploadUpload(requestParameters: UploadUploadRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {

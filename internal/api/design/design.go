@@ -17,6 +17,22 @@ import (
 
 var JWTAuth = JWTSecurity("jwt", func() {
 	Description("Secures endpoint by requiring a valid JWT token.")
+	Scope("package:list")
+	Scope("package:listActions")
+	Scope("package:move")
+	Scope("package:read")
+	Scope("package:review")
+	Scope("package:upload")
+	Scope("storage:location:create")
+	Scope("storage:location:list")
+	Scope("storage:location:listPackages")
+	Scope("storage:location:read")
+	Scope("storage:package:create")
+	Scope("storage:package:download")
+	Scope("storage:package:move")
+	Scope("storage:package:read")
+	Scope("storage:package:review")
+	Scope("storage:package:submit")
 })
 
 var _ = API("enduro", func() {

@@ -1480,11 +1480,25 @@
               }
             },
             "description": "unauthorized: Unauthorized response."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "example": "abc123",
+                "schema": {
+                  "example": "abc123",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "forbidden: Forbidden response."
           }
         },
         "security": [
           {
-            "jwt_header_Authorization": []
+            "jwt_header_Authorization": [
+              "package:list"
+            ]
           }
         ],
         "summary": "list package",
@@ -1495,6 +1509,7 @@
     },
     "/package/monitor": {
       "get": {
+        "description": "Obtain access to the /monitor WebSocket",
         "operationId": "package#monitor",
         "parameters": [
           {
@@ -1537,6 +1552,18 @@
             },
             "description": "unauthorized: Unauthorized response."
           },
+          "403": {
+            "content": {
+              "application/json": {
+                "example": "abc123",
+                "schema": {
+                  "example": "abc123",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "forbidden: Forbidden response."
+          },
           "500": {
             "content": {
               "application/vnd.goa.error": {
@@ -1554,7 +1581,7 @@
         ]
       },
       "post": {
-        "description": "Request access to the /monitor WebSocket.",
+        "description": "Request access to the /monitor WebSocket",
         "operationId": "package#monitor_request",
         "responses": {
           "200": {
@@ -1581,6 +1608,18 @@
             },
             "description": "unauthorized: Unauthorized response."
           },
+          "403": {
+            "content": {
+              "application/json": {
+                "example": "abc123",
+                "schema": {
+                  "example": "abc123",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "forbidden: Forbidden response."
+          },
           "500": {
             "content": {
               "application/vnd.goa.error": {
@@ -1594,7 +1633,14 @@
         },
         "security": [
           {
-            "jwt_header_Authorization": []
+            "jwt_header_Authorization": [
+              "package:list",
+              "package:listActions",
+              "package:move",
+              "package:read",
+              "package:review",
+              "package:upload"
+            ]
           }
         ],
         "summary": "monitor_request package",
@@ -1657,6 +1703,18 @@
             },
             "description": "unauthorized: Unauthorized response."
           },
+          "403": {
+            "content": {
+              "application/json": {
+                "example": "abc123",
+                "schema": {
+                  "example": "abc123",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "forbidden: Forbidden response."
+          },
           "404": {
             "content": {
               "application/json": {
@@ -1684,7 +1742,9 @@
         },
         "security": [
           {
-            "jwt_header_Authorization": []
+            "jwt_header_Authorization": [
+              "package:read"
+            ]
           }
         ],
         "summary": "show package",
@@ -1751,6 +1811,18 @@
             },
             "description": "unauthorized: Unauthorized response."
           },
+          "403": {
+            "content": {
+              "application/json": {
+                "example": "abc123",
+                "schema": {
+                  "example": "abc123",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "forbidden: Forbidden response."
+          },
           "404": {
             "content": {
               "application/json": {
@@ -1778,7 +1850,9 @@
         },
         "security": [
           {
-            "jwt_header_Authorization": []
+            "jwt_header_Authorization": [
+              "package:review"
+            ]
           }
         ],
         "summary": "confirm package",
@@ -1832,6 +1906,18 @@
             },
             "description": "unauthorized: Unauthorized response."
           },
+          "403": {
+            "content": {
+              "application/json": {
+                "example": "abc123",
+                "schema": {
+                  "example": "abc123",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "forbidden: Forbidden response."
+          },
           "404": {
             "content": {
               "application/json": {
@@ -1859,7 +1945,9 @@
         },
         "security": [
           {
-            "jwt_header_Authorization": []
+            "jwt_header_Authorization": [
+              "package:move"
+            ]
           }
         ],
         "summary": "move_status package",
@@ -1924,6 +2012,18 @@
             },
             "description": "unauthorized: Unauthorized response."
           },
+          "403": {
+            "content": {
+              "application/json": {
+                "example": "abc123",
+                "schema": {
+                  "example": "abc123",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "forbidden: Forbidden response."
+          },
           "404": {
             "content": {
               "application/json": {
@@ -1951,7 +2051,9 @@
         },
         "security": [
           {
-            "jwt_header_Authorization": []
+            "jwt_header_Authorization": [
+              "package:move"
+            ]
           }
         ],
         "summary": "move package",
@@ -2027,6 +2129,18 @@
             },
             "description": "unauthorized: Unauthorized response."
           },
+          "403": {
+            "content": {
+              "application/json": {
+                "example": "abc123",
+                "schema": {
+                  "example": "abc123",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "forbidden: Forbidden response."
+          },
           "404": {
             "content": {
               "application/json": {
@@ -2044,7 +2158,9 @@
         },
         "security": [
           {
-            "jwt_header_Authorization": []
+            "jwt_header_Authorization": [
+              "package:listActions"
+            ]
           }
         ],
         "summary": "preservation_actions package",
@@ -2098,6 +2214,18 @@
             },
             "description": "unauthorized: Unauthorized response."
           },
+          "403": {
+            "content": {
+              "application/json": {
+                "example": "abc123",
+                "schema": {
+                  "example": "abc123",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "forbidden: Forbidden response."
+          },
           "404": {
             "content": {
               "application/json": {
@@ -2125,7 +2253,9 @@
         },
         "security": [
           {
-            "jwt_header_Authorization": []
+            "jwt_header_Authorization": [
+              "package:review"
+            ]
           }
         ],
         "summary": "reject package",
@@ -2170,11 +2300,25 @@
               }
             },
             "description": "unauthorized: Unauthorized response."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "example": "abc123",
+                "schema": {
+                  "example": "abc123",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "forbidden: Forbidden response."
           }
         },
         "security": [
           {
-            "jwt_header_Authorization": []
+            "jwt_header_Authorization": [
+              "storage:location:list"
+            ]
           }
         ],
         "summary": "locations storage",
@@ -2183,7 +2327,7 @@
         ]
       },
       "post": {
-        "description": "Add a storage location",
+        "description": "Create a storage location",
         "operationId": "storage#add_location",
         "requestBody": {
           "content": {
@@ -2240,11 +2384,25 @@
               }
             },
             "description": "unauthorized: Unauthorized response."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "example": "abc123",
+                "schema": {
+                  "example": "abc123",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "forbidden: Forbidden response."
           }
         },
         "security": [
           {
-            "jwt_header_Authorization": []
+            "jwt_header_Authorization": [
+              "storage:location:create"
+            ]
           }
         ],
         "summary": "add_location storage",
@@ -2307,6 +2465,18 @@
             },
             "description": "unauthorized: Unauthorized response."
           },
+          "403": {
+            "content": {
+              "application/json": {
+                "example": "abc123",
+                "schema": {
+                  "example": "abc123",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "forbidden: Forbidden response."
+          },
           "404": {
             "content": {
               "application/json": {
@@ -2324,7 +2494,9 @@
         },
         "security": [
           {
-            "jwt_header_Authorization": []
+            "jwt_header_Authorization": [
+              "storage:location:read"
+            ]
           }
         ],
         "summary": "show_location storage",
@@ -2395,6 +2567,18 @@
             },
             "description": "unauthorized: Unauthorized response."
           },
+          "403": {
+            "content": {
+              "application/json": {
+                "example": "abc123",
+                "schema": {
+                  "example": "abc123",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "forbidden: Forbidden response."
+          },
           "404": {
             "content": {
               "application/json": {
@@ -2412,7 +2596,9 @@
         },
         "security": [
           {
-            "jwt_header_Authorization": []
+            "jwt_header_Authorization": [
+              "storage:location:listPackages"
+            ]
           }
         ],
         "summary": "location_packages storage",
@@ -2482,11 +2668,25 @@
               }
             },
             "description": "unauthorized: Unauthorized response."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "example": "abc123",
+                "schema": {
+                  "example": "abc123",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "forbidden: Forbidden response."
           }
         },
         "security": [
           {
-            "jwt_header_Authorization": []
+            "jwt_header_Authorization": [
+              "storage:package:create"
+            ]
           }
         ],
         "summary": "create storage",
@@ -2545,6 +2745,18 @@
             },
             "description": "unauthorized: Unauthorized response."
           },
+          "403": {
+            "content": {
+              "application/json": {
+                "example": "abc123",
+                "schema": {
+                  "example": "abc123",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "forbidden: Forbidden response."
+          },
           "404": {
             "content": {
               "application/json": {
@@ -2562,7 +2774,9 @@
         },
         "security": [
           {
-            "jwt_header_Authorization": []
+            "jwt_header_Authorization": [
+              "storage:package:read"
+            ]
           }
         ],
         "summary": "show storage",
@@ -2616,6 +2830,18 @@
             },
             "description": "unauthorized: Unauthorized response."
           },
+          "403": {
+            "content": {
+              "application/json": {
+                "example": "abc123",
+                "schema": {
+                  "example": "abc123",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "forbidden: Forbidden response."
+          },
           "404": {
             "content": {
               "application/json": {
@@ -2633,7 +2859,9 @@
         },
         "security": [
           {
-            "jwt_header_Authorization": []
+            "jwt_header_Authorization": [
+              "storage:package:download"
+            ]
           }
         ],
         "summary": "download storage",
@@ -2687,6 +2915,18 @@
             },
             "description": "unauthorized: Unauthorized response."
           },
+          "403": {
+            "content": {
+              "application/json": {
+                "example": "abc123",
+                "schema": {
+                  "example": "abc123",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "forbidden: Forbidden response."
+          },
           "404": {
             "content": {
               "application/json": {
@@ -2714,7 +2954,9 @@
         },
         "security": [
           {
-            "jwt_header_Authorization": []
+            "jwt_header_Authorization": [
+              "storage:package:review"
+            ]
           }
         ],
         "summary": "reject storage",
@@ -2768,6 +3010,18 @@
             },
             "description": "unauthorized: Unauthorized response."
           },
+          "403": {
+            "content": {
+              "application/json": {
+                "example": "abc123",
+                "schema": {
+                  "example": "abc123",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "forbidden: Forbidden response."
+          },
           "404": {
             "content": {
               "application/json": {
@@ -2795,7 +3049,9 @@
         },
         "security": [
           {
-            "jwt_header_Authorization": []
+            "jwt_header_Authorization": [
+              "storage:package:move"
+            ]
           }
         ],
         "summary": "move_status storage",
@@ -2860,6 +3116,18 @@
             },
             "description": "unauthorized: Unauthorized response."
           },
+          "403": {
+            "content": {
+              "application/json": {
+                "example": "abc123",
+                "schema": {
+                  "example": "abc123",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "forbidden: Forbidden response."
+          },
           "404": {
             "content": {
               "application/json": {
@@ -2887,7 +3155,9 @@
         },
         "security": [
           {
-            "jwt_header_Authorization": []
+            "jwt_header_Authorization": [
+              "storage:package:move"
+            ]
           }
         ],
         "summary": "move storage",
@@ -2964,6 +3234,18 @@
             },
             "description": "unauthorized: Unauthorized response."
           },
+          "403": {
+            "content": {
+              "application/json": {
+                "example": "abc123",
+                "schema": {
+                  "example": "abc123",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "forbidden: Forbidden response."
+          },
           "409": {
             "content": {
               "application/vnd.goa.error": {
@@ -2977,7 +3259,9 @@
         },
         "security": [
           {
-            "jwt_header_Authorization": []
+            "jwt_header_Authorization": [
+              "storage:package:submit"
+            ]
           }
         ],
         "summary": "submit storage",
@@ -2988,7 +3272,7 @@
     },
     "/storage/package/{aip_id}/update": {
       "post": {
-        "description": "Signal the storage service that an upload is complete",
+        "description": "Signal that a package submission is complete",
         "operationId": "storage#update",
         "parameters": [
           {
@@ -3031,6 +3315,18 @@
             },
             "description": "unauthorized: Unauthorized response."
           },
+          "403": {
+            "content": {
+              "application/json": {
+                "example": "abc123",
+                "schema": {
+                  "example": "abc123",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "forbidden: Forbidden response."
+          },
           "409": {
             "content": {
               "application/vnd.goa.error": {
@@ -3044,7 +3340,9 @@
         },
         "security": [
           {
-            "jwt_header_Authorization": []
+            "jwt_header_Authorization": [
+              "storage:package:submit"
+            ]
           }
         ],
         "summary": "update storage",
@@ -3075,6 +3373,7 @@
     },
     "/upload/upload": {
       "post": {
+        "description": "Upload a package to trigger an ingest workflow",
         "operationId": "upload#upload",
         "parameters": [
           {
@@ -3118,6 +3417,18 @@
             },
             "description": "unauthorized: Unauthorized response."
           },
+          "403": {
+            "content": {
+              "application/json": {
+                "example": "abc123",
+                "schema": {
+                  "example": "abc123",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "forbidden: Forbidden response."
+          },
           "500": {
             "content": {
               "application/vnd.goa.error": {
@@ -3131,7 +3442,9 @@
         },
         "security": [
           {
-            "jwt_header_Authorization": []
+            "jwt_header_Authorization": [
+              "package:upload"
+            ]
           }
         ],
         "summary": "upload upload",

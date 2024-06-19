@@ -9,6 +9,7 @@ import (
 	"github.com/go-jose/go-jose/v3"
 	"github.com/go-jose/go-jose/v3/jwt"
 	"gotest.tools/v3/assert"
+	"gotest.tools/v3/assert/cmp"
 
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
 )
@@ -41,9 +42,16 @@ func token(t *testing.T, signer jose.Signer, iss string, claims interface{}) (to
 }
 
 func TestOIDCTokenVerifier(t *testing.T) {
+	t.Parallel()
+
 	t.Run("Verifies tokens with email verified", func(t *testing.T) {
+		t.Parallel()
+
 		signer, iss := oidctest.NewIssuer(t)
-		token := token(t, signer, iss, auth.Claims{EmailVerified: true})
+		token := token(t, signer, iss, auth.Claims{
+			Email:         "info@artefactual.com",
+			EmailVerified: true,
+		})
 
 		ctx := context.Background()
 		v, err := auth.NewOIDCTokenVerifier(ctx, &auth.OIDCConfig{
@@ -52,14 +60,22 @@ func TestOIDCTokenVerifier(t *testing.T) {
 		})
 		assert.NilError(t, err)
 
-		verified, err := v.Verify(ctx, token)
+		claims, err := v.Verify(ctx, token)
 		assert.NilError(t, err)
-		assert.Assert(t, verified == true)
+		assert.DeepEqual(t, claims, &auth.Claims{
+			Email:         "info@artefactual.com",
+			EmailVerified: true,
+		})
 	})
 
 	t.Run("Rejects tokens without email verified", func(t *testing.T) {
+		t.Parallel()
+
 		signer, iss := oidctest.NewIssuer(t)
-		token := token(t, signer, iss, auth.Claims{EmailVerified: false})
+		token := token(t, signer, iss, auth.Claims{
+			Email:         "info@artefactual.com",
+			EmailVerified: false,
+		})
 
 		ctx := context.Background()
 		v, err := auth.NewOIDCTokenVerifier(ctx, &auth.OIDCConfig{
@@ -68,14 +84,19 @@ func TestOIDCTokenVerifier(t *testing.T) {
 		})
 		assert.NilError(t, err)
 
-		verified, err := v.Verify(ctx, token)
-		assert.NilError(t, err)
-		assert.Assert(t, verified == false)
+		claims, err := v.Verify(ctx, token)
+		assert.ErrorIs(t, err, auth.ErrUnauthorized)
+		assert.Assert(t, cmp.Nil(claims))
 	})
 
 	t.Run("Rejects tokens under other errorful conditions", func(t *testing.T) {
+		t.Parallel()
+
 		signer, iss := oidctest.NewIssuer(t)
-		token := token(t, signer, iss, auth.Claims{EmailVerified: false})
+		token := token(t, signer, iss, auth.Claims{
+			Email:         "info@artefactual.com",
+			EmailVerified: false,
+		})
 
 		ctx := context.Background()
 		v, err := auth.NewOIDCTokenVerifier(ctx, &auth.OIDCConfig{
@@ -84,12 +105,14 @@ func TestOIDCTokenVerifier(t *testing.T) {
 		})
 		assert.NilError(t, err)
 
-		verified, err := v.Verify(ctx, token)
+		claims, err := v.Verify(ctx, token)
 		assert.Error(t, err, "oidc: expected audience \"--- wrong-audience ---\" got [\"test-audience\"]")
-		assert.Assert(t, verified == false)
+		assert.Assert(t, cmp.Nil(claims))
 	})
 
 	t.Run("Constructor fails when context is canceled", func(t *testing.T) {
+		t.Parallel()
+
 		ctx, cancel := context.WithCancel(context.Background())
 		cancel()
 
@@ -100,13 +123,189 @@ func TestOIDCTokenVerifier(t *testing.T) {
 	})
 }
 
+func TestParseAttributes(t *testing.T) {
+	t.Parallel()
+
+	signer, iss := oidctest.NewIssuer(t)
+
+	type nestedAttr struct {
+		NestedAttributes interface{} `json:"nested_attributes,omitempty"`
+	}
+
+	type customClaims struct {
+		Email         string      `json:"email,omitempty"`
+		EmailVerified bool        `json:"email_verified,omitempty"`
+		Attributes    interface{} `json:"attributes,omitempty"`
+	}
+
+	type test struct {
+		name       string
+		config     *auth.OIDCConfig
+		token      string
+		wantClaims *auth.Claims
+		wantErr    string
+	}
+	for _, tt := range []test{
+		{
+			name: "Parses attributes based on configuration",
+			config: &auth.OIDCConfig{
+				ProviderURL: iss,
+				ClientID:    audience,
+				ABAC: auth.OIDCABACConfig{
+					Enabled:   true,
+					ClaimPath: "attributes",
+				},
+			},
+			token: token(t, signer, iss, customClaims{
+				Email:         "info@artefactual.com",
+				EmailVerified: true,
+				Attributes:    []string{"*"},
+			}),
+			wantClaims: &auth.Claims{
+				Email:         "info@artefactual.com",
+				EmailVerified: true,
+				Attributes:    []string{"*"},
+			},
+		},
+		{
+			name: "Parses attributes based on configuration (nested)",
+			config: &auth.OIDCConfig{
+				ProviderURL: iss,
+				ClientID:    audience,
+				ABAC: auth.OIDCABACConfig{
+					Enabled:            true,
+					ClaimPath:          "attributes.nested_attributes",
+					ClaimPathSeparator: ".",
+				},
+			},
+			token: token(t, signer, iss, customClaims{
+				Email:         "info@artefactual.com",
+				EmailVerified: true,
+				Attributes:    nestedAttr{NestedAttributes: []string{"*"}},
+			}),
+			wantClaims: &auth.Claims{
+				Email:         "info@artefactual.com",
+				EmailVerified: true,
+				Attributes:    []string{"*"},
+			},
+		},
+		{
+			name: "Parses attributes based on configuration (filtering by prefix)",
+			config: &auth.OIDCConfig{
+				ProviderURL: iss,
+				ClientID:    audience,
+				ABAC: auth.OIDCABACConfig{
+					Enabled:          true,
+					ClaimPath:        "attributes",
+					ClaimValuePrefix: "enduro:",
+				},
+			},
+			token: token(t, signer, iss, customClaims{
+				Email:         "info@artefactual.com",
+				EmailVerified: true,
+				Attributes:    []string{"enduro:*", "ignore:*"},
+			}),
+			wantClaims: &auth.Claims{
+				Email:         "info@artefactual.com",
+				EmailVerified: true,
+				Attributes:    []string{"*"},
+			},
+		},
+		{
+			name: "Fails to parse attributes (missing claim)",
+			config: &auth.OIDCConfig{
+				ProviderURL: iss,
+				ClientID:    audience,
+				ABAC: auth.OIDCABACConfig{
+					Enabled:   true,
+					ClaimPath: "attributes",
+				},
+			},
+			token: token(t, signer, iss, customClaims{
+				Email:         "info@artefactual.com",
+				EmailVerified: true,
+			}),
+			wantErr: "attributes not found in token, claim path: attributes",
+		},
+		{
+			name: "Fails to parse attributes (missing nested claim)",
+			config: &auth.OIDCConfig{
+				ProviderURL: iss,
+				ClientID:    audience,
+				ABAC: auth.OIDCABACConfig{
+					Enabled:            true,
+					ClaimPath:          "attributes.nested_attributes",
+					ClaimPathSeparator: ".",
+				},
+			},
+			token: token(t, signer, iss, customClaims{
+				Email:         "info@artefactual.com",
+				EmailVerified: true,
+				Attributes:    nestedAttr{},
+			}),
+			wantErr: "attributes not found in token, claim path: attributes.nested_attributes",
+		},
+		{
+			name: "Fails to parse attributes (non multivalue claim)",
+			config: &auth.OIDCConfig{
+				ProviderURL: iss,
+				ClientID:    audience,
+				ABAC: auth.OIDCABACConfig{
+					Enabled:   true,
+					ClaimPath: "attributes",
+				},
+			},
+			token: token(t, signer, iss, customClaims{
+				Email:         "info@artefactual.com",
+				EmailVerified: true,
+				Attributes:    "*",
+			}),
+			wantErr: "attributes are not part of a multivalue claim, claim path: attributes",
+		},
+		{
+			name: "Fails to parse attributes (expected nested claim)",
+			config: &auth.OIDCConfig{
+				ProviderURL: iss,
+				ClientID:    audience,
+				ABAC: auth.OIDCABACConfig{
+					Enabled:            true,
+					ClaimPath:          "attributes.nested_attributes",
+					ClaimPathSeparator: ".",
+				},
+			},
+			token: token(t, signer, iss, customClaims{
+				Email:         "info@artefactual.com",
+				EmailVerified: true,
+				Attributes:    "*",
+			}),
+			wantErr: "attributes not found in token, claim path: attributes.nested_attributes",
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			v, err := auth.NewOIDCTokenVerifier(ctx, tt.config)
+			assert.NilError(t, err)
+
+			claims, err := v.Verify(ctx, tt.token)
+			if tt.wantErr != "" {
+				assert.Error(t, err, tt.wantErr)
+				return
+			}
+			assert.NilError(t, err)
+			assert.DeepEqual(t, claims, tt.wantClaims)
+		})
+	}
+}
+
 func TestNoopTokenVerifier(t *testing.T) {
 	t.Run("Verifies tokens", func(t *testing.T) {
 		ctx := context.Background()
 		v := &auth.NoopTokenVerifier{}
 
-		verified, err := v.Verify(ctx, "")
+		claims, err := v.Verify(ctx, "")
 		assert.NilError(t, err)
-		assert.Assert(t, verified == true)
+		assert.Assert(t, cmp.Nil(claims))
 	})
 }

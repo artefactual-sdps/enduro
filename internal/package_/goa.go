@@ -13,6 +13,7 @@ import (
 	temporalapi_enums "go.temporal.io/api/enums/v1"
 	"goa.design/goa/v3/security"
 
+	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	goapackage "github.com/artefactual-sdps/enduro/internal/api/gen/package_"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/db"
@@ -34,21 +35,29 @@ var patternMatchingCharReplacer = strings.NewReplacer(
 	"_", "\\_",
 )
 
-var ErrInvalidToken error = goapackage.Unauthorized("invalid token")
+var (
+	ErrUnauthorized error = goapackage.Unauthorized("Unauthorized")
+	ErrForbidden    error = goapackage.Forbidden("Forbidden")
+)
 
 func (w *goaWrapper) JWTAuth(
 	ctx context.Context,
 	token string,
 	scheme *security.JWTScheme,
 ) (context.Context, error) {
-	ok, err := w.tokenVerifier.Verify(ctx, token)
+	claims, err := w.tokenVerifier.Verify(ctx, token)
 	if err != nil {
-		w.logger.V(1).Info("failed to verify token", "err", err)
-		return ctx, ErrInvalidToken
+		if !errors.Is(err, auth.ErrUnauthorized) {
+			w.logger.V(1).Info("failed to verify token", "err", err)
+		}
+		return ctx, ErrUnauthorized
 	}
-	if !ok {
-		return ctx, ErrInvalidToken
+
+	if !claims.CheckAttributes(scheme.RequiredScopes) {
+		return ctx, ErrForbidden
 	}
+
+	ctx = auth.WithUserClaims(ctx, claims)
 
 	return ctx, nil
 }

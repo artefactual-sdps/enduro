@@ -76,6 +76,7 @@ func EncodeUploadRequest(encoder func(*http.Request) goahttp.Encoder) func(*http
 //   - "invalid_media_type" (type *goa.ServiceError): http.StatusBadRequest
 //   - "invalid_multipart_request" (type *goa.ServiceError): http.StatusBadRequest
 //   - "internal_error" (type *goa.ServiceError): http.StatusInternalServerError
+//   - "forbidden" (type upload.Forbidden): http.StatusForbidden
 //   - "unauthorized" (type upload.Unauthorized): http.StatusUnauthorized
 //   - error: internal error
 func DecodeUploadResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
@@ -144,6 +145,16 @@ func DecodeUploadResponse(decoder func(*http.Response) goahttp.Decoder, restoreB
 				return nil, goahttp.ErrValidationError("upload", "upload", err)
 			}
 			return nil, NewUploadInternalError(&body)
+		case http.StatusForbidden:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("upload", "upload", err)
+			}
+			return nil, NewUploadForbidden(body)
 		case http.StatusUnauthorized:
 			var (
 				body string
