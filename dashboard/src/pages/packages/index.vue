@@ -85,13 +85,47 @@ const toggleLegend = () => {
                 >{{ pkg.name }}</router-link
               >
             </td>
-            <td><UUID :id="pkg.aipId" /></td>
+            <td>
+              <UUID :id="pkg.aipId" />
+            </td>
             <td>{{ $filters.formatDateTime(pkg.startedAt) }}</td>
-            <td><UUID :id="pkg.locationId" /></td>
-            <td><StatusBadge :status="pkg.status" /></td>
+            <td>
+              <UUID :id="pkg.locationId" />
+            </td>
+            <td>
+              <StatusBadge :status="pkg.status" />
+            </td>
           </tr>
         </tbody>
       </table>
+    </div>
+    <div>
+      <nav aria-label="Package list pages">
+        <ul class="pagination justify-content-center">
+          <li class="page-item">
+            <a
+              href="#"
+              :class="{
+                'page-link': true,
+                disabled: !packageStore.hasPrevPage,
+              }"
+              @click.prevent="packageStore.prevPage"
+              >Previous</a
+            >
+          </li>
+          <li class="page-item">
+            <a
+              href="#"
+              :class="{
+                'page-link': true,
+                disabled: !packageStore.hasNextPage,
+              }"
+              @click.prevent="packageStore.nextPage"
+              >Next</a
+            >
+          </li>
+        </ul>
+      </nav>
     </div>
   </div>
 </template>
