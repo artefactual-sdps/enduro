@@ -14,7 +14,7 @@ library of scripts, it has since evolved into a flexible tool to be paired with
 preservation applications to provide initial ingest activities such as content
 and structure validation, packaging, and more.
 
-Enduro aims to cover our client's needs while exploring new and innovative ways
+Enduro aims to cover our clients' needs while exploring new and innovative ways
 to build durable and fault-tolerant workflows suited for preservation.
 
 ## User documentation resources
