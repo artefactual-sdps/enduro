@@ -8,14 +8,14 @@
 
 # Enduro
 
-Enduro is a tool designed to automate the processing of transfers in multiple
-Archivematica pipelines. It's part of a preservation solution that is being
-used by the [National Health Archive (NHA)] and the [National Center for Truth
-and Reconciliation (NCTR)].
+Enduro is a new application under development by Artefactual Systems. Originally
+created as a more stable replacement for Archivematica’s automation tools
+library of scripts, it has since evolved into a flexible tool to be paired with
+preservation applications to provide initial ingest activities such as content
+and structure validation, packaging, and more.
 
-It's a **proof of concept** at its very early stages. It aims to cover our
-client's needs while exploring new and innovative ways to build durable and
-fault-tolerant workflows suited for preservation.
+Enduro aims to cover our client's needs while exploring new and innovative ways
+to build durable and fault-tolerant workflows suited for preservation.
 
 ## User documentation resources
 
@@ -24,7 +24,3 @@ fault-tolerant workflows suited for preservation.
 ## Development documentation resources
 
 - [Developer manual](https://enduro.readthedocs.io/dev-manual/)
-
-
-[national health archive (nha)]: https://www.piql.com/norwegians-digital-health-data-to-be-preserved-for-future-generations/
-[national center for truth and reconciliation (nctr)]: https://nctr.ca/about/about-the-nctr/our-mandate/
