@@ -101,8 +101,8 @@ func BuildListPayload(package_ListName string, package_ListAipID string, package
 	{
 		if package_ListStatus != "" {
 			status = &package_ListStatus
-			if !(*status == "new" || *status == "in progress" || *status == "done" || *status == "error" || *status == "unknown" || *status == "queued" || *status == "pending" || *status == "abandoned") {
-				err = goa.MergeErrors(err, goa.InvalidEnumValueError("status", *status, []any{"new", "in progress", "done", "error", "unknown", "queued", "pending", "abandoned"}))
+			if !(*status == "new" || *status == "in progress" || *status == "done" || *status == "error" || *status == "unknown" || *status == "queued" || *status == "abandoned" || *status == "pending") {
+				err = goa.MergeErrors(err, goa.InvalidEnumValueError("status", *status, []any{"new", "in progress", "done", "error", "unknown", "queued", "abandoned", "pending"}))
 			}
 			if err != nil {
 				return nil, err

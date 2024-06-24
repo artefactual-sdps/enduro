@@ -59,8 +59,8 @@ paths:
                     - error
                     - unknown
                     - queued
-                    - pending
                     - abandoned
+                    - pending
                 - name: cursor
                   in: query
                   description: Pagination cursor
@@ -1138,11 +1138,12 @@ definitions:
                 $ref: '#/definitions/EnduroPackagePreservationTaskResponseBodyCollection'
             type:
                 type: string
-                example: create-and-review-aip
+                example: create aip
                 enum:
-                    - create-aip
-                    - create-and-review-aip
-                    - move-package
+                    - unspecified
+                    - create aip
+                    - create and review aip
+                    - move package
             workflow_id:
                 type: string
                 example: abc123
@@ -1162,7 +1163,7 @@ definitions:
                   started_at: "1970-01-01T00:00:01Z"
                   status: in progress
                   task_id: abc123
-            type: create-and-review-aip
+            type: create aip
             workflow_id: abc123
         required:
             - id
@@ -1191,7 +1192,7 @@ definitions:
                   started_at: "1970-01-01T00:00:01Z"
                   status: in progress
                   task_id: abc123
-              type: create-and-review-aip
+              type: create aip
               workflow_id: abc123
     EnduroPackagePreservationTaskResponseBody:
         title: 'Mediatype identifier: application/vnd.enduro.package-preservation-task; view=default'
@@ -1317,8 +1318,8 @@ definitions:
                     - error
                     - unknown
                     - queued
-                    - pending
                     - abandoned
+                    - pending
             workflow_id:
                 type: string
                 description: Identifier of processing workflow
@@ -1917,7 +1918,7 @@ definitions:
                       started_at: "1970-01-01T00:00:01Z"
                       status: in progress
                       task_id: abc123
-                  type: create-and-review-aip
+                  type: create aip
                   workflow_id: abc123
     PackageRejectNotAvailableResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
@@ -2189,8 +2190,8 @@ definitions:
                     - error
                     - unknown
                     - queued
-                    - pending
                     - abandoned
+                    - pending
             workflow_id:
                 type: string
                 description: Identifier of processing workflow

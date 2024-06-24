@@ -69,8 +69,8 @@ paths:
                         - error
                         - unknown
                         - queued
-                        - pending
                         - abandoned
+                        - pending
                   example: in progress
                 - name: cursor
                   in: query
@@ -429,7 +429,7 @@ paths:
                                           started_at: "1970-01-01T00:00:01Z"
                                           status: in progress
                                           task_id: abc123
-                                      type: create-and-review-aip
+                                      type: create aip
                                       workflow_id: abc123
                 "401":
                     description: 'unauthorized: Unauthorized response.'
@@ -1555,11 +1555,12 @@ components:
                     $ref: '#/components/schemas/EnduroPackagePreservationTaskCollection'
                 type:
                     type: string
-                    example: create-and-review-aip
+                    example: create aip
                     enum:
-                        - create-aip
-                        - create-and-review-aip
-                        - move-package
+                        - unspecified
+                        - create aip
+                        - create and review aip
+                        - move package
                 workflow_id:
                     type: string
                     example: abc123
@@ -1579,7 +1580,7 @@ components:
                       started_at: "1970-01-01T00:00:01Z"
                       status: in progress
                       task_id: abc123
-                type: create-and-review-aip
+                type: create aip
                 workflow_id: abc123
             required:
                 - id
@@ -1606,7 +1607,7 @@ components:
                       started_at: "1970-01-01T00:00:01Z"
                       status: in progress
                       task_id: abc123
-                  type: create-and-review-aip
+                  type: create aip
                   workflow_id: abc123
         EnduroPackagePreservationActions:
             type: object
@@ -1629,7 +1630,7 @@ components:
                           started_at: "1970-01-01T00:00:01Z"
                           status: in progress
                           task_id: abc123
-                      type: create-and-review-aip
+                      type: create aip
                       workflow_id: abc123
         EnduroPackagePreservationTask:
             type: object
@@ -1751,8 +1752,8 @@ components:
                         - error
                         - unknown
                         - queued
-                        - pending
                         - abandoned
+                        - pending
                 workflow_id:
                     type: string
                     description: Identifier of processing workflow
@@ -2277,8 +2278,8 @@ components:
                         - error
                         - unknown
                         - queued
-                        - pending
                         - abandoned
+                        - pending
             example:
                 id: 1
                 status: in progress
@@ -2338,7 +2339,7 @@ components:
                           started_at: "1970-01-01T00:00:01Z"
                           status: in progress
                           task_id: abc123
-                    type: create-and-review-aip
+                    type: create aip
                     workflow_id: abc123
             required:
                 - id
@@ -2370,7 +2371,7 @@ components:
                           started_at: "1970-01-01T00:00:01Z"
                           status: in progress
                           task_id: abc123
-                    type: create-and-review-aip
+                    type: create aip
                     workflow_id: abc123
             required:
                 - id

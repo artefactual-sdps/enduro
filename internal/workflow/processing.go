@@ -341,9 +341,9 @@ func (w *ProcessingWorkflow) SessionHandler(
 		{
 			var preservationActionType enums.PreservationActionType
 			if tinfo.req.AutoApproveAIP {
-				preservationActionType = enums.PreservationActionTypeCreateAIP
+				preservationActionType = enums.PreservationActionTypeCreateAip
 			} else {
-				preservationActionType = enums.PreservationActionTypeCreateAndReviewAIP
+				preservationActionType = enums.PreservationActionTypeCreateAndReviewAip
 			}
 
 			ctx := withLocalActivityOpts(sessCtx)

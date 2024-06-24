@@ -2,6 +2,8 @@ package design
 
 import (
 	. "goa.design/goa/v3/dsl"
+
+	"github.com/artefactual-sdps/enduro/internal/enums"
 )
 
 var _ = Service("package", func() {
@@ -220,7 +222,7 @@ var _ = Service("package", func() {
 })
 
 var EnumPackageStatus = func() {
-	Enum("new", "in progress", "done", "error", "unknown", "queued", "pending", "abandoned")
+	Enum(enums.PackageStatusInterfaces()...)
 }
 
 var Package_ = Type("Package", func() {
@@ -229,7 +231,7 @@ var Package_ = Type("Package", func() {
 	TypedAttributeUUID("location_id", "Identifier of storage location")
 	Attribute("status", String, "Status of the package", func() {
 		EnumPackageStatus()
-		Default("new")
+		Default(enums.PackageStatusNew.String())
 	})
 	AttributeUUID("workflow_id", "Identifier of processing workflow")
 	AttributeUUID("run_id", "Identifier of latest processing workflow run")
@@ -294,11 +296,11 @@ var PreservationActions = ResultType("application/vnd.enduro.package-preservatio
 })
 
 var EnumPreservationActionType = func() {
-	Enum("create-aip", "create-and-review-aip", "move-package")
+	Enum(enums.PreservationActionTypeInterfaces()...)
 }
 
 var EnumPreservationActionStatus = func() {
-	Enum("unspecified", "in progress", "done", "error", "queued", "pending")
+	Enum(enums.PreservationActionStatusInterfaces()...)
 }
 
 var PreservationAction = ResultType("application/vnd.enduro.package-preservation-action", func() {
@@ -334,7 +336,7 @@ var PreservationAction = ResultType("application/vnd.enduro.package-preservation
 })
 
 var EnumPreservationTaskStatus = func() {
-	Enum("unspecified", "in progress", "done", "error", "queued", "pending")
+	Enum(enums.PreservationTaskStatusInterfaces()...)
 }
 
 var PreservationTask = ResultType("application/vnd.enduro.package-preservation-task", func() {

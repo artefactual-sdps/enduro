@@ -53,7 +53,7 @@ func createPreservationAction(
 ) (*db.PreservationAction, error) {
 	return entc.PreservationAction.Create().
 		SetWorkflowID("12345").
-		SetType(int8(enums.PreservationActionTypeCreateAIP)).
+		SetType(int8(enums.PreservationActionTypeCreateAip)).
 		SetStatus(int8(status)).
 		SetPackageID(pkgID).
 		Save(context.Background())

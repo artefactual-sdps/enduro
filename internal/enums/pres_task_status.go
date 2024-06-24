@@ -2,12 +2,12 @@ package enums
 
 /*
 ENUM(
-Unspecified
-InProgress
-Done
-Error
-Queued
-Pending
+unspecified
+in progress
+done
+error
+queued
+pending
 )
 */
 type PreservationTaskStatus uint

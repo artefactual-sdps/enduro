@@ -2,14 +2,14 @@ package enums
 
 /*
 ENUM(
-New         // Unused!
-InProgress  // Undergoing work.
-Done        // Work has completed.
-Error       // Processing failed.
-Unknown     // Unused!
-Queued      // Awaiting resource allocation.
-Abandoned   // User abandoned processing.
-Pending     // Awaiting user decision.
+new          // Unused!
+in progress  // Undergoing work.
+done         // Work has completed.
+error        // Processing failed.
+unknown      // Unused!
+queued       // Awaiting resource allocation.
+abandoned    // User abandoned processing.
+pending      // Awaiting user decision.
 )
 */
 type PackageStatus uint

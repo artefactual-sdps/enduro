@@ -23,7 +23,7 @@
             "task_id": "abc123"
           }
         ],
-        "type": "create-and-review-aip",
+        "type": "create aip",
         "workflow_id": "abc123"
       },
       "properties": {
@@ -64,11 +64,12 @@
         },
         "type": {
           "enum": [
-            "create-aip",
-            "create-and-review-aip",
-            "move-package"
+            "unspecified",
+            "create aip",
+            "create and review aip",
+            "move package"
           ],
-          "example": "create-and-review-aip",
+          "example": "create aip",
           "type": "string"
         },
         "workflow_id": {
@@ -107,7 +108,7 @@
               "task_id": "abc123"
             }
           ],
-          "type": "create-and-review-aip",
+          "type": "create aip",
           "workflow_id": "abc123"
         }
       ],
@@ -276,8 +277,8 @@
             "error",
             "unknown",
             "queued",
-            "pending",
-            "abandoned"
+            "abandoned",
+            "pending"
           ],
           "example": "in progress",
           "type": "string"
@@ -1009,7 +1010,7 @@
                 "task_id": "abc123"
               }
             ],
-            "type": "create-and-review-aip",
+            "type": "create aip",
             "workflow_id": "abc123"
           }
         ]
@@ -1362,8 +1363,8 @@
             "error",
             "unknown",
             "queued",
-            "pending",
-            "abandoned"
+            "abandoned",
+            "pending"
           ],
           "example": "in progress",
           "type": "string"
@@ -2833,8 +2834,8 @@
               "error",
               "unknown",
               "queued",
-              "pending",
-              "abandoned"
+              "abandoned",
+              "pending"
             ],
             "in": "query",
             "name": "status",

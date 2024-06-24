@@ -73,7 +73,7 @@ func TestCreatePreservationAction(t *testing.T) {
 			name: "Creates a preservation action with optional values",
 			pa: datatypes.PreservationAction{
 				WorkflowID:  workflowID,
-				Type:        enums.PreservationActionTypeCreateAIP,
+				Type:        enums.PreservationActionTypeCreateAip,
 				Status:      enums.PreservationActionStatusDone,
 				StartedAt:   startedAt,
 				CompletedAt: completedAt,
@@ -82,7 +82,7 @@ func TestCreatePreservationAction(t *testing.T) {
 			want: datatypes.PreservationAction{
 				ID:          11,
 				WorkflowID:  workflowID,
-				Type:        enums.PreservationActionTypeCreateAIP,
+				Type:        enums.PreservationActionTypeCreateAip,
 				Status:      enums.PreservationActionStatusDone,
 				StartedAt:   startedAt,
 				CompletedAt: completedAt,

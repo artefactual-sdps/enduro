@@ -44,8 +44,8 @@ export const PackageStatusUpdatedEventStatusEnum = {
     Error: 'error',
     Unknown: 'unknown',
     Queued: 'queued',
-    Pending: 'pending',
-    Abandoned: 'abandoned'
+    Abandoned: 'abandoned',
+    Pending: 'pending'
 } as const;
 export type PackageStatusUpdatedEventStatusEnum = typeof PackageStatusUpdatedEventStatusEnum[keyof typeof PackageStatusUpdatedEventStatusEnum];
 

@@ -2,10 +2,10 @@ package enums
 
 /*
 ENUM(
-Unspecified
-CreateAIP
-CreateAndReviewAIP
-MovePackage
+unspecified
+create aip
+create and review aip
+move package
 )
 */
 type PreservationActionType uint

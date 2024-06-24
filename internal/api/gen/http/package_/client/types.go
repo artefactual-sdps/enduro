@@ -1252,8 +1252,8 @@ func ValidateEnduroStoredPackageResponseBody(body *EnduroStoredPackageResponseBo
 		err = goa.MergeErrors(err, goa.MissingFieldError("created_at", "body"))
 	}
 	if body.Status != nil {
-		if !(*body.Status == "new" || *body.Status == "in progress" || *body.Status == "done" || *body.Status == "error" || *body.Status == "unknown" || *body.Status == "queued" || *body.Status == "pending" || *body.Status == "abandoned") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []any{"new", "in progress", "done", "error", "unknown", "queued", "pending", "abandoned"}))
+		if !(*body.Status == "new" || *body.Status == "in progress" || *body.Status == "done" || *body.Status == "error" || *body.Status == "unknown" || *body.Status == "queued" || *body.Status == "abandoned" || *body.Status == "pending") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []any{"new", "in progress", "done", "error", "unknown", "queued", "abandoned", "pending"}))
 		}
 	}
 	if body.WorkflowID != nil {
@@ -1310,8 +1310,8 @@ func ValidateEnduroPackagePreservationActionResponseBody(body *EnduroPackagePres
 		err = goa.MergeErrors(err, goa.MissingFieldError("started_at", "body"))
 	}
 	if body.Type != nil {
-		if !(*body.Type == "create-aip" || *body.Type == "create-and-review-aip" || *body.Type == "move-package") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.type", *body.Type, []any{"create-aip", "create-and-review-aip", "move-package"}))
+		if !(*body.Type == "unspecified" || *body.Type == "create aip" || *body.Type == "create and review aip" || *body.Type == "move package") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.type", *body.Type, []any{"unspecified", "create aip", "create and review aip", "move package"}))
 		}
 	}
 	if body.Status != nil {
