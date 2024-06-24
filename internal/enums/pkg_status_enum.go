@@ -15,7 +15,7 @@ const (
 	// PackageStatusNew is a PackageStatus of type New.
 	// Unused!
 	PackageStatusNew PackageStatus = iota
-	// PackageStatusInProgress is a PackageStatus of type InProgress.
+	// PackageStatusInProgress is a PackageStatus of type In Progress.
 	// Undergoing work.
 	PackageStatusInProgress
 	// PackageStatusDone is a PackageStatus of type Done.
@@ -40,17 +40,17 @@ const (
 
 var ErrInvalidPackageStatus = fmt.Errorf("not a valid PackageStatus, try [%s]", strings.Join(_PackageStatusNames, ", "))
 
-const _PackageStatusName = "NewInProgressDoneErrorUnknownQueuedAbandonedPending"
+const _PackageStatusName = "newin progressdoneerrorunknownqueuedabandonedpending"
 
 var _PackageStatusNames = []string{
 	_PackageStatusName[0:3],
-	_PackageStatusName[3:13],
-	_PackageStatusName[13:17],
-	_PackageStatusName[17:22],
-	_PackageStatusName[22:29],
-	_PackageStatusName[29:35],
-	_PackageStatusName[35:44],
-	_PackageStatusName[44:51],
+	_PackageStatusName[3:14],
+	_PackageStatusName[14:18],
+	_PackageStatusName[18:23],
+	_PackageStatusName[23:30],
+	_PackageStatusName[30:36],
+	_PackageStatusName[36:45],
+	_PackageStatusName[45:52],
 }
 
 // PackageStatusNames returns a list of possible string values of PackageStatus.
@@ -62,13 +62,13 @@ func PackageStatusNames() []string {
 
 var _PackageStatusMap = map[PackageStatus]string{
 	PackageStatusNew:        _PackageStatusName[0:3],
-	PackageStatusInProgress: _PackageStatusName[3:13],
-	PackageStatusDone:       _PackageStatusName[13:17],
-	PackageStatusError:      _PackageStatusName[17:22],
-	PackageStatusUnknown:    _PackageStatusName[22:29],
-	PackageStatusQueued:     _PackageStatusName[29:35],
-	PackageStatusAbandoned:  _PackageStatusName[35:44],
-	PackageStatusPending:    _PackageStatusName[44:51],
+	PackageStatusInProgress: _PackageStatusName[3:14],
+	PackageStatusDone:       _PackageStatusName[14:18],
+	PackageStatusError:      _PackageStatusName[18:23],
+	PackageStatusUnknown:    _PackageStatusName[23:30],
+	PackageStatusQueued:     _PackageStatusName[30:36],
+	PackageStatusAbandoned:  _PackageStatusName[36:45],
+	PackageStatusPending:    _PackageStatusName[45:52],
 }
 
 // String implements the Stringer interface.
@@ -88,13 +88,13 @@ func (x PackageStatus) IsValid() bool {
 
 var _PackageStatusValue = map[string]PackageStatus{
 	_PackageStatusName[0:3]:   PackageStatusNew,
-	_PackageStatusName[3:13]:  PackageStatusInProgress,
-	_PackageStatusName[13:17]: PackageStatusDone,
-	_PackageStatusName[17:22]: PackageStatusError,
-	_PackageStatusName[22:29]: PackageStatusUnknown,
-	_PackageStatusName[29:35]: PackageStatusQueued,
-	_PackageStatusName[35:44]: PackageStatusAbandoned,
-	_PackageStatusName[44:51]: PackageStatusPending,
+	_PackageStatusName[3:14]:  PackageStatusInProgress,
+	_PackageStatusName[14:18]: PackageStatusDone,
+	_PackageStatusName[18:23]: PackageStatusError,
+	_PackageStatusName[23:30]: PackageStatusUnknown,
+	_PackageStatusName[30:36]: PackageStatusQueued,
+	_PackageStatusName[36:45]: PackageStatusAbandoned,
+	_PackageStatusName[45:52]: PackageStatusPending,
 }
 
 // ParsePackageStatus attempts to convert a string to a PackageStatus.

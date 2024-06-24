@@ -14,7 +14,7 @@ import (
 const (
 	// PreservationTaskStatusUnspecified is a PreservationTaskStatus of type Unspecified.
 	PreservationTaskStatusUnspecified PreservationTaskStatus = iota
-	// PreservationTaskStatusInProgress is a PreservationTaskStatus of type InProgress.
+	// PreservationTaskStatusInProgress is a PreservationTaskStatus of type In Progress.
 	PreservationTaskStatusInProgress
 	// PreservationTaskStatusDone is a PreservationTaskStatus of type Done.
 	PreservationTaskStatusDone
@@ -28,15 +28,15 @@ const (
 
 var ErrInvalidPreservationTaskStatus = fmt.Errorf("not a valid PreservationTaskStatus, try [%s]", strings.Join(_PreservationTaskStatusNames, ", "))
 
-const _PreservationTaskStatusName = "UnspecifiedInProgressDoneErrorQueuedPending"
+const _PreservationTaskStatusName = "unspecifiedin progressdoneerrorqueuedpending"
 
 var _PreservationTaskStatusNames = []string{
 	_PreservationTaskStatusName[0:11],
-	_PreservationTaskStatusName[11:21],
-	_PreservationTaskStatusName[21:25],
-	_PreservationTaskStatusName[25:30],
-	_PreservationTaskStatusName[30:36],
-	_PreservationTaskStatusName[36:43],
+	_PreservationTaskStatusName[11:22],
+	_PreservationTaskStatusName[22:26],
+	_PreservationTaskStatusName[26:31],
+	_PreservationTaskStatusName[31:37],
+	_PreservationTaskStatusName[37:44],
 }
 
 // PreservationTaskStatusNames returns a list of possible string values of PreservationTaskStatus.
@@ -48,11 +48,11 @@ func PreservationTaskStatusNames() []string {
 
 var _PreservationTaskStatusMap = map[PreservationTaskStatus]string{
 	PreservationTaskStatusUnspecified: _PreservationTaskStatusName[0:11],
-	PreservationTaskStatusInProgress:  _PreservationTaskStatusName[11:21],
-	PreservationTaskStatusDone:        _PreservationTaskStatusName[21:25],
-	PreservationTaskStatusError:       _PreservationTaskStatusName[25:30],
-	PreservationTaskStatusQueued:      _PreservationTaskStatusName[30:36],
-	PreservationTaskStatusPending:     _PreservationTaskStatusName[36:43],
+	PreservationTaskStatusInProgress:  _PreservationTaskStatusName[11:22],
+	PreservationTaskStatusDone:        _PreservationTaskStatusName[22:26],
+	PreservationTaskStatusError:       _PreservationTaskStatusName[26:31],
+	PreservationTaskStatusQueued:      _PreservationTaskStatusName[31:37],
+	PreservationTaskStatusPending:     _PreservationTaskStatusName[37:44],
 }
 
 // String implements the Stringer interface.
@@ -72,11 +72,11 @@ func (x PreservationTaskStatus) IsValid() bool {
 
 var _PreservationTaskStatusValue = map[string]PreservationTaskStatus{
 	_PreservationTaskStatusName[0:11]:  PreservationTaskStatusUnspecified,
-	_PreservationTaskStatusName[11:21]: PreservationTaskStatusInProgress,
-	_PreservationTaskStatusName[21:25]: PreservationTaskStatusDone,
-	_PreservationTaskStatusName[25:30]: PreservationTaskStatusError,
-	_PreservationTaskStatusName[30:36]: PreservationTaskStatusQueued,
-	_PreservationTaskStatusName[36:43]: PreservationTaskStatusPending,
+	_PreservationTaskStatusName[11:22]: PreservationTaskStatusInProgress,
+	_PreservationTaskStatusName[22:26]: PreservationTaskStatusDone,
+	_PreservationTaskStatusName[26:31]: PreservationTaskStatusError,
+	_PreservationTaskStatusName[31:37]: PreservationTaskStatusQueued,
+	_PreservationTaskStatusName[37:44]: PreservationTaskStatusPending,
 }
 
 // ParsePreservationTaskStatus attempts to convert a string to a PreservationTaskStatus.

@@ -35,7 +35,7 @@ func TestCreatePreservationAction(t *testing.T) {
 			args: params{
 				pa: &datatypes.PreservationAction{
 					WorkflowID:  workflowID,
-					Type:        enums.PreservationActionTypeCreateAIP,
+					Type:        enums.PreservationActionTypeCreateAip,
 					Status:      enums.PreservationActionStatusDone,
 					StartedAt:   started,
 					CompletedAt: completed,
@@ -45,7 +45,7 @@ func TestCreatePreservationAction(t *testing.T) {
 			want: &datatypes.PreservationAction{
 				ID:          1,
 				WorkflowID:  workflowID,
-				Type:        enums.PreservationActionTypeCreateAIP,
+				Type:        enums.PreservationActionTypeCreateAip,
 				Status:      enums.PreservationActionStatusDone,
 				StartedAt:   started,
 				CompletedAt: completed,
@@ -56,7 +56,7 @@ func TestCreatePreservationAction(t *testing.T) {
 			name: "Required field error for missing WorkflowID",
 			args: params{
 				pa: &datatypes.PreservationAction{
-					Type:   enums.PreservationActionTypeCreateAIP,
+					Type:   enums.PreservationActionTypeCreateAip,
 					Status: enums.PreservationActionStatusDone,
 				},
 			},
@@ -67,7 +67,7 @@ func TestCreatePreservationAction(t *testing.T) {
 			args: params{
 				pa: &datatypes.PreservationAction{
 					WorkflowID: workflowID,
-					Type:       enums.PreservationActionTypeCreateAIP,
+					Type:       enums.PreservationActionTypeCreateAip,
 					Status:     enums.PreservationActionStatusDone,
 				},
 			},

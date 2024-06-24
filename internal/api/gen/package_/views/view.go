@@ -232,8 +232,8 @@ func ValidateEnduroStoredPackageView(result *EnduroStoredPackageView) (err error
 		err = goa.MergeErrors(err, goa.MissingFieldError("created_at", "result"))
 	}
 	if result.Status != nil {
-		if !(*result.Status == "new" || *result.Status == "in progress" || *result.Status == "done" || *result.Status == "error" || *result.Status == "unknown" || *result.Status == "queued" || *result.Status == "pending" || *result.Status == "abandoned") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.status", *result.Status, []any{"new", "in progress", "done", "error", "unknown", "queued", "pending", "abandoned"}))
+		if !(*result.Status == "new" || *result.Status == "in progress" || *result.Status == "done" || *result.Status == "error" || *result.Status == "unknown" || *result.Status == "queued" || *result.Status == "abandoned" || *result.Status == "pending") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.status", *result.Status, []any{"new", "in progress", "done", "error", "unknown", "queued", "abandoned", "pending"}))
 		}
 	}
 	if result.WorkflowID != nil {
@@ -312,8 +312,8 @@ func ValidateEnduroPackagePreservationActionViewSimple(result *EnduroPackagePres
 		err = goa.MergeErrors(err, goa.MissingFieldError("started_at", "result"))
 	}
 	if result.Type != nil {
-		if !(*result.Type == "create-aip" || *result.Type == "create-and-review-aip" || *result.Type == "move-package") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.type", *result.Type, []any{"create-aip", "create-and-review-aip", "move-package"}))
+		if !(*result.Type == "unspecified" || *result.Type == "create aip" || *result.Type == "create and review aip" || *result.Type == "move package") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.type", *result.Type, []any{"unspecified", "create aip", "create and review aip", "move package"}))
 		}
 	}
 	if result.Status != nil {
@@ -349,8 +349,8 @@ func ValidateEnduroPackagePreservationActionView(result *EnduroPackagePreservati
 		err = goa.MergeErrors(err, goa.MissingFieldError("started_at", "result"))
 	}
 	if result.Type != nil {
-		if !(*result.Type == "create-aip" || *result.Type == "create-and-review-aip" || *result.Type == "move-package") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.type", *result.Type, []any{"create-aip", "create-and-review-aip", "move-package"}))
+		if !(*result.Type == "unspecified" || *result.Type == "create aip" || *result.Type == "create and review aip" || *result.Type == "move package") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.type", *result.Type, []any{"unspecified", "create aip", "create and review aip", "move package"}))
 		}
 	}
 	if result.Status != nil {

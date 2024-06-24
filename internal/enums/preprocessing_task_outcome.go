@@ -1,9 +1,11 @@
 package enums
 
-// ENUM(
-// Unspecified,
-// Success,
-// SystemFailure,
-// ValidationFailure,
-// ).
+/*
+ENUM(
+unspecified
+success
+system failure
+validation failure
+)
+*/
 type PreprocessingTaskOutcome string

@@ -14,23 +14,23 @@ import (
 const (
 	// PreservationActionTypeUnspecified is a PreservationActionType of type Unspecified.
 	PreservationActionTypeUnspecified PreservationActionType = iota
-	// PreservationActionTypeCreateAIP is a PreservationActionType of type CreateAIP.
-	PreservationActionTypeCreateAIP
-	// PreservationActionTypeCreateAndReviewAIP is a PreservationActionType of type CreateAndReviewAIP.
-	PreservationActionTypeCreateAndReviewAIP
-	// PreservationActionTypeMovePackage is a PreservationActionType of type MovePackage.
+	// PreservationActionTypeCreateAip is a PreservationActionType of type Create Aip.
+	PreservationActionTypeCreateAip
+	// PreservationActionTypeCreateAndReviewAip is a PreservationActionType of type Create And Review Aip.
+	PreservationActionTypeCreateAndReviewAip
+	// PreservationActionTypeMovePackage is a PreservationActionType of type Move Package.
 	PreservationActionTypeMovePackage
 )
 
 var ErrInvalidPreservationActionType = fmt.Errorf("not a valid PreservationActionType, try [%s]", strings.Join(_PreservationActionTypeNames, ", "))
 
-const _PreservationActionTypeName = "UnspecifiedCreateAIPCreateAndReviewAIPMovePackage"
+const _PreservationActionTypeName = "unspecifiedcreate aipcreate and review aipmove package"
 
 var _PreservationActionTypeNames = []string{
 	_PreservationActionTypeName[0:11],
-	_PreservationActionTypeName[11:20],
-	_PreservationActionTypeName[20:38],
-	_PreservationActionTypeName[38:49],
+	_PreservationActionTypeName[11:21],
+	_PreservationActionTypeName[21:42],
+	_PreservationActionTypeName[42:54],
 }
 
 // PreservationActionTypeNames returns a list of possible string values of PreservationActionType.
@@ -42,9 +42,9 @@ func PreservationActionTypeNames() []string {
 
 var _PreservationActionTypeMap = map[PreservationActionType]string{
 	PreservationActionTypeUnspecified:        _PreservationActionTypeName[0:11],
-	PreservationActionTypeCreateAIP:          _PreservationActionTypeName[11:20],
-	PreservationActionTypeCreateAndReviewAIP: _PreservationActionTypeName[20:38],
-	PreservationActionTypeMovePackage:        _PreservationActionTypeName[38:49],
+	PreservationActionTypeCreateAip:          _PreservationActionTypeName[11:21],
+	PreservationActionTypeCreateAndReviewAip: _PreservationActionTypeName[21:42],
+	PreservationActionTypeMovePackage:        _PreservationActionTypeName[42:54],
 }
 
 // String implements the Stringer interface.
@@ -64,9 +64,9 @@ func (x PreservationActionType) IsValid() bool {
 
 var _PreservationActionTypeValue = map[string]PreservationActionType{
 	_PreservationActionTypeName[0:11]:  PreservationActionTypeUnspecified,
-	_PreservationActionTypeName[11:20]: PreservationActionTypeCreateAIP,
-	_PreservationActionTypeName[20:38]: PreservationActionTypeCreateAndReviewAIP,
-	_PreservationActionTypeName[38:49]: PreservationActionTypeMovePackage,
+	_PreservationActionTypeName[11:21]: PreservationActionTypeCreateAip,
+	_PreservationActionTypeName[21:42]: PreservationActionTypeCreateAndReviewAip,
+	_PreservationActionTypeName[42:54]: PreservationActionTypeMovePackage,
 }
 
 // ParsePreservationActionType attempts to convert a string to a PreservationActionType.

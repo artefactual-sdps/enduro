@@ -112,7 +112,7 @@ export interface PackageApiInterface {
      * @param {Date} [earliestCreatedTime] 
      * @param {Date} [latestCreatedTime] 
      * @param {string} [locationId] Identifier of storage location
-     * @param {'new' | 'in progress' | 'done' | 'error' | 'unknown' | 'queued' | 'pending' | 'abandoned'} [status] 
+     * @param {'new' | 'in progress' | 'done' | 'error' | 'unknown' | 'queued' | 'abandoned' | 'pending'} [status] 
      * @param {string} [cursor] Pagination cursor
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -631,7 +631,7 @@ export const PackageListStatusEnum = {
     Error: 'error',
     Unknown: 'unknown',
     Queued: 'queued',
-    Pending: 'pending',
-    Abandoned: 'abandoned'
+    Abandoned: 'abandoned',
+    Pending: 'pending'
 } as const;
 export type PackageListStatusEnum = typeof PackageListStatusEnum[keyof typeof PackageListStatusEnum];

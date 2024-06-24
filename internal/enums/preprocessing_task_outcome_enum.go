@@ -12,14 +12,14 @@ import (
 )
 
 const (
-	// PreprocessingTaskOutcomeUnspecified is a PreprocessingTaskOutcome of type Unspecified.
-	PreprocessingTaskOutcomeUnspecified PreprocessingTaskOutcome = "Unspecified"
-	// PreprocessingTaskOutcomeSuccess is a PreprocessingTaskOutcome of type Success.
-	PreprocessingTaskOutcomeSuccess PreprocessingTaskOutcome = "Success"
-	// PreprocessingTaskOutcomeSystemFailure is a PreprocessingTaskOutcome of type SystemFailure.
-	PreprocessingTaskOutcomeSystemFailure PreprocessingTaskOutcome = "SystemFailure"
-	// PreprocessingTaskOutcomeValidationFailure is a PreprocessingTaskOutcome of type ValidationFailure.
-	PreprocessingTaskOutcomeValidationFailure PreprocessingTaskOutcome = "ValidationFailure"
+	// PreprocessingTaskOutcomeUnspecified is a PreprocessingTaskOutcome of type unspecified.
+	PreprocessingTaskOutcomeUnspecified PreprocessingTaskOutcome = "unspecified"
+	// PreprocessingTaskOutcomeSuccess is a PreprocessingTaskOutcome of type success.
+	PreprocessingTaskOutcomeSuccess PreprocessingTaskOutcome = "success"
+	// PreprocessingTaskOutcomeSystemFailure is a PreprocessingTaskOutcome of type system failure.
+	PreprocessingTaskOutcomeSystemFailure PreprocessingTaskOutcome = "system failure"
+	// PreprocessingTaskOutcomeValidationFailure is a PreprocessingTaskOutcome of type validation failure.
+	PreprocessingTaskOutcomeValidationFailure PreprocessingTaskOutcome = "validation failure"
 )
 
 var ErrInvalidPreprocessingTaskOutcome = fmt.Errorf("not a valid PreprocessingTaskOutcome, try [%s]", strings.Join(_PreprocessingTaskOutcomeNames, ", "))
@@ -51,10 +51,10 @@ func (x PreprocessingTaskOutcome) IsValid() bool {
 }
 
 var _PreprocessingTaskOutcomeValue = map[string]PreprocessingTaskOutcome{
-	"Unspecified":       PreprocessingTaskOutcomeUnspecified,
-	"Success":           PreprocessingTaskOutcomeSuccess,
-	"SystemFailure":     PreprocessingTaskOutcomeSystemFailure,
-	"ValidationFailure": PreprocessingTaskOutcomeValidationFailure,
+	"unspecified":        PreprocessingTaskOutcomeUnspecified,
+	"success":            PreprocessingTaskOutcomeSuccess,
+	"system failure":     PreprocessingTaskOutcomeSystemFailure,
+	"validation failure": PreprocessingTaskOutcomeValidationFailure,
 }
 
 // ParsePreprocessingTaskOutcome attempts to convert a string to a PreprocessingTaskOutcome.
