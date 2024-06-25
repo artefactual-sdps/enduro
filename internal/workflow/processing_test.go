@@ -774,17 +774,6 @@ func (s *ProcessingWorkflowTestSuite) TestPreprocessingChildWorkflow() {
 		nil,
 	)
 
-	s.env.OnActivity(activities.BundleActivityName, sessionCtx,
-		&activities.BundleActivityParams{
-			SourcePath:  prepDest,
-			TransferDir: s.transferDir,
-			IsDir:       true,
-		},
-	).Return(
-		&activities.BundleActivityResult{FullPath: transferPath},
-		nil,
-	)
-
 	s.env.OnActivity(a3m.CreateAIPActivityName, sessionCtx, mock.AnythingOfType("*a3m.CreateAIPActivityParams")).
 		Return(nil, nil).
 		Once()
@@ -819,7 +808,7 @@ func (s *ProcessingWorkflowTestSuite) TestPreprocessingChildWorkflow() {
 	s.env.OnActivity(
 		filesys.RemoveActivityName,
 		sessionCtx,
-		&filesys.RemoveActivityParams{Paths: []string{downloadDir, transferPath}},
+		&filesys.RemoveActivityParams{Paths: []string{downloadDir}},
 	).Return(&filesys.RemoveActivityResult{}, nil)
 	s.env.OnActivity(activities.DeleteOriginalActivityName, sessionCtx, watcherName, key).Return(nil, nil).Once()
 
