@@ -14,11 +14,13 @@ describe("Tabs.vue", () => {
             icon: "",
             text: "Route1",
             route: { name: "route1" },
+            show: true,
           },
           {
             icon: "",
             text: "Route2",
             route: { name: "route2" },
+            show: true,
           },
         ],
       },

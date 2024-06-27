@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import UUID from "@/components/UUID.vue";
 import { openPackageLocationDialog } from "@/dialogs";
+import { useAuthStore } from "@/stores/auth";
 import { usePackageStore } from "@/stores/package";
 
+const authStore = useAuthStore();
 const packageStore = usePackageStore();
 
 let failed = $ref<boolean | null>(null);
@@ -37,7 +39,13 @@ const choose = async () => {
         >
         <span v-else><UUID :id="packageStore.current.locationId" /></span>
       </p>
-      <div class="actions" v-if="!packageStore.isRejected">
+      <div
+        class="actions"
+        v-if="
+          !packageStore.isRejected &&
+          authStore.checkAttributes(['package:move'])
+        "
+      >
         <button
           type="button"
           class="btn btn-primary btn-sm"

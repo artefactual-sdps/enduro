@@ -1,8 +1,7 @@
-import auth from "./auth";
 import * as api from "./openapi-generator";
 import * as runtime from "./openapi-generator/runtime";
+import { useAuthStore } from "@/stores/auth";
 import { usePackageStore } from "./stores/package";
-import { useLayoutStore } from "@/stores/layout";
 
 export interface Client {
   package: api.PackageApi;
@@ -61,13 +60,12 @@ function connectPackageMonitor() {
 function createClient(): Client {
   const config: api.Configuration = new api.Configuration({
     basePath: getPath(),
-    accessToken: () =>
-      auth.getUser().then((user) => (user ? user.access_token : "")),
+    accessToken: () => useAuthStore().getUserAccessToken,
     middleware: [
       {
         post(context) {
           if (context.response.status == 401) {
-            useLayoutStore().removeUser();
+            useAuthStore().removeUser();
             return Promise.resolve();
           }
           return Promise.resolve(context.response);

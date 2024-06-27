@@ -3,6 +3,7 @@ import PackageListLegend from "@/components/PackageListLegend.vue";
 import PageLoadingAlert from "@/components/PageLoadingAlert.vue";
 import StatusBadge from "@/components/StatusBadge.vue";
 import UUID from "@/components/UUID.vue";
+import { useAuthStore } from "@/stores/auth";
 import { useLayoutStore } from "@/stores/layout";
 import { usePackageStore } from "@/stores/package";
 import { useAsyncState } from "@vueuse/core";
@@ -11,6 +12,7 @@ import { onMounted } from "vue";
 import IconInfoFill from "~icons/akar-icons/info-fill";
 import IconBundleLine from "~icons/clarity/bundle-line";
 
+const authStore = useAuthStore();
 const layoutStore = useLayoutStore();
 layoutStore.updateBreadcrumb([{ text: "Packages" }]);
 
@@ -81,9 +83,11 @@ const toggleLegend = () => {
             <td scope="row">{{ pkg.id }}</td>
             <td>
               <router-link
+                v-if="authStore.checkAttributes(['package:read'])"
                 :to="{ name: '/packages/[id]/', params: { id: pkg.id } }"
                 >{{ pkg.name }}</router-link
               >
+              <span v-else>{{ pkg.name }}</span>
             </td>
             <td>
               <UUID :id="pkg.aipId" />

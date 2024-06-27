@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import PageLoadingAlert from "@/components/PageLoadingAlert.vue";
 import UUID from "@/components/UUID.vue";
+import { useAuthStore } from "@/stores/auth";
 import { useLayoutStore } from "@/stores/layout";
 import { useStorageStore } from "@/stores/storage";
 import { useAsyncState } from "@vueuse/core";
 import IconRackServerLine from "~icons/clarity/rack-server-line";
 
+const authStore = useAuthStore();
 const layoutStore = useLayoutStore();
 layoutStore.updateBreadcrumb([{ text: "Locations" }]);
 
@@ -41,9 +43,11 @@ const { execute, error } = useAsyncState(() => {
           <tr v-for="(item, index) in storageStore.locations">
             <td>
               <router-link
+                v-if="authStore.checkAttributes(['storage:location:read'])"
                 :to="{ name: '/locations/[id]/', params: { id: item.uuid } }"
                 >{{ item.name }}</router-link
               >
+              <span v-else>{{ item.name }}</span>
             </td>
             <td>{{ $filters.getLocationSourceLabel(item.source) }}</td>
             <td>{{ $filters.getLocationPurposeLabel(item.purpose) }}</td>

@@ -2,10 +2,13 @@
 import type { api } from "@/client";
 import PackageReviewAlert from "@/components/PackageReviewAlert.vue";
 import StatusBadge from "@/components/StatusBadge.vue";
+import { useAuthStore } from "@/stores/auth";
 import Collapse from "bootstrap/js/dist/collapse";
 import { onMounted, watch } from "vue";
 import IconCircleChevronDown from "~icons/akar-icons/circle-chevron-down";
 import IconCircleChevronUp from "~icons/akar-icons/circle-chevron-up";
+
+const authStore = useAuthStore();
 
 const { action, index, toggleAll } = defineProps<{
   action: api.EnduroPackagePreservationAction;
@@ -102,7 +105,10 @@ watch($$(expandCounter), () => show());
       "
     />
     -->
-    <PackageReviewAlert v-model:expandCounter="expandCounter" />
+    <PackageReviewAlert
+      v-model:expandCounter="expandCounter"
+      v-if="authStore.checkAttributes(['package:review'])"
+    />
 
     <div
       ref="el"

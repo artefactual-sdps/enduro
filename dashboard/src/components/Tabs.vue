@@ -7,6 +7,7 @@ const { tabs } = defineProps<{
     icon: FunctionalComponent<SVGAttributes, {}>;
     text: string;
     route: RouteLocationResolved;
+    show: boolean;
   }[];
 }>();
 </script>
@@ -16,6 +17,7 @@ const { tabs } = defineProps<{
     <ul class="nav nav-tabs d-flex flex-nowrap">
       <li class="nav-item d-flex" v-for="tab in tabs">
         <router-link
+          v-if="tab.show"
           :to="tab.route"
           class="nav-link text-primary text-nowrap d-flex align-items-center"
           exact-active-class="active"

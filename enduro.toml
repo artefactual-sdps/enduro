@@ -23,7 +23,7 @@ enabled = true
 
 [api.auth.oidc]
 # OIDC provider URL. Required when auth. is enabled.
-providerURL = "http://keycloak:7470/realms/enduro"
+providerURL = "http://keycloak:7470/realms/artefactual"
 # OIDC client ID. The client ID must be included in the `aud` claim of
 # the access token. Required when auth. is enabled. 
 clientID = "enduro"
@@ -32,7 +32,7 @@ clientID = "enduro"
 # Enable Attribute Based Access Control (ABAC). If enabled, the API will
 # check a configurable multivalue claim against required attributes based
 # on each endpoint configuration.
-enabled = false
+enabled = true
 # Claim path of the Enduro attributes within the access token. If the claim
 # path is nested then include all fields separated by `claimPathSeparator`
 # (see below). E.g. "attributes.enduro" with `claimPathSeparator = "."`. 

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import PageLoadingAlert from "@/components/PageLoadingAlert.vue";
 import Tabs from "@/components/Tabs.vue";
+import { useAuthStore } from "@/stores/auth";
 import { useStorageStore } from "@/stores/storage";
 import { useAsyncState } from "@vueuse/core";
 import { useRoute, useRouter } from "vue-router/auto";
@@ -10,6 +11,7 @@ import IconRackServerLine from "~icons/clarity/rack-server-line";
 
 const route = useRoute("/locations/[id]");
 const router = useRouter();
+const authStore = useAuthStore();
 const storageStore = useStorageStore();
 
 const { execute, error } = useAsyncState(
@@ -25,6 +27,7 @@ const tabs = [
       name: "/locations/[id]/",
       params: { id: route.params.id },
     }),
+    show: authStore.checkAttributes(["storage:location:read"]),
   },
   {
     icon: RawIconBundleLine,
@@ -33,6 +36,7 @@ const tabs = [
       name: "/locations/[id]/packages",
       params: { id: route.params.id },
     }),
+    show: authStore.checkAttributes(["storage:location:listPackages"]),
   },
 ];
 </script>

@@ -1,14 +1,7 @@
 <script setup lang="ts">
-import auth from "@/auth";
-import { client } from "@/client";
-import { useLayoutStore } from "@/stores/layout";
-import { useRouter } from "vue-router/auto";
+import { useAuthStore } from "@/stores/auth";
 
-const router = useRouter();
-auth.signinCallback().then((user) => {
-  useLayoutStore().setUser(user || null);
-  router.push({ name: "/" });
-});
+useAuthStore().signinCallback();
 </script>
 
 <template></template>

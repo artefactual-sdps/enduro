@@ -72,10 +72,10 @@ kind: ConfigMap
 metadata:
   name: keycloak-realm-config
 data:
-  enduro-realm.json: |
+  artefactual-realm.json: |
     {
       "id": "edc1624d-4b30-4f22-a6d0-3a171fe08a6a",
-      "realm": "enduro",
+      "realm": "artefactual",
       "enabled": true,
       "users": [
         {

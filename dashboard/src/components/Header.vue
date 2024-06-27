@@ -61,7 +61,6 @@ onMounted(() => {
       </router-link>
 
       <div class="flex-grow-1 d-none d-md-block">
-        <span class="text-muted me-2">/</span>
         <Breadcrumb />
       </div>
     </nav>

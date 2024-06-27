@@ -2,6 +2,7 @@
 import PackagePendingAlert from "@/components/PackagePendingAlert.vue";
 import PageLoadingAlert from "@/components/PageLoadingAlert.vue";
 import Tabs from "@/components/Tabs.vue";
+import { useAuthStore } from "@/stores/auth";
 import { usePackageStore } from "@/stores/package";
 import { useAsyncState } from "@vueuse/core";
 import { useRoute, useRouter } from "vue-router/auto";
@@ -10,6 +11,7 @@ import RawIconDetailsLine from "~icons/clarity/details-line?raw&font-size=20px";
 
 const route = useRoute("/packages/[id]");
 const router = useRouter();
+const authStore = useAuthStore();
 const packageStore = usePackageStore();
 
 const { execute, error } = useAsyncState(
@@ -25,6 +27,7 @@ const tabs = [
       name: "/packages/[id]/",
       params: { id: route.params.id },
     }),
+    show: authStore.checkAttributes(["package:read"]),
   },
 ];
 </script>

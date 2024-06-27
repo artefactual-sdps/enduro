@@ -28,7 +28,7 @@ func TestConfig(t *testing.T) {
 			config: &auth.Config{
 				Enabled: true,
 				OIDC: &auth.OIDCConfig{
-					ProviderURL: "http://keycloak:7470/realms/enduro",
+					ProviderURL: "http://keycloak:7470/realms/artefactual",
 					ClientID:    "enduro",
 				},
 			},
@@ -38,7 +38,7 @@ func TestConfig(t *testing.T) {
 			config: &auth.Config{
 				Enabled: true,
 				OIDC: &auth.OIDCConfig{
-					ProviderURL: "http://keycloak:7470/realms/enduro",
+					ProviderURL: "http://keycloak:7470/realms/artefactual",
 					ClientID:    "enduro",
 					ABAC: auth.OIDCABACConfig{
 						Enabled:   true,
@@ -67,7 +67,7 @@ func TestConfig(t *testing.T) {
 			config: &auth.Config{
 				Enabled: true,
 				OIDC: &auth.OIDCConfig{
-					ProviderURL: "http://keycloak:7470/realms/enduro",
+					ProviderURL: "http://keycloak:7470/realms/artefactual",
 					ClientID:    "enduro",
 					ABAC: auth.OIDCABACConfig{
 						Enabled: true,

@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { storageServiceDownloadURL } from "@/client";
 import StatusBadge from "@/components/StatusBadge.vue";
+import { useAuthStore } from "@/stores/auth";
 import { usePackageStore } from "@/stores/package";
 import { computed, watch } from "vue";
 
+const authStore = useAuthStore();
 const packageStore = usePackageStore();
 
 const download = () => {
@@ -48,6 +50,7 @@ watch(packageStore.ui.download, () => download());
           View metadata summary
         </button>
         <button
+          v-if="authStore.checkAttributes(['storage:package:download'])"
           :class="{
             btn: true,
             'btn-primary': true,

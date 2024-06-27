@@ -1,4 +1,4 @@
-import { useLayoutStore } from "./stores/layout";
+import { useAuthStore } from "@/stores/auth";
 import { createRouter, createWebHistory } from "vue-router/auto";
 
 const router = createRouter({
@@ -6,15 +6,30 @@ const router = createRouter({
   strict: false,
 });
 
-const publicRoutes: Array<string> = ["/user/signin", "/user/signin-callback"];
+const signinRoutes: string[] = ["/user/signin", "/user/signin-callback"];
+const protectedRoutes: Record<string, string[]> = {
+  "/packages/": ["package:list"],
+  "/packages/[id]/": ["package:read"],
+  "/locations/": ["storage:location:list"],
+  "/locations/[id]/": ["storage:location:read"],
+  "/locations/[id]/packages": ["storage:location:listPackages"],
+};
 
-// Send unauthenticated users to the sign-in page.
 router.beforeEach(async (to, _, next) => {
-  const layoutStore = useLayoutStore();
-  await layoutStore.loadUser();
+  const authStore = useAuthStore();
+  await authStore.loadUser();
   const routeName = to.name?.toString() || "";
-  if (!layoutStore.isUserValid && !publicRoutes.includes(routeName)) {
+
+  // TODO: Show alerts when redirecting.
+  if (!authStore.isEnabled && signinRoutes.includes(routeName)) {
+    next({ name: "/" });
+  } else if (!authStore.isUserValid && !signinRoutes.includes(routeName)) {
     next({ name: "/user/signin" });
+  } else if (
+    protectedRoutes[routeName] !== undefined &&
+    !authStore.checkAttributes(protectedRoutes[routeName])
+  ) {
+    next({ name: "/" });
   } else {
     next();
   }

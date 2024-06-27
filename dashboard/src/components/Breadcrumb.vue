@@ -5,6 +5,7 @@ const layoutStore = useLayoutStore();
 </script>
 
 <template>
+  <span v-if="layoutStore.breadcrumb.length" class="text-muted me-2">/</span>
   <nav aria-label="Breadcrumb" class="d-inline-block">
     <ol class="breadcrumb mb-0">
       <li

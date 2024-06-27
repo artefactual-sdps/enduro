@@ -5,8 +5,10 @@ import PackageLocationCard from "@/components/PackageLocationCard.vue";
 import PreservationActionCollapse from "@/components/PreservationActionCollapse.vue";
 import StatusBadge from "@/components/StatusBadge.vue";
 import UUID from "@/components/UUID.vue";
+import { useAuthStore } from "@/stores/auth";
 import { usePackageStore } from "@/stores/package";
 
+const authStore = useAuthStore();
 const packageStore = usePackageStore();
 
 const createAipWorkflow = $computed(
@@ -65,39 +67,41 @@ let toggleAll = $ref<boolean | null>(false);
       </div>
     </div>
 
-    <div class="d-flex">
-      <h2 class="mb-0">Preservation actions</h2>
-      <div
-        class="align-self-end ms-auto d-flex"
-        v-if="
-          packageStore.current_preservation_actions?.actions &&
-          packageStore.current_preservation_actions.actions.length > 1
-        "
-      >
-        <button
-          class="btn btn-sm btn-link p-0"
-          type="button"
-          @click="toggleAll = true"
+    <div v-if="authStore.checkAttributes(['package:listActions'])">
+      <div class="d-flex">
+        <h2 class="mb-0">Preservation actions</h2>
+        <div
+          class="align-self-end ms-auto d-flex"
+          v-if="
+            packageStore.current_preservation_actions?.actions &&
+            packageStore.current_preservation_actions.actions.length > 1
+          "
         >
-          Expand all
-        </button>
-        <span class="px-1">|</span>
-        <button
-          class="btn btn-sm btn-link p-0"
-          type="button"
-          @click="toggleAll = false"
-        >
-          Collapse all
-        </button>
+          <button
+            class="btn btn-sm btn-link p-0"
+            type="button"
+            @click="toggleAll = true"
+          >
+            Expand all
+          </button>
+          <span class="px-1">|</span>
+          <button
+            class="btn btn-sm btn-link p-0"
+            type="button"
+            @click="toggleAll = false"
+          >
+            Collapse all
+          </button>
+        </div>
       </div>
-    </div>
 
-    <PreservationActionCollapse
-      :action="action"
-      :index="index"
-      v-model:toggleAll="toggleAll"
-      v-for="(action, index) in packageStore.current_preservation_actions
-        ?.actions"
-    />
+      <PreservationActionCollapse
+        :action="action"
+        :index="index"
+        v-model:toggleAll="toggleAll"
+        v-for="(action, index) in packageStore.current_preservation_actions
+          ?.actions"
+      />
+    </div>
   </div>
 </template>

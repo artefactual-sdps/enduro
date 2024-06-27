@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useAuthStore } from "@/stores/auth";
 import { useLayoutStore } from "@/stores/layout";
 import { useRouter } from "vue-router/auto";
 import Collapse from "bootstrap/js/dist/collapse";
@@ -8,23 +9,32 @@ import IconCaretLine from "~icons/clarity/caret-line";
 import RawIconLogoutLine from "~icons/clarity/logout-line?raw&width=2em&height=2em";
 import RawIconRackServerLine from "~icons/clarity/rack-server-line?raw&width=2em&height=2em";
 import RawIconUserSolid from "~icons/clarity/user-solid?raw&width=2em&height=2em";
+import RawIconHomeLine from "~icons/clarity/home-line?raw&width=2em&height=2em";
 
+const authStore = useAuthStore();
+const layoutStore = useLayoutStore();
 const router = useRouter();
 
 const menuItems = [
   {
+    route: router.resolve("/"),
+    icon: RawIconHomeLine,
+    text: "Home",
+    show: true,
+  },
+  {
     route: router.resolve("/packages/"),
     icon: RawIconBundleLine,
     text: "Packages",
+    show: authStore.checkAttributes(["package:list"]),
   },
   {
     route: router.resolve("/locations/"),
     icon: RawIconRackServerLine,
     text: "Locations",
+    show: authStore.checkAttributes(["storage:location:list"]),
   },
 ];
-
-const layoutStore = useLayoutStore();
 
 const collapse = $ref<HTMLElement | null>(null);
 onMounted(() => {
@@ -59,6 +69,7 @@ onMounted(() => {
         <ul class="list-unstyled flex-grow-1 mb-0">
           <li v-for="item in menuItems">
             <router-link
+              v-if="item.show"
               class="d-block py-3 text-decoration-none sidebar-link"
               active-class="active"
               exact-active-class="exact-active"
@@ -92,6 +103,7 @@ onMounted(() => {
           </li>
         </ul>
         <button
+          v-if="authStore.isEnabled"
           ref="collapse"
           type="button"
           id="user-menu-button"
@@ -126,7 +138,7 @@ onMounted(() => {
                 "
               >
                 <span class="text-truncate pe-1">{{
-                  layoutStore.getUserDisplayName
+                  authStore.getUserDisplayName
                 }}</span>
                 <IconCaretLine class="ms-auto" />
               </div>
@@ -136,7 +148,7 @@ onMounted(() => {
         <div class="collapse" id="user-menu">
           <a
             class="d-block py-3 text-decoration-none text-dark sidebar-link"
-            @click="layoutStore.removeUser()"
+            @click="authStore.removeUser()"
             href="#"
           >
             <div class="container-fluid">
