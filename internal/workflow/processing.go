@@ -104,6 +104,9 @@ type TransferInfo struct {
 	// It is populated by the workflow request.
 	GlobalTaskQueue       string
 	PreservationTaskQueue string
+
+	SendToFailedPath string
+	SendToFailedType string
 }
 
 func (t *TransferInfo) Name() string {
@@ -320,11 +323,31 @@ func (w *ProcessingWorkflow) SessionHandler(
 	sessCtx temporalsdk_workflow.Context,
 	attempt int,
 	tinfo *TransferInfo,
-) error {
+) (e error) {
 	var cleanup cleanupRegistry
-	defer w.sessionCleanup(sessCtx, &cleanup)
+	defer func() {
+		if e != nil && tinfo.SendToFailedType != "" && tinfo.SendToFailedPath != "" {
+			// TODO: make sure tinfo.SendToFailedPath is zipped.
+			activityOpts := withActivityOptsForLongLivedRequest(sessCtx)
+			sendErr := temporalsdk_workflow.ExecuteActivity(
+				activityOpts,
+				activities.SendToFailedBucketName,
+				&activities.SendToFailedBucketParams{
+					Type: tinfo.SendToFailedType,
+					Path: tinfo.SendToFailedPath,
+					Key:  tinfo.req.Key,
+				},
+			).Get(activityOpts, nil)
+			if sendErr != nil {
+				e = errors.Join(e, sendErr)
+			}
+		}
+
+		w.sessionCleanup(sessCtx, &cleanup)
+	}()
 
 	packageStartedAt := temporalsdk_workflow.Now(sessCtx).UTC()
+	tinfo.SendToFailedType = activities.FailureSIP
 
 	// Set in-progress status.
 	{
@@ -381,6 +404,7 @@ func (w *ProcessingWorkflow) SessionHandler(
 
 		// Delete download tmp dir when session ends.
 		cleanup.registerPath(filepath.Dir(downloadResult.Path))
+		tinfo.SendToFailedPath = downloadResult.Path
 	}
 
 	// Unarchive the transfer if it's not a directory and it's not part of the preprocessing child workflow.
@@ -411,7 +435,7 @@ func (w *ProcessingWorkflow) SessionHandler(
 	}
 
 	// Bundle transfer as an Archivematica standard transfer.
-	{
+	if !w.cfg.Preprocessing.Enabled {
 		// For the a3m workflow bundle the transfer to a directory shared with
 		// the a3m container.
 		var transferDir string
@@ -438,7 +462,10 @@ func (w *ProcessingWorkflow) SessionHandler(
 
 		// Delete bundled transfer when session ends.
 		cleanup.registerPath(bundleResult.FullPath)
+		tinfo.SendToFailedPath = tinfo.Bundle.FullPath
 	}
+
+	tinfo.SendToFailedType = activities.FailurePIP
 
 	// Do preservation activities.
 	{
@@ -763,6 +790,7 @@ func (w *ProcessingWorkflow) transferAM(sessCtx temporalsdk_workflow.Context, ti
 	if err != nil {
 		return err
 	}
+	tinfo.SendToFailedPath = zipResult.Path
 
 	// Upload transfer to AMSS.
 	activityOpts = temporalsdk_workflow.WithActivityOptions(sessCtx,
@@ -926,7 +954,7 @@ func (w *ProcessingWorkflow) preprocessing(ctx temporalsdk_workflow.Context, tin
 		return err
 	}
 
-	tinfo.TempPath = filepath.Join(w.cfg.Preprocessing.SharedPath, filepath.Clean(ppResult.RelativePath))
+	tinfo.Bundle.FullPath = filepath.Join(w.cfg.Preprocessing.SharedPath, filepath.Clean(ppResult.RelativePath))
 	tinfo.IsDir = true
 
 	// Save preprocessing preservation task data.
