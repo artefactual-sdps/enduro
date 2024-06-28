@@ -8,26 +8,27 @@ docs_dir: "src"
 site_dir: "site"
 
 nav:
-- "Home": "index.md"
-- "User manual": "user-manual/"
-- "Developer manual": "dev-manual/"
-- "About":
-  - "Repository": "https://github.com/artefactual-sdps/enduro"
-  - "Issues": "https://github.com/artefactual-sdps/enduro/issues"
-  - "License": "https://github.com/artefactual-sdps/enduro/blob/main/LICENSE"
+  - "Home": "index.md"
+  - "User manual": "user-manual/"
+  - "Administrator manual": "admin-manual/"
+  - "Developer manual": "dev-manual/"
+  - "About":
+      - "Repository": "https://github.com/artefactual-sdps/enduro"
+      - "Issues": "https://github.com/artefactual-sdps/enduro/issues"
+      - "License": "https://github.com/artefactual-sdps/enduro/blob/main/LICENSE"
 
 markdown_extensions:
   - admonition
 
 plugins:
-- autorefs
-- literate-nav:
-    nav_file: README.md
+  - autorefs
+  - literate-nav:
+      nav_file: README.md
 
 theme:
   name: readthedocs
   highlightjs: true
   hljs_languages:
-  - yaml
-  - json
-  - go
+    - yaml
+    - json
+    - go
