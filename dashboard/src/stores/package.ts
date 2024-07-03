@@ -6,6 +6,12 @@ import { defineStore, acceptHMRUpdate } from "pinia";
 import { ref } from "vue";
 import { mapKeys, snakeCase } from "lodash-es";
 
+type Pager = {
+  cursor: number | null;
+  next: number | null;
+  prev: number[];
+};
+
 export const usePackageStore = defineStore("package", {
   state: () => ({
     // Package currently displayed.
@@ -23,14 +29,12 @@ export const usePackageStore = defineStore("package", {
     // A list of packages shown during searches.
     packages: [] as Array<api.EnduroStoredPackage>,
 
-    // Cursor for this page of packages.
-    cursor: 0,
-
-    // Cursor for next page of packages.
-    nextCursor: 0,
-
-    // A list of previous page cursors.
-    prevCursors: [] as Array<number>,
+    // Package list pager state.
+    pager: {
+      cursor: null, // current page cursor
+      next: null, // next page cursor
+      prev: [], // list of prev page cursors
+    } as Pager,
 
     // User-interface interactions between components.
     ui: {
@@ -54,10 +58,10 @@ export const usePackageStore = defineStore("package", {
       return this.isDone && this.current?.locationId === undefined;
     },
     hasNextPage(): boolean {
-      return this.nextCursor != 0;
+      return this.pager.next != null;
     },
     hasPrevPage(): boolean {
-      return this.prevCursors.length > 0;
+      return this.pager.prev != null;
     },
     getActionById: (state) => {
       return (
@@ -119,10 +123,14 @@ export const usePackageStore = defineStore("package", {
     },
     async fetchPackages() {
       const resp = await client.package.packageList({
-        cursor: this.cursor > 0 ? this.cursor.toString() : undefined,
+        cursor:
+          this.pager.cursor != null ? this.pager.cursor.toString() : undefined,
       });
       this.packages = resp.items;
-      this.nextCursor = Number(resp.nextCursor);
+      if (this.packages.length > 0 && this.pager.cursor == null) {
+        this.pager.cursor = this.packages[0].id;
+      }
+      this.pager.next = Number(resp.nextCursor);
     },
     async fetchPackagesDebounced() {
       return this.fetchPackages();
@@ -175,17 +183,19 @@ export const usePackageStore = defineStore("package", {
       });
     },
     nextPage() {
-      if (this.nextCursor == 0) {
+      if (!this.hasNextPage) {
         return;
       }
-      this.prevCursors.push(this.cursor);
-      this.cursor = this.nextCursor;
+      if (this.pager.cursor != null) {
+        this.pager.prev.push(this.pager.cursor);
+      }
+      this.pager.cursor = this.pager.next;
       this.fetchPackages();
     },
     prevPage() {
-      let prev = this.prevCursors.pop();
+      let prev = this.pager.prev.pop();
       if (prev !== undefined) {
-        this.cursor = prev;
+        this.pager.cursor = prev;
         this.fetchPackages();
       }
     },
