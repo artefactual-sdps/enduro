@@ -1,5 +1,6 @@
 import * as api from "./openapi-generator";
 import * as runtime from "./openapi-generator/runtime";
+import router from "@/router";
 import { useAuthStore } from "@/stores/auth";
 import { usePackageStore } from "./stores/package";
 
@@ -65,7 +66,9 @@ function createClient(): Client {
       {
         post(context) {
           if (context.response.status == 401) {
-            useAuthStore().removeUser();
+            useAuthStore()
+              .removeUser()
+              .then(() => router.push({ name: "/" }));
             return Promise.resolve();
           }
           return Promise.resolve(context.response);

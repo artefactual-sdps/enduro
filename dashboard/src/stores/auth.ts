@@ -1,4 +1,3 @@
-import router from "@/router";
 import { UserManager, WebStorageStateStore } from "oidc-client-ts";
 import type { User } from "oidc-client-ts";
 import { defineStore } from "pinia";
@@ -127,32 +126,25 @@ export const useAuthStore = defineStore("auth", {
       this.loadManager();
       this.manager?.signinRedirect();
     },
-    signinCallback() {
+    async signinCallback() {
       this.loadManager();
-      this.manager?.signinCallback().then((user) => {
-        this.setUser(user || null);
-        router.push({ name: "/" });
-      });
+      this.setUser((await this.manager?.signinCallback()) || null);
     },
     // Load the currently authenticated user.
     async loadUser() {
       this.loadManager();
-      if (this.user === null && this.manager !== null) {
-        const user = await this.manager.getUser();
-        this.setUser(user);
-      }
+      this.setUser((await this.manager?.getUser()) || null);
+    },
+    async removeUser() {
+      // TODO: end session upstream.
+      this.loadManager();
+      await this.manager?.removeUser();
+      this.user = null;
+      this.attributes = [];
     },
     setUser(user: User | null) {
       this.user = user;
       this.parseAttributes();
-    },
-    removeUser() {
-      // TODO: end session upstream.
-      this.loadManager();
-      this.manager?.removeUser().then(() => {
-        this.user = null;
-        router.push({ name: "/" });
-      });
     },
     parseAttributes() {
       this.loadConfig();
