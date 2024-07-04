@@ -43,6 +43,36 @@ export const useAuthStore = defineStore("auth", {
     getUserAccessToken(): string {
       return this.user ? this.user.access_token : "";
     },
+    checkAttributes: (state) => {
+      return (required: string[]): boolean => {
+        if (
+          !state.config.enabled ||
+          !state.config.abac.enabled ||
+          state.attributes.includes("*")
+        ) {
+          return true;
+        }
+
+        for (let attr of required) {
+          while (true) {
+            if (state.attributes.includes(attr)) {
+              break;
+            }
+            const suffixIndex = attr.lastIndexOf(":*");
+            if (suffixIndex !== -1) {
+              attr = attr.substring(0, suffixIndex);
+            }
+            const lastColonIndex = attr.lastIndexOf(":");
+            if (lastColonIndex === -1) {
+              return false;
+            }
+            attr = attr.substring(0, lastColonIndex) + ":*";
+          }
+        }
+
+        return true;
+      };
+    },
   },
   actions: {
     loadConfig() {
@@ -208,36 +238,6 @@ export const useAuthStore = defineStore("auth", {
       }
 
       throw new Error("Unexpected error parsing attributes");
-    },
-    checkAttributes(required: string[]): boolean {
-      this.loadConfig();
-
-      if (
-        !this.config.enabled ||
-        !this.config.abac.enabled ||
-        this.attributes.includes("*")
-      ) {
-        return true;
-      }
-
-      for (let attr of required) {
-        while (true) {
-          if (this.attributes.includes(attr)) {
-            break;
-          }
-          const suffixIndex = attr.lastIndexOf(":*");
-          if (suffixIndex !== -1) {
-            attr = attr.substring(0, suffixIndex);
-          }
-          const lastColonIndex = attr.lastIndexOf(":");
-          if (lastColonIndex === -1) {
-            return false;
-          }
-          attr = attr.substring(0, lastColonIndex) + ":*";
-        }
-      }
-
-      return true;
     },
   },
 });
