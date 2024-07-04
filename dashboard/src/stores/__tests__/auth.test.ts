@@ -1,27 +1,54 @@
 import { useAuthStore } from "@/stores/auth";
 import { flushPromises } from "@vue/test-utils";
-import { User } from "oidc-client-ts";
+import { User, UserManager } from "oidc-client-ts";
 import { setActivePinia, createPinia } from "pinia";
-import { expect, describe, it, beforeEach } from "vitest";
+import { expect, describe, it, vi, beforeEach } from "vitest";
 
 describe("useAuthStore", () => {
   beforeEach(() => {
     setActivePinia(createPinia());
   });
 
-  it("sets and removes the user", async () => {
-    const authStore = useAuthStore();
+  it("sets and removes the user and attributes", async () => {
     var user = new User({
       access_token: "",
       token_type: "",
       profile: { aud: "", exp: 0, iat: 0, iss: "", sub: "" },
     });
+
+    const manager = new UserManager({
+      authority: "",
+      client_id: "",
+      redirect_uri: "",
+    });
+
+    const getUserMock = vi.fn().mockImplementation(manager.getUser);
+    getUserMock.mockImplementation(async () => user);
+    manager.getUser = getUserMock;
+
+    const removeUserMock = vi.fn().mockImplementation(manager.removeUser);
+    removeUserMock.mockImplementation(async () => null);
+    manager.removeUser = removeUserMock;
+
+    const authStore = useAuthStore();
+    authStore.$patch((state) => (state.manager = manager));
+
+    const parseAttrMock = vi.fn().mockImplementation(authStore.parseAttributes);
+    parseAttrMock.mockImplementation(() => {
+      authStore.$patch((state) => (state.attributes = ["*"]));
+    });
+    authStore.parseAttributes = parseAttrMock;
+
     expect(authStore.user).toEqual(null);
-    authStore.setUser(user);
+    expect(authStore.attributes).toEqual([]);
+    authStore.loadUser();
+    await flushPromises();
     expect(authStore.user).toEqual(user);
-    //authStore.removeUser();
-    //await flushPromises();
-    //expect(authStore.user).toEqual(null);
+    expect(authStore.attributes).toEqual(["*"]);
+    authStore.removeUser();
+    await flushPromises();
+    expect(authStore.user).toEqual(null);
+    expect(authStore.attributes).toEqual([]);
   });
 
   it("checks if the user is valid", () => {

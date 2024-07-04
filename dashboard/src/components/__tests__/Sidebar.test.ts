@@ -21,7 +21,6 @@ const router = createRouter({
 describe("Sidebar.vue", () => {
   afterEach(() => cleanup());
 
-  /*
   it("renders the navigation links", async () => {
     const { getByRole } = render(Sidebar, {
       global: {
@@ -51,7 +50,6 @@ describe("Sidebar.vue", () => {
     await flushPromises();
     expect(locationsLink.getAttribute("aria-current")).toEqual("page");
   });
-  */
 
   it("collapses and expands", async () => {
     const { container } = render(Sidebar, {
