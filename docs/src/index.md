@@ -3,7 +3,7 @@
 [Enduro][Enduro] is a new application under development by Artefactual Systems.
 Originally created as a more stable replacement for Archivematica’s
 [automation-tools][automation-tools] library of scripts, it has since evolved
-into a f lexible tool to be paired with preservation applications to provide
+into a flexible tool to be paired with preservation applications to provide
 initial ingest activities such as content and structure validation, packaging,
 and more.
 
