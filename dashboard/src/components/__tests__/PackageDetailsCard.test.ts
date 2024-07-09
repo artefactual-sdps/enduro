@@ -77,4 +77,52 @@ describe("PackageDetailsCard.vue", () => {
     getByText("PENDING");
     getByText("(Move package)");
   });
+
+  it("shows the download button", async () => {
+    const { getByRole } = render(PackageDetailsCard, {
+      global: {
+        plugins: [
+          createTestingPinia({
+            createSpy: vi.fn,
+            initialState: {
+              package: {
+                current: {
+                  aipId: "89229d18-5554-4e0d-8c4e-d0d88afd3bae",
+                  status: api.EnduroStoredPackageStatusEnum.Done,
+                } as api.EnduroStoredPackage,
+              },
+            },
+          }),
+        ],
+      },
+    });
+
+    getByRole("button", { name: "Download" });
+  });
+
+  it("hides the download button", async () => {
+    const { queryByRole } = render(PackageDetailsCard, {
+      global: {
+        plugins: [
+          createTestingPinia({
+            createSpy: vi.fn,
+            initialState: {
+              package: {
+                current: {
+                  aipId: "89229d18-5554-4e0d-8c4e-d0d88afd3bae",
+                  status: api.EnduroStoredPackageStatusEnum.Done,
+                } as api.EnduroStoredPackage,
+              },
+              auth: {
+                config: { enabled: true, abac: { enabled: true } },
+                attributes: [],
+              },
+            },
+          }),
+        ],
+      },
+    });
+
+    expect(queryByRole("button", { name: "Download" })).toBeNull();
+  });
 });
