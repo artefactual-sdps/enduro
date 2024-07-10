@@ -44,7 +44,7 @@ describe("PackageLocationCard.vue", () => {
     `);
   });
 
-  it("renders whithout move button based on auth attributes", async () => {
+  it("renders without move button based on auth attributes", async () => {
     const { html } = render(PackageLocationCard, {
       global: {
         plugins: [
