@@ -1,4 +1,3 @@
-import router from "@/router";
 import { UserManager, WebStorageStateStore } from "oidc-client-ts";
 import type { User } from "oidc-client-ts";
 import { defineStore } from "pinia";
@@ -43,6 +42,36 @@ export const useAuthStore = defineStore("auth", {
     },
     getUserAccessToken(): string {
       return this.user ? this.user.access_token : "";
+    },
+    checkAttributes: (state) => {
+      return (required: string[]): boolean => {
+        if (
+          !state.config.enabled ||
+          !state.config.abac.enabled ||
+          state.attributes.includes("*")
+        ) {
+          return true;
+        }
+
+        for (let attr of required) {
+          while (true) {
+            if (state.attributes.includes(attr)) {
+              break;
+            }
+            const suffixIndex = attr.lastIndexOf(":*");
+            if (suffixIndex !== -1) {
+              attr = attr.substring(0, suffixIndex);
+            }
+            const lastColonIndex = attr.lastIndexOf(":");
+            if (lastColonIndex === -1) {
+              return false;
+            }
+            attr = attr.substring(0, lastColonIndex) + ":*";
+          }
+        }
+
+        return true;
+      };
     },
   },
   actions: {
@@ -127,32 +156,25 @@ export const useAuthStore = defineStore("auth", {
       this.loadManager();
       this.manager?.signinRedirect();
     },
-    signinCallback() {
+    async signinCallback() {
       this.loadManager();
-      this.manager?.signinCallback().then((user) => {
-        this.setUser(user || null);
-        router.push({ name: "/" });
-      });
+      this.setUser((await this.manager?.signinCallback()) || null);
     },
     // Load the currently authenticated user.
     async loadUser() {
       this.loadManager();
-      if (this.user === null && this.manager !== null) {
-        const user = await this.manager.getUser();
-        this.setUser(user);
-      }
+      this.setUser((await this.manager?.getUser()) || null);
+    },
+    async removeUser() {
+      // TODO: end session upstream.
+      this.loadManager();
+      await this.manager?.removeUser();
+      this.user = null;
+      this.attributes = [];
     },
     setUser(user: User | null) {
       this.user = user;
       this.parseAttributes();
-    },
-    removeUser() {
-      // TODO: end session upstream.
-      this.loadManager();
-      this.manager?.removeUser().then(() => {
-        this.user = null;
-        router.push({ name: "/" });
-      });
     },
     parseAttributes() {
       this.loadConfig();
@@ -216,36 +238,6 @@ export const useAuthStore = defineStore("auth", {
       }
 
       throw new Error("Unexpected error parsing attributes");
-    },
-    checkAttributes(required: string[]): boolean {
-      this.loadConfig();
-
-      if (
-        !this.config.enabled ||
-        !this.config.abac.enabled ||
-        this.attributes.includes("*")
-      ) {
-        return true;
-      }
-
-      for (let attr of required) {
-        while (true) {
-          if (this.attributes.includes(attr)) {
-            break;
-          }
-          const suffixIndex = attr.lastIndexOf(":*");
-          if (suffixIndex !== -1) {
-            attr = attr.substring(0, suffixIndex);
-          }
-          const lastColonIndex = attr.lastIndexOf(":");
-          if (lastColonIndex === -1) {
-            return false;
-          }
-          attr = attr.substring(0, lastColonIndex) + ":*";
-        }
-      }
-
-      return true;
     },
   },
 });

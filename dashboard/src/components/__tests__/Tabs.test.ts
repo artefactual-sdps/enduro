@@ -1,13 +1,13 @@
 import Tabs from "@/components/Tabs.vue";
 import { cleanup, render } from "@testing-library/vue";
-import { afterEach, describe, it } from "vitest";
+import { afterEach, describe, it, expect } from "vitest";
 import { createRouter, createMemoryHistory } from "vue-router";
 
 describe("Tabs.vue", () => {
   afterEach(() => cleanup());
 
   it("renders", async () => {
-    const { getByRole } = render(Tabs, {
+    const { getByRole, queryByRole } = render(Tabs, {
       props: {
         tabs: [
           {
@@ -20,7 +20,7 @@ describe("Tabs.vue", () => {
             icon: "",
             text: "Route2",
             route: { name: "route2" },
-            show: true,
+            show: false,
           },
         ],
       },
@@ -41,6 +41,6 @@ describe("Tabs.vue", () => {
     getByRole("navigation", { name: "Tabs" });
     getByRole("list");
     getByRole("link", { name: "Route1" });
-    getByRole("link", { name: "Route2" });
+    expect(queryByRole("link", { name: "Route2" })).toBeNull();
   });
 });

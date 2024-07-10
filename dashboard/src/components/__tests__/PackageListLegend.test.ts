@@ -5,7 +5,7 @@ import { describe, it, expect, afterEach } from "vitest";
 describe("PackageListLegend.vue", () => {
   afterEach(() => cleanup());
 
-  it("renders when the package is moving", async () => {
+  it("renders", async () => {
     const { getByText, getByLabelText, queryByText, emitted, rerender } =
       render(PackageListLegend, {
         props: {

@@ -21,7 +21,6 @@ const router = createRouter({
 describe("Sidebar.vue", () => {
   afterEach(() => cleanup());
 
-  /*
   it("renders the navigation links", async () => {
     const { getByRole } = render(Sidebar, {
       global: {
@@ -40,8 +39,13 @@ describe("Sidebar.vue", () => {
     });
 
     getByRole("navigation", { name: "Navigation" });
+    const homeLink = getByRole("link", { name: "Home" });
     const packagesLink = getByRole("link", { name: "Packages" });
     const locationsLink = getByRole("link", { name: "Locations" });
+
+    fireEvent.click(homeLink);
+    await flushPromises();
+    expect(homeLink.getAttribute("aria-current")).toEqual("page");
 
     fireEvent.click(packagesLink);
     await flushPromises();
@@ -51,7 +55,33 @@ describe("Sidebar.vue", () => {
     await flushPromises();
     expect(locationsLink.getAttribute("aria-current")).toEqual("page");
   });
-  */
+
+  it("hides the navigation links based on auth. attributes", async () => {
+    const { getByRole, queryByRole } = render(Sidebar, {
+      global: {
+        plugins: [
+          createTestingPinia({
+            createSpy: vi.fn,
+            initialState: {
+              layout: {
+                sidebarCollapsed: false,
+              },
+              auth: {
+                config: { enabled: true, abac: { enabled: true } },
+                attributes: [],
+              },
+            },
+          }),
+          router,
+        ],
+      },
+    });
+
+    getByRole("navigation", { name: "Navigation" });
+    getByRole("link", { name: "Home" });
+    expect(queryByRole("link", { name: "Packages" })).toBeNull();
+    expect(queryByRole("link", { name: "Locations" })).toBeNull();
+  });
 
   it("collapses and expands", async () => {
     const { container } = render(Sidebar, {
