@@ -3,7 +3,7 @@ kind: Kustomization
 namespace: enduro-sdps
 resources:
   - enduro-am-secret.yaml
-  - enduro-secret.yaml
+  - enduro-dashboard-secret.yaml
   - keycloak.yaml
   - minio-secret.yaml
   - mysql-secret.yaml

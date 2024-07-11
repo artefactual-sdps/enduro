@@ -23,47 +23,47 @@ spec:
             - name: VITE_OIDC_ENABLED
               valueFrom:
                 secretKeyRef:
-                  name: enduro-secret
+                  name: enduro-dashboard-secret
                   key: oidc-enabled
             - name: VITE_OIDC_AUTHORITY
               valueFrom:
                 secretKeyRef:
-                  name: enduro-secret
+                  name: enduro-dashboard-secret
                   key: oidc-provider-url
             - name: VITE_OIDC_CLIENT_ID
               valueFrom:
                 secretKeyRef:
-                  name: enduro-secret
+                  name: enduro-dashboard-secret
                   key: oidc-client-id
             - name: VITE_OIDC_REDIRECT_URI
               valueFrom:
                 secretKeyRef:
-                  name: enduro-secret
+                  name: enduro-dashboard-secret
                   key: oidc-redirect-url
             - name: VITE_OIDC_EXTRA_SCOPES
               valueFrom:
                 secretKeyRef:
-                  name: enduro-secret
+                  name: enduro-dashboard-secret
                   key: oidc-extra-scopes
             - name: VITE_OIDC_ABAC_ENABLED
               valueFrom:
                 secretKeyRef:
-                  name: enduro-secret
+                  name: enduro-dashboard-secret
                   key: oidc-abac-enabled
             - name: VITE_OIDC_ABAC_CLAIM_PATH
               valueFrom:
                 secretKeyRef:
-                  name: enduro-secret
+                  name: enduro-dashboard-secret
                   key: oidc-abac-claim-path
             - name: VITE_OIDC_ABAC_CLAIM_PATH_SEPARATOR
               valueFrom:
                 secretKeyRef:
-                  name: enduro-secret
+                  name: enduro-dashboard-secret
                   key: oidc-abac-claim-path-separator
             - name: VITE_OIDC_ABAC_CLAIM_VALUE_PREFIX
               valueFrom:
                 secretKeyRef:
-                  name: enduro-secret
+                  name: enduro-dashboard-secret
                   key: oidc-abac-claim-value-prefix
           ports:
             - containerPort: 80
