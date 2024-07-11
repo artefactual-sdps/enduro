@@ -26,6 +26,7 @@ describe("useAuthStore", () => {
         clientId: "",
         redirectUrl: "",
         extraScopes: "",
+        extraQueryParams: "",
         abac: {
           enabled: false,
           claimPath: "",
@@ -190,6 +191,7 @@ describe("useAuthStore", () => {
         clientId: "",
         redirectUrl: "",
         extraScopes: "",
+        extraQueryParams: "",
         abac: {
           enabled: test.enabled,
           claimPath: "",
@@ -212,6 +214,7 @@ describe("useAuthStore", () => {
       clientId: "enduro",
       redirectUrl: "http://localhost:8080/user/signin-callback",
       extraScopes: "enduro",
+      extraQueryParams: "audience=enduro-api, key = value",
       abac: {
         enabled: true,
         claimPath: "attributes.enduro",
@@ -235,6 +238,10 @@ describe("useAuthStore", () => {
     expect(authStore.manager?.settings.scope).toEqual(
       "openid email profile enduro",
     );
+    expect(authStore.manager?.settings.extraQueryParams).toEqual({
+      audience: "enduro-api",
+      key: "value",
+    });
     expect(authStore.manager?.settings.userStore).toBeInstanceOf(
       WebStorageStateStore,
     );
@@ -515,6 +522,7 @@ describe("useAuthStore", () => {
         clientId: "",
         redirectUrl: "",
         extraScopes: "",
+        extraQueryParams: "",
         abac: {
           enabled: test.enabled,
           claimPath: test.claimPath,

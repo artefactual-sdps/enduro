@@ -45,6 +45,11 @@ spec:
                 secretKeyRef:
                   name: enduro-dashboard-secret
                   key: oidc-extra-scopes
+            - name: VITE_OIDC_EXTRA_QUERY_PARAMS
+              valueFrom:
+                secretKeyRef:
+                  name: enduro-dashboard-secret
+                  key: oidc-extra-query-params
             - name: VITE_OIDC_ABAC_ENABLED
               valueFrom:
                 secretKeyRef:

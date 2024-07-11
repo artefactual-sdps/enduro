@@ -87,13 +87,21 @@ VITE_OIDC_ABAC_CLAIM_VALUE_PREFIX
 
 They must match the ones configured in the API. `VITE_OIDC_AUTHORITY` has to be
 the same OIDC provider URL and `VITE_OIDC_CLIENT_ID` needs to be the same or a
-trusted client. This client (and the one used in the API configuration, if they
+trusted client. This client (or the one used in the API configuration, if they
 are not the same) must be included in the `aud` claim from the access token.
 
 The authorization flow will request the `openid email profile` scopes by
 default. If needed, `VITE_OIDC_EXTRA_SCOPES` can be used to request additional
-scopes. The ABAC variables will work in the same way as they do in the API,
-they are explained in detail in the API configuration comments above.
+scopes separated by whitespace. Similarly, `VITE_OIDC_EXTRA_QUERY_PARAMS` can
+be set to specify further query string parameters to be including in the
+authorization request. E.g, when using Azure AD a resource parameter is
+required, or using Auth0 you may need to send an audience client ID. The
+expected format is key value pairs separated by `=` (`audience=cient-id`), if
+more than one parameter is needed they can be added separated by comma
+(`audience=cient-id,key=value`).
+
+The ABAC variables will work in the same way as they do in the API, they are
+explained in detail in the API configuration comments above.
 
 These environment variables can be set at build time, or they can be replaced in
 the final assets. For example, the following script uses `envsubst` to do the

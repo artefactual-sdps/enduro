@@ -9,6 +9,7 @@ type OIDCConfig = {
   clientId: string;
   redirectUrl: string;
   extraScopes: string;
+  extraQueryParams: string;
   abac: ABACConfig;
 };
 
@@ -87,6 +88,7 @@ export const useAuthStore = defineStore("auth", {
         clientId: "",
         redirectUrl: "",
         extraScopes: "",
+        extraQueryParams: "",
         abac: {
           enabled: false,
           claimPath: "",
@@ -97,34 +99,38 @@ export const useAuthStore = defineStore("auth", {
 
       const env = import.meta.env;
       if (env.VITE_OIDC_ENABLED) {
-        this.config.enabled = env.VITE_OIDC_ENABLED.toLowerCase() === "true";
+        this.config.enabled =
+          env.VITE_OIDC_ENABLED.trim().toLowerCase() === "true";
       }
       if (env.VITE_OIDC_AUTHORITY) {
-        this.config.provider = env.VITE_OIDC_AUTHORITY;
+        this.config.provider = env.VITE_OIDC_AUTHORITY.trim();
       }
       if (env.VITE_OIDC_CLIENT_ID) {
-        this.config.clientId = env.VITE_OIDC_CLIENT_ID;
+        this.config.clientId = env.VITE_OIDC_CLIENT_ID.trim();
       }
       if (env.VITE_OIDC_REDIRECT_URI) {
-        this.config.redirectUrl = env.VITE_OIDC_REDIRECT_URI;
+        this.config.redirectUrl = env.VITE_OIDC_REDIRECT_URI.trim();
       }
       if (env.VITE_OIDC_EXTRA_SCOPES) {
-        this.config.extraScopes = env.VITE_OIDC_EXTRA_SCOPES;
+        this.config.extraScopes = env.VITE_OIDC_EXTRA_SCOPES.trim();
+      }
+      if (env.VITE_OIDC_EXTRA_QUERY_PARAMS) {
+        this.config.extraQueryParams = env.VITE_OIDC_EXTRA_QUERY_PARAMS.trim();
       }
       if (env.VITE_OIDC_ABAC_ENABLED) {
         this.config.abac.enabled =
-          env.VITE_OIDC_ABAC_ENABLED.toLowerCase() === "true";
+          env.VITE_OIDC_ABAC_ENABLED.trim().toLowerCase() === "true";
       }
       if (env.VITE_OIDC_ABAC_CLAIM_PATH) {
-        this.config.abac.claimPath = env.VITE_OIDC_ABAC_CLAIM_PATH;
+        this.config.abac.claimPath = env.VITE_OIDC_ABAC_CLAIM_PATH.trim();
       }
       if (env.VITE_OIDC_ABAC_CLAIM_PATH_SEPARATOR) {
         this.config.abac.claimPathSeparator =
-          env.VITE_OIDC_ABAC_CLAIM_PATH_SEPARATOR;
+          env.VITE_OIDC_ABAC_CLAIM_PATH_SEPARATOR.trim();
       }
       if (env.VITE_OIDC_ABAC_CLAIM_VALUE_PREFIX) {
         this.config.abac.claimValuePrefix =
-          env.VITE_OIDC_ABAC_CLAIM_VALUE_PREFIX;
+          env.VITE_OIDC_ABAC_CLAIM_VALUE_PREFIX.trim();
       }
     },
     loadManager() {
@@ -144,10 +150,19 @@ export const useAuthStore = defineStore("auth", {
         scope += " " + this.config.extraScopes;
       }
 
+      let extraQueryParams: Record<string, string> = {};
+      if (this.config.extraQueryParams) {
+        this.config.extraQueryParams.split(",").forEach((param) => {
+          const parts = param.trim().split("=");
+          extraQueryParams[parts[0].trim()] = parts[1].trim();
+        });
+      }
+
       this.manager = new UserManager({
         authority: this.config.provider,
         client_id: this.config.clientId,
         redirect_uri: this.config.redirectUrl,
+        extraQueryParams: extraQueryParams,
         scope: scope,
         userStore: new WebStorageStateStore({ store: window.localStorage }),
       });
