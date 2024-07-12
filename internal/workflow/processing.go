@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/artefactual-sdps/temporal-activities/archive"
+	bagit_activity "github.com/artefactual-sdps/temporal-activities/bagit"
 	"github.com/artefactual-sdps/temporal-activities/filesys"
 	"github.com/go-logr/logr"
 	"github.com/google/uuid"
@@ -25,6 +26,7 @@ import (
 
 	"github.com/artefactual-sdps/enduro/internal/a3m"
 	"github.com/artefactual-sdps/enduro/internal/am"
+	"github.com/artefactual-sdps/enduro/internal/bagit"
 	"github.com/artefactual-sdps/enduro/internal/config"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/fsutil"
@@ -410,7 +412,55 @@ func (w *ProcessingWorkflow) SessionHandler(
 		return err
 	}
 
-	// Bundle transfer as an Archivematica standard transfer.
+	// If the PIP is a BagIt Bag, validate it.
+	if tinfo.IsDir && bagit.IsABag(tinfo.TempPath) {
+		// Create a validate bag preservation task.
+		id, err := w.createPreservationTask(
+			sessCtx,
+			createPreservationTaskLocalActivityParams{
+				Name:                 "Validate Bag",
+				Status:               enums.PreservationTaskStatusInProgress,
+				StartedAt:            temporalsdk_workflow.Now(sessCtx).UTC(),
+				PreservationActionID: tinfo.PreservationActionID,
+			},
+		)
+		if err != nil {
+			return fmt.Errorf("create validate bag task: %v", err)
+		}
+
+		// Validate the bag.
+		activityOpts := withActivityOptsForLocalAction(sessCtx)
+		var result bagit_activity.ValidateActivityResult
+		err = temporalsdk_workflow.ExecuteActivity(
+			activityOpts,
+			bagit_activity.ValidateActivityName,
+			&bagit_activity.ValidateActivityParams{Path: tinfo.TempPath},
+		).Get(activityOpts, &result)
+		if err != nil {
+			return fmt.Errorf("validate bag: %v", err)
+		}
+
+		// Complete the validate bag preservation task.
+		p := completePreservationTaskLocalActivityParams{
+			ID:          id,
+			Status:      enums.PreservationTaskStatusDone,
+			CompletedAt: temporalsdk_workflow.Now(sessCtx),
+		}
+		if !result.Valid {
+			p.Status = enums.PreservationTaskStatusError
+			p.Note = &result.Error
+		}
+		if err = w.completePreservationTask(sessCtx, p); err != nil {
+			return fmt.Errorf("complete validate bag task: %v", err)
+		}
+
+		// If bag isn't valid, exit the workflow without an error.
+		if !result.Valid {
+			return nil
+		}
+	}
+
+	// Bundle PIP as an Archivematica standard transfer.
 	{
 		// For the a3m workflow bundle the transfer to a directory shared with
 		// the a3m container.
@@ -440,7 +490,7 @@ func (w *ProcessingWorkflow) SessionHandler(
 		cleanup.registerPath(bundleResult.FullPath)
 	}
 
-	// Do preservation activities.
+	// Do preservation.
 	{
 		var err error
 		if w.cfg.Preservation.TaskQueue == temporal.AmWorkerTaskQueue {
@@ -958,4 +1008,37 @@ func (w *ProcessingWorkflow) preprocessing(ctx temporalsdk_workflow.Context, tin
 	default:
 		return fmt.Errorf("preprocessing workflow: unknown outcome %d", ppResult.Outcome)
 	}
+}
+
+func (w *ProcessingWorkflow) createPreservationTask(ctx temporalsdk_workflow.Context, params createPreservationTaskLocalActivityParams) (uint, error) {
+	var id uint
+	ctx = withLocalActivityOpts(ctx)
+	params.TaskID = uuid.NewString()
+
+	err := temporalsdk_workflow.ExecuteLocalActivity(
+		ctx,
+		createPreservationTaskLocalActivity,
+		w.pkgsvc,
+		params,
+	).Get(ctx, &id)
+	if err != nil {
+		return 0, err
+	}
+
+	return id, nil
+}
+
+func (w *ProcessingWorkflow) completePreservationTask(ctx temporalsdk_workflow.Context, params completePreservationTaskLocalActivityParams) error {
+	ctx = withLocalActivityOpts(ctx)
+	err := temporalsdk_workflow.ExecuteLocalActivity(
+		ctx,
+		completePreservationTaskLocalActivity,
+		w.pkgsvc,
+		params,
+	).Get(ctx, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

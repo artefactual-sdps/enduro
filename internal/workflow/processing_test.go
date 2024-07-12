@@ -50,6 +50,8 @@ var (
 	amssLocationID = uuid.MustParse("e0ed8b2a-8ae2-4546-b5d8-f0090919df04")
 	transferID     = uuid.MustParse("65233405-771e-4f7e-b2d9-b08439570ba2")
 	sipID          = uuid.MustParse("9e8161cc-2815-4d6f-8a75-f003c41b257b")
+
+	startTime time.Time = time.Date(2024, 7, 9, 16, 55, 13, 50, time.UTC)
 )
 
 type ProcessingWorkflowTestSuite struct {
@@ -234,6 +236,8 @@ func (s *ProcessingWorkflowTestSuite) TestPackageConfirmation() {
 	retentionPeriod := 1 * time.Second
 	pkgsvc := s.workflow.pkgsvc
 
+	s.env.SetStartTime(startTime)
+
 	// Signal handler that mimics package confirmation
 	s.env.RegisterDelayedCallback(
 		func() {
@@ -250,8 +254,18 @@ func (s *ProcessingWorkflowTestSuite) TestPackageConfirmation() {
 		Return(pkgID, nil)
 	s.env.OnActivity(setStatusInProgressLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, nil)
-	s.env.OnActivity(createPreservationActionLocalActivity, mock.Anything, mock.Anything, mock.Anything).
-		Return(uint(0), nil)
+	s.env.OnActivity(
+		createPreservationActionLocalActivity,
+		mock.Anything,
+		mock.Anything,
+		&createPreservationActionLocalActivityParams{
+			WorkflowID: "default-test-workflow-id",
+			Type:       enums.PreservationActionTypeCreateAndReviewAip,
+			Status:     enums.PreservationActionStatusInProgress,
+			StartedAt:  startTime,
+			PackageID:  1,
+		},
+	).Return(uint(0), nil)
 
 	s.env.OnActivity(activities.DownloadActivityName, sessionCtx,
 		&activities.DownloadActivityParams{Key: key, WatcherName: watcherName},
@@ -339,6 +353,8 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 	logger := s.workflow.logger
 	pkgsvc := s.workflow.pkgsvc
 
+	s.env.SetStartTime(startTime)
+
 	// Activity mocks/assertions sequence
 	s.env.OnActivity(
 		createPackageLocalActivity,
@@ -350,7 +366,17 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 	s.env.OnActivity(setStatusInProgressLocalActivity, ctx, pkgsvc, pkgID, mock.AnythingOfType("time.Time")).
 		Return(nil, nil).
 		Once()
-	s.env.OnActivity(createPreservationActionLocalActivity, ctx, pkgsvc, mock.AnythingOfType("*workflow.createPreservationActionLocalActivityParams")).
+	s.env.OnActivity(
+		createPreservationActionLocalActivity,
+		ctx,
+		pkgsvc,
+		&createPreservationActionLocalActivityParams{
+			WorkflowID: "default-test-workflow-id",
+			Type:       enums.PreservationActionTypeCreateAip,
+			Status:     enums.PreservationActionStatusInProgress,
+			StartedAt:  startTime,
+			PackageID:  1,
+		}).
 		Return(uint(0), nil).
 		Once()
 
