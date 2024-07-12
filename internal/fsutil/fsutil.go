@@ -72,3 +72,13 @@ func SetFileModes(root string, dirMode, fileMode int) error {
 		},
 	)
 }
+
+// FileExists returns true if a file (or directory) exists at path.  If a file
+// exists but os.Stat() returns an error (e.g. insufficient permissions)
+// FileExists will return false.
+func FileExists(path string) bool {
+	if _, err := os.Stat(path); err != nil {
+		return false
+	}
+	return true
+}

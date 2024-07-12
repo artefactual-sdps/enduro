@@ -1,12 +1,14 @@
 package workflow
 
 import (
+	"database/sql"
 	"math/rand"
 	"strings"
 	"testing"
 	"time"
 
 	"github.com/artefactual-sdps/temporal-activities/archive"
+	bagit_activity "github.com/artefactual-sdps/temporal-activities/bagit"
 	"github.com/artefactual-sdps/temporal-activities/filesys"
 	"github.com/go-logr/logr"
 	"github.com/google/uuid"
@@ -14,6 +16,7 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 	"go.artefactual.dev/amclient/amclienttest"
+	"go.artefactual.dev/tools/ref"
 	"go.opentelemetry.io/otel/trace/noop"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
 	temporalsdk_testsuite "go.temporal.io/sdk/testsuite"
@@ -26,6 +29,7 @@ import (
 	a3mfake "github.com/artefactual-sdps/enduro/internal/a3m/fake"
 	"github.com/artefactual-sdps/enduro/internal/am"
 	"github.com/artefactual-sdps/enduro/internal/config"
+	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/package_"
 	packagefake "github.com/artefactual-sdps/enduro/internal/package_/fake"
@@ -50,6 +54,8 @@ var (
 	amssLocationID = uuid.MustParse("e0ed8b2a-8ae2-4546-b5d8-f0090919df04")
 	transferID     = uuid.MustParse("65233405-771e-4f7e-b2d9-b08439570ba2")
 	sipID          = uuid.MustParse("9e8161cc-2815-4d6f-8a75-f003c41b257b")
+
+	startTime time.Time = time.Date(2024, 7, 9, 16, 55, 13, 50, time.UTC)
 )
 
 type ProcessingWorkflowTestSuite struct {
@@ -105,6 +111,14 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(cfg config.Configuration
 	s.env.RegisterActivityWithOptions(
 		archive.NewExtractActivity(cfg.ExtractActivity).Execute,
 		temporalsdk_activity.RegisterOptions{Name: archive.ExtractActivityName},
+	)
+	s.env.RegisterActivityWithOptions(
+		bagit_activity.NewValidateActivity(bagit_activity.NewNoopValidator()).Execute,
+		temporalsdk_activity.RegisterOptions{Name: bagit_activity.ValidateActivityName},
+	)
+	s.env.RegisterActivityWithOptions(
+		activities.NewClassifyPackageActivity(logger).Execute,
+		temporalsdk_activity.RegisterOptions{Name: activities.ClassifyPackageActivityName},
 	)
 	s.env.RegisterActivityWithOptions(
 		activities.NewBundleActivity(logger).Execute,
@@ -234,6 +248,8 @@ func (s *ProcessingWorkflowTestSuite) TestPackageConfirmation() {
 	retentionPeriod := 1 * time.Second
 	pkgsvc := s.workflow.pkgsvc
 
+	s.env.SetStartTime(startTime)
+
 	// Signal handler that mimics package confirmation
 	s.env.RegisterDelayedCallback(
 		func() {
@@ -250,8 +266,18 @@ func (s *ProcessingWorkflowTestSuite) TestPackageConfirmation() {
 		Return(pkgID, nil)
 	s.env.OnActivity(setStatusInProgressLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, nil)
-	s.env.OnActivity(createPreservationActionLocalActivity, mock.Anything, mock.Anything, mock.Anything).
-		Return(uint(0), nil)
+	s.env.OnActivity(
+		createPreservationActionLocalActivity,
+		mock.Anything,
+		mock.Anything,
+		&createPreservationActionLocalActivityParams{
+			WorkflowID: "default-test-workflow-id",
+			Type:       enums.PreservationActionTypeCreateAndReviewAip,
+			Status:     enums.PreservationActionStatusInProgress,
+			StartedAt:  startTime,
+			PackageID:  1,
+		},
+	).Return(uint(0), nil)
 
 	s.env.OnActivity(activities.DownloadActivityName, sessionCtx,
 		&activities.DownloadActivityParams{Key: key, WatcherName: watcherName},
@@ -338,6 +364,9 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 	sessionCtx := mock.AnythingOfType("*context.timerCtx")
 	logger := s.workflow.logger
 	pkgsvc := s.workflow.pkgsvc
+	rng := rand.New(rand.NewSource(1)) // #nosec: G404
+
+	s.env.SetStartTime(startTime)
 
 	// Activity mocks/assertions sequence
 	s.env.OnActivity(
@@ -350,7 +379,17 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 	s.env.OnActivity(setStatusInProgressLocalActivity, ctx, pkgsvc, pkgID, mock.AnythingOfType("time.Time")).
 		Return(nil, nil).
 		Once()
-	s.env.OnActivity(createPreservationActionLocalActivity, ctx, pkgsvc, mock.AnythingOfType("*workflow.createPreservationActionLocalActivityParams")).
+	s.env.OnActivity(
+		createPreservationActionLocalActivity,
+		ctx,
+		pkgsvc,
+		&createPreservationActionLocalActivityParams{
+			WorkflowID: "default-test-workflow-id",
+			Type:       enums.PreservationActionTypeCreateAip,
+			Status:     enums.PreservationActionStatusInProgress,
+			StartedAt:  startTime,
+			PackageID:  1,
+		}).
 		Return(uint(0), nil).
 		Once()
 
@@ -365,6 +404,53 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 	).Return(
 		&archive.ExtractActivityResult{ExtractPath: extractPath}, nil,
 	)
+
+	s.env.OnActivity(
+		activities.ClassifyPackageActivityName,
+		sessionCtx,
+		activities.ClassifyPackageActivityParams{Path: extractPath},
+	).Return(
+		&activities.ClassifyPackageActivityResult{Type: enums.PackageTypeBagIt}, nil,
+	)
+
+	s.env.OnActivity(
+		createPreservationTaskLocalActivity,
+		ctx,
+		&createPreservationTaskLocalActivityParams{
+			PkgSvc: pkgsvc,
+			RNG:    rng,
+			PreservationTask: datatypes.PreservationTask{
+				Name:   "Validate Bag",
+				Status: enums.PreservationTaskStatusInProgress,
+				StartedAt: sql.NullTime{
+					Time:  startTime,
+					Valid: true,
+				},
+				PreservationActionID: uint(0),
+			},
+		},
+	).Return(uint(101), nil)
+
+	s.env.OnActivity(
+		bagit_activity.ValidateActivityName,
+		sessionCtx,
+		&bagit_activity.ValidateActivityParams{Path: extractPath},
+	).Return(
+		&bagit_activity.ValidateActivityResult{Valid: true},
+		nil,
+	)
+
+	s.env.OnActivity(
+		completePreservationTaskLocalActivity,
+		ctx,
+		pkgsvc,
+		&completePreservationTaskLocalActivityParams{
+			ID:          uint(101),
+			Status:      enums.PreservationTaskStatusDone,
+			CompletedAt: startTime,
+			Note:        ref.New("Bag is valid"),
+		},
+	).Return(&completePreservationTaskLocalActivityResult{}, nil)
 
 	s.env.OnActivity(activities.BundleActivityName, sessionCtx,
 		&activities.BundleActivityParams{
@@ -383,9 +469,23 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 	s.env.OnActivity(updatePackageLocalActivity, ctx, logger, pkgsvc, mock.AnythingOfType("*workflow.updatePackageLocalActivityParams")).
 		Return(nil, nil).
 		Times(2)
-	s.env.OnActivity(createPreservationTaskLocalActivity, ctx, pkgsvc, mock.AnythingOfType("*workflow.createPreservationTaskLocalActivityParams")).
-		Return(uint(0), nil).
-		Once()
+
+	s.env.OnActivity(
+		createPreservationTaskLocalActivity,
+		ctx,
+		&createPreservationTaskLocalActivityParams{
+			PkgSvc: pkgsvc,
+			RNG:    rng,
+			PreservationTask: datatypes.PreservationTask{
+				Name:                 "Move AIP",
+				Status:               enums.PreservationTaskStatusInProgress,
+				StartedAt:            sql.NullTime{Time: startTime, Valid: true},
+				Note:                 "Moving to permanent storage",
+				PreservationActionID: uint(0),
+			},
+		},
+	).Return(uint(102), nil)
+
 	s.env.OnActivity(activities.UploadActivityName, sessionCtx, mock.AnythingOfType("*activities.UploadActivityParams")).
 		Return(nil, nil).
 		Once()
@@ -395,9 +495,19 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 	s.env.OnActivity(setPreservationActionStatusLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, nil).
 		Never()
-	s.env.OnActivity(completePreservationTaskLocalActivity, ctx, pkgsvc, mock.AnythingOfType("*workflow.completePreservationTaskLocalActivityParams")).
-		Return(nil, nil).
-		Once()
+
+	s.env.OnActivity(
+		completePreservationTaskLocalActivity,
+		ctx,
+		pkgsvc,
+		&completePreservationTaskLocalActivityParams{
+			ID:          uint(102),
+			Status:      enums.PreservationTaskStatusDone,
+			CompletedAt: startTime,
+			Note:        ref.New("Moved to location f2cc963f-c14d-4eaa-b950-bd207189a1f1"),
+		},
+	).Return(&completePreservationTaskLocalActivityResult{}, nil)
+
 	s.env.OnActivity(activities.MoveToPermanentStorageActivityName, sessionCtx, mock.AnythingOfType("*activities.MoveToPermanentStorageActivityParams")).
 		Return(nil, nil).
 		Once()
@@ -474,6 +584,14 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 		&archive.ExtractActivityParams{SourcePath: tempPath + "/" + key},
 	).Return(
 		&archive.ExtractActivityResult{ExtractPath: extractPath}, nil,
+	)
+
+	s.env.OnActivity(
+		activities.ClassifyPackageActivityName,
+		sessionCtx,
+		activities.ClassifyPackageActivityParams{Path: extractPath},
+	).Return(
+		&activities.ClassifyPackageActivityResult{Type: enums.PackageTypeUnknown}, nil,
 	)
 
 	s.env.OnActivity(
@@ -622,6 +740,14 @@ func (s *ProcessingWorkflowTestSuite) TestPackageRejection() {
 		&archive.ExtractActivityParams{SourcePath: tempPath + "/" + key},
 	).Return(
 		&archive.ExtractActivityResult{ExtractPath: extractPath}, nil,
+	)
+
+	s.env.OnActivity(
+		activities.ClassifyPackageActivityName,
+		sessionCtx,
+		activities.ClassifyPackageActivityParams{Path: extractPath},
+	).Return(
+		&activities.ClassifyPackageActivityResult{Type: enums.PackageTypeUnknown}, nil,
 	)
 
 	s.env.OnActivity(activities.BundleActivityName, sessionCtx,
@@ -774,6 +900,14 @@ func (s *ProcessingWorkflowTestSuite) TestPreprocessingChildWorkflow() {
 		nil,
 	)
 
+	s.env.OnActivity(
+		activities.ClassifyPackageActivityName,
+		sessionCtx,
+		activities.ClassifyPackageActivityParams{Path: prepDest},
+	).Return(
+		&activities.ClassifyPackageActivityResult{Type: enums.PackageTypeUnknown}, nil,
+	)
+
 	s.env.OnActivity(activities.BundleActivityName, sessionCtx,
 		&activities.BundleActivityParams{
 			SourcePath:  prepDest,
@@ -791,7 +925,7 @@ func (s *ProcessingWorkflowTestSuite) TestPreprocessingChildWorkflow() {
 	s.env.OnActivity(updatePackageLocalActivity, ctx, logger, pkgsvc, mock.AnythingOfType("*workflow.updatePackageLocalActivityParams")).
 		Return(nil, nil).
 		Times(2)
-	s.env.OnActivity(createPreservationTaskLocalActivity, ctx, pkgsvc, mock.AnythingOfType("*workflow.createPreservationTaskLocalActivityParams")).
+	s.env.OnActivity(createPreservationTaskLocalActivity, ctx, mock.AnythingOfType("*workflow.createPreservationTaskLocalActivityParams")).
 		Return(uint(0), nil).
 		Once()
 	s.env.OnActivity(activities.UploadActivityName, sessionCtx, mock.AnythingOfType("*activities.UploadActivityParams")).

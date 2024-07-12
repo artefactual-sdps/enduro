@@ -106,6 +106,7 @@ gen-enums: # @HELP Generate go-enum assets.
 gen-enums: ENUM_FLAGS = --names --template=$(CURDIR)/hack/make/enums.tmpl
 gen-enums: $(GO_ENUM)
 	go-enum $(ENUM_FLAGS) \
+		-f internal/enums/package_type.go \
 		-f internal/enums/pkg_status.go \
 		-f internal/enums/preprocessing_task_outcome.go \
 		-f internal/enums/pres_action_status.go \

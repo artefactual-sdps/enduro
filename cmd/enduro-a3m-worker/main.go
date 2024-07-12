@@ -13,7 +13,9 @@ import (
 
 	"ariga.io/sqlcomment"
 	"entgo.io/ent/dialect/sql"
+	bagit_gython "github.com/artefactual-labs/bagit-gython"
 	"github.com/artefactual-sdps/temporal-activities/archive"
+	bagit_activity "github.com/artefactual-sdps/temporal-activities/bagit"
 	"github.com/artefactual-sdps/temporal-activities/filesys"
 	"github.com/hashicorp/go-cleanhttp"
 	"github.com/oklog/run"
@@ -183,6 +185,21 @@ func main() {
 		}
 	}
 
+	// validator is a BagIt bag validator.
+	var validator *bagit_gython.BagIt
+	{
+		validator, err = bagit_gython.NewBagIt()
+		if err != nil {
+			logger.Error(err, "Error creating BagIt validator")
+			os.Exit(1)
+		}
+	}
+	defer func() {
+		if err = validator.Cleanup(); err != nil {
+			logger.Info("Couldn't clean up bag validator: %v", err)
+		}
+	}()
+
 	var g run.Group
 
 	// Activity worker.
@@ -209,6 +226,14 @@ func main() {
 		w.RegisterActivityWithOptions(
 			archive.NewExtractActivity(cfg.ExtractActivity).Execute,
 			temporalsdk_activity.RegisterOptions{Name: archive.ExtractActivityName},
+		)
+		w.RegisterActivityWithOptions(
+			activities.NewClassifyPackageActivity(logger).Execute,
+			temporalsdk_activity.RegisterOptions{Name: activities.ClassifyPackageActivityName},
+		)
+		w.RegisterActivityWithOptions(
+			bagit_activity.NewValidateActivity(validator).Execute,
+			temporalsdk_activity.RegisterOptions{Name: bagit_activity.ValidateActivityName},
 		)
 		w.RegisterActivityWithOptions(
 			activities.NewBundleActivity(logger).Execute,
