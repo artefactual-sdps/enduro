@@ -32,5 +32,6 @@ declare module 'vue-router/auto-routes' {
     '/user': RouteRecordInfo<'/user', '/user', Record<never, never>, Record<never, never>>,
     '/user/signin': RouteRecordInfo<'/user/signin', '/user/signin', Record<never, never>, Record<never, never>>,
     '/user/signin-callback': RouteRecordInfo<'/user/signin-callback', '/user/signin-callback', Record<never, never>, Record<never, never>>,
+    '/user/signout-callback': RouteRecordInfo<'/user/signout-callback', '/user/signout-callback', Record<never, never>, Record<never, never>>,
   }
 }

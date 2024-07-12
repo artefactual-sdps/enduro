@@ -75,9 +75,9 @@ The following environment variables can be used to configure the dashboard:
 
 ```txt
 VITE_OIDC_ENABLED
+VITE_OIDC_BASE_URL
 VITE_OIDC_AUTHORITY
 VITE_OIDC_CLIENT_ID
-VITE_OIDC_REDIRECT_URI
 VITE_OIDC_EXTRA_SCOPES
 VITE_OIDC_ABAC_ENABLED
 VITE_OIDC_ABAC_CLAIM_PATH
@@ -89,6 +89,11 @@ They must match the ones configured in the API. `VITE_OIDC_AUTHORITY` has to be
 the same OIDC provider URL and `VITE_OIDC_CLIENT_ID` needs to be the same or a
 trusted client. This client (or the one used in the API configuration, if they
 are not the same) must be included in the `aud` claim from the access token.
+`VITE_OIDC_BASE_URL` will be used to generate the signin and signout callback
+URLs, to set them in the OIDC provider for this client, they will be:
+
+- Signin: `VITE_OIDC_BASE_URL` + `/user/signin-callback`
+- Signout: `VITE_OIDC_BASE_URL` + `/user/signout-callback`
 
 The authorization flow will request the `openid email profile` scopes by
 default. If needed, `VITE_OIDC_EXTRA_SCOPES` can be used to request additional

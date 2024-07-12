@@ -12,9 +12,9 @@ declare module "*.vue" {
 
 interface ImportMetaEnv {
   readonly VITE_OIDC_ENABLED: string;
+  readonly VITE_OIDC_BASE_URL: string;
   readonly VITE_OIDC_AUTHORITY: string;
   readonly VITE_OIDC_CLIENT_ID: string;
-  readonly VITE_OIDC_REDIRECT_URI: string;
   readonly VITE_OIDC_EXTRA_SCOPES: string;
   readonly VITE_OIDC_EXTRA_QUERY_PARAMS: string;
   readonly VITE_OIDC_ABAC_ENABLED: string;

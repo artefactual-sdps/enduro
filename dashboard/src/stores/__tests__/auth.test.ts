@@ -22,9 +22,9 @@ describe("useAuthStore", () => {
     authStore.$patch((state) => {
       state.config = {
         enabled: true,
+        baseUrl: "",
         provider: "",
         clientId: "",
-        redirectUrl: "",
         extraScopes: "",
         extraQueryParams: "",
         abac: {
@@ -187,9 +187,9 @@ describe("useAuthStore", () => {
     authStore.$patch((state) => {
       state.config = {
         enabled: true,
+        baseUrl: "",
         provider: "",
         clientId: "",
-        redirectUrl: "",
         extraScopes: "",
         extraQueryParams: "",
         abac: {
@@ -210,9 +210,9 @@ describe("useAuthStore", () => {
     authStore.loadConfig();
     expect(authStore.config).toEqual({
       enabled: true,
+      baseUrl: "http://localhost:8080",
       provider: "http://keycloak:7470/realms/artefactual",
       clientId: "enduro",
-      redirectUrl: "http://localhost:8080/user/signin-callback",
       extraScopes: "enduro",
       extraQueryParams: "audience=enduro-api, key = value",
       abac: {
@@ -235,6 +235,9 @@ describe("useAuthStore", () => {
     expect(authStore.manager?.settings.redirect_uri).toEqual(
       "http://localhost:8080/user/signin-callback",
     );
+    expect(authStore.manager?.settings.post_logout_redirect_uri).toEqual(
+      "http://localhost:8080/user/signout-callback",
+    );
     expect(authStore.manager?.settings.scope).toEqual(
       "openid email profile enduro",
     );
@@ -252,6 +255,23 @@ describe("useAuthStore", () => {
     authStore.$patch((state) => (state.config.enabled = false));
     authStore.loadManager();
     expect(authStore.manager).toEqual(null);
+  });
+
+  it("redirects for signin", () => {
+    const manager = new UserManager({
+      authority: "",
+      client_id: "",
+      redirect_uri: "",
+    });
+
+    const redirectMock = vi.fn().mockImplementation(manager.signinRedirect);
+    redirectMock.mockImplementation(async () => null);
+    manager.signinRedirect = redirectMock;
+
+    const authStore = useAuthStore();
+    authStore.$patch((state) => (state.manager = manager));
+    authStore.signinRedirect();
+    expect(redirectMock).toHaveBeenCalledOnce();
   });
 
   it("receives a signin callback", async () => {
@@ -276,21 +296,45 @@ describe("useAuthStore", () => {
     expect(authStore.user).toEqual(null);
   });
 
-  it("redirects for signin", () => {
+  it("redirects for signout", () => {
     const manager = new UserManager({
       authority: "",
       client_id: "",
       redirect_uri: "",
     });
 
-    const redirectMock = vi.fn().mockImplementation(manager.signinRedirect);
+    const redirectMock = vi.fn().mockImplementation(manager.signoutRedirect);
     redirectMock.mockImplementation(async () => null);
-    manager.signinRedirect = redirectMock;
+    manager.signoutRedirect = redirectMock;
 
     const authStore = useAuthStore();
     authStore.$patch((state) => (state.manager = manager));
-    authStore.signinRedirect();
+    authStore.signoutRedirect();
     expect(redirectMock).toHaveBeenCalledOnce();
+  });
+
+  it("receives a signout callback", async () => {
+    const manager = new UserManager({
+      authority: "",
+      client_id: "",
+      redirect_uri: "",
+    });
+
+    const callbackMock = vi.fn().mockImplementation(manager.signoutCallback);
+    callbackMock.mockImplementation(async () => null);
+    manager.signoutCallback = callbackMock;
+
+    const authStore = useAuthStore();
+    authStore.$patch((state) => (state.manager = manager));
+
+    const removeUserMock = vi.fn().mockImplementation(authStore.removeUser);
+    removeUserMock.mockImplementation(async () => null);
+    authStore.removeUser = removeUserMock;
+
+    authStore.signoutCallback();
+    await flushPromises();
+    expect(callbackMock).toHaveBeenCalledOnce();
+    expect(removeUserMock).toHaveBeenCalledOnce();
   });
 
   it("loads and removes the user and attributes", async () => {
@@ -518,9 +562,9 @@ describe("useAuthStore", () => {
     authStore.$patch((state) => {
       state.config = {
         enabled: true,
+        baseUrl: "",
         provider: "",
         clientId: "",
-        redirectUrl: "",
         extraScopes: "",
         extraQueryParams: "",
         abac: {

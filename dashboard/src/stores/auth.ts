@@ -5,9 +5,9 @@ import { Buffer } from "buffer";
 
 type OIDCConfig = {
   enabled: boolean;
+  baseUrl: string;
   provider: string;
   clientId: string;
-  redirectUrl: string;
   extraScopes: string;
   extraQueryParams: string;
   abac: ABACConfig;
@@ -84,9 +84,9 @@ export const useAuthStore = defineStore("auth", {
 
       this.config = {
         enabled: false,
+        baseUrl: "",
         provider: "",
         clientId: "",
-        redirectUrl: "",
         extraScopes: "",
         extraQueryParams: "",
         abac: {
@@ -102,14 +102,14 @@ export const useAuthStore = defineStore("auth", {
         this.config.enabled =
           env.VITE_OIDC_ENABLED.trim().toLowerCase() === "true";
       }
+      if (env.VITE_OIDC_BASE_URL) {
+        this.config.baseUrl = env.VITE_OIDC_BASE_URL.trim();
+      }
       if (env.VITE_OIDC_AUTHORITY) {
         this.config.provider = env.VITE_OIDC_AUTHORITY.trim();
       }
       if (env.VITE_OIDC_CLIENT_ID) {
         this.config.clientId = env.VITE_OIDC_CLIENT_ID.trim();
-      }
-      if (env.VITE_OIDC_REDIRECT_URI) {
-        this.config.redirectUrl = env.VITE_OIDC_REDIRECT_URI.trim();
       }
       if (env.VITE_OIDC_EXTRA_SCOPES) {
         this.config.extraScopes = env.VITE_OIDC_EXTRA_SCOPES.trim();
@@ -158,10 +158,15 @@ export const useAuthStore = defineStore("auth", {
         });
       }
 
+      if (!this.config.baseUrl.endsWith("/")) {
+        this.config.baseUrl += "/";
+      }
+
       this.manager = new UserManager({
         authority: this.config.provider,
         client_id: this.config.clientId,
-        redirect_uri: this.config.redirectUrl,
+        redirect_uri: this.config.baseUrl + "user/signin-callback",
+        post_logout_redirect_uri: this.config.baseUrl + "user/signout-callback",
         extraQueryParams: extraQueryParams,
         scope: scope,
         userStore: new WebStorageStateStore({ store: window.localStorage }),
@@ -175,13 +180,21 @@ export const useAuthStore = defineStore("auth", {
       this.loadManager();
       this.setUser((await this.manager?.signinCallback()) || null);
     },
+    signoutRedirect() {
+      this.loadManager();
+      this.manager?.signoutRedirect();
+    },
+    async signoutCallback() {
+      this.loadManager();
+      await this.manager?.signoutCallback();
+      await this.removeUser();
+    },
     // Load the currently authenticated user.
     async loadUser() {
       this.loadManager();
       this.setUser((await this.manager?.getUser()) || null);
     },
     async removeUser() {
-      // TODO: end session upstream.
       this.loadManager();
       await this.manager?.removeUser();
       this.user = null;

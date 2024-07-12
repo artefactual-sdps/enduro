@@ -148,7 +148,7 @@ onMounted(() => {
         <div class="collapse" id="user-menu">
           <a
             class="d-block py-3 text-decoration-none text-dark sidebar-link"
-            @click="authStore.removeUser()"
+            @click="authStore.signoutRedirect()"
             href="#"
           >
             <div class="container-fluid">

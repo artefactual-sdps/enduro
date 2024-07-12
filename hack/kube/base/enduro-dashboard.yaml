@@ -25,6 +25,11 @@ spec:
                 secretKeyRef:
                   name: enduro-dashboard-secret
                   key: oidc-enabled
+            - name: VITE_OIDC_BASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: enduro-dashboard-secret
+                  key: oidc-base-url
             - name: VITE_OIDC_AUTHORITY
               valueFrom:
                 secretKeyRef:
@@ -35,11 +40,6 @@ spec:
                 secretKeyRef:
                   name: enduro-dashboard-secret
                   key: oidc-client-id
-            - name: VITE_OIDC_REDIRECT_URI
-              valueFrom:
-                secretKeyRef:
-                  name: enduro-dashboard-secret
-                  key: oidc-redirect-url
             - name: VITE_OIDC_EXTRA_SCOPES
               valueFrom:
                 secretKeyRef:
