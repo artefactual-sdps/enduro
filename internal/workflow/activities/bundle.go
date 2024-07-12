@@ -175,8 +175,7 @@ func unbag(path string) error {
 
 	// Only continue if we have a bag.
 	securePath, _ := securejoin.SecureJoin(path, "bagit.txt")
-	_, err = os.Stat(securePath)
-	if errors.Is(err, os.ErrNotExist) {
+	if !fsutil.FileExists(securePath) {
 		return nil
 	}
 

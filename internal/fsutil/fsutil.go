@@ -72,3 +72,10 @@ func SetFileModes(root string, dirMode, fileMode int) error {
 		},
 	)
 }
+
+func FileExists(path string) bool {
+	if _, err := os.Stat(path); err != nil {
+		return !errors.Is(err, os.ErrNotExist)
+	}
+	return true
+}

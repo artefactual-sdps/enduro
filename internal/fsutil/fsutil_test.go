@@ -30,6 +30,13 @@ var dirOpts = []fs.PathOp{
 	),
 }
 
+func TestBaseNoExt(t *testing.T) {
+	t.Parallel()
+
+	assert.Equal(t, fsutil.BaseNoExt("/tmp/dir"), "dir")
+	assert.Equal(t, fsutil.BaseNoExt("/tmp/dir/small.txt"), "small")
+}
+
 func TestMove(t *testing.T) {
 	t.Parallel()
 
@@ -58,12 +65,8 @@ func TestMove(t *testing.T) {
 		err := fsutil.Move(src, dst)
 
 		assert.NilError(t, err)
-
-		_, err = os.Stat(src)
-		assert.ErrorIs(t, err, os.ErrNotExist)
-
-		_, err = os.Stat(dst)
-		assert.NilError(t, err)
+		assert.Equal(t, fsutil.FileExists(src), false)
+		assert.Equal(t, fsutil.FileExists(dst), true)
 	})
 
 	t.Run("It moves directories", func(t *testing.T) {
@@ -78,8 +81,7 @@ func TestMove(t *testing.T) {
 		err := fsutil.Move(src, dst)
 
 		assert.NilError(t, err)
-		_, err = os.Stat(src)
-		assert.ErrorIs(t, err, os.ErrNotExist)
+		assert.Equal(t, fsutil.FileExists(src), false)
 		assert.Assert(t, fs.Equal(dst, srcManifest))
 	})
 
@@ -105,8 +107,7 @@ func TestMove(t *testing.T) {
 		err := fsutil.Move(src, dst)
 
 		assert.NilError(t, err)
-		_, err = os.Stat(src)
-		assert.ErrorIs(t, err, os.ErrNotExist)
+		assert.Equal(t, fsutil.FileExists(src), false)
 		assert.Assert(t, fs.Equal(dst, srcManifest))
 	})
 }
@@ -134,4 +135,13 @@ func TestSetFileModes(t *testing.T) {
 			),
 		),
 	))
+}
+
+func TestFileExists(t *testing.T) {
+	t.Parallel()
+
+	td := fs.NewDir(t, "enduro-test", fs.WithFile("small.txt", "I'm a small file."))
+	assert.Equal(t, fsutil.FileExists(td.Path()), true)
+	assert.Equal(t, fsutil.FileExists(td.Join("small.txt")), true)
+	assert.Equal(t, fsutil.FileExists(td.Join("nope")), false)
 }
