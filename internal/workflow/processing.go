@@ -6,6 +6,7 @@
 package workflow
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
 	"io"
@@ -14,6 +15,7 @@ import (
 	"time"
 
 	"github.com/artefactual-sdps/temporal-activities/archive"
+	bagit_activity "github.com/artefactual-sdps/temporal-activities/bagit"
 	"github.com/artefactual-sdps/temporal-activities/filesys"
 	"github.com/go-logr/logr"
 	"github.com/google/uuid"
@@ -26,6 +28,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/a3m"
 	"github.com/artefactual-sdps/enduro/internal/am"
 	"github.com/artefactual-sdps/enduro/internal/config"
+	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/fsutil"
 	"github.com/artefactual-sdps/enduro/internal/package_"
@@ -69,6 +72,9 @@ type TransferInfo struct {
 	// IsDir indicates whether the current working copy of the transfer is a
 	// filesystem directory.
 	IsDir bool
+
+	// PackageType is the type of the package.
+	PackageType enums.PackageType
 
 	// TempPath is the temporary location of a working copy of the transfer.
 	TempPath string
@@ -410,7 +416,80 @@ func (w *ProcessingWorkflow) SessionHandler(
 		return err
 	}
 
-	// Bundle transfer as an Archivematica standard transfer.
+	// Classify the SIP.
+	{
+		activityOpts := withActivityOptsForLocalAction(sessCtx)
+		var result activities.ClassifyPackageActivityResult
+		err := temporalsdk_workflow.ExecuteActivity(
+			activityOpts,
+			activities.ClassifyPackageActivityName,
+			activities.ClassifyPackageActivityParams{Path: tinfo.TempPath},
+		).Get(activityOpts, &result)
+		if err != nil {
+			return fmt.Errorf("classify package activity: %v", err)
+		}
+
+		tinfo.PackageType = result.Type
+	}
+
+	// If the SIP is a BagIt Bag, validate it.
+	if tinfo.IsDir && tinfo.PackageType == enums.PackageTypeBagIt {
+		id, err := w.createPreservationTask(
+			sessCtx,
+			datatypes.PreservationTask{
+				Name:                 "Validate Bag",
+				Status:               enums.PreservationTaskStatusInProgress,
+				PreservationActionID: tinfo.PreservationActionID,
+			},
+		)
+		if err != nil {
+			return fmt.Errorf("create validate bag task: %v", err)
+		}
+
+		// Set the default (successful) validate bag task completion values.
+		pt := datatypes.PreservationTask{
+			ID:     id,
+			Status: enums.PreservationTaskStatusDone,
+			Note:   "Bag is valid",
+		}
+
+		// Validate the bag.
+		activityOpts := withActivityOptsForLocalAction(sessCtx)
+		var result bagit_activity.ValidateActivityResult
+		err = temporalsdk_workflow.ExecuteActivity(
+			activityOpts,
+			bagit_activity.ValidateActivityName,
+			&bagit_activity.ValidateActivityParams{Path: tinfo.TempPath},
+		).Get(activityOpts, &result)
+		if err != nil {
+			pt.Status = enums.PreservationTaskStatusError
+			pt.Note = "System error"
+		}
+		if !result.Valid {
+			pt.Status = enums.PreservationTaskStatusError
+			pt.Note = result.Error
+
+			// Fail the workflow with an error for now. In the future we may
+			// want to stop the workflow without returning an error, but this
+			// will require some changes to clean up appropriately (e.g. move
+			// the failed SIP to "failed" bucket).
+			err = errors.New(result.Error)
+		}
+
+		// Update the validate bag preservation task.
+		if e := w.completePreservationTask(sessCtx, pt); e != nil {
+			return errors.Join(
+				err,
+				fmt.Errorf("complete validate bag task: %v", e),
+			)
+		}
+
+		if err != nil {
+			return fmt.Errorf("validate bag: %v", err)
+		}
+	}
+
+	// Bundle PIP as an Archivematica standard transfer.
 	{
 		// For the a3m workflow bundle the transfer to a directory shared with
 		// the a3m container.
@@ -435,12 +514,13 @@ func (w *ProcessingWorkflow) SessionHandler(
 		}
 
 		tinfo.Bundle = bundleResult
+		tinfo.PackageType = enums.PackageTypeArchivematicaStandardTransfer
 
 		// Delete bundled transfer when session ends.
 		cleanup.registerPath(bundleResult.FullPath)
 	}
 
-	// Do preservation activities.
+	// Do preservation.
 	{
 		var err error
 		if w.cfg.Preservation.TaskQueue == temporal.AmWorkerTaskQueue {
@@ -476,19 +556,19 @@ func (w *ProcessingWorkflow) SessionHandler(
 
 	// Add preservation task for upload to review bucket.
 	if !tinfo.req.AutoApproveAIP {
-		ctx := withLocalActivityOpts(sessCtx)
-		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, createPreservationTaskLocalActivity, w.pkgsvc, &createPreservationTaskLocalActivityParams{
-			TaskID:               uuid.NewString(),
-			Name:                 "Move AIP",
-			Status:               enums.PreservationTaskStatusInProgress,
-			StartedAt:            temporalsdk_workflow.Now(sessCtx).UTC(),
-			Note:                 "Moving to review bucket",
-			PreservationActionID: tinfo.PreservationActionID,
-		}).
-			Get(ctx, &uploadPreservationTaskID)
+		id, err := w.createPreservationTask(
+			sessCtx,
+			datatypes.PreservationTask{
+				Name:                 "Move AIP",
+				Status:               enums.PreservationTaskStatusInProgress,
+				Note:                 "Moving to review bucket",
+				PreservationActionID: tinfo.PreservationActionID,
+			},
+		)
 		if err != nil {
 			return err
 		}
+		uploadPreservationTaskID = id
 	}
 
 	// Upload AIP to MinIO.
@@ -558,18 +638,20 @@ func (w *ProcessingWorkflow) SessionHandler(
 
 		// Add preservation task for package review
 		{
-			ctx := withLocalActivityOpts(sessCtx)
-			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, createPreservationTaskLocalActivity, w.pkgsvc, &createPreservationTaskLocalActivityParams{
-				TaskID:               uuid.NewString(),
-				Name:                 "Review AIP",
-				Status:               enums.PreservationTaskStatusPending,
-				StartedAt:            temporalsdk_workflow.Now(sessCtx).UTC(),
-				Note:                 "Awaiting user decision",
-				PreservationActionID: tinfo.PreservationActionID,
-			}).Get(ctx, &reviewPreservationTaskID)
+			id, err := w.createPreservationTask(
+				sessCtx,
+				datatypes.PreservationTask{
+					TaskID:               uuid.NewString(),
+					Name:                 "Review AIP",
+					Status:               enums.PreservationTaskStatusPending,
+					Note:                 "Awaiting user decision",
+					PreservationActionID: tinfo.PreservationActionID,
+				},
+			)
 			if err != nil {
 				return err
 			}
+			reviewPreservationTaskID = id
 		}
 
 		reviewResult = w.waitForReview(sessCtx)
@@ -616,19 +698,19 @@ func (w *ProcessingWorkflow) SessionHandler(
 
 		// Add preservation task for permanent storage move.
 		{
-			ctx := withLocalActivityOpts(sessCtx)
-			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, createPreservationTaskLocalActivity, w.pkgsvc, &createPreservationTaskLocalActivityParams{
-				TaskID:               uuid.NewString(),
-				Name:                 "Move AIP",
-				Status:               enums.PreservationTaskStatusInProgress,
-				StartedAt:            temporalsdk_workflow.Now(sessCtx).UTC(),
-				Note:                 "Moving to permanent storage",
-				PreservationActionID: tinfo.PreservationActionID,
-			}).
-				Get(ctx, &movePreservationTaskID)
+			id, err := w.createPreservationTask(
+				sessCtx,
+				datatypes.PreservationTask{
+					Name:                 "Move AIP",
+					Status:               enums.PreservationTaskStatusInProgress,
+					Note:                 "Moving to permanent storage",
+					PreservationActionID: tinfo.PreservationActionID,
+				},
+			)
 			if err != nil {
 				return err
 			}
+			movePreservationTaskID = id
 		}
 
 		// Move package to permanent storage
@@ -958,4 +1040,58 @@ func (w *ProcessingWorkflow) preprocessing(ctx temporalsdk_workflow.Context, tin
 	default:
 		return fmt.Errorf("preprocessing workflow: unknown outcome %d", ppResult.Outcome)
 	}
+}
+
+func (w *ProcessingWorkflow) createPreservationTask(
+	ctx temporalsdk_workflow.Context,
+	pt datatypes.PreservationTask,
+) (uint, error) {
+	var id uint
+	ctx = withLocalActivityOpts(ctx)
+	err := temporalsdk_workflow.ExecuteLocalActivity(
+		ctx,
+		createPreservationTaskLocalActivity,
+		&createPreservationTaskLocalActivityParams{
+			PkgSvc: w.pkgsvc,
+			RNG:    w.rng,
+			PreservationTask: datatypes.PreservationTask{
+				Name:   pt.Name,
+				Status: pt.Status,
+				StartedAt: sql.NullTime{
+					Time:  temporalsdk_workflow.Now(ctx).UTC(),
+					Valid: true,
+				},
+				Note:                 pt.Note,
+				PreservationActionID: pt.PreservationActionID,
+			},
+		},
+	).Get(ctx, &id)
+	if err != nil {
+		return 0, err
+	}
+
+	return id, nil
+}
+
+func (w *ProcessingWorkflow) completePreservationTask(
+	ctx temporalsdk_workflow.Context,
+	pt datatypes.PreservationTask,
+) error {
+	ctx = withLocalActivityOpts(ctx)
+	err := temporalsdk_workflow.ExecuteLocalActivity(
+		ctx,
+		completePreservationTaskLocalActivity,
+		w.pkgsvc,
+		&completePreservationTaskLocalActivityParams{
+			ID:          pt.ID,
+			Status:      pt.Status,
+			CompletedAt: temporalsdk_workflow.Now(ctx).UTC(),
+			Note:        ref.New(pt.Note),
+		},
+	).Get(ctx, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

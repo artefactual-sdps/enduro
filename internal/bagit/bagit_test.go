@@ -4,11 +4,28 @@ import (
 	"testing"
 
 	"gotest.tools/v3/assert"
+	"gotest.tools/v3/fs"
 
 	"github.com/artefactual-sdps/enduro/internal/bagit"
 )
 
-func TestBagit(t *testing.T) {
+func TestBagitIs(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Not a bag", func(t *testing.T) {
+		t.Parallel()
+		td := fs.NewDir(t, "enduro-test")
+		assert.Equal(t, bagit.Is(td.Path()), false)
+	})
+
+	t.Run("Is a bag", func(t *testing.T) {
+		t.Parallel()
+		td := fs.NewDir(t, "enduro-test", fs.WithFile("bagit.txt", ""))
+		assert.Equal(t, bagit.Is(td.Path()), true)
+	})
+}
+
+func TestBagitComplete(t *testing.T) {
 	assert.NilError(t, bagit.Complete("./tests/test-bagged-transfer"))
 	assert.ErrorContains(
 		t,
@@ -28,16 +45,6 @@ func TestBagit(t *testing.T) {
 	assert.ErrorContains(
 		t,
 		bagit.Complete("./tests/nobag"),
-		"- ERROR - input ./tests/nobag directory does not exist",
-	)
-	assert.ErrorContains(
-		t,
-		bagit.Valid("./tests/test-bagged-transfer-with-invalid-checksums"),
-		"Bag validation failed: data/adios.txt sha256 validation failed",
-	)
-	assert.ErrorContains(
-		t,
-		bagit.Valid("./tests/nobag"),
 		"- ERROR - input ./tests/nobag directory does not exist",
 	)
 }

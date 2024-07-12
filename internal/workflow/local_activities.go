@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"io"
 	"time"
 
 	"github.com/go-logr/logr"
@@ -228,31 +229,25 @@ func completePreservationActionLocalActivity(
 }
 
 type createPreservationTaskLocalActivityParams struct {
-	TaskID               string
-	Name                 string
-	Status               enums.PreservationTaskStatus
-	StartedAt            time.Time
-	CompletedAt          time.Time
-	Note                 string
-	PreservationActionID uint
+	PkgSvc           package_.Service
+	RNG              io.Reader
+	PreservationTask datatypes.PreservationTask
 }
 
 func createPreservationTaskLocalActivity(
 	ctx context.Context,
-	pkgsvc package_.Service,
 	params *createPreservationTaskLocalActivityParams,
 ) (uint, error) {
-	pt := datatypes.PreservationTask{
-		TaskID:               params.TaskID,
-		Name:                 params.Name,
-		Status:               params.Status,
-		Note:                 params.Note,
-		PreservationActionID: params.PreservationActionID,
+	pt := params.PreservationTask
+	if pt.TaskID == "" {
+		id, err := uuid.NewRandomFromReader(params.RNG)
+		if err != nil {
+			return 0, err
+		}
+		pt.TaskID = id.String()
 	}
-	pt.StartedAt.Time = params.StartedAt
-	pt.CompletedAt.Time = params.CompletedAt
 
-	if err := pkgsvc.CreatePreservationTask(ctx, &pt); err != nil {
+	if err := params.PkgSvc.CreatePreservationTask(ctx, &pt); err != nil {
 		return 0, err
 	}
 
