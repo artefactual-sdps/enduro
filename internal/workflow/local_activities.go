@@ -237,6 +237,10 @@ type createPreservationTaskLocalActivityParams struct {
 	PreservationActionID uint
 }
 
+type createPreservationTaskLocalActivityResult struct {
+	ID uint
+}
+
 func createPreservationTaskLocalActivity(
 	ctx context.Context,
 	pkgsvc package_.Service,

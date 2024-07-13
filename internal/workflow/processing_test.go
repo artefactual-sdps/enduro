@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/artefactual-sdps/temporal-activities/archive"
+	bagit_activity "github.com/artefactual-sdps/temporal-activities/bagit"
 	"github.com/artefactual-sdps/temporal-activities/filesys"
 	"github.com/go-logr/logr"
 	"github.com/google/uuid"
@@ -107,6 +108,10 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(cfg config.Configuration
 	s.env.RegisterActivityWithOptions(
 		archive.NewExtractActivity(cfg.ExtractActivity).Execute,
 		temporalsdk_activity.RegisterOptions{Name: archive.ExtractActivityName},
+	)
+	s.env.RegisterActivityWithOptions(
+		bagit_activity.NewValidateActivity(bagit_activity.NewNoopValidator()).Execute,
+		temporalsdk_activity.RegisterOptions{Name: bagit_activity.ValidateActivityName},
 	)
 	s.env.RegisterActivityWithOptions(
 		activities.NewBundleActivity(logger).Execute,
@@ -392,6 +397,43 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 		&archive.ExtractActivityResult{ExtractPath: extractPath}, nil,
 	)
 
+	s.env.OnActivity(
+		localact.ClassifyPackageActivity,
+		ctx,
+		localact.ClassifyPackageActivityParams{Path: extractPath},
+	).Return(
+		&localact.ClassifyPackageActivityResult{Type: enums.PackageTypeBagIt}, nil,
+	)
+
+	s.env.OnActivity(
+		createPreservationTaskLocalActivity,
+		sessionCtx,
+		pkgsvc,
+		&createPreservationTaskLocalActivityParams{
+			TaskID:               "",
+			Name:                 "Validate Bag",
+			Status:               enums.PreservationTaskStatusInProgress,
+			StartedAt:            startTime,
+			PreservationActionID: uint(0),
+		},
+	).Return(uint(0), nil)
+
+	s.env.OnActivity(
+		bagit_activity.ValidateActivityName,
+		sessionCtx,
+		&bagit_activity.ValidateActivityParams{Path: extractPath},
+	).Return(
+		&bagit_activity.ValidateActivityResult{Valid: true},
+		nil,
+	)
+
+	s.env.OnActivity(
+		completePreservationTaskLocalActivity,
+		sessionCtx,
+		pkgsvc,
+		mock.AnythingOfType("*workflow.completePreservationTaskLocalActivityParams"),
+	).Return(&completePreservationTaskLocalActivityResult{}, nil)
+
 	s.env.OnActivity(activities.BundleActivityName, sessionCtx,
 		&activities.BundleActivityParams{
 			SourcePath:  extractPath,
@@ -500,6 +542,14 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 		&archive.ExtractActivityParams{SourcePath: tempPath + "/" + key},
 	).Return(
 		&archive.ExtractActivityResult{ExtractPath: extractPath}, nil,
+	)
+
+	s.env.OnActivity(
+		localact.ClassifyPackageActivity,
+		ctx,
+		localact.ClassifyPackageActivityParams{Path: extractPath},
+	).Return(
+		&localact.ClassifyPackageActivityResult{Type: enums.PackageTypeUnknown}, nil,
 	)
 
 	s.env.OnActivity(
@@ -617,6 +667,7 @@ func (s *ProcessingWorkflowTestSuite) TestPackageRejection() {
 	key := "transfer.zip"
 	watcherName := "watcher"
 	retentionPeriod := 1 * time.Second
+	ctx := mock.AnythingOfType("*context.valueCtx")
 	sessionCtx := mock.AnythingOfType("*context.timerCtx")
 
 	// Signal handler that mimics package rejection
@@ -648,6 +699,14 @@ func (s *ProcessingWorkflowTestSuite) TestPackageRejection() {
 		&archive.ExtractActivityParams{SourcePath: tempPath + "/" + key},
 	).Return(
 		&archive.ExtractActivityResult{ExtractPath: extractPath}, nil,
+	)
+
+	s.env.OnActivity(
+		localact.ClassifyPackageActivity,
+		ctx,
+		localact.ClassifyPackageActivityParams{Path: extractPath},
+	).Return(
+		&localact.ClassifyPackageActivityResult{Type: enums.PackageTypeUnknown}, nil,
 	)
 
 	s.env.OnActivity(activities.BundleActivityName, sessionCtx,
@@ -798,6 +857,14 @@ func (s *ProcessingWorkflowTestSuite) TestPreprocessingChildWorkflow() {
 	).Return(
 		&localact.SavePreprocessingTasksActivityResult{Count: 1},
 		nil,
+	)
+
+	s.env.OnActivity(
+		localact.ClassifyPackageActivity,
+		ctx,
+		localact.ClassifyPackageActivityParams{Path: prepDest},
+	).Return(
+		&localact.ClassifyPackageActivityResult{Type: enums.PackageTypeUnknown}, nil,
 	)
 
 	s.env.OnActivity(activities.BundleActivityName, sessionCtx,

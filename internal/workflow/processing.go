@@ -26,7 +26,6 @@ import (
 
 	"github.com/artefactual-sdps/enduro/internal/a3m"
 	"github.com/artefactual-sdps/enduro/internal/am"
-	"github.com/artefactual-sdps/enduro/internal/bagit"
 	"github.com/artefactual-sdps/enduro/internal/config"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/fsutil"
@@ -71,6 +70,9 @@ type TransferInfo struct {
 	// IsDir indicates whether the current working copy of the transfer is a
 	// filesystem directory.
 	IsDir bool
+
+	// PackageType is the type of the package.
+	PackageType enums.PackageType
 
 	// TempPath is the temporary location of a working copy of the transfer.
 	TempPath string
@@ -412,8 +414,24 @@ func (w *ProcessingWorkflow) SessionHandler(
 		return err
 	}
 
-	// If the PIP is a BagIt Bag, validate it.
-	if tinfo.IsDir && bagit.IsABag(tinfo.TempPath) {
+	// Classify the SIP.
+	{
+		activityOpts := withLocalActivityOpts(sessCtx)
+		var result localact.ClassifyPackageActivityResult
+		err := temporalsdk_workflow.ExecuteLocalActivity(
+			activityOpts,
+			localact.ClassifyPackageActivity,
+			localact.ClassifyPackageActivityParams{Path: tinfo.TempPath},
+		).Get(activityOpts, &result)
+		if err != nil {
+			return fmt.Errorf("classify package activity: %v", err)
+		}
+
+		tinfo.PackageType = result.Type
+	}
+
+	// If the SIP is a BagIt Bag, validate it.
+	if tinfo.IsDir && tinfo.PackageType == enums.PackageTypeBagIt {
 		// Create a validate bag preservation task.
 		id, err := w.createPreservationTask(
 			sessCtx,
@@ -485,6 +503,7 @@ func (w *ProcessingWorkflow) SessionHandler(
 		}
 
 		tinfo.Bundle = bundleResult
+		tinfo.PackageType = enums.PackageTypeArchivematicaStandardTransfer
 
 		// Delete bundled transfer when session ends.
 		cleanup.registerPath(bundleResult.FullPath)
@@ -1013,13 +1032,18 @@ func (w *ProcessingWorkflow) preprocessing(ctx temporalsdk_workflow.Context, tin
 func (w *ProcessingWorkflow) createPreservationTask(ctx temporalsdk_workflow.Context, params createPreservationTaskLocalActivityParams) (uint, error) {
 	var id uint
 	ctx = withLocalActivityOpts(ctx)
-	params.TaskID = uuid.NewString()
 
-	err := temporalsdk_workflow.ExecuteLocalActivity(
+	taskID, err := uuid.NewRandomFromReader(w.rng)
+	if err != nil {
+		return 0, fmt.Errorf("generate UUID: %v", err)
+	}
+	params.TaskID = taskID.String()
+
+	err = temporalsdk_workflow.ExecuteLocalActivity(
 		ctx,
 		createPreservationTaskLocalActivity,
 		w.pkgsvc,
-		params,
+		&params,
 	).Get(ctx, &id)
 	if err != nil {
 		return 0, err
@@ -1034,7 +1058,7 @@ func (w *ProcessingWorkflow) completePreservationTask(ctx temporalsdk_workflow.C
 		ctx,
 		completePreservationTaskLocalActivity,
 		w.pkgsvc,
-		params,
+		&params,
 	).Get(ctx, nil)
 	if err != nil {
 		return err
