@@ -2,6 +2,7 @@ package workflow
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"time"
 
@@ -180,8 +181,12 @@ func createPreservationActionLocalActivity(
 		Status:     params.Status,
 		PackageID:  params.PackageID,
 	}
-	pa.StartedAt.Time = params.StartedAt
-	pa.CompletedAt.Time = params.CompletedAt
+	if !params.StartedAt.IsZero() {
+		pa.StartedAt = sql.NullTime{Time: params.StartedAt, Valid: true}
+	}
+	if !params.CompletedAt.IsZero() {
+		pa.CompletedAt = sql.NullTime{Time: params.CompletedAt, Valid: true}
+	}
 
 	if err := pkgsvc.CreatePreservationAction(ctx, &pa); err != nil {
 		return 0, err
