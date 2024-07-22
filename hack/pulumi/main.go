@@ -225,13 +225,6 @@ func main() {
 							container := containers.([]interface{})[0]
 							container.(map[string]interface{})["image"] = images["enduro"]
 							templateSpec.(map[string]interface{})["imagePullSecrets"] = imagePullSecrets
-						} else if state["kind"] == "Deployment" && name == "enduro-internal" {
-							template := state["spec"].(map[string]interface{})["template"]
-							templateSpec := template.(map[string]interface{})["spec"]
-							containers := templateSpec.(map[string]interface{})["containers"]
-							container := containers.([]interface{})[0]
-							container.(map[string]interface{})["image"] = images["enduro"]
-							templateSpec.(map[string]interface{})["imagePullSecrets"] = imagePullSecrets
 						} else if state["kind"] == "Deployment" && name == "enduro-dashboard" {
 							template := state["spec"].(map[string]interface{})["template"]
 							templateSpec := template.(map[string]interface{})["spec"]

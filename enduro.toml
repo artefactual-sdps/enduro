@@ -79,7 +79,7 @@ bucket = "sips"
 stripTopLevelDir = true
 
 [storage]
-enduroAddress = "enduro-internal:9000"
+enduroAddress = "enduro.enduro-sdps:9000"
 
 # defaultPermanentLocationId is the UUID of the storage location used for
 # permanent AIP storage in the "auto-approve" processing workflow. The value of

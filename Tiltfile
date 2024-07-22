@@ -100,7 +100,6 @@ if os.environ.get('TRIGGER_MODE_AUTO', '').lower() in true:
 
 # Enduro resources
 k8s_resource("enduro", labels=["Enduro"], trigger_mode=trigger_mode)
-k8s_resource("enduro-internal", port_forwards="9000", labels=["Enduro"], trigger_mode=trigger_mode)
 k8s_resource("enduro-dashboard", port_forwards="8080:80", labels=["Enduro"], trigger_mode=trigger_mode)
 
 if PRES_SYS == 'am':

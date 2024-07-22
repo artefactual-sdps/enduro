@@ -3,7 +3,6 @@ kind: Kustomization
 namespace: enduro-sdps
 resources:
   - enduro-dashboard.yaml
-  - enduro-internal.yaml
   - enduro.yaml
   - minio-setup-buckets-job.yaml
   - minio.yaml

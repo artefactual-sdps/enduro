@@ -231,11 +231,6 @@ test-race: # @HELP Run all tests with the race detector.
 test-race:
 	$(MAKE) test GOTEST_FLAGS="-race"
 
-tilt-trigger-internal: # @HELP Restart enduro-internal and wait until ready.
-tilt-trigger-internal:
-	tilt trigger enduro-internal
-	tilt wait --for=condition=Ready uiresource/enduro-internal
-
 tools: # @HELP Install tools.
 tools: $(TOOLS)
 
