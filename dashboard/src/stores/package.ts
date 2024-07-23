@@ -85,7 +85,12 @@ export const usePackageStore = defineStore("package", {
   actions: {
     handleEvent(event: api.MonitorEventEvent) {
       const json = JSON.parse(event.value);
-      const value = mapKeys(json, (value, key) => snakeCase(key));
+      // TODO: avoid key transformation in the backend or make
+      // this fully recursive, considering objects and slices.
+      let value = mapKeys(json, (_, key) => snakeCase(key));
+      if (value.item) {
+        value.item = mapKeys(value.item, (_, key) => snakeCase(key));
+      }
       handlers[event.type](value);
     },
     async fetchCurrent(id: string) {
@@ -277,7 +282,11 @@ function handlePreservationActionUpdated(data: any) {
   // Find and update the action.
   const action = store.getActionById(event.id);
   if (!action) return;
+
+  // Keep existing tasks, this event doesn't include them.
+  const tasks = action.tasks;
   Object.assign(action, event.item);
+  action.tasks = tasks;
 }
 
 function handlePreservationTaskCreated(data: any) {
