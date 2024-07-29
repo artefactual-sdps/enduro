@@ -49,12 +49,8 @@ RUN --mount=type=cache,target=/go/pkg/mod \
 	-o /out/enduro-am-worker \
 	./cmd/enduro-am-worker
 
-FROM alpine:3.18.2 AS base
-ARG USER_ID=1000
-ARG GROUP_ID=1000
-RUN addgroup -g ${GROUP_ID} -S enduro
-RUN adduser -u ${USER_ID} -S -D enduro enduro
-USER enduro
+FROM gcr.io/distroless/base-debian12:latest AS base
+USER 1000
 
 FROM base AS enduro
 COPY --from=build-enduro --link /out/enduro /home/enduro/bin/enduro

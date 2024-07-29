@@ -1,2 +1,6 @@
+# gcr.io/distroless/base-debian12:latest is pinned to Debian 12, and a more
+# specific version tag is not available.
+AVD-DS-0001
+
 # Need to revisit this issue in enduro-dashboard.
 AVD-DS-0002
