@@ -20,7 +20,7 @@ corsOrigin = "http://localhost"
 
 [api.auth]
 # Enable API authentication. OIDC is the only protocol supported at the
-# moment. When enabled the API verifies the access token submitted with 
+# moment. When enabled the API verifies the access token submitted with
 # each request. The API client is responsible for obtaining an access
 # token from the provider.
 enabled = true
@@ -29,7 +29,7 @@ enabled = true
 # OIDC provider URL. Required when auth. is enabled.
 providerURL = "http://keycloak:7470/realms/artefactual"
 # OIDC client ID. The client ID must be included in the `aud` claim of
-# the access token. Required when auth. is enabled. 
+# the access token. Required when auth. is enabled.
 clientID = "enduro"
 
 [api.auth.oidc.abac]
@@ -39,7 +39,7 @@ clientID = "enduro"
 enabled = true
 # Claim path of the Enduro attributes within the access token. If the claim
 # path is nested then include all fields separated by `claimPathSeparator`
-# (see below). E.g. "attributes.enduro" with `claimPathSeparator = "."`. 
+# (see below). E.g. "attributes.enduro" with `claimPathSeparator = "."`.
 # Required when ABAC is enabled.
 claimPath = "enduro"
 # Separator used to split the claim path fields. The default value of "" will
@@ -152,12 +152,28 @@ pollInterval = "10s"
 # no time limit.
 transferDeadline = "1h"
 
+# TransferSourcePath is the path to an Archivematica transfer source directory.
+# It is used in the POST /api/v2beta/package "path" parameter to start a
+# transfer via the API. TransferSourcePath must be prefixed with the UUID of an
+# AMSS transfer source directory, optionally followed by a relative path from
+# the source dir (e.g. "749ef452-fbed-4d50-9072-5f98bc01e52e:sftp_upload"). If
+# no transferSourcPath is specified, the default transfer source path will be
+# used.
+transferSourcePath = ""
+
 [am.sftp]
 host = "" # The Archivematica Storage Service hostname.
 port = ""
 user = ""
+
+# knownHostsFile is the absolute path to a local SSH "known_hosts" file that
+# includes a public host key for the AM SFTP server.
+# Default: "/home/[user]/.ssh/known_hosts" (where [user] is your local user).
 knownHostsFile = ""
-remoteDir = "/transfer_source"
+
+# remoteDir is the directory path, relative to the SFTP root directory, where
+# PIPs should be uploaded.
+remoteDir = ""
 
 [am.sftp.privateKey]
 path = ""

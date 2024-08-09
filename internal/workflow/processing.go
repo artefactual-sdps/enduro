@@ -432,6 +432,12 @@ func (w *ProcessingWorkflow) SessionHandler(
 		tinfo.PackageType = result.Type
 	}
 
+	// Stop the workflow if preprocessing returned a SIP path that is not a
+	// valid bag.
+	if tinfo.PackageType != enums.PackageTypeBagIt && w.cfg.Preprocessing.Enabled {
+		return errors.New("preprocessing returned a path that is not a valid bag")
+	}
+
 	// If the SIP is a BagIt Bag, validate it.
 	if tinfo.IsDir && tinfo.PackageType == enums.PackageTypeBagIt {
 		id, err := w.createPreservationTask(
@@ -489,44 +495,13 @@ func (w *ProcessingWorkflow) SessionHandler(
 		}
 	}
 
-	// Bundle PIP as an Archivematica standard transfer.
-	{
-		// For the a3m workflow bundle the transfer to a directory shared with
-		// the a3m container.
-		var transferDir string
-		if w.cfg.Preservation.TaskQueue == temporal.A3mWorkerTaskQueue {
-			transferDir = w.cfg.A3m.ShareDir
-		}
-
-		activityOpts := withActivityOptsForLongLivedRequest(sessCtx)
-		var bundleResult activities.BundleActivityResult
-		err := temporalsdk_workflow.ExecuteActivity(
-			activityOpts,
-			activities.BundleActivityName,
-			&activities.BundleActivityParams{
-				SourcePath:  tinfo.TempPath,
-				TransferDir: transferDir,
-				IsDir:       tinfo.IsDir,
-			},
-		).Get(activityOpts, &bundleResult)
-		if err != nil {
-			return err
-		}
-
-		tinfo.Bundle = bundleResult
-		tinfo.PackageType = enums.PackageTypeArchivematicaStandardTransfer
-
-		// Delete bundled transfer when session ends.
-		cleanup.registerPath(bundleResult.FullPath)
-	}
-
 	// Do preservation.
 	{
 		var err error
 		if w.cfg.Preservation.TaskQueue == temporal.AmWorkerTaskQueue {
 			err = w.transferAM(sessCtx, tinfo)
 		} else {
-			err = w.transferA3m(sessCtx, tinfo)
+			err = w.transferA3m(sessCtx, tinfo, &cleanup)
 		}
 		if err != nil {
 			return err
@@ -803,51 +778,98 @@ func (w *ProcessingWorkflow) waitForReview(ctx temporalsdk_workflow.Context) *pa
 	return &review
 }
 
-func (w *ProcessingWorkflow) transferA3m(sessCtx temporalsdk_workflow.Context, tinfo *TransferInfo) error {
-	activityOpts := temporalsdk_workflow.WithActivityOptions(sessCtx, temporalsdk_workflow.ActivityOptions{
-		StartToCloseTimeout: time.Hour * 24,
-		HeartbeatTimeout:    time.Second * 5,
-		RetryPolicy: &temporalsdk_temporal.RetryPolicy{
-			MaximumAttempts: 1,
-		},
-	})
+func (w *ProcessingWorkflow) transferA3m(
+	sessCtx temporalsdk_workflow.Context,
+	tinfo *TransferInfo,
+	cleanup *cleanupRegistry,
+) error {
+	// Bundle PIP as an Archivematica standard transfer.
+	{
+		activityOpts := withActivityOptsForLongLivedRequest(sessCtx)
+		var bundleResult activities.BundleActivityResult
+		err := temporalsdk_workflow.ExecuteActivity(
+			activityOpts,
+			activities.BundleActivityName,
+			&activities.BundleActivityParams{
+				SourcePath:  tinfo.TempPath,
+				TransferDir: w.cfg.A3m.ShareDir,
+				IsDir:       tinfo.IsDir,
+			},
+		).Get(activityOpts, &bundleResult)
+		if err != nil {
+			return err
+		}
 
-	params := &a3m.CreateAIPActivityParams{
-		Name:                 tinfo.Name(),
-		Path:                 tinfo.Bundle.FullPath,
-		PreservationActionID: tinfo.PreservationActionID,
+		tinfo.Bundle = bundleResult
+		tinfo.PackageType = enums.PackageTypeArchivematicaStandardTransfer
+
+		// Delete bundled transfer when session ends.
+		cleanup.registerPath(bundleResult.FullPath)
 	}
 
-	result := a3m.CreateAIPActivityResult{}
-	err := temporalsdk_workflow.ExecuteActivity(activityOpts, a3m.CreateAIPActivityName, params).Get(sessCtx, &result)
-	if err != nil {
-		return err
-	}
+	// Send PIP to a3m for preservation.
+	{
+		activityOpts := temporalsdk_workflow.WithActivityOptions(sessCtx, temporalsdk_workflow.ActivityOptions{
+			StartToCloseTimeout: time.Hour * 24,
+			HeartbeatTimeout:    time.Second * 5,
+			RetryPolicy: &temporalsdk_temporal.RetryPolicy{
+				MaximumAttempts: 1,
+			},
+		})
 
-	tinfo.SIPID = result.UUID
-	tinfo.AIPPath = result.Path
-	tinfo.StoredAt = temporalsdk_workflow.Now(sessCtx).UTC()
+		params := &a3m.CreateAIPActivityParams{
+			Name:                 tinfo.Name(),
+			Path:                 tinfo.Bundle.FullPath,
+			PreservationActionID: tinfo.PreservationActionID,
+		}
+
+		result := a3m.CreateAIPActivityResult{}
+		err := temporalsdk_workflow.ExecuteActivity(activityOpts, a3m.CreateAIPActivityName, params).
+			Get(sessCtx, &result)
+		if err != nil {
+			return err
+		}
+
+		tinfo.SIPID = result.UUID
+		tinfo.AIPPath = result.Path
+		tinfo.StoredAt = temporalsdk_workflow.Now(sessCtx).UTC()
+	}
 
 	return nil
 }
 
-func (w *ProcessingWorkflow) transferAM(sessCtx temporalsdk_workflow.Context, tinfo *TransferInfo) error {
+func (w *ProcessingWorkflow) transferAM(ctx temporalsdk_workflow.Context, tinfo *TransferInfo) error {
 	var err error
 
-	// Zip transfer.
-	activityOpts := withActivityOptsForLongLivedRequest(sessCtx)
+	// Bag PIP if it's not already a bag.
+	if tinfo.PackageType != enums.PackageTypeBagIt {
+		lctx := withActivityOptsForLocalAction(ctx)
+		var zipResult bagit_activity.CreateBagActivityResult
+		err = temporalsdk_workflow.ExecuteActivity(
+			lctx,
+			bagit_activity.CreateBagActivityName,
+			&bagit_activity.CreateBagActivityParams{SourcePath: tinfo.TempPath},
+		).Get(lctx, &zipResult)
+		if err != nil {
+			return err
+		}
+		tinfo.PackageType = enums.PackageTypeBagIt
+	}
+
+	// Zip PIP.
+	activityOpts := withActivityOptsForLocalAction(ctx)
 	var zipResult activities.ZipActivityResult
 	err = temporalsdk_workflow.ExecuteActivity(
 		activityOpts,
 		activities.ZipActivityName,
-		&activities.ZipActivityParams{SourceDir: tinfo.Bundle.FullPath},
+		&activities.ZipActivityParams{SourceDir: tinfo.TempPath},
 	).Get(activityOpts, &zipResult)
 	if err != nil {
 		return err
 	}
 
-	// Upload transfer to AMSS.
-	activityOpts = temporalsdk_workflow.WithActivityOptions(sessCtx,
+	// Upload PIP to AMSS.
+	activityOpts = temporalsdk_workflow.WithActivityOptions(ctx,
 		temporalsdk_workflow.ActivityOptions{
 			StartToCloseTimeout: time.Hour * 2,
 			HeartbeatTimeout:    2 * tinfo.req.PollInterval,
@@ -872,14 +894,14 @@ func (w *ProcessingWorkflow) transferAM(sessCtx temporalsdk_workflow.Context, ti
 	}
 
 	// Start AM transfer.
-	activityOpts = withActivityOptsForRequest(sessCtx)
+	activityOpts = withActivityOptsForRequest(ctx)
 	transferResult := am.StartTransferActivityResult{}
 	err = temporalsdk_workflow.ExecuteActivity(
 		activityOpts,
 		am.StartTransferActivityName,
 		&am.StartTransferActivityParams{
-			Name: tinfo.req.Key,
-			Path: uploadResult.RemoteFullPath,
+			Name:         tinfo.req.Key,
+			RelativePath: uploadResult.RemoteRelativePath,
 		},
 	).Get(activityOpts, &transferResult)
 	if err != nil {
@@ -887,7 +909,7 @@ func (w *ProcessingWorkflow) transferAM(sessCtx temporalsdk_workflow.Context, ti
 	}
 
 	pollOpts := temporalsdk_workflow.WithActivityOptions(
-		sessCtx,
+		ctx,
 		temporalsdk_workflow.ActivityOptions{
 			HeartbeatTimeout:    2 * tinfo.req.PollInterval,
 			StartToCloseTimeout: tinfo.req.TransferDeadline,
@@ -932,11 +954,11 @@ func (w *ProcessingWorkflow) transferAM(sessCtx temporalsdk_workflow.Context, ti
 	}
 
 	// Set AIP "stored at" time.
-	tinfo.StoredAt = temporalsdk_workflow.Now(sessCtx).UTC()
+	tinfo.StoredAt = temporalsdk_workflow.Now(ctx).UTC()
 
 	// Set package location
 	{
-		ctx := withLocalActivityOpts(sessCtx)
+		ctx := withLocalActivityOpts(ctx)
 		err := temporalsdk_workflow.ExecuteLocalActivity(
 			ctx,
 			setLocationIDLocalActivity,
@@ -951,7 +973,7 @@ func (w *ProcessingWorkflow) transferAM(sessCtx temporalsdk_workflow.Context, ti
 
 	// Create storage package record and set location to AMSS location.
 	{
-		activityOpts := withLocalActivityOpts(sessCtx)
+		activityOpts := withLocalActivityOpts(ctx)
 		err := temporalsdk_workflow.ExecuteActivity(
 			activityOpts,
 			activities.CreateStoragePackageActivityName,
@@ -969,7 +991,7 @@ func (w *ProcessingWorkflow) transferAM(sessCtx temporalsdk_workflow.Context, ti
 	}
 
 	// Delete transfer.
-	activityOpts = withActivityOptsForRequest(sessCtx)
+	activityOpts = withActivityOptsForRequest(ctx)
 	err = temporalsdk_workflow.ExecuteActivity(activityOpts, am.DeleteTransferActivityName, am.DeleteTransferActivityParams{
 		Destination: uploadResult.RemoteRelativePath,
 	}).

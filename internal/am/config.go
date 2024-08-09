@@ -22,6 +22,14 @@ type Config struct {
 	// SFTP configuration for uploading transfers to Archivematica.
 	SFTP sftp.Config
 
+	// TransferSourcePath is the path to an Archivematica transfer source
+	// directory. It is used in the POST /api/v2beta/package "path" parameter
+	// to start a transfer via the API. TransferSourcePath must be prefixed with
+	// the UUID of an AMSS transfer source directory, optionally followed by a
+	// relative path from the source dir (e.g.
+	// "749ef452-fbed-4d50-9072-5f98bc01e52e:sftp_upload").
+	TransferSourcePath string
+
 	// Capacity sets the maximum number of worker sessions the worker can
 	// handle at one time (default: 1).
 	Capacity int

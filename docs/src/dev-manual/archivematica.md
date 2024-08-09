@@ -76,6 +76,7 @@ AM API and SFTP configuration:
     address=http://host.k3d.internal:62080
     user=test
     api_key=test
+    transfer_source_path=4f7c29ff-ecdf-4acc-a426-2b5441457759:enduro-source
     sftp_host=host.k3d.internal
     sftp_port=2222
     sftp_user=archivematica

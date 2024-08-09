@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/artefactual-sdps/temporal-activities/archive"
+	"github.com/artefactual-sdps/temporal-activities/bagit"
 	"github.com/google/uuid"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/viper"
@@ -40,6 +41,7 @@ type Configuration struct {
 	AM              am.Config
 	InternalAPI     api.Config
 	API             api.Config
+	BagIt           bagit.Config
 	Database        db.Config
 	Event           event.Config
 	ExtractActivity archive.Config
@@ -52,13 +54,14 @@ type Configuration struct {
 	Telemetry       telemetry.Config
 }
 
-func (c Configuration) Validate() error {
+func (c *Configuration) Validate() error {
 	// TODO: should this validate all the fields in Configuration?
-	apiAuthErr := c.API.Auth.Validate()
-	preprocessingErr := c.Preprocessing.Validate()
-	uploadErr := c.Upload.Validate()
-
-	return errors.Join(apiAuthErr, preprocessingErr, uploadErr)
+	return errors.Join(
+		c.API.Auth.Validate(),
+		c.BagIt.Validate(),
+		c.Preprocessing.Validate(),
+		c.Upload.Validate(),
+	)
 }
 
 func Read(config *Configuration, configFile string) (found bool, configFileUsed string, err error) {
