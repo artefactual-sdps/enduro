@@ -33,6 +33,7 @@ import (
 	temporalsdk_interceptor "go.temporal.io/sdk/interceptor"
 	temporalsdk_worker "go.temporal.io/sdk/worker"
 	goahttp "goa.design/goa/v3/http"
+	"gocloud.dev/blob"
 
 	"github.com/artefactual-sdps/enduro/internal/am"
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
@@ -46,6 +47,7 @@ import (
 	entclient "github.com/artefactual-sdps/enduro/internal/persistence/ent/client"
 	entdb "github.com/artefactual-sdps/enduro/internal/persistence/ent/db"
 	"github.com/artefactual-sdps/enduro/internal/sftp"
+	"github.com/artefactual-sdps/enduro/internal/storage"
 	"github.com/artefactual-sdps/enduro/internal/telemetry"
 	"github.com/artefactual-sdps/enduro/internal/temporal"
 	"github.com/artefactual-sdps/enduro/internal/version"
@@ -195,6 +197,38 @@ func main() {
 		}
 	}()
 
+	// Set-up failed SIPs bucket.
+	var fs *blob.Bucket
+	{
+		fl, err := storage.NewInternalLocation(&cfg.FailedSIPs)
+		if err != nil {
+			logger.Error(err, "Error setting up failed SIPs location.")
+			os.Exit(1)
+		}
+		fs, err = fl.OpenBucket(ctx)
+		if err != nil {
+			logger.Error(err, "Error getting failed SIPs bucket.")
+			os.Exit(1)
+		}
+	}
+	defer fs.Close()
+
+	// Set-up failed PIPs bucket.
+	var fp *blob.Bucket
+	{
+		fl, err := storage.NewInternalLocation(&cfg.FailedPIPs)
+		if err != nil {
+			logger.Error(err, "Error setting up failed PIPs location.")
+			os.Exit(1)
+		}
+		fp, err = fl.OpenBucket(ctx)
+		if err != nil {
+			logger.Error(err, "Error getting failed PIPs bucket.")
+			os.Exit(1)
+		}
+	}
+	defer fp.Close()
+
 	var g run.Group
 
 	// Activity worker.
@@ -294,6 +328,10 @@ func main() {
 		w.RegisterActivityWithOptions(
 			filesys.NewRemoveActivity().Execute,
 			temporalsdk_activity.RegisterOptions{Name: filesys.RemoveActivityName},
+		)
+		w.RegisterActivityWithOptions(
+			activities.NewSendToFailedBuckeActivity(fs, fp).Execute,
+			temporalsdk_activity.RegisterOptions{Name: activities.SendToFailedBucketName},
 		)
 
 		g.Add(

@@ -50,6 +50,9 @@ type Configuration struct {
 	Upload          upload.Config
 	Watcher         watcher.Config
 	Telemetry       telemetry.Config
+
+	FailedSIPs storage.LocationConfig
+	FailedPIPs storage.LocationConfig
 }
 
 func (c Configuration) Validate() error {
