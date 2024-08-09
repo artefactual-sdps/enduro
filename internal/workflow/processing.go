@@ -515,7 +515,7 @@ func (w *ProcessingWorkflow) SessionHandler(
 	}
 
 	// Bundle PIP as an Archivematica standard transfer.
-	{
+	if !w.cfg.Preprocessing.Enabled {
 		// For the a3m workflow bundle the transfer to a directory shared with
 		// the a3m container.
 		var transferDir string
@@ -543,6 +543,8 @@ func (w *ProcessingWorkflow) SessionHandler(
 
 		// Delete bundled transfer when session ends.
 		cleanup.registerPath(bundleResult.FullPath)
+	} else {
+		tinfo.Bundle.FullPath = tinfo.TempPath
 	}
 
 	// Do preservation.
