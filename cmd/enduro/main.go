@@ -304,6 +304,61 @@ func main() {
 		)
 	}
 
+	// Internal API server.
+	// Recreate package, storage and upload services. Same as above
+	// with different logger names and using &auth.NoopTokenVerifier{}.
+	{
+		pkgsvc = package_.NewService(
+			logger.WithName("internal-package"),
+			enduroDatabase,
+			temporalClient,
+			evsvc,
+			perSvc,
+			&auth.NoopTokenVerifier{},
+			ticketProvider,
+			cfg.Temporal.TaskQueue,
+		)
+
+		storagesvc, err = storage.NewService(
+			logger.WithName("internal-storage"),
+			cfg.Storage,
+			storagePersistence,
+			temporalClient,
+			&auth.NoopTokenVerifier{},
+			rand.Reader,
+		)
+		if err != nil {
+			logger.Error(err, "Error setting up internal storage service.")
+			os.Exit(1)
+		}
+
+		uploadsvc, err = upload.NewService(
+			logger.WithName("internal-upload"),
+			cfg.Upload,
+			upload.UPLOAD_MAX_SIZE,
+			&auth.NoopTokenVerifier{},
+		)
+		if err != nil {
+			logger.Error(err, "Error setting up internal upload service.")
+			os.Exit(1)
+		}
+		defer uploadsvc.Close()
+
+		var srv *http.Server
+
+		g.Add(
+			func() error {
+				srv = api.HTTPServer(logger, tp, &cfg.InternalAPI, pkgsvc, storagesvc, uploadsvc)
+				return srv.ListenAndServe()
+			},
+			func(err error) {
+				ctx, cancel := context.WithTimeout(ctx, time.Second*5)
+				defer cancel()
+				_ = srv.Shutdown(ctx)
+			},
+		)
+	}
+
 	// Watchers, where each watcher is a group actor.
 	{
 		for _, w := range wsvc.Watchers() {

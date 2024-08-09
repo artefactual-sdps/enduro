@@ -9,6 +9,10 @@ namespace = "default"
 address = "temporal.enduro-sdps:7233"
 taskQueue = "global"
 
+[internalapi]
+listen = "0.0.0.0:9002"
+debug = false
+
 [api]
 listen = "0.0.0.0:9000"
 debug = false
@@ -79,7 +83,7 @@ bucket = "sips"
 stripTopLevelDir = true
 
 [storage]
-enduroAddress = "enduro.enduro-sdps:9000"
+enduroAddress = "enduro.enduro-sdps:9002"
 
 # defaultPermanentLocationId is the UUID of the storage location used for
 # permanent AIP storage in the "auto-approve" processing workflow. The value of

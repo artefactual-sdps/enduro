@@ -38,6 +38,7 @@ type Configuration struct {
 
 	A3m             a3m.Config
 	AM              am.Config
+	InternalAPI     api.Config
 	API             api.Config
 	Database        db.Config
 	Event           event.Config

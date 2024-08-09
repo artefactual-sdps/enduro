@@ -72,6 +72,7 @@ spec:
               value: "1.0"
           ports:
             - containerPort: 9000
+            - containerPort: 9002
           resources: {}
 ---
 apiVersion: v1
@@ -84,4 +85,7 @@ spec:
   selector:
     app: enduro
   ports:
-    - port: 9000
+    - name: api
+      port: 9000
+    - name: internalapi
+      port: 9002
