@@ -110,6 +110,9 @@ type TransferInfo struct {
 	// It is populated by the workflow request.
 	GlobalTaskQueue       string
 	PreservationTaskQueue string
+
+	SendToFailedPath string
+	SendToFailedType string
 }
 
 func (t *TransferInfo) Name() string {
@@ -326,9 +329,28 @@ func (w *ProcessingWorkflow) SessionHandler(
 	sessCtx temporalsdk_workflow.Context,
 	attempt int,
 	tinfo *TransferInfo,
-) error {
+) (e error) {
 	var cleanup cleanupRegistry
-	defer w.sessionCleanup(sessCtx, &cleanup)
+	defer func() {
+		if e != nil && tinfo.SendToFailedType != "" && tinfo.SendToFailedPath != "" {
+			// TODO: make sure tinfo.SendToFailedPath is zipped.
+			activityOpts := withActivityOptsForLongLivedRequest(sessCtx)
+			sendErr := temporalsdk_workflow.ExecuteActivity(
+				activityOpts,
+				activities.SendToFailedBucketName,
+				&activities.SendToFailedBucketParams{
+					Type: tinfo.SendToFailedType,
+					Path: tinfo.SendToFailedPath,
+					Key:  tinfo.req.Key,
+				},
+			).Get(activityOpts, nil)
+			if sendErr != nil {
+				e = errors.Join(e, sendErr)
+			}
+		}
+
+		w.sessionCleanup(sessCtx, &cleanup)
+	}()
 
 	packageStartedAt := temporalsdk_workflow.Now(sessCtx).UTC()
 
@@ -387,6 +409,9 @@ func (w *ProcessingWorkflow) SessionHandler(
 
 		// Delete download tmp dir when session ends.
 		cleanup.registerPath(filepath.Dir(downloadResult.Path))
+
+		tinfo.SendToFailedType = activities.FailureSIP
+		tinfo.SendToFailedPath = downloadResult.Path
 	}
 
 	// Unarchive the transfer if it's not a directory and it's not part of the preprocessing child workflow.
@@ -845,6 +870,9 @@ func (w *ProcessingWorkflow) transferAM(sessCtx temporalsdk_workflow.Context, ti
 	if err != nil {
 		return err
 	}
+
+	tinfo.SendToFailedType = activities.FailurePIP
+	tinfo.SendToFailedPath = zipResult.Path
 
 	// Upload transfer to AMSS.
 	activityOpts = temporalsdk_workflow.WithActivityOptions(sessCtx,
