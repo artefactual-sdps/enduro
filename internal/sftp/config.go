@@ -25,7 +25,8 @@ type Config struct {
 	// Private key used for authentication.
 	PrivateKey PrivateKey
 
-	// Default directory on SFTP server for file transfers.
+	// RemoteDir is the directory path, relative to the SFTP root directory,
+	// where PIPs should be uploaded.
 	RemoteDir string
 }
 

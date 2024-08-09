@@ -81,6 +81,11 @@ spec:
                 secretKeyRef:
                   name: enduro-am-secret
                   key: api_key
+            - name: ENDURO_AM_TRANSFERSOURCEPATH
+              valueFrom:
+                secretKeyRef:
+                  name: enduro-am-secret
+                  key: transfer_source_path
             - name: ENDURO_AM_SFTP_HOST
               valueFrom:
                 secretKeyRef:

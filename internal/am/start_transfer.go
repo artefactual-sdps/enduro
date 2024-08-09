@@ -2,6 +2,7 @@ package am
 
 import (
 	context "context"
+	"path/filepath"
 
 	"github.com/go-logr/logr"
 	"go.artefactual.dev/amclient"
@@ -16,8 +17,12 @@ type StartTransferActivity struct {
 }
 
 type StartTransferActivityParams struct {
+	// Name of the transfer.
 	Name string
-	Path string
+
+	// RelativePath is the PIP path relative to the Archivematica transfer
+	// source directory.
+	RelativePath string
 }
 
 type StartTransferActivityResult struct {
@@ -40,7 +45,11 @@ func (a *StartTransferActivity) Execute(
 	ctx context.Context,
 	opts *StartTransferActivityParams,
 ) (*StartTransferActivityResult, error) {
-	a.logger.V(1).Info("Executing StartTransferActivity", "Name", opts.Name, "Path", opts.Path)
+	a.logger.V(1).Info(
+		"Executing StartTransferActivity",
+		"Name", opts.Name,
+		"RelativePath", opts.RelativePath,
+	)
 
 	processingConfig := a.cfg.ProcessingConfig
 	if processingConfig == "" {
@@ -49,8 +58,8 @@ func (a *StartTransferActivity) Execute(
 
 	payload, resp, err := a.amps.Create(ctx, &amclient.PackageCreateRequest{
 		Name:             opts.Name,
-		Type:             "zipfile",
-		Path:             opts.Path,
+		Type:             "zipped bag",
+		Path:             filepath.Join(a.cfg.TransferSourcePath, opts.RelativePath),
 		ProcessingConfig: processingConfig,
 		AutoApprove:      true,
 	})

@@ -23,8 +23,8 @@ func TestStartTransferActivity(t *testing.T) {
 
 	transferID := uuid.New().String()
 	opts := am.StartTransferActivityParams{
-		Name: "Testing",
-		Path: "/tmp",
+		Name:         "Testing",
+		RelativePath: "/tmp",
 	}
 
 	amcrDefault := func(m *amclienttest.MockPackageServiceMockRecorder, st http.Response) {
@@ -32,8 +32,8 @@ func TestStartTransferActivity(t *testing.T) {
 			mockutil.Context(),
 			&amclient.PackageCreateRequest{
 				Name:             opts.Name,
-				Type:             "zipfile",
-				Path:             opts.Path,
+				Type:             "zipped bag",
+				Path:             opts.RelativePath,
 				ProcessingConfig: "automated",
 				AutoApprove:      true,
 			},
@@ -59,8 +59,8 @@ func TestStartTransferActivity(t *testing.T) {
 					mockutil.Context(),
 					&amclient.PackageCreateRequest{
 						Name:             opts.Name,
-						Type:             "zipfile",
-						Path:             opts.Path,
+						Type:             "zipped bag",
+						Path:             opts.RelativePath,
 						ProcessingConfig: "automated",
 						AutoApprove:      true,
 					},
@@ -117,6 +117,7 @@ func TestStartTransferActivity(t *testing.T) {
 
 				return
 			}
+			assert.NilError(t, err)
 
 			var r am.StartTransferActivityResult
 			err = future.Get(&r)

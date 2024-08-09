@@ -246,6 +246,10 @@ func main() {
 			temporalsdk_activity.RegisterOptions{Name: activities.BundleActivityName},
 		)
 		w.RegisterActivityWithOptions(
+			bagit_activity.NewCreateBagActivity(cfg.BagIt).Execute,
+			temporalsdk_activity.RegisterOptions{Name: bagit_activity.CreateBagActivityName},
+		)
+		w.RegisterActivityWithOptions(
 			activities.NewZipActivity(
 				logger,
 			).Execute,
