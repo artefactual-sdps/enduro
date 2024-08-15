@@ -82,6 +82,8 @@ spec:
               value: "/tmp/events"
             - name: MINIO_NOTIFY_REDIS_QUEUE_LIMIT_PRIMARY
               value: "10000"
+            - name: MINIO_BROWSER_LOGIN_ANIMATION
+              value: "off"
           ports:
             - containerPort: 9000
             - containerPort: 9001
