@@ -46,9 +46,6 @@ watch(packageStore.ui.download, () => download());
         </dd>
       </dl>
       <div class="d-flex flex-wrap gap-2">
-        <button class="btn btn-secondary btn-sm disabled">
-          View metadata summary
-        </button>
         <button
           v-if="authStore.checkAttributes(['storage:package:download'])"
           :class="{
