@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/artefactual-sdps/temporal-activities/archiveextract"
+	"github.com/artefactual-sdps/temporal-activities/archivezip"
 	"github.com/artefactual-sdps/temporal-activities/bagcreate"
 	"github.com/artefactual-sdps/temporal-activities/bagvalidate"
 	"github.com/artefactual-sdps/temporal-activities/removepaths"
@@ -159,8 +160,8 @@ func (s *ProcessingWorkflowTestSuite) setupAMWorkflowTest(
 		temporalsdk_activity.RegisterOptions{Name: bagcreate.Name},
 	)
 	s.env.RegisterActivityWithOptions(
-		activities.NewZipActivity(logger).Execute,
-		temporalsdk_activity.RegisterOptions{Name: activities.ZipActivityName},
+		archivezip.New().Execute,
+		temporalsdk_activity.RegisterOptions{Name: archivezip.Name},
 	)
 	s.env.RegisterActivityWithOptions(
 		am.NewUploadTransferActivity(logger, sftpc, 10*time.Second).Execute,
@@ -614,10 +615,10 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 		&bagcreate.Result{BagPath: extractPath}, nil,
 	)
 
-	s.env.OnActivity(activities.ZipActivityName, sessionCtx,
-		&activities.ZipActivityParams{SourceDir: extractPath},
+	s.env.OnActivity(archivezip.Name, sessionCtx,
+		&archivezip.Params{SourceDir: extractPath},
 	).Return(
-		&activities.ZipActivityResult{Path: extractPath + "/transfer.zip"}, nil,
+		&archivezip.Result{Path: extractPath + "/transfer.zip"}, nil,
 	)
 
 	s.env.OnActivity(am.UploadTransferActivityName, sessionCtx,

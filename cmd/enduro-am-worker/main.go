@@ -15,6 +15,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	bagit_gython "github.com/artefactual-labs/bagit-gython"
 	"github.com/artefactual-sdps/temporal-activities/archiveextract"
+	"github.com/artefactual-sdps/temporal-activities/archivezip"
 	"github.com/artefactual-sdps/temporal-activities/bagcreate"
 	"github.com/artefactual-sdps/temporal-activities/bagvalidate"
 	"github.com/artefactual-sdps/temporal-activities/removepaths"
@@ -251,10 +252,8 @@ func main() {
 			temporalsdk_activity.RegisterOptions{Name: bagcreate.Name},
 		)
 		w.RegisterActivityWithOptions(
-			activities.NewZipActivity(
-				logger,
-			).Execute,
-			temporalsdk_activity.RegisterOptions{Name: activities.ZipActivityName},
+			archivezip.New().Execute,
+			temporalsdk_activity.RegisterOptions{Name: archivezip.Name},
 		)
 		w.RegisterActivityWithOptions(
 			am.NewUploadTransferActivity(logger, sftpClient, cfg.AM.PollInterval).Execute,

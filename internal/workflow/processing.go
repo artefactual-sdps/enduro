@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/artefactual-sdps/temporal-activities/archiveextract"
+	"github.com/artefactual-sdps/temporal-activities/archivezip"
 	"github.com/artefactual-sdps/temporal-activities/bagcreate"
 	"github.com/artefactual-sdps/temporal-activities/bagvalidate"
 	"github.com/artefactual-sdps/temporal-activities/removepaths"
@@ -859,11 +860,11 @@ func (w *ProcessingWorkflow) transferAM(ctx temporalsdk_workflow.Context, tinfo 
 
 	// Zip PIP.
 	activityOpts := withActivityOptsForLocalAction(ctx)
-	var zipResult activities.ZipActivityResult
+	var zipResult archivezip.Result
 	err = temporalsdk_workflow.ExecuteActivity(
 		activityOpts,
-		activities.ZipActivityName,
-		&activities.ZipActivityParams{SourceDir: tinfo.TempPath},
+		archivezip.Name,
+		&archivezip.Params{SourceDir: tinfo.TempPath},
 	).Get(activityOpts, &zipResult)
 	if err != nil {
 		return err
