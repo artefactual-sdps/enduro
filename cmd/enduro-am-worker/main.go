@@ -14,9 +14,10 @@ import (
 	"ariga.io/sqlcomment"
 	"entgo.io/ent/dialect/sql"
 	bagit_gython "github.com/artefactual-labs/bagit-gython"
-	"github.com/artefactual-sdps/temporal-activities/archive"
-	bagit_activity "github.com/artefactual-sdps/temporal-activities/bagit"
-	"github.com/artefactual-sdps/temporal-activities/filesys"
+	"github.com/artefactual-sdps/temporal-activities/archiveextract"
+	"github.com/artefactual-sdps/temporal-activities/bagcreate"
+	"github.com/artefactual-sdps/temporal-activities/bagvalidate"
+	"github.com/artefactual-sdps/temporal-activities/removepaths"
 	"github.com/hashicorp/go-cleanhttp"
 	"github.com/jonboulle/clockwork"
 	"github.com/oklog/run"
@@ -230,24 +231,24 @@ func main() {
 			temporalsdk_activity.RegisterOptions{Name: activities.DownloadActivityName},
 		)
 		w.RegisterActivityWithOptions(
-			archive.NewExtractActivity(cfg.ExtractActivity).Execute,
-			temporalsdk_activity.RegisterOptions{Name: archive.ExtractActivityName},
+			archiveextract.New(cfg.ExtractActivity).Execute,
+			temporalsdk_activity.RegisterOptions{Name: archiveextract.Name},
 		)
 		w.RegisterActivityWithOptions(
 			activities.NewClassifyPackageActivity(logger).Execute,
 			temporalsdk_activity.RegisterOptions{Name: activities.ClassifyPackageActivityName},
 		)
 		w.RegisterActivityWithOptions(
-			bagit_activity.NewValidateActivity(validator).Execute,
-			temporalsdk_activity.RegisterOptions{Name: bagit_activity.ValidateActivityName},
+			bagvalidate.New(validator).Execute,
+			temporalsdk_activity.RegisterOptions{Name: bagvalidate.Name},
 		)
 		w.RegisterActivityWithOptions(
 			activities.NewBundleActivity(logger).Execute,
 			temporalsdk_activity.RegisterOptions{Name: activities.BundleActivityName},
 		)
 		w.RegisterActivityWithOptions(
-			bagit_activity.NewCreateBagActivity(cfg.BagIt).Execute,
-			temporalsdk_activity.RegisterOptions{Name: bagit_activity.CreateBagActivityName},
+			bagcreate.New(cfg.BagIt).Execute,
+			temporalsdk_activity.RegisterOptions{Name: bagcreate.Name},
 		)
 		w.RegisterActivityWithOptions(
 			activities.NewZipActivity(
@@ -296,8 +297,8 @@ func main() {
 			temporalsdk_activity.RegisterOptions{Name: activities.CreateStoragePackageActivityName},
 		)
 		w.RegisterActivityWithOptions(
-			filesys.NewRemoveActivity().Execute,
-			temporalsdk_activity.RegisterOptions{Name: filesys.RemoveActivityName},
+			removepaths.New().Execute,
+			temporalsdk_activity.RegisterOptions{Name: removepaths.Name},
 		)
 
 		g.Add(

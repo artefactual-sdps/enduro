@@ -7,9 +7,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/artefactual-sdps/temporal-activities/archive"
-	bagit_activity "github.com/artefactual-sdps/temporal-activities/bagit"
-	"github.com/artefactual-sdps/temporal-activities/filesys"
+	"github.com/artefactual-sdps/temporal-activities/archiveextract"
+	"github.com/artefactual-sdps/temporal-activities/bagcreate"
+	"github.com/artefactual-sdps/temporal-activities/bagvalidate"
+	"github.com/artefactual-sdps/temporal-activities/removepaths"
 	"github.com/go-logr/logr"
 	"github.com/google/uuid"
 	"github.com/jonboulle/clockwork"
@@ -109,12 +110,12 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(cfg config.Configuration
 		temporalsdk_activity.RegisterOptions{Name: activities.DownloadActivityName},
 	)
 	s.env.RegisterActivityWithOptions(
-		archive.NewExtractActivity(cfg.ExtractActivity).Execute,
-		temporalsdk_activity.RegisterOptions{Name: archive.ExtractActivityName},
+		archiveextract.New(cfg.ExtractActivity).Execute,
+		temporalsdk_activity.RegisterOptions{Name: archiveextract.Name},
 	)
 	s.env.RegisterActivityWithOptions(
-		bagit_activity.NewValidateActivity(bagit_activity.NewNoopValidator()).Execute,
-		temporalsdk_activity.RegisterOptions{Name: bagit_activity.ValidateActivityName},
+		bagvalidate.New(bagvalidate.NewNoopValidator()).Execute,
+		temporalsdk_activity.RegisterOptions{Name: bagvalidate.Name},
 	)
 	s.env.RegisterActivityWithOptions(
 		activities.NewClassifyPackageActivity(logger).Execute,
@@ -133,8 +134,8 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(cfg config.Configuration
 		temporalsdk_workflow.RegisterOptions{Name: "preprocessing"},
 	)
 	s.env.RegisterActivityWithOptions(
-		filesys.NewRemoveActivity().Execute,
-		temporalsdk_activity.RegisterOptions{Name: filesys.RemoveActivityName},
+		removepaths.New().Execute,
+		temporalsdk_activity.RegisterOptions{Name: removepaths.Name},
 	)
 	s.env.RegisterActivityWithOptions(
 		activities.NewDeleteOriginalActivity(wsvc).Execute,
@@ -154,8 +155,8 @@ func (s *ProcessingWorkflowTestSuite) setupAMWorkflowTest(
 	sftpc := sftp_fake.NewMockClient(ctrl)
 
 	s.env.RegisterActivityWithOptions(
-		bagit_activity.NewCreateBagActivity(bagit_activity.Config{}).Execute,
-		temporalsdk_activity.RegisterOptions{Name: bagit_activity.CreateBagActivityName},
+		bagcreate.New(bagcreate.Config{}).Execute,
+		temporalsdk_activity.RegisterOptions{Name: bagcreate.Name},
 	)
 	s.env.RegisterActivityWithOptions(
 		activities.NewZipActivity(logger).Execute,
@@ -297,10 +298,10 @@ func (s *ProcessingWorkflowTestSuite) TestPackageConfirmation() {
 		&activities.DownloadActivityResult{Path: tempPath + "/" + key}, nil,
 	)
 
-	s.env.OnActivity(archive.ExtractActivityName, sessionCtx,
-		&archive.ExtractActivityParams{SourcePath: tempPath + "/" + key},
+	s.env.OnActivity(archiveextract.Name, sessionCtx,
+		&archiveextract.Params{SourcePath: tempPath + "/" + key},
 	).Return(
-		&archive.ExtractActivityResult{ExtractPath: extractPath}, nil,
+		&archiveextract.Result{ExtractPath: extractPath}, nil,
 	)
 
 	s.env.OnActivity(activities.BundleActivityName, sessionCtx,
@@ -334,10 +335,10 @@ func (s *ProcessingWorkflowTestSuite) TestPackageConfirmation() {
 		Return(nil, nil).
 		Once()
 	s.env.OnActivity(
-		filesys.RemoveActivityName,
+		removepaths.Name,
 		sessionCtx,
-		&filesys.RemoveActivityParams{Paths: []string{tempPath, transferPath}},
-	).Return(&filesys.RemoveActivityResult{}, nil)
+		&removepaths.Params{Paths: []string{tempPath, transferPath}},
+	).Return(&removepaths.Result{}, nil)
 	s.env.OnActivity(activities.DeleteOriginalActivityName, sessionCtx, watcherName, key).Return(nil, nil).Once()
 	s.env.OnActivity(updatePackageLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, nil)
@@ -413,10 +414,10 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 		&activities.DownloadActivityResult{Path: tempPath + "/" + key}, nil,
 	)
 
-	s.env.OnActivity(archive.ExtractActivityName, sessionCtx,
-		&archive.ExtractActivityParams{SourcePath: tempPath + "/" + key},
+	s.env.OnActivity(archiveextract.Name, sessionCtx,
+		&archiveextract.Params{SourcePath: tempPath + "/" + key},
 	).Return(
-		&archive.ExtractActivityResult{ExtractPath: extractPath}, nil,
+		&archiveextract.Result{ExtractPath: extractPath}, nil,
 	)
 
 	s.env.OnActivity(
@@ -446,11 +447,11 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 	).Return(uint(101), nil)
 
 	s.env.OnActivity(
-		bagit_activity.ValidateActivityName,
+		bagvalidate.Name,
 		sessionCtx,
-		&bagit_activity.ValidateActivityParams{Path: extractPath},
+		&bagvalidate.Params{Path: extractPath},
 	).Return(
-		&bagit_activity.ValidateActivityResult{Valid: true},
+		&bagvalidate.Result{Valid: true},
 		nil,
 	)
 
@@ -533,10 +534,10 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 		Return(nil, nil).
 		Once()
 	s.env.OnActivity(
-		filesys.RemoveActivityName,
+		removepaths.Name,
 		sessionCtx,
-		&filesys.RemoveActivityParams{Paths: []string{tempPath, transferPath}},
-	).Return(&filesys.RemoveActivityResult{}, nil)
+		&removepaths.Params{Paths: []string{tempPath, transferPath}},
+	).Return(&removepaths.Result{}, nil)
 	s.env.OnActivity(activities.DeleteOriginalActivityName, sessionCtx, watcherName, key).Return(nil, nil).Once()
 
 	s.env.ExecuteWorkflow(
@@ -592,10 +593,10 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 		&activities.DownloadActivityResult{Path: tempPath + "/" + key}, nil,
 	)
 
-	s.env.OnActivity(archive.ExtractActivityName, sessionCtx,
-		&archive.ExtractActivityParams{SourcePath: tempPath + "/" + key},
+	s.env.OnActivity(archiveextract.Name, sessionCtx,
+		&archiveextract.Params{SourcePath: tempPath + "/" + key},
 	).Return(
-		&archive.ExtractActivityResult{ExtractPath: extractPath}, nil,
+		&archiveextract.Result{ExtractPath: extractPath}, nil,
 	)
 
 	s.env.OnActivity(
@@ -607,10 +608,10 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	)
 
 	// Archivematica specific activities.
-	s.env.OnActivity(bagit_activity.CreateBagActivityName, sessionCtx,
-		&bagit_activity.CreateBagActivityParams{SourcePath: extractPath},
+	s.env.OnActivity(bagcreate.Name, sessionCtx,
+		&bagcreate.Params{SourcePath: extractPath},
 	).Return(
-		&bagit_activity.CreateBagActivityResult{BagPath: extractPath}, nil,
+		&bagcreate.Result{BagPath: extractPath}, nil,
 	)
 
 	s.env.OnActivity(activities.ZipActivityName, sessionCtx,
@@ -681,10 +682,10 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 		mock.AnythingOfType("*workflow.completePreservationActionLocalActivityParams"),
 	).Return(nil, nil)
 	s.env.OnActivity(
-		filesys.RemoveActivityName,
+		removepaths.Name,
 		sessionCtx,
-		&filesys.RemoveActivityParams{Paths: []string{tempPath}},
-	).Return(&filesys.RemoveActivityResult{}, nil)
+		&removepaths.Params{Paths: []string{tempPath}},
+	).Return(&removepaths.Result{}, nil)
 	s.env.OnActivity(
 		activities.DeleteOriginalActivityName,
 		sessionCtx,
@@ -749,10 +750,10 @@ func (s *ProcessingWorkflowTestSuite) TestPackageRejection() {
 		&activities.DownloadActivityResult{Path: tempPath + "/" + key}, nil,
 	)
 
-	s.env.OnActivity(archive.ExtractActivityName, sessionCtx,
-		&archive.ExtractActivityParams{SourcePath: tempPath + "/" + key},
+	s.env.OnActivity(archiveextract.Name, sessionCtx,
+		&archiveextract.Params{SourcePath: tempPath + "/" + key},
 	).Return(
-		&archive.ExtractActivityResult{ExtractPath: extractPath}, nil,
+		&archiveextract.Result{ExtractPath: extractPath}, nil,
 	)
 
 	s.env.OnActivity(
@@ -789,10 +790,10 @@ func (s *ProcessingWorkflowTestSuite) TestPackageRejection() {
 	s.env.OnActivity(activities.RejectPackageActivityName, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, nil)
 	s.env.OnActivity(
-		filesys.RemoveActivityName,
+		removepaths.Name,
 		sessionCtx,
-		&filesys.RemoveActivityParams{Paths: []string{tempPath, transferPath}},
-	).Return(&filesys.RemoveActivityResult{}, nil)
+		&removepaths.Params{Paths: []string{tempPath, transferPath}},
+	).Return(&removepaths.Result{}, nil)
 	s.env.OnActivity(activities.DeleteOriginalActivityName, sessionCtx, watcherName, key).Return(nil, nil).Once()
 	s.env.OnActivity(updatePackageLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, nil)
@@ -957,11 +958,11 @@ func (s *ProcessingWorkflowTestSuite) TestPreprocessingChildWorkflow() {
 	).Return(uint(101), nil)
 
 	s.env.OnActivity(
-		bagit_activity.ValidateActivityName,
+		bagvalidate.Name,
 		sessionCtx,
-		&bagit_activity.ValidateActivityParams{Path: prepDest},
+		&bagvalidate.Params{Path: prepDest},
 	).Return(
-		&bagit_activity.ValidateActivityResult{Valid: true},
+		&bagvalidate.Result{Valid: true},
 		nil,
 	)
 
@@ -1051,10 +1052,10 @@ func (s *ProcessingWorkflowTestSuite) TestPreprocessingChildWorkflow() {
 		Once()
 
 	s.env.OnActivity(
-		filesys.RemoveActivityName,
+		removepaths.Name,
 		sessionCtx,
-		&filesys.RemoveActivityParams{Paths: []string{downloadDir, transferPath}},
-	).Return(&filesys.RemoveActivityResult{}, nil)
+		&removepaths.Params{Paths: []string{downloadDir, transferPath}},
+	).Return(&removepaths.Result{}, nil)
 
 	s.env.OnActivity(activities.DeleteOriginalActivityName, sessionCtx, watcherName, key).Return(nil, nil).Once()
 

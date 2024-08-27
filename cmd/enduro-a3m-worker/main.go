@@ -14,9 +14,9 @@ import (
 	"ariga.io/sqlcomment"
 	"entgo.io/ent/dialect/sql"
 	bagit_gython "github.com/artefactual-labs/bagit-gython"
-	"github.com/artefactual-sdps/temporal-activities/archive"
-	bagit_activity "github.com/artefactual-sdps/temporal-activities/bagit"
-	"github.com/artefactual-sdps/temporal-activities/filesys"
+	"github.com/artefactual-sdps/temporal-activities/archiveextract"
+	"github.com/artefactual-sdps/temporal-activities/bagvalidate"
+	"github.com/artefactual-sdps/temporal-activities/removepaths"
 	"github.com/hashicorp/go-cleanhttp"
 	"github.com/oklog/run"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -224,16 +224,16 @@ func main() {
 			temporalsdk_activity.RegisterOptions{Name: activities.DownloadActivityName},
 		)
 		w.RegisterActivityWithOptions(
-			archive.NewExtractActivity(cfg.ExtractActivity).Execute,
-			temporalsdk_activity.RegisterOptions{Name: archive.ExtractActivityName},
+			archiveextract.New(cfg.ExtractActivity).Execute,
+			temporalsdk_activity.RegisterOptions{Name: archiveextract.Name},
 		)
 		w.RegisterActivityWithOptions(
 			activities.NewClassifyPackageActivity(logger).Execute,
 			temporalsdk_activity.RegisterOptions{Name: activities.ClassifyPackageActivityName},
 		)
 		w.RegisterActivityWithOptions(
-			bagit_activity.NewValidateActivity(validator).Execute,
-			temporalsdk_activity.RegisterOptions{Name: bagit_activity.ValidateActivityName},
+			bagvalidate.New(validator).Execute,
+			temporalsdk_activity.RegisterOptions{Name: bagvalidate.Name},
 		)
 		w.RegisterActivityWithOptions(
 			activities.NewBundleActivity(logger).Execute,
@@ -250,8 +250,8 @@ func main() {
 			temporalsdk_activity.RegisterOptions{Name: a3m.CreateAIPActivityName},
 		)
 		w.RegisterActivityWithOptions(
-			filesys.NewRemoveActivity().Execute,
-			temporalsdk_activity.RegisterOptions{Name: filesys.RemoveActivityName},
+			removepaths.New().Execute,
+			temporalsdk_activity.RegisterOptions{Name: removepaths.Name},
 		)
 
 		httpClient := cleanhttp.DefaultPooledClient()

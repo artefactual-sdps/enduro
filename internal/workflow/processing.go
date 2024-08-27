@@ -14,9 +14,10 @@ import (
 	"slices"
 	"time"
 
-	"github.com/artefactual-sdps/temporal-activities/archive"
-	bagit_activity "github.com/artefactual-sdps/temporal-activities/bagit"
-	"github.com/artefactual-sdps/temporal-activities/filesys"
+	"github.com/artefactual-sdps/temporal-activities/archiveextract"
+	"github.com/artefactual-sdps/temporal-activities/bagcreate"
+	"github.com/artefactual-sdps/temporal-activities/bagvalidate"
+	"github.com/artefactual-sdps/temporal-activities/removepaths"
 	"github.com/go-logr/logr"
 	"github.com/google/uuid"
 	"go.artefactual.dev/tools/ref"
@@ -142,8 +143,8 @@ func (w *ProcessingWorkflow) sessionCleanup(ctx temporalsdk_workflow.Context, cl
 
 	err := temporalsdk_workflow.ExecuteActivity(
 		ctx,
-		filesys.RemoveActivityName,
-		filesys.RemoveActivityParams{Paths: cleanup.tempDirs},
+		removepaths.Name,
+		removepaths.Params{Paths: cleanup.tempDirs},
 	).Get(ctx, nil)
 	if err != nil {
 		w.logger.V(1).Info("session cleanup: error(s) removing temporary directories",
@@ -392,15 +393,15 @@ func (w *ProcessingWorkflow) SessionHandler(
 	// Unarchive the transfer if it's not a directory and it's not part of the preprocessing child workflow.
 	if !tinfo.IsDir && (!w.cfg.Preprocessing.Enabled || !w.cfg.Preprocessing.Extract) {
 		activityOpts := withActivityOptsForLocalAction(sessCtx)
-		var result archive.ExtractActivityResult
+		var result archiveextract.Result
 		err := temporalsdk_workflow.ExecuteActivity(
 			activityOpts,
-			archive.ExtractActivityName,
-			&archive.ExtractActivityParams{SourcePath: tinfo.TempPath},
+			archiveextract.Name,
+			&archiveextract.Params{SourcePath: tinfo.TempPath},
 		).Get(activityOpts, &result)
 		if err != nil {
 			switch err {
-			case archive.ErrInvalidArchive:
+			case archiveextract.ErrInvalidArchive:
 				// Not an archive file, bundle the source file as-is.
 			default:
 				return temporal_tools.NewNonRetryableError(err)
@@ -461,11 +462,11 @@ func (w *ProcessingWorkflow) SessionHandler(
 
 		// Validate the bag.
 		activityOpts := withActivityOptsForLocalAction(sessCtx)
-		var result bagit_activity.ValidateActivityResult
+		var result bagvalidate.Result
 		err = temporalsdk_workflow.ExecuteActivity(
 			activityOpts,
-			bagit_activity.ValidateActivityName,
-			&bagit_activity.ValidateActivityParams{Path: tinfo.TempPath},
+			bagvalidate.Name,
+			&bagvalidate.Params{Path: tinfo.TempPath},
 		).Get(activityOpts, &result)
 		if err != nil {
 			pt.Status = enums.PreservationTaskStatusError
@@ -844,11 +845,11 @@ func (w *ProcessingWorkflow) transferAM(ctx temporalsdk_workflow.Context, tinfo 
 	// Bag PIP if it's not already a bag.
 	if tinfo.PackageType != enums.PackageTypeBagIt {
 		lctx := withActivityOptsForLocalAction(ctx)
-		var zipResult bagit_activity.CreateBagActivityResult
+		var zipResult bagcreate.Result
 		err = temporalsdk_workflow.ExecuteActivity(
 			lctx,
-			bagit_activity.CreateBagActivityName,
-			&bagit_activity.CreateBagActivityParams{SourcePath: tinfo.TempPath},
+			bagcreate.Name,
+			&bagcreate.Params{SourcePath: tinfo.TempPath},
 		).Get(lctx, &zipResult)
 		if err != nil {
 			return err

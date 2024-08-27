@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/artefactual-sdps/temporal-activities/archive"
-	"github.com/artefactual-sdps/temporal-activities/bagit"
+	"github.com/artefactual-sdps/temporal-activities/archiveextract"
+	"github.com/artefactual-sdps/temporal-activities/bagcreate"
 	"github.com/google/uuid"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/viper"
@@ -41,10 +41,10 @@ type Configuration struct {
 	AM              am.Config
 	InternalAPI     api.Config
 	API             api.Config
-	BagIt           bagit.Config
+	BagIt           bagcreate.Config
 	Database        db.Config
 	Event           event.Config
-	ExtractActivity archive.Config
+	ExtractActivity archiveextract.Config
 	Preprocessing   preprocessing.Config
 	Preservation    pres.Config
 	Storage         storage.Config

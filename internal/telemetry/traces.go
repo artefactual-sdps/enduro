@@ -11,7 +11,7 @@ import (
 	"go.opentelemetry.io/otel/propagation"
 	otelsdk_resource "go.opentelemetry.io/otel/sdk/resource"
 	otelsdk_trace "go.opentelemetry.io/otel/sdk/trace"
-	semconv "go.opentelemetry.io/otel/semconv/v1.24.0"
+	semconv "go.opentelemetry.io/otel/semconv/v1.26.0"
 	"go.opentelemetry.io/otel/trace"
 	"go.opentelemetry.io/otel/trace/noop"
 	"google.golang.org/grpc"
@@ -33,11 +33,11 @@ func TracerProvider(
 		return noop.NewTracerProvider(), shutdown, nil
 	}
 
-	conn, err := grpc.DialContext(
+	conn, err := grpc.DialContext( //nolint SA1019: grpc.DialContext is deprecated: use NewClient instead.
 		ctx,
 		cfg.Traces.Address,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithBlock(),
+		grpc.WithBlock(), //nolint SA1019: grpc.WithBlock is deprecated: this DialOption is not supported by NewClient.
 	)
 	if err != nil {
 		return nil, nil, fmt.Errorf("TracerProvider: connect to collector: %v", err)

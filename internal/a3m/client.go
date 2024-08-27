@@ -18,7 +18,7 @@ type Client struct {
 func NewClient(ctx context.Context, tp trace.TracerProvider, addr string) (*Client, error) {
 	c := &Client{}
 
-	conn, err := grpc.DialContext(
+	conn, err := grpc.DialContext( //nolint SA1019: grpc.DialContext is deprecated: use NewClient instead.
 		ctx,
 		addr,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
