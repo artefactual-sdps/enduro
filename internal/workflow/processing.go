@@ -12,6 +12,7 @@ import (
 	"io"
 	"path/filepath"
 	"slices"
+	"strings"
 	"time"
 
 	"github.com/artefactual-sdps/temporal-activities/archiveextract"
@@ -20,6 +21,7 @@ import (
 	"github.com/artefactual-sdps/temporal-activities/bagvalidate"
 	"github.com/artefactual-sdps/temporal-activities/bucketupload"
 	"github.com/artefactual-sdps/temporal-activities/removepaths"
+	"github.com/artefactual-sdps/temporal-activities/xmlvalidate"
 	"github.com/google/uuid"
 	"go.artefactual.dev/tools/ref"
 	temporal_tools "go.artefactual.dev/tools/temporal"
@@ -834,6 +836,15 @@ func (w *ProcessingWorkflow) transferA3m(
 	tinfo.SendToFailed.ActivityName = activities.SendToFailedPIPsName
 	tinfo.SendToFailed.NeedsZipping = true
 
+	err := w.validatePREMIS(
+		sessCtx,
+		filepath.Join(tinfo.Bundle.FullPath, "metadata", "premis.xml"),
+		tinfo.PreservationActionID,
+	)
+	if err != nil {
+		return err
+	}
+
 	// Send PIP to a3m for preservation.
 	{
 		activityOpts := temporalsdk_workflow.WithActivityOptions(sessCtx, temporalsdk_workflow.ActivityOptions{
@@ -881,6 +892,15 @@ func (w *ProcessingWorkflow) transferAM(ctx temporalsdk_workflow.Context, tinfo 
 			return err
 		}
 		tinfo.PackageType = enums.PackageTypeBagIt
+	}
+
+	err = w.validatePREMIS(
+		ctx,
+		filepath.Join(tinfo.TempPath, "data", "metadata", "premis.xml"),
+		tinfo.PreservationActionID,
+	)
+	if err != nil {
+		return err
 	}
 
 	// Zip PIP.
@@ -1184,6 +1204,80 @@ func (w *ProcessingWorkflow) sendToFailedBucket(
 	).Get(activityOpts, &sendToFailedResult)
 	if err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (w *ProcessingWorkflow) validatePREMIS(
+	ctx temporalsdk_workflow.Context,
+	xmlPath string,
+	paID int,
+) error {
+	if !w.cfg.ValidatePREMIS.Enabled {
+		return nil
+	}
+
+	// Create preservation task for PREMIS validation.
+	id, err := w.createPreservationTask(
+		ctx,
+		datatypes.PreservationTask{
+			Name:                 "Validate PREMIS",
+			Status:               enums.PreservationTaskStatusInProgress,
+			PreservationActionID: paID,
+		},
+	)
+	if err != nil {
+		return fmt.Errorf("create validate PREMIS task: %v", err)
+	}
+
+	// Set preservation task default status and note.
+	pt := datatypes.PreservationTask{
+		ID:     id,
+		Status: enums.PreservationTaskStatusDone,
+		Note:   "PREMIS is valid",
+	}
+
+	// Attempt to validate PREMIS.
+	var xmlvalidateResult xmlvalidate.Result
+	activityOpts := withActivityOptsForLocalAction(ctx)
+	err = temporalsdk_workflow.ExecuteActivity(activityOpts, xmlvalidate.Name, xmlvalidate.Params{
+		XMLPath: xmlPath,
+		XSDPath: w.cfg.ValidatePREMIS.XSDPath,
+	}).Get(activityOpts, &xmlvalidateResult)
+
+	if err != nil {
+		if strings.Contains(err.Error(), fmt.Sprintf("%s: no such file or directory", xmlPath)) {
+			// Allow PREMIS XML to not exist without failing workflow.
+			err = nil
+		} else {
+			pt.Status = enums.PreservationTaskStatusError
+			pt.Note = "System error"
+		}
+	}
+
+	// Set preservation task status to error and add PREMIS validation failures to note.
+	if len(xmlvalidateResult.Failures) > 0 {
+		pt.Status = enums.PreservationTaskStatusError
+		pt.Note = "PREMIS is invalid"
+
+		for _, failure := range xmlvalidateResult.Failures {
+			pt.Note += fmt.Sprintf("\n%s", failure)
+		}
+
+		err = errors.New(pt.Note)
+	}
+
+	// Mark preservation task as complete.
+	if e := w.completePreservationTask(ctx, pt); e != nil {
+		return errors.Join(
+			err,
+			fmt.Errorf("complete validate PREMIS task: %v", e),
+		)
+	}
+
+	if err != nil {
+		return fmt.Errorf("validate PREMIS: %v", err)
 	}
 
 	return nil

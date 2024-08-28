@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"math/rand"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -14,6 +15,7 @@ import (
 	"github.com/artefactual-sdps/temporal-activities/bagvalidate"
 	"github.com/artefactual-sdps/temporal-activities/bucketupload"
 	"github.com/artefactual-sdps/temporal-activities/removepaths"
+	"github.com/artefactual-sdps/temporal-activities/xmlvalidate"
 	"github.com/google/uuid"
 	"github.com/jonboulle/clockwork"
 	"github.com/stretchr/testify/mock"
@@ -37,6 +39,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/package_"
 	packagefake "github.com/artefactual-sdps/enduro/internal/package_/fake"
+	"github.com/artefactual-sdps/enduro/internal/premis"
 	"github.com/artefactual-sdps/enduro/internal/preprocessing"
 	"github.com/artefactual-sdps/enduro/internal/pres"
 	sftp_fake "github.com/artefactual-sdps/enduro/internal/sftp/fake"
@@ -114,6 +117,10 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(cfg config.Configuration
 	s.env.RegisterActivityWithOptions(
 		archiveextract.New(cfg.ExtractActivity).Execute,
 		temporalsdk_activity.RegisterOptions{Name: archiveextract.Name},
+	)
+	s.env.RegisterActivityWithOptions(
+		xmlvalidate.New(xmlvalidate.NewXMLLintValidator()).Execute,
+		temporalsdk_activity.RegisterOptions{Name: xmlvalidate.Name},
 	)
 	s.env.RegisterActivityWithOptions(
 		bagvalidate.New(bagvalidate.NewNoopValidator()).Execute,
@@ -258,10 +265,16 @@ func (s *ProcessingWorkflowTestSuite) TestPackageConfirmation() {
 		Storage: storage.Config{
 			DefaultPermanentLocationID: locationID,
 		},
+		ValidatePREMIS: premis.Config{
+			Enabled: true,
+			XSDPath: "/home/enduro/premis.xsd",
+		},
 	}
 	s.SetupWorkflowTest(cfg)
 
 	pkgID := 1
+	paID := 1
+	valPREMISTaskID := 102
 	ctx := mock.AnythingOfType("*context.valueCtx")
 	sessionCtx := mock.AnythingOfType("*context.timerCtx")
 	key := "transfer.zip"
@@ -296,7 +309,7 @@ func (s *ProcessingWorkflowTestSuite) TestPackageConfirmation() {
 			StartedAt:  startTime,
 			PackageID:  1,
 		},
-	).Return(0, nil)
+	).Return(paID, nil)
 
 	s.env.OnActivity(activities.DownloadActivityName, sessionCtx,
 		&activities.DownloadActivityParams{Key: key, WatcherName: watcherName},
@@ -320,6 +333,47 @@ func (s *ProcessingWorkflowTestSuite) TestPackageConfirmation() {
 		&activities.BundleActivityResult{FullPath: transferPath},
 		nil,
 	)
+
+	s.env.OnActivity(
+		createPreservationTaskLocalActivity,
+		ctx,
+		&createPreservationTaskLocalActivityParams{
+			PkgSvc: pkgsvc,
+			RNG:    s.workflow.rng,
+			PreservationTask: datatypes.PreservationTask{
+				Name:   "Validate PREMIS",
+				Status: enums.PreservationTaskStatusInProgress,
+				StartedAt: sql.NullTime{
+					Time:  startTime,
+					Valid: true,
+				},
+				PreservationActionID: paID,
+			},
+		},
+	).Return(valPREMISTaskID, nil)
+
+	s.env.OnActivity(
+		xmlvalidate.Name,
+		sessionCtx,
+		&xmlvalidate.Params{
+			XMLPath: filepath.Join(transferPath, "metadata", "premis.xml"),
+			XSDPath: cfg.ValidatePREMIS.XSDPath,
+		},
+	).Return(
+		&xmlvalidate.Result{Failures: []string{}}, nil,
+	)
+
+	s.env.OnActivity(
+		completePreservationTaskLocalActivity,
+		ctx,
+		pkgsvc,
+		&completePreservationTaskLocalActivityParams{
+			ID:          valPREMISTaskID,
+			Status:      enums.PreservationTaskStatusDone,
+			CompletedAt: startTime,
+			Note:        ref.New("PREMIS is valid"),
+		},
+	).Return(&completePreservationTaskLocalActivityResult{}, nil)
 
 	s.env.OnActivity(a3m.CreateAIPActivityName, mock.Anything, mock.Anything).Return(nil, nil)
 	s.env.OnActivity(updatePackageLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
@@ -376,6 +430,9 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 	s.SetupWorkflowTest(cfg)
 
 	pkgID := 1
+	paID := 1
+	valBagTaskID := 101
+	moveAIPTaskID := 103
 	watcherName := "watcher"
 	key := "transfer.zip"
 	retentionPeriod := 1 * time.Second
@@ -410,7 +467,7 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 			StartedAt:  startTime,
 			PackageID:  1,
 		},
-	).Return(0, nil)
+	).Return(paID, nil)
 
 	s.env.OnActivity(activities.DownloadActivityName, sessionCtx,
 		&activities.DownloadActivityParams{Key: key, WatcherName: watcherName},
@@ -445,10 +502,10 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 					Time:  startTime,
 					Valid: true,
 				},
-				PreservationActionID: 0,
+				PreservationActionID: paID,
 			},
 		},
-	).Return(101, nil)
+	).Return(valBagTaskID, nil)
 
 	s.env.OnActivity(
 		bagvalidate.Name,
@@ -464,7 +521,7 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 		ctx,
 		pkgsvc,
 		&completePreservationTaskLocalActivityParams{
-			ID:          101,
+			ID:          valBagTaskID,
 			Status:      enums.PreservationTaskStatusDone,
 			CompletedAt: startTime,
 			Note:        ref.New("Bag is valid"),
@@ -500,10 +557,10 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 				Status:               enums.PreservationTaskStatusInProgress,
 				StartedAt:            sql.NullTime{Time: startTime, Valid: true},
 				Note:                 "Moving to permanent storage",
-				PreservationActionID: 0,
+				PreservationActionID: paID,
 			},
 		},
-	).Return(102, nil)
+	).Return(moveAIPTaskID, nil)
 
 	s.env.OnActivity(activities.UploadActivityName, sessionCtx, mock.AnythingOfType("*activities.UploadActivityParams")).
 		Return(nil, nil).
@@ -520,7 +577,7 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 		ctx,
 		pkgsvc,
 		&completePreservationTaskLocalActivityParams{
-			ID:          102,
+			ID:          moveAIPTaskID,
 			Status:      enums.PreservationTaskStatusDone,
 			CompletedAt: startTime,
 			Note:        ref.New("Moved to location f2cc963f-c14d-4eaa-b950-bd207189a1f1"),
@@ -561,6 +618,8 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 
 func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	pkgID := 1
+	paID := 1
+	valPREMISTaskID := 102
 	watcherName := "watcher"
 	key := "transfer.zip"
 	retentionPeriod := 1 * time.Second
@@ -571,6 +630,10 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
 		Preservation: pres.Config{TaskQueue: temporal.AmWorkerTaskQueue},
 		Storage:      storage.Config{DefaultPermanentLocationID: amssLocationID},
+		ValidatePREMIS: premis.Config{
+			Enabled: true,
+			XSDPath: "/home/enduro/premis.xsd",
+		},
 	}
 	s.SetupWorkflowTest(cfg)
 
@@ -587,7 +650,7 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 
 	s.env.OnActivity(createPreservationActionLocalActivity, ctx,
 		pkgsvc, mock.AnythingOfType("*workflow.createPreservationActionLocalActivityParams"),
-	).Return(0, nil)
+	).Return(paID, nil)
 
 	s.env.OnActivity(activities.DownloadActivityName, sessionCtx,
 		&activities.DownloadActivityParams{Key: key, WatcherName: watcherName},
@@ -616,6 +679,47 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 		&bagcreate.Result{BagPath: extractPath}, nil,
 	)
 
+	s.env.OnActivity(
+		createPreservationTaskLocalActivity,
+		ctx,
+		&createPreservationTaskLocalActivityParams{
+			PkgSvc: pkgsvc,
+			RNG:    s.workflow.rng,
+			PreservationTask: datatypes.PreservationTask{
+				Name:   "Validate PREMIS",
+				Status: enums.PreservationTaskStatusInProgress,
+				StartedAt: sql.NullTime{
+					Time:  startTime,
+					Valid: true,
+				},
+				PreservationActionID: paID,
+			},
+		},
+	).Return(valPREMISTaskID, nil)
+
+	s.env.OnActivity(
+		xmlvalidate.Name,
+		sessionCtx,
+		&xmlvalidate.Params{
+			XMLPath: filepath.Join(extractPath, "data", "metadata", "premis.xml"),
+			XSDPath: "/home/enduro/premis.xsd",
+		},
+	).Return(
+		&xmlvalidate.Result{Failures: []string{}}, nil,
+	)
+
+	s.env.OnActivity(
+		completePreservationTaskLocalActivity,
+		ctx,
+		pkgsvc,
+		&completePreservationTaskLocalActivityParams{
+			ID:          valPREMISTaskID,
+			Status:      enums.PreservationTaskStatusDone,
+			CompletedAt: startTime,
+			Note:        ref.New("PREMIS is valid"),
+		},
+	).Return(&completePreservationTaskLocalActivityResult{}, nil)
+
 	s.env.OnActivity(archivezip.Name, sessionCtx,
 		&archivezip.Params{SourceDir: extractPath},
 	).Return(
@@ -638,13 +742,13 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	)
 
 	s.env.OnActivity(am.PollTransferActivityName, sessionCtx,
-		&am.PollTransferActivityParams{TransferID: transferID.String()},
+		&am.PollTransferActivityParams{TransferID: transferID.String(), PresActionID: paID},
 	).Return(
 		&am.PollTransferActivityResult{SIPID: sipID.String()}, nil,
 	)
 
 	s.env.OnActivity(am.PollIngestActivityName, sessionCtx,
-		&am.PollIngestActivityParams{SIPID: sipID.String()},
+		&am.PollIngestActivityParams{SIPID: sipID.String(), PresActionID: paID},
 	).Return(
 		&am.PollIngestActivityResult{Status: "COMPLETE"}, nil,
 	)
@@ -836,6 +940,8 @@ func (s *ProcessingWorkflowTestSuite) TestPreprocessingChildWorkflow() {
 	s.SetupWorkflowTest(cfg)
 
 	pkgID := 1
+	valBagTaskID := 101
+	moveAIPTaskID := 103
 	watcherName := "watcher"
 	key := "transfer.zip"
 	retentionPeriod := 1 * time.Second
@@ -954,7 +1060,7 @@ func (s *ProcessingWorkflowTestSuite) TestPreprocessingChildWorkflow() {
 				PreservationActionID: 1,
 			},
 		},
-	).Return(101, nil)
+	).Return(valBagTaskID, nil)
 
 	s.env.OnActivity(
 		bagvalidate.Name,
@@ -970,7 +1076,7 @@ func (s *ProcessingWorkflowTestSuite) TestPreprocessingChildWorkflow() {
 		ctx,
 		pkgsvc,
 		&completePreservationTaskLocalActivityParams{
-			ID:          101,
+			ID:          valBagTaskID,
 			Status:      enums.PreservationTaskStatusDone,
 			CompletedAt: startTime,
 			Note:        ref.New("Bag is valid"),
@@ -1009,7 +1115,7 @@ func (s *ProcessingWorkflowTestSuite) TestPreprocessingChildWorkflow() {
 				Note:                 "Moving to permanent storage",
 			},
 		},
-	).Return(102, nil)
+	).Return(moveAIPTaskID, nil)
 
 	s.env.OnActivity(
 		activities.UploadActivityName,
@@ -1022,7 +1128,7 @@ func (s *ProcessingWorkflowTestSuite) TestPreprocessingChildWorkflow() {
 		ctx,
 		pkgsvc,
 		&completePreservationTaskLocalActivityParams{
-			ID:          102,
+			ID:          moveAIPTaskID,
 			Status:      enums.PreservationTaskStatusDone,
 			CompletedAt: startTime,
 			Note:        ref.New("Moved to location f2cc963f-c14d-4eaa-b950-bd207189a1f1"),
@@ -1207,6 +1313,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPA3m() {
 	s.SetupWorkflowTest(cfg)
 
 	pkgID := 1
+	valBagTaskID := 101
 	watcherName := "watcher"
 	key := "transfer.zip"
 	retentionPeriod := 1 * time.Second
@@ -1281,7 +1388,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPA3m() {
 				PreservationActionID: 1,
 			},
 		},
-	).Return(101, nil)
+	).Return(valBagTaskID, nil)
 
 	s.env.OnActivity(
 		bagvalidate.Name,
@@ -1294,7 +1401,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPA3m() {
 		ctx,
 		pkgsvc,
 		&completePreservationTaskLocalActivityParams{
-			ID:          101,
+			ID:          valBagTaskID,
 			Status:      enums.PreservationTaskStatusDone,
 			CompletedAt: startTime,
 			Note:        ref.New("Bag is valid"),
@@ -1370,6 +1477,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPAM() {
 	s.SetupWorkflowTest(cfg)
 
 	pkgID := 1
+	paID := 1
 	watcherName := "watcher"
 	key := "transfer.zip"
 	retentionPeriod := 1 * time.Second
@@ -1391,8 +1499,14 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPAM() {
 		createPreservationActionLocalActivity,
 		ctx,
 		pkgsvc,
-		mock.AnythingOfType("*workflow.createPreservationActionLocalActivityParams"),
-	).Return(0, nil)
+		&createPreservationActionLocalActivityParams{
+			WorkflowID: "default-test-workflow-id",
+			Type:       enums.PreservationActionTypeCreateAip,
+			Status:     enums.PreservationActionStatusInProgress,
+			StartedAt:  startTime,
+			PackageID:  1,
+		},
+	).Return(paID, nil)
 
 	s.env.OnActivity(
 		activities.DownloadActivityName,

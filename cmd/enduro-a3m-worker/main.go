@@ -19,6 +19,7 @@ import (
 	"github.com/artefactual-sdps/temporal-activities/bagvalidate"
 	"github.com/artefactual-sdps/temporal-activities/bucketupload"
 	"github.com/artefactual-sdps/temporal-activities/removepaths"
+	"github.com/artefactual-sdps/temporal-activities/xmlvalidate"
 	"github.com/hashicorp/go-cleanhttp"
 	"github.com/oklog/run"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -251,6 +252,10 @@ func main() {
 		w.RegisterActivityWithOptions(
 			archiveextract.New(cfg.ExtractActivity).Execute,
 			temporalsdk_activity.RegisterOptions{Name: archiveextract.Name},
+		)
+		w.RegisterActivityWithOptions(
+			xmlvalidate.New(xmlvalidate.NewXMLLintValidator()).Execute,
+			temporalsdk_activity.RegisterOptions{Name: xmlvalidate.Name},
 		)
 		w.RegisterActivityWithOptions(
 			activities.NewClassifyPackageActivity().Execute,

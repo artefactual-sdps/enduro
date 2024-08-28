@@ -22,6 +22,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/db"
 	"github.com/artefactual-sdps/enduro/internal/event"
 	"github.com/artefactual-sdps/enduro/internal/package_"
+	"github.com/artefactual-sdps/enduro/internal/premis"
 	"github.com/artefactual-sdps/enduro/internal/preprocessing"
 	"github.com/artefactual-sdps/enduro/internal/pres"
 	"github.com/artefactual-sdps/enduro/internal/storage"
@@ -54,6 +55,7 @@ type Configuration struct {
 	Upload          package_.UploadConfig
 	Watcher         watcher.Config
 	Telemetry       telemetry.Config
+	ValidatePREMIS  premis.Config
 
 	FailedSIPs bucket.Config
 	FailedPIPs bucket.Config
@@ -67,6 +69,7 @@ func (c *Configuration) Validate() error {
 		c.BagIt.Validate(),
 		c.Preprocessing.Validate(),
 		c.Upload.Validate(),
+		c.ValidatePREMIS.Validate(),
 	)
 }
 
