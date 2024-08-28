@@ -70,6 +70,8 @@ spec:
               value: "grafana-agent.enduro-sdps:4317"
             - name: ENDURO_TELEMETRY_TRACES_SAMPLING_RATIO
               value: "1.0"
+            - name: ENDURO_VALIDATEPREMIS_ENABLED
+              value: "false"
           ports:
             - containerPort: 9000
             - containerPort: 9002

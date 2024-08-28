@@ -87,5 +87,7 @@ func TestConfig(t *testing.T) {
 		assert.Equal(t, c.Preservation.TaskQueue, temporal.A3mWorkerTaskQueue)
 		assert.Equal(t, c.Storage.TaskQueue, temporal.GlobalTaskQueue)
 		assert.Equal(t, c.Temporal.TaskQueue, temporal.GlobalTaskQueue)
+		assert.Equal(t, c.ValidatePREMIS.Enabled, false)
+		assert.Equal(t, c.ValidatePREMIS.XSDPath, "")
 	})
 }
