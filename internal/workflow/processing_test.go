@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"math/rand"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -14,6 +15,7 @@ import (
 	"github.com/artefactual-sdps/temporal-activities/bagvalidate"
 	"github.com/artefactual-sdps/temporal-activities/bucketupload"
 	"github.com/artefactual-sdps/temporal-activities/removepaths"
+	"github.com/artefactual-sdps/temporal-activities/xmlvalidate"
 	"github.com/google/uuid"
 	"github.com/jonboulle/clockwork"
 	"github.com/stretchr/testify/mock"
@@ -114,6 +116,10 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(cfg config.Configuration
 	s.env.RegisterActivityWithOptions(
 		archiveextract.New(cfg.ExtractActivity).Execute,
 		temporalsdk_activity.RegisterOptions{Name: archiveextract.Name},
+	)
+	s.env.RegisterActivityWithOptions(
+		xmlvalidate.New(xmlvalidate.NewXMLLintValidator()).Execute,
+		temporalsdk_activity.RegisterOptions{Name: xmlvalidate.Name},
 	)
 	s.env.RegisterActivityWithOptions(
 		bagvalidate.New(bagvalidate.NewNoopValidator()).Execute,
@@ -310,6 +316,12 @@ func (s *ProcessingWorkflowTestSuite) TestPackageConfirmation() {
 		&archiveextract.Result{ExtractPath: extractPath}, nil,
 	)
 
+	s.env.OnActivity(xmlvalidate.Name, sessionCtx,
+		&xmlvalidate.Params{XMLPath: filepath.Join(extractPath, "data/metadata/premis.xml"), XSDPath: "/home/enduro/premis.xsd"},
+	).Return(
+		&xmlvalidate.Result{Failures: []string{}}, nil,
+	)
+
 	s.env.OnActivity(activities.BundleActivityName, sessionCtx,
 		&activities.BundleActivityParams{
 			SourcePath:  extractPath,
@@ -422,6 +434,12 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 		&archiveextract.Params{SourcePath: tempPath + "/" + key},
 	).Return(
 		&archiveextract.Result{ExtractPath: extractPath}, nil,
+	)
+
+	s.env.OnActivity(xmlvalidate.Name, sessionCtx,
+		&xmlvalidate.Params{XMLPath: filepath.Join(extractPath, "data/metadata/premis.xml"), XSDPath: "/home/enduro/premis.xsd"},
+	).Return(
+		&xmlvalidate.Result{Failures: []string{}}, nil,
 	)
 
 	s.env.OnActivity(
@@ -601,6 +619,12 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 		&archiveextract.Result{ExtractPath: extractPath}, nil,
 	)
 
+	s.env.OnActivity(xmlvalidate.Name, sessionCtx,
+		&xmlvalidate.Params{XMLPath: filepath.Join(extractPath, "data/metadata/premis.xml"), XSDPath: "/home/enduro/premis.xsd"},
+	).Return(
+		&xmlvalidate.Result{Failures: []string{}}, nil,
+	)
+
 	s.env.OnActivity(
 		activities.ClassifyPackageActivityName,
 		sessionCtx,
@@ -755,6 +779,12 @@ func (s *ProcessingWorkflowTestSuite) TestPackageRejection() {
 		&archiveextract.Params{SourcePath: tempPath + "/" + key},
 	).Return(
 		&archiveextract.Result{ExtractPath: extractPath}, nil,
+	)
+
+	s.env.OnActivity(xmlvalidate.Name, sessionCtx,
+		&xmlvalidate.Params{XMLPath: filepath.Join(extractPath, "data/metadata/premis.xml"), XSDPath: "/home/enduro/premis.xsd"},
+	).Return(
+		&xmlvalidate.Result{Failures: []string{}}, nil,
 	)
 
 	s.env.OnActivity(
@@ -936,6 +966,14 @@ func (s *ProcessingWorkflowTestSuite) TestPreprocessingChildWorkflow() {
 		activities.ClassifyPackageActivityParams{Path: prepDest},
 	).Return(
 		&activities.ClassifyPackageActivityResult{Type: enums.PackageTypeBagIt}, nil,
+	)
+
+	s.env.OnActivity(
+		xmlvalidate.Name,
+		sessionCtx,
+		&xmlvalidate.Params{XMLPath: filepath.Join(prepDest, "data/metadata/premis.xml"), XSDPath: "/home/enduro/premis.xsd"},
+	).Return(
+		&xmlvalidate.Result{Failures: []string{}}, nil,
 	)
 
 	s.env.OnActivity(
@@ -1260,6 +1298,12 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPA3m() {
 	).Return(&archiveextract.Result{ExtractPath: extractPath}, nil)
 
 	s.env.OnActivity(
+		xmlvalidate.Name,
+		sessionCtx,
+		&xmlvalidate.Params{XMLPath: filepath.Join(extractPath, "data/metadata/premis.xml"), XSDPath: "/home/enduro/premis.xsd"},
+	).Return(&xmlvalidate.Result{Failures: []string{}}, nil)
+
+	s.env.OnActivity(
 		activities.ClassifyPackageActivityName,
 		sessionCtx,
 		activities.ClassifyPackageActivityParams{Path: extractPath},
@@ -1405,6 +1449,12 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPAM() {
 		sessionCtx,
 		&archiveextract.Params{SourcePath: tempPath + "/" + key},
 	).Return(&archiveextract.Result{ExtractPath: extractPath}, nil)
+
+	s.env.OnActivity(
+		xmlvalidate.Name,
+		sessionCtx,
+		&xmlvalidate.Params{XMLPath: filepath.Join(extractPath, "data/metadata/premis.xml"), XSDPath: "/home/enduro/premis.xsd"},
+	).Return(&xmlvalidate.Result{Failures: []string{}}, nil)
 
 	s.env.OnActivity(
 		activities.ClassifyPackageActivityName,

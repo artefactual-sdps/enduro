@@ -20,6 +20,7 @@ import (
 	"github.com/artefactual-sdps/temporal-activities/bagvalidate"
 	"github.com/artefactual-sdps/temporal-activities/bucketupload"
 	"github.com/artefactual-sdps/temporal-activities/removepaths"
+	"github.com/artefactual-sdps/temporal-activities/xmlvalidate"
 	"github.com/google/uuid"
 	"go.artefactual.dev/tools/ref"
 	temporal_tools "go.artefactual.dev/tools/temporal"
@@ -436,6 +437,16 @@ func (w *ProcessingWorkflow) SessionHandler(
 
 	// Preprocessing child workflow.
 	if err := w.preprocessing(sessCtx, tinfo); err != nil {
+		return err
+	}
+
+	// Validate PREMIS.
+	activityOpts := withActivityOptsForRequest(sessCtx)
+	err := temporalsdk_workflow.ExecuteActivity(activityOpts, xmlvalidate.Name, xmlvalidate.Params{
+		XMLPath: filepath.Join(tinfo.TempPath, "data", "metadata", "premis.xml"),
+		XSDPath: "/home/enduro/premis.xsd",
+	}).Get(activityOpts, nil)
+	if err != nil {
 		return err
 	}
 
