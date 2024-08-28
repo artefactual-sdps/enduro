@@ -19,6 +19,7 @@ import (
 	"github.com/artefactual-sdps/temporal-activities/bagcreate"
 	"github.com/artefactual-sdps/temporal-activities/bagvalidate"
 	"github.com/artefactual-sdps/temporal-activities/removepaths"
+	"github.com/artefactual-sdps/temporal-activities/xmlvalidate"
 	"github.com/hashicorp/go-cleanhttp"
 	"github.com/jonboulle/clockwork"
 	"github.com/oklog/run"
@@ -298,6 +299,10 @@ func main() {
 		w.RegisterActivityWithOptions(
 			removepaths.New().Execute,
 			temporalsdk_activity.RegisterOptions{Name: removepaths.Name},
+		)
+		w.RegisterActivityWithOptions(
+			xmlvalidate.New().Execute,
+			temporalsdk_activity.RegisterOptions{Name: xmlvalidate.Name},
 		)
 
 		g.Add(
