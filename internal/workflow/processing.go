@@ -19,7 +19,6 @@ import (
 	"github.com/artefactual-sdps/temporal-activities/bagcreate"
 	"github.com/artefactual-sdps/temporal-activities/bagvalidate"
 	"github.com/artefactual-sdps/temporal-activities/removepaths"
-	"github.com/artefactual-sdps/temporal-activities/xmlvalidate"
 	"github.com/go-logr/logr"
 	"github.com/google/uuid"
 	"go.artefactual.dev/tools/ref"
@@ -439,23 +438,6 @@ func (w *ProcessingWorkflow) SessionHandler(
 	// valid bag.
 	if tinfo.PackageType != enums.PackageTypeBagIt && w.cfg.Preprocessing.Enabled {
 		return errors.New("preprocessing returned a path that is not a valid bag")
-	}
-
-	// Validate PREMIS.
-	{
-		activityOpts := withActivityOptsForLocalAction(sessCtx)
-		var result xmlvalidate.Result
-		err := temporalsdk_workflow.ExecuteActivity(
-			activityOpts,
-			xmlvalidate.Name,
-			&xmlvalidate.Params{
-				XMLFilePath: filepath.Join(tinfo.TempPath, "metadata", "premis.xml"),
-				XSDFilePath: "/src/hack/xsd/premis.xsd",
-			},
-		).Get(activityOpts, &result)
-		if err != nil {
-			return temporal_tools.NewNonRetryableError(err)
-		}
 	}
 
 	// If the SIP is a BagIt Bag, validate it.
