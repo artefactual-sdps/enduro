@@ -52,6 +52,9 @@ type Client struct {
 	// endpoint.
 	MoveStatusDoer goahttp.Doer
 
+	// Upload Doer is the HTTP client used to make requests to the upload endpoint.
+	UploadDoer goahttp.Doer
+
 	// CORS Doer is the HTTP client used to make requests to the  endpoint.
 	CORSDoer goahttp.Doer
 
@@ -91,6 +94,7 @@ func NewClient(
 		RejectDoer:              doer,
 		MoveDoer:                doer,
 		MoveStatusDoer:          doer,
+		UploadDoer:              doer,
 		CORSDoer:                doer,
 		RestoreResponseBody:     restoreBody,
 		scheme:                  scheme,
@@ -331,6 +335,30 @@ func (c *Client) MoveStatus() goa.Endpoint {
 		resp, err := c.MoveStatusDoer.Do(req)
 		if err != nil {
 			return nil, goahttp.ErrRequestError("package", "move_status", err)
+		}
+		return decodeResponse(resp)
+	}
+}
+
+// Upload returns an endpoint that makes HTTP requests to the package service
+// upload server.
+func (c *Client) Upload() goa.Endpoint {
+	var (
+		encodeRequest  = EncodeUploadRequest(c.encoder)
+		decodeResponse = DecodeUploadResponse(c.decoder, c.RestoreResponseBody)
+	)
+	return func(ctx context.Context, v any) (any, error) {
+		req, err := c.BuildUploadRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		err = encodeRequest(req, v)
+		if err != nil {
+			return nil, err
+		}
+		resp, err := c.UploadDoer.Do(req)
+		if err != nil {
+			return nil, goahttp.ErrRequestError("package", "upload", err)
 		}
 		return decodeResponse(resp)
 	}

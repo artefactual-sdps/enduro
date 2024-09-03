@@ -10,6 +10,7 @@ package package_
 
 import (
 	"context"
+	"io"
 
 	goa "goa.design/goa/v3/pkg"
 	"goa.design/goa/v3/security"
@@ -26,6 +27,7 @@ type Endpoints struct {
 	Reject              goa.Endpoint
 	Move                goa.Endpoint
 	MoveStatus          goa.Endpoint
+	Upload              goa.Endpoint
 }
 
 // MonitorEndpointInput holds both the payload and the server stream of the
@@ -35,6 +37,15 @@ type MonitorEndpointInput struct {
 	Payload *MonitorPayload
 	// Stream is the server stream used by the "monitor" method to send data.
 	Stream MonitorServerStream
+}
+
+// UploadRequestData holds both the payload and the HTTP request body reader of
+// the "upload" method.
+type UploadRequestData struct {
+	// Payload is the method payload.
+	Payload *UploadPayload
+	// Body streams the HTTP request body.
+	Body io.ReadCloser
 }
 
 // NewEndpoints wraps the methods of the "package" service with endpoints.
@@ -51,6 +62,7 @@ func NewEndpoints(s Service) *Endpoints {
 		Reject:              NewRejectEndpoint(s, a.JWTAuth),
 		Move:                NewMoveEndpoint(s, a.JWTAuth),
 		MoveStatus:          NewMoveStatusEndpoint(s, a.JWTAuth),
+		Upload:              NewUploadEndpoint(s, a.JWTAuth),
 	}
 }
 
@@ -65,6 +77,7 @@ func (e *Endpoints) Use(m func(goa.Endpoint) goa.Endpoint) {
 	e.Reject = m(e.Reject)
 	e.Move = m(e.Move)
 	e.MoveStatus = m(e.MoveStatus)
+	e.Upload = m(e.Upload)
 }
 
 // NewMonitorRequestEndpoint returns an endpoint function that calls the method
@@ -267,5 +280,28 @@ func NewMoveStatusEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoi
 			return nil, err
 		}
 		return s.MoveStatus(ctx, p)
+	}
+}
+
+// NewUploadEndpoint returns an endpoint function that calls the method
+// "upload" of service "package".
+func NewUploadEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
+	return func(ctx context.Context, req any) (any, error) {
+		ep := req.(*UploadRequestData)
+		var err error
+		sc := security.JWTScheme{
+			Name:           "jwt",
+			Scopes:         []string{"package:list", "package:listActions", "package:move", "package:read", "package:review", "package:upload", "storage:location:create", "storage:location:list", "storage:location:listPackages", "storage:location:read", "storage:package:create", "storage:package:download", "storage:package:move", "storage:package:read", "storage:package:review", "storage:package:submit"},
+			RequiredScopes: []string{"package:upload"},
+		}
+		var token string
+		if ep.Payload.Token != nil {
+			token = *ep.Payload.Token
+		}
+		ctx, err = authJWTFn(ctx, token, &sc)
+		if err != nil {
+			return nil, err
+		}
+		return nil, s.Upload(ctx, ep.Payload, ep.Body)
 	}
 }

@@ -150,7 +150,7 @@ The `*` attribute will provide full access to the API.
 | POST   | /package/{id}/move                 | `package:move`                  |
 | GET    | /package/{id}/preservation-actions | `package:listActions`           |
 | POST   | /package/{id}/reject               | `package:review`                |
-| POST   | /upload/upload                     | `package:upload`                |
+| POST   | /package/upload                    | `package:upload`                |
 | GET    | /storage/location                  | `storage:location:list`         |
 | POST   | /storage/location                  | `storage:location:create`       |
 | GET    | /storage/location/{uuid}           | `storage:location:read`         |

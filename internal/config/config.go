@@ -19,12 +19,12 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/api"
 	"github.com/artefactual-sdps/enduro/internal/db"
 	"github.com/artefactual-sdps/enduro/internal/event"
+	"github.com/artefactual-sdps/enduro/internal/package_"
 	"github.com/artefactual-sdps/enduro/internal/preprocessing"
 	"github.com/artefactual-sdps/enduro/internal/pres"
 	"github.com/artefactual-sdps/enduro/internal/storage"
 	"github.com/artefactual-sdps/enduro/internal/telemetry"
 	"github.com/artefactual-sdps/enduro/internal/temporal"
-	"github.com/artefactual-sdps/enduro/internal/upload"
 	"github.com/artefactual-sdps/enduro/internal/watcher"
 )
 
@@ -49,7 +49,7 @@ type Configuration struct {
 	Preservation    pres.Config
 	Storage         storage.Config
 	Temporal        temporal.Config
-	Upload          upload.Config
+	Upload          package_.UploadConfig
 	Watcher         watcher.Config
 	Telemetry       telemetry.Config
 }
@@ -80,6 +80,7 @@ func Read(config *Configuration, configFile string) (found bool, configFileUsed 
 	v.SetDefault("preservation.taskqueue", temporal.A3mWorkerTaskQueue)
 	v.SetDefault("storage.taskqueue", temporal.GlobalTaskQueue)
 	v.SetDefault("temporal.taskqueue", temporal.GlobalTaskQueue)
+	v.SetDefault("upload.maxSize", 102400000)
 	v.SetEnvPrefix("enduro")
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	v.AutomaticEnv()

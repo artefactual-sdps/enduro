@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	temporalsdk_client "go.temporal.io/sdk/client"
+	"gocloud.dev/blob"
 
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	goapackage "github.com/artefactual-sdps/enduro/internal/api/gen/package_"
@@ -61,6 +62,8 @@ type packageImpl struct {
 	tokenVerifier  auth.TokenVerifier
 	ticketProvider *auth.TicketProvider
 	taskQueue      string
+	uploadBucket   *blob.Bucket
+	uploadMaxSize  int64
 }
 
 var _ Service = (*packageImpl)(nil)
@@ -74,6 +77,8 @@ func NewService(
 	tokenVerifier auth.TokenVerifier,
 	ticketProvider *auth.TicketProvider,
 	taskQueue string,
+	uploadBucket *blob.Bucket,
+	uploadMaxSize int64,
 ) *packageImpl {
 	return &packageImpl{
 		logger:         logger,
@@ -84,6 +89,8 @@ func NewService(
 		tokenVerifier:  tokenVerifier,
 		ticketProvider: ticketProvider,
 		taskQueue:      taskQueue,
+		uploadBucket:   uploadBucket,
+		uploadMaxSize:  uploadMaxSize,
 	}
 }
 

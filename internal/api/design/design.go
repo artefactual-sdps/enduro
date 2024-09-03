@@ -39,7 +39,7 @@ var _ = API("enduro", func() {
 	Title("Enduro API")
 	Randomizer(expr.NewDeterministicRandomizer())
 	Server("enduro", func() {
-		Services("package", "storage", "swagger", "upload")
+		Services("package", "storage", "swagger")
 		Host("localhost", func() {
 			URI("http://localhost:9000")
 		})

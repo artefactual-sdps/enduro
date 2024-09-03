@@ -152,7 +152,7 @@ pollInterval = "10s"
 # no time limit.
 transferDeadline = "1h"
 
-# TransferSourcePath is the path to an Archivematica transfer source directory.
+# transferSourcePath is the path to an Archivematica transfer source directory.
 # It is used in the POST /api/v2beta/package "path" parameter to start a
 # transfer via the API. TransferSourcePath must be prefixed with the UUID of an
 # AMSS transfer source directory, optionally followed by a relative path from
@@ -180,10 +180,18 @@ path = ""
 passphrase = "" # Secret: set (if required) with env var ENDURO_AM_SFTP_PRIVATEKEY_PASSPHRASE.
 
 [upload]
+# maxSize is the maximum upload size allowed by the server in bytes.
+# Default: 102400000.
+maxSize = 102400000
+
+# upload.bucket section configures a bucket where the files will be placed.
+# Make sure it matches the configuration from one of the watchers to trigger
+# the processing workflow after upload.
+[upload.bucket]
 endpoint = "http://minio.enduro-sdps:9000"
 pathStyle = true
-key = "minio"
-secret = "minio123"
+accessKey = "minio"
+secretKey = "minio123"
 region = "us-west-1"
 bucket = "sips"
 

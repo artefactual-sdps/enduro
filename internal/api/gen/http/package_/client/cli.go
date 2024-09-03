@@ -307,3 +307,30 @@ func BuildMoveStatusPayload(package_MoveStatusID string, package_MoveStatusToken
 
 	return v, nil
 }
+
+// BuildUploadPayload builds the payload for the package upload endpoint from
+// CLI flags.
+func BuildUploadPayload(package_UploadContentType string, package_UploadToken string) (*package_.UploadPayload, error) {
+	var err error
+	var contentType string
+	{
+		if package_UploadContentType != "" {
+			contentType = package_UploadContentType
+			err = goa.MergeErrors(err, goa.ValidatePattern("content_type", contentType, "multipart/[^;]+; boundary=.+"))
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+	var token *string
+	{
+		if package_UploadToken != "" {
+			token = &package_UploadToken
+		}
+	}
+	v := &package_.UploadPayload{}
+	v.ContentType = contentType
+	v.Token = token
+
+	return v, nil
+}

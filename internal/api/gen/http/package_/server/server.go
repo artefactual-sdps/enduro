@@ -32,6 +32,7 @@ type Server struct {
 	Reject              http.Handler
 	Move                http.Handler
 	MoveStatus          http.Handler
+	Upload              http.Handler
 	CORS                http.Handler
 }
 
@@ -76,6 +77,7 @@ func New(
 			{"Reject", "POST", "/package/{id}/reject"},
 			{"Move", "POST", "/package/{id}/move"},
 			{"MoveStatus", "GET", "/package/{id}/move"},
+			{"Upload", "POST", "/package/upload"},
 			{"CORS", "OPTIONS", "/package/monitor"},
 			{"CORS", "OPTIONS", "/package"},
 			{"CORS", "OPTIONS", "/package/{id}"},
@@ -83,6 +85,7 @@ func New(
 			{"CORS", "OPTIONS", "/package/{id}/confirm"},
 			{"CORS", "OPTIONS", "/package/{id}/reject"},
 			{"CORS", "OPTIONS", "/package/{id}/move"},
+			{"CORS", "OPTIONS", "/package/upload"},
 		},
 		MonitorRequest:      NewMonitorRequestHandler(e.MonitorRequest, mux, decoder, encoder, errhandler, formatter),
 		Monitor:             NewMonitorHandler(e.Monitor, mux, decoder, encoder, errhandler, formatter, upgrader, configurer.MonitorFn),
@@ -93,6 +96,7 @@ func New(
 		Reject:              NewRejectHandler(e.Reject, mux, decoder, encoder, errhandler, formatter),
 		Move:                NewMoveHandler(e.Move, mux, decoder, encoder, errhandler, formatter),
 		MoveStatus:          NewMoveStatusHandler(e.MoveStatus, mux, decoder, encoder, errhandler, formatter),
+		Upload:              NewUploadHandler(e.Upload, mux, decoder, encoder, errhandler, formatter),
 		CORS:                NewCORSHandler(),
 	}
 }
@@ -111,6 +115,7 @@ func (s *Server) Use(m func(http.Handler) http.Handler) {
 	s.Reject = m(s.Reject)
 	s.Move = m(s.Move)
 	s.MoveStatus = m(s.MoveStatus)
+	s.Upload = m(s.Upload)
 	s.CORS = m(s.CORS)
 }
 
@@ -128,6 +133,7 @@ func Mount(mux goahttp.Muxer, h *Server) {
 	MountRejectHandler(mux, h.Reject)
 	MountMoveHandler(mux, h.Move)
 	MountMoveStatusHandler(mux, h.MoveStatus)
+	MountUploadHandler(mux, h.Upload)
 	MountCORSHandler(mux, h.CORS)
 }
 
@@ -610,6 +616,58 @@ func NewMoveStatusHandler(
 	})
 }
 
+// MountUploadHandler configures the mux to serve the "package" service
+// "upload" endpoint.
+func MountUploadHandler(mux goahttp.Muxer, h http.Handler) {
+	f, ok := HandlePackageOrigin(h).(http.HandlerFunc)
+	if !ok {
+		f = func(w http.ResponseWriter, r *http.Request) {
+			h.ServeHTTP(w, r)
+		}
+	}
+	mux.Handle("POST", "/package/upload", otelhttp.WithRouteTag("/package/upload", f).ServeHTTP)
+}
+
+// NewUploadHandler creates a HTTP handler which loads the HTTP request and
+// calls the "package" service "upload" endpoint.
+func NewUploadHandler(
+	endpoint goa.Endpoint,
+	mux goahttp.Muxer,
+	decoder func(*http.Request) goahttp.Decoder,
+	encoder func(context.Context, http.ResponseWriter) goahttp.Encoder,
+	errhandler func(context.Context, http.ResponseWriter, error),
+	formatter func(ctx context.Context, err error) goahttp.Statuser,
+) http.Handler {
+	var (
+		decodeRequest  = DecodeUploadRequest(mux, decoder)
+		encodeResponse = EncodeUploadResponse(encoder)
+		encodeError    = EncodeUploadError(encoder, formatter)
+	)
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
+		ctx = context.WithValue(ctx, goa.MethodKey, "upload")
+		ctx = context.WithValue(ctx, goa.ServiceKey, "package")
+		payload, err := decodeRequest(r)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		data := &package_.UploadRequestData{Payload: payload.(*package_.UploadPayload), Body: r.Body}
+		res, err := endpoint(ctx, data)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		if err := encodeResponse(ctx, w, res); err != nil {
+			errhandler(ctx, w, err)
+		}
+	})
+}
+
 // MountCORSHandler configures the mux to serve the CORS endpoints for the
 // service package.
 func MountCORSHandler(mux goahttp.Muxer, h http.Handler) {
@@ -621,6 +679,7 @@ func MountCORSHandler(mux goahttp.Muxer, h http.Handler) {
 	mux.Handle("OPTIONS", "/package/{id}/confirm", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/package/{id}/reject", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/package/{id}/move", h.ServeHTTP)
+	mux.Handle("OPTIONS", "/package/upload", h.ServeHTTP)
 }
 
 // NewCORSHandler creates a HTTP handler which returns a simple 204 response.

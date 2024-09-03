@@ -1650,6 +1650,88 @@
         ]
       }
     },
+    "/package/upload": {
+      "post": {
+        "description": "Upload a package to trigger an ingest workflow",
+        "operationId": "package#upload",
+        "parameters": [
+          {
+            "allowEmptyValue": true,
+            "description": "Content-Type header, must define value for multipart boundary.",
+            "example": "multipart/form-data; boundary=goa",
+            "in": "header",
+            "name": "Content-Type",
+            "schema": {
+              "default": "multipart/form-data; boundary=goa",
+              "description": "Content-Type header, must define value for multipart boundary.",
+              "example": "multipart/form-data; boundary=goa",
+              "pattern": "multipart/[^;]+; boundary=.+",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content response."
+          },
+          "400": {
+            "content": {
+              "application/vnd.goa.error": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "invalid_multipart_request: Error returned when the request body is not a valid multipart content."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "example": "abc123",
+                "schema": {
+                  "example": "abc123",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "unauthorized: Unauthorized response."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "example": "abc123",
+                "schema": {
+                  "example": "abc123",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "forbidden: Forbidden response."
+          },
+          "500": {
+            "content": {
+              "application/vnd.goa.error": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "internal_error: Fault while processing upload."
+          }
+        },
+        "security": [
+          {
+            "jwt_header_Authorization": [
+              "package:upload"
+            ]
+          }
+        ],
+        "summary": "upload package",
+        "tags": [
+          "package"
+        ]
+      }
+    },
     "/package/{id}": {
       "get": {
         "description": "Show package by ID",
@@ -3371,88 +3453,6 @@
           "swagger"
         ]
       }
-    },
-    "/upload/upload": {
-      "post": {
-        "description": "Upload a package to trigger an ingest workflow",
-        "operationId": "upload#upload",
-        "parameters": [
-          {
-            "allowEmptyValue": true,
-            "description": "Content-Type header, must define value for multipart boundary.",
-            "example": "multipart/form-data; boundary=goa",
-            "in": "header",
-            "name": "Content-Type",
-            "schema": {
-              "default": "multipart/form-data; boundary=goa",
-              "description": "Content-Type header, must define value for multipart boundary.",
-              "example": "multipart/form-data; boundary=goa",
-              "pattern": "multipart/[^;]+; boundary=.+",
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "No Content response."
-          },
-          "400": {
-            "content": {
-              "application/vnd.goa.error": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            },
-            "description": "invalid_multipart_request: Error returned when the request body is not a valid multipart content."
-          },
-          "401": {
-            "content": {
-              "application/json": {
-                "example": "abc123",
-                "schema": {
-                  "example": "abc123",
-                  "type": "string"
-                }
-              }
-            },
-            "description": "unauthorized: Unauthorized response."
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "example": "abc123",
-                "schema": {
-                  "example": "abc123",
-                  "type": "string"
-                }
-              }
-            },
-            "description": "forbidden: Forbidden response."
-          },
-          "500": {
-            "content": {
-              "application/vnd.goa.error": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            },
-            "description": "internal_error: Fault while processing upload."
-          }
-        },
-        "security": [
-          {
-            "jwt_header_Authorization": [
-              "package:upload"
-            ]
-          }
-        ],
-        "summary": "upload upload",
-        "tags": [
-          "upload"
-        ]
-      }
     }
   },
   "security": [
@@ -3477,10 +3477,6 @@
     {
       "description": "The swagger service serves the API swagger definition.",
       "name": "swagger"
-    },
-    {
-      "description": "The upload service handles file submissions to the SIPs bucket.",
-      "name": "upload"
     }
   ]
 }

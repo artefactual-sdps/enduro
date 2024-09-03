@@ -163,6 +163,8 @@ func main() {
 			&auth.NoopTokenVerifier{},
 			nil,
 			cfg.Temporal.TaskQueue,
+			nil,
+			0,
 		)
 	}
 

@@ -16,7 +16,6 @@ import (
 
 	package_c "github.com/artefactual-sdps/enduro/internal/api/gen/http/package_/client"
 	storagec "github.com/artefactual-sdps/enduro/internal/api/gen/http/storage/client"
-	uploadc "github.com/artefactual-sdps/enduro/internal/api/gen/http/upload/client"
 	goahttp "goa.design/goa/v3/http"
 	goa "goa.design/goa/v3/pkg"
 )
@@ -25,9 +24,8 @@ import (
 //
 //	command (subcommand1|subcommand2|...)
 func UsageCommands() string {
-	return `package (monitor-request|monitor|list|show|preservation-actions|confirm|reject|move|move-status)
+	return `package (monitor-request|monitor|list|show|preservation-actions|confirm|reject|move|move-status|upload)
 storage (create|submit|update|download|move|move-status|reject|show|locations|add-location|show-location|location-packages)
-upload upload
 `
 }
 
@@ -41,7 +39,6 @@ func UsageExamples() string {
       "object_key": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
       "status": "in_review"
    }' --token "abc123"` + "\n" +
-		os.Args[0] + ` upload upload --content-type "multipart/form-data; boundary=goa" --token "abc123" --stream "goa.png"` + "\n" +
 		""
 }
 
@@ -101,6 +98,11 @@ func ParseEndpoint(
 		package_MoveStatusIDFlag    = package_MoveStatusFlags.String("id", "REQUIRED", "Identifier of package to move")
 		package_MoveStatusTokenFlag = package_MoveStatusFlags.String("token", "", "")
 
+		package_UploadFlags           = flag.NewFlagSet("upload", flag.ExitOnError)
+		package_UploadContentTypeFlag = package_UploadFlags.String("content-type", "multipart/form-data; boundary=goa", "")
+		package_UploadTokenFlag       = package_UploadFlags.String("token", "", "")
+		package_UploadStreamFlag      = package_UploadFlags.String("stream", "REQUIRED", "path to file containing the streamed request body")
+
 		storageFlags = flag.NewFlagSet("storage", flag.ContinueOnError)
 
 		storageCreateFlags     = flag.NewFlagSet("create", flag.ExitOnError)
@@ -151,13 +153,6 @@ func ParseEndpoint(
 		storageLocationPackagesFlags     = flag.NewFlagSet("location-packages", flag.ExitOnError)
 		storageLocationPackagesUUIDFlag  = storageLocationPackagesFlags.String("uuid", "REQUIRED", "Identifier of location")
 		storageLocationPackagesTokenFlag = storageLocationPackagesFlags.String("token", "", "")
-
-		uploadFlags = flag.NewFlagSet("upload", flag.ContinueOnError)
-
-		uploadUploadFlags           = flag.NewFlagSet("upload", flag.ExitOnError)
-		uploadUploadContentTypeFlag = uploadUploadFlags.String("content-type", "multipart/form-data; boundary=goa", "")
-		uploadUploadTokenFlag       = uploadUploadFlags.String("token", "", "")
-		uploadUploadStreamFlag      = uploadUploadFlags.String("stream", "REQUIRED", "path to file containing the streamed request body")
 	)
 	package_Flags.Usage = package_Usage
 	package_MonitorRequestFlags.Usage = package_MonitorRequestUsage
@@ -169,6 +164,7 @@ func ParseEndpoint(
 	package_RejectFlags.Usage = package_RejectUsage
 	package_MoveFlags.Usage = package_MoveUsage
 	package_MoveStatusFlags.Usage = package_MoveStatusUsage
+	package_UploadFlags.Usage = package_UploadUsage
 
 	storageFlags.Usage = storageUsage
 	storageCreateFlags.Usage = storageCreateUsage
@@ -183,9 +179,6 @@ func ParseEndpoint(
 	storageAddLocationFlags.Usage = storageAddLocationUsage
 	storageShowLocationFlags.Usage = storageShowLocationUsage
 	storageLocationPackagesFlags.Usage = storageLocationPackagesUsage
-
-	uploadFlags.Usage = uploadUsage
-	uploadUploadFlags.Usage = uploadUploadUsage
 
 	if err := flag.CommandLine.Parse(os.Args[1:]); err != nil {
 		return nil, nil, err
@@ -206,8 +199,6 @@ func ParseEndpoint(
 			svcf = package_Flags
 		case "storage":
 			svcf = storageFlags
-		case "upload":
-			svcf = uploadFlags
 		default:
 			return nil, nil, fmt.Errorf("unknown service %q", svcn)
 		}
@@ -252,6 +243,9 @@ func ParseEndpoint(
 			case "move-status":
 				epf = package_MoveStatusFlags
 
+			case "upload":
+				epf = package_UploadFlags
+
 			}
 
 		case "storage":
@@ -291,13 +285,6 @@ func ParseEndpoint(
 
 			case "location-packages":
 				epf = storageLocationPackagesFlags
-
-			}
-
-		case "upload":
-			switch epn {
-			case "upload":
-				epf = uploadUploadFlags
 
 			}
 
@@ -351,6 +338,12 @@ func ParseEndpoint(
 			case "move-status":
 				endpoint = c.MoveStatus()
 				data, err = package_c.BuildMoveStatusPayload(*package_MoveStatusIDFlag, *package_MoveStatusTokenFlag)
+			case "upload":
+				endpoint = c.Upload()
+				data, err = package_c.BuildUploadPayload(*package_UploadContentTypeFlag, *package_UploadTokenFlag)
+				if err == nil {
+					data, err = package_c.BuildUploadStreamPayload(data, *package_UploadStreamFlag)
+				}
 			}
 		case "storage":
 			c := storagec.NewClient(scheme, host, doer, enc, dec, restore)
@@ -392,16 +385,6 @@ func ParseEndpoint(
 				endpoint = c.LocationPackages()
 				data, err = storagec.BuildLocationPackagesPayload(*storageLocationPackagesUUIDFlag, *storageLocationPackagesTokenFlag)
 			}
-		case "upload":
-			c := uploadc.NewClient(scheme, host, doer, enc, dec, restore)
-			switch epn {
-			case "upload":
-				endpoint = c.Upload()
-				data, err = uploadc.BuildUploadPayload(*uploadUploadContentTypeFlag, *uploadUploadTokenFlag)
-				if err == nil {
-					data, err = uploadc.BuildUploadStreamPayload(data, *uploadUploadStreamFlag)
-				}
-			}
 		}
 	}
 	if err != nil {
@@ -427,6 +410,7 @@ COMMAND:
     reject: Signal the package has been reviewed and rejected
     move: Move a package to a permanent storage location
     move-status: Retrieve the status of a permanent storage location move of the package
+    upload: Upload a package to trigger an ingest workflow
 
 Additional help:
     %[1]s package COMMAND --help
@@ -547,6 +531,19 @@ Retrieve the status of a permanent storage location move of the package
 
 Example:
     %[1]s package move-status --id 1 --token "abc123"
+`, os.Args[0])
+}
+
+func package_UploadUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] package upload -content-type STRING -token STRING -stream STRING
+
+Upload a package to trigger an ingest workflow
+    -content-type STRING: 
+    -token STRING: 
+    -stream STRING: path to file containing the streamed request body
+
+Example:
+    %[1]s package upload --content-type "multipart/form-data; boundary=goa" --token "abc123" --stream "goa.png"
 `, os.Args[0])
 }
 
@@ -735,31 +732,5 @@ List all the packages stored in the location with UUID
 
 Example:
     %[1]s storage location-packages --uuid "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --token "abc123"
-`, os.Args[0])
-}
-
-// uploadUsage displays the usage of the upload command and its subcommands.
-func uploadUsage() {
-	fmt.Fprintf(os.Stderr, `The upload service handles file submissions to the SIPs bucket.
-Usage:
-    %[1]s [globalflags] upload COMMAND [flags]
-
-COMMAND:
-    upload: Upload a package to trigger an ingest workflow
-
-Additional help:
-    %[1]s upload COMMAND --help
-`, os.Args[0])
-}
-func uploadUploadUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] upload upload -content-type STRING -token STRING -stream STRING
-
-Upload a package to trigger an ingest workflow
-    -content-type STRING: 
-    -token STRING: 
-    -stream STRING: path to file containing the streamed request body
-
-Example:
-    %[1]s upload upload --content-type "multipart/form-data; boundary=goa" --token "abc123" --stream "goa.png"
 `, os.Args[0])
 }

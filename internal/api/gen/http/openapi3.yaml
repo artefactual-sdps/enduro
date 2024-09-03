@@ -613,6 +613,59 @@ paths:
                     - package:read
                     - package:review
                     - package:upload
+    /package/upload:
+        post:
+            tags:
+                - package
+            summary: upload package
+            description: Upload a package to trigger an ingest workflow
+            operationId: package#upload
+            parameters:
+                - name: Content-Type
+                  in: header
+                  description: Content-Type header, must define value for multipart boundary.
+                  allowEmptyValue: true
+                  schema:
+                    type: string
+                    description: Content-Type header, must define value for multipart boundary.
+                    default: multipart/form-data; boundary=goa
+                    example: multipart/form-data; boundary=goa
+                    pattern: multipart/[^;]+; boundary=.+
+                  example: multipart/form-data; boundary=goa
+            responses:
+                "204":
+                    description: No Content response.
+                "400":
+                    description: 'invalid_multipart_request: Error returned when the request body is not a valid multipart content.'
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                "401":
+                    description: 'unauthorized: Unauthorized response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
+                "403":
+                    description: 'forbidden: Forbidden response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
+                "500":
+                    description: 'internal_error: Fault while processing upload.'
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+            security:
+                - jwt_header_Authorization:
+                    - package:upload
     /storage/location:
         get:
             tags:
@@ -1342,59 +1395,6 @@ paths:
                     description: File downloaded
             security:
                 - jwt_header_: []
-    /upload/upload:
-        post:
-            tags:
-                - upload
-            summary: upload upload
-            description: Upload a package to trigger an ingest workflow
-            operationId: upload#upload
-            parameters:
-                - name: Content-Type
-                  in: header
-                  description: Content-Type header, must define value for multipart boundary.
-                  allowEmptyValue: true
-                  schema:
-                    type: string
-                    description: Content-Type header, must define value for multipart boundary.
-                    default: multipart/form-data; boundary=goa
-                    example: multipart/form-data; boundary=goa
-                    pattern: multipart/[^;]+; boundary=.+
-                  example: multipart/form-data; boundary=goa
-            responses:
-                "204":
-                    description: No Content response.
-                "400":
-                    description: 'invalid_multipart_request: Error returned when the request body is not a valid multipart content.'
-                    content:
-                        application/vnd.goa.error:
-                            schema:
-                                $ref: '#/components/schemas/Error'
-                "401":
-                    description: 'unauthorized: Unauthorized response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
-                "403":
-                    description: 'forbidden: Forbidden response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
-                "500":
-                    description: 'internal_error: Fault while processing upload.'
-                    content:
-                        application/vnd.goa.error:
-                            schema:
-                                $ref: '#/components/schemas/Error'
-            security:
-                - jwt_header_Authorization:
-                    - package:upload
 components:
     schemas:
         AddLocationRequestBody:
@@ -2456,7 +2456,5 @@ tags:
       description: The storage service manages the storage of packages.
     - name: swagger
       description: The swagger service serves the API swagger definition.
-    - name: upload
-      description: The upload service handles file submissions to the SIPs bucket.
 security:
     - jwt_header_: []

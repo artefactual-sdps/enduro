@@ -121,7 +121,7 @@ func TestCreatePreservationAction(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			pkgSvc, perSvc := testSvc(t)
+			pkgSvc, perSvc := testSvc(t, nil, 0)
 			if tt.mock != nil {
 				tt.mock(perSvc, tt.pa)
 			}

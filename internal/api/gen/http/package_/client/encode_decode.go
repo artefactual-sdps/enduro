@@ -14,6 +14,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 
 	package_ "github.com/artefactual-sdps/enduro/internal/api/gen/package_"
@@ -1216,6 +1217,170 @@ func DecodeMoveStatusResponse(decoder func(*http.Response) goahttp.Decoder, rest
 			return nil, goahttp.ErrInvalidResponse("package", "move_status", resp.StatusCode, string(body))
 		}
 	}
+}
+
+// BuildUploadRequest instantiates a HTTP request object with method and path
+// set to call the "package" service "upload" endpoint
+func (c *Client) BuildUploadRequest(ctx context.Context, v any) (*http.Request, error) {
+	var (
+		body io.Reader
+	)
+	rd, ok := v.(*package_.UploadRequestData)
+	if !ok {
+		return nil, goahttp.ErrInvalidType("package", "upload", "package_.UploadRequestData", v)
+	}
+	body = rd.Body
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: UploadPackagePath()}
+	req, err := http.NewRequest("POST", u.String(), body)
+	if err != nil {
+		return nil, goahttp.ErrInvalidURL("package", "upload", u.String(), err)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
+	return req, nil
+}
+
+// EncodeUploadRequest returns an encoder for requests sent to the package
+// upload server.
+func EncodeUploadRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, any) error {
+	return func(req *http.Request, v any) error {
+		data, ok := v.(*package_.UploadRequestData)
+		if !ok {
+			return goahttp.ErrInvalidType("package", "upload", "*package_.UploadRequestData", v)
+		}
+		p := data.Payload
+		{
+			head := p.ContentType
+			req.Header.Set("Content-Type", head)
+		}
+		if p.Token != nil {
+			head := *p.Token
+			if !strings.Contains(head, " ") {
+				req.Header.Set("Authorization", "Bearer "+head)
+			} else {
+				req.Header.Set("Authorization", head)
+			}
+		}
+		return nil
+	}
+}
+
+// DecodeUploadResponse returns a decoder for responses returned by the package
+// upload endpoint. restoreBody controls whether the response body should be
+// restored after having been read.
+// DecodeUploadResponse may return the following errors:
+//   - "invalid_media_type" (type *goa.ServiceError): http.StatusBadRequest
+//   - "invalid_multipart_request" (type *goa.ServiceError): http.StatusBadRequest
+//   - "internal_error" (type *goa.ServiceError): http.StatusInternalServerError
+//   - "forbidden" (type package_.Forbidden): http.StatusForbidden
+//   - "unauthorized" (type package_.Unauthorized): http.StatusUnauthorized
+//   - error: internal error
+func DecodeUploadResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
+	return func(resp *http.Response) (any, error) {
+		if restoreBody {
+			b, err := io.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			defer func() {
+				resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			}()
+		} else {
+			defer resp.Body.Close()
+		}
+		switch resp.StatusCode {
+		case http.StatusNoContent:
+			return nil, nil
+		case http.StatusBadRequest:
+			en := resp.Header.Get("goa-error")
+			switch en {
+			case "invalid_media_type":
+				var (
+					body UploadInvalidMediaTypeResponseBody
+					err  error
+				)
+				err = decoder(resp).Decode(&body)
+				if err != nil {
+					return nil, goahttp.ErrDecodingError("package", "upload", err)
+				}
+				err = ValidateUploadInvalidMediaTypeResponseBody(&body)
+				if err != nil {
+					return nil, goahttp.ErrValidationError("package", "upload", err)
+				}
+				return nil, NewUploadInvalidMediaType(&body)
+			case "invalid_multipart_request":
+				var (
+					body UploadInvalidMultipartRequestResponseBody
+					err  error
+				)
+				err = decoder(resp).Decode(&body)
+				if err != nil {
+					return nil, goahttp.ErrDecodingError("package", "upload", err)
+				}
+				err = ValidateUploadInvalidMultipartRequestResponseBody(&body)
+				if err != nil {
+					return nil, goahttp.ErrValidationError("package", "upload", err)
+				}
+				return nil, NewUploadInvalidMultipartRequest(&body)
+			default:
+				body, _ := io.ReadAll(resp.Body)
+				return nil, goahttp.ErrInvalidResponse("package", "upload", resp.StatusCode, string(body))
+			}
+		case http.StatusInternalServerError:
+			var (
+				body UploadInternalErrorResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("package", "upload", err)
+			}
+			err = ValidateUploadInternalErrorResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("package", "upload", err)
+			}
+			return nil, NewUploadInternalError(&body)
+		case http.StatusForbidden:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("package", "upload", err)
+			}
+			return nil, NewUploadForbidden(body)
+		case http.StatusUnauthorized:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("package", "upload", err)
+			}
+			return nil, NewUploadUnauthorized(body)
+		default:
+			body, _ := io.ReadAll(resp.Body)
+			return nil, goahttp.ErrInvalidResponse("package", "upload", resp.StatusCode, string(body))
+		}
+	}
+}
+
+// // BuildUploadStreamPayload creates a streaming endpoint request payload from
+// the method payload and the path to the file to be streamed
+func BuildUploadStreamPayload(payload any, fpath string) (*package_.UploadRequestData, error) {
+	f, err := os.Open(fpath)
+	if err != nil {
+		return nil, err
+	}
+	return &package_.UploadRequestData{
+		Payload: payload.(*package_.UploadPayload),
+		Body:    f,
+	}, nil
 }
 
 // unmarshalEnduroStoredPackageResponseBodyToPackageEnduroStoredPackage builds

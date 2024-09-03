@@ -19,6 +19,7 @@ import (
 	"github.com/oklog/run"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/pflag"
+	"go.artefactual.dev/tools/bucket"
 	"go.artefactual.dev/tools/log"
 	temporal_tools "go.artefactual.dev/tools/temporal"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace"
@@ -50,7 +51,6 @@ import (
 	storage_entdb "github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db"
 	storage_workflows "github.com/artefactual-sdps/enduro/internal/storage/workflows"
 	"github.com/artefactual-sdps/enduro/internal/telemetry"
-	"github.com/artefactual-sdps/enduro/internal/upload"
 	"github.com/artefactual-sdps/enduro/internal/version"
 	"github.com/artefactual-sdps/enduro/internal/watcher"
 	"github.com/artefactual-sdps/enduro/internal/workflow"
@@ -215,6 +215,14 @@ func main() {
 		)
 	}
 
+	// Set up upload bucket.
+	uploadBucket, err := bucket.NewWithConfig(ctx, &cfg.Upload.Bucket)
+	if err != nil {
+		logger.Error(err, "Error setting up upload bucket.")
+		os.Exit(1)
+	}
+	defer uploadBucket.Close()
+
 	// Set up the package service.
 	var pkgsvc package_.Service
 	{
@@ -227,6 +235,8 @@ func main() {
 			tokenVerifier,
 			ticketProvider,
 			cfg.Temporal.TaskQueue,
+			uploadBucket,
+			cfg.Upload.MaxSize,
 		)
 	}
 
@@ -264,17 +274,6 @@ func main() {
 		}
 	}
 
-	// Set up the upload service.
-	var uploadsvc upload.Service
-	{
-		uploadsvc, err = upload.NewService(logger.WithName("upload"), cfg.Upload, upload.UPLOAD_MAX_SIZE, tokenVerifier)
-		if err != nil {
-			logger.Error(err, "Error setting up upload service.")
-			os.Exit(1)
-		}
-		defer uploadsvc.Close()
-	}
-
 	// Set up the watcher service.
 	var wsvc watcher.Service
 	{
@@ -293,7 +292,7 @@ func main() {
 
 		g.Add(
 			func() error {
-				srv = api.HTTPServer(logger, tp, &cfg.API, pkgsvc, storagesvc, uploadsvc)
+				srv = api.HTTPServer(logger, tp, &cfg.API, pkgsvc, storagesvc)
 				return srv.ListenAndServe()
 			},
 			func(err error) {
@@ -317,6 +316,8 @@ func main() {
 			&auth.NoopTokenVerifier{},
 			ticketProvider,
 			cfg.Temporal.TaskQueue,
+			uploadBucket,
+			cfg.Upload.MaxSize,
 		)
 
 		storagesvc, err = storage.NewService(
@@ -332,23 +333,11 @@ func main() {
 			os.Exit(1)
 		}
 
-		uploadsvc, err = upload.NewService(
-			logger.WithName("internal-upload"),
-			cfg.Upload,
-			upload.UPLOAD_MAX_SIZE,
-			&auth.NoopTokenVerifier{},
-		)
-		if err != nil {
-			logger.Error(err, "Error setting up internal upload service.")
-			os.Exit(1)
-		}
-		defer uploadsvc.Close()
-
 		var srv *http.Server
 
 		g.Add(
 			func() error {
-				srv = api.HTTPServer(logger, tp, &cfg.InternalAPI, pkgsvc, storagesvc, uploadsvc)
+				srv = api.HTTPServer(logger, tp, &cfg.InternalAPI, pkgsvc, storagesvc)
 				return srv.ListenAndServe()
 			},
 			func(err error) {

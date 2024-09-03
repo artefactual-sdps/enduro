@@ -11,6 +11,7 @@ import (
 	"go.artefactual.dev/tools/mockutil"
 	temporalsdk_mocks "go.temporal.io/sdk/mocks"
 	"go.uber.org/mock/gomock"
+	"gocloud.dev/blob"
 	"gotest.tools/v3/assert"
 
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
@@ -21,7 +22,7 @@ import (
 	persistence_fake "github.com/artefactual-sdps/enduro/internal/persistence/fake"
 )
 
-func testSvc(t *testing.T) (package_.Service, *persistence_fake.MockService) {
+func testSvc(t *testing.T, b *blob.Bucket, s int64) (package_.Service, *persistence_fake.MockService) {
 	t.Helper()
 
 	psvc := persistence_fake.NewMockService(gomock.NewController(t))
@@ -34,6 +35,8 @@ func testSvc(t *testing.T) (package_.Service, *persistence_fake.MockService) {
 		&auth.NoopTokenVerifier{},
 		&auth.TicketProvider{},
 		"test",
+		b,
+		s,
 	)
 
 	return pkgSvc, psvc
@@ -93,7 +96,7 @@ func TestCreatePackage(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			pkgSvc, perSvc := testSvc(t)
+			pkgSvc, perSvc := testSvc(t, nil, 0)
 			if tt.mock != nil {
 				tt.mock(perSvc, tt.pkg)
 			}

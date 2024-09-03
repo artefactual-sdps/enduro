@@ -10,6 +10,7 @@ package package_
 
 import (
 	"context"
+	"io"
 
 	package_views "github.com/artefactual-sdps/enduro/internal/api/gen/package_/views"
 	"github.com/google/uuid"
@@ -37,6 +38,8 @@ type Service interface {
 	Move(context.Context, *MovePayload) (err error)
 	// Retrieve the status of a permanent storage location move of the package
 	MoveStatus(context.Context, *MoveStatusPayload) (res *MoveStatusResult, err error)
+	// Upload a package to trigger an ingest workflow
+	Upload(context.Context, *UploadPayload, io.ReadCloser) (err error)
 }
 
 // Auther defines the authorization functions to be implemented by the service.
@@ -59,7 +62,7 @@ const ServiceName = "package"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [9]string{"monitor_request", "monitor", "list", "show", "preservation_actions", "confirm", "reject", "move", "move_status"}
+var MethodNames = [10]string{"monitor_request", "monitor", "list", "show", "preservation_actions", "confirm", "reject", "move", "move_status", "upload"}
 
 // MonitorServerStream is the interface a "monitor" endpoint server stream must
 // satisfy.
@@ -297,6 +300,13 @@ type ShowPayload struct {
 	Token *string
 }
 
+// UploadPayload is the payload type of the package service upload method.
+type UploadPayload struct {
+	// Content-Type header, must define value for multipart boundary.
+	ContentType string
+	Token       *string
+}
+
 // Forbidden
 type Forbidden string
 
@@ -376,6 +386,21 @@ func MakeNotValid(err error) *goa.ServiceError {
 // MakeFailedDependency builds a goa.ServiceError from an error.
 func MakeFailedDependency(err error) *goa.ServiceError {
 	return goa.NewServiceError(err, "failed_dependency", false, false, false)
+}
+
+// MakeInvalidMediaType builds a goa.ServiceError from an error.
+func MakeInvalidMediaType(err error) *goa.ServiceError {
+	return goa.NewServiceError(err, "invalid_media_type", false, false, false)
+}
+
+// MakeInvalidMultipartRequest builds a goa.ServiceError from an error.
+func MakeInvalidMultipartRequest(err error) *goa.ServiceError {
+	return goa.NewServiceError(err, "invalid_multipart_request", false, false, false)
+}
+
+// MakeInternalError builds a goa.ServiceError from an error.
+func MakeInternalError(err error) *goa.ServiceError {
+	return goa.NewServiceError(err, "internal_error", false, false, false)
 }
 
 // NewEnduroStoredPackage initializes result type EnduroStoredPackage from

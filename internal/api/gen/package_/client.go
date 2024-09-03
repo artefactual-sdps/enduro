@@ -10,6 +10,7 @@ package package_
 
 import (
 	"context"
+	"io"
 
 	goa "goa.design/goa/v3/pkg"
 )
@@ -25,10 +26,11 @@ type Client struct {
 	RejectEndpoint              goa.Endpoint
 	MoveEndpoint                goa.Endpoint
 	MoveStatusEndpoint          goa.Endpoint
+	UploadEndpoint              goa.Endpoint
 }
 
 // NewClient initializes a "package" service client given the endpoints.
-func NewClient(monitorRequest, monitor, list, show, preservationActions, confirm, reject, move, moveStatus goa.Endpoint) *Client {
+func NewClient(monitorRequest, monitor, list, show, preservationActions, confirm, reject, move, moveStatus, upload goa.Endpoint) *Client {
 	return &Client{
 		MonitorRequestEndpoint:      monitorRequest,
 		MonitorEndpoint:             monitor,
@@ -39,6 +41,7 @@ func NewClient(monitorRequest, monitor, list, show, preservationActions, confirm
 		RejectEndpoint:              reject,
 		MoveEndpoint:                move,
 		MoveStatusEndpoint:          moveStatus,
+		UploadEndpoint:              upload,
 	}
 }
 
@@ -171,4 +174,17 @@ func (c *Client) MoveStatus(ctx context.Context, p *MoveStatusPayload) (res *Mov
 		return
 	}
 	return ires.(*MoveStatusResult), nil
+}
+
+// Upload calls the "upload" endpoint of the "package" service.
+// Upload may return the following errors:
+//   - "invalid_media_type" (type *goa.ServiceError): Error returned when the Content-Type header does not define a multipart request.
+//   - "invalid_multipart_request" (type *goa.ServiceError): Error returned when the request body is not a valid multipart content.
+//   - "internal_error" (type *goa.ServiceError): Fault while processing upload.
+//   - "unauthorized" (type Unauthorized)
+//   - "forbidden" (type Forbidden)
+//   - error: internal error
+func (c *Client) Upload(ctx context.Context, p *UploadPayload, req io.ReadCloser) (err error) {
+	_, err = c.UploadEndpoint(ctx, &UploadRequestData{Payload: p, Body: req})
+	return
 }

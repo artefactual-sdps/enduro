@@ -56,3 +56,8 @@ func MovePackagePath(id uint) string {
 func MoveStatusPackagePath(id uint) string {
 	return fmt.Sprintf("/package/%v/move", id)
 }
+
+// UploadPackagePath returns the URL path to the package service upload HTTP endpoint.
+func UploadPackagePath() string {
+	return "/package/upload"
+}

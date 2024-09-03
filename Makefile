@@ -137,7 +137,6 @@ gen-mock: $(MOCKGEN)
 	mockgen -typed -destination=./internal/storage/fake/mock_client.go -package=fake github.com/artefactual-sdps/enduro/internal/storage Client
 	mockgen -typed -destination=./internal/storage/fake/mock_storage.go -package=fake github.com/artefactual-sdps/enduro/internal/storage Service
 	mockgen -typed -destination=./internal/storage/persistence/fake/mock_persistence.go -package=fake github.com/artefactual-sdps/enduro/internal/storage/persistence Storage
-	mockgen -typed -destination=./internal/upload/fake/mock_upload.go -package=fake github.com/artefactual-sdps/enduro/internal/upload Service
 	mockgen -typed -destination=./internal/watcher/fake/mock_service.go -package=fake github.com/artefactual-sdps/enduro/internal/watcher Service
 	mockgen -typed -destination=./internal/watcher/fake/mock_watcher.go -package=fake github.com/artefactual-sdps/enduro/internal/watcher Watcher
 
@@ -249,11 +248,11 @@ tparse: $(TPARSE)
 	go test -count=1 -json -cover $(TEST_PACKAGES) | tparse -follow -all -notests
 
 upload-sample-transfer: # @HELP Upload sample transfer (small.zip).
-upload-sample-transfer: ADDRESS ?= localhost:9000
+upload-sample-transfer: ADDRESS ?= localhost:9002
 upload-sample-transfer:
 	curl \
 		-F "file=@$(CURDIR)/internal/testdata/zipped_transfer/small.zip" \
-		http://$(ADDRESS)/upload/upload
+		http://$(ADDRESS)/package/upload
 
 workflowcheck: # @HELP Detect non-determinism in workflow functions.
 workflowcheck: $(WORKFLOWCHECK)
