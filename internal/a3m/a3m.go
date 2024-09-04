@@ -9,8 +9,8 @@ import (
 
 	"buf.build/gen/go/artefactual/a3m/grpc/go/a3m/api/transferservice/v1beta1/transferservicev1beta1grpc"
 	transferservice "buf.build/gen/go/artefactual/a3m/protocolbuffers/go/a3m/api/transferservice/v1beta1"
-	"github.com/go-logr/logr"
 	"github.com/oklog/run"
+	temporal_tools "go.artefactual.dev/tools/temporal"
 	"go.opentelemetry.io/otel/trace"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
 	"google.golang.org/grpc"
@@ -24,7 +24,6 @@ import (
 const CreateAIPActivityName = "create-aip-activity"
 
 type CreateAIPActivity struct {
-	logger logr.Logger
 	tracer trace.Tracer
 	client transferservicev1beta1grpc.TransferServiceClient
 	cfg    *Config
@@ -43,14 +42,12 @@ type CreateAIPActivityResult struct {
 }
 
 func NewCreateAIPActivity(
-	logger logr.Logger,
 	tracer trace.Tracer,
 	client transferservicev1beta1grpc.TransferServiceClient,
 	cfg *Config,
 	pkgsvc package_.Service,
 ) *CreateAIPActivity {
 	return &CreateAIPActivity{
-		logger: logger,
 		tracer: tracer,
 		client: client,
 		cfg:    cfg,
@@ -62,6 +59,7 @@ func (a *CreateAIPActivity) Execute(
 	ctx context.Context,
 	opts *CreateAIPActivityParams,
 ) (*CreateAIPActivityResult, error) {
+	logger := temporal_tools.GetLogger(ctx)
 	result := &CreateAIPActivityResult{}
 
 	var g run.Group
@@ -147,7 +145,7 @@ func (a *CreateAIPActivity) Execute(
 					}
 
 					result.Path = fmt.Sprintf("%s/completed/%s-%s.7z", a.cfg.ShareDir, opts.Name, result.UUID)
-					a.logger.Info("We have run a3m successfully", "path", result.Path)
+					logger.Info("We have run a3m successfully", "path", result.Path)
 
 					break
 				}

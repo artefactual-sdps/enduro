@@ -26,6 +26,7 @@ import (
 	"github.com/spf13/pflag"
 	"go.artefactual.dev/amclient"
 	"go.artefactual.dev/tools/log"
+	temporal_tools "go.artefactual.dev/tools/temporal"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel/trace"
@@ -125,7 +126,7 @@ func main() {
 	temporalClient, err := temporalsdk_client.Dial(temporalsdk_client.Options{
 		Namespace:    cfg.Temporal.Namespace,
 		HostPort:     cfg.Temporal.Address,
-		Logger:       temporal.Logger(logger.WithName("temporal-client")),
+		Logger:       temporal_tools.Logger(logger.WithName("temporal-client")),
 		Interceptors: []temporalsdk_interceptor.ClientInterceptor{tracingInterceptor},
 	})
 	if err != nil {
@@ -209,6 +210,9 @@ func main() {
 			EnableSessionWorker:                true,
 			MaxConcurrentSessionExecutionSize:  cfg.AM.Capacity,
 			MaxConcurrentActivityExecutionSize: 1,
+			Interceptors: []temporalsdk_interceptor.WorkerInterceptor{
+				temporal_tools.NewLoggerInterceptor(logger),
+			},
 		}
 		w := temporalsdk_worker.New(temporalClient, temporal.AmWorkerTaskQueue, workerOpts)
 		if err != nil {
@@ -228,7 +232,7 @@ func main() {
 		sftpClient := sftp.NewGoClient(logger, cfg.AM.SFTP)
 
 		w.RegisterActivityWithOptions(
-			activities.NewDownloadActivity(logger, tp.Tracer(activities.DownloadActivityName), wsvc).Execute,
+			activities.NewDownloadActivity(tp.Tracer(activities.DownloadActivityName), wsvc).Execute,
 			temporalsdk_activity.RegisterOptions{Name: activities.DownloadActivityName},
 		)
 		w.RegisterActivityWithOptions(
@@ -236,7 +240,7 @@ func main() {
 			temporalsdk_activity.RegisterOptions{Name: archiveextract.Name},
 		)
 		w.RegisterActivityWithOptions(
-			activities.NewClassifyPackageActivity(logger).Execute,
+			activities.NewClassifyPackageActivity().Execute,
 			temporalsdk_activity.RegisterOptions{Name: activities.ClassifyPackageActivityName},
 		)
 		w.RegisterActivityWithOptions(
@@ -244,7 +248,7 @@ func main() {
 			temporalsdk_activity.RegisterOptions{Name: bagvalidate.Name},
 		)
 		w.RegisterActivityWithOptions(
-			activities.NewBundleActivity(logger).Execute,
+			activities.NewBundleActivity().Execute,
 			temporalsdk_activity.RegisterOptions{Name: activities.BundleActivityName},
 		)
 		w.RegisterActivityWithOptions(
@@ -256,20 +260,19 @@ func main() {
 			temporalsdk_activity.RegisterOptions{Name: archivezip.Name},
 		)
 		w.RegisterActivityWithOptions(
-			am.NewUploadTransferActivity(logger, sftpClient, cfg.AM.PollInterval).Execute,
+			am.NewUploadTransferActivity(sftpClient, cfg.AM.PollInterval).Execute,
 			temporalsdk_activity.RegisterOptions{Name: am.UploadTransferActivityName},
 		)
 		w.RegisterActivityWithOptions(
-			am.NewDeleteTransferActivity(logger, sftpClient).Execute,
+			am.NewDeleteTransferActivity(sftpClient).Execute,
 			temporalsdk_activity.RegisterOptions{Name: am.DeleteTransferActivityName},
 		)
 		w.RegisterActivityWithOptions(
-			am.NewStartTransferActivity(logger, &cfg.AM, amc.Package).Execute,
+			am.NewStartTransferActivity(&cfg.AM, amc.Package).Execute,
 			temporalsdk_activity.RegisterOptions{Name: am.StartTransferActivityName},
 		)
 		w.RegisterActivityWithOptions(
 			am.NewPollTransferActivity(
-				logger,
 				&cfg.AM,
 				clockwork.NewRealClock(),
 				amc.Transfer,
@@ -280,7 +283,6 @@ func main() {
 		)
 		w.RegisterActivityWithOptions(
 			am.NewPollIngestActivity(
-				logger,
 				&cfg.AM,
 				clockwork.NewRealClock(),
 				amc.Ingest,

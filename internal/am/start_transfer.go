@@ -4,16 +4,15 @@ import (
 	context "context"
 	"path/filepath"
 
-	"github.com/go-logr/logr"
 	"go.artefactual.dev/amclient"
+	temporal_tools "go.artefactual.dev/tools/temporal"
 )
 
 const StartTransferActivityName = "start-transfer-activity"
 
 type StartTransferActivity struct {
-	logger logr.Logger
-	cfg    *Config
-	amps   amclient.PackageService
+	cfg  *Config
+	amps amclient.PackageService
 }
 
 type StartTransferActivityParams struct {
@@ -29,11 +28,10 @@ type StartTransferActivityResult struct {
 	TransferID string
 }
 
-func NewStartTransferActivity(logger logr.Logger, cfg *Config, amps amclient.PackageService) *StartTransferActivity {
+func NewStartTransferActivity(cfg *Config, amps amclient.PackageService) *StartTransferActivity {
 	return &StartTransferActivity{
-		logger: logger,
-		cfg:    cfg,
-		amps:   amps,
+		cfg:  cfg,
+		amps: amps,
 	}
 }
 
@@ -45,7 +43,8 @@ func (a *StartTransferActivity) Execute(
 	ctx context.Context,
 	opts *StartTransferActivityParams,
 ) (*StartTransferActivityResult, error) {
-	a.logger.V(1).Info(
+	logger := temporal_tools.GetLogger(ctx)
+	logger.V(1).Info(
 		"Executing StartTransferActivity",
 		"Name", opts.Name,
 		"RelativePath", opts.RelativePath,

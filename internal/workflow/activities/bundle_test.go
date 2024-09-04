@@ -4,7 +4,6 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/go-logr/logr"
 	"go.artefactual.dev/tools/temporal"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
 	temporalsdk_testsuite "go.temporal.io/sdk/testsuite"
@@ -118,7 +117,7 @@ e91f941be5973ff71f1dccbdd1a32d598881893a7f21be516aca743da38b1689 bagit.txt
 			ts := &temporalsdk_testsuite.WorkflowTestSuite{}
 			env := ts.NewTestActivityEnvironment()
 			env.RegisterActivityWithOptions(
-				activities.NewBundleActivity(logr.Discard()).Execute,
+				activities.NewBundleActivity().Execute,
 				temporalsdk_activity.RegisterOptions{
 					Name: activities.BundleActivityName,
 				},

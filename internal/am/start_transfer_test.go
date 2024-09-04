@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/go-logr/logr"
 	"github.com/google/uuid"
 	"go.artefactual.dev/amclient"
 	"go.artefactual.dev/amclient/amclienttest"
@@ -104,7 +103,7 @@ func TestStartTransferActivity(t *testing.T) {
 			}
 
 			env.RegisterActivityWithOptions(
-				am.NewStartTransferActivity(logr.Discard(), &am.Config{}, amps).Execute,
+				am.NewStartTransferActivity(&am.Config{}, amps).Execute,
 				temporalsdk_activity.RegisterOptions{
 					Name: am.StartTransferActivityName,
 				},

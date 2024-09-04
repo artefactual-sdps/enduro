@@ -1,7 +1,6 @@
 package workflow
 
 import (
-	"github.com/go-logr/logr"
 	temporalsdk_workflow "go.temporal.io/sdk/workflow"
 
 	"github.com/artefactual-sdps/enduro/internal/enums"
@@ -10,13 +9,11 @@ import (
 )
 
 type MoveWorkflow struct {
-	logger logr.Logger
 	pkgsvc package_.Service
 }
 
-func NewMoveWorkflow(logger logr.Logger, pkgsvc package_.Service) *MoveWorkflow {
+func NewMoveWorkflow(pkgsvc package_.Service) *MoveWorkflow {
 	return &MoveWorkflow{
-		logger: logger,
 		pkgsvc: pkgsvc,
 	}
 }

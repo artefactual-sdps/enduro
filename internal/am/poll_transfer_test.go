@@ -5,7 +5,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/go-logr/logr"
 	"github.com/google/uuid"
 	"github.com/jonboulle/clockwork"
 	"go.artefactual.dev/amclient"
@@ -295,7 +294,6 @@ func TestPollTransferActivity(t *testing.T) {
 
 			env.RegisterActivityWithOptions(
 				am.NewPollTransferActivity(
-					logr.Discard(),
 					&am.Config{PollInterval: time.Millisecond * 10},
 					clockwork.NewFakeClock(),
 					trfSvc,

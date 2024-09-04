@@ -12,7 +12,6 @@ import (
 	"github.com/artefactual-sdps/temporal-activities/bagcreate"
 	"github.com/artefactual-sdps/temporal-activities/bagvalidate"
 	"github.com/artefactual-sdps/temporal-activities/removepaths"
-	"github.com/go-logr/logr"
 	"github.com/google/uuid"
 	"github.com/jonboulle/clockwork"
 	"github.com/stretchr/testify/mock"
@@ -101,13 +100,12 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(cfg config.Configuration
 	s.env.SetStartTime(startTime)
 
 	ctrl := gomock.NewController(s.T())
-	logger := logr.Discard()
 	pkgsvc := packagefake.NewMockService(ctrl)
 	wsvc := watcherfake.NewMockService(ctrl)
 	rng := rand.New(rand.NewSource(1)) // #nosec: G404
 
 	s.env.RegisterActivityWithOptions(
-		activities.NewDownloadActivity(logger, noop.Tracer{}, wsvc).Execute,
+		activities.NewDownloadActivity(noop.Tracer{}, wsvc).Execute,
 		temporalsdk_activity.RegisterOptions{Name: activities.DownloadActivityName},
 	)
 	s.env.RegisterActivityWithOptions(
@@ -119,15 +117,15 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(cfg config.Configuration
 		temporalsdk_activity.RegisterOptions{Name: bagvalidate.Name},
 	)
 	s.env.RegisterActivityWithOptions(
-		activities.NewClassifyPackageActivity(logger).Execute,
+		activities.NewClassifyPackageActivity().Execute,
 		temporalsdk_activity.RegisterOptions{Name: activities.ClassifyPackageActivityName},
 	)
 
 	// Set up AM taskqueue.
 	if cfg.Preservation.TaskQueue == temporal.AmWorkerTaskQueue {
-		s.setupAMWorkflowTest(logger, &cfg.AM, ctrl, pkgsvc)
+		s.setupAMWorkflowTest(&cfg.AM, ctrl, pkgsvc)
 	} else {
-		s.setupA3mWorkflowTest(logger, ctrl, pkgsvc)
+		s.setupA3mWorkflowTest(ctrl, pkgsvc)
 	}
 
 	s.env.RegisterWorkflowWithOptions(
@@ -143,11 +141,10 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(cfg config.Configuration
 		temporalsdk_activity.RegisterOptions{Name: activities.DeleteOriginalActivityName},
 	)
 
-	s.workflow = NewProcessingWorkflow(logger, cfg, rng, pkgsvc, wsvc)
+	s.workflow = NewProcessingWorkflow(cfg, rng, pkgsvc, wsvc)
 }
 
 func (s *ProcessingWorkflowTestSuite) setupAMWorkflowTest(
-	logger logr.Logger,
 	cfg *am.Config,
 	ctrl *gomock.Controller,
 	pkgsvc package_.Service,
@@ -164,16 +161,15 @@ func (s *ProcessingWorkflowTestSuite) setupAMWorkflowTest(
 		temporalsdk_activity.RegisterOptions{Name: archivezip.Name},
 	)
 	s.env.RegisterActivityWithOptions(
-		am.NewUploadTransferActivity(logger, sftpc, 10*time.Second).Execute,
+		am.NewUploadTransferActivity(sftpc, 10*time.Second).Execute,
 		temporalsdk_activity.RegisterOptions{Name: am.UploadTransferActivityName},
 	)
 	s.env.RegisterActivityWithOptions(
-		am.NewStartTransferActivity(logger, &am.Config{}, amclienttest.NewMockPackageService(ctrl)).Execute,
+		am.NewStartTransferActivity(&am.Config{}, amclienttest.NewMockPackageService(ctrl)).Execute,
 		temporalsdk_activity.RegisterOptions{Name: am.StartTransferActivityName},
 	)
 	s.env.RegisterActivityWithOptions(
 		am.NewPollTransferActivity(
-			logger,
 			cfg,
 			clock,
 			amclienttest.NewMockTransferService(ctrl),
@@ -184,7 +180,6 @@ func (s *ProcessingWorkflowTestSuite) setupAMWorkflowTest(
 	)
 	s.env.RegisterActivityWithOptions(
 		am.NewPollIngestActivity(
-			logger,
 			cfg,
 			clock,
 			amclienttest.NewMockIngestService(ctrl),
@@ -198,7 +193,7 @@ func (s *ProcessingWorkflowTestSuite) setupAMWorkflowTest(
 		temporalsdk_activity.RegisterOptions{Name: activities.CreateStoragePackageActivityName},
 	)
 	s.env.RegisterActivityWithOptions(
-		am.NewDeleteTransferActivity(logger, sftpc).Execute,
+		am.NewDeleteTransferActivity(sftpc).Execute,
 		temporalsdk_activity.RegisterOptions{
 			Name: am.DeleteTransferActivityName,
 		},
@@ -206,18 +201,17 @@ func (s *ProcessingWorkflowTestSuite) setupAMWorkflowTest(
 }
 
 func (s *ProcessingWorkflowTestSuite) setupA3mWorkflowTest(
-	logger logr.Logger,
 	ctrl *gomock.Controller,
 	pkgsvc package_.Service,
 ) {
 	tsvc := a3mfake.NewMockTransferServiceClient(ctrl)
 
 	s.env.RegisterActivityWithOptions(
-		activities.NewBundleActivity(logger).Execute,
+		activities.NewBundleActivity().Execute,
 		temporalsdk_activity.RegisterOptions{Name: activities.BundleActivityName},
 	)
 	s.env.RegisterActivityWithOptions(
-		a3m.NewCreateAIPActivity(logger, noop.Tracer{}, tsvc, &a3m.Config{}, pkgsvc).Execute,
+		a3m.NewCreateAIPActivity(noop.Tracer{}, tsvc, &a3m.Config{}, pkgsvc).Execute,
 		temporalsdk_activity.RegisterOptions{Name: a3m.CreateAIPActivityName},
 	)
 	s.env.RegisterActivityWithOptions(
@@ -376,7 +370,6 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 	retentionPeriod := 1 * time.Second
 	ctx := mock.AnythingOfType("*context.valueCtx")
 	sessionCtx := mock.AnythingOfType("*context.timerCtx")
-	logger := s.workflow.logger
 	pkgsvc := s.workflow.pkgsvc
 	rng := rand.New(rand.NewSource(1)) // #nosec: G404
 
@@ -384,7 +377,6 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 	s.env.OnActivity(
 		createPackageLocalActivity,
 		ctx,
-		logger,
 		pkgsvc,
 		&createPackageLocalActivityParams{Key: key, Status: enums.PackageStatusQueued},
 	).Return(pkgID, nil).Once()
@@ -482,7 +474,7 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 	s.env.OnActivity(a3m.CreateAIPActivityName, sessionCtx, mock.AnythingOfType("*a3m.CreateAIPActivityParams")).
 		Return(nil, nil).
 		Once()
-	s.env.OnActivity(updatePackageLocalActivity, ctx, logger, pkgsvc, mock.AnythingOfType("*workflow.updatePackageLocalActivityParams")).
+	s.env.OnActivity(updatePackageLocalActivity, ctx, pkgsvc, mock.AnythingOfType("*workflow.updatePackageLocalActivityParams")).
 		Return(nil, nil).
 		Times(2)
 
@@ -571,12 +563,10 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	}
 	s.SetupWorkflowTest(cfg)
 
-	logger := s.workflow.logger
 	pkgsvc := s.workflow.pkgsvc
 
 	// Activity mocks/assertions sequence
 	s.env.OnActivity(createPackageLocalActivity, ctx,
-		logger,
 		pkgsvc,
 		&createPackageLocalActivityParams{Key: key, Status: enums.PackageStatusQueued},
 	).Return(pkgID, nil)
@@ -672,7 +662,6 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	s.env.OnActivity(
 		updatePackageLocalActivity,
 		ctx,
-		logger,
 		pkgsvc,
 		mock.AnythingOfType("*workflow.updatePackageLocalActivityParams"),
 	).Return(nil, nil)
@@ -841,7 +830,6 @@ func (s *ProcessingWorkflowTestSuite) TestPreprocessingChildWorkflow() {
 	retentionPeriod := 1 * time.Second
 	ctx := mock.AnythingOfType("*context.valueCtx")
 	sessionCtx := mock.AnythingOfType("*context.timerCtx")
-	logger := s.workflow.logger
 	pkgsvc := s.workflow.pkgsvc
 
 	downloadDir := strings.Replace(tempPath, "/tmp/", cfg.Preprocessing.SharedPath, 1)
@@ -851,7 +839,6 @@ func (s *ProcessingWorkflowTestSuite) TestPreprocessingChildWorkflow() {
 	s.env.OnActivity(
 		createPackageLocalActivity,
 		ctx,
-		logger,
 		pkgsvc,
 		&createPackageLocalActivityParams{Key: key, Status: enums.PackageStatusQueued},
 	).Return(pkgID, nil)
@@ -993,7 +980,7 @@ func (s *ProcessingWorkflowTestSuite) TestPreprocessingChildWorkflow() {
 	s.env.OnActivity(a3m.CreateAIPActivityName, sessionCtx, mock.AnythingOfType("*a3m.CreateAIPActivityParams")).
 		Return(nil, nil).
 		Once()
-	s.env.OnActivity(updatePackageLocalActivity, ctx, logger, pkgsvc, mock.AnythingOfType("*workflow.updatePackageLocalActivityParams")).
+	s.env.OnActivity(updatePackageLocalActivity, ctx, pkgsvc, mock.AnythingOfType("*workflow.updatePackageLocalActivityParams")).
 		Return(nil, nil).
 		Times(2)
 

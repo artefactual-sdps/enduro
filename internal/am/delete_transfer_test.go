@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/go-logr/logr"
 	"go.artefactual.dev/tools/mockutil"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
 	temporalsdk_testsuite "go.temporal.io/sdk/testsuite"
@@ -90,7 +89,7 @@ func TestDeleteTransferActivity(t *testing.T) {
 			ctrl := gomock.NewController(t)
 
 			env.RegisterActivityWithOptions(
-				am.NewDeleteTransferActivity(logr.Discard(), tt.mock(ctrl)).Execute,
+				am.NewDeleteTransferActivity(tt.mock(ctrl)).Execute,
 				temporalsdk_activity.RegisterOptions{
 					Name: am.DeleteTransferActivityName,
 				},

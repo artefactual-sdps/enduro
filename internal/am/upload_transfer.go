@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/go-logr/logr"
 	"go.artefactual.dev/tools/temporal"
+	temporal_tools "go.artefactual.dev/tools/temporal"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
 
 	"github.com/artefactual-sdps/enduro/internal/sftp"
@@ -34,20 +34,14 @@ type UploadTransferActivityResult struct {
 // a periodic Temporal Heartbeat at the given heartRate.
 type UploadTransferActivity struct {
 	client    sftp.Client
-	logger    logr.Logger
 	heartRate time.Duration
 }
 
 // NewUploadTransferActivity initializes and returns a new
 // UploadTransferActivity.
-func NewUploadTransferActivity(
-	logger logr.Logger,
-	client sftp.Client,
-	heartRate time.Duration,
-) *UploadTransferActivity {
+func NewUploadTransferActivity(client sftp.Client, heartRate time.Duration) *UploadTransferActivity {
 	return &UploadTransferActivity{
 		client:    client,
-		logger:    logger,
 		heartRate: heartRate,
 	}
 }
@@ -57,7 +51,8 @@ func (a *UploadTransferActivity) Execute(
 	ctx context.Context,
 	params *UploadTransferActivityParams,
 ) (*UploadTransferActivityResult, error) {
-	a.logger.V(1).Info("Execute UploadTransferActivity", "SourcePath", params.SourcePath)
+	logger := temporal_tools.GetLogger(ctx)
+	logger.V(1).Info("Execute UploadTransferActivity", "SourcePath", params.SourcePath)
 
 	src, err := os.Open(params.SourcePath)
 	if err != nil {

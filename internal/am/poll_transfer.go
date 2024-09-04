@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/go-logr/logr"
 	"github.com/jonboulle/clockwork"
 	"go.artefactual.dev/amclient"
 	temporal_tools "go.artefactual.dev/tools/temporal"
@@ -23,7 +22,6 @@ type PollTransferActivityParams struct {
 }
 
 type PollTransferActivity struct {
-	logger logr.Logger
 	cfg    *Config
 	clock  clockwork.Clock
 	tfrSvc amclient.TransferService
@@ -38,7 +36,6 @@ type PollTransferActivityResult struct {
 }
 
 func NewPollTransferActivity(
-	logger logr.Logger,
 	cfg *Config,
 	clock clockwork.Clock,
 	tfrSvc amclient.TransferService,
@@ -46,7 +43,6 @@ func NewPollTransferActivity(
 	pkgSvc package_.Service,
 ) *PollTransferActivity {
 	return &PollTransferActivity{
-		logger: logger,
 		cfg:    cfg,
 		clock:  clock,
 		jobSvc: jobSvc,
@@ -71,7 +67,8 @@ func (a *PollTransferActivity) Execute(
 ) (*PollTransferActivityResult, error) {
 	var taskCount int
 
-	a.logger.V(1).Info("Executing PollTransferActivity",
+	logger := temporal_tools.GetLogger(ctx)
+	logger.V(1).Info("Executing PollTransferActivity",
 		"PresActionID", params.PresActionID,
 		"TransferID", params.TransferID,
 	)

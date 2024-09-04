@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/go-logr/logr"
 	"github.com/jonboulle/clockwork"
 	"go.artefactual.dev/amclient"
+	temporal_tools "go.artefactual.dev/tools/temporal"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
 
 	"github.com/artefactual-sdps/enduro/internal/package_"
@@ -21,7 +21,6 @@ type PollIngestActivityParams struct {
 }
 
 type PollIngestActivity struct {
-	logger logr.Logger
 	cfg    *Config
 	clock  clockwork.Clock
 	ingSvc amclient.IngestService
@@ -35,7 +34,6 @@ type PollIngestActivityResult struct {
 }
 
 func NewPollIngestActivity(
-	logger logr.Logger,
 	cfg *Config,
 	clock clockwork.Clock,
 	ingSvc amclient.IngestService,
@@ -43,7 +41,6 @@ func NewPollIngestActivity(
 	pkgSvc package_.Service,
 ) *PollIngestActivity {
 	return &PollIngestActivity{
-		logger: logger,
 		cfg:    cfg,
 		clock:  clock,
 		ingSvc: ingSvc,
@@ -63,7 +60,8 @@ func (a *PollIngestActivity) Execute(
 	ctx context.Context,
 	params *PollIngestActivityParams,
 ) (*PollIngestActivityResult, error) {
-	a.logger.V(1).Info("Executing PollIngestActivity",
+	logger := temporal_tools.GetLogger(ctx)
+	logger.V(1).Info("Executing PollIngestActivity",
 		"PresActionID", params.PresActionID,
 		"SIPID", params.SIPID,
 	)

@@ -10,7 +10,6 @@ import (
 	"strings"
 
 	securejoin "github.com/cyphar/filepath-securejoin"
-	"github.com/go-logr/logr"
 	"github.com/otiai10/copy"
 	temporal_tools "go.artefactual.dev/tools/temporal"
 
@@ -24,12 +23,10 @@ const (
 	ModeFile = 0o640
 )
 
-type BundleActivity struct {
-	logger logr.Logger
-}
+type BundleActivity struct{}
 
-func NewBundleActivity(logger logr.Logger) *BundleActivity {
-	return &BundleActivity{logger: logger}
+func NewBundleActivity() *BundleActivity {
+	return &BundleActivity{}
 }
 
 type BundleActivityParams struct {
@@ -54,7 +51,8 @@ func (a *BundleActivity) Execute(ctx context.Context, params *BundleActivityPara
 		err error
 	)
 
-	a.logger.V(1).Info("Executing BundleActivity",
+	logger := temporal_tools.GetLogger(ctx)
+	logger.V(1).Info("Executing BundleActivity",
 		"SourcePath", params.SourcePath,
 		"TransferDir", params.TransferDir,
 		"IsDir", params.IsDir,

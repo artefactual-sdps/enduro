@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/go-logr/logr"
+	"go.artefactual.dev/tools/temporal"
 
 	"github.com/artefactual-sdps/enduro/internal/bagit"
 	"github.com/artefactual-sdps/enduro/internal/enums"
@@ -13,9 +13,7 @@ import (
 const ClassifyPackageActivityName = "classify-package-activity"
 
 type (
-	ClassifyPackageActivity struct {
-		logger logr.Logger
-	}
+	ClassifyPackageActivity       struct{}
 	ClassifyPackageActivityParams struct {
 		// Path is the full path of the package.
 		Path string
@@ -26,15 +24,16 @@ type (
 	}
 )
 
-func NewClassifyPackageActivity(logger logr.Logger) *ClassifyPackageActivity {
-	return &ClassifyPackageActivity{logger: logger}
+func NewClassifyPackageActivity() *ClassifyPackageActivity {
+	return &ClassifyPackageActivity{}
 }
 
 func (a *ClassifyPackageActivity) Execute(
 	ctx context.Context,
 	params ClassifyPackageActivityParams,
 ) (*ClassifyPackageActivityResult, error) {
-	a.logger.V(1).Info(
+	logger := temporal.GetLogger(ctx)
+	logger.V(1).Info(
 		fmt.Sprintf("Executing %s", ClassifyPackageActivityName),
 		"Path", params.Path,
 	)

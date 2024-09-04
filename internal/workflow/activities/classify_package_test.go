@@ -3,7 +3,6 @@ package activities_test
 import (
 	"testing"
 
-	"github.com/go-logr/logr"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
 	temporalsdk_testsuite "go.temporal.io/sdk/testsuite"
 	"gotest.tools/v3/assert"
@@ -50,7 +49,7 @@ func TestClassifyPackageActivity(t *testing.T) {
 			ts := &temporalsdk_testsuite.WorkflowTestSuite{}
 			env := ts.NewTestActivityEnvironment()
 			env.RegisterActivityWithOptions(
-				activities.NewClassifyPackageActivity(logr.Discard()).Execute,
+				activities.NewClassifyPackageActivity().Execute,
 				temporalsdk_activity.RegisterOptions{
 					Name: activities.ClassifyPackageActivityName,
 				},

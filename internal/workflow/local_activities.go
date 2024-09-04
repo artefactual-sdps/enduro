@@ -7,7 +7,6 @@ import (
 	"io"
 	"time"
 
-	"github.com/go-logr/logr"
 	"github.com/google/uuid"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
 
@@ -23,7 +22,6 @@ type createPackageLocalActivityParams struct {
 
 func createPackageLocalActivity(
 	ctx context.Context,
-	logger logr.Logger,
 	pkgsvc package_.Service,
 	params *createPackageLocalActivityParams,
 ) (uint, error) {
@@ -37,7 +35,6 @@ func createPackageLocalActivity(
 	}
 
 	if err := pkgsvc.Create(ctx, col); err != nil {
-		logger.Error(err, "Error creating package")
 		return 0, err
 	}
 
@@ -56,7 +53,6 @@ type updatePackageLocalActivityResult struct{}
 
 func updatePackageLocalActivity(
 	ctx context.Context,
-	logger logr.Logger,
 	pkgsvc package_.Service,
 	params *updatePackageLocalActivityParams,
 ) (*updatePackageLocalActivityResult, error) {
@@ -73,7 +69,6 @@ func updatePackageLocalActivity(
 		params.StoredAt,
 	)
 	if err != nil {
-		logger.Error(err, "Error updating package")
 		return &updatePackageLocalActivityResult{}, err
 	}
 

@@ -22,6 +22,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/pflag"
 	"go.artefactual.dev/tools/log"
+	temporal_tools "go.artefactual.dev/tools/temporal"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
@@ -118,7 +119,7 @@ func main() {
 	temporalClient, err := temporalsdk_client.Dial(temporalsdk_client.Options{
 		Namespace:    cfg.Temporal.Namespace,
 		HostPort:     cfg.Temporal.Address,
-		Logger:       temporal.Logger(logger.WithName("temporal-client")),
+		Logger:       temporal_tools.Logger(logger.WithName("temporal-client")),
 		Interceptors: []temporalsdk_interceptor.ClientInterceptor{tracingInterceptor},
 	})
 	if err != nil {
@@ -212,6 +213,9 @@ func main() {
 			EnableSessionWorker:                true,
 			MaxConcurrentSessionExecutionSize:  cfg.A3m.Capacity,
 			MaxConcurrentActivityExecutionSize: 1,
+			Interceptors: []temporalsdk_interceptor.WorkerInterceptor{
+				temporal_tools.NewLoggerInterceptor(logger),
+			},
 		}
 		w := temporalsdk_worker.New(temporalClient, temporal.A3mWorkerTaskQueue, workerOpts)
 		if err != nil {
@@ -220,7 +224,7 @@ func main() {
 		}
 
 		w.RegisterActivityWithOptions(
-			activities.NewDownloadActivity(logger, tp.Tracer(activities.DownloadActivityName), wsvc).Execute,
+			activities.NewDownloadActivity(tp.Tracer(activities.DownloadActivityName), wsvc).Execute,
 			temporalsdk_activity.RegisterOptions{Name: activities.DownloadActivityName},
 		)
 		w.RegisterActivityWithOptions(
@@ -228,7 +232,7 @@ func main() {
 			temporalsdk_activity.RegisterOptions{Name: archiveextract.Name},
 		)
 		w.RegisterActivityWithOptions(
-			activities.NewClassifyPackageActivity(logger).Execute,
+			activities.NewClassifyPackageActivity().Execute,
 			temporalsdk_activity.RegisterOptions{Name: activities.ClassifyPackageActivityName},
 		)
 		w.RegisterActivityWithOptions(
@@ -236,12 +240,11 @@ func main() {
 			temporalsdk_activity.RegisterOptions{Name: bagvalidate.Name},
 		)
 		w.RegisterActivityWithOptions(
-			activities.NewBundleActivity(logger).Execute,
+			activities.NewBundleActivity().Execute,
 			temporalsdk_activity.RegisterOptions{Name: activities.BundleActivityName},
 		)
 		w.RegisterActivityWithOptions(
 			a3m.NewCreateAIPActivity(
-				logger,
 				tp.Tracer(a3m.CreateAIPActivityName),
 				a3mClient.TransferClient,
 				&cfg.A3m,

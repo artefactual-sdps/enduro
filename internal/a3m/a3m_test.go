@@ -6,7 +6,6 @@ import (
 	"time"
 
 	transferservice "buf.build/gen/go/artefactual/a3m/protocolbuffers/go/a3m/api/transferservice/v1beta1"
-	"github.com/go-logr/logr"
 	"go.artefactual.dev/tools/mockutil"
 	"go.opentelemetry.io/otel/trace/noop"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
@@ -75,7 +74,6 @@ func TestCreateAIPActivity(t *testing.T) {
 
 	env.RegisterActivityWithOptions(
 		a3m.NewCreateAIPActivity(
-			logr.Discard(),
 			noop.Tracer{},
 			a3mTransferServiceClient,
 			&a3m.Config{},

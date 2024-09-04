@@ -5,7 +5,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/go-logr/logr"
 	"github.com/google/uuid"
 	"github.com/jonboulle/clockwork"
 	"go.artefactual.dev/amclient"
@@ -265,7 +264,6 @@ func TestPollIngestActivity(t *testing.T) {
 
 			env.RegisterActivityWithOptions(
 				am.NewPollIngestActivity(
-					logr.Discard(),
 					&am.Config{PollInterval: time.Millisecond * 10},
 					clock,
 					ingSvc,

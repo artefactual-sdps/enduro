@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/go-logr/logr"
+	temporal_tools "go.artefactual.dev/tools/temporal"
 
 	"github.com/artefactual-sdps/enduro/internal/sftp"
 )
@@ -17,20 +17,20 @@ type DeleteTransferActivityParams struct {
 
 type DeleteTransferActivity struct {
 	client sftp.Client
-	logger logr.Logger
 }
 
 type DeleteTransferActivityResult struct{}
 
-func NewDeleteTransferActivity(logger logr.Logger, client sftp.Client) *DeleteTransferActivity {
-	return &DeleteTransferActivity{client: client, logger: logger}
+func NewDeleteTransferActivity(client sftp.Client) *DeleteTransferActivity {
+	return &DeleteTransferActivity{client: client}
 }
 
 func (a *DeleteTransferActivity) Execute(
 	ctx context.Context,
 	params *DeleteTransferActivityParams,
 ) (*DeleteTransferActivityResult, error) {
-	a.logger.V(1).Info("Execute DeleteTransferActivity",
+	logger := temporal_tools.GetLogger(ctx)
+	logger.V(1).Info("Execute DeleteTransferActivity",
 		"destination", params.Destination,
 	)
 

@@ -19,11 +19,11 @@ import (
 	"github.com/artefactual-sdps/temporal-activities/bagcreate"
 	"github.com/artefactual-sdps/temporal-activities/bagvalidate"
 	"github.com/artefactual-sdps/temporal-activities/removepaths"
-	"github.com/go-logr/logr"
 	"github.com/google/uuid"
 	"go.artefactual.dev/tools/ref"
 	temporal_tools "go.artefactual.dev/tools/temporal"
 	temporalapi_enums "go.temporal.io/api/enums/v1"
+	temporalsdk_log "go.temporal.io/sdk/log"
 	temporalsdk_temporal "go.temporal.io/sdk/temporal"
 	temporalsdk_workflow "go.temporal.io/sdk/workflow"
 
@@ -42,7 +42,7 @@ import (
 )
 
 type ProcessingWorkflow struct {
-	logger logr.Logger
+	logger temporalsdk_log.Logger
 	cfg    config.Configuration
 	rng    io.Reader
 	pkgsvc package_.Service
@@ -50,14 +50,12 @@ type ProcessingWorkflow struct {
 }
 
 func NewProcessingWorkflow(
-	logger logr.Logger,
 	cfg config.Configuration,
 	rng io.Reader,
 	pkgsvc package_.Service,
 	wsvc watcher.Service,
 ) *ProcessingWorkflow {
 	return &ProcessingWorkflow{
-		logger: logger,
 		cfg:    cfg,
 		rng:    rng,
 		pkgsvc: pkgsvc,
@@ -148,7 +146,8 @@ func (w *ProcessingWorkflow) sessionCleanup(ctx temporalsdk_workflow.Context, cl
 		removepaths.Params{Paths: cleanup.tempDirs},
 	).Get(ctx, nil)
 	if err != nil {
-		w.logger.V(1).Info("session cleanup: error(s) removing temporary directories",
+		w.logger.Error(
+			"session cleanup: error(s) removing temporary directories",
 			"errors", err.Error(),
 		)
 	}
@@ -165,8 +164,6 @@ func (w *ProcessingWorkflow) sessionCleanup(ctx temporalsdk_workflow.Context, cl
 // the API.
 func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *package_.ProcessingWorkflowRequest) error {
 	var (
-		logger = temporalsdk_workflow.GetLogger(ctx)
-
 		tinfo = &TransferInfo{
 			req:                   *req,
 			IsDir:                 req.IsDir,
@@ -181,20 +178,22 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *pack
 		paStatus = enums.PreservationActionStatusUnspecified
 	)
 
+	w.logger = temporalsdk_workflow.GetLogger(ctx)
+
 	// Persist package as early as possible.
 	{
 		activityOpts := withLocalActivityOpts(ctx)
 		var err error
 
 		if req.PackageID == 0 {
-			err = temporalsdk_workflow.ExecuteLocalActivity(activityOpts, createPackageLocalActivity, w.logger, w.pkgsvc, &createPackageLocalActivityParams{
+			err = temporalsdk_workflow.ExecuteLocalActivity(activityOpts, createPackageLocalActivity, w.pkgsvc, &createPackageLocalActivityParams{
 				Key:    req.Key,
 				Status: status,
 			}).
 				Get(activityOpts, &tinfo.req.PackageID)
 		} else {
 			// TODO: investigate better way to reset the package_.
-			err = temporalsdk_workflow.ExecuteLocalActivity(activityOpts, updatePackageLocalActivity, w.logger, w.pkgsvc, &updatePackageLocalActivityParams{
+			err = temporalsdk_workflow.ExecuteLocalActivity(activityOpts, updatePackageLocalActivity, w.pkgsvc, &updatePackageLocalActivityParams{
 				PackageID: req.PackageID,
 				Key:       req.Key,
 				SIPID:     "",
@@ -219,7 +218,7 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *pack
 		// Use disconnected context so it also runs after cancellation.
 		dctx, _ := temporalsdk_workflow.NewDisconnectedContext(ctx)
 		activityOpts := withLocalActivityOpts(dctx)
-		_ = temporalsdk_workflow.ExecuteLocalActivity(activityOpts, updatePackageLocalActivity, w.logger, w.pkgsvc, &updatePackageLocalActivityParams{
+		_ = temporalsdk_workflow.ExecuteLocalActivity(activityOpts, updatePackageLocalActivity, w.pkgsvc, &updatePackageLocalActivityParams{
 			PackageID: tinfo.req.PackageID,
 			Key:       tinfo.req.Key,
 			SIPID:     tinfo.SIPID,
@@ -271,7 +270,7 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *pack
 					return nil
 				}
 
-				logger.Error(
+				w.logger.Error(
 					"Session failed, will retry shortly (10s)...",
 					"err", ctx.Err(),
 					"attemptFailed", attempt,
@@ -300,7 +299,7 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *pack
 			if tinfo.req.RetentionPeriod != nil {
 				err := temporalsdk_workflow.NewTimer(ctx, *tinfo.req.RetentionPeriod).Get(ctx, nil)
 				if err != nil {
-					logger.Warn("Retention policy timer failed", "err", err.Error())
+					w.logger.Warn("Retention policy timer failed", "err", err.Error())
 				} else {
 					activityOpts := withActivityOptsForRequest(ctx)
 					_ = temporalsdk_workflow.ExecuteActivity(activityOpts, activities.DeleteOriginalActivityName, tinfo.req.WatcherName, tinfo.req.Key).Get(activityOpts, nil)
@@ -312,7 +311,7 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *pack
 		}
 	}
 
-	logger.Info(
+	w.logger.Info(
 		"Workflow completed successfully!",
 		"packageID", tinfo.req.PackageID,
 		"watcher", tinfo.req.WatcherName,
@@ -513,7 +512,7 @@ func (w *ProcessingWorkflow) SessionHandler(
 	// Persist SIPID.
 	{
 		activityOpts := withLocalActivityOpts(sessCtx)
-		_ = temporalsdk_workflow.ExecuteLocalActivity(activityOpts, updatePackageLocalActivity, w.logger, w.pkgsvc, &updatePackageLocalActivityParams{
+		_ = temporalsdk_workflow.ExecuteLocalActivity(activityOpts, updatePackageLocalActivity, w.pkgsvc, &updatePackageLocalActivityParams{
 			PackageID: tinfo.req.PackageID,
 			Key:       tinfo.req.Key,
 			SIPID:     tinfo.SIPID,

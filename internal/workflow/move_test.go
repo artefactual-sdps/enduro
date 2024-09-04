@@ -4,7 +4,6 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/go-logr/logr"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
@@ -35,7 +34,6 @@ func (s *MoveWorkflowTestSuite) SetupTest() {
 	s.env.SetWorkerOptions(temporalsdk_worker.Options{EnableSessionWorker: true})
 
 	ctrl := gomock.NewController(s.T())
-	logger := logr.Discard()
 	pkgsvc := packagefake.NewMockService(ctrl)
 
 	s.env.RegisterActivityWithOptions(
@@ -47,7 +45,7 @@ func (s *MoveWorkflowTestSuite) SetupTest() {
 		temporalsdk_activity.RegisterOptions{Name: activities.PollMoveToPermanentStorageActivityName},
 	)
 
-	s.workflow = NewMoveWorkflow(logger, pkgsvc)
+	s.workflow = NewMoveWorkflow(pkgsvc)
 }
 
 func (s *MoveWorkflowTestSuite) AfterTest(suiteName, testName string) {

@@ -20,6 +20,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/pflag"
 	"go.artefactual.dev/tools/log"
+	temporal_tools "go.artefactual.dev/tools/temporal"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel/codes"
@@ -49,7 +50,6 @@ import (
 	storage_entdb "github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db"
 	storage_workflows "github.com/artefactual-sdps/enduro/internal/storage/workflows"
 	"github.com/artefactual-sdps/enduro/internal/telemetry"
-	"github.com/artefactual-sdps/enduro/internal/temporal"
 	"github.com/artefactual-sdps/enduro/internal/upload"
 	"github.com/artefactual-sdps/enduro/internal/version"
 	"github.com/artefactual-sdps/enduro/internal/watcher"
@@ -149,7 +149,7 @@ func main() {
 	temporalClient, err := temporalsdk_client.Dial(temporalsdk_client.Options{
 		Namespace:    cfg.Temporal.Namespace,
 		HostPort:     cfg.Temporal.Address,
-		Logger:       temporal.Logger(logger.WithName("temporal-client")),
+		Logger:       temporal_tools.Logger(logger.WithName("temporal-client")),
 		Interceptors: []temporalsdk_interceptor.ClientInterceptor{tracingInterceptor},
 	})
 	if err != nil {
@@ -423,7 +423,11 @@ func main() {
 	// Workflow and activity worker.
 	{
 		done := make(chan struct{})
-		workerOpts := temporalsdk_worker.Options{}
+		workerOpts := temporalsdk_worker.Options{
+			Interceptors: []temporalsdk_interceptor.WorkerInterceptor{
+				temporal_tools.NewLoggerInterceptor(logger.WithName("worker")),
+			},
+		}
 		w := temporalsdk_worker.New(temporalClient, cfg.Temporal.TaskQueue, workerOpts)
 		if err != nil {
 			logger.Error(err, "Error creating Temporal worker.")
@@ -431,7 +435,7 @@ func main() {
 		}
 
 		w.RegisterWorkflowWithOptions(
-			workflow.NewProcessingWorkflow(logger, cfg, rand.Reader, pkgsvc, wsvc).Execute,
+			workflow.NewProcessingWorkflow(cfg, rand.Reader, pkgsvc, wsvc).Execute,
 			temporalsdk_workflow.RegisterOptions{Name: package_.ProcessingWorkflowName},
 		)
 		w.RegisterActivityWithOptions(
@@ -458,7 +462,7 @@ func main() {
 		)
 
 		w.RegisterWorkflowWithOptions(
-			workflow.NewMoveWorkflow(logger, pkgsvc).Execute,
+			workflow.NewMoveWorkflow(pkgsvc).Execute,
 			temporalsdk_workflow.RegisterOptions{Name: package_.MoveWorkflowName},
 		)
 

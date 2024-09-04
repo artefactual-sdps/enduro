@@ -6,7 +6,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/go-logr/logr"
 	temporal_tools "go.artefactual.dev/tools/temporal"
 	"go.opentelemetry.io/otel/trace"
 
@@ -16,7 +15,6 @@ import (
 
 // DownloadActivity downloads the blob into the processing directory.
 type DownloadActivity struct {
-	logger logr.Logger
 	tracer trace.Tracer
 	wsvc   watcher.Service
 }
@@ -31,9 +29,8 @@ type DownloadActivityResult struct {
 	Path string
 }
 
-func NewDownloadActivity(logger logr.Logger, tracer trace.Tracer, wsvc watcher.Service) *DownloadActivity {
+func NewDownloadActivity(tracer trace.Tracer, wsvc watcher.Service) *DownloadActivity {
 	return &DownloadActivity{
-		logger: logger,
 		tracer: tracer,
 		wsvc:   wsvc,
 	}
@@ -43,7 +40,8 @@ func (a *DownloadActivity) Execute(
 	ctx context.Context,
 	params *DownloadActivityParams,
 ) (*DownloadActivityResult, error) {
-	a.logger.V(1).Info("Executing DownloadActivity",
+	logger := temporal_tools.GetLogger(ctx)
+	logger.V(1).Info("Executing DownloadActivity",
 		"Key", params.Key,
 		"WatcherName", params.WatcherName,
 	)

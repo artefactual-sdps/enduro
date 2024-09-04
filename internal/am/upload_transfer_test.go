@@ -7,7 +7,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/go-logr/logr"
 	"go.artefactual.dev/tools/mockutil"
 	"go.artefactual.dev/tools/temporal"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
@@ -151,7 +150,7 @@ func TestUploadTransferActivity(t *testing.T) {
 			}
 
 			env.RegisterActivityWithOptions(
-				am.NewUploadTransferActivity(logr.Discard(), client, 2*time.Millisecond).Execute,
+				am.NewUploadTransferActivity(client, 2*time.Millisecond).Execute,
 				temporalsdk_activity.RegisterOptions{
 					Name: am.UploadTransferActivityName,
 				},
