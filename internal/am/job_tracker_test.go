@@ -25,7 +25,7 @@ import (
 func TestJobTracker(t *testing.T) {
 	t.Parallel()
 
-	paID := uint(1)
+	paID := 1
 	unitID := uuid.New().String()
 
 	clock := clockwork.NewFakeClock()

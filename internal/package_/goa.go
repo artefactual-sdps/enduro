@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"math"
 	"strconv"
 	"strings"
 	"time"
@@ -16,7 +17,6 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	goapackage "github.com/artefactual-sdps/enduro/internal/api/gen/package_"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
-	"github.com/artefactual-sdps/enduro/internal/db"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 )
 
@@ -214,8 +214,10 @@ func (w *goaWrapper) List(ctx context.Context, payload *goapackage.ListPayload) 
 
 	length := len(cols)
 	if length > limit {
-		last := cols[length-1]               // Capture last item.
-		lastID := strconv.Itoa(int(last.ID)) // We also need its ID (cursor).
+		last := cols[length-1] // Capture last item.
+
+		// We also need the last item's ID (cursor).
+		lastID := strconv.Itoa(int(last.ID)) // #nosec G115 -- constrained value.
 		res.Items = cols[:len(cols)-1]       // Remove it from the results.
 		res.NextCursor = &lastID             // Populate cursor.
 	}
@@ -262,14 +264,7 @@ func (w *goaWrapper) PreservationActions(
 		if err := rows.StructScan(&pa); err != nil {
 			return nil, fmt.Errorf("error scanning database result: %w", err)
 		}
-		goapa := &goapackage.EnduroPackagePreservationAction{
-			ID:          pa.ID,
-			WorkflowID:  pa.WorkflowID,
-			Type:        pa.Type.String(),
-			Status:      pa.Status.String(),
-			StartedAt:   db.FormatTime(pa.StartedAt.Time),
-			CompletedAt: db.FormatOptionalTime(pa.CompletedAt),
-		}
+		goapa := preservationActionToGoa(&pa)
 
 		ptQuery := "SELECT id, task_id, name, status, CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at, CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at, note FROM preservation_task WHERE preservation_action_id = ?"
 		ptQueryArgs := []interface{}{pa.ID}
@@ -286,16 +281,7 @@ func (w *goaWrapper) PreservationActions(
 			if err := ptRows.StructScan(&pt); err != nil {
 				return nil, fmt.Errorf("error scanning database result: %w", err)
 			}
-			goapt := &goapackage.EnduroPackagePreservationTask{
-				ID:          pt.ID,
-				TaskID:      pt.TaskID,
-				Name:        pt.Name,
-				Status:      pt.Status.String(),
-				StartedAt:   db.FormatTime(pt.StartedAt.Time),
-				CompletedAt: db.FormatOptionalTime(pt.CompletedAt),
-				Note:        &pt.Note,
-			}
-			preservation_tasks = append(preservation_tasks, goapt)
+			preservation_tasks = append(preservation_tasks, preservationTaskToGoa(&pt))
 		}
 
 		goapa.Tasks = preservation_tasks
@@ -349,9 +335,12 @@ func (w *goaWrapper) Move(ctx context.Context, payload *goapackage.MovePayload) 
 	if err != nil {
 		return err
 	}
+	if payload.ID > math.MaxInt {
+		return goapackage.MakeNotValid(errors.New("invalid ID"))
+	}
 
 	_, err = InitMoveWorkflow(ctx, w.tc, &MoveWorkflowRequest{
-		ID:         payload.ID,
+		ID:         int(payload.ID), // #nosec G115 -- range validated.
 		AIPID:      *goapkg.AipID,
 		LocationID: payload.LocationID,
 		TaskQueue:  w.taskQueue,

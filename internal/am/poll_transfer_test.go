@@ -28,7 +28,7 @@ var (
 func TestPollTransferActivity(t *testing.T) {
 	t.Parallel()
 	transferID := uuid.New().String()
-	presActionID := uint(1)
+	presActionID := 1
 	sipID := uuid.New().String()
 	path := "/var/archivematica/fake/sip"
 

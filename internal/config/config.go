@@ -57,6 +57,7 @@ type Configuration struct {
 func (c *Configuration) Validate() error {
 	// TODO: should this validate all the fields in Configuration?
 	return errors.Join(
+		c.A3m.Validate(),
 		c.API.Auth.Validate(),
 		c.BagIt.Validate(),
 		c.Preprocessing.Validate(),

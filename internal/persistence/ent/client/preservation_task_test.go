@@ -132,7 +132,7 @@ func TestCreatePreservationTask(t *testing.T) {
 			pt := *tt.args.pt // Make a local copy of pt.
 
 			if !tt.args.zeroPreservationActionID {
-				pt.PreservationActionID = uint(pa.ID)
+				pt.PreservationActionID = pa.ID
 			}
 
 			err := svc.CreatePreservationTask(ctx, &pt)
@@ -149,7 +149,7 @@ func TestCreatePreservationTask(t *testing.T) {
 			assert.Equal(t, pt.StartedAt, tt.want.StartedAt)
 			assert.Equal(t, pt.CompletedAt, tt.want.CompletedAt)
 			assert.Equal(t, pt.Note, tt.want.Note)
-			assert.Equal(t, pt.PreservationActionID, uint(pa.ID))
+			assert.Equal(t, pt.PreservationActionID, pa.ID)
 		})
 	}
 }
@@ -286,10 +286,10 @@ func TestUpdatePreservationTask(t *testing.T) {
 			pa, pa2 := addDBFixtures(t, entc)
 
 			updater := tt.args.updater
-			var id uint
+			var id int
 			if tt.args.pt != nil {
 				pt := *tt.args.pt // Make a local copy of pt.
-				pt.PreservationActionID = uint(pa.ID)
+				pt.PreservationActionID = pa.ID
 
 				// Create preservation task to be updated.
 				err := svc.CreatePreservationTask(ctx, &pt)
@@ -304,7 +304,7 @@ func TestUpdatePreservationTask(t *testing.T) {
 					if err != nil {
 						return nil, err
 					}
-					pt.PreservationActionID = uint(pa2.ID)
+					pt.PreservationActionID = pa2.ID
 
 					return pt, nil
 				}
@@ -317,7 +317,7 @@ func TestUpdatePreservationTask(t *testing.T) {
 			}
 
 			tt.want.ID = id
-			tt.want.PreservationActionID = uint(pa2.ID)
+			tt.want.PreservationActionID = pa2.ID
 			assert.DeepEqual(t, pt, tt.want)
 		})
 	}

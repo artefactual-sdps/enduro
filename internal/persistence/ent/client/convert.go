@@ -31,14 +31,19 @@ func convertPkgToPackage(pkg *db.Pkg) *datatypes.Package {
 		locID = uuid.NullUUID{UUID: pkg.LocationID, Valid: true}
 	}
 
+	var status uint
+	if pkg.Status > 0 {
+		status = uint(pkg.Status) // #nosec G115 -- range validated.
+	}
+
 	return &datatypes.Package{
-		ID:          uint(pkg.ID),
+		ID:          pkg.ID,
 		Name:        pkg.Name,
 		WorkflowID:  pkg.WorkflowID,
 		RunID:       pkg.RunID.String(),
 		AIPID:       aipID,
 		LocationID:  locID,
-		Status:      enums.PackageStatus(pkg.Status),
+		Status:      enums.PackageStatus(status),
 		CreatedAt:   pkg.CreatedAt,
 		StartedAt:   started,
 		CompletedAt: completed,
@@ -59,13 +64,13 @@ func convertPreservationAction(pa *db.PreservationAction) *datatypes.Preservatio
 	}
 
 	return &datatypes.PreservationAction{
-		ID:          uint(pa.ID),
+		ID:          pa.ID,
 		WorkflowID:  pa.WorkflowID,
-		Type:        enums.PreservationActionType(pa.Type),
-		Status:      enums.PreservationActionStatus(pa.Status),
+		Type:        enums.PreservationActionType(pa.Type),     // #nosec G115 -- constrained value.
+		Status:      enums.PreservationActionStatus(pa.Status), // #nosec G115 -- constrained value.
 		StartedAt:   started,
 		CompletedAt: completed,
-		PackageID:   uint(pa.PackageID),
+		PackageID:   pa.PackageID,
 	}
 }
 
@@ -82,14 +87,19 @@ func convertPreservationTask(pt *db.PreservationTask) *datatypes.PreservationTas
 		completed = sql.NullTime{Time: pt.CompletedAt, Valid: true}
 	}
 
+	var status uint
+	if pt.Status > 0 {
+		status = uint(pt.Status) // #nosec G115 -- range validated.
+	}
+
 	return &datatypes.PreservationTask{
-		ID:                   uint(pt.ID),
+		ID:                   pt.ID,
 		TaskID:               pt.TaskID.String(),
 		Name:                 pt.Name,
-		Status:               enums.PreservationTaskStatus(pt.Status),
+		Status:               enums.PreservationTaskStatus(status),
 		StartedAt:            started,
 		CompletedAt:          completed,
 		Note:                 pt.Note,
-		PreservationActionID: uint(pt.PreservationActionID),
+		PreservationActionID: pt.PreservationActionID,
 	}
 }

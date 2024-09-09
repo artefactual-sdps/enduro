@@ -14,7 +14,7 @@ import (
 
 // Package represents a package in the package table.
 type Package struct {
-	ID         uint                `db:"id"`
+	ID         int                 `db:"id"`
 	Name       string              `db:"name"`
 	WorkflowID string              `db:"workflow_id"`
 	RunID      string              `db:"run_id"`
@@ -34,8 +34,13 @@ type Package struct {
 
 // Goa returns the API representation of the package.
 func (p Package) Goa() *goapackage.EnduroStoredPackage {
+	var id uint
+	if p.ID > 0 {
+		id = uint(p.ID) // #nosec G115 -- range validated.
+	}
+
 	col := goapackage.EnduroStoredPackage{
-		ID:          p.ID,
+		ID:          id,
 		Name:        db.FormatOptionalString(p.Name),
 		WorkflowID:  db.FormatOptionalString(p.WorkflowID),
 		RunID:       db.FormatOptionalString(p.RunID),

@@ -3,6 +3,7 @@ package package_
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"time"
 
@@ -20,33 +21,35 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/persistence"
 )
 
+var ErrInvalid = errors.New("invalid")
+
 type Service interface {
 	// Goa returns an implementation of the goapackage Service.
 	Goa() goapackage.Service
 	Create(context.Context, *datatypes.Package) error
 	UpdateWorkflowStatus(
 		ctx context.Context,
-		ID uint,
+		ID int,
 		name, workflowID, runID, aipID string,
 		status enums.PackageStatus,
 		storedAt time.Time,
 	) error
-	SetStatus(ctx context.Context, ID uint, status enums.PackageStatus) error
-	SetStatusInProgress(ctx context.Context, ID uint, startedAt time.Time) error
-	SetStatusPending(ctx context.Context, ID uint) error
-	SetLocationID(ctx context.Context, ID uint, locationID uuid.UUID) error
+	SetStatus(ctx context.Context, ID int, status enums.PackageStatus) error
+	SetStatusInProgress(ctx context.Context, ID int, startedAt time.Time) error
+	SetStatusPending(ctx context.Context, ID int) error
+	SetLocationID(ctx context.Context, ID int, locationID uuid.UUID) error
 	CreatePreservationAction(ctx context.Context, pa *datatypes.PreservationAction) error
-	SetPreservationActionStatus(ctx context.Context, ID uint, status enums.PreservationActionStatus) error
+	SetPreservationActionStatus(ctx context.Context, ID int, status enums.PreservationActionStatus) error
 	CompletePreservationAction(
 		ctx context.Context,
-		ID uint,
+		ID int,
 		status enums.PreservationActionStatus,
 		completedAt time.Time,
 	) error
 	CreatePreservationTask(ctx context.Context, pt *datatypes.PreservationTask) error
 	CompletePreservationTask(
 		ctx context.Context,
-		ID uint,
+		ID int,
 		status enums.PreservationTaskStatus,
 		completedAt time.Time,
 		note *string,
@@ -108,18 +111,14 @@ func (svc *packageImpl) Create(ctx context.Context, pkg *datatypes.Package) erro
 		return fmt.Errorf("package: create: %v", err)
 	}
 
-	event.PublishEvent(
-		ctx,
-		svc.evsvc,
-		&goapackage.PackageCreatedEvent{ID: uint(pkg.ID), Item: pkg.Goa()},
-	)
+	event.PublishEvent(ctx, svc.evsvc, packageToGoaPackageCreatedEvent(pkg))
 
 	return nil
 }
 
 func (svc *packageImpl) UpdateWorkflowStatus(
 	ctx context.Context,
-	ID uint,
+	ID int,
 	name, workflowID, runID, aipID string,
 	status enums.PackageStatus,
 	storedAt time.Time,
@@ -132,6 +131,11 @@ func (svc *packageImpl) UpdateWorkflowStatus(
 	if completedAt != nil && completedAt.IsZero() {
 		completedAt = nil
 	}
+
+	if ID < 0 {
+		return fmt.Errorf("%w: ID", ErrInvalid)
+	}
+	id := uint(ID) // #nosec G115 -- range validated.
 
 	query := `UPDATE package SET name = ?, workflow_id = ?, run_id = ?, aip_id = ?, status = ?, completed_at = ? WHERE id = ?`
 	args := []interface{}{
@@ -148,15 +152,20 @@ func (svc *packageImpl) UpdateWorkflowStatus(
 		return err
 	}
 
-	if pkg, err := svc.Goa().Show(ctx, &goapackage.ShowPayload{ID: ID}); err == nil {
-		ev := &goapackage.PackageUpdatedEvent{ID: uint(ID), Item: pkg}
+	if pkg, err := svc.Goa().Show(ctx, &goapackage.ShowPayload{ID: id}); err == nil {
+		ev := &goapackage.PackageUpdatedEvent{ID: pkg.ID, Item: pkg}
 		event.PublishEvent(ctx, svc.evsvc, ev)
 	}
 
 	return nil
 }
 
-func (svc *packageImpl) SetStatus(ctx context.Context, ID uint, status enums.PackageStatus) error {
+func (svc *packageImpl) SetStatus(ctx context.Context, ID int, status enums.PackageStatus) error {
+	if ID < 0 {
+		return fmt.Errorf("%w: ID", ErrInvalid)
+	}
+	id := uint(ID) // #nosec G115 -- range validated.
+
 	query := `UPDATE package SET status = ? WHERE id = ?`
 	args := []interface{}{
 		status,
@@ -167,15 +176,20 @@ func (svc *packageImpl) SetStatus(ctx context.Context, ID uint, status enums.Pac
 		return err
 	}
 
-	ev := &goapackage.PackageStatusUpdatedEvent{ID: uint(ID), Status: status.String()}
+	ev := &goapackage.PackageStatusUpdatedEvent{ID: id, Status: status.String()}
 	event.PublishEvent(ctx, svc.evsvc, ev)
 
 	return nil
 }
 
-func (svc *packageImpl) SetStatusInProgress(ctx context.Context, ID uint, startedAt time.Time) error {
+func (svc *packageImpl) SetStatusInProgress(ctx context.Context, ID int, startedAt time.Time) error {
 	var query string
 	args := []interface{}{enums.PackageStatusInProgress}
+
+	if ID < 0 {
+		return fmt.Errorf("%w: ID", ErrInvalid)
+	}
+	id := uint(ID) // #nosec G115 -- range validated.
 
 	if !startedAt.IsZero() {
 		query = `UPDATE package SET status = ?, started_at = ? WHERE id = ?`
@@ -189,30 +203,44 @@ func (svc *packageImpl) SetStatusInProgress(ctx context.Context, ID uint, starte
 		return err
 	}
 
-	ev := &goapackage.PackageStatusUpdatedEvent{ID: uint(ID), Status: enums.PackageStatusInProgress.String()}
-	event.PublishEvent(ctx, svc.evsvc, ev)
+	event.PublishEvent(ctx, svc.evsvc, &goapackage.PackageStatusUpdatedEvent{
+		ID:     id,
+		Status: enums.PackageStatusInProgress.String(),
+	})
 
 	return nil
 }
 
-func (svc *packageImpl) SetStatusPending(ctx context.Context, ID uint) error {
+func (svc *packageImpl) SetStatusPending(ctx context.Context, ID int) error {
 	query := `UPDATE package SET status = ?, WHERE id = ?`
 	args := []interface{}{
 		enums.PackageStatusPending,
 		ID,
 	}
 
+	if ID < 0 {
+		return fmt.Errorf("%w: ID", ErrInvalid)
+	}
+	id := uint(ID) // #nosec G115 -- range validated.
+
 	if err := svc.updateRow(ctx, query, args); err != nil {
 		return err
 	}
 
-	ev := &goapackage.PackageStatusUpdatedEvent{ID: uint(ID), Status: enums.PackageStatusPending.String()}
-	event.PublishEvent(ctx, svc.evsvc, ev)
+	event.PublishEvent(ctx, svc.evsvc, &goapackage.PackageStatusUpdatedEvent{
+		ID:     id,
+		Status: enums.PackageStatusPending.String(),
+	})
 
 	return nil
 }
 
-func (svc *packageImpl) SetLocationID(ctx context.Context, ID uint, locationID uuid.UUID) error {
+func (svc *packageImpl) SetLocationID(ctx context.Context, ID int, locationID uuid.UUID) error {
+	if ID < 0 {
+		return fmt.Errorf("%w: ID", ErrInvalid)
+	}
+	id := uint(ID) // #nosec G115 -- range validated.
+
 	query := `UPDATE package SET location_id = ? WHERE id = ?`
 	args := []interface{}{
 		locationID,
@@ -223,8 +251,10 @@ func (svc *packageImpl) SetLocationID(ctx context.Context, ID uint, locationID u
 		return err
 	}
 
-	ev := &goapackage.PackageLocationUpdatedEvent{ID: uint(ID), LocationID: locationID}
-	event.PublishEvent(ctx, svc.evsvc, ev)
+	event.PublishEvent(ctx, svc.evsvc, &goapackage.PackageLocationUpdatedEvent{
+		ID:         id,
+		LocationID: locationID,
+	})
 
 	return nil
 }

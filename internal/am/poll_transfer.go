@@ -17,7 +17,7 @@ import (
 const PollTransferActivityName = "poll-transfer-activity"
 
 type PollTransferActivityParams struct {
-	PresActionID uint
+	PresActionID int
 	TransferID   string
 }
 

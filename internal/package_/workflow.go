@@ -31,7 +31,7 @@ type ProcessingWorkflowRequest struct {
 
 	// The zero value represents a new package. It can be used to indicate
 	// an existing package in retries.
-	PackageID uint
+	PackageID int
 
 	// Name of the watcher that received this blob.
 	WatcherName string
@@ -90,7 +90,7 @@ func InitProcessingWorkflow(ctx context.Context, tc temporalsdk_client.Client, r
 }
 
 type MoveWorkflowRequest struct {
-	ID         uint
+	ID         int
 	AIPID      string
 	LocationID uuid.UUID
 	TaskQueue  string

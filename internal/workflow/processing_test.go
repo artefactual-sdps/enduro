@@ -250,7 +250,7 @@ func (s *ProcessingWorkflowTestSuite) TestPackageConfirmation() {
 	}
 	s.SetupWorkflowTest(cfg)
 
-	pkgID := uint(1)
+	pkgID := 1
 	ctx := mock.AnythingOfType("*context.valueCtx")
 	sessionCtx := mock.AnythingOfType("*context.timerCtx")
 	key := "transfer.zip"
@@ -285,7 +285,7 @@ func (s *ProcessingWorkflowTestSuite) TestPackageConfirmation() {
 			StartedAt:  startTime,
 			PackageID:  1,
 		},
-	).Return(uint(0), nil)
+	).Return(0, nil)
 
 	s.env.OnActivity(activities.DownloadActivityName, sessionCtx,
 		&activities.DownloadActivityParams{Key: key, WatcherName: watcherName},
@@ -314,7 +314,7 @@ func (s *ProcessingWorkflowTestSuite) TestPackageConfirmation() {
 	s.env.OnActivity(updatePackageLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, nil)
 	s.env.OnActivity(createPreservationTaskLocalActivity, mock.Anything, mock.Anything, mock.Anything).
-		Return(uint(0), nil)
+		Return(0, nil)
 	s.env.OnActivity(activities.UploadActivityName, mock.Anything, mock.Anything).Return(nil, nil)
 	s.env.OnActivity(setStatusLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, nil)
@@ -364,7 +364,7 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 	}
 	s.SetupWorkflowTest(cfg)
 
-	pkgID := uint(1)
+	pkgID := 1
 	watcherName := "watcher"
 	key := "transfer.zip"
 	retentionPeriod := 1 * time.Second
@@ -399,7 +399,7 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 			StartedAt:  startTime,
 			PackageID:  1,
 		},
-	).Return(uint(0), nil)
+	).Return(0, nil)
 
 	s.env.OnActivity(activities.DownloadActivityName, sessionCtx,
 		&activities.DownloadActivityParams{Key: key, WatcherName: watcherName},
@@ -434,10 +434,10 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 					Time:  startTime,
 					Valid: true,
 				},
-				PreservationActionID: uint(0),
+				PreservationActionID: 0,
 			},
 		},
-	).Return(uint(101), nil)
+	).Return(101, nil)
 
 	s.env.OnActivity(
 		bagvalidate.Name,
@@ -453,7 +453,7 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 		ctx,
 		pkgsvc,
 		&completePreservationTaskLocalActivityParams{
-			ID:          uint(101),
+			ID:          101,
 			Status:      enums.PreservationTaskStatusDone,
 			CompletedAt: startTime,
 			Note:        ref.New("Bag is valid"),
@@ -489,10 +489,10 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 				Status:               enums.PreservationTaskStatusInProgress,
 				StartedAt:            sql.NullTime{Time: startTime, Valid: true},
 				Note:                 "Moving to permanent storage",
-				PreservationActionID: uint(0),
+				PreservationActionID: 0,
 			},
 		},
-	).Return(uint(102), nil)
+	).Return(102, nil)
 
 	s.env.OnActivity(activities.UploadActivityName, sessionCtx, mock.AnythingOfType("*activities.UploadActivityParams")).
 		Return(nil, nil).
@@ -509,7 +509,7 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 		ctx,
 		pkgsvc,
 		&completePreservationTaskLocalActivityParams{
-			ID:          uint(102),
+			ID:          102,
 			Status:      enums.PreservationTaskStatusDone,
 			CompletedAt: startTime,
 			Note:        ref.New("Moved to location f2cc963f-c14d-4eaa-b950-bd207189a1f1"),
@@ -549,7 +549,7 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 }
 
 func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
-	pkgID := uint(1)
+	pkgID := 1
 	watcherName := "watcher"
 	key := "transfer.zip"
 	retentionPeriod := 1 * time.Second
@@ -576,7 +576,7 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 
 	s.env.OnActivity(createPreservationActionLocalActivity, ctx,
 		pkgsvc, mock.AnythingOfType("*workflow.createPreservationActionLocalActivityParams"),
-	).Return(uint(0), nil)
+	).Return(0, nil)
 
 	s.env.OnActivity(activities.DownloadActivityName, sessionCtx,
 		&activities.DownloadActivityParams{Key: key, WatcherName: watcherName},
@@ -709,7 +709,7 @@ func (s *ProcessingWorkflowTestSuite) TestPackageRejection() {
 	}
 	s.SetupWorkflowTest(cfg)
 
-	pkgID := uint(1)
+	pkgID := 1
 	key := "transfer.zip"
 	watcherName := "watcher"
 	retentionPeriod := 1 * time.Second
@@ -732,7 +732,7 @@ func (s *ProcessingWorkflowTestSuite) TestPackageRejection() {
 	s.env.OnActivity(setStatusInProgressLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, nil)
 	s.env.OnActivity(createPreservationActionLocalActivity, mock.Anything, mock.Anything, mock.Anything).
-		Return(uint(0), nil)
+		Return(0, nil)
 
 	s.env.OnActivity(activities.DownloadActivityName, sessionCtx,
 		&activities.DownloadActivityParams{Key: key, WatcherName: watcherName},
@@ -776,7 +776,7 @@ func (s *ProcessingWorkflowTestSuite) TestPackageRejection() {
 	s.env.OnActivity(setPreservationActionStatusLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, nil)
 	s.env.OnActivity(createPreservationTaskLocalActivity, mock.Anything, mock.Anything, mock.Anything).
-		Return(uint(0), nil)
+		Return(0, nil)
 	s.env.OnActivity(activities.RejectPackageActivityName, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, nil)
 	s.env.OnActivity(
@@ -824,7 +824,7 @@ func (s *ProcessingWorkflowTestSuite) TestPreprocessingChildWorkflow() {
 	}
 	s.SetupWorkflowTest(cfg)
 
-	pkgID := uint(1)
+	pkgID := 1
 	watcherName := "watcher"
 	key := "transfer.zip"
 	retentionPeriod := 1 * time.Second
@@ -862,7 +862,7 @@ func (s *ProcessingWorkflowTestSuite) TestPreprocessingChildWorkflow() {
 			StartedAt:  startTime,
 			PackageID:  1,
 		},
-	).Return(uint(1), nil)
+	).Return(1, nil)
 
 	s.env.OnActivity(activities.DownloadActivityName, sessionCtx,
 		&activities.DownloadActivityParams{
@@ -940,10 +940,10 @@ func (s *ProcessingWorkflowTestSuite) TestPreprocessingChildWorkflow() {
 					Time:  startTime,
 					Valid: true,
 				},
-				PreservationActionID: uint(1),
+				PreservationActionID: 1,
 			},
 		},
-	).Return(uint(101), nil)
+	).Return(101, nil)
 
 	s.env.OnActivity(
 		bagvalidate.Name,
@@ -959,7 +959,7 @@ func (s *ProcessingWorkflowTestSuite) TestPreprocessingChildWorkflow() {
 		ctx,
 		pkgsvc,
 		&completePreservationTaskLocalActivityParams{
-			ID:          uint(101),
+			ID:          101,
 			Status:      enums.PreservationTaskStatusDone,
 			CompletedAt: startTime,
 			Note:        ref.New("Bag is valid"),
@@ -994,11 +994,11 @@ func (s *ProcessingWorkflowTestSuite) TestPreprocessingChildWorkflow() {
 				Name:                 "Move AIP",
 				Status:               enums.PreservationTaskStatusInProgress,
 				StartedAt:            sql.NullTime{Time: startTime, Valid: true},
-				PreservationActionID: uint(1),
+				PreservationActionID: 1,
 				Note:                 "Moving to permanent storage",
 			},
 		},
-	).Return(uint(102), nil)
+	).Return(102, nil)
 
 	s.env.OnActivity(
 		activities.UploadActivityName,
@@ -1011,7 +1011,7 @@ func (s *ProcessingWorkflowTestSuite) TestPreprocessingChildWorkflow() {
 		ctx,
 		pkgsvc,
 		&completePreservationTaskLocalActivityParams{
-			ID:          uint(102),
+			ID:          102,
 			Status:      enums.PreservationTaskStatusDone,
 			CompletedAt: startTime,
 			Note:        ref.New("Moved to location f2cc963f-c14d-4eaa-b950-bd207189a1f1"),

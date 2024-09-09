@@ -23,7 +23,7 @@ type SavePreprocessingTasksActivityParams struct {
 	RNG io.Reader
 
 	// PreservationActionID is the primary key of the parent PreservationAction.
-	PreservationActionID uint
+	PreservationActionID int
 
 	// Tasks is a list of preprocessing tasks to save as PreservationTasks.
 	Tasks []preprocessing.Task

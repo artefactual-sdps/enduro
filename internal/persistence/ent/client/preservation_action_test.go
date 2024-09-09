@@ -100,7 +100,7 @@ func TestCreatePreservationAction(t *testing.T) {
 
 			pa := *tt.args.pa // Make a local copy.
 			if tt.args.setPackageID {
-				pa.PackageID = uint(pkg.ID)
+				pa.PackageID = pkg.ID
 			}
 
 			err := svc.CreatePreservationAction(ctx, &pa)

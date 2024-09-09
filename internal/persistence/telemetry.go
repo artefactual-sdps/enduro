@@ -44,10 +44,10 @@ func (w *wrapper) CreatePackage(ctx context.Context, p *datatypes.Package) error
 	return nil
 }
 
-func (w *wrapper) UpdatePackage(ctx context.Context, id uint, updater PackageUpdater) (*datatypes.Package, error) {
+func (w *wrapper) UpdatePackage(ctx context.Context, id int, updater PackageUpdater) (*datatypes.Package, error) {
 	ctx, span := w.tracer.Start(ctx, "UpdatePackage")
 	defer span.End()
-	span.SetAttributes(attribute.Int("id", int(id)))
+	span.SetAttributes(attribute.Int("id", id))
 
 	r, err := w.wrapped.UpdatePackage(ctx, id, updater)
 	if err != nil {
@@ -86,12 +86,12 @@ func (w *wrapper) CreatePreservationTask(ctx context.Context, pt *datatypes.Pres
 
 func (w *wrapper) UpdatePreservationTask(
 	ctx context.Context,
-	id uint,
+	id int,
 	updater PresTaskUpdater,
 ) (*datatypes.PreservationTask, error) {
 	ctx, span := w.tracer.Start(ctx, "UpdatePreservationTask")
 	defer span.End()
-	span.SetAttributes(attribute.Int("id", int(id)))
+	span.SetAttributes(attribute.Int("id", id))
 
 	r, err := w.wrapped.UpdatePreservationTask(ctx, id, updater)
 	if err != nil {

@@ -16,7 +16,7 @@ import (
 const PollIngestActivityName = "poll-ingest-activity"
 
 type PollIngestActivityParams struct {
-	PresActionID uint
+	PresActionID int
 	SIPID        string
 }
 

@@ -306,7 +306,7 @@ func TestUpdatePackage(t *testing.T) {
 			_, svc := setUpClient(t, logr.Discard())
 			ctx := context.Background()
 
-			var id uint
+			var id int
 			if tt.args.pkg != nil {
 				pkg := *tt.args.pkg // Make a local copy of pkg.
 				err := svc.CreatePackage(ctx, &pkg)
