@@ -40,7 +40,7 @@ func preservationActionToGoa(pa *datatypes.PreservationAction) *goapackage.Endur
 	}
 
 	return &goapackage.EnduroPackagePreservationAction{
-		ID:          uint(id),
+		ID:          id,
 		WorkflowID:  pa.WorkflowID,
 		Type:        pa.Type.String(),
 		Status:      pa.Status.String(),
