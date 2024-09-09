@@ -37,7 +37,7 @@ func (c *client) CreatePackage(ctx context.Context, pkg *datatypes.Package) erro
 		SetName(pkg.Name).
 		SetWorkflowID(pkg.WorkflowID).
 		SetRunID(runID).
-		SetStatus(int8(pkg.Status))
+		SetStatus(int8(pkg.Status)) // #nosec G115 -- constrained value.
 
 	// Add optional fields.
 	if pkg.AIPID.Valid {
@@ -75,7 +75,7 @@ func (c *client) CreatePackage(ctx context.Context, pkg *datatypes.Package) erro
 // method.
 func (c *client) UpdatePackage(
 	ctx context.Context,
-	id uint,
+	id int,
 	updater persistence.PackageUpdater,
 ) (*datatypes.Package, error) {
 	tx, err := c.ent.BeginTx(ctx, nil)
@@ -83,7 +83,7 @@ func (c *client) UpdatePackage(
 		return nil, newDBError(err)
 	}
 
-	p, err := tx.Pkg.Get(ctx, int(id))
+	p, err := tx.Pkg.Get(ctx, id)
 	if err != nil {
 		return nil, rollback(tx, newDBError(err))
 	}
@@ -99,11 +99,11 @@ func (c *client) UpdatePackage(
 	}
 
 	// Set required column values.
-	q := tx.Pkg.UpdateOneID(int(id)).
+	q := tx.Pkg.UpdateOneID(id).
 		SetName(up.Name).
 		SetWorkflowID(up.WorkflowID).
 		SetRunID(runID).
-		SetStatus(int8(up.Status))
+		SetStatus(int8(up.Status)) // #nosec G115 -- constrained value.
 
 	// Set nullable column values.
 	if up.AIPID.Valid {

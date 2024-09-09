@@ -1,6 +1,15 @@
 package a3m
 
-import transferservice "buf.build/gen/go/artefactual/a3m/protocolbuffers/go/a3m/api/transferservice/v1beta1"
+import (
+	"fmt"
+
+	transferservice "buf.build/gen/go/artefactual/a3m/protocolbuffers/go/a3m/api/transferservice/v1beta1"
+)
+
+const (
+	minCompressionLevel = 0
+	maxCompressionLevel = 9
+)
 
 type Config struct {
 	Name     string
@@ -14,8 +23,22 @@ type Config struct {
 	Processing
 }
 
-// The `Processing` struct represents a configuration for processing various tasks in the transferservice.
-// It mirrors the processing configuration fields in transferservice.ProcessingConfig.
+func (c *Config) Validate() error {
+	if c.AipCompressionAlgorithm < minCompressionLevel || c.AipCompressionLevel > maxCompressionLevel {
+		return fmt.Errorf(
+			"AipCompressionLevel: %d is outside valid range (%d to %d)",
+			c.AipCompressionLevel,
+			minCompressionLevel,
+			maxCompressionLevel,
+		)
+	}
+
+	return nil
+}
+
+// The `Processing` struct represents a configuration for processing various
+// tasks in the transferservice. It mirrors the processing configuration fields
+// in transferservice.ProcessingConfig.
 type Processing struct {
 	AssignUuidsToDirectories                     bool
 	ExamineContents                              bool
@@ -30,7 +53,7 @@ type Processing struct {
 	TranscribeFiles                              bool
 	PerformPolicyChecksOnOriginals               bool
 	PerformPolicyChecksOnPreservationDerivatives bool
-	AipCompressionLevel                          int
+	AipCompressionLevel                          int32
 	AipCompressionAlgorithm                      transferservice.ProcessingConfig_AIPCompressionAlgorithm
 }
 

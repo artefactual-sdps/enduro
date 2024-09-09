@@ -103,7 +103,7 @@ type TransferInfo struct {
 	// Identifier of the preservation action that creates the AIP
 	//
 	// It is populated by createPreservationActionLocalActivity .
-	PreservationActionID uint
+	PreservationActionID int
 
 	// Identifier of the preservation system task queue name
 	//
@@ -528,7 +528,7 @@ func (w *ProcessingWorkflow) SessionHandler(
 	}
 
 	// Identifier of the preservation task for upload to sips bucket.
-	var uploadPreservationTaskID uint
+	var uploadPreservationTaskID int
 
 	// Add preservation task for upload to review bucket.
 	if !tinfo.req.AutoApproveAIP {
@@ -586,7 +586,7 @@ func (w *ProcessingWorkflow) SessionHandler(
 	var reviewResult *package_.ReviewPerformedSignal
 
 	// Identifier of the preservation task for package review
-	var reviewPreservationTaskID uint
+	var reviewPreservationTaskID int
 
 	if tinfo.req.AutoApproveAIP {
 		reviewResult = &package_.ReviewPerformedSignal{
@@ -670,7 +670,7 @@ func (w *ProcessingWorkflow) SessionHandler(
 		}
 
 		// Identifier of the preservation task for permanent storage move.
-		var movePreservationTaskID uint
+		var movePreservationTaskID int
 
 		// Add preservation task for permanent storage move.
 		{
@@ -1068,8 +1068,8 @@ func (w *ProcessingWorkflow) preprocessing(ctx temporalsdk_workflow.Context, tin
 func (w *ProcessingWorkflow) createPreservationTask(
 	ctx temporalsdk_workflow.Context,
 	pt datatypes.PreservationTask,
-) (uint, error) {
-	var id uint
+) (int, error) {
+	var id int
 	ctx = withLocalActivityOpts(ctx)
 	err := temporalsdk_workflow.ExecuteLocalActivity(
 		ctx,

@@ -28,10 +28,10 @@ type Service interface {
 	// the Package from the data store, adding auto-generated data
 	// (e.g. ID, CreatedAt).
 	CreatePackage(context.Context, *datatypes.Package) error
-	UpdatePackage(context.Context, uint, PackageUpdater) (*datatypes.Package, error)
+	UpdatePackage(context.Context, int, PackageUpdater) (*datatypes.Package, error)
 
 	CreatePreservationAction(context.Context, *datatypes.PreservationAction) error
 
 	CreatePreservationTask(context.Context, *datatypes.PreservationTask) error
-	UpdatePreservationTask(ctx context.Context, id uint, updater PresTaskUpdater) (*datatypes.PreservationTask, error)
+	UpdatePreservationTask(ctx context.Context, id int, updater PresTaskUpdater) (*datatypes.PreservationTask, error)
 }

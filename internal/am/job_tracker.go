@@ -27,7 +27,7 @@ type JobTracker struct {
 
 	// presActionID is the PreservationAction ID that will be the parent ID for
 	// all saved preservation tasks.
-	presActionID uint
+	presActionID int
 
 	// savedIDs caches the ID of jobs that have already been saved so we don't
 	// create duplicates.
@@ -38,7 +38,7 @@ func NewJobTracker(
 	clock clockwork.Clock,
 	jobSvc amclient.JobsService,
 	pkgSvc package_.Service,
-	presActionID uint,
+	presActionID int,
 ) *JobTracker {
 	return &JobTracker{
 		clock:  clock,

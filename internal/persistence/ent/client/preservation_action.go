@@ -31,11 +31,11 @@ func (c *client) CreatePreservationAction(ctx context.Context, pa *datatypes.Pre
 
 	q := c.ent.PreservationAction.Create().
 		SetWorkflowID(pa.WorkflowID).
-		SetType(int8(pa.Type)).
-		SetStatus(int8(pa.Status)).
+		SetType(int8(pa.Type)).     // #nosec G115 -- constrained value.
+		SetStatus(int8(pa.Status)). // #nosec G115 -- constrained value.
 		SetNillableStartedAt(startedAt).
 		SetNillableCompletedAt(completedAt).
-		SetPackageID(int(pa.PackageID))
+		SetPackageID(pa.PackageID)
 
 	r, err := q.Save(ctx)
 	if err != nil {

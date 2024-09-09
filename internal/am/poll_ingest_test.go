@@ -26,7 +26,7 @@ func TestPollIngestActivity(t *testing.T) {
 
 	clock := clockwork.NewFakeClock()
 	path := "/var/archivematica/fake/sip"
-	presActionID := uint(2)
+	presActionID := 2
 	sipID := uuid.New().String()
 
 	httpError := func(m *amclienttest.MockIngestServiceMockRecorder, statusCode int) {

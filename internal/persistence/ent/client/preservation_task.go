@@ -38,7 +38,7 @@ func (c *client) CreatePreservationTask(ctx context.Context, pt *datatypes.Prese
 	q := c.ent.PreservationTask.Create().
 		SetTaskID(taskID).
 		SetName(pt.Name).
-		SetStatus(int8(pt.Status)).
+		SetStatus(int8(pt.Status)). // #nosec G115 -- constrained value.
 		SetNillableStartedAt(startedAt).
 		SetNillableCompletedAt(completedAt).
 		SetNote(pt.Note).
@@ -57,7 +57,7 @@ func (c *client) CreatePreservationTask(ctx context.Context, pt *datatypes.Prese
 
 func (c *client) UpdatePreservationTask(
 	ctx context.Context,
-	id uint,
+	id int,
 	updater persistence.PresTaskUpdater,
 ) (*datatypes.PreservationTask, error) {
 	tx, err := c.ent.BeginTx(ctx, nil)
@@ -65,7 +65,7 @@ func (c *client) UpdatePreservationTask(
 		return nil, newDBErrorWithDetails(err, "update preservation task")
 	}
 
-	pt, err := tx.PreservationTask.Get(ctx, int(id))
+	pt, err := tx.PreservationTask.Get(ctx, id)
 	if err != nil {
 		return nil, rollback(tx, newDBError(err))
 	}
@@ -81,10 +81,10 @@ func (c *client) UpdatePreservationTask(
 		return nil, rollback(tx, newParseError(err, "TaskID"))
 	}
 
-	q := tx.PreservationTask.UpdateOneID(int(id)).
+	q := tx.PreservationTask.UpdateOneID(id).
 		SetTaskID(taskID).
 		SetName(up.Name).
-		SetStatus(int8(up.Status)).
+		SetStatus(int8(up.Status)). // #nosec G115 -- constrained value.
 		SetNote(up.Note).
 		SetPreservationActionID(int(up.PreservationActionID))
 

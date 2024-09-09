@@ -33,7 +33,7 @@ type CreateAIPActivity struct {
 type CreateAIPActivityParams struct {
 	Name                 string
 	Path                 string
-	PreservationActionID uint
+	PreservationActionID int
 }
 
 type CreateAIPActivityResult struct {
@@ -111,7 +111,7 @@ func (a *CreateAIPActivity) Execute(
 							TranscribeFiles:                              a.cfg.TranscribeFiles,
 							PerformPolicyChecksOnOriginals:               a.cfg.PerformPolicyChecksOnOriginals,
 							PerformPolicyChecksOnPreservationDerivatives: a.cfg.PerformPolicyChecksOnPreservationDerivatives,
-							AipCompressionLevel:                          int32(a.cfg.AipCompressionLevel),
+							AipCompressionLevel:                          a.cfg.AipCompressionLevel,
 							AipCompressionAlgorithm:                      a.cfg.AipCompressionAlgorithm,
 						},
 					},
@@ -169,7 +169,7 @@ func savePreservationTasks(
 	tracer trace.Tracer,
 	jobs []*transferservice.Job,
 	pkgsvc package_.Service,
-	paID uint,
+	paID int,
 ) error {
 	ctx, span := tracer.Start(ctx, "savePreservationTasks")
 	defer span.End()

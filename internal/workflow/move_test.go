@@ -57,7 +57,7 @@ func TestMoveWorkflow(t *testing.T) {
 }
 
 func (s *MoveWorkflowTestSuite) TestSuccessfulMove() {
-	pkgID := uint(1)
+	pkgID := 1
 	AIPID := uuid.NewString()
 	locationID := uuid.MustParse("51328c02-2b63-47be-958e-e8088aa1a61f")
 
@@ -114,7 +114,7 @@ func (s *MoveWorkflowTestSuite) TestSuccessfulMove() {
 }
 
 func (s *MoveWorkflowTestSuite) TestFailedMove() {
-	pkgID := uint(1)
+	pkgID := 1
 	AIPID := uuid.NewString()
 	locationID := uuid.MustParse("51328c02-2b63-47be-958e-e8088aa1a61f")
 

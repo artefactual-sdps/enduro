@@ -8,11 +8,11 @@ import (
 
 // PreservationAction represents a preservation action in the preservation_action table.
 type PreservationAction struct {
-	ID          uint                           `db:"id"`
+	ID          int                            `db:"id"`
 	WorkflowID  string                         `db:"workflow_id"`
 	Type        enums.PreservationActionType   `db:"type"`
 	Status      enums.PreservationActionStatus `db:"status"`
 	StartedAt   sql.NullTime                   `db:"started_at"`
 	CompletedAt sql.NullTime                   `db:"completed_at"`
-	PackageID   uint                           `db:"package_id"`
+	PackageID   int                            `db:"package_id"`
 }

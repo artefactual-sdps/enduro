@@ -145,7 +145,7 @@ func TestCompletePreservationTask(t *testing.T) {
 	completedAt := time.Date(2024, 4, 2, 10, 35, 32, 0, time.UTC)
 
 	type args struct {
-		id          uint
+		id          int
 		status      enums.PreservationTaskStatus
 		completedAt time.Time
 		note        *string
@@ -176,7 +176,7 @@ func TestCompletePreservationTask(t *testing.T) {
 				svc.EXPECT().
 					UpdatePreservationTask(
 						mockutil.Context(),
-						uint(1),
+						1,
 						mockutil.Func(
 							"should update preservation task",
 							func(updater persistence.PresTaskUpdater) error {
@@ -188,7 +188,7 @@ func TestCompletePreservationTask(t *testing.T) {
 					DoAndReturn(
 						func(
 							ctx context.Context,
-							id uint,
+							id int,
 							updater persistence.PresTaskUpdater,
 						) (*datatypes.PreservationTask, error) {
 							pt, err := updater(pt)
@@ -221,7 +221,7 @@ func TestCompletePreservationTask(t *testing.T) {
 				svc.EXPECT().
 					UpdatePreservationTask(
 						mockutil.Context(),
-						uint(1),
+						1,
 						mockutil.Func(
 							"should update preservation task",
 							func(updater persistence.PresTaskUpdater) error {
@@ -233,7 +233,7 @@ func TestCompletePreservationTask(t *testing.T) {
 					DoAndReturn(
 						func(
 							ctx context.Context,
-							id uint,
+							id int,
 							updater persistence.PresTaskUpdater,
 						) (*datatypes.PreservationTask, error) {
 							pt, err := updater(pt)
@@ -261,7 +261,7 @@ func TestCompletePreservationTask(t *testing.T) {
 				svc.EXPECT().
 					UpdatePreservationTask(
 						mockutil.Context(),
-						uint(2),
+						2,
 						mockutil.Func(
 							"should update preservation task",
 							func(updater persistence.PresTaskUpdater) error {

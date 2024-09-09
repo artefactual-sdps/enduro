@@ -18,22 +18,25 @@ func (svc *packageImpl) CreatePreservationTask(ctx context.Context, pt *datatype
 		return fmt.Errorf("preservation task: create: %v", err)
 	}
 
-	ev := &goapackage.PreservationTaskCreatedEvent{
-		ID:   pt.ID,
+	event.PublishEvent(ctx, svc.evsvc, &goapackage.PreservationTaskCreatedEvent{
+		ID:   uint(pt.ID), // #nosec G115 -- constrained value.
 		Item: preservationTaskToGoa(pt),
-	}
-	event.PublishEvent(ctx, svc.evsvc, ev)
+	})
 
 	return nil
 }
 
 func (svc *packageImpl) CompletePreservationTask(
 	ctx context.Context,
-	id uint,
+	id int,
 	status enums.PreservationTaskStatus,
 	completedAt time.Time,
 	note *string,
 ) error {
+	if id < 0 {
+		return fmt.Errorf("%w: ID", ErrInvalid)
+	}
+
 	pt, err := svc.perSvc.UpdatePreservationTask(
 		ctx,
 		id,
@@ -54,11 +57,10 @@ func (svc *packageImpl) CompletePreservationTask(
 		return fmt.Errorf("error updating preservation task: %v", err)
 	}
 
-	ev := &goapackage.PreservationTaskUpdatedEvent{
-		ID:   id,
+	event.PublishEvent(ctx, svc.evsvc, &goapackage.PreservationTaskUpdatedEvent{
+		ID:   uint(id), // #nosec G115 -- range validated.
 		Item: preservationTaskToGoa(pt),
-	}
-	event.PublishEvent(ctx, svc.evsvc, ev)
+	})
 
 	return nil
 }

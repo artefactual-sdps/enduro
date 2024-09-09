@@ -156,7 +156,7 @@ func (c *MockServiceCreatePreservationTaskCall) DoAndReturn(f func(context.Conte
 }
 
 // UpdatePackage mocks base method.
-func (m *MockService) UpdatePackage(arg0 context.Context, arg1 uint, arg2 persistence.PackageUpdater) (*datatypes.Package, error) {
+func (m *MockService) UpdatePackage(arg0 context.Context, arg1 int, arg2 persistence.PackageUpdater) (*datatypes.Package, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdatePackage", arg0, arg1, arg2)
 	ret0, _ := ret[0].(*datatypes.Package)
@@ -183,19 +183,19 @@ func (c *MockServiceUpdatePackageCall) Return(arg0 *datatypes.Package, arg1 erro
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockServiceUpdatePackageCall) Do(f func(context.Context, uint, persistence.PackageUpdater) (*datatypes.Package, error)) *MockServiceUpdatePackageCall {
+func (c *MockServiceUpdatePackageCall) Do(f func(context.Context, int, persistence.PackageUpdater) (*datatypes.Package, error)) *MockServiceUpdatePackageCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockServiceUpdatePackageCall) DoAndReturn(f func(context.Context, uint, persistence.PackageUpdater) (*datatypes.Package, error)) *MockServiceUpdatePackageCall {
+func (c *MockServiceUpdatePackageCall) DoAndReturn(f func(context.Context, int, persistence.PackageUpdater) (*datatypes.Package, error)) *MockServiceUpdatePackageCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
 
 // UpdatePreservationTask mocks base method.
-func (m *MockService) UpdatePreservationTask(arg0 context.Context, arg1 uint, arg2 persistence.PresTaskUpdater) (*datatypes.PreservationTask, error) {
+func (m *MockService) UpdatePreservationTask(arg0 context.Context, arg1 int, arg2 persistence.PresTaskUpdater) (*datatypes.PreservationTask, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdatePreservationTask", arg0, arg1, arg2)
 	ret0, _ := ret[0].(*datatypes.PreservationTask)
@@ -222,13 +222,13 @@ func (c *MockServiceUpdatePreservationTaskCall) Return(arg0 *datatypes.Preservat
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockServiceUpdatePreservationTaskCall) Do(f func(context.Context, uint, persistence.PresTaskUpdater) (*datatypes.PreservationTask, error)) *MockServiceUpdatePreservationTaskCall {
+func (c *MockServiceUpdatePreservationTaskCall) Do(f func(context.Context, int, persistence.PresTaskUpdater) (*datatypes.PreservationTask, error)) *MockServiceUpdatePreservationTaskCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockServiceUpdatePreservationTaskCall) DoAndReturn(f func(context.Context, uint, persistence.PresTaskUpdater) (*datatypes.PreservationTask, error)) *MockServiceUpdatePreservationTaskCall {
+func (c *MockServiceUpdatePreservationTaskCall) DoAndReturn(f func(context.Context, int, persistence.PresTaskUpdater) (*datatypes.PreservationTask, error)) *MockServiceUpdatePreservationTaskCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
