@@ -1,9 +1,11 @@
 import { useAuthStore } from "@/stores/auth";
 import { createRouter, createWebHistory } from "vue-router/auto";
+import { routes } from "vue-router/auto-routes";
 
 const router = createRouter({
   history: createWebHistory("/"),
   strict: false,
+  routes,
 });
 
 const signinRoutes: string[] = ["/user/signin", "/user/signin-callback"];

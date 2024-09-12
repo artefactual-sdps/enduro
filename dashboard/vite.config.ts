@@ -45,6 +45,8 @@ export default defineConfig({
     preprocessorOptions: {
       scss: {
         additionalData: `@import "src/styles/bootstrap-base.scss";`,
+        // TODO: remove this line once bootstrap v5.3.4 is released.
+        silenceDeprecations: ["mixed-decls"],
       },
     },
   },
