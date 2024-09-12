@@ -21,15 +21,21 @@ describe("UUID.vue", () => {
   });
 
   it("should copy to clipboard", async () => {
-    Object.defineProperty(navigator, "clipboard", {
-      value: { writeText: vi.fn() },
-    });
+    // TODO: figure out how to grant permissions via `navigator.permissions` so
+    // useClipboard can use `navigator.clipboard.writeText` instead. Mock
+    // `document.execCommand` since that's still a supported fallback.
+    document.execCommand = () => true;
+    const exec = vi
+      .spyOn(document, "execCommand")
+      .mockImplementation((command) => {
+        return command === "copy";
+      });
 
     const { getByRole, findByRole } = render(UUID, { props: { id: uuid } });
 
     await fireEvent.click(getByRole("button", { name: "Copy to clipboard" }));
 
-    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(uuid);
+    expect(exec).toHaveBeenCalledWith("copy");
     getByRole("button", { name: "Copied!" });
 
     // Confirm that the button goes back into its original state.

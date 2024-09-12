@@ -2,39 +2,40 @@ import Tabs from "@/components/Tabs.vue";
 import { cleanup, render } from "@testing-library/vue";
 import { afterEach, describe, it, expect } from "vitest";
 import { createRouter, createMemoryHistory } from "vue-router";
+import RawIconHomeLine from "~icons/clarity/home-line?raw&width=2em&height=2em";
 
 describe("Tabs.vue", () => {
   afterEach(() => cleanup());
 
   it("renders", async () => {
+    const router = createRouter({
+      history: createMemoryHistory(),
+      routes: [
+        { name: "index", path: "", component: {} },
+        { name: "route1", path: "/route1", component: {} },
+        { name: "route2", path: "/route2", component: {} },
+      ],
+    });
+
     const { getByRole, queryByRole } = render(Tabs, {
       props: {
         tabs: [
           {
-            icon: "",
+            icon: RawIconHomeLine,
             text: "Route1",
-            route: { name: "route1" },
+            route: router.resolve("/route1"),
             show: true,
           },
           {
-            icon: "",
+            icon: RawIconHomeLine,
             text: "Route2",
-            route: { name: "route2" },
+            route: router.resolve("/route2"),
             show: false,
           },
         ],
       },
       global: {
-        plugins: [
-          createRouter({
-            history: createMemoryHistory(),
-            routes: [
-              { name: "index", path: "", component: {} },
-              { name: "route1", path: "/route1", component: {} },
-              { name: "route2", path: "/route2", component: {} },
-            ],
-          }),
-        ],
+        plugins: [router],
       },
     });
 
