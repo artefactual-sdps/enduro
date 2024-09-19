@@ -145,7 +145,7 @@ func (ptc *PreservationTaskCreate) check() error {
 			return &ValidationError{Name: "preservation_action_id", err: fmt.Errorf(`db: validator failed for field "PreservationTask.preservation_action_id": %w`, err)}
 		}
 	}
-	if _, ok := ptc.mutation.ActionID(); !ok {
+	if len(ptc.mutation.ActionIDs()) == 0 {
 		return &ValidationError{Name: "action", err: errors.New(`db: missing required edge "PreservationTask.action"`)}
 	}
 	return nil

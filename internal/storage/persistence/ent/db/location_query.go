@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"math"
 
+	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -85,7 +86,7 @@ func (lq *LocationQuery) QueryPackages() *PkgQuery {
 // First returns the first Location entity from the query.
 // Returns a *NotFoundError when no Location was found.
 func (lq *LocationQuery) First(ctx context.Context) (*Location, error) {
-	nodes, err := lq.Limit(1).All(setContextOp(ctx, lq.ctx, "First"))
+	nodes, err := lq.Limit(1).All(setContextOp(ctx, lq.ctx, ent.OpQueryFirst))
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +109,7 @@ func (lq *LocationQuery) FirstX(ctx context.Context) *Location {
 // Returns a *NotFoundError when no Location ID was found.
 func (lq *LocationQuery) FirstID(ctx context.Context) (id int, err error) {
 	var ids []int
-	if ids, err = lq.Limit(1).IDs(setContextOp(ctx, lq.ctx, "FirstID")); err != nil {
+	if ids, err = lq.Limit(1).IDs(setContextOp(ctx, lq.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
 	if len(ids) == 0 {
@@ -131,7 +132,7 @@ func (lq *LocationQuery) FirstIDX(ctx context.Context) int {
 // Returns a *NotSingularError when more than one Location entity is found.
 // Returns a *NotFoundError when no Location entities are found.
 func (lq *LocationQuery) Only(ctx context.Context) (*Location, error) {
-	nodes, err := lq.Limit(2).All(setContextOp(ctx, lq.ctx, "Only"))
+	nodes, err := lq.Limit(2).All(setContextOp(ctx, lq.ctx, ent.OpQueryOnly))
 	if err != nil {
 		return nil, err
 	}
@@ -159,7 +160,7 @@ func (lq *LocationQuery) OnlyX(ctx context.Context) *Location {
 // Returns a *NotFoundError when no entities are found.
 func (lq *LocationQuery) OnlyID(ctx context.Context) (id int, err error) {
 	var ids []int
-	if ids, err = lq.Limit(2).IDs(setContextOp(ctx, lq.ctx, "OnlyID")); err != nil {
+	if ids, err = lq.Limit(2).IDs(setContextOp(ctx, lq.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
 	switch len(ids) {
@@ -184,7 +185,7 @@ func (lq *LocationQuery) OnlyIDX(ctx context.Context) int {
 
 // All executes the query and returns a list of Locations.
 func (lq *LocationQuery) All(ctx context.Context) ([]*Location, error) {
-	ctx = setContextOp(ctx, lq.ctx, "All")
+	ctx = setContextOp(ctx, lq.ctx, ent.OpQueryAll)
 	if err := lq.prepareQuery(ctx); err != nil {
 		return nil, err
 	}
@@ -206,7 +207,7 @@ func (lq *LocationQuery) IDs(ctx context.Context) (ids []int, err error) {
 	if lq.ctx.Unique == nil && lq.path != nil {
 		lq.Unique(true)
 	}
-	ctx = setContextOp(ctx, lq.ctx, "IDs")
+	ctx = setContextOp(ctx, lq.ctx, ent.OpQueryIDs)
 	if err = lq.Select(location.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
@@ -224,7 +225,7 @@ func (lq *LocationQuery) IDsX(ctx context.Context) []int {
 
 // Count returns the count of the given query.
 func (lq *LocationQuery) Count(ctx context.Context) (int, error) {
-	ctx = setContextOp(ctx, lq.ctx, "Count")
+	ctx = setContextOp(ctx, lq.ctx, ent.OpQueryCount)
 	if err := lq.prepareQuery(ctx); err != nil {
 		return 0, err
 	}
@@ -242,7 +243,7 @@ func (lq *LocationQuery) CountX(ctx context.Context) int {
 
 // Exist returns true if the query has elements in the graph.
 func (lq *LocationQuery) Exist(ctx context.Context) (bool, error) {
-	ctx = setContextOp(ctx, lq.ctx, "Exist")
+	ctx = setContextOp(ctx, lq.ctx, ent.OpQueryExist)
 	switch _, err := lq.FirstID(ctx); {
 	case IsNotFound(err):
 		return false, nil
@@ -528,7 +529,7 @@ func (lgb *LocationGroupBy) Aggregate(fns ...AggregateFunc) *LocationGroupBy {
 
 // Scan applies the selector query and scans the result into the given value.
 func (lgb *LocationGroupBy) Scan(ctx context.Context, v any) error {
-	ctx = setContextOp(ctx, lgb.build.ctx, "GroupBy")
+	ctx = setContextOp(ctx, lgb.build.ctx, ent.OpQueryGroupBy)
 	if err := lgb.build.prepareQuery(ctx); err != nil {
 		return err
 	}
@@ -576,7 +577,7 @@ func (ls *LocationSelect) Aggregate(fns ...AggregateFunc) *LocationSelect {
 
 // Scan applies the selector query and scans the result into the given value.
 func (ls *LocationSelect) Scan(ctx context.Context, v any) error {
-	ctx = setContextOp(ctx, ls.ctx, "Select")
+	ctx = setContextOp(ctx, ls.ctx, ent.OpQuerySelect)
 	if err := ls.prepareQuery(ctx); err != nil {
 		return err
 	}
