@@ -226,7 +226,7 @@ func (pau *PreservationActionUpdate) check() error {
 			return &ValidationError{Name: "package_id", err: fmt.Errorf(`db: validator failed for field "PreservationAction.package_id": %w`, err)}
 		}
 	}
-	if _, ok := pau.mutation.PackageID(); pau.mutation.PackageCleared() && !ok {
+	if pau.mutation.PackageCleared() && len(pau.mutation.PackageIDs()) > 0 {
 		return errors.New(`db: clearing a required unique edge "PreservationAction.package"`)
 	}
 	return nil
@@ -574,7 +574,7 @@ func (pauo *PreservationActionUpdateOne) check() error {
 			return &ValidationError{Name: "package_id", err: fmt.Errorf(`db: validator failed for field "PreservationAction.package_id": %w`, err)}
 		}
 	}
-	if _, ok := pauo.mutation.PackageID(); pauo.mutation.PackageCleared() && !ok {
+	if pauo.mutation.PackageCleared() && len(pauo.mutation.PackageIDs()) > 0 {
 		return errors.New(`db: clearing a required unique edge "PreservationAction.package"`)
 	}
 	return nil

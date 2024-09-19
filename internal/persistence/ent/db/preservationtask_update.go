@@ -203,7 +203,7 @@ func (ptu *PreservationTaskUpdate) check() error {
 			return &ValidationError{Name: "preservation_action_id", err: fmt.Errorf(`db: validator failed for field "PreservationTask.preservation_action_id": %w`, err)}
 		}
 	}
-	if _, ok := ptu.mutation.ActionID(); ptu.mutation.ActionCleared() && !ok {
+	if ptu.mutation.ActionCleared() && len(ptu.mutation.ActionIDs()) > 0 {
 		return errors.New(`db: clearing a required unique edge "PreservationTask.action"`)
 	}
 	return nil
@@ -483,7 +483,7 @@ func (ptuo *PreservationTaskUpdateOne) check() error {
 			return &ValidationError{Name: "preservation_action_id", err: fmt.Errorf(`db: validator failed for field "PreservationTask.preservation_action_id": %w`, err)}
 		}
 	}
-	if _, ok := ptuo.mutation.ActionID(); ptuo.mutation.ActionCleared() && !ok {
+	if ptuo.mutation.ActionCleared() && len(ptuo.mutation.ActionIDs()) > 0 {
 		return errors.New(`db: clearing a required unique edge "PreservationTask.action"`)
 	}
 	return nil

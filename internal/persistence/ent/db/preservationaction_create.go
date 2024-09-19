@@ -145,7 +145,7 @@ func (pac *PreservationActionCreate) check() error {
 			return &ValidationError{Name: "package_id", err: fmt.Errorf(`db: validator failed for field "PreservationAction.package_id": %w`, err)}
 		}
 	}
-	if _, ok := pac.mutation.PackageID(); !ok {
+	if len(pac.mutation.PackageIDs()) == 0 {
 		return &ValidationError{Name: "package", err: errors.New(`db: missing required edge "PreservationAction.package"`)}
 	}
 	return nil

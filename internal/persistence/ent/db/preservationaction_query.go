@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"math"
 
+	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -109,7 +110,7 @@ func (paq *PreservationActionQuery) QueryTasks() *PreservationTaskQuery {
 // First returns the first PreservationAction entity from the query.
 // Returns a *NotFoundError when no PreservationAction was found.
 func (paq *PreservationActionQuery) First(ctx context.Context) (*PreservationAction, error) {
-	nodes, err := paq.Limit(1).All(setContextOp(ctx, paq.ctx, "First"))
+	nodes, err := paq.Limit(1).All(setContextOp(ctx, paq.ctx, ent.OpQueryFirst))
 	if err != nil {
 		return nil, err
 	}
@@ -132,7 +133,7 @@ func (paq *PreservationActionQuery) FirstX(ctx context.Context) *PreservationAct
 // Returns a *NotFoundError when no PreservationAction ID was found.
 func (paq *PreservationActionQuery) FirstID(ctx context.Context) (id int, err error) {
 	var ids []int
-	if ids, err = paq.Limit(1).IDs(setContextOp(ctx, paq.ctx, "FirstID")); err != nil {
+	if ids, err = paq.Limit(1).IDs(setContextOp(ctx, paq.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
 	if len(ids) == 0 {
@@ -155,7 +156,7 @@ func (paq *PreservationActionQuery) FirstIDX(ctx context.Context) int {
 // Returns a *NotSingularError when more than one PreservationAction entity is found.
 // Returns a *NotFoundError when no PreservationAction entities are found.
 func (paq *PreservationActionQuery) Only(ctx context.Context) (*PreservationAction, error) {
-	nodes, err := paq.Limit(2).All(setContextOp(ctx, paq.ctx, "Only"))
+	nodes, err := paq.Limit(2).All(setContextOp(ctx, paq.ctx, ent.OpQueryOnly))
 	if err != nil {
 		return nil, err
 	}
@@ -183,7 +184,7 @@ func (paq *PreservationActionQuery) OnlyX(ctx context.Context) *PreservationActi
 // Returns a *NotFoundError when no entities are found.
 func (paq *PreservationActionQuery) OnlyID(ctx context.Context) (id int, err error) {
 	var ids []int
-	if ids, err = paq.Limit(2).IDs(setContextOp(ctx, paq.ctx, "OnlyID")); err != nil {
+	if ids, err = paq.Limit(2).IDs(setContextOp(ctx, paq.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
 	switch len(ids) {
@@ -208,7 +209,7 @@ func (paq *PreservationActionQuery) OnlyIDX(ctx context.Context) int {
 
 // All executes the query and returns a list of PreservationActions.
 func (paq *PreservationActionQuery) All(ctx context.Context) ([]*PreservationAction, error) {
-	ctx = setContextOp(ctx, paq.ctx, "All")
+	ctx = setContextOp(ctx, paq.ctx, ent.OpQueryAll)
 	if err := paq.prepareQuery(ctx); err != nil {
 		return nil, err
 	}
@@ -230,7 +231,7 @@ func (paq *PreservationActionQuery) IDs(ctx context.Context) (ids []int, err err
 	if paq.ctx.Unique == nil && paq.path != nil {
 		paq.Unique(true)
 	}
-	ctx = setContextOp(ctx, paq.ctx, "IDs")
+	ctx = setContextOp(ctx, paq.ctx, ent.OpQueryIDs)
 	if err = paq.Select(preservationaction.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
@@ -248,7 +249,7 @@ func (paq *PreservationActionQuery) IDsX(ctx context.Context) []int {
 
 // Count returns the count of the given query.
 func (paq *PreservationActionQuery) Count(ctx context.Context) (int, error) {
-	ctx = setContextOp(ctx, paq.ctx, "Count")
+	ctx = setContextOp(ctx, paq.ctx, ent.OpQueryCount)
 	if err := paq.prepareQuery(ctx); err != nil {
 		return 0, err
 	}
@@ -266,7 +267,7 @@ func (paq *PreservationActionQuery) CountX(ctx context.Context) int {
 
 // Exist returns true if the query has elements in the graph.
 func (paq *PreservationActionQuery) Exist(ctx context.Context) (bool, error) {
-	ctx = setContextOp(ctx, paq.ctx, "Exist")
+	ctx = setContextOp(ctx, paq.ctx, ent.OpQueryExist)
 	switch _, err := paq.FirstID(ctx); {
 	case IsNotFound(err):
 		return false, nil
@@ -603,7 +604,7 @@ func (pagb *PreservationActionGroupBy) Aggregate(fns ...AggregateFunc) *Preserva
 
 // Scan applies the selector query and scans the result into the given value.
 func (pagb *PreservationActionGroupBy) Scan(ctx context.Context, v any) error {
-	ctx = setContextOp(ctx, pagb.build.ctx, "GroupBy")
+	ctx = setContextOp(ctx, pagb.build.ctx, ent.OpQueryGroupBy)
 	if err := pagb.build.prepareQuery(ctx); err != nil {
 		return err
 	}
@@ -651,7 +652,7 @@ func (pas *PreservationActionSelect) Aggregate(fns ...AggregateFunc) *Preservati
 
 // Scan applies the selector query and scans the result into the given value.
 func (pas *PreservationActionSelect) Scan(ctx context.Context, v any) error {
-	ctx = setContextOp(ctx, pas.ctx, "Select")
+	ctx = setContextOp(ctx, pas.ctx, ent.OpQuerySelect)
 	if err := pas.prepareQuery(ctx); err != nil {
 		return err
 	}
