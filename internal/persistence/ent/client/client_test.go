@@ -42,7 +42,7 @@ func createPackage(
 		SetWorkflowID("12345").
 		SetRunID(runID).
 		SetAipID(aipID).
-		SetStatus(int8(status)).
+		SetStatus(int8(status)). // #nosec G115 -- constrained value.
 		Save(context.Background())
 }
 
@@ -54,7 +54,7 @@ func createPreservationAction(
 	return entc.PreservationAction.Create().
 		SetWorkflowID("12345").
 		SetType(int8(enums.PreservationActionTypeCreateAip)).
-		SetStatus(int8(status)).
+		SetStatus(int8(status)). // #nosec G115 -- constrained value.
 		SetPackageID(pkgID).
 		Save(context.Background())
 }
