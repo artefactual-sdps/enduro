@@ -44,7 +44,7 @@ func TestNewBundlerWithTempDir(t *testing.T) {
 	dir := transferDir(t, tmpDir.Path())
 	assert.Equal(t, b.FullBaseFsPath(), dir)
 
-	umask := os.FileMode(syscall.Umask(0))
+	umask := os.FileMode(syscall.Umask(0)) // #nosec G115
 	dirMode := fs.WithMode(0o755 &^ umask)
 	fileMode := fs.WithMode(0o664 &^ umask)
 
