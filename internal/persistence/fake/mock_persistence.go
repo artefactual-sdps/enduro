@@ -155,6 +155,46 @@ func (c *MockServiceCreatePreservationTaskCall) DoAndReturn(f func(context.Conte
 	return c
 }
 
+// ListPackages mocks base method.
+func (m *MockService) ListPackages(arg0 context.Context, arg1 persistence.PackageFilter) ([]*datatypes.Package, *persistence.Page, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListPackages", arg0, arg1)
+	ret0, _ := ret[0].([]*datatypes.Package)
+	ret1, _ := ret[1].(*persistence.Page)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
+}
+
+// ListPackages indicates an expected call of ListPackages.
+func (mr *MockServiceMockRecorder) ListPackages(arg0, arg1 any) *MockServiceListPackagesCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListPackages", reflect.TypeOf((*MockService)(nil).ListPackages), arg0, arg1)
+	return &MockServiceListPackagesCall{Call: call}
+}
+
+// MockServiceListPackagesCall wrap *gomock.Call
+type MockServiceListPackagesCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockServiceListPackagesCall) Return(arg0 []*datatypes.Package, arg1 *persistence.Page, arg2 error) *MockServiceListPackagesCall {
+	c.Call = c.Call.Return(arg0, arg1, arg2)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockServiceListPackagesCall) Do(f func(context.Context, persistence.PackageFilter) ([]*datatypes.Package, *persistence.Page, error)) *MockServiceListPackagesCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockServiceListPackagesCall) DoAndReturn(f func(context.Context, persistence.PackageFilter) ([]*datatypes.Package, *persistence.Page, error)) *MockServiceListPackagesCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
 // UpdatePackage mocks base method.
 func (m *MockService) UpdatePackage(arg0 context.Context, arg1 int, arg2 persistence.PackageUpdater) (*datatypes.Package, error) {
 	m.ctrl.T.Helper()

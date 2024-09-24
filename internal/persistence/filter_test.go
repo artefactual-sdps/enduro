@@ -8,7 +8,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/persistence"
 )
 
-func TestOrder(t *testing.T) {
+func TestSort(t *testing.T) {
 	got := persistence.NewSort().AddCol("id", false).AddCol("date", true)
 
 	assert.DeepEqual(t, got, persistence.Sort{

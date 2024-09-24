@@ -129,7 +129,18 @@ func orderFunc(field string, desc bool) func(sel *sql.Selector) {
 	}
 }
 
-// Page sets the limit and offset criteria.
+// Page sets the query limit and offset criteria.
+//
+// The actual query limit will be set to a value between one and MaxPageSize
+// based on the input limit (x) as follows:
+// (x < 0)               -> MaxPageSize
+// (x == 0)              -> DefaultPageSize
+// (0 < x < MaxPageSize) -> x
+// (x >= MaxPageSize)    -> MaxPageSize
+//
+// The actual query offset will be set based on the input offset (y) as follows:
+// (y <= 0) -> 0
+// (y > 0)  -> y
 func (f *Filter[Q, O, P]) Page(limit, offset int) {
 	f.addLimit(limit)
 
@@ -139,11 +150,6 @@ func (f *Filter[Q, O, P]) Page(limit, offset int) {
 }
 
 // addLimit adds the page limit l to a filter.
-//
-// If l < 0 the page limit is set to the maximum page size.
-// If l == 0 the page limit is set to the default page size.
-// If l > 0 but less than the max page size, the page limit is set to l.
-// If l > max page size the page limit is set to the max page size.
 func (f *Filter[Q, O, P]) addLimit(l int) {
 	switch {
 	case l == 0:

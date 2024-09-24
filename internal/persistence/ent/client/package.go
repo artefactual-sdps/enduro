@@ -8,6 +8,8 @@ import (
 
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/persistence"
+	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db"
+	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/pkg"
 )
 
 // CreatePackage creates and persists a new package using the values from pkg
@@ -129,4 +131,57 @@ func (c *client) UpdatePackage(
 	}
 
 	return convertPkgToPackage(p), nil
+}
+
+// ListPackages returns a slice of packages filtered according to f.
+func (c *client) ListPackages(ctx context.Context, f persistence.PackageFilter) (
+	[]*datatypes.Package, *persistence.Page, error,
+) {
+	res := []*datatypes.Package{}
+
+	page, whole := filterPackages(c.ent.Pkg.Query(), &f)
+
+	r, err := page.All(ctx)
+	if err != nil {
+		return nil, nil, newDBError(err)
+	}
+
+	for _, i := range r {
+		res = append(res, convertPkgToPackage(i))
+	}
+
+	total, err := whole.Count(ctx)
+	if err != nil {
+		return nil, nil, newDBError(err)
+	}
+
+	pp := &persistence.Page{
+		Limit:  f.Limit,
+		Offset: f.Offset,
+		Total:  total,
+	}
+
+	return res, pp, err
+}
+
+// filterPackages filters a package query based on filtering inputs.
+func filterPackages(q *db.PkgQuery, f *persistence.PackageFilter) (page, whole *db.PkgQuery) {
+	qf := NewFilter(q, SortableFields{
+		pkg.FieldID: {Name: "ID", Default: true},
+	})
+	qf.Equals(pkg.FieldName, f.Name)
+	qf.Equals(pkg.FieldAipID, f.AIPID)
+	qf.Equals(pkg.FieldLocationID, f.LocationID)
+	qf.Equals(pkg.FieldStatus, f.Status)
+	qf.AddDateRange(pkg.FieldCreatedAt, f.CreatedAt)
+	qf.OrderBy(f.Sort)
+	qf.Page(f.Limit, f.Offset)
+
+	// Update the filter values with the actual values set on the query. E.g.
+	// calling `h.Page(0,0)` will set the query limit equal to the default page
+	// size.
+	f.Limit = qf.limit
+	f.Offset = qf.offset
+
+	return qf.Apply()
 }
