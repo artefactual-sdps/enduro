@@ -152,9 +152,10 @@ golines: $(GOLINES)
 		.
 
 gosec: # @HELP Run gosec security scanner.
+gosec: GOSEC_VERBOSITY ?= "-terse"
 gosec: $(GOSEC)
 	gosec \
-		-terse \
+		$(GOSEC_VERBOSITY) \
 		-exclude-dir=dashboard \
 		-exclude-dir=hack \
 		-exclude-dir=internal/api/gen \
@@ -194,7 +195,7 @@ pre-commit: # @HELP Check that code is ready to commit.
 pre-commit:
 	$(MAKE) -j \
 		golines \
-		gosec \
+		gosec GOSEC_VERBOSITY="-quiet"\
 		lint \
 		mod-tidy \
 		shfmt \
