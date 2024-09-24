@@ -53,7 +53,7 @@ type PackageFilter struct {
 	AIPID      *uuid.UUID
 	LocationID *uuid.UUID
 	Status     *enums.PackageStatus
-	StartedAt  *timerange.Range
+	CreatedAt  *timerange.Range
 
 	Sort
 	Page

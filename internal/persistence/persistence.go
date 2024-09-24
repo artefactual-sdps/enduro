@@ -29,6 +29,7 @@ type Service interface {
 	// (e.g. ID, CreatedAt).
 	CreatePackage(context.Context, *datatypes.Package) error
 	UpdatePackage(context.Context, int, PackageUpdater) (*datatypes.Package, error)
+	ListPackages(context.Context, PackageFilter) ([]*datatypes.Package, *Page, error)
 
 	CreatePreservationAction(context.Context, *datatypes.PreservationAction) error
 

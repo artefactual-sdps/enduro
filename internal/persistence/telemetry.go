@@ -58,6 +58,19 @@ func (w *wrapper) UpdatePackage(ctx context.Context, id int, updater PackageUpda
 	return r, nil
 }
 
+func (w *wrapper) ListPackages(ctx context.Context, f PackageFilter) ([]*datatypes.Package, *Page, error) {
+	ctx, span := w.tracer.Start(ctx, "ListPackages")
+	defer span.End()
+
+	r, pg, err := w.wrapped.ListPackages(ctx, f)
+	if err != nil {
+		telemetry.RecordError(span, err)
+		return nil, nil, updateError(err, "ListPackages")
+	}
+
+	return r, pg, nil
+}
+
 func (w *wrapper) CreatePreservationAction(ctx context.Context, pa *datatypes.PreservationAction) error {
 	ctx, span := w.tracer.Start(ctx, "CreatePreservationAction")
 	defer span.End()
