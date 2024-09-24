@@ -19,10 +19,10 @@ jobs:
             --no-lb
             --k3s-arg "--no-deploy=traefik,servicelb,metrics-server@server:*"
       - name: Install Tilt
-        uses: yokawasa/action-setup-kube-tools@v0.9.3
+        uses: yokawasa/action-setup-kube-tools@v0.11.1
         with:
           setup-tools: |
             tilt
-          tilt: v0.30.2
+          tilt: v0.33.11
       - name: Check tilt ci
         run: timeout 600 tilt ci
