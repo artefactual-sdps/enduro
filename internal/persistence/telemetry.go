@@ -58,7 +58,7 @@ func (w *wrapper) UpdatePackage(ctx context.Context, id int, updater PackageUpda
 	return r, nil
 }
 
-func (w *wrapper) ListPackages(ctx context.Context, f PackageFilter) ([]*datatypes.Package, *Page, error) {
+func (w *wrapper) ListPackages(ctx context.Context, f *PackageFilter) ([]*datatypes.Package, *Page, error) {
 	ctx, span := w.tracer.Start(ctx, "ListPackages")
 	defer span.End()
 

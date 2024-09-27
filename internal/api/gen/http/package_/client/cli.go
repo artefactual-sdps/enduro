@@ -49,7 +49,7 @@ func BuildMonitorPayload(package_MonitorTicket string) (*package_.MonitorPayload
 
 // BuildListPayload builds the payload for the package list endpoint from CLI
 // flags.
-func BuildListPayload(package_ListName string, package_ListAipID string, package_ListEarliestCreatedTime string, package_ListLatestCreatedTime string, package_ListLocationID string, package_ListStatus string, package_ListCursor string, package_ListToken string) (*package_.ListPayload, error) {
+func BuildListPayload(package_ListName string, package_ListAipID string, package_ListEarliestCreatedTime string, package_ListLatestCreatedTime string, package_ListLocationID string, package_ListStatus string, package_ListLimit string, package_ListOffset string, package_ListToken string) (*package_.ListPayload, error) {
 	var err error
 	var name *string
 	{
@@ -109,10 +109,28 @@ func BuildListPayload(package_ListName string, package_ListAipID string, package
 			}
 		}
 	}
-	var cursor *string
+	var limit *int
 	{
-		if package_ListCursor != "" {
-			cursor = &package_ListCursor
+		if package_ListLimit != "" {
+			var v int64
+			v, err = strconv.ParseInt(package_ListLimit, 10, strconv.IntSize)
+			val := int(v)
+			limit = &val
+			if err != nil {
+				return nil, fmt.Errorf("invalid value for limit, must be INT")
+			}
+		}
+	}
+	var offset *int
+	{
+		if package_ListOffset != "" {
+			var v int64
+			v, err = strconv.ParseInt(package_ListOffset, 10, strconv.IntSize)
+			val := int(v)
+			offset = &val
+			if err != nil {
+				return nil, fmt.Errorf("invalid value for offset, must be INT")
+			}
 		}
 	}
 	var token *string
@@ -128,7 +146,8 @@ func BuildListPayload(package_ListName string, package_ListAipID string, package
 	v.LatestCreatedTime = latestCreatedTime
 	v.LocationID = locationID
 	v.Status = status
-	v.Cursor = cursor
+	v.Limit = limit
+	v.Offset = offset
 	v.Token = token
 
 	return v, nil

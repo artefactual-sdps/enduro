@@ -25,7 +25,7 @@ type Service interface {
 	// Obtain access to the /monitor WebSocket
 	Monitor(context.Context, *MonitorPayload, MonitorServerStream) (err error)
 	// List all stored packages
-	List(context.Context, *ListPayload) (res *ListResult, err error)
+	List(context.Context, *ListPayload) (res *EnduroPackages, err error)
 	// Show package by ID
 	Show(context.Context, *ShowPayload) (res *EnduroStoredPackage, err error)
 	// List all preservation actions by ID
@@ -123,6 +123,22 @@ type EnduroPackagePreservationTask struct {
 
 type EnduroPackagePreservationTaskCollection []*EnduroPackagePreservationTask
 
+// EnduroPackages is the result type of the package service list method.
+type EnduroPackages struct {
+	Items EnduroStoredPackageCollection
+	Page  *EnduroPage
+}
+
+// Page represents a subset of search results.
+type EnduroPage struct {
+	// Maximum items per page
+	Limit int
+	// Offset from first result to start of page
+	Offset int
+	// Total result count before paging
+	Total int
+}
+
 // EnduroStoredPackage is the result type of the package service show method.
 type EnduroStoredPackage struct {
 	// Identifier of package
@@ -159,15 +175,11 @@ type ListPayload struct {
 	// Identifier of storage location
 	LocationID *string
 	Status     *string
-	// Pagination cursor
-	Cursor *string
+	// Limit number of results to return
+	Limit *int
+	// Offset from the beginning of the found set
+	Offset *int
 	Token  *string
-}
-
-// ListResult is the result type of the package service list method.
-type ListResult struct {
-	Items      EnduroStoredPackageCollection
-	NextCursor *string
 }
 
 // MonitorEvent is the result type of the package service monitor method.
@@ -403,6 +415,19 @@ func MakeInternalError(err error) *goa.ServiceError {
 	return goa.NewServiceError(err, "internal_error", false, false, false)
 }
 
+// NewEnduroPackages initializes result type EnduroPackages from viewed result
+// type EnduroPackages.
+func NewEnduroPackages(vres *package_views.EnduroPackages) *EnduroPackages {
+	return newEnduroPackages(vres.Projected)
+}
+
+// NewViewedEnduroPackages initializes viewed result type EnduroPackages from
+// result type EnduroPackages using the given view.
+func NewViewedEnduroPackages(res *EnduroPackages, view string) *package_views.EnduroPackages {
+	p := newEnduroPackagesView(res)
+	return &package_views.EnduroPackages{Projected: p, View: "default"}
+}
+
 // NewEnduroStoredPackage initializes result type EnduroStoredPackage from
 // viewed result type EnduroStoredPackage.
 func NewEnduroStoredPackage(vres *package_views.EnduroStoredPackage) *EnduroStoredPackage {
@@ -430,6 +455,53 @@ func NewEnduroPackagePreservationActions(vres *package_views.EnduroPackagePreser
 func NewViewedEnduroPackagePreservationActions(res *EnduroPackagePreservationActions, view string) *package_views.EnduroPackagePreservationActions {
 	p := newEnduroPackagePreservationActionsView(res)
 	return &package_views.EnduroPackagePreservationActions{Projected: p, View: "default"}
+}
+
+// newEnduroPackages converts projected type EnduroPackages to service type
+// EnduroPackages.
+func newEnduroPackages(vres *package_views.EnduroPackagesView) *EnduroPackages {
+	res := &EnduroPackages{}
+	if vres.Items != nil {
+		res.Items = newEnduroStoredPackageCollection(vres.Items)
+	}
+	if vres.Page != nil {
+		res.Page = newEnduroPage(vres.Page)
+	}
+	return res
+}
+
+// newEnduroPackagesView projects result type EnduroPackages to projected type
+// EnduroPackagesView using the "default" view.
+func newEnduroPackagesView(res *EnduroPackages) *package_views.EnduroPackagesView {
+	vres := &package_views.EnduroPackagesView{}
+	if res.Items != nil {
+		vres.Items = newEnduroStoredPackageCollectionView(res.Items)
+	}
+	if res.Page != nil {
+		vres.Page = newEnduroPageView(res.Page)
+	}
+	return vres
+}
+
+// newEnduroStoredPackageCollection converts projected type
+// EnduroStoredPackageCollection to service type EnduroStoredPackageCollection.
+func newEnduroStoredPackageCollection(vres package_views.EnduroStoredPackageCollectionView) EnduroStoredPackageCollection {
+	res := make(EnduroStoredPackageCollection, len(vres))
+	for i, n := range vres {
+		res[i] = newEnduroStoredPackage(n)
+	}
+	return res
+}
+
+// newEnduroStoredPackageCollectionView projects result type
+// EnduroStoredPackageCollection to projected type
+// EnduroStoredPackageCollectionView using the "default" view.
+func newEnduroStoredPackageCollectionView(res EnduroStoredPackageCollection) package_views.EnduroStoredPackageCollectionView {
+	vres := make(package_views.EnduroStoredPackageCollectionView, len(res))
+	for i, n := range res {
+		vres[i] = newEnduroStoredPackageView(n)
+	}
+	return vres
 }
 
 // newEnduroStoredPackage converts projected type EnduroStoredPackage to
@@ -473,6 +545,32 @@ func newEnduroStoredPackageView(res *EnduroStoredPackage) *package_views.EnduroS
 		CreatedAt:   &res.CreatedAt,
 		StartedAt:   res.StartedAt,
 		CompletedAt: res.CompletedAt,
+	}
+	return vres
+}
+
+// newEnduroPage converts projected type EnduroPage to service type EnduroPage.
+func newEnduroPage(vres *package_views.EnduroPageView) *EnduroPage {
+	res := &EnduroPage{}
+	if vres.Limit != nil {
+		res.Limit = *vres.Limit
+	}
+	if vres.Offset != nil {
+		res.Offset = *vres.Offset
+	}
+	if vres.Total != nil {
+		res.Total = *vres.Total
+	}
+	return res
+}
+
+// newEnduroPageView projects result type EnduroPage to projected type
+// EnduroPageView using the "default" view.
+func newEnduroPageView(res *EnduroPage) *package_views.EnduroPageView {
+	vres := &package_views.EnduroPageView{
+		Limit:  &res.Limit,
+		Offset: &res.Offset,
+		Total:  &res.Total,
 	}
 	return vres
 }

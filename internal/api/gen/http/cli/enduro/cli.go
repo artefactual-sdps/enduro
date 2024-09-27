@@ -69,7 +69,8 @@ func ParseEndpoint(
 		package_ListLatestCreatedTimeFlag   = package_ListFlags.String("latest-created-time", "", "")
 		package_ListLocationIDFlag          = package_ListFlags.String("location-id", "", "")
 		package_ListStatusFlag              = package_ListFlags.String("status", "", "")
-		package_ListCursorFlag              = package_ListFlags.String("cursor", "", "")
+		package_ListLimitFlag               = package_ListFlags.String("limit", "", "")
+		package_ListOffsetFlag              = package_ListFlags.String("offset", "", "")
 		package_ListTokenFlag               = package_ListFlags.String("token", "", "")
 
 		package_ShowFlags     = flag.NewFlagSet("show", flag.ExitOnError)
@@ -319,7 +320,7 @@ func ParseEndpoint(
 				data, err = package_c.BuildMonitorPayload(*package_MonitorTicketFlag)
 			case "list":
 				endpoint = c.List()
-				data, err = package_c.BuildListPayload(*package_ListNameFlag, *package_ListAipIDFlag, *package_ListEarliestCreatedTimeFlag, *package_ListLatestCreatedTimeFlag, *package_ListLocationIDFlag, *package_ListStatusFlag, *package_ListCursorFlag, *package_ListTokenFlag)
+				data, err = package_c.BuildListPayload(*package_ListNameFlag, *package_ListAipIDFlag, *package_ListEarliestCreatedTimeFlag, *package_ListLatestCreatedTimeFlag, *package_ListLocationIDFlag, *package_ListStatusFlag, *package_ListLimitFlag, *package_ListOffsetFlag, *package_ListTokenFlag)
 			case "show":
 				endpoint = c.Show()
 				data, err = package_c.BuildShowPayload(*package_ShowIDFlag, *package_ShowTokenFlag)
@@ -439,7 +440,7 @@ Example:
 }
 
 func package_ListUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] package list -name STRING -aip-id STRING -earliest-created-time STRING -latest-created-time STRING -location-id STRING -status STRING -cursor STRING -token STRING
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] package list -name STRING -aip-id STRING -earliest-created-time STRING -latest-created-time STRING -location-id STRING -status STRING -limit INT -offset INT -token STRING
 
 List all stored packages
     -name STRING: 
@@ -448,11 +449,12 @@ List all stored packages
     -latest-created-time STRING: 
     -location-id STRING: 
     -status STRING: 
-    -cursor STRING: 
+    -limit INT: 
+    -offset INT: 
     -token STRING: 
 
 Example:
-    %[1]s package list --name "abc123" --aip-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --earliest-created-time "1970-01-01T00:00:01Z" --latest-created-time "1970-01-01T00:00:01Z" --location-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --status "in progress" --cursor "abc123" --token "abc123"
+    %[1]s package list --name "abc123" --aip-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --earliest-created-time "1970-01-01T00:00:01Z" --latest-created-time "1970-01-01T00:00:01Z" --location-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --status "in progress" --limit 1 --offset 1 --token "abc123"
 `, os.Args[0])
 }
 
