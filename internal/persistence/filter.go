@@ -3,6 +3,7 @@ package persistence
 import (
 	"github.com/google/uuid"
 
+	goapackage "github.com/artefactual-sdps/enduro/internal/api/gen/package_"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/timerange"
 )
@@ -46,6 +47,18 @@ type Page struct {
 
 	// Total is the total number of search results before paging.
 	Total int
+}
+
+func (p *Page) Goa() *goapackage.EnduroPage {
+	if p == nil {
+		return nil
+	}
+
+	return &goapackage.EnduroPage{
+		Limit:  p.Limit,
+		Offset: p.Offset,
+		Total:  p.Total,
+	}
 }
 
 type PackageFilter struct {

@@ -33,7 +33,11 @@ type Package struct {
 }
 
 // Goa returns the API representation of the package.
-func (p Package) Goa() *goapackage.EnduroStoredPackage {
+func (p *Package) Goa() *goapackage.EnduroStoredPackage {
+	if p == nil {
+		return nil
+	}
+
 	var id uint
 	if p.ID > 0 {
 		id = uint(p.ID) // #nosec G115 -- range validated.

@@ -80,13 +80,13 @@ func (c *Client) Monitor(ctx context.Context, p *MonitorPayload) (res MonitorCli
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
 //   - error: internal error
-func (c *Client) List(ctx context.Context, p *ListPayload) (res *ListResult, err error) {
+func (c *Client) List(ctx context.Context, p *ListPayload) (res *EnduroPackages, err error) {
 	var ires any
 	ires, err = c.ListEndpoint(ctx, p)
 	if err != nil {
 		return
 	}
-	return ires.(*ListResult), nil
+	return ires.(*EnduroPackages), nil
 }
 
 // Show calls the "show" endpoint of the "package" service.

@@ -182,9 +182,9 @@ func EncodeMonitorError(encoder func(context.Context, http.ResponseWriter) goaht
 // list endpoint.
 func EncodeListResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, any) error {
 	return func(ctx context.Context, w http.ResponseWriter, v any) error {
-		res, _ := v.(*package_.ListResult)
+		res := v.(*package_views.EnduroPackages)
 		enc := encoder(ctx, w)
-		body := NewListResponseBody(res)
+		body := NewListResponseBody(res.Projected)
 		w.WriteHeader(http.StatusOK)
 		return enc.Encode(body)
 	}
@@ -201,7 +201,8 @@ func DecodeListRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.De
 			latestCreatedTime   *string
 			locationID          *string
 			status              *string
-			cursor              *string
+			limit               *int
+			offset              *int
 			token               *string
 			err                 error
 		)
@@ -246,9 +247,27 @@ func DecodeListRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.De
 				err = goa.MergeErrors(err, goa.InvalidEnumValueError("status", *status, []any{"new", "in progress", "done", "error", "unknown", "queued", "abandoned", "pending"}))
 			}
 		}
-		cursorRaw := r.URL.Query().Get("cursor")
-		if cursorRaw != "" {
-			cursor = &cursorRaw
+		{
+			limitRaw := r.URL.Query().Get("limit")
+			if limitRaw != "" {
+				v, err2 := strconv.ParseInt(limitRaw, 10, strconv.IntSize)
+				if err2 != nil {
+					err = goa.MergeErrors(err, goa.InvalidFieldTypeError("limit", limitRaw, "integer"))
+				}
+				pv := int(v)
+				limit = &pv
+			}
+		}
+		{
+			offsetRaw := r.URL.Query().Get("offset")
+			if offsetRaw != "" {
+				v, err2 := strconv.ParseInt(offsetRaw, 10, strconv.IntSize)
+				if err2 != nil {
+					err = goa.MergeErrors(err, goa.InvalidFieldTypeError("offset", offsetRaw, "integer"))
+				}
+				pv := int(v)
+				offset = &pv
+			}
 		}
 		tokenRaw := r.Header.Get("Authorization")
 		if tokenRaw != "" {
@@ -257,7 +276,7 @@ func DecodeListRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.De
 		if err != nil {
 			return nil, err
 		}
-		payload := NewListPayload(name, aipID, earliestCreatedTime, latestCreatedTime, locationID, status, cursor, token)
+		payload := NewListPayload(name, aipID, earliestCreatedTime, latestCreatedTime, locationID, status, limit, offset, token)
 		if payload.Token != nil {
 			if strings.Contains(*payload.Token, " ") {
 				// Remove authorization scheme prefix (e.g. "Bearer")
@@ -1119,21 +1138,34 @@ func EncodeUploadError(encoder func(context.Context, http.ResponseWriter) goahtt
 	}
 }
 
-// marshalPackageEnduroStoredPackageToEnduroStoredPackageResponseBody builds a
-// value of type *EnduroStoredPackageResponseBody from a value of type
-// *package_.EnduroStoredPackage.
-func marshalPackageEnduroStoredPackageToEnduroStoredPackageResponseBody(v *package_.EnduroStoredPackage) *EnduroStoredPackageResponseBody {
+// marshalPackageViewsEnduroStoredPackageViewToEnduroStoredPackageResponseBody
+// builds a value of type *EnduroStoredPackageResponseBody from a value of type
+// *package_views.EnduroStoredPackageView.
+func marshalPackageViewsEnduroStoredPackageViewToEnduroStoredPackageResponseBody(v *package_views.EnduroStoredPackageView) *EnduroStoredPackageResponseBody {
 	res := &EnduroStoredPackageResponseBody{
-		ID:          v.ID,
+		ID:          *v.ID,
 		Name:        v.Name,
 		LocationID:  v.LocationID,
-		Status:      v.Status,
+		Status:      *v.Status,
 		WorkflowID:  v.WorkflowID,
 		RunID:       v.RunID,
 		AipID:       v.AipID,
-		CreatedAt:   v.CreatedAt,
+		CreatedAt:   *v.CreatedAt,
 		StartedAt:   v.StartedAt,
 		CompletedAt: v.CompletedAt,
+	}
+
+	return res
+}
+
+// marshalPackageViewsEnduroPageViewToEnduroPageResponseBody builds a value of
+// type *EnduroPageResponseBody from a value of type
+// *package_views.EnduroPageView.
+func marshalPackageViewsEnduroPageViewToEnduroPageResponseBody(v *package_views.EnduroPageView) *EnduroPageResponseBody {
+	res := &EnduroPageResponseBody{
+		Limit:  *v.Limit,
+		Offset: *v.Offset,
+		Total:  *v.Total,
 	}
 
 	return res

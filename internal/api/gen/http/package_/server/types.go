@@ -54,8 +54,8 @@ type MonitorResponseBody struct {
 // ListResponseBody is the type of the "package" service "list" endpoint HTTP
 // response body.
 type ListResponseBody struct {
-	Items      EnduroStoredPackageCollectionResponseBody `form:"items" json:"items" xml:"items"`
-	NextCursor *string                                   `form:"next_cursor,omitempty" json:"next_cursor,omitempty" xml:"next_cursor,omitempty"`
+	Items EnduroStoredPackageResponseBodyCollection `form:"items" json:"items" xml:"items"`
+	Page  *EnduroPageResponseBody                   `form:"page" json:"page" xml:"page"`
 }
 
 // ShowResponseBody is the type of the "package" service "show" endpoint HTTP
@@ -384,9 +384,9 @@ type UploadInternalErrorResponseBody struct {
 	Fault bool `form:"fault" json:"fault" xml:"fault"`
 }
 
-// EnduroStoredPackageCollectionResponseBody is used to define fields on
+// EnduroStoredPackageResponseBodyCollection is used to define fields on
 // response body types.
-type EnduroStoredPackageCollectionResponseBody []*EnduroStoredPackageResponseBody
+type EnduroStoredPackageResponseBodyCollection []*EnduroStoredPackageResponseBody
 
 // EnduroStoredPackageResponseBody is used to define fields on response body
 // types.
@@ -411,6 +411,16 @@ type EnduroStoredPackageResponseBody struct {
 	StartedAt *string `form:"started_at,omitempty" json:"started_at,omitempty" xml:"started_at,omitempty"`
 	// Completion datetime
 	CompletedAt *string `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
+}
+
+// EnduroPageResponseBody is used to define fields on response body types.
+type EnduroPageResponseBody struct {
+	// Maximum items per page
+	Limit int `form:"limit" json:"limit" xml:"limit"`
+	// Offset from first result to start of page
+	Offset int `form:"offset" json:"offset" xml:"offset"`
+	// Total result count before paging
+	Total int `form:"total" json:"total" xml:"total"`
 }
 
 // EnduroPackagePreservationActionResponseBodyCollection is used to define
@@ -498,17 +508,18 @@ func NewMonitorResponseBody(res *package_.MonitorEvent) *MonitorResponseBody {
 
 // NewListResponseBody builds the HTTP response body from the result of the
 // "list" endpoint of the "package" service.
-func NewListResponseBody(res *package_.ListResult) *ListResponseBody {
-	body := &ListResponseBody{
-		NextCursor: res.NextCursor,
-	}
+func NewListResponseBody(res *package_views.EnduroPackagesView) *ListResponseBody {
+	body := &ListResponseBody{}
 	if res.Items != nil {
 		body.Items = make([]*EnduroStoredPackageResponseBody, len(res.Items))
 		for i, val := range res.Items {
-			body.Items[i] = marshalPackageEnduroStoredPackageToEnduroStoredPackageResponseBody(val)
+			body.Items[i] = marshalPackageViewsEnduroStoredPackageViewToEnduroStoredPackageResponseBody(val)
 		}
 	} else {
 		body.Items = []*EnduroStoredPackageResponseBody{}
+	}
+	if res.Page != nil {
+		body.Page = marshalPackageViewsEnduroPageViewToEnduroPageResponseBody(res.Page)
 	}
 	return body
 }
@@ -814,7 +825,7 @@ func NewMonitorPayload(ticket *string) *package_.MonitorPayload {
 }
 
 // NewListPayload builds a package service list endpoint payload.
-func NewListPayload(name *string, aipID *string, earliestCreatedTime *string, latestCreatedTime *string, locationID *string, status *string, cursor *string, token *string) *package_.ListPayload {
+func NewListPayload(name *string, aipID *string, earliestCreatedTime *string, latestCreatedTime *string, locationID *string, status *string, limit *int, offset *int, token *string) *package_.ListPayload {
 	v := &package_.ListPayload{}
 	v.Name = name
 	v.AipID = aipID
@@ -822,7 +833,8 @@ func NewListPayload(name *string, aipID *string, earliestCreatedTime *string, la
 	v.LatestCreatedTime = latestCreatedTime
 	v.LocationID = locationID
 	v.Status = status
-	v.Cursor = cursor
+	v.Limit = limit
+	v.Offset = offset
 	v.Token = token
 
 	return v

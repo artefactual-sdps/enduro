@@ -54,8 +54,8 @@ type MonitorResponseBody struct {
 // ListResponseBody is the type of the "package" service "list" endpoint HTTP
 // response body.
 type ListResponseBody struct {
-	Items      EnduroStoredPackageCollectionResponseBody `form:"items,omitempty" json:"items,omitempty" xml:"items,omitempty"`
-	NextCursor *string                                   `form:"next_cursor,omitempty" json:"next_cursor,omitempty" xml:"next_cursor,omitempty"`
+	Items EnduroStoredPackageCollectionResponseBody `form:"items,omitempty" json:"items,omitempty" xml:"items,omitempty"`
+	Page  *EnduroPageResponseBody                   `form:"page,omitempty" json:"page,omitempty" xml:"page,omitempty"`
 }
 
 // ShowResponseBody is the type of the "package" service "show" endpoint HTTP
@@ -413,6 +413,16 @@ type EnduroStoredPackageResponseBody struct {
 	CompletedAt *string `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
 }
 
+// EnduroPageResponseBody is used to define fields on response body types.
+type EnduroPageResponseBody struct {
+	// Maximum items per page
+	Limit *int `form:"limit,omitempty" json:"limit,omitempty" xml:"limit,omitempty"`
+	// Offset from first result to start of page
+	Offset *int `form:"offset,omitempty" json:"offset,omitempty" xml:"offset,omitempty"`
+	// Total result count before paging
+	Total *int `form:"total,omitempty" json:"total,omitempty" xml:"total,omitempty"`
+}
+
 // EnduroPackagePreservationActionCollectionResponseBody is used to define
 // fields on response body types.
 type EnduroPackagePreservationActionCollectionResponseBody []*EnduroPackagePreservationActionResponseBody
@@ -584,16 +594,15 @@ func NewMonitorUnauthorized(body string) package_.Unauthorized {
 	return v
 }
 
-// NewListResultOK builds a "package" service "list" endpoint result from a
-// HTTP "OK" response.
-func NewListResultOK(body *ListResponseBody) *package_.ListResult {
-	v := &package_.ListResult{
-		NextCursor: body.NextCursor,
-	}
-	v.Items = make([]*package_.EnduroStoredPackage, len(body.Items))
+// NewListEnduroPackagesOK builds a "package" service "list" endpoint result
+// from a HTTP "OK" response.
+func NewListEnduroPackagesOK(body *ListResponseBody) *package_views.EnduroPackagesView {
+	v := &package_views.EnduroPackagesView{}
+	v.Items = make([]*package_views.EnduroStoredPackageView, len(body.Items))
 	for i, val := range body.Items {
-		v.Items[i] = unmarshalEnduroStoredPackageResponseBodyToPackageEnduroStoredPackage(val)
+		v.Items[i] = unmarshalEnduroStoredPackageResponseBodyToPackageViewsEnduroStoredPackageView(val)
 	}
+	v.Page = unmarshalEnduroPageResponseBodyToPackageViewsEnduroPageView(body.Page)
 
 	return v
 }
@@ -1002,19 +1011,6 @@ func ValidateMonitorResponseBody(body *MonitorResponseBody) (err error) {
 			if !(*body.Event.Type == "monitor_ping_event" || *body.Event.Type == "package_created_event" || *body.Event.Type == "package_updated_event" || *body.Event.Type == "package_status_updated_event" || *body.Event.Type == "package_location_updated_event" || *body.Event.Type == "preservation_action_created_event" || *body.Event.Type == "preservation_action_updated_event" || *body.Event.Type == "preservation_task_created_event" || *body.Event.Type == "preservation_task_updated_event") {
 				err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.event.Type", *body.Event.Type, []any{"monitor_ping_event", "package_created_event", "package_updated_event", "package_status_updated_event", "package_location_updated_event", "preservation_action_created_event", "preservation_action_updated_event", "preservation_task_created_event", "preservation_task_updated_event"}))
 			}
-		}
-	}
-	return
-}
-
-// ValidateListResponseBody runs the validations defined on ListResponseBody
-func ValidateListResponseBody(body *ListResponseBody) (err error) {
-	if body.Items == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("items", "body"))
-	}
-	if body.Items != nil {
-		if err2 := ValidateEnduroStoredPackageCollectionResponseBody(body.Items); err2 != nil {
-			err = goa.MergeErrors(err, err2)
 		}
 	}
 	return
@@ -1460,6 +1456,21 @@ func ValidateEnduroStoredPackageResponseBody(body *EnduroStoredPackageResponseBo
 	}
 	if body.CompletedAt != nil {
 		err = goa.MergeErrors(err, goa.ValidateFormat("body.completed_at", *body.CompletedAt, goa.FormatDateTime))
+	}
+	return
+}
+
+// ValidateEnduroPageResponseBody runs the validations defined on
+// EnduroPageResponseBody
+func ValidateEnduroPageResponseBody(body *EnduroPageResponseBody) (err error) {
+	if body.Limit == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("limit", "body"))
+	}
+	if body.Offset == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("offset", "body"))
+	}
+	if body.Total == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("total", "body"))
 	}
 	return
 }

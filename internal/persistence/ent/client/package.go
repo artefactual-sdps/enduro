@@ -134,12 +134,16 @@ func (c *client) UpdatePackage(
 }
 
 // ListPackages returns a slice of packages filtered according to f.
-func (c *client) ListPackages(ctx context.Context, f persistence.PackageFilter) (
+func (c *client) ListPackages(ctx context.Context, f *persistence.PackageFilter) (
 	[]*datatypes.Package, *persistence.Page, error,
 ) {
 	res := []*datatypes.Package{}
 
-	page, whole := filterPackages(c.ent.Pkg.Query(), &f)
+	if f == nil {
+		f = &persistence.PackageFilter{}
+	}
+
+	page, whole := filterPackages(c.ent.Pkg.Query(), f)
 
 	r, err := page.All(ctx)
 	if err != nil {
@@ -164,7 +168,7 @@ func (c *client) ListPackages(ctx context.Context, f persistence.PackageFilter) 
 	return res, pp, err
 }
 
-// filterPackages filters a package query based on filtering inputs.
+// filterPackages applies the package filter f to the query q.
 func filterPackages(q *db.PkgQuery, f *persistence.PackageFilter) (page, whole *db.PkgQuery) {
 	qf := NewFilter(q, SortableFields{
 		pkg.FieldID: {Name: "ID", Default: true},
@@ -177,9 +181,9 @@ func filterPackages(q *db.PkgQuery, f *persistence.PackageFilter) (page, whole *
 	qf.OrderBy(f.Sort)
 	qf.Page(f.Limit, f.Offset)
 
-	// Update the filter values with the actual values set on the query. E.g.
-	// calling `h.Page(0,0)` will set the query limit equal to the default page
-	// size.
+	// Update the PackageFilter values with the actual values set on the query.
+	// E.g. calling `h.Page(0,0)` will set the query limit equal to the default
+	// page size.
 	f.Limit = qf.limit
 	f.Offset = qf.offset
 

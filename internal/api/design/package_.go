@@ -78,10 +78,12 @@ var _ = Service("package", func() {
 			Attribute("status", String, func() {
 				EnumPackageStatus()
 			})
-			Attribute("cursor", String, "Pagination cursor")
+			Attribute("limit", Int, "Limit number of results to return")
+			Attribute("offset", Int, "Offset from the beginning of the found set")
+
 			Token("token", String)
 		})
-		Result(PaginatedCollectionOf(StoredPackage))
+		Result(PackageList)
 		HTTP(func() {
 			GET("/")
 			Response(StatusOK)
@@ -92,7 +94,8 @@ var _ = Service("package", func() {
 				Param("latest_created_time")
 				Param("location_id")
 				Param("status")
-				Param("cursor")
+				Param("limit")
+				Param("offset")
 			})
 		})
 	})
@@ -317,6 +320,12 @@ var StoredPackage = ResultType("application/vnd.enduro.stored-package", func() {
 		Attribute("completed_at")
 	})
 	Required("id", "status", "created_at")
+})
+
+var PackageList = ResultType("application/vnd.enduro.packages", func() {
+	Attribute("items", CollectionOf(StoredPackage))
+	Attribute("page", Page)
+	Required("items", "page")
 })
 
 var PackageNotFound = Type("PackageNotFound", func() {

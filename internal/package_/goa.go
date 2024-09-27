@@ -6,8 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"math"
-	"strconv"
-	"strings"
 	"time"
 
 	"go.artefactual.dev/tools/ref"
@@ -17,7 +15,6 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	goapackage "github.com/artefactual-sdps/enduro/internal/api/gen/package_"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
-	"github.com/artefactual-sdps/enduro/internal/enums"
 )
 
 var ErrBulkStatusUnavailable = errors.New("bulk status unavailable")
@@ -29,11 +26,6 @@ type goaWrapper struct {
 }
 
 var _ goapackage.Service = (*goaWrapper)(nil)
-
-var patternMatchingCharReplacer = strings.NewReplacer(
-	"%", "\\%",
-	"_", "\\_",
-)
 
 var (
 	ErrUnauthorized error = goapackage.Unauthorized("Unauthorized")
@@ -138,88 +130,29 @@ func (w *goaWrapper) Monitor(
 }
 
 // List all stored packages. It implements goapackage.Service.
-func (w *goaWrapper) List(ctx context.Context, payload *goapackage.ListPayload) (*goapackage.ListResult, error) {
-	query := "SELECT id, name, workflow_id, run_id, aip_id, location_id, status, CONVERT_TZ(created_at, @@session.time_zone, '+00:00') AS created_at, CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at, CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at FROM package"
-	args := []interface{}{}
-
-	// We extract one extra item so we can tell the next cursor.
-	const limit = 20
-	const limitSQL = "21"
-
-	conds := [][2]string{}
-
-	if payload.Name != nil {
-		name := patternMatchingCharReplacer.Replace(*payload.Name) + "%"
-		args = append(args, name)
-		conds = append(conds, [2]string{"AND", "name LIKE ?"})
-	}
-	if payload.AipID != nil {
-		args = append(args, payload.AipID)
-		conds = append(conds, [2]string{"AND", "aip_id = ?"})
-	}
-	if payload.LocationID != nil {
-		args = append(args, payload.LocationID)
-		conds = append(conds, [2]string{"AND", "location_id = ?"})
-	}
-	if payload.Status != nil {
-		s, err := enums.ParsePackageStatus(*payload.Status)
-		if err == nil {
-			args = append(args, s)
-			conds = append(conds, [2]string{"AND", "status = ?"})
-		}
-	}
-	if payload.EarliestCreatedTime != nil {
-		args = append(args, payload.EarliestCreatedTime)
-		conds = append(conds, [2]string{"AND", "created_at >= ?"})
-	}
-	if payload.LatestCreatedTime != nil {
-		args = append(args, payload.LatestCreatedTime)
-		conds = append(conds, [2]string{"AND", "created_at <= ?"})
+func (w *goaWrapper) List(ctx context.Context, payload *goapackage.ListPayload) (*goapackage.EnduroPackages, error) {
+	if payload == nil {
+		payload = &goapackage.ListPayload{}
 	}
 
-	if payload.Cursor != nil {
-		args = append(args, *payload.Cursor)
-		conds = append(conds, [2]string{"AND", "id <= ?"})
-	}
-
-	var where string
-	for i, cond := range conds {
-		if i == 0 {
-			where = " WHERE " + cond[1]
-			continue
-		}
-		where += fmt.Sprintf(" %s %s", cond[0], cond[1])
-	}
-
-	query += where + " ORDER BY id DESC LIMIT " + limitSQL
-
-	rows, err := w.db.QueryxContext(ctx, query, args...)
+	pf, err := listPayloadToPackageFilter(payload)
 	if err != nil {
-		return nil, fmt.Errorf("error querying the database: %w", err)
-	}
-	defer rows.Close()
-
-	cols := []*goapackage.EnduroStoredPackage{}
-	for rows.Next() {
-		c := datatypes.Package{}
-		if err := rows.StructScan(&c); err != nil {
-			return nil, fmt.Errorf("error scanning database result: %w", err)
-		}
-		cols = append(cols, c.Goa())
+		return nil, err
 	}
 
-	res := &goapackage.ListResult{
-		Items: cols,
+	r, pg, err := w.perSvc.ListPackages(ctx, pf)
+	if err != nil {
+		return nil, goapackage.MakeInternalError(err)
 	}
 
-	length := len(cols)
-	if length > limit {
-		last := cols[length-1] // Capture last item.
+	items := make([]*goapackage.EnduroStoredPackage, len(r))
+	for i, pkg := range r {
+		items[i] = pkg.Goa()
+	}
 
-		// We also need the last item's ID (cursor).
-		lastID := strconv.Itoa(int(last.ID)) // #nosec G115 -- constrained value.
-		res.Items = cols[:len(cols)-1]       // Remove it from the results.
-		res.NextCursor = &lastID             // Populate cursor.
+	res := &goapackage.EnduroPackages{
+		Items: items,
+		Page:  pg.Goa(),
 	}
 
 	return res, nil

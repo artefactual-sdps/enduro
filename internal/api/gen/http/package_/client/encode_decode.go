@@ -11,6 +11,7 @@ package client
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -309,8 +310,11 @@ func EncodeListRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.R
 		if p.Status != nil {
 			values.Add("status", *p.Status)
 		}
-		if p.Cursor != nil {
-			values.Add("cursor", *p.Cursor)
+		if p.Limit != nil {
+			values.Add("limit", fmt.Sprintf("%v", *p.Limit))
+		}
+		if p.Offset != nil {
+			values.Add("offset", fmt.Sprintf("%v", *p.Offset))
 		}
 		req.URL.RawQuery = values.Encode()
 		return nil
@@ -348,11 +352,13 @@ func DecodeListResponse(decoder func(*http.Response) goahttp.Decoder, restoreBod
 			if err != nil {
 				return nil, goahttp.ErrDecodingError("package", "list", err)
 			}
-			err = ValidateListResponseBody(&body)
-			if err != nil {
+			p := NewListEnduroPackagesOK(&body)
+			view := "default"
+			vres := &package_views.EnduroPackages{Projected: p, View: view}
+			if err = package_views.ValidateEnduroPackages(vres); err != nil {
 				return nil, goahttp.ErrValidationError("package", "list", err)
 			}
-			res := NewListResultOK(&body)
+			res := package_.NewEnduroPackages(vres)
 			return res, nil
 		case http.StatusForbidden:
 			var (
@@ -1383,21 +1389,34 @@ func BuildUploadStreamPayload(payload any, fpath string) (*package_.UploadReques
 	}, nil
 }
 
-// unmarshalEnduroStoredPackageResponseBodyToPackageEnduroStoredPackage builds
-// a value of type *package_.EnduroStoredPackage from a value of type
-// *EnduroStoredPackageResponseBody.
-func unmarshalEnduroStoredPackageResponseBodyToPackageEnduroStoredPackage(v *EnduroStoredPackageResponseBody) *package_.EnduroStoredPackage {
-	res := &package_.EnduroStoredPackage{
-		ID:          *v.ID,
+// unmarshalEnduroStoredPackageResponseBodyToPackageViewsEnduroStoredPackageView
+// builds a value of type *package_views.EnduroStoredPackageView from a value
+// of type *EnduroStoredPackageResponseBody.
+func unmarshalEnduroStoredPackageResponseBodyToPackageViewsEnduroStoredPackageView(v *EnduroStoredPackageResponseBody) *package_views.EnduroStoredPackageView {
+	res := &package_views.EnduroStoredPackageView{
+		ID:          v.ID,
 		Name:        v.Name,
 		LocationID:  v.LocationID,
-		Status:      *v.Status,
+		Status:      v.Status,
 		WorkflowID:  v.WorkflowID,
 		RunID:       v.RunID,
 		AipID:       v.AipID,
-		CreatedAt:   *v.CreatedAt,
+		CreatedAt:   v.CreatedAt,
 		StartedAt:   v.StartedAt,
 		CompletedAt: v.CompletedAt,
+	}
+
+	return res
+}
+
+// unmarshalEnduroPageResponseBodyToPackageViewsEnduroPageView builds a value
+// of type *package_views.EnduroPageView from a value of type
+// *EnduroPageResponseBody.
+func unmarshalEnduroPageResponseBodyToPackageViewsEnduroPageView(v *EnduroPageResponseBody) *package_views.EnduroPageView {
+	res := &package_views.EnduroPageView{
+		Limit:  v.Limit,
+		Offset: v.Offset,
+		Total:  v.Total,
 	}
 
 	return res

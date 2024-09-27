@@ -379,11 +379,11 @@ func TestListPackages(t *testing.T) {
 		page *persistence.Page
 	}
 	tests := []struct {
-		name    string
-		data    []*datatypes.Package
-		args    persistence.PackageFilter
-		want    results
-		wantErr string
+		name          string
+		data          []*datatypes.Package
+		packageFilter *persistence.PackageFilter
+		want          results
+		wantErr       string
 	}{
 		{
 			name: "Returns all packages",
@@ -409,7 +409,6 @@ func TestListPackages(t *testing.T) {
 					CompletedAt: completed2,
 				},
 			},
-			args: persistence.PackageFilter{},
 			want: results{
 				data: []*datatypes.Package{
 					{
@@ -467,7 +466,7 @@ func TestListPackages(t *testing.T) {
 					CompletedAt: completed2,
 				},
 			},
-			args: persistence.PackageFilter{
+			packageFilter: &persistence.PackageFilter{
 				Page: persistence.Page{Limit: 1},
 			},
 			want: results{
@@ -515,7 +514,7 @@ func TestListPackages(t *testing.T) {
 					CompletedAt: completed2,
 				},
 			},
-			args: persistence.PackageFilter{
+			packageFilter: &persistence.PackageFilter{
 				Page: persistence.Page{Limit: 1, Offset: 1},
 			},
 			want: results{
@@ -564,7 +563,7 @@ func TestListPackages(t *testing.T) {
 					CompletedAt: completed2,
 				},
 			},
-			args: persistence.PackageFilter{
+			packageFilter: &persistence.PackageFilter{
 				Name: ref.New("Test package 2"),
 			},
 			want: results{
@@ -612,7 +611,7 @@ func TestListPackages(t *testing.T) {
 					CompletedAt: completed2,
 				},
 			},
-			args: persistence.PackageFilter{
+			packageFilter: &persistence.PackageFilter{
 				AIPID: &aipID2.UUID,
 			},
 			want: results{
@@ -660,7 +659,7 @@ func TestListPackages(t *testing.T) {
 					CompletedAt: completed2,
 				},
 			},
-			args: persistence.PackageFilter{
+			packageFilter: &persistence.PackageFilter{
 				LocationID: &locID2.UUID,
 			},
 			want: results{
@@ -708,7 +707,7 @@ func TestListPackages(t *testing.T) {
 					CompletedAt: completed2,
 				},
 			},
-			args: persistence.PackageFilter{
+			packageFilter: &persistence.PackageFilter{
 				Status: ref.New(enums.PackageStatusInProgress),
 			},
 			want: results{
@@ -756,7 +755,7 @@ func TestListPackages(t *testing.T) {
 					CompletedAt: completed2,
 				},
 			},
-			args: persistence.PackageFilter{
+			packageFilter: &persistence.PackageFilter{
 				CreatedAt: func(t *testing.T) *timerange.Range {
 					r, err := timerange.New(
 						time.Now().Add(-1*time.Minute),
@@ -825,7 +824,7 @@ func TestListPackages(t *testing.T) {
 					CompletedAt: completed2,
 				},
 			},
-			args: persistence.PackageFilter{
+			packageFilter: &persistence.PackageFilter{
 				CreatedAt: func(t *testing.T) *timerange.Range {
 					r, err := timerange.New(
 						time.Now().Add(time.Minute),
@@ -861,7 +860,7 @@ func TestListPackages(t *testing.T) {
 				}
 			}
 
-			got, pg, err := svc.ListPackages(ctx, tt.args)
+			got, pg, err := svc.ListPackages(ctx, tt.packageFilter)
 			assert.NilError(t, err)
 
 			assert.DeepEqual(t, got, tt.want.data,

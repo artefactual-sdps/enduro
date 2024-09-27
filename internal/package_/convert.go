@@ -1,13 +1,19 @@
 package package_
 
 import (
+	"errors"
+	"fmt"
 	"time"
 
+	"github.com/google/uuid"
 	"go.artefactual.dev/tools/ref"
 
 	goapackage "github.com/artefactual-sdps/enduro/internal/api/gen/package_"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/db"
+	"github.com/artefactual-sdps/enduro/internal/enums"
+	"github.com/artefactual-sdps/enduro/internal/persistence"
+	"github.com/artefactual-sdps/enduro/internal/timerange"
 )
 
 func packageToGoaPackageCreatedEvent(p *datatypes.Package) *goapackage.PackageCreatedEvent {
@@ -76,4 +82,94 @@ func preservationTaskToGoa(pt *datatypes.PreservationTask) *goapackage.EnduroPac
 		Note:                 &pt.Note,
 		PreservationActionID: ref.New(paID),
 	}
+}
+
+func listPayloadToPackageFilter(payload *goapackage.ListPayload) (*persistence.PackageFilter, error) {
+	aipID, err := stringToUUIDPtr(payload.AipID)
+	if err != nil {
+		return nil, fmt.Errorf("aip_id: %v", err)
+	}
+
+	locID, err := stringToUUIDPtr(payload.LocationID)
+	if err != nil {
+		return nil, fmt.Errorf("location_id: %v", err)
+	}
+
+	var status *enums.PackageStatus
+	if payload.Status != nil {
+		s, err := enums.ParsePackageStatus(*payload.Status)
+		if err != nil {
+			return nil, fmt.Errorf("invalid status")
+		}
+		status = &s
+	}
+
+	createdAt, err := parseCreatedAtRange(payload.EarliestCreatedTime, payload.LatestCreatedTime)
+	if err != nil {
+		return nil, err
+	}
+
+	pf := persistence.PackageFilter{
+		AIPID:      aipID,
+		Name:       payload.Name,
+		LocationID: locID,
+		Status:     status,
+		CreatedAt:  createdAt,
+		Sort:       persistence.NewSort().AddCol("id", true),
+		Page: persistence.Page{
+			Limit:  ref.DerefZero(payload.Limit),
+			Offset: ref.DerefZero(payload.Offset),
+		},
+	}
+
+	return &pf, nil
+}
+
+func stringToUUIDPtr(s *string) (*uuid.UUID, error) {
+	if s == nil {
+		return nil, nil
+	}
+
+	u, err := uuid.Parse(*s)
+	if err != nil {
+		return nil, errors.New("invalid UUID")
+	}
+
+	return &u, nil
+}
+
+func parseCreatedAtRange(start, end *string) (*timerange.Range, error) {
+	if start == nil && end == nil {
+		return nil, nil
+	}
+
+	s, err := parseTime(start)
+	if err != nil {
+		return nil, fmt.Errorf("earliest_created_time: %v", err)
+	}
+
+	e, err := parseTime(end)
+	if err != nil {
+		return nil, fmt.Errorf("latest_created_time: %v", err)
+	}
+
+	r, err := timerange.New(s, e)
+	if err != nil {
+		return nil, err
+	}
+
+	return &r, nil
+}
+
+func parseTime(value *string) (time.Time, error) {
+	if value == nil {
+		return time.Time{}, nil
+	}
+
+	t, err := time.Parse(time.RFC3339, *value)
+	if err != nil {
+		return time.Time{}, errors.New("invalid time")
+	}
+
+	return t, nil
 }

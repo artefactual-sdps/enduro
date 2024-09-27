@@ -13,6 +13,14 @@ import (
 	goa "goa.design/goa/v3/pkg"
 )
 
+// EnduroPackages is the viewed result type that is projected based on a view.
+type EnduroPackages struct {
+	// Type to project
+	Projected *EnduroPackagesView
+	// View to render
+	View string
+}
+
 // EnduroStoredPackage is the viewed result type that is projected based on a
 // view.
 type EnduroStoredPackage struct {
@@ -30,6 +38,16 @@ type EnduroPackagePreservationActions struct {
 	// View to render
 	View string
 }
+
+// EnduroPackagesView is a type that runs validations on a projected type.
+type EnduroPackagesView struct {
+	Items EnduroStoredPackageCollectionView
+	Page  *EnduroPageView
+}
+
+// EnduroStoredPackageCollectionView is a type that runs validations on a
+// projected type.
+type EnduroStoredPackageCollectionView []*EnduroStoredPackageView
 
 // EnduroStoredPackageView is a type that runs validations on a projected type.
 type EnduroStoredPackageView struct {
@@ -53,6 +71,16 @@ type EnduroStoredPackageView struct {
 	StartedAt *string
 	// Completion datetime
 	CompletedAt *string
+}
+
+// EnduroPageView is a type that runs validations on a projected type.
+type EnduroPageView struct {
+	// Maximum items per page
+	Limit *int
+	// Offset from first result to start of page
+	Offset *int
+	// Total result count before paging
+	Total *int
 }
 
 // EnduroPackagePreservationActionsView is a type that runs validations on a
@@ -96,6 +124,14 @@ type EnduroPackagePreservationTaskView struct {
 }
 
 var (
+	// EnduroPackagesMap is a map indexing the attribute names of EnduroPackages by
+	// view name.
+	EnduroPackagesMap = map[string][]string{
+		"default": {
+			"items",
+			"page",
+		},
+	}
 	// EnduroStoredPackageMap is a map indexing the attribute names of
 	// EnduroStoredPackage by view name.
 	EnduroStoredPackageMap = map[string][]string{
@@ -117,6 +153,31 @@ var (
 	EnduroPackagePreservationActionsMap = map[string][]string{
 		"default": {
 			"actions",
+		},
+	}
+	// EnduroStoredPackageCollectionMap is a map indexing the attribute names of
+	// EnduroStoredPackageCollection by view name.
+	EnduroStoredPackageCollectionMap = map[string][]string{
+		"default": {
+			"id",
+			"name",
+			"location_id",
+			"status",
+			"workflow_id",
+			"run_id",
+			"aip_id",
+			"created_at",
+			"started_at",
+			"completed_at",
+		},
+	}
+	// EnduroPageMap is a map indexing the attribute names of EnduroPage by view
+	// name.
+	EnduroPageMap = map[string][]string{
+		"default": {
+			"limit",
+			"offset",
+			"total",
 		},
 	}
 	// EnduroPackagePreservationActionCollectionMap is a map indexing the attribute
@@ -195,6 +256,18 @@ var (
 	}
 )
 
+// ValidateEnduroPackages runs the validations defined on the viewed result
+// type EnduroPackages.
+func ValidateEnduroPackages(result *EnduroPackages) (err error) {
+	switch result.View {
+	case "default", "":
+		err = ValidateEnduroPackagesView(result.Projected)
+	default:
+		err = goa.InvalidEnumValueError("view", result.View, []any{"default"})
+	}
+	return
+}
+
 // ValidateEnduroStoredPackage runs the validations defined on the viewed
 // result type EnduroStoredPackage.
 func ValidateEnduroStoredPackage(result *EnduroStoredPackage) (err error) {
@@ -215,6 +288,34 @@ func ValidateEnduroPackagePreservationActions(result *EnduroPackagePreservationA
 		err = ValidateEnduroPackagePreservationActionsView(result.Projected)
 	default:
 		err = goa.InvalidEnumValueError("view", result.View, []any{"default"})
+	}
+	return
+}
+
+// ValidateEnduroPackagesView runs the validations defined on
+// EnduroPackagesView using the "default" view.
+func ValidateEnduroPackagesView(result *EnduroPackagesView) (err error) {
+
+	if result.Items != nil {
+		if err2 := ValidateEnduroStoredPackageCollectionView(result.Items); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	if result.Page != nil {
+		if err2 := ValidateEnduroPageView(result.Page); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	return
+}
+
+// ValidateEnduroStoredPackageCollectionView runs the validations defined on
+// EnduroStoredPackageCollectionView using the "default" view.
+func ValidateEnduroStoredPackageCollectionView(result EnduroStoredPackageCollectionView) (err error) {
+	for _, item := range result {
+		if err2 := ValidateEnduroStoredPackageView(item); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
 	}
 	return
 }
@@ -253,6 +354,21 @@ func ValidateEnduroStoredPackageView(result *EnduroStoredPackageView) (err error
 	}
 	if result.CompletedAt != nil {
 		err = goa.MergeErrors(err, goa.ValidateFormat("result.completed_at", *result.CompletedAt, goa.FormatDateTime))
+	}
+	return
+}
+
+// ValidateEnduroPageView runs the validations defined on EnduroPageView using
+// the "default" view.
+func ValidateEnduroPageView(result *EnduroPageView) (err error) {
+	if result.Limit == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("limit", "result"))
+	}
+	if result.Offset == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("offset", "result"))
+	}
+	if result.Total == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("total", "result"))
 	}
 	return
 }

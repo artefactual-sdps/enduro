@@ -156,7 +156,7 @@ func (c *MockServiceCreatePreservationTaskCall) DoAndReturn(f func(context.Conte
 }
 
 // ListPackages mocks base method.
-func (m *MockService) ListPackages(arg0 context.Context, arg1 persistence.PackageFilter) ([]*datatypes.Package, *persistence.Page, error) {
+func (m *MockService) ListPackages(arg0 context.Context, arg1 *persistence.PackageFilter) ([]*datatypes.Package, *persistence.Page, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListPackages", arg0, arg1)
 	ret0, _ := ret[0].([]*datatypes.Package)
@@ -184,13 +184,13 @@ func (c *MockServiceListPackagesCall) Return(arg0 []*datatypes.Package, arg1 *pe
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockServiceListPackagesCall) Do(f func(context.Context, persistence.PackageFilter) ([]*datatypes.Package, *persistence.Page, error)) *MockServiceListPackagesCall {
+func (c *MockServiceListPackagesCall) Do(f func(context.Context, *persistence.PackageFilter) ([]*datatypes.Package, *persistence.Page, error)) *MockServiceListPackagesCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockServiceListPackagesCall) DoAndReturn(f func(context.Context, persistence.PackageFilter) ([]*datatypes.Package, *persistence.Page, error)) *MockServiceListPackagesCall {
+func (c *MockServiceListPackagesCall) DoAndReturn(f func(context.Context, *persistence.PackageFilter) ([]*datatypes.Package, *persistence.Page, error)) *MockServiceListPackagesCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

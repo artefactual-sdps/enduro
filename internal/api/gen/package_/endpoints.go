@@ -131,7 +131,12 @@ func NewListEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
 		if err != nil {
 			return nil, err
 		}
-		return s.List(ctx, p)
+		res, err := s.List(ctx, p)
+		if err != nil {
+			return nil, err
+		}
+		vres := NewViewedEnduroPackages(res, "default")
+		return vres, nil
 	}
 }
 

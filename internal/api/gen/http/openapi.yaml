@@ -61,11 +61,16 @@ paths:
                     - queued
                     - abandoned
                     - pending
-                - name: cursor
+                - name: limit
                   in: query
-                  description: Pagination cursor
+                  description: Limit number of results to return
                   required: false
-                  type: string
+                  type: integer
+                - name: offset
+                  in: query
+                  description: Offset from the beginning of the found set
+                  required: false
+                  type: integer
                 - name: Authorization
                   in: header
                   required: false
@@ -75,8 +80,6 @@ paths:
                     description: OK response.
                     schema:
                         $ref: '#/definitions/PackageListResponseBody'
-                        required:
-                            - items
                 "401":
                     description: Unauthorized response.
                     schema:
@@ -1264,6 +1267,34 @@ definitions:
               started_at: "1970-01-01T00:00:01Z"
               status: in progress
               task_id: abc123
+    EnduroPageResponseBody:
+        title: 'Mediatype identifier: application/vnd.enduro.page; view=default'
+        type: object
+        properties:
+            limit:
+                type: integer
+                description: Maximum items per page
+                example: 1
+                format: int64
+            offset:
+                type: integer
+                description: Offset from first result to start of page
+                example: 1
+                format: int64
+            total:
+                type: integer
+                description: Total result count before paging
+                example: 1
+                format: int64
+        description: Page represents a subset of search results. (default view)
+        example:
+            limit: 1
+            offset: 1
+            total: 1
+        required:
+            - limit
+            - offset
+            - total
     EnduroStoredPackageResponseBody:
         title: 'Mediatype identifier: application/vnd.enduro.stored-package; view=default'
         type: object
@@ -1529,14 +1560,14 @@ definitions:
         required:
             - location_id
     PackageListResponseBody:
-        title: PackageListResponseBody
+        title: 'Mediatype identifier: application/vnd.enduro.packages; view=default'
         type: object
         properties:
             items:
                 $ref: '#/definitions/EnduroStoredPackageResponseBodyCollection'
-            next_cursor:
-                type: string
-                example: abc123
+            page:
+                $ref: '#/definitions/EnduroPageResponseBody'
+        description: ListResponseBody result type (default view)
         example:
             items:
                 - aip_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
@@ -1549,9 +1580,13 @@ definitions:
                   started_at: "1970-01-01T00:00:01Z"
                   status: in progress
                   workflow_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-            next_cursor: abc123
+            page:
+                limit: 1
+                offset: 1
+                total: 1
         required:
             - items
+            - page
     PackageMonitorNotAvailableResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
