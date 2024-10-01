@@ -304,10 +304,10 @@ func main() {
 	}
 
 	// Internal API server.
-	// Recreate package, storage and upload services. Same as above
-	// with different logger names and using &auth.NoopTokenVerifier{}.
+	// Recreate package and storage services with different
+	// logger names and using &auth.NoopTokenVerifier{}.
 	{
-		pkgsvc = package_.NewService(
+		ips := package_.NewService(
 			logger.WithName("internal-package"),
 			enduroDatabase,
 			temporalClient,
@@ -320,7 +320,7 @@ func main() {
 			cfg.Upload.MaxSize,
 		)
 
-		storagesvc, err = storage.NewService(
+		iss, err := storage.NewService(
 			logger.WithName("internal-storage"),
 			cfg.Storage,
 			storagePersistence,
@@ -337,7 +337,7 @@ func main() {
 
 		g.Add(
 			func() error {
-				srv = api.HTTPServer(logger, tp, &cfg.InternalAPI, pkgsvc, storagesvc)
+				srv = api.HTTPServer(logger, tp, &cfg.InternalAPI, ips, iss)
 				return srv.ListenAndServe()
 			},
 			func(err error) {
