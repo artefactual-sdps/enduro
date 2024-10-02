@@ -17,8 +17,8 @@ import * as runtime from '../runtime';
 import type {
   ConfirmRequestBody,
   EnduroPackagePreservationActions,
+  EnduroPackages,
   EnduroStoredPackage,
-  ListResponseBody,
   MonitorEvent,
   MoveStatusResult,
   PackageNotFound,
@@ -28,10 +28,10 @@ import {
     ConfirmRequestBodyToJSON,
     EnduroPackagePreservationActionsFromJSON,
     EnduroPackagePreservationActionsToJSON,
+    EnduroPackagesFromJSON,
+    EnduroPackagesToJSON,
     EnduroStoredPackageFromJSON,
     EnduroStoredPackageToJSON,
-    ListResponseBodyFromJSON,
-    ListResponseBodyToJSON,
     MonitorEventFromJSON,
     MonitorEventToJSON,
     MoveStatusResultFromJSON,
@@ -52,7 +52,8 @@ export interface PackageListRequest {
     latestCreatedTime?: Date;
     locationId?: string;
     status?: PackageListStatusEnum;
-    cursor?: string;
+    limit?: number;
+    offset?: number;
 }
 
 export interface PackageMonitorRequest {
@@ -78,6 +79,10 @@ export interface PackageRejectRequest {
 
 export interface PackageShowRequest {
     id: number;
+}
+
+export interface PackageUploadRequest {
+    contentType?: string;
 }
 
 /**
@@ -113,18 +118,19 @@ export interface PackageApiInterface {
      * @param {Date} [latestCreatedTime] 
      * @param {string} [locationId] Identifier of storage location
      * @param {'new' | 'in progress' | 'done' | 'error' | 'unknown' | 'queued' | 'abandoned' | 'pending'} [status] 
-     * @param {string} [cursor] Pagination cursor
+     * @param {number} [limit] Limit number of results to return
+     * @param {number} [offset] Offset from the beginning of the found set
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof PackageApiInterface
      */
-    packageListRaw(requestParameters: PackageListRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ListResponseBody>>;
+    packageListRaw(requestParameters: PackageListRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EnduroPackages>>;
 
     /**
      * List all stored packages
      * list package
      */
-    packageList(requestParameters: PackageListRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ListResponseBody>;
+    packageList(requestParameters: PackageListRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<EnduroPackages>;
 
     /**
      * Obtain access to the /monitor WebSocket
@@ -238,6 +244,22 @@ export interface PackageApiInterface {
      */
     packageShow(requestParameters: PackageShowRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<EnduroStoredPackage>;
 
+    /**
+     * Upload a package to trigger an ingest workflow
+     * @summary upload package
+     * @param {string} [contentType] Content-Type header, must define value for multipart boundary.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof PackageApiInterface
+     */
+    packageUploadRaw(requestParameters: PackageUploadRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>>;
+
+    /**
+     * Upload a package to trigger an ingest workflow
+     * upload package
+     */
+    packageUpload(requestParameters: PackageUploadRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
+
 }
 
 /**
@@ -295,7 +317,7 @@ export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
      * List all stored packages
      * list package
      */
-    async packageListRaw(requestParameters: PackageListRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ListResponseBody>> {
+    async packageListRaw(requestParameters: PackageListRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EnduroPackages>> {
         const queryParameters: any = {};
 
         if (requestParameters.name !== undefined) {
@@ -322,8 +344,12 @@ export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
             queryParameters['status'] = requestParameters.status;
         }
 
-        if (requestParameters.cursor !== undefined) {
-            queryParameters['cursor'] = requestParameters.cursor;
+        if (requestParameters.limit !== undefined) {
+            queryParameters['limit'] = requestParameters.limit;
+        }
+
+        if (requestParameters.offset !== undefined) {
+            queryParameters['offset'] = requestParameters.offset;
         }
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -343,14 +369,14 @@ export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => ListResponseBodyFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => EnduroPackagesFromJSON(jsonValue));
     }
 
     /**
      * List all stored packages
      * list package
      */
-    async packageList(requestParameters: PackageListRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ListResponseBody> {
+    async packageList(requestParameters: PackageListRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<EnduroPackages> {
         const response = await this.packageListRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -620,6 +646,45 @@ export class PackageApi extends runtime.BaseAPI implements PackageApiInterface {
     async packageShow(requestParameters: PackageShowRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<EnduroStoredPackage> {
         const response = await this.packageShowRaw(requestParameters, initOverrides);
         return await response.value();
+    }
+
+    /**
+     * Upload a package to trigger an ingest workflow
+     * upload package
+     */
+    async packageUploadRaw(requestParameters: PackageUploadRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (requestParameters.contentType !== undefined && requestParameters.contentType !== null) {
+            headerParameters['Content-Type'] = String(requestParameters.contentType);
+        }
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("jwt_header_Authorization", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+        const response = await this.request({
+            path: `/package/upload`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     * Upload a package to trigger an ingest workflow
+     * upload package
+     */
+    async packageUpload(requestParameters: PackageUploadRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.packageUploadRaw(requestParameters, initOverrides);
     }
 
 }

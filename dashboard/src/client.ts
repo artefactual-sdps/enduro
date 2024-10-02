@@ -7,7 +7,6 @@ import { usePackageStore } from "./stores/package";
 export interface Client {
   package: api.PackageApi;
   storage: api.StorageApi;
-  upload: api.UploadApi;
   connectPackageMonitor: () => void;
 }
 
@@ -79,7 +78,6 @@ function createClient(): Client {
   return {
     package: new api.PackageApi(config),
     storage: new api.StorageApi(config),
-    upload: new api.UploadApi(config),
     connectPackageMonitor,
   };
 }
