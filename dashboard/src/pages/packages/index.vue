@@ -5,12 +5,16 @@ import StatusBadge from "@/components/StatusBadge.vue";
 import UUID from "@/components/UUID.vue";
 import { useAuthStore } from "@/stores/auth";
 import { useLayoutStore } from "@/stores/layout";
-import { usePackageStore } from "@/stores/package";
+import { pagerPageLinks, usePackageStore } from "@/stores/package";
 import { useAsyncState } from "@vueuse/core";
 import Tooltip from "bootstrap/js/dist/tooltip";
 import { onMounted } from "vue";
 import IconInfoFill from "~icons/akar-icons/info-fill";
 import IconBundleLine from "~icons/clarity/bundle-line";
+import IconSkipEndFill from "~icons/bi/skip-end-fill";
+import IconSkipStartFill from "~icons/bi/skip-start-fill";
+import IconCaretRightFill from "~icons/bi/caret-right-fill";
+import IconCaretLeftFill from "~icons/bi/caret-left-fill";
 
 const authStore = useAuthStore();
 const layoutStore = useLayoutStore();
@@ -19,7 +23,7 @@ layoutStore.updateBreadcrumb([{ text: "Packages" }]);
 const packageStore = usePackageStore();
 
 const { execute, error } = useAsyncState(() => {
-  return packageStore.fetchPackages();
+  return packageStore.fetchPackages(1);
 }, null);
 
 const el = $ref<HTMLElement | null>(null);
@@ -43,8 +47,8 @@ const toggleLegend = () => {
     </h1>
 
     <div class="text-muted mb-3">
-      Showing {{ packageStore.packages.length }} /
-      {{ packageStore.packages.length }}
+      Showing {{ packageStore.page.offset + 1 }} - {{ packageStore.last }} of
+      {{ packageStore.page.total }}
     </div>
 
     <PageLoadingAlert :execute="execute" :error="error" />
@@ -103,9 +107,22 @@ const toggleLegend = () => {
         </tbody>
       </table>
     </div>
-    <div>
-      <nav aria-label="Package list pages">
+    <div v-if="packageStore.pager.total > 1">
+      <nav role="navigation" aria-label="Pagination navigation">
         <ul class="pagination justify-content-center">
+          <li v-if="packageStore.pager.total > pagerPageLinks">
+            <a
+              href="#"
+              :class="{
+                'page-link': true,
+                disabled: packageStore.pager.current == 1,
+              }"
+              aria-label="Go to first page"
+              @click.prevent="packageStore.fetchPackages(1)"
+            >
+              <IconSkipStartFill /> First
+            </a>
+          </li>
           <li class="page-item">
             <a
               href="#"
@@ -113,9 +130,37 @@ const toggleLegend = () => {
                 'page-link': true,
                 disabled: !packageStore.hasPrevPage,
               }"
+              aria-label="Go to previous page"
               @click.prevent="packageStore.prevPage"
-              >Previous</a
             >
+              <IconCaretLeftFill /> Previous
+            </a>
+          </li>
+          <li v-if="packageStore.pager.first > 1" aria-hidden="true">
+            <a href="#" class="page-link disabled">…</a>
+          </li>
+          <li v-for="pg in packageStore.pager.pages">
+            <a
+              href="#"
+              :class="{
+                'page-link': true,
+                active: pg == packageStore.pager.current,
+              }"
+              @click.prevent="packageStore.fetchPackages(pg)"
+              :aria-label="
+                pg == packageStore.pager.current
+                  ? 'Current page, page ' + pg
+                  : 'Go to page ' + pg
+              "
+              :aria-current="pg == packageStore.pager.current"
+              >{{ pg }}</a
+            >
+          </li>
+          <li
+            v-if="packageStore.pager.last < packageStore.pager.total + 1"
+            aria-hidden="true"
+          >
+            <a href="#" class="page-link disabled">…</a>
           </li>
           <li class="page-item">
             <a
@@ -124,9 +169,27 @@ const toggleLegend = () => {
                 'page-link': true,
                 disabled: !packageStore.hasNextPage,
               }"
+              aria-label="Go to next page"
               @click.prevent="packageStore.nextPage"
-              >Next</a
             >
+              Next <IconCaretRightFill />
+            </a>
+          </li>
+          <li v-if="packageStore.pager.total > pagerPageLinks">
+            <a
+              href="#"
+              :class="{
+                'page-link': true,
+                disabled:
+                  packageStore.pager.current == packageStore.pager.total,
+              }"
+              aria-label="Go to last page"
+              @click.prevent="
+                packageStore.fetchPackages(packageStore.pager.total)
+              "
+            >
+              Last <IconSkipEndFill />
+            </a>
           </li>
         </ul>
       </nav>
