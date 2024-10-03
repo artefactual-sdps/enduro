@@ -18,6 +18,7 @@ import (
 	"github.com/artefactual-sdps/temporal-activities/archivezip"
 	"github.com/artefactual-sdps/temporal-activities/bagcreate"
 	"github.com/artefactual-sdps/temporal-activities/bagvalidate"
+	"github.com/artefactual-sdps/temporal-activities/bucketupload"
 	"github.com/artefactual-sdps/temporal-activities/removepaths"
 	"github.com/google/uuid"
 	"go.artefactual.dev/tools/ref"
@@ -110,6 +111,9 @@ type TransferInfo struct {
 	// It is populated by the workflow request.
 	GlobalTaskQueue       string
 	PreservationTaskQueue string
+
+	SendToFailedPath         string
+	SendToFailedActivityName string
 }
 
 func (t *TransferInfo) Name() string {
@@ -327,9 +331,28 @@ func (w *ProcessingWorkflow) SessionHandler(
 	sessCtx temporalsdk_workflow.Context,
 	attempt int,
 	tinfo *TransferInfo,
-) error {
+) (e error) {
 	var cleanup cleanupRegistry
-	defer w.sessionCleanup(sessCtx, &cleanup)
+	defer func() {
+		if e != nil && tinfo.SendToFailedActivityName != "" && tinfo.SendToFailedPath != "" {
+			var sendToFailedResult bucketupload.Result
+			activityOpts := withActivityOptsForLongLivedRequest(sessCtx)
+			sendErr := temporalsdk_workflow.ExecuteActivity(
+				activityOpts,
+				tinfo.SendToFailedActivityName,
+				&bucketupload.Params{
+					Path:       tinfo.SendToFailedPath,
+					Key:        fmt.Sprintf("Failed_%s", tinfo.req.Key),
+					BufferSize: 100_000_000,
+				},
+			).Get(activityOpts, &sendToFailedResult)
+			if sendErr != nil {
+				e = errors.Join(e, sendErr)
+			}
+		}
+
+		w.sessionCleanup(sessCtx, &cleanup)
+	}()
 
 	packageStartedAt := temporalsdk_workflow.Now(sessCtx).UTC()
 
@@ -388,6 +411,9 @@ func (w *ProcessingWorkflow) SessionHandler(
 
 		// Delete download tmp dir when session ends.
 		cleanup.registerPath(filepath.Dir(downloadResult.Path))
+
+		tinfo.SendToFailedActivityName = activities.SendToFailedSIPsName
+		tinfo.SendToFailedPath = downloadResult.Path
 	}
 
 	// Unarchive the transfer if it's not a directory and it's not part of the preprocessing child workflow.
@@ -868,6 +894,9 @@ func (w *ProcessingWorkflow) transferAM(ctx temporalsdk_workflow.Context, tinfo 
 	if err != nil {
 		return err
 	}
+
+	tinfo.SendToFailedActivityName = activities.SendToFailedPIPsName
+	tinfo.SendToFailedPath = zipResult.Path
 
 	// Upload PIP to AMSS.
 	activityOpts = temporalsdk_workflow.WithActivityOptions(ctx,
