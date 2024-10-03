@@ -7,14 +7,15 @@ import { ref } from "vue";
 import { mapKeys, snakeCase } from "lodash-es";
 
 export interface Pager {
+  // maxPages is the maximum number of page links to show in the pager.
+  readonly maxPages: number;
+
   current: number;
-  total: number;
   first: number;
   last: number;
+  total: number;
   pages: Array<number>;
 }
-
-export const pagerPageLinks = 11;
 
 export const usePackageStore = defineStore("package", {
   state: () => ({
@@ -34,10 +35,10 @@ export const usePackageStore = defineStore("package", {
     packages: [] as Array<api.EnduroStoredPackage>,
 
     // Page is a subset of the total package list.
-    page: { limit: 20, offset: 0 } as api.EnduroPage,
+    page: { limit: 20 } as api.EnduroPage,
 
     // Pager contains a list of pages numbers to show in the pager.
-    pager: {} as Pager,
+    pager: { maxPages: 11 } as Pager,
 
     // User-interface interactions between components.
     ui: {
@@ -64,38 +65,36 @@ export const usePackageStore = defineStore("package", {
       return this.page.offset + this.page.limit < this.page.total;
     },
     hasPrevPage(): boolean {
-      return this.page ? this.page.offset > 0 : false;
+      return this.page.offset > 0;
     },
-    last(): number {
+    lastResultOnPage(): number {
       let i = this.page.offset + this.page.limit;
       if (i > this.page.total) {
         i = this.page.total;
       }
       return i;
     },
-    setPager(): void {
-      this.pager.total = Math.ceil(this.page.total / this.page.limit);
-      this.pager.current = Math.floor(this.page.offset / this.page.limit) + 1;
+    updatePager(): void {
+      let pgr = this.pager;
+      pgr.total = Math.ceil(this.page.total / this.page.limit);
+      pgr.current = Math.floor(this.page.offset / this.page.limit) + 1;
 
-      let count =
-        this.pager.total <= pagerPageLinks ? this.pager.total : pagerPageLinks;
       let first = 1;
-      if (this.pager.current > Math.floor(pagerPageLinks / 2) + 1) {
-        if (
-          this.pager.total - this.pager.current <
-          Math.floor(pagerPageLinks / 2)
-        ) {
-          first = this.pager.total - count + 1;
+      let count = pgr.total < pgr.maxPages ? pgr.total : pgr.maxPages;
+      let half = Math.floor(pgr.maxPages / 2);
+      if (pgr.current > half + 1) {
+        if (pgr.total - pgr.current < half) {
+          first = pgr.total - count + 1;
         } else {
-          first = this.pager.current - Math.floor(pagerPageLinks / 2);
+          first = pgr.current - half;
         }
       }
-      this.pager.first = first;
-      this.pager.last = first + count;
+      pgr.first = first;
+      pgr.last = first + count - 1;
 
-      this.pager.pages = {} as number[];
+      pgr.pages = new Array(count);
       for (var i = 0; i < count; i++) {
-        this.pager.pages[i] = i + first;
+        pgr.pages[i] = i + first;
       }
     },
     getActionById: (state) => {
@@ -162,18 +161,13 @@ export const usePackageStore = defineStore("package", {
       ]);
     },
     async fetchPackages(page: number) {
-      let offset = undefined as number | undefined;
-      if (page > 1) {
-        offset = (page - 1) * this.page.limit;
-      }
-
       const resp = await client.package.packageList({
-        offset: offset,
-        limit: this.page ? this.page.limit : undefined,
+        offset: page > 1 ? (page - 1) * this.page.limit : undefined,
+        limit: this.page?.limit || undefined,
       });
       this.packages = resp.items;
       this.page = resp.page;
-      this.setPager;
+      this.updatePager;
     },
     async fetchPackagesDebounced(page: number) {
       return this.fetchPackages(page);

@@ -5,7 +5,7 @@ import StatusBadge from "@/components/StatusBadge.vue";
 import UUID from "@/components/UUID.vue";
 import { useAuthStore } from "@/stores/auth";
 import { useLayoutStore } from "@/stores/layout";
-import { pagerPageLinks, usePackageStore } from "@/stores/package";
+import { usePackageStore } from "@/stores/package";
 import { useAsyncState } from "@vueuse/core";
 import Tooltip from "bootstrap/js/dist/tooltip";
 import { onMounted } from "vue";
@@ -47,7 +47,8 @@ const toggleLegend = () => {
     </h1>
 
     <div class="text-muted mb-3">
-      Showing {{ packageStore.page.offset + 1 }} - {{ packageStore.last }} of
+      Showing {{ packageStore.page.offset + 1 }} -
+      {{ packageStore.lastResultOnPage }} of
       {{ packageStore.page.total }}
     </div>
 
@@ -110,7 +111,7 @@ const toggleLegend = () => {
     <div v-if="packageStore.pager.total > 1">
       <nav role="navigation" aria-label="Pagination navigation">
         <ul class="pagination justify-content-center">
-          <li v-if="packageStore.pager.total > pagerPageLinks">
+          <li v-if="packageStore.pager.total > packageStore.pager.maxPages">
             <a
               href="#"
               :class="{
@@ -157,7 +158,7 @@ const toggleLegend = () => {
             >
           </li>
           <li
-            v-if="packageStore.pager.last < packageStore.pager.total + 1"
+            v-if="packageStore.pager.last < packageStore.pager.total"
             aria-hidden="true"
           >
             <a href="#" class="page-link disabled">…</a>
@@ -175,7 +176,7 @@ const toggleLegend = () => {
               Next <IconCaretRightFill />
             </a>
           </li>
-          <li v-if="packageStore.pager.total > pagerPageLinks">
+          <li v-if="packageStore.pager.total > packageStore.pager.maxPages">
             <a
               href="#"
               :class="{
