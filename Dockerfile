@@ -5,8 +5,7 @@ ARG GO_VERSION
 
 FROM golang:${GO_VERSION}-bookworm AS libxml_deb_extractor
 RUN cd /tmp && \
-    apt-get update && apt-get download libxml2-utils && \
-    mkdir /dpkg && \
+    apt-get update && apt-get download libxml2-utils && mkdir /dpkg && \
     for deb in *.deb; do dpkg --extract $deb /dpkg || exit 10; done
 
 FROM golang:${GO_VERSION}-alpine AS build-go
