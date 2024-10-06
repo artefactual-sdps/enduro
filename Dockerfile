@@ -3,6 +3,11 @@
 ARG TARGET=enduro
 ARG GO_VERSION
 
+FROM golang:${GO_VERSION}-bookworm AS libxml_deb_extractor
+RUN cd /tmp && \
+    apt-get update && apt-get download libxml2-utils && mkdir /dpkg && \
+    for deb in *.deb; do dpkg --extract $deb /dpkg || exit 10; done
+
 FROM golang:${GO_VERSION}-alpine AS build-go
 WORKDIR /src
 ENV CGO_ENABLED=0
@@ -61,10 +66,12 @@ FROM base AS enduro-a3m-worker
 COPY --from=build-enduro-a3m-worker --link /out/enduro-a3m-worker /home/enduro/bin/enduro-a3m-worker
 COPY --from=build-enduro-a3m-worker --link /src/enduro.toml /home/enduro/.config/enduro.toml
 CMD ["/home/enduro/bin/enduro-a3m-worker", "--config", "/home/enduro/.config/enduro.toml"]
+COPY --from=libxml_deb_extractor /dpkg /
 
 FROM base AS enduro-am-worker
 COPY --from=build-enduro-am-worker --link /out/enduro-am-worker /home/enduro/bin/enduro-am-worker
 COPY --from=build-enduro-am-worker --link /src/enduro.toml /home/enduro/.config/enduro.toml
 CMD ["/home/enduro/bin/enduro-am-worker", "--config", "/home/enduro/.config/enduro.toml"]
+COPY --from=libxml_deb_extractor /dpkg /
 
 FROM ${TARGET}
