@@ -119,10 +119,10 @@ const toggleLegend = () => {
                 disabled: packageStore.pager.current == 1,
               }"
               aria-label="Go to first page"
+              title="First page"
               @click.prevent="packageStore.fetchPackages(1)"
-            >
-              <IconSkipStartFill /> First
-            </a>
+              ><IconSkipStartFill
+            /></a>
           </li>
           <li class="page-item">
             <a
@@ -132,10 +132,10 @@ const toggleLegend = () => {
                 disabled: !packageStore.hasPrevPage,
               }"
               aria-label="Go to previous page"
+              title="Previous page"
               @click.prevent="packageStore.prevPage"
-            >
-              <IconCaretLeftFill /> Previous
-            </a>
+              ><IconCaretLeftFill
+            /></a>
           </li>
           <li v-if="packageStore.pager.first > 1" aria-hidden="true">
             <a href="#" class="page-link disabled">…</a>
@@ -171,10 +171,10 @@ const toggleLegend = () => {
                 disabled: !packageStore.hasNextPage,
               }"
               aria-label="Go to next page"
+              title="Next page"
               @click.prevent="packageStore.nextPage"
-            >
-              Next <IconCaretRightFill />
-            </a>
+              ><IconCaretRightFill
+            /></a>
           </li>
           <li v-if="packageStore.pager.total > packageStore.pager.maxPages">
             <a
@@ -185,12 +185,12 @@ const toggleLegend = () => {
                   packageStore.pager.current == packageStore.pager.total,
               }"
               aria-label="Go to last page"
+              title="Last page"
               @click.prevent="
                 packageStore.fetchPackages(packageStore.pager.total)
               "
-            >
-              Last <IconSkipEndFill />
-            </a>
+              ><IconSkipEndFill
+            /></a>
           </li>
         </ul>
       </nav>
