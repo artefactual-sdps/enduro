@@ -13,6 +13,12 @@
  */
 
 import { exists, mapValues } from '../runtime';
+import type { EnduroPage } from './EnduroPage';
+import {
+    EnduroPageFromJSON,
+    EnduroPageFromJSONTyped,
+    EnduroPageToJSON,
+} from './EnduroPage';
 import type { EnduroStoredPackage } from './EnduroStoredPackage';
 import {
     EnduroStoredPackageFromJSON,
@@ -23,49 +29,50 @@ import {
 /**
  * 
  * @export
- * @interface ListResponseBody
+ * @interface EnduroPackages
  */
-export interface ListResponseBody {
+export interface EnduroPackages {
     /**
      * 
      * @type {Array<EnduroStoredPackage>}
-     * @memberof ListResponseBody
+     * @memberof EnduroPackages
      */
     items: Array<EnduroStoredPackage>;
     /**
      * 
-     * @type {string}
-     * @memberof ListResponseBody
+     * @type {EnduroPage}
+     * @memberof EnduroPackages
      */
-    nextCursor?: string;
+    page: EnduroPage;
 }
 
 /**
- * Check if a given object implements the ListResponseBody interface.
+ * Check if a given object implements the EnduroPackages interface.
  */
-export function instanceOfListResponseBody(value: object): boolean {
+export function instanceOfEnduroPackages(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "items" in value;
+    isInstance = isInstance && "page" in value;
 
     return isInstance;
 }
 
-export function ListResponseBodyFromJSON(json: any): ListResponseBody {
-    return ListResponseBodyFromJSONTyped(json, false);
+export function EnduroPackagesFromJSON(json: any): EnduroPackages {
+    return EnduroPackagesFromJSONTyped(json, false);
 }
 
-export function ListResponseBodyFromJSONTyped(json: any, ignoreDiscriminator: boolean): ListResponseBody {
+export function EnduroPackagesFromJSONTyped(json: any, ignoreDiscriminator: boolean): EnduroPackages {
     if ((json === undefined) || (json === null)) {
         return json;
     }
     return {
         
         'items': ((json['items'] as Array<any>).map(EnduroStoredPackageFromJSON)),
-        'nextCursor': !exists(json, 'next_cursor') ? undefined : json['next_cursor'],
+        'page': EnduroPageFromJSON(json['page']),
     };
 }
 
-export function ListResponseBodyToJSON(value?: ListResponseBody | null): any {
+export function EnduroPackagesToJSON(value?: EnduroPackages | null): any {
     if (value === undefined) {
         return undefined;
     }
@@ -75,7 +82,7 @@ export function ListResponseBodyToJSON(value?: ListResponseBody | null): any {
     return {
         
         'items': ((value.items as Array<any>).map(EnduroStoredPackageToJSON)),
-        'next_cursor': value.nextCursor,
+        'page': EnduroPageToJSON(value.page),
     };
 }
 

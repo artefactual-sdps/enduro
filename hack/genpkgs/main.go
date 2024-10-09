@@ -12,7 +12,7 @@ import (
 
 const (
 	// How many records we want to generate.
-	datasetSize = 10000
+	datasetSize = 1000
 
 	// Size of each batch that we write to the CSV.
 	batchSize = 100

@@ -2,7 +2,6 @@
 apis/PackageApi.ts
 apis/StorageApi.ts
 apis/SwaggerApi.ts
-apis/UploadApi.ts
 apis/index.ts
 index.ts
 models/AddLocationRequestBody.ts
@@ -13,8 +12,9 @@ models/CreateRequestBody.ts
 models/EnduroPackagePreservationAction.ts
 models/EnduroPackagePreservationActions.ts
 models/EnduroPackagePreservationTask.ts
+models/EnduroPackages.ts
+models/EnduroPage.ts
 models/EnduroStoredPackage.ts
-models/ListResponseBody.ts
 models/Location.ts
 models/LocationNotFound.ts
 models/LocationResponse.ts

@@ -2,10 +2,136 @@ import { usePackageStore } from "@/stores/package";
 import { setActivePinia, createPinia } from "pinia";
 import { expect, describe, it, beforeEach } from "vitest";
 import { api } from "@/client";
+import type { Pager } from "@/stores/package";
 
 describe("usePackageStore", () => {
   beforeEach(() => {
     setActivePinia(createPinia());
+  });
+
+  it("isPending", () => {
+    const packageStore = usePackageStore();
+    const now = new Date();
+
+    expect(packageStore.isPending).toEqual(false);
+
+    packageStore.$patch((state) => {
+      state.current = {
+        createdAt: now,
+        id: 1,
+        status: api.EnduroStoredPackageStatusEnum.Pending,
+      };
+    });
+    expect(packageStore.isPending).toEqual(true);
+  });
+
+  it("isDone", () => {
+    const packageStore = usePackageStore();
+    const now = new Date();
+
+    expect(packageStore.isDone).toEqual(false);
+
+    packageStore.$patch((state) => {
+      state.current = {
+        createdAt: now,
+        id: 1,
+        status: api.EnduroStoredPackageStatusEnum.Done,
+      };
+    });
+    expect(packageStore.isDone).toEqual(true);
+  });
+
+  it("isMovable", () => {
+    const packageStore = usePackageStore();
+    const now = new Date();
+
+    expect(packageStore.isMovable).toEqual(false);
+
+    packageStore.$patch((state) => {
+      state.current = {
+        createdAt: now,
+        id: 1,
+        status: api.EnduroStoredPackageStatusEnum.Done,
+      };
+    });
+    expect(packageStore.isMovable).toEqual(true);
+  });
+
+  it("isMoving", () => {
+    const packageStore = usePackageStore();
+
+    expect(packageStore.isMoving).toEqual(false);
+
+    packageStore.$patch((state) => {
+      state.locationChanging = true;
+    });
+    expect(packageStore.isMoving).toEqual(true);
+  });
+
+  it("isRejected", () => {
+    const packageStore = usePackageStore();
+    const now = new Date();
+
+    expect(packageStore.isRejected).toEqual(false);
+
+    packageStore.$patch((state) => {
+      state.current = {
+        createdAt: now,
+        id: 1,
+        status: api.EnduroStoredPackageStatusEnum.Done,
+      };
+    });
+    expect(packageStore.isRejected).toEqual(true);
+  });
+
+  it("hasNextPage", () => {
+    const packageStore = usePackageStore();
+    packageStore.$patch((state) => {
+      state.page = { limit: 20, offset: 0, total: 20 };
+    });
+    expect(packageStore.hasNextPage).toEqual(false);
+
+    packageStore.$patch((state) => {
+      state.page = { limit: 20, offset: 20, total: 40 };
+    });
+    expect(packageStore.hasNextPage).toEqual(false);
+
+    packageStore.$patch((state) => {
+      state.page = { limit: 20, offset: 0, total: 21 };
+    });
+    expect(packageStore.hasNextPage).toEqual(true);
+  });
+
+  it("hasPrevPage", () => {
+    const packageStore = usePackageStore();
+    packageStore.$patch((state) => {
+      state.page = { limit: 20, offset: 0, total: 40 };
+    });
+    expect(packageStore.hasPrevPage).toEqual(false);
+
+    packageStore.$patch((state) => {
+      state.page = { limit: 20, offset: 20, total: 40 };
+    });
+    expect(packageStore.hasPrevPage).toEqual(true);
+  });
+
+  it("returns lastResultOnPage", () => {
+    const packageStore = usePackageStore();
+
+    packageStore.$patch((state) => {
+      state.page = { limit: 20, offset: 0, total: 40 };
+    });
+    expect(packageStore.lastResultOnPage).toEqual(20);
+
+    packageStore.$patch((state) => {
+      state.page = { limit: 20, offset: 0, total: 7 };
+    });
+    expect(packageStore.lastResultOnPage).toEqual(7);
+
+    packageStore.$patch((state) => {
+      state.page = { limit: 20, offset: 20, total: 35 };
+    });
+    expect(packageStore.lastResultOnPage).toEqual(35);
   });
 
   it("getActionById finds actions", () => {
@@ -136,5 +262,48 @@ describe("usePackageStore", () => {
       taskId: "4",
     });
     expect(packageStore.getTaskById(2, 5)).toBeUndefined();
+  });
+
+  it("updates the pager", () => {
+    const packageStore = usePackageStore();
+
+    packageStore.$patch((state) => {
+      state.page = { limit: 20, offset: 60, total: 125 };
+    });
+    packageStore.updatePager;
+    expect(packageStore.pager).toEqual(<Pager>{
+      maxPages: 7,
+      current: 4,
+      first: 1,
+      last: 7,
+      total: 7,
+      pages: [1, 2, 3, 4, 5, 6, 7],
+    });
+
+    packageStore.$patch((state) => {
+      state.page = { limit: 20, offset: 160, total: 573 };
+    });
+    packageStore.updatePager;
+    expect(packageStore.pager).toEqual(<Pager>{
+      maxPages: 7,
+      current: 9,
+      first: 6,
+      last: 12,
+      total: 29,
+      pages: [6, 7, 8, 9, 10, 11, 12],
+    });
+
+    packageStore.$patch((state) => {
+      state.page = { limit: 20, offset: 540, total: 573 };
+    });
+    packageStore.updatePager;
+    expect(packageStore.pager).toEqual(<Pager>{
+      maxPages: 7,
+      current: 28,
+      first: 23,
+      last: 29,
+      total: 29,
+      pages: [23, 24, 25, 26, 27, 28, 29],
+    });
   });
 });

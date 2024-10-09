@@ -6,6 +6,17 @@ import { defineStore, acceptHMRUpdate } from "pinia";
 import { ref } from "vue";
 import { mapKeys, snakeCase } from "lodash-es";
 
+export interface Pager {
+  // maxPages is the maximum number of page links to show in the pager.
+  readonly maxPages: number;
+
+  current: number;
+  first: number;
+  last: number;
+  total: number;
+  pages: Array<number>;
+}
+
 export const usePackageStore = defineStore("package", {
   state: () => ({
     // Package currently displayed.
@@ -23,14 +34,11 @@ export const usePackageStore = defineStore("package", {
     // A list of packages shown during searches.
     packages: [] as Array<api.EnduroStoredPackage>,
 
-    // Cursor for this page of packages.
-    cursor: 0,
+    // Page is a subset of the total package list.
+    page: { limit: 20 } as api.EnduroPage,
 
-    // Cursor for next page of packages.
-    nextCursor: 0,
-
-    // A list of previous page cursors.
-    prevCursors: [] as Array<number>,
+    // Pager contains a list of pages numbers to show in the pager.
+    pager: { maxPages: 7 } as Pager,
 
     // User-interface interactions between components.
     ui: {
@@ -54,10 +62,40 @@ export const usePackageStore = defineStore("package", {
       return this.isDone && this.current?.locationId === undefined;
     },
     hasNextPage(): boolean {
-      return this.nextCursor != 0;
+      return this.page.offset + this.page.limit < this.page.total;
     },
     hasPrevPage(): boolean {
-      return this.prevCursors.length > 0;
+      return this.page.offset > 0;
+    },
+    lastResultOnPage(): number {
+      let i = this.page.offset + this.page.limit;
+      if (i > this.page.total) {
+        i = this.page.total;
+      }
+      return i;
+    },
+    updatePager(): void {
+      let pgr = this.pager;
+      pgr.total = Math.ceil(this.page.total / this.page.limit);
+      pgr.current = Math.floor(this.page.offset / this.page.limit) + 1;
+
+      let first = 1;
+      let count = pgr.total < pgr.maxPages ? pgr.total : pgr.maxPages;
+      let half = Math.floor(pgr.maxPages / 2);
+      if (pgr.current > half + 1) {
+        if (pgr.total - pgr.current < half) {
+          first = pgr.total - count + 1;
+        } else {
+          first = pgr.current - half;
+        }
+      }
+      pgr.first = first;
+      pgr.last = first + count - 1;
+
+      pgr.pages = new Array(count);
+      for (var i = 0; i < count; i++) {
+        pgr.pages[i] = i + first;
+      }
     },
     getActionById: (state) => {
       return (
@@ -122,15 +160,17 @@ export const usePackageStore = defineStore("package", {
         }),
       ]);
     },
-    async fetchPackages() {
+    async fetchPackages(page: number) {
       const resp = await client.package.packageList({
-        cursor: this.cursor > 0 ? this.cursor.toString() : undefined,
+        offset: page > 1 ? (page - 1) * this.page.limit : undefined,
+        limit: this.page?.limit || undefined,
       });
       this.packages = resp.items;
-      this.nextCursor = Number(resp.nextCursor);
+      this.page = resp.page;
+      this.updatePager;
     },
-    async fetchPackagesDebounced() {
-      return this.fetchPackages();
+    async fetchPackagesDebounced(page: number) {
+      return this.fetchPackages(page);
     },
     async move(locationId: string) {
       if (!this.current) return;
@@ -180,18 +220,13 @@ export const usePackageStore = defineStore("package", {
       });
     },
     nextPage() {
-      if (this.nextCursor == 0) {
-        return;
+      if (this.hasNextPage) {
+        this.fetchPackages(this.pager.current + 1);
       }
-      this.prevCursors.push(this.cursor);
-      this.cursor = this.nextCursor;
-      this.fetchPackages();
     },
     prevPage() {
-      let prev = this.prevCursors.pop();
-      if (prev !== undefined) {
-        this.cursor = prev;
-        this.fetchPackages();
+      if (this.hasPrevPage) {
+        this.fetchPackages(this.pager.current - 1);
       }
     },
   },
@@ -231,13 +266,13 @@ function handleMonitorPing(data: any) {
 function handlePackageCreated(data: any) {
   const event = api.PackageCreatedEventFromJSON(data);
   const store = usePackageStore();
-  store.fetchPackagesDebounced();
+  store.fetchPackagesDebounced(1);
 }
 
 function handlePackageUpdated(data: any) {
   const event = api.PackageUpdatedEventFromJSON(data);
   const store = usePackageStore();
-  store.fetchPackagesDebounced();
+  store.fetchPackagesDebounced(1);
   if (store.$state.current?.id != event.id) return;
   Object.assign(store.$state.current, event.item);
 }
@@ -245,7 +280,7 @@ function handlePackageUpdated(data: any) {
 function handlePackageStatusUpdated(data: any) {
   const event = api.PackageStatusUpdatedEventFromJSON(data);
   const store = usePackageStore();
-  store.fetchPackagesDebounced();
+  store.fetchPackagesDebounced(1);
   if (store.$state.current?.id != event.id) return;
   store.$state.current.status = event.status;
 }
@@ -253,7 +288,7 @@ function handlePackageStatusUpdated(data: any) {
 function handlePackageLocationUpdated(data: any) {
   const event = api.PackageLocationUpdatedEventFromJSON(data);
   const store = usePackageStore();
-  store.fetchPackagesDebounced();
+  store.fetchPackagesDebounced(1);
   store.$patch((state) => {
     if (state.current?.id != event.id) return;
     state.current.locationId = event.locationId;
