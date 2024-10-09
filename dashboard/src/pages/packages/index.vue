@@ -194,6 +194,11 @@ const toggleLegend = () => {
           </li>
         </ul>
       </nav>
+      <div class="text-muted mb-3 text-center">
+        Showing packages {{ packageStore.page.offset + 1 }} -
+        {{ packageStore.lastResultOnPage }} of
+        {{ packageStore.page.total }}
+      </div>
     </div>
   </div>
 </template>
