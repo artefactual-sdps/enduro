@@ -272,7 +272,7 @@ describe("usePackageStore", () => {
     });
     packageStore.updatePager;
     expect(packageStore.pager).toEqual(<Pager>{
-      maxPages: 11,
+      maxPages: 7,
       current: 4,
       first: 1,
       last: 7,
@@ -285,12 +285,12 @@ describe("usePackageStore", () => {
     });
     packageStore.updatePager;
     expect(packageStore.pager).toEqual(<Pager>{
-      maxPages: 11,
+      maxPages: 7,
       current: 9,
-      first: 4,
-      last: 14,
+      first: 6,
+      last: 12,
       total: 29,
-      pages: [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
+      pages: [6, 7, 8, 9, 10, 11, 12],
     });
 
     packageStore.$patch((state) => {
@@ -298,12 +298,12 @@ describe("usePackageStore", () => {
     });
     packageStore.updatePager;
     expect(packageStore.pager).toEqual(<Pager>{
-      maxPages: 11,
+      maxPages: 7,
       current: 28,
-      first: 19,
+      first: 23,
       last: 29,
       total: 29,
-      pages: [19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29],
+      pages: [23, 24, 25, 26, 27, 28, 29],
     });
   });
 });

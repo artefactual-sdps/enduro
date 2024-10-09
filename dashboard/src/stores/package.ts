@@ -38,7 +38,7 @@ export const usePackageStore = defineStore("package", {
     page: { limit: 20 } as api.EnduroPage,
 
     // Pager contains a list of pages numbers to show in the pager.
-    pager: { maxPages: 11 } as Pager,
+    pager: { maxPages: 7 } as Pager,
 
     // User-interface interactions between components.
     ui: {
