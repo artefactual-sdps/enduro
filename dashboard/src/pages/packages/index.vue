@@ -137,10 +137,17 @@ const toggleLegend = () => {
               ><IconCaretLeftFill
             /></a>
           </li>
-          <li v-if="packageStore.pager.first > 1" aria-hidden="true">
+          <li
+            v-if="packageStore.pager.first > 1"
+            class="d-none d-sm-block"
+            aria-hidden="true"
+          >
             <a href="#" class="page-link disabled">…</a>
           </li>
-          <li v-for="pg in packageStore.pager.pages">
+          <li
+            v-for="pg in packageStore.pager.pages"
+            :class="{ 'd-none d-sm-block': pg != packageStore.pager.current }"
+          >
             <a
               href="#"
               :class="{
@@ -159,6 +166,7 @@ const toggleLegend = () => {
           </li>
           <li
             v-if="packageStore.pager.last < packageStore.pager.total"
+            class="d-none d-sm-block"
             aria-hidden="true"
           >
             <a href="#" class="page-link disabled">…</a>
