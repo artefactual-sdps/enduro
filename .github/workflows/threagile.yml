@@ -1,26 +1,21 @@
+name: Threagile
 on:
   push:
     paths:
       - "enduro.threagile.yaml" # Execute only when the threat model changes
-name: Threagile
 jobs:
   threagile_job:
     runs-on: ubuntu-latest
     name: Threat Model Analysis
     steps:
-      # Checkout the repo
-      - name: Checkout Workspace
+      - name: Checkout code
         uses: actions/checkout@v4
-
-      # Run Threagile
       - name: Run Threagile
         id: threagile
         uses: threagile/run-threagile-action@v1
         with:
           model-file: "enduro.threagile.yaml"
-
-      # Archive resulting files as artifacts
-      - name: Archive Results
+      - name: Archive results
         uses: actions/upload-artifact@v3
         with:
           name: threagile-report
