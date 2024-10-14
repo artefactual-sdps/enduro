@@ -42,11 +42,11 @@ TILT_EXPECTED_REF=${EXPECTED_REF:-}
 IMAGE_NAME="${TILT_EXPECTED_REF:-$DEFAULT_IMAGE_NAME}"
 BUILD_OPTS="${BUILD_OPTS:-}"
 
-GO_VERSION=$(cat .go-version)
-test -n "$GO_VERSION" || {
-	echo "Error: .go-version is empty."
+GO_VERSION=$(grep "^go " go.mod | awk '{print $2}')
+if [ -z "$GO_VERSION" ]; then
+	echo "Error: Go version not found in go.mod."
 	exit 1
-}
+fi
 
 env DOCKER_BUILDKIT=1 docker build \
 	-t "$IMAGE_NAME" \
