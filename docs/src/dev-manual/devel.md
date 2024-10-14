@@ -41,10 +41,10 @@ to your `etc/hosts` file located like `C:/Windows/System32/drivers/etc/hosts`.
 ## Requirements for development
 
 While we run the services inside a Kubernetes cluster we recomend to install
-Go, Node and other tools locally to ease the development process.
+Go, Node.js and other tools locally to ease the development process.
 
 - [Go] (1.21+)
-- [NPM and Node] (18+)
+- [Node.js and npm] (22+)
 - GNU [Make] and [GCC]
 
 If using Linux, Node.js binary distributions are available from [NodeSource].
@@ -256,7 +256,7 @@ is sometimes not setup properly. To solve it, from the Tilt UI, restart the
 [manage docker as a non-root user]: https://docs.docker.com/engine/install/linux-postinstall/#manage-docker-as-a-non-root-user
 [tilt ui]: https://docs.tilt.dev/tutorial/3-tilt-ui.html
 [go]: https://go.dev/doc/install
-[npm and node]: https://nodejs.org/
+[Node.js and npm]: https://nodejs.org/
 [nodesource]: https://github.com/nodesource/distributions
 [make]: https://www.gnu.org/software/make/
 [gcc]: https://gcc.gnu.org/
