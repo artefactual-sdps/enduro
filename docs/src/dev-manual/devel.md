@@ -104,7 +104,7 @@ Keycloack:
 | Dashboard     | <http://localhost:8080> | `admin`     | `admin123`     |
 | MinIO console | <http://localhost:7460> | `admin`     | `admin123`     |
 | Temporal UI   | <http://localhost:7440> | `admin`     | `admin123`     |
-| Keycloack     | <http://localhost:7470> | `keycloack` | `keycloack123` |
+| Keycloak      | <http://localhost:7470> | `keycloak`  | `keycloak123`  |
 
 ## Live updates
 
