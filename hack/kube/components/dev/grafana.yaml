@@ -50,6 +50,8 @@ data:
     enabled = true
     [users]
     default_theme = system
+    [dashboards]
+    default_home_dashboard_path = /var/lib/grafana/dashboards/home.json
   datasources.yaml: |
     apiVersion: 1
     datasources:
@@ -67,6 +69,331 @@ data:
       uid: tempo
       url: http://grafana-tempo:3200
       version: 1
+  default.yaml: |
+    apiVersion: 1
+    providers:
+    - name: Default
+      type: file
+      options:
+        path: /var/lib/grafana/dashboards
+  home.json: |
+    {
+      "annotations": {
+        "list": [
+          {
+            "builtIn": 1,
+            "datasource": {
+              "type": "grafana",
+              "uid": "-- Grafana --"
+            },
+            "enable": true,
+            "hide": true,
+            "iconColor": "rgba(0, 211, 255, 1)",
+            "name": "Annotations & Alerts",
+            "target": {
+              "limit": 100,
+              "matchAny": false,
+              "tags": [],
+              "type": "dashboard"
+            },
+            "type": "dashboard"
+          }
+        ]
+      },
+      "editable": true,
+      "fiscalYearStartMonth": 0,
+      "graphTooltip": 0,
+      "id": 3,
+      "links": [],
+      "liveNow": false,
+      "panels": [
+        {
+          "datasource": {
+            "type": "tempo",
+            "uid": "tempo"
+          },
+          "description": "",
+          "gridPos": {
+            "h": 7,
+            "w": 24,
+            "x": 0,
+            "y": 0
+          },
+          "id": 1,
+          "options": {
+            "code": {
+              "language": "plaintext",
+              "showLineNumbers": false,
+              "showMiniMap": false
+            },
+            "content": "Howdy!",
+            "mode": "markdown"
+          },
+          "pluginVersion": "11.2.2",
+          "targets": [
+            {
+              "datasource": {
+                "type": "tempo",
+                "uid": "tempo"
+              },
+              "limit": 20,
+              "queryType": "traceql",
+              "refId": "A",
+              "tableType": "traces"
+            }
+          ],
+          "title": "Hello World",
+          "type": "text"
+        },
+        {
+          "collapsed": false,
+          "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 7
+          },
+          "id": 2,
+          "panels": [],
+          "title": "Traces and spans",
+          "type": "row"
+        },
+        {
+          "datasource": {
+            "default": true,
+            "type": "tempo",
+            "uid": "tempo"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                },
+                "inspect": false
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Trace Service"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 118
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Trace Name"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 107
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Start time"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 160
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 12,
+            "w": 12,
+            "x": 0,
+            "y": 8
+          },
+          "id": 4,
+          "options": {
+            "cellHeight": "sm",
+            "footer": {
+              "countRows": false,
+              "fields": "",
+              "reducer": [
+                "sum"
+              ],
+              "show": false
+            },
+            "showHeader": true,
+            "sortBy": []
+          },
+          "pluginVersion": "11.2.2",
+          "targets": [
+            {
+              "datasource": {
+                "type": "tempo",
+                "uid": "tempo"
+              },
+              "limit": 20,
+              "query": "{name=\"StartWorkflow:processing-workflow\"}",
+              "queryType": "traceql",
+              "refId": "A",
+              "tableType": "spans"
+            }
+          ],
+          "title": "Processing workflows",
+          "type": "table"
+        },
+        {
+          "datasource": {
+            "default": true,
+            "type": "tempo",
+            "uid": "tempo"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                },
+                "inspect": false
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Trace Service"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 115
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Trace Name"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 109
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Start time"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 166
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 12,
+            "w": 12,
+            "x": 12,
+            "y": 8
+          },
+          "id": 3,
+          "options": {
+            "cellHeight": "sm",
+            "footer": {
+              "countRows": false,
+              "fields": "",
+              "reducer": [
+                "sum"
+              ],
+              "show": false
+            },
+            "showHeader": true,
+            "sortBy": []
+          },
+          "pluginVersion": "11.2.2",
+          "targets": [
+            {
+              "datasource": {
+                "type": "tempo",
+                "uid": "tempo"
+              },
+              "limit": 20,
+              "query": "{name=\"api\"}",
+              "queryType": "traceql",
+              "refId": "A",
+              "tableType": "spans"
+            }
+          ],
+          "title": "API requests",
+          "type": "table"
+        }
+      ],
+      "refresh": "",
+      "schemaVersion": 39,
+      "tags": [],
+      "templating": {
+        "list": []
+      },
+      "time": {
+        "from": "now-6h",
+        "to": "now"
+      },
+      "timepicker": {},
+      "timezone": "",
+      "title": "Home",
+      "uid": "de0u0l0scrri8e",
+      "version": 1,
+      "weekStart": "monday"
+    }
 ---
 # Source: grafana/templates/clusterrole.yaml
 kind: ClusterRole
@@ -171,7 +498,7 @@ spec:
       enableServiceLinks: true
       containers:
         - name: grafana
-          image: "docker.io/grafana/grafana:10.3.3"
+          image: "docker.io/grafana/grafana:11.2.2"
           imagePullPolicy: IfNotPresent
           securityContext:
             allowPrivilegeEscalation: false
@@ -181,14 +508,20 @@ spec:
             seccompProfile:
               type: RuntimeDefault
           volumeMounts:
-            - name: config
-              mountPath: "/etc/grafana/grafana.ini"
-              subPath: grafana.ini
             - name: storage
               mountPath: "/var/lib/grafana"
             - name: config
+              mountPath: "/etc/grafana/grafana.ini"
+              subPath: grafana.ini
+            - name: config
+              mountPath: "/etc/grafana/provisioning/dashboards/default.yaml"
+              subPath: "default.yaml"
+            - name: config
               mountPath: "/etc/grafana/provisioning/datasources/datasources.yaml"
               subPath: "datasources.yaml"
+            - name: config
+              mountPath: "/var/lib/grafana/dashboards/home.json"
+              subPath: "home.json"
           ports:
             - name: grafana
               containerPort: 3000
