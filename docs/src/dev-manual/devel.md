@@ -107,6 +107,10 @@ Keycloack:
 | Grafana       | <http://localhost:7490> | `admin`     | `admin123`     |
 | Keycloak      | <http://localhost:7470> | `keycloak`  | `keycloak123`  |
 
+## Submit your first transfer
+
+You're all set up! Go ahead and [submit your first transfer].
+
 ## Live updates
 
 Tilt, by default, will watch for file changes in the project folder and it will
@@ -196,11 +200,11 @@ workflow] docs to configure the child workflow execution.
 
 ## Tilt UI helpers
 
-### Upload to Minio
+### Upload to MinIO
 
 In the Tilt UI header there is a cloud icon/button that allows you to configure
-and trigger an upload to the `sips` bucket in Minio. Click the caret to set the
-path to a file/directory in the host and a Minio object name, then click the
+and trigger an upload to the `sips` bucket in MinIO. Click the caret to set the
+path to a file/directory in the host and a MinIO object name, then click the
 cloud icon to trigger the upload.
 
 For example, to upload an existing sample ZIP from the project folder (make
@@ -209,13 +213,11 @@ sure you update `/path/to/enduro` to the proper project folder in the host):
 - Host path: `/path/to/enduro/hack/sampledata/StructB-AM.zip`
 - Object name: `StructB-AM.zip`
 
-Alternatively, you can use the Enduro API to upload the file like in the
-following example:
+Alternatively, run the following make thing to submit a transfer via the
+`/package/upload` API via cURL:
 
 ```bash
-curl \
-  -F "file=@/path/to/enduro/hack/sampledata/StructB-AM.zip" \
-  http://localhost:9000/upload/upload
+make upload-sample-transfer
 ```
 
 ### Flush
@@ -261,3 +263,4 @@ is sometimes not setup properly. To solve it, from the Tilt UI, restart the
 [visual studio code]: https://code.visualstudio.com/
 [working with archivematica]: archivematica.md
 [preprocessing child workflow]: preprocessing.md
+[submit your first transfer]: devel.md#upload-to-minio
