@@ -46,12 +46,27 @@ data:
     provisioning = /etc/grafana/provisioning
     [server]
     domain = ''
-    [auth.anonymous]
-    enabled = true
+    root_url = http://localhost:7490
     [users]
     default_theme = system
     [dashboards]
     default_home_dashboard_path = /var/lib/grafana/dashboards/home.json
+    [auth.generic_oauth]
+    enabled = true
+    name = Keycloak
+    allow_sign_up = true
+    client_id = grafana
+    client_secret = wi8sSTRwP5lA2NuogV5bL6GmIyzVF2HP
+    scopes = openid email profile
+    email_attribute_path = email
+    login_attribute_path = username
+    name_attribute_path = full_name
+    auth_url = http://keycloak:7470/realms/artefactual/protocol/openid-connect/auth
+    token_url = http://keycloak:7470/realms/artefactual/protocol/openid-connect/token
+    api_url = http://keycloak:7470/realms/artefactual/protocol/openid-connect/userinfo
+    signout_redirect_url = http://keycloak:7470/realms/artefactual/protocol/openid-connect/logout?post_logout_redirect_uri=http%3A%2F%2Flocalhost:7490%2Flogin/generic_oauth
+    role_attribute_path = "'Admin'"
+    skip_org_role_sync = false
   datasources.yaml: |
     apiVersion: 1
     datasources:

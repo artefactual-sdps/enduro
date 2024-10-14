@@ -202,6 +202,16 @@ data:
           "secret": "K5do3lZeHEzR3ajzCEudH4OGe7KWUmfe",
           "redirectUris": ["http://localhost:7460/oauth_callback"],
           "protocol": "openid-connect"
+        },
+        {
+          "id": "42c7a9e6-d81c-4b3f-aaeb-32de8dea0bf2",
+          "clientId": "grafana",
+          "name": "Grafana",
+          "enabled": true,
+          "secret": "wi8sSTRwP5lA2NuogV5bL6GmIyzVF2HP",
+          "redirectUris": ["http://localhost:7490/login/generic_oauth"],
+          "protocol": "openid-connect",
+          "directAccessGrantsEnabled": true
         }
       ],
       "clientScopes": [
