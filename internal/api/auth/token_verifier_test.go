@@ -212,6 +212,33 @@ func TestParseAttributes(t *testing.T) {
 			},
 		},
 		{
+			name: "Parses attributes based on configuration (mapping roles)",
+			config: &auth.OIDCConfig{
+				ProviderURL: iss,
+				ClientID:    audience,
+				ABAC: auth.OIDCABACConfig{
+					Enabled:   true,
+					ClaimPath: "attributes",
+					UseRoles:  true,
+					RolesMapping: map[string][]string{
+						"admin":    {"*"},
+						"operator": {"package:list", "package:listActions", "package:move", "package:read", "package:upload"},
+						"readonly": {"package:list", "package:listActions", "package:read"},
+					},
+				},
+			},
+			token: token(t, signer, iss, customClaims{
+				Email:         "info@artefactual.com",
+				EmailVerified: true,
+				Attributes:    []string{"admin", "operator", "readonly"},
+			}),
+			wantClaims: &auth.Claims{
+				Email:         "info@artefactual.com",
+				EmailVerified: true,
+				Attributes:    []string{"*", "package:list", "package:listActions", "package:move", "package:read", "package:upload"},
+			},
+		},
+		{
 			name: "Fails to parse attributes (missing claim)",
 			config: &auth.OIDCConfig{
 				ProviderURL: iss,

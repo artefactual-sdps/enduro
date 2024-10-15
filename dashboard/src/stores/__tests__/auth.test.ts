@@ -32,6 +32,8 @@ describe("useAuthStore", () => {
           claimPath: "",
           claimPathSeparator: "",
           claimValuePrefix: "",
+          useRoles: false,
+          rolesMapping: {},
         },
       };
     });
@@ -197,6 +199,8 @@ describe("useAuthStore", () => {
           claimPath: "",
           claimPathSeparator: "",
           claimValuePrefix: "",
+          useRoles: false,
+          rolesMapping: {},
         },
       };
       state.attributes = test.attributes;
@@ -220,6 +224,18 @@ describe("useAuthStore", () => {
         claimPath: "attributes.enduro",
         claimPathSeparator: ".",
         claimValuePrefix: "enduro:",
+        useRoles: true,
+        rolesMapping: {
+          admin: ["*"],
+          operator: [
+            "package:list",
+            "package:listActions",
+            "package:move",
+            "package:read",
+            "package:upload",
+          ],
+          readonly: ["package:list", "package:listActions", "package:read"],
+        },
       },
     });
   });
@@ -557,6 +573,48 @@ describe("useAuthStore", () => {
       error:
         "Attributes are not part of a multivalue claim, claim path: enduro",
     },
+    {
+      title: "uses roles mapping",
+      enabled: true,
+      claimPath: "roles",
+      claimPathSeparator: "",
+      claimValuePrefix: "",
+      useRoles: true,
+      rolesMapping: {
+        admin: ["*"],
+        operator: [
+          "package:list",
+          "package:listActions",
+          "package:move",
+          "package:read",
+          "package:upload",
+        ],
+        readonly: ["package:list", "package:listActions", "package:read"],
+      },
+      accessToken:
+        /*
+        {
+          "exp": 1485140984,
+          "iat": 1485137384,
+          "iss": "acme.com",
+          "sub": "29ac0c18-0b4a-42cf-82fc-03d570318a1d",
+          "roles": [
+            "admin",
+            "operator",
+            "readonly"
+          ]
+        }
+        */
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE0ODUxNDA5ODQsImlhdCI6MTQ4NTEzNzM4NCwiaXNzIjoiYWNtZS5jb20iLCJzdWIiOiIyOWFjMGMxOC0wYjRhLTQyY2YtODJmYy0wM2Q1NzAzMThhMWQiLCJyb2xlcyI6WyJhZG1pbiIsIm9wZXJhdG9yIiwicmVhZG9ubHkiXX0.2PY8zO7vNcS-3RdLa0AIFLjmRFKrR55m3rlm3DI1cMM",
+      expected: [
+        "*",
+        "package:list",
+        "package:listActions",
+        "package:move",
+        "package:read",
+        "package:upload",
+      ],
+    },
   ])("parses attributes ($title)", (test) => {
     const authStore = useAuthStore();
     authStore.$patch((state) => {
@@ -572,6 +630,8 @@ describe("useAuthStore", () => {
           claimPath: test.claimPath,
           claimPathSeparator: test.claimPathSeparator,
           claimValuePrefix: test.claimValuePrefix,
+          useRoles: test.useRoles ? test.useRoles : false,
+          rolesMapping: test.rolesMapping ? test.rolesMapping : {},
         },
       };
       state.user = new User({

@@ -18,6 +18,8 @@ type ABACConfig = {
   claimPath: string;
   claimPathSeparator: string;
   claimValuePrefix: string;
+  useRoles: boolean;
+  rolesMapping: Record<string, string[]>;
 };
 
 export const useAuthStore = defineStore("auth", {
@@ -94,6 +96,8 @@ export const useAuthStore = defineStore("auth", {
           claimPath: "",
           claimPathSeparator: "",
           claimValuePrefix: "",
+          useRoles: false,
+          rolesMapping: {},
         },
       };
 
@@ -131,6 +135,19 @@ export const useAuthStore = defineStore("auth", {
       if (env.VITE_OIDC_ABAC_CLAIM_VALUE_PREFIX) {
         this.config.abac.claimValuePrefix =
           env.VITE_OIDC_ABAC_CLAIM_VALUE_PREFIX.trim();
+      }
+      if (env.VITE_OIDC_ABAC_USE_ROLES) {
+        this.config.abac.useRoles =
+          env.VITE_OIDC_ABAC_USE_ROLES.trim().toLowerCase() === "true";
+      }
+      if (this.config.abac.useRoles && env.VITE_OIDC_ABAC_ROLES_MAPPING) {
+        try {
+          this.config.abac.rolesMapping = JSON.parse(
+            env.VITE_OIDC_ABAC_ROLES_MAPPING.trim(),
+          );
+        } catch (err) {
+          throw new Error(`Error parsing roles mapping: ${err}`);
+        }
       }
     },
     loadManager() {
@@ -241,7 +258,7 @@ export const useAuthStore = defineStore("auth", {
             );
           }
 
-          this.attributes = value.reduce((acc: string[], item: any) => {
+          const attributes = value.reduce((acc: string[], item: any) => {
             if (
               typeof item === "string" &&
               item.startsWith(this.config.abac.claimValuePrefix)
@@ -252,6 +269,19 @@ export const useAuthStore = defineStore("auth", {
             }
             return acc;
           }, []);
+
+          if (!this.config.abac.useRoles) {
+            this.attributes = attributes;
+            return;
+          }
+
+          attributes.forEach((role) => {
+            const attrs = this.config.abac.rolesMapping[role];
+            if (attrs !== undefined) this.attributes.push(...attrs);
+          });
+
+          // Remove duplicates.
+          this.attributes = [...new Set(this.attributes)];
 
           return;
         }

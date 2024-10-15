@@ -23,6 +23,8 @@ type OIDCABACConfig struct {
 	ClaimPath          string
 	ClaimPathSeparator string
 	ClaimValuePrefix   string
+	UseRoles           bool
+	RolesMapping       map[string][]string
 }
 
 type TicketConfig struct {
@@ -44,6 +46,9 @@ func (c Config) Validate() error {
 	}
 	if c.OIDC.ABAC.Enabled && c.OIDC.ABAC.ClaimPath == "" {
 		return errors.New("missing OIDC ABAC claim path with ABAC enabled")
+	}
+	if c.OIDC.ABAC.UseRoles && len(c.OIDC.ABAC.RolesMapping) == 0 {
+		return errors.New("missing OIDC ABAC roles mapping with use roles enabled")
 	}
 	return nil
 }

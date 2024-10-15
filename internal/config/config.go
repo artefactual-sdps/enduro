@@ -1,6 +1,7 @@
 package config
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -105,6 +106,7 @@ func Read(config *Configuration, configFile string) (found bool, configFileUsed 
 		mapstructure.StringToSliceHookFunc(","),
 		// StringToUUIDHookFunc is a custom string to UUID decoder.
 		stringToUUIDHookFunc(),
+		stringToMapHookFunc(),
 	)
 
 	err = v.Unmarshal(config, viper.DecodeHook(decodeHookFunc))
@@ -146,13 +148,28 @@ func setCORSOriginEnv(config *Configuration) error {
 // https://github.com/go-saas/kit/blob/main/pkg/mapstructure/mapstructure.go
 func stringToUUIDHookFunc() mapstructure.DecodeHookFunc {
 	return func(f, t reflect.Type, data interface{}) (interface{}, error) {
-		if f.Kind() != reflect.String {
-			return data, nil
-		}
-		if t != reflect.TypeOf(uuid.UUID{}) {
+		if f.Kind() != reflect.String || t != reflect.TypeOf(uuid.UUID{}) {
 			return data, nil
 		}
 
 		return uuid.Parse(data.(string))
+	}
+}
+
+// stringToMapHookFunc decodes a JSON string to a map[string][]string.
+func stringToMapHookFunc() mapstructure.DecodeHookFunc {
+	return func(f, t reflect.Type, data interface{}) (interface{}, error) {
+		value := map[string][]string{}
+		if f.Kind() != reflect.String || t != reflect.TypeOf(value) {
+			return data, nil
+		}
+
+		if data.(string) != "" {
+			if err := json.Unmarshal([]byte(data.(string)), &value); err != nil {
+				return nil, err
+			}
+		}
+
+		return value, nil
 	}
 }

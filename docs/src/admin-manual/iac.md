@@ -61,6 +61,18 @@ claimPathSeparator = ""
 # to a value of ["*"] when `claimValuePrefix = "enduro:"`. The default "" will
 # not filter any value.
 claimValuePrefix = ""
+# Consider the values obtained from the claim as roles and use the `rolesMapping`
+# config below to map them to Enduro attributes.
+useRoles = false
+# A JSON formatted string specifying a mapping from expected roles to Enduro
+# attributes. JSON format:
+# {
+#   "role1": ["attribute1", "atrribute2"],
+#   "role2": ["attribute1", "atrribute2", "attribute3", "atrribute4"]
+# }
+# Example:
+# rolesMapping = '{"admin": ["*"], "operator": ["package:list", "package:listActions", "package:move", "package:read", "package:upload"], "readonly": ["package:list", "package:listActions", "package:read"]}'
+rolesMapping = ""
 
 [api.auth.ticket.redis]
 # Redis URI to store a ticket used to set a websocket connection.
@@ -83,6 +95,8 @@ VITE_OIDC_ABAC_ENABLED
 VITE_OIDC_ABAC_CLAIM_PATH
 VITE_OIDC_ABAC_CLAIM_PATH_SEPARATOR
 VITE_OIDC_ABAC_CLAIM_VALUE_PREFIX
+VITE_OIDC_ABAC_USE_ROLES
+VITE_OIDC_ABAC_ROLES_MAPPING
 ```
 
 They must match the ones configured in the API. `VITE_OIDC_AUTHORITY` has to be

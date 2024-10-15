@@ -21,6 +21,8 @@ interface ImportMetaEnv {
   readonly VITE_OIDC_ABAC_CLAIM_PATH: string;
   readonly VITE_OIDC_ABAC_CLAIM_PATH_SEPARATOR: string;
   readonly VITE_OIDC_ABAC_CLAIM_VALUE_PREFIX: string;
+  readonly VITE_OIDC_ABAC_USE_ROLES: string;
+  readonly VITE_OIDC_ABAC_ROLES_MAPPING: string;
 }
 
 interface ImportMeta {

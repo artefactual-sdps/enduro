@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"slices"
 	"strings"
 
 	"github.com/coreos/go-oidc/v3/oidc"
@@ -117,7 +118,22 @@ func (t *OIDCTokenVerifier) parseAttributes(token *oidc.IDToken) ([]string, erro
 				}
 			}
 
-			return filteredValue, nil
+			if !t.cfg.ABAC.UseRoles {
+				return filteredValue, nil
+			}
+
+			var attributes []string
+			for _, role := range filteredValue {
+				if attrs, ok := t.cfg.ABAC.RolesMapping[role]; ok {
+					attributes = append(attributes, attrs...)
+				}
+			}
+
+			// Remove duplicates.
+			slices.Sort(attributes)
+			attributes = slices.Compact(attributes)
+
+			return attributes, nil
 		}
 
 		nested, ok := value.(map[string]interface{})
