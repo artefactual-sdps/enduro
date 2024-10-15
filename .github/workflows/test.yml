@@ -16,6 +16,8 @@ jobs:
       uses: actions/setup-go@v5
       with:
         go-version-file: go.mod
+    - name: Check mod tidy
+      run: make mod-tidy-check
     - name: Test
       run: make test-ci
     - name: Determine skip-codecov

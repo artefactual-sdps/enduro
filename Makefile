@@ -191,13 +191,17 @@ mod-tidy:
 	go mod download
 	go mod tidy
 
+mod-tidy-check: # @HELP Check that mod files are tidy.
+	go mod tidy -diff
+	cd hack/pulumi && go mod tidy -diff
+
 pre-commit: # @HELP Check that code is ready to commit.
 pre-commit:
 	$(MAKE) -j \
 		golines \
 		gosec GOSEC_VERBOSITY="-quiet"\
 		lint \
-		mod-tidy \
+		mod-tidy-check \
 		shfmt \
 		test-race \
 		workflowcheck \
