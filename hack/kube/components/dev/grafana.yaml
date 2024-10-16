@@ -78,11 +78,29 @@ data:
       jsonData:
         httpMethod: GET
         tlsSkipVerify: true
+        tracesToMetrics:
+          datasourceUid: 'prometheus'
+        serviceMap:
+          datasourceUid: 'prometheus'
       name: Tempo
       orgId: 1
       type: tempo
       uid: tempo
       url: http://grafana-tempo:3200
+      version: 1
+    - access: proxy
+      apiVersion: 1
+      basicAuth: false
+      editable: false
+      isDefault: false
+      jsonData:
+        httpMethod: GET
+        tlsSkipVerify: true
+      name: Prometheus
+      orgId: 1
+      type: prometheus
+      uid: prometheus
+      url: http://prometheus-server.enduro-sdps:9090
       version: 1
   default.yaml: |
     apiVersion: 1
