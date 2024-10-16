@@ -36,6 +36,10 @@ data:
     - /etc/config/rules
     - /etc/config/alerts
     scrape_configs:
+    - job_name: tempo
+      static_configs:
+      - targets:
+        - grafana-tempo.enduro-sdps:3200
     - job_name: prometheus
       static_configs:
       - targets:
@@ -471,6 +475,7 @@ spec:
             - --web.console.libraries=/etc/prometheus/console_libraries
             - --web.console.templates=/etc/prometheus/consoles
             - --web.enable-lifecycle
+            - --web.enable-remote-write-receiver
           ports:
             - containerPort: 9090
           readinessProbe:
