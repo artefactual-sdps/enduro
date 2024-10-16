@@ -97,6 +97,22 @@ func (w *wrapper) CreatePreservationTask(ctx context.Context, pt *datatypes.Pres
 	return nil
 }
 
+func (w *wrapper) CreatePreservationTasks(
+	ctx context.Context,
+	seq func(yield func(*datatypes.PreservationTask) bool),
+) ([]*datatypes.PreservationTask, error) {
+	ctx, span := w.tracer.Start(ctx, "CreatePreservationTasks")
+	defer span.End()
+
+	r, err := w.wrapped.CreatePreservationTasks(ctx, seq)
+	if err != nil {
+		telemetry.RecordError(span, err)
+		return nil, updateError(err, "CreatePreservationTasks")
+	}
+
+	return r, nil
+}
+
 func (w *wrapper) UpdatePreservationTask(
 	ctx context.Context,
 	id int,

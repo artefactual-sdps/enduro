@@ -155,6 +155,45 @@ func (c *MockServiceCreatePreservationTaskCall) DoAndReturn(f func(context.Conte
 	return c
 }
 
+// CreatePreservationTasks mocks base method.
+func (m *MockService) CreatePreservationTasks(arg0 context.Context, arg1 func(func(*datatypes.PreservationTask) bool)) ([]*datatypes.PreservationTask, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreatePreservationTasks", arg0, arg1)
+	ret0, _ := ret[0].([]*datatypes.PreservationTask)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreatePreservationTasks indicates an expected call of CreatePreservationTasks.
+func (mr *MockServiceMockRecorder) CreatePreservationTasks(arg0, arg1 any) *MockServiceCreatePreservationTasksCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreatePreservationTasks", reflect.TypeOf((*MockService)(nil).CreatePreservationTasks), arg0, arg1)
+	return &MockServiceCreatePreservationTasksCall{Call: call}
+}
+
+// MockServiceCreatePreservationTasksCall wrap *gomock.Call
+type MockServiceCreatePreservationTasksCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockServiceCreatePreservationTasksCall) Return(arg0 []*datatypes.PreservationTask, arg1 error) *MockServiceCreatePreservationTasksCall {
+	c.Call = c.Call.Return(arg0, arg1)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockServiceCreatePreservationTasksCall) Do(f func(context.Context, func(func(*datatypes.PreservationTask) bool)) ([]*datatypes.PreservationTask, error)) *MockServiceCreatePreservationTasksCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockServiceCreatePreservationTasksCall) DoAndReturn(f func(context.Context, func(func(*datatypes.PreservationTask) bool)) ([]*datatypes.PreservationTask, error)) *MockServiceCreatePreservationTasksCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
 // ListPackages mocks base method.
 func (m *MockService) ListPackages(arg0 context.Context, arg1 *persistence.PackageFilter) ([]*datatypes.Package, *persistence.Page, error) {
 	m.ctrl.T.Helper()

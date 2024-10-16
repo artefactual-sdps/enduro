@@ -5,10 +5,12 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"slices"
 	"testing"
 	"time"
 
 	"github.com/go-logr/logr"
+	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/google/uuid"
 	"gotest.tools/v3/assert"
 
@@ -150,6 +152,120 @@ func TestCreatePreservationTask(t *testing.T) {
 			assert.Equal(t, pt.CompletedAt, tt.want.CompletedAt)
 			assert.Equal(t, pt.Note, tt.want.Note)
 			assert.Equal(t, pt.PreservationActionID, pa.ID)
+		})
+	}
+}
+
+func TestCreatePreservationTasks(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name    string
+		tasks   func(entc *db.Client) []*datatypes.PreservationTask
+		wantErr string
+	}{
+		{
+			name: "Creates multiple preservation tasks",
+			tasks: func(entc *db.Client) []*datatypes.PreservationTask {
+				pa1, _ := addDBFixtures(t, entc)
+				return []*datatypes.PreservationTask{
+					{
+						TaskID:               "20b8b39c-3642-4138-9dab-b266bfca1e87",
+						Name:                 "Task 1",
+						Status:               enums.PreservationTaskStatusDone,
+						StartedAt:            sql.NullTime{Time: time.Now(), Valid: true},
+						CompletedAt:          sql.NullTime{Time: time.Now().Add(time.Second), Valid: true},
+						Note:                 "Note",
+						PreservationActionID: pa1.ID,
+					},
+					{
+						TaskID:               "9cad7233-58b2-46c4-a2e3-20f892859648",
+						Name:                 "Task 2",
+						Status:               enums.PreservationTaskStatusDone,
+						StartedAt:            sql.NullTime{Time: time.Now(), Valid: true},
+						CompletedAt:          sql.NullTime{Time: time.Now().Add(time.Second), Valid: true},
+						Note:                 "Note",
+						PreservationActionID: pa1.ID,
+					},
+				}
+			},
+		},
+		{
+			name: "Creates multiple preservation tasks exceeding batch size",
+			tasks: func(entc *db.Client) []*datatypes.PreservationTask {
+				pa1, _ := addDBFixtures(t, entc)
+				pts := make([]*datatypes.PreservationTask, 0, 300) // Three batches.
+				for range cap(pts) {
+					pts = append(pts, &datatypes.PreservationTask{
+						TaskID:               uuid.NewString(),
+						Name:                 "Task",
+						Status:               enums.PreservationTaskStatusDone,
+						StartedAt:            sql.NullTime{Time: time.Now(), Valid: true},
+						CompletedAt:          sql.NullTime{Time: time.Now().Add(time.Second), Valid: true},
+						Note:                 "Note",
+						PreservationActionID: pa1.ID,
+					})
+				}
+				return pts
+			},
+		},
+		{
+			name: "Errors on invalid TaskID",
+			tasks: func(entc *db.Client) []*datatypes.PreservationTask {
+				return []*datatypes.PreservationTask{
+					{
+						TaskID: "123456",
+					},
+				}
+			},
+			wantErr: "invalid data error: parse error: field \"TaskID\": invalid UUID length: 6",
+		},
+		{
+			name: "Required field error for missing Name",
+			tasks: func(entc *db.Client) []*datatypes.PreservationTask {
+				return []*datatypes.PreservationTask{
+					{
+						TaskID: "ef0193bf-a622-4a8b-b860-cda605a426b5",
+					},
+				}
+			},
+			wantErr: "invalid data error: field \"Name\" is required",
+		},
+		{
+			name: "Required field error for missing PreservationActionID",
+			tasks: func(entc *db.Client) []*datatypes.PreservationTask {
+				return []*datatypes.PreservationTask{
+					{
+						TaskID: "20b8b39c-3642-4138-9dab-b266bfca1e87",
+						Name:   "PT1",
+						Status: enums.PreservationTaskStatusInProgress,
+					},
+				}
+			},
+			wantErr: "invalid data error: field \"PreservationActionID\" is required",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			entc, svc := setUpClient(t, logr.Discard())
+
+			tasks := tt.tasks(entc)
+			ret, err := svc.CreatePreservationTasks(ctx, slices.Values(tasks))
+
+			if tt.wantErr != "" {
+				assert.Error(t, err, tt.wantErr)
+				return
+			}
+			assert.NilError(t, err)
+
+			assert.Equal(t, entc.PreservationTask.Query().CountX(ctx), len(tasks))
+			assert.DeepEqual(t, tasks, ret,
+				// The ID is assigned after creation, so we need to exclude it from the comparison.
+				cmpopts.IgnoreFields(datatypes.PreservationTask{}, "ID"),
+			)
 		})
 	}
 }
