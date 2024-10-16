@@ -136,7 +136,7 @@ data:
       "editable": true,
       "fiscalYearStartMonth": 0,
       "graphTooltip": 0,
-      "id": 3,
+      "id": 1,
       "links": [],
       "liveNow": false,
       "panels": [
@@ -221,7 +221,7 @@ data:
           },
           "gridPos": {
             "h": 5,
-            "w": 4,
+            "w": 24,
             "x": 0,
             "y": 5
           },
@@ -298,7 +298,7 @@ data:
           },
           "gridPos": {
             "h": 11,
-            "w": 24,
+            "w": 12,
             "x": 0,
             "y": 10
           },
@@ -406,10 +406,10 @@ data:
             ]
           },
           "gridPos": {
-            "h": 13,
-            "w": 24,
-            "x": 0,
-            "y": 21
+            "h": 11,
+            "w": 12,
+            "x": 12,
+            "y": 10
           },
           "id": 3,
           "options": {
@@ -441,6 +441,41 @@ data:
           ],
           "title": "API requests",
           "type": "table"
+        },
+        {
+          "datasource": {
+            "default": true,
+            "type": "tempo",
+            "uid": "tempo"
+          },
+          "gridPos": {
+            "h": 17,
+            "w": 24,
+            "x": 0,
+            "y": 21
+          },
+          "id": 6,
+          "options": {
+            "edges": {},
+            "nodes": {}
+          },
+          "pluginVersion": "11.2.2",
+          "targets": [
+            {
+              "datasource": {
+                "type": "tempo",
+                "uid": "tempo"
+              },
+              "hide": false,
+              "limit": 20,
+              "query": "{}",
+              "queryType": "serviceMap",
+              "refId": "A",
+              "tableType": "traces"
+            }
+          ],
+          "title": "Service graph",
+          "type": "nodeGraph"
         }
       ],
       "refresh": "",
