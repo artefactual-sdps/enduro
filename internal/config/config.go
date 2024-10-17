@@ -14,6 +14,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/viper"
+	"go.artefactual.dev/tools/bucket"
 
 	"github.com/artefactual-sdps/enduro/internal/a3m"
 	"github.com/artefactual-sdps/enduro/internal/am"
@@ -53,6 +54,9 @@ type Configuration struct {
 	Upload          package_.UploadConfig
 	Watcher         watcher.Config
 	Telemetry       telemetry.Config
+
+	FailedSIPs bucket.Config
+	FailedPIPs bucket.Config
 }
 
 func (c *Configuration) Validate() error {
