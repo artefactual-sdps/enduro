@@ -15,12 +15,15 @@ import (
 	"entgo.io/ent/dialect/sql"
 	bagit_gython "github.com/artefactual-labs/bagit-gython"
 	"github.com/artefactual-sdps/temporal-activities/archiveextract"
+	"github.com/artefactual-sdps/temporal-activities/archivezip"
 	"github.com/artefactual-sdps/temporal-activities/bagvalidate"
+	"github.com/artefactual-sdps/temporal-activities/bucketupload"
 	"github.com/artefactual-sdps/temporal-activities/removepaths"
 	"github.com/hashicorp/go-cleanhttp"
 	"github.com/oklog/run"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/pflag"
+	"go.artefactual.dev/tools/bucket"
 	"go.artefactual.dev/tools/log"
 	temporal_tools "go.artefactual.dev/tools/temporal"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace"
@@ -203,6 +206,22 @@ func main() {
 		}
 	}()
 
+	// Set-up failed SIPs bucket.
+	failedSIPs, err := bucket.NewWithConfig(ctx, &cfg.FailedSIPs)
+	if err != nil {
+		logger.Error(err, "Error setting up failed SIPs bucket.")
+		os.Exit(1)
+	}
+	defer failedSIPs.Close()
+
+	// Set-up failed PIPs bucket.
+	failedPIPs, err := bucket.NewWithConfig(ctx, &cfg.FailedPIPs)
+	if err != nil {
+		logger.Error(err, "Error setting up failed PIPs bucket.")
+		os.Exit(1)
+	}
+	defer failedPIPs.Close()
+
 	var g run.Group
 
 	// Activity worker.
@@ -305,6 +324,18 @@ func main() {
 		w.RegisterActivityWithOptions(
 			activities.NewRejectPackageActivity(storageClient).Execute,
 			temporalsdk_activity.RegisterOptions{Name: activities.RejectPackageActivityName},
+		)
+		w.RegisterActivityWithOptions(
+			archivezip.New().Execute,
+			temporalsdk_activity.RegisterOptions{Name: archivezip.Name},
+		)
+		w.RegisterActivityWithOptions(
+			bucketupload.New(failedSIPs).Execute,
+			temporalsdk_activity.RegisterOptions{Name: activities.SendToFailedSIPsName},
+		)
+		w.RegisterActivityWithOptions(
+			bucketupload.New(failedPIPs).Execute,
+			temporalsdk_activity.RegisterOptions{Name: activities.SendToFailedPIPsName},
 		)
 
 		g.Add(
