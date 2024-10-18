@@ -15,6 +15,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	bagit_gython "github.com/artefactual-labs/bagit-gython"
 	"github.com/artefactual-sdps/temporal-activities/archiveextract"
+	"github.com/artefactual-sdps/temporal-activities/archivezip"
 	"github.com/artefactual-sdps/temporal-activities/bagvalidate"
 	"github.com/artefactual-sdps/temporal-activities/bucketupload"
 	"github.com/artefactual-sdps/temporal-activities/removepaths"
@@ -323,6 +324,10 @@ func main() {
 		w.RegisterActivityWithOptions(
 			activities.NewRejectPackageActivity(storageClient).Execute,
 			temporalsdk_activity.RegisterOptions{Name: activities.RejectPackageActivityName},
+		)
+		w.RegisterActivityWithOptions(
+			archivezip.New().Execute,
+			temporalsdk_activity.RegisterOptions{Name: archivezip.Name},
 		)
 		w.RegisterActivityWithOptions(
 			bucketupload.New(failedSIPs).Execute,
