@@ -421,8 +421,8 @@ func (w *ProcessingWorkflow) SessionHandler(
 	// Validate PREMIS.
 	activityOpts := withActivityOptsForRequest(sessCtx)
 	err := temporalsdk_workflow.ExecuteActivity(activityOpts, xmlvalidate.Name, xmlvalidate.Params{
-		XMLFilePath: filepath.Join(tinfo.TempPath, "data", "metadata", "premis.xml"),
-		XSDFilePath: tinfo.TempPath,
+		XMLPath: filepath.Join(tinfo.TempPath, "data", "metadata", "premis.xml"),
+		XSDPath: tinfo.TempPath,
 	}).Get(activityOpts, nil)
 	if err != nil {
 		return err

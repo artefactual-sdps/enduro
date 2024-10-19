@@ -305,7 +305,7 @@ func main() {
 			temporalsdk_activity.RegisterOptions{Name: removepaths.Name},
 		)
 		w.RegisterActivityWithOptions(
-			xmlvalidate.New().Execute,
+			xmlvalidate.New(xmlvalidate.NewXMLLintValidator()).Execute,
 			temporalsdk_activity.RegisterOptions{Name: xmlvalidate.Name},
 		)
 
