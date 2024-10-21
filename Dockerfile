@@ -4,8 +4,7 @@ ARG TARGET=enduro
 ARG GO_VERSION
 
 FROM golang:${GO_VERSION}-bookworm AS build-libxml
-RUN apt-get update
-RUN apt-get install -y --no-install-recommends libxml2-utils
+RUN apt-get update && apt-get install -y --no-install-recommends libxml2-utils
 
 FROM golang:${GO_VERSION}-alpine AS build-go
 WORKDIR /src
