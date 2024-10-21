@@ -3,6 +3,9 @@
 ARG TARGET=enduro
 ARG GO_VERSION
 
+FROM golang:${GO_VERSION}-bookworm AS build-libxml
+RUN apt-get update && apt-get install -y --no-install-recommends libxml2-utils
+
 FROM golang:${GO_VERSION}-alpine AS build-go
 WORKDIR /src
 ENV CGO_ENABLED=0
@@ -66,5 +69,16 @@ FROM base AS enduro-am-worker
 COPY --from=build-enduro-am-worker --link /out/enduro-am-worker /home/enduro/bin/enduro-am-worker
 COPY --from=build-enduro-am-worker --link /src/enduro.toml /home/enduro/.config/enduro.toml
 CMD ["/home/enduro/bin/enduro-am-worker", "--config", "/home/enduro/.config/enduro.toml"]
+COPY --from=build-libxml /usr/bin/xmllint /usr/bin/xmllint
+COPY --from=build-libxml /lib/x86_64-linux-gnu/libxml2.so.2 /lib/x86_64-linux-gnu/libxml2.so.2
+COPY --from=build-libxml /lib/x86_64-linux-gnu/libc.so.6 /lib/x86_64-linux-gnu/libc.so.6
+COPY --from=build-libxml /lib/x86_64-linux-gnu/libicuuc.so.72 /lib/x86_64-linux-gnu/libicuuc.so.72
+COPY --from=build-libxml /lib/x86_64-linux-gnu/libz.so.1 /lib/x86_64-linux-gnu/libz.so.1
+COPY --from=build-libxml /lib/x86_64-linux-gnu/liblzma.so.5 /lib/x86_64-linux-gnu/liblzma.so.5
+COPY --from=build-libxml /lib/x86_64-linux-gnu/libm.so.6 /lib/x86_64-linux-gnu/libm.so.6
+COPY --from=build-libxml /lib64/ld-linux-x86-64.so.2 /lib64/ld-linux-x86-64.so.2
+COPY --from=build-libxml /lib/x86_64-linux-gnu/libicudata.so.72 /lib/x86_64-linux-gnu/libicudata.so.72
+COPY --from=build-libxml /lib/x86_64-linux-gnu/libstdc++.so.6 /lib/x86_64-linux-gnu/libstdc++.so.6
+COPY --from=build-libxml /lib/x86_64-linux-gnu/libgcc_s.so.1 /lib/x86_64-linux-gnu/libgcc_s.so.1
 
 FROM ${TARGET}

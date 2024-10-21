@@ -12,7 +12,7 @@ require (
 	github.com/XSAM/otelsql v0.29.0
 	github.com/alicebob/miniredis/v2 v2.32.1
 	github.com/artefactual-labs/bagit-gython v0.2.0
-	github.com/artefactual-sdps/temporal-activities v0.0.0-20240821162351-47302711bc7b
+	github.com/artefactual-sdps/temporal-activities v0.0.0-20241018212855-8ea34d29bdf4
 	github.com/coreos/go-oidc/v3 v3.10.0
 	github.com/cyphar/filepath-securejoin v0.2.4
 	github.com/dolmen-go/contextio v1.0.0
