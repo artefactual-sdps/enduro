@@ -2,6 +2,7 @@ package workflow
 
 import (
 	"database/sql"
+	"fmt"
 	"math/rand"
 	"strings"
 	"testing"
@@ -11,6 +12,7 @@ import (
 	"github.com/artefactual-sdps/temporal-activities/archivezip"
 	"github.com/artefactual-sdps/temporal-activities/bagcreate"
 	"github.com/artefactual-sdps/temporal-activities/bagvalidate"
+	"github.com/artefactual-sdps/temporal-activities/bucketupload"
 	"github.com/artefactual-sdps/temporal-activities/removepaths"
 	"github.com/google/uuid"
 	"github.com/jonboulle/clockwork"
@@ -24,6 +26,7 @@ import (
 	temporalsdk_worker "go.temporal.io/sdk/worker"
 	temporalsdk_workflow "go.temporal.io/sdk/workflow"
 	"go.uber.org/mock/gomock"
+	"gocloud.dev/blob/memblob"
 	"gotest.tools/v3/assert"
 
 	"github.com/artefactual-sdps/enduro/internal/a3m"
@@ -140,6 +143,18 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(cfg config.Configuration
 		activities.NewDeleteOriginalActivity(wsvc).Execute,
 		temporalsdk_activity.RegisterOptions{Name: activities.DeleteOriginalActivityName},
 	)
+	s.env.RegisterActivityWithOptions(
+		archivezip.New().Execute,
+		temporalsdk_activity.RegisterOptions{Name: archivezip.Name},
+	)
+	s.env.RegisterActivityWithOptions(
+		bucketupload.New(memblob.OpenBucket(nil)).Execute,
+		temporalsdk_activity.RegisterOptions{Name: activities.SendToFailedSIPsName},
+	)
+	s.env.RegisterActivityWithOptions(
+		bucketupload.New(memblob.OpenBucket(nil)).Execute,
+		temporalsdk_activity.RegisterOptions{Name: activities.SendToFailedPIPsName},
+	)
 
 	s.workflow = NewProcessingWorkflow(cfg, rng, pkgsvc, wsvc)
 }
@@ -155,10 +170,6 @@ func (s *ProcessingWorkflowTestSuite) setupAMWorkflowTest(
 	s.env.RegisterActivityWithOptions(
 		bagcreate.New(bagcreate.Config{}).Execute,
 		temporalsdk_activity.RegisterOptions{Name: bagcreate.Name},
-	)
-	s.env.RegisterActivityWithOptions(
-		archivezip.New().Execute,
-		temporalsdk_activity.RegisterOptions{Name: archivezip.Name},
 	)
 	s.env.RegisterActivityWithOptions(
 		am.NewUploadTransferActivity(sftpc, 10*time.Second).Execute,
@@ -1060,4 +1071,401 @@ func (s *ProcessingWorkflowTestSuite) TestPreprocessingChildWorkflow() {
 
 	s.True(s.env.IsWorkflowCompleted())
 	s.NoError(s.env.GetWorkflowResult(nil))
+}
+
+func (s *ProcessingWorkflowTestSuite) TestFailedSIP() {
+	cfg := config.Configuration{
+		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
+		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
+		Preprocessing: preprocessing.Config{
+			Enabled:    true,
+			Extract:    true,
+			SharedPath: "/home/enduro/preprocessing/",
+			Temporal: preprocessing.Temporal{
+				Namespace:    "default",
+				TaskQueue:    "preprocessing",
+				WorkflowName: "preprocessing",
+			},
+		},
+		Storage: storage.Config{DefaultPermanentLocationID: locationID},
+	}
+	s.SetupWorkflowTest(cfg)
+
+	pkgID := 1
+	watcherName := "watcher"
+	key := "transfer.zip"
+	retentionPeriod := 1 * time.Second
+	ctx := mock.AnythingOfType("*context.valueCtx")
+	sessionCtx := mock.AnythingOfType("*context.timerCtx")
+	downloadDir := strings.Replace(tempPath, "/tmp/", cfg.Preprocessing.SharedPath, 1)
+	prepDest := strings.Replace(extractPath, "/tmp/", cfg.Preprocessing.SharedPath, 1)
+	pkgsvc := s.workflow.pkgsvc
+
+	s.env.OnActivity(
+		createPackageLocalActivity,
+		ctx,
+		pkgsvc,
+		&createPackageLocalActivityParams{Key: key, Status: enums.PackageStatusQueued},
+	).Return(pkgID, nil)
+
+	s.env.OnActivity(
+		setStatusInProgressLocalActivity,
+		ctx,
+		pkgsvc,
+		pkgID,
+		startTime,
+	).Return(nil, nil)
+
+	s.env.OnActivity(
+		createPreservationActionLocalActivity,
+		ctx,
+		pkgsvc,
+		&createPreservationActionLocalActivityParams{
+			WorkflowID: "default-test-workflow-id",
+			Type:       enums.PreservationActionTypeCreateAip,
+			Status:     enums.PreservationActionStatusInProgress,
+			StartedAt:  startTime,
+			PackageID:  1,
+		},
+	).Return(1, nil)
+
+	s.env.OnActivity(
+		activities.DownloadActivityName,
+		sessionCtx,
+		&activities.DownloadActivityParams{
+			Key:             key,
+			WatcherName:     watcherName,
+			DestinationPath: cfg.Preprocessing.SharedPath,
+		},
+	).Return(&activities.DownloadActivityResult{Path: downloadDir + "/" + key}, nil)
+
+	s.env.OnWorkflow(
+		preprocessingChildWorkflow,
+		mock.AnythingOfType("*internal.valueCtx"),
+		&preprocessing.WorkflowParams{
+			RelativePath: strings.TrimPrefix(downloadDir+"/"+key, cfg.Preprocessing.SharedPath),
+		},
+	).Return(
+		&preprocessing.WorkflowResult{
+			Outcome:      preprocessing.OutcomeContentError,
+			RelativePath: strings.TrimPrefix(prepDest, cfg.Preprocessing.SharedPath),
+		},
+		nil,
+	)
+
+	s.env.OnActivity(
+		activities.SendToFailedSIPsName,
+		sessionCtx,
+		&bucketupload.Params{
+			Path:       downloadDir + "/" + key,
+			Key:        fmt.Sprintf("Failed_%s", key),
+			BufferSize: 100_000_000,
+		},
+	).Return(&bucketupload.Result{}, nil)
+
+	s.env.OnActivity(
+		updatePackageLocalActivity,
+		ctx,
+		pkgsvc,
+		mock.AnythingOfType("*workflow.updatePackageLocalActivityParams"),
+	).Return(nil, nil)
+
+	s.env.OnActivity(
+		completePreservationActionLocalActivity,
+		ctx,
+		pkgsvc,
+		mock.AnythingOfType("*workflow.completePreservationActionLocalActivityParams"),
+	).Return(nil, nil)
+
+	s.env.OnActivity(
+		removepaths.Name,
+		sessionCtx,
+		&removepaths.Params{Paths: []string{downloadDir}},
+	).Return(&removepaths.Result{}, nil)
+
+	s.env.ExecuteWorkflow(
+		s.workflow.Execute,
+		&package_.ProcessingWorkflowRequest{
+			Key:                        key,
+			WatcherName:                watcherName,
+			RetentionPeriod:            &retentionPeriod,
+			AutoApproveAIP:             true,
+			DefaultPermanentLocationID: &cfg.Storage.DefaultPermanentLocationID,
+		},
+	)
+
+	s.True(s.env.IsWorkflowCompleted())
+	s.Error(s.env.GetWorkflowResult(nil))
+}
+
+func (s *ProcessingWorkflowTestSuite) TestFailedPIPA3m() {
+	cfg := config.Configuration{
+		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
+		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
+		Storage:      storage.Config{DefaultPermanentLocationID: locationID},
+	}
+	s.SetupWorkflowTest(cfg)
+
+	pkgID := 1
+	watcherName := "watcher"
+	key := "transfer.zip"
+	retentionPeriod := 1 * time.Second
+	ctx := mock.AnythingOfType("*context.valueCtx")
+	sessionCtx := mock.AnythingOfType("*context.timerCtx")
+	downloadDir := strings.Replace(tempPath, "/tmp/", cfg.Preprocessing.SharedPath, 1)
+	pkgsvc := s.workflow.pkgsvc
+
+	s.env.OnActivity(
+		createPackageLocalActivity,
+		ctx,
+		pkgsvc,
+		&createPackageLocalActivityParams{Key: key, Status: enums.PackageStatusQueued},
+	).Return(pkgID, nil)
+
+	s.env.OnActivity(
+		setStatusInProgressLocalActivity,
+		ctx,
+		pkgsvc,
+		pkgID,
+		startTime,
+	).Return(nil, nil)
+
+	s.env.OnActivity(
+		createPreservationActionLocalActivity,
+		ctx,
+		pkgsvc,
+		&createPreservationActionLocalActivityParams{
+			WorkflowID: "default-test-workflow-id",
+			Type:       enums.PreservationActionTypeCreateAip,
+			Status:     enums.PreservationActionStatusInProgress,
+			StartedAt:  startTime,
+			PackageID:  1,
+		},
+	).Return(1, nil)
+
+	s.env.OnActivity(
+		activities.DownloadActivityName,
+		sessionCtx,
+		&activities.DownloadActivityParams{
+			Key:             key,
+			WatcherName:     watcherName,
+			DestinationPath: cfg.Preprocessing.SharedPath,
+		},
+	).Return(&activities.DownloadActivityResult{Path: downloadDir + "/" + key}, nil)
+
+	s.env.OnActivity(
+		archiveextract.Name,
+		sessionCtx,
+		&archiveextract.Params{SourcePath: downloadDir + "/" + key},
+	).Return(&archiveextract.Result{ExtractPath: extractPath}, nil)
+
+	s.env.OnActivity(
+		activities.ClassifyPackageActivityName,
+		sessionCtx,
+		activities.ClassifyPackageActivityParams{Path: extractPath},
+	).Return(&activities.ClassifyPackageActivityResult{Type: enums.PackageTypeBagIt}, nil)
+
+	s.env.OnActivity(
+		createPreservationTaskLocalActivity,
+		ctx,
+		&createPreservationTaskLocalActivityParams{
+			PkgSvc: pkgsvc,
+			RNG:    rand.New(rand.NewSource(1)), // #nosec: G404
+			PreservationTask: datatypes.PreservationTask{
+				Name:   "Validate Bag",
+				Status: enums.PreservationTaskStatusInProgress,
+				StartedAt: sql.NullTime{
+					Time:  startTime,
+					Valid: true,
+				},
+				PreservationActionID: 1,
+			},
+		},
+	).Return(101, nil)
+
+	s.env.OnActivity(
+		bagvalidate.Name,
+		sessionCtx,
+		&bagvalidate.Params{Path: extractPath},
+	).Return(&bagvalidate.Result{Valid: true}, nil)
+
+	s.env.OnActivity(
+		completePreservationTaskLocalActivity,
+		ctx,
+		pkgsvc,
+		&completePreservationTaskLocalActivityParams{
+			ID:          101,
+			Status:      enums.PreservationTaskStatusDone,
+			CompletedAt: startTime,
+			Note:        ref.New("Bag is valid"),
+		},
+	).Return(&completePreservationTaskLocalActivityResult{}, nil)
+
+	s.env.OnActivity(
+		activities.BundleActivityName,
+		sessionCtx,
+		&activities.BundleActivityParams{
+			SourcePath:  extractPath,
+			TransferDir: s.transferDir,
+			IsDir:       true,
+		},
+	).Return(&activities.BundleActivityResult{FullPath: transferPath}, nil)
+
+	s.env.OnActivity(a3m.CreateAIPActivityName, sessionCtx, mock.AnythingOfType("*a3m.CreateAIPActivityParams")).
+		Return(nil, fmt.Errorf("a3m error"))
+
+	s.env.OnActivity(archivezip.Name, sessionCtx, &archivezip.Params{SourceDir: transferPath}).
+		Return(&archivezip.Result{Path: transferPath + ".zip"}, nil)
+
+	s.env.OnActivity(
+		activities.SendToFailedPIPsName,
+		sessionCtx,
+		&bucketupload.Params{
+			Path:       transferPath + ".zip",
+			Key:        fmt.Sprintf("Failed_%s", key),
+			BufferSize: 100_000_000,
+		},
+	).Return(&bucketupload.Result{}, nil)
+
+	s.env.OnActivity(
+		updatePackageLocalActivity,
+		ctx,
+		pkgsvc,
+		mock.AnythingOfType("*workflow.updatePackageLocalActivityParams"),
+	).Return(nil, nil)
+
+	s.env.OnActivity(
+		completePreservationActionLocalActivity,
+		ctx,
+		pkgsvc,
+		mock.AnythingOfType("*workflow.completePreservationActionLocalActivityParams"),
+	).Return(nil, nil)
+
+	s.env.OnActivity(
+		removepaths.Name,
+		sessionCtx,
+		&removepaths.Params{Paths: []string{downloadDir, transferPath}},
+	).Return(&removepaths.Result{}, nil)
+
+	s.env.ExecuteWorkflow(
+		s.workflow.Execute,
+		&package_.ProcessingWorkflowRequest{
+			Key:                        key,
+			WatcherName:                watcherName,
+			RetentionPeriod:            &retentionPeriod,
+			AutoApproveAIP:             true,
+			DefaultPermanentLocationID: &cfg.Storage.DefaultPermanentLocationID,
+		},
+	)
+
+	s.True(s.env.IsWorkflowCompleted())
+	s.Error(s.env.GetWorkflowResult(nil))
+}
+
+func (s *ProcessingWorkflowTestSuite) TestFailedPIPAM() {
+	cfg := config.Configuration{
+		Preservation: pres.Config{TaskQueue: temporal.AmWorkerTaskQueue},
+		Storage:      storage.Config{DefaultPermanentLocationID: amssLocationID},
+	}
+	s.SetupWorkflowTest(cfg)
+
+	pkgID := 1
+	watcherName := "watcher"
+	key := "transfer.zip"
+	retentionPeriod := 1 * time.Second
+	ctx := mock.AnythingOfType("*context.valueCtx")
+	sessionCtx := mock.AnythingOfType("*context.timerCtx")
+	pkgsvc := s.workflow.pkgsvc
+
+	s.env.OnActivity(
+		createPackageLocalActivity,
+		ctx,
+		pkgsvc,
+		&createPackageLocalActivityParams{Key: key, Status: enums.PackageStatusQueued},
+	).Return(pkgID, nil)
+
+	s.env.OnActivity(setStatusInProgressLocalActivity, ctx, pkgsvc, pkgID, mock.AnythingOfType("time.Time")).
+		Return(nil, nil)
+
+	s.env.OnActivity(
+		createPreservationActionLocalActivity,
+		ctx,
+		pkgsvc,
+		mock.AnythingOfType("*workflow.createPreservationActionLocalActivityParams"),
+	).Return(0, nil)
+
+	s.env.OnActivity(
+		activities.DownloadActivityName,
+		sessionCtx,
+		&activities.DownloadActivityParams{Key: key, WatcherName: watcherName},
+	).Return(&activities.DownloadActivityResult{Path: tempPath + "/" + key}, nil)
+
+	s.env.OnActivity(
+		archiveextract.Name,
+		sessionCtx,
+		&archiveextract.Params{SourcePath: tempPath + "/" + key},
+	).Return(&archiveextract.Result{ExtractPath: extractPath}, nil)
+
+	s.env.OnActivity(
+		activities.ClassifyPackageActivityName,
+		sessionCtx,
+		activities.ClassifyPackageActivityParams{Path: extractPath},
+	).Return(&activities.ClassifyPackageActivityResult{Type: enums.PackageTypeUnknown}, nil)
+
+	s.env.OnActivity(bagcreate.Name, sessionCtx, &bagcreate.Params{SourcePath: extractPath}).
+		Return(&bagcreate.Result{BagPath: extractPath}, nil)
+
+	s.env.OnActivity(archivezip.Name, sessionCtx, &archivezip.Params{SourceDir: extractPath}).
+		Return(&archivezip.Result{Path: extractPath + "/transfer.zip"}, nil)
+
+	s.env.OnActivity(
+		am.UploadTransferActivityName,
+		sessionCtx,
+		&am.UploadTransferActivityParams{SourcePath: extractPath + "/transfer.zip"},
+	).Return(nil, fmt.Errorf("AM error"))
+
+	s.env.OnActivity(
+		activities.SendToFailedPIPsName,
+		sessionCtx,
+		&bucketupload.Params{
+			Path:       extractPath + "/transfer.zip",
+			Key:        fmt.Sprintf("Failed_%s", key),
+			BufferSize: 100_000_000,
+		},
+	).Return(&bucketupload.Result{}, nil)
+
+	s.env.OnActivity(
+		updatePackageLocalActivity,
+		ctx,
+		pkgsvc,
+		mock.AnythingOfType("*workflow.updatePackageLocalActivityParams"),
+	).Return(nil, nil)
+
+	s.env.OnActivity(
+		completePreservationActionLocalActivity,
+		ctx,
+		pkgsvc,
+		mock.AnythingOfType("*workflow.completePreservationActionLocalActivityParams"),
+	).Return(nil, nil)
+
+	s.env.OnActivity(
+		removepaths.Name,
+		sessionCtx,
+		&removepaths.Params{Paths: []string{tempPath}},
+	).Return(&removepaths.Result{}, nil)
+
+	s.env.ExecuteWorkflow(
+		s.workflow.Execute,
+		&package_.ProcessingWorkflowRequest{
+			WatcherName:                watcherName,
+			RetentionPeriod:            &retentionPeriod,
+			AutoApproveAIP:             true,
+			DefaultPermanentLocationID: &cfg.Storage.DefaultPermanentLocationID,
+			Key:                        key,
+			TransferDeadline:           time.Second,
+		},
+	)
+
+	s.True(s.env.IsWorkflowCompleted())
+	s.Error(s.env.GetWorkflowResult(nil))
 }
