@@ -60,7 +60,7 @@ func (t *OIDCTokenVerifier) Verify(ctx context.Context, token string) (*Claims, 
 	}
 
 	// Check that claims are verified.
-	if !claims.EmailVerified {
+	if !t.cfg.SkipEmailVerifiedCheck && !claims.EmailVerified {
 		return nil, ErrUnauthorized
 	}
 

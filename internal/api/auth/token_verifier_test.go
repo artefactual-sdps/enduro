@@ -68,14 +68,30 @@ func TestOIDCTokenVerifier(t *testing.T) {
 		})
 	})
 
+	t.Run("Verifies tokens without email verified (skipEmailVerifiedCheck)", func(t *testing.T) {
+		t.Parallel()
+
+		signer, iss := oidctest.NewIssuer(t)
+		token := token(t, signer, iss, auth.Claims{Email: "info@artefactual.com"})
+
+		ctx := context.Background()
+		v, err := auth.NewOIDCTokenVerifier(ctx, &auth.OIDCConfig{
+			ProviderURL:            iss,
+			ClientID:               audience,
+			SkipEmailVerifiedCheck: true,
+		})
+		assert.NilError(t, err)
+
+		claims, err := v.Verify(ctx, token)
+		assert.NilError(t, err)
+		assert.DeepEqual(t, claims, &auth.Claims{Email: "info@artefactual.com"})
+	})
+
 	t.Run("Rejects tokens without email verified", func(t *testing.T) {
 		t.Parallel()
 
 		signer, iss := oidctest.NewIssuer(t)
-		token := token(t, signer, iss, auth.Claims{
-			Email:         "info@artefactual.com",
-			EmailVerified: false,
-		})
+		token := token(t, signer, iss, auth.Claims{Email: "info@artefactual.com"})
 
 		ctx := context.Background()
 		v, err := auth.NewOIDCTokenVerifier(ctx, &auth.OIDCConfig{

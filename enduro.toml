@@ -31,6 +31,8 @@ providerURL = "http://keycloak:7470/realms/artefactual"
 # OIDC client ID. The client ID must be included in the `aud` claim of
 # the access token. Required when auth. is enabled.
 clientID = "enduro"
+# Do not check if the `email_verified` claim is present and set to `true`.
+skipEmailVerifiedCheck = false
 
 [api.auth.oidc.abac]
 # Enable Attribute Based Access Control (ABAC). If enabled, the API will

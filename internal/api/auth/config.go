@@ -11,8 +11,9 @@ type Config struct {
 }
 
 type OIDCConfig struct {
-	ProviderURL string
-	ClientID    string
+	ProviderURL            string
+	ClientID               string
+	SkipEmailVerifiedCheck bool
 
 	// Attribute Based Access Control configuration.
 	ABAC OIDCABACConfig
