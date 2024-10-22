@@ -102,7 +102,7 @@ Keycloack:
 | Service       | URL                     | Username    | Password       |
 | ------------- | ----------------------- | ----------- | -------------- |
 | Dashboard     | <http://localhost:8080> | `admin`     | `admin123`     |
-| MinIO console | <http://localhost:7460> | `admin`     | `admin123`     |
+| MinIO console | <http://localhost:7460> | `minio`     | `minio123`     |
 | Temporal UI   | <http://localhost:7440> | `admin`     | `admin123`     |
 | Grafana       | <http://localhost:7490> | `admin`     | `admin123`     |
 | Keycloak      | <http://localhost:7470> | `keycloak`  | `keycloak123`  |
