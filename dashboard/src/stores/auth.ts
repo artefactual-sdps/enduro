@@ -8,7 +8,7 @@ type OIDCConfig = {
   baseUrl: string;
   provider: string;
   clientId: string;
-  extraScopes: string;
+  scopes: string;
   extraQueryParams: string;
   abac: ABACConfig;
 };
@@ -89,7 +89,7 @@ export const useAuthStore = defineStore("auth", {
         baseUrl: "",
         provider: "",
         clientId: "",
-        extraScopes: "",
+        scopes: "openid email profile",
         extraQueryParams: "",
         abac: {
           enabled: false,
@@ -115,8 +115,8 @@ export const useAuthStore = defineStore("auth", {
       if (env.VITE_OIDC_CLIENT_ID) {
         this.config.clientId = env.VITE_OIDC_CLIENT_ID.trim();
       }
-      if (env.VITE_OIDC_EXTRA_SCOPES) {
-        this.config.extraScopes = env.VITE_OIDC_EXTRA_SCOPES.trim();
+      if (env.VITE_OIDC_SCOPES && env.VITE_OIDC_SCOPES.trim() != "") {
+        this.config.scopes = env.VITE_OIDC_SCOPES.trim();
       }
       if (env.VITE_OIDC_EXTRA_QUERY_PARAMS) {
         this.config.extraQueryParams = env.VITE_OIDC_EXTRA_QUERY_PARAMS.trim();
@@ -162,11 +162,6 @@ export const useAuthStore = defineStore("auth", {
         return;
       }
 
-      let scope = "openid email profile";
-      if (this.config.extraScopes) {
-        scope += " " + this.config.extraScopes;
-      }
-
       let extraQueryParams: Record<string, string> = {};
       if (this.config.extraQueryParams) {
         this.config.extraQueryParams.split(",").forEach((param) => {
@@ -185,7 +180,7 @@ export const useAuthStore = defineStore("auth", {
         redirect_uri: this.config.baseUrl + "user/signin-callback",
         post_logout_redirect_uri: this.config.baseUrl + "user/signout-callback",
         extraQueryParams: extraQueryParams,
-        scope: scope,
+        scope: this.config.scopes,
         userStore: new WebStorageStateStore({ store: window.localStorage }),
       });
     },

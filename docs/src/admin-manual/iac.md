@@ -92,7 +92,7 @@ VITE_OIDC_ENABLED
 VITE_OIDC_BASE_URL
 VITE_OIDC_AUTHORITY
 VITE_OIDC_CLIENT_ID
-VITE_OIDC_EXTRA_SCOPES
+VITE_OIDC_SCOPES
 VITE_OIDC_ABAC_ENABLED
 VITE_OIDC_ABAC_CLAIM_PATH
 VITE_OIDC_ABAC_CLAIM_PATH_SEPARATOR
@@ -112,14 +112,14 @@ URLs, to set them in the OIDC provider for this client, they will be:
 - Signout: `VITE_OIDC_BASE_URL` + `/user/signout-callback`
 
 The authorization flow will request the `openid email profile` scopes by
-default. If needed, `VITE_OIDC_EXTRA_SCOPES` can be used to request additional
-scopes separated by whitespace. Similarly, `VITE_OIDC_EXTRA_QUERY_PARAMS` can
-be set to specify further query string parameters to be including in the
-authorization request. E.g, when using Azure AD a resource parameter is
-required, or using Auth0 you may need to send an audience client ID. The
-expected format is key value pairs separated by `=` (`audience=cient-id`), if
-more than one parameter is needed they can be added separated by comma
-(`audience=cient-id,key=value`).
+default. If needed, `VITE_OIDC_SCOPES` can be used to replace those scopes.
+
+`VITE_OIDC_EXTRA_QUERY_PARAMS` can be set to specify further query string
+parameters to be including in the authorization request. E.g, when using Azure
+AD a resource parameter is required, or using Auth0 you may need to send an
+audience client ID. The expected format is key-value pairs separated by `=`
+(`audience=client-id`), if more than one parameter is needed they can be added
+separated by comma (`audience=client-id,key=value`).
 
 The ABAC variables will work in the same way as they do in the API, they are
 explained in detail in the API configuration comments above.

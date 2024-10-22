@@ -25,7 +25,7 @@ describe("useAuthStore", () => {
         baseUrl: "",
         provider: "",
         clientId: "",
-        extraScopes: "",
+        scopes: "",
         extraQueryParams: "",
         abac: {
           enabled: false,
@@ -192,7 +192,7 @@ describe("useAuthStore", () => {
         baseUrl: "",
         provider: "",
         clientId: "",
-        extraScopes: "",
+        scopes: "",
         extraQueryParams: "",
         abac: {
           enabled: test.enabled,
@@ -209,35 +209,69 @@ describe("useAuthStore", () => {
     expect(authStore.checkAttributes(test.required)).toEqual(test.expected);
   });
 
-  it("loads the configuration from the environment", () => {
-    const authStore = useAuthStore();
-    authStore.loadConfig();
-    expect(authStore.config).toEqual({
-      enabled: true,
-      baseUrl: "http://localhost:8080",
-      provider: "http://keycloak:7470/realms/artefactual",
-      clientId: "enduro",
-      extraScopes: "enduro",
-      extraQueryParams: "audience=enduro-api, key = value",
-      abac: {
+  it.each([
+    {
+      title: ".env.test",
+      expected: {
         enabled: true,
-        claimPath: "attributes.enduro",
-        claimPathSeparator: ".",
-        claimValuePrefix: "enduro:",
-        useRoles: true,
-        rolesMapping: {
-          admin: ["*"],
-          operator: [
-            "package:list",
-            "package:listActions",
-            "package:move",
-            "package:read",
-            "package:upload",
-          ],
-          readonly: ["package:list", "package:listActions", "package:read"],
+        baseUrl: "http://localhost:8080",
+        provider: "http://keycloak:7470/realms/artefactual",
+        clientId: "enduro",
+        scopes: "openid email profile enduro",
+        extraQueryParams: "audience=enduro-api, key = value",
+        abac: {
+          enabled: true,
+          claimPath: "attributes.enduro",
+          claimPathSeparator: ".",
+          claimValuePrefix: "enduro:",
+          useRoles: true,
+          rolesMapping: {
+            admin: ["*"],
+            operator: [
+              "package:list",
+              "package:listActions",
+              "package:move",
+              "package:read",
+              "package:upload",
+            ],
+            readonly: ["package:list", "package:listActions", "package:read"],
+          },
         },
       },
-    });
+    },
+    {
+      title: "default scopes",
+      stubEnv: {
+        VITE_OIDC_SCOPES: "",
+        VITE_OIDC_ABAC_ROLES_MAPPING: "",
+      },
+      expected: {
+        enabled: true,
+        baseUrl: "http://localhost:8080",
+        provider: "http://keycloak:7470/realms/artefactual",
+        clientId: "enduro",
+        scopes: "openid email profile",
+        extraQueryParams: "audience=enduro-api, key = value",
+        abac: {
+          enabled: true,
+          claimPath: "attributes.enduro",
+          claimPathSeparator: ".",
+          claimValuePrefix: "enduro:",
+          useRoles: true,
+          rolesMapping: {},
+        },
+      },
+    },
+  ])("loads the configuration from the environment ($title)", (test) => {
+    if (test.stubEnv) {
+      Object.entries(test.stubEnv).forEach(([key, value]) =>
+        vi.stubEnv(key, value),
+      );
+    }
+    const authStore = useAuthStore();
+    authStore.loadConfig();
+    expect(authStore.config).toEqual(test.expected);
+    vi.unstubAllEnvs();
   });
 
   it("loads the manager", () => {
@@ -623,7 +657,7 @@ describe("useAuthStore", () => {
         baseUrl: "",
         provider: "",
         clientId: "",
-        extraScopes: "",
+        scopes: "",
         extraQueryParams: "",
         abac: {
           enabled: test.enabled,
