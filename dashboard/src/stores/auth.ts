@@ -22,6 +22,17 @@ type ABACConfig = {
   rolesMapping: Record<string, string[]>;
 };
 
+function isRolesMapping(obj: any): obj is Record<string, string[]> {
+  for (const key in obj) {
+    if (
+      !Array.isArray(obj[key]) ||
+      !obj[key].every((item) => typeof item === "string")
+    )
+      return false;
+  }
+  return true;
+}
+
 export const useAuthStore = defineStore("auth", {
   state: () => ({
     config: {} as OIDCConfig,
@@ -142,11 +153,15 @@ export const useAuthStore = defineStore("auth", {
       }
       if (this.config.abac.useRoles && env.VITE_OIDC_ABAC_ROLES_MAPPING) {
         try {
-          this.config.abac.rolesMapping = JSON.parse(
-            env.VITE_OIDC_ABAC_ROLES_MAPPING.trim(),
-          );
+          const map = JSON.parse(env.VITE_OIDC_ABAC_ROLES_MAPPING.trim());
+          if (!isRolesMapping(map)) {
+            throw new Error(
+              "Error parsing OIDC ABAC roles mapping: unexpected JSON format, each role key must be an array of string attributes",
+            );
+          }
+          this.config.abac.rolesMapping = map;
         } catch (err) {
-          throw new Error(`Error parsing roles mapping: ${err}`);
+          throw new Error(`Error parsing OIDC ABAC roles mapping: ${err}`);
         }
       }
     },

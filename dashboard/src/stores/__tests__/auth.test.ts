@@ -262,15 +262,45 @@ describe("useAuthStore", () => {
         },
       },
     },
+    {
+      title: "invalid roles mapping",
+      stubEnv: {
+        VITE_OIDC_ABAC_ROLES_MAPPING: '{"admin": ["*"}',
+      },
+      error:
+        "Error parsing OIDC ABAC roles mapping: SyntaxError: Expected ',' or ']' after array element in JSON at position 14 (line 1 column 15)",
+    },
+    {
+      title: "not array roles mapping",
+      stubEnv: {
+        VITE_OIDC_ABAC_ROLES_MAPPING: '{"admin": ["*"], "other": "not array"}',
+      },
+      error:
+        "Error parsing OIDC ABAC roles mapping: unexpected JSON format, each role key must be an array of string attributes",
+    },
+    {
+      title: "not strings roles mapping",
+      stubEnv: {
+        VITE_OIDC_ABAC_ROLES_MAPPING: '{"admin": ["string", 1]}',
+      },
+      error:
+        "Error parsing OIDC ABAC roles mapping: unexpected JSON format, each role key must be an array of string attributes",
+    },
   ])("loads the configuration from the environment ($title)", (test) => {
     if (test.stubEnv) {
       Object.entries(test.stubEnv).forEach(([key, value]) =>
         vi.stubEnv(key, value),
       );
     }
+
     const authStore = useAuthStore();
-    authStore.loadConfig();
-    expect(authStore.config).toEqual(test.expected);
+    if (test.error) {
+      assert.throws(authStore.loadConfig, test.error);
+    } else {
+      authStore.loadConfig();
+      expect(authStore.config).toEqual(test.expected);
+    }
+
     vi.unstubAllEnvs();
   });
 
