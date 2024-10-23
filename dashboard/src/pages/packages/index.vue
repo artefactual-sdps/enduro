@@ -52,6 +52,26 @@ const toggleLegend = () => {
       {{ packageStore.page.total }}
     </div>
 
+    <div class="btn-group">
+      Filters:
+      <div class="dropdown">
+        <button
+          class="btn btn-primary dropdown-toggle"
+          type="button"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+        >
+          Status
+        </button>
+        <ul class="dropdown-menu">
+          <li><a class="dropdown-item" href="#">All</a></li>
+          <li><a class="dropdown-item" href="#">In progress</a></li>
+          <li><a class="dropdown-item" href="#">Done</a></li>
+          <li><a class="dropdown-item" href="#">Error</a></li>
+        </ul>
+      </div>
+    </div>
+
     <PageLoadingAlert :execute="execute" :error="error" />
     <PackageListLegend v-model="showLegend" />
     <div class="table-responsive mb-3">
