@@ -1,5 +1,8 @@
 import { api, client } from "@/client";
-import { MonitorEventEventTypeEnum } from "@/openapi-generator";
+import {
+  MonitorEventEventTypeEnum,
+  PackageListStatusEnum,
+} from "@/openapi-generator";
 import { useLayoutStore } from "@/stores/layout";
 import router from "@/router";
 import { defineStore, acceptHMRUpdate } from "pinia";
@@ -43,6 +46,10 @@ export const usePackageStore = defineStore("package", {
     // User-interface interactions between components.
     ui: {
       download: new UIRequest(),
+    },
+
+    filters: {
+      status: "" as PackageListStatusEnum,
     },
   }),
   getters: {
@@ -164,6 +171,7 @@ export const usePackageStore = defineStore("package", {
       const resp = await client.package.packageList({
         offset: page > 1 ? (page - 1) * this.page.limit : undefined,
         limit: this.page?.limit || undefined,
+        status: this.filters.status ? this.filters.status : undefined,
       });
       this.packages = resp.items;
       this.page = resp.page;
