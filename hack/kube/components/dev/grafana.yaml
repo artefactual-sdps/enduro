@@ -78,11 +78,29 @@ data:
       jsonData:
         httpMethod: GET
         tlsSkipVerify: true
+        tracesToMetrics:
+          datasourceUid: 'prometheus'
+        serviceMap:
+          datasourceUid: 'prometheus'
       name: Tempo
       orgId: 1
       type: tempo
       uid: tempo
       url: http://grafana-tempo:3200
+      version: 1
+    - access: proxy
+      apiVersion: 1
+      basicAuth: false
+      editable: false
+      isDefault: false
+      jsonData:
+        httpMethod: GET
+        tlsSkipVerify: true
+      name: Prometheus
+      orgId: 1
+      type: prometheus
+      uid: prometheus
+      url: http://prometheus-server.enduro-sdps:9090
       version: 1
   default.yaml: |
     apiVersion: 1
@@ -118,7 +136,7 @@ data:
       "editable": true,
       "fiscalYearStartMonth": 0,
       "graphTooltip": 0,
-      "id": 3,
+      "id": 1,
       "links": [],
       "liveNow": false,
       "panels": [
@@ -129,7 +147,7 @@ data:
           },
           "description": "",
           "gridPos": {
-            "h": 7,
+            "h": 4,
             "w": 24,
             "x": 0,
             "y": 0
@@ -166,12 +184,82 @@ data:
             "h": 1,
             "w": 24,
             "x": 0,
-            "y": 7
+            "y": 4
           },
           "id": 2,
           "panels": [],
           "title": "Traces and spans",
           "type": "row"
+        },
+        {
+          "datasource": {
+            "default": false,
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 5,
+            "w": 24,
+            "x": 0,
+            "y": 5
+          },
+          "id": 5,
+          "options": {
+            "colorMode": "value",
+            "graphMode": "area",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "pluginVersion": "11.2.2",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "editorMode": "code",
+              "expr": "sum(traces_spanmetrics_size_total)",
+              "instant": false,
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Total number of spans",
+          "type": "stat"
         },
         {
           "datasource": {
@@ -206,50 +294,13 @@ data:
                 ]
               }
             },
-            "overrides": [
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Trace Service"
-                },
-                "properties": [
-                  {
-                    "id": "custom.width",
-                    "value": 118
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Trace Name"
-                },
-                "properties": [
-                  {
-                    "id": "custom.width",
-                    "value": 107
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Start time"
-                },
-                "properties": [
-                  {
-                    "id": "custom.width",
-                    "value": 160
-                  }
-                ]
-              }
-            ]
+            "overrides": []
           },
           "gridPos": {
-            "h": 12,
+            "h": 11,
             "w": 12,
             "x": 0,
-            "y": 8
+            "y": 10
           },
           "id": 4,
           "options": {
@@ -355,10 +406,10 @@ data:
             ]
           },
           "gridPos": {
-            "h": 12,
+            "h": 11,
             "w": 12,
             "x": 12,
-            "y": 8
+            "y": 10
           },
           "id": 3,
           "options": {
@@ -390,6 +441,41 @@ data:
           ],
           "title": "API requests",
           "type": "table"
+        },
+        {
+          "datasource": {
+            "default": true,
+            "type": "tempo",
+            "uid": "tempo"
+          },
+          "gridPos": {
+            "h": 17,
+            "w": 24,
+            "x": 0,
+            "y": 21
+          },
+          "id": 6,
+          "options": {
+            "edges": {},
+            "nodes": {}
+          },
+          "pluginVersion": "11.2.2",
+          "targets": [
+            {
+              "datasource": {
+                "type": "tempo",
+                "uid": "tempo"
+              },
+              "hide": false,
+              "limit": 20,
+              "query": "{}",
+              "queryType": "serviceMap",
+              "refId": "A",
+              "tableType": "traces"
+            }
+          ],
+          "title": "Service graph",
+          "type": "nodeGraph"
         }
       ],
       "refresh": "",
