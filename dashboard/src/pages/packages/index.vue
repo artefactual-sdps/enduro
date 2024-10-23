@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { PackageListStatusEnum } from "@/openapi-generator";
 import PackageListLegend from "@/components/PackageListLegend.vue";
 import PageLoadingAlert from "@/components/PageLoadingAlert.vue";
 import StatusBadge from "@/components/StatusBadge.vue";
@@ -50,6 +51,24 @@ const toggleLegend = () => {
       Showing {{ packageStore.page.offset + 1 }} -
       {{ packageStore.lastResultOnPage }} of
       {{ packageStore.page.total }}
+    </div>
+
+    <div class="d-flex flex-wrap gap-3 mb-3 p-3 border bg-light">
+      <h3 class="mb-0 pe-3 border-end">Filters</h3>
+      <div class="d-flex gap-2">
+        <label for="filter-status" class="align-self-center">Status</label>
+        <select
+          id="filter-status"
+          v-model="packageStore.filters.status"
+          @change="packageStore.fetchPackages(1)"
+          class="form-select"
+        >
+          <option value="">any</option>
+          <option v-for="item of PackageListStatusEnum" :value="item">
+            {{ item }}
+          </option>
+        </select>
+      </div>
     </div>
 
     <PageLoadingAlert :execute="execute" :error="error" />
