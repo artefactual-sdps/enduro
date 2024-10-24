@@ -1,15 +1,25 @@
 <script setup lang="ts">
 import type { FunctionalComponent, SVGAttributes } from "vue";
 import type { RouteLocationResolved } from "vue-router/auto";
+import { useRoute } from "vue-router/auto";
+import { isEqual } from "lodash-es";
+
+const route = useRoute();
+
+type Tab = {
+  icon?: FunctionalComponent<SVGAttributes, {}>;
+  text: string;
+  route: RouteLocationResolved;
+  show: boolean;
+};
 
 const { tabs } = defineProps<{
-  tabs: {
-    icon: FunctionalComponent<SVGAttributes, {}>;
-    text: string;
-    route: RouteLocationResolved;
-    show: boolean;
-  }[];
+  tabs: Tab[];
 }>();
+
+function isActive(tab: Tab): boolean {
+  return tab.route.path == route.path && isEqual(tab.route.query, route.query);
+}
 </script>
 
 <template>
@@ -20,7 +30,7 @@ const { tabs } = defineProps<{
           v-if="tab.show"
           :to="tab.route"
           class="nav-link text-primary text-nowrap d-flex align-items-center"
-          exact-active-class="active"
+          :class="{ active: isActive(tab) }"
         >
           <span v-html="tab.icon" class="me-2 text-dark" aria-hidden="true" />{{
             tab.text

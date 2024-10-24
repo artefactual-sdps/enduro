@@ -1,44 +1,116 @@
 <script setup lang="ts">
-import { PackageListStatusEnum } from "@/openapi-generator";
+import type { PackageListStatusEnum } from "@/openapi-generator";
+
 import PackageListLegend from "@/components/PackageListLegend.vue";
 import PageLoadingAlert from "@/components/PageLoadingAlert.vue";
 import StatusBadge from "@/components/StatusBadge.vue";
+import Tabs from "@/components/Tabs.vue";
+import Tooltip from "bootstrap/js/dist/tooltip";
 import UUID from "@/components/UUID.vue";
+import { onMounted } from "vue";
+import { useAsyncState } from "@vueuse/core";
 import { useAuthStore } from "@/stores/auth";
 import { useLayoutStore } from "@/stores/layout";
 import { usePackageStore } from "@/stores/package";
-import { useAsyncState } from "@vueuse/core";
-import Tooltip from "bootstrap/js/dist/tooltip";
-import { onMounted } from "vue";
+import { useRoute, useRouter } from "vue-router/auto";
+import { watch } from "vue";
+
+// General icons.
 import IconInfoFill from "~icons/akar-icons/info-fill";
 import IconBundleLine from "~icons/clarity/bundle-line";
+
+// Pager icons.
 import IconSkipEndFill from "~icons/bi/skip-end-fill";
 import IconSkipStartFill from "~icons/bi/skip-start-fill";
 import IconCaretRightFill from "~icons/bi/caret-right-fill";
 import IconCaretLeftFill from "~icons/bi/caret-left-fill";
 
+// Tab icons.
+import RawIconCheckCircleLine from "~icons/clarity/check-circle-line?raw&font-size=20px";
+import RawIconTimesCircleLine from "~icons/clarity/times-circle-line?raw&font-size=20px";
+import RawIconPlayLine from "~icons/clarity/play-line?raw&font-size=20px";
+import RawIconBarsLine from "~icons/clarity/bars-line?raw&font-size=20px";
+
 const authStore = useAuthStore();
 const layoutStore = useLayoutStore();
-layoutStore.updateBreadcrumb([{ text: "Packages" }]);
-
 const packageStore = usePackageStore();
 
-const { execute, error } = useAsyncState(() => {
-  return packageStore.fetchPackages(1);
-}, null);
+const route = useRoute("/packages/");
+const router = useRouter();
+
+layoutStore.updateBreadcrumb([{ text: "Packages" }]);
 
 const el = $ref<HTMLElement | null>(null);
 let tooltip: Tooltip | null = null;
-
-onMounted(() => {
-  if (el) tooltip = new Tooltip(el);
-});
 
 let showLegend = $ref(false);
 const toggleLegend = () => {
   showLegend = !showLegend;
   if (tooltip) tooltip.hide();
 };
+
+onMounted(() => {
+  if (el) tooltip = new Tooltip(el);
+  packageStore.filters.status = <PackageListStatusEnum>route.query.status;
+});
+
+const tabs = [
+  {
+    text: "All",
+    route: router.resolve({
+      name: "/packages/",
+    }),
+    show: true,
+  },
+  {
+    icon: RawIconCheckCircleLine,
+    text: "Done",
+    route: router.resolve({
+      name: "/packages/",
+      query: { status: "done" },
+    }),
+    show: true,
+  },
+  {
+    icon: RawIconPlayLine,
+    text: "Error",
+    route: router.resolve({
+      name: "/packages/",
+      query: { status: "error" },
+    }),
+    show: true,
+  },
+  {
+    icon: RawIconTimesCircleLine,
+    text: "In progress",
+    route: router.resolve({
+      name: "/packages/",
+      query: { status: "in progress" },
+    }),
+    show: true,
+  },
+  {
+    icon: RawIconBarsLine,
+    text: "Queued",
+    route: router.resolve({
+      name: "/packages/",
+      query: { status: "queued" },
+    }),
+    show: true,
+  },
+];
+
+const { execute, error } = useAsyncState(() => {
+  return packageStore.fetchPackages(1);
+}, null);
+
+watch(
+  () => route.query.status,
+  (newStatus) => {
+    packageStore.filters.status = newStatus as PackageListStatusEnum;
+    return packageStore.fetchPackages(1);
+  },
+);
 </script>
 
 <template>
@@ -53,26 +125,10 @@ const toggleLegend = () => {
       {{ packageStore.page.total }}
     </div>
 
-    <div class="d-flex flex-wrap gap-3 mb-3 p-3 border bg-light">
-      <h3 class="mb-0 pe-3 border-end">Filters</h3>
-      <div class="d-flex gap-2">
-        <label for="filter-status" class="align-self-center">Status</label>
-        <select
-          id="filter-status"
-          v-model="packageStore.filters.status"
-          @change="packageStore.fetchPackages(1)"
-          class="form-select"
-        >
-          <option value="">any</option>
-          <option v-for="item of PackageListStatusEnum" :value="item">
-            {{ item }}
-          </option>
-        </select>
-      </div>
-    </div>
-
     <PageLoadingAlert :execute="execute" :error="error" />
     <PackageListLegend v-model="showLegend" />
+
+    <Tabs :tabs="tabs" />
     <div class="table-responsive mb-3">
       <table class="table table-bordered mb-0">
         <thead>
