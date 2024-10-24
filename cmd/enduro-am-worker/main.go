@@ -20,6 +20,7 @@ import (
 	"github.com/artefactual-sdps/temporal-activities/bagvalidate"
 	"github.com/artefactual-sdps/temporal-activities/bucketupload"
 	"github.com/artefactual-sdps/temporal-activities/removepaths"
+	"github.com/artefactual-sdps/temporal-activities/xmlvalidate"
 	"github.com/hashicorp/go-cleanhttp"
 	"github.com/jonboulle/clockwork"
 	"github.com/oklog/run"
@@ -328,6 +329,10 @@ func main() {
 		w.RegisterActivityWithOptions(
 			bucketupload.New(failedPIPs).Execute,
 			temporalsdk_activity.RegisterOptions{Name: activities.SendToFailedPIPsName},
+		)
+		w.RegisterActivityWithOptions(
+			xmlvalidate.New(xmlvalidate.NewXMLLintValidator()).Execute,
+			temporalsdk_activity.RegisterOptions{Name: xmlvalidate.Name},
 		)
 
 		g.Add(
