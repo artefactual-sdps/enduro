@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import PackageListFilters from "@/components/PackageListFilters.vue";
+import PackageListTabFilters from "@/components/PackageListTabFilters.vue";
 import PackageListLegend from "@/components/PackageListLegend.vue";
 import PageLoadingAlert from "@/components/PageLoadingAlert.vue";
 import StatusBadge from "@/components/StatusBadge.vue";
@@ -53,7 +53,7 @@ const toggleLegend = () => {
       {{ packageStore.page.total }}
     </div>
 
-    <PackageListFilters />
+    <PackageListTabFilters />
     <PageLoadingAlert :execute="execute" :error="error" />
     <PackageListLegend v-model="showLegend" />
 
