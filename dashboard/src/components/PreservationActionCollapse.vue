@@ -138,7 +138,7 @@ watch($$(expandCounter), () => show());
             <td>
               <StatusBadge :status="task.status" />
             </td>
-            <td>{{ task.note }}</td>
+            <td class="line-break">{{ task.note }}</td>
           </tr>
         </tbody>
       </table>
