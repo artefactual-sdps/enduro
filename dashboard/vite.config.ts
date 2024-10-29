@@ -4,6 +4,7 @@ import vue from "@vitejs/plugin-vue";
 import ReactivityTransform from "@vue-macros/reactivity-transform/vite";
 import Icons from "unplugin-icons/vite";
 import VueRouter from "unplugin-vue-router/vite";
+import vueDevTools from "vite-plugin-vue-devtools";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -12,6 +13,7 @@ export default defineConfig({
       routesFolder: "src/pages",
     }),
     vue({}),
+    vueDevTools(),
     ReactivityTransform(),
     Icons({ compiler: "vue3" }),
   ],
