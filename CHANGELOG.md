@@ -8,6 +8,13 @@ requests.
 
 ## [Unreleased]
 
+## [0.3.0] - 2024-10-29
+
+### Added
+
+- Status filter to package list page ([#989])
+- Render line breaks in preservation tasks notes column ([#1039])
+
 ## [0.2.0] - 2024-10-23
 
 ### Added
@@ -22,11 +29,14 @@ requests.
 
 Initial release.
 
-[unreleased]: https://github.com/artefactual-sdps/enduro/compare/v0.2.0...HEAD
+[unreleased]: https://github.com/artefactual-sdps/enduro/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/artefactual-sdps/enduro/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/artefactual-sdps/enduro/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/artefactual-sdps/enduro/releases/tag/v0.1.0
+[#1039]: https://github.com/artefactual-sdps/enduro/issues/1039
 [#1037]: https://github.com/artefactual-sdps/enduro/issues/1037
 [#1035]: https://github.com/artefactual-sdps/enduro/issues/1035
+[#989]: https://github.com/artefactual-sdps/enduro/issues/989
 [#988]: https://github.com/artefactual-sdps/enduro/issues/988
 [#929]: https://github.com/artefactual-sdps/enduro/issues/929
 [keep a changelog]: https://keepachangelog.com/en/1.1.0
