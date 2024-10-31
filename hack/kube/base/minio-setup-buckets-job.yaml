@@ -33,5 +33,45 @@ spec:
               mc mb enduro/perma-aips-2 --ignore-existing;
               mc mb enduro/failed-sips --ignore-existing;
               mc mb enduro/failed-pips --ignore-existing;
-              mc event add enduro/sips arn:minio:sqs::PRIMARY:redis --event put --ignore-existing",
+              mc event add enduro/sips arn:minio:sqs::PRIMARY:redis --event put --ignore-existing;
+              mc admin policy rm enduro deny-dir-uploads;
+              mc admin policy create enduro deny-dir-uploads /root/.mc/policies/deny-dir-uploads.json;
+              mc admin policy rm enduro sips-zip-only;
+              mc admin policy create enduro sips-zip-only /root/.mc/policies/sips-zip-only.json;",
             ]
+          volumeMounts:
+            - name: config
+              mountPath: /root/.mc/policies
+              readOnly: true
+      volumes:
+        - name: config
+          configMap:
+            name: minio-configmap
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: minio-configmap
+data:
+  deny-dir-uploads.json: |
+    {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Effect": "Deny",
+          "Action": "s3:PutObject",
+          "Resource": "arn:aws:s3:::*/*/*"
+        }
+      ]
+    }
+  sips-zip-only.json: |
+    {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Effect": "Allow",
+          "Action": "s3:PutObject",
+          "Resource": "arn:aws:s3:::sips/*.zip"
+        }
+      ]
+    }

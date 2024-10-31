@@ -96,7 +96,8 @@ data:
               "*"
             ],
             "minio": [
-              "consoleAdmin"
+              "consoleAdmin",
+              "deny-dir-uploads"
             ]
           }
         },
@@ -129,7 +130,9 @@ data:
               "storage:package:submit"
             ],
             "minio": [
-              "consoleAdmin"
+              "readonly",
+              "deny-dir-uploads",
+              "sips-zip-only"
             ]
           }
         },
