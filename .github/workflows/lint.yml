@@ -42,7 +42,15 @@ jobs:
         with:
           go-version-file: go.mod
       - name: Run golines
-        run: make golines
+        run: |
+          make golines > golines.diff
+          if [ -s golines.diff ]; then
+            echo "golines reported long lines"
+            cat golines.diff
+            exit 1
+          fi
+        env:
+          GOLINES_OUT_MODE: dry-run
   shfmt:
     runs-on: ubuntu-latest
     steps:

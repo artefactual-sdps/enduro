@@ -141,6 +141,7 @@ gen-mock: $(MOCKGEN)
 	mockgen -typed -destination=./internal/watcher/fake/mock_watcher.go -package=fake github.com/artefactual-sdps/enduro/internal/watcher Watcher
 
 golines: # @HELP Run the golines formatter to fix long lines.
+golines: GOLINES_OUT_MODE ?= write-output
 golines: $(GOLINES)
 	golines \
 		--chain-split-dots \
@@ -148,7 +149,7 @@ golines: $(GOLINES)
 		--max-len=120 \
 		--reformat-tags \
 		--shorten-comments \
-		--write-output \
+		--$(GOLINES_OUT_MODE) \
 		.
 
 gosec: # @HELP Run gosec security scanner.
