@@ -42,11 +42,10 @@ func TestPollIngestActivity(t *testing.T) {
 
 	jobs := []amclient.Job{
 		{
-			ID:           "7b7f7abd-e9c9-4c2e-9837-a65fa68cfcc8",
-			Name:         "Move to processing directory",
-			Status:       amclient.JobStatusComplete,
-			Microservice: "Verify SIP compliance",
-			LinkID:       "70669a5b-01e4-4ea0-ac70-10292f87da05",
+			ID:     "7b7f7abd-e9c9-4c2e-9837-a65fa68cfcc8",
+			Name:   "Identify manually normalized files",
+			Status: amclient.JobStatusComplete,
+			LinkID: "15a2df8a-7b45-4c11-b6fa-884c9b7e5c67",
 			Tasks: []amclient.Task{
 				{
 					ID:          "9dc0b71a-cbb1-40f4-9fa4-647cc16c8ed5",
@@ -59,11 +58,10 @@ func TestPollIngestActivity(t *testing.T) {
 			},
 		},
 		{
-			ID:           "43222c5f-89c3-469a-9167-5330f9e33e46",
-			Name:         "Verify SIP compliance",
-			Status:       amclient.JobStatusComplete,
-			Microservice: "Verify SIP compliance",
-			LinkID:       "208d441b-6938-44f9-b54a-bd73f05bc764",
+			ID:     "43222c5f-89c3-469a-9167-5330f9e33e46",
+			Name:   "Validate preservation derivatives",
+			Status: amclient.JobStatusComplete,
+			LinkID: "5b0042a2-2244-475c-85d5-41e4b11e65d6",
 			Tasks: []amclient.Task{
 				{
 					ID:        "6f5beca3-71ad-446c-8f19-3bc4dea16c9b",

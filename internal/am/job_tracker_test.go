@@ -27,6 +27,8 @@ func TestJobTracker(t *testing.T) {
 
 	paID := 1
 	unitID := uuid.New().String()
+	startedAt := time.Date(2024, time.January, 18, 1, 27, 49, 0, time.UTC)
+	completedAt := time.Date(2024, time.January, 18, 1, 27, 51, 0, time.UTC)
 
 	clock := clockwork.NewFakeClock()
 	httpError := func(m *amclienttest.MockJobsServiceMockRecorder, statusCode int) {
@@ -45,38 +47,26 @@ func TestJobTracker(t *testing.T) {
 
 	jobs := []amclient.Job{
 		{
-			ID:           "f60018ac-da79-4769-9509-c6c41d5efe7e",
-			LinkID:       "70669a5b-01e4-4ea0-ac70-10292f87da05",
-			Microservice: "Verify SIP compliance",
-			Name:         "Move to processing directory",
-			Status:       amclient.JobStatusComplete,
+			ID:     "f60018ac-da79-4769-9509-c6c41d5efe7e",
+			LinkID: "3229e01f-adf3-4294-85f7-4acb01b3fbcf",
+			Name:   "Extract zipped bag transfer",
+			Status: amclient.JobStatusComplete,
 			Tasks: []amclient.Task{
 				{
 					ID:          "c134198c-9485-4f68-8d94-4da1e03b5e1b",
 					ExitCode:    0,
 					CreatedAt:   amclient.TaskDateTime{Time: time.Date(2024, time.January, 18, 1, 27, 49, 0, time.UTC)},
-					StartedAt:   amclient.TaskDateTime{Time: time.Date(2024, time.January, 18, 1, 27, 49, 0, time.UTC)},
-					CompletedAt: amclient.TaskDateTime{Time: time.Date(2024, time.January, 18, 1, 27, 49, 0, time.UTC)},
+					StartedAt:   amclient.TaskDateTime{Time: startedAt},
+					CompletedAt: amclient.TaskDateTime{Time: completedAt},
 					Duration:    amclient.TaskDuration(time.Second / 2),
 				},
 			},
 		},
 		{
-			ID:           "c2128d39-2ace-47c5-8cac-39ded8d9c9ef",
-			LinkID:       "208d441b-6938-44f9-b54a-bd73f05bc764",
-			Microservice: "Verify SIP compliance",
-			Name:         "Verify SIP compliance",
-			Status:       amclient.JobStatusComplete,
-			Tasks: []amclient.Task{
-				{
-					ID:          "6f5beca3-71ad-446c-8f19-3bc4dea16c9b",
-					ExitCode:    0,
-					CreatedAt:   amclient.TaskDateTime{Time: time.Date(2024, time.January, 1, 1, 27, 49, 0, time.UTC)},
-					StartedAt:   amclient.TaskDateTime{Time: time.Date(2024, time.January, 18, 1, 27, 49, 0, time.UTC)},
-					CompletedAt: amclient.TaskDateTime{Time: time.Date(2024, time.January, 18, 1, 27, 49, 0, time.UTC)},
-					Duration:    amclient.TaskDuration(time.Minute),
-				},
-			},
+			ID:     "c2128d39-2ace-47c5-8cac-39ded8d9c9ef",
+			LinkID: "208d441b-6938-44f9-b54a-bd73f05bc764",
+			Name:   "Verify bag, and restructure for compliance",
+			Status: amclient.JobStatusComplete,
 		},
 	}
 
@@ -109,13 +99,20 @@ func TestJobTracker(t *testing.T) {
 				)
 			},
 			pkgRec: func(m *fake_package.MockServiceMockRecorder) {
-				for _, job := range jobs {
-					pt := am.ConvertJobToPreservationTask(job)
-					pt.PreservationActionID = paID
-					m.CreatePreservationTask(mockutil.Context(), &pt).Return(nil)
-				}
+				m.CreatePreservationTask(
+					mockutil.Context(),
+					&datatypes.PreservationTask{
+						ID:                   0,
+						TaskID:               "f60018ac-da79-4769-9509-c6c41d5efe7e",
+						Name:                 "Extract zipped bag transfer",
+						Status:               enums.PreservationTaskStatusDone,
+						StartedAt:            sql.NullTime{Time: startedAt, Valid: true},
+						CompletedAt:          sql.NullTime{Time: completedAt, Valid: true},
+						PreservationActionID: paID,
+					},
+				).Return(nil)
 			},
-			want: 2,
+			want: 1,
 		},
 		{
 			name: "Retryable error when AM returns 400 Bad Request",
@@ -188,11 +185,10 @@ func TestConvertJobToPreservationTask(t *testing.T) {
 		{
 			name: "Returns preservation task with computed time range",
 			job: amclient.Job{
-				ID:           "f60018ac-da79-4769-9509-c6c41d5efe7e",
-				LinkID:       "70669a5b-01e4-4ea0-ac70-10292f87da05",
-				Microservice: "Verify SIP compliance",
-				Name:         "Move to processing directory",
-				Status:       amclient.JobStatusComplete,
+				ID:     "f60018ac-da79-4769-9509-c6c41d5efe7e",
+				LinkID: "70669a5b-01e4-4ea0-ac70-10292f87da05",
+				Name:   "Move to processing directory",
+				Status: amclient.JobStatusComplete,
 				Tasks: []amclient.Task{
 					{
 						ID:          "c134198c-9485-4f68-8d94-4da1e03b5e1b",
@@ -229,11 +225,10 @@ func TestConvertJobToPreservationTask(t *testing.T) {
 		{
 			name: "Returns NULL completedAt if job is still processing",
 			job: amclient.Job{
-				ID:           "c2128d39-2ace-47c5-8cac-39ded8d9c9ef",
-				LinkID:       "208d441b-6938-44f9-b54a-bd73f05bc764",
-				Microservice: "Verify SIP compliance",
-				Name:         "Verify SIP compliance",
-				Status:       amclient.JobStatusProcessing,
+				ID:     "c2128d39-2ace-47c5-8cac-39ded8d9c9ef",
+				LinkID: "208d441b-6938-44f9-b54a-bd73f05bc764",
+				Name:   "Verify SIP compliance",
+				Status: amclient.JobStatusProcessing,
 				Tasks: []amclient.Task{
 					{
 						ID:          "6f5beca3-71ad-446c-8f19-3bc4dea16c9b",

@@ -34,11 +34,10 @@ func TestPollTransferActivity(t *testing.T) {
 
 	jobs := []amclient.Job{
 		{
-			ID:           "e6e01ebb-a8f4-459d-b9a9-c6a8103e4750",
-			Name:         "Extract zipped transfer",
-			Status:       amclient.JobStatusComplete,
-			Microservice: "Approve transfer",
-			LinkID:       "541f5994-73b0-45bb-9cb5-367c06a21be7",
+			ID:     "e6e01ebb-a8f4-459d-b9a9-c6a8103e4750",
+			Name:   "Extract zipped bag transfer",
+			Status: amclient.JobStatusComplete,
+			LinkID: "3229e01f-adf3-4294-85f7-4acb01b3fbcf",
 			Tasks: []amclient.Task{
 				{
 					ID:          "11566538-66c5-4a20-aa70-77f7a9fa83d5",
@@ -52,11 +51,10 @@ func TestPollTransferActivity(t *testing.T) {
 			},
 		},
 		{
-			ID:           "2bcdb038-8861-4ea7-a7bb-01d58efac38c",
-			Name:         "Set transfer type: Standard",
-			Status:       amclient.JobStatusComplete,
-			Microservice: "Verify transfer compliance",
-			LinkID:       "045c43ae-d6cf-44f7-97d6-c8a602748565",
+			ID:     "2bcdb038-8861-4ea7-a7bb-01d58efac38c",
+			Name:   "Rename with transfer UUID",
+			Status: amclient.JobStatusComplete,
+			LinkID: "154dd501-a344-45a9-97e3-b30093da35f5",
 			Tasks: []amclient.Task{
 				{
 					ID:        "53666170-0397-4962-8736-23295444b036",
