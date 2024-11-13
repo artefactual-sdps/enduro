@@ -39,6 +39,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/package_"
 	packagefake "github.com/artefactual-sdps/enduro/internal/package_/fake"
+	"github.com/artefactual-sdps/enduro/internal/poststorage"
 	"github.com/artefactual-sdps/enduro/internal/premis"
 	"github.com/artefactual-sdps/enduro/internal/preprocessing"
 	"github.com/artefactual-sdps/enduro/internal/pres"
@@ -94,6 +95,13 @@ func preprocessingChildWorkflow(
 	return nil, nil
 }
 
+func poststorageChildWorkflow(
+	ctx temporalsdk_workflow.Context,
+	params *poststorage.WorkflowParams,
+) (*interface{}, error) {
+	return nil, nil
+}
+
 func (s *ProcessingWorkflowTestSuite) CreateTransferDir() string {
 	s.transferDir = s.T().TempDir()
 
@@ -138,10 +146,6 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(cfg config.Configuration
 		s.setupA3mWorkflowTest(ctrl, pkgsvc)
 	}
 
-	s.env.RegisterWorkflowWithOptions(
-		preprocessingChildWorkflow,
-		temporalsdk_workflow.RegisterOptions{Name: "preprocessing"},
-	)
 	s.env.RegisterActivityWithOptions(
 		removepaths.New().Execute,
 		temporalsdk_activity.RegisterOptions{Name: removepaths.Name},
@@ -161,6 +165,19 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(cfg config.Configuration
 	s.env.RegisterActivityWithOptions(
 		bucketupload.New(memblob.OpenBucket(nil)).Execute,
 		temporalsdk_activity.RegisterOptions{Name: activities.SendToFailedPIPsName},
+	)
+
+	s.env.RegisterWorkflowWithOptions(
+		preprocessingChildWorkflow,
+		temporalsdk_workflow.RegisterOptions{Name: "preprocessing"},
+	)
+	s.env.RegisterWorkflowWithOptions(
+		poststorageChildWorkflow,
+		temporalsdk_workflow.RegisterOptions{Name: "poststorage_1"},
+	)
+	s.env.RegisterWorkflowWithOptions(
+		poststorageChildWorkflow,
+		temporalsdk_workflow.RegisterOptions{Name: "poststorage_2"},
 	)
 
 	s.workflow = NewProcessingWorkflow(cfg, rng, pkgsvc, wsvc)
@@ -919,7 +936,7 @@ func (s *ProcessingWorkflowTestSuite) TestPackageRejection() {
 	s.NoError(s.env.GetWorkflowResult(nil))
 }
 
-func (s *ProcessingWorkflowTestSuite) TestPreprocessingChildWorkflow() {
+func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 	cfg := config.Configuration{
 		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
 		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
@@ -931,6 +948,18 @@ func (s *ProcessingWorkflowTestSuite) TestPreprocessingChildWorkflow() {
 				Namespace:    "default",
 				TaskQueue:    "preprocessing",
 				WorkflowName: "preprocessing",
+			},
+		},
+		Poststorage: []poststorage.Config{
+			{
+				Namespace:    "default",
+				TaskQueue:    "poststorage",
+				WorkflowName: "poststorage_1",
+			},
+			{
+				Namespace:    "default",
+				TaskQueue:    "poststorage",
+				WorkflowName: "poststorage_2",
 			},
 		},
 		Storage: storage.Config{
@@ -948,6 +977,7 @@ func (s *ProcessingWorkflowTestSuite) TestPreprocessingChildWorkflow() {
 	ctx := mock.AnythingOfType("*context.valueCtx")
 	sessionCtx := mock.AnythingOfType("*context.timerCtx")
 	pkgsvc := s.workflow.pkgsvc
+	aipUUID := "56eebd45-5600-4768-a8c2-ec0114555a3d"
 
 	downloadDir := strings.Replace(tempPath, "/tmp/", cfg.Preprocessing.SharedPath, 1)
 	prepDest := strings.Replace(extractPath, "/tmp/", cfg.Preprocessing.SharedPath, 1)
@@ -1095,8 +1125,8 @@ func (s *ProcessingWorkflowTestSuite) TestPreprocessingChildWorkflow() {
 	)
 
 	s.env.OnActivity(a3m.CreateAIPActivityName, sessionCtx, mock.AnythingOfType("*a3m.CreateAIPActivityParams")).
-		Return(nil, nil).
-		Once()
+		Return(&a3m.CreateAIPActivityResult{UUID: aipUUID}, nil)
+
 	s.env.OnActivity(updatePackageLocalActivity, ctx, pkgsvc, mock.AnythingOfType("*workflow.updatePackageLocalActivityParams")).
 		Return(nil, nil).
 		Times(2)
@@ -1155,6 +1185,22 @@ func (s *ProcessingWorkflowTestSuite) TestPreprocessingChildWorkflow() {
 	s.env.OnActivity(completePreservationActionLocalActivity, ctx, pkgsvc, mock.AnythingOfType("*workflow.completePreservationActionLocalActivityParams")).
 		Return(nil, nil).
 		Once()
+
+	s.env.OnWorkflow(
+		"poststorage_1",
+		mock.AnythingOfType("*internal.valueCtx"),
+		&poststorage.WorkflowParams{
+			AIPUUID: aipUUID,
+		},
+	).Return(nil, nil)
+
+	s.env.OnWorkflow(
+		"poststorage_2",
+		mock.AnythingOfType("*internal.valueCtx"),
+		&poststorage.WorkflowParams{
+			AIPUUID: aipUUID,
+		},
+	).Return(nil, nil)
 
 	s.env.OnActivity(
 		removepaths.Name,

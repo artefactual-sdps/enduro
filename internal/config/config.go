@@ -22,6 +22,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/db"
 	"github.com/artefactual-sdps/enduro/internal/event"
 	"github.com/artefactual-sdps/enduro/internal/package_"
+	"github.com/artefactual-sdps/enduro/internal/poststorage"
 	"github.com/artefactual-sdps/enduro/internal/premis"
 	"github.com/artefactual-sdps/enduro/internal/preprocessing"
 	"github.com/artefactual-sdps/enduro/internal/pres"
@@ -48,6 +49,7 @@ type Configuration struct {
 	Database        db.Config
 	Event           event.Config
 	ExtractActivity archiveextract.Config
+	Poststorage     []poststorage.Config
 	Preprocessing   preprocessing.Config
 	Preservation    pres.Config
 	Storage         storage.Config

@@ -37,6 +37,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/fsutil"
 	"github.com/artefactual-sdps/enduro/internal/package_"
+	"github.com/artefactual-sdps/enduro/internal/poststorage"
 	"github.com/artefactual-sdps/enduro/internal/preprocessing"
 	"github.com/artefactual-sdps/enduro/internal/temporal"
 	"github.com/artefactual-sdps/enduro/internal/watcher"
@@ -762,6 +763,10 @@ func (w *ProcessingWorkflow) SessionHandler(
 				return err
 			}
 		}
+
+		if err := w.poststorage(sessCtx, tinfo.SIPID); err != nil {
+			return err
+		}
 	} else if !tinfo.req.AutoApproveAIP {
 		// Record package rejection in review preservation task
 		{
@@ -1040,6 +1045,10 @@ func (w *ProcessingWorkflow) transferAM(ctx temporalsdk_workflow.Context, tinfo 
 		}
 	}
 
+	if err := w.poststorage(ctx, tinfo.SIPID); err != nil {
+		return err
+	}
+
 	// Delete transfer.
 	activityOpts = withActivityOptsForRequest(ctx)
 	err = temporalsdk_workflow.ExecuteActivity(activityOpts, am.DeleteTransferActivityName, am.DeleteTransferActivityParams{
@@ -1112,6 +1121,36 @@ func (w *ProcessingWorkflow) preprocessing(ctx temporalsdk_workflow.Context, tin
 	default:
 		return fmt.Errorf("preprocessing workflow: unknown outcome %d", ppResult.Outcome)
 	}
+}
+
+// poststorage executes the configured poststorage child workflows. It uses
+// a disconnected context, abandon as parent close policy and only waits
+// until the workflows are started, ignoring their results.
+func (w *ProcessingWorkflow) poststorage(ctx temporalsdk_workflow.Context, aipUUID string) error {
+	var err error
+	disconnectedCtx, _ := temporalsdk_workflow.NewDisconnectedContext(ctx)
+
+	for _, cfg := range w.cfg.Poststorage {
+		psCtx := temporalsdk_workflow.WithChildOptions(
+			disconnectedCtx,
+			temporalsdk_workflow.ChildWorkflowOptions{
+				Namespace:         cfg.Namespace,
+				TaskQueue:         cfg.TaskQueue,
+				WorkflowID:        fmt.Sprintf("%s-%s", cfg.WorkflowName, aipUUID),
+				ParentClosePolicy: temporalapi_enums.PARENT_CLOSE_POLICY_ABANDON,
+			},
+		)
+		err = errors.Join(
+			err,
+			temporalsdk_workflow.ExecuteChildWorkflow(
+				psCtx,
+				cfg.WorkflowName,
+				poststorage.WorkflowParams{AIPUUID: aipUUID},
+			).GetChildWorkflowExecution().Get(psCtx, nil),
+		)
+	}
+
+	return err
 }
 
 func (w *ProcessingWorkflow) createPreservationTask(
