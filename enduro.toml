@@ -84,6 +84,10 @@ redisChannel = "enduro-events"
 dirMode = "0o700"
 fileMode = "0o600"
 
+[validatePremis]
+enabled = true
+xsdPath = "/home/enduro/premis.xsd"
+
 [watcher.embedded]
 name = "dev-minio"
 redisAddress = "redis://redis.enduro-sdps:6379"
@@ -231,10 +235,6 @@ sharedPath = "/home/enduro/preprocessing"
 namespace = "default"
 taskQueue = "preprocessing"
 workflowName = "preprocessing"
-
-[validatePremis]
-enabled = true
-xsdPath = "/home/enduro/premis.xsd"
 
 # Temporal configurations to trigger poststorage child workflows, allows multiple sections.
 # [[poststorage]]
