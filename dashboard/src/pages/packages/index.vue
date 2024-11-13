@@ -26,10 +26,11 @@ import IconCaretRightFill from "~icons/bi/caret-right-fill";
 import IconCaretLeftFill from "~icons/bi/caret-left-fill";
 
 // Tab icons.
-import RawIconCheckCircleLine from "~icons/clarity/check-circle-line?raw&font-size=20px";
-import RawIconTimesCircleLine from "~icons/clarity/times-circle-line?raw&font-size=20px";
-import RawIconPlayLine from "~icons/clarity/play-line?raw&font-size=20px";
-import RawIconBarsLine from "~icons/clarity/bars-line?raw&font-size=20px";
+import RawIconBlocksGroupLine from "~icons/clarity/blocks-group-line?raw&font-size=20px";
+import RawIconSyncLine from "~icons/clarity/sync-line?raw&font-size=20px";
+import RawIconRemoveLine from "~icons/clarity/remove-line?raw&font-size=20px";
+import RawIconClockLine from "~icons/clarity/clock-line?raw&font-size=20px";
+import RawIconSuccessLine from "~icons/clarity/success-standard-line?raw&font-size=20px";
 
 const authStore = useAuthStore();
 const layoutStore = useLayoutStore();
@@ -56,6 +57,7 @@ onMounted(() => {
 
 const tabs = [
   {
+    icon: RawIconBlocksGroupLine,
     text: "All",
     route: router.resolve({
       name: "/packages/",
@@ -63,7 +65,7 @@ const tabs = [
     show: true,
   },
   {
-    icon: RawIconCheckCircleLine,
+    icon: RawIconSuccessLine,
     text: "Done",
     route: router.resolve({
       name: "/packages/",
@@ -72,7 +74,7 @@ const tabs = [
     show: true,
   },
   {
-    icon: RawIconPlayLine,
+    icon: RawIconRemoveLine,
     text: "Error",
     route: router.resolve({
       name: "/packages/",
@@ -81,7 +83,7 @@ const tabs = [
     show: true,
   },
   {
-    icon: RawIconTimesCircleLine,
+    icon: RawIconSyncLine,
     text: "In progress",
     route: router.resolve({
       name: "/packages/",
@@ -90,7 +92,7 @@ const tabs = [
     show: true,
   },
   {
-    icon: RawIconBarsLine,
+    icon: RawIconClockLine,
     text: "Queued",
     route: router.resolve({
       name: "/packages/",
