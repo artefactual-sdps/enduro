@@ -184,6 +184,47 @@ func TestParseAttributes(t *testing.T) {
 			},
 		},
 		{
+			name: "Parses attributes based on configuration (disabled)",
+			config: &auth.OIDCConfig{
+				ProviderURL: iss,
+				ClientID:    audience,
+				ABAC: auth.OIDCABACConfig{
+					Enabled: false,
+				},
+			},
+			token: token(t, signer, iss, customClaims{
+				Email:         "info@artefactual.com",
+				EmailVerified: true,
+				Attributes:    []string{"*"},
+			}),
+			wantClaims: &auth.Claims{
+				Email:         "info@artefactual.com",
+				EmailVerified: true,
+				Attributes:    nil,
+			},
+		},
+		{
+			name: "Parses attributes based on configuration (no attributes)",
+			config: &auth.OIDCConfig{
+				ProviderURL: iss,
+				ClientID:    audience,
+				ABAC: auth.OIDCABACConfig{
+					Enabled:   true,
+					ClaimPath: "attributes",
+				},
+			},
+			token: token(t, signer, iss, customClaims{
+				Email:         "info@artefactual.com",
+				EmailVerified: true,
+				Attributes:    []string{},
+			}),
+			wantClaims: &auth.Claims{
+				Email:         "info@artefactual.com",
+				EmailVerified: true,
+				Attributes:    []string{},
+			},
+		},
+		{
 			name: "Parses attributes based on configuration (nested)",
 			config: &auth.OIDCConfig{
 				ProviderURL: iss,
@@ -252,6 +293,29 @@ func TestParseAttributes(t *testing.T) {
 				Email:         "info@artefactual.com",
 				EmailVerified: true,
 				Attributes:    []string{"*", "package:list", "package:listActions", "package:move", "package:read", "package:upload"},
+			},
+		},
+		{
+			name: "Parses attributes based on configuration (mapping roles, no attributes)",
+			config: &auth.OIDCConfig{
+				ProviderURL: iss,
+				ClientID:    audience,
+				ABAC: auth.OIDCABACConfig{
+					Enabled:      true,
+					ClaimPath:    "attributes",
+					UseRoles:     true,
+					RolesMapping: map[string][]string{"admin": {"*"}},
+				},
+			},
+			token: token(t, signer, iss, customClaims{
+				Email:         "info@artefactual.com",
+				EmailVerified: true,
+				Attributes:    []string{"other", "random", "role"},
+			}),
+			wantClaims: &auth.Claims{
+				Email:         "info@artefactual.com",
+				EmailVerified: true,
+				Attributes:    []string{},
 			},
 		},
 		{

@@ -108,7 +108,7 @@ func (t *OIDCTokenVerifier) parseAttributes(token *oidc.IDToken) ([]string, erro
 				)
 			}
 
-			var filteredValue []string
+			filteredValue := []string{}
 			for i := range val.Len() {
 				str, ok := val.Index(i).Interface().(string)
 				if ok {
@@ -122,7 +122,7 @@ func (t *OIDCTokenVerifier) parseAttributes(token *oidc.IDToken) ([]string, erro
 				return filteredValue, nil
 			}
 
-			var attributes []string
+			attributes := []string{}
 			for _, role := range filteredValue {
 				if attrs, ok := t.cfg.ABAC.RolesMapping[role]; ok {
 					attributes = append(attributes, attrs...)

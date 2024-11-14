@@ -1284,7 +1284,6 @@ func (w *ProcessingWorkflow) validatePREMIS(
 		XMLPath: xmlPath,
 		XSDPath: w.cfg.ValidatePREMIS.XSDPath,
 	}).Get(activityOpts, &xmlvalidateResult)
-
 	if err != nil {
 		if strings.Contains(err.Error(), fmt.Sprintf("%s: no such file or directory", xmlPath)) {
 			// Allow PREMIS XML to not exist without failing workflow.
