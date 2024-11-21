@@ -13,19 +13,19 @@ var defaultBatchSize = 100
 func batch[T any](seq iter.Seq[T]) iter.Seq[[]T] {
 	return func(yield func([]T) bool) {
 		b := make([]T, 0, defaultBatchSize)
-		seq(func(a T) bool {
+		for a := range seq {
 			b = append(b, a)
 			if len(b) == defaultBatchSize {
 				if !yield(b) {
-					return false
+					return
 				}
-
 				b = b[:0]
 			}
-			return true
-		})
+		}
 		if len(b) != 0 {
-			yield(b)
+			if !yield(b) {
+				return
+			}
 		}
 	}
 }
