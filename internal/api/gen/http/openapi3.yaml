@@ -5,6 +5,40 @@ info:
 servers:
     - url: http://localhost:9000
 paths:
+    /about:
+        get:
+            tags:
+                - about
+            summary: about about
+            description: Get information about the system
+            operationId: about#about
+            responses:
+                "200":
+                    description: OK response.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/EnduroAbout'
+                            example:
+                                poststorage:
+                                    - task_queue: abc123
+                                      workflow_name: abc123
+                                preprocessing:
+                                    enabled: false
+                                    task_queue: abc123
+                                    workflow_name: abc123
+                                preservation_system: abc123
+                                version: abc123
+                "401":
+                    description: 'unauthorized: Unauthorized response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
+            security:
+                - jwt_header_Authorization: []
     /package:
         get:
             tags:
@@ -1536,6 +1570,33 @@ components:
                 - aip_id
                 - name
                 - object_key
+        EnduroAbout:
+            type: object
+            properties:
+                poststorage:
+                    $ref: '#/components/schemas/EnduroPoststorageCollection'
+                preprocessing:
+                    $ref: '#/components/schemas/EnduroPreprocessing'
+                preservation_system:
+                    type: string
+                    example: abc123
+                version:
+                    type: string
+                    example: abc123
+            example:
+                poststorage:
+                    - task_queue: abc123
+                      workflow_name: abc123
+                preprocessing:
+                    enabled: false
+                    task_queue: abc123
+                    workflow_name: abc123
+                preservation_system: abc123
+                version: abc123
+            required:
+                - version
+                - preservation_system
+                - preprocessing
         EnduroPackagePreservationAction:
             type: object
             properties:
@@ -1766,6 +1827,48 @@ components:
                 - limit
                 - offset
                 - total
+        EnduroPoststorage:
+            type: object
+            properties:
+                task_queue:
+                    type: string
+                    example: abc123
+                workflow_name:
+                    type: string
+                    example: abc123
+            example:
+                task_queue: abc123
+                workflow_name: abc123
+            required:
+                - workflow_name
+                - task_queue
+        EnduroPoststorageCollection:
+            type: array
+            items:
+                $ref: '#/components/schemas/EnduroPoststorage'
+            example:
+                - task_queue: abc123
+                  workflow_name: abc123
+        EnduroPreprocessing:
+            type: object
+            properties:
+                enabled:
+                    type: boolean
+                    example: false
+                task_queue:
+                    type: string
+                    example: abc123
+                workflow_name:
+                    type: string
+                    example: abc123
+            example:
+                enabled: false
+                task_queue: abc123
+                workflow_name: abc123
+            required:
+                - enabled
+                - workflow_name
+                - task_queue
         EnduroStoredPackage:
             type: object
             properties:
@@ -2494,6 +2597,8 @@ components:
             description: Secures endpoint by requiring a valid JWT token.
             scheme: bearer
 tags:
+    - name: about
+      description: The about service provides information about the system.
     - name: package
       description: The package service manages packages being transferred to a3m.
     - name: storage

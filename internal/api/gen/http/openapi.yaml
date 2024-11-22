@@ -10,6 +10,31 @@ produces:
     - application/xml
     - application/gob
 paths:
+    /about:
+        get:
+            tags:
+                - about
+            summary: about about
+            description: Get information about the system
+            operationId: about#about
+            parameters:
+                - name: Authorization
+                  in: header
+                  required: false
+                  type: string
+            responses:
+                "200":
+                    description: OK response.
+                    schema:
+                        $ref: '#/definitions/AboutAboutResponseBody'
+                "401":
+                    description: Unauthorized response.
+                    schema:
+                        type: string
+            schemes:
+                - http
+            security:
+                - jwt_header_Authorization: []
     /package:
         get:
             tags:
@@ -1107,6 +1132,35 @@ paths:
             schemes:
                 - http
 definitions:
+    AboutAboutResponseBody:
+        title: 'Mediatype identifier: application/vnd.enduro.about; view=default'
+        type: object
+        properties:
+            poststorage:
+                $ref: '#/definitions/EnduroPoststorageResponseBodyCollection'
+            preprocessing:
+                $ref: '#/definitions/EnduroPreprocessingResponseBody'
+            preservation_system:
+                type: string
+                example: abc123
+            version:
+                type: string
+                example: abc123
+        description: AboutResponseBody result type (default view)
+        example:
+            poststorage:
+                - task_queue: abc123
+                  workflow_name: abc123
+            preprocessing:
+                enabled: false
+                task_queue: abc123
+                workflow_name: abc123
+            preservation_system: abc123
+            version: abc123
+        required:
+            - version
+            - preservation_system
+            - preprocessing
     EnduroPackagePreservationActionResponseBody:
         title: 'Mediatype identifier: application/vnd.enduro.package-preservation-action; view=default'
         type: object
@@ -1295,6 +1349,54 @@ definitions:
             - limit
             - offset
             - total
+    EnduroPoststorageResponseBody:
+        title: 'Mediatype identifier: application/vnd.enduro.poststorage; view=default'
+        type: object
+        properties:
+            task_queue:
+                type: string
+                example: abc123
+            workflow_name:
+                type: string
+                example: abc123
+        description: EnduroPoststorageResponseBody result type (default view)
+        example:
+            task_queue: abc123
+            workflow_name: abc123
+        required:
+            - workflow_name
+            - task_queue
+    EnduroPoststorageResponseBodyCollection:
+        title: 'Mediatype identifier: application/vnd.enduro.poststorage; type=collection; view=default'
+        type: array
+        items:
+            $ref: '#/definitions/EnduroPoststorageResponseBody'
+        description: EnduroPoststorageCollectionResponseBody is the result type for an array of EnduroPoststorageResponseBody (default view)
+        example:
+            - task_queue: abc123
+              workflow_name: abc123
+    EnduroPreprocessingResponseBody:
+        title: 'Mediatype identifier: application/vnd.enduro.preprocessing; view=default'
+        type: object
+        properties:
+            enabled:
+                type: boolean
+                example: false
+            task_queue:
+                type: string
+                example: abc123
+            workflow_name:
+                type: string
+                example: abc123
+        description: EnduroPreprocessingResponseBody result type (default view)
+        example:
+            enabled: false
+            task_queue: abc123
+            workflow_name: abc123
+        required:
+            - enabled
+            - workflow_name
+            - task_queue
     EnduroStoredPackageResponseBody:
         title: 'Mediatype identifier: application/vnd.enduro.stored-package; view=default'
         type: object

@@ -159,6 +159,45 @@
         ],
         "type": "object"
       },
+      "EnduroAbout": {
+        "example": {
+          "poststorage": [
+            {
+              "task_queue": "abc123",
+              "workflow_name": "abc123"
+            }
+          ],
+          "preprocessing": {
+            "enabled": false,
+            "task_queue": "abc123",
+            "workflow_name": "abc123"
+          },
+          "preservation_system": "abc123",
+          "version": "abc123"
+        },
+        "properties": {
+          "poststorage": {
+            "$ref": "#/components/schemas/EnduroPoststorageCollection"
+          },
+          "preprocessing": {
+            "$ref": "#/components/schemas/EnduroPreprocessing"
+          },
+          "preservation_system": {
+            "example": "abc123",
+            "type": "string"
+          },
+          "version": {
+            "example": "abc123",
+            "type": "string"
+          }
+        },
+        "required": [
+          "version",
+          "preservation_system",
+          "preprocessing"
+        ],
+        "type": "object"
+      },
       "EnduroPackagePreservationAction": {
         "description": "PreservationAction describes a preservation action.",
         "example": {
@@ -456,6 +495,66 @@
           "limit",
           "offset",
           "total"
+        ],
+        "type": "object"
+      },
+      "EnduroPoststorage": {
+        "example": {
+          "task_queue": "abc123",
+          "workflow_name": "abc123"
+        },
+        "properties": {
+          "task_queue": {
+            "example": "abc123",
+            "type": "string"
+          },
+          "workflow_name": {
+            "example": "abc123",
+            "type": "string"
+          }
+        },
+        "required": [
+          "workflow_name",
+          "task_queue"
+        ],
+        "type": "object"
+      },
+      "EnduroPoststorageCollection": {
+        "example": [
+          {
+            "task_queue": "abc123",
+            "workflow_name": "abc123"
+          }
+        ],
+        "items": {
+          "$ref": "#/components/schemas/EnduroPoststorage"
+        },
+        "type": "array"
+      },
+      "EnduroPreprocessing": {
+        "example": {
+          "enabled": false,
+          "task_queue": "abc123",
+          "workflow_name": "abc123"
+        },
+        "properties": {
+          "enabled": {
+            "example": false,
+            "type": "boolean"
+          },
+          "task_queue": {
+            "example": "abc123",
+            "type": "string"
+          },
+          "workflow_name": {
+            "example": "abc123",
+            "type": "string"
+          }
+        },
+        "required": [
+          "enabled",
+          "workflow_name",
+          "task_queue"
         ],
         "type": "object"
       },
@@ -1384,6 +1483,60 @@
   },
   "openapi": "3.0.3",
   "paths": {
+    "/about": {
+      "get": {
+        "description": "Get information about the system",
+        "operationId": "about#about",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "poststorage": [
+                    {
+                      "task_queue": "abc123",
+                      "workflow_name": "abc123"
+                    }
+                  ],
+                  "preprocessing": {
+                    "enabled": false,
+                    "task_queue": "abc123",
+                    "workflow_name": "abc123"
+                  },
+                  "preservation_system": "abc123",
+                  "version": "abc123"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/EnduroAbout"
+                }
+              }
+            },
+            "description": "OK response."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "example": "abc123",
+                "schema": {
+                  "example": "abc123",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "unauthorized: Unauthorized response."
+          }
+        },
+        "security": [
+          {
+            "jwt_header_Authorization": []
+          }
+        ],
+        "summary": "about about",
+        "tags": [
+          "about"
+        ]
+      }
+    },
     "/package": {
       "get": {
         "description": "List all stored packages",
@@ -3522,6 +3675,10 @@
     }
   ],
   "tags": [
+    {
+      "description": "The about service provides information about the system.",
+      "name": "about"
+    },
     {
       "description": "The package service manages packages being transferred to a3m.",
       "name": "package"

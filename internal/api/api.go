@@ -24,6 +24,9 @@ import (
 	goahttpmwr "goa.design/goa/v3/http/middleware"
 	"goa.design/goa/v3/middleware"
 
+	intabout "github.com/artefactual-sdps/enduro/internal/about"
+	"github.com/artefactual-sdps/enduro/internal/api/gen/about"
+	aaboutsvr "github.com/artefactual-sdps/enduro/internal/api/gen/http/about/server"
 	packagesvr "github.com/artefactual-sdps/enduro/internal/api/gen/http/package_/server"
 	storagesvr "github.com/artefactual-sdps/enduro/internal/api/gen/http/storage/server"
 	swaggersvr "github.com/artefactual-sdps/enduro/internal/api/gen/http/swagger/server"
@@ -43,6 +46,7 @@ func HTTPServer(
 	config *Config,
 	pkgsvc intpkg.Service,
 	storagesvc intstorage.Service,
+	aboutsvc *intabout.Service,
 ) *http.Server {
 	dec := goahttp.RequestDecoder
 	enc := goahttp.ResponseEncoder
@@ -65,6 +69,12 @@ func HTTPServer(
 	storageServer := storagesvr.New(storageEndpoints, mux, dec, enc, storageErrorHandler, nil)
 	storageServer.Download = writeTimeout(intstorage.Download(storagesvc, mux, dec), 0)
 	storagesvr.Mount(mux, storageServer)
+
+	// About service.
+	aboutEndpoints := about.NewEndpoints(aboutsvc)
+	aboutErrorHandler := errorHandler(logger, "About error.")
+	aboutServer := aaboutsvr.New(aboutEndpoints, mux, dec, enc, aboutErrorHandler, nil)
+	aaboutsvr.Mount(mux, aboutServer)
 
 	// Swagger service.
 	swaggerService := swaggersvr.New(nil, nil, nil, nil, nil, nil, http.FS(openAPIJSON))

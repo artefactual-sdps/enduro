@@ -33,6 +33,7 @@ import (
 	temporalsdk_workflow "go.temporal.io/sdk/workflow"
 	goahttp "goa.design/goa/v3/http"
 
+	"github.com/artefactual-sdps/enduro/internal/about"
 	"github.com/artefactual-sdps/enduro/internal/api"
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	goahttpstorage "github.com/artefactual-sdps/enduro/internal/api/gen/http/storage/client"
@@ -274,6 +275,14 @@ func main() {
 		}
 	}
 
+	aboutsvc := about.NewService(
+		logger.WithName("about"),
+		cfg.Preservation.TaskQueue,
+		cfg.Preprocessing,
+		cfg.Poststorage,
+		tokenVerifier,
+	)
+
 	// Set up the watcher service.
 	var wsvc watcher.Service
 	{
@@ -292,7 +301,7 @@ func main() {
 
 		g.Add(
 			func() error {
-				srv = api.HTTPServer(logger, tp, &cfg.API, pkgsvc, storagesvc)
+				srv = api.HTTPServer(logger, tp, &cfg.API, pkgsvc, storagesvc, aboutsvc)
 				return srv.ListenAndServe()
 			},
 			func(err error) {
@@ -333,11 +342,19 @@ func main() {
 			os.Exit(1)
 		}
 
+		ias := about.NewService(
+			logger.WithName("internal-about"),
+			cfg.Preservation.TaskQueue,
+			cfg.Preprocessing,
+			cfg.Poststorage,
+			&auth.NoopTokenVerifier{},
+		)
+
 		var srv *http.Server
 
 		g.Add(
 			func() error {
-				srv = api.HTTPServer(logger, tp, &cfg.InternalAPI, ips, iss)
+				srv = api.HTTPServer(logger, tp, &cfg.InternalAPI, ips, iss, ias)
 				return srv.ListenAndServe()
 			},
 			func(err error) {

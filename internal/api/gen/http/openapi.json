@@ -3,6 +3,47 @@
     "application/json"
   ],
   "definitions": {
+    "AboutAboutResponseBody": {
+      "description": "AboutResponseBody result type (default view)",
+      "example": {
+        "poststorage": [
+          {
+            "task_queue": "abc123",
+            "workflow_name": "abc123"
+          }
+        ],
+        "preprocessing": {
+          "enabled": false,
+          "task_queue": "abc123",
+          "workflow_name": "abc123"
+        },
+        "preservation_system": "abc123",
+        "version": "abc123"
+      },
+      "properties": {
+        "poststorage": {
+          "$ref": "#/definitions/EnduroPoststorageResponseBodyCollection"
+        },
+        "preprocessing": {
+          "$ref": "#/definitions/EnduroPreprocessingResponseBody"
+        },
+        "preservation_system": {
+          "example": "abc123",
+          "type": "string"
+        },
+        "version": {
+          "example": "abc123",
+          "type": "string"
+        }
+      },
+      "required": [
+        "version",
+        "preservation_system",
+        "preprocessing"
+      ],
+      "title": "Mediatype identifier: application/vnd.enduro.about; view=default",
+      "type": "object"
+    },
     "EnduroPackagePreservationActionResponseBody": {
       "description": "PreservationAction describes a preservation action. (default view)",
       "example": {
@@ -239,6 +280,72 @@
         "total"
       ],
       "title": "Mediatype identifier: application/vnd.enduro.page; view=default",
+      "type": "object"
+    },
+    "EnduroPoststorageResponseBody": {
+      "description": "EnduroPoststorageResponseBody result type (default view)",
+      "example": {
+        "task_queue": "abc123",
+        "workflow_name": "abc123"
+      },
+      "properties": {
+        "task_queue": {
+          "example": "abc123",
+          "type": "string"
+        },
+        "workflow_name": {
+          "example": "abc123",
+          "type": "string"
+        }
+      },
+      "required": [
+        "workflow_name",
+        "task_queue"
+      ],
+      "title": "Mediatype identifier: application/vnd.enduro.poststorage; view=default",
+      "type": "object"
+    },
+    "EnduroPoststorageResponseBodyCollection": {
+      "description": "EnduroPoststorageCollectionResponseBody is the result type for an array of EnduroPoststorageResponseBody (default view)",
+      "example": [
+        {
+          "task_queue": "abc123",
+          "workflow_name": "abc123"
+        }
+      ],
+      "items": {
+        "$ref": "#/definitions/EnduroPoststorageResponseBody"
+      },
+      "title": "Mediatype identifier: application/vnd.enduro.poststorage; type=collection; view=default",
+      "type": "array"
+    },
+    "EnduroPreprocessingResponseBody": {
+      "description": "EnduroPreprocessingResponseBody result type (default view)",
+      "example": {
+        "enabled": false,
+        "task_queue": "abc123",
+        "workflow_name": "abc123"
+      },
+      "properties": {
+        "enabled": {
+          "example": false,
+          "type": "boolean"
+        },
+        "task_queue": {
+          "example": "abc123",
+          "type": "string"
+        },
+        "workflow_name": {
+          "example": "abc123",
+          "type": "string"
+        }
+      },
+      "required": [
+        "enabled",
+        "workflow_name",
+        "task_queue"
+      ],
+      "title": "Mediatype identifier: application/vnd.enduro.preprocessing; view=default",
       "type": "object"
     },
     "EnduroStoredPackageResponseBody": {
@@ -2825,6 +2932,46 @@
     "version": "0.0.1"
   },
   "paths": {
+    "/about": {
+      "get": {
+        "description": "Get information about the system",
+        "operationId": "about#about",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK response.",
+            "schema": {
+              "$ref": "#/definitions/AboutAboutResponseBody"
+            }
+          },
+          "401": {
+            "description": "Unauthorized response.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        },
+        "schemes": [
+          "http"
+        ],
+        "security": [
+          {
+            "jwt_header_Authorization": []
+          }
+        ],
+        "summary": "about about",
+        "tags": [
+          "about"
+        ]
+      }
+    },
     "/package": {
       "get": {
         "description": "List all stored packages\n\n**Required security scopes for jwt**:\n  * `package:list`",
