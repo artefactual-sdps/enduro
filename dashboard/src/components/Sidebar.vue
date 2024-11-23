@@ -3,6 +3,7 @@ import { useAuthStore } from "@/stores/auth";
 import { useLayoutStore } from "@/stores/layout";
 import { useRouter } from "vue-router/auto";
 import Collapse from "bootstrap/js/dist/collapse";
+import Offcanvas from "bootstrap/js/dist/offcanvas";
 import { onMounted } from "vue";
 import RawIconBundleLine from "~icons/clarity/bundle-line?raw&width=2em&height=2em";
 import IconCaretLine from "~icons/clarity/caret-line";
@@ -36,10 +37,18 @@ const menuItems = [
   },
 ];
 
+let offcanvasInstance = <Offcanvas | null>null;
+const offcanvas = $ref<HTMLElement | null>(null);
 const collapse = $ref<HTMLElement | null>(null);
+
 onMounted(() => {
+  if (offcanvas) offcanvasInstance = new Offcanvas(offcanvas);
   if (collapse) new Collapse(collapse);
 });
+
+const closeOffcanvas = () => {
+  if (offcanvasInstance) offcanvasInstance.hide();
+};
 </script>
 
 <template>
@@ -51,7 +60,7 @@ onMounted(() => {
     aria-labelledby="offcanvasLabel"
     ref="offcanvas"
   >
-    <div class="offcanvas-header px-3">
+    <div class="offcanvas-header">
       <h5 class="offcanvas-title" id="offcanvasLabel">Navigation</h5>
       <button
         type="button"
@@ -61,7 +70,7 @@ onMounted(() => {
         aria-label="Close"
       ></button>
     </div>
-    <div class="offcanvas-body d-flex flex-grow-1 py-0">
+    <div class="offcanvas-body d-flex flex-grow-1 p-0">
       <nav
         aria-labelledby="offcanvasLabel"
         class="flex-grow-1 d-flex flex-column"
@@ -74,6 +83,7 @@ onMounted(() => {
               active-class="active"
               exact-active-class="exact-active"
               :to="item.route"
+              @click="closeOffcanvas"
             >
               <div class="container-fluid">
                 <div class="row">
@@ -222,10 +232,6 @@ onMounted(() => {
     .col-9 svg {
       transform: rotate(180deg);
     }
-  }
-
-  .sidebar.show & .col-9 svg {
-    margin-right: 2 * $spacer;
   }
 }
 

@@ -1,17 +1,9 @@
 <script setup lang="ts">
 import Breadcrumb from "@/components/Breadcrumb.vue";
 import { useLayoutStore } from "@/stores/layout";
-import Offcanvas from "bootstrap/js/dist/offcanvas";
-import { onMounted } from "vue";
 import IconMenuLine from "~icons/clarity/menu-line";
 
 const layoutStore = useLayoutStore();
-
-const offcanvas = $ref<HTMLElement | null>(null);
-
-onMounted(() => {
-  if (offcanvas) new Offcanvas(offcanvas);
-});
 </script>
 
 <template>
@@ -19,7 +11,6 @@ onMounted(() => {
     <nav class="navbar navbar-expand-md p-0">
       <!-- Open offcanvas button, only visible in sm. -->
       <button
-        ref="offcanvas"
         type="button"
         class="navbar-toggler btn btn-link text-decoration-none p-3"
         data-bs-toggle="offcanvas"
