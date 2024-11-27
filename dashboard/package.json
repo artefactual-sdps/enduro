@@ -41,7 +41,6 @@
     "@types/node": "^22.7.5",
     "@vitejs/plugin-vue": "^5.1.3",
     "@vitest/coverage-v8": "^2.0.5",
-    "@vue-macros/reactivity-transform": "^1.0.4",
     "@vue/tsconfig": "^0.5.1",
     "bootstrap": "^5.3.3",
     "happy-dom": "^15.7.4",

@@ -4,54 +4,56 @@ import PackageReviewAlert from "@/components/PackageReviewAlert.vue";
 import StatusBadge from "@/components/StatusBadge.vue";
 import { useAuthStore } from "@/stores/auth";
 import Collapse from "bootstrap/js/dist/collapse";
-import { onMounted, watch } from "vue";
+import { onMounted, watch, ref, toRefs } from "vue";
 import IconCircleChevronDown from "~icons/akar-icons/circle-chevron-down";
 import IconCircleChevronUp from "~icons/akar-icons/circle-chevron-up";
 
 const authStore = useAuthStore();
 
-const { action, index, toggleAll } = defineProps<{
+const props = defineProps<{
   action: api.EnduroPackagePreservationAction;
   index: number;
   toggleAll: boolean | null;
 }>();
 
+const { action, index, toggleAll } = toRefs(props);
+
 const emit = defineEmits<{
   (e: "update:toggleAll", value: null): void;
 }>();
 
-let shown = $ref<boolean>(false);
-const el = $ref<HTMLElement | null>(null);
+let shown = ref<boolean>(false);
+const el = ref<HTMLElement | null>(null);
 let col: Collapse | null = null;
 
 onMounted(() => {
-  if (!el) return;
-  col = new Collapse(el, { toggle: false });
+  if (!el.value) return;
+  col = new Collapse(el.value, { toggle: false });
 });
 
 const toggle = () => {
-  shown ? hide() : show();
+  shown.value ? hide() : show();
 };
 
 const show = () => {
   col?.show();
   emit("update:toggleAll", null);
-  shown = true;
+  shown.value = true;
 };
 
 const hide = () => {
   col?.hide();
   emit("update:toggleAll", null);
-  shown = false;
+  shown.value = false;
 };
 
-watch($$(toggleAll), () => {
-  if (toggleAll === null) return;
-  toggleAll ? show() : hide();
+watch(toggleAll, () => {
+  if (toggleAll.value === null) return;
+  toggleAll.value ? show() : hide();
 });
 
-let expandCounter = $ref<number>(0);
-watch($$(expandCounter), () => show());
+let expandCounter = ref<number>(0);
+watch(expandCounter, () => show());
 </script>
 
 <template>

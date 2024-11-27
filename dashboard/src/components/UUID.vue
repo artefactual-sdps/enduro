@@ -1,22 +1,18 @@
 <script setup lang="ts">
 import { useClipboard } from "@vueuse/core";
 import Tooltip from "bootstrap/js/dist/tooltip";
-import { toRef, watch } from "vue";
+import { ref, toRef, watch } from "vue";
 import IconCheck from "~icons/akar-icons/check";
 import IconCopy from "~icons/akar-icons/copy";
 
 const props = defineProps<{ id?: string }>();
-
-// $toRef can't be used because of https://github.com/vuejs/core/issues/6349.
 const source = toRef(props, "id", "");
-
 const { copy, copied, isSupported } = useClipboard({ source });
-
-const el = $ref<HTMLElement | null>(null);
+const el = ref<HTMLElement | null>(null);
 let tooltip: Tooltip | null = null;
 
-watch($$(el), () => {
-  if (el) tooltip = new Tooltip(el);
+watch(el, () => {
+  if (el.value) tooltip = new Tooltip(el.value);
 });
 
 watch(copied, (val) => {

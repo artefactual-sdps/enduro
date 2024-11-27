@@ -1,7 +1,6 @@
 import { fileURLToPath, URL } from "node:url";
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
-import ReactivityTransform from "@vue-macros/reactivity-transform/vite";
 import Icons from "unplugin-icons/vite";
 import VueRouter from "unplugin-vue-router/vite";
 import vueDevTools from "vite-plugin-vue-devtools";
@@ -14,7 +13,6 @@ export default defineConfig({
     }),
     vue({}),
     vueDevTools(),
-    ReactivityTransform(),
     Icons({ compiler: "vue3" }),
   ],
   server: {

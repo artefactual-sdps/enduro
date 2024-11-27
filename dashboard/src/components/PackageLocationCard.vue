@@ -3,21 +3,22 @@ import UUID from "@/components/UUID.vue";
 import { openPackageLocationDialog } from "@/dialogs";
 import { useAuthStore } from "@/stores/auth";
 import { usePackageStore } from "@/stores/package";
+import { ref } from "vue";
 
 const authStore = useAuthStore();
 const packageStore = usePackageStore();
 
-let failed = $ref<boolean | null>(null);
+let failed = ref<boolean | null>(null);
 
 const choose = async () => {
-  failed = false;
+  failed.value = false;
   const locationId = await openPackageLocationDialog(
     packageStore.current?.locationId,
   );
   if (!locationId) return;
   const error = await packageStore.move(locationId);
   if (error) {
-    failed = true;
+    failed.value = true;
   }
 };
 </script>

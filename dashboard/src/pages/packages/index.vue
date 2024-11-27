@@ -13,7 +13,7 @@ import { useAuthStore } from "@/stores/auth";
 import { useLayoutStore } from "@/stores/layout";
 import { usePackageStore } from "@/stores/package";
 import { useRoute, useRouter } from "vue-router/auto";
-import { watch } from "vue";
+import { ref, watch } from "vue";
 
 // General icons.
 import IconInfoFill from "~icons/akar-icons/info-fill";
@@ -41,17 +41,17 @@ const router = useRouter();
 
 layoutStore.updateBreadcrumb([{ text: "Packages" }]);
 
-const el = $ref<HTMLElement | null>(null);
+const el = ref<HTMLElement | null>(null);
 let tooltip: Tooltip | null = null;
 
-let showLegend = $ref(false);
+let showLegend = ref(false);
 const toggleLegend = () => {
-  showLegend = !showLegend;
+  showLegend.value = !showLegend.value;
   if (tooltip) tooltip.hide();
 };
 
 onMounted(() => {
-  if (el) tooltip = new Tooltip(el);
+  if (el.value) tooltip = new Tooltip(el.value);
   packageStore.filters.status = <PackageListStatusEnum>route.query.status;
 });
 

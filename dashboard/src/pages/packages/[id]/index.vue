@@ -7,11 +7,12 @@ import StatusBadge from "@/components/StatusBadge.vue";
 import UUID from "@/components/UUID.vue";
 import { useAuthStore } from "@/stores/auth";
 import { usePackageStore } from "@/stores/package";
+import { computed, ref } from "vue";
 
 const authStore = useAuthStore();
 const packageStore = usePackageStore();
 
-const createAipWorkflow = $computed(
+const createAipWorkflow = computed(
   () =>
     packageStore.current_preservation_actions?.actions?.filter(
       (action) =>
@@ -21,7 +22,7 @@ const createAipWorkflow = $computed(
     )[0],
 );
 
-let toggleAll = $ref<boolean | null>(false);
+let toggleAll = ref<boolean | null>(false);
 </script>
 
 <template>
