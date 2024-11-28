@@ -5,6 +5,7 @@ import { useAuthStore } from "@/stores/auth";
 import { usePackageStore } from "./stores/package";
 
 export interface Client {
+  about: api.AboutApi;
   package: api.PackageApi;
   storage: api.StorageApi;
   connectPackageMonitor: () => void;
@@ -67,7 +68,7 @@ function createClient(): Client {
           if (context.response.status == 401) {
             useAuthStore()
               .removeUser()
-              .then(() => router.push({ name: "/" }));
+              .then(() => router.push({ name: "/user/signin" }));
             return Promise.resolve();
           }
           return Promise.resolve(context.response);
@@ -76,6 +77,7 @@ function createClient(): Client {
     ],
   });
   return {
+    about: new api.AboutApi(config),
     package: new api.PackageApi(config),
     storage: new api.StorageApi(config),
     connectPackageMonitor,

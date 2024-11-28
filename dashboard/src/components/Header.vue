@@ -1,9 +1,14 @@
 <script setup lang="ts">
+import AboutDialogVue from "@/components/AboutDialog.vue";
 import Breadcrumb from "@/components/Breadcrumb.vue";
 import { useLayoutStore } from "@/stores/layout";
+import IconInfoStandardSolid from "~icons/clarity/info-standard-solid";
 import IconMenuLine from "~icons/clarity/menu-line";
+import { openDialog } from "vue3-promise-dialog";
 
 const layoutStore = useLayoutStore();
+
+const showAbout = async () => await openDialog(AboutDialogVue);
 </script>
 
 <template>
@@ -43,7 +48,7 @@ const layoutStore = useLayoutStore();
       </button>
 
       <router-link
-        class="navbar-brand h1 mb-0 me-auto p-3 px-2 text-primary text-decoration-none d-flex align-items-center"
+        class="navbar-brand h1 mb-0 me-auto p-3 px-2 text-primary text-decoration-none d-flex align-items-center fw-bold"
         :class="layoutStore.sidebarCollapsed ? '' : 'ms-2'"
         :to="{ name: '/' }"
       >
@@ -54,6 +59,19 @@ const layoutStore = useLayoutStore();
       <div class="flex-grow-1 d-none d-md-block">
         <Breadcrumb />
       </div>
+
+      <button
+        type="button"
+        class="btn btn-link text-decoration-none p-3"
+        aria-label="About Enduro"
+      >
+        <IconInfoStandardSolid
+          class="text-primary mx-1"
+          style="font-size: 1.5em"
+          aria-hidden="true"
+          @click="showAbout"
+        />
+      </button>
     </nav>
   </header>
 </template>

@@ -1,4 +1,5 @@
 .openapi-generator-ignore
+apis/AboutApi.ts
 apis/PackageApi.ts
 apis/StorageApi.ts
 apis/SwaggerApi.ts
@@ -9,11 +10,14 @@ models/AddLocationRequestBodyConfig.ts
 models/AddLocationResult.ts
 models/ConfirmRequestBody.ts
 models/CreateRequestBody.ts
+models/EnduroAbout.ts
 models/EnduroPackagePreservationAction.ts
 models/EnduroPackagePreservationActions.ts
 models/EnduroPackagePreservationTask.ts
 models/EnduroPackages.ts
 models/EnduroPage.ts
+models/EnduroPoststorage.ts
+models/EnduroPreprocessing.ts
 models/EnduroStoredPackage.ts
 models/Location.ts
 models/LocationNotFound.ts
