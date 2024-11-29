@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import type { api } from "@/client";
 import PackageReviewAlert from "@/components/PackageReviewAlert.vue";
+import type {
+  EnduroPackagePreservationTask,
+  EnduroPackagePreservationTaskStatusEnum,
+} from "@/openapi-generator";
 import StatusBadge from "@/components/StatusBadge.vue";
 import { useAuthStore } from "@/stores/auth";
 import Collapse from "bootstrap/js/dist/collapse";
@@ -54,6 +58,10 @@ watch(toggleAll, () => {
 
 let expandCounter = ref<number>(0);
 watch(expandCounter, () => show());
+
+function isComplete(task: EnduroPackagePreservationTask) {
+  return task.status == "done" || task.status == "error";
+}
 </script>
 
 <template>
@@ -114,36 +122,60 @@ watch(expandCounter, () => show());
 
     <div
       ref="el"
-      :id="'preservation-actions-table-' + index"
-      class="collapse table-responsive mb-3"
+      :id="'preservation-actions-' + index"
+      class="collapse mb-3"
+      v-if="action.tasks"
     >
-      <table class="table table-bordered table-sm mb-0" v-if="action.tasks">
-        <thead>
-          <tr>
-            <th scope="col">Task #</th>
-            <th scope="col">Name</th>
-            <th scope="col">Start</th>
-            <th scope="col">End</th>
-            <th scope="col">Outcome</th>
-            <th scope="col">Notes</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            v-for="(task, index) in action.tasks.slice().reverse()"
-            :key="action.id"
-          >
-            <td>{{ action.tasks.length - index }}</td>
-            <td>{{ task.name }}</td>
-            <td>{{ $filters.formatDateTime(task.startedAt) }}</td>
-            <td>{{ $filters.formatDateTime(task.completedAt) }}</td>
-            <td>
+      <div
+        v-for="(task, index) in action.tasks.slice().reverse()"
+        :key="action.id"
+        class="mb-2 card"
+      >
+        <div class="card-body">
+          <div class="d-flex flex-row align-start gap-3">
+            <div class="fd-flex">
+              <span
+                class="fs-6 badge rounded-pill border border-primary text-primary"
+              >
+                {{ action.tasks.length - index }}
+              </span>
+            </div>
+            <div
+              class="d-flex flex-column flex-grow-1 align-content-stretch min-w-0"
+            >
+              <div class="d-flex flex-wrap pt-1">
+                <div class="me-auto text-truncate fw-bold">
+                  {{ task.name }}
+                </div>
+                <div class="me-3">
+                  <span
+                    v-if="
+                      !isComplete(task) &&
+                      $filters.formatDateTime(task.startedAt)
+                    "
+                  >
+                    Started: {{ $filters.formatDateTime(task.startedAt) }}
+                  </span>
+                  <span
+                    v-if="
+                      isComplete(task) &&
+                      $filters.formatDateTime(task.completedAt)
+                    "
+                  >
+                    Completed: {{ $filters.formatDateTime(task.completedAt) }}
+                  </span>
+                </div>
+              </div>
+              <div class="d-flex flex-row gap-4">
+                <div class="flex-grow-1 line-break">{{ task.note }}</div>
+              </div>
+            </div>
+            <div class="d-flex pt-1">
               <StatusBadge :status="task.status" />
-            </td>
-            <td class="line-break">{{ task.note }}</td>
-          </tr>
-        </tbody>
-      </table>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
