@@ -8,6 +8,16 @@ requests.
 
 ## [Unreleased]
 
+## [0.5.0] - 2024-11-29
+
+### Added
+
+- About information to API and dashboard ([#1062])
+
+### Fixed
+
+- Offcanvas sidebar look and behavior ([#1079])
+
 ## [0.4.0] - 2024-11-15
 
 ### Added
@@ -45,12 +55,15 @@ requests.
 
 Initial release.
 
-[unreleased]: https://github.com/artefactual-sdps/enduro/compare/v0.4.0...HEAD
+[unreleased]: https://github.com/artefactual-sdps/enduro/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/artefactual-sdps/enduro/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/artefactual-sdps/enduro/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/artefactual-sdps/enduro/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/artefactual-sdps/enduro/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/artefactual-sdps/enduro/releases/tag/v0.1.0
+[#1079]: https://github.com/artefactual-sdps/enduro/issues/1079
 [#1066]: https://github.com/artefactual-sdps/enduro/issues/1066
+[#1062]: https://github.com/artefactual-sdps/enduro/issues/1062
 [#1039]: https://github.com/artefactual-sdps/enduro/issues/1039
 [#1037]: https://github.com/artefactual-sdps/enduro/issues/1037
 [#1035]: https://github.com/artefactual-sdps/enduro/issues/1035
