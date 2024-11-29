@@ -114,36 +114,46 @@ watch(expandCounter, () => show());
 
     <div
       ref="el"
-      :id="'preservation-actions-table-' + index"
-      class="collapse table-responsive mb-3"
+      :id="'preservation-actions-' + index"
+      class="collapse mb-3"
+      v-if="action.tasks"
     >
-      <table class="table table-bordered table-sm mb-0" v-if="action.tasks">
-        <thead>
-          <tr>
-            <th scope="col">Task #</th>
-            <th scope="col">Name</th>
-            <th scope="col">Start</th>
-            <th scope="col">End</th>
-            <th scope="col">Outcome</th>
-            <th scope="col">Notes</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            v-for="(task, index) in action.tasks.slice().reverse()"
-            :key="action.id"
-          >
-            <td>{{ action.tasks.length - index }}</td>
-            <td>{{ task.name }}</td>
-            <td>{{ $filters.formatDateTime(task.startedAt) }}</td>
-            <td>{{ $filters.formatDateTime(task.completedAt) }}</td>
-            <td>
-              <StatusBadge :status="task.status" />
-            </td>
-            <td class="line-break">{{ task.note }}</td>
-          </tr>
-        </tbody>
-      </table>
+      <div
+        v-for="(task, index) in action.tasks.slice().reverse()"
+        :key="action.id"
+        class="mb-2 card"
+      >
+        <div class="card-body">
+          <div class="d-flex flex-row gap-3">
+            <div class="fd-flex align-self-start">
+              <span
+                class="badge rounded-pill fs-6 border border-primary text-primary"
+              >
+                {{ action.tasks.length - index }}
+              </span>
+            </div>
+            <div class="d-flex flex-column flex-grow-1 align-content-stretch">
+              <div class="d-flex flex-row gap-4">
+                <div class="flex-grow-1">
+                  <span class="fs-5 fw-bold">{{ task.name }}</span>
+                </div>
+                <div>
+                  Started: {{ $filters.formatDateTime(task.startedAt) }}
+                </div>
+                <div>
+                  Completed: {{ $filters.formatDateTime(task.completedAt) }}
+                </div>
+                <div>
+                  <StatusBadge :status="task.status" />
+                </div>
+              </div>
+              <div class="d-flex flex-row gap-4">
+                <div class="flex-grow-1 line-break">{{ task.note }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
