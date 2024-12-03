@@ -133,14 +133,20 @@ watch(expandCounter, () => show());
               </span>
             </div>
             <div class="d-flex flex-column flex-grow-1 align-content-stretch">
-              <div class="d-flex flex-row gap-4">
-                <div class="flex-grow-1">
+              <div class="d-flex flex-wrap">
+                <div class="flex-grow-1 me-3">
                   <span class="fs-5 fw-bold">{{ task.name }}</span>
                 </div>
-                <div>
+                <div
+                  v-if="$filters.formatDateTime(task.startedAt)"
+                  class="me-3"
+                >
                   Started: {{ $filters.formatDateTime(task.startedAt) }}
                 </div>
-                <div>
+                <div
+                  v-if="$filters.formatDateTime(task.completedAt)"
+                  class="me-3"
+                >
                   Completed: {{ $filters.formatDateTime(task.completedAt) }}
                 </div>
                 <div>
