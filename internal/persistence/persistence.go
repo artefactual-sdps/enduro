@@ -34,5 +34,9 @@ type Service interface {
 	CreatePreservationAction(context.Context, *datatypes.PreservationAction) error
 
 	CreatePreservationTask(context.Context, *datatypes.PreservationTask) error
+	CreatePreservationTasks(
+		context.Context,
+		func(yield func(*datatypes.PreservationTask) bool),
+	) ([]*datatypes.PreservationTask, error)
 	UpdatePreservationTask(ctx context.Context, id int, updater PresTaskUpdater) (*datatypes.PreservationTask, error)
 }
