@@ -29,3 +29,8 @@ a:not(.btn),
 .line-break {
   white-space: break-spaces;
 }
+
+.flex-truncate {
+  @extend .text-truncate;
+  min-width: 0;
+}
