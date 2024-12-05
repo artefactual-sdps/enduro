@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import type { api } from "@/client";
 import PackageReviewAlert from "@/components/PackageReviewAlert.vue";
+import type {
+  EnduroPackagePreservationTask,
+  EnduroPackagePreservationTaskStatusEnum,
+} from "@/openapi-generator";
 import StatusBadge from "@/components/StatusBadge.vue";
 import { useAuthStore } from "@/stores/auth";
 import Collapse from "bootstrap/js/dist/collapse";
@@ -54,6 +58,10 @@ watch(toggleAll, () => {
 
 let expandCounter = ref<number>(0);
 watch(expandCounter, () => show());
+
+function isComplete(task: EnduroPackagePreservationTask) {
+  return task.status == "done" || task.status == "error";
+}
 </script>
 
 <template>
@@ -124,38 +132,44 @@ watch(expandCounter, () => show());
         class="mb-2 card"
       >
         <div class="card-body">
-          <div class="d-flex flex-row gap-3">
-            <div class="fd-flex align-self-start">
+          <div class="d-flex flex-row align-start gap-3">
+            <div class="fd-flex">
               <span
-                class="badge rounded-pill fs-6 border border-primary text-primary"
+                class="fs-6 badge rounded-pill border border-primary text-primary"
               >
                 {{ action.tasks.length - index }}
               </span>
             </div>
             <div class="d-flex flex-column flex-grow-1 align-content-stretch">
-              <div class="d-flex flex-wrap">
-                <div class="flex-grow-1 me-3">
-                  <span class="fs-5 fw-bold">{{ task.name }}</span>
+              <div class="d-flex flex-wrap pt-1">
+                <div class="me-auto flex-truncate fw-bold">
+                  {{ task.name }}
                 </div>
-                <div
-                  v-if="$filters.formatDateTime(task.startedAt)"
-                  class="me-3"
-                >
-                  Started: {{ $filters.formatDateTime(task.startedAt) }}
-                </div>
-                <div
-                  v-if="$filters.formatDateTime(task.completedAt)"
-                  class="me-3"
-                >
-                  Completed: {{ $filters.formatDateTime(task.completedAt) }}
-                </div>
-                <div>
-                  <StatusBadge :status="task.status" />
+                <div class="me-3">
+                  <span
+                    v-if="
+                      !isComplete(task) &&
+                      $filters.formatDateTime(task.startedAt)
+                    "
+                  >
+                    Started: {{ $filters.formatDateTime(task.startedAt) }}
+                  </span>
+                  <span
+                    v-if="
+                      isComplete(task) &&
+                      $filters.formatDateTime(task.completedAt)
+                    "
+                  >
+                    Completed: {{ $filters.formatDateTime(task.completedAt) }}
+                  </span>
                 </div>
               </div>
               <div class="d-flex flex-row gap-4">
                 <div class="flex-grow-1 line-break">{{ task.note }}</div>
               </div>
+            </div>
+            <div class="d-flex pt-1">
+              <StatusBadge :status="task.status" />
             </div>
           </div>
         </div>
