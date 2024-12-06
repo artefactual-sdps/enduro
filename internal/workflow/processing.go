@@ -117,6 +117,10 @@ type TransferInfo struct {
 
 	// Send to failed information.
 	SendToFailed SendToFailed
+
+	// Identifier received in the preprocessing child workflow result,
+	// sent as parameter to all poststorage child workflows.
+	PreprocessingID string
 }
 
 // Send to failed variables used to keep track of the SIP/PIP
@@ -764,7 +768,7 @@ func (w *ProcessingWorkflow) SessionHandler(
 			}
 		}
 
-		if err := w.poststorage(sessCtx, tinfo.SIPID); err != nil {
+		if err := w.poststorage(sessCtx, tinfo); err != nil {
 			return err
 		}
 	} else if !tinfo.req.AutoApproveAIP {
@@ -1045,7 +1049,7 @@ func (w *ProcessingWorkflow) transferAM(ctx temporalsdk_workflow.Context, tinfo 
 		}
 	}
 
-	if err := w.poststorage(ctx, tinfo.SIPID); err != nil {
+	if err := w.poststorage(ctx, tinfo); err != nil {
 		return err
 	}
 
@@ -1091,6 +1095,7 @@ func (w *ProcessingWorkflow) preprocessing(ctx temporalsdk_workflow.Context, tin
 
 	tinfo.TempPath = filepath.Join(w.cfg.Preprocessing.SharedPath, filepath.Clean(ppResult.RelativePath))
 	tinfo.IsDir = true
+	tinfo.PreprocessingID = ppResult.PreprocessingID
 
 	// Save preprocessing preservation task data.
 	if len(ppResult.PreservationTasks) > 0 {
@@ -1126,7 +1131,7 @@ func (w *ProcessingWorkflow) preprocessing(ctx temporalsdk_workflow.Context, tin
 // poststorage executes the configured poststorage child workflows. It uses
 // a disconnected context, abandon as parent close policy and only waits
 // until the workflows are started, ignoring their results.
-func (w *ProcessingWorkflow) poststorage(ctx temporalsdk_workflow.Context, aipUUID string) error {
+func (w *ProcessingWorkflow) poststorage(ctx temporalsdk_workflow.Context, tinfo *TransferInfo) error {
 	var err error
 	disconnectedCtx, _ := temporalsdk_workflow.NewDisconnectedContext(ctx)
 
@@ -1136,7 +1141,7 @@ func (w *ProcessingWorkflow) poststorage(ctx temporalsdk_workflow.Context, aipUU
 			temporalsdk_workflow.ChildWorkflowOptions{
 				Namespace:         cfg.Namespace,
 				TaskQueue:         cfg.TaskQueue,
-				WorkflowID:        fmt.Sprintf("%s-%s", cfg.WorkflowName, aipUUID),
+				WorkflowID:        fmt.Sprintf("%s-%s", cfg.WorkflowName, tinfo.SIPID),
 				ParentClosePolicy: temporalapi_enums.PARENT_CLOSE_POLICY_ABANDON,
 			},
 		)
@@ -1145,7 +1150,10 @@ func (w *ProcessingWorkflow) poststorage(ctx temporalsdk_workflow.Context, aipUU
 			temporalsdk_workflow.ExecuteChildWorkflow(
 				psCtx,
 				cfg.WorkflowName,
-				poststorage.WorkflowParams{AIPUUID: aipUUID},
+				poststorage.WorkflowParams{
+					AIPUUID:         tinfo.SIPID,
+					PreprocessingID: tinfo.PreprocessingID,
+				},
 			).GetChildWorkflowExecution().Get(psCtx, nil),
 		)
 	}

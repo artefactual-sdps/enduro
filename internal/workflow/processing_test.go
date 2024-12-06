@@ -978,6 +978,7 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 	sessionCtx := mock.AnythingOfType("*context.timerCtx")
 	pkgsvc := s.workflow.pkgsvc
 	aipUUID := "56eebd45-5600-4768-a8c2-ec0114555a3d"
+	preprocessingID := "146182ff-9923-4869-bca1-0bbc0f822025"
 
 	downloadDir := strings.Replace(tempPath, "/tmp/", cfg.Preprocessing.SharedPath, 1)
 	prepDest := strings.Replace(extractPath, "/tmp/", cfg.Preprocessing.SharedPath, 1)
@@ -1040,6 +1041,7 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 					CompletedAt: time.Date(2024, 6, 14, 10, 5, 33, 0, time.UTC),
 				},
 			},
+			PreprocessingID: preprocessingID,
 		},
 		nil,
 	)
@@ -1190,7 +1192,8 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 		"poststorage_1",
 		mock.AnythingOfType("*internal.valueCtx"),
 		&poststorage.WorkflowParams{
-			AIPUUID: aipUUID,
+			AIPUUID:         aipUUID,
+			PreprocessingID: preprocessingID,
 		},
 	).Return(nil, nil)
 
@@ -1198,7 +1201,8 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 		"poststorage_2",
 		mock.AnythingOfType("*internal.valueCtx"),
 		&poststorage.WorkflowParams{
-			AIPUUID: aipUUID,
+			AIPUUID:         aipUUID,
+			PreprocessingID: preprocessingID,
 		},
 	).Return(nil, nil)
 

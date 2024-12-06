@@ -7,5 +7,6 @@ type Config struct {
 }
 
 type WorkflowParams struct {
-	AIPUUID string
+	AIPUUID         string
+	PreprocessingID string
 }
