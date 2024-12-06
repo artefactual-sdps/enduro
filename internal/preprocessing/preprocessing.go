@@ -43,6 +43,9 @@ type WorkflowResult struct {
 	// PreservationTasks is a log of the preservation tasks performed by
 	// preprocessing.
 	PreservationTasks []Task
+
+	// Identifier from the preprocessing workflow.
+	PreprocessingID string
 }
 
 // Validate implements config.ConfigurationValidator.
