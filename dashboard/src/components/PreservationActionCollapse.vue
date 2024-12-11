@@ -132,7 +132,7 @@ function isComplete(task: EnduroPackagePreservationTask) {
         class="mb-2 card"
       >
         <div class="card-body">
-          <div class="d-flex flex-row align-start gap-3">
+          <div class="d-flex flex-row align-start gap-2">
             <div class="fd-flex">
               <span
                 class="fs-6 badge rounded-pill border border-primary text-primary"
@@ -140,10 +140,8 @@ function isComplete(task: EnduroPackagePreservationTask) {
                 {{ action.tasks.length - index }}
               </span>
             </div>
-            <div
-              class="d-flex flex-column flex-grow-1 align-content-stretch min-w-0"
-            >
-              <div class="d-flex flex-wrap pt-1">
+            <div class="d-flex flex-column flex-grow-1 min-w-0">
+              <div class="d-flex flex-wrap py-1">
                 <div class="me-auto text-truncate fw-bold">
                   {{ task.name }}
                 </div>
@@ -166,12 +164,23 @@ function isComplete(task: EnduroPackagePreservationTask) {
                   </span>
                 </div>
               </div>
-              <div class="d-flex flex-row gap-4">
-                <div class="flex-grow-1 line-break">{{ task.note }}</div>
+              <div class="mt-auto line-break py-1">
+                {{ task.note }}
               </div>
             </div>
-            <div class="d-flex pt-1">
-              <StatusBadge :status="task.status" />
+            <div class="d-flex flex-column pt-1 gap-2">
+              <div>
+                <StatusBadge :status="task.status" />
+              </div>
+              <div class="mt-auto align-self-end">
+                <button
+                  type="button"
+                  class="btn btn-link text-primary p-0"
+                  aria-label="Expand"
+                >
+                  <IconCircleChevronDown class="fs-4" />
+                </button>
+              </div>
             </div>
           </div>
         </div>
