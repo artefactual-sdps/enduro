@@ -30,7 +30,6 @@ a:not(.btn),
   white-space: break-spaces;
 }
 
-.flex-truncate {
-  @extend .text-truncate;
+.min-w-0 {
   min-width: 0;
 }

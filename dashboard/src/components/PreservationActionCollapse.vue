@@ -140,9 +140,11 @@ function isComplete(task: EnduroPackagePreservationTask) {
                 {{ action.tasks.length - index }}
               </span>
             </div>
-            <div class="d-flex flex-column flex-grow-1 align-content-stretch">
+            <div
+              class="d-flex flex-column flex-grow-1 align-content-stretch min-w-0"
+            >
               <div class="d-flex flex-wrap pt-1">
-                <div class="me-auto flex-truncate fw-bold">
+                <div class="me-auto text-truncate fw-bold">
                   {{ task.name }}
                 </div>
                 <div class="me-3">
