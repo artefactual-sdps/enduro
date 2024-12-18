@@ -18,6 +18,7 @@ export default mergeConfig(
       coverage: {
         exclude: ["src/openapi-generator/**"],
       },
+      globalSetup: "./src/test-globals.ts",
       // Needed by vue-testing-library.
       globals: true,
     },
