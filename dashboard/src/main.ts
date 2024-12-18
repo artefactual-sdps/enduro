@@ -1,15 +1,17 @@
-import App from "./App.vue";
-import { api } from "./client";
-
 import "./styles/main.scss";
 import { PiniaDebounce } from "@pinia/plugin-debounce";
-import humanizeDuration from "humanize-duration";
-import moment from "moment";
 import { createPinia } from "pinia";
 import { debounce } from "ts-debounce";
 import { createApp } from "vue";
 import { PromiseDialog } from "vue3-promise-dialog";
 
+import App from "./App.vue";
+import { api } from "./client";
+import {
+  FormatDateTime,
+  FormatDateTimeString,
+  FormatDuration,
+} from "./composables/dateFormat";
 import router from "./router";
 
 const pinia = createPinia();
@@ -18,14 +20,11 @@ pinia.use(PiniaDebounce(debounce));
 const app = createApp(App);
 app.use(router);
 app.use(pinia);
-app.use({
-  install: (app: any): any => {
-    PromiseDialog.install(app, {});
-  },
-});
+app.use(PromiseDialog);
 app.mount("#app");
 
 interface Filters {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: (...value: any[]) => string;
 }
 
@@ -37,18 +36,13 @@ declare module "@vue/runtime-core" {
 
 app.config.globalProperties.$filters = {
   formatDateTimeString(value: string) {
-    const date = new Date(value);
-    return moment(date).format("YYYY-MM-DD HH:mm:ss");
+    return FormatDateTimeString(value);
   },
   formatDateTime(value: Date | undefined) {
-    if (!value || Number.isNaN(value.getTime())) {
-      return "";
-    }
-    return moment(value).format("YYYY-MM-DD HH:mm:ss");
+    return FormatDateTime(value);
   },
   formatDuration(from: Date, to: Date) {
-    const diff = moment(to).diff(from);
-    return humanizeDuration(moment.duration(diff).asMilliseconds());
+    return FormatDuration(from, to);
   },
   getPreservationActionLabel(
     value: api.EnduroPackagePreservationActionTypeEnum,
