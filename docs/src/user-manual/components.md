@@ -3,6 +3,20 @@
 Enduro Ingest is composed of a number of different components used to provide
 its ingest and preservation functionality.
 
+**Jump to:**
+
+* [Processing storage service](#processing-storage-service)
+* [Messaging queue](#messaging-queue)
+* [Workflow engine](#workflow-engine)
+* [Application code](#application-code)
+* [Application programming interface (API)](#application-programming-interface-api)
+* [Identity & Access Managment (IAM)](#identity--access-management-iam)
+* [User interface](#user-interface)
+* [Preservation engine](#preservation-engine)
+* [Preservation storage service](#preservation-storage-service)
+
+-----
+
 ![enduro components diagram](screenshots/enduro-ingest-components.jpg)
 
 ## Processing storage service
@@ -13,7 +27,8 @@ Examples include:
 
 * Uploading Submission Information Packages (SIPs) for ingest
 * Depositing failed ingest packages after a workflow error
-* Passing Processing Information Packages (PIPs) to the preservation engine
+* Passing Processing Information Packages (PIPs) to the [preservation
+  engine](#preservation-engine)
 * Passing other package types (such as a search metadata bundle) to external
   systems
 
@@ -22,16 +37,16 @@ Information Packages (AIPs) after preservation has completed succesfully.
 
 Currently, Enduro uses [MinIO](https://min.io/) as its processing storage
 service. MinIO is a flexible, high performance object storage platform. Material
-intended for preservation can be uploaded to MinIO either through the user
+intended for preservation can be uploaded to MinIO either through its user
 interface or via command line using the [MinIO
 client](https://min.io/docs/minio/linux/reference/minio-mc.html).
 
 ## Messaging queue
 
 The Messaging queue acts as a watcher for SIPs deposited for ingest into the
-Processing storage service. Thanks to this watcher, any time new content is
-uploaded to a designated bucket in MinIO, an ingest workflow is started in
-Enduro.
+[processing storage service](#processing-storage-service). Thanks to this
+watcher, any time new content is uploaded to a designated bucket in MinIO, an
+ingest workflow is started in Enduro.
 
 Enduro ingest uses [Redis](https://redis.io/) as this messaging queue, to ensure
 reliable communication between the ingest application and the processing storage
@@ -52,7 +67,7 @@ engine.
 
 The application code is where the business logic guiding Enduro's workflows is
 written. It is the glue that helps each component in the Enduro Ingest stack act
-in concert to help operators achieve their preservation goals.
+in concert, to assist operators achieve their preservation goals.
 
 Enduro  uses the Go programming language ([GoLang](https://go.dev/)) for its
 application code.
@@ -60,11 +75,11 @@ application code.
 ## Application Programming Interface (API)
 
 The [API](https://en.wikipedia.org/wiki/API) is how Enduro Ingest communicates
-with its user interface, and how external users and applications can interact
-with Enduro. The Enduro Ingest API defines multiple services which map to
-resources in [REST](https://en.wikipedia.org/wiki/REST) or service declarations
-in [gRPC](https://grpc.io/). Services define their own methods, errors, and so
-on.
+with its [user interface](#user-interface), and how external users and
+applications can interact with Enduro. The Enduro Ingest API defines multiple
+services which map to resources in [REST](https://en.wikipedia.org/wiki/REST) or
+service declarations in [gRPC](https://grpc.io/). Services define their own
+methods, errors, and so on.
 
 Enduro's application code uses the [Goa design language](https://goa.design/) to
 structure its API design. The API itself uses [Swagger](https://swagger.io/) to
@@ -75,10 +90,10 @@ generate its documentation and ensure it conforms to
 
 This component provides authentication as well as role-based access control
 ([RBAC](https://en.wikipedia.org/wiki/Role-based_access_control)) to manage user
-permissions and roles in Enduro. API requests must be authorized by the IAM
-component before their contents are delivered or displayed in the user
-interface, ensuring that sensitive information is only shared with authorized
-users and/or applications.
+permissions and roles in Enduro. [API](#application-programming-interface-api)
+requests must be authorized by the IAM component before their contents are
+delivered or displayed in the [user interface](#user-interface), ensuring that
+sensitive information is only shared with authorized users and/or applications.
 
 [Keycloak](https://www.keycloak.org/) is currently used for Enduro's IAM
 component. Keycloak is based on standard protocols and provides support for
@@ -86,12 +101,12 @@ OpenID Connect, OAuth 2.0, and SAML.
 
 ## User interface
 
-Enduro's web-based user interface is the graphical method that operators can
-interact with Enduro, to see and manage ingest and preservation workflows, view
+Enduro's web-based user interface is the graphical method by which operators can
+interact with Enduro to see and manage ingest and preservation workflows, view
 information about packages, and more. Key information from other components and
-applications (such as tasks executed by the preservation engine in a workflow)
-is also collected via API and shown in the Enduro Ingest user interface when
-relevant.
+applications (such as tasks executed by the [preservation
+engine](#preservation-engine) in a workflow) is also collected via API and shown
+in the Enduro Ingest user interface when relevant.
 
 Enduro's user interface is built using [Vue.js](https://vuejs.org/) and
 [Bootstrap](https://getbootstrap.com/)
@@ -101,9 +116,10 @@ Enduro's user interface is built using [Vue.js](https://vuejs.org/) and
 This component manages the transformation of Processing Information Packages
 (PIPs) into Archival Information Packages (AIPs) in a preservation workflow
 during processing. The preservation engine is equipped with a number of tools
-and microservices to perform preservation tasks such as characterization,
-metadata capture, and normalization, and communicates the outcome of these
-actions back to Enduro for display in the user interface.
+and microservices to perform preservation tasks (such as characterization,
+metadata capture, and normalization, etc.), and communicates the outcome of
+these actions back to Enduro for display in the
+[user interface](#user-interface).
 
 Enduro Ingest currently supports two different preservation engines:
 
@@ -129,16 +145,18 @@ Enduro Ingest currently supports two different preservation engines:
 
 ## Preservation storage service
 
-This component acts as an interface between the preservation engine and whatever
-storage has been configured for the long-term preservation of AIPs produced by
-Enduro workflows. The storage service manages the storage, movement,
-replication, and deletion of packages, and other related functions such as
-location management, encryption, fixity checking, and more.
+This component acts as an interface between the
+[preservation engine](#preservation-engine) and whatever storage has been
+configured for the long-term preservation of AIPs produced by Enduro workflows.
+The storage service manages the storage, movement, replication, and deletion of
+packages, and other related functions such as location management, encryption,
+fixity checking, and more.
 
 Currently Enduro uses the [Archivematica](https://archivematica.org) Storage
-Service (AMSS) when using Archivematica as the system's preservation engine.
-When using a3m, Enduro uses its own lightweight storage functionality to cover
-basic storage servicre requirements.
+Service ([AMSS](https://github.com/artefactual/archivematica-storage-service))
+when using Archivematica as the system's preservation engine. When using a3m,
+Enduro uses its own lightweight storage functionality to cover basic storage
+servicre requirements.
 
 -----
 
