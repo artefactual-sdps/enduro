@@ -1,16 +1,17 @@
 <script setup lang="ts">
 import type { api } from "@/client";
 import PackageReviewAlert from "@/components/PackageReviewAlert.vue";
-import type {
-  EnduroPackagePreservationTask,
-  EnduroPackagePreservationTaskStatusEnum,
-} from "@/openapi-generator";
+import type { EnduroPackagePreservationTask } from "@/openapi-generator";
 import StatusBadge from "@/components/StatusBadge.vue";
 import { useAuthStore } from "@/stores/auth";
 import Collapse from "bootstrap/js/dist/collapse";
 import { onMounted, watch, ref, toRefs } from "vue";
 import IconCircleChevronDown from "~icons/akar-icons/circle-chevron-down";
 import IconCircleChevronUp from "~icons/akar-icons/circle-chevron-up";
+
+type Card = EnduroPackagePreservationTask & { open: boolean; more: string };
+
+const cards = ref<Card[]>([]);
 
 const authStore = useAuthStore();
 
@@ -33,6 +34,20 @@ let col: Collapse | null = null;
 onMounted(() => {
   if (!el.value) return;
   col = new Collapse(el.value, { toggle: false });
+
+  if (props.action.tasks) {
+    for (const task of props.action.tasks.reverse()) {
+      let card = <Card>task;
+
+      if (card.note && card.note.includes("\n")) {
+        const lines = card.note.split("\n");
+        card.note = lines[0];
+        card.more = lines.slice(1).join("\n");
+      }
+
+      cards.value.push(card);
+    }
+  }
 });
 
 const toggle = () => {
@@ -59,9 +74,13 @@ watch(toggleAll, () => {
 let expandCounter = ref<number>(0);
 watch(expandCounter, () => show());
 
-function isComplete(task: EnduroPackagePreservationTask) {
+const isComplete = (task: EnduroPackagePreservationTask) => {
   return task.status == "done" || task.status == "error";
-}
+};
+
+const toggleCard = (card: Card) => {
+  card.open = !card.open;
+};
 </script>
 
 <template>
@@ -126,18 +145,14 @@ function isComplete(task: EnduroPackagePreservationTask) {
       class="collapse mb-3"
       v-if="action.tasks"
     >
-      <div
-        v-for="(task, index) in action.tasks.slice().reverse()"
-        :key="action.id"
-        class="mb-2 card"
-      >
+      <div v-for="(item, index) in cards" :key="action.id" class="mb-2 card">
         <div class="card-body">
           <div class="d-flex flex-row align-start gap-3">
             <div class="fd-flex">
               <span
                 class="fs-6 badge rounded-pill border border-primary text-primary"
               >
-                {{ action.tasks.length - index }}
+                {{ cards.length - index }}
               </span>
             </div>
             <div
@@ -145,33 +160,42 @@ function isComplete(task: EnduroPackagePreservationTask) {
             >
               <div class="d-flex flex-wrap pt-1">
                 <div class="me-auto text-truncate fw-bold">
-                  {{ task.name }}
+                  {{ item.name }}
                 </div>
                 <div class="me-3">
                   <span
                     v-if="
-                      !isComplete(task) &&
-                      $filters.formatDateTime(task.startedAt)
+                      !isComplete(item) &&
+                      $filters.formatDateTime(item.startedAt)
                     "
                   >
-                    Started: {{ $filters.formatDateTime(task.startedAt) }}
+                    Started: {{ $filters.formatDateTime(item.startedAt) }}
                   </span>
                   <span
                     v-if="
-                      isComplete(task) &&
-                      $filters.formatDateTime(task.completedAt)
+                      isComplete(item) &&
+                      $filters.formatDateTime(item.completedAt)
                     "
                   >
-                    Completed: {{ $filters.formatDateTime(task.completedAt) }}
+                    Completed:
+                    {{ $filters.formatDateTime(item.completedAt) }}
                   </span>
                 </div>
               </div>
               <div class="d-flex flex-row gap-4">
-                <div class="flex-grow-1 line-break">{{ task.note }}</div>
+                <div class="flex-grow-1 line-break">{{ item.note }}</div>
               </div>
+              <div v-if="item.open" class="line-break">{{ item.more }}</div>
             </div>
-            <div class="d-flex pt-1">
-              <StatusBadge :status="task.status" />
+            <div class="d-flex flex-column pt-1">
+              <div>
+                <StatusBadge :status="item.status" />
+              </div>
+              <div>
+                <button v-if="item.more" @click="toggleCard(item)">
+                  toggle
+                </button>
+              </div>
             </div>
           </div>
         </div>

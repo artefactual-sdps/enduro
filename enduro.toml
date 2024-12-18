@@ -222,7 +222,7 @@ samplingRatio = 1.0
 [preprocessing]
 # enabled triggers the execution of the child workflow, when set to false all other
 # options are ignored.
-enabled = false
+enabled = true
 # extract determines if the package extraction happens on the child workflow.
 extract = false
 # sharedPath is the full path to the directory used to share the package between workflows,
