@@ -5,3 +5,4 @@ uses a3m to preserve digital objects.
 
 - [Components](components.md)
 - [Usage](usage.md)
+- [Glossary](glossary.md)
