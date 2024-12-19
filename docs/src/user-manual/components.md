@@ -3,20 +3,6 @@
 Enduro Ingest is composed of a number of different components used to provide
 its ingest and preservation functionality.
 
-**Jump to:**
-
-* [Processing storage service](#processing-storage-service)
-* [Messaging queue](#messaging-queue)
-* [Workflow engine](#workflow-engine)
-* [Application code](#application-code)
-* [Application programming interface (API)](#application-programming-interface-api)
-* [Identity & Access Managment (IAM)](#identity--access-management-iam)
-* [User interface](#user-interface)
-* [Preservation engine](#preservation-engine)
-* [Preservation storage service](#preservation-storage-service)
-
------
-
 ![enduro components diagram](screenshots/enduro-ingest-components.jpg)
 
 ## Processing storage service
@@ -27,8 +13,6 @@ Examples include:
 
 * Uploading Submission Information Packages (SIPs) for ingest
 * Depositing failed ingest packages after a workflow error
-* Passing Processing Information Packages (PIPs) to the [preservation
-  engine](#preservation-engine)
 * Passing other package types (such as a search metadata bundle) to external
   systems
 
@@ -77,14 +61,13 @@ application code.
 The [API](https://en.wikipedia.org/wiki/API) is how Enduro Ingest communicates
 with its [user interface](#user-interface), and how external users and
 applications can interact with Enduro. The Enduro Ingest API defines multiple
-services which map to resources in [REST](https://en.wikipedia.org/wiki/REST) or
-service declarations in [gRPC](https://grpc.io/). Services define their own
-methods, errors, and so on.
+services which map to resources in [REST](https://en.wikipedia.org/wiki/REST).
+Services define their own methods, errors, and so on.
 
 Enduro's application code uses the [Goa design language](https://goa.design/) to
 structure its API design. The API itself uses [Swagger](https://swagger.io/) to
 generate its documentation and ensure it conforms to
-[OpenAPI](https://www.openapis.org/) design specifications
+[OpenAPI](https://www.openapis.org/) design specifications.
 
 ## Identity & access management (IAM)
 
@@ -109,16 +92,15 @@ engine](#preservation-engine) in a workflow) is also collected via API and shown
 in the Enduro Ingest user interface when relevant.
 
 Enduro's user interface is built using [Vue.js](https://vuejs.org/) and
-[Bootstrap](https://getbootstrap.com/)
+[Bootstrap](https://getbootstrap.com/).
 
 ## Preservation engine
 
 This component manages the transformation of Processing Information Packages
-(PIPs) into Archival Information Packages (AIPs) in a preservation workflow
-during processing. The preservation engine is equipped with a number of tools
-and microservices to perform preservation tasks (such as characterization,
-metadata capture, and normalization, etc.), and communicates the outcome of
-these actions back to Enduro for display in the
+(PIPs) into Archival Information Packages (AIPs). The preservation engine is
+equipped with a number of tools and microservices to perform preservation tasks
+(such as characterization, metadata capture, and normalization, etc.), and
+communicates the outcome of these actions back to Enduro for display in the
 [user interface](#user-interface).
 
 Enduro Ingest currently supports two different preservation engines:
@@ -145,21 +127,15 @@ Enduro Ingest currently supports two different preservation engines:
 
 ## Preservation storage service
 
-This component acts as an interface between the
-[preservation engine](#preservation-engine) and whatever storage has been
-configured for the long-term preservation of AIPs produced by Enduro workflows.
-The storage service manages the storage, movement, replication, and deletion of
-packages, and other related functions such as location management, encryption,
-fixity checking, and more.
+This component acts as an interface between the [preservation
+engine](#preservation-engine) and whatever storage devices have been configured
+for the long-term preservation of AIPs produced by Enduro workflows. The storage
+service manages the storage, movement, replication, and deletion of packages,
+and other related functions such as location management, encryption, fixity
+checking, and more.
 
 Currently Enduro uses the [Archivematica](https://archivematica.org) Storage
 Service ([AMSS](https://github.com/artefactual/archivematica-storage-service))
 when using Archivematica as the system's preservation engine. When using a3m,
 Enduro uses its own lightweight storage functionality to cover basic storage
 servicre requirements.
-
------
-
-* [Back to top](#components)
-* [User manual home](/src/user-manual/README.md)
-* [Documentation home](/src/index.md)
