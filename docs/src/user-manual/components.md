@@ -138,4 +138,4 @@ Currently Enduro uses the [Archivematica](https://archivematica.org) Storage
 Service ([AMSS](https://github.com/artefactual/archivematica-storage-service))
 when using Archivematica as the system's preservation engine. When using a3m,
 Enduro uses its own lightweight storage functionality to cover basic storage
-servicre requirements.
+service requirements.
