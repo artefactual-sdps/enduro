@@ -1,3 +1,44 @@
+apiVersion: v1
+data:
+  admin_policy.json: |
+    {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Principal": {"AWS": ["*"]},
+          "Effect": "Allow",
+          "Action": ["s3:*"],
+          "Resource": [
+            "arn:aws:s3:::aips/*",
+            "arn:aws:s3:::failed-sips/*",
+            "arn:aws:s3:::failed-transfers/*",
+            "arn:aws:s3:::perma-aips-1/*",
+            "arn:aws:s3:::perma-aips-2/*"
+          ]
+        },
+        {
+          "Principal": {"AWS": ["*"]},
+          "Effect": "Allow",
+          "Action": ["s3:ListBucket"],
+          "Resource": ["arn:aws:s3:::sips"]
+        },
+        {
+          "Principal": {"AWS": ["*"]},
+          "Effect": "Allow",
+          "Action": [
+            "s3:GetObject",
+            "s3:PutObject",
+            "s3:ListBucket",
+            "s3:GetBucketLocation"
+          ],
+          "Resource": ["arn:aws:s3:::sips/*.zip"]
+        }
+      ]
+    }
+kind: ConfigMap
+metadata:
+  name: admin-policy-configmap
+---
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -23,6 +64,9 @@ spec:
                 secretKeyRef:
                   name: minio-secret
                   key: password
+          volumeMounts:
+            - name: admin-policy-config-volume
+              mountPath: /etc/config
           command: [
               "sh",
               "-c",
@@ -33,5 +77,12 @@ spec:
               mc mb enduro/aips --ignore-existing;
               mc mb enduro/perma-aips-1 --ignore-existing;
               mc mb enduro/perma-aips-2 --ignore-existing;
-              mc event add enduro/sips arn:minio:sqs::PRIMARY:redis --event put --ignore-existing",
+              mc event add enduro/sips arn:minio:sqs::PRIMARY:redis --event put --ignore-existing;
+              mc admin user add enduro admin admin123;
+              mc admin policy create enduro admin /etc/config/admin_policy.json;
+              mc admin policy attach enduro admin --user admin",
             ]
+      volumes:
+        - name: admin-policy-config-volume
+          configMap:
+            name: admin-policy-configmap
