@@ -5,6 +5,7 @@ data:
       "Version": "2012-10-17",
       "Statement": [
         {
+          "Principal": "*",
           "Effect": "Allow",
           "Action": ["s3:*"],
           "Resource": ["arn:aws:s3:::sips/*.zip"]
@@ -54,7 +55,7 @@ spec:
               mc mb enduro/perma-aips-1 --ignore-existing;
               mc mb enduro/perma-aips-2 --ignore-existing;
               mc event add enduro/sips arn:minio:sqs::PRIMARY:redis --event put --ignore-existing;
-              mc admin policy create enduro readwritesips /etc/config/readwrite_sip_zips.json",
+              mc anonymous set-json /etc/config/readwrite_sip_zips.json enduro/sips",
             ]
       volumes:
         - name: zips-policy-config-volume
