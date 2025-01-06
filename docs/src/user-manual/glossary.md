@@ -86,11 +86,11 @@ of derivatives used in Enduro are:
   rendered in the future.
 * **Access derivative**: a derived version of a preservation object using file
   formats deemed more suitable for dissemination and access across space and
-time (particularly over networked environments), based on factors such as: open
-format specifications, smaller file sizes, widespread adoption and support
-(particularly in web browsers), high compression rates, etc. Access derivatives
-are typically used in the creation of **Dissemination Information Packages
-(DIPs)**.
+  time (particularly over networked environments), based on factors such as:
+  open format specifications, smaller file sizes, widespread adoption and
+  support (particularly in web browsers), high compression rates, etc. Access
+  derivatives are typically used in the creation of **Dissemination Information
+  Packages (DIPs)**.
 
 ## Directory
 
@@ -121,7 +121,7 @@ An **object** consisting of information or data fixed to some media.
 
 A preservation-relevant action that involves at least one **object** and/or
 **agent**. Events are typically captured in the preservation **metadata** of a
-**package** during a preservation work**flow using the
+**package** during a preservation **workflow** using the
 [PREMIS](https://www.loc.gov/standards/premis/) metadata specification, so that
 an archival chain of custody is preserved across all **tasks** that might occur
 in a workflow.
