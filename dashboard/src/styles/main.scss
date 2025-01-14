@@ -33,3 +33,19 @@ a:not(.btn),
 .min-w-0 {
   min-width: 0;
 }
+
+.accordion-button {
+  background-color: $light;
+  border: solid 1px $gray-500;
+}
+
+.accordion-button:hover,
+.accordion-button:focus {
+  background-color: $primary-bg-subtle;
+  border-color: $primary;
+  border-width: 2px;
+}
+
+.accordion-button.collapsed .h4 {
+  color: $dark;
+}
