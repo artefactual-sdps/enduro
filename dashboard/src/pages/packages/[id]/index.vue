@@ -7,7 +7,9 @@ import StatusBadge from "@/components/StatusBadge.vue";
 import UUID from "@/components/UUID.vue";
 import { useAuthStore } from "@/stores/auth";
 import { usePackageStore } from "@/stores/package";
-import { computed, ref } from "vue";
+import { computed } from "vue";
+import IconBoxArrowUpRight from "~icons/bi/box-arrow-up-right";
+import IconHelpSolid from "~icons/clarity/help-solid?height=0.8em&width=0.8em";
 
 const authStore = useAuthStore();
 const packageStore = usePackageStore();
@@ -68,7 +70,45 @@ const createAipWorkflow = computed(
 
     <div v-if="authStore.checkAttributes(['package:listActions'])">
       <div class="d-flex">
-        <h2 class="mb-0">Preservation actions</h2>
+        <h2 class="mb-0">
+          Preservation actions
+          <a
+            id="presActionHelpToggle"
+            data-bs-toggle="collapse"
+            href="#preservationActionHelp"
+            role="button"
+            aria-expanded="false"
+            aria-controls="preservationActionHelp"
+            aria-label="Show preservation action help"
+            ><IconHelpSolid alt="help"
+          /></a>
+        </h2>
+      </div>
+      <div
+        class="collapse"
+        id="preservationActionHelp"
+        aria-labelledby="presActionHelpToggle"
+      >
+        <div class="card card-body flex flex-column bg-light">
+          <div>
+            <p>
+              A preservation action is a <strong>workflow</strong> composed of
+              one or more <strong>tasks</strong> performed on a package to
+              support preservation.
+            </p>
+            <p>
+              Click on a preservation action listed below to expand it and see
+              more information on individual tasks run as part of the workflow.
+            </p>
+          </div>
+          <div class="align-self-end">
+            <a
+              href="https://github.com/artefactual-sdps/enduro/blob/main/docs/src/user-manual/usage.md#view-tasks-in-enduro"
+              target="_new"
+              >Learn more <IconBoxArrowUpRight alt="" aria-hidden="true"
+            /></a>
+          </div>
+        </div>
       </div>
 
       <hr />
