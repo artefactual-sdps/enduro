@@ -8,6 +8,12 @@ requests.
 
 ## [Unreleased]
 
+## [0.7.0] - 2025-01-17
+
+### Changed
+
+- Preservation actions hover/focus effect and expandable behavior ([#986])
+
 ## [0.6.0] - 2025-01-09
 
 ### Changed
@@ -61,7 +67,8 @@ requests.
 
 Initial release.
 
-[unreleased]: https://github.com/artefactual-sdps/enduro/compare/v0.6.0...HEAD
+[unreleased]: https://github.com/artefactual-sdps/enduro/compare/v0.7.0...HEAD
+[0.7.0]: https://github.com/artefactual-sdps/enduro/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/artefactual-sdps/enduro/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/artefactual-sdps/enduro/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/artefactual-sdps/enduro/compare/v0.3.0...v0.4.0
@@ -77,6 +84,7 @@ Initial release.
 [#1035]: https://github.com/artefactual-sdps/enduro/issues/1035
 [#989]: https://github.com/artefactual-sdps/enduro/issues/989
 [#988]: https://github.com/artefactual-sdps/enduro/issues/988
+[#986]: https://github.com/artefactual-sdps/enduro/issues/986
 [#951]: https://github.com/artefactual-sdps/enduro/issues/951
 [#950]: https://github.com/artefactual-sdps/enduro/issues/950
 [#929]: https://github.com/artefactual-sdps/enduro/issues/929
