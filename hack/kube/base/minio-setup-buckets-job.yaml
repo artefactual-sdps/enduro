@@ -33,5 +33,37 @@ spec:
               mc mb enduro/perma-aips-2 --ignore-existing;
               mc mb enduro/failed-sips --ignore-existing;
               mc mb enduro/failed-pips --ignore-existing;
-              mc event add enduro/sips arn:minio:sqs::PRIMARY:redis --event put --ignore-existing",
+              mc event add enduro/sips arn:minio:sqs::PRIMARY:redis --event put --ignore-existing;
+              mc admin policy rm enduro BAR-transfer.ROLE_ADMIN_USER;
+              mc admin policy create enduro BAR-transfer.ROLE_ADMIN_USER /root/.mc/policies/sips-zip-only.json;",
             ]
+          volumeMounts:
+            - name: config
+              mountPath: /root/.mc/policies
+              readOnly: true
+      volumes:
+        - name: config
+          configMap:
+            name: minio-configmap
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: minio-configmap
+data:
+  sips-zip-only.json: |
+    {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Effect": "Allow",
+          "Action": "s3:PutObject",
+          "Resource": "arn:aws:s3:::sips/*.zip"
+        },
+        {
+          "Effect": "Deny",
+          "Action": "s3:PutObject",
+          "Resource": "arn:aws:s3:::*/*/*"
+        }
+      ]
+    }

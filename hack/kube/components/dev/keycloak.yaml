@@ -95,7 +95,7 @@ data:
             "enduro": [
               "*"
             ],
-            "minio": [
+            "role": [
               "consoleAdmin"
             ]
           }
@@ -128,7 +128,7 @@ data:
               "storage:package:read",
               "storage:package:submit"
             ],
-            "minio": [
+            "role": [
               "consoleAdmin"
             ]
           }
@@ -155,6 +155,28 @@ data:
               "storage:location:listPackages",
               "storage:location:read",
               "storage:package:read"
+            ]
+          }
+        },
+        {
+          "username": "bar_admin",
+          "email": "bar_admin@example.com",
+          "enabled": true,
+          "emailVerified": true,
+          "firstName": "-",
+          "lastName": "-",
+          "credentials": [
+            {
+              "type": "password",
+              "value": "bar_admin"
+            }
+          ],
+          "attributes": {
+            "enduro": [
+              "*"
+            ],
+            "role": [
+              "BAR-transfer.ROLE_ADMIN_USER"
             ]
           }
         }
@@ -313,8 +335,8 @@ data:
         },
         {
           "id": "5a80ac85-4aa1-4c17-8db9-a4ff0c6d505c",
-          "name": "minio",
-          "description": "Custom scope for MinIO policies",
+          "name": "role",
+          "description": "Custom scope for SFA roles",
           "protocol": "openid-connect",
           "attributes": {
             "include.in.token.scope": "true"
@@ -322,15 +344,15 @@ data:
           "protocolMappers": [
             {
               "id": "d7424a01-3209-40d3-b8a9-cb1058ae8547",
-              "name": "minio-scope-mapper",
+              "name": "role-scope-mapper",
               "protocol": "openid-connect",
               "protocolMapper": "oidc-usermodel-attribute-mapper",
               "config": {
                 "multivalued": "true",
-                "user.attribute": "minio",
+                "user.attribute": "role",
                 "id.token.claim": "true",
                 "access.token.claim": "true",
-                "claim.name": "minio",
+                "claim.name": "role",
                 "jsonType.label": "String"
               }
             }
@@ -343,6 +365,6 @@ data:
       ],
       "defaultOptionalClientScopes": [
         "enduro",
-        "minio"
+        "role"
       ]
     }
