@@ -173,7 +173,7 @@ func filterPackages(q *db.PkgQuery, f *persistence.PackageFilter) (page, whole *
 	qf := NewFilter(q, SortableFields{
 		pkg.FieldID: {Name: "ID", Default: true},
 	})
-	qf.Equals(pkg.FieldName, f.Name)
+	qf.Contains(pkg.FieldName, f.Name)
 	qf.Equals(pkg.FieldAipID, f.AIPID)
 	qf.Equals(pkg.FieldLocationID, f.LocationID)
 	qf.Equals(pkg.FieldStatus, f.Status)

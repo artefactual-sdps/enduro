@@ -201,6 +201,17 @@ func validPtrValue(ptr any) bool {
 	}
 }
 
+// Contains adds a filter on column containing the given string.
+func (f *Filter[Q, O, P]) Contains(column string, value *string) {
+	if value == nil || *value == "" {
+		return
+	}
+
+	f.addFilter(column, func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(column), *value))
+	})
+}
+
 // Equals adds a filter on column being equal to value. If value implements the
 // validator interface, value is validated before the filter is added.
 func (f *Filter[Q, O, P]) Equals(column string, value any) {

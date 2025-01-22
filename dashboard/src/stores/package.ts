@@ -50,6 +50,7 @@ export const usePackageStore = defineStore("package", {
 
     filters: {
       status: "" as PackageListStatusEnum,
+      name: "",
     },
   }),
   getters: {
@@ -139,8 +140,6 @@ export const usePackageStore = defineStore("package", {
       handlers[event.type](value);
     },
     async fetchCurrent(id: string) {
-      this.$reset();
-
       const packageId = +id;
       if (Number.isNaN(packageId)) {
         throw Error("Unexpected parameter");
@@ -171,7 +170,8 @@ export const usePackageStore = defineStore("package", {
       const resp = await client.package.packageList({
         offset: page > 1 ? (page - 1) * this.page.limit : undefined,
         limit: this.page?.limit || undefined,
-        status: this.filters.status ? this.filters.status : undefined,
+        status: this.filters.status ?? undefined,
+        name: this.filters.name ?? undefined,
       });
       this.packages = resp.items;
       this.page = resp.page;

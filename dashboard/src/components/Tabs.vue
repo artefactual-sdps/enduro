@@ -2,7 +2,6 @@
 import type { FunctionalComponent, SVGAttributes } from "vue";
 import type { RouteLocationResolved } from "vue-router/auto";
 import { useRoute } from "vue-router/auto";
-import { isEqual } from "lodash-es";
 
 const route = useRoute();
 
@@ -13,12 +12,15 @@ type Tab = {
   show: boolean;
 };
 
-const { tabs } = defineProps<{
+const { tabs, param } = defineProps<{
   tabs: Tab[];
+  param: string;
 }>();
 
 function isActive(tab: Tab): boolean {
-  return tab.route.path == route.path && isEqual(tab.route.query, route.query);
+  return (
+    tab.route.path == route.path && tab.route.query[param] == route.query[param]
+  );
 }
 </script>
 

@@ -540,10 +540,10 @@ func TestListPackages(t *testing.T) {
 			},
 		},
 		{
-			name: "Returns packages filtered by name",
+			name: "Returns packages whose names contain a string",
 			data: []*datatypes.Package{
 				{
-					Name:        "Test package 1",
+					Name:        "Test package",
 					WorkflowID:  "workflow-1",
 					RunID:       runID.String(),
 					AIPID:       aipID,
@@ -553,7 +553,7 @@ func TestListPackages(t *testing.T) {
 					CompletedAt: completed,
 				},
 				{
-					Name:        "Test package 2",
+					Name:        "small.zip",
 					WorkflowID:  "workflow-1",
 					RunID:       runID2.String(),
 					AIPID:       aipID2,
@@ -564,13 +564,13 @@ func TestListPackages(t *testing.T) {
 				},
 			},
 			packageFilter: &persistence.PackageFilter{
-				Name: ref.New("Test package 2"),
+				Name: ref.New("small"),
 			},
 			want: results{
 				data: []*datatypes.Package{
 					{
 						ID:          2,
-						Name:        "Test package 2",
+						Name:        "small.zip",
 						WorkflowID:  "workflow-1",
 						RunID:       runID2.String(),
 						AIPID:       aipID2,
