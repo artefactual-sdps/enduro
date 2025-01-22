@@ -51,7 +51,7 @@ const tabs = [
       }}
     </h1>
 
-    <Tabs :tabs="tabs" />
+    <Tabs :tabs="tabs" param="id" />
 
     <router-view></router-view>
   </div>

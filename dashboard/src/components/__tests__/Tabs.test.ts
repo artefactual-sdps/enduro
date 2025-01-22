@@ -33,6 +33,7 @@ describe("Tabs.vue", () => {
             show: false,
           },
         ],
+        param: "",
       },
       global: {
         plugins: [router],

@@ -12,12 +12,14 @@ import { useAsyncState } from "@vueuse/core";
 import { useAuthStore } from "@/stores/auth";
 import { useLayoutStore } from "@/stores/layout";
 import { usePackageStore } from "@/stores/package";
-import { useRoute, useRouter } from "vue-router/auto";
-import { ref, watch } from "vue";
+import { useRoute, useRouter, type LocationQueryValue } from "vue-router/auto";
+import { computed, ref, watch } from "vue";
 
 // General icons.
 import IconInfoFill from "~icons/akar-icons/info-fill";
 import IconBundleLine from "~icons/clarity/bundle-line";
+import IconSearch from "~icons/clarity/search-line";
+import IconCloseLine from "~icons/clarity/close-line";
 
 // Pager icons.
 import IconSkipEndFill from "~icons/bi/skip-end-fill";
@@ -36,7 +38,7 @@ const authStore = useAuthStore();
 const layoutStore = useLayoutStore();
 const packageStore = usePackageStore();
 
-const route = useRoute("/packages/");
+const route = useRoute();
 const router = useRouter();
 
 layoutStore.updateBreadcrumb([{ text: "Packages" }]);
@@ -50,17 +52,24 @@ const toggleLegend = () => {
   if (tooltip) tooltip.hide();
 };
 
+const doSearch = () => {
+  router.push({
+    name: "/packages/",
+    query: { ...route.query, name: packageStore.filters.name },
+  });
+};
+
 onMounted(() => {
   if (el.value) tooltip = new Tooltip(el.value);
-  packageStore.filters.status = <PackageListStatusEnum>route.query.status;
 });
 
-const tabs = [
+const tabs = computed(() => [
   {
     icon: RawIconBlocksGroupLine,
     text: "All",
     route: router.resolve({
       name: "/packages/",
+      query: { ...route.query, status: undefined },
     }),
     show: true,
   },
@@ -69,7 +78,7 @@ const tabs = [
     text: "Done",
     route: router.resolve({
       name: "/packages/",
-      query: { status: "done" },
+      query: { ...route.query, status: "done" },
     }),
     show: true,
   },
@@ -78,7 +87,7 @@ const tabs = [
     text: "Error",
     route: router.resolve({
       name: "/packages/",
-      query: { status: "error" },
+      query: { ...route.query, status: "error" },
     }),
     show: true,
   },
@@ -87,7 +96,7 @@ const tabs = [
     text: "In progress",
     route: router.resolve({
       name: "/packages/",
-      query: { status: "in progress" },
+      query: { ...route.query, status: "in progress" },
     }),
     show: true,
   },
@@ -96,13 +105,19 @@ const tabs = [
     text: "Queued",
     route: router.resolve({
       name: "/packages/",
-      query: { status: "queued" },
+      query: { ...route.query, status: "queued" },
     }),
     show: true,
   },
-];
+]);
 
 const { execute, error } = useAsyncState(() => {
+  if (route.query.name) {
+    packageStore.filters.name = <string>route.query.name;
+  }
+  if (route.query.status) {
+    packageStore.filters.status = <PackageListStatusEnum>route.query.status;
+  }
   return packageStore.fetchPackages(1);
 }, null);
 
@@ -110,6 +125,14 @@ watch(
   () => route.query.status,
   (newStatus) => {
     packageStore.filters.status = newStatus as PackageListStatusEnum;
+    return packageStore.fetchPackages(1);
+  },
+);
+
+watch(
+  () => route.query.name,
+  (newSearch) => {
+    packageStore.filters.name = newSearch as string;
     return packageStore.fetchPackages(1);
   },
 );
@@ -128,9 +151,37 @@ watch(
     </div>
 
     <PageLoadingAlert :execute="execute" :error="error" />
+
+    <form id="packageSearch" @submit.prevent="doSearch">
+      <div class="input-group w-50 mb-3">
+        <input
+          type="text"
+          v-model.trim="packageStore.filters.name"
+          class="form-control"
+          name="name"
+          placeholder="Search"
+          aria-label="Package name"
+        />
+        <button
+          class="btn btn-secondary"
+          @click="
+            packageStore.filters.name = '';
+            doSearch();
+          "
+          type="reset"
+          aria-label="Reset search"
+        >
+          <IconCloseLine />
+        </button>
+        <button class="btn btn-primary" type="submit" aria-label="Do search">
+          <IconSearch />
+        </button>
+      </div>
+    </form>
+
+    <Tabs :tabs="tabs" param="status" />
     <PackageListLegend v-model="showLegend" />
 
-    <Tabs :tabs="tabs" />
     <div class="table-responsive mb-3">
       <table class="table table-bordered mb-0">
         <thead>
