@@ -23,6 +23,7 @@ func TestStartTransferActivity(t *testing.T) {
 	transferID := uuid.New().String()
 	opts := am.StartTransferActivityParams{
 		Name:         "Testing",
+		ZipPIP:       true,
 		RelativePath: "/tmp",
 	}
 
@@ -31,8 +32,8 @@ func TestStartTransferActivity(t *testing.T) {
 			mockutil.Context(),
 			&amclient.PackageCreateRequest{
 				Name:             opts.Name,
-				Type:             "zipped bag",
 				Path:             opts.RelativePath,
+				Type:             "zipped bag",
 				ProcessingConfig: "automated",
 				AutoApprove:      true,
 			},
@@ -58,8 +59,8 @@ func TestStartTransferActivity(t *testing.T) {
 					mockutil.Context(),
 					&amclient.PackageCreateRequest{
 						Name:             opts.Name,
-						Type:             "zipped bag",
 						Path:             opts.RelativePath,
+						Type:             "zipped bag",
 						ProcessingConfig: "automated",
 						AutoApprove:      true,
 					},

@@ -179,6 +179,10 @@ transferDeadline = "1h"
 # used.
 transferSourcePath = ""
 
+# zipPIP specifies whether or not a PIP should be zipped before being sent from
+# Enduro to Archivematica.
+zipPIP = true
+
 [am.sftp]
 host = "" # The Archivematica Storage Service hostname.
 port = ""

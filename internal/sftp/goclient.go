@@ -7,6 +7,7 @@ import (
 	"io"
 	"io/fs"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strconv"
 
@@ -55,9 +56,9 @@ func (c *GoClient) Delete(ctx context.Context, dest string) error {
 	return nil
 }
 
-// Upload asynchronously copies the src data to dest over an SFTP connection.
+// UploadFile asynchronously copies the src data to dest over an SFTP connection.
 //
-// When Upload is called it starts the upload in an asynchronous goroutine, then
+// When UploadFile is called it starts the upload in an asynchronous goroutine, then
 // immediately returns the full remote path, and an AsyncUpload struct that
 // provides access to the upload status and progress.
 //
@@ -66,7 +67,7 @@ func (c *GoClient) Delete(ctx context.Context, dest string) error {
 // `AsyncUpload.Error()` channel and the upload is terminated. If a ctx
 // cancellation signal is received, the `ctx.Err()` error will be sent to the
 // `AsyncUpload.Error()` channel, and the upload is terminated.
-func (c *GoClient) Upload(ctx context.Context, src io.Reader, dest string) (string, AsyncUpload, error) {
+func (c *GoClient) UploadFile(ctx context.Context, src io.Reader, dest string) (string, AsyncUpload, error) {
 	remotePath := sftp.Join(c.cfg.RemoteDir, dest)
 
 	conn, err := c.dial(ctx)
@@ -76,9 +77,84 @@ func (c *GoClient) Upload(ctx context.Context, src io.Reader, dest string) (stri
 
 	// Asynchronously upload file.
 	upload := NewAsyncUpload(conn)
-	go remoteCopy(ctx, &upload, src, remotePath)
+	go uploadFile(ctx, src, remotePath, &upload)
 
 	return remotePath, &upload, nil
+}
+
+// UploadDirectory asynchronously copies a directory to dest over an SFTP connection.
+//
+// When UploadDirectory is called it starts the upload in an asynchronous goroutine,
+// then immediately returns the full remote path, and an AsyncUpload struct that
+// provides access to the upload status and progress.
+//
+// When the upload completes, the `AsyncUpload.Done()` channel is sent a `true`
+// value. If an error occurs during the upload the error is sent to the
+// `AsyncUpload.Error()` channel and the upload is terminated. If a ctx
+// cancellation signal is received, the `ctx.Err()` error will be sent to the
+// `AsyncUpload.Error()` channel, and the upload is terminated.
+func (c *GoClient) UploadDirectory(ctx context.Context, srcPath string) (string, AsyncUpload, error) {
+	transferDir := filepath.Base(srcPath)
+
+	conn, err := c.dial(ctx)
+	if err != nil {
+		return "", nil, err
+	}
+
+	// Asynchronously upload directory of files.
+	upload := NewAsyncUpload(conn)
+	go uploadDirectory(ctx, srcPath, c.cfg.RemoteDir, &upload)
+
+	return sftp.Join(c.cfg.RemoteDir, transferDir), &upload, nil
+}
+
+func uploadFile(ctx context.Context, src io.Reader, remotePath string, upload *AsyncUploadImpl) {
+	defer upload.Close()
+
+	remoteCopy(ctx, upload, src, remotePath)
+
+	upload.Done() <- true
+}
+
+func uploadDirectory(ctx context.Context, srcPath, remoteDir string, upload *AsyncUploadImpl) {
+	defer upload.Close()
+
+	transferDir := filepath.Base(srcPath)
+
+	err := filepath.WalkDir(srcPath, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+
+		relPath, err := filepath.Rel(srcPath, path)
+		if err != nil {
+			return err
+		}
+
+		remotePath := sftp.Join(remoteDir, transferDir, relPath)
+
+		if !d.IsDir() {
+			f, err := os.Open(path) // #nosec G304 -- trusted file path.
+			if err != nil {
+				return err
+			}
+			defer f.Close()
+
+			remoteCopy(ctx, upload, f, remotePath)
+		} else {
+			err = upload.conn.Client.MkdirAll(remotePath)
+			if err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
+	if err != nil {
+		upload.Err() <- fmt.Errorf("goclient: %v", err)
+	}
+
+	upload.Done() <- true
 }
 
 // dial connects to an SSH host, creates an SFTP client on the connection, then
@@ -108,8 +184,6 @@ func (c *GoClient) dial(ctx context.Context) (*connection, error) {
 // updates upload progress asynchronously. Upload status and progress will be
 // sent to the upload struct via the `upload.Done()` and `upload.Error()` channels.
 func remoteCopy(ctx context.Context, upload *AsyncUploadImpl, src io.Reader, dest string) {
-	defer upload.Close()
-
 	// Note: Some SFTP servers don't support O_RDWR mode.
 	w, err := upload.conn.OpenFile(dest, (os.O_WRONLY | os.O_CREATE | os.O_TRUNC))
 	if err != nil {
@@ -127,10 +201,7 @@ func remoteCopy(ctx context.Context, upload *AsyncUploadImpl, src io.Reader, des
 	_, err = io.Copy(contextio.NewWriter(ctx, w), src)
 	if err != nil {
 		upload.Err() <- fmt.Errorf("remote copy: %v", err)
-		return
 	}
-
-	upload.Done() <- true
 }
 
 var statusCodeRegex = regexp.MustCompile(`\(SSH_[A-Z_]+\)$`)
