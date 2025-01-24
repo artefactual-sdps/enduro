@@ -54,33 +54,74 @@ func (a *UploadTransferActivity) Execute(
 	logger := temporal_tools.GetLogger(ctx)
 	logger.V(1).Info("Execute UploadTransferActivity", "SourcePath", params.SourcePath)
 
-	src, err := os.Open(params.SourcePath)
+	info, err := os.Stat(params.SourcePath)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %v", UploadTransferActivityName, err)
 	}
-	defer src.Close()
+
+	var path string
+	var upload sftp.AsyncUpload
+	var size int64
 
 	filename := filepath.Base(params.SourcePath)
-	path, upload, err := a.client.Upload(ctx, src, filename)
-	if err != nil {
-		e := fmt.Errorf("%s: %v", UploadTransferActivityName, err)
+	if info.IsDir() {
+		path, upload, err = a.client.UploadDirectory(ctx, params.SourcePath)
+		if err != nil {
+			e := fmt.Errorf("%s: %v", UploadTransferActivityName, err)
 
-		switch err.(type) {
-		case *sftp.AuthError:
-			return nil, temporal.NewNonRetryableError(e)
-		default:
-			return nil, e
+			switch err.(type) {
+			case *sftp.AuthError:
+				return nil, temporal.NewNonRetryableError(e)
+			default:
+				return nil, e
+			}
 		}
-	}
 
-	fi, err := src.Stat()
-	if err != nil {
-		return nil, fmt.Errorf("%s: %v", UploadTransferActivityName, err)
+		// Determine total size of files in directory.
+		err := filepath.Walk(params.SourcePath, func(_ string, info os.FileInfo, err error) error {
+			if err != nil {
+				return err
+			}
+
+			if !info.IsDir() {
+				size += info.Size()
+			}
+
+			return nil
+		})
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		src, err := os.Open(params.SourcePath)
+		if err != nil {
+			return nil, fmt.Errorf("%s: %v", UploadTransferActivityName, err)
+		}
+		defer src.Close()
+
+		path, upload, err = a.client.UploadFile(ctx, src, filename)
+		if err != nil {
+			e := fmt.Errorf("%s: %v", UploadTransferActivityName, err)
+
+			switch err.(type) {
+			case *sftp.AuthError:
+				return nil, temporal.NewNonRetryableError(e)
+			default:
+				return nil, e
+			}
+		}
+
+		fi, err := src.Stat()
+		if err != nil {
+			return nil, fmt.Errorf("%s: %v", UploadTransferActivityName, err)
+		}
+
+		size = fi.Size()
 	}
 
 	// Block (with a heartbeat) until ctx is cancelled, the upload is done, or
 	// it stops with an error.
-	err = a.Heartbeat(ctx, upload, fi.Size())
+	err = a.Heartbeat(ctx, upload, size)
 	if err != nil {
 		return nil, err
 	}

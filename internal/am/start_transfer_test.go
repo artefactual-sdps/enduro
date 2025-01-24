@@ -23,6 +23,7 @@ func TestStartTransferActivity(t *testing.T) {
 	transferID := uuid.New().String()
 	opts := am.StartTransferActivityParams{
 		Name:         "Testing",
+		Type:         "zipped bag",
 		RelativePath: "/tmp",
 	}
 

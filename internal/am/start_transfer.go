@@ -19,6 +19,9 @@ type StartTransferActivityParams struct {
 	// Name of the transfer.
 	Name string
 
+	// Type of the transfer.
+	Type string
+
 	// RelativePath is the PIP path relative to the Archivematica transfer
 	// source directory.
 	RelativePath string
@@ -57,7 +60,7 @@ func (a *StartTransferActivity) Execute(
 
 	payload, resp, err := a.amps.Create(ctx, &amclient.PackageCreateRequest{
 		Name:             opts.Name,
-		Type:             "zipped bag",
+		Type:             opts.Type,
 		Path:             filepath.Join(a.cfg.TransferSourcePath, opts.RelativePath),
 		ProcessingConfig: processingConfig,
 		AutoApprove:      true,

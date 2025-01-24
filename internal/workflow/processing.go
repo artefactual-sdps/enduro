@@ -908,23 +908,30 @@ func (w *ProcessingWorkflow) transferAM(ctx temporalsdk_workflow.Context, tinfo 
 		return err
 	}
 
-	// Zip PIP.
-	activityOpts := withActivityOptsForLocalAction(ctx)
-	var zipResult archivezip.Result
-	err = temporalsdk_workflow.ExecuteActivity(
-		activityOpts,
-		archivezip.Name,
-		&archivezip.Params{SourceDir: tinfo.TempPath},
-	).Get(activityOpts, &zipResult)
-	if err != nil {
-		return err
+	// Zip PIP, if necessary.
+	var sourcePath string
+	if w.cfg.AM.TransferType == "zipped bag" {
+		// Zip PIP.
+		activityOpts := withActivityOptsForLocalAction(ctx)
+		var zipResult archivezip.Result
+		err = temporalsdk_workflow.ExecuteActivity(
+			activityOpts,
+			archivezip.Name,
+			&archivezip.Params{SourceDir: tinfo.TempPath},
+		).Get(activityOpts, &zipResult)
+		if err != nil {
+			return err
+		}
+
+		tinfo.SendToFailed.Path = zipResult.Path
+		tinfo.SendToFailed.ActivityName = activities.SendToFailedPIPsName
+		sourcePath = zipResult.Path
+	} else {
+		sourcePath = tinfo.TempPath
 	}
 
-	tinfo.SendToFailed.Path = zipResult.Path
-	tinfo.SendToFailed.ActivityName = activities.SendToFailedPIPsName
-
 	// Upload PIP to AMSS.
-	activityOpts = temporalsdk_workflow.WithActivityOptions(ctx,
+	activityOpts := temporalsdk_workflow.WithActivityOptions(ctx,
 		temporalsdk_workflow.ActivityOptions{
 			StartToCloseTimeout: time.Hour * 2,
 			HeartbeatTimeout:    2 * tinfo.req.PollInterval,
@@ -942,7 +949,7 @@ func (w *ProcessingWorkflow) transferAM(ctx temporalsdk_workflow.Context, tinfo 
 	err = temporalsdk_workflow.ExecuteActivity(
 		activityOpts,
 		am.UploadTransferActivityName,
-		&am.UploadTransferActivityParams{SourcePath: zipResult.Path},
+		&am.UploadTransferActivityParams{SourcePath: sourcePath},
 	).Get(activityOpts, &uploadResult)
 	if err != nil {
 		return err
@@ -956,6 +963,7 @@ func (w *ProcessingWorkflow) transferAM(ctx temporalsdk_workflow.Context, tinfo 
 		am.StartTransferActivityName,
 		&am.StartTransferActivityParams{
 			Name:         tinfo.req.Key,
+			Type:         w.cfg.AM.TransferType,
 			RelativePath: uploadResult.RemoteRelativePath,
 		},
 	).Get(activityOpts, &transferResult)

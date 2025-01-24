@@ -179,6 +179,9 @@ transferDeadline = "1h"
 # used.
 transferSourcePath = ""
 
+# transferType specifies the transfer type sent from Enduro to Archivematica.
+transferType = "zipped bag"
+
 [am.sftp]
 host = "" # The Archivematica Storage Service hostname.
 port = ""

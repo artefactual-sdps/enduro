@@ -32,7 +32,8 @@ type Client interface {
 	Delete(ctx context.Context, dest string) error
 	// Upload asynchronously copies data from the src reader to the specified
 	// dest on the SFTP server.
-	Upload(ctx context.Context, src io.Reader, dest string) (remotePath string, upload AsyncUpload, err error)
+	UploadFile(ctx context.Context, src io.Reader, dest string) (remotePath string, upload AsyncUpload, err error)
+	UploadDirectory(ctx context.Context, srcPath string) (remotePath string, upload AsyncUpload, err error)
 }
 
 // AsyncUpload provides information about an upload happening asynchronously in

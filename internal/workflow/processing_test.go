@@ -645,6 +645,7 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 
 	cfg := config.Configuration{
 		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
+		AM:           am.Config{TransferType: "zipped bag"},
 		Preservation: pres.Config{TaskQueue: temporal.AmWorkerTaskQueue},
 		Storage:      storage.Config{DefaultPermanentLocationID: amssLocationID},
 		ValidatePREMIS: premis.Config{
@@ -753,7 +754,7 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	)
 
 	s.env.OnActivity(am.StartTransferActivityName, sessionCtx,
-		&am.StartTransferActivityParams{Name: key, RelativePath: "transfer.zip"},
+		&am.StartTransferActivityParams{Name: key, Type: "zipped bag", RelativePath: "transfer.zip"},
 	).Return(
 		&am.StartTransferActivityResult{TransferID: transferID.String()}, nil,
 	)
@@ -1517,6 +1518,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPA3m() {
 
 func (s *ProcessingWorkflowTestSuite) TestFailedPIPAM() {
 	cfg := config.Configuration{
+		AM:           am.Config{TransferType: "zipped bag"},
 		Preservation: pres.Config{TaskQueue: temporal.AmWorkerTaskQueue},
 		Storage:      storage.Config{DefaultPermanentLocationID: amssLocationID},
 	}
