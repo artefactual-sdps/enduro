@@ -525,7 +525,7 @@ func (w *ProcessingWorkflow) SessionHandler(
 	{
 		var err error
 		if w.cfg.Preservation.TaskQueue == temporal.AmWorkerTaskQueue {
-			err = w.transferAM(sessCtx, tinfo)
+			err = w.transferAM(sessCtx, tinfo, &cleanup)
 		} else {
 			err = w.transferA3m(sessCtx, tinfo, &cleanup)
 		}
@@ -881,7 +881,11 @@ func (w *ProcessingWorkflow) transferA3m(
 	return nil
 }
 
-func (w *ProcessingWorkflow) transferAM(ctx temporalsdk_workflow.Context, tinfo *TransferInfo) error {
+func (w *ProcessingWorkflow) transferAM(
+	ctx temporalsdk_workflow.Context,
+	tinfo *TransferInfo,
+	cleanup *cleanupRegistry,
+) error {
 	var err error
 
 	// Bag PIP if it's not already a bag.
@@ -908,23 +912,29 @@ func (w *ProcessingWorkflow) transferAM(ctx temporalsdk_workflow.Context, tinfo 
 		return err
 	}
 
-	// Zip PIP.
-	activityOpts := withActivityOptsForLocalAction(ctx)
-	var zipResult archivezip.Result
-	err = temporalsdk_workflow.ExecuteActivity(
-		activityOpts,
-		archivezip.Name,
-		&archivezip.Params{SourceDir: tinfo.TempPath},
-	).Get(activityOpts, &zipResult)
-	if err != nil {
-		return err
+	// Zip PIP, if necessary.
+	if w.cfg.AM.ZipPIP {
+		// Zip PIP.
+		activityOpts := withActivityOptsForLocalAction(ctx)
+		var zipResult archivezip.Result
+		err = temporalsdk_workflow.ExecuteActivity(
+			activityOpts,
+			archivezip.Name,
+			&archivezip.Params{SourceDir: tinfo.TempPath},
+		).Get(activityOpts, &zipResult)
+		if err != nil {
+			return err
+		}
+
+		tinfo.SendToFailed.Path = zipResult.Path
+		tinfo.SendToFailed.ActivityName = activities.SendToFailedPIPsName
+		tinfo.TempPath = zipResult.Path
+
+		cleanup.registerPath(zipResult.Path)
 	}
 
-	tinfo.SendToFailed.Path = zipResult.Path
-	tinfo.SendToFailed.ActivityName = activities.SendToFailedPIPsName
-
 	// Upload PIP to AMSS.
-	activityOpts = temporalsdk_workflow.WithActivityOptions(ctx,
+	activityOpts := temporalsdk_workflow.WithActivityOptions(ctx,
 		temporalsdk_workflow.ActivityOptions{
 			StartToCloseTimeout: time.Hour * 2,
 			HeartbeatTimeout:    2 * tinfo.req.PollInterval,
@@ -942,7 +952,7 @@ func (w *ProcessingWorkflow) transferAM(ctx temporalsdk_workflow.Context, tinfo 
 	err = temporalsdk_workflow.ExecuteActivity(
 		activityOpts,
 		am.UploadTransferActivityName,
-		&am.UploadTransferActivityParams{SourcePath: zipResult.Path},
+		&am.UploadTransferActivityParams{SourcePath: tinfo.TempPath},
 	).Get(activityOpts, &uploadResult)
 	if err != nil {
 		return err
