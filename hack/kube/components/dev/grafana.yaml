@@ -86,7 +86,7 @@ data:
       orgId: 1
       type: tempo
       uid: tempo
-      url: http://grafana-tempo:3200
+      url: http://grafana-tempo.enduro-sdps:3200
       version: 1
     - access: proxy
       apiVersion: 1
@@ -102,6 +102,13 @@ data:
       uid: prometheus
       url: http://prometheus-server.enduro-sdps:9090
       version: 1
+    - access: proxy
+      name: Loki
+      type: loki
+      url: http://grafana-loki.enduro-sdps:3100
+      jsonData:
+        timeout: 60
+        maxLines: 1000
   default.yaml: |
     apiVersion: 1
     providers:
