@@ -8,6 +8,13 @@ requests.
 
 ## [Unreleased]
 
+## [0.8.0] - 2025-01-29
+
+### Added
+
+- Search by name to the package list ([#1101])
+- Preservation actions help box ([#986])
+
 ## [0.7.0] - 2025-01-17
 
 ### Changed
@@ -67,7 +74,8 @@ requests.
 
 Initial release.
 
-[unreleased]: https://github.com/artefactual-sdps/enduro/compare/v0.7.0...HEAD
+[unreleased]: https://github.com/artefactual-sdps/enduro/compare/v0.8.0...HEAD
+[0.8.0]: https://github.com/artefactual-sdps/enduro/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/artefactual-sdps/enduro/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/artefactual-sdps/enduro/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/artefactual-sdps/enduro/compare/v0.4.0...v0.5.0
@@ -75,6 +83,7 @@ Initial release.
 [0.3.0]: https://github.com/artefactual-sdps/enduro/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/artefactual-sdps/enduro/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/artefactual-sdps/enduro/releases/tag/v0.1.0
+[#1101]: https://github.com/artefactual-sdps/enduro/issues/1101
 [#1079]: https://github.com/artefactual-sdps/enduro/issues/1079
 [#1077]: https://github.com/artefactual-sdps/enduro/issues/1077
 [#1066]: https://github.com/artefactual-sdps/enduro/issues/1066
