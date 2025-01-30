@@ -5,6 +5,7 @@ import PackageListLegend from "@/components/PackageListLegend.vue";
 import PageLoadingAlert from "@/components/PageLoadingAlert.vue";
 import StatusBadge from "@/components/StatusBadge.vue";
 import Tabs from "@/components/Tabs.vue";
+import TimeDropdown from "@/components/TimeDropdown.vue";
 import Tooltip from "bootstrap/js/dist/tooltip";
 import UUID from "@/components/UUID.vue";
 import { onMounted } from "vue";
@@ -50,13 +51,6 @@ let showLegend = ref(false);
 const toggleLegend = () => {
   showLegend.value = !showLegend.value;
   if (tooltip) tooltip.hide();
-};
-
-const doSearch = () => {
-  router.push({
-    name: "/packages/",
-    query: { ...route.query, name: packageStore.filters.name },
-  });
 };
 
 onMounted(() => {
@@ -111,6 +105,34 @@ const tabs = computed(() => [
   },
 ]);
 
+const doSearch = () => {
+  let q = { ...route.query };
+  if (packageStore.filters.name === "") {
+    delete q.name;
+  } else {
+    q.name = packageStore.filters.name;
+  }
+
+  router.push({
+    name: "/packages/",
+    query: q,
+  });
+};
+
+const updateDateFilter = (name: string, value: LocationQueryValue) => {
+  let q = { ...route.query };
+  if (value === null || value === "") {
+    delete q[name];
+  } else {
+    q[name] = value;
+  }
+
+  router.push({
+    name: "/packages/",
+    query: q,
+  });
+};
+
 const { execute, error } = useAsyncState(() => {
   if (route.query.name) {
     packageStore.filters.name = <string>route.query.name;
@@ -118,21 +140,32 @@ const { execute, error } = useAsyncState(() => {
   if (route.query.status) {
     packageStore.filters.status = <PackageListStatusEnum>route.query.status;
   }
+  if (route.query.earliestCreatedTime) {
+    packageStore.filters.earliestCreatedTime = new Date(
+      route.query.earliestCreatedTime as string,
+    );
+  }
+
   return packageStore.fetchPackages(1);
 }, null);
 
 watch(
-  () => route.query.status,
-  (newStatus) => {
+  () => [route.query.status, route.query.name, route.query.earliestCreatedTime],
+  ([newStatus, newName, newEarliest]) => {
     packageStore.filters.status = newStatus as PackageListStatusEnum;
-    return packageStore.fetchPackages(1);
-  },
-);
 
-watch(
-  () => route.query.name,
-  (newSearch) => {
-    packageStore.filters.name = newSearch as string;
+    if (newName) {
+      packageStore.filters.name = newName as string;
+    }
+
+    if (newEarliest) {
+      packageStore.filters.earliestCreatedTime = new Date(
+        newEarliest as string,
+      );
+    } else {
+      packageStore.filters.earliestCreatedTime = undefined;
+    }
+
     return packageStore.fetchPackages(1);
   },
 );
@@ -152,32 +185,46 @@ watch(
 
     <PageLoadingAlert :execute="execute" :error="error" />
 
-    <form id="packageSearch" @submit.prevent="doSearch">
-      <div class="input-group w-50 mb-3">
-        <input
-          type="text"
-          v-model.trim="packageStore.filters.name"
-          class="form-control"
-          name="name"
-          placeholder="Search"
-          aria-label="Package name"
-        />
-        <button
-          class="btn btn-secondary"
-          @click="
-            packageStore.filters.name = '';
-            doSearch();
-          "
-          type="reset"
-          aria-label="Reset search"
-        >
-          <IconCloseLine />
-        </button>
-        <button class="btn btn-primary" type="submit" aria-label="Do search">
-          <IconSearch />
-        </button>
+    <div class="d-flex flex-wrap gap-3 mb-3">
+      <div>
+        <form id="packageSearch" @submit.prevent="doSearch">
+          <div class="input-group">
+            <input
+              type="text"
+              v-model.trim="packageStore.filters.name"
+              class="form-control"
+              name="name"
+              placeholder="Search"
+              aria-label="Package name"
+            />
+            <button
+              class="btn btn-secondary"
+              @click="
+                packageStore.filters.name = '';
+                doSearch();
+              "
+              type="reset"
+              aria-label="Reset search"
+            >
+              <IconCloseLine />
+            </button>
+            <button
+              class="btn btn-primary"
+              type="submit"
+              aria-label="Do search"
+            >
+              <IconSearch />
+            </button>
+          </div>
+        </form>
       </div>
-    </form>
+      <div>
+        <TimeDropdown
+          fieldname="earliestCreatedTime"
+          @change="(name, value) => updateDateFilter(name, value)"
+        />
+      </div>
+    </div>
 
     <Tabs :tabs="tabs" param="status" />
     <PackageListLegend v-model="showLegend" />

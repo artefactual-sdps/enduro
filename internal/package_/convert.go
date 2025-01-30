@@ -139,18 +139,30 @@ func stringToUUIDPtr(s *string) (*uuid.UUID, error) {
 }
 
 func parseCreatedAtRange(start, end *string) (*timerange.Range, error) {
+	var s, e time.Time
+	var err error
+
 	if start == nil && end == nil {
 		return nil, nil
 	}
 
-	s, err := parseTime(start)
-	if err != nil {
-		return nil, fmt.Errorf("earliest_created_time: %v", err)
+	if start == nil {
+		// Make start date an arbitrary time far in the past.
+		s = time.Date(1, 1, 1, 0, 0, 0, 0, time.UTC)
+	} else {
+		s, err = parseTime(start)
+		if err != nil {
+			return nil, fmt.Errorf("earliest_created_time: %v", err)
+		}
 	}
 
-	e, err := parseTime(end)
-	if err != nil {
-		return nil, fmt.Errorf("latest_created_time: %v", err)
+	if end == nil {
+		e = time.Now()
+	} else {
+		e, err = parseTime(end)
+		if err != nil {
+			return nil, fmt.Errorf("latest_created_time: %v", err)
+		}
 	}
 
 	r, err := timerange.New(s, e)
