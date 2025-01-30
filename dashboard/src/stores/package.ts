@@ -51,6 +51,7 @@ export const usePackageStore = defineStore("package", {
     filters: {
       status: "" as PackageListStatusEnum,
       name: "",
+      earliestCreatedTime: undefined as Date | undefined,
     },
   }),
   getters: {
@@ -172,6 +173,7 @@ export const usePackageStore = defineStore("package", {
         limit: this.page?.limit || undefined,
         status: this.filters.status ?? undefined,
         name: this.filters.name ?? undefined,
+        earliestCreatedTime: this.filters.earliestCreatedTime,
       });
       this.packages = resp.items;
       this.page = resp.page;
