@@ -13,7 +13,7 @@ requests.
 ### Added
 
 - Search by name to the package list ([#1101])
-- Preservation actions help box ([#986])
+- Preservation actions hover effect and help box ([#986])
 
 ## [0.7.0] - 2025-01-17
 
