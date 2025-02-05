@@ -151,7 +151,8 @@ export const usePackageStore = defineStore("package", {
       const layoutStore = useLayoutStore();
 
       layoutStore.updateBreadcrumb([
-        { route: router.resolve("/packages/"), text: "Packages" },
+        { text: "Ingest" },
+        { route: router.resolve("/packages/"), text: "SIPs" },
         { text: this.current.name },
       ]);
 

@@ -23,6 +23,7 @@ export const useStorageStore = defineStore("storage", {
       // Update breadcrumb. TODO: should this be done in the component?
       const layoutStore = useLayoutStore();
       layoutStore.updateBreadcrumb([
+        { text: "Storage" },
         { route: router.resolve({ name: "/locations/" }), text: "Locations" },
         { text: this.current.name },
       ]);

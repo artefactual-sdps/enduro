@@ -12,9 +12,10 @@ const router = createRouter({
   // createMemoryHistory does not have this problem.
   history: createMemoryHistory(),
   routes: [
-    { name: "index", path: "", component: {} },
-    { name: "packages", path: "/packages", component: {} },
-    { name: "locations", path: "/locations", component: {} },
+    { path: "", component: {} },
+    { path: "/ingest/sips", component: {} },
+    { path: "/storage/locations", component: {} },
+    { path: "/storage/aips", component: {} },
   ],
 });
 
@@ -40,20 +41,25 @@ describe("Sidebar.vue", () => {
 
     getByRole("navigation", { name: "Navigation" });
     const homeLink = getByRole("link", { name: "Home" });
-    const packagesLink = getByRole("link", { name: "Packages" });
+    const sipsLink = getByRole("link", { name: "SIPs" });
     const locationsLink = getByRole("link", { name: "Locations" });
+    const aipsLink = getByRole("link", { name: "AIPs" });
 
     fireEvent.click(homeLink);
     await flushPromises();
     expect(homeLink.getAttribute("aria-current")).toEqual("page");
 
-    fireEvent.click(packagesLink);
+    fireEvent.click(sipsLink);
     await flushPromises();
-    expect(packagesLink.getAttribute("aria-current")).toEqual("page");
+    expect(sipsLink.getAttribute("aria-current")).toEqual("page");
 
-    await fireEvent.click(locationsLink);
+    fireEvent.click(locationsLink);
     await flushPromises();
     expect(locationsLink.getAttribute("aria-current")).toEqual("page");
+
+    fireEvent.click(aipsLink);
+    await flushPromises();
+    expect(aipsLink.getAttribute("aria-current")).toEqual("page");
   });
 
   it("hides the navigation links based on auth. attributes", async () => {
@@ -79,8 +85,9 @@ describe("Sidebar.vue", () => {
 
     getByRole("navigation", { name: "Navigation" });
     getByRole("link", { name: "Home" });
-    expect(queryByRole("link", { name: "Packages" })).toBeNull();
+    expect(queryByRole("link", { name: "SIPs" })).toBeNull();
     expect(queryByRole("link", { name: "Locations" })).toBeNull();
+    expect(queryByRole("link", { name: "AIPs" })).toBeNull();
   });
 
   it("collapses and expands", async () => {

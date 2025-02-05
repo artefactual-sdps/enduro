@@ -8,8 +8,8 @@ import UUID from "@/components/UUID.vue";
 import { useAuthStore } from "@/stores/auth";
 import { usePackageStore } from "@/stores/package";
 import { computed } from "vue";
-import IconBoxArrowUpRight from "~icons/bi/box-arrow-up-right";
-import IconHelpSolid from "~icons/clarity/help-solid?height=0.8em&width=0.8em";
+import IconLink from "~icons/bi/box-arrow-up-right";
+import IconHelp from "~icons/clarity/help-solid?height=0.8em&width=0.8em";
 
 const authStore = useAuthStore();
 const packageStore = usePackageStore();
@@ -80,7 +80,7 @@ const createAipWorkflow = computed(
             aria-expanded="false"
             aria-controls="preservationActionHelp"
             aria-label="Show preservation action help"
-            ><IconHelpSolid alt="help"
+            ><IconHelp alt="help"
           /></a>
         </h2>
       </div>
@@ -105,7 +105,7 @@ const createAipWorkflow = computed(
             <a
               href="https://github.com/artefactual-sdps/enduro/blob/main/docs/src/user-manual/usage.md#view-tasks-in-enduro"
               target="_new"
-              >Learn more <IconBoxArrowUpRight alt="" aria-hidden="true"
+              >Learn more <IconLink alt="" aria-hidden="true"
             /></a>
           </div>
         </div>

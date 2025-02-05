@@ -2,7 +2,7 @@ import Tabs from "@/components/Tabs.vue";
 import { cleanup, render } from "@testing-library/vue";
 import { afterEach, describe, it, expect } from "vitest";
 import { createRouter, createMemoryHistory } from "vue-router";
-import RawIconHomeLine from "~icons/clarity/home-line?raw&width=2em&height=2em";
+import IconHome from "~icons/clarity/home-line?raw&width=2em&height=2em";
 
 describe("Tabs.vue", () => {
   afterEach(() => cleanup());
@@ -21,13 +21,13 @@ describe("Tabs.vue", () => {
       props: {
         tabs: [
           {
-            icon: RawIconHomeLine,
+            icon: IconHome,
             text: "Route1",
             route: router.resolve("/route1"),
             show: true,
           },
           {
-            icon: RawIconHomeLine,
+            icon: IconHome,
             text: "Route2",
             route: router.resolve("/route2"),
             show: false,
