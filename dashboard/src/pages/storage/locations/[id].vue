@@ -1,21 +1,21 @@
 <script setup lang="ts">
-import PackagePendingAlert from "@/components/PackagePendingAlert.vue";
 import PageLoadingAlert from "@/components/PageLoadingAlert.vue";
 import Tabs from "@/components/Tabs.vue";
 import { useAuthStore } from "@/stores/auth";
-import { usePackageStore } from "@/stores/package";
+import { useStorageStore } from "@/stores/storage";
 import { useAsyncState } from "@vueuse/core";
 import { useRoute, useRouter } from "vue-router/auto";
-import IconSIPs from "~icons/octicon/package-dependencies-24";
+import IconAIPs from "~icons/clarity/bundle-line?raw&font-size=20px";
 import IconDetails from "~icons/clarity/details-line?raw&font-size=20px";
+import IconLocations from "~icons/octicon/server-24";
 
-const route = useRoute("/packages/[id]");
+const route = useRoute("/storage/locations/[id]");
 const router = useRouter();
 const authStore = useAuthStore();
-const packageStore = usePackageStore();
+const storageStore = useStorageStore();
 
 const { execute, error } = useAsyncState(
-  packageStore.fetchCurrent(route.params.id.toString()),
+  storageStore.fetchCurrent(route.params.id.toString()),
   null,
 );
 
@@ -24,10 +24,19 @@ const tabs = [
     icon: IconDetails,
     text: "Summary",
     route: router.resolve({
-      name: "/packages/[id]/",
+      name: "/storage/locations/[id]/",
       params: { id: route.params.id },
     }),
-    show: authStore.checkAttributes(["package:read"]),
+    show: authStore.checkAttributes(["storage:location:read"]),
+  },
+  {
+    icon: IconAIPs,
+    text: "AIPs",
+    route: router.resolve({
+      name: "/storage/locations/[id]/aips",
+      params: { id: route.params.id },
+    }),
+    show: authStore.checkAttributes(["storage:location:listPackages"]),
   },
 ];
 </script>
@@ -36,10 +45,8 @@ const tabs = [
   <div class="container-xxl">
     <PageLoadingAlert v-if="error" :execute="execute" :error="error" />
 
-    <PackagePendingAlert v-if="packageStore.current" />
-
-    <h1 class="d-flex mb-3" v-if="packageStore.current">
-      <IconSIPs class="me-3 text-dark" />{{ packageStore.current.name }}
+    <h1 class="d-flex mb-3" v-if="storageStore.current">
+      <IconLocations class="me-3 text-dark" />{{ storageStore.current.name }}
     </h1>
 
     <Tabs :tabs="tabs" param="id" />

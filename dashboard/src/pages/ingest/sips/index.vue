@@ -54,7 +54,7 @@ const toggleLegend = () => {
 
 const doSearch = () => {
   router.push({
-    name: "/packages/",
+    name: "/ingest/sips/",
     query: { ...route.query, name: packageStore.filters.name },
   });
 };
@@ -68,7 +68,7 @@ const tabs = computed(() => [
     icon: IconAll,
     text: "All",
     route: router.resolve({
-      name: "/packages/",
+      name: "/ingest/sips/",
       query: { ...route.query, status: undefined },
     }),
     show: true,
@@ -77,7 +77,7 @@ const tabs = computed(() => [
     icon: IconDone,
     text: "Done",
     route: router.resolve({
-      name: "/packages/",
+      name: "/ingest/sips/",
       query: { ...route.query, status: "done" },
     }),
     show: true,
@@ -86,7 +86,7 @@ const tabs = computed(() => [
     icon: IconError,
     text: "Error",
     route: router.resolve({
-      name: "/packages/",
+      name: "/ingest/sips/",
       query: { ...route.query, status: "error" },
     }),
     show: true,
@@ -95,7 +95,7 @@ const tabs = computed(() => [
     icon: IconInProgress,
     text: "In progress",
     route: router.resolve({
-      name: "/packages/",
+      name: "/ingest/sips/",
       query: { ...route.query, status: "in progress" },
     }),
     show: true,
@@ -104,7 +104,7 @@ const tabs = computed(() => [
     icon: IconQueued,
     text: "Queued",
     route: router.resolve({
-      name: "/packages/",
+      name: "/ingest/sips/",
       query: { ...route.query, status: "queued" },
     }),
     show: true,
@@ -215,7 +215,7 @@ watch(
             <td>
               <router-link
                 v-if="authStore.checkAttributes(['package:read'])"
-                :to="{ name: '/packages/[id]/', params: { id: pkg.id } }"
+                :to="{ name: '/ingest/sips/[id]/', params: { id: pkg.id } }"
                 >{{ pkg.name }}</router-link
               >
               <span v-else>{{ pkg.name }}</span>
