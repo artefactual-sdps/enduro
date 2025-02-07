@@ -12,12 +12,12 @@ import { useAsyncState } from "@vueuse/core";
 import { useAuthStore } from "@/stores/auth";
 import { useLayoutStore } from "@/stores/layout";
 import { usePackageStore } from "@/stores/package";
-import { useRoute, useRouter, type LocationQueryValue } from "vue-router/auto";
+import { useRoute, useRouter } from "vue-router/auto";
 import { computed, ref, watch } from "vue";
 
 // General icons.
 import IconInfo from "~icons/akar-icons/info-fill";
-import IconSIPs from "~icons/octicon/package-dependencies-24";
+import IconAIPs from "~icons/clarity/bundle-line";
 import IconSearch from "~icons/clarity/search-line";
 import IconClose from "~icons/clarity/close-line";
 
@@ -31,8 +31,6 @@ import IconCaretLeft from "~icons/bi/caret-left-fill";
 import IconAll from "~icons/clarity/blocks-group-line?raw&font-size=20px";
 import IconDone from "~icons/clarity/success-standard-line?raw&font-size=20px";
 import IconError from "~icons/clarity/remove-line?raw&font-size=20px";
-import IconInProgress from "~icons/clarity/sync-line?raw&font-size=20px";
-import IconQueued from "~icons/clarity/clock-line?raw&font-size=20px";
 
 const authStore = useAuthStore();
 const layoutStore = useLayoutStore();
@@ -41,7 +39,7 @@ const packageStore = usePackageStore();
 const route = useRoute();
 const router = useRouter();
 
-layoutStore.updateBreadcrumb([{ text: "Ingest" }, { text: "SIPs" }]);
+layoutStore.updateBreadcrumb([{ text: "Storage" }, { text: "AIPs" }]);
 
 const el = ref<HTMLElement | null>(null);
 let tooltip: Tooltip | null = null;
@@ -54,7 +52,7 @@ const toggleLegend = () => {
 
 const doSearch = () => {
   router.push({
-    name: "/ingest/sips/",
+    name: "/storage/aips/",
     query: { ...route.query, name: packageStore.filters.name },
   });
 };
@@ -68,16 +66,16 @@ const tabs = computed(() => [
     icon: IconAll,
     text: "All",
     route: router.resolve({
-      name: "/ingest/sips/",
+      name: "/storage/aips/",
       query: { ...route.query, status: undefined },
     }),
     show: true,
   },
   {
     icon: IconDone,
-    text: "Done",
+    text: "Stored",
     route: router.resolve({
-      name: "/ingest/sips/",
+      name: "/storage/aips/",
       query: { ...route.query, status: "done" },
     }),
     show: true,
@@ -86,26 +84,8 @@ const tabs = computed(() => [
     icon: IconError,
     text: "Error",
     route: router.resolve({
-      name: "/ingest/sips/",
+      name: "/storage/aips/",
       query: { ...route.query, status: "error" },
-    }),
-    show: true,
-  },
-  {
-    icon: IconInProgress,
-    text: "In progress",
-    route: router.resolve({
-      name: "/ingest/sips/",
-      query: { ...route.query, status: "in progress" },
-    }),
-    show: true,
-  },
-  {
-    icon: IconQueued,
-    text: "Queued",
-    route: router.resolve({
-      name: "/ingest/sips/",
-      query: { ...route.query, status: "queued" },
     }),
     show: true,
   },
@@ -140,7 +120,7 @@ watch(
 
 <template>
   <div class="container-xxl">
-    <h1 class="d-flex mb-0"><IconSIPs class="me-3 text-dark" />SIPs</h1>
+    <h1 class="d-flex mb-0"><IconAIPs class="me-3 text-dark" />AIPs</h1>
 
     <div class="text-muted mb-3">
       Showing {{ packageStore.page.offset + 1 }} -
@@ -187,7 +167,7 @@ watch(
             <th scope="col">ID</th>
             <th scope="col">Name</th>
             <th scope="col">UUID</th>
-            <th scope="col">Started</th>
+            <th scope="col">Deposited</th>
             <th scope="col">Location</th>
             <th scope="col">
               <span class="d-flex gap-2">
@@ -215,7 +195,7 @@ watch(
             <td>
               <router-link
                 v-if="authStore.checkAttributes(['package:read'])"
-                :to="{ name: '/ingest/sips/[id]/', params: { id: pkg.id } }"
+                :to="{ name: '/storage/aips/[id]/', params: { id: pkg.id } }"
                 >{{ pkg.name }}</router-link
               >
               <span v-else>{{ pkg.name }}</span>
@@ -228,7 +208,8 @@ watch(
               <UUID :id="pkg.locationId" />
             </td>
             <td>
-              <StatusBadge :status="pkg.status" />
+              <StatusBadge v-if="pkg.status != 'done'" :status="pkg.status" />
+              <span v-else class="badge text-bg-success">STORED</span>
             </td>
           </tr>
         </tbody>
@@ -329,7 +310,7 @@ watch(
         </ul>
       </nav>
       <div class="text-muted mb-3 text-center">
-        Showing packages {{ packageStore.page.offset + 1 }} -
+        Showing AIPs {{ packageStore.page.offset + 1 }} -
         {{ packageStore.lastResultOnPage }} of
         {{ packageStore.page.total }}
       </div>

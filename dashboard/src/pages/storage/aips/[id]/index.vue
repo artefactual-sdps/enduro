@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { api } from "@/client";
-import PackageDetailsCard from "@/components/PackageDetailsCard.vue";
 import PackageLocationCard from "@/components/PackageLocationCard.vue";
 import PreservationActionCollapse from "@/components/PreservationActionCollapse.vue";
 import StatusBadge from "@/components/StatusBadge.vue";
@@ -29,20 +28,18 @@ const createAipWorkflow = computed(
   <div v-if="packageStore.current">
     <div class="row">
       <div class="col-md-6">
-        <h2>AIP creation details</h2>
+        <h2>AIP details</h2>
         <dl>
           <dt>Name</dt>
           <dd>{{ packageStore.current.name }}</dd>
-          <dt>AIP UUID</dt>
+          <dt>UUID</dt>
           <dd><UUID :id="packageStore.current.aipId" /></dd>
-          <dt>Workflow status</dt>
+          <dt>Last workflow status</dt>
           <dd>
             <StatusBadge
               v-if="createAipWorkflow"
               :status="createAipWorkflow.status"
-              :note="
-                $filters.getPreservationActionLabel(createAipWorkflow.type)
-              "
+              note="Move AIP"
             />
           </dd>
           <dt>Started</dt>
@@ -64,7 +61,6 @@ const createAipWorkflow = computed(
       </div>
       <div class="col-md-6">
         <PackageLocationCard />
-        <PackageDetailsCard />
       </div>
     </div>
 

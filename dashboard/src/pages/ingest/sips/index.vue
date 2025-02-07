@@ -12,7 +12,7 @@ import { useAsyncState } from "@vueuse/core";
 import { useAuthStore } from "@/stores/auth";
 import { useLayoutStore } from "@/stores/layout";
 import { usePackageStore } from "@/stores/package";
-import { useRoute, useRouter, type LocationQueryValue } from "vue-router/auto";
+import { useRoute, useRouter } from "vue-router/auto";
 import { computed, ref, watch } from "vue";
 
 // General icons.
@@ -187,8 +187,8 @@ watch(
             <th scope="col">ID</th>
             <th scope="col">Name</th>
             <th scope="col">UUID</th>
+            <th scope="col">Workflow</th>
             <th scope="col">Started</th>
-            <th scope="col">Location</th>
             <th scope="col">
               <span class="d-flex gap-2">
                 Status
@@ -223,10 +223,8 @@ watch(
             <td>
               <UUID :id="pkg.aipId" />
             </td>
+            <td>Create AIP</td>
             <td>{{ $filters.formatDateTime(pkg.startedAt) }}</td>
-            <td>
-              <UUID :id="pkg.locationId" />
-            </td>
             <td>
               <StatusBadge :status="pkg.status" />
             </td>
@@ -329,7 +327,7 @@ watch(
         </ul>
       </nav>
       <div class="text-muted mb-3 text-center">
-        Showing packages {{ packageStore.page.offset + 1 }} -
+        Showing SIPs {{ packageStore.page.offset + 1 }} -
         {{ packageStore.lastResultOnPage }} of
         {{ packageStore.page.total }}
       </div>

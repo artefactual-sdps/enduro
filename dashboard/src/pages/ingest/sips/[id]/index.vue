@@ -29,11 +29,11 @@ const createAipWorkflow = computed(
   <div v-if="packageStore.current">
     <div class="row">
       <div class="col-md-6">
-        <h2>AIP creation details</h2>
+        <h2>SIP details</h2>
         <dl>
           <dt>Name</dt>
           <dd>{{ packageStore.current.name }}</dd>
-          <dt>AIP UUID</dt>
+          <dt>UUID</dt>
           <dd><UUID :id="packageStore.current.aipId" /></dd>
           <dt>Workflow status</dt>
           <dd>
@@ -62,10 +62,7 @@ const createAipWorkflow = computed(
           </dd>
         </dl>
       </div>
-      <div class="col-md-6">
-        <PackageLocationCard />
-        <PackageDetailsCard />
-      </div>
+      <div class="col-md-6"></div>
     </div>
 
     <div v-if="authStore.checkAttributes(['package:listActions'])">

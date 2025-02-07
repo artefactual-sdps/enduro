@@ -6,16 +6,16 @@ import { useAuthStore } from "@/stores/auth";
 import { usePackageStore } from "@/stores/package";
 import { useAsyncState } from "@vueuse/core";
 import { useRoute, useRouter } from "vue-router/auto";
-import IconSIPs from "~icons/octicon/package-dependencies-24";
+import IconAIPs from "~icons/clarity/bundle-line";
 import IconDetails from "~icons/clarity/details-line?raw&font-size=20px";
 
-const route = useRoute("/ingest/sips/[id]");
+const route = useRoute("/storage/aips/[id]");
 const router = useRouter();
 const authStore = useAuthStore();
 const packageStore = usePackageStore();
 
 const { execute, error } = useAsyncState(
-  packageStore.fetchCurrent(route.params.id.toString()),
+  packageStore.fetchCurrent(route.params.id.toString(), true),
   null,
 );
 
@@ -24,10 +24,10 @@ const tabs = [
     icon: IconDetails,
     text: "Summary",
     route: router.resolve({
-      name: "/ingest/sips/[id]/",
+      name: "/storage/aips/[id]/",
       params: { id: route.params.id },
     }),
-    show: authStore.checkAttributes(["package:read"]),
+    show: authStore.checkAttributes(["storage:aip:read"]),
   },
 ];
 </script>
@@ -39,7 +39,7 @@ const tabs = [
     <PackagePendingAlert v-if="packageStore.current" />
 
     <h1 class="d-flex mb-3" v-if="packageStore.current">
-      <IconSIPs class="me-3 text-dark" />{{ packageStore.current.name }}
+      <IconAIPs class="me-3 text-dark" />{{ packageStore.current.name }}
     </h1>
 
     <Tabs :tabs="tabs" param="id" />

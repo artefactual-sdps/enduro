@@ -139,7 +139,7 @@ export const usePackageStore = defineStore("package", {
       }
       handlers[event.type](value);
     },
-    async fetchCurrent(id: string) {
+    async fetchCurrent(id: string, aipsBreadcrumb: boolean = false) {
       const packageId = +id;
       if (Number.isNaN(packageId)) {
         throw Error("Unexpected parameter");
@@ -150,11 +150,19 @@ export const usePackageStore = defineStore("package", {
       // Update breadcrumb. TODO: should this be done in the component?
       const layoutStore = useLayoutStore();
 
-      layoutStore.updateBreadcrumb([
-        { text: "Ingest" },
-        { route: router.resolve("/ingest/sips/"), text: "SIPs" },
-        { text: this.current.name },
-      ]);
+      if (aipsBreadcrumb) {
+        layoutStore.updateBreadcrumb([
+          { text: "Storage" },
+          { route: router.resolve("/storage/aips/"), text: "AIPs" },
+          { text: this.current.name },
+        ]);
+      } else {
+        layoutStore.updateBreadcrumb([
+          { text: "Ingest" },
+          { route: router.resolve("/ingest/sips/"), text: "SIPs" },
+          { text: this.current.name },
+        ]);
+      }
 
       await Promise.allSettled([
         client.package
