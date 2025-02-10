@@ -4,9 +4,9 @@ import useEventListener from "@/composables/useEventListener";
 import Modal from "bootstrap/js/dist/modal";
 import { ref, onMounted } from "vue";
 import { closeDialog } from "vue3-promise-dialog";
-import IconBookText from "~icons/lucide/book-text";
-import IconFileText from "~icons/lucide/file-text";
-import IconGitMerge from "~icons/lucide/git-merge";
+import IconDocumentation from "~icons/lucide/book-text";
+import IconLicense from "~icons/lucide/file-text";
+import IconContributing from "~icons/lucide/git-merge";
 
 const el = ref<HTMLElement | null>(null);
 const modal = ref<Modal | null>(null);
@@ -117,7 +117,7 @@ useEventListener(el, "hidden.bs.modal", () => closeDialog(null));
             href="https://enduro.readthedocs.io/"
             target="_blank"
           >
-            <IconBookText aria-hidden="true" />
+            <IconDocumentation aria-hidden="true" />
             Documentation
           </a>
           <a
@@ -125,7 +125,7 @@ useEventListener(el, "hidden.bs.modal", () => closeDialog(null));
             href="https://github.com/artefactual-sdps/enduro/blob/main/LICENSE"
             target="_blank"
           >
-            <IconFileText aria-hidden="true" />
+            <IconLicense aria-hidden="true" />
             License
           </a>
           <a
@@ -133,7 +133,7 @@ useEventListener(el, "hidden.bs.modal", () => closeDialog(null));
             href="https://github.com/artefactual-sdps/enduro/blob/main/CONTRIBUTING.md"
             target="_blank"
           >
-            <IconGitMerge aria-hidden="true" />
+            <IconContributing aria-hidden="true" />
             Contributing
           </a>
         </div>

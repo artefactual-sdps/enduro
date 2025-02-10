@@ -12,27 +12,25 @@ import { useAsyncState } from "@vueuse/core";
 import { useAuthStore } from "@/stores/auth";
 import { useLayoutStore } from "@/stores/layout";
 import { usePackageStore } from "@/stores/package";
-import { useRoute, useRouter, type LocationQueryValue } from "vue-router/auto";
+import { useRoute, useRouter } from "vue-router/auto";
 import { computed, ref, watch } from "vue";
 
 // General icons.
-import IconInfoFill from "~icons/akar-icons/info-fill";
-import IconBundleLine from "~icons/clarity/bundle-line";
+import IconInfo from "~icons/akar-icons/info-fill";
+import IconAIPs from "~icons/clarity/bundle-line";
 import IconSearch from "~icons/clarity/search-line";
-import IconCloseLine from "~icons/clarity/close-line";
+import IconClose from "~icons/clarity/close-line";
 
 // Pager icons.
-import IconSkipEndFill from "~icons/bi/skip-end-fill";
-import IconSkipStartFill from "~icons/bi/skip-start-fill";
-import IconCaretRightFill from "~icons/bi/caret-right-fill";
-import IconCaretLeftFill from "~icons/bi/caret-left-fill";
+import IconSkipEnd from "~icons/bi/skip-end-fill";
+import IconSkipStart from "~icons/bi/skip-start-fill";
+import IconCaretRight from "~icons/bi/caret-right-fill";
+import IconCaretLeft from "~icons/bi/caret-left-fill";
 
 // Tab icons.
-import RawIconBlocksGroupLine from "~icons/clarity/blocks-group-line?raw&font-size=20px";
-import RawIconSyncLine from "~icons/clarity/sync-line?raw&font-size=20px";
-import RawIconRemoveLine from "~icons/clarity/remove-line?raw&font-size=20px";
-import RawIconClockLine from "~icons/clarity/clock-line?raw&font-size=20px";
-import RawIconSuccessLine from "~icons/clarity/success-standard-line?raw&font-size=20px";
+import IconAll from "~icons/clarity/blocks-group-line?raw&font-size=20px";
+import IconDone from "~icons/clarity/success-standard-line?raw&font-size=20px";
+import IconError from "~icons/clarity/remove-line?raw&font-size=20px";
 
 const authStore = useAuthStore();
 const layoutStore = useLayoutStore();
@@ -41,7 +39,7 @@ const packageStore = usePackageStore();
 const route = useRoute();
 const router = useRouter();
 
-layoutStore.updateBreadcrumb([{ text: "Packages" }]);
+layoutStore.updateBreadcrumb([{ text: "Storage" }, { text: "AIPs" }]);
 
 const el = ref<HTMLElement | null>(null);
 let tooltip: Tooltip | null = null;
@@ -54,7 +52,7 @@ const toggleLegend = () => {
 
 const doSearch = () => {
   router.push({
-    name: "/packages/",
+    name: "/storage/aips/",
     query: { ...route.query, name: packageStore.filters.name },
   });
 };
@@ -65,47 +63,29 @@ onMounted(() => {
 
 const tabs = computed(() => [
   {
-    icon: RawIconBlocksGroupLine,
+    icon: IconAll,
     text: "All",
     route: router.resolve({
-      name: "/packages/",
+      name: "/storage/aips/",
       query: { ...route.query, status: undefined },
     }),
     show: true,
   },
   {
-    icon: RawIconSuccessLine,
-    text: "Done",
+    icon: IconDone,
+    text: "Stored",
     route: router.resolve({
-      name: "/packages/",
+      name: "/storage/aips/",
       query: { ...route.query, status: "done" },
     }),
     show: true,
   },
   {
-    icon: RawIconRemoveLine,
+    icon: IconError,
     text: "Error",
     route: router.resolve({
-      name: "/packages/",
+      name: "/storage/aips/",
       query: { ...route.query, status: "error" },
-    }),
-    show: true,
-  },
-  {
-    icon: RawIconSyncLine,
-    text: "In progress",
-    route: router.resolve({
-      name: "/packages/",
-      query: { ...route.query, status: "in progress" },
-    }),
-    show: true,
-  },
-  {
-    icon: RawIconClockLine,
-    text: "Queued",
-    route: router.resolve({
-      name: "/packages/",
-      query: { ...route.query, status: "queued" },
     }),
     show: true,
   },
@@ -140,9 +120,7 @@ watch(
 
 <template>
   <div class="container-xxl">
-    <h1 class="d-flex mb-0">
-      <IconBundleLine class="me-3 text-dark" />Packages
-    </h1>
+    <h1 class="d-flex mb-0"><IconAIPs class="me-3 text-dark" />AIPs</h1>
 
     <div class="text-muted mb-3">
       Showing {{ packageStore.page.offset + 1 }} -
@@ -171,7 +149,7 @@ watch(
           type="reset"
           aria-label="Reset search"
         >
-          <IconCloseLine />
+          <IconClose />
         </button>
         <button class="btn btn-primary" type="submit" aria-label="Do search">
           <IconSearch />
@@ -189,7 +167,7 @@ watch(
             <th scope="col">ID</th>
             <th scope="col">Name</th>
             <th scope="col">UUID</th>
-            <th scope="col">Started</th>
+            <th scope="col">Deposited</th>
             <th scope="col">Location</th>
             <th scope="col">
               <span class="d-flex gap-2">
@@ -202,7 +180,7 @@ watch(
                   data-bs-toggle="tooltip"
                   data-bs-title="Toggle legend"
                 >
-                  <IconInfoFill style="font-size: 1.2em" aria-hidden="true" />
+                  <IconInfo style="font-size: 1.2em" aria-hidden="true" />
                   <span class="visually-hidden"
                     >Toggle package status legend</span
                   >
@@ -217,7 +195,7 @@ watch(
             <td>
               <router-link
                 v-if="authStore.checkAttributes(['package:read'])"
-                :to="{ name: '/packages/[id]/', params: { id: pkg.id } }"
+                :to="{ name: '/storage/aips/[id]/', params: { id: pkg.id } }"
                 >{{ pkg.name }}</router-link
               >
               <span v-else>{{ pkg.name }}</span>
@@ -230,7 +208,8 @@ watch(
               <UUID :id="pkg.locationId" />
             </td>
             <td>
-              <StatusBadge :status="pkg.status" />
+              <StatusBadge v-if="pkg.status != 'done'" :status="pkg.status" />
+              <span v-else class="badge text-bg-success">STORED</span>
             </td>
           </tr>
         </tbody>
@@ -249,7 +228,7 @@ watch(
               aria-label="Go to first page"
               title="First page"
               @click.prevent="packageStore.fetchPackages(1)"
-              ><IconSkipStartFill
+              ><IconSkipStart
             /></a>
           </li>
           <li class="page-item">
@@ -262,7 +241,7 @@ watch(
               aria-label="Go to previous page"
               title="Previous page"
               @click.prevent="packageStore.prevPage"
-              ><IconCaretLeftFill
+              ><IconCaretLeft
             /></a>
           </li>
           <li
@@ -309,7 +288,7 @@ watch(
               aria-label="Go to next page"
               title="Next page"
               @click.prevent="packageStore.nextPage"
-              ><IconCaretRightFill
+              ><IconCaretRight
             /></a>
           </li>
           <li v-if="packageStore.pager.total > packageStore.pager.maxPages">
@@ -325,13 +304,13 @@ watch(
               @click.prevent="
                 packageStore.fetchPackages(packageStore.pager.total)
               "
-              ><IconSkipEndFill
+              ><IconSkipEnd
             /></a>
           </li>
         </ul>
       </nav>
       <div class="text-muted mb-3 text-center">
-        Showing packages {{ packageStore.page.offset + 1 }} -
+        Showing AIPs {{ packageStore.page.offset + 1 }} -
         {{ packageStore.lastResultOnPage }} of
         {{ packageStore.page.total }}
       </div>

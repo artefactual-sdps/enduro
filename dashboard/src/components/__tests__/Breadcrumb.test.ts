@@ -16,8 +16,9 @@ describe("Breadcrumb.vue", () => {
             initialState: {
               layout: {
                 breadcrumb: [
-                  { route: { name: "packages" }, text: "Packages" },
-                  { text: "Package.zip" },
+                  { text: "Ingest" },
+                  { route: { name: "sips" }, text: "SIPs" },
+                  { text: "SIP.zip" },
                 ],
               },
             },
@@ -26,7 +27,7 @@ describe("Breadcrumb.vue", () => {
             history: createWebHistory(),
             routes: [
               { name: "index", path: "", component: {} },
-              { name: "packages", path: "/packages", component: {} },
+              { name: "sips", path: "/ingest/sips", component: {} },
             ],
           }),
         ],
@@ -35,8 +36,9 @@ describe("Breadcrumb.vue", () => {
 
     getByRole("navigation", { name: "Breadcrumb" });
     getByRole("list");
+    getByText("Ingest");
+    getByRole("link", { name: "SIPs" });
     getByRole("listitem", { current: "page" });
-    getByRole("link", { name: "Packages" });
-    getByText("Package.zip");
+    getByText("SIP.zip");
   });
 });

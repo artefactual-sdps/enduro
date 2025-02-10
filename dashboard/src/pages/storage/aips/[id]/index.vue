@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { api } from "@/client";
-import PackageDetailsCard from "@/components/PackageDetailsCard.vue";
 import PackageLocationCard from "@/components/PackageLocationCard.vue";
 import PreservationActionCollapse from "@/components/PreservationActionCollapse.vue";
 import StatusBadge from "@/components/StatusBadge.vue";
@@ -8,8 +7,8 @@ import UUID from "@/components/UUID.vue";
 import { useAuthStore } from "@/stores/auth";
 import { usePackageStore } from "@/stores/package";
 import { computed } from "vue";
-import IconBoxArrowUpRight from "~icons/bi/box-arrow-up-right";
-import IconHelpSolid from "~icons/clarity/help-solid?height=0.8em&width=0.8em";
+import IconLink from "~icons/bi/box-arrow-up-right";
+import IconHelp from "~icons/clarity/help-solid?height=0.8em&width=0.8em";
 
 const authStore = useAuthStore();
 const packageStore = usePackageStore();
@@ -29,20 +28,18 @@ const createAipWorkflow = computed(
   <div v-if="packageStore.current">
     <div class="row">
       <div class="col-md-6">
-        <h2>AIP creation details</h2>
+        <h2>AIP details</h2>
         <dl>
           <dt>Name</dt>
           <dd>{{ packageStore.current.name }}</dd>
-          <dt>AIP UUID</dt>
+          <dt>UUID</dt>
           <dd><UUID :id="packageStore.current.aipId" /></dd>
-          <dt>Workflow status</dt>
+          <dt>Last workflow status</dt>
           <dd>
             <StatusBadge
               v-if="createAipWorkflow"
               :status="createAipWorkflow.status"
-              :note="
-                $filters.getPreservationActionLabel(createAipWorkflow.type)
-              "
+              note="Move AIP"
             />
           </dd>
           <dt>Started</dt>
@@ -64,7 +61,6 @@ const createAipWorkflow = computed(
       </div>
       <div class="col-md-6">
         <PackageLocationCard />
-        <PackageDetailsCard />
       </div>
     </div>
 
@@ -80,7 +76,7 @@ const createAipWorkflow = computed(
             aria-expanded="false"
             aria-controls="preservationActionHelp"
             aria-label="Show preservation action help"
-            ><IconHelpSolid alt="help"
+            ><IconHelp alt="help"
           /></a>
         </h2>
       </div>
@@ -105,7 +101,7 @@ const createAipWorkflow = computed(
             <a
               href="https://github.com/artefactual-sdps/enduro/blob/main/docs/src/user-manual/usage.md#view-tasks-in-enduro"
               target="_new"
-              >Learn more <IconBoxArrowUpRight alt="" aria-hidden="true"
+              >Learn more <IconLink alt="" aria-hidden="true"
             /></a>
           </div>
         </div>

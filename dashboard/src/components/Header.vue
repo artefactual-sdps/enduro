@@ -2,8 +2,8 @@
 import AboutDialogVue from "@/components/AboutDialog.vue";
 import Breadcrumb from "@/components/Breadcrumb.vue";
 import { useLayoutStore } from "@/stores/layout";
-import IconInfoStandardSolid from "~icons/clarity/info-standard-solid";
-import IconMenuLine from "~icons/clarity/menu-line";
+import IconInfo from "~icons/clarity/info-standard-solid";
+import IconMenu from "~icons/clarity/menu-line";
 import { openDialog } from "vue3-promise-dialog";
 
 const layoutStore = useLayoutStore();
@@ -23,7 +23,7 @@ const showAbout = async () => await openDialog(AboutDialogVue);
         aria-controls="menu-offcanvas"
         aria-label="Open navigation"
       >
-        <IconMenuLine
+        <IconMenu
           class="text-dark mx-1"
           style="font-size: 1.5em"
           aria-hidden="true"
@@ -40,7 +40,7 @@ const showAbout = async () => await openDialog(AboutDialogVue);
         "
         @click="layoutStore.toggleSidebar()"
       >
-        <IconMenuLine
+        <IconMenu
           class="text-dark mx-1"
           style="font-size: 1.5em"
           aria-hidden="true"
@@ -65,7 +65,7 @@ const showAbout = async () => await openDialog(AboutDialogVue);
         class="btn btn-link text-decoration-none p-3"
         aria-label="About Enduro"
       >
-        <IconInfoStandardSolid
+        <IconInfo
           class="text-primary mx-1"
           style="font-size: 1.5em"
           aria-hidden="true"

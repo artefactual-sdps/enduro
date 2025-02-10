@@ -47,22 +47,35 @@ const choose = async () => {
           authStore.checkAttributes(['package:move'])
         "
       >
-        <button
-          type="button"
-          class="btn btn-primary btn-sm"
-          @click="choose"
-          :disabled="!packageStore.isMovable"
-        >
-          <template v-if="packageStore.isMoving">
-            <span
-              class="spinner-grow spinner-grow-sm me-2"
-              role="status"
-              aria-hidden="true"
-            ></span>
-            Moving...
-          </template>
-          <template v-else>Choose storage location</template>
-        </button>
+        <div class="d-flex flex-wrap gap-2">
+          <button
+            type="button"
+            class="btn btn-primary btn-sm"
+            @click="choose"
+            :disabled="!packageStore.isMovable"
+          >
+            <template v-if="packageStore.isMoving">
+              <span
+                class="spinner-grow spinner-grow-sm me-2"
+                role="status"
+                aria-hidden="true"
+              ></span>
+              Moving...
+            </template>
+            <template v-else>Choose storage location</template>
+          </button>
+          <button
+            v-if="authStore.checkAttributes(['storage:package:download'])"
+            :class="{
+              btn: true,
+              'btn-primary': true,
+              'btn-sm': true,
+            }"
+            type="button"
+          >
+            Download
+          </button>
+        </div>
       </div>
     </div>
   </div>
