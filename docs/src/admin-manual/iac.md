@@ -157,25 +157,25 @@ attributes allow a wildcard hierarchical declaration. For example, `package:*`
 will give access to endpoints requiring `package:list`, `package:read`, etc.
 The `*` attribute will provide full access to the API.
 
-| Method | Endpoint                           | Attributes                      |
-| ------ | ---------------------------------- | ------------------------------- |
-| GET    | /package                           | `package:list`                  |
-| GET    | /package/{id}                      | `package:read`                  |
-| POST   | /package/{id}/confirm              | `package:review`                |
-| GET    | /package/{id}/move                 | `package:move`                  |
-| POST   | /package/{id}/move                 | `package:move`                  |
-| GET    | /package/{id}/preservation-actions | `package:listActions`           |
-| POST   | /package/{id}/reject               | `package:review`                |
-| POST   | /package/upload                    | `package:upload`                |
-| GET    | /storage/location                  | `storage:location:list`         |
-| POST   | /storage/location                  | `storage:location:create`       |
-| GET    | /storage/location/{uuid}           | `storage:location:read`         |
-| GET    | /storage/location/{uuid}/packages  | `storage:location:listPackages` |
-| POST   | /storage/package                   | `storage:package:create`        |
-| GET    | /storage/package/{aip_id}          | `storage:package:read`          |
-| GET    | /storage/package/{aip_id}/download | `storage:package:download`      |
-| POST   | /storage/package/{aip_id}/reject   | `storage:package:review`        |
-| GET    | /storage/package/{aip_id}/store    | `storage:package:move`          |
-| POST   | /storage/package/{aip_id}/store    | `storage:package:move`          |
-| POST   | /storage/package/{aip_id}/submit   | `storage:package:submit`        |
-| POST   | /storage/package/{aip_id}/update   | `storage:package:submit`        |
+| Method | Endpoint                                 | Attributes                  |
+| ------ | ---------------------------------------- | --------------------------- |
+| GET    | /ingest/sip                              | `ingest:sip:list`           |
+| GET    | /ingest/sip/{uuid}                       | `ingest:sip:read`           |
+| POST   | /ingest/sip/{uuid}/confirm               | `ingest:sip:review`         |
+| GET    | /ingest/sip/{uuid}/preservation-actions  | `ingest:sip:listActions`    |
+| POST   | /ingest/sip/{uuid}/reject                | `ingest:sip:review`         |
+| POST   | /ingest/sip/upload                       | `ingest:sip:upload`         |
+| GET    | /storage/location                        | `storage:location:list`     |
+| POST   | /storage/location                        | `storage:location:create`   |
+| GET    | /storage/location/{uuid}                 | `storage:location:read`     |
+| GET    | /storage/location/{uuid}/aips            | `storage:location:listAips` |
+| GET    | /storage/aip                             | `storage:aip:list`          |
+| POST   | /storage/aip                             | `storage:aip:create`        |
+| GET    | /storage/aip/{uuid}                      | `storage:aip:read`          |
+| GET    | /storage/aip/{uuid}/download             | `storage:aip:download`      |
+| GET    | /storage/aip/{uuid}/preservation-actions | `storage:aip:listActions`   |
+| POST   | /storage/aip/{uuid}/reject               | `storage:aip:review`        |
+| GET    | /storage/aip/{uuid}/store                | `storage:aip:move`          |
+| POST   | /storage/aip/{uuid}/store                | `storage:aip:move`          |
+| POST   | /storage/aip/{uuid}/submit               | `storage:aip:submit`        |
+| POST   | /storage/aip/{uuid}/update               | `storage:aip:submit`        |
