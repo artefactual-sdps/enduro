@@ -463,7 +463,7 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 		createPackageLocalActivity,
 		ctx,
 		pkgsvc,
-		&createPackageLocalActivityParams{Key: key, Status: enums.PackageStatusQueued},
+		&createPackageLocalActivityParams{Key: key, Status: enums.SIPStatusQueued},
 	).Return(pkgID, nil).Once()
 	s.env.OnActivity(
 		setStatusInProgressLocalActivity,
@@ -503,7 +503,7 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 		sessionCtx,
 		activities.ClassifyPackageActivityParams{Path: extractPath},
 	).Return(
-		&activities.ClassifyPackageActivityResult{Type: enums.PackageTypeBagIt}, nil,
+		&activities.ClassifyPackageActivityResult{Type: enums.SIPTypeBagIt}, nil,
 	)
 
 	s.env.OnActivity(
@@ -659,7 +659,7 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	// Activity mocks/assertions sequence
 	s.env.OnActivity(createPackageLocalActivity, ctx,
 		pkgsvc,
-		&createPackageLocalActivityParams{Key: key, Status: enums.PackageStatusQueued},
+		&createPackageLocalActivityParams{Key: key, Status: enums.SIPStatusQueued},
 	).Return(pkgID, nil)
 
 	s.env.OnActivity(setStatusInProgressLocalActivity, ctx, pkgsvc, pkgID, mock.AnythingOfType("time.Time")).
@@ -686,7 +686,7 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 		sessionCtx,
 		activities.ClassifyPackageActivityParams{Path: extractPath},
 	).Return(
-		&activities.ClassifyPackageActivityResult{Type: enums.PackageTypeUnknown}, nil,
+		&activities.ClassifyPackageActivityResult{Type: enums.SIPTypeUnknown}, nil,
 	)
 
 	// Archivematica specific activities.
@@ -883,7 +883,7 @@ func (s *ProcessingWorkflowTestSuite) TestPackageRejection() {
 		sessionCtx,
 		activities.ClassifyPackageActivityParams{Path: extractPath},
 	).Return(
-		&activities.ClassifyPackageActivityResult{Type: enums.PackageTypeUnknown}, nil,
+		&activities.ClassifyPackageActivityResult{Type: enums.SIPTypeUnknown}, nil,
 	)
 
 	s.env.OnActivity(activities.BundleActivityName, sessionCtx,
@@ -987,7 +987,7 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 		createPackageLocalActivity,
 		ctx,
 		pkgsvc,
-		&createPackageLocalActivityParams{Key: key, Status: enums.PackageStatusQueued},
+		&createPackageLocalActivityParams{Key: key, Status: enums.SIPStatusQueued},
 	).Return(pkgID, nil)
 
 	s.env.OnActivity(
@@ -1071,7 +1071,7 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 		sessionCtx,
 		activities.ClassifyPackageActivityParams{Path: prepDest},
 	).Return(
-		&activities.ClassifyPackageActivityResult{Type: enums.PackageTypeBagIt}, nil,
+		&activities.ClassifyPackageActivityResult{Type: enums.SIPTypeBagIt}, nil,
 	)
 
 	s.env.OnActivity(
@@ -1257,7 +1257,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedSIP() {
 		createPackageLocalActivity,
 		ctx,
 		pkgsvc,
-		&createPackageLocalActivityParams{Key: key, Status: enums.PackageStatusQueued},
+		&createPackageLocalActivityParams{Key: key, Status: enums.SIPStatusQueued},
 	).Return(pkgID, nil)
 
 	s.env.OnActivity(
@@ -1372,7 +1372,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPA3m() {
 		createPackageLocalActivity,
 		ctx,
 		pkgsvc,
-		&createPackageLocalActivityParams{Key: key, Status: enums.PackageStatusQueued},
+		&createPackageLocalActivityParams{Key: key, Status: enums.SIPStatusQueued},
 	).Return(pkgID, nil)
 
 	s.env.OnActivity(
@@ -1416,7 +1416,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPA3m() {
 		activities.ClassifyPackageActivityName,
 		sessionCtx,
 		activities.ClassifyPackageActivityParams{Path: extractPath},
-	).Return(&activities.ClassifyPackageActivityResult{Type: enums.PackageTypeBagIt}, nil)
+	).Return(&activities.ClassifyPackageActivityResult{Type: enums.SIPTypeBagIt}, nil)
 
 	s.env.OnActivity(
 		createPreservationTaskLocalActivity,
@@ -1535,7 +1535,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPAM() {
 		createPackageLocalActivity,
 		ctx,
 		pkgsvc,
-		&createPackageLocalActivityParams{Key: key, Status: enums.PackageStatusQueued},
+		&createPackageLocalActivityParams{Key: key, Status: enums.SIPStatusQueued},
 	).Return(pkgID, nil)
 
 	s.env.OnActivity(setStatusInProgressLocalActivity, ctx, pkgsvc, pkgID, mock.AnythingOfType("time.Time")).
@@ -1570,7 +1570,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPAM() {
 		activities.ClassifyPackageActivityName,
 		sessionCtx,
 		activities.ClassifyPackageActivityParams{Path: extractPath},
-	).Return(&activities.ClassifyPackageActivityResult{Type: enums.PackageTypeUnknown}, nil)
+	).Return(&activities.ClassifyPackageActivityResult{Type: enums.SIPTypeUnknown}, nil)
 
 	s.env.OnActivity(bagcreate.Name, sessionCtx, &bagcreate.Params{SourcePath: extractPath}).
 		Return(&bagcreate.Result{BagPath: extractPath}, nil)

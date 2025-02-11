@@ -11,10 +11,10 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/pkg"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/predicate"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/preservationaction"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/preservationtask"
+	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/sip"
 	"github.com/google/uuid"
 )
 
@@ -27,999 +27,33 @@ const (
 	OpUpdateOne = ent.OpUpdateOne
 
 	// Node types.
-	TypePkg                = "Pkg"
 	TypePreservationAction = "PreservationAction"
 	TypePreservationTask   = "PreservationTask"
+	TypeSIP                = "SIP"
 )
-
-// PkgMutation represents an operation that mutates the Pkg nodes in the graph.
-type PkgMutation struct {
-	config
-	op                          Op
-	typ                         string
-	id                          *int
-	name                        *string
-	workflow_id                 *string
-	run_id                      *uuid.UUID
-	aip_id                      *uuid.UUID
-	location_id                 *uuid.UUID
-	status                      *int8
-	addstatus                   *int8
-	created_at                  *time.Time
-	started_at                  *time.Time
-	completed_at                *time.Time
-	clearedFields               map[string]struct{}
-	preservation_actions        map[int]struct{}
-	removedpreservation_actions map[int]struct{}
-	clearedpreservation_actions bool
-	done                        bool
-	oldValue                    func(context.Context) (*Pkg, error)
-	predicates                  []predicate.Pkg
-}
-
-var _ ent.Mutation = (*PkgMutation)(nil)
-
-// pkgOption allows management of the mutation configuration using functional options.
-type pkgOption func(*PkgMutation)
-
-// newPkgMutation creates new mutation for the Pkg entity.
-func newPkgMutation(c config, op Op, opts ...pkgOption) *PkgMutation {
-	m := &PkgMutation{
-		config:        c,
-		op:            op,
-		typ:           TypePkg,
-		clearedFields: make(map[string]struct{}),
-	}
-	for _, opt := range opts {
-		opt(m)
-	}
-	return m
-}
-
-// withPkgID sets the ID field of the mutation.
-func withPkgID(id int) pkgOption {
-	return func(m *PkgMutation) {
-		var (
-			err   error
-			once  sync.Once
-			value *Pkg
-		)
-		m.oldValue = func(ctx context.Context) (*Pkg, error) {
-			once.Do(func() {
-				if m.done {
-					err = errors.New("querying old values post mutation is not allowed")
-				} else {
-					value, err = m.Client().Pkg.Get(ctx, id)
-				}
-			})
-			return value, err
-		}
-		m.id = &id
-	}
-}
-
-// withPkg sets the old Pkg of the mutation.
-func withPkg(node *Pkg) pkgOption {
-	return func(m *PkgMutation) {
-		m.oldValue = func(context.Context) (*Pkg, error) {
-			return node, nil
-		}
-		m.id = &node.ID
-	}
-}
-
-// Client returns a new `ent.Client` from the mutation. If the mutation was
-// executed in a transaction (ent.Tx), a transactional client is returned.
-func (m PkgMutation) Client() *Client {
-	client := &Client{config: m.config}
-	client.init()
-	return client
-}
-
-// Tx returns an `ent.Tx` for mutations that were executed in transactions;
-// it returns an error otherwise.
-func (m PkgMutation) Tx() (*Tx, error) {
-	if _, ok := m.driver.(*txDriver); !ok {
-		return nil, errors.New("db: mutation is not running in a transaction")
-	}
-	tx := &Tx{config: m.config}
-	tx.init()
-	return tx, nil
-}
-
-// ID returns the ID value in the mutation. Note that the ID is only available
-// if it was provided to the builder or after it was returned from the database.
-func (m *PkgMutation) ID() (id int, exists bool) {
-	if m.id == nil {
-		return
-	}
-	return *m.id, true
-}
-
-// IDs queries the database and returns the entity ids that match the mutation's predicate.
-// That means, if the mutation is applied within a transaction with an isolation level such
-// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
-// or updated by the mutation.
-func (m *PkgMutation) IDs(ctx context.Context) ([]int, error) {
-	switch {
-	case m.op.Is(OpUpdateOne | OpDeleteOne):
-		id, exists := m.ID()
-		if exists {
-			return []int{id}, nil
-		}
-		fallthrough
-	case m.op.Is(OpUpdate | OpDelete):
-		return m.Client().Pkg.Query().Where(m.predicates...).IDs(ctx)
-	default:
-		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
-	}
-}
-
-// SetName sets the "name" field.
-func (m *PkgMutation) SetName(s string) {
-	m.name = &s
-}
-
-// Name returns the value of the "name" field in the mutation.
-func (m *PkgMutation) Name() (r string, exists bool) {
-	v := m.name
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldName returns the old "name" field's value of the Pkg entity.
-// If the Pkg object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PkgMutation) OldName(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldName is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldName requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldName: %w", err)
-	}
-	return oldValue.Name, nil
-}
-
-// ResetName resets all changes to the "name" field.
-func (m *PkgMutation) ResetName() {
-	m.name = nil
-}
-
-// SetWorkflowID sets the "workflow_id" field.
-func (m *PkgMutation) SetWorkflowID(s string) {
-	m.workflow_id = &s
-}
-
-// WorkflowID returns the value of the "workflow_id" field in the mutation.
-func (m *PkgMutation) WorkflowID() (r string, exists bool) {
-	v := m.workflow_id
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldWorkflowID returns the old "workflow_id" field's value of the Pkg entity.
-// If the Pkg object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PkgMutation) OldWorkflowID(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldWorkflowID is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldWorkflowID requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldWorkflowID: %w", err)
-	}
-	return oldValue.WorkflowID, nil
-}
-
-// ResetWorkflowID resets all changes to the "workflow_id" field.
-func (m *PkgMutation) ResetWorkflowID() {
-	m.workflow_id = nil
-}
-
-// SetRunID sets the "run_id" field.
-func (m *PkgMutation) SetRunID(u uuid.UUID) {
-	m.run_id = &u
-}
-
-// RunID returns the value of the "run_id" field in the mutation.
-func (m *PkgMutation) RunID() (r uuid.UUID, exists bool) {
-	v := m.run_id
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldRunID returns the old "run_id" field's value of the Pkg entity.
-// If the Pkg object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PkgMutation) OldRunID(ctx context.Context) (v uuid.UUID, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldRunID is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldRunID requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldRunID: %w", err)
-	}
-	return oldValue.RunID, nil
-}
-
-// ResetRunID resets all changes to the "run_id" field.
-func (m *PkgMutation) ResetRunID() {
-	m.run_id = nil
-}
-
-// SetAipID sets the "aip_id" field.
-func (m *PkgMutation) SetAipID(u uuid.UUID) {
-	m.aip_id = &u
-}
-
-// AipID returns the value of the "aip_id" field in the mutation.
-func (m *PkgMutation) AipID() (r uuid.UUID, exists bool) {
-	v := m.aip_id
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldAipID returns the old "aip_id" field's value of the Pkg entity.
-// If the Pkg object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PkgMutation) OldAipID(ctx context.Context) (v uuid.UUID, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldAipID is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldAipID requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldAipID: %w", err)
-	}
-	return oldValue.AipID, nil
-}
-
-// ClearAipID clears the value of the "aip_id" field.
-func (m *PkgMutation) ClearAipID() {
-	m.aip_id = nil
-	m.clearedFields[pkg.FieldAipID] = struct{}{}
-}
-
-// AipIDCleared returns if the "aip_id" field was cleared in this mutation.
-func (m *PkgMutation) AipIDCleared() bool {
-	_, ok := m.clearedFields[pkg.FieldAipID]
-	return ok
-}
-
-// ResetAipID resets all changes to the "aip_id" field.
-func (m *PkgMutation) ResetAipID() {
-	m.aip_id = nil
-	delete(m.clearedFields, pkg.FieldAipID)
-}
-
-// SetLocationID sets the "location_id" field.
-func (m *PkgMutation) SetLocationID(u uuid.UUID) {
-	m.location_id = &u
-}
-
-// LocationID returns the value of the "location_id" field in the mutation.
-func (m *PkgMutation) LocationID() (r uuid.UUID, exists bool) {
-	v := m.location_id
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldLocationID returns the old "location_id" field's value of the Pkg entity.
-// If the Pkg object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PkgMutation) OldLocationID(ctx context.Context) (v uuid.UUID, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldLocationID is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldLocationID requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldLocationID: %w", err)
-	}
-	return oldValue.LocationID, nil
-}
-
-// ClearLocationID clears the value of the "location_id" field.
-func (m *PkgMutation) ClearLocationID() {
-	m.location_id = nil
-	m.clearedFields[pkg.FieldLocationID] = struct{}{}
-}
-
-// LocationIDCleared returns if the "location_id" field was cleared in this mutation.
-func (m *PkgMutation) LocationIDCleared() bool {
-	_, ok := m.clearedFields[pkg.FieldLocationID]
-	return ok
-}
-
-// ResetLocationID resets all changes to the "location_id" field.
-func (m *PkgMutation) ResetLocationID() {
-	m.location_id = nil
-	delete(m.clearedFields, pkg.FieldLocationID)
-}
-
-// SetStatus sets the "status" field.
-func (m *PkgMutation) SetStatus(i int8) {
-	m.status = &i
-	m.addstatus = nil
-}
-
-// Status returns the value of the "status" field in the mutation.
-func (m *PkgMutation) Status() (r int8, exists bool) {
-	v := m.status
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldStatus returns the old "status" field's value of the Pkg entity.
-// If the Pkg object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PkgMutation) OldStatus(ctx context.Context) (v int8, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldStatus is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldStatus requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldStatus: %w", err)
-	}
-	return oldValue.Status, nil
-}
-
-// AddStatus adds i to the "status" field.
-func (m *PkgMutation) AddStatus(i int8) {
-	if m.addstatus != nil {
-		*m.addstatus += i
-	} else {
-		m.addstatus = &i
-	}
-}
-
-// AddedStatus returns the value that was added to the "status" field in this mutation.
-func (m *PkgMutation) AddedStatus() (r int8, exists bool) {
-	v := m.addstatus
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// ResetStatus resets all changes to the "status" field.
-func (m *PkgMutation) ResetStatus() {
-	m.status = nil
-	m.addstatus = nil
-}
-
-// SetCreatedAt sets the "created_at" field.
-func (m *PkgMutation) SetCreatedAt(t time.Time) {
-	m.created_at = &t
-}
-
-// CreatedAt returns the value of the "created_at" field in the mutation.
-func (m *PkgMutation) CreatedAt() (r time.Time, exists bool) {
-	v := m.created_at
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldCreatedAt returns the old "created_at" field's value of the Pkg entity.
-// If the Pkg object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PkgMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
-	}
-	return oldValue.CreatedAt, nil
-}
-
-// ResetCreatedAt resets all changes to the "created_at" field.
-func (m *PkgMutation) ResetCreatedAt() {
-	m.created_at = nil
-}
-
-// SetStartedAt sets the "started_at" field.
-func (m *PkgMutation) SetStartedAt(t time.Time) {
-	m.started_at = &t
-}
-
-// StartedAt returns the value of the "started_at" field in the mutation.
-func (m *PkgMutation) StartedAt() (r time.Time, exists bool) {
-	v := m.started_at
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldStartedAt returns the old "started_at" field's value of the Pkg entity.
-// If the Pkg object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PkgMutation) OldStartedAt(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldStartedAt is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldStartedAt requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldStartedAt: %w", err)
-	}
-	return oldValue.StartedAt, nil
-}
-
-// ClearStartedAt clears the value of the "started_at" field.
-func (m *PkgMutation) ClearStartedAt() {
-	m.started_at = nil
-	m.clearedFields[pkg.FieldStartedAt] = struct{}{}
-}
-
-// StartedAtCleared returns if the "started_at" field was cleared in this mutation.
-func (m *PkgMutation) StartedAtCleared() bool {
-	_, ok := m.clearedFields[pkg.FieldStartedAt]
-	return ok
-}
-
-// ResetStartedAt resets all changes to the "started_at" field.
-func (m *PkgMutation) ResetStartedAt() {
-	m.started_at = nil
-	delete(m.clearedFields, pkg.FieldStartedAt)
-}
-
-// SetCompletedAt sets the "completed_at" field.
-func (m *PkgMutation) SetCompletedAt(t time.Time) {
-	m.completed_at = &t
-}
-
-// CompletedAt returns the value of the "completed_at" field in the mutation.
-func (m *PkgMutation) CompletedAt() (r time.Time, exists bool) {
-	v := m.completed_at
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldCompletedAt returns the old "completed_at" field's value of the Pkg entity.
-// If the Pkg object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PkgMutation) OldCompletedAt(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldCompletedAt is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldCompletedAt requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCompletedAt: %w", err)
-	}
-	return oldValue.CompletedAt, nil
-}
-
-// ClearCompletedAt clears the value of the "completed_at" field.
-func (m *PkgMutation) ClearCompletedAt() {
-	m.completed_at = nil
-	m.clearedFields[pkg.FieldCompletedAt] = struct{}{}
-}
-
-// CompletedAtCleared returns if the "completed_at" field was cleared in this mutation.
-func (m *PkgMutation) CompletedAtCleared() bool {
-	_, ok := m.clearedFields[pkg.FieldCompletedAt]
-	return ok
-}
-
-// ResetCompletedAt resets all changes to the "completed_at" field.
-func (m *PkgMutation) ResetCompletedAt() {
-	m.completed_at = nil
-	delete(m.clearedFields, pkg.FieldCompletedAt)
-}
-
-// AddPreservationActionIDs adds the "preservation_actions" edge to the PreservationAction entity by ids.
-func (m *PkgMutation) AddPreservationActionIDs(ids ...int) {
-	if m.preservation_actions == nil {
-		m.preservation_actions = make(map[int]struct{})
-	}
-	for i := range ids {
-		m.preservation_actions[ids[i]] = struct{}{}
-	}
-}
-
-// ClearPreservationActions clears the "preservation_actions" edge to the PreservationAction entity.
-func (m *PkgMutation) ClearPreservationActions() {
-	m.clearedpreservation_actions = true
-}
-
-// PreservationActionsCleared reports if the "preservation_actions" edge to the PreservationAction entity was cleared.
-func (m *PkgMutation) PreservationActionsCleared() bool {
-	return m.clearedpreservation_actions
-}
-
-// RemovePreservationActionIDs removes the "preservation_actions" edge to the PreservationAction entity by IDs.
-func (m *PkgMutation) RemovePreservationActionIDs(ids ...int) {
-	if m.removedpreservation_actions == nil {
-		m.removedpreservation_actions = make(map[int]struct{})
-	}
-	for i := range ids {
-		delete(m.preservation_actions, ids[i])
-		m.removedpreservation_actions[ids[i]] = struct{}{}
-	}
-}
-
-// RemovedPreservationActions returns the removed IDs of the "preservation_actions" edge to the PreservationAction entity.
-func (m *PkgMutation) RemovedPreservationActionsIDs() (ids []int) {
-	for id := range m.removedpreservation_actions {
-		ids = append(ids, id)
-	}
-	return
-}
-
-// PreservationActionsIDs returns the "preservation_actions" edge IDs in the mutation.
-func (m *PkgMutation) PreservationActionsIDs() (ids []int) {
-	for id := range m.preservation_actions {
-		ids = append(ids, id)
-	}
-	return
-}
-
-// ResetPreservationActions resets all changes to the "preservation_actions" edge.
-func (m *PkgMutation) ResetPreservationActions() {
-	m.preservation_actions = nil
-	m.clearedpreservation_actions = false
-	m.removedpreservation_actions = nil
-}
-
-// Where appends a list predicates to the PkgMutation builder.
-func (m *PkgMutation) Where(ps ...predicate.Pkg) {
-	m.predicates = append(m.predicates, ps...)
-}
-
-// WhereP appends storage-level predicates to the PkgMutation builder. Using this method,
-// users can use type-assertion to append predicates that do not depend on any generated package.
-func (m *PkgMutation) WhereP(ps ...func(*sql.Selector)) {
-	p := make([]predicate.Pkg, len(ps))
-	for i := range ps {
-		p[i] = ps[i]
-	}
-	m.Where(p...)
-}
-
-// Op returns the operation name.
-func (m *PkgMutation) Op() Op {
-	return m.op
-}
-
-// SetOp allows setting the mutation operation.
-func (m *PkgMutation) SetOp(op Op) {
-	m.op = op
-}
-
-// Type returns the node type of this mutation (Pkg).
-func (m *PkgMutation) Type() string {
-	return m.typ
-}
-
-// Fields returns all fields that were changed during this mutation. Note that in
-// order to get all numeric fields that were incremented/decremented, call
-// AddedFields().
-func (m *PkgMutation) Fields() []string {
-	fields := make([]string, 0, 9)
-	if m.name != nil {
-		fields = append(fields, pkg.FieldName)
-	}
-	if m.workflow_id != nil {
-		fields = append(fields, pkg.FieldWorkflowID)
-	}
-	if m.run_id != nil {
-		fields = append(fields, pkg.FieldRunID)
-	}
-	if m.aip_id != nil {
-		fields = append(fields, pkg.FieldAipID)
-	}
-	if m.location_id != nil {
-		fields = append(fields, pkg.FieldLocationID)
-	}
-	if m.status != nil {
-		fields = append(fields, pkg.FieldStatus)
-	}
-	if m.created_at != nil {
-		fields = append(fields, pkg.FieldCreatedAt)
-	}
-	if m.started_at != nil {
-		fields = append(fields, pkg.FieldStartedAt)
-	}
-	if m.completed_at != nil {
-		fields = append(fields, pkg.FieldCompletedAt)
-	}
-	return fields
-}
-
-// Field returns the value of a field with the given name. The second boolean
-// return value indicates that this field was not set, or was not defined in the
-// schema.
-func (m *PkgMutation) Field(name string) (ent.Value, bool) {
-	switch name {
-	case pkg.FieldName:
-		return m.Name()
-	case pkg.FieldWorkflowID:
-		return m.WorkflowID()
-	case pkg.FieldRunID:
-		return m.RunID()
-	case pkg.FieldAipID:
-		return m.AipID()
-	case pkg.FieldLocationID:
-		return m.LocationID()
-	case pkg.FieldStatus:
-		return m.Status()
-	case pkg.FieldCreatedAt:
-		return m.CreatedAt()
-	case pkg.FieldStartedAt:
-		return m.StartedAt()
-	case pkg.FieldCompletedAt:
-		return m.CompletedAt()
-	}
-	return nil, false
-}
-
-// OldField returns the old value of the field from the database. An error is
-// returned if the mutation operation is not UpdateOne, or the query to the
-// database failed.
-func (m *PkgMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
-	switch name {
-	case pkg.FieldName:
-		return m.OldName(ctx)
-	case pkg.FieldWorkflowID:
-		return m.OldWorkflowID(ctx)
-	case pkg.FieldRunID:
-		return m.OldRunID(ctx)
-	case pkg.FieldAipID:
-		return m.OldAipID(ctx)
-	case pkg.FieldLocationID:
-		return m.OldLocationID(ctx)
-	case pkg.FieldStatus:
-		return m.OldStatus(ctx)
-	case pkg.FieldCreatedAt:
-		return m.OldCreatedAt(ctx)
-	case pkg.FieldStartedAt:
-		return m.OldStartedAt(ctx)
-	case pkg.FieldCompletedAt:
-		return m.OldCompletedAt(ctx)
-	}
-	return nil, fmt.Errorf("unknown Pkg field %s", name)
-}
-
-// SetField sets the value of a field with the given name. It returns an error if
-// the field is not defined in the schema, or if the type mismatched the field
-// type.
-func (m *PkgMutation) SetField(name string, value ent.Value) error {
-	switch name {
-	case pkg.FieldName:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetName(v)
-		return nil
-	case pkg.FieldWorkflowID:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetWorkflowID(v)
-		return nil
-	case pkg.FieldRunID:
-		v, ok := value.(uuid.UUID)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetRunID(v)
-		return nil
-	case pkg.FieldAipID:
-		v, ok := value.(uuid.UUID)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetAipID(v)
-		return nil
-	case pkg.FieldLocationID:
-		v, ok := value.(uuid.UUID)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetLocationID(v)
-		return nil
-	case pkg.FieldStatus:
-		v, ok := value.(int8)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetStatus(v)
-		return nil
-	case pkg.FieldCreatedAt:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetCreatedAt(v)
-		return nil
-	case pkg.FieldStartedAt:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetStartedAt(v)
-		return nil
-	case pkg.FieldCompletedAt:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetCompletedAt(v)
-		return nil
-	}
-	return fmt.Errorf("unknown Pkg field %s", name)
-}
-
-// AddedFields returns all numeric fields that were incremented/decremented during
-// this mutation.
-func (m *PkgMutation) AddedFields() []string {
-	var fields []string
-	if m.addstatus != nil {
-		fields = append(fields, pkg.FieldStatus)
-	}
-	return fields
-}
-
-// AddedField returns the numeric value that was incremented/decremented on a field
-// with the given name. The second boolean return value indicates that this field
-// was not set, or was not defined in the schema.
-func (m *PkgMutation) AddedField(name string) (ent.Value, bool) {
-	switch name {
-	case pkg.FieldStatus:
-		return m.AddedStatus()
-	}
-	return nil, false
-}
-
-// AddField adds the value to the field with the given name. It returns an error if
-// the field is not defined in the schema, or if the type mismatched the field
-// type.
-func (m *PkgMutation) AddField(name string, value ent.Value) error {
-	switch name {
-	case pkg.FieldStatus:
-		v, ok := value.(int8)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddStatus(v)
-		return nil
-	}
-	return fmt.Errorf("unknown Pkg numeric field %s", name)
-}
-
-// ClearedFields returns all nullable fields that were cleared during this
-// mutation.
-func (m *PkgMutation) ClearedFields() []string {
-	var fields []string
-	if m.FieldCleared(pkg.FieldAipID) {
-		fields = append(fields, pkg.FieldAipID)
-	}
-	if m.FieldCleared(pkg.FieldLocationID) {
-		fields = append(fields, pkg.FieldLocationID)
-	}
-	if m.FieldCleared(pkg.FieldStartedAt) {
-		fields = append(fields, pkg.FieldStartedAt)
-	}
-	if m.FieldCleared(pkg.FieldCompletedAt) {
-		fields = append(fields, pkg.FieldCompletedAt)
-	}
-	return fields
-}
-
-// FieldCleared returns a boolean indicating if a field with the given name was
-// cleared in this mutation.
-func (m *PkgMutation) FieldCleared(name string) bool {
-	_, ok := m.clearedFields[name]
-	return ok
-}
-
-// ClearField clears the value of the field with the given name. It returns an
-// error if the field is not defined in the schema.
-func (m *PkgMutation) ClearField(name string) error {
-	switch name {
-	case pkg.FieldAipID:
-		m.ClearAipID()
-		return nil
-	case pkg.FieldLocationID:
-		m.ClearLocationID()
-		return nil
-	case pkg.FieldStartedAt:
-		m.ClearStartedAt()
-		return nil
-	case pkg.FieldCompletedAt:
-		m.ClearCompletedAt()
-		return nil
-	}
-	return fmt.Errorf("unknown Pkg nullable field %s", name)
-}
-
-// ResetField resets all changes in the mutation for the field with the given name.
-// It returns an error if the field is not defined in the schema.
-func (m *PkgMutation) ResetField(name string) error {
-	switch name {
-	case pkg.FieldName:
-		m.ResetName()
-		return nil
-	case pkg.FieldWorkflowID:
-		m.ResetWorkflowID()
-		return nil
-	case pkg.FieldRunID:
-		m.ResetRunID()
-		return nil
-	case pkg.FieldAipID:
-		m.ResetAipID()
-		return nil
-	case pkg.FieldLocationID:
-		m.ResetLocationID()
-		return nil
-	case pkg.FieldStatus:
-		m.ResetStatus()
-		return nil
-	case pkg.FieldCreatedAt:
-		m.ResetCreatedAt()
-		return nil
-	case pkg.FieldStartedAt:
-		m.ResetStartedAt()
-		return nil
-	case pkg.FieldCompletedAt:
-		m.ResetCompletedAt()
-		return nil
-	}
-	return fmt.Errorf("unknown Pkg field %s", name)
-}
-
-// AddedEdges returns all edge names that were set/added in this mutation.
-func (m *PkgMutation) AddedEdges() []string {
-	edges := make([]string, 0, 1)
-	if m.preservation_actions != nil {
-		edges = append(edges, pkg.EdgePreservationActions)
-	}
-	return edges
-}
-
-// AddedIDs returns all IDs (to other nodes) that were added for the given edge
-// name in this mutation.
-func (m *PkgMutation) AddedIDs(name string) []ent.Value {
-	switch name {
-	case pkg.EdgePreservationActions:
-		ids := make([]ent.Value, 0, len(m.preservation_actions))
-		for id := range m.preservation_actions {
-			ids = append(ids, id)
-		}
-		return ids
-	}
-	return nil
-}
-
-// RemovedEdges returns all edge names that were removed in this mutation.
-func (m *PkgMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 1)
-	if m.removedpreservation_actions != nil {
-		edges = append(edges, pkg.EdgePreservationActions)
-	}
-	return edges
-}
-
-// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
-// the given name in this mutation.
-func (m *PkgMutation) RemovedIDs(name string) []ent.Value {
-	switch name {
-	case pkg.EdgePreservationActions:
-		ids := make([]ent.Value, 0, len(m.removedpreservation_actions))
-		for id := range m.removedpreservation_actions {
-			ids = append(ids, id)
-		}
-		return ids
-	}
-	return nil
-}
-
-// ClearedEdges returns all edge names that were cleared in this mutation.
-func (m *PkgMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 1)
-	if m.clearedpreservation_actions {
-		edges = append(edges, pkg.EdgePreservationActions)
-	}
-	return edges
-}
-
-// EdgeCleared returns a boolean which indicates if the edge with the given name
-// was cleared in this mutation.
-func (m *PkgMutation) EdgeCleared(name string) bool {
-	switch name {
-	case pkg.EdgePreservationActions:
-		return m.clearedpreservation_actions
-	}
-	return false
-}
-
-// ClearEdge clears the value of the edge with the given name. It returns an error
-// if that edge is not defined in the schema.
-func (m *PkgMutation) ClearEdge(name string) error {
-	switch name {
-	}
-	return fmt.Errorf("unknown Pkg unique edge %s", name)
-}
-
-// ResetEdge resets all changes to the edge with the given name in this mutation.
-// It returns an error if the edge is not defined in the schema.
-func (m *PkgMutation) ResetEdge(name string) error {
-	switch name {
-	case pkg.EdgePreservationActions:
-		m.ResetPreservationActions()
-		return nil
-	}
-	return fmt.Errorf("unknown Pkg edge %s", name)
-}
 
 // PreservationActionMutation represents an operation that mutates the PreservationAction nodes in the graph.
 type PreservationActionMutation struct {
 	config
-	op              Op
-	typ             string
-	id              *int
-	workflow_id     *string
-	_type           *int8
-	add_type        *int8
-	status          *int8
-	addstatus       *int8
-	started_at      *time.Time
-	completed_at    *time.Time
-	clearedFields   map[string]struct{}
-	_package        *int
-	cleared_package bool
-	tasks           map[int]struct{}
-	removedtasks    map[int]struct{}
-	clearedtasks    bool
-	done            bool
-	oldValue        func(context.Context) (*PreservationAction, error)
-	predicates      []predicate.PreservationAction
+	op            Op
+	typ           string
+	id            *int
+	workflow_id   *string
+	_type         *int8
+	add_type      *int8
+	status        *int8
+	addstatus     *int8
+	started_at    *time.Time
+	completed_at  *time.Time
+	clearedFields map[string]struct{}
+	sip           *int
+	clearedsip    bool
+	tasks         map[int]struct{}
+	removedtasks  map[int]struct{}
+	clearedtasks  bool
+	done          bool
+	oldValue      func(context.Context) (*PreservationAction, error)
+	predicates    []predicate.PreservationAction
 }
 
 var _ ent.Mutation = (*PreservationActionMutation)(nil)
@@ -1366,67 +400,67 @@ func (m *PreservationActionMutation) ResetCompletedAt() {
 	delete(m.clearedFields, preservationaction.FieldCompletedAt)
 }
 
-// SetPackageID sets the "package_id" field.
-func (m *PreservationActionMutation) SetPackageID(i int) {
-	m._package = &i
+// SetSipID sets the "sip_id" field.
+func (m *PreservationActionMutation) SetSipID(i int) {
+	m.sip = &i
 }
 
-// PackageID returns the value of the "package_id" field in the mutation.
-func (m *PreservationActionMutation) PackageID() (r int, exists bool) {
-	v := m._package
+// SipID returns the value of the "sip_id" field in the mutation.
+func (m *PreservationActionMutation) SipID() (r int, exists bool) {
+	v := m.sip
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldPackageID returns the old "package_id" field's value of the PreservationAction entity.
+// OldSipID returns the old "sip_id" field's value of the PreservationAction entity.
 // If the PreservationAction object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PreservationActionMutation) OldPackageID(ctx context.Context) (v int, err error) {
+func (m *PreservationActionMutation) OldSipID(ctx context.Context) (v int, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldPackageID is only allowed on UpdateOne operations")
+		return v, errors.New("OldSipID is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldPackageID requires an ID field in the mutation")
+		return v, errors.New("OldSipID requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldPackageID: %w", err)
+		return v, fmt.Errorf("querying old value for OldSipID: %w", err)
 	}
-	return oldValue.PackageID, nil
+	return oldValue.SipID, nil
 }
 
-// ResetPackageID resets all changes to the "package_id" field.
-func (m *PreservationActionMutation) ResetPackageID() {
-	m._package = nil
+// ResetSipID resets all changes to the "sip_id" field.
+func (m *PreservationActionMutation) ResetSipID() {
+	m.sip = nil
 }
 
-// ClearPackage clears the "package" edge to the Pkg entity.
-func (m *PreservationActionMutation) ClearPackage() {
-	m.cleared_package = true
-	m.clearedFields[preservationaction.FieldPackageID] = struct{}{}
+// ClearSip clears the "sip" edge to the SIP entity.
+func (m *PreservationActionMutation) ClearSip() {
+	m.clearedsip = true
+	m.clearedFields[preservationaction.FieldSipID] = struct{}{}
 }
 
-// PackageCleared reports if the "package" edge to the Pkg entity was cleared.
-func (m *PreservationActionMutation) PackageCleared() bool {
-	return m.cleared_package
+// SipCleared reports if the "sip" edge to the SIP entity was cleared.
+func (m *PreservationActionMutation) SipCleared() bool {
+	return m.clearedsip
 }
 
-// PackageIDs returns the "package" edge IDs in the mutation.
+// SipIDs returns the "sip" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// PackageID instead. It exists only for internal usage by the builders.
-func (m *PreservationActionMutation) PackageIDs() (ids []int) {
-	if id := m._package; id != nil {
+// SipID instead. It exists only for internal usage by the builders.
+func (m *PreservationActionMutation) SipIDs() (ids []int) {
+	if id := m.sip; id != nil {
 		ids = append(ids, *id)
 	}
 	return
 }
 
-// ResetPackage resets all changes to the "package" edge.
-func (m *PreservationActionMutation) ResetPackage() {
-	m._package = nil
-	m.cleared_package = false
+// ResetSip resets all changes to the "sip" edge.
+func (m *PreservationActionMutation) ResetSip() {
+	m.sip = nil
+	m.clearedsip = false
 }
 
 // AddTaskIDs adds the "tasks" edge to the PreservationTask entity by ids.
@@ -1533,8 +567,8 @@ func (m *PreservationActionMutation) Fields() []string {
 	if m.completed_at != nil {
 		fields = append(fields, preservationaction.FieldCompletedAt)
 	}
-	if m._package != nil {
-		fields = append(fields, preservationaction.FieldPackageID)
+	if m.sip != nil {
+		fields = append(fields, preservationaction.FieldSipID)
 	}
 	return fields
 }
@@ -1554,8 +588,8 @@ func (m *PreservationActionMutation) Field(name string) (ent.Value, bool) {
 		return m.StartedAt()
 	case preservationaction.FieldCompletedAt:
 		return m.CompletedAt()
-	case preservationaction.FieldPackageID:
-		return m.PackageID()
+	case preservationaction.FieldSipID:
+		return m.SipID()
 	}
 	return nil, false
 }
@@ -1575,8 +609,8 @@ func (m *PreservationActionMutation) OldField(ctx context.Context, name string) 
 		return m.OldStartedAt(ctx)
 	case preservationaction.FieldCompletedAt:
 		return m.OldCompletedAt(ctx)
-	case preservationaction.FieldPackageID:
-		return m.OldPackageID(ctx)
+	case preservationaction.FieldSipID:
+		return m.OldSipID(ctx)
 	}
 	return nil, fmt.Errorf("unknown PreservationAction field %s", name)
 }
@@ -1621,12 +655,12 @@ func (m *PreservationActionMutation) SetField(name string, value ent.Value) erro
 		}
 		m.SetCompletedAt(v)
 		return nil
-	case preservationaction.FieldPackageID:
+	case preservationaction.FieldSipID:
 		v, ok := value.(int)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetPackageID(v)
+		m.SetSipID(v)
 		return nil
 	}
 	return fmt.Errorf("unknown PreservationAction field %s", name)
@@ -1734,8 +768,8 @@ func (m *PreservationActionMutation) ResetField(name string) error {
 	case preservationaction.FieldCompletedAt:
 		m.ResetCompletedAt()
 		return nil
-	case preservationaction.FieldPackageID:
-		m.ResetPackageID()
+	case preservationaction.FieldSipID:
+		m.ResetSipID()
 		return nil
 	}
 	return fmt.Errorf("unknown PreservationAction field %s", name)
@@ -1744,8 +778,8 @@ func (m *PreservationActionMutation) ResetField(name string) error {
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *PreservationActionMutation) AddedEdges() []string {
 	edges := make([]string, 0, 2)
-	if m._package != nil {
-		edges = append(edges, preservationaction.EdgePackage)
+	if m.sip != nil {
+		edges = append(edges, preservationaction.EdgeSip)
 	}
 	if m.tasks != nil {
 		edges = append(edges, preservationaction.EdgeTasks)
@@ -1757,8 +791,8 @@ func (m *PreservationActionMutation) AddedEdges() []string {
 // name in this mutation.
 func (m *PreservationActionMutation) AddedIDs(name string) []ent.Value {
 	switch name {
-	case preservationaction.EdgePackage:
-		if id := m._package; id != nil {
+	case preservationaction.EdgeSip:
+		if id := m.sip; id != nil {
 			return []ent.Value{*id}
 		}
 	case preservationaction.EdgeTasks:
@@ -1797,8 +831,8 @@ func (m *PreservationActionMutation) RemovedIDs(name string) []ent.Value {
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *PreservationActionMutation) ClearedEdges() []string {
 	edges := make([]string, 0, 2)
-	if m.cleared_package {
-		edges = append(edges, preservationaction.EdgePackage)
+	if m.clearedsip {
+		edges = append(edges, preservationaction.EdgeSip)
 	}
 	if m.clearedtasks {
 		edges = append(edges, preservationaction.EdgeTasks)
@@ -1810,8 +844,8 @@ func (m *PreservationActionMutation) ClearedEdges() []string {
 // was cleared in this mutation.
 func (m *PreservationActionMutation) EdgeCleared(name string) bool {
 	switch name {
-	case preservationaction.EdgePackage:
-		return m.cleared_package
+	case preservationaction.EdgeSip:
+		return m.clearedsip
 	case preservationaction.EdgeTasks:
 		return m.clearedtasks
 	}
@@ -1822,8 +856,8 @@ func (m *PreservationActionMutation) EdgeCleared(name string) bool {
 // if that edge is not defined in the schema.
 func (m *PreservationActionMutation) ClearEdge(name string) error {
 	switch name {
-	case preservationaction.EdgePackage:
-		m.ClearPackage()
+	case preservationaction.EdgeSip:
+		m.ClearSip()
 		return nil
 	}
 	return fmt.Errorf("unknown PreservationAction unique edge %s", name)
@@ -1833,8 +867,8 @@ func (m *PreservationActionMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *PreservationActionMutation) ResetEdge(name string) error {
 	switch name {
-	case preservationaction.EdgePackage:
-		m.ResetPackage()
+	case preservationaction.EdgeSip:
+		m.ResetSip()
 		return nil
 	case preservationaction.EdgeTasks:
 		m.ResetTasks()
@@ -2635,4 +1669,970 @@ func (m *PreservationTaskMutation) ResetEdge(name string) error {
 		return nil
 	}
 	return fmt.Errorf("unknown PreservationTask edge %s", name)
+}
+
+// SIPMutation represents an operation that mutates the SIP nodes in the graph.
+type SIPMutation struct {
+	config
+	op                          Op
+	typ                         string
+	id                          *int
+	name                        *string
+	workflow_id                 *string
+	run_id                      *uuid.UUID
+	aip_id                      *uuid.UUID
+	location_id                 *uuid.UUID
+	status                      *int8
+	addstatus                   *int8
+	created_at                  *time.Time
+	started_at                  *time.Time
+	completed_at                *time.Time
+	clearedFields               map[string]struct{}
+	preservation_actions        map[int]struct{}
+	removedpreservation_actions map[int]struct{}
+	clearedpreservation_actions bool
+	done                        bool
+	oldValue                    func(context.Context) (*SIP, error)
+	predicates                  []predicate.SIP
+}
+
+var _ ent.Mutation = (*SIPMutation)(nil)
+
+// sipOption allows management of the mutation configuration using functional options.
+type sipOption func(*SIPMutation)
+
+// newSIPMutation creates new mutation for the SIP entity.
+func newSIPMutation(c config, op Op, opts ...sipOption) *SIPMutation {
+	m := &SIPMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeSIP,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withSIPID sets the ID field of the mutation.
+func withSIPID(id int) sipOption {
+	return func(m *SIPMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *SIP
+		)
+		m.oldValue = func(ctx context.Context) (*SIP, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().SIP.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withSIP sets the old SIP of the mutation.
+func withSIP(node *SIP) sipOption {
+	return func(m *SIPMutation) {
+		m.oldValue = func(context.Context) (*SIP, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m SIPMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m SIPMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("db: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *SIPMutation) ID() (id int, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *SIPMutation) IDs(ctx context.Context) ([]int, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []int{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().SIP.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetName sets the "name" field.
+func (m *SIPMutation) SetName(s string) {
+	m.name = &s
+}
+
+// Name returns the value of the "name" field in the mutation.
+func (m *SIPMutation) Name() (r string, exists bool) {
+	v := m.name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldName returns the old "name" field's value of the SIP entity.
+// If the SIP object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SIPMutation) OldName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldName: %w", err)
+	}
+	return oldValue.Name, nil
+}
+
+// ResetName resets all changes to the "name" field.
+func (m *SIPMutation) ResetName() {
+	m.name = nil
+}
+
+// SetWorkflowID sets the "workflow_id" field.
+func (m *SIPMutation) SetWorkflowID(s string) {
+	m.workflow_id = &s
+}
+
+// WorkflowID returns the value of the "workflow_id" field in the mutation.
+func (m *SIPMutation) WorkflowID() (r string, exists bool) {
+	v := m.workflow_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldWorkflowID returns the old "workflow_id" field's value of the SIP entity.
+// If the SIP object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SIPMutation) OldWorkflowID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldWorkflowID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldWorkflowID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldWorkflowID: %w", err)
+	}
+	return oldValue.WorkflowID, nil
+}
+
+// ResetWorkflowID resets all changes to the "workflow_id" field.
+func (m *SIPMutation) ResetWorkflowID() {
+	m.workflow_id = nil
+}
+
+// SetRunID sets the "run_id" field.
+func (m *SIPMutation) SetRunID(u uuid.UUID) {
+	m.run_id = &u
+}
+
+// RunID returns the value of the "run_id" field in the mutation.
+func (m *SIPMutation) RunID() (r uuid.UUID, exists bool) {
+	v := m.run_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRunID returns the old "run_id" field's value of the SIP entity.
+// If the SIP object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SIPMutation) OldRunID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRunID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRunID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRunID: %w", err)
+	}
+	return oldValue.RunID, nil
+}
+
+// ResetRunID resets all changes to the "run_id" field.
+func (m *SIPMutation) ResetRunID() {
+	m.run_id = nil
+}
+
+// SetAipID sets the "aip_id" field.
+func (m *SIPMutation) SetAipID(u uuid.UUID) {
+	m.aip_id = &u
+}
+
+// AipID returns the value of the "aip_id" field in the mutation.
+func (m *SIPMutation) AipID() (r uuid.UUID, exists bool) {
+	v := m.aip_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAipID returns the old "aip_id" field's value of the SIP entity.
+// If the SIP object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SIPMutation) OldAipID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAipID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAipID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAipID: %w", err)
+	}
+	return oldValue.AipID, nil
+}
+
+// ClearAipID clears the value of the "aip_id" field.
+func (m *SIPMutation) ClearAipID() {
+	m.aip_id = nil
+	m.clearedFields[sip.FieldAipID] = struct{}{}
+}
+
+// AipIDCleared returns if the "aip_id" field was cleared in this mutation.
+func (m *SIPMutation) AipIDCleared() bool {
+	_, ok := m.clearedFields[sip.FieldAipID]
+	return ok
+}
+
+// ResetAipID resets all changes to the "aip_id" field.
+func (m *SIPMutation) ResetAipID() {
+	m.aip_id = nil
+	delete(m.clearedFields, sip.FieldAipID)
+}
+
+// SetLocationID sets the "location_id" field.
+func (m *SIPMutation) SetLocationID(u uuid.UUID) {
+	m.location_id = &u
+}
+
+// LocationID returns the value of the "location_id" field in the mutation.
+func (m *SIPMutation) LocationID() (r uuid.UUID, exists bool) {
+	v := m.location_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldLocationID returns the old "location_id" field's value of the SIP entity.
+// If the SIP object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SIPMutation) OldLocationID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldLocationID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldLocationID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldLocationID: %w", err)
+	}
+	return oldValue.LocationID, nil
+}
+
+// ClearLocationID clears the value of the "location_id" field.
+func (m *SIPMutation) ClearLocationID() {
+	m.location_id = nil
+	m.clearedFields[sip.FieldLocationID] = struct{}{}
+}
+
+// LocationIDCleared returns if the "location_id" field was cleared in this mutation.
+func (m *SIPMutation) LocationIDCleared() bool {
+	_, ok := m.clearedFields[sip.FieldLocationID]
+	return ok
+}
+
+// ResetLocationID resets all changes to the "location_id" field.
+func (m *SIPMutation) ResetLocationID() {
+	m.location_id = nil
+	delete(m.clearedFields, sip.FieldLocationID)
+}
+
+// SetStatus sets the "status" field.
+func (m *SIPMutation) SetStatus(i int8) {
+	m.status = &i
+	m.addstatus = nil
+}
+
+// Status returns the value of the "status" field in the mutation.
+func (m *SIPMutation) Status() (r int8, exists bool) {
+	v := m.status
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStatus returns the old "status" field's value of the SIP entity.
+// If the SIP object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SIPMutation) OldStatus(ctx context.Context) (v int8, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStatus is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStatus requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStatus: %w", err)
+	}
+	return oldValue.Status, nil
+}
+
+// AddStatus adds i to the "status" field.
+func (m *SIPMutation) AddStatus(i int8) {
+	if m.addstatus != nil {
+		*m.addstatus += i
+	} else {
+		m.addstatus = &i
+	}
+}
+
+// AddedStatus returns the value that was added to the "status" field in this mutation.
+func (m *SIPMutation) AddedStatus() (r int8, exists bool) {
+	v := m.addstatus
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetStatus resets all changes to the "status" field.
+func (m *SIPMutation) ResetStatus() {
+	m.status = nil
+	m.addstatus = nil
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *SIPMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *SIPMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the SIP entity.
+// If the SIP object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SIPMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *SIPMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetStartedAt sets the "started_at" field.
+func (m *SIPMutation) SetStartedAt(t time.Time) {
+	m.started_at = &t
+}
+
+// StartedAt returns the value of the "started_at" field in the mutation.
+func (m *SIPMutation) StartedAt() (r time.Time, exists bool) {
+	v := m.started_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStartedAt returns the old "started_at" field's value of the SIP entity.
+// If the SIP object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SIPMutation) OldStartedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStartedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStartedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStartedAt: %w", err)
+	}
+	return oldValue.StartedAt, nil
+}
+
+// ClearStartedAt clears the value of the "started_at" field.
+func (m *SIPMutation) ClearStartedAt() {
+	m.started_at = nil
+	m.clearedFields[sip.FieldStartedAt] = struct{}{}
+}
+
+// StartedAtCleared returns if the "started_at" field was cleared in this mutation.
+func (m *SIPMutation) StartedAtCleared() bool {
+	_, ok := m.clearedFields[sip.FieldStartedAt]
+	return ok
+}
+
+// ResetStartedAt resets all changes to the "started_at" field.
+func (m *SIPMutation) ResetStartedAt() {
+	m.started_at = nil
+	delete(m.clearedFields, sip.FieldStartedAt)
+}
+
+// SetCompletedAt sets the "completed_at" field.
+func (m *SIPMutation) SetCompletedAt(t time.Time) {
+	m.completed_at = &t
+}
+
+// CompletedAt returns the value of the "completed_at" field in the mutation.
+func (m *SIPMutation) CompletedAt() (r time.Time, exists bool) {
+	v := m.completed_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCompletedAt returns the old "completed_at" field's value of the SIP entity.
+// If the SIP object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SIPMutation) OldCompletedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCompletedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCompletedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCompletedAt: %w", err)
+	}
+	return oldValue.CompletedAt, nil
+}
+
+// ClearCompletedAt clears the value of the "completed_at" field.
+func (m *SIPMutation) ClearCompletedAt() {
+	m.completed_at = nil
+	m.clearedFields[sip.FieldCompletedAt] = struct{}{}
+}
+
+// CompletedAtCleared returns if the "completed_at" field was cleared in this mutation.
+func (m *SIPMutation) CompletedAtCleared() bool {
+	_, ok := m.clearedFields[sip.FieldCompletedAt]
+	return ok
+}
+
+// ResetCompletedAt resets all changes to the "completed_at" field.
+func (m *SIPMutation) ResetCompletedAt() {
+	m.completed_at = nil
+	delete(m.clearedFields, sip.FieldCompletedAt)
+}
+
+// AddPreservationActionIDs adds the "preservation_actions" edge to the PreservationAction entity by ids.
+func (m *SIPMutation) AddPreservationActionIDs(ids ...int) {
+	if m.preservation_actions == nil {
+		m.preservation_actions = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.preservation_actions[ids[i]] = struct{}{}
+	}
+}
+
+// ClearPreservationActions clears the "preservation_actions" edge to the PreservationAction entity.
+func (m *SIPMutation) ClearPreservationActions() {
+	m.clearedpreservation_actions = true
+}
+
+// PreservationActionsCleared reports if the "preservation_actions" edge to the PreservationAction entity was cleared.
+func (m *SIPMutation) PreservationActionsCleared() bool {
+	return m.clearedpreservation_actions
+}
+
+// RemovePreservationActionIDs removes the "preservation_actions" edge to the PreservationAction entity by IDs.
+func (m *SIPMutation) RemovePreservationActionIDs(ids ...int) {
+	if m.removedpreservation_actions == nil {
+		m.removedpreservation_actions = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.preservation_actions, ids[i])
+		m.removedpreservation_actions[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedPreservationActions returns the removed IDs of the "preservation_actions" edge to the PreservationAction entity.
+func (m *SIPMutation) RemovedPreservationActionsIDs() (ids []int) {
+	for id := range m.removedpreservation_actions {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// PreservationActionsIDs returns the "preservation_actions" edge IDs in the mutation.
+func (m *SIPMutation) PreservationActionsIDs() (ids []int) {
+	for id := range m.preservation_actions {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetPreservationActions resets all changes to the "preservation_actions" edge.
+func (m *SIPMutation) ResetPreservationActions() {
+	m.preservation_actions = nil
+	m.clearedpreservation_actions = false
+	m.removedpreservation_actions = nil
+}
+
+// Where appends a list predicates to the SIPMutation builder.
+func (m *SIPMutation) Where(ps ...predicate.SIP) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the SIPMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *SIPMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.SIP, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *SIPMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *SIPMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (SIP).
+func (m *SIPMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *SIPMutation) Fields() []string {
+	fields := make([]string, 0, 9)
+	if m.name != nil {
+		fields = append(fields, sip.FieldName)
+	}
+	if m.workflow_id != nil {
+		fields = append(fields, sip.FieldWorkflowID)
+	}
+	if m.run_id != nil {
+		fields = append(fields, sip.FieldRunID)
+	}
+	if m.aip_id != nil {
+		fields = append(fields, sip.FieldAipID)
+	}
+	if m.location_id != nil {
+		fields = append(fields, sip.FieldLocationID)
+	}
+	if m.status != nil {
+		fields = append(fields, sip.FieldStatus)
+	}
+	if m.created_at != nil {
+		fields = append(fields, sip.FieldCreatedAt)
+	}
+	if m.started_at != nil {
+		fields = append(fields, sip.FieldStartedAt)
+	}
+	if m.completed_at != nil {
+		fields = append(fields, sip.FieldCompletedAt)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *SIPMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case sip.FieldName:
+		return m.Name()
+	case sip.FieldWorkflowID:
+		return m.WorkflowID()
+	case sip.FieldRunID:
+		return m.RunID()
+	case sip.FieldAipID:
+		return m.AipID()
+	case sip.FieldLocationID:
+		return m.LocationID()
+	case sip.FieldStatus:
+		return m.Status()
+	case sip.FieldCreatedAt:
+		return m.CreatedAt()
+	case sip.FieldStartedAt:
+		return m.StartedAt()
+	case sip.FieldCompletedAt:
+		return m.CompletedAt()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *SIPMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case sip.FieldName:
+		return m.OldName(ctx)
+	case sip.FieldWorkflowID:
+		return m.OldWorkflowID(ctx)
+	case sip.FieldRunID:
+		return m.OldRunID(ctx)
+	case sip.FieldAipID:
+		return m.OldAipID(ctx)
+	case sip.FieldLocationID:
+		return m.OldLocationID(ctx)
+	case sip.FieldStatus:
+		return m.OldStatus(ctx)
+	case sip.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case sip.FieldStartedAt:
+		return m.OldStartedAt(ctx)
+	case sip.FieldCompletedAt:
+		return m.OldCompletedAt(ctx)
+	}
+	return nil, fmt.Errorf("unknown SIP field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *SIPMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case sip.FieldName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetName(v)
+		return nil
+	case sip.FieldWorkflowID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetWorkflowID(v)
+		return nil
+	case sip.FieldRunID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRunID(v)
+		return nil
+	case sip.FieldAipID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAipID(v)
+		return nil
+	case sip.FieldLocationID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetLocationID(v)
+		return nil
+	case sip.FieldStatus:
+		v, ok := value.(int8)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStatus(v)
+		return nil
+	case sip.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case sip.FieldStartedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStartedAt(v)
+		return nil
+	case sip.FieldCompletedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCompletedAt(v)
+		return nil
+	}
+	return fmt.Errorf("unknown SIP field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *SIPMutation) AddedFields() []string {
+	var fields []string
+	if m.addstatus != nil {
+		fields = append(fields, sip.FieldStatus)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *SIPMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case sip.FieldStatus:
+		return m.AddedStatus()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *SIPMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case sip.FieldStatus:
+		v, ok := value.(int8)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddStatus(v)
+		return nil
+	}
+	return fmt.Errorf("unknown SIP numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *SIPMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(sip.FieldAipID) {
+		fields = append(fields, sip.FieldAipID)
+	}
+	if m.FieldCleared(sip.FieldLocationID) {
+		fields = append(fields, sip.FieldLocationID)
+	}
+	if m.FieldCleared(sip.FieldStartedAt) {
+		fields = append(fields, sip.FieldStartedAt)
+	}
+	if m.FieldCleared(sip.FieldCompletedAt) {
+		fields = append(fields, sip.FieldCompletedAt)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *SIPMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *SIPMutation) ClearField(name string) error {
+	switch name {
+	case sip.FieldAipID:
+		m.ClearAipID()
+		return nil
+	case sip.FieldLocationID:
+		m.ClearLocationID()
+		return nil
+	case sip.FieldStartedAt:
+		m.ClearStartedAt()
+		return nil
+	case sip.FieldCompletedAt:
+		m.ClearCompletedAt()
+		return nil
+	}
+	return fmt.Errorf("unknown SIP nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *SIPMutation) ResetField(name string) error {
+	switch name {
+	case sip.FieldName:
+		m.ResetName()
+		return nil
+	case sip.FieldWorkflowID:
+		m.ResetWorkflowID()
+		return nil
+	case sip.FieldRunID:
+		m.ResetRunID()
+		return nil
+	case sip.FieldAipID:
+		m.ResetAipID()
+		return nil
+	case sip.FieldLocationID:
+		m.ResetLocationID()
+		return nil
+	case sip.FieldStatus:
+		m.ResetStatus()
+		return nil
+	case sip.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case sip.FieldStartedAt:
+		m.ResetStartedAt()
+		return nil
+	case sip.FieldCompletedAt:
+		m.ResetCompletedAt()
+		return nil
+	}
+	return fmt.Errorf("unknown SIP field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *SIPMutation) AddedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.preservation_actions != nil {
+		edges = append(edges, sip.EdgePreservationActions)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *SIPMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case sip.EdgePreservationActions:
+		ids := make([]ent.Value, 0, len(m.preservation_actions))
+		for id := range m.preservation_actions {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *SIPMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.removedpreservation_actions != nil {
+		edges = append(edges, sip.EdgePreservationActions)
+	}
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *SIPMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case sip.EdgePreservationActions:
+		ids := make([]ent.Value, 0, len(m.removedpreservation_actions))
+		for id := range m.removedpreservation_actions {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *SIPMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.clearedpreservation_actions {
+		edges = append(edges, sip.EdgePreservationActions)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *SIPMutation) EdgeCleared(name string) bool {
+	switch name {
+	case sip.EdgePreservationActions:
+		return m.clearedpreservation_actions
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *SIPMutation) ClearEdge(name string) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown SIP unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *SIPMutation) ResetEdge(name string) error {
+	switch name {
+	case sip.EdgePreservationActions:
+		m.ResetPreservationActions()
+		return nil
+	}
+	return fmt.Errorf("unknown SIP edge %s", name)
 }

@@ -24,7 +24,7 @@ func NewStorageMoveWorkflow(storagesvc storage.Service) *StorageMoveWorkflow {
 func (w *StorageMoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req storage.StorageMoveWorkflowRequest) error {
 	// Set package status to moving.
 	{
-		if err := w.updatePackageStatus(ctx, types.StatusMoving, req.AIPID); err != nil {
+		if err := w.updatePackageStatus(ctx, types.AIPStatusMoving, req.AIPID); err != nil {
 			return err
 		}
 	}
@@ -97,7 +97,7 @@ func (w *StorageMoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req stor
 
 	// Set package status to stored.
 	{
-		if err := w.updatePackageStatus(ctx, types.StatusStored, req.AIPID); err != nil {
+		if err := w.updatePackageStatus(ctx, types.AIPStatusStored, req.AIPID); err != nil {
 			return err
 		}
 	}
@@ -107,7 +107,7 @@ func (w *StorageMoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req stor
 
 func (w *StorageMoveWorkflow) updatePackageStatus(
 	ctx temporalsdk_workflow.Context,
-	st types.PackageStatus,
+	st types.AIPStatus,
 	aipID uuid.UUID,
 ) error {
 	activityOpts := temporalsdk_workflow.WithLocalActivityOptions(ctx, temporalsdk_workflow.LocalActivityOptions{

@@ -1,14 +1,26 @@
-// Example:
+// Example (ingest):
+//
+//  1. Make changes to schema files (internal/persistence/ent/schema),
+//  2. Re-generate (make gen-ent),
+//  3. Use an empty MySQL database,
+//  4. Run:
+//     $ go run ./cmd/migrate/ \
+//     --db="ingest" \
+//     --dsn="mysql://root:root123@tcp(localhost:3306)/enduro_migrate" \
+//     --path="./internal/db/migrations" \
+//     --name="changes"
+//
+// Example (storage):
 //
 //  1. Make changes to schema files (internal/storage/persistence/ent/schema),
 //  2. Re-generate (make gen-ent),
-//  3. Drop any existing database tables or delete and re-create the database,
+//  3. Use an empty MySQL database,
 //  4. Run:
 //     $ go run ./cmd/migrate/ \
-//     --config="./enduro.toml" \
-//     --dsn="mysql://enduro:enduro123@tcp(localhost:3306)/enduro_storage" \
-//     --name="init" \
-//     --path="./internal/storage/persistence/migrations"
+//     --db="storage" \
+//     --dsn="mysql://root:root123@tcp(localhost:3306)/enduro_migrate" \
+//     --path="./internal/storage/persistence/migrations" \
+//     --name="changes"
 package main
 
 import (
@@ -16,7 +28,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path/filepath"
 	"strings"
 
 	"ariga.io/atlas/sql/sqltool"
@@ -25,40 +36,38 @@ import (
 	"github.com/go-sql-driver/mysql"
 	"github.com/spf13/pflag"
 
-	"github.com/artefactual-sdps/enduro/internal/config"
-	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/migrate"
+	ingest_migrate "github.com/artefactual-sdps/enduro/internal/persistence/ent/db/migrate"
+	storage_migrate "github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/migrate"
 )
 
 func main() {
 	p := pflag.NewFlagSet("migrate", pflag.ExitOnError)
-	p.String("config", "", "Configuration file")
+	p.String("db", "", "Enduro database ('ingest' or 'storage')")
 	p.String("dsn", "", "MySQL DSN")
 	p.String("path", "", "Migration directory")
 	p.String("name", "changes", "Migration name")
 	_ = p.Parse(os.Args[1:])
 
-	path, _ := p.GetString("path")
-	if path == "" {
-		wd, err := os.Getwd()
-		if err != nil {
-			os.Exit(1)
-		}
-		// Guessing that running it from the root folder.
-		path = filepath.Join(wd, "internal/storage/persistence/migrations")
+	db, _ := p.GetString("db")
+	if db == "" {
+		fmt.Printf("--db flag is missing")
+		os.Exit(1)
 	}
-
-	var cfg config.Configuration
-	configFile, _ := p.GetString("config")
-	_, _, err := config.Read(&cfg, configFile)
-	if err != nil {
-		fmt.Printf("Failed to read configuration: %v\n", err)
+	if db != "ingest" && db != "storage" {
+		fmt.Printf("--db flag has an unexpected value (use 'ingest' or 'storage')")
 		os.Exit(1)
 	}
 
-	DSN := cfg.Storage.Database.DSN
-	flagDSN, _ := p.GetString("dsn")
-	if flagDSN != "" {
-		DSN = flagDSN
+	DSN, _ := p.GetString("dsn")
+	if DSN == "" {
+		fmt.Printf("--dsn flag is missing")
+		os.Exit(1)
+	}
+
+	path, _ := p.GetString("path")
+	if path == "" {
+		fmt.Printf("--path flag is missing")
+		os.Exit(1)
 	}
 
 	// MySQL's DSN format is not accepted by Ent, convert as needed (remove Net).
@@ -89,11 +98,17 @@ func main() {
 		schema.WithDir(dir),                         // provide migration directory
 		schema.WithMigrationMode(schema.ModeReplay), // provide migration mode
 		schema.WithDialect(dialect.MySQL),           // Ent dialect to use
+		schema.WithDropIndex(true),
+		schema.WithDropColumn(true),
 	}
 
 	// Generate migrations using Atlas support for TiDB (note the Ent dialect option passed above).
 	name, _ := p.GetString("name")
-	err = migrate.NamedDiff(ctx, entDSN, name, opts...)
+	if db == "ingest" {
+		err = ingest_migrate.NamedDiff(ctx, entDSN, name, opts...)
+	} else {
+		err = storage_migrate.NamedDiff(ctx, entDSN, name, opts...)
+	}
 	if err != nil {
 		log.Fatalf("failed generating migration file: %v", err)
 	}

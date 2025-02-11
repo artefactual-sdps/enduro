@@ -15,6 +15,7 @@ else
 endif
 
 include hack/make/bootstrap.mk
+include hack/make/dep_atlas.mk
 include hack/make/dep_ent.mk
 include hack/make/dep_go_enums.mk
 include hack/make/dep_goa.mk
@@ -30,7 +31,8 @@ include hack/make/dep_tparse.mk
 include hack/make/dep_workflowcheck.mk
 
 # Lazy-evaluated list of tools.
-TOOLS = $(ENT) \
+TOOLS = $(ATLAS) \
+	$(ENT) \
 	$(GO_ENUM) \
 	$(GOA) \
 	$(GOLANGCI_LINT) \
@@ -67,6 +69,14 @@ TEST_IGNORED_PACKAGES = $(filter $(IGNORED_PACKAGES),$(PACKAGES))
 
 
 export PATH:=$(GOBIN):$(PATH)
+
+atlas-hash: $(ATLAS) # @HELP Recalculate the migration hashes.
+	atlas migrate hash \
+		--dir="file://internal/db/migrations" \
+		--dir-format="atlas"
+	atlas migrate hash \
+		--dir="file://internal/storage/persistence/migrations" \
+		--dir-format="atlas"
 
 db: # @HELP Opens the MySQL shell connected to the enduro development database.
 db:
@@ -106,8 +116,8 @@ gen-enums: # @HELP Generate go-enum assets.
 gen-enums: ENUM_FLAGS = --names --template=$(CURDIR)/hack/make/enums.tmpl
 gen-enums: $(GO_ENUM)
 	go-enum $(ENUM_FLAGS) \
-		-f internal/enums/package_type.go \
-		-f internal/enums/pkg_status.go \
+		-f internal/enums/sip_type.go \
+		-f internal/enums/sip_status.go \
 		-f internal/enums/preprocessing_task_outcome.go \
 		-f internal/enums/pres_action_status.go \
 		-f internal/enums/pres_action_type.go \

@@ -211,7 +211,7 @@ func TestConvertJobToPreservationTask(t *testing.T) {
 			want: datatypes.PreservationTask{
 				TaskID: "f60018ac-da79-4769-9509-c6c41d5efe7e",
 				Name:   "Move to processing directory",
-				Status: enums.PreservationTaskStatus(enums.PackageStatusDone),
+				Status: enums.PreservationTaskStatusDone,
 				StartedAt: sql.NullTime{
 					Time:  time.Date(2024, time.January, 18, 1, 27, 49, 0, time.UTC),
 					Valid: true,
@@ -251,7 +251,7 @@ func TestConvertJobToPreservationTask(t *testing.T) {
 			want: datatypes.PreservationTask{
 				TaskID: "c2128d39-2ace-47c5-8cac-39ded8d9c9ef",
 				Name:   "Verify SIP compliance",
-				Status: enums.PreservationTaskStatus(enums.PackageStatusInProgress),
+				Status: enums.PreservationTaskStatusInProgress,
 				StartedAt: sql.NullTime{
 					Time:  time.Date(2024, time.January, 18, 1, 27, 49, 0, time.UTC),
 					Valid: true,

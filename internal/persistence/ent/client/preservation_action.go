@@ -12,8 +12,8 @@ func (c *client) CreatePreservationAction(ctx context.Context, pa *datatypes.Pre
 	if pa.WorkflowID == "" {
 		return newRequiredFieldError("WorkflowID")
 	}
-	if pa.PackageID == 0 {
-		return newRequiredFieldError("PackageID")
+	if pa.SIPID == 0 {
+		return newRequiredFieldError("SIPID")
 	}
 
 	// TODO: Validate Type & Status enums.
@@ -35,7 +35,7 @@ func (c *client) CreatePreservationAction(ctx context.Context, pa *datatypes.Pre
 		SetStatus(int8(pa.Status)). // #nosec G115 -- constrained value.
 		SetNillableStartedAt(startedAt).
 		SetNillableCompletedAt(completedAt).
-		SetPackageID(pa.PackageID)
+		SetSipID(pa.SIPID)
 
 	r, err := q.Save(ctx)
 	if err != nil {

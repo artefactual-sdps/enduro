@@ -21,8 +21,8 @@ func TestCreatePreservationAction(t *testing.T) {
 	completed := sql.NullTime{Time: started.Time.Add(time.Second), Valid: true}
 
 	type params struct {
-		pa           *datatypes.PreservationAction
-		setPackageID bool
+		pa       *datatypes.PreservationAction
+		setSIPID bool
 	}
 	tests := []struct {
 		name    string
@@ -40,7 +40,7 @@ func TestCreatePreservationAction(t *testing.T) {
 					StartedAt:   started,
 					CompletedAt: completed,
 				},
-				setPackageID: true,
+				setSIPID: true,
 			},
 			want: &datatypes.PreservationAction{
 				ID:          1,
@@ -49,7 +49,7 @@ func TestCreatePreservationAction(t *testing.T) {
 				Status:      enums.PreservationActionStatusDone,
 				StartedAt:   started,
 				CompletedAt: completed,
-				PackageID:   1,
+				SIPID:       1,
 			},
 		},
 		{
@@ -63,7 +63,7 @@ func TestCreatePreservationAction(t *testing.T) {
 			wantErr: "invalid data error: field \"WorkflowID\" is required",
 		},
 		{
-			name: "Required field error for missing PackageID",
+			name: "Required field error for missing SIPID",
 			args: params{
 				pa: &datatypes.PreservationAction{
 					WorkflowID: workflowID,
@@ -71,16 +71,16 @@ func TestCreatePreservationAction(t *testing.T) {
 					Status:     enums.PreservationActionStatusDone,
 				},
 			},
-			wantErr: "invalid data error: field \"PackageID\" is required",
+			wantErr: "invalid data error: field \"SIPID\" is required",
 		},
 		{
-			name: "Foreign key error on an invalid PackageID",
+			name: "Foreign key error on an invalid SIPID",
 			args: params{
 				pa: &datatypes.PreservationAction{
 					WorkflowID: workflowID,
 					Type:       9,
 					Status:     enums.PreservationActionStatusDone,
-					PackageID:  12345,
+					SIPID:      12345,
 				},
 			},
 			wantErr: "invalid data error: db: constraint failed: FOREIGN KEY constraint failed: create preservation action",
@@ -92,15 +92,15 @@ func TestCreatePreservationAction(t *testing.T) {
 
 			entc, svc := setUpClient(t, logr.Discard())
 			ctx := context.Background()
-			pkg, _ := createPackage(
+			sip, _ := createSIP(
 				entc,
-				"Test package",
-				enums.PackageStatusInProgress,
+				"Test SIP",
+				enums.SIPStatusInProgress,
 			)
 
 			pa := *tt.args.pa // Make a local copy.
-			if tt.args.setPackageID {
-				pa.PackageID = pkg.ID
+			if tt.args.setSIPID {
+				pa.SIPID = sip.ID
 			}
 
 			err := svc.CreatePreservationAction(ctx, &pa)

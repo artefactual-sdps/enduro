@@ -12,4 +12,4 @@ abandoned    // User abandoned processing.
 pending      // Awaiting user decision.
 )
 */
-type PackageStatus uint
+type SIPStatus uint

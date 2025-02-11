@@ -9,6 +9,18 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db"
 )
 
+// The AIPFunc type is an adapter to allow the use of ordinary
+// function as AIP mutator.
+type AIPFunc func(context.Context, *db.AIPMutation) (db.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f AIPFunc) Mutate(ctx context.Context, m db.Mutation) (db.Value, error) {
+	if mv, ok := m.(*db.AIPMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *db.AIPMutation", m)
+}
+
 // The LocationFunc type is an adapter to allow the use of ordinary
 // function as Location mutator.
 type LocationFunc func(context.Context, *db.LocationMutation) (db.Value, error)
@@ -19,18 +31,6 @@ func (f LocationFunc) Mutate(ctx context.Context, m db.Mutation) (db.Value, erro
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *db.LocationMutation", m)
-}
-
-// The PkgFunc type is an adapter to allow the use of ordinary
-// function as Pkg mutator.
-type PkgFunc func(context.Context, *db.PkgMutation) (db.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f PkgFunc) Mutate(ctx context.Context, m db.Mutation) (db.Value, error) {
-	if mv, ok := m.(*db.PkgMutation); ok {
-		return f(ctx, mv)
-	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *db.PkgMutation", m)
 }
 
 // Condition is a hook condition function.

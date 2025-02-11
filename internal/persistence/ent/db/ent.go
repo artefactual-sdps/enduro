@@ -12,9 +12,9 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/pkg"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/preservationaction"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/preservationtask"
+	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/sip"
 )
 
 // ent aliases to avoid import conflicts in user's code.
@@ -75,9 +75,9 @@ var (
 func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			pkg.Table:                pkg.ValidColumn,
 			preservationaction.Table: preservationaction.ValidColumn,
 			preservationtask.Table:   preservationtask.ValidColumn,
+			sip.Table:                sip.ValidColumn,
 		})
 	})
 	return columnCheck(table, column)

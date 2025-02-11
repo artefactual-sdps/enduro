@@ -1,5 +1,5 @@
-ariga.io/atlas v0.19.2 h1:ulK06d4joEaMP06HNNPxdpD8dFgZGzjzjk+Mb5VfF08=
-ariga.io/atlas v0.19.2/go.mod h1:VPlcXdd4w2KqKnH54yEZcry79UAhpaWaxEsmn5JRNoE=
+ariga.io/atlas v0.31.0 h1:Nw6/Jdc7OpZfiy6oh/dJAYPp5XxGYvMTWLOUutwWjeY=
+ariga.io/atlas v0.31.0/go.mod h1:J3chwsQAgjDF6Ostz7JmJJRTCbtqIupUbVR/gqZrMiA=
 ariga.io/sqlcomment v0.1.0 h1:8kQPlVe3sXpTloEFlpX5dhFAXB28i6rwq9ktqqnPx70=
 ariga.io/sqlcomment v0.1.0/go.mod h1:NT1IZMfBTQl1MUU5wgVONmnDqFRqtZrdDRgAXfc1g5k=
 buf.build/gen/go/artefactual/a3m/grpc/go v1.3.0-20230508184533-2e9432075630.2 h1:+AADIVDD4GabjtfMHO/M9WIQBc/0IXN7ddYuN8VU8tc=
@@ -487,6 +487,8 @@ github.com/aws/smithy-go v1.20.3/go.mod h1:krry+ya/rV9RDcV/Q16kpu6ypI4K2czasz0NC
 github.com/benbjohnson/clock v1.1.0/go.mod h1:J11/hYXuz8f4ySSvYwY0FKfm+ezbsZBKZxNJlLklBHA=
 github.com/beorn7/perks v1.0.1 h1:VlbKKnNfV8bJzeqoa4cOKqO6bYr3WgKZxO8Z16+hsOM=
 github.com/beorn7/perks v1.0.1/go.mod h1:G2ZrVWU2WbWT9wwq4/hrbKbnv/1ERSJQ0ibhJ6rlkpw=
+github.com/bmatcuk/doublestar v1.3.4 h1:gPypJ5xD31uhX6Tf54sDPUOBXTqKH4c9aPY66CyQrS0=
+github.com/bmatcuk/doublestar v1.3.4/go.mod h1:wiQtGV+rzVYxB7WIlirSN++5HPtPlXEo9MEoZQC/PmE=
 github.com/bodgit/plumbing v1.2.0 h1:gg4haxoKphLjml+tgnecR4yLBV5zo4HAZGCtAh3xCzM=
 github.com/bodgit/plumbing v1.2.0/go.mod h1:b9TeRi7Hvc6Y05rjm8VML3+47n4XTZPtQ/5ghqic2n8=
 github.com/bodgit/sevenzip v1.3.0 h1:1ljgELgtHqvgIp8W8kgeEGHIWP4ch3xGI8uOBZgLVKY=
@@ -942,8 +944,10 @@ github.com/yuin/goldmark v1.3.5/go.mod h1:mwnBkeHKe2W/ZEtQ+71ViKU8L12m81fl3OWwC1
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=
 github.com/yuin/gopher-lua v1.1.1 h1:kYKnWBjvbNP4XLT3+bPEwAXJx262OhaHDWDVOPjL46M=
 github.com/yuin/gopher-lua v1.1.1/go.mod h1:GBR0iDaNXjAgGg9zfCvksxSRnQx76gclCIb7kdAd1Pw=
-github.com/zclconf/go-cty v1.14.1 h1:t9fyA35fwjjUMcmL5hLER+e/rEPqrbCK1/OSE4SI9KA=
-github.com/zclconf/go-cty v1.14.1/go.mod h1:VvMs5i0vgZdhYawQNq5kePSpLAoz8u1xvZgrPIxfnZE=
+github.com/zclconf/go-cty v1.14.4 h1:uXXczd9QDGsgu0i/QFR/hzI5NYCHLf6NQw/atrbnhq8=
+github.com/zclconf/go-cty v1.14.4/go.mod h1:VvMs5i0vgZdhYawQNq5kePSpLAoz8u1xvZgrPIxfnZE=
+github.com/zclconf/go-cty-yaml v1.1.0 h1:nP+jp0qPHv2IhUVqmQSzjvqAWcObN0KBkUl2rWBdig0=
+github.com/zclconf/go-cty-yaml v1.1.0/go.mod h1:9YLUH4g7lOhVWqUbctnVlZ5KLpg7JAprQNgxSZ1Gyxs=
 go.artefactual.dev/amclient v0.4.1-0.20240705155055-0c5abef5207c h1:kMgKuV9yx0LTQpkWdPxPC4GHAKMS9pDQ0x3CD8SmLfI=
 go.artefactual.dev/amclient v0.4.1-0.20240705155055-0c5abef5207c/go.mod h1:oAOlZHC78IWjWDCqRM1/8K1x/WYmRUL3peujKCdoXaA=
 go.artefactual.dev/tools v0.14.0 h1:ESLbemsnkdIPmYXtz0uZTcPqVnTUXIEZd9DSTRyTZqY=

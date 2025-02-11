@@ -21,7 +21,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/timerange"
 )
 
-func TestCreatePackage(t *testing.T) {
+func TestCreateSIP(t *testing.T) {
 	t.Parallel()
 
 	runID := uuid.New()
@@ -31,71 +31,71 @@ func TestCreatePackage(t *testing.T) {
 	completed := sql.NullTime{Time: started.Time.Add(time.Second), Valid: true}
 
 	type params struct {
-		pkg *datatypes.Package
+		sip *datatypes.SIP
 	}
 	tests := []struct {
 		name    string
 		args    params
-		want    *datatypes.Package
+		want    *datatypes.SIP
 		wantErr string
 	}{
 		{
-			name: "Saves a new package in the DB",
+			name: "Saves a new SIP in the DB",
 			args: params{
-				pkg: &datatypes.Package{
-					Name:        "Test package 1",
+				sip: &datatypes.SIP{
+					Name:        "Test SIP 1",
 					WorkflowID:  "workflow-1",
 					RunID:       runID.String(),
 					AIPID:       aipID,
 					LocationID:  locID,
-					Status:      enums.PackageStatusInProgress,
+					Status:      enums.SIPStatusInProgress,
 					StartedAt:   started,
 					CompletedAt: completed,
 				},
 			},
-			want: &datatypes.Package{
+			want: &datatypes.SIP{
 				ID:          1,
-				Name:        "Test package 1",
+				Name:        "Test SIP 1",
 				WorkflowID:  "workflow-1",
 				RunID:       runID.String(),
 				AIPID:       aipID,
 				LocationID:  locID,
-				Status:      enums.PackageStatusInProgress,
+				Status:      enums.SIPStatusInProgress,
 				CreatedAt:   time.Now(),
 				StartedAt:   started,
 				CompletedAt: completed,
 			},
 		},
 		{
-			name: "Saves a package with missing optional fields",
+			name: "Saves a SIP with missing optional fields",
 			args: params{
-				pkg: &datatypes.Package{
-					Name:       "Test package 2",
+				sip: &datatypes.SIP{
+					Name:       "Test SIP 2",
 					WorkflowID: "workflow-2",
 					RunID:      runID.String(),
-					Status:     enums.PackageStatusInProgress,
+					Status:     enums.SIPStatusInProgress,
 				},
 			},
-			want: &datatypes.Package{
+			want: &datatypes.SIP{
 				ID:         1,
-				Name:       "Test package 2",
+				Name:       "Test SIP 2",
 				WorkflowID: "workflow-2",
 				RunID:      runID.String(),
-				Status:     enums.PackageStatusInProgress,
+				Status:     enums.SIPStatusInProgress,
 				CreatedAt:  time.Now(),
 			},
 		},
 		{
 			name: "Required field error for missing Name",
 			args: params{
-				pkg: &datatypes.Package{},
+				sip: &datatypes.SIP{},
 			},
 			wantErr: "invalid data error: field \"Name\" is required",
 		},
 		{
 			name: "Required field error for missing WorkflowID",
 			args: params{
-				pkg: &datatypes.Package{
+				sip: &datatypes.SIP{
 					Name: "Missing WorkflowID",
 				},
 			},
@@ -104,7 +104,7 @@ func TestCreatePackage(t *testing.T) {
 		{
 			name: "Required field error for missing RunID",
 			args: params{
-				pkg: &datatypes.Package{
+				sip: &datatypes.SIP{
 					Name:       "Missing RunID",
 					WorkflowID: "workflow-12345",
 				},
@@ -114,8 +114,8 @@ func TestCreatePackage(t *testing.T) {
 		{
 			name: "Errors on invalid RunID",
 			args: params{
-				pkg: &datatypes.Package{
-					Name:       "Invalid package 1",
+				sip: &datatypes.SIP{
+					Name:       "Invalid SIP 1",
 					WorkflowID: "workflow-invalid",
 					RunID:      "Bad UUID",
 				},
@@ -129,24 +129,24 @@ func TestCreatePackage(t *testing.T) {
 
 			_, svc := setUpClient(t, logr.Discard())
 			ctx := context.Background()
-			pkg := *tt.args.pkg // Make a local copy of pkg.
+			sip := *tt.args.sip // Make a local copy of sip.
 
-			err := svc.CreatePackage(ctx, &pkg)
+			err := svc.CreateSIP(ctx, &sip)
 			if tt.wantErr != "" {
 				assert.Error(t, err, tt.wantErr)
 				return
 			}
 			assert.NilError(t, err)
 
-			assert.DeepEqual(t, &pkg, tt.want,
+			assert.DeepEqual(t, &sip, tt.want,
 				cmpopts.EquateApproxTime(time.Millisecond*100),
-				cmpopts.IgnoreUnexported(db.Pkg{}, db.PkgEdges{}),
+				cmpopts.IgnoreUnexported(db.SIP{}, db.SIPEdges{}),
 			)
 		})
 	}
 }
 
-func TestUpdatePackage(t *testing.T) {
+func TestUpdateSIP(t *testing.T) {
 	t.Parallel()
 
 	runID := uuid.MustParse("c5f7c35a-d5a6-4e00-b4da-b036ce5b40bc")
@@ -183,50 +183,50 @@ func TestUpdatePackage(t *testing.T) {
 	completed2 := sql.NullTime{Time: started2.Time.Add(time.Second), Valid: true}
 
 	type params struct {
-		pkg     *datatypes.Package
-		updater persistence.PackageUpdater
+		sip     *datatypes.SIP
+		updater persistence.SIPUpdater
 	}
 	tests := []struct {
 		name    string
 		args    params
-		want    *datatypes.Package
+		want    *datatypes.SIP
 		wantErr string
 	}{
 		{
-			name: "Updates all package columns",
+			name: "Updates all SIP columns",
 			args: params{
-				pkg: &datatypes.Package{
-					Name:        "Test package",
+				sip: &datatypes.SIP{
+					Name:        "Test SIP",
 					WorkflowID:  "workflow-1",
 					RunID:       runID.String(),
 					AIPID:       aipID,
 					LocationID:  locID,
-					Status:      enums.PackageStatusInProgress,
+					Status:      enums.SIPStatusInProgress,
 					StartedAt:   started,
 					CompletedAt: completed,
 				},
-				updater: func(p *datatypes.Package) (*datatypes.Package, error) {
+				updater: func(p *datatypes.SIP) (*datatypes.SIP, error) {
 					p.ID = 100 // No-op, can't update ID.
-					p.Name = "Updated package"
+					p.Name = "Updated SIP"
 					p.WorkflowID = "workflow-2"
 					p.RunID = runID2.String()
 					p.AIPID = aipID2
 					p.LocationID = locID2
-					p.Status = enums.PackageStatusDone
+					p.Status = enums.SIPStatusDone
 					p.CreatedAt = started2.Time // No-op, can't update CreatedAt.
 					p.StartedAt = started2
 					p.CompletedAt = completed2
 					return p, nil
 				},
 			},
-			want: &datatypes.Package{
+			want: &datatypes.SIP{
 				ID:          1,
-				Name:        "Updated package",
+				Name:        "Updated SIP",
 				WorkflowID:  "workflow-2",
 				RunID:       runID2.String(),
 				AIPID:       aipID2,
 				LocationID:  locID2,
-				Status:      enums.PackageStatusDone,
+				Status:      enums.SIPStatusDone,
 				CreatedAt:   time.Now(),
 				StartedAt:   started2,
 				CompletedAt: completed2,
@@ -235,51 +235,51 @@ func TestUpdatePackage(t *testing.T) {
 		{
 			name: "Only updates selected columns",
 			args: params{
-				pkg: &datatypes.Package{
-					Name:       "Test package",
+				sip: &datatypes.SIP{
+					Name:       "Test SIP",
 					WorkflowID: "workflow-1",
 					RunID:      runID.String(),
 					AIPID:      aipID,
-					Status:     enums.PackageStatusInProgress,
+					Status:     enums.SIPStatusInProgress,
 					StartedAt:  started,
 				},
-				updater: func(p *datatypes.Package) (*datatypes.Package, error) {
-					p.Status = enums.PackageStatusDone
+				updater: func(p *datatypes.SIP) (*datatypes.SIP, error) {
+					p.Status = enums.SIPStatusDone
 					p.CompletedAt = completed
 					return p, nil
 				},
 			},
-			want: &datatypes.Package{
+			want: &datatypes.SIP{
 				ID:          1,
-				Name:        "Test package",
+				Name:        "Test SIP",
 				WorkflowID:  "workflow-1",
 				RunID:       runID.String(),
 				AIPID:       aipID,
-				Status:      enums.PackageStatusDone,
+				Status:      enums.SIPStatusDone,
 				CreatedAt:   time.Now(),
 				StartedAt:   started,
 				CompletedAt: completed,
 			},
 		},
 		{
-			name: "Errors when package to update is not found",
+			name: "Errors when SIP to update is not found",
 			args: params{
-				updater: func(p *datatypes.Package) (*datatypes.Package, error) {
+				updater: func(p *datatypes.SIP) (*datatypes.SIP, error) {
 					return nil, fmt.Errorf("Bad input")
 				},
 			},
-			wantErr: "not found error: db: pkg not found",
+			wantErr: "not found error: db: sip not found",
 		},
 		{
 			name: "Errors when the updater errors",
 			args: params{
-				pkg: &datatypes.Package{
-					Name:       "Test package",
+				sip: &datatypes.SIP{
+					Name:       "Test SIP",
 					WorkflowID: "workflow-1",
 					RunID:      runID.String(),
 					AIPID:      aipID,
 				},
-				updater: func(p *datatypes.Package) (*datatypes.Package, error) {
+				updater: func(p *datatypes.SIP) (*datatypes.SIP, error) {
 					return nil, fmt.Errorf("Bad input")
 				},
 			},
@@ -288,13 +288,13 @@ func TestUpdatePackage(t *testing.T) {
 		{
 			name: "Errors when updater sets an invalid RunID",
 			args: params{
-				pkg: &datatypes.Package{
-					Name:       "Test package",
+				sip: &datatypes.SIP{
+					Name:       "Test SIP",
 					WorkflowID: "workflow-1",
 					RunID:      runID.String(),
 					AIPID:      aipID,
 				},
-				updater: func(p *datatypes.Package) (*datatypes.Package, error) {
+				updater: func(p *datatypes.SIP) (*datatypes.SIP, error) {
 					p.RunID = "Bad UUID"
 					return p, nil
 				},
@@ -310,29 +310,29 @@ func TestUpdatePackage(t *testing.T) {
 			ctx := context.Background()
 
 			var id int
-			if tt.args.pkg != nil {
-				pkg := *tt.args.pkg // Make a local copy of pkg.
-				err := svc.CreatePackage(ctx, &pkg)
+			if tt.args.sip != nil {
+				sip := *tt.args.sip // Make a local copy of sip.
+				err := svc.CreateSIP(ctx, &sip)
 				assert.NilError(t, err)
 
-				id = pkg.ID
+				id = sip.ID
 			}
 
-			pp, err := svc.UpdatePackage(ctx, id, tt.args.updater)
+			sip, err := svc.UpdateSIP(ctx, id, tt.args.updater)
 			if tt.wantErr != "" {
 				assert.Error(t, err, tt.wantErr)
 				return
 			}
 
-			assert.DeepEqual(t, pp, tt.want,
+			assert.DeepEqual(t, sip, tt.want,
 				cmpopts.EquateApproxTime(time.Millisecond*100),
-				cmpopts.IgnoreUnexported(db.Pkg{}, db.PkgEdges{}),
+				cmpopts.IgnoreUnexported(db.SIP{}, db.SIPEdges{}),
 			)
 		})
 	}
 }
 
-func TestListPackages(t *testing.T) {
+func TestListSIPs(t *testing.T) {
 	t.Parallel()
 
 	runID := uuid.MustParse("c5f7c35a-d5a6-4e00-b4da-b036ce5b40bc")
@@ -375,62 +375,62 @@ func TestListPackages(t *testing.T) {
 	completed2 := sql.NullTime{Time: started2.Time.Add(time.Second), Valid: true}
 
 	type results struct {
-		data []*datatypes.Package
+		data []*datatypes.SIP
 		page *persistence.Page
 	}
 	tests := []struct {
-		name          string
-		data          []*datatypes.Package
-		packageFilter *persistence.PackageFilter
-		want          results
-		wantErr       string
+		name      string
+		data      []*datatypes.SIP
+		sipFilter *persistence.SIPFilter
+		want      results
+		wantErr   string
 	}{
 		{
-			name: "Returns all packages",
-			data: []*datatypes.Package{
+			name: "Returns all SIPs",
+			data: []*datatypes.SIP{
 				{
-					Name:        "Test package 1",
+					Name:        "Test SIP 1",
 					WorkflowID:  "workflow-1",
 					RunID:       runID.String(),
 					AIPID:       aipID,
 					LocationID:  locID,
-					Status:      enums.PackageStatusDone,
+					Status:      enums.SIPStatusDone,
 					StartedAt:   started,
 					CompletedAt: completed,
 				},
 				{
-					Name:        "Test package 2",
+					Name:        "Test SIP 2",
 					WorkflowID:  "workflow-1",
 					RunID:       runID2.String(),
 					AIPID:       aipID2,
 					LocationID:  locID2,
-					Status:      enums.PackageStatusInProgress,
+					Status:      enums.SIPStatusInProgress,
 					StartedAt:   started2,
 					CompletedAt: completed2,
 				},
 			},
 			want: results{
-				data: []*datatypes.Package{
+				data: []*datatypes.SIP{
 					{
 						ID:          1,
-						Name:        "Test package 1",
+						Name:        "Test SIP 1",
 						WorkflowID:  "workflow-1",
 						RunID:       runID.String(),
 						AIPID:       aipID,
 						LocationID:  locID,
-						Status:      enums.PackageStatusDone,
+						Status:      enums.SIPStatusDone,
 						CreatedAt:   time.Now(),
 						StartedAt:   started,
 						CompletedAt: completed,
 					},
 					{
 						ID:          2,
-						Name:        "Test package 2",
+						Name:        "Test SIP 2",
 						WorkflowID:  "workflow-1",
 						RunID:       runID2.String(),
 						AIPID:       aipID2,
 						LocationID:  locID2,
-						Status:      enums.PackageStatusInProgress,
+						Status:      enums.SIPStatusInProgress,
 						CreatedAt:   time.Now(),
 						StartedAt:   started2,
 						CompletedAt: completed2,
@@ -443,42 +443,42 @@ func TestListPackages(t *testing.T) {
 			},
 		},
 		{
-			name: "Returns first page of packages",
-			data: []*datatypes.Package{
+			name: "Returns first page of SIPs",
+			data: []*datatypes.SIP{
 				{
-					Name:        "Test package 1",
+					Name:        "Test SIP 1",
 					WorkflowID:  "workflow-1",
 					RunID:       runID.String(),
 					AIPID:       aipID,
 					LocationID:  locID,
-					Status:      enums.PackageStatusDone,
+					Status:      enums.SIPStatusDone,
 					StartedAt:   started,
 					CompletedAt: completed,
 				},
 				{
-					Name:        "Test package 2",
+					Name:        "Test SIP 2",
 					WorkflowID:  "workflow-1",
 					RunID:       runID2.String(),
 					AIPID:       aipID2,
 					LocationID:  locID2,
-					Status:      enums.PackageStatusInProgress,
+					Status:      enums.SIPStatusInProgress,
 					StartedAt:   started2,
 					CompletedAt: completed2,
 				},
 			},
-			packageFilter: &persistence.PackageFilter{
+			sipFilter: &persistence.SIPFilter{
 				Page: persistence.Page{Limit: 1},
 			},
 			want: results{
-				data: []*datatypes.Package{
+				data: []*datatypes.SIP{
 					{
 						ID:          1,
-						Name:        "Test package 1",
+						Name:        "Test SIP 1",
 						WorkflowID:  "workflow-1",
 						RunID:       runID.String(),
 						AIPID:       aipID,
 						LocationID:  locID,
-						Status:      enums.PackageStatusDone,
+						Status:      enums.SIPStatusDone,
 						CreatedAt:   time.Now(),
 						StartedAt:   started,
 						CompletedAt: completed,
@@ -491,42 +491,42 @@ func TestListPackages(t *testing.T) {
 			},
 		},
 		{
-			name: "Returns second page of packages",
-			data: []*datatypes.Package{
+			name: "Returns second page of SIPs",
+			data: []*datatypes.SIP{
 				{
-					Name:        "Test package 1",
+					Name:        "Test SIP 1",
 					WorkflowID:  "workflow-1",
 					RunID:       runID.String(),
 					AIPID:       aipID,
 					LocationID:  locID,
-					Status:      enums.PackageStatusDone,
+					Status:      enums.SIPStatusDone,
 					StartedAt:   started,
 					CompletedAt: completed,
 				},
 				{
-					Name:        "Test package 2",
+					Name:        "Test SIP 2",
 					WorkflowID:  "workflow-1",
 					RunID:       runID2.String(),
 					AIPID:       aipID2,
 					LocationID:  locID2,
-					Status:      enums.PackageStatusInProgress,
+					Status:      enums.SIPStatusInProgress,
 					StartedAt:   started2,
 					CompletedAt: completed2,
 				},
 			},
-			packageFilter: &persistence.PackageFilter{
+			sipFilter: &persistence.SIPFilter{
 				Page: persistence.Page{Limit: 1, Offset: 1},
 			},
 			want: results{
-				data: []*datatypes.Package{
+				data: []*datatypes.SIP{
 					{
 						ID:          2,
-						Name:        "Test package 2",
+						Name:        "Test SIP 2",
 						WorkflowID:  "workflow-1",
 						RunID:       runID2.String(),
 						AIPID:       aipID2,
 						LocationID:  locID2,
-						Status:      enums.PackageStatusInProgress,
+						Status:      enums.SIPStatusInProgress,
 						CreatedAt:   time.Now(),
 						StartedAt:   started2,
 						CompletedAt: completed2,
@@ -540,15 +540,15 @@ func TestListPackages(t *testing.T) {
 			},
 		},
 		{
-			name: "Returns packages whose names contain a string",
-			data: []*datatypes.Package{
+			name: "Returns SIPs whose names contain a string",
+			data: []*datatypes.SIP{
 				{
-					Name:        "Test package",
+					Name:        "Test SIP",
 					WorkflowID:  "workflow-1",
 					RunID:       runID.String(),
 					AIPID:       aipID,
 					LocationID:  locID,
-					Status:      enums.PackageStatusDone,
+					Status:      enums.SIPStatusDone,
 					StartedAt:   started,
 					CompletedAt: completed,
 				},
@@ -558,16 +558,16 @@ func TestListPackages(t *testing.T) {
 					RunID:       runID2.String(),
 					AIPID:       aipID2,
 					LocationID:  locID2,
-					Status:      enums.PackageStatusInProgress,
+					Status:      enums.SIPStatusInProgress,
 					StartedAt:   started2,
 					CompletedAt: completed2,
 				},
 			},
-			packageFilter: &persistence.PackageFilter{
+			sipFilter: &persistence.SIPFilter{
 				Name: ref.New("small"),
 			},
 			want: results{
-				data: []*datatypes.Package{
+				data: []*datatypes.SIP{
 					{
 						ID:          2,
 						Name:        "small.zip",
@@ -575,7 +575,7 @@ func TestListPackages(t *testing.T) {
 						RunID:       runID2.String(),
 						AIPID:       aipID2,
 						LocationID:  locID2,
-						Status:      enums.PackageStatusInProgress,
+						Status:      enums.SIPStatusInProgress,
 						CreatedAt:   time.Now(),
 						StartedAt:   started2,
 						CompletedAt: completed2,
@@ -588,42 +588,42 @@ func TestListPackages(t *testing.T) {
 			},
 		},
 		{
-			name: "Returns packages filtered by AIPID",
-			data: []*datatypes.Package{
+			name: "Returns SIPs filtered by AIPID",
+			data: []*datatypes.SIP{
 				{
-					Name:        "Test package 1",
+					Name:        "Test SIP 1",
 					WorkflowID:  "workflow-1",
 					RunID:       runID.String(),
 					AIPID:       aipID,
 					LocationID:  locID,
-					Status:      enums.PackageStatusDone,
+					Status:      enums.SIPStatusDone,
 					StartedAt:   started,
 					CompletedAt: completed,
 				},
 				{
-					Name:        "Test package 2",
+					Name:        "Test SIP 2",
 					WorkflowID:  "workflow-1",
 					RunID:       runID2.String(),
 					AIPID:       aipID2,
 					LocationID:  locID2,
-					Status:      enums.PackageStatusInProgress,
+					Status:      enums.SIPStatusInProgress,
 					StartedAt:   started2,
 					CompletedAt: completed2,
 				},
 			},
-			packageFilter: &persistence.PackageFilter{
+			sipFilter: &persistence.SIPFilter{
 				AIPID: &aipID2.UUID,
 			},
 			want: results{
-				data: []*datatypes.Package{
+				data: []*datatypes.SIP{
 					{
 						ID:          2,
-						Name:        "Test package 2",
+						Name:        "Test SIP 2",
 						WorkflowID:  "workflow-1",
 						RunID:       runID2.String(),
 						AIPID:       aipID2,
 						LocationID:  locID2,
-						Status:      enums.PackageStatusInProgress,
+						Status:      enums.SIPStatusInProgress,
 						CreatedAt:   time.Now(),
 						StartedAt:   started2,
 						CompletedAt: completed2,
@@ -636,42 +636,42 @@ func TestListPackages(t *testing.T) {
 			},
 		},
 		{
-			name: "Returns packages filtered by LocationID",
-			data: []*datatypes.Package{
+			name: "Returns SIPs filtered by LocationID",
+			data: []*datatypes.SIP{
 				{
-					Name:        "Test package 1",
+					Name:        "Test SIP 1",
 					WorkflowID:  "workflow-1",
 					RunID:       runID.String(),
 					AIPID:       aipID,
 					LocationID:  locID,
-					Status:      enums.PackageStatusDone,
+					Status:      enums.SIPStatusDone,
 					StartedAt:   started,
 					CompletedAt: completed,
 				},
 				{
-					Name:        "Test package 2",
+					Name:        "Test SIP 2",
 					WorkflowID:  "workflow-1",
 					RunID:       runID2.String(),
 					AIPID:       aipID2,
 					LocationID:  locID2,
-					Status:      enums.PackageStatusInProgress,
+					Status:      enums.SIPStatusInProgress,
 					StartedAt:   started2,
 					CompletedAt: completed2,
 				},
 			},
-			packageFilter: &persistence.PackageFilter{
+			sipFilter: &persistence.SIPFilter{
 				LocationID: &locID2.UUID,
 			},
 			want: results{
-				data: []*datatypes.Package{
+				data: []*datatypes.SIP{
 					{
 						ID:          2,
-						Name:        "Test package 2",
+						Name:        "Test SIP 2",
 						WorkflowID:  "workflow-1",
 						RunID:       runID2.String(),
 						AIPID:       aipID2,
 						LocationID:  locID2,
-						Status:      enums.PackageStatusInProgress,
+						Status:      enums.SIPStatusInProgress,
 						CreatedAt:   time.Now(),
 						StartedAt:   started2,
 						CompletedAt: completed2,
@@ -684,42 +684,42 @@ func TestListPackages(t *testing.T) {
 			},
 		},
 		{
-			name: "Returns packages filtered by status",
-			data: []*datatypes.Package{
+			name: "Returns SIPs filtered by status",
+			data: []*datatypes.SIP{
 				{
-					Name:        "Test package 1",
+					Name:        "Test SIP 1",
 					WorkflowID:  "workflow-1",
 					RunID:       runID.String(),
 					AIPID:       aipID,
 					LocationID:  locID,
-					Status:      enums.PackageStatusDone,
+					Status:      enums.SIPStatusDone,
 					StartedAt:   started,
 					CompletedAt: completed,
 				},
 				{
-					Name:        "Test package 2",
+					Name:        "Test SIP 2",
 					WorkflowID:  "workflow-1",
 					RunID:       runID2.String(),
 					AIPID:       aipID2,
 					LocationID:  locID2,
-					Status:      enums.PackageStatusInProgress,
+					Status:      enums.SIPStatusInProgress,
 					StartedAt:   started2,
 					CompletedAt: completed2,
 				},
 			},
-			packageFilter: &persistence.PackageFilter{
-				Status: ref.New(enums.PackageStatusInProgress),
+			sipFilter: &persistence.SIPFilter{
+				Status: ref.New(enums.SIPStatusInProgress),
 			},
 			want: results{
-				data: []*datatypes.Package{
+				data: []*datatypes.SIP{
 					{
 						ID:          2,
-						Name:        "Test package 2",
+						Name:        "Test SIP 2",
 						WorkflowID:  "workflow-1",
 						RunID:       runID2.String(),
 						AIPID:       aipID2,
 						LocationID:  locID2,
-						Status:      enums.PackageStatusInProgress,
+						Status:      enums.SIPStatusInProgress,
 						CreatedAt:   time.Now(),
 						StartedAt:   started2,
 						CompletedAt: completed2,
@@ -732,30 +732,30 @@ func TestListPackages(t *testing.T) {
 			},
 		},
 		{
-			name: "Returns packages filtered by CreatedAt",
-			data: []*datatypes.Package{
+			name: "Returns SIPs filtered by CreatedAt",
+			data: []*datatypes.SIP{
 				{
-					Name:        "Test package 1",
+					Name:        "Test SIP 1",
 					WorkflowID:  "workflow-1",
 					RunID:       runID.String(),
 					AIPID:       aipID,
 					LocationID:  locID,
-					Status:      enums.PackageStatusDone,
+					Status:      enums.SIPStatusDone,
 					StartedAt:   started,
 					CompletedAt: completed,
 				},
 				{
-					Name:        "Test package 2",
+					Name:        "Test SIP 2",
 					WorkflowID:  "workflow-1",
 					RunID:       runID2.String(),
 					AIPID:       aipID2,
 					LocationID:  locID2,
-					Status:      enums.PackageStatusInProgress,
+					Status:      enums.SIPStatusInProgress,
 					StartedAt:   started2,
 					CompletedAt: completed2,
 				},
 			},
-			packageFilter: &persistence.PackageFilter{
+			sipFilter: &persistence.SIPFilter{
 				CreatedAt: func(t *testing.T) *timerange.Range {
 					r, err := timerange.New(
 						time.Now().Add(-1*time.Minute),
@@ -768,27 +768,27 @@ func TestListPackages(t *testing.T) {
 				}(t),
 			},
 			want: results{
-				data: []*datatypes.Package{
+				data: []*datatypes.SIP{
 					{
 						ID:          1,
-						Name:        "Test package 1",
+						Name:        "Test SIP 1",
 						WorkflowID:  "workflow-1",
 						RunID:       runID.String(),
 						AIPID:       aipID,
 						LocationID:  locID,
-						Status:      enums.PackageStatusDone,
+						Status:      enums.SIPStatusDone,
 						CreatedAt:   time.Now(),
 						StartedAt:   started,
 						CompletedAt: completed,
 					},
 					{
 						ID:          2,
-						Name:        "Test package 2",
+						Name:        "Test SIP 2",
 						WorkflowID:  "workflow-1",
 						RunID:       runID2.String(),
 						AIPID:       aipID2,
 						LocationID:  locID2,
-						Status:      enums.PackageStatusInProgress,
+						Status:      enums.SIPStatusInProgress,
 						CreatedAt:   time.Now(),
 						StartedAt:   started2,
 						CompletedAt: completed2,
@@ -801,30 +801,30 @@ func TestListPackages(t *testing.T) {
 			},
 		},
 		{
-			name: "Returns no results when no packages match CreatedAt range",
-			data: []*datatypes.Package{
+			name: "Returns no results when no SIPs match CreatedAt range",
+			data: []*datatypes.SIP{
 				{
-					Name:        "Test package 1",
+					Name:        "Test SIP 1",
 					WorkflowID:  "workflow-1",
 					RunID:       runID.String(),
 					AIPID:       aipID,
 					LocationID:  locID,
-					Status:      enums.PackageStatusDone,
+					Status:      enums.SIPStatusDone,
 					StartedAt:   started,
 					CompletedAt: completed,
 				},
 				{
-					Name:        "Test package 2",
+					Name:        "Test SIP 2",
 					WorkflowID:  "workflow-1",
 					RunID:       runID2.String(),
 					AIPID:       aipID2,
 					LocationID:  locID2,
-					Status:      enums.PackageStatusInProgress,
+					Status:      enums.SIPStatusInProgress,
 					StartedAt:   started2,
 					CompletedAt: completed2,
 				},
 			},
-			packageFilter: &persistence.PackageFilter{
+			sipFilter: &persistence.SIPFilter{
 				CreatedAt: func(t *testing.T) *timerange.Range {
 					r, err := timerange.New(
 						time.Now().Add(time.Minute),
@@ -837,7 +837,7 @@ func TestListPackages(t *testing.T) {
 				}(t),
 			},
 			want: results{
-				data: []*datatypes.Package{},
+				data: []*datatypes.SIP{},
 				page: &persistence.Page{
 					Limit: entclient.DefaultPageSize,
 					Total: 0,
@@ -854,18 +854,18 @@ func TestListPackages(t *testing.T) {
 			ctx := context.Background()
 
 			if len(tt.data) > 0 {
-				for _, pkg := range tt.data {
-					err := svc.CreatePackage(ctx, pkg)
+				for _, sip := range tt.data {
+					err := svc.CreateSIP(ctx, sip)
 					assert.NilError(t, err)
 				}
 			}
 
-			got, pg, err := svc.ListPackages(ctx, tt.packageFilter)
+			got, pg, err := svc.ListSIPs(ctx, tt.sipFilter)
 			assert.NilError(t, err)
 
 			assert.DeepEqual(t, got, tt.want.data,
 				cmpopts.EquateApproxTime(time.Millisecond*100),
-				cmpopts.IgnoreUnexported(db.Pkg{}, db.PkgEdges{}),
+				cmpopts.IgnoreUnexported(db.SIP{}, db.SIPEdges{}),
 			)
 			assert.DeepEqual(t, pg, tt.want.page)
 		})

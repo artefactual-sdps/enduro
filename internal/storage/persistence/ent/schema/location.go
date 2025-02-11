@@ -53,7 +53,7 @@ func (Location) Fields() []ent.Field {
 // Edges of the Location.
 func (Location) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("packages", Pkg.Type).
+		edge.From("aips", AIP.Type).
 			Ref("location"),
 	}
 }

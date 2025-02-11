@@ -7,4 +7,4 @@ BagIt
 Archivematica Standard Transfer
 )
 */
-type PackageType uint
+type SIPType uint

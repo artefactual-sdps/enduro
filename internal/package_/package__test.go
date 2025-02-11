@@ -47,26 +47,26 @@ func TestCreatePackage(t *testing.T) {
 
 	type test struct {
 		name    string
-		pkg     datatypes.Package
-		mock    func(*persistence_fake.MockService, datatypes.Package) *persistence_fake.MockService
+		sip     datatypes.SIP
+		mock    func(*persistence_fake.MockService, datatypes.SIP) *persistence_fake.MockService
 		wantErr string
 	}
 	for _, tt := range []test{
 		{
 			name: "creates a package",
-			pkg: datatypes.Package{
+			sip: datatypes.SIP{
 				Name:       "test",
 				WorkflowID: "4258090a-e27b-4fd9-a76b-28deb3d16813",
 				RunID:      "8f3a5756-6bc5-4d82-846d-59442dd6ad8f",
-				Status:     enums.PackageStatusQueued,
+				Status:     enums.SIPStatusQueued,
 			},
-			mock: func(svc *persistence_fake.MockService, p datatypes.Package) *persistence_fake.MockService {
+			mock: func(svc *persistence_fake.MockService, s datatypes.SIP) *persistence_fake.MockService {
 				svc.EXPECT().
-					CreatePackage(mockutil.Context(), &p).
+					CreateSIP(mockutil.Context(), &s).
 					DoAndReturn(
-						func(ctx context.Context, p *datatypes.Package) error {
-							p.ID = 1
-							p.CreatedAt = time.Date(2024, 3, 14, 15, 57, 25, 0, time.UTC)
+						func(ctx context.Context, s *datatypes.SIP) error {
+							s.ID = 1
+							s.CreatedAt = time.Date(2024, 3, 14, 15, 57, 25, 0, time.UTC)
 							return nil
 						},
 					)
@@ -75,16 +75,16 @@ func TestCreatePackage(t *testing.T) {
 		},
 		{
 			name: "errors creating a package with a missing RunID",
-			pkg: datatypes.Package{
+			sip: datatypes.SIP{
 				Name:       "test",
 				WorkflowID: "4258090a-e27b-4fd9-a76b-28deb3d16813",
-				Status:     enums.PackageStatusQueued,
+				Status:     enums.SIPStatusQueued,
 			},
-			mock: func(svc *persistence_fake.MockService, p datatypes.Package) *persistence_fake.MockService {
+			mock: func(svc *persistence_fake.MockService, s datatypes.SIP) *persistence_fake.MockService {
 				svc.EXPECT().
-					CreatePackage(mockutil.Context(), &p).
+					CreateSIP(mockutil.Context(), &s).
 					DoAndReturn(
-						func(ctx context.Context, p *datatypes.Package) error {
+						func(ctx context.Context, s *datatypes.SIP) error {
 							return fmt.Errorf("invalid data error: field \"RunID\" is required")
 						},
 					)
@@ -98,11 +98,11 @@ func TestCreatePackage(t *testing.T) {
 
 			pkgSvc, perSvc := testSvc(t, nil, 0)
 			if tt.mock != nil {
-				tt.mock(perSvc, tt.pkg)
+				tt.mock(perSvc, tt.sip)
 			}
 
-			pkg := tt.pkg
-			err := pkgSvc.Create(context.Background(), &pkg)
+			sip := tt.sip
+			err := pkgSvc.Create(context.Background(), &sip)
 
 			if tt.wantErr != "" {
 				assert.Error(t, err, tt.wantErr)

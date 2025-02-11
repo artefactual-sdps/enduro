@@ -327,21 +327,21 @@ func CreatedAtLTE(v time.Time) predicate.Location {
 	return predicate.Location(sql.FieldLTE(FieldCreatedAt, v))
 }
 
-// HasPackages applies the HasEdge predicate on the "packages" edge.
-func HasPackages() predicate.Location {
+// HasAips applies the HasEdge predicate on the "aips" edge.
+func HasAips() predicate.Location {
 	return predicate.Location(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, true, PackagesTable, PackagesColumn),
+			sqlgraph.Edge(sqlgraph.O2M, true, AipsTable, AipsColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasPackagesWith applies the HasEdge predicate on the "packages" edge with a given conditions (other predicates).
-func HasPackagesWith(preds ...predicate.Pkg) predicate.Location {
+// HasAipsWith applies the HasEdge predicate on the "aips" edge with a given conditions (other predicates).
+func HasAipsWith(preds ...predicate.AIP) predicate.Location {
 	return predicate.Location(func(s *sql.Selector) {
-		step := newPackagesStep()
+		step := newAipsStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

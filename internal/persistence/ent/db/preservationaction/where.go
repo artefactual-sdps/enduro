@@ -80,9 +80,9 @@ func CompletedAt(v time.Time) predicate.PreservationAction {
 	return predicate.PreservationAction(sql.FieldEQ(FieldCompletedAt, v))
 }
 
-// PackageID applies equality check predicate on the "package_id" field. It's identical to PackageIDEQ.
-func PackageID(v int) predicate.PreservationAction {
-	return predicate.PreservationAction(sql.FieldEQ(FieldPackageID, v))
+// SipID applies equality check predicate on the "sip_id" field. It's identical to SipIDEQ.
+func SipID(v int) predicate.PreservationAction {
+	return predicate.PreservationAction(sql.FieldEQ(FieldSipID, v))
 }
 
 // WorkflowIDEQ applies the EQ predicate on the "workflow_id" field.
@@ -330,41 +330,41 @@ func CompletedAtNotNil() predicate.PreservationAction {
 	return predicate.PreservationAction(sql.FieldNotNull(FieldCompletedAt))
 }
 
-// PackageIDEQ applies the EQ predicate on the "package_id" field.
-func PackageIDEQ(v int) predicate.PreservationAction {
-	return predicate.PreservationAction(sql.FieldEQ(FieldPackageID, v))
+// SipIDEQ applies the EQ predicate on the "sip_id" field.
+func SipIDEQ(v int) predicate.PreservationAction {
+	return predicate.PreservationAction(sql.FieldEQ(FieldSipID, v))
 }
 
-// PackageIDNEQ applies the NEQ predicate on the "package_id" field.
-func PackageIDNEQ(v int) predicate.PreservationAction {
-	return predicate.PreservationAction(sql.FieldNEQ(FieldPackageID, v))
+// SipIDNEQ applies the NEQ predicate on the "sip_id" field.
+func SipIDNEQ(v int) predicate.PreservationAction {
+	return predicate.PreservationAction(sql.FieldNEQ(FieldSipID, v))
 }
 
-// PackageIDIn applies the In predicate on the "package_id" field.
-func PackageIDIn(vs ...int) predicate.PreservationAction {
-	return predicate.PreservationAction(sql.FieldIn(FieldPackageID, vs...))
+// SipIDIn applies the In predicate on the "sip_id" field.
+func SipIDIn(vs ...int) predicate.PreservationAction {
+	return predicate.PreservationAction(sql.FieldIn(FieldSipID, vs...))
 }
 
-// PackageIDNotIn applies the NotIn predicate on the "package_id" field.
-func PackageIDNotIn(vs ...int) predicate.PreservationAction {
-	return predicate.PreservationAction(sql.FieldNotIn(FieldPackageID, vs...))
+// SipIDNotIn applies the NotIn predicate on the "sip_id" field.
+func SipIDNotIn(vs ...int) predicate.PreservationAction {
+	return predicate.PreservationAction(sql.FieldNotIn(FieldSipID, vs...))
 }
 
-// HasPackage applies the HasEdge predicate on the "package" edge.
-func HasPackage() predicate.PreservationAction {
+// HasSip applies the HasEdge predicate on the "sip" edge.
+func HasSip() predicate.PreservationAction {
 	return predicate.PreservationAction(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, PackageTable, PackageColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, SipTable, SipColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasPackageWith applies the HasEdge predicate on the "package" edge with a given conditions (other predicates).
-func HasPackageWith(preds ...predicate.Pkg) predicate.PreservationAction {
+// HasSipWith applies the HasEdge predicate on the "sip" edge with a given conditions (other predicates).
+func HasSipWith(preds ...predicate.SIP) predicate.PreservationAction {
 	return predicate.PreservationAction(func(s *sql.Selector) {
-		step := newPackageStep()
+		step := newSipStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

@@ -22,21 +22,21 @@ const (
 	FieldStartedAt = "started_at"
 	// FieldCompletedAt holds the string denoting the completed_at field in the database.
 	FieldCompletedAt = "completed_at"
-	// FieldPackageID holds the string denoting the package_id field in the database.
-	FieldPackageID = "package_id"
-	// EdgePackage holds the string denoting the package edge name in mutations.
-	EdgePackage = "package"
+	// FieldSipID holds the string denoting the sip_id field in the database.
+	FieldSipID = "sip_id"
+	// EdgeSip holds the string denoting the sip edge name in mutations.
+	EdgeSip = "sip"
 	// EdgeTasks holds the string denoting the tasks edge name in mutations.
 	EdgeTasks = "tasks"
 	// Table holds the table name of the preservationaction in the database.
 	Table = "preservation_action"
-	// PackageTable is the table that holds the package relation/edge.
-	PackageTable = "preservation_action"
-	// PackageInverseTable is the table name for the Pkg entity.
-	// It exists in this package in order to avoid circular dependency with the "pkg" package.
-	PackageInverseTable = "package"
-	// PackageColumn is the table column denoting the package relation/edge.
-	PackageColumn = "package_id"
+	// SipTable is the table that holds the sip relation/edge.
+	SipTable = "preservation_action"
+	// SipInverseTable is the table name for the SIP entity.
+	// It exists in this package in order to avoid circular dependency with the "sip" package.
+	SipInverseTable = "sip"
+	// SipColumn is the table column denoting the sip relation/edge.
+	SipColumn = "sip_id"
 	// TasksTable is the table that holds the tasks relation/edge.
 	TasksTable = "preservation_task"
 	// TasksInverseTable is the table name for the PreservationTask entity.
@@ -54,7 +54,7 @@ var Columns = []string{
 	FieldStatus,
 	FieldStartedAt,
 	FieldCompletedAt,
-	FieldPackageID,
+	FieldSipID,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -68,8 +68,8 @@ func ValidColumn(column string) bool {
 }
 
 var (
-	// PackageIDValidator is a validator for the "package_id" field. It is called by the builders before save.
-	PackageIDValidator func(int) error
+	// SipIDValidator is a validator for the "sip_id" field. It is called by the builders before save.
+	SipIDValidator func(int) error
 )
 
 // OrderOption defines the ordering options for the PreservationAction queries.
@@ -105,15 +105,15 @@ func ByCompletedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCompletedAt, opts...).ToFunc()
 }
 
-// ByPackageID orders the results by the package_id field.
-func ByPackageID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldPackageID, opts...).ToFunc()
+// BySipID orders the results by the sip_id field.
+func BySipID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSipID, opts...).ToFunc()
 }
 
-// ByPackageField orders the results by package field.
-func ByPackageField(field string, opts ...sql.OrderTermOption) OrderOption {
+// BySipField orders the results by sip field.
+func BySipField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newPackageStep(), sql.OrderByField(field, opts...))
+		sqlgraph.OrderByNeighborTerms(s, newSipStep(), sql.OrderByField(field, opts...))
 	}
 }
 
@@ -130,11 +130,11 @@ func ByTasks(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newTasksStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
-func newPackageStep() *sqlgraph.Step {
+func newSipStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(PackageInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, PackageTable, PackageColumn),
+		sqlgraph.To(SipInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, SipTable, SipColumn),
 	)
 }
 func newTasksStep() *sqlgraph.Step {

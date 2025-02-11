@@ -14,20 +14,20 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/storage/types"
 )
 
-// Pkg holds the schema definition for the Pkg entity.
-type Pkg struct {
+// AIP holds the schema definition for the AIP entity.
+type AIP struct {
 	ent.Schema
 }
 
-// Annotations of the Pkg.
-func (Pkg) Annotations() []schema.Annotation {
+// Annotations of the AIP.
+func (AIP) Annotations() []schema.Annotation {
 	return []schema.Annotation{
-		entsql.Annotation{Table: "package"},
+		entsql.Annotation{Table: "aip"},
 	}
 }
 
-// Fields of the Pkg.
-func (Pkg) Fields() []ent.Field {
+// Fields of the AIP.
+func (AIP) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("name").
 			Annotations(entsql.Annotation{
@@ -38,7 +38,7 @@ func (Pkg) Fields() []ent.Field {
 		field.Int("location_id").
 			Optional(),
 		field.Enum("status").
-			GoType(types.StatusUnspecified),
+			GoType(types.AIPStatusUnspecified),
 		field.UUID("object_key", uuid.UUID{}).
 			Unique(),
 		field.Time("created_at").
@@ -47,8 +47,8 @@ func (Pkg) Fields() []ent.Field {
 	}
 }
 
-// Edges of the Pkg.
-func (Pkg) Edges() []ent.Edge {
+// Edges of the AIP.
+func (AIP) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("location", Location.Type).
 			Field("location_id").
@@ -56,8 +56,8 @@ func (Pkg) Edges() []ent.Edge {
 	}
 }
 
-// Indexes of the Pkg.
-func (Pkg) Indexes() []ent.Index {
+// Indexes of the AIP.
+func (AIP) Indexes() []ent.Index {
 	return []ent.Index{
 		index.Fields("aip_id"),
 		index.Fields("object_key"),

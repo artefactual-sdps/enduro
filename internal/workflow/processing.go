@@ -78,7 +78,7 @@ type TransferInfo struct {
 	IsDir bool
 
 	// PackageType is the type of the package.
-	PackageType enums.PackageType
+	PackageType enums.SIPType
 
 	// TempPath is the temporary location of a working copy of the transfer.
 	TempPath string
@@ -188,7 +188,7 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *pack
 		}
 
 		// Package status. All packages start in queued status.
-		status = enums.PackageStatusQueued
+		status = enums.SIPStatusQueued
 
 		// Create AIP preservation action status.
 		paStatus = enums.PreservationActionStatusUnspecified
@@ -227,8 +227,8 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *pack
 	// workflow function returns.
 	defer func() {
 		// Mark as failed unless it completed successfully or it was abandoned.
-		if status != enums.PackageStatusDone && status != enums.PackageStatusAbandoned {
-			status = enums.PackageStatusError
+		if status != enums.SIPStatusDone && status != enums.SIPStatusAbandoned {
+			status = enums.SIPStatusError
 		}
 
 		// Use disconnected context so it also runs after cancellation.
@@ -304,14 +304,14 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *pack
 			return sessErr
 		}
 
-		status = enums.PackageStatusDone
+		status = enums.SIPStatusDone
 
 		paStatus = enums.PreservationActionStatusDone
 	}
 
 	// Schedule deletion of the original in the watched data source.
 	{
-		if status == enums.PackageStatusDone {
+		if status == enums.SIPStatusDone {
 			if tinfo.req.RetentionPeriod != nil {
 				err := temporalsdk_workflow.NewTimer(ctx, *tinfo.req.RetentionPeriod).Get(ctx, nil)
 				if err != nil {
@@ -460,12 +460,12 @@ func (w *ProcessingWorkflow) SessionHandler(
 
 	// Stop the workflow if preprocessing returned a SIP path that is not a
 	// valid bag.
-	if tinfo.PackageType != enums.PackageTypeBagIt && w.cfg.Preprocessing.Enabled {
+	if tinfo.PackageType != enums.SIPTypeBagIt && w.cfg.Preprocessing.Enabled {
 		return errors.New("preprocessing returned a path that is not a valid bag")
 	}
 
 	// If the SIP is a BagIt Bag, validate it.
-	if tinfo.IsDir && tinfo.PackageType == enums.PackageTypeBagIt {
+	if tinfo.IsDir && tinfo.PackageType == enums.SIPTypeBagIt {
 		id, err := w.createPreservationTask(
 			sessCtx,
 			datatypes.PreservationTask{
@@ -542,7 +542,7 @@ func (w *ProcessingWorkflow) SessionHandler(
 			Key:       tinfo.req.Key,
 			SIPID:     tinfo.SIPID,
 			StoredAt:  tinfo.StoredAt,
-			Status:    enums.PackageStatusInProgress,
+			Status:    enums.SIPStatusInProgress,
 		}).
 			Get(activityOpts, nil)
 	}
@@ -622,7 +622,7 @@ func (w *ProcessingWorkflow) SessionHandler(
 		// Set package to pending status.
 		{
 			ctx := withLocalActivityOpts(sessCtx)
-			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setStatusLocalActivity, w.pkgsvc, tinfo.req.PackageID, enums.PackageStatusPending).Get(ctx, nil)
+			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setStatusLocalActivity, w.pkgsvc, tinfo.req.PackageID, enums.SIPStatusPending).Get(ctx, nil)
 			if err != nil {
 				return err
 			}
@@ -660,7 +660,7 @@ func (w *ProcessingWorkflow) SessionHandler(
 		// Set package to in progress status.
 		{
 			ctx := withLocalActivityOpts(sessCtx)
-			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setStatusLocalActivity, w.pkgsvc, tinfo.req.PackageID, enums.PackageStatusInProgress).Get(ctx, nil)
+			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setStatusLocalActivity, w.pkgsvc, tinfo.req.PackageID, enums.SIPStatusInProgress).Get(ctx, nil)
 			if err != nil {
 				return err
 			}
@@ -831,7 +831,7 @@ func (w *ProcessingWorkflow) transferA3m(
 		}
 
 		tinfo.Bundle = bundleResult
-		tinfo.PackageType = enums.PackageTypeArchivematicaStandardTransfer
+		tinfo.PackageType = enums.SIPTypeArchivematicaStandardTransfer
 
 		// Delete bundled transfer when session ends.
 		cleanup.registerPath(bundleResult.FullPath)
@@ -885,7 +885,7 @@ func (w *ProcessingWorkflow) transferAM(ctx temporalsdk_workflow.Context, tinfo 
 	var err error
 
 	// Bag PIP if it's not already a bag.
-	if tinfo.PackageType != enums.PackageTypeBagIt {
+	if tinfo.PackageType != enums.SIPTypeBagIt {
 		lctx := withActivityOptsForLocalAction(ctx)
 		var zipResult bagcreate.Result
 		err = temporalsdk_workflow.ExecuteActivity(
@@ -896,7 +896,7 @@ func (w *ProcessingWorkflow) transferAM(ctx temporalsdk_workflow.Context, tinfo 
 		if err != nil {
 			return err
 		}
-		tinfo.PackageType = enums.PackageTypeBagIt
+		tinfo.PackageType = enums.SIPTypeBagIt
 	}
 
 	err = w.validatePREMIS(

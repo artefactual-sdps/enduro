@@ -15,9 +15,9 @@ import (
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/pkg"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/preservationaction"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/preservationtask"
+	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/sip"
 )
 
 // Client is the client that holds all ent builders.
@@ -25,12 +25,12 @@ type Client struct {
 	config
 	// Schema is the client for creating, migrating and dropping schema.
 	Schema *migrate.Schema
-	// Pkg is the client for interacting with the Pkg builders.
-	Pkg *PkgClient
 	// PreservationAction is the client for interacting with the PreservationAction builders.
 	PreservationAction *PreservationActionClient
 	// PreservationTask is the client for interacting with the PreservationTask builders.
 	PreservationTask *PreservationTaskClient
+	// SIP is the client for interacting with the SIP builders.
+	SIP *SIPClient
 }
 
 // NewClient creates a new client configured with the given options.
@@ -42,9 +42,9 @@ func NewClient(opts ...Option) *Client {
 
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
-	c.Pkg = NewPkgClient(c.config)
 	c.PreservationAction = NewPreservationActionClient(c.config)
 	c.PreservationTask = NewPreservationTaskClient(c.config)
+	c.SIP = NewSIPClient(c.config)
 }
 
 type (
@@ -137,9 +137,9 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	return &Tx{
 		ctx:                ctx,
 		config:             cfg,
-		Pkg:                NewPkgClient(cfg),
 		PreservationAction: NewPreservationActionClient(cfg),
 		PreservationTask:   NewPreservationTaskClient(cfg),
+		SIP:                NewSIPClient(cfg),
 	}, nil
 }
 
@@ -159,16 +159,16 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	return &Tx{
 		ctx:                ctx,
 		config:             cfg,
-		Pkg:                NewPkgClient(cfg),
 		PreservationAction: NewPreservationActionClient(cfg),
 		PreservationTask:   NewPreservationTaskClient(cfg),
+		SIP:                NewSIPClient(cfg),
 	}, nil
 }
 
 // Debug returns a new debug-client. It's used to get verbose logging on specific operations.
 //
 //	client.Debug().
-//		Pkg.
+//		PreservationAction.
 //		Query().
 //		Count(ctx)
 func (c *Client) Debug() *Client {
@@ -190,179 +190,30 @@ func (c *Client) Close() error {
 // Use adds the mutation hooks to all the entity clients.
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
-	c.Pkg.Use(hooks...)
 	c.PreservationAction.Use(hooks...)
 	c.PreservationTask.Use(hooks...)
+	c.SIP.Use(hooks...)
 }
 
 // Intercept adds the query interceptors to all the entity clients.
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
-	c.Pkg.Intercept(interceptors...)
 	c.PreservationAction.Intercept(interceptors...)
 	c.PreservationTask.Intercept(interceptors...)
+	c.SIP.Intercept(interceptors...)
 }
 
 // Mutate implements the ent.Mutator interface.
 func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
-	case *PkgMutation:
-		return c.Pkg.mutate(ctx, m)
 	case *PreservationActionMutation:
 		return c.PreservationAction.mutate(ctx, m)
 	case *PreservationTaskMutation:
 		return c.PreservationTask.mutate(ctx, m)
+	case *SIPMutation:
+		return c.SIP.mutate(ctx, m)
 	default:
 		return nil, fmt.Errorf("db: unknown mutation type %T", m)
-	}
-}
-
-// PkgClient is a client for the Pkg schema.
-type PkgClient struct {
-	config
-}
-
-// NewPkgClient returns a client for the Pkg from the given config.
-func NewPkgClient(c config) *PkgClient {
-	return &PkgClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `pkg.Hooks(f(g(h())))`.
-func (c *PkgClient) Use(hooks ...Hook) {
-	c.hooks.Pkg = append(c.hooks.Pkg, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `pkg.Intercept(f(g(h())))`.
-func (c *PkgClient) Intercept(interceptors ...Interceptor) {
-	c.inters.Pkg = append(c.inters.Pkg, interceptors...)
-}
-
-// Create returns a builder for creating a Pkg entity.
-func (c *PkgClient) Create() *PkgCreate {
-	mutation := newPkgMutation(c.config, OpCreate)
-	return &PkgCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of Pkg entities.
-func (c *PkgClient) CreateBulk(builders ...*PkgCreate) *PkgCreateBulk {
-	return &PkgCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *PkgClient) MapCreateBulk(slice any, setFunc func(*PkgCreate, int)) *PkgCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &PkgCreateBulk{err: fmt.Errorf("calling to PkgClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*PkgCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &PkgCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for Pkg.
-func (c *PkgClient) Update() *PkgUpdate {
-	mutation := newPkgMutation(c.config, OpUpdate)
-	return &PkgUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *PkgClient) UpdateOne(pk *Pkg) *PkgUpdateOne {
-	mutation := newPkgMutation(c.config, OpUpdateOne, withPkg(pk))
-	return &PkgUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *PkgClient) UpdateOneID(id int) *PkgUpdateOne {
-	mutation := newPkgMutation(c.config, OpUpdateOne, withPkgID(id))
-	return &PkgUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for Pkg.
-func (c *PkgClient) Delete() *PkgDelete {
-	mutation := newPkgMutation(c.config, OpDelete)
-	return &PkgDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *PkgClient) DeleteOne(pk *Pkg) *PkgDeleteOne {
-	return c.DeleteOneID(pk.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *PkgClient) DeleteOneID(id int) *PkgDeleteOne {
-	builder := c.Delete().Where(pkg.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &PkgDeleteOne{builder}
-}
-
-// Query returns a query builder for Pkg.
-func (c *PkgClient) Query() *PkgQuery {
-	return &PkgQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypePkg},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a Pkg entity by its id.
-func (c *PkgClient) Get(ctx context.Context, id int) (*Pkg, error) {
-	return c.Query().Where(pkg.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *PkgClient) GetX(ctx context.Context, id int) *Pkg {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// QueryPreservationActions queries the preservation_actions edge of a Pkg.
-func (c *PkgClient) QueryPreservationActions(pk *Pkg) *PreservationActionQuery {
-	query := (&PreservationActionClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := pk.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(pkg.Table, pkg.FieldID, id),
-			sqlgraph.To(preservationaction.Table, preservationaction.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, pkg.PreservationActionsTable, pkg.PreservationActionsColumn),
-		)
-		fromV = sqlgraph.Neighbors(pk.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// Hooks returns the client hooks.
-func (c *PkgClient) Hooks() []Hook {
-	return c.hooks.Pkg
-}
-
-// Interceptors returns the client interceptors.
-func (c *PkgClient) Interceptors() []Interceptor {
-	return c.inters.Pkg
-}
-
-func (c *PkgClient) mutate(ctx context.Context, m *PkgMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&PkgCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&PkgUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&PkgUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&PkgDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("db: unknown Pkg mutation op: %q", m.Op())
 	}
 }
 
@@ -474,15 +325,15 @@ func (c *PreservationActionClient) GetX(ctx context.Context, id int) *Preservati
 	return obj
 }
 
-// QueryPackage queries the package edge of a PreservationAction.
-func (c *PreservationActionClient) QueryPackage(pa *PreservationAction) *PkgQuery {
-	query := (&PkgClient{config: c.config}).Query()
+// QuerySip queries the sip edge of a PreservationAction.
+func (c *PreservationActionClient) QuerySip(pa *PreservationAction) *SIPQuery {
+	query := (&SIPClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := pa.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(preservationaction.Table, preservationaction.FieldID, id),
-			sqlgraph.To(pkg.Table, pkg.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, preservationaction.PackageTable, preservationaction.PackageColumn),
+			sqlgraph.To(sip.Table, sip.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, preservationaction.SipTable, preservationaction.SipColumn),
 		)
 		fromV = sqlgraph.Neighbors(pa.driver.Dialect(), step)
 		return fromV, nil
@@ -680,12 +531,161 @@ func (c *PreservationTaskClient) mutate(ctx context.Context, m *PreservationTask
 	}
 }
 
+// SIPClient is a client for the SIP schema.
+type SIPClient struct {
+	config
+}
+
+// NewSIPClient returns a client for the SIP from the given config.
+func NewSIPClient(c config) *SIPClient {
+	return &SIPClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `sip.Hooks(f(g(h())))`.
+func (c *SIPClient) Use(hooks ...Hook) {
+	c.hooks.SIP = append(c.hooks.SIP, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `sip.Intercept(f(g(h())))`.
+func (c *SIPClient) Intercept(interceptors ...Interceptor) {
+	c.inters.SIP = append(c.inters.SIP, interceptors...)
+}
+
+// Create returns a builder for creating a SIP entity.
+func (c *SIPClient) Create() *SIPCreate {
+	mutation := newSIPMutation(c.config, OpCreate)
+	return &SIPCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of SIP entities.
+func (c *SIPClient) CreateBulk(builders ...*SIPCreate) *SIPCreateBulk {
+	return &SIPCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *SIPClient) MapCreateBulk(slice any, setFunc func(*SIPCreate, int)) *SIPCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &SIPCreateBulk{err: fmt.Errorf("calling to SIPClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*SIPCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &SIPCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for SIP.
+func (c *SIPClient) Update() *SIPUpdate {
+	mutation := newSIPMutation(c.config, OpUpdate)
+	return &SIPUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *SIPClient) UpdateOne(s *SIP) *SIPUpdateOne {
+	mutation := newSIPMutation(c.config, OpUpdateOne, withSIP(s))
+	return &SIPUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *SIPClient) UpdateOneID(id int) *SIPUpdateOne {
+	mutation := newSIPMutation(c.config, OpUpdateOne, withSIPID(id))
+	return &SIPUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for SIP.
+func (c *SIPClient) Delete() *SIPDelete {
+	mutation := newSIPMutation(c.config, OpDelete)
+	return &SIPDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *SIPClient) DeleteOne(s *SIP) *SIPDeleteOne {
+	return c.DeleteOneID(s.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *SIPClient) DeleteOneID(id int) *SIPDeleteOne {
+	builder := c.Delete().Where(sip.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &SIPDeleteOne{builder}
+}
+
+// Query returns a query builder for SIP.
+func (c *SIPClient) Query() *SIPQuery {
+	return &SIPQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeSIP},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a SIP entity by its id.
+func (c *SIPClient) Get(ctx context.Context, id int) (*SIP, error) {
+	return c.Query().Where(sip.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *SIPClient) GetX(ctx context.Context, id int) *SIP {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryPreservationActions queries the preservation_actions edge of a SIP.
+func (c *SIPClient) QueryPreservationActions(s *SIP) *PreservationActionQuery {
+	query := (&PreservationActionClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := s.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(sip.Table, sip.FieldID, id),
+			sqlgraph.To(preservationaction.Table, preservationaction.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, sip.PreservationActionsTable, sip.PreservationActionsColumn),
+		)
+		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *SIPClient) Hooks() []Hook {
+	return c.hooks.SIP
+}
+
+// Interceptors returns the client interceptors.
+func (c *SIPClient) Interceptors() []Interceptor {
+	return c.inters.SIP
+}
+
+func (c *SIPClient) mutate(ctx context.Context, m *SIPMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&SIPCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&SIPUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&SIPUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&SIPDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("db: unknown SIP mutation op: %q", m.Op())
+	}
+}
+
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Pkg, PreservationAction, PreservationTask []ent.Hook
+		PreservationAction, PreservationTask, SIP []ent.Hook
 	}
 	inters struct {
-		Pkg, PreservationAction, PreservationTask []ent.Interceptor
+		PreservationAction, PreservationTask, SIP []ent.Interceptor
 	}
 )

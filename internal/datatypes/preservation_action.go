@@ -14,5 +14,5 @@ type PreservationAction struct {
 	Status      enums.PreservationActionStatus `db:"status"`
 	StartedAt   sql.NullTime                   `db:"started_at"`
 	CompletedAt sql.NullTime                   `db:"completed_at"`
-	PackageID   int                            `db:"package_id"`
+	SIPID       int                            `db:"sip_id"`
 }

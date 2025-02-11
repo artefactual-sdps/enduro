@@ -33,7 +33,7 @@ func (PreservationAction) Fields() []ent.Field {
 			Optional(),
 		field.Time("completed_at").
 			Optional(),
-		field.Int("package_id").
+		field.Int("sip_id").
 			Positive(),
 	}
 }
@@ -41,11 +41,11 @@ func (PreservationAction) Fields() []ent.Field {
 // Edges of the PreservationAction.
 func (PreservationAction) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("package", Pkg.Type).
+		edge.From("sip", SIP.Type).
 			Ref("preservation_actions").
 			Unique().
 			Required().
-			Field("package_id"),
+			Field("sip_id"),
 		edge.To("tasks", PreservationTask.Type).
 			Annotations(entsql.OnDelete(entsql.Cascade)),
 	}

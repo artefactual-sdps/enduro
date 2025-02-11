@@ -266,7 +266,7 @@ var _ = Service("package", func() {
 })
 
 var EnumPackageStatus = func() {
-	Enum(enums.PackageStatusInterfaces()...)
+	Enum(enums.SIPStatusInterfaces()...)
 }
 
 var Package_ = Type("Package", func() {
@@ -275,7 +275,7 @@ var Package_ = Type("Package", func() {
 	TypedAttributeUUID("location_id", "Identifier of storage location")
 	Attribute("status", String, "Status of the package", func() {
 		EnumPackageStatus()
-		Default(enums.PackageStatusNew.String())
+		Default(enums.SIPStatusNew.String())
 	})
 	AttributeUUID("workflow_id", "Identifier of processing workflow")
 	AttributeUUID("run_id", "Identifier of latest processing workflow run")

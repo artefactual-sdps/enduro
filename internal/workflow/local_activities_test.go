@@ -48,7 +48,7 @@ func TestCreatePreservationActionLocalActivity(t *testing.T) {
 					Status:      enums.PreservationActionStatusDone,
 					StartedAt:   sql.NullTime{Time: startedAt, Valid: true},
 					CompletedAt: sql.NullTime{Time: completedAt, Valid: true},
-					PackageID:   1,
+					SIPID:       1,
 				}).DoAndReturn(func(ctx context.Context, pa *datatypes.PreservationAction) error {
 					pa.ID = 1
 					return nil
@@ -69,7 +69,7 @@ func TestCreatePreservationActionLocalActivity(t *testing.T) {
 					WorkflowID: "workflow-id",
 					Type:       enums.PreservationActionTypeCreateAip,
 					Status:     enums.PreservationActionStatusDone,
-					PackageID:  1,
+					SIPID:      1,
 				}).DoAndReturn(func(ctx context.Context, pa *datatypes.PreservationAction) error {
 					pa.ID = 1
 					return nil
@@ -90,7 +90,7 @@ func TestCreatePreservationActionLocalActivity(t *testing.T) {
 					WorkflowID: "workflow-id",
 					Type:       enums.PreservationActionTypeCreateAip,
 					Status:     enums.PreservationActionStatusDone,
-					PackageID:  1,
+					SIPID:      1,
 				}).Return(fmt.Errorf("persistence error"))
 			},
 			wantErr: "persistence error",

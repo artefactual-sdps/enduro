@@ -12,21 +12,21 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/pkg"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/predicate"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/preservationaction"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/preservationtask"
+	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/sip"
 )
 
 // PreservationActionQuery is the builder for querying PreservationAction entities.
 type PreservationActionQuery struct {
 	config
-	ctx         *QueryContext
-	order       []preservationaction.OrderOption
-	inters      []Interceptor
-	predicates  []predicate.PreservationAction
-	withPackage *PkgQuery
-	withTasks   *PreservationTaskQuery
+	ctx        *QueryContext
+	order      []preservationaction.OrderOption
+	inters     []Interceptor
+	predicates []predicate.PreservationAction
+	withSip    *SIPQuery
+	withTasks  *PreservationTaskQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -63,9 +63,9 @@ func (paq *PreservationActionQuery) Order(o ...preservationaction.OrderOption) *
 	return paq
 }
 
-// QueryPackage chains the current query on the "package" edge.
-func (paq *PreservationActionQuery) QueryPackage() *PkgQuery {
-	query := (&PkgClient{config: paq.config}).Query()
+// QuerySip chains the current query on the "sip" edge.
+func (paq *PreservationActionQuery) QuerySip() *SIPQuery {
+	query := (&SIPClient{config: paq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := paq.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -76,8 +76,8 @@ func (paq *PreservationActionQuery) QueryPackage() *PkgQuery {
 		}
 		step := sqlgraph.NewStep(
 			sqlgraph.From(preservationaction.Table, preservationaction.FieldID, selector),
-			sqlgraph.To(pkg.Table, pkg.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, preservationaction.PackageTable, preservationaction.PackageColumn),
+			sqlgraph.To(sip.Table, sip.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, preservationaction.SipTable, preservationaction.SipColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(paq.driver.Dialect(), step)
 		return fromU, nil
@@ -294,27 +294,27 @@ func (paq *PreservationActionQuery) Clone() *PreservationActionQuery {
 		return nil
 	}
 	return &PreservationActionQuery{
-		config:      paq.config,
-		ctx:         paq.ctx.Clone(),
-		order:       append([]preservationaction.OrderOption{}, paq.order...),
-		inters:      append([]Interceptor{}, paq.inters...),
-		predicates:  append([]predicate.PreservationAction{}, paq.predicates...),
-		withPackage: paq.withPackage.Clone(),
-		withTasks:   paq.withTasks.Clone(),
+		config:     paq.config,
+		ctx:        paq.ctx.Clone(),
+		order:      append([]preservationaction.OrderOption{}, paq.order...),
+		inters:     append([]Interceptor{}, paq.inters...),
+		predicates: append([]predicate.PreservationAction{}, paq.predicates...),
+		withSip:    paq.withSip.Clone(),
+		withTasks:  paq.withTasks.Clone(),
 		// clone intermediate query.
 		sql:  paq.sql.Clone(),
 		path: paq.path,
 	}
 }
 
-// WithPackage tells the query-builder to eager-load the nodes that are connected to
-// the "package" edge. The optional arguments are used to configure the query builder of the edge.
-func (paq *PreservationActionQuery) WithPackage(opts ...func(*PkgQuery)) *PreservationActionQuery {
-	query := (&PkgClient{config: paq.config}).Query()
+// WithSip tells the query-builder to eager-load the nodes that are connected to
+// the "sip" edge. The optional arguments are used to configure the query builder of the edge.
+func (paq *PreservationActionQuery) WithSip(opts ...func(*SIPQuery)) *PreservationActionQuery {
+	query := (&SIPClient{config: paq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	paq.withPackage = query
+	paq.withSip = query
 	return paq
 }
 
@@ -408,7 +408,7 @@ func (paq *PreservationActionQuery) sqlAll(ctx context.Context, hooks ...queryHo
 		nodes       = []*PreservationAction{}
 		_spec       = paq.querySpec()
 		loadedTypes = [2]bool{
-			paq.withPackage != nil,
+			paq.withSip != nil,
 			paq.withTasks != nil,
 		}
 	)
@@ -430,9 +430,9 @@ func (paq *PreservationActionQuery) sqlAll(ctx context.Context, hooks ...queryHo
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := paq.withPackage; query != nil {
-		if err := paq.loadPackage(ctx, query, nodes, nil,
-			func(n *PreservationAction, e *Pkg) { n.Edges.Package = e }); err != nil {
+	if query := paq.withSip; query != nil {
+		if err := paq.loadSip(ctx, query, nodes, nil,
+			func(n *PreservationAction, e *SIP) { n.Edges.Sip = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -446,11 +446,11 @@ func (paq *PreservationActionQuery) sqlAll(ctx context.Context, hooks ...queryHo
 	return nodes, nil
 }
 
-func (paq *PreservationActionQuery) loadPackage(ctx context.Context, query *PkgQuery, nodes []*PreservationAction, init func(*PreservationAction), assign func(*PreservationAction, *Pkg)) error {
+func (paq *PreservationActionQuery) loadSip(ctx context.Context, query *SIPQuery, nodes []*PreservationAction, init func(*PreservationAction), assign func(*PreservationAction, *SIP)) error {
 	ids := make([]int, 0, len(nodes))
 	nodeids := make(map[int][]*PreservationAction)
 	for i := range nodes {
-		fk := nodes[i].PackageID
+		fk := nodes[i].SipID
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -459,7 +459,7 @@ func (paq *PreservationActionQuery) loadPackage(ctx context.Context, query *PkgQ
 	if len(ids) == 0 {
 		return nil
 	}
-	query.Where(pkg.IDIn(ids...))
+	query.Where(sip.IDIn(ids...))
 	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
@@ -467,7 +467,7 @@ func (paq *PreservationActionQuery) loadPackage(ctx context.Context, query *PkgQ
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "package_id" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "sip_id" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -531,8 +531,8 @@ func (paq *PreservationActionQuery) querySpec() *sqlgraph.QuerySpec {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
 		}
-		if paq.withPackage != nil {
-			_spec.Node.AddColumnOnce(preservationaction.FieldPackageID)
+		if paq.withSip != nil {
+			_spec.Node.AddColumnOnce(preservationaction.FieldSipID)
 		}
 	}
 	if ps := paq.predicates; len(ps) > 0 {

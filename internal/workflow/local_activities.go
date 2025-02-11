@@ -17,7 +17,7 @@ import (
 
 type createPackageLocalActivityParams struct {
 	Key    string
-	Status enums.PackageStatus
+	Status enums.SIPStatus
 }
 
 func createPackageLocalActivity(
@@ -27,7 +27,7 @@ func createPackageLocalActivity(
 ) (int, error) {
 	info := temporalsdk_activity.GetInfo(ctx)
 
-	col := &datatypes.Package{
+	col := &datatypes.SIP{
 		Name:       params.Key,
 		WorkflowID: info.WorkflowExecution.ID,
 		RunID:      info.WorkflowExecution.RunID,
@@ -46,7 +46,7 @@ type updatePackageLocalActivityParams struct {
 	Key       string
 	SIPID     string
 	StoredAt  time.Time
-	Status    enums.PackageStatus
+	Status    enums.SIPStatus
 }
 
 type updatePackageLocalActivityResult struct{}
@@ -92,7 +92,7 @@ func setStatusLocalActivity(
 	ctx context.Context,
 	pkgsvc package_.Service,
 	pkgID int,
-	status enums.PackageStatus,
+	status enums.SIPStatus,
 ) (*setStatusLocalActivityResult, error) {
 	return &setStatusLocalActivityResult{}, pkgsvc.SetStatus(ctx, pkgID, status)
 }
@@ -175,7 +175,7 @@ func createPreservationActionLocalActivity(
 		WorkflowID: params.WorkflowID,
 		Type:       params.Type,
 		Status:     params.Status,
-		PackageID:  params.PackageID,
+		SIPID:      params.PackageID,
 	}
 	if !params.StartedAt.IsZero() {
 		pa.StartedAt = sql.NullTime{Time: params.StartedAt, Valid: true}

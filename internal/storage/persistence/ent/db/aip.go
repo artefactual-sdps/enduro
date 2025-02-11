@@ -9,14 +9,14 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/aip"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/location"
-	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/pkg"
 	"github.com/artefactual-sdps/enduro/internal/storage/types"
 	"github.com/google/uuid"
 )
 
-// Pkg is the model entity for the Pkg schema.
-type Pkg struct {
+// AIP is the model entity for the AIP schema.
+type AIP struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
@@ -27,19 +27,19 @@ type Pkg struct {
 	// LocationID holds the value of the "location_id" field.
 	LocationID int `json:"location_id,omitempty"`
 	// Status holds the value of the "status" field.
-	Status types.PackageStatus `json:"status,omitempty"`
+	Status types.AIPStatus `json:"status,omitempty"`
 	// ObjectKey holds the value of the "object_key" field.
 	ObjectKey uuid.UUID `json:"object_key,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
-	// The values are being populated by the PkgQuery when eager-loading is set.
-	Edges        PkgEdges `json:"edges"`
+	// The values are being populated by the AIPQuery when eager-loading is set.
+	Edges        AIPEdges `json:"edges"`
 	selectValues sql.SelectValues
 }
 
-// PkgEdges holds the relations/edges for other nodes in the graph.
-type PkgEdges struct {
+// AIPEdges holds the relations/edges for other nodes in the graph.
+type AIPEdges struct {
 	// Location holds the value of the location edge.
 	Location *Location `json:"location,omitempty"`
 	// loadedTypes holds the information for reporting if a
@@ -49,7 +49,7 @@ type PkgEdges struct {
 
 // LocationOrErr returns the Location value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e PkgEdges) LocationOrErr() (*Location, error) {
+func (e AIPEdges) LocationOrErr() (*Location, error) {
 	if e.Location != nil {
 		return e.Location, nil
 	} else if e.loadedTypes[0] {
@@ -59,19 +59,19 @@ func (e PkgEdges) LocationOrErr() (*Location, error) {
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
-func (*Pkg) scanValues(columns []string) ([]any, error) {
+func (*AIP) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case pkg.FieldID, pkg.FieldLocationID:
+		case aip.FieldID, aip.FieldLocationID:
 			values[i] = new(sql.NullInt64)
-		case pkg.FieldName:
+		case aip.FieldName:
 			values[i] = new(sql.NullString)
-		case pkg.FieldCreatedAt:
+		case aip.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
-		case pkg.FieldStatus:
-			values[i] = new(types.PackageStatus)
-		case pkg.FieldAipID, pkg.FieldObjectKey:
+		case aip.FieldStatus:
+			values[i] = new(types.AIPStatus)
+		case aip.FieldAipID, aip.FieldObjectKey:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -81,116 +81,116 @@ func (*Pkg) scanValues(columns []string) ([]any, error) {
 }
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
-// to the Pkg fields.
-func (pk *Pkg) assignValues(columns []string, values []any) error {
+// to the AIP fields.
+func (a *AIP) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
 	for i := range columns {
 		switch columns[i] {
-		case pkg.FieldID:
+		case aip.FieldID:
 			value, ok := values[i].(*sql.NullInt64)
 			if !ok {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
-			pk.ID = int(value.Int64)
-		case pkg.FieldName:
+			a.ID = int(value.Int64)
+		case aip.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
 			} else if value.Valid {
-				pk.Name = value.String
+				a.Name = value.String
 			}
-		case pkg.FieldAipID:
+		case aip.FieldAipID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field aip_id", values[i])
 			} else if value != nil {
-				pk.AipID = *value
+				a.AipID = *value
 			}
-		case pkg.FieldLocationID:
+		case aip.FieldLocationID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field location_id", values[i])
 			} else if value.Valid {
-				pk.LocationID = int(value.Int64)
+				a.LocationID = int(value.Int64)
 			}
-		case pkg.FieldStatus:
-			if value, ok := values[i].(*types.PackageStatus); !ok {
+		case aip.FieldStatus:
+			if value, ok := values[i].(*types.AIPStatus); !ok {
 				return fmt.Errorf("unexpected type %T for field status", values[i])
 			} else if value != nil {
-				pk.Status = *value
+				a.Status = *value
 			}
-		case pkg.FieldObjectKey:
+		case aip.FieldObjectKey:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field object_key", values[i])
 			} else if value != nil {
-				pk.ObjectKey = *value
+				a.ObjectKey = *value
 			}
-		case pkg.FieldCreatedAt:
+		case aip.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
-				pk.CreatedAt = value.Time
+				a.CreatedAt = value.Time
 			}
 		default:
-			pk.selectValues.Set(columns[i], values[i])
+			a.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
 }
 
-// Value returns the ent.Value that was dynamically selected and assigned to the Pkg.
+// Value returns the ent.Value that was dynamically selected and assigned to the AIP.
 // This includes values selected through modifiers, order, etc.
-func (pk *Pkg) Value(name string) (ent.Value, error) {
-	return pk.selectValues.Get(name)
+func (a *AIP) Value(name string) (ent.Value, error) {
+	return a.selectValues.Get(name)
 }
 
-// QueryLocation queries the "location" edge of the Pkg entity.
-func (pk *Pkg) QueryLocation() *LocationQuery {
-	return NewPkgClient(pk.config).QueryLocation(pk)
+// QueryLocation queries the "location" edge of the AIP entity.
+func (a *AIP) QueryLocation() *LocationQuery {
+	return NewAIPClient(a.config).QueryLocation(a)
 }
 
-// Update returns a builder for updating this Pkg.
-// Note that you need to call Pkg.Unwrap() before calling this method if this Pkg
+// Update returns a builder for updating this AIP.
+// Note that you need to call AIP.Unwrap() before calling this method if this AIP
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (pk *Pkg) Update() *PkgUpdateOne {
-	return NewPkgClient(pk.config).UpdateOne(pk)
+func (a *AIP) Update() *AIPUpdateOne {
+	return NewAIPClient(a.config).UpdateOne(a)
 }
 
-// Unwrap unwraps the Pkg entity that was returned from a transaction after it was closed,
+// Unwrap unwraps the AIP entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (pk *Pkg) Unwrap() *Pkg {
-	_tx, ok := pk.config.driver.(*txDriver)
+func (a *AIP) Unwrap() *AIP {
+	_tx, ok := a.config.driver.(*txDriver)
 	if !ok {
-		panic("db: Pkg is not a transactional entity")
+		panic("db: AIP is not a transactional entity")
 	}
-	pk.config.driver = _tx.drv
-	return pk
+	a.config.driver = _tx.drv
+	return a
 }
 
 // String implements the fmt.Stringer.
-func (pk *Pkg) String() string {
+func (a *AIP) String() string {
 	var builder strings.Builder
-	builder.WriteString("Pkg(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", pk.ID))
+	builder.WriteString("AIP(")
+	builder.WriteString(fmt.Sprintf("id=%v, ", a.ID))
 	builder.WriteString("name=")
-	builder.WriteString(pk.Name)
+	builder.WriteString(a.Name)
 	builder.WriteString(", ")
 	builder.WriteString("aip_id=")
-	builder.WriteString(fmt.Sprintf("%v", pk.AipID))
+	builder.WriteString(fmt.Sprintf("%v", a.AipID))
 	builder.WriteString(", ")
 	builder.WriteString("location_id=")
-	builder.WriteString(fmt.Sprintf("%v", pk.LocationID))
+	builder.WriteString(fmt.Sprintf("%v", a.LocationID))
 	builder.WriteString(", ")
 	builder.WriteString("status=")
-	builder.WriteString(fmt.Sprintf("%v", pk.Status))
+	builder.WriteString(fmt.Sprintf("%v", a.Status))
 	builder.WriteString(", ")
 	builder.WriteString("object_key=")
-	builder.WriteString(fmt.Sprintf("%v", pk.ObjectKey))
+	builder.WriteString(fmt.Sprintf("%v", a.ObjectKey))
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
-	builder.WriteString(pk.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(a.CreatedAt.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }
 
-// Pkgs is a parsable slice of Pkg.
-type Pkgs []*Pkg
+// AIPs is a parsable slice of AIP.
+type AIPs []*AIP

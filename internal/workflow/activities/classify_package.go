@@ -20,7 +20,7 @@ type (
 	}
 	ClassifyPackageActivityResult struct {
 		// Type of the package.
-		Type enums.PackageType
+		Type enums.SIPType
 	}
 )
 
@@ -38,9 +38,9 @@ func (a *ClassifyPackageActivity) Execute(
 		"Path", params.Path,
 	)
 
-	r := ClassifyPackageActivityResult{Type: enums.PackageTypeUnknown}
+	r := ClassifyPackageActivityResult{Type: enums.SIPTypeUnknown}
 	if bagit.Is(params.Path) {
-		r.Type = enums.PackageTypeBagIt
+		r.Type = enums.SIPTypeBagIt
 	}
 
 	return &r, nil

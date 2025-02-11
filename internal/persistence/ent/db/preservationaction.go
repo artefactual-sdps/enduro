@@ -9,8 +9,8 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/pkg"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/preservationaction"
+	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/sip"
 )
 
 // PreservationAction is the model entity for the PreservationAction schema.
@@ -28,8 +28,8 @@ type PreservationAction struct {
 	StartedAt time.Time `json:"started_at,omitempty"`
 	// CompletedAt holds the value of the "completed_at" field.
 	CompletedAt time.Time `json:"completed_at,omitempty"`
-	// PackageID holds the value of the "package_id" field.
-	PackageID int `json:"package_id,omitempty"`
+	// SipID holds the value of the "sip_id" field.
+	SipID int `json:"sip_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the PreservationActionQuery when eager-loading is set.
 	Edges        PreservationActionEdges `json:"edges"`
@@ -38,8 +38,8 @@ type PreservationAction struct {
 
 // PreservationActionEdges holds the relations/edges for other nodes in the graph.
 type PreservationActionEdges struct {
-	// Package holds the value of the package edge.
-	Package *Pkg `json:"package,omitempty"`
+	// Sip holds the value of the sip edge.
+	Sip *SIP `json:"sip,omitempty"`
 	// Tasks holds the value of the tasks edge.
 	Tasks []*PreservationTask `json:"tasks,omitempty"`
 	// loadedTypes holds the information for reporting if a
@@ -47,15 +47,15 @@ type PreservationActionEdges struct {
 	loadedTypes [2]bool
 }
 
-// PackageOrErr returns the Package value or an error if the edge
+// SipOrErr returns the Sip value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e PreservationActionEdges) PackageOrErr() (*Pkg, error) {
-	if e.Package != nil {
-		return e.Package, nil
+func (e PreservationActionEdges) SipOrErr() (*SIP, error) {
+	if e.Sip != nil {
+		return e.Sip, nil
 	} else if e.loadedTypes[0] {
-		return nil, &NotFoundError{label: pkg.Label}
+		return nil, &NotFoundError{label: sip.Label}
 	}
-	return nil, &NotLoadedError{edge: "package"}
+	return nil, &NotLoadedError{edge: "sip"}
 }
 
 // TasksOrErr returns the Tasks value or an error if the edge
@@ -72,7 +72,7 @@ func (*PreservationAction) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case preservationaction.FieldID, preservationaction.FieldType, preservationaction.FieldStatus, preservationaction.FieldPackageID:
+		case preservationaction.FieldID, preservationaction.FieldType, preservationaction.FieldStatus, preservationaction.FieldSipID:
 			values[i] = new(sql.NullInt64)
 		case preservationaction.FieldWorkflowID:
 			values[i] = new(sql.NullString)
@@ -129,11 +129,11 @@ func (pa *PreservationAction) assignValues(columns []string, values []any) error
 			} else if value.Valid {
 				pa.CompletedAt = value.Time
 			}
-		case preservationaction.FieldPackageID:
+		case preservationaction.FieldSipID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field package_id", values[i])
+				return fmt.Errorf("unexpected type %T for field sip_id", values[i])
 			} else if value.Valid {
-				pa.PackageID = int(value.Int64)
+				pa.SipID = int(value.Int64)
 			}
 		default:
 			pa.selectValues.Set(columns[i], values[i])
@@ -148,9 +148,9 @@ func (pa *PreservationAction) Value(name string) (ent.Value, error) {
 	return pa.selectValues.Get(name)
 }
 
-// QueryPackage queries the "package" edge of the PreservationAction entity.
-func (pa *PreservationAction) QueryPackage() *PkgQuery {
-	return NewPreservationActionClient(pa.config).QueryPackage(pa)
+// QuerySip queries the "sip" edge of the PreservationAction entity.
+func (pa *PreservationAction) QuerySip() *SIPQuery {
+	return NewPreservationActionClient(pa.config).QuerySip(pa)
 }
 
 // QueryTasks queries the "tasks" edge of the PreservationAction entity.
@@ -196,8 +196,8 @@ func (pa *PreservationAction) String() string {
 	builder.WriteString("completed_at=")
 	builder.WriteString(pa.CompletedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
-	builder.WriteString("package_id=")
-	builder.WriteString(fmt.Sprintf("%v", pa.PackageID))
+	builder.WriteString("sip_id=")
+	builder.WriteString(fmt.Sprintf("%v", pa.SipID))
 	builder.WriteByte(')')
 	return builder.String()
 }

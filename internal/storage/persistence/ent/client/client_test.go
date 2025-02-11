@@ -15,10 +15,10 @@ import (
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/client"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db"
+	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/aip"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/enttest"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/hook"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/location"
-	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/pkg"
 	"github.com/artefactual-sdps/enduro/internal/storage/types"
 )
 
@@ -44,8 +44,8 @@ func setUpClient(t *testing.T) (*db.Client, *client.Client) {
 	c := client.NewClient(entc)
 
 	// Use ent Hooks to set the create_at fields to a fixed value
-	entc.Pkg.Use(func(next ent.Mutator) ent.Mutator {
-		return hook.PkgFunc(func(ctx context.Context, m *db.PkgMutation) (ent.Value, error) {
+	entc.AIP.Use(func(next ent.Mutator) ent.Mutator {
+		return hook.AIPFunc(func(ctx context.Context, m *db.AIPMutation) (ent.Value, error) {
 			if m.Op() == db.OpCreate {
 				m.SetCreatedAt(fakeNow())
 			}
@@ -64,7 +64,7 @@ func setUpClient(t *testing.T) (*db.Client, *client.Client) {
 	return entc, c
 }
 
-func TestCreatePackage(t *testing.T) {
+func TestCreateAIP(t *testing.T) {
 	t.Parallel()
 
 	type test struct {
@@ -76,14 +76,14 @@ func TestCreatePackage(t *testing.T) {
 
 	for _, tt := range []test{
 		{
-			name: "Creates a package with minimal data",
+			name: "Creates an AIP with minimal data",
 			params: &goastorage.Package{
-				Name:      "test_package",
+				Name:      "test_aip",
 				AipID:     aipID,
 				ObjectKey: objectKey,
 			},
 			want: &goastorage.Package{
-				Name:      "test_package",
+				Name:      "test_aip",
 				AipID:     aipID,
 				ObjectKey: objectKey,
 				Status:    "unspecified",
@@ -91,16 +91,16 @@ func TestCreatePackage(t *testing.T) {
 			},
 		},
 		{
-			name: "Creates a package with all data",
+			name: "Creates an AIP with all data",
 			params: &goastorage.Package{
-				Name:       "test_package",
+				Name:       "test_aip",
 				AipID:      aipID,
 				ObjectKey:  objectKey,
 				Status:     "stored",
 				LocationID: ref.New(locationID),
 			},
 			want: &goastorage.Package{
-				Name:       "test_package",
+				Name:       "test_aip",
 				AipID:      aipID,
 				ObjectKey:  objectKey,
 				Status:     "stored",
@@ -111,7 +111,7 @@ func TestCreatePackage(t *testing.T) {
 		{
 			name: "Errors if locationID is not found",
 			params: &goastorage.Package{
-				Name:       "test_package",
+				Name:       "test_aip",
 				AipID:      aipID,
 				ObjectKey:  objectKey,
 				LocationID: ref.New(uuid.MustParse("f1508f95-cab7-447f-b6a2-e01bf7c64558")),
@@ -141,7 +141,7 @@ func TestCreatePackage(t *testing.T) {
 				t.Fatalf("Couldn't create test location: %v", err)
 			}
 
-			got, err := c.CreatePackage(ctx, tt.params)
+			got, err := c.CreateAIP(ctx, tt.params)
 			if tt.wantErr != "" {
 				assert.Error(t, err, tt.wantErr)
 				return
@@ -153,7 +153,7 @@ func TestCreatePackage(t *testing.T) {
 	}
 }
 
-func TestListPackages(t *testing.T) {
+func TestListAIPs(t *testing.T) {
 	t.Parallel()
 
 	aipID2 := uuid.MustParse("96e182a0-31ab-4738-a620-1ff1954d9ecb")
@@ -161,24 +161,24 @@ func TestListPackages(t *testing.T) {
 
 	entc, c := setUpClient(t)
 
-	entc.Pkg.Create().
-		SetName("Package").
+	entc.AIP.Create().
+		SetName("AIP").
 		SetAipID(aipID).
 		SetObjectKey(objectKey).
-		SetStatus(types.StatusStored).
+		SetStatus(types.AIPStatusStored).
 		SaveX(context.Background())
-	entc.Pkg.Create().
-		SetName("Another Package").
+	entc.AIP.Create().
+		SetName("Another AIP").
 		SetAipID(aipID2).
 		SetObjectKey(objectKey2).
-		SetStatus(types.StatusRejected).
+		SetStatus(types.AIPStatusRejected).
 		SaveX(context.Background())
 
-	pkgs, err := c.ListPackages(context.Background())
+	aips, err := c.ListAIPs(context.Background())
 	assert.NilError(t, err)
-	assert.DeepEqual(t, pkgs, goastorage.PackageCollection{
+	assert.DeepEqual(t, aips, goastorage.PackageCollection{
 		{
-			Name:       "Package",
+			Name:       "AIP",
 			AipID:      aipID,
 			Status:     "stored",
 			ObjectKey:  objectKey,
@@ -186,7 +186,7 @@ func TestListPackages(t *testing.T) {
 			CreatedAt:  "2013-02-03T19:54:00Z",
 		},
 		{
-			Name:       "Another Package",
+			Name:       "Another AIP",
 			AipID:      aipID2,
 			Status:     "rejected",
 			ObjectKey:  objectKey2,
@@ -196,23 +196,23 @@ func TestListPackages(t *testing.T) {
 	})
 }
 
-func TestReadPackage(t *testing.T) {
+func TestReadAIP(t *testing.T) {
 	t.Parallel()
 
 	t.Run("Returns valid result", func(t *testing.T) {
 		entc, c := setUpClient(t)
 
-		entc.Pkg.Create().
-			SetName("Package").
+		entc.AIP.Create().
+			SetName("AIP").
 			SetAipID(aipID).
 			SetObjectKey(objectKey).
-			SetStatus(types.StatusStored).
+			SetStatus(types.AIPStatusStored).
 			SaveX(context.Background())
 
-		pkg, err := c.ReadPackage(context.Background(), aipID)
+		aip, err := c.ReadAIP(context.Background(), aipID)
 		assert.NilError(t, err)
-		assert.DeepEqual(t, pkg, &goastorage.Package{
-			Name:       "Package",
+		assert.DeepEqual(t, aip, &goastorage.Package{
+			Name:       "AIP",
 			AipID:      aipID,
 			Status:     "stored",
 			ObjectKey:  objectKey,
@@ -221,40 +221,40 @@ func TestReadPackage(t *testing.T) {
 		})
 	})
 
-	t.Run("Returns error when package does not exist", func(t *testing.T) {
+	t.Run("Returns error when AIP does not exist", func(t *testing.T) {
 		t.Parallel()
 
 		_, c := setUpClient(t)
 
-		l, err := c.ReadPackage(context.Background(), aipID)
+		l, err := c.ReadAIP(context.Background(), aipID)
 		assert.Assert(t, l == nil)
-		assert.ErrorContains(t, err, "package not found")
+		assert.ErrorContains(t, err, "Storage package not found")
 	})
 }
 
-func TestUpdatePackageStatus(t *testing.T) {
+func TestUpdateAIPStatus(t *testing.T) {
 	t.Parallel()
 
 	entc, c := setUpClient(t)
 
-	p := entc.Pkg.Create().
-		SetName("Package").
+	a := entc.AIP.Create().
+		SetName("AIP").
 		SetAipID(aipID).
 		SetObjectKey(objectKey).
-		SetStatus(types.StatusStored).
+		SetStatus(types.AIPStatusStored).
 		SaveX(context.Background())
 
-	err := c.UpdatePackageStatus(context.Background(), p.AipID, types.StatusRejected)
+	err := c.UpdateAIPStatus(context.Background(), a.AipID, types.AIPStatusRejected)
 	assert.NilError(t, err)
 
-	entc.Pkg.Query().
+	entc.AIP.Query().
 		Where(
-			pkg.ID(p.ID),
-			pkg.StatusEQ(types.StatusRejected),
+			aip.ID(a.ID),
+			aip.StatusEQ(types.AIPStatusRejected),
 		).OnlyX(context.Background())
 }
 
-func TestUpdatePackageLocation(t *testing.T) {
+func TestUpdateAIPLocation(t *testing.T) {
 	t.Parallel()
 
 	entc, c := setUpClient(t)
@@ -285,21 +285,21 @@ func TestUpdatePackageLocation(t *testing.T) {
 		}).
 		SaveX(context.Background())
 
-	p := entc.Pkg.Create().
-		SetName("Package").
+	a := entc.AIP.Create().
+		SetName("AIP").
 		SetAipID(aipID).
 		SetObjectKey(objectKey).
-		SetStatus(types.StatusStored).
+		SetStatus(types.AIPStatusStored).
 		SetLocation(l1).
 		SaveX(context.Background())
 
-	err := c.UpdatePackageLocationID(context.Background(), p.AipID, l2.UUID)
+	err := c.UpdateAIPLocationID(context.Background(), a.AipID, l2.UUID)
 	assert.NilError(t, err)
 
-	entc.Pkg.Query().
+	entc.AIP.Query().
 		Where(
-			pkg.ID(p.ID),
-			pkg.LocationID(l2.ID),
+			aip.ID(a.ID),
+			aip.LocationID(l2.ID),
 		).OnlyX(context.Background())
 }
 
@@ -550,7 +550,7 @@ func TestReadLocation(t *testing.T) {
 	})
 }
 
-func TestLocationPackages(t *testing.T) {
+func TestLocationAIPs(t *testing.T) {
 	t.Parallel()
 
 	t.Run("Returns valid result", func(t *testing.T) {
@@ -570,19 +570,19 @@ func TestLocationPackages(t *testing.T) {
 			}).
 			SaveX(context.Background())
 
-		entc.Pkg.Create().
-			SetName("Package").
+		entc.AIP.Create().
+			SetName("AIP").
 			SetAipID(aipID).
 			SetObjectKey(objectKey).
-			SetStatus(types.StatusStored).
+			SetStatus(types.AIPStatusStored).
 			SetLocation(l).
 			SaveX(context.Background())
 
-		pkgs, err := c.LocationPackages(context.Background(), locationID)
+		aips, err := c.LocationAIPs(context.Background(), locationID)
 		assert.NilError(t, err)
-		assert.DeepEqual(t, pkgs, goastorage.PackageCollection{
+		assert.DeepEqual(t, aips, goastorage.PackageCollection{
 			{
-				Name:       "Package",
+				Name:       "AIP",
 				AipID:      aipID,
 				Status:     "stored",
 				ObjectKey:  objectKey,
@@ -610,9 +610,9 @@ func TestLocationPackages(t *testing.T) {
 			}).
 			SaveX(context.Background())
 
-		pkgs, err := c.LocationPackages(context.Background(), locationID)
+		aips, err := c.LocationAIPs(context.Background(), locationID)
 		assert.NilError(t, err)
-		assert.Assert(t, len(pkgs) == 0)
+		assert.Assert(t, len(aips) == 0)
 	})
 
 	t.Run("Returns empty result if location does not exist", func(t *testing.T) {
@@ -620,8 +620,8 @@ func TestLocationPackages(t *testing.T) {
 
 		_, c := setUpClient(t)
 
-		pkgs, err := c.LocationPackages(context.Background(), uuid.Nil)
+		aips, err := c.LocationAIPs(context.Background(), uuid.Nil)
 		assert.NilError(t, err)
-		assert.Assert(t, len(pkgs) == 0)
+		assert.Assert(t, len(aips) == 0)
 	})
 }
