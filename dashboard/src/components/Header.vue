@@ -1,10 +1,11 @@
 <script setup lang="ts">
+import { openDialog } from "vue3-promise-dialog";
+
 import AboutDialogVue from "@/components/AboutDialog.vue";
 import Breadcrumb from "@/components/Breadcrumb.vue";
 import { useLayoutStore } from "@/stores/layout";
 import IconInfoStandardSolid from "~icons/clarity/info-standard-solid";
 import IconMenuLine from "~icons/clarity/menu-line";
-import { openDialog } from "vue3-promise-dialog";
 
 const layoutStore = useLayoutStore();
 

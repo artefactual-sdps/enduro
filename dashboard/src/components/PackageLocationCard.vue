@@ -1,9 +1,10 @@
 <script setup lang="ts">
+import { ref } from "vue";
+
 import UUID from "@/components/UUID.vue";
 import { openPackageLocationDialog } from "@/dialogs";
 import { useAuthStore } from "@/stores/auth";
 import { usePackageStore } from "@/stores/package";
-import { ref } from "vue";
 
 const authStore = useAuthStore();
 const packageStore = usePackageStore();

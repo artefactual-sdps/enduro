@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { watch } from "vue";
+import { DialogWrapper } from "vue3-promise-dialog";
+
 import { client } from "@/client";
-import { useAuthStore } from "@/stores/auth";
 import Header from "@/components/Header.vue";
 import Sidebar from "@/components/Sidebar.vue";
-import { DialogWrapper } from "vue3-promise-dialog";
+import { useAuthStore } from "@/stores/auth";
 
 const authStore = useAuthStore();
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { usePackageStore } from "@/stores/package";
 import { PackageListStatusEnum } from "@/openapi-generator";
+import { usePackageStore } from "@/stores/package";
 
 const packageStore = usePackageStore();
 </script>

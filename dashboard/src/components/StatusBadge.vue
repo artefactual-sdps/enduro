@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import type { api } from "@/client";
 import { computed } from "vue";
+
+import type { api } from "@/client";
 
 const props = defineProps<{
   status:

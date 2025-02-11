@@ -1,6 +1,7 @@
+import { cleanup, fireEvent, render } from "@testing-library/vue";
+import { afterEach, describe, expect, it } from "vitest";
+
 import PackageListLegend from "@/components/PackageListLegend.vue";
-import { render, fireEvent, cleanup } from "@testing-library/vue";
-import { describe, it, expect, afterEach } from "vitest";
 
 describe("PackageListLegend.vue", () => {
   afterEach(() => cleanup());

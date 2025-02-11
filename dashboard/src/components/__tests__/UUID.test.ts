@@ -1,6 +1,7 @@
-import UUID from "@/components/UUID.vue";
 import { cleanup, fireEvent, render } from "@testing-library/vue";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+import UUID from "@/components/UUID.vue";
 
 describe("UUID.vue", () => {
   beforeEach(() => {

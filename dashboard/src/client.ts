@@ -1,8 +1,9 @@
 import * as api from "./openapi-generator";
 import * as runtime from "./openapi-generator/runtime";
+import { usePackageStore } from "./stores/package";
+
 import router from "@/router";
 import { useAuthStore } from "@/stores/auth";
-import { usePackageStore } from "./stores/package";
 
 export interface Client {
   about: api.AboutApi;
@@ -86,4 +87,4 @@ function createClient(): Client {
 
 const client = createClient();
 
-export { api, runtime, client, storageServiceDownloadURL };
+export { api, client, runtime, storageServiceDownloadURL };

@@ -1,13 +1,14 @@
+import { mapKeys, snakeCase } from "lodash-es";
+import { acceptHMRUpdate, defineStore } from "pinia";
+import { ref } from "vue";
+
 import { api, client } from "@/client";
 import {
   MonitorEventEventTypeEnum,
   PackageListStatusEnum,
 } from "@/openapi-generator";
-import { useLayoutStore } from "@/stores/layout";
 import router from "@/router";
-import { defineStore, acceptHMRUpdate } from "pinia";
-import { ref } from "vue";
-import { mapKeys, snakeCase } from "lodash-es";
+import { useLayoutStore } from "@/stores/layout";
 
 export interface Pager {
   // maxPages is the maximum number of page links to show in the pager.
@@ -83,35 +84,13 @@ export const usePackageStore = defineStore("package", {
       }
       return i;
     },
-    updatePager(): void {
-      let pgr = this.pager;
-      pgr.total = Math.ceil(this.page.total / this.page.limit);
-      pgr.current = Math.floor(this.page.offset / this.page.limit) + 1;
-
-      let first = 1;
-      let count = pgr.total < pgr.maxPages ? pgr.total : pgr.maxPages;
-      let half = Math.floor(pgr.maxPages / 2);
-      if (pgr.current > half + 1) {
-        if (pgr.total - pgr.current < half) {
-          first = pgr.total - count + 1;
-        } else {
-          first = pgr.current - half;
-        }
-      }
-      pgr.first = first;
-      pgr.last = first + count - 1;
-
-      pgr.pages = new Array(count);
-      for (var i = 0; i < count; i++) {
-        pgr.pages[i] = i + first;
-      }
-    },
     getActionById: (state) => {
       return (
         actionId: number,
       ): api.EnduroPackagePreservationAction | undefined => {
         const x = state.current_preservation_actions?.actions?.find(
-          (action) => action.id === actionId,
+          (action: api.EnduroPackagePreservationAction) =>
+            action.id === actionId,
         );
         return x;
       };
@@ -122,10 +101,13 @@ export const usePackageStore = defineStore("package", {
         taskId: number,
       ): api.EnduroPackagePreservationTask | undefined => {
         const action = state.current_preservation_actions?.actions?.find(
-          (action) => action.id === actionId,
+          (action: api.EnduroPackagePreservationAction) =>
+            action.id === actionId,
         );
         if (!action) return;
-        return action.tasks?.find((task) => task.id === taskId);
+        return action.tasks?.find(
+          (task: api.EnduroPackagePreservationTask) => task.id === taskId,
+        );
       };
     },
   },
@@ -134,7 +116,7 @@ export const usePackageStore = defineStore("package", {
       const json = JSON.parse(event.value);
       // TODO: avoid key transformation in the backend or make
       // this fully recursive, considering objects and slices.
-      let value = mapKeys(json, (_, key) => snakeCase(key));
+      const value = mapKeys(json, (_, key) => snakeCase(key));
       if (value.item) {
         value.item = mapKeys(value.item, (_, key) => snakeCase(key));
       }
@@ -177,7 +159,7 @@ export const usePackageStore = defineStore("package", {
       });
       this.packages = resp.items;
       this.page = resp.page;
-      this.updatePager;
+      this.updatePager();
     },
     async fetchPackagesDebounced(page: number) {
       return this.fetchPackages(page);
@@ -217,14 +199,14 @@ export const usePackageStore = defineStore("package", {
           id: this.current.id,
           confirmRequestBody: { locationId: locationId },
         })
-        .then((payload) => {
+        .then(() => {
           if (!this.current) return;
           this.current.status = api.EnduroStoredPackageStatusEnum.InProgress;
         });
     },
     reject() {
       if (!this.current) return;
-      client.package.packageReject({ id: this.current.id }).then((payload) => {
+      client.package.packageReject({ id: this.current.id }).then(() => {
         if (!this.current) return;
         this.current.status = api.EnduroStoredPackageStatusEnum.InProgress;
       });
@@ -239,6 +221,29 @@ export const usePackageStore = defineStore("package", {
         this.fetchPackages(this.pager.current - 1);
       }
     },
+    updatePager(): void {
+      const pgr = this.pager;
+      pgr.total = Math.ceil(this.page.total / this.page.limit);
+      pgr.current = Math.floor(this.page.offset / this.page.limit) + 1;
+
+      let first = 1;
+      const count = pgr.total < pgr.maxPages ? pgr.total : pgr.maxPages;
+      const half = Math.floor(pgr.maxPages / 2);
+      if (pgr.current > half + 1) {
+        if (pgr.total - pgr.current < half) {
+          first = pgr.total - count + 1;
+        } else {
+          first = pgr.current - half;
+        }
+      }
+      pgr.first = first;
+      pgr.last = first + count - 1;
+
+      pgr.pages = new Array(count);
+      for (let i = 0; i < count; i++) {
+        pgr.pages[i] = i + first;
+      }
+    },
   },
   debounce: {
     fetchPackagesDebounced: [500, { isImmediate: false }],
@@ -250,7 +255,7 @@ if (import.meta.hot) {
 }
 
 const handlers: {
-  [key in api.MonitorEventEventTypeEnum]: (data: any) => void;
+  [key in api.MonitorEventEventTypeEnum]: (data: unknown) => void;
 } = {
   [MonitorEventEventTypeEnum.MonitorPingEvent]: handleMonitorPing,
   [MonitorEventEventTypeEnum.PackageCreatedEvent]: handlePackageCreated,
@@ -269,17 +274,17 @@ const handlers: {
     handlePreservationTaskUpdated,
 };
 
-function handleMonitorPing(data: any) {
-  const event = api.MonitorPingEventFromJSON(data);
+function handleMonitorPing(data: unknown) {
+  api.MonitorPingEventFromJSON(data);
 }
 
-function handlePackageCreated(data: any) {
-  const event = api.PackageCreatedEventFromJSON(data);
+function handlePackageCreated(data: unknown) {
+  api.PackageCreatedEventFromJSON(data);
   const store = usePackageStore();
   store.fetchPackagesDebounced(1);
 }
 
-function handlePackageUpdated(data: any) {
+function handlePackageUpdated(data: unknown) {
   const event = api.PackageUpdatedEventFromJSON(data);
   const store = usePackageStore();
   store.fetchPackagesDebounced(1);
@@ -287,7 +292,7 @@ function handlePackageUpdated(data: any) {
   Object.assign(store.$state.current, event.item);
 }
 
-function handlePackageStatusUpdated(data: any) {
+function handlePackageStatusUpdated(data: unknown) {
   const event = api.PackageStatusUpdatedEventFromJSON(data);
   const store = usePackageStore();
   store.fetchPackagesDebounced(1);
@@ -295,7 +300,7 @@ function handlePackageStatusUpdated(data: any) {
   store.$state.current.status = event.status;
 }
 
-function handlePackageLocationUpdated(data: any) {
+function handlePackageLocationUpdated(data: unknown) {
   const event = api.PackageLocationUpdatedEventFromJSON(data);
   const store = usePackageStore();
   store.fetchPackagesDebounced(1);
@@ -306,7 +311,7 @@ function handlePackageLocationUpdated(data: any) {
   });
 }
 
-function handlePreservationActionCreated(data: any) {
+function handlePreservationActionCreated(data: unknown) {
   const event = api.PreservationActionCreatedEventFromJSON(data);
   const store = usePackageStore();
 
@@ -317,7 +322,7 @@ function handlePreservationActionCreated(data: any) {
   store.current_preservation_actions?.actions?.unshift(event.item);
 }
 
-function handlePreservationActionUpdated(data: any) {
+function handlePreservationActionUpdated(data: unknown) {
   const event = api.PreservationActionUpdatedEventFromJSON(data);
   const store = usePackageStore();
 
@@ -334,7 +339,7 @@ function handlePreservationActionUpdated(data: any) {
   action.tasks = tasks;
 }
 
-function handlePreservationTaskCreated(data: any) {
+function handlePreservationTaskCreated(data: unknown) {
   const event = api.PreservationTaskCreatedEventFromJSON(data);
   const store = usePackageStore();
 
@@ -348,7 +353,7 @@ function handlePreservationTaskCreated(data: any) {
   }
 }
 
-function handlePreservationTaskUpdated(data: any) {
+function handlePreservationTaskUpdated(data: unknown) {
   const event = api.PreservationTaskUpdatedEventFromJSON(data);
   const store = usePackageStore();
 

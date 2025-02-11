@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import { computed } from "vue";
+
 import type { runtime } from "@/client";
-import { computed } from "@vue/reactivity";
 
 interface Props {
   title?: string;

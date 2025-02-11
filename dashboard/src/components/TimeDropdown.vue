@@ -106,7 +106,7 @@ const earliestTimeFromOption = (opt: option) => {
       {{ label }}
     </button>
     <ul ref="date-filter" class="dropdown-menu">
-      <li v-for="item in options">
+      <li v-for="item in options" :key="item.value">
         <a class="dropdown-item" href="#" @click.prevent="handleChange(item)">{{
           item.label
         }}</a>

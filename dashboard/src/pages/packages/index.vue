@@ -1,39 +1,33 @@
 <script setup lang="ts">
-import type { PackageListStatusEnum } from "@/openapi-generator";
+import { useAsyncState } from "@vueuse/core";
+import Tooltip from "bootstrap/js/dist/tooltip";
+import { computed, onMounted, ref, watch } from "vue";
+import { useRoute, useRouter } from "vue-router/auto";
+import type { LocationQueryValue } from "vue-router/auto";
 
 import PackageListLegend from "@/components/PackageListLegend.vue";
 import PageLoadingAlert from "@/components/PageLoadingAlert.vue";
 import StatusBadge from "@/components/StatusBadge.vue";
 import Tabs from "@/components/Tabs.vue";
 import TimeDropdown from "@/components/TimeDropdown.vue";
-import Tooltip from "bootstrap/js/dist/tooltip";
 import UUID from "@/components/UUID.vue";
-import { onMounted } from "vue";
-import { useAsyncState } from "@vueuse/core";
+import type { PackageListStatusEnum } from "@/openapi-generator";
 import { useAuthStore } from "@/stores/auth";
 import { useLayoutStore } from "@/stores/layout";
 import { usePackageStore } from "@/stores/package";
-import { useRoute, useRouter, type LocationQueryValue } from "vue-router/auto";
-import { computed, ref, watch } from "vue";
-
-// General icons.
 import IconInfoFill from "~icons/akar-icons/info-fill";
-import IconBundleLine from "~icons/clarity/bundle-line";
-import IconSearch from "~icons/clarity/search-line";
-import IconCloseLine from "~icons/clarity/close-line";
-
-// Pager icons.
+import IconCaretLeftFill from "~icons/bi/caret-left-fill";
+import IconCaretRightFill from "~icons/bi/caret-right-fill";
 import IconSkipEndFill from "~icons/bi/skip-end-fill";
 import IconSkipStartFill from "~icons/bi/skip-start-fill";
-import IconCaretRightFill from "~icons/bi/caret-right-fill";
-import IconCaretLeftFill from "~icons/bi/caret-left-fill";
-
-// Tab icons.
 import RawIconBlocksGroupLine from "~icons/clarity/blocks-group-line?raw&font-size=20px";
-import RawIconSyncLine from "~icons/clarity/sync-line?raw&font-size=20px";
-import RawIconRemoveLine from "~icons/clarity/remove-line?raw&font-size=20px";
+import IconBundleLine from "~icons/clarity/bundle-line";
 import RawIconClockLine from "~icons/clarity/clock-line?raw&font-size=20px";
+import IconCloseLine from "~icons/clarity/close-line";
+import RawIconRemoveLine from "~icons/clarity/remove-line?raw&font-size=20px";
+import IconSearch from "~icons/clarity/search-line";
 import RawIconSuccessLine from "~icons/clarity/success-standard-line?raw&font-size=20px";
+import RawIconSyncLine from "~icons/clarity/sync-line?raw&font-size=20px";
 
 const authStore = useAuthStore();
 const layoutStore = useLayoutStore();
@@ -221,7 +215,10 @@ watch(
       <div>
         <TimeDropdown
           fieldname="earliestCreatedTime"
-          @change="(name, value) => updateDateFilter(name, value)"
+          @change="
+            (name: string, value: LocationQueryValue) =>
+              updateDateFilter(name, value)
+          "
         />
       </div>
     </div>
@@ -321,6 +318,7 @@ watch(
           </li>
           <li
             v-for="pg in packageStore.pager.pages"
+            :key="pg"
             :class="{ 'd-none d-sm-block': pg != packageStore.pager.current }"
           >
             <a

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { FunctionalComponent, SVGAttributes } from "vue";
-import type { RouteLocationResolved } from "vue-router/auto";
 import { useRoute } from "vue-router/auto";
+import type { RouteLocationResolved } from "vue-router/auto";
 
 const route = useRoute();
 

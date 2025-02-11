@@ -1,11 +1,12 @@
-import Sidebar from "@/components/Sidebar.vue";
-import { useLayoutStore } from "@/stores/layout";
 import { createTestingPinia } from "@pinia/testing";
 import { cleanup, fireEvent, render } from "@testing-library/vue";
 import { flushPromises } from "@vue/test-utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { nextTick } from "vue";
-import { createRouter, createMemoryHistory } from "vue-router";
+import { createMemoryHistory, createRouter } from "vue-router";
+
+import Sidebar from "@/components/Sidebar.vue";
+import { useLayoutStore } from "@/stores/layout";
 
 const router = createRouter({
   // Vue Router throws history.state warning when the second click is fired,

@@ -1,6 +1,6 @@
 import App from "./App.vue";
 import { api } from "./client";
-import router from "./router";
+
 import "./styles/main.scss";
 import { PiniaDebounce } from "@pinia/plugin-debounce";
 import humanizeDuration from "humanize-duration";
@@ -9,6 +9,8 @@ import { createPinia } from "pinia";
 import { debounce } from "ts-debounce";
 import { createApp } from "vue";
 import { PromiseDialog } from "vue3-promise-dialog";
+
+import router from "./router";
 
 const pinia = createPinia();
 pinia.use(PiniaDebounce(debounce));
