@@ -1,10 +1,11 @@
 <script setup lang="ts">
+import { useAsyncState } from "@vueuse/core";
+
 import PageLoadingAlert from "@/components/PageLoadingAlert.vue";
 import UUID from "@/components/UUID.vue";
 import { useAuthStore } from "@/stores/auth";
 import { useLayoutStore } from "@/stores/layout";
 import { useStorageStore } from "@/stores/storage";
-import { useAsyncState } from "@vueuse/core";
 import IconRackServerLine from "~icons/clarity/rack-server-line";
 
 const authStore = useAuthStore();

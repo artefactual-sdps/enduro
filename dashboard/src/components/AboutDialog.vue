@@ -1,9 +1,10 @@
 <script setup lang="ts">
+import Modal from "bootstrap/js/dist/modal";
+import { onMounted, ref } from "vue";
+import { closeDialog } from "vue3-promise-dialog";
+
 import { api, client } from "@/client";
 import useEventListener from "@/composables/useEventListener";
-import Modal from "bootstrap/js/dist/modal";
-import { ref, onMounted } from "vue";
-import { closeDialog } from "vue3-promise-dialog";
 import IconBookText from "~icons/lucide/book-text";
 import IconFileText from "~icons/lucide/file-text";
 import IconGitMerge from "~icons/lucide/git-merge";

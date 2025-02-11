@@ -1,10 +1,11 @@
 <script setup lang="ts">
+import { ref, toRefs } from "vue";
+
 import type { api } from "@/client";
 import PackageReviewAlert from "@/components/PackageReviewAlert.vue";
-import type { EnduroPackagePreservationTask } from "@/openapi-generator";
 import StatusBadge from "@/components/StatusBadge.vue";
+import type { EnduroPackagePreservationTask } from "@/openapi-generator";
 import { useAuthStore } from "@/stores/auth";
-import { ref, toRefs } from "vue";
 
 const authStore = useAuthStore();
 

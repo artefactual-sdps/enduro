@@ -1,9 +1,10 @@
 <script setup lang="ts">
+import Modal from "bootstrap/js/dist/modal";
+import { onMounted, ref } from "vue";
+import { closeDialog } from "vue3-promise-dialog";
+
 import useEventListener from "@/composables/useEventListener";
 import { useStorageStore } from "@/stores/storage";
-import Modal from "bootstrap/js/dist/modal";
-import { ref, onMounted } from "vue";
-import { closeDialog } from "vue3-promise-dialog";
 
 const props = defineProps({
   currentLocationId: { type: String, required: false },

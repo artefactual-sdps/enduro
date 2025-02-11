@@ -2,6 +2,7 @@
 import { useClipboard } from "@vueuse/core";
 import Tooltip from "bootstrap/js/dist/tooltip";
 import { ref, toRef, watch } from "vue";
+
 import IconCheck from "~icons/akar-icons/check";
 import IconCopy from "~icons/akar-icons/copy";
 

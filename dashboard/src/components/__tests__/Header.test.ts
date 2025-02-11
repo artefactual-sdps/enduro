@@ -1,9 +1,10 @@
-import Header from "@/components/Header.vue";
-import { useLayoutStore } from "@/stores/layout";
 import { createTestingPinia } from "@pinia/testing";
 import { cleanup, fireEvent, render } from "@testing-library/vue";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createRouter, createWebHistory } from "vue-router";
+
+import Header from "@/components/Header.vue";
+import { useLayoutStore } from "@/stores/layout";
 
 const router = createRouter({
   history: createWebHistory(),

@@ -1,7 +1,8 @@
+import { Buffer } from "buffer";
+
 import { UserManager, WebStorageStateStore } from "oidc-client-ts";
 import type { User } from "oidc-client-ts";
 import { defineStore } from "pinia";
-import { Buffer } from "buffer";
 
 type OIDCConfig = {
   enabled: boolean;
@@ -177,7 +178,7 @@ export const useAuthStore = defineStore("auth", {
         return;
       }
 
-      let extraQueryParams: Record<string, string> = {};
+      const extraQueryParams: Record<string, string> = {};
       if (this.config.extraQueryParams) {
         this.config.extraQueryParams.split(",").forEach((param) => {
           const parts = param.trim().split("=");

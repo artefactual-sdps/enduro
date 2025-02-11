@@ -1,16 +1,17 @@
 <script setup lang="ts">
-import { useAuthStore } from "@/stores/auth";
-import { useLayoutStore } from "@/stores/layout";
-import { useRouter } from "vue-router/auto";
 import Collapse from "bootstrap/js/dist/collapse";
 import Offcanvas from "bootstrap/js/dist/offcanvas";
 import { onMounted, ref } from "vue";
+import { useRouter } from "vue-router/auto";
+
+import { useAuthStore } from "@/stores/auth";
+import { useLayoutStore } from "@/stores/layout";
 import RawIconBundleLine from "~icons/clarity/bundle-line?raw&width=2em&height=2em";
 import IconCaretLine from "~icons/clarity/caret-line";
+import RawIconHomeLine from "~icons/clarity/home-line?raw&width=2em&height=2em";
 import RawIconLogoutLine from "~icons/clarity/logout-line?raw&width=2em&height=2em";
 import RawIconRackServerLine from "~icons/clarity/rack-server-line?raw&width=2em&height=2em";
 import RawIconUserSolid from "~icons/clarity/user-solid?raw&width=2em&height=2em";
-import RawIconHomeLine from "~icons/clarity/home-line?raw&width=2em&height=2em";
 
 const authStore = useAuthStore();
 const layoutStore = useLayoutStore();

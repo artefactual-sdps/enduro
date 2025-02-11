@@ -1,6 +1,7 @@
+import { createPinia, setActivePinia } from "pinia";
+import { beforeEach, describe, expect, it } from "vitest";
+
 import { useLayoutStore } from "@/stores/layout";
-import { setActivePinia, createPinia } from "pinia";
-import { expect, describe, it, beforeEach } from "vitest";
 
 describe("useLayoutStore", () => {
   beforeEach(() => {

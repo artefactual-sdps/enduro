@@ -1,7 +1,8 @@
 import { mount } from "@vue/test-utils";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ref } from "vue";
+
 import TimeDropdown from "../TimeDropdown.vue";
-import { afterEach, beforeEach, describe, it, expect, vi } from "vitest";
 
 const changeEvent = ref<{ field: string; value: string } | null>(null);
 

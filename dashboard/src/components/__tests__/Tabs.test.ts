@@ -1,7 +1,8 @@
-import Tabs from "@/components/Tabs.vue";
 import { cleanup, render } from "@testing-library/vue";
-import { afterEach, describe, it, expect } from "vitest";
-import { createRouter, createMemoryHistory } from "vue-router";
+import { afterEach, describe, expect, it } from "vitest";
+import { createMemoryHistory, createRouter } from "vue-router";
+
+import Tabs from "@/components/Tabs.vue";
 import RawIconHomeLine from "~icons/clarity/home-line?raw&width=2em&height=2em";
 
 describe("Tabs.vue", () => {

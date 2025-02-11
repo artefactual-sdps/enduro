@@ -1,11 +1,12 @@
 <script setup lang="ts">
+import { useAsyncState } from "@vueuse/core";
+import { useRoute, useRouter } from "vue-router/auto";
+
 import PackagePendingAlert from "@/components/PackagePendingAlert.vue";
 import PageLoadingAlert from "@/components/PageLoadingAlert.vue";
 import Tabs from "@/components/Tabs.vue";
 import { useAuthStore } from "@/stores/auth";
 import { usePackageStore } from "@/stores/package";
-import { useAsyncState } from "@vueuse/core";
-import { useRoute, useRouter } from "vue-router/auto";
 import IconBundleLine from "~icons/clarity/bundle-line";
 import RawIconDetailsLine from "~icons/clarity/details-line?raw&font-size=20px";
 

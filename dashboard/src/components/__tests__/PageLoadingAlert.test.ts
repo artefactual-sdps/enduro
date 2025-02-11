@@ -1,7 +1,8 @@
-import PageLoadingAlert from "@/components/PageLoadingAlert.vue";
-import { render, cleanup } from "@testing-library/vue";
+import { cleanup, render } from "@testing-library/vue";
 import { RouterLinkStub } from "@vue/test-utils";
-import { describe, expect, it, afterEach } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
+
+import PageLoadingAlert from "@/components/PageLoadingAlert.vue";
 
 describe("PageLoadingAlert.vue", () => {
   afterEach(() => cleanup());

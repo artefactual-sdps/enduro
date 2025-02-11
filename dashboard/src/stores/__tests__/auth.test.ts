@@ -1,8 +1,9 @@
-import { useAuthStore } from "@/stores/auth";
 import { flushPromises } from "@vue/test-utils";
 import { User, UserManager, WebStorageStateStore } from "oidc-client-ts";
-import { setActivePinia, createPinia } from "pinia";
-import { assert, expect, describe, it, vi, beforeEach } from "vitest";
+import { createPinia, setActivePinia } from "pinia";
+import { assert, beforeEach, describe, expect, it, vi } from "vitest";
+
+import { useAuthStore } from "@/stores/auth";
 
 describe("useAuthStore", () => {
   beforeEach(() => {
@@ -42,7 +43,7 @@ describe("useAuthStore", () => {
     expect(authStore.isUserValid).toEqual(false);
 
     // Expired user.
-    var user = new User({
+    let user = new User({
       access_token: "",
       token_type: "",
       profile: { aud: "", exp: 0, iat: 0, iss: "", sub: "" },
@@ -70,7 +71,7 @@ describe("useAuthStore", () => {
     expect(authStore.getUserDisplayName).toEqual(undefined);
 
     // User with preferred_username, name and email.
-    var user = new User({
+    let user = new User({
       access_token: "",
       token_type: "",
       profile: {
@@ -126,7 +127,7 @@ describe("useAuthStore", () => {
     authStore.$patch((state) => (state.config.enabled = false));
     expect(authStore.getUserAccessToken).toEqual("");
 
-    let user = new User({
+    const user = new User({
       access_token: "access_token",
       token_type: "",
       profile: {
@@ -418,7 +419,7 @@ describe("useAuthStore", () => {
   });
 
   it("loads and removes the user and attributes", async () => {
-    var user = new User({
+    const user = new User({
       access_token: "",
       token_type: "",
       profile: { aud: "", exp: 0, iat: 0, iss: "", sub: "" },

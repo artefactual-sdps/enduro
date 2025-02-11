@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { computed } from "vue";
+
 import { api } from "@/client";
 import PackageDetailsCard from "@/components/PackageDetailsCard.vue";
 import PackageLocationCard from "@/components/PackageLocationCard.vue";
@@ -7,7 +9,6 @@ import StatusBadge from "@/components/StatusBadge.vue";
 import UUID from "@/components/UUID.vue";
 import { useAuthStore } from "@/stores/auth";
 import { usePackageStore } from "@/stores/package";
-import { computed } from "vue";
 import IconBoxArrowUpRight from "~icons/bi/box-arrow-up-right";
 import IconHelpSolid from "~icons/clarity/help-solid?height=0.8em&width=0.8em";
 

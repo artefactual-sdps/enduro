@@ -1,9 +1,10 @@
+import { createTestingPinia } from "@pinia/testing";
+import { cleanup, fireEvent, render } from "@testing-library/vue";
+import { afterEach, describe, expect, it, vi } from "vitest";
+
 import { api } from "@/client";
 import PackageLocationCard from "@/components/PackageLocationCard.vue";
 import { usePackageStore } from "@/stores/package";
-import { createTestingPinia } from "@pinia/testing";
-import { render, fireEvent, cleanup } from "@testing-library/vue";
-import { describe, it, vi, expect, afterEach } from "vitest";
 
 describe("PackageLocationCard.vue", () => {
   afterEach(() => cleanup());

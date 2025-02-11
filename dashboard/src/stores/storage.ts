@@ -1,7 +1,8 @@
+import { acceptHMRUpdate, defineStore } from "pinia";
+
 import { api, client } from "@/client";
-import { useLayoutStore } from "@/stores/layout";
-import { defineStore, acceptHMRUpdate } from "pinia";
 import router from "@/router";
+import { useLayoutStore } from "@/stores/layout";
 
 export const useStorageStore = defineStore("storage", {
   state: () => ({
