@@ -24,17 +24,17 @@ func addDBFixtures(
 ) (*db.PreservationAction, *db.PreservationAction) {
 	t.Helper()
 
-	pkg, err := createPackage(entc, "P1", enums.PackageStatusInProgress)
+	sip, err := createSIP(entc, "S1", enums.SIPStatusInProgress)
 	if err != nil {
-		t.Errorf("create package: %v", err)
+		t.Errorf("create SIP: %v", err)
 	}
 
-	pa, err := createPreservationAction(entc, pkg.ID, enums.PreservationActionStatusInProgress)
+	pa, err := createPreservationAction(entc, sip.ID, enums.PreservationActionStatusInProgress)
 	if err != nil {
 		t.Errorf("create preservation action: %v", err)
 	}
 
-	pa2, err := createPreservationAction(entc, pkg.ID, enums.PreservationActionStatusDone)
+	pa2, err := createPreservationAction(entc, sip.ID, enums.PreservationActionStatusDone)
 	if err != nil {
 		t.Errorf("create preservation action 2: %v", err)
 	}
@@ -118,14 +118,14 @@ func TestCreatePreservationTask(t *testing.T) {
 
 			entc, svc := setUpClient(t, logr.Discard())
 			ctx := context.Background()
-			pkg, _ := createPackage(
+			sip, _ := createSIP(
 				entc,
-				"Test package",
-				enums.PackageStatusDone,
+				"Test SIP",
+				enums.SIPStatusDone,
 			)
 			pa, _ := createPreservationAction(
 				entc,
-				pkg.ID,
+				sip.ID,
 				enums.PreservationActionStatusDone,
 			)
 

@@ -26,15 +26,15 @@ var ErrInvalid = errors.New("invalid")
 type Service interface {
 	// Goa returns an implementation of the goapackage Service.
 	Goa() goapackage.Service
-	Create(context.Context, *datatypes.Package) error
+	Create(context.Context, *datatypes.SIP) error
 	UpdateWorkflowStatus(
 		ctx context.Context,
 		ID int,
 		name, workflowID, runID, aipID string,
-		status enums.PackageStatus,
+		status enums.SIPStatus,
 		storedAt time.Time,
 	) error
-	SetStatus(ctx context.Context, ID int, status enums.PackageStatus) error
+	SetStatus(ctx context.Context, ID int, status enums.SIPStatus) error
 	SetStatusInProgress(ctx context.Context, ID int, startedAt time.Time) error
 	SetStatusPending(ctx context.Context, ID int) error
 	SetLocationID(ctx context.Context, ID int, locationID uuid.UUID) error
@@ -105,13 +105,13 @@ func (svc *packageImpl) Goa() goapackage.Service {
 
 // Create persists pkg to the data store then updates it from the data store,
 // adding generated data (e.g. ID, CreatedAt).
-func (svc *packageImpl) Create(ctx context.Context, pkg *datatypes.Package) error {
-	err := svc.perSvc.CreatePackage(ctx, pkg)
+func (svc *packageImpl) Create(ctx context.Context, pkg *datatypes.SIP) error {
+	err := svc.perSvc.CreateSIP(ctx, pkg)
 	if err != nil {
 		return fmt.Errorf("package: create: %v", err)
 	}
 
-	event.PublishEvent(ctx, svc.evsvc, packageToGoaPackageCreatedEvent(pkg))
+	event.PublishEvent(ctx, svc.evsvc, sipToGoaPackageCreatedEvent(pkg))
 
 	return nil
 }
@@ -120,12 +120,12 @@ func (svc *packageImpl) UpdateWorkflowStatus(
 	ctx context.Context,
 	ID int,
 	name, workflowID, runID, aipID string,
-	status enums.PackageStatus,
+	status enums.SIPStatus,
 	storedAt time.Time,
 ) error {
 	// Ensure that storedAt is reset during retries.
 	completedAt := &storedAt
-	if status == enums.PackageStatusInProgress {
+	if status == enums.SIPStatusInProgress {
 		completedAt = nil
 	}
 	if completedAt != nil && completedAt.IsZero() {
@@ -137,7 +137,7 @@ func (svc *packageImpl) UpdateWorkflowStatus(
 	}
 	id := uint(ID) // #nosec G115 -- range validated.
 
-	query := `UPDATE package SET name = ?, workflow_id = ?, run_id = ?, aip_id = ?, status = ?, completed_at = ? WHERE id = ?`
+	query := `UPDATE sip SET name = ?, workflow_id = ?, run_id = ?, aip_id = ?, status = ?, completed_at = ? WHERE id = ?`
 	args := []interface{}{
 		name,
 		workflowID,
@@ -160,13 +160,13 @@ func (svc *packageImpl) UpdateWorkflowStatus(
 	return nil
 }
 
-func (svc *packageImpl) SetStatus(ctx context.Context, ID int, status enums.PackageStatus) error {
+func (svc *packageImpl) SetStatus(ctx context.Context, ID int, status enums.SIPStatus) error {
 	if ID < 0 {
 		return fmt.Errorf("%w: ID", ErrInvalid)
 	}
 	id := uint(ID) // #nosec G115 -- range validated.
 
-	query := `UPDATE package SET status = ? WHERE id = ?`
+	query := `UPDATE sip SET status = ? WHERE id = ?`
 	args := []interface{}{
 		status,
 		ID,
@@ -184,7 +184,7 @@ func (svc *packageImpl) SetStatus(ctx context.Context, ID int, status enums.Pack
 
 func (svc *packageImpl) SetStatusInProgress(ctx context.Context, ID int, startedAt time.Time) error {
 	var query string
-	args := []interface{}{enums.PackageStatusInProgress}
+	args := []interface{}{enums.SIPStatusInProgress}
 
 	if ID < 0 {
 		return fmt.Errorf("%w: ID", ErrInvalid)
@@ -192,10 +192,10 @@ func (svc *packageImpl) SetStatusInProgress(ctx context.Context, ID int, started
 	id := uint(ID) // #nosec G115 -- range validated.
 
 	if !startedAt.IsZero() {
-		query = `UPDATE package SET status = ?, started_at = ? WHERE id = ?`
+		query = `UPDATE sip SET status = ?, started_at = ? WHERE id = ?`
 		args = append(args, startedAt, ID)
 	} else {
-		query = `UPDATE package SET status = ? WHERE id = ?`
+		query = `UPDATE sip SET status = ? WHERE id = ?`
 		args = append(args, ID)
 	}
 
@@ -205,16 +205,16 @@ func (svc *packageImpl) SetStatusInProgress(ctx context.Context, ID int, started
 
 	event.PublishEvent(ctx, svc.evsvc, &goapackage.PackageStatusUpdatedEvent{
 		ID:     id,
-		Status: enums.PackageStatusInProgress.String(),
+		Status: enums.SIPStatusInProgress.String(),
 	})
 
 	return nil
 }
 
 func (svc *packageImpl) SetStatusPending(ctx context.Context, ID int) error {
-	query := `UPDATE package SET status = ?, WHERE id = ?`
+	query := `UPDATE sip SET status = ?, WHERE id = ?`
 	args := []interface{}{
-		enums.PackageStatusPending,
+		enums.SIPStatusPending,
 		ID,
 	}
 
@@ -229,7 +229,7 @@ func (svc *packageImpl) SetStatusPending(ctx context.Context, ID int) error {
 
 	event.PublishEvent(ctx, svc.evsvc, &goapackage.PackageStatusUpdatedEvent{
 		ID:     id,
-		Status: enums.PackageStatusPending.String(),
+		Status: enums.SIPStatusPending.String(),
 	})
 
 	return nil
@@ -241,7 +241,7 @@ func (svc *packageImpl) SetLocationID(ctx context.Context, ID int, locationID uu
 	}
 	id := uint(ID) // #nosec G115 -- range validated.
 
-	query := `UPDATE package SET location_id = ? WHERE id = ?`
+	query := `UPDATE sip SET location_id = ? WHERE id = ?`
 	args := []interface{}{
 		locationID,
 		ID,
@@ -268,10 +268,10 @@ func (svc *packageImpl) updateRow(ctx context.Context, query string, args []inte
 	return nil
 }
 
-func (svc *packageImpl) read(ctx context.Context, ID uint) (*datatypes.Package, error) {
-	query := "SELECT id, name, workflow_id, run_id, aip_id, location_id, status, CONVERT_TZ(created_at, @@session.time_zone, '+00:00') AS created_at, CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at, CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at FROM package WHERE id = ?"
+func (svc *packageImpl) read(ctx context.Context, ID uint) (*datatypes.SIP, error) {
+	query := "SELECT id, name, workflow_id, run_id, aip_id, location_id, status, CONVERT_TZ(created_at, @@session.time_zone, '+00:00') AS created_at, CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at, CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at FROM sip WHERE id = ?"
 	args := []interface{}{ID}
-	c := datatypes.Package{}
+	c := datatypes.SIP{}
 
 	if err := svc.db.GetContext(ctx, &c, query, args...); err != nil {
 		return nil, err

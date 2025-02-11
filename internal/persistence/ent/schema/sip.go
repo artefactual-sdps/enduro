@@ -12,20 +12,20 @@ import (
 	"github.com/google/uuid"
 )
 
-// Pkg holds the schema definition for the Pkg entity.
-type Pkg struct {
+// SIP holds the schema definition for the SIP entity.
+type SIP struct {
 	ent.Schema
 }
 
-// Annotations of the Pkg.
-func (Pkg) Annotations() []schema.Annotation {
+// Annotations of the SIP.
+func (SIP) Annotations() []schema.Annotation {
 	return []schema.Annotation{
-		entsql.Annotation{Table: "package"},
+		entsql.Annotation{Table: "sip"},
 	}
 }
 
-// Fields of the Pkg.
-func (Pkg) Fields() []ent.Field {
+// Fields of the SIP.
+func (SIP) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("name").
 			Annotations(entsql.Annotation{
@@ -35,8 +35,7 @@ func (Pkg) Fields() []ent.Field {
 			Annotations(entsql.Annotation{
 				Size: 255,
 			}),
-		field.UUID("run_id", uuid.UUID{}).
-			Unique(),
+		field.UUID("run_id", uuid.UUID{}),
 		field.UUID("aip_id", uuid.UUID{}).
 			Optional(),
 		field.UUID("location_id", uuid.UUID{}).
@@ -52,29 +51,29 @@ func (Pkg) Fields() []ent.Field {
 	}
 }
 
-// Edges of the Pkg.
-func (Pkg) Edges() []ent.Edge {
+// Edges of the SIP.
+func (SIP) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("preservation_actions", PreservationAction.Type).
 			Annotations(entsql.OnDelete(entsql.Cascade)),
 	}
 }
 
-// Indexes of the Pkg.
-func (Pkg) Indexes() []ent.Index {
+// Indexes of the SIP.
+func (SIP) Indexes() []ent.Index {
 	return []ent.Index{
 		index.Fields("name").
-			StorageKey("package_name_idx").
+			StorageKey("sip_name_idx").
 			Annotations(entsql.Prefix(50)),
 		index.Fields("aip_id").
-			StorageKey("package_aip_id_idx"),
+			StorageKey("sip_aip_id_idx"),
 		index.Fields("location_id").
-			StorageKey("package_location_id_idx"),
+			StorageKey("sip_location_id_idx"),
 		index.Fields("status").
-			StorageKey("package_status_idx"),
+			StorageKey("sip_status_idx"),
 		index.Fields("created_at").
-			StorageKey("package_created_at_idx"),
+			StorageKey("sip_created_at_idx"),
 		index.Fields("started_at").
-			StorageKey("package_started_at_idx"),
+			StorageKey("sip_started_at_idx"),
 	}
 }

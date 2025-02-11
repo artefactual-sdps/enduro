@@ -10,12 +10,12 @@ import (
 )
 
 type Storage interface {
-	// Package.
-	CreatePackage(ctx context.Context, pkg *goastorage.Package) (*goastorage.Package, error)
-	ListPackages(ctx context.Context) (goastorage.PackageCollection, error)
-	ReadPackage(ctx context.Context, aipID uuid.UUID) (*goastorage.Package, error)
-	UpdatePackageStatus(ctx context.Context, aipID uuid.UUID, status types.PackageStatus) error
-	UpdatePackageLocationID(ctx context.Context, aipID, locationID uuid.UUID) error
+	// AIP.
+	CreateAIP(ctx context.Context, pkg *goastorage.Package) (*goastorage.Package, error)
+	ListAIPs(ctx context.Context) (goastorage.PackageCollection, error)
+	ReadAIP(ctx context.Context, aipID uuid.UUID) (*goastorage.Package, error)
+	UpdateAIPStatus(ctx context.Context, aipID uuid.UUID, status types.AIPStatus) error
+	UpdateAIPLocationID(ctx context.Context, aipID, locationID uuid.UUID) error
 
 	// Location.
 	CreateLocation(
@@ -25,5 +25,5 @@ type Storage interface {
 	) (*goastorage.Location, error)
 	ListLocations(ctx context.Context) (goastorage.LocationCollection, error)
 	ReadLocation(ctx context.Context, locationID uuid.UUID) (*goastorage.Location, error)
-	LocationPackages(ctx context.Context, locationID uuid.UUID) (goastorage.PackageCollection, error)
+	LocationAIPs(ctx context.Context, locationID uuid.UUID) (goastorage.PackageCollection, error)
 }

@@ -6,8 +6,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
+// AIP is the predicate function for aip builders.
+type AIP func(*sql.Selector)
+
 // Location is the predicate function for location builders.
 type Location func(*sql.Selector)
-
-// Pkg is the predicate function for pkg builders.
-type Pkg func(*sql.Selector)

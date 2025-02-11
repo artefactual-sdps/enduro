@@ -10,8 +10,8 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/aip"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/location"
-	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/pkg"
 	"github.com/artefactual-sdps/enduro/internal/storage/types"
 	"github.com/google/uuid"
 )
@@ -73,19 +73,19 @@ func (lc *LocationCreate) SetNillableCreatedAt(t *time.Time) *LocationCreate {
 	return lc
 }
 
-// AddPackageIDs adds the "packages" edge to the Pkg entity by IDs.
-func (lc *LocationCreate) AddPackageIDs(ids ...int) *LocationCreate {
-	lc.mutation.AddPackageIDs(ids...)
+// AddAipIDs adds the "aips" edge to the AIP entity by IDs.
+func (lc *LocationCreate) AddAipIDs(ids ...int) *LocationCreate {
+	lc.mutation.AddAipIDs(ids...)
 	return lc
 }
 
-// AddPackages adds the "packages" edges to the Pkg entity.
-func (lc *LocationCreate) AddPackages(p ...*Pkg) *LocationCreate {
-	ids := make([]int, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
+// AddAips adds the "aips" edges to the AIP entity.
+func (lc *LocationCreate) AddAips(a ...*AIP) *LocationCreate {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
 	}
-	return lc.AddPackageIDs(ids...)
+	return lc.AddAipIDs(ids...)
 }
 
 // Mutation returns the LocationMutation object of the builder.
@@ -216,15 +216,15 @@ func (lc *LocationCreate) createSpec() (*Location, *sqlgraph.CreateSpec) {
 		_spec.SetField(location.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
 	}
-	if nodes := lc.mutation.PackagesIDs(); len(nodes) > 0 {
+	if nodes := lc.mutation.AipsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: true,
-			Table:   location.PackagesTable,
-			Columns: []string{location.PackagesColumn},
+			Table:   location.AipsTable,
+			Columns: []string{location.AipsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(pkg.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(aip.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

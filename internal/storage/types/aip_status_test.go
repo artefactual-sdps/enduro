@@ -9,61 +9,61 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/storage/types"
 )
 
-func TestPackageStatus(t *testing.T) {
+func TestAIPStatus(t *testing.T) {
 	t.Parallel()
 
 	type test struct {
 		code   string
-		status types.PackageStatus
+		status types.AIPStatus
 	}
 	for _, tt := range []test{
 		{
 			code:   "unspecified",
-			status: types.StatusUnspecified,
+			status: types.AIPStatusUnspecified,
 		},
 		{
 			code:   "in_review",
-			status: types.StatusInReview,
+			status: types.AIPStatusInReview,
 		},
 		{
 			code:   "rejected",
-			status: types.StatusRejected,
+			status: types.AIPStatusRejected,
 		},
 		{
 			code:   "stored",
-			status: types.StatusStored,
+			status: types.AIPStatusStored,
 		},
 		{
 			code:   "moving",
-			status: types.StatusMoving,
+			status: types.AIPStatusMoving,
 		},
 	} {
 		t.Run(tt.code, func(t *testing.T) {
 			t.Parallel()
 
-			assert.Equal(t, types.NewPackageStatus(tt.code), tt.status)
+			assert.Equal(t, types.NewAIPStatus(tt.code), tt.status)
 			assert.Equal(t, tt.status.String(), tt.code)
 
 			blob, err := json.Marshal(tt.status)
 			assert.NilError(t, err)
 			assert.DeepEqual(t, `"`+tt.code+`"`, string(blob))
 
-			var st types.PackageStatus
+			var st types.AIPStatus
 			err = json.Unmarshal([]byte(`"`+tt.code+`"`), &st)
 			assert.NilError(t, err)
 			assert.Equal(t, st, tt.status)
 
-			var ss types.PackageStatus
+			var ss types.AIPStatus
 			err = ss.Scan(tt.code)
 			assert.NilError(t, err)
 			assert.Equal(t, ss, tt.status)
 
 			assert.DeepEqual(t, ss.Values(), []string{
-				types.StatusUnspecified.String(),
-				types.StatusInReview.String(),
-				types.StatusRejected.String(),
-				types.StatusStored.String(),
-				types.StatusMoving.String(),
+				types.AIPStatusUnspecified.String(),
+				types.AIPStatusInReview.String(),
+				types.AIPStatusRejected.String(),
+				types.AIPStatusStored.String(),
+				types.AIPStatusMoving.String(),
 			})
 
 			v, err := ss.Value()

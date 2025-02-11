@@ -11,8 +11,8 @@ import (
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db"
+	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/aip"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/location"
-	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/pkg"
 	"github.com/artefactual-sdps/enduro/internal/storage/types"
 )
 
@@ -28,13 +28,13 @@ func NewClient(c *db.Client) *Client {
 	return &Client{c: c}
 }
 
-func (c *Client) CreatePackage(ctx context.Context, goapkg *goastorage.Package) (*goastorage.Package, error) {
-	q := c.c.Pkg.Create()
+func (c *Client) CreateAIP(ctx context.Context, goapkg *goastorage.Package) (*goastorage.Package, error) {
+	q := c.c.AIP.Create()
 
 	q.SetName(goapkg.Name)
 	q.SetAipID(goapkg.AipID)
 	q.SetObjectKey(goapkg.ObjectKey)
-	q.SetStatus(types.NewPackageStatus(goapkg.Status))
+	q.SetStatus(types.NewAIPStatus(goapkg.Status))
 
 	if goapkg.LocationID != nil {
 		id, err := c.c.Location.Query().
@@ -52,46 +52,46 @@ func (c *Client) CreatePackage(ctx context.Context, goapkg *goastorage.Package) 
 		q.SetLocationID(id)
 	}
 
-	pkg, err := q.Save(ctx)
+	a, err := q.Save(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	return pkgAsGoa(ctx, pkg), nil
+	return aipAsGoa(ctx, a), nil
 }
 
-func (c *Client) ListPackages(ctx context.Context) (goastorage.PackageCollection, error) {
+func (c *Client) ListAIPs(ctx context.Context) (goastorage.PackageCollection, error) {
 	pkgs := []*goastorage.Package{}
 
-	res, err := c.c.Pkg.Query().All(ctx)
+	res, err := c.c.AIP.Query().All(ctx)
 	for _, item := range res {
-		pkgs = append(pkgs, pkgAsGoa(ctx, item))
+		pkgs = append(pkgs, aipAsGoa(ctx, item))
 	}
 
 	return pkgs, err
 }
 
-func (c *Client) ReadPackage(ctx context.Context, aipID uuid.UUID) (*goastorage.Package, error) {
-	pkg, err := c.c.Pkg.Query().
+func (c *Client) ReadAIP(ctx context.Context, aipID uuid.UUID) (*goastorage.Package, error) {
+	a, err := c.c.AIP.Query().
 		Where(
-			pkg.AipID(aipID),
+			aip.AipID(aipID),
 		).
 		Only(ctx)
 	if err != nil {
 		if db.IsNotFound(err) {
-			return nil, &goastorage.PackageNotFound{AipID: aipID, Message: "package not found"}
+			return nil, &goastorage.PackageNotFound{AipID: aipID, Message: "AIP not found"}
 		} else {
 			return nil, goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
 		}
 	}
 
-	return pkgAsGoa(ctx, pkg), nil
+	return aipAsGoa(ctx, a), nil
 }
 
-func (c *Client) UpdatePackageStatus(ctx context.Context, aipID uuid.UUID, status types.PackageStatus) error {
-	n, err := c.c.Pkg.Update().
+func (c *Client) UpdateAIPStatus(ctx context.Context, aipID uuid.UUID, status types.AIPStatus) error {
+	n, err := c.c.AIP.Update().
 		Where(
-			pkg.AipID(aipID),
+			aip.AipID(aipID),
 		).
 		SetStatus(status).
 		Save(ctx)
@@ -106,7 +106,7 @@ func (c *Client) UpdatePackageStatus(ctx context.Context, aipID uuid.UUID, statu
 	return nil
 }
 
-func (c *Client) UpdatePackageLocationID(ctx context.Context, aipID, locationID uuid.UUID) error {
+func (c *Client) UpdateAIPLocationID(ctx context.Context, aipID, locationID uuid.UUID) error {
 	l, err := c.c.Location.Query().
 		Where(
 			location.UUID(locationID),
@@ -116,9 +116,9 @@ func (c *Client) UpdatePackageLocationID(ctx context.Context, aipID, locationID 
 		return err
 	}
 
-	n, err := c.c.Pkg.Update().
+	n, err := c.c.AIP.Update().
 		Where(
-			pkg.AipID(aipID),
+			aip.AipID(aipID),
 		).
 		SetLocation(l).
 		Save(ctx)
@@ -133,17 +133,17 @@ func (c *Client) UpdatePackageLocationID(ctx context.Context, aipID, locationID 
 	return nil
 }
 
-func pkgAsGoa(ctx context.Context, pkg *db.Pkg) *goastorage.Package {
+func aipAsGoa(ctx context.Context, a *db.AIP) *goastorage.Package {
 	p := &goastorage.Package{
-		Name:      pkg.Name,
-		AipID:     pkg.AipID,
-		Status:    pkg.Status.String(),
-		ObjectKey: pkg.ObjectKey,
-		CreatedAt: pkg.CreatedAt.Format(time.RFC3339),
+		Name:      a.Name,
+		AipID:     a.AipID,
+		Status:    a.Status.String(),
+		ObjectKey: a.ObjectKey,
+		CreatedAt: a.CreatedAt.Format(time.RFC3339),
 	}
 
 	// TODO: should we use UUID as the foreign key?
-	l, err := pkg.QueryLocation().Only(ctx)
+	l, err := a.QueryLocation().Only(ctx)
 	if err == nil {
 		p.LocationID = &l.UUID
 	}
@@ -247,15 +247,15 @@ func locationAsGoa(loc *db.Location) *goastorage.Location {
 	return l
 }
 
-func (c *Client) LocationPackages(ctx context.Context, locationID uuid.UUID) (goastorage.PackageCollection, error) {
-	res, err := c.c.Location.Query().Where(location.UUID(locationID)).QueryPackages().All(ctx)
+func (c *Client) LocationAIPs(ctx context.Context, locationID uuid.UUID) (goastorage.PackageCollection, error) {
+	res, err := c.c.Location.Query().Where(location.UUID(locationID)).QueryAips().All(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	packages := []*goastorage.Package{}
 	for _, item := range res {
-		packages = append(packages, pkgAsGoa(ctx, item))
+		packages = append(packages, aipAsGoa(ctx, item))
 	}
 
 	return packages, nil

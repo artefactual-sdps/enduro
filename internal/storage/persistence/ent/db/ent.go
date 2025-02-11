@@ -12,8 +12,8 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/aip"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/location"
-	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/pkg"
 )
 
 // ent aliases to avoid import conflicts in user's code.
@@ -74,8 +74,8 @@ var (
 func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
+			aip.Table:      aip.ValidColumn,
 			location.Table: location.ValidColumn,
-			pkg.Table:      pkg.ValidColumn,
 		})
 	})
 	return columnCheck(table, column)

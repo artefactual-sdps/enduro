@@ -20,7 +20,7 @@ type pred func(*sql.Selector)
 
 type orderOpt func(*sql.Selector)
 
-// query is a querier like *db.PkgQuery for testing.
+// query is a querier like *db.SIPQuery for testing.
 type query struct {
 	table  string
 	limit  int
@@ -391,19 +391,19 @@ func TestFilter(t *testing.T) {
 		f.Equals("outcome", &taskOutcome)
 
 		// Add an integer enum filter.
-		pkgStatus := enums.PackageStatusDone
-		f.Equals("status", &pkgStatus)
+		sipStatus := enums.SIPStatusDone
+		f.Equals("status", &sipStatus)
 
 		// Omit invalid enum values.
 		f.Equals("outcome2", ref.New(enums.PreprocessingTaskOutcome("invalid")))
 
 		// Omit nil enum pointers.
-		f.Equals("status2", (*enums.PackageStatus)(nil))
+		f.Equals("status2", (*enums.SIPStatus)(nil))
 
 		_, whole := f.Apply()
 
 		assert.Equal(t, whole.where, "`data`.`outcome` = ? AND `data`.`status` = ?")
-		assert.DeepEqual(t, whole.args, []any{&taskOutcome, &pkgStatus})
+		assert.DeepEqual(t, whole.args, []any{&taskOutcome, &sipStatus})
 	})
 
 	t.Run("Filters on a list of strings", func(t *testing.T) {
@@ -430,16 +430,16 @@ func TestFilter(t *testing.T) {
 			newSortableFields("id"),
 		)
 		f.In("status", []any{
-			enums.PackageStatusInProgress,
-			enums.PackageStatusDone,
-			enums.PackageStatus(100), // Ignore an invalid enum.
+			enums.SIPStatusInProgress,
+			enums.SIPStatusDone,
+			enums.SIPStatus(100), // Ignore an invalid enum.
 		})
 		_, whole := f.Apply()
 
 		assert.Equal(t, whole.where, "`data`.`status` IN (?, ?)")
 		assert.DeepEqual(t, whole.args, []any{
-			enums.PackageStatusInProgress,
-			enums.PackageStatusDone,
+			enums.SIPStatusInProgress,
+			enums.SIPStatusDone,
 		})
 	})
 

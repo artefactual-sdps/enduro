@@ -30,17 +30,17 @@ const (
 	FieldConfig = "config"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
 	FieldCreatedAt = "created_at"
-	// EdgePackages holds the string denoting the packages edge name in mutations.
-	EdgePackages = "packages"
+	// EdgeAips holds the string denoting the aips edge name in mutations.
+	EdgeAips = "aips"
 	// Table holds the table name of the location in the database.
 	Table = "location"
-	// PackagesTable is the table that holds the packages relation/edge.
-	PackagesTable = "package"
-	// PackagesInverseTable is the table name for the Pkg entity.
-	// It exists in this package in order to avoid circular dependency with the "pkg" package.
-	PackagesInverseTable = "package"
-	// PackagesColumn is the table column denoting the packages relation/edge.
-	PackagesColumn = "location_id"
+	// AipsTable is the table that holds the aips relation/edge.
+	AipsTable = "aip"
+	// AipsInverseTable is the table name for the AIP entity.
+	// It exists in this package in order to avoid circular dependency with the "aip" package.
+	AipsInverseTable = "aip"
+	// AipsColumn is the table column denoting the aips relation/edge.
+	AipsColumn = "location_id"
 )
 
 // Columns holds all SQL columns for location fields.
@@ -128,23 +128,23 @@ func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
 }
 
-// ByPackagesCount orders the results by packages count.
-func ByPackagesCount(opts ...sql.OrderTermOption) OrderOption {
+// ByAipsCount orders the results by aips count.
+func ByAipsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newPackagesStep(), opts...)
+		sqlgraph.OrderByNeighborsCount(s, newAipsStep(), opts...)
 	}
 }
 
-// ByPackages orders the results by packages terms.
-func ByPackages(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+// ByAips orders the results by aips terms.
+func ByAips(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newPackagesStep(), append([]sql.OrderTerm{term}, terms...)...)
+		sqlgraph.OrderByNeighborTerms(s, newAipsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
-func newPackagesStep() *sqlgraph.Step {
+func newAipsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(PackagesInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, true, PackagesTable, PackagesColumn),
+		sqlgraph.To(AipsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, true, AipsTable, AipsColumn),
 	)
 }

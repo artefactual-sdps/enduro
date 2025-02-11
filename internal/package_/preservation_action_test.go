@@ -40,7 +40,7 @@ func TestCreatePreservationAction(t *testing.T) {
 			name: "Creates a preservation action",
 			pa: datatypes.PreservationAction{
 				WorkflowID: workflowID,
-				PackageID:  1,
+				SIPID:      1,
 			},
 			want: datatypes.PreservationAction{
 				ID:         11,
@@ -51,7 +51,7 @@ func TestCreatePreservationAction(t *testing.T) {
 					Time:  time.Date(2024, 6, 3, 9, 4, 23, 0, time.UTC),
 					Valid: true,
 				},
-				PackageID: 1,
+				SIPID: 1,
 			},
 			mock: func(svc *persistence_fake.MockService, pa datatypes.PreservationAction) *persistence_fake.MockService {
 				svc.EXPECT().
@@ -77,7 +77,7 @@ func TestCreatePreservationAction(t *testing.T) {
 				Status:      enums.PreservationActionStatusDone,
 				StartedAt:   startedAt,
 				CompletedAt: completedAt,
-				PackageID:   1,
+				SIPID:       1,
 			},
 			want: datatypes.PreservationAction{
 				ID:          11,
@@ -86,7 +86,7 @@ func TestCreatePreservationAction(t *testing.T) {
 				Status:      enums.PreservationActionStatusDone,
 				StartedAt:   startedAt,
 				CompletedAt: completedAt,
-				PackageID:   1,
+				SIPID:       1,
 			},
 			mock: func(svc *persistence_fake.MockService, pa datatypes.PreservationAction) *persistence_fake.MockService {
 				svc.EXPECT().
@@ -103,7 +103,7 @@ func TestCreatePreservationAction(t *testing.T) {
 		{
 			name: "Errors when WorkflowID is missing",
 			pa: datatypes.PreservationAction{
-				PackageID: 1,
+				SIPID: 1,
 			},
 			wantErr: "preservation action: create: invalid data error: field \"WorkflowID\" is required",
 			mock: func(svc *persistence_fake.MockService, pa datatypes.PreservationAction) *persistence_fake.MockService {

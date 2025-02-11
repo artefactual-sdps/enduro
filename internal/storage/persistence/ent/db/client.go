@@ -15,8 +15,8 @@ import (
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/aip"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/location"
-	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/pkg"
 )
 
 // Client is the client that holds all ent builders.
@@ -24,10 +24,10 @@ type Client struct {
 	config
 	// Schema is the client for creating, migrating and dropping schema.
 	Schema *migrate.Schema
+	// AIP is the client for interacting with the AIP builders.
+	AIP *AIPClient
 	// Location is the client for interacting with the Location builders.
 	Location *LocationClient
-	// Pkg is the client for interacting with the Pkg builders.
-	Pkg *PkgClient
 }
 
 // NewClient creates a new client configured with the given options.
@@ -39,8 +39,8 @@ func NewClient(opts ...Option) *Client {
 
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
+	c.AIP = NewAIPClient(c.config)
 	c.Location = NewLocationClient(c.config)
-	c.Pkg = NewPkgClient(c.config)
 }
 
 type (
@@ -133,8 +133,8 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	return &Tx{
 		ctx:      ctx,
 		config:   cfg,
+		AIP:      NewAIPClient(cfg),
 		Location: NewLocationClient(cfg),
-		Pkg:      NewPkgClient(cfg),
 	}, nil
 }
 
@@ -154,15 +154,15 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	return &Tx{
 		ctx:      ctx,
 		config:   cfg,
+		AIP:      NewAIPClient(cfg),
 		Location: NewLocationClient(cfg),
-		Pkg:      NewPkgClient(cfg),
 	}, nil
 }
 
 // Debug returns a new debug-client. It's used to get verbose logging on specific operations.
 //
 //	client.Debug().
-//		Location.
+//		AIP.
 //		Query().
 //		Count(ctx)
 func (c *Client) Debug() *Client {
@@ -184,26 +184,175 @@ func (c *Client) Close() error {
 // Use adds the mutation hooks to all the entity clients.
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
+	c.AIP.Use(hooks...)
 	c.Location.Use(hooks...)
-	c.Pkg.Use(hooks...)
 }
 
 // Intercept adds the query interceptors to all the entity clients.
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
+	c.AIP.Intercept(interceptors...)
 	c.Location.Intercept(interceptors...)
-	c.Pkg.Intercept(interceptors...)
 }
 
 // Mutate implements the ent.Mutator interface.
 func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
+	case *AIPMutation:
+		return c.AIP.mutate(ctx, m)
 	case *LocationMutation:
 		return c.Location.mutate(ctx, m)
-	case *PkgMutation:
-		return c.Pkg.mutate(ctx, m)
 	default:
 		return nil, fmt.Errorf("db: unknown mutation type %T", m)
+	}
+}
+
+// AIPClient is a client for the AIP schema.
+type AIPClient struct {
+	config
+}
+
+// NewAIPClient returns a client for the AIP from the given config.
+func NewAIPClient(c config) *AIPClient {
+	return &AIPClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `aip.Hooks(f(g(h())))`.
+func (c *AIPClient) Use(hooks ...Hook) {
+	c.hooks.AIP = append(c.hooks.AIP, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `aip.Intercept(f(g(h())))`.
+func (c *AIPClient) Intercept(interceptors ...Interceptor) {
+	c.inters.AIP = append(c.inters.AIP, interceptors...)
+}
+
+// Create returns a builder for creating a AIP entity.
+func (c *AIPClient) Create() *AIPCreate {
+	mutation := newAIPMutation(c.config, OpCreate)
+	return &AIPCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of AIP entities.
+func (c *AIPClient) CreateBulk(builders ...*AIPCreate) *AIPCreateBulk {
+	return &AIPCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *AIPClient) MapCreateBulk(slice any, setFunc func(*AIPCreate, int)) *AIPCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &AIPCreateBulk{err: fmt.Errorf("calling to AIPClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*AIPCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &AIPCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for AIP.
+func (c *AIPClient) Update() *AIPUpdate {
+	mutation := newAIPMutation(c.config, OpUpdate)
+	return &AIPUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *AIPClient) UpdateOne(a *AIP) *AIPUpdateOne {
+	mutation := newAIPMutation(c.config, OpUpdateOne, withAIP(a))
+	return &AIPUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *AIPClient) UpdateOneID(id int) *AIPUpdateOne {
+	mutation := newAIPMutation(c.config, OpUpdateOne, withAIPID(id))
+	return &AIPUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for AIP.
+func (c *AIPClient) Delete() *AIPDelete {
+	mutation := newAIPMutation(c.config, OpDelete)
+	return &AIPDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *AIPClient) DeleteOne(a *AIP) *AIPDeleteOne {
+	return c.DeleteOneID(a.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *AIPClient) DeleteOneID(id int) *AIPDeleteOne {
+	builder := c.Delete().Where(aip.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &AIPDeleteOne{builder}
+}
+
+// Query returns a query builder for AIP.
+func (c *AIPClient) Query() *AIPQuery {
+	return &AIPQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeAIP},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a AIP entity by its id.
+func (c *AIPClient) Get(ctx context.Context, id int) (*AIP, error) {
+	return c.Query().Where(aip.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *AIPClient) GetX(ctx context.Context, id int) *AIP {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryLocation queries the location edge of a AIP.
+func (c *AIPClient) QueryLocation(a *AIP) *LocationQuery {
+	query := (&LocationClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := a.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(aip.Table, aip.FieldID, id),
+			sqlgraph.To(location.Table, location.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, aip.LocationTable, aip.LocationColumn),
+		)
+		fromV = sqlgraph.Neighbors(a.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *AIPClient) Hooks() []Hook {
+	return c.hooks.AIP
+}
+
+// Interceptors returns the client interceptors.
+func (c *AIPClient) Interceptors() []Interceptor {
+	return c.inters.AIP
+}
+
+func (c *AIPClient) mutate(ctx context.Context, m *AIPMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&AIPCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&AIPUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&AIPUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&AIPDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("db: unknown AIP mutation op: %q", m.Op())
 	}
 }
 
@@ -315,15 +464,15 @@ func (c *LocationClient) GetX(ctx context.Context, id int) *Location {
 	return obj
 }
 
-// QueryPackages queries the packages edge of a Location.
-func (c *LocationClient) QueryPackages(l *Location) *PkgQuery {
-	query := (&PkgClient{config: c.config}).Query()
+// QueryAips queries the aips edge of a Location.
+func (c *LocationClient) QueryAips(l *Location) *AIPQuery {
+	query := (&AIPClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := l.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(location.Table, location.FieldID, id),
-			sqlgraph.To(pkg.Table, pkg.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, true, location.PackagesTable, location.PackagesColumn),
+			sqlgraph.To(aip.Table, aip.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, true, location.AipsTable, location.AipsColumn),
 		)
 		fromV = sqlgraph.Neighbors(l.driver.Dialect(), step)
 		return fromV, nil
@@ -356,161 +505,12 @@ func (c *LocationClient) mutate(ctx context.Context, m *LocationMutation) (Value
 	}
 }
 
-// PkgClient is a client for the Pkg schema.
-type PkgClient struct {
-	config
-}
-
-// NewPkgClient returns a client for the Pkg from the given config.
-func NewPkgClient(c config) *PkgClient {
-	return &PkgClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `pkg.Hooks(f(g(h())))`.
-func (c *PkgClient) Use(hooks ...Hook) {
-	c.hooks.Pkg = append(c.hooks.Pkg, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `pkg.Intercept(f(g(h())))`.
-func (c *PkgClient) Intercept(interceptors ...Interceptor) {
-	c.inters.Pkg = append(c.inters.Pkg, interceptors...)
-}
-
-// Create returns a builder for creating a Pkg entity.
-func (c *PkgClient) Create() *PkgCreate {
-	mutation := newPkgMutation(c.config, OpCreate)
-	return &PkgCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of Pkg entities.
-func (c *PkgClient) CreateBulk(builders ...*PkgCreate) *PkgCreateBulk {
-	return &PkgCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *PkgClient) MapCreateBulk(slice any, setFunc func(*PkgCreate, int)) *PkgCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &PkgCreateBulk{err: fmt.Errorf("calling to PkgClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*PkgCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &PkgCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for Pkg.
-func (c *PkgClient) Update() *PkgUpdate {
-	mutation := newPkgMutation(c.config, OpUpdate)
-	return &PkgUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *PkgClient) UpdateOne(pk *Pkg) *PkgUpdateOne {
-	mutation := newPkgMutation(c.config, OpUpdateOne, withPkg(pk))
-	return &PkgUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *PkgClient) UpdateOneID(id int) *PkgUpdateOne {
-	mutation := newPkgMutation(c.config, OpUpdateOne, withPkgID(id))
-	return &PkgUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for Pkg.
-func (c *PkgClient) Delete() *PkgDelete {
-	mutation := newPkgMutation(c.config, OpDelete)
-	return &PkgDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *PkgClient) DeleteOne(pk *Pkg) *PkgDeleteOne {
-	return c.DeleteOneID(pk.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *PkgClient) DeleteOneID(id int) *PkgDeleteOne {
-	builder := c.Delete().Where(pkg.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &PkgDeleteOne{builder}
-}
-
-// Query returns a query builder for Pkg.
-func (c *PkgClient) Query() *PkgQuery {
-	return &PkgQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypePkg},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a Pkg entity by its id.
-func (c *PkgClient) Get(ctx context.Context, id int) (*Pkg, error) {
-	return c.Query().Where(pkg.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *PkgClient) GetX(ctx context.Context, id int) *Pkg {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// QueryLocation queries the location edge of a Pkg.
-func (c *PkgClient) QueryLocation(pk *Pkg) *LocationQuery {
-	query := (&LocationClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := pk.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(pkg.Table, pkg.FieldID, id),
-			sqlgraph.To(location.Table, location.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, pkg.LocationTable, pkg.LocationColumn),
-		)
-		fromV = sqlgraph.Neighbors(pk.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// Hooks returns the client hooks.
-func (c *PkgClient) Hooks() []Hook {
-	return c.hooks.Pkg
-}
-
-// Interceptors returns the client interceptors.
-func (c *PkgClient) Interceptors() []Interceptor {
-	return c.inters.Pkg
-}
-
-func (c *PkgClient) mutate(ctx context.Context, m *PkgMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&PkgCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&PkgUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&PkgUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&PkgDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("db: unknown Pkg mutation op: %q", m.Op())
-	}
-}
-
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Location, Pkg []ent.Hook
+		AIP, Location []ent.Hook
 	}
 	inters struct {
-		Location, Pkg []ent.Interceptor
+		AIP, Location []ent.Interceptor
 	}
 )

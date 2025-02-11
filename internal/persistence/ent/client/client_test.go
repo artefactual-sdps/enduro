@@ -29,15 +29,15 @@ func setUpClient(t *testing.T, logger logr.Logger) (*db.Client, persistence.Serv
 	return entc, c
 }
 
-func createPackage(
+func createSIP(
 	entc *db.Client,
 	name string,
-	status enums.PackageStatus,
-) (*db.Pkg, error) {
+	status enums.SIPStatus,
+) (*db.SIP, error) {
 	runID := uuid.MustParse("aee9644d-6397-4b34-92f7-442ad3dd3b13")
 	aipID := uuid.MustParse("30223842-0650-4f79-80bd-7bf43b810656")
 
-	return entc.Pkg.Create().
+	return entc.SIP.Create().
 		SetName(name).
 		SetWorkflowID("12345").
 		SetRunID(runID).
@@ -48,14 +48,14 @@ func createPackage(
 
 func createPreservationAction(
 	entc *db.Client,
-	pkgID int,
+	sipID int,
 	status enums.PreservationActionStatus,
 ) (*db.PreservationAction, error) {
 	return entc.PreservationAction.Create().
 		SetWorkflowID("12345").
 		SetType(int8(enums.PreservationActionTypeCreateAip)).
 		SetStatus(int8(status)). // #nosec G115 -- constrained value.
-		SetPackageID(pkgID).
+		SetSipID(sipID).
 		Save(context.Background())
 }
 
@@ -66,17 +66,17 @@ func TestNew(t *testing.T) {
 		t.Parallel()
 
 		entc, _ := setUpClient(t, logr.Discard())
-		p, err := createPackage(
+		s, err := createSIP(
 			entc,
 			"testing 1-2-3",
-			enums.PackageStatusInProgress,
+			enums.SIPStatusInProgress,
 		)
 		assert.NilError(t, err)
 
-		assert.Equal(t, p.Name, "testing 1-2-3")
-		assert.Equal(t, p.WorkflowID, "12345")
-		assert.Equal(t, p.RunID, uuid.MustParse("aee9644d-6397-4b34-92f7-442ad3dd3b13"))
-		assert.Equal(t, p.AipID, uuid.MustParse("30223842-0650-4f79-80bd-7bf43b810656"))
-		assert.Equal(t, p.Status, int8(enums.PackageStatusInProgress))
+		assert.Equal(t, s.Name, "testing 1-2-3")
+		assert.Equal(t, s.WorkflowID, "12345")
+		assert.Equal(t, s.RunID, uuid.MustParse("aee9644d-6397-4b34-92f7-442ad3dd3b13"))
+		assert.Equal(t, s.AipID, uuid.MustParse("30223842-0650-4f79-80bd-7bf43b810656"))
+		assert.Equal(t, s.Status, int8(enums.SIPStatusInProgress))
 	})
 }

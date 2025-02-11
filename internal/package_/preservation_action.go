@@ -97,9 +97,9 @@ func (svc *packageImpl) readPreservationAction(
 			preservation_action.status,
 			CONVERT_TZ(preservation_action.started_at, @@session.time_zone, '+00:00') AS started_at,
 			CONVERT_TZ(preservation_action.completed_at, @@session.time_zone, '+00:00') AS completed_at,
-			preservation_action.package_id
+			preservation_action.sip_id
 		FROM preservation_action
-		LEFT JOIN package ON (preservation_action.package_id = package.id)
+		LEFT JOIN sip ON (preservation_action.sip_id = sip.id)
 		WHERE preservation_action.id = ?
 	`
 

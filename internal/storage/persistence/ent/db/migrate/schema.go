@@ -9,6 +9,42 @@ import (
 )
 
 var (
+	// AipColumns holds the columns for the "aip" table.
+	AipColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "name", Type: field.TypeString, Size: 2048},
+		{Name: "aip_id", Type: field.TypeUUID, Unique: true},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"unspecified", "in_review", "rejected", "stored", "moving"}},
+		{Name: "object_key", Type: field.TypeUUID, Unique: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "location_id", Type: field.TypeInt, Nullable: true},
+	}
+	// AipTable holds the schema information for the "aip" table.
+	AipTable = &schema.Table{
+		Name:       "aip",
+		Columns:    AipColumns,
+		PrimaryKey: []*schema.Column{AipColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "aip_location_location",
+				Columns:    []*schema.Column{AipColumns[6]},
+				RefColumns: []*schema.Column{LocationColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "aip_aip_id",
+				Unique:  false,
+				Columns: []*schema.Column{AipColumns[2]},
+			},
+			{
+				Name:    "aip_object_key",
+				Unique:  false,
+				Columns: []*schema.Column{AipColumns[4]},
+			},
+		},
+	}
 	// LocationColumns holds the columns for the "location" table.
 	LocationColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -41,55 +77,19 @@ var (
 			},
 		},
 	}
-	// PackageColumns holds the columns for the "package" table.
-	PackageColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "name", Type: field.TypeString, Size: 2048},
-		{Name: "aip_id", Type: field.TypeUUID, Unique: true},
-		{Name: "status", Type: field.TypeEnum, Enums: []string{"unspecified", "in_review", "rejected", "stored", "moving"}},
-		{Name: "object_key", Type: field.TypeUUID, Unique: true},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "location_id", Type: field.TypeInt, Nullable: true},
-	}
-	// PackageTable holds the schema information for the "package" table.
-	PackageTable = &schema.Table{
-		Name:       "package",
-		Columns:    PackageColumns,
-		PrimaryKey: []*schema.Column{PackageColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "package_location_location",
-				Columns:    []*schema.Column{PackageColumns[6]},
-				RefColumns: []*schema.Column{LocationColumns[0]},
-				OnDelete:   schema.SetNull,
-			},
-		},
-		Indexes: []*schema.Index{
-			{
-				Name:    "pkg_aip_id",
-				Unique:  false,
-				Columns: []*schema.Column{PackageColumns[2]},
-			},
-			{
-				Name:    "pkg_object_key",
-				Unique:  false,
-				Columns: []*schema.Column{PackageColumns[4]},
-			},
-		},
-	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
+		AipTable,
 		LocationTable,
-		PackageTable,
 	}
 )
 
 func init() {
+	AipTable.ForeignKeys[0].RefTable = LocationTable
+	AipTable.Annotation = &entsql.Annotation{
+		Table: "aip",
+	}
 	LocationTable.Annotation = &entsql.Annotation{
 		Table: "location",
-	}
-	PackageTable.ForeignKeys[0].RefTable = LocationTable
-	PackageTable.Annotation = &entsql.Annotation{
-		Table: "package",
 	}
 }

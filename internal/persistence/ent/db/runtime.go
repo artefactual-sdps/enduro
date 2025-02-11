@@ -5,9 +5,9 @@ package db
 import (
 	"time"
 
-	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/pkg"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/preservationaction"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/preservationtask"
+	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/sip"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/schema"
 )
 
@@ -15,22 +15,22 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
-	pkgFields := schema.Pkg{}.Fields()
-	_ = pkgFields
-	// pkgDescCreatedAt is the schema descriptor for created_at field.
-	pkgDescCreatedAt := pkgFields[6].Descriptor()
-	// pkg.DefaultCreatedAt holds the default value on creation for the created_at field.
-	pkg.DefaultCreatedAt = pkgDescCreatedAt.Default.(func() time.Time)
 	preservationactionFields := schema.PreservationAction{}.Fields()
 	_ = preservationactionFields
-	// preservationactionDescPackageID is the schema descriptor for package_id field.
-	preservationactionDescPackageID := preservationactionFields[5].Descriptor()
-	// preservationaction.PackageIDValidator is a validator for the "package_id" field. It is called by the builders before save.
-	preservationaction.PackageIDValidator = preservationactionDescPackageID.Validators[0].(func(int) error)
+	// preservationactionDescSipID is the schema descriptor for sip_id field.
+	preservationactionDescSipID := preservationactionFields[5].Descriptor()
+	// preservationaction.SipIDValidator is a validator for the "sip_id" field. It is called by the builders before save.
+	preservationaction.SipIDValidator = preservationactionDescSipID.Validators[0].(func(int) error)
 	preservationtaskFields := schema.PreservationTask{}.Fields()
 	_ = preservationtaskFields
 	// preservationtaskDescPreservationActionID is the schema descriptor for preservation_action_id field.
 	preservationtaskDescPreservationActionID := preservationtaskFields[6].Descriptor()
 	// preservationtask.PreservationActionIDValidator is a validator for the "preservation_action_id" field. It is called by the builders before save.
 	preservationtask.PreservationActionIDValidator = preservationtaskDescPreservationActionID.Validators[0].(func(int) error)
+	sipFields := schema.SIP{}.Fields()
+	_ = sipFields
+	// sipDescCreatedAt is the schema descriptor for created_at field.
+	sipDescCreatedAt := sipFields[6].Descriptor()
+	// sip.DefaultCreatedAt holds the default value on creation for the created_at field.
+	sip.DefaultCreatedAt = sipDescCreatedAt.Default.(func() time.Time)
 }

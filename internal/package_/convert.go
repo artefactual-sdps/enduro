@@ -16,15 +16,15 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/timerange"
 )
 
-func packageToGoaPackageCreatedEvent(p *datatypes.Package) *goapackage.PackageCreatedEvent {
+func sipToGoaPackageCreatedEvent(s *datatypes.SIP) *goapackage.PackageCreatedEvent {
 	var id uint
-	if p.ID > 0 {
-		id = uint(p.ID) // #nosec G115 -- range validated.
+	if s.ID > 0 {
+		id = uint(s.ID) // #nosec G115 -- range validated.
 	}
 
 	return &goapackage.PackageCreatedEvent{
 		ID:   id,
-		Item: p.Goa(),
+		Item: s.Goa(),
 	}
 }
 
@@ -41,8 +41,8 @@ func preservationActionToGoa(pa *datatypes.PreservationAction) *goapackage.Endur
 	}
 
 	var packageID uint
-	if pa.PackageID > 0 {
-		packageID = uint(pa.PackageID) // #nosec G115 -- range validated.
+	if pa.SIPID > 0 {
+		packageID = uint(pa.SIPID) // #nosec G115 -- range validated.
 	}
 
 	return &goapackage.EnduroPackagePreservationAction{
@@ -84,7 +84,7 @@ func preservationTaskToGoa(pt *datatypes.PreservationTask) *goapackage.EnduroPac
 	}
 }
 
-func listPayloadToPackageFilter(payload *goapackage.ListPayload) (*persistence.PackageFilter, error) {
+func listPayloadToSIPFilter(payload *goapackage.ListPayload) (*persistence.SIPFilter, error) {
 	aipID, err := stringToUUIDPtr(payload.AipID)
 	if err != nil {
 		return nil, fmt.Errorf("aip_id: %v", err)
@@ -95,9 +95,9 @@ func listPayloadToPackageFilter(payload *goapackage.ListPayload) (*persistence.P
 		return nil, fmt.Errorf("location_id: %v", err)
 	}
 
-	var status *enums.PackageStatus
+	var status *enums.SIPStatus
 	if payload.Status != nil {
-		s, err := enums.ParsePackageStatus(*payload.Status)
+		s, err := enums.ParseSIPStatus(*payload.Status)
 		if err != nil {
 			return nil, fmt.Errorf("invalid status")
 		}
@@ -109,7 +109,7 @@ func listPayloadToPackageFilter(payload *goapackage.ListPayload) (*persistence.P
 		return nil, err
 	}
 
-	pf := persistence.PackageFilter{
+	pf := persistence.SIPFilter{
 		AIPID:      aipID,
 		Name:       payload.Name,
 		LocationID: locID,

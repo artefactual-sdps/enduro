@@ -703,7 +703,7 @@ func (c *MockServiceUpdatePackageLocationIDCall) DoAndReturn(f func(context.Cont
 }
 
 // UpdatePackageStatus mocks base method.
-func (m *MockService) UpdatePackageStatus(arg0 context.Context, arg1 uuid.UUID, arg2 types.PackageStatus) error {
+func (m *MockService) UpdatePackageStatus(arg0 context.Context, arg1 uuid.UUID, arg2 types.AIPStatus) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdatePackageStatus", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
@@ -729,13 +729,13 @@ func (c *MockServiceUpdatePackageStatusCall) Return(arg0 error) *MockServiceUpda
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockServiceUpdatePackageStatusCall) Do(f func(context.Context, uuid.UUID, types.PackageStatus) error) *MockServiceUpdatePackageStatusCall {
+func (c *MockServiceUpdatePackageStatusCall) Do(f func(context.Context, uuid.UUID, types.AIPStatus) error) *MockServiceUpdatePackageStatusCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockServiceUpdatePackageStatusCall) DoAndReturn(f func(context.Context, uuid.UUID, types.PackageStatus) error) *MockServiceUpdatePackageStatusCall {
+func (c *MockServiceUpdatePackageStatusCall) DoAndReturn(f func(context.Context, uuid.UUID, types.AIPStatus) error) *MockServiceUpdatePackageStatusCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

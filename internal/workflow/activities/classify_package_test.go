@@ -35,12 +35,12 @@ func TestClassifyPackageActivity(t *testing.T) {
 			params: activities.ClassifyPackageActivityParams{
 				Path: fs.NewDir(t, "enduro-test").Path(),
 			},
-			want: activities.ClassifyPackageActivityResult{Type: enums.PackageTypeUnknown},
+			want: activities.ClassifyPackageActivityResult{Type: enums.SIPTypeUnknown},
 		},
 		{
 			name:   "Returns a bagit package type",
 			params: activities.ClassifyPackageActivityParams{Path: testBag(t)},
-			want:   activities.ClassifyPackageActivityResult{Type: enums.PackageTypeBagIt},
+			want:   activities.ClassifyPackageActivityResult{Type: enums.SIPTypeBagIt},
 		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {

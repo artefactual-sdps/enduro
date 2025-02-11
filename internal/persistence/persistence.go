@@ -19,17 +19,17 @@ var (
 )
 
 type (
-	PackageUpdater  func(*datatypes.Package) (*datatypes.Package, error)
+	SIPUpdater      func(*datatypes.SIP) (*datatypes.SIP, error)
 	PresTaskUpdater func(*datatypes.PreservationTask) (*datatypes.PreservationTask, error)
 )
 
 type Service interface {
-	// CreatePackage persists the given Package to the data store then updates
-	// the Package from the data store, adding auto-generated data
+	// CreateSIP persists the given SIP to the data store then updates
+	// the SIP from the data store, adding auto-generated data
 	// (e.g. ID, CreatedAt).
-	CreatePackage(context.Context, *datatypes.Package) error
-	UpdatePackage(context.Context, int, PackageUpdater) (*datatypes.Package, error)
-	ListPackages(context.Context, *PackageFilter) ([]*datatypes.Package, *Page, error)
+	CreateSIP(context.Context, *datatypes.SIP) error
+	UpdateSIP(context.Context, int, SIPUpdater) (*datatypes.SIP, error)
+	ListSIPs(context.Context, *SIPFilter) ([]*datatypes.SIP, *Page, error)
 
 	CreatePreservationAction(context.Context, *datatypes.PreservationAction) error
 

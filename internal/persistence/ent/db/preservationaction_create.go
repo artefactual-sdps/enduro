@@ -10,9 +10,9 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/pkg"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/preservationaction"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/preservationtask"
+	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/sip"
 )
 
 // PreservationActionCreate is the builder for creating a PreservationAction entity.
@@ -68,15 +68,15 @@ func (pac *PreservationActionCreate) SetNillableCompletedAt(t *time.Time) *Prese
 	return pac
 }
 
-// SetPackageID sets the "package_id" field.
-func (pac *PreservationActionCreate) SetPackageID(i int) *PreservationActionCreate {
-	pac.mutation.SetPackageID(i)
+// SetSipID sets the "sip_id" field.
+func (pac *PreservationActionCreate) SetSipID(i int) *PreservationActionCreate {
+	pac.mutation.SetSipID(i)
 	return pac
 }
 
-// SetPackage sets the "package" edge to the Pkg entity.
-func (pac *PreservationActionCreate) SetPackage(p *Pkg) *PreservationActionCreate {
-	return pac.SetPackageID(p.ID)
+// SetSip sets the "sip" edge to the SIP entity.
+func (pac *PreservationActionCreate) SetSip(s *SIP) *PreservationActionCreate {
+	return pac.SetSipID(s.ID)
 }
 
 // AddTaskIDs adds the "tasks" edge to the PreservationTask entity by IDs.
@@ -137,16 +137,16 @@ func (pac *PreservationActionCreate) check() error {
 	if _, ok := pac.mutation.Status(); !ok {
 		return &ValidationError{Name: "status", err: errors.New(`db: missing required field "PreservationAction.status"`)}
 	}
-	if _, ok := pac.mutation.PackageID(); !ok {
-		return &ValidationError{Name: "package_id", err: errors.New(`db: missing required field "PreservationAction.package_id"`)}
+	if _, ok := pac.mutation.SipID(); !ok {
+		return &ValidationError{Name: "sip_id", err: errors.New(`db: missing required field "PreservationAction.sip_id"`)}
 	}
-	if v, ok := pac.mutation.PackageID(); ok {
-		if err := preservationaction.PackageIDValidator(v); err != nil {
-			return &ValidationError{Name: "package_id", err: fmt.Errorf(`db: validator failed for field "PreservationAction.package_id": %w`, err)}
+	if v, ok := pac.mutation.SipID(); ok {
+		if err := preservationaction.SipIDValidator(v); err != nil {
+			return &ValidationError{Name: "sip_id", err: fmt.Errorf(`db: validator failed for field "PreservationAction.sip_id": %w`, err)}
 		}
 	}
-	if len(pac.mutation.PackageIDs()) == 0 {
-		return &ValidationError{Name: "package", err: errors.New(`db: missing required edge "PreservationAction.package"`)}
+	if len(pac.mutation.SipIDs()) == 0 {
+		return &ValidationError{Name: "sip", err: errors.New(`db: missing required edge "PreservationAction.sip"`)}
 	}
 	return nil
 }
@@ -194,21 +194,21 @@ func (pac *PreservationActionCreate) createSpec() (*PreservationAction, *sqlgrap
 		_spec.SetField(preservationaction.FieldCompletedAt, field.TypeTime, value)
 		_node.CompletedAt = value
 	}
-	if nodes := pac.mutation.PackageIDs(); len(nodes) > 0 {
+	if nodes := pac.mutation.SipIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   preservationaction.PackageTable,
-			Columns: []string{preservationaction.PackageColumn},
+			Table:   preservationaction.SipTable,
+			Columns: []string{preservationaction.SipColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(pkg.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(sip.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.PackageID = nodes[0]
+		_node.SipID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := pac.mutation.TasksIDs(); len(nodes) > 0 {

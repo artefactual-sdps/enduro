@@ -10,8 +10,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/aip"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/location"
-	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/pkg"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/predicate"
 	"github.com/artefactual-sdps/enduro/internal/storage/types"
 	"github.com/google/uuid"
@@ -114,19 +114,19 @@ func (lu *LocationUpdate) SetNillableConfig(tc *types.LocationConfig) *LocationU
 	return lu
 }
 
-// AddPackageIDs adds the "packages" edge to the Pkg entity by IDs.
-func (lu *LocationUpdate) AddPackageIDs(ids ...int) *LocationUpdate {
-	lu.mutation.AddPackageIDs(ids...)
+// AddAipIDs adds the "aips" edge to the AIP entity by IDs.
+func (lu *LocationUpdate) AddAipIDs(ids ...int) *LocationUpdate {
+	lu.mutation.AddAipIDs(ids...)
 	return lu
 }
 
-// AddPackages adds the "packages" edges to the Pkg entity.
-func (lu *LocationUpdate) AddPackages(p ...*Pkg) *LocationUpdate {
-	ids := make([]int, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
+// AddAips adds the "aips" edges to the AIP entity.
+func (lu *LocationUpdate) AddAips(a ...*AIP) *LocationUpdate {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
 	}
-	return lu.AddPackageIDs(ids...)
+	return lu.AddAipIDs(ids...)
 }
 
 // Mutation returns the LocationMutation object of the builder.
@@ -134,25 +134,25 @@ func (lu *LocationUpdate) Mutation() *LocationMutation {
 	return lu.mutation
 }
 
-// ClearPackages clears all "packages" edges to the Pkg entity.
-func (lu *LocationUpdate) ClearPackages() *LocationUpdate {
-	lu.mutation.ClearPackages()
+// ClearAips clears all "aips" edges to the AIP entity.
+func (lu *LocationUpdate) ClearAips() *LocationUpdate {
+	lu.mutation.ClearAips()
 	return lu
 }
 
-// RemovePackageIDs removes the "packages" edge to Pkg entities by IDs.
-func (lu *LocationUpdate) RemovePackageIDs(ids ...int) *LocationUpdate {
-	lu.mutation.RemovePackageIDs(ids...)
+// RemoveAipIDs removes the "aips" edge to AIP entities by IDs.
+func (lu *LocationUpdate) RemoveAipIDs(ids ...int) *LocationUpdate {
+	lu.mutation.RemoveAipIDs(ids...)
 	return lu
 }
 
-// RemovePackages removes "packages" edges to Pkg entities.
-func (lu *LocationUpdate) RemovePackages(p ...*Pkg) *LocationUpdate {
-	ids := make([]int, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
+// RemoveAips removes "aips" edges to AIP entities.
+func (lu *LocationUpdate) RemoveAips(a ...*AIP) *LocationUpdate {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
 	}
-	return lu.RemovePackageIDs(ids...)
+	return lu.RemoveAipIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -227,28 +227,28 @@ func (lu *LocationUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := lu.mutation.Config(); ok {
 		_spec.SetField(location.FieldConfig, field.TypeJSON, value)
 	}
-	if lu.mutation.PackagesCleared() {
+	if lu.mutation.AipsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: true,
-			Table:   location.PackagesTable,
-			Columns: []string{location.PackagesColumn},
+			Table:   location.AipsTable,
+			Columns: []string{location.AipsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(pkg.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(aip.FieldID, field.TypeInt),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := lu.mutation.RemovedPackagesIDs(); len(nodes) > 0 && !lu.mutation.PackagesCleared() {
+	if nodes := lu.mutation.RemovedAipsIDs(); len(nodes) > 0 && !lu.mutation.AipsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: true,
-			Table:   location.PackagesTable,
-			Columns: []string{location.PackagesColumn},
+			Table:   location.AipsTable,
+			Columns: []string{location.AipsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(pkg.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(aip.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -256,15 +256,15 @@ func (lu *LocationUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := lu.mutation.PackagesIDs(); len(nodes) > 0 {
+	if nodes := lu.mutation.AipsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: true,
-			Table:   location.PackagesTable,
-			Columns: []string{location.PackagesColumn},
+			Table:   location.AipsTable,
+			Columns: []string{location.AipsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(pkg.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(aip.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -376,19 +376,19 @@ func (luo *LocationUpdateOne) SetNillableConfig(tc *types.LocationConfig) *Locat
 	return luo
 }
 
-// AddPackageIDs adds the "packages" edge to the Pkg entity by IDs.
-func (luo *LocationUpdateOne) AddPackageIDs(ids ...int) *LocationUpdateOne {
-	luo.mutation.AddPackageIDs(ids...)
+// AddAipIDs adds the "aips" edge to the AIP entity by IDs.
+func (luo *LocationUpdateOne) AddAipIDs(ids ...int) *LocationUpdateOne {
+	luo.mutation.AddAipIDs(ids...)
 	return luo
 }
 
-// AddPackages adds the "packages" edges to the Pkg entity.
-func (luo *LocationUpdateOne) AddPackages(p ...*Pkg) *LocationUpdateOne {
-	ids := make([]int, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
+// AddAips adds the "aips" edges to the AIP entity.
+func (luo *LocationUpdateOne) AddAips(a ...*AIP) *LocationUpdateOne {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
 	}
-	return luo.AddPackageIDs(ids...)
+	return luo.AddAipIDs(ids...)
 }
 
 // Mutation returns the LocationMutation object of the builder.
@@ -396,25 +396,25 @@ func (luo *LocationUpdateOne) Mutation() *LocationMutation {
 	return luo.mutation
 }
 
-// ClearPackages clears all "packages" edges to the Pkg entity.
-func (luo *LocationUpdateOne) ClearPackages() *LocationUpdateOne {
-	luo.mutation.ClearPackages()
+// ClearAips clears all "aips" edges to the AIP entity.
+func (luo *LocationUpdateOne) ClearAips() *LocationUpdateOne {
+	luo.mutation.ClearAips()
 	return luo
 }
 
-// RemovePackageIDs removes the "packages" edge to Pkg entities by IDs.
-func (luo *LocationUpdateOne) RemovePackageIDs(ids ...int) *LocationUpdateOne {
-	luo.mutation.RemovePackageIDs(ids...)
+// RemoveAipIDs removes the "aips" edge to AIP entities by IDs.
+func (luo *LocationUpdateOne) RemoveAipIDs(ids ...int) *LocationUpdateOne {
+	luo.mutation.RemoveAipIDs(ids...)
 	return luo
 }
 
-// RemovePackages removes "packages" edges to Pkg entities.
-func (luo *LocationUpdateOne) RemovePackages(p ...*Pkg) *LocationUpdateOne {
-	ids := make([]int, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
+// RemoveAips removes "aips" edges to AIP entities.
+func (luo *LocationUpdateOne) RemoveAips(a ...*AIP) *LocationUpdateOne {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
 	}
-	return luo.RemovePackageIDs(ids...)
+	return luo.RemoveAipIDs(ids...)
 }
 
 // Where appends a list predicates to the LocationUpdate builder.
@@ -519,28 +519,28 @@ func (luo *LocationUpdateOne) sqlSave(ctx context.Context) (_node *Location, err
 	if value, ok := luo.mutation.Config(); ok {
 		_spec.SetField(location.FieldConfig, field.TypeJSON, value)
 	}
-	if luo.mutation.PackagesCleared() {
+	if luo.mutation.AipsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: true,
-			Table:   location.PackagesTable,
-			Columns: []string{location.PackagesColumn},
+			Table:   location.AipsTable,
+			Columns: []string{location.AipsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(pkg.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(aip.FieldID, field.TypeInt),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := luo.mutation.RemovedPackagesIDs(); len(nodes) > 0 && !luo.mutation.PackagesCleared() {
+	if nodes := luo.mutation.RemovedAipsIDs(); len(nodes) > 0 && !luo.mutation.AipsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: true,
-			Table:   location.PackagesTable,
-			Columns: []string{location.PackagesColumn},
+			Table:   location.AipsTable,
+			Columns: []string{location.AipsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(pkg.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(aip.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -548,15 +548,15 @@ func (luo *LocationUpdateOne) sqlSave(ctx context.Context) (_node *Location, err
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := luo.mutation.PackagesIDs(); len(nodes) > 0 {
+	if nodes := luo.mutation.AipsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: true,
-			Table:   location.PackagesTable,
-			Columns: []string{location.PackagesColumn},
+			Table:   location.AipsTable,
+			Columns: []string{location.AipsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(pkg.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(aip.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

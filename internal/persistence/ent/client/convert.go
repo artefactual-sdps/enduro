@@ -10,41 +10,41 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db"
 )
 
-// convertPkgToPackage converts an entgo `db.Pkg` package representation to a
-// `datatypes.Package` representation.
-func convertPkgToPackage(pkg *db.Pkg) *datatypes.Package {
+// convertSIP converts an entgo `db.SIP` representation to a
+// `datatypes.SIP` representation.
+func convertSIP(sip *db.SIP) *datatypes.SIP {
 	var started, completed sql.NullTime
-	if !pkg.StartedAt.IsZero() {
-		started = sql.NullTime{Time: pkg.StartedAt, Valid: true}
+	if !sip.StartedAt.IsZero() {
+		started = sql.NullTime{Time: sip.StartedAt, Valid: true}
 	}
-	if !pkg.CompletedAt.IsZero() {
-		completed = sql.NullTime{Time: pkg.CompletedAt, Valid: true}
+	if !sip.CompletedAt.IsZero() {
+		completed = sql.NullTime{Time: sip.CompletedAt, Valid: true}
 	}
 
 	var aipID uuid.NullUUID
-	if pkg.AipID != uuid.Nil {
-		aipID = uuid.NullUUID{UUID: pkg.AipID, Valid: true}
+	if sip.AipID != uuid.Nil {
+		aipID = uuid.NullUUID{UUID: sip.AipID, Valid: true}
 	}
 
 	var locID uuid.NullUUID
-	if pkg.LocationID != uuid.Nil {
-		locID = uuid.NullUUID{UUID: pkg.LocationID, Valid: true}
+	if sip.LocationID != uuid.Nil {
+		locID = uuid.NullUUID{UUID: sip.LocationID, Valid: true}
 	}
 
 	var status uint
-	if pkg.Status > 0 {
-		status = uint(pkg.Status) // #nosec G115 -- range validated.
+	if sip.Status > 0 {
+		status = uint(sip.Status) // #nosec G115 -- range validated.
 	}
 
-	return &datatypes.Package{
-		ID:          pkg.ID,
-		Name:        pkg.Name,
-		WorkflowID:  pkg.WorkflowID,
-		RunID:       pkg.RunID.String(),
+	return &datatypes.SIP{
+		ID:          sip.ID,
+		Name:        sip.Name,
+		WorkflowID:  sip.WorkflowID,
+		RunID:       sip.RunID.String(),
 		AIPID:       aipID,
 		LocationID:  locID,
-		Status:      enums.PackageStatus(status),
-		CreatedAt:   pkg.CreatedAt,
+		Status:      enums.SIPStatus(status),
+		CreatedAt:   sip.CreatedAt,
 		StartedAt:   started,
 		CompletedAt: completed,
 	}
@@ -70,7 +70,7 @@ func convertPreservationAction(pa *db.PreservationAction) *datatypes.Preservatio
 		Status:      enums.PreservationActionStatus(pa.Status), // #nosec G115 -- constrained value.
 		StartedAt:   started,
 		CompletedAt: completed,
-		PackageID:   pa.PackageID,
+		SIPID:       pa.SipID,
 	}
 }
 

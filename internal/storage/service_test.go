@@ -231,7 +231,7 @@ func TestServiceSubmit(t *testing.T) {
 
 		attrs.persistenceMock.
 			EXPECT().
-			CreatePackage(
+			CreateAIP(
 				gomock.AssignableToTypeOf(ctx),
 				gomock.Any(),
 			).
@@ -280,7 +280,7 @@ func TestServiceSubmit(t *testing.T) {
 
 		attrs.persistenceMock.
 			EXPECT().
-			CreatePackage(
+			CreateAIP(
 				gomock.AssignableToTypeOf(ctx),
 				gomock.Any(),
 			).
@@ -341,7 +341,7 @@ func TestServiceSubmit(t *testing.T) {
 
 		attrs.persistenceMock.
 			EXPECT().
-			CreatePackage(
+			CreateAIP(
 				gomock.AssignableToTypeOf(ctx),
 				gomock.Any(),
 			).
@@ -375,7 +375,7 @@ func TestServiceCreate(t *testing.T) {
 
 		attrs.persistenceMock.
 			EXPECT().
-			CreatePackage(
+			CreateAIP(
 				mockutil.Context(),
 				&goastorage.Package{
 					Name:       name,
@@ -594,10 +594,10 @@ func TestReject(t *testing.T) {
 
 		attrs.persistenceMock.
 			EXPECT().
-			UpdatePackageStatus(
+			UpdateAIPStatus(
 				ctx,
 				aipID,
-				types.StatusRejected,
+				types.AIPStatusRejected,
 			).
 			Return(nil).
 			Times(1)
@@ -616,7 +616,7 @@ func TestServiceReadPackage(t *testing.T) {
 
 	attrs.persistenceMock.
 		EXPECT().
-		ReadPackage(
+		ReadAIP(
 			ctx,
 			aipID,
 		).
@@ -643,15 +643,15 @@ func TestServiceUpdatePackageStatus(t *testing.T) {
 
 		attrs.persistenceMock.
 			EXPECT().
-			UpdatePackageStatus(
+			UpdateAIPStatus(
 				ctx,
 				aipID,
-				types.StatusStored,
+				types.AIPStatusStored,
 			).
 			Return(errors.New("something is wrong")).
 			Times(1)
 
-		err := svc.UpdatePackageStatus(ctx, aipID, types.StatusStored)
+		err := svc.UpdatePackageStatus(ctx, aipID, types.AIPStatusStored)
 		assert.Error(t, err, "something is wrong")
 	})
 }
@@ -668,7 +668,7 @@ func TestServiceUpdatePackageLocationID(t *testing.T) {
 
 		attrs.persistenceMock.
 			EXPECT().
-			UpdatePackageLocationID(
+			UpdateAIPLocationID(
 				ctx,
 				aipID,
 				locationID,
@@ -696,7 +696,7 @@ func TestServiceDelete(t *testing.T) {
 
 		attrs.persistenceMock.
 			EXPECT().
-			ReadPackage(
+			ReadAIP(
 				ctx,
 				aipID,
 			).
@@ -728,7 +728,7 @@ func TestServiceDelete(t *testing.T) {
 
 		attrs.persistenceMock.
 			EXPECT().
-			ReadPackage(
+			ReadAIP(
 				ctx,
 				aipID,
 			).
@@ -774,7 +774,7 @@ func TestServiceDelete(t *testing.T) {
 
 		attrs.persistenceMock.
 			EXPECT().
-			ReadPackage(
+			ReadAIP(
 				ctx,
 				aipID,
 			).
@@ -821,7 +821,7 @@ func TestServiceDelete(t *testing.T) {
 
 		attrs.persistenceMock.
 			EXPECT().
-			ReadPackage(
+			ReadAIP(
 				ctx,
 				aipID,
 			).
@@ -860,7 +860,7 @@ func TestServiceDelete(t *testing.T) {
 
 		attrs.persistenceMock.
 			EXPECT().
-			ReadPackage(
+			ReadAIP(
 				ctx,
 				aipID,
 			).
@@ -1051,10 +1051,10 @@ func TestServiceUpdate(t *testing.T) {
 
 		attrs.persistenceMock.
 			EXPECT().
-			UpdatePackageStatus(
+			UpdateAIPStatus(
 				gomock.AssignableToTypeOf(ctx),
 				gomock.Any(),
-				types.StatusInReview,
+				types.AIPStatusInReview,
 			).
 			Return(
 				errors.New("unexpected error"),
@@ -1091,10 +1091,10 @@ func TestServiceUpdate(t *testing.T) {
 
 		attrs.persistenceMock.
 			EXPECT().
-			UpdatePackageStatus(
+			UpdateAIPStatus(
 				gomock.AssignableToTypeOf(ctx),
 				gomock.Any(),
-				types.StatusInReview,
+				types.AIPStatusInReview,
 			).
 			Return(
 				nil,
@@ -1134,7 +1134,7 @@ func TestServiceMove(t *testing.T) {
 
 		attrs.persistenceMock.
 			EXPECT().
-			ReadPackage(
+			ReadAIP(
 				gomock.AssignableToTypeOf(ctx),
 				aipID,
 			).
@@ -1178,7 +1178,7 @@ func TestServiceMove(t *testing.T) {
 
 		attrs.persistenceMock.
 			EXPECT().
-			ReadPackage(
+			ReadAIP(
 				gomock.AssignableToTypeOf(ctx),
 				aipID,
 			).
@@ -1223,7 +1223,7 @@ func TestServiceMove(t *testing.T) {
 
 		attrs.persistenceMock.
 			EXPECT().
-			ReadPackage(
+			ReadAIP(
 				gomock.AssignableToTypeOf(ctx),
 				aipID,
 			).
@@ -1268,7 +1268,7 @@ func TestServiceMoveStatus(t *testing.T) {
 
 		attrs.persistenceMock.
 			EXPECT().
-			ReadPackage(
+			ReadAIP(
 				gomock.AssignableToTypeOf(ctx),
 				aipID,
 			).
@@ -1308,7 +1308,7 @@ func TestServiceMoveStatus(t *testing.T) {
 
 		attrs.persistenceMock.
 			EXPECT().
-			ReadPackage(
+			ReadAIP(
 				gomock.AssignableToTypeOf(ctx),
 				aipID,
 			).
@@ -1353,7 +1353,7 @@ func TestServiceMoveStatus(t *testing.T) {
 
 		attrs.persistenceMock.
 			EXPECT().
-			ReadPackage(
+			ReadAIP(
 				gomock.AssignableToTypeOf(ctx),
 				aipID,
 			).
@@ -1397,7 +1397,7 @@ func TestServiceMoveStatus(t *testing.T) {
 
 		attrs.persistenceMock.
 			EXPECT().
-			ReadPackage(
+			ReadAIP(
 				gomock.AssignableToTypeOf(ctx),
 				aipID,
 			).
@@ -1440,7 +1440,7 @@ func TestServiceMoveStatus(t *testing.T) {
 
 		attrs.persistenceMock.
 			EXPECT().
-			ReadPackage(
+			ReadAIP(
 				gomock.AssignableToTypeOf(ctx),
 				aipID,
 			).
@@ -1692,7 +1692,7 @@ func TestServiceLocationPackages(t *testing.T) {
 
 		attrs.persistenceMock.
 			EXPECT().
-			LocationPackages(
+			LocationAIPs(
 				ctx,
 				locationID,
 			).
@@ -1718,7 +1718,7 @@ func TestServiceLocationPackages(t *testing.T) {
 
 		attrs.persistenceMock.
 			EXPECT().
-			LocationPackages(
+			LocationAIPs(
 				ctx,
 				locationID,
 			).
@@ -1780,7 +1780,7 @@ func TestServiceShow(t *testing.T) {
 
 		attrs.persistenceMock.
 			EXPECT().
-			ReadPackage(
+			ReadAIP(
 				ctx,
 				aipID,
 			).

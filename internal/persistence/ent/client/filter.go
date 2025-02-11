@@ -175,8 +175,8 @@ func (f *Filter[Q, O, P]) addFilter(column string, selector func(s *sql.Selector
 //
 // Validating pointers is complicated because ptr has an interface{} type. The
 // conditional `ptr == nil` doesn't evaluate true when ptr is a typed nil like
-// (*enums.PackageStatus)(nil). A type switch case on the validator interface
-// can then assign the nil *enums.PackageStatus to the validator interface and
+// (*enums.SIPStatus)(nil). A type switch case on the validator interface
+// can then assign the nil *enums.SIPStatus to the validator interface and
 // calling `t.IsValid()` causes a panic from trying to call `IsValid()` on a
 // nil pointer.
 func validPtrValue(ptr any) bool {
@@ -185,7 +185,7 @@ func validPtrValue(ptr any) bool {
 	}
 
 	switch t := ptr.(type) {
-	case *enums.PackageStatus:
+	case *enums.SIPStatus:
 		return t != nil && t.IsValid()
 	case *enums.PreprocessingTaskOutcome:
 		return t != nil && t.IsValid()
@@ -216,8 +216,8 @@ func (f *Filter[Q, O, P]) Contains(column string, value *string) {
 // validator interface, value is validated before the filter is added.
 func (f *Filter[Q, O, P]) Equals(column string, value any) {
 	// The current code always calls this function with a pointer value (e.g.
-	// *string, *enums.PackageStatus). If we need to pass value types (e.g.
-	// (string, enums.PackageStatus) in the future we'll have to combine the
+	// *string, *enums.SIPStatus). If we need to pass value types (e.g.
+	// (string, enums.SIPStatus) in the future we'll have to combine the
 	// validPtrValue() & validValue() type switch cases.
 	if !validPtrValue(value) {
 		return

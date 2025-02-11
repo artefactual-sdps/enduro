@@ -31,41 +31,41 @@ func updateError(err error, name string) error {
 	return fmt.Errorf("%s: %w", name, err)
 }
 
-func (w *wrapper) CreatePackage(ctx context.Context, p *datatypes.Package) error {
-	ctx, span := w.tracer.Start(ctx, "CreatePackage")
+func (w *wrapper) CreateSIP(ctx context.Context, p *datatypes.SIP) error {
+	ctx, span := w.tracer.Start(ctx, "CreateSIP")
 	defer span.End()
 
-	err := w.wrapped.CreatePackage(ctx, p)
+	err := w.wrapped.CreateSIP(ctx, p)
 	if err != nil {
 		telemetry.RecordError(span, err)
-		return updateError(err, "CreatePackage")
+		return updateError(err, "CreateSIP")
 	}
 
 	return nil
 }
 
-func (w *wrapper) UpdatePackage(ctx context.Context, id int, updater PackageUpdater) (*datatypes.Package, error) {
-	ctx, span := w.tracer.Start(ctx, "UpdatePackage")
+func (w *wrapper) UpdateSIP(ctx context.Context, id int, updater SIPUpdater) (*datatypes.SIP, error) {
+	ctx, span := w.tracer.Start(ctx, "UpdateSIP")
 	defer span.End()
 	span.SetAttributes(attribute.Int("id", id))
 
-	r, err := w.wrapped.UpdatePackage(ctx, id, updater)
+	r, err := w.wrapped.UpdateSIP(ctx, id, updater)
 	if err != nil {
 		telemetry.RecordError(span, err)
-		return nil, updateError(err, "UpdatePackage")
+		return nil, updateError(err, "UpdateSIP")
 	}
 
 	return r, nil
 }
 
-func (w *wrapper) ListPackages(ctx context.Context, f *PackageFilter) ([]*datatypes.Package, *Page, error) {
-	ctx, span := w.tracer.Start(ctx, "ListPackages")
+func (w *wrapper) ListSIPs(ctx context.Context, f *SIPFilter) ([]*datatypes.SIP, *Page, error) {
+	ctx, span := w.tracer.Start(ctx, "ListSIPs")
 	defer span.End()
 
-	r, pg, err := w.wrapped.ListPackages(ctx, f)
+	r, pg, err := w.wrapped.ListSIPs(ctx, f)
 	if err != nil {
 		telemetry.RecordError(span, err)
-		return nil, nil, updateError(err, "ListPackages")
+		return nil, nil, updateError(err, "ListSIPs")
 	}
 
 	return r, pg, nil

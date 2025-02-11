@@ -135,12 +135,12 @@ func (w *goaWrapper) List(ctx context.Context, payload *goapackage.ListPayload) 
 		payload = &goapackage.ListPayload{}
 	}
 
-	pf, err := listPayloadToPackageFilter(payload)
+	pf, err := listPayloadToSIPFilter(payload)
 	if err != nil {
 		return nil, err
 	}
 
-	r, pg, err := w.perSvc.ListPackages(ctx, pf)
+	r, pg, err := w.perSvc.ListSIPs(ctx, pf)
 	if err != nil {
 		return nil, goapackage.MakeInternalError(err)
 	}
@@ -182,7 +182,7 @@ func (w *goaWrapper) PreservationActions(
 		return nil, err
 	}
 
-	query := "SELECT id, workflow_id, type, status, CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at, CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at FROM preservation_action WHERE package_id = ? ORDER BY started_at DESC"
+	query := "SELECT id, workflow_id, type, status, CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at, CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at FROM preservation_action WHERE sip_id = ? ORDER BY started_at DESC"
 	args := []interface{}{goapkg.ID}
 
 	rows, err := w.db.QueryxContext(ctx, query, args...)

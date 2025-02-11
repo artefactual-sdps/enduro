@@ -12,19 +12,19 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/aip"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/location"
-	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/pkg"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/predicate"
 )
 
 // LocationQuery is the builder for querying Location entities.
 type LocationQuery struct {
 	config
-	ctx          *QueryContext
-	order        []location.OrderOption
-	inters       []Interceptor
-	predicates   []predicate.Location
-	withPackages *PkgQuery
+	ctx        *QueryContext
+	order      []location.OrderOption
+	inters     []Interceptor
+	predicates []predicate.Location
+	withAips   *AIPQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -61,9 +61,9 @@ func (lq *LocationQuery) Order(o ...location.OrderOption) *LocationQuery {
 	return lq
 }
 
-// QueryPackages chains the current query on the "packages" edge.
-func (lq *LocationQuery) QueryPackages() *PkgQuery {
-	query := (&PkgClient{config: lq.config}).Query()
+// QueryAips chains the current query on the "aips" edge.
+func (lq *LocationQuery) QueryAips() *AIPQuery {
+	query := (&AIPClient{config: lq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := lq.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -74,8 +74,8 @@ func (lq *LocationQuery) QueryPackages() *PkgQuery {
 		}
 		step := sqlgraph.NewStep(
 			sqlgraph.From(location.Table, location.FieldID, selector),
-			sqlgraph.To(pkg.Table, pkg.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, true, location.PackagesTable, location.PackagesColumn),
+			sqlgraph.To(aip.Table, aip.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, true, location.AipsTable, location.AipsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(lq.driver.Dialect(), step)
 		return fromU, nil
@@ -270,26 +270,26 @@ func (lq *LocationQuery) Clone() *LocationQuery {
 		return nil
 	}
 	return &LocationQuery{
-		config:       lq.config,
-		ctx:          lq.ctx.Clone(),
-		order:        append([]location.OrderOption{}, lq.order...),
-		inters:       append([]Interceptor{}, lq.inters...),
-		predicates:   append([]predicate.Location{}, lq.predicates...),
-		withPackages: lq.withPackages.Clone(),
+		config:     lq.config,
+		ctx:        lq.ctx.Clone(),
+		order:      append([]location.OrderOption{}, lq.order...),
+		inters:     append([]Interceptor{}, lq.inters...),
+		predicates: append([]predicate.Location{}, lq.predicates...),
+		withAips:   lq.withAips.Clone(),
 		// clone intermediate query.
 		sql:  lq.sql.Clone(),
 		path: lq.path,
 	}
 }
 
-// WithPackages tells the query-builder to eager-load the nodes that are connected to
-// the "packages" edge. The optional arguments are used to configure the query builder of the edge.
-func (lq *LocationQuery) WithPackages(opts ...func(*PkgQuery)) *LocationQuery {
-	query := (&PkgClient{config: lq.config}).Query()
+// WithAips tells the query-builder to eager-load the nodes that are connected to
+// the "aips" edge. The optional arguments are used to configure the query builder of the edge.
+func (lq *LocationQuery) WithAips(opts ...func(*AIPQuery)) *LocationQuery {
+	query := (&AIPClient{config: lq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	lq.withPackages = query
+	lq.withAips = query
 	return lq
 }
 
@@ -372,7 +372,7 @@ func (lq *LocationQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Loc
 		nodes       = []*Location{}
 		_spec       = lq.querySpec()
 		loadedTypes = [1]bool{
-			lq.withPackages != nil,
+			lq.withAips != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -393,17 +393,17 @@ func (lq *LocationQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Loc
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := lq.withPackages; query != nil {
-		if err := lq.loadPackages(ctx, query, nodes,
-			func(n *Location) { n.Edges.Packages = []*Pkg{} },
-			func(n *Location, e *Pkg) { n.Edges.Packages = append(n.Edges.Packages, e) }); err != nil {
+	if query := lq.withAips; query != nil {
+		if err := lq.loadAips(ctx, query, nodes,
+			func(n *Location) { n.Edges.Aips = []*AIP{} },
+			func(n *Location, e *AIP) { n.Edges.Aips = append(n.Edges.Aips, e) }); err != nil {
 			return nil, err
 		}
 	}
 	return nodes, nil
 }
 
-func (lq *LocationQuery) loadPackages(ctx context.Context, query *PkgQuery, nodes []*Location, init func(*Location), assign func(*Location, *Pkg)) error {
+func (lq *LocationQuery) loadAips(ctx context.Context, query *AIPQuery, nodes []*Location, init func(*Location), assign func(*Location, *AIP)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[int]*Location)
 	for i := range nodes {
@@ -414,10 +414,10 @@ func (lq *LocationQuery) loadPackages(ctx context.Context, query *PkgQuery, node
 		}
 	}
 	if len(query.ctx.Fields) > 0 {
-		query.ctx.AppendFieldOnce(pkg.FieldLocationID)
+		query.ctx.AppendFieldOnce(aip.FieldLocationID)
 	}
-	query.Where(predicate.Pkg(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(location.PackagesColumn), fks...))
+	query.Where(predicate.AIP(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(location.AipsColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {

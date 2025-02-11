@@ -11,10 +11,10 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/pkg"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/predicate"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/preservationaction"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/preservationtask"
+	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/sip"
 )
 
 // PreservationActionUpdate is the builder for updating PreservationAction entities.
@@ -126,23 +126,23 @@ func (pau *PreservationActionUpdate) ClearCompletedAt() *PreservationActionUpdat
 	return pau
 }
 
-// SetPackageID sets the "package_id" field.
-func (pau *PreservationActionUpdate) SetPackageID(i int) *PreservationActionUpdate {
-	pau.mutation.SetPackageID(i)
+// SetSipID sets the "sip_id" field.
+func (pau *PreservationActionUpdate) SetSipID(i int) *PreservationActionUpdate {
+	pau.mutation.SetSipID(i)
 	return pau
 }
 
-// SetNillablePackageID sets the "package_id" field if the given value is not nil.
-func (pau *PreservationActionUpdate) SetNillablePackageID(i *int) *PreservationActionUpdate {
+// SetNillableSipID sets the "sip_id" field if the given value is not nil.
+func (pau *PreservationActionUpdate) SetNillableSipID(i *int) *PreservationActionUpdate {
 	if i != nil {
-		pau.SetPackageID(*i)
+		pau.SetSipID(*i)
 	}
 	return pau
 }
 
-// SetPackage sets the "package" edge to the Pkg entity.
-func (pau *PreservationActionUpdate) SetPackage(p *Pkg) *PreservationActionUpdate {
-	return pau.SetPackageID(p.ID)
+// SetSip sets the "sip" edge to the SIP entity.
+func (pau *PreservationActionUpdate) SetSip(s *SIP) *PreservationActionUpdate {
+	return pau.SetSipID(s.ID)
 }
 
 // AddTaskIDs adds the "tasks" edge to the PreservationTask entity by IDs.
@@ -165,9 +165,9 @@ func (pau *PreservationActionUpdate) Mutation() *PreservationActionMutation {
 	return pau.mutation
 }
 
-// ClearPackage clears the "package" edge to the Pkg entity.
-func (pau *PreservationActionUpdate) ClearPackage() *PreservationActionUpdate {
-	pau.mutation.ClearPackage()
+// ClearSip clears the "sip" edge to the SIP entity.
+func (pau *PreservationActionUpdate) ClearSip() *PreservationActionUpdate {
+	pau.mutation.ClearSip()
 	return pau
 }
 
@@ -221,13 +221,13 @@ func (pau *PreservationActionUpdate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (pau *PreservationActionUpdate) check() error {
-	if v, ok := pau.mutation.PackageID(); ok {
-		if err := preservationaction.PackageIDValidator(v); err != nil {
-			return &ValidationError{Name: "package_id", err: fmt.Errorf(`db: validator failed for field "PreservationAction.package_id": %w`, err)}
+	if v, ok := pau.mutation.SipID(); ok {
+		if err := preservationaction.SipIDValidator(v); err != nil {
+			return &ValidationError{Name: "sip_id", err: fmt.Errorf(`db: validator failed for field "PreservationAction.sip_id": %w`, err)}
 		}
 	}
-	if pau.mutation.PackageCleared() && len(pau.mutation.PackageIDs()) > 0 {
-		return errors.New(`db: clearing a required unique edge "PreservationAction.package"`)
+	if pau.mutation.SipCleared() && len(pau.mutation.SipIDs()) > 0 {
+		return errors.New(`db: clearing a required unique edge "PreservationAction.sip"`)
 	}
 	return nil
 }
@@ -271,28 +271,28 @@ func (pau *PreservationActionUpdate) sqlSave(ctx context.Context) (n int, err er
 	if pau.mutation.CompletedAtCleared() {
 		_spec.ClearField(preservationaction.FieldCompletedAt, field.TypeTime)
 	}
-	if pau.mutation.PackageCleared() {
+	if pau.mutation.SipCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   preservationaction.PackageTable,
-			Columns: []string{preservationaction.PackageColumn},
+			Table:   preservationaction.SipTable,
+			Columns: []string{preservationaction.SipColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(pkg.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(sip.FieldID, field.TypeInt),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := pau.mutation.PackageIDs(); len(nodes) > 0 {
+	if nodes := pau.mutation.SipIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   preservationaction.PackageTable,
-			Columns: []string{preservationaction.PackageColumn},
+			Table:   preservationaction.SipTable,
+			Columns: []string{preservationaction.SipColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(pkg.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(sip.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -461,23 +461,23 @@ func (pauo *PreservationActionUpdateOne) ClearCompletedAt() *PreservationActionU
 	return pauo
 }
 
-// SetPackageID sets the "package_id" field.
-func (pauo *PreservationActionUpdateOne) SetPackageID(i int) *PreservationActionUpdateOne {
-	pauo.mutation.SetPackageID(i)
+// SetSipID sets the "sip_id" field.
+func (pauo *PreservationActionUpdateOne) SetSipID(i int) *PreservationActionUpdateOne {
+	pauo.mutation.SetSipID(i)
 	return pauo
 }
 
-// SetNillablePackageID sets the "package_id" field if the given value is not nil.
-func (pauo *PreservationActionUpdateOne) SetNillablePackageID(i *int) *PreservationActionUpdateOne {
+// SetNillableSipID sets the "sip_id" field if the given value is not nil.
+func (pauo *PreservationActionUpdateOne) SetNillableSipID(i *int) *PreservationActionUpdateOne {
 	if i != nil {
-		pauo.SetPackageID(*i)
+		pauo.SetSipID(*i)
 	}
 	return pauo
 }
 
-// SetPackage sets the "package" edge to the Pkg entity.
-func (pauo *PreservationActionUpdateOne) SetPackage(p *Pkg) *PreservationActionUpdateOne {
-	return pauo.SetPackageID(p.ID)
+// SetSip sets the "sip" edge to the SIP entity.
+func (pauo *PreservationActionUpdateOne) SetSip(s *SIP) *PreservationActionUpdateOne {
+	return pauo.SetSipID(s.ID)
 }
 
 // AddTaskIDs adds the "tasks" edge to the PreservationTask entity by IDs.
@@ -500,9 +500,9 @@ func (pauo *PreservationActionUpdateOne) Mutation() *PreservationActionMutation 
 	return pauo.mutation
 }
 
-// ClearPackage clears the "package" edge to the Pkg entity.
-func (pauo *PreservationActionUpdateOne) ClearPackage() *PreservationActionUpdateOne {
-	pauo.mutation.ClearPackage()
+// ClearSip clears the "sip" edge to the SIP entity.
+func (pauo *PreservationActionUpdateOne) ClearSip() *PreservationActionUpdateOne {
+	pauo.mutation.ClearSip()
 	return pauo
 }
 
@@ -569,13 +569,13 @@ func (pauo *PreservationActionUpdateOne) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (pauo *PreservationActionUpdateOne) check() error {
-	if v, ok := pauo.mutation.PackageID(); ok {
-		if err := preservationaction.PackageIDValidator(v); err != nil {
-			return &ValidationError{Name: "package_id", err: fmt.Errorf(`db: validator failed for field "PreservationAction.package_id": %w`, err)}
+	if v, ok := pauo.mutation.SipID(); ok {
+		if err := preservationaction.SipIDValidator(v); err != nil {
+			return &ValidationError{Name: "sip_id", err: fmt.Errorf(`db: validator failed for field "PreservationAction.sip_id": %w`, err)}
 		}
 	}
-	if pauo.mutation.PackageCleared() && len(pauo.mutation.PackageIDs()) > 0 {
-		return errors.New(`db: clearing a required unique edge "PreservationAction.package"`)
+	if pauo.mutation.SipCleared() && len(pauo.mutation.SipIDs()) > 0 {
+		return errors.New(`db: clearing a required unique edge "PreservationAction.sip"`)
 	}
 	return nil
 }
@@ -636,28 +636,28 @@ func (pauo *PreservationActionUpdateOne) sqlSave(ctx context.Context) (_node *Pr
 	if pauo.mutation.CompletedAtCleared() {
 		_spec.ClearField(preservationaction.FieldCompletedAt, field.TypeTime)
 	}
-	if pauo.mutation.PackageCleared() {
+	if pauo.mutation.SipCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   preservationaction.PackageTable,
-			Columns: []string{preservationaction.PackageColumn},
+			Table:   preservationaction.SipTable,
+			Columns: []string{preservationaction.SipColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(pkg.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(sip.FieldID, field.TypeInt),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := pauo.mutation.PackageIDs(); len(nodes) > 0 {
+	if nodes := pauo.mutation.SipIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   preservationaction.PackageTable,
-			Columns: []string{preservationaction.PackageColumn},
+			Table:   preservationaction.SipTable,
+			Columns: []string{preservationaction.SipColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(pkg.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(sip.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

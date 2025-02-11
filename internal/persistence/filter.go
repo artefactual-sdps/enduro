@@ -61,13 +61,13 @@ func (p *Page) Goa() *goapackage.EnduroPage {
 	}
 }
 
-type PackageFilter struct {
+type SIPFilter struct {
 	// Name filters for packages whose names contain the given string.
 	Name *string
 
 	AIPID      *uuid.UUID
 	LocationID *uuid.UUID
-	Status     *enums.PackageStatus
+	Status     *enums.SIPStatus
 	CreatedAt  *timerange.Range
 
 	Sort

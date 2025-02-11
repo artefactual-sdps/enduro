@@ -42,20 +42,20 @@ type Location struct {
 
 // LocationEdges holds the relations/edges for other nodes in the graph.
 type LocationEdges struct {
-	// Packages holds the value of the packages edge.
-	Packages []*Pkg `json:"packages,omitempty"`
+	// Aips holds the value of the aips edge.
+	Aips []*AIP `json:"aips,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [1]bool
 }
 
-// PackagesOrErr returns the Packages value or an error if the edge
+// AipsOrErr returns the Aips value or an error if the edge
 // was not loaded in eager-loading.
-func (e LocationEdges) PackagesOrErr() ([]*Pkg, error) {
+func (e LocationEdges) AipsOrErr() ([]*AIP, error) {
 	if e.loadedTypes[0] {
-		return e.Packages, nil
+		return e.Aips, nil
 	}
-	return nil, &NotLoadedError{edge: "packages"}
+	return nil, &NotLoadedError{edge: "aips"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -155,9 +155,9 @@ func (l *Location) Value(name string) (ent.Value, error) {
 	return l.selectValues.Get(name)
 }
 
-// QueryPackages queries the "packages" edge of the Location entity.
-func (l *Location) QueryPackages() *PkgQuery {
-	return NewLocationClient(l.config).QueryPackages(l)
+// QueryAips queries the "aips" edge of the Location entity.
+func (l *Location) QueryAips() *AIPQuery {
+	return NewLocationClient(l.config).QueryAips(l)
 }
 
 // Update returns a builder for updating this Location.

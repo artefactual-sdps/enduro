@@ -23,7 +23,7 @@ func UpdatePackageLocationLocalActivity(
 
 type UpdatePackageStatusLocalActivityParams struct {
 	AIPID  uuid.UUID
-	Status types.PackageStatus
+	Status types.AIPStatus
 }
 
 func UpdatePackageStatusLocalActivity(

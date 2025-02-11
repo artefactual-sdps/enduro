@@ -9,18 +9,6 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db"
 )
 
-// The PkgFunc type is an adapter to allow the use of ordinary
-// function as Pkg mutator.
-type PkgFunc func(context.Context, *db.PkgMutation) (db.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f PkgFunc) Mutate(ctx context.Context, m db.Mutation) (db.Value, error) {
-	if mv, ok := m.(*db.PkgMutation); ok {
-		return f(ctx, mv)
-	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *db.PkgMutation", m)
-}
-
 // The PreservationActionFunc type is an adapter to allow the use of ordinary
 // function as PreservationAction mutator.
 type PreservationActionFunc func(context.Context, *db.PreservationActionMutation) (db.Value, error)
@@ -43,6 +31,18 @@ func (f PreservationTaskFunc) Mutate(ctx context.Context, m db.Mutation) (db.Val
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *db.PreservationTaskMutation", m)
+}
+
+// The SIPFunc type is an adapter to allow the use of ordinary
+// function as SIP mutator.
+type SIPFunc func(context.Context, *db.SIPMutation) (db.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f SIPFunc) Mutate(ctx context.Context, m db.Mutation) (db.Value, error) {
+	if mv, ok := m.(*db.SIPMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *db.SIPMutation", m)
 }
 
 // Condition is a hook condition function.
