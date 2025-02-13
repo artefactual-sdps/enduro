@@ -16,10 +16,10 @@ spec:
       serviceAccountName: sdps
       containers:
         - name: temporal
-          image: temporalio/auto-setup:1.22.6
+          image: temporalio/auto-setup:1.26.2
           env:
             - name: DB
-              value: mysql
+              value: mysql8
             - name: DB_PORT
               value: "3306"
             - name: MYSQL_USER
