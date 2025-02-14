@@ -910,7 +910,7 @@ func (w *ProcessingWorkflow) transferAM(ctx temporalsdk_workflow.Context, tinfo 
 
 	// Zip PIP, if necessary.
 	var sourcePath string
-	if w.cfg.AM.TransferType == "zipped bag" {
+	if w.cfg.AM.ZipPIP {
 		// Zip PIP.
 		activityOpts := withActivityOptsForLocalAction(ctx)
 		var zipResult archivezip.Result
@@ -963,7 +963,6 @@ func (w *ProcessingWorkflow) transferAM(ctx temporalsdk_workflow.Context, tinfo 
 		am.StartTransferActivityName,
 		&am.StartTransferActivityParams{
 			Name:         tinfo.req.Key,
-			Type:         w.cfg.AM.TransferType,
 			RelativePath: uploadResult.RemoteRelativePath,
 		},
 	).Get(activityOpts, &transferResult)

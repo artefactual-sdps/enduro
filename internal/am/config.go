@@ -30,7 +30,7 @@ type Config struct {
 	// "749ef452-fbed-4d50-9072-5f98bc01e52e:sftp_upload").
 	TransferSourcePath string
 
-	TransferType string
+	ZipPIP bool
 
 	// Capacity sets the maximum number of worker sessions the worker can
 	// handle at one time (default: 1).
