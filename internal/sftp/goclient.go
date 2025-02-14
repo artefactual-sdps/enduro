@@ -103,12 +103,12 @@ func (c *GoClient) UploadDirectory(ctx context.Context, srcPath string) (string,
 
 	// Asynchronously upload directory of files.
 	upload := NewAsyncUpload(conn)
-	go uploadDirectory(ctx, conn, srcPath, c.cfg.RemoteDir, &upload)
+	go uploadDirectory(ctx, srcPath, c.cfg.RemoteDir, &upload)
 
 	return sftp.Join(c.cfg.RemoteDir, transferDir), &upload, nil
 }
 
-func uploadDirectory(ctx context.Context, conn *connection, srcPath, remoteDir string, upload *AsyncUploadImpl) {
+func uploadDirectory(ctx context.Context, srcPath, remoteDir string, upload *AsyncUploadImpl) {
 	defer upload.Close()
 
 	transferDir := filepath.Base(srcPath)
@@ -134,7 +134,7 @@ func uploadDirectory(ctx context.Context, conn *connection, srcPath, remoteDir s
 
 			remoteCopy(ctx, upload, f, remotePath, false)
 		} else {
-			err = conn.Client.MkdirAll(remotePath)
+			err = upload.conn.Client.MkdirAll(remotePath)
 			if err != nil {
 				return err
 			}
