@@ -909,7 +909,6 @@ func (w *ProcessingWorkflow) transferAM(ctx temporalsdk_workflow.Context, tinfo 
 	}
 
 	// Zip PIP, if necessary.
-	var sourcePath string
 	if w.cfg.AM.ZipPIP {
 		// Zip PIP.
 		activityOpts := withActivityOptsForLocalAction(ctx)
@@ -925,11 +924,9 @@ func (w *ProcessingWorkflow) transferAM(ctx temporalsdk_workflow.Context, tinfo 
 
 		tinfo.SendToFailed.Path = zipResult.Path
 		tinfo.SendToFailed.ActivityName = activities.SendToFailedPIPsName
-		sourcePath = zipResult.Path
+		tinfo.TempPath = zipResult.Path
 
 		cleanup.registerPath(zipResult.Path)
-	} else {
-		sourcePath = tinfo.TempPath
 	}
 
 	// Upload PIP to AMSS.
@@ -951,7 +948,7 @@ func (w *ProcessingWorkflow) transferAM(ctx temporalsdk_workflow.Context, tinfo 
 	err = temporalsdk_workflow.ExecuteActivity(
 		activityOpts,
 		am.UploadTransferActivityName,
-		&am.UploadTransferActivityParams{SourcePath: sourcePath},
+		&am.UploadTransferActivityParams{SourcePath: tinfo.TempPath},
 	).Get(activityOpts, &uploadResult)
 	if err != nil {
 		return err
