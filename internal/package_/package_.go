@@ -111,7 +111,7 @@ func (svc *packageImpl) Create(ctx context.Context, pkg *datatypes.SIP) error {
 		return fmt.Errorf("package: create: %v", err)
 	}
 
-	event.PublishEvent(ctx, svc.evsvc, packageToGoaPackageCreatedEvent(pkg))
+	event.PublishEvent(ctx, svc.evsvc, sipToGoaPackageCreatedEvent(pkg))
 
 	return nil
 }

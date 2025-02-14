@@ -24,8 +24,8 @@ type (
 )
 
 type Service interface {
-	// CreateSIP persists the given Package to the data store then updates
-	// the Package from the data store, adding auto-generated data
+	// CreateSIP persists the given SIP to the data store then updates
+	// the SIP from the data store, adding auto-generated data
 	// (e.g. ID, CreatedAt).
 	CreateSIP(context.Context, *datatypes.SIP) error
 	UpdateSIP(context.Context, int, SIPUpdater) (*datatypes.SIP, error)

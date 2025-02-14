@@ -135,7 +135,7 @@ func (w *goaWrapper) List(ctx context.Context, payload *goapackage.ListPayload) 
 		payload = &goapackage.ListPayload{}
 	}
 
-	pf, err := listPayloadToPackageFilter(payload)
+	pf, err := listPayloadToSIPFilter(payload)
 	if err != nil {
 		return nil, err
 	}

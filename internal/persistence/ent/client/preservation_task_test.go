@@ -26,7 +26,7 @@ func addDBFixtures(
 
 	sip, err := createSIP(entc, "S1", enums.SIPStatusInProgress)
 	if err != nil {
-		t.Errorf("create sip: %v", err)
+		t.Errorf("create SIP: %v", err)
 	}
 
 	pa, err := createPreservationAction(entc, sip.ID, enums.PreservationActionStatusInProgress)

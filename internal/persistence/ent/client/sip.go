@@ -59,13 +59,13 @@ func (c *client) CreateSIP(ctx context.Context, s *datatypes.SIP) error {
 	q.SetCreatedAt(time.Now())
 
 	// Save the SIP.
-	ps, err := q.Save(ctx)
+	dbs, err := q.Save(ctx)
 	if err != nil {
 		return newDBErrorWithDetails(err, "create SIP")
 	}
 
 	// Update SIP with DB data, to get generated values (e.g. ID).
-	*s = *convertSIP(ps)
+	*s = *convertSIP(dbs)
 
 	return nil
 }

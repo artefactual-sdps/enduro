@@ -16,15 +16,15 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/timerange"
 )
 
-func packageToGoaPackageCreatedEvent(p *datatypes.SIP) *goapackage.PackageCreatedEvent {
+func sipToGoaPackageCreatedEvent(s *datatypes.SIP) *goapackage.PackageCreatedEvent {
 	var id uint
-	if p.ID > 0 {
-		id = uint(p.ID) // #nosec G115 -- range validated.
+	if s.ID > 0 {
+		id = uint(s.ID) // #nosec G115 -- range validated.
 	}
 
 	return &goapackage.PackageCreatedEvent{
 		ID:   id,
-		Item: p.Goa(),
+		Item: s.Goa(),
 	}
 }
 
@@ -84,7 +84,7 @@ func preservationTaskToGoa(pt *datatypes.PreservationTask) *goapackage.EnduroPac
 	}
 }
 
-func listPayloadToPackageFilter(payload *goapackage.ListPayload) (*persistence.SIPFilter, error) {
+func listPayloadToSIPFilter(payload *goapackage.ListPayload) (*persistence.SIPFilter, error) {
 	aipID, err := stringToUUIDPtr(payload.AipID)
 	if err != nil {
 		return nil, fmt.Errorf("aip_id: %v", err)
