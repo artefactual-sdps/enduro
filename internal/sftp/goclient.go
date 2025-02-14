@@ -84,7 +84,7 @@ func (c *GoClient) UploadFile(ctx context.Context, src io.Reader, dest string) (
 
 // UploadDirectory asynchronously copies a directory to dest over an SFTP connection.
 //
-// When UploaDirectory is called it starts the upload in an asynchronous goroutine,
+// When UploadDirectory is called it starts the upload in an asynchronous goroutine,
 // then immediately returns the full remote path, and an AsyncUpload struct that
 // provides access to the upload status and progress.
 //
