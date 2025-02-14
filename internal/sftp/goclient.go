@@ -77,7 +77,7 @@ func (c *GoClient) UploadFile(ctx context.Context, src io.Reader, dest string) (
 
 	// Asynchronously upload file.
 	upload := NewAsyncUpload(conn)
-	go remoteCopy(ctx, &upload, src, remotePath, true)
+	go uploadFile(ctx, src, remotePath, &upload)
 
 	return remotePath, &upload, nil
 }
@@ -108,6 +108,14 @@ func (c *GoClient) UploadDirectory(ctx context.Context, srcPath string) (string,
 	return sftp.Join(c.cfg.RemoteDir, transferDir), &upload, nil
 }
 
+func uploadFile(ctx context.Context, src io.Reader, remotePath string, upload *AsyncUploadImpl) {
+	defer upload.Close()
+
+	remoteCopy(ctx, upload, src, remotePath)
+
+	upload.Done() <- true
+}
+
 func uploadDirectory(ctx context.Context, srcPath, remoteDir string, upload *AsyncUploadImpl) {
 	defer upload.Close()
 
@@ -132,7 +140,7 @@ func uploadDirectory(ctx context.Context, srcPath, remoteDir string, upload *Asy
 			}
 			defer f.Close()
 
-			remoteCopy(ctx, upload, f, remotePath, false)
+			remoteCopy(ctx, upload, f, remotePath)
 		} else {
 			err = upload.conn.Client.MkdirAll(remotePath)
 			if err != nil {
@@ -175,11 +183,7 @@ func (c *GoClient) dial(ctx context.Context) (*connection, error) {
 // remoteCopy copies data from the src reader to a remote file at dest, and
 // updates upload progress asynchronously. Upload status and progress will be
 // sent to the upload struct via the `upload.Done()` and `upload.Error()` channels.
-func remoteCopy(ctx context.Context, upload *AsyncUploadImpl, src io.Reader, dest string, singleCopy bool) {
-	if singleCopy {
-		defer upload.Close()
-	}
-
+func remoteCopy(ctx context.Context, upload *AsyncUploadImpl, src io.Reader, dest string) {
 	// Note: Some SFTP servers don't support O_RDWR mode.
 	w, err := upload.conn.OpenFile(dest, (os.O_WRONLY | os.O_CREATE | os.O_TRUNC))
 	if err != nil {
@@ -197,10 +201,6 @@ func remoteCopy(ctx context.Context, upload *AsyncUploadImpl, src io.Reader, des
 	_, err = io.Copy(contextio.NewWriter(ctx, w), src)
 	if err != nil {
 		upload.Err() <- fmt.Errorf("remote copy: %v", err)
-	}
-
-	if singleCopy {
-		upload.Done() <- true
 	}
 }
 
