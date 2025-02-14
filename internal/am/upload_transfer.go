@@ -67,14 +67,7 @@ func (a *UploadTransferActivity) Execute(
 	if info.IsDir() {
 		path, upload, err = a.client.UploadDirectory(ctx, params.SourcePath)
 		if err != nil {
-			e := fmt.Errorf("%s: %v", UploadTransferActivityName, err)
-
-			switch err.(type) {
-			case *sftp.AuthError:
-				return nil, temporal.NewNonRetryableError(e)
-			default:
-				return nil, e
-			}
+			return nil, formatUploadError(err)
 		}
 
 		// Determine total size of files in directory.
@@ -101,14 +94,7 @@ func (a *UploadTransferActivity) Execute(
 
 		path, upload, err = a.client.UploadFile(ctx, src, filename)
 		if err != nil {
-			e := fmt.Errorf("%s: %v", UploadTransferActivityName, err)
-
-			switch err.(type) {
-			case *sftp.AuthError:
-				return nil, temporal.NewNonRetryableError(e)
-			default:
-				return nil, e
-			}
+			return nil, formatUploadError(err)
 		}
 
 		fi, err := src.Stat()
@@ -152,5 +138,16 @@ func (a *UploadTransferActivity) Heartbeat(ctx context.Context, upload sftp.Asyn
 				fmt.Sprintf("Uploaded %d bytes of %d.", upload.Bytes(), fileSize),
 			)
 		}
+	}
+}
+
+func formatUploadError(err error) error {
+	e := fmt.Errorf("%s: %v", UploadTransferActivityName, err)
+
+	switch err.(type) {
+	case *sftp.AuthError:
+		return temporal.NewNonRetryableError(e)
+	default:
+		return e
 	}
 }
