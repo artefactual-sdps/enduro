@@ -3,6 +3,7 @@ package am
 import (
 	"context"
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"time"
@@ -70,13 +71,17 @@ func (a *UploadTransferActivity) Execute(
 			return nil, formatUploadError(err)
 		}
 
-		// Determine total size of files in directory.
-		err := filepath.Walk(params.SourcePath, func(_ string, info os.FileInfo, err error) error {
+		err := filepath.WalkDir(params.SourcePath, func(path string, d fs.DirEntry, err error) error {
 			if err != nil {
 				return err
 			}
 
-			if !info.IsDir() {
+			if !d.IsDir() {
+				info, err = os.Stat(path)
+				if err != nil {
+					return err
+				}
+
 				size += info.Size()
 			}
 
