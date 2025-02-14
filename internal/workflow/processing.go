@@ -881,7 +881,11 @@ func (w *ProcessingWorkflow) transferA3m(
 	return nil
 }
 
-func (w *ProcessingWorkflow) transferAM(ctx temporalsdk_workflow.Context, tinfo *TransferInfo, cleanup *cleanupRegistry) error {
+func (w *ProcessingWorkflow) transferAM(
+	ctx temporalsdk_workflow.Context,
+	tinfo *TransferInfo,
+	cleanup *cleanupRegistry,
+) error {
 	var err error
 
 	// Bag PIP if it's not already a bag.
