@@ -807,7 +807,7 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	s.env.OnActivity(
 		removepaths.Name,
 		sessionCtx,
-		&removepaths.Params{Paths: []string{tempPath}},
+		&removepaths.Params{Paths: []string{tempPath, extractPath + "/transfer.zip"}},
 	).Return(&removepaths.Result{}, nil)
 	s.env.OnActivity(
 		activities.DeleteOriginalActivityName,
@@ -1613,7 +1613,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPAM() {
 	s.env.OnActivity(
 		removepaths.Name,
 		sessionCtx,
-		&removepaths.Params{Paths: []string{tempPath}},
+		&removepaths.Params{Paths: []string{tempPath, extractPath + "/transfer.zip"}},
 	).Return(&removepaths.Result{}, nil)
 
 	s.env.ExecuteWorkflow(

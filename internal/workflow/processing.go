@@ -525,7 +525,7 @@ func (w *ProcessingWorkflow) SessionHandler(
 	{
 		var err error
 		if w.cfg.Preservation.TaskQueue == temporal.AmWorkerTaskQueue {
-			err = w.transferAM(sessCtx, tinfo)
+			err = w.transferAM(sessCtx, tinfo, &cleanup)
 		} else {
 			err = w.transferA3m(sessCtx, tinfo, &cleanup)
 		}
@@ -881,7 +881,7 @@ func (w *ProcessingWorkflow) transferA3m(
 	return nil
 }
 
-func (w *ProcessingWorkflow) transferAM(ctx temporalsdk_workflow.Context, tinfo *TransferInfo) error {
+func (w *ProcessingWorkflow) transferAM(ctx temporalsdk_workflow.Context, tinfo *TransferInfo, cleanup *cleanupRegistry) error {
 	var err error
 
 	// Bag PIP if it's not already a bag.
@@ -926,6 +926,8 @@ func (w *ProcessingWorkflow) transferAM(ctx temporalsdk_workflow.Context, tinfo 
 		tinfo.SendToFailed.Path = zipResult.Path
 		tinfo.SendToFailed.ActivityName = activities.SendToFailedPIPsName
 		sourcePath = zipResult.Path
+
+		cleanup.registerPath(zipResult.Path)
 	} else {
 		sourcePath = tinfo.TempPath
 	}
