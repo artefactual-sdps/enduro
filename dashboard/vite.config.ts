@@ -45,6 +45,10 @@ export default defineConfig({
   css: {
     preprocessorOptions: {
       scss: {
+        // Bootstrap v5.3.3 doesn't support the SASS modern API
+        // (https://github.com/twbs/bootstrap/issues/40962), so we need to use
+        // legacy mode.
+        api: "legacy",
         additionalData: `@import "src/styles/bootstrap-base.scss";`,
         // TODO: remove this line once bootstrap v5.3.4 is released.
         silenceDeprecations: ["mixed-decls"],
