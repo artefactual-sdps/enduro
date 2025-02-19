@@ -49,3 +49,18 @@ a:not(.btn),
 .accordion-button.collapsed .h4 {
   color: $dark;
 }
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease-in;
+}
+
+.fade-enter-to,
+.fade-leave-from {
+  opacity: 1;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
