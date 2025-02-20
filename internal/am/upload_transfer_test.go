@@ -49,7 +49,7 @@ func TestUploadTransferActivity(t *testing.T) {
 				upload := sftp_fake.NewMockAsyncUpload(ctrl)
 
 				client.EXPECT().
-					Upload(
+					UploadFile(
 						mockutil.Context(),
 						gomock.AssignableToTypeOf(fp),
 						filename,
@@ -81,7 +81,7 @@ func TestUploadTransferActivity(t *testing.T) {
 			params: am.UploadTransferActivityParams{
 				SourcePath: td.Join("missing"),
 			},
-			wantErr: fmt.Sprintf("activity error (type: UploadTransferActivity, scheduledEventID: 0, startedEventID: 0, identity: ): UploadTransferActivity: open %s: no such file or directory", td.Join("missing")),
+			wantErr: fmt.Sprintf("activity error (type: UploadTransferActivity, scheduledEventID: 0, startedEventID: 0, identity: ): UploadTransferActivity: stat %s: no such file or directory", td.Join("missing")),
 		},
 		{
 			name: "Retryable error when SSH connection fails",
@@ -93,7 +93,7 @@ func TestUploadTransferActivity(t *testing.T) {
 
 				client := sftp_fake.NewMockClient(ctrl)
 				client.EXPECT().
-					Upload(
+					UploadFile(
 						mockutil.Context(),
 						gomock.AssignableToTypeOf(fp),
 						filename,
@@ -118,7 +118,7 @@ func TestUploadTransferActivity(t *testing.T) {
 
 				client := sftp_fake.NewMockClient(ctrl)
 				client.EXPECT().
-					Upload(
+					UploadFile(
 						mockutil.Context(),
 						gomock.AssignableToTypeOf(fp),
 						filename,

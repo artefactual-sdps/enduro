@@ -9,6 +9,7 @@ import (
 	"log"
 	"net"
 	"os"
+	"path/filepath"
 	"reflect"
 	"strings"
 	"testing"
@@ -147,7 +148,7 @@ func startSFTPServer(t *testing.T) (string, string) {
 	return host, port
 }
 
-func TestUpload(t *testing.T) {
+func TestUploadFile(t *testing.T) {
 	t.Parallel()
 
 	host, port := startSFTPServer(t)
@@ -306,7 +307,7 @@ func TestUpload(t *testing.T) {
 			tc.cfg.RemoteDir = remoteDir.Path()
 
 			client := sftp.NewGoClient(logr.Discard(), tc.cfg)
-			remotePath, upload, err := client.Upload(context.Background(), tc.params.src, tc.params.dest)
+			remotePath, upload, err := client.UploadFile(context.Background(), tc.params.src, tc.params.dest)
 			if tc.wantErr != nil {
 				assert.Error(t, err, tc.wantErr.Error())
 				assert.Assert(t, reflect.TypeOf(err) == reflect.TypeOf(tc.wantErr))
@@ -321,6 +322,107 @@ func TestUpload(t *testing.T) {
 			case <-upload.Done():
 				assert.Equal(t, upload.Bytes(), tc.want.Bytes)
 				assert.Assert(t, tfs.Equal(remoteDir.Path(), tfs.Expected(t, tc.want.Paths...)))
+			case err = <-upload.Err():
+				t.Fatal(err)
+			}
+		})
+	}
+}
+
+func TestUploadDirectory(t *testing.T) {
+	t.Parallel()
+
+	testTransferDir := tfs.NewDir(t, "test_transfer",
+		tfs.WithFile("test.txt", "Testing 1-2-3"),
+		tfs.WithFile("test2.txt", "Testing 4-5-6-7"),
+	)
+
+	host, port := startSFTPServer(t)
+
+	type params struct {
+		src string
+	}
+
+	type test struct {
+		name      string
+		cfg       sftp.Config
+		params    params
+		wantBytes int64
+		wantErr   error
+	}
+	for _, tc := range []test{
+		{
+			name: "Uploads a directory using private key auth",
+			cfg: sftp.Config{
+				Host:           host,
+				Port:           port,
+				KnownHostsFile: knownHostsFile(t, host, port),
+				PrivateKey: sftp.PrivateKey{
+					Path: "./testdata/clientkeys/test_ed25519",
+				},
+			},
+			params: params{
+				src: testTransferDir.Path(),
+			},
+			wantBytes: 28,
+		},
+		{
+			name: "Uploads a file using private key + password auth",
+			cfg: sftp.Config{
+				Host:           host,
+				Port:           port,
+				KnownHostsFile: knownHostsFile(t, host, port),
+				PrivateKey: sftp.PrivateKey{
+					Path:       "./testdata/clientkeys/test_pass_rsa",
+					Passphrase: "Backpack-Spirits6-Bronzing",
+				},
+			},
+			params: params{
+				src: testTransferDir.Path(),
+			},
+			wantBytes: 28,
+		},
+		{
+			name: "Errors when the key passphrase is wrong",
+			cfg: sftp.Config{
+				Host:           host,
+				Port:           port,
+				KnownHostsFile: knownHostsFile(t, host, port),
+				PrivateKey: sftp.PrivateKey{
+					Path:       "./testdata/clientkeys/test_pass_rsa",
+					Passphrase: "wrong",
+				},
+			},
+			params: params{
+				src: testTransferDir.Path(),
+			},
+			wantErr: &sftp.AuthError{
+				Message: "ssh: parse private key with passphrase: x509: decryption password incorrect",
+			},
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			// Use a unique RemoteDir for each test.
+			remoteDir := tfs.NewDir(t, "sftp_test_remote")
+			tc.cfg.RemoteDir = remoteDir.Path()
+
+			client := sftp.NewGoClient(logr.Discard(), tc.cfg)
+			remotePath, upload, err := client.UploadDirectory(context.Background(), tc.params.src)
+			if tc.wantErr != nil {
+				assert.Error(t, err, tc.wantErr.Error())
+				assert.Assert(t, reflect.TypeOf(err) == reflect.TypeOf(tc.wantErr))
+				return
+			}
+			assert.NilError(t, err)
+
+			assert.Equal(t, remotePath, tc.cfg.RemoteDir+"/"+filepath.Base(tc.params.src))
+			assert.Equal(t, upload.Bytes(), int64(0)) // Upload hasn't started yet.
+
+			select {
+			case <-upload.Done():
+				assert.Equal(t, upload.Bytes(), tc.wantBytes)
 			case err = <-upload.Err():
 				t.Fatal(err)
 			}

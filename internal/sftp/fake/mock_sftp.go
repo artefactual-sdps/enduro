@@ -79,42 +79,82 @@ func (c *MockClientDeleteCall) DoAndReturn(f func(context.Context, string) error
 	return c
 }
 
-// Upload mocks base method.
-func (m *MockClient) Upload(arg0 context.Context, arg1 io.Reader, arg2 string) (string, sftp.AsyncUpload, error) {
+// UploadDirectory mocks base method.
+func (m *MockClient) UploadDirectory(arg0 context.Context, arg1 string) (string, sftp.AsyncUpload, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Upload", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "UploadDirectory", arg0, arg1)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(sftp.AsyncUpload)
 	ret2, _ := ret[2].(error)
 	return ret0, ret1, ret2
 }
 
-// Upload indicates an expected call of Upload.
-func (mr *MockClientMockRecorder) Upload(arg0, arg1, arg2 any) *MockClientUploadCall {
+// UploadDirectory indicates an expected call of UploadDirectory.
+func (mr *MockClientMockRecorder) UploadDirectory(arg0, arg1 any) *MockClientUploadDirectoryCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Upload", reflect.TypeOf((*MockClient)(nil).Upload), arg0, arg1, arg2)
-	return &MockClientUploadCall{Call: call}
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadDirectory", reflect.TypeOf((*MockClient)(nil).UploadDirectory), arg0, arg1)
+	return &MockClientUploadDirectoryCall{Call: call}
 }
 
-// MockClientUploadCall wrap *gomock.Call
-type MockClientUploadCall struct {
+// MockClientUploadDirectoryCall wrap *gomock.Call
+type MockClientUploadDirectoryCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockClientUploadCall) Return(arg0 string, arg1 sftp.AsyncUpload, arg2 error) *MockClientUploadCall {
+func (c *MockClientUploadDirectoryCall) Return(arg0 string, arg1 sftp.AsyncUpload, arg2 error) *MockClientUploadDirectoryCall {
 	c.Call = c.Call.Return(arg0, arg1, arg2)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockClientUploadCall) Do(f func(context.Context, io.Reader, string) (string, sftp.AsyncUpload, error)) *MockClientUploadCall {
+func (c *MockClientUploadDirectoryCall) Do(f func(context.Context, string) (string, sftp.AsyncUpload, error)) *MockClientUploadDirectoryCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockClientUploadCall) DoAndReturn(f func(context.Context, io.Reader, string) (string, sftp.AsyncUpload, error)) *MockClientUploadCall {
+func (c *MockClientUploadDirectoryCall) DoAndReturn(f func(context.Context, string) (string, sftp.AsyncUpload, error)) *MockClientUploadDirectoryCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
+// UploadFile mocks base method.
+func (m *MockClient) UploadFile(arg0 context.Context, arg1 io.Reader, arg2 string) (string, sftp.AsyncUpload, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UploadFile", arg0, arg1, arg2)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(sftp.AsyncUpload)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
+}
+
+// UploadFile indicates an expected call of UploadFile.
+func (mr *MockClientMockRecorder) UploadFile(arg0, arg1, arg2 any) *MockClientUploadFileCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadFile", reflect.TypeOf((*MockClient)(nil).UploadFile), arg0, arg1, arg2)
+	return &MockClientUploadFileCall{Call: call}
+}
+
+// MockClientUploadFileCall wrap *gomock.Call
+type MockClientUploadFileCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockClientUploadFileCall) Return(arg0 string, arg1 sftp.AsyncUpload, arg2 error) *MockClientUploadFileCall {
+	c.Call = c.Call.Return(arg0, arg1, arg2)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockClientUploadFileCall) Do(f func(context.Context, io.Reader, string) (string, sftp.AsyncUpload, error)) *MockClientUploadFileCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockClientUploadFileCall) DoAndReturn(f func(context.Context, io.Reader, string) (string, sftp.AsyncUpload, error)) *MockClientUploadFileCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

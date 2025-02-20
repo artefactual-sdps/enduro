@@ -19,6 +19,8 @@ type StartTransferActivityParams struct {
 	// Name of the transfer.
 	Name string
 
+	ZipPIP bool
+
 	// RelativePath is the PIP path relative to the Archivematica transfer
 	// source directory.
 	RelativePath string
@@ -55,9 +57,14 @@ func (a *StartTransferActivity) Execute(
 		processingConfig = "automated" // Default value.
 	}
 
+	transferType := "unzipped bag"
+	if opts.ZipPIP {
+		transferType = "zipped bag"
+	}
+
 	payload, resp, err := a.amps.Create(ctx, &amclient.PackageCreateRequest{
 		Name:             opts.Name,
-		Type:             "zipped bag",
+		Type:             transferType,
 		Path:             filepath.Join(a.cfg.TransferSourcePath, opts.RelativePath),
 		ProcessingConfig: processingConfig,
 		AutoApprove:      true,
