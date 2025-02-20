@@ -179,7 +179,8 @@ transferDeadline = "1h"
 # used.
 transferSourcePath = ""
 
-# transferType specifies the transfer type sent from Enduro to Archivematica.
+# zipPIP specifies whether or not a PIP should be zipped before being sent from
+# Enduro to Archivematica.
 zipPIP = true
 
 [am.sftp]
