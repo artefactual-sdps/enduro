@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"go.artefactual.dev/tools/temporal"
 	temporal_tools "go.artefactual.dev/tools/temporal"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
 
@@ -67,7 +68,7 @@ func (a *UploadTransferActivity) Execute(
 	if info.IsDir() {
 		path, upload, err = a.client.UploadDirectory(ctx, params.SourcePath)
 		if err != nil {
-			return nil, formatUploadError(err)
+			return nil, uploadError(err)
 		}
 
 		err := filepath.WalkDir(params.SourcePath, func(path string, d fs.DirEntry, err error) error {
@@ -98,7 +99,7 @@ func (a *UploadTransferActivity) Execute(
 
 		path, upload, err = a.client.UploadFile(ctx, src, filename)
 		if err != nil {
-			return nil, formatUploadError(err)
+			return nil, uploadError(err)
 		}
 
 		fi, err := src.Stat()
@@ -145,12 +146,12 @@ func (a *UploadTransferActivity) Heartbeat(ctx context.Context, upload sftp.Asyn
 	}
 }
 
-func formatUploadError(err error) error {
+func uploadError(err error) error {
 	e := fmt.Errorf("%s: %v", UploadTransferActivityName, err)
 
 	switch err.(type) {
 	case *sftp.AuthError:
-		return fmt.Errorf("%s: %v", UploadTransferActivityName, err)
+		return temporal.NewNonRetryableError(e)
 	default:
 		return e
 	}
