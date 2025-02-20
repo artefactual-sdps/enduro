@@ -3,7 +3,7 @@ site_url: "https://enduro.readthedocs.io"
 site_description: "Enduro SDPS documentation site."
 site_author: "Artefactual Systems Inc."
 repo_url: "https://github.com/artefactual-sdps/enduro"
-edit_uri: "blob/main/docs/src"
+edit_uri: "blob/main/docs/src/"
 docs_dir: "src"
 site_dir: "site"
 
