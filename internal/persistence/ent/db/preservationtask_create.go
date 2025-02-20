@@ -80,6 +80,12 @@ func (ptc *PreservationTaskCreate) SetPreservationActionID(i int) *PreservationT
 	return ptc
 }
 
+// SetID sets the "id" field.
+func (ptc *PreservationTaskCreate) SetID(i int) *PreservationTaskCreate {
+	ptc.mutation.SetID(i)
+	return ptc
+}
+
 // SetActionID sets the "action" edge to the PreservationAction entity by ID.
 func (ptc *PreservationTaskCreate) SetActionID(id int) *PreservationTaskCreate {
 	ptc.mutation.SetActionID(id)
@@ -162,8 +168,10 @@ func (ptc *PreservationTaskCreate) sqlSave(ctx context.Context) (*PreservationTa
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != _node.ID {
+		id := _spec.ID.Value.(int64)
+		_node.ID = int(id)
+	}
 	ptc.mutation.id = &_node.ID
 	ptc.mutation.done = true
 	return _node, nil
@@ -174,6 +182,10 @@ func (ptc *PreservationTaskCreate) createSpec() (*PreservationTask, *sqlgraph.Cr
 		_node = &PreservationTask{config: ptc.config}
 		_spec = sqlgraph.NewCreateSpec(preservationtask.Table, sqlgraph.NewFieldSpec(preservationtask.FieldID, field.TypeInt))
 	)
+	if id, ok := ptc.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = id
+	}
 	if value, ok := ptc.mutation.TaskID(); ok {
 		_spec.SetField(preservationtask.FieldTaskID, field.TypeUUID, value)
 		_node.TaskID = value
@@ -262,7 +274,7 @@ func (ptcb *PreservationTaskCreateBulk) Save(ctx context.Context) ([]*Preservati
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
+				if specs[i].ID.Value != nil && nodes[i].ID == 0 {
 					id := specs[i].ID.Value.(int64)
 					nodes[i].ID = int(id)
 				}

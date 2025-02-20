@@ -11,13 +11,13 @@ import (
 var (
 	// PreservationActionColumns holds the columns for the "preservation_action" table.
 	PreservationActionColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "id", Type: field.TypeInt, Increment: true, SchemaType: map[string]string{"mysql": "INT UNSIGNED"}},
 		{Name: "workflow_id", Type: field.TypeString, Size: 255},
 		{Name: "type", Type: field.TypeInt8},
 		{Name: "status", Type: field.TypeInt8},
-		{Name: "started_at", Type: field.TypeTime, Nullable: true},
-		{Name: "completed_at", Type: field.TypeTime, Nullable: true},
-		{Name: "sip_id", Type: field.TypeInt},
+		{Name: "started_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"mysql": "TIMESTAMP(6)"}},
+		{Name: "completed_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"mysql": "TIMESTAMP(6)"}},
+		{Name: "sip_id", Type: field.TypeInt, SchemaType: map[string]string{"mysql": "INT UNSIGNED"}},
 	}
 	// PreservationActionTable holds the schema information for the "preservation_action" table.
 	PreservationActionTable = &schema.Table{
@@ -35,14 +35,14 @@ var (
 	}
 	// PreservationTaskColumns holds the columns for the "preservation_task" table.
 	PreservationTaskColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "task_id", Type: field.TypeUUID},
+		{Name: "id", Type: field.TypeInt, Increment: true, SchemaType: map[string]string{"mysql": "INT UNSIGNED"}},
+		{Name: "task_id", Type: field.TypeUUID, SchemaType: map[string]string{"mysql": "VARCHAR(36)"}},
 		{Name: "name", Type: field.TypeString, Size: 2048},
 		{Name: "status", Type: field.TypeInt8},
-		{Name: "started_at", Type: field.TypeTime, Nullable: true},
-		{Name: "completed_at", Type: field.TypeTime, Nullable: true},
+		{Name: "started_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"mysql": "TIMESTAMP(6)"}},
+		{Name: "completed_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"mysql": "TIMESTAMP(6)"}},
 		{Name: "note", Type: field.TypeString, Size: 2147483647},
-		{Name: "preservation_action_id", Type: field.TypeInt},
+		{Name: "preservation_action_id", Type: field.TypeInt, SchemaType: map[string]string{"mysql": "INT UNSIGNED"}},
 	}
 	// PreservationTaskTable holds the schema information for the "preservation_task" table.
 	PreservationTaskTable = &schema.Table{
@@ -60,16 +60,16 @@ var (
 	}
 	// SipColumns holds the columns for the "sip" table.
 	SipColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "id", Type: field.TypeInt, Increment: true, SchemaType: map[string]string{"mysql": "INT UNSIGNED"}},
 		{Name: "name", Type: field.TypeString, Size: 2048},
 		{Name: "workflow_id", Type: field.TypeString, Size: 255},
-		{Name: "run_id", Type: field.TypeUUID},
-		{Name: "aip_id", Type: field.TypeUUID, Nullable: true},
-		{Name: "location_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "run_id", Type: field.TypeUUID, SchemaType: map[string]string{"mysql": "VARCHAR(36)"}},
+		{Name: "aip_id", Type: field.TypeUUID, Nullable: true, SchemaType: map[string]string{"mysql": "VARCHAR(36)"}},
+		{Name: "location_id", Type: field.TypeUUID, Nullable: true, SchemaType: map[string]string{"mysql": "VARCHAR(36)"}},
 		{Name: "status", Type: field.TypeInt8},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "started_at", Type: field.TypeTime, Nullable: true},
-		{Name: "completed_at", Type: field.TypeTime, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime, Default: map[string]schema.Expr{"mysql": "CURRENT_TIMESTAMP(6)"}, SchemaType: map[string]string{"mysql": "TIMESTAMP(6)"}},
+		{Name: "started_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"mysql": "TIMESTAMP(6)"}},
+		{Name: "completed_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"mysql": "TIMESTAMP(6)"}},
 	}
 	// SipTable holds the schema information for the "sip" table.
 	SipTable = &schema.Table{
@@ -123,13 +123,16 @@ var (
 func init() {
 	PreservationActionTable.ForeignKeys[0].RefTable = SipTable
 	PreservationActionTable.Annotation = &entsql.Annotation{
-		Table: "preservation_action",
+		Table:     "preservation_action",
+		Collation: "utf8mb4_0900_ai_ci",
 	}
 	PreservationTaskTable.ForeignKeys[0].RefTable = PreservationActionTable
 	PreservationTaskTable.Annotation = &entsql.Annotation{
-		Table: "preservation_task",
+		Table:     "preservation_task",
+		Collation: "utf8mb4_0900_ai_ci",
 	}
 	SipTable.Annotation = &entsql.Annotation{
-		Table: "sip",
+		Table:     "sip",
+		Collation: "utf8mb4_0900_ai_ci",
 	}
 }

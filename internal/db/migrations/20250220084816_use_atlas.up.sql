@@ -1,0 +1,6 @@
+-- modify "sip" table
+ALTER TABLE `sip` MODIFY COLUMN `created_at` timestamp(6) NOT NULL DEFAULT (now(6)), DROP INDEX `package_aip_id_idx`, DROP INDEX `package_created_at_idx`, DROP INDEX `package_location_id_idx`, DROP INDEX `package_name_idx`, DROP INDEX `package_started_at_idx`, DROP INDEX `package_status_idx`, ADD INDEX `sip_aip_id_idx` (`aip_id`), ADD INDEX `sip_created_at_idx` (`created_at`), ADD INDEX `sip_location_id_idx` (`location_id`), ADD INDEX `sip_name_idx` (`name` (50)), ADD INDEX `sip_started_at_idx` (`started_at`), ADD INDEX `sip_status_idx` (`status`);
+-- modify "preservation_action" table
+ALTER TABLE `preservation_action` ADD INDEX `preservation_action_sip_preservation_actions` (`sip_id`), DROP FOREIGN KEY `preservation_action_ibfk_1`, ADD CONSTRAINT `preservation_action_sip_preservation_actions` FOREIGN KEY (`sip_id`) REFERENCES `sip` (`id`) ON UPDATE NO ACTION ON DELETE CASCADE;
+-- modify "preservation_task" table
+ALTER TABLE `preservation_task` ADD INDEX `preservation_task_preservation_action_tasks` (`preservation_action_id`), DROP FOREIGN KEY `preservation_task_ibfk_1`, ADD CONSTRAINT `preservation_task_preservation_action_tasks` FOREIGN KEY (`preservation_action_id`) REFERENCES `preservation_action` (`id`) ON UPDATE NO ACTION ON DELETE CASCADE;

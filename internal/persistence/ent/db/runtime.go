@@ -18,19 +18,19 @@ func init() {
 	preservationactionFields := schema.PreservationAction{}.Fields()
 	_ = preservationactionFields
 	// preservationactionDescSipID is the schema descriptor for sip_id field.
-	preservationactionDescSipID := preservationactionFields[5].Descriptor()
+	preservationactionDescSipID := preservationactionFields[6].Descriptor()
 	// preservationaction.SipIDValidator is a validator for the "sip_id" field. It is called by the builders before save.
 	preservationaction.SipIDValidator = preservationactionDescSipID.Validators[0].(func(int) error)
 	preservationtaskFields := schema.PreservationTask{}.Fields()
 	_ = preservationtaskFields
 	// preservationtaskDescPreservationActionID is the schema descriptor for preservation_action_id field.
-	preservationtaskDescPreservationActionID := preservationtaskFields[6].Descriptor()
+	preservationtaskDescPreservationActionID := preservationtaskFields[7].Descriptor()
 	// preservationtask.PreservationActionIDValidator is a validator for the "preservation_action_id" field. It is called by the builders before save.
 	preservationtask.PreservationActionIDValidator = preservationtaskDescPreservationActionID.Validators[0].(func(int) error)
 	sipFields := schema.SIP{}.Fields()
 	_ = sipFields
 	// sipDescCreatedAt is the schema descriptor for created_at field.
-	sipDescCreatedAt := sipFields[6].Descriptor()
+	sipDescCreatedAt := sipFields[7].Descriptor()
 	// sip.DefaultCreatedAt holds the default value on creation for the created_at field.
 	sip.DefaultCreatedAt = sipDescCreatedAt.Default.(func() time.Time)
 }

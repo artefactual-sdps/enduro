@@ -74,6 +74,12 @@ func (pac *PreservationActionCreate) SetSipID(i int) *PreservationActionCreate {
 	return pac
 }
 
+// SetID sets the "id" field.
+func (pac *PreservationActionCreate) SetID(i int) *PreservationActionCreate {
+	pac.mutation.SetID(i)
+	return pac
+}
+
 // SetSip sets the "sip" edge to the SIP entity.
 func (pac *PreservationActionCreate) SetSip(s *SIP) *PreservationActionCreate {
 	return pac.SetSipID(s.ID)
@@ -162,8 +168,10 @@ func (pac *PreservationActionCreate) sqlSave(ctx context.Context) (*Preservation
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != _node.ID {
+		id := _spec.ID.Value.(int64)
+		_node.ID = int(id)
+	}
 	pac.mutation.id = &_node.ID
 	pac.mutation.done = true
 	return _node, nil
@@ -174,6 +182,10 @@ func (pac *PreservationActionCreate) createSpec() (*PreservationAction, *sqlgrap
 		_node = &PreservationAction{config: pac.config}
 		_spec = sqlgraph.NewCreateSpec(preservationaction.Table, sqlgraph.NewFieldSpec(preservationaction.FieldID, field.TypeInt))
 	)
+	if id, ok := pac.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = id
+	}
 	if value, ok := pac.mutation.WorkflowID(); ok {
 		_spec.SetField(preservationaction.FieldWorkflowID, field.TypeString, value)
 		_node.WorkflowID = value
@@ -274,7 +286,7 @@ func (pacb *PreservationActionCreateBulk) Save(ctx context.Context) ([]*Preserva
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
+				if specs[i].ID.Value != nil && nodes[i].ID == 0 {
 					id := specs[i].ID.Value.(int64)
 					nodes[i].ID = int(id)
 				}

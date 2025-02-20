@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/preservationaction"
@@ -116,6 +117,12 @@ func (sc *SIPCreate) SetNillableCompletedAt(t *time.Time) *SIPCreate {
 	return sc
 }
 
+// SetID sets the "id" field.
+func (sc *SIPCreate) SetID(i int) *SIPCreate {
+	sc.mutation.SetID(i)
+	return sc
+}
+
 // AddPreservationActionIDs adds the "preservation_actions" edge to the PreservationAction entity by IDs.
 func (sc *SIPCreate) AddPreservationActionIDs(ids ...int) *SIPCreate {
 	sc.mutation.AddPreservationActionIDs(ids...)
@@ -186,8 +193,11 @@ func (sc *SIPCreate) check() error {
 	if _, ok := sc.mutation.Status(); !ok {
 		return &ValidationError{Name: "status", err: errors.New(`db: missing required field "SIP.status"`)}
 	}
-	if _, ok := sc.mutation.CreatedAt(); !ok {
-		return &ValidationError{Name: "created_at", err: errors.New(`db: missing required field "SIP.created_at"`)}
+	switch sc.driver.Dialect() {
+	case dialect.Postgres, dialect.SQLite:
+		if _, ok := sc.mutation.CreatedAt(); !ok {
+			return &ValidationError{Name: "created_at", err: errors.New(`db: missing required field "SIP.created_at"`)}
+		}
 	}
 	return nil
 }
@@ -203,8 +213,10 @@ func (sc *SIPCreate) sqlSave(ctx context.Context) (*SIP, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != _node.ID {
+		id := _spec.ID.Value.(int64)
+		_node.ID = int(id)
+	}
 	sc.mutation.id = &_node.ID
 	sc.mutation.done = true
 	return _node, nil
@@ -215,6 +227,10 @@ func (sc *SIPCreate) createSpec() (*SIP, *sqlgraph.CreateSpec) {
 		_node = &SIP{config: sc.config}
 		_spec = sqlgraph.NewCreateSpec(sip.Table, sqlgraph.NewFieldSpec(sip.FieldID, field.TypeInt))
 	)
+	if id, ok := sc.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = id
+	}
 	if value, ok := sc.mutation.Name(); ok {
 		_spec.SetField(sip.FieldName, field.TypeString, value)
 		_node.Name = value
@@ -315,7 +331,7 @@ func (scb *SIPCreateBulk) Save(ctx context.Context) ([]*SIP, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
+				if specs[i].ID.Value != nil && nodes[i].ID == 0 {
 					id := specs[i].ID.Value.(int64)
 					nodes[i].ID = int(id)
 				}

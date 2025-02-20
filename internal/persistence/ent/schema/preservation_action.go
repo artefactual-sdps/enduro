@@ -2,6 +2,7 @@ package schema
 
 import (
 	"entgo.io/ent"
+	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/edge"
@@ -16,13 +17,21 @@ type PreservationAction struct {
 // Annotations of the PreservationAction.
 func (PreservationAction) Annotations() []schema.Annotation {
 	return []schema.Annotation{
-		entsql.Annotation{Table: "preservation_action"},
+		entsql.Annotation{
+			Table:     "preservation_action",
+			Collation: "utf8mb4_0900_ai_ci",
+		},
 	}
 }
 
 // Fields of the PreservationAction.
 func (PreservationAction) Fields() []ent.Field {
 	return []ent.Field{
+		field.Int("id").
+			SchemaType(map[string]string{
+				dialect.MySQL: "INT UNSIGNED",
+			}).
+			Immutable(),
 		field.String("workflow_id").
 			Annotations(entsql.Annotation{
 				Size: 255,
@@ -30,8 +39,14 @@ func (PreservationAction) Fields() []ent.Field {
 		field.Int8("type"),
 		field.Int8("status"),
 		field.Time("started_at").
+			SchemaType(map[string]string{
+				dialect.MySQL: "TIMESTAMP(6)",
+			}).
 			Optional(),
 		field.Time("completed_at").
+			SchemaType(map[string]string{
+				dialect.MySQL: "TIMESTAMP(6)",
+			}).
 			Optional(),
 		field.Int("sip_id").
 			Positive(),

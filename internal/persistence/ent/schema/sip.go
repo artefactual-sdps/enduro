@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"entgo.io/ent"
+	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/edge"
@@ -20,13 +21,21 @@ type SIP struct {
 // Annotations of the SIP.
 func (SIP) Annotations() []schema.Annotation {
 	return []schema.Annotation{
-		entsql.Annotation{Table: "sip"},
+		entsql.Annotation{
+			Table:     "sip",
+			Collation: "utf8mb4_0900_ai_ci",
+		},
 	}
 }
 
 // Fields of the SIP.
 func (SIP) Fields() []ent.Field {
 	return []ent.Field{
+		field.Int("id").
+			SchemaType(map[string]string{
+				dialect.MySQL: "INT UNSIGNED",
+			}).
+			Immutable(),
 		field.String("name").
 			Annotations(entsql.Annotation{
 				Size: 2048,
@@ -35,18 +44,40 @@ func (SIP) Fields() []ent.Field {
 			Annotations(entsql.Annotation{
 				Size: 255,
 			}),
-		field.UUID("run_id", uuid.UUID{}),
+		field.UUID("run_id", uuid.UUID{}).
+			SchemaType(map[string]string{
+				dialect.MySQL: "VARCHAR(36)",
+			}),
 		field.UUID("aip_id", uuid.UUID{}).
+			SchemaType(map[string]string{
+				dialect.MySQL: "VARCHAR(36)",
+			}).
 			Optional(),
 		field.UUID("location_id", uuid.UUID{}).
+			SchemaType(map[string]string{
+				dialect.MySQL: "VARCHAR(36)",
+			}).
 			Optional(),
 		field.Int8("status"),
 		field.Time("created_at").
+			SchemaType(map[string]string{
+				dialect.MySQL: "TIMESTAMP(6)",
+			}).
+			Annotations(
+				entsql.DefaultExprs(map[string]string{
+					dialect.MySQL: "CURRENT_TIMESTAMP(6)",
+				})).
 			Immutable().
 			Default(time.Now),
 		field.Time("started_at").
+			SchemaType(map[string]string{
+				dialect.MySQL: "TIMESTAMP(6)",
+			}).
 			Optional(),
 		field.Time("completed_at").
+			SchemaType(map[string]string{
+				dialect.MySQL: "TIMESTAMP(6)",
+			}).
 			Optional(),
 	}
 }
