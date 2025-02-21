@@ -1,7 +1,15 @@
 <script setup lang="ts">
-import { onMounted, ref, useTemplateRef } from "vue";
+import VueDatePicker from "@vuepic/vue-datepicker";
+import type { ModelValue } from "@vuepic/vue-datepicker";
+import "@vuepic/vue-datepicker/dist/main.css";
+import Dropdown from "bootstrap/js/dist/dropdown";
+import { onMounted, ref, watch } from "vue";
 
-const emit = defineEmits<{ change: [field: string, value: string] }>();
+import IconCloseLine from "~icons/clarity/close-line";
+
+const emit = defineEmits<{
+  change: [name: string, start: string, end: string];
+}>();
 
 type option = {
   value: string;
@@ -9,7 +17,7 @@ type option = {
 };
 
 const options: option[] = [
-  { value: "", label: "Any time" },
+  { value: "", label: "Select a time range" },
   { value: "3h", label: "The last 3 hours" },
   { value: "6h", label: "The last 6 hours" },
   { value: "12h", label: "The last 12 hours" },
@@ -19,55 +27,84 @@ const options: option[] = [
 ];
 
 const props = defineProps<{
-  fieldname: string;
+  name: string;
+  label: string;
 }>();
 
-const label = ref("Started");
-const selected = ref(options[0]);
-const dropdown = useTemplateRef("date-filter");
+const el = ref<HTMLElement | null>(null);
+const dropdown = ref<Dropdown | null>(null);
+const defaultLabel = props.label || "Time";
+const btnLabel = ref(defaultLabel);
+const selectedPreset = ref("");
+const startTime = ref<Date | null>(null);
+const endTime = ref<Date | null>(null);
 
 onMounted(() => {
-  if (dropdown.value) {
-    dropdown.value.style.display = "none";
-  }
+  if (el.value) dropdown.value = new Dropdown(el.value);
 });
 
-const toggle = () => {
-  if (dropdown.value) {
-    if (dropdown.value.style.display == "none") {
-      dropdown.value.style.display = "block";
-    } else if (dropdown.value.style.display == "block") {
-      dropdown.value.style.display = "none";
-    }
-  }
-};
-
-const handleChange = (opt: option) => {
-  selected.value = opt;
-
-  if (opt.value === "") {
-    label.value = "Started";
-  } else {
-    label.value = "Started: " + opt.label;
+watch(selectedPreset, async (newValue) => {
+  let sel = options.find((o) => o.value == newValue);
+  if (!sel || sel.value === "") {
+    return;
   }
 
-  toggle();
-  emit("change", props.fieldname, earliestTimeFromOption(opt));
+  btnLabel.value = defaultLabel + ": " + sel.value;
+  startTime.value = earliestTimeFromOption(sel.value);
+  endTime.value = null;
+
+  emitChange();
+});
+
+const emitChange = () => {
+  emit(
+    "change",
+    props.name,
+    formatDate(startTime.value),
+    formatDate(endTime.value),
+  );
 };
 
-const earliestTimeFromOption = (opt: option) => {
-  const formatDate = (date: Date) => {
-    let t = date.toISOString();
-    t = t.split(".")[0] + "Z"; // remove milliseconds.
-    return t;
-  };
+const handleCustomTimeChange = () => {
+  btnLabel.value = defaultLabel + ": Custom";
+  selectedPreset.value = "";
 
+  emitChange();
+};
+
+const handleStartChange = (modelData: ModelValue) => {
+  startTime.value = modelData as Date;
+  handleCustomTimeChange();
+};
+
+const handleEndChange = (modelData: ModelValue) => {
+  endTime.value = modelData as Date;
+  handleCustomTimeChange();
+};
+
+const reset = () => {
+  btnLabel.value = defaultLabel;
+  selectedPreset.value = "";
+  startTime.value = null;
+  endTime.value = null;
+
+  emitChange();
+};
+
+const formatDate = (date: Date | null) => {
+  if (!date) return "";
+  let t = date.toISOString();
+  t = t.split(".")[0] + "Z"; // remove milliseconds.
+  return t;
+};
+
+const earliestTimeFromOption = (value: string) => {
   // convert hours and days to milliseconds.
   const hour = 60 * 60 * 1000;
   const day = 24 * hour;
 
   let start = new Date();
-  switch (opt.value) {
+  switch (value) {
     case "3h":
       start = new Date(Date.now() - 3 * hour);
       break;
@@ -87,30 +124,84 @@ const earliestTimeFromOption = (opt: option) => {
       start = new Date(Date.now() - 7 * day);
       break;
     default:
-      return "";
+      return new Date(0);
   }
 
-  return formatDate(start);
+  return start;
 };
 </script>
 
 <template>
-  <div class="dropdown">
+  <div class="dropdown" ref="el">
     <button
-      @click="toggle"
+      :id="'tdd-' + props.name + '-toggle'"
       class="btn btn-primary dropdown-toggle"
       type="button"
       data-bs-toggle="dropdown"
       aria-expanded="false"
     >
-      {{ label }}
+      {{ btnLabel }}
     </button>
-    <ul ref="date-filter" class="dropdown-menu">
-      <li v-for="item in options" :key="item.value">
-        <a class="dropdown-item" href="#" @click.prevent="handleChange(item)">{{
-          item.label
-        }}</a>
-      </li>
-    </ul>
+    <button
+      :id="'tdd-' + props.name + '-clear'"
+      @click="reset"
+      class="btn btn-secondary"
+      type="reset"
+      aria-label="Clear time filter"
+      v-show="startTime !== null || endTime !== null"
+    >
+      <IconCloseLine />
+    </button>
+    <div :id="'tdd-' + props.name + '-menu'" class="dropdown-menu p-3">
+      <h5>Preset range</h5>
+      <select
+        :id="'tdd-' + props.name + '-preset'"
+        name="preset-times"
+        class="form-select"
+        aria-label="Select a time range"
+        v-model="selectedPreset"
+      >
+        <option
+          v-for="item in options"
+          :key="item.value"
+          :value="item.value"
+          :selected="item.value == selectedPreset"
+          :disabled="item.value == ''"
+        >
+          {{ item.label }}
+        </option>
+      </select>
+      <hr />
+      <h5>Custom range</h5>
+      <div>
+        <label :for="'tdd-' + props.name + '-start-input'">From</label>
+        <VueDatePicker
+          time-picker-inline
+          :id="'tdd-' + props.name + '-start'"
+          :name="'tdd-' + props.name + '-start-input'"
+          v-model="startTime"
+          data-test="startTime"
+          placeholder="Start time"
+          @update:model-value="handleStartChange"
+        />
+      </div>
+      <div>
+        <label :for="'tdd-' + props.name + '-end-input'">To</label>
+        <VueDatePicker
+          time-picker-inline
+          :id="'tdd-' + props.name + '-end'"
+          :name="'tdd-' + props.name + '-end-input'"
+          v-model="endTime"
+          placeholder="End time"
+          @update:model-value="handleEndChange"
+        />
+      </div>
+    </div>
   </div>
 </template>
+
+<style lang="scss" scoped>
+.dropdown-menu {
+  width: 300px;
+}
+</style>

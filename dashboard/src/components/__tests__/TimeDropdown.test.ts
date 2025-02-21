@@ -1,114 +1,92 @@
-import { mount } from "@vue/test-utils";
+import { flushPromises, mount } from "@vue/test-utils";
+import VueDatePicker from "@vuepic/vue-datepicker";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { ref } from "vue";
 
 import TimeDropdown from "../TimeDropdown.vue";
 
-const changeEvent = ref<{ field: string; value: string } | null>(null);
-
-const handleChange = (field: string, value: string) => {
-  changeEvent.value = { field, value };
-};
-
 describe("TimeDropdown.vue", () => {
+  let wrapper: ReturnType<typeof mount>;
+
   beforeEach(() => {
     vi.useFakeTimers();
+    wrapper = mount(TimeDropdown, {
+      attachTo: document.body,
+      props: {
+        name: "createdAt",
+        label: "Started",
+      },
+    });
   });
 
   afterEach(() => {
     vi.useRealTimers();
+    wrapper.unmount();
   });
 
-  it("renders correctly", () => {
-    const wrapper = mount(TimeDropdown, {
-      props: {
-        fieldname: "testField",
-        onChange: handleChange,
-      },
-    });
-    expect(wrapper.exists()).toBe(true);
-  });
-
-  it("initializes with correct default values", () => {
-    const wrapper = mount(TimeDropdown, {
-      props: {
-        fieldname: "testField",
-        onChange: handleChange,
-      },
-    });
-    const button = wrapper.find("button");
-    expect(button.text()).toBe("Started");
+  it("initializes with correct default values", async () => {
+    expect(wrapper.find(".dropdown-toggle").text()).toBe("Started");
   });
 
   it.each([
-    [0, ""], // Any time (default).
-    [1, "2025-01-01T09:00:00Z"], // Last 3 hours.
-    [2, "2025-01-01T06:00:00Z"], // Last 6 hours.
-    [3, "2025-01-01T00:00:00Z"], // Last 12 hours.
-    [4, "2024-12-31T12:00:00Z"], // Last 24 hours.
-    [5, "2024-12-29T12:00:00Z"], // Last 3 days.
-    [6, "2024-12-25T12:00:00Z"], // Last 7 days.
-  ])("emits the correct event when a date is selected", async (index, want) => {
+    ["3h", "2025-01-01T09:00:00Z"], // Last 3 hours.
+    ["6h", "2025-01-01T06:00:00Z"], // Last 6 hours.
+    ["12h", "2025-01-01T00:00:00Z"], // Last 12 hours.
+    ["24h", "2024-12-31T12:00:00Z"], // Last 24 hours.
+    ["3d", "2024-12-29T12:00:00Z"], // Last 3 days.
+    ["7d", "2024-12-25T12:00:00Z"], // Last 7 days.
+  ])("emits the correct event when a date is selected", async (value, want) => {
     // set the test time to noon on 2025-01-01 (UTC).
     const date = new Date(Date.UTC(2025, 0, 1, 12, 0, 0));
     vi.setSystemTime(date);
 
-    const wrapper = mount(TimeDropdown, {
-      props: {
-        fieldname: "testField",
-        onChange: handleChange,
-      },
-    });
+    await wrapper.find("select").setValue(value);
 
-    const options = wrapper.findAll(".dropdown-item");
-    await options[index].trigger("click");
-    expect(changeEvent.value).toEqual({
-      field: "testField",
-      value: want,
-    });
+    expect(wrapper.emitted("change")).toEqual([["createdAt", want, ""]]);
   });
 
   it.each([
-    [0, "Started"], // Any time.
-    [1, "Started: The last 3 hours"],
-    [2, "Started: The last 6 hours"],
-    [3, "Started: The last 12 hours"],
-    [4, "Started: The last 24 hours"],
-    [5, "Started: The last 3 days"],
-    [6, "Started: The last 7 days"],
+    ["3h", "Started: 3h"],
+    ["6h", "Started: 6h"],
+    ["12h", "Started: 12h"],
+    ["24h", "Started: 24h"],
+    ["3d", "Started: 3d"],
+    ["7d", "Started: 7d"],
   ])(
     "sets the button label correctly when a time is selected",
-    async (index, want) => {
-      const wrapper = mount(TimeDropdown, {
-        props: {
-          fieldname: "testField",
-          onChange: handleChange,
-        },
-      });
-
+    async (value, want) => {
       const button = wrapper.find("button");
-      const option = wrapper.findAll(".dropdown-item");
 
-      await option[index].trigger("click");
+      await wrapper.find("select").setValue(value);
+
       expect(button.text()).toBe(want);
     },
   );
 
-  it("resets the button label when 'Any time' is selected", async () => {
-    const wrapper = mount(TimeDropdown, {
-      props: {
-        fieldname: "testField",
-        onChange: handleChange,
-      },
-    });
-
+  it("clears all values when the clear button is clicked", async () => {
     const button = wrapper.find("button");
-    const option = wrapper.findAll(".dropdown-item");
+    const clearButton = wrapper.find("button[type='reset']");
 
-    await option[1].trigger("click");
-    expect(button.text()).toBe("Started: The last 3 hours");
+    await clearButton.trigger("click");
 
-    await option[0].trigger("click");
     expect(button.text()).toBe("Started");
+    expect(wrapper.emitted("change")).toEqual([["createdAt", "", ""]]);
+  });
+
+  it("emits the correct event when a custom date is selected", async () => {
+    const button = wrapper.find("button");
+    const datePicker = wrapper.findComponent<typeof VueDatePicker>(
+      '[data-test="startTime"]',
+    );
+
+    datePicker.vm.$emit(
+      "update:model-value",
+      new Date(Date.UTC(2025, 0, 1, 12, 0, 0)),
+    );
+    await datePicker.vm.$nextTick();
+
+    expect(button.text()).toBe("Started: Custom");
+    expect(wrapper.emitted("change")).toEqual([
+      ["createdAt", "2025-01-01T12:00:00Z", ""],
+    ]);
   });
 });

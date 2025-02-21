@@ -113,12 +113,40 @@ const doSearch = () => {
   });
 };
 
-const updateDateFilter = (name: string, value: LocationQueryValue) => {
-  let q = { ...route.query };
-  if (value === null || value === "") {
-    delete q[name];
+const updateCreatedAtFilter = (
+  q: { [x: string]: LocationQueryValue | LocationQueryValue[] },
+  start: LocationQueryValue,
+  end: LocationQueryValue,
+): { [x: string]: LocationQueryValue | LocationQueryValue[] } => {
+  if (start) {
+    q.earliestCreatedTime = start;
   } else {
-    q[name] = value;
+    delete q.earliestCreatedTime;
+  }
+
+  if (end) {
+    q.latestCreatedTime = end;
+  } else {
+    delete q.latestCreatedTime;
+  }
+
+  return q;
+};
+
+const updateDateFilter = (
+  name: string,
+  start: LocationQueryValue,
+  end: LocationQueryValue,
+) => {
+  let q = { ...route.query };
+
+  switch (name) {
+    case "createdAt":
+      q = updateCreatedAtFilter(q, start, end);
+      break;
+    default:
+      // undefined.
+      return;
   }
 
   router.push({
@@ -139,13 +167,23 @@ const { execute, error } = useAsyncState(() => {
       route.query.earliestCreatedTime as string,
     );
   }
+  if (route.query.latestCreatedTime) {
+    packageStore.filters.latestCreatedTime = new Date(
+      route.query.latestCreatedTime as string,
+    );
+  }
 
   return packageStore.fetchPackages(1);
 }, null);
 
 watch(
-  () => [route.query.status, route.query.name, route.query.earliestCreatedTime],
-  ([newStatus, newName, newEarliest]) => {
+  () => [
+    route.query.status,
+    route.query.name,
+    route.query.earliestCreatedTime,
+    route.query.latestCreatedTime,
+  ],
+  ([newStatus, newName, newEarliest, newLatest]) => {
     packageStore.filters.status = newStatus as IngestListSipsStatusEnum;
 
     if (newName) {
@@ -158,6 +196,12 @@ watch(
       );
     } else {
       packageStore.filters.earliestCreatedTime = undefined;
+    }
+
+    if (newLatest) {
+      packageStore.filters.latestCreatedTime = new Date(newLatest as string);
+    } else {
+      packageStore.filters.latestCreatedTime = undefined;
     }
 
     return packageStore.fetchPackages(1);
@@ -214,10 +258,14 @@ watch(
       </div>
       <div>
         <TimeDropdown
-          fieldname="earliestCreatedTime"
+          name="createdAt"
+          label="Started"
           @change="
-            (name: string, value: LocationQueryValue) =>
-              updateDateFilter(name, value)
+            (
+              name: string,
+              start: LocationQueryValue,
+              end: LocationQueryValue,
+            ) => updateDateFilter(name, start, end)
           "
         />
       </div>

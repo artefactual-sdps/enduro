@@ -121,6 +121,7 @@ const createAipWorkflow = computed(
           :index="index"
           v-for="(action, index) in packageStore.current_preservation_actions
             ?.actions"
+          v-bind:key="action.id"
         />
       </div>
     </div>
