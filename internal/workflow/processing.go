@@ -967,6 +967,7 @@ func (w *ProcessingWorkflow) transferAM(
 		&am.StartTransferActivityParams{
 			Name:         tinfo.req.Key,
 			RelativePath: uploadResult.RemoteRelativePath,
+			ZipPIP:       w.cfg.AM.ZipPIP,
 		},
 	).Get(activityOpts, &transferResult)
 	if err != nil {
