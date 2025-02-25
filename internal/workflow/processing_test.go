@@ -754,7 +754,7 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	)
 
 	s.env.OnActivity(am.StartTransferActivityName, sessionCtx,
-		&am.StartTransferActivityParams{Name: key, RelativePath: "transfer.zip"},
+		&am.StartTransferActivityParams{Name: key, RelativePath: "transfer.zip", ZipPIP: true},
 	).Return(
 		&am.StartTransferActivityResult{TransferID: transferID.String()}, nil,
 	)
