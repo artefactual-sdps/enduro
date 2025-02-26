@@ -188,8 +188,8 @@ watch(
               v-model.trim="packageStore.filters.name"
               class="form-control"
               name="name"
-              placeholder="Search"
-              aria-label="Package name"
+              placeholder="Search by name"
+              aria-label="Search by name"
             />
             <button
               class="btn btn-secondary"
