@@ -21,24 +21,24 @@ import (
 	goa "goa.design/goa/v3/pkg"
 )
 
-// EncodeCreateResponse returns an encoder for responses returned by the
-// storage create endpoint.
-func EncodeCreateResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, any) error {
+// EncodeCreateAipResponse returns an encoder for responses returned by the
+// storage create_aip endpoint.
+func EncodeCreateAipResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, any) error {
 	return func(ctx context.Context, w http.ResponseWriter, v any) error {
-		res := v.(*storageviews.Package)
+		res := v.(*storageviews.AIP)
 		enc := encoder(ctx, w)
-		body := NewCreateResponseBody(res.Projected)
+		body := NewCreateAipResponseBody(res.Projected)
 		w.WriteHeader(http.StatusOK)
 		return enc.Encode(body)
 	}
 }
 
-// DecodeCreateRequest returns a decoder for requests sent to the storage
-// create endpoint.
-func DecodeCreateRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (any, error) {
+// DecodeCreateAipRequest returns a decoder for requests sent to the storage
+// create_aip endpoint.
+func DecodeCreateAipRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (any, error) {
 	return func(r *http.Request) (any, error) {
 		var (
-			body CreateRequestBody
+			body CreateAipRequestBody
 			err  error
 		)
 		err = decoder(r).Decode(&body)
@@ -48,7 +48,7 @@ func DecodeCreateRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.
 			}
 			return nil, goa.DecodePayloadError(err.Error())
 		}
-		err = ValidateCreateRequestBody(&body)
+		err = ValidateCreateAipRequestBody(&body)
 		if err != nil {
 			return nil, err
 		}
@@ -60,7 +60,7 @@ func DecodeCreateRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.
 		if tokenRaw != "" {
 			token = &tokenRaw
 		}
-		payload := NewCreatePayload(&body, token)
+		payload := NewCreateAipPayload(&body, token)
 		if payload.Token != nil {
 			if strings.Contains(*payload.Token, " ") {
 				// Remove authorization scheme prefix (e.g. "Bearer")
@@ -73,9 +73,9 @@ func DecodeCreateRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.
 	}
 }
 
-// EncodeCreateError returns an encoder for errors returned by the create
-// storage endpoint.
-func EncodeCreateError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(ctx context.Context, err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
+// EncodeCreateAipError returns an encoder for errors returned by the
+// create_aip storage endpoint.
+func EncodeCreateAipError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(ctx context.Context, err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
 	encodeError := goahttp.ErrorEncoder(encoder, formatter)
 	return func(ctx context.Context, w http.ResponseWriter, v error) error {
 		var en goa.GoaErrorNamer
@@ -91,7 +91,7 @@ func EncodeCreateError(encoder func(context.Context, http.ResponseWriter) goahtt
 			if formatter != nil {
 				body = formatter(ctx, res)
 			} else {
-				body = NewCreateNotValidResponseBody(res)
+				body = NewCreateAipNotValidResponseBody(res)
 			}
 			w.Header().Set("goa-error", res.GoaErrorName())
 			w.WriteHeader(http.StatusBadRequest)
@@ -118,24 +118,24 @@ func EncodeCreateError(encoder func(context.Context, http.ResponseWriter) goahtt
 	}
 }
 
-// EncodeSubmitResponse returns an encoder for responses returned by the
-// storage submit endpoint.
-func EncodeSubmitResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, any) error {
+// EncodeSubmitAipResponse returns an encoder for responses returned by the
+// storage submit_aip endpoint.
+func EncodeSubmitAipResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, any) error {
 	return func(ctx context.Context, w http.ResponseWriter, v any) error {
-		res, _ := v.(*storage.SubmitResult)
+		res, _ := v.(*storage.SubmitAIPResult)
 		enc := encoder(ctx, w)
-		body := NewSubmitResponseBody(res)
+		body := NewSubmitAipResponseBody(res)
 		w.WriteHeader(http.StatusAccepted)
 		return enc.Encode(body)
 	}
 }
 
-// DecodeSubmitRequest returns a decoder for requests sent to the storage
-// submit endpoint.
-func DecodeSubmitRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (any, error) {
+// DecodeSubmitAipRequest returns a decoder for requests sent to the storage
+// submit_aip endpoint.
+func DecodeSubmitAipRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (any, error) {
 	return func(r *http.Request) (any, error) {
 		var (
-			body SubmitRequestBody
+			body SubmitAipRequestBody
 			err  error
 		)
 		err = decoder(r).Decode(&body)
@@ -145,19 +145,19 @@ func DecodeSubmitRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.
 			}
 			return nil, goa.DecodePayloadError(err.Error())
 		}
-		err = ValidateSubmitRequestBody(&body)
+		err = ValidateSubmitAipRequestBody(&body)
 		if err != nil {
 			return nil, err
 		}
 
 		var (
-			aipID string
+			uuid  string
 			token *string
 
 			params = mux.Vars(r)
 		)
-		aipID = params["aip_id"]
-		err = goa.MergeErrors(err, goa.ValidateFormat("aip_id", aipID, goa.FormatUUID))
+		uuid = params["uuid"]
+		err = goa.MergeErrors(err, goa.ValidateFormat("uuid", uuid, goa.FormatUUID))
 		tokenRaw := r.Header.Get("Authorization")
 		if tokenRaw != "" {
 			token = &tokenRaw
@@ -165,7 +165,7 @@ func DecodeSubmitRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.
 		if err != nil {
 			return nil, err
 		}
-		payload := NewSubmitPayload(&body, aipID, token)
+		payload := NewSubmitAipPayload(&body, uuid, token)
 		if payload.Token != nil {
 			if strings.Contains(*payload.Token, " ") {
 				// Remove authorization scheme prefix (e.g. "Bearer")
@@ -178,9 +178,9 @@ func DecodeSubmitRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.
 	}
 }
 
-// EncodeSubmitError returns an encoder for errors returned by the submit
-// storage endpoint.
-func EncodeSubmitError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(ctx context.Context, err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
+// EncodeSubmitAipError returns an encoder for errors returned by the
+// submit_aip storage endpoint.
+func EncodeSubmitAipError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(ctx context.Context, err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
 	encodeError := goahttp.ErrorEncoder(encoder, formatter)
 	return func(ctx context.Context, w http.ResponseWriter, v error) error {
 		var en goa.GoaErrorNamer
@@ -196,7 +196,7 @@ func EncodeSubmitError(encoder func(context.Context, http.ResponseWriter) goahtt
 			if formatter != nil {
 				body = formatter(ctx, res)
 			} else {
-				body = NewSubmitNotAvailableResponseBody(res)
+				body = NewSubmitAipNotAvailableResponseBody(res)
 			}
 			w.Header().Set("goa-error", res.GoaErrorName())
 			w.WriteHeader(http.StatusConflict)
@@ -209,7 +209,7 @@ func EncodeSubmitError(encoder func(context.Context, http.ResponseWriter) goahtt
 			if formatter != nil {
 				body = formatter(ctx, res)
 			} else {
-				body = NewSubmitNotValidResponseBody(res)
+				body = NewSubmitAipNotValidResponseBody(res)
 			}
 			w.Header().Set("goa-error", res.GoaErrorName())
 			w.WriteHeader(http.StatusBadRequest)
@@ -236,28 +236,28 @@ func EncodeSubmitError(encoder func(context.Context, http.ResponseWriter) goahtt
 	}
 }
 
-// EncodeUpdateResponse returns an encoder for responses returned by the
-// storage update endpoint.
-func EncodeUpdateResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, any) error {
+// EncodeUpdateAipResponse returns an encoder for responses returned by the
+// storage update_aip endpoint.
+func EncodeUpdateAipResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, any) error {
 	return func(ctx context.Context, w http.ResponseWriter, v any) error {
 		w.WriteHeader(http.StatusAccepted)
 		return nil
 	}
 }
 
-// DecodeUpdateRequest returns a decoder for requests sent to the storage
-// update endpoint.
-func DecodeUpdateRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (any, error) {
+// DecodeUpdateAipRequest returns a decoder for requests sent to the storage
+// update_aip endpoint.
+func DecodeUpdateAipRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (any, error) {
 	return func(r *http.Request) (any, error) {
 		var (
-			aipID string
+			uuid  string
 			token *string
 			err   error
 
 			params = mux.Vars(r)
 		)
-		aipID = params["aip_id"]
-		err = goa.MergeErrors(err, goa.ValidateFormat("aip_id", aipID, goa.FormatUUID))
+		uuid = params["uuid"]
+		err = goa.MergeErrors(err, goa.ValidateFormat("uuid", uuid, goa.FormatUUID))
 		tokenRaw := r.Header.Get("Authorization")
 		if tokenRaw != "" {
 			token = &tokenRaw
@@ -265,7 +265,7 @@ func DecodeUpdateRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.
 		if err != nil {
 			return nil, err
 		}
-		payload := NewUpdatePayload(aipID, token)
+		payload := NewUpdateAipPayload(uuid, token)
 		if payload.Token != nil {
 			if strings.Contains(*payload.Token, " ") {
 				// Remove authorization scheme prefix (e.g. "Bearer")
@@ -278,9 +278,9 @@ func DecodeUpdateRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.
 	}
 }
 
-// EncodeUpdateError returns an encoder for errors returned by the update
-// storage endpoint.
-func EncodeUpdateError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(ctx context.Context, err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
+// EncodeUpdateAipError returns an encoder for errors returned by the
+// update_aip storage endpoint.
+func EncodeUpdateAipError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(ctx context.Context, err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
 	encodeError := goahttp.ErrorEncoder(encoder, formatter)
 	return func(ctx context.Context, w http.ResponseWriter, v error) error {
 		var en goa.GoaErrorNamer
@@ -296,7 +296,7 @@ func EncodeUpdateError(encoder func(context.Context, http.ResponseWriter) goahtt
 			if formatter != nil {
 				body = formatter(ctx, res)
 			} else {
-				body = NewUpdateNotAvailableResponseBody(res)
+				body = NewUpdateAipNotAvailableResponseBody(res)
 			}
 			w.Header().Set("goa-error", res.GoaErrorName())
 			w.WriteHeader(http.StatusConflict)
@@ -309,7 +309,7 @@ func EncodeUpdateError(encoder func(context.Context, http.ResponseWriter) goahtt
 			if formatter != nil {
 				body = formatter(ctx, res)
 			} else {
-				body = NewUpdateNotValidResponseBody(res)
+				body = NewUpdateAipNotValidResponseBody(res)
 			}
 			w.Header().Set("goa-error", res.GoaErrorName())
 			w.WriteHeader(http.StatusBadRequest)
@@ -336,9 +336,9 @@ func EncodeUpdateError(encoder func(context.Context, http.ResponseWriter) goahtt
 	}
 }
 
-// EncodeDownloadResponse returns an encoder for responses returned by the
-// storage download endpoint.
-func EncodeDownloadResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, any) error {
+// EncodeDownloadAipResponse returns an encoder for responses returned by the
+// storage download_aip endpoint.
+func EncodeDownloadAipResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, any) error {
 	return func(ctx context.Context, w http.ResponseWriter, v any) error {
 		res, _ := v.([]byte)
 		enc := encoder(ctx, w)
@@ -348,19 +348,19 @@ func EncodeDownloadResponse(encoder func(context.Context, http.ResponseWriter) g
 	}
 }
 
-// DecodeDownloadRequest returns a decoder for requests sent to the storage
-// download endpoint.
-func DecodeDownloadRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (any, error) {
+// DecodeDownloadAipRequest returns a decoder for requests sent to the storage
+// download_aip endpoint.
+func DecodeDownloadAipRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (any, error) {
 	return func(r *http.Request) (any, error) {
 		var (
-			aipID string
+			uuid  string
 			token *string
 			err   error
 
 			params = mux.Vars(r)
 		)
-		aipID = params["aip_id"]
-		err = goa.MergeErrors(err, goa.ValidateFormat("aip_id", aipID, goa.FormatUUID))
+		uuid = params["uuid"]
+		err = goa.MergeErrors(err, goa.ValidateFormat("uuid", uuid, goa.FormatUUID))
 		tokenRaw := r.Header.Get("Authorization")
 		if tokenRaw != "" {
 			token = &tokenRaw
@@ -368,7 +368,7 @@ func DecodeDownloadRequest(mux goahttp.Muxer, decoder func(*http.Request) goahtt
 		if err != nil {
 			return nil, err
 		}
-		payload := NewDownloadPayload(aipID, token)
+		payload := NewDownloadAipPayload(uuid, token)
 		if payload.Token != nil {
 			if strings.Contains(*payload.Token, " ") {
 				// Remove authorization scheme prefix (e.g. "Bearer")
@@ -381,9 +381,9 @@ func DecodeDownloadRequest(mux goahttp.Muxer, decoder func(*http.Request) goahtt
 	}
 }
 
-// EncodeDownloadError returns an encoder for errors returned by the download
-// storage endpoint.
-func EncodeDownloadError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(ctx context.Context, err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
+// EncodeDownloadAipError returns an encoder for errors returned by the
+// download_aip storage endpoint.
+func EncodeDownloadAipError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(ctx context.Context, err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
 	encodeError := goahttp.ErrorEncoder(encoder, formatter)
 	return func(ctx context.Context, w http.ResponseWriter, v error) error {
 		var en goa.GoaErrorNamer
@@ -392,14 +392,14 @@ func EncodeDownloadError(encoder func(context.Context, http.ResponseWriter) goah
 		}
 		switch en.GoaErrorName() {
 		case "not_found":
-			var res *storage.PackageNotFound
+			var res *storage.AIPNotFound
 			errors.As(v, &res)
 			enc := encoder(ctx, w)
 			var body any
 			if formatter != nil {
 				body = formatter(ctx, res)
 			} else {
-				body = NewDownloadNotFoundResponseBody(res)
+				body = NewDownloadAipNotFoundResponseBody(res)
 			}
 			w.Header().Set("goa-error", res.GoaErrorName())
 			w.WriteHeader(http.StatusNotFound)
@@ -426,21 +426,21 @@ func EncodeDownloadError(encoder func(context.Context, http.ResponseWriter) goah
 	}
 }
 
-// EncodeMoveResponse returns an encoder for responses returned by the storage
-// move endpoint.
-func EncodeMoveResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, any) error {
+// EncodeMoveAipResponse returns an encoder for responses returned by the
+// storage move_aip endpoint.
+func EncodeMoveAipResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, any) error {
 	return func(ctx context.Context, w http.ResponseWriter, v any) error {
 		w.WriteHeader(http.StatusAccepted)
 		return nil
 	}
 }
 
-// DecodeMoveRequest returns a decoder for requests sent to the storage move
-// endpoint.
-func DecodeMoveRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (any, error) {
+// DecodeMoveAipRequest returns a decoder for requests sent to the storage
+// move_aip endpoint.
+func DecodeMoveAipRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (any, error) {
 	return func(r *http.Request) (any, error) {
 		var (
-			body MoveRequestBody
+			body MoveAipRequestBody
 			err  error
 		)
 		err = decoder(r).Decode(&body)
@@ -450,19 +450,19 @@ func DecodeMoveRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.De
 			}
 			return nil, goa.DecodePayloadError(err.Error())
 		}
-		err = ValidateMoveRequestBody(&body)
+		err = ValidateMoveAipRequestBody(&body)
 		if err != nil {
 			return nil, err
 		}
 
 		var (
-			aipID string
+			uuid  string
 			token *string
 
 			params = mux.Vars(r)
 		)
-		aipID = params["aip_id"]
-		err = goa.MergeErrors(err, goa.ValidateFormat("aip_id", aipID, goa.FormatUUID))
+		uuid = params["uuid"]
+		err = goa.MergeErrors(err, goa.ValidateFormat("uuid", uuid, goa.FormatUUID))
 		tokenRaw := r.Header.Get("Authorization")
 		if tokenRaw != "" {
 			token = &tokenRaw
@@ -470,7 +470,7 @@ func DecodeMoveRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.De
 		if err != nil {
 			return nil, err
 		}
-		payload := NewMovePayload(&body, aipID, token)
+		payload := NewMoveAipPayload(&body, uuid, token)
 		if payload.Token != nil {
 			if strings.Contains(*payload.Token, " ") {
 				// Remove authorization scheme prefix (e.g. "Bearer")
@@ -483,9 +483,9 @@ func DecodeMoveRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.De
 	}
 }
 
-// EncodeMoveError returns an encoder for errors returned by the move storage
-// endpoint.
-func EncodeMoveError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(ctx context.Context, err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
+// EncodeMoveAipError returns an encoder for errors returned by the move_aip
+// storage endpoint.
+func EncodeMoveAipError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(ctx context.Context, err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
 	encodeError := goahttp.ErrorEncoder(encoder, formatter)
 	return func(ctx context.Context, w http.ResponseWriter, v error) error {
 		var en goa.GoaErrorNamer
@@ -501,7 +501,7 @@ func EncodeMoveError(encoder func(context.Context, http.ResponseWriter) goahttp.
 			if formatter != nil {
 				body = formatter(ctx, res)
 			} else {
-				body = NewMoveNotAvailableResponseBody(res)
+				body = NewMoveAipNotAvailableResponseBody(res)
 			}
 			w.Header().Set("goa-error", res.GoaErrorName())
 			w.WriteHeader(http.StatusConflict)
@@ -514,20 +514,20 @@ func EncodeMoveError(encoder func(context.Context, http.ResponseWriter) goahttp.
 			if formatter != nil {
 				body = formatter(ctx, res)
 			} else {
-				body = NewMoveNotValidResponseBody(res)
+				body = NewMoveAipNotValidResponseBody(res)
 			}
 			w.Header().Set("goa-error", res.GoaErrorName())
 			w.WriteHeader(http.StatusBadRequest)
 			return enc.Encode(body)
 		case "not_found":
-			var res *storage.PackageNotFound
+			var res *storage.AIPNotFound
 			errors.As(v, &res)
 			enc := encoder(ctx, w)
 			var body any
 			if formatter != nil {
 				body = formatter(ctx, res)
 			} else {
-				body = NewMoveNotFoundResponseBody(res)
+				body = NewMoveAipNotFoundResponseBody(res)
 			}
 			w.Header().Set("goa-error", res.GoaErrorName())
 			w.WriteHeader(http.StatusNotFound)
@@ -554,31 +554,31 @@ func EncodeMoveError(encoder func(context.Context, http.ResponseWriter) goahttp.
 	}
 }
 
-// EncodeMoveStatusResponse returns an encoder for responses returned by the
-// storage move_status endpoint.
-func EncodeMoveStatusResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, any) error {
+// EncodeMoveAipStatusResponse returns an encoder for responses returned by the
+// storage move_aip_status endpoint.
+func EncodeMoveAipStatusResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, any) error {
 	return func(ctx context.Context, w http.ResponseWriter, v any) error {
 		res, _ := v.(*storage.MoveStatusResult)
 		enc := encoder(ctx, w)
-		body := NewMoveStatusResponseBody(res)
+		body := NewMoveAipStatusResponseBody(res)
 		w.WriteHeader(http.StatusOK)
 		return enc.Encode(body)
 	}
 }
 
-// DecodeMoveStatusRequest returns a decoder for requests sent to the storage
-// move_status endpoint.
-func DecodeMoveStatusRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (any, error) {
+// DecodeMoveAipStatusRequest returns a decoder for requests sent to the
+// storage move_aip_status endpoint.
+func DecodeMoveAipStatusRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (any, error) {
 	return func(r *http.Request) (any, error) {
 		var (
-			aipID string
+			uuid  string
 			token *string
 			err   error
 
 			params = mux.Vars(r)
 		)
-		aipID = params["aip_id"]
-		err = goa.MergeErrors(err, goa.ValidateFormat("aip_id", aipID, goa.FormatUUID))
+		uuid = params["uuid"]
+		err = goa.MergeErrors(err, goa.ValidateFormat("uuid", uuid, goa.FormatUUID))
 		tokenRaw := r.Header.Get("Authorization")
 		if tokenRaw != "" {
 			token = &tokenRaw
@@ -586,7 +586,7 @@ func DecodeMoveStatusRequest(mux goahttp.Muxer, decoder func(*http.Request) goah
 		if err != nil {
 			return nil, err
 		}
-		payload := NewMoveStatusPayload(aipID, token)
+		payload := NewMoveAipStatusPayload(uuid, token)
 		if payload.Token != nil {
 			if strings.Contains(*payload.Token, " ") {
 				// Remove authorization scheme prefix (e.g. "Bearer")
@@ -599,9 +599,9 @@ func DecodeMoveStatusRequest(mux goahttp.Muxer, decoder func(*http.Request) goah
 	}
 }
 
-// EncodeMoveStatusError returns an encoder for errors returned by the
-// move_status storage endpoint.
-func EncodeMoveStatusError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(ctx context.Context, err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
+// EncodeMoveAipStatusError returns an encoder for errors returned by the
+// move_aip_status storage endpoint.
+func EncodeMoveAipStatusError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(ctx context.Context, err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
 	encodeError := goahttp.ErrorEncoder(encoder, formatter)
 	return func(ctx context.Context, w http.ResponseWriter, v error) error {
 		var en goa.GoaErrorNamer
@@ -617,20 +617,20 @@ func EncodeMoveStatusError(encoder func(context.Context, http.ResponseWriter) go
 			if formatter != nil {
 				body = formatter(ctx, res)
 			} else {
-				body = NewMoveStatusFailedDependencyResponseBody(res)
+				body = NewMoveAipStatusFailedDependencyResponseBody(res)
 			}
 			w.Header().Set("goa-error", res.GoaErrorName())
 			w.WriteHeader(http.StatusFailedDependency)
 			return enc.Encode(body)
 		case "not_found":
-			var res *storage.PackageNotFound
+			var res *storage.AIPNotFound
 			errors.As(v, &res)
 			enc := encoder(ctx, w)
 			var body any
 			if formatter != nil {
 				body = formatter(ctx, res)
 			} else {
-				body = NewMoveStatusNotFoundResponseBody(res)
+				body = NewMoveAipStatusNotFoundResponseBody(res)
 			}
 			w.Header().Set("goa-error", res.GoaErrorName())
 			w.WriteHeader(http.StatusNotFound)
@@ -657,28 +657,28 @@ func EncodeMoveStatusError(encoder func(context.Context, http.ResponseWriter) go
 	}
 }
 
-// EncodeRejectResponse returns an encoder for responses returned by the
-// storage reject endpoint.
-func EncodeRejectResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, any) error {
+// EncodeRejectAipResponse returns an encoder for responses returned by the
+// storage reject_aip endpoint.
+func EncodeRejectAipResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, any) error {
 	return func(ctx context.Context, w http.ResponseWriter, v any) error {
 		w.WriteHeader(http.StatusAccepted)
 		return nil
 	}
 }
 
-// DecodeRejectRequest returns a decoder for requests sent to the storage
-// reject endpoint.
-func DecodeRejectRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (any, error) {
+// DecodeRejectAipRequest returns a decoder for requests sent to the storage
+// reject_aip endpoint.
+func DecodeRejectAipRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (any, error) {
 	return func(r *http.Request) (any, error) {
 		var (
-			aipID string
+			uuid  string
 			token *string
 			err   error
 
 			params = mux.Vars(r)
 		)
-		aipID = params["aip_id"]
-		err = goa.MergeErrors(err, goa.ValidateFormat("aip_id", aipID, goa.FormatUUID))
+		uuid = params["uuid"]
+		err = goa.MergeErrors(err, goa.ValidateFormat("uuid", uuid, goa.FormatUUID))
 		tokenRaw := r.Header.Get("Authorization")
 		if tokenRaw != "" {
 			token = &tokenRaw
@@ -686,7 +686,7 @@ func DecodeRejectRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.
 		if err != nil {
 			return nil, err
 		}
-		payload := NewRejectPayload(aipID, token)
+		payload := NewRejectAipPayload(uuid, token)
 		if payload.Token != nil {
 			if strings.Contains(*payload.Token, " ") {
 				// Remove authorization scheme prefix (e.g. "Bearer")
@@ -699,9 +699,9 @@ func DecodeRejectRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.
 	}
 }
 
-// EncodeRejectError returns an encoder for errors returned by the reject
-// storage endpoint.
-func EncodeRejectError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(ctx context.Context, err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
+// EncodeRejectAipError returns an encoder for errors returned by the
+// reject_aip storage endpoint.
+func EncodeRejectAipError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(ctx context.Context, err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
 	encodeError := goahttp.ErrorEncoder(encoder, formatter)
 	return func(ctx context.Context, w http.ResponseWriter, v error) error {
 		var en goa.GoaErrorNamer
@@ -717,7 +717,7 @@ func EncodeRejectError(encoder func(context.Context, http.ResponseWriter) goahtt
 			if formatter != nil {
 				body = formatter(ctx, res)
 			} else {
-				body = NewRejectNotAvailableResponseBody(res)
+				body = NewRejectAipNotAvailableResponseBody(res)
 			}
 			w.Header().Set("goa-error", res.GoaErrorName())
 			w.WriteHeader(http.StatusConflict)
@@ -730,20 +730,20 @@ func EncodeRejectError(encoder func(context.Context, http.ResponseWriter) goahtt
 			if formatter != nil {
 				body = formatter(ctx, res)
 			} else {
-				body = NewRejectNotValidResponseBody(res)
+				body = NewRejectAipNotValidResponseBody(res)
 			}
 			w.Header().Set("goa-error", res.GoaErrorName())
 			w.WriteHeader(http.StatusBadRequest)
 			return enc.Encode(body)
 		case "not_found":
-			var res *storage.PackageNotFound
+			var res *storage.AIPNotFound
 			errors.As(v, &res)
 			enc := encoder(ctx, w)
 			var body any
 			if formatter != nil {
 				body = formatter(ctx, res)
 			} else {
-				body = NewRejectNotFoundResponseBody(res)
+				body = NewRejectAipNotFoundResponseBody(res)
 			}
 			w.Header().Set("goa-error", res.GoaErrorName())
 			w.WriteHeader(http.StatusNotFound)
@@ -770,31 +770,31 @@ func EncodeRejectError(encoder func(context.Context, http.ResponseWriter) goahtt
 	}
 }
 
-// EncodeShowResponse returns an encoder for responses returned by the storage
-// show endpoint.
-func EncodeShowResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, any) error {
+// EncodeShowAipResponse returns an encoder for responses returned by the
+// storage show_aip endpoint.
+func EncodeShowAipResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, any) error {
 	return func(ctx context.Context, w http.ResponseWriter, v any) error {
-		res := v.(*storageviews.Package)
+		res := v.(*storageviews.AIP)
 		enc := encoder(ctx, w)
-		body := NewShowResponseBody(res.Projected)
+		body := NewShowAipResponseBody(res.Projected)
 		w.WriteHeader(http.StatusOK)
 		return enc.Encode(body)
 	}
 }
 
-// DecodeShowRequest returns a decoder for requests sent to the storage show
-// endpoint.
-func DecodeShowRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (any, error) {
+// DecodeShowAipRequest returns a decoder for requests sent to the storage
+// show_aip endpoint.
+func DecodeShowAipRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (any, error) {
 	return func(r *http.Request) (any, error) {
 		var (
-			aipID string
+			uuid  string
 			token *string
 			err   error
 
 			params = mux.Vars(r)
 		)
-		aipID = params["aip_id"]
-		err = goa.MergeErrors(err, goa.ValidateFormat("aip_id", aipID, goa.FormatUUID))
+		uuid = params["uuid"]
+		err = goa.MergeErrors(err, goa.ValidateFormat("uuid", uuid, goa.FormatUUID))
 		tokenRaw := r.Header.Get("Authorization")
 		if tokenRaw != "" {
 			token = &tokenRaw
@@ -802,7 +802,7 @@ func DecodeShowRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.De
 		if err != nil {
 			return nil, err
 		}
-		payload := NewShowPayload(aipID, token)
+		payload := NewShowAipPayload(uuid, token)
 		if payload.Token != nil {
 			if strings.Contains(*payload.Token, " ") {
 				// Remove authorization scheme prefix (e.g. "Bearer")
@@ -815,9 +815,9 @@ func DecodeShowRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.De
 	}
 }
 
-// EncodeShowError returns an encoder for errors returned by the show storage
-// endpoint.
-func EncodeShowError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(ctx context.Context, err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
+// EncodeShowAipError returns an encoder for errors returned by the show_aip
+// storage endpoint.
+func EncodeShowAipError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(ctx context.Context, err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
 	encodeError := goahttp.ErrorEncoder(encoder, formatter)
 	return func(ctx context.Context, w http.ResponseWriter, v error) error {
 		var en goa.GoaErrorNamer
@@ -826,14 +826,14 @@ func EncodeShowError(encoder func(context.Context, http.ResponseWriter) goahttp.
 		}
 		switch en.GoaErrorName() {
 		case "not_found":
-			var res *storage.PackageNotFound
+			var res *storage.AIPNotFound
 			errors.As(v, &res)
 			enc := encoder(ctx, w)
 			var body any
 			if formatter != nil {
 				body = formatter(ctx, res)
 			} else {
-				body = NewShowNotFoundResponseBody(res)
+				body = NewShowAipNotFoundResponseBody(res)
 			}
 			w.Header().Set("goa-error", res.GoaErrorName())
 			w.WriteHeader(http.StatusNotFound)
@@ -860,9 +860,9 @@ func EncodeShowError(encoder func(context.Context, http.ResponseWriter) goahttp.
 	}
 }
 
-// EncodeLocationsResponse returns an encoder for responses returned by the
-// storage locations endpoint.
-func EncodeLocationsResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, any) error {
+// EncodeListLocationsResponse returns an encoder for responses returned by the
+// storage list_locations endpoint.
+func EncodeListLocationsResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, any) error {
 	return func(ctx context.Context, w http.ResponseWriter, v any) error {
 		res := v.(storageviews.LocationCollection)
 		enc := encoder(ctx, w)
@@ -872,9 +872,9 @@ func EncodeLocationsResponse(encoder func(context.Context, http.ResponseWriter) 
 	}
 }
 
-// DecodeLocationsRequest returns a decoder for requests sent to the storage
-// locations endpoint.
-func DecodeLocationsRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (any, error) {
+// DecodeListLocationsRequest returns a decoder for requests sent to the
+// storage list_locations endpoint.
+func DecodeListLocationsRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (any, error) {
 	return func(r *http.Request) (any, error) {
 		var (
 			token *string
@@ -883,7 +883,7 @@ func DecodeLocationsRequest(mux goahttp.Muxer, decoder func(*http.Request) goaht
 		if tokenRaw != "" {
 			token = &tokenRaw
 		}
-		payload := NewLocationsPayload(token)
+		payload := NewListLocationsPayload(token)
 		if payload.Token != nil {
 			if strings.Contains(*payload.Token, " ") {
 				// Remove authorization scheme prefix (e.g. "Bearer")
@@ -896,9 +896,9 @@ func DecodeLocationsRequest(mux goahttp.Muxer, decoder func(*http.Request) goaht
 	}
 }
 
-// EncodeLocationsError returns an encoder for errors returned by the locations
-// storage endpoint.
-func EncodeLocationsError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(ctx context.Context, err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
+// EncodeListLocationsError returns an encoder for errors returned by the
+// list_locations storage endpoint.
+func EncodeListLocationsError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(ctx context.Context, err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
 	encodeError := goahttp.ErrorEncoder(encoder, formatter)
 	return func(ctx context.Context, w http.ResponseWriter, v error) error {
 		var en goa.GoaErrorNamer
@@ -928,24 +928,24 @@ func EncodeLocationsError(encoder func(context.Context, http.ResponseWriter) goa
 	}
 }
 
-// EncodeAddLocationResponse returns an encoder for responses returned by the
-// storage add_location endpoint.
-func EncodeAddLocationResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, any) error {
+// EncodeCreateLocationResponse returns an encoder for responses returned by
+// the storage create_location endpoint.
+func EncodeCreateLocationResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, any) error {
 	return func(ctx context.Context, w http.ResponseWriter, v any) error {
-		res, _ := v.(*storage.AddLocationResult)
+		res, _ := v.(*storage.CreateLocationResult)
 		enc := encoder(ctx, w)
-		body := NewAddLocationResponseBody(res)
+		body := NewCreateLocationResponseBody(res)
 		w.WriteHeader(http.StatusCreated)
 		return enc.Encode(body)
 	}
 }
 
-// DecodeAddLocationRequest returns a decoder for requests sent to the storage
-// add_location endpoint.
-func DecodeAddLocationRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (any, error) {
+// DecodeCreateLocationRequest returns a decoder for requests sent to the
+// storage create_location endpoint.
+func DecodeCreateLocationRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (any, error) {
 	return func(r *http.Request) (any, error) {
 		var (
-			body AddLocationRequestBody
+			body CreateLocationRequestBody
 			err  error
 		)
 		err = decoder(r).Decode(&body)
@@ -955,7 +955,7 @@ func DecodeAddLocationRequest(mux goahttp.Muxer, decoder func(*http.Request) goa
 			}
 			return nil, goa.DecodePayloadError(err.Error())
 		}
-		err = ValidateAddLocationRequestBody(&body)
+		err = ValidateCreateLocationRequestBody(&body)
 		if err != nil {
 			return nil, err
 		}
@@ -967,7 +967,7 @@ func DecodeAddLocationRequest(mux goahttp.Muxer, decoder func(*http.Request) goa
 		if tokenRaw != "" {
 			token = &tokenRaw
 		}
-		payload := NewAddLocationPayload(&body, token)
+		payload := NewCreateLocationPayload(&body, token)
 		if payload.Token != nil {
 			if strings.Contains(*payload.Token, " ") {
 				// Remove authorization scheme prefix (e.g. "Bearer")
@@ -980,9 +980,9 @@ func DecodeAddLocationRequest(mux goahttp.Muxer, decoder func(*http.Request) goa
 	}
 }
 
-// EncodeAddLocationError returns an encoder for errors returned by the
-// add_location storage endpoint.
-func EncodeAddLocationError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(ctx context.Context, err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
+// EncodeCreateLocationError returns an encoder for errors returned by the
+// create_location storage endpoint.
+func EncodeCreateLocationError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(ctx context.Context, err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
 	encodeError := goahttp.ErrorEncoder(encoder, formatter)
 	return func(ctx context.Context, w http.ResponseWriter, v error) error {
 		var en goa.GoaErrorNamer
@@ -998,7 +998,7 @@ func EncodeAddLocationError(encoder func(context.Context, http.ResponseWriter) g
 			if formatter != nil {
 				body = formatter(ctx, res)
 			} else {
-				body = NewAddLocationNotValidResponseBody(res)
+				body = NewCreateLocationNotValidResponseBody(res)
 			}
 			w.Header().Set("goa-error", res.GoaErrorName())
 			w.WriteHeader(http.StatusBadRequest)
@@ -1115,21 +1115,21 @@ func EncodeShowLocationError(encoder func(context.Context, http.ResponseWriter) 
 	}
 }
 
-// EncodeLocationPackagesResponse returns an encoder for responses returned by
-// the storage location_packages endpoint.
-func EncodeLocationPackagesResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, any) error {
+// EncodeListLocationAipsResponse returns an encoder for responses returned by
+// the storage list_location_aips endpoint.
+func EncodeListLocationAipsResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, any) error {
 	return func(ctx context.Context, w http.ResponseWriter, v any) error {
-		res := v.(storageviews.PackageCollection)
+		res := v.(storageviews.AIPCollection)
 		enc := encoder(ctx, w)
-		body := NewPackageResponseCollection(res.Projected)
+		body := NewAIPResponseCollection(res.Projected)
 		w.WriteHeader(http.StatusOK)
 		return enc.Encode(body)
 	}
 }
 
-// DecodeLocationPackagesRequest returns a decoder for requests sent to the
-// storage location_packages endpoint.
-func DecodeLocationPackagesRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (any, error) {
+// DecodeListLocationAipsRequest returns a decoder for requests sent to the
+// storage list_location_aips endpoint.
+func DecodeListLocationAipsRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (any, error) {
 	return func(r *http.Request) (any, error) {
 		var (
 			uuid  string
@@ -1147,7 +1147,7 @@ func DecodeLocationPackagesRequest(mux goahttp.Muxer, decoder func(*http.Request
 		if err != nil {
 			return nil, err
 		}
-		payload := NewLocationPackagesPayload(uuid, token)
+		payload := NewListLocationAipsPayload(uuid, token)
 		if payload.Token != nil {
 			if strings.Contains(*payload.Token, " ") {
 				// Remove authorization scheme prefix (e.g. "Bearer")
@@ -1160,9 +1160,9 @@ func DecodeLocationPackagesRequest(mux goahttp.Muxer, decoder func(*http.Request
 	}
 }
 
-// EncodeLocationPackagesError returns an encoder for errors returned by the
-// location_packages storage endpoint.
-func EncodeLocationPackagesError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(ctx context.Context, err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
+// EncodeListLocationAipsError returns an encoder for errors returned by the
+// list_location_aips storage endpoint.
+func EncodeListLocationAipsError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(ctx context.Context, err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
 	encodeError := goahttp.ErrorEncoder(encoder, formatter)
 	return func(ctx context.Context, w http.ResponseWriter, v error) error {
 		var en goa.GoaErrorNamer
@@ -1178,7 +1178,7 @@ func EncodeLocationPackagesError(encoder func(context.Context, http.ResponseWrit
 			if formatter != nil {
 				body = formatter(ctx, res)
 			} else {
-				body = NewLocationPackagesNotValidResponseBody(res)
+				body = NewListLocationAipsNotValidResponseBody(res)
 			}
 			w.Header().Set("goa-error", res.GoaErrorName())
 			w.WriteHeader(http.StatusBadRequest)
@@ -1191,7 +1191,7 @@ func EncodeLocationPackagesError(encoder func(context.Context, http.ResponseWrit
 			if formatter != nil {
 				body = formatter(ctx, res)
 			} else {
-				body = NewLocationPackagesNotFoundResponseBody(res)
+				body = NewListLocationAipsNotFoundResponseBody(res)
 			}
 			w.Header().Set("goa-error", res.GoaErrorName())
 			w.WriteHeader(http.StatusNotFound)
@@ -1233,12 +1233,12 @@ func marshalStorageviewsLocationViewToLocationResponse(v *storageviews.LocationV
 	return res
 }
 
-// marshalStorageviewsPackageViewToPackageResponse builds a value of type
-// *PackageResponse from a value of type *storageviews.PackageView.
-func marshalStorageviewsPackageViewToPackageResponse(v *storageviews.PackageView) *PackageResponse {
-	res := &PackageResponse{
+// marshalStorageviewsAIPViewToAIPResponse builds a value of type *AIPResponse
+// from a value of type *storageviews.AIPView.
+func marshalStorageviewsAIPViewToAIPResponse(v *storageviews.AIPView) *AIPResponse {
+	res := &AIPResponse{
 		Name:       *v.Name,
-		AipID:      *v.AipID,
+		UUID:       *v.UUID,
 		Status:     *v.Status,
 		ObjectKey:  *v.ObjectKey,
 		LocationID: v.LocationID,

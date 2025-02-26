@@ -8,12 +8,12 @@ export const useStorageStore = defineStore("storage", {
   state: () => ({
     locations: [] as Array<api.LocationResponse>,
     current: null as api.LocationResponse | null,
-    current_packages: [] as Array<api.PackageResponse>,
+    current_packages: [] as Array<api.AIPResponse>,
   }),
   getters: {},
   actions: {
     async fetchLocations() {
-      const resp = await client.storage.storageLocations();
+      const resp = await client.storage.storageListLocations();
       this.locations = resp;
     },
     async fetchCurrent(uuid: string) {
@@ -29,7 +29,7 @@ export const useStorageStore = defineStore("storage", {
       ]);
 
       await Promise.all([
-        client.storage.storageLocationPackages({ uuid: uuid }).then((resp) => {
+        client.storage.storageListLocationAips({ uuid: uuid }).then((resp) => {
           this.current_packages = resp;
         }),
       ]);

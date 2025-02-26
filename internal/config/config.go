@@ -21,7 +21,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/api"
 	"github.com/artefactual-sdps/enduro/internal/db"
 	"github.com/artefactual-sdps/enduro/internal/event"
-	"github.com/artefactual-sdps/enduro/internal/package_"
+	"github.com/artefactual-sdps/enduro/internal/ingest"
 	"github.com/artefactual-sdps/enduro/internal/poststorage"
 	"github.com/artefactual-sdps/enduro/internal/premis"
 	"github.com/artefactual-sdps/enduro/internal/preprocessing"
@@ -54,7 +54,7 @@ type Configuration struct {
 	Preservation    pres.Config
 	Storage         storage.Config
 	Temporal        temporal.Config
-	Upload          package_.UploadConfig
+	Upload          ingest.UploadConfig
 	Watcher         watcher.Config
 	Telemetry       telemetry.Config
 	ValidatePREMIS  premis.Config

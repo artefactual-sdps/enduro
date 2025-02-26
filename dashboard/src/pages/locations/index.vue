@@ -44,7 +44,7 @@ const { execute, error } = useAsyncState(() => {
           <tr v-for="(item, index) in storageStore.locations">
             <td>
               <router-link
-                v-if="authStore.checkAttributes(['storage:location:read'])"
+                v-if="authStore.checkAttributes(['storage:locations:read'])"
                 :to="{ name: '/locations/[id]/', params: { id: item.uuid } }"
                 >{{ item.name }}</router-link
               >

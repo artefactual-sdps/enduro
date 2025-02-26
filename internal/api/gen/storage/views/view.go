@@ -13,10 +13,10 @@ import (
 	goa "goa.design/goa/v3/pkg"
 )
 
-// Package is the viewed result type that is projected based on a view.
-type Package struct {
+// AIP is the viewed result type that is projected based on a view.
+type AIP struct {
 	// Type to project
-	Projected *PackageView
+	Projected *AIPView
 	// View to render
 	View string
 }
@@ -38,20 +38,19 @@ type Location struct {
 	View string
 }
 
-// PackageCollection is the viewed result type that is projected based on a
-// view.
-type PackageCollection struct {
+// AIPCollection is the viewed result type that is projected based on a view.
+type AIPCollection struct {
 	// Type to project
-	Projected PackageCollectionView
+	Projected AIPCollectionView
 	// View to render
 	View string
 }
 
-// PackageView is a type that runs validations on a projected type.
-type PackageView struct {
-	Name  *string
-	AipID *uuid.UUID
-	// Status of the package
+// AIPView is a type that runs validations on a projected type.
+type AIPView struct {
+	Name *string
+	UUID *uuid.UUID
+	// Status of the AIP
 	Status    *string
 	ObjectKey *uuid.UUID
 	// Identifier of storage location
@@ -113,8 +112,8 @@ type URLConfigView struct {
 	URL *string
 }
 
-// PackageCollectionView is a type that runs validations on a projected type.
-type PackageCollectionView []*PackageView
+// AIPCollectionView is a type that runs validations on a projected type.
+type AIPCollectionView []*AIPView
 
 func (*AMSSConfigView) configVal() {}
 func (*S3ConfigView) configVal()   {}
@@ -122,11 +121,11 @@ func (*SFTPConfigView) configVal() {}
 func (*URLConfigView) configVal()  {}
 
 var (
-	// PackageMap is a map indexing the attribute names of Package by view name.
-	PackageMap = map[string][]string{
+	// AIPMap is a map indexing the attribute names of AIP by view name.
+	AIPMap = map[string][]string{
 		"default": {
 			"name",
-			"aip_id",
+			"uuid",
 			"status",
 			"object_key",
 			"location_id",
@@ -156,12 +155,12 @@ var (
 			"created_at",
 		},
 	}
-	// PackageCollectionMap is a map indexing the attribute names of
-	// PackageCollection by view name.
-	PackageCollectionMap = map[string][]string{
+	// AIPCollectionMap is a map indexing the attribute names of AIPCollection by
+	// view name.
+	AIPCollectionMap = map[string][]string{
 		"default": {
 			"name",
-			"aip_id",
+			"uuid",
 			"status",
 			"object_key",
 			"location_id",
@@ -170,12 +169,11 @@ var (
 	}
 )
 
-// ValidatePackage runs the validations defined on the viewed result type
-// Package.
-func ValidatePackage(result *Package) (err error) {
+// ValidateAIP runs the validations defined on the viewed result type AIP.
+func ValidateAIP(result *AIP) (err error) {
 	switch result.View {
 	case "default", "":
-		err = ValidatePackageView(result.Projected)
+		err = ValidateAIPView(result.Projected)
 	default:
 		err = goa.InvalidEnumValueError("view", result.View, []any{"default"})
 	}
@@ -206,26 +204,26 @@ func ValidateLocation(result *Location) (err error) {
 	return
 }
 
-// ValidatePackageCollection runs the validations defined on the viewed result
-// type PackageCollection.
-func ValidatePackageCollection(result PackageCollection) (err error) {
+// ValidateAIPCollection runs the validations defined on the viewed result type
+// AIPCollection.
+func ValidateAIPCollection(result AIPCollection) (err error) {
 	switch result.View {
 	case "default", "":
-		err = ValidatePackageCollectionView(result.Projected)
+		err = ValidateAIPCollectionView(result.Projected)
 	default:
 		err = goa.InvalidEnumValueError("view", result.View, []any{"default"})
 	}
 	return
 }
 
-// ValidatePackageView runs the validations defined on PackageView using the
-// "default" view.
-func ValidatePackageView(result *PackageView) (err error) {
+// ValidateAIPView runs the validations defined on AIPView using the "default"
+// view.
+func ValidateAIPView(result *AIPView) (err error) {
 	if result.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("name", "result"))
 	}
-	if result.AipID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("aip_id", "result"))
+	if result.UUID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("uuid", "result"))
 	}
 	if result.Status == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("status", "result"))
@@ -342,11 +340,11 @@ func ValidateURLConfigView(result *URLConfigView) (err error) {
 	return
 }
 
-// ValidatePackageCollectionView runs the validations defined on
-// PackageCollectionView using the "default" view.
-func ValidatePackageCollectionView(result PackageCollectionView) (err error) {
+// ValidateAIPCollectionView runs the validations defined on AIPCollectionView
+// using the "default" view.
+func ValidateAIPCollectionView(result AIPCollectionView) (err error) {
 	for _, item := range result {
-		if err2 := ValidatePackageView(item); err2 != nil {
+		if err2 := ValidateAIPView(item); err2 != nil {
 			err = goa.MergeErrors(err, err2)
 		}
 	}

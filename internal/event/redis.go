@@ -11,9 +11,9 @@ import (
 	"github.com/redis/go-redis/v9"
 	"go.opentelemetry.io/otel/trace"
 
-	"github.com/artefactual-sdps/enduro/internal/api/gen/http/package_/client"
-	"github.com/artefactual-sdps/enduro/internal/api/gen/http/package_/server"
-	goapackage "github.com/artefactual-sdps/enduro/internal/api/gen/package_"
+	"github.com/artefactual-sdps/enduro/internal/api/gen/http/ingest/client"
+	"github.com/artefactual-sdps/enduro/internal/api/gen/http/ingest/server"
+	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
 )
 
 type EventServiceRedisImpl struct {
@@ -46,7 +46,7 @@ func NewEventServiceRedis(logger logr.Logger, tp trace.TracerProvider, cfg *Conf
 	}, nil
 }
 
-func (s *EventServiceRedisImpl) PublishEvent(ctx context.Context, event *goapackage.MonitorEvent) {
+func (s *EventServiceRedisImpl) PublishEvent(ctx context.Context, event *goaingest.MonitorEvent) {
 	ctx, cancel := context.WithTimeout(ctx, 1*time.Second)
 	defer cancel()
 
@@ -70,7 +70,7 @@ func (s *EventServiceRedisImpl) Subscribe(ctx context.Context) (Subscription, er
 type SubscriptionRedisImpl struct {
 	logger logr.Logger
 	pubsub *redis.PubSub
-	c      chan *goapackage.MonitorEvent // channel of events
+	c      chan *goaingest.MonitorEvent // channel of events
 	stopCh chan struct{}
 }
 
@@ -89,7 +89,7 @@ func NewSubscriptionRedis(
 	sub := SubscriptionRedisImpl{
 		logger: logger,
 		pubsub: pubsub,
-		c:      make(chan *goapackage.MonitorEvent, EventBufferSize),
+		c:      make(chan *goaingest.MonitorEvent, EventBufferSize),
 		stopCh: make(chan struct{}),
 	}
 	go sub.loop()
@@ -126,6 +126,6 @@ func (s *SubscriptionRedisImpl) Close() error {
 }
 
 // C returns a receive-only channel of user-related events.
-func (s *SubscriptionRedisImpl) C() <-chan *goapackage.MonitorEvent {
+func (s *SubscriptionRedisImpl) C() <-chan *goaingest.MonitorEvent {
 	return s.c
 }

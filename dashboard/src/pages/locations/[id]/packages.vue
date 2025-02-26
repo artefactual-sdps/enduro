@@ -26,13 +26,13 @@ const storageStore = useStorageStore();
         <tbody>
           <tr
             v-for="(pkg, index) in storageStore.current_packages"
-            :key="pkg.aipId"
+            :key="pkg.uuid"
           >
             <td>{{ index + 1 }}</td>
             <td>{{ pkg.name }}</td>
             <td></td>
             <td>
-              <UUID :id="pkg.aipId" />
+              <UUID :id="pkg.uuid" />
             </td>
             <td>{{ $filters.formatDateTime(pkg.createdAt) }}</td>
           </tr>

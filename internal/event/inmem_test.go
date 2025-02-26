@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	goapackage "github.com/artefactual-sdps/enduro/internal/api/gen/package_"
+	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
 	"github.com/artefactual-sdps/enduro/internal/event"
 )
 
@@ -24,7 +24,7 @@ func TestEventService(t *testing.T) {
 		}
 
 		// Publish event to both users
-		s.PublishEvent(ctx, &goapackage.MonitorEvent{})
+		s.PublishEvent(ctx, &goaingest.MonitorEvent{})
 
 		// Verify both subscribers received the update.
 		select {
@@ -50,7 +50,7 @@ func TestEventService(t *testing.T) {
 		}
 
 		// Publish event & close.
-		s.PublishEvent(ctx, &goapackage.MonitorEvent{})
+		s.PublishEvent(ctx, &goaingest.MonitorEvent{})
 		if err := sub.Close(); err != nil {
 			t.Fatal(err)
 		}

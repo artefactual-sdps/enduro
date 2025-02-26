@@ -3,7 +3,7 @@ package persistence
 import (
 	"github.com/google/uuid"
 
-	goapackage "github.com/artefactual-sdps/enduro/internal/api/gen/package_"
+	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/timerange"
 )
@@ -49,12 +49,12 @@ type Page struct {
 	Total int
 }
 
-func (p *Page) Goa() *goapackage.EnduroPage {
+func (p *Page) Goa() *goaingest.EnduroPage {
 	if p == nil {
 		return nil
 	}
 
-	return &goapackage.EnduroPage{
+	return &goaingest.EnduroPage{
 		Limit:  p.Limit,
 		Offset: p.Offset,
 		Total:  p.Total,
@@ -62,7 +62,7 @@ func (p *Page) Goa() *goapackage.EnduroPage {
 }
 
 type SIPFilter struct {
-	// Name filters for packages whose names contain the given string.
+	// Name filters for SIPs whose names contain the given string.
 	Name *string
 
 	AIPID      *uuid.UUID

@@ -42,7 +42,7 @@ func NewAboutEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
 		var err error
 		sc := security.JWTScheme{
 			Name:           "jwt",
-			Scopes:         []string{"package:list", "package:listActions", "package:move", "package:read", "package:review", "package:upload", "storage:location:create", "storage:location:list", "storage:location:listPackages", "storage:location:read", "storage:package:create", "storage:package:download", "storage:package:move", "storage:package:read", "storage:package:review", "storage:package:submit"},
+			Scopes:         []string{"ingest:sips:actions:list", "ingest:sips:list", "ingest:sips:move", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "storage:aips:create", "storage:aips:download", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
 			RequiredScopes: []string{},
 		}
 		var token string

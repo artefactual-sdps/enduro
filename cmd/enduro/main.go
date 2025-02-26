@@ -41,7 +41,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/config"
 	"github.com/artefactual-sdps/enduro/internal/db"
 	"github.com/artefactual-sdps/enduro/internal/event"
-	"github.com/artefactual-sdps/enduro/internal/package_"
+	"github.com/artefactual-sdps/enduro/internal/ingest"
 	"github.com/artefactual-sdps/enduro/internal/persistence"
 	entclient "github.com/artefactual-sdps/enduro/internal/persistence/ent/client"
 	entdb "github.com/artefactual-sdps/enduro/internal/persistence/ent/db"
@@ -224,11 +224,11 @@ func main() {
 	}
 	defer uploadBucket.Close()
 
-	// Set up the package service.
-	var pkgsvc package_.Service
+	// Set up the ingest service.
+	var ingestsvc ingest.Service
 	{
-		pkgsvc = package_.NewService(
-			logger.WithName("package"),
+		ingestsvc = ingest.NewService(
+			logger.WithName("ingest"),
 			enduroDatabase,
 			temporalClient,
 			evsvc,
@@ -301,7 +301,7 @@ func main() {
 
 		g.Add(
 			func() error {
-				srv = api.HTTPServer(logger, tp, &cfg.API, pkgsvc, storagesvc, aboutsvc)
+				srv = api.HTTPServer(logger, tp, &cfg.API, ingestsvc, storagesvc, aboutsvc)
 				return srv.ListenAndServe()
 			},
 			func(err error) {
@@ -313,11 +313,11 @@ func main() {
 	}
 
 	// Internal API server.
-	// Recreate package and storage services with different
+	// Recreate ingest and storage services with different
 	// logger names and using &auth.NoopTokenVerifier{}.
 	{
-		ips := package_.NewService(
-			logger.WithName("internal-package"),
+		ips := ingest.NewService(
+			logger.WithName("internal-ingest"),
 			enduroDatabase,
 			temporalClient,
 			evsvc,
@@ -391,7 +391,7 @@ func main() {
 								Info("Starting new workflow", "watcher", event.WatcherName, "bucket", event.Bucket, "key", event.Key, "dir", event.IsDir)
 							go func() {
 								defer span.End()
-								req := package_.ProcessingWorkflowRequest{
+								req := ingest.ProcessingWorkflowRequest{
 									WatcherName:                event.WatcherName,
 									RetentionPeriod:            event.RetentionPeriod,
 									CompletedDir:               event.CompletedDir,
@@ -405,7 +405,7 @@ func main() {
 									PollInterval:               cfg.AM.PollInterval,
 									TransferDeadline:           cfg.AM.TransferDeadline,
 								}
-								if err := package_.InitProcessingWorkflow(ctx, temporalClient, &req); err != nil {
+								if err := ingest.InitProcessingWorkflow(ctx, temporalClient, &req); err != nil {
 									logger.Error(err, "Error initializing processing workflow.")
 									span.RecordError(err)
 									span.SetStatus(codes.Error, err.Error())
@@ -441,8 +441,8 @@ func main() {
 		}
 
 		w.RegisterWorkflowWithOptions(
-			workflow.NewProcessingWorkflow(cfg, rand.Reader, pkgsvc, wsvc).Execute,
-			temporalsdk_workflow.RegisterOptions{Name: package_.ProcessingWorkflowName},
+			workflow.NewProcessingWorkflow(cfg, rand.Reader, ingestsvc, wsvc).Execute,
+			temporalsdk_workflow.RegisterOptions{Name: ingest.ProcessingWorkflowName},
 		)
 		w.RegisterActivityWithOptions(
 			activities.NewDeleteOriginalActivity(wsvc).Execute,
@@ -468,8 +468,8 @@ func main() {
 		)
 
 		w.RegisterWorkflowWithOptions(
-			workflow.NewMoveWorkflow(pkgsvc).Execute,
-			temporalsdk_workflow.RegisterOptions{Name: package_.MoveWorkflowName},
+			workflow.NewMoveWorkflow(ingestsvc).Execute,
+			temporalsdk_workflow.RegisterOptions{Name: ingest.MoveWorkflowName},
 		)
 
 		httpClient := cleanhttp.DefaultPooledClient()
@@ -489,18 +489,18 @@ func main() {
 			false,
 		)
 		storageClient := goastorage.NewClient(
-			storageHttpClient.Create(),
-			storageHttpClient.Submit(),
-			storageHttpClient.Update(),
-			storageHttpClient.Download(),
-			storageHttpClient.Move(),
-			storageHttpClient.MoveStatus(),
-			storageHttpClient.Reject(),
-			storageHttpClient.Show(),
-			storageHttpClient.Locations(),
-			storageHttpClient.AddLocation(),
+			storageHttpClient.CreateAip(),
+			storageHttpClient.SubmitAip(),
+			storageHttpClient.UpdateAip(),
+			storageHttpClient.DownloadAip(),
+			storageHttpClient.MoveAip(),
+			storageHttpClient.MoveAipStatus(),
+			storageHttpClient.RejectAip(),
+			storageHttpClient.ShowAip(),
+			storageHttpClient.ListLocations(),
+			storageHttpClient.CreateLocation(),
 			storageHttpClient.ShowLocation(),
-			storageHttpClient.LocationPackages(),
+			storageHttpClient.ListLocationAips(),
 		)
 		w.RegisterActivityWithOptions(
 			activities.NewMoveToPermanentStorageActivity(storageClient).Execute,

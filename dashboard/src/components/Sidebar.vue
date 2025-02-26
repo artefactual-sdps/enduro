@@ -28,13 +28,13 @@ const menuItems = [
     route: router.resolve("/packages/"),
     icon: RawIconBundleLine,
     text: "Packages",
-    show: authStore.checkAttributes(["package:list"]),
+    show: authStore.checkAttributes(["ingest:sips:list"]),
   },
   {
     route: router.resolve("/locations/"),
     icon: RawIconRackServerLine,
     text: "Locations",
-    show: authStore.checkAttributes(["storage:location:list"]),
+    show: authStore.checkAttributes(["storage:locations:list"]),
   },
 ];
 

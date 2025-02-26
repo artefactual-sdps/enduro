@@ -45,14 +45,14 @@ app.config.globalProperties.$filters = {
     return FormatDuration(from, to);
   },
   getPreservationActionLabel(
-    value: api.EnduroPackagePreservationActionTypeEnum,
+    value: api.EnduroIngestSipPreservationActionTypeEnum,
   ) {
     switch (value) {
-      case api.EnduroPackagePreservationActionTypeEnum.CreateAip:
+      case api.EnduroIngestSipPreservationActionTypeEnum.CreateAip:
         return "Create AIP";
-      case api.EnduroPackagePreservationActionTypeEnum.CreateAndReviewAip:
+      case api.EnduroIngestSipPreservationActionTypeEnum.CreateAndReviewAip:
         return "Create and Review AIP";
-      case api.EnduroPackagePreservationActionTypeEnum.MovePackage:
+      case api.EnduroIngestSipPreservationActionTypeEnum.MovePackage:
         return "Move package";
       default:
         return value;

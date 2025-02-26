@@ -5,7 +5,7 @@ import { ref } from "vue";
 import { api, client } from "@/client";
 import {
   MonitorEventEventTypeEnum,
-  PackageListStatusEnum,
+  IngestListSipsStatusEnum,
 } from "@/openapi-generator";
 import router from "@/router";
 import { useLayoutStore } from "@/stores/layout";
@@ -24,11 +24,10 @@ export interface Pager {
 export const usePackageStore = defineStore("package", {
   state: () => ({
     // Package currently displayed.
-    current: null as api.EnduroStoredPackage | null,
+    current: null as api.EnduroIngestSip | null,
 
     // Preservation actions of the current package.
-    current_preservation_actions:
-      null as api.EnduroPackagePreservationActions | null,
+    current_preservation_actions: null as api.SIPPreservationActions | null,
 
     // The current package is being moved into a new location.
     // Set to true by this client when the package is moved.
@@ -36,7 +35,7 @@ export const usePackageStore = defineStore("package", {
     locationChanging: false,
 
     // A list of packages shown during searches.
-    packages: [] as Array<api.EnduroStoredPackage>,
+    packages: [] as Array<api.EnduroIngestSip>,
 
     // Page is a subset of the total package list.
     page: { limit: 20 } as api.EnduroPage,
@@ -50,17 +49,17 @@ export const usePackageStore = defineStore("package", {
     },
 
     filters: {
-      status: "" as PackageListStatusEnum,
+      status: "" as IngestListSipsStatusEnum,
       name: "",
       earliestCreatedTime: undefined as Date | undefined,
     },
   }),
   getters: {
     isPending(): boolean {
-      return this.current?.status == api.EnduroStoredPackageStatusEnum.Pending;
+      return this.current?.status == api.EnduroIngestSipStatusEnum.Pending;
     },
     isDone(): boolean {
-      return this.current?.status == api.EnduroStoredPackageStatusEnum.Done;
+      return this.current?.status == api.EnduroIngestSipStatusEnum.Done;
     },
     isMovable(): boolean {
       return this.isDone && !this.isMoving;
@@ -87,9 +86,9 @@ export const usePackageStore = defineStore("package", {
     getActionById: (state) => {
       return (
         actionId: number,
-      ): api.EnduroPackagePreservationAction | undefined => {
+      ): api.EnduroIngestSipPreservationAction | undefined => {
         const x = state.current_preservation_actions?.actions?.find(
-          (action: api.EnduroPackagePreservationAction) =>
+          (action: api.EnduroIngestSipPreservationAction) =>
             action.id === actionId,
         );
         return x;
@@ -99,14 +98,14 @@ export const usePackageStore = defineStore("package", {
       return (
         actionId: number,
         taskId: number,
-      ): api.EnduroPackagePreservationTask | undefined => {
+      ): api.EnduroIngestSipPreservationTask | undefined => {
         const action = state.current_preservation_actions?.actions?.find(
-          (action: api.EnduroPackagePreservationAction) =>
+          (action: api.EnduroIngestSipPreservationAction) =>
             action.id === actionId,
         );
         if (!action) return;
         return action.tasks?.find(
-          (task: api.EnduroPackagePreservationTask) => task.id === taskId,
+          (task: api.EnduroIngestSipPreservationTask) => task.id === taskId,
         );
       };
     },
@@ -128,7 +127,7 @@ export const usePackageStore = defineStore("package", {
         throw Error("Unexpected parameter");
       }
 
-      this.current = await client.package.packageShow({ id: packageId });
+      this.current = await client.ingest.ingestShowSip({ id: packageId });
 
       // Update breadcrumb. TODO: should this be done in the component?
       const layoutStore = useLayoutStore();
@@ -139,18 +138,18 @@ export const usePackageStore = defineStore("package", {
       ]);
 
       await Promise.allSettled([
-        client.package
-          .packagePreservationActions({ id: packageId })
+        client.ingest
+          .ingestListSipPreservationActions({ id: packageId })
           .then((resp) => {
             this.current_preservation_actions = resp;
           }),
-        client.package.packageMoveStatus({ id: packageId }).then((resp) => {
+        client.ingest.ingestMoveSipStatus({ id: packageId }).then((resp) => {
           this.locationChanging = !resp.done;
         }),
       ]);
     },
     async fetchPackages(page: number) {
-      const resp = await client.package.packageList({
+      const resp = await client.ingest.ingestListSips({
         offset: page > 1 ? (page - 1) * this.page.limit : undefined,
         limit: this.page?.limit || undefined,
         status: this.filters.status ?? undefined,
@@ -167,16 +166,16 @@ export const usePackageStore = defineStore("package", {
     async move(locationId: string) {
       if (!this.current) return;
       try {
-        await client.package.packageMove({
+        await client.ingest.ingestMoveSip({
           id: this.current.id,
-          confirmRequestBody: { locationId: locationId },
+          confirmSipRequestBody: { locationId: locationId },
         });
       } catch (error) {
         return error;
       }
       this.$patch((state) => {
         if (!state.current) return;
-        state.current.status = api.EnduroStoredPackageStatusEnum.InProgress;
+        state.current.status = api.EnduroIngestSipStatusEnum.InProgress;
         state.locationChanging = true;
       });
     },
@@ -184,7 +183,7 @@ export const usePackageStore = defineStore("package", {
       if (!this.current) return;
       let resp;
       try {
-        resp = await client.package.packageMoveStatus({
+        resp = await client.ingest.ingestMoveSipStatus({
           id: this.current?.id,
         });
       } catch (error) {
@@ -194,21 +193,21 @@ export const usePackageStore = defineStore("package", {
     },
     confirm(locationId: string) {
       if (!this.current) return;
-      client.package
-        .packageConfirm({
+      client.ingest
+        .ingestConfirmSip({
           id: this.current.id,
-          confirmRequestBody: { locationId: locationId },
+          confirmSipRequestBody: { locationId: locationId },
         })
         .then(() => {
           if (!this.current) return;
-          this.current.status = api.EnduroStoredPackageStatusEnum.InProgress;
+          this.current.status = api.EnduroIngestSipStatusEnum.InProgress;
         });
     },
     reject() {
       if (!this.current) return;
-      client.package.packageReject({ id: this.current.id }).then(() => {
+      client.ingest.ingestRejectSip({ id: this.current.id }).then(() => {
         if (!this.current) return;
-        this.current.status = api.EnduroStoredPackageStatusEnum.InProgress;
+        this.current.status = api.EnduroIngestSipStatusEnum.InProgress;
       });
     },
     nextPage() {
@@ -258,19 +257,18 @@ const handlers: {
   [key in api.MonitorEventEventTypeEnum]: (data: unknown) => void;
 } = {
   [MonitorEventEventTypeEnum.MonitorPingEvent]: handleMonitorPing,
-  [MonitorEventEventTypeEnum.PackageCreatedEvent]: handlePackageCreated,
-  [MonitorEventEventTypeEnum.PackageUpdatedEvent]: handlePackageUpdated,
-  [MonitorEventEventTypeEnum.PackageStatusUpdatedEvent]:
-    handlePackageStatusUpdated,
-  [MonitorEventEventTypeEnum.PackageLocationUpdatedEvent]:
+  [MonitorEventEventTypeEnum.SipCreatedEvent]: handlePackageCreated,
+  [MonitorEventEventTypeEnum.SipUpdatedEvent]: handlePackageUpdated,
+  [MonitorEventEventTypeEnum.SipStatusUpdatedEvent]: handlePackageStatusUpdated,
+  [MonitorEventEventTypeEnum.SipLocationUpdatedEvent]:
     handlePackageLocationUpdated,
-  [MonitorEventEventTypeEnum.PreservationActionCreatedEvent]:
+  [MonitorEventEventTypeEnum.SipPreservationActionCreatedEvent]:
     handlePreservationActionCreated,
-  [MonitorEventEventTypeEnum.PreservationActionUpdatedEvent]:
+  [MonitorEventEventTypeEnum.SipPreservationActionUpdatedEvent]:
     handlePreservationActionUpdated,
-  [MonitorEventEventTypeEnum.PreservationTaskCreatedEvent]:
+  [MonitorEventEventTypeEnum.SipPreservationTaskCreatedEvent]:
     handlePreservationTaskCreated,
-  [MonitorEventEventTypeEnum.PreservationTaskUpdatedEvent]:
+  [MonitorEventEventTypeEnum.SipPreservationTaskUpdatedEvent]:
     handlePreservationTaskUpdated,
 };
 
@@ -279,13 +277,13 @@ function handleMonitorPing(data: unknown) {
 }
 
 function handlePackageCreated(data: unknown) {
-  api.PackageCreatedEventFromJSON(data);
+  api.SIPCreatedEventFromJSON(data);
   const store = usePackageStore();
   store.fetchPackagesDebounced(1);
 }
 
 function handlePackageUpdated(data: unknown) {
-  const event = api.PackageUpdatedEventFromJSON(data);
+  const event = api.SIPUpdatedEventFromJSON(data);
   const store = usePackageStore();
   store.fetchPackagesDebounced(1);
   if (store.$state.current?.id != event.id) return;
@@ -293,7 +291,7 @@ function handlePackageUpdated(data: unknown) {
 }
 
 function handlePackageStatusUpdated(data: unknown) {
-  const event = api.PackageStatusUpdatedEventFromJSON(data);
+  const event = api.SIPStatusUpdatedEventFromJSON(data);
   const store = usePackageStore();
   store.fetchPackagesDebounced(1);
   if (store.$state.current?.id != event.id) return;
@@ -301,7 +299,7 @@ function handlePackageStatusUpdated(data: unknown) {
 }
 
 function handlePackageLocationUpdated(data: unknown) {
-  const event = api.PackageLocationUpdatedEventFromJSON(data);
+  const event = api.SIPLocationUpdatedEventFromJSON(data);
   const store = usePackageStore();
   store.fetchPackagesDebounced(1);
   store.$patch((state) => {
@@ -312,22 +310,22 @@ function handlePackageLocationUpdated(data: unknown) {
 }
 
 function handlePreservationActionCreated(data: unknown) {
-  const event = api.PreservationActionCreatedEventFromJSON(data);
+  const event = api.SIPPreservationActionCreatedEventFromJSON(data);
   const store = usePackageStore();
 
   // Ignore event if it does not relate to the current package.
-  if (store.current?.id != event.item.packageId) return;
+  if (store.current?.id != event.item.sipId) return;
 
   // Append the action.
   store.current_preservation_actions?.actions?.unshift(event.item);
 }
 
 function handlePreservationActionUpdated(data: unknown) {
-  const event = api.PreservationActionUpdatedEventFromJSON(data);
+  const event = api.SIPPreservationActionUpdatedEventFromJSON(data);
   const store = usePackageStore();
 
   // Ignore event if it does not relate to the current package.
-  if (store.current?.id != event.item.packageId) return;
+  if (store.current?.id != event.item.sipId) return;
 
   // Find and update the action.
   const action = store.getActionById(event.id);
@@ -340,7 +338,7 @@ function handlePreservationActionUpdated(data: unknown) {
 }
 
 function handlePreservationTaskCreated(data: unknown) {
-  const event = api.PreservationTaskCreatedEventFromJSON(data);
+  const event = api.SIPPreservationTaskCreatedEventFromJSON(data);
   const store = usePackageStore();
 
   // Find and update the action.
@@ -354,7 +352,7 @@ function handlePreservationTaskCreated(data: unknown) {
 }
 
 function handlePreservationTaskUpdated(data: unknown) {
-  const event = api.PreservationTaskUpdatedEventFromJSON(data);
+  const event = api.SIPPreservationTaskUpdatedEventFromJSON(data);
   const store = usePackageStore();
 
   if (!event.item.preservationActionId) return;

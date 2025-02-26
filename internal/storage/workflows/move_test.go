@@ -26,10 +26,10 @@ func TestStorageMoveWorkflow(t *testing.T) {
 	// Mock services and their expected calls
 	ctrl := gomock.NewController(t)
 	storagesvc := fake.NewMockService(ctrl)
-	storagesvc.EXPECT().Delete(gomock.Any(), aipID)
-	storagesvc.EXPECT().UpdatePackageLocationID(gomock.Any(), aipID, locationID)
-	storagesvc.EXPECT().UpdatePackageStatus(gomock.Any(), aipID, types.AIPStatusMoving)
-	storagesvc.EXPECT().UpdatePackageStatus(gomock.Any(), aipID, types.AIPStatusStored)
+	storagesvc.EXPECT().DeleteAip(gomock.Any(), aipID)
+	storagesvc.EXPECT().UpdateAipLocationID(gomock.Any(), aipID, locationID)
+	storagesvc.EXPECT().UpdateAipStatus(gomock.Any(), aipID, types.AIPStatusMoving)
+	storagesvc.EXPECT().UpdateAipStatus(gomock.Any(), aipID, types.AIPStatusStored)
 
 	// Worker activities
 	env.RegisterActivityWithOptions(

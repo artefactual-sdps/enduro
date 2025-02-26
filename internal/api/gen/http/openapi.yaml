@@ -35,17 +35,82 @@ paths:
                 - http
             security:
                 - jwt_header_Authorization: []
-    /package:
+    /ingest/monitor:
         get:
             tags:
-                - package
-            summary: list package
+                - ingest
+            summary: monitor ingest
+            description: Obtain access to the /monitor WebSocket
+            operationId: ingest#monitor
+            responses:
+                "101":
+                    description: Switching Protocols response.
+                    schema:
+                        $ref: '#/definitions/IngestMonitorResponseBody'
+                "401":
+                    description: Unauthorized response.
+                    schema:
+                        type: string
+                "403":
+                    description: Forbidden response.
+                    schema:
+                        type: string
+                "500":
+                    description: Internal Server Error response.
+                    schema:
+                        $ref: '#/definitions/IngestMonitorNotAvailableResponseBody'
+            schemes:
+                - ws
+        post:
+            tags:
+                - ingest
+            summary: monitor_request ingest
             description: |-
-                List all stored packages
+                Request access to the /monitor WebSocket
 
                 **Required security scopes for jwt**:
-                  * `package:list`
-            operationId: package#list
+                  * `ingest:sips:list`
+                  * `ingest:sips:actions:list`
+                  * `ingest:sips:move`
+                  * `ingest:sips:read`
+                  * `ingest:sips:review`
+                  * `ingest:sips:upload`
+            operationId: ingest#monitor_request
+            parameters:
+                - name: Authorization
+                  in: header
+                  required: false
+                  type: string
+            responses:
+                "200":
+                    description: OK response.
+                "401":
+                    description: Unauthorized response.
+                    schema:
+                        type: string
+                "403":
+                    description: Forbidden response.
+                    schema:
+                        type: string
+                "500":
+                    description: Internal Server Error response.
+                    schema:
+                        $ref: '#/definitions/IngestMonitorRequestNotAvailableResponseBody'
+            schemes:
+                - http
+            security:
+                - jwt_header_Authorization: []
+    /ingest/sips:
+        get:
+            tags:
+                - ingest
+            summary: list_sips ingest
+            description: |-
+                List all ingested SIPs
+
+                **Required security scopes for jwt**:
+                  * `ingest:sips:list`
+            operationId: ingest#list_sips
             parameters:
                 - name: name
                   in: query
@@ -104,7 +169,7 @@ paths:
                 "200":
                     description: OK response.
                     schema:
-                        $ref: '#/definitions/PackageListResponseBody'
+                        $ref: '#/definitions/IngestListSipsResponseBody'
                 "401":
                     description: Unauthorized response.
                     schema:
@@ -117,21 +182,21 @@ paths:
                 - http
             security:
                 - jwt_header_Authorization: []
-    /package/{id}:
+    /ingest/sips/{id}:
         get:
             tags:
-                - package
-            summary: show package
+                - ingest
+            summary: show_sip ingest
             description: |-
-                Show package by ID
+                Show SIP by ID
 
                 **Required security scopes for jwt**:
-                  * `package:read`
-            operationId: package#show
+                  * `ingest:sips:read`
+            operationId: ingest#show_sip
             parameters:
                 - name: id
                   in: path
-                  description: Identifier of package to show
+                  description: Identifier of SIP to show
                   required: true
                   type: integer
                 - name: Authorization
@@ -142,7 +207,7 @@ paths:
                 "200":
                     description: OK response.
                     schema:
-                        $ref: '#/definitions/PackageShowResponseBody'
+                        $ref: '#/definitions/IngestShowSipResponseBody'
                 "401":
                     description: Unauthorized response.
                     schema:
@@ -154,44 +219,44 @@ paths:
                 "404":
                     description: Not Found response.
                     schema:
-                        $ref: '#/definitions/PackageShowNotFoundResponseBody'
+                        $ref: '#/definitions/IngestShowSipNotFoundResponseBody'
                         required:
                             - message
                             - id
                 "409":
                     description: Conflict response.
                     schema:
-                        $ref: '#/definitions/PackageShowNotAvailableResponseBody'
+                        $ref: '#/definitions/IngestShowSipNotAvailableResponseBody'
             schemes:
                 - http
             security:
                 - jwt_header_Authorization: []
-    /package/{id}/confirm:
+    /ingest/sips/{id}/confirm:
         post:
             tags:
-                - package
-            summary: confirm package
+                - ingest
+            summary: confirm_sip ingest
             description: |-
-                Signal the package has been reviewed and accepted
+                Signal the SIP has been reviewed and accepted
 
                 **Required security scopes for jwt**:
-                  * `package:review`
-            operationId: package#confirm
+                  * `ingest:sips:review`
+            operationId: ingest#confirm_sip
             parameters:
                 - name: id
                   in: path
-                  description: Identifier of package to look up
+                  description: Identifier of SIP to look up
                   required: true
                   type: integer
                 - name: Authorization
                   in: header
                   required: false
                   type: string
-                - name: ConfirmRequestBody
+                - name: confirm_sip_request_body
                   in: body
                   required: true
                   schema:
-                    $ref: '#/definitions/PackageConfirmRequestBody'
+                    $ref: '#/definitions/IngestConfirmSipRequestBody'
                     required:
                         - location_id
             responses:
@@ -200,7 +265,7 @@ paths:
                 "400":
                     description: Bad Request response.
                     schema:
-                        $ref: '#/definitions/PackageConfirmNotValidResponseBody'
+                        $ref: '#/definitions/IngestConfirmSipNotValidResponseBody'
                 "401":
                     description: Unauthorized response.
                     schema:
@@ -212,33 +277,33 @@ paths:
                 "404":
                     description: Not Found response.
                     schema:
-                        $ref: '#/definitions/PackageConfirmNotFoundResponseBody'
+                        $ref: '#/definitions/IngestConfirmSipNotFoundResponseBody'
                         required:
                             - message
                             - id
                 "409":
                     description: Conflict response.
                     schema:
-                        $ref: '#/definitions/PackageConfirmNotAvailableResponseBody'
+                        $ref: '#/definitions/IngestConfirmSipNotAvailableResponseBody'
             schemes:
                 - http
             security:
                 - jwt_header_Authorization: []
-    /package/{id}/move:
+    /ingest/sips/{id}/move:
         get:
             tags:
-                - package
-            summary: move_status package
+                - ingest
+            summary: move_sip_status ingest
             description: |-
-                Retrieve the status of a permanent storage location move of the package
+                Retrieve the status of a permanent storage location move of the SIP
 
                 **Required security scopes for jwt**:
-                  * `package:move`
-            operationId: package#move_status
+                  * `ingest:sips:move`
+            operationId: ingest#move_sip_status
             parameters:
                 - name: id
                   in: path
-                  description: Identifier of package to move
+                  description: Identifier of SIP to move
                   required: true
                   type: integer
                 - name: Authorization
@@ -249,7 +314,7 @@ paths:
                 "200":
                     description: OK response.
                     schema:
-                        $ref: '#/definitions/PackageMoveStatusResponseBody'
+                        $ref: '#/definitions/IngestMoveSipStatusResponseBody'
                         required:
                             - done
                 "401":
@@ -263,43 +328,43 @@ paths:
                 "404":
                     description: Not Found response.
                     schema:
-                        $ref: '#/definitions/PackageMoveStatusNotFoundResponseBody'
+                        $ref: '#/definitions/IngestMoveSipStatusNotFoundResponseBody'
                         required:
                             - message
                             - id
                 "424":
                     description: Failed Dependency response.
                     schema:
-                        $ref: '#/definitions/PackageMoveStatusFailedDependencyResponseBody'
+                        $ref: '#/definitions/IngestMoveSipStatusFailedDependencyResponseBody'
             schemes:
                 - http
             security:
                 - jwt_header_Authorization: []
         post:
             tags:
-                - package
-            summary: move package
+                - ingest
+            summary: move_sip ingest
             description: |-
-                Move a package to a permanent storage location
+                Move a SIP to a permanent storage location
 
                 **Required security scopes for jwt**:
-                  * `package:move`
-            operationId: package#move
+                  * `ingest:sips:move`
+            operationId: ingest#move_sip
             parameters:
                 - name: id
                   in: path
-                  description: Identifier of package to move
+                  description: Identifier of SIP to move
                   required: true
                   type: integer
                 - name: Authorization
                   in: header
                   required: false
                   type: string
-                - name: MoveRequestBody
+                - name: move_sip_request_body
                   in: body
                   required: true
                   schema:
-                    $ref: '#/definitions/PackageMoveRequestBody'
+                    $ref: '#/definitions/IngestMoveSipRequestBody'
                     required:
                         - location_id
             responses:
@@ -308,7 +373,7 @@ paths:
                 "400":
                     description: Bad Request response.
                     schema:
-                        $ref: '#/definitions/PackageMoveNotValidResponseBody'
+                        $ref: '#/definitions/IngestMoveSipNotValidResponseBody'
                 "401":
                     description: Unauthorized response.
                     schema:
@@ -320,33 +385,33 @@ paths:
                 "404":
                     description: Not Found response.
                     schema:
-                        $ref: '#/definitions/PackageMoveNotFoundResponseBody'
+                        $ref: '#/definitions/IngestMoveSipNotFoundResponseBody'
                         required:
                             - message
                             - id
                 "409":
                     description: Conflict response.
                     schema:
-                        $ref: '#/definitions/PackageMoveNotAvailableResponseBody'
+                        $ref: '#/definitions/IngestMoveSipNotAvailableResponseBody'
             schemes:
                 - http
             security:
                 - jwt_header_Authorization: []
-    /package/{id}/preservation-actions:
+    /ingest/sips/{id}/preservation-actions:
         get:
             tags:
-                - package
-            summary: preservation_actions package
+                - ingest
+            summary: list_sip_preservation_actions ingest
             description: |-
-                List all preservation actions by ID
+                List all preservation actions for a SIP
 
                 **Required security scopes for jwt**:
-                  * `package:listActions`
-            operationId: package#preservation_actions
+                  * `ingest:sips:actions:list`
+            operationId: ingest#list_sip_preservation_actions
             parameters:
                 - name: id
                   in: path
-                  description: Identifier of package to look up
+                  description: Identifier of SIP to look up
                   required: true
                   type: integer
                 - name: Authorization
@@ -357,7 +422,7 @@ paths:
                 "200":
                     description: OK response.
                     schema:
-                        $ref: '#/definitions/PackagePreservationActionsResponseBody'
+                        $ref: '#/definitions/IngestListSipPreservationActionsResponseBody'
                 "401":
                     description: Unauthorized response.
                     schema:
@@ -369,7 +434,7 @@ paths:
                 "404":
                     description: Not Found response.
                     schema:
-                        $ref: '#/definitions/PackagePreservationActionsNotFoundResponseBody'
+                        $ref: '#/definitions/IngestListSipPreservationActionsNotFoundResponseBody'
                         required:
                             - message
                             - id
@@ -377,21 +442,21 @@ paths:
                 - http
             security:
                 - jwt_header_Authorization: []
-    /package/{id}/reject:
+    /ingest/sips/{id}/reject:
         post:
             tags:
-                - package
-            summary: reject package
+                - ingest
+            summary: reject_sip ingest
             description: |-
-                Signal the package has been reviewed and rejected
+                Signal the SIP has been reviewed and rejected
 
                 **Required security scopes for jwt**:
-                  * `package:review`
-            operationId: package#reject
+                  * `ingest:sips:review`
+            operationId: ingest#reject_sip
             parameters:
                 - name: id
                   in: path
-                  description: Identifier of package to look up
+                  description: Identifier of SIP to look up
                   required: true
                   type: integer
                 - name: Authorization
@@ -404,7 +469,7 @@ paths:
                 "400":
                     description: Bad Request response.
                     schema:
-                        $ref: '#/definitions/PackageRejectNotValidResponseBody'
+                        $ref: '#/definitions/IngestRejectSipNotValidResponseBody'
                 "401":
                     description: Unauthorized response.
                     schema:
@@ -416,94 +481,29 @@ paths:
                 "404":
                     description: Not Found response.
                     schema:
-                        $ref: '#/definitions/PackageRejectNotFoundResponseBody'
+                        $ref: '#/definitions/IngestRejectSipNotFoundResponseBody'
                         required:
                             - message
                             - id
                 "409":
                     description: Conflict response.
                     schema:
-                        $ref: '#/definitions/PackageRejectNotAvailableResponseBody'
+                        $ref: '#/definitions/IngestRejectSipNotAvailableResponseBody'
             schemes:
                 - http
             security:
                 - jwt_header_Authorization: []
-    /package/monitor:
-        get:
-            tags:
-                - package
-            summary: monitor package
-            description: Obtain access to the /monitor WebSocket
-            operationId: package#monitor
-            responses:
-                "101":
-                    description: Switching Protocols response.
-                    schema:
-                        $ref: '#/definitions/PackageMonitorResponseBody'
-                "401":
-                    description: Unauthorized response.
-                    schema:
-                        type: string
-                "403":
-                    description: Forbidden response.
-                    schema:
-                        type: string
-                "500":
-                    description: Internal Server Error response.
-                    schema:
-                        $ref: '#/definitions/PackageMonitorNotAvailableResponseBody'
-            schemes:
-                - ws
+    /ingest/sips/upload:
         post:
             tags:
-                - package
-            summary: monitor_request package
+                - ingest
+            summary: upload_sip ingest
             description: |-
-                Request access to the /monitor WebSocket
+                Upload a SIP to trigger an ingest workflow
 
                 **Required security scopes for jwt**:
-                  * `package:list`
-                  * `package:listActions`
-                  * `package:move`
-                  * `package:read`
-                  * `package:review`
-                  * `package:upload`
-            operationId: package#monitor_request
-            parameters:
-                - name: Authorization
-                  in: header
-                  required: false
-                  type: string
-            responses:
-                "200":
-                    description: OK response.
-                "401":
-                    description: Unauthorized response.
-                    schema:
-                        type: string
-                "403":
-                    description: Forbidden response.
-                    schema:
-                        type: string
-                "500":
-                    description: Internal Server Error response.
-                    schema:
-                        $ref: '#/definitions/PackageMonitorRequestNotAvailableResponseBody'
-            schemes:
-                - http
-            security:
-                - jwt_header_Authorization: []
-    /package/upload:
-        post:
-            tags:
-                - package
-            summary: upload package
-            description: |-
-                Upload a package to trigger an ingest workflow
-
-                **Required security scopes for jwt**:
-                  * `package:upload`
-            operationId: package#upload
+                  * `ingest:sips:upload`
+            operationId: ingest#upload_sip
             parameters:
                 - name: Content-Type
                   in: header
@@ -522,7 +522,7 @@ paths:
                 "400":
                     description: Bad Request response.
                     schema:
-                        $ref: '#/definitions/PackageUploadInvalidMultipartRequestResponseBody'
+                        $ref: '#/definitions/IngestUploadSipInvalidMultipartRequestResponseBody'
                 "401":
                     description: Unauthorized response.
                     schema:
@@ -534,22 +534,424 @@ paths:
                 "500":
                     description: Internal Server Error response.
                     schema:
-                        $ref: '#/definitions/PackageUploadInternalErrorResponseBody'
+                        $ref: '#/definitions/IngestUploadSipInternalErrorResponseBody'
             schemes:
                 - http
             security:
                 - jwt_header_Authorization: []
-    /storage/location:
+    /storage/aips:
+        post:
+            tags:
+                - storage
+            summary: create_aip storage
+            description: |-
+                Create a new AIP
+
+                **Required security scopes for jwt**:
+                  * `storage:aips:create`
+            operationId: storage#create_aip
+            parameters:
+                - name: Authorization
+                  in: header
+                  required: false
+                  type: string
+                - name: create_aip_request_body
+                  in: body
+                  required: true
+                  schema:
+                    $ref: '#/definitions/StorageCreateAipRequestBody'
+                    required:
+                        - uuid
+                        - name
+                        - object_key
+            responses:
+                "200":
+                    description: OK response.
+                    schema:
+                        $ref: '#/definitions/StorageCreateAipResponseBody'
+                "400":
+                    description: Bad Request response.
+                    schema:
+                        $ref: '#/definitions/StorageCreateAipNotValidResponseBody'
+                "401":
+                    description: Unauthorized response.
+                    schema:
+                        type: string
+                "403":
+                    description: Forbidden response.
+                    schema:
+                        type: string
+            schemes:
+                - http
+            security:
+                - jwt_header_Authorization: []
+    /storage/aips/{uuid}:
         get:
             tags:
                 - storage
-            summary: locations storage
+            summary: show_aip storage
+            description: |-
+                Show AIP by AIPID
+
+                **Required security scopes for jwt**:
+                  * `storage:aips:read`
+            operationId: storage#show_aip
+            parameters:
+                - name: uuid
+                  in: path
+                  description: Identifier of AIP
+                  required: true
+                  type: string
+                  format: uuid
+                - name: Authorization
+                  in: header
+                  required: false
+                  type: string
+            responses:
+                "200":
+                    description: OK response.
+                    schema:
+                        $ref: '#/definitions/StorageShowAipResponseBody'
+                "401":
+                    description: Unauthorized response.
+                    schema:
+                        type: string
+                "403":
+                    description: Forbidden response.
+                    schema:
+                        type: string
+                "404":
+                    description: Not Found response.
+                    schema:
+                        $ref: '#/definitions/StorageShowAipNotFoundResponseBody'
+                        required:
+                            - message
+                            - uuid
+            schemes:
+                - http
+            security:
+                - jwt_header_Authorization: []
+    /storage/aips/{uuid}/download:
+        get:
+            tags:
+                - storage
+            summary: download_aip storage
+            description: |-
+                Download AIP by AIPID
+
+                **Required security scopes for jwt**:
+                  * `storage:aips:download`
+            operationId: storage#download_aip
+            parameters:
+                - name: uuid
+                  in: path
+                  description: Identifier of AIP
+                  required: true
+                  type: string
+                  format: uuid
+                - name: Authorization
+                  in: header
+                  required: false
+                  type: string
+            responses:
+                "200":
+                    description: OK response.
+                    schema:
+                        type: string
+                        format: byte
+                "401":
+                    description: Unauthorized response.
+                    schema:
+                        type: string
+                "403":
+                    description: Forbidden response.
+                    schema:
+                        type: string
+                "404":
+                    description: Not Found response.
+                    schema:
+                        $ref: '#/definitions/StorageDownloadAipNotFoundResponseBody'
+                        required:
+                            - message
+                            - uuid
+            schemes:
+                - http
+            security:
+                - jwt_header_Authorization: []
+    /storage/aips/{uuid}/reject:
+        post:
+            tags:
+                - storage
+            summary: reject_aip storage
+            description: |-
+                Reject an AIP
+
+                **Required security scopes for jwt**:
+                  * `storage:aips:review`
+            operationId: storage#reject_aip
+            parameters:
+                - name: uuid
+                  in: path
+                  description: Identifier of AIP
+                  required: true
+                  type: string
+                  format: uuid
+                - name: Authorization
+                  in: header
+                  required: false
+                  type: string
+            responses:
+                "202":
+                    description: Accepted response.
+                "400":
+                    description: Bad Request response.
+                    schema:
+                        $ref: '#/definitions/StorageRejectAipNotValidResponseBody'
+                "401":
+                    description: Unauthorized response.
+                    schema:
+                        type: string
+                "403":
+                    description: Forbidden response.
+                    schema:
+                        type: string
+                "404":
+                    description: Not Found response.
+                    schema:
+                        $ref: '#/definitions/StorageRejectAipNotFoundResponseBody'
+                        required:
+                            - message
+                            - uuid
+                "409":
+                    description: Conflict response.
+                    schema:
+                        $ref: '#/definitions/StorageRejectAipNotAvailableResponseBody'
+            schemes:
+                - http
+            security:
+                - jwt_header_Authorization: []
+    /storage/aips/{uuid}/store:
+        get:
+            tags:
+                - storage
+            summary: move_aip_status storage
+            description: |-
+                Retrieve the status of a permanent storage location move of the AIP
+
+                **Required security scopes for jwt**:
+                  * `storage:aips:move`
+            operationId: storage#move_aip_status
+            parameters:
+                - name: uuid
+                  in: path
+                  description: Identifier of AIP
+                  required: true
+                  type: string
+                  format: uuid
+                - name: Authorization
+                  in: header
+                  required: false
+                  type: string
+            responses:
+                "200":
+                    description: OK response.
+                    schema:
+                        $ref: '#/definitions/StorageMoveAipStatusResponseBody'
+                        required:
+                            - done
+                "401":
+                    description: Unauthorized response.
+                    schema:
+                        type: string
+                "403":
+                    description: Forbidden response.
+                    schema:
+                        type: string
+                "404":
+                    description: Not Found response.
+                    schema:
+                        $ref: '#/definitions/StorageMoveAipStatusNotFoundResponseBody'
+                        required:
+                            - message
+                            - uuid
+                "424":
+                    description: Failed Dependency response.
+                    schema:
+                        $ref: '#/definitions/StorageMoveAipStatusFailedDependencyResponseBody'
+            schemes:
+                - http
+            security:
+                - jwt_header_Authorization: []
+        post:
+            tags:
+                - storage
+            summary: move_aip storage
+            description: |-
+                Move an AIP to a permanent storage location
+
+                **Required security scopes for jwt**:
+                  * `storage:aips:move`
+            operationId: storage#move_aip
+            parameters:
+                - name: uuid
+                  in: path
+                  description: Identifier of AIP
+                  required: true
+                  type: string
+                  format: uuid
+                - name: Authorization
+                  in: header
+                  required: false
+                  type: string
+                - name: move_aip_request_body
+                  in: body
+                  required: true
+                  schema:
+                    $ref: '#/definitions/StorageMoveAipRequestBody'
+                    required:
+                        - location_id
+            responses:
+                "202":
+                    description: Accepted response.
+                "400":
+                    description: Bad Request response.
+                    schema:
+                        $ref: '#/definitions/StorageMoveAipNotValidResponseBody'
+                "401":
+                    description: Unauthorized response.
+                    schema:
+                        type: string
+                "403":
+                    description: Forbidden response.
+                    schema:
+                        type: string
+                "404":
+                    description: Not Found response.
+                    schema:
+                        $ref: '#/definitions/StorageMoveAipNotFoundResponseBody'
+                        required:
+                            - message
+                            - uuid
+                "409":
+                    description: Conflict response.
+                    schema:
+                        $ref: '#/definitions/StorageMoveAipNotAvailableResponseBody'
+            schemes:
+                - http
+            security:
+                - jwt_header_Authorization: []
+    /storage/aips/{uuid}/submit:
+        post:
+            tags:
+                - storage
+            summary: submit_aip storage
+            description: |-
+                Start the submission of an AIP
+
+                **Required security scopes for jwt**:
+                  * `storage:aips:submit`
+            operationId: storage#submit_aip
+            parameters:
+                - name: uuid
+                  in: path
+                  description: Identifier of AIP
+                  required: true
+                  type: string
+                  format: uuid
+                - name: Authorization
+                  in: header
+                  required: false
+                  type: string
+                - name: submit_aip_request_body
+                  in: body
+                  required: true
+                  schema:
+                    $ref: '#/definitions/StorageSubmitAipRequestBody'
+                    required:
+                        - name
+            responses:
+                "202":
+                    description: Accepted response.
+                    schema:
+                        $ref: '#/definitions/StorageSubmitAipResponseBody'
+                        required:
+                            - url
+                "400":
+                    description: Bad Request response.
+                    schema:
+                        $ref: '#/definitions/StorageSubmitAipNotValidResponseBody'
+                "401":
+                    description: Unauthorized response.
+                    schema:
+                        type: string
+                "403":
+                    description: Forbidden response.
+                    schema:
+                        type: string
+                "409":
+                    description: Conflict response.
+                    schema:
+                        $ref: '#/definitions/StorageSubmitAipNotAvailableResponseBody'
+            schemes:
+                - http
+            security:
+                - jwt_header_Authorization: []
+    /storage/aips/{uuid}/update:
+        post:
+            tags:
+                - storage
+            summary: update_aip storage
+            description: |-
+                Signal that an AIP submission is complete
+
+                **Required security scopes for jwt**:
+                  * `storage:aips:submit`
+            operationId: storage#update_aip
+            parameters:
+                - name: uuid
+                  in: path
+                  description: Identifier of AIP
+                  required: true
+                  type: string
+                  format: uuid
+                - name: Authorization
+                  in: header
+                  required: false
+                  type: string
+            responses:
+                "202":
+                    description: Accepted response.
+                "400":
+                    description: Bad Request response.
+                    schema:
+                        $ref: '#/definitions/StorageUpdateAipNotValidResponseBody'
+                "401":
+                    description: Unauthorized response.
+                    schema:
+                        type: string
+                "403":
+                    description: Forbidden response.
+                    schema:
+                        type: string
+                "409":
+                    description: Conflict response.
+                    schema:
+                        $ref: '#/definitions/StorageUpdateAipNotAvailableResponseBody'
+            schemes:
+                - http
+            security:
+                - jwt_header_Authorization: []
+    /storage/locations:
+        get:
+            tags:
+                - storage
+            summary: list_locations storage
             description: |-
                 List locations
 
                 **Required security scopes for jwt**:
-                  * `storage:location:list`
-            operationId: storage#locations
+                  * `storage:locations:list`
+            operationId: storage#list_locations
             parameters:
                 - name: Authorization
                   in: header
@@ -575,23 +977,23 @@ paths:
         post:
             tags:
                 - storage
-            summary: add_location storage
+            summary: create_location storage
             description: |-
                 Create a storage location
 
                 **Required security scopes for jwt**:
-                  * `storage:location:create`
-            operationId: storage#add_location
+                  * `storage:locations:create`
+            operationId: storage#create_location
             parameters:
                 - name: Authorization
                   in: header
                   required: false
                   type: string
-                - name: add_location_request_body
+                - name: create_location_request_body
                   in: body
                   required: true
                   schema:
-                    $ref: '#/definitions/StorageAddLocationRequestBody'
+                    $ref: '#/definitions/StorageCreateLocationRequestBody'
                     required:
                         - name
                         - source
@@ -600,13 +1002,13 @@ paths:
                 "201":
                     description: Created response.
                     schema:
-                        $ref: '#/definitions/StorageAddLocationResponseBody'
+                        $ref: '#/definitions/StorageCreateLocationResponseBody'
                         required:
                             - uuid
                 "400":
                     description: Bad Request response.
                     schema:
-                        $ref: '#/definitions/StorageAddLocationNotValidResponseBody'
+                        $ref: '#/definitions/StorageCreateLocationNotValidResponseBody'
                 "401":
                     description: Unauthorized response.
                     schema:
@@ -619,7 +1021,7 @@ paths:
                 - http
             security:
                 - jwt_header_Authorization: []
-    /storage/location/{uuid}:
+    /storage/locations/{uuid}:
         get:
             tags:
                 - storage
@@ -628,7 +1030,7 @@ paths:
                 Show location by UUID
 
                 **Required security scopes for jwt**:
-                  * `storage:location:read`
+                  * `storage:locations:read`
             operationId: storage#show_location
             parameters:
                 - name: uuid
@@ -665,17 +1067,17 @@ paths:
                 - http
             security:
                 - jwt_header_Authorization: []
-    /storage/location/{uuid}/packages:
+    /storage/locations/{uuid}/aips:
         get:
             tags:
                 - storage
-            summary: location_packages storage
+            summary: list_location_aips storage
             description: |-
-                List all the packages stored in the location with UUID
+                List all the AIPs stored in the location with UUID
 
                 **Required security scopes for jwt**:
-                  * `storage:location:listPackages`
-            operationId: storage#location_packages
+                  * `storage:locations:aips:list`
+            operationId: storage#list_location_aips
             parameters:
                 - name: uuid
                   in: path
@@ -691,11 +1093,11 @@ paths:
                 "200":
                     description: OK response.
                     schema:
-                        $ref: '#/definitions/StoragePackageResponseCollection'
+                        $ref: '#/definitions/StorageAIPResponseCollection'
                 "400":
                     description: Bad Request response.
                     schema:
-                        $ref: '#/definitions/StorageLocationPackagesNotValidResponseBody'
+                        $ref: '#/definitions/StorageListLocationAipsNotValidResponseBody'
                 "401":
                     description: Unauthorized response.
                     schema:
@@ -707,412 +1109,10 @@ paths:
                 "404":
                     description: Not Found response.
                     schema:
-                        $ref: '#/definitions/StorageLocationPackagesNotFoundResponseBody'
+                        $ref: '#/definitions/StorageListLocationAipsNotFoundResponseBody'
                         required:
                             - message
                             - uuid
-            schemes:
-                - http
-            security:
-                - jwt_header_Authorization: []
-    /storage/package:
-        post:
-            tags:
-                - storage
-            summary: create storage
-            description: |-
-                Create a new package
-
-                **Required security scopes for jwt**:
-                  * `storage:package:create`
-            operationId: storage#create
-            parameters:
-                - name: Authorization
-                  in: header
-                  required: false
-                  type: string
-                - name: CreateRequestBody
-                  in: body
-                  required: true
-                  schema:
-                    $ref: '#/definitions/StorageCreateRequestBody'
-                    required:
-                        - aip_id
-                        - name
-                        - object_key
-            responses:
-                "200":
-                    description: OK response.
-                    schema:
-                        $ref: '#/definitions/StorageCreateResponseBody'
-                "400":
-                    description: Bad Request response.
-                    schema:
-                        $ref: '#/definitions/StorageCreateNotValidResponseBody'
-                "401":
-                    description: Unauthorized response.
-                    schema:
-                        type: string
-                "403":
-                    description: Forbidden response.
-                    schema:
-                        type: string
-            schemes:
-                - http
-            security:
-                - jwt_header_Authorization: []
-    /storage/package/{aip_id}:
-        get:
-            tags:
-                - storage
-            summary: show storage
-            description: |-
-                Show package by AIPID
-
-                **Required security scopes for jwt**:
-                  * `storage:package:read`
-            operationId: storage#show
-            parameters:
-                - name: aip_id
-                  in: path
-                  description: Identifier of AIP
-                  required: true
-                  type: string
-                  format: uuid
-                - name: Authorization
-                  in: header
-                  required: false
-                  type: string
-            responses:
-                "200":
-                    description: OK response.
-                    schema:
-                        $ref: '#/definitions/StorageShowResponseBody'
-                "401":
-                    description: Unauthorized response.
-                    schema:
-                        type: string
-                "403":
-                    description: Forbidden response.
-                    schema:
-                        type: string
-                "404":
-                    description: Not Found response.
-                    schema:
-                        $ref: '#/definitions/StorageShowNotFoundResponseBody'
-                        required:
-                            - message
-                            - aip_id
-            schemes:
-                - http
-            security:
-                - jwt_header_Authorization: []
-    /storage/package/{aip_id}/download:
-        get:
-            tags:
-                - storage
-            summary: download storage
-            description: |-
-                Download package by AIPID
-
-                **Required security scopes for jwt**:
-                  * `storage:package:download`
-            operationId: storage#download
-            parameters:
-                - name: aip_id
-                  in: path
-                  description: Identifier of AIP
-                  required: true
-                  type: string
-                  format: uuid
-                - name: Authorization
-                  in: header
-                  required: false
-                  type: string
-            responses:
-                "200":
-                    description: OK response.
-                    schema:
-                        type: string
-                        format: byte
-                "401":
-                    description: Unauthorized response.
-                    schema:
-                        type: string
-                "403":
-                    description: Forbidden response.
-                    schema:
-                        type: string
-                "404":
-                    description: Not Found response.
-                    schema:
-                        $ref: '#/definitions/StorageDownloadNotFoundResponseBody'
-                        required:
-                            - message
-                            - aip_id
-            schemes:
-                - http
-            security:
-                - jwt_header_Authorization: []
-    /storage/package/{aip_id}/reject:
-        post:
-            tags:
-                - storage
-            summary: reject storage
-            description: |-
-                Reject a package
-
-                **Required security scopes for jwt**:
-                  * `storage:package:review`
-            operationId: storage#reject
-            parameters:
-                - name: aip_id
-                  in: path
-                  description: Identifier of AIP
-                  required: true
-                  type: string
-                  format: uuid
-                - name: Authorization
-                  in: header
-                  required: false
-                  type: string
-            responses:
-                "202":
-                    description: Accepted response.
-                "400":
-                    description: Bad Request response.
-                    schema:
-                        $ref: '#/definitions/StorageRejectNotValidResponseBody'
-                "401":
-                    description: Unauthorized response.
-                    schema:
-                        type: string
-                "403":
-                    description: Forbidden response.
-                    schema:
-                        type: string
-                "404":
-                    description: Not Found response.
-                    schema:
-                        $ref: '#/definitions/StorageRejectNotFoundResponseBody'
-                        required:
-                            - message
-                            - aip_id
-                "409":
-                    description: Conflict response.
-                    schema:
-                        $ref: '#/definitions/StorageRejectNotAvailableResponseBody'
-            schemes:
-                - http
-            security:
-                - jwt_header_Authorization: []
-    /storage/package/{aip_id}/store:
-        get:
-            tags:
-                - storage
-            summary: move_status storage
-            description: |-
-                Retrieve the status of a permanent storage location move of the package
-
-                **Required security scopes for jwt**:
-                  * `storage:package:move`
-            operationId: storage#move_status
-            parameters:
-                - name: aip_id
-                  in: path
-                  description: Identifier of AIP
-                  required: true
-                  type: string
-                  format: uuid
-                - name: Authorization
-                  in: header
-                  required: false
-                  type: string
-            responses:
-                "200":
-                    description: OK response.
-                    schema:
-                        $ref: '#/definitions/StorageMoveStatusResponseBody'
-                        required:
-                            - done
-                "401":
-                    description: Unauthorized response.
-                    schema:
-                        type: string
-                "403":
-                    description: Forbidden response.
-                    schema:
-                        type: string
-                "404":
-                    description: Not Found response.
-                    schema:
-                        $ref: '#/definitions/StorageMoveStatusNotFoundResponseBody'
-                        required:
-                            - message
-                            - aip_id
-                "424":
-                    description: Failed Dependency response.
-                    schema:
-                        $ref: '#/definitions/StorageMoveStatusFailedDependencyResponseBody'
-            schemes:
-                - http
-            security:
-                - jwt_header_Authorization: []
-        post:
-            tags:
-                - storage
-            summary: move storage
-            description: |-
-                Move a package to a permanent storage location
-
-                **Required security scopes for jwt**:
-                  * `storage:package:move`
-            operationId: storage#move
-            parameters:
-                - name: aip_id
-                  in: path
-                  description: Identifier of AIP
-                  required: true
-                  type: string
-                  format: uuid
-                - name: Authorization
-                  in: header
-                  required: false
-                  type: string
-                - name: MoveRequestBody
-                  in: body
-                  required: true
-                  schema:
-                    $ref: '#/definitions/StorageMoveRequestBody'
-                    required:
-                        - location_id
-            responses:
-                "202":
-                    description: Accepted response.
-                "400":
-                    description: Bad Request response.
-                    schema:
-                        $ref: '#/definitions/StorageMoveNotValidResponseBody'
-                "401":
-                    description: Unauthorized response.
-                    schema:
-                        type: string
-                "403":
-                    description: Forbidden response.
-                    schema:
-                        type: string
-                "404":
-                    description: Not Found response.
-                    schema:
-                        $ref: '#/definitions/StorageMoveNotFoundResponseBody'
-                        required:
-                            - message
-                            - aip_id
-                "409":
-                    description: Conflict response.
-                    schema:
-                        $ref: '#/definitions/StorageMoveNotAvailableResponseBody'
-            schemes:
-                - http
-            security:
-                - jwt_header_Authorization: []
-    /storage/package/{aip_id}/submit:
-        post:
-            tags:
-                - storage
-            summary: submit storage
-            description: |-
-                Start the submission of a package
-
-                **Required security scopes for jwt**:
-                  * `storage:package:submit`
-            operationId: storage#submit
-            parameters:
-                - name: aip_id
-                  in: path
-                  description: Identifier of AIP
-                  required: true
-                  type: string
-                  format: uuid
-                - name: Authorization
-                  in: header
-                  required: false
-                  type: string
-                - name: SubmitRequestBody
-                  in: body
-                  required: true
-                  schema:
-                    $ref: '#/definitions/StorageSubmitRequestBody'
-                    required:
-                        - name
-            responses:
-                "202":
-                    description: Accepted response.
-                    schema:
-                        $ref: '#/definitions/StorageSubmitResponseBody'
-                        required:
-                            - url
-                "400":
-                    description: Bad Request response.
-                    schema:
-                        $ref: '#/definitions/StorageSubmitNotValidResponseBody'
-                "401":
-                    description: Unauthorized response.
-                    schema:
-                        type: string
-                "403":
-                    description: Forbidden response.
-                    schema:
-                        type: string
-                "409":
-                    description: Conflict response.
-                    schema:
-                        $ref: '#/definitions/StorageSubmitNotAvailableResponseBody'
-            schemes:
-                - http
-            security:
-                - jwt_header_Authorization: []
-    /storage/package/{aip_id}/update:
-        post:
-            tags:
-                - storage
-            summary: update storage
-            description: |-
-                Signal that a package submission is complete
-
-                **Required security scopes for jwt**:
-                  * `storage:package:submit`
-            operationId: storage#update
-            parameters:
-                - name: aip_id
-                  in: path
-                  description: Identifier of AIP
-                  required: true
-                  type: string
-                  format: uuid
-                - name: Authorization
-                  in: header
-                  required: false
-                  type: string
-            responses:
-                "202":
-                    description: Accepted response.
-                "400":
-                    description: Bad Request response.
-                    schema:
-                        $ref: '#/definitions/StorageUpdateNotValidResponseBody'
-                "401":
-                    description: Unauthorized response.
-                    schema:
-                        type: string
-                "403":
-                    description: Forbidden response.
-                    schema:
-                        type: string
-                "409":
-                    description: Conflict response.
-                    schema:
-                        $ref: '#/definitions/StorageUpdateNotAvailableResponseBody'
             schemes:
                 - http
             security:
@@ -1132,6 +1132,53 @@ paths:
             schemes:
                 - http
 definitions:
+    AIPResponse:
+        title: 'Mediatype identifier: application/vnd.enduro.storage.aip; view=default'
+        type: object
+        properties:
+            created_at:
+                type: string
+                description: Creation datetime
+                example: "1970-01-01T00:00:01Z"
+                format: date-time
+            location_id:
+                type: string
+                description: Identifier of storage location
+                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            name:
+                type: string
+                example: abc123
+            object_key:
+                type: string
+                example: abc123
+            status:
+                type: string
+                description: Status of the AIP
+                default: unspecified
+                example: in_review
+                enum:
+                    - unspecified
+                    - in_review
+                    - rejected
+                    - stored
+                    - moving
+            uuid:
+                type: string
+                example: abc123
+        description: An AIP describes an AIP retrieved by the storage service. (default view)
+        example:
+            created_at: "1970-01-01T00:00:01Z"
+            location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            name: abc123
+            object_key: abc123
+            status: in_review
+            uuid: abc123
+        required:
+            - name
+            - uuid
+            - status
+            - object_key
+            - created_at
     AboutAboutResponseBody:
         title: 'Mediatype identifier: application/vnd.enduro.about; view=default'
         type: object
@@ -1161,166 +1208,6 @@ definitions:
             - version
             - preservation_system
             - preprocessing
-    EnduroPackagePreservationActionResponseBody:
-        title: 'Mediatype identifier: application/vnd.enduro.package-preservation-action; view=default'
-        type: object
-        properties:
-            completed_at:
-                type: string
-                example: "1970-01-01T00:00:01Z"
-                format: date-time
-            id:
-                type: integer
-                example: 1
-                format: int64
-            package_id:
-                type: integer
-                example: 1
-                format: int64
-            started_at:
-                type: string
-                example: "1970-01-01T00:00:01Z"
-                format: date-time
-            status:
-                type: string
-                example: in progress
-                enum:
-                    - unspecified
-                    - in progress
-                    - done
-                    - error
-                    - queued
-                    - pending
-            tasks:
-                $ref: '#/definitions/EnduroPackagePreservationTaskResponseBodyCollection'
-            type:
-                type: string
-                example: create aip
-                enum:
-                    - unspecified
-                    - create aip
-                    - create and review aip
-                    - move package
-            workflow_id:
-                type: string
-                example: abc123
-        description: PreservationAction describes a preservation action. (default view)
-        example:
-            completed_at: "1970-01-01T00:00:01Z"
-            id: 1
-            package_id: 1
-            started_at: "1970-01-01T00:00:01Z"
-            status: in progress
-            tasks:
-                - completed_at: "1970-01-01T00:00:01Z"
-                  id: 1
-                  name: abc123
-                  note: abc123
-                  preservation_action_id: 1
-                  started_at: "1970-01-01T00:00:01Z"
-                  status: in progress
-                  task_id: abc123
-            type: create aip
-            workflow_id: abc123
-        required:
-            - id
-            - workflow_id
-            - type
-            - status
-            - started_at
-    EnduroPackagePreservationActionResponseBodyCollection:
-        title: 'Mediatype identifier: application/vnd.enduro.package-preservation-action; type=collection; view=default'
-        type: array
-        items:
-            $ref: '#/definitions/EnduroPackagePreservationActionResponseBody'
-        description: EnduroPackage-Preservation-ActionCollectionResponseBody is the result type for an array of EnduroPackage-Preservation-ActionResponseBody (default view)
-        example:
-            - completed_at: "1970-01-01T00:00:01Z"
-              id: 1
-              package_id: 1
-              started_at: "1970-01-01T00:00:01Z"
-              status: in progress
-              tasks:
-                - completed_at: "1970-01-01T00:00:01Z"
-                  id: 1
-                  name: abc123
-                  note: abc123
-                  preservation_action_id: 1
-                  started_at: "1970-01-01T00:00:01Z"
-                  status: in progress
-                  task_id: abc123
-              type: create aip
-              workflow_id: abc123
-    EnduroPackagePreservationTaskResponseBody:
-        title: 'Mediatype identifier: application/vnd.enduro.package-preservation-task; view=default'
-        type: object
-        properties:
-            completed_at:
-                type: string
-                example: "1970-01-01T00:00:01Z"
-                format: date-time
-            id:
-                type: integer
-                example: 1
-                format: int64
-            name:
-                type: string
-                example: abc123
-            note:
-                type: string
-                example: abc123
-            preservation_action_id:
-                type: integer
-                example: 1
-                format: int64
-            started_at:
-                type: string
-                example: "1970-01-01T00:00:01Z"
-                format: date-time
-            status:
-                type: string
-                example: in progress
-                enum:
-                    - unspecified
-                    - in progress
-                    - done
-                    - error
-                    - queued
-                    - pending
-            task_id:
-                type: string
-                example: abc123
-        description: PreservationTask describes a preservation action task. (default view)
-        example:
-            completed_at: "1970-01-01T00:00:01Z"
-            id: 1
-            name: abc123
-            note: abc123
-            preservation_action_id: 1
-            started_at: "1970-01-01T00:00:01Z"
-            status: in progress
-            task_id: abc123
-        required:
-            - id
-            - task_id
-            - name
-            - status
-            - started_at
-    EnduroPackagePreservationTaskResponseBodyCollection:
-        title: 'Mediatype identifier: application/vnd.enduro.package-preservation-task; type=collection; view=default'
-        type: array
-        items:
-            $ref: '#/definitions/EnduroPackagePreservationTaskResponseBody'
-        description: EnduroPackage-Preservation-TaskCollectionResponseBody is the result type for an array of EnduroPackage-Preservation-TaskResponseBody (default view)
-        example:
-            - completed_at: "1970-01-01T00:00:01Z"
-              id: 1
-              name: abc123
-              note: abc123
-              preservation_action_id: 1
-              started_at: "1970-01-01T00:00:01Z"
-              status: in progress
-              task_id: abc123
     EnduroPageResponseBody:
         title: 'Mediatype identifier: application/vnd.enduro.page; view=default'
         type: object
@@ -1397,8 +1284,691 @@ definitions:
             - enabled
             - workflow_name
             - task_queue
-    EnduroStoredPackageResponseBody:
-        title: 'Mediatype identifier: application/vnd.enduro.stored-package; view=default'
+    IngestConfirmSipNotAvailableResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+        type: object
+        properties:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
+                example: false
+            id:
+                type: string
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
+            message:
+                type: string
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
+            name:
+                type: string
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
+                example: false
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: false
+        description: confirm_sip_not_available_response_body result type (default view)
+        example:
+            fault: false
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: false
+            timeout: false
+        required:
+            - name
+            - id
+            - message
+            - temporary
+            - timeout
+            - fault
+    IngestConfirmSipNotFoundResponseBody:
+        title: IngestConfirmSipNotFoundResponseBody
+        type: object
+        properties:
+            id:
+                type: integer
+                description: Identifier of missing SIP
+                example: 1
+                format: int64
+            message:
+                type: string
+                description: Message of error
+                example: abc123
+        description: SIP not found
+        example:
+            id: 1
+            message: abc123
+        required:
+            - message
+            - id
+    IngestConfirmSipNotValidResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+        type: object
+        properties:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
+                example: false
+            id:
+                type: string
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
+            message:
+                type: string
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
+            name:
+                type: string
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
+                example: false
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: false
+        description: confirm_sip_not_valid_response_body result type (default view)
+        example:
+            fault: false
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: false
+            timeout: false
+        required:
+            - name
+            - id
+            - message
+            - temporary
+            - timeout
+            - fault
+    IngestConfirmSipRequestBody:
+        title: IngestConfirmSipRequestBody
+        type: object
+        properties:
+            location_id:
+                type: string
+                description: Identifier of storage location
+                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+        example:
+            location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+        required:
+            - location_id
+    IngestListSipPreservationActionsNotFoundResponseBody:
+        title: IngestListSipPreservationActionsNotFoundResponseBody
+        type: object
+        properties:
+            id:
+                type: integer
+                description: Identifier of missing SIP
+                example: 1
+                format: int64
+            message:
+                type: string
+                description: Message of error
+                example: abc123
+        description: SIP not found
+        example:
+            id: 1
+            message: abc123
+        required:
+            - message
+            - id
+    IngestListSipPreservationActionsResponseBody:
+        title: 'Mediatype identifier: application/vnd.enduro.ingest.sip.preservation-actions; view=default'
+        type: object
+        properties:
+            actions:
+                $ref: '#/definitions/SIPPreservationActionResponseBodyCollection'
+        description: list_sip_preservation_actions_response_body result type (default view)
+        example:
+            actions:
+                - completed_at: "1970-01-01T00:00:01Z"
+                  id: 1
+                  sip_id: 1
+                  started_at: "1970-01-01T00:00:01Z"
+                  status: in progress
+                  tasks:
+                    - completed_at: "1970-01-01T00:00:01Z"
+                      id: 1
+                      name: abc123
+                      note: abc123
+                      preservation_action_id: 1
+                      started_at: "1970-01-01T00:00:01Z"
+                      status: in progress
+                      task_id: abc123
+                  type: create aip
+                  workflow_id: abc123
+    IngestListSipsResponseBody:
+        title: 'Mediatype identifier: application/vnd.enduro.ingest.sips; view=default'
+        type: object
+        properties:
+            items:
+                $ref: '#/definitions/SIPResponseBodyCollection'
+            page:
+                $ref: '#/definitions/EnduroPageResponseBody'
+        description: list_sips_response_body result type (default view)
+        example:
+            items:
+                - aip_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                  completed_at: "1970-01-01T00:00:01Z"
+                  created_at: "1970-01-01T00:00:01Z"
+                  id: 1
+                  location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                  name: abc123
+                  run_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                  started_at: "1970-01-01T00:00:01Z"
+                  status: in progress
+                  workflow_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            page:
+                limit: 1
+                offset: 1
+                total: 1
+        required:
+            - items
+            - page
+    IngestMonitorNotAvailableResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+        type: object
+        properties:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
+                example: false
+            id:
+                type: string
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
+            message:
+                type: string
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
+            name:
+                type: string
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
+                example: false
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: false
+        description: monitor_not_available_response_body result type (default view)
+        example:
+            fault: false
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: false
+            timeout: false
+        required:
+            - name
+            - id
+            - message
+            - temporary
+            - timeout
+            - fault
+    IngestMonitorRequestNotAvailableResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+        type: object
+        properties:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
+                example: false
+            id:
+                type: string
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
+            message:
+                type: string
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
+            name:
+                type: string
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
+                example: false
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: false
+        description: monitor_request_not_available_response_body result type (default view)
+        example:
+            fault: false
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: false
+            timeout: false
+        required:
+            - name
+            - id
+            - message
+            - temporary
+            - timeout
+            - fault
+    IngestMonitorResponseBody:
+        title: IngestMonitorResponseBody
+        type: object
+        properties:
+            event:
+                type: object
+                properties:
+                    Type:
+                        type: string
+                        description: |-
+                            Union type name, one of:
+                            - "monitor_ping_event"
+                            - "sip_created_event"
+                            - "sip_updated_event"
+                            - "sip_status_updated_event"
+                            - "sip_location_updated_event"
+                            - "sip_preservation_action_created_event"
+                            - "sip_preservation_action_updated_event"
+                            - "sip_preservation_task_created_event"
+                            - "sip_preservation_task_updated_event"
+                        example: sip_created_event
+                        enum:
+                            - monitor_ping_event
+                            - sip_created_event
+                            - sip_updated_event
+                            - sip_status_updated_event
+                            - sip_location_updated_event
+                            - sip_preservation_action_created_event
+                            - sip_preservation_action_updated_event
+                            - sip_preservation_task_created_event
+                            - sip_preservation_task_updated_event
+                    Value:
+                        type: string
+                        description: JSON encoded union value
+                        example: '{"id":1,"item":{"aip_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","id":1,"location_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","name":"abc123","run_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","started_at":"1970-01-01T00:00:01Z","status":"in progress","workflow_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}}'
+                example:
+                    Type: sip_created_event
+                    Value: '{"id":1,"item":{"aip_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","id":1,"location_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","name":"abc123","run_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","started_at":"1970-01-01T00:00:01Z","status":"in progress","workflow_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}}'
+                required:
+                    - Type
+                    - Value
+        example:
+            event:
+                Type: sip_created_event
+                Value: '{"id":1,"item":{"aip_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","id":1,"location_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","name":"abc123","run_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","started_at":"1970-01-01T00:00:01Z","status":"in progress","workflow_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}}'
+    IngestMoveSipNotAvailableResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+        type: object
+        properties:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
+                example: false
+            id:
+                type: string
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
+            message:
+                type: string
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
+            name:
+                type: string
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
+                example: false
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: false
+        description: move_sip_not_available_response_body result type (default view)
+        example:
+            fault: false
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: false
+            timeout: false
+        required:
+            - name
+            - id
+            - message
+            - temporary
+            - timeout
+            - fault
+    IngestMoveSipNotFoundResponseBody:
+        title: IngestMoveSipNotFoundResponseBody
+        type: object
+        properties:
+            id:
+                type: integer
+                description: Identifier of missing SIP
+                example: 1
+                format: int64
+            message:
+                type: string
+                description: Message of error
+                example: abc123
+        description: SIP not found
+        example:
+            id: 1
+            message: abc123
+        required:
+            - message
+            - id
+    IngestMoveSipNotValidResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+        type: object
+        properties:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
+                example: false
+            id:
+                type: string
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
+            message:
+                type: string
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
+            name:
+                type: string
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
+                example: false
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: false
+        description: move_sip_not_valid_response_body result type (default view)
+        example:
+            fault: false
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: false
+            timeout: false
+        required:
+            - name
+            - id
+            - message
+            - temporary
+            - timeout
+            - fault
+    IngestMoveSipRequestBody:
+        title: IngestMoveSipRequestBody
+        type: object
+        properties:
+            location_id:
+                type: string
+                description: Identifier of storage location
+                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+        example:
+            location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+        required:
+            - location_id
+    IngestMoveSipStatusFailedDependencyResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+        type: object
+        properties:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
+                example: false
+            id:
+                type: string
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
+            message:
+                type: string
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
+            name:
+                type: string
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
+                example: false
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: false
+        description: move_sip_status_failed_dependency_response_body result type (default view)
+        example:
+            fault: false
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: false
+            timeout: false
+        required:
+            - name
+            - id
+            - message
+            - temporary
+            - timeout
+            - fault
+    IngestMoveSipStatusNotFoundResponseBody:
+        title: IngestMoveSipStatusNotFoundResponseBody
+        type: object
+        properties:
+            id:
+                type: integer
+                description: Identifier of missing SIP
+                example: 1
+                format: int64
+            message:
+                type: string
+                description: Message of error
+                example: abc123
+        description: SIP not found
+        example:
+            id: 1
+            message: abc123
+        required:
+            - message
+            - id
+    IngestMoveSipStatusResponseBody:
+        title: IngestMoveSipStatusResponseBody
+        type: object
+        properties:
+            done:
+                type: boolean
+                example: false
+        example:
+            done: false
+        required:
+            - done
+    IngestRejectSipNotAvailableResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+        type: object
+        properties:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
+                example: false
+            id:
+                type: string
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
+            message:
+                type: string
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
+            name:
+                type: string
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
+                example: false
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: false
+        description: reject_sip_not_available_response_body result type (default view)
+        example:
+            fault: false
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: false
+            timeout: false
+        required:
+            - name
+            - id
+            - message
+            - temporary
+            - timeout
+            - fault
+    IngestRejectSipNotFoundResponseBody:
+        title: IngestRejectSipNotFoundResponseBody
+        type: object
+        properties:
+            id:
+                type: integer
+                description: Identifier of missing SIP
+                example: 1
+                format: int64
+            message:
+                type: string
+                description: Message of error
+                example: abc123
+        description: SIP not found
+        example:
+            id: 1
+            message: abc123
+        required:
+            - message
+            - id
+    IngestRejectSipNotValidResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+        type: object
+        properties:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
+                example: false
+            id:
+                type: string
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
+            message:
+                type: string
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
+            name:
+                type: string
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
+                example: false
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: false
+        description: reject_sip_not_valid_response_body result type (default view)
+        example:
+            fault: false
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: false
+            timeout: false
+        required:
+            - name
+            - id
+            - message
+            - temporary
+            - timeout
+            - fault
+    IngestShowSipNotAvailableResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+        type: object
+        properties:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
+                example: false
+            id:
+                type: string
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
+            message:
+                type: string
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
+            name:
+                type: string
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
+                example: false
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: false
+        description: show_sip_not_available_response_body result type (default view)
+        example:
+            fault: false
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: false
+            timeout: false
+        required:
+            - name
+            - id
+            - message
+            - temporary
+            - timeout
+            - fault
+    IngestShowSipNotFoundResponseBody:
+        title: IngestShowSipNotFoundResponseBody
+        type: object
+        properties:
+            id:
+                type: integer
+                description: Identifier of missing SIP
+                example: 1
+                format: int64
+            message:
+                type: string
+                description: Message of error
+                example: abc123
+        description: SIP not found
+        example:
+            id: 1
+            message: abc123
+        required:
+            - message
+            - id
+    IngestShowSipResponseBody:
+        title: 'Mediatype identifier: application/vnd.enduro.ingest.sip; view=default'
         type: object
         properties:
             aip_id:
@@ -1418,7 +1988,7 @@ definitions:
                 format: date-time
             id:
                 type: integer
-                description: Identifier of package
+                description: Identifier of SIP
                 example: 1
                 format: int64
             location_id:
@@ -1427,7 +1997,7 @@ definitions:
                 example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
             name:
                 type: string
-                description: Name of the package
+                description: Name of the SIP
                 example: abc123
             run_id:
                 type: string
@@ -1441,7 +2011,7 @@ definitions:
                 format: date-time
             status:
                 type: string
-                description: Status of the package
+                description: Status of the SIP
                 default: new
                 example: in progress
                 enum:
@@ -1458,7 +2028,7 @@ definitions:
                 description: Identifier of processing workflow
                 example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                 format: uuid
-        description: StoredPackage describes a package retrieved by the service. (default view)
+        description: show_sip_response_body result type (default view)
         example:
             aip_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
             completed_at: "1970-01-01T00:00:01Z"
@@ -1474,25 +2044,137 @@ definitions:
             - id
             - status
             - created_at
-    EnduroStoredPackageResponseBodyCollection:
-        title: 'Mediatype identifier: application/vnd.enduro.stored-package; type=collection; view=default'
-        type: array
-        items:
-            $ref: '#/definitions/EnduroStoredPackageResponseBody'
-        description: EnduroStored-PackageCollectionResponseBody is the result type for an array of EnduroStored-PackageResponseBody (default view)
+    IngestUploadSipInternalErrorResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+        type: object
+        properties:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
+                example: false
+            id:
+                type: string
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
+            message:
+                type: string
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
+            name:
+                type: string
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
+                example: false
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: false
+        description: Fault while processing upload. (default view)
         example:
-            - aip_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-              completed_at: "1970-01-01T00:00:01Z"
-              created_at: "1970-01-01T00:00:01Z"
-              id: 1
-              location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-              name: abc123
-              run_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-              started_at: "1970-01-01T00:00:01Z"
-              status: in progress
-              workflow_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            fault: false
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: false
+            timeout: false
+        required:
+            - name
+            - id
+            - message
+            - temporary
+            - timeout
+            - fault
+    IngestUploadSipInvalidMediaTypeResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+        type: object
+        properties:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
+                example: false
+            id:
+                type: string
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
+            message:
+                type: string
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
+            name:
+                type: string
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
+                example: false
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: false
+        description: Error returned when the Content-Type header does not define a multipart request. (default view)
+        example:
+            fault: false
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: false
+            timeout: false
+        required:
+            - name
+            - id
+            - message
+            - temporary
+            - timeout
+            - fault
+    IngestUploadSipInvalidMultipartRequestResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+        type: object
+        properties:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
+                example: false
+            id:
+                type: string
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
+            message:
+                type: string
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
+            name:
+                type: string
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
+                example: false
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: false
+        description: Error returned when the request body is not a valid multipart content. (default view)
+        example:
+            fault: false
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: false
+            timeout: false
+        required:
+            - name
+            - id
+            - message
+            - temporary
+            - timeout
+            - fault
     LocationResponse:
-        title: 'Mediatype identifier: application/vnd.enduro.storage-location; view=default'
+        title: 'Mediatype identifier: application/vnd.enduro.storage.location; view=default'
         type: object
         properties:
             created_at:
@@ -1543,738 +2225,168 @@ definitions:
             - purpose
             - uuid
             - created_at
-    PackageConfirmNotAvailableResponseBody:
-        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+    SIPPreservationActionResponseBody:
+        title: 'Mediatype identifier: application/vnd.enduro.ingest.sip.preservation-action; view=default'
         type: object
         properties:
-            fault:
-                type: boolean
-                description: Is the error a server-side fault?
-                example: false
-            id:
+            completed_at:
                 type: string
-                description: ID is a unique identifier for this particular occurrence of the problem.
-                example: 123abc
-            message:
-                type: string
-                description: Message is a human-readable explanation specific to this occurrence of the problem.
-                example: parameter 'p' must be an integer
-            name:
-                type: string
-                description: Name is the name of this class of errors.
-                example: bad_request
-            temporary:
-                type: boolean
-                description: Is the error temporary?
-                example: false
-            timeout:
-                type: boolean
-                description: Is the error a timeout?
-                example: false
-        description: confirm_not_available_response_body result type (default view)
-        example:
-            fault: false
-            id: 123abc
-            message: parameter 'p' must be an integer
-            name: bad_request
-            temporary: false
-            timeout: false
-        required:
-            - name
-            - id
-            - message
-            - temporary
-            - timeout
-            - fault
-    PackageConfirmNotFoundResponseBody:
-        title: PackageConfirmNotFoundResponseBody
-        type: object
-        properties:
-            id:
-                type: integer
-                description: Identifier of missing package
-                example: 1
-                format: int64
-            message:
-                type: string
-                description: Message of error
-                example: abc123
-        description: Package not found
-        example:
-            id: 1
-            message: abc123
-        required:
-            - message
-            - id
-    PackageConfirmNotValidResponseBody:
-        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
-        type: object
-        properties:
-            fault:
-                type: boolean
-                description: Is the error a server-side fault?
-                example: false
-            id:
-                type: string
-                description: ID is a unique identifier for this particular occurrence of the problem.
-                example: 123abc
-            message:
-                type: string
-                description: Message is a human-readable explanation specific to this occurrence of the problem.
-                example: parameter 'p' must be an integer
-            name:
-                type: string
-                description: Name is the name of this class of errors.
-                example: bad_request
-            temporary:
-                type: boolean
-                description: Is the error temporary?
-                example: false
-            timeout:
-                type: boolean
-                description: Is the error a timeout?
-                example: false
-        description: confirm_not_valid_response_body result type (default view)
-        example:
-            fault: false
-            id: 123abc
-            message: parameter 'p' must be an integer
-            name: bad_request
-            temporary: false
-            timeout: false
-        required:
-            - name
-            - id
-            - message
-            - temporary
-            - timeout
-            - fault
-    PackageConfirmRequestBody:
-        title: PackageConfirmRequestBody
-        type: object
-        properties:
-            location_id:
-                type: string
-                description: Identifier of storage location
-                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-        example:
-            location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-        required:
-            - location_id
-    PackageListResponseBody:
-        title: 'Mediatype identifier: application/vnd.enduro.packages; view=default'
-        type: object
-        properties:
-            items:
-                $ref: '#/definitions/EnduroStoredPackageResponseBodyCollection'
-            page:
-                $ref: '#/definitions/EnduroPageResponseBody'
-        description: ListResponseBody result type (default view)
-        example:
-            items:
-                - aip_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                  completed_at: "1970-01-01T00:00:01Z"
-                  created_at: "1970-01-01T00:00:01Z"
-                  id: 1
-                  location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                  name: abc123
-                  run_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                  started_at: "1970-01-01T00:00:01Z"
-                  status: in progress
-                  workflow_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-            page:
-                limit: 1
-                offset: 1
-                total: 1
-        required:
-            - items
-            - page
-    PackageMonitorNotAvailableResponseBody:
-        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
-        type: object
-        properties:
-            fault:
-                type: boolean
-                description: Is the error a server-side fault?
-                example: false
-            id:
-                type: string
-                description: ID is a unique identifier for this particular occurrence of the problem.
-                example: 123abc
-            message:
-                type: string
-                description: Message is a human-readable explanation specific to this occurrence of the problem.
-                example: parameter 'p' must be an integer
-            name:
-                type: string
-                description: Name is the name of this class of errors.
-                example: bad_request
-            temporary:
-                type: boolean
-                description: Is the error temporary?
-                example: false
-            timeout:
-                type: boolean
-                description: Is the error a timeout?
-                example: false
-        description: monitor_not_available_response_body result type (default view)
-        example:
-            fault: false
-            id: 123abc
-            message: parameter 'p' must be an integer
-            name: bad_request
-            temporary: false
-            timeout: false
-        required:
-            - name
-            - id
-            - message
-            - temporary
-            - timeout
-            - fault
-    PackageMonitorRequestNotAvailableResponseBody:
-        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
-        type: object
-        properties:
-            fault:
-                type: boolean
-                description: Is the error a server-side fault?
-                example: false
-            id:
-                type: string
-                description: ID is a unique identifier for this particular occurrence of the problem.
-                example: 123abc
-            message:
-                type: string
-                description: Message is a human-readable explanation specific to this occurrence of the problem.
-                example: parameter 'p' must be an integer
-            name:
-                type: string
-                description: Name is the name of this class of errors.
-                example: bad_request
-            temporary:
-                type: boolean
-                description: Is the error temporary?
-                example: false
-            timeout:
-                type: boolean
-                description: Is the error a timeout?
-                example: false
-        description: monitor_request_not_available_response_body result type (default view)
-        example:
-            fault: false
-            id: 123abc
-            message: parameter 'p' must be an integer
-            name: bad_request
-            temporary: false
-            timeout: false
-        required:
-            - name
-            - id
-            - message
-            - temporary
-            - timeout
-            - fault
-    PackageMonitorResponseBody:
-        title: PackageMonitorResponseBody
-        type: object
-        properties:
-            event:
-                type: object
-                properties:
-                    Type:
-                        type: string
-                        description: |-
-                            Union type name, one of:
-                            - "monitor_ping_event"
-                            - "package_created_event"
-                            - "package_updated_event"
-                            - "package_status_updated_event"
-                            - "package_location_updated_event"
-                            - "preservation_action_created_event"
-                            - "preservation_action_updated_event"
-                            - "preservation_task_created_event"
-                            - "preservation_task_updated_event"
-                        example: package_created_event
-                        enum:
-                            - monitor_ping_event
-                            - package_created_event
-                            - package_updated_event
-                            - package_status_updated_event
-                            - package_location_updated_event
-                            - preservation_action_created_event
-                            - preservation_action_updated_event
-                            - preservation_task_created_event
-                            - preservation_task_updated_event
-                    Value:
-                        type: string
-                        description: JSON encoded union value
-                        example: '{"id":1,"item":{"aip_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","id":1,"location_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","name":"abc123","run_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","started_at":"1970-01-01T00:00:01Z","status":"in progress","workflow_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}}'
-                example:
-                    Type: package_created_event
-                    Value: '{"id":1,"item":{"aip_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","id":1,"location_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","name":"abc123","run_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","started_at":"1970-01-01T00:00:01Z","status":"in progress","workflow_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}}'
-                required:
-                    - Type
-                    - Value
-        example:
-            event:
-                Type: package_created_event
-                Value: '{"id":1,"item":{"aip_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","id":1,"location_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","name":"abc123","run_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","started_at":"1970-01-01T00:00:01Z","status":"in progress","workflow_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}}'
-    PackageMoveNotAvailableResponseBody:
-        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
-        type: object
-        properties:
-            fault:
-                type: boolean
-                description: Is the error a server-side fault?
-                example: false
-            id:
-                type: string
-                description: ID is a unique identifier for this particular occurrence of the problem.
-                example: 123abc
-            message:
-                type: string
-                description: Message is a human-readable explanation specific to this occurrence of the problem.
-                example: parameter 'p' must be an integer
-            name:
-                type: string
-                description: Name is the name of this class of errors.
-                example: bad_request
-            temporary:
-                type: boolean
-                description: Is the error temporary?
-                example: false
-            timeout:
-                type: boolean
-                description: Is the error a timeout?
-                example: false
-        description: move_not_available_response_body result type (default view)
-        example:
-            fault: false
-            id: 123abc
-            message: parameter 'p' must be an integer
-            name: bad_request
-            temporary: false
-            timeout: false
-        required:
-            - name
-            - id
-            - message
-            - temporary
-            - timeout
-            - fault
-    PackageMoveNotFoundResponseBody:
-        title: PackageMoveNotFoundResponseBody
-        type: object
-        properties:
-            id:
-                type: integer
-                description: Identifier of missing package
-                example: 1
-                format: int64
-            message:
-                type: string
-                description: Message of error
-                example: abc123
-        description: Package not found
-        example:
-            id: 1
-            message: abc123
-        required:
-            - message
-            - id
-    PackageMoveNotValidResponseBody:
-        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
-        type: object
-        properties:
-            fault:
-                type: boolean
-                description: Is the error a server-side fault?
-                example: false
-            id:
-                type: string
-                description: ID is a unique identifier for this particular occurrence of the problem.
-                example: 123abc
-            message:
-                type: string
-                description: Message is a human-readable explanation specific to this occurrence of the problem.
-                example: parameter 'p' must be an integer
-            name:
-                type: string
-                description: Name is the name of this class of errors.
-                example: bad_request
-            temporary:
-                type: boolean
-                description: Is the error temporary?
-                example: false
-            timeout:
-                type: boolean
-                description: Is the error a timeout?
-                example: false
-        description: move_not_valid_response_body result type (default view)
-        example:
-            fault: false
-            id: 123abc
-            message: parameter 'p' must be an integer
-            name: bad_request
-            temporary: false
-            timeout: false
-        required:
-            - name
-            - id
-            - message
-            - temporary
-            - timeout
-            - fault
-    PackageMoveRequestBody:
-        title: PackageMoveRequestBody
-        type: object
-        properties:
-            location_id:
-                type: string
-                description: Identifier of storage location
-                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-        example:
-            location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-        required:
-            - location_id
-    PackageMoveStatusFailedDependencyResponseBody:
-        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
-        type: object
-        properties:
-            fault:
-                type: boolean
-                description: Is the error a server-side fault?
-                example: false
-            id:
-                type: string
-                description: ID is a unique identifier for this particular occurrence of the problem.
-                example: 123abc
-            message:
-                type: string
-                description: Message is a human-readable explanation specific to this occurrence of the problem.
-                example: parameter 'p' must be an integer
-            name:
-                type: string
-                description: Name is the name of this class of errors.
-                example: bad_request
-            temporary:
-                type: boolean
-                description: Is the error temporary?
-                example: false
-            timeout:
-                type: boolean
-                description: Is the error a timeout?
-                example: false
-        description: move_status_failed_dependency_response_body result type (default view)
-        example:
-            fault: false
-            id: 123abc
-            message: parameter 'p' must be an integer
-            name: bad_request
-            temporary: false
-            timeout: false
-        required:
-            - name
-            - id
-            - message
-            - temporary
-            - timeout
-            - fault
-    PackageMoveStatusNotFoundResponseBody:
-        title: PackageMoveStatusNotFoundResponseBody
-        type: object
-        properties:
-            id:
-                type: integer
-                description: Identifier of missing package
-                example: 1
-                format: int64
-            message:
-                type: string
-                description: Message of error
-                example: abc123
-        description: Package not found
-        example:
-            id: 1
-            message: abc123
-        required:
-            - message
-            - id
-    PackageMoveStatusResponseBody:
-        title: PackageMoveStatusResponseBody
-        type: object
-        properties:
-            done:
-                type: boolean
-                example: false
-        example:
-            done: false
-        required:
-            - done
-    PackagePreservationActionsNotFoundResponseBody:
-        title: PackagePreservationActionsNotFoundResponseBody
-        type: object
-        properties:
-            id:
-                type: integer
-                description: Identifier of missing package
-                example: 1
-                format: int64
-            message:
-                type: string
-                description: Message of error
-                example: abc123
-        description: Package not found
-        example:
-            id: 1
-            message: abc123
-        required:
-            - message
-            - id
-    PackagePreservationActionsResponseBody:
-        title: 'Mediatype identifier: application/vnd.enduro.package-preservation-actions; view=default'
-        type: object
-        properties:
-            actions:
-                $ref: '#/definitions/EnduroPackagePreservationActionResponseBodyCollection'
-        description: preservation_actions_response_body result type (default view)
-        example:
-            actions:
-                - completed_at: "1970-01-01T00:00:01Z"
-                  id: 1
-                  package_id: 1
-                  started_at: "1970-01-01T00:00:01Z"
-                  status: in progress
-                  tasks:
-                    - completed_at: "1970-01-01T00:00:01Z"
-                      id: 1
-                      name: abc123
-                      note: abc123
-                      preservation_action_id: 1
-                      started_at: "1970-01-01T00:00:01Z"
-                      status: in progress
-                      task_id: abc123
-                  type: create aip
-                  workflow_id: abc123
-    PackageRejectNotAvailableResponseBody:
-        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
-        type: object
-        properties:
-            fault:
-                type: boolean
-                description: Is the error a server-side fault?
-                example: false
-            id:
-                type: string
-                description: ID is a unique identifier for this particular occurrence of the problem.
-                example: 123abc
-            message:
-                type: string
-                description: Message is a human-readable explanation specific to this occurrence of the problem.
-                example: parameter 'p' must be an integer
-            name:
-                type: string
-                description: Name is the name of this class of errors.
-                example: bad_request
-            temporary:
-                type: boolean
-                description: Is the error temporary?
-                example: false
-            timeout:
-                type: boolean
-                description: Is the error a timeout?
-                example: false
-        description: reject_not_available_response_body result type (default view)
-        example:
-            fault: false
-            id: 123abc
-            message: parameter 'p' must be an integer
-            name: bad_request
-            temporary: false
-            timeout: false
-        required:
-            - name
-            - id
-            - message
-            - temporary
-            - timeout
-            - fault
-    PackageRejectNotFoundResponseBody:
-        title: PackageRejectNotFoundResponseBody
-        type: object
-        properties:
-            id:
-                type: integer
-                description: Identifier of missing package
-                example: 1
-                format: int64
-            message:
-                type: string
-                description: Message of error
-                example: abc123
-        description: Package not found
-        example:
-            id: 1
-            message: abc123
-        required:
-            - message
-            - id
-    PackageRejectNotValidResponseBody:
-        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
-        type: object
-        properties:
-            fault:
-                type: boolean
-                description: Is the error a server-side fault?
-                example: false
-            id:
-                type: string
-                description: ID is a unique identifier for this particular occurrence of the problem.
-                example: 123abc
-            message:
-                type: string
-                description: Message is a human-readable explanation specific to this occurrence of the problem.
-                example: parameter 'p' must be an integer
-            name:
-                type: string
-                description: Name is the name of this class of errors.
-                example: bad_request
-            temporary:
-                type: boolean
-                description: Is the error temporary?
-                example: false
-            timeout:
-                type: boolean
-                description: Is the error a timeout?
-                example: false
-        description: reject_not_valid_response_body result type (default view)
-        example:
-            fault: false
-            id: 123abc
-            message: parameter 'p' must be an integer
-            name: bad_request
-            temporary: false
-            timeout: false
-        required:
-            - name
-            - id
-            - message
-            - temporary
-            - timeout
-            - fault
-    PackageResponse:
-        title: 'Mediatype identifier: application/vnd.enduro.storage-package; view=default'
-        type: object
-        properties:
-            aip_id:
-                type: string
-                example: abc123
-            created_at:
-                type: string
-                description: Creation datetime
                 example: "1970-01-01T00:00:01Z"
                 format: date-time
-            location_id:
-                type: string
-                description: Identifier of storage location
-                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-            name:
-                type: string
-                example: abc123
-            object_key:
-                type: string
-                example: abc123
-            status:
-                type: string
-                description: Status of the package
-                default: unspecified
-                example: in_review
-                enum:
-                    - unspecified
-                    - in_review
-                    - rejected
-                    - stored
-                    - moving
-        description: A Package describes a package retrieved by the storage service. (default view)
-        example:
-            aip_id: abc123
-            created_at: "1970-01-01T00:00:01Z"
-            location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-            name: abc123
-            object_key: abc123
-            status: in_review
-        required:
-            - name
-            - aip_id
-            - status
-            - object_key
-            - created_at
-    PackageShowNotAvailableResponseBody:
-        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
-        type: object
-        properties:
-            fault:
-                type: boolean
-                description: Is the error a server-side fault?
-                example: false
-            id:
-                type: string
-                description: ID is a unique identifier for this particular occurrence of the problem.
-                example: 123abc
-            message:
-                type: string
-                description: Message is a human-readable explanation specific to this occurrence of the problem.
-                example: parameter 'p' must be an integer
-            name:
-                type: string
-                description: Name is the name of this class of errors.
-                example: bad_request
-            temporary:
-                type: boolean
-                description: Is the error temporary?
-                example: false
-            timeout:
-                type: boolean
-                description: Is the error a timeout?
-                example: false
-        description: show_not_available_response_body result type (default view)
-        example:
-            fault: false
-            id: 123abc
-            message: parameter 'p' must be an integer
-            name: bad_request
-            temporary: false
-            timeout: false
-        required:
-            - name
-            - id
-            - message
-            - temporary
-            - timeout
-            - fault
-    PackageShowNotFoundResponseBody:
-        title: PackageShowNotFoundResponseBody
-        type: object
-        properties:
             id:
                 type: integer
-                description: Identifier of missing package
                 example: 1
                 format: int64
-            message:
+            sip_id:
+                type: integer
+                example: 1
+                format: int64
+            started_at:
                 type: string
-                description: Message of error
+                example: "1970-01-01T00:00:01Z"
+                format: date-time
+            status:
+                type: string
+                example: in progress
+                enum:
+                    - unspecified
+                    - in progress
+                    - done
+                    - error
+                    - queued
+                    - pending
+            tasks:
+                $ref: '#/definitions/SIPPreservationTaskResponseBodyCollection'
+            type:
+                type: string
+                example: create aip
+                enum:
+                    - unspecified
+                    - create aip
+                    - create and review aip
+                    - move package
+            workflow_id:
+                type: string
                 example: abc123
-        description: Package not found
+        description: SIPPreservationAction describes a preservation action of a SIP. (default view)
         example:
+            completed_at: "1970-01-01T00:00:01Z"
             id: 1
-            message: abc123
+            sip_id: 1
+            started_at: "1970-01-01T00:00:01Z"
+            status: in progress
+            tasks:
+                - completed_at: "1970-01-01T00:00:01Z"
+                  id: 1
+                  name: abc123
+                  note: abc123
+                  preservation_action_id: 1
+                  started_at: "1970-01-01T00:00:01Z"
+                  status: in progress
+                  task_id: abc123
+            type: create aip
+            workflow_id: abc123
         required:
-            - message
             - id
-    PackageShowResponseBody:
-        title: 'Mediatype identifier: application/vnd.enduro.stored-package; view=default'
+            - workflow_id
+            - type
+            - status
+            - started_at
+    SIPPreservationActionResponseBodyCollection:
+        title: 'Mediatype identifier: application/vnd.enduro.ingest.sip.preservation-action; type=collection; view=default'
+        type: array
+        items:
+            $ref: '#/definitions/SIPPreservationActionResponseBody'
+        description: SIPPreservationActionCollectionResponseBody is the result type for an array of SIPPreservationActionResponseBody (default view)
+        example:
+            - completed_at: "1970-01-01T00:00:01Z"
+              id: 1
+              sip_id: 1
+              started_at: "1970-01-01T00:00:01Z"
+              status: in progress
+              tasks:
+                - completed_at: "1970-01-01T00:00:01Z"
+                  id: 1
+                  name: abc123
+                  note: abc123
+                  preservation_action_id: 1
+                  started_at: "1970-01-01T00:00:01Z"
+                  status: in progress
+                  task_id: abc123
+              type: create aip
+              workflow_id: abc123
+    SIPPreservationTaskResponseBody:
+        title: 'Mediatype identifier: application/vnd.enduro.ingest.sip.preservation-task; view=default'
+        type: object
+        properties:
+            completed_at:
+                type: string
+                example: "1970-01-01T00:00:01Z"
+                format: date-time
+            id:
+                type: integer
+                example: 1
+                format: int64
+            name:
+                type: string
+                example: abc123
+            note:
+                type: string
+                example: abc123
+            preservation_action_id:
+                type: integer
+                example: 1
+                format: int64
+            started_at:
+                type: string
+                example: "1970-01-01T00:00:01Z"
+                format: date-time
+            status:
+                type: string
+                example: in progress
+                enum:
+                    - unspecified
+                    - in progress
+                    - done
+                    - error
+                    - queued
+                    - pending
+            task_id:
+                type: string
+                example: abc123
+        description: SIPPreservationTask describes a SIP preservation action task. (default view)
+        example:
+            completed_at: "1970-01-01T00:00:01Z"
+            id: 1
+            name: abc123
+            note: abc123
+            preservation_action_id: 1
+            started_at: "1970-01-01T00:00:01Z"
+            status: in progress
+            task_id: abc123
+        required:
+            - id
+            - task_id
+            - name
+            - status
+            - started_at
+    SIPPreservationTaskResponseBodyCollection:
+        title: 'Mediatype identifier: application/vnd.enduro.ingest.sip.preservation-task; type=collection; view=default'
+        type: array
+        items:
+            $ref: '#/definitions/SIPPreservationTaskResponseBody'
+        description: SIPPreservationTaskCollectionResponseBody is the result type for an array of SIPPreservationTaskResponseBody (default view)
+        example:
+            - completed_at: "1970-01-01T00:00:01Z"
+              id: 1
+              name: abc123
+              note: abc123
+              preservation_action_id: 1
+              started_at: "1970-01-01T00:00:01Z"
+              status: in progress
+              task_id: abc123
+    SIPResponseBody:
+        title: 'Mediatype identifier: application/vnd.enduro.ingest.sip; view=default'
         type: object
         properties:
             aip_id:
@@ -2294,7 +2406,7 @@ definitions:
                 format: date-time
             id:
                 type: integer
-                description: Identifier of package
+                description: Identifier of SIP
                 example: 1
                 format: int64
             location_id:
@@ -2303,7 +2415,7 @@ definitions:
                 example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
             name:
                 type: string
-                description: Name of the package
+                description: Name of the SIP
                 example: abc123
             run_id:
                 type: string
@@ -2317,7 +2429,7 @@ definitions:
                 format: date-time
             status:
                 type: string
-                description: Status of the package
+                description: Status of the SIP
                 default: new
                 example: in progress
                 enum:
@@ -2334,7 +2446,7 @@ definitions:
                 description: Identifier of processing workflow
                 example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                 format: uuid
-        description: ShowResponseBody result type (default view)
+        description: SIP describes an ingest SIP type. (default view)
         example:
             aip_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
             completed_at: "1970-01-01T00:00:01Z"
@@ -2350,7 +2462,37 @@ definitions:
             - id
             - status
             - created_at
-    PackageUploadInternalErrorResponseBody:
+    SIPResponseBodyCollection:
+        title: 'Mediatype identifier: application/vnd.enduro.ingest.sip; type=collection; view=default'
+        type: array
+        items:
+            $ref: '#/definitions/SIPResponseBody'
+        description: SIPCollectionResponseBody is the result type for an array of SIPResponseBody (default view)
+        example:
+            - aip_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+              completed_at: "1970-01-01T00:00:01Z"
+              created_at: "1970-01-01T00:00:01Z"
+              id: 1
+              location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+              name: abc123
+              run_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+              started_at: "1970-01-01T00:00:01Z"
+              status: in progress
+              workflow_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+    StorageAIPResponseCollection:
+        title: 'Mediatype identifier: application/vnd.enduro.storage.aip; type=collection; view=default'
+        type: array
+        items:
+            $ref: '#/definitions/AIPResponse'
+        description: list_location_aips_response_body is the result type for an array of AIPResponse (default view)
+        example:
+            - created_at: "1970-01-01T00:00:01Z"
+              location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+              name: abc123
+              object_key: abc123
+              status: in_review
+              uuid: abc123
+    StorageCreateAipNotValidResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
         properties:
@@ -2378,7 +2520,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: Fault while processing upload. (default view)
+        description: create_aip_not_valid_response_body result type (default view)
         example:
             fault: false
             id: 123abc
@@ -2393,7 +2535,97 @@ definitions:
             - temporary
             - timeout
             - fault
-    PackageUploadInvalidMediaTypeResponseBody:
+    StorageCreateAipRequestBody:
+        title: StorageCreateAipRequestBody
+        type: object
+        properties:
+            location_id:
+                type: string
+                description: Identifier of the AIP's storage location
+                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            name:
+                type: string
+                description: Name of the AIP
+                example: abc123
+            object_key:
+                type: string
+                description: ObjectKey of the AIP
+                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                format: uuid
+            status:
+                type: string
+                description: Status of the the AIP
+                default: unspecified
+                example: in_review
+                enum:
+                    - unspecified
+                    - in_review
+                    - rejected
+                    - stored
+                    - moving
+            uuid:
+                type: string
+                description: Identifier of the AIP
+                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                format: uuid
+        example:
+            location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            name: abc123
+            object_key: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            status: in_review
+            uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+        required:
+            - uuid
+            - name
+            - object_key
+    StorageCreateAipResponseBody:
+        title: 'Mediatype identifier: application/vnd.enduro.storage.aip; view=default'
+        type: object
+        properties:
+            created_at:
+                type: string
+                description: Creation datetime
+                example: "1970-01-01T00:00:01Z"
+                format: date-time
+            location_id:
+                type: string
+                description: Identifier of storage location
+                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            name:
+                type: string
+                example: abc123
+            object_key:
+                type: string
+                example: abc123
+            status:
+                type: string
+                description: Status of the AIP
+                default: unspecified
+                example: in_review
+                enum:
+                    - unspecified
+                    - in_review
+                    - rejected
+                    - stored
+                    - moving
+            uuid:
+                type: string
+                example: abc123
+        description: create_aip_response_body result type (default view)
+        example:
+            created_at: "1970-01-01T00:00:01Z"
+            location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            name: abc123
+            object_key: abc123
+            status: in_review
+            uuid: abc123
+        required:
+            - name
+            - uuid
+            - status
+            - object_key
+            - created_at
+    StorageCreateLocationNotValidResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
         properties:
@@ -2421,7 +2653,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: Error returned when the Content-Type header does not define a multipart request. (default view)
+        description: create_location_not_valid_response_body result type (default view)
         example:
             fault: false
             id: 123abc
@@ -2436,94 +2668,8 @@ definitions:
             - temporary
             - timeout
             - fault
-    PackageUploadInvalidMultipartRequestResponseBody:
-        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
-        type: object
-        properties:
-            fault:
-                type: boolean
-                description: Is the error a server-side fault?
-                example: false
-            id:
-                type: string
-                description: ID is a unique identifier for this particular occurrence of the problem.
-                example: 123abc
-            message:
-                type: string
-                description: Message is a human-readable explanation specific to this occurrence of the problem.
-                example: parameter 'p' must be an integer
-            name:
-                type: string
-                description: Name is the name of this class of errors.
-                example: bad_request
-            temporary:
-                type: boolean
-                description: Is the error temporary?
-                example: false
-            timeout:
-                type: boolean
-                description: Is the error a timeout?
-                example: false
-        description: Error returned when the request body is not a valid multipart content. (default view)
-        example:
-            fault: false
-            id: 123abc
-            message: parameter 'p' must be an integer
-            name: bad_request
-            temporary: false
-            timeout: false
-        required:
-            - name
-            - id
-            - message
-            - temporary
-            - timeout
-            - fault
-    StorageAddLocationNotValidResponseBody:
-        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
-        type: object
-        properties:
-            fault:
-                type: boolean
-                description: Is the error a server-side fault?
-                example: false
-            id:
-                type: string
-                description: ID is a unique identifier for this particular occurrence of the problem.
-                example: 123abc
-            message:
-                type: string
-                description: Message is a human-readable explanation specific to this occurrence of the problem.
-                example: parameter 'p' must be an integer
-            name:
-                type: string
-                description: Name is the name of this class of errors.
-                example: bad_request
-            temporary:
-                type: boolean
-                description: Is the error temporary?
-                example: false
-            timeout:
-                type: boolean
-                description: Is the error a timeout?
-                example: false
-        description: add_location_not_valid_response_body result type (default view)
-        example:
-            fault: false
-            id: 123abc
-            message: parameter 'p' must be an integer
-            name: bad_request
-            temporary: false
-            timeout: false
-        required:
-            - name
-            - id
-            - message
-            - temporary
-            - timeout
-            - fault
-    StorageAddLocationRequestBody:
-        title: StorageAddLocationRequestBody
+    StorageCreateLocationRequestBody:
+        title: StorageCreateLocationRequestBody
         type: object
         properties:
             config:
@@ -2585,8 +2731,8 @@ definitions:
             - name
             - source
             - purpose
-    StorageAddLocationResponseBody:
-        title: StorageAddLocationResponseBody
+    StorageCreateLocationResponseBody:
+        title: StorageCreateLocationResponseBody
         type: object
         properties:
             uuid:
@@ -2596,7 +2742,44 @@ definitions:
             uuid: abc123
         required:
             - uuid
-    StorageCreateNotValidResponseBody:
+    StorageDownloadAipNotFoundResponseBody:
+        title: StorageDownloadAipNotFoundResponseBody
+        type: object
+        properties:
+            message:
+                type: string
+                description: Message of error
+                example: abc123
+            uuid:
+                type: string
+                description: Identifier of missing AIP
+                example: abc123
+        description: AIP not found
+        example:
+            message: abc123
+            uuid: abc123
+        required:
+            - message
+            - uuid
+    StorageListLocationAipsNotFoundResponseBody:
+        title: StorageListLocationAipsNotFoundResponseBody
+        type: object
+        properties:
+            message:
+                type: string
+                description: Message of error
+                example: abc123
+            uuid:
+                type: string
+                example: abc123
+        description: Storage location not found
+        example:
+            message: abc123
+            uuid: abc123
+        required:
+            - message
+            - uuid
+    StorageListLocationAipsNotValidResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
         properties:
@@ -2624,7 +2807,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: create_not_valid_response_body result type (default view)
+        description: list_location_aips_not_valid_response_body result type (default view)
         example:
             fault: false
             id: 123abc
@@ -2639,56 +2822,337 @@ definitions:
             - temporary
             - timeout
             - fault
-    StorageCreateRequestBody:
-        title: StorageCreateRequestBody
+    StorageLocationResponseCollection:
+        title: 'Mediatype identifier: application/vnd.enduro.storage.location; type=collection; view=default'
+        type: array
+        items:
+            $ref: '#/definitions/LocationResponse'
+        description: list_locations_response_body is the result type for an array of LocationResponse (default view)
+        example:
+            - created_at: "1970-01-01T00:00:01Z"
+              description: abc123
+              name: abc123
+              purpose: aip_store
+              source: minio
+              uuid: abc123
+    StorageMoveAipNotAvailableResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
         properties:
-            aip_id:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
+                example: false
+            id:
                 type: string
-                description: Identifier of AIP
-                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                format: uuid
-            location_id:
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
+            message:
                 type: string
-                description: Identifier of the package's storage location
-                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
             name:
                 type: string
-                description: Name of the package
-                example: abc123
-            object_key:
-                type: string
-                description: ObjectKey of AIP
-                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                format: uuid
-            status:
-                type: string
-                description: Status of the package
-                default: unspecified
-                example: in_review
-                enum:
-                    - unspecified
-                    - in_review
-                    - rejected
-                    - stored
-                    - moving
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
+                example: false
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: false
+        description: move_aip_not_available_response_body result type (default view)
         example:
-            aip_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-            location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-            name: abc123
-            object_key: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-            status: in_review
+            fault: false
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: false
+            timeout: false
         required:
-            - aip_id
             - name
-            - object_key
-    StorageCreateResponseBody:
-        title: 'Mediatype identifier: application/vnd.enduro.storage-package; view=default'
+            - id
+            - message
+            - temporary
+            - timeout
+            - fault
+    StorageMoveAipNotFoundResponseBody:
+        title: StorageMoveAipNotFoundResponseBody
         type: object
         properties:
-            aip_id:
+            message:
                 type: string
+                description: Message of error
                 example: abc123
+            uuid:
+                type: string
+                description: Identifier of missing AIP
+                example: abc123
+        description: AIP not found
+        example:
+            message: abc123
+            uuid: abc123
+        required:
+            - message
+            - uuid
+    StorageMoveAipNotValidResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+        type: object
+        properties:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
+                example: false
+            id:
+                type: string
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
+            message:
+                type: string
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
+            name:
+                type: string
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
+                example: false
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: false
+        description: move_aip_not_valid_response_body result type (default view)
+        example:
+            fault: false
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: false
+            timeout: false
+        required:
+            - name
+            - id
+            - message
+            - temporary
+            - timeout
+            - fault
+    StorageMoveAipRequestBody:
+        title: StorageMoveAipRequestBody
+        type: object
+        properties:
+            location_id:
+                type: string
+                description: Identifier of storage location
+                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+        example:
+            location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+        required:
+            - location_id
+    StorageMoveAipStatusFailedDependencyResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+        type: object
+        properties:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
+                example: false
+            id:
+                type: string
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
+            message:
+                type: string
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
+            name:
+                type: string
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
+                example: false
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: false
+        description: move_aip_status_failed_dependency_response_body result type (default view)
+        example:
+            fault: false
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: false
+            timeout: false
+        required:
+            - name
+            - id
+            - message
+            - temporary
+            - timeout
+            - fault
+    StorageMoveAipStatusNotFoundResponseBody:
+        title: StorageMoveAipStatusNotFoundResponseBody
+        type: object
+        properties:
+            message:
+                type: string
+                description: Message of error
+                example: abc123
+            uuid:
+                type: string
+                description: Identifier of missing AIP
+                example: abc123
+        description: AIP not found
+        example:
+            message: abc123
+            uuid: abc123
+        required:
+            - message
+            - uuid
+    StorageMoveAipStatusResponseBody:
+        title: StorageMoveAipStatusResponseBody
+        type: object
+        properties:
+            done:
+                type: boolean
+                example: false
+        example:
+            done: false
+        required:
+            - done
+    StorageRejectAipNotAvailableResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+        type: object
+        properties:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
+                example: false
+            id:
+                type: string
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
+            message:
+                type: string
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
+            name:
+                type: string
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
+                example: false
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: false
+        description: reject_aip_not_available_response_body result type (default view)
+        example:
+            fault: false
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: false
+            timeout: false
+        required:
+            - name
+            - id
+            - message
+            - temporary
+            - timeout
+            - fault
+    StorageRejectAipNotFoundResponseBody:
+        title: StorageRejectAipNotFoundResponseBody
+        type: object
+        properties:
+            message:
+                type: string
+                description: Message of error
+                example: abc123
+            uuid:
+                type: string
+                description: Identifier of missing AIP
+                example: abc123
+        description: AIP not found
+        example:
+            message: abc123
+            uuid: abc123
+        required:
+            - message
+            - uuid
+    StorageRejectAipNotValidResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+        type: object
+        properties:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
+                example: false
+            id:
+                type: string
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
+            message:
+                type: string
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
+            name:
+                type: string
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
+                example: false
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: false
+        description: reject_aip_not_valid_response_body result type (default view)
+        example:
+            fault: false
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: false
+            timeout: false
+        required:
+            - name
+            - id
+            - message
+            - temporary
+            - timeout
+            - fault
+    StorageShowAipNotFoundResponseBody:
+        title: StorageShowAipNotFoundResponseBody
+        type: object
+        properties:
+            message:
+                type: string
+                description: Message of error
+                example: abc123
+            uuid:
+                type: string
+                description: Identifier of missing AIP
+                example: abc123
+        description: AIP not found
+        example:
+            message: abc123
+            uuid: abc123
+        required:
+            - message
+            - uuid
+    StorageShowAipResponseBody:
+        title: 'Mediatype identifier: application/vnd.enduro.storage.aip; view=default'
+        type: object
+        properties:
             created_at:
                 type: string
                 description: Creation datetime
@@ -2706,7 +3170,7 @@ definitions:
                 example: abc123
             status:
                 type: string
-                description: Status of the package
+                description: Status of the AIP
                 default: unspecified
                 example: in_review
                 enum:
@@ -2715,421 +3179,23 @@ definitions:
                     - rejected
                     - stored
                     - moving
-        description: CreateResponseBody result type (default view)
+            uuid:
+                type: string
+                example: abc123
+        description: show_aip_response_body result type (default view)
         example:
-            aip_id: abc123
             created_at: "1970-01-01T00:00:01Z"
             location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
             name: abc123
             object_key: abc123
             status: in_review
+            uuid: abc123
         required:
             - name
-            - aip_id
+            - uuid
             - status
             - object_key
             - created_at
-    StorageDownloadNotFoundResponseBody:
-        title: StorageDownloadNotFoundResponseBody
-        type: object
-        properties:
-            aip_id:
-                type: string
-                description: Identifier of missing package
-                example: abc123
-            message:
-                type: string
-                description: Message of error
-                example: abc123
-        description: Storage package not found
-        example:
-            aip_id: abc123
-            message: abc123
-        required:
-            - message
-            - aip_id
-    StorageLocationPackagesNotFoundResponseBody:
-        title: StorageLocationPackagesNotFoundResponseBody
-        type: object
-        properties:
-            message:
-                type: string
-                description: Message of error
-                example: abc123
-            uuid:
-                type: string
-                example: abc123
-        description: Storage location not found
-        example:
-            message: abc123
-            uuid: abc123
-        required:
-            - message
-            - uuid
-    StorageLocationPackagesNotValidResponseBody:
-        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
-        type: object
-        properties:
-            fault:
-                type: boolean
-                description: Is the error a server-side fault?
-                example: false
-            id:
-                type: string
-                description: ID is a unique identifier for this particular occurrence of the problem.
-                example: 123abc
-            message:
-                type: string
-                description: Message is a human-readable explanation specific to this occurrence of the problem.
-                example: parameter 'p' must be an integer
-            name:
-                type: string
-                description: Name is the name of this class of errors.
-                example: bad_request
-            temporary:
-                type: boolean
-                description: Is the error temporary?
-                example: false
-            timeout:
-                type: boolean
-                description: Is the error a timeout?
-                example: false
-        description: location_packages_not_valid_response_body result type (default view)
-        example:
-            fault: false
-            id: 123abc
-            message: parameter 'p' must be an integer
-            name: bad_request
-            temporary: false
-            timeout: false
-        required:
-            - name
-            - id
-            - message
-            - temporary
-            - timeout
-            - fault
-    StorageLocationResponseCollection:
-        title: 'Mediatype identifier: application/vnd.enduro.storage-location; type=collection; view=default'
-        type: array
-        items:
-            $ref: '#/definitions/LocationResponse'
-        description: LocationsResponseBody is the result type for an array of LocationResponse (default view)
-        example:
-            - created_at: "1970-01-01T00:00:01Z"
-              description: abc123
-              name: abc123
-              purpose: aip_store
-              source: minio
-              uuid: abc123
-    StorageMoveNotAvailableResponseBody:
-        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
-        type: object
-        properties:
-            fault:
-                type: boolean
-                description: Is the error a server-side fault?
-                example: false
-            id:
-                type: string
-                description: ID is a unique identifier for this particular occurrence of the problem.
-                example: 123abc
-            message:
-                type: string
-                description: Message is a human-readable explanation specific to this occurrence of the problem.
-                example: parameter 'p' must be an integer
-            name:
-                type: string
-                description: Name is the name of this class of errors.
-                example: bad_request
-            temporary:
-                type: boolean
-                description: Is the error temporary?
-                example: false
-            timeout:
-                type: boolean
-                description: Is the error a timeout?
-                example: false
-        description: move_not_available_response_body result type (default view)
-        example:
-            fault: false
-            id: 123abc
-            message: parameter 'p' must be an integer
-            name: bad_request
-            temporary: false
-            timeout: false
-        required:
-            - name
-            - id
-            - message
-            - temporary
-            - timeout
-            - fault
-    StorageMoveNotFoundResponseBody:
-        title: StorageMoveNotFoundResponseBody
-        type: object
-        properties:
-            aip_id:
-                type: string
-                description: Identifier of missing package
-                example: abc123
-            message:
-                type: string
-                description: Message of error
-                example: abc123
-        description: Storage package not found
-        example:
-            aip_id: abc123
-            message: abc123
-        required:
-            - message
-            - aip_id
-    StorageMoveNotValidResponseBody:
-        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
-        type: object
-        properties:
-            fault:
-                type: boolean
-                description: Is the error a server-side fault?
-                example: false
-            id:
-                type: string
-                description: ID is a unique identifier for this particular occurrence of the problem.
-                example: 123abc
-            message:
-                type: string
-                description: Message is a human-readable explanation specific to this occurrence of the problem.
-                example: parameter 'p' must be an integer
-            name:
-                type: string
-                description: Name is the name of this class of errors.
-                example: bad_request
-            temporary:
-                type: boolean
-                description: Is the error temporary?
-                example: false
-            timeout:
-                type: boolean
-                description: Is the error a timeout?
-                example: false
-        description: move_not_valid_response_body result type (default view)
-        example:
-            fault: false
-            id: 123abc
-            message: parameter 'p' must be an integer
-            name: bad_request
-            temporary: false
-            timeout: false
-        required:
-            - name
-            - id
-            - message
-            - temporary
-            - timeout
-            - fault
-    StorageMoveRequestBody:
-        title: StorageMoveRequestBody
-        type: object
-        properties:
-            location_id:
-                type: string
-                description: Identifier of storage location
-                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-        example:
-            location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-        required:
-            - location_id
-    StorageMoveStatusFailedDependencyResponseBody:
-        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
-        type: object
-        properties:
-            fault:
-                type: boolean
-                description: Is the error a server-side fault?
-                example: false
-            id:
-                type: string
-                description: ID is a unique identifier for this particular occurrence of the problem.
-                example: 123abc
-            message:
-                type: string
-                description: Message is a human-readable explanation specific to this occurrence of the problem.
-                example: parameter 'p' must be an integer
-            name:
-                type: string
-                description: Name is the name of this class of errors.
-                example: bad_request
-            temporary:
-                type: boolean
-                description: Is the error temporary?
-                example: false
-            timeout:
-                type: boolean
-                description: Is the error a timeout?
-                example: false
-        description: move_status_failed_dependency_response_body result type (default view)
-        example:
-            fault: false
-            id: 123abc
-            message: parameter 'p' must be an integer
-            name: bad_request
-            temporary: false
-            timeout: false
-        required:
-            - name
-            - id
-            - message
-            - temporary
-            - timeout
-            - fault
-    StorageMoveStatusNotFoundResponseBody:
-        title: StorageMoveStatusNotFoundResponseBody
-        type: object
-        properties:
-            aip_id:
-                type: string
-                description: Identifier of missing package
-                example: abc123
-            message:
-                type: string
-                description: Message of error
-                example: abc123
-        description: Storage package not found
-        example:
-            aip_id: abc123
-            message: abc123
-        required:
-            - message
-            - aip_id
-    StorageMoveStatusResponseBody:
-        title: StorageMoveStatusResponseBody
-        type: object
-        properties:
-            done:
-                type: boolean
-                example: false
-        example:
-            done: false
-        required:
-            - done
-    StoragePackageResponseCollection:
-        title: 'Mediatype identifier: application/vnd.enduro.storage-package; type=collection; view=default'
-        type: array
-        items:
-            $ref: '#/definitions/PackageResponse'
-        description: location_packages_response_body is the result type for an array of PackageResponse (default view)
-        example:
-            - aip_id: abc123
-              created_at: "1970-01-01T00:00:01Z"
-              location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-              name: abc123
-              object_key: abc123
-              status: in_review
-    StorageRejectNotAvailableResponseBody:
-        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
-        type: object
-        properties:
-            fault:
-                type: boolean
-                description: Is the error a server-side fault?
-                example: false
-            id:
-                type: string
-                description: ID is a unique identifier for this particular occurrence of the problem.
-                example: 123abc
-            message:
-                type: string
-                description: Message is a human-readable explanation specific to this occurrence of the problem.
-                example: parameter 'p' must be an integer
-            name:
-                type: string
-                description: Name is the name of this class of errors.
-                example: bad_request
-            temporary:
-                type: boolean
-                description: Is the error temporary?
-                example: false
-            timeout:
-                type: boolean
-                description: Is the error a timeout?
-                example: false
-        description: reject_not_available_response_body result type (default view)
-        example:
-            fault: false
-            id: 123abc
-            message: parameter 'p' must be an integer
-            name: bad_request
-            temporary: false
-            timeout: false
-        required:
-            - name
-            - id
-            - message
-            - temporary
-            - timeout
-            - fault
-    StorageRejectNotFoundResponseBody:
-        title: StorageRejectNotFoundResponseBody
-        type: object
-        properties:
-            aip_id:
-                type: string
-                description: Identifier of missing package
-                example: abc123
-            message:
-                type: string
-                description: Message of error
-                example: abc123
-        description: Storage package not found
-        example:
-            aip_id: abc123
-            message: abc123
-        required:
-            - message
-            - aip_id
-    StorageRejectNotValidResponseBody:
-        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
-        type: object
-        properties:
-            fault:
-                type: boolean
-                description: Is the error a server-side fault?
-                example: false
-            id:
-                type: string
-                description: ID is a unique identifier for this particular occurrence of the problem.
-                example: 123abc
-            message:
-                type: string
-                description: Message is a human-readable explanation specific to this occurrence of the problem.
-                example: parameter 'p' must be an integer
-            name:
-                type: string
-                description: Name is the name of this class of errors.
-                example: bad_request
-            temporary:
-                type: boolean
-                description: Is the error temporary?
-                example: false
-            timeout:
-                type: boolean
-                description: Is the error a timeout?
-                example: false
-        description: reject_not_valid_response_body result type (default view)
-        example:
-            fault: false
-            id: 123abc
-            message: parameter 'p' must be an integer
-            name: bad_request
-            temporary: false
-            timeout: false
-        required:
-            - name
-            - id
-            - message
-            - temporary
-            - timeout
-            - fault
     StorageShowLocationNotFoundResponseBody:
         title: StorageShowLocationNotFoundResponseBody
         type: object
@@ -3149,7 +3215,7 @@ definitions:
             - message
             - uuid
     StorageShowLocationResponseBody:
-        title: 'Mediatype identifier: application/vnd.enduro.storage-location; view=default'
+        title: 'Mediatype identifier: application/vnd.enduro.storage.location; view=default'
         type: object
         properties:
             created_at:
@@ -3200,73 +3266,7 @@ definitions:
             - purpose
             - uuid
             - created_at
-    StorageShowNotFoundResponseBody:
-        title: StorageShowNotFoundResponseBody
-        type: object
-        properties:
-            aip_id:
-                type: string
-                description: Identifier of missing package
-                example: abc123
-            message:
-                type: string
-                description: Message of error
-                example: abc123
-        description: Storage package not found
-        example:
-            aip_id: abc123
-            message: abc123
-        required:
-            - message
-            - aip_id
-    StorageShowResponseBody:
-        title: 'Mediatype identifier: application/vnd.enduro.storage-package; view=default'
-        type: object
-        properties:
-            aip_id:
-                type: string
-                example: abc123
-            created_at:
-                type: string
-                description: Creation datetime
-                example: "1970-01-01T00:00:01Z"
-                format: date-time
-            location_id:
-                type: string
-                description: Identifier of storage location
-                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-            name:
-                type: string
-                example: abc123
-            object_key:
-                type: string
-                example: abc123
-            status:
-                type: string
-                description: Status of the package
-                default: unspecified
-                example: in_review
-                enum:
-                    - unspecified
-                    - in_review
-                    - rejected
-                    - stored
-                    - moving
-        description: ShowResponseBody result type (default view)
-        example:
-            aip_id: abc123
-            created_at: "1970-01-01T00:00:01Z"
-            location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-            name: abc123
-            object_key: abc123
-            status: in_review
-        required:
-            - name
-            - aip_id
-            - status
-            - object_key
-            - created_at
-    StorageSubmitNotAvailableResponseBody:
+    StorageSubmitAipNotAvailableResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
         properties:
@@ -3294,7 +3294,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: submit_not_available_response_body result type (default view)
+        description: submit_aip_not_available_response_body result type (default view)
         example:
             fault: false
             id: 123abc
@@ -3309,7 +3309,7 @@ definitions:
             - temporary
             - timeout
             - fault
-    StorageSubmitNotValidResponseBody:
+    StorageSubmitAipNotValidResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
         properties:
@@ -3337,7 +3337,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: submit_not_valid_response_body result type (default view)
+        description: submit_aip_not_valid_response_body result type (default view)
         example:
             fault: false
             id: 123abc
@@ -3352,8 +3352,8 @@ definitions:
             - temporary
             - timeout
             - fault
-    StorageSubmitRequestBody:
-        title: StorageSubmitRequestBody
+    StorageSubmitAipRequestBody:
+        title: StorageSubmitAipRequestBody
         type: object
         properties:
             name:
@@ -3363,8 +3363,8 @@ definitions:
             name: abc123
         required:
             - name
-    StorageSubmitResponseBody:
-        title: StorageSubmitResponseBody
+    StorageSubmitAipResponseBody:
+        title: StorageSubmitAipResponseBody
         type: object
         properties:
             url:
@@ -3374,7 +3374,7 @@ definitions:
             url: abc123
         required:
             - url
-    StorageUpdateNotAvailableResponseBody:
+    StorageUpdateAipNotAvailableResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
         properties:
@@ -3402,7 +3402,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: update_not_available_response_body result type (default view)
+        description: update_aip_not_available_response_body result type (default view)
         example:
             fault: false
             id: 123abc
@@ -3417,7 +3417,7 @@ definitions:
             - temporary
             - timeout
             - fault
-    StorageUpdateNotValidResponseBody:
+    StorageUpdateAipNotValidResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
         properties:
@@ -3445,7 +3445,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: update_not_valid_response_body result type (default view)
+        description: update_aip_not_valid_response_body result type (default view)
         example:
             fault: false
             id: 123abc
@@ -3467,21 +3467,21 @@ securityDefinitions:
             Secures endpoint by requiring a valid JWT token.
 
             **Security Scopes**:
-              * `package:list`: no description
-              * `package:listActions`: no description
-              * `package:move`: no description
-              * `package:read`: no description
-              * `package:review`: no description
-              * `package:upload`: no description
-              * `storage:location:create`: no description
-              * `storage:location:list`: no description
-              * `storage:location:listPackages`: no description
-              * `storage:location:read`: no description
-              * `storage:package:create`: no description
-              * `storage:package:download`: no description
-              * `storage:package:move`: no description
-              * `storage:package:read`: no description
-              * `storage:package:review`: no description
-              * `storage:package:submit`: no description
+              * `ingest:sips:actions:list`: no description
+              * `ingest:sips:list`: no description
+              * `ingest:sips:move`: no description
+              * `ingest:sips:read`: no description
+              * `ingest:sips:review`: no description
+              * `ingest:sips:upload`: no description
+              * `storage:aips:create`: no description
+              * `storage:aips:download`: no description
+              * `storage:aips:move`: no description
+              * `storage:aips:read`: no description
+              * `storage:aips:review`: no description
+              * `storage:aips:submit`: no description
+              * `storage:locations:aips:list`: no description
+              * `storage:locations:create`: no description
+              * `storage:locations:list`: no description
+              * `storage:locations:read`: no description
         name: Authorization
         in: header

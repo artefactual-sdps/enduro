@@ -3,14 +3,14 @@ import { ref } from "vue";
 
 import StatusBadge from "@/components/StatusBadge.vue";
 import { FormatDateTime } from "@/composables/dateFormat";
-import type { EnduroPackagePreservationTask } from "@/openapi-generator";
+import type { EnduroIngestSipPreservationTask } from "@/openapi-generator";
 
 class Card {
   isOpen: boolean;
   note: string;
   more: string;
 
-  constructor(task: EnduroPackagePreservationTask) {
+  constructor(task: EnduroIngestSipPreservationTask) {
     this.isOpen = false;
 
     if (task.note?.includes("\n")) {
@@ -32,13 +32,13 @@ class Card {
   }
 }
 
-const isComplete = (task: EnduroPackagePreservationTask) => {
+const isComplete = (task: EnduroIngestSipPreservationTask) => {
   return task.status == "done" || task.status == "error";
 };
 
 const props = defineProps<{
   index: number;
-  task: EnduroPackagePreservationTask;
+  task: EnduroIngestSipPreservationTask;
 }>();
 
 const card = ref(new Card(props.task));

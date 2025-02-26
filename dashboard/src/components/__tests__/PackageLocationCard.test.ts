@@ -18,9 +18,9 @@ describe("PackageLocationCard.vue", () => {
             initialState: {
               package: {
                 current: {
-                  status: api.EnduroStoredPackageStatusEnum.Done,
+                  status: api.EnduroIngestSipStatusEnum.Done,
                   locationId: "f8635e46-a320-4152-9a2c-98a28eeb50d1",
-                } as api.EnduroStoredPackage,
+                } as api.EnduroIngestSip,
               },
             },
           }),
@@ -54,9 +54,9 @@ describe("PackageLocationCard.vue", () => {
             initialState: {
               package: {
                 current: {
-                  status: api.EnduroStoredPackageStatusEnum.Done,
+                  status: api.EnduroIngestSipStatusEnum.Done,
                   locationId: "f8635e46-a320-4152-9a2c-98a28eeb50d1",
-                } as api.EnduroStoredPackage,
+                } as api.EnduroIngestSip,
               },
               auth: {
                 config: { enabled: true, abac: { enabled: true } },
@@ -95,9 +95,9 @@ describe("PackageLocationCard.vue", () => {
             initialState: {
               package: {
                 current: {
-                  status: api.EnduroStoredPackageStatusEnum.Done,
+                  status: api.EnduroIngestSipStatusEnum.Done,
                   locationId: "f8635e46-a320-4152-9a2c-98a28eeb50d1",
-                } as api.EnduroStoredPackage,
+                } as api.EnduroIngestSip,
               },
             },
           }),
@@ -113,7 +113,7 @@ describe("PackageLocationCard.vue", () => {
     moveMock.mockImplementation(async () => {
       packageStore.$patch((state) => {
         if (!state.current) return;
-        state.current.status = api.EnduroStoredPackageStatusEnum.InProgress;
+        state.current.status = api.EnduroIngestSipStatusEnum.InProgress;
         state.locationChanging = true;
       });
     });
@@ -140,8 +140,8 @@ describe("PackageLocationCard.vue", () => {
             initialState: {
               package: {
                 current: {
-                  status: api.EnduroStoredPackageStatusEnum.InProgress,
-                } as api.EnduroStoredPackage,
+                  status: api.EnduroIngestSipStatusEnum.InProgress,
+                } as api.EnduroIngestSip,
               },
             },
           }),
@@ -171,9 +171,9 @@ describe("PackageLocationCard.vue", () => {
             initialState: {
               package: {
                 current: {
-                  status: api.EnduroStoredPackageStatusEnum.Done,
+                  status: api.EnduroIngestSipStatusEnum.Done,
                   locationId: undefined,
-                } as api.EnduroStoredPackage,
+                } as api.EnduroIngestSip,
               },
             },
           }),
@@ -203,9 +203,9 @@ describe("PackageLocationCard.vue", () => {
             initialState: {
               package: {
                 current: {
-                  status: api.EnduroStoredPackageStatusEnum.InProgress,
+                  status: api.EnduroIngestSipStatusEnum.InProgress,
                   locationId: "f8635e46-a320-4152-9a2c-98a28eeb50d1",
-                } as api.EnduroStoredPackage,
+                } as api.EnduroIngestSip,
               },
             },
           }),

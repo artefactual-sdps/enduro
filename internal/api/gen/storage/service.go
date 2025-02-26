@@ -17,32 +17,32 @@ import (
 	"goa.design/goa/v3/security"
 )
 
-// The storage service manages the storage of packages.
+// The storage service manages locations and AIPs.
 type Service interface {
-	// Create a new package
-	Create(context.Context, *CreatePayload) (res *Package, err error)
-	// Start the submission of a package
-	Submit(context.Context, *SubmitPayload) (res *SubmitResult, err error)
-	// Signal that a package submission is complete
-	Update(context.Context, *UpdatePayload) (err error)
-	// Download package by AIPID
-	Download(context.Context, *DownloadPayload) (res []byte, err error)
-	// Move a package to a permanent storage location
-	Move(context.Context, *MovePayload) (err error)
-	// Retrieve the status of a permanent storage location move of the package
-	MoveStatus(context.Context, *MoveStatusPayload) (res *MoveStatusResult, err error)
-	// Reject a package
-	Reject(context.Context, *RejectPayload) (err error)
-	// Show package by AIPID
-	Show(context.Context, *ShowPayload) (res *Package, err error)
+	// Create a new AIP
+	CreateAip(context.Context, *CreateAipPayload) (res *AIP, err error)
+	// Start the submission of an AIP
+	SubmitAip(context.Context, *SubmitAipPayload) (res *SubmitAIPResult, err error)
+	// Signal that an AIP submission is complete
+	UpdateAip(context.Context, *UpdateAipPayload) (err error)
+	// Download AIP by AIPID
+	DownloadAip(context.Context, *DownloadAipPayload) (res []byte, err error)
+	// Move an AIP to a permanent storage location
+	MoveAip(context.Context, *MoveAipPayload) (err error)
+	// Retrieve the status of a permanent storage location move of the AIP
+	MoveAipStatus(context.Context, *MoveAipStatusPayload) (res *MoveStatusResult, err error)
+	// Reject an AIP
+	RejectAip(context.Context, *RejectAipPayload) (err error)
+	// Show AIP by AIPID
+	ShowAip(context.Context, *ShowAipPayload) (res *AIP, err error)
 	// List locations
-	Locations(context.Context, *LocationsPayload) (res LocationCollection, err error)
+	ListLocations(context.Context, *ListLocationsPayload) (res LocationCollection, err error)
 	// Create a storage location
-	AddLocation(context.Context, *AddLocationPayload) (res *AddLocationResult, err error)
+	CreateLocation(context.Context, *CreateLocationPayload) (res *CreateLocationResult, err error)
 	// Show location by UUID
 	ShowLocation(context.Context, *ShowLocationPayload) (res *Location, err error)
-	// List all the packages stored in the location with UUID
-	LocationPackages(context.Context, *LocationPackagesPayload) (res PackageCollection, err error)
+	// List all the AIPs stored in the location with UUID
+	ListLocationAips(context.Context, *ListLocationAipsPayload) (res AIPCollection, err error)
 }
 
 // Auther defines the authorization functions to be implemented by the service.
@@ -65,7 +65,32 @@ const ServiceName = "storage"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [12]string{"create", "submit", "update", "download", "move", "move_status", "reject", "show", "locations", "add_location", "show_location", "location_packages"}
+var MethodNames = [12]string{"create_aip", "submit_aip", "update_aip", "download_aip", "move_aip", "move_aip_status", "reject_aip", "show_aip", "list_locations", "create_location", "show_location", "list_location_aips"}
+
+// AIP is the result type of the storage service create_aip method.
+type AIP struct {
+	Name string
+	UUID uuid.UUID
+	// Status of the AIP
+	Status    string
+	ObjectKey uuid.UUID
+	// Identifier of storage location
+	LocationID *uuid.UUID
+	// Creation datetime
+	CreatedAt string
+}
+
+// AIPCollection is the result type of the storage service list_location_aips
+// method.
+type AIPCollection []*AIP
+
+// AIP not found.
+type AIPNotFound struct {
+	// Message of error
+	Message string
+	// Identifier of missing AIP
+	UUID uuid.UUID
+}
 
 type AMSSConfig struct {
 	APIKey   string
@@ -73,9 +98,25 @@ type AMSSConfig struct {
 	Username string
 }
 
-// AddLocationPayload is the payload type of the storage service add_location
+// CreateAipPayload is the payload type of the storage service create_aip
 // method.
-type AddLocationPayload struct {
+type CreateAipPayload struct {
+	// Identifier of the AIP
+	UUID string
+	// Name of the AIP
+	Name string
+	// ObjectKey of the AIP
+	ObjectKey string
+	// Status of the the AIP
+	Status string
+	// Identifier of the AIP's storage location
+	LocationID *uuid.UUID
+	Token      *string
+}
+
+// CreateLocationPayload is the payload type of the storage service
+// create_location method.
+type CreateLocationPayload struct {
 	Name        string
 	Description *string
 	Source      string
@@ -86,82 +127,32 @@ type AddLocationPayload struct {
 	Token *string
 }
 
-// AddLocationResult is the result type of the storage service add_location
-// method.
-type AddLocationResult struct {
+// CreateLocationResult is the result type of the storage service
+// create_location method.
+type CreateLocationResult struct {
 	UUID string
 }
 
-// CreatePayload is the payload type of the storage service create method.
-type CreatePayload struct {
+// DownloadAipPayload is the payload type of the storage service download_aip
+// method.
+type DownloadAipPayload struct {
 	// Identifier of AIP
-	AipID string
-	// Name of the package
-	Name string
-	// ObjectKey of AIP
-	ObjectKey string
-	// Status of the package
-	Status string
-	// Identifier of the package's storage location
-	LocationID *uuid.UUID
-	Token      *string
-}
-
-// DownloadPayload is the payload type of the storage service download method.
-type DownloadPayload struct {
-	// Identifier of AIP
-	AipID string
+	UUID  string
 	Token *string
 }
 
-// PreservationAction describes a preservation action.
-type EnduroPackagePreservationAction struct {
-	ID          uint
-	WorkflowID  string
-	Type        string
-	Status      string
-	StartedAt   string
-	CompletedAt *string
-	Tasks       EnduroPackagePreservationTaskCollection
-	PackageID   *uint
+// ListLocationAipsPayload is the payload type of the storage service
+// list_location_aips method.
+type ListLocationAipsPayload struct {
+	// Identifier of location
+	UUID  string
+	Token *string
 }
 
-// PreservationTask describes a preservation action task.
-type EnduroPackagePreservationTask struct {
-	ID                   uint
-	TaskID               string
-	Name                 string
-	Status               string
-	StartedAt            string
-	CompletedAt          *string
-	Note                 *string
-	PreservationActionID *uint
-}
-
-type EnduroPackagePreservationTaskCollection []*EnduroPackagePreservationTask
-
-// StoredPackage describes a package retrieved by the service.
-type EnduroStoredPackage struct {
-	// Identifier of package
-	ID uint
-	// Name of the package
-	Name *string
-	// Identifier of storage location
-	LocationID *uuid.UUID
-	// Status of the package
-	Status string
-	// Identifier of processing workflow
-	WorkflowID *string
-	// Identifier of latest processing workflow run
-	RunID *string
-	// Identifier of AIP
-	AipID *string
-	// Creation datetime
-	CreatedAt string
-	// Start datetime
-	StartedAt *string
-	// Completion datetime
-	CompletedAt *string
+// ListLocationsPayload is the payload type of the storage service
+// list_locations method.
+type ListLocationsPayload struct {
+	Token *string
 }
 
 // Location is the result type of the storage service show_location method.
@@ -182,7 +173,7 @@ type Location struct {
 	CreatedAt string
 }
 
-// LocationCollection is the result type of the storage service locations
+// LocationCollection is the result type of the storage service list_locations
 // method.
 type LocationCollection []*Location
 
@@ -193,124 +184,38 @@ type LocationNotFound struct {
 	UUID    uuid.UUID
 }
 
-// LocationPackagesPayload is the payload type of the storage service
-// location_packages method.
-type LocationPackagesPayload struct {
-	// Identifier of location
-	UUID  string
-	Token *string
-}
-
-// LocationsPayload is the payload type of the storage service locations method.
-type LocationsPayload struct {
-	Token *string
-}
-
 type MonitorPingEvent struct {
 	Message *string
 }
 
-// MovePayload is the payload type of the storage service move method.
-type MovePayload struct {
+// MoveAipPayload is the payload type of the storage service move_aip method.
+type MoveAipPayload struct {
 	// Identifier of AIP
-	AipID string
+	UUID string
 	// Identifier of storage location
 	LocationID uuid.UUID
 	Token      *string
 }
 
-// MoveStatusPayload is the payload type of the storage service move_status
-// method.
-type MoveStatusPayload struct {
+// MoveAipStatusPayload is the payload type of the storage service
+// move_aip_status method.
+type MoveAipStatusPayload struct {
 	// Identifier of AIP
-	AipID string
+	UUID  string
 	Token *string
 }
 
-// MoveStatusResult is the result type of the storage service move_status
+// MoveStatusResult is the result type of the storage service move_aip_status
 // method.
 type MoveStatusResult struct {
 	Done bool
 }
 
-// Package is the result type of the storage service create method.
-type Package struct {
-	Name  string
-	AipID uuid.UUID
-	// Status of the package
-	Status    string
-	ObjectKey uuid.UUID
-	// Identifier of storage location
-	LocationID *uuid.UUID
-	// Creation datetime
-	CreatedAt string
-}
-
-// PackageCollection is the result type of the storage service
-// location_packages method.
-type PackageCollection []*Package
-
-type PackageCreatedEvent struct {
-	// Identifier of package
-	ID   uint
-	Item *EnduroStoredPackage
-}
-
-type PackageLocationUpdatedEvent struct {
-	// Identifier of package
-	ID uint
-	// Identifier of storage location
-	LocationID uuid.UUID
-}
-
-// Storage package not found.
-type PackageNotFound struct {
-	// Message of error
-	Message string
-	// Identifier of missing package
-	AipID uuid.UUID
-}
-
-type PackageStatusUpdatedEvent struct {
-	// Identifier of package
-	ID     uint
-	Status string
-}
-
-type PackageUpdatedEvent struct {
-	// Identifier of package
-	ID   uint
-	Item *EnduroStoredPackage
-}
-
-type PreservationActionCreatedEvent struct {
-	// Identifier of preservation action
-	ID   uint
-	Item *EnduroPackagePreservationAction
-}
-
-type PreservationActionUpdatedEvent struct {
-	// Identifier of preservation action
-	ID   uint
-	Item *EnduroPackagePreservationAction
-}
-
-type PreservationTaskCreatedEvent struct {
-	// Identifier of preservation task
-	ID   uint
-	Item *EnduroPackagePreservationTask
-}
-
-type PreservationTaskUpdatedEvent struct {
-	// Identifier of preservation task
-	ID   uint
-	Item *EnduroPackagePreservationTask
-}
-
-// RejectPayload is the payload type of the storage service reject method.
-type RejectPayload struct {
+// RejectAipPayload is the payload type of the storage service reject_aip
+// method.
+type RejectAipPayload struct {
 	// Identifier of AIP
-	AipID string
+	UUID  string
 	Token *string
 }
 
@@ -332,6 +237,112 @@ type SFTPConfig struct {
 	Directory string
 }
 
+// SIP describes an ingest SIP type.
+type SIP struct {
+	// Identifier of SIP
+	ID uint
+	// Name of the SIP
+	Name *string
+	// Identifier of storage location
+	LocationID *uuid.UUID
+	// Status of the SIP
+	Status string
+	// Identifier of processing workflow
+	WorkflowID *string
+	// Identifier of latest processing workflow run
+	RunID *string
+	// Identifier of AIP
+	AipID *string
+	// Creation datetime
+	CreatedAt string
+	// Start datetime
+	StartedAt *string
+	// Completion datetime
+	CompletedAt *string
+}
+
+type SIPCreatedEvent struct {
+	// Identifier of SIP
+	ID   uint
+	Item *SIP
+}
+
+type SIPLocationUpdatedEvent struct {
+	// Identifier of SIP
+	ID uint
+	// Identifier of storage location
+	LocationID uuid.UUID
+}
+
+// SIPPreservationAction describes a preservation action of a SIP.
+type SIPPreservationAction struct {
+	ID          uint
+	WorkflowID  string
+	Type        string
+	Status      string
+	StartedAt   string
+	CompletedAt *string
+	Tasks       SIPPreservationTaskCollection
+	SipID       *uint
+}
+
+type SIPPreservationActionCreatedEvent struct {
+	// Identifier of preservation action
+	ID   uint
+	Item *SIPPreservationAction
+}
+
+type SIPPreservationActionUpdatedEvent struct {
+	// Identifier of preservation action
+	ID   uint
+	Item *SIPPreservationAction
+}
+
+// SIPPreservationTask describes a SIP preservation action task.
+type SIPPreservationTask struct {
+	ID                   uint
+	TaskID               string
+	Name                 string
+	Status               string
+	StartedAt            string
+	CompletedAt          *string
+	Note                 *string
+	PreservationActionID *uint
+}
+
+type SIPPreservationTaskCollection []*SIPPreservationTask
+
+type SIPPreservationTaskCreatedEvent struct {
+	// Identifier of preservation task
+	ID   uint
+	Item *SIPPreservationTask
+}
+
+type SIPPreservationTaskUpdatedEvent struct {
+	// Identifier of preservation task
+	ID   uint
+	Item *SIPPreservationTask
+}
+
+type SIPStatusUpdatedEvent struct {
+	// Identifier of SIP
+	ID     uint
+	Status string
+}
+
+type SIPUpdatedEvent struct {
+	// Identifier of SIP
+	ID   uint
+	Item *SIP
+}
+
+// ShowAipPayload is the payload type of the storage service show_aip method.
+type ShowAipPayload struct {
+	// Identifier of AIP
+	UUID  string
+	Token *string
+}
+
 // ShowLocationPayload is the payload type of the storage service show_location
 // method.
 type ShowLocationPayload struct {
@@ -340,34 +351,29 @@ type ShowLocationPayload struct {
 	Token *string
 }
 
-// ShowPayload is the payload type of the storage service show method.
-type ShowPayload struct {
-	// Identifier of AIP
-	AipID string
-	Token *string
+// SubmitAIPResult is the result type of the storage service submit_aip method.
+type SubmitAIPResult struct {
+	URL string
 }
 
-// SubmitPayload is the payload type of the storage service submit method.
-type SubmitPayload struct {
+// SubmitAipPayload is the payload type of the storage service submit_aip
+// method.
+type SubmitAipPayload struct {
 	// Identifier of AIP
-	AipID string
+	UUID  string
 	Name  string
 	Token *string
-}
-
-// SubmitResult is the result type of the storage service submit method.
-type SubmitResult struct {
-	URL string
 }
 
 type URLConfig struct {
 	URL string
 }
 
-// UpdatePayload is the payload type of the storage service update method.
-type UpdatePayload struct {
+// UpdateAipPayload is the payload type of the storage service update_aip
+// method.
+type UpdateAipPayload struct {
 	// Identifier of AIP
-	AipID string
+	UUID  string
 	Token *string
 }
 
@@ -376,6 +382,23 @@ type Forbidden string
 
 // Unauthorized
 type Unauthorized string
+
+// Error returns an error description.
+func (e *AIPNotFound) Error() string {
+	return "AIP not found."
+}
+
+// ErrorName returns "AIPNotFound".
+//
+// Deprecated: Use GoaErrorName - https://github.com/goadesign/goa/issues/3105
+func (e *AIPNotFound) ErrorName() string {
+	return e.GoaErrorName()
+}
+
+// GoaErrorName returns "AIPNotFound".
+func (e *AIPNotFound) GoaErrorName() string {
+	return "not_found"
+}
 
 // Error returns an error description.
 func (e *LocationNotFound) Error() string {
@@ -391,23 +414,6 @@ func (e *LocationNotFound) ErrorName() string {
 
 // GoaErrorName returns "LocationNotFound".
 func (e *LocationNotFound) GoaErrorName() string {
-	return "not_found"
-}
-
-// Error returns an error description.
-func (e *PackageNotFound) Error() string {
-	return "Storage package not found."
-}
-
-// ErrorName returns "PackageNotFound".
-//
-// Deprecated: Use GoaErrorName - https://github.com/goadesign/goa/issues/3105
-func (e *PackageNotFound) ErrorName() string {
-	return e.GoaErrorName()
-}
-
-// GoaErrorName returns "PackageNotFound".
-func (e *PackageNotFound) GoaErrorName() string {
 	return "not_found"
 }
 
@@ -464,16 +470,16 @@ func MakeFailedDependency(err error) *goa.ServiceError {
 	return goa.NewServiceError(err, "failed_dependency", false, false, false)
 }
 
-// NewPackage initializes result type Package from viewed result type Package.
-func NewPackage(vres *storageviews.Package) *Package {
-	return newPackage(vres.Projected)
+// NewAIP initializes result type AIP from viewed result type AIP.
+func NewAIP(vres *storageviews.AIP) *AIP {
+	return newAIP(vres.Projected)
 }
 
-// NewViewedPackage initializes viewed result type Package from result type
-// Package using the given view.
-func NewViewedPackage(res *Package, view string) *storageviews.Package {
-	p := newPackageView(res)
-	return &storageviews.Package{Projected: p, View: "default"}
+// NewViewedAIP initializes viewed result type AIP from result type AIP using
+// the given view.
+func NewViewedAIP(res *AIP, view string) *storageviews.AIP {
+	p := newAIPView(res)
+	return &storageviews.AIP{Projected: p, View: "default"}
 }
 
 // NewLocationCollection initializes result type LocationCollection from viewed
@@ -502,29 +508,29 @@ func NewViewedLocation(res *Location, view string) *storageviews.Location {
 	return &storageviews.Location{Projected: p, View: "default"}
 }
 
-// NewPackageCollection initializes result type PackageCollection from viewed
-// result type PackageCollection.
-func NewPackageCollection(vres storageviews.PackageCollection) PackageCollection {
-	return newPackageCollection(vres.Projected)
+// NewAIPCollection initializes result type AIPCollection from viewed result
+// type AIPCollection.
+func NewAIPCollection(vres storageviews.AIPCollection) AIPCollection {
+	return newAIPCollection(vres.Projected)
 }
 
-// NewViewedPackageCollection initializes viewed result type PackageCollection
-// from result type PackageCollection using the given view.
-func NewViewedPackageCollection(res PackageCollection, view string) storageviews.PackageCollection {
-	p := newPackageCollectionView(res)
-	return storageviews.PackageCollection{Projected: p, View: "default"}
+// NewViewedAIPCollection initializes viewed result type AIPCollection from
+// result type AIPCollection using the given view.
+func NewViewedAIPCollection(res AIPCollection, view string) storageviews.AIPCollection {
+	p := newAIPCollectionView(res)
+	return storageviews.AIPCollection{Projected: p, View: "default"}
 }
 
-// newPackage converts projected type Package to service type Package.
-func newPackage(vres *storageviews.PackageView) *Package {
-	res := &Package{
+// newAIP converts projected type AIP to service type AIP.
+func newAIP(vres *storageviews.AIPView) *AIP {
+	res := &AIP{
 		LocationID: vres.LocationID,
 	}
 	if vres.Name != nil {
 		res.Name = *vres.Name
 	}
-	if vres.AipID != nil {
-		res.AipID = *vres.AipID
+	if vres.UUID != nil {
+		res.UUID = *vres.UUID
 	}
 	if vres.Status != nil {
 		res.Status = *vres.Status
@@ -541,12 +547,12 @@ func newPackage(vres *storageviews.PackageView) *Package {
 	return res
 }
 
-// newPackageView projects result type Package to projected type PackageView
-// using the "default" view.
-func newPackageView(res *Package) *storageviews.PackageView {
-	vres := &storageviews.PackageView{
+// newAIPView projects result type AIP to projected type AIPView using the
+// "default" view.
+func newAIPView(res *AIP) *storageviews.AIPView {
+	vres := &storageviews.AIPView{
 		Name:       &res.Name,
-		AipID:      &res.AipID,
+		UUID:       &res.UUID,
 		Status:     &res.Status,
 		ObjectKey:  &res.ObjectKey,
 		LocationID: res.LocationID,
@@ -618,22 +624,22 @@ func newLocationView(res *Location) *storageviews.LocationView {
 	return vres
 }
 
-// newPackageCollection converts projected type PackageCollection to service
-// type PackageCollection.
-func newPackageCollection(vres storageviews.PackageCollectionView) PackageCollection {
-	res := make(PackageCollection, len(vres))
+// newAIPCollection converts projected type AIPCollection to service type
+// AIPCollection.
+func newAIPCollection(vres storageviews.AIPCollectionView) AIPCollection {
+	res := make(AIPCollection, len(vres))
 	for i, n := range vres {
-		res[i] = newPackage(n)
+		res[i] = newAIP(n)
 	}
 	return res
 }
 
-// newPackageCollectionView projects result type PackageCollection to projected
-// type PackageCollectionView using the "default" view.
-func newPackageCollectionView(res PackageCollection) storageviews.PackageCollectionView {
-	vres := make(storageviews.PackageCollectionView, len(res))
+// newAIPCollectionView projects result type AIPCollection to projected type
+// AIPCollectionView using the "default" view.
+func newAIPCollectionView(res AIPCollection) storageviews.AIPCollectionView {
+	vres := make(storageviews.AIPCollectionView, len(res))
 	for i, n := range res {
-		vres[i] = newPackageView(n)
+		vres[i] = newAIPView(n)
 	}
 	return vres
 }

@@ -19,18 +19,18 @@ import (
 // StorageService implements goastorage.Service.
 type StorageService struct {
 	JWTAuthHandler          func(ctx context.Context, token string, scheme *security.JWTScheme) (ctx2 context.Context, err error)
-	SubmitHandler           func(ctx context.Context, req *goastorage.SubmitPayload) (res *goastorage.SubmitResult, err error)
-	CreateHandler           func(ctx context.Context, req *goastorage.CreatePayload) (res *goastorage.Package, err error)
-	UpdateHandler           func(ctx context.Context, req *goastorage.UpdatePayload) (err error)
-	DownloadHandler         func(ctx context.Context, req *goastorage.DownloadPayload) (res []byte, err error)
-	LocationsHandler        func(ctx context.Context, req *goastorage.LocationsPayload) (res goastorage.LocationCollection, err error)
-	MoveHandler             func(ctx context.Context, req *goastorage.MovePayload) (err error)
-	MoveStatusHandler       func(ctx context.Context, req *goastorage.MoveStatusPayload) (res *goastorage.MoveStatusResult, err error)
-	RejectHandler           func(ctx context.Context, req *goastorage.RejectPayload) (err error)
-	ShowHandler             func(ctx context.Context, req *goastorage.ShowPayload) (res *goastorage.Package, err error)
-	AddLocationHandler      func(ctx context.Context, req *goastorage.AddLocationPayload) (res *goastorage.AddLocationResult, err error)
+	SubmitAipHandler        func(ctx context.Context, req *goastorage.SubmitAipPayload) (res *goastorage.SubmitAIPResult, err error)
+	CreateAipHandler        func(ctx context.Context, req *goastorage.CreateAipPayload) (res *goastorage.AIP, err error)
+	UpdateAipHandler        func(ctx context.Context, req *goastorage.UpdateAipPayload) (err error)
+	DownloadAipHandler      func(ctx context.Context, req *goastorage.DownloadAipPayload) (res []byte, err error)
+	ListLocationsHandler    func(ctx context.Context, req *goastorage.ListLocationsPayload) (res goastorage.LocationCollection, err error)
+	MoveAipHandler          func(ctx context.Context, req *goastorage.MoveAipPayload) (err error)
+	MoveAipStatusHandler    func(ctx context.Context, req *goastorage.MoveAipStatusPayload) (res *goastorage.MoveStatusResult, err error)
+	RejectAipHandler        func(ctx context.Context, req *goastorage.RejectAipPayload) (err error)
+	ShowAipHandler          func(ctx context.Context, req *goastorage.ShowAipPayload) (res *goastorage.AIP, err error)
+	CreateLocationHandler   func(ctx context.Context, req *goastorage.CreateLocationPayload) (res *goastorage.CreateLocationResult, err error)
 	ShowLocationHandler     func(ctx context.Context, req *goastorage.ShowLocationPayload) (res *goastorage.Location, err error)
-	LocationPackagesHandler func(ctx context.Context, req *goastorage.LocationPackagesPayload) (res goastorage.PackageCollection, err error)
+	ListLocationAipsHandler func(ctx context.Context, req *goastorage.ListLocationAipsPayload) (res goastorage.AIPCollection, err error)
 }
 
 func (s StorageService) JWTAuth(
@@ -41,59 +41,59 @@ func (s StorageService) JWTAuth(
 	return s.JWTAuthHandler(ctx, token, scheme)
 }
 
-func (s StorageService) Submit(
+func (s StorageService) SubmitAip(
 	ctx context.Context,
-	req *goastorage.SubmitPayload,
-) (res *goastorage.SubmitResult, err error) {
-	return s.SubmitHandler(ctx, req)
+	req *goastorage.SubmitAipPayload,
+) (res *goastorage.SubmitAIPResult, err error) {
+	return s.SubmitAipHandler(ctx, req)
 }
 
-func (s StorageService) Create(
+func (s StorageService) CreateAip(
 	ctx context.Context,
-	req *goastorage.CreatePayload,
-) (res *goastorage.Package, err error) {
-	return s.CreateHandler(ctx, req)
+	req *goastorage.CreateAipPayload,
+) (res *goastorage.AIP, err error) {
+	return s.CreateAipHandler(ctx, req)
 }
 
-func (s StorageService) Update(ctx context.Context, req *goastorage.UpdatePayload) (err error) {
-	return s.UpdateHandler(ctx, req)
+func (s StorageService) UpdateAip(ctx context.Context, req *goastorage.UpdateAipPayload) (err error) {
+	return s.UpdateAipHandler(ctx, req)
 }
 
-func (s StorageService) Download(ctx context.Context, req *goastorage.DownloadPayload) (res []byte, err error) {
-	return s.DownloadHandler(ctx, req)
+func (s StorageService) DownloadAip(ctx context.Context, req *goastorage.DownloadAipPayload) (res []byte, err error) {
+	return s.DownloadAipHandler(ctx, req)
 }
 
-func (s StorageService) Locations(
+func (s StorageService) ListLocations(
 	ctx context.Context,
-	req *goastorage.LocationsPayload,
+	req *goastorage.ListLocationsPayload,
 ) (res goastorage.LocationCollection, err error) {
-	return s.LocationsHandler(ctx, req)
+	return s.ListLocationsHandler(ctx, req)
 }
 
-func (s StorageService) Move(ctx context.Context, req *goastorage.MovePayload) (err error) {
-	return s.MoveHandler(ctx, req)
+func (s StorageService) MoveAip(ctx context.Context, req *goastorage.MoveAipPayload) (err error) {
+	return s.MoveAipHandler(ctx, req)
 }
 
-func (s StorageService) MoveStatus(
+func (s StorageService) MoveAipStatus(
 	ctx context.Context,
-	req *goastorage.MoveStatusPayload,
+	req *goastorage.MoveAipStatusPayload,
 ) (res *goastorage.MoveStatusResult, err error) {
-	return s.MoveStatusHandler(ctx, req)
+	return s.MoveAipStatusHandler(ctx, req)
 }
 
-func (s StorageService) Reject(ctx context.Context, req *goastorage.RejectPayload) (err error) {
-	return s.RejectHandler(ctx, req)
+func (s StorageService) RejectAip(ctx context.Context, req *goastorage.RejectAipPayload) (err error) {
+	return s.RejectAipHandler(ctx, req)
 }
 
-func (s StorageService) Show(ctx context.Context, req *goastorage.ShowPayload) (res *goastorage.Package, err error) {
-	return s.ShowHandler(ctx, req)
+func (s StorageService) ShowAip(ctx context.Context, req *goastorage.ShowAipPayload) (res *goastorage.AIP, err error) {
+	return s.ShowAipHandler(ctx, req)
 }
 
-func (s StorageService) AddLocation(
+func (s StorageService) CreateLocation(
 	ctx context.Context,
-	req *goastorage.AddLocationPayload,
-) (res *goastorage.AddLocationResult, err error) {
-	return s.AddLocationHandler(ctx, req)
+	req *goastorage.CreateLocationPayload,
+) (res *goastorage.CreateLocationResult, err error) {
+	return s.CreateLocationHandler(ctx, req)
 }
 
 func (s StorageService) ShowLocation(
@@ -103,11 +103,11 @@ func (s StorageService) ShowLocation(
 	return s.ShowLocationHandler(ctx, req)
 }
 
-func (s StorageService) LocationPackages(
+func (s StorageService) ListLocationAips(
 	ctx context.Context,
-	req *goastorage.LocationPackagesPayload,
-) (res goastorage.PackageCollection, err error) {
-	return s.LocationPackagesHandler(ctx, req)
+	req *goastorage.ListLocationAipsPayload,
+) (res goastorage.AIPCollection, err error) {
+	return s.ListLocationAipsHandler(ctx, req)
 }
 
 func MinIOUploadPreSignedURLHandler(t *testing.T) func(rw http.ResponseWriter, req *http.Request) {
@@ -129,29 +129,29 @@ func TestUploadActivity(t *testing.T) {
 		fakeStorageService.JWTAuthHandler = func(ctx context.Context, token string, scheme *security.JWTScheme) (ctx2 context.Context, err error) {
 			return ctx, nil
 		}
-		fakeStorageService.SubmitHandler = func(ctx context.Context, req *goastorage.SubmitPayload) (res *goastorage.SubmitResult, err error) {
-			return &goastorage.SubmitResult{
+		fakeStorageService.SubmitAipHandler = func(ctx context.Context, req *goastorage.SubmitAipPayload) (res *goastorage.SubmitAIPResult, err error) {
+			return &goastorage.SubmitAIPResult{
 				URL: minioTestServer.URL + "/aips/foobar.7z",
 			}, nil
 		}
-		fakeStorageService.UpdateHandler = func(ctx context.Context, req *goastorage.UpdatePayload) (err error) {
+		fakeStorageService.UpdateAipHandler = func(ctx context.Context, req *goastorage.UpdateAipPayload) (err error) {
 			return nil
 		}
 
 		endpoints := goastorage.NewEndpoints(fakeStorageService)
 		storageClient := goastorage.NewClient(
-			endpoints.Create,
-			endpoints.Submit,
-			endpoints.Update,
-			endpoints.Download,
-			endpoints.Move,
-			endpoints.MoveStatus,
-			endpoints.Reject,
-			endpoints.Show,
-			endpoints.Locations,
-			endpoints.AddLocation,
+			endpoints.CreateAip,
+			endpoints.SubmitAip,
+			endpoints.UpdateAip,
+			endpoints.DownloadAip,
+			endpoints.MoveAip,
+			endpoints.MoveAipStatus,
+			endpoints.RejectAip,
+			endpoints.ShowAip,
+			endpoints.ListLocations,
+			endpoints.CreateLocation,
 			endpoints.ShowLocation,
-			endpoints.LocationPackages,
+			endpoints.ListLocationAips,
 		)
 
 		tmpDir := fs.NewDir(t, "", fs.WithFile("aip.7z", "contents-of-the-aip"))
@@ -175,29 +175,29 @@ func TestUploadActivity(t *testing.T) {
 		fakeStorageService.JWTAuthHandler = func(ctx context.Context, token string, scheme *security.JWTScheme) (ctx2 context.Context, err error) {
 			return ctx, nil
 		}
-		fakeStorageService.SubmitHandler = func(ctx context.Context, req *goastorage.SubmitPayload) (res *goastorage.SubmitResult, err error) {
-			return &goastorage.SubmitResult{
+		fakeStorageService.SubmitAipHandler = func(ctx context.Context, req *goastorage.SubmitAipPayload) (res *goastorage.SubmitAIPResult, err error) {
+			return &goastorage.SubmitAIPResult{
 				URL: minioTestServer.URL + "/aips/foobar.7z",
 			}, nil
 		}
-		fakeStorageService.UpdateHandler = func(ctx context.Context, req *goastorage.UpdatePayload) (err error) {
+		fakeStorageService.UpdateAipHandler = func(ctx context.Context, req *goastorage.UpdateAipPayload) (err error) {
 			return errors.New("update failed")
 		}
 
 		endpoints := goastorage.NewEndpoints(fakeStorageService)
 		storageClient := goastorage.NewClient(
-			endpoints.Create,
-			endpoints.Submit,
-			endpoints.Update,
-			endpoints.Download,
-			endpoints.Move,
-			endpoints.MoveStatus,
-			endpoints.Reject,
-			endpoints.Show,
-			endpoints.Locations,
-			endpoints.AddLocation,
+			endpoints.CreateAip,
+			endpoints.SubmitAip,
+			endpoints.UpdateAip,
+			endpoints.DownloadAip,
+			endpoints.MoveAip,
+			endpoints.MoveAipStatus,
+			endpoints.RejectAip,
+			endpoints.ShowAip,
+			endpoints.ListLocations,
+			endpoints.CreateLocation,
 			endpoints.ShowLocation,
-			endpoints.LocationPackages,
+			endpoints.ListLocationAips,
 		)
 
 		tmpDir := fs.NewDir(t, "", fs.WithFile("aip.7z", "contents-of-the-aip"))

@@ -115,18 +115,18 @@ data:
           ],
           "attributes": {
             "enduro": [
-              "package:list",
-              "package:listActions",
-              "package:move",
-              "package:read",
-              "package:upload",
-              "storage:location:list",
-              "storage:location:listPackages",
-              "storage:location:read",
-              "storage:package:download",
-              "storage:package:move",
-              "storage:package:read",
-              "storage:package:submit"
+              "ingest:sips:list",
+              "ingest:sips:actions:list",
+              "ingest:sips:move",
+              "ingest:sips:read",
+              "ingest:sips:upload",
+              "storage:locations:list",
+              "storage:locations:aips:list",
+              "storage:locations:read",
+              "storage:aips:download",
+              "storage:aips:move",
+              "storage:aips:read",
+              "storage:aips:submit"
             ],
             "minio": [
               "consoleAdmin"
@@ -148,13 +148,13 @@ data:
           ],
           "attributes": {
             "enduro": [
-              "package:list",
-              "package:listActions",
-              "package:read",
-              "storage:location:list",
-              "storage:location:listPackages",
-              "storage:location:read",
-              "storage:package:read"
+              "ingest:sips:list",
+              "ingest:sips:actions:list",
+              "ingest:sips:read",
+              "storage:locations:list",
+              "storage:locations:aips:list",
+              "storage:locations:read",
+              "storage:aips:read"
             ]
           }
         }

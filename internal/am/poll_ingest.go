@@ -10,7 +10,7 @@ import (
 	temporal_tools "go.artefactual.dev/tools/temporal"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
 
-	"github.com/artefactual-sdps/enduro/internal/package_"
+	"github.com/artefactual-sdps/enduro/internal/ingest"
 )
 
 const PollIngestActivityName = "poll-ingest-activity"
@@ -21,11 +21,11 @@ type PollIngestActivityParams struct {
 }
 
 type PollIngestActivity struct {
-	cfg    *Config
-	clock  clockwork.Clock
-	ingSvc amclient.IngestService
-	jobSvc amclient.JobsService
-	pkgSvc package_.Service
+	cfg       *Config
+	clock     clockwork.Clock
+	ingSvc    amclient.IngestService
+	jobSvc    amclient.JobsService
+	ingestsvc ingest.Service
 }
 
 type PollIngestActivityResult struct {
@@ -38,14 +38,14 @@ func NewPollIngestActivity(
 	clock clockwork.Clock,
 	ingSvc amclient.IngestService,
 	jobSvc amclient.JobsService,
-	pkgSvc package_.Service,
+	ingestsvc ingest.Service,
 ) *PollIngestActivity {
 	return &PollIngestActivity{
-		cfg:    cfg,
-		clock:  clock,
-		ingSvc: ingSvc,
-		jobSvc: jobSvc,
-		pkgSvc: pkgSvc,
+		cfg:       cfg,
+		clock:     clock,
+		ingSvc:    ingSvc,
+		jobSvc:    jobSvc,
+		ingestsvc: ingestsvc,
 	}
 }
 
@@ -67,7 +67,7 @@ func (a *PollIngestActivity) Execute(
 	)
 
 	var taskCount int
-	jobTracker := NewJobTracker(a.clock, a.jobSvc, a.pkgSvc, params.PresActionID)
+	jobTracker := NewJobTracker(a.clock, a.jobSvc, a.ingestsvc, params.PresActionID)
 	ticker := time.NewTicker(a.cfg.PollInterval)
 	defer ticker.Stop()
 

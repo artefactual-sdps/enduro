@@ -17,17 +17,17 @@ import (
 
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
-	"github.com/artefactual-sdps/enduro/internal/package_"
+	"github.com/artefactual-sdps/enduro/internal/ingest"
 	"github.com/artefactual-sdps/enduro/internal/telemetry"
 )
 
 const CreateAIPActivityName = "create-aip-activity"
 
 type CreateAIPActivity struct {
-	tracer trace.Tracer
-	client transferservicev1beta1grpc.TransferServiceClient
-	cfg    *Config
-	pkgsvc package_.Service
+	tracer    trace.Tracer
+	client    transferservicev1beta1grpc.TransferServiceClient
+	cfg       *Config
+	ingestsvc ingest.Service
 }
 
 type CreateAIPActivityParams struct {
@@ -45,13 +45,13 @@ func NewCreateAIPActivity(
 	tracer trace.Tracer,
 	client transferservicev1beta1grpc.TransferServiceClient,
 	cfg *Config,
-	pkgsvc package_.Service,
+	ingestsvc ingest.Service,
 ) *CreateAIPActivity {
 	return &CreateAIPActivity{
-		tracer: tracer,
-		client: client,
-		cfg:    cfg,
-		pkgsvc: pkgsvc,
+		tracer:    tracer,
+		client:    client,
+		cfg:       cfg,
+		ingestsvc: ingestsvc,
 	}
 }
 
@@ -134,7 +134,7 @@ func (a *CreateAIPActivity) Execute(
 						continue
 					}
 
-					err = savePreservationTasks(ctx, a.tracer, readResp.Jobs, a.pkgsvc, opts.PreservationActionID)
+					err = savePreservationTasks(ctx, a.tracer, readResp.Jobs, a.ingestsvc, opts.PreservationActionID)
 					if err != nil {
 						return err
 					}
@@ -168,7 +168,7 @@ func savePreservationTasks(
 	ctx context.Context,
 	tracer trace.Tracer,
 	jobs []*transferservice.Job,
-	pkgsvc package_.Service,
+	ingestsvc ingest.Service,
 	paID int,
 ) error {
 	ctx, span := tracer.Start(ctx, "savePreservationTasks")
@@ -192,7 +192,7 @@ func savePreservationTasks(
 			},
 			PreservationActionID: paID,
 		}
-		err := pkgsvc.CreatePreservationTask(ctx, &pt)
+		err := ingestsvc.CreatePreservationTask(ctx, &pt)
 		if err != nil {
 			telemetry.RecordError(span, err)
 			return err

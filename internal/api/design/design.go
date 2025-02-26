@@ -2,9 +2,8 @@
 Package design is the single source of truth of Enduro's API. It uses the Goa
 design language (https://goa.design) which is a Go DSL.
 
-We describe multiple services (package) which map to resources in
-REST or service declarations in gRPC. Services define their own methods, errors,
-etc...
+We describe multiple services which map to resources in REST or service declarations
+in gRPC. Services define their own methods, errors, etc...
 */
 package design
 
@@ -17,29 +16,29 @@ import (
 
 var JWTAuth = JWTSecurity("jwt", func() {
 	Description("Secures endpoint by requiring a valid JWT token.")
-	Scope("package:list")
-	Scope("package:listActions")
-	Scope("package:move")
-	Scope("package:read")
-	Scope("package:review")
-	Scope("package:upload")
-	Scope("storage:location:create")
-	Scope("storage:location:list")
-	Scope("storage:location:listPackages")
-	Scope("storage:location:read")
-	Scope("storage:package:create")
-	Scope("storage:package:download")
-	Scope("storage:package:move")
-	Scope("storage:package:read")
-	Scope("storage:package:review")
-	Scope("storage:package:submit")
+	Scope("ingest:sips:actions:list")
+	Scope("ingest:sips:list")
+	Scope("ingest:sips:move")
+	Scope("ingest:sips:read")
+	Scope("ingest:sips:review")
+	Scope("ingest:sips:upload")
+	Scope("storage:aips:create")
+	Scope("storage:aips:download")
+	Scope("storage:aips:move")
+	Scope("storage:aips:read")
+	Scope("storage:aips:review")
+	Scope("storage:aips:submit")
+	Scope("storage:locations:aips:list")
+	Scope("storage:locations:create")
+	Scope("storage:locations:list")
+	Scope("storage:locations:read")
 })
 
 var _ = API("enduro", func() {
 	Title("Enduro API")
 	Randomizer(expr.NewDeterministicRandomizer())
 	Server("enduro", func() {
-		Services("package", "storage", "swagger")
+		Services("ingest", "storage", "swagger")
 		Host("localhost", func() {
 			URI("http://localhost:9000")
 		})

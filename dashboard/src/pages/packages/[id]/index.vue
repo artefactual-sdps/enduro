@@ -19,9 +19,10 @@ const createAipWorkflow = computed(
   () =>
     packageStore.current_preservation_actions?.actions?.filter(
       (action) =>
-        action.type === api.EnduroPackagePreservationActionTypeEnum.CreateAip ||
         action.type ===
-          api.EnduroPackagePreservationActionTypeEnum.CreateAndReviewAip,
+          api.EnduroIngestSipPreservationActionTypeEnum.CreateAip ||
+        action.type ===
+          api.EnduroIngestSipPreservationActionTypeEnum.CreateAndReviewAip,
     )[0],
 );
 </script>
@@ -69,7 +70,7 @@ const createAipWorkflow = computed(
       </div>
     </div>
 
-    <div v-if="authStore.checkAttributes(['package:listActions'])">
+    <div v-if="authStore.checkAttributes(['ingest:sips:actions:list'])">
       <div class="d-flex">
         <h2 class="mb-0">
           Preservation actions

@@ -3,30 +3,30 @@ package event
 import (
 	"context"
 
-	goapackage "github.com/artefactual-sdps/enduro/internal/api/gen/package_"
+	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
 )
 
 func PublishEvent(ctx context.Context, events EventService, event interface{}) {
-	update := &goapackage.MonitorEvent{}
+	update := &goaingest.MonitorEvent{}
 
 	switch v := event.(type) {
-	case *goapackage.MonitorPingEvent:
+	case *goaingest.MonitorPingEvent:
 		update.Event = v
-	case *goapackage.PackageCreatedEvent:
+	case *goaingest.SIPCreatedEvent:
 		update.Event = v
-	case *goapackage.PackageUpdatedEvent:
+	case *goaingest.SIPUpdatedEvent:
 		update.Event = v
-	case *goapackage.PackageStatusUpdatedEvent:
+	case *goaingest.SIPStatusUpdatedEvent:
 		update.Event = v
-	case *goapackage.PackageLocationUpdatedEvent:
+	case *goaingest.SIPLocationUpdatedEvent:
 		update.Event = v
-	case *goapackage.PreservationActionCreatedEvent:
+	case *goaingest.SIPPreservationActionCreatedEvent:
 		update.Event = v
-	case *goapackage.PreservationActionUpdatedEvent:
+	case *goaingest.SIPPreservationActionUpdatedEvent:
 		update.Event = v
-	case *goapackage.PreservationTaskCreatedEvent:
+	case *goaingest.SIPPreservationTaskCreatedEvent:
 		update.Event = v
-	case *goapackage.PreservationTaskUpdatedEvent:
+	case *goaingest.SIPPreservationTaskUpdatedEvent:
 		update.Event = v
 	default:
 		panic("tried to publish unexpected event")

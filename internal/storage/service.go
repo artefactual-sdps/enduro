@@ -30,13 +30,13 @@ type Service interface {
 
 	// Used from workflow activities.
 	Location(ctx context.Context, locationID uuid.UUID) (Location, error)
-	ReadPackage(ctx context.Context, aipID uuid.UUID) (*goastorage.Package, error)
-	UpdatePackageStatus(ctx context.Context, aipID uuid.UUID, status types.AIPStatus) error
-	UpdatePackageLocationID(ctx context.Context, aipID, locationID uuid.UUID) error
-	Delete(ctx context.Context, aipID uuid.UUID) (err error)
+	ReadAip(ctx context.Context, aipID uuid.UUID) (*goastorage.AIP, error)
+	UpdateAipStatus(ctx context.Context, aipID uuid.UUID, status types.AIPStatus) error
+	UpdateAipLocationID(ctx context.Context, aipID, locationID uuid.UUID) error
+	DeleteAip(ctx context.Context, aipID uuid.UUID) (err error)
 
 	// Both.
-	PackageReader(ctx context.Context, pkg *goastorage.Package) (*blob.Reader, error)
+	AipReader(ctx context.Context, aip *goastorage.AIP) (*blob.Reader, error)
 }
 
 type serviceImpl struct {
@@ -131,8 +131,11 @@ func (s *serviceImpl) Location(ctx context.Context, locationID uuid.UUID) (Locat
 	return NewLocation(goaLoc)
 }
 
-func (s *serviceImpl) Submit(ctx context.Context, payload *goastorage.SubmitPayload) (*goastorage.SubmitResult, error) {
-	aipID, err := uuid.Parse(payload.AipID)
+func (s *serviceImpl) SubmitAip(
+	ctx context.Context,
+	payload *goastorage.SubmitAipPayload,
+) (*goastorage.SubmitAIPResult, error) {
+	aipID, err := uuid.Parse(payload.UUID)
 	if err != nil {
 		return nil, goastorage.MakeNotValid(errors.New("cannot perform operation"))
 	}
@@ -148,13 +151,13 @@ func (s *serviceImpl) Submit(ctx context.Context, payload *goastorage.SubmitPayl
 
 	objectKey := uuid.Must(uuid.NewRandomFromReader(s.rander))
 
-	_, err = s.storagePersistence.CreateAIP(ctx, &goastorage.Package{
+	_, err = s.storagePersistence.CreateAIP(ctx, &goastorage.AIP{
 		Name:      payload.Name,
-		AipID:     aipID,
+		UUID:      aipID,
 		ObjectKey: objectKey,
 	})
 	if err != nil {
-		return nil, goastorage.MakeNotValid(errors.New("cannot create package"))
+		return nil, goastorage.MakeNotValid(errors.New("cannot create AIP"))
 	}
 
 	bucket, err := s.internal.OpenBucket(ctx)
@@ -172,14 +175,14 @@ func (s *serviceImpl) Submit(ctx context.Context, payload *goastorage.SubmitPayl
 		return nil, goastorage.MakeNotValid(errors.New("cannot sign URL"))
 	}
 
-	result := &goastorage.SubmitResult{
+	result := &goastorage.SubmitAIPResult{
 		URL: url,
 	}
 	return result, nil
 }
 
-func (s *serviceImpl) Create(ctx context.Context, payload *goastorage.CreatePayload) (*goastorage.Package, error) {
-	aipID, err := uuid.Parse(payload.AipID)
+func (s *serviceImpl) CreateAip(ctx context.Context, payload *goastorage.CreateAipPayload) (*goastorage.AIP, error) {
+	aipID, err := uuid.Parse(payload.UUID)
 	if err != nil {
 		return nil, goastorage.MakeNotValid(errors.New("invalid aip_id"))
 	}
@@ -189,9 +192,9 @@ func (s *serviceImpl) Create(ctx context.Context, payload *goastorage.CreatePayl
 		return nil, goastorage.MakeNotValid(errors.New("invalid object_key"))
 	}
 
-	p := &goastorage.Package{
+	p := &goastorage.AIP{
 		Name:       payload.Name,
-		AipID:      aipID,
+		UUID:       aipID,
 		Status:     payload.Status,
 		ObjectKey:  objKey,
 		LocationID: payload.LocationID,
@@ -200,8 +203,8 @@ func (s *serviceImpl) Create(ctx context.Context, payload *goastorage.CreatePayl
 	return s.storagePersistence.CreateAIP(ctx, p)
 }
 
-func (s *serviceImpl) Update(ctx context.Context, payload *goastorage.UpdatePayload) error {
-	aipID, err := uuid.Parse(payload.AipID)
+func (s *serviceImpl) UpdateAip(ctx context.Context, payload *goastorage.UpdateAipPayload) error {
+	aipID, err := uuid.Parse(payload.UUID)
 	if err != nil {
 		return goastorage.MakeNotValid(errors.New("cannot perform operation"))
 	}
@@ -212,41 +215,41 @@ func (s *serviceImpl) Update(ctx context.Context, payload *goastorage.UpdatePayl
 	if err != nil {
 		return goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
 	}
-	// Update the package status to in_review
-	err = s.UpdatePackageStatus(ctx, aipID, types.AIPStatusInReview)
+	// Update the AIP status to in_review
+	err = s.UpdateAipStatus(ctx, aipID, types.AIPStatusInReview)
 	if err != nil {
-		return goastorage.MakeNotValid(errors.New("cannot update package status"))
+		return goastorage.MakeNotValid(errors.New("cannot update AIP status"))
 	}
 
 	return nil
 }
 
-func (s *serviceImpl) Download(ctx context.Context, payload *goastorage.DownloadPayload) ([]byte, error) {
+func (s *serviceImpl) DownloadAip(ctx context.Context, payload *goastorage.DownloadAipPayload) ([]byte, error) {
 	// This service method is unused, see the Download function instead which
 	// makes use of http.ResponseWriter.
 	return []byte{}, nil
 }
 
-func (s *serviceImpl) Locations(
+func (s *serviceImpl) ListLocations(
 	ctx context.Context,
-	payload *goastorage.LocationsPayload,
+	payload *goastorage.ListLocationsPayload,
 ) (goastorage.LocationCollection, error) {
 	return s.storagePersistence.ListLocations(ctx)
 }
 
-func (s *serviceImpl) Move(ctx context.Context, payload *goastorage.MovePayload) error {
-	aipID, err := uuid.Parse(payload.AipID)
+func (s *serviceImpl) MoveAip(ctx context.Context, payload *goastorage.MoveAipPayload) error {
+	aipID, err := uuid.Parse(payload.UUID)
 	if err != nil {
 		return goastorage.MakeNotValid(errors.New("cannot perform operation"))
 	}
 
-	pkg, err := s.ReadPackage(ctx, aipID)
+	aip, err := s.ReadAip(ctx, aipID)
 	if err != nil {
 		return err
 	}
 
 	_, err = InitStorageMoveWorkflow(ctx, s.tc, &StorageMoveWorkflowRequest{
-		AIPID:      pkg.AipID,
+		AIPID:      aip.UUID,
 		LocationID: payload.LocationID,
 		TaskQueue:  s.config.TaskQueue,
 	})
@@ -258,21 +261,21 @@ func (s *serviceImpl) Move(ctx context.Context, payload *goastorage.MovePayload)
 	return nil
 }
 
-func (s *serviceImpl) MoveStatus(
+func (s *serviceImpl) MoveAipStatus(
 	ctx context.Context,
-	payload *goastorage.MoveStatusPayload,
+	payload *goastorage.MoveAipStatusPayload,
 ) (*goastorage.MoveStatusResult, error) {
-	aipID, err := uuid.Parse(payload.AipID)
+	aipID, err := uuid.Parse(payload.UUID)
 	if err != nil {
 		return nil, goastorage.MakeNotValid(errors.New("cannot perform operation"))
 	}
 
-	p, err := s.ReadPackage(ctx, aipID)
+	p, err := s.ReadAip(ctx, aipID)
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := s.tc.DescribeWorkflowExecution(ctx, fmt.Sprintf("%s-%s", StorageMoveWorkflowName, p.AipID), "")
+	resp, err := s.tc.DescribeWorkflowExecution(ctx, fmt.Sprintf("%s-%s", StorageMoveWorkflowName, p.UUID), "")
 	if err != nil {
 		return nil, goastorage.MakeFailedDependency(errors.New("cannot perform operation"))
 	}
@@ -294,39 +297,39 @@ func (s *serviceImpl) MoveStatus(
 	return &goastorage.MoveStatusResult{Done: done}, nil
 }
 
-func (s *serviceImpl) Reject(ctx context.Context, payload *goastorage.RejectPayload) error {
-	aipID, err := uuid.Parse(payload.AipID)
+func (s *serviceImpl) RejectAip(ctx context.Context, payload *goastorage.RejectAipPayload) error {
+	aipID, err := uuid.Parse(payload.UUID)
 	if err != nil {
 		return goastorage.MakeNotValid(errors.New("cannot perform operation"))
 	}
 
-	return s.UpdatePackageStatus(ctx, aipID, types.AIPStatusRejected)
+	return s.UpdateAipStatus(ctx, aipID, types.AIPStatusRejected)
 }
 
-func (s *serviceImpl) Show(ctx context.Context, payload *goastorage.ShowPayload) (*goastorage.Package, error) {
-	aipID, err := uuid.Parse(payload.AipID)
+func (s *serviceImpl) ShowAip(ctx context.Context, payload *goastorage.ShowAipPayload) (*goastorage.AIP, error) {
+	aipID, err := uuid.Parse(payload.UUID)
 	if err != nil {
 		return nil, goastorage.MakeNotValid(errors.New("cannot perform operation"))
 	}
 
-	return s.ReadPackage(ctx, aipID)
+	return s.ReadAip(ctx, aipID)
 }
 
-func (s *serviceImpl) ReadPackage(ctx context.Context, aipID uuid.UUID) (*goastorage.Package, error) {
+func (s *serviceImpl) ReadAip(ctx context.Context, aipID uuid.UUID) (*goastorage.AIP, error) {
 	return s.storagePersistence.ReadAIP(ctx, aipID)
 }
 
-func (s *serviceImpl) UpdatePackageStatus(ctx context.Context, aipID uuid.UUID, status types.AIPStatus) error {
+func (s *serviceImpl) UpdateAipStatus(ctx context.Context, aipID uuid.UUID, status types.AIPStatus) error {
 	return s.storagePersistence.UpdateAIPStatus(ctx, aipID, status)
 }
 
-func (s *serviceImpl) UpdatePackageLocationID(ctx context.Context, aipID, locationID uuid.UUID) error {
+func (s *serviceImpl) UpdateAipLocationID(ctx context.Context, aipID, locationID uuid.UUID) error {
 	return s.storagePersistence.UpdateAIPLocationID(ctx, aipID, locationID)
 }
 
-// packageLocation returns the bucket and the key of the given package.
-func (s *serviceImpl) packageLocation(ctx context.Context, p *goastorage.Package) (Location, string, error) {
-	// Package is still in the internal processing bucket.
+// aipLocation returns the bucket and the key of the given AIP.
+func (s *serviceImpl) aipLocation(ctx context.Context, p *goastorage.AIP) (Location, string, error) {
+	// AIP is still in the internal processing bucket.
 	if p.LocationID == nil || *p.LocationID == uuid.Nil {
 		return s.internal, p.ObjectKey.String(), nil
 	}
@@ -335,16 +338,16 @@ func (s *serviceImpl) packageLocation(ctx context.Context, p *goastorage.Package
 	if err != nil {
 		return nil, "", err
 	}
-	return location, p.AipID.String(), nil
+	return location, p.UUID.String(), nil
 }
 
-func (s *serviceImpl) Delete(ctx context.Context, aipID uuid.UUID) error {
-	pkg, err := s.ReadPackage(ctx, aipID)
+func (s *serviceImpl) DeleteAip(ctx context.Context, aipID uuid.UUID) error {
+	aip, err := s.ReadAip(ctx, aipID)
 	if err != nil {
 		return err
 	}
 
-	location, key, err := s.packageLocation(ctx, pkg)
+	location, key, err := s.aipLocation(ctx, aip)
 	if err != nil {
 		return err
 	}
@@ -358,8 +361,8 @@ func (s *serviceImpl) Delete(ctx context.Context, aipID uuid.UUID) error {
 	return bucket.Delete(ctx, key)
 }
 
-func (s *serviceImpl) PackageReader(ctx context.Context, pkg *goastorage.Package) (*blob.Reader, error) {
-	location, key, err := s.packageLocation(ctx, pkg)
+func (s *serviceImpl) AipReader(ctx context.Context, a *goastorage.AIP) (*blob.Reader, error) {
+	location, key, err := s.aipLocation(ctx, a)
 	if err != nil {
 		return nil, err
 	}
@@ -378,10 +381,10 @@ func (s *serviceImpl) PackageReader(ctx context.Context, pkg *goastorage.Package
 	return reader, nil
 }
 
-func (s *serviceImpl) AddLocation(
+func (s *serviceImpl) CreateLocation(
 	ctx context.Context,
-	payload *goastorage.AddLocationPayload,
-) (res *goastorage.AddLocationResult, err error) {
+	payload *goastorage.CreateLocationPayload,
+) (res *goastorage.CreateLocationResult, err error) {
 	source := types.NewLocationSource(payload.Source)
 	purpose := types.NewLocationPurpose(payload.Purpose)
 	UUID := uuid.Must(uuid.NewRandomFromReader(s.rander))
@@ -411,7 +414,7 @@ func (s *serviceImpl) AddLocation(
 		return nil, goastorage.MakeNotValid(errors.New("cannot persist location"))
 	}
 
-	return &goastorage.AddLocationResult{UUID: UUID.String()}, nil
+	return &goastorage.CreateLocationResult{UUID: UUID.String()}, nil
 }
 
 // ReadLocation retrieves location data for location UUID from the persistence
@@ -436,19 +439,19 @@ func (s *serviceImpl) ShowLocation(
 	return s.ReadLocation(ctx, locationID)
 }
 
-func (s *serviceImpl) LocationPackages(
+func (s *serviceImpl) ListLocationAips(
 	ctx context.Context,
-	payload *goastorage.LocationPackagesPayload,
-) (goastorage.PackageCollection, error) {
+	payload *goastorage.ListLocationAipsPayload,
+) (goastorage.AIPCollection, error) {
 	locationID, err := uuid.Parse(payload.UUID)
 	if err != nil {
 		return nil, goastorage.MakeNotValid(errors.New("cannot perform operation"))
 	}
 
-	pkgs, err := s.storagePersistence.LocationAIPs(ctx, locationID)
+	aips, err := s.storagePersistence.LocationAIPs(ctx, locationID)
 	if err != nil {
 		return nil, goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
 	}
 
-	return pkgs, nil
+	return aips, nil
 }

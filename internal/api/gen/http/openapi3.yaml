@@ -39,13 +39,106 @@ paths:
                             example: abc123
             security:
                 - jwt_header_Authorization: []
-    /package:
+    /ingest/monitor:
         get:
             tags:
-                - package
-            summary: list package
-            description: List all stored packages
-            operationId: package#list
+                - ingest
+            summary: monitor ingest
+            description: Obtain access to the /monitor WebSocket
+            operationId: ingest#monitor
+            parameters:
+                - name: enduro-ws-ticket
+                  in: cookie
+                  allowEmptyValue: true
+                  schema:
+                    type: string
+                    example: abc123
+                  example: abc123
+            responses:
+                "101":
+                    description: Switching Protocols response.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/MonitorEvent'
+                            example:
+                                event:
+                                    Type: sip_created_event
+                                    Value: '{"id":1,"item":{"aip_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","id":1,"location_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","name":"abc123","run_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","started_at":"1970-01-01T00:00:01Z","status":"in progress","workflow_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}}'
+                "401":
+                    description: 'unauthorized: Unauthorized response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
+                "403":
+                    description: 'forbidden: Forbidden response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
+                "500":
+                    description: 'not_available: Internal Server Error response.'
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+        post:
+            tags:
+                - ingest
+            summary: monitor_request ingest
+            description: Request access to the /monitor WebSocket
+            operationId: ingest#monitor_request
+            responses:
+                "200":
+                    description: OK response.
+                    headers:
+                        Set-Cookie:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
+                "401":
+                    description: 'unauthorized: Unauthorized response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
+                "403":
+                    description: 'forbidden: Forbidden response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
+                "500":
+                    description: 'not_available: Internal Server Error response.'
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+            security:
+                - jwt_header_Authorization:
+                    - ingest:sips:list
+                    - ingest:sips:actions:list
+                    - ingest:sips:move
+                    - ingest:sips:read
+                    - ingest:sips:review
+                    - ingest:sips:upload
+    /ingest/sips:
+        get:
+            tags:
+                - ingest
+            summary: list_sips ingest
+            description: List all ingested SIPs
+            operationId: ingest#list_sips
             parameters:
                 - name: name
                   in: query
@@ -132,7 +225,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/EnduroPackages'
+                                $ref: '#/components/schemas/SIPs'
                             example:
                                 items:
                                     - aip_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
@@ -167,22 +260,22 @@ paths:
                             example: abc123
             security:
                 - jwt_header_Authorization:
-                    - package:list
-    /package/{id}:
+                    - ingest:sips:list
+    /ingest/sips/{id}:
         get:
             tags:
-                - package
-            summary: show package
-            description: Show package by ID
-            operationId: package#show
+                - ingest
+            summary: show_sip ingest
+            description: Show SIP by ID
+            operationId: ingest#show_sip
             parameters:
                 - name: id
                   in: path
-                  description: Identifier of package to show
+                  description: Identifier of SIP to show
                   required: true
                   schema:
                     type: integer
-                    description: Identifier of package to show
+                    description: Identifier of SIP to show
                     example: 1
                     format: int64
                   example: 1
@@ -192,7 +285,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/EnduroStoredPackage'
+                                $ref: '#/components/schemas/EnduroIngestSip'
                             example:
                                 aip_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                                 completed_at: "1970-01-01T00:00:01Z"
@@ -221,11 +314,11 @@ paths:
                                 example: abc123
                             example: abc123
                 "404":
-                    description: 'not_found: Package not found'
+                    description: 'not_found: SIP not found'
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/PackageNotFound'
+                                $ref: '#/components/schemas/SIPNotFound'
                             example:
                                 id: 1
                                 message: abc123
@@ -237,22 +330,22 @@ paths:
                                 $ref: '#/components/schemas/Error'
             security:
                 - jwt_header_Authorization:
-                    - package:read
-    /package/{id}/confirm:
+                    - ingest:sips:read
+    /ingest/sips/{id}/confirm:
         post:
             tags:
-                - package
-            summary: confirm package
-            description: Signal the package has been reviewed and accepted
-            operationId: package#confirm
+                - ingest
+            summary: confirm_sip ingest
+            description: Signal the SIP has been reviewed and accepted
+            operationId: ingest#confirm_sip
             parameters:
                 - name: id
                   in: path
-                  description: Identifier of package to look up
+                  description: Identifier of SIP to look up
                   required: true
                   schema:
                     type: integer
-                    description: Identifier of package to look up
+                    description: Identifier of SIP to look up
                     example: 1
                     format: int64
                   example: 1
@@ -261,7 +354,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/ConfirmRequestBody'
+                            $ref: '#/components/schemas/ConfirmSipRequestBody'
                         example:
                             location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
             responses:
@@ -290,11 +383,11 @@ paths:
                                 example: abc123
                             example: abc123
                 "404":
-                    description: 'not_found: Package not found'
+                    description: 'not_found: SIP not found'
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/PackageNotFound'
+                                $ref: '#/components/schemas/SIPNotFound'
                             example:
                                 id: 1
                                 message: abc123
@@ -306,22 +399,22 @@ paths:
                                 $ref: '#/components/schemas/Error'
             security:
                 - jwt_header_Authorization:
-                    - package:review
-    /package/{id}/move:
+                    - ingest:sips:review
+    /ingest/sips/{id}/move:
         get:
             tags:
-                - package
-            summary: move_status package
-            description: Retrieve the status of a permanent storage location move of the package
-            operationId: package#move_status
+                - ingest
+            summary: move_sip_status ingest
+            description: Retrieve the status of a permanent storage location move of the SIP
+            operationId: ingest#move_sip_status
             parameters:
                 - name: id
                   in: path
-                  description: Identifier of package to move
+                  description: Identifier of SIP to move
                   required: true
                   schema:
                     type: integer
-                    description: Identifier of package to move
+                    description: Identifier of SIP to move
                     example: 1
                     format: int64
                   example: 1
@@ -351,11 +444,11 @@ paths:
                                 example: abc123
                             example: abc123
                 "404":
-                    description: 'not_found: Package not found'
+                    description: 'not_found: SIP not found'
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/PackageNotFound'
+                                $ref: '#/components/schemas/SIPNotFound'
                             example:
                                 id: 1
                                 message: abc123
@@ -367,21 +460,21 @@ paths:
                                 $ref: '#/components/schemas/Error'
             security:
                 - jwt_header_Authorization:
-                    - package:move
+                    - ingest:sips:move
         post:
             tags:
-                - package
-            summary: move package
-            description: Move a package to a permanent storage location
-            operationId: package#move
+                - ingest
+            summary: move_sip ingest
+            description: Move a SIP to a permanent storage location
+            operationId: ingest#move_sip
             parameters:
                 - name: id
                   in: path
-                  description: Identifier of package to move
+                  description: Identifier of SIP to move
                   required: true
                   schema:
                     type: integer
-                    description: Identifier of package to move
+                    description: Identifier of SIP to move
                     example: 1
                     format: int64
                   example: 1
@@ -390,7 +483,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/ConfirmRequestBody'
+                            $ref: '#/components/schemas/ConfirmSipRequestBody'
                         example:
                             location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
             responses:
@@ -419,11 +512,11 @@ paths:
                                 example: abc123
                             example: abc123
                 "404":
-                    description: 'not_found: Package not found'
+                    description: 'not_found: SIP not found'
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/PackageNotFound'
+                                $ref: '#/components/schemas/SIPNotFound'
                             example:
                                 id: 1
                                 message: abc123
@@ -435,22 +528,22 @@ paths:
                                 $ref: '#/components/schemas/Error'
             security:
                 - jwt_header_Authorization:
-                    - package:move
-    /package/{id}/preservation-actions:
+                    - ingest:sips:move
+    /ingest/sips/{id}/preservation-actions:
         get:
             tags:
-                - package
-            summary: preservation_actions package
-            description: List all preservation actions by ID
-            operationId: package#preservation_actions
+                - ingest
+            summary: list_sip_preservation_actions ingest
+            description: List all preservation actions for a SIP
+            operationId: ingest#list_sip_preservation_actions
             parameters:
                 - name: id
                   in: path
-                  description: Identifier of package to look up
+                  description: Identifier of SIP to look up
                   required: true
                   schema:
                     type: integer
-                    description: Identifier of package to look up
+                    description: Identifier of SIP to look up
                     example: 1
                     format: int64
                   example: 1
@@ -460,12 +553,12 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/EnduroPackagePreservationActions'
+                                $ref: '#/components/schemas/SIPPreservationActions'
                             example:
                                 actions:
                                     - completed_at: "1970-01-01T00:00:01Z"
                                       id: 1
-                                      package_id: 1
+                                      sip_id: 1
                                       started_at: "1970-01-01T00:00:01Z"
                                       status: in progress
                                       tasks:
@@ -496,32 +589,32 @@ paths:
                                 example: abc123
                             example: abc123
                 "404":
-                    description: 'not_found: Package not found'
+                    description: 'not_found: SIP not found'
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/PackageNotFound'
+                                $ref: '#/components/schemas/SIPNotFound'
                             example:
                                 id: 1
                                 message: abc123
             security:
                 - jwt_header_Authorization:
-                    - package:listActions
-    /package/{id}/reject:
+                    - ingest:sips:actions:list
+    /ingest/sips/{id}/reject:
         post:
             tags:
-                - package
-            summary: reject package
-            description: Signal the package has been reviewed and rejected
-            operationId: package#reject
+                - ingest
+            summary: reject_sip ingest
+            description: Signal the SIP has been reviewed and rejected
+            operationId: ingest#reject_sip
             parameters:
                 - name: id
                   in: path
-                  description: Identifier of package to look up
+                  description: Identifier of SIP to look up
                   required: true
                   schema:
                     type: integer
-                    description: Identifier of package to look up
+                    description: Identifier of SIP to look up
                     example: 1
                     format: int64
                   example: 1
@@ -551,11 +644,11 @@ paths:
                                 example: abc123
                             example: abc123
                 "404":
-                    description: 'not_found: Package not found'
+                    description: 'not_found: SIP not found'
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/PackageNotFound'
+                                $ref: '#/components/schemas/SIPNotFound'
                             example:
                                 id: 1
                                 message: abc123
@@ -567,107 +660,14 @@ paths:
                                 $ref: '#/components/schemas/Error'
             security:
                 - jwt_header_Authorization:
-                    - package:review
-    /package/monitor:
-        get:
-            tags:
-                - package
-            summary: monitor package
-            description: Obtain access to the /monitor WebSocket
-            operationId: package#monitor
-            parameters:
-                - name: enduro-ws-ticket
-                  in: cookie
-                  allowEmptyValue: true
-                  schema:
-                    type: string
-                    example: abc123
-                  example: abc123
-            responses:
-                "101":
-                    description: Switching Protocols response.
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/MonitorEvent'
-                            example:
-                                event:
-                                    Type: package_created_event
-                                    Value: '{"id":1,"item":{"aip_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","id":1,"location_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","name":"abc123","run_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","started_at":"1970-01-01T00:00:01Z","status":"in progress","workflow_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}}'
-                "401":
-                    description: 'unauthorized: Unauthorized response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
-                "403":
-                    description: 'forbidden: Forbidden response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
-                "500":
-                    description: 'not_available: Internal Server Error response.'
-                    content:
-                        application/vnd.goa.error:
-                            schema:
-                                $ref: '#/components/schemas/Error'
+                    - ingest:sips:review
+    /ingest/sips/upload:
         post:
             tags:
-                - package
-            summary: monitor_request package
-            description: Request access to the /monitor WebSocket
-            operationId: package#monitor_request
-            responses:
-                "200":
-                    description: OK response.
-                    headers:
-                        Set-Cookie:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
-                "401":
-                    description: 'unauthorized: Unauthorized response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
-                "403":
-                    description: 'forbidden: Forbidden response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
-                "500":
-                    description: 'not_available: Internal Server Error response.'
-                    content:
-                        application/vnd.goa.error:
-                            schema:
-                                $ref: '#/components/schemas/Error'
-            security:
-                - jwt_header_Authorization:
-                    - package:list
-                    - package:listActions
-                    - package:move
-                    - package:read
-                    - package:review
-                    - package:upload
-    /package/upload:
-        post:
-            tags:
-                - package
-            summary: upload package
-            description: Upload a package to trigger an ingest workflow
-            operationId: package#upload
+                - ingest
+            summary: upload_sip ingest
+            description: Upload a SIP to trigger an ingest workflow
+            operationId: ingest#upload_sip
             parameters:
                 - name: Content-Type
                   in: header
@@ -713,14 +713,508 @@ paths:
                                 $ref: '#/components/schemas/Error'
             security:
                 - jwt_header_Authorization:
-                    - package:upload
-    /storage/location:
+                    - ingest:sips:upload
+    /storage/aips:
+        post:
+            tags:
+                - storage
+            summary: create_aip storage
+            description: Create a new AIP
+            operationId: storage#create_aip
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreateAipRequestBody'
+                        example:
+                            location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                            name: abc123
+                            object_key: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                            status: in_review
+                            uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            responses:
+                "200":
+                    description: OK response.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AIP'
+                            example:
+                                created_at: "1970-01-01T00:00:01Z"
+                                location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                                name: abc123
+                                object_key: abc123
+                                status: in_review
+                                uuid: abc123
+                "400":
+                    description: 'not_valid: Bad Request response.'
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                "401":
+                    description: 'unauthorized: Unauthorized response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
+                "403":
+                    description: 'forbidden: Forbidden response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
+            security:
+                - jwt_header_Authorization:
+                    - storage:aips:create
+    /storage/aips/{uuid}:
         get:
             tags:
                 - storage
-            summary: locations storage
+            summary: show_aip storage
+            description: Show AIP by AIPID
+            operationId: storage#show_aip
+            parameters:
+                - name: uuid
+                  in: path
+                  description: Identifier of AIP
+                  required: true
+                  schema:
+                    type: string
+                    description: Identifier of AIP
+                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    format: uuid
+                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            responses:
+                "200":
+                    description: OK response.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AIP'
+                            example:
+                                created_at: "1970-01-01T00:00:01Z"
+                                location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                                name: abc123
+                                object_key: abc123
+                                status: in_review
+                                uuid: abc123
+                "401":
+                    description: 'unauthorized: Unauthorized response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
+                "403":
+                    description: 'forbidden: Forbidden response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
+                "404":
+                    description: 'not_found: AIP not found'
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AIPNotFound'
+                            example:
+                                message: abc123
+                                uuid: abc123
+            security:
+                - jwt_header_Authorization:
+                    - storage:aips:read
+    /storage/aips/{uuid}/download:
+        get:
+            tags:
+                - storage
+            summary: download_aip storage
+            description: Download AIP by AIPID
+            operationId: storage#download_aip
+            parameters:
+                - name: uuid
+                  in: path
+                  description: Identifier of AIP
+                  required: true
+                  schema:
+                    type: string
+                    description: Identifier of AIP
+                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    format: uuid
+                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            responses:
+                "200":
+                    description: OK response.
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example:
+                                    - 97
+                                    - 98
+                                    - 99
+                                    - 49
+                                    - 50
+                                    - 51
+                                format: binary
+                            example:
+                                - 97
+                                - 98
+                                - 99
+                                - 49
+                                - 50
+                                - 51
+                "401":
+                    description: 'unauthorized: Unauthorized response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
+                "403":
+                    description: 'forbidden: Forbidden response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
+                "404":
+                    description: 'not_found: AIP not found'
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AIPNotFound'
+                            example:
+                                message: abc123
+                                uuid: abc123
+            security:
+                - jwt_header_Authorization:
+                    - storage:aips:download
+    /storage/aips/{uuid}/reject:
+        post:
+            tags:
+                - storage
+            summary: reject_aip storage
+            description: Reject an AIP
+            operationId: storage#reject_aip
+            parameters:
+                - name: uuid
+                  in: path
+                  description: Identifier of AIP
+                  required: true
+                  schema:
+                    type: string
+                    description: Identifier of AIP
+                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    format: uuid
+                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            responses:
+                "202":
+                    description: Accepted response.
+                "400":
+                    description: 'not_valid: Bad Request response.'
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                "401":
+                    description: 'unauthorized: Unauthorized response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
+                "403":
+                    description: 'forbidden: Forbidden response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
+                "404":
+                    description: 'not_found: AIP not found'
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AIPNotFound'
+                            example:
+                                message: abc123
+                                uuid: abc123
+                "409":
+                    description: 'not_available: Conflict response.'
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+            security:
+                - jwt_header_Authorization:
+                    - storage:aips:review
+    /storage/aips/{uuid}/store:
+        get:
+            tags:
+                - storage
+            summary: move_aip_status storage
+            description: Retrieve the status of a permanent storage location move of the AIP
+            operationId: storage#move_aip_status
+            parameters:
+                - name: uuid
+                  in: path
+                  description: Identifier of AIP
+                  required: true
+                  schema:
+                    type: string
+                    description: Identifier of AIP
+                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    format: uuid
+                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            responses:
+                "200":
+                    description: OK response.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/MoveStatusResult'
+                            example:
+                                done: false
+                "401":
+                    description: 'unauthorized: Unauthorized response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
+                "403":
+                    description: 'forbidden: Forbidden response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
+                "404":
+                    description: 'not_found: AIP not found'
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AIPNotFound'
+                            example:
+                                message: abc123
+                                uuid: abc123
+                "424":
+                    description: 'failed_dependency: Failed Dependency response.'
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+            security:
+                - jwt_header_Authorization:
+                    - storage:aips:move
+        post:
+            tags:
+                - storage
+            summary: move_aip storage
+            description: Move an AIP to a permanent storage location
+            operationId: storage#move_aip
+            parameters:
+                - name: uuid
+                  in: path
+                  description: Identifier of AIP
+                  required: true
+                  schema:
+                    type: string
+                    description: Identifier of AIP
+                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    format: uuid
+                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ConfirmSipRequestBody'
+                        example:
+                            location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            responses:
+                "202":
+                    description: Accepted response.
+                "400":
+                    description: 'not_valid: Bad Request response.'
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                "401":
+                    description: 'unauthorized: Unauthorized response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
+                "403":
+                    description: 'forbidden: Forbidden response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
+                "404":
+                    description: 'not_found: AIP not found'
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AIPNotFound'
+                            example:
+                                message: abc123
+                                uuid: abc123
+                "409":
+                    description: 'not_available: Conflict response.'
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+            security:
+                - jwt_header_Authorization:
+                    - storage:aips:move
+    /storage/aips/{uuid}/submit:
+        post:
+            tags:
+                - storage
+            summary: submit_aip storage
+            description: Start the submission of an AIP
+            operationId: storage#submit_aip
+            parameters:
+                - name: uuid
+                  in: path
+                  description: Identifier of AIP
+                  required: true
+                  schema:
+                    type: string
+                    description: Identifier of AIP
+                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    format: uuid
+                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/SubmitAipRequestBody'
+                        example:
+                            name: abc123
+            responses:
+                "202":
+                    description: Accepted response.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SubmitAIPResult'
+                            example:
+                                url: abc123
+                "400":
+                    description: 'not_valid: Bad Request response.'
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                "401":
+                    description: 'unauthorized: Unauthorized response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
+                "403":
+                    description: 'forbidden: Forbidden response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
+                "409":
+                    description: 'not_available: Conflict response.'
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+            security:
+                - jwt_header_Authorization:
+                    - storage:aips:submit
+    /storage/aips/{uuid}/update:
+        post:
+            tags:
+                - storage
+            summary: update_aip storage
+            description: Signal that an AIP submission is complete
+            operationId: storage#update_aip
+            parameters:
+                - name: uuid
+                  in: path
+                  description: Identifier of AIP
+                  required: true
+                  schema:
+                    type: string
+                    description: Identifier of AIP
+                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    format: uuid
+                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            responses:
+                "202":
+                    description: Accepted response.
+                "400":
+                    description: 'not_valid: Bad Request response.'
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                "401":
+                    description: 'unauthorized: Unauthorized response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
+                "403":
+                    description: 'forbidden: Forbidden response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
+                "409":
+                    description: 'not_available: Conflict response.'
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+            security:
+                - jwt_header_Authorization:
+                    - storage:aips:submit
+    /storage/locations:
+        get:
+            tags:
+                - storage
+            summary: list_locations storage
             description: List locations
-            operationId: storage#locations
+            operationId: storage#list_locations
             responses:
                 "200":
                     description: OK response.
@@ -753,19 +1247,19 @@ paths:
                             example: abc123
             security:
                 - jwt_header_Authorization:
-                    - storage:location:list
+                    - storage:locations:list
         post:
             tags:
                 - storage
-            summary: add_location storage
+            summary: create_location storage
             description: Create a storage location
-            operationId: storage#add_location
+            operationId: storage#create_location
             requestBody:
                 required: true
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/AddLocationRequestBody'
+                            $ref: '#/components/schemas/CreateLocationRequestBody'
                         example:
                             config:
                                 Type: s3
@@ -780,7 +1274,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/AddLocationResult'
+                                $ref: '#/components/schemas/CreateLocationResult'
                             example:
                                 uuid: abc123
                 "400":
@@ -807,8 +1301,8 @@ paths:
                             example: abc123
             security:
                 - jwt_header_Authorization:
-                    - storage:location:create
-    /storage/location/{uuid}:
+                    - storage:locations:create
+    /storage/locations/{uuid}:
         get:
             tags:
                 - storage
@@ -864,20 +1358,20 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/LocationNotFound'
+                                $ref: '#/components/schemas/AIPNotFound'
                             example:
                                 message: abc123
                                 uuid: abc123
             security:
                 - jwt_header_Authorization:
-                    - storage:location:read
-    /storage/location/{uuid}/packages:
+                    - storage:locations:read
+    /storage/locations/{uuid}/aips:
         get:
             tags:
                 - storage
-            summary: location_packages storage
-            description: List all the packages stored in the location with UUID
-            operationId: storage#location_packages
+            summary: list_location_aips storage
+            description: List all the AIPs stored in the location with UUID
+            operationId: storage#list_location_aips
             parameters:
                 - name: uuid
                   in: path
@@ -895,14 +1389,14 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/PackageResponseCollection'
+                                $ref: '#/components/schemas/AIPResponseCollection'
                             example:
-                                - aip_id: abc123
-                                  created_at: "1970-01-01T00:00:01Z"
+                                - created_at: "1970-01-01T00:00:01Z"
                                   location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                                   name: abc123
                                   object_key: abc123
                                   status: in_review
+                                  uuid: abc123
                 "400":
                     description: 'not_valid: Bad Request response.'
                     content:
@@ -930,507 +1424,13 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/LocationNotFound'
+                                $ref: '#/components/schemas/AIPNotFound'
                             example:
                                 message: abc123
                                 uuid: abc123
             security:
                 - jwt_header_Authorization:
-                    - storage:location:listPackages
-    /storage/package:
-        post:
-            tags:
-                - storage
-            summary: create storage
-            description: Create a new package
-            operationId: storage#create
-            requestBody:
-                required: true
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/CreateRequestBody'
-                        example:
-                            aip_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                            location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                            name: abc123
-                            object_key: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                            status: in_review
-            responses:
-                "200":
-                    description: OK response.
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Package'
-                            example:
-                                aip_id: abc123
-                                created_at: "1970-01-01T00:00:01Z"
-                                location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                                name: abc123
-                                object_key: abc123
-                                status: in_review
-                "400":
-                    description: 'not_valid: Bad Request response.'
-                    content:
-                        application/vnd.goa.error:
-                            schema:
-                                $ref: '#/components/schemas/Error'
-                "401":
-                    description: 'unauthorized: Unauthorized response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
-                "403":
-                    description: 'forbidden: Forbidden response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
-            security:
-                - jwt_header_Authorization:
-                    - storage:package:create
-    /storage/package/{aip_id}:
-        get:
-            tags:
-                - storage
-            summary: show storage
-            description: Show package by AIPID
-            operationId: storage#show
-            parameters:
-                - name: aip_id
-                  in: path
-                  description: Identifier of AIP
-                  required: true
-                  schema:
-                    type: string
-                    description: Identifier of AIP
-                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                    format: uuid
-                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-            responses:
-                "200":
-                    description: OK response.
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Package'
-                            example:
-                                aip_id: abc123
-                                created_at: "1970-01-01T00:00:01Z"
-                                location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                                name: abc123
-                                object_key: abc123
-                                status: in_review
-                "401":
-                    description: 'unauthorized: Unauthorized response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
-                "403":
-                    description: 'forbidden: Forbidden response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
-                "404":
-                    description: 'not_found: Storage package not found'
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/PackageNotFound2'
-                            example:
-                                aip_id: abc123
-                                message: abc123
-            security:
-                - jwt_header_Authorization:
-                    - storage:package:read
-    /storage/package/{aip_id}/download:
-        get:
-            tags:
-                - storage
-            summary: download storage
-            description: Download package by AIPID
-            operationId: storage#download
-            parameters:
-                - name: aip_id
-                  in: path
-                  description: Identifier of AIP
-                  required: true
-                  schema:
-                    type: string
-                    description: Identifier of AIP
-                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                    format: uuid
-                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-            responses:
-                "200":
-                    description: OK response.
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example:
-                                    - 97
-                                    - 98
-                                    - 99
-                                    - 49
-                                    - 50
-                                    - 51
-                                format: binary
-                            example:
-                                - 97
-                                - 98
-                                - 99
-                                - 49
-                                - 50
-                                - 51
-                "401":
-                    description: 'unauthorized: Unauthorized response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
-                "403":
-                    description: 'forbidden: Forbidden response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
-                "404":
-                    description: 'not_found: Storage package not found'
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/PackageNotFound2'
-                            example:
-                                aip_id: abc123
-                                message: abc123
-            security:
-                - jwt_header_Authorization:
-                    - storage:package:download
-    /storage/package/{aip_id}/reject:
-        post:
-            tags:
-                - storage
-            summary: reject storage
-            description: Reject a package
-            operationId: storage#reject
-            parameters:
-                - name: aip_id
-                  in: path
-                  description: Identifier of AIP
-                  required: true
-                  schema:
-                    type: string
-                    description: Identifier of AIP
-                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                    format: uuid
-                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-            responses:
-                "202":
-                    description: Accepted response.
-                "400":
-                    description: 'not_valid: Bad Request response.'
-                    content:
-                        application/vnd.goa.error:
-                            schema:
-                                $ref: '#/components/schemas/Error'
-                "401":
-                    description: 'unauthorized: Unauthorized response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
-                "403":
-                    description: 'forbidden: Forbidden response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
-                "404":
-                    description: 'not_found: Storage package not found'
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/PackageNotFound2'
-                            example:
-                                aip_id: abc123
-                                message: abc123
-                "409":
-                    description: 'not_available: Conflict response.'
-                    content:
-                        application/vnd.goa.error:
-                            schema:
-                                $ref: '#/components/schemas/Error'
-            security:
-                - jwt_header_Authorization:
-                    - storage:package:review
-    /storage/package/{aip_id}/store:
-        get:
-            tags:
-                - storage
-            summary: move_status storage
-            description: Retrieve the status of a permanent storage location move of the package
-            operationId: storage#move_status
-            parameters:
-                - name: aip_id
-                  in: path
-                  description: Identifier of AIP
-                  required: true
-                  schema:
-                    type: string
-                    description: Identifier of AIP
-                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                    format: uuid
-                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-            responses:
-                "200":
-                    description: OK response.
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/MoveStatusResult'
-                            example:
-                                done: false
-                "401":
-                    description: 'unauthorized: Unauthorized response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
-                "403":
-                    description: 'forbidden: Forbidden response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
-                "404":
-                    description: 'not_found: Storage package not found'
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/PackageNotFound2'
-                            example:
-                                aip_id: abc123
-                                message: abc123
-                "424":
-                    description: 'failed_dependency: Failed Dependency response.'
-                    content:
-                        application/vnd.goa.error:
-                            schema:
-                                $ref: '#/components/schemas/Error'
-            security:
-                - jwt_header_Authorization:
-                    - storage:package:move
-        post:
-            tags:
-                - storage
-            summary: move storage
-            description: Move a package to a permanent storage location
-            operationId: storage#move
-            parameters:
-                - name: aip_id
-                  in: path
-                  description: Identifier of AIP
-                  required: true
-                  schema:
-                    type: string
-                    description: Identifier of AIP
-                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                    format: uuid
-                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-            requestBody:
-                required: true
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/ConfirmRequestBody'
-                        example:
-                            location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-            responses:
-                "202":
-                    description: Accepted response.
-                "400":
-                    description: 'not_valid: Bad Request response.'
-                    content:
-                        application/vnd.goa.error:
-                            schema:
-                                $ref: '#/components/schemas/Error'
-                "401":
-                    description: 'unauthorized: Unauthorized response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
-                "403":
-                    description: 'forbidden: Forbidden response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
-                "404":
-                    description: 'not_found: Storage package not found'
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/PackageNotFound2'
-                            example:
-                                aip_id: abc123
-                                message: abc123
-                "409":
-                    description: 'not_available: Conflict response.'
-                    content:
-                        application/vnd.goa.error:
-                            schema:
-                                $ref: '#/components/schemas/Error'
-            security:
-                - jwt_header_Authorization:
-                    - storage:package:move
-    /storage/package/{aip_id}/submit:
-        post:
-            tags:
-                - storage
-            summary: submit storage
-            description: Start the submission of a package
-            operationId: storage#submit
-            parameters:
-                - name: aip_id
-                  in: path
-                  description: Identifier of AIP
-                  required: true
-                  schema:
-                    type: string
-                    description: Identifier of AIP
-                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                    format: uuid
-                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-            requestBody:
-                required: true
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/SubmitRequestBody'
-                        example:
-                            name: abc123
-            responses:
-                "202":
-                    description: Accepted response.
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/SubmitResult'
-                            example:
-                                url: abc123
-                "400":
-                    description: 'not_valid: Bad Request response.'
-                    content:
-                        application/vnd.goa.error:
-                            schema:
-                                $ref: '#/components/schemas/Error'
-                "401":
-                    description: 'unauthorized: Unauthorized response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
-                "403":
-                    description: 'forbidden: Forbidden response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
-                "409":
-                    description: 'not_available: Conflict response.'
-                    content:
-                        application/vnd.goa.error:
-                            schema:
-                                $ref: '#/components/schemas/Error'
-            security:
-                - jwt_header_Authorization:
-                    - storage:package:submit
-    /storage/package/{aip_id}/update:
-        post:
-            tags:
-                - storage
-            summary: update storage
-            description: Signal that a package submission is complete
-            operationId: storage#update
-            parameters:
-                - name: aip_id
-                  in: path
-                  description: Identifier of AIP
-                  required: true
-                  schema:
-                    type: string
-                    description: Identifier of AIP
-                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                    format: uuid
-                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-            responses:
-                "202":
-                    description: Accepted response.
-                "400":
-                    description: 'not_valid: Bad Request response.'
-                    content:
-                        application/vnd.goa.error:
-                            schema:
-                                $ref: '#/components/schemas/Error'
-                "401":
-                    description: 'unauthorized: Unauthorized response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
-                "403":
-                    description: 'forbidden: Forbidden response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
-                "409":
-                    description: 'not_available: Conflict response.'
-                    content:
-                        application/vnd.goa.error:
-                            schema:
-                                $ref: '#/components/schemas/Error'
-            security:
-                - jwt_header_Authorization:
-                    - storage:package:submit
+                    - storage:locations:aips:list
     /swagger/swagger.json:
         get:
             tags:
@@ -1445,7 +1445,181 @@ paths:
                 - jwt_header_: []
 components:
     schemas:
-        AddLocationRequestBody:
+        AIP:
+            type: object
+            properties:
+                created_at:
+                    type: string
+                    description: Creation datetime
+                    example: "1970-01-01T00:00:01Z"
+                    format: date-time
+                location_id:
+                    type: string
+                    description: Identifier of storage location
+                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                name:
+                    type: string
+                    example: abc123
+                object_key:
+                    type: string
+                    example: abc123
+                status:
+                    type: string
+                    description: Status of the AIP
+                    default: unspecified
+                    example: in_review
+                    enum:
+                        - unspecified
+                        - in_review
+                        - rejected
+                        - stored
+                        - moving
+                uuid:
+                    type: string
+                    example: abc123
+            example:
+                created_at: "1970-01-01T00:00:01Z"
+                location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                name: abc123
+                object_key: abc123
+                status: in_review
+                uuid: abc123
+            required:
+                - name
+                - uuid
+                - status
+                - object_key
+                - created_at
+        AIPNotFound:
+            type: object
+            properties:
+                message:
+                    type: string
+                    description: Message of error
+                    example: abc123
+                uuid:
+                    type: string
+                    description: Identifier of missing AIP
+                    example: abc123
+            description: AIP not found
+            example:
+                message: abc123
+                uuid: abc123
+            required:
+                - message
+                - uuid
+        AIPResponse:
+            type: object
+            properties:
+                created_at:
+                    type: string
+                    description: Creation datetime
+                    example: "1970-01-01T00:00:01Z"
+                    format: date-time
+                location_id:
+                    type: string
+                    description: Identifier of storage location
+                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                name:
+                    type: string
+                    example: abc123
+                object_key:
+                    type: string
+                    example: abc123
+                status:
+                    type: string
+                    description: Status of the AIP
+                    default: unspecified
+                    example: in_review
+                    enum:
+                        - unspecified
+                        - in_review
+                        - rejected
+                        - stored
+                        - moving
+                uuid:
+                    type: string
+                    example: abc123
+            description: An AIP describes an AIP retrieved by the storage service. (default view)
+            example:
+                created_at: "1970-01-01T00:00:01Z"
+                location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                name: abc123
+                object_key: abc123
+                status: in_review
+                uuid: abc123
+            required:
+                - name
+                - uuid
+                - status
+                - object_key
+                - created_at
+        AIPResponseCollection:
+            type: array
+            items:
+                $ref: '#/components/schemas/AIPResponse'
+            description: list_location_aips_response_body is the result type for an array of AIPResponse (default view)
+            example:
+                - created_at: "1970-01-01T00:00:01Z"
+                  location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                  name: abc123
+                  object_key: abc123
+                  status: in_review
+                  uuid: abc123
+        ConfirmSipRequestBody:
+            type: object
+            properties:
+                location_id:
+                    type: string
+                    description: Identifier of storage location
+                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            example:
+                location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            required:
+                - location_id
+        CreateAipRequestBody:
+            type: object
+            properties:
+                location_id:
+                    type: string
+                    description: Identifier of the AIP's storage location
+                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                name:
+                    type: string
+                    description: Name of the AIP
+                    example: abc123
+                object_key:
+                    type: string
+                    description: ObjectKey of the AIP
+                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    format: uuid
+                status:
+                    type: string
+                    description: Status of the the AIP
+                    default: unspecified
+                    example: in_review
+                    enum:
+                        - unspecified
+                        - in_review
+                        - rejected
+                        - stored
+                        - moving
+                uuid:
+                    type: string
+                    description: Identifier of the AIP
+                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    format: uuid
+            example:
+                location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                name: abc123
+                object_key: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                status: in_review
+                uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            required:
+                - uuid
+                - name
+                - object_key
+        CreateLocationRequestBody:
             type: object
             properties:
                 config:
@@ -1507,7 +1681,7 @@ components:
                 - name
                 - source
                 - purpose
-        AddLocationResult:
+        CreateLocationResult:
             type: object
             properties:
                 uuid:
@@ -1517,59 +1691,6 @@ components:
                 uuid: abc123
             required:
                 - uuid
-        ConfirmRequestBody:
-            type: object
-            properties:
-                location_id:
-                    type: string
-                    description: Identifier of storage location
-                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-            example:
-                location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-            required:
-                - location_id
-        CreateRequestBody:
-            type: object
-            properties:
-                aip_id:
-                    type: string
-                    description: Identifier of AIP
-                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                    format: uuid
-                location_id:
-                    type: string
-                    description: Identifier of the package's storage location
-                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                name:
-                    type: string
-                    description: Name of the package
-                    example: abc123
-                object_key:
-                    type: string
-                    description: ObjectKey of AIP
-                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                    format: uuid
-                status:
-                    type: string
-                    description: Status of the package
-                    default: unspecified
-                    example: in_review
-                    enum:
-                        - unspecified
-                        - in_review
-                        - rejected
-                        - stored
-                        - moving
-            example:
-                aip_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                name: abc123
-                object_key: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                status: in_review
-            required:
-                - aip_id
-                - name
-                - object_key
         EnduroAbout:
             type: object
             properties:
@@ -1597,7 +1718,83 @@ components:
                 - version
                 - preservation_system
                 - preprocessing
-        EnduroPackagePreservationAction:
+        EnduroIngestSip:
+            type: object
+            properties:
+                aip_id:
+                    type: string
+                    description: Identifier of AIP
+                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    format: uuid
+                completed_at:
+                    type: string
+                    description: Completion datetime
+                    example: "1970-01-01T00:00:01Z"
+                    format: date-time
+                created_at:
+                    type: string
+                    description: Creation datetime
+                    example: "1970-01-01T00:00:01Z"
+                    format: date-time
+                id:
+                    type: integer
+                    description: Identifier of SIP
+                    example: 1
+                    format: int64
+                location_id:
+                    type: string
+                    description: Identifier of storage location
+                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                name:
+                    type: string
+                    description: Name of the SIP
+                    example: abc123
+                run_id:
+                    type: string
+                    description: Identifier of latest processing workflow run
+                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    format: uuid
+                started_at:
+                    type: string
+                    description: Start datetime
+                    example: "1970-01-01T00:00:01Z"
+                    format: date-time
+                status:
+                    type: string
+                    description: Status of the SIP
+                    default: new
+                    example: in progress
+                    enum:
+                        - new
+                        - in progress
+                        - done
+                        - error
+                        - unknown
+                        - queued
+                        - abandoned
+                        - pending
+                workflow_id:
+                    type: string
+                    description: Identifier of processing workflow
+                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    format: uuid
+            description: SIP describes an ingest SIP type.
+            example:
+                aip_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                completed_at: "1970-01-01T00:00:01Z"
+                created_at: "1970-01-01T00:00:01Z"
+                id: 1
+                location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                name: abc123
+                run_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                started_at: "1970-01-01T00:00:01Z"
+                status: in progress
+                workflow_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            required:
+                - id
+                - status
+                - created_at
+        EnduroIngestSipPreservationAction:
             type: object
             properties:
                 completed_at:
@@ -1608,7 +1805,7 @@ components:
                     type: integer
                     example: 1
                     format: int64
-                package_id:
+                sip_id:
                     type: integer
                     example: 1
                     format: int64
@@ -1627,7 +1824,7 @@ components:
                         - queued
                         - pending
                 tasks:
-                    $ref: '#/components/schemas/EnduroPackagePreservationTaskCollection'
+                    $ref: '#/components/schemas/SIPPreservationTaskCollection'
                 type:
                     type: string
                     example: create aip
@@ -1639,11 +1836,11 @@ components:
                 workflow_id:
                     type: string
                     example: abc123
-            description: PreservationAction describes a preservation action.
+            description: SIPPreservationAction describes a preservation action of a SIP.
             example:
                 completed_at: "1970-01-01T00:00:01Z"
                 id: 1
-                package_id: 1
+                sip_id: 1
                 started_at: "1970-01-01T00:00:01Z"
                 status: in progress
                 tasks:
@@ -1663,51 +1860,7 @@ components:
                 - type
                 - status
                 - started_at
-        EnduroPackagePreservationActionCollection:
-            type: array
-            items:
-                $ref: '#/components/schemas/EnduroPackagePreservationAction'
-            example:
-                - completed_at: "1970-01-01T00:00:01Z"
-                  id: 1
-                  package_id: 1
-                  started_at: "1970-01-01T00:00:01Z"
-                  status: in progress
-                  tasks:
-                    - completed_at: "1970-01-01T00:00:01Z"
-                      id: 1
-                      name: abc123
-                      note: abc123
-                      preservation_action_id: 1
-                      started_at: "1970-01-01T00:00:01Z"
-                      status: in progress
-                      task_id: abc123
-                  type: create aip
-                  workflow_id: abc123
-        EnduroPackagePreservationActions:
-            type: object
-            properties:
-                actions:
-                    $ref: '#/components/schemas/EnduroPackagePreservationActionCollection'
-            example:
-                actions:
-                    - completed_at: "1970-01-01T00:00:01Z"
-                      id: 1
-                      package_id: 1
-                      started_at: "1970-01-01T00:00:01Z"
-                      status: in progress
-                      tasks:
-                        - completed_at: "1970-01-01T00:00:01Z"
-                          id: 1
-                          name: abc123
-                          note: abc123
-                          preservation_action_id: 1
-                          started_at: "1970-01-01T00:00:01Z"
-                          status: in progress
-                          task_id: abc123
-                      type: create aip
-                      workflow_id: abc123
-        EnduroPackagePreservationTask:
+        EnduroIngestSipPreservationTask:
             type: object
             properties:
                 completed_at:
@@ -1745,7 +1898,7 @@ components:
                 task_id:
                     type: string
                     example: abc123
-            description: PreservationTask describes a preservation action task.
+            description: SIPPreservationTask describes a SIP preservation action task.
             example:
                 completed_at: "1970-01-01T00:00:01Z"
                 id: 1
@@ -1761,45 +1914,6 @@ components:
                 - name
                 - status
                 - started_at
-        EnduroPackagePreservationTaskCollection:
-            type: array
-            items:
-                $ref: '#/components/schemas/EnduroPackagePreservationTask'
-            example:
-                - completed_at: "1970-01-01T00:00:01Z"
-                  id: 1
-                  name: abc123
-                  note: abc123
-                  preservation_action_id: 1
-                  started_at: "1970-01-01T00:00:01Z"
-                  status: in progress
-                  task_id: abc123
-        EnduroPackages:
-            type: object
-            properties:
-                items:
-                    $ref: '#/components/schemas/EnduroStoredPackageCollection'
-                page:
-                    $ref: '#/components/schemas/EnduroPage'
-            example:
-                items:
-                    - aip_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                      completed_at: "1970-01-01T00:00:01Z"
-                      created_at: "1970-01-01T00:00:01Z"
-                      id: 1
-                      location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                      name: abc123
-                      run_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                      started_at: "1970-01-01T00:00:01Z"
-                      status: in progress
-                      workflow_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                page:
-                    limit: 1
-                    offset: 1
-                    total: 1
-            required:
-                - items
-                - page
         EnduroPage:
             type: object
             properties:
@@ -1869,97 +1983,6 @@ components:
                 - enabled
                 - workflow_name
                 - task_queue
-        EnduroStoredPackage:
-            type: object
-            properties:
-                aip_id:
-                    type: string
-                    description: Identifier of AIP
-                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                    format: uuid
-                completed_at:
-                    type: string
-                    description: Completion datetime
-                    example: "1970-01-01T00:00:01Z"
-                    format: date-time
-                created_at:
-                    type: string
-                    description: Creation datetime
-                    example: "1970-01-01T00:00:01Z"
-                    format: date-time
-                id:
-                    type: integer
-                    description: Identifier of package
-                    example: 1
-                    format: int64
-                location_id:
-                    type: string
-                    description: Identifier of storage location
-                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                name:
-                    type: string
-                    description: Name of the package
-                    example: abc123
-                run_id:
-                    type: string
-                    description: Identifier of latest processing workflow run
-                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                    format: uuid
-                started_at:
-                    type: string
-                    description: Start datetime
-                    example: "1970-01-01T00:00:01Z"
-                    format: date-time
-                status:
-                    type: string
-                    description: Status of the package
-                    default: new
-                    example: in progress
-                    enum:
-                        - new
-                        - in progress
-                        - done
-                        - error
-                        - unknown
-                        - queued
-                        - abandoned
-                        - pending
-                workflow_id:
-                    type: string
-                    description: Identifier of processing workflow
-                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                    format: uuid
-            description: StoredPackage describes a package retrieved by the service.
-            example:
-                aip_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                completed_at: "1970-01-01T00:00:01Z"
-                created_at: "1970-01-01T00:00:01Z"
-                id: 1
-                location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                name: abc123
-                run_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                started_at: "1970-01-01T00:00:01Z"
-                status: in progress
-                workflow_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-            required:
-                - id
-                - status
-                - created_at
-        EnduroStoredPackageCollection:
-            type: array
-            items:
-                $ref: '#/components/schemas/EnduroStoredPackage'
-            example:
-                - aip_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                  completed_at: "1970-01-01T00:00:01Z"
-                  created_at: "1970-01-01T00:00:01Z"
-                  id: 1
-                  location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                  name: abc123
-                  run_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                  started_at: "1970-01-01T00:00:01Z"
-                  status: in progress
-                  workflow_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
         Error:
             type: object
             properties:
@@ -2081,23 +2104,6 @@ components:
                 - purpose
                 - uuid
                 - created_at
-        LocationNotFound:
-            type: object
-            properties:
-                message:
-                    type: string
-                    description: Message of error
-                    example: abc123
-                uuid:
-                    type: string
-                    example: abc123
-            description: Storage location not found
-            example:
-                message: abc123
-                uuid: abc123
-            required:
-                - message
-                - uuid
         LocationResponse:
             type: object
             properties:
@@ -2153,7 +2159,7 @@ components:
             type: array
             items:
                 $ref: '#/components/schemas/LocationResponse'
-            description: LocationsResponseBody is the result type for an array of LocationResponse (default view)
+            description: list_locations_response_body is the result type for an array of LocationResponse (default view)
             example:
                 - created_at: "1970-01-01T00:00:01Z"
                   description: abc123
@@ -2172,38 +2178,38 @@ components:
                             description: |-
                                 Union type name, one of:
                                 - "monitor_ping_event"
-                                - "package_created_event"
-                                - "package_updated_event"
-                                - "package_status_updated_event"
-                                - "package_location_updated_event"
-                                - "preservation_action_created_event"
-                                - "preservation_action_updated_event"
-                                - "preservation_task_created_event"
-                                - "preservation_task_updated_event"
-                            example: package_created_event
+                                - "sip_created_event"
+                                - "sip_updated_event"
+                                - "sip_status_updated_event"
+                                - "sip_location_updated_event"
+                                - "sip_preservation_action_created_event"
+                                - "sip_preservation_action_updated_event"
+                                - "sip_preservation_task_created_event"
+                                - "sip_preservation_task_updated_event"
+                            example: sip_created_event
                             enum:
                                 - monitor_ping_event
-                                - package_created_event
-                                - package_updated_event
-                                - package_status_updated_event
-                                - package_location_updated_event
-                                - preservation_action_created_event
-                                - preservation_action_updated_event
-                                - preservation_task_created_event
-                                - preservation_task_updated_event
+                                - sip_created_event
+                                - sip_updated_event
+                                - sip_status_updated_event
+                                - sip_location_updated_event
+                                - sip_preservation_action_created_event
+                                - sip_preservation_action_updated_event
+                                - sip_preservation_task_created_event
+                                - sip_preservation_task_updated_event
                         Value:
                             type: string
                             description: JSON encoded union value
                             example: '{"id":1,"item":{"aip_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","id":1,"location_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","name":"abc123","run_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","started_at":"1970-01-01T00:00:01Z","status":"in progress","workflow_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}}'
                     example:
-                        Type: package_created_event
+                        Type: sip_created_event
                         Value: '{"id":1,"item":{"aip_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","id":1,"location_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","name":"abc123","run_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","started_at":"1970-01-01T00:00:01Z","status":"in progress","workflow_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}}'
                     required:
                         - Type
                         - Value
             example:
                 event:
-                    Type: package_created_event
+                    Type: sip_created_event
                     Value: '{"id":1,"item":{"aip_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","id":1,"location_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","name":"abc123","run_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","started_at":"1970-01-01T00:00:01Z","status":"in progress","workflow_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}}'
         MonitorPingEvent:
             type: object
@@ -2223,61 +2229,31 @@ components:
                 done: false
             required:
                 - done
-        Package:
-            type: object
-            properties:
-                aip_id:
-                    type: string
-                    example: abc123
-                created_at:
-                    type: string
-                    description: Creation datetime
-                    example: "1970-01-01T00:00:01Z"
-                    format: date-time
-                location_id:
-                    type: string
-                    description: Identifier of storage location
-                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                name:
-                    type: string
-                    example: abc123
-                object_key:
-                    type: string
-                    example: abc123
-                status:
-                    type: string
-                    description: Status of the package
-                    default: unspecified
-                    example: in_review
-                    enum:
-                        - unspecified
-                        - in_review
-                        - rejected
-                        - stored
-                        - moving
+        SIPCollection:
+            type: array
+            items:
+                $ref: '#/components/schemas/EnduroIngestSip'
             example:
-                aip_id: abc123
-                created_at: "1970-01-01T00:00:01Z"
-                location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                name: abc123
-                object_key: abc123
-                status: in_review
-            required:
-                - name
-                - aip_id
-                - status
-                - object_key
-                - created_at
-        PackageCreatedEvent:
+                - aip_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                  completed_at: "1970-01-01T00:00:01Z"
+                  created_at: "1970-01-01T00:00:01Z"
+                  id: 1
+                  location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                  name: abc123
+                  run_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                  started_at: "1970-01-01T00:00:01Z"
+                  status: in progress
+                  workflow_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+        SIPCreatedEvent:
             type: object
             properties:
                 id:
                     type: integer
-                    description: Identifier of package
+                    description: Identifier of SIP
                     example: 1
                     format: int64
                 item:
-                    $ref: '#/components/schemas/EnduroStoredPackage'
+                    $ref: '#/components/schemas/EnduroIngestSip'
             example:
                 id: 1
                 item:
@@ -2294,12 +2270,12 @@ components:
             required:
                 - id
                 - item
-        PackageLocationUpdatedEvent:
+        SIPLocationUpdatedEvent:
             type: object
             properties:
                 id:
                     type: integer
-                    description: Identifier of package
+                    description: Identifier of SIP
                     example: 1
                     format: int64
                 location_id:
@@ -2312,107 +2288,200 @@ components:
             required:
                 - id
                 - location_id
-        PackageNotFound:
+        SIPNotFound:
             type: object
             properties:
                 id:
                     type: integer
-                    description: Identifier of missing package
+                    description: Identifier of missing SIP
                     example: 1
                     format: int64
                 message:
                     type: string
                     description: Message of error
                     example: abc123
-            description: Package not found
+            description: SIP not found
             example:
                 id: 1
                 message: abc123
             required:
                 - message
                 - id
-        PackageNotFound2:
-            type: object
-            properties:
-                aip_id:
-                    type: string
-                    description: Identifier of missing package
-                    example: abc123
-                message:
-                    type: string
-                    description: Message of error
-                    example: abc123
-            description: Storage package not found
-            example:
-                aip_id: abc123
-                message: abc123
-            required:
-                - message
-                - aip_id
-        PackageResponse:
-            type: object
-            properties:
-                aip_id:
-                    type: string
-                    example: abc123
-                created_at:
-                    type: string
-                    description: Creation datetime
-                    example: "1970-01-01T00:00:01Z"
-                    format: date-time
-                location_id:
-                    type: string
-                    description: Identifier of storage location
-                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                name:
-                    type: string
-                    example: abc123
-                object_key:
-                    type: string
-                    example: abc123
-                status:
-                    type: string
-                    description: Status of the package
-                    default: unspecified
-                    example: in_review
-                    enum:
-                        - unspecified
-                        - in_review
-                        - rejected
-                        - stored
-                        - moving
-            description: A Package describes a package retrieved by the storage service. (default view)
-            example:
-                aip_id: abc123
-                created_at: "1970-01-01T00:00:01Z"
-                location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                name: abc123
-                object_key: abc123
-                status: in_review
-            required:
-                - name
-                - aip_id
-                - status
-                - object_key
-                - created_at
-        PackageResponseCollection:
+        SIPPreservationActionCollection:
             type: array
             items:
-                $ref: '#/components/schemas/PackageResponse'
-            description: location_packages_response_body is the result type for an array of PackageResponse (default view)
+                $ref: '#/components/schemas/EnduroIngestSipPreservationAction'
             example:
-                - aip_id: abc123
-                  created_at: "1970-01-01T00:00:01Z"
-                  location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                  name: abc123
-                  object_key: abc123
-                  status: in_review
-        PackageStatusUpdatedEvent:
+                - completed_at: "1970-01-01T00:00:01Z"
+                  id: 1
+                  sip_id: 1
+                  started_at: "1970-01-01T00:00:01Z"
+                  status: in progress
+                  tasks:
+                    - completed_at: "1970-01-01T00:00:01Z"
+                      id: 1
+                      name: abc123
+                      note: abc123
+                      preservation_action_id: 1
+                      started_at: "1970-01-01T00:00:01Z"
+                      status: in progress
+                      task_id: abc123
+                  type: create aip
+                  workflow_id: abc123
+        SIPPreservationActionCreatedEvent:
             type: object
             properties:
                 id:
                     type: integer
-                    description: Identifier of package
+                    description: Identifier of preservation action
+                    example: 1
+                    format: int64
+                item:
+                    $ref: '#/components/schemas/EnduroIngestSipPreservationAction'
+            example:
+                id: 1
+                item:
+                    completed_at: "1970-01-01T00:00:01Z"
+                    id: 1
+                    sip_id: 1
+                    started_at: "1970-01-01T00:00:01Z"
+                    status: in progress
+                    tasks:
+                        - completed_at: "1970-01-01T00:00:01Z"
+                          id: 1
+                          name: abc123
+                          note: abc123
+                          preservation_action_id: 1
+                          started_at: "1970-01-01T00:00:01Z"
+                          status: in progress
+                          task_id: abc123
+                    type: create aip
+                    workflow_id: abc123
+            required:
+                - id
+                - item
+        SIPPreservationActionUpdatedEvent:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    description: Identifier of preservation action
+                    example: 1
+                    format: int64
+                item:
+                    $ref: '#/components/schemas/EnduroIngestSipPreservationAction'
+            example:
+                id: 1
+                item:
+                    completed_at: "1970-01-01T00:00:01Z"
+                    id: 1
+                    sip_id: 1
+                    started_at: "1970-01-01T00:00:01Z"
+                    status: in progress
+                    tasks:
+                        - completed_at: "1970-01-01T00:00:01Z"
+                          id: 1
+                          name: abc123
+                          note: abc123
+                          preservation_action_id: 1
+                          started_at: "1970-01-01T00:00:01Z"
+                          status: in progress
+                          task_id: abc123
+                    type: create aip
+                    workflow_id: abc123
+            required:
+                - id
+                - item
+        SIPPreservationActions:
+            type: object
+            properties:
+                actions:
+                    $ref: '#/components/schemas/SIPPreservationActionCollection'
+            example:
+                actions:
+                    - completed_at: "1970-01-01T00:00:01Z"
+                      id: 1
+                      sip_id: 1
+                      started_at: "1970-01-01T00:00:01Z"
+                      status: in progress
+                      tasks:
+                        - completed_at: "1970-01-01T00:00:01Z"
+                          id: 1
+                          name: abc123
+                          note: abc123
+                          preservation_action_id: 1
+                          started_at: "1970-01-01T00:00:01Z"
+                          status: in progress
+                          task_id: abc123
+                      type: create aip
+                      workflow_id: abc123
+        SIPPreservationTaskCollection:
+            type: array
+            items:
+                $ref: '#/components/schemas/EnduroIngestSipPreservationTask'
+            example:
+                - completed_at: "1970-01-01T00:00:01Z"
+                  id: 1
+                  name: abc123
+                  note: abc123
+                  preservation_action_id: 1
+                  started_at: "1970-01-01T00:00:01Z"
+                  status: in progress
+                  task_id: abc123
+        SIPPreservationTaskCreatedEvent:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    description: Identifier of preservation task
+                    example: 1
+                    format: int64
+                item:
+                    $ref: '#/components/schemas/EnduroIngestSipPreservationTask'
+            example:
+                id: 1
+                item:
+                    completed_at: "1970-01-01T00:00:01Z"
+                    id: 1
+                    name: abc123
+                    note: abc123
+                    preservation_action_id: 1
+                    started_at: "1970-01-01T00:00:01Z"
+                    status: in progress
+                    task_id: abc123
+            required:
+                - id
+                - item
+        SIPPreservationTaskUpdatedEvent:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    description: Identifier of preservation task
+                    example: 1
+                    format: int64
+                item:
+                    $ref: '#/components/schemas/EnduroIngestSipPreservationTask'
+            example:
+                id: 1
+                item:
+                    completed_at: "1970-01-01T00:00:01Z"
+                    id: 1
+                    name: abc123
+                    note: abc123
+                    preservation_action_id: 1
+                    started_at: "1970-01-01T00:00:01Z"
+                    status: in progress
+                    task_id: abc123
+            required:
+                - id
+                - item
+        SIPStatusUpdatedEvent:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    description: Identifier of SIP
                     example: 1
                     format: int64
                 status:
@@ -2433,16 +2502,16 @@ components:
             required:
                 - id
                 - status
-        PackageUpdatedEvent:
+        SIPUpdatedEvent:
             type: object
             properties:
                 id:
                     type: integer
-                    description: Identifier of package
+                    description: Identifier of SIP
                     example: 1
                     format: int64
                 item:
-                    $ref: '#/components/schemas/EnduroStoredPackage'
+                    $ref: '#/components/schemas/EnduroIngestSip'
             example:
                 id: 1
                 item:
@@ -2459,129 +2528,33 @@ components:
             required:
                 - id
                 - item
-        PreservationActionCreatedEvent:
+        SIPs:
             type: object
             properties:
-                id:
-                    type: integer
-                    description: Identifier of preservation action
-                    example: 1
-                    format: int64
-                item:
-                    $ref: '#/components/schemas/EnduroPackagePreservationAction'
+                items:
+                    $ref: '#/components/schemas/SIPCollection'
+                page:
+                    $ref: '#/components/schemas/EnduroPage'
             example:
-                id: 1
-                item:
-                    completed_at: "1970-01-01T00:00:01Z"
-                    id: 1
-                    package_id: 1
-                    started_at: "1970-01-01T00:00:01Z"
-                    status: in progress
-                    tasks:
-                        - completed_at: "1970-01-01T00:00:01Z"
-                          id: 1
-                          name: abc123
-                          note: abc123
-                          preservation_action_id: 1
-                          started_at: "1970-01-01T00:00:01Z"
-                          status: in progress
-                          task_id: abc123
-                    type: create aip
-                    workflow_id: abc123
+                items:
+                    - aip_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                      completed_at: "1970-01-01T00:00:01Z"
+                      created_at: "1970-01-01T00:00:01Z"
+                      id: 1
+                      location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                      name: abc123
+                      run_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                      started_at: "1970-01-01T00:00:01Z"
+                      status: in progress
+                      workflow_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                page:
+                    limit: 1
+                    offset: 1
+                    total: 1
             required:
-                - id
-                - item
-        PreservationActionUpdatedEvent:
-            type: object
-            properties:
-                id:
-                    type: integer
-                    description: Identifier of preservation action
-                    example: 1
-                    format: int64
-                item:
-                    $ref: '#/components/schemas/EnduroPackagePreservationAction'
-            example:
-                id: 1
-                item:
-                    completed_at: "1970-01-01T00:00:01Z"
-                    id: 1
-                    package_id: 1
-                    started_at: "1970-01-01T00:00:01Z"
-                    status: in progress
-                    tasks:
-                        - completed_at: "1970-01-01T00:00:01Z"
-                          id: 1
-                          name: abc123
-                          note: abc123
-                          preservation_action_id: 1
-                          started_at: "1970-01-01T00:00:01Z"
-                          status: in progress
-                          task_id: abc123
-                    type: create aip
-                    workflow_id: abc123
-            required:
-                - id
-                - item
-        PreservationTaskCreatedEvent:
-            type: object
-            properties:
-                id:
-                    type: integer
-                    description: Identifier of preservation task
-                    example: 1
-                    format: int64
-                item:
-                    $ref: '#/components/schemas/EnduroPackagePreservationTask'
-            example:
-                id: 1
-                item:
-                    completed_at: "1970-01-01T00:00:01Z"
-                    id: 1
-                    name: abc123
-                    note: abc123
-                    preservation_action_id: 1
-                    started_at: "1970-01-01T00:00:01Z"
-                    status: in progress
-                    task_id: abc123
-            required:
-                - id
-                - item
-        PreservationTaskUpdatedEvent:
-            type: object
-            properties:
-                id:
-                    type: integer
-                    description: Identifier of preservation task
-                    example: 1
-                    format: int64
-                item:
-                    $ref: '#/components/schemas/EnduroPackagePreservationTask'
-            example:
-                id: 1
-                item:
-                    completed_at: "1970-01-01T00:00:01Z"
-                    id: 1
-                    name: abc123
-                    note: abc123
-                    preservation_action_id: 1
-                    started_at: "1970-01-01T00:00:01Z"
-                    status: in progress
-                    task_id: abc123
-            required:
-                - id
-                - item
-        SubmitRequestBody:
-            type: object
-            properties:
-                name:
-                    type: string
-                    example: abc123
-            example:
-                name: abc123
-            required:
-                - name
-        SubmitResult:
+                - items
+                - page
+        SubmitAIPResult:
             type: object
             properties:
                 url:
@@ -2591,6 +2564,16 @@ components:
                 url: abc123
             required:
                 - url
+        SubmitAipRequestBody:
+            type: object
+            properties:
+                name:
+                    type: string
+                    example: abc123
+            example:
+                name: abc123
+            required:
+                - name
     securitySchemes:
         jwt_header_Authorization:
             type: http
@@ -2599,10 +2582,10 @@ components:
 tags:
     - name: about
       description: The about service provides information about the system.
-    - name: package
-      description: The package service manages packages being transferred to a3m.
+    - name: ingest
+      description: The ingest service manages ingested SIPs.
     - name: storage
-      description: The storage service manages the storage of packages.
+      description: The storage service manages locations and AIPs.
     - name: swagger
       description: The swagger service serves the API swagger definition.
 security:

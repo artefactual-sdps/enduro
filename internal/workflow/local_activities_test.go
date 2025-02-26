@@ -14,7 +14,7 @@ import (
 
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
-	package_fake "github.com/artefactual-sdps/enduro/internal/package_/fake"
+	ingest_fake "github.com/artefactual-sdps/enduro/internal/ingest/fake"
 )
 
 func TestCreatePreservationActionLocalActivity(t *testing.T) {
@@ -26,7 +26,7 @@ func TestCreatePreservationActionLocalActivity(t *testing.T) {
 	type test struct {
 		name      string
 		params    *createPreservationActionLocalActivityParams
-		mockCalls func(m *package_fake.MockServiceMockRecorder)
+		mockCalls func(m *ingest_fake.MockServiceMockRecorder)
 		want      uint
 		wantErr   string
 	}
@@ -39,9 +39,9 @@ func TestCreatePreservationActionLocalActivity(t *testing.T) {
 				Status:      enums.PreservationActionStatusDone,
 				StartedAt:   startedAt,
 				CompletedAt: completedAt,
-				PackageID:   1,
+				SIPID:       1,
 			},
-			mockCalls: func(m *package_fake.MockServiceMockRecorder) {
+			mockCalls: func(m *ingest_fake.MockServiceMockRecorder) {
 				m.CreatePreservationAction(mockutil.Context(), &datatypes.PreservationAction{
 					WorkflowID:  "workflow-id",
 					Type:        enums.PreservationActionTypeCreateAip,
@@ -62,9 +62,9 @@ func TestCreatePreservationActionLocalActivity(t *testing.T) {
 				WorkflowID: "workflow-id",
 				Type:       enums.PreservationActionTypeCreateAip,
 				Status:     enums.PreservationActionStatusDone,
-				PackageID:  1,
+				SIPID:      1,
 			},
-			mockCalls: func(m *package_fake.MockServiceMockRecorder) {
+			mockCalls: func(m *ingest_fake.MockServiceMockRecorder) {
 				m.CreatePreservationAction(mockutil.Context(), &datatypes.PreservationAction{
 					WorkflowID: "workflow-id",
 					Type:       enums.PreservationActionTypeCreateAip,
@@ -83,9 +83,9 @@ func TestCreatePreservationActionLocalActivity(t *testing.T) {
 				WorkflowID: "workflow-id",
 				Type:       enums.PreservationActionTypeCreateAip,
 				Status:     enums.PreservationActionStatusDone,
-				PackageID:  1,
+				SIPID:      1,
 			},
-			mockCalls: func(m *package_fake.MockServiceMockRecorder) {
+			mockCalls: func(m *ingest_fake.MockServiceMockRecorder) {
 				m.CreatePreservationAction(mockutil.Context(), &datatypes.PreservationAction{
 					WorkflowID: "workflow-id",
 					Type:       enums.PreservationActionTypeCreateAip,
@@ -101,7 +101,7 @@ func TestCreatePreservationActionLocalActivity(t *testing.T) {
 
 			ts := &temporalsdk_testsuite.WorkflowTestSuite{}
 			env := ts.NewTestActivityEnvironment()
-			svc := package_fake.NewMockService(gomock.NewController(t))
+			svc := ingest_fake.NewMockService(gomock.NewController(t))
 			if tt.mockCalls != nil {
 				tt.mockCalls(svc.EXPECT())
 			}

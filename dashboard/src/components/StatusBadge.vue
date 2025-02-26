@@ -5,17 +5,17 @@ import type { api } from "@/client";
 
 const props = defineProps<{
   status:
-    | api.EnduroStoredPackageStatusEnum
-    | api.EnduroPackagePreservationActionStatusEnum
-    | api.EnduroPackagePreservationTaskStatusEnum;
+    | api.EnduroIngestSipStatusEnum
+    | api.EnduroIngestSipPreservationActionStatusEnum
+    | api.EnduroIngestSipPreservationTaskStatusEnum;
   note?: string;
 }>();
 
 const classes: {
   [key in
-    | api.EnduroStoredPackageStatusEnum
-    | api.EnduroPackagePreservationActionStatusEnum
-    | api.EnduroPackagePreservationTaskStatusEnum]: string;
+    | api.EnduroIngestSipStatusEnum
+    | api.EnduroIngestSipPreservationActionStatusEnum
+    | api.EnduroIngestSipPreservationTaskStatusEnum]: string;
 } = {
   new: "text-bg-dark",
   "in progress": "text-bg-secondary",

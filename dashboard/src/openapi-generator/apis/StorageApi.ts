@@ -15,93 +15,90 @@
 
 import * as runtime from '../runtime';
 import type {
-  AddLocationRequestBody,
-  AddLocationResult,
-  ConfirmRequestBody,
-  CreateRequestBody,
+  AIP,
+  AIPNotFound,
+  AIPResponse,
+  ConfirmSipRequestBody,
+  CreateAipRequestBody,
+  CreateLocationRequestBody,
+  CreateLocationResult,
   Location,
-  LocationNotFound,
   LocationResponse,
   MoveStatusResult,
-  Package,
-  PackageNotFound2,
-  PackageResponse,
-  SubmitRequestBody,
-  SubmitResult,
+  SubmitAIPResult,
+  SubmitAipRequestBody,
 } from '../models/index';
 import {
-    AddLocationRequestBodyFromJSON,
-    AddLocationRequestBodyToJSON,
-    AddLocationResultFromJSON,
-    AddLocationResultToJSON,
-    ConfirmRequestBodyFromJSON,
-    ConfirmRequestBodyToJSON,
-    CreateRequestBodyFromJSON,
-    CreateRequestBodyToJSON,
+    AIPFromJSON,
+    AIPToJSON,
+    AIPNotFoundFromJSON,
+    AIPNotFoundToJSON,
+    AIPResponseFromJSON,
+    AIPResponseToJSON,
+    ConfirmSipRequestBodyFromJSON,
+    ConfirmSipRequestBodyToJSON,
+    CreateAipRequestBodyFromJSON,
+    CreateAipRequestBodyToJSON,
+    CreateLocationRequestBodyFromJSON,
+    CreateLocationRequestBodyToJSON,
+    CreateLocationResultFromJSON,
+    CreateLocationResultToJSON,
     LocationFromJSON,
     LocationToJSON,
-    LocationNotFoundFromJSON,
-    LocationNotFoundToJSON,
     LocationResponseFromJSON,
     LocationResponseToJSON,
     MoveStatusResultFromJSON,
     MoveStatusResultToJSON,
-    PackageFromJSON,
-    PackageToJSON,
-    PackageNotFound2FromJSON,
-    PackageNotFound2ToJSON,
-    PackageResponseFromJSON,
-    PackageResponseToJSON,
-    SubmitRequestBodyFromJSON,
-    SubmitRequestBodyToJSON,
-    SubmitResultFromJSON,
-    SubmitResultToJSON,
+    SubmitAIPResultFromJSON,
+    SubmitAIPResultToJSON,
+    SubmitAipRequestBodyFromJSON,
+    SubmitAipRequestBodyToJSON,
 } from '../models/index';
 
-export interface StorageAddLocationRequest {
-    addLocationRequestBody: AddLocationRequestBody;
+export interface StorageCreateAipRequest {
+    createAipRequestBody: CreateAipRequestBody;
 }
 
-export interface StorageCreateRequest {
-    createRequestBody: CreateRequestBody;
+export interface StorageCreateLocationRequest {
+    createLocationRequestBody: CreateLocationRequestBody;
 }
 
-export interface StorageDownloadRequest {
-    aipId: string;
-}
-
-export interface StorageLocationPackagesRequest {
+export interface StorageDownloadAipRequest {
     uuid: string;
 }
 
-export interface StorageMoveRequest {
-    aipId: string;
-    confirmRequestBody: ConfirmRequestBody;
+export interface StorageListLocationAipsRequest {
+    uuid: string;
 }
 
-export interface StorageMoveStatusRequest {
-    aipId: string;
+export interface StorageMoveAipRequest {
+    uuid: string;
+    confirmSipRequestBody: ConfirmSipRequestBody;
 }
 
-export interface StorageRejectRequest {
-    aipId: string;
+export interface StorageMoveAipStatusRequest {
+    uuid: string;
 }
 
-export interface StorageShowRequest {
-    aipId: string;
+export interface StorageRejectAipRequest {
+    uuid: string;
+}
+
+export interface StorageShowAipRequest {
+    uuid: string;
 }
 
 export interface StorageShowLocationRequest {
     uuid: string;
 }
 
-export interface StorageSubmitRequest {
-    aipId: string;
-    submitRequestBody: SubmitRequestBody;
+export interface StorageSubmitAipRequest {
+    uuid: string;
+    submitAipRequestBody: SubmitAipRequestBody;
 }
 
-export interface StorageUpdateRequest {
-    aipId: string;
+export interface StorageUpdateAipRequest {
+    uuid: string;
 }
 
 /**
@@ -112,148 +109,148 @@ export interface StorageUpdateRequest {
  */
 export interface StorageApiInterface {
     /**
+     * Create a new AIP
+     * @summary create_aip storage
+     * @param {CreateAipRequestBody} createAipRequestBody 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof StorageApiInterface
+     */
+    storageCreateAipRaw(requestParameters: StorageCreateAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AIP>>;
+
+    /**
+     * Create a new AIP
+     * create_aip storage
+     */
+    storageCreateAip(requestParameters: StorageCreateAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AIP>;
+
+    /**
      * Create a storage location
-     * @summary add_location storage
-     * @param {AddLocationRequestBody} addLocationRequestBody 
+     * @summary create_location storage
+     * @param {CreateLocationRequestBody} createLocationRequestBody 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof StorageApiInterface
      */
-    storageAddLocationRaw(requestParameters: StorageAddLocationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AddLocationResult>>;
+    storageCreateLocationRaw(requestParameters: StorageCreateLocationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CreateLocationResult>>;
 
     /**
      * Create a storage location
-     * add_location storage
+     * create_location storage
      */
-    storageAddLocation(requestParameters: StorageAddLocationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AddLocationResult>;
+    storageCreateLocation(requestParameters: StorageCreateLocationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CreateLocationResult>;
 
     /**
-     * Create a new package
-     * @summary create storage
-     * @param {CreateRequestBody} createRequestBody 
+     * Download AIP by AIPID
+     * @summary download_aip storage
+     * @param {string} uuid Identifier of AIP
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof StorageApiInterface
      */
-    storageCreateRaw(requestParameters: StorageCreateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Package>>;
+    storageDownloadAipRaw(requestParameters: StorageDownloadAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Blob>>;
 
     /**
-     * Create a new package
-     * create storage
+     * Download AIP by AIPID
+     * download_aip storage
      */
-    storageCreate(requestParameters: StorageCreateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Package>;
+    storageDownloadAip(requestParameters: StorageDownloadAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Blob>;
 
     /**
-     * Download package by AIPID
-     * @summary download storage
-     * @param {string} aipId Identifier of AIP
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof StorageApiInterface
-     */
-    storageDownloadRaw(requestParameters: StorageDownloadRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Blob>>;
-
-    /**
-     * Download package by AIPID
-     * download storage
-     */
-    storageDownload(requestParameters: StorageDownloadRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Blob>;
-
-    /**
-     * List all the packages stored in the location with UUID
-     * @summary location_packages storage
+     * List all the AIPs stored in the location with UUID
+     * @summary list_location_aips storage
      * @param {string} uuid Identifier of location
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof StorageApiInterface
      */
-    storageLocationPackagesRaw(requestParameters: StorageLocationPackagesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<PackageResponse>>>;
+    storageListLocationAipsRaw(requestParameters: StorageListLocationAipsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<AIPResponse>>>;
 
     /**
-     * List all the packages stored in the location with UUID
-     * location_packages storage
+     * List all the AIPs stored in the location with UUID
+     * list_location_aips storage
      */
-    storageLocationPackages(requestParameters: StorageLocationPackagesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<PackageResponse>>;
-
-    /**
-     * List locations
-     * @summary locations storage
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof StorageApiInterface
-     */
-    storageLocationsRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<LocationResponse>>>;
+    storageListLocationAips(requestParameters: StorageListLocationAipsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<AIPResponse>>;
 
     /**
      * List locations
-     * locations storage
-     */
-    storageLocations(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<LocationResponse>>;
-
-    /**
-     * Move a package to a permanent storage location
-     * @summary move storage
-     * @param {string} aipId Identifier of AIP
-     * @param {ConfirmRequestBody} confirmRequestBody 
+     * @summary list_locations storage
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof StorageApiInterface
      */
-    storageMoveRaw(requestParameters: StorageMoveRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>>;
+    storageListLocationsRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<LocationResponse>>>;
 
     /**
-     * Move a package to a permanent storage location
-     * move storage
+     * List locations
+     * list_locations storage
      */
-    storageMove(requestParameters: StorageMoveRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
+    storageListLocations(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<LocationResponse>>;
 
     /**
-     * Retrieve the status of a permanent storage location move of the package
-     * @summary move_status storage
-     * @param {string} aipId Identifier of AIP
+     * Move an AIP to a permanent storage location
+     * @summary move_aip storage
+     * @param {string} uuid Identifier of AIP
+     * @param {ConfirmSipRequestBody} confirmSipRequestBody 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof StorageApiInterface
      */
-    storageMoveStatusRaw(requestParameters: StorageMoveStatusRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<MoveStatusResult>>;
+    storageMoveAipRaw(requestParameters: StorageMoveAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>>;
 
     /**
-     * Retrieve the status of a permanent storage location move of the package
-     * move_status storage
+     * Move an AIP to a permanent storage location
+     * move_aip storage
      */
-    storageMoveStatus(requestParameters: StorageMoveStatusRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MoveStatusResult>;
+    storageMoveAip(requestParameters: StorageMoveAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
 
     /**
-     * Reject a package
-     * @summary reject storage
-     * @param {string} aipId Identifier of AIP
+     * Retrieve the status of a permanent storage location move of the AIP
+     * @summary move_aip_status storage
+     * @param {string} uuid Identifier of AIP
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof StorageApiInterface
      */
-    storageRejectRaw(requestParameters: StorageRejectRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>>;
+    storageMoveAipStatusRaw(requestParameters: StorageMoveAipStatusRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<MoveStatusResult>>;
 
     /**
-     * Reject a package
-     * reject storage
+     * Retrieve the status of a permanent storage location move of the AIP
+     * move_aip_status storage
      */
-    storageReject(requestParameters: StorageRejectRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
+    storageMoveAipStatus(requestParameters: StorageMoveAipStatusRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MoveStatusResult>;
 
     /**
-     * Show package by AIPID
-     * @summary show storage
-     * @param {string} aipId Identifier of AIP
+     * Reject an AIP
+     * @summary reject_aip storage
+     * @param {string} uuid Identifier of AIP
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof StorageApiInterface
      */
-    storageShowRaw(requestParameters: StorageShowRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Package>>;
+    storageRejectAipRaw(requestParameters: StorageRejectAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>>;
 
     /**
-     * Show package by AIPID
-     * show storage
+     * Reject an AIP
+     * reject_aip storage
      */
-    storageShow(requestParameters: StorageShowRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Package>;
+    storageRejectAip(requestParameters: StorageRejectAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
+
+    /**
+     * Show AIP by AIPID
+     * @summary show_aip storage
+     * @param {string} uuid Identifier of AIP
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof StorageApiInterface
+     */
+    storageShowAipRaw(requestParameters: StorageShowAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AIP>>;
+
+    /**
+     * Show AIP by AIPID
+     * show_aip storage
+     */
+    storageShowAip(requestParameters: StorageShowAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AIP>;
 
     /**
      * Show location by UUID
@@ -272,37 +269,37 @@ export interface StorageApiInterface {
     storageShowLocation(requestParameters: StorageShowLocationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Location>;
 
     /**
-     * Start the submission of a package
-     * @summary submit storage
-     * @param {string} aipId Identifier of AIP
-     * @param {SubmitRequestBody} submitRequestBody 
+     * Start the submission of an AIP
+     * @summary submit_aip storage
+     * @param {string} uuid Identifier of AIP
+     * @param {SubmitAipRequestBody} submitAipRequestBody 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof StorageApiInterface
      */
-    storageSubmitRaw(requestParameters: StorageSubmitRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SubmitResult>>;
+    storageSubmitAipRaw(requestParameters: StorageSubmitAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SubmitAIPResult>>;
 
     /**
-     * Start the submission of a package
-     * submit storage
+     * Start the submission of an AIP
+     * submit_aip storage
      */
-    storageSubmit(requestParameters: StorageSubmitRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SubmitResult>;
+    storageSubmitAip(requestParameters: StorageSubmitAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SubmitAIPResult>;
 
     /**
-     * Signal that a package submission is complete
-     * @summary update storage
-     * @param {string} aipId Identifier of AIP
+     * Signal that an AIP submission is complete
+     * @summary update_aip storage
+     * @param {string} uuid Identifier of AIP
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof StorageApiInterface
      */
-    storageUpdateRaw(requestParameters: StorageUpdateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>>;
+    storageUpdateAipRaw(requestParameters: StorageUpdateAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>>;
 
     /**
-     * Signal that a package submission is complete
-     * update storage
+     * Signal that an AIP submission is complete
+     * update_aip storage
      */
-    storageUpdate(requestParameters: StorageUpdateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
+    storageUpdateAip(requestParameters: StorageUpdateAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
 
 }
 
@@ -312,12 +309,12 @@ export interface StorageApiInterface {
 export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
     /**
-     * Create a storage location
-     * add_location storage
+     * Create a new AIP
+     * create_aip storage
      */
-    async storageAddLocationRaw(requestParameters: StorageAddLocationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AddLocationResult>> {
-        if (requestParameters.addLocationRequestBody === null || requestParameters.addLocationRequestBody === undefined) {
-            throw new runtime.RequiredError('addLocationRequestBody','Required parameter requestParameters.addLocationRequestBody was null or undefined when calling storageAddLocation.');
+    async storageCreateAipRaw(requestParameters: StorageCreateAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AIP>> {
+        if (requestParameters.createAipRequestBody === null || requestParameters.createAipRequestBody === undefined) {
+            throw new runtime.RequiredError('createAipRequestBody','Required parameter requestParameters.createAipRequestBody was null or undefined when calling storageCreateAip.');
         }
 
         const queryParameters: any = {};
@@ -335,32 +332,32 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
             }
         }
         const response = await this.request({
-            path: `/storage/location`,
+            path: `/storage/aips`,
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: AddLocationRequestBodyToJSON(requestParameters.addLocationRequestBody),
+            body: CreateAipRequestBodyToJSON(requestParameters.createAipRequestBody),
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => AddLocationResultFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => AIPFromJSON(jsonValue));
     }
 
     /**
-     * Create a storage location
-     * add_location storage
+     * Create a new AIP
+     * create_aip storage
      */
-    async storageAddLocation(requestParameters: StorageAddLocationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AddLocationResult> {
-        const response = await this.storageAddLocationRaw(requestParameters, initOverrides);
+    async storageCreateAip(requestParameters: StorageCreateAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AIP> {
+        const response = await this.storageCreateAipRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
-     * Create a new package
-     * create storage
+     * Create a storage location
+     * create_location storage
      */
-    async storageCreateRaw(requestParameters: StorageCreateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Package>> {
-        if (requestParameters.createRequestBody === null || requestParameters.createRequestBody === undefined) {
-            throw new runtime.RequiredError('createRequestBody','Required parameter requestParameters.createRequestBody was null or undefined when calling storageCreate.');
+    async storageCreateLocationRaw(requestParameters: StorageCreateLocationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CreateLocationResult>> {
+        if (requestParameters.createLocationRequestBody === null || requestParameters.createLocationRequestBody === undefined) {
+            throw new runtime.RequiredError('createLocationRequestBody','Required parameter requestParameters.createLocationRequestBody was null or undefined when calling storageCreateLocation.');
         }
 
         const queryParameters: any = {};
@@ -378,32 +375,32 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
             }
         }
         const response = await this.request({
-            path: `/storage/package`,
+            path: `/storage/locations`,
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: CreateRequestBodyToJSON(requestParameters.createRequestBody),
+            body: CreateLocationRequestBodyToJSON(requestParameters.createLocationRequestBody),
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => PackageFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => CreateLocationResultFromJSON(jsonValue));
     }
 
     /**
-     * Create a new package
-     * create storage
+     * Create a storage location
+     * create_location storage
      */
-    async storageCreate(requestParameters: StorageCreateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Package> {
-        const response = await this.storageCreateRaw(requestParameters, initOverrides);
+    async storageCreateLocation(requestParameters: StorageCreateLocationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CreateLocationResult> {
+        const response = await this.storageCreateLocationRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
-     * Download package by AIPID
-     * download storage
+     * Download AIP by AIPID
+     * download_aip storage
      */
-    async storageDownloadRaw(requestParameters: StorageDownloadRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Blob>> {
-        if (requestParameters.aipId === null || requestParameters.aipId === undefined) {
-            throw new runtime.RequiredError('aipId','Required parameter requestParameters.aipId was null or undefined when calling storageDownload.');
+    async storageDownloadAipRaw(requestParameters: StorageDownloadAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Blob>> {
+        if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
+            throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling storageDownloadAip.');
         }
 
         const queryParameters: any = {};
@@ -419,7 +416,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
             }
         }
         const response = await this.request({
-            path: `/storage/package/{aip_id}/download`.replace(`{${"aip_id"}}`, encodeURIComponent(String(requestParameters.aipId))),
+            path: `/storage/aips/{uuid}/download`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -429,21 +426,21 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
     }
 
     /**
-     * Download package by AIPID
-     * download storage
+     * Download AIP by AIPID
+     * download_aip storage
      */
-    async storageDownload(requestParameters: StorageDownloadRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Blob> {
-        const response = await this.storageDownloadRaw(requestParameters, initOverrides);
+    async storageDownloadAip(requestParameters: StorageDownloadAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Blob> {
+        const response = await this.storageDownloadAipRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
-     * List all the packages stored in the location with UUID
-     * location_packages storage
+     * List all the AIPs stored in the location with UUID
+     * list_location_aips storage
      */
-    async storageLocationPackagesRaw(requestParameters: StorageLocationPackagesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<PackageResponse>>> {
+    async storageListLocationAipsRaw(requestParameters: StorageListLocationAipsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<AIPResponse>>> {
         if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
-            throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling storageLocationPackages.');
+            throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling storageListLocationAips.');
         }
 
         const queryParameters: any = {};
@@ -459,29 +456,29 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
             }
         }
         const response = await this.request({
-            path: `/storage/location/{uuid}/packages`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
+            path: `/storage/locations/{uuid}/aips`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(PackageResponseFromJSON));
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(AIPResponseFromJSON));
     }
 
     /**
-     * List all the packages stored in the location with UUID
-     * location_packages storage
+     * List all the AIPs stored in the location with UUID
+     * list_location_aips storage
      */
-    async storageLocationPackages(requestParameters: StorageLocationPackagesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<PackageResponse>> {
-        const response = await this.storageLocationPackagesRaw(requestParameters, initOverrides);
+    async storageListLocationAips(requestParameters: StorageListLocationAipsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<AIPResponse>> {
+        const response = await this.storageListLocationAipsRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
      * List locations
-     * locations storage
+     * list_locations storage
      */
-    async storageLocationsRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<LocationResponse>>> {
+    async storageListLocationsRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<LocationResponse>>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -495,7 +492,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
             }
         }
         const response = await this.request({
-            path: `/storage/location`,
+            path: `/storage/locations`,
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -506,24 +503,24 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
     /**
      * List locations
-     * locations storage
+     * list_locations storage
      */
-    async storageLocations(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<LocationResponse>> {
-        const response = await this.storageLocationsRaw(initOverrides);
+    async storageListLocations(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<LocationResponse>> {
+        const response = await this.storageListLocationsRaw(initOverrides);
         return await response.value();
     }
 
     /**
-     * Move a package to a permanent storage location
-     * move storage
+     * Move an AIP to a permanent storage location
+     * move_aip storage
      */
-    async storageMoveRaw(requestParameters: StorageMoveRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
-        if (requestParameters.aipId === null || requestParameters.aipId === undefined) {
-            throw new runtime.RequiredError('aipId','Required parameter requestParameters.aipId was null or undefined when calling storageMove.');
+    async storageMoveAipRaw(requestParameters: StorageMoveAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
+            throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling storageMoveAip.');
         }
 
-        if (requestParameters.confirmRequestBody === null || requestParameters.confirmRequestBody === undefined) {
-            throw new runtime.RequiredError('confirmRequestBody','Required parameter requestParameters.confirmRequestBody was null or undefined when calling storageMove.');
+        if (requestParameters.confirmSipRequestBody === null || requestParameters.confirmSipRequestBody === undefined) {
+            throw new runtime.RequiredError('confirmSipRequestBody','Required parameter requestParameters.confirmSipRequestBody was null or undefined when calling storageMoveAip.');
         }
 
         const queryParameters: any = {};
@@ -541,31 +538,31 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
             }
         }
         const response = await this.request({
-            path: `/storage/package/{aip_id}/store`.replace(`{${"aip_id"}}`, encodeURIComponent(String(requestParameters.aipId))),
+            path: `/storage/aips/{uuid}/store`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: ConfirmRequestBodyToJSON(requestParameters.confirmRequestBody),
+            body: ConfirmSipRequestBodyToJSON(requestParameters.confirmSipRequestBody),
         }, initOverrides);
 
         return new runtime.VoidApiResponse(response);
     }
 
     /**
-     * Move a package to a permanent storage location
-     * move storage
+     * Move an AIP to a permanent storage location
+     * move_aip storage
      */
-    async storageMove(requestParameters: StorageMoveRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.storageMoveRaw(requestParameters, initOverrides);
+    async storageMoveAip(requestParameters: StorageMoveAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.storageMoveAipRaw(requestParameters, initOverrides);
     }
 
     /**
-     * Retrieve the status of a permanent storage location move of the package
-     * move_status storage
+     * Retrieve the status of a permanent storage location move of the AIP
+     * move_aip_status storage
      */
-    async storageMoveStatusRaw(requestParameters: StorageMoveStatusRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<MoveStatusResult>> {
-        if (requestParameters.aipId === null || requestParameters.aipId === undefined) {
-            throw new runtime.RequiredError('aipId','Required parameter requestParameters.aipId was null or undefined when calling storageMoveStatus.');
+    async storageMoveAipStatusRaw(requestParameters: StorageMoveAipStatusRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<MoveStatusResult>> {
+        if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
+            throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling storageMoveAipStatus.');
         }
 
         const queryParameters: any = {};
@@ -581,7 +578,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
             }
         }
         const response = await this.request({
-            path: `/storage/package/{aip_id}/store`.replace(`{${"aip_id"}}`, encodeURIComponent(String(requestParameters.aipId))),
+            path: `/storage/aips/{uuid}/store`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -591,21 +588,21 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
     }
 
     /**
-     * Retrieve the status of a permanent storage location move of the package
-     * move_status storage
+     * Retrieve the status of a permanent storage location move of the AIP
+     * move_aip_status storage
      */
-    async storageMoveStatus(requestParameters: StorageMoveStatusRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MoveStatusResult> {
-        const response = await this.storageMoveStatusRaw(requestParameters, initOverrides);
+    async storageMoveAipStatus(requestParameters: StorageMoveAipStatusRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MoveStatusResult> {
+        const response = await this.storageMoveAipStatusRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
-     * Reject a package
-     * reject storage
+     * Reject an AIP
+     * reject_aip storage
      */
-    async storageRejectRaw(requestParameters: StorageRejectRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
-        if (requestParameters.aipId === null || requestParameters.aipId === undefined) {
-            throw new runtime.RequiredError('aipId','Required parameter requestParameters.aipId was null or undefined when calling storageReject.');
+    async storageRejectAipRaw(requestParameters: StorageRejectAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
+            throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling storageRejectAip.');
         }
 
         const queryParameters: any = {};
@@ -621,7 +618,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
             }
         }
         const response = await this.request({
-            path: `/storage/package/{aip_id}/reject`.replace(`{${"aip_id"}}`, encodeURIComponent(String(requestParameters.aipId))),
+            path: `/storage/aips/{uuid}/reject`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
@@ -631,20 +628,20 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
     }
 
     /**
-     * Reject a package
-     * reject storage
+     * Reject an AIP
+     * reject_aip storage
      */
-    async storageReject(requestParameters: StorageRejectRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.storageRejectRaw(requestParameters, initOverrides);
+    async storageRejectAip(requestParameters: StorageRejectAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.storageRejectAipRaw(requestParameters, initOverrides);
     }
 
     /**
-     * Show package by AIPID
-     * show storage
+     * Show AIP by AIPID
+     * show_aip storage
      */
-    async storageShowRaw(requestParameters: StorageShowRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Package>> {
-        if (requestParameters.aipId === null || requestParameters.aipId === undefined) {
-            throw new runtime.RequiredError('aipId','Required parameter requestParameters.aipId was null or undefined when calling storageShow.');
+    async storageShowAipRaw(requestParameters: StorageShowAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AIP>> {
+        if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
+            throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling storageShowAip.');
         }
 
         const queryParameters: any = {};
@@ -660,21 +657,21 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
             }
         }
         const response = await this.request({
-            path: `/storage/package/{aip_id}`.replace(`{${"aip_id"}}`, encodeURIComponent(String(requestParameters.aipId))),
+            path: `/storage/aips/{uuid}`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => PackageFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => AIPFromJSON(jsonValue));
     }
 
     /**
-     * Show package by AIPID
-     * show storage
+     * Show AIP by AIPID
+     * show_aip storage
      */
-    async storageShow(requestParameters: StorageShowRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Package> {
-        const response = await this.storageShowRaw(requestParameters, initOverrides);
+    async storageShowAip(requestParameters: StorageShowAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AIP> {
+        const response = await this.storageShowAipRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
@@ -700,7 +697,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
             }
         }
         const response = await this.request({
-            path: `/storage/location/{uuid}`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
+            path: `/storage/locations/{uuid}`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -719,16 +716,16 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
     }
 
     /**
-     * Start the submission of a package
-     * submit storage
+     * Start the submission of an AIP
+     * submit_aip storage
      */
-    async storageSubmitRaw(requestParameters: StorageSubmitRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SubmitResult>> {
-        if (requestParameters.aipId === null || requestParameters.aipId === undefined) {
-            throw new runtime.RequiredError('aipId','Required parameter requestParameters.aipId was null or undefined when calling storageSubmit.');
+    async storageSubmitAipRaw(requestParameters: StorageSubmitAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SubmitAIPResult>> {
+        if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
+            throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling storageSubmitAip.');
         }
 
-        if (requestParameters.submitRequestBody === null || requestParameters.submitRequestBody === undefined) {
-            throw new runtime.RequiredError('submitRequestBody','Required parameter requestParameters.submitRequestBody was null or undefined when calling storageSubmit.');
+        if (requestParameters.submitAipRequestBody === null || requestParameters.submitAipRequestBody === undefined) {
+            throw new runtime.RequiredError('submitAipRequestBody','Required parameter requestParameters.submitAipRequestBody was null or undefined when calling storageSubmitAip.');
         }
 
         const queryParameters: any = {};
@@ -746,32 +743,32 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
             }
         }
         const response = await this.request({
-            path: `/storage/package/{aip_id}/submit`.replace(`{${"aip_id"}}`, encodeURIComponent(String(requestParameters.aipId))),
+            path: `/storage/aips/{uuid}/submit`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: SubmitRequestBodyToJSON(requestParameters.submitRequestBody),
+            body: SubmitAipRequestBodyToJSON(requestParameters.submitAipRequestBody),
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => SubmitResultFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => SubmitAIPResultFromJSON(jsonValue));
     }
 
     /**
-     * Start the submission of a package
-     * submit storage
+     * Start the submission of an AIP
+     * submit_aip storage
      */
-    async storageSubmit(requestParameters: StorageSubmitRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SubmitResult> {
-        const response = await this.storageSubmitRaw(requestParameters, initOverrides);
+    async storageSubmitAip(requestParameters: StorageSubmitAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SubmitAIPResult> {
+        const response = await this.storageSubmitAipRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
-     * Signal that a package submission is complete
-     * update storage
+     * Signal that an AIP submission is complete
+     * update_aip storage
      */
-    async storageUpdateRaw(requestParameters: StorageUpdateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
-        if (requestParameters.aipId === null || requestParameters.aipId === undefined) {
-            throw new runtime.RequiredError('aipId','Required parameter requestParameters.aipId was null or undefined when calling storageUpdate.');
+    async storageUpdateAipRaw(requestParameters: StorageUpdateAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
+            throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling storageUpdateAip.');
         }
 
         const queryParameters: any = {};
@@ -787,7 +784,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
             }
         }
         const response = await this.request({
-            path: `/storage/package/{aip_id}/update`.replace(`{${"aip_id"}}`, encodeURIComponent(String(requestParameters.aipId))),
+            path: `/storage/aips/{uuid}/update`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
@@ -797,11 +794,11 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
     }
 
     /**
-     * Signal that a package submission is complete
-     * update storage
+     * Signal that an AIP submission is complete
+     * update_aip storage
      */
-    async storageUpdate(requestParameters: StorageUpdateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.storageUpdateRaw(requestParameters, initOverrides);
+    async storageUpdateAip(requestParameters: StorageUpdateAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.storageUpdateAipRaw(requestParameters, initOverrides);
     }
 
 }

@@ -18,7 +18,7 @@ import (
 
 	"github.com/artefactual-sdps/enduro/internal/am"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
-	fake_package "github.com/artefactual-sdps/enduro/internal/package_/fake"
+	ingest_fake "github.com/artefactual-sdps/enduro/internal/ingest/fake"
 )
 
 func TestPollIngestActivity(t *testing.T) {
@@ -78,7 +78,7 @@ func TestPollIngestActivity(t *testing.T) {
 		statusCode   int
 		ingRec       func(*amclienttest.MockIngestServiceMockRecorder, int)
 		jobRec       func(*amclienttest.MockJobsServiceMockRecorder)
-		pkgRec       func(*fake_package.MockServiceMockRecorder)
+		ingestRec    func(*ingest_fake.MockServiceMockRecorder)
 		want         am.PollIngestActivityResult
 		wantErr      string
 		retryableErr bool
@@ -152,7 +152,7 @@ func TestPollIngestActivity(t *testing.T) {
 					nil,
 				)
 			},
-			pkgRec: func(m *fake_package.MockServiceMockRecorder) {
+			ingestRec: func(m *ingest_fake.MockServiceMockRecorder) {
 				tasks := make([]*datatypes.PreservationTask, len(jobs))
 				for i, job := range jobs {
 					pt := am.ConvertJobToPreservationTask(job)
@@ -255,9 +255,9 @@ func TestPollIngestActivity(t *testing.T) {
 				tt.jobRec(jobSvc.EXPECT())
 			}
 
-			pkgSvc := fake_package.NewMockService(ctrl)
-			if tt.pkgRec != nil {
-				tt.pkgRec(pkgSvc.EXPECT())
+			ingestsvc := ingest_fake.NewMockService(ctrl)
+			if tt.ingestRec != nil {
+				tt.ingestRec(ingestsvc.EXPECT())
 			}
 
 			env.RegisterActivityWithOptions(
@@ -266,7 +266,7 @@ func TestPollIngestActivity(t *testing.T) {
 					clock,
 					ingSvc,
 					jobSvc,
-					pkgSvc,
+					ingestsvc,
 				).Execute,
 				temporalsdk_activity.RegisterOptions{
 					Name: am.PollIngestActivityName,

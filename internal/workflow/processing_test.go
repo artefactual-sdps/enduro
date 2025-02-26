@@ -37,8 +37,8 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/config"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
-	"github.com/artefactual-sdps/enduro/internal/package_"
-	packagefake "github.com/artefactual-sdps/enduro/internal/package_/fake"
+	"github.com/artefactual-sdps/enduro/internal/ingest"
+	ingest_fake "github.com/artefactual-sdps/enduro/internal/ingest/fake"
 	"github.com/artefactual-sdps/enduro/internal/poststorage"
 	"github.com/artefactual-sdps/enduro/internal/premis"
 	"github.com/artefactual-sdps/enduro/internal/preprocessing"
@@ -61,7 +61,7 @@ var (
 	locationID     = uuid.MustParse("f2cc963f-c14d-4eaa-b950-bd207189a1f1")
 	amssLocationID = uuid.MustParse("e0ed8b2a-8ae2-4546-b5d8-f0090919df04")
 	transferID     = uuid.MustParse("65233405-771e-4f7e-b2d9-b08439570ba2")
-	sipID          = uuid.MustParse("9e8161cc-2815-4d6f-8a75-f003c41b257b")
+	aipUUID        = uuid.MustParse("9e8161cc-2815-4d6f-8a75-f003c41b257b")
 
 	startTime time.Time = time.Date(2024, 7, 9, 16, 55, 13, 50, time.UTC)
 )
@@ -114,7 +114,7 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(cfg config.Configuration
 	s.env.SetStartTime(startTime)
 
 	ctrl := gomock.NewController(s.T())
-	pkgsvc := packagefake.NewMockService(ctrl)
+	ingestsvc := ingest_fake.NewMockService(ctrl)
 	wsvc := watcherfake.NewMockService(ctrl)
 	rng := rand.New(rand.NewSource(1)) // #nosec: G404
 
@@ -135,15 +135,15 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(cfg config.Configuration
 		temporalsdk_activity.RegisterOptions{Name: bagvalidate.Name},
 	)
 	s.env.RegisterActivityWithOptions(
-		activities.NewClassifyPackageActivity().Execute,
-		temporalsdk_activity.RegisterOptions{Name: activities.ClassifyPackageActivityName},
+		activities.NewClassifySIPActivity().Execute,
+		temporalsdk_activity.RegisterOptions{Name: activities.ClassifySIPActivityName},
 	)
 
 	// Set up AM taskqueue.
 	if cfg.Preservation.TaskQueue == temporal.AmWorkerTaskQueue {
-		s.setupAMWorkflowTest(&cfg.AM, ctrl, pkgsvc)
+		s.setupAMWorkflowTest(&cfg.AM, ctrl, ingestsvc)
 	} else {
-		s.setupA3mWorkflowTest(ctrl, pkgsvc)
+		s.setupA3mWorkflowTest(ctrl, ingestsvc)
 	}
 
 	s.env.RegisterActivityWithOptions(
@@ -180,13 +180,13 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(cfg config.Configuration
 		temporalsdk_workflow.RegisterOptions{Name: "poststorage_2"},
 	)
 
-	s.workflow = NewProcessingWorkflow(cfg, rng, pkgsvc, wsvc)
+	s.workflow = NewProcessingWorkflow(cfg, rng, ingestsvc, wsvc)
 }
 
 func (s *ProcessingWorkflowTestSuite) setupAMWorkflowTest(
 	cfg *am.Config,
 	ctrl *gomock.Controller,
-	pkgsvc package_.Service,
+	ingestsvc ingest.Service,
 ) {
 	clock := clockwork.NewFakeClock()
 	sftpc := sftp_fake.NewMockClient(ctrl)
@@ -209,7 +209,7 @@ func (s *ProcessingWorkflowTestSuite) setupAMWorkflowTest(
 			clock,
 			amclienttest.NewMockTransferService(ctrl),
 			amclienttest.NewMockJobsService(ctrl),
-			pkgsvc,
+			ingestsvc,
 		).Execute,
 		temporalsdk_activity.RegisterOptions{Name: am.PollTransferActivityName},
 	)
@@ -219,13 +219,13 @@ func (s *ProcessingWorkflowTestSuite) setupAMWorkflowTest(
 			clock,
 			amclienttest.NewMockIngestService(ctrl),
 			amclienttest.NewMockJobsService(ctrl),
-			pkgsvc,
+			ingestsvc,
 		).Execute,
 		temporalsdk_activity.RegisterOptions{Name: am.PollIngestActivityName},
 	)
 	s.env.RegisterActivityWithOptions(
-		activities.NewCreateStoragePackageActivity(nil).Execute,
-		temporalsdk_activity.RegisterOptions{Name: activities.CreateStoragePackageActivityName},
+		activities.NewCreateStorageAIPActivity(nil).Execute,
+		temporalsdk_activity.RegisterOptions{Name: activities.CreateStorageAIPActivityName},
 	)
 	s.env.RegisterActivityWithOptions(
 		am.NewDeleteTransferActivity(sftpc).Execute,
@@ -237,7 +237,7 @@ func (s *ProcessingWorkflowTestSuite) setupAMWorkflowTest(
 
 func (s *ProcessingWorkflowTestSuite) setupA3mWorkflowTest(
 	ctrl *gomock.Controller,
-	pkgsvc package_.Service,
+	ingestsvc ingest.Service,
 ) {
 	tsvc := a3mfake.NewMockTransferServiceClient(ctrl)
 
@@ -246,7 +246,7 @@ func (s *ProcessingWorkflowTestSuite) setupA3mWorkflowTest(
 		temporalsdk_activity.RegisterOptions{Name: activities.BundleActivityName},
 	)
 	s.env.RegisterActivityWithOptions(
-		a3m.NewCreateAIPActivity(noop.Tracer{}, tsvc, &a3m.Config{}, pkgsvc).Execute,
+		a3m.NewCreateAIPActivity(noop.Tracer{}, tsvc, &a3m.Config{}, ingestsvc).Execute,
 		temporalsdk_activity.RegisterOptions{Name: a3m.CreateAIPActivityName},
 	)
 	s.env.RegisterActivityWithOptions(
@@ -262,8 +262,8 @@ func (s *ProcessingWorkflowTestSuite) setupA3mWorkflowTest(
 		temporalsdk_activity.RegisterOptions{Name: activities.PollMoveToPermanentStorageActivityName},
 	)
 	s.env.RegisterActivityWithOptions(
-		activities.NewRejectPackageActivity(nil).Execute,
-		temporalsdk_activity.RegisterOptions{Name: activities.RejectPackageActivityName},
+		activities.NewRejectSIPActivity(nil).Execute,
+		temporalsdk_activity.RegisterOptions{Name: activities.RejectSIPActivityName},
 	)
 }
 
@@ -275,7 +275,7 @@ func TestProcessingWorkflow(t *testing.T) {
 	suite.Run(t, new(ProcessingWorkflowTestSuite))
 }
 
-func (s *ProcessingWorkflowTestSuite) TestPackageConfirmation() {
+func (s *ProcessingWorkflowTestSuite) TestConfirmation() {
 	cfg := config.Configuration{
 		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
 		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
@@ -289,7 +289,7 @@ func (s *ProcessingWorkflowTestSuite) TestPackageConfirmation() {
 	}
 	s.SetupWorkflowTest(cfg)
 
-	pkgID := 1
+	sipID := 1
 	paID := 1
 	valPREMISTaskID := 102
 	ctx := mock.AnythingOfType("*context.valueCtx")
@@ -297,22 +297,22 @@ func (s *ProcessingWorkflowTestSuite) TestPackageConfirmation() {
 	key := "transfer.zip"
 	watcherName := "watcher"
 	retentionPeriod := 1 * time.Second
-	pkgsvc := s.workflow.pkgsvc
+	ingestsvc := s.workflow.ingestsvc
 
-	// Signal handler that mimics package confirmation
+	// Signal handler that mimics SIP/AIP confirmation
 	s.env.RegisterDelayedCallback(
 		func() {
 			s.env.SignalWorkflow(
-				package_.ReviewPerformedSignalName,
-				package_.ReviewPerformedSignal{Accepted: true, LocationID: &locationID},
+				ingest.ReviewPerformedSignalName,
+				ingest.ReviewPerformedSignal{Accepted: true, LocationID: &locationID},
 			)
 		},
 		0,
 	)
 
 	// Activity mocks/assertions sequence
-	s.env.OnActivity(createPackageLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
-		Return(pkgID, nil)
+	s.env.OnActivity(createSIPLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Return(sipID, nil)
 	s.env.OnActivity(setStatusInProgressLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, nil)
 	s.env.OnActivity(
@@ -324,7 +324,7 @@ func (s *ProcessingWorkflowTestSuite) TestPackageConfirmation() {
 			Type:       enums.PreservationActionTypeCreateAndReviewAip,
 			Status:     enums.PreservationActionStatusInProgress,
 			StartedAt:  startTime,
-			PackageID:  1,
+			SIPID:      1,
 		},
 	).Return(paID, nil)
 
@@ -355,8 +355,8 @@ func (s *ProcessingWorkflowTestSuite) TestPackageConfirmation() {
 		createPreservationTaskLocalActivity,
 		ctx,
 		&createPreservationTaskLocalActivityParams{
-			PkgSvc: pkgsvc,
-			RNG:    s.workflow.rng,
+			Ingestsvc: ingestsvc,
+			RNG:       s.workflow.rng,
 			PreservationTask: datatypes.PreservationTask{
 				Name:   "Validate PREMIS",
 				Status: enums.PreservationTaskStatusInProgress,
@@ -383,7 +383,7 @@ func (s *ProcessingWorkflowTestSuite) TestPackageConfirmation() {
 	s.env.OnActivity(
 		completePreservationTaskLocalActivity,
 		ctx,
-		pkgsvc,
+		ingestsvc,
 		&completePreservationTaskLocalActivityParams{
 			ID:          valPREMISTaskID,
 			Status:      enums.PreservationTaskStatusDone,
@@ -393,7 +393,7 @@ func (s *ProcessingWorkflowTestSuite) TestPackageConfirmation() {
 	).Return(&completePreservationTaskLocalActivityResult{}, nil)
 
 	s.env.OnActivity(a3m.CreateAIPActivityName, mock.Anything, mock.Anything).Return(nil, nil)
-	s.env.OnActivity(updatePackageLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+	s.env.OnActivity(updateSIPLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, nil)
 	s.env.OnActivity(createPreservationTaskLocalActivity, mock.Anything, mock.Anything, mock.Anything).
 		Return(0, nil)
@@ -408,7 +408,7 @@ func (s *ProcessingWorkflowTestSuite) TestPackageConfirmation() {
 	s.env.OnActivity(activities.PollMoveToPermanentStorageActivityName, mock.Anything, mock.Anything).Return(nil, nil)
 	s.env.OnActivity(setLocationIDLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, nil)
-	s.env.OnActivity(completePreservationActionLocalActivity, ctx, pkgsvc, mock.AnythingOfType("*workflow.completePreservationActionLocalActivityParams")).
+	s.env.OnActivity(completePreservationActionLocalActivity, ctx, ingestsvc, mock.AnythingOfType("*workflow.completePreservationActionLocalActivityParams")).
 		Return(nil, nil).
 		Once()
 	s.env.OnActivity(
@@ -417,14 +417,14 @@ func (s *ProcessingWorkflowTestSuite) TestPackageConfirmation() {
 		&removepaths.Params{Paths: []string{tempPath, transferPath}},
 	).Return(&removepaths.Result{}, nil)
 	s.env.OnActivity(activities.DeleteOriginalActivityName, sessionCtx, watcherName, key).Return(nil, nil).Once()
-	s.env.OnActivity(updatePackageLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+	s.env.OnActivity(updateSIPLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, nil)
 	s.env.OnActivity(completePreservationActionLocalActivity, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, nil)
 
 	s.env.ExecuteWorkflow(
 		s.workflow.Execute,
-		&package_.ProcessingWorkflowRequest{
+		&ingest.ProcessingWorkflowRequest{
 			Key:             "transfer.zip",
 			WatcherName:     watcherName,
 			RetentionPeriod: &retentionPeriod,
@@ -446,7 +446,7 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 	}
 	s.SetupWorkflowTest(cfg)
 
-	pkgID := 1
+	sipID := 1
 	paID := 1
 	valBagTaskID := 101
 	moveAIPTaskID := 103
@@ -455,34 +455,34 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 	retentionPeriod := 1 * time.Second
 	ctx := mock.AnythingOfType("*context.valueCtx")
 	sessionCtx := mock.AnythingOfType("*context.timerCtx")
-	pkgsvc := s.workflow.pkgsvc
+	ingestsvc := s.workflow.ingestsvc
 	rng := rand.New(rand.NewSource(1)) // #nosec: G404
 
 	// Activity mocks/assertions sequence
 	s.env.OnActivity(
-		createPackageLocalActivity,
+		createSIPLocalActivity,
 		ctx,
-		pkgsvc,
-		&createPackageLocalActivityParams{Key: key, Status: enums.SIPStatusQueued},
-	).Return(pkgID, nil).Once()
+		ingestsvc,
+		&createSIPLocalActivityParams{Key: key, Status: enums.SIPStatusQueued},
+	).Return(sipID, nil).Once()
 	s.env.OnActivity(
 		setStatusInProgressLocalActivity,
 		ctx,
-		pkgsvc,
-		pkgID,
+		ingestsvc,
+		sipID,
 		mock.AnythingOfType("time.Time"),
 	).Return(nil, nil)
 
 	s.env.OnActivity(
 		createPreservationActionLocalActivity,
 		ctx,
-		pkgsvc,
+		ingestsvc,
 		&createPreservationActionLocalActivityParams{
 			WorkflowID: "default-test-workflow-id",
 			Type:       enums.PreservationActionTypeCreateAip,
 			Status:     enums.PreservationActionStatusInProgress,
 			StartedAt:  startTime,
-			PackageID:  1,
+			SIPID:      1,
 		},
 	).Return(paID, nil)
 
@@ -499,19 +499,19 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 	)
 
 	s.env.OnActivity(
-		activities.ClassifyPackageActivityName,
+		activities.ClassifySIPActivityName,
 		sessionCtx,
-		activities.ClassifyPackageActivityParams{Path: extractPath},
+		activities.ClassifySIPActivityParams{Path: extractPath},
 	).Return(
-		&activities.ClassifyPackageActivityResult{Type: enums.SIPTypeBagIt}, nil,
+		&activities.ClassifySIPActivityResult{Type: enums.SIPTypeBagIt}, nil,
 	)
 
 	s.env.OnActivity(
 		createPreservationTaskLocalActivity,
 		ctx,
 		&createPreservationTaskLocalActivityParams{
-			PkgSvc: pkgsvc,
-			RNG:    rng,
+			Ingestsvc: ingestsvc,
+			RNG:       rng,
 			PreservationTask: datatypes.PreservationTask{
 				Name:   "Validate Bag",
 				Status: enums.PreservationTaskStatusInProgress,
@@ -536,7 +536,7 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 	s.env.OnActivity(
 		completePreservationTaskLocalActivity,
 		ctx,
-		pkgsvc,
+		ingestsvc,
 		&completePreservationTaskLocalActivityParams{
 			ID:          valBagTaskID,
 			Status:      enums.PreservationTaskStatusDone,
@@ -559,7 +559,7 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 	s.env.OnActivity(a3m.CreateAIPActivityName, sessionCtx, mock.AnythingOfType("*a3m.CreateAIPActivityParams")).
 		Return(nil, nil).
 		Once()
-	s.env.OnActivity(updatePackageLocalActivity, ctx, pkgsvc, mock.AnythingOfType("*workflow.updatePackageLocalActivityParams")).
+	s.env.OnActivity(updateSIPLocalActivity, ctx, ingestsvc, mock.AnythingOfType("*workflow.updateSIPLocalActivityParams")).
 		Return(nil, nil).
 		Times(2)
 
@@ -567,8 +567,8 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 		createPreservationTaskLocalActivity,
 		ctx,
 		&createPreservationTaskLocalActivityParams{
-			PkgSvc: pkgsvc,
-			RNG:    rng,
+			Ingestsvc: ingestsvc,
+			RNG:       rng,
 			PreservationTask: datatypes.PreservationTask{
 				Name:                 "Move AIP",
 				Status:               enums.PreservationTaskStatusInProgress,
@@ -592,7 +592,7 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 	s.env.OnActivity(
 		completePreservationTaskLocalActivity,
 		ctx,
-		pkgsvc,
+		ingestsvc,
 		&completePreservationTaskLocalActivityParams{
 			ID:          moveAIPTaskID,
 			Status:      enums.PreservationTaskStatusDone,
@@ -607,8 +607,8 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 	s.env.OnActivity(activities.PollMoveToPermanentStorageActivityName, sessionCtx, mock.AnythingOfType("*activities.PollMoveToPermanentStorageActivityParams")).
 		Return(nil, nil).
 		Once()
-	s.env.OnActivity(setLocationIDLocalActivity, ctx, pkgsvc, pkgID, locationID).Return(nil, nil).Once()
-	s.env.OnActivity(completePreservationActionLocalActivity, ctx, pkgsvc, mock.AnythingOfType("*workflow.completePreservationActionLocalActivityParams")).
+	s.env.OnActivity(setLocationIDLocalActivity, ctx, ingestsvc, sipID, locationID).Return(nil, nil).Once()
+	s.env.OnActivity(completePreservationActionLocalActivity, ctx, ingestsvc, mock.AnythingOfType("*workflow.completePreservationActionLocalActivityParams")).
 		Return(nil, nil).
 		Once()
 	s.env.OnActivity(
@@ -620,7 +620,7 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 
 	s.env.ExecuteWorkflow(
 		s.workflow.Execute,
-		&package_.ProcessingWorkflowRequest{
+		&ingest.ProcessingWorkflowRequest{
 			Key:                        key,
 			WatcherName:                watcherName,
 			RetentionPeriod:            &retentionPeriod,
@@ -634,7 +634,7 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 }
 
 func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
-	pkgID := 1
+	sipID := 1
 	paID := 1
 	valPREMISTaskID := 102
 	watcherName := "watcher"
@@ -655,19 +655,19 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	}
 	s.SetupWorkflowTest(cfg)
 
-	pkgsvc := s.workflow.pkgsvc
+	ingestsvc := s.workflow.ingestsvc
 
 	// Activity mocks/assertions sequence
-	s.env.OnActivity(createPackageLocalActivity, ctx,
-		pkgsvc,
-		&createPackageLocalActivityParams{Key: key, Status: enums.SIPStatusQueued},
-	).Return(pkgID, nil)
+	s.env.OnActivity(createSIPLocalActivity, ctx,
+		ingestsvc,
+		&createSIPLocalActivityParams{Key: key, Status: enums.SIPStatusQueued},
+	).Return(sipID, nil)
 
-	s.env.OnActivity(setStatusInProgressLocalActivity, ctx, pkgsvc, pkgID, mock.AnythingOfType("time.Time")).
+	s.env.OnActivity(setStatusInProgressLocalActivity, ctx, ingestsvc, sipID, mock.AnythingOfType("time.Time")).
 		Return(nil, nil)
 
 	s.env.OnActivity(createPreservationActionLocalActivity, ctx,
-		pkgsvc, mock.AnythingOfType("*workflow.createPreservationActionLocalActivityParams"),
+		ingestsvc, mock.AnythingOfType("*workflow.createPreservationActionLocalActivityParams"),
 	).Return(paID, nil)
 
 	s.env.OnActivity(activities.DownloadActivityName, sessionCtx,
@@ -683,11 +683,11 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	)
 
 	s.env.OnActivity(
-		activities.ClassifyPackageActivityName,
+		activities.ClassifySIPActivityName,
 		sessionCtx,
-		activities.ClassifyPackageActivityParams{Path: extractPath},
+		activities.ClassifySIPActivityParams{Path: extractPath},
 	).Return(
-		&activities.ClassifyPackageActivityResult{Type: enums.SIPTypeUnknown}, nil,
+		&activities.ClassifySIPActivityResult{Type: enums.SIPTypeUnknown}, nil,
 	)
 
 	// Archivematica specific activities.
@@ -701,8 +701,8 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 		createPreservationTaskLocalActivity,
 		ctx,
 		&createPreservationTaskLocalActivityParams{
-			PkgSvc: pkgsvc,
-			RNG:    s.workflow.rng,
+			Ingestsvc: ingestsvc,
+			RNG:       s.workflow.rng,
 			PreservationTask: datatypes.PreservationTask{
 				Name:   "Validate PREMIS",
 				Status: enums.PreservationTaskStatusInProgress,
@@ -729,7 +729,7 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	s.env.OnActivity(
 		completePreservationTaskLocalActivity,
 		ctx,
-		pkgsvc,
+		ingestsvc,
 		&completePreservationTaskLocalActivityParams{
 			ID:          valPREMISTaskID,
 			Status:      enums.PreservationTaskStatusDone,
@@ -762,30 +762,30 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	s.env.OnActivity(am.PollTransferActivityName, sessionCtx,
 		&am.PollTransferActivityParams{TransferID: transferID.String(), PresActionID: paID},
 	).Return(
-		&am.PollTransferActivityResult{SIPID: sipID.String()}, nil,
+		&am.PollTransferActivityResult{SIPID: aipUUID.String()}, nil,
 	)
 
 	s.env.OnActivity(am.PollIngestActivityName, sessionCtx,
-		&am.PollIngestActivityParams{SIPID: sipID.String(), PresActionID: paID},
+		&am.PollIngestActivityParams{SIPID: aipUUID.String(), PresActionID: paID},
 	).Return(
 		&am.PollIngestActivityResult{Status: "COMPLETE"}, nil,
 	)
 
 	s.env.OnActivity(setLocationIDLocalActivity, ctx,
-		pkgsvc,
-		pkgID,
+		ingestsvc,
+		sipID,
 		amssLocationID,
 	).Return(&setLocationIDLocalActivityResult{}, nil)
 
-	s.env.OnActivity(activities.CreateStoragePackageActivityName, sessionCtx,
-		&activities.CreateStoragePackageActivityParams{
+	s.env.OnActivity(activities.CreateStorageAIPActivityName, sessionCtx,
+		&activities.CreateStorageAIPActivityParams{
 			Name:       key,
-			AIPID:      sipID.String(),
-			ObjectKey:  sipID.String(),
+			AIPID:      aipUUID.String(),
+			ObjectKey:  aipUUID.String(),
 			Status:     "stored",
 			LocationID: &amssLocationID,
 		},
-	).Return(&activities.CreateStoragePackageActivityResult{}, nil)
+	).Return(&activities.CreateStorageAIPActivityResult{}, nil)
 
 	s.env.OnActivity(am.DeleteTransferActivityName, sessionCtx,
 		&am.DeleteTransferActivityParams{Destination: "transfer.zip"},
@@ -793,15 +793,15 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 
 	// Post-preservation activities.
 	s.env.OnActivity(
-		updatePackageLocalActivity,
+		updateSIPLocalActivity,
 		ctx,
-		pkgsvc,
-		mock.AnythingOfType("*workflow.updatePackageLocalActivityParams"),
+		ingestsvc,
+		mock.AnythingOfType("*workflow.updateSIPLocalActivityParams"),
 	).Return(nil, nil)
 	s.env.OnActivity(
 		completePreservationActionLocalActivity,
 		ctx,
-		pkgsvc,
+		ingestsvc,
 		mock.AnythingOfType("*workflow.completePreservationActionLocalActivityParams"),
 	).Return(nil, nil)
 	s.env.OnActivity(
@@ -818,7 +818,7 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 
 	s.env.ExecuteWorkflow(
 		s.workflow.Execute,
-		&package_.ProcessingWorkflowRequest{
+		&ingest.ProcessingWorkflowRequest{
 			WatcherName:                watcherName,
 			RetentionPeriod:            &retentionPeriod,
 			AutoApproveAIP:             true,
@@ -832,7 +832,7 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	s.NoError(s.env.GetWorkflowResult(nil))
 }
 
-func (s *ProcessingWorkflowTestSuite) TestPackageRejection() {
+func (s *ProcessingWorkflowTestSuite) TestRejection() {
 	cfg := config.Configuration{
 		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
 		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
@@ -842,26 +842,26 @@ func (s *ProcessingWorkflowTestSuite) TestPackageRejection() {
 	}
 	s.SetupWorkflowTest(cfg)
 
-	pkgID := 1
+	sipID := 1
 	key := "transfer.zip"
 	watcherName := "watcher"
 	retentionPeriod := 1 * time.Second
 	sessionCtx := mock.AnythingOfType("*context.timerCtx")
 
-	// Signal handler that mimics package rejection
+	// Signal handler that mimics SIP/AIP rejection
 	s.env.RegisterDelayedCallback(
 		func() {
 			s.env.SignalWorkflow(
-				package_.ReviewPerformedSignalName,
-				package_.ReviewPerformedSignal{Accepted: false},
+				ingest.ReviewPerformedSignalName,
+				ingest.ReviewPerformedSignal{Accepted: false},
 			)
 		},
 		0,
 	)
 
 	// Activity mocks/assertions sequence
-	s.env.OnActivity(createPackageLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
-		Return(pkgID, nil)
+	s.env.OnActivity(createSIPLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Return(sipID, nil)
 	s.env.OnActivity(setStatusInProgressLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, nil)
 	s.env.OnActivity(createPreservationActionLocalActivity, mock.Anything, mock.Anything, mock.Anything).
@@ -880,11 +880,11 @@ func (s *ProcessingWorkflowTestSuite) TestPackageRejection() {
 	)
 
 	s.env.OnActivity(
-		activities.ClassifyPackageActivityName,
+		activities.ClassifySIPActivityName,
 		sessionCtx,
-		activities.ClassifyPackageActivityParams{Path: extractPath},
+		activities.ClassifySIPActivityParams{Path: extractPath},
 	).Return(
-		&activities.ClassifyPackageActivityResult{Type: enums.SIPTypeUnknown}, nil,
+		&activities.ClassifySIPActivityResult{Type: enums.SIPTypeUnknown}, nil,
 	)
 
 	s.env.OnActivity(activities.BundleActivityName, sessionCtx,
@@ -899,7 +899,7 @@ func (s *ProcessingWorkflowTestSuite) TestPackageRejection() {
 	)
 
 	s.env.OnActivity(a3m.CreateAIPActivityName, mock.Anything, mock.Anything).Return(nil, nil)
-	s.env.OnActivity(updatePackageLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+	s.env.OnActivity(updateSIPLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, nil)
 	s.env.OnActivity(completePreservationTaskLocalActivity, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, nil)
@@ -910,7 +910,7 @@ func (s *ProcessingWorkflowTestSuite) TestPackageRejection() {
 		Return(nil, nil)
 	s.env.OnActivity(createPreservationTaskLocalActivity, mock.Anything, mock.Anything, mock.Anything).
 		Return(0, nil)
-	s.env.OnActivity(activities.RejectPackageActivityName, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+	s.env.OnActivity(activities.RejectSIPActivityName, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, nil)
 	s.env.OnActivity(
 		removepaths.Name,
@@ -918,14 +918,14 @@ func (s *ProcessingWorkflowTestSuite) TestPackageRejection() {
 		&removepaths.Params{Paths: []string{tempPath, transferPath}},
 	).Return(&removepaths.Result{}, nil)
 	s.env.OnActivity(activities.DeleteOriginalActivityName, sessionCtx, watcherName, key).Return(nil, nil).Once()
-	s.env.OnActivity(updatePackageLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+	s.env.OnActivity(updateSIPLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, nil)
 	s.env.OnActivity(completePreservationActionLocalActivity, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, nil)
 
 	s.env.ExecuteWorkflow(
 		s.workflow.Execute,
-		&package_.ProcessingWorkflowRequest{
+		&ingest.ProcessingWorkflowRequest{
 			Key:             "transfer.zip",
 			WatcherName:     watcherName,
 			RetentionPeriod: &retentionPeriod,
@@ -969,7 +969,7 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 	}
 	s.SetupWorkflowTest(cfg)
 
-	pkgID := 1
+	sipID := 1
 	valBagTaskID := 101
 	moveAIPTaskID := 103
 	watcherName := "watcher"
@@ -977,7 +977,7 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 	retentionPeriod := 1 * time.Second
 	ctx := mock.AnythingOfType("*context.valueCtx")
 	sessionCtx := mock.AnythingOfType("*context.timerCtx")
-	pkgsvc := s.workflow.pkgsvc
+	ingestsvc := s.workflow.ingestsvc
 	aipUUID := "56eebd45-5600-4768-a8c2-ec0114555a3d"
 
 	downloadDir := strings.Replace(tempPath, "/tmp/", cfg.Preprocessing.SharedPath, 1)
@@ -985,30 +985,30 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 
 	// Activity mocks/assertions sequence
 	s.env.OnActivity(
-		createPackageLocalActivity,
+		createSIPLocalActivity,
 		ctx,
-		pkgsvc,
-		&createPackageLocalActivityParams{Key: key, Status: enums.SIPStatusQueued},
-	).Return(pkgID, nil)
+		ingestsvc,
+		&createSIPLocalActivityParams{Key: key, Status: enums.SIPStatusQueued},
+	).Return(sipID, nil)
 
 	s.env.OnActivity(
 		setStatusInProgressLocalActivity,
 		ctx,
-		pkgsvc,
-		pkgID,
+		ingestsvc,
+		sipID,
 		startTime,
 	).Return(nil, nil)
 
 	s.env.OnActivity(
 		createPreservationActionLocalActivity,
 		ctx,
-		pkgsvc,
+		ingestsvc,
 		&createPreservationActionLocalActivityParams{
 			WorkflowID: "default-test-workflow-id",
 			Type:       enums.PreservationActionTypeCreateAip,
 			Status:     enums.PreservationActionStatusInProgress,
 			StartedAt:  startTime,
-			PackageID:  1,
+			SIPID:      1,
 		},
 	).Return(1, nil)
 
@@ -1049,7 +1049,7 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 		localact.SavePreprocessingTasksActivity,
 		ctx,
 		localact.SavePreprocessingTasksActivityParams{
-			PkgSvc:               pkgsvc,
+			Ingestsvc:            ingestsvc,
 			RNG:                  rand.New(rand.NewSource(1)), // #nosec: G404
 			PreservationActionID: 1,
 			Tasks: []preprocessing.Task{
@@ -1068,19 +1068,19 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 	)
 
 	s.env.OnActivity(
-		activities.ClassifyPackageActivityName,
+		activities.ClassifySIPActivityName,
 		sessionCtx,
-		activities.ClassifyPackageActivityParams{Path: prepDest},
+		activities.ClassifySIPActivityParams{Path: prepDest},
 	).Return(
-		&activities.ClassifyPackageActivityResult{Type: enums.SIPTypeBagIt}, nil,
+		&activities.ClassifySIPActivityResult{Type: enums.SIPTypeBagIt}, nil,
 	)
 
 	s.env.OnActivity(
 		createPreservationTaskLocalActivity,
 		ctx,
 		&createPreservationTaskLocalActivityParams{
-			PkgSvc: pkgsvc,
-			RNG:    s.workflow.rng,
+			Ingestsvc: ingestsvc,
+			RNG:       s.workflow.rng,
 			PreservationTask: datatypes.PreservationTask{
 				Name:   "Validate Bag",
 				Status: enums.PreservationTaskStatusInProgress,
@@ -1105,7 +1105,7 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 	s.env.OnActivity(
 		completePreservationTaskLocalActivity,
 		ctx,
-		pkgsvc,
+		ingestsvc,
 		&completePreservationTaskLocalActivityParams{
 			ID:          valBagTaskID,
 			Status:      enums.PreservationTaskStatusDone,
@@ -1128,7 +1128,7 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 	s.env.OnActivity(a3m.CreateAIPActivityName, sessionCtx, mock.AnythingOfType("*a3m.CreateAIPActivityParams")).
 		Return(&a3m.CreateAIPActivityResult{UUID: aipUUID}, nil)
 
-	s.env.OnActivity(updatePackageLocalActivity, ctx, pkgsvc, mock.AnythingOfType("*workflow.updatePackageLocalActivityParams")).
+	s.env.OnActivity(updateSIPLocalActivity, ctx, ingestsvc, mock.AnythingOfType("*workflow.updateSIPLocalActivityParams")).
 		Return(nil, nil).
 		Times(2)
 
@@ -1136,8 +1136,8 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 		createPreservationTaskLocalActivity,
 		ctx,
 		&createPreservationTaskLocalActivityParams{
-			PkgSvc: pkgsvc,
-			RNG:    s.workflow.rng,
+			Ingestsvc: ingestsvc,
+			RNG:       s.workflow.rng,
 			PreservationTask: datatypes.PreservationTask{
 				Name:                 "Move AIP",
 				Status:               enums.PreservationTaskStatusInProgress,
@@ -1157,7 +1157,7 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 	s.env.OnActivity(
 		completePreservationTaskLocalActivity,
 		ctx,
-		pkgsvc,
+		ingestsvc,
 		&completePreservationTaskLocalActivityParams{
 			ID:          moveAIPTaskID,
 			Status:      enums.PreservationTaskStatusDone,
@@ -1181,9 +1181,9 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 		Return(nil, nil).
 		Once()
 
-	s.env.OnActivity(setLocationIDLocalActivity, ctx, pkgsvc, pkgID, locationID).Return(nil, nil).Once()
+	s.env.OnActivity(setLocationIDLocalActivity, ctx, ingestsvc, sipID, locationID).Return(nil, nil).Once()
 
-	s.env.OnActivity(completePreservationActionLocalActivity, ctx, pkgsvc, mock.AnythingOfType("*workflow.completePreservationActionLocalActivityParams")).
+	s.env.OnActivity(completePreservationActionLocalActivity, ctx, ingestsvc, mock.AnythingOfType("*workflow.completePreservationActionLocalActivityParams")).
 		Return(nil, nil).
 		Once()
 
@@ -1213,7 +1213,7 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 
 	s.env.ExecuteWorkflow(
 		s.workflow.Execute,
-		&package_.ProcessingWorkflowRequest{
+		&ingest.ProcessingWorkflowRequest{
 			Key:                        key,
 			WatcherName:                watcherName,
 			RetentionPeriod:            &retentionPeriod,
@@ -1244,7 +1244,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedSIP() {
 	}
 	s.SetupWorkflowTest(cfg)
 
-	pkgID := 1
+	sipID := 1
 	watcherName := "watcher"
 	key := "transfer.zip"
 	retentionPeriod := 1 * time.Second
@@ -1252,33 +1252,33 @@ func (s *ProcessingWorkflowTestSuite) TestFailedSIP() {
 	sessionCtx := mock.AnythingOfType("*context.timerCtx")
 	downloadDir := strings.Replace(tempPath, "/tmp/", cfg.Preprocessing.SharedPath, 1)
 	prepDest := strings.Replace(extractPath, "/tmp/", cfg.Preprocessing.SharedPath, 1)
-	pkgsvc := s.workflow.pkgsvc
+	ingestsvc := s.workflow.ingestsvc
 
 	s.env.OnActivity(
-		createPackageLocalActivity,
+		createSIPLocalActivity,
 		ctx,
-		pkgsvc,
-		&createPackageLocalActivityParams{Key: key, Status: enums.SIPStatusQueued},
-	).Return(pkgID, nil)
+		ingestsvc,
+		&createSIPLocalActivityParams{Key: key, Status: enums.SIPStatusQueued},
+	).Return(sipID, nil)
 
 	s.env.OnActivity(
 		setStatusInProgressLocalActivity,
 		ctx,
-		pkgsvc,
-		pkgID,
+		ingestsvc,
+		sipID,
 		startTime,
 	).Return(nil, nil)
 
 	s.env.OnActivity(
 		createPreservationActionLocalActivity,
 		ctx,
-		pkgsvc,
+		ingestsvc,
 		&createPreservationActionLocalActivityParams{
 			WorkflowID: "default-test-workflow-id",
 			Type:       enums.PreservationActionTypeCreateAip,
 			Status:     enums.PreservationActionStatusInProgress,
 			StartedAt:  startTime,
-			PackageID:  1,
+			SIPID:      1,
 		},
 	).Return(1, nil)
 
@@ -1317,16 +1317,16 @@ func (s *ProcessingWorkflowTestSuite) TestFailedSIP() {
 	).Return(&bucketupload.Result{}, nil)
 
 	s.env.OnActivity(
-		updatePackageLocalActivity,
+		updateSIPLocalActivity,
 		ctx,
-		pkgsvc,
-		mock.AnythingOfType("*workflow.updatePackageLocalActivityParams"),
+		ingestsvc,
+		mock.AnythingOfType("*workflow.updateSIPLocalActivityParams"),
 	).Return(nil, nil)
 
 	s.env.OnActivity(
 		completePreservationActionLocalActivity,
 		ctx,
-		pkgsvc,
+		ingestsvc,
 		mock.AnythingOfType("*workflow.completePreservationActionLocalActivityParams"),
 	).Return(nil, nil)
 
@@ -1338,7 +1338,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedSIP() {
 
 	s.env.ExecuteWorkflow(
 		s.workflow.Execute,
-		&package_.ProcessingWorkflowRequest{
+		&ingest.ProcessingWorkflowRequest{
 			Key:                        key,
 			WatcherName:                watcherName,
 			RetentionPeriod:            &retentionPeriod,
@@ -1359,7 +1359,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPA3m() {
 	}
 	s.SetupWorkflowTest(cfg)
 
-	pkgID := 1
+	sipID := 1
 	valBagTaskID := 101
 	watcherName := "watcher"
 	key := "transfer.zip"
@@ -1367,33 +1367,33 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPA3m() {
 	ctx := mock.AnythingOfType("*context.valueCtx")
 	sessionCtx := mock.AnythingOfType("*context.timerCtx")
 	downloadDir := strings.Replace(tempPath, "/tmp/", cfg.Preprocessing.SharedPath, 1)
-	pkgsvc := s.workflow.pkgsvc
+	ingestsvc := s.workflow.ingestsvc
 
 	s.env.OnActivity(
-		createPackageLocalActivity,
+		createSIPLocalActivity,
 		ctx,
-		pkgsvc,
-		&createPackageLocalActivityParams{Key: key, Status: enums.SIPStatusQueued},
-	).Return(pkgID, nil)
+		ingestsvc,
+		&createSIPLocalActivityParams{Key: key, Status: enums.SIPStatusQueued},
+	).Return(sipID, nil)
 
 	s.env.OnActivity(
 		setStatusInProgressLocalActivity,
 		ctx,
-		pkgsvc,
-		pkgID,
+		ingestsvc,
+		sipID,
 		startTime,
 	).Return(nil, nil)
 
 	s.env.OnActivity(
 		createPreservationActionLocalActivity,
 		ctx,
-		pkgsvc,
+		ingestsvc,
 		&createPreservationActionLocalActivityParams{
 			WorkflowID: "default-test-workflow-id",
 			Type:       enums.PreservationActionTypeCreateAip,
 			Status:     enums.PreservationActionStatusInProgress,
 			StartedAt:  startTime,
-			PackageID:  1,
+			SIPID:      1,
 		},
 	).Return(1, nil)
 
@@ -1414,17 +1414,17 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPA3m() {
 	).Return(&archiveextract.Result{ExtractPath: extractPath}, nil)
 
 	s.env.OnActivity(
-		activities.ClassifyPackageActivityName,
+		activities.ClassifySIPActivityName,
 		sessionCtx,
-		activities.ClassifyPackageActivityParams{Path: extractPath},
-	).Return(&activities.ClassifyPackageActivityResult{Type: enums.SIPTypeBagIt}, nil)
+		activities.ClassifySIPActivityParams{Path: extractPath},
+	).Return(&activities.ClassifySIPActivityResult{Type: enums.SIPTypeBagIt}, nil)
 
 	s.env.OnActivity(
 		createPreservationTaskLocalActivity,
 		ctx,
 		&createPreservationTaskLocalActivityParams{
-			PkgSvc: pkgsvc,
-			RNG:    rand.New(rand.NewSource(1)), // #nosec: G404
+			Ingestsvc: ingestsvc,
+			RNG:       rand.New(rand.NewSource(1)), // #nosec: G404
 			PreservationTask: datatypes.PreservationTask{
 				Name:   "Validate Bag",
 				Status: enums.PreservationTaskStatusInProgress,
@@ -1446,7 +1446,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPA3m() {
 	s.env.OnActivity(
 		completePreservationTaskLocalActivity,
 		ctx,
-		pkgsvc,
+		ingestsvc,
 		&completePreservationTaskLocalActivityParams{
 			ID:          valBagTaskID,
 			Status:      enums.PreservationTaskStatusDone,
@@ -1482,16 +1482,16 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPA3m() {
 	).Return(&bucketupload.Result{}, nil)
 
 	s.env.OnActivity(
-		updatePackageLocalActivity,
+		updateSIPLocalActivity,
 		ctx,
-		pkgsvc,
-		mock.AnythingOfType("*workflow.updatePackageLocalActivityParams"),
+		ingestsvc,
+		mock.AnythingOfType("*workflow.updateSIPLocalActivityParams"),
 	).Return(nil, nil)
 
 	s.env.OnActivity(
 		completePreservationActionLocalActivity,
 		ctx,
-		pkgsvc,
+		ingestsvc,
 		mock.AnythingOfType("*workflow.completePreservationActionLocalActivityParams"),
 	).Return(nil, nil)
 
@@ -1503,7 +1503,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPA3m() {
 
 	s.env.ExecuteWorkflow(
 		s.workflow.Execute,
-		&package_.ProcessingWorkflowRequest{
+		&ingest.ProcessingWorkflowRequest{
 			Key:                        key,
 			WatcherName:                watcherName,
 			RetentionPeriod:            &retentionPeriod,
@@ -1524,35 +1524,35 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPAM() {
 	}
 	s.SetupWorkflowTest(cfg)
 
-	pkgID := 1
+	sipID := 1
 	paID := 1
 	watcherName := "watcher"
 	key := "transfer.zip"
 	retentionPeriod := 1 * time.Second
 	ctx := mock.AnythingOfType("*context.valueCtx")
 	sessionCtx := mock.AnythingOfType("*context.timerCtx")
-	pkgsvc := s.workflow.pkgsvc
+	ingestsvc := s.workflow.ingestsvc
 
 	s.env.OnActivity(
-		createPackageLocalActivity,
+		createSIPLocalActivity,
 		ctx,
-		pkgsvc,
-		&createPackageLocalActivityParams{Key: key, Status: enums.SIPStatusQueued},
-	).Return(pkgID, nil)
+		ingestsvc,
+		&createSIPLocalActivityParams{Key: key, Status: enums.SIPStatusQueued},
+	).Return(sipID, nil)
 
-	s.env.OnActivity(setStatusInProgressLocalActivity, ctx, pkgsvc, pkgID, mock.AnythingOfType("time.Time")).
+	s.env.OnActivity(setStatusInProgressLocalActivity, ctx, ingestsvc, sipID, mock.AnythingOfType("time.Time")).
 		Return(nil, nil)
 
 	s.env.OnActivity(
 		createPreservationActionLocalActivity,
 		ctx,
-		pkgsvc,
+		ingestsvc,
 		&createPreservationActionLocalActivityParams{
 			WorkflowID: "default-test-workflow-id",
 			Type:       enums.PreservationActionTypeCreateAip,
 			Status:     enums.PreservationActionStatusInProgress,
 			StartedAt:  startTime,
-			PackageID:  1,
+			SIPID:      1,
 		},
 	).Return(paID, nil)
 
@@ -1569,10 +1569,10 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPAM() {
 	).Return(&archiveextract.Result{ExtractPath: extractPath}, nil)
 
 	s.env.OnActivity(
-		activities.ClassifyPackageActivityName,
+		activities.ClassifySIPActivityName,
 		sessionCtx,
-		activities.ClassifyPackageActivityParams{Path: extractPath},
-	).Return(&activities.ClassifyPackageActivityResult{Type: enums.SIPTypeUnknown}, nil)
+		activities.ClassifySIPActivityParams{Path: extractPath},
+	).Return(&activities.ClassifySIPActivityResult{Type: enums.SIPTypeUnknown}, nil)
 
 	s.env.OnActivity(bagcreate.Name, sessionCtx, &bagcreate.Params{SourcePath: extractPath}).
 		Return(&bagcreate.Result{BagPath: extractPath}, nil)
@@ -1597,16 +1597,16 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPAM() {
 	).Return(&bucketupload.Result{}, nil)
 
 	s.env.OnActivity(
-		updatePackageLocalActivity,
+		updateSIPLocalActivity,
 		ctx,
-		pkgsvc,
-		mock.AnythingOfType("*workflow.updatePackageLocalActivityParams"),
+		ingestsvc,
+		mock.AnythingOfType("*workflow.updateSIPLocalActivityParams"),
 	).Return(nil, nil)
 
 	s.env.OnActivity(
 		completePreservationActionLocalActivity,
 		ctx,
-		pkgsvc,
+		ingestsvc,
 		mock.AnythingOfType("*workflow.completePreservationActionLocalActivityParams"),
 	).Return(nil, nil)
 
@@ -1618,7 +1618,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPAM() {
 
 	s.env.ExecuteWorkflow(
 		s.workflow.Execute,
-		&package_.ProcessingWorkflowRequest{
+		&ingest.ProcessingWorkflowRequest{
 			WatcherName:                watcherName,
 			RetentionPeriod:            &retentionPeriod,
 			AutoApproveAIP:             true,

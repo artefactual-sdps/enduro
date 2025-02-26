@@ -17,7 +17,7 @@ import (
 	"gotest.tools/v3/assert"
 
 	"github.com/artefactual-sdps/enduro/internal/am"
-	fake_package "github.com/artefactual-sdps/enduro/internal/package_/fake"
+	ingest_fake "github.com/artefactual-sdps/enduro/internal/ingest/fake"
 )
 
 var (
@@ -73,7 +73,7 @@ func TestPollTransferActivity(t *testing.T) {
 		params       *am.PollTransferActivityParams
 		tfrRec       func(*amclienttest.MockTransferServiceMockRecorder)
 		jobRec       func(*amclienttest.MockJobsServiceMockRecorder)
-		pkgRec       func(*fake_package.MockServiceMockRecorder)
+		ingestRec    func(*ingest_fake.MockServiceMockRecorder)
 		want         am.PollTransferActivityResult
 		wantErr      string
 		retryableErr bool
@@ -146,7 +146,7 @@ func TestPollTransferActivity(t *testing.T) {
 					nil,
 				)
 			},
-			pkgRec: func(m *fake_package.MockServiceMockRecorder) {
+			ingestRec: func(m *ingest_fake.MockServiceMockRecorder) {
 				// Second poll.
 				for _, job := range jobs {
 					pt := am.ConvertJobToPreservationTask(job)
@@ -285,9 +285,9 @@ func TestPollTransferActivity(t *testing.T) {
 				tt.jobRec(jobSvc.EXPECT())
 			}
 
-			pkgSvc := fake_package.NewMockService(ctrl)
-			if tt.pkgRec != nil {
-				tt.pkgRec(pkgSvc.EXPECT())
+			ingestsvc := ingest_fake.NewMockService(ctrl)
+			if tt.ingestRec != nil {
+				tt.ingestRec(ingestsvc.EXPECT())
 			}
 
 			env.RegisterActivityWithOptions(
@@ -296,7 +296,7 @@ func TestPollTransferActivity(t *testing.T) {
 					clockwork.NewFakeClock(),
 					trfSvc,
 					jobSvc,
-					pkgSvc,
+					ingestsvc,
 				).Execute,
 				temporalsdk_activity.RegisterOptions{
 					Name: am.PollTransferActivityName,

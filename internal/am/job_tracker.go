@@ -9,7 +9,7 @@ import (
 
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
-	"github.com/artefactual-sdps/enduro/internal/package_"
+	"github.com/artefactual-sdps/enduro/internal/ingest"
 )
 
 var keepJobs = map[string]struct{}{
@@ -68,9 +68,9 @@ var jobStatusToPreservationTaskStatus = map[amclient.JobStatus]enums.Preservatio
 
 type JobTracker struct {
 	// clock is a service that provides clock time.
-	clock  clockwork.Clock
-	jobSvc amclient.JobsService
-	pkgSvc package_.Service
+	clock     clockwork.Clock
+	jobSvc    amclient.JobsService
+	ingestsvc ingest.Service
 
 	// presActionID is the PreservationAction ID that will be the parent ID for
 	// all saved preservation tasks.
@@ -84,13 +84,13 @@ type JobTracker struct {
 func NewJobTracker(
 	clock clockwork.Clock,
 	jobSvc amclient.JobsService,
-	pkgSvc package_.Service,
+	ingestsvc ingest.Service,
 	presActionID int,
 ) *JobTracker {
 	return &JobTracker{
-		clock:  clock,
-		jobSvc: jobSvc,
-		pkgSvc: pkgSvc,
+		clock:     clock,
+		jobSvc:    jobSvc,
+		ingestsvc: ingestsvc,
 
 		presActionID: presActionID,
 		savedIDs:     make(map[string]struct{}),
@@ -139,7 +139,7 @@ func (jt *JobTracker) savePreservationTasks(ctx context.Context, jobs []amclient
 		pt := ConvertJobToPreservationTask(job)
 		pt.PreservationActionID = jt.presActionID
 
-		err := jt.pkgSvc.CreatePreservationTask(ctx, &pt)
+		err := jt.ingestsvc.CreatePreservationTask(ctx, &pt)
 		if err != nil {
 			return 0, err
 		}

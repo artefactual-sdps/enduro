@@ -47,7 +47,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/config"
 	"github.com/artefactual-sdps/enduro/internal/db"
 	"github.com/artefactual-sdps/enduro/internal/event"
-	"github.com/artefactual-sdps/enduro/internal/package_"
+	"github.com/artefactual-sdps/enduro/internal/ingest"
 	"github.com/artefactual-sdps/enduro/internal/persistence"
 	entclient "github.com/artefactual-sdps/enduro/internal/persistence/ent/client"
 	entdb "github.com/artefactual-sdps/enduro/internal/persistence/ent/db"
@@ -171,11 +171,11 @@ func main() {
 		)
 	}
 
-	// Set up the package service.
-	var pkgSvc package_.Service
+	// Set up the ingest service.
+	var ingestsvc ingest.Service
 	{
-		pkgSvc = package_.NewService(
-			logger.WithName("package"),
+		ingestsvc = ingest.NewService(
+			logger.WithName("ingest"),
 			enduroDatabase,
 			temporalClient,
 			evsvc,
@@ -261,8 +261,8 @@ func main() {
 			temporalsdk_activity.RegisterOptions{Name: archiveextract.Name},
 		)
 		w.RegisterActivityWithOptions(
-			activities.NewClassifyPackageActivity().Execute,
-			temporalsdk_activity.RegisterOptions{Name: activities.ClassifyPackageActivityName},
+			activities.NewClassifySIPActivity().Execute,
+			temporalsdk_activity.RegisterOptions{Name: activities.ClassifySIPActivityName},
 		)
 		w.RegisterActivityWithOptions(
 			bagvalidate.New(validator).Execute,
@@ -298,7 +298,7 @@ func main() {
 				clockwork.NewRealClock(),
 				amc.Transfer,
 				amc.Jobs,
-				pkgSvc,
+				ingestsvc,
 			).Execute,
 			temporalsdk_activity.RegisterOptions{Name: am.PollTransferActivityName},
 		)
@@ -308,15 +308,15 @@ func main() {
 				clockwork.NewRealClock(),
 				amc.Ingest,
 				amc.Jobs,
-				pkgSvc,
+				ingestsvc,
 			).Execute,
 			temporalsdk_activity.RegisterOptions{Name: am.PollIngestActivityName},
 		)
 
 		storageClient := newStorageClient(tp, cfg)
 		w.RegisterActivityWithOptions(
-			activities.NewCreateStoragePackageActivity(storageClient).Execute,
-			temporalsdk_activity.RegisterOptions{Name: activities.CreateStoragePackageActivityName},
+			activities.NewCreateStorageAIPActivity(storageClient).Execute,
+			temporalsdk_activity.RegisterOptions{Name: activities.CreateStorageAIPActivityName},
 		)
 		w.RegisterActivityWithOptions(
 			removepaths.New().Execute,
@@ -447,18 +447,18 @@ func newStorageClient(tp trace.TracerProvider, cfg config.Configuration) *goasto
 	)
 
 	storageClient := goastorage.NewClient(
-		storageHttpClient.Create(),
-		storageHttpClient.Submit(),
-		storageHttpClient.Update(),
-		storageHttpClient.Download(),
-		storageHttpClient.Move(),
-		storageHttpClient.MoveStatus(),
-		storageHttpClient.Reject(),
-		storageHttpClient.Show(),
-		storageHttpClient.Locations(),
-		storageHttpClient.AddLocation(),
+		storageHttpClient.CreateAip(),
+		storageHttpClient.SubmitAip(),
+		storageHttpClient.UpdateAip(),
+		storageHttpClient.DownloadAip(),
+		storageHttpClient.MoveAip(),
+		storageHttpClient.MoveAipStatus(),
+		storageHttpClient.RejectAip(),
+		storageHttpClient.ShowAip(),
+		storageHttpClient.ListLocations(),
+		storageHttpClient.CreateLocation(),
 		storageHttpClient.ShowLocation(),
-		storageHttpClient.LocationPackages(),
+		storageHttpClient.ListLocationAips(),
 	)
 
 	return storageClient

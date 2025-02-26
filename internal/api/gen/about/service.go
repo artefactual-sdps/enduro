@@ -57,32 +57,6 @@ type EnduroAbout struct {
 	Poststorage        EnduroPoststorageCollection
 }
 
-// PreservationAction describes a preservation action.
-type EnduroPackagePreservationAction struct {
-	ID          uint
-	WorkflowID  string
-	Type        string
-	Status      string
-	StartedAt   string
-	CompletedAt *string
-	Tasks       EnduroPackagePreservationTaskCollection
-	PackageID   *uint
-}
-
-// PreservationTask describes a preservation action task.
-type EnduroPackagePreservationTask struct {
-	ID                   uint
-	TaskID               string
-	Name                 string
-	Status               string
-	StartedAt            string
-	CompletedAt          *string
-	Note                 *string
-	PreservationActionID *uint
-}
-
-type EnduroPackagePreservationTaskCollection []*EnduroPackagePreservationTask
-
 type EnduroPoststorage struct {
 	WorkflowName string
 	TaskQueue    string
@@ -96,15 +70,19 @@ type EnduroPreprocessing struct {
 	TaskQueue    string
 }
 
-// StoredPackage describes a package retrieved by the service.
-type EnduroStoredPackage struct {
-	// Identifier of package
+type MonitorPingEvent struct {
+	Message *string
+}
+
+// SIP describes an ingest SIP type.
+type SIP struct {
+	// Identifier of SIP
 	ID uint
-	// Name of the package
+	// Name of the SIP
 	Name *string
 	// Identifier of storage location
 	LocationID *uuid.UUID
-	// Status of the package
+	// Status of the SIP
 	Status string
 	// Identifier of processing workflow
 	WorkflowID *string
@@ -120,57 +98,79 @@ type EnduroStoredPackage struct {
 	CompletedAt *string
 }
 
-type MonitorPingEvent struct {
-	Message *string
-}
-
-type PackageCreatedEvent struct {
-	// Identifier of package
+type SIPCreatedEvent struct {
+	// Identifier of SIP
 	ID   uint
-	Item *EnduroStoredPackage
+	Item *SIP
 }
 
-type PackageLocationUpdatedEvent struct {
-	// Identifier of package
+type SIPLocationUpdatedEvent struct {
+	// Identifier of SIP
 	ID uint
 	// Identifier of storage location
 	LocationID uuid.UUID
 }
 
-type PackageStatusUpdatedEvent struct {
-	// Identifier of package
+// SIPPreservationAction describes a preservation action of a SIP.
+type SIPPreservationAction struct {
+	ID          uint
+	WorkflowID  string
+	Type        string
+	Status      string
+	StartedAt   string
+	CompletedAt *string
+	Tasks       SIPPreservationTaskCollection
+	SipID       *uint
+}
+
+type SIPPreservationActionCreatedEvent struct {
+	// Identifier of preservation action
+	ID   uint
+	Item *SIPPreservationAction
+}
+
+type SIPPreservationActionUpdatedEvent struct {
+	// Identifier of preservation action
+	ID   uint
+	Item *SIPPreservationAction
+}
+
+// SIPPreservationTask describes a SIP preservation action task.
+type SIPPreservationTask struct {
+	ID                   uint
+	TaskID               string
+	Name                 string
+	Status               string
+	StartedAt            string
+	CompletedAt          *string
+	Note                 *string
+	PreservationActionID *uint
+}
+
+type SIPPreservationTaskCollection []*SIPPreservationTask
+
+type SIPPreservationTaskCreatedEvent struct {
+	// Identifier of preservation task
+	ID   uint
+	Item *SIPPreservationTask
+}
+
+type SIPPreservationTaskUpdatedEvent struct {
+	// Identifier of preservation task
+	ID   uint
+	Item *SIPPreservationTask
+}
+
+type SIPStatusUpdatedEvent struct {
+	// Identifier of SIP
 	ID     uint
 	Status string
 }
 
-type PackageUpdatedEvent struct {
-	// Identifier of package
+type SIPUpdatedEvent struct {
+	// Identifier of SIP
 	ID   uint
-	Item *EnduroStoredPackage
-}
-
-type PreservationActionCreatedEvent struct {
-	// Identifier of preservation action
-	ID   uint
-	Item *EnduroPackagePreservationAction
-}
-
-type PreservationActionUpdatedEvent struct {
-	// Identifier of preservation action
-	ID   uint
-	Item *EnduroPackagePreservationAction
-}
-
-type PreservationTaskCreatedEvent struct {
-	// Identifier of preservation task
-	ID   uint
-	Item *EnduroPackagePreservationTask
-}
-
-type PreservationTaskUpdatedEvent struct {
-	// Identifier of preservation task
-	ID   uint
-	Item *EnduroPackagePreservationTask
+	Item *SIP
 }
 
 // Unauthorized

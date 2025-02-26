@@ -159,8 +159,8 @@ func TestServiceSubmit(t *testing.T) {
 		attrs := &setUpAttrs{}
 		svc := setUpService(t, attrs)
 
-		ret, err := svc.Submit(context.Background(), &goastorage.SubmitPayload{
-			AipID: aipID,
+		ret, err := svc.SubmitAip(context.Background(), &goastorage.SubmitAipPayload{
+			UUID: aipID,
 		})
 		assert.Assert(t, ret == nil)
 		assert.Equal(t, err.(*goa.ServiceError).Name, "not_valid")
@@ -194,15 +194,15 @@ func TestServiceSubmit(t *testing.T) {
 			).
 			Times(1)
 
-		ret, err := svc.Submit(context.Background(), &goastorage.SubmitPayload{
-			AipID: aipID.String(),
+		ret, err := svc.SubmitAip(context.Background(), &goastorage.SubmitAipPayload{
+			UUID: aipID.String(),
 		})
 		assert.Assert(t, ret == nil)
 		assert.Equal(t, err.(*goa.ServiceError).Name, "not_available")
 		assert.ErrorContains(t, err, "cannot perform operation")
 	})
 
-	t.Run("Returns not_valid if package cannot be persisted", func(t *testing.T) {
+	t.Run("Returns not_valid if AIP cannot be persisted", func(t *testing.T) {
 		t.Parallel()
 
 		attrs := &setUpAttrs{}
@@ -241,13 +241,13 @@ func TestServiceSubmit(t *testing.T) {
 			).
 			Times(1)
 
-		ret, err := svc.Submit(ctx, &goastorage.SubmitPayload{
-			Name:  "package",
-			AipID: aipID.String(),
+		ret, err := svc.SubmitAip(ctx, &goastorage.SubmitAipPayload{
+			Name: "AIP",
+			UUID: aipID.String(),
 		})
 		assert.Assert(t, ret == nil)
 		assert.Equal(t, err.(*goa.ServiceError).Name, "not_valid")
-		assert.ErrorContains(t, err, "cannot create package")
+		assert.ErrorContains(t, err, "cannot create AIP")
 	})
 
 	t.Run("Returns not_valid if signed URL cannot be generated", func(t *testing.T) {
@@ -285,14 +285,14 @@ func TestServiceSubmit(t *testing.T) {
 				gomock.Any(),
 			).
 			Return(
-				&goastorage.Package{},
+				&goastorage.AIP{},
 				nil,
 			).
 			Times(1)
 
-		ret, err := svc.Submit(ctx, &goastorage.SubmitPayload{
-			Name:  "package",
-			AipID: aipID.String(),
+		ret, err := svc.SubmitAip(ctx, &goastorage.SubmitAipPayload{
+			Name: "AIP",
+			UUID: aipID.String(),
 		})
 		assert.Assert(t, ret == nil)
 		assert.Equal(t, err.(*goa.ServiceError).Name, "not_valid")
@@ -346,14 +346,14 @@ func TestServiceSubmit(t *testing.T) {
 				gomock.Any(),
 			).
 			Return(
-				&goastorage.Package{},
+				&goastorage.AIP{},
 				nil,
 			).
 			Times(1)
 
-		ret, err := svc.Submit(ctx, &goastorage.SubmitPayload{
-			Name:  "package",
-			AipID: aipID.String(),
+		ret, err := svc.SubmitAip(ctx, &goastorage.SubmitAipPayload{
+			Name: "AIP",
+			UUID: aipID.String(),
 		})
 		assert.NilError(t, err)
 		assert.Equal(t, ret.URL[0:15], "file://tmp/dir?")
@@ -363,10 +363,10 @@ func TestServiceSubmit(t *testing.T) {
 func TestServiceCreate(t *testing.T) {
 	t.Parallel()
 
-	t.Run("Creates a new package", func(t *testing.T) {
+	t.Run("Creates a new AIP", func(t *testing.T) {
 		t.Parallel()
 
-		name := "Package 1"
+		name := "AIP 1"
 		status := "stored"
 		created := time.Date(2024, 5, 3, 14, 55, 2, 22, time.UTC)
 
@@ -377,18 +377,18 @@ func TestServiceCreate(t *testing.T) {
 			EXPECT().
 			CreateAIP(
 				mockutil.Context(),
-				&goastorage.Package{
+				&goastorage.AIP{
 					Name:       name,
-					AipID:      aipID,
+					UUID:       aipID,
 					Status:     status,
 					ObjectKey:  objectKey,
 					LocationID: &locationID,
 				},
 			).
 			Return(
-				&goastorage.Package{
+				&goastorage.AIP{
 					Name:       name,
-					AipID:      aipID,
+					UUID:       aipID,
 					Status:     status,
 					ObjectKey:  objectKey,
 					LocationID: &locationID,
@@ -397,8 +397,8 @@ func TestServiceCreate(t *testing.T) {
 				nil,
 			)
 
-		got, err := svc.Create(context.Background(), &goastorage.CreatePayload{
-			AipID:      aipID.String(),
+		got, err := svc.CreateAip(context.Background(), &goastorage.CreateAipPayload{
+			UUID:       aipID.String(),
 			Name:       name,
 			ObjectKey:  objectKey.String(),
 			Status:     status,
@@ -406,8 +406,8 @@ func TestServiceCreate(t *testing.T) {
 		})
 
 		assert.NilError(t, err)
-		assert.DeepEqual(t, got, &goastorage.Package{
-			AipID:      aipID,
+		assert.DeepEqual(t, got, &goastorage.AIP{
+			UUID:       aipID,
 			Name:       name,
 			ObjectKey:  objectKey,
 			Status:     status,
@@ -423,8 +423,8 @@ func TestServiceCreate(t *testing.T) {
 		attrs := &setUpAttrs{}
 		svc := setUpService(t, attrs)
 
-		ret, err := svc.Create(context.Background(), &goastorage.CreatePayload{
-			AipID: aipID,
+		ret, err := svc.CreateAip(context.Background(), &goastorage.CreateAipPayload{
+			UUID: aipID,
 		})
 		assert.Assert(t, ret == nil)
 		assert.Equal(t, err.(*goa.ServiceError).Name, "not_valid")
@@ -437,8 +437,8 @@ func TestServiceCreate(t *testing.T) {
 		attrs := &setUpAttrs{}
 		svc := setUpService(t, attrs)
 
-		ret, err := svc.Create(context.Background(), &goastorage.CreatePayload{
-			AipID:     "f5fddd8c-570b-48d3-8426-78c03f24fa78",
+		ret, err := svc.CreateAip(context.Background(), &goastorage.CreateAipPayload{
+			UUID:      "f5fddd8c-570b-48d3-8426-78c03f24fa78",
 			ObjectKey: "12345",
 		})
 		assert.Assert(t, ret == nil)
@@ -524,7 +524,7 @@ func TestServiceDownload(t *testing.T) {
 
 	svc := setUpService(t, &setUpAttrs{})
 
-	blob, err := svc.Download(context.Background(), &goastorage.DownloadPayload{})
+	blob, err := svc.DownloadAip(context.Background(), &goastorage.DownloadAipPayload{})
 	assert.NilError(t, err)
 	assert.DeepEqual(t, blob, []byte{}) // Not implemented.
 }
@@ -562,7 +562,7 @@ func TestServiceList(t *testing.T) {
 			Return(storedLocations, nil).
 			Times(1)
 
-		res, err := svc.Locations(ctx, &goastorage.LocationsPayload{})
+		res, err := svc.ListLocations(ctx, &goastorage.ListLocationsPayload{})
 		assert.NilError(t, err)
 		assert.DeepEqual(t, res, storedLocations)
 	})
@@ -578,8 +578,8 @@ func TestReject(t *testing.T) {
 		attrs := &setUpAttrs{}
 		svc := setUpService(t, attrs)
 
-		err := svc.Reject(context.Background(), &goastorage.RejectPayload{
-			AipID: aipID,
+		err := svc.RejectAip(context.Background(), &goastorage.RejectAipPayload{
+			UUID: aipID,
 		})
 		assert.Equal(t, err.(*goa.ServiceError).Name, "not_valid")
 		assert.ErrorContains(t, err, "cannot perform operation")
@@ -602,12 +602,12 @@ func TestReject(t *testing.T) {
 			Return(nil).
 			Times(1)
 
-		err := svc.Reject(ctx, &goastorage.RejectPayload{AipID: aipID.String()})
+		err := svc.RejectAip(ctx, &goastorage.RejectAipPayload{UUID: aipID.String()})
 		assert.NilError(t, err)
 	})
 }
 
-func TestServiceReadPackage(t *testing.T) {
+func TestServiceReadAip(t *testing.T) {
 	t.Parallel()
 
 	attrs := setUpAttrs{}
@@ -621,17 +621,17 @@ func TestServiceReadPackage(t *testing.T) {
 			aipID,
 		).
 		Return(
-			&goastorage.Package{},
+			&goastorage.AIP{},
 			nil,
 		).
 		Times(1)
 
-	pkg, err := svc.ReadPackage(ctx, aipID)
+	aip, err := svc.ReadAip(ctx, aipID)
 	assert.NilError(t, err)
-	assert.DeepEqual(t, pkg, &goastorage.Package{})
+	assert.DeepEqual(t, aip, &goastorage.AIP{})
 }
 
-func TestServiceUpdatePackageStatus(t *testing.T) {
+func TestServiceUpdateAipStatus(t *testing.T) {
 	t.Parallel()
 
 	t.Run("Returns if persistence failed", func(t *testing.T) {
@@ -651,12 +651,12 @@ func TestServiceUpdatePackageStatus(t *testing.T) {
 			Return(errors.New("something is wrong")).
 			Times(1)
 
-		err := svc.UpdatePackageStatus(ctx, aipID, types.AIPStatusStored)
+		err := svc.UpdateAipStatus(ctx, aipID, types.AIPStatusStored)
 		assert.Error(t, err, "something is wrong")
 	})
 }
 
-func TestServiceUpdatePackageLocationID(t *testing.T) {
+func TestServiceUpdateAipLocationID(t *testing.T) {
 	t.Parallel()
 
 	t.Run("Returns if persistence failed", func(t *testing.T) {
@@ -676,7 +676,7 @@ func TestServiceUpdatePackageLocationID(t *testing.T) {
 			Return(errors.New("something is wrong")).
 			Times(1)
 
-		err := svc.UpdatePackageLocationID(ctx, aipID, locationID)
+		err := svc.UpdateAipLocationID(ctx, aipID, locationID)
 		assert.Error(t, err, "something is wrong")
 	})
 }
@@ -701,8 +701,8 @@ func TestServiceDelete(t *testing.T) {
 				aipID,
 			).
 			Return(
-				&goastorage.Package{
-					AipID:      aipID,
+				&goastorage.AIP{
+					UUID:       aipID,
 					ObjectKey:  aipID,
 					LocationID: &uuid.Nil,
 				},
@@ -710,7 +710,7 @@ func TestServiceDelete(t *testing.T) {
 			).
 			Times(1)
 
-		err := svc.Delete(ctx, aipID)
+		err := svc.DeleteAip(ctx, aipID)
 		assert.NilError(t, err)
 	})
 
@@ -733,8 +733,8 @@ func TestServiceDelete(t *testing.T) {
 				aipID,
 			).
 			Return(
-				&goastorage.Package{
-					AipID:      aipID,
+				&goastorage.AIP{
+					UUID:       aipID,
 					ObjectKey:  aipID,
 					LocationID: &locationID,
 				},
@@ -759,7 +759,7 @@ func TestServiceDelete(t *testing.T) {
 			).
 			Times(1)
 
-		err := svc.Delete(ctx, aipID)
+		err := svc.DeleteAip(ctx, aipID)
 		assert.NilError(t, err)
 	})
 
@@ -779,8 +779,8 @@ func TestServiceDelete(t *testing.T) {
 				aipID,
 			).
 			Return(
-				&goastorage.Package{
-					AipID:      aipID,
+				&goastorage.AIP{
+					UUID:       aipID,
 					ObjectKey:  objectKey,
 					LocationID: &locationID,
 				},
@@ -805,7 +805,7 @@ func TestServiceDelete(t *testing.T) {
 			).
 			Times(1)
 
-		err := svc.Delete(ctx, aipID)
+		err := svc.DeleteAip(ctx, aipID)
 		assert.Error(t, err, fmt.Sprintf(
 			"blob (key %q) (code=NotFound): remove %s/%s: no such file or directory",
 			aipID.String(), td.Path(), aipID.String(),
@@ -826,8 +826,8 @@ func TestServiceDelete(t *testing.T) {
 				aipID,
 			).
 			Return(
-				&goastorage.Package{
-					AipID:      aipID,
+				&goastorage.AIP{
+					UUID:       aipID,
 					ObjectKey:  objectKey,
 					LocationID: &locationID,
 				},
@@ -847,11 +847,11 @@ func TestServiceDelete(t *testing.T) {
 			).
 			Times(1)
 
-		err := svc.Delete(ctx, aipID)
+		err := svc.DeleteAip(ctx, aipID)
 		assert.ErrorContains(t, err, "location not found")
 	})
 
-	t.Run("Fails if package does not exist", func(t *testing.T) {
+	t.Run("Fails if AIP does not exist", func(t *testing.T) {
 		t.Parallel()
 
 		attrs := setUpAttrs{}
@@ -866,16 +866,16 @@ func TestServiceDelete(t *testing.T) {
 			).
 			Return(
 				nil,
-				&goastorage.PackageNotFound{AipID: aipID, Message: "package not found"},
+				&goastorage.AIPNotFound{UUID: aipID, Message: "AIP not found"},
 			).
 			Times(1)
 
-		err := svc.Delete(ctx, aipID)
-		assert.ErrorContains(t, err, "package not found")
+		err := svc.DeleteAip(ctx, aipID)
+		assert.ErrorContains(t, err, "AIP not found")
 	})
 }
 
-func TestPackageReader(t *testing.T) {
+func TestAipReader(t *testing.T) {
 	t.Parallel()
 
 	t.Run("Provides a valid reader", func(t *testing.T) {
@@ -907,8 +907,8 @@ func TestPackageReader(t *testing.T) {
 			).
 			Times(1)
 
-		reader, err := svc.PackageReader(ctx, &goastorage.Package{
-			AipID:      aipID,
+		reader, err := svc.AipReader(ctx, &goastorage.AIP{
+			UUID:       aipID,
 			ObjectKey:  aipID,
 			LocationID: &locationID,
 		})
@@ -939,8 +939,8 @@ func TestPackageReader(t *testing.T) {
 			).
 			Times(1)
 
-		_, err := svc.PackageReader(ctx, &goastorage.Package{
-			AipID:      aipID,
+		_, err := svc.AipReader(ctx, &goastorage.AIP{
+			UUID:       aipID,
 			ObjectKey:  aipID,
 			LocationID: &locationID,
 		})
@@ -971,8 +971,8 @@ func TestPackageReader(t *testing.T) {
 			).
 			Times(1)
 
-		_, err := svc.PackageReader(ctx, &goastorage.Package{
-			AipID:      aipID,
+		_, err := svc.AipReader(ctx, &goastorage.AIP{
+			UUID:       aipID,
 			ObjectKey:  aipID,
 			LocationID: &locationID,
 		})
@@ -993,8 +993,8 @@ func TestServiceUpdate(t *testing.T) {
 		attrs := &setUpAttrs{}
 		svc := setUpService(t, attrs)
 
-		err := svc.Update(context.Background(), &goastorage.UpdatePayload{
-			AipID: aipID,
+		err := svc.UpdateAip(context.Background(), &goastorage.UpdateAipPayload{
+			UUID: aipID,
 		})
 		assert.Equal(t, err.(*goa.ServiceError).Name, "not_valid")
 		assert.ErrorContains(t, err, "cannot perform operation")
@@ -1021,14 +1021,14 @@ func TestServiceUpdate(t *testing.T) {
 			).
 			Times(1)
 
-		err := svc.Update(ctx, &goastorage.UpdatePayload{
-			AipID: aipID.String(),
+		err := svc.UpdateAip(ctx, &goastorage.UpdateAipPayload{
+			UUID: aipID.String(),
 		})
 		assert.Equal(t, err.(*goa.ServiceError).Name, "not_available")
 		assert.ErrorContains(t, err, "cannot perform operation")
 	})
 
-	t.Run("Returns not_valid if package cannot be updated", func(t *testing.T) {
+	t.Run("Returns not_valid if AIP cannot be updated", func(t *testing.T) {
 		t.Parallel()
 
 		attrs := &setUpAttrs{}
@@ -1061,14 +1061,14 @@ func TestServiceUpdate(t *testing.T) {
 			).
 			Times(1)
 
-		err := svc.Update(ctx, &goastorage.UpdatePayload{
-			AipID: aipID.String(),
+		err := svc.UpdateAip(ctx, &goastorage.UpdateAipPayload{
+			UUID: aipID.String(),
 		})
 		assert.Equal(t, err.(*goa.ServiceError).Name, "not_valid")
-		assert.ErrorContains(t, err, "cannot update package status")
+		assert.ErrorContains(t, err, "cannot update AIP status")
 	})
 
-	t.Run("Returns no error if package is updated", func(t *testing.T) {
+	t.Run("Returns no error if AIP is updated", func(t *testing.T) {
 		t.Parallel()
 
 		attrs := &setUpAttrs{}
@@ -1101,8 +1101,8 @@ func TestServiceUpdate(t *testing.T) {
 			).
 			Times(1)
 
-		err := svc.Update(ctx, &goastorage.UpdatePayload{
-			AipID: aipID.String(),
+		err := svc.UpdateAip(ctx, &goastorage.UpdateAipPayload{
+			UUID: aipID.String(),
 		})
 		assert.NilError(t, err)
 	})
@@ -1118,14 +1118,14 @@ func TestServiceMove(t *testing.T) {
 		attrs := &setUpAttrs{}
 		svc := setUpService(t, attrs)
 
-		err := svc.Move(context.Background(), &goastorage.MovePayload{
-			AipID: aipID,
+		err := svc.MoveAip(context.Background(), &goastorage.MoveAipPayload{
+			UUID: aipID,
 		})
 		assert.Equal(t, err.(*goa.ServiceError).Name, "not_valid")
 		assert.ErrorContains(t, err, "cannot perform operation")
 	})
 
-	t.Run("Returns not found error if package does not exist", func(t *testing.T) {
+	t.Run("Returns not found error if AIP does not exist", func(t *testing.T) {
 		t.Parallel()
 
 		attrs := &setUpAttrs{}
@@ -1140,15 +1140,15 @@ func TestServiceMove(t *testing.T) {
 			).
 			Return(
 				nil,
-				&goastorage.PackageNotFound{AipID: aipID, Message: "package not found"},
+				&goastorage.AIPNotFound{UUID: aipID, Message: "AIP not found"},
 			).
 			Times(1)
 
-		err := svc.Move(ctx, &goastorage.MovePayload{
-			AipID:      aipID.String(),
+		err := svc.MoveAip(ctx, &goastorage.MoveAipPayload{
+			UUID:       aipID.String(),
 			LocationID: locationID,
 		})
-		assert.ErrorContains(t, err, "package not found")
+		assert.ErrorContains(t, err, "AIP not found")
 	})
 
 	t.Run("Returns not_available if workflow cannot be executed", func(t *testing.T) {
@@ -1183,20 +1183,20 @@ func TestServiceMove(t *testing.T) {
 				aipID,
 			).
 			Return(
-				&goastorage.Package{AipID: aipID},
+				&goastorage.AIP{UUID: aipID},
 				nil,
 			).
 			Times(1)
 
-		err := svc.Move(ctx, &goastorage.MovePayload{
-			AipID:      aipID.String(),
+		err := svc.MoveAip(ctx, &goastorage.MoveAipPayload{
+			UUID:       aipID.String(),
 			LocationID: locationID,
 		})
 		assert.Equal(t, err.(*goa.ServiceError).Name, "not_available")
 		assert.ErrorContains(t, err, "cannot perform operation")
 	})
 
-	t.Run("Returns no error if package is moved", func(t *testing.T) {
+	t.Run("Returns no error if AIP is moved", func(t *testing.T) {
 		t.Parallel()
 
 		attrs := &setUpAttrs{}
@@ -1228,13 +1228,13 @@ func TestServiceMove(t *testing.T) {
 				aipID,
 			).
 			Return(
-				&goastorage.Package{AipID: aipID},
+				&goastorage.AIP{UUID: aipID},
 				nil,
 			).
 			Times(1)
 
-		err := svc.Move(ctx, &goastorage.MovePayload{
-			AipID:      aipID.String(),
+		err := svc.MoveAip(ctx, &goastorage.MoveAipPayload{
+			UUID:       aipID.String(),
 			LocationID: locationID,
 		})
 		assert.NilError(t, err)
@@ -1251,15 +1251,15 @@ func TestServiceMoveStatus(t *testing.T) {
 		attrs := &setUpAttrs{}
 		svc := setUpService(t, attrs)
 
-		res, err := svc.MoveStatus(context.Background(), &goastorage.MoveStatusPayload{
-			AipID: aipID,
+		res, err := svc.MoveAipStatus(context.Background(), &goastorage.MoveAipStatusPayload{
+			UUID: aipID,
 		})
 		assert.Assert(t, res == nil)
 		assert.Equal(t, err.(*goa.ServiceError).Name, "not_valid")
 		assert.ErrorContains(t, err, "cannot perform operation")
 	})
 
-	t.Run("Returns not found error if package does not exist", func(t *testing.T) {
+	t.Run("Returns not found error if AIP does not exist", func(t *testing.T) {
 		t.Parallel()
 
 		attrs := &setUpAttrs{}
@@ -1274,15 +1274,15 @@ func TestServiceMoveStatus(t *testing.T) {
 			).
 			Return(
 				nil,
-				&goastorage.PackageNotFound{AipID: aipID, Message: "package not found"},
+				&goastorage.AIPNotFound{UUID: aipID, Message: "AIP not found"},
 			).
 			Times(1)
 
-		res, err := svc.MoveStatus(ctx, &goastorage.MoveStatusPayload{
-			AipID: aipID.String(),
+		res, err := svc.MoveAipStatus(ctx, &goastorage.MoveAipStatusPayload{
+			UUID: aipID.String(),
 		})
 		assert.Assert(t, res == nil)
-		assert.ErrorContains(t, err, "package not found")
+		assert.ErrorContains(t, err, "AIP not found")
 	})
 
 	t.Run("Returns failed_dependency error if workflow execution cannot be found", func(t *testing.T) {
@@ -1313,13 +1313,13 @@ func TestServiceMoveStatus(t *testing.T) {
 				aipID,
 			).
 			Return(
-				&goastorage.Package{AipID: aipID},
+				&goastorage.AIP{UUID: aipID},
 				nil,
 			).
 			Times(1)
 
-		res, err := svc.MoveStatus(ctx, &goastorage.MoveStatusPayload{
-			AipID: aipID.String(),
+		res, err := svc.MoveAipStatus(ctx, &goastorage.MoveAipStatusPayload{
+			UUID: aipID.String(),
 		})
 		assert.Assert(t, res == nil)
 		assert.Equal(t, err.(*goa.ServiceError).Name, "failed_dependency")
@@ -1358,13 +1358,13 @@ func TestServiceMoveStatus(t *testing.T) {
 				aipID,
 			).
 			Return(
-				&goastorage.Package{AipID: aipID},
+				&goastorage.AIP{UUID: aipID},
 				nil,
 			).
 			Times(1)
 
-		res, err := svc.MoveStatus(ctx, &goastorage.MoveStatusPayload{
-			AipID: aipID.String(),
+		res, err := svc.MoveAipStatus(ctx, &goastorage.MoveAipStatusPayload{
+			UUID: aipID.String(),
 		})
 		assert.Assert(t, res == nil)
 		assert.Equal(t, err.(*goa.ServiceError).Name, "failed_dependency")
@@ -1402,13 +1402,13 @@ func TestServiceMoveStatus(t *testing.T) {
 				aipID,
 			).
 			Return(
-				&goastorage.Package{AipID: aipID},
+				&goastorage.AIP{UUID: aipID},
 				nil,
 			).
 			Times(1)
 
-		res, err := svc.MoveStatus(ctx, &goastorage.MoveStatusPayload{
-			AipID: aipID.String(),
+		res, err := svc.MoveAipStatus(ctx, &goastorage.MoveAipStatusPayload{
+			UUID: aipID.String(),
 		})
 		assert.NilError(t, err)
 		assert.DeepEqual(t, res, &goastorage.MoveStatusResult{Done: false})
@@ -1445,13 +1445,13 @@ func TestServiceMoveStatus(t *testing.T) {
 				aipID,
 			).
 			Return(
-				&goastorage.Package{AipID: aipID},
+				&goastorage.AIP{UUID: aipID},
 				nil,
 			).
 			Times(1)
 
-		res, err := svc.MoveStatus(ctx, &goastorage.MoveStatusPayload{
-			AipID: aipID.String(),
+		res, err := svc.MoveAipStatus(ctx, &goastorage.MoveAipStatusPayload{
+			UUID: aipID.String(),
 		})
 		assert.NilError(t, err)
 		assert.DeepEqual(t, res, &goastorage.MoveStatusResult{Done: true})
@@ -1468,7 +1468,7 @@ func TestServiceAddLocation(t *testing.T) {
 		svc := setUpService(t, attrs)
 		ctx := context.Background()
 
-		res, err := svc.AddLocation(ctx, &goastorage.AddLocationPayload{
+		res, err := svc.CreateLocation(ctx, &goastorage.CreateLocationPayload{
 			Name:    "perma-aips-1",
 			Source:  types.LocationSourceMinIO.String(),
 			Purpose: types.LocationPurposeAIPStore.String(),
@@ -1485,7 +1485,7 @@ func TestServiceAddLocation(t *testing.T) {
 		svc := setUpService(t, attrs)
 		ctx := context.Background()
 
-		res, err := svc.AddLocation(ctx, &goastorage.AddLocationPayload{
+		res, err := svc.CreateLocation(ctx, &goastorage.CreateLocationPayload{
 			Name:    "perma-aips-1",
 			Source:  types.LocationSourceMinIO.String(),
 			Purpose: types.LocationPurposeAIPStore.String(),
@@ -1524,7 +1524,7 @@ func TestServiceAddLocation(t *testing.T) {
 			).
 			Times(1)
 
-		res, err := svc.AddLocation(ctx, &goastorage.AddLocationPayload{
+		res, err := svc.CreateLocation(ctx, &goastorage.CreateLocationPayload{
 			Name:    "perma-aips-1",
 			Source:  types.LocationSourceMinIO.String(),
 			Purpose: types.LocationPurposeAIPStore.String(),
@@ -1566,7 +1566,7 @@ func TestServiceAddLocation(t *testing.T) {
 			).
 			Times(1)
 
-		res, err := svc.AddLocation(ctx, &goastorage.AddLocationPayload{
+		res, err := svc.CreateLocation(ctx, &goastorage.CreateLocationPayload{
 			Name:    "perma-aips-1",
 			Source:  types.LocationSourceMinIO.String(),
 			Purpose: types.LocationPurposeAIPStore.String(),
@@ -1576,7 +1576,7 @@ func TestServiceAddLocation(t *testing.T) {
 			},
 		})
 		assert.NilError(t, err)
-		assert.DeepEqual(t, res, &goastorage.AddLocationResult{UUID: uuid0.String()})
+		assert.DeepEqual(t, res, &goastorage.CreateLocationResult{UUID: uuid0.String()})
 	})
 
 	t.Run("Returns location with URL config", func(t *testing.T) {
@@ -1606,7 +1606,7 @@ func TestServiceAddLocation(t *testing.T) {
 			).
 			Times(1)
 
-		res, err := svc.AddLocation(ctx, &goastorage.AddLocationPayload{
+		res, err := svc.CreateLocation(ctx, &goastorage.CreateLocationPayload{
 			Name:    "perma-aips-1",
 			Source:  types.LocationSourceMinIO.String(),
 			Purpose: types.LocationPurposeAIPStore.String(),
@@ -1615,7 +1615,7 @@ func TestServiceAddLocation(t *testing.T) {
 			},
 		})
 		assert.NilError(t, err)
-		assert.DeepEqual(t, res, &goastorage.AddLocationResult{UUID: uuid0.String()})
+		assert.DeepEqual(t, res, &goastorage.CreateLocationResult{UUID: uuid0.String()})
 	})
 }
 
@@ -1665,7 +1665,7 @@ func TestServiceShowLocation(t *testing.T) {
 	})
 }
 
-func TestServiceLocationPackages(t *testing.T) {
+func TestServiceListLocationAips(t *testing.T) {
 	t.Parallel()
 
 	t.Run("Returns not_valid if cannot parse location UUID", func(t *testing.T) {
@@ -1675,7 +1675,7 @@ func TestServiceLocationPackages(t *testing.T) {
 		svc := setUpService(t, attrs)
 		ctx := context.Background()
 
-		res, err := svc.LocationPackages(ctx, &goastorage.LocationPackagesPayload{
+		res, err := svc.ListLocationAips(ctx, &goastorage.ListLocationAipsPayload{
 			UUID: "hello world",
 		})
 		assert.Assert(t, res == nil)
@@ -1683,7 +1683,7 @@ func TestServiceLocationPackages(t *testing.T) {
 		assert.ErrorContains(t, err, "cannot perform operation")
 	})
 
-	t.Run("Returns not_available if packages cannot be read", func(t *testing.T) {
+	t.Run("Returns not_available if AIPs cannot be read", func(t *testing.T) {
 		t.Parallel()
 
 		attrs := &setUpAttrs{}
@@ -1701,7 +1701,7 @@ func TestServiceLocationPackages(t *testing.T) {
 				errors.New("unexpected error"),
 			).Times(1)
 
-		res, err := svc.LocationPackages(ctx, &goastorage.LocationPackagesPayload{
+		res, err := svc.ListLocationAips(ctx, &goastorage.ListLocationAipsPayload{
 			UUID: locationID.String(),
 		})
 		assert.Assert(t, res == nil)
@@ -1709,7 +1709,7 @@ func TestServiceLocationPackages(t *testing.T) {
 		assert.ErrorContains(t, err, "cannot perform operation")
 	})
 
-	t.Run("Returns stored packages", func(t *testing.T) {
+	t.Run("Returns stored AIPs", func(t *testing.T) {
 		t.Parallel()
 
 		attrs := &setUpAttrs{}
@@ -1723,10 +1723,10 @@ func TestServiceLocationPackages(t *testing.T) {
 				locationID,
 			).
 			Return(
-				goastorage.PackageCollection{
+				goastorage.AIPCollection{
 					{
-						Name:       "Package",
-						AipID:      aipID,
+						Name:       "AIP",
+						UUID:       aipID,
 						Status:     "stored",
 						ObjectKey:  objectKey,
 						LocationID: &locationID,
@@ -1736,14 +1736,14 @@ func TestServiceLocationPackages(t *testing.T) {
 				nil,
 			).Times(1)
 
-		res, err := svc.LocationPackages(ctx, &goastorage.LocationPackagesPayload{
+		res, err := svc.ListLocationAips(ctx, &goastorage.ListLocationAipsPayload{
 			UUID: locationID.String(),
 		})
 		assert.NilError(t, err)
-		assert.DeepEqual(t, res, goastorage.PackageCollection{
+		assert.DeepEqual(t, res, goastorage.AIPCollection{
 			{
-				Name:       "Package",
-				AipID:      aipID,
+				Name:       "AIP",
+				UUID:       aipID,
 				Status:     "stored",
 				ObjectKey:  objectKey,
 				LocationID: &locationID,
@@ -1763,15 +1763,15 @@ func TestServiceShow(t *testing.T) {
 		attrs := &setUpAttrs{}
 		svc := setUpService(t, attrs)
 
-		res, err := svc.Show(context.Background(), &goastorage.ShowPayload{
-			AipID: aipID,
+		res, err := svc.ShowAip(context.Background(), &goastorage.ShowAipPayload{
+			UUID: aipID,
 		})
 		assert.Assert(t, res == nil)
 		assert.Equal(t, err.(*goa.ServiceError).Name, "not_valid")
 		assert.ErrorContains(t, err, "cannot perform operation")
 	})
 
-	t.Run("Returns stored package", func(t *testing.T) {
+	t.Run("Returns stored AIP", func(t *testing.T) {
 		t.Parallel()
 
 		attrs := &setUpAttrs{}
@@ -1785,8 +1785,8 @@ func TestServiceShow(t *testing.T) {
 				aipID,
 			).
 			Return(
-				&goastorage.Package{
-					AipID:      aipID,
+				&goastorage.AIP{
+					UUID:       aipID,
 					ObjectKey:  objectKey,
 					LocationID: &uuid.Nil,
 				},
@@ -1794,12 +1794,12 @@ func TestServiceShow(t *testing.T) {
 			).
 			Times(1)
 
-		res, err := svc.Show(ctx, &goastorage.ShowPayload{
-			AipID: aipID.String(),
+		res, err := svc.ShowAip(ctx, &goastorage.ShowAipPayload{
+			UUID: aipID.String(),
 		})
 		assert.NilError(t, err)
-		assert.DeepEqual(t, res, &goastorage.Package{
-			AipID:      aipID,
+		assert.DeepEqual(t, res, &goastorage.AIP{
+			UUID:       aipID,
 			ObjectKey:  objectKey,
 			LocationID: &uuid.Nil,
 		})

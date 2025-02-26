@@ -64,7 +64,7 @@ useRoles = false
 #   "role2": ["attribute1", "atrribute2", "attribute3", "atrribute4"]
 # }
 # Example:
-# rolesMapping = '{"admin": ["*"], "operator": ["package:list", "package:listActions", "package:move", "package:read", "package:upload"], "readonly": ["package:list", "package:listActions", "package:read"]}'
+# rolesMapping = '{"admin": ["*"], "operator": ["ingest:sips:list", "ingest:sips:actions:list", "ingest:sips:move", "ingest:sips:read", "ingest:sips:upload"], "readonly": ["ingest:sips:list", "ingest:sips:actions:list", "ingest:sips:read"]}'
 rolesMapping = ""
 
 [api.auth.ticket.redis]
@@ -227,9 +227,9 @@ samplingRatio = 1.0
 # enabled triggers the execution of the child workflow, when set to false all other
 # options are ignored.
 enabled = false
-# extract determines if the package extraction happens on the child workflow.
+# extract determines if the SIP extraction happens on the child workflow.
 extract = false
-# sharedPath is the full path to the directory used to share the package between workflows,
+# sharedPath is the full path to the directory used to share the SIP between workflows,
 # required when enabled is set to true.
 sharedPath = "/home/enduro/preprocessing"
 

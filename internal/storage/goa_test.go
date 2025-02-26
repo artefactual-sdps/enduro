@@ -38,7 +38,7 @@ func TestJWTAuth(t *testing.T) {
 				EmailVerified: true,
 				Attributes:    []string{"*"},
 			},
-			scopes: []string{"package:read"},
+			scopes: []string{"ingest:sips:read"},
 		},
 		{
 			name: "Fails with unauthorized error",
@@ -69,9 +69,9 @@ func TestJWTAuth(t *testing.T) {
 			claims: &auth.Claims{
 				Email:         "info@artefactual.com",
 				EmailVerified: true,
-				Attributes:    []string{"package:list"},
+				Attributes:    []string{"ingest:sips:list"},
 			},
-			scopes:  []string{"package:read"},
+			scopes:  []string{"ingest:sips:read"},
 			wantErr: ErrForbidden,
 		},
 	} {

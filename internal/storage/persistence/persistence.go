@@ -11,9 +11,9 @@ import (
 
 type Storage interface {
 	// AIP.
-	CreateAIP(ctx context.Context, pkg *goastorage.Package) (*goastorage.Package, error)
-	ListAIPs(ctx context.Context) (goastorage.PackageCollection, error)
-	ReadAIP(ctx context.Context, aipID uuid.UUID) (*goastorage.Package, error)
+	CreateAIP(ctx context.Context, aip *goastorage.AIP) (*goastorage.AIP, error)
+	ListAIPs(ctx context.Context) (goastorage.AIPCollection, error)
+	ReadAIP(ctx context.Context, aipID uuid.UUID) (*goastorage.AIP, error)
 	UpdateAIPStatus(ctx context.Context, aipID uuid.UUID, status types.AIPStatus) error
 	UpdateAIPLocationID(ctx context.Context, aipID, locationID uuid.UUID) error
 
@@ -25,5 +25,5 @@ type Storage interface {
 	) (*goastorage.Location, error)
 	ListLocations(ctx context.Context) (goastorage.LocationCollection, error)
 	ReadLocation(ctx context.Context, locationID uuid.UUID) (*goastorage.Location, error)
-	LocationAIPs(ctx context.Context, locationID uuid.UUID) (goastorage.PackageCollection, error)
+	LocationAIPs(ctx context.Context, locationID uuid.UUID) (goastorage.AIPCollection, error)
 }

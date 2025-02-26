@@ -11,7 +11,7 @@ import (
 	temporal_tools "go.artefactual.dev/tools/temporal"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
 
-	"github.com/artefactual-sdps/enduro/internal/package_"
+	"github.com/artefactual-sdps/enduro/internal/ingest"
 )
 
 const PollTransferActivityName = "poll-transfer-activity"
@@ -22,11 +22,11 @@ type PollTransferActivityParams struct {
 }
 
 type PollTransferActivity struct {
-	cfg    *Config
-	clock  clockwork.Clock
-	tfrSvc amclient.TransferService
-	jobSvc amclient.JobsService
-	pkgSvc package_.Service
+	cfg       *Config
+	clock     clockwork.Clock
+	tfrSvc    amclient.TransferService
+	jobSvc    amclient.JobsService
+	ingestsvc ingest.Service
 }
 
 type PollTransferActivityResult struct {
@@ -40,14 +40,14 @@ func NewPollTransferActivity(
 	clock clockwork.Clock,
 	tfrSvc amclient.TransferService,
 	jobSvc amclient.JobsService,
-	pkgSvc package_.Service,
+	ingestsvc ingest.Service,
 ) *PollTransferActivity {
 	return &PollTransferActivity{
-		cfg:    cfg,
-		clock:  clock,
-		jobSvc: jobSvc,
-		pkgSvc: pkgSvc,
-		tfrSvc: tfrSvc,
+		cfg:       cfg,
+		clock:     clock,
+		jobSvc:    jobSvc,
+		ingestsvc: ingestsvc,
+		tfrSvc:    tfrSvc,
 	}
 }
 
@@ -56,7 +56,7 @@ func NewPollTransferActivity(
 // activity heartbeat after each poll.
 //
 // On each poll, Execute requests an updated list of AM jobs performed and saves
-// the job data to the package service as preservation tasks.
+// the job data to the ingest service as preservation tasks.
 //
 // A transfer status of "REJECTED", "FAILED", "USER_INPUT", or "BACKLOG" returns
 // a temporal.NonRetryableApplicationError to indicate that processing can not
@@ -73,7 +73,7 @@ func (a *PollTransferActivity) Execute(
 		"TransferID", params.TransferID,
 	)
 
-	jobTracker := NewJobTracker(a.clock, a.jobSvc, a.pkgSvc, params.PresActionID)
+	jobTracker := NewJobTracker(a.clock, a.jobSvc, a.ingestsvc, params.PresActionID)
 	ticker := time.NewTicker(a.cfg.PollInterval)
 	defer ticker.Stop()
 

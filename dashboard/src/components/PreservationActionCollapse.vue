@@ -8,7 +8,7 @@ import StatusBadge from "@/components/StatusBadge.vue";
 import { useAuthStore } from "@/stores/auth";
 
 const authStore = useAuthStore();
-const tasks = computed<api.EnduroPackagePreservationTask[]>(() => {
+const tasks = computed<api.EnduroIngestSipPreservationTask[]>(() => {
   if (!props.action.tasks) {
     return [];
   }
@@ -18,7 +18,7 @@ const tasks = computed<api.EnduroPackagePreservationTask[]>(() => {
 });
 
 const props = defineProps<{
-  action: api.EnduroPackagePreservationAction;
+  action: api.EnduroIngestSipPreservationAction;
   index: number;
 }>();
 
@@ -69,7 +69,7 @@ let expandCounter = ref<number>(0);
     >
       <PackageReviewAlert
         v-model:expandCounter="expandCounter"
-        v-if="authStore.checkAttributes(['package:review'])"
+        v-if="authStore.checkAttributes(['ingest:sips:review'])"
       />
       <ul class="accordion-body d-flex flex-column gap-1">
         <li

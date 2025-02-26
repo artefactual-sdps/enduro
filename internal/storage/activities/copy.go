@@ -21,12 +21,12 @@ func (a *CopyToPermanentLocationActivity) Execute(
 	ctx context.Context,
 	params *storage.CopyToPermanentLocationActivityParams,
 ) (*CopyToPermanentLocationActivityResult, error) {
-	p, err := a.storagesvc.ReadPackage(ctx, params.AIPID)
+	p, err := a.storagesvc.ReadAip(ctx, params.AIPID)
 	if err != nil {
 		return &CopyToPermanentLocationActivityResult{}, err
 	}
 
-	reader, err := a.storagesvc.PackageReader(ctx, p)
+	reader, err := a.storagesvc.AipReader(ctx, p)
 	if err != nil {
 		return &CopyToPermanentLocationActivityResult{}, err
 	}

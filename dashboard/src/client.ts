@@ -7,7 +7,7 @@ import { useAuthStore } from "@/stores/auth";
 
 export interface Client {
   about: api.AboutApi;
-  package: api.PackageApi;
+  ingest: api.IngestApi;
   storage: api.StorageApi;
   connectPackageMonitor: () => void;
 }
@@ -27,7 +27,7 @@ function getPath(): string {
 function storageServiceDownloadURL(aipId: string): string {
   return (
     getPath() +
-    `/storage/package/{aip_id}/download`.replace(
+    `/storage/aip/{aip_id}/download`.replace(
       `{${"aip_id"}}`,
       encodeURIComponent(aipId),
     )
@@ -48,7 +48,7 @@ function getWebSocketURL(): string {
 
 function connectPackageMonitor() {
   const store = usePackageStore();
-  const url = getWebSocketURL() + "/package/monitor";
+  const url = getWebSocketURL() + "/ingest/monitor";
   const socket = new WebSocket(url);
   socket.onmessage = (event: MessageEvent) => {
     const body = JSON.parse(event.data);
@@ -79,7 +79,7 @@ function createClient(): Client {
   });
   return {
     about: new api.AboutApi(config),
-    package: new api.PackageApi(config),
+    ingest: new api.IngestApi(config),
     storage: new api.StorageApi(config),
     connectPackageMonitor,
   };

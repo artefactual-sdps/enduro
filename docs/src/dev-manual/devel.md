@@ -213,7 +213,7 @@ sure you update `/path/to/enduro` to the proper project folder in the host):
 - Host path: `/path/to/enduro/hack/sampledata/StructB-AM.zip`
 - Object name: `StructB-AM.zip`
 
-Alternatively, you can submit a transfer using the `/package/upload` API via
+Alternatively, you can submit a transfer using the `/ingest/sip/upload` API via
 cURL by running the following make target:
 
 ```bash

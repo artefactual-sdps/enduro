@@ -17,37 +17,37 @@ import (
 	goa "goa.design/goa/v3/pkg"
 )
 
-// CreateRequestBody is the type of the "storage" service "create" endpoint
-// HTTP request body.
-type CreateRequestBody struct {
-	// Identifier of AIP
-	AipID *string `form:"aip_id,omitempty" json:"aip_id,omitempty" xml:"aip_id,omitempty"`
-	// Name of the package
+// CreateAipRequestBody is the type of the "storage" service "create_aip"
+// endpoint HTTP request body.
+type CreateAipRequestBody struct {
+	// Identifier of the AIP
+	UUID *string `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
+	// Name of the AIP
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
-	// ObjectKey of AIP
+	// ObjectKey of the AIP
 	ObjectKey *string `form:"object_key,omitempty" json:"object_key,omitempty" xml:"object_key,omitempty"`
-	// Status of the package
+	// Status of the the AIP
 	Status *string `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
-	// Identifier of the package's storage location
+	// Identifier of the AIP's storage location
 	LocationID *uuid.UUID `form:"location_id,omitempty" json:"location_id,omitempty" xml:"location_id,omitempty"`
 }
 
-// SubmitRequestBody is the type of the "storage" service "submit" endpoint
-// HTTP request body.
-type SubmitRequestBody struct {
+// SubmitAipRequestBody is the type of the "storage" service "submit_aip"
+// endpoint HTTP request body.
+type SubmitAipRequestBody struct {
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 }
 
-// MoveRequestBody is the type of the "storage" service "move" endpoint HTTP
-// request body.
-type MoveRequestBody struct {
+// MoveAipRequestBody is the type of the "storage" service "move_aip" endpoint
+// HTTP request body.
+type MoveAipRequestBody struct {
 	// Identifier of storage location
 	LocationID *uuid.UUID `form:"location_id,omitempty" json:"location_id,omitempty" xml:"location_id,omitempty"`
 }
 
-// AddLocationRequestBody is the type of the "storage" service "add_location"
-// endpoint HTTP request body.
-type AddLocationRequestBody struct {
+// CreateLocationRequestBody is the type of the "storage" service
+// "create_location" endpoint HTTP request body.
+type CreateLocationRequestBody struct {
 	Name        *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 	Description *string `form:"description,omitempty" json:"description,omitempty" xml:"description,omitempty"`
 	Source      *string `form:"source,omitempty" json:"source,omitempty" xml:"source,omitempty"`
@@ -64,12 +64,12 @@ type AddLocationRequestBody struct {
 	} `form:"config,omitempty" json:"config,omitempty" xml:"config,omitempty"`
 }
 
-// CreateResponseBody is the type of the "storage" service "create" endpoint
-// HTTP response body.
-type CreateResponseBody struct {
-	Name  string    `form:"name" json:"name" xml:"name"`
-	AipID uuid.UUID `form:"aip_id" json:"aip_id" xml:"aip_id"`
-	// Status of the package
+// CreateAipResponseBody is the type of the "storage" service "create_aip"
+// endpoint HTTP response body.
+type CreateAipResponseBody struct {
+	Name string    `form:"name" json:"name" xml:"name"`
+	UUID uuid.UUID `form:"uuid" json:"uuid" xml:"uuid"`
+	// Status of the AIP
 	Status    string    `form:"status" json:"status" xml:"status"`
 	ObjectKey uuid.UUID `form:"object_key" json:"object_key" xml:"object_key"`
 	// Identifier of storage location
@@ -78,24 +78,24 @@ type CreateResponseBody struct {
 	CreatedAt string `form:"created_at" json:"created_at" xml:"created_at"`
 }
 
-// SubmitResponseBody is the type of the "storage" service "submit" endpoint
-// HTTP response body.
-type SubmitResponseBody struct {
+// SubmitAipResponseBody is the type of the "storage" service "submit_aip"
+// endpoint HTTP response body.
+type SubmitAipResponseBody struct {
 	URL string `form:"url" json:"url" xml:"url"`
 }
 
-// MoveStatusResponseBody is the type of the "storage" service "move_status"
-// endpoint HTTP response body.
-type MoveStatusResponseBody struct {
+// MoveAipStatusResponseBody is the type of the "storage" service
+// "move_aip_status" endpoint HTTP response body.
+type MoveAipStatusResponseBody struct {
 	Done bool `form:"done" json:"done" xml:"done"`
 }
 
-// ShowResponseBody is the type of the "storage" service "show" endpoint HTTP
-// response body.
-type ShowResponseBody struct {
-	Name  string    `form:"name" json:"name" xml:"name"`
-	AipID uuid.UUID `form:"aip_id" json:"aip_id" xml:"aip_id"`
-	// Status of the package
+// ShowAipResponseBody is the type of the "storage" service "show_aip" endpoint
+// HTTP response body.
+type ShowAipResponseBody struct {
+	Name string    `form:"name" json:"name" xml:"name"`
+	UUID uuid.UUID `form:"uuid" json:"uuid" xml:"uuid"`
+	// Status of the AIP
 	Status    string    `form:"status" json:"status" xml:"status"`
 	ObjectKey uuid.UUID `form:"object_key" json:"object_key" xml:"object_key"`
 	// Identifier of storage location
@@ -104,13 +104,13 @@ type ShowResponseBody struct {
 	CreatedAt string `form:"created_at" json:"created_at" xml:"created_at"`
 }
 
-// LocationResponseCollection is the type of the "storage" service "locations"
-// endpoint HTTP response body.
+// LocationResponseCollection is the type of the "storage" service
+// "list_locations" endpoint HTTP response body.
 type LocationResponseCollection []*LocationResponse
 
-// AddLocationResponseBody is the type of the "storage" service "add_location"
-// endpoint HTTP response body.
-type AddLocationResponseBody struct {
+// CreateLocationResponseBody is the type of the "storage" service
+// "create_location" endpoint HTTP response body.
+type CreateLocationResponseBody struct {
 	UUID string `form:"uuid" json:"uuid" xml:"uuid"`
 }
 
@@ -130,13 +130,130 @@ type ShowLocationResponseBody struct {
 	CreatedAt string `form:"created_at" json:"created_at" xml:"created_at"`
 }
 
-// PackageResponseCollection is the type of the "storage" service
-// "location_packages" endpoint HTTP response body.
-type PackageResponseCollection []*PackageResponse
+// AIPResponseCollection is the type of the "storage" service
+// "list_location_aips" endpoint HTTP response body.
+type AIPResponseCollection []*AIPResponse
 
-// CreateNotValidResponseBody is the type of the "storage" service "create"
+// CreateAipNotValidResponseBody is the type of the "storage" service
+// "create_aip" endpoint HTTP response body for the "not_valid" error.
+type CreateAipNotValidResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// SubmitAipNotAvailableResponseBody is the type of the "storage" service
+// "submit_aip" endpoint HTTP response body for the "not_available" error.
+type SubmitAipNotAvailableResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// SubmitAipNotValidResponseBody is the type of the "storage" service
+// "submit_aip" endpoint HTTP response body for the "not_valid" error.
+type SubmitAipNotValidResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// UpdateAipNotAvailableResponseBody is the type of the "storage" service
+// "update_aip" endpoint HTTP response body for the "not_available" error.
+type UpdateAipNotAvailableResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// UpdateAipNotValidResponseBody is the type of the "storage" service
+// "update_aip" endpoint HTTP response body for the "not_valid" error.
+type UpdateAipNotValidResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// DownloadAipNotFoundResponseBody is the type of the "storage" service
+// "download_aip" endpoint HTTP response body for the "not_found" error.
+type DownloadAipNotFoundResponseBody struct {
+	// Message of error
+	Message string `form:"message" json:"message" xml:"message"`
+	// Identifier of missing AIP
+	UUID uuid.UUID `form:"uuid" json:"uuid" xml:"uuid"`
+}
+
+// MoveAipNotAvailableResponseBody is the type of the "storage" service
+// "move_aip" endpoint HTTP response body for the "not_available" error.
+type MoveAipNotAvailableResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// MoveAipNotValidResponseBody is the type of the "storage" service "move_aip"
 // endpoint HTTP response body for the "not_valid" error.
-type CreateNotValidResponseBody struct {
+type MoveAipNotValidResponseBody struct {
 	// Name is the name of this class of errors.
 	Name string `form:"name" json:"name" xml:"name"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -152,90 +269,19 @@ type CreateNotValidResponseBody struct {
 	Fault bool `form:"fault" json:"fault" xml:"fault"`
 }
 
-// SubmitNotAvailableResponseBody is the type of the "storage" service "submit"
-// endpoint HTTP response body for the "not_available" error.
-type SubmitNotAvailableResponseBody struct {
-	// Name is the name of this class of errors.
-	Name string `form:"name" json:"name" xml:"name"`
-	// ID is a unique identifier for this particular occurrence of the problem.
-	ID string `form:"id" json:"id" xml:"id"`
-	// Message is a human-readable explanation specific to this occurrence of the
-	// problem.
-	Message string `form:"message" json:"message" xml:"message"`
-	// Is the error temporary?
-	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
-	// Is the error a timeout?
-	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
-	// Is the error a server-side fault?
-	Fault bool `form:"fault" json:"fault" xml:"fault"`
-}
-
-// SubmitNotValidResponseBody is the type of the "storage" service "submit"
-// endpoint HTTP response body for the "not_valid" error.
-type SubmitNotValidResponseBody struct {
-	// Name is the name of this class of errors.
-	Name string `form:"name" json:"name" xml:"name"`
-	// ID is a unique identifier for this particular occurrence of the problem.
-	ID string `form:"id" json:"id" xml:"id"`
-	// Message is a human-readable explanation specific to this occurrence of the
-	// problem.
-	Message string `form:"message" json:"message" xml:"message"`
-	// Is the error temporary?
-	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
-	// Is the error a timeout?
-	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
-	// Is the error a server-side fault?
-	Fault bool `form:"fault" json:"fault" xml:"fault"`
-}
-
-// UpdateNotAvailableResponseBody is the type of the "storage" service "update"
-// endpoint HTTP response body for the "not_available" error.
-type UpdateNotAvailableResponseBody struct {
-	// Name is the name of this class of errors.
-	Name string `form:"name" json:"name" xml:"name"`
-	// ID is a unique identifier for this particular occurrence of the problem.
-	ID string `form:"id" json:"id" xml:"id"`
-	// Message is a human-readable explanation specific to this occurrence of the
-	// problem.
-	Message string `form:"message" json:"message" xml:"message"`
-	// Is the error temporary?
-	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
-	// Is the error a timeout?
-	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
-	// Is the error a server-side fault?
-	Fault bool `form:"fault" json:"fault" xml:"fault"`
-}
-
-// UpdateNotValidResponseBody is the type of the "storage" service "update"
-// endpoint HTTP response body for the "not_valid" error.
-type UpdateNotValidResponseBody struct {
-	// Name is the name of this class of errors.
-	Name string `form:"name" json:"name" xml:"name"`
-	// ID is a unique identifier for this particular occurrence of the problem.
-	ID string `form:"id" json:"id" xml:"id"`
-	// Message is a human-readable explanation specific to this occurrence of the
-	// problem.
-	Message string `form:"message" json:"message" xml:"message"`
-	// Is the error temporary?
-	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
-	// Is the error a timeout?
-	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
-	// Is the error a server-side fault?
-	Fault bool `form:"fault" json:"fault" xml:"fault"`
-}
-
-// DownloadNotFoundResponseBody is the type of the "storage" service "download"
+// MoveAipNotFoundResponseBody is the type of the "storage" service "move_aip"
 // endpoint HTTP response body for the "not_found" error.
-type DownloadNotFoundResponseBody struct {
+type MoveAipNotFoundResponseBody struct {
 	// Message of error
 	Message string `form:"message" json:"message" xml:"message"`
-	// Identifier of missing package
-	AipID uuid.UUID `form:"aip_id" json:"aip_id" xml:"aip_id"`
+	// Identifier of missing AIP
+	UUID uuid.UUID `form:"uuid" json:"uuid" xml:"uuid"`
 }
 
-// MoveNotAvailableResponseBody is the type of the "storage" service "move"
-// endpoint HTTP response body for the "not_available" error.
-type MoveNotAvailableResponseBody struct {
+// MoveAipStatusFailedDependencyResponseBody is the type of the "storage"
+// service "move_aip_status" endpoint HTTP response body for the
+// "failed_dependency" error.
+type MoveAipStatusFailedDependencyResponseBody struct {
 	// Name is the name of this class of errors.
 	Name string `form:"name" json:"name" xml:"name"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -251,9 +297,18 @@ type MoveNotAvailableResponseBody struct {
 	Fault bool `form:"fault" json:"fault" xml:"fault"`
 }
 
-// MoveNotValidResponseBody is the type of the "storage" service "move"
-// endpoint HTTP response body for the "not_valid" error.
-type MoveNotValidResponseBody struct {
+// MoveAipStatusNotFoundResponseBody is the type of the "storage" service
+// "move_aip_status" endpoint HTTP response body for the "not_found" error.
+type MoveAipStatusNotFoundResponseBody struct {
+	// Message of error
+	Message string `form:"message" json:"message" xml:"message"`
+	// Identifier of missing AIP
+	UUID uuid.UUID `form:"uuid" json:"uuid" xml:"uuid"`
+}
+
+// RejectAipNotAvailableResponseBody is the type of the "storage" service
+// "reject_aip" endpoint HTTP response body for the "not_available" error.
+type RejectAipNotAvailableResponseBody struct {
 	// Name is the name of this class of errors.
 	Name string `form:"name" json:"name" xml:"name"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -269,99 +324,45 @@ type MoveNotValidResponseBody struct {
 	Fault bool `form:"fault" json:"fault" xml:"fault"`
 }
 
-// MoveNotFoundResponseBody is the type of the "storage" service "move"
+// RejectAipNotValidResponseBody is the type of the "storage" service
+// "reject_aip" endpoint HTTP response body for the "not_valid" error.
+type RejectAipNotValidResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// RejectAipNotFoundResponseBody is the type of the "storage" service
+// "reject_aip" endpoint HTTP response body for the "not_found" error.
+type RejectAipNotFoundResponseBody struct {
+	// Message of error
+	Message string `form:"message" json:"message" xml:"message"`
+	// Identifier of missing AIP
+	UUID uuid.UUID `form:"uuid" json:"uuid" xml:"uuid"`
+}
+
+// ShowAipNotFoundResponseBody is the type of the "storage" service "show_aip"
 // endpoint HTTP response body for the "not_found" error.
-type MoveNotFoundResponseBody struct {
+type ShowAipNotFoundResponseBody struct {
 	// Message of error
 	Message string `form:"message" json:"message" xml:"message"`
-	// Identifier of missing package
-	AipID uuid.UUID `form:"aip_id" json:"aip_id" xml:"aip_id"`
+	// Identifier of missing AIP
+	UUID uuid.UUID `form:"uuid" json:"uuid" xml:"uuid"`
 }
 
-// MoveStatusFailedDependencyResponseBody is the type of the "storage" service
-// "move_status" endpoint HTTP response body for the "failed_dependency" error.
-type MoveStatusFailedDependencyResponseBody struct {
-	// Name is the name of this class of errors.
-	Name string `form:"name" json:"name" xml:"name"`
-	// ID is a unique identifier for this particular occurrence of the problem.
-	ID string `form:"id" json:"id" xml:"id"`
-	// Message is a human-readable explanation specific to this occurrence of the
-	// problem.
-	Message string `form:"message" json:"message" xml:"message"`
-	// Is the error temporary?
-	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
-	// Is the error a timeout?
-	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
-	// Is the error a server-side fault?
-	Fault bool `form:"fault" json:"fault" xml:"fault"`
-}
-
-// MoveStatusNotFoundResponseBody is the type of the "storage" service
-// "move_status" endpoint HTTP response body for the "not_found" error.
-type MoveStatusNotFoundResponseBody struct {
-	// Message of error
-	Message string `form:"message" json:"message" xml:"message"`
-	// Identifier of missing package
-	AipID uuid.UUID `form:"aip_id" json:"aip_id" xml:"aip_id"`
-}
-
-// RejectNotAvailableResponseBody is the type of the "storage" service "reject"
-// endpoint HTTP response body for the "not_available" error.
-type RejectNotAvailableResponseBody struct {
-	// Name is the name of this class of errors.
-	Name string `form:"name" json:"name" xml:"name"`
-	// ID is a unique identifier for this particular occurrence of the problem.
-	ID string `form:"id" json:"id" xml:"id"`
-	// Message is a human-readable explanation specific to this occurrence of the
-	// problem.
-	Message string `form:"message" json:"message" xml:"message"`
-	// Is the error temporary?
-	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
-	// Is the error a timeout?
-	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
-	// Is the error a server-side fault?
-	Fault bool `form:"fault" json:"fault" xml:"fault"`
-}
-
-// RejectNotValidResponseBody is the type of the "storage" service "reject"
-// endpoint HTTP response body for the "not_valid" error.
-type RejectNotValidResponseBody struct {
-	// Name is the name of this class of errors.
-	Name string `form:"name" json:"name" xml:"name"`
-	// ID is a unique identifier for this particular occurrence of the problem.
-	ID string `form:"id" json:"id" xml:"id"`
-	// Message is a human-readable explanation specific to this occurrence of the
-	// problem.
-	Message string `form:"message" json:"message" xml:"message"`
-	// Is the error temporary?
-	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
-	// Is the error a timeout?
-	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
-	// Is the error a server-side fault?
-	Fault bool `form:"fault" json:"fault" xml:"fault"`
-}
-
-// RejectNotFoundResponseBody is the type of the "storage" service "reject"
-// endpoint HTTP response body for the "not_found" error.
-type RejectNotFoundResponseBody struct {
-	// Message of error
-	Message string `form:"message" json:"message" xml:"message"`
-	// Identifier of missing package
-	AipID uuid.UUID `form:"aip_id" json:"aip_id" xml:"aip_id"`
-}
-
-// ShowNotFoundResponseBody is the type of the "storage" service "show"
-// endpoint HTTP response body for the "not_found" error.
-type ShowNotFoundResponseBody struct {
-	// Message of error
-	Message string `form:"message" json:"message" xml:"message"`
-	// Identifier of missing package
-	AipID uuid.UUID `form:"aip_id" json:"aip_id" xml:"aip_id"`
-}
-
-// AddLocationNotValidResponseBody is the type of the "storage" service
-// "add_location" endpoint HTTP response body for the "not_valid" error.
-type AddLocationNotValidResponseBody struct {
+// CreateLocationNotValidResponseBody is the type of the "storage" service
+// "create_location" endpoint HTTP response body for the "not_valid" error.
+type CreateLocationNotValidResponseBody struct {
 	// Name is the name of this class of errors.
 	Name string `form:"name" json:"name" xml:"name"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -385,9 +386,9 @@ type ShowLocationNotFoundResponseBody struct {
 	UUID    uuid.UUID `form:"uuid" json:"uuid" xml:"uuid"`
 }
 
-// LocationPackagesNotValidResponseBody is the type of the "storage" service
-// "location_packages" endpoint HTTP response body for the "not_valid" error.
-type LocationPackagesNotValidResponseBody struct {
+// ListLocationAipsNotValidResponseBody is the type of the "storage" service
+// "list_location_aips" endpoint HTTP response body for the "not_valid" error.
+type ListLocationAipsNotValidResponseBody struct {
 	// Name is the name of this class of errors.
 	Name string `form:"name" json:"name" xml:"name"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -403,9 +404,9 @@ type LocationPackagesNotValidResponseBody struct {
 	Fault bool `form:"fault" json:"fault" xml:"fault"`
 }
 
-// LocationPackagesNotFoundResponseBody is the type of the "storage" service
-// "location_packages" endpoint HTTP response body for the "not_found" error.
-type LocationPackagesNotFoundResponseBody struct {
+// ListLocationAipsNotFoundResponseBody is the type of the "storage" service
+// "list_location_aips" endpoint HTTP response body for the "not_found" error.
+type ListLocationAipsNotFoundResponseBody struct {
 	// Message of error
 	Message string    `form:"message" json:"message" xml:"message"`
 	UUID    uuid.UUID `form:"uuid" json:"uuid" xml:"uuid"`
@@ -426,11 +427,11 @@ type LocationResponse struct {
 	CreatedAt string `form:"created_at" json:"created_at" xml:"created_at"`
 }
 
-// PackageResponse is used to define fields on response body types.
-type PackageResponse struct {
-	Name  string    `form:"name" json:"name" xml:"name"`
-	AipID uuid.UUID `form:"aip_id" json:"aip_id" xml:"aip_id"`
-	// Status of the package
+// AIPResponse is used to define fields on response body types.
+type AIPResponse struct {
+	Name string    `form:"name" json:"name" xml:"name"`
+	UUID uuid.UUID `form:"uuid" json:"uuid" xml:"uuid"`
+	// Status of the AIP
 	Status    string    `form:"status" json:"status" xml:"status"`
 	ObjectKey uuid.UUID `form:"object_key" json:"object_key" xml:"object_key"`
 	// Identifier of storage location
@@ -439,12 +440,12 @@ type PackageResponse struct {
 	CreatedAt string `form:"created_at" json:"created_at" xml:"created_at"`
 }
 
-// NewCreateResponseBody builds the HTTP response body from the result of the
-// "create" endpoint of the "storage" service.
-func NewCreateResponseBody(res *storageviews.PackageView) *CreateResponseBody {
-	body := &CreateResponseBody{
+// NewCreateAipResponseBody builds the HTTP response body from the result of
+// the "create_aip" endpoint of the "storage" service.
+func NewCreateAipResponseBody(res *storageviews.AIPView) *CreateAipResponseBody {
+	body := &CreateAipResponseBody{
 		Name:       *res.Name,
-		AipID:      *res.AipID,
+		UUID:       *res.UUID,
 		Status:     *res.Status,
 		ObjectKey:  *res.ObjectKey,
 		LocationID: res.LocationID,
@@ -453,30 +454,30 @@ func NewCreateResponseBody(res *storageviews.PackageView) *CreateResponseBody {
 	return body
 }
 
-// NewSubmitResponseBody builds the HTTP response body from the result of the
-// "submit" endpoint of the "storage" service.
-func NewSubmitResponseBody(res *storage.SubmitResult) *SubmitResponseBody {
-	body := &SubmitResponseBody{
+// NewSubmitAipResponseBody builds the HTTP response body from the result of
+// the "submit_aip" endpoint of the "storage" service.
+func NewSubmitAipResponseBody(res *storage.SubmitAIPResult) *SubmitAipResponseBody {
+	body := &SubmitAipResponseBody{
 		URL: res.URL,
 	}
 	return body
 }
 
-// NewMoveStatusResponseBody builds the HTTP response body from the result of
-// the "move_status" endpoint of the "storage" service.
-func NewMoveStatusResponseBody(res *storage.MoveStatusResult) *MoveStatusResponseBody {
-	body := &MoveStatusResponseBody{
+// NewMoveAipStatusResponseBody builds the HTTP response body from the result
+// of the "move_aip_status" endpoint of the "storage" service.
+func NewMoveAipStatusResponseBody(res *storage.MoveStatusResult) *MoveAipStatusResponseBody {
+	body := &MoveAipStatusResponseBody{
 		Done: res.Done,
 	}
 	return body
 }
 
-// NewShowResponseBody builds the HTTP response body from the result of the
-// "show" endpoint of the "storage" service.
-func NewShowResponseBody(res *storageviews.PackageView) *ShowResponseBody {
-	body := &ShowResponseBody{
+// NewShowAipResponseBody builds the HTTP response body from the result of the
+// "show_aip" endpoint of the "storage" service.
+func NewShowAipResponseBody(res *storageviews.AIPView) *ShowAipResponseBody {
+	body := &ShowAipResponseBody{
 		Name:       *res.Name,
-		AipID:      *res.AipID,
+		UUID:       *res.UUID,
 		Status:     *res.Status,
 		ObjectKey:  *res.ObjectKey,
 		LocationID: res.LocationID,
@@ -486,7 +487,7 @@ func NewShowResponseBody(res *storageviews.PackageView) *ShowResponseBody {
 }
 
 // NewLocationResponseCollection builds the HTTP response body from the result
-// of the "locations" endpoint of the "storage" service.
+// of the "list_locations" endpoint of the "storage" service.
 func NewLocationResponseCollection(res storageviews.LocationCollectionView) LocationResponseCollection {
 	body := make([]*LocationResponse, len(res))
 	for i, val := range res {
@@ -495,10 +496,10 @@ func NewLocationResponseCollection(res storageviews.LocationCollectionView) Loca
 	return body
 }
 
-// NewAddLocationResponseBody builds the HTTP response body from the result of
-// the "add_location" endpoint of the "storage" service.
-func NewAddLocationResponseBody(res *storage.AddLocationResult) *AddLocationResponseBody {
-	body := &AddLocationResponseBody{
+// NewCreateLocationResponseBody builds the HTTP response body from the result
+// of the "create_location" endpoint of the "storage" service.
+func NewCreateLocationResponseBody(res *storage.CreateLocationResult) *CreateLocationResponseBody {
+	body := &CreateLocationResponseBody{
 		UUID: res.UUID,
 	}
 	return body
@@ -518,20 +519,20 @@ func NewShowLocationResponseBody(res *storageviews.LocationView) *ShowLocationRe
 	return body
 }
 
-// NewPackageResponseCollection builds the HTTP response body from the result
-// of the "location_packages" endpoint of the "storage" service.
-func NewPackageResponseCollection(res storageviews.PackageCollectionView) PackageResponseCollection {
-	body := make([]*PackageResponse, len(res))
+// NewAIPResponseCollection builds the HTTP response body from the result of
+// the "list_location_aips" endpoint of the "storage" service.
+func NewAIPResponseCollection(res storageviews.AIPCollectionView) AIPResponseCollection {
+	body := make([]*AIPResponse, len(res))
 	for i, val := range res {
-		body[i] = marshalStorageviewsPackageViewToPackageResponse(val)
+		body[i] = marshalStorageviewsAIPViewToAIPResponse(val)
 	}
 	return body
 }
 
-// NewCreateNotValidResponseBody builds the HTTP response body from the result
-// of the "create" endpoint of the "storage" service.
-func NewCreateNotValidResponseBody(res *goa.ServiceError) *CreateNotValidResponseBody {
-	body := &CreateNotValidResponseBody{
+// NewCreateAipNotValidResponseBody builds the HTTP response body from the
+// result of the "create_aip" endpoint of the "storage" service.
+func NewCreateAipNotValidResponseBody(res *goa.ServiceError) *CreateAipNotValidResponseBody {
+	body := &CreateAipNotValidResponseBody{
 		Name:      res.Name,
 		ID:        res.ID,
 		Message:   res.Message,
@@ -542,10 +543,10 @@ func NewCreateNotValidResponseBody(res *goa.ServiceError) *CreateNotValidRespons
 	return body
 }
 
-// NewSubmitNotAvailableResponseBody builds the HTTP response body from the
-// result of the "submit" endpoint of the "storage" service.
-func NewSubmitNotAvailableResponseBody(res *goa.ServiceError) *SubmitNotAvailableResponseBody {
-	body := &SubmitNotAvailableResponseBody{
+// NewSubmitAipNotAvailableResponseBody builds the HTTP response body from the
+// result of the "submit_aip" endpoint of the "storage" service.
+func NewSubmitAipNotAvailableResponseBody(res *goa.ServiceError) *SubmitAipNotAvailableResponseBody {
+	body := &SubmitAipNotAvailableResponseBody{
 		Name:      res.Name,
 		ID:        res.ID,
 		Message:   res.Message,
@@ -556,10 +557,10 @@ func NewSubmitNotAvailableResponseBody(res *goa.ServiceError) *SubmitNotAvailabl
 	return body
 }
 
-// NewSubmitNotValidResponseBody builds the HTTP response body from the result
-// of the "submit" endpoint of the "storage" service.
-func NewSubmitNotValidResponseBody(res *goa.ServiceError) *SubmitNotValidResponseBody {
-	body := &SubmitNotValidResponseBody{
+// NewSubmitAipNotValidResponseBody builds the HTTP response body from the
+// result of the "submit_aip" endpoint of the "storage" service.
+func NewSubmitAipNotValidResponseBody(res *goa.ServiceError) *SubmitAipNotValidResponseBody {
+	body := &SubmitAipNotValidResponseBody{
 		Name:      res.Name,
 		ID:        res.ID,
 		Message:   res.Message,
@@ -570,10 +571,10 @@ func NewSubmitNotValidResponseBody(res *goa.ServiceError) *SubmitNotValidRespons
 	return body
 }
 
-// NewUpdateNotAvailableResponseBody builds the HTTP response body from the
-// result of the "update" endpoint of the "storage" service.
-func NewUpdateNotAvailableResponseBody(res *goa.ServiceError) *UpdateNotAvailableResponseBody {
-	body := &UpdateNotAvailableResponseBody{
+// NewUpdateAipNotAvailableResponseBody builds the HTTP response body from the
+// result of the "update_aip" endpoint of the "storage" service.
+func NewUpdateAipNotAvailableResponseBody(res *goa.ServiceError) *UpdateAipNotAvailableResponseBody {
+	body := &UpdateAipNotAvailableResponseBody{
 		Name:      res.Name,
 		ID:        res.ID,
 		Message:   res.Message,
@@ -584,10 +585,10 @@ func NewUpdateNotAvailableResponseBody(res *goa.ServiceError) *UpdateNotAvailabl
 	return body
 }
 
-// NewUpdateNotValidResponseBody builds the HTTP response body from the result
-// of the "update" endpoint of the "storage" service.
-func NewUpdateNotValidResponseBody(res *goa.ServiceError) *UpdateNotValidResponseBody {
-	body := &UpdateNotValidResponseBody{
+// NewUpdateAipNotValidResponseBody builds the HTTP response body from the
+// result of the "update_aip" endpoint of the "storage" service.
+func NewUpdateAipNotValidResponseBody(res *goa.ServiceError) *UpdateAipNotValidResponseBody {
+	body := &UpdateAipNotValidResponseBody{
 		Name:      res.Name,
 		ID:        res.ID,
 		Message:   res.Message,
@@ -598,20 +599,20 @@ func NewUpdateNotValidResponseBody(res *goa.ServiceError) *UpdateNotValidRespons
 	return body
 }
 
-// NewDownloadNotFoundResponseBody builds the HTTP response body from the
-// result of the "download" endpoint of the "storage" service.
-func NewDownloadNotFoundResponseBody(res *storage.PackageNotFound) *DownloadNotFoundResponseBody {
-	body := &DownloadNotFoundResponseBody{
+// NewDownloadAipNotFoundResponseBody builds the HTTP response body from the
+// result of the "download_aip" endpoint of the "storage" service.
+func NewDownloadAipNotFoundResponseBody(res *storage.AIPNotFound) *DownloadAipNotFoundResponseBody {
+	body := &DownloadAipNotFoundResponseBody{
 		Message: res.Message,
-		AipID:   res.AipID,
+		UUID:    res.UUID,
 	}
 	return body
 }
 
-// NewMoveNotAvailableResponseBody builds the HTTP response body from the
-// result of the "move" endpoint of the "storage" service.
-func NewMoveNotAvailableResponseBody(res *goa.ServiceError) *MoveNotAvailableResponseBody {
-	body := &MoveNotAvailableResponseBody{
+// NewMoveAipNotAvailableResponseBody builds the HTTP response body from the
+// result of the "move_aip" endpoint of the "storage" service.
+func NewMoveAipNotAvailableResponseBody(res *goa.ServiceError) *MoveAipNotAvailableResponseBody {
+	body := &MoveAipNotAvailableResponseBody{
 		Name:      res.Name,
 		ID:        res.ID,
 		Message:   res.Message,
@@ -622,10 +623,10 @@ func NewMoveNotAvailableResponseBody(res *goa.ServiceError) *MoveNotAvailableRes
 	return body
 }
 
-// NewMoveNotValidResponseBody builds the HTTP response body from the result of
-// the "move" endpoint of the "storage" service.
-func NewMoveNotValidResponseBody(res *goa.ServiceError) *MoveNotValidResponseBody {
-	body := &MoveNotValidResponseBody{
+// NewMoveAipNotValidResponseBody builds the HTTP response body from the result
+// of the "move_aip" endpoint of the "storage" service.
+func NewMoveAipNotValidResponseBody(res *goa.ServiceError) *MoveAipNotValidResponseBody {
+	body := &MoveAipNotValidResponseBody{
 		Name:      res.Name,
 		ID:        res.ID,
 		Message:   res.Message,
@@ -636,20 +637,20 @@ func NewMoveNotValidResponseBody(res *goa.ServiceError) *MoveNotValidResponseBod
 	return body
 }
 
-// NewMoveNotFoundResponseBody builds the HTTP response body from the result of
-// the "move" endpoint of the "storage" service.
-func NewMoveNotFoundResponseBody(res *storage.PackageNotFound) *MoveNotFoundResponseBody {
-	body := &MoveNotFoundResponseBody{
+// NewMoveAipNotFoundResponseBody builds the HTTP response body from the result
+// of the "move_aip" endpoint of the "storage" service.
+func NewMoveAipNotFoundResponseBody(res *storage.AIPNotFound) *MoveAipNotFoundResponseBody {
+	body := &MoveAipNotFoundResponseBody{
 		Message: res.Message,
-		AipID:   res.AipID,
+		UUID:    res.UUID,
 	}
 	return body
 }
 
-// NewMoveStatusFailedDependencyResponseBody builds the HTTP response body from
-// the result of the "move_status" endpoint of the "storage" service.
-func NewMoveStatusFailedDependencyResponseBody(res *goa.ServiceError) *MoveStatusFailedDependencyResponseBody {
-	body := &MoveStatusFailedDependencyResponseBody{
+// NewMoveAipStatusFailedDependencyResponseBody builds the HTTP response body
+// from the result of the "move_aip_status" endpoint of the "storage" service.
+func NewMoveAipStatusFailedDependencyResponseBody(res *goa.ServiceError) *MoveAipStatusFailedDependencyResponseBody {
+	body := &MoveAipStatusFailedDependencyResponseBody{
 		Name:      res.Name,
 		ID:        res.ID,
 		Message:   res.Message,
@@ -660,20 +661,20 @@ func NewMoveStatusFailedDependencyResponseBody(res *goa.ServiceError) *MoveStatu
 	return body
 }
 
-// NewMoveStatusNotFoundResponseBody builds the HTTP response body from the
-// result of the "move_status" endpoint of the "storage" service.
-func NewMoveStatusNotFoundResponseBody(res *storage.PackageNotFound) *MoveStatusNotFoundResponseBody {
-	body := &MoveStatusNotFoundResponseBody{
+// NewMoveAipStatusNotFoundResponseBody builds the HTTP response body from the
+// result of the "move_aip_status" endpoint of the "storage" service.
+func NewMoveAipStatusNotFoundResponseBody(res *storage.AIPNotFound) *MoveAipStatusNotFoundResponseBody {
+	body := &MoveAipStatusNotFoundResponseBody{
 		Message: res.Message,
-		AipID:   res.AipID,
+		UUID:    res.UUID,
 	}
 	return body
 }
 
-// NewRejectNotAvailableResponseBody builds the HTTP response body from the
-// result of the "reject" endpoint of the "storage" service.
-func NewRejectNotAvailableResponseBody(res *goa.ServiceError) *RejectNotAvailableResponseBody {
-	body := &RejectNotAvailableResponseBody{
+// NewRejectAipNotAvailableResponseBody builds the HTTP response body from the
+// result of the "reject_aip" endpoint of the "storage" service.
+func NewRejectAipNotAvailableResponseBody(res *goa.ServiceError) *RejectAipNotAvailableResponseBody {
+	body := &RejectAipNotAvailableResponseBody{
 		Name:      res.Name,
 		ID:        res.ID,
 		Message:   res.Message,
@@ -684,10 +685,10 @@ func NewRejectNotAvailableResponseBody(res *goa.ServiceError) *RejectNotAvailabl
 	return body
 }
 
-// NewRejectNotValidResponseBody builds the HTTP response body from the result
-// of the "reject" endpoint of the "storage" service.
-func NewRejectNotValidResponseBody(res *goa.ServiceError) *RejectNotValidResponseBody {
-	body := &RejectNotValidResponseBody{
+// NewRejectAipNotValidResponseBody builds the HTTP response body from the
+// result of the "reject_aip" endpoint of the "storage" service.
+func NewRejectAipNotValidResponseBody(res *goa.ServiceError) *RejectAipNotValidResponseBody {
+	body := &RejectAipNotValidResponseBody{
 		Name:      res.Name,
 		ID:        res.ID,
 		Message:   res.Message,
@@ -698,30 +699,30 @@ func NewRejectNotValidResponseBody(res *goa.ServiceError) *RejectNotValidRespons
 	return body
 }
 
-// NewRejectNotFoundResponseBody builds the HTTP response body from the result
-// of the "reject" endpoint of the "storage" service.
-func NewRejectNotFoundResponseBody(res *storage.PackageNotFound) *RejectNotFoundResponseBody {
-	body := &RejectNotFoundResponseBody{
+// NewRejectAipNotFoundResponseBody builds the HTTP response body from the
+// result of the "reject_aip" endpoint of the "storage" service.
+func NewRejectAipNotFoundResponseBody(res *storage.AIPNotFound) *RejectAipNotFoundResponseBody {
+	body := &RejectAipNotFoundResponseBody{
 		Message: res.Message,
-		AipID:   res.AipID,
+		UUID:    res.UUID,
 	}
 	return body
 }
 
-// NewShowNotFoundResponseBody builds the HTTP response body from the result of
-// the "show" endpoint of the "storage" service.
-func NewShowNotFoundResponseBody(res *storage.PackageNotFound) *ShowNotFoundResponseBody {
-	body := &ShowNotFoundResponseBody{
+// NewShowAipNotFoundResponseBody builds the HTTP response body from the result
+// of the "show_aip" endpoint of the "storage" service.
+func NewShowAipNotFoundResponseBody(res *storage.AIPNotFound) *ShowAipNotFoundResponseBody {
+	body := &ShowAipNotFoundResponseBody{
 		Message: res.Message,
-		AipID:   res.AipID,
+		UUID:    res.UUID,
 	}
 	return body
 }
 
-// NewAddLocationNotValidResponseBody builds the HTTP response body from the
-// result of the "add_location" endpoint of the "storage" service.
-func NewAddLocationNotValidResponseBody(res *goa.ServiceError) *AddLocationNotValidResponseBody {
-	body := &AddLocationNotValidResponseBody{
+// NewCreateLocationNotValidResponseBody builds the HTTP response body from the
+// result of the "create_location" endpoint of the "storage" service.
+func NewCreateLocationNotValidResponseBody(res *goa.ServiceError) *CreateLocationNotValidResponseBody {
+	body := &CreateLocationNotValidResponseBody{
 		Name:      res.Name,
 		ID:        res.ID,
 		Message:   res.Message,
@@ -742,10 +743,10 @@ func NewShowLocationNotFoundResponseBody(res *storage.LocationNotFound) *ShowLoc
 	return body
 }
 
-// NewLocationPackagesNotValidResponseBody builds the HTTP response body from
-// the result of the "location_packages" endpoint of the "storage" service.
-func NewLocationPackagesNotValidResponseBody(res *goa.ServiceError) *LocationPackagesNotValidResponseBody {
-	body := &LocationPackagesNotValidResponseBody{
+// NewListLocationAipsNotValidResponseBody builds the HTTP response body from
+// the result of the "list_location_aips" endpoint of the "storage" service.
+func NewListLocationAipsNotValidResponseBody(res *goa.ServiceError) *ListLocationAipsNotValidResponseBody {
+	body := &ListLocationAipsNotValidResponseBody{
 		Name:      res.Name,
 		ID:        res.ID,
 		Message:   res.Message,
@@ -756,20 +757,20 @@ func NewLocationPackagesNotValidResponseBody(res *goa.ServiceError) *LocationPac
 	return body
 }
 
-// NewLocationPackagesNotFoundResponseBody builds the HTTP response body from
-// the result of the "location_packages" endpoint of the "storage" service.
-func NewLocationPackagesNotFoundResponseBody(res *storage.LocationNotFound) *LocationPackagesNotFoundResponseBody {
-	body := &LocationPackagesNotFoundResponseBody{
+// NewListLocationAipsNotFoundResponseBody builds the HTTP response body from
+// the result of the "list_location_aips" endpoint of the "storage" service.
+func NewListLocationAipsNotFoundResponseBody(res *storage.LocationNotFound) *ListLocationAipsNotFoundResponseBody {
+	body := &ListLocationAipsNotFoundResponseBody{
 		Message: res.Message,
 		UUID:    res.UUID,
 	}
 	return body
 }
 
-// NewCreatePayload builds a storage service create endpoint payload.
-func NewCreatePayload(body *CreateRequestBody, token *string) *storage.CreatePayload {
-	v := &storage.CreatePayload{
-		AipID:      *body.AipID,
+// NewCreateAipPayload builds a storage service create_aip endpoint payload.
+func NewCreateAipPayload(body *CreateAipRequestBody, token *string) *storage.CreateAipPayload {
+	v := &storage.CreateAipPayload{
+		UUID:       *body.UUID,
 		Name:       *body.Name,
 		ObjectKey:  *body.ObjectKey,
 		LocationID: body.LocationID,
@@ -785,84 +786,87 @@ func NewCreatePayload(body *CreateRequestBody, token *string) *storage.CreatePay
 	return v
 }
 
-// NewSubmitPayload builds a storage service submit endpoint payload.
-func NewSubmitPayload(body *SubmitRequestBody, aipID string, token *string) *storage.SubmitPayload {
-	v := &storage.SubmitPayload{
+// NewSubmitAipPayload builds a storage service submit_aip endpoint payload.
+func NewSubmitAipPayload(body *SubmitAipRequestBody, uuid string, token *string) *storage.SubmitAipPayload {
+	v := &storage.SubmitAipPayload{
 		Name: *body.Name,
 	}
-	v.AipID = aipID
+	v.UUID = uuid
 	v.Token = token
 
 	return v
 }
 
-// NewUpdatePayload builds a storage service update endpoint payload.
-func NewUpdatePayload(aipID string, token *string) *storage.UpdatePayload {
-	v := &storage.UpdatePayload{}
-	v.AipID = aipID
+// NewUpdateAipPayload builds a storage service update_aip endpoint payload.
+func NewUpdateAipPayload(uuid string, token *string) *storage.UpdateAipPayload {
+	v := &storage.UpdateAipPayload{}
+	v.UUID = uuid
 	v.Token = token
 
 	return v
 }
 
-// NewDownloadPayload builds a storage service download endpoint payload.
-func NewDownloadPayload(aipID string, token *string) *storage.DownloadPayload {
-	v := &storage.DownloadPayload{}
-	v.AipID = aipID
+// NewDownloadAipPayload builds a storage service download_aip endpoint payload.
+func NewDownloadAipPayload(uuid string, token *string) *storage.DownloadAipPayload {
+	v := &storage.DownloadAipPayload{}
+	v.UUID = uuid
 	v.Token = token
 
 	return v
 }
 
-// NewMovePayload builds a storage service move endpoint payload.
-func NewMovePayload(body *MoveRequestBody, aipID string, token *string) *storage.MovePayload {
-	v := &storage.MovePayload{
+// NewMoveAipPayload builds a storage service move_aip endpoint payload.
+func NewMoveAipPayload(body *MoveAipRequestBody, uuid string, token *string) *storage.MoveAipPayload {
+	v := &storage.MoveAipPayload{
 		LocationID: *body.LocationID,
 	}
-	v.AipID = aipID
+	v.UUID = uuid
 	v.Token = token
 
 	return v
 }
 
-// NewMoveStatusPayload builds a storage service move_status endpoint payload.
-func NewMoveStatusPayload(aipID string, token *string) *storage.MoveStatusPayload {
-	v := &storage.MoveStatusPayload{}
-	v.AipID = aipID
+// NewMoveAipStatusPayload builds a storage service move_aip_status endpoint
+// payload.
+func NewMoveAipStatusPayload(uuid string, token *string) *storage.MoveAipStatusPayload {
+	v := &storage.MoveAipStatusPayload{}
+	v.UUID = uuid
 	v.Token = token
 
 	return v
 }
 
-// NewRejectPayload builds a storage service reject endpoint payload.
-func NewRejectPayload(aipID string, token *string) *storage.RejectPayload {
-	v := &storage.RejectPayload{}
-	v.AipID = aipID
+// NewRejectAipPayload builds a storage service reject_aip endpoint payload.
+func NewRejectAipPayload(uuid string, token *string) *storage.RejectAipPayload {
+	v := &storage.RejectAipPayload{}
+	v.UUID = uuid
 	v.Token = token
 
 	return v
 }
 
-// NewShowPayload builds a storage service show endpoint payload.
-func NewShowPayload(aipID string, token *string) *storage.ShowPayload {
-	v := &storage.ShowPayload{}
-	v.AipID = aipID
+// NewShowAipPayload builds a storage service show_aip endpoint payload.
+func NewShowAipPayload(uuid string, token *string) *storage.ShowAipPayload {
+	v := &storage.ShowAipPayload{}
+	v.UUID = uuid
 	v.Token = token
 
 	return v
 }
 
-// NewLocationsPayload builds a storage service locations endpoint payload.
-func NewLocationsPayload(token *string) *storage.LocationsPayload {
-	v := &storage.LocationsPayload{}
+// NewListLocationsPayload builds a storage service list_locations endpoint
+// payload.
+func NewListLocationsPayload(token *string) *storage.ListLocationsPayload {
+	v := &storage.ListLocationsPayload{}
 	v.Token = token
 
 	return v
 }
 
-// NewAddLocationPayload builds a storage service add_location endpoint payload.
-func NewAddLocationPayload(body *AddLocationRequestBody, token *string) *storage.AddLocationPayload {
-	v := &storage.AddLocationPayload{
+// NewCreateLocationPayload builds a storage service create_location endpoint
+// payload.
+func NewCreateLocationPayload(body *CreateLocationRequestBody, token *string) *storage.CreateLocationPayload {
+	v := &storage.CreateLocationPayload{
 		Name:        *body.Name,
 		Description: body.Description,
 		Source:      *body.Source,
@@ -903,20 +907,21 @@ func NewShowLocationPayload(uuid string, token *string) *storage.ShowLocationPay
 	return v
 }
 
-// NewLocationPackagesPayload builds a storage service location_packages
+// NewListLocationAipsPayload builds a storage service list_location_aips
 // endpoint payload.
-func NewLocationPackagesPayload(uuid string, token *string) *storage.LocationPackagesPayload {
-	v := &storage.LocationPackagesPayload{}
+func NewListLocationAipsPayload(uuid string, token *string) *storage.ListLocationAipsPayload {
+	v := &storage.ListLocationAipsPayload{}
 	v.UUID = uuid
 	v.Token = token
 
 	return v
 }
 
-// ValidateCreateRequestBody runs the validations defined on CreateRequestBody
-func ValidateCreateRequestBody(body *CreateRequestBody) (err error) {
-	if body.AipID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("aip_id", "body"))
+// ValidateCreateAipRequestBody runs the validations defined on
+// create_aip_request_body
+func ValidateCreateAipRequestBody(body *CreateAipRequestBody) (err error) {
+	if body.UUID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("uuid", "body"))
 	}
 	if body.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
@@ -924,8 +929,8 @@ func ValidateCreateRequestBody(body *CreateRequestBody) (err error) {
 	if body.ObjectKey == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("object_key", "body"))
 	}
-	if body.AipID != nil {
-		err = goa.MergeErrors(err, goa.ValidateFormat("body.aip_id", *body.AipID, goa.FormatUUID))
+	if body.UUID != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("body.uuid", *body.UUID, goa.FormatUUID))
 	}
 	if body.ObjectKey != nil {
 		err = goa.MergeErrors(err, goa.ValidateFormat("body.object_key", *body.ObjectKey, goa.FormatUUID))
@@ -938,25 +943,27 @@ func ValidateCreateRequestBody(body *CreateRequestBody) (err error) {
 	return
 }
 
-// ValidateSubmitRequestBody runs the validations defined on SubmitRequestBody
-func ValidateSubmitRequestBody(body *SubmitRequestBody) (err error) {
+// ValidateSubmitAipRequestBody runs the validations defined on
+// submit_aip_request_body
+func ValidateSubmitAipRequestBody(body *SubmitAipRequestBody) (err error) {
 	if body.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
 	}
 	return
 }
 
-// ValidateMoveRequestBody runs the validations defined on MoveRequestBody
-func ValidateMoveRequestBody(body *MoveRequestBody) (err error) {
+// ValidateMoveAipRequestBody runs the validations defined on
+// move_aip_request_body
+func ValidateMoveAipRequestBody(body *MoveAipRequestBody) (err error) {
 	if body.LocationID == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("location_id", "body"))
 	}
 	return
 }
 
-// ValidateAddLocationRequestBody runs the validations defined on
-// add_location_request_body
-func ValidateAddLocationRequestBody(body *AddLocationRequestBody) (err error) {
+// ValidateCreateLocationRequestBody runs the validations defined on
+// create_location_request_body
+func ValidateCreateLocationRequestBody(body *CreateLocationRequestBody) (err error) {
 	if body.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
 	}

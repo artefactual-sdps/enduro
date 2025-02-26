@@ -31,9 +31,9 @@ func NewUploadActivity(storageClient *goastorage.Client) *UploadActivity {
 func (a *UploadActivity) Execute(ctx context.Context, params *UploadActivityParams) (*UploadActivityResult, error) {
 	childCtx, cancel := context.WithTimeout(ctx, time.Second*5)
 	defer cancel()
-	res, err := a.storageClient.Submit(childCtx, &goastorage.SubmitPayload{
-		AipID: params.AIPID,
-		Name:  params.Name,
+	res, err := a.storageClient.SubmitAip(childCtx, &goastorage.SubmitAipPayload{
+		UUID: params.AIPID,
+		Name: params.Name,
 	})
 	if err != nil {
 		return &UploadActivityResult{}, err
@@ -71,7 +71,7 @@ func (a *UploadActivity) Execute(ctx context.Context, params *UploadActivityPara
 
 	childCtx, cancel = context.WithTimeout(ctx, time.Second*5)
 	defer cancel()
-	err = a.storageClient.Update(childCtx, &goastorage.UpdatePayload{AipID: params.AIPID})
+	err = a.storageClient.UpdateAip(childCtx, &goastorage.UpdateAipPayload{UUID: params.AIPID})
 
 	return &UploadActivityResult{}, err
 }

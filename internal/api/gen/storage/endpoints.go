@@ -17,18 +17,18 @@ import (
 
 // Endpoints wraps the "storage" service endpoints.
 type Endpoints struct {
-	Create           goa.Endpoint
-	Submit           goa.Endpoint
-	Update           goa.Endpoint
-	Download         goa.Endpoint
-	Move             goa.Endpoint
-	MoveStatus       goa.Endpoint
-	Reject           goa.Endpoint
-	Show             goa.Endpoint
-	Locations        goa.Endpoint
-	AddLocation      goa.Endpoint
+	CreateAip        goa.Endpoint
+	SubmitAip        goa.Endpoint
+	UpdateAip        goa.Endpoint
+	DownloadAip      goa.Endpoint
+	MoveAip          goa.Endpoint
+	MoveAipStatus    goa.Endpoint
+	RejectAip        goa.Endpoint
+	ShowAip          goa.Endpoint
+	ListLocations    goa.Endpoint
+	CreateLocation   goa.Endpoint
 	ShowLocation     goa.Endpoint
-	LocationPackages goa.Endpoint
+	ListLocationAips goa.Endpoint
 }
 
 // NewEndpoints wraps the methods of the "storage" service with endpoints.
@@ -36,47 +36,47 @@ func NewEndpoints(s Service) *Endpoints {
 	// Casting service to Auther interface
 	a := s.(Auther)
 	return &Endpoints{
-		Create:           NewCreateEndpoint(s, a.JWTAuth),
-		Submit:           NewSubmitEndpoint(s, a.JWTAuth),
-		Update:           NewUpdateEndpoint(s, a.JWTAuth),
-		Download:         NewDownloadEndpoint(s, a.JWTAuth),
-		Move:             NewMoveEndpoint(s, a.JWTAuth),
-		MoveStatus:       NewMoveStatusEndpoint(s, a.JWTAuth),
-		Reject:           NewRejectEndpoint(s, a.JWTAuth),
-		Show:             NewShowEndpoint(s, a.JWTAuth),
-		Locations:        NewLocationsEndpoint(s, a.JWTAuth),
-		AddLocation:      NewAddLocationEndpoint(s, a.JWTAuth),
+		CreateAip:        NewCreateAipEndpoint(s, a.JWTAuth),
+		SubmitAip:        NewSubmitAipEndpoint(s, a.JWTAuth),
+		UpdateAip:        NewUpdateAipEndpoint(s, a.JWTAuth),
+		DownloadAip:      NewDownloadAipEndpoint(s, a.JWTAuth),
+		MoveAip:          NewMoveAipEndpoint(s, a.JWTAuth),
+		MoveAipStatus:    NewMoveAipStatusEndpoint(s, a.JWTAuth),
+		RejectAip:        NewRejectAipEndpoint(s, a.JWTAuth),
+		ShowAip:          NewShowAipEndpoint(s, a.JWTAuth),
+		ListLocations:    NewListLocationsEndpoint(s, a.JWTAuth),
+		CreateLocation:   NewCreateLocationEndpoint(s, a.JWTAuth),
 		ShowLocation:     NewShowLocationEndpoint(s, a.JWTAuth),
-		LocationPackages: NewLocationPackagesEndpoint(s, a.JWTAuth),
+		ListLocationAips: NewListLocationAipsEndpoint(s, a.JWTAuth),
 	}
 }
 
 // Use applies the given middleware to all the "storage" service endpoints.
 func (e *Endpoints) Use(m func(goa.Endpoint) goa.Endpoint) {
-	e.Create = m(e.Create)
-	e.Submit = m(e.Submit)
-	e.Update = m(e.Update)
-	e.Download = m(e.Download)
-	e.Move = m(e.Move)
-	e.MoveStatus = m(e.MoveStatus)
-	e.Reject = m(e.Reject)
-	e.Show = m(e.Show)
-	e.Locations = m(e.Locations)
-	e.AddLocation = m(e.AddLocation)
+	e.CreateAip = m(e.CreateAip)
+	e.SubmitAip = m(e.SubmitAip)
+	e.UpdateAip = m(e.UpdateAip)
+	e.DownloadAip = m(e.DownloadAip)
+	e.MoveAip = m(e.MoveAip)
+	e.MoveAipStatus = m(e.MoveAipStatus)
+	e.RejectAip = m(e.RejectAip)
+	e.ShowAip = m(e.ShowAip)
+	e.ListLocations = m(e.ListLocations)
+	e.CreateLocation = m(e.CreateLocation)
 	e.ShowLocation = m(e.ShowLocation)
-	e.LocationPackages = m(e.LocationPackages)
+	e.ListLocationAips = m(e.ListLocationAips)
 }
 
-// NewCreateEndpoint returns an endpoint function that calls the method
-// "create" of service "storage".
-func NewCreateEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
+// NewCreateAipEndpoint returns an endpoint function that calls the method
+// "create_aip" of service "storage".
+func NewCreateAipEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
 	return func(ctx context.Context, req any) (any, error) {
-		p := req.(*CreatePayload)
+		p := req.(*CreateAipPayload)
 		var err error
 		sc := security.JWTScheme{
 			Name:           "jwt",
-			Scopes:         []string{"package:list", "package:listActions", "package:move", "package:read", "package:review", "package:upload", "storage:location:create", "storage:location:list", "storage:location:listPackages", "storage:location:read", "storage:package:create", "storage:package:download", "storage:package:move", "storage:package:read", "storage:package:review", "storage:package:submit"},
-			RequiredScopes: []string{"storage:package:create"},
+			Scopes:         []string{"ingest:sips:actions:list", "ingest:sips:list", "ingest:sips:move", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "storage:aips:create", "storage:aips:download", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
+			RequiredScopes: []string{"storage:aips:create"},
 		}
 		var token string
 		if p.Token != nil {
@@ -86,25 +86,25 @@ func NewCreateEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
 		if err != nil {
 			return nil, err
 		}
-		res, err := s.Create(ctx, p)
+		res, err := s.CreateAip(ctx, p)
 		if err != nil {
 			return nil, err
 		}
-		vres := NewViewedPackage(res, "default")
+		vres := NewViewedAIP(res, "default")
 		return vres, nil
 	}
 }
 
-// NewSubmitEndpoint returns an endpoint function that calls the method
-// "submit" of service "storage".
-func NewSubmitEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
+// NewSubmitAipEndpoint returns an endpoint function that calls the method
+// "submit_aip" of service "storage".
+func NewSubmitAipEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
 	return func(ctx context.Context, req any) (any, error) {
-		p := req.(*SubmitPayload)
+		p := req.(*SubmitAipPayload)
 		var err error
 		sc := security.JWTScheme{
 			Name:           "jwt",
-			Scopes:         []string{"package:list", "package:listActions", "package:move", "package:read", "package:review", "package:upload", "storage:location:create", "storage:location:list", "storage:location:listPackages", "storage:location:read", "storage:package:create", "storage:package:download", "storage:package:move", "storage:package:read", "storage:package:review", "storage:package:submit"},
-			RequiredScopes: []string{"storage:package:submit"},
+			Scopes:         []string{"ingest:sips:actions:list", "ingest:sips:list", "ingest:sips:move", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "storage:aips:create", "storage:aips:download", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
+			RequiredScopes: []string{"storage:aips:submit"},
 		}
 		var token string
 		if p.Token != nil {
@@ -114,20 +114,20 @@ func NewSubmitEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
 		if err != nil {
 			return nil, err
 		}
-		return s.Submit(ctx, p)
+		return s.SubmitAip(ctx, p)
 	}
 }
 
-// NewUpdateEndpoint returns an endpoint function that calls the method
-// "update" of service "storage".
-func NewUpdateEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
+// NewUpdateAipEndpoint returns an endpoint function that calls the method
+// "update_aip" of service "storage".
+func NewUpdateAipEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
 	return func(ctx context.Context, req any) (any, error) {
-		p := req.(*UpdatePayload)
+		p := req.(*UpdateAipPayload)
 		var err error
 		sc := security.JWTScheme{
 			Name:           "jwt",
-			Scopes:         []string{"package:list", "package:listActions", "package:move", "package:read", "package:review", "package:upload", "storage:location:create", "storage:location:list", "storage:location:listPackages", "storage:location:read", "storage:package:create", "storage:package:download", "storage:package:move", "storage:package:read", "storage:package:review", "storage:package:submit"},
-			RequiredScopes: []string{"storage:package:submit"},
+			Scopes:         []string{"ingest:sips:actions:list", "ingest:sips:list", "ingest:sips:move", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "storage:aips:create", "storage:aips:download", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
+			RequiredScopes: []string{"storage:aips:submit"},
 		}
 		var token string
 		if p.Token != nil {
@@ -137,20 +137,20 @@ func NewUpdateEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
 		if err != nil {
 			return nil, err
 		}
-		return nil, s.Update(ctx, p)
+		return nil, s.UpdateAip(ctx, p)
 	}
 }
 
-// NewDownloadEndpoint returns an endpoint function that calls the method
-// "download" of service "storage".
-func NewDownloadEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
+// NewDownloadAipEndpoint returns an endpoint function that calls the method
+// "download_aip" of service "storage".
+func NewDownloadAipEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
 	return func(ctx context.Context, req any) (any, error) {
-		p := req.(*DownloadPayload)
+		p := req.(*DownloadAipPayload)
 		var err error
 		sc := security.JWTScheme{
 			Name:           "jwt",
-			Scopes:         []string{"package:list", "package:listActions", "package:move", "package:read", "package:review", "package:upload", "storage:location:create", "storage:location:list", "storage:location:listPackages", "storage:location:read", "storage:package:create", "storage:package:download", "storage:package:move", "storage:package:read", "storage:package:review", "storage:package:submit"},
-			RequiredScopes: []string{"storage:package:download"},
+			Scopes:         []string{"ingest:sips:actions:list", "ingest:sips:list", "ingest:sips:move", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "storage:aips:create", "storage:aips:download", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
+			RequiredScopes: []string{"storage:aips:download"},
 		}
 		var token string
 		if p.Token != nil {
@@ -160,20 +160,20 @@ func NewDownloadEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint
 		if err != nil {
 			return nil, err
 		}
-		return s.Download(ctx, p)
+		return s.DownloadAip(ctx, p)
 	}
 }
 
-// NewMoveEndpoint returns an endpoint function that calls the method "move" of
-// service "storage".
-func NewMoveEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
+// NewMoveAipEndpoint returns an endpoint function that calls the method
+// "move_aip" of service "storage".
+func NewMoveAipEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
 	return func(ctx context.Context, req any) (any, error) {
-		p := req.(*MovePayload)
+		p := req.(*MoveAipPayload)
 		var err error
 		sc := security.JWTScheme{
 			Name:           "jwt",
-			Scopes:         []string{"package:list", "package:listActions", "package:move", "package:read", "package:review", "package:upload", "storage:location:create", "storage:location:list", "storage:location:listPackages", "storage:location:read", "storage:package:create", "storage:package:download", "storage:package:move", "storage:package:read", "storage:package:review", "storage:package:submit"},
-			RequiredScopes: []string{"storage:package:move"},
+			Scopes:         []string{"ingest:sips:actions:list", "ingest:sips:list", "ingest:sips:move", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "storage:aips:create", "storage:aips:download", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
+			RequiredScopes: []string{"storage:aips:move"},
 		}
 		var token string
 		if p.Token != nil {
@@ -183,20 +183,20 @@ func NewMoveEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
 		if err != nil {
 			return nil, err
 		}
-		return nil, s.Move(ctx, p)
+		return nil, s.MoveAip(ctx, p)
 	}
 }
 
-// NewMoveStatusEndpoint returns an endpoint function that calls the method
-// "move_status" of service "storage".
-func NewMoveStatusEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
+// NewMoveAipStatusEndpoint returns an endpoint function that calls the method
+// "move_aip_status" of service "storage".
+func NewMoveAipStatusEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
 	return func(ctx context.Context, req any) (any, error) {
-		p := req.(*MoveStatusPayload)
+		p := req.(*MoveAipStatusPayload)
 		var err error
 		sc := security.JWTScheme{
 			Name:           "jwt",
-			Scopes:         []string{"package:list", "package:listActions", "package:move", "package:read", "package:review", "package:upload", "storage:location:create", "storage:location:list", "storage:location:listPackages", "storage:location:read", "storage:package:create", "storage:package:download", "storage:package:move", "storage:package:read", "storage:package:review", "storage:package:submit"},
-			RequiredScopes: []string{"storage:package:move"},
+			Scopes:         []string{"ingest:sips:actions:list", "ingest:sips:list", "ingest:sips:move", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "storage:aips:create", "storage:aips:download", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
+			RequiredScopes: []string{"storage:aips:move"},
 		}
 		var token string
 		if p.Token != nil {
@@ -206,20 +206,20 @@ func NewMoveStatusEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoi
 		if err != nil {
 			return nil, err
 		}
-		return s.MoveStatus(ctx, p)
+		return s.MoveAipStatus(ctx, p)
 	}
 }
 
-// NewRejectEndpoint returns an endpoint function that calls the method
-// "reject" of service "storage".
-func NewRejectEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
+// NewRejectAipEndpoint returns an endpoint function that calls the method
+// "reject_aip" of service "storage".
+func NewRejectAipEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
 	return func(ctx context.Context, req any) (any, error) {
-		p := req.(*RejectPayload)
+		p := req.(*RejectAipPayload)
 		var err error
 		sc := security.JWTScheme{
 			Name:           "jwt",
-			Scopes:         []string{"package:list", "package:listActions", "package:move", "package:read", "package:review", "package:upload", "storage:location:create", "storage:location:list", "storage:location:listPackages", "storage:location:read", "storage:package:create", "storage:package:download", "storage:package:move", "storage:package:read", "storage:package:review", "storage:package:submit"},
-			RequiredScopes: []string{"storage:package:review"},
+			Scopes:         []string{"ingest:sips:actions:list", "ingest:sips:list", "ingest:sips:move", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "storage:aips:create", "storage:aips:download", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
+			RequiredScopes: []string{"storage:aips:review"},
 		}
 		var token string
 		if p.Token != nil {
@@ -229,20 +229,20 @@ func NewRejectEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
 		if err != nil {
 			return nil, err
 		}
-		return nil, s.Reject(ctx, p)
+		return nil, s.RejectAip(ctx, p)
 	}
 }
 
-// NewShowEndpoint returns an endpoint function that calls the method "show" of
-// service "storage".
-func NewShowEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
+// NewShowAipEndpoint returns an endpoint function that calls the method
+// "show_aip" of service "storage".
+func NewShowAipEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
 	return func(ctx context.Context, req any) (any, error) {
-		p := req.(*ShowPayload)
+		p := req.(*ShowAipPayload)
 		var err error
 		sc := security.JWTScheme{
 			Name:           "jwt",
-			Scopes:         []string{"package:list", "package:listActions", "package:move", "package:read", "package:review", "package:upload", "storage:location:create", "storage:location:list", "storage:location:listPackages", "storage:location:read", "storage:package:create", "storage:package:download", "storage:package:move", "storage:package:read", "storage:package:review", "storage:package:submit"},
-			RequiredScopes: []string{"storage:package:read"},
+			Scopes:         []string{"ingest:sips:actions:list", "ingest:sips:list", "ingest:sips:move", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "storage:aips:create", "storage:aips:download", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
+			RequiredScopes: []string{"storage:aips:read"},
 		}
 		var token string
 		if p.Token != nil {
@@ -252,25 +252,25 @@ func NewShowEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
 		if err != nil {
 			return nil, err
 		}
-		res, err := s.Show(ctx, p)
+		res, err := s.ShowAip(ctx, p)
 		if err != nil {
 			return nil, err
 		}
-		vres := NewViewedPackage(res, "default")
+		vres := NewViewedAIP(res, "default")
 		return vres, nil
 	}
 }
 
-// NewLocationsEndpoint returns an endpoint function that calls the method
-// "locations" of service "storage".
-func NewLocationsEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
+// NewListLocationsEndpoint returns an endpoint function that calls the method
+// "list_locations" of service "storage".
+func NewListLocationsEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
 	return func(ctx context.Context, req any) (any, error) {
-		p := req.(*LocationsPayload)
+		p := req.(*ListLocationsPayload)
 		var err error
 		sc := security.JWTScheme{
 			Name:           "jwt",
-			Scopes:         []string{"package:list", "package:listActions", "package:move", "package:read", "package:review", "package:upload", "storage:location:create", "storage:location:list", "storage:location:listPackages", "storage:location:read", "storage:package:create", "storage:package:download", "storage:package:move", "storage:package:read", "storage:package:review", "storage:package:submit"},
-			RequiredScopes: []string{"storage:location:list"},
+			Scopes:         []string{"ingest:sips:actions:list", "ingest:sips:list", "ingest:sips:move", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "storage:aips:create", "storage:aips:download", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
+			RequiredScopes: []string{"storage:locations:list"},
 		}
 		var token string
 		if p.Token != nil {
@@ -280,7 +280,7 @@ func NewLocationsEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoin
 		if err != nil {
 			return nil, err
 		}
-		res, err := s.Locations(ctx, p)
+		res, err := s.ListLocations(ctx, p)
 		if err != nil {
 			return nil, err
 		}
@@ -289,16 +289,16 @@ func NewLocationsEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoin
 	}
 }
 
-// NewAddLocationEndpoint returns an endpoint function that calls the method
-// "add_location" of service "storage".
-func NewAddLocationEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
+// NewCreateLocationEndpoint returns an endpoint function that calls the method
+// "create_location" of service "storage".
+func NewCreateLocationEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
 	return func(ctx context.Context, req any) (any, error) {
-		p := req.(*AddLocationPayload)
+		p := req.(*CreateLocationPayload)
 		var err error
 		sc := security.JWTScheme{
 			Name:           "jwt",
-			Scopes:         []string{"package:list", "package:listActions", "package:move", "package:read", "package:review", "package:upload", "storage:location:create", "storage:location:list", "storage:location:listPackages", "storage:location:read", "storage:package:create", "storage:package:download", "storage:package:move", "storage:package:read", "storage:package:review", "storage:package:submit"},
-			RequiredScopes: []string{"storage:location:create"},
+			Scopes:         []string{"ingest:sips:actions:list", "ingest:sips:list", "ingest:sips:move", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "storage:aips:create", "storage:aips:download", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
+			RequiredScopes: []string{"storage:locations:create"},
 		}
 		var token string
 		if p.Token != nil {
@@ -308,7 +308,7 @@ func NewAddLocationEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpo
 		if err != nil {
 			return nil, err
 		}
-		return s.AddLocation(ctx, p)
+		return s.CreateLocation(ctx, p)
 	}
 }
 
@@ -320,8 +320,8 @@ func NewShowLocationEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endp
 		var err error
 		sc := security.JWTScheme{
 			Name:           "jwt",
-			Scopes:         []string{"package:list", "package:listActions", "package:move", "package:read", "package:review", "package:upload", "storage:location:create", "storage:location:list", "storage:location:listPackages", "storage:location:read", "storage:package:create", "storage:package:download", "storage:package:move", "storage:package:read", "storage:package:review", "storage:package:submit"},
-			RequiredScopes: []string{"storage:location:read"},
+			Scopes:         []string{"ingest:sips:actions:list", "ingest:sips:list", "ingest:sips:move", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "storage:aips:create", "storage:aips:download", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
+			RequiredScopes: []string{"storage:locations:read"},
 		}
 		var token string
 		if p.Token != nil {
@@ -340,16 +340,16 @@ func NewShowLocationEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endp
 	}
 }
 
-// NewLocationPackagesEndpoint returns an endpoint function that calls the
-// method "location_packages" of service "storage".
-func NewLocationPackagesEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
+// NewListLocationAipsEndpoint returns an endpoint function that calls the
+// method "list_location_aips" of service "storage".
+func NewListLocationAipsEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
 	return func(ctx context.Context, req any) (any, error) {
-		p := req.(*LocationPackagesPayload)
+		p := req.(*ListLocationAipsPayload)
 		var err error
 		sc := security.JWTScheme{
 			Name:           "jwt",
-			Scopes:         []string{"package:list", "package:listActions", "package:move", "package:read", "package:review", "package:upload", "storage:location:create", "storage:location:list", "storage:location:listPackages", "storage:location:read", "storage:package:create", "storage:package:download", "storage:package:move", "storage:package:read", "storage:package:review", "storage:package:submit"},
-			RequiredScopes: []string{"storage:location:listPackages"},
+			Scopes:         []string{"ingest:sips:actions:list", "ingest:sips:list", "ingest:sips:move", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "storage:aips:create", "storage:aips:download", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
+			RequiredScopes: []string{"storage:locations:aips:list"},
 		}
 		var token string
 		if p.Token != nil {
@@ -359,11 +359,11 @@ func NewLocationPackagesEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.
 		if err != nil {
 			return nil, err
 		}
-		res, err := s.LocationPackages(ctx, p)
+		res, err := s.ListLocationAips(ctx, p)
 		if err != nil {
 			return nil, err
 		}
-		vres := NewViewedPackageCollection(res, "default")
+		vres := NewViewedAIPCollection(res, "default")
 		return vres, nil
 	}
 }

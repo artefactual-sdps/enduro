@@ -11,7 +11,7 @@ import StatusBadge from "@/components/StatusBadge.vue";
 import Tabs from "@/components/Tabs.vue";
 import TimeDropdown from "@/components/TimeDropdown.vue";
 import UUID from "@/components/UUID.vue";
-import type { PackageListStatusEnum } from "@/openapi-generator";
+import type { IngestListSipsStatusEnum } from "@/openapi-generator";
 import { useAuthStore } from "@/stores/auth";
 import { useLayoutStore } from "@/stores/layout";
 import { usePackageStore } from "@/stores/package";
@@ -132,7 +132,7 @@ const { execute, error } = useAsyncState(() => {
     packageStore.filters.name = <string>route.query.name;
   }
   if (route.query.status) {
-    packageStore.filters.status = <PackageListStatusEnum>route.query.status;
+    packageStore.filters.status = <IngestListSipsStatusEnum>route.query.status;
   }
   if (route.query.earliestCreatedTime) {
     packageStore.filters.earliestCreatedTime = new Date(
@@ -146,7 +146,7 @@ const { execute, error } = useAsyncState(() => {
 watch(
   () => [route.query.status, route.query.name, route.query.earliestCreatedTime],
   ([newStatus, newName, newEarliest]) => {
-    packageStore.filters.status = newStatus as PackageListStatusEnum;
+    packageStore.filters.status = newStatus as IngestListSipsStatusEnum;
 
     if (newName) {
       packageStore.filters.name = newName as string;
@@ -260,7 +260,7 @@ watch(
             <td scope="row">{{ pkg.id }}</td>
             <td>
               <router-link
-                v-if="authStore.checkAttributes(['package:read'])"
+                v-if="authStore.checkAttributes(['ingest:sips:read'])"
                 :to="{ name: '/packages/[id]/', params: { id: pkg.id } }"
                 >{{ pkg.name }}</router-link
               >

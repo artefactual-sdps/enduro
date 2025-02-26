@@ -73,7 +73,7 @@ useRoles = false
 #   "role2": ["attribute1", "atrribute2", "attribute3", "atrribute4"]
 # }
 # Example:
-# rolesMapping = '{"admin": ["*"], "operator": ["package:list", "package:listActions", "package:move", "package:read", "package:upload"], "readonly": ["package:list", "package:listActions", "package:read"]}'
+# rolesMapping = '{"admin": ["*"], "operator": ["ingest:sips:list", "ingest:sips:actions:list", "ingest:sips:move", "ingest:sips:read", "ingest:sips:upload"], "readonly": ["ingest:sips:list", "ingest:sips:actions:list", "ingest:sips:read"]}'
 rolesMapping = ""
 
 [api.auth.ticket.redis]
@@ -153,29 +153,29 @@ rm -rf $TMP_DIR
 ## Required attributes
 
 The following table shows the attributes required for each API endpoint. The
-attributes allow a wildcard hierarchical declaration. For example, `package:*`
-will give access to endpoints requiring `package:list`, `package:read`, etc.
+attributes allow a wildcard hierarchical declaration. For example, `ingest:sips:*`
+will give access to endpoints requiring `ingest:sips:list`, `ingest:sips:read`, etc.
 The `*` attribute will provide full access to the API.
 
-| Method | Endpoint                           | Attributes                      |
-| ------ | ---------------------------------- | ------------------------------- |
-| GET    | /package                           | `package:list`                  |
-| GET    | /package/{id}                      | `package:read`                  |
-| POST   | /package/{id}/confirm              | `package:review`                |
-| GET    | /package/{id}/move                 | `package:move`                  |
-| POST   | /package/{id}/move                 | `package:move`                  |
-| GET    | /package/{id}/preservation-actions | `package:listActions`           |
-| POST   | /package/{id}/reject               | `package:review`                |
-| POST   | /package/upload                    | `package:upload`                |
-| GET    | /storage/location                  | `storage:location:list`         |
-| POST   | /storage/location                  | `storage:location:create`       |
-| GET    | /storage/location/{uuid}           | `storage:location:read`         |
-| GET    | /storage/location/{uuid}/packages  | `storage:location:listPackages` |
-| POST   | /storage/package                   | `storage:package:create`        |
-| GET    | /storage/package/{aip_id}          | `storage:package:read`          |
-| GET    | /storage/package/{aip_id}/download | `storage:package:download`      |
-| POST   | /storage/package/{aip_id}/reject   | `storage:package:review`        |
-| GET    | /storage/package/{aip_id}/store    | `storage:package:move`          |
-| POST   | /storage/package/{aip_id}/store    | `storage:package:move`          |
-| POST   | /storage/package/{aip_id}/submit   | `storage:package:submit`        |
-| POST   | /storage/package/{aip_id}/update   | `storage:package:submit`        |
+| Method | Endpoint                               | Attributes                    |
+| ------ | -------------------------------------- | ----------------------------- |
+| GET    | /ingest/sips                           | `ingest:sips:list`            |
+| GET    | /ingest/sips/{id}                      | `ingest:sips:read`            |
+| POST   | /ingest/sips/{id}/confirm              | `ingest:sips:review`          |
+| GET    | /ingest/sips/{id}/move                 | `ingest:sips:move`            |
+| POST   | /ingest/sips/{id}/move                 | `ingest:sips:move`            |
+| GET    | /ingest/sips/{id}/preservation-actions | `ingest:sips:actions:list`    |
+| POST   | /ingest/sips/{id}/reject               | `ingest:sips:review`          |
+| POST   | /ingest/sips/upload                    | `ingest:sips:upload`          |
+| POST   | /storage/aips                          | `storage:aips:create`         |
+| GET    | /storage/aips/{uuid}                   | `storage:aips:read`           |
+| GET    | /storage/aips/{uuid}/download          | `storage:aips:download`       |
+| POST   | /storage/aips/{uuid}/reject            | `storage:aips:review`         |
+| GET    | /storage/aips/{uuid}/store             | `storage:aips:move`           |
+| POST   | /storage/aips/{uuid}/store             | `storage:aips:move`           |
+| POST   | /storage/aips/{uuid}/submit            | `storage:aips:submit`         |
+| POST   | /storage/aips/{uuid}/update            | `storage:aips:submit`         |
+| GET    | /storage/locations                     | `storage:locations:list`      |
+| POST   | /storage/locations                     | `storage:locations:create`    |
+| GET    | /storage/locations/{uuid}              | `storage:locations:read`      |
+| GET    | /storage/locations/{uuid}/aips         | `storage:locations:aips:list` |

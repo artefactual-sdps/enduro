@@ -28,22 +28,22 @@ func NewClient(c *db.Client) *Client {
 	return &Client{c: c}
 }
 
-func (c *Client) CreateAIP(ctx context.Context, goapkg *goastorage.Package) (*goastorage.Package, error) {
+func (c *Client) CreateAIP(ctx context.Context, goaaip *goastorage.AIP) (*goastorage.AIP, error) {
 	q := c.c.AIP.Create()
 
-	q.SetName(goapkg.Name)
-	q.SetAipID(goapkg.AipID)
-	q.SetObjectKey(goapkg.ObjectKey)
-	q.SetStatus(types.NewAIPStatus(goapkg.Status))
+	q.SetName(goaaip.Name)
+	q.SetAipID(goaaip.UUID)
+	q.SetObjectKey(goaaip.ObjectKey)
+	q.SetStatus(types.NewAIPStatus(goaaip.Status))
 
-	if goapkg.LocationID != nil {
+	if goaaip.LocationID != nil {
 		id, err := c.c.Location.Query().
-			Where(location.UUID(*goapkg.LocationID)).
+			Where(location.UUID(*goaaip.LocationID)).
 			OnlyID(ctx)
 		if err != nil {
 			if db.IsNotFound(err) {
 				return nil, &goastorage.LocationNotFound{
-					UUID: *goapkg.LocationID, Message: "location not found",
+					UUID: *goaaip.LocationID, Message: "location not found",
 				}
 			} else {
 				return nil, goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
@@ -60,18 +60,18 @@ func (c *Client) CreateAIP(ctx context.Context, goapkg *goastorage.Package) (*go
 	return aipAsGoa(ctx, a), nil
 }
 
-func (c *Client) ListAIPs(ctx context.Context) (goastorage.PackageCollection, error) {
-	pkgs := []*goastorage.Package{}
+func (c *Client) ListAIPs(ctx context.Context) (goastorage.AIPCollection, error) {
+	aips := []*goastorage.AIP{}
 
 	res, err := c.c.AIP.Query().All(ctx)
 	for _, item := range res {
-		pkgs = append(pkgs, aipAsGoa(ctx, item))
+		aips = append(aips, aipAsGoa(ctx, item))
 	}
 
-	return pkgs, err
+	return aips, err
 }
 
-func (c *Client) ReadAIP(ctx context.Context, aipID uuid.UUID) (*goastorage.Package, error) {
+func (c *Client) ReadAIP(ctx context.Context, aipID uuid.UUID) (*goastorage.AIP, error) {
 	a, err := c.c.AIP.Query().
 		Where(
 			aip.AipID(aipID),
@@ -79,7 +79,7 @@ func (c *Client) ReadAIP(ctx context.Context, aipID uuid.UUID) (*goastorage.Pack
 		Only(ctx)
 	if err != nil {
 		if db.IsNotFound(err) {
-			return nil, &goastorage.PackageNotFound{AipID: aipID, Message: "AIP not found"}
+			return nil, &goastorage.AIPNotFound{UUID: aipID, Message: "AIP not found"}
 		} else {
 			return nil, goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
 		}
@@ -133,10 +133,10 @@ func (c *Client) UpdateAIPLocationID(ctx context.Context, aipID, locationID uuid
 	return nil
 }
 
-func aipAsGoa(ctx context.Context, a *db.AIP) *goastorage.Package {
-	p := &goastorage.Package{
+func aipAsGoa(ctx context.Context, a *db.AIP) *goastorage.AIP {
+	p := &goastorage.AIP{
 		Name:      a.Name,
-		AipID:     a.AipID,
+		UUID:      a.AipID,
 		Status:    a.Status.String(),
 		ObjectKey: a.ObjectKey,
 		CreatedAt: a.CreatedAt.Format(time.RFC3339),
@@ -247,16 +247,16 @@ func locationAsGoa(loc *db.Location) *goastorage.Location {
 	return l
 }
 
-func (c *Client) LocationAIPs(ctx context.Context, locationID uuid.UUID) (goastorage.PackageCollection, error) {
+func (c *Client) LocationAIPs(ctx context.Context, locationID uuid.UUID) (goastorage.AIPCollection, error) {
 	res, err := c.c.Location.Query().Where(location.UUID(locationID)).QueryAips().All(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	packages := []*goastorage.Package{}
+	aips := []*goastorage.AIP{}
 	for _, item := range res {
-		packages = append(packages, aipAsGoa(ctx, item))
+		aips = append(aips, aipAsGoa(ctx, item))
 	}
 
-	return packages, nil
+	return aips, nil
 }

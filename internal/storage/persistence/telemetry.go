@@ -32,11 +32,11 @@ func updateError(err error, name string) error {
 	return fmt.Errorf("%s: %w", name, err)
 }
 
-func (w *wrapper) CreateAIP(ctx context.Context, pkg *goastorage.Package) (*goastorage.Package, error) {
+func (w *wrapper) CreateAIP(ctx context.Context, aip *goastorage.AIP) (*goastorage.AIP, error) {
 	ctx, span := w.tracer.Start(ctx, "CreateAIP")
 	defer span.End()
 
-	r, err := w.wrapped.CreateAIP(ctx, pkg)
+	r, err := w.wrapped.CreateAIP(ctx, aip)
 	if err != nil {
 		telemetry.RecordError(span, err)
 		return nil, updateError(err, "CreateAIP")
@@ -45,7 +45,7 @@ func (w *wrapper) CreateAIP(ctx context.Context, pkg *goastorage.Package) (*goas
 	return r, nil
 }
 
-func (w *wrapper) ListAIPs(ctx context.Context) (goastorage.PackageCollection, error) {
+func (w *wrapper) ListAIPs(ctx context.Context) (goastorage.AIPCollection, error) {
 	ctx, span := w.tracer.Start(ctx, "ListAIPs")
 	defer span.End()
 
@@ -58,7 +58,7 @@ func (w *wrapper) ListAIPs(ctx context.Context) (goastorage.PackageCollection, e
 	return r, nil
 }
 
-func (w *wrapper) ReadAIP(ctx context.Context, aipID uuid.UUID) (*goastorage.Package, error) {
+func (w *wrapper) ReadAIP(ctx context.Context, aipID uuid.UUID) (*goastorage.AIP, error) {
 	ctx, span := w.tracer.Start(ctx, "ReadAIP")
 	defer span.End()
 
@@ -140,7 +140,7 @@ func (w *wrapper) ReadLocation(ctx context.Context, locationID uuid.UUID) (*goas
 	return r, nil
 }
 
-func (w *wrapper) LocationAIPs(ctx context.Context, locationID uuid.UUID) (goastorage.PackageCollection, error) {
+func (w *wrapper) LocationAIPs(ctx context.Context, locationID uuid.UUID) (goastorage.AIPCollection, error) {
 	ctx, span := w.tracer.Start(ctx, "LocationAIPs")
 	defer span.End()
 

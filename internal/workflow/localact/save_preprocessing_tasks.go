@@ -11,13 +11,13 @@ import (
 
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
-	"github.com/artefactual-sdps/enduro/internal/package_"
+	"github.com/artefactual-sdps/enduro/internal/ingest"
 	"github.com/artefactual-sdps/enduro/internal/preprocessing"
 )
 
 type SavePreprocessingTasksActivityParams struct {
-	// PkgSvc is a package service instance.
-	PkgSvc package_.Service
+	// Ingestsvc is an ingest service instance.
+	Ingestsvc ingest.Service
 
 	// RNG is a random number generator source.
 	RNG io.Reader
@@ -49,7 +49,7 @@ func SavePreprocessingTasksActivity(
 		}
 		pt.TaskID = u.String()
 
-		if err := params.PkgSvc.CreatePreservationTask(ctx, &pt); err != nil {
+		if err := params.Ingestsvc.CreatePreservationTask(ctx, &pt); err != nil {
 			return &res, fmt.Errorf("SavePreprocessingTasksActivity: %v", err)
 		}
 		res.Count++

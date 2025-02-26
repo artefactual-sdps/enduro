@@ -10,10 +10,10 @@ mysql -h127.0.0.1 -uroot -proot123 -P3306 enduro \
 	-e "SET GLOBAL local_infile=1;"
 
 mysql -h127.0.0.1 -uroot -proot123 -P3306 enduro \
-	-e "DELETE FROM package;"
+	-e "DELETE FROM sip;"
 
 mysql -h127.0.0.1 -uroot -proot123 -P3306 --local-infile=1 enduro \
-	-e "LOAD DATA LOCAL INFILE '${__dir}/data.csv' INTO TABLE package FIELDS TERMINATED BY ','"
+	-e "LOAD DATA LOCAL INFILE '${__dir}/data.csv' INTO TABLE sip FIELDS TERMINATED BY ','"
 
 mysql -h127.0.0.1 -uroot -proot123 -P3306 enduro \
 	-e "SET GLOBAL local_infile=0;"

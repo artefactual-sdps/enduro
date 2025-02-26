@@ -5,7 +5,7 @@ import "errors"
 type Config struct {
 	// Enable preprocessing child workflow.
 	Enabled bool
-	// Extract package in preprocessing.
+	// Extract SIP in preprocessing.
 	Extract bool
 	// Local path shared between workers.
 	SharedPath string

@@ -24,40 +24,40 @@ var (
 	objectKey  = uuid.MustParse("e2630293-a714-4787-ab6d-e68254a6fb6a")
 )
 
-func TestCreatePackageActivity(t *testing.T) {
+func TestCreateAIPActivity(t *testing.T) {
 	t.Parallel()
 
 	type test struct {
 		name      string
-		params    *activities.CreateStoragePackageActivityParams
+		params    *activities.CreateStorageAIPActivityParams
 		mockCalls func(m *storage_fake.MockClientMockRecorder)
-		want      *activities.CreateStoragePackageActivityResult
+		want      *activities.CreateStorageAIPActivityResult
 		wantErr   string
 	}
 	for _, tt := range []test{
 		{
-			name: "Creates a new package",
-			params: &activities.CreateStoragePackageActivityParams{
-				Name:       "Package 1",
+			name: "Creates a new AIP",
+			params: &activities.CreateStorageAIPActivityParams{
+				Name:       "AIP 1",
 				AIPID:      aipID.String(),
 				ObjectKey:  objectKey.String(),
 				Status:     "stored",
 				LocationID: &locationID,
 			},
 			mockCalls: func(m *storage_fake.MockClientMockRecorder) {
-				m.Create(
+				m.CreateAip(
 					mockutil.Context(),
-					&goastorage.CreatePayload{
-						Name:       "Package 1",
-						AipID:      aipID.String(),
+					&goastorage.CreateAipPayload{
+						Name:       "AIP 1",
+						UUID:       aipID.String(),
 						ObjectKey:  objectKey.String(),
 						Status:     "stored",
 						LocationID: ref.New(locationID),
 					},
 				).Return(
-					&goastorage.Package{
-						Name:       "Package 1",
-						AipID:      aipID,
+					&goastorage.AIP{
+						Name:       "AIP 1",
+						UUID:       aipID,
 						ObjectKey:  objectKey,
 						Status:     "stored",
 						LocationID: ref.New(locationID),
@@ -66,25 +66,25 @@ func TestCreatePackageActivity(t *testing.T) {
 					nil,
 				)
 			},
-			want: &activities.CreateStoragePackageActivityResult{
+			want: &activities.CreateStorageAIPActivityResult{
 				CreatedAt: "2024-05-03 16:02:25",
 			},
 		},
 		{
 			name: "Errors on invalid AIP ID",
-			params: &activities.CreateStoragePackageActivityParams{
-				Name:       "Package 1",
+			params: &activities.CreateStorageAIPActivityParams{
+				Name:       "AIP 1",
 				AIPID:      "12345",
 				ObjectKey:  objectKey.String(),
 				Status:     "stored",
 				LocationID: &locationID,
 			},
 			mockCalls: func(m *storage_fake.MockClientMockRecorder) {
-				m.Create(
+				m.CreateAip(
 					mockutil.Context(),
-					&goastorage.CreatePayload{
-						Name:       "Package 1",
-						AipID:      "12345",
+					&goastorage.CreateAipPayload{
+						Name:       "AIP 1",
+						UUID:       "12345",
 						ObjectKey:  objectKey.String(),
 						Status:     "stored",
 						LocationID: ref.New(locationID),
@@ -93,23 +93,23 @@ func TestCreatePackageActivity(t *testing.T) {
 					nil, goastorage.MakeNotValid(errors.New("invalid aip_id")),
 				)
 			},
-			wantErr: "activity error (type: create-storage-package-activity, scheduledEventID: 0, startedEventID: 0, identity: ): create-storage-package-activity: invalid aip_id",
+			wantErr: "activity error (type: create-storage-aip-activity, scheduledEventID: 0, startedEventID: 0, identity: ): create-storage-aip-activity: invalid aip_id",
 		},
 		{
 			name: "Errors on invalid authorization",
-			params: &activities.CreateStoragePackageActivityParams{
-				Name:       "Package 1",
+			params: &activities.CreateStorageAIPActivityParams{
+				Name:       "AIP 1",
 				AIPID:      aipID.String(),
 				ObjectKey:  objectKey.String(),
 				Status:     "stored",
 				LocationID: &locationID,
 			},
 			mockCalls: func(m *storage_fake.MockClientMockRecorder) {
-				m.Create(
+				m.CreateAip(
 					mockutil.Context(),
-					&goastorage.CreatePayload{
-						Name:       "Package 1",
-						AipID:      aipID.String(),
+					&goastorage.CreateAipPayload{
+						Name:       "AIP 1",
+						UUID:       aipID.String(),
 						ObjectKey:  objectKey.String(),
 						Status:     "stored",
 						LocationID: ref.New(locationID),
@@ -118,7 +118,7 @@ func TestCreatePackageActivity(t *testing.T) {
 					nil, goastorage.Unauthorized("Unauthorized"),
 				)
 			},
-			wantErr: "activity error (type: create-storage-package-activity, scheduledEventID: 0, startedEventID: 0, identity: ): create-storage-package-activity: Unauthorized",
+			wantErr: "activity error (type: create-storage-aip-activity, scheduledEventID: 0, startedEventID: 0, identity: ): create-storage-aip-activity: Unauthorized",
 		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
@@ -132,13 +132,13 @@ func TestCreatePackageActivity(t *testing.T) {
 			}
 
 			env.RegisterActivityWithOptions(
-				activities.NewCreateStoragePackageActivity(mockClient).Execute,
+				activities.NewCreateStorageAIPActivity(mockClient).Execute,
 				temporalsdk_activity.RegisterOptions{
-					Name: activities.CreateStoragePackageActivityName,
+					Name: activities.CreateStorageAIPActivityName,
 				},
 			)
 
-			enc, err := env.ExecuteActivity(activities.CreateStoragePackageActivityName, tt.params)
+			enc, err := env.ExecuteActivity(activities.CreateStorageAIPActivityName, tt.params)
 			if tt.wantErr != "" {
 				assert.Error(t, err, tt.wantErr)
 				assert.Assert(t, temporal.NonRetryableError(err))
@@ -146,7 +146,7 @@ func TestCreatePackageActivity(t *testing.T) {
 			}
 			assert.NilError(t, err)
 
-			var res activities.CreateStoragePackageActivityResult
+			var res activities.CreateStorageAIPActivityResult
 			_ = enc.Get(&res)
 			assert.DeepEqual(t, &res, tt.want)
 		})

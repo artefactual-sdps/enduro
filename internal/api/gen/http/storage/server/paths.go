@@ -12,62 +12,62 @@ import (
 	"fmt"
 )
 
-// CreateStoragePath returns the URL path to the storage service create HTTP endpoint.
-func CreateStoragePath() string {
-	return "/storage/package"
+// CreateAipStoragePath returns the URL path to the storage service create_aip HTTP endpoint.
+func CreateAipStoragePath() string {
+	return "/storage/aips"
 }
 
-// SubmitStoragePath returns the URL path to the storage service submit HTTP endpoint.
-func SubmitStoragePath(aipID string) string {
-	return fmt.Sprintf("/storage/package/%v/submit", aipID)
+// SubmitAipStoragePath returns the URL path to the storage service submit_aip HTTP endpoint.
+func SubmitAipStoragePath(uuid string) string {
+	return fmt.Sprintf("/storage/aips/%v/submit", uuid)
 }
 
-// UpdateStoragePath returns the URL path to the storage service update HTTP endpoint.
-func UpdateStoragePath(aipID string) string {
-	return fmt.Sprintf("/storage/package/%v/update", aipID)
+// UpdateAipStoragePath returns the URL path to the storage service update_aip HTTP endpoint.
+func UpdateAipStoragePath(uuid string) string {
+	return fmt.Sprintf("/storage/aips/%v/update", uuid)
 }
 
-// DownloadStoragePath returns the URL path to the storage service download HTTP endpoint.
-func DownloadStoragePath(aipID string) string {
-	return fmt.Sprintf("/storage/package/%v/download", aipID)
+// DownloadAipStoragePath returns the URL path to the storage service download_aip HTTP endpoint.
+func DownloadAipStoragePath(uuid string) string {
+	return fmt.Sprintf("/storage/aips/%v/download", uuid)
 }
 
-// MoveStoragePath returns the URL path to the storage service move HTTP endpoint.
-func MoveStoragePath(aipID string) string {
-	return fmt.Sprintf("/storage/package/%v/store", aipID)
+// MoveAipStoragePath returns the URL path to the storage service move_aip HTTP endpoint.
+func MoveAipStoragePath(uuid string) string {
+	return fmt.Sprintf("/storage/aips/%v/store", uuid)
 }
 
-// MoveStatusStoragePath returns the URL path to the storage service move_status HTTP endpoint.
-func MoveStatusStoragePath(aipID string) string {
-	return fmt.Sprintf("/storage/package/%v/store", aipID)
+// MoveAipStatusStoragePath returns the URL path to the storage service move_aip_status HTTP endpoint.
+func MoveAipStatusStoragePath(uuid string) string {
+	return fmt.Sprintf("/storage/aips/%v/store", uuid)
 }
 
-// RejectStoragePath returns the URL path to the storage service reject HTTP endpoint.
-func RejectStoragePath(aipID string) string {
-	return fmt.Sprintf("/storage/package/%v/reject", aipID)
+// RejectAipStoragePath returns the URL path to the storage service reject_aip HTTP endpoint.
+func RejectAipStoragePath(uuid string) string {
+	return fmt.Sprintf("/storage/aips/%v/reject", uuid)
 }
 
-// ShowStoragePath returns the URL path to the storage service show HTTP endpoint.
-func ShowStoragePath(aipID string) string {
-	return fmt.Sprintf("/storage/package/%v", aipID)
+// ShowAipStoragePath returns the URL path to the storage service show_aip HTTP endpoint.
+func ShowAipStoragePath(uuid string) string {
+	return fmt.Sprintf("/storage/aips/%v", uuid)
 }
 
-// LocationsStoragePath returns the URL path to the storage service locations HTTP endpoint.
-func LocationsStoragePath() string {
-	return "/storage/location"
+// ListLocationsStoragePath returns the URL path to the storage service list_locations HTTP endpoint.
+func ListLocationsStoragePath() string {
+	return "/storage/locations"
 }
 
-// AddLocationStoragePath returns the URL path to the storage service add_location HTTP endpoint.
-func AddLocationStoragePath() string {
-	return "/storage/location"
+// CreateLocationStoragePath returns the URL path to the storage service create_location HTTP endpoint.
+func CreateLocationStoragePath() string {
+	return "/storage/locations"
 }
 
 // ShowLocationStoragePath returns the URL path to the storage service show_location HTTP endpoint.
 func ShowLocationStoragePath(uuid string) string {
-	return fmt.Sprintf("/storage/location/%v", uuid)
+	return fmt.Sprintf("/storage/locations/%v", uuid)
 }
 
-// LocationPackagesStoragePath returns the URL path to the storage service location_packages HTTP endpoint.
-func LocationPackagesStoragePath(uuid string) string {
-	return fmt.Sprintf("/storage/location/%v/packages", uuid)
+// ListLocationAipsStoragePath returns the URL path to the storage service list_location_aips HTTP endpoint.
+func ListLocationAipsStoragePath(uuid string) string {
+	return fmt.Sprintf("/storage/locations/%v/aips", uuid)
 }

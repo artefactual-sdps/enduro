@@ -1,4 +1,4 @@
-genpkgs is a random generator for packages in the dev environment.
+genpkgs is a random generator for SIPs in the dev environment.
 
 load.sh does the following:
 

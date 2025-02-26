@@ -16,182 +16,182 @@ import (
 
 // Client is the "storage" service client.
 type Client struct {
-	CreateEndpoint           goa.Endpoint
-	SubmitEndpoint           goa.Endpoint
-	UpdateEndpoint           goa.Endpoint
-	DownloadEndpoint         goa.Endpoint
-	MoveEndpoint             goa.Endpoint
-	MoveStatusEndpoint       goa.Endpoint
-	RejectEndpoint           goa.Endpoint
-	ShowEndpoint             goa.Endpoint
-	LocationsEndpoint        goa.Endpoint
-	AddLocationEndpoint      goa.Endpoint
+	CreateAipEndpoint        goa.Endpoint
+	SubmitAipEndpoint        goa.Endpoint
+	UpdateAipEndpoint        goa.Endpoint
+	DownloadAipEndpoint      goa.Endpoint
+	MoveAipEndpoint          goa.Endpoint
+	MoveAipStatusEndpoint    goa.Endpoint
+	RejectAipEndpoint        goa.Endpoint
+	ShowAipEndpoint          goa.Endpoint
+	ListLocationsEndpoint    goa.Endpoint
+	CreateLocationEndpoint   goa.Endpoint
 	ShowLocationEndpoint     goa.Endpoint
-	LocationPackagesEndpoint goa.Endpoint
+	ListLocationAipsEndpoint goa.Endpoint
 }
 
 // NewClient initializes a "storage" service client given the endpoints.
-func NewClient(create, submit, update, download, move, moveStatus, reject, show, locations, addLocation, showLocation, locationPackages goa.Endpoint) *Client {
+func NewClient(createAip, submitAip, updateAip, downloadAip, moveAip, moveAipStatus, rejectAip, showAip, listLocations, createLocation, showLocation, listLocationAips goa.Endpoint) *Client {
 	return &Client{
-		CreateEndpoint:           create,
-		SubmitEndpoint:           submit,
-		UpdateEndpoint:           update,
-		DownloadEndpoint:         download,
-		MoveEndpoint:             move,
-		MoveStatusEndpoint:       moveStatus,
-		RejectEndpoint:           reject,
-		ShowEndpoint:             show,
-		LocationsEndpoint:        locations,
-		AddLocationEndpoint:      addLocation,
+		CreateAipEndpoint:        createAip,
+		SubmitAipEndpoint:        submitAip,
+		UpdateAipEndpoint:        updateAip,
+		DownloadAipEndpoint:      downloadAip,
+		MoveAipEndpoint:          moveAip,
+		MoveAipStatusEndpoint:    moveAipStatus,
+		RejectAipEndpoint:        rejectAip,
+		ShowAipEndpoint:          showAip,
+		ListLocationsEndpoint:    listLocations,
+		CreateLocationEndpoint:   createLocation,
 		ShowLocationEndpoint:     showLocation,
-		LocationPackagesEndpoint: locationPackages,
+		ListLocationAipsEndpoint: listLocationAips,
 	}
 }
 
-// Create calls the "create" endpoint of the "storage" service.
-// Create may return the following errors:
+// CreateAip calls the "create_aip" endpoint of the "storage" service.
+// CreateAip may return the following errors:
 //   - "not_valid" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
 //   - error: internal error
-func (c *Client) Create(ctx context.Context, p *CreatePayload) (res *Package, err error) {
+func (c *Client) CreateAip(ctx context.Context, p *CreateAipPayload) (res *AIP, err error) {
 	var ires any
-	ires, err = c.CreateEndpoint(ctx, p)
+	ires, err = c.CreateAipEndpoint(ctx, p)
 	if err != nil {
 		return
 	}
-	return ires.(*Package), nil
+	return ires.(*AIP), nil
 }
 
-// Submit calls the "submit" endpoint of the "storage" service.
-// Submit may return the following errors:
-//   - "not_found" (type *PackageNotFound): Storage package not found
+// SubmitAip calls the "submit_aip" endpoint of the "storage" service.
+// SubmitAip may return the following errors:
+//   - "not_found" (type *AIPNotFound): AIP not found
 //   - "not_available" (type *goa.ServiceError)
 //   - "not_valid" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
 //   - error: internal error
-func (c *Client) Submit(ctx context.Context, p *SubmitPayload) (res *SubmitResult, err error) {
+func (c *Client) SubmitAip(ctx context.Context, p *SubmitAipPayload) (res *SubmitAIPResult, err error) {
 	var ires any
-	ires, err = c.SubmitEndpoint(ctx, p)
+	ires, err = c.SubmitAipEndpoint(ctx, p)
 	if err != nil {
 		return
 	}
-	return ires.(*SubmitResult), nil
+	return ires.(*SubmitAIPResult), nil
 }
 
-// Update calls the "update" endpoint of the "storage" service.
-// Update may return the following errors:
-//   - "not_found" (type *PackageNotFound): Storage package not found
+// UpdateAip calls the "update_aip" endpoint of the "storage" service.
+// UpdateAip may return the following errors:
+//   - "not_found" (type *AIPNotFound): AIP not found
 //   - "not_available" (type *goa.ServiceError)
 //   - "not_valid" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
 //   - error: internal error
-func (c *Client) Update(ctx context.Context, p *UpdatePayload) (err error) {
-	_, err = c.UpdateEndpoint(ctx, p)
+func (c *Client) UpdateAip(ctx context.Context, p *UpdateAipPayload) (err error) {
+	_, err = c.UpdateAipEndpoint(ctx, p)
 	return
 }
 
-// Download calls the "download" endpoint of the "storage" service.
-// Download may return the following errors:
-//   - "not_found" (type *PackageNotFound): Storage package not found
+// DownloadAip calls the "download_aip" endpoint of the "storage" service.
+// DownloadAip may return the following errors:
+//   - "not_found" (type *AIPNotFound): AIP not found
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
 //   - error: internal error
-func (c *Client) Download(ctx context.Context, p *DownloadPayload) (res []byte, err error) {
+func (c *Client) DownloadAip(ctx context.Context, p *DownloadAipPayload) (res []byte, err error) {
 	var ires any
-	ires, err = c.DownloadEndpoint(ctx, p)
+	ires, err = c.DownloadAipEndpoint(ctx, p)
 	if err != nil {
 		return
 	}
 	return ires.([]byte), nil
 }
 
-// Move calls the "move" endpoint of the "storage" service.
-// Move may return the following errors:
-//   - "not_found" (type *PackageNotFound): Storage package not found
+// MoveAip calls the "move_aip" endpoint of the "storage" service.
+// MoveAip may return the following errors:
+//   - "not_found" (type *AIPNotFound): AIP not found
 //   - "not_available" (type *goa.ServiceError)
 //   - "not_valid" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
 //   - error: internal error
-func (c *Client) Move(ctx context.Context, p *MovePayload) (err error) {
-	_, err = c.MoveEndpoint(ctx, p)
+func (c *Client) MoveAip(ctx context.Context, p *MoveAipPayload) (err error) {
+	_, err = c.MoveAipEndpoint(ctx, p)
 	return
 }
 
-// MoveStatus calls the "move_status" endpoint of the "storage" service.
-// MoveStatus may return the following errors:
-//   - "not_found" (type *PackageNotFound): Storage package not found
+// MoveAipStatus calls the "move_aip_status" endpoint of the "storage" service.
+// MoveAipStatus may return the following errors:
+//   - "not_found" (type *AIPNotFound): AIP not found
 //   - "failed_dependency" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
 //   - error: internal error
-func (c *Client) MoveStatus(ctx context.Context, p *MoveStatusPayload) (res *MoveStatusResult, err error) {
+func (c *Client) MoveAipStatus(ctx context.Context, p *MoveAipStatusPayload) (res *MoveStatusResult, err error) {
 	var ires any
-	ires, err = c.MoveStatusEndpoint(ctx, p)
+	ires, err = c.MoveAipStatusEndpoint(ctx, p)
 	if err != nil {
 		return
 	}
 	return ires.(*MoveStatusResult), nil
 }
 
-// Reject calls the "reject" endpoint of the "storage" service.
-// Reject may return the following errors:
-//   - "not_found" (type *PackageNotFound): Storage package not found
+// RejectAip calls the "reject_aip" endpoint of the "storage" service.
+// RejectAip may return the following errors:
+//   - "not_found" (type *AIPNotFound): AIP not found
 //   - "not_available" (type *goa.ServiceError)
 //   - "not_valid" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
 //   - error: internal error
-func (c *Client) Reject(ctx context.Context, p *RejectPayload) (err error) {
-	_, err = c.RejectEndpoint(ctx, p)
+func (c *Client) RejectAip(ctx context.Context, p *RejectAipPayload) (err error) {
+	_, err = c.RejectAipEndpoint(ctx, p)
 	return
 }
 
-// Show calls the "show" endpoint of the "storage" service.
-// Show may return the following errors:
-//   - "not_found" (type *PackageNotFound): Storage package not found
+// ShowAip calls the "show_aip" endpoint of the "storage" service.
+// ShowAip may return the following errors:
+//   - "not_found" (type *AIPNotFound): AIP not found
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
 //   - error: internal error
-func (c *Client) Show(ctx context.Context, p *ShowPayload) (res *Package, err error) {
+func (c *Client) ShowAip(ctx context.Context, p *ShowAipPayload) (res *AIP, err error) {
 	var ires any
-	ires, err = c.ShowEndpoint(ctx, p)
+	ires, err = c.ShowAipEndpoint(ctx, p)
 	if err != nil {
 		return
 	}
-	return ires.(*Package), nil
+	return ires.(*AIP), nil
 }
 
-// Locations calls the "locations" endpoint of the "storage" service.
-// Locations may return the following errors:
+// ListLocations calls the "list_locations" endpoint of the "storage" service.
+// ListLocations may return the following errors:
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
 //   - error: internal error
-func (c *Client) Locations(ctx context.Context, p *LocationsPayload) (res LocationCollection, err error) {
+func (c *Client) ListLocations(ctx context.Context, p *ListLocationsPayload) (res LocationCollection, err error) {
 	var ires any
-	ires, err = c.LocationsEndpoint(ctx, p)
+	ires, err = c.ListLocationsEndpoint(ctx, p)
 	if err != nil {
 		return
 	}
 	return ires.(LocationCollection), nil
 }
 
-// AddLocation calls the "add_location" endpoint of the "storage" service.
-// AddLocation may return the following errors:
+// CreateLocation calls the "create_location" endpoint of the "storage" service.
+// CreateLocation may return the following errors:
 //   - "not_valid" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
 //   - error: internal error
-func (c *Client) AddLocation(ctx context.Context, p *AddLocationPayload) (res *AddLocationResult, err error) {
+func (c *Client) CreateLocation(ctx context.Context, p *CreateLocationPayload) (res *CreateLocationResult, err error) {
 	var ires any
-	ires, err = c.AddLocationEndpoint(ctx, p)
+	ires, err = c.CreateLocationEndpoint(ctx, p)
 	if err != nil {
 		return
 	}
-	return ires.(*AddLocationResult), nil
+	return ires.(*CreateLocationResult), nil
 }
 
 // ShowLocation calls the "show_location" endpoint of the "storage" service.
@@ -209,19 +209,19 @@ func (c *Client) ShowLocation(ctx context.Context, p *ShowLocationPayload) (res 
 	return ires.(*Location), nil
 }
 
-// LocationPackages calls the "location_packages" endpoint of the "storage"
+// ListLocationAips calls the "list_location_aips" endpoint of the "storage"
 // service.
-// LocationPackages may return the following errors:
+// ListLocationAips may return the following errors:
 //   - "not_found" (type *LocationNotFound): Storage location not found
 //   - "not_valid" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
 //   - error: internal error
-func (c *Client) LocationPackages(ctx context.Context, p *LocationPackagesPayload) (res PackageCollection, err error) {
+func (c *Client) ListLocationAips(ctx context.Context, p *ListLocationAipsPayload) (res AIPCollection, err error) {
 	var ires any
-	ires, err = c.LocationPackagesEndpoint(ctx, p)
+	ires, err = c.ListLocationAipsEndpoint(ctx, p)
 	if err != nil {
 		return
 	}
-	return ires.(PackageCollection), nil
+	return ires.(AIPCollection), nil
 }

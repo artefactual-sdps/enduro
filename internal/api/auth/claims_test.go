@@ -56,17 +56,17 @@ func TestCheckAttributes(t *testing.T) {
 		{
 			name: "Checks a single attribute exists",
 			claims: &auth.Claims{
-				Attributes: []string{"package:list"},
+				Attributes: []string{"ingest:sips:list"},
 			},
-			attributes: []string{"package:list"},
+			attributes: []string{"ingest:sips:list"},
 			want:       true,
 		},
 		{
 			name: "Checks multiple attributes exist",
 			claims: &auth.Claims{
-				Attributes: []string{"package:list", "package:read"},
+				Attributes: []string{"ingest:sips:list", "ingest:sips:read"},
 			},
-			attributes: []string{"package:list", "package:read"},
+			attributes: []string{"ingest:sips:list", "ingest:sips:read"},
 			want:       true,
 		},
 		{
@@ -74,26 +74,26 @@ func TestCheckAttributes(t *testing.T) {
 			claims: &auth.Claims{
 				Attributes: []string{},
 			},
-			attributes: []string{"package:download"},
+			attributes: []string{"ingest:sips:download"},
 			want:       false,
 		},
 		{
 			name:       "Checks attributes on nil claim (auth disabled)",
-			attributes: []string{"package:list"},
+			attributes: []string{"ingest:sips:list"},
 			want:       true,
 		},
 		{
 			name:       "Checks attributes on nil attributes (ABAC disabled)",
 			claims:     &auth.Claims{},
-			attributes: []string{"package:list"},
+			attributes: []string{"ingest:sips:list"},
 			want:       true,
 		},
 		{
 			name: "Checks attributes with wildcards",
 			claims: &auth.Claims{
-				Attributes: []string{"package:*", "storage:*"},
+				Attributes: []string{"ingest:sips:*", "storage:*"},
 			},
-			attributes: []string{"package:list:something", "storage:download"},
+			attributes: []string{"ingest:sips:list:something", "storage:aips:download"},
 			want:       true,
 		},
 		{
@@ -101,23 +101,23 @@ func TestCheckAttributes(t *testing.T) {
 			claims: &auth.Claims{
 				Attributes: []string{"*"},
 			},
-			attributes: []string{"package:list", "storage:download"},
+			attributes: []string{"ingest:sips:list", "storage:aips:download"},
 			want:       true,
 		},
 		{
 			name: "Checks missing attributes with wildcard",
 			claims: &auth.Claims{
-				Attributes: []string{"package:*"},
+				Attributes: []string{"ingest:sips:*"},
 			},
-			attributes: []string{"package:list", "storage:download"},
+			attributes: []string{"ingest:sips:list", "storage:aips:download"},
 			want:       false,
 		},
 		{
 			name: "Checks a more specific attribute doesn't match a general one",
 			claims: &auth.Claims{
-				Attributes: []string{"package:list"},
+				Attributes: []string{"ingest:sips:list"},
 			},
-			attributes: []string{"package:list:something"},
+			attributes: []string{"ingest:sips:list:something"},
 			want:       false,
 		},
 	} {

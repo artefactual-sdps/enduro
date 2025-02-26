@@ -8,30 +8,30 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/storage/types"
 )
 
-type UpdatePackageLocationLocalActivityParams struct {
+type UpdateAIPLocationLocalActivityParams struct {
 	AIPID      uuid.UUID
 	LocationID uuid.UUID
 }
 
-func UpdatePackageLocationLocalActivity(
+func UpdateAIPLocationLocalActivity(
 	ctx context.Context,
 	storagesvc Service,
-	params *UpdatePackageLocationLocalActivityParams,
+	params *UpdateAIPLocationLocalActivityParams,
 ) error {
-	return storagesvc.UpdatePackageLocationID(ctx, params.AIPID, params.LocationID)
+	return storagesvc.UpdateAipLocationID(ctx, params.AIPID, params.LocationID)
 }
 
-type UpdatePackageStatusLocalActivityParams struct {
+type UpdateAIPStatusLocalActivityParams struct {
 	AIPID  uuid.UUID
 	Status types.AIPStatus
 }
 
-func UpdatePackageStatusLocalActivity(
+func UpdateAIPStatusLocalActivity(
 	ctx context.Context,
 	storagesvc Service,
-	params *UpdatePackageStatusLocalActivityParams,
+	params *UpdateAIPStatusLocalActivityParams,
 ) error {
-	return storagesvc.UpdatePackageStatus(ctx, params.AIPID, params.Status)
+	return storagesvc.UpdateAipStatus(ctx, params.AIPID, params.Status)
 }
 
 type DeleteFromLocationLocalActivityParams struct {
@@ -43,5 +43,5 @@ func DeleteFromLocationLocalActivity(
 	storagesvc Service,
 	params *DeleteFromLocationLocalActivityParams,
 ) error {
-	return storagesvc.Delete(ctx, params.AIPID)
+	return storagesvc.DeleteAip(ctx, params.AIPID)
 }

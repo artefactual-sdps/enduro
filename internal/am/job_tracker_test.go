@@ -19,7 +19,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/am"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
-	fake_package "github.com/artefactual-sdps/enduro/internal/package_/fake"
+	ingest_fake "github.com/artefactual-sdps/enduro/internal/ingest/fake"
 )
 
 func TestJobTracker(t *testing.T) {
@@ -73,7 +73,7 @@ func TestJobTracker(t *testing.T) {
 	type test struct {
 		name       string
 		jobRec     func(*amclienttest.MockJobsServiceMockRecorder, int)
-		pkgRec     func(*fake_package.MockServiceMockRecorder)
+		ingestRec  func(*ingest_fake.MockServiceMockRecorder)
 		statusCode int
 
 		want         int
@@ -98,7 +98,7 @@ func TestJobTracker(t *testing.T) {
 					nil,
 				)
 			},
-			pkgRec: func(m *fake_package.MockServiceMockRecorder) {
+			ingestRec: func(m *ingest_fake.MockServiceMockRecorder) {
 				m.CreatePreservationTask(
 					mockutil.Context(),
 					&datatypes.PreservationTask{
@@ -153,12 +153,12 @@ func TestJobTracker(t *testing.T) {
 			if tt.jobRec != nil {
 				tt.jobRec(jobsSvc.EXPECT(), tt.statusCode)
 			}
-			pkgSvc := fake_package.NewMockService(ctrl)
-			if tt.pkgRec != nil {
-				tt.pkgRec(pkgSvc.EXPECT())
+			ingestsvc := ingest_fake.NewMockService(ctrl)
+			if tt.ingestRec != nil {
+				tt.ingestRec(ingestsvc.EXPECT())
 			}
 
-			pa := am.NewJobTracker(clock, jobsSvc, pkgSvc, paID)
+			pa := am.NewJobTracker(clock, jobsSvc, ingestsvc, paID)
 			got, err := pa.SavePreservationTasks(context.Background(), unitID)
 			if tt.wantErr != "" {
 				assert.Error(t, err, tt.wantErr)

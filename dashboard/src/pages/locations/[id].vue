@@ -28,7 +28,7 @@ const tabs = [
       name: "/locations/[id]/",
       params: { id: route.params.id },
     }),
-    show: authStore.checkAttributes(["storage:location:read"]),
+    show: authStore.checkAttributes(["storage:locations:read"]),
   },
   {
     icon: RawIconBundleLine,
@@ -37,7 +37,7 @@ const tabs = [
       name: "/locations/[id]/packages",
       params: { id: route.params.id },
     }),
-    show: authStore.checkAttributes(["storage:location:listPackages"]),
+    show: authStore.checkAttributes(["storage:locations:aips:list"]),
   },
 ];
 </script>

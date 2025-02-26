@@ -69,22 +69,22 @@ func TestCreateAIP(t *testing.T) {
 
 	type test struct {
 		name    string
-		params  *goastorage.Package
-		want    *goastorage.Package
+		params  *goastorage.AIP
+		want    *goastorage.AIP
 		wantErr string
 	}
 
 	for _, tt := range []test{
 		{
 			name: "Creates an AIP with minimal data",
-			params: &goastorage.Package{
+			params: &goastorage.AIP{
 				Name:      "test_aip",
-				AipID:     aipID,
+				UUID:      aipID,
 				ObjectKey: objectKey,
 			},
-			want: &goastorage.Package{
+			want: &goastorage.AIP{
 				Name:      "test_aip",
-				AipID:     aipID,
+				UUID:      aipID,
 				ObjectKey: objectKey,
 				Status:    "unspecified",
 				CreatedAt: fakeNow().Format(time.RFC3339),
@@ -92,16 +92,16 @@ func TestCreateAIP(t *testing.T) {
 		},
 		{
 			name: "Creates an AIP with all data",
-			params: &goastorage.Package{
+			params: &goastorage.AIP{
 				Name:       "test_aip",
-				AipID:      aipID,
+				UUID:       aipID,
 				ObjectKey:  objectKey,
 				Status:     "stored",
 				LocationID: ref.New(locationID),
 			},
-			want: &goastorage.Package{
+			want: &goastorage.AIP{
 				Name:       "test_aip",
-				AipID:      aipID,
+				UUID:       aipID,
 				ObjectKey:  objectKey,
 				Status:     "stored",
 				LocationID: ref.New(locationID),
@@ -110,9 +110,9 @@ func TestCreateAIP(t *testing.T) {
 		},
 		{
 			name: "Errors if locationID is not found",
-			params: &goastorage.Package{
+			params: &goastorage.AIP{
 				Name:       "test_aip",
-				AipID:      aipID,
+				UUID:       aipID,
 				ObjectKey:  objectKey,
 				LocationID: ref.New(uuid.MustParse("f1508f95-cab7-447f-b6a2-e01bf7c64558")),
 			},
@@ -176,10 +176,10 @@ func TestListAIPs(t *testing.T) {
 
 	aips, err := c.ListAIPs(context.Background())
 	assert.NilError(t, err)
-	assert.DeepEqual(t, aips, goastorage.PackageCollection{
+	assert.DeepEqual(t, aips, goastorage.AIPCollection{
 		{
 			Name:       "AIP",
-			AipID:      aipID,
+			UUID:       aipID,
 			Status:     "stored",
 			ObjectKey:  objectKey,
 			LocationID: nil,
@@ -187,7 +187,7 @@ func TestListAIPs(t *testing.T) {
 		},
 		{
 			Name:       "Another AIP",
-			AipID:      aipID2,
+			UUID:       aipID2,
 			Status:     "rejected",
 			ObjectKey:  objectKey2,
 			LocationID: nil,
@@ -211,9 +211,9 @@ func TestReadAIP(t *testing.T) {
 
 		aip, err := c.ReadAIP(context.Background(), aipID)
 		assert.NilError(t, err)
-		assert.DeepEqual(t, aip, &goastorage.Package{
+		assert.DeepEqual(t, aip, &goastorage.AIP{
 			Name:       "AIP",
-			AipID:      aipID,
+			UUID:       aipID,
 			Status:     "stored",
 			ObjectKey:  objectKey,
 			LocationID: nil,
@@ -228,7 +228,7 @@ func TestReadAIP(t *testing.T) {
 
 		l, err := c.ReadAIP(context.Background(), aipID)
 		assert.Assert(t, l == nil)
-		assert.ErrorContains(t, err, "Storage package not found")
+		assert.ErrorContains(t, err, "AIP not found")
 	})
 }
 
@@ -580,10 +580,10 @@ func TestLocationAIPs(t *testing.T) {
 
 		aips, err := c.LocationAIPs(context.Background(), locationID)
 		assert.NilError(t, err)
-		assert.DeepEqual(t, aips, goastorage.PackageCollection{
+		assert.DeepEqual(t, aips, goastorage.AIPCollection{
 			{
 				Name:       "AIP",
-				AipID:      aipID,
+				UUID:       aipID,
 				Status:     "stored",
 				ObjectKey:  objectKey,
 				LocationID: ref.New(locationID),

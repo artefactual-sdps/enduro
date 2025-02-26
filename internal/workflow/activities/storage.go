@@ -16,11 +16,11 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/storage"
 )
 
-type CreateStoragePackageActivity struct {
+type CreateStorageAIPActivity struct {
 	client storage.Client
 }
 
-type CreateStoragePackageActivityParams struct {
+type CreateStorageAIPActivityParams struct {
 	Name       string
 	AIPID      string
 	ObjectKey  string
@@ -28,49 +28,49 @@ type CreateStoragePackageActivityParams struct {
 	LocationID *uuid.UUID
 }
 
-type CreateStoragePackageActivityResult struct {
+type CreateStorageAIPActivityResult struct {
 	CreatedAt string
 }
 
-func NewCreateStoragePackageActivity(client storage.Client) *CreateStoragePackageActivity {
-	return &CreateStoragePackageActivity{client: client}
+func NewCreateStorageAIPActivity(client storage.Client) *CreateStorageAIPActivity {
+	return &CreateStorageAIPActivity{client: client}
 }
 
-func (a *CreateStoragePackageActivity) Execute(
+func (a *CreateStorageAIPActivity) Execute(
 	ctx context.Context,
-	params *CreateStoragePackageActivityParams,
-) (*CreateStoragePackageActivityResult, error) {
+	params *CreateStorageAIPActivityParams,
+) (*CreateStorageAIPActivityResult, error) {
 	logger := temporal.GetLogger(ctx)
-	logger.V(1).Info("Executing CreateStoragePackageActivity", "params", params)
+	logger.V(1).Info("Executing CreateStorageSIPActivity", "params", params)
 
-	payload := goastorage.CreatePayload{
-		AipID:      params.AIPID,
+	payload := goastorage.CreateAipPayload{
+		UUID:       params.AIPID,
 		Name:       params.Name,
 		Status:     params.Status,
 		ObjectKey:  params.ObjectKey,
 		LocationID: params.LocationID,
 	}
 
-	pkg, err := a.client.Create(ctx, &payload)
+	aip, err := a.client.CreateAip(ctx, &payload)
 	if err != nil {
 		if errors.Is(err, goastorage.Unauthorized("Unauthorized")) {
 			return nil, temporal.NewNonRetryableError(
-				fmt.Errorf("%s: %v", CreateStoragePackageActivityName, err),
+				fmt.Errorf("%s: %v", CreateStorageAIPActivityName, err),
 			)
 		}
 
 		if serr, ok := err.(*goa.ServiceError); ok {
 			if serr.Name == "not_valid" {
 				return nil, temporal.NewNonRetryableError(
-					fmt.Errorf("%s: %v", CreateStoragePackageActivityName, err),
+					fmt.Errorf("%s: %v", CreateStorageAIPActivityName, err),
 				)
 			}
 		}
 
-		return nil, fmt.Errorf("%s: %v", CreateStoragePackageActivityName, err)
+		return nil, fmt.Errorf("%s: %v", CreateStorageAIPActivityName, err)
 	}
 
-	return &CreateStoragePackageActivityResult{CreatedAt: pkg.CreatedAt}, nil
+	return &CreateStorageAIPActivityResult{CreatedAt: aip.CreatedAt}, nil
 }
 
 type MoveToPermanentStorageActivityParams struct {
@@ -97,8 +97,8 @@ func (a *MoveToPermanentStorageActivity) Execute(
 	childCtx, cancel := context.WithTimeout(ctx, time.Second*5)
 	defer cancel()
 
-	err := a.storageClient.Move(childCtx, &goastorage.MovePayload{
-		AipID:      params.AIPID,
+	err := a.storageClient.MoveAip(childCtx, &goastorage.MoveAipPayload{
+		UUID:       params.AIPID,
 		LocationID: params.LocationID,
 	})
 
@@ -159,8 +159,8 @@ func (a *PollMoveToPermanentStorageActivity) Execute(
 				defer cancel()
 
 				for {
-					res, err := a.storageClient.MoveStatus(childCtx, &goastorage.MoveStatusPayload{
-						AipID: params.AIPID,
+					res, err := a.storageClient.MoveAipStatus(childCtx, &goastorage.MoveAipStatusPayload{
+						UUID: params.AIPID,
 					})
 					if err != nil {
 						return err
@@ -180,32 +180,32 @@ func (a *PollMoveToPermanentStorageActivity) Execute(
 	return &PollMoveToPermanentStorageActivityResult{}, err
 }
 
-type RejectPackageActivityParams struct {
+type RejectSIPActivityParams struct {
 	AIPID string
 }
 
-type RejectPackageActivity struct {
+type RejectSIPActivity struct {
 	storageClient *goastorage.Client
 }
 
-type RejectPackageActivityResult struct{}
+type RejectSIPActivityResult struct{}
 
-func NewRejectPackageActivity(storageClient *goastorage.Client) *RejectPackageActivity {
-	return &RejectPackageActivity{
+func NewRejectSIPActivity(storageClient *goastorage.Client) *RejectSIPActivity {
+	return &RejectSIPActivity{
 		storageClient: storageClient,
 	}
 }
 
-func (a *RejectPackageActivity) Execute(
+func (a *RejectSIPActivity) Execute(
 	ctx context.Context,
-	params *RejectPackageActivityParams,
-) (*RejectPackageActivityResult, error) {
+	params *RejectSIPActivityParams,
+) (*RejectSIPActivityResult, error) {
 	childCtx, cancel := context.WithTimeout(ctx, time.Second*5)
 	defer cancel()
 
-	err := a.storageClient.Reject(childCtx, &goastorage.RejectPayload{
-		AipID: params.AIPID,
+	err := a.storageClient.RejectAip(childCtx, &goastorage.RejectAipPayload{
+		UUID: params.AIPID,
 	})
 
-	return &RejectPackageActivityResult{}, err
+	return &RejectSIPActivityResult{}, err
 }

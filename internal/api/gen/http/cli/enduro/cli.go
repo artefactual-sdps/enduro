@@ -14,7 +14,7 @@ import (
 	"net/http"
 	"os"
 
-	package_c "github.com/artefactual-sdps/enduro/internal/api/gen/http/package_/client"
+	ingestc "github.com/artefactual-sdps/enduro/internal/api/gen/http/ingest/client"
 	storagec "github.com/artefactual-sdps/enduro/internal/api/gen/http/storage/client"
 	goahttp "goa.design/goa/v3/http"
 	goa "goa.design/goa/v3/pkg"
@@ -24,20 +24,20 @@ import (
 //
 //	command (subcommand1|subcommand2|...)
 func UsageCommands() string {
-	return `package (monitor-request|monitor|list|show|preservation-actions|confirm|reject|move|move-status|upload)
-storage (create|submit|update|download|move|move-status|reject|show|locations|add-location|show-location|location-packages)
+	return `ingest (monitor-request|monitor|list-sips|show-sip|list-sip-preservation-actions|confirm-sip|reject-sip|move-sip|move-sip-status|upload-sip)
+storage (create-aip|submit-aip|update-aip|download-aip|move-aip|move-aip-status|reject-aip|show-aip|list-locations|create-location|show-location|list-location-aips)
 `
 }
 
 // UsageExamples produces an example of a valid invocation of the CLI tool.
 func UsageExamples() string {
-	return os.Args[0] + ` package monitor-request --token "abc123"` + "\n" +
-		os.Args[0] + ` storage create --body '{
-      "aip_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+	return os.Args[0] + ` ingest monitor-request --token "abc123"` + "\n" +
+		os.Args[0] + ` storage create-aip --body '{
       "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
       "name": "abc123",
       "object_key": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
-      "status": "in_review"
+      "status": "in_review",
+      "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
    }' --token "abc123"` + "\n" +
 		""
 }
@@ -51,135 +51,135 @@ func ParseEndpoint(
 	dec func(*http.Response) goahttp.Decoder,
 	restore bool,
 	dialer goahttp.Dialer,
-	package_Configurer *package_c.ConnConfigurer,
+	ingestConfigurer *ingestc.ConnConfigurer,
 ) (goa.Endpoint, any, error) {
 	var (
-		package_Flags = flag.NewFlagSet("package", flag.ContinueOnError)
+		ingestFlags = flag.NewFlagSet("ingest", flag.ContinueOnError)
 
-		package_MonitorRequestFlags     = flag.NewFlagSet("monitor-request", flag.ExitOnError)
-		package_MonitorRequestTokenFlag = package_MonitorRequestFlags.String("token", "", "")
+		ingestMonitorRequestFlags     = flag.NewFlagSet("monitor-request", flag.ExitOnError)
+		ingestMonitorRequestTokenFlag = ingestMonitorRequestFlags.String("token", "", "")
 
-		package_MonitorFlags      = flag.NewFlagSet("monitor", flag.ExitOnError)
-		package_MonitorTicketFlag = package_MonitorFlags.String("ticket", "", "")
+		ingestMonitorFlags      = flag.NewFlagSet("monitor", flag.ExitOnError)
+		ingestMonitorTicketFlag = ingestMonitorFlags.String("ticket", "", "")
 
-		package_ListFlags                   = flag.NewFlagSet("list", flag.ExitOnError)
-		package_ListNameFlag                = package_ListFlags.String("name", "", "")
-		package_ListAipIDFlag               = package_ListFlags.String("aip-id", "", "")
-		package_ListEarliestCreatedTimeFlag = package_ListFlags.String("earliest-created-time", "", "")
-		package_ListLatestCreatedTimeFlag   = package_ListFlags.String("latest-created-time", "", "")
-		package_ListLocationIDFlag          = package_ListFlags.String("location-id", "", "")
-		package_ListStatusFlag              = package_ListFlags.String("status", "", "")
-		package_ListLimitFlag               = package_ListFlags.String("limit", "", "")
-		package_ListOffsetFlag              = package_ListFlags.String("offset", "", "")
-		package_ListTokenFlag               = package_ListFlags.String("token", "", "")
+		ingestListSipsFlags                   = flag.NewFlagSet("list-sips", flag.ExitOnError)
+		ingestListSipsNameFlag                = ingestListSipsFlags.String("name", "", "")
+		ingestListSipsAipIDFlag               = ingestListSipsFlags.String("aip-id", "", "")
+		ingestListSipsEarliestCreatedTimeFlag = ingestListSipsFlags.String("earliest-created-time", "", "")
+		ingestListSipsLatestCreatedTimeFlag   = ingestListSipsFlags.String("latest-created-time", "", "")
+		ingestListSipsLocationIDFlag          = ingestListSipsFlags.String("location-id", "", "")
+		ingestListSipsStatusFlag              = ingestListSipsFlags.String("status", "", "")
+		ingestListSipsLimitFlag               = ingestListSipsFlags.String("limit", "", "")
+		ingestListSipsOffsetFlag              = ingestListSipsFlags.String("offset", "", "")
+		ingestListSipsTokenFlag               = ingestListSipsFlags.String("token", "", "")
 
-		package_ShowFlags     = flag.NewFlagSet("show", flag.ExitOnError)
-		package_ShowIDFlag    = package_ShowFlags.String("id", "REQUIRED", "Identifier of package to show")
-		package_ShowTokenFlag = package_ShowFlags.String("token", "", "")
+		ingestShowSipFlags     = flag.NewFlagSet("show-sip", flag.ExitOnError)
+		ingestShowSipIDFlag    = ingestShowSipFlags.String("id", "REQUIRED", "Identifier of SIP to show")
+		ingestShowSipTokenFlag = ingestShowSipFlags.String("token", "", "")
 
-		package_PreservationActionsFlags     = flag.NewFlagSet("preservation-actions", flag.ExitOnError)
-		package_PreservationActionsIDFlag    = package_PreservationActionsFlags.String("id", "REQUIRED", "Identifier of package to look up")
-		package_PreservationActionsTokenFlag = package_PreservationActionsFlags.String("token", "", "")
+		ingestListSipPreservationActionsFlags     = flag.NewFlagSet("list-sip-preservation-actions", flag.ExitOnError)
+		ingestListSipPreservationActionsIDFlag    = ingestListSipPreservationActionsFlags.String("id", "REQUIRED", "Identifier of SIP to look up")
+		ingestListSipPreservationActionsTokenFlag = ingestListSipPreservationActionsFlags.String("token", "", "")
 
-		package_ConfirmFlags     = flag.NewFlagSet("confirm", flag.ExitOnError)
-		package_ConfirmBodyFlag  = package_ConfirmFlags.String("body", "REQUIRED", "")
-		package_ConfirmIDFlag    = package_ConfirmFlags.String("id", "REQUIRED", "Identifier of package to look up")
-		package_ConfirmTokenFlag = package_ConfirmFlags.String("token", "", "")
+		ingestConfirmSipFlags     = flag.NewFlagSet("confirm-sip", flag.ExitOnError)
+		ingestConfirmSipBodyFlag  = ingestConfirmSipFlags.String("body", "REQUIRED", "")
+		ingestConfirmSipIDFlag    = ingestConfirmSipFlags.String("id", "REQUIRED", "Identifier of SIP to look up")
+		ingestConfirmSipTokenFlag = ingestConfirmSipFlags.String("token", "", "")
 
-		package_RejectFlags     = flag.NewFlagSet("reject", flag.ExitOnError)
-		package_RejectIDFlag    = package_RejectFlags.String("id", "REQUIRED", "Identifier of package to look up")
-		package_RejectTokenFlag = package_RejectFlags.String("token", "", "")
+		ingestRejectSipFlags     = flag.NewFlagSet("reject-sip", flag.ExitOnError)
+		ingestRejectSipIDFlag    = ingestRejectSipFlags.String("id", "REQUIRED", "Identifier of SIP to look up")
+		ingestRejectSipTokenFlag = ingestRejectSipFlags.String("token", "", "")
 
-		package_MoveFlags     = flag.NewFlagSet("move", flag.ExitOnError)
-		package_MoveBodyFlag  = package_MoveFlags.String("body", "REQUIRED", "")
-		package_MoveIDFlag    = package_MoveFlags.String("id", "REQUIRED", "Identifier of package to move")
-		package_MoveTokenFlag = package_MoveFlags.String("token", "", "")
+		ingestMoveSipFlags     = flag.NewFlagSet("move-sip", flag.ExitOnError)
+		ingestMoveSipBodyFlag  = ingestMoveSipFlags.String("body", "REQUIRED", "")
+		ingestMoveSipIDFlag    = ingestMoveSipFlags.String("id", "REQUIRED", "Identifier of SIP to move")
+		ingestMoveSipTokenFlag = ingestMoveSipFlags.String("token", "", "")
 
-		package_MoveStatusFlags     = flag.NewFlagSet("move-status", flag.ExitOnError)
-		package_MoveStatusIDFlag    = package_MoveStatusFlags.String("id", "REQUIRED", "Identifier of package to move")
-		package_MoveStatusTokenFlag = package_MoveStatusFlags.String("token", "", "")
+		ingestMoveSipStatusFlags     = flag.NewFlagSet("move-sip-status", flag.ExitOnError)
+		ingestMoveSipStatusIDFlag    = ingestMoveSipStatusFlags.String("id", "REQUIRED", "Identifier of SIP to move")
+		ingestMoveSipStatusTokenFlag = ingestMoveSipStatusFlags.String("token", "", "")
 
-		package_UploadFlags           = flag.NewFlagSet("upload", flag.ExitOnError)
-		package_UploadContentTypeFlag = package_UploadFlags.String("content-type", "multipart/form-data; boundary=goa", "")
-		package_UploadTokenFlag       = package_UploadFlags.String("token", "", "")
-		package_UploadStreamFlag      = package_UploadFlags.String("stream", "REQUIRED", "path to file containing the streamed request body")
+		ingestUploadSipFlags           = flag.NewFlagSet("upload-sip", flag.ExitOnError)
+		ingestUploadSipContentTypeFlag = ingestUploadSipFlags.String("content-type", "multipart/form-data; boundary=goa", "")
+		ingestUploadSipTokenFlag       = ingestUploadSipFlags.String("token", "", "")
+		ingestUploadSipStreamFlag      = ingestUploadSipFlags.String("stream", "REQUIRED", "path to file containing the streamed request body")
 
 		storageFlags = flag.NewFlagSet("storage", flag.ContinueOnError)
 
-		storageCreateFlags     = flag.NewFlagSet("create", flag.ExitOnError)
-		storageCreateBodyFlag  = storageCreateFlags.String("body", "REQUIRED", "")
-		storageCreateTokenFlag = storageCreateFlags.String("token", "", "")
+		storageCreateAipFlags     = flag.NewFlagSet("create-aip", flag.ExitOnError)
+		storageCreateAipBodyFlag  = storageCreateAipFlags.String("body", "REQUIRED", "")
+		storageCreateAipTokenFlag = storageCreateAipFlags.String("token", "", "")
 
-		storageSubmitFlags     = flag.NewFlagSet("submit", flag.ExitOnError)
-		storageSubmitBodyFlag  = storageSubmitFlags.String("body", "REQUIRED", "")
-		storageSubmitAipIDFlag = storageSubmitFlags.String("aip-id", "REQUIRED", "Identifier of AIP")
-		storageSubmitTokenFlag = storageSubmitFlags.String("token", "", "")
+		storageSubmitAipFlags     = flag.NewFlagSet("submit-aip", flag.ExitOnError)
+		storageSubmitAipBodyFlag  = storageSubmitAipFlags.String("body", "REQUIRED", "")
+		storageSubmitAipUUIDFlag  = storageSubmitAipFlags.String("uuid", "REQUIRED", "Identifier of AIP")
+		storageSubmitAipTokenFlag = storageSubmitAipFlags.String("token", "", "")
 
-		storageUpdateFlags     = flag.NewFlagSet("update", flag.ExitOnError)
-		storageUpdateAipIDFlag = storageUpdateFlags.String("aip-id", "REQUIRED", "Identifier of AIP")
-		storageUpdateTokenFlag = storageUpdateFlags.String("token", "", "")
+		storageUpdateAipFlags     = flag.NewFlagSet("update-aip", flag.ExitOnError)
+		storageUpdateAipUUIDFlag  = storageUpdateAipFlags.String("uuid", "REQUIRED", "Identifier of AIP")
+		storageUpdateAipTokenFlag = storageUpdateAipFlags.String("token", "", "")
 
-		storageDownloadFlags     = flag.NewFlagSet("download", flag.ExitOnError)
-		storageDownloadAipIDFlag = storageDownloadFlags.String("aip-id", "REQUIRED", "Identifier of AIP")
-		storageDownloadTokenFlag = storageDownloadFlags.String("token", "", "")
+		storageDownloadAipFlags     = flag.NewFlagSet("download-aip", flag.ExitOnError)
+		storageDownloadAipUUIDFlag  = storageDownloadAipFlags.String("uuid", "REQUIRED", "Identifier of AIP")
+		storageDownloadAipTokenFlag = storageDownloadAipFlags.String("token", "", "")
 
-		storageMoveFlags     = flag.NewFlagSet("move", flag.ExitOnError)
-		storageMoveBodyFlag  = storageMoveFlags.String("body", "REQUIRED", "")
-		storageMoveAipIDFlag = storageMoveFlags.String("aip-id", "REQUIRED", "Identifier of AIP")
-		storageMoveTokenFlag = storageMoveFlags.String("token", "", "")
+		storageMoveAipFlags     = flag.NewFlagSet("move-aip", flag.ExitOnError)
+		storageMoveAipBodyFlag  = storageMoveAipFlags.String("body", "REQUIRED", "")
+		storageMoveAipUUIDFlag  = storageMoveAipFlags.String("uuid", "REQUIRED", "Identifier of AIP")
+		storageMoveAipTokenFlag = storageMoveAipFlags.String("token", "", "")
 
-		storageMoveStatusFlags     = flag.NewFlagSet("move-status", flag.ExitOnError)
-		storageMoveStatusAipIDFlag = storageMoveStatusFlags.String("aip-id", "REQUIRED", "Identifier of AIP")
-		storageMoveStatusTokenFlag = storageMoveStatusFlags.String("token", "", "")
+		storageMoveAipStatusFlags     = flag.NewFlagSet("move-aip-status", flag.ExitOnError)
+		storageMoveAipStatusUUIDFlag  = storageMoveAipStatusFlags.String("uuid", "REQUIRED", "Identifier of AIP")
+		storageMoveAipStatusTokenFlag = storageMoveAipStatusFlags.String("token", "", "")
 
-		storageRejectFlags     = flag.NewFlagSet("reject", flag.ExitOnError)
-		storageRejectAipIDFlag = storageRejectFlags.String("aip-id", "REQUIRED", "Identifier of AIP")
-		storageRejectTokenFlag = storageRejectFlags.String("token", "", "")
+		storageRejectAipFlags     = flag.NewFlagSet("reject-aip", flag.ExitOnError)
+		storageRejectAipUUIDFlag  = storageRejectAipFlags.String("uuid", "REQUIRED", "Identifier of AIP")
+		storageRejectAipTokenFlag = storageRejectAipFlags.String("token", "", "")
 
-		storageShowFlags     = flag.NewFlagSet("show", flag.ExitOnError)
-		storageShowAipIDFlag = storageShowFlags.String("aip-id", "REQUIRED", "Identifier of AIP")
-		storageShowTokenFlag = storageShowFlags.String("token", "", "")
+		storageShowAipFlags     = flag.NewFlagSet("show-aip", flag.ExitOnError)
+		storageShowAipUUIDFlag  = storageShowAipFlags.String("uuid", "REQUIRED", "Identifier of AIP")
+		storageShowAipTokenFlag = storageShowAipFlags.String("token", "", "")
 
-		storageLocationsFlags     = flag.NewFlagSet("locations", flag.ExitOnError)
-		storageLocationsTokenFlag = storageLocationsFlags.String("token", "", "")
+		storageListLocationsFlags     = flag.NewFlagSet("list-locations", flag.ExitOnError)
+		storageListLocationsTokenFlag = storageListLocationsFlags.String("token", "", "")
 
-		storageAddLocationFlags     = flag.NewFlagSet("add-location", flag.ExitOnError)
-		storageAddLocationBodyFlag  = storageAddLocationFlags.String("body", "REQUIRED", "")
-		storageAddLocationTokenFlag = storageAddLocationFlags.String("token", "", "")
+		storageCreateLocationFlags     = flag.NewFlagSet("create-location", flag.ExitOnError)
+		storageCreateLocationBodyFlag  = storageCreateLocationFlags.String("body", "REQUIRED", "")
+		storageCreateLocationTokenFlag = storageCreateLocationFlags.String("token", "", "")
 
 		storageShowLocationFlags     = flag.NewFlagSet("show-location", flag.ExitOnError)
 		storageShowLocationUUIDFlag  = storageShowLocationFlags.String("uuid", "REQUIRED", "Identifier of location")
 		storageShowLocationTokenFlag = storageShowLocationFlags.String("token", "", "")
 
-		storageLocationPackagesFlags     = flag.NewFlagSet("location-packages", flag.ExitOnError)
-		storageLocationPackagesUUIDFlag  = storageLocationPackagesFlags.String("uuid", "REQUIRED", "Identifier of location")
-		storageLocationPackagesTokenFlag = storageLocationPackagesFlags.String("token", "", "")
+		storageListLocationAipsFlags     = flag.NewFlagSet("list-location-aips", flag.ExitOnError)
+		storageListLocationAipsUUIDFlag  = storageListLocationAipsFlags.String("uuid", "REQUIRED", "Identifier of location")
+		storageListLocationAipsTokenFlag = storageListLocationAipsFlags.String("token", "", "")
 	)
-	package_Flags.Usage = package_Usage
-	package_MonitorRequestFlags.Usage = package_MonitorRequestUsage
-	package_MonitorFlags.Usage = package_MonitorUsage
-	package_ListFlags.Usage = package_ListUsage
-	package_ShowFlags.Usage = package_ShowUsage
-	package_PreservationActionsFlags.Usage = package_PreservationActionsUsage
-	package_ConfirmFlags.Usage = package_ConfirmUsage
-	package_RejectFlags.Usage = package_RejectUsage
-	package_MoveFlags.Usage = package_MoveUsage
-	package_MoveStatusFlags.Usage = package_MoveStatusUsage
-	package_UploadFlags.Usage = package_UploadUsage
+	ingestFlags.Usage = ingestUsage
+	ingestMonitorRequestFlags.Usage = ingestMonitorRequestUsage
+	ingestMonitorFlags.Usage = ingestMonitorUsage
+	ingestListSipsFlags.Usage = ingestListSipsUsage
+	ingestShowSipFlags.Usage = ingestShowSipUsage
+	ingestListSipPreservationActionsFlags.Usage = ingestListSipPreservationActionsUsage
+	ingestConfirmSipFlags.Usage = ingestConfirmSipUsage
+	ingestRejectSipFlags.Usage = ingestRejectSipUsage
+	ingestMoveSipFlags.Usage = ingestMoveSipUsage
+	ingestMoveSipStatusFlags.Usage = ingestMoveSipStatusUsage
+	ingestUploadSipFlags.Usage = ingestUploadSipUsage
 
 	storageFlags.Usage = storageUsage
-	storageCreateFlags.Usage = storageCreateUsage
-	storageSubmitFlags.Usage = storageSubmitUsage
-	storageUpdateFlags.Usage = storageUpdateUsage
-	storageDownloadFlags.Usage = storageDownloadUsage
-	storageMoveFlags.Usage = storageMoveUsage
-	storageMoveStatusFlags.Usage = storageMoveStatusUsage
-	storageRejectFlags.Usage = storageRejectUsage
-	storageShowFlags.Usage = storageShowUsage
-	storageLocationsFlags.Usage = storageLocationsUsage
-	storageAddLocationFlags.Usage = storageAddLocationUsage
+	storageCreateAipFlags.Usage = storageCreateAipUsage
+	storageSubmitAipFlags.Usage = storageSubmitAipUsage
+	storageUpdateAipFlags.Usage = storageUpdateAipUsage
+	storageDownloadAipFlags.Usage = storageDownloadAipUsage
+	storageMoveAipFlags.Usage = storageMoveAipUsage
+	storageMoveAipStatusFlags.Usage = storageMoveAipStatusUsage
+	storageRejectAipFlags.Usage = storageRejectAipUsage
+	storageShowAipFlags.Usage = storageShowAipUsage
+	storageListLocationsFlags.Usage = storageListLocationsUsage
+	storageCreateLocationFlags.Usage = storageCreateLocationUsage
 	storageShowLocationFlags.Usage = storageShowLocationUsage
-	storageLocationPackagesFlags.Usage = storageLocationPackagesUsage
+	storageListLocationAipsFlags.Usage = storageListLocationAipsUsage
 
 	if err := flag.CommandLine.Parse(os.Args[1:]); err != nil {
 		return nil, nil, err
@@ -196,8 +196,8 @@ func ParseEndpoint(
 	{
 		svcn = flag.Arg(0)
 		switch svcn {
-		case "package":
-			svcf = package_Flags
+		case "ingest":
+			svcf = ingestFlags
 		case "storage":
 			svcf = storageFlags
 		default:
@@ -215,77 +215,77 @@ func ParseEndpoint(
 	{
 		epn = svcf.Arg(0)
 		switch svcn {
-		case "package":
+		case "ingest":
 			switch epn {
 			case "monitor-request":
-				epf = package_MonitorRequestFlags
+				epf = ingestMonitorRequestFlags
 
 			case "monitor":
-				epf = package_MonitorFlags
+				epf = ingestMonitorFlags
 
-			case "list":
-				epf = package_ListFlags
+			case "list-sips":
+				epf = ingestListSipsFlags
 
-			case "show":
-				epf = package_ShowFlags
+			case "show-sip":
+				epf = ingestShowSipFlags
 
-			case "preservation-actions":
-				epf = package_PreservationActionsFlags
+			case "list-sip-preservation-actions":
+				epf = ingestListSipPreservationActionsFlags
 
-			case "confirm":
-				epf = package_ConfirmFlags
+			case "confirm-sip":
+				epf = ingestConfirmSipFlags
 
-			case "reject":
-				epf = package_RejectFlags
+			case "reject-sip":
+				epf = ingestRejectSipFlags
 
-			case "move":
-				epf = package_MoveFlags
+			case "move-sip":
+				epf = ingestMoveSipFlags
 
-			case "move-status":
-				epf = package_MoveStatusFlags
+			case "move-sip-status":
+				epf = ingestMoveSipStatusFlags
 
-			case "upload":
-				epf = package_UploadFlags
+			case "upload-sip":
+				epf = ingestUploadSipFlags
 
 			}
 
 		case "storage":
 			switch epn {
-			case "create":
-				epf = storageCreateFlags
+			case "create-aip":
+				epf = storageCreateAipFlags
 
-			case "submit":
-				epf = storageSubmitFlags
+			case "submit-aip":
+				epf = storageSubmitAipFlags
 
-			case "update":
-				epf = storageUpdateFlags
+			case "update-aip":
+				epf = storageUpdateAipFlags
 
-			case "download":
-				epf = storageDownloadFlags
+			case "download-aip":
+				epf = storageDownloadAipFlags
 
-			case "move":
-				epf = storageMoveFlags
+			case "move-aip":
+				epf = storageMoveAipFlags
 
-			case "move-status":
-				epf = storageMoveStatusFlags
+			case "move-aip-status":
+				epf = storageMoveAipStatusFlags
 
-			case "reject":
-				epf = storageRejectFlags
+			case "reject-aip":
+				epf = storageRejectAipFlags
 
-			case "show":
-				epf = storageShowFlags
+			case "show-aip":
+				epf = storageShowAipFlags
 
-			case "locations":
-				epf = storageLocationsFlags
+			case "list-locations":
+				epf = storageListLocationsFlags
 
-			case "add-location":
-				epf = storageAddLocationFlags
+			case "create-location":
+				epf = storageCreateLocationFlags
 
 			case "show-location":
 				epf = storageShowLocationFlags
 
-			case "location-packages":
-				epf = storageLocationPackagesFlags
+			case "list-location-aips":
+				epf = storageListLocationAipsFlags
 
 			}
 
@@ -309,82 +309,82 @@ func ParseEndpoint(
 	)
 	{
 		switch svcn {
-		case "package":
-			c := package_c.NewClient(scheme, host, doer, enc, dec, restore, dialer, package_Configurer)
+		case "ingest":
+			c := ingestc.NewClient(scheme, host, doer, enc, dec, restore, dialer, ingestConfigurer)
 			switch epn {
 			case "monitor-request":
 				endpoint = c.MonitorRequest()
-				data, err = package_c.BuildMonitorRequestPayload(*package_MonitorRequestTokenFlag)
+				data, err = ingestc.BuildMonitorRequestPayload(*ingestMonitorRequestTokenFlag)
 			case "monitor":
 				endpoint = c.Monitor()
-				data, err = package_c.BuildMonitorPayload(*package_MonitorTicketFlag)
-			case "list":
-				endpoint = c.List()
-				data, err = package_c.BuildListPayload(*package_ListNameFlag, *package_ListAipIDFlag, *package_ListEarliestCreatedTimeFlag, *package_ListLatestCreatedTimeFlag, *package_ListLocationIDFlag, *package_ListStatusFlag, *package_ListLimitFlag, *package_ListOffsetFlag, *package_ListTokenFlag)
-			case "show":
-				endpoint = c.Show()
-				data, err = package_c.BuildShowPayload(*package_ShowIDFlag, *package_ShowTokenFlag)
-			case "preservation-actions":
-				endpoint = c.PreservationActions()
-				data, err = package_c.BuildPreservationActionsPayload(*package_PreservationActionsIDFlag, *package_PreservationActionsTokenFlag)
-			case "confirm":
-				endpoint = c.Confirm()
-				data, err = package_c.BuildConfirmPayload(*package_ConfirmBodyFlag, *package_ConfirmIDFlag, *package_ConfirmTokenFlag)
-			case "reject":
-				endpoint = c.Reject()
-				data, err = package_c.BuildRejectPayload(*package_RejectIDFlag, *package_RejectTokenFlag)
-			case "move":
-				endpoint = c.Move()
-				data, err = package_c.BuildMovePayload(*package_MoveBodyFlag, *package_MoveIDFlag, *package_MoveTokenFlag)
-			case "move-status":
-				endpoint = c.MoveStatus()
-				data, err = package_c.BuildMoveStatusPayload(*package_MoveStatusIDFlag, *package_MoveStatusTokenFlag)
-			case "upload":
-				endpoint = c.Upload()
-				data, err = package_c.BuildUploadPayload(*package_UploadContentTypeFlag, *package_UploadTokenFlag)
+				data, err = ingestc.BuildMonitorPayload(*ingestMonitorTicketFlag)
+			case "list-sips":
+				endpoint = c.ListSips()
+				data, err = ingestc.BuildListSipsPayload(*ingestListSipsNameFlag, *ingestListSipsAipIDFlag, *ingestListSipsEarliestCreatedTimeFlag, *ingestListSipsLatestCreatedTimeFlag, *ingestListSipsLocationIDFlag, *ingestListSipsStatusFlag, *ingestListSipsLimitFlag, *ingestListSipsOffsetFlag, *ingestListSipsTokenFlag)
+			case "show-sip":
+				endpoint = c.ShowSip()
+				data, err = ingestc.BuildShowSipPayload(*ingestShowSipIDFlag, *ingestShowSipTokenFlag)
+			case "list-sip-preservation-actions":
+				endpoint = c.ListSipPreservationActions()
+				data, err = ingestc.BuildListSipPreservationActionsPayload(*ingestListSipPreservationActionsIDFlag, *ingestListSipPreservationActionsTokenFlag)
+			case "confirm-sip":
+				endpoint = c.ConfirmSip()
+				data, err = ingestc.BuildConfirmSipPayload(*ingestConfirmSipBodyFlag, *ingestConfirmSipIDFlag, *ingestConfirmSipTokenFlag)
+			case "reject-sip":
+				endpoint = c.RejectSip()
+				data, err = ingestc.BuildRejectSipPayload(*ingestRejectSipIDFlag, *ingestRejectSipTokenFlag)
+			case "move-sip":
+				endpoint = c.MoveSip()
+				data, err = ingestc.BuildMoveSipPayload(*ingestMoveSipBodyFlag, *ingestMoveSipIDFlag, *ingestMoveSipTokenFlag)
+			case "move-sip-status":
+				endpoint = c.MoveSipStatus()
+				data, err = ingestc.BuildMoveSipStatusPayload(*ingestMoveSipStatusIDFlag, *ingestMoveSipStatusTokenFlag)
+			case "upload-sip":
+				endpoint = c.UploadSip()
+				data, err = ingestc.BuildUploadSipPayload(*ingestUploadSipContentTypeFlag, *ingestUploadSipTokenFlag)
 				if err == nil {
-					data, err = package_c.BuildUploadStreamPayload(data, *package_UploadStreamFlag)
+					data, err = ingestc.BuildUploadSipStreamPayload(data, *ingestUploadSipStreamFlag)
 				}
 			}
 		case "storage":
 			c := storagec.NewClient(scheme, host, doer, enc, dec, restore)
 			switch epn {
-			case "create":
-				endpoint = c.Create()
-				data, err = storagec.BuildCreatePayload(*storageCreateBodyFlag, *storageCreateTokenFlag)
-			case "submit":
-				endpoint = c.Submit()
-				data, err = storagec.BuildSubmitPayload(*storageSubmitBodyFlag, *storageSubmitAipIDFlag, *storageSubmitTokenFlag)
-			case "update":
-				endpoint = c.Update()
-				data, err = storagec.BuildUpdatePayload(*storageUpdateAipIDFlag, *storageUpdateTokenFlag)
-			case "download":
-				endpoint = c.Download()
-				data, err = storagec.BuildDownloadPayload(*storageDownloadAipIDFlag, *storageDownloadTokenFlag)
-			case "move":
-				endpoint = c.Move()
-				data, err = storagec.BuildMovePayload(*storageMoveBodyFlag, *storageMoveAipIDFlag, *storageMoveTokenFlag)
-			case "move-status":
-				endpoint = c.MoveStatus()
-				data, err = storagec.BuildMoveStatusPayload(*storageMoveStatusAipIDFlag, *storageMoveStatusTokenFlag)
-			case "reject":
-				endpoint = c.Reject()
-				data, err = storagec.BuildRejectPayload(*storageRejectAipIDFlag, *storageRejectTokenFlag)
-			case "show":
-				endpoint = c.Show()
-				data, err = storagec.BuildShowPayload(*storageShowAipIDFlag, *storageShowTokenFlag)
-			case "locations":
-				endpoint = c.Locations()
-				data, err = storagec.BuildLocationsPayload(*storageLocationsTokenFlag)
-			case "add-location":
-				endpoint = c.AddLocation()
-				data, err = storagec.BuildAddLocationPayload(*storageAddLocationBodyFlag, *storageAddLocationTokenFlag)
+			case "create-aip":
+				endpoint = c.CreateAip()
+				data, err = storagec.BuildCreateAipPayload(*storageCreateAipBodyFlag, *storageCreateAipTokenFlag)
+			case "submit-aip":
+				endpoint = c.SubmitAip()
+				data, err = storagec.BuildSubmitAipPayload(*storageSubmitAipBodyFlag, *storageSubmitAipUUIDFlag, *storageSubmitAipTokenFlag)
+			case "update-aip":
+				endpoint = c.UpdateAip()
+				data, err = storagec.BuildUpdateAipPayload(*storageUpdateAipUUIDFlag, *storageUpdateAipTokenFlag)
+			case "download-aip":
+				endpoint = c.DownloadAip()
+				data, err = storagec.BuildDownloadAipPayload(*storageDownloadAipUUIDFlag, *storageDownloadAipTokenFlag)
+			case "move-aip":
+				endpoint = c.MoveAip()
+				data, err = storagec.BuildMoveAipPayload(*storageMoveAipBodyFlag, *storageMoveAipUUIDFlag, *storageMoveAipTokenFlag)
+			case "move-aip-status":
+				endpoint = c.MoveAipStatus()
+				data, err = storagec.BuildMoveAipStatusPayload(*storageMoveAipStatusUUIDFlag, *storageMoveAipStatusTokenFlag)
+			case "reject-aip":
+				endpoint = c.RejectAip()
+				data, err = storagec.BuildRejectAipPayload(*storageRejectAipUUIDFlag, *storageRejectAipTokenFlag)
+			case "show-aip":
+				endpoint = c.ShowAip()
+				data, err = storagec.BuildShowAipPayload(*storageShowAipUUIDFlag, *storageShowAipTokenFlag)
+			case "list-locations":
+				endpoint = c.ListLocations()
+				data, err = storagec.BuildListLocationsPayload(*storageListLocationsTokenFlag)
+			case "create-location":
+				endpoint = c.CreateLocation()
+				data, err = storagec.BuildCreateLocationPayload(*storageCreateLocationBodyFlag, *storageCreateLocationTokenFlag)
 			case "show-location":
 				endpoint = c.ShowLocation()
 				data, err = storagec.BuildShowLocationPayload(*storageShowLocationUUIDFlag, *storageShowLocationTokenFlag)
-			case "location-packages":
-				endpoint = c.LocationPackages()
-				data, err = storagec.BuildLocationPackagesPayload(*storageLocationPackagesUUIDFlag, *storageLocationPackagesTokenFlag)
+			case "list-location-aips":
+				endpoint = c.ListLocationAips()
+				data, err = storagec.BuildListLocationAipsPayload(*storageListLocationAipsUUIDFlag, *storageListLocationAipsTokenFlag)
 			}
 		}
 	}
@@ -395,54 +395,54 @@ func ParseEndpoint(
 	return endpoint, data, nil
 }
 
-// packageUsage displays the usage of the package command and its subcommands.
-func package_Usage() {
-	fmt.Fprintf(os.Stderr, `The package service manages packages being transferred to a3m.
+// ingestUsage displays the usage of the ingest command and its subcommands.
+func ingestUsage() {
+	fmt.Fprintf(os.Stderr, `The ingest service manages ingested SIPs.
 Usage:
-    %[1]s [globalflags] package COMMAND [flags]
+    %[1]s [globalflags] ingest COMMAND [flags]
 
 COMMAND:
     monitor-request: Request access to the /monitor WebSocket
     monitor: Obtain access to the /monitor WebSocket
-    list: List all stored packages
-    show: Show package by ID
-    preservation-actions: List all preservation actions by ID
-    confirm: Signal the package has been reviewed and accepted
-    reject: Signal the package has been reviewed and rejected
-    move: Move a package to a permanent storage location
-    move-status: Retrieve the status of a permanent storage location move of the package
-    upload: Upload a package to trigger an ingest workflow
+    list-sips: List all ingested SIPs
+    show-sip: Show SIP by ID
+    list-sip-preservation-actions: List all preservation actions for a SIP
+    confirm-sip: Signal the SIP has been reviewed and accepted
+    reject-sip: Signal the SIP has been reviewed and rejected
+    move-sip: Move a SIP to a permanent storage location
+    move-sip-status: Retrieve the status of a permanent storage location move of the SIP
+    upload-sip: Upload a SIP to trigger an ingest workflow
 
 Additional help:
-    %[1]s package COMMAND --help
+    %[1]s ingest COMMAND --help
 `, os.Args[0])
 }
-func package_MonitorRequestUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] package monitor-request -token STRING
+func ingestMonitorRequestUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] ingest monitor-request -token STRING
 
 Request access to the /monitor WebSocket
     -token STRING: 
 
 Example:
-    %[1]s package monitor-request --token "abc123"
+    %[1]s ingest monitor-request --token "abc123"
 `, os.Args[0])
 }
 
-func package_MonitorUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] package monitor -ticket STRING
+func ingestMonitorUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] ingest monitor -ticket STRING
 
 Obtain access to the /monitor WebSocket
     -ticket STRING: 
 
 Example:
-    %[1]s package monitor --ticket "abc123"
+    %[1]s ingest monitor --ticket "abc123"
 `, os.Args[0])
 }
 
-func package_ListUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] package list -name STRING -aip-id STRING -earliest-created-time STRING -latest-created-time STRING -location-id STRING -status STRING -limit INT -offset INT -token STRING
+func ingestListSipsUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] ingest list-sips -name STRING -aip-id STRING -earliest-created-time STRING -latest-created-time STRING -location-id STRING -status STRING -limit INT -offset INT -token STRING
 
-List all stored packages
+List all ingested SIPs
     -name STRING: 
     -aip-id STRING: 
     -earliest-created-time STRING: 
@@ -454,253 +454,253 @@ List all stored packages
     -token STRING: 
 
 Example:
-    %[1]s package list --name "abc123" --aip-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --earliest-created-time "1970-01-01T00:00:01Z" --latest-created-time "1970-01-01T00:00:01Z" --location-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --status "in progress" --limit 1 --offset 1 --token "abc123"
+    %[1]s ingest list-sips --name "abc123" --aip-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --earliest-created-time "1970-01-01T00:00:01Z" --latest-created-time "1970-01-01T00:00:01Z" --location-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --status "in progress" --limit 1 --offset 1 --token "abc123"
 `, os.Args[0])
 }
 
-func package_ShowUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] package show -id UINT -token STRING
+func ingestShowSipUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] ingest show-sip -id UINT -token STRING
 
-Show package by ID
-    -id UINT: Identifier of package to show
+Show SIP by ID
+    -id UINT: Identifier of SIP to show
     -token STRING: 
 
 Example:
-    %[1]s package show --id 1 --token "abc123"
+    %[1]s ingest show-sip --id 1 --token "abc123"
 `, os.Args[0])
 }
 
-func package_PreservationActionsUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] package preservation-actions -id UINT -token STRING
+func ingestListSipPreservationActionsUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] ingest list-sip-preservation-actions -id UINT -token STRING
 
-List all preservation actions by ID
-    -id UINT: Identifier of package to look up
+List all preservation actions for a SIP
+    -id UINT: Identifier of SIP to look up
     -token STRING: 
 
 Example:
-    %[1]s package preservation-actions --id 1 --token "abc123"
+    %[1]s ingest list-sip-preservation-actions --id 1 --token "abc123"
 `, os.Args[0])
 }
 
-func package_ConfirmUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] package confirm -body JSON -id UINT -token STRING
+func ingestConfirmSipUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] ingest confirm-sip -body JSON -id UINT -token STRING
 
-Signal the package has been reviewed and accepted
+Signal the SIP has been reviewed and accepted
     -body JSON: 
-    -id UINT: Identifier of package to look up
+    -id UINT: Identifier of SIP to look up
     -token STRING: 
 
 Example:
-    %[1]s package confirm --body '{
+    %[1]s ingest confirm-sip --body '{
       "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
    }' --id 1 --token "abc123"
 `, os.Args[0])
 }
 
-func package_RejectUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] package reject -id UINT -token STRING
+func ingestRejectSipUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] ingest reject-sip -id UINT -token STRING
 
-Signal the package has been reviewed and rejected
-    -id UINT: Identifier of package to look up
+Signal the SIP has been reviewed and rejected
+    -id UINT: Identifier of SIP to look up
     -token STRING: 
 
 Example:
-    %[1]s package reject --id 1 --token "abc123"
+    %[1]s ingest reject-sip --id 1 --token "abc123"
 `, os.Args[0])
 }
 
-func package_MoveUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] package move -body JSON -id UINT -token STRING
+func ingestMoveSipUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] ingest move-sip -body JSON -id UINT -token STRING
 
-Move a package to a permanent storage location
+Move a SIP to a permanent storage location
     -body JSON: 
-    -id UINT: Identifier of package to move
+    -id UINT: Identifier of SIP to move
     -token STRING: 
 
 Example:
-    %[1]s package move --body '{
+    %[1]s ingest move-sip --body '{
       "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
    }' --id 1 --token "abc123"
 `, os.Args[0])
 }
 
-func package_MoveStatusUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] package move-status -id UINT -token STRING
+func ingestMoveSipStatusUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] ingest move-sip-status -id UINT -token STRING
 
-Retrieve the status of a permanent storage location move of the package
-    -id UINT: Identifier of package to move
+Retrieve the status of a permanent storage location move of the SIP
+    -id UINT: Identifier of SIP to move
     -token STRING: 
 
 Example:
-    %[1]s package move-status --id 1 --token "abc123"
+    %[1]s ingest move-sip-status --id 1 --token "abc123"
 `, os.Args[0])
 }
 
-func package_UploadUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] package upload -content-type STRING -token STRING -stream STRING
+func ingestUploadSipUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] ingest upload-sip -content-type STRING -token STRING -stream STRING
 
-Upload a package to trigger an ingest workflow
+Upload a SIP to trigger an ingest workflow
     -content-type STRING: 
     -token STRING: 
     -stream STRING: path to file containing the streamed request body
 
 Example:
-    %[1]s package upload --content-type "multipart/form-data; boundary=goa" --token "abc123" --stream "goa.png"
+    %[1]s ingest upload-sip --content-type "multipart/form-data; boundary=goa" --token "abc123" --stream "goa.png"
 `, os.Args[0])
 }
 
 // storageUsage displays the usage of the storage command and its subcommands.
 func storageUsage() {
-	fmt.Fprintf(os.Stderr, `The storage service manages the storage of packages.
+	fmt.Fprintf(os.Stderr, `The storage service manages locations and AIPs.
 Usage:
     %[1]s [globalflags] storage COMMAND [flags]
 
 COMMAND:
-    create: Create a new package
-    submit: Start the submission of a package
-    update: Signal that a package submission is complete
-    download: Download package by AIPID
-    move: Move a package to a permanent storage location
-    move-status: Retrieve the status of a permanent storage location move of the package
-    reject: Reject a package
-    show: Show package by AIPID
-    locations: List locations
-    add-location: Create a storage location
+    create-aip: Create a new AIP
+    submit-aip: Start the submission of an AIP
+    update-aip: Signal that an AIP submission is complete
+    download-aip: Download AIP by AIPID
+    move-aip: Move an AIP to a permanent storage location
+    move-aip-status: Retrieve the status of a permanent storage location move of the AIP
+    reject-aip: Reject an AIP
+    show-aip: Show AIP by AIPID
+    list-locations: List locations
+    create-location: Create a storage location
     show-location: Show location by UUID
-    location-packages: List all the packages stored in the location with UUID
+    list-location-aips: List all the AIPs stored in the location with UUID
 
 Additional help:
     %[1]s storage COMMAND --help
 `, os.Args[0])
 }
-func storageCreateUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage create -body JSON -token STRING
+func storageCreateAipUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage create-aip -body JSON -token STRING
 
-Create a new package
+Create a new AIP
     -body JSON: 
     -token STRING: 
 
 Example:
-    %[1]s storage create --body '{
-      "aip_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+    %[1]s storage create-aip --body '{
       "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
       "name": "abc123",
       "object_key": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
-      "status": "in_review"
+      "status": "in_review",
+      "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
    }' --token "abc123"
 `, os.Args[0])
 }
 
-func storageSubmitUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage submit -body JSON -aip-id STRING -token STRING
+func storageSubmitAipUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage submit-aip -body JSON -uuid STRING -token STRING
 
-Start the submission of a package
+Start the submission of an AIP
     -body JSON: 
-    -aip-id STRING: Identifier of AIP
+    -uuid STRING: Identifier of AIP
     -token STRING: 
 
 Example:
-    %[1]s storage submit --body '{
+    %[1]s storage submit-aip --body '{
       "name": "abc123"
-   }' --aip-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --token "abc123"
+   }' --uuid "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --token "abc123"
 `, os.Args[0])
 }
 
-func storageUpdateUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage update -aip-id STRING -token STRING
+func storageUpdateAipUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage update-aip -uuid STRING -token STRING
 
-Signal that a package submission is complete
-    -aip-id STRING: Identifier of AIP
+Signal that an AIP submission is complete
+    -uuid STRING: Identifier of AIP
     -token STRING: 
 
 Example:
-    %[1]s storage update --aip-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --token "abc123"
+    %[1]s storage update-aip --uuid "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --token "abc123"
 `, os.Args[0])
 }
 
-func storageDownloadUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage download -aip-id STRING -token STRING
+func storageDownloadAipUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage download-aip -uuid STRING -token STRING
 
-Download package by AIPID
-    -aip-id STRING: Identifier of AIP
+Download AIP by AIPID
+    -uuid STRING: Identifier of AIP
     -token STRING: 
 
 Example:
-    %[1]s storage download --aip-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --token "abc123"
+    %[1]s storage download-aip --uuid "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --token "abc123"
 `, os.Args[0])
 }
 
-func storageMoveUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage move -body JSON -aip-id STRING -token STRING
+func storageMoveAipUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage move-aip -body JSON -uuid STRING -token STRING
 
-Move a package to a permanent storage location
+Move an AIP to a permanent storage location
     -body JSON: 
-    -aip-id STRING: Identifier of AIP
+    -uuid STRING: Identifier of AIP
     -token STRING: 
 
 Example:
-    %[1]s storage move --body '{
+    %[1]s storage move-aip --body '{
       "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
-   }' --aip-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --token "abc123"
+   }' --uuid "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --token "abc123"
 `, os.Args[0])
 }
 
-func storageMoveStatusUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage move-status -aip-id STRING -token STRING
+func storageMoveAipStatusUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage move-aip-status -uuid STRING -token STRING
 
-Retrieve the status of a permanent storage location move of the package
-    -aip-id STRING: Identifier of AIP
+Retrieve the status of a permanent storage location move of the AIP
+    -uuid STRING: Identifier of AIP
     -token STRING: 
 
 Example:
-    %[1]s storage move-status --aip-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --token "abc123"
+    %[1]s storage move-aip-status --uuid "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --token "abc123"
 `, os.Args[0])
 }
 
-func storageRejectUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage reject -aip-id STRING -token STRING
+func storageRejectAipUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage reject-aip -uuid STRING -token STRING
 
-Reject a package
-    -aip-id STRING: Identifier of AIP
+Reject an AIP
+    -uuid STRING: Identifier of AIP
     -token STRING: 
 
 Example:
-    %[1]s storage reject --aip-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --token "abc123"
+    %[1]s storage reject-aip --uuid "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --token "abc123"
 `, os.Args[0])
 }
 
-func storageShowUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage show -aip-id STRING -token STRING
+func storageShowAipUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage show-aip -uuid STRING -token STRING
 
-Show package by AIPID
-    -aip-id STRING: Identifier of AIP
+Show AIP by AIPID
+    -uuid STRING: Identifier of AIP
     -token STRING: 
 
 Example:
-    %[1]s storage show --aip-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --token "abc123"
+    %[1]s storage show-aip --uuid "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --token "abc123"
 `, os.Args[0])
 }
 
-func storageLocationsUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage locations -token STRING
+func storageListLocationsUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage list-locations -token STRING
 
 List locations
     -token STRING: 
 
 Example:
-    %[1]s storage locations --token "abc123"
+    %[1]s storage list-locations --token "abc123"
 `, os.Args[0])
 }
 
-func storageAddLocationUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage add-location -body JSON -token STRING
+func storageCreateLocationUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage create-location -body JSON -token STRING
 
 Create a storage location
     -body JSON: 
     -token STRING: 
 
 Example:
-    %[1]s storage add-location --body '{
+    %[1]s storage create-location --body '{
       "config": {
          "Type": "s3",
          "Value": "{\"bucket\":\"abc123\",\"endpoint\":\"abc123\",\"key\":\"abc123\",\"path_style\":false,\"profile\":\"abc123\",\"region\":\"abc123\",\"secret\":\"abc123\",\"token\":\"abc123\"}"
@@ -725,14 +725,14 @@ Example:
 `, os.Args[0])
 }
 
-func storageLocationPackagesUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage location-packages -uuid STRING -token STRING
+func storageListLocationAipsUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage list-location-aips -uuid STRING -token STRING
 
-List all the packages stored in the location with UUID
+List all the AIPs stored in the location with UUID
     -uuid STRING: Identifier of location
     -token STRING: 
 
 Example:
-    %[1]s storage location-packages --uuid "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --token "abc123"
+    %[1]s storage list-location-aips --uuid "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --token "abc123"
 `, os.Args[0])
 }

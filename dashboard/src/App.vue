@@ -14,7 +14,7 @@ watch(
   () => authStore.isUserValid,
   (valid) => {
     if (valid) {
-      client.package.packageMonitorRequest().then(() => {
+      client.ingest.ingestMonitorRequest().then(() => {
         client.connectPackageMonitor();
       });
     }

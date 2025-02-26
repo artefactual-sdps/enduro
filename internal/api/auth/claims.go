@@ -16,8 +16,8 @@ type Claims struct {
 // attributes. It always verifies if the claim is nil (authentication disabled)
 // or the attributes are nil (access control disabled). Attributes are verified
 // by exact match or by having an ancestor with wildcard. For example, a claim
-// with "*" or "package:*" as one of it's attributes will verify all package
-// actions, like "package:list", "package:read", etc.
+// with "*" or "ingest:*" as one of it's attributes will verify all ingest
+// actions, like "ingest:sips:list", "ingest:sips:read", etc.
 func (c *Claims) CheckAttributes(required []string) bool {
 	// Authentication disabled, access control disabled or all wildcard in claims.
 	if c == nil || c.Attributes == nil || slices.Contains(c.Attributes, "*") {

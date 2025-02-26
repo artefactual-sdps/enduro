@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 	"go.artefactual.dev/tools/ref"
 
-	goapackage "github.com/artefactual-sdps/enduro/internal/api/gen/package_"
+	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
 	"github.com/artefactual-sdps/enduro/internal/db"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 )
@@ -33,7 +33,7 @@ type SIP struct {
 }
 
 // Goa returns the API representation of the SIP.
-func (s *SIP) Goa() *goapackage.EnduroStoredPackage {
+func (s *SIP) Goa() *goaingest.SIP {
 	if s == nil {
 		return nil
 	}
@@ -43,7 +43,7 @@ func (s *SIP) Goa() *goapackage.EnduroStoredPackage {
 		id = uint(s.ID) // #nosec G115 -- range validated.
 	}
 
-	col := goapackage.EnduroStoredPackage{
+	col := goaingest.SIP{
 		ID:          id,
 		Name:        db.FormatOptionalString(s.Name),
 		WorkflowID:  db.FormatOptionalString(s.WorkflowID),

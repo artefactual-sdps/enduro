@@ -147,42 +147,42 @@ describe("useAuthStore", () => {
       title: "ABAC disabled",
       enabled: false,
       attributes: [],
-      required: ["package:list"],
+      required: ["ingest:sips:list"],
       expected: true,
     },
     {
       title: "all wildcard",
       enabled: true,
       attributes: ["*"],
-      required: ["package:list", "storage:location:list"],
+      required: ["ingest:sips:list", "storage:locations:list"],
       expected: true,
     },
     {
       title: "exact matches",
       enabled: true,
-      attributes: ["package:list", "storage:location:list"],
-      required: ["package:list", "storage:location:list"],
+      attributes: ["ingest:sips:list", "storage:locations:list"],
+      required: ["ingest:sips:list", "storage:locations:list"],
       expected: true,
     },
     {
       title: "wildcard matches",
       enabled: true,
-      attributes: ["package:*", "storage:*"],
-      required: ["package:list", "storage:location:list"],
+      attributes: ["ingest:sips:*", "storage:*"],
+      required: ["ingest:sips:list", "storage:locations:list"],
       expected: true,
     },
     {
       title: "no match",
       enabled: true,
-      attributes: ["package:*"],
-      required: ["package:list", "storage:location:list"],
+      attributes: ["ingest:sips:*"],
+      required: ["ingest:sips:list", "storage:locations:list"],
       expected: false,
     },
     {
       title: "no match without wildcard",
       enabled: true,
-      attributes: ["storage:location"],
-      required: ["storage:location:list"],
+      attributes: ["storage:locations"],
+      required: ["storage:locations:list"],
       expected: false,
     },
   ])("checks attributes ($title)", (test) => {
@@ -229,13 +229,17 @@ describe("useAuthStore", () => {
           rolesMapping: {
             admin: ["*"],
             operator: [
-              "package:list",
-              "package:listActions",
-              "package:move",
-              "package:read",
-              "package:upload",
+              "ingest:sips:list",
+              "ingest:sips:actions:list",
+              "ingest:sips:move",
+              "ingest:sips:read",
+              "ingest:sips:upload",
             ],
-            readonly: ["package:list", "package:listActions", "package:read"],
+            readonly: [
+              "ingest:sips:list",
+              "ingest:sips:actions:list",
+              "ingest:sips:read",
+            ],
           },
         },
       },
@@ -510,13 +514,13 @@ describe("useAuthStore", () => {
           "iss": "acme.com",
           "sub": "29ac0c18-0b4a-42cf-82fc-03d570318a1d",
           "enduro": [
-            "package:*",
+            "ingest:sips:*",
             "storage:*"
           ]
         }
         */
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE0ODUxNDA5ODQsImlhdCI6MTQ4NTEzNzM4NCwiaXNzIjoiYWNtZS5jb20iLCJzdWIiOiIyOWFjMGMxOC0wYjRhLTQyY2YtODJmYy0wM2Q1NzAzMThhMWQiLCJlbmR1cm8iOlsicGFja2FnZToqIiwic3RvcmFnZToqIl19.Mp0Pcwsz5VECK11Kf2ZZNF_SMKu5CgBeLN9ZOP04kZo",
-      expected: ["package:*", "storage:*"],
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE0ODUxNDA5ODQsImlhdCI6MTQ4NTEzNzM4NCwiaXNzIjoiYWNtZS5jb20iLCJzdWIiOiIyOWFjMGMxOC0wYjRhLTQyY2YtODJmYy0wM2Q1NzAzMThhMWQiLCJlbmR1cm8iOlsiaW5nZXN0OnNpcHM6KiIsInN0b3JhZ2U6KiJdfQ.e6uTWEQDfCnjQPwDcfikGDBoJ0WF666N1B812iihidg",
+      expected: ["ingest:sips:*", "storage:*"],
     },
     {
       title: "nested claim",
@@ -533,14 +537,14 @@ describe("useAuthStore", () => {
           "sub": "29ac0c18-0b4a-42cf-82fc-03d570318a1d",
           "attributes": {
             "enduro": [
-              "package:*",
+              "ingest:sips:*",
               "storage:*"
             ]
           }
         }
         */
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE0ODUxNDA5ODQsImlhdCI6MTQ4NTEzNzM4NCwiaXNzIjoiYWNtZS5jb20iLCJzdWIiOiIyOWFjMGMxOC0wYjRhLTQyY2YtODJmYy0wM2Q1NzAzMThhMWQiLCJhdHRyaWJ1dGVzIjp7ImVuZHVybyI6WyJwYWNrYWdlOioiLCJzdG9yYWdlOioiXX19.Mp0Pcwsz5VECK11Kf2ZZNF_SMKu5CgBeLN9ZOP04kZo",
-      expected: ["package:*", "storage:*"],
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE0ODUxNDA5ODQsImlhdCI6MTQ4NTEzNzM4NCwiaXNzIjoiYWNtZS5jb20iLCJzdWIiOiIyOWFjMGMxOC0wYjRhLTQyY2YtODJmYy0wM2Q1NzAzMThhMWQiLCJhdHRyaWJ1dGVzIjp7ImVuZHVybyI6WyJpbmdlc3Q6c2lwczoqIiwic3RvcmFnZToqIl19fQ.LLH6k9d_2UloGkGwXucVmGAGRZ4gKh3FZmaqRZYacYw",
+      expected: ["ingest:sips:*", "storage:*"],
     },
     {
       title: "filters values",
@@ -557,15 +561,15 @@ describe("useAuthStore", () => {
           "sub": "29ac0c18-0b4a-42cf-82fc-03d570318a1d",
           "attributes": {
             "enduro": [
-              "enduro:package:*",
+              "enduro:ingest:sips:*",
               "enduro:storage:*",
               "ignore:this"
             ]
           }
         }
         */
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE0ODUxNDA5ODQsImlhdCI6MTQ4NTEzNzM4NCwiaXNzIjoiYWNtZS5jb20iLCJzdWIiOiIyOWFjMGMxOC0wYjRhLTQyY2YtODJmYy0wM2Q1NzAzMThhMWQiLCJhdHRyaWJ1dGVzIjp7ImVuZHVybyI6WyJlbmR1cm86cGFja2FnZToqIiwiZW5kdXJvOnN0b3JhZ2U6KiIsImlnbm9yZTp0aGlzIl19fQ.Mp0Pcwsz5VECK11Kf2ZZNF_SMKu5CgBeLN9ZOP04kZo",
-      expected: ["package:*", "storage:*"],
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE0ODUxNDA5ODQsImlhdCI6MTQ4NTEzNzM4NCwiaXNzIjoiYWNtZS5jb20iLCJzdWIiOiIyOWFjMGMxOC0wYjRhLTQyY2YtODJmYy0wM2Q1NzAzMThhMWQiLCJhdHRyaWJ1dGVzIjp7ImVuZHVybyI6WyJlbmR1cm86aW5nZXN0OnNpcHM6KiIsImVuZHVybzpzdG9yYWdlOioiLCJpZ25vcmU6dGhpcyJdfX0.HY8ma30I3gXAIzq_oFel-KcweC7Vlt7cGs8mFA5Seg8",
+      expected: ["ingest:sips:*", "storage:*"],
     },
     {
       title: "invalid token",
@@ -591,7 +595,7 @@ describe("useAuthStore", () => {
           "iss": "acme.com",
           "sub": "29ac0c18-0b4a-42cf-82fc-03d570318a1d",
           "enduro": [
-            "package:*",
+            "ingest:sips:*",
             "storage:*"
           ]
         }
@@ -631,7 +635,7 @@ describe("useAuthStore", () => {
           "iat": 1485137384,
           "iss": "acme.com",
           "sub": "29ac0c18-0b4a-42cf-82fc-03d570318a1d",
-          "enduro": "package:*"
+          "enduro": "ingest:sips:*"
         }
         */
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE0ODUxNDA5ODQsImlhdCI6MTQ4NTEzNzM4NCwiaXNzIjoiYWNtZS5jb20iLCJzdWIiOiIyOWFjMGMxOC0wYjRhLTQyY2YtODJmYy0wM2Q1NzAzMThhMWQiLCJlbmR1cm8iOiJwYWNrYWdlOioifQ.Mp0Pcwsz5VECK11Kf2ZZNF_SMKu5CgBeLN9ZOP04kZo",
@@ -648,13 +652,17 @@ describe("useAuthStore", () => {
       rolesMapping: {
         admin: ["*"],
         operator: [
-          "package:list",
-          "package:listActions",
-          "package:move",
-          "package:read",
-          "package:upload",
+          "ingest:sips:list",
+          "ingest:sips:actions:list",
+          "ingest:sips:move",
+          "ingest:sips:read",
+          "ingest:sips:upload",
         ],
-        readonly: ["package:list", "package:listActions", "package:read"],
+        readonly: [
+          "ingest:sips:list",
+          "ingest:sips:actions:list",
+          "ingest:sips:read",
+        ],
       },
       accessToken:
         /*
@@ -673,11 +681,11 @@ describe("useAuthStore", () => {
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE0ODUxNDA5ODQsImlhdCI6MTQ4NTEzNzM4NCwiaXNzIjoiYWNtZS5jb20iLCJzdWIiOiIyOWFjMGMxOC0wYjRhLTQyY2YtODJmYy0wM2Q1NzAzMThhMWQiLCJyb2xlcyI6WyJhZG1pbiIsIm9wZXJhdG9yIiwicmVhZG9ubHkiXX0.2PY8zO7vNcS-3RdLa0AIFLjmRFKrR55m3rlm3DI1cMM",
       expected: [
         "*",
-        "package:list",
-        "package:listActions",
-        "package:move",
-        "package:read",
-        "package:upload",
+        "ingest:sips:list",
+        "ingest:sips:actions:list",
+        "ingest:sips:move",
+        "ingest:sips:read",
+        "ingest:sips:upload",
       ],
     },
   ])("parses attributes ($title)", (test) => {

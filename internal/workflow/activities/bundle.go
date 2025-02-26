@@ -33,7 +33,7 @@ type BundleActivityParams struct {
 	// SourcePath is the path of the transfer file or directory.
 	SourcePath string
 
-	// TransferDir is the target directory for the bundled package.
+	// TransferDir is the target directory for the bundled PIP.
 	TransferDir string
 
 	// IsDir indicates that the transfer is a local directory when true. If true

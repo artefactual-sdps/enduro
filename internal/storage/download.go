@@ -20,36 +20,36 @@ import (
 func Download(svc Service, mux goahttp.Muxer, dec func(r *http.Request) goahttp.Decoder) http.HandlerFunc {
 	return func(rw http.ResponseWriter, req *http.Request) {
 		// Decode request payload.
-		payload, err := server.DecodeDownloadRequest(mux, dec)(req)
+		payload, err := server.DecodeDownloadAipRequest(mux, dec)(req)
 		if err != nil {
 			rw.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		p := payload.(*goastorage.DownloadPayload)
+		p := payload.(*goastorage.DownloadAipPayload)
 
-		aipID, err := uuid.Parse(p.AipID)
+		aipID, err := uuid.Parse(p.UUID)
 		if err != nil {
 			rw.WriteHeader(http.StatusBadRequest)
 			return
 		}
 
-		// Read storage package.
+		// Read AIP.
 		ctx := req.Context()
-		pkg, err := svc.ReadPackage(ctx, aipID)
+		aip, err := svc.ReadAip(ctx, aipID)
 		if err != nil {
 			rw.WriteHeader(http.StatusNotFound)
 			return
 		}
 
 		// Get MinIO bucket reader for object key.
-		reader, err := svc.PackageReader(ctx, pkg)
+		reader, err := svc.AipReader(ctx, aip)
 		if err != nil {
 			rw.WriteHeader(http.StatusNotFound)
 			return
 		}
 		defer reader.Close()
 
-		filename := fmt.Sprintf("%s-%s.7z", fsutil.BaseNoExt(pkg.Name), pkg.AipID)
+		filename := fmt.Sprintf("%s-%s.7z", fsutil.BaseNoExt(aip.Name), aip.UUID)
 
 		rw.Header().Add("Content-Type", reader.ContentType())
 		rw.Header().Add("Content-Length", strconv.FormatInt(reader.Size(), 10))

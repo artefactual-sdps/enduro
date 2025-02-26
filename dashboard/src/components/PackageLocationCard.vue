@@ -45,7 +45,7 @@ const choose = async () => {
         class="actions"
         v-if="
           !packageStore.isRejected &&
-          authStore.checkAttributes(['package:move'])
+          authStore.checkAttributes(['ingest:sips:move'])
         "
       >
         <button

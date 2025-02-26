@@ -18,47 +18,53 @@ import (
 
 // Client lists the storage service endpoint HTTP clients.
 type Client struct {
-	// Create Doer is the HTTP client used to make requests to the create endpoint.
-	CreateDoer goahttp.Doer
-
-	// Submit Doer is the HTTP client used to make requests to the submit endpoint.
-	SubmitDoer goahttp.Doer
-
-	// Update Doer is the HTTP client used to make requests to the update endpoint.
-	UpdateDoer goahttp.Doer
-
-	// Download Doer is the HTTP client used to make requests to the download
+	// CreateAip Doer is the HTTP client used to make requests to the create_aip
 	// endpoint.
-	DownloadDoer goahttp.Doer
+	CreateAipDoer goahttp.Doer
 
-	// Move Doer is the HTTP client used to make requests to the move endpoint.
-	MoveDoer goahttp.Doer
-
-	// MoveStatus Doer is the HTTP client used to make requests to the move_status
+	// SubmitAip Doer is the HTTP client used to make requests to the submit_aip
 	// endpoint.
-	MoveStatusDoer goahttp.Doer
+	SubmitAipDoer goahttp.Doer
 
-	// Reject Doer is the HTTP client used to make requests to the reject endpoint.
-	RejectDoer goahttp.Doer
-
-	// Show Doer is the HTTP client used to make requests to the show endpoint.
-	ShowDoer goahttp.Doer
-
-	// Locations Doer is the HTTP client used to make requests to the locations
+	// UpdateAip Doer is the HTTP client used to make requests to the update_aip
 	// endpoint.
-	LocationsDoer goahttp.Doer
+	UpdateAipDoer goahttp.Doer
 
-	// AddLocation Doer is the HTTP client used to make requests to the
-	// add_location endpoint.
-	AddLocationDoer goahttp.Doer
+	// DownloadAip Doer is the HTTP client used to make requests to the
+	// download_aip endpoint.
+	DownloadAipDoer goahttp.Doer
+
+	// MoveAip Doer is the HTTP client used to make requests to the move_aip
+	// endpoint.
+	MoveAipDoer goahttp.Doer
+
+	// MoveAipStatus Doer is the HTTP client used to make requests to the
+	// move_aip_status endpoint.
+	MoveAipStatusDoer goahttp.Doer
+
+	// RejectAip Doer is the HTTP client used to make requests to the reject_aip
+	// endpoint.
+	RejectAipDoer goahttp.Doer
+
+	// ShowAip Doer is the HTTP client used to make requests to the show_aip
+	// endpoint.
+	ShowAipDoer goahttp.Doer
+
+	// ListLocations Doer is the HTTP client used to make requests to the
+	// list_locations endpoint.
+	ListLocationsDoer goahttp.Doer
+
+	// CreateLocation Doer is the HTTP client used to make requests to the
+	// create_location endpoint.
+	CreateLocationDoer goahttp.Doer
 
 	// ShowLocation Doer is the HTTP client used to make requests to the
 	// show_location endpoint.
 	ShowLocationDoer goahttp.Doer
 
-	// LocationPackages Doer is the HTTP client used to make requests to the
-	// location_packages endpoint.
-	LocationPackagesDoer goahttp.Doer
+	// ListLocationAips Doer is the HTTP client used to make requests to the
+	// list_location_aips endpoint.
+	ListLocationAipsDoer goahttp.Doer
 
 	// CORS Doer is the HTTP client used to make requests to the  endpoint.
 	CORSDoer goahttp.Doer
@@ -83,18 +89,18 @@ func NewClient(
 	restoreBody bool,
 ) *Client {
 	return &Client{
-		CreateDoer:           doer,
-		SubmitDoer:           doer,
-		UpdateDoer:           doer,
-		DownloadDoer:         doer,
-		MoveDoer:             doer,
-		MoveStatusDoer:       doer,
-		RejectDoer:           doer,
-		ShowDoer:             doer,
-		LocationsDoer:        doer,
-		AddLocationDoer:      doer,
+		CreateAipDoer:        doer,
+		SubmitAipDoer:        doer,
+		UpdateAipDoer:        doer,
+		DownloadAipDoer:      doer,
+		MoveAipDoer:          doer,
+		MoveAipStatusDoer:    doer,
+		RejectAipDoer:        doer,
+		ShowAipDoer:          doer,
+		ListLocationsDoer:    doer,
+		CreateLocationDoer:   doer,
 		ShowLocationDoer:     doer,
-		LocationPackagesDoer: doer,
+		ListLocationAipsDoer: doer,
 		CORSDoer:             doer,
 		RestoreResponseBody:  restoreBody,
 		scheme:               scheme,
@@ -104,15 +110,15 @@ func NewClient(
 	}
 }
 
-// Create returns an endpoint that makes HTTP requests to the storage service
-// create server.
-func (c *Client) Create() goa.Endpoint {
+// CreateAip returns an endpoint that makes HTTP requests to the storage
+// service create_aip server.
+func (c *Client) CreateAip() goa.Endpoint {
 	var (
-		encodeRequest  = EncodeCreateRequest(c.encoder)
-		decodeResponse = DecodeCreateResponse(c.decoder, c.RestoreResponseBody)
+		encodeRequest  = EncodeCreateAipRequest(c.encoder)
+		decodeResponse = DecodeCreateAipResponse(c.decoder, c.RestoreResponseBody)
 	)
 	return func(ctx context.Context, v any) (any, error) {
-		req, err := c.BuildCreateRequest(ctx, v)
+		req, err := c.BuildCreateAipRequest(ctx, v)
 		if err != nil {
 			return nil, err
 		}
@@ -120,23 +126,23 @@ func (c *Client) Create() goa.Endpoint {
 		if err != nil {
 			return nil, err
 		}
-		resp, err := c.CreateDoer.Do(req)
+		resp, err := c.CreateAipDoer.Do(req)
 		if err != nil {
-			return nil, goahttp.ErrRequestError("storage", "create", err)
+			return nil, goahttp.ErrRequestError("storage", "create_aip", err)
 		}
 		return decodeResponse(resp)
 	}
 }
 
-// Submit returns an endpoint that makes HTTP requests to the storage service
-// submit server.
-func (c *Client) Submit() goa.Endpoint {
+// SubmitAip returns an endpoint that makes HTTP requests to the storage
+// service submit_aip server.
+func (c *Client) SubmitAip() goa.Endpoint {
 	var (
-		encodeRequest  = EncodeSubmitRequest(c.encoder)
-		decodeResponse = DecodeSubmitResponse(c.decoder, c.RestoreResponseBody)
+		encodeRequest  = EncodeSubmitAipRequest(c.encoder)
+		decodeResponse = DecodeSubmitAipResponse(c.decoder, c.RestoreResponseBody)
 	)
 	return func(ctx context.Context, v any) (any, error) {
-		req, err := c.BuildSubmitRequest(ctx, v)
+		req, err := c.BuildSubmitAipRequest(ctx, v)
 		if err != nil {
 			return nil, err
 		}
@@ -144,23 +150,23 @@ func (c *Client) Submit() goa.Endpoint {
 		if err != nil {
 			return nil, err
 		}
-		resp, err := c.SubmitDoer.Do(req)
+		resp, err := c.SubmitAipDoer.Do(req)
 		if err != nil {
-			return nil, goahttp.ErrRequestError("storage", "submit", err)
+			return nil, goahttp.ErrRequestError("storage", "submit_aip", err)
 		}
 		return decodeResponse(resp)
 	}
 }
 
-// Update returns an endpoint that makes HTTP requests to the storage service
-// update server.
-func (c *Client) Update() goa.Endpoint {
+// UpdateAip returns an endpoint that makes HTTP requests to the storage
+// service update_aip server.
+func (c *Client) UpdateAip() goa.Endpoint {
 	var (
-		encodeRequest  = EncodeUpdateRequest(c.encoder)
-		decodeResponse = DecodeUpdateResponse(c.decoder, c.RestoreResponseBody)
+		encodeRequest  = EncodeUpdateAipRequest(c.encoder)
+		decodeResponse = DecodeUpdateAipResponse(c.decoder, c.RestoreResponseBody)
 	)
 	return func(ctx context.Context, v any) (any, error) {
-		req, err := c.BuildUpdateRequest(ctx, v)
+		req, err := c.BuildUpdateAipRequest(ctx, v)
 		if err != nil {
 			return nil, err
 		}
@@ -168,23 +174,23 @@ func (c *Client) Update() goa.Endpoint {
 		if err != nil {
 			return nil, err
 		}
-		resp, err := c.UpdateDoer.Do(req)
+		resp, err := c.UpdateAipDoer.Do(req)
 		if err != nil {
-			return nil, goahttp.ErrRequestError("storage", "update", err)
+			return nil, goahttp.ErrRequestError("storage", "update_aip", err)
 		}
 		return decodeResponse(resp)
 	}
 }
 
-// Download returns an endpoint that makes HTTP requests to the storage service
-// download server.
-func (c *Client) Download() goa.Endpoint {
+// DownloadAip returns an endpoint that makes HTTP requests to the storage
+// service download_aip server.
+func (c *Client) DownloadAip() goa.Endpoint {
 	var (
-		encodeRequest  = EncodeDownloadRequest(c.encoder)
-		decodeResponse = DecodeDownloadResponse(c.decoder, c.RestoreResponseBody)
+		encodeRequest  = EncodeDownloadAipRequest(c.encoder)
+		decodeResponse = DecodeDownloadAipResponse(c.decoder, c.RestoreResponseBody)
 	)
 	return func(ctx context.Context, v any) (any, error) {
-		req, err := c.BuildDownloadRequest(ctx, v)
+		req, err := c.BuildDownloadAipRequest(ctx, v)
 		if err != nil {
 			return nil, err
 		}
@@ -192,23 +198,23 @@ func (c *Client) Download() goa.Endpoint {
 		if err != nil {
 			return nil, err
 		}
-		resp, err := c.DownloadDoer.Do(req)
+		resp, err := c.DownloadAipDoer.Do(req)
 		if err != nil {
-			return nil, goahttp.ErrRequestError("storage", "download", err)
+			return nil, goahttp.ErrRequestError("storage", "download_aip", err)
 		}
 		return decodeResponse(resp)
 	}
 }
 
-// Move returns an endpoint that makes HTTP requests to the storage service
-// move server.
-func (c *Client) Move() goa.Endpoint {
+// MoveAip returns an endpoint that makes HTTP requests to the storage service
+// move_aip server.
+func (c *Client) MoveAip() goa.Endpoint {
 	var (
-		encodeRequest  = EncodeMoveRequest(c.encoder)
-		decodeResponse = DecodeMoveResponse(c.decoder, c.RestoreResponseBody)
+		encodeRequest  = EncodeMoveAipRequest(c.encoder)
+		decodeResponse = DecodeMoveAipResponse(c.decoder, c.RestoreResponseBody)
 	)
 	return func(ctx context.Context, v any) (any, error) {
-		req, err := c.BuildMoveRequest(ctx, v)
+		req, err := c.BuildMoveAipRequest(ctx, v)
 		if err != nil {
 			return nil, err
 		}
@@ -216,23 +222,23 @@ func (c *Client) Move() goa.Endpoint {
 		if err != nil {
 			return nil, err
 		}
-		resp, err := c.MoveDoer.Do(req)
+		resp, err := c.MoveAipDoer.Do(req)
 		if err != nil {
-			return nil, goahttp.ErrRequestError("storage", "move", err)
+			return nil, goahttp.ErrRequestError("storage", "move_aip", err)
 		}
 		return decodeResponse(resp)
 	}
 }
 
-// MoveStatus returns an endpoint that makes HTTP requests to the storage
-// service move_status server.
-func (c *Client) MoveStatus() goa.Endpoint {
+// MoveAipStatus returns an endpoint that makes HTTP requests to the storage
+// service move_aip_status server.
+func (c *Client) MoveAipStatus() goa.Endpoint {
 	var (
-		encodeRequest  = EncodeMoveStatusRequest(c.encoder)
-		decodeResponse = DecodeMoveStatusResponse(c.decoder, c.RestoreResponseBody)
+		encodeRequest  = EncodeMoveAipStatusRequest(c.encoder)
+		decodeResponse = DecodeMoveAipStatusResponse(c.decoder, c.RestoreResponseBody)
 	)
 	return func(ctx context.Context, v any) (any, error) {
-		req, err := c.BuildMoveStatusRequest(ctx, v)
+		req, err := c.BuildMoveAipStatusRequest(ctx, v)
 		if err != nil {
 			return nil, err
 		}
@@ -240,23 +246,23 @@ func (c *Client) MoveStatus() goa.Endpoint {
 		if err != nil {
 			return nil, err
 		}
-		resp, err := c.MoveStatusDoer.Do(req)
+		resp, err := c.MoveAipStatusDoer.Do(req)
 		if err != nil {
-			return nil, goahttp.ErrRequestError("storage", "move_status", err)
+			return nil, goahttp.ErrRequestError("storage", "move_aip_status", err)
 		}
 		return decodeResponse(resp)
 	}
 }
 
-// Reject returns an endpoint that makes HTTP requests to the storage service
-// reject server.
-func (c *Client) Reject() goa.Endpoint {
+// RejectAip returns an endpoint that makes HTTP requests to the storage
+// service reject_aip server.
+func (c *Client) RejectAip() goa.Endpoint {
 	var (
-		encodeRequest  = EncodeRejectRequest(c.encoder)
-		decodeResponse = DecodeRejectResponse(c.decoder, c.RestoreResponseBody)
+		encodeRequest  = EncodeRejectAipRequest(c.encoder)
+		decodeResponse = DecodeRejectAipResponse(c.decoder, c.RestoreResponseBody)
 	)
 	return func(ctx context.Context, v any) (any, error) {
-		req, err := c.BuildRejectRequest(ctx, v)
+		req, err := c.BuildRejectAipRequest(ctx, v)
 		if err != nil {
 			return nil, err
 		}
@@ -264,23 +270,23 @@ func (c *Client) Reject() goa.Endpoint {
 		if err != nil {
 			return nil, err
 		}
-		resp, err := c.RejectDoer.Do(req)
+		resp, err := c.RejectAipDoer.Do(req)
 		if err != nil {
-			return nil, goahttp.ErrRequestError("storage", "reject", err)
+			return nil, goahttp.ErrRequestError("storage", "reject_aip", err)
 		}
 		return decodeResponse(resp)
 	}
 }
 
-// Show returns an endpoint that makes HTTP requests to the storage service
-// show server.
-func (c *Client) Show() goa.Endpoint {
+// ShowAip returns an endpoint that makes HTTP requests to the storage service
+// show_aip server.
+func (c *Client) ShowAip() goa.Endpoint {
 	var (
-		encodeRequest  = EncodeShowRequest(c.encoder)
-		decodeResponse = DecodeShowResponse(c.decoder, c.RestoreResponseBody)
+		encodeRequest  = EncodeShowAipRequest(c.encoder)
+		decodeResponse = DecodeShowAipResponse(c.decoder, c.RestoreResponseBody)
 	)
 	return func(ctx context.Context, v any) (any, error) {
-		req, err := c.BuildShowRequest(ctx, v)
+		req, err := c.BuildShowAipRequest(ctx, v)
 		if err != nil {
 			return nil, err
 		}
@@ -288,23 +294,23 @@ func (c *Client) Show() goa.Endpoint {
 		if err != nil {
 			return nil, err
 		}
-		resp, err := c.ShowDoer.Do(req)
+		resp, err := c.ShowAipDoer.Do(req)
 		if err != nil {
-			return nil, goahttp.ErrRequestError("storage", "show", err)
+			return nil, goahttp.ErrRequestError("storage", "show_aip", err)
 		}
 		return decodeResponse(resp)
 	}
 }
 
-// Locations returns an endpoint that makes HTTP requests to the storage
-// service locations server.
-func (c *Client) Locations() goa.Endpoint {
+// ListLocations returns an endpoint that makes HTTP requests to the storage
+// service list_locations server.
+func (c *Client) ListLocations() goa.Endpoint {
 	var (
-		encodeRequest  = EncodeLocationsRequest(c.encoder)
-		decodeResponse = DecodeLocationsResponse(c.decoder, c.RestoreResponseBody)
+		encodeRequest  = EncodeListLocationsRequest(c.encoder)
+		decodeResponse = DecodeListLocationsResponse(c.decoder, c.RestoreResponseBody)
 	)
 	return func(ctx context.Context, v any) (any, error) {
-		req, err := c.BuildLocationsRequest(ctx, v)
+		req, err := c.BuildListLocationsRequest(ctx, v)
 		if err != nil {
 			return nil, err
 		}
@@ -312,23 +318,23 @@ func (c *Client) Locations() goa.Endpoint {
 		if err != nil {
 			return nil, err
 		}
-		resp, err := c.LocationsDoer.Do(req)
+		resp, err := c.ListLocationsDoer.Do(req)
 		if err != nil {
-			return nil, goahttp.ErrRequestError("storage", "locations", err)
+			return nil, goahttp.ErrRequestError("storage", "list_locations", err)
 		}
 		return decodeResponse(resp)
 	}
 }
 
-// AddLocation returns an endpoint that makes HTTP requests to the storage
-// service add_location server.
-func (c *Client) AddLocation() goa.Endpoint {
+// CreateLocation returns an endpoint that makes HTTP requests to the storage
+// service create_location server.
+func (c *Client) CreateLocation() goa.Endpoint {
 	var (
-		encodeRequest  = EncodeAddLocationRequest(c.encoder)
-		decodeResponse = DecodeAddLocationResponse(c.decoder, c.RestoreResponseBody)
+		encodeRequest  = EncodeCreateLocationRequest(c.encoder)
+		decodeResponse = DecodeCreateLocationResponse(c.decoder, c.RestoreResponseBody)
 	)
 	return func(ctx context.Context, v any) (any, error) {
-		req, err := c.BuildAddLocationRequest(ctx, v)
+		req, err := c.BuildCreateLocationRequest(ctx, v)
 		if err != nil {
 			return nil, err
 		}
@@ -336,9 +342,9 @@ func (c *Client) AddLocation() goa.Endpoint {
 		if err != nil {
 			return nil, err
 		}
-		resp, err := c.AddLocationDoer.Do(req)
+		resp, err := c.CreateLocationDoer.Do(req)
 		if err != nil {
-			return nil, goahttp.ErrRequestError("storage", "add_location", err)
+			return nil, goahttp.ErrRequestError("storage", "create_location", err)
 		}
 		return decodeResponse(resp)
 	}
@@ -368,15 +374,15 @@ func (c *Client) ShowLocation() goa.Endpoint {
 	}
 }
 
-// LocationPackages returns an endpoint that makes HTTP requests to the storage
-// service location_packages server.
-func (c *Client) LocationPackages() goa.Endpoint {
+// ListLocationAips returns an endpoint that makes HTTP requests to the storage
+// service list_location_aips server.
+func (c *Client) ListLocationAips() goa.Endpoint {
 	var (
-		encodeRequest  = EncodeLocationPackagesRequest(c.encoder)
-		decodeResponse = DecodeLocationPackagesResponse(c.decoder, c.RestoreResponseBody)
+		encodeRequest  = EncodeListLocationAipsRequest(c.encoder)
+		decodeResponse = DecodeListLocationAipsResponse(c.decoder, c.RestoreResponseBody)
 	)
 	return func(ctx context.Context, v any) (any, error) {
-		req, err := c.BuildLocationPackagesRequest(ctx, v)
+		req, err := c.BuildListLocationAipsRequest(ctx, v)
 		if err != nil {
 			return nil, err
 		}
@@ -384,9 +390,9 @@ func (c *Client) LocationPackages() goa.Endpoint {
 		if err != nil {
 			return nil, err
 		}
-		resp, err := c.LocationPackagesDoer.Do(req)
+		resp, err := c.ListLocationAipsDoer.Do(req)
 		if err != nil {
-			return nil, goahttp.ErrRequestError("storage", "location_packages", err)
+			return nil, goahttp.ErrRequestError("storage", "list_location_aips", err)
 		}
 		return decodeResponse(resp)
 	}

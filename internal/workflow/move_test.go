@@ -13,8 +13,8 @@ import (
 	"go.uber.org/mock/gomock"
 
 	"github.com/artefactual-sdps/enduro/internal/enums"
-	"github.com/artefactual-sdps/enduro/internal/package_"
-	packagefake "github.com/artefactual-sdps/enduro/internal/package_/fake"
+	"github.com/artefactual-sdps/enduro/internal/ingest"
+	ingest_fake "github.com/artefactual-sdps/enduro/internal/ingest/fake"
 	"github.com/artefactual-sdps/enduro/internal/temporal"
 	"github.com/artefactual-sdps/enduro/internal/workflow/activities"
 )
@@ -34,7 +34,7 @@ func (s *MoveWorkflowTestSuite) SetupTest() {
 	s.env.SetWorkerOptions(temporalsdk_worker.Options{EnableSessionWorker: true})
 
 	ctrl := gomock.NewController(s.T())
-	pkgsvc := packagefake.NewMockService(ctrl)
+	ingestsvc := ingest_fake.NewMockService(ctrl)
 
 	s.env.RegisterActivityWithOptions(
 		activities.NewMoveToPermanentStorageActivity(nil).Execute,
@@ -45,7 +45,7 @@ func (s *MoveWorkflowTestSuite) SetupTest() {
 		temporalsdk_activity.RegisterOptions{Name: activities.PollMoveToPermanentStorageActivityName},
 	)
 
-	s.workflow = NewMoveWorkflow(pkgsvc)
+	s.workflow = NewMoveWorkflow(ingestsvc)
 }
 
 func (s *MoveWorkflowTestSuite) AfterTest(suiteName, testName string) {
@@ -57,12 +57,12 @@ func TestMoveWorkflow(t *testing.T) {
 }
 
 func (s *MoveWorkflowTestSuite) TestSuccessfulMove() {
-	pkgID := 1
+	sipID := 1
 	AIPID := uuid.NewString()
 	locationID := uuid.MustParse("51328c02-2b63-47be-958e-e8088aa1a61f")
 
-	// Package is set to in progress status.
-	s.env.OnActivity(setStatusLocalActivity, mock.Anything, mock.Anything, pkgID, enums.SIPStatusInProgress).
+	// SIP is set to in progress status.
+	s.env.OnActivity(setStatusLocalActivity, mock.Anything, mock.Anything, sipID, enums.SIPStatusInProgress).
 		Return(nil, nil)
 
 	// Move operation succeeds.
@@ -84,12 +84,12 @@ func (s *MoveWorkflowTestSuite) TestSuccessfulMove() {
 		},
 	).Return(nil, nil)
 
-	// Package is set back to done status.
-	s.env.OnActivity(setStatusLocalActivity, mock.Anything, mock.Anything, pkgID, enums.SIPStatusDone).
+	// SIP is set back to done status.
+	s.env.OnActivity(setStatusLocalActivity, mock.Anything, mock.Anything, sipID, enums.SIPStatusDone).
 		Return(nil, nil)
 
-	// Package location is set.
-	s.env.OnActivity(setLocationIDLocalActivity, mock.Anything, mock.Anything, pkgID, locationID).Return(nil, nil)
+	// SIP location is set.
+	s.env.OnActivity(setLocationIDLocalActivity, mock.Anything, mock.Anything, sipID, locationID).Return(nil, nil)
 
 	// Preservation action is created with successful status.
 	s.env.OnActivity(
@@ -101,8 +101,8 @@ func (s *MoveWorkflowTestSuite) TestSuccessfulMove() {
 
 	s.env.ExecuteWorkflow(
 		s.workflow.Execute,
-		&package_.MoveWorkflowRequest{
-			ID:         pkgID,
+		&ingest.MoveWorkflowRequest{
+			ID:         sipID,
 			AIPID:      AIPID,
 			LocationID: locationID,
 			TaskQueue:  temporal.GlobalTaskQueue,
@@ -114,12 +114,12 @@ func (s *MoveWorkflowTestSuite) TestSuccessfulMove() {
 }
 
 func (s *MoveWorkflowTestSuite) TestFailedMove() {
-	pkgID := 1
+	sipID := 1
 	AIPID := uuid.NewString()
 	locationID := uuid.MustParse("51328c02-2b63-47be-958e-e8088aa1a61f")
 
-	// Package is set to in progress status.
-	s.env.OnActivity(setStatusLocalActivity, mock.Anything, mock.Anything, pkgID, enums.SIPStatusInProgress).
+	// SIP is set to in progress status.
+	s.env.OnActivity(setStatusLocalActivity, mock.Anything, mock.Anything, sipID, enums.SIPStatusInProgress).
 		Return(nil, nil)
 
 	// Move operation fails.
@@ -130,10 +130,10 @@ func (s *MoveWorkflowTestSuite) TestFailedMove() {
 			AIPID:      AIPID,
 			LocationID: locationID,
 		},
-	).Return(nil, errors.New("error moving package"))
+	).Return(nil, errors.New("error moving AIP"))
 
-	// Package is set back to done status.
-	s.env.OnActivity(setStatusLocalActivity, mock.Anything, mock.Anything, pkgID, enums.SIPStatusDone).
+	// SIP is set back to done status.
+	s.env.OnActivity(setStatusLocalActivity, mock.Anything, mock.Anything, sipID, enums.SIPStatusDone).
 		Return(nil, nil)
 
 	// Preservation action is created with failed status.
@@ -146,8 +146,8 @@ func (s *MoveWorkflowTestSuite) TestFailedMove() {
 
 	s.env.ExecuteWorkflow(
 		s.workflow.Execute,
-		&package_.MoveWorkflowRequest{
-			ID:         pkgID,
+		&ingest.MoveWorkflowRequest{
+			ID:         sipID,
 			AIPID:      AIPID,
 			LocationID: locationID,
 		},

@@ -11,11 +11,11 @@ const router = createRouter({
 
 const signinRoutes: string[] = ["/user/signin", "/user/signin-callback"];
 const protectedRoutes: Record<string, string[]> = {
-  "/packages/": ["package:list"],
-  "/packages/[id]/": ["package:read"],
-  "/locations/": ["storage:location:list"],
-  "/locations/[id]/": ["storage:location:read"],
-  "/locations/[id]/packages": ["storage:location:listPackages"],
+  "/packages/": ["ingest:sips:list"],
+  "/packages/[id]/": ["ingest:sips:read"],
+  "/locations/": ["storage:locations:list"],
+  "/locations/[id]/": ["storage:locations:read"],
+  "/locations/[id]/packages": ["storage:locations:aips:list"],
 };
 
 router.beforeEach(async (to, _, next) => {

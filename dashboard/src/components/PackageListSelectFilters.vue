@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { PackageListStatusEnum } from "@/openapi-generator";
+import { IngestListSipsStatusEnum } from "@/openapi-generator";
 import { usePackageStore } from "@/stores/package";
 
 const packageStore = usePackageStore();
@@ -17,7 +17,7 @@ const packageStore = usePackageStore();
         class="form-select"
       >
         <option value="">any</option>
-        <option v-for="item of PackageListStatusEnum" :value="item">
+        <option v-for="item of IngestListSipsStatusEnum" :value="item">
           {{ item }}
         </option>
       </select>

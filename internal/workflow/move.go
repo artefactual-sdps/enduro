@@ -4,38 +4,38 @@ import (
 	temporalsdk_workflow "go.temporal.io/sdk/workflow"
 
 	"github.com/artefactual-sdps/enduro/internal/enums"
-	"github.com/artefactual-sdps/enduro/internal/package_"
+	"github.com/artefactual-sdps/enduro/internal/ingest"
 	"github.com/artefactual-sdps/enduro/internal/workflow/activities"
 )
 
 type MoveWorkflow struct {
-	pkgsvc package_.Service
+	ingestsvc ingest.Service
 }
 
-func NewMoveWorkflow(pkgsvc package_.Service) *MoveWorkflow {
+func NewMoveWorkflow(ingestsvc ingest.Service) *MoveWorkflow {
 	return &MoveWorkflow{
-		pkgsvc: pkgsvc,
+		ingestsvc: ingestsvc,
 	}
 }
 
-func (w *MoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req *package_.MoveWorkflowRequest) error {
+func (w *MoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req *ingest.MoveWorkflowRequest) error {
 	// Save starting time for preservation action.
 	startedAt := temporalsdk_workflow.Now(ctx).UTC()
 
 	// Assume the preservation action will be successful.
 	status := enums.PreservationActionStatusDone
 
-	// Set package to in progress status.
+	// Set SIP to in progress status.
 	{
 		ctx := withLocalActivityOpts(ctx)
-		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setStatusLocalActivity, w.pkgsvc, req.ID, enums.SIPStatusInProgress).
+		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setStatusLocalActivity, w.ingestsvc, req.ID, enums.SIPStatusInProgress).
 			Get(ctx, nil)
 		if err != nil {
 			return err
 		}
 	}
 
-	// Move package to permanent storage
+	// Move AIP to permanent storage
 	{
 		activityOpts := withActivityOptsForRequest(ctx)
 		err := temporalsdk_workflow.ExecuteActivity(activityOpts, activities.MoveToPermanentStorageActivityName, &activities.MoveToPermanentStorageActivityParams{
@@ -48,7 +48,7 @@ func (w *MoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req *package_.M
 		}
 	}
 
-	// Poll package move to permanent storage
+	// Poll AIP move to permanent storage
 	{
 		if status != enums.PreservationActionStatusError {
 			activityOpts := withActivityOptsForLongLivedRequest(ctx)
@@ -64,21 +64,21 @@ func (w *MoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req *package_.M
 
 	// TODO: add compensation to these next activities?
 
-	// Set package to done status.
+	// Set SIP to done status.
 	{
 		ctx := withLocalActivityOpts(ctx)
-		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setStatusLocalActivity, w.pkgsvc, req.ID, enums.SIPStatusDone).
+		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setStatusLocalActivity, w.ingestsvc, req.ID, enums.SIPStatusDone).
 			Get(ctx, nil)
 		if err != nil {
 			return err
 		}
 	}
 
-	// Set package location.
+	// Set SIP location.
 	{
 		if status != enums.PreservationActionStatusError {
 			ctx := withLocalActivityOpts(ctx)
-			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setLocationIDLocalActivity, w.pkgsvc, req.ID, req.LocationID).
+			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setLocationIDLocalActivity, w.ingestsvc, req.ID, req.LocationID).
 				Get(ctx, nil)
 			if err != nil {
 				return err
@@ -90,8 +90,8 @@ func (w *MoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req *package_.M
 	{
 		ctx := withLocalActivityOpts(ctx)
 		completedAt := temporalsdk_workflow.Now(ctx).UTC()
-		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, saveLocationMovePreservationActionLocalActivity, w.pkgsvc, &saveLocationMovePreservationActionLocalActivityParams{
-			PackageID:   req.ID,
+		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, saveLocationMovePreservationActionLocalActivity, w.ingestsvc, &saveLocationMovePreservationActionLocalActivityParams{
+			SIPID:       req.ID,
 			LocationID:  req.LocationID,
 			WorkflowID:  temporalsdk_workflow.GetInfo(ctx).WorkflowExecution.ID,
 			Type:        enums.PreservationActionTypeMovePackage,

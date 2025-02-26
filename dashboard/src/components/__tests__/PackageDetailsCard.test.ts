@@ -20,8 +20,8 @@ describe("PackageDetailsCard.vue", () => {
               package: {
                 current: {
                   aipId: "89229d18-5554-4e0d-8c4e-d0d88afd3bae",
-                  status: api.EnduroStoredPackageStatusEnum.Pending,
-                } as api.EnduroStoredPackage,
+                  status: api.EnduroIngestSipStatusEnum.Pending,
+                } as api.EnduroIngestSip,
               },
             },
           }),
@@ -38,7 +38,7 @@ describe("PackageDetailsCard.vue", () => {
 
     // Then we observe that the component download function is executed.
     expect(window.open).toBeCalledWith(
-      "http://localhost:3000/api/storage/package/89229d18-5554-4e0d-8c4e-d0d88afd3bae/download",
+      "http://localhost:3000/api/storage/aip/89229d18-5554-4e0d-8c4e-d0d88afd3bae/download",
       "_blank",
     );
   });
@@ -52,17 +52,17 @@ describe("PackageDetailsCard.vue", () => {
             createSpy: vi.fn,
             initialState: {
               package: {
-                current: {} as api.EnduroStoredPackage,
+                current: {} as api.EnduroIngestSip,
                 current_preservation_actions: {
                   actions: [
                     {
                       status:
-                        api.EnduroPackagePreservationActionStatusEnum.Pending,
-                      type: api.EnduroPackagePreservationActionTypeEnum
+                        api.EnduroIngestSipPreservationActionStatusEnum.Pending,
+                      type: api.EnduroIngestSipPreservationActionTypeEnum
                         .MovePackage,
                     },
                   ],
-                } as api.EnduroPackagePreservationActions,
+                } as api.SIPPreservationActions,
               },
             },
           }),
@@ -89,8 +89,8 @@ describe("PackageDetailsCard.vue", () => {
               package: {
                 current: {
                   aipId: "89229d18-5554-4e0d-8c4e-d0d88afd3bae",
-                  status: api.EnduroStoredPackageStatusEnum.Done,
-                } as api.EnduroStoredPackage,
+                  status: api.EnduroIngestSipStatusEnum.Done,
+                } as api.EnduroIngestSip,
               },
             },
           }),
@@ -111,8 +111,8 @@ describe("PackageDetailsCard.vue", () => {
               package: {
                 current: {
                   aipId: "89229d18-5554-4e0d-8c4e-d0d88afd3bae",
-                  status: api.EnduroStoredPackageStatusEnum.Done,
-                } as api.EnduroStoredPackage,
+                  status: api.EnduroIngestSipStatusEnum.Done,
+                } as api.EnduroIngestSip,
               },
               auth: {
                 config: { enabled: true, abac: { enabled: true } },

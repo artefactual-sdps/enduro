@@ -22,14 +22,14 @@ export interface MonitorEventEvent {
     /**
      * Union type name, one of:
      * - "monitor_ping_event"
-     * - "package_created_event"
-     * - "package_updated_event"
-     * - "package_status_updated_event"
-     * - "package_location_updated_event"
-     * - "preservation_action_created_event"
-     * - "preservation_action_updated_event"
-     * - "preservation_task_created_event"
-     * - "preservation_task_updated_event"
+     * - "sip_created_event"
+     * - "sip_updated_event"
+     * - "sip_status_updated_event"
+     * - "sip_location_updated_event"
+     * - "sip_preservation_action_created_event"
+     * - "sip_preservation_action_updated_event"
+     * - "sip_preservation_task_created_event"
+     * - "sip_preservation_task_updated_event"
      * @type {string}
      * @memberof MonitorEventEvent
      */
@@ -48,14 +48,14 @@ export interface MonitorEventEvent {
  */
 export const MonitorEventEventTypeEnum = {
     MonitorPingEvent: 'monitor_ping_event',
-    PackageCreatedEvent: 'package_created_event',
-    PackageUpdatedEvent: 'package_updated_event',
-    PackageStatusUpdatedEvent: 'package_status_updated_event',
-    PackageLocationUpdatedEvent: 'package_location_updated_event',
-    PreservationActionCreatedEvent: 'preservation_action_created_event',
-    PreservationActionUpdatedEvent: 'preservation_action_updated_event',
-    PreservationTaskCreatedEvent: 'preservation_task_created_event',
-    PreservationTaskUpdatedEvent: 'preservation_task_updated_event'
+    SipCreatedEvent: 'sip_created_event',
+    SipUpdatedEvent: 'sip_updated_event',
+    SipStatusUpdatedEvent: 'sip_status_updated_event',
+    SipLocationUpdatedEvent: 'sip_location_updated_event',
+    SipPreservationActionCreatedEvent: 'sip_preservation_action_created_event',
+    SipPreservationActionUpdatedEvent: 'sip_preservation_action_updated_event',
+    SipPreservationTaskCreatedEvent: 'sip_preservation_task_created_event',
+    SipPreservationTaskUpdatedEvent: 'sip_preservation_task_updated_event'
 } as const;
 export type MonitorEventEventTypeEnum = typeof MonitorEventEventTypeEnum[keyof typeof MonitorEventEventTypeEnum];
 

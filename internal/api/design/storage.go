@@ -7,7 +7,7 @@ import (
 )
 
 var _ = Service("storage", func() {
-	Description("The storage service manages the storage of packages.")
+	Description("The storage service manages locations and AIPs.")
 	Error("unauthorized", String, "Unauthorized")
 	Error("forbidden", String, "Forbidden")
 	HTTP(func() {
@@ -15,190 +15,190 @@ var _ = Service("storage", func() {
 		Response("unauthorized", StatusUnauthorized)
 		Response("forbidden", StatusForbidden)
 	})
-	Method("create", func() {
-		Description("Create a new package")
+	Method("create_aip", func() {
+		Description("Create a new AIP")
 		Security(JWTAuth, func() {
-			Scope("storage:package:create")
+			Scope("storage:aips:create")
 		})
 		Payload(func() {
-			AttributeUUID("aip_id", "Identifier of AIP")
-			Attribute("name", String, "Name of the package")
-			AttributeUUID("object_key", "ObjectKey of AIP")
-			Attribute("status", String, "Status of the package", func() {
-				EnumStoragePackageStatus()
+			AttributeUUID("uuid", "Identifier of the AIP")
+			Attribute("name", String, "Name of the AIP")
+			AttributeUUID("object_key", "ObjectKey of the AIP")
+			Attribute("status", String, "Status of the the AIP", func() {
+				EnumAIPStatus()
 				Default("unspecified")
 			})
-			TypedAttributeUUID("location_id", "Identifier of the package's storage location")
+			TypedAttributeUUID("location_id", "Identifier of the AIP's storage location")
 			Token("token", String)
-			Required("aip_id", "name", "object_key")
+			Required("uuid", "name", "object_key")
 		})
-		Result(StoragePackage)
+		Result(AIP)
 		Error("not_valid")
 		HTTP(func() {
-			POST("/package")
+			POST("/aips")
 			Response(StatusOK)
 			Response("not_valid", StatusBadRequest)
 		})
 	})
-	Method("submit", func() {
-		Description("Start the submission of a package")
+	Method("submit_aip", func() {
+		Description("Start the submission of an AIP")
 		Security(JWTAuth, func() {
-			Scope("storage:package:submit")
+			Scope("storage:aips:submit")
 		})
 		Payload(func() {
-			AttributeUUID("aip_id", "Identifier of AIP")
+			AttributeUUID("uuid", "Identifier of AIP")
 			Attribute("name", String)
 			Token("token", String)
-			Required("aip_id", "name")
+			Required("uuid", "name")
 		})
-		Result(SubmitResult)
-		Error("not_found", StoragePackageNotFound, "Storage package not found")
+		Result(SubmitAIPResult)
+		Error("not_found", AIPNotFound, "AIP not found")
 		Error("not_available")
 		Error("not_valid")
 		HTTP(func() {
-			POST("/package/{aip_id}/submit")
+			POST("/aips/{uuid}/submit")
 			Response(StatusAccepted)
 			Response("not_available", StatusConflict)
 			Response("not_valid", StatusBadRequest)
 		})
 	})
-	Method("update", func() {
-		Description("Signal that a package submission is complete")
+	Method("update_aip", func() {
+		Description("Signal that an AIP submission is complete")
 		Security(JWTAuth, func() {
-			Scope("storage:package:submit")
+			Scope("storage:aips:submit")
 		})
 		Payload(func() {
-			AttributeUUID("aip_id", "Identifier of AIP")
+			AttributeUUID("uuid", "Identifier of AIP")
 			Token("token", String)
-			Required("aip_id")
+			Required("uuid")
 		})
-		Error("not_found", StoragePackageNotFound, "Storage package not found")
+		Error("not_found", AIPNotFound, "AIP not found")
 		Error("not_available")
 		Error("not_valid")
 		HTTP(func() {
-			POST("/package/{aip_id}/update")
+			POST("/aips/{uuid}/update")
 			Response(StatusAccepted)
 			Response("not_available", StatusConflict)
 			Response("not_valid", StatusBadRequest)
 		})
 	})
-	Method("download", func() {
-		Description("Download package by AIPID")
+	Method("download_aip", func() {
+		Description("Download AIP by AIPID")
 		Security(JWTAuth, func() {
-			Scope("storage:package:download")
+			Scope("storage:aips:download")
 		})
 		Payload(func() {
-			AttributeUUID("aip_id", "Identifier of AIP")
+			AttributeUUID("uuid", "Identifier of AIP")
 			Token("token", String)
-			Required("aip_id")
+			Required("uuid")
 		})
 		Result(Bytes)
-		Error("not_found", StoragePackageNotFound, "Storage package not found")
+		Error("not_found", AIPNotFound, "AIP not found")
 		HTTP(func() {
-			GET("/package/{aip_id}/download")
+			GET("/aips/{uuid}/download")
 			Response(StatusOK)
 			Response("not_found", StatusNotFound)
 		})
 	})
-	Method("move", func() {
-		Description("Move a package to a permanent storage location")
+	Method("move_aip", func() {
+		Description("Move an AIP to a permanent storage location")
 		Security(JWTAuth, func() {
-			Scope("storage:package:move")
+			Scope("storage:aips:move")
 		})
 		Payload(func() {
-			AttributeUUID("aip_id", "Identifier of AIP")
+			AttributeUUID("uuid", "Identifier of AIP")
 			TypedAttributeUUID("location_id", "Identifier of storage location")
 			Token("token", String)
-			Required("aip_id", "location_id")
+			Required("uuid", "location_id")
 		})
-		Error("not_found", StoragePackageNotFound, "Storage package not found")
+		Error("not_found", AIPNotFound, "AIP not found")
 		Error("not_available")
 		Error("not_valid")
 		HTTP(func() {
-			POST("/package/{aip_id}/store")
+			POST("/aips/{uuid}/store")
 			Response(StatusAccepted)
 			Response("not_found", StatusNotFound)
 			Response("not_available", StatusConflict)
 			Response("not_valid", StatusBadRequest)
 		})
 	})
-	Method("move_status", func() {
-		Description("Retrieve the status of a permanent storage location move of the package")
+	Method("move_aip_status", func() {
+		Description("Retrieve the status of a permanent storage location move of the AIP")
 		Security(JWTAuth, func() {
-			Scope("storage:package:move")
+			Scope("storage:aips:move")
 		})
 		Payload(func() {
-			AttributeUUID("aip_id", "Identifier of AIP")
+			AttributeUUID("uuid", "Identifier of AIP")
 			Token("token", String)
-			Required("aip_id")
+			Required("uuid")
 		})
 		Result(MoveStatusResult)
-		Error("not_found", StoragePackageNotFound, "Storage package not found")
+		Error("not_found", AIPNotFound, "AIP not found")
 		Error("failed_dependency")
 		HTTP(func() {
-			GET("/package/{aip_id}/store")
+			GET("/aips/{uuid}/store")
 			Response(StatusOK)
 			Response("not_found", StatusNotFound)
 			Response("failed_dependency", StatusFailedDependency)
 		})
 	})
-	Method("reject", func() {
-		Description("Reject a package")
+	Method("reject_aip", func() {
+		Description("Reject an AIP")
 		Security(JWTAuth, func() {
-			Scope("storage:package:review")
+			Scope("storage:aips:review")
 		})
 		Payload(func() {
-			AttributeUUID("aip_id", "Identifier of AIP")
+			AttributeUUID("uuid", "Identifier of AIP")
 			Token("token", String)
-			Required("aip_id")
+			Required("uuid")
 		})
-		Error("not_found", StoragePackageNotFound, "Storage package not found")
+		Error("not_found", AIPNotFound, "AIP not found")
 		Error("not_available")
 		Error("not_valid")
 		HTTP(func() {
-			POST("/package/{aip_id}/reject")
+			POST("/aips/{uuid}/reject")
 			Response(StatusAccepted)
 			Response("not_found", StatusNotFound)
 			Response("not_available", StatusConflict)
 			Response("not_valid", StatusBadRequest)
 		})
 	})
-	Method("show", func() {
-		Description("Show package by AIPID")
+	Method("show_aip", func() {
+		Description("Show AIP by AIPID")
 		Security(JWTAuth, func() {
-			Scope("storage:package:read")
+			Scope("storage:aips:read")
 		})
 		Payload(func() {
-			AttributeUUID("aip_id", "Identifier of AIP")
+			AttributeUUID("uuid", "Identifier of AIP")
 			Token("token", String)
-			Required("aip_id")
+			Required("uuid")
 		})
-		Result(StoragePackage)
-		Error("not_found", StoragePackageNotFound, "Storage package not found")
+		Result(AIP)
+		Error("not_found", AIPNotFound, "AIP not found")
 		HTTP(func() {
-			GET("/package/{aip_id}")
+			GET("/aips/{uuid}")
 			Response(StatusOK)
 			Response("not_found", StatusNotFound)
 		})
 	})
-	Method("locations", func() {
+	Method("list_locations", func() {
 		Description("List locations")
 		Security(JWTAuth, func() {
-			Scope("storage:location:list")
+			Scope("storage:locations:list")
 		})
 		Payload(func() {
 			Token("token", String)
 		})
 		Result(CollectionOf(Location), func() { View("default") })
 		HTTP(func() {
-			GET("/location")
+			GET("/locations")
 			Response(StatusOK)
 		})
 	})
-	Method("add_location", func() {
+	Method("create_location", func() {
 		Description("Create a storage location")
 		Security(JWTAuth, func() {
-			Scope("storage:location:create")
+			Scope("storage:locations:create")
 		})
 		Payload(func() {
 			Attribute("name", String)
@@ -218,10 +218,10 @@ var _ = Service("storage", func() {
 			Token("token", String)
 			Required("name", "source", "purpose")
 		})
-		Result(AddLocationResult)
+		Result(CreateLocationResult)
 		Error("not_valid")
 		HTTP(func() {
-			POST("/location")
+			POST("/locations")
 			Response(StatusCreated)
 			Response("not_valid", StatusBadRequest)
 		})
@@ -229,7 +229,7 @@ var _ = Service("storage", func() {
 	Method("show_location", func() {
 		Description("Show location by UUID")
 		Security(JWTAuth, func() {
-			Scope("storage:location:read")
+			Scope("storage:locations:read")
 		})
 		Payload(func() {
 			// TODO: explore how we can use uuid.UUID that are also URL params.
@@ -240,15 +240,15 @@ var _ = Service("storage", func() {
 		Result(Location)
 		Error("not_found", LocationNotFound, "Storage location not found")
 		HTTP(func() {
-			GET("/location/{uuid}")
+			GET("/locations/{uuid}")
 			Response(StatusOK)
 			Response("not_found", StatusNotFound)
 		})
 	})
-	Method("location_packages", func() {
-		Description("List all the packages stored in the location with UUID")
+	Method("list_location_aips", func() {
+		Description("List all the AIPs stored in the location with UUID")
 		Security(JWTAuth, func() {
-			Scope("storage:location:listPackages")
+			Scope("storage:locations:aips:list")
 		})
 		Payload(func() {
 			// TODO: explore how we can use uuid.UUID that are also URL params.
@@ -256,11 +256,11 @@ var _ = Service("storage", func() {
 			Token("token", String)
 			Required("uuid")
 		})
-		Result(CollectionOf(StoragePackage), func() { View("default") })
+		Result(CollectionOf(AIP), func() { View("default") })
 		Error("not_found", LocationNotFound, "Storage location not found")
 		Error("not_valid")
 		HTTP(func() {
-			GET("/location/{uuid}/packages")
+			GET("/locations/{uuid}/aips")
 			Response(StatusOK)
 			Response("not_found", StatusNotFound)
 			Response("not_valid", StatusBadRequest)
@@ -268,21 +268,22 @@ var _ = Service("storage", func() {
 	})
 })
 
-var SubmitResult = Type("SubmitResult", func() {
+var SubmitAIPResult = Type("SubmitAIPResult", func() {
+	TypeName("SubmitAIPResult")
 	Attribute("url", String)
 	Required("url")
 })
 
-var StoragePackageNotFound = Type("StoragePackageNotFound", func() {
-	Description("Storage package not found.")
-	TypeName("PackageNotFound")
+var AIPNotFound = Type("AIPNotFound", func() {
+	Description("AIP not found.")
+	TypeName("AIPNotFound")
 	Attribute("message", String, "Message of error", func() {
 		Meta("struct:error:message")
 	})
-	Attribute("aip_id", String, "Identifier of missing package", func() {
+	Attribute("uuid", String, "Identifier of missing AIP", func() {
 		Meta("struct:field:type", "uuid.UUID", "github.com/google/uuid")
 	})
-	Required("message", "aip_id")
+	Required("message", "uuid")
 })
 
 var LocationNotFound = Type("LocationNotFound", func() {
@@ -297,7 +298,7 @@ var LocationNotFound = Type("LocationNotFound", func() {
 	Required("message", "uuid")
 })
 
-var Location = ResultType("application/vnd.enduro.storage-location", func() {
+var Location = ResultType("application/vnd.enduro.storage.location", func() {
 	Description("A Location describes a location retrieved by the storage service.")
 	TypeName("Location")
 
@@ -345,7 +346,7 @@ var EnumLocationPurpose = func() {
 	Enum("unspecified", "aip_store")
 }
 
-var AddLocationResult = Type("AddLocationResult", func() {
+var CreateLocationResult = Type("CreateLocationResult", func() {
 	Attribute("uuid", String)
 	Required("uuid")
 })
@@ -355,17 +356,17 @@ var MoveStatusResult = Type("MoveStatusResult", func() {
 	Required("done")
 })
 
-var StoragePackage = ResultType("application/vnd.enduro.storage-package", func() {
-	Description("A Package describes a package retrieved by the storage service.")
-	TypeName("Package")
+var AIP = ResultType("application/vnd.enduro.storage.aip", func() {
+	Description("An AIP describes an AIP retrieved by the storage service.")
+	TypeName("AIP")
 
 	Attributes(func() {
 		Attribute("name", String)
-		Attribute("aip_id", String, func() {
+		Attribute("uuid", String, func() {
 			Meta("struct:field:type", "uuid.UUID", "github.com/google/uuid")
 		})
-		Attribute("status", String, "Status of the package", func() {
-			EnumStoragePackageStatus()
+		Attribute("status", String, "Status of the AIP", func() {
+			EnumAIPStatus()
 			Default("unspecified")
 		})
 		Attribute("object_key", String, func() {
@@ -375,12 +376,12 @@ var StoragePackage = ResultType("application/vnd.enduro.storage-package", func()
 		Attribute("created_at", String, "Creation datetime", func() {
 			Format(FormatDateTime)
 		})
-		Required("name", "aip_id", "status", "object_key", "created_at")
+		Required("name", "uuid", "status", "object_key", "created_at")
 	})
 
 	View("default", func() {
 		Attribute("name")
-		Attribute("aip_id")
+		Attribute("uuid")
 		Attribute("status")
 		Attribute("object_key")
 		Attribute("location_id")
@@ -388,7 +389,7 @@ var StoragePackage = ResultType("application/vnd.enduro.storage-package", func()
 	})
 })
 
-var EnumStoragePackageStatus = func() {
+var EnumAIPStatus = func() {
 	Enum("unspecified", "in_review", "rejected", "stored", "moving")
 }
 

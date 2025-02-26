@@ -24,7 +24,7 @@ address = "host:port"
 defaultPermanentLocationId = "f2cc963f-c14d-4eaa-b950-bd207189a1f1"
 
 [api.auth.oidc.abac]
-rolesMapping = '{"admin": ["*"], "operator": ["package:list", "package:listActions", "package:move", "package:read", "package:upload"], "readonly": ["package:list", "package:listActions", "package:read"]}'
+rolesMapping = '{"admin": ["*"], "operator": ["ingest:sips:list", "ingest:sips:actions:list", "ingest:sips:move", "ingest:sips:read", "ingest:sips:upload"], "readonly": ["ingest:sips:list", "ingest:sips:actions:list", "ingest:sips:read"]}'
 `
 
 func TestConfig(t *testing.T) {
@@ -55,9 +55,15 @@ func TestConfig(t *testing.T) {
 
 		// Test that a map[string][]string config is decoded correctly.
 		assert.DeepEqual(t, c.API.Auth.OIDC.ABAC.RolesMapping, map[string][]string{
-			"admin":    {"*"},
-			"operator": {"package:list", "package:listActions", "package:move", "package:read", "package:upload"},
-			"readonly": {"package:list", "package:listActions", "package:read"},
+			"admin": {"*"},
+			"operator": {
+				"ingest:sips:list",
+				"ingest:sips:actions:list",
+				"ingest:sips:move",
+				"ingest:sips:read",
+				"ingest:sips:upload",
+			},
+			"readonly": {"ingest:sips:list", "ingest:sips:actions:list", "ingest:sips:read"},
 		})
 	})
 

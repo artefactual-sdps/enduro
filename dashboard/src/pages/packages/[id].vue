@@ -28,7 +28,7 @@ const tabs = [
       name: "/packages/[id]/",
       params: { id: route.params.id },
     }),
-    show: authStore.checkAttributes(["package:read"]),
+    show: authStore.checkAttributes(["ingest:sips:read"]),
   },
 ];
 </script>

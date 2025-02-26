@@ -17,9 +17,9 @@ Check the [Tilt environment configuration].
 # enabled triggers the execution of the child workflow, when set to false all other
 # options are ignored.
 enabled = true
-# extract determines if the package extraction happens on the child workflow.
+# extract determines if the SIP extraction happens on the child workflow.
 extract = false
-# sharedPath is the full path to the directory used to share the package between workflows,
+# sharedPath is the full path to the directory used to share the SIP between workflows,
 # required when enabled is set to true.
 sharedPath = "/home/enduro/preprocessing"
 

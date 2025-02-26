@@ -27,12 +27,12 @@ import (
 	intabout "github.com/artefactual-sdps/enduro/internal/about"
 	"github.com/artefactual-sdps/enduro/internal/api/gen/about"
 	aaboutsvr "github.com/artefactual-sdps/enduro/internal/api/gen/http/about/server"
-	packagesvr "github.com/artefactual-sdps/enduro/internal/api/gen/http/package_/server"
+	ingestsvr "github.com/artefactual-sdps/enduro/internal/api/gen/http/ingest/server"
 	storagesvr "github.com/artefactual-sdps/enduro/internal/api/gen/http/storage/server"
 	swaggersvr "github.com/artefactual-sdps/enduro/internal/api/gen/http/swagger/server"
-	"github.com/artefactual-sdps/enduro/internal/api/gen/package_"
+	"github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
 	"github.com/artefactual-sdps/enduro/internal/api/gen/storage"
-	intpkg "github.com/artefactual-sdps/enduro/internal/package_"
+	intingest "github.com/artefactual-sdps/enduro/internal/ingest"
 	intstorage "github.com/artefactual-sdps/enduro/internal/storage"
 	"github.com/artefactual-sdps/enduro/internal/version"
 )
@@ -44,7 +44,7 @@ func HTTPServer(
 	logger logr.Logger,
 	tp trace.TracerProvider,
 	config *Config,
-	pkgsvc intpkg.Service,
+	ingestsvc intingest.Service,
 	storagesvc intstorage.Service,
 	aboutsvc *intabout.Service,
 ) *http.Server {
@@ -57,17 +57,17 @@ func HTTPServer(
 		CheckOrigin:      sameOriginChecker(logger),
 	}
 
-	// Package service.
-	packageEndpoints := package_.NewEndpoints(pkgsvc.Goa())
-	packageErrorHandler := errorHandler(logger, "Package error.")
-	packageServer := packagesvr.New(packageEndpoints, mux, dec, enc, packageErrorHandler, nil, websocketUpgrader, nil)
-	packagesvr.Mount(mux, packageServer)
+	// Ingest service.
+	ingestEndpoints := ingest.NewEndpoints(ingestsvc.Goa())
+	ingestErrorHandler := errorHandler(logger, "Ingest error.")
+	ingestServer := ingestsvr.New(ingestEndpoints, mux, dec, enc, ingestErrorHandler, nil, websocketUpgrader, nil)
+	ingestsvr.Mount(mux, ingestServer)
 
 	// Storage service.
 	storageEndpoints := storage.NewEndpoints(storagesvc)
 	storageErrorHandler := errorHandler(logger, "Storage error.")
 	storageServer := storagesvr.New(storageEndpoints, mux, dec, enc, storageErrorHandler, nil)
-	storageServer.Download = writeTimeout(intstorage.Download(storagesvc, mux, dec), 0)
+	storageServer.DownloadAip = writeTimeout(intstorage.Download(storagesvc, mux, dec), 0)
 	storagesvr.Mount(mux, storageServer)
 
 	// About service.

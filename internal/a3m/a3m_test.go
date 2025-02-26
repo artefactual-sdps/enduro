@@ -19,7 +19,7 @@ import (
 	a3mfake "github.com/artefactual-sdps/enduro/internal/a3m/fake"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
-	"github.com/artefactual-sdps/enduro/internal/package_/fake"
+	ingest_fake "github.com/artefactual-sdps/enduro/internal/ingest/fake"
 )
 
 func TestCreateAIPActivity(t *testing.T) {
@@ -62,8 +62,8 @@ func TestCreateAIPActivity(t *testing.T) {
 			nil,
 		)
 
-	pkgSvc := fake.NewMockService(ctrl)
-	pkgSvc.EXPECT().CreatePreservationTask(mockutil.Context(), &datatypes.PreservationTask{
+	ingestsvc := ingest_fake.NewMockService(ctrl)
+	ingestsvc.EXPECT().CreatePreservationTask(mockutil.Context(), &datatypes.PreservationTask{
 		TaskID: "721f6e04-ce12-42b6-a53c-482dc1571d5a",
 		Status: enums.PreservationTaskStatusDone,
 		StartedAt: sql.NullTime{
@@ -77,7 +77,7 @@ func TestCreateAIPActivity(t *testing.T) {
 			noop.Tracer{},
 			a3mTransferServiceClient,
 			&a3m.Config{},
-			pkgSvc,
+			ingestsvc,
 		).Execute,
 		temporalsdk_activity.RegisterOptions{
 			Name: a3m.CreateAIPActivityName,

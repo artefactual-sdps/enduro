@@ -14,7 +14,7 @@ import (
 
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
-	package_fake "github.com/artefactual-sdps/enduro/internal/package_/fake"
+	ingest_fake "github.com/artefactual-sdps/enduro/internal/ingest/fake"
 	"github.com/artefactual-sdps/enduro/internal/preprocessing"
 	"github.com/artefactual-sdps/enduro/internal/workflow/localact"
 )
@@ -28,7 +28,7 @@ func TestSavePreprocessingTasksActivity(t *testing.T) {
 	type test struct {
 		name      string
 		params    localact.SavePreprocessingTasksActivityParams
-		mockCalls func(m *package_fake.MockServiceMockRecorder)
+		mockCalls func(m *ingest_fake.MockServiceMockRecorder)
 		want      *localact.SavePreprocessingTasksActivityResult
 		wantErr   string
 	}
@@ -47,7 +47,7 @@ func TestSavePreprocessingTasksActivity(t *testing.T) {
 					},
 				},
 			},
-			mockCalls: func(m *package_fake.MockServiceMockRecorder) {
+			mockCalls: func(m *ingest_fake.MockServiceMockRecorder) {
 				m.CreatePreservationTask(mockutil.Context(), &datatypes.PreservationTask{
 					TaskID:               "52fdfc07-2182-454f-963f-5f0f9a621d72",
 					Name:                 "Validate SIP structure",
@@ -75,7 +75,7 @@ func TestSavePreprocessingTasksActivity(t *testing.T) {
 					},
 				},
 			},
-			mockCalls: func(m *package_fake.MockServiceMockRecorder) {
+			mockCalls: func(m *ingest_fake.MockServiceMockRecorder) {
 				m.CreatePreservationTask(mockutil.Context(), &datatypes.PreservationTask{
 					TaskID:               "52fdfc07-2182-454f-963f-5f0f9a621d72",
 					Status:               enums.PreservationTaskStatusDone,
@@ -95,11 +95,11 @@ func TestSavePreprocessingTasksActivity(t *testing.T) {
 
 			ts := &temporalsdk_testsuite.WorkflowTestSuite{}
 			env := ts.NewTestActivityEnvironment()
-			svc := package_fake.NewMockService(gomock.NewController(t))
+			svc := ingest_fake.NewMockService(gomock.NewController(t))
 			if tt.mockCalls != nil {
 				tt.mockCalls(svc.EXPECT())
 			}
-			tt.params.PkgSvc = svc
+			tt.params.Ingestsvc = svc
 			tt.params.RNG = rand.New(rand.NewSource(1)) // #nosec: G404
 
 			enc, err := env.ExecuteLocalActivity(

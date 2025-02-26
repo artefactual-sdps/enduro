@@ -48,7 +48,7 @@ watch(packageStore.ui.download, () => download());
       </dl>
       <div class="d-flex flex-wrap gap-2">
         <button
-          v-if="authStore.checkAttributes(['storage:package:download'])"
+          v-if="authStore.checkAttributes(['storage:aips:download'])"
           :class="{
             btn: true,
             'btn-primary': true,

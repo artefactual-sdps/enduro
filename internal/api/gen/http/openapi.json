@@ -3,6 +3,64 @@
     "application/json"
   ],
   "definitions": {
+    "AIPResponse": {
+      "description": "An AIP describes an AIP retrieved by the storage service. (default view)",
+      "example": {
+        "created_at": "1970-01-01T00:00:01Z",
+        "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+        "name": "abc123",
+        "object_key": "abc123",
+        "status": "in_review",
+        "uuid": "abc123"
+      },
+      "properties": {
+        "created_at": {
+          "description": "Creation datetime",
+          "example": "1970-01-01T00:00:01Z",
+          "format": "date-time",
+          "type": "string"
+        },
+        "location_id": {
+          "description": "Identifier of storage location",
+          "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+          "type": "string"
+        },
+        "name": {
+          "example": "abc123",
+          "type": "string"
+        },
+        "object_key": {
+          "example": "abc123",
+          "type": "string"
+        },
+        "status": {
+          "default": "unspecified",
+          "description": "Status of the AIP",
+          "enum": [
+            "unspecified",
+            "in_review",
+            "rejected",
+            "stored",
+            "moving"
+          ],
+          "example": "in_review",
+          "type": "string"
+        },
+        "uuid": {
+          "example": "abc123",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "uuid",
+        "status",
+        "object_key",
+        "created_at"
+      ],
+      "title": "Mediatype identifier: application/vnd.enduro.storage.aip; view=default",
+      "type": "object"
+    },
     "AboutAboutResponseBody": {
       "description": "AboutResponseBody result type (default view)",
       "example": {
@@ -43,209 +101,6 @@
       ],
       "title": "Mediatype identifier: application/vnd.enduro.about; view=default",
       "type": "object"
-    },
-    "EnduroPackagePreservationActionResponseBody": {
-      "description": "PreservationAction describes a preservation action. (default view)",
-      "example": {
-        "completed_at": "1970-01-01T00:00:01Z",
-        "id": 1,
-        "package_id": 1,
-        "started_at": "1970-01-01T00:00:01Z",
-        "status": "in progress",
-        "tasks": [
-          {
-            "completed_at": "1970-01-01T00:00:01Z",
-            "id": 1,
-            "name": "abc123",
-            "note": "abc123",
-            "preservation_action_id": 1,
-            "started_at": "1970-01-01T00:00:01Z",
-            "status": "in progress",
-            "task_id": "abc123"
-          }
-        ],
-        "type": "create aip",
-        "workflow_id": "abc123"
-      },
-      "properties": {
-        "completed_at": {
-          "example": "1970-01-01T00:00:01Z",
-          "format": "date-time",
-          "type": "string"
-        },
-        "id": {
-          "example": 1,
-          "format": "int64",
-          "type": "integer"
-        },
-        "package_id": {
-          "example": 1,
-          "format": "int64",
-          "type": "integer"
-        },
-        "started_at": {
-          "example": "1970-01-01T00:00:01Z",
-          "format": "date-time",
-          "type": "string"
-        },
-        "status": {
-          "enum": [
-            "unspecified",
-            "in progress",
-            "done",
-            "error",
-            "queued",
-            "pending"
-          ],
-          "example": "in progress",
-          "type": "string"
-        },
-        "tasks": {
-          "$ref": "#/definitions/EnduroPackagePreservationTaskResponseBodyCollection"
-        },
-        "type": {
-          "enum": [
-            "unspecified",
-            "create aip",
-            "create and review aip",
-            "move package"
-          ],
-          "example": "create aip",
-          "type": "string"
-        },
-        "workflow_id": {
-          "example": "abc123",
-          "type": "string"
-        }
-      },
-      "required": [
-        "id",
-        "workflow_id",
-        "type",
-        "status",
-        "started_at"
-      ],
-      "title": "Mediatype identifier: application/vnd.enduro.package-preservation-action; view=default",
-      "type": "object"
-    },
-    "EnduroPackagePreservationActionResponseBodyCollection": {
-      "description": "EnduroPackage-Preservation-ActionCollectionResponseBody is the result type for an array of EnduroPackage-Preservation-ActionResponseBody (default view)",
-      "example": [
-        {
-          "completed_at": "1970-01-01T00:00:01Z",
-          "id": 1,
-          "package_id": 1,
-          "started_at": "1970-01-01T00:00:01Z",
-          "status": "in progress",
-          "tasks": [
-            {
-              "completed_at": "1970-01-01T00:00:01Z",
-              "id": 1,
-              "name": "abc123",
-              "note": "abc123",
-              "preservation_action_id": 1,
-              "started_at": "1970-01-01T00:00:01Z",
-              "status": "in progress",
-              "task_id": "abc123"
-            }
-          ],
-          "type": "create aip",
-          "workflow_id": "abc123"
-        }
-      ],
-      "items": {
-        "$ref": "#/definitions/EnduroPackagePreservationActionResponseBody"
-      },
-      "title": "Mediatype identifier: application/vnd.enduro.package-preservation-action; type=collection; view=default",
-      "type": "array"
-    },
-    "EnduroPackagePreservationTaskResponseBody": {
-      "description": "PreservationTask describes a preservation action task. (default view)",
-      "example": {
-        "completed_at": "1970-01-01T00:00:01Z",
-        "id": 1,
-        "name": "abc123",
-        "note": "abc123",
-        "preservation_action_id": 1,
-        "started_at": "1970-01-01T00:00:01Z",
-        "status": "in progress",
-        "task_id": "abc123"
-      },
-      "properties": {
-        "completed_at": {
-          "example": "1970-01-01T00:00:01Z",
-          "format": "date-time",
-          "type": "string"
-        },
-        "id": {
-          "example": 1,
-          "format": "int64",
-          "type": "integer"
-        },
-        "name": {
-          "example": "abc123",
-          "type": "string"
-        },
-        "note": {
-          "example": "abc123",
-          "type": "string"
-        },
-        "preservation_action_id": {
-          "example": 1,
-          "format": "int64",
-          "type": "integer"
-        },
-        "started_at": {
-          "example": "1970-01-01T00:00:01Z",
-          "format": "date-time",
-          "type": "string"
-        },
-        "status": {
-          "enum": [
-            "unspecified",
-            "in progress",
-            "done",
-            "error",
-            "queued",
-            "pending"
-          ],
-          "example": "in progress",
-          "type": "string"
-        },
-        "task_id": {
-          "example": "abc123",
-          "type": "string"
-        }
-      },
-      "required": [
-        "id",
-        "task_id",
-        "name",
-        "status",
-        "started_at"
-      ],
-      "title": "Mediatype identifier: application/vnd.enduro.package-preservation-task; view=default",
-      "type": "object"
-    },
-    "EnduroPackagePreservationTaskResponseBodyCollection": {
-      "description": "EnduroPackage-Preservation-TaskCollectionResponseBody is the result type for an array of EnduroPackage-Preservation-TaskResponseBody (default view)",
-      "example": [
-        {
-          "completed_at": "1970-01-01T00:00:01Z",
-          "id": 1,
-          "name": "abc123",
-          "note": "abc123",
-          "preservation_action_id": 1,
-          "started_at": "1970-01-01T00:00:01Z",
-          "status": "in progress",
-          "task_id": "abc123"
-        }
-      ],
-      "items": {
-        "$ref": "#/definitions/EnduroPackagePreservationTaskResponseBody"
-      },
-      "title": "Mediatype identifier: application/vnd.enduro.package-preservation-task; type=collection; view=default",
-      "type": "array"
     },
     "EnduroPageResponseBody": {
       "description": "Page represents a subset of search results. (default view)",
@@ -348,8 +203,863 @@
       "title": "Mediatype identifier: application/vnd.enduro.preprocessing; view=default",
       "type": "object"
     },
-    "EnduroStoredPackageResponseBody": {
-      "description": "StoredPackage describes a package retrieved by the service. (default view)",
+    "IngestConfirmSipNotAvailableResponseBody": {
+      "description": "confirm_sip_not_available_response_body result type (default view)",
+      "example": {
+        "fault": false,
+        "id": "123abc",
+        "message": "parameter 'p' must be an integer",
+        "name": "bad_request",
+        "temporary": false,
+        "timeout": false
+      },
+      "properties": {
+        "fault": {
+          "description": "Is the error a server-side fault?",
+          "example": false,
+          "type": "boolean"
+        },
+        "id": {
+          "description": "ID is a unique identifier for this particular occurrence of the problem.",
+          "example": "123abc",
+          "type": "string"
+        },
+        "message": {
+          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
+          "example": "parameter 'p' must be an integer",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the name of this class of errors.",
+          "example": "bad_request",
+          "type": "string"
+        },
+        "temporary": {
+          "description": "Is the error temporary?",
+          "example": false,
+          "type": "boolean"
+        },
+        "timeout": {
+          "description": "Is the error a timeout?",
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "id",
+        "message",
+        "temporary",
+        "timeout",
+        "fault"
+      ],
+      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
+      "type": "object"
+    },
+    "IngestConfirmSipNotFoundResponseBody": {
+      "description": "SIP not found",
+      "example": {
+        "id": 1,
+        "message": "abc123"
+      },
+      "properties": {
+        "id": {
+          "description": "Identifier of missing SIP",
+          "example": 1,
+          "format": "int64",
+          "type": "integer"
+        },
+        "message": {
+          "description": "Message of error",
+          "example": "abc123",
+          "type": "string"
+        }
+      },
+      "required": [
+        "message",
+        "id"
+      ],
+      "title": "IngestConfirmSipNotFoundResponseBody",
+      "type": "object"
+    },
+    "IngestConfirmSipNotValidResponseBody": {
+      "description": "confirm_sip_not_valid_response_body result type (default view)",
+      "example": {
+        "fault": false,
+        "id": "123abc",
+        "message": "parameter 'p' must be an integer",
+        "name": "bad_request",
+        "temporary": false,
+        "timeout": false
+      },
+      "properties": {
+        "fault": {
+          "description": "Is the error a server-side fault?",
+          "example": false,
+          "type": "boolean"
+        },
+        "id": {
+          "description": "ID is a unique identifier for this particular occurrence of the problem.",
+          "example": "123abc",
+          "type": "string"
+        },
+        "message": {
+          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
+          "example": "parameter 'p' must be an integer",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the name of this class of errors.",
+          "example": "bad_request",
+          "type": "string"
+        },
+        "temporary": {
+          "description": "Is the error temporary?",
+          "example": false,
+          "type": "boolean"
+        },
+        "timeout": {
+          "description": "Is the error a timeout?",
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "id",
+        "message",
+        "temporary",
+        "timeout",
+        "fault"
+      ],
+      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
+      "type": "object"
+    },
+    "IngestConfirmSipRequestBody": {
+      "example": {
+        "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+      },
+      "properties": {
+        "location_id": {
+          "description": "Identifier of storage location",
+          "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+          "type": "string"
+        }
+      },
+      "required": [
+        "location_id"
+      ],
+      "title": "IngestConfirmSipRequestBody",
+      "type": "object"
+    },
+    "IngestListSipPreservationActionsNotFoundResponseBody": {
+      "description": "SIP not found",
+      "example": {
+        "id": 1,
+        "message": "abc123"
+      },
+      "properties": {
+        "id": {
+          "description": "Identifier of missing SIP",
+          "example": 1,
+          "format": "int64",
+          "type": "integer"
+        },
+        "message": {
+          "description": "Message of error",
+          "example": "abc123",
+          "type": "string"
+        }
+      },
+      "required": [
+        "message",
+        "id"
+      ],
+      "title": "IngestListSipPreservationActionsNotFoundResponseBody",
+      "type": "object"
+    },
+    "IngestListSipPreservationActionsResponseBody": {
+      "description": "list_sip_preservation_actions_response_body result type (default view)",
+      "example": {
+        "actions": [
+          {
+            "completed_at": "1970-01-01T00:00:01Z",
+            "id": 1,
+            "sip_id": 1,
+            "started_at": "1970-01-01T00:00:01Z",
+            "status": "in progress",
+            "tasks": [
+              {
+                "completed_at": "1970-01-01T00:00:01Z",
+                "id": 1,
+                "name": "abc123",
+                "note": "abc123",
+                "preservation_action_id": 1,
+                "started_at": "1970-01-01T00:00:01Z",
+                "status": "in progress",
+                "task_id": "abc123"
+              }
+            ],
+            "type": "create aip",
+            "workflow_id": "abc123"
+          }
+        ]
+      },
+      "properties": {
+        "actions": {
+          "$ref": "#/definitions/SIPPreservationActionResponseBodyCollection"
+        }
+      },
+      "title": "Mediatype identifier: application/vnd.enduro.ingest.sip.preservation-actions; view=default",
+      "type": "object"
+    },
+    "IngestListSipsResponseBody": {
+      "description": "list_sips_response_body result type (default view)",
+      "example": {
+        "items": [
+          {
+            "aip_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+            "completed_at": "1970-01-01T00:00:01Z",
+            "created_at": "1970-01-01T00:00:01Z",
+            "id": 1,
+            "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+            "name": "abc123",
+            "run_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+            "started_at": "1970-01-01T00:00:01Z",
+            "status": "in progress",
+            "workflow_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+          }
+        ],
+        "page": {
+          "limit": 1,
+          "offset": 1,
+          "total": 1
+        }
+      },
+      "properties": {
+        "items": {
+          "$ref": "#/definitions/SIPResponseBodyCollection"
+        },
+        "page": {
+          "$ref": "#/definitions/EnduroPageResponseBody"
+        }
+      },
+      "required": [
+        "items",
+        "page"
+      ],
+      "title": "Mediatype identifier: application/vnd.enduro.ingest.sips; view=default",
+      "type": "object"
+    },
+    "IngestMonitorNotAvailableResponseBody": {
+      "description": "monitor_not_available_response_body result type (default view)",
+      "example": {
+        "fault": false,
+        "id": "123abc",
+        "message": "parameter 'p' must be an integer",
+        "name": "bad_request",
+        "temporary": false,
+        "timeout": false
+      },
+      "properties": {
+        "fault": {
+          "description": "Is the error a server-side fault?",
+          "example": false,
+          "type": "boolean"
+        },
+        "id": {
+          "description": "ID is a unique identifier for this particular occurrence of the problem.",
+          "example": "123abc",
+          "type": "string"
+        },
+        "message": {
+          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
+          "example": "parameter 'p' must be an integer",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the name of this class of errors.",
+          "example": "bad_request",
+          "type": "string"
+        },
+        "temporary": {
+          "description": "Is the error temporary?",
+          "example": false,
+          "type": "boolean"
+        },
+        "timeout": {
+          "description": "Is the error a timeout?",
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "id",
+        "message",
+        "temporary",
+        "timeout",
+        "fault"
+      ],
+      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
+      "type": "object"
+    },
+    "IngestMonitorRequestNotAvailableResponseBody": {
+      "description": "monitor_request_not_available_response_body result type (default view)",
+      "example": {
+        "fault": false,
+        "id": "123abc",
+        "message": "parameter 'p' must be an integer",
+        "name": "bad_request",
+        "temporary": false,
+        "timeout": false
+      },
+      "properties": {
+        "fault": {
+          "description": "Is the error a server-side fault?",
+          "example": false,
+          "type": "boolean"
+        },
+        "id": {
+          "description": "ID is a unique identifier for this particular occurrence of the problem.",
+          "example": "123abc",
+          "type": "string"
+        },
+        "message": {
+          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
+          "example": "parameter 'p' must be an integer",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the name of this class of errors.",
+          "example": "bad_request",
+          "type": "string"
+        },
+        "temporary": {
+          "description": "Is the error temporary?",
+          "example": false,
+          "type": "boolean"
+        },
+        "timeout": {
+          "description": "Is the error a timeout?",
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "id",
+        "message",
+        "temporary",
+        "timeout",
+        "fault"
+      ],
+      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
+      "type": "object"
+    },
+    "IngestMonitorResponseBody": {
+      "example": {
+        "event": {
+          "Type": "sip_created_event",
+          "Value": "{\"id\":1,\"item\":{\"aip_id\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"id\":1,\"location_id\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"name\":\"abc123\",\"run_id\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"in progress\",\"workflow_id\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}}"
+        }
+      },
+      "properties": {
+        "event": {
+          "example": {
+            "Type": "sip_created_event",
+            "Value": "{\"id\":1,\"item\":{\"aip_id\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"id\":1,\"location_id\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"name\":\"abc123\",\"run_id\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"in progress\",\"workflow_id\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}}"
+          },
+          "properties": {
+            "Type": {
+              "description": "Union type name, one of:\n- \"monitor_ping_event\"\n- \"sip_created_event\"\n- \"sip_updated_event\"\n- \"sip_status_updated_event\"\n- \"sip_location_updated_event\"\n- \"sip_preservation_action_created_event\"\n- \"sip_preservation_action_updated_event\"\n- \"sip_preservation_task_created_event\"\n- \"sip_preservation_task_updated_event\"",
+              "enum": [
+                "monitor_ping_event",
+                "sip_created_event",
+                "sip_updated_event",
+                "sip_status_updated_event",
+                "sip_location_updated_event",
+                "sip_preservation_action_created_event",
+                "sip_preservation_action_updated_event",
+                "sip_preservation_task_created_event",
+                "sip_preservation_task_updated_event"
+              ],
+              "example": "sip_created_event",
+              "type": "string"
+            },
+            "Value": {
+              "description": "JSON encoded union value",
+              "example": "{\"id\":1,\"item\":{\"aip_id\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"id\":1,\"location_id\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"name\":\"abc123\",\"run_id\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"in progress\",\"workflow_id\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}}",
+              "type": "string"
+            }
+          },
+          "required": [
+            "Type",
+            "Value"
+          ],
+          "type": "object"
+        }
+      },
+      "title": "IngestMonitorResponseBody",
+      "type": "object"
+    },
+    "IngestMoveSipNotAvailableResponseBody": {
+      "description": "move_sip_not_available_response_body result type (default view)",
+      "example": {
+        "fault": false,
+        "id": "123abc",
+        "message": "parameter 'p' must be an integer",
+        "name": "bad_request",
+        "temporary": false,
+        "timeout": false
+      },
+      "properties": {
+        "fault": {
+          "description": "Is the error a server-side fault?",
+          "example": false,
+          "type": "boolean"
+        },
+        "id": {
+          "description": "ID is a unique identifier for this particular occurrence of the problem.",
+          "example": "123abc",
+          "type": "string"
+        },
+        "message": {
+          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
+          "example": "parameter 'p' must be an integer",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the name of this class of errors.",
+          "example": "bad_request",
+          "type": "string"
+        },
+        "temporary": {
+          "description": "Is the error temporary?",
+          "example": false,
+          "type": "boolean"
+        },
+        "timeout": {
+          "description": "Is the error a timeout?",
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "id",
+        "message",
+        "temporary",
+        "timeout",
+        "fault"
+      ],
+      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
+      "type": "object"
+    },
+    "IngestMoveSipNotFoundResponseBody": {
+      "description": "SIP not found",
+      "example": {
+        "id": 1,
+        "message": "abc123"
+      },
+      "properties": {
+        "id": {
+          "description": "Identifier of missing SIP",
+          "example": 1,
+          "format": "int64",
+          "type": "integer"
+        },
+        "message": {
+          "description": "Message of error",
+          "example": "abc123",
+          "type": "string"
+        }
+      },
+      "required": [
+        "message",
+        "id"
+      ],
+      "title": "IngestMoveSipNotFoundResponseBody",
+      "type": "object"
+    },
+    "IngestMoveSipNotValidResponseBody": {
+      "description": "move_sip_not_valid_response_body result type (default view)",
+      "example": {
+        "fault": false,
+        "id": "123abc",
+        "message": "parameter 'p' must be an integer",
+        "name": "bad_request",
+        "temporary": false,
+        "timeout": false
+      },
+      "properties": {
+        "fault": {
+          "description": "Is the error a server-side fault?",
+          "example": false,
+          "type": "boolean"
+        },
+        "id": {
+          "description": "ID is a unique identifier for this particular occurrence of the problem.",
+          "example": "123abc",
+          "type": "string"
+        },
+        "message": {
+          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
+          "example": "parameter 'p' must be an integer",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the name of this class of errors.",
+          "example": "bad_request",
+          "type": "string"
+        },
+        "temporary": {
+          "description": "Is the error temporary?",
+          "example": false,
+          "type": "boolean"
+        },
+        "timeout": {
+          "description": "Is the error a timeout?",
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "id",
+        "message",
+        "temporary",
+        "timeout",
+        "fault"
+      ],
+      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
+      "type": "object"
+    },
+    "IngestMoveSipRequestBody": {
+      "example": {
+        "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+      },
+      "properties": {
+        "location_id": {
+          "description": "Identifier of storage location",
+          "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+          "type": "string"
+        }
+      },
+      "required": [
+        "location_id"
+      ],
+      "title": "IngestMoveSipRequestBody",
+      "type": "object"
+    },
+    "IngestMoveSipStatusFailedDependencyResponseBody": {
+      "description": "move_sip_status_failed_dependency_response_body result type (default view)",
+      "example": {
+        "fault": false,
+        "id": "123abc",
+        "message": "parameter 'p' must be an integer",
+        "name": "bad_request",
+        "temporary": false,
+        "timeout": false
+      },
+      "properties": {
+        "fault": {
+          "description": "Is the error a server-side fault?",
+          "example": false,
+          "type": "boolean"
+        },
+        "id": {
+          "description": "ID is a unique identifier for this particular occurrence of the problem.",
+          "example": "123abc",
+          "type": "string"
+        },
+        "message": {
+          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
+          "example": "parameter 'p' must be an integer",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the name of this class of errors.",
+          "example": "bad_request",
+          "type": "string"
+        },
+        "temporary": {
+          "description": "Is the error temporary?",
+          "example": false,
+          "type": "boolean"
+        },
+        "timeout": {
+          "description": "Is the error a timeout?",
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "id",
+        "message",
+        "temporary",
+        "timeout",
+        "fault"
+      ],
+      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
+      "type": "object"
+    },
+    "IngestMoveSipStatusNotFoundResponseBody": {
+      "description": "SIP not found",
+      "example": {
+        "id": 1,
+        "message": "abc123"
+      },
+      "properties": {
+        "id": {
+          "description": "Identifier of missing SIP",
+          "example": 1,
+          "format": "int64",
+          "type": "integer"
+        },
+        "message": {
+          "description": "Message of error",
+          "example": "abc123",
+          "type": "string"
+        }
+      },
+      "required": [
+        "message",
+        "id"
+      ],
+      "title": "IngestMoveSipStatusNotFoundResponseBody",
+      "type": "object"
+    },
+    "IngestMoveSipStatusResponseBody": {
+      "example": {
+        "done": false
+      },
+      "properties": {
+        "done": {
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "done"
+      ],
+      "title": "IngestMoveSipStatusResponseBody",
+      "type": "object"
+    },
+    "IngestRejectSipNotAvailableResponseBody": {
+      "description": "reject_sip_not_available_response_body result type (default view)",
+      "example": {
+        "fault": false,
+        "id": "123abc",
+        "message": "parameter 'p' must be an integer",
+        "name": "bad_request",
+        "temporary": false,
+        "timeout": false
+      },
+      "properties": {
+        "fault": {
+          "description": "Is the error a server-side fault?",
+          "example": false,
+          "type": "boolean"
+        },
+        "id": {
+          "description": "ID is a unique identifier for this particular occurrence of the problem.",
+          "example": "123abc",
+          "type": "string"
+        },
+        "message": {
+          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
+          "example": "parameter 'p' must be an integer",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the name of this class of errors.",
+          "example": "bad_request",
+          "type": "string"
+        },
+        "temporary": {
+          "description": "Is the error temporary?",
+          "example": false,
+          "type": "boolean"
+        },
+        "timeout": {
+          "description": "Is the error a timeout?",
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "id",
+        "message",
+        "temporary",
+        "timeout",
+        "fault"
+      ],
+      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
+      "type": "object"
+    },
+    "IngestRejectSipNotFoundResponseBody": {
+      "description": "SIP not found",
+      "example": {
+        "id": 1,
+        "message": "abc123"
+      },
+      "properties": {
+        "id": {
+          "description": "Identifier of missing SIP",
+          "example": 1,
+          "format": "int64",
+          "type": "integer"
+        },
+        "message": {
+          "description": "Message of error",
+          "example": "abc123",
+          "type": "string"
+        }
+      },
+      "required": [
+        "message",
+        "id"
+      ],
+      "title": "IngestRejectSipNotFoundResponseBody",
+      "type": "object"
+    },
+    "IngestRejectSipNotValidResponseBody": {
+      "description": "reject_sip_not_valid_response_body result type (default view)",
+      "example": {
+        "fault": false,
+        "id": "123abc",
+        "message": "parameter 'p' must be an integer",
+        "name": "bad_request",
+        "temporary": false,
+        "timeout": false
+      },
+      "properties": {
+        "fault": {
+          "description": "Is the error a server-side fault?",
+          "example": false,
+          "type": "boolean"
+        },
+        "id": {
+          "description": "ID is a unique identifier for this particular occurrence of the problem.",
+          "example": "123abc",
+          "type": "string"
+        },
+        "message": {
+          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
+          "example": "parameter 'p' must be an integer",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the name of this class of errors.",
+          "example": "bad_request",
+          "type": "string"
+        },
+        "temporary": {
+          "description": "Is the error temporary?",
+          "example": false,
+          "type": "boolean"
+        },
+        "timeout": {
+          "description": "Is the error a timeout?",
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "id",
+        "message",
+        "temporary",
+        "timeout",
+        "fault"
+      ],
+      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
+      "type": "object"
+    },
+    "IngestShowSipNotAvailableResponseBody": {
+      "description": "show_sip_not_available_response_body result type (default view)",
+      "example": {
+        "fault": false,
+        "id": "123abc",
+        "message": "parameter 'p' must be an integer",
+        "name": "bad_request",
+        "temporary": false,
+        "timeout": false
+      },
+      "properties": {
+        "fault": {
+          "description": "Is the error a server-side fault?",
+          "example": false,
+          "type": "boolean"
+        },
+        "id": {
+          "description": "ID is a unique identifier for this particular occurrence of the problem.",
+          "example": "123abc",
+          "type": "string"
+        },
+        "message": {
+          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
+          "example": "parameter 'p' must be an integer",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the name of this class of errors.",
+          "example": "bad_request",
+          "type": "string"
+        },
+        "temporary": {
+          "description": "Is the error temporary?",
+          "example": false,
+          "type": "boolean"
+        },
+        "timeout": {
+          "description": "Is the error a timeout?",
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "id",
+        "message",
+        "temporary",
+        "timeout",
+        "fault"
+      ],
+      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
+      "type": "object"
+    },
+    "IngestShowSipNotFoundResponseBody": {
+      "description": "SIP not found",
+      "example": {
+        "id": 1,
+        "message": "abc123"
+      },
+      "properties": {
+        "id": {
+          "description": "Identifier of missing SIP",
+          "example": 1,
+          "format": "int64",
+          "type": "integer"
+        },
+        "message": {
+          "description": "Message of error",
+          "example": "abc123",
+          "type": "string"
+        }
+      },
+      "required": [
+        "message",
+        "id"
+      ],
+      "title": "IngestShowSipNotFoundResponseBody",
+      "type": "object"
+    },
+    "IngestShowSipResponseBody": {
+      "description": "show_sip_response_body result type (default view)",
       "example": {
         "aip_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
         "completed_at": "1970-01-01T00:00:01Z",
@@ -382,7 +1092,7 @@
           "type": "string"
         },
         "id": {
-          "description": "Identifier of package",
+          "description": "Identifier of SIP",
           "example": 1,
           "format": "int64",
           "type": "integer"
@@ -393,7 +1103,7 @@
           "type": "string"
         },
         "name": {
-          "description": "Name of the package",
+          "description": "Name of the SIP",
           "example": "abc123",
           "type": "string"
         },
@@ -411,7 +1121,7 @@
         },
         "status": {
           "default": "new",
-          "description": "Status of the package",
+          "description": "Status of the SIP",
           "enum": [
             "new",
             "in progress",
@@ -437,30 +1147,167 @@
         "status",
         "created_at"
       ],
-      "title": "Mediatype identifier: application/vnd.enduro.stored-package; view=default",
+      "title": "Mediatype identifier: application/vnd.enduro.ingest.sip; view=default",
       "type": "object"
     },
-    "EnduroStoredPackageResponseBodyCollection": {
-      "description": "EnduroStored-PackageCollectionResponseBody is the result type for an array of EnduroStored-PackageResponseBody (default view)",
-      "example": [
-        {
-          "aip_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
-          "completed_at": "1970-01-01T00:00:01Z",
-          "created_at": "1970-01-01T00:00:01Z",
-          "id": 1,
-          "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
-          "name": "abc123",
-          "run_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
-          "started_at": "1970-01-01T00:00:01Z",
-          "status": "in progress",
-          "workflow_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
-        }
-      ],
-      "items": {
-        "$ref": "#/definitions/EnduroStoredPackageResponseBody"
+    "IngestUploadSipInternalErrorResponseBody": {
+      "description": "Fault while processing upload. (default view)",
+      "example": {
+        "fault": false,
+        "id": "123abc",
+        "message": "parameter 'p' must be an integer",
+        "name": "bad_request",
+        "temporary": false,
+        "timeout": false
       },
-      "title": "Mediatype identifier: application/vnd.enduro.stored-package; type=collection; view=default",
-      "type": "array"
+      "properties": {
+        "fault": {
+          "description": "Is the error a server-side fault?",
+          "example": false,
+          "type": "boolean"
+        },
+        "id": {
+          "description": "ID is a unique identifier for this particular occurrence of the problem.",
+          "example": "123abc",
+          "type": "string"
+        },
+        "message": {
+          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
+          "example": "parameter 'p' must be an integer",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the name of this class of errors.",
+          "example": "bad_request",
+          "type": "string"
+        },
+        "temporary": {
+          "description": "Is the error temporary?",
+          "example": false,
+          "type": "boolean"
+        },
+        "timeout": {
+          "description": "Is the error a timeout?",
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "id",
+        "message",
+        "temporary",
+        "timeout",
+        "fault"
+      ],
+      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
+      "type": "object"
+    },
+    "IngestUploadSipInvalidMediaTypeResponseBody": {
+      "description": "Error returned when the Content-Type header does not define a multipart request. (default view)",
+      "example": {
+        "fault": false,
+        "id": "123abc",
+        "message": "parameter 'p' must be an integer",
+        "name": "bad_request",
+        "temporary": false,
+        "timeout": false
+      },
+      "properties": {
+        "fault": {
+          "description": "Is the error a server-side fault?",
+          "example": false,
+          "type": "boolean"
+        },
+        "id": {
+          "description": "ID is a unique identifier for this particular occurrence of the problem.",
+          "example": "123abc",
+          "type": "string"
+        },
+        "message": {
+          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
+          "example": "parameter 'p' must be an integer",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the name of this class of errors.",
+          "example": "bad_request",
+          "type": "string"
+        },
+        "temporary": {
+          "description": "Is the error temporary?",
+          "example": false,
+          "type": "boolean"
+        },
+        "timeout": {
+          "description": "Is the error a timeout?",
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "id",
+        "message",
+        "temporary",
+        "timeout",
+        "fault"
+      ],
+      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
+      "type": "object"
+    },
+    "IngestUploadSipInvalidMultipartRequestResponseBody": {
+      "description": "Error returned when the request body is not a valid multipart content. (default view)",
+      "example": {
+        "fault": false,
+        "id": "123abc",
+        "message": "parameter 'p' must be an integer",
+        "name": "bad_request",
+        "temporary": false,
+        "timeout": false
+      },
+      "properties": {
+        "fault": {
+          "description": "Is the error a server-side fault?",
+          "example": false,
+          "type": "boolean"
+        },
+        "id": {
+          "description": "ID is a unique identifier for this particular occurrence of the problem.",
+          "example": "123abc",
+          "type": "string"
+        },
+        "message": {
+          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
+          "example": "parameter 'p' must be an integer",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the name of this class of errors.",
+          "example": "bad_request",
+          "type": "string"
+        },
+        "temporary": {
+          "description": "Is the error temporary?",
+          "example": false,
+          "type": "boolean"
+        },
+        "timeout": {
+          "description": "Is the error a timeout?",
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "id",
+        "message",
+        "temporary",
+        "timeout",
+        "fault"
+      ],
+      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
+      "type": "object"
     },
     "LocationResponse": {
       "description": "A Location describes a location retrieved by the storage service. (default view)",
@@ -523,924 +1370,214 @@
         "uuid",
         "created_at"
       ],
-      "title": "Mediatype identifier: application/vnd.enduro.storage-location; view=default",
+      "title": "Mediatype identifier: application/vnd.enduro.storage.location; view=default",
       "type": "object"
     },
-    "PackageConfirmNotAvailableResponseBody": {
-      "description": "confirm_not_available_response_body result type (default view)",
+    "SIPPreservationActionResponseBody": {
+      "description": "SIPPreservationAction describes a preservation action of a SIP. (default view)",
       "example": {
-        "fault": false,
-        "id": "123abc",
-        "message": "parameter 'p' must be an integer",
-        "name": "bad_request",
-        "temporary": false,
-        "timeout": false
-      },
-      "properties": {
-        "fault": {
-          "description": "Is the error a server-side fault?",
-          "example": false,
-          "type": "boolean"
-        },
-        "id": {
-          "description": "ID is a unique identifier for this particular occurrence of the problem.",
-          "example": "123abc",
-          "type": "string"
-        },
-        "message": {
-          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
-          "example": "parameter 'p' must be an integer",
-          "type": "string"
-        },
-        "name": {
-          "description": "Name is the name of this class of errors.",
-          "example": "bad_request",
-          "type": "string"
-        },
-        "temporary": {
-          "description": "Is the error temporary?",
-          "example": false,
-          "type": "boolean"
-        },
-        "timeout": {
-          "description": "Is the error a timeout?",
-          "example": false,
-          "type": "boolean"
-        }
-      },
-      "required": [
-        "name",
-        "id",
-        "message",
-        "temporary",
-        "timeout",
-        "fault"
-      ],
-      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
-      "type": "object"
-    },
-    "PackageConfirmNotFoundResponseBody": {
-      "description": "Package not found",
-      "example": {
+        "completed_at": "1970-01-01T00:00:01Z",
         "id": 1,
-        "message": "abc123"
-      },
-      "properties": {
-        "id": {
-          "description": "Identifier of missing package",
-          "example": 1,
-          "format": "int64",
-          "type": "integer"
-        },
-        "message": {
-          "description": "Message of error",
-          "example": "abc123",
-          "type": "string"
-        }
-      },
-      "required": [
-        "message",
-        "id"
-      ],
-      "title": "PackageConfirmNotFoundResponseBody",
-      "type": "object"
-    },
-    "PackageConfirmNotValidResponseBody": {
-      "description": "confirm_not_valid_response_body result type (default view)",
-      "example": {
-        "fault": false,
-        "id": "123abc",
-        "message": "parameter 'p' must be an integer",
-        "name": "bad_request",
-        "temporary": false,
-        "timeout": false
-      },
-      "properties": {
-        "fault": {
-          "description": "Is the error a server-side fault?",
-          "example": false,
-          "type": "boolean"
-        },
-        "id": {
-          "description": "ID is a unique identifier for this particular occurrence of the problem.",
-          "example": "123abc",
-          "type": "string"
-        },
-        "message": {
-          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
-          "example": "parameter 'p' must be an integer",
-          "type": "string"
-        },
-        "name": {
-          "description": "Name is the name of this class of errors.",
-          "example": "bad_request",
-          "type": "string"
-        },
-        "temporary": {
-          "description": "Is the error temporary?",
-          "example": false,
-          "type": "boolean"
-        },
-        "timeout": {
-          "description": "Is the error a timeout?",
-          "example": false,
-          "type": "boolean"
-        }
-      },
-      "required": [
-        "name",
-        "id",
-        "message",
-        "temporary",
-        "timeout",
-        "fault"
-      ],
-      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
-      "type": "object"
-    },
-    "PackageConfirmRequestBody": {
-      "example": {
-        "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
-      },
-      "properties": {
-        "location_id": {
-          "description": "Identifier of storage location",
-          "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
-          "type": "string"
-        }
-      },
-      "required": [
-        "location_id"
-      ],
-      "title": "PackageConfirmRequestBody",
-      "type": "object"
-    },
-    "PackageListResponseBody": {
-      "description": "ListResponseBody result type (default view)",
-      "example": {
-        "items": [
+        "sip_id": 1,
+        "started_at": "1970-01-01T00:00:01Z",
+        "status": "in progress",
+        "tasks": [
           {
-            "aip_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
             "completed_at": "1970-01-01T00:00:01Z",
-            "created_at": "1970-01-01T00:00:01Z",
             "id": 1,
-            "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
             "name": "abc123",
-            "run_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+            "note": "abc123",
+            "preservation_action_id": 1,
             "started_at": "1970-01-01T00:00:01Z",
             "status": "in progress",
-            "workflow_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+            "task_id": "abc123"
           }
         ],
-        "page": {
-          "limit": 1,
-          "offset": 1,
-          "total": 1
-        }
+        "type": "create aip",
+        "workflow_id": "abc123"
       },
       "properties": {
-        "items": {
-          "$ref": "#/definitions/EnduroStoredPackageResponseBodyCollection"
-        },
-        "page": {
-          "$ref": "#/definitions/EnduroPageResponseBody"
-        }
-      },
-      "required": [
-        "items",
-        "page"
-      ],
-      "title": "Mediatype identifier: application/vnd.enduro.packages; view=default",
-      "type": "object"
-    },
-    "PackageMonitorNotAvailableResponseBody": {
-      "description": "monitor_not_available_response_body result type (default view)",
-      "example": {
-        "fault": false,
-        "id": "123abc",
-        "message": "parameter 'p' must be an integer",
-        "name": "bad_request",
-        "temporary": false,
-        "timeout": false
-      },
-      "properties": {
-        "fault": {
-          "description": "Is the error a server-side fault?",
-          "example": false,
-          "type": "boolean"
-        },
-        "id": {
-          "description": "ID is a unique identifier for this particular occurrence of the problem.",
-          "example": "123abc",
-          "type": "string"
-        },
-        "message": {
-          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
-          "example": "parameter 'p' must be an integer",
-          "type": "string"
-        },
-        "name": {
-          "description": "Name is the name of this class of errors.",
-          "example": "bad_request",
-          "type": "string"
-        },
-        "temporary": {
-          "description": "Is the error temporary?",
-          "example": false,
-          "type": "boolean"
-        },
-        "timeout": {
-          "description": "Is the error a timeout?",
-          "example": false,
-          "type": "boolean"
-        }
-      },
-      "required": [
-        "name",
-        "id",
-        "message",
-        "temporary",
-        "timeout",
-        "fault"
-      ],
-      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
-      "type": "object"
-    },
-    "PackageMonitorRequestNotAvailableResponseBody": {
-      "description": "monitor_request_not_available_response_body result type (default view)",
-      "example": {
-        "fault": false,
-        "id": "123abc",
-        "message": "parameter 'p' must be an integer",
-        "name": "bad_request",
-        "temporary": false,
-        "timeout": false
-      },
-      "properties": {
-        "fault": {
-          "description": "Is the error a server-side fault?",
-          "example": false,
-          "type": "boolean"
-        },
-        "id": {
-          "description": "ID is a unique identifier for this particular occurrence of the problem.",
-          "example": "123abc",
-          "type": "string"
-        },
-        "message": {
-          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
-          "example": "parameter 'p' must be an integer",
-          "type": "string"
-        },
-        "name": {
-          "description": "Name is the name of this class of errors.",
-          "example": "bad_request",
-          "type": "string"
-        },
-        "temporary": {
-          "description": "Is the error temporary?",
-          "example": false,
-          "type": "boolean"
-        },
-        "timeout": {
-          "description": "Is the error a timeout?",
-          "example": false,
-          "type": "boolean"
-        }
-      },
-      "required": [
-        "name",
-        "id",
-        "message",
-        "temporary",
-        "timeout",
-        "fault"
-      ],
-      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
-      "type": "object"
-    },
-    "PackageMonitorResponseBody": {
-      "example": {
-        "event": {
-          "Type": "package_created_event",
-          "Value": "{\"id\":1,\"item\":{\"aip_id\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"id\":1,\"location_id\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"name\":\"abc123\",\"run_id\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"in progress\",\"workflow_id\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}}"
-        }
-      },
-      "properties": {
-        "event": {
-          "example": {
-            "Type": "package_created_event",
-            "Value": "{\"id\":1,\"item\":{\"aip_id\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"id\":1,\"location_id\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"name\":\"abc123\",\"run_id\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"in progress\",\"workflow_id\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}}"
-          },
-          "properties": {
-            "Type": {
-              "description": "Union type name, one of:\n- \"monitor_ping_event\"\n- \"package_created_event\"\n- \"package_updated_event\"\n- \"package_status_updated_event\"\n- \"package_location_updated_event\"\n- \"preservation_action_created_event\"\n- \"preservation_action_updated_event\"\n- \"preservation_task_created_event\"\n- \"preservation_task_updated_event\"",
-              "enum": [
-                "monitor_ping_event",
-                "package_created_event",
-                "package_updated_event",
-                "package_status_updated_event",
-                "package_location_updated_event",
-                "preservation_action_created_event",
-                "preservation_action_updated_event",
-                "preservation_task_created_event",
-                "preservation_task_updated_event"
-              ],
-              "example": "package_created_event",
-              "type": "string"
-            },
-            "Value": {
-              "description": "JSON encoded union value",
-              "example": "{\"id\":1,\"item\":{\"aip_id\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"id\":1,\"location_id\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"name\":\"abc123\",\"run_id\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"in progress\",\"workflow_id\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}}",
-              "type": "string"
-            }
-          },
-          "required": [
-            "Type",
-            "Value"
-          ],
-          "type": "object"
-        }
-      },
-      "title": "PackageMonitorResponseBody",
-      "type": "object"
-    },
-    "PackageMoveNotAvailableResponseBody": {
-      "description": "move_not_available_response_body result type (default view)",
-      "example": {
-        "fault": false,
-        "id": "123abc",
-        "message": "parameter 'p' must be an integer",
-        "name": "bad_request",
-        "temporary": false,
-        "timeout": false
-      },
-      "properties": {
-        "fault": {
-          "description": "Is the error a server-side fault?",
-          "example": false,
-          "type": "boolean"
-        },
-        "id": {
-          "description": "ID is a unique identifier for this particular occurrence of the problem.",
-          "example": "123abc",
-          "type": "string"
-        },
-        "message": {
-          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
-          "example": "parameter 'p' must be an integer",
-          "type": "string"
-        },
-        "name": {
-          "description": "Name is the name of this class of errors.",
-          "example": "bad_request",
-          "type": "string"
-        },
-        "temporary": {
-          "description": "Is the error temporary?",
-          "example": false,
-          "type": "boolean"
-        },
-        "timeout": {
-          "description": "Is the error a timeout?",
-          "example": false,
-          "type": "boolean"
-        }
-      },
-      "required": [
-        "name",
-        "id",
-        "message",
-        "temporary",
-        "timeout",
-        "fault"
-      ],
-      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
-      "type": "object"
-    },
-    "PackageMoveNotFoundResponseBody": {
-      "description": "Package not found",
-      "example": {
-        "id": 1,
-        "message": "abc123"
-      },
-      "properties": {
-        "id": {
-          "description": "Identifier of missing package",
-          "example": 1,
-          "format": "int64",
-          "type": "integer"
-        },
-        "message": {
-          "description": "Message of error",
-          "example": "abc123",
-          "type": "string"
-        }
-      },
-      "required": [
-        "message",
-        "id"
-      ],
-      "title": "PackageMoveNotFoundResponseBody",
-      "type": "object"
-    },
-    "PackageMoveNotValidResponseBody": {
-      "description": "move_not_valid_response_body result type (default view)",
-      "example": {
-        "fault": false,
-        "id": "123abc",
-        "message": "parameter 'p' must be an integer",
-        "name": "bad_request",
-        "temporary": false,
-        "timeout": false
-      },
-      "properties": {
-        "fault": {
-          "description": "Is the error a server-side fault?",
-          "example": false,
-          "type": "boolean"
-        },
-        "id": {
-          "description": "ID is a unique identifier for this particular occurrence of the problem.",
-          "example": "123abc",
-          "type": "string"
-        },
-        "message": {
-          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
-          "example": "parameter 'p' must be an integer",
-          "type": "string"
-        },
-        "name": {
-          "description": "Name is the name of this class of errors.",
-          "example": "bad_request",
-          "type": "string"
-        },
-        "temporary": {
-          "description": "Is the error temporary?",
-          "example": false,
-          "type": "boolean"
-        },
-        "timeout": {
-          "description": "Is the error a timeout?",
-          "example": false,
-          "type": "boolean"
-        }
-      },
-      "required": [
-        "name",
-        "id",
-        "message",
-        "temporary",
-        "timeout",
-        "fault"
-      ],
-      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
-      "type": "object"
-    },
-    "PackageMoveRequestBody": {
-      "example": {
-        "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
-      },
-      "properties": {
-        "location_id": {
-          "description": "Identifier of storage location",
-          "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
-          "type": "string"
-        }
-      },
-      "required": [
-        "location_id"
-      ],
-      "title": "PackageMoveRequestBody",
-      "type": "object"
-    },
-    "PackageMoveStatusFailedDependencyResponseBody": {
-      "description": "move_status_failed_dependency_response_body result type (default view)",
-      "example": {
-        "fault": false,
-        "id": "123abc",
-        "message": "parameter 'p' must be an integer",
-        "name": "bad_request",
-        "temporary": false,
-        "timeout": false
-      },
-      "properties": {
-        "fault": {
-          "description": "Is the error a server-side fault?",
-          "example": false,
-          "type": "boolean"
-        },
-        "id": {
-          "description": "ID is a unique identifier for this particular occurrence of the problem.",
-          "example": "123abc",
-          "type": "string"
-        },
-        "message": {
-          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
-          "example": "parameter 'p' must be an integer",
-          "type": "string"
-        },
-        "name": {
-          "description": "Name is the name of this class of errors.",
-          "example": "bad_request",
-          "type": "string"
-        },
-        "temporary": {
-          "description": "Is the error temporary?",
-          "example": false,
-          "type": "boolean"
-        },
-        "timeout": {
-          "description": "Is the error a timeout?",
-          "example": false,
-          "type": "boolean"
-        }
-      },
-      "required": [
-        "name",
-        "id",
-        "message",
-        "temporary",
-        "timeout",
-        "fault"
-      ],
-      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
-      "type": "object"
-    },
-    "PackageMoveStatusNotFoundResponseBody": {
-      "description": "Package not found",
-      "example": {
-        "id": 1,
-        "message": "abc123"
-      },
-      "properties": {
-        "id": {
-          "description": "Identifier of missing package",
-          "example": 1,
-          "format": "int64",
-          "type": "integer"
-        },
-        "message": {
-          "description": "Message of error",
-          "example": "abc123",
-          "type": "string"
-        }
-      },
-      "required": [
-        "message",
-        "id"
-      ],
-      "title": "PackageMoveStatusNotFoundResponseBody",
-      "type": "object"
-    },
-    "PackageMoveStatusResponseBody": {
-      "example": {
-        "done": false
-      },
-      "properties": {
-        "done": {
-          "example": false,
-          "type": "boolean"
-        }
-      },
-      "required": [
-        "done"
-      ],
-      "title": "PackageMoveStatusResponseBody",
-      "type": "object"
-    },
-    "PackagePreservationActionsNotFoundResponseBody": {
-      "description": "Package not found",
-      "example": {
-        "id": 1,
-        "message": "abc123"
-      },
-      "properties": {
-        "id": {
-          "description": "Identifier of missing package",
-          "example": 1,
-          "format": "int64",
-          "type": "integer"
-        },
-        "message": {
-          "description": "Message of error",
-          "example": "abc123",
-          "type": "string"
-        }
-      },
-      "required": [
-        "message",
-        "id"
-      ],
-      "title": "PackagePreservationActionsNotFoundResponseBody",
-      "type": "object"
-    },
-    "PackagePreservationActionsResponseBody": {
-      "description": "preservation_actions_response_body result type (default view)",
-      "example": {
-        "actions": [
-          {
-            "completed_at": "1970-01-01T00:00:01Z",
-            "id": 1,
-            "package_id": 1,
-            "started_at": "1970-01-01T00:00:01Z",
-            "status": "in progress",
-            "tasks": [
-              {
-                "completed_at": "1970-01-01T00:00:01Z",
-                "id": 1,
-                "name": "abc123",
-                "note": "abc123",
-                "preservation_action_id": 1,
-                "started_at": "1970-01-01T00:00:01Z",
-                "status": "in progress",
-                "task_id": "abc123"
-              }
-            ],
-            "type": "create aip",
-            "workflow_id": "abc123"
-          }
-        ]
-      },
-      "properties": {
-        "actions": {
-          "$ref": "#/definitions/EnduroPackagePreservationActionResponseBodyCollection"
-        }
-      },
-      "title": "Mediatype identifier: application/vnd.enduro.package-preservation-actions; view=default",
-      "type": "object"
-    },
-    "PackageRejectNotAvailableResponseBody": {
-      "description": "reject_not_available_response_body result type (default view)",
-      "example": {
-        "fault": false,
-        "id": "123abc",
-        "message": "parameter 'p' must be an integer",
-        "name": "bad_request",
-        "temporary": false,
-        "timeout": false
-      },
-      "properties": {
-        "fault": {
-          "description": "Is the error a server-side fault?",
-          "example": false,
-          "type": "boolean"
-        },
-        "id": {
-          "description": "ID is a unique identifier for this particular occurrence of the problem.",
-          "example": "123abc",
-          "type": "string"
-        },
-        "message": {
-          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
-          "example": "parameter 'p' must be an integer",
-          "type": "string"
-        },
-        "name": {
-          "description": "Name is the name of this class of errors.",
-          "example": "bad_request",
-          "type": "string"
-        },
-        "temporary": {
-          "description": "Is the error temporary?",
-          "example": false,
-          "type": "boolean"
-        },
-        "timeout": {
-          "description": "Is the error a timeout?",
-          "example": false,
-          "type": "boolean"
-        }
-      },
-      "required": [
-        "name",
-        "id",
-        "message",
-        "temporary",
-        "timeout",
-        "fault"
-      ],
-      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
-      "type": "object"
-    },
-    "PackageRejectNotFoundResponseBody": {
-      "description": "Package not found",
-      "example": {
-        "id": 1,
-        "message": "abc123"
-      },
-      "properties": {
-        "id": {
-          "description": "Identifier of missing package",
-          "example": 1,
-          "format": "int64",
-          "type": "integer"
-        },
-        "message": {
-          "description": "Message of error",
-          "example": "abc123",
-          "type": "string"
-        }
-      },
-      "required": [
-        "message",
-        "id"
-      ],
-      "title": "PackageRejectNotFoundResponseBody",
-      "type": "object"
-    },
-    "PackageRejectNotValidResponseBody": {
-      "description": "reject_not_valid_response_body result type (default view)",
-      "example": {
-        "fault": false,
-        "id": "123abc",
-        "message": "parameter 'p' must be an integer",
-        "name": "bad_request",
-        "temporary": false,
-        "timeout": false
-      },
-      "properties": {
-        "fault": {
-          "description": "Is the error a server-side fault?",
-          "example": false,
-          "type": "boolean"
-        },
-        "id": {
-          "description": "ID is a unique identifier for this particular occurrence of the problem.",
-          "example": "123abc",
-          "type": "string"
-        },
-        "message": {
-          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
-          "example": "parameter 'p' must be an integer",
-          "type": "string"
-        },
-        "name": {
-          "description": "Name is the name of this class of errors.",
-          "example": "bad_request",
-          "type": "string"
-        },
-        "temporary": {
-          "description": "Is the error temporary?",
-          "example": false,
-          "type": "boolean"
-        },
-        "timeout": {
-          "description": "Is the error a timeout?",
-          "example": false,
-          "type": "boolean"
-        }
-      },
-      "required": [
-        "name",
-        "id",
-        "message",
-        "temporary",
-        "timeout",
-        "fault"
-      ],
-      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
-      "type": "object"
-    },
-    "PackageResponse": {
-      "description": "A Package describes a package retrieved by the storage service. (default view)",
-      "example": {
-        "aip_id": "abc123",
-        "created_at": "1970-01-01T00:00:01Z",
-        "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
-        "name": "abc123",
-        "object_key": "abc123",
-        "status": "in_review"
-      },
-      "properties": {
-        "aip_id": {
-          "example": "abc123",
-          "type": "string"
-        },
-        "created_at": {
-          "description": "Creation datetime",
+        "completed_at": {
           "example": "1970-01-01T00:00:01Z",
           "format": "date-time",
           "type": "string"
         },
-        "location_id": {
-          "description": "Identifier of storage location",
-          "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
-          "type": "string"
-        },
-        "name": {
-          "example": "abc123",
-          "type": "string"
-        },
-        "object_key": {
-          "example": "abc123",
-          "type": "string"
-        },
-        "status": {
-          "default": "unspecified",
-          "description": "Status of the package",
-          "enum": [
-            "unspecified",
-            "in_review",
-            "rejected",
-            "stored",
-            "moving"
-          ],
-          "example": "in_review",
-          "type": "string"
-        }
-      },
-      "required": [
-        "name",
-        "aip_id",
-        "status",
-        "object_key",
-        "created_at"
-      ],
-      "title": "Mediatype identifier: application/vnd.enduro.storage-package; view=default",
-      "type": "object"
-    },
-    "PackageShowNotAvailableResponseBody": {
-      "description": "show_not_available_response_body result type (default view)",
-      "example": {
-        "fault": false,
-        "id": "123abc",
-        "message": "parameter 'p' must be an integer",
-        "name": "bad_request",
-        "temporary": false,
-        "timeout": false
-      },
-      "properties": {
-        "fault": {
-          "description": "Is the error a server-side fault?",
-          "example": false,
-          "type": "boolean"
-        },
         "id": {
-          "description": "ID is a unique identifier for this particular occurrence of the problem.",
-          "example": "123abc",
-          "type": "string"
-        },
-        "message": {
-          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
-          "example": "parameter 'p' must be an integer",
-          "type": "string"
-        },
-        "name": {
-          "description": "Name is the name of this class of errors.",
-          "example": "bad_request",
-          "type": "string"
-        },
-        "temporary": {
-          "description": "Is the error temporary?",
-          "example": false,
-          "type": "boolean"
-        },
-        "timeout": {
-          "description": "Is the error a timeout?",
-          "example": false,
-          "type": "boolean"
-        }
-      },
-      "required": [
-        "name",
-        "id",
-        "message",
-        "temporary",
-        "timeout",
-        "fault"
-      ],
-      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
-      "type": "object"
-    },
-    "PackageShowNotFoundResponseBody": {
-      "description": "Package not found",
-      "example": {
-        "id": 1,
-        "message": "abc123"
-      },
-      "properties": {
-        "id": {
-          "description": "Identifier of missing package",
           "example": 1,
           "format": "int64",
           "type": "integer"
         },
-        "message": {
-          "description": "Message of error",
+        "sip_id": {
+          "example": 1,
+          "format": "int64",
+          "type": "integer"
+        },
+        "started_at": {
+          "example": "1970-01-01T00:00:01Z",
+          "format": "date-time",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "unspecified",
+            "in progress",
+            "done",
+            "error",
+            "queued",
+            "pending"
+          ],
+          "example": "in progress",
+          "type": "string"
+        },
+        "tasks": {
+          "$ref": "#/definitions/SIPPreservationTaskResponseBodyCollection"
+        },
+        "type": {
+          "enum": [
+            "unspecified",
+            "create aip",
+            "create and review aip",
+            "move package"
+          ],
+          "example": "create aip",
+          "type": "string"
+        },
+        "workflow_id": {
           "example": "abc123",
           "type": "string"
         }
       },
       "required": [
-        "message",
-        "id"
+        "id",
+        "workflow_id",
+        "type",
+        "status",
+        "started_at"
       ],
-      "title": "PackageShowNotFoundResponseBody",
+      "title": "Mediatype identifier: application/vnd.enduro.ingest.sip.preservation-action; view=default",
       "type": "object"
     },
-    "PackageShowResponseBody": {
-      "description": "ShowResponseBody result type (default view)",
+    "SIPPreservationActionResponseBodyCollection": {
+      "description": "SIPPreservationActionCollectionResponseBody is the result type for an array of SIPPreservationActionResponseBody (default view)",
+      "example": [
+        {
+          "completed_at": "1970-01-01T00:00:01Z",
+          "id": 1,
+          "sip_id": 1,
+          "started_at": "1970-01-01T00:00:01Z",
+          "status": "in progress",
+          "tasks": [
+            {
+              "completed_at": "1970-01-01T00:00:01Z",
+              "id": 1,
+              "name": "abc123",
+              "note": "abc123",
+              "preservation_action_id": 1,
+              "started_at": "1970-01-01T00:00:01Z",
+              "status": "in progress",
+              "task_id": "abc123"
+            }
+          ],
+          "type": "create aip",
+          "workflow_id": "abc123"
+        }
+      ],
+      "items": {
+        "$ref": "#/definitions/SIPPreservationActionResponseBody"
+      },
+      "title": "Mediatype identifier: application/vnd.enduro.ingest.sip.preservation-action; type=collection; view=default",
+      "type": "array"
+    },
+    "SIPPreservationTaskResponseBody": {
+      "description": "SIPPreservationTask describes a SIP preservation action task. (default view)",
+      "example": {
+        "completed_at": "1970-01-01T00:00:01Z",
+        "id": 1,
+        "name": "abc123",
+        "note": "abc123",
+        "preservation_action_id": 1,
+        "started_at": "1970-01-01T00:00:01Z",
+        "status": "in progress",
+        "task_id": "abc123"
+      },
+      "properties": {
+        "completed_at": {
+          "example": "1970-01-01T00:00:01Z",
+          "format": "date-time",
+          "type": "string"
+        },
+        "id": {
+          "example": 1,
+          "format": "int64",
+          "type": "integer"
+        },
+        "name": {
+          "example": "abc123",
+          "type": "string"
+        },
+        "note": {
+          "example": "abc123",
+          "type": "string"
+        },
+        "preservation_action_id": {
+          "example": 1,
+          "format": "int64",
+          "type": "integer"
+        },
+        "started_at": {
+          "example": "1970-01-01T00:00:01Z",
+          "format": "date-time",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "unspecified",
+            "in progress",
+            "done",
+            "error",
+            "queued",
+            "pending"
+          ],
+          "example": "in progress",
+          "type": "string"
+        },
+        "task_id": {
+          "example": "abc123",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "task_id",
+        "name",
+        "status",
+        "started_at"
+      ],
+      "title": "Mediatype identifier: application/vnd.enduro.ingest.sip.preservation-task; view=default",
+      "type": "object"
+    },
+    "SIPPreservationTaskResponseBodyCollection": {
+      "description": "SIPPreservationTaskCollectionResponseBody is the result type for an array of SIPPreservationTaskResponseBody (default view)",
+      "example": [
+        {
+          "completed_at": "1970-01-01T00:00:01Z",
+          "id": 1,
+          "name": "abc123",
+          "note": "abc123",
+          "preservation_action_id": 1,
+          "started_at": "1970-01-01T00:00:01Z",
+          "status": "in progress",
+          "task_id": "abc123"
+        }
+      ],
+      "items": {
+        "$ref": "#/definitions/SIPPreservationTaskResponseBody"
+      },
+      "title": "Mediatype identifier: application/vnd.enduro.ingest.sip.preservation-task; type=collection; view=default",
+      "type": "array"
+    },
+    "SIPResponseBody": {
+      "description": "SIP describes an ingest SIP type. (default view)",
       "example": {
         "aip_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
         "completed_at": "1970-01-01T00:00:01Z",
@@ -1473,7 +1610,7 @@
           "type": "string"
         },
         "id": {
-          "description": "Identifier of package",
+          "description": "Identifier of SIP",
           "example": 1,
           "format": "int64",
           "type": "integer"
@@ -1484,7 +1621,7 @@
           "type": "string"
         },
         "name": {
-          "description": "Name of the package",
+          "description": "Name of the SIP",
           "example": "abc123",
           "type": "string"
         },
@@ -1502,7 +1639,7 @@
         },
         "status": {
           "default": "new",
-          "description": "Status of the package",
+          "description": "Status of the SIP",
           "enum": [
             "new",
             "in progress",
@@ -1528,11 +1665,51 @@
         "status",
         "created_at"
       ],
-      "title": "Mediatype identifier: application/vnd.enduro.stored-package; view=default",
+      "title": "Mediatype identifier: application/vnd.enduro.ingest.sip; view=default",
       "type": "object"
     },
-    "PackageUploadInternalErrorResponseBody": {
-      "description": "Fault while processing upload. (default view)",
+    "SIPResponseBodyCollection": {
+      "description": "SIPCollectionResponseBody is the result type for an array of SIPResponseBody (default view)",
+      "example": [
+        {
+          "aip_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+          "completed_at": "1970-01-01T00:00:01Z",
+          "created_at": "1970-01-01T00:00:01Z",
+          "id": 1,
+          "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+          "name": "abc123",
+          "run_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+          "started_at": "1970-01-01T00:00:01Z",
+          "status": "in progress",
+          "workflow_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+        }
+      ],
+      "items": {
+        "$ref": "#/definitions/SIPResponseBody"
+      },
+      "title": "Mediatype identifier: application/vnd.enduro.ingest.sip; type=collection; view=default",
+      "type": "array"
+    },
+    "StorageAIPResponseCollection": {
+      "description": "list_location_aips_response_body is the result type for an array of AIPResponse (default view)",
+      "example": [
+        {
+          "created_at": "1970-01-01T00:00:01Z",
+          "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+          "name": "abc123",
+          "object_key": "abc123",
+          "status": "in_review",
+          "uuid": "abc123"
+        }
+      ],
+      "items": {
+        "$ref": "#/definitions/AIPResponse"
+      },
+      "title": "Mediatype identifier: application/vnd.enduro.storage.aip; type=collection; view=default",
+      "type": "array"
+    },
+    "StorageCreateAipNotValidResponseBody": {
+      "description": "create_aip_not_valid_response_body result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -1584,8 +1761,119 @@
       "title": "Mediatype identifier: application/vnd.goa.error; view=default",
       "type": "object"
     },
-    "PackageUploadInvalidMediaTypeResponseBody": {
-      "description": "Error returned when the Content-Type header does not define a multipart request. (default view)",
+    "StorageCreateAipRequestBody": {
+      "example": {
+        "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+        "name": "abc123",
+        "object_key": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+        "status": "in_review",
+        "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+      },
+      "properties": {
+        "location_id": {
+          "description": "Identifier of the AIP's storage location",
+          "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name of the AIP",
+          "example": "abc123",
+          "type": "string"
+        },
+        "object_key": {
+          "description": "ObjectKey of the AIP",
+          "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+          "format": "uuid",
+          "type": "string"
+        },
+        "status": {
+          "default": "unspecified",
+          "description": "Status of the the AIP",
+          "enum": [
+            "unspecified",
+            "in_review",
+            "rejected",
+            "stored",
+            "moving"
+          ],
+          "example": "in_review",
+          "type": "string"
+        },
+        "uuid": {
+          "description": "Identifier of the AIP",
+          "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+          "format": "uuid",
+          "type": "string"
+        }
+      },
+      "required": [
+        "uuid",
+        "name",
+        "object_key"
+      ],
+      "title": "StorageCreateAipRequestBody",
+      "type": "object"
+    },
+    "StorageCreateAipResponseBody": {
+      "description": "create_aip_response_body result type (default view)",
+      "example": {
+        "created_at": "1970-01-01T00:00:01Z",
+        "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+        "name": "abc123",
+        "object_key": "abc123",
+        "status": "in_review",
+        "uuid": "abc123"
+      },
+      "properties": {
+        "created_at": {
+          "description": "Creation datetime",
+          "example": "1970-01-01T00:00:01Z",
+          "format": "date-time",
+          "type": "string"
+        },
+        "location_id": {
+          "description": "Identifier of storage location",
+          "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+          "type": "string"
+        },
+        "name": {
+          "example": "abc123",
+          "type": "string"
+        },
+        "object_key": {
+          "example": "abc123",
+          "type": "string"
+        },
+        "status": {
+          "default": "unspecified",
+          "description": "Status of the AIP",
+          "enum": [
+            "unspecified",
+            "in_review",
+            "rejected",
+            "stored",
+            "moving"
+          ],
+          "example": "in_review",
+          "type": "string"
+        },
+        "uuid": {
+          "example": "abc123",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "uuid",
+        "status",
+        "object_key",
+        "created_at"
+      ],
+      "title": "Mediatype identifier: application/vnd.enduro.storage.aip; view=default",
+      "type": "object"
+    },
+    "StorageCreateLocationNotValidResponseBody": {
+      "description": "create_location_not_valid_response_body result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -1637,113 +1925,7 @@
       "title": "Mediatype identifier: application/vnd.goa.error; view=default",
       "type": "object"
     },
-    "PackageUploadInvalidMultipartRequestResponseBody": {
-      "description": "Error returned when the request body is not a valid multipart content. (default view)",
-      "example": {
-        "fault": false,
-        "id": "123abc",
-        "message": "parameter 'p' must be an integer",
-        "name": "bad_request",
-        "temporary": false,
-        "timeout": false
-      },
-      "properties": {
-        "fault": {
-          "description": "Is the error a server-side fault?",
-          "example": false,
-          "type": "boolean"
-        },
-        "id": {
-          "description": "ID is a unique identifier for this particular occurrence of the problem.",
-          "example": "123abc",
-          "type": "string"
-        },
-        "message": {
-          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
-          "example": "parameter 'p' must be an integer",
-          "type": "string"
-        },
-        "name": {
-          "description": "Name is the name of this class of errors.",
-          "example": "bad_request",
-          "type": "string"
-        },
-        "temporary": {
-          "description": "Is the error temporary?",
-          "example": false,
-          "type": "boolean"
-        },
-        "timeout": {
-          "description": "Is the error a timeout?",
-          "example": false,
-          "type": "boolean"
-        }
-      },
-      "required": [
-        "name",
-        "id",
-        "message",
-        "temporary",
-        "timeout",
-        "fault"
-      ],
-      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
-      "type": "object"
-    },
-    "StorageAddLocationNotValidResponseBody": {
-      "description": "add_location_not_valid_response_body result type (default view)",
-      "example": {
-        "fault": false,
-        "id": "123abc",
-        "message": "parameter 'p' must be an integer",
-        "name": "bad_request",
-        "temporary": false,
-        "timeout": false
-      },
-      "properties": {
-        "fault": {
-          "description": "Is the error a server-side fault?",
-          "example": false,
-          "type": "boolean"
-        },
-        "id": {
-          "description": "ID is a unique identifier for this particular occurrence of the problem.",
-          "example": "123abc",
-          "type": "string"
-        },
-        "message": {
-          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
-          "example": "parameter 'p' must be an integer",
-          "type": "string"
-        },
-        "name": {
-          "description": "Name is the name of this class of errors.",
-          "example": "bad_request",
-          "type": "string"
-        },
-        "temporary": {
-          "description": "Is the error temporary?",
-          "example": false,
-          "type": "boolean"
-        },
-        "timeout": {
-          "description": "Is the error a timeout?",
-          "example": false,
-          "type": "boolean"
-        }
-      },
-      "required": [
-        "name",
-        "id",
-        "message",
-        "temporary",
-        "timeout",
-        "fault"
-      ],
-      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
-      "type": "object"
-    },
-    "StorageAddLocationRequestBody": {
+    "StorageCreateLocationRequestBody": {
       "example": {
         "config": {
           "Type": "s3",
@@ -1816,10 +1998,10 @@
         "source",
         "purpose"
       ],
-      "title": "StorageAddLocationRequestBody",
+      "title": "StorageCreateLocationRequestBody",
       "type": "object"
     },
-    "StorageAddLocationResponseBody": {
+    "StorageCreateLocationResponseBody": {
       "example": {
         "uuid": "abc123"
       },
@@ -1832,199 +2014,35 @@
       "required": [
         "uuid"
       ],
-      "title": "StorageAddLocationResponseBody",
+      "title": "StorageCreateLocationResponseBody",
       "type": "object"
     },
-    "StorageCreateNotValidResponseBody": {
-      "description": "create_not_valid_response_body result type (default view)",
+    "StorageDownloadAipNotFoundResponseBody": {
+      "description": "AIP not found",
       "example": {
-        "fault": false,
-        "id": "123abc",
-        "message": "parameter 'p' must be an integer",
-        "name": "bad_request",
-        "temporary": false,
-        "timeout": false
+        "message": "abc123",
+        "uuid": "abc123"
       },
       "properties": {
-        "fault": {
-          "description": "Is the error a server-side fault?",
-          "example": false,
-          "type": "boolean"
-        },
-        "id": {
-          "description": "ID is a unique identifier for this particular occurrence of the problem.",
-          "example": "123abc",
-          "type": "string"
-        },
-        "message": {
-          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
-          "example": "parameter 'p' must be an integer",
-          "type": "string"
-        },
-        "name": {
-          "description": "Name is the name of this class of errors.",
-          "example": "bad_request",
-          "type": "string"
-        },
-        "temporary": {
-          "description": "Is the error temporary?",
-          "example": false,
-          "type": "boolean"
-        },
-        "timeout": {
-          "description": "Is the error a timeout?",
-          "example": false,
-          "type": "boolean"
-        }
-      },
-      "required": [
-        "name",
-        "id",
-        "message",
-        "temporary",
-        "timeout",
-        "fault"
-      ],
-      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
-      "type": "object"
-    },
-    "StorageCreateRequestBody": {
-      "example": {
-        "aip_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
-        "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
-        "name": "abc123",
-        "object_key": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
-        "status": "in_review"
-      },
-      "properties": {
-        "aip_id": {
-          "description": "Identifier of AIP",
-          "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
-          "format": "uuid",
-          "type": "string"
-        },
-        "location_id": {
-          "description": "Identifier of the package's storage location",
-          "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
-          "type": "string"
-        },
-        "name": {
-          "description": "Name of the package",
-          "example": "abc123",
-          "type": "string"
-        },
-        "object_key": {
-          "description": "ObjectKey of AIP",
-          "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
-          "format": "uuid",
-          "type": "string"
-        },
-        "status": {
-          "default": "unspecified",
-          "description": "Status of the package",
-          "enum": [
-            "unspecified",
-            "in_review",
-            "rejected",
-            "stored",
-            "moving"
-          ],
-          "example": "in_review",
-          "type": "string"
-        }
-      },
-      "required": [
-        "aip_id",
-        "name",
-        "object_key"
-      ],
-      "title": "StorageCreateRequestBody",
-      "type": "object"
-    },
-    "StorageCreateResponseBody": {
-      "description": "CreateResponseBody result type (default view)",
-      "example": {
-        "aip_id": "abc123",
-        "created_at": "1970-01-01T00:00:01Z",
-        "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
-        "name": "abc123",
-        "object_key": "abc123",
-        "status": "in_review"
-      },
-      "properties": {
-        "aip_id": {
-          "example": "abc123",
-          "type": "string"
-        },
-        "created_at": {
-          "description": "Creation datetime",
-          "example": "1970-01-01T00:00:01Z",
-          "format": "date-time",
-          "type": "string"
-        },
-        "location_id": {
-          "description": "Identifier of storage location",
-          "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
-          "type": "string"
-        },
-        "name": {
-          "example": "abc123",
-          "type": "string"
-        },
-        "object_key": {
-          "example": "abc123",
-          "type": "string"
-        },
-        "status": {
-          "default": "unspecified",
-          "description": "Status of the package",
-          "enum": [
-            "unspecified",
-            "in_review",
-            "rejected",
-            "stored",
-            "moving"
-          ],
-          "example": "in_review",
-          "type": "string"
-        }
-      },
-      "required": [
-        "name",
-        "aip_id",
-        "status",
-        "object_key",
-        "created_at"
-      ],
-      "title": "Mediatype identifier: application/vnd.enduro.storage-package; view=default",
-      "type": "object"
-    },
-    "StorageDownloadNotFoundResponseBody": {
-      "description": "Storage package not found",
-      "example": {
-        "aip_id": "abc123",
-        "message": "abc123"
-      },
-      "properties": {
-        "aip_id": {
-          "description": "Identifier of missing package",
-          "example": "abc123",
-          "type": "string"
-        },
         "message": {
           "description": "Message of error",
           "example": "abc123",
           "type": "string"
+        },
+        "uuid": {
+          "description": "Identifier of missing AIP",
+          "example": "abc123",
+          "type": "string"
         }
       },
       "required": [
         "message",
-        "aip_id"
+        "uuid"
       ],
-      "title": "StorageDownloadNotFoundResponseBody",
+      "title": "StorageDownloadAipNotFoundResponseBody",
       "type": "object"
     },
-    "StorageLocationPackagesNotFoundResponseBody": {
+    "StorageListLocationAipsNotFoundResponseBody": {
       "description": "Storage location not found",
       "example": {
         "message": "abc123",
@@ -2045,11 +2063,11 @@
         "message",
         "uuid"
       ],
-      "title": "StorageLocationPackagesNotFoundResponseBody",
+      "title": "StorageListLocationAipsNotFoundResponseBody",
       "type": "object"
     },
-    "StorageLocationPackagesNotValidResponseBody": {
-      "description": "location_packages_not_valid_response_body result type (default view)",
+    "StorageListLocationAipsNotValidResponseBody": {
+      "description": "list_location_aips_not_valid_response_body result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -2102,7 +2120,7 @@
       "type": "object"
     },
     "StorageLocationResponseCollection": {
-      "description": "LocationsResponseBody is the result type for an array of LocationResponse (default view)",
+      "description": "list_locations_response_body is the result type for an array of LocationResponse (default view)",
       "example": [
         {
           "created_at": "1970-01-01T00:00:01Z",
@@ -2116,11 +2134,11 @@
       "items": {
         "$ref": "#/definitions/LocationResponse"
       },
-      "title": "Mediatype identifier: application/vnd.enduro.storage-location; type=collection; view=default",
+      "title": "Mediatype identifier: application/vnd.enduro.storage.location; type=collection; view=default",
       "type": "array"
     },
-    "StorageMoveNotAvailableResponseBody": {
-      "description": "move_not_available_response_body result type (default view)",
+    "StorageMoveAipNotAvailableResponseBody": {
+      "description": "move_aip_not_available_response_body result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -2172,33 +2190,33 @@
       "title": "Mediatype identifier: application/vnd.goa.error; view=default",
       "type": "object"
     },
-    "StorageMoveNotFoundResponseBody": {
-      "description": "Storage package not found",
+    "StorageMoveAipNotFoundResponseBody": {
+      "description": "AIP not found",
       "example": {
-        "aip_id": "abc123",
-        "message": "abc123"
+        "message": "abc123",
+        "uuid": "abc123"
       },
       "properties": {
-        "aip_id": {
-          "description": "Identifier of missing package",
-          "example": "abc123",
-          "type": "string"
-        },
         "message": {
           "description": "Message of error",
           "example": "abc123",
           "type": "string"
+        },
+        "uuid": {
+          "description": "Identifier of missing AIP",
+          "example": "abc123",
+          "type": "string"
         }
       },
       "required": [
         "message",
-        "aip_id"
+        "uuid"
       ],
-      "title": "StorageMoveNotFoundResponseBody",
+      "title": "StorageMoveAipNotFoundResponseBody",
       "type": "object"
     },
-    "StorageMoveNotValidResponseBody": {
-      "description": "move_not_valid_response_body result type (default view)",
+    "StorageMoveAipNotValidResponseBody": {
+      "description": "move_aip_not_valid_response_body result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -2250,7 +2268,7 @@
       "title": "Mediatype identifier: application/vnd.goa.error; view=default",
       "type": "object"
     },
-    "StorageMoveRequestBody": {
+    "StorageMoveAipRequestBody": {
       "example": {
         "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
       },
@@ -2264,11 +2282,11 @@
       "required": [
         "location_id"
       ],
-      "title": "StorageMoveRequestBody",
+      "title": "StorageMoveAipRequestBody",
       "type": "object"
     },
-    "StorageMoveStatusFailedDependencyResponseBody": {
-      "description": "move_status_failed_dependency_response_body result type (default view)",
+    "StorageMoveAipStatusFailedDependencyResponseBody": {
+      "description": "move_aip_status_failed_dependency_response_body result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -2320,32 +2338,32 @@
       "title": "Mediatype identifier: application/vnd.goa.error; view=default",
       "type": "object"
     },
-    "StorageMoveStatusNotFoundResponseBody": {
-      "description": "Storage package not found",
+    "StorageMoveAipStatusNotFoundResponseBody": {
+      "description": "AIP not found",
       "example": {
-        "aip_id": "abc123",
-        "message": "abc123"
+        "message": "abc123",
+        "uuid": "abc123"
       },
       "properties": {
-        "aip_id": {
-          "description": "Identifier of missing package",
+        "message": {
+          "description": "Message of error",
           "example": "abc123",
           "type": "string"
         },
-        "message": {
-          "description": "Message of error",
+        "uuid": {
+          "description": "Identifier of missing AIP",
           "example": "abc123",
           "type": "string"
         }
       },
       "required": [
         "message",
-        "aip_id"
+        "uuid"
       ],
-      "title": "StorageMoveStatusNotFoundResponseBody",
+      "title": "StorageMoveAipStatusNotFoundResponseBody",
       "type": "object"
     },
-    "StorageMoveStatusResponseBody": {
+    "StorageMoveAipStatusResponseBody": {
       "example": {
         "done": false
       },
@@ -2358,29 +2376,11 @@
       "required": [
         "done"
       ],
-      "title": "StorageMoveStatusResponseBody",
+      "title": "StorageMoveAipStatusResponseBody",
       "type": "object"
     },
-    "StoragePackageResponseCollection": {
-      "description": "location_packages_response_body is the result type for an array of PackageResponse (default view)",
-      "example": [
-        {
-          "aip_id": "abc123",
-          "created_at": "1970-01-01T00:00:01Z",
-          "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
-          "name": "abc123",
-          "object_key": "abc123",
-          "status": "in_review"
-        }
-      ],
-      "items": {
-        "$ref": "#/definitions/PackageResponse"
-      },
-      "title": "Mediatype identifier: application/vnd.enduro.storage-package; type=collection; view=default",
-      "type": "array"
-    },
-    "StorageRejectNotAvailableResponseBody": {
-      "description": "reject_not_available_response_body result type (default view)",
+    "StorageRejectAipNotAvailableResponseBody": {
+      "description": "reject_aip_not_available_response_body result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -2432,33 +2432,33 @@
       "title": "Mediatype identifier: application/vnd.goa.error; view=default",
       "type": "object"
     },
-    "StorageRejectNotFoundResponseBody": {
-      "description": "Storage package not found",
+    "StorageRejectAipNotFoundResponseBody": {
+      "description": "AIP not found",
       "example": {
-        "aip_id": "abc123",
-        "message": "abc123"
+        "message": "abc123",
+        "uuid": "abc123"
       },
       "properties": {
-        "aip_id": {
-          "description": "Identifier of missing package",
-          "example": "abc123",
-          "type": "string"
-        },
         "message": {
           "description": "Message of error",
           "example": "abc123",
           "type": "string"
+        },
+        "uuid": {
+          "description": "Identifier of missing AIP",
+          "example": "abc123",
+          "type": "string"
         }
       },
       "required": [
         "message",
-        "aip_id"
+        "uuid"
       ],
-      "title": "StorageRejectNotFoundResponseBody",
+      "title": "StorageRejectAipNotFoundResponseBody",
       "type": "object"
     },
-    "StorageRejectNotValidResponseBody": {
-      "description": "reject_not_valid_response_body result type (default view)",
+    "StorageRejectAipNotValidResponseBody": {
+      "description": "reject_aip_not_valid_response_body result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -2508,6 +2508,89 @@
         "fault"
       ],
       "title": "Mediatype identifier: application/vnd.goa.error; view=default",
+      "type": "object"
+    },
+    "StorageShowAipNotFoundResponseBody": {
+      "description": "AIP not found",
+      "example": {
+        "message": "abc123",
+        "uuid": "abc123"
+      },
+      "properties": {
+        "message": {
+          "description": "Message of error",
+          "example": "abc123",
+          "type": "string"
+        },
+        "uuid": {
+          "description": "Identifier of missing AIP",
+          "example": "abc123",
+          "type": "string"
+        }
+      },
+      "required": [
+        "message",
+        "uuid"
+      ],
+      "title": "StorageShowAipNotFoundResponseBody",
+      "type": "object"
+    },
+    "StorageShowAipResponseBody": {
+      "description": "show_aip_response_body result type (default view)",
+      "example": {
+        "created_at": "1970-01-01T00:00:01Z",
+        "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+        "name": "abc123",
+        "object_key": "abc123",
+        "status": "in_review",
+        "uuid": "abc123"
+      },
+      "properties": {
+        "created_at": {
+          "description": "Creation datetime",
+          "example": "1970-01-01T00:00:01Z",
+          "format": "date-time",
+          "type": "string"
+        },
+        "location_id": {
+          "description": "Identifier of storage location",
+          "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+          "type": "string"
+        },
+        "name": {
+          "example": "abc123",
+          "type": "string"
+        },
+        "object_key": {
+          "example": "abc123",
+          "type": "string"
+        },
+        "status": {
+          "default": "unspecified",
+          "description": "Status of the AIP",
+          "enum": [
+            "unspecified",
+            "in_review",
+            "rejected",
+            "stored",
+            "moving"
+          ],
+          "example": "in_review",
+          "type": "string"
+        },
+        "uuid": {
+          "example": "abc123",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "uuid",
+        "status",
+        "object_key",
+        "created_at"
+      ],
+      "title": "Mediatype identifier: application/vnd.enduro.storage.aip; view=default",
       "type": "object"
     },
     "StorageShowLocationNotFoundResponseBody": {
@@ -2595,94 +2678,11 @@
         "uuid",
         "created_at"
       ],
-      "title": "Mediatype identifier: application/vnd.enduro.storage-location; view=default",
+      "title": "Mediatype identifier: application/vnd.enduro.storage.location; view=default",
       "type": "object"
     },
-    "StorageShowNotFoundResponseBody": {
-      "description": "Storage package not found",
-      "example": {
-        "aip_id": "abc123",
-        "message": "abc123"
-      },
-      "properties": {
-        "aip_id": {
-          "description": "Identifier of missing package",
-          "example": "abc123",
-          "type": "string"
-        },
-        "message": {
-          "description": "Message of error",
-          "example": "abc123",
-          "type": "string"
-        }
-      },
-      "required": [
-        "message",
-        "aip_id"
-      ],
-      "title": "StorageShowNotFoundResponseBody",
-      "type": "object"
-    },
-    "StorageShowResponseBody": {
-      "description": "ShowResponseBody result type (default view)",
-      "example": {
-        "aip_id": "abc123",
-        "created_at": "1970-01-01T00:00:01Z",
-        "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
-        "name": "abc123",
-        "object_key": "abc123",
-        "status": "in_review"
-      },
-      "properties": {
-        "aip_id": {
-          "example": "abc123",
-          "type": "string"
-        },
-        "created_at": {
-          "description": "Creation datetime",
-          "example": "1970-01-01T00:00:01Z",
-          "format": "date-time",
-          "type": "string"
-        },
-        "location_id": {
-          "description": "Identifier of storage location",
-          "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
-          "type": "string"
-        },
-        "name": {
-          "example": "abc123",
-          "type": "string"
-        },
-        "object_key": {
-          "example": "abc123",
-          "type": "string"
-        },
-        "status": {
-          "default": "unspecified",
-          "description": "Status of the package",
-          "enum": [
-            "unspecified",
-            "in_review",
-            "rejected",
-            "stored",
-            "moving"
-          ],
-          "example": "in_review",
-          "type": "string"
-        }
-      },
-      "required": [
-        "name",
-        "aip_id",
-        "status",
-        "object_key",
-        "created_at"
-      ],
-      "title": "Mediatype identifier: application/vnd.enduro.storage-package; view=default",
-      "type": "object"
-    },
-    "StorageSubmitNotAvailableResponseBody": {
-      "description": "submit_not_available_response_body result type (default view)",
+    "StorageSubmitAipNotAvailableResponseBody": {
+      "description": "submit_aip_not_available_response_body result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -2734,8 +2734,8 @@
       "title": "Mediatype identifier: application/vnd.goa.error; view=default",
       "type": "object"
     },
-    "StorageSubmitNotValidResponseBody": {
-      "description": "submit_not_valid_response_body result type (default view)",
+    "StorageSubmitAipNotValidResponseBody": {
+      "description": "submit_aip_not_valid_response_body result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -2787,7 +2787,7 @@
       "title": "Mediatype identifier: application/vnd.goa.error; view=default",
       "type": "object"
     },
-    "StorageSubmitRequestBody": {
+    "StorageSubmitAipRequestBody": {
       "example": {
         "name": "abc123"
       },
@@ -2800,10 +2800,10 @@
       "required": [
         "name"
       ],
-      "title": "StorageSubmitRequestBody",
+      "title": "StorageSubmitAipRequestBody",
       "type": "object"
     },
-    "StorageSubmitResponseBody": {
+    "StorageSubmitAipResponseBody": {
       "example": {
         "url": "abc123"
       },
@@ -2816,11 +2816,11 @@
       "required": [
         "url"
       ],
-      "title": "StorageSubmitResponseBody",
+      "title": "StorageSubmitAipResponseBody",
       "type": "object"
     },
-    "StorageUpdateNotAvailableResponseBody": {
-      "description": "update_not_available_response_body result type (default view)",
+    "StorageUpdateAipNotAvailableResponseBody": {
+      "description": "update_aip_not_available_response_body result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -2872,8 +2872,8 @@
       "title": "Mediatype identifier: application/vnd.goa.error; view=default",
       "type": "object"
     },
-    "StorageUpdateNotValidResponseBody": {
-      "description": "update_not_valid_response_body result type (default view)",
+    "StorageUpdateAipNotValidResponseBody": {
+      "description": "update_aip_not_valid_response_body result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -2972,10 +2972,96 @@
         ]
       }
     },
-    "/package": {
+    "/ingest/monitor": {
       "get": {
-        "description": "List all stored packages\n\n**Required security scopes for jwt**:\n  * `package:list`",
-        "operationId": "package#list",
+        "description": "Obtain access to the /monitor WebSocket",
+        "operationId": "ingest#monitor",
+        "responses": {
+          "101": {
+            "description": "Switching Protocols response.",
+            "schema": {
+              "$ref": "#/definitions/IngestMonitorResponseBody"
+            }
+          },
+          "401": {
+            "description": "Unauthorized response.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "403": {
+            "description": "Forbidden response.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error response.",
+            "schema": {
+              "$ref": "#/definitions/IngestMonitorNotAvailableResponseBody"
+            }
+          }
+        },
+        "schemes": [
+          "ws"
+        ],
+        "summary": "monitor ingest",
+        "tags": [
+          "ingest"
+        ]
+      },
+      "post": {
+        "description": "Request access to the /monitor WebSocket\n\n**Required security scopes for jwt**:\n  * `ingest:sips:list`\n  * `ingest:sips:actions:list`\n  * `ingest:sips:move`\n  * `ingest:sips:read`\n  * `ingest:sips:review`\n  * `ingest:sips:upload`",
+        "operationId": "ingest#monitor_request",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK response."
+          },
+          "401": {
+            "description": "Unauthorized response.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "403": {
+            "description": "Forbidden response.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error response.",
+            "schema": {
+              "$ref": "#/definitions/IngestMonitorRequestNotAvailableResponseBody"
+            }
+          }
+        },
+        "schemes": [
+          "http"
+        ],
+        "security": [
+          {
+            "jwt_header_Authorization": []
+          }
+        ],
+        "summary": "monitor_request ingest",
+        "tags": [
+          "ingest"
+        ]
+      }
+    },
+    "/ingest/sips": {
+      "get": {
+        "description": "List all ingested SIPs\n\n**Required security scopes for jwt**:\n  * `ingest:sips:list`",
+        "operationId": "ingest#list_sips",
         "parameters": [
           {
             "in": "query",
@@ -3054,7 +3140,7 @@
           "200": {
             "description": "OK response.",
             "schema": {
-              "$ref": "#/definitions/PackageListResponseBody"
+              "$ref": "#/definitions/IngestListSipsResponseBody"
             }
           },
           "401": {
@@ -3078,102 +3164,16 @@
             "jwt_header_Authorization": []
           }
         ],
-        "summary": "list package",
+        "summary": "list_sips ingest",
         "tags": [
-          "package"
+          "ingest"
         ]
       }
     },
-    "/package/monitor": {
-      "get": {
-        "description": "Obtain access to the /monitor WebSocket",
-        "operationId": "package#monitor",
-        "responses": {
-          "101": {
-            "description": "Switching Protocols response.",
-            "schema": {
-              "$ref": "#/definitions/PackageMonitorResponseBody"
-            }
-          },
-          "401": {
-            "description": "Unauthorized response.",
-            "schema": {
-              "type": "string"
-            }
-          },
-          "403": {
-            "description": "Forbidden response.",
-            "schema": {
-              "type": "string"
-            }
-          },
-          "500": {
-            "description": "Internal Server Error response.",
-            "schema": {
-              "$ref": "#/definitions/PackageMonitorNotAvailableResponseBody"
-            }
-          }
-        },
-        "schemes": [
-          "ws"
-        ],
-        "summary": "monitor package",
-        "tags": [
-          "package"
-        ]
-      },
+    "/ingest/sips/upload": {
       "post": {
-        "description": "Request access to the /monitor WebSocket\n\n**Required security scopes for jwt**:\n  * `package:list`\n  * `package:listActions`\n  * `package:move`\n  * `package:read`\n  * `package:review`\n  * `package:upload`",
-        "operationId": "package#monitor_request",
-        "parameters": [
-          {
-            "in": "header",
-            "name": "Authorization",
-            "required": false,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK response."
-          },
-          "401": {
-            "description": "Unauthorized response.",
-            "schema": {
-              "type": "string"
-            }
-          },
-          "403": {
-            "description": "Forbidden response.",
-            "schema": {
-              "type": "string"
-            }
-          },
-          "500": {
-            "description": "Internal Server Error response.",
-            "schema": {
-              "$ref": "#/definitions/PackageMonitorRequestNotAvailableResponseBody"
-            }
-          }
-        },
-        "schemes": [
-          "http"
-        ],
-        "security": [
-          {
-            "jwt_header_Authorization": []
-          }
-        ],
-        "summary": "monitor_request package",
-        "tags": [
-          "package"
-        ]
-      }
-    },
-    "/package/upload": {
-      "post": {
-        "description": "Upload a package to trigger an ingest workflow\n\n**Required security scopes for jwt**:\n  * `package:upload`",
-        "operationId": "package#upload",
+        "description": "Upload a SIP to trigger an ingest workflow\n\n**Required security scopes for jwt**:\n  * `ingest:sips:upload`",
+        "operationId": "ingest#upload_sip",
         "parameters": [
           {
             "default": "multipart/form-data; boundary=goa",
@@ -3198,7 +3198,7 @@
           "400": {
             "description": "Bad Request response.",
             "schema": {
-              "$ref": "#/definitions/PackageUploadInvalidMultipartRequestResponseBody"
+              "$ref": "#/definitions/IngestUploadSipInvalidMultipartRequestResponseBody"
             }
           },
           "401": {
@@ -3216,7 +3216,7 @@
           "500": {
             "description": "Internal Server Error response.",
             "schema": {
-              "$ref": "#/definitions/PackageUploadInternalErrorResponseBody"
+              "$ref": "#/definitions/IngestUploadSipInternalErrorResponseBody"
             }
           }
         },
@@ -3228,19 +3228,19 @@
             "jwt_header_Authorization": []
           }
         ],
-        "summary": "upload package",
+        "summary": "upload_sip ingest",
         "tags": [
-          "package"
+          "ingest"
         ]
       }
     },
-    "/package/{id}": {
+    "/ingest/sips/{id}": {
       "get": {
-        "description": "Show package by ID\n\n**Required security scopes for jwt**:\n  * `package:read`",
-        "operationId": "package#show",
+        "description": "Show SIP by ID\n\n**Required security scopes for jwt**:\n  * `ingest:sips:read`",
+        "operationId": "ingest#show_sip",
         "parameters": [
           {
-            "description": "Identifier of package to show",
+            "description": "Identifier of SIP to show",
             "in": "path",
             "name": "id",
             "required": true,
@@ -3257,7 +3257,7 @@
           "200": {
             "description": "OK response.",
             "schema": {
-              "$ref": "#/definitions/PackageShowResponseBody"
+              "$ref": "#/definitions/IngestShowSipResponseBody"
             }
           },
           "401": {
@@ -3275,7 +3275,7 @@
           "404": {
             "description": "Not Found response.",
             "schema": {
-              "$ref": "#/definitions/PackageShowNotFoundResponseBody",
+              "$ref": "#/definitions/IngestShowSipNotFoundResponseBody",
               "required": [
                 "message",
                 "id"
@@ -3285,7 +3285,7 @@
           "409": {
             "description": "Conflict response.",
             "schema": {
-              "$ref": "#/definitions/PackageShowNotAvailableResponseBody"
+              "$ref": "#/definitions/IngestShowSipNotAvailableResponseBody"
             }
           }
         },
@@ -3297,19 +3297,19 @@
             "jwt_header_Authorization": []
           }
         ],
-        "summary": "show package",
+        "summary": "show_sip ingest",
         "tags": [
-          "package"
+          "ingest"
         ]
       }
     },
-    "/package/{id}/confirm": {
+    "/ingest/sips/{id}/confirm": {
       "post": {
-        "description": "Signal the package has been reviewed and accepted\n\n**Required security scopes for jwt**:\n  * `package:review`",
-        "operationId": "package#confirm",
+        "description": "Signal the SIP has been reviewed and accepted\n\n**Required security scopes for jwt**:\n  * `ingest:sips:review`",
+        "operationId": "ingest#confirm_sip",
         "parameters": [
           {
-            "description": "Identifier of package to look up",
+            "description": "Identifier of SIP to look up",
             "in": "path",
             "name": "id",
             "required": true,
@@ -3323,10 +3323,10 @@
           },
           {
             "in": "body",
-            "name": "ConfirmRequestBody",
+            "name": "confirm_sip_request_body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/PackageConfirmRequestBody",
+              "$ref": "#/definitions/IngestConfirmSipRequestBody",
               "required": [
                 "location_id"
               ]
@@ -3340,7 +3340,7 @@
           "400": {
             "description": "Bad Request response.",
             "schema": {
-              "$ref": "#/definitions/PackageConfirmNotValidResponseBody"
+              "$ref": "#/definitions/IngestConfirmSipNotValidResponseBody"
             }
           },
           "401": {
@@ -3358,7 +3358,7 @@
           "404": {
             "description": "Not Found response.",
             "schema": {
-              "$ref": "#/definitions/PackageConfirmNotFoundResponseBody",
+              "$ref": "#/definitions/IngestConfirmSipNotFoundResponseBody",
               "required": [
                 "message",
                 "id"
@@ -3368,7 +3368,7 @@
           "409": {
             "description": "Conflict response.",
             "schema": {
-              "$ref": "#/definitions/PackageConfirmNotAvailableResponseBody"
+              "$ref": "#/definitions/IngestConfirmSipNotAvailableResponseBody"
             }
           }
         },
@@ -3380,19 +3380,19 @@
             "jwt_header_Authorization": []
           }
         ],
-        "summary": "confirm package",
+        "summary": "confirm_sip ingest",
         "tags": [
-          "package"
+          "ingest"
         ]
       }
     },
-    "/package/{id}/move": {
+    "/ingest/sips/{id}/move": {
       "get": {
-        "description": "Retrieve the status of a permanent storage location move of the package\n\n**Required security scopes for jwt**:\n  * `package:move`",
-        "operationId": "package#move_status",
+        "description": "Retrieve the status of a permanent storage location move of the SIP\n\n**Required security scopes for jwt**:\n  * `ingest:sips:move`",
+        "operationId": "ingest#move_sip_status",
         "parameters": [
           {
-            "description": "Identifier of package to move",
+            "description": "Identifier of SIP to move",
             "in": "path",
             "name": "id",
             "required": true,
@@ -3409,7 +3409,7 @@
           "200": {
             "description": "OK response.",
             "schema": {
-              "$ref": "#/definitions/PackageMoveStatusResponseBody",
+              "$ref": "#/definitions/IngestMoveSipStatusResponseBody",
               "required": [
                 "done"
               ]
@@ -3430,7 +3430,7 @@
           "404": {
             "description": "Not Found response.",
             "schema": {
-              "$ref": "#/definitions/PackageMoveStatusNotFoundResponseBody",
+              "$ref": "#/definitions/IngestMoveSipStatusNotFoundResponseBody",
               "required": [
                 "message",
                 "id"
@@ -3440,7 +3440,7 @@
           "424": {
             "description": "Failed Dependency response.",
             "schema": {
-              "$ref": "#/definitions/PackageMoveStatusFailedDependencyResponseBody"
+              "$ref": "#/definitions/IngestMoveSipStatusFailedDependencyResponseBody"
             }
           }
         },
@@ -3452,17 +3452,17 @@
             "jwt_header_Authorization": []
           }
         ],
-        "summary": "move_status package",
+        "summary": "move_sip_status ingest",
         "tags": [
-          "package"
+          "ingest"
         ]
       },
       "post": {
-        "description": "Move a package to a permanent storage location\n\n**Required security scopes for jwt**:\n  * `package:move`",
-        "operationId": "package#move",
+        "description": "Move a SIP to a permanent storage location\n\n**Required security scopes for jwt**:\n  * `ingest:sips:move`",
+        "operationId": "ingest#move_sip",
         "parameters": [
           {
-            "description": "Identifier of package to move",
+            "description": "Identifier of SIP to move",
             "in": "path",
             "name": "id",
             "required": true,
@@ -3476,10 +3476,10 @@
           },
           {
             "in": "body",
-            "name": "MoveRequestBody",
+            "name": "move_sip_request_body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/PackageMoveRequestBody",
+              "$ref": "#/definitions/IngestMoveSipRequestBody",
               "required": [
                 "location_id"
               ]
@@ -3493,7 +3493,7 @@
           "400": {
             "description": "Bad Request response.",
             "schema": {
-              "$ref": "#/definitions/PackageMoveNotValidResponseBody"
+              "$ref": "#/definitions/IngestMoveSipNotValidResponseBody"
             }
           },
           "401": {
@@ -3511,7 +3511,7 @@
           "404": {
             "description": "Not Found response.",
             "schema": {
-              "$ref": "#/definitions/PackageMoveNotFoundResponseBody",
+              "$ref": "#/definitions/IngestMoveSipNotFoundResponseBody",
               "required": [
                 "message",
                 "id"
@@ -3521,7 +3521,7 @@
           "409": {
             "description": "Conflict response.",
             "schema": {
-              "$ref": "#/definitions/PackageMoveNotAvailableResponseBody"
+              "$ref": "#/definitions/IngestMoveSipNotAvailableResponseBody"
             }
           }
         },
@@ -3533,19 +3533,19 @@
             "jwt_header_Authorization": []
           }
         ],
-        "summary": "move package",
+        "summary": "move_sip ingest",
         "tags": [
-          "package"
+          "ingest"
         ]
       }
     },
-    "/package/{id}/preservation-actions": {
+    "/ingest/sips/{id}/preservation-actions": {
       "get": {
-        "description": "List all preservation actions by ID\n\n**Required security scopes for jwt**:\n  * `package:listActions`",
-        "operationId": "package#preservation_actions",
+        "description": "List all preservation actions for a SIP\n\n**Required security scopes for jwt**:\n  * `ingest:sips:actions:list`",
+        "operationId": "ingest#list_sip_preservation_actions",
         "parameters": [
           {
-            "description": "Identifier of package to look up",
+            "description": "Identifier of SIP to look up",
             "in": "path",
             "name": "id",
             "required": true,
@@ -3562,7 +3562,7 @@
           "200": {
             "description": "OK response.",
             "schema": {
-              "$ref": "#/definitions/PackagePreservationActionsResponseBody"
+              "$ref": "#/definitions/IngestListSipPreservationActionsResponseBody"
             }
           },
           "401": {
@@ -3580,7 +3580,7 @@
           "404": {
             "description": "Not Found response.",
             "schema": {
-              "$ref": "#/definitions/PackagePreservationActionsNotFoundResponseBody",
+              "$ref": "#/definitions/IngestListSipPreservationActionsNotFoundResponseBody",
               "required": [
                 "message",
                 "id"
@@ -3596,19 +3596,19 @@
             "jwt_header_Authorization": []
           }
         ],
-        "summary": "preservation_actions package",
+        "summary": "list_sip_preservation_actions ingest",
         "tags": [
-          "package"
+          "ingest"
         ]
       }
     },
-    "/package/{id}/reject": {
+    "/ingest/sips/{id}/reject": {
       "post": {
-        "description": "Signal the package has been reviewed and rejected\n\n**Required security scopes for jwt**:\n  * `package:review`",
-        "operationId": "package#reject",
+        "description": "Signal the SIP has been reviewed and rejected\n\n**Required security scopes for jwt**:\n  * `ingest:sips:review`",
+        "operationId": "ingest#reject_sip",
         "parameters": [
           {
-            "description": "Identifier of package to look up",
+            "description": "Identifier of SIP to look up",
             "in": "path",
             "name": "id",
             "required": true,
@@ -3628,7 +3628,7 @@
           "400": {
             "description": "Bad Request response.",
             "schema": {
-              "$ref": "#/definitions/PackageRejectNotValidResponseBody"
+              "$ref": "#/definitions/IngestRejectSipNotValidResponseBody"
             }
           },
           "401": {
@@ -3646,7 +3646,7 @@
           "404": {
             "description": "Not Found response.",
             "schema": {
-              "$ref": "#/definitions/PackageRejectNotFoundResponseBody",
+              "$ref": "#/definitions/IngestRejectSipNotFoundResponseBody",
               "required": [
                 "message",
                 "id"
@@ -3656,7 +3656,7 @@
           "409": {
             "description": "Conflict response.",
             "schema": {
-              "$ref": "#/definitions/PackageRejectNotAvailableResponseBody"
+              "$ref": "#/definitions/IngestRejectSipNotAvailableResponseBody"
             }
           }
         },
@@ -3668,16 +3668,581 @@
             "jwt_header_Authorization": []
           }
         ],
-        "summary": "reject package",
+        "summary": "reject_sip ingest",
         "tags": [
-          "package"
+          "ingest"
         ]
       }
     },
-    "/storage/location": {
+    "/storage/aips": {
+      "post": {
+        "description": "Create a new AIP\n\n**Required security scopes for jwt**:\n  * `storage:aips:create`",
+        "operationId": "storage#create_aip",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "create_aip_request_body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/StorageCreateAipRequestBody",
+              "required": [
+                "uuid",
+                "name",
+                "object_key"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK response.",
+            "schema": {
+              "$ref": "#/definitions/StorageCreateAipResponseBody"
+            }
+          },
+          "400": {
+            "description": "Bad Request response.",
+            "schema": {
+              "$ref": "#/definitions/StorageCreateAipNotValidResponseBody"
+            }
+          },
+          "401": {
+            "description": "Unauthorized response.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "403": {
+            "description": "Forbidden response.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        },
+        "schemes": [
+          "http"
+        ],
+        "security": [
+          {
+            "jwt_header_Authorization": []
+          }
+        ],
+        "summary": "create_aip storage",
+        "tags": [
+          "storage"
+        ]
+      }
+    },
+    "/storage/aips/{uuid}": {
       "get": {
-        "description": "List locations\n\n**Required security scopes for jwt**:\n  * `storage:location:list`",
-        "operationId": "storage#locations",
+        "description": "Show AIP by AIPID\n\n**Required security scopes for jwt**:\n  * `storage:aips:read`",
+        "operationId": "storage#show_aip",
+        "parameters": [
+          {
+            "description": "Identifier of AIP",
+            "format": "uuid",
+            "in": "path",
+            "name": "uuid",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK response.",
+            "schema": {
+              "$ref": "#/definitions/StorageShowAipResponseBody"
+            }
+          },
+          "401": {
+            "description": "Unauthorized response.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "403": {
+            "description": "Forbidden response.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "404": {
+            "description": "Not Found response.",
+            "schema": {
+              "$ref": "#/definitions/StorageShowAipNotFoundResponseBody",
+              "required": [
+                "message",
+                "uuid"
+              ]
+            }
+          }
+        },
+        "schemes": [
+          "http"
+        ],
+        "security": [
+          {
+            "jwt_header_Authorization": []
+          }
+        ],
+        "summary": "show_aip storage",
+        "tags": [
+          "storage"
+        ]
+      }
+    },
+    "/storage/aips/{uuid}/download": {
+      "get": {
+        "description": "Download AIP by AIPID\n\n**Required security scopes for jwt**:\n  * `storage:aips:download`",
+        "operationId": "storage#download_aip",
+        "parameters": [
+          {
+            "description": "Identifier of AIP",
+            "format": "uuid",
+            "in": "path",
+            "name": "uuid",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK response.",
+            "schema": {
+              "format": "byte",
+              "type": "string"
+            }
+          },
+          "401": {
+            "description": "Unauthorized response.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "403": {
+            "description": "Forbidden response.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "404": {
+            "description": "Not Found response.",
+            "schema": {
+              "$ref": "#/definitions/StorageDownloadAipNotFoundResponseBody",
+              "required": [
+                "message",
+                "uuid"
+              ]
+            }
+          }
+        },
+        "schemes": [
+          "http"
+        ],
+        "security": [
+          {
+            "jwt_header_Authorization": []
+          }
+        ],
+        "summary": "download_aip storage",
+        "tags": [
+          "storage"
+        ]
+      }
+    },
+    "/storage/aips/{uuid}/reject": {
+      "post": {
+        "description": "Reject an AIP\n\n**Required security scopes for jwt**:\n  * `storage:aips:review`",
+        "operationId": "storage#reject_aip",
+        "parameters": [
+          {
+            "description": "Identifier of AIP",
+            "format": "uuid",
+            "in": "path",
+            "name": "uuid",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Accepted response."
+          },
+          "400": {
+            "description": "Bad Request response.",
+            "schema": {
+              "$ref": "#/definitions/StorageRejectAipNotValidResponseBody"
+            }
+          },
+          "401": {
+            "description": "Unauthorized response.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "403": {
+            "description": "Forbidden response.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "404": {
+            "description": "Not Found response.",
+            "schema": {
+              "$ref": "#/definitions/StorageRejectAipNotFoundResponseBody",
+              "required": [
+                "message",
+                "uuid"
+              ]
+            }
+          },
+          "409": {
+            "description": "Conflict response.",
+            "schema": {
+              "$ref": "#/definitions/StorageRejectAipNotAvailableResponseBody"
+            }
+          }
+        },
+        "schemes": [
+          "http"
+        ],
+        "security": [
+          {
+            "jwt_header_Authorization": []
+          }
+        ],
+        "summary": "reject_aip storage",
+        "tags": [
+          "storage"
+        ]
+      }
+    },
+    "/storage/aips/{uuid}/store": {
+      "get": {
+        "description": "Retrieve the status of a permanent storage location move of the AIP\n\n**Required security scopes for jwt**:\n  * `storage:aips:move`",
+        "operationId": "storage#move_aip_status",
+        "parameters": [
+          {
+            "description": "Identifier of AIP",
+            "format": "uuid",
+            "in": "path",
+            "name": "uuid",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK response.",
+            "schema": {
+              "$ref": "#/definitions/StorageMoveAipStatusResponseBody",
+              "required": [
+                "done"
+              ]
+            }
+          },
+          "401": {
+            "description": "Unauthorized response.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "403": {
+            "description": "Forbidden response.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "404": {
+            "description": "Not Found response.",
+            "schema": {
+              "$ref": "#/definitions/StorageMoveAipStatusNotFoundResponseBody",
+              "required": [
+                "message",
+                "uuid"
+              ]
+            }
+          },
+          "424": {
+            "description": "Failed Dependency response.",
+            "schema": {
+              "$ref": "#/definitions/StorageMoveAipStatusFailedDependencyResponseBody"
+            }
+          }
+        },
+        "schemes": [
+          "http"
+        ],
+        "security": [
+          {
+            "jwt_header_Authorization": []
+          }
+        ],
+        "summary": "move_aip_status storage",
+        "tags": [
+          "storage"
+        ]
+      },
+      "post": {
+        "description": "Move an AIP to a permanent storage location\n\n**Required security scopes for jwt**:\n  * `storage:aips:move`",
+        "operationId": "storage#move_aip",
+        "parameters": [
+          {
+            "description": "Identifier of AIP",
+            "format": "uuid",
+            "in": "path",
+            "name": "uuid",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "move_aip_request_body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/StorageMoveAipRequestBody",
+              "required": [
+                "location_id"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Accepted response."
+          },
+          "400": {
+            "description": "Bad Request response.",
+            "schema": {
+              "$ref": "#/definitions/StorageMoveAipNotValidResponseBody"
+            }
+          },
+          "401": {
+            "description": "Unauthorized response.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "403": {
+            "description": "Forbidden response.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "404": {
+            "description": "Not Found response.",
+            "schema": {
+              "$ref": "#/definitions/StorageMoveAipNotFoundResponseBody",
+              "required": [
+                "message",
+                "uuid"
+              ]
+            }
+          },
+          "409": {
+            "description": "Conflict response.",
+            "schema": {
+              "$ref": "#/definitions/StorageMoveAipNotAvailableResponseBody"
+            }
+          }
+        },
+        "schemes": [
+          "http"
+        ],
+        "security": [
+          {
+            "jwt_header_Authorization": []
+          }
+        ],
+        "summary": "move_aip storage",
+        "tags": [
+          "storage"
+        ]
+      }
+    },
+    "/storage/aips/{uuid}/submit": {
+      "post": {
+        "description": "Start the submission of an AIP\n\n**Required security scopes for jwt**:\n  * `storage:aips:submit`",
+        "operationId": "storage#submit_aip",
+        "parameters": [
+          {
+            "description": "Identifier of AIP",
+            "format": "uuid",
+            "in": "path",
+            "name": "uuid",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "submit_aip_request_body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/StorageSubmitAipRequestBody",
+              "required": [
+                "name"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Accepted response.",
+            "schema": {
+              "$ref": "#/definitions/StorageSubmitAipResponseBody",
+              "required": [
+                "url"
+              ]
+            }
+          },
+          "400": {
+            "description": "Bad Request response.",
+            "schema": {
+              "$ref": "#/definitions/StorageSubmitAipNotValidResponseBody"
+            }
+          },
+          "401": {
+            "description": "Unauthorized response.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "403": {
+            "description": "Forbidden response.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "409": {
+            "description": "Conflict response.",
+            "schema": {
+              "$ref": "#/definitions/StorageSubmitAipNotAvailableResponseBody"
+            }
+          }
+        },
+        "schemes": [
+          "http"
+        ],
+        "security": [
+          {
+            "jwt_header_Authorization": []
+          }
+        ],
+        "summary": "submit_aip storage",
+        "tags": [
+          "storage"
+        ]
+      }
+    },
+    "/storage/aips/{uuid}/update": {
+      "post": {
+        "description": "Signal that an AIP submission is complete\n\n**Required security scopes for jwt**:\n  * `storage:aips:submit`",
+        "operationId": "storage#update_aip",
+        "parameters": [
+          {
+            "description": "Identifier of AIP",
+            "format": "uuid",
+            "in": "path",
+            "name": "uuid",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Accepted response."
+          },
+          "400": {
+            "description": "Bad Request response.",
+            "schema": {
+              "$ref": "#/definitions/StorageUpdateAipNotValidResponseBody"
+            }
+          },
+          "401": {
+            "description": "Unauthorized response.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "403": {
+            "description": "Forbidden response.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "409": {
+            "description": "Conflict response.",
+            "schema": {
+              "$ref": "#/definitions/StorageUpdateAipNotAvailableResponseBody"
+            }
+          }
+        },
+        "schemes": [
+          "http"
+        ],
+        "security": [
+          {
+            "jwt_header_Authorization": []
+          }
+        ],
+        "summary": "update_aip storage",
+        "tags": [
+          "storage"
+        ]
+      }
+    },
+    "/storage/locations": {
+      "get": {
+        "description": "List locations\n\n**Required security scopes for jwt**:\n  * `storage:locations:list`",
+        "operationId": "storage#list_locations",
         "parameters": [
           {
             "in": "header",
@@ -3714,14 +4279,14 @@
             "jwt_header_Authorization": []
           }
         ],
-        "summary": "locations storage",
+        "summary": "list_locations storage",
         "tags": [
           "storage"
         ]
       },
       "post": {
-        "description": "Create a storage location\n\n**Required security scopes for jwt**:\n  * `storage:location:create`",
-        "operationId": "storage#add_location",
+        "description": "Create a storage location\n\n**Required security scopes for jwt**:\n  * `storage:locations:create`",
+        "operationId": "storage#create_location",
         "parameters": [
           {
             "in": "header",
@@ -3731,10 +4296,10 @@
           },
           {
             "in": "body",
-            "name": "add_location_request_body",
+            "name": "create_location_request_body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/StorageAddLocationRequestBody",
+              "$ref": "#/definitions/StorageCreateLocationRequestBody",
               "required": [
                 "name",
                 "source",
@@ -3747,7 +4312,7 @@
           "201": {
             "description": "Created response.",
             "schema": {
-              "$ref": "#/definitions/StorageAddLocationResponseBody",
+              "$ref": "#/definitions/StorageCreateLocationResponseBody",
               "required": [
                 "uuid"
               ]
@@ -3756,7 +4321,7 @@
           "400": {
             "description": "Bad Request response.",
             "schema": {
-              "$ref": "#/definitions/StorageAddLocationNotValidResponseBody"
+              "$ref": "#/definitions/StorageCreateLocationNotValidResponseBody"
             }
           },
           "401": {
@@ -3780,15 +4345,15 @@
             "jwt_header_Authorization": []
           }
         ],
-        "summary": "add_location storage",
+        "summary": "create_location storage",
         "tags": [
           "storage"
         ]
       }
     },
-    "/storage/location/{uuid}": {
+    "/storage/locations/{uuid}": {
       "get": {
-        "description": "Show location by UUID\n\n**Required security scopes for jwt**:\n  * `storage:location:read`",
+        "description": "Show location by UUID\n\n**Required security scopes for jwt**:\n  * `storage:locations:read`",
         "operationId": "storage#show_location",
         "parameters": [
           {
@@ -3850,10 +4415,10 @@
         ]
       }
     },
-    "/storage/location/{uuid}/packages": {
+    "/storage/locations/{uuid}/aips": {
       "get": {
-        "description": "List all the packages stored in the location with UUID\n\n**Required security scopes for jwt**:\n  * `storage:location:listPackages`",
-        "operationId": "storage#location_packages",
+        "description": "List all the AIPs stored in the location with UUID\n\n**Required security scopes for jwt**:\n  * `storage:locations:aips:list`",
+        "operationId": "storage#list_location_aips",
         "parameters": [
           {
             "description": "Identifier of location",
@@ -3874,13 +4439,13 @@
           "200": {
             "description": "OK response.",
             "schema": {
-              "$ref": "#/definitions/StoragePackageResponseCollection"
+              "$ref": "#/definitions/StorageAIPResponseCollection"
             }
           },
           "400": {
             "description": "Bad Request response.",
             "schema": {
-              "$ref": "#/definitions/StorageLocationPackagesNotValidResponseBody"
+              "$ref": "#/definitions/StorageListLocationAipsNotValidResponseBody"
             }
           },
           "401": {
@@ -3898,7 +4463,7 @@
           "404": {
             "description": "Not Found response.",
             "schema": {
-              "$ref": "#/definitions/StorageLocationPackagesNotFoundResponseBody",
+              "$ref": "#/definitions/StorageListLocationAipsNotFoundResponseBody",
               "required": [
                 "message",
                 "uuid"
@@ -3914,572 +4479,7 @@
             "jwt_header_Authorization": []
           }
         ],
-        "summary": "location_packages storage",
-        "tags": [
-          "storage"
-        ]
-      }
-    },
-    "/storage/package": {
-      "post": {
-        "description": "Create a new package\n\n**Required security scopes for jwt**:\n  * `storage:package:create`",
-        "operationId": "storage#create",
-        "parameters": [
-          {
-            "in": "header",
-            "name": "Authorization",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "in": "body",
-            "name": "CreateRequestBody",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/StorageCreateRequestBody",
-              "required": [
-                "aip_id",
-                "name",
-                "object_key"
-              ]
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK response.",
-            "schema": {
-              "$ref": "#/definitions/StorageCreateResponseBody"
-            }
-          },
-          "400": {
-            "description": "Bad Request response.",
-            "schema": {
-              "$ref": "#/definitions/StorageCreateNotValidResponseBody"
-            }
-          },
-          "401": {
-            "description": "Unauthorized response.",
-            "schema": {
-              "type": "string"
-            }
-          },
-          "403": {
-            "description": "Forbidden response.",
-            "schema": {
-              "type": "string"
-            }
-          }
-        },
-        "schemes": [
-          "http"
-        ],
-        "security": [
-          {
-            "jwt_header_Authorization": []
-          }
-        ],
-        "summary": "create storage",
-        "tags": [
-          "storage"
-        ]
-      }
-    },
-    "/storage/package/{aip_id}": {
-      "get": {
-        "description": "Show package by AIPID\n\n**Required security scopes for jwt**:\n  * `storage:package:read`",
-        "operationId": "storage#show",
-        "parameters": [
-          {
-            "description": "Identifier of AIP",
-            "format": "uuid",
-            "in": "path",
-            "name": "aip_id",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "in": "header",
-            "name": "Authorization",
-            "required": false,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK response.",
-            "schema": {
-              "$ref": "#/definitions/StorageShowResponseBody"
-            }
-          },
-          "401": {
-            "description": "Unauthorized response.",
-            "schema": {
-              "type": "string"
-            }
-          },
-          "403": {
-            "description": "Forbidden response.",
-            "schema": {
-              "type": "string"
-            }
-          },
-          "404": {
-            "description": "Not Found response.",
-            "schema": {
-              "$ref": "#/definitions/StorageShowNotFoundResponseBody",
-              "required": [
-                "message",
-                "aip_id"
-              ]
-            }
-          }
-        },
-        "schemes": [
-          "http"
-        ],
-        "security": [
-          {
-            "jwt_header_Authorization": []
-          }
-        ],
-        "summary": "show storage",
-        "tags": [
-          "storage"
-        ]
-      }
-    },
-    "/storage/package/{aip_id}/download": {
-      "get": {
-        "description": "Download package by AIPID\n\n**Required security scopes for jwt**:\n  * `storage:package:download`",
-        "operationId": "storage#download",
-        "parameters": [
-          {
-            "description": "Identifier of AIP",
-            "format": "uuid",
-            "in": "path",
-            "name": "aip_id",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "in": "header",
-            "name": "Authorization",
-            "required": false,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK response.",
-            "schema": {
-              "format": "byte",
-              "type": "string"
-            }
-          },
-          "401": {
-            "description": "Unauthorized response.",
-            "schema": {
-              "type": "string"
-            }
-          },
-          "403": {
-            "description": "Forbidden response.",
-            "schema": {
-              "type": "string"
-            }
-          },
-          "404": {
-            "description": "Not Found response.",
-            "schema": {
-              "$ref": "#/definitions/StorageDownloadNotFoundResponseBody",
-              "required": [
-                "message",
-                "aip_id"
-              ]
-            }
-          }
-        },
-        "schemes": [
-          "http"
-        ],
-        "security": [
-          {
-            "jwt_header_Authorization": []
-          }
-        ],
-        "summary": "download storage",
-        "tags": [
-          "storage"
-        ]
-      }
-    },
-    "/storage/package/{aip_id}/reject": {
-      "post": {
-        "description": "Reject a package\n\n**Required security scopes for jwt**:\n  * `storage:package:review`",
-        "operationId": "storage#reject",
-        "parameters": [
-          {
-            "description": "Identifier of AIP",
-            "format": "uuid",
-            "in": "path",
-            "name": "aip_id",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "in": "header",
-            "name": "Authorization",
-            "required": false,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "202": {
-            "description": "Accepted response."
-          },
-          "400": {
-            "description": "Bad Request response.",
-            "schema": {
-              "$ref": "#/definitions/StorageRejectNotValidResponseBody"
-            }
-          },
-          "401": {
-            "description": "Unauthorized response.",
-            "schema": {
-              "type": "string"
-            }
-          },
-          "403": {
-            "description": "Forbidden response.",
-            "schema": {
-              "type": "string"
-            }
-          },
-          "404": {
-            "description": "Not Found response.",
-            "schema": {
-              "$ref": "#/definitions/StorageRejectNotFoundResponseBody",
-              "required": [
-                "message",
-                "aip_id"
-              ]
-            }
-          },
-          "409": {
-            "description": "Conflict response.",
-            "schema": {
-              "$ref": "#/definitions/StorageRejectNotAvailableResponseBody"
-            }
-          }
-        },
-        "schemes": [
-          "http"
-        ],
-        "security": [
-          {
-            "jwt_header_Authorization": []
-          }
-        ],
-        "summary": "reject storage",
-        "tags": [
-          "storage"
-        ]
-      }
-    },
-    "/storage/package/{aip_id}/store": {
-      "get": {
-        "description": "Retrieve the status of a permanent storage location move of the package\n\n**Required security scopes for jwt**:\n  * `storage:package:move`",
-        "operationId": "storage#move_status",
-        "parameters": [
-          {
-            "description": "Identifier of AIP",
-            "format": "uuid",
-            "in": "path",
-            "name": "aip_id",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "in": "header",
-            "name": "Authorization",
-            "required": false,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK response.",
-            "schema": {
-              "$ref": "#/definitions/StorageMoveStatusResponseBody",
-              "required": [
-                "done"
-              ]
-            }
-          },
-          "401": {
-            "description": "Unauthorized response.",
-            "schema": {
-              "type": "string"
-            }
-          },
-          "403": {
-            "description": "Forbidden response.",
-            "schema": {
-              "type": "string"
-            }
-          },
-          "404": {
-            "description": "Not Found response.",
-            "schema": {
-              "$ref": "#/definitions/StorageMoveStatusNotFoundResponseBody",
-              "required": [
-                "message",
-                "aip_id"
-              ]
-            }
-          },
-          "424": {
-            "description": "Failed Dependency response.",
-            "schema": {
-              "$ref": "#/definitions/StorageMoveStatusFailedDependencyResponseBody"
-            }
-          }
-        },
-        "schemes": [
-          "http"
-        ],
-        "security": [
-          {
-            "jwt_header_Authorization": []
-          }
-        ],
-        "summary": "move_status storage",
-        "tags": [
-          "storage"
-        ]
-      },
-      "post": {
-        "description": "Move a package to a permanent storage location\n\n**Required security scopes for jwt**:\n  * `storage:package:move`",
-        "operationId": "storage#move",
-        "parameters": [
-          {
-            "description": "Identifier of AIP",
-            "format": "uuid",
-            "in": "path",
-            "name": "aip_id",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "in": "header",
-            "name": "Authorization",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "in": "body",
-            "name": "MoveRequestBody",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/StorageMoveRequestBody",
-              "required": [
-                "location_id"
-              ]
-            }
-          }
-        ],
-        "responses": {
-          "202": {
-            "description": "Accepted response."
-          },
-          "400": {
-            "description": "Bad Request response.",
-            "schema": {
-              "$ref": "#/definitions/StorageMoveNotValidResponseBody"
-            }
-          },
-          "401": {
-            "description": "Unauthorized response.",
-            "schema": {
-              "type": "string"
-            }
-          },
-          "403": {
-            "description": "Forbidden response.",
-            "schema": {
-              "type": "string"
-            }
-          },
-          "404": {
-            "description": "Not Found response.",
-            "schema": {
-              "$ref": "#/definitions/StorageMoveNotFoundResponseBody",
-              "required": [
-                "message",
-                "aip_id"
-              ]
-            }
-          },
-          "409": {
-            "description": "Conflict response.",
-            "schema": {
-              "$ref": "#/definitions/StorageMoveNotAvailableResponseBody"
-            }
-          }
-        },
-        "schemes": [
-          "http"
-        ],
-        "security": [
-          {
-            "jwt_header_Authorization": []
-          }
-        ],
-        "summary": "move storage",
-        "tags": [
-          "storage"
-        ]
-      }
-    },
-    "/storage/package/{aip_id}/submit": {
-      "post": {
-        "description": "Start the submission of a package\n\n**Required security scopes for jwt**:\n  * `storage:package:submit`",
-        "operationId": "storage#submit",
-        "parameters": [
-          {
-            "description": "Identifier of AIP",
-            "format": "uuid",
-            "in": "path",
-            "name": "aip_id",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "in": "header",
-            "name": "Authorization",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "in": "body",
-            "name": "SubmitRequestBody",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/StorageSubmitRequestBody",
-              "required": [
-                "name"
-              ]
-            }
-          }
-        ],
-        "responses": {
-          "202": {
-            "description": "Accepted response.",
-            "schema": {
-              "$ref": "#/definitions/StorageSubmitResponseBody",
-              "required": [
-                "url"
-              ]
-            }
-          },
-          "400": {
-            "description": "Bad Request response.",
-            "schema": {
-              "$ref": "#/definitions/StorageSubmitNotValidResponseBody"
-            }
-          },
-          "401": {
-            "description": "Unauthorized response.",
-            "schema": {
-              "type": "string"
-            }
-          },
-          "403": {
-            "description": "Forbidden response.",
-            "schema": {
-              "type": "string"
-            }
-          },
-          "409": {
-            "description": "Conflict response.",
-            "schema": {
-              "$ref": "#/definitions/StorageSubmitNotAvailableResponseBody"
-            }
-          }
-        },
-        "schemes": [
-          "http"
-        ],
-        "security": [
-          {
-            "jwt_header_Authorization": []
-          }
-        ],
-        "summary": "submit storage",
-        "tags": [
-          "storage"
-        ]
-      }
-    },
-    "/storage/package/{aip_id}/update": {
-      "post": {
-        "description": "Signal that a package submission is complete\n\n**Required security scopes for jwt**:\n  * `storage:package:submit`",
-        "operationId": "storage#update",
-        "parameters": [
-          {
-            "description": "Identifier of AIP",
-            "format": "uuid",
-            "in": "path",
-            "name": "aip_id",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "in": "header",
-            "name": "Authorization",
-            "required": false,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "202": {
-            "description": "Accepted response."
-          },
-          "400": {
-            "description": "Bad Request response.",
-            "schema": {
-              "$ref": "#/definitions/StorageUpdateNotValidResponseBody"
-            }
-          },
-          "401": {
-            "description": "Unauthorized response.",
-            "schema": {
-              "type": "string"
-            }
-          },
-          "403": {
-            "description": "Forbidden response.",
-            "schema": {
-              "type": "string"
-            }
-          },
-          "409": {
-            "description": "Conflict response.",
-            "schema": {
-              "$ref": "#/definitions/StorageUpdateNotAvailableResponseBody"
-            }
-          }
-        },
-        "schemes": [
-          "http"
-        ],
-        "security": [
-          {
-            "jwt_header_Authorization": []
-          }
-        ],
-        "summary": "update storage",
+        "summary": "list_location_aips storage",
         "tags": [
           "storage"
         ]
@@ -4514,7 +4514,7 @@
   ],
   "securityDefinitions": {
     "jwt_header_Authorization": {
-      "description": "Secures endpoint by requiring a valid JWT token.\n\n**Security Scopes**:\n  * `package:list`: no description\n  * `package:listActions`: no description\n  * `package:move`: no description\n  * `package:read`: no description\n  * `package:review`: no description\n  * `package:upload`: no description\n  * `storage:location:create`: no description\n  * `storage:location:list`: no description\n  * `storage:location:listPackages`: no description\n  * `storage:location:read`: no description\n  * `storage:package:create`: no description\n  * `storage:package:download`: no description\n  * `storage:package:move`: no description\n  * `storage:package:read`: no description\n  * `storage:package:review`: no description\n  * `storage:package:submit`: no description",
+      "description": "Secures endpoint by requiring a valid JWT token.\n\n**Security Scopes**:\n  * `ingest:sips:actions:list`: no description\n  * `ingest:sips:list`: no description\n  * `ingest:sips:move`: no description\n  * `ingest:sips:read`: no description\n  * `ingest:sips:review`: no description\n  * `ingest:sips:upload`: no description\n  * `storage:aips:create`: no description\n  * `storage:aips:download`: no description\n  * `storage:aips:move`: no description\n  * `storage:aips:read`: no description\n  * `storage:aips:review`: no description\n  * `storage:aips:submit`: no description\n  * `storage:locations:aips:list`: no description\n  * `storage:locations:create`: no description\n  * `storage:locations:list`: no description\n  * `storage:locations:read`: no description",
       "in": "header",
       "name": "Authorization",
       "type": "apiKey"

@@ -43,10 +43,10 @@ func (m *MockStorage) EXPECT() *MockStorageMockRecorder {
 }
 
 // CreateAIP mocks base method.
-func (m *MockStorage) CreateAIP(arg0 context.Context, arg1 *storage.Package) (*storage.Package, error) {
+func (m *MockStorage) CreateAIP(arg0 context.Context, arg1 *storage.AIP) (*storage.AIP, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateAIP", arg0, arg1)
-	ret0, _ := ret[0].(*storage.Package)
+	ret0, _ := ret[0].(*storage.AIP)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -64,19 +64,19 @@ type MockStorageCreateAIPCall struct {
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockStorageCreateAIPCall) Return(arg0 *storage.Package, arg1 error) *MockStorageCreateAIPCall {
+func (c *MockStorageCreateAIPCall) Return(arg0 *storage.AIP, arg1 error) *MockStorageCreateAIPCall {
 	c.Call = c.Call.Return(arg0, arg1)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockStorageCreateAIPCall) Do(f func(context.Context, *storage.Package) (*storage.Package, error)) *MockStorageCreateAIPCall {
+func (c *MockStorageCreateAIPCall) Do(f func(context.Context, *storage.AIP) (*storage.AIP, error)) *MockStorageCreateAIPCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockStorageCreateAIPCall) DoAndReturn(f func(context.Context, *storage.Package) (*storage.Package, error)) *MockStorageCreateAIPCall {
+func (c *MockStorageCreateAIPCall) DoAndReturn(f func(context.Context, *storage.AIP) (*storage.AIP, error)) *MockStorageCreateAIPCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
@@ -121,10 +121,10 @@ func (c *MockStorageCreateLocationCall) DoAndReturn(f func(context.Context, *sto
 }
 
 // ListAIPs mocks base method.
-func (m *MockStorage) ListAIPs(arg0 context.Context) (storage.PackageCollection, error) {
+func (m *MockStorage) ListAIPs(arg0 context.Context) (storage.AIPCollection, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListAIPs", arg0)
-	ret0, _ := ret[0].(storage.PackageCollection)
+	ret0, _ := ret[0].(storage.AIPCollection)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -142,19 +142,19 @@ type MockStorageListAIPsCall struct {
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockStorageListAIPsCall) Return(arg0 storage.PackageCollection, arg1 error) *MockStorageListAIPsCall {
+func (c *MockStorageListAIPsCall) Return(arg0 storage.AIPCollection, arg1 error) *MockStorageListAIPsCall {
 	c.Call = c.Call.Return(arg0, arg1)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockStorageListAIPsCall) Do(f func(context.Context) (storage.PackageCollection, error)) *MockStorageListAIPsCall {
+func (c *MockStorageListAIPsCall) Do(f func(context.Context) (storage.AIPCollection, error)) *MockStorageListAIPsCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockStorageListAIPsCall) DoAndReturn(f func(context.Context) (storage.PackageCollection, error)) *MockStorageListAIPsCall {
+func (c *MockStorageListAIPsCall) DoAndReturn(f func(context.Context) (storage.AIPCollection, error)) *MockStorageListAIPsCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
@@ -199,10 +199,10 @@ func (c *MockStorageListLocationsCall) DoAndReturn(f func(context.Context) (stor
 }
 
 // LocationAIPs mocks base method.
-func (m *MockStorage) LocationAIPs(arg0 context.Context, arg1 uuid.UUID) (storage.PackageCollection, error) {
+func (m *MockStorage) LocationAIPs(arg0 context.Context, arg1 uuid.UUID) (storage.AIPCollection, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "LocationAIPs", arg0, arg1)
-	ret0, _ := ret[0].(storage.PackageCollection)
+	ret0, _ := ret[0].(storage.AIPCollection)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -220,28 +220,28 @@ type MockStorageLocationAIPsCall struct {
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockStorageLocationAIPsCall) Return(arg0 storage.PackageCollection, arg1 error) *MockStorageLocationAIPsCall {
+func (c *MockStorageLocationAIPsCall) Return(arg0 storage.AIPCollection, arg1 error) *MockStorageLocationAIPsCall {
 	c.Call = c.Call.Return(arg0, arg1)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockStorageLocationAIPsCall) Do(f func(context.Context, uuid.UUID) (storage.PackageCollection, error)) *MockStorageLocationAIPsCall {
+func (c *MockStorageLocationAIPsCall) Do(f func(context.Context, uuid.UUID) (storage.AIPCollection, error)) *MockStorageLocationAIPsCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockStorageLocationAIPsCall) DoAndReturn(f func(context.Context, uuid.UUID) (storage.PackageCollection, error)) *MockStorageLocationAIPsCall {
+func (c *MockStorageLocationAIPsCall) DoAndReturn(f func(context.Context, uuid.UUID) (storage.AIPCollection, error)) *MockStorageLocationAIPsCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
 
 // ReadAIP mocks base method.
-func (m *MockStorage) ReadAIP(arg0 context.Context, arg1 uuid.UUID) (*storage.Package, error) {
+func (m *MockStorage) ReadAIP(arg0 context.Context, arg1 uuid.UUID) (*storage.AIP, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ReadAIP", arg0, arg1)
-	ret0, _ := ret[0].(*storage.Package)
+	ret0, _ := ret[0].(*storage.AIP)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -259,19 +259,19 @@ type MockStorageReadAIPCall struct {
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockStorageReadAIPCall) Return(arg0 *storage.Package, arg1 error) *MockStorageReadAIPCall {
+func (c *MockStorageReadAIPCall) Return(arg0 *storage.AIP, arg1 error) *MockStorageReadAIPCall {
 	c.Call = c.Call.Return(arg0, arg1)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockStorageReadAIPCall) Do(f func(context.Context, uuid.UUID) (*storage.Package, error)) *MockStorageReadAIPCall {
+func (c *MockStorageReadAIPCall) Do(f func(context.Context, uuid.UUID) (*storage.AIP, error)) *MockStorageReadAIPCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockStorageReadAIPCall) DoAndReturn(f func(context.Context, uuid.UUID) (*storage.Package, error)) *MockStorageReadAIPCall {
+func (c *MockStorageReadAIPCall) DoAndReturn(f func(context.Context, uuid.UUID) (*storage.AIP, error)) *MockStorageReadAIPCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

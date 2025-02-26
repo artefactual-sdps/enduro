@@ -16,17 +16,17 @@ import (
 	goa "goa.design/goa/v3/pkg"
 )
 
-// BuildCreatePayload builds the payload for the storage create endpoint from
-// CLI flags.
-func BuildCreatePayload(storageCreateBody string, storageCreateToken string) (*storage.CreatePayload, error) {
+// BuildCreateAipPayload builds the payload for the storage create_aip endpoint
+// from CLI flags.
+func BuildCreateAipPayload(storageCreateAipBody string, storageCreateAipToken string) (*storage.CreateAipPayload, error) {
 	var err error
-	var body CreateRequestBody
+	var body CreateAipRequestBody
 	{
-		err = json.Unmarshal([]byte(storageCreateBody), &body)
+		err = json.Unmarshal([]byte(storageCreateAipBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"aip_id\": \"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\n      \"location_id\": \"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\n      \"name\": \"abc123\",\n      \"object_key\": \"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\n      \"status\": \"in_review\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location_id\": \"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\n      \"name\": \"abc123\",\n      \"object_key\": \"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\n      \"status\": \"in_review\",\n      \"uuid\": \"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"\n   }'")
 		}
-		err = goa.MergeErrors(err, goa.ValidateFormat("body.aip_id", body.AipID, goa.FormatUUID))
+		err = goa.MergeErrors(err, goa.ValidateFormat("body.uuid", body.UUID, goa.FormatUUID))
 		err = goa.MergeErrors(err, goa.ValidateFormat("body.object_key", body.ObjectKey, goa.FormatUUID))
 		if !(body.Status == "unspecified" || body.Status == "in_review" || body.Status == "rejected" || body.Status == "stored" || body.Status == "moving") {
 			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", body.Status, []any{"unspecified", "in_review", "rejected", "stored", "moving"}))
@@ -37,12 +37,12 @@ func BuildCreatePayload(storageCreateBody string, storageCreateToken string) (*s
 	}
 	var token *string
 	{
-		if storageCreateToken != "" {
-			token = &storageCreateToken
+		if storageCreateAipToken != "" {
+			token = &storageCreateAipToken
 		}
 	}
-	v := &storage.CreatePayload{
-		AipID:      body.AipID,
+	v := &storage.CreateAipPayload{
+		UUID:       body.UUID,
 		Name:       body.Name,
 		ObjectKey:  body.ObjectKey,
 		Status:     body.Status,
@@ -59,221 +59,221 @@ func BuildCreatePayload(storageCreateBody string, storageCreateToken string) (*s
 	return v, nil
 }
 
-// BuildSubmitPayload builds the payload for the storage submit endpoint from
-// CLI flags.
-func BuildSubmitPayload(storageSubmitBody string, storageSubmitAipID string, storageSubmitToken string) (*storage.SubmitPayload, error) {
+// BuildSubmitAipPayload builds the payload for the storage submit_aip endpoint
+// from CLI flags.
+func BuildSubmitAipPayload(storageSubmitAipBody string, storageSubmitAipUUID string, storageSubmitAipToken string) (*storage.SubmitAipPayload, error) {
 	var err error
-	var body SubmitRequestBody
+	var body SubmitAipRequestBody
 	{
-		err = json.Unmarshal([]byte(storageSubmitBody), &body)
+		err = json.Unmarshal([]byte(storageSubmitAipBody), &body)
 		if err != nil {
 			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"name\": \"abc123\"\n   }'")
 		}
 	}
-	var aipID string
+	var uuid string
 	{
-		aipID = storageSubmitAipID
-		err = goa.MergeErrors(err, goa.ValidateFormat("aip_id", aipID, goa.FormatUUID))
+		uuid = storageSubmitAipUUID
+		err = goa.MergeErrors(err, goa.ValidateFormat("uuid", uuid, goa.FormatUUID))
 		if err != nil {
 			return nil, err
 		}
 	}
 	var token *string
 	{
-		if storageSubmitToken != "" {
-			token = &storageSubmitToken
+		if storageSubmitAipToken != "" {
+			token = &storageSubmitAipToken
 		}
 	}
-	v := &storage.SubmitPayload{
+	v := &storage.SubmitAipPayload{
 		Name: body.Name,
 	}
-	v.AipID = aipID
+	v.UUID = uuid
 	v.Token = token
 
 	return v, nil
 }
 
-// BuildUpdatePayload builds the payload for the storage update endpoint from
-// CLI flags.
-func BuildUpdatePayload(storageUpdateAipID string, storageUpdateToken string) (*storage.UpdatePayload, error) {
-	var err error
-	var aipID string
-	{
-		aipID = storageUpdateAipID
-		err = goa.MergeErrors(err, goa.ValidateFormat("aip_id", aipID, goa.FormatUUID))
-		if err != nil {
-			return nil, err
-		}
-	}
-	var token *string
-	{
-		if storageUpdateToken != "" {
-			token = &storageUpdateToken
-		}
-	}
-	v := &storage.UpdatePayload{}
-	v.AipID = aipID
-	v.Token = token
-
-	return v, nil
-}
-
-// BuildDownloadPayload builds the payload for the storage download endpoint
+// BuildUpdateAipPayload builds the payload for the storage update_aip endpoint
 // from CLI flags.
-func BuildDownloadPayload(storageDownloadAipID string, storageDownloadToken string) (*storage.DownloadPayload, error) {
+func BuildUpdateAipPayload(storageUpdateAipUUID string, storageUpdateAipToken string) (*storage.UpdateAipPayload, error) {
 	var err error
-	var aipID string
+	var uuid string
 	{
-		aipID = storageDownloadAipID
-		err = goa.MergeErrors(err, goa.ValidateFormat("aip_id", aipID, goa.FormatUUID))
+		uuid = storageUpdateAipUUID
+		err = goa.MergeErrors(err, goa.ValidateFormat("uuid", uuid, goa.FormatUUID))
 		if err != nil {
 			return nil, err
 		}
 	}
 	var token *string
 	{
-		if storageDownloadToken != "" {
-			token = &storageDownloadToken
+		if storageUpdateAipToken != "" {
+			token = &storageUpdateAipToken
 		}
 	}
-	v := &storage.DownloadPayload{}
-	v.AipID = aipID
+	v := &storage.UpdateAipPayload{}
+	v.UUID = uuid
 	v.Token = token
 
 	return v, nil
 }
 
-// BuildMovePayload builds the payload for the storage move endpoint from CLI
-// flags.
-func BuildMovePayload(storageMoveBody string, storageMoveAipID string, storageMoveToken string) (*storage.MovePayload, error) {
+// BuildDownloadAipPayload builds the payload for the storage download_aip
+// endpoint from CLI flags.
+func BuildDownloadAipPayload(storageDownloadAipUUID string, storageDownloadAipToken string) (*storage.DownloadAipPayload, error) {
 	var err error
-	var body MoveRequestBody
+	var uuid string
 	{
-		err = json.Unmarshal([]byte(storageMoveBody), &body)
+		uuid = storageDownloadAipUUID
+		err = goa.MergeErrors(err, goa.ValidateFormat("uuid", uuid, goa.FormatUUID))
+		if err != nil {
+			return nil, err
+		}
+	}
+	var token *string
+	{
+		if storageDownloadAipToken != "" {
+			token = &storageDownloadAipToken
+		}
+	}
+	v := &storage.DownloadAipPayload{}
+	v.UUID = uuid
+	v.Token = token
+
+	return v, nil
+}
+
+// BuildMoveAipPayload builds the payload for the storage move_aip endpoint
+// from CLI flags.
+func BuildMoveAipPayload(storageMoveAipBody string, storageMoveAipUUID string, storageMoveAipToken string) (*storage.MoveAipPayload, error) {
+	var err error
+	var body MoveAipRequestBody
+	{
+		err = json.Unmarshal([]byte(storageMoveAipBody), &body)
 		if err != nil {
 			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location_id\": \"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"\n   }'")
 		}
 	}
-	var aipID string
+	var uuid string
 	{
-		aipID = storageMoveAipID
-		err = goa.MergeErrors(err, goa.ValidateFormat("aip_id", aipID, goa.FormatUUID))
+		uuid = storageMoveAipUUID
+		err = goa.MergeErrors(err, goa.ValidateFormat("uuid", uuid, goa.FormatUUID))
 		if err != nil {
 			return nil, err
 		}
 	}
 	var token *string
 	{
-		if storageMoveToken != "" {
-			token = &storageMoveToken
+		if storageMoveAipToken != "" {
+			token = &storageMoveAipToken
 		}
 	}
-	v := &storage.MovePayload{
+	v := &storage.MoveAipPayload{
 		LocationID: body.LocationID,
 	}
-	v.AipID = aipID
+	v.UUID = uuid
 	v.Token = token
 
 	return v, nil
 }
 
-// BuildMoveStatusPayload builds the payload for the storage move_status
+// BuildMoveAipStatusPayload builds the payload for the storage move_aip_status
 // endpoint from CLI flags.
-func BuildMoveStatusPayload(storageMoveStatusAipID string, storageMoveStatusToken string) (*storage.MoveStatusPayload, error) {
+func BuildMoveAipStatusPayload(storageMoveAipStatusUUID string, storageMoveAipStatusToken string) (*storage.MoveAipStatusPayload, error) {
 	var err error
-	var aipID string
+	var uuid string
 	{
-		aipID = storageMoveStatusAipID
-		err = goa.MergeErrors(err, goa.ValidateFormat("aip_id", aipID, goa.FormatUUID))
+		uuid = storageMoveAipStatusUUID
+		err = goa.MergeErrors(err, goa.ValidateFormat("uuid", uuid, goa.FormatUUID))
 		if err != nil {
 			return nil, err
 		}
 	}
 	var token *string
 	{
-		if storageMoveStatusToken != "" {
-			token = &storageMoveStatusToken
+		if storageMoveAipStatusToken != "" {
+			token = &storageMoveAipStatusToken
 		}
 	}
-	v := &storage.MoveStatusPayload{}
-	v.AipID = aipID
+	v := &storage.MoveAipStatusPayload{}
+	v.UUID = uuid
 	v.Token = token
 
 	return v, nil
 }
 
-// BuildRejectPayload builds the payload for the storage reject endpoint from
-// CLI flags.
-func BuildRejectPayload(storageRejectAipID string, storageRejectToken string) (*storage.RejectPayload, error) {
-	var err error
-	var aipID string
-	{
-		aipID = storageRejectAipID
-		err = goa.MergeErrors(err, goa.ValidateFormat("aip_id", aipID, goa.FormatUUID))
-		if err != nil {
-			return nil, err
-		}
-	}
-	var token *string
-	{
-		if storageRejectToken != "" {
-			token = &storageRejectToken
-		}
-	}
-	v := &storage.RejectPayload{}
-	v.AipID = aipID
-	v.Token = token
-
-	return v, nil
-}
-
-// BuildShowPayload builds the payload for the storage show endpoint from CLI
-// flags.
-func BuildShowPayload(storageShowAipID string, storageShowToken string) (*storage.ShowPayload, error) {
-	var err error
-	var aipID string
-	{
-		aipID = storageShowAipID
-		err = goa.MergeErrors(err, goa.ValidateFormat("aip_id", aipID, goa.FormatUUID))
-		if err != nil {
-			return nil, err
-		}
-	}
-	var token *string
-	{
-		if storageShowToken != "" {
-			token = &storageShowToken
-		}
-	}
-	v := &storage.ShowPayload{}
-	v.AipID = aipID
-	v.Token = token
-
-	return v, nil
-}
-
-// BuildLocationsPayload builds the payload for the storage locations endpoint
+// BuildRejectAipPayload builds the payload for the storage reject_aip endpoint
 // from CLI flags.
-func BuildLocationsPayload(storageLocationsToken string) (*storage.LocationsPayload, error) {
-	var token *string
+func BuildRejectAipPayload(storageRejectAipUUID string, storageRejectAipToken string) (*storage.RejectAipPayload, error) {
+	var err error
+	var uuid string
 	{
-		if storageLocationsToken != "" {
-			token = &storageLocationsToken
+		uuid = storageRejectAipUUID
+		err = goa.MergeErrors(err, goa.ValidateFormat("uuid", uuid, goa.FormatUUID))
+		if err != nil {
+			return nil, err
 		}
 	}
-	v := &storage.LocationsPayload{}
+	var token *string
+	{
+		if storageRejectAipToken != "" {
+			token = &storageRejectAipToken
+		}
+	}
+	v := &storage.RejectAipPayload{}
+	v.UUID = uuid
 	v.Token = token
 
 	return v, nil
 }
 
-// BuildAddLocationPayload builds the payload for the storage add_location
-// endpoint from CLI flags.
-func BuildAddLocationPayload(storageAddLocationBody string, storageAddLocationToken string) (*storage.AddLocationPayload, error) {
+// BuildShowAipPayload builds the payload for the storage show_aip endpoint
+// from CLI flags.
+func BuildShowAipPayload(storageShowAipUUID string, storageShowAipToken string) (*storage.ShowAipPayload, error) {
 	var err error
-	var body AddLocationRequestBody
+	var uuid string
 	{
-		err = json.Unmarshal([]byte(storageAddLocationBody), &body)
+		uuid = storageShowAipUUID
+		err = goa.MergeErrors(err, goa.ValidateFormat("uuid", uuid, goa.FormatUUID))
+		if err != nil {
+			return nil, err
+		}
+	}
+	var token *string
+	{
+		if storageShowAipToken != "" {
+			token = &storageShowAipToken
+		}
+	}
+	v := &storage.ShowAipPayload{}
+	v.UUID = uuid
+	v.Token = token
+
+	return v, nil
+}
+
+// BuildListLocationsPayload builds the payload for the storage list_locations
+// endpoint from CLI flags.
+func BuildListLocationsPayload(storageListLocationsToken string) (*storage.ListLocationsPayload, error) {
+	var token *string
+	{
+		if storageListLocationsToken != "" {
+			token = &storageListLocationsToken
+		}
+	}
+	v := &storage.ListLocationsPayload{}
+	v.Token = token
+
+	return v, nil
+}
+
+// BuildCreateLocationPayload builds the payload for the storage
+// create_location endpoint from CLI flags.
+func BuildCreateLocationPayload(storageCreateLocationBody string, storageCreateLocationToken string) (*storage.CreateLocationPayload, error) {
+	var err error
+	var body CreateLocationRequestBody
+	{
+		err = json.Unmarshal([]byte(storageCreateLocationBody), &body)
 		if err != nil {
 			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"config\": {\n         \"Type\": \"s3\",\n         \"Value\": \"{\\\"bucket\\\":\\\"abc123\\\",\\\"endpoint\\\":\\\"abc123\\\",\\\"key\\\":\\\"abc123\\\",\\\"path_style\\\":false,\\\"profile\\\":\\\"abc123\\\",\\\"region\\\":\\\"abc123\\\",\\\"secret\\\":\\\"abc123\\\",\\\"token\\\":\\\"abc123\\\"}\"\n      },\n      \"description\": \"abc123\",\n      \"name\": \"abc123\",\n      \"purpose\": \"aip_store\",\n      \"source\": \"minio\"\n   }'")
 		}
@@ -294,11 +294,11 @@ func BuildAddLocationPayload(storageAddLocationBody string, storageAddLocationTo
 	}
 	var token *string
 	{
-		if storageAddLocationToken != "" {
-			token = &storageAddLocationToken
+		if storageCreateLocationToken != "" {
+			token = &storageCreateLocationToken
 		}
 	}
-	v := &storage.AddLocationPayload{
+	v := &storage.CreateLocationPayload{
 		Name:        body.Name,
 		Description: body.Description,
 		Source:      body.Source,
@@ -354,13 +354,13 @@ func BuildShowLocationPayload(storageShowLocationUUID string, storageShowLocatio
 	return v, nil
 }
 
-// BuildLocationPackagesPayload builds the payload for the storage
-// location_packages endpoint from CLI flags.
-func BuildLocationPackagesPayload(storageLocationPackagesUUID string, storageLocationPackagesToken string) (*storage.LocationPackagesPayload, error) {
+// BuildListLocationAipsPayload builds the payload for the storage
+// list_location_aips endpoint from CLI flags.
+func BuildListLocationAipsPayload(storageListLocationAipsUUID string, storageListLocationAipsToken string) (*storage.ListLocationAipsPayload, error) {
 	var err error
 	var uuid string
 	{
-		uuid = storageLocationPackagesUUID
+		uuid = storageListLocationAipsUUID
 		err = goa.MergeErrors(err, goa.ValidateFormat("uuid", uuid, goa.FormatUUID))
 		if err != nil {
 			return nil, err
@@ -368,11 +368,11 @@ func BuildLocationPackagesPayload(storageLocationPackagesUUID string, storageLoc
 	}
 	var token *string
 	{
-		if storageLocationPackagesToken != "" {
-			token = &storageLocationPackagesToken
+		if storageListLocationAipsToken != "" {
+			token = &storageListLocationAipsToken
 		}
 	}
-	v := &storage.LocationPackagesPayload{}
+	v := &storage.ListLocationAipsPayload{}
 	v.UUID = uuid
 	v.Token = token
 

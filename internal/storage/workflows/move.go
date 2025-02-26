@@ -22,14 +22,14 @@ func NewStorageMoveWorkflow(storagesvc storage.Service) *StorageMoveWorkflow {
 }
 
 func (w *StorageMoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req storage.StorageMoveWorkflowRequest) error {
-	// Set package status to moving.
+	// Set AIP status to moving.
 	{
-		if err := w.updatePackageStatus(ctx, types.AIPStatusMoving, req.AIPID); err != nil {
+		if err := w.updateAIPStatus(ctx, types.AIPStatusMoving, req.AIPID); err != nil {
 			return err
 		}
 	}
 
-	// Copy package from its current bucket to a new permanent location bucket
+	// Copy AIP from its current bucket to a new permanent location bucket
 	{
 		activityOpts := temporalsdk_workflow.WithActivityOptions(ctx, temporalsdk_workflow.ActivityOptions{
 			StartToCloseTimeout: time.Hour * 2,
@@ -53,7 +53,7 @@ func (w *StorageMoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req stor
 		}
 	}
 
-	// Delete package from its current bucket
+	// Delete AIP from its current bucket
 	{
 
 		activityOpts := temporalsdk_workflow.WithLocalActivityOptions(ctx, temporalsdk_workflow.LocalActivityOptions{
@@ -74,7 +74,7 @@ func (w *StorageMoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req stor
 		}
 	}
 
-	// Update package location
+	// Update AIP location
 	{
 		activityOpts := temporalsdk_workflow.WithLocalActivityOptions(ctx, temporalsdk_workflow.LocalActivityOptions{
 			ScheduleToCloseTimeout: 5 * time.Second,
@@ -85,7 +85,7 @@ func (w *StorageMoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req stor
 				MaximumAttempts:    3,
 			},
 		})
-		err := temporalsdk_workflow.ExecuteLocalActivity(activityOpts, storage.UpdatePackageLocationLocalActivity, w.storagesvc, &storage.UpdatePackageLocationLocalActivityParams{
+		err := temporalsdk_workflow.ExecuteLocalActivity(activityOpts, storage.UpdateAIPLocationLocalActivity, w.storagesvc, &storage.UpdateAIPLocationLocalActivityParams{
 			AIPID:      req.AIPID,
 			LocationID: req.LocationID,
 		}).
@@ -95,9 +95,9 @@ func (w *StorageMoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req stor
 		}
 	}
 
-	// Set package status to stored.
+	// Set AIP status to stored.
 	{
-		if err := w.updatePackageStatus(ctx, types.AIPStatusStored, req.AIPID); err != nil {
+		if err := w.updateAIPStatus(ctx, types.AIPStatusStored, req.AIPID); err != nil {
 			return err
 		}
 	}
@@ -105,7 +105,7 @@ func (w *StorageMoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req stor
 	return nil
 }
 
-func (w *StorageMoveWorkflow) updatePackageStatus(
+func (w *StorageMoveWorkflow) updateAIPStatus(
 	ctx temporalsdk_workflow.Context,
 	st types.AIPStatus,
 	aipID uuid.UUID,
@@ -120,11 +120,11 @@ func (w *StorageMoveWorkflow) updatePackageStatus(
 		},
 	})
 
-	params := &storage.UpdatePackageStatusLocalActivityParams{
+	params := &storage.UpdateAIPStatusLocalActivityParams{
 		AIPID:  aipID,
 		Status: st,
 	}
 
-	return temporalsdk_workflow.ExecuteLocalActivity(activityOpts, storage.UpdatePackageStatusLocalActivity, w.storagesvc, params).
+	return temporalsdk_workflow.ExecuteLocalActivity(activityOpts, storage.UpdateAIPStatusLocalActivity, w.storagesvc, params).
 		Get(activityOpts, nil)
 }
