@@ -56,12 +56,12 @@ func TestDeleteTransferActivity(t *testing.T) {
 				client.EXPECT().
 					Delete(mockutil.Context(), td.Join("missing")).
 					Return(
-						errors.New("SFTP: unable to remove file \"test.txt\": file does not exist"),
+						errors.New("SFTP: unable to remove \"test.txt\": file does not exist"),
 					)
 
 				return client
 			},
-			errMsg: fmt.Sprintf("delete transfer: path: %q: %v", td.Join("missing"), errors.New("SFTP: unable to remove file \"test.txt\": file does not exist")),
+			errMsg: fmt.Sprintf("delete transfer: path: %q: %v", td.Join("missing"), errors.New("SFTP: unable to remove \"test.txt\": file does not exist")),
 		},
 		{
 			name: "Errors when Delete fails",

@@ -31,8 +31,8 @@ func NewGoClient(logger logr.Logger, cfg Config) *GoClient {
 	return &GoClient{cfg: cfg, logger: logger}
 }
 
-// Delete removes the data from dest. A new SFTP connection is opened before
-// removing the file, and closed when the delete is complete.
+// Delete removes the file or directory from dest. A new SFTP connection is
+// opened before removing it, and closed when the delete is complete.
 func (c *GoClient) Delete(ctx context.Context, dest string) error {
 	remotePath := sftp.Join(c.cfg.RemoteDir, dest)
 
@@ -42,8 +42,8 @@ func (c *GoClient) Delete(ctx context.Context, dest string) error {
 	}
 	defer conn.Close()
 
-	if err := conn.Remove(remotePath); err != nil {
-		head := fmt.Sprintf("SFTP: unable to remove file %q", dest)
+	if err := conn.RemoveAll(remotePath); err != nil {
+		head := fmt.Sprintf("SFTP: unable to remove %q", dest)
 		if errors.Is(err, fs.ErrNotExist) || errors.Is(err, fs.ErrPermission) {
 			return fmt.Errorf("%s: %w", head, err)
 		}

@@ -464,7 +464,7 @@ func TestDelete(t *testing.T) {
 				},
 				file: "test.txt",
 			},
-			wantErr: "SFTP: unable to remove file \"test.txt\": file does not exist",
+			wantErr: "SFTP: unable to remove \"test.txt\": file does not exist",
 		},
 		{
 			name: "Errors when there are insufficient permissions",
@@ -477,7 +477,7 @@ func TestDelete(t *testing.T) {
 				restrictDir: "restricted",
 				file:        "restricted/test.txt",
 			},
-			wantErr: "SFTP: unable to remove file \"restricted/test.txt\": permission denied",
+			wantErr: "SFTP: unable to remove \"restricted/test.txt\": permission denied",
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
