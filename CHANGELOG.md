@@ -8,11 +8,25 @@ requests.
 
 ## [Unreleased]
 
+## [0.10.0] - 2025-02-27
+
+### Changed
+
+- Optionally send unzipped bags to Archivematica ([#1136])
+- Update packages search box placeholder and label ([#1130])
+- Replace package tables by sip and aip tables in database schemas ([#1117])
+- Re-design API for ingest and storage ([#1117])
+
+### Added
+
+- Custom date range package filters ([#1102])
+- Make preservation task cards expandable ([#1077])
+
 ## [0.9.0] - 2025-02-13
 
 ### Added
 
-- Add created time package list filter ([#1102])
+- Created time package list filter ([#1102])
 
 ## [0.8.0] - 2025-01-29
 
@@ -80,7 +94,8 @@ requests.
 
 Initial release.
 
-[unreleased]: https://github.com/artefactual-sdps/enduro/compare/v0.9.0...HEAD
+[unreleased]: https://github.com/artefactual-sdps/enduro/compare/v0.10.0...HEAD
+[0.10.0]: https://github.com/artefactual-sdps/enduro/compare/v0.9.0...v0.10.0
 [0.9.0]: https://github.com/artefactual-sdps/enduro/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/artefactual-sdps/enduro/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/artefactual-sdps/enduro/compare/v0.6.0...v0.7.0
@@ -90,6 +105,9 @@ Initial release.
 [0.3.0]: https://github.com/artefactual-sdps/enduro/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/artefactual-sdps/enduro/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/artefactual-sdps/enduro/releases/tag/v0.1.0
+[#1136]: https://github.com/artefactual-sdps/enduro/issues/1136
+[#1130]: https://github.com/artefactual-sdps/enduro/issues/1130
+[#1117]: https://github.com/artefactual-sdps/enduro/issues/1117
 [#1102]: https://github.com/artefactual-sdps/enduro/issues/1102
 [#1101]: https://github.com/artefactual-sdps/enduro/issues/1101
 [#1079]: https://github.com/artefactual-sdps/enduro/issues/1079
