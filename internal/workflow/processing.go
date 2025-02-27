@@ -120,8 +120,8 @@ type TransferInfo struct {
 }
 
 // Send to failed variables used to keep track of the SIP/PIP
-// location, if it requires zipping (a3m PIP) and what activity
-// needs to be called to be uploaded to the expected bucket.
+// location, if it requires zipping and what activity needs
+// to be called to be uploaded to the expected bucket.
 type SendToFailed struct {
 	Path         string
 	ActivityName string
@@ -837,10 +837,6 @@ func (w *ProcessingWorkflow) transferA3m(
 		cleanup.registerPath(bundleResult.FullPath)
 	}
 
-	tinfo.SendToFailed.Path = tinfo.Bundle.FullPath
-	tinfo.SendToFailed.ActivityName = activities.SendToFailedPIPsName
-	tinfo.SendToFailed.NeedsZipping = true
-
 	err := w.validatePREMIS(
 		sessCtx,
 		filepath.Join(tinfo.Bundle.FullPath, "metadata", "premis.xml"),
@@ -849,6 +845,10 @@ func (w *ProcessingWorkflow) transferA3m(
 	if err != nil {
 		return err
 	}
+
+	tinfo.SendToFailed.Path = tinfo.Bundle.FullPath
+	tinfo.SendToFailed.ActivityName = activities.SendToFailedPIPsName
+	tinfo.SendToFailed.NeedsZipping = true
 
 	// Send PIP to a3m for preservation.
 	{
@@ -912,9 +912,12 @@ func (w *ProcessingWorkflow) transferAM(
 		return err
 	}
 
+	tinfo.SendToFailed.Path = tinfo.TempPath
+	tinfo.SendToFailed.ActivityName = activities.SendToFailedPIPsName
+	tinfo.SendToFailed.NeedsZipping = true
+
 	// Zip PIP, if necessary.
 	if w.cfg.AM.ZipPIP {
-		// Zip PIP.
 		activityOpts := withActivityOptsForLocalAction(ctx)
 		var zipResult archivezip.Result
 		err = temporalsdk_workflow.ExecuteActivity(
@@ -927,7 +930,7 @@ func (w *ProcessingWorkflow) transferAM(
 		}
 
 		tinfo.SendToFailed.Path = zipResult.Path
-		tinfo.SendToFailed.ActivityName = activities.SendToFailedPIPsName
+		tinfo.SendToFailed.NeedsZipping = false
 		tinfo.TempPath = zipResult.Path
 
 		cleanup.registerPath(zipResult.Path)
