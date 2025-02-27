@@ -86,7 +86,6 @@ func Read(config *Configuration, configFile string) (found bool, configFileUsed 
 	v.SetDefault("a3m.processing", a3m.ProcessingDefault)
 	v.SetDefault("am.capacity", 1)
 	v.SetDefault("am.pollInterval", 10*time.Second)
-	v.SetDefault("am.zipPIP", true)
 	v.SetDefault("api.listen", "127.0.0.1:9000")
 	v.SetDefault("debugListen", "127.0.0.1:9001")
 	v.SetDefault("preservation.taskqueue", temporal.A3mWorkerTaskQueue)
