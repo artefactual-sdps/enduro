@@ -1,4 +1,4 @@
-import { flushPromises, mount } from "@vue/test-utils";
+import { mount } from "@vue/test-utils";
 import VueDatePicker from "@vuepic/vue-datepicker";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -88,5 +88,28 @@ describe("TimeDropdown.vue", () => {
     expect(wrapper.emitted("change")).toEqual([
       ["createdAt", "2025-01-01T12:00:00Z", ""],
     ]);
+  });
+});
+
+describe("TimeDropdown.vue initialized with start and end times", () => {
+  it("initializes with correct default values", async () => {
+    const wrapper = mount(TimeDropdown, {
+      props: {
+        name: "createdAt",
+        label: "Started",
+        start: new Date("2025-01-01T00:00:00Z"),
+        end: new Date("2025-01-31T23:59:59Z"),
+      },
+    });
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.find(".dropdown-toggle").text()).toBe("Started: Custom");
+
+    const start = wrapper.find("#tdd-createdAt-start input");
+    const end = wrapper.find("#tdd-createdAt-end input");
+
+    // Local times are offset -6 hours from UTC times.
+    expect(start.element.getAttribute("value")).toEqual("12/31/2024, 18:00");
+    expect(end.element.getAttribute("value")).toEqual("01/31/2025, 17:59");
   });
 });

@@ -28,7 +28,9 @@ const options: option[] = [
 
 const props = defineProps<{
   name: string;
-  label: string;
+  label?: string;
+  start?: Date;
+  end?: Date;
 }>();
 
 const el = ref<HTMLElement | null>(null);
@@ -41,6 +43,14 @@ const endTime = ref<Date | null>(null);
 
 onMounted(() => {
   if (el.value) dropdown.value = new Dropdown(el.value);
+  if (props.start) {
+    startTime.value = props.start;
+    btnLabel.value = defaultLabel + ": Custom";
+  }
+  if (props.end) {
+    endTime.value = props.end;
+    btnLabel.value = defaultLabel + ": Custom";
+  }
 });
 
 watch(selectedPreset, async (newValue) => {
