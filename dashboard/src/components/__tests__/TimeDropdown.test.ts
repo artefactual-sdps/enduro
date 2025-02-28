@@ -1,14 +1,22 @@
 import { mount } from "@vue/test-utils";
 import VueDatePicker from "@vuepic/vue-datepicker";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { nextTick } from "vue";
 
 import TimeDropdown from "../TimeDropdown.vue";
 
 describe("TimeDropdown.vue", () => {
   let wrapper: ReturnType<typeof mount>;
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    // set the test time to noon on 2025-01-01 (UTC).
     vi.useFakeTimers();
+    const date = new Date(Date.UTC(2025, 0, 1, 12, 0, 0));
+
+    // setSystemTime must be called before mounting the component or *bad*
+    // things happen.
+    vi.setSystemTime(date);
+
     wrapper = mount(TimeDropdown, {
       attachTo: document.body,
       props: {
@@ -35,11 +43,7 @@ describe("TimeDropdown.vue", () => {
     ["3d", "2024-12-29T12:00:00Z"], // Last 3 days.
     ["7d", "2024-12-25T12:00:00Z"], // Last 7 days.
   ])("emits the correct event when a date is selected", async (value, want) => {
-    // set the test time to noon on 2025-01-01 (UTC).
-    const date = new Date(Date.UTC(2025, 0, 1, 12, 0, 0));
-    vi.setSystemTime(date);
-
-    await wrapper.find("select").setValue(value);
+    await wrapper.find("#tdd-createdAt-preset").setValue(value);
 
     expect(wrapper.emitted("change")).toEqual([["createdAt", want, ""]]);
   });
@@ -56,37 +60,70 @@ describe("TimeDropdown.vue", () => {
     async (value, want) => {
       const button = wrapper.find("button");
 
-      await wrapper.find("select").setValue(value);
+      await wrapper.find("#tdd-createdAt-preset").setValue(value);
 
       expect(button.text()).toBe(want);
     },
   );
 
-  it("clears all values when the clear button is clicked", async () => {
-    const button = wrapper.find("button");
-    const clearButton = wrapper.find("button[type='reset']");
+  it("clears all values when the reset button is clicked", async () => {
+    const toggleBtn = wrapper.find("button");
+    const preset = wrapper.find("#tdd-createdAt-preset");
+    const reset = wrapper.find("#tdd-createdAt-reset");
 
-    await clearButton.trigger("click");
+    expect(reset.isVisible()).toBe(false);
 
-    expect(button.text()).toBe("Started");
-    expect(wrapper.emitted("change")).toEqual([["createdAt", "", ""]]);
+    await preset.setValue("3h");
+
+    expect(toggleBtn.text()).toBe("Started: 3h");
+    expect(reset.isVisible()).toBe(true);
+
+    await reset.trigger("click");
+
+    expect(toggleBtn.text()).toBe("Started");
+    expect(preset.element.getAttribute("value")).toBe(null);
+
+    const changeEmitted = wrapper.emitted("change");
+    if (changeEmitted === undefined) {
+      throw new Error("change event was not emitted");
+    } else {
+      expect(changeEmitted.length).toBe(2);
+      expect(changeEmitted[1]).toEqual(["createdAt", "", ""]);
+    }
   });
 
-  it("emits the correct event when a custom date is selected", async () => {
+  it("emits the correct event when a custom start date is selected", async () => {
     const button = wrapper.find("button");
     const datePicker = wrapper.findComponent<typeof VueDatePicker>(
-      '[data-test="startTime"]',
+      "#tdd-createdAt-start",
     );
 
     datePicker.vm.$emit(
       "update:model-value",
       new Date(Date.UTC(2025, 0, 1, 12, 0, 0)),
     );
-    await datePicker.vm.$nextTick();
+    await nextTick();
 
     expect(button.text()).toBe("Started: Custom");
     expect(wrapper.emitted("change")).toEqual([
       ["createdAt", "2025-01-01T12:00:00Z", ""],
+    ]);
+  });
+
+  it("emits the correct event when a custom end date is selected", async () => {
+    const button = wrapper.find("button");
+    const datePicker =
+      wrapper.findComponent<typeof VueDatePicker>("#tdd-createdAt-end");
+
+    datePicker.vm.$emit(
+      "update:model-value",
+      new Date(Date.UTC(2025, 0, 1, 12, 0, 0)),
+    );
+    await nextTick();
+
+    expect(button.text()).toBe("Started: Custom");
+    expect(wrapper.emitted("change")).toEqual([
+      ["createdAt", "", "2025-01-01T12:00:00Z"],
     ]);
   });
 });
@@ -101,7 +138,7 @@ describe("TimeDropdown.vue initialized with start and end times", () => {
         end: new Date("2025-01-31T23:59:59Z"),
       },
     });
-    await wrapper.vm.$nextTick();
+    await nextTick();
 
     expect(wrapper.find(".dropdown-toggle").text()).toBe("Started: Custom");
 

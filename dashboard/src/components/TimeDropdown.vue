@@ -153,11 +153,11 @@ const earliestTimeFromOption = (value: string) => {
       {{ btnLabel }}
     </button>
     <button
-      :id="'tdd-' + props.name + '-clear'"
-      @click="reset"
+      :id="'tdd-' + props.name + '-reset'"
+      @click="reset()"
       class="btn btn-secondary"
       type="reset"
-      aria-label="Clear time filter"
+      aria-label="Reset time filter"
       v-show="startTime !== null || endTime !== null"
     >
       <IconCloseLine />
@@ -190,7 +190,6 @@ const earliestTimeFromOption = (value: string) => {
           :id="'tdd-' + props.name + '-start'"
           :name="'tdd-' + props.name + '-start-input'"
           v-model="startTime"
-          data-test="startTime"
           placeholder="Start time"
           @update:model-value="handleStartChange"
         />
