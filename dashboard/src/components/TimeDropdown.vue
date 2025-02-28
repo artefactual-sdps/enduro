@@ -28,7 +28,9 @@ const options: option[] = [
 
 const props = defineProps<{
   name: string;
-  label: string;
+  label?: string;
+  start?: Date;
+  end?: Date;
 }>();
 
 const el = ref<HTMLElement | null>(null);
@@ -41,6 +43,14 @@ const endTime = ref<Date | null>(null);
 
 onMounted(() => {
   if (el.value) dropdown.value = new Dropdown(el.value);
+  if (props.start) {
+    startTime.value = props.start;
+    btnLabel.value = defaultLabel + ": Custom";
+  }
+  if (props.end) {
+    endTime.value = props.end;
+    btnLabel.value = defaultLabel + ": Custom";
+  }
 });
 
 watch(selectedPreset, async (newValue) => {
@@ -143,11 +153,11 @@ const earliestTimeFromOption = (value: string) => {
       {{ btnLabel }}
     </button>
     <button
-      :id="'tdd-' + props.name + '-clear'"
-      @click="reset"
+      :id="'tdd-' + props.name + '-reset'"
+      @click="reset()"
       class="btn btn-secondary"
       type="reset"
-      aria-label="Clear time filter"
+      aria-label="Reset time filter"
       v-show="startTime !== null || endTime !== null"
     >
       <IconCloseLine />
@@ -180,7 +190,6 @@ const earliestTimeFromOption = (value: string) => {
           :id="'tdd-' + props.name + '-start'"
           :name="'tdd-' + props.name + '-start-input'"
           v-model="startTime"
-          data-test="startTime"
           placeholder="Start time"
           @update:model-value="handleStartChange"
         />

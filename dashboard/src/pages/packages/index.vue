@@ -260,6 +260,8 @@ watch(
         <TimeDropdown
           name="createdAt"
           label="Started"
+          :start="packageStore.filters.earliestCreatedTime"
+          :end="packageStore.filters.latestCreatedTime"
           @change="
             (
               name: string,
