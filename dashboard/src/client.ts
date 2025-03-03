@@ -27,7 +27,7 @@ function getPath(): string {
 function storageServiceDownloadURL(aipId: string): string {
   return (
     getPath() +
-    `/storage/aip/{aip_id}/download`.replace(
+    `/storage/aips/{aip_id}/download`.replace(
       `{${"aip_id"}}`,
       encodeURIComponent(aipId),
     )
