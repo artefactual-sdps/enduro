@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, watch } from "vue";
 
 import UUID from "@/components/UUID.vue";
+import { storageServiceDownloadURL } from "@/client";
 import { openPackageLocationDialog } from "@/dialogs";
 import { useAuthStore } from "@/stores/auth";
 import { useIngestStore } from "@/stores/ingest";
@@ -22,6 +23,14 @@ const choose = async () => {
     failed.value = true;
   }
 };
+
+const download = () => {
+  if (!ingestStore.currentSip?.aipId) return;
+  const url = storageServiceDownloadURL(ingestStore.currentSip.aipId);
+  window.open(url, "_blank");
+};
+
+watch(ingestStore.ui.download, () => download());
 </script>
 
 <template>
@@ -41,14 +50,12 @@ const choose = async () => {
         >
         <span v-else><UUID :id="ingestStore.currentSip.locationId" /></span>
       </p>
-      <div
-        class="actions"
-        v-if="
-          !ingestStore.isRejected &&
-          authStore.checkAttributes(['ingest:sips:move'])
-        "
-      >
+      <div class="d-flex flex-wrap gap-2">
         <button
+          v-if="
+            !ingestStore.isRejected &&
+            authStore.checkAttributes(['ingest:sips:move'])
+          "
           type="button"
           class="btn btn-primary btn-sm"
           @click="choose"
@@ -63,6 +70,18 @@ const choose = async () => {
             Moving...
           </template>
           <template v-else>Choose storage location</template>
+        </button>
+        <button
+          v-if="
+            ingestStore.currentSip?.aipId?.length &&
+            authStore.checkAttributes(['storage:aips:download'])
+          "
+          type="button"
+          class="btn btn-primary btn-sm"
+          @click="download"
+          :disabled="ingestStore.isMoving"
+        >
+          Download
         </button>
       </div>
     </div>
