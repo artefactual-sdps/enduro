@@ -4,14 +4,14 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { nextTick } from "vue";
 
 import { api } from "@/client";
-import PackageLocationCard from "@/components/PackageLocationCard.vue";
+import AipLocationCard from "@/components/AipLocationCard.vue";
 import { useIngestStore } from "@/stores/ingest";
 
-describe("PackageLocationCard.vue", () => {
+describe("AipLocationCard.vue", () => {
   afterEach(() => cleanup());
 
   it("renders when the package is stored", async () => {
-    const { html } = render(PackageLocationCard, {
+    const { html } = render(AipLocationCard, {
       global: {
         plugins: [
           createTestingPinia({
@@ -49,7 +49,7 @@ describe("PackageLocationCard.vue", () => {
   });
 
   it("renders without move button based on auth attributes", async () => {
-    const { html } = render(PackageLocationCard, {
+    const { html } = render(AipLocationCard, {
       global: {
         plugins: [
           createTestingPinia({
@@ -92,7 +92,7 @@ describe("PackageLocationCard.vue", () => {
   });
 
   it("renders when the package location is moved", async () => {
-    const { getByText } = render(PackageLocationCard, {
+    const { getByText } = render(AipLocationCard, {
       global: {
         plugins: [
           createTestingPinia({
@@ -138,7 +138,7 @@ describe("PackageLocationCard.vue", () => {
   });
 
   it("renders when the package location is not available", async () => {
-    const { html } = render(PackageLocationCard, {
+    const { html } = render(AipLocationCard, {
       global: {
         plugins: [
           createTestingPinia({
@@ -171,7 +171,7 @@ describe("PackageLocationCard.vue", () => {
   });
 
   it("renders when the package is rejected", async () => {
-    const { html } = render(PackageLocationCard, {
+    const { html } = render(AipLocationCard, {
       global: {
         plugins: [
           createTestingPinia({
@@ -206,7 +206,7 @@ describe("PackageLocationCard.vue", () => {
   });
 
   it("renders when the package is moving", async () => {
-    const { html } = render(PackageLocationCard, {
+    const { html } = render(AipLocationCard, {
       global: {
         plugins: [
           createTestingPinia({
@@ -244,7 +244,7 @@ describe("PackageLocationCard.vue", () => {
   });
 
   it("watches download requests from the store", async () => {
-    render(PackageLocationCard, {
+    render(AipLocationCard, {
       global: {
         plugins: [
           createTestingPinia({
@@ -277,7 +277,7 @@ describe("PackageLocationCard.vue", () => {
   });
 
   it("shows the download button", async () => {
-    const { getByRole } = render(PackageLocationCard, {
+    const { getByRole } = render(AipLocationCard, {
       global: {
         plugins: [
           createTestingPinia({
@@ -299,7 +299,7 @@ describe("PackageLocationCard.vue", () => {
   });
 
   it("hides the download button", async () => {
-    const { queryByRole } = render(PackageLocationCard, {
+    const { queryByRole } = render(AipLocationCard, {
       global: {
         plugins: [
           createTestingPinia({

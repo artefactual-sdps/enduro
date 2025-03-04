@@ -2,7 +2,7 @@
 import { computed } from "vue";
 
 import { api } from "@/client";
-import PackageLocationCard from "@/components/PackageLocationCard.vue";
+import AipLocationCard from "@/components/AipLocationCard.vue";
 import PreservationActionCollapse from "@/components/PreservationActionCollapse.vue";
 import StatusBadge from "@/components/StatusBadge.vue";
 import UUID from "@/components/UUID.vue";
@@ -64,7 +64,7 @@ const createAipWorkflow = computed(
         </dl>
       </div>
       <div class="col-md-6">
-        <PackageLocationCard />
+        <AipLocationCard />
       </div>
     </div>
 
