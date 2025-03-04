@@ -29,15 +29,15 @@ export const useIngestStore = defineStore("ingest", {
     // Preservation actions of the current SIP.
     currentPreservationActions: null as api.SIPPreservationActions | null,
 
-    // The current package is being moved into a new location.
-    // Set to true by this client when the package is moved.
-    // Set to false by moveStatus or handlePackageLocationUpdated.
+    // The current SIP is being moved into a new location.
+    // Set to true by this client when the SIP is moved.
+    // Set to false by moveStatus or handleSipLocationUpdated.
     locationChanging: false,
 
-    // A list of packages shown during searches.
+    // A list of SIPs shown during searches.
     sips: [] as Array<api.EnduroIngestSip>,
 
-    // Page is a subset of the total package list.
+    // Page is a subset of the total SIP list.
     page: { limit: 20 } as api.EnduroPage,
 
     // Pager contains a list of pages numbers to show in the pager.
@@ -123,12 +123,12 @@ export const useIngestStore = defineStore("ingest", {
       handlers[event.type](value);
     },
     async fetchCurrentSip(id: string) {
-      const packageId = +id;
-      if (Number.isNaN(packageId)) {
+      const sipId = +id;
+      if (Number.isNaN(sipId)) {
         throw Error("Unexpected parameter");
       }
 
-      this.currentSip = await client.ingest.ingestShowSip({ id: packageId });
+      this.currentSip = await client.ingest.ingestShowSip({ id: sipId });
 
       // Update breadcrumb. TODO: should this be done in the component?
       const layoutStore = useLayoutStore();
@@ -141,11 +141,11 @@ export const useIngestStore = defineStore("ingest", {
 
       await Promise.allSettled([
         client.ingest
-          .ingestListSipPreservationActions({ id: packageId })
+          .ingestListSipPreservationActions({ id: sipId })
           .then((resp) => {
             this.currentPreservationActions = resp;
           }),
-        client.ingest.ingestMoveSipStatus({ id: packageId }).then((resp) => {
+        client.ingest.ingestMoveSipStatus({ id: sipId }).then((resp) => {
           this.locationChanging = !resp.done;
         }),
       ]);
@@ -315,7 +315,7 @@ function handlePreservationActionCreated(data: unknown) {
   const event = api.SIPPreservationActionCreatedEventFromJSON(data);
   const store = useIngestStore();
 
-  // Ignore event if it does not relate to the current package.
+  // Ignore event if it does not relate to the current SIP.
   if (store.currentSip?.id != event.item.sipId) return;
 
   // Append the action.
@@ -326,7 +326,7 @@ function handlePreservationActionUpdated(data: unknown) {
   const event = api.SIPPreservationActionUpdatedEventFromJSON(data);
   const store = useIngestStore();
 
-  // Ignore event if it does not relate to the current package.
+  // Ignore event if it does not relate to the current SIP.
   if (store.currentSip?.id != event.item.sipId) return;
 
   // Find and update the action.

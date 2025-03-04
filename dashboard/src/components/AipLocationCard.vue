@@ -40,11 +40,11 @@ watch(ingestStore.ui.download, () => download());
         Move operation failed, try again!
       </div>
       <div v-if="ingestStore.isMoving" class="alert alert-info" role="alert">
-        The package is being moved into a new location.
+        The AIP is being moved into a new location.
       </div>
       <h4 class="card-title">Location</h4>
       <p class="card-text">
-        <span v-if="ingestStore.isRejected">Package rejected.</span>
+        <span v-if="ingestStore.isRejected">AIP rejected.</span>
         <span v-else-if="!ingestStore.currentSip?.locationId"
           >Not available yet.</span
         >

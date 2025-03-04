@@ -9,7 +9,7 @@ export interface Client {
   about: api.AboutApi;
   ingest: api.IngestApi;
   storage: api.StorageApi;
-  connectPackageMonitor: () => void;
+  connectIngestMonitor: () => void;
 }
 
 function getPath(): string {
@@ -46,7 +46,7 @@ function getWebSocketURL(): string {
   return url;
 }
 
-function connectPackageMonitor() {
+function connectIngestMonitor() {
   const ingestStore = useIngestStore();
   const url = getWebSocketURL() + "/ingest/monitor";
   const socket = new WebSocket(url);
@@ -81,7 +81,7 @@ function createClient(): Client {
     about: new api.AboutApi(config),
     ingest: new api.IngestApi(config),
     storage: new api.StorageApi(config),
-    connectPackageMonitor,
+    connectIngestMonitor: connectIngestMonitor,
   };
 }
 

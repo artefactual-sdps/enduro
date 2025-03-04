@@ -10,7 +10,7 @@ import { useIngestStore } from "@/stores/ingest";
 describe("AipLocationCard.vue", () => {
   afterEach(() => cleanup());
 
-  it("renders when the package is stored", async () => {
+  it("renders when the AIP is stored", async () => {
     const { html } = render(AipLocationCard, {
       global: {
         plugins: [
@@ -91,7 +91,7 @@ describe("AipLocationCard.vue", () => {
     `);
   });
 
-  it("renders when the package location is moved", async () => {
+  it("renders when the AIP location is moved", async () => {
     const { getByText } = render(AipLocationCard, {
       global: {
         plugins: [
@@ -134,10 +134,10 @@ describe("AipLocationCard.vue", () => {
     const button = getByText("Choose storage location");
     await fireEvent.click(button);
 
-    getByText("The package is being moved into a new location.");
+    getByText("The AIP is being moved into a new location.");
   });
 
-  it("renders when the package location is not available", async () => {
+  it("renders when the AIP location is not available", async () => {
     const { html } = render(AipLocationCard, {
       global: {
         plugins: [
@@ -170,7 +170,7 @@ describe("AipLocationCard.vue", () => {
     `);
   });
 
-  it("renders when the package is rejected", async () => {
+  it("renders when the AIP is rejected", async () => {
     const { html } = render(AipLocationCard, {
       global: {
         plugins: [
@@ -195,7 +195,7 @@ describe("AipLocationCard.vue", () => {
           <!--v-if-->
           <!--v-if-->
           <h4 class="card-title">Location</h4>
-          <p class="card-text"><span>Package rejected.</span></p>
+          <p class="card-text"><span>AIP rejected.</span></p>
           <div class="d-flex flex-wrap gap-2">
             <!--v-if-->
             <!--v-if-->
@@ -205,7 +205,7 @@ describe("AipLocationCard.vue", () => {
     `);
   });
 
-  it("renders when the package is moving", async () => {
+  it("renders when the AIP is moving", async () => {
     const { html } = render(AipLocationCard, {
       global: {
         plugins: [

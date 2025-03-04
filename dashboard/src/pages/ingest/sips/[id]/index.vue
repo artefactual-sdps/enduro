@@ -93,8 +93,8 @@ const createAipWorkflow = computed(
           <div>
             <p>
               A preservation action is a <strong>workflow</strong> composed of
-              one or more <strong>tasks</strong> performed on a package to
-              support preservation.
+              one or more <strong>tasks</strong> performed on a SIP to support
+              preservation.
             </p>
             <p>
               Click on a preservation action listed below to expand it and see

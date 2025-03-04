@@ -221,7 +221,7 @@ watch(
 
     <div class="d-flex flex-wrap gap-3 mb-3">
       <div>
-        <form id="packageSearch" @submit.prevent="doSearch">
+        <form id="sipSearch" @submit.prevent="doSearch">
           <div class="input-group">
             <input
               type="text"
@@ -293,9 +293,7 @@ watch(
                   data-bs-title="Toggle legend"
                 >
                   <IconInfo style="font-size: 1.2em" aria-hidden="true" />
-                  <span class="visually-hidden"
-                    >Toggle package status legend</span
-                  >
+                  <span class="visually-hidden">Toggle SIP status legend</span>
                 </button>
               </span>
             </th>
@@ -419,7 +417,7 @@ watch(
         </ul>
       </nav>
       <div class="text-muted mb-3 text-center">
-        Showing packages {{ ingestStore.page.offset + 1 }} -
+        Showing SIPs {{ ingestStore.page.offset + 1 }} -
         {{ ingestStore.lastResultOnPage }} of
         {{ ingestStore.page.total }}
       </div>

@@ -32,11 +32,11 @@ const { execute, error } = useAsyncState(() => {
       <table class="table table-bordered mb-0">
         <thead>
           <tr>
-            <th scope="col" class="text-nowrap">Location name</th>
+            <th scope="col" class="text-nowrap">Name</th>
             <th scope="col">Source</th>
             <th scope="col">Purpose</th>
             <th scope="col">Capacity</th>
-            <th scope="col">Packages</th>
+            <th scope="col">AIPs</th>
             <th scope="col">UUID</th>
           </tr>
         </thead>
