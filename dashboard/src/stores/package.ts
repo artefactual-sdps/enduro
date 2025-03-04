@@ -4,11 +4,14 @@ import { ref } from "vue";
 
 import { api, client } from "@/client";
 import {
-  MonitorEventEventTypeEnum,
   IngestListSipsStatusEnum,
+  MonitorEventEventTypeEnum,
+  ResponseError,
 } from "@/openapi-generator";
 import router from "@/router";
 import { useLayoutStore } from "@/stores/layout";
+
+const defaultPageSize = 20;
 
 export interface Pager {
   // maxPages is the maximum number of page links to show in the pager.
@@ -38,7 +41,7 @@ export const usePackageStore = defineStore("package", {
     packages: [] as Array<api.EnduroIngestSip>,
 
     // Page is a subset of the total package list.
-    page: { limit: 20 } as api.EnduroPage,
+    page: { limit: defaultPageSize } as api.EnduroPage,
 
     // Pager contains a list of pages numbers to show in the pager.
     pager: { maxPages: 7 } as Pager,
@@ -150,14 +153,32 @@ export const usePackageStore = defineStore("package", {
       ]);
     },
     async fetchPackages(page: number) {
-      const resp = await client.ingest.ingestListSips({
-        offset: page > 1 ? (page - 1) * this.page.limit : undefined,
-        limit: this.page?.limit || undefined,
-        status: this.filters.status ?? undefined,
-        name: this.filters.name ?? undefined,
-        earliestCreatedTime: this.filters.earliestCreatedTime,
-        latestCreatedTime: this.filters.latestCreatedTime,
-      });
+      let resp = <api.SIPs>{};
+      try {
+        resp = await client.ingest.ingestListSips({
+          offset: page > 1 ? (page - 1) * this.page.limit : undefined,
+          limit: this.page?.limit || undefined,
+          status: this.filters.status ?? undefined,
+          name: this.filters.name ?? undefined,
+          earliestCreatedTime: this.filters.earliestCreatedTime,
+          latestCreatedTime: this.filters.latestCreatedTime,
+        });
+      } catch (e) {
+        if (e instanceof ResponseError) {
+          e.response.text().then((r) => {
+            const body = api.ModelErrorFromJSON(JSON.parse(r));
+            if (body) {
+              console.error("Response text: " + body.message);
+            }
+          });
+
+          this.packages = [];
+          this.page = { limit: defaultPageSize, offset: 0, total: 0 };
+          this.updatePager();
+          return;
+        }
+      }
+
       this.packages = resp.items;
       this.page = resp.page;
       this.updatePager();

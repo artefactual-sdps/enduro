@@ -84,9 +84,11 @@ var _ = Service("ingest", func() {
 			Token("token", String)
 		})
 		Result(SIPs)
+		Error("not_valid")
 		HTTP(func() {
 			GET("/sips")
 			Response(StatusOK)
+			Response("not_valid", StatusBadRequest)
 			Params(func() {
 				Param("name")
 				Param("aip_id")

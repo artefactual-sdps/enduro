@@ -242,6 +242,12 @@ paths:
                                     limit: 1
                                     offset: 1
                                     total: 1
+                "400":
+                    description: 'not_valid: Bad Request response.'
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
                 "401":
                     description: 'unauthorized: Unauthorized response.'
                     content:
