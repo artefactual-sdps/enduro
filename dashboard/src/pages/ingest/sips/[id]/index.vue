@@ -8,16 +8,16 @@ import PreservationActionCollapse from "@/components/PreservationActionCollapse.
 import StatusBadge from "@/components/StatusBadge.vue";
 import UUID from "@/components/UUID.vue";
 import { useAuthStore } from "@/stores/auth";
-import { usePackageStore } from "@/stores/package";
+import { useIngestStore } from "@/stores/ingest";
 import IconLink from "~icons/bi/box-arrow-up-right";
 import IconHelp from "~icons/clarity/help-solid?height=0.8em&width=0.8em";
 
 const authStore = useAuthStore();
-const packageStore = usePackageStore();
+const ingestStore = useIngestStore();
 
 const createAipWorkflow = computed(
   () =>
-    packageStore.current_preservation_actions?.actions?.filter(
+    ingestStore.currentPreservationActions?.actions?.filter(
       (action) =>
         action.type ===
           api.EnduroIngestSipPreservationActionTypeEnum.CreateAip ||
@@ -28,15 +28,15 @@ const createAipWorkflow = computed(
 </script>
 
 <template>
-  <div v-if="packageStore.current">
+  <div v-if="ingestStore.currentSip">
     <div class="row">
       <div class="col-md-6">
         <h2>AIP creation details</h2>
         <dl>
           <dt>Name</dt>
-          <dd>{{ packageStore.current.name }}</dd>
+          <dd>{{ ingestStore.currentSip.name }}</dd>
           <dt>AIP UUID</dt>
-          <dd><UUID :id="packageStore.current.aipId" /></dd>
+          <dd><UUID :id="ingestStore.currentSip.aipId" /></dd>
           <dt>Workflow status</dt>
           <dd>
             <StatusBadge
@@ -119,7 +119,7 @@ const createAipWorkflow = computed(
         <PreservationActionCollapse
           :action="action"
           :index="index"
-          v-for="(action, index) in packageStore.current_preservation_actions
+          v-for="(action, index) in ingestStore.currentPreservationActions
             ?.actions"
           v-bind:key="action.id"
         />

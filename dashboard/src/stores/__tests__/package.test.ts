@@ -2,144 +2,144 @@ import { createPinia, setActivePinia } from "pinia";
 import { beforeEach, describe, expect, it } from "vitest";
 
 import { api } from "@/client";
-import type { Pager } from "@/stores/package";
-import { usePackageStore } from "@/stores/package";
+import type { Pager } from "@/stores/ingest";
+import { useIngestStore } from "@/stores/ingest";
 
-describe("usePackageStore", () => {
+describe("useingestStore", () => {
   beforeEach(() => {
     setActivePinia(createPinia());
   });
 
   it("isPending", () => {
-    const packageStore = usePackageStore();
+    const ingestStore = useIngestStore();
     const now = new Date();
 
-    expect(packageStore.isPending).toEqual(false);
+    expect(ingestStore.isPending).toEqual(false);
 
-    packageStore.$patch({
-      current: {
+    ingestStore.$patch({
+      currentSip: {
         createdAt: now,
         id: 1,
         status: api.EnduroIngestSipStatusEnum.Pending,
       },
     });
-    expect(packageStore.isPending).toEqual(true);
+    expect(ingestStore.isPending).toEqual(true);
   });
 
   it("isDone", () => {
-    const packageStore = usePackageStore();
+    const ingestStore = useIngestStore();
     const now = new Date();
 
-    expect(packageStore.isDone).toEqual(false);
+    expect(ingestStore.isDone).toEqual(false);
 
-    packageStore.$patch({
-      current: {
+    ingestStore.$patch({
+      currentSip: {
         createdAt: now,
         id: 1,
         status: api.EnduroIngestSipStatusEnum.Done,
       },
     });
-    expect(packageStore.isDone).toEqual(true);
+    expect(ingestStore.isDone).toEqual(true);
   });
 
   it("isMovable", () => {
-    const packageStore = usePackageStore();
+    const ingestStore = useIngestStore();
     const now = new Date();
 
-    expect(packageStore.isMovable).toEqual(false);
+    expect(ingestStore.isMovable).toEqual(false);
 
-    packageStore.$patch({
-      current: {
+    ingestStore.$patch({
+      currentSip: {
         createdAt: now,
         id: 1,
         status: api.EnduroIngestSipStatusEnum.Done,
       },
     });
-    expect(packageStore.isMovable).toEqual(true);
+    expect(ingestStore.isMovable).toEqual(true);
   });
 
   it("isMoving", () => {
-    const packageStore = usePackageStore();
+    const ingestStore = useIngestStore();
 
-    expect(packageStore.isMoving).toEqual(false);
+    expect(ingestStore.isMoving).toEqual(false);
 
-    packageStore.$patch({ locationChanging: true });
-    expect(packageStore.isMoving).toEqual(true);
+    ingestStore.$patch({ locationChanging: true });
+    expect(ingestStore.isMoving).toEqual(true);
   });
 
   it("isRejected", () => {
-    const packageStore = usePackageStore();
+    const ingestStore = useIngestStore();
     const now = new Date();
 
-    expect(packageStore.isRejected).toEqual(false);
+    expect(ingestStore.isRejected).toEqual(false);
 
-    packageStore.$patch({
-      current: {
+    ingestStore.$patch({
+      currentSip: {
         createdAt: now,
         id: 1,
         status: api.EnduroIngestSipStatusEnum.Done,
       },
     });
-    expect(packageStore.isRejected).toEqual(true);
+    expect(ingestStore.isRejected).toEqual(true);
   });
 
   it("hasNextPage", () => {
-    const packageStore = usePackageStore();
+    const ingestStore = useIngestStore();
 
-    packageStore.$patch({
+    ingestStore.$patch({
       page: { limit: 20, offset: 0, total: 20 },
     });
-    expect(packageStore.hasNextPage).toEqual(false);
+    expect(ingestStore.hasNextPage).toEqual(false);
 
-    packageStore.$patch({
+    ingestStore.$patch({
       page: { limit: 20, offset: 20, total: 40 },
     });
-    expect(packageStore.hasNextPage).toEqual(false);
+    expect(ingestStore.hasNextPage).toEqual(false);
 
-    packageStore.$patch({
+    ingestStore.$patch({
       page: { limit: 20, offset: 0, total: 21 },
     });
-    expect(packageStore.hasNextPage).toEqual(true);
+    expect(ingestStore.hasNextPage).toEqual(true);
   });
 
   it("hasPrevPage", () => {
-    const packageStore = usePackageStore();
+    const ingestStore = useIngestStore();
 
-    packageStore.$patch({
+    ingestStore.$patch({
       page: { limit: 20, offset: 0, total: 40 },
     });
-    expect(packageStore.hasPrevPage).toEqual(false);
+    expect(ingestStore.hasPrevPage).toEqual(false);
 
-    packageStore.$patch({
+    ingestStore.$patch({
       page: { limit: 20, offset: 20, total: 40 },
     });
-    expect(packageStore.hasPrevPage).toEqual(true);
+    expect(ingestStore.hasPrevPage).toEqual(true);
   });
 
   it("returns lastResultOnPage", () => {
-    const packageStore = usePackageStore();
+    const ingestStore = useIngestStore();
 
-    packageStore.$patch({
+    ingestStore.$patch({
       page: { limit: 20, offset: 0, total: 40 },
     });
-    expect(packageStore.lastResultOnPage).toEqual(20);
+    expect(ingestStore.lastResultOnPage).toEqual(20);
 
-    packageStore.$patch({
+    ingestStore.$patch({
       page: { limit: 20, offset: 0, total: 7 },
     });
-    expect(packageStore.lastResultOnPage).toEqual(7);
+    expect(ingestStore.lastResultOnPage).toEqual(7);
 
-    packageStore.$patch({
+    ingestStore.$patch({
       page: { limit: 20, offset: 20, total: 35 },
     });
-    expect(packageStore.lastResultOnPage).toEqual(35);
+    expect(ingestStore.lastResultOnPage).toEqual(35);
   });
 
   it("getActionById finds actions", () => {
-    const packageStore = usePackageStore();
+    const ingestStore = useIngestStore();
     const now = new Date();
-    packageStore.$patch({
-      current_preservation_actions: {
+    ingestStore.$patch({
+      currentPreservationActions: {
         actions: [
           {
             id: 1,
@@ -159,28 +159,28 @@ describe("usePackageStore", () => {
       },
     });
 
-    expect(packageStore.getActionById(1)).toEqual({
+    expect(ingestStore.getActionById(1)).toEqual({
       id: 1,
       type: api.EnduroIngestSipPreservationActionTypeEnum.CreateAip,
       startedAt: now,
       status: api.EnduroIngestSipPreservationActionStatusEnum.Done,
       workflowId: "c18d00f2-a1c4-4161-820c-6fc6ce707811",
     });
-    expect(packageStore.getActionById(2)).toEqual({
+    expect(ingestStore.getActionById(2)).toEqual({
       id: 2,
       type: api.EnduroIngestSipPreservationActionTypeEnum.MovePackage,
       startedAt: now,
       status: api.EnduroIngestSipPreservationActionStatusEnum.Done,
       workflowId: "051cf998-6f87-4461-8091-8561ebf479c4",
     });
-    expect(packageStore.getActionById(3)).toBeUndefined();
+    expect(ingestStore.getActionById(3)).toBeUndefined();
   });
 
   it("getTaskById finds tasks", () => {
-    const packageStore = usePackageStore();
+    const ingestStore = useIngestStore();
     const now = new Date();
-    packageStore.$patch({
-      current_preservation_actions: {
+    ingestStore.$patch({
+      currentPreservationActions: {
         actions: [
           {
             id: 1,
@@ -232,47 +232,47 @@ describe("usePackageStore", () => {
       },
     });
 
-    expect(packageStore.getTaskById(1, 1)).toEqual({
+    expect(ingestStore.getTaskById(1, 1)).toEqual({
       id: 1,
       name: "Task 1",
       startedAt: now,
       status: api.EnduroIngestSipPreservationTaskStatusEnum.Done,
       taskId: "1",
     });
-    expect(packageStore.getTaskById(1, 2)).toEqual({
+    expect(ingestStore.getTaskById(1, 2)).toEqual({
       id: 2,
       name: "Task 2",
       startedAt: now,
       status: api.EnduroIngestSipPreservationTaskStatusEnum.Done,
       taskId: "2",
     });
-    expect(packageStore.getTaskById(1, 3)).toBeUndefined();
+    expect(ingestStore.getTaskById(1, 3)).toBeUndefined();
 
-    expect(packageStore.getTaskById(2, 3)).toEqual({
+    expect(ingestStore.getTaskById(2, 3)).toEqual({
       id: 3,
       name: "Task 3",
       startedAt: now,
       status: api.EnduroIngestSipPreservationTaskStatusEnum.Done,
       taskId: "3",
     });
-    expect(packageStore.getTaskById(2, 4)).toEqual({
+    expect(ingestStore.getTaskById(2, 4)).toEqual({
       id: 4,
       name: "Task 4",
       startedAt: now,
       status: api.EnduroIngestSipPreservationTaskStatusEnum.Done,
       taskId: "4",
     });
-    expect(packageStore.getTaskById(2, 5)).toBeUndefined();
+    expect(ingestStore.getTaskById(2, 5)).toBeUndefined();
   });
 
   it("updates the pager", () => {
-    const packageStore = usePackageStore();
+    const ingestStore = useIngestStore();
 
-    packageStore.$patch({
+    ingestStore.$patch({
       page: { limit: 20, offset: 60, total: 125 },
     });
-    packageStore.updatePager();
-    expect(packageStore.pager).toEqual(<Pager>{
+    ingestStore.updatePager();
+    expect(ingestStore.pager).toEqual(<Pager>{
       maxPages: 7,
       current: 4,
       first: 1,
@@ -281,11 +281,11 @@ describe("usePackageStore", () => {
       pages: [1, 2, 3, 4, 5, 6, 7],
     });
 
-    packageStore.$patch({
+    ingestStore.$patch({
       page: { limit: 20, offset: 160, total: 573 },
     });
-    packageStore.updatePager();
-    expect(packageStore.pager).toEqual(<Pager>{
+    ingestStore.updatePager();
+    expect(ingestStore.pager).toEqual(<Pager>{
       maxPages: 7,
       current: 9,
       first: 6,
@@ -294,11 +294,11 @@ describe("usePackageStore", () => {
       pages: [6, 7, 8, 9, 10, 11, 12],
     });
 
-    packageStore.$patch({
+    ingestStore.$patch({
       page: { limit: 20, offset: 540, total: 573 },
     });
-    packageStore.updatePager();
-    expect(packageStore.pager).toEqual(<Pager>{
+    ingestStore.updatePager();
+    expect(ingestStore.pager).toEqual(<Pager>{
       maxPages: 7,
       current: 28,
       first: 23,

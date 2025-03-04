@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { api } from "@/client";
 import PackageLocationCard from "@/components/PackageLocationCard.vue";
-import { usePackageStore } from "@/stores/package";
+import { useIngestStore } from "@/stores/ingest";
 
 describe("PackageLocationCard.vue", () => {
   afterEach(() => cleanup());
@@ -16,8 +16,8 @@ describe("PackageLocationCard.vue", () => {
           createTestingPinia({
             createSpy: vi.fn,
             initialState: {
-              package: {
-                current: {
+              ingest: {
+                currentSip: {
                   status: api.EnduroIngestSipStatusEnum.Done,
                   locationId: "f8635e46-a320-4152-9a2c-98a28eeb50d1",
                 } as api.EnduroIngestSip,
@@ -52,8 +52,8 @@ describe("PackageLocationCard.vue", () => {
           createTestingPinia({
             createSpy: vi.fn,
             initialState: {
-              package: {
-                current: {
+              ingest: {
+                currentSip: {
                   status: api.EnduroIngestSipStatusEnum.Done,
                   locationId: "f8635e46-a320-4152-9a2c-98a28eeb50d1",
                 } as api.EnduroIngestSip,
@@ -93,8 +93,8 @@ describe("PackageLocationCard.vue", () => {
             createSpy: vi.fn,
             stubActions: false,
             initialState: {
-              package: {
-                current: {
+              ingest: {
+                currentSip: {
                   status: api.EnduroIngestSipStatusEnum.Done,
                   locationId: "f8635e46-a320-4152-9a2c-98a28eeb50d1",
                 } as api.EnduroIngestSip,
@@ -107,17 +107,17 @@ describe("PackageLocationCard.vue", () => {
 
     getByText("f8635e46-a320-4152-9a2c-98a28eeb50d1");
 
-    const packageStore = usePackageStore();
+    const ingestStore = useIngestStore();
 
-    const moveMock = vi.fn().mockImplementation(packageStore.move);
+    const moveMock = vi.fn().mockImplementation(ingestStore.move);
     moveMock.mockImplementation(async () => {
-      packageStore.$patch((state) => {
-        if (!state.current) return;
-        state.current.status = api.EnduroIngestSipStatusEnum.InProgress;
+      ingestStore.$patch((state) => {
+        if (!state.currentSip) return;
+        state.currentSip.status = api.EnduroIngestSipStatusEnum.InProgress;
         state.locationChanging = true;
       });
     });
-    packageStore.move = moveMock;
+    ingestStore.move = moveMock;
 
     vi.mock("@/dialogs", () => {
       return {
@@ -138,8 +138,8 @@ describe("PackageLocationCard.vue", () => {
           createTestingPinia({
             createSpy: vi.fn,
             initialState: {
-              package: {
-                current: {
+              ingest: {
+                currentSip: {
                   status: api.EnduroIngestSipStatusEnum.InProgress,
                 } as api.EnduroIngestSip,
               },
@@ -169,8 +169,8 @@ describe("PackageLocationCard.vue", () => {
           createTestingPinia({
             createSpy: vi.fn,
             initialState: {
-              package: {
-                current: {
+              ingest: {
+                currentSip: {
                   status: api.EnduroIngestSipStatusEnum.Done,
                   locationId: undefined,
                 } as api.EnduroIngestSip,
@@ -201,8 +201,8 @@ describe("PackageLocationCard.vue", () => {
           createTestingPinia({
             createSpy: vi.fn,
             initialState: {
-              package: {
-                current: {
+              ingest: {
+                currentSip: {
                   status: api.EnduroIngestSipStatusEnum.InProgress,
                   locationId: "f8635e46-a320-4152-9a2c-98a28eeb50d1",
                 } as api.EnduroIngestSip,

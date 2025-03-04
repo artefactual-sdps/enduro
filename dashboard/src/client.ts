@@ -1,6 +1,6 @@
 import * as api from "./openapi-generator";
 import * as runtime from "./openapi-generator/runtime";
-import { usePackageStore } from "./stores/package";
+import { useIngestStore } from "./stores/ingest";
 
 import router from "@/router";
 import { useAuthStore } from "@/stores/auth";
@@ -47,14 +47,14 @@ function getWebSocketURL(): string {
 }
 
 function connectPackageMonitor() {
-  const store = usePackageStore();
+  const ingestStore = useIngestStore();
   const url = getWebSocketURL() + "/ingest/monitor";
   const socket = new WebSocket(url);
   socket.onmessage = (event: MessageEvent) => {
     const body = JSON.parse(event.data);
     const data = api.MonitorEventFromJSON(body);
     if (data.event) {
-      store.handleEvent(data.event);
+      ingestStore.handleEvent(data.event);
     }
   };
 }

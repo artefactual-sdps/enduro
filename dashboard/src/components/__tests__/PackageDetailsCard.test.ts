@@ -5,7 +5,7 @@ import { nextTick } from "vue";
 
 import { api } from "@/client";
 import PackageDetailsCard from "@/components/PackageDetailsCard.vue";
-import { usePackageStore } from "@/stores/package";
+import { useIngestStore } from "@/stores/ingest";
 
 describe("PackageDetailsCard.vue", () => {
   afterEach(() => cleanup());
@@ -17,8 +17,8 @@ describe("PackageDetailsCard.vue", () => {
           createTestingPinia({
             createSpy: vi.fn,
             initialState: {
-              package: {
-                current: {
+              ingest: {
+                currentSip: {
                   aipId: "89229d18-5554-4e0d-8c4e-d0d88afd3bae",
                   status: api.EnduroIngestSipStatusEnum.Pending,
                 } as api.EnduroIngestSip,
@@ -31,9 +31,9 @@ describe("PackageDetailsCard.vue", () => {
 
     vi.stubGlobal("open", vi.fn());
 
-    // Someone requests the download of the AIP via the package store.
-    const packageStore = usePackageStore();
-    packageStore.ui.download.request();
+    // Someone requests the download of the AIP via the ingest store.
+    const ingestStore = useIngestStore();
+    ingestStore.ui.download.request();
     await nextTick();
 
     // Then we observe that the component download function is executed.
@@ -50,9 +50,9 @@ describe("PackageDetailsCard.vue", () => {
           createTestingPinia({
             createSpy: vi.fn,
             initialState: {
-              package: {
-                current: {} as api.EnduroIngestSip,
-                current_preservation_actions: {
+              ingest: {
+                currentSip: {} as api.EnduroIngestSip,
+                currentPreservationActions: {
                   actions: [
                     {
                       status:
@@ -85,8 +85,8 @@ describe("PackageDetailsCard.vue", () => {
           createTestingPinia({
             createSpy: vi.fn,
             initialState: {
-              package: {
-                current: {
+              ingest: {
+                currentSip: {
                   aipId: "89229d18-5554-4e0d-8c4e-d0d88afd3bae",
                   status: api.EnduroIngestSipStatusEnum.Done,
                 } as api.EnduroIngestSip,
@@ -107,8 +107,8 @@ describe("PackageDetailsCard.vue", () => {
           createTestingPinia({
             createSpy: vi.fn,
             initialState: {
-              package: {
-                current: {
+              ingest: {
+                currentSip: {
                   aipId: "89229d18-5554-4e0d-8c4e-d0d88afd3bae",
                   status: api.EnduroIngestSipStatusEnum.Done,
                 } as api.EnduroIngestSip,

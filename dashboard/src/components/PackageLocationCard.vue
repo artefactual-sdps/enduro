@@ -4,20 +4,20 @@ import { ref } from "vue";
 import UUID from "@/components/UUID.vue";
 import { openPackageLocationDialog } from "@/dialogs";
 import { useAuthStore } from "@/stores/auth";
-import { usePackageStore } from "@/stores/package";
+import { useIngestStore } from "@/stores/ingest";
 
 const authStore = useAuthStore();
-const packageStore = usePackageStore();
+const ingestStore = useIngestStore();
 
 let failed = ref<boolean | null>(null);
 
 const choose = async () => {
   failed.value = false;
   const locationId = await openPackageLocationDialog(
-    packageStore.current?.locationId,
+    ingestStore.currentSip?.locationId,
   );
   if (!locationId) return;
-  const error = await packageStore.move(locationId);
+  const error = await ingestStore.move(locationId);
   if (error) {
     failed.value = true;
   }
@@ -30,21 +30,21 @@ const choose = async () => {
       <div v-if="failed" class="alert alert-danger" role="alert">
         Move operation failed, try again!
       </div>
-      <div v-if="packageStore.isMoving" class="alert alert-info" role="alert">
+      <div v-if="ingestStore.isMoving" class="alert alert-info" role="alert">
         The package is being moved into a new location.
       </div>
       <h4 class="card-title">Location</h4>
       <p class="card-text">
-        <span v-if="packageStore.isRejected">Package rejected.</span>
-        <span v-else-if="!packageStore.current?.locationId"
+        <span v-if="ingestStore.isRejected">Package rejected.</span>
+        <span v-else-if="!ingestStore.currentSip?.locationId"
           >Not available yet.</span
         >
-        <span v-else><UUID :id="packageStore.current.locationId" /></span>
+        <span v-else><UUID :id="ingestStore.currentSip.locationId" /></span>
       </p>
       <div
         class="actions"
         v-if="
-          !packageStore.isRejected &&
+          !ingestStore.isRejected &&
           authStore.checkAttributes(['ingest:sips:move'])
         "
       >
@@ -52,9 +52,9 @@ const choose = async () => {
           type="button"
           class="btn btn-primary btn-sm"
           @click="choose"
-          :disabled="!packageStore.isMovable"
+          :disabled="!ingestStore.isMovable"
         >
-          <template v-if="packageStore.isMoving">
+          <template v-if="ingestStore.isMoving">
             <span
               class="spinner-grow spinner-grow-sm me-2"
               role="status"

@@ -6,17 +6,17 @@ import PackagePendingAlert from "@/components/PackagePendingAlert.vue";
 import PageLoadingAlert from "@/components/PageLoadingAlert.vue";
 import Tabs from "@/components/Tabs.vue";
 import { useAuthStore } from "@/stores/auth";
-import { usePackageStore } from "@/stores/package";
+import { useIngestStore } from "@/stores/ingest";
 import IconSIPs from "~icons/octicon/package-dependencies-24";
 import IconDetails from "~icons/clarity/details-line?raw&font-size=20px";
 
 const route = useRoute("/ingest/sips/[id]");
 const router = useRouter();
 const authStore = useAuthStore();
-const packageStore = usePackageStore();
+const ingestStore = useIngestStore();
 
 const { execute, error } = useAsyncState(
-  packageStore.fetchCurrent(route.params.id.toString()),
+  ingestStore.fetchCurrentSip(route.params.id.toString()),
   null,
 );
 
@@ -37,10 +37,10 @@ const tabs = [
   <div class="container-xxl">
     <PageLoadingAlert v-if="error" :execute="execute" :error="error" />
 
-    <PackagePendingAlert v-if="packageStore.current" />
+    <PackagePendingAlert v-if="ingestStore.currentSip" />
 
-    <h1 class="d-flex mb-3" v-if="packageStore.current">
-      <IconSIPs class="me-3 text-dark" />{{ packageStore.current.name }}
+    <h1 class="d-flex mb-3" v-if="ingestStore.currentSip">
+      <IconSIPs class="me-3 text-dark" />{{ ingestStore.currentSip.name }}
     </h1>
 
     <Tabs :tabs="tabs" param="id" />

@@ -4,26 +4,26 @@ import { computed, watch } from "vue";
 import { storageServiceDownloadURL } from "@/client";
 import StatusBadge from "@/components/StatusBadge.vue";
 import { useAuthStore } from "@/stores/auth";
-import { usePackageStore } from "@/stores/package";
+import { useIngestStore } from "@/stores/ingest";
 
 const authStore = useAuthStore();
-const packageStore = usePackageStore();
+const ingestStore = useIngestStore();
 
 const download = () => {
-  if (!packageStore.current?.aipId) return;
-  const url = storageServiceDownloadURL(packageStore.current.aipId);
+  if (!ingestStore.currentSip?.aipId) return;
+  const url = storageServiceDownloadURL(ingestStore.currentSip.aipId);
   window.open(url, "_blank");
 };
 
 const stored = computed(() => {
-  return packageStore.current?.aipId?.length;
+  return ingestStore.currentSip?.aipId?.length;
 });
 
-watch(packageStore.ui.download, () => download());
+watch(ingestStore.ui.download, () => download());
 </script>
 
 <template>
-  <div class="card mb-3" v-if="packageStore.current">
+  <div class="card mb-3" v-if="ingestStore.currentSip">
     <div class="card-body">
       <h4 class="card-title">Package details</h4>
       <dl>
@@ -34,13 +34,11 @@ watch(packageStore.ui.download, () => download());
         <dt>Last workflow status</dt>
         <dd>
           <StatusBadge
-            v-if="packageStore.current_preservation_actions?.actions"
-            :status="
-              packageStore.current_preservation_actions?.actions[0].status
-            "
+            v-if="ingestStore.currentPreservationActions?.actions"
+            :status="ingestStore.currentPreservationActions?.actions[0].status"
             :note="
               $filters.getPreservationActionLabel(
-                packageStore.current_preservation_actions?.actions[0].type,
+                ingestStore.currentPreservationActions?.actions[0].type,
               )
             "
           />
