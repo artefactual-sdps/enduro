@@ -30,7 +30,7 @@ const menuItems = [
     show: authStore.checkAttributes(["ingest:sips:list"]),
   },
   {
-    route: router.resolve("/packages/"),
+    route: router.resolve("/ingest/sips/"),
     icon: IconSIPs,
     text: "SIPs",
     show: authStore.checkAttributes(["ingest:sips:list"]),
@@ -42,13 +42,13 @@ const menuItems = [
       authStore.checkAttributes(["storage:aips:list"]),
   },
   {
-    route: router.resolve("/locations/"),
+    route: router.resolve("/storage/locations/"),
     icon: IconLocations,
     text: "Locations",
     show: authStore.checkAttributes(["storage:locations:list"]),
   },
   {
-    route: router.resolve("/aips/"),
+    route: router.resolve("/storage/aips/"),
     icon: IconAIPs,
     text: "AIPs",
     show: authStore.checkAttributes(["storage:aips:list"]),

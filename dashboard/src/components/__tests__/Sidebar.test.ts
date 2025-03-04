@@ -14,9 +14,9 @@ const router = createRouter({
   history: createMemoryHistory(),
   routes: [
     { name: "index", path: "", component: {} },
-    { name: "packages", path: "/packages", component: {} },
-    { name: "locations", path: "/locations", component: {} },
-    { name: "aips", path: "/aips", component: {} },
+    { name: "sips", path: "/ingest/sips", component: {} },
+    { name: "locations", path: "/storage/locations", component: {} },
+    { name: "aips", path: "/storage/aips", component: {} },
   ],
 });
 

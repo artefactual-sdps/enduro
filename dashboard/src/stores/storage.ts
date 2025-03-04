@@ -25,7 +25,10 @@ export const useStorageStore = defineStore("storage", {
       const layoutStore = useLayoutStore();
       layoutStore.updateBreadcrumb([
         { text: "Storage" },
-        { route: router.resolve({ name: "/locations/" }), text: "Locations" },
+        {
+          route: router.resolve({ name: "/storage/locations/" }),
+          text: "Locations",
+        },
         { text: this.current.name },
       ]);
 
