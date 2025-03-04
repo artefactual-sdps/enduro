@@ -1,6 +1,6 @@
 import * as api from "./openapi-generator";
 import * as runtime from "./openapi-generator/runtime";
-import { usePackageStore } from "./stores/package";
+import { useIngestStore } from "./stores/ingest";
 
 import router from "@/router";
 import { useAuthStore } from "@/stores/auth";
@@ -9,7 +9,7 @@ export interface Client {
   about: api.AboutApi;
   ingest: api.IngestApi;
   storage: api.StorageApi;
-  connectPackageMonitor: () => void;
+  connectIngestMonitor: () => void;
 }
 
 function getPath(): string {
@@ -46,15 +46,15 @@ function getWebSocketURL(): string {
   return url;
 }
 
-function connectPackageMonitor() {
-  const store = usePackageStore();
+function connectIngestMonitor() {
+  const ingestStore = useIngestStore();
   const url = getWebSocketURL() + "/ingest/monitor";
   const socket = new WebSocket(url);
   socket.onmessage = (event: MessageEvent) => {
     const body = JSON.parse(event.data);
     const data = api.MonitorEventFromJSON(body);
     if (data.event) {
-      store.handleEvent(data.event);
+      ingestStore.handleEvent(data.event);
     }
   };
 }
@@ -81,7 +81,7 @@ function createClient(): Client {
     about: new api.AboutApi(config),
     ingest: new api.IngestApi(config),
     storage: new api.StorageApi(config),
-    connectPackageMonitor,
+    connectIngestMonitor: connectIngestMonitor,
   };
 }
 

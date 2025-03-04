@@ -27,7 +27,7 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ""),
       },
-      "^/api/package/monitor": {
+      "^/api/ingest/monitor": {
         target: process.env.ENDURO_API_ADDRESS
           ? "http://" + process.env.ENDURO_API_ADDRESS
           : "http://127.0.0.1:9000",

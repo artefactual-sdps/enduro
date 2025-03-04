@@ -28,7 +28,7 @@ const storageStore = useStorageStore();
           <dd>TODO</dd>
           <dt>Capacity</dt>
           <dd>TODO</dd>
-          <dt>Packages</dt>
+          <dt>AIPs</dt>
           <dd>TODO</dd>
           <template v-if="storageStore.current.description">
             <dt>Description</dt>

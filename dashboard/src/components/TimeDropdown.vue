@@ -5,7 +5,7 @@ import "@vuepic/vue-datepicker/dist/main.css";
 import Dropdown from "bootstrap/js/dist/dropdown";
 import { onMounted, ref, watch } from "vue";
 
-import IconCloseLine from "~icons/clarity/close-line";
+import IconClose from "~icons/clarity/close-line";
 
 const emit = defineEmits<{
   change: [name: string, start: string, end: string];
@@ -160,7 +160,7 @@ const earliestTimeFromOption = (value: string) => {
       aria-label="Reset time filter"
       v-show="startTime !== null || endTime !== null"
     >
-      <IconCloseLine />
+      <IconClose />
     </button>
     <div :id="'tdd-' + props.name + '-menu'" class="dropdown-menu p-3">
       <h5>Preset range</h5>

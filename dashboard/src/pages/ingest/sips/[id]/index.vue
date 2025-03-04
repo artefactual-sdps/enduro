@@ -2,22 +2,21 @@
 import { computed } from "vue";
 
 import { api } from "@/client";
-import PackageDetailsCard from "@/components/PackageDetailsCard.vue";
-import PackageLocationCard from "@/components/PackageLocationCard.vue";
+import AipLocationCard from "@/components/AipLocationCard.vue";
 import PreservationActionCollapse from "@/components/PreservationActionCollapse.vue";
 import StatusBadge from "@/components/StatusBadge.vue";
 import UUID from "@/components/UUID.vue";
 import { useAuthStore } from "@/stores/auth";
-import { usePackageStore } from "@/stores/package";
-import IconBoxArrowUpRight from "~icons/bi/box-arrow-up-right";
-import IconHelpSolid from "~icons/clarity/help-solid?height=0.8em&width=0.8em";
+import { useIngestStore } from "@/stores/ingest";
+import IconLink from "~icons/bi/box-arrow-up-right";
+import IconHelp from "~icons/clarity/help-solid?height=0.8em&width=0.8em";
 
 const authStore = useAuthStore();
-const packageStore = usePackageStore();
+const ingestStore = useIngestStore();
 
 const createAipWorkflow = computed(
   () =>
-    packageStore.current_preservation_actions?.actions?.filter(
+    ingestStore.currentPreservationActions?.actions?.filter(
       (action) =>
         action.type ===
           api.EnduroIngestSipPreservationActionTypeEnum.CreateAip ||
@@ -28,15 +27,15 @@ const createAipWorkflow = computed(
 </script>
 
 <template>
-  <div v-if="packageStore.current">
+  <div v-if="ingestStore.currentSip">
     <div class="row">
       <div class="col-md-6">
         <h2>AIP creation details</h2>
         <dl>
           <dt>Name</dt>
-          <dd>{{ packageStore.current.name }}</dd>
+          <dd>{{ ingestStore.currentSip.name }}</dd>
           <dt>AIP UUID</dt>
-          <dd><UUID :id="packageStore.current.aipId" /></dd>
+          <dd><UUID :id="ingestStore.currentSip.aipId" /></dd>
           <dt>Workflow status</dt>
           <dd>
             <StatusBadge
@@ -65,8 +64,7 @@ const createAipWorkflow = computed(
         </dl>
       </div>
       <div class="col-md-6">
-        <PackageLocationCard />
-        <PackageDetailsCard />
+        <AipLocationCard />
       </div>
     </div>
 
@@ -82,7 +80,7 @@ const createAipWorkflow = computed(
             aria-expanded="false"
             aria-controls="preservationActionHelp"
             aria-label="Show preservation action help"
-            ><IconHelpSolid alt="help"
+            ><IconHelp alt="help"
           /></a>
         </h2>
       </div>
@@ -95,8 +93,8 @@ const createAipWorkflow = computed(
           <div>
             <p>
               A preservation action is a <strong>workflow</strong> composed of
-              one or more <strong>tasks</strong> performed on a package to
-              support preservation.
+              one or more <strong>tasks</strong> performed on a SIP to support
+              preservation.
             </p>
             <p>
               Click on a preservation action listed below to expand it and see
@@ -107,7 +105,7 @@ const createAipWorkflow = computed(
             <a
               href="https://github.com/artefactual-sdps/enduro/blob/main/docs/src/user-manual/usage.md#view-tasks-in-enduro"
               target="_new"
-              >Learn more <IconBoxArrowUpRight alt="" aria-hidden="true"
+              >Learn more <IconLink alt="" aria-hidden="true"
             /></a>
           </div>
         </div>
@@ -119,7 +117,7 @@ const createAipWorkflow = computed(
         <PreservationActionCollapse
           :action="action"
           :index="index"
-          v-for="(action, index) in packageStore.current_preservation_actions
+          v-for="(action, index) in ingestStore.currentPreservationActions
             ?.actions"
           v-bind:key="action.id"
         />

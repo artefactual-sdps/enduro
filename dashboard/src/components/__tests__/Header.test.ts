@@ -56,7 +56,7 @@ describe("Header.vue", () => {
           createTestingPinia({
             createSpy: vi.fn,
             initialState: {
-              layout: { breadcrumb: [{ text: "Packages" }] },
+              layout: { breadcrumb: [{ text: "SIPs" }] },
             },
           }),
           router,

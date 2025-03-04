@@ -1,9 +1,9 @@
 import { openDialog } from "vue3-promise-dialog";
 
-import PackageLocationDialogVue from "./components/PackageLocationDialog.vue";
+import LocationDialog from "./components/LocationDialog.vue";
 
-export async function openPackageLocationDialog(currentLocationId?: string) {
-  return await openDialog(PackageLocationDialogVue, {
+export async function openLocationDialog(currentLocationId?: string) {
+  return await openDialog(LocationDialog, {
     currentLocationId: currentLocationId,
   });
 }

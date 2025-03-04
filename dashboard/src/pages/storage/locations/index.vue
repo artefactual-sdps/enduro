@@ -6,11 +6,11 @@ import UUID from "@/components/UUID.vue";
 import { useAuthStore } from "@/stores/auth";
 import { useLayoutStore } from "@/stores/layout";
 import { useStorageStore } from "@/stores/storage";
-import IconRackServerLine from "~icons/clarity/rack-server-line";
+import IconLocations from "~icons/octicon/server-24";
 
 const authStore = useAuthStore();
 const layoutStore = useLayoutStore();
-layoutStore.updateBreadcrumb([{ text: "Locations" }]);
+layoutStore.updateBreadcrumb([{ text: "Storage" }, { text: "Locations" }]);
 
 const storageStore = useStorageStore();
 const { execute, error } = useAsyncState(() => {
@@ -21,7 +21,7 @@ const { execute, error } = useAsyncState(() => {
 <template>
   <div class="container-xxl">
     <h1 class="d-flex mb-0">
-      <IconRackServerLine class="me-3 text-dark" />Locations
+      <IconLocations class="me-3 text-dark" />Locations
     </h1>
     <div class="text-muted mb-3">
       Showing {{ storageStore.locations.length }} /
@@ -32,11 +32,11 @@ const { execute, error } = useAsyncState(() => {
       <table class="table table-bordered mb-0">
         <thead>
           <tr>
-            <th scope="col" class="text-nowrap">Location name</th>
+            <th scope="col" class="text-nowrap">Name</th>
             <th scope="col">Source</th>
             <th scope="col">Purpose</th>
             <th scope="col">Capacity</th>
-            <th scope="col">Packages</th>
+            <th scope="col">AIPs</th>
             <th scope="col">UUID</th>
           </tr>
         </thead>
@@ -45,7 +45,10 @@ const { execute, error } = useAsyncState(() => {
             <td>
               <router-link
                 v-if="authStore.checkAttributes(['storage:locations:read'])"
-                :to="{ name: '/locations/[id]/', params: { id: item.uuid } }"
+                :to="{
+                  name: '/storage/locations/[id]/',
+                  params: { id: item.uuid },
+                }"
                 >{{ item.name }}</router-link
               >
               <span v-else>{{ item.name }}</span>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useAuthStore } from "@/stores/auth";
 import { useLayoutStore } from "@/stores/layout";
-import IconHomeLine from "~icons/clarity/home-line";
+import IconHome from "~icons/clarity/home-line";
 
 const authStore = useAuthStore();
 const layoutStore = useLayoutStore();
@@ -11,8 +11,7 @@ layoutStore.updateBreadcrumb([]);
 <template>
   <div class="container-xxl">
     <h1 class="d-flex mb-3">
-      <IconHomeLine class="me-3 text-dark" />Welcome<span
-        v-if="authStore.isEnabled"
+      <IconHome class="me-3 text-dark" />Welcome<span v-if="authStore.isEnabled"
         >, {{ authStore.getUserDisplayName }}</span
       >!
     </h1>

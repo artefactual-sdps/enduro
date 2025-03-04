@@ -8,8 +8,8 @@ const storageStore = useStorageStore();
 <template>
   <div v-if="storageStore.current">
     <div class="text-muted mb-3">
-      Showing {{ storageStore.current_packages.length }} /
-      {{ storageStore.current_packages.length }}
+      Showing {{ storageStore.currentAips.length }} /
+      {{ storageStore.currentAips.length }}
     </div>
 
     <div class="table-responsive mb-3">
@@ -24,10 +24,7 @@ const storageStore = useStorageStore();
           </tr>
         </thead>
         <tbody>
-          <tr
-            v-for="(pkg, index) in storageStore.current_packages"
-            :key="pkg.uuid"
-          >
+          <tr v-for="(pkg, index) in storageStore.currentAips" :key="pkg.uuid">
             <td>{{ index + 1 }}</td>
             <td>{{ pkg.name }}</td>
             <td></td>
