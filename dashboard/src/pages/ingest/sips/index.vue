@@ -5,7 +5,7 @@ import { computed, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router/auto";
 import type { LocationQueryValue } from "vue-router/auto";
 
-import PackageListLegend from "@/components/PackageListLegend.vue";
+import SipListLegend from "@/components/SipListLegend.vue";
 import PageLoadingAlert from "@/components/PageLoadingAlert.vue";
 import StatusBadge from "@/components/StatusBadge.vue";
 import Tabs from "@/components/Tabs.vue";
@@ -270,7 +270,7 @@ watch(
     </div>
 
     <Tabs :tabs="tabs" param="status" />
-    <PackageListLegend v-model="showLegend" />
+    <SipListLegend v-model="showLegend" />
 
     <div class="table-responsive mb-3">
       <table class="table table-bordered mb-0">
