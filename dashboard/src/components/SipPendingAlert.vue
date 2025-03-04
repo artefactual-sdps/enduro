@@ -10,6 +10,6 @@ const ingestStore = useIngestStore();
     class="alert alert-warning text-center"
     role="alert"
   >
-    This package is mid-workflow, and is currently awaiting user decision(s).
+    This SIP is mid-workflow, and is currently awaiting user decision(s).
   </div>
 </template>

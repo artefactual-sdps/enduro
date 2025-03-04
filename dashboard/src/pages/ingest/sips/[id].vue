@@ -2,7 +2,7 @@
 import { useAsyncState } from "@vueuse/core";
 import { useRoute, useRouter } from "vue-router/auto";
 
-import PackagePendingAlert from "@/components/PackagePendingAlert.vue";
+import SipPendingAlert from "@/components/SipPendingAlert.vue";
 import PageLoadingAlert from "@/components/PageLoadingAlert.vue";
 import Tabs from "@/components/Tabs.vue";
 import { useAuthStore } from "@/stores/auth";
@@ -37,7 +37,7 @@ const tabs = [
   <div class="container-xxl">
     <PageLoadingAlert v-if="error" :execute="execute" :error="error" />
 
-    <PackagePendingAlert v-if="ingestStore.currentSip" />
+    <SipPendingAlert v-if="ingestStore.currentSip" />
 
     <h1 class="d-flex mb-3" v-if="ingestStore.currentSip">
       <IconSIPs class="me-3 text-dark" />{{ ingestStore.currentSip.name }}
