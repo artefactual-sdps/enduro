@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { openPackageLocationDialog } from "@/dialogs";
+import { openLocationDialog } from "@/dialogs";
 import { useIngestStore } from "@/stores/ingest";
 
 let { expandCounter } = defineProps<{
@@ -13,7 +13,7 @@ const emit = defineEmits<{
 const ingestStore = useIngestStore();
 
 const confirm = async () => {
-  const locationId = await openPackageLocationDialog();
+  const locationId = await openLocationDialog();
   if (!locationId) return;
   ingestStore.confirm(locationId);
 };

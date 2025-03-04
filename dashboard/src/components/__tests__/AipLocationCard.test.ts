@@ -127,7 +127,7 @@ describe("AipLocationCard.vue", () => {
 
     vi.mock("@/dialogs", () => {
       return {
-        openPackageLocationDialog: () => "fe675e52-c761-46d0-8605-fae4bd10303e",
+        openLocationDialog: () => "fe675e52-c761-46d0-8605-fae4bd10303e",
       };
     });
 

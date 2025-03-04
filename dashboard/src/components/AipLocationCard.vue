@@ -3,7 +3,7 @@ import { ref, watch } from "vue";
 
 import UUID from "@/components/UUID.vue";
 import { storageServiceDownloadURL } from "@/client";
-import { openPackageLocationDialog } from "@/dialogs";
+import { openLocationDialog } from "@/dialogs";
 import { useAuthStore } from "@/stores/auth";
 import { useIngestStore } from "@/stores/ingest";
 
@@ -14,7 +14,7 @@ let failed = ref<boolean | null>(null);
 
 const choose = async () => {
   failed.value = false;
-  const locationId = await openPackageLocationDialog(
+  const locationId = await openLocationDialog(
     ingestStore.currentSip?.locationId,
   );
   if (!locationId) return;
