@@ -7,8 +7,8 @@ import PageLoadingAlert from "@/components/PageLoadingAlert.vue";
 import Tabs from "@/components/Tabs.vue";
 import { useAuthStore } from "@/stores/auth";
 import { usePackageStore } from "@/stores/package";
-import IconBundleLine from "~icons/clarity/bundle-line";
-import RawIconDetailsLine from "~icons/clarity/details-line?raw&font-size=20px";
+import IconSIPs from "~icons/octicon/package-dependencies-24";
+import IconDetails from "~icons/clarity/details-line?raw&font-size=20px";
 
 const route = useRoute("/packages/[id]");
 const router = useRouter();
@@ -22,7 +22,7 @@ const { execute, error } = useAsyncState(
 
 const tabs = [
   {
-    icon: RawIconDetailsLine,
+    icon: IconDetails,
     text: "Summary",
     route: router.resolve({
       name: "/packages/[id]/",
@@ -40,7 +40,7 @@ const tabs = [
     <PackagePendingAlert v-if="packageStore.current" />
 
     <h1 class="d-flex mb-3" v-if="packageStore.current">
-      <IconBundleLine class="me-3 text-dark" />{{ packageStore.current.name }}
+      <IconSIPs class="me-3 text-dark" />{{ packageStore.current.name }}
     </h1>
 
     <Tabs :tabs="tabs" param="id" />

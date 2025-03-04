@@ -6,12 +6,13 @@ import { useRouter } from "vue-router/auto";
 
 import { useAuthStore } from "@/stores/auth";
 import { useLayoutStore } from "@/stores/layout";
-import RawIconBundleLine from "~icons/clarity/bundle-line?raw&width=2em&height=2em";
-import IconCaretLine from "~icons/clarity/caret-line";
-import RawIconHomeLine from "~icons/clarity/home-line?raw&width=2em&height=2em";
-import RawIconLogoutLine from "~icons/clarity/logout-line?raw&width=2em&height=2em";
-import RawIconRackServerLine from "~icons/clarity/rack-server-line?raw&width=2em&height=2em";
-import RawIconUserSolid from "~icons/clarity/user-solid?raw&width=2em&height=2em";
+import IconHome from "~icons/clarity/home-line?raw&width=2em&height=2em";
+import IconSIPs from "~icons/octicon/package-dependencies-24?raw&width=2em&height=2em";
+import IconLocations from "~icons/octicon/server-24?raw&width=2em&height=2em";
+import IconAIPs from "~icons/clarity/bundle-line?raw&width=2em&height=2em";
+import IconUser from "~icons/clarity/user-solid?raw&width=2em&height=2em";
+import IconLogout from "~icons/clarity/logout-line?raw&width=2em&height=2em";
+import IconCaret from "~icons/clarity/caret-line";
 
 const authStore = useAuthStore();
 const layoutStore = useLayoutStore();
@@ -20,21 +21,37 @@ const router = useRouter();
 const menuItems = [
   {
     route: router.resolve("/"),
-    icon: RawIconHomeLine,
+    icon: IconHome,
     text: "Home",
     show: true,
   },
   {
-    route: router.resolve("/packages/"),
-    icon: RawIconBundleLine,
-    text: "Packages",
+    text: "INGEST",
     show: authStore.checkAttributes(["ingest:sips:list"]),
   },
   {
+    route: router.resolve("/packages/"),
+    icon: IconSIPs,
+    text: "SIPs",
+    show: authStore.checkAttributes(["ingest:sips:list"]),
+  },
+  {
+    text: "STORAGE",
+    show:
+      authStore.checkAttributes(["storage:locations:list"]) ||
+      authStore.checkAttributes(["storage:aips:list"]),
+  },
+  {
     route: router.resolve("/locations/"),
-    icon: RawIconRackServerLine,
+    icon: IconLocations,
     text: "Locations",
     show: authStore.checkAttributes(["storage:locations:list"]),
+  },
+  {
+    route: router.resolve("/aips/"),
+    icon: IconAIPs,
+    text: "AIPs",
+    show: authStore.checkAttributes(["storage:aips:list"]),
   },
 ];
 
@@ -77,41 +94,50 @@ const closeOffcanvas = () => {
         class="flex-grow-1 d-flex flex-column"
       >
         <ul class="list-unstyled flex-grow-1 mb-0">
-          <li v-for="item in menuItems">
-            <router-link
-              v-if="item.show"
-              class="d-block py-3 text-decoration-none sidebar-link"
-              active-class="active"
-              exact-active-class="exact-active"
-              :to="item.route"
-              @click="closeOffcanvas"
-            >
-              <div class="container-fluid">
-                <div class="row">
-                  <div
-                    class="d-flex p-0 col-3 justify-content-end"
-                    :class="
-                      layoutStore.sidebarCollapsed
-                        ? 'col-md-12 justify-content-md-center'
-                        : ''
-                    "
-                  >
-                    <span v-html="item.icon" aria-hidden="true" />
+          <template v-for="item in menuItems">
+            <li v-if="item.show">
+              <div
+                v-if="!item.route"
+                class="py-2 text-muted small"
+                :class="layoutStore.sidebarCollapsed ? 'text-center' : 'ps-3'"
+              >
+                {{ item.text }}
+              </div>
+              <router-link
+                v-else
+                class="d-block py-3 text-decoration-none sidebar-link"
+                active-class="active"
+                exact-active-class="exact-active"
+                :to="item.route"
+                @click="closeOffcanvas"
+              >
+                <div class="container-fluid">
+                  <div class="row">
+                    <div
+                      class="d-flex p-0 col-3 justify-content-end"
+                      :class="
+                        layoutStore.sidebarCollapsed
+                          ? 'col-md-12 justify-content-md-center'
+                          : ''
+                      "
+                    >
+                      <span v-html="item.icon" aria-hidden="true" />
+                    </div>
+                    <div
+                      class="col-9 d-flex align-items-center"
+                      :class="
+                        layoutStore.sidebarCollapsed
+                          ? 'col-md-12 justify-content-md-center pt-md-2'
+                          : ''
+                      "
+                    >
+                      {{ item.text }}
+                    </div>
                   </div>
-                  <div
-                    class="col-9 d-flex align-items-center"
-                    :class="
-                      layoutStore.sidebarCollapsed
-                        ? 'col-md-12 justify-content-md-center pt-md-2'
-                        : ''
-                    "
-                  >
-                    {{ item.text }}
-                  </div>
-                </div>
-              </div></router-link
-            >
-          </li>
+                </div></router-link
+              >
+            </li>
+          </template>
         </ul>
         <button
           v-if="authStore.isEnabled"
@@ -135,7 +161,7 @@ const closeOffcanvas = () => {
                 "
               >
                 <span
-                  v-html="RawIconUserSolid"
+                  v-html="IconUser"
                   class="text-primary"
                   aria-hidden="true"
                 />
@@ -151,7 +177,7 @@ const closeOffcanvas = () => {
                 <span class="text-truncate pe-1">{{
                   authStore.getUserDisplayName
                 }}</span>
-                <IconCaretLine class="ms-auto" />
+                <IconCaret class="ms-auto" />
               </div>
             </div>
           </div>
@@ -172,7 +198,7 @@ const closeOffcanvas = () => {
                       : ''
                   "
                 >
-                  <span v-html="RawIconLogoutLine" aria-hidden="true" />
+                  <span v-html="IconLogout" aria-hidden="true" />
                 </div>
                 <div
                   class="col-9 d-flex align-items-center"

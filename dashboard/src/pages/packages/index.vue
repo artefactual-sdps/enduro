@@ -15,19 +15,19 @@ import type { IngestListSipsStatusEnum } from "@/openapi-generator";
 import { useAuthStore } from "@/stores/auth";
 import { useLayoutStore } from "@/stores/layout";
 import { usePackageStore } from "@/stores/package";
-import IconInfoFill from "~icons/akar-icons/info-fill";
-import IconCaretLeftFill from "~icons/bi/caret-left-fill";
-import IconCaretRightFill from "~icons/bi/caret-right-fill";
-import IconSkipEndFill from "~icons/bi/skip-end-fill";
-import IconSkipStartFill from "~icons/bi/skip-start-fill";
-import RawIconBlocksGroupLine from "~icons/clarity/blocks-group-line?raw&font-size=20px";
-import IconBundleLine from "~icons/clarity/bundle-line";
-import RawIconClockLine from "~icons/clarity/clock-line?raw&font-size=20px";
-import IconCloseLine from "~icons/clarity/close-line";
-import RawIconRemoveLine from "~icons/clarity/remove-line?raw&font-size=20px";
+import IconInfo from "~icons/akar-icons/info-fill";
+import IconSIPs from "~icons/octicon/package-dependencies-24";
 import IconSearch from "~icons/clarity/search-line";
-import RawIconSuccessLine from "~icons/clarity/success-standard-line?raw&font-size=20px";
-import RawIconSyncLine from "~icons/clarity/sync-line?raw&font-size=20px";
+import IconClose from "~icons/clarity/close-line";
+import IconSkipEnd from "~icons/bi/skip-end-fill";
+import IconSkipStart from "~icons/bi/skip-start-fill";
+import IconCaretRight from "~icons/bi/caret-right-fill";
+import IconCaretLeft from "~icons/bi/caret-left-fill";
+import IconAll from "~icons/clarity/blocks-group-line?raw&font-size=20px";
+import IconDone from "~icons/clarity/success-standard-line?raw&font-size=20px";
+import IconError from "~icons/clarity/remove-line?raw&font-size=20px";
+import IconInProgress from "~icons/clarity/sync-line?raw&font-size=20px";
+import IconQueued from "~icons/clarity/clock-line?raw&font-size=20px";
 
 const authStore = useAuthStore();
 const layoutStore = useLayoutStore();
@@ -36,7 +36,7 @@ const packageStore = usePackageStore();
 const route = useRoute();
 const router = useRouter();
 
-layoutStore.updateBreadcrumb([{ text: "Packages" }]);
+layoutStore.updateBreadcrumb([{ text: "Ingest" }, { text: "SIPs" }]);
 
 const el = ref<HTMLElement | null>(null);
 let tooltip: Tooltip | null = null;
@@ -53,7 +53,7 @@ onMounted(() => {
 
 const tabs = computed(() => [
   {
-    icon: RawIconBlocksGroupLine,
+    icon: IconAll,
     text: "All",
     route: router.resolve({
       name: "/packages/",
@@ -62,7 +62,7 @@ const tabs = computed(() => [
     show: true,
   },
   {
-    icon: RawIconSuccessLine,
+    icon: IconDone,
     text: "Done",
     route: router.resolve({
       name: "/packages/",
@@ -71,7 +71,7 @@ const tabs = computed(() => [
     show: true,
   },
   {
-    icon: RawIconRemoveLine,
+    icon: IconError,
     text: "Error",
     route: router.resolve({
       name: "/packages/",
@@ -80,7 +80,7 @@ const tabs = computed(() => [
     show: true,
   },
   {
-    icon: RawIconSyncLine,
+    icon: IconInProgress,
     text: "In progress",
     route: router.resolve({
       name: "/packages/",
@@ -89,7 +89,7 @@ const tabs = computed(() => [
     show: true,
   },
   {
-    icon: RawIconClockLine,
+    icon: IconQueued,
     text: "Queued",
     route: router.resolve({
       name: "/packages/",
@@ -211,9 +211,7 @@ watch(
 
 <template>
   <div class="container-xxl">
-    <h1 class="d-flex mb-0">
-      <IconBundleLine class="me-3 text-dark" />Packages
-    </h1>
+    <h1 class="d-flex mb-0"><IconSIPs class="me-3 text-dark" />SIPs</h1>
 
     <div class="text-muted mb-3">
       Showing {{ packageStore.page.offset + 1 }} -
@@ -244,7 +242,7 @@ watch(
               type="reset"
               aria-label="Reset search"
             >
-              <IconCloseLine />
+              <IconClose />
             </button>
             <button
               class="btn btn-primary"
@@ -296,7 +294,7 @@ watch(
                   data-bs-toggle="tooltip"
                   data-bs-title="Toggle legend"
                 >
-                  <IconInfoFill style="font-size: 1.2em" aria-hidden="true" />
+                  <IconInfo style="font-size: 1.2em" aria-hidden="true" />
                   <span class="visually-hidden"
                     >Toggle package status legend</span
                   >
@@ -343,7 +341,7 @@ watch(
               aria-label="Go to first page"
               title="First page"
               @click.prevent="packageStore.fetchPackages(1)"
-              ><IconSkipStartFill
+              ><IconSkipStart
             /></a>
           </li>
           <li class="page-item">
@@ -356,7 +354,7 @@ watch(
               aria-label="Go to previous page"
               title="Previous page"
               @click.prevent="packageStore.prevPage"
-              ><IconCaretLeftFill
+              ><IconCaretLeft
             /></a>
           </li>
           <li
@@ -404,7 +402,7 @@ watch(
               aria-label="Go to next page"
               title="Next page"
               @click.prevent="packageStore.nextPage"
-              ><IconCaretRightFill
+              ><IconCaretRight
             /></a>
           </li>
           <li v-if="packageStore.pager.total > packageStore.pager.maxPages">
@@ -420,7 +418,7 @@ watch(
               @click.prevent="
                 packageStore.fetchPackages(packageStore.pager.total)
               "
-              ><IconSkipEndFill
+              ><IconSkipEnd
             /></a>
           </li>
         </ul>

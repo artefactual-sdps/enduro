@@ -6,11 +6,11 @@ import UUID from "@/components/UUID.vue";
 import { useAuthStore } from "@/stores/auth";
 import { useLayoutStore } from "@/stores/layout";
 import { useStorageStore } from "@/stores/storage";
-import IconRackServerLine from "~icons/clarity/rack-server-line";
+import IconLocations from "~icons/octicon/server-24";
 
 const authStore = useAuthStore();
 const layoutStore = useLayoutStore();
-layoutStore.updateBreadcrumb([{ text: "Locations" }]);
+layoutStore.updateBreadcrumb([{ text: "Storage" }, { text: "Locations" }]);
 
 const storageStore = useStorageStore();
 const { execute, error } = useAsyncState(() => {
@@ -21,7 +21,7 @@ const { execute, error } = useAsyncState(() => {
 <template>
   <div class="container-xxl">
     <h1 class="d-flex mb-0">
-      <IconRackServerLine class="me-3 text-dark" />Locations
+      <IconLocations class="me-3 text-dark" />Locations
     </h1>
     <div class="text-muted mb-3">
       Showing {{ storageStore.locations.length }} /
