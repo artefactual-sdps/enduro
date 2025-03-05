@@ -87,26 +87,26 @@ func preservationTaskToGoa(pt *datatypes.PreservationTask) *goaingest.SIPPreserv
 func listSipsPayloadToSIPFilter(payload *goaingest.ListSipsPayload) (*persistence.SIPFilter, error) {
 	aipID, err := stringToUUIDPtr(payload.AipID)
 	if err != nil {
-		return nil, fmt.Errorf("aip_id: %v", err)
+		return nil, goaingest.MakeNotValid(errors.New("aip_id: invalid UUID"))
 	}
 
 	locID, err := stringToUUIDPtr(payload.LocationID)
 	if err != nil {
-		return nil, fmt.Errorf("location_id: %v", err)
+		return nil, goaingest.MakeNotValid(errors.New("location_id: invalid UUID"))
 	}
 
 	var status *enums.SIPStatus
 	if payload.Status != nil {
 		s, err := enums.ParseSIPStatus(*payload.Status)
 		if err != nil {
-			return nil, fmt.Errorf("invalid status")
+			return nil, goaingest.MakeNotValid(errors.New("status: invalid value"))
 		}
 		status = &s
 	}
 
 	createdAt, err := parseCreatedAtRange(payload.EarliestCreatedTime, payload.LatestCreatedTime)
 	if err != nil {
-		return nil, err
+		return nil, goaingest.MakeNotValid(err)
 	}
 
 	pf := persistence.SIPFilter{
@@ -167,7 +167,7 @@ func parseCreatedAtRange(start, end *string) (*timerange.Range, error) {
 
 	r, err := timerange.New(s, e)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("created at: %v", err)
 	}
 
 	return &r, nil

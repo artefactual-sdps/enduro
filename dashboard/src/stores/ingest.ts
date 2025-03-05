@@ -6,9 +6,12 @@ import { api, client } from "@/client";
 import {
   IngestListSipsStatusEnum,
   MonitorEventEventTypeEnum,
+  ResponseError,
 } from "@/openapi-generator";
 import router from "@/router";
 import { useLayoutStore } from "@/stores/layout";
+
+const defaultPageSize = 20;
 
 export interface Pager {
   // maxPages is the maximum number of page links to show in the pager.
@@ -38,9 +41,9 @@ export const useIngestStore = defineStore("ingest", {
     sips: [] as Array<api.EnduroIngestSip>,
 
     // Page is a subset of the total SIP list.
-    page: { limit: 20 } as api.EnduroPage,
+    page: { limit: defaultPageSize } as api.EnduroPage,
 
-    // Pager contains a list of pages numbers to show in the pager.
+    // Pager contains a list of page numbers to show in the pager.
     pager: { maxPages: 7 } as Pager,
 
     // User-interface interactions between components.
@@ -49,8 +52,8 @@ export const useIngestStore = defineStore("ingest", {
     },
 
     filters: {
-      status: "" as IngestListSipsStatusEnum,
-      name: "",
+      name: "" as string | undefined,
+      status: "" as IngestListSipsStatusEnum | undefined,
       earliestCreatedTime: undefined as Date | undefined,
       latestCreatedTime: undefined as Date | undefined,
     },
@@ -151,17 +154,47 @@ export const useIngestStore = defineStore("ingest", {
       ]);
     },
     async fetchSips(page: number) {
-      const resp = await client.ingest.ingestListSips({
-        offset: page > 1 ? (page - 1) * this.page.limit : undefined,
-        limit: this.page?.limit || undefined,
-        status: this.filters.status ?? undefined,
-        name: this.filters.name ?? undefined,
-        earliestCreatedTime: this.filters.earliestCreatedTime,
-        latestCreatedTime: this.filters.latestCreatedTime,
-      });
-      this.sips = resp.items;
-      this.page = resp.page;
-      this.updatePager();
+      return client.ingest
+        .ingestListSips({
+          offset: page > 1 ? (page - 1) * this.page.limit : undefined,
+          limit: this.page?.limit || undefined,
+          name: this.filters.name,
+          status: this.filters.status,
+          earliestCreatedTime: this.filters.earliestCreatedTime,
+          latestCreatedTime: this.filters.latestCreatedTime,
+        })
+        .then((resp) => {
+          this.sips = resp.items;
+          this.page = resp.page;
+          this.updatePager();
+        })
+        .catch(async (err) => {
+          this.sips = [];
+          this.page = { limit: defaultPageSize, offset: 0, total: 0 };
+          this.updatePager();
+
+          if (err instanceof ResponseError) {
+            // An invalid status or time range returns a ResponseError with the
+            // error message in the response body (JSON).
+            return err.response.text().then((body) => {
+              const modelErr = api.ModelErrorFromJSON(JSON.parse(body));
+              console.error(
+                "API response",
+                err.response.status,
+                modelErr.message,
+              );
+              throw new Error(modelErr.message);
+            });
+          } else if (err instanceof RangeError) {
+            // An invalid date parameter (e.g. earliestCreatedTime) returns a
+            // RangeError with a message like "invalid date".
+            console.error("Range error", err.message);
+            throw new Error(err.message);
+          } else {
+            console.error("Unknown error", err.message);
+            throw new Error(err.message);
+          }
+        });
     },
     async fetchSipsDebounced(page: number) {
       return this.fetchSips(page);

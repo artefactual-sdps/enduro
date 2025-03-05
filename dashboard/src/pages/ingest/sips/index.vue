@@ -99,12 +99,12 @@ const tabs = computed(() => [
   },
 ]);
 
-const doSearch = () => {
+const searchByName = () => {
   let q = { ...route.query };
   if (ingestStore.filters.name === "") {
     delete q.name;
   } else {
-    q.name = ingestStore.filters.name;
+    q.name = <LocationQueryValue>ingestStore.filters.name;
   }
 
   router.push({
@@ -158,51 +158,42 @@ const updateDateFilter = (
 const { execute, error } = useAsyncState(() => {
   if (route.query.name) {
     ingestStore.filters.name = <string>route.query.name;
+  } else {
+    delete ingestStore.filters.name;
   }
+
   if (route.query.status) {
     ingestStore.filters.status = <IngestListSipsStatusEnum>route.query.status;
+  } else {
+    delete ingestStore.filters.status;
   }
+
   if (route.query.earliestCreatedTime) {
     ingestStore.filters.earliestCreatedTime = new Date(
       route.query.earliestCreatedTime as string,
     );
+  } else {
+    delete ingestStore.filters.earliestCreatedTime;
   }
+
   if (route.query.latestCreatedTime) {
     ingestStore.filters.latestCreatedTime = new Date(
       route.query.latestCreatedTime as string,
     );
+  } else {
+    delete ingestStore.filters.latestCreatedTime;
   }
 
-  return ingestStore.fetchSips(1);
+  return ingestStore.fetchSips(
+    route.query.page ? parseInt(<string>route.query.page) : 1,
+  );
 }, null);
 
 watch(
-  () => [
-    route.query.status,
-    route.query.name,
-    route.query.earliestCreatedTime,
-    route.query.latestCreatedTime,
-  ],
-  ([newStatus, newName, newEarliest, newLatest]) => {
-    ingestStore.filters.status = newStatus as IngestListSipsStatusEnum;
-
-    if (newName) {
-      ingestStore.filters.name = newName as string;
-    }
-
-    if (newEarliest) {
-      ingestStore.filters.earliestCreatedTime = new Date(newEarliest as string);
-    } else {
-      ingestStore.filters.earliestCreatedTime = undefined;
-    }
-
-    if (newLatest) {
-      ingestStore.filters.latestCreatedTime = new Date(newLatest as string);
-    } else {
-      ingestStore.filters.latestCreatedTime = undefined;
-    }
-
-    return ingestStore.fetchSips(1);
+  () => route.query,
+  () => {
+    // Execute fetchSips when the query changes.
+    execute();
   },
 );
 </script>
@@ -221,7 +212,7 @@ watch(
 
     <div class="d-flex flex-wrap gap-3 mb-3">
       <div>
-        <form id="sipSearch" @submit.prevent="doSearch">
+        <form id="sipSearch" @submit.prevent="searchByName">
           <div class="input-group">
             <input
               type="text"
@@ -235,7 +226,7 @@ watch(
               class="btn btn-secondary"
               @click="
                 ingestStore.filters.name = '';
-                doSearch();
+                searchByName();
               "
               type="reset"
               aria-label="Reset search"

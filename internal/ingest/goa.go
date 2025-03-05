@@ -17,8 +17,6 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 )
 
-var ErrBulkStatusUnavailable = errors.New("bulk status unavailable")
-
 // GoaWrapper returns a ingestImpl wrapper that implements
 // goaingest.Service. It can handle types that are specific to the Goa API.
 type goaWrapper struct {
@@ -28,8 +26,9 @@ type goaWrapper struct {
 var _ goaingest.Service = (*goaWrapper)(nil)
 
 var (
-	ErrUnauthorized error = goaingest.Unauthorized("Unauthorized")
-	ErrForbidden    error = goaingest.Forbidden("Forbidden")
+	ErrBulkStatusUnavailable error = errors.New("bulk status unavailable")
+	ErrForbidden             error = goaingest.Forbidden("Forbidden")
+	ErrUnauthorized          error = goaingest.Unauthorized("Unauthorized")
 )
 
 func (w *goaWrapper) JWTAuth(
