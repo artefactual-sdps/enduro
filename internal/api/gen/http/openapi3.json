@@ -1798,6 +1798,16 @@
             },
             "description": "OK response."
           },
+          "400": {
+            "content": {
+              "application/vnd.goa.error": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "not_valid: Bad Request response."
+          },
           "401": {
             "content": {
               "application/json": {
