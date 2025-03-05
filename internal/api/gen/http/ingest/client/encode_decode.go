@@ -325,6 +325,7 @@ func EncodeListSipsRequest(encoder func(*http.Request) goahttp.Encoder) func(*ht
 // ingest list_sips endpoint. restoreBody controls whether the response body
 // should be restored after having been read.
 // DecodeListSipsResponse may return the following errors:
+//   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
 //   - "forbidden" (type ingest.Forbidden): http.StatusForbidden
 //   - "unauthorized" (type ingest.Unauthorized): http.StatusUnauthorized
 //   - error: internal error
@@ -360,6 +361,20 @@ func DecodeListSipsResponse(decoder func(*http.Response) goahttp.Decoder, restor
 			}
 			res := ingest.NewSIPs(vres)
 			return res, nil
+		case http.StatusBadRequest:
+			var (
+				body ListSipsNotValidResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "list_sips", err)
+			}
+			err = ValidateListSipsNotValidResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("ingest", "list_sips", err)
+			}
+			return nil, NewListSipsNotValid(&body)
 		case http.StatusForbidden:
 			var (
 				body string

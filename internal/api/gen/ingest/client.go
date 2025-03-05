@@ -77,6 +77,7 @@ func (c *Client) Monitor(ctx context.Context, p *MonitorPayload) (res MonitorCli
 
 // ListSips calls the "list_sips" endpoint of the "ingest" service.
 // ListSips may return the following errors:
+//   - "not_valid" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
 //   - error: internal error
