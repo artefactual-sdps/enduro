@@ -317,7 +317,7 @@ func TestList(t *testing.T) {
 			payload: &goaingest.ListSipsPayload{
 				Status: ref.New("meditating"),
 			},
-			wantErr: "invalid status",
+			wantErr: "status: invalid value",
 		},
 		{
 			name: "Errors on a bad earliest_created_time",
@@ -339,7 +339,7 @@ func TestList(t *testing.T) {
 				EarliestCreatedTime: ref.New("2024-10-01T17:43:52Z"),
 				LatestCreatedTime:   ref.New("2023-10-01T17:43:52Z"),
 			},
-			wantErr: "time range: end cannot be before start",
+			wantErr: "created at: time range: end cannot be before start",
 		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
