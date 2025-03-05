@@ -18,7 +18,7 @@ describe("useLayoutStore", () => {
 
   it("updates the breadcrumb property", () => {
     const layoutStore = useLayoutStore();
-    const breadcrumb = [{ text: "Packages" }];
+    const breadcrumb = [{ text: "SIPs" }];
 
     layoutStore.updateBreadcrumb(breadcrumb);
     expect(layoutStore.breadcrumb).toEqual(breadcrumb);

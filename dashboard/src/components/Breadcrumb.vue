@@ -9,10 +9,12 @@ const layoutStore = useLayoutStore();
   <nav aria-label="Breadcrumb" class="d-inline-block">
     <ol class="breadcrumb mb-0">
       <li
-        v-for="item in layoutStore.breadcrumb"
+        v-for="(item, i) in layoutStore.breadcrumb"
         class="breadcrumb-item"
-        :class="!item.route ? 'active' : ''"
-        :aria-current="!item.route ? 'page' : undefined"
+        :class="i == layoutStore.breadcrumb.length - 1 ? 'active' : ''"
+        :aria-current="
+          i == layoutStore.breadcrumb.length - 1 ? 'page' : undefined
+        "
       >
         <router-link :to="item.route" v-if="item.route" class="text-primary">{{
           item.text

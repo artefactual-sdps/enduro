@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { IngestListSipsStatusEnum } from "@/openapi-generator";
-import { usePackageStore } from "@/stores/package";
+import { useIngestStore } from "@/stores/ingest";
 
-const packageStore = usePackageStore();
+const ingestStore = useIngestStore();
 </script>
 
 <template>
@@ -12,8 +12,8 @@ const packageStore = usePackageStore();
       <label for="filter-status" class="align-self-center">Status</label>
       <select
         id="filter-status"
-        v-model="packageStore.filters.status"
-        @change="packageStore.fetchPackages(1)"
+        v-model="ingestStore.filters.status"
+        @change="ingestStore.fetchSips(1)"
         class="form-select"
       >
         <option value="">any</option>

@@ -1,14 +1,14 @@
 import { cleanup, fireEvent, render } from "@testing-library/vue";
 import { afterEach, describe, expect, it } from "vitest";
 
-import PackageListLegend from "@/components/PackageListLegend.vue";
+import SipListLegend from "@/components/SipListLegend.vue";
 
-describe("PackageListLegend.vue", () => {
+describe("SipListLegend.vue", () => {
   afterEach(() => cleanup());
 
   it("renders", async () => {
     const { getByText, getByLabelText, queryByText, emitted, rerender } =
-      render(PackageListLegend, {
+      render(SipListLegend, {
         props: {
           modelValue: true,
         },

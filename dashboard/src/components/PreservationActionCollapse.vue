@@ -2,8 +2,8 @@
 import { computed, ref, toRefs } from "vue";
 
 import type { api } from "@/client";
-import PackageReviewAlert from "@/components/PackageReviewAlert.vue";
 import PreservationTask from "@/components/PreservationTask.vue";
+import SipReviewAlert from "@/components/SipReviewAlert.vue";
 import StatusBadge from "@/components/StatusBadge.vue";
 import { useAuthStore } from "@/stores/auth";
 
@@ -67,7 +67,7 @@ let expandCounter = ref<number>(0);
       :aria-labelledby="'pa-heading-' + index"
       data-bs-parent="#preservation-actions"
     >
-      <PackageReviewAlert
+      <SipReviewAlert
         v-model:expandCounter="expandCounter"
         v-if="authStore.checkAttributes(['ingest:sips:review'])"
       />

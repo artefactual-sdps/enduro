@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useAuthStore } from "@/stores/auth";
-import IconLoginLine from "~icons/clarity/login-line";
+import IconLogin from "~icons/clarity/login-line";
 </script>
 
 <template>
@@ -10,7 +10,7 @@ import IconLoginLine from "~icons/clarity/login-line";
       type="button"
       @click="useAuthStore().signinRedirect()"
     >
-      <IconLoginLine aria-hidden="true" class="me-2" style="font-size: 25px" />
+      <IconLogin aria-hidden="true" class="me-2" style="font-size: 25px" />
       Sign in
     </button>
   </div>

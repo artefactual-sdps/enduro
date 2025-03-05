@@ -5,38 +5,38 @@ import { computed, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router/auto";
 import type { LocationQueryValue } from "vue-router/auto";
 
-import PackageListLegend from "@/components/PackageListLegend.vue";
 import PageLoadingAlert from "@/components/PageLoadingAlert.vue";
+import SipListLegend from "@/components/SipListLegend.vue";
 import StatusBadge from "@/components/StatusBadge.vue";
 import Tabs from "@/components/Tabs.vue";
 import TimeDropdown from "@/components/TimeDropdown.vue";
 import UUID from "@/components/UUID.vue";
 import type { IngestListSipsStatusEnum } from "@/openapi-generator";
 import { useAuthStore } from "@/stores/auth";
+import { useIngestStore } from "@/stores/ingest";
 import { useLayoutStore } from "@/stores/layout";
-import { usePackageStore } from "@/stores/package";
-import IconInfoFill from "~icons/akar-icons/info-fill";
-import IconCaretLeftFill from "~icons/bi/caret-left-fill";
-import IconCaretRightFill from "~icons/bi/caret-right-fill";
-import IconSkipEndFill from "~icons/bi/skip-end-fill";
-import IconSkipStartFill from "~icons/bi/skip-start-fill";
-import RawIconBlocksGroupLine from "~icons/clarity/blocks-group-line?raw&font-size=20px";
-import IconBundleLine from "~icons/clarity/bundle-line";
-import RawIconClockLine from "~icons/clarity/clock-line?raw&font-size=20px";
-import IconCloseLine from "~icons/clarity/close-line";
-import RawIconRemoveLine from "~icons/clarity/remove-line?raw&font-size=20px";
+import IconInfo from "~icons/akar-icons/info-fill";
+import IconCaretLeft from "~icons/bi/caret-left-fill";
+import IconCaretRight from "~icons/bi/caret-right-fill";
+import IconSkipEnd from "~icons/bi/skip-end-fill";
+import IconSkipStart from "~icons/bi/skip-start-fill";
+import IconAll from "~icons/clarity/blocks-group-line?raw&font-size=20px";
+import IconQueued from "~icons/clarity/clock-line?raw&font-size=20px";
+import IconClose from "~icons/clarity/close-line";
+import IconError from "~icons/clarity/remove-line?raw&font-size=20px";
 import IconSearch from "~icons/clarity/search-line";
-import RawIconSuccessLine from "~icons/clarity/success-standard-line?raw&font-size=20px";
-import RawIconSyncLine from "~icons/clarity/sync-line?raw&font-size=20px";
+import IconDone from "~icons/clarity/success-standard-line?raw&font-size=20px";
+import IconInProgress from "~icons/clarity/sync-line?raw&font-size=20px";
+import IconSIPs from "~icons/octicon/package-dependencies-24";
 
 const authStore = useAuthStore();
 const layoutStore = useLayoutStore();
-const packageStore = usePackageStore();
+const ingestStore = useIngestStore();
 
 const route = useRoute();
 const router = useRouter();
 
-layoutStore.updateBreadcrumb([{ text: "Packages" }]);
+layoutStore.updateBreadcrumb([{ text: "Ingest" }, { text: "SIPs" }]);
 
 const el = ref<HTMLElement | null>(null);
 let tooltip: Tooltip | null = null;
@@ -53,46 +53,46 @@ onMounted(() => {
 
 const tabs = computed(() => [
   {
-    icon: RawIconBlocksGroupLine,
+    icon: IconAll,
     text: "All",
     route: router.resolve({
-      name: "/packages/",
+      name: "/ingest/sips/",
       query: { ...route.query, status: undefined },
     }),
     show: true,
   },
   {
-    icon: RawIconSuccessLine,
+    icon: IconDone,
     text: "Done",
     route: router.resolve({
-      name: "/packages/",
+      name: "/ingest/sips/",
       query: { ...route.query, status: "done" },
     }),
     show: true,
   },
   {
-    icon: RawIconRemoveLine,
+    icon: IconError,
     text: "Error",
     route: router.resolve({
-      name: "/packages/",
+      name: "/ingest/sips/",
       query: { ...route.query, status: "error" },
     }),
     show: true,
   },
   {
-    icon: RawIconSyncLine,
+    icon: IconInProgress,
     text: "In progress",
     route: router.resolve({
-      name: "/packages/",
+      name: "/ingest/sips/",
       query: { ...route.query, status: "in progress" },
     }),
     show: true,
   },
   {
-    icon: RawIconClockLine,
+    icon: IconQueued,
     text: "Queued",
     route: router.resolve({
-      name: "/packages/",
+      name: "/ingest/sips/",
       query: { ...route.query, status: "queued" },
     }),
     show: true,
@@ -101,14 +101,14 @@ const tabs = computed(() => [
 
 const doSearch = () => {
   let q = { ...route.query };
-  if (packageStore.filters.name === "") {
+  if (ingestStore.filters.name === "") {
     delete q.name;
   } else {
-    q.name = packageStore.filters.name;
+    q.name = ingestStore.filters.name;
   }
 
   router.push({
-    name: "/packages/",
+    name: "/ingest/sips/",
     query: q,
   });
 };
@@ -150,30 +150,30 @@ const updateDateFilter = (
   }
 
   router.push({
-    name: "/packages/",
+    name: "/ingest/sips/",
     query: q,
   });
 };
 
 const { execute, error } = useAsyncState(() => {
   if (route.query.name) {
-    packageStore.filters.name = <string>route.query.name;
+    ingestStore.filters.name = <string>route.query.name;
   }
   if (route.query.status) {
-    packageStore.filters.status = <IngestListSipsStatusEnum>route.query.status;
+    ingestStore.filters.status = <IngestListSipsStatusEnum>route.query.status;
   }
   if (route.query.earliestCreatedTime) {
-    packageStore.filters.earliestCreatedTime = new Date(
+    ingestStore.filters.earliestCreatedTime = new Date(
       route.query.earliestCreatedTime as string,
     );
   }
   if (route.query.latestCreatedTime) {
-    packageStore.filters.latestCreatedTime = new Date(
+    ingestStore.filters.latestCreatedTime = new Date(
       route.query.latestCreatedTime as string,
     );
   }
 
-  return packageStore.fetchPackages(1);
+  return ingestStore.fetchSips(1);
 }, null);
 
 watch(
@@ -184,52 +184,48 @@ watch(
     route.query.latestCreatedTime,
   ],
   ([newStatus, newName, newEarliest, newLatest]) => {
-    packageStore.filters.status = newStatus as IngestListSipsStatusEnum;
+    ingestStore.filters.status = newStatus as IngestListSipsStatusEnum;
 
     if (newName) {
-      packageStore.filters.name = newName as string;
+      ingestStore.filters.name = newName as string;
     }
 
     if (newEarliest) {
-      packageStore.filters.earliestCreatedTime = new Date(
-        newEarliest as string,
-      );
+      ingestStore.filters.earliestCreatedTime = new Date(newEarliest as string);
     } else {
-      packageStore.filters.earliestCreatedTime = undefined;
+      ingestStore.filters.earliestCreatedTime = undefined;
     }
 
     if (newLatest) {
-      packageStore.filters.latestCreatedTime = new Date(newLatest as string);
+      ingestStore.filters.latestCreatedTime = new Date(newLatest as string);
     } else {
-      packageStore.filters.latestCreatedTime = undefined;
+      ingestStore.filters.latestCreatedTime = undefined;
     }
 
-    return packageStore.fetchPackages(1);
+    return ingestStore.fetchSips(1);
   },
 );
 </script>
 
 <template>
   <div class="container-xxl">
-    <h1 class="d-flex mb-0">
-      <IconBundleLine class="me-3 text-dark" />Packages
-    </h1>
+    <h1 class="d-flex mb-0"><IconSIPs class="me-3 text-dark" />SIPs</h1>
 
     <div class="text-muted mb-3">
-      Showing {{ packageStore.page.offset + 1 }} -
-      {{ packageStore.lastResultOnPage }} of
-      {{ packageStore.page.total }}
+      Showing {{ ingestStore.page.offset + 1 }} -
+      {{ ingestStore.lastResultOnPage }} of
+      {{ ingestStore.page.total }}
     </div>
 
     <PageLoadingAlert :execute="execute" :error="error" />
 
     <div class="d-flex flex-wrap gap-3 mb-3">
       <div>
-        <form id="packageSearch" @submit.prevent="doSearch">
+        <form id="sipSearch" @submit.prevent="doSearch">
           <div class="input-group">
             <input
               type="text"
-              v-model.trim="packageStore.filters.name"
+              v-model.trim="ingestStore.filters.name"
               class="form-control"
               name="name"
               placeholder="Search by name"
@@ -238,13 +234,13 @@ watch(
             <button
               class="btn btn-secondary"
               @click="
-                packageStore.filters.name = '';
+                ingestStore.filters.name = '';
                 doSearch();
               "
               type="reset"
               aria-label="Reset search"
             >
-              <IconCloseLine />
+              <IconClose />
             </button>
             <button
               class="btn btn-primary"
@@ -260,8 +256,8 @@ watch(
         <TimeDropdown
           name="createdAt"
           label="Started"
-          :start="packageStore.filters.earliestCreatedTime"
-          :end="packageStore.filters.latestCreatedTime"
+          :start="ingestStore.filters.earliestCreatedTime"
+          :end="ingestStore.filters.latestCreatedTime"
           @change="
             (
               name: string,
@@ -274,7 +270,7 @@ watch(
     </div>
 
     <Tabs :tabs="tabs" param="status" />
-    <PackageListLegend v-model="showLegend" />
+    <SipListLegend v-model="showLegend" />
 
     <div class="table-responsive mb-3">
       <table class="table table-bordered mb-0">
@@ -296,22 +292,20 @@ watch(
                   data-bs-toggle="tooltip"
                   data-bs-title="Toggle legend"
                 >
-                  <IconInfoFill style="font-size: 1.2em" aria-hidden="true" />
-                  <span class="visually-hidden"
-                    >Toggle package status legend</span
-                  >
+                  <IconInfo style="font-size: 1.2em" aria-hidden="true" />
+                  <span class="visually-hidden">Toggle SIP status legend</span>
                 </button>
               </span>
             </th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="pkg in packageStore.packages" :key="pkg.id">
+          <tr v-for="pkg in ingestStore.sips" :key="pkg.id">
             <td scope="row">{{ pkg.id }}</td>
             <td>
               <router-link
                 v-if="authStore.checkAttributes(['ingest:sips:read'])"
-                :to="{ name: '/packages/[id]/', params: { id: pkg.id } }"
+                :to="{ name: '/ingest/sips/[id]/', params: { id: pkg.id } }"
                 >{{ pkg.name }}</router-link
               >
               <span v-else>{{ pkg.name }}</span>
@@ -330,20 +324,20 @@ watch(
         </tbody>
       </table>
     </div>
-    <div v-if="packageStore.pager.total > 1">
+    <div v-if="ingestStore.pager.total > 1">
       <nav role="navigation" aria-label="Pagination navigation">
         <ul class="pagination justify-content-center">
-          <li v-if="packageStore.pager.total > packageStore.pager.maxPages">
+          <li v-if="ingestStore.pager.total > ingestStore.pager.maxPages">
             <a
               href="#"
               :class="{
                 'page-link': true,
-                disabled: packageStore.pager.current == 1,
+                disabled: ingestStore.pager.current == 1,
               }"
               aria-label="Go to first page"
               title="First page"
-              @click.prevent="packageStore.fetchPackages(1)"
-              ><IconSkipStartFill
+              @click.prevent="ingestStore.fetchSips(1)"
+              ><IconSkipStart
             /></a>
           </li>
           <li class="page-item">
@@ -351,44 +345,44 @@ watch(
               href="#"
               :class="{
                 'page-link': true,
-                disabled: !packageStore.hasPrevPage,
+                disabled: !ingestStore.hasPrevPage,
               }"
               aria-label="Go to previous page"
               title="Previous page"
-              @click.prevent="packageStore.prevPage"
-              ><IconCaretLeftFill
+              @click.prevent="ingestStore.prevPage"
+              ><IconCaretLeft
             /></a>
           </li>
           <li
-            v-if="packageStore.pager.first > 1"
+            v-if="ingestStore.pager.first > 1"
             class="d-none d-sm-block"
             aria-hidden="true"
           >
             <a href="#" class="page-link disabled">…</a>
           </li>
           <li
-            v-for="pg in packageStore.pager.pages"
+            v-for="pg in ingestStore.pager.pages"
             :key="pg"
-            :class="{ 'd-none d-sm-block': pg != packageStore.pager.current }"
+            :class="{ 'd-none d-sm-block': pg != ingestStore.pager.current }"
           >
             <a
               href="#"
               :class="{
                 'page-link': true,
-                active: pg == packageStore.pager.current,
+                active: pg == ingestStore.pager.current,
               }"
-              @click.prevent="packageStore.fetchPackages(pg)"
+              @click.prevent="ingestStore.fetchSips(pg)"
               :aria-label="
-                pg == packageStore.pager.current
+                pg == ingestStore.pager.current
                   ? 'Current page, page ' + pg
                   : 'Go to page ' + pg
               "
-              :aria-current="pg == packageStore.pager.current"
+              :aria-current="pg == ingestStore.pager.current"
               >{{ pg }}</a
             >
           </li>
           <li
-            v-if="packageStore.pager.last < packageStore.pager.total"
+            v-if="ingestStore.pager.last < ingestStore.pager.total"
             class="d-none d-sm-block"
             aria-hidden="true"
           >
@@ -399,36 +393,33 @@ watch(
               href="#"
               :class="{
                 'page-link': true,
-                disabled: !packageStore.hasNextPage,
+                disabled: !ingestStore.hasNextPage,
               }"
               aria-label="Go to next page"
               title="Next page"
-              @click.prevent="packageStore.nextPage"
-              ><IconCaretRightFill
+              @click.prevent="ingestStore.nextPage"
+              ><IconCaretRight
             /></a>
           </li>
-          <li v-if="packageStore.pager.total > packageStore.pager.maxPages">
+          <li v-if="ingestStore.pager.total > ingestStore.pager.maxPages">
             <a
               href="#"
               :class="{
                 'page-link': true,
-                disabled:
-                  packageStore.pager.current == packageStore.pager.total,
+                disabled: ingestStore.pager.current == ingestStore.pager.total,
               }"
               aria-label="Go to last page"
               title="Last page"
-              @click.prevent="
-                packageStore.fetchPackages(packageStore.pager.total)
-              "
-              ><IconSkipEndFill
+              @click.prevent="ingestStore.fetchSips(ingestStore.pager.total)"
+              ><IconSkipEnd
             /></a>
           </li>
         </ul>
       </nav>
       <div class="text-muted mb-3 text-center">
-        Showing packages {{ packageStore.page.offset + 1 }} -
-        {{ packageStore.lastResultOnPage }} of
-        {{ packageStore.page.total }}
+        Showing SIPs {{ ingestStore.page.offset + 1 }} -
+        {{ ingestStore.lastResultOnPage }} of
+        {{ ingestStore.page.total }}
       </div>
     </div>
   </div>

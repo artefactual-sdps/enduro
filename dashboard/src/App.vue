@@ -9,13 +9,13 @@ import { useAuthStore } from "@/stores/auth";
 
 const authStore = useAuthStore();
 
-// Connect to the package monitor API when the user is loaded successfully.
+// Connect to the ingest monitor API when the user is loaded successfully.
 watch(
   () => authStore.isUserValid,
   (valid) => {
     if (valid) {
       client.ingest.ingestMonitorRequest().then(() => {
-        client.connectPackageMonitor();
+        client.connectIngestMonitor();
       });
     }
   },

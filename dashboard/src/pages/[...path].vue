@@ -1,4 +1,8 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { useLayoutStore } from "@/stores/layout";
+
+useLayoutStore().updateBreadcrumb([{ text: "Not found" }]);
+</script>
 
 <template>
   <div class="container-xxl">

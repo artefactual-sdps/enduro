@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { openPackageLocationDialog } from "@/dialogs";
-import { usePackageStore } from "@/stores/package";
+import { openLocationDialog } from "@/dialogs";
+import { useIngestStore } from "@/stores/ingest";
 
 let { expandCounter } = defineProps<{
   expandCounter: number;
@@ -10,17 +10,17 @@ const emit = defineEmits<{
   (e: "update:expandCounter", value: number): void;
 }>();
 
-const packageStore = usePackageStore();
+const ingestStore = useIngestStore();
 
 const confirm = async () => {
-  const locationId = await openPackageLocationDialog();
+  const locationId = await openLocationDialog();
   if (!locationId) return;
-  packageStore.confirm(locationId);
+  ingestStore.confirm(locationId);
 };
 </script>
 
 <template>
-  <div class="alert alert-info" role="alert" v-if="packageStore.isPending">
+  <div class="alert alert-info" role="alert" v-if="ingestStore.isPending">
     <h4 class="alert-heading">Task: Review AIP</h4>
     <p>
       Please review the output and decide if you would like to keep the AIP or
@@ -38,7 +38,7 @@ const confirm = async () => {
       </li>
       <li>View a summary of the preservation metadata created</li>
       <li>
-        <a href="#" @click.prevent="packageStore.ui.download.request"
+        <a href="#" @click.prevent="ingestStore.ui.download.request"
           >Download</a
         >
         a local copy of the AIP for inspection
@@ -49,7 +49,7 @@ const confirm = async () => {
       <button
         class="btn btn-danger"
         type="button"
-        @click="packageStore.reject()"
+        @click="ingestStore.reject()"
       >
         Reject
       </button>
