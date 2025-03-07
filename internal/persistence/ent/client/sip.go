@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
+	"github.com/artefactual-sdps/enduro/internal/entfilter"
 	"github.com/artefactual-sdps/enduro/internal/persistence"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/sip"
@@ -170,7 +171,7 @@ func (c *client) ListSIPs(ctx context.Context, f *persistence.SIPFilter) (
 
 // filterSIPs applies the SIP filter f to the query q.
 func filterSIPs(q *db.SIPQuery, f *persistence.SIPFilter) (page, whole *db.SIPQuery) {
-	qf := NewFilter(q, SortableFields{
+	qf := entfilter.NewFilter(q, entfilter.SortableFields{
 		sip.FieldID: {Name: "ID", Default: true},
 	})
 	qf.Contains(sip.FieldName, f.Name)
@@ -184,8 +185,8 @@ func filterSIPs(q *db.SIPQuery, f *persistence.SIPFilter) (page, whole *db.SIPQu
 	// Update the SIPFilter values with the actual values set on the query.
 	// E.g. calling `h.Page(0,0)` will set the query limit equal to the default
 	// page size.
-	f.Limit = qf.limit
-	f.Offset = qf.offset
+	f.Limit = qf.Limit
+	f.Offset = qf.Offset
 
 	return qf.Apply()
 }
