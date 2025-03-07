@@ -11,6 +11,7 @@ import (
 	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/db"
+	"github.com/artefactual-sdps/enduro/internal/entfilter"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/persistence"
 	"github.com/artefactual-sdps/enduro/internal/timerange"
@@ -115,7 +116,7 @@ func listSipsPayloadToSIPFilter(payload *goaingest.ListSipsPayload) (*persistenc
 		LocationID: locID,
 		Status:     status,
 		CreatedAt:  createdAt,
-		Sort:       persistence.NewSort().AddCol("id", true),
+		Sort:       entfilter.NewSort().AddCol("id", true),
 		Page: persistence.Page{
 			Limit:  ref.DerefZero(payload.Limit),
 			Offset: ref.DerefZero(payload.Offset),

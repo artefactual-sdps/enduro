@@ -20,6 +20,7 @@ import (
 	authfake "github.com/artefactual-sdps/enduro/internal/api/auth/fake"
 	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
+	"github.com/artefactual-sdps/enduro/internal/entfilter"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/persistence"
 	persistence_fake "github.com/artefactual-sdps/enduro/internal/persistence/fake"
@@ -180,7 +181,7 @@ func TestList(t *testing.T) {
 				mr.ListSIPs(
 					mockutil.Context(),
 					&persistence.SIPFilter{
-						Sort: persistence.NewSort().AddCol("id", true),
+						Sort: entfilter.NewSort().AddCol("id", true),
 					},
 				).Return(
 					testSIPs,
@@ -245,7 +246,7 @@ func TestList(t *testing.T) {
 							End:   time.Date(2024, 9, 25, 9, 40, 0, 0, time.UTC),
 						},
 						Status: ref.New(enums.SIPStatusDone),
-						Sort:   persistence.NewSort().AddCol("id", true),
+						Sort:   entfilter.NewSort().AddCol("id", true),
 						Page: persistence.Page{
 							Limit:  10,
 							Offset: 1,
@@ -288,7 +289,7 @@ func TestList(t *testing.T) {
 					mockutil.Context(),
 					&persistence.SIPFilter{
 						Name: ref.New("SIP 42"),
-						Sort: persistence.NewSort().AddCol("id", true),
+						Sort: entfilter.NewSort().AddCol("id", true),
 					},
 				).Return(
 					[]*datatypes.SIP{},

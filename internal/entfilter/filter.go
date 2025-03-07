@@ -1,4 +1,4 @@
-package entclient
+package entfilter
 
 import (
 	"slices"
@@ -8,7 +8,6 @@ import (
 	"golang.org/x/exp/maps"
 
 	"github.com/artefactual-sdps/enduro/internal/enums"
-	"github.com/artefactual-sdps/enduro/internal/persistence"
 	"github.com/artefactual-sdps/enduro/internal/timerange"
 )
 
@@ -55,8 +54,8 @@ type Filter[Q Querier[P, O, Q], O OrderOption, P Predicate] struct {
 	filters        []columnFilter[P]
 	sortableFields SortableFields
 	orderBy        []orderOption[O]
-	limit          int
-	offset         int
+	Limit          int
+	Offset         int
 }
 
 // NewFilter returns a new Filter. It panics if orderingFields is empty.
@@ -70,14 +69,14 @@ func NewFilter[Q Querier[P, O, Q], O OrderOption, P Predicate](query Q, sf Sorta
 		filters:        []columnFilter[P]{},
 		sortableFields: sf,
 		orderBy:        []orderOption[O]{},
-		limit:          DefaultPageSize,
+		Limit:          DefaultPageSize,
 	}
 
 	return f
 }
 
 // OrderBy sets the query sort order.
-func (f *Filter[Q, O, P]) OrderBy(sort persistence.Sort) {
+func (f *Filter[Q, O, P]) OrderBy(sort Sort) {
 	if len(sort) == 0 {
 		return
 	}
@@ -145,7 +144,7 @@ func (f *Filter[Q, O, P]) Page(limit, offset int) {
 	f.addLimit(limit)
 
 	if offset > 0 {
-		f.offset = offset
+		f.Offset = offset
 	}
 }
 
@@ -160,7 +159,7 @@ func (f *Filter[Q, O, P]) addLimit(l int) {
 		l = MaxPageSize
 	}
 
-	f.limit = l
+	f.Limit = l
 }
 
 // addFilter adds a new selector for column. Any existing filters on column will
@@ -324,8 +323,8 @@ func (f *Filter[Q, O, P]) Apply() (page, whole Q) {
 	whole.Order(opts...)
 
 	page = whole.Clone()
-	page.Limit(f.limit)
-	page.Offset(f.offset)
+	page.Limit(f.Limit)
+	page.Offset(f.Offset)
 
 	return page, whole
 }
