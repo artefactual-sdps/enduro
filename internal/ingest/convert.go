@@ -11,6 +11,7 @@ import (
 	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/db"
+	"github.com/artefactual-sdps/enduro/internal/entfilter"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/persistence"
 	"github.com/artefactual-sdps/enduro/internal/timerange"
@@ -104,9 +105,9 @@ func listSipsPayloadToSIPFilter(payload *goaingest.ListSipsPayload) (*persistenc
 		status = &s
 	}
 
-	createdAt, err := parseCreatedAtRange(payload.EarliestCreatedTime, payload.LatestCreatedTime)
+	createdAt, err := timerange.Parse(payload.EarliestCreatedTime, payload.LatestCreatedTime)
 	if err != nil {
-		return nil, goaingest.MakeNotValid(err)
+		return nil, goaingest.MakeNotValid(fmt.Errorf("created at: %v", err))
 	}
 
 	pf := persistence.SIPFilter{
@@ -115,7 +116,7 @@ func listSipsPayloadToSIPFilter(payload *goaingest.ListSipsPayload) (*persistenc
 		LocationID: locID,
 		Status:     status,
 		CreatedAt:  createdAt,
-		Sort:       persistence.NewSort().AddCol("id", true),
+		Sort:       entfilter.NewSort().AddCol("id", true),
 		Page: persistence.Page{
 			Limit:  ref.DerefZero(payload.Limit),
 			Offset: ref.DerefZero(payload.Offset),
@@ -136,52 +137,4 @@ func stringToUUIDPtr(s *string) (*uuid.UUID, error) {
 	}
 
 	return &u, nil
-}
-
-func parseCreatedAtRange(start, end *string) (*timerange.Range, error) {
-	var s, e time.Time
-	var err error
-
-	if start == nil && end == nil {
-		return nil, nil
-	}
-
-	if start == nil {
-		// Make start date an arbitrary time far in the past.
-		s = time.Date(1, 1, 1, 0, 0, 0, 0, time.UTC)
-	} else {
-		s, err = parseTime(start)
-		if err != nil {
-			return nil, fmt.Errorf("earliest_created_time: %v", err)
-		}
-	}
-
-	if end == nil {
-		e = time.Now()
-	} else {
-		e, err = parseTime(end)
-		if err != nil {
-			return nil, fmt.Errorf("latest_created_time: %v", err)
-		}
-	}
-
-	r, err := timerange.New(s, e)
-	if err != nil {
-		return nil, fmt.Errorf("created at: %v", err)
-	}
-
-	return &r, nil
-}
-
-func parseTime(value *string) (time.Time, error) {
-	if value == nil {
-		return time.Time{}, nil
-	}
-
-	t, err := time.Parse(time.RFC3339, *value)
-	if err != nil {
-		return time.Time{}, errors.New("invalid time")
-	}
-
-	return t, nil
 }

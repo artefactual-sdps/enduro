@@ -14,9 +14,9 @@ import (
 	"gotest.tools/v3/assert"
 
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
+	"github.com/artefactual-sdps/enduro/internal/entfilter"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/persistence"
-	entclient "github.com/artefactual-sdps/enduro/internal/persistence/ent/client"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db"
 	"github.com/artefactual-sdps/enduro/internal/timerange"
 )
@@ -437,7 +437,7 @@ func TestListSIPs(t *testing.T) {
 					},
 				},
 				page: &persistence.Page{
-					Limit: entclient.DefaultPageSize,
+					Limit: entfilter.DefaultPageSize,
 					Total: 2,
 				},
 			},
@@ -582,7 +582,7 @@ func TestListSIPs(t *testing.T) {
 					},
 				},
 				page: &persistence.Page{
-					Limit: entclient.DefaultPageSize,
+					Limit: entfilter.DefaultPageSize,
 					Total: 1,
 				},
 			},
@@ -630,7 +630,7 @@ func TestListSIPs(t *testing.T) {
 					},
 				},
 				page: &persistence.Page{
-					Limit: entclient.DefaultPageSize,
+					Limit: entfilter.DefaultPageSize,
 					Total: 1,
 				},
 			},
@@ -678,7 +678,7 @@ func TestListSIPs(t *testing.T) {
 					},
 				},
 				page: &persistence.Page{
-					Limit: entclient.DefaultPageSize,
+					Limit: entfilter.DefaultPageSize,
 					Total: 1,
 				},
 			},
@@ -726,7 +726,7 @@ func TestListSIPs(t *testing.T) {
 					},
 				},
 				page: &persistence.Page{
-					Limit: entclient.DefaultPageSize,
+					Limit: entfilter.DefaultPageSize,
 					Total: 1,
 				},
 			},
@@ -795,7 +795,7 @@ func TestListSIPs(t *testing.T) {
 					},
 				},
 				page: &persistence.Page{
-					Limit: entclient.DefaultPageSize,
+					Limit: entfilter.DefaultPageSize,
 					Total: 2,
 				},
 			},
@@ -839,7 +839,7 @@ func TestListSIPs(t *testing.T) {
 			want: results{
 				data: []*datatypes.SIP{},
 				page: &persistence.Page{
-					Limit: entclient.DefaultPageSize,
+					Limit: entfilter.DefaultPageSize,
 					Total: 0,
 				},
 			},

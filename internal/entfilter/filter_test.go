@@ -1,4 +1,4 @@
-package entclient_test
+package entfilter_test
 
 import (
 	"testing"
@@ -10,9 +10,8 @@ import (
 	"go.artefactual.dev/tools/ref"
 	"gotest.tools/v3/assert"
 
+	"github.com/artefactual-sdps/enduro/internal/entfilter"
 	"github.com/artefactual-sdps/enduro/internal/enums"
-	"github.com/artefactual-sdps/enduro/internal/persistence"
-	entclient "github.com/artefactual-sdps/enduro/internal/persistence/ent/client"
 	"github.com/artefactual-sdps/enduro/internal/timerange"
 )
 
@@ -72,10 +71,10 @@ func (q query) Clone() *query {
 	}
 }
 
-func newSortableFields(fields ...string) entclient.SortableFields {
-	sf := map[string]entclient.SortableField{}
+func newSortableFields(fields ...string) entfilter.SortableFields {
+	sf := map[string]entfilter.SortableField{}
 	for i, name := range fields {
-		sf[name] = entclient.SortableField{Name: name, Default: i == 0}
+		sf[name] = entfilter.SortableField{Name: name, Default: i == 0}
 	}
 
 	return sf
@@ -87,12 +86,12 @@ func TestFilter(t *testing.T) {
 	t.Run("Sorts allowed fields", func(t *testing.T) {
 		t.Parallel()
 
-		f := entclient.NewFilter(
+		f := entfilter.NewFilter(
 			&query{table: "data"},
 			newSortableFields("id", "name"),
 		)
 
-		f.OrderBy(persistence.NewSort().
+		f.OrderBy(entfilter.NewSort().
 			AddCol("id", false).
 			AddCol("name", false),
 		)
@@ -103,7 +102,7 @@ func TestFilter(t *testing.T) {
 			page,
 			&query{
 				table: "data",
-				limit: entclient.DefaultPageSize,
+				limit: entfilter.DefaultPageSize,
 				order: []string{"`data`.`id`", "`data`.`name`"},
 				args:  []any{},
 			},
@@ -123,11 +122,11 @@ func TestFilter(t *testing.T) {
 	t.Run("Sorts allowed fields in descending order", func(t *testing.T) {
 		t.Parallel()
 
-		f := entclient.NewFilter(
+		f := entfilter.NewFilter(
 			&query{table: "data"},
 			newSortableFields("id", "name"),
 		)
-		f.OrderBy(persistence.NewSort().AddCol("name", true))
+		f.OrderBy(entfilter.NewSort().AddCol("name", true))
 		page, whole := f.Apply()
 
 		assert.DeepEqual(
@@ -135,7 +134,7 @@ func TestFilter(t *testing.T) {
 			page,
 			&query{
 				table: "data",
-				limit: entclient.DefaultPageSize,
+				limit: entfilter.DefaultPageSize,
 				order: []string{"`data`.`name` DESC"},
 				args:  []any{},
 			},
@@ -155,9 +154,9 @@ func TestFilter(t *testing.T) {
 	t.Run("Sorts by default sort column", func(t *testing.T) {
 		t.Parallel()
 
-		f := entclient.NewFilter(
+		f := entfilter.NewFilter(
 			&query{table: "data"},
-			map[string]entclient.SortableField{
+			map[string]entfilter.SortableField{
 				"id":   {Name: "id"},
 				"name": {Name: "name", Default: true},
 			},
@@ -169,7 +168,7 @@ func TestFilter(t *testing.T) {
 			page,
 			&query{
 				table: "data",
-				limit: entclient.DefaultPageSize,
+				limit: entfilter.DefaultPageSize,
 				order: []string{"`data`.`name`"},
 				args:  []any{},
 			},
@@ -196,15 +195,15 @@ func TestFilter(t *testing.T) {
 			assert.Equal(t, r.(string), "sortableFields is empty")
 		}()
 
-		entclient.NewFilter(q, nil)
+		entfilter.NewFilter(q, nil)
 	})
 
 	t.Run("Panics when no default sortableField is set", func(t *testing.T) {
 		t.Parallel()
 
-		f := entclient.NewFilter(
+		f := entfilter.NewFilter(
 			&query{table: "data"},
-			map[string]entclient.SortableField{
+			map[string]entfilter.SortableField{
 				"id": {Name: "id"},
 			},
 		)
@@ -220,18 +219,18 @@ func TestFilter(t *testing.T) {
 	t.Run("Handles unknown sorting field, defaults to first known field", func(t *testing.T) {
 		t.Parallel()
 
-		f := entclient.NewFilter(
+		f := entfilter.NewFilter(
 			&query{table: "data"},
 			newSortableFields("id", "age"),
 		)
-		f.OrderBy(persistence.NewSort().AddCol("count", false))
+		f.OrderBy(entfilter.NewSort().AddCol("count", false))
 		page, whole := f.Apply()
 		assert.DeepEqual(
 			t,
 			page,
 			&query{
 				table: "data",
-				limit: entclient.DefaultPageSize,
+				limit: entfilter.DefaultPageSize,
 				order: []string{"`data`.`id`"},
 				args:  []any{},
 			},
@@ -251,11 +250,11 @@ func TestFilter(t *testing.T) {
 	t.Run("Sorts by the final sort on a field", func(t *testing.T) {
 		t.Parallel()
 
-		f := entclient.NewFilter(
+		f := entfilter.NewFilter(
 			&query{table: "data"},
 			newSortableFields("id", "name"),
 		)
-		f.OrderBy(persistence.NewSort().
+		f.OrderBy(entfilter.NewSort().
 			AddCol("name", true).
 			AddCol("name", false),
 		)
@@ -268,11 +267,11 @@ func TestFilter(t *testing.T) {
 	t.Run("Default sort when given an empty order param", func(t *testing.T) {
 		t.Parallel()
 
-		f := entclient.NewFilter(
+		f := entfilter.NewFilter(
 			&query{table: "data"},
 			newSortableFields("id", "name"),
 		)
-		f.OrderBy(persistence.NewSort())
+		f.OrderBy(entfilter.NewSort())
 		page, whole := f.Apply()
 
 		assert.DeepEqual(t, page.order, []string{"`data`.`id`"})
@@ -282,12 +281,12 @@ func TestFilter(t *testing.T) {
 	t.Run("Sets page limit and offset", func(t *testing.T) {
 		t.Parallel()
 
-		f := entclient.NewFilter(
+		f := entfilter.NewFilter(
 			&query{table: "data"},
 			newSortableFields("id", "name"),
 		)
 		f.Page(50, 100)
-		f.OrderBy(persistence.NewSort().AddCol("name", false))
+		f.OrderBy(entfilter.NewSort().AddCol("name", false))
 		page, whole := f.Apply()
 
 		assert.Equal(t, page.limit, 50)
@@ -302,62 +301,62 @@ func TestFilter(t *testing.T) {
 	t.Run("Page size defaults to default value", func(t *testing.T) {
 		t.Parallel()
 
-		f := entclient.NewFilter(
+		f := entfilter.NewFilter(
 			&query{table: "data"},
 			newSortableFields("id"),
 		)
 		page, whole := f.Apply()
 
-		assert.Equal(t, page.limit, entclient.DefaultPageSize)
+		assert.Equal(t, page.limit, entfilter.DefaultPageSize)
 		assert.Equal(t, whole.limit, 0)
 	})
 
 	t.Run("Passing a zero page limit uses the default page limit", func(t *testing.T) {
 		t.Parallel()
 
-		f := entclient.NewFilter(
+		f := entfilter.NewFilter(
 			&query{table: "data"},
 			newSortableFields("id"),
 		)
 		f.Page(0, 0)
 		page, whole := f.Apply()
 
-		assert.Equal(t, page.limit, entclient.DefaultPageSize)
+		assert.Equal(t, page.limit, entfilter.DefaultPageSize)
 		assert.Equal(t, whole.limit, 0)
 	})
 
 	t.Run("Page size limited to max page size", func(t *testing.T) {
 		t.Parallel()
 
-		f := entclient.NewFilter(
+		f := entfilter.NewFilter(
 			&query{table: "data"},
 			newSortableFields("id"),
 		)
 		f.Page(100_000, 0)
 		page, whole := f.Apply()
 
-		assert.Equal(t, page.limit, entclient.MaxPageSize)
+		assert.Equal(t, page.limit, entfilter.MaxPageSize)
 		assert.Equal(t, whole.limit, 0)
 	})
 
 	t.Run("Page size is max page size when set to a negative number", func(t *testing.T) {
 		t.Parallel()
 
-		f := entclient.NewFilter(
+		f := entfilter.NewFilter(
 			&query{table: "data"},
 			newSortableFields("id"),
 		)
 		f.Page(-100, 0)
 		page, whole := f.Apply()
 
-		assert.Equal(t, page.limit, entclient.MaxPageSize)
+		assert.Equal(t, page.limit, entfilter.MaxPageSize)
 		assert.Equal(t, whole.limit, 0)
 	})
 
 	t.Run("Adds an equality filter", func(t *testing.T) {
 		t.Parallel()
 
-		f := entclient.NewFilter(
+		f := entfilter.NewFilter(
 			&query{table: "data"},
 			newSortableFields("id"),
 		)
@@ -381,16 +380,16 @@ func TestFilter(t *testing.T) {
 	t.Run("Filters enums", func(t *testing.T) {
 		t.Parallel()
 
-		f := entclient.NewFilter(
+		f := entfilter.NewFilter(
 			&query{table: "data"},
 			newSortableFields("id"),
 		)
 
-		// Add a string enum filter.
+		// Add a string enum entfilter.
 		taskOutcome := enums.PreprocessingTaskOutcomeSuccess
 		f.Equals("outcome", &taskOutcome)
 
-		// Add an integer enum filter.
+		// Add an integer enum entfilter.
 		sipStatus := enums.SIPStatusDone
 		f.Equals("status", &sipStatus)
 
@@ -409,7 +408,7 @@ func TestFilter(t *testing.T) {
 	t.Run("Filters on a list of strings", func(t *testing.T) {
 		t.Parallel()
 
-		f := entclient.NewFilter(
+		f := entfilter.NewFilter(
 			&query{table: "data"},
 			newSortableFields("id"),
 		)
@@ -425,7 +424,7 @@ func TestFilter(t *testing.T) {
 	t.Run("Filters on a list of enums", func(t *testing.T) {
 		t.Parallel()
 
-		f := entclient.NewFilter(
+		f := entfilter.NewFilter(
 			&query{table: "data"},
 			newSortableFields("id"),
 		)
@@ -450,7 +449,7 @@ func TestFilter(t *testing.T) {
 		uuid1 := uuid.New()
 		var uuid2 uuid.UUID
 
-		f := entclient.NewFilter(
+		f := entfilter.NewFilter(
 			&query{table: "data"},
 			newSortableFields("id"),
 		)
@@ -468,7 +467,7 @@ func TestFilter(t *testing.T) {
 	t.Run("Filters on a date range", func(t *testing.T) {
 		t.Parallel()
 
-		f := entclient.NewFilter(
+		f := entfilter.NewFilter(
 			&query{table: "data"},
 			newSortableFields("id"),
 		)
@@ -492,7 +491,7 @@ func TestFilter(t *testing.T) {
 	t.Run("Filters on an exact time", func(t *testing.T) {
 		t.Parallel()
 
-		f := entclient.NewFilter(
+		f := entfilter.NewFilter(
 			&query{table: "data"},
 			newSortableFields("id"),
 		)
@@ -510,7 +509,7 @@ func TestFilter(t *testing.T) {
 	t.Run("No filter added when date range is zero", func(t *testing.T) {
 		t.Parallel()
 
-		f := entclient.NewFilter(
+		f := entfilter.NewFilter(
 			&query{table: "data"},
 			newSortableFields("id"),
 		)
