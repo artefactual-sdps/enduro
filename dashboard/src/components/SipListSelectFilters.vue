@@ -17,7 +17,11 @@ const ingestStore = useIngestStore();
         class="form-select"
       >
         <option value="">any</option>
-        <option v-for="item of IngestListSipsStatusEnum" :value="item">
+        <option
+          v-for="item of IngestListSipsStatusEnum"
+          :key="item"
+          :value="item"
+        >
           {{ item }}
         </option>
       </select>

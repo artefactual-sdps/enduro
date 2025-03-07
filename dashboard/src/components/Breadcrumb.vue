@@ -10,6 +10,7 @@ const layoutStore = useLayoutStore();
     <ol class="breadcrumb mb-0">
       <li
         v-for="(item, i) in layoutStore.breadcrumb"
+        :key="'breadcrumb-' + i"
         class="breadcrumb-item"
         :class="i == layoutStore.breadcrumb.length - 1 ? 'active' : ''"
         :aria-current="
