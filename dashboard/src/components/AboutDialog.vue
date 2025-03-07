@@ -82,9 +82,11 @@ useEventListener(el, "hidden.bs.modal", () => closeDialog(null));
                 Poststorage workflows:
               </div>
               <div class="col-12 col-sm-6 d-flex flex-column text-truncate">
-                <span v-for="poststorage in about.poststorage">{{
-                  poststorage.workflowName
-                }}</span>
+                <span
+                  v-for="ps in about.poststorage"
+                  :key="ps.taskQueue + '-' + ps.workflowName"
+                  >{{ ps.workflowName }}</span
+                >
               </div>
             </div>
           </div>

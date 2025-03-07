@@ -6,7 +6,7 @@ import type { runtime } from "@/client";
 interface Props {
   title?: string;
   error?: unknown;
-  execute?: (delay?: number, ...args: any[]) => Promise<unknown>;
+  execute?: (delay?: number, ...args: unknown[]) => Promise<unknown>;
 }
 
 const { title = "Page loading error", error, execute } = defineProps<Props>();
@@ -20,7 +20,9 @@ const is404 = computed(() => {
   try {
     const err = error as runtime.ResponseError;
     nf = err.response.status === 404;
-  } catch (err) {}
+  } catch {
+    return false;
+  }
   return nf;
 });
 </script>

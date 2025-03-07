@@ -7,4 +7,4 @@ useAuthStore()
   .then(() => router.push({ name: "/" }));
 </script>
 
-<template></template>
+<template><div></div></template>
