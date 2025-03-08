@@ -24,7 +24,7 @@ onMounted(() => {
 
 let data: string | null = null;
 
-useEventListener(el, "hidden.bs.modal", (e) => {
+useEventListener(el, "hidden.bs.modal", () => {
   closeDialog(data);
 });
 
@@ -54,7 +54,8 @@ const onChoose = (locationId: string) => {
               </thead>
               <tbody>
                 <tr
-                  v-for="(item, index) in storageStore.locations"
+                  v-for="item in storageStore.locations"
+                  :key="item.uuid"
                   :class="[
                     item.uuid == props.currentLocationId ? 'current' : '',
                   ]"

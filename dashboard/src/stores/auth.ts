@@ -23,7 +23,7 @@ type ABACConfig = {
   rolesMapping: Record<string, string[]>;
 };
 
-function isRolesMapping(obj: any): obj is Record<string, string[]> {
+function isRolesMapping(obj: Record<string, string[]>) {
   for (const key in obj) {
     if (
       !Array.isArray(obj[key]) ||
@@ -238,7 +238,7 @@ export const useAuthStore = defineStore("auth", {
         return;
       }
 
-      let data: Record<string, any>;
+      let data: Record<string, unknown>;
       try {
         data = JSON.parse(
           Buffer.from(
@@ -269,7 +269,7 @@ export const useAuthStore = defineStore("auth", {
             );
           }
 
-          const attributes = value.reduce((acc: string[], item: any) => {
+          const attributes = value.reduce((acc: string[], item: unknown) => {
             if (
               typeof item === "string" &&
               item.startsWith(this.config.abac.claimValuePrefix)
@@ -303,7 +303,7 @@ export const useAuthStore = defineStore("auth", {
           );
         }
 
-        data = value;
+        data = value as Record<string, unknown>;
       }
 
       throw new Error("Unexpected error parsing attributes");

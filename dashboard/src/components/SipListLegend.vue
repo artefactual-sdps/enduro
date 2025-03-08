@@ -48,7 +48,7 @@ const items = [
   <Transition>
     <div class="alert alert-secondary alert-dismissible" v-if="show">
       <div class="container-fluid">
-        <div class="row" v-for="(item, index) in items">
+        <div class="row" v-for="(item, index) in items" :key="item.status">
           <div class="col-12 col-md-2 py-2">
             <StatusBadge
               :status="item.status"

@@ -6,7 +6,7 @@ import type { RouteLocationResolved } from "vue-router/auto";
 const route = useRoute();
 
 type Tab = {
-  icon?: FunctionalComponent<SVGAttributes, {}>;
+  icon?: FunctionalComponent<SVGAttributes>;
   text: string;
   route: RouteLocationResolved;
   show: boolean;
@@ -27,7 +27,7 @@ function isActive(tab: Tab): boolean {
 <template>
   <nav aria-label="Tabs" class="mb-3">
     <ul class="nav nav-tabs d-flex flex-nowrap">
-      <li class="nav-item d-flex" v-for="tab in tabs">
+      <li class="nav-item d-flex" v-for="tab in tabs" :key="tab.text">
         <router-link
           v-if="tab.show"
           :to="tab.route"
