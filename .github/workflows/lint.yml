@@ -62,3 +62,15 @@ jobs:
           go-version-file: go.mod
       - name: Run shfmt
         run: make shfmt
+  eslint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Install Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "22"
+      - name: Run eslint
+        working-directory: ./dashboard
+        run: npm install && npm run lint
