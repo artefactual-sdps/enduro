@@ -12,11 +12,11 @@ jobs:
       - uses: actions/setup-node@v4.0.4
         with:
           node-version: 22
-      - run: npm ci
+      - run: npm clean-install
         working-directory: ./dashboard
       - run: npm run test
         working-directory: ./dashboard
       - run: npm run lint
         working-directory: ./dashboard
-      - run: npm run coverage
+      - run: npm run format-check
         working-directory: ./dashboard
