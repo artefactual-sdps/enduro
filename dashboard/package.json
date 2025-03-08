@@ -9,8 +9,9 @@
     "build-only": "vite build",
     "type-check": "vue-tsc --noEmit -p tsconfig.vitest.json --composite false",
     "preview": "vite preview",
-    "lint": "prettier --check .",
+    "lint": "eslint .",
     "format": "prettier --write .",
+    "format-check": "prettier --check .",
     "test": "vitest run",
     "coverage": "vitest run --coverage",
     "deps": "ncu --format=group --interactive"
