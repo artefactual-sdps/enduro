@@ -8,7 +8,7 @@ import (
 	temporalsdk_workflow "go.temporal.io/sdk/workflow"
 
 	"github.com/artefactual-sdps/enduro/internal/storage"
-	"github.com/artefactual-sdps/enduro/internal/storage/types"
+	"github.com/artefactual-sdps/enduro/internal/storage/enums"
 )
 
 type StorageMoveWorkflow struct {
@@ -24,7 +24,7 @@ func NewStorageMoveWorkflow(storagesvc storage.Service) *StorageMoveWorkflow {
 func (w *StorageMoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req storage.StorageMoveWorkflowRequest) error {
 	// Set AIP status to moving.
 	{
-		if err := w.updateAIPStatus(ctx, types.AIPStatusMoving, req.AIPID); err != nil {
+		if err := w.updateAIPStatus(ctx, enums.AIPStatusMoving, req.AIPID); err != nil {
 			return err
 		}
 	}
@@ -97,7 +97,7 @@ func (w *StorageMoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req stor
 
 	// Set AIP status to stored.
 	{
-		if err := w.updateAIPStatus(ctx, types.AIPStatusStored, req.AIPID); err != nil {
+		if err := w.updateAIPStatus(ctx, enums.AIPStatusStored, req.AIPID); err != nil {
 			return err
 		}
 	}
@@ -107,7 +107,7 @@ func (w *StorageMoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req stor
 
 func (w *StorageMoveWorkflow) updateAIPStatus(
 	ctx temporalsdk_workflow.Context,
-	st types.AIPStatus,
+	st enums.AIPStatus,
 	aipID uuid.UUID,
 ) error {
 	activityOpts := temporalsdk_workflow.WithLocalActivityOptions(ctx, temporalsdk_workflow.LocalActivityOptions{

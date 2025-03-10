@@ -56,9 +56,11 @@ IGNORED_PACKAGES := \
 	github.com/artefactual-sdps/enduro/%/fake \
 	github.com/artefactual-sdps/enduro/internal/api/design \
 	github.com/artefactual-sdps/enduro/internal/api/gen/% \
+	github.com/artefactual-sdps/enduro/internal/enums \
 	github.com/artefactual-sdps/enduro/internal/persistence/ent/db \
 	github.com/artefactual-sdps/enduro/internal/persistence/ent/db/% \
 	github.com/artefactual-sdps/enduro/internal/persistence/ent/schema \
+	github.com/artefactual-sdps/enduro/internal/storage/enums \
 	github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db \
 	github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/% \
 	github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/schema
@@ -121,7 +123,10 @@ gen-enums: $(GO_ENUM)
 		-f internal/enums/preprocessing_task_outcome.go \
 		-f internal/enums/pres_action_status.go \
 		-f internal/enums/pres_action_type.go \
-		-f internal/enums/pres_task_status.go
+		-f internal/enums/pres_task_status.go \
+		-f internal/storage/enums/aip_status.go \
+		-f internal/storage/enums/location_purpose.go \
+		-f internal/storage/enums/location_source.go
 
 gen-goa: # @HELP Generate Goa assets.
 gen-goa: $(GOA)

@@ -11,6 +11,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/artefactual-sdps/enduro/internal/storage/enums"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/aip"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/location"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/predicate"
@@ -39,7 +40,7 @@ type AIPMutation struct {
 	id              *int
 	name            *string
 	aip_id          *uuid.UUID
-	status          *types.AIPStatus
+	status          *enums.AIPStatus
 	object_key      *uuid.UUID
 	created_at      *time.Time
 	clearedFields   map[string]struct{}
@@ -270,12 +271,12 @@ func (m *AIPMutation) ResetLocationID() {
 }
 
 // SetStatus sets the "status" field.
-func (m *AIPMutation) SetStatus(ts types.AIPStatus) {
-	m.status = &ts
+func (m *AIPMutation) SetStatus(es enums.AIPStatus) {
+	m.status = &es
 }
 
 // Status returns the value of the "status" field in the mutation.
-func (m *AIPMutation) Status() (r types.AIPStatus, exists bool) {
+func (m *AIPMutation) Status() (r enums.AIPStatus, exists bool) {
 	v := m.status
 	if v == nil {
 		return
@@ -286,7 +287,7 @@ func (m *AIPMutation) Status() (r types.AIPStatus, exists bool) {
 // OldStatus returns the old "status" field's value of the AIP entity.
 // If the AIP object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *AIPMutation) OldStatus(ctx context.Context) (v types.AIPStatus, err error) {
+func (m *AIPMutation) OldStatus(ctx context.Context) (v enums.AIPStatus, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldStatus is only allowed on UpdateOne operations")
 	}
@@ -529,7 +530,7 @@ func (m *AIPMutation) SetField(name string, value ent.Value) error {
 		m.SetLocationID(v)
 		return nil
 	case aip.FieldStatus:
-		v, ok := value.(types.AIPStatus)
+		v, ok := value.(enums.AIPStatus)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -714,8 +715,8 @@ type LocationMutation struct {
 	id            *int
 	name          *string
 	description   *string
-	source        *types.LocationSource
-	purpose       *types.LocationPurpose
+	source        *enums.LocationSource
+	purpose       *enums.LocationPurpose
 	uuid          *uuid.UUID
 	_config       *types.LocationConfig
 	created_at    *time.Time
@@ -899,12 +900,12 @@ func (m *LocationMutation) ResetDescription() {
 }
 
 // SetSource sets the "source" field.
-func (m *LocationMutation) SetSource(ts types.LocationSource) {
-	m.source = &ts
+func (m *LocationMutation) SetSource(es enums.LocationSource) {
+	m.source = &es
 }
 
 // Source returns the value of the "source" field in the mutation.
-func (m *LocationMutation) Source() (r types.LocationSource, exists bool) {
+func (m *LocationMutation) Source() (r enums.LocationSource, exists bool) {
 	v := m.source
 	if v == nil {
 		return
@@ -915,7 +916,7 @@ func (m *LocationMutation) Source() (r types.LocationSource, exists bool) {
 // OldSource returns the old "source" field's value of the Location entity.
 // If the Location object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *LocationMutation) OldSource(ctx context.Context) (v types.LocationSource, err error) {
+func (m *LocationMutation) OldSource(ctx context.Context) (v enums.LocationSource, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldSource is only allowed on UpdateOne operations")
 	}
@@ -935,12 +936,12 @@ func (m *LocationMutation) ResetSource() {
 }
 
 // SetPurpose sets the "purpose" field.
-func (m *LocationMutation) SetPurpose(tp types.LocationPurpose) {
-	m.purpose = &tp
+func (m *LocationMutation) SetPurpose(ep enums.LocationPurpose) {
+	m.purpose = &ep
 }
 
 // Purpose returns the value of the "purpose" field in the mutation.
-func (m *LocationMutation) Purpose() (r types.LocationPurpose, exists bool) {
+func (m *LocationMutation) Purpose() (r enums.LocationPurpose, exists bool) {
 	v := m.purpose
 	if v == nil {
 		return
@@ -951,7 +952,7 @@ func (m *LocationMutation) Purpose() (r types.LocationPurpose, exists bool) {
 // OldPurpose returns the old "purpose" field's value of the Location entity.
 // If the Location object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *LocationMutation) OldPurpose(ctx context.Context) (v types.LocationPurpose, err error) {
+func (m *LocationMutation) OldPurpose(ctx context.Context) (v enums.LocationPurpose, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldPurpose is only allowed on UpdateOne operations")
 	}
@@ -1257,14 +1258,14 @@ func (m *LocationMutation) SetField(name string, value ent.Value) error {
 		m.SetDescription(v)
 		return nil
 	case location.FieldSource:
-		v, ok := value.(types.LocationSource)
+		v, ok := value.(enums.LocationSource)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetSource(v)
 		return nil
 	case location.FieldPurpose:
-		v, ok := value.(types.LocationPurpose)
+		v, ok := value.(enums.LocationPurpose)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}

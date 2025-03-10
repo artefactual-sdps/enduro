@@ -7,8 +7,8 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/artefactual-sdps/enduro/internal/storage/enums"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/predicate"
-	"github.com/artefactual-sdps/enduro/internal/storage/types"
 	"github.com/google/uuid"
 )
 
@@ -218,23 +218,33 @@ func LocationIDNotNil() predicate.AIP {
 }
 
 // StatusEQ applies the EQ predicate on the "status" field.
-func StatusEQ(v types.AIPStatus) predicate.AIP {
-	return predicate.AIP(sql.FieldEQ(FieldStatus, v))
+func StatusEQ(v enums.AIPStatus) predicate.AIP {
+	vc := v
+	return predicate.AIP(sql.FieldEQ(FieldStatus, vc))
 }
 
 // StatusNEQ applies the NEQ predicate on the "status" field.
-func StatusNEQ(v types.AIPStatus) predicate.AIP {
-	return predicate.AIP(sql.FieldNEQ(FieldStatus, v))
+func StatusNEQ(v enums.AIPStatus) predicate.AIP {
+	vc := v
+	return predicate.AIP(sql.FieldNEQ(FieldStatus, vc))
 }
 
 // StatusIn applies the In predicate on the "status" field.
-func StatusIn(vs ...types.AIPStatus) predicate.AIP {
-	return predicate.AIP(sql.FieldIn(FieldStatus, vs...))
+func StatusIn(vs ...enums.AIPStatus) predicate.AIP {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.AIP(sql.FieldIn(FieldStatus, v...))
 }
 
 // StatusNotIn applies the NotIn predicate on the "status" field.
-func StatusNotIn(vs ...types.AIPStatus) predicate.AIP {
-	return predicate.AIP(sql.FieldNotIn(FieldStatus, vs...))
+func StatusNotIn(vs ...enums.AIPStatus) predicate.AIP {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.AIP(sql.FieldNotIn(FieldStatus, v...))
 }
 
 // ObjectKeyEQ applies the EQ predicate on the "object_key" field.

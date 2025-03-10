@@ -9,9 +9,8 @@ import (
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
+	"github.com/artefactual-sdps/enduro/internal/storage/enums"
 	"github.com/google/uuid"
-
-	"github.com/artefactual-sdps/enduro/internal/storage/types"
 )
 
 // AIP holds the schema definition for the AIP entity.
@@ -38,7 +37,7 @@ func (AIP) Fields() []ent.Field {
 		field.Int("location_id").
 			Optional(),
 		field.Enum("status").
-			GoType(types.AIPStatusUnspecified),
+			GoType(enums.AIPStatusUnspecified),
 		field.UUID("object_key", uuid.UUID{}).
 			Unique(),
 		field.Time("created_at").

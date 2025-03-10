@@ -15,7 +15,7 @@ import (
 
 	storage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 	storage0 "github.com/artefactual-sdps/enduro/internal/storage"
-	types "github.com/artefactual-sdps/enduro/internal/storage/types"
+	enums "github.com/artefactual-sdps/enduro/internal/storage/enums"
 	uuid "github.com/google/uuid"
 	gomock "go.uber.org/mock/gomock"
 	blob "gocloud.dev/blob"
@@ -703,7 +703,7 @@ func (c *MockServiceUpdateAipLocationIDCall) DoAndReturn(f func(context.Context,
 }
 
 // UpdateAipStatus mocks base method.
-func (m *MockService) UpdateAipStatus(arg0 context.Context, arg1 uuid.UUID, arg2 types.AIPStatus) error {
+func (m *MockService) UpdateAipStatus(arg0 context.Context, arg1 uuid.UUID, arg2 enums.AIPStatus) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateAipStatus", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
@@ -729,13 +729,13 @@ func (c *MockServiceUpdateAipStatusCall) Return(arg0 error) *MockServiceUpdateAi
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockServiceUpdateAipStatusCall) Do(f func(context.Context, uuid.UUID, types.AIPStatus) error) *MockServiceUpdateAipStatusCall {
+func (c *MockServiceUpdateAipStatusCall) Do(f func(context.Context, uuid.UUID, enums.AIPStatus) error) *MockServiceUpdateAipStatusCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockServiceUpdateAipStatusCall) DoAndReturn(f func(context.Context, uuid.UUID, types.AIPStatus) error) *MockServiceUpdateAipStatusCall {
+func (c *MockServiceUpdateAipStatusCall) DoAndReturn(f func(context.Context, uuid.UUID, enums.AIPStatus) error) *MockServiceUpdateAipStatusCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

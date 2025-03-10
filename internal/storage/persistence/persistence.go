@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
+	"github.com/artefactual-sdps/enduro/internal/storage/enums"
 	"github.com/artefactual-sdps/enduro/internal/storage/types"
 )
 
@@ -14,7 +15,7 @@ type Storage interface {
 	CreateAIP(ctx context.Context, aip *goastorage.AIP) (*goastorage.AIP, error)
 	ListAIPs(ctx context.Context) (goastorage.AIPCollection, error)
 	ReadAIP(ctx context.Context, aipID uuid.UUID) (*goastorage.AIP, error)
-	UpdateAIPStatus(ctx context.Context, aipID uuid.UUID, status types.AIPStatus) error
+	UpdateAIPStatus(ctx context.Context, aipID uuid.UUID, status enums.AIPStatus) error
 	UpdateAIPLocationID(ctx context.Context, aipID, locationID uuid.UUID) error
 
 	// Location.
