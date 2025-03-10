@@ -9,6 +9,7 @@ import (
 	"go.artefactual.dev/tools/ref"
 
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
+	"github.com/artefactual-sdps/enduro/internal/storage/enums"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/aip"
@@ -29,12 +30,16 @@ func NewClient(c *db.Client) *Client {
 }
 
 func (c *Client) CreateAIP(ctx context.Context, goaaip *goastorage.AIP) (*goastorage.AIP, error) {
-	q := c.c.AIP.Create()
+	status, err := enums.ParseAIPStatusWithDefault(goaaip.Status)
+	if err != nil {
+		return nil, goastorage.MakeNotValid(errors.New("status: invalid value"))
+	}
 
-	q.SetName(goaaip.Name)
-	q.SetAipID(goaaip.UUID)
-	q.SetObjectKey(goaaip.ObjectKey)
-	q.SetStatus(types.NewAIPStatus(goaaip.Status))
+	q := c.c.AIP.Create().
+		SetName(goaaip.Name).
+		SetAipID(goaaip.UUID).
+		SetObjectKey(goaaip.ObjectKey).
+		SetStatus(status)
 
 	if goaaip.LocationID != nil {
 		id, err := c.c.Location.Query().
@@ -88,7 +93,7 @@ func (c *Client) ReadAIP(ctx context.Context, aipID uuid.UUID) (*goastorage.AIP,
 	return aipAsGoa(ctx, a), nil
 }
 
-func (c *Client) UpdateAIPStatus(ctx context.Context, aipID uuid.UUID, status types.AIPStatus) error {
+func (c *Client) UpdateAIPStatus(ctx context.Context, aipID uuid.UUID, status enums.AIPStatus) error {
 	n, err := c.c.AIP.Update().
 		Where(
 			aip.AipID(aipID),
@@ -156,12 +161,21 @@ func (c *Client) CreateLocation(
 	location *goastorage.Location,
 	config *types.LocationConfig,
 ) (*goastorage.Location, error) {
+	purpose, err := enums.ParseLocationPurposeWithDefault(location.Purpose)
+	if err != nil {
+		return nil, goastorage.MakeNotValid(errors.New("purpose: invalid value"))
+	}
+	source, err := enums.ParseLocationSourceWithDefault(location.Source)
+	if err != nil {
+		return nil, goastorage.MakeNotValid(errors.New("source: invalid value"))
+	}
+
 	q := c.c.Location.Create()
 
 	q.SetName(location.Name)
 	q.SetDescription(ref.DerefZero(location.Description))
-	q.SetSource(types.NewLocationSource(location.Source))
-	q.SetPurpose(types.NewLocationPurpose(location.Purpose))
+	q.SetSource(source)
+	q.SetPurpose(purpose)
 	q.SetUUID(location.UUID)
 
 	q.SetConfig(ref.DerefZero(config))

@@ -10,6 +10,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/artefactual-sdps/enduro/internal/storage/enums"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/location"
 	"github.com/artefactual-sdps/enduro/internal/storage/types"
 	"github.com/google/uuid"
@@ -25,9 +26,9 @@ type Location struct {
 	// Description holds the value of the "description" field.
 	Description string `json:"description,omitempty"`
 	// Source holds the value of the "source" field.
-	Source types.LocationSource `json:"source,omitempty"`
+	Source enums.LocationSource `json:"source,omitempty"`
 	// Purpose holds the value of the "purpose" field.
-	Purpose types.LocationPurpose `json:"purpose,omitempty"`
+	Purpose enums.LocationPurpose `json:"purpose,omitempty"`
 	// UUID holds the value of the "uuid" field.
 	UUID uuid.UUID `json:"uuid,omitempty"`
 	// Config holds the value of the "config" field.
@@ -67,14 +68,10 @@ func (*Location) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case location.FieldID:
 			values[i] = new(sql.NullInt64)
-		case location.FieldName, location.FieldDescription:
+		case location.FieldName, location.FieldDescription, location.FieldSource, location.FieldPurpose:
 			values[i] = new(sql.NullString)
 		case location.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
-		case location.FieldPurpose:
-			values[i] = new(types.LocationPurpose)
-		case location.FieldSource:
-			values[i] = new(types.LocationSource)
 		case location.FieldUUID:
 			values[i] = new(uuid.UUID)
 		default:
@@ -111,16 +108,16 @@ func (l *Location) assignValues(columns []string, values []any) error {
 				l.Description = value.String
 			}
 		case location.FieldSource:
-			if value, ok := values[i].(*types.LocationSource); !ok {
+			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field source", values[i])
-			} else if value != nil {
-				l.Source = *value
+			} else if value.Valid {
+				l.Source = enums.LocationSource(value.String)
 			}
 		case location.FieldPurpose:
-			if value, ok := values[i].(*types.LocationPurpose); !ok {
+			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field purpose", values[i])
-			} else if value != nil {
-				l.Purpose = *value
+			} else if value.Valid {
+				l.Purpose = enums.LocationPurpose(value.String)
 			}
 		case location.FieldUUID:
 			if value, ok := values[i].(*uuid.UUID); !ok {

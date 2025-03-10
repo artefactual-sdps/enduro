@@ -5,7 +5,7 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/artefactual-sdps/enduro/internal/storage/types"
+	"github.com/artefactual-sdps/enduro/internal/storage/enums"
 )
 
 type UpdateAIPLocationLocalActivityParams struct {
@@ -23,7 +23,7 @@ func UpdateAIPLocationLocalActivity(
 
 type UpdateAIPStatusLocalActivityParams struct {
 	AIPID  uuid.UUID
-	Status types.AIPStatus
+	Status enums.AIPStatus
 }
 
 func UpdateAIPStatusLocalActivity(

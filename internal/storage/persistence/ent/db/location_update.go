@@ -10,6 +10,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/artefactual-sdps/enduro/internal/storage/enums"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/aip"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/location"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/predicate"
@@ -59,29 +60,29 @@ func (lu *LocationUpdate) SetNillableDescription(s *string) *LocationUpdate {
 }
 
 // SetSource sets the "source" field.
-func (lu *LocationUpdate) SetSource(ts types.LocationSource) *LocationUpdate {
-	lu.mutation.SetSource(ts)
+func (lu *LocationUpdate) SetSource(es enums.LocationSource) *LocationUpdate {
+	lu.mutation.SetSource(es)
 	return lu
 }
 
 // SetNillableSource sets the "source" field if the given value is not nil.
-func (lu *LocationUpdate) SetNillableSource(ts *types.LocationSource) *LocationUpdate {
-	if ts != nil {
-		lu.SetSource(*ts)
+func (lu *LocationUpdate) SetNillableSource(es *enums.LocationSource) *LocationUpdate {
+	if es != nil {
+		lu.SetSource(*es)
 	}
 	return lu
 }
 
 // SetPurpose sets the "purpose" field.
-func (lu *LocationUpdate) SetPurpose(tp types.LocationPurpose) *LocationUpdate {
-	lu.mutation.SetPurpose(tp)
+func (lu *LocationUpdate) SetPurpose(ep enums.LocationPurpose) *LocationUpdate {
+	lu.mutation.SetPurpose(ep)
 	return lu
 }
 
 // SetNillablePurpose sets the "purpose" field if the given value is not nil.
-func (lu *LocationUpdate) SetNillablePurpose(tp *types.LocationPurpose) *LocationUpdate {
-	if tp != nil {
-		lu.SetPurpose(*tp)
+func (lu *LocationUpdate) SetNillablePurpose(ep *enums.LocationPurpose) *LocationUpdate {
+	if ep != nil {
+		lu.SetPurpose(*ep)
 	}
 	return lu
 }
@@ -321,29 +322,29 @@ func (luo *LocationUpdateOne) SetNillableDescription(s *string) *LocationUpdateO
 }
 
 // SetSource sets the "source" field.
-func (luo *LocationUpdateOne) SetSource(ts types.LocationSource) *LocationUpdateOne {
-	luo.mutation.SetSource(ts)
+func (luo *LocationUpdateOne) SetSource(es enums.LocationSource) *LocationUpdateOne {
+	luo.mutation.SetSource(es)
 	return luo
 }
 
 // SetNillableSource sets the "source" field if the given value is not nil.
-func (luo *LocationUpdateOne) SetNillableSource(ts *types.LocationSource) *LocationUpdateOne {
-	if ts != nil {
-		luo.SetSource(*ts)
+func (luo *LocationUpdateOne) SetNillableSource(es *enums.LocationSource) *LocationUpdateOne {
+	if es != nil {
+		luo.SetSource(*es)
 	}
 	return luo
 }
 
 // SetPurpose sets the "purpose" field.
-func (luo *LocationUpdateOne) SetPurpose(tp types.LocationPurpose) *LocationUpdateOne {
-	luo.mutation.SetPurpose(tp)
+func (luo *LocationUpdateOne) SetPurpose(ep enums.LocationPurpose) *LocationUpdateOne {
+	luo.mutation.SetPurpose(ep)
 	return luo
 }
 
 // SetNillablePurpose sets the "purpose" field if the given value is not nil.
-func (luo *LocationUpdateOne) SetNillablePurpose(tp *types.LocationPurpose) *LocationUpdateOne {
-	if tp != nil {
-		luo.SetPurpose(*tp)
+func (luo *LocationUpdateOne) SetNillablePurpose(ep *enums.LocationPurpose) *LocationUpdateOne {
+	if ep != nil {
+		luo.SetPurpose(*ep)
 	}
 	return luo
 }

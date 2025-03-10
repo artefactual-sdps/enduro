@@ -10,6 +10,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/artefactual-sdps/enduro/internal/storage/enums"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/aip"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/location"
 	"github.com/artefactual-sdps/enduro/internal/storage/types"
@@ -36,14 +37,14 @@ func (lc *LocationCreate) SetDescription(s string) *LocationCreate {
 }
 
 // SetSource sets the "source" field.
-func (lc *LocationCreate) SetSource(ts types.LocationSource) *LocationCreate {
-	lc.mutation.SetSource(ts)
+func (lc *LocationCreate) SetSource(es enums.LocationSource) *LocationCreate {
+	lc.mutation.SetSource(es)
 	return lc
 }
 
 // SetPurpose sets the "purpose" field.
-func (lc *LocationCreate) SetPurpose(tp types.LocationPurpose) *LocationCreate {
-	lc.mutation.SetPurpose(tp)
+func (lc *LocationCreate) SetPurpose(ep enums.LocationPurpose) *LocationCreate {
+	lc.mutation.SetPurpose(ep)
 	return lc
 }
 

@@ -10,9 +10,9 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/artefactual-sdps/enduro/internal/storage/enums"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/aip"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/location"
-	"github.com/artefactual-sdps/enduro/internal/storage/types"
 	"github.com/google/uuid"
 )
 
@@ -50,8 +50,8 @@ func (ac *AIPCreate) SetNillableLocationID(i *int) *AIPCreate {
 }
 
 // SetStatus sets the "status" field.
-func (ac *AIPCreate) SetStatus(ts types.AIPStatus) *AIPCreate {
-	ac.mutation.SetStatus(ts)
+func (ac *AIPCreate) SetStatus(es enums.AIPStatus) *AIPCreate {
+	ac.mutation.SetStatus(es)
 	return ac
 }
 

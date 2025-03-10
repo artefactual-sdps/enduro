@@ -12,8 +12,8 @@ import (
 
 	"github.com/artefactual-sdps/enduro/internal/storage"
 	"github.com/artefactual-sdps/enduro/internal/storage/activities"
+	"github.com/artefactual-sdps/enduro/internal/storage/enums"
 	"github.com/artefactual-sdps/enduro/internal/storage/fake"
-	"github.com/artefactual-sdps/enduro/internal/storage/types"
 )
 
 func TestStorageMoveWorkflow(t *testing.T) {
@@ -28,8 +28,8 @@ func TestStorageMoveWorkflow(t *testing.T) {
 	storagesvc := fake.NewMockService(ctrl)
 	storagesvc.EXPECT().DeleteAip(gomock.Any(), aipID)
 	storagesvc.EXPECT().UpdateAipLocationID(gomock.Any(), aipID, locationID)
-	storagesvc.EXPECT().UpdateAipStatus(gomock.Any(), aipID, types.AIPStatusMoving)
-	storagesvc.EXPECT().UpdateAipStatus(gomock.Any(), aipID, types.AIPStatusStored)
+	storagesvc.EXPECT().UpdateAipStatus(gomock.Any(), aipID, enums.AIPStatusMoving)
+	storagesvc.EXPECT().UpdateAipStatus(gomock.Any(), aipID, enums.AIPStatusStored)
 
 	// Worker activities
 	env.RegisterActivityWithOptions(

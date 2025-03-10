@@ -9,9 +9,9 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/artefactual-sdps/enduro/internal/storage/enums"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/aip"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/location"
-	"github.com/artefactual-sdps/enduro/internal/storage/types"
 	"github.com/google/uuid"
 )
 
@@ -27,7 +27,7 @@ type AIP struct {
 	// LocationID holds the value of the "location_id" field.
 	LocationID int `json:"location_id,omitempty"`
 	// Status holds the value of the "status" field.
-	Status types.AIPStatus `json:"status,omitempty"`
+	Status enums.AIPStatus `json:"status,omitempty"`
 	// ObjectKey holds the value of the "object_key" field.
 	ObjectKey uuid.UUID `json:"object_key,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
@@ -65,12 +65,10 @@ func (*AIP) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case aip.FieldID, aip.FieldLocationID:
 			values[i] = new(sql.NullInt64)
-		case aip.FieldName:
+		case aip.FieldName, aip.FieldStatus:
 			values[i] = new(sql.NullString)
 		case aip.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
-		case aip.FieldStatus:
-			values[i] = new(types.AIPStatus)
 		case aip.FieldAipID, aip.FieldObjectKey:
 			values[i] = new(uuid.UUID)
 		default:
@@ -113,10 +111,10 @@ func (a *AIP) assignValues(columns []string, values []any) error {
 				a.LocationID = int(value.Int64)
 			}
 		case aip.FieldStatus:
-			if value, ok := values[i].(*types.AIPStatus); !ok {
+			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field status", values[i])
-			} else if value != nil {
-				a.Status = *value
+			} else if value.Valid {
+				a.Status = enums.AIPStatus(value.String)
 			}
 		case aip.FieldObjectKey:
 			if value, ok := values[i].(*uuid.UUID); !ok {

@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/schema/index"
 	"github.com/google/uuid"
 
+	"github.com/artefactual-sdps/enduro/internal/storage/enums"
 	"github.com/artefactual-sdps/enduro/internal/storage/types"
 )
 
@@ -38,9 +39,9 @@ func (Location) Fields() []ent.Field {
 				Size: 2048,
 			}),
 		field.Enum("source").
-			GoType(types.LocationSourceUnspecified),
+			GoType(enums.LocationSourceUnspecified),
 		field.Enum("purpose").
-			GoType(types.LocationPurposeUnspecified),
+			GoType(enums.LocationPurposeUnspecified),
 		field.UUID("uuid", uuid.UUID{}).
 			Unique(),
 		field.JSON("config", types.LocationConfig{}),

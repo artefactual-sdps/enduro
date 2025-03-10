@@ -18,6 +18,7 @@ import (
 
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
+	"github.com/artefactual-sdps/enduro/internal/storage/enums"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence"
 	"github.com/artefactual-sdps/enduro/internal/storage/types"
 )
@@ -31,7 +32,7 @@ type Service interface {
 	// Used from workflow activities.
 	Location(ctx context.Context, locationID uuid.UUID) (Location, error)
 	ReadAip(ctx context.Context, aipID uuid.UUID) (*goastorage.AIP, error)
-	UpdateAipStatus(ctx context.Context, aipID uuid.UUID, status types.AIPStatus) error
+	UpdateAipStatus(ctx context.Context, aipID uuid.UUID, status enums.AIPStatus) error
 	UpdateAipLocationID(ctx context.Context, aipID, locationID uuid.UUID) error
 	DeleteAip(ctx context.Context, aipID uuid.UUID) (err error)
 
@@ -216,7 +217,7 @@ func (s *serviceImpl) UpdateAip(ctx context.Context, payload *goastorage.UpdateA
 		return goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
 	}
 	// Update the AIP status to in_review
-	err = s.UpdateAipStatus(ctx, aipID, types.AIPStatusInReview)
+	err = s.UpdateAipStatus(ctx, aipID, enums.AIPStatusInReview)
 	if err != nil {
 		return goastorage.MakeNotValid(errors.New("cannot update AIP status"))
 	}
@@ -303,7 +304,7 @@ func (s *serviceImpl) RejectAip(ctx context.Context, payload *goastorage.RejectA
 		return goastorage.MakeNotValid(errors.New("cannot perform operation"))
 	}
 
-	return s.UpdateAipStatus(ctx, aipID, types.AIPStatusRejected)
+	return s.UpdateAipStatus(ctx, aipID, enums.AIPStatusRejected)
 }
 
 func (s *serviceImpl) ShowAip(ctx context.Context, payload *goastorage.ShowAipPayload) (*goastorage.AIP, error) {
@@ -319,7 +320,7 @@ func (s *serviceImpl) ReadAip(ctx context.Context, aipID uuid.UUID) (*goastorage
 	return s.storagePersistence.ReadAIP(ctx, aipID)
 }
 
-func (s *serviceImpl) UpdateAipStatus(ctx context.Context, aipID uuid.UUID, status types.AIPStatus) error {
+func (s *serviceImpl) UpdateAipStatus(ctx context.Context, aipID uuid.UUID, status enums.AIPStatus) error {
 	return s.storagePersistence.UpdateAIPStatus(ctx, aipID, status)
 }
 
@@ -385,8 +386,15 @@ func (s *serviceImpl) CreateLocation(
 	ctx context.Context,
 	payload *goastorage.CreateLocationPayload,
 ) (res *goastorage.CreateLocationResult, err error) {
-	source := types.NewLocationSource(payload.Source)
-	purpose := types.NewLocationPurpose(payload.Purpose)
+	purpose, err := enums.ParseLocationPurposeWithDefault(payload.Purpose)
+	if err != nil {
+		return nil, goastorage.MakeNotValid(errors.New("purpose: invalid value"))
+	}
+	source, err := enums.ParseLocationSourceWithDefault(payload.Source)
+	if err != nil {
+		return nil, goastorage.MakeNotValid(errors.New("source: invalid value"))
+	}
+
 	UUID := uuid.Must(uuid.NewRandomFromReader(s.rander))
 
 	var config types.LocationConfig

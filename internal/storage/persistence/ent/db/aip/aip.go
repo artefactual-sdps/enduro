@@ -8,7 +8,7 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"github.com/artefactual-sdps/enduro/internal/storage/types"
+	"github.com/artefactual-sdps/enduro/internal/storage/enums"
 )
 
 const (
@@ -68,7 +68,7 @@ var (
 )
 
 // StatusValidator is a validator for the "status" field enum values. It is called by the builders before save.
-func StatusValidator(s types.AIPStatus) error {
+func StatusValidator(s enums.AIPStatus) error {
 	switch s.String() {
 	case "unspecified", "in_review", "rejected", "stored", "moving":
 		return nil

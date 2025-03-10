@@ -8,7 +8,7 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"github.com/artefactual-sdps/enduro/internal/storage/types"
+	"github.com/artefactual-sdps/enduro/internal/storage/enums"
 )
 
 const (
@@ -71,7 +71,7 @@ var (
 )
 
 // SourceValidator is a validator for the "source" field enum values. It is called by the builders before save.
-func SourceValidator(s types.LocationSource) error {
+func SourceValidator(s enums.LocationSource) error {
 	switch s.String() {
 	case "unspecified", "minio", "sftp", "amss":
 		return nil
@@ -81,7 +81,7 @@ func SourceValidator(s types.LocationSource) error {
 }
 
 // PurposeValidator is a validator for the "purpose" field enum values. It is called by the builders before save.
-func PurposeValidator(pu types.LocationPurpose) error {
+func PurposeValidator(pu enums.LocationPurpose) error {
 	switch pu.String() {
 	case "unspecified", "aip_store":
 		return nil
