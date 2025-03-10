@@ -338,12 +338,12 @@ var Location = ResultType("application/vnd.enduro.storage.location", func() {
 	})
 })
 
-var EnumLocationSource = func() {
-	Enum("unspecified", "minio", "sftp", "amss")
+var EnumLocationPurpose = func() {
+	Enum(types.LocationPurposeInterfaces()...)
 }
 
-var EnumLocationPurpose = func() {
-	Enum("unspecified", "aip_store")
+var EnumLocationSource = func() {
+	Enum(types.LocationSourceInterfaces()...)
 }
 
 var CreateLocationResult = Type("CreateLocationResult", func() {
@@ -390,7 +390,7 @@ var AIP = ResultType("application/vnd.enduro.storage.aip", func() {
 })
 
 var EnumAIPStatus = func() {
-	Enum("unspecified", "in_review", "rejected", "stored", "moving")
+	Enum(types.AIPStatusInterfaces()...)
 }
 
 var AMSSConfig = Type("AMSSConfig", func() {

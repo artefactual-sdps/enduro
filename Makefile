@@ -121,7 +121,10 @@ gen-enums: $(GO_ENUM)
 		-f internal/enums/preprocessing_task_outcome.go \
 		-f internal/enums/pres_action_status.go \
 		-f internal/enums/pres_action_type.go \
-		-f internal/enums/pres_task_status.go
+		-f internal/enums/pres_task_status.go \
+		-f internal/storage/types/aip_status.go \
+		-f internal/storage/types/location_purpose.go \
+		-f internal/storage/types/location_source.go
 
 gen-goa: # @HELP Generate Goa assets.
 gen-goa: $(GOA)

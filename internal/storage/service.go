@@ -385,8 +385,15 @@ func (s *serviceImpl) CreateLocation(
 	ctx context.Context,
 	payload *goastorage.CreateLocationPayload,
 ) (res *goastorage.CreateLocationResult, err error) {
-	source := types.NewLocationSource(payload.Source)
-	purpose := types.NewLocationPurpose(payload.Purpose)
+	purpose, err := types.ParseLocationPurposeWithDefault(payload.Purpose)
+	if err != nil {
+		return nil, goastorage.MakeNotValid(errors.New("purpose: invalid value"))
+	}
+	source, err := types.ParseLocationSourceWithDefault(payload.Source)
+	if err != nil {
+		return nil, goastorage.MakeNotValid(errors.New("source: invalid value"))
+	}
+
 	UUID := uuid.Must(uuid.NewRandomFromReader(s.rander))
 
 	var config types.LocationConfig

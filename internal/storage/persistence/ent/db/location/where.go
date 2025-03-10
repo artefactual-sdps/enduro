@@ -209,42 +209,62 @@ func DescriptionContainsFold(v string) predicate.Location {
 
 // SourceEQ applies the EQ predicate on the "source" field.
 func SourceEQ(v types.LocationSource) predicate.Location {
-	return predicate.Location(sql.FieldEQ(FieldSource, v))
+	vc := v
+	return predicate.Location(sql.FieldEQ(FieldSource, vc))
 }
 
 // SourceNEQ applies the NEQ predicate on the "source" field.
 func SourceNEQ(v types.LocationSource) predicate.Location {
-	return predicate.Location(sql.FieldNEQ(FieldSource, v))
+	vc := v
+	return predicate.Location(sql.FieldNEQ(FieldSource, vc))
 }
 
 // SourceIn applies the In predicate on the "source" field.
 func SourceIn(vs ...types.LocationSource) predicate.Location {
-	return predicate.Location(sql.FieldIn(FieldSource, vs...))
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Location(sql.FieldIn(FieldSource, v...))
 }
 
 // SourceNotIn applies the NotIn predicate on the "source" field.
 func SourceNotIn(vs ...types.LocationSource) predicate.Location {
-	return predicate.Location(sql.FieldNotIn(FieldSource, vs...))
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Location(sql.FieldNotIn(FieldSource, v...))
 }
 
 // PurposeEQ applies the EQ predicate on the "purpose" field.
 func PurposeEQ(v types.LocationPurpose) predicate.Location {
-	return predicate.Location(sql.FieldEQ(FieldPurpose, v))
+	vc := v
+	return predicate.Location(sql.FieldEQ(FieldPurpose, vc))
 }
 
 // PurposeNEQ applies the NEQ predicate on the "purpose" field.
 func PurposeNEQ(v types.LocationPurpose) predicate.Location {
-	return predicate.Location(sql.FieldNEQ(FieldPurpose, v))
+	vc := v
+	return predicate.Location(sql.FieldNEQ(FieldPurpose, vc))
 }
 
 // PurposeIn applies the In predicate on the "purpose" field.
 func PurposeIn(vs ...types.LocationPurpose) predicate.Location {
-	return predicate.Location(sql.FieldIn(FieldPurpose, vs...))
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Location(sql.FieldIn(FieldPurpose, v...))
 }
 
 // PurposeNotIn applies the NotIn predicate on the "purpose" field.
 func PurposeNotIn(vs ...types.LocationPurpose) predicate.Location {
-	return predicate.Location(sql.FieldNotIn(FieldPurpose, vs...))
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Location(sql.FieldNotIn(FieldPurpose, v...))
 }
 
 // UUIDEQ applies the EQ predicate on the "uuid" field.

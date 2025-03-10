@@ -127,8 +127,8 @@ func TestCreateAIP(t *testing.T) {
 			_, err := entc.Location.Create().
 				SetName("Location 1").
 				SetDescription("MinIO AIP store").
-				SetSource(types.LocationSourceMinIO).
-				SetPurpose(types.LocationPurposeAIPStore).
+				SetSource(types.LocationSourceMinio).
+				SetPurpose(types.LocationPurposeAipStore).
 				SetUUID(locationID).
 				SetConfig(types.LocationConfig{
 					Value: &types.S3Config{
@@ -262,8 +262,8 @@ func TestUpdateAIPLocation(t *testing.T) {
 	l1 := entc.Location.Create().
 		SetName("perma-aips-1").
 		SetDescription("").
-		SetSource(types.LocationSourceMinIO).
-		SetPurpose(types.LocationPurposeAIPStore).
+		SetSource(types.LocationSourceMinio).
+		SetPurpose(types.LocationPurposeAipStore).
 		SetUUID(locationID).
 		SetConfig(types.LocationConfig{
 			Value: &types.S3Config{
@@ -275,8 +275,8 @@ func TestUpdateAIPLocation(t *testing.T) {
 	l2 := entc.Location.Create().
 		SetName("perma-aips-2").
 		SetDescription("").
-		SetSource(types.LocationSourceMinIO).
-		SetPurpose(types.LocationPurposeAIPStore).
+		SetSource(types.LocationSourceMinio).
+		SetPurpose(types.LocationPurposeAipStore).
 		SetUUID(uuid.MustParse("aef501be-b726-4d32-820d-549541d29b64")).
 		SetConfig(types.LocationConfig{
 			Value: &types.S3Config{
@@ -314,8 +314,8 @@ func TestCreateLocation(t *testing.T) {
 		&goastorage.Location{
 			Name:        "test_location",
 			Description: ref.New("location description"),
-			Source:      types.LocationSourceMinIO.String(),
-			Purpose:     types.LocationPurposeAIPStore.String(),
+			Source:      types.LocationSourceMinio.String(),
+			Purpose:     types.LocationPurposeAipStore.String(),
 			UUID:        locationID,
 		},
 		&types.LocationConfig{
@@ -330,8 +330,8 @@ func TestCreateLocation(t *testing.T) {
 	assert.NilError(t, err)
 	assert.Equal(t, dblocation.Name, "test_location")
 	assert.Equal(t, dblocation.Description, "location description")
-	assert.Equal(t, dblocation.Source, types.LocationSourceMinIO)
-	assert.Equal(t, dblocation.Purpose, types.LocationPurposeAIPStore)
+	assert.Equal(t, dblocation.Source, types.LocationSourceMinio)
+	assert.Equal(t, dblocation.Purpose, types.LocationPurposeAipStore)
 	assert.Equal(t, dblocation.UUID, locationID)
 	assert.Equal(t, dblocation.CreatedAt, time.Date(2013, time.February, 3, 19, 54, 0, 0, time.UTC))
 	assert.DeepEqual(t, dblocation.Config.Value, &types.S3Config{Bucket: "perma-aips-1"})
@@ -348,8 +348,8 @@ func TestCreateURLLocation(t *testing.T) {
 		&goastorage.Location{
 			Name:        "test_url_location",
 			Description: ref.New("location description"),
-			Source:      types.LocationSourceMinIO.String(),
-			Purpose:     types.LocationPurposeAIPStore.String(),
+			Source:      types.LocationSourceMinio.String(),
+			Purpose:     types.LocationPurposeAipStore.String(),
 			UUID:        locationID,
 		},
 		&types.LocationConfig{
@@ -364,8 +364,8 @@ func TestCreateURLLocation(t *testing.T) {
 	assert.NilError(t, err)
 	assert.Equal(t, dblocation.Name, "test_url_location")
 	assert.Equal(t, dblocation.Description, "location description")
-	assert.Equal(t, dblocation.Source, types.LocationSourceMinIO)
-	assert.Equal(t, dblocation.Purpose, types.LocationPurposeAIPStore)
+	assert.Equal(t, dblocation.Source, types.LocationSourceMinio)
+	assert.Equal(t, dblocation.Purpose, types.LocationPurposeAipStore)
 	assert.Equal(t, dblocation.UUID, locationID)
 	assert.Equal(t, dblocation.CreatedAt, time.Date(2013, time.February, 3, 19, 54, 0, 0, time.UTC))
 	assert.DeepEqual(t, dblocation.Config.Value, &types.URLConfig{URL: "mem://"})
@@ -385,8 +385,8 @@ func TestListLocations(t *testing.T) {
 	entc.Location.Create().
 		SetName("Location").
 		SetDescription("location").
-		SetSource(types.LocationSourceMinIO).
-		SetPurpose(types.LocationPurposeAIPStore).
+		SetSource(types.LocationSourceMinio).
+		SetPurpose(types.LocationPurposeAipStore).
 		SetUUID(locationIDs[0]).
 		SetConfig(types.LocationConfig{
 			Value: &types.S3Config{
@@ -397,8 +397,8 @@ func TestListLocations(t *testing.T) {
 	entc.Location.Create().
 		SetName("Another Location").
 		SetDescription("another location").
-		SetSource(types.LocationSourceMinIO).
-		SetPurpose(types.LocationPurposeAIPStore).
+		SetSource(types.LocationSourceMinio).
+		SetPurpose(types.LocationPurposeAipStore).
 		SetUUID(locationIDs[1]).
 		SetConfig(types.LocationConfig{
 			Value: &types.SFTPConfig{
@@ -412,7 +412,7 @@ func TestListLocations(t *testing.T) {
 	entc.Location.Create().
 		SetName("URL Location").
 		SetDescription("URL location").
-		SetSource(types.LocationSourceMinIO).
+		SetSource(types.LocationSourceMinio).
 		SetPurpose(types.LocationPurposeUnspecified).
 		SetUUID(locationIDs[2]).
 		SetConfig(types.LocationConfig{
@@ -424,8 +424,8 @@ func TestListLocations(t *testing.T) {
 	entc.Location.Create().
 		SetName("AMSS Location").
 		SetDescription("AMSS Location").
-		SetSource(types.LocationSourceAMSS).
-		SetPurpose(types.LocationPurposeAIPStore).
+		SetSource(types.LocationSourceAmss).
+		SetPurpose(types.LocationPurposeAipStore).
 		SetUUID(locationIDs[3]).
 		SetConfig(types.LocationConfig{
 			Value: &types.AMSSConfig{
@@ -508,8 +508,8 @@ func TestReadLocation(t *testing.T) {
 		entc.Location.Create().
 			SetName("test_location").
 			SetDescription("location description").
-			SetSource(types.LocationSourceMinIO).
-			SetPurpose(types.LocationPurposeAIPStore).
+			SetSource(types.LocationSourceMinio).
+			SetPurpose(types.LocationPurposeAipStore).
 			SetUUID(locationID).
 			SetConfig(types.LocationConfig{
 				Value: &types.S3Config{
@@ -523,8 +523,8 @@ func TestReadLocation(t *testing.T) {
 		assert.DeepEqual(t, l, &goastorage.Location{
 			Name:        "test_location",
 			Description: ref.New("location description"),
-			Source:      types.LocationSourceMinIO.String(),
-			Purpose:     types.LocationPurposeAIPStore.String(),
+			Source:      types.LocationSourceMinio.String(),
+			Purpose:     types.LocationPurposeAipStore.String(),
 			UUID:        locationID,
 			CreatedAt:   "2013-02-03T19:54:00Z",
 			Config: &goastorage.S3Config{
@@ -560,8 +560,8 @@ func TestLocationAIPs(t *testing.T) {
 		l := entc.Location.Create().
 			SetName("Location").
 			SetDescription("location").
-			SetSource(types.LocationSourceMinIO).
-			SetPurpose(types.LocationPurposeAIPStore).
+			SetSource(types.LocationSourceMinio).
+			SetPurpose(types.LocationPurposeAipStore).
 			SetUUID(locationID).
 			SetConfig(types.LocationConfig{
 				Value: &types.S3Config{
@@ -600,8 +600,8 @@ func TestLocationAIPs(t *testing.T) {
 		entc.Location.Create().
 			SetName("Location").
 			SetDescription("location").
-			SetSource(types.LocationSourceMinIO).
-			SetPurpose(types.LocationPurposeAIPStore).
+			SetSource(types.LocationSourceMinio).
+			SetPurpose(types.LocationPurposeAipStore).
 			SetUUID(locationID).
 			SetConfig(types.LocationConfig{
 				Value: &types.S3Config{

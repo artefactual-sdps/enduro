@@ -219,22 +219,32 @@ func LocationIDNotNil() predicate.AIP {
 
 // StatusEQ applies the EQ predicate on the "status" field.
 func StatusEQ(v types.AIPStatus) predicate.AIP {
-	return predicate.AIP(sql.FieldEQ(FieldStatus, v))
+	vc := v
+	return predicate.AIP(sql.FieldEQ(FieldStatus, vc))
 }
 
 // StatusNEQ applies the NEQ predicate on the "status" field.
 func StatusNEQ(v types.AIPStatus) predicate.AIP {
-	return predicate.AIP(sql.FieldNEQ(FieldStatus, v))
+	vc := v
+	return predicate.AIP(sql.FieldNEQ(FieldStatus, vc))
 }
 
 // StatusIn applies the In predicate on the "status" field.
 func StatusIn(vs ...types.AIPStatus) predicate.AIP {
-	return predicate.AIP(sql.FieldIn(FieldStatus, vs...))
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.AIP(sql.FieldIn(FieldStatus, v...))
 }
 
 // StatusNotIn applies the NotIn predicate on the "status" field.
 func StatusNotIn(vs ...types.AIPStatus) predicate.AIP {
-	return predicate.AIP(sql.FieldNotIn(FieldStatus, vs...))
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.AIP(sql.FieldNotIn(FieldStatus, v...))
 }
 
 // ObjectKeyEQ applies the EQ predicate on the "object_key" field.

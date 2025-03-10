@@ -1470,8 +1470,8 @@ func TestServiceAddLocation(t *testing.T) {
 
 		res, err := svc.CreateLocation(ctx, &goastorage.CreateLocationPayload{
 			Name:    "perma-aips-1",
-			Source:  types.LocationSourceMinIO.String(),
-			Purpose: types.LocationPurposeAIPStore.String(),
+			Source:  types.LocationSourceMinio.String(),
+			Purpose: types.LocationPurposeAipStore.String(),
 			Config:  nil,
 		})
 		assert.Assert(t, res == nil)
@@ -1487,8 +1487,8 @@ func TestServiceAddLocation(t *testing.T) {
 
 		res, err := svc.CreateLocation(ctx, &goastorage.CreateLocationPayload{
 			Name:    "perma-aips-1",
-			Source:  types.LocationSourceMinIO.String(),
-			Purpose: types.LocationPurposeAIPStore.String(),
+			Source:  types.LocationSourceMinio.String(),
+			Purpose: types.LocationPurposeAipStore.String(),
 			Config:  &goastorage.S3Config{},
 		})
 		assert.Assert(t, res == nil)
@@ -1507,8 +1507,8 @@ func TestServiceAddLocation(t *testing.T) {
 				gomock.AssignableToTypeOf(ctx),
 				&goastorage.Location{
 					Name:    "perma-aips-1",
-					Source:  types.LocationSourceMinIO.String(),
-					Purpose: types.LocationPurposeAIPStore.String(),
+					Source:  types.LocationSourceMinio.String(),
+					Purpose: types.LocationPurposeAipStore.String(),
 					UUID:    uuid0,
 				},
 				&types.LocationConfig{
@@ -1526,8 +1526,8 @@ func TestServiceAddLocation(t *testing.T) {
 
 		res, err := svc.CreateLocation(ctx, &goastorage.CreateLocationPayload{
 			Name:    "perma-aips-1",
-			Source:  types.LocationSourceMinIO.String(),
-			Purpose: types.LocationPurposeAIPStore.String(),
+			Source:  types.LocationSourceMinio.String(),
+			Purpose: types.LocationPurposeAipStore.String(),
 			Config: &goastorage.S3Config{
 				Bucket: "perma-aips-1",
 				Region: "planet-earth",
@@ -1549,8 +1549,8 @@ func TestServiceAddLocation(t *testing.T) {
 				gomock.AssignableToTypeOf(ctx),
 				&goastorage.Location{
 					Name:    "perma-aips-1",
-					Source:  types.LocationSourceMinIO.String(),
-					Purpose: types.LocationPurposeAIPStore.String(),
+					Source:  types.LocationSourceMinio.String(),
+					Purpose: types.LocationPurposeAipStore.String(),
 					UUID:    uuid0,
 				},
 				&types.LocationConfig{
@@ -1568,8 +1568,8 @@ func TestServiceAddLocation(t *testing.T) {
 
 		res, err := svc.CreateLocation(ctx, &goastorage.CreateLocationPayload{
 			Name:    "perma-aips-1",
-			Source:  types.LocationSourceMinIO.String(),
-			Purpose: types.LocationPurposeAIPStore.String(),
+			Source:  types.LocationSourceMinio.String(),
+			Purpose: types.LocationPurposeAipStore.String(),
 			Config: &goastorage.S3Config{
 				Bucket: "perma-aips-1",
 				Region: "planet-earth",
@@ -1590,8 +1590,8 @@ func TestServiceAddLocation(t *testing.T) {
 				gomock.AssignableToTypeOf(ctx),
 				&goastorage.Location{
 					Name:    "perma-aips-1",
-					Source:  types.LocationSourceMinIO.String(),
-					Purpose: types.LocationPurposeAIPStore.String(),
+					Source:  types.LocationSourceMinio.String(),
+					Purpose: types.LocationPurposeAipStore.String(),
 					UUID:    uuid0,
 				},
 				&types.LocationConfig{
@@ -1608,8 +1608,8 @@ func TestServiceAddLocation(t *testing.T) {
 
 		res, err := svc.CreateLocation(ctx, &goastorage.CreateLocationPayload{
 			Name:    "perma-aips-1",
-			Source:  types.LocationSourceMinIO.String(),
-			Purpose: types.LocationPurposeAIPStore.String(),
+			Source:  types.LocationSourceMinio.String(),
+			Purpose: types.LocationPurposeAipStore.String(),
 			Config: &goastorage.URLConfig{
 				URL: "mem://",
 			},

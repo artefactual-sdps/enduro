@@ -65,12 +65,10 @@ func (*AIP) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case aip.FieldID, aip.FieldLocationID:
 			values[i] = new(sql.NullInt64)
-		case aip.FieldName:
+		case aip.FieldName, aip.FieldStatus:
 			values[i] = new(sql.NullString)
 		case aip.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
-		case aip.FieldStatus:
-			values[i] = new(types.AIPStatus)
 		case aip.FieldAipID, aip.FieldObjectKey:
 			values[i] = new(uuid.UUID)
 		default:
@@ -113,10 +111,10 @@ func (a *AIP) assignValues(columns []string, values []any) error {
 				a.LocationID = int(value.Int64)
 			}
 		case aip.FieldStatus:
-			if value, ok := values[i].(*types.AIPStatus); !ok {
+			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field status", values[i])
-			} else if value != nil {
-				a.Status = *value
+			} else if value.Valid {
+				a.Status = types.AIPStatus(value.String)
 			}
 		case aip.FieldObjectKey:
 			if value, ok := values[i].(*uuid.UUID); !ok {
