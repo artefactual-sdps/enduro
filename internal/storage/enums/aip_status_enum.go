@@ -4,7 +4,7 @@
 // Build Date: 2023-12-18T15:54:43Z
 // Built By: goreleaser
 
-package types
+package enums
 
 import (
 	"fmt"

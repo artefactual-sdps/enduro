@@ -7,8 +7,8 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/artefactual-sdps/enduro/internal/storage/enums"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/predicate"
-	"github.com/artefactual-sdps/enduro/internal/storage/types"
 	"github.com/google/uuid"
 )
 
@@ -208,19 +208,19 @@ func DescriptionContainsFold(v string) predicate.Location {
 }
 
 // SourceEQ applies the EQ predicate on the "source" field.
-func SourceEQ(v types.LocationSource) predicate.Location {
+func SourceEQ(v enums.LocationSource) predicate.Location {
 	vc := v
 	return predicate.Location(sql.FieldEQ(FieldSource, vc))
 }
 
 // SourceNEQ applies the NEQ predicate on the "source" field.
-func SourceNEQ(v types.LocationSource) predicate.Location {
+func SourceNEQ(v enums.LocationSource) predicate.Location {
 	vc := v
 	return predicate.Location(sql.FieldNEQ(FieldSource, vc))
 }
 
 // SourceIn applies the In predicate on the "source" field.
-func SourceIn(vs ...types.LocationSource) predicate.Location {
+func SourceIn(vs ...enums.LocationSource) predicate.Location {
 	v := make([]any, len(vs))
 	for i := range v {
 		v[i] = vs[i]
@@ -229,7 +229,7 @@ func SourceIn(vs ...types.LocationSource) predicate.Location {
 }
 
 // SourceNotIn applies the NotIn predicate on the "source" field.
-func SourceNotIn(vs ...types.LocationSource) predicate.Location {
+func SourceNotIn(vs ...enums.LocationSource) predicate.Location {
 	v := make([]any, len(vs))
 	for i := range v {
 		v[i] = vs[i]
@@ -238,19 +238,19 @@ func SourceNotIn(vs ...types.LocationSource) predicate.Location {
 }
 
 // PurposeEQ applies the EQ predicate on the "purpose" field.
-func PurposeEQ(v types.LocationPurpose) predicate.Location {
+func PurposeEQ(v enums.LocationPurpose) predicate.Location {
 	vc := v
 	return predicate.Location(sql.FieldEQ(FieldPurpose, vc))
 }
 
 // PurposeNEQ applies the NEQ predicate on the "purpose" field.
-func PurposeNEQ(v types.LocationPurpose) predicate.Location {
+func PurposeNEQ(v enums.LocationPurpose) predicate.Location {
 	vc := v
 	return predicate.Location(sql.FieldNEQ(FieldPurpose, vc))
 }
 
 // PurposeIn applies the In predicate on the "purpose" field.
-func PurposeIn(vs ...types.LocationPurpose) predicate.Location {
+func PurposeIn(vs ...enums.LocationPurpose) predicate.Location {
 	v := make([]any, len(vs))
 	for i := range v {
 		v[i] = vs[i]
@@ -259,7 +259,7 @@ func PurposeIn(vs ...types.LocationPurpose) predicate.Location {
 }
 
 // PurposeNotIn applies the NotIn predicate on the "purpose" field.
-func PurposeNotIn(vs ...types.LocationPurpose) predicate.Location {
+func PurposeNotIn(vs ...enums.LocationPurpose) predicate.Location {
 	v := make([]any, len(vs))
 	for i := range v {
 		v[i] = vs[i]

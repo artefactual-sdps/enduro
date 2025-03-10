@@ -8,6 +8,7 @@ import (
 	"go.opentelemetry.io/otel/trace"
 
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
+	"github.com/artefactual-sdps/enduro/internal/storage/enums"
 	"github.com/artefactual-sdps/enduro/internal/storage/types"
 	"github.com/artefactual-sdps/enduro/internal/telemetry"
 )
@@ -71,7 +72,7 @@ func (w *wrapper) ReadAIP(ctx context.Context, aipID uuid.UUID) (*goastorage.AIP
 	return r, nil
 }
 
-func (w *wrapper) UpdateAIPStatus(ctx context.Context, aipID uuid.UUID, status types.AIPStatus) error {
+func (w *wrapper) UpdateAIPStatus(ctx context.Context, aipID uuid.UUID, status enums.AIPStatus) error {
 	ctx, span := w.tracer.Start(ctx, "UpdateAIPStatus")
 	defer span.End()
 

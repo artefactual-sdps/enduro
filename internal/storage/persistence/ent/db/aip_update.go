@@ -10,10 +10,10 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/artefactual-sdps/enduro/internal/storage/enums"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/aip"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/location"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/predicate"
-	"github.com/artefactual-sdps/enduro/internal/storage/types"
 	"github.com/google/uuid"
 )
 
@@ -79,15 +79,15 @@ func (au *AIPUpdate) ClearLocationID() *AIPUpdate {
 }
 
 // SetStatus sets the "status" field.
-func (au *AIPUpdate) SetStatus(ts types.AIPStatus) *AIPUpdate {
-	au.mutation.SetStatus(ts)
+func (au *AIPUpdate) SetStatus(es enums.AIPStatus) *AIPUpdate {
+	au.mutation.SetStatus(es)
 	return au
 }
 
 // SetNillableStatus sets the "status" field if the given value is not nil.
-func (au *AIPUpdate) SetNillableStatus(ts *types.AIPStatus) *AIPUpdate {
-	if ts != nil {
-		au.SetStatus(*ts)
+func (au *AIPUpdate) SetNillableStatus(es *enums.AIPStatus) *AIPUpdate {
+	if es != nil {
+		au.SetStatus(*es)
 	}
 	return au
 }
@@ -281,15 +281,15 @@ func (auo *AIPUpdateOne) ClearLocationID() *AIPUpdateOne {
 }
 
 // SetStatus sets the "status" field.
-func (auo *AIPUpdateOne) SetStatus(ts types.AIPStatus) *AIPUpdateOne {
-	auo.mutation.SetStatus(ts)
+func (auo *AIPUpdateOne) SetStatus(es enums.AIPStatus) *AIPUpdateOne {
+	auo.mutation.SetStatus(es)
 	return auo
 }
 
 // SetNillableStatus sets the "status" field if the given value is not nil.
-func (auo *AIPUpdateOne) SetNillableStatus(ts *types.AIPStatus) *AIPUpdateOne {
-	if ts != nil {
-		auo.SetStatus(*ts)
+func (auo *AIPUpdateOne) SetNillableStatus(es *enums.AIPStatus) *AIPUpdateOne {
+	if es != nil {
+		auo.SetStatus(*es)
 	}
 	return auo
 }

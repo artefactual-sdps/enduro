@@ -3,6 +3,7 @@ package design
 import (
 	. "goa.design/goa/v3/dsl"
 
+	"github.com/artefactual-sdps/enduro/internal/storage/enums"
 	"github.com/artefactual-sdps/enduro/internal/storage/types"
 )
 
@@ -339,11 +340,11 @@ var Location = ResultType("application/vnd.enduro.storage.location", func() {
 })
 
 var EnumLocationPurpose = func() {
-	Enum(types.LocationPurposeInterfaces()...)
+	Enum(enums.LocationPurposeInterfaces()...)
 }
 
 var EnumLocationSource = func() {
-	Enum(types.LocationSourceInterfaces()...)
+	Enum(enums.LocationSourceInterfaces()...)
 }
 
 var CreateLocationResult = Type("CreateLocationResult", func() {
@@ -390,7 +391,7 @@ var AIP = ResultType("application/vnd.enduro.storage.aip", func() {
 })
 
 var EnumAIPStatus = func() {
-	Enum(types.AIPStatusInterfaces()...)
+	Enum(enums.AIPStatusInterfaces()...)
 }
 
 var AMSSConfig = Type("AMSSConfig", func() {
