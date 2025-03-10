@@ -325,14 +325,14 @@ func TestList(t *testing.T) {
 			payload: &goaingest.ListSipsPayload{
 				EarliestCreatedTime: ref.New("2024-15-15T25:83:52Z"),
 			},
-			wantErr: "earliest_created_time: invalid time",
+			wantErr: "created at: time range: cannot parse start time",
 		},
 		{
 			name: "Errors on a bad latest_created_time",
 			payload: &goaingest.ListSipsPayload{
 				LatestCreatedTime: ref.New("2024-15-15T25:83:52Z"),
 			},
-			wantErr: "latest_created_time: invalid time",
+			wantErr: "created at: time range: cannot parse end time",
 		},
 		{
 			name: "Errors on a bad created at range",

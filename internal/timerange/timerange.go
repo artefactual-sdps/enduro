@@ -35,3 +35,43 @@ func (r Range) IsZero() bool {
 func (r Range) IsInstant() bool {
 	return r.Start == r.End
 }
+
+// Parse returns a new Range with the given Start and End strings.
+// Parse will return a nil Range if both strings are nil, if only
+// Start is nil it will use an arbitrary time far in the past, and
+// if only End is nil it will use the current time. Parse will return
+// an error if the End time is before the Start time or if the strings
+// cannot be parsed as RFC3339 time format.
+func Parse(start, end *string) (*Range, error) {
+	var s, e time.Time
+	var err error
+
+	if start == nil && end == nil {
+		return nil, nil
+	}
+
+	if start == nil {
+		s = time.Date(1, 1, 1, 0, 0, 0, 0, time.UTC)
+	} else {
+		s, err = time.Parse(time.RFC3339, *start)
+		if err != nil {
+			return nil, errors.New("time range: cannot parse start time")
+		}
+	}
+
+	if end == nil {
+		e = time.Now()
+	} else {
+		e, err = time.Parse(time.RFC3339, *end)
+		if err != nil {
+			return nil, errors.New("time range: cannot parse end time")
+		}
+	}
+
+	r, err := New(s, e)
+	if err != nil {
+		return nil, err
+	}
+
+	return &r, nil
+}

@@ -4,6 +4,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/google/go-cmp/cmp/cmpopts"
+	"go.artefactual.dev/tools/ref"
 	"gotest.tools/v3/assert"
 
 	"github.com/artefactual-sdps/enduro/internal/timerange"
@@ -90,4 +92,85 @@ func TestIsInstant(t *testing.T) {
 		assert.NilError(t, err)
 		assert.Assert(t, !r.IsInstant())
 	})
+}
+
+func TestParse(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name    string
+		start   *string
+		end     *string
+		want    *timerange.Range
+		wantErr string
+	}{
+		{
+			name:  "Returns nil when both start and end are nil",
+			start: nil,
+			end:   nil,
+			want:  nil,
+		},
+		{
+			name:  "Parses valid start and end times",
+			start: ref.New("2024-09-17T00:00:00Z"),
+			end:   ref.New("2024-09-18T00:00:00Z"),
+			want: &timerange.Range{
+				Start: time.Date(2024, 9, 17, 0, 0, 0, 0, time.UTC),
+				End:   time.Date(2024, 9, 18, 0, 0, 0, 0, time.UTC),
+			},
+		},
+		{
+			name:  "Uses arbitrary past time when start is nil",
+			start: nil,
+			end:   ref.New("2024-09-18T00:00:00Z"),
+			want: &timerange.Range{
+				Start: time.Date(1, 1, 1, 0, 0, 0, 0, time.UTC),
+				End:   time.Date(2024, 9, 18, 0, 0, 0, 0, time.UTC),
+			},
+		},
+		{
+			name:  "Uses current time when end is nil",
+			start: ref.New("2024-09-17T00:00:00Z"),
+			end:   nil,
+			want: &timerange.Range{
+				Start: time.Date(2024, 9, 17, 0, 0, 0, 0, time.UTC),
+				End:   time.Now(),
+			},
+		},
+		{
+			name:    "Errors when start time is invalid",
+			start:   ref.New("invalid"),
+			end:     ref.New("2024-09-18T00:00:00Z"),
+			want:    nil,
+			wantErr: "time range: cannot parse start time",
+		},
+		{
+			name:    "Errors when end time is invalid",
+			start:   ref.New("2024-09-17T00:00:00Z"),
+			end:     ref.New("invalid"),
+			want:    nil,
+			wantErr: "time range: cannot parse end time",
+		},
+		{
+			name:    "Errors when end time is before start time",
+			start:   ref.New("2024-09-18T00:00:00Z"),
+			end:     ref.New("2024-09-17T00:00:00Z"),
+			want:    nil,
+			wantErr: "time range: end cannot be before start",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			r, err := timerange.Parse(tt.start, tt.end)
+			if tt.wantErr != "" {
+				assert.Error(t, err, tt.wantErr)
+				return
+			}
+			assert.NilError(t, err)
+			assert.DeepEqual(t, r, tt.want, cmpopts.EquateApproxTime(time.Second))
+		})
+	}
 }
