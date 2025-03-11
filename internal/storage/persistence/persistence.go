@@ -13,7 +13,7 @@ import (
 type Storage interface {
 	// AIP.
 	CreateAIP(ctx context.Context, aip *goastorage.AIP) (*goastorage.AIP, error)
-	ListAIPs(ctx context.Context) (goastorage.AIPCollection, error)
+	ListAIPs(ctx context.Context, payload *goastorage.ListAipsPayload) (*goastorage.AIPs, error)
 	ReadAIP(ctx context.Context, aipID uuid.UUID) (*goastorage.AIP, error)
 	UpdateAIPStatus(ctx context.Context, aipID uuid.UUID, status enums.AIPStatus) error
 	UpdateAIPLocationID(ctx context.Context, aipID, locationID uuid.UUID) error

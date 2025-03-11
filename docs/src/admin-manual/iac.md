@@ -167,6 +167,7 @@ The `*` attribute will provide full access to the API.
 | GET    | /ingest/sips/{id}/preservation-actions | `ingest:sips:actions:list`    |
 | POST   | /ingest/sips/{id}/reject               | `ingest:sips:review`          |
 | POST   | /ingest/sips/upload                    | `ingest:sips:upload`          |
+| GET    | /storage/aips                          | `storage:aips:list`           |
 | POST   | /storage/aips                          | `storage:aips:create`         |
 | GET    | /storage/aips/{uuid}                   | `storage:aips:read`           |
 | GET    | /storage/aips/{uuid}/download          | `storage:aips:download`       |

@@ -12,6 +12,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -21,6 +22,157 @@ import (
 	storageviews "github.com/artefactual-sdps/enduro/internal/api/gen/storage/views"
 	goahttp "goa.design/goa/v3/http"
 )
+
+// BuildListAipsRequest instantiates a HTTP request object with method and path
+// set to call the "storage" service "list_aips" endpoint
+func (c *Client) BuildListAipsRequest(ctx context.Context, v any) (*http.Request, error) {
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: ListAipsStoragePath()}
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		return nil, goahttp.ErrInvalidURL("storage", "list_aips", u.String(), err)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
+	return req, nil
+}
+
+// EncodeListAipsRequest returns an encoder for requests sent to the storage
+// list_aips server.
+func EncodeListAipsRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, any) error {
+	return func(req *http.Request, v any) error {
+		p, ok := v.(*storage.ListAipsPayload)
+		if !ok {
+			return goahttp.ErrInvalidType("storage", "list_aips", "*storage.ListAipsPayload", v)
+		}
+		if p.Token != nil {
+			head := *p.Token
+			if !strings.Contains(head, " ") {
+				req.Header.Set("Authorization", "Bearer "+head)
+			} else {
+				req.Header.Set("Authorization", head)
+			}
+		}
+		values := req.URL.Query()
+		if p.Name != nil {
+			values.Add("name", *p.Name)
+		}
+		if p.EarliestCreatedTime != nil {
+			values.Add("earliest_created_time", *p.EarliestCreatedTime)
+		}
+		if p.LatestCreatedTime != nil {
+			values.Add("latest_created_time", *p.LatestCreatedTime)
+		}
+		if p.Status != nil {
+			values.Add("status", *p.Status)
+		}
+		if p.Limit != nil {
+			values.Add("limit", fmt.Sprintf("%v", *p.Limit))
+		}
+		if p.Offset != nil {
+			values.Add("offset", fmt.Sprintf("%v", *p.Offset))
+		}
+		req.URL.RawQuery = values.Encode()
+		return nil
+	}
+}
+
+// DecodeListAipsResponse returns a decoder for responses returned by the
+// storage list_aips endpoint. restoreBody controls whether the response body
+// should be restored after having been read.
+// DecodeListAipsResponse may return the following errors:
+//   - "not_available" (type *goa.ServiceError): http.StatusConflict
+//   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
+//   - "forbidden" (type storage.Forbidden): http.StatusForbidden
+//   - "unauthorized" (type storage.Unauthorized): http.StatusUnauthorized
+//   - error: internal error
+func DecodeListAipsResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
+	return func(resp *http.Response) (any, error) {
+		if restoreBody {
+			b, err := io.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			defer func() {
+				resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			}()
+		} else {
+			defer resp.Body.Close()
+		}
+		switch resp.StatusCode {
+		case http.StatusOK:
+			var (
+				body ListAipsResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "list_aips", err)
+			}
+			p := NewListAipsAIPsOK(&body)
+			view := "default"
+			vres := &storageviews.AIPs{Projected: p, View: view}
+			if err = storageviews.ValidateAIPs(vres); err != nil {
+				return nil, goahttp.ErrValidationError("storage", "list_aips", err)
+			}
+			res := storage.NewAIPs(vres)
+			return res, nil
+		case http.StatusConflict:
+			var (
+				body ListAipsNotAvailableResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "list_aips", err)
+			}
+			err = ValidateListAipsNotAvailableResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "list_aips", err)
+			}
+			return nil, NewListAipsNotAvailable(&body)
+		case http.StatusBadRequest:
+			var (
+				body ListAipsNotValidResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "list_aips", err)
+			}
+			err = ValidateListAipsNotValidResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "list_aips", err)
+			}
+			return nil, NewListAipsNotValid(&body)
+		case http.StatusForbidden:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "list_aips", err)
+			}
+			return nil, NewListAipsForbidden(body)
+		case http.StatusUnauthorized:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "list_aips", err)
+			}
+			return nil, NewListAipsUnauthorized(body)
+		default:
+			body, _ := io.ReadAll(resp.Body)
+			return nil, goahttp.ErrInvalidResponse("storage", "list_aips", resp.StatusCode, string(body))
+		}
+	}
+}
 
 // BuildCreateAipRequest instantiates a HTTP request object with method and
 // path set to call the "storage" service "create_aip" endpoint
@@ -1565,6 +1717,34 @@ func DecodeListLocationAipsResponse(decoder func(*http.Response) goahttp.Decoder
 			return nil, goahttp.ErrInvalidResponse("storage", "list_location_aips", resp.StatusCode, string(body))
 		}
 	}
+}
+
+// unmarshalAIPResponseBodyToStorageviewsAIPView builds a value of type
+// *storageviews.AIPView from a value of type *AIPResponseBody.
+func unmarshalAIPResponseBodyToStorageviewsAIPView(v *AIPResponseBody) *storageviews.AIPView {
+	res := &storageviews.AIPView{
+		Name:       v.Name,
+		UUID:       v.UUID,
+		Status:     v.Status,
+		ObjectKey:  v.ObjectKey,
+		LocationID: v.LocationID,
+		CreatedAt:  v.CreatedAt,
+	}
+
+	return res
+}
+
+// unmarshalEnduroPageResponseBodyToStorageviewsEnduroPageView builds a value
+// of type *storageviews.EnduroPageView from a value of type
+// *EnduroPageResponseBody.
+func unmarshalEnduroPageResponseBodyToStorageviewsEnduroPageView(v *EnduroPageResponseBody) *storageviews.EnduroPageView {
+	res := &storageviews.EnduroPageView{
+		Limit:  v.Limit,
+		Offset: v.Offset,
+		Total:  v.Total,
+	}
+
+	return res
 }
 
 // unmarshalLocationResponseToStorageviewsLocationView builds a value of type

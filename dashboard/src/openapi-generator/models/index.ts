@@ -1,8 +1,8 @@
 /* tslint:disable */
- 
-export * from './AIP';
+/* eslint-disable */
 export * from './AIPNotFound';
 export * from './AIPResponse';
+export * from './AIPs';
 export * from './ConfirmSipRequestBody';
 export * from './CreateAipRequestBody';
 export * from './CreateLocationRequestBody';
@@ -15,6 +15,7 @@ export * from './EnduroIngestSipPreservationTask';
 export * from './EnduroPage';
 export * from './EnduroPoststorage';
 export * from './EnduroPreprocessing';
+export * from './EnduroStorageAip';
 export * from './Location';
 export * from './LocationResponse';
 export * from './ModelError';

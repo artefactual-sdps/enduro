@@ -64,6 +64,13 @@ type CreateLocationRequestBody struct {
 	} `form:"config,omitempty" json:"config,omitempty" xml:"config,omitempty"`
 }
 
+// ListAipsResponseBody is the type of the "storage" service "list_aips"
+// endpoint HTTP response body.
+type ListAipsResponseBody struct {
+	Items AIPCollectionResponseBody `form:"items,omitempty" json:"items,omitempty" xml:"items,omitempty"`
+	Page  *EnduroPageResponseBody   `form:"page,omitempty" json:"page,omitempty" xml:"page,omitempty"`
+}
+
 // CreateAipResponseBody is the type of the "storage" service "create_aip"
 // endpoint HTTP response body.
 type CreateAipResponseBody struct {
@@ -143,6 +150,42 @@ type ShowLocationResponseBody struct {
 // ListLocationAipsResponseBody is the type of the "storage" service
 // "list_location_aips" endpoint HTTP response body.
 type ListLocationAipsResponseBody []*AIPResponse
+
+// ListAipsNotAvailableResponseBody is the type of the "storage" service
+// "list_aips" endpoint HTTP response body for the "not_available" error.
+type ListAipsNotAvailableResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
+// ListAipsNotValidResponseBody is the type of the "storage" service
+// "list_aips" endpoint HTTP response body for the "not_valid" error.
+type ListAipsNotValidResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
 
 // CreateAipNotValidResponseBody is the type of the "storage" service
 // "create_aip" endpoint HTTP response body for the "not_valid" error.
@@ -422,6 +465,32 @@ type ListLocationAipsNotFoundResponseBody struct {
 	UUID    *uuid.UUID `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
 }
 
+// AIPCollectionResponseBody is used to define fields on response body types.
+type AIPCollectionResponseBody []*AIPResponseBody
+
+// AIPResponseBody is used to define fields on response body types.
+type AIPResponseBody struct {
+	Name *string    `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	UUID *uuid.UUID `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
+	// Status of the AIP
+	Status    *string    `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
+	ObjectKey *uuid.UUID `form:"object_key,omitempty" json:"object_key,omitempty" xml:"object_key,omitempty"`
+	// Identifier of storage location
+	LocationID *uuid.UUID `form:"location_id,omitempty" json:"location_id,omitempty" xml:"location_id,omitempty"`
+	// Creation datetime
+	CreatedAt *string `form:"created_at,omitempty" json:"created_at,omitempty" xml:"created_at,omitempty"`
+}
+
+// EnduroPageResponseBody is used to define fields on response body types.
+type EnduroPageResponseBody struct {
+	// Maximum items per page
+	Limit *int `form:"limit,omitempty" json:"limit,omitempty" xml:"limit,omitempty"`
+	// Offset from first result to start of page
+	Offset *int `form:"offset,omitempty" json:"offset,omitempty" xml:"offset,omitempty"`
+	// Total result count before paging
+	Total *int `form:"total,omitempty" json:"total,omitempty" xml:"total,omitempty"`
+}
+
 // LocationResponse is used to define fields on response body types.
 type LocationResponse struct {
 	// Name of location
@@ -534,6 +603,65 @@ func NewCreateLocationRequestBody(p *storage.CreateLocationPayload) *CreateLocat
 		}
 	}
 	return body
+}
+
+// NewListAipsAIPsOK builds a "storage" service "list_aips" endpoint result
+// from a HTTP "OK" response.
+func NewListAipsAIPsOK(body *ListAipsResponseBody) *storageviews.AIPsView {
+	v := &storageviews.AIPsView{}
+	v.Items = make([]*storageviews.AIPView, len(body.Items))
+	for i, val := range body.Items {
+		v.Items[i] = unmarshalAIPResponseBodyToStorageviewsAIPView(val)
+	}
+	v.Page = unmarshalEnduroPageResponseBodyToStorageviewsEnduroPageView(body.Page)
+
+	return v
+}
+
+// NewListAipsNotAvailable builds a storage service list_aips endpoint
+// not_available error.
+func NewListAipsNotAvailable(body *ListAipsNotAvailableResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
+// NewListAipsNotValid builds a storage service list_aips endpoint not_valid
+// error.
+func NewListAipsNotValid(body *ListAipsNotValidResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
+// NewListAipsForbidden builds a storage service list_aips endpoint forbidden
+// error.
+func NewListAipsForbidden(body string) storage.Forbidden {
+	v := storage.Forbidden(body)
+
+	return v
+}
+
+// NewListAipsUnauthorized builds a storage service list_aips endpoint
+// unauthorized error.
+func NewListAipsUnauthorized(body string) storage.Unauthorized {
+	v := storage.Unauthorized(body)
+
+	return v
 }
 
 // NewCreateAipAIPOK builds a "storage" service "create_aip" endpoint result
@@ -1129,6 +1257,54 @@ func ValidateCreateLocationResponseBody(body *CreateLocationResponseBody) (err e
 	return
 }
 
+// ValidateListAipsNotAvailableResponseBody runs the validations defined on
+// list_aips_not_available_response_body
+func ValidateListAipsNotAvailableResponseBody(body *ListAipsNotAvailableResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
+// ValidateListAipsNotValidResponseBody runs the validations defined on
+// list_aips_not_valid_response_body
+func ValidateListAipsNotValidResponseBody(body *ListAipsNotValidResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
 // ValidateCreateAipNotValidResponseBody runs the validations defined on
 // create_aip_not_valid_response_body
 func ValidateCreateAipNotValidResponseBody(body *CreateAipNotValidResponseBody) (err error) {
@@ -1497,6 +1673,62 @@ func ValidateListLocationAipsNotFoundResponseBody(body *ListLocationAipsNotFound
 	}
 	if body.UUID == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("uuid", "body"))
+	}
+	return
+}
+
+// ValidateAIPCollectionResponseBody runs the validations defined on
+// AIPCollectionResponseBody
+func ValidateAIPCollectionResponseBody(body AIPCollectionResponseBody) (err error) {
+	for _, e := range body {
+		if e != nil {
+			if err2 := ValidateAIPResponseBody(e); err2 != nil {
+				err = goa.MergeErrors(err, err2)
+			}
+		}
+	}
+	return
+}
+
+// ValidateAIPResponseBody runs the validations defined on AIPResponseBody
+func ValidateAIPResponseBody(body *AIPResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.UUID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("uuid", "body"))
+	}
+	if body.Status == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("status", "body"))
+	}
+	if body.ObjectKey == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("object_key", "body"))
+	}
+	if body.CreatedAt == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("created_at", "body"))
+	}
+	if body.Status != nil {
+		if !(*body.Status == "unspecified" || *body.Status == "in_review" || *body.Status == "rejected" || *body.Status == "stored" || *body.Status == "moving") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []any{"unspecified", "in_review", "rejected", "stored", "moving"}))
+		}
+	}
+	if body.CreatedAt != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("body.created_at", *body.CreatedAt, goa.FormatDateTime))
+	}
+	return
+}
+
+// ValidateEnduroPageResponseBody runs the validations defined on
+// EnduroPageResponseBody
+func ValidateEnduroPageResponseBody(body *EnduroPageResponseBody) (err error) {
+	if body.Limit == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("limit", "body"))
+	}
+	if body.Offset == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("offset", "body"))
+	}
+	if body.Total == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("total", "body"))
 	}
 	return
 }

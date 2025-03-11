@@ -25,20 +25,14 @@ import (
 //	command (subcommand1|subcommand2|...)
 func UsageCommands() string {
 	return `ingest (monitor-request|monitor|list-sips|show-sip|list-sip-preservation-actions|confirm-sip|reject-sip|move-sip|move-sip-status|upload-sip)
-storage (create-aip|submit-aip|update-aip|download-aip|move-aip|move-aip-status|reject-aip|show-aip|list-locations|create-location|show-location|list-location-aips)
+storage (list-aips|create-aip|submit-aip|update-aip|download-aip|move-aip|move-aip-status|reject-aip|show-aip|list-locations|create-location|show-location|list-location-aips)
 `
 }
 
 // UsageExamples produces an example of a valid invocation of the CLI tool.
 func UsageExamples() string {
 	return os.Args[0] + ` ingest monitor-request --token "abc123"` + "\n" +
-		os.Args[0] + ` storage create-aip --body '{
-      "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
-      "name": "abc123",
-      "object_key": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
-      "status": "in_review",
-      "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
-   }' --token "abc123"` + "\n" +
+		os.Args[0] + ` storage list-aips --name "abc123" --earliest-created-time "1970-01-01T00:00:01Z" --latest-created-time "1970-01-01T00:00:01Z" --status "in_review" --limit 1 --offset 1 --token "abc123"` + "\n" +
 		""
 }
 
@@ -106,6 +100,15 @@ func ParseEndpoint(
 
 		storageFlags = flag.NewFlagSet("storage", flag.ContinueOnError)
 
+		storageListAipsFlags                   = flag.NewFlagSet("list-aips", flag.ExitOnError)
+		storageListAipsNameFlag                = storageListAipsFlags.String("name", "", "")
+		storageListAipsEarliestCreatedTimeFlag = storageListAipsFlags.String("earliest-created-time", "", "")
+		storageListAipsLatestCreatedTimeFlag   = storageListAipsFlags.String("latest-created-time", "", "")
+		storageListAipsStatusFlag              = storageListAipsFlags.String("status", "", "")
+		storageListAipsLimitFlag               = storageListAipsFlags.String("limit", "", "")
+		storageListAipsOffsetFlag              = storageListAipsFlags.String("offset", "", "")
+		storageListAipsTokenFlag               = storageListAipsFlags.String("token", "", "")
+
 		storageCreateAipFlags     = flag.NewFlagSet("create-aip", flag.ExitOnError)
 		storageCreateAipBodyFlag  = storageCreateAipFlags.String("body", "REQUIRED", "")
 		storageCreateAipTokenFlag = storageCreateAipFlags.String("token", "", "")
@@ -168,6 +171,7 @@ func ParseEndpoint(
 	ingestUploadSipFlags.Usage = ingestUploadSipUsage
 
 	storageFlags.Usage = storageUsage
+	storageListAipsFlags.Usage = storageListAipsUsage
 	storageCreateAipFlags.Usage = storageCreateAipUsage
 	storageSubmitAipFlags.Usage = storageSubmitAipUsage
 	storageUpdateAipFlags.Usage = storageUpdateAipUsage
@@ -251,6 +255,9 @@ func ParseEndpoint(
 
 		case "storage":
 			switch epn {
+			case "list-aips":
+				epf = storageListAipsFlags
+
 			case "create-aip":
 				epf = storageCreateAipFlags
 
@@ -349,6 +356,9 @@ func ParseEndpoint(
 		case "storage":
 			c := storagec.NewClient(scheme, host, doer, enc, dec, restore)
 			switch epn {
+			case "list-aips":
+				endpoint = c.ListAips()
+				data, err = storagec.BuildListAipsPayload(*storageListAipsNameFlag, *storageListAipsEarliestCreatedTimeFlag, *storageListAipsLatestCreatedTimeFlag, *storageListAipsStatusFlag, *storageListAipsLimitFlag, *storageListAipsOffsetFlag, *storageListAipsTokenFlag)
 			case "create-aip":
 				endpoint = c.CreateAip()
 				data, err = storagec.BuildCreateAipPayload(*storageCreateAipBodyFlag, *storageCreateAipTokenFlag)
@@ -556,6 +566,7 @@ Usage:
     %[1]s [globalflags] storage COMMAND [flags]
 
 COMMAND:
+    list-aips: List all AIPs
     create-aip: Create a new AIP
     submit-aip: Start the submission of an AIP
     update-aip: Signal that an AIP submission is complete
@@ -573,6 +584,23 @@ Additional help:
     %[1]s storage COMMAND --help
 `, os.Args[0])
 }
+func storageListAipsUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage list-aips -name STRING -earliest-created-time STRING -latest-created-time STRING -status STRING -limit INT -offset INT -token STRING
+
+List all AIPs
+    -name STRING: 
+    -earliest-created-time STRING: 
+    -latest-created-time STRING: 
+    -status STRING: 
+    -limit INT: 
+    -offset INT: 
+    -token STRING: 
+
+Example:
+    %[1]s storage list-aips --name "abc123" --earliest-created-time "1970-01-01T00:00:01Z" --latest-created-time "1970-01-01T00:00:01Z" --status "in_review" --limit 1 --offset 1 --token "abc123"
+`, os.Args[0])
+}
+
 func storageCreateAipUsage() {
 	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage create-aip -body JSON -token STRING
 

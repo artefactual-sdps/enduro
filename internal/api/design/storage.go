@@ -16,6 +16,45 @@ var _ = Service("storage", func() {
 		Response("unauthorized", StatusUnauthorized)
 		Response("forbidden", StatusForbidden)
 	})
+	Method("list_aips", func() {
+		Description("List all AIPs")
+		Security(JWTAuth, func() {
+			Scope("storage:aips:list")
+		})
+		Payload(func() {
+			Attribute("name", String)
+			Attribute("earliest_created_time", String, func() {
+				Format(FormatDateTime)
+			})
+			Attribute("latest_created_time", String, func() {
+				Format(FormatDateTime)
+			})
+			Attribute("status", String, func() {
+				EnumAIPStatus()
+			})
+			Attribute("limit", Int, "Limit number of results to return")
+			Attribute("offset", Int, "Offset from the beginning of the found set")
+
+			Token("token", String)
+		})
+		Result(AIPs)
+		Error("not_available")
+		Error("not_valid")
+		HTTP(func() {
+			GET("/aips")
+			Response(StatusOK)
+			Response("not_available", StatusConflict)
+			Response("not_valid", StatusBadRequest)
+			Params(func() {
+				Param("name")
+				Param("earliest_created_time")
+				Param("latest_created_time")
+				Param("status")
+				Param("limit")
+				Param("offset")
+			})
+		})
+	})
 	Method("create_aip", func() {
 		Description("Create a new AIP")
 		Security(JWTAuth, func() {
@@ -388,6 +427,13 @@ var AIP = ResultType("application/vnd.enduro.storage.aip", func() {
 		Attribute("location_id")
 		Attribute("created_at")
 	})
+})
+
+var AIPs = ResultType("application/vnd.enduro.storage.aips", func() {
+	TypeName("AIPs")
+	Attribute("items", CollectionOf(AIP))
+	Attribute("page", Page)
+	Required("items", "page")
 })
 
 var EnumAIPStatus = func() {

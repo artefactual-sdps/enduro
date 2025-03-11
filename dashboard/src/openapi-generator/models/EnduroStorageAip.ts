@@ -14,45 +14,45 @@
 
 import { exists, mapValues } from '../runtime';
 /**
- * 
+ * An AIP describes an AIP retrieved by the storage service.
  * @export
- * @interface AIP
+ * @interface EnduroStorageAip
  */
-export interface AIP {
+export interface EnduroStorageAip {
     /**
      * Creation datetime
      * @type {Date}
-     * @memberof AIP
+     * @memberof EnduroStorageAip
      */
     createdAt: Date;
     /**
      * Identifier of storage location
      * @type {string}
-     * @memberof AIP
+     * @memberof EnduroStorageAip
      */
     locationId?: string;
     /**
      * 
      * @type {string}
-     * @memberof AIP
+     * @memberof EnduroStorageAip
      */
     name: string;
     /**
      * 
      * @type {string}
-     * @memberof AIP
+     * @memberof EnduroStorageAip
      */
     objectKey: string;
     /**
      * Status of the AIP
      * @type {string}
-     * @memberof AIP
+     * @memberof EnduroStorageAip
      */
-    status: AIPStatusEnum;
+    status: EnduroStorageAipStatusEnum;
     /**
      * 
      * @type {string}
-     * @memberof AIP
+     * @memberof EnduroStorageAip
      */
     uuid: string;
 }
@@ -61,20 +61,20 @@ export interface AIP {
 /**
  * @export
  */
-export const AIPStatusEnum = {
+export const EnduroStorageAipStatusEnum = {
     Unspecified: 'unspecified',
     InReview: 'in_review',
     Rejected: 'rejected',
     Stored: 'stored',
     Moving: 'moving'
 } as const;
-export type AIPStatusEnum = typeof AIPStatusEnum[keyof typeof AIPStatusEnum];
+export type EnduroStorageAipStatusEnum = typeof EnduroStorageAipStatusEnum[keyof typeof EnduroStorageAipStatusEnum];
 
 
 /**
- * Check if a given object implements the AIP interface.
+ * Check if a given object implements the EnduroStorageAip interface.
  */
-export function instanceOfAIP(value: object): boolean {
+export function instanceOfEnduroStorageAip(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "createdAt" in value;
     isInstance = isInstance && "name" in value;
@@ -85,11 +85,11 @@ export function instanceOfAIP(value: object): boolean {
     return isInstance;
 }
 
-export function AIPFromJSON(json: any): AIP {
-    return AIPFromJSONTyped(json, false);
+export function EnduroStorageAipFromJSON(json: any): EnduroStorageAip {
+    return EnduroStorageAipFromJSONTyped(json, false);
 }
 
-export function AIPFromJSONTyped(json: any, ignoreDiscriminator: boolean): AIP {
+export function EnduroStorageAipFromJSONTyped(json: any, ignoreDiscriminator: boolean): EnduroStorageAip {
     if ((json === undefined) || (json === null)) {
         return json;
     }
@@ -104,7 +104,7 @@ export function AIPFromJSONTyped(json: any, ignoreDiscriminator: boolean): AIP {
     };
 }
 
-export function AIPToJSON(value?: AIP | null): any {
+export function EnduroStorageAipToJSON(value?: EnduroStorageAip | null): any {
     if (value === undefined) {
         return undefined;
     }

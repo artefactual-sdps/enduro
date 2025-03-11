@@ -18,6 +18,10 @@ import (
 
 // Client lists the storage service endpoint HTTP clients.
 type Client struct {
+	// ListAips Doer is the HTTP client used to make requests to the list_aips
+	// endpoint.
+	ListAipsDoer goahttp.Doer
+
 	// CreateAip Doer is the HTTP client used to make requests to the create_aip
 	// endpoint.
 	CreateAipDoer goahttp.Doer
@@ -89,6 +93,7 @@ func NewClient(
 	restoreBody bool,
 ) *Client {
 	return &Client{
+		ListAipsDoer:         doer,
 		CreateAipDoer:        doer,
 		SubmitAipDoer:        doer,
 		UpdateAipDoer:        doer,
@@ -107,6 +112,30 @@ func NewClient(
 		host:                 host,
 		decoder:              dec,
 		encoder:              enc,
+	}
+}
+
+// ListAips returns an endpoint that makes HTTP requests to the storage service
+// list_aips server.
+func (c *Client) ListAips() goa.Endpoint {
+	var (
+		encodeRequest  = EncodeListAipsRequest(c.encoder)
+		decodeResponse = DecodeListAipsResponse(c.decoder, c.RestoreResponseBody)
+	)
+	return func(ctx context.Context, v any) (any, error) {
+		req, err := c.BuildListAipsRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		err = encodeRequest(req, v)
+		if err != nil {
+			return nil, err
+		}
+		resp, err := c.ListAipsDoer.Do(req)
+		if err != nil {
+			return nil, goahttp.ErrRequestError("storage", "list_aips", err)
+		}
+		return decodeResponse(resp)
 	}
 }
 

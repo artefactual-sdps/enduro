@@ -300,6 +300,7 @@ func main() {
 			false,
 		)
 		storageClient := goastorage.NewClient(
+			storageHttpClient.ListAips(),
 			storageHttpClient.CreateAip(),
 			storageHttpClient.SubmitAip(),
 			storageHttpClient.UpdateAip(),

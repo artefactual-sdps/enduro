@@ -122,18 +122,18 @@ func (c *MockStorageCreateLocationCall) DoAndReturn(f func(context.Context, *sto
 }
 
 // ListAIPs mocks base method.
-func (m *MockStorage) ListAIPs(arg0 context.Context) (storage.AIPCollection, error) {
+func (m *MockStorage) ListAIPs(arg0 context.Context, arg1 *storage.ListAipsPayload) (*storage.AIPs, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListAIPs", arg0)
-	ret0, _ := ret[0].(storage.AIPCollection)
+	ret := m.ctrl.Call(m, "ListAIPs", arg0, arg1)
+	ret0, _ := ret[0].(*storage.AIPs)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ListAIPs indicates an expected call of ListAIPs.
-func (mr *MockStorageMockRecorder) ListAIPs(arg0 any) *MockStorageListAIPsCall {
+func (mr *MockStorageMockRecorder) ListAIPs(arg0, arg1 any) *MockStorageListAIPsCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListAIPs", reflect.TypeOf((*MockStorage)(nil).ListAIPs), arg0)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListAIPs", reflect.TypeOf((*MockStorage)(nil).ListAIPs), arg0, arg1)
 	return &MockStorageListAIPsCall{Call: call}
 }
 
@@ -143,19 +143,19 @@ type MockStorageListAIPsCall struct {
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockStorageListAIPsCall) Return(arg0 storage.AIPCollection, arg1 error) *MockStorageListAIPsCall {
+func (c *MockStorageListAIPsCall) Return(arg0 *storage.AIPs, arg1 error) *MockStorageListAIPsCall {
 	c.Call = c.Call.Return(arg0, arg1)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockStorageListAIPsCall) Do(f func(context.Context) (storage.AIPCollection, error)) *MockStorageListAIPsCall {
+func (c *MockStorageListAIPsCall) Do(f func(context.Context, *storage.ListAipsPayload) (*storage.AIPs, error)) *MockStorageListAIPsCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockStorageListAIPsCall) DoAndReturn(f func(context.Context) (storage.AIPCollection, error)) *MockStorageListAIPsCall {
+func (c *MockStorageListAIPsCall) DoAndReturn(f func(context.Context, *storage.ListAipsPayload) (*storage.AIPs, error)) *MockStorageListAIPsCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

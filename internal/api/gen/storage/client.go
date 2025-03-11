@@ -16,6 +16,7 @@ import (
 
 // Client is the "storage" service client.
 type Client struct {
+	ListAipsEndpoint         goa.Endpoint
 	CreateAipEndpoint        goa.Endpoint
 	SubmitAipEndpoint        goa.Endpoint
 	UpdateAipEndpoint        goa.Endpoint
@@ -31,8 +32,9 @@ type Client struct {
 }
 
 // NewClient initializes a "storage" service client given the endpoints.
-func NewClient(createAip, submitAip, updateAip, downloadAip, moveAip, moveAipStatus, rejectAip, showAip, listLocations, createLocation, showLocation, listLocationAips goa.Endpoint) *Client {
+func NewClient(listAips, createAip, submitAip, updateAip, downloadAip, moveAip, moveAipStatus, rejectAip, showAip, listLocations, createLocation, showLocation, listLocationAips goa.Endpoint) *Client {
 	return &Client{
+		ListAipsEndpoint:         listAips,
 		CreateAipEndpoint:        createAip,
 		SubmitAipEndpoint:        submitAip,
 		UpdateAipEndpoint:        updateAip,
@@ -46,6 +48,22 @@ func NewClient(createAip, submitAip, updateAip, downloadAip, moveAip, moveAipSta
 		ShowLocationEndpoint:     showLocation,
 		ListLocationAipsEndpoint: listLocationAips,
 	}
+}
+
+// ListAips calls the "list_aips" endpoint of the "storage" service.
+// ListAips may return the following errors:
+//   - "not_available" (type *goa.ServiceError)
+//   - "not_valid" (type *goa.ServiceError)
+//   - "unauthorized" (type Unauthorized)
+//   - "forbidden" (type Forbidden)
+//   - error: internal error
+func (c *Client) ListAips(ctx context.Context, p *ListAipsPayload) (res *AIPs, err error) {
+	var ires any
+	ires, err = c.ListAipsEndpoint(ctx, p)
+	if err != nil {
+		return
+	}
+	return ires.(*AIPs), nil
 }
 
 // CreateAip calls the "create_aip" endpoint of the "storage" service.

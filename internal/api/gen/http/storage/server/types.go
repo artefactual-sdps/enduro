@@ -64,6 +64,13 @@ type CreateLocationRequestBody struct {
 	} `form:"config,omitempty" json:"config,omitempty" xml:"config,omitempty"`
 }
 
+// ListAipsResponseBody is the type of the "storage" service "list_aips"
+// endpoint HTTP response body.
+type ListAipsResponseBody struct {
+	Items AIPResponseBodyCollection `form:"items" json:"items" xml:"items"`
+	Page  *EnduroPageResponseBody   `form:"page" json:"page" xml:"page"`
+}
+
 // CreateAipResponseBody is the type of the "storage" service "create_aip"
 // endpoint HTTP response body.
 type CreateAipResponseBody struct {
@@ -133,6 +140,42 @@ type ShowLocationResponseBody struct {
 // AIPResponseCollection is the type of the "storage" service
 // "list_location_aips" endpoint HTTP response body.
 type AIPResponseCollection []*AIPResponse
+
+// ListAipsNotAvailableResponseBody is the type of the "storage" service
+// "list_aips" endpoint HTTP response body for the "not_available" error.
+type ListAipsNotAvailableResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// ListAipsNotValidResponseBody is the type of the "storage" service
+// "list_aips" endpoint HTTP response body for the "not_valid" error.
+type ListAipsNotValidResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
 
 // CreateAipNotValidResponseBody is the type of the "storage" service
 // "create_aip" endpoint HTTP response body for the "not_valid" error.
@@ -412,6 +455,32 @@ type ListLocationAipsNotFoundResponseBody struct {
 	UUID    uuid.UUID `form:"uuid" json:"uuid" xml:"uuid"`
 }
 
+// AIPResponseBodyCollection is used to define fields on response body types.
+type AIPResponseBodyCollection []*AIPResponseBody
+
+// AIPResponseBody is used to define fields on response body types.
+type AIPResponseBody struct {
+	Name string    `form:"name" json:"name" xml:"name"`
+	UUID uuid.UUID `form:"uuid" json:"uuid" xml:"uuid"`
+	// Status of the AIP
+	Status    string    `form:"status" json:"status" xml:"status"`
+	ObjectKey uuid.UUID `form:"object_key" json:"object_key" xml:"object_key"`
+	// Identifier of storage location
+	LocationID *uuid.UUID `form:"location_id,omitempty" json:"location_id,omitempty" xml:"location_id,omitempty"`
+	// Creation datetime
+	CreatedAt string `form:"created_at" json:"created_at" xml:"created_at"`
+}
+
+// EnduroPageResponseBody is used to define fields on response body types.
+type EnduroPageResponseBody struct {
+	// Maximum items per page
+	Limit int `form:"limit" json:"limit" xml:"limit"`
+	// Offset from first result to start of page
+	Offset int `form:"offset" json:"offset" xml:"offset"`
+	// Total result count before paging
+	Total int `form:"total" json:"total" xml:"total"`
+}
+
 // LocationResponse is used to define fields on response body types.
 type LocationResponse struct {
 	// Name of location
@@ -438,6 +507,24 @@ type AIPResponse struct {
 	LocationID *uuid.UUID `form:"location_id,omitempty" json:"location_id,omitempty" xml:"location_id,omitempty"`
 	// Creation datetime
 	CreatedAt string `form:"created_at" json:"created_at" xml:"created_at"`
+}
+
+// NewListAipsResponseBody builds the HTTP response body from the result of the
+// "list_aips" endpoint of the "storage" service.
+func NewListAipsResponseBody(res *storageviews.AIPsView) *ListAipsResponseBody {
+	body := &ListAipsResponseBody{}
+	if res.Items != nil {
+		body.Items = make([]*AIPResponseBody, len(res.Items))
+		for i, val := range res.Items {
+			body.Items[i] = marshalStorageviewsAIPViewToAIPResponseBody(val)
+		}
+	} else {
+		body.Items = []*AIPResponseBody{}
+	}
+	if res.Page != nil {
+		body.Page = marshalStorageviewsEnduroPageViewToEnduroPageResponseBody(res.Page)
+	}
+	return body
 }
 
 // NewCreateAipResponseBody builds the HTTP response body from the result of
@@ -525,6 +612,34 @@ func NewAIPResponseCollection(res storageviews.AIPCollectionView) AIPResponseCol
 	body := make([]*AIPResponse, len(res))
 	for i, val := range res {
 		body[i] = marshalStorageviewsAIPViewToAIPResponse(val)
+	}
+	return body
+}
+
+// NewListAipsNotAvailableResponseBody builds the HTTP response body from the
+// result of the "list_aips" endpoint of the "storage" service.
+func NewListAipsNotAvailableResponseBody(res *goa.ServiceError) *ListAipsNotAvailableResponseBody {
+	body := &ListAipsNotAvailableResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewListAipsNotValidResponseBody builds the HTTP response body from the
+// result of the "list_aips" endpoint of the "storage" service.
+func NewListAipsNotValidResponseBody(res *goa.ServiceError) *ListAipsNotValidResponseBody {
+	body := &ListAipsNotValidResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
 	}
 	return body
 }
@@ -765,6 +880,20 @@ func NewListLocationAipsNotFoundResponseBody(res *storage.LocationNotFound) *Lis
 		UUID:    res.UUID,
 	}
 	return body
+}
+
+// NewListAipsPayload builds a storage service list_aips endpoint payload.
+func NewListAipsPayload(name *string, earliestCreatedTime *string, latestCreatedTime *string, status *string, limit *int, offset *int, token *string) *storage.ListAipsPayload {
+	v := &storage.ListAipsPayload{}
+	v.Name = name
+	v.EarliestCreatedTime = earliestCreatedTime
+	v.LatestCreatedTime = latestCreatedTime
+	v.Status = status
+	v.Limit = limit
+	v.Offset = offset
+	v.Token = token
+
+	return v
 }
 
 // NewCreateAipPayload builds a storage service create_aip endpoint payload.

@@ -46,11 +46,11 @@ func (w *wrapper) CreateAIP(ctx context.Context, aip *goastorage.AIP) (*goastora
 	return r, nil
 }
 
-func (w *wrapper) ListAIPs(ctx context.Context) (goastorage.AIPCollection, error) {
+func (w *wrapper) ListAIPs(ctx context.Context, payload *goastorage.ListAipsPayload) (*goastorage.AIPs, error) {
 	ctx, span := w.tracer.Start(ctx, "ListAIPs")
 	defer span.End()
 
-	r, err := w.wrapped.ListAIPs(ctx)
+	r, err := w.wrapped.ListAIPs(ctx, payload)
 	if err != nil {
 		telemetry.RecordError(span, err)
 		return nil, updateError(err, "ListAIPs")

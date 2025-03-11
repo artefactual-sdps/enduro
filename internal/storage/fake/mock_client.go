@@ -157,6 +157,45 @@ func (c *MockClientDownloadAipCall) DoAndReturn(f func(context.Context, *storage
 	return c
 }
 
+// ListAips mocks base method.
+func (m *MockClient) ListAips(arg0 context.Context, arg1 *storage.ListAipsPayload) (*storage.AIPs, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListAips", arg0, arg1)
+	ret0, _ := ret[0].(*storage.AIPs)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListAips indicates an expected call of ListAips.
+func (mr *MockClientMockRecorder) ListAips(arg0, arg1 any) *MockClientListAipsCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListAips", reflect.TypeOf((*MockClient)(nil).ListAips), arg0, arg1)
+	return &MockClientListAipsCall{Call: call}
+}
+
+// MockClientListAipsCall wrap *gomock.Call
+type MockClientListAipsCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockClientListAipsCall) Return(arg0 *storage.AIPs, arg1 error) *MockClientListAipsCall {
+	c.Call = c.Call.Return(arg0, arg1)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockClientListAipsCall) Do(f func(context.Context, *storage.ListAipsPayload) (*storage.AIPs, error)) *MockClientListAipsCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockClientListAipsCall) DoAndReturn(f func(context.Context, *storage.ListAipsPayload) (*storage.AIPs, error)) *MockClientListAipsCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
 // ListLocationAips mocks base method.
 func (m *MockClient) ListLocationAips(arg0 context.Context, arg1 *storage.ListLocationAipsPayload) (storage.AIPCollection, error) {
 	m.ctrl.T.Helper()

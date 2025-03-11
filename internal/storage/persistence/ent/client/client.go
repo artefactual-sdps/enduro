@@ -3,18 +3,21 @@ package client
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
 	"go.artefactual.dev/tools/ref"
 
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
+	"github.com/artefactual-sdps/enduro/internal/entfilter"
 	"github.com/artefactual-sdps/enduro/internal/storage/enums"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/aip"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/location"
 	"github.com/artefactual-sdps/enduro/internal/storage/types"
+	"github.com/artefactual-sdps/enduro/internal/timerange"
 )
 
 var ErrUnexpectedUpdateResults = errors.New("update operation had unexpected results")
@@ -65,15 +68,59 @@ func (c *Client) CreateAIP(ctx context.Context, goaaip *goastorage.AIP) (*goasto
 	return aipAsGoa(ctx, a), nil
 }
 
-func (c *Client) ListAIPs(ctx context.Context) (goastorage.AIPCollection, error) {
-	aips := []*goastorage.AIP{}
+func (c *Client) ListAIPs(ctx context.Context, payload *goastorage.ListAipsPayload) (*goastorage.AIPs, error) {
+	if payload == nil {
+		payload = &goastorage.ListAipsPayload{}
+	}
 
-	res, err := c.c.AIP.Query().All(ctx)
+	createdAt, err := timerange.Parse(payload.EarliestCreatedTime, payload.LatestCreatedTime)
+	if err != nil {
+		return nil, goastorage.MakeNotValid(fmt.Errorf("created at: %v", err))
+	}
+
+	var status *enums.AIPStatus
+	if payload.Status != nil {
+		s, err := enums.ParseAIPStatus(*payload.Status)
+		if err != nil {
+			return nil, goastorage.MakeNotValid(errors.New("status: invalid value"))
+		}
+		status = &s
+	}
+
+	qf := entfilter.NewFilter(c.c.AIP.Query(), entfilter.SortableFields{
+		aip.FieldID: {Name: "ID", Default: true},
+	})
+	qf.Contains(aip.FieldName, payload.Name)
+	qf.Equals(aip.FieldStatus, status)
+	qf.AddDateRange(aip.FieldCreatedAt, createdAt)
+	qf.OrderBy(entfilter.NewSort().AddCol("id", true))
+	qf.Page(ref.DerefZero(payload.Limit), ref.DerefZero(payload.Offset))
+	page, whole := qf.Apply()
+
+	res, err := page.All(ctx)
+	if err != nil {
+		return nil, goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
+	}
+	total, err := whole.Count(ctx)
+	if err != nil {
+		return nil, goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
+	}
+
+	aips := []*goastorage.AIP{}
 	for _, item := range res {
 		aips = append(aips, aipAsGoa(ctx, item))
 	}
 
-	return aips, err
+	r := &goastorage.AIPs{
+		Items: aips,
+		Page: &goastorage.EnduroPage{
+			Limit:  qf.Limit,
+			Offset: qf.Offset,
+			Total:  total,
+		},
+	}
+
+	return r, err
 }
 
 func (c *Client) ReadAIP(ctx context.Context, aipID uuid.UUID) (*goastorage.AIP, error) {

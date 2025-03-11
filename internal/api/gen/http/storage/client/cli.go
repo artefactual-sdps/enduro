@@ -11,10 +11,95 @@ package client
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 
 	storage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 	goa "goa.design/goa/v3/pkg"
 )
+
+// BuildListAipsPayload builds the payload for the storage list_aips endpoint
+// from CLI flags.
+func BuildListAipsPayload(storageListAipsName string, storageListAipsEarliestCreatedTime string, storageListAipsLatestCreatedTime string, storageListAipsStatus string, storageListAipsLimit string, storageListAipsOffset string, storageListAipsToken string) (*storage.ListAipsPayload, error) {
+	var err error
+	var name *string
+	{
+		if storageListAipsName != "" {
+			name = &storageListAipsName
+		}
+	}
+	var earliestCreatedTime *string
+	{
+		if storageListAipsEarliestCreatedTime != "" {
+			earliestCreatedTime = &storageListAipsEarliestCreatedTime
+			err = goa.MergeErrors(err, goa.ValidateFormat("earliest_created_time", *earliestCreatedTime, goa.FormatDateTime))
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+	var latestCreatedTime *string
+	{
+		if storageListAipsLatestCreatedTime != "" {
+			latestCreatedTime = &storageListAipsLatestCreatedTime
+			err = goa.MergeErrors(err, goa.ValidateFormat("latest_created_time", *latestCreatedTime, goa.FormatDateTime))
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+	var status *string
+	{
+		if storageListAipsStatus != "" {
+			status = &storageListAipsStatus
+			if !(*status == "unspecified" || *status == "in_review" || *status == "rejected" || *status == "stored" || *status == "moving") {
+				err = goa.MergeErrors(err, goa.InvalidEnumValueError("status", *status, []any{"unspecified", "in_review", "rejected", "stored", "moving"}))
+			}
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+	var limit *int
+	{
+		if storageListAipsLimit != "" {
+			var v int64
+			v, err = strconv.ParseInt(storageListAipsLimit, 10, strconv.IntSize)
+			val := int(v)
+			limit = &val
+			if err != nil {
+				return nil, fmt.Errorf("invalid value for limit, must be INT")
+			}
+		}
+	}
+	var offset *int
+	{
+		if storageListAipsOffset != "" {
+			var v int64
+			v, err = strconv.ParseInt(storageListAipsOffset, 10, strconv.IntSize)
+			val := int(v)
+			offset = &val
+			if err != nil {
+				return nil, fmt.Errorf("invalid value for offset, must be INT")
+			}
+		}
+	}
+	var token *string
+	{
+		if storageListAipsToken != "" {
+			token = &storageListAipsToken
+		}
+	}
+	v := &storage.ListAipsPayload{}
+	v.Name = name
+	v.EarliestCreatedTime = earliestCreatedTime
+	v.LatestCreatedTime = latestCreatedTime
+	v.Status = status
+	v.Limit = limit
+	v.Offset = offset
+	v.Token = token
+
+	return v, nil
+}
 
 // BuildCreateAipPayload builds the payload for the storage create_aip endpoint
 // from CLI flags.

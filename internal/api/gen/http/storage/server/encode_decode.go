@@ -13,6 +13,7 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"strconv"
 	"strings"
 
 	storage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
@@ -20,6 +21,159 @@ import (
 	goahttp "goa.design/goa/v3/http"
 	goa "goa.design/goa/v3/pkg"
 )
+
+// EncodeListAipsResponse returns an encoder for responses returned by the
+// storage list_aips endpoint.
+func EncodeListAipsResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, any) error {
+	return func(ctx context.Context, w http.ResponseWriter, v any) error {
+		res := v.(*storageviews.AIPs)
+		enc := encoder(ctx, w)
+		body := NewListAipsResponseBody(res.Projected)
+		w.WriteHeader(http.StatusOK)
+		return enc.Encode(body)
+	}
+}
+
+// DecodeListAipsRequest returns a decoder for requests sent to the storage
+// list_aips endpoint.
+func DecodeListAipsRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (any, error) {
+	return func(r *http.Request) (any, error) {
+		var (
+			name                *string
+			earliestCreatedTime *string
+			latestCreatedTime   *string
+			status              *string
+			limit               *int
+			offset              *int
+			token               *string
+			err                 error
+		)
+		nameRaw := r.URL.Query().Get("name")
+		if nameRaw != "" {
+			name = &nameRaw
+		}
+		earliestCreatedTimeRaw := r.URL.Query().Get("earliest_created_time")
+		if earliestCreatedTimeRaw != "" {
+			earliestCreatedTime = &earliestCreatedTimeRaw
+		}
+		if earliestCreatedTime != nil {
+			err = goa.MergeErrors(err, goa.ValidateFormat("earliest_created_time", *earliestCreatedTime, goa.FormatDateTime))
+		}
+		latestCreatedTimeRaw := r.URL.Query().Get("latest_created_time")
+		if latestCreatedTimeRaw != "" {
+			latestCreatedTime = &latestCreatedTimeRaw
+		}
+		if latestCreatedTime != nil {
+			err = goa.MergeErrors(err, goa.ValidateFormat("latest_created_time", *latestCreatedTime, goa.FormatDateTime))
+		}
+		statusRaw := r.URL.Query().Get("status")
+		if statusRaw != "" {
+			status = &statusRaw
+		}
+		if status != nil {
+			if !(*status == "unspecified" || *status == "in_review" || *status == "rejected" || *status == "stored" || *status == "moving") {
+				err = goa.MergeErrors(err, goa.InvalidEnumValueError("status", *status, []any{"unspecified", "in_review", "rejected", "stored", "moving"}))
+			}
+		}
+		{
+			limitRaw := r.URL.Query().Get("limit")
+			if limitRaw != "" {
+				v, err2 := strconv.ParseInt(limitRaw, 10, strconv.IntSize)
+				if err2 != nil {
+					err = goa.MergeErrors(err, goa.InvalidFieldTypeError("limit", limitRaw, "integer"))
+				}
+				pv := int(v)
+				limit = &pv
+			}
+		}
+		{
+			offsetRaw := r.URL.Query().Get("offset")
+			if offsetRaw != "" {
+				v, err2 := strconv.ParseInt(offsetRaw, 10, strconv.IntSize)
+				if err2 != nil {
+					err = goa.MergeErrors(err, goa.InvalidFieldTypeError("offset", offsetRaw, "integer"))
+				}
+				pv := int(v)
+				offset = &pv
+			}
+		}
+		tokenRaw := r.Header.Get("Authorization")
+		if tokenRaw != "" {
+			token = &tokenRaw
+		}
+		if err != nil {
+			return nil, err
+		}
+		payload := NewListAipsPayload(name, earliestCreatedTime, latestCreatedTime, status, limit, offset, token)
+		if payload.Token != nil {
+			if strings.Contains(*payload.Token, " ") {
+				// Remove authorization scheme prefix (e.g. "Bearer")
+				cred := strings.SplitN(*payload.Token, " ", 2)[1]
+				payload.Token = &cred
+			}
+		}
+
+		return payload, nil
+	}
+}
+
+// EncodeListAipsError returns an encoder for errors returned by the list_aips
+// storage endpoint.
+func EncodeListAipsError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(ctx context.Context, err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
+	encodeError := goahttp.ErrorEncoder(encoder, formatter)
+	return func(ctx context.Context, w http.ResponseWriter, v error) error {
+		var en goa.GoaErrorNamer
+		if !errors.As(v, &en) {
+			return encodeError(ctx, w, v)
+		}
+		switch en.GoaErrorName() {
+		case "not_available":
+			var res *goa.ServiceError
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			var body any
+			if formatter != nil {
+				body = formatter(ctx, res)
+			} else {
+				body = NewListAipsNotAvailableResponseBody(res)
+			}
+			w.Header().Set("goa-error", res.GoaErrorName())
+			w.WriteHeader(http.StatusConflict)
+			return enc.Encode(body)
+		case "not_valid":
+			var res *goa.ServiceError
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			var body any
+			if formatter != nil {
+				body = formatter(ctx, res)
+			} else {
+				body = NewListAipsNotValidResponseBody(res)
+			}
+			w.Header().Set("goa-error", res.GoaErrorName())
+			w.WriteHeader(http.StatusBadRequest)
+			return enc.Encode(body)
+		case "forbidden":
+			var res storage.Forbidden
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			body := res
+			w.Header().Set("goa-error", res.GoaErrorName())
+			w.WriteHeader(http.StatusForbidden)
+			return enc.Encode(body)
+		case "unauthorized":
+			var res storage.Unauthorized
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			body := res
+			w.Header().Set("goa-error", res.GoaErrorName())
+			w.WriteHeader(http.StatusUnauthorized)
+			return enc.Encode(body)
+		default:
+			return encodeError(ctx, w, v)
+		}
+	}
+}
 
 // EncodeCreateAipResponse returns an encoder for responses returned by the
 // storage create_aip endpoint.
@@ -1216,6 +1370,34 @@ func EncodeListLocationAipsError(encoder func(context.Context, http.ResponseWrit
 			return encodeError(ctx, w, v)
 		}
 	}
+}
+
+// marshalStorageviewsAIPViewToAIPResponseBody builds a value of type
+// *AIPResponseBody from a value of type *storageviews.AIPView.
+func marshalStorageviewsAIPViewToAIPResponseBody(v *storageviews.AIPView) *AIPResponseBody {
+	res := &AIPResponseBody{
+		Name:       *v.Name,
+		UUID:       *v.UUID,
+		Status:     *v.Status,
+		ObjectKey:  *v.ObjectKey,
+		LocationID: v.LocationID,
+		CreatedAt:  *v.CreatedAt,
+	}
+
+	return res
+}
+
+// marshalStorageviewsEnduroPageViewToEnduroPageResponseBody builds a value of
+// type *EnduroPageResponseBody from a value of type
+// *storageviews.EnduroPageView.
+func marshalStorageviewsEnduroPageViewToEnduroPageResponseBody(v *storageviews.EnduroPageView) *EnduroPageResponseBody {
+	res := &EnduroPageResponseBody{
+		Limit:  *v.Limit,
+		Offset: *v.Offset,
+		Total:  *v.Total,
+	}
+
+	return res
 }
 
 // marshalStorageviewsLocationViewToLocationResponse builds a value of type

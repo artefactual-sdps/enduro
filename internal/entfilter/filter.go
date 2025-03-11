@@ -7,7 +7,8 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/exp/maps"
 
-	"github.com/artefactual-sdps/enduro/internal/enums"
+	ingest_enums "github.com/artefactual-sdps/enduro/internal/enums"
+	storage_enums "github.com/artefactual-sdps/enduro/internal/storage/enums"
 	"github.com/artefactual-sdps/enduro/internal/timerange"
 )
 
@@ -184,9 +185,11 @@ func validPtrValue(ptr any) bool {
 	}
 
 	switch t := ptr.(type) {
-	case *enums.SIPStatus:
+	case *storage_enums.AIPStatus:
 		return t != nil && t.IsValid()
-	case *enums.PreprocessingTaskOutcome:
+	case *ingest_enums.SIPStatus:
+		return t != nil && t.IsValid()
+	case *ingest_enums.PreprocessingTaskOutcome:
 		return t != nil && t.IsValid()
 	case *int:
 		return t != nil

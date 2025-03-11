@@ -183,7 +183,7 @@ func filterSIPs(q *db.SIPQuery, f *persistence.SIPFilter) (page, whole *db.SIPQu
 	qf.Page(f.Limit, f.Offset)
 
 	// Update the SIPFilter values with the actual values set on the query.
-	// E.g. calling `h.Page(0,0)` will set the query limit equal to the default
+	// E.g. calling `qf.Page(0,0)` will set the query limit equal to the default
 	// page size.
 	f.Limit = qf.Limit
 	f.Offset = qf.Offset

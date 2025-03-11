@@ -238,6 +238,13 @@ func (s *serviceImpl) ListLocations(
 	return s.storagePersistence.ListLocations(ctx)
 }
 
+func (s *serviceImpl) ListAips(
+	ctx context.Context,
+	payload *goastorage.ListAipsPayload,
+) (*goastorage.AIPs, error) {
+	return s.storagePersistence.ListAIPs(ctx, payload)
+}
+
 func (s *serviceImpl) MoveAip(ctx context.Context, payload *goastorage.MoveAipPayload) error {
 	aipID, err := uuid.Parse(payload.UUID)
 	if err != nil {

@@ -13,6 +13,14 @@ import (
 	goa "goa.design/goa/v3/pkg"
 )
 
+// AIPs is the viewed result type that is projected based on a view.
+type AIPs struct {
+	// Type to project
+	Projected *AIPsView
+	// View to render
+	View string
+}
+
 // AIP is the viewed result type that is projected based on a view.
 type AIP struct {
 	// Type to project
@@ -46,6 +54,15 @@ type AIPCollection struct {
 	View string
 }
 
+// AIPsView is a type that runs validations on a projected type.
+type AIPsView struct {
+	Items AIPCollectionView
+	Page  *EnduroPageView
+}
+
+// AIPCollectionView is a type that runs validations on a projected type.
+type AIPCollectionView []*AIPView
+
 // AIPView is a type that runs validations on a projected type.
 type AIPView struct {
 	Name *string
@@ -57,6 +74,16 @@ type AIPView struct {
 	LocationID *uuid.UUID
 	// Creation datetime
 	CreatedAt *string
+}
+
+// EnduroPageView is a type that runs validations on a projected type.
+type EnduroPageView struct {
+	// Maximum items per page
+	Limit *int
+	// Offset from first result to start of page
+	Offset *int
+	// Total result count before paging
+	Total *int
 }
 
 // LocationCollectionView is a type that runs validations on a projected type.
@@ -112,15 +139,19 @@ type URLConfigView struct {
 	URL *string
 }
 
-// AIPCollectionView is a type that runs validations on a projected type.
-type AIPCollectionView []*AIPView
-
 func (*AMSSConfigView) configVal() {}
 func (*S3ConfigView) configVal()   {}
 func (*SFTPConfigView) configVal() {}
 func (*URLConfigView) configVal()  {}
 
 var (
+	// AIPsMap is a map indexing the attribute names of AIPs by view name.
+	AIPsMap = map[string][]string{
+		"default": {
+			"items",
+			"page",
+		},
+	}
 	// AIPMap is a map indexing the attribute names of AIP by view name.
 	AIPMap = map[string][]string{
 		"default": {
@@ -167,7 +198,27 @@ var (
 			"created_at",
 		},
 	}
+	// EnduroPageMap is a map indexing the attribute names of EnduroPage by view
+	// name.
+	EnduroPageMap = map[string][]string{
+		"default": {
+			"limit",
+			"offset",
+			"total",
+		},
+	}
 )
+
+// ValidateAIPs runs the validations defined on the viewed result type AIPs.
+func ValidateAIPs(result *AIPs) (err error) {
+	switch result.View {
+	case "default", "":
+		err = ValidateAIPsView(result.Projected)
+	default:
+		err = goa.InvalidEnumValueError("view", result.View, []any{"default"})
+	}
+	return
+}
 
 // ValidateAIP runs the validations defined on the viewed result type AIP.
 func ValidateAIP(result *AIP) (err error) {
@@ -216,6 +267,34 @@ func ValidateAIPCollection(result AIPCollection) (err error) {
 	return
 }
 
+// ValidateAIPsView runs the validations defined on AIPsView using the
+// "default" view.
+func ValidateAIPsView(result *AIPsView) (err error) {
+
+	if result.Items != nil {
+		if err2 := ValidateAIPCollectionView(result.Items); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	if result.Page != nil {
+		if err2 := ValidateEnduroPageView(result.Page); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	return
+}
+
+// ValidateAIPCollectionView runs the validations defined on AIPCollectionView
+// using the "default" view.
+func ValidateAIPCollectionView(result AIPCollectionView) (err error) {
+	for _, item := range result {
+		if err2 := ValidateAIPView(item); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	return
+}
+
 // ValidateAIPView runs the validations defined on AIPView using the "default"
 // view.
 func ValidateAIPView(result *AIPView) (err error) {
@@ -241,6 +320,21 @@ func ValidateAIPView(result *AIPView) (err error) {
 	}
 	if result.CreatedAt != nil {
 		err = goa.MergeErrors(err, goa.ValidateFormat("result.created_at", *result.CreatedAt, goa.FormatDateTime))
+	}
+	return
+}
+
+// ValidateEnduroPageView runs the validations defined on EnduroPageView using
+// the "default" view.
+func ValidateEnduroPageView(result *EnduroPageView) (err error) {
+	if result.Limit == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("limit", "result"))
+	}
+	if result.Offset == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("offset", "result"))
+	}
+	if result.Total == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("total", "result"))
 	}
 	return
 }
@@ -336,17 +430,6 @@ func ValidateSFTPConfigView(result *SFTPConfigView) (err error) {
 func ValidateURLConfigView(result *URLConfigView) (err error) {
 	if result.URL == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("url", "result"))
-	}
-	return
-}
-
-// ValidateAIPCollectionView runs the validations defined on AIPCollectionView
-// using the "default" view.
-func ValidateAIPCollectionView(result AIPCollectionView) (err error) {
-	for _, item := range result {
-		if err2 := ValidateAIPView(item); err2 != nil {
-			err = goa.MergeErrors(err, err2)
-		}
 	}
 	return
 }

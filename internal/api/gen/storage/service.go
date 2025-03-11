@@ -19,6 +19,8 @@ import (
 
 // The storage service manages locations and AIPs.
 type Service interface {
+	// List all AIPs
+	ListAips(context.Context, *ListAipsPayload) (res *AIPs, err error)
 	// Create a new AIP
 	CreateAip(context.Context, *CreateAipPayload) (res *AIP, err error)
 	// Start the submission of an AIP
@@ -65,7 +67,7 @@ const ServiceName = "storage"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [12]string{"create_aip", "submit_aip", "update_aip", "download_aip", "move_aip", "move_aip_status", "reject_aip", "show_aip", "list_locations", "create_location", "show_location", "list_location_aips"}
+var MethodNames = [13]string{"list_aips", "create_aip", "submit_aip", "update_aip", "download_aip", "move_aip", "move_aip_status", "reject_aip", "show_aip", "list_locations", "create_location", "show_location", "list_location_aips"}
 
 // AIP is the result type of the storage service create_aip method.
 type AIP struct {
@@ -90,6 +92,12 @@ type AIPNotFound struct {
 	Message string
 	// Identifier of missing AIP
 	UUID uuid.UUID
+}
+
+// AIPs is the result type of the storage service list_aips method.
+type AIPs struct {
+	Items AIPCollection
+	Page  *EnduroPage
 }
 
 type AMSSConfig struct {
@@ -139,6 +147,29 @@ type DownloadAipPayload struct {
 	// Identifier of AIP
 	UUID  string
 	Token *string
+}
+
+// Page represents a subset of search results.
+type EnduroPage struct {
+	// Maximum items per page
+	Limit int
+	// Offset from first result to start of page
+	Offset int
+	// Total result count before paging
+	Total int
+}
+
+// ListAipsPayload is the payload type of the storage service list_aips method.
+type ListAipsPayload struct {
+	Name                *string
+	EarliestCreatedTime *string
+	LatestCreatedTime   *string
+	Status              *string
+	// Limit number of results to return
+	Limit *int
+	// Offset from the beginning of the found set
+	Offset *int
+	Token  *string
 }
 
 // ListLocationAipsPayload is the payload type of the storage service
@@ -455,19 +486,31 @@ func (*S3Config) configVal()   {}
 func (*SFTPConfig) configVal() {}
 func (*URLConfig) configVal()  {}
 
-// MakeNotValid builds a goa.ServiceError from an error.
-func MakeNotValid(err error) *goa.ServiceError {
-	return goa.NewServiceError(err, "not_valid", false, false, false)
-}
-
 // MakeNotAvailable builds a goa.ServiceError from an error.
 func MakeNotAvailable(err error) *goa.ServiceError {
 	return goa.NewServiceError(err, "not_available", false, false, false)
 }
 
+// MakeNotValid builds a goa.ServiceError from an error.
+func MakeNotValid(err error) *goa.ServiceError {
+	return goa.NewServiceError(err, "not_valid", false, false, false)
+}
+
 // MakeFailedDependency builds a goa.ServiceError from an error.
 func MakeFailedDependency(err error) *goa.ServiceError {
 	return goa.NewServiceError(err, "failed_dependency", false, false, false)
+}
+
+// NewAIPs initializes result type AIPs from viewed result type AIPs.
+func NewAIPs(vres *storageviews.AIPs) *AIPs {
+	return newAIPs(vres.Projected)
+}
+
+// NewViewedAIPs initializes viewed result type AIPs from result type AIPs
+// using the given view.
+func NewViewedAIPs(res *AIPs, view string) *storageviews.AIPs {
+	p := newAIPsView(res)
+	return &storageviews.AIPs{Projected: p, View: "default"}
 }
 
 // NewAIP initializes result type AIP from viewed result type AIP.
@@ -521,6 +564,51 @@ func NewViewedAIPCollection(res AIPCollection, view string) storageviews.AIPColl
 	return storageviews.AIPCollection{Projected: p, View: "default"}
 }
 
+// newAIPs converts projected type AIPs to service type AIPs.
+func newAIPs(vres *storageviews.AIPsView) *AIPs {
+	res := &AIPs{}
+	if vres.Items != nil {
+		res.Items = newAIPCollection(vres.Items)
+	}
+	if vres.Page != nil {
+		res.Page = newEnduroPage(vres.Page)
+	}
+	return res
+}
+
+// newAIPsView projects result type AIPs to projected type AIPsView using the
+// "default" view.
+func newAIPsView(res *AIPs) *storageviews.AIPsView {
+	vres := &storageviews.AIPsView{}
+	if res.Items != nil {
+		vres.Items = newAIPCollectionView(res.Items)
+	}
+	if res.Page != nil {
+		vres.Page = newEnduroPageView(res.Page)
+	}
+	return vres
+}
+
+// newAIPCollection converts projected type AIPCollection to service type
+// AIPCollection.
+func newAIPCollection(vres storageviews.AIPCollectionView) AIPCollection {
+	res := make(AIPCollection, len(vres))
+	for i, n := range vres {
+		res[i] = newAIP(n)
+	}
+	return res
+}
+
+// newAIPCollectionView projects result type AIPCollection to projected type
+// AIPCollectionView using the "default" view.
+func newAIPCollectionView(res AIPCollection) storageviews.AIPCollectionView {
+	vres := make(storageviews.AIPCollectionView, len(res))
+	for i, n := range res {
+		vres[i] = newAIPView(n)
+	}
+	return vres
+}
+
 // newAIP converts projected type AIP to service type AIP.
 func newAIP(vres *storageviews.AIPView) *AIP {
 	res := &AIP{
@@ -557,6 +645,32 @@ func newAIPView(res *AIP) *storageviews.AIPView {
 		ObjectKey:  &res.ObjectKey,
 		LocationID: res.LocationID,
 		CreatedAt:  &res.CreatedAt,
+	}
+	return vres
+}
+
+// newEnduroPage converts projected type EnduroPage to service type EnduroPage.
+func newEnduroPage(vres *storageviews.EnduroPageView) *EnduroPage {
+	res := &EnduroPage{}
+	if vres.Limit != nil {
+		res.Limit = *vres.Limit
+	}
+	if vres.Offset != nil {
+		res.Offset = *vres.Offset
+	}
+	if vres.Total != nil {
+		res.Total = *vres.Total
+	}
+	return res
+}
+
+// newEnduroPageView projects result type EnduroPage to projected type
+// EnduroPageView using the "default" view.
+func newEnduroPageView(res *EnduroPage) *storageviews.EnduroPageView {
+	vres := &storageviews.EnduroPageView{
+		Limit:  &res.Limit,
+		Offset: &res.Offset,
+		Total:  &res.Total,
 	}
 	return vres
 }
@@ -620,26 +734,6 @@ func newLocationView(res *Location) *storageviews.LocationView {
 		Purpose:     &res.Purpose,
 		UUID:        &res.UUID,
 		CreatedAt:   &res.CreatedAt,
-	}
-	return vres
-}
-
-// newAIPCollection converts projected type AIPCollection to service type
-// AIPCollection.
-func newAIPCollection(vres storageviews.AIPCollectionView) AIPCollection {
-	res := make(AIPCollection, len(vres))
-	for i, n := range vres {
-		res[i] = newAIP(n)
-	}
-	return res
-}
-
-// newAIPCollectionView projects result type AIPCollection to projected type
-// AIPCollectionView using the "default" view.
-func newAIPCollectionView(res AIPCollection) storageviews.AIPCollectionView {
-	vres := make(storageviews.AIPCollectionView, len(res))
-	for i, n := range res {
-		vres[i] = newAIPView(n)
 	}
 	return vres
 }

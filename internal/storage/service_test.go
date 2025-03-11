@@ -192,8 +192,7 @@ func TestServiceSubmit(t *testing.T) {
 			Return(
 				nil,
 				errors.New("something went wrong"),
-			).
-			Times(1)
+			)
 
 		ret, err := svc.SubmitAip(context.Background(), &goastorage.SubmitAipPayload{
 			UUID: aipID.String(),
@@ -227,8 +226,7 @@ func TestServiceSubmit(t *testing.T) {
 			Return(
 				&temporalsdk_mocks.WorkflowRun{},
 				nil,
-			).
-			Times(1)
+			)
 
 		attrs.persistenceMock.
 			EXPECT().
@@ -239,8 +237,7 @@ func TestServiceSubmit(t *testing.T) {
 			Return(
 				nil,
 				errors.New("database server error"),
-			).
-			Times(1)
+			)
 
 		ret, err := svc.SubmitAip(ctx, &goastorage.SubmitAipPayload{
 			Name: "AIP",
@@ -276,8 +273,7 @@ func TestServiceSubmit(t *testing.T) {
 			Return(
 				&temporalsdk_mocks.WorkflowRun{},
 				nil,
-			).
-			Times(1)
+			)
 
 		attrs.persistenceMock.
 			EXPECT().
@@ -288,8 +284,7 @@ func TestServiceSubmit(t *testing.T) {
 			Return(
 				&goastorage.AIP{},
 				nil,
-			).
-			Times(1)
+			)
 
 		ret, err := svc.SubmitAip(ctx, &goastorage.SubmitAipPayload{
 			Name: "AIP",
@@ -337,8 +332,7 @@ func TestServiceSubmit(t *testing.T) {
 			Return(
 				&temporalsdk_mocks.WorkflowRun{},
 				nil,
-			).
-			Times(1)
+			)
 
 		attrs.persistenceMock.
 			EXPECT().
@@ -349,8 +343,7 @@ func TestServiceSubmit(t *testing.T) {
 			Return(
 				&goastorage.AIP{},
 				nil,
-			).
-			Times(1)
+			)
 
 		ret, err := svc.SubmitAip(ctx, &goastorage.SubmitAipPayload{
 			Name: "AIP",
@@ -470,7 +463,7 @@ func TestServiceLocation(t *testing.T) {
 				},
 			},
 			nil,
-		).Times(1)
+		)
 	attrs.persistenceMock.
 		EXPECT().
 		ReadLocation(ctx, locID2).
@@ -480,7 +473,7 @@ func TestServiceLocation(t *testing.T) {
 				UUID:    locID2,
 				Message: "location not found",
 			},
-		).Times(1)
+		)
 
 	testCases := map[string]struct {
 		UUID uuid.UUID
@@ -560,12 +553,70 @@ func TestServiceList(t *testing.T) {
 		attrs.persistenceMock.
 			EXPECT().
 			ListLocations(ctx).
-			Return(storedLocations, nil).
-			Times(1)
+			Return(storedLocations, nil)
 
 		res, err := svc.ListLocations(ctx, &goastorage.ListLocationsPayload{})
 		assert.NilError(t, err)
 		assert.DeepEqual(t, res, storedLocations)
+	})
+}
+
+func TestServiceListAips(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Returns defined AIPs", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		attrs := &setUpAttrs{}
+		svc := setUpService(t, attrs)
+
+		payload := &goastorage.ListAipsPayload{
+			Limit: ref.New(20),
+		}
+		aips := &goastorage.AIPs{
+			Items: goastorage.AIPCollection{
+				{
+					Name:      "Test AIP 1",
+					UUID:      aipID,
+					ObjectKey: objectKey,
+					Status:    "stored",
+					CreatedAt: time.Now().Format(time.RFC3339),
+				},
+			},
+			Page: &goastorage.EnduroPage{
+				Limit:  20,
+				Offset: 0,
+				Total:  1,
+			},
+		}
+
+		attrs.persistenceMock.
+			EXPECT().
+			ListAIPs(ctx, payload).
+			Return(aips, nil)
+
+		res, err := svc.ListAips(ctx, payload)
+		assert.NilError(t, err)
+		assert.DeepEqual(t, res, aips)
+	})
+
+	t.Run("Returns an error", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		attrs := &setUpAttrs{}
+		svc := setUpService(t, attrs)
+
+		mockErr := errors.New("test error")
+
+		attrs.persistenceMock.
+			EXPECT().
+			ListAIPs(ctx, nil).
+			Return(nil, mockErr)
+
+		_, err := svc.ListAips(ctx, nil)
+		assert.ErrorIs(t, err, mockErr)
 	})
 }
 
@@ -600,8 +651,7 @@ func TestReject(t *testing.T) {
 				aipID,
 				enums.AIPStatusRejected,
 			).
-			Return(nil).
-			Times(1)
+			Return(nil)
 
 		err := svc.RejectAip(ctx, &goastorage.RejectAipPayload{UUID: aipID.String()})
 		assert.NilError(t, err)
@@ -624,8 +674,7 @@ func TestServiceReadAip(t *testing.T) {
 		Return(
 			&goastorage.AIP{},
 			nil,
-		).
-		Times(1)
+		)
 
 	aip, err := svc.ReadAip(ctx, aipID)
 	assert.NilError(t, err)
@@ -649,8 +698,7 @@ func TestServiceUpdateAipStatus(t *testing.T) {
 				aipID,
 				enums.AIPStatusStored,
 			).
-			Return(errors.New("something is wrong")).
-			Times(1)
+			Return(errors.New("something is wrong"))
 
 		err := svc.UpdateAipStatus(ctx, aipID, enums.AIPStatusStored)
 		assert.Error(t, err, "something is wrong")
@@ -674,8 +722,7 @@ func TestServiceUpdateAipLocationID(t *testing.T) {
 				aipID,
 				locationID,
 			).
-			Return(errors.New("something is wrong")).
-			Times(1)
+			Return(errors.New("something is wrong"))
 
 		err := svc.UpdateAipLocationID(ctx, aipID, locationID)
 		assert.Error(t, err, "something is wrong")
@@ -708,8 +755,7 @@ func TestServiceDelete(t *testing.T) {
 					LocationID: &uuid.Nil,
 				},
 				nil,
-			).
-			Times(1)
+			)
 
 		err := svc.DeleteAip(ctx, aipID)
 		assert.NilError(t, err)
@@ -740,8 +786,7 @@ func TestServiceDelete(t *testing.T) {
 					LocationID: &locationID,
 				},
 				nil,
-			).
-			Times(1)
+			)
 
 		attrs.persistenceMock.
 			EXPECT().
@@ -757,8 +802,7 @@ func TestServiceDelete(t *testing.T) {
 					},
 				},
 				nil,
-			).
-			Times(1)
+			)
 
 		err := svc.DeleteAip(ctx, aipID)
 		assert.NilError(t, err)
@@ -786,8 +830,7 @@ func TestServiceDelete(t *testing.T) {
 					LocationID: &locationID,
 				},
 				nil,
-			).
-			Times(1)
+			)
 
 		attrs.persistenceMock.
 			EXPECT().
@@ -803,8 +846,7 @@ func TestServiceDelete(t *testing.T) {
 					},
 				},
 				nil,
-			).
-			Times(1)
+			)
 
 		err := svc.DeleteAip(ctx, aipID)
 		assert.Error(t, err, fmt.Sprintf(
@@ -833,8 +875,7 @@ func TestServiceDelete(t *testing.T) {
 					LocationID: &locationID,
 				},
 				nil,
-			).
-			Times(1)
+			)
 
 		attrs.persistenceMock.
 			EXPECT().
@@ -845,8 +886,7 @@ func TestServiceDelete(t *testing.T) {
 			Return(
 				nil,
 				&goastorage.LocationNotFound{UUID: locationID, Message: "location not found"},
-			).
-			Times(1)
+			)
 
 		err := svc.DeleteAip(ctx, aipID)
 		assert.ErrorContains(t, err, "location not found")
@@ -868,8 +908,7 @@ func TestServiceDelete(t *testing.T) {
 			Return(
 				nil,
 				&goastorage.AIPNotFound{UUID: aipID, Message: "AIP not found"},
-			).
-			Times(1)
+			)
 
 		err := svc.DeleteAip(ctx, aipID)
 		assert.ErrorContains(t, err, "AIP not found")
@@ -905,8 +944,7 @@ func TestAipReader(t *testing.T) {
 					},
 				},
 				nil,
-			).
-			Times(1)
+			)
 
 		reader, err := svc.AipReader(ctx, &goastorage.AIP{
 			UUID:       aipID,
@@ -937,8 +975,7 @@ func TestAipReader(t *testing.T) {
 			Return(
 				nil,
 				&goastorage.LocationNotFound{UUID: locationID, Message: "location not found"},
-			).
-			Times(1)
+			)
 
 		_, err := svc.AipReader(ctx, &goastorage.AIP{
 			UUID:       aipID,
@@ -969,8 +1006,7 @@ func TestAipReader(t *testing.T) {
 					},
 				},
 				nil,
-			).
-			Times(1)
+			)
 
 		_, err := svc.AipReader(ctx, &goastorage.AIP{
 			UUID:       aipID,
@@ -1019,8 +1055,7 @@ func TestServiceUpdate(t *testing.T) {
 			).
 			Return(
 				errors.New("something went wrong"),
-			).
-			Times(1)
+			)
 
 		err := svc.UpdateAip(ctx, &goastorage.UpdateAipPayload{
 			UUID: aipID.String(),
@@ -1047,8 +1082,7 @@ func TestServiceUpdate(t *testing.T) {
 			).
 			Return(
 				nil,
-			).
-			Times(1)
+			)
 
 		attrs.persistenceMock.
 			EXPECT().
@@ -1059,8 +1093,7 @@ func TestServiceUpdate(t *testing.T) {
 			).
 			Return(
 				errors.New("unexpected error"),
-			).
-			Times(1)
+			)
 
 		err := svc.UpdateAip(ctx, &goastorage.UpdateAipPayload{
 			UUID: aipID.String(),
@@ -1087,8 +1120,7 @@ func TestServiceUpdate(t *testing.T) {
 			).
 			Return(
 				nil,
-			).
-			Times(1)
+			)
 
 		attrs.persistenceMock.
 			EXPECT().
@@ -1099,8 +1131,7 @@ func TestServiceUpdate(t *testing.T) {
 			).
 			Return(
 				nil,
-			).
-			Times(1)
+			)
 
 		err := svc.UpdateAip(ctx, &goastorage.UpdateAipPayload{
 			UUID: aipID.String(),
@@ -1142,8 +1173,7 @@ func TestServiceMove(t *testing.T) {
 			Return(
 				nil,
 				&goastorage.AIPNotFound{UUID: aipID, Message: "AIP not found"},
-			).
-			Times(1)
+			)
 
 		err := svc.MoveAip(ctx, &goastorage.MoveAipPayload{
 			UUID:       aipID.String(),
@@ -1174,8 +1204,7 @@ func TestServiceMove(t *testing.T) {
 			Return(
 				nil,
 				errors.New("something went wrong"),
-			).
-			Times(1)
+			)
 
 		attrs.persistenceMock.
 			EXPECT().
@@ -1186,8 +1215,7 @@ func TestServiceMove(t *testing.T) {
 			Return(
 				&goastorage.AIP{UUID: aipID},
 				nil,
-			).
-			Times(1)
+			)
 
 		err := svc.MoveAip(ctx, &goastorage.MoveAipPayload{
 			UUID:       aipID.String(),
@@ -1219,8 +1247,7 @@ func TestServiceMove(t *testing.T) {
 			Return(
 				&temporalsdk_mocks.WorkflowRun{},
 				nil,
-			).
-			Times(1)
+			)
 
 		attrs.persistenceMock.
 			EXPECT().
@@ -1231,8 +1258,7 @@ func TestServiceMove(t *testing.T) {
 			Return(
 				&goastorage.AIP{UUID: aipID},
 				nil,
-			).
-			Times(1)
+			)
 
 		err := svc.MoveAip(ctx, &goastorage.MoveAipPayload{
 			UUID:       aipID.String(),
@@ -1276,8 +1302,7 @@ func TestServiceMoveStatus(t *testing.T) {
 			Return(
 				nil,
 				&goastorage.AIPNotFound{UUID: aipID, Message: "AIP not found"},
-			).
-			Times(1)
+			)
 
 		res, err := svc.MoveAipStatus(ctx, &goastorage.MoveAipStatusPayload{
 			UUID: aipID.String(),
@@ -1304,8 +1329,7 @@ func TestServiceMoveStatus(t *testing.T) {
 			Return(
 				nil,
 				errors.New("something went wrong"),
-			).
-			Times(1)
+			)
 
 		attrs.persistenceMock.
 			EXPECT().
@@ -1316,8 +1340,7 @@ func TestServiceMoveStatus(t *testing.T) {
 			Return(
 				&goastorage.AIP{UUID: aipID},
 				nil,
-			).
-			Times(1)
+			)
 
 		res, err := svc.MoveAipStatus(ctx, &goastorage.MoveAipStatusPayload{
 			UUID: aipID.String(),
@@ -1349,8 +1372,7 @@ func TestServiceMoveStatus(t *testing.T) {
 					},
 				},
 				nil,
-			).
-			Times(1)
+			)
 
 		attrs.persistenceMock.
 			EXPECT().
@@ -1361,8 +1383,7 @@ func TestServiceMoveStatus(t *testing.T) {
 			Return(
 				&goastorage.AIP{UUID: aipID},
 				nil,
-			).
-			Times(1)
+			)
 
 		res, err := svc.MoveAipStatus(ctx, &goastorage.MoveAipStatusPayload{
 			UUID: aipID.String(),
@@ -1393,8 +1414,7 @@ func TestServiceMoveStatus(t *testing.T) {
 					},
 				},
 				nil,
-			).
-			Times(1)
+			)
 
 		attrs.persistenceMock.
 			EXPECT().
@@ -1405,8 +1425,7 @@ func TestServiceMoveStatus(t *testing.T) {
 			Return(
 				&goastorage.AIP{UUID: aipID},
 				nil,
-			).
-			Times(1)
+			)
 
 		res, err := svc.MoveAipStatus(ctx, &goastorage.MoveAipStatusPayload{
 			UUID: aipID.String(),
@@ -1436,8 +1455,7 @@ func TestServiceMoveStatus(t *testing.T) {
 					},
 				},
 				nil,
-			).
-			Times(1)
+			)
 
 		attrs.persistenceMock.
 			EXPECT().
@@ -1448,8 +1466,7 @@ func TestServiceMoveStatus(t *testing.T) {
 			Return(
 				&goastorage.AIP{UUID: aipID},
 				nil,
-			).
-			Times(1)
+			)
 
 		res, err := svc.MoveAipStatus(ctx, &goastorage.MoveAipStatusPayload{
 			UUID: aipID.String(),
@@ -1522,8 +1539,7 @@ func TestServiceAddLocation(t *testing.T) {
 			Return(
 				nil,
 				errors.New("unexpected error"),
-			).
-			Times(1)
+			)
 
 		res, err := svc.CreateLocation(ctx, &goastorage.CreateLocationPayload{
 			Name:    "perma-aips-1",
@@ -1564,8 +1580,7 @@ func TestServiceAddLocation(t *testing.T) {
 			Return(
 				&goastorage.Location{},
 				nil,
-			).
-			Times(1)
+			)
 
 		res, err := svc.CreateLocation(ctx, &goastorage.CreateLocationPayload{
 			Name:    "perma-aips-1",
@@ -1604,8 +1619,7 @@ func TestServiceAddLocation(t *testing.T) {
 			Return(
 				&goastorage.Location{},
 				nil,
-			).
-			Times(1)
+			)
 
 		res, err := svc.CreateLocation(ctx, &goastorage.CreateLocationPayload{
 			Name:    "perma-aips-1",
@@ -1656,7 +1670,7 @@ func TestServiceShowLocation(t *testing.T) {
 					UUID: locationID,
 				},
 				nil,
-			).Times(1)
+			)
 
 		res, err := svc.ShowLocation(ctx, &goastorage.ShowLocationPayload{
 			UUID: locationID.String(),
@@ -1700,7 +1714,7 @@ func TestServiceListLocationAips(t *testing.T) {
 			Return(
 				nil,
 				errors.New("unexpected error"),
-			).Times(1)
+			)
 
 		res, err := svc.ListLocationAips(ctx, &goastorage.ListLocationAipsPayload{
 			UUID: locationID.String(),
@@ -1735,7 +1749,7 @@ func TestServiceListLocationAips(t *testing.T) {
 					},
 				},
 				nil,
-			).Times(1)
+			)
 
 		res, err := svc.ListLocationAips(ctx, &goastorage.ListLocationAipsPayload{
 			UUID: locationID.String(),
@@ -1792,8 +1806,7 @@ func TestServiceShow(t *testing.T) {
 					LocationID: &uuid.Nil,
 				},
 				nil,
-			).
-			Times(1)
+			)
 
 		res, err := svc.ShowAip(ctx, &goastorage.ShowAipPayload{
 			UUID: aipID.String(),

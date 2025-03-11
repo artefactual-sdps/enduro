@@ -7,12 +7,14 @@ import (
 	"time"
 
 	"entgo.io/ent"
+	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/google/uuid"
 	_ "github.com/mattn/go-sqlite3"
 	"go.artefactual.dev/tools/ref"
 	"gotest.tools/v3/assert"
 
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
+	"github.com/artefactual-sdps/enduro/internal/entfilter"
 	"github.com/artefactual-sdps/enduro/internal/storage/enums"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/client"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db"
@@ -43,6 +45,14 @@ func setUpClient(t *testing.T) (*db.Client, *client.Client) {
 	t.Cleanup(func() { entc.Close() })
 
 	c := client.NewClient(entc)
+
+	return entc, c
+}
+
+func setUpClientWithHooks(t *testing.T) (*db.Client, *client.Client) {
+	t.Helper()
+
+	entc, c := setUpClient(t)
 
 	// Use ent Hooks to set the create_at fields to a fixed value
 	entc.AIP.Use(func(next ent.Mutator) ent.Mutator {
@@ -124,7 +134,7 @@ func TestCreateAIP(t *testing.T) {
 			t.Parallel()
 
 			ctx := context.Background()
-			entc, c := setUpClient(t)
+			entc, c := setUpClientWithHooks(t)
 			_, err := entc.Location.Create().
 				SetName("Location 1").
 				SetDescription("MinIO AIP store").
@@ -157,51 +167,289 @@ func TestCreateAIP(t *testing.T) {
 func TestListAIPs(t *testing.T) {
 	t.Parallel()
 
-	aipID2 := uuid.MustParse("96e182a0-31ab-4738-a620-1ff1954d9ecb")
-	objectKey2 := uuid.MustParse("49b0a604-6c81-458c-852a-1afa713f1fd9")
+	aipID := uuid.MustParse("488c64cc-d89b-4916-9131-c94152dfb12e")
+	aipID2 := uuid.MustParse("7ba9a118-a662-4047-8547-64bc752b91c6")
+	objectKey := aipID
+	objectKey2 := aipID2
 
-	entc, c := setUpClient(t)
-
-	entc.AIP.Create().
-		SetName("AIP").
-		SetAipID(aipID).
-		SetObjectKey(objectKey).
-		SetStatus(enums.AIPStatusStored).
-		SaveX(context.Background())
-	entc.AIP.Create().
-		SetName("Another AIP").
-		SetAipID(aipID2).
-		SetObjectKey(objectKey2).
-		SetStatus(enums.AIPStatusRejected).
-		SaveX(context.Background())
-
-	aips, err := c.ListAIPs(context.Background())
-	assert.NilError(t, err)
-	assert.DeepEqual(t, aips, goastorage.AIPCollection{
+	tests := []struct {
+		name    string
+		data    func(t *testing.T, ctx context.Context, entc *db.Client)
+		payload *goastorage.ListAipsPayload
+		want    *goastorage.AIPs
+		wantErr string
+	}{
 		{
-			Name:       "AIP",
-			UUID:       aipID,
-			Status:     "stored",
-			ObjectKey:  objectKey,
-			LocationID: nil,
-			CreatedAt:  "2013-02-03T19:54:00Z",
+			name: "Returns all AIPs",
+			data: func(t *testing.T, ctx context.Context, entc *db.Client) {
+				entc.AIP.Create().
+					SetName("Test AIP 1").
+					SetAipID(aipID).
+					SetObjectKey(objectKey).
+					SetStatus(enums.AIPStatusStored).
+					ExecX(ctx)
+
+				entc.AIP.Create().
+					SetName("Test AIP 2").
+					SetAipID(aipID2).
+					SetObjectKey(objectKey2).
+					SetStatus(enums.AIPStatusStored).
+					ExecX(ctx)
+			},
+			want: &goastorage.AIPs{
+				Items: []*goastorage.AIP{
+					{
+						Name:      "Test AIP 2",
+						UUID:      aipID2,
+						ObjectKey: objectKey2,
+						Status:    "stored",
+						CreatedAt: time.Now().Format(time.RFC3339),
+					},
+					{
+						Name:      "Test AIP 1",
+						UUID:      aipID,
+						ObjectKey: objectKey,
+						Status:    "stored",
+						CreatedAt: time.Now().Format(time.RFC3339),
+					},
+				},
+				Page: &goastorage.EnduroPage{
+					Limit:  entfilter.DefaultPageSize,
+					Offset: 0,
+					Total:  2,
+				},
+			},
 		},
 		{
-			Name:       "Another AIP",
-			UUID:       aipID2,
-			Status:     "rejected",
-			ObjectKey:  objectKey2,
-			LocationID: nil,
-			CreatedAt:  "2013-02-03T19:54:00Z",
+			name: "Returns paginated AIPs (first page)",
+			data: func(t *testing.T, ctx context.Context, entc *db.Client) {
+				entc.AIP.Create().
+					SetName("Test AIP 1").
+					SetAipID(aipID).
+					SetObjectKey(objectKey).
+					SetStatus(enums.AIPStatusStored).
+					ExecX(ctx)
+
+				entc.AIP.Create().
+					SetName("Test AIP 2").
+					SetAipID(aipID2).
+					SetObjectKey(objectKey2).
+					SetStatus(enums.AIPStatusStored).
+					ExecX(ctx)
+			},
+			payload: &goastorage.ListAipsPayload{
+				Limit: ref.New(1),
+			},
+			want: &goastorage.AIPs{
+				Items: []*goastorage.AIP{
+					{
+						Name:      "Test AIP 2",
+						UUID:      aipID2,
+						ObjectKey: objectKey2,
+						Status:    "stored",
+						CreatedAt: time.Now().Format(time.RFC3339),
+					},
+				},
+				Page: &goastorage.EnduroPage{
+					Limit:  1,
+					Offset: 0,
+					Total:  2,
+				},
+			},
 		},
-	})
+		{
+			name: "Returns paginated AIPs (second page)",
+			data: func(t *testing.T, ctx context.Context, entc *db.Client) {
+				entc.AIP.Create().
+					SetName("Test AIP 1").
+					SetAipID(aipID).
+					SetObjectKey(objectKey).
+					SetStatus(enums.AIPStatusStored).
+					ExecX(ctx)
+
+				entc.AIP.Create().
+					SetName("Test AIP 2").
+					SetAipID(aipID2).
+					SetObjectKey(objectKey2).
+					SetStatus(enums.AIPStatusStored).
+					ExecX(ctx)
+			},
+			payload: &goastorage.ListAipsPayload{
+				Offset: ref.New(1),
+			},
+			want: &goastorage.AIPs{
+				Items: []*goastorage.AIP{
+					{
+						Name:      "Test AIP 1",
+						UUID:      aipID,
+						ObjectKey: objectKey,
+						Status:    "stored",
+						CreatedAt: time.Now().Format(time.RFC3339),
+					},
+				},
+				Page: &goastorage.EnduroPage{
+					Limit:  entfilter.DefaultPageSize,
+					Offset: 1,
+					Total:  2,
+				},
+			},
+		},
+		{
+			name: "Returns AIPs filtered by status",
+			data: func(t *testing.T, ctx context.Context, entc *db.Client) {
+				entc.AIP.Create().
+					SetName("Test AIP 1").
+					SetAipID(aipID).
+					SetObjectKey(objectKey).
+					SetStatus(enums.AIPStatusStored).
+					ExecX(ctx)
+
+				entc.AIP.Create().
+					SetName("Test AIP 2").
+					SetAipID(aipID2).
+					SetObjectKey(objectKey2).
+					SetStatus(enums.AIPStatusRejected).
+					ExecX(ctx)
+			},
+			payload: &goastorage.ListAipsPayload{
+				Status: ref.New("stored"),
+			},
+			want: &goastorage.AIPs{
+				Items: []*goastorage.AIP{
+					{
+						Name:      "Test AIP 1",
+						UUID:      aipID,
+						ObjectKey: objectKey,
+						Status:    "stored",
+						CreatedAt: time.Now().Format(time.RFC3339),
+					},
+				},
+				Page: &goastorage.EnduroPage{
+					Limit:  entfilter.DefaultPageSize,
+					Offset: 0,
+					Total:  1,
+				},
+			},
+		},
+		{
+			name: "Returns AIPs filtered by date range",
+			data: func(t *testing.T, ctx context.Context, entc *db.Client) {
+				entc.AIP.Create().
+					SetName("Test AIP 1").
+					SetAipID(aipID).
+					SetObjectKey(objectKey).
+					SetStatus(enums.AIPStatusStored).
+					SetCreatedAt(time.Now().Add(-48 * time.Hour)).
+					ExecX(ctx)
+
+				entc.AIP.Create().
+					SetName("Test AIP 2").
+					SetAipID(aipID2).
+					SetObjectKey(objectKey2).
+					SetStatus(enums.AIPStatusStored).
+					SetCreatedAt(time.Now().Add(-24 * time.Hour)).
+					ExecX(ctx)
+			},
+			payload: &goastorage.ListAipsPayload{
+				EarliestCreatedTime: ref.New(time.Now().Add(-36 * time.Hour).Format(time.RFC3339)),
+			},
+			want: &goastorage.AIPs{
+				Items: []*goastorage.AIP{
+					{
+						Name:      "Test AIP 2",
+						UUID:      aipID2,
+						ObjectKey: objectKey2,
+						Status:    "stored",
+						CreatedAt: time.Now().Add(-24 * time.Hour).Format(time.RFC3339),
+					},
+				},
+				Page: &goastorage.EnduroPage{
+					Limit:  entfilter.DefaultPageSize,
+					Offset: 0,
+					Total:  1,
+				},
+			},
+		},
+		{
+			name: "Returns AIPs filtered by name",
+			data: func(t *testing.T, ctx context.Context, entc *db.Client) {
+				entc.AIP.Create().
+					SetName("Test AIP 1").
+					SetAipID(aipID).
+					SetObjectKey(objectKey).
+					SetStatus(enums.AIPStatusStored).
+					ExecX(ctx)
+
+				entc.AIP.Create().
+					SetName("Test AIP 2").
+					SetAipID(aipID2).
+					SetObjectKey(objectKey2).
+					SetStatus(enums.AIPStatusRejected).
+					ExecX(ctx)
+			},
+			payload: &goastorage.ListAipsPayload{
+				Name: ref.New("Test AIP 1"),
+			},
+			want: &goastorage.AIPs{
+				Items: []*goastorage.AIP{
+					{
+						Name:      "Test AIP 1",
+						UUID:      aipID,
+						ObjectKey: objectKey,
+						Status:    "stored",
+						CreatedAt: time.Now().Format(time.RFC3339),
+					},
+				},
+				Page: &goastorage.EnduroPage{
+					Limit:  entfilter.DefaultPageSize,
+					Offset: 0,
+					Total:  1,
+				},
+			},
+		},
+		{
+			name: "Invalid status filter",
+			payload: &goastorage.ListAipsPayload{
+				Status: ref.New("invalid_status"),
+			},
+			wantErr: "status: invalid value",
+		},
+		{
+			name: "Invalid date range filter",
+			payload: &goastorage.ListAipsPayload{
+				EarliestCreatedTime: ref.New("invalid_date"),
+			},
+			wantErr: "created at: time range: cannot parse start time",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			entc, c := setUpClient(t)
+			ctx := context.Background()
+
+			if tt.data != nil {
+				tt.data(t, ctx, entc)
+			}
+
+			aips, err := c.ListAIPs(ctx, tt.payload)
+			if tt.wantErr != "" {
+				assert.ErrorContains(t, err, tt.wantErr)
+				return
+			}
+			assert.NilError(t, err)
+			assert.DeepEqual(t, aips, tt.want, cmpopts.EquateApproxTime(time.Second))
+		})
+	}
 }
 
 func TestReadAIP(t *testing.T) {
 	t.Parallel()
 
 	t.Run("Returns valid result", func(t *testing.T) {
-		entc, c := setUpClient(t)
+		entc, c := setUpClientWithHooks(t)
 
 		entc.AIP.Create().
 			SetName("AIP").
@@ -225,7 +473,7 @@ func TestReadAIP(t *testing.T) {
 	t.Run("Returns error when AIP does not exist", func(t *testing.T) {
 		t.Parallel()
 
-		_, c := setUpClient(t)
+		_, c := setUpClientWithHooks(t)
 
 		l, err := c.ReadAIP(context.Background(), aipID)
 		assert.Assert(t, l == nil)
@@ -236,7 +484,7 @@ func TestReadAIP(t *testing.T) {
 func TestUpdateAIPStatus(t *testing.T) {
 	t.Parallel()
 
-	entc, c := setUpClient(t)
+	entc, c := setUpClientWithHooks(t)
 
 	a := entc.AIP.Create().
 		SetName("AIP").
@@ -258,7 +506,7 @@ func TestUpdateAIPStatus(t *testing.T) {
 func TestUpdateAIPLocation(t *testing.T) {
 	t.Parallel()
 
-	entc, c := setUpClient(t)
+	entc, c := setUpClientWithHooks(t)
 
 	l1 := entc.Location.Create().
 		SetName("perma-aips-1").
@@ -307,7 +555,7 @@ func TestUpdateAIPLocation(t *testing.T) {
 func TestCreateLocation(t *testing.T) {
 	t.Parallel()
 
-	entc, c := setUpClient(t)
+	entc, c := setUpClientWithHooks(t)
 	ctx := context.Background()
 
 	l, err := c.CreateLocation(
@@ -341,7 +589,7 @@ func TestCreateLocation(t *testing.T) {
 func TestCreateURLLocation(t *testing.T) {
 	t.Parallel()
 
-	entc, c := setUpClient(t)
+	entc, c := setUpClientWithHooks(t)
 	ctx := context.Background()
 
 	l, err := c.CreateLocation(
@@ -382,7 +630,7 @@ func TestListLocations(t *testing.T) {
 		uuid.MustParse("e0ed8b2a-8ae2-4546-b5d8-f0090919df04"),
 	}
 
-	entc, c := setUpClient(t)
+	entc, c := setUpClientWithHooks(t)
 	entc.Location.Create().
 		SetName("Location").
 		SetDescription("location").
@@ -504,7 +752,7 @@ func TestReadLocation(t *testing.T) {
 	t.Run("Returns valid result", func(t *testing.T) {
 		t.Parallel()
 
-		entc, c := setUpClient(t)
+		entc, c := setUpClientWithHooks(t)
 
 		entc.Location.Create().
 			SetName("test_location").
@@ -543,7 +791,7 @@ func TestReadLocation(t *testing.T) {
 	t.Run("Returns error when location does not exist", func(t *testing.T) {
 		t.Parallel()
 
-		_, c := setUpClient(t)
+		_, c := setUpClientWithHooks(t)
 
 		l, err := c.ReadLocation(context.Background(), locationID)
 		assert.Assert(t, l == nil)
@@ -557,7 +805,7 @@ func TestLocationAIPs(t *testing.T) {
 	t.Run("Returns valid result", func(t *testing.T) {
 		t.Parallel()
 
-		entc, c := setUpClient(t)
+		entc, c := setUpClientWithHooks(t)
 		l := entc.Location.Create().
 			SetName("Location").
 			SetDescription("location").
@@ -596,7 +844,7 @@ func TestLocationAIPs(t *testing.T) {
 	t.Run("Returns empty result", func(t *testing.T) {
 		t.Parallel()
 
-		entc, c := setUpClient(t)
+		entc, c := setUpClientWithHooks(t)
 
 		entc.Location.Create().
 			SetName("Location").
@@ -619,7 +867,7 @@ func TestLocationAIPs(t *testing.T) {
 	t.Run("Returns empty result if location does not exist", func(t *testing.T) {
 		t.Parallel()
 
-		_, c := setUpClient(t)
+		_, c := setUpClientWithHooks(t)
 
 		aips, err := c.LocationAIPs(context.Background(), uuid.Nil)
 		assert.NilError(t, err)

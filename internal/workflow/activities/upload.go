@@ -8,6 +8,7 @@ import (
 	"time"
 
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
+	"github.com/artefactual-sdps/enduro/internal/storage"
 )
 
 type UploadActivityParams struct {
@@ -17,12 +18,12 @@ type UploadActivityParams struct {
 }
 
 type UploadActivity struct {
-	storageClient *goastorage.Client
+	storageClient storage.Client
 }
 
 type UploadActivityResult struct{}
 
-func NewUploadActivity(storageClient *goastorage.Client) *UploadActivity {
+func NewUploadActivity(storageClient storage.Client) *UploadActivity {
 	return &UploadActivity{
 		storageClient: storageClient,
 	}

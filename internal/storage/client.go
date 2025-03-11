@@ -7,6 +7,7 @@ import (
 )
 
 type Client interface {
+	ListAips(context.Context, *goastorage.ListAipsPayload) (*goastorage.AIPs, error)
 	SubmitAip(context.Context, *goastorage.SubmitAipPayload) (*goastorage.SubmitAIPResult, error)
 	CreateAip(context.Context, *goastorage.CreateAipPayload) (*goastorage.AIP, error)
 	UpdateAip(context.Context, *goastorage.UpdateAipPayload) error

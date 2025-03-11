@@ -5,9 +5,9 @@ apis/StorageApi.ts
 apis/SwaggerApi.ts
 apis/index.ts
 index.ts
-models/AIP.ts
 models/AIPNotFound.ts
 models/AIPResponse.ts
+models/AIPs.ts
 models/ConfirmSipRequestBody.ts
 models/CreateAipRequestBody.ts
 models/CreateLocationRequestBody.ts
@@ -20,6 +20,7 @@ models/EnduroIngestSipPreservationTask.ts
 models/EnduroPage.ts
 models/EnduroPoststorage.ts
 models/EnduroPreprocessing.ts
+models/EnduroStorageAip.ts
 models/Location.ts
 models/LocationResponse.ts
 models/ModelError.ts

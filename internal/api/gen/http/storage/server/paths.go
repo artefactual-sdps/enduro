@@ -12,6 +12,11 @@ import (
 	"fmt"
 )
 
+// ListAipsStoragePath returns the URL path to the storage service list_aips HTTP endpoint.
+func ListAipsStoragePath() string {
+	return "/storage/aips"
+}
+
 // CreateAipStoragePath returns the URL path to the storage service create_aip HTTP endpoint.
 func CreateAipStoragePath() string {
 	return "/storage/aips"
