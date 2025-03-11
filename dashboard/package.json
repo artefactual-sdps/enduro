@@ -44,7 +44,7 @@
     "@types/lodash-es": "^4.17.12",
     "@types/node": "^22.13.1",
     "@vitejs/plugin-vue": "^5.2.1",
-    "@vitest/coverage-v8": "^3.0.7",
+    "@vitest/coverage-v8": "^3.0.8",
     "@vue/tsconfig": "^0.5.1",
     "bootstrap": "^5.3.3",
     "eslint": "^9.20.1",
@@ -62,9 +62,9 @@
     "typescript-eslint": "^8.24.0",
     "unplugin-icons": "^0.19.3",
     "unplugin-vue-router": "^0.10.8",
-    "vite": "^6.1.1",
+    "vite": "^6.2.1",
     "vite-plugin-vue-devtools": "^7.7.2",
-    "vitest": "^3.0.7",
+    "vitest": "^3.0.8",
     "vue-tsc": "^2.2.0"
   }
 }
