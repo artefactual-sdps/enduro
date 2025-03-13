@@ -9,8 +9,9 @@ import (
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
-	"github.com/artefactual-sdps/enduro/internal/storage/enums"
 	"github.com/google/uuid"
+
+	"github.com/artefactual-sdps/enduro/internal/storage/enums"
 )
 
 // AIP holds the schema definition for the AIP entity.
