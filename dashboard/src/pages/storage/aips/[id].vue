@@ -3,20 +3,19 @@ import { useAsyncState } from "@vueuse/core";
 import { useRoute, useRouter } from "vue-router/auto";
 
 import PageLoadingAlert from "@/components/PageLoadingAlert.vue";
-import SipPendingAlert from "@/components/SipPendingAlert.vue";
 import Tabs from "@/components/Tabs.vue";
+import { useAipStore } from "@/stores/aip";
 import { useAuthStore } from "@/stores/auth";
-import { useSipStore } from "@/stores/sip";
+import IconAIPs from "~icons/clarity/bundle-line";
 import IconDetails from "~icons/clarity/details-line?raw&font-size=20px";
-import IconSIPs from "~icons/octicon/package-dependencies-24";
 
-const route = useRoute("/ingest/sips/[id]");
+const route = useRoute("/storage/aips/[id]");
 const router = useRouter();
 const authStore = useAuthStore();
-const sipStore = useSipStore();
+const aipStore = useAipStore();
 
 const { execute, error } = useAsyncState(
-  sipStore.fetchCurrent(route.params.id.toString()),
+  aipStore.fetchCurrent(route.params.id.toString()),
   null,
 );
 
@@ -25,10 +24,10 @@ const tabs = [
     icon: IconDetails,
     text: "Summary",
     route: router.resolve({
-      name: "/ingest/sips/[id]/",
+      name: "/storage/aips/[id]/",
       params: { id: route.params.id },
     }),
-    show: authStore.checkAttributes(["ingest:sips:read"]),
+    show: authStore.checkAttributes(["storage:aips:read"]),
   },
 ];
 </script>
@@ -37,10 +36,8 @@ const tabs = [
   <div class="container-xxl">
     <PageLoadingAlert v-if="error" :execute="execute" :error="error" />
 
-    <SipPendingAlert v-if="sipStore.current" />
-
-    <h1 class="d-flex mb-3" v-if="sipStore.current">
-      <IconSIPs class="me-3 text-dark" />{{ sipStore.current.name }}
+    <h1 class="d-flex mb-3" v-if="aipStore.current">
+      <IconAIPs class="me-3 text-dark" />{{ aipStore.current.name }}
     </h1>
 
     <Tabs :tabs="tabs" param="id" />

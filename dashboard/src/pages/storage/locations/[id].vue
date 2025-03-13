@@ -5,7 +5,7 @@ import { useRoute, useRouter } from "vue-router/auto";
 import PageLoadingAlert from "@/components/PageLoadingAlert.vue";
 import Tabs from "@/components/Tabs.vue";
 import { useAuthStore } from "@/stores/auth";
-import { useStorageStore } from "@/stores/storage";
+import { useLocationStore } from "@/stores/location";
 import IconAIPs from "~icons/clarity/bundle-line?raw&font-size=20px";
 import IconDetails from "~icons/clarity/details-line?raw&font-size=20px";
 import IconLocations from "~icons/octicon/server-24";
@@ -13,10 +13,10 @@ import IconLocations from "~icons/octicon/server-24";
 const route = useRoute("/storage/locations/[id]");
 const router = useRouter();
 const authStore = useAuthStore();
-const storageStore = useStorageStore();
+const locationStore = useLocationStore();
 
 const { execute, error } = useAsyncState(
-  storageStore.fetchCurrent(route.params.id.toString()),
+  locationStore.fetchCurrent(route.params.id.toString()),
   null,
 );
 
@@ -46,8 +46,8 @@ const tabs = [
   <div class="container-xxl">
     <PageLoadingAlert v-if="error" :execute="execute" :error="error" />
 
-    <h1 class="d-flex mb-3" v-if="storageStore.current">
-      <IconLocations class="me-3 text-dark" />{{ storageStore.current.name }}
+    <h1 class="d-flex mb-3" v-if="locationStore.current">
+      <IconLocations class="me-3 text-dark" />{{ locationStore.current.name }}
     </h1>
 
     <Tabs :tabs="tabs" param="id" />

@@ -1,99 +1,83 @@
 <script setup lang="ts">
 import { useAsyncState } from "@vueuse/core";
-import Tooltip from "bootstrap/js/dist/tooltip";
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, watch } from "vue";
 import { useRoute, useRouter } from "vue-router/auto";
 import type { LocationQueryValue } from "vue-router/auto";
 
 import PageLoadingAlert from "@/components/PageLoadingAlert.vue";
-import SipListLegend from "@/components/SipListLegend.vue";
 import StatusBadge from "@/components/StatusBadge.vue";
 import Tabs from "@/components/Tabs.vue";
 import TimeDropdown from "@/components/TimeDropdown.vue";
 import UUID from "@/components/UUID.vue";
-import type { IngestListSipsStatusEnum } from "@/openapi-generator";
+import type { StorageListAipsStatusEnum } from "@/openapi-generator";
+import { useAipStore } from "@/stores/aip";
 import { useAuthStore } from "@/stores/auth";
 import { useLayoutStore } from "@/stores/layout";
-import { useSipStore } from "@/stores/sip";
-import IconInfo from "~icons/akar-icons/info-fill";
 import IconCaretLeft from "~icons/bi/caret-left-fill";
 import IconCaretRight from "~icons/bi/caret-right-fill";
 import IconSkipEnd from "~icons/bi/skip-end-fill";
 import IconSkipStart from "~icons/bi/skip-start-fill";
 import IconAll from "~icons/clarity/blocks-group-line?raw&font-size=20px";
-import IconQueued from "~icons/clarity/clock-line?raw&font-size=20px";
+import IconAIPs from "~icons/clarity/bundle-line";
 import IconClose from "~icons/clarity/close-line";
 import IconError from "~icons/clarity/remove-line?raw&font-size=20px";
 import IconSearch from "~icons/clarity/search-line";
 import IconDone from "~icons/clarity/success-standard-line?raw&font-size=20px";
 import IconInProgress from "~icons/clarity/sync-line?raw&font-size=20px";
-import IconSIPs from "~icons/octicon/package-dependencies-24";
+import IconMoving from "~icons/hugeicons/package-moving?raw&font-size=20px";
 
 const authStore = useAuthStore();
 const layoutStore = useLayoutStore();
-const sipStore = useSipStore();
+const aipStore = useAipStore();
 
 const route = useRoute();
 const router = useRouter();
 
-layoutStore.updateBreadcrumb([{ text: "Ingest" }, { text: "SIPs" }]);
-
-const el = ref<HTMLElement | null>(null);
-let tooltip: Tooltip | null = null;
-
-let showLegend = ref(false);
-const toggleLegend = () => {
-  showLegend.value = !showLegend.value;
-  if (tooltip) tooltip.hide();
-};
-
-onMounted(() => {
-  if (el.value) tooltip = new Tooltip(el.value);
-});
+layoutStore.updateBreadcrumb([{ text: "Storage" }, { text: "AIPs" }]);
 
 const tabs = computed(() => [
   {
     icon: IconAll,
     text: "All",
     route: router.resolve({
-      name: "/ingest/sips/",
+      name: "/storage/aips/",
       query: { ...route.query, status: undefined },
     }),
     show: true,
   },
   {
     icon: IconDone,
-    text: "Done",
+    text: "Stored",
     route: router.resolve({
-      name: "/ingest/sips/",
-      query: { ...route.query, status: "done" },
+      name: "/storage/aips/",
+      query: { ...route.query, status: "stored" },
     }),
     show: true,
   },
   {
-    icon: IconError,
-    text: "Error",
+    icon: IconMoving,
+    text: "Moving",
     route: router.resolve({
-      name: "/ingest/sips/",
-      query: { ...route.query, status: "error" },
+      name: "/storage/aips/",
+      query: { ...route.query, status: "moving" },
     }),
     show: true,
   },
   {
     icon: IconInProgress,
-    text: "In progress",
+    text: "In review",
     route: router.resolve({
-      name: "/ingest/sips/",
-      query: { ...route.query, status: "in progress" },
+      name: "/storage/aips/",
+      query: { ...route.query, status: "in_review" },
     }),
     show: true,
   },
   {
-    icon: IconQueued,
-    text: "Queued",
+    icon: IconError,
+    text: "Rejected",
     route: router.resolve({
-      name: "/ingest/sips/",
-      query: { ...route.query, status: "queued" },
+      name: "/storage/aips/",
+      query: { ...route.query, status: "rejected" },
     }),
     show: true,
   },
@@ -101,14 +85,14 @@ const tabs = computed(() => [
 
 const searchByName = () => {
   let q = { ...route.query };
-  if (sipStore.filters.name === "") {
+  if (aipStore.filters.name === "") {
     delete q.name;
   } else {
-    q.name = <LocationQueryValue>sipStore.filters.name;
+    q.name = <LocationQueryValue>aipStore.filters.name;
   }
 
   router.push({
-    name: "/ingest/sips/",
+    name: "/storage/aips/",
     query: q,
   });
 };
@@ -150,41 +134,40 @@ const updateDateFilter = (
   }
 
   router.push({
-    name: "/ingest/sips/",
+    name: "/storage/aips/",
     query: q,
   });
 };
 
 const { execute, error } = useAsyncState(() => {
   if (route.query.name) {
-    sipStore.filters.name = <string>route.query.name;
+    aipStore.filters.name = <string>route.query.name;
   } else {
-    delete sipStore.filters.name;
+    delete aipStore.filters.name;
   }
 
   if (route.query.status) {
-    sipStore.filters.status = <IngestListSipsStatusEnum>route.query.status;
+    aipStore.filters.status = <StorageListAipsStatusEnum>route.query.status;
   } else {
-    delete sipStore.filters.status;
+    delete aipStore.filters.status;
   }
 
   if (route.query.earliestCreatedTime) {
-    sipStore.filters.earliestCreatedTime = new Date(
+    aipStore.filters.earliestCreatedTime = new Date(
       route.query.earliestCreatedTime as string,
     );
   } else {
-    delete sipStore.filters.earliestCreatedTime;
+    delete aipStore.filters.earliestCreatedTime;
   }
-
   if (route.query.latestCreatedTime) {
-    sipStore.filters.latestCreatedTime = new Date(
+    aipStore.filters.latestCreatedTime = new Date(
       route.query.latestCreatedTime as string,
     );
   } else {
-    delete sipStore.filters.latestCreatedTime;
+    delete aipStore.filters.latestCreatedTime;
   }
 
-  return sipStore.fetchSips(
+  return aipStore.fetchAips(
     route.query.page ? parseInt(<string>route.query.page) : 1,
   );
 }, null);
@@ -192,7 +175,7 @@ const { execute, error } = useAsyncState(() => {
 watch(
   () => route.query,
   () => {
-    // Execute fetchSips when the query changes.
+    // Execute fetchAips when the query changes.
     execute();
   },
 );
@@ -200,12 +183,12 @@ watch(
 
 <template>
   <div class="container-xxl">
-    <h1 class="d-flex mb-0"><IconSIPs class="me-3 text-dark" />SIPs</h1>
+    <h1 class="d-flex mb-0"><IconAIPs class="me-3 text-dark" />AIPs</h1>
 
     <div class="text-muted mb-3">
-      Showing {{ sipStore.page.offset + 1 }} -
-      {{ sipStore.lastResultOnPage }} of
-      {{ sipStore.page.total }}
+      Showing {{ aipStore.page.offset + 1 }} -
+      {{ aipStore.lastResultOnPage }} of
+      {{ aipStore.page.total }}
     </div>
 
     <PageLoadingAlert :execute="execute" :error="error" />
@@ -216,7 +199,7 @@ watch(
           <div class="input-group">
             <input
               type="text"
-              v-model.trim="sipStore.filters.name"
+              v-model.trim="aipStore.filters.name"
               class="form-control"
               name="name"
               placeholder="Search by name"
@@ -225,7 +208,7 @@ watch(
             <button
               class="btn btn-secondary"
               @click="
-                sipStore.filters.name = '';
+                aipStore.filters.name = '';
                 searchByName();
               "
               type="reset"
@@ -246,9 +229,9 @@ watch(
       <div>
         <TimeDropdown
           name="createdAt"
-          label="Started"
-          :start="sipStore.filters.earliestCreatedTime"
-          :end="sipStore.filters.latestCreatedTime"
+          label="Created"
+          :start="aipStore.filters.earliestCreatedTime"
+          :end="aipStore.filters.latestCreatedTime"
           @change="
             (
               name: string,
@@ -261,7 +244,6 @@ watch(
     </div>
 
     <Tabs :tabs="tabs" param="status" />
-    <SipListLegend v-model="showLegend" />
 
     <div class="table-responsive mb-3">
       <table class="table table-bordered mb-0">
@@ -269,55 +251,42 @@ watch(
           <tr>
             <th scope="col">Name</th>
             <th scope="col">UUID</th>
-            <th scope="col">Started</th>
-            <th scope="col">
-              <span class="d-flex gap-2">
-                Status
-                <button
-                  ref="el"
-                  class="btn btn-sm btn-link text-decoration-none ms-auto p-0"
-                  type="button"
-                  @click="toggleLegend"
-                  data-bs-toggle="tooltip"
-                  data-bs-title="Toggle legend"
-                >
-                  <IconInfo style="font-size: 1.2em" aria-hidden="true" />
-                  <span class="visually-hidden">Toggle SIP status legend</span>
-                </button>
-              </span>
-            </th>
+            <th scope="col">Deposited</th>
+            <th scope="col">Location</th>
+            <th scope="col">Status</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="sip in sipStore.sips" :key="sip.id">
+          <tr v-for="aip in aipStore.aips" :key="aip.uuid">
             <td>
               <router-link
-                v-if="authStore.checkAttributes(['ingest:sips:read'])"
-                :to="{ name: '/ingest/sips/[id]/', params: { id: sip.id } }"
-                >{{ sip.name }}</router-link
+                v-if="authStore.checkAttributes(['storage:aips:read'])"
+                :to="{ name: '/storage/aips/[id]/', params: { id: aip.uuid } }"
+                >{{ aip.name }}</router-link
               >
-              <span v-else>{{ sip.name }}</span>
+              <span v-else>{{ aip.name }}</span>
             </td>
-            <td><UUID :id="sip.aipId" /></td>
-            <td>{{ $filters.formatDateTime(sip.startedAt) }}</td>
-            <td><StatusBadge :status="sip.status" /></td>
+            <td><UUID :id="aip.uuid" /></td>
+            <td>{{ $filters.formatDateTime(aip.createdAt) }}</td>
+            <td><UUID :id="aip.locationId" /></td>
+            <td><StatusBadge :status="aip.status" /></td>
           </tr>
         </tbody>
       </table>
     </div>
-    <div v-if="sipStore.pager.total > 1">
+    <div v-if="aipStore.pager.total > 1">
       <nav role="navigation" aria-label="Pagination navigation">
         <ul class="pagination justify-content-center">
-          <li v-if="sipStore.pager.total > sipStore.pager.maxPages">
+          <li v-if="aipStore.pager.total > aipStore.pager.maxPages">
             <a
               href="#"
               :class="{
                 'page-link': true,
-                disabled: sipStore.pager.current == 1,
+                disabled: aipStore.pager.current == 1,
               }"
               aria-label="Go to first page"
               title="First page"
-              @click.prevent="sipStore.fetchSips(1)"
+              @click.prevent="aipStore.fetchAips(1)"
               ><IconSkipStart
             /></a>
           </li>
@@ -326,44 +295,44 @@ watch(
               href="#"
               :class="{
                 'page-link': true,
-                disabled: !sipStore.hasPrevPage,
+                disabled: !aipStore.hasPrevPage,
               }"
               aria-label="Go to previous page"
               title="Previous page"
-              @click.prevent="sipStore.prevPage"
+              @click.prevent="aipStore.prevPage"
               ><IconCaretLeft
             /></a>
           </li>
           <li
-            v-if="sipStore.pager.first > 1"
+            v-if="aipStore.pager.first > 1"
             class="d-none d-sm-block"
             aria-hidden="true"
           >
             <a href="#" class="page-link disabled">…</a>
           </li>
           <li
-            v-for="pg in sipStore.pager.pages"
+            v-for="pg in aipStore.pager.pages"
             :key="pg"
-            :class="{ 'd-none d-sm-block': pg != sipStore.pager.current }"
+            :class="{ 'd-none d-sm-block': pg != aipStore.pager.current }"
           >
             <a
               href="#"
               :class="{
                 'page-link': true,
-                active: pg == sipStore.pager.current,
+                active: pg == aipStore.pager.current,
               }"
-              @click.prevent="sipStore.fetchSips(pg)"
+              @click.prevent="aipStore.fetchAips(pg)"
               :aria-label="
-                pg == sipStore.pager.current
+                pg == aipStore.pager.current
                   ? 'Current page, page ' + pg
                   : 'Go to page ' + pg
               "
-              :aria-current="pg == sipStore.pager.current"
+              :aria-current="pg == aipStore.pager.current"
               >{{ pg }}</a
             >
           </li>
           <li
-            v-if="sipStore.pager.last < sipStore.pager.total"
+            v-if="aipStore.pager.last < aipStore.pager.total"
             class="d-none d-sm-block"
             aria-hidden="true"
           >
@@ -374,33 +343,33 @@ watch(
               href="#"
               :class="{
                 'page-link': true,
-                disabled: !sipStore.hasNextPage,
+                disabled: !aipStore.hasNextPage,
               }"
               aria-label="Go to next page"
               title="Next page"
-              @click.prevent="sipStore.nextPage"
+              @click.prevent="aipStore.nextPage"
               ><IconCaretRight
             /></a>
           </li>
-          <li v-if="sipStore.pager.total > sipStore.pager.maxPages">
+          <li v-if="aipStore.pager.total > aipStore.pager.maxPages">
             <a
               href="#"
               :class="{
                 'page-link': true,
-                disabled: sipStore.pager.current == sipStore.pager.total,
+                disabled: aipStore.pager.current == aipStore.pager.total,
               }"
               aria-label="Go to last page"
               title="Last page"
-              @click.prevent="sipStore.fetchSips(sipStore.pager.total)"
+              @click.prevent="aipStore.fetchAips(aipStore.pager.total)"
               ><IconSkipEnd
             /></a>
           </li>
         </ul>
       </nav>
       <div class="text-muted mb-3 text-center">
-        Showing SIPs {{ sipStore.page.offset + 1 }} -
-        {{ sipStore.lastResultOnPage }} of
-        {{ sipStore.page.total }}
+        Showing AIPs {{ aipStore.page.offset + 1 }} -
+        {{ aipStore.lastResultOnPage }} of
+        {{ aipStore.page.total }}
       </div>
     </div>
   </div>

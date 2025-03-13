@@ -4,14 +4,14 @@ import { onMounted, ref } from "vue";
 import { closeDialog } from "vue3-promise-dialog";
 
 import useEventListener from "@/composables/useEventListener";
-import { useStorageStore } from "@/stores/storage";
+import { useLocationStore } from "@/stores/location";
 
 const props = defineProps({
   currentLocationId: { type: String, required: false },
 });
 
-const storageStore = useStorageStore();
-storageStore.fetchLocations();
+const locationStore = useLocationStore();
+locationStore.fetchLocations();
 
 const el = ref<HTMLElement | null>(null);
 const modal = ref<Modal | null>(null);
@@ -54,7 +54,7 @@ const onChoose = (locationId: string) => {
               </thead>
               <tbody>
                 <tr
-                  v-for="item in storageStore.locations"
+                  v-for="item in locationStore.locations"
                   :key="item.uuid"
                   :class="[
                     item.uuid == props.currentLocationId ? 'current' : '',

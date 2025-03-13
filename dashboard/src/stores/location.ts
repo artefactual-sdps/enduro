@@ -4,21 +4,20 @@ import { api, client } from "@/client";
 import router from "@/router";
 import { useLayoutStore } from "@/stores/layout";
 
-export const useStorageStore = defineStore("storage", {
+export const useLocationStore = defineStore("location", {
   state: () => ({
-    locations: [] as Array<api.LocationResponse>,
+    // Location currently displayed.
     current: null as api.LocationResponse | null,
+
+    // AIPs of the current Location.
     currentAips: [] as Array<api.AIPResponse>,
+
+    // A list of Locations shown during searches.
+    locations: [] as Array<api.LocationResponse>,
   }),
   getters: {},
   actions: {
-    async fetchLocations() {
-      const resp = await client.storage.storageListLocations();
-      this.locations = resp;
-    },
     async fetchCurrent(uuid: string) {
-      this.$reset();
-
       this.current = await client.storage.storageShowLocation({ uuid: uuid });
 
       // Update breadcrumb. TODO: should this be done in the component?
@@ -38,9 +37,13 @@ export const useStorageStore = defineStore("storage", {
         }),
       ]);
     },
+    async fetchLocations() {
+      const resp = await client.storage.storageListLocations();
+      this.locations = resp;
+    },
   },
 });
 
 if (import.meta.hot) {
-  import.meta.hot.accept(acceptHMRUpdate(useStorageStore, import.meta.hot));
+  import.meta.hot.accept(acceptHMRUpdate(useLocationStore, import.meta.hot));
 }

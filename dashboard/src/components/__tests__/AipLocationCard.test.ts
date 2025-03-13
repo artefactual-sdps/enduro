@@ -5,7 +5,7 @@ import { nextTick } from "vue";
 
 import { api } from "@/client";
 import AipLocationCard from "@/components/AipLocationCard.vue";
-import { useIngestStore } from "@/stores/ingest";
+import { useSipStore } from "@/stores/sip";
 
 describe("AipLocationCard.vue", () => {
   afterEach(() => cleanup());
@@ -17,8 +17,8 @@ describe("AipLocationCard.vue", () => {
           createTestingPinia({
             createSpy: vi.fn,
             initialState: {
-              ingest: {
-                currentSip: {
+              sip: {
+                current: {
                   status: api.EnduroIngestSipStatusEnum.Done,
                   locationId: "f8635e46-a320-4152-9a2c-98a28eeb50d1",
                 } as api.EnduroIngestSip,
@@ -55,8 +55,8 @@ describe("AipLocationCard.vue", () => {
           createTestingPinia({
             createSpy: vi.fn,
             initialState: {
-              ingest: {
-                currentSip: {
+              sip: {
+                current: {
                   status: api.EnduroIngestSipStatusEnum.Done,
                   locationId: "f8635e46-a320-4152-9a2c-98a28eeb50d1",
                 } as api.EnduroIngestSip,
@@ -99,8 +99,8 @@ describe("AipLocationCard.vue", () => {
             createSpy: vi.fn,
             stubActions: false,
             initialState: {
-              ingest: {
-                currentSip: {
+              sip: {
+                current: {
                   status: api.EnduroIngestSipStatusEnum.Done,
                   locationId: "f8635e46-a320-4152-9a2c-98a28eeb50d1",
                 } as api.EnduroIngestSip,
@@ -113,17 +113,17 @@ describe("AipLocationCard.vue", () => {
 
     getByText("f8635e46-a320-4152-9a2c-98a28eeb50d1");
 
-    const ingestStore = useIngestStore();
+    const sipStore = useSipStore();
 
-    const moveMock = vi.fn().mockImplementation(ingestStore.move);
+    const moveMock = vi.fn().mockImplementation(sipStore.move);
     moveMock.mockImplementation(async () => {
-      ingestStore.$patch((state) => {
-        if (!state.currentSip) return;
-        state.currentSip.status = api.EnduroIngestSipStatusEnum.InProgress;
+      sipStore.$patch((state) => {
+        if (!state.current) return;
+        state.current.status = api.EnduroIngestSipStatusEnum.InProgress;
         state.locationChanging = true;
       });
     });
-    ingestStore.move = moveMock;
+    sipStore.move = moveMock;
 
     vi.mock("@/dialogs", () => {
       return {
@@ -144,8 +144,8 @@ describe("AipLocationCard.vue", () => {
           createTestingPinia({
             createSpy: vi.fn,
             initialState: {
-              ingest: {
-                currentSip: {
+              sip: {
+                current: {
                   status: api.EnduroIngestSipStatusEnum.InProgress,
                 } as api.EnduroIngestSip,
               },
@@ -177,8 +177,8 @@ describe("AipLocationCard.vue", () => {
           createTestingPinia({
             createSpy: vi.fn,
             initialState: {
-              ingest: {
-                currentSip: {
+              sip: {
+                current: {
                   status: api.EnduroIngestSipStatusEnum.Done,
                   locationId: undefined,
                 } as api.EnduroIngestSip,
@@ -212,8 +212,8 @@ describe("AipLocationCard.vue", () => {
           createTestingPinia({
             createSpy: vi.fn,
             initialState: {
-              ingest: {
-                currentSip: {
+              sip: {
+                current: {
                   status: api.EnduroIngestSipStatusEnum.InProgress,
                   locationId: "f8635e46-a320-4152-9a2c-98a28eeb50d1",
                 } as api.EnduroIngestSip,
@@ -250,8 +250,8 @@ describe("AipLocationCard.vue", () => {
           createTestingPinia({
             createSpy: vi.fn,
             initialState: {
-              ingest: {
-                currentSip: {
+              sip: {
+                current: {
                   aipId: "89229d18-5554-4e0d-8c4e-d0d88afd3bae",
                   status: api.EnduroIngestSipStatusEnum.Pending,
                 } as api.EnduroIngestSip,
@@ -265,8 +265,8 @@ describe("AipLocationCard.vue", () => {
     vi.stubGlobal("open", vi.fn());
 
     // Someone requests the download of the AIP via the ingest store.
-    const ingestStore = useIngestStore();
-    ingestStore.ui.download.request();
+    const sipStore = useSipStore();
+    sipStore.ui.download.request();
     await nextTick();
 
     // Then we observe that the component download function is executed.
@@ -283,8 +283,8 @@ describe("AipLocationCard.vue", () => {
           createTestingPinia({
             createSpy: vi.fn,
             initialState: {
-              ingest: {
-                currentSip: {
+              sip: {
+                current: {
                   aipId: "89229d18-5554-4e0d-8c4e-d0d88afd3bae",
                   status: api.EnduroIngestSipStatusEnum.Done,
                 } as api.EnduroIngestSip,
@@ -305,8 +305,8 @@ describe("AipLocationCard.vue", () => {
           createTestingPinia({
             createSpy: vi.fn,
             initialState: {
-              ingest: {
-                currentSip: {
+              sip: {
+                current: {
                   aipId: "89229d18-5554-4e0d-8c4e-d0d88afd3bae",
                   status: api.EnduroIngestSipStatusEnum.Done,
                 } as api.EnduroIngestSip,

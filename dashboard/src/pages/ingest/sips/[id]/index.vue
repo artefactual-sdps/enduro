@@ -5,18 +5,17 @@ import { api } from "@/client";
 import AipLocationCard from "@/components/AipLocationCard.vue";
 import PreservationActionCollapse from "@/components/PreservationActionCollapse.vue";
 import StatusBadge from "@/components/StatusBadge.vue";
-import UUID from "@/components/UUID.vue";
 import { useAuthStore } from "@/stores/auth";
-import { useIngestStore } from "@/stores/ingest";
+import { useSipStore } from "@/stores/sip";
 import IconLink from "~icons/bi/box-arrow-up-right";
 import IconHelp from "~icons/clarity/help-solid?height=0.8em&width=0.8em";
 
 const authStore = useAuthStore();
-const ingestStore = useIngestStore();
+const sipStore = useSipStore();
 
 const createAipWorkflow = computed(
   () =>
-    ingestStore.currentPreservationActions?.actions?.filter(
+    sipStore.currentPreservationActions?.actions?.filter(
       (action) =>
         action.type ===
           api.EnduroIngestSipPreservationActionTypeEnum.CreateAip ||
@@ -27,25 +26,15 @@ const createAipWorkflow = computed(
 </script>
 
 <template>
-  <div v-if="ingestStore.currentSip">
+  <div v-if="sipStore.current">
     <div class="row">
       <div class="col-md-6">
-        <h2>AIP creation details</h2>
+        <h2>SIP details</h2>
         <dl>
           <dt>Name</dt>
-          <dd>{{ ingestStore.currentSip.name }}</dd>
-          <dt>AIP UUID</dt>
-          <dd><UUID :id="ingestStore.currentSip.aipId" /></dd>
-          <dt>Workflow status</dt>
-          <dd>
-            <StatusBadge
-              v-if="createAipWorkflow"
-              :status="createAipWorkflow.status"
-              :note="
-                $filters.getPreservationActionLabel(createAipWorkflow.type)
-              "
-            />
-          </dd>
+          <dd>{{ sipStore.current.name }}</dd>
+          <dt>Status</dt>
+          <dd><StatusBadge :status="sipStore.current.status" /></dd>
           <dt>Started</dt>
           <dd>{{ $filters.formatDateTime(createAipWorkflow?.startedAt) }}</dd>
           <dt v-if="createAipWorkflow?.completedAt">Completed</dt>
@@ -117,7 +106,7 @@ const createAipWorkflow = computed(
         <PreservationActionCollapse
           :action="action"
           :index="index"
-          v-for="(action, index) in ingestStore.currentPreservationActions
+          v-for="(action, index) in sipStore.currentPreservationActions
             ?.actions"
           v-bind:key="action.id"
         />

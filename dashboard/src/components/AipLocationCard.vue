@@ -5,32 +5,30 @@ import { storageServiceDownloadURL } from "@/client";
 import UUID from "@/components/UUID.vue";
 import { openLocationDialog } from "@/dialogs";
 import { useAuthStore } from "@/stores/auth";
-import { useIngestStore } from "@/stores/ingest";
+import { useSipStore } from "@/stores/sip";
 
 const authStore = useAuthStore();
-const ingestStore = useIngestStore();
+const sipStore = useSipStore();
 
-let failed = ref<boolean | null>(null);
+let failed = ref<boolean>(false);
 
 const choose = async () => {
   failed.value = false;
-  const locationId = await openLocationDialog(
-    ingestStore.currentSip?.locationId,
-  );
+  const locationId = await openLocationDialog(sipStore.current?.locationId);
   if (!locationId) return;
-  const error = await ingestStore.move(locationId);
+  const error = await sipStore.move(locationId);
   if (error) {
     failed.value = true;
   }
 };
 
 const download = () => {
-  if (!ingestStore.currentSip?.aipId) return;
-  const url = storageServiceDownloadURL(ingestStore.currentSip.aipId);
+  if (!sipStore.current?.aipId) return;
+  const url = storageServiceDownloadURL(sipStore.current.aipId);
   window.open(url, "_blank");
 };
 
-watch(ingestStore.ui.download, () => download());
+watch(sipStore.ui.download, () => download());
 </script>
 
 <template>
@@ -39,29 +37,29 @@ watch(ingestStore.ui.download, () => download());
       <div v-if="failed" class="alert alert-danger" role="alert">
         Move operation failed, try again!
       </div>
-      <div v-if="ingestStore.isMoving" class="alert alert-info" role="alert">
+      <div v-if="sipStore.isMoving" class="alert alert-info" role="alert">
         The AIP is being moved into a new location.
       </div>
       <h4 class="card-title">Location</h4>
       <p class="card-text">
-        <span v-if="ingestStore.isRejected">AIP rejected.</span>
-        <span v-else-if="!ingestStore.currentSip?.locationId"
+        <span v-if="sipStore.isRejected">AIP rejected.</span>
+        <span v-else-if="!sipStore.current?.locationId"
           >Not available yet.</span
         >
-        <span v-else><UUID :id="ingestStore.currentSip.locationId" /></span>
+        <span v-else><UUID :id="sipStore.current.locationId" /></span>
       </p>
       <div class="d-flex flex-wrap gap-2">
         <button
           v-if="
-            !ingestStore.isRejected &&
+            !sipStore.isRejected &&
             authStore.checkAttributes(['ingest:sips:move'])
           "
           type="button"
           class="btn btn-primary btn-sm"
           @click="choose"
-          :disabled="!ingestStore.isMovable"
+          :disabled="!sipStore.isMovable"
         >
-          <template v-if="ingestStore.isMoving">
+          <template v-if="sipStore.isMoving">
             <span
               class="spinner-grow spinner-grow-sm me-2"
               role="status"
@@ -73,13 +71,13 @@ watch(ingestStore.ui.download, () => download());
         </button>
         <button
           v-if="
-            ingestStore.currentSip?.aipId?.length &&
+            sipStore.current?.aipId?.length &&
             authStore.checkAttributes(['storage:aips:download'])
           "
           type="button"
           class="btn btn-primary btn-sm"
           @click="download"
-          :disabled="ingestStore.isMoving"
+          :disabled="sipStore.isMoving"
         >
           Download
         </button>

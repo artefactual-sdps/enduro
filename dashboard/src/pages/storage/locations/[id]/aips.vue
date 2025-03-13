@@ -1,37 +1,40 @@
 <script setup lang="ts">
 import UUID from "@/components/UUID.vue";
-import { useStorageStore } from "@/stores/storage";
+import { useAuthStore } from "@/stores/auth";
+import { useLocationStore } from "@/stores/location";
 
-const storageStore = useStorageStore();
+const authStore = useAuthStore();
+const locationStore = useLocationStore();
 </script>
 
 <template>
-  <div v-if="storageStore.current">
+  <div v-if="locationStore.current">
     <div class="text-muted mb-3">
-      Showing {{ storageStore.currentAips.length }} /
-      {{ storageStore.currentAips.length }}
+      Showing {{ locationStore.currentAips.length }} /
+      {{ locationStore.currentAips.length }}
     </div>
 
     <div class="table-responsive mb-3">
       <table class="table table-bordered mb-0">
         <thead>
           <tr>
-            <th scope="col">#</th>
             <th scope="col">Name</th>
-            <th scope="col">Size</th>
             <th scope="col">UUID</th>
             <th scope="col">Deposited</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(pkg, index) in storageStore.currentAips" :key="pkg.uuid">
-            <td>{{ index + 1 }}</td>
-            <td>{{ pkg.name }}</td>
-            <td></td>
+          <tr v-for="aip in locationStore.currentAips" :key="aip.uuid">
             <td>
-              <UUID :id="pkg.uuid" />
+              <router-link
+                v-if="authStore.checkAttributes(['storage:aips:read'])"
+                :to="{ name: '/storage/aips/[id]/', params: { id: aip.uuid } }"
+                >{{ aip.name }}</router-link
+              >
+              <span v-else>{{ aip.name }}</span>
             </td>
-            <td>{{ $filters.formatDateTime(pkg.createdAt) }}</td>
+            <td><UUID :id="aip.uuid" /></td>
+            <td>{{ $filters.formatDateTime(aip.createdAt) }}</td>
           </tr>
         </tbody>
       </table>

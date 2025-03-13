@@ -1,17 +1,17 @@
-import { mapKeys, snakeCase } from "lodash-es";
 import { acceptHMRUpdate, defineStore } from "pinia";
 import { ref } from "vue";
 
 import { api, client } from "@/client";
-import {
-  IngestListSipsStatusEnum,
-  MonitorEventEventTypeEnum,
-  ResponseError,
-} from "@/openapi-generator";
+import { IngestListSipsStatusEnum, ResponseError } from "@/openapi-generator";
 import router from "@/router";
 import { useLayoutStore } from "@/stores/layout";
 
 const defaultPageSize = 20;
+
+class UIRequest {
+  inner = ref(0);
+  request = () => this.inner.value++;
+}
 
 export interface Pager {
   // maxPages is the maximum number of page links to show in the pager.
@@ -24,21 +24,21 @@ export interface Pager {
   pages: Array<number>;
 }
 
-export const useIngestStore = defineStore("ingest", {
+export const useSipStore = defineStore("sip", {
   state: () => ({
     // SIP currently displayed.
-    currentSip: null as api.EnduroIngestSip | null,
+    current: null as api.EnduroIngestSip | null,
 
     // Preservation actions of the current SIP.
     currentPreservationActions: null as api.SIPPreservationActions | null,
+
+    // A list of SIPs shown during searches.
+    sips: [] as Array<api.EnduroIngestSip>,
 
     // The current SIP is being moved into a new location.
     // Set to true by this client when the SIP is moved.
     // Set to false by moveStatus or handleSipLocationUpdated.
     locationChanging: false,
-
-    // A list of SIPs shown during searches.
-    sips: [] as Array<api.EnduroIngestSip>,
 
     // Page is a subset of the total SIP list.
     page: { limit: defaultPageSize } as api.EnduroPage,
@@ -60,10 +60,10 @@ export const useIngestStore = defineStore("ingest", {
   }),
   getters: {
     isPending(): boolean {
-      return this.currentSip?.status == api.EnduroIngestSipStatusEnum.Pending;
+      return this.current?.status == api.EnduroIngestSipStatusEnum.Pending;
     },
     isDone(): boolean {
-      return this.currentSip?.status == api.EnduroIngestSipStatusEnum.Done;
+      return this.current?.status == api.EnduroIngestSipStatusEnum.Done;
     },
     isMovable(): boolean {
       return this.isDone && !this.isMoving;
@@ -72,7 +72,7 @@ export const useIngestStore = defineStore("ingest", {
       return this.locationChanging;
     },
     isRejected(): boolean {
-      return this.isDone && this.currentSip?.locationId === undefined;
+      return this.isDone && this.current?.locationId === undefined;
     },
     hasNextPage(): boolean {
       return this.page.offset + this.page.limit < this.page.total;
@@ -115,23 +115,13 @@ export const useIngestStore = defineStore("ingest", {
     },
   },
   actions: {
-    handleEvent(event: api.MonitorEventEvent) {
-      const json = JSON.parse(event.value);
-      // TODO: avoid key transformation in the backend or make
-      // this fully recursive, considering objects and slices.
-      const value = mapKeys(json, (_, key) => snakeCase(key));
-      if (value.item) {
-        value.item = mapKeys(value.item, (_, key) => snakeCase(key));
-      }
-      handlers[event.type](value);
-    },
-    async fetchCurrentSip(id: string) {
+    async fetchCurrent(id: string) {
       const sipId = +id;
       if (Number.isNaN(sipId)) {
         throw Error("Unexpected parameter");
       }
 
-      this.currentSip = await client.ingest.ingestShowSip({ id: sipId });
+      this.current = await client.ingest.ingestShowSip({ id: sipId });
 
       // Update breadcrumb. TODO: should this be done in the component?
       const layoutStore = useLayoutStore();
@@ -139,7 +129,7 @@ export const useIngestStore = defineStore("ingest", {
       layoutStore.updateBreadcrumb([
         { text: "Ingest" },
         { route: router.resolve("/ingest/sips/"), text: "SIPs" },
-        { text: this.currentSip.name },
+        { text: this.current.name },
       ]);
 
       await Promise.allSettled([
@@ -200,27 +190,27 @@ export const useIngestStore = defineStore("ingest", {
       return this.fetchSips(page);
     },
     async move(locationId: string) {
-      if (!this.currentSip) return;
+      if (!this.current) return;
       try {
         await client.ingest.ingestMoveSip({
-          id: this.currentSip.id,
+          id: this.current.id,
           confirmSipRequestBody: { locationId: locationId },
         });
       } catch (error) {
         return error;
       }
       this.$patch((state) => {
-        if (!state.currentSip) return;
-        state.currentSip.status = api.EnduroIngestSipStatusEnum.InProgress;
+        if (!state.current) return;
+        state.current.status = api.EnduroIngestSipStatusEnum.InProgress;
         state.locationChanging = true;
       });
     },
     async moveStatus() {
-      if (!this.currentSip) return;
+      if (!this.current) return;
       let resp;
       try {
         resp = await client.ingest.ingestMoveSipStatus({
-          id: this.currentSip?.id,
+          id: this.current?.id,
         });
       } catch (error) {
         return error;
@@ -228,22 +218,22 @@ export const useIngestStore = defineStore("ingest", {
       this.locationChanging = !resp.done;
     },
     confirm(locationId: string) {
-      if (!this.currentSip) return;
+      if (!this.current) return;
       client.ingest
         .ingestConfirmSip({
-          id: this.currentSip.id,
+          id: this.current.id,
           confirmSipRequestBody: { locationId: locationId },
         })
         .then(() => {
-          if (!this.currentSip) return;
-          this.currentSip.status = api.EnduroIngestSipStatusEnum.InProgress;
+          if (!this.current) return;
+          this.current.status = api.EnduroIngestSipStatusEnum.InProgress;
         });
     },
     reject() {
-      if (!this.currentSip) return;
-      client.ingest.ingestRejectSip({ id: this.currentSip.id }).then(() => {
-        if (!this.currentSip) return;
-        this.currentSip.status = api.EnduroIngestSipStatusEnum.InProgress;
+      if (!this.current) return;
+      client.ingest.ingestRejectSip({ id: this.current.id }).then(() => {
+        if (!this.current) return;
+        this.current.status = api.EnduroIngestSipStatusEnum.InProgress;
       });
     },
     nextPage() {
@@ -286,117 +276,5 @@ export const useIngestStore = defineStore("ingest", {
 });
 
 if (import.meta.hot) {
-  import.meta.hot.accept(acceptHMRUpdate(useIngestStore, import.meta.hot));
-}
-
-const handlers: {
-  [key in api.MonitorEventEventTypeEnum]: (data: unknown) => void;
-} = {
-  [MonitorEventEventTypeEnum.MonitorPingEvent]: handleMonitorPing,
-  [MonitorEventEventTypeEnum.SipCreatedEvent]: handleSipCreated,
-  [MonitorEventEventTypeEnum.SipUpdatedEvent]: handleSipUpdated,
-  [MonitorEventEventTypeEnum.SipStatusUpdatedEvent]: handleSipStatusUpdated,
-  [MonitorEventEventTypeEnum.SipLocationUpdatedEvent]: handleSipLocationUpdated,
-  [MonitorEventEventTypeEnum.SipPreservationActionCreatedEvent]:
-    handlePreservationActionCreated,
-  [MonitorEventEventTypeEnum.SipPreservationActionUpdatedEvent]:
-    handlePreservationActionUpdated,
-  [MonitorEventEventTypeEnum.SipPreservationTaskCreatedEvent]:
-    handlePreservationTaskCreated,
-  [MonitorEventEventTypeEnum.SipPreservationTaskUpdatedEvent]:
-    handlePreservationTaskUpdated,
-};
-
-function handleMonitorPing(data: unknown) {
-  api.MonitorPingEventFromJSON(data);
-}
-
-function handleSipCreated(data: unknown) {
-  api.SIPCreatedEventFromJSON(data);
-  const store = useIngestStore();
-  store.fetchSipsDebounced(1);
-}
-
-function handleSipUpdated(data: unknown) {
-  const event = api.SIPUpdatedEventFromJSON(data);
-  const store = useIngestStore();
-  store.fetchSipsDebounced(1);
-  if (store.$state.currentSip?.id != event.id) return;
-  Object.assign(store.$state.currentSip, event.item);
-}
-
-function handleSipStatusUpdated(data: unknown) {
-  const event = api.SIPStatusUpdatedEventFromJSON(data);
-  const store = useIngestStore();
-  store.fetchSipsDebounced(1);
-  if (store.$state.currentSip?.id != event.id) return;
-  store.$state.currentSip.status = event.status;
-}
-
-function handleSipLocationUpdated(data: unknown) {
-  const event = api.SIPLocationUpdatedEventFromJSON(data);
-  const store = useIngestStore();
-  store.fetchSipsDebounced(1);
-  store.$patch((state) => {
-    if (state.currentSip?.id != event.id) return;
-    state.currentSip.locationId = event.locationId;
-    state.locationChanging = false;
-  });
-}
-
-function handlePreservationActionCreated(data: unknown) {
-  const event = api.SIPPreservationActionCreatedEventFromJSON(data);
-  const store = useIngestStore();
-
-  // Ignore event if it does not relate to the current SIP.
-  if (store.currentSip?.id != event.item.sipId) return;
-
-  // Append the action.
-  store.currentPreservationActions?.actions?.unshift(event.item);
-}
-
-function handlePreservationActionUpdated(data: unknown) {
-  const event = api.SIPPreservationActionUpdatedEventFromJSON(data);
-  const store = useIngestStore();
-
-  // Ignore event if it does not relate to the current SIP.
-  if (store.currentSip?.id != event.item.sipId) return;
-
-  // Find and update the action.
-  const action = store.getActionById(event.id);
-  if (!action) return;
-
-  // Keep existing tasks, this event doesn't include them.
-  const tasks = action.tasks;
-  Object.assign(action, event.item);
-  action.tasks = tasks;
-}
-
-function handlePreservationTaskCreated(data: unknown) {
-  const event = api.SIPPreservationTaskCreatedEventFromJSON(data);
-  const store = useIngestStore();
-
-  // Find and update the action.
-  if (!event.item.preservationActionId) return;
-  const action = store.getActionById(event.item.preservationActionId);
-  if (!action) return;
-  if (action.id === event.item.preservationActionId) {
-    if (!action.tasks) action.tasks = [];
-    action.tasks.push(event.item);
-  }
-}
-
-function handlePreservationTaskUpdated(data: unknown) {
-  const event = api.SIPPreservationTaskUpdatedEventFromJSON(data);
-  const store = useIngestStore();
-
-  if (!event.item.preservationActionId) return;
-  const task = store.getTaskById(event.item.preservationActionId, event.id);
-  if (!task) return;
-  Object.assign(task, event.item);
-}
-
-class UIRequest {
-  inner = ref(0);
-  request = () => this.inner.value++;
+  import.meta.hot.accept(acceptHMRUpdate(useSipStore, import.meta.hot));
 }

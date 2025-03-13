@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { useIngestStore } from "@/stores/ingest";
+import { useSipStore } from "@/stores/sip";
 
-const ingestStore = useIngestStore();
+const sipStore = useSipStore();
 </script>
 
 <template>
   <div
-    v-if="ingestStore.isPending"
+    v-if="sipStore.isPending"
     class="alert alert-warning text-center"
     role="alert"
   >

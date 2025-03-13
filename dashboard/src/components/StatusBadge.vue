@@ -7,7 +7,8 @@ const props = defineProps<{
   status:
     | api.EnduroIngestSipStatusEnum
     | api.EnduroIngestSipPreservationActionStatusEnum
-    | api.EnduroIngestSipPreservationTaskStatusEnum;
+    | api.EnduroIngestSipPreservationTaskStatusEnum
+    | api.EnduroStorageAipStatusEnum;
   note?: string;
 }>();
 
@@ -15,7 +16,8 @@ const classes: {
   [key in
     | api.EnduroIngestSipStatusEnum
     | api.EnduroIngestSipPreservationActionStatusEnum
-    | api.EnduroIngestSipPreservationTaskStatusEnum]: string;
+    | api.EnduroIngestSipPreservationTaskStatusEnum
+    | api.EnduroStorageAipStatusEnum]: string;
 } = {
   new: "text-bg-dark",
   "in progress": "text-bg-secondary",
@@ -26,6 +28,10 @@ const classes: {
   pending: "text-bg-warning",
   abandoned: "text-bg-dark",
   unspecified: "text-bg-dark",
+  in_review: "text-bg-warning",
+  rejected: "text-bg-danger",
+  stored: "text-bg-success",
+  moving: "text-bg-warning",
 };
 
 const colorClass = computed(() => {

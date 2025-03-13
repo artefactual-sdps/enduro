@@ -1,4 +1,4 @@
-import { defineStore } from "pinia";
+import { acceptHMRUpdate, defineStore } from "pinia";
 import type { RouteLocation } from "vue-router";
 
 type BreadcrumbItem = {
@@ -20,3 +20,7 @@ export const useLayoutStore = defineStore("layout", {
     },
   },
 });
+
+if (import.meta.hot) {
+  import.meta.hot.accept(acceptHMRUpdate(useLayoutStore, import.meta.hot));
+}

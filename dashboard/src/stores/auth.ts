@@ -2,7 +2,7 @@ import { Buffer } from "buffer";
 
 import { UserManager, WebStorageStateStore } from "oidc-client-ts";
 import type { User } from "oidc-client-ts";
-import { defineStore } from "pinia";
+import { acceptHMRUpdate, defineStore } from "pinia";
 
 type OIDCConfig = {
   enabled: boolean;
@@ -310,3 +310,7 @@ export const useAuthStore = defineStore("auth", {
     },
   },
 });
+
+if (import.meta.hot) {
+  import.meta.hot.accept(acceptHMRUpdate(useAuthStore, import.meta.hot));
+}
