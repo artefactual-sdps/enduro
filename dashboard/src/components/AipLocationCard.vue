@@ -4,31 +4,31 @@ import { ref, watch } from "vue";
 import { storageServiceDownloadURL } from "@/client";
 import UUID from "@/components/UUID.vue";
 import { openLocationDialog } from "@/dialogs";
+import { useAipStore } from "@/stores/aip";
 import { useAuthStore } from "@/stores/auth";
-import { useSipStore } from "@/stores/sip";
 
 const authStore = useAuthStore();
-const sipStore = useSipStore();
+const aipStore = useAipStore();
 
 let failed = ref<boolean>(false);
 
 const choose = async () => {
   failed.value = false;
-  const locationId = await openLocationDialog(sipStore.current?.locationId);
+  const locationId = await openLocationDialog(aipStore.current?.locationId);
   if (!locationId) return;
-  const error = await sipStore.move(locationId);
+  const error = await aipStore.move(locationId);
   if (error) {
     failed.value = true;
   }
 };
 
 const download = () => {
-  if (!sipStore.current?.aipId) return;
-  const url = storageServiceDownloadURL(sipStore.current.aipId);
+  if (!aipStore.current?.uuid) return;
+  const url = storageServiceDownloadURL(aipStore.current?.uuid);
   window.open(url, "_blank");
 };
 
-watch(sipStore.ui.download, () => download());
+watch(aipStore.ui.download, () => download());
 </script>
 
 <template>
@@ -37,29 +37,30 @@ watch(sipStore.ui.download, () => download());
       <div v-if="failed" class="alert alert-danger" role="alert">
         Move operation failed, try again!
       </div>
-      <div v-if="sipStore.isMoving" class="alert alert-info" role="alert">
+      <div v-if="aipStore.isMoving" class="alert alert-info" role="alert">
         The AIP is being moved into a new location.
       </div>
       <h4 class="card-title">Location</h4>
       <p class="card-text">
-        <span v-if="sipStore.isRejected">AIP rejected.</span>
-        <span v-else-if="!sipStore.current?.locationId"
+        <span v-if="aipStore.isRejected">AIP rejected.</span>
+        <span v-else-if="!aipStore.current?.locationId"
           >Not available yet.</span
         >
-        <span v-else><UUID :id="sipStore.current.locationId" /></span>
+        <span v-else><UUID :id="aipStore.current.locationId" /></span>
       </p>
       <div class="d-flex flex-wrap gap-2">
         <button
           v-if="
-            !sipStore.isRejected &&
-            authStore.checkAttributes(['ingest:sips:move'])
+            false &&
+            aipStore.isStored &&
+            authStore.checkAttributes(['storage:aips:move'])
           "
           type="button"
           class="btn btn-primary btn-sm"
           @click="choose"
-          :disabled="!sipStore.isMovable"
+          :disabled="!aipStore.isMovable"
         >
-          <template v-if="sipStore.isMoving">
+          <template v-if="aipStore.isMoving">
             <span
               class="spinner-grow spinner-grow-sm me-2"
               role="status"
@@ -71,13 +72,13 @@ watch(sipStore.ui.download, () => download());
         </button>
         <button
           v-if="
-            sipStore.current?.aipId?.length &&
+            aipStore.isStored &&
             authStore.checkAttributes(['storage:aips:download'])
           "
           type="button"
           class="btn btn-primary btn-sm"
           @click="download"
-          :disabled="sipStore.isMoving"
+          :disabled="aipStore.isMoving"
         >
           Download
         </button>

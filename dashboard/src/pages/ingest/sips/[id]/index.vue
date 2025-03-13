@@ -2,9 +2,9 @@
 import { computed } from "vue";
 
 import { api } from "@/client";
-import AipLocationCard from "@/components/AipLocationCard.vue";
 import PreservationActionCollapse from "@/components/PreservationActionCollapse.vue";
 import StatusBadge from "@/components/StatusBadge.vue";
+import UUID from "@/components/UUID.vue";
 import { useAuthStore } from "@/stores/auth";
 import { useSipStore } from "@/stores/sip";
 import IconLink from "~icons/bi/box-arrow-up-right";
@@ -52,8 +52,29 @@ const createAipWorkflow = computed(
           </dd>
         </dl>
       </div>
-      <div class="col-md-6">
-        <AipLocationCard />
+      <div
+        class="col-md-6"
+        v-if="
+          sipStore.current?.aipId &&
+          authStore.checkAttributes(['storage:aips:read'])
+        "
+      >
+        <div class="card mb-3">
+          <div class="card-body">
+            <h4 class="card-title">Related AIP</h4>
+            <p class="card-text">
+              <UUID :id="sipStore.current.aipId" />
+            </p>
+            <router-link
+              class="btn btn-primary btn-sm"
+              :to="{
+                name: '/storage/aips/[id]/',
+                params: { id: sipStore.current.aipId },
+              }"
+              >View</router-link
+            >
+          </div>
+        </div>
       </div>
     </div>
 

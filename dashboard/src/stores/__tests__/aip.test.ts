@@ -13,6 +13,63 @@ describe("useAipStore", () => {
     setActivePinia(createPinia());
   });
 
+  it("isMovable", () => {
+    const aipStore = useAipStore();
+    const now = new Date();
+
+    expect(aipStore.isMovable).toEqual(false);
+
+    aipStore.$patch({
+      current: {
+        createdAt: now,
+        uuid: "uuid-1",
+        status: api.EnduroStorageAipStatusEnum.Stored,
+      },
+    });
+    expect(aipStore.isMovable).toEqual(true);
+  });
+
+  it("isMoving", () => {
+    const aipStore = useAipStore();
+
+    expect(aipStore.isMoving).toEqual(false);
+
+    aipStore.$patch({ locationChanging: true });
+    expect(aipStore.isMoving).toEqual(true);
+  });
+
+  it("isRejected", () => {
+    const aipStore = useAipStore();
+    const now = new Date();
+
+    expect(aipStore.isRejected).toEqual(false);
+
+    aipStore.$patch({
+      current: {
+        createdAt: now,
+        uuid: "uuid-1",
+        status: api.EnduroStorageAipStatusEnum.Rejected,
+      },
+    });
+    expect(aipStore.isRejected).toEqual(true);
+  });
+
+  it("isStored", () => {
+    const aipStore = useAipStore();
+    const now = new Date();
+
+    expect(aipStore.isStored).toEqual(false);
+
+    aipStore.$patch({
+      current: {
+        createdAt: now,
+        uuid: "uuid-1",
+        status: api.EnduroStorageAipStatusEnum.Stored,
+      },
+    });
+    expect(aipStore.isStored).toEqual(true);
+  });
+
   it("hasNextPage", () => {
     const aipStore = useAipStore();
 
@@ -79,6 +136,7 @@ describe("useAipStore", () => {
     await store.fetchCurrent("uuid-1234");
 
     expect(store.current).toEqual(mockAip);
+    expect(store.locationChanging).toEqual(false);
 
     const layoutStore = useLayoutStore();
     expect(layoutStore.breadcrumb).toEqual([

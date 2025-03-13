@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { openLocationDialog } from "@/dialogs";
+import { useAipStore } from "@/stores/aip";
 import { useSipStore } from "@/stores/sip";
 
 let { expandCounter } = defineProps<{
@@ -10,6 +11,7 @@ const emit = defineEmits<{
   (e: "update:expandCounter", value: number): void;
 }>();
 
+const aipStore = useAipStore();
 const sipStore = useSipStore();
 
 const confirm = async () => {
@@ -38,7 +40,7 @@ const confirm = async () => {
       </li>
       <li>View a summary of the preservation metadata created</li>
       <li>
-        <a href="#" @click.prevent="sipStore.ui.download.request">Download</a>
+        <a href="#" @click.prevent="aipStore.ui.download.request">Download</a>
         a local copy of the AIP for inspection
       </li>
     </ul>

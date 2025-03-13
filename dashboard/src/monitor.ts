@@ -66,7 +66,6 @@ function handleSipLocationUpdated(data: unknown) {
   store.$patch((state) => {
     if (state.current?.id != event.id) return;
     state.current.locationId = event.locationId;
-    state.locationChanging = false;
   });
 }
 

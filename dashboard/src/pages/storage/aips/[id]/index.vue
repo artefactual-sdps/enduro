@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AipLocationCard from "@/components/AipLocationCard.vue";
 import StatusBadge from "@/components/StatusBadge.vue";
 import UUID from "@/components/UUID.vue";
 import { useAipStore } from "@/stores/aip";
@@ -21,6 +22,9 @@ const aipStore = useAipStore();
           <dt>Deposited</dt>
           <dd>{{ $filters.formatDateTime(aipStore.current.createdAt) }}</dd>
         </dl>
+      </div>
+      <div class="col-md-6">
+        <AipLocationCard />
       </div>
     </div>
   </div>

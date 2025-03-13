@@ -29,63 +29,6 @@ describe("useSipStore", () => {
     expect(sipStore.isPending).toEqual(true);
   });
 
-  it("isDone", () => {
-    const sipStore = useSipStore();
-    const now = new Date();
-
-    expect(sipStore.isDone).toEqual(false);
-
-    sipStore.$patch({
-      current: {
-        createdAt: now,
-        id: 1,
-        status: api.EnduroIngestSipStatusEnum.Done,
-      },
-    });
-    expect(sipStore.isDone).toEqual(true);
-  });
-
-  it("isMovable", () => {
-    const sipStore = useSipStore();
-    const now = new Date();
-
-    expect(sipStore.isMovable).toEqual(false);
-
-    sipStore.$patch({
-      current: {
-        createdAt: now,
-        id: 1,
-        status: api.EnduroIngestSipStatusEnum.Done,
-      },
-    });
-    expect(sipStore.isMovable).toEqual(true);
-  });
-
-  it("isMoving", () => {
-    const sipStore = useSipStore();
-
-    expect(sipStore.isMoving).toEqual(false);
-
-    sipStore.$patch({ locationChanging: true });
-    expect(sipStore.isMoving).toEqual(true);
-  });
-
-  it("isRejected", () => {
-    const sipStore = useSipStore();
-    const now = new Date();
-
-    expect(sipStore.isRejected).toEqual(false);
-
-    sipStore.$patch({
-      current: {
-        createdAt: now,
-        id: 1,
-        status: api.EnduroIngestSipStatusEnum.Done,
-      },
-    });
-    expect(sipStore.isRejected).toEqual(true);
-  });
-
   it("hasNextPage", () => {
     const sipStore = useSipStore();
 
@@ -286,23 +229,17 @@ describe("useSipStore", () => {
         },
       ],
     };
-    const mockMoveSipStatus: api.MoveStatusResult = {
-      done: true,
-    };
+
     client.ingest.ingestShowSip = vi.fn().mockResolvedValue(mockSip);
     client.ingest.ingestListSipPreservationActions = vi
       .fn()
       .mockResolvedValue(mockPreservationActions);
-    client.ingest.ingestMoveSipStatus = vi
-      .fn()
-      .mockResolvedValue(mockMoveSipStatus);
 
     const store = useSipStore();
     await store.fetchCurrent("1");
 
     expect(store.current).toEqual(mockSip);
     expect(store.currentPreservationActions).toEqual(mockPreservationActions);
-    expect(store.locationChanging).toEqual(!mockMoveSipStatus.done);
 
     const layoutStore = useLayoutStore();
     expect(layoutStore.breadcrumb).toEqual([

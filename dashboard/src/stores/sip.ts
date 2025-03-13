@@ -1,5 +1,4 @@
 import { acceptHMRUpdate, defineStore } from "pinia";
-import { ref } from "vue";
 
 import { api, client } from "@/client";
 import { IngestListSipsStatusEnum, ResponseError } from "@/openapi-generator";
@@ -7,11 +6,6 @@ import router from "@/router";
 import { useLayoutStore } from "@/stores/layout";
 
 const defaultPageSize = 20;
-
-class UIRequest {
-  inner = ref(0);
-  request = () => this.inner.value++;
-}
 
 export interface Pager {
   // maxPages is the maximum number of page links to show in the pager.
@@ -35,21 +29,11 @@ export const useSipStore = defineStore("sip", {
     // A list of SIPs shown during searches.
     sips: [] as Array<api.EnduroIngestSip>,
 
-    // The current SIP is being moved into a new location.
-    // Set to true by this client when the SIP is moved.
-    // Set to false by moveStatus or handleSipLocationUpdated.
-    locationChanging: false,
-
     // Page is a subset of the total SIP list.
     page: { limit: defaultPageSize } as api.EnduroPage,
 
     // Pager contains a list of page numbers to show in the pager.
     pager: { maxPages: 7 } as Pager,
-
-    // User-interface interactions between components.
-    ui: {
-      download: new UIRequest(),
-    },
 
     filters: {
       name: "" as string | undefined,
@@ -61,18 +45,6 @@ export const useSipStore = defineStore("sip", {
   getters: {
     isPending(): boolean {
       return this.current?.status == api.EnduroIngestSipStatusEnum.Pending;
-    },
-    isDone(): boolean {
-      return this.current?.status == api.EnduroIngestSipStatusEnum.Done;
-    },
-    isMovable(): boolean {
-      return this.isDone && !this.isMoving;
-    },
-    isMoving(): boolean {
-      return this.locationChanging;
-    },
-    isRejected(): boolean {
-      return this.isDone && this.current?.locationId === undefined;
     },
     hasNextPage(): boolean {
       return this.page.offset + this.page.limit < this.page.total;
@@ -122,25 +94,15 @@ export const useSipStore = defineStore("sip", {
       }
 
       this.current = await client.ingest.ingestShowSip({ id: sipId });
+      this.currentPreservationActions =
+        await client.ingest.ingestListSipPreservationActions({ id: sipId });
 
       // Update breadcrumb. TODO: should this be done in the component?
       const layoutStore = useLayoutStore();
-
       layoutStore.updateBreadcrumb([
         { text: "Ingest" },
         { route: router.resolve("/ingest/sips/"), text: "SIPs" },
         { text: this.current.name },
-      ]);
-
-      await Promise.allSettled([
-        client.ingest
-          .ingestListSipPreservationActions({ id: sipId })
-          .then((resp) => {
-            this.currentPreservationActions = resp;
-          }),
-        client.ingest.ingestMoveSipStatus({ id: sipId }).then((resp) => {
-          this.locationChanging = !resp.done;
-        }),
       ]);
     },
     async fetchSips(page: number) {
@@ -188,34 +150,6 @@ export const useSipStore = defineStore("sip", {
     },
     async fetchSipsDebounced(page: number) {
       return this.fetchSips(page);
-    },
-    async move(locationId: string) {
-      if (!this.current) return;
-      try {
-        await client.ingest.ingestMoveSip({
-          id: this.current.id,
-          confirmSipRequestBody: { locationId: locationId },
-        });
-      } catch (error) {
-        return error;
-      }
-      this.$patch((state) => {
-        if (!state.current) return;
-        state.current.status = api.EnduroIngestSipStatusEnum.InProgress;
-        state.locationChanging = true;
-      });
-    },
-    async moveStatus() {
-      if (!this.current) return;
-      let resp;
-      try {
-        resp = await client.ingest.ingestMoveSipStatus({
-          id: this.current?.id,
-        });
-      } catch (error) {
-        return error;
-      }
-      this.locationChanging = !resp.done;
     },
     confirm(locationId: string) {
       if (!this.current) return;

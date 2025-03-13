@@ -1,9 +1,15 @@
 import { acceptHMRUpdate, defineStore } from "pinia";
+import { ref } from "vue";
 
 import { api, client } from "@/client";
 import { ResponseError, StorageListAipsStatusEnum } from "@/openapi-generator";
 import router from "@/router";
 import { useLayoutStore } from "@/stores/layout";
+
+class UIRequest {
+  inner = ref(0);
+  request = () => this.inner.value++;
+}
 
 const defaultPageSize = 20;
 
@@ -23,6 +29,11 @@ export const useAipStore = defineStore("aip", {
     // AIP currently displayed.
     current: null as api.EnduroStorageAip | null,
 
+    // The current AIP is being moved into a new location.
+    // Set to true by this client when the AIP is moved.
+    // Set to false by moveStatus or handleSipLocationUpdated.
+    locationChanging: false,
+
     // A list of AIPs shown during searches.
     aips: [] as Array<api.EnduroStorageAip>,
 
@@ -38,8 +49,25 @@ export const useAipStore = defineStore("aip", {
       earliestCreatedTime: undefined as Date | undefined,
       latestCreatedTime: undefined as Date | undefined,
     },
+
+    // User-interface interactions between components.
+    ui: {
+      download: new UIRequest(),
+    },
   }),
   getters: {
+    isMovable(): boolean {
+      return this.isStored && !this.isMoving;
+    },
+    isMoving(): boolean {
+      return this.locationChanging;
+    },
+    isRejected(): boolean {
+      return this.current?.status == api.EnduroStorageAipStatusEnum.Rejected;
+    },
+    isStored(): boolean {
+      return this.current?.status == api.EnduroStorageAipStatusEnum.Stored;
+    },
     hasNextPage(): boolean {
       return this.page.offset + this.page.limit < this.page.total;
     },
@@ -57,6 +85,8 @@ export const useAipStore = defineStore("aip", {
   actions: {
     async fetchCurrent(id: string) {
       this.current = await client.storage.storageShowAip({ uuid: id });
+      this.locationChanging =
+        this.current?.status == api.EnduroStorageAipStatusEnum.Moving;
 
       // Update breadcrumb. TODO: should this be done in the component?
       const layoutStore = useLayoutStore();
@@ -108,6 +138,34 @@ export const useAipStore = defineStore("aip", {
             throw new Error(err.message);
           }
         });
+    },
+    async move(locationId: string) {
+      if (!this.current) return;
+      try {
+        await client.storage.storageMoveAip({
+          uuid: this.current.uuid,
+          confirmSipRequestBody: { locationId: locationId },
+        });
+      } catch (error) {
+        return error;
+      }
+      this.$patch((state) => {
+        if (!state.current) return;
+        state.current.status = api.EnduroStorageAipStatusEnum.Moving;
+        state.locationChanging = true;
+      });
+    },
+    async moveStatus() {
+      if (!this.current) return;
+      let resp;
+      try {
+        resp = await client.storage.storageMoveAipStatus({
+          uuid: this.current?.uuid,
+        });
+      } catch (error) {
+        return error;
+      }
+      this.locationChanging = !resp.done;
     },
     nextPage() {
       if (this.hasNextPage) {
