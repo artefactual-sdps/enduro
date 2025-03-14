@@ -9,8 +9,7 @@ import { useAuthStore } from "@/stores/auth";
 
 const authStore = useAuthStore();
 const aipStore = useAipStore();
-
-let failed = ref<boolean>(false);
+const failed = ref(false);
 
 const choose = async () => {
   failed.value = false;
