@@ -9,7 +9,7 @@ import (
 // Workflow represents a Workflow in the workflow table.
 type Workflow struct {
 	ID          int                  `db:"id"`
-	WorkflowID  string               `db:"workflow_id"`
+	TemporalID  string               `db:"temporal_id"`
 	Type        enums.WorkflowType   `db:"type"`
 	Status      enums.WorkflowStatus `db:"status"`
 	StartedAt   sql.NullTime         `db:"started_at"`

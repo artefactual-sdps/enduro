@@ -92,7 +92,7 @@ func (svc *ingestImpl) readWorkflow(
 	query := `
 		SELECT
 			workflow.id,
-			workflow.workflow_id,
+			workflow.temporal_id,
 			workflow.type,
 			workflow.status,
 			CONVERT_TZ(workflow.started_at, @@session.time_zone, '+00:00') AS started_at,

@@ -18,8 +18,6 @@ func PublishEvent(ctx context.Context, events EventService, event interface{}) {
 		update.Event = v
 	case *goaingest.SIPStatusUpdatedEvent:
 		update.Event = v
-	case *goaingest.SIPLocationUpdatedEvent:
-		update.Event = v
 	case *goaingest.SIPWorkflowCreatedEvent:
 		update.Event = v
 	case *goaingest.SIPWorkflowUpdatedEvent:

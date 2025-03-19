@@ -181,7 +181,7 @@ func (w *goaWrapper) ListSipWorkflows(
 		return nil, err
 	}
 
-	query := "SELECT id, workflow_id, type, status, CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at, CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at FROM workflow WHERE sip_id = ? ORDER BY started_at DESC"
+	query := "SELECT id, temporal_id, type, status, CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at, CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at FROM workflow WHERE sip_id = ? ORDER BY started_at DESC"
 	args := []interface{}{goasip.ID}
 
 	rows, err := w.db.QueryxContext(ctx, query, args...)
@@ -228,16 +228,19 @@ func (w *goaWrapper) ListSipWorkflows(
 }
 
 func (w *goaWrapper) ConfirmSip(ctx context.Context, payload *goaingest.ConfirmSipPayload) error {
-	goasip, err := w.ShowSip(ctx, &goaingest.ShowSipPayload{ID: payload.ID})
+	goaworkflows, err := w.ListSipWorkflows(ctx, &goaingest.ListSipWorkflowsPayload{ID: payload.ID})
 	if err != nil {
 		return err
+	}
+	if goaworkflows == nil || len(goaworkflows.Workflows) == 0 || len(goaworkflows.Workflows) > 1 {
+		return goaingest.MakeNotAvailable(errors.New("cannot perform operation"))
 	}
 
 	signal := ReviewPerformedSignal{
 		Accepted:   true,
 		LocationID: &payload.LocationID,
 	}
-	err = w.tc.SignalWorkflow(ctx, *goasip.WorkflowID, "", ReviewPerformedSignalName, signal)
+	err = w.tc.SignalWorkflow(ctx, goaworkflows.Workflows[0].TemporalID, "", ReviewPerformedSignalName, signal)
 	if err != nil {
 		return goaingest.MakeNotAvailable(errors.New("cannot perform operation"))
 	}
@@ -246,15 +249,18 @@ func (w *goaWrapper) ConfirmSip(ctx context.Context, payload *goaingest.ConfirmS
 }
 
 func (w *goaWrapper) RejectSip(ctx context.Context, payload *goaingest.RejectSipPayload) error {
-	goasip, err := w.ShowSip(ctx, &goaingest.ShowSipPayload{ID: payload.ID})
+	goaworkflows, err := w.ListSipWorkflows(ctx, &goaingest.ListSipWorkflowsPayload{ID: payload.ID})
 	if err != nil {
 		return err
+	}
+	if goaworkflows == nil || len(goaworkflows.Workflows) == 0 || len(goaworkflows.Workflows) > 1 {
+		return goaingest.MakeNotAvailable(errors.New("cannot perform operation"))
 	}
 
 	signal := ReviewPerformedSignal{
 		Accepted: false,
 	}
-	err = w.tc.SignalWorkflow(ctx, *goasip.WorkflowID, "", ReviewPerformedSignalName, signal)
+	err = w.tc.SignalWorkflow(ctx, goaworkflows.Workflows[0].TemporalID, "", ReviewPerformedSignalName, signal)
 	if err != nil {
 		return goaingest.MakeNotAvailable(errors.New("cannot perform operation"))
 	}

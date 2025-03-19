@@ -132,12 +132,6 @@ paths:
                   required: false
                   type: string
                   format: date-time
-                - name: location_id
-                  in: query
-                  description: Identifier of storage location
-                  required: false
-                  type: string
-                  format: uuid
                 - name: status
                   in: query
                   required: false
@@ -1583,8 +1577,8 @@ definitions:
                       status: in progress
                       task_id: abc123
                       workflow_id: 1
+                  temporal_id: abc123
                   type: create aip
-                  workflow_id: abc123
     IngestListSipsNotValidResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
@@ -1643,12 +1637,9 @@ definitions:
                   completed_at: "1970-01-01T00:00:01Z"
                   created_at: "1970-01-01T00:00:01Z"
                   id: 1
-                  location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                   name: abc123
-                  run_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                   started_at: "1970-01-01T00:00:01Z"
                   status: in progress
-                  workflow_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
             page:
                 limit: 1
                 offset: 1
@@ -1757,7 +1748,6 @@ definitions:
                             - "sip_created_event"
                             - "sip_updated_event"
                             - "sip_status_updated_event"
-                            - "sip_location_updated_event"
                             - "sip_workflow_created_event"
                             - "sip_workflow_updated_event"
                             - "sip_task_created_event"
@@ -1768,7 +1758,6 @@ definitions:
                             - sip_created_event
                             - sip_updated_event
                             - sip_status_updated_event
-                            - sip_location_updated_event
                             - sip_workflow_created_event
                             - sip_workflow_updated_event
                             - sip_task_created_event
@@ -1776,17 +1765,17 @@ definitions:
                     Value:
                         type: string
                         description: JSON encoded union value
-                        example: '{"id":1,"item":{"aip_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","id":1,"location_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","name":"abc123","run_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","started_at":"1970-01-01T00:00:01Z","status":"in progress","workflow_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}}'
+                        example: '{"id":1,"item":{"aip_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","id":1,"name":"abc123","started_at":"1970-01-01T00:00:01Z","status":"in progress"}}'
                 example:
                     Type: sip_created_event
-                    Value: '{"id":1,"item":{"aip_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","id":1,"location_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","name":"abc123","run_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","started_at":"1970-01-01T00:00:01Z","status":"in progress","workflow_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}}'
+                    Value: '{"id":1,"item":{"aip_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","id":1,"name":"abc123","started_at":"1970-01-01T00:00:01Z","status":"in progress"}}'
                 required:
                     - Type
                     - Value
         example:
             event:
                 Type: sip_created_event
-                Value: '{"id":1,"item":{"aip_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","id":1,"location_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","name":"abc123","run_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","started_at":"1970-01-01T00:00:01Z","status":"in progress","workflow_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}}'
+                Value: '{"id":1,"item":{"aip_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","id":1,"name":"abc123","started_at":"1970-01-01T00:00:01Z","status":"in progress"}}'
     IngestMoveSipNotAvailableResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
@@ -2172,19 +2161,10 @@ definitions:
                 description: Identifier of SIP
                 example: 1
                 format: int64
-            location_id:
-                type: string
-                description: Identifier of storage location
-                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
             name:
                 type: string
                 description: Name of the SIP
                 example: abc123
-            run_id:
-                type: string
-                description: Identifier of latest processing workflow run
-                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                format: uuid
             started_at:
                 type: string
                 description: Start datetime
@@ -2204,23 +2184,15 @@ definitions:
                     - queued
                     - abandoned
                     - pending
-            workflow_id:
-                type: string
-                description: Identifier of processing workflow
-                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                format: uuid
         description: show_sip_response_body result type (default view)
         example:
             aip_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
             completed_at: "1970-01-01T00:00:01Z"
             created_at: "1970-01-01T00:00:01Z"
             id: 1
-            location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
             name: abc123
-            run_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
             started_at: "1970-01-01T00:00:01Z"
             status: in progress
-            workflow_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
         required:
             - id
             - status
@@ -2430,19 +2402,10 @@ definitions:
                 description: Identifier of SIP
                 example: 1
                 format: int64
-            location_id:
-                type: string
-                description: Identifier of storage location
-                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
             name:
                 type: string
                 description: Name of the SIP
                 example: abc123
-            run_id:
-                type: string
-                description: Identifier of latest processing workflow run
-                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                format: uuid
             started_at:
                 type: string
                 description: Start datetime
@@ -2462,23 +2425,15 @@ definitions:
                     - queued
                     - abandoned
                     - pending
-            workflow_id:
-                type: string
-                description: Identifier of processing workflow
-                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                format: uuid
         description: SIP describes an ingest SIP type. (default view)
         example:
             aip_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
             completed_at: "1970-01-01T00:00:01Z"
             created_at: "1970-01-01T00:00:01Z"
             id: 1
-            location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
             name: abc123
-            run_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
             started_at: "1970-01-01T00:00:01Z"
             status: in progress
-            workflow_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
         required:
             - id
             - status
@@ -2494,12 +2449,9 @@ definitions:
               completed_at: "1970-01-01T00:00:01Z"
               created_at: "1970-01-01T00:00:01Z"
               id: 1
-              location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
               name: abc123
-              run_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
               started_at: "1970-01-01T00:00:01Z"
               status: in progress
-              workflow_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
     SIPTaskResponseBody:
         title: 'Mediatype identifier: application/vnd.enduro.ingest.sip.task; view=default'
         type: object
@@ -2602,6 +2554,9 @@ definitions:
                     - pending
             tasks:
                 $ref: '#/definitions/SIPTaskResponseBodyCollection'
+            temporal_id:
+                type: string
+                example: abc123
             type:
                 type: string
                 example: create aip
@@ -2610,9 +2565,6 @@ definitions:
                     - create aip
                     - create and review aip
                     - move package
-            workflow_id:
-                type: string
-                example: abc123
         description: SIPWorkflow describes a workflow of a SIP. (default view)
         example:
             completed_at: "1970-01-01T00:00:01Z"
@@ -2629,11 +2581,11 @@ definitions:
                   status: in progress
                   task_id: abc123
                   workflow_id: 1
+            temporal_id: abc123
             type: create aip
-            workflow_id: abc123
         required:
             - id
-            - workflow_id
+            - temporal_id
             - type
             - status
             - started_at
@@ -2658,8 +2610,8 @@ definitions:
                   status: in progress
                   task_id: abc123
                   workflow_id: 1
+              temporal_id: abc123
               type: create aip
-              workflow_id: abc123
     StorageAIPResponseCollection:
         title: 'Mediatype identifier: application/vnd.enduro.storage.aip; type=collection; view=default'
         type: array

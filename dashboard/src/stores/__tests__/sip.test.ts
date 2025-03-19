@@ -92,14 +92,14 @@ describe("useSipStore", () => {
             type: api.EnduroIngestSipWorkflowTypeEnum.CreateAip,
             startedAt: now,
             status: api.EnduroIngestSipWorkflowStatusEnum.Done,
-            workflowId: "c18d00f2-a1c4-4161-820c-6fc6ce707811",
+            temporalId: "c18d00f2-a1c4-4161-820c-6fc6ce707811",
           },
           {
             id: 2,
             type: api.EnduroIngestSipWorkflowTypeEnum.MovePackage,
             startedAt: now,
             status: api.EnduroIngestSipWorkflowStatusEnum.Done,
-            workflowId: "051cf998-6f87-4461-8091-8561ebf479c4",
+            temporalId: "051cf998-6f87-4461-8091-8561ebf479c4",
           },
         ],
       },
@@ -110,14 +110,14 @@ describe("useSipStore", () => {
       type: api.EnduroIngestSipWorkflowTypeEnum.CreateAip,
       startedAt: now,
       status: api.EnduroIngestSipWorkflowStatusEnum.Done,
-      workflowId: "c18d00f2-a1c4-4161-820c-6fc6ce707811",
+      temporalId: "c18d00f2-a1c4-4161-820c-6fc6ce707811",
     });
     expect(sipStore.getWorkflowById(2)).toEqual({
       id: 2,
       type: api.EnduroIngestSipWorkflowTypeEnum.MovePackage,
       startedAt: now,
       status: api.EnduroIngestSipWorkflowStatusEnum.Done,
-      workflowId: "051cf998-6f87-4461-8091-8561ebf479c4",
+      temporalId: "051cf998-6f87-4461-8091-8561ebf479c4",
     });
     expect(sipStore.getWorkflowById(3)).toBeUndefined();
   });
@@ -133,7 +133,7 @@ describe("useSipStore", () => {
             type: api.EnduroIngestSipWorkflowTypeEnum.CreateAip,
             startedAt: now,
             status: api.EnduroIngestSipWorkflowStatusEnum.Done,
-            workflowId: "c18d00f2-a1c4-4161-820c-6fc6ce707811",
+            temporalId: "c18d00f2-a1c4-4161-820c-6fc6ce707811",
             tasks: [
               {
                 id: 1,
@@ -156,7 +156,7 @@ describe("useSipStore", () => {
             type: api.EnduroIngestSipWorkflowTypeEnum.MovePackage,
             startedAt: now,
             status: api.EnduroIngestSipWorkflowStatusEnum.Done,
-            workflowId: "051cf998-6f87-4461-8091-8561ebf479c4",
+            temporalId: "051cf998-6f87-4461-8091-8561ebf479c4",
             tasks: [
               {
                 id: 3,
@@ -225,7 +225,7 @@ describe("useSipStore", () => {
           startedAt: new Date("2025-01-01T00:00:00Z"),
           status: api.EnduroIngestSipWorkflowStatusEnum.Done,
           type: api.EnduroIngestSipWorkflowTypeEnum.CreateAip,
-          workflowId: "c18d00f2-a1c4-4161-820c-6fc6ce707811",
+          temporalId: "c18d00f2-a1c4-4161-820c-6fc6ce707811",
         },
       ],
     };

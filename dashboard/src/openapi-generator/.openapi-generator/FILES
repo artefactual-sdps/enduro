@@ -29,7 +29,6 @@ models/MonitorEventEvent.ts
 models/MonitorPingEvent.ts
 models/MoveStatusResult.ts
 models/SIPCreatedEvent.ts
-models/SIPLocationUpdatedEvent.ts
 models/SIPNotFound.ts
 models/SIPStatusUpdatedEvent.ts
 models/SIPTaskCreatedEvent.ts

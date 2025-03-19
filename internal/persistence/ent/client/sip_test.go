@@ -24,9 +24,7 @@ import (
 func TestCreateSIP(t *testing.T) {
 	t.Parallel()
 
-	runID := uuid.New()
 	aipID := uuid.NullUUID{UUID: uuid.New(), Valid: true}
-	locID := uuid.NullUUID{UUID: uuid.New(), Valid: true}
 	started := sql.NullTime{Time: time.Now(), Valid: true}
 	completed := sql.NullTime{Time: started.Time.Add(time.Second), Valid: true}
 
@@ -44,10 +42,7 @@ func TestCreateSIP(t *testing.T) {
 			args: params{
 				sip: &datatypes.SIP{
 					Name:        "Test SIP 1",
-					WorkflowID:  "workflow-1",
-					RunID:       runID.String(),
 					AIPID:       aipID,
-					LocationID:  locID,
 					Status:      enums.SIPStatusInProgress,
 					StartedAt:   started,
 					CompletedAt: completed,
@@ -56,10 +51,7 @@ func TestCreateSIP(t *testing.T) {
 			want: &datatypes.SIP{
 				ID:          1,
 				Name:        "Test SIP 1",
-				WorkflowID:  "workflow-1",
-				RunID:       runID.String(),
 				AIPID:       aipID,
-				LocationID:  locID,
 				Status:      enums.SIPStatusInProgress,
 				CreatedAt:   time.Now(),
 				StartedAt:   started,
@@ -70,19 +62,15 @@ func TestCreateSIP(t *testing.T) {
 			name: "Saves a SIP with missing optional fields",
 			args: params{
 				sip: &datatypes.SIP{
-					Name:       "Test SIP 2",
-					WorkflowID: "workflow-2",
-					RunID:      runID.String(),
-					Status:     enums.SIPStatusInProgress,
+					Name:   "Test SIP 2",
+					Status: enums.SIPStatusInProgress,
 				},
 			},
 			want: &datatypes.SIP{
-				ID:         1,
-				Name:       "Test SIP 2",
-				WorkflowID: "workflow-2",
-				RunID:      runID.String(),
-				Status:     enums.SIPStatusInProgress,
-				CreatedAt:  time.Now(),
+				ID:        1,
+				Name:      "Test SIP 2",
+				Status:    enums.SIPStatusInProgress,
+				CreatedAt: time.Now(),
 			},
 		},
 		{
@@ -91,36 +79,6 @@ func TestCreateSIP(t *testing.T) {
 				sip: &datatypes.SIP{},
 			},
 			wantErr: "invalid data error: field \"Name\" is required",
-		},
-		{
-			name: "Required field error for missing WorkflowID",
-			args: params{
-				sip: &datatypes.SIP{
-					Name: "Missing WorkflowID",
-				},
-			},
-			wantErr: "invalid data error: field \"WorkflowID\" is required",
-		},
-		{
-			name: "Required field error for missing RunID",
-			args: params{
-				sip: &datatypes.SIP{
-					Name:       "Missing RunID",
-					WorkflowID: "workflow-12345",
-				},
-			},
-			wantErr: "invalid data error: field \"RunID\" is required",
-		},
-		{
-			name: "Errors on invalid RunID",
-			args: params{
-				sip: &datatypes.SIP{
-					Name:       "Invalid SIP 1",
-					WorkflowID: "workflow-invalid",
-					RunID:      "Bad UUID",
-				},
-			},
-			wantErr: "invalid data error: parse error: field \"RunID\": invalid UUID length: 8",
 		},
 	}
 	for _, tt := range tests {
@@ -149,24 +107,12 @@ func TestCreateSIP(t *testing.T) {
 func TestUpdateSIP(t *testing.T) {
 	t.Parallel()
 
-	runID := uuid.MustParse("c5f7c35a-d5a6-4e00-b4da-b036ce5b40bc")
-	runID2 := uuid.MustParse("c04d0191-d7ce-46dd-beff-92d6830082ff")
-
 	aipID := uuid.NullUUID{
 		UUID:  uuid.MustParse("e2ace0da-8697-453d-9ea1-4c9b62309e54"),
 		Valid: true,
 	}
 	aipID2 := uuid.NullUUID{
 		UUID:  uuid.MustParse("7d085541-af56-4444-9ce2-d6401ff4c97b"),
-		Valid: true,
-	}
-
-	locID := uuid.NullUUID{
-		UUID:  uuid.MustParse("146182ff-9923-4869-bca1-0bbc0f822025"),
-		Valid: true,
-	}
-	locID2 := uuid.NullUUID{
-		UUID:  uuid.MustParse("6e30694b-6497-439f-bf99-83af165e02c3"),
 		Valid: true,
 	}
 
@@ -197,10 +143,7 @@ func TestUpdateSIP(t *testing.T) {
 			args: params{
 				sip: &datatypes.SIP{
 					Name:        "Test SIP",
-					WorkflowID:  "workflow-1",
-					RunID:       runID.String(),
 					AIPID:       aipID,
-					LocationID:  locID,
 					Status:      enums.SIPStatusInProgress,
 					StartedAt:   started,
 					CompletedAt: completed,
@@ -208,10 +151,7 @@ func TestUpdateSIP(t *testing.T) {
 				updater: func(p *datatypes.SIP) (*datatypes.SIP, error) {
 					p.ID = 100 // No-op, can't update ID.
 					p.Name = "Updated SIP"
-					p.WorkflowID = "workflow-2"
-					p.RunID = runID2.String()
 					p.AIPID = aipID2
-					p.LocationID = locID2
 					p.Status = enums.SIPStatusDone
 					p.CreatedAt = started2.Time // No-op, can't update CreatedAt.
 					p.StartedAt = started2
@@ -222,10 +162,7 @@ func TestUpdateSIP(t *testing.T) {
 			want: &datatypes.SIP{
 				ID:          1,
 				Name:        "Updated SIP",
-				WorkflowID:  "workflow-2",
-				RunID:       runID2.String(),
 				AIPID:       aipID2,
-				LocationID:  locID2,
 				Status:      enums.SIPStatusDone,
 				CreatedAt:   time.Now(),
 				StartedAt:   started2,
@@ -236,12 +173,10 @@ func TestUpdateSIP(t *testing.T) {
 			name: "Only updates selected columns",
 			args: params{
 				sip: &datatypes.SIP{
-					Name:       "Test SIP",
-					WorkflowID: "workflow-1",
-					RunID:      runID.String(),
-					AIPID:      aipID,
-					Status:     enums.SIPStatusInProgress,
-					StartedAt:  started,
+					Name:      "Test SIP",
+					AIPID:     aipID,
+					Status:    enums.SIPStatusInProgress,
+					StartedAt: started,
 				},
 				updater: func(p *datatypes.SIP) (*datatypes.SIP, error) {
 					p.Status = enums.SIPStatusDone
@@ -252,8 +187,6 @@ func TestUpdateSIP(t *testing.T) {
 			want: &datatypes.SIP{
 				ID:          1,
 				Name:        "Test SIP",
-				WorkflowID:  "workflow-1",
-				RunID:       runID.String(),
 				AIPID:       aipID,
 				Status:      enums.SIPStatusDone,
 				CreatedAt:   time.Now(),
@@ -274,32 +207,14 @@ func TestUpdateSIP(t *testing.T) {
 			name: "Errors when the updater errors",
 			args: params{
 				sip: &datatypes.SIP{
-					Name:       "Test SIP",
-					WorkflowID: "workflow-1",
-					RunID:      runID.String(),
-					AIPID:      aipID,
+					Name:  "Test SIP",
+					AIPID: aipID,
 				},
 				updater: func(p *datatypes.SIP) (*datatypes.SIP, error) {
 					return nil, fmt.Errorf("Bad input")
 				},
 			},
 			wantErr: "invalid data error: updater error: Bad input",
-		},
-		{
-			name: "Errors when updater sets an invalid RunID",
-			args: params{
-				sip: &datatypes.SIP{
-					Name:       "Test SIP",
-					WorkflowID: "workflow-1",
-					RunID:      runID.String(),
-					AIPID:      aipID,
-				},
-				updater: func(p *datatypes.SIP) (*datatypes.SIP, error) {
-					p.RunID = "Bad UUID"
-					return p, nil
-				},
-			},
-			wantErr: "invalid data error: parse error: field \"RunID\": invalid UUID length: 8",
 		},
 	}
 	for _, tt := range tests {
@@ -335,24 +250,12 @@ func TestUpdateSIP(t *testing.T) {
 func TestListSIPs(t *testing.T) {
 	t.Parallel()
 
-	runID := uuid.MustParse("c5f7c35a-d5a6-4e00-b4da-b036ce5b40bc")
-	runID2 := uuid.MustParse("c04d0191-d7ce-46dd-beff-92d6830082ff")
-
 	aipID := uuid.NullUUID{
 		UUID:  uuid.MustParse("e2ace0da-8697-453d-9ea1-4c9b62309e54"),
 		Valid: true,
 	}
 	aipID2 := uuid.NullUUID{
 		UUID:  uuid.MustParse("7d085541-af56-4444-9ce2-d6401ff4c97b"),
-		Valid: true,
-	}
-
-	locID := uuid.NullUUID{
-		UUID:  uuid.MustParse("146182ff-9923-4869-bca1-0bbc0f822025"),
-		Valid: true,
-	}
-	locID2 := uuid.NullUUID{
-		UUID:  uuid.MustParse("6e30694b-6497-439f-bf99-83af165e02c3"),
 		Valid: true,
 	}
 
@@ -390,20 +293,14 @@ func TestListSIPs(t *testing.T) {
 			data: []*datatypes.SIP{
 				{
 					Name:        "Test SIP 1",
-					WorkflowID:  "workflow-1",
-					RunID:       runID.String(),
 					AIPID:       aipID,
-					LocationID:  locID,
 					Status:      enums.SIPStatusDone,
 					StartedAt:   started,
 					CompletedAt: completed,
 				},
 				{
 					Name:        "Test SIP 2",
-					WorkflowID:  "workflow-1",
-					RunID:       runID2.String(),
 					AIPID:       aipID2,
-					LocationID:  locID2,
 					Status:      enums.SIPStatusInProgress,
 					StartedAt:   started2,
 					CompletedAt: completed2,
@@ -414,10 +311,7 @@ func TestListSIPs(t *testing.T) {
 					{
 						ID:          1,
 						Name:        "Test SIP 1",
-						WorkflowID:  "workflow-1",
-						RunID:       runID.String(),
 						AIPID:       aipID,
-						LocationID:  locID,
 						Status:      enums.SIPStatusDone,
 						CreatedAt:   time.Now(),
 						StartedAt:   started,
@@ -426,10 +320,7 @@ func TestListSIPs(t *testing.T) {
 					{
 						ID:          2,
 						Name:        "Test SIP 2",
-						WorkflowID:  "workflow-1",
-						RunID:       runID2.String(),
 						AIPID:       aipID2,
-						LocationID:  locID2,
 						Status:      enums.SIPStatusInProgress,
 						CreatedAt:   time.Now(),
 						StartedAt:   started2,
@@ -447,20 +338,14 @@ func TestListSIPs(t *testing.T) {
 			data: []*datatypes.SIP{
 				{
 					Name:        "Test SIP 1",
-					WorkflowID:  "workflow-1",
-					RunID:       runID.String(),
 					AIPID:       aipID,
-					LocationID:  locID,
 					Status:      enums.SIPStatusDone,
 					StartedAt:   started,
 					CompletedAt: completed,
 				},
 				{
 					Name:        "Test SIP 2",
-					WorkflowID:  "workflow-1",
-					RunID:       runID2.String(),
 					AIPID:       aipID2,
-					LocationID:  locID2,
 					Status:      enums.SIPStatusInProgress,
 					StartedAt:   started2,
 					CompletedAt: completed2,
@@ -474,10 +359,7 @@ func TestListSIPs(t *testing.T) {
 					{
 						ID:          1,
 						Name:        "Test SIP 1",
-						WorkflowID:  "workflow-1",
-						RunID:       runID.String(),
 						AIPID:       aipID,
-						LocationID:  locID,
 						Status:      enums.SIPStatusDone,
 						CreatedAt:   time.Now(),
 						StartedAt:   started,
@@ -495,20 +377,14 @@ func TestListSIPs(t *testing.T) {
 			data: []*datatypes.SIP{
 				{
 					Name:        "Test SIP 1",
-					WorkflowID:  "workflow-1",
-					RunID:       runID.String(),
 					AIPID:       aipID,
-					LocationID:  locID,
 					Status:      enums.SIPStatusDone,
 					StartedAt:   started,
 					CompletedAt: completed,
 				},
 				{
 					Name:        "Test SIP 2",
-					WorkflowID:  "workflow-1",
-					RunID:       runID2.String(),
 					AIPID:       aipID2,
-					LocationID:  locID2,
 					Status:      enums.SIPStatusInProgress,
 					StartedAt:   started2,
 					CompletedAt: completed2,
@@ -522,10 +398,7 @@ func TestListSIPs(t *testing.T) {
 					{
 						ID:          2,
 						Name:        "Test SIP 2",
-						WorkflowID:  "workflow-1",
-						RunID:       runID2.String(),
 						AIPID:       aipID2,
-						LocationID:  locID2,
 						Status:      enums.SIPStatusInProgress,
 						CreatedAt:   time.Now(),
 						StartedAt:   started2,
@@ -544,20 +417,14 @@ func TestListSIPs(t *testing.T) {
 			data: []*datatypes.SIP{
 				{
 					Name:        "Test SIP",
-					WorkflowID:  "workflow-1",
-					RunID:       runID.String(),
 					AIPID:       aipID,
-					LocationID:  locID,
 					Status:      enums.SIPStatusDone,
 					StartedAt:   started,
 					CompletedAt: completed,
 				},
 				{
 					Name:        "small.zip",
-					WorkflowID:  "workflow-1",
-					RunID:       runID2.String(),
 					AIPID:       aipID2,
-					LocationID:  locID2,
 					Status:      enums.SIPStatusInProgress,
 					StartedAt:   started2,
 					CompletedAt: completed2,
@@ -571,10 +438,7 @@ func TestListSIPs(t *testing.T) {
 					{
 						ID:          2,
 						Name:        "small.zip",
-						WorkflowID:  "workflow-1",
-						RunID:       runID2.String(),
 						AIPID:       aipID2,
-						LocationID:  locID2,
 						Status:      enums.SIPStatusInProgress,
 						CreatedAt:   time.Now(),
 						StartedAt:   started2,
@@ -592,20 +456,14 @@ func TestListSIPs(t *testing.T) {
 			data: []*datatypes.SIP{
 				{
 					Name:        "Test SIP 1",
-					WorkflowID:  "workflow-1",
-					RunID:       runID.String(),
 					AIPID:       aipID,
-					LocationID:  locID,
 					Status:      enums.SIPStatusDone,
 					StartedAt:   started,
 					CompletedAt: completed,
 				},
 				{
 					Name:        "Test SIP 2",
-					WorkflowID:  "workflow-1",
-					RunID:       runID2.String(),
 					AIPID:       aipID2,
-					LocationID:  locID2,
 					Status:      enums.SIPStatusInProgress,
 					StartedAt:   started2,
 					CompletedAt: completed2,
@@ -619,58 +477,7 @@ func TestListSIPs(t *testing.T) {
 					{
 						ID:          2,
 						Name:        "Test SIP 2",
-						WorkflowID:  "workflow-1",
-						RunID:       runID2.String(),
 						AIPID:       aipID2,
-						LocationID:  locID2,
-						Status:      enums.SIPStatusInProgress,
-						CreatedAt:   time.Now(),
-						StartedAt:   started2,
-						CompletedAt: completed2,
-					},
-				},
-				page: &persistence.Page{
-					Limit: entfilter.DefaultPageSize,
-					Total: 1,
-				},
-			},
-		},
-		{
-			name: "Returns SIPs filtered by LocationID",
-			data: []*datatypes.SIP{
-				{
-					Name:        "Test SIP 1",
-					WorkflowID:  "workflow-1",
-					RunID:       runID.String(),
-					AIPID:       aipID,
-					LocationID:  locID,
-					Status:      enums.SIPStatusDone,
-					StartedAt:   started,
-					CompletedAt: completed,
-				},
-				{
-					Name:        "Test SIP 2",
-					WorkflowID:  "workflow-1",
-					RunID:       runID2.String(),
-					AIPID:       aipID2,
-					LocationID:  locID2,
-					Status:      enums.SIPStatusInProgress,
-					StartedAt:   started2,
-					CompletedAt: completed2,
-				},
-			},
-			sipFilter: &persistence.SIPFilter{
-				LocationID: &locID2.UUID,
-			},
-			want: results{
-				data: []*datatypes.SIP{
-					{
-						ID:          2,
-						Name:        "Test SIP 2",
-						WorkflowID:  "workflow-1",
-						RunID:       runID2.String(),
-						AIPID:       aipID2,
-						LocationID:  locID2,
 						Status:      enums.SIPStatusInProgress,
 						CreatedAt:   time.Now(),
 						StartedAt:   started2,
@@ -688,20 +495,14 @@ func TestListSIPs(t *testing.T) {
 			data: []*datatypes.SIP{
 				{
 					Name:        "Test SIP 1",
-					WorkflowID:  "workflow-1",
-					RunID:       runID.String(),
 					AIPID:       aipID,
-					LocationID:  locID,
 					Status:      enums.SIPStatusDone,
 					StartedAt:   started,
 					CompletedAt: completed,
 				},
 				{
 					Name:        "Test SIP 2",
-					WorkflowID:  "workflow-1",
-					RunID:       runID2.String(),
 					AIPID:       aipID2,
-					LocationID:  locID2,
 					Status:      enums.SIPStatusInProgress,
 					StartedAt:   started2,
 					CompletedAt: completed2,
@@ -715,10 +516,7 @@ func TestListSIPs(t *testing.T) {
 					{
 						ID:          2,
 						Name:        "Test SIP 2",
-						WorkflowID:  "workflow-1",
-						RunID:       runID2.String(),
 						AIPID:       aipID2,
-						LocationID:  locID2,
 						Status:      enums.SIPStatusInProgress,
 						CreatedAt:   time.Now(),
 						StartedAt:   started2,
@@ -736,20 +534,14 @@ func TestListSIPs(t *testing.T) {
 			data: []*datatypes.SIP{
 				{
 					Name:        "Test SIP 1",
-					WorkflowID:  "workflow-1",
-					RunID:       runID.String(),
 					AIPID:       aipID,
-					LocationID:  locID,
 					Status:      enums.SIPStatusDone,
 					StartedAt:   started,
 					CompletedAt: completed,
 				},
 				{
 					Name:        "Test SIP 2",
-					WorkflowID:  "workflow-1",
-					RunID:       runID2.String(),
 					AIPID:       aipID2,
-					LocationID:  locID2,
 					Status:      enums.SIPStatusInProgress,
 					StartedAt:   started2,
 					CompletedAt: completed2,
@@ -772,10 +564,7 @@ func TestListSIPs(t *testing.T) {
 					{
 						ID:          1,
 						Name:        "Test SIP 1",
-						WorkflowID:  "workflow-1",
-						RunID:       runID.String(),
 						AIPID:       aipID,
-						LocationID:  locID,
 						Status:      enums.SIPStatusDone,
 						CreatedAt:   time.Now(),
 						StartedAt:   started,
@@ -784,10 +573,7 @@ func TestListSIPs(t *testing.T) {
 					{
 						ID:          2,
 						Name:        "Test SIP 2",
-						WorkflowID:  "workflow-1",
-						RunID:       runID2.String(),
 						AIPID:       aipID2,
-						LocationID:  locID2,
 						Status:      enums.SIPStatusInProgress,
 						CreatedAt:   time.Now(),
 						StartedAt:   started2,
@@ -805,20 +591,14 @@ func TestListSIPs(t *testing.T) {
 			data: []*datatypes.SIP{
 				{
 					Name:        "Test SIP 1",
-					WorkflowID:  "workflow-1",
-					RunID:       runID.String(),
 					AIPID:       aipID,
-					LocationID:  locID,
 					Status:      enums.SIPStatusDone,
 					StartedAt:   started,
 					CompletedAt: completed,
 				},
 				{
 					Name:        "Test SIP 2",
-					WorkflowID:  "workflow-1",
-					RunID:       runID2.String(),
 					AIPID:       aipID2,
-					LocationID:  locID2,
 					Status:      enums.SIPStatusInProgress,
 					StartedAt:   started2,
 					CompletedAt: completed2,

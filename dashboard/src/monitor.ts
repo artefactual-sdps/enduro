@@ -22,7 +22,6 @@ const handlers: {
   [MonitorEventEventTypeEnum.SipCreatedEvent]: handleSipCreated,
   [MonitorEventEventTypeEnum.SipUpdatedEvent]: handleSipUpdated,
   [MonitorEventEventTypeEnum.SipStatusUpdatedEvent]: handleSipStatusUpdated,
-  [MonitorEventEventTypeEnum.SipLocationUpdatedEvent]: handleSipLocationUpdated,
   [MonitorEventEventTypeEnum.SipWorkflowCreatedEvent]: handleWorkflowCreated,
   [MonitorEventEventTypeEnum.SipWorkflowUpdatedEvent]: handleWorkflowUpdated,
   [MonitorEventEventTypeEnum.SipTaskCreatedEvent]: handleTaskCreated,
@@ -53,16 +52,6 @@ function handleSipStatusUpdated(data: unknown) {
   store.fetchSipsDebounced(1);
   if (store.$state.current?.id != event.id) return;
   store.$state.current.status = event.status;
-}
-
-function handleSipLocationUpdated(data: unknown) {
-  const event = api.SIPLocationUpdatedEventFromJSON(data);
-  const store = useSipStore();
-  store.fetchSipsDebounced(1);
-  store.$patch((state) => {
-    if (state.current?.id != event.id) return;
-    state.current.locationId = event.locationId;
-  });
 }
 
 function handleWorkflowCreated(data: unknown) {

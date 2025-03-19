@@ -14,13 +14,10 @@ import (
 
 // SIP represents a SIP in the sip table.
 type SIP struct {
-	ID         int             `db:"id"`
-	Name       string          `db:"name"`
-	WorkflowID string          `db:"workflow_id"`
-	RunID      string          `db:"run_id"`
-	AIPID      uuid.NullUUID   `db:"aip_id"`      // Nullable.
-	LocationID uuid.NullUUID   `db:"location_id"` // Nullable.
-	Status     enums.SIPStatus `db:"status"`
+	ID     int             `db:"id"`
+	Name   string          `db:"name"`
+	AIPID  uuid.NullUUID   `db:"aip_id"` // Nullable.
+	Status enums.SIPStatus `db:"status"`
 
 	// It defaults to CURRENT_TIMESTAMP(6) so populated as soon as possible.
 	CreatedAt time.Time `db:"created_at"`
@@ -46,8 +43,6 @@ func (s *SIP) Goa() *goaingest.SIP {
 	col := goaingest.SIP{
 		ID:          id,
 		Name:        db.FormatOptionalString(s.Name),
-		WorkflowID:  db.FormatOptionalString(s.WorkflowID),
-		RunID:       db.FormatOptionalString(s.RunID),
 		Status:      s.Status.String(),
 		CreatedAt:   db.FormatTime(s.CreatedAt),
 		StartedAt:   db.FormatOptionalTime(s.StartedAt),
@@ -55,9 +50,6 @@ func (s *SIP) Goa() *goaingest.SIP {
 	}
 	if s.AIPID.Valid {
 		col.AipID = ref.New(s.AIPID.UUID.String())
-	}
-	if s.LocationID.Valid {
-		col.LocationID = &s.LocationID.UUID
 	}
 
 	return &col

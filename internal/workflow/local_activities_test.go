@@ -34,7 +34,7 @@ func TestCreateWorkflowLocalActivity(t *testing.T) {
 		{
 			name: "Creates a workflow",
 			params: &createWorkflowLocalActivityParams{
-				WorkflowID:  "workflow-id",
+				TemporalID:  "workflow-id",
 				Type:        enums.WorkflowTypeCreateAip,
 				Status:      enums.WorkflowStatusDone,
 				StartedAt:   startedAt,
@@ -43,7 +43,7 @@ func TestCreateWorkflowLocalActivity(t *testing.T) {
 			},
 			mockCalls: func(m *ingest_fake.MockServiceMockRecorder) {
 				m.CreateWorkflow(mockutil.Context(), &w.Workflow{
-					WorkflowID:  "workflow-id",
+					TemporalID:  "workflow-id",
 					Type:        enums.WorkflowTypeCreateAip,
 					Status:      enums.WorkflowStatusDone,
 					StartedAt:   sql.NullTime{Time: startedAt, Valid: true},
@@ -59,14 +59,14 @@ func TestCreateWorkflowLocalActivity(t *testing.T) {
 		{
 			name: "Does not pass zero dates",
 			params: &createWorkflowLocalActivityParams{
-				WorkflowID: "workflow-id",
+				TemporalID: "workflow-id",
 				Type:       enums.WorkflowTypeCreateAip,
 				Status:     enums.WorkflowStatusDone,
 				SIPID:      1,
 			},
 			mockCalls: func(m *ingest_fake.MockServiceMockRecorder) {
 				m.CreateWorkflow(mockutil.Context(), &w.Workflow{
-					WorkflowID: "workflow-id",
+					TemporalID: "workflow-id",
 					Type:       enums.WorkflowTypeCreateAip,
 					Status:     enums.WorkflowStatusDone,
 					SIPID:      1,
@@ -80,14 +80,14 @@ func TestCreateWorkflowLocalActivity(t *testing.T) {
 		{
 			name: "Fails if there is a persistence error",
 			params: &createWorkflowLocalActivityParams{
-				WorkflowID: "workflow-id",
+				TemporalID: "workflow-id",
 				Type:       enums.WorkflowTypeCreateAip,
 				Status:     enums.WorkflowStatusDone,
 				SIPID:      1,
 			},
 			mockCalls: func(m *ingest_fake.MockServiceMockRecorder) {
 				m.CreateWorkflow(mockutil.Context(), &w.Workflow{
-					WorkflowID: "workflow-id",
+					TemporalID: "workflow-id",
 					Type:       enums.WorkflowTypeCreateAip,
 					Status:     enums.WorkflowStatusDone,
 					SIPID:      1,

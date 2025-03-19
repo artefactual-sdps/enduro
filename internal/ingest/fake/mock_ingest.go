@@ -17,7 +17,6 @@ import (
 	ingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
 	datatypes "github.com/artefactual-sdps/enduro/internal/datatypes"
 	enums "github.com/artefactual-sdps/enduro/internal/enums"
-	uuid "github.com/google/uuid"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -120,40 +119,40 @@ func (c *MockServiceCompleteWorkflowCall) DoAndReturn(f func(context.Context, in
 	return c
 }
 
-// Create mocks base method.
-func (m *MockService) Create(arg0 context.Context, arg1 *datatypes.SIP) error {
+// CreateSIP mocks base method.
+func (m *MockService) CreateSIP(arg0 context.Context, arg1 *datatypes.SIP) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Create", arg0, arg1)
+	ret := m.ctrl.Call(m, "CreateSIP", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// Create indicates an expected call of Create.
-func (mr *MockServiceMockRecorder) Create(arg0, arg1 any) *MockServiceCreateCall {
+// CreateSIP indicates an expected call of CreateSIP.
+func (mr *MockServiceMockRecorder) CreateSIP(arg0, arg1 any) *MockServiceCreateSIPCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockService)(nil).Create), arg0, arg1)
-	return &MockServiceCreateCall{Call: call}
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateSIP", reflect.TypeOf((*MockService)(nil).CreateSIP), arg0, arg1)
+	return &MockServiceCreateSIPCall{Call: call}
 }
 
-// MockServiceCreateCall wrap *gomock.Call
-type MockServiceCreateCall struct {
+// MockServiceCreateSIPCall wrap *gomock.Call
+type MockServiceCreateSIPCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockServiceCreateCall) Return(arg0 error) *MockServiceCreateCall {
+func (c *MockServiceCreateSIPCall) Return(arg0 error) *MockServiceCreateSIPCall {
 	c.Call = c.Call.Return(arg0)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockServiceCreateCall) Do(f func(context.Context, *datatypes.SIP) error) *MockServiceCreateCall {
+func (c *MockServiceCreateSIPCall) Do(f func(context.Context, *datatypes.SIP) error) *MockServiceCreateSIPCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockServiceCreateCall) DoAndReturn(f func(context.Context, *datatypes.SIP) error) *MockServiceCreateCall {
+func (c *MockServiceCreateSIPCall) DoAndReturn(f func(context.Context, *datatypes.SIP) error) *MockServiceCreateSIPCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
@@ -268,44 +267,6 @@ func (c *MockServiceGoaCall) Do(f func() ingest.Service) *MockServiceGoaCall {
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
 func (c *MockServiceGoaCall) DoAndReturn(f func() ingest.Service) *MockServiceGoaCall {
-	c.Call = c.Call.DoAndReturn(f)
-	return c
-}
-
-// SetLocationID mocks base method.
-func (m *MockService) SetLocationID(arg0 context.Context, arg1 int, arg2 uuid.UUID) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SetLocationID", arg0, arg1, arg2)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// SetLocationID indicates an expected call of SetLocationID.
-func (mr *MockServiceMockRecorder) SetLocationID(arg0, arg1, arg2 any) *MockServiceSetLocationIDCall {
-	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetLocationID", reflect.TypeOf((*MockService)(nil).SetLocationID), arg0, arg1, arg2)
-	return &MockServiceSetLocationIDCall{Call: call}
-}
-
-// MockServiceSetLocationIDCall wrap *gomock.Call
-type MockServiceSetLocationIDCall struct {
-	*gomock.Call
-}
-
-// Return rewrite *gomock.Call.Return
-func (c *MockServiceSetLocationIDCall) Return(arg0 error) *MockServiceSetLocationIDCall {
-	c.Call = c.Call.Return(arg0)
-	return c
-}
-
-// Do rewrite *gomock.Call.Do
-func (c *MockServiceSetLocationIDCall) Do(f func(context.Context, int, uuid.UUID) error) *MockServiceSetLocationIDCall {
-	c.Call = c.Call.Do(f)
-	return c
-}
-
-// DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockServiceSetLocationIDCall) DoAndReturn(f func(context.Context, int, uuid.UUID) error) *MockServiceSetLocationIDCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
@@ -462,40 +423,40 @@ func (c *MockServiceSetWorkflowStatusCall) DoAndReturn(f func(context.Context, i
 	return c
 }
 
-// UpdateWorkflowStatus mocks base method.
-func (m *MockService) UpdateWorkflowStatus(arg0 context.Context, arg1 int, arg2, arg3, arg4, arg5 string, arg6 enums.SIPStatus, arg7 time.Time) error {
+// UpdateSIP mocks base method.
+func (m *MockService) UpdateSIP(arg0 context.Context, arg1 int, arg2, arg3 string, arg4 enums.SIPStatus, arg5 time.Time) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateWorkflowStatus", arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
+	ret := m.ctrl.Call(m, "UpdateSIP", arg0, arg1, arg2, arg3, arg4, arg5)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// UpdateWorkflowStatus indicates an expected call of UpdateWorkflowStatus.
-func (mr *MockServiceMockRecorder) UpdateWorkflowStatus(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7 any) *MockServiceUpdateWorkflowStatusCall {
+// UpdateSIP indicates an expected call of UpdateSIP.
+func (mr *MockServiceMockRecorder) UpdateSIP(arg0, arg1, arg2, arg3, arg4, arg5 any) *MockServiceUpdateSIPCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateWorkflowStatus", reflect.TypeOf((*MockService)(nil).UpdateWorkflowStatus), arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
-	return &MockServiceUpdateWorkflowStatusCall{Call: call}
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateSIP", reflect.TypeOf((*MockService)(nil).UpdateSIP), arg0, arg1, arg2, arg3, arg4, arg5)
+	return &MockServiceUpdateSIPCall{Call: call}
 }
 
-// MockServiceUpdateWorkflowStatusCall wrap *gomock.Call
-type MockServiceUpdateWorkflowStatusCall struct {
+// MockServiceUpdateSIPCall wrap *gomock.Call
+type MockServiceUpdateSIPCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockServiceUpdateWorkflowStatusCall) Return(arg0 error) *MockServiceUpdateWorkflowStatusCall {
+func (c *MockServiceUpdateSIPCall) Return(arg0 error) *MockServiceUpdateSIPCall {
 	c.Call = c.Call.Return(arg0)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockServiceUpdateWorkflowStatusCall) Do(f func(context.Context, int, string, string, string, string, enums.SIPStatus, time.Time) error) *MockServiceUpdateWorkflowStatusCall {
+func (c *MockServiceUpdateSIPCall) Do(f func(context.Context, int, string, string, enums.SIPStatus, time.Time) error) *MockServiceUpdateSIPCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockServiceUpdateWorkflowStatusCall) DoAndReturn(f func(context.Context, int, string, string, string, string, enums.SIPStatus, time.Time) error) *MockServiceUpdateWorkflowStatusCall {
+func (c *MockServiceUpdateSIPCall) DoAndReturn(f func(context.Context, int, string, string, enums.SIPStatus, time.Time) error) *MockServiceUpdateSIPCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

@@ -199,7 +199,6 @@ func DecodeListSipsRequest(mux goahttp.Muxer, decoder func(*http.Request) goahtt
 			aipID               *string
 			earliestCreatedTime *string
 			latestCreatedTime   *string
-			locationID          *string
 			status              *string
 			limit               *int
 			offset              *int
@@ -230,13 +229,6 @@ func DecodeListSipsRequest(mux goahttp.Muxer, decoder func(*http.Request) goahtt
 		}
 		if latestCreatedTime != nil {
 			err = goa.MergeErrors(err, goa.ValidateFormat("latest_created_time", *latestCreatedTime, goa.FormatDateTime))
-		}
-		locationIDRaw := r.URL.Query().Get("location_id")
-		if locationIDRaw != "" {
-			locationID = &locationIDRaw
-		}
-		if locationID != nil {
-			err = goa.MergeErrors(err, goa.ValidateFormat("location_id", *locationID, goa.FormatUUID))
 		}
 		statusRaw := r.URL.Query().Get("status")
 		if statusRaw != "" {
@@ -276,7 +268,7 @@ func DecodeListSipsRequest(mux goahttp.Muxer, decoder func(*http.Request) goahtt
 		if err != nil {
 			return nil, err
 		}
-		payload := NewListSipsPayload(name, aipID, earliestCreatedTime, latestCreatedTime, locationID, status, limit, offset, token)
+		payload := NewListSipsPayload(name, aipID, earliestCreatedTime, latestCreatedTime, status, limit, offset, token)
 		if payload.Token != nil {
 			if strings.Contains(*payload.Token, " ") {
 				// Remove authorization scheme prefix (e.g. "Bearer")
@@ -1157,10 +1149,7 @@ func marshalIngestviewsSIPViewToSIPResponseBody(v *ingestviews.SIPView) *SIPResp
 	res := &SIPResponseBody{
 		ID:          *v.ID,
 		Name:        v.Name,
-		LocationID:  v.LocationID,
 		Status:      *v.Status,
-		WorkflowID:  v.WorkflowID,
-		RunID:       v.RunID,
 		AipID:       v.AipID,
 		CreatedAt:   *v.CreatedAt,
 		StartedAt:   v.StartedAt,
@@ -1192,7 +1181,7 @@ func marshalIngestviewsSIPWorkflowViewToSIPWorkflowResponseBody(v *ingestviews.S
 	}
 	res := &SIPWorkflowResponseBody{
 		ID:          *v.ID,
-		WorkflowID:  *v.WorkflowID,
+		TemporalID:  *v.TemporalID,
 		Type:        *v.Type,
 		Status:      *v.Status,
 		StartedAt:   *v.StartedAt,

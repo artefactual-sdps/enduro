@@ -30,16 +30,16 @@ func (wu *WorkflowUpdate) Where(ps ...predicate.Workflow) *WorkflowUpdate {
 	return wu
 }
 
-// SetWorkflowID sets the "workflow_id" field.
-func (wu *WorkflowUpdate) SetWorkflowID(s string) *WorkflowUpdate {
-	wu.mutation.SetWorkflowID(s)
+// SetTemporalID sets the "temporal_id" field.
+func (wu *WorkflowUpdate) SetTemporalID(s string) *WorkflowUpdate {
+	wu.mutation.SetTemporalID(s)
 	return wu
 }
 
-// SetNillableWorkflowID sets the "workflow_id" field if the given value is not nil.
-func (wu *WorkflowUpdate) SetNillableWorkflowID(s *string) *WorkflowUpdate {
+// SetNillableTemporalID sets the "temporal_id" field if the given value is not nil.
+func (wu *WorkflowUpdate) SetNillableTemporalID(s *string) *WorkflowUpdate {
 	if s != nil {
-		wu.SetWorkflowID(*s)
+		wu.SetTemporalID(*s)
 	}
 	return wu
 }
@@ -244,8 +244,8 @@ func (wu *WorkflowUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
-	if value, ok := wu.mutation.WorkflowID(); ok {
-		_spec.SetField(workflow.FieldWorkflowID, field.TypeString, value)
+	if value, ok := wu.mutation.TemporalID(); ok {
+		_spec.SetField(workflow.FieldTemporalID, field.TypeString, value)
 	}
 	if value, ok := wu.mutation.GetType(); ok {
 		_spec.SetField(workflow.FieldType, field.TypeInt8, value)
@@ -365,16 +365,16 @@ type WorkflowUpdateOne struct {
 	mutation *WorkflowMutation
 }
 
-// SetWorkflowID sets the "workflow_id" field.
-func (wuo *WorkflowUpdateOne) SetWorkflowID(s string) *WorkflowUpdateOne {
-	wuo.mutation.SetWorkflowID(s)
+// SetTemporalID sets the "temporal_id" field.
+func (wuo *WorkflowUpdateOne) SetTemporalID(s string) *WorkflowUpdateOne {
+	wuo.mutation.SetTemporalID(s)
 	return wuo
 }
 
-// SetNillableWorkflowID sets the "workflow_id" field if the given value is not nil.
-func (wuo *WorkflowUpdateOne) SetNillableWorkflowID(s *string) *WorkflowUpdateOne {
+// SetNillableTemporalID sets the "temporal_id" field if the given value is not nil.
+func (wuo *WorkflowUpdateOne) SetNillableTemporalID(s *string) *WorkflowUpdateOne {
 	if s != nil {
-		wuo.SetWorkflowID(*s)
+		wuo.SetTemporalID(*s)
 	}
 	return wuo
 }
@@ -609,8 +609,8 @@ func (wuo *WorkflowUpdateOne) sqlSave(ctx context.Context) (_node *Workflow, err
 			}
 		}
 	}
-	if value, ok := wuo.mutation.WorkflowID(); ok {
-		_spec.SetField(workflow.FieldWorkflowID, field.TypeString, value)
+	if value, ok := wuo.mutation.TemporalID(); ok {
+		_spec.SetField(workflow.FieldTemporalID, field.TypeString, value)
 	}
 	if value, ok := wuo.mutation.GetType(); ok {
 		_spec.SetField(workflow.FieldType, field.TypeInt8, value)

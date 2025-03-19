@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	temporalsdk_activity "go.temporal.io/sdk/activity"
 
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
@@ -25,16 +24,12 @@ func createSIPLocalActivity(
 	ingestsvc ingest.Service,
 	params *createSIPLocalActivityParams,
 ) (int, error) {
-	info := temporalsdk_activity.GetInfo(ctx)
-
 	col := &datatypes.SIP{
-		Name:       params.Key,
-		WorkflowID: info.WorkflowExecution.ID,
-		RunID:      info.WorkflowExecution.RunID,
-		Status:     params.Status,
+		Name:   params.Key,
+		Status: params.Status,
 	}
 
-	if err := ingestsvc.Create(ctx, col); err != nil {
+	if err := ingestsvc.CreateSIP(ctx, col); err != nil {
 		return 0, err
 	}
 
@@ -42,11 +37,11 @@ func createSIPLocalActivity(
 }
 
 type updateSIPLocalActivityParams struct {
-	SIPID    int
-	Key      string
-	AIPUUID  string
-	StoredAt time.Time
-	Status   enums.SIPStatus
+	SIPID       int
+	Key         string
+	AIPUUID     string
+	CompletedAt time.Time
+	Status      enums.SIPStatus
 }
 
 type updateSIPLocalActivityResult struct{}
@@ -56,17 +51,13 @@ func updateSIPLocalActivity(
 	ingestsvc ingest.Service,
 	params *updateSIPLocalActivityParams,
 ) (*updateSIPLocalActivityResult, error) {
-	info := temporalsdk_activity.GetInfo(ctx)
-
-	err := ingestsvc.UpdateWorkflowStatus(
+	err := ingestsvc.UpdateSIP(
 		ctx,
 		params.SIPID,
 		params.Key,
-		info.WorkflowExecution.ID,
-		info.WorkflowExecution.RunID,
 		params.AIPUUID,
 		params.Status,
-		params.StoredAt,
+		params.CompletedAt,
 	)
 	if err != nil {
 		return &updateSIPLocalActivityResult{}, err
@@ -97,21 +88,10 @@ func setStatusLocalActivity(
 	return &setStatusLocalActivityResult{}, ingestsvc.SetStatus(ctx, sipID, status)
 }
 
-type setLocationIDLocalActivityResult struct{}
-
-func setLocationIDLocalActivity(
-	ctx context.Context,
-	ingestsvc ingest.Service,
-	sipID int,
-	locationID uuid.UUID,
-) (*setLocationIDLocalActivityResult, error) {
-	return &setLocationIDLocalActivityResult{}, ingestsvc.SetLocationID(ctx, sipID, locationID)
-}
-
 type saveLocationMoveWorkflowLocalActivityParams struct {
 	SIPID       int
 	LocationID  uuid.UUID
-	WorkflowID  string
+	TemporalID  string
 	Type        enums.WorkflowType
 	Status      enums.WorkflowStatus
 	StartedAt   time.Time
@@ -126,7 +106,7 @@ func saveLocationMoveWorkflowLocalActivity(
 	params *saveLocationMoveWorkflowLocalActivityParams,
 ) (*saveLocationMoveWorkflowLocalActivityResult, error) {
 	wID, err := createWorkflowLocalActivity(ctx, ingestsvc, &createWorkflowLocalActivityParams{
-		WorkflowID:  params.WorkflowID,
+		TemporalID:  params.TemporalID,
 		Type:        params.Type,
 		Status:      params.Status,
 		StartedAt:   params.StartedAt,
@@ -158,7 +138,7 @@ func saveLocationMoveWorkflowLocalActivity(
 }
 
 type createWorkflowLocalActivityParams struct {
-	WorkflowID  string
+	TemporalID  string
 	Type        enums.WorkflowType
 	Status      enums.WorkflowStatus
 	StartedAt   time.Time
@@ -172,7 +152,7 @@ func createWorkflowLocalActivity(
 	params *createWorkflowLocalActivityParams,
 ) (int, error) {
 	w := datatypes.Workflow{
-		WorkflowID: params.WorkflowID,
+		TemporalID: params.TemporalID,
 		Type:       params.Type,
 		Status:     params.Status,
 		SIPID:      params.SIPID,

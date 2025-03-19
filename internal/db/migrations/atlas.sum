@@ -1,4 +1,4 @@
-h1:3w4/iMssdiRyABeCup5xbyhZMi4oXIi8ulBCjmxXX48=
+h1:iSBnj+1kfYrMI1xL92stfCalQh94HCUcMQ/gTr04Ips=
 1570659451_init.down.sql h1:hZkExHm7J+Njznl8jVlCA3ePmlKfnCi3h0UFLvgU0kU=
 1570659451_init.up.sql h1:/Bi8TK4Lt/bWcuxnQMqAvRO3e/NhFDQusiR3fjk5Z3c=
 1710442322_nullable_aip_id.down.sql h1:naFYM+Aybp/Vz8EwJOG7fRf/CWmV87qwylR4YR/76XE=
@@ -9,3 +9,7 @@ h1:3w4/iMssdiRyABeCup5xbyhZMi4oXIi8ulBCjmxXX48=
 20250210184720_use_atlas.up.sql h1:2OwM5TbYcVes4N2X2wFXUxtGIgab/EQlrZ0Eox3PYrU=
 20250318151452_rename_preservation_tables.down.sql h1:JnW+wcgsBhHU0Io+bMrAF8PGL4DDMmT+tJHmRZj3zLE=
 20250318151452_rename_preservation_tables.up.sql h1:JPP8sGmtIX3mJYdhPzDh3GwjYJvA3xGRRPKwCOfGTVg=
+20250319035441_remove_sip_columns.down.sql h1:Angr3fnt+lbrOt48I+rPbjY6CtrPusWcf/XPE4AjhmI=
+20250319035441_remove_sip_columns.up.sql h1:gUCS3GwJtdzD58sU6DQUPPLa7TA2SIzwipQtE5BykwU=
+20250319035720_rename_workflow_column.down.sql h1:jJMFCJc4dm4SHQ5gSUupDdGkYd0m9llrVwqHrnwxd9k=
+20250319035720_rename_workflow_column.up.sql h1:cVGmB2xqHEyVK4xrn2du9TBKicZvStD0YslkN45MrPc=

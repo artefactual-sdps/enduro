@@ -304,9 +304,6 @@ func EncodeListSipsRequest(encoder func(*http.Request) goahttp.Encoder) func(*ht
 		if p.LatestCreatedTime != nil {
 			values.Add("latest_created_time", *p.LatestCreatedTime)
 		}
-		if p.LocationID != nil {
-			values.Add("location_id", *p.LocationID)
-		}
 		if p.Status != nil {
 			values.Add("status", *p.Status)
 		}
@@ -1409,10 +1406,7 @@ func unmarshalSIPResponseBodyToIngestviewsSIPView(v *SIPResponseBody) *ingestvie
 	res := &ingestviews.SIPView{
 		ID:          v.ID,
 		Name:        v.Name,
-		LocationID:  v.LocationID,
 		Status:      v.Status,
-		WorkflowID:  v.WorkflowID,
-		RunID:       v.RunID,
 		AipID:       v.AipID,
 		CreatedAt:   v.CreatedAt,
 		StartedAt:   v.StartedAt,
@@ -1444,7 +1438,7 @@ func unmarshalSIPWorkflowResponseBodyToIngestviewsSIPWorkflowView(v *SIPWorkflow
 	}
 	res := &ingestviews.SIPWorkflowView{
 		ID:          v.ID,
-		WorkflowID:  v.WorkflowID,
+		TemporalID:  v.TemporalID,
 		Type:        v.Type,
 		Status:      v.Status,
 		StartedAt:   v.StartedAt,

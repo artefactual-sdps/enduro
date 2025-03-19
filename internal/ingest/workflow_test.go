@@ -18,7 +18,7 @@ import (
 func TestCreateWorkflow(t *testing.T) {
 	t.Parallel()
 
-	workflowID := "processing-workflow-720db1d4-825c-4911-9a20-61c212cf23ff"
+	temporalID := "processing-workflow-720db1d4-825c-4911-9a20-61c212cf23ff"
 	startedAt := sql.NullTime{
 		Time:  time.Date(2024, 6, 3, 8, 51, 35, 0, time.UTC),
 		Valid: true,
@@ -39,12 +39,12 @@ func TestCreateWorkflow(t *testing.T) {
 		{
 			name: "Creates a workflow",
 			w: datatypes.Workflow{
-				WorkflowID: workflowID,
+				TemporalID: temporalID,
 				SIPID:      1,
 			},
 			want: datatypes.Workflow{
 				ID:         11,
-				WorkflowID: workflowID,
+				TemporalID: temporalID,
 				Type:       enums.WorkflowTypeUnspecified,
 				Status:     enums.WorkflowStatusUnspecified,
 				StartedAt: sql.NullTime{
@@ -72,7 +72,7 @@ func TestCreateWorkflow(t *testing.T) {
 		{
 			name: "Creates a workflow with optional values",
 			w: datatypes.Workflow{
-				WorkflowID:  workflowID,
+				TemporalID:  temporalID,
 				Type:        enums.WorkflowTypeCreateAip,
 				Status:      enums.WorkflowStatusDone,
 				StartedAt:   startedAt,
@@ -81,7 +81,7 @@ func TestCreateWorkflow(t *testing.T) {
 			},
 			want: datatypes.Workflow{
 				ID:          11,
-				WorkflowID:  workflowID,
+				TemporalID:  temporalID,
 				Type:        enums.WorkflowTypeCreateAip,
 				Status:      enums.WorkflowStatusDone,
 				StartedAt:   startedAt,
@@ -101,17 +101,17 @@ func TestCreateWorkflow(t *testing.T) {
 			},
 		},
 		{
-			name: "Errors when WorkflowID is missing",
+			name: "Errors when TemporalID is missing",
 			w: datatypes.Workflow{
 				SIPID: 1,
 			},
-			wantErr: "workflow: create: invalid data error: field \"WorkflowID\" is required",
+			wantErr: "workflow: create: invalid data error: field \"TemporalID\" is required",
 			mock: func(svc *persistence_fake.MockService, w datatypes.Workflow) *persistence_fake.MockService {
 				svc.EXPECT().
 					CreateWorkflow(mockutil.Context(), &w).
 					DoAndReturn(
 						func(ctx context.Context, w *datatypes.Workflow) error {
-							return errors.New("invalid data error: field \"WorkflowID\" is required")
+							return errors.New("invalid data error: field \"TemporalID\" is required")
 						},
 					)
 				return svc

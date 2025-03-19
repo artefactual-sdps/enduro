@@ -88,9 +88,6 @@ func (s *MoveWorkflowTestSuite) TestSuccessfulMove() {
 	s.env.OnActivity(setStatusLocalActivity, mock.Anything, mock.Anything, sipID, enums.SIPStatusDone).
 		Return(nil, nil)
 
-	// SIP location is set.
-	s.env.OnActivity(setLocationIDLocalActivity, mock.Anything, mock.Anything, sipID, locationID).Return(nil, nil)
-
 	// Workflow is created with successful status.
 	s.env.OnActivity(
 		saveLocationMoveWorkflowLocalActivity,

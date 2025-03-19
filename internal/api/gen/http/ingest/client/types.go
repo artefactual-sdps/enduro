@@ -40,7 +40,6 @@ type MonitorResponseBody struct {
 		// - "sip_created_event"
 		// - "sip_updated_event"
 		// - "sip_status_updated_event"
-		// - "sip_location_updated_event"
 		// - "sip_workflow_created_event"
 		// - "sip_workflow_updated_event"
 		// - "sip_task_created_event"
@@ -65,14 +64,8 @@ type ShowSipResponseBody struct {
 	ID *uint `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
 	// Name of the SIP
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
-	// Identifier of storage location
-	LocationID *uuid.UUID `form:"location_id,omitempty" json:"location_id,omitempty" xml:"location_id,omitempty"`
 	// Status of the SIP
 	Status *string `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
-	// Identifier of processing workflow
-	WorkflowID *string `form:"workflow_id,omitempty" json:"workflow_id,omitempty" xml:"workflow_id,omitempty"`
-	// Identifier of latest processing workflow run
-	RunID *string `form:"run_id,omitempty" json:"run_id,omitempty" xml:"run_id,omitempty"`
 	// Identifier of AIP
 	AipID *string `form:"aip_id,omitempty" json:"aip_id,omitempty" xml:"aip_id,omitempty"`
 	// Creation datetime
@@ -412,14 +405,8 @@ type SIPResponseBody struct {
 	ID *uint `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
 	// Name of the SIP
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
-	// Identifier of storage location
-	LocationID *uuid.UUID `form:"location_id,omitempty" json:"location_id,omitempty" xml:"location_id,omitempty"`
 	// Status of the SIP
 	Status *string `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
-	// Identifier of processing workflow
-	WorkflowID *string `form:"workflow_id,omitempty" json:"workflow_id,omitempty" xml:"workflow_id,omitempty"`
-	// Identifier of latest processing workflow run
-	RunID *string `form:"run_id,omitempty" json:"run_id,omitempty" xml:"run_id,omitempty"`
 	// Identifier of AIP
 	AipID *string `form:"aip_id,omitempty" json:"aip_id,omitempty" xml:"aip_id,omitempty"`
 	// Creation datetime
@@ -447,7 +434,7 @@ type SIPWorkflowCollectionResponseBody []*SIPWorkflowResponseBody
 // SIPWorkflowResponseBody is used to define fields on response body types.
 type SIPWorkflowResponseBody struct {
 	ID          *uint                         `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
-	WorkflowID  *string                       `form:"workflow_id,omitempty" json:"workflow_id,omitempty" xml:"workflow_id,omitempty"`
+	TemporalID  *string                       `form:"temporal_id,omitempty" json:"temporal_id,omitempty" xml:"temporal_id,omitempty"`
 	Type        *string                       `form:"type,omitempty" json:"type,omitempty" xml:"type,omitempty"`
 	Status      *string                       `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
 	StartedAt   *string                       `form:"started_at,omitempty" json:"started_at,omitempty" xml:"started_at,omitempty"`
@@ -552,10 +539,6 @@ func NewMonitorEventOK(body *MonitorResponseBody) *ingest.MonitorEvent {
 			var val *ingest.SIPStatusUpdatedEvent
 			json.Unmarshal([]byte(*body.Event.Value), &val)
 			v.Event = val
-		case "sip_location_updated_event":
-			var val *ingest.SIPLocationUpdatedEvent
-			json.Unmarshal([]byte(*body.Event.Value), &val)
-			v.Event = val
 		case "sip_workflow_created_event":
 			var val *ingest.SIPWorkflowCreatedEvent
 			json.Unmarshal([]byte(*body.Event.Value), &val)
@@ -658,10 +641,7 @@ func NewShowSipSIPOK(body *ShowSipResponseBody) *ingestviews.SIPView {
 	v := &ingestviews.SIPView{
 		ID:          body.ID,
 		Name:        body.Name,
-		LocationID:  body.LocationID,
 		Status:      body.Status,
-		WorkflowID:  body.WorkflowID,
-		RunID:       body.RunID,
 		AipID:       body.AipID,
 		CreatedAt:   body.CreatedAt,
 		StartedAt:   body.StartedAt,
@@ -1046,8 +1026,8 @@ func ValidateMonitorResponseBody(body *MonitorResponseBody) (err error) {
 			err = goa.MergeErrors(err, goa.MissingFieldError("Value", "body.event"))
 		}
 		if body.Event.Type != nil {
-			if !(*body.Event.Type == "monitor_ping_event" || *body.Event.Type == "sip_created_event" || *body.Event.Type == "sip_updated_event" || *body.Event.Type == "sip_status_updated_event" || *body.Event.Type == "sip_location_updated_event" || *body.Event.Type == "sip_workflow_created_event" || *body.Event.Type == "sip_workflow_updated_event" || *body.Event.Type == "sip_task_created_event" || *body.Event.Type == "sip_task_updated_event") {
-				err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.event.Type", *body.Event.Type, []any{"monitor_ping_event", "sip_created_event", "sip_updated_event", "sip_status_updated_event", "sip_location_updated_event", "sip_workflow_created_event", "sip_workflow_updated_event", "sip_task_created_event", "sip_task_updated_event"}))
+			if !(*body.Event.Type == "monitor_ping_event" || *body.Event.Type == "sip_created_event" || *body.Event.Type == "sip_updated_event" || *body.Event.Type == "sip_status_updated_event" || *body.Event.Type == "sip_workflow_created_event" || *body.Event.Type == "sip_workflow_updated_event" || *body.Event.Type == "sip_task_created_event" || *body.Event.Type == "sip_task_updated_event") {
+				err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.event.Type", *body.Event.Type, []any{"monitor_ping_event", "sip_created_event", "sip_updated_event", "sip_status_updated_event", "sip_workflow_created_event", "sip_workflow_updated_event", "sip_task_created_event", "sip_task_updated_event"}))
 			}
 		}
 	}
@@ -1500,12 +1480,6 @@ func ValidateSIPResponseBody(body *SIPResponseBody) (err error) {
 			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []any{"new", "in progress", "done", "error", "unknown", "queued", "abandoned", "pending"}))
 		}
 	}
-	if body.WorkflowID != nil {
-		err = goa.MergeErrors(err, goa.ValidateFormat("body.workflow_id", *body.WorkflowID, goa.FormatUUID))
-	}
-	if body.RunID != nil {
-		err = goa.MergeErrors(err, goa.ValidateFormat("body.run_id", *body.RunID, goa.FormatUUID))
-	}
 	if body.AipID != nil {
 		err = goa.MergeErrors(err, goa.ValidateFormat("body.aip_id", *body.AipID, goa.FormatUUID))
 	}
@@ -1555,8 +1529,8 @@ func ValidateSIPWorkflowResponseBody(body *SIPWorkflowResponseBody) (err error) 
 	if body.ID == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
 	}
-	if body.WorkflowID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("workflow_id", "body"))
+	if body.TemporalID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporal_id", "body"))
 	}
 	if body.Type == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("type", "body"))

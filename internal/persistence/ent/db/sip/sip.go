@@ -16,14 +16,8 @@ const (
 	FieldID = "id"
 	// FieldName holds the string denoting the name field in the database.
 	FieldName = "name"
-	// FieldWorkflowID holds the string denoting the workflow_id field in the database.
-	FieldWorkflowID = "workflow_id"
-	// FieldRunID holds the string denoting the run_id field in the database.
-	FieldRunID = "run_id"
 	// FieldAipID holds the string denoting the aip_id field in the database.
 	FieldAipID = "aip_id"
-	// FieldLocationID holds the string denoting the location_id field in the database.
-	FieldLocationID = "location_id"
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
@@ -49,10 +43,7 @@ const (
 var Columns = []string{
 	FieldID,
 	FieldName,
-	FieldWorkflowID,
-	FieldRunID,
 	FieldAipID,
-	FieldLocationID,
 	FieldStatus,
 	FieldCreatedAt,
 	FieldStartedAt,
@@ -87,24 +78,9 @@ func ByName(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldName, opts...).ToFunc()
 }
 
-// ByWorkflowID orders the results by the workflow_id field.
-func ByWorkflowID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldWorkflowID, opts...).ToFunc()
-}
-
-// ByRunID orders the results by the run_id field.
-func ByRunID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldRunID, opts...).ToFunc()
-}
-
 // ByAipID orders the results by the aip_id field.
 func ByAipID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldAipID, opts...).ToFunc()
-}
-
-// ByLocationID orders the results by the location_id field.
-func ByLocationID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldLocationID, opts...).ToFunc()
 }
 
 // ByStatus orders the results by the status field.

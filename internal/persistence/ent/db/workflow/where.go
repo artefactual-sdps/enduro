@@ -55,9 +55,9 @@ func IDLTE(id int) predicate.Workflow {
 	return predicate.Workflow(sql.FieldLTE(FieldID, id))
 }
 
-// WorkflowID applies equality check predicate on the "workflow_id" field. It's identical to WorkflowIDEQ.
-func WorkflowID(v string) predicate.Workflow {
-	return predicate.Workflow(sql.FieldEQ(FieldWorkflowID, v))
+// TemporalID applies equality check predicate on the "temporal_id" field. It's identical to TemporalIDEQ.
+func TemporalID(v string) predicate.Workflow {
+	return predicate.Workflow(sql.FieldEQ(FieldTemporalID, v))
 }
 
 // Type applies equality check predicate on the "type" field. It's identical to TypeEQ.
@@ -85,69 +85,69 @@ func SipID(v int) predicate.Workflow {
 	return predicate.Workflow(sql.FieldEQ(FieldSipID, v))
 }
 
-// WorkflowIDEQ applies the EQ predicate on the "workflow_id" field.
-func WorkflowIDEQ(v string) predicate.Workflow {
-	return predicate.Workflow(sql.FieldEQ(FieldWorkflowID, v))
+// TemporalIDEQ applies the EQ predicate on the "temporal_id" field.
+func TemporalIDEQ(v string) predicate.Workflow {
+	return predicate.Workflow(sql.FieldEQ(FieldTemporalID, v))
 }
 
-// WorkflowIDNEQ applies the NEQ predicate on the "workflow_id" field.
-func WorkflowIDNEQ(v string) predicate.Workflow {
-	return predicate.Workflow(sql.FieldNEQ(FieldWorkflowID, v))
+// TemporalIDNEQ applies the NEQ predicate on the "temporal_id" field.
+func TemporalIDNEQ(v string) predicate.Workflow {
+	return predicate.Workflow(sql.FieldNEQ(FieldTemporalID, v))
 }
 
-// WorkflowIDIn applies the In predicate on the "workflow_id" field.
-func WorkflowIDIn(vs ...string) predicate.Workflow {
-	return predicate.Workflow(sql.FieldIn(FieldWorkflowID, vs...))
+// TemporalIDIn applies the In predicate on the "temporal_id" field.
+func TemporalIDIn(vs ...string) predicate.Workflow {
+	return predicate.Workflow(sql.FieldIn(FieldTemporalID, vs...))
 }
 
-// WorkflowIDNotIn applies the NotIn predicate on the "workflow_id" field.
-func WorkflowIDNotIn(vs ...string) predicate.Workflow {
-	return predicate.Workflow(sql.FieldNotIn(FieldWorkflowID, vs...))
+// TemporalIDNotIn applies the NotIn predicate on the "temporal_id" field.
+func TemporalIDNotIn(vs ...string) predicate.Workflow {
+	return predicate.Workflow(sql.FieldNotIn(FieldTemporalID, vs...))
 }
 
-// WorkflowIDGT applies the GT predicate on the "workflow_id" field.
-func WorkflowIDGT(v string) predicate.Workflow {
-	return predicate.Workflow(sql.FieldGT(FieldWorkflowID, v))
+// TemporalIDGT applies the GT predicate on the "temporal_id" field.
+func TemporalIDGT(v string) predicate.Workflow {
+	return predicate.Workflow(sql.FieldGT(FieldTemporalID, v))
 }
 
-// WorkflowIDGTE applies the GTE predicate on the "workflow_id" field.
-func WorkflowIDGTE(v string) predicate.Workflow {
-	return predicate.Workflow(sql.FieldGTE(FieldWorkflowID, v))
+// TemporalIDGTE applies the GTE predicate on the "temporal_id" field.
+func TemporalIDGTE(v string) predicate.Workflow {
+	return predicate.Workflow(sql.FieldGTE(FieldTemporalID, v))
 }
 
-// WorkflowIDLT applies the LT predicate on the "workflow_id" field.
-func WorkflowIDLT(v string) predicate.Workflow {
-	return predicate.Workflow(sql.FieldLT(FieldWorkflowID, v))
+// TemporalIDLT applies the LT predicate on the "temporal_id" field.
+func TemporalIDLT(v string) predicate.Workflow {
+	return predicate.Workflow(sql.FieldLT(FieldTemporalID, v))
 }
 
-// WorkflowIDLTE applies the LTE predicate on the "workflow_id" field.
-func WorkflowIDLTE(v string) predicate.Workflow {
-	return predicate.Workflow(sql.FieldLTE(FieldWorkflowID, v))
+// TemporalIDLTE applies the LTE predicate on the "temporal_id" field.
+func TemporalIDLTE(v string) predicate.Workflow {
+	return predicate.Workflow(sql.FieldLTE(FieldTemporalID, v))
 }
 
-// WorkflowIDContains applies the Contains predicate on the "workflow_id" field.
-func WorkflowIDContains(v string) predicate.Workflow {
-	return predicate.Workflow(sql.FieldContains(FieldWorkflowID, v))
+// TemporalIDContains applies the Contains predicate on the "temporal_id" field.
+func TemporalIDContains(v string) predicate.Workflow {
+	return predicate.Workflow(sql.FieldContains(FieldTemporalID, v))
 }
 
-// WorkflowIDHasPrefix applies the HasPrefix predicate on the "workflow_id" field.
-func WorkflowIDHasPrefix(v string) predicate.Workflow {
-	return predicate.Workflow(sql.FieldHasPrefix(FieldWorkflowID, v))
+// TemporalIDHasPrefix applies the HasPrefix predicate on the "temporal_id" field.
+func TemporalIDHasPrefix(v string) predicate.Workflow {
+	return predicate.Workflow(sql.FieldHasPrefix(FieldTemporalID, v))
 }
 
-// WorkflowIDHasSuffix applies the HasSuffix predicate on the "workflow_id" field.
-func WorkflowIDHasSuffix(v string) predicate.Workflow {
-	return predicate.Workflow(sql.FieldHasSuffix(FieldWorkflowID, v))
+// TemporalIDHasSuffix applies the HasSuffix predicate on the "temporal_id" field.
+func TemporalIDHasSuffix(v string) predicate.Workflow {
+	return predicate.Workflow(sql.FieldHasSuffix(FieldTemporalID, v))
 }
 
-// WorkflowIDEqualFold applies the EqualFold predicate on the "workflow_id" field.
-func WorkflowIDEqualFold(v string) predicate.Workflow {
-	return predicate.Workflow(sql.FieldEqualFold(FieldWorkflowID, v))
+// TemporalIDEqualFold applies the EqualFold predicate on the "temporal_id" field.
+func TemporalIDEqualFold(v string) predicate.Workflow {
+	return predicate.Workflow(sql.FieldEqualFold(FieldTemporalID, v))
 }
 
-// WorkflowIDContainsFold applies the ContainsFold predicate on the "workflow_id" field.
-func WorkflowIDContainsFold(v string) predicate.Workflow {
-	return predicate.Workflow(sql.FieldContainsFold(FieldWorkflowID, v))
+// TemporalIDContainsFold applies the ContainsFold predicate on the "temporal_id" field.
+func TemporalIDContainsFold(v string) predicate.Workflow {
+	return predicate.Workflow(sql.FieldContainsFold(FieldTemporalID, v))
 }
 
 // TypeEQ applies the EQ predicate on the "type" field.

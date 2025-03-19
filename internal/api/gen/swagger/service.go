@@ -8,10 +8,6 @@
 
 package swagger
 
-import (
-	"github.com/google/uuid"
-)
-
 // The swagger service serves the API swagger definition.
 type Service interface {
 }
@@ -42,14 +38,8 @@ type SIP struct {
 	ID uint
 	// Name of the SIP
 	Name *string
-	// Identifier of storage location
-	LocationID *uuid.UUID
 	// Status of the SIP
 	Status string
-	// Identifier of processing workflow
-	WorkflowID *string
-	// Identifier of latest processing workflow run
-	RunID *string
 	// Identifier of AIP
 	AipID *string
 	// Creation datetime
@@ -64,13 +54,6 @@ type SIPCreatedEvent struct {
 	// Identifier of SIP
 	ID   uint
 	Item *SIP
-}
-
-type SIPLocationUpdatedEvent struct {
-	// Identifier of SIP
-	ID uint
-	// Identifier of storage location
-	LocationID uuid.UUID
 }
 
 type SIPStatusUpdatedEvent struct {
@@ -114,7 +97,7 @@ type SIPUpdatedEvent struct {
 // SIPWorkflow describes a workflow of a SIP.
 type SIPWorkflow struct {
 	ID          uint
-	WorkflowID  string
+	TemporalID  string
 	Type        string
 	Status      string
 	StartedAt   string

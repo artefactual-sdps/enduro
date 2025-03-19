@@ -127,14 +127,11 @@ func nullUUID(s string) uuid.NullUUID {
 
 var testSIPs = []*datatypes.SIP{
 	{
-		ID:         1,
-		Name:       "Test SIP 1",
-		WorkflowID: "workflow-1",
-		RunID:      "c5f7c35a-d5a6-4e00-b4da-b036ce5b40bc",
-		AIPID:      nullUUID("e2ace0da-8697-453d-9ea1-4c9b62309e54"),
-		LocationID: nullUUID("146182ff-9923-4869-bca1-0bbc0f822025"),
-		Status:     enums.SIPStatusDone,
-		CreatedAt:  time.Date(2024, 9, 25, 9, 31, 10, 0, time.UTC),
+		ID:        1,
+		Name:      "Test SIP 1",
+		AIPID:     nullUUID("e2ace0da-8697-453d-9ea1-4c9b62309e54"),
+		Status:    enums.SIPStatusDone,
+		CreatedAt: time.Date(2024, 9, 25, 9, 31, 10, 0, time.UTC),
 		StartedAt: sql.NullTime{
 			Time:  time.Date(2024, 9, 25, 9, 31, 11, 0, time.UTC),
 			Valid: true,
@@ -145,14 +142,11 @@ var testSIPs = []*datatypes.SIP{
 		},
 	},
 	{
-		ID:         2,
-		Name:       "Test SIP 2",
-		WorkflowID: "workflow-2",
-		RunID:      "d1f172c6-4ec8-4488-8a09-eef422b024cc",
-		AIPID:      nullUUID("ffdb12f4-1735-4022-b746-a9bf4a32109b"),
-		LocationID: nullUUID("659a93a0-2a6a-4931-a505-f07f71f5b010"),
-		Status:     enums.SIPStatusInProgress,
-		CreatedAt:  time.Date(2024, 10, 1, 17, 13, 26, 0, time.UTC),
+		ID:        2,
+		Name:      "Test SIP 2",
+		AIPID:     nullUUID("ffdb12f4-1735-4022-b746-a9bf4a32109b"),
+		Status:    enums.SIPStatusInProgress,
+		CreatedAt: time.Date(2024, 10, 1, 17, 13, 26, 0, time.UTC),
 		StartedAt: sql.NullTime{
 			Time:  time.Date(2024, 10, 1, 17, 13, 27, 0, time.UTC),
 			Valid: true,
@@ -194,10 +188,7 @@ func TestList(t *testing.T) {
 					{
 						ID:          1,
 						Name:        ref.New("Test SIP 1"),
-						LocationID:  ref.New(uuid.MustParse("146182ff-9923-4869-bca1-0bbc0f822025")),
 						Status:      "done",
-						WorkflowID:  ref.New("workflow-1"),
-						RunID:       ref.New("c5f7c35a-d5a6-4e00-b4da-b036ce5b40bc"),
 						AipID:       ref.New("e2ace0da-8697-453d-9ea1-4c9b62309e54"),
 						CreatedAt:   "2024-09-25T09:31:10Z",
 						StartedAt:   ref.New("2024-09-25T09:31:11Z"),
@@ -206,10 +197,7 @@ func TestList(t *testing.T) {
 					{
 						ID:          2,
 						Name:        ref.New("Test SIP 2"),
-						LocationID:  ref.New(uuid.MustParse("659a93a0-2a6a-4931-a505-f07f71f5b010")),
 						Status:      "in progress",
-						WorkflowID:  ref.New("workflow-2"),
-						RunID:       ref.New("d1f172c6-4ec8-4488-8a09-eef422b024cc"),
 						AipID:       ref.New("ffdb12f4-1735-4022-b746-a9bf4a32109b"),
 						CreatedAt:   "2024-10-01T17:13:26Z",
 						StartedAt:   ref.New("2024-10-01T17:13:27Z"),
@@ -227,7 +215,6 @@ func TestList(t *testing.T) {
 			payload: &goaingest.ListSipsPayload{
 				Name:                ref.New("Test SIP 1"),
 				AipID:               ref.New("e2ace0da-8697-453d-9ea1-4c9b62309e54"),
-				LocationID:          ref.New("146182ff-9923-4869-bca1-0bbc0f822025"),
 				EarliestCreatedTime: ref.New("2024-09-25T09:30:00Z"),
 				LatestCreatedTime:   ref.New("2024-09-25T09:40:00Z"),
 				Status:              ref.New("done"),
@@ -238,9 +225,8 @@ func TestList(t *testing.T) {
 				mr.ListSIPs(
 					mockutil.Context(),
 					&persistence.SIPFilter{
-						Name:       ref.New("Test SIP 1"),
-						AIPID:      ref.New(uuid.MustParse("e2ace0da-8697-453d-9ea1-4c9b62309e54")),
-						LocationID: ref.New(uuid.MustParse("146182ff-9923-4869-bca1-0bbc0f822025")),
+						Name:  ref.New("Test SIP 1"),
+						AIPID: ref.New(uuid.MustParse("e2ace0da-8697-453d-9ea1-4c9b62309e54")),
 						CreatedAt: &timerange.Range{
 							Start: time.Date(2024, 9, 25, 9, 30, 0, 0, time.UTC),
 							End:   time.Date(2024, 9, 25, 9, 40, 0, 0, time.UTC),
@@ -263,10 +249,7 @@ func TestList(t *testing.T) {
 					{
 						ID:          1,
 						Name:        ref.New("Test SIP 1"),
-						LocationID:  ref.New(uuid.MustParse("146182ff-9923-4869-bca1-0bbc0f822025")),
 						Status:      "done",
-						WorkflowID:  ref.New("workflow-1"),
-						RunID:       ref.New("c5f7c35a-d5a6-4e00-b4da-b036ce5b40bc"),
 						AipID:       ref.New("e2ace0da-8697-453d-9ea1-4c9b62309e54"),
 						CreatedAt:   "2024-09-25T09:31:10Z",
 						StartedAt:   ref.New("2024-09-25T09:31:11Z"),
@@ -305,13 +288,6 @@ func TestList(t *testing.T) {
 				AipID: ref.New("XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"),
 			},
 			wantErr: "aip_id: invalid UUID",
-		},
-		{
-			name: "Errors on a bad location_id",
-			payload: &goaingest.ListSipsPayload{
-				LocationID: ref.New("XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"),
-			},
-			wantErr: "location_id: invalid UUID",
 		},
 		{
 			name: "Errors on a bad status",

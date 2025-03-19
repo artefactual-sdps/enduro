@@ -74,7 +74,6 @@ var _ = Service("ingest", func() {
 			Attribute("latest_created_time", String, func() {
 				Format(FormatDateTime)
 			})
-			AttributeUUID("location_id", "Identifier of storage location")
 			Attribute("status", String, func() {
 				EnumSIPStatus()
 			})
@@ -94,7 +93,6 @@ var _ = Service("ingest", func() {
 				Param("aip_id")
 				Param("earliest_created_time")
 				Param("latest_created_time")
-				Param("location_id")
 				Param("status")
 				Param("limit")
 				Param("offset")
@@ -277,13 +275,10 @@ var SIP = ResultType("application/vnd.enduro.ingest.sip", func() {
 	Attributes(func() {
 		Attribute("id", UInt, "Identifier of SIP")
 		Attribute("name", String, "Name of the SIP")
-		TypedAttributeUUID("location_id", "Identifier of storage location")
 		Attribute("status", String, "Status of the SIP", func() {
 			EnumSIPStatus()
 			Default(enums.SIPStatusNew.String())
 		})
-		AttributeUUID("workflow_id", "Identifier of processing workflow")
-		AttributeUUID("run_id", "Identifier of latest processing workflow run")
 		AttributeUUID("aip_id", "Identifier of AIP")
 		Attribute("created_at", String, "Creation datetime", func() {
 			Format(FormatDateTime)
@@ -298,10 +293,7 @@ var SIP = ResultType("application/vnd.enduro.ingest.sip", func() {
 	View("default", func() {
 		Attribute("id")
 		Attribute("name")
-		Attribute("location_id")
 		Attribute("status")
-		Attribute("workflow_id")
-		Attribute("run_id")
 		Attribute("aip_id")
 		Attribute("created_at")
 		Attribute("started_at")
@@ -348,7 +340,7 @@ var SIPWorkflow = ResultType("application/vnd.enduro.ingest.sip.workflow", func(
 	TypeName("SIPWorkflow")
 	Attributes(func() {
 		Attribute("id", UInt)
-		Attribute("workflow_id", String)
+		Attribute("temporal_id", String)
 		Attribute("type", String, func() {
 			EnumWorkflowType()
 		})
@@ -366,14 +358,14 @@ var SIPWorkflow = ResultType("application/vnd.enduro.ingest.sip.workflow", func(
 	})
 	View("simple", func() {
 		Attribute("id")
-		Attribute("workflow_id")
+		Attribute("temporal_id")
 		Attribute("type")
 		Attribute("status")
 		Attribute("started_at")
 		Attribute("completed_at")
 		Attribute("sip_id")
 	})
-	Required("id", "workflow_id", "type", "status", "started_at")
+	Required("id", "temporal_id", "type", "status", "started_at")
 })
 
 var EnumTaskStatus = func() {

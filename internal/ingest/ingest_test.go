@@ -3,7 +3,6 @@ package ingest_test
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"testing"
 	"time"
 
@@ -55,10 +54,8 @@ func TestCreateSIP(t *testing.T) {
 		{
 			name: "creates a SIP",
 			sip: datatypes.SIP{
-				Name:       "test",
-				WorkflowID: "4258090a-e27b-4fd9-a76b-28deb3d16813",
-				RunID:      "8f3a5756-6bc5-4d82-846d-59442dd6ad8f",
-				Status:     enums.SIPStatusQueued,
+				Name:   "test",
+				Status: enums.SIPStatusQueued,
 			},
 			mock: func(svc *persistence_fake.MockService, s datatypes.SIP) *persistence_fake.MockService {
 				svc.EXPECT().
@@ -73,25 +70,6 @@ func TestCreateSIP(t *testing.T) {
 				return svc
 			},
 		},
-		{
-			name: "errors creating a SIP with a missing RunID",
-			sip: datatypes.SIP{
-				Name:       "test",
-				WorkflowID: "4258090a-e27b-4fd9-a76b-28deb3d16813",
-				Status:     enums.SIPStatusQueued,
-			},
-			mock: func(svc *persistence_fake.MockService, s datatypes.SIP) *persistence_fake.MockService {
-				svc.EXPECT().
-					CreateSIP(mockutil.Context(), &s).
-					DoAndReturn(
-						func(ctx context.Context, s *datatypes.SIP) error {
-							return fmt.Errorf("invalid data error: field \"RunID\" is required")
-						},
-					)
-				return svc
-			},
-			wantErr: "ingest: create SIP: invalid data error: field \"RunID\" is required",
-		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
@@ -102,7 +80,7 @@ func TestCreateSIP(t *testing.T) {
 			}
 
 			sip := tt.sip
-			err := ingestsvc.Create(context.Background(), &sip)
+			err := ingestsvc.CreateSIP(context.Background(), &sip)
 
 			if tt.wantErr != "" {
 				assert.Error(t, err, tt.wantErr)

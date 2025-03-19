@@ -9,8 +9,8 @@ import (
 
 func (c *client) CreateWorkflow(ctx context.Context, w *datatypes.Workflow) error {
 	// Validate required fields.
-	if w.WorkflowID == "" {
-		return newRequiredFieldError("WorkflowID")
+	if w.TemporalID == "" {
+		return newRequiredFieldError("TemporalID")
 	}
 	if w.SIPID == 0 {
 		return newRequiredFieldError("SIPID")
@@ -30,7 +30,7 @@ func (c *client) CreateWorkflow(ctx context.Context, w *datatypes.Workflow) erro
 	}
 
 	q := c.ent.Workflow.Create().
-		SetWorkflowID(w.WorkflowID).
+		SetTemporalID(w.TemporalID).
 		SetType(int8(w.Type)).     // #nosec G115 -- constrained value.
 		SetStatus(int8(w.Status)). // #nosec G115 -- constrained value.
 		SetNillableStartedAt(startedAt).

@@ -67,13 +67,13 @@ export interface EnduroIngestSipWorkflow {
      * @type {string}
      * @memberof EnduroIngestSipWorkflow
      */
-    type: EnduroIngestSipWorkflowTypeEnum;
+    temporalId: string;
     /**
      * 
      * @type {string}
      * @memberof EnduroIngestSipWorkflow
      */
-    workflowId: string;
+    type: EnduroIngestSipWorkflowTypeEnum;
 }
 
 
@@ -110,8 +110,8 @@ export function instanceOfEnduroIngestSipWorkflow(value: object): boolean {
     isInstance = isInstance && "id" in value;
     isInstance = isInstance && "startedAt" in value;
     isInstance = isInstance && "status" in value;
+    isInstance = isInstance && "temporalId" in value;
     isInstance = isInstance && "type" in value;
-    isInstance = isInstance && "workflowId" in value;
 
     return isInstance;
 }
@@ -132,8 +132,8 @@ export function EnduroIngestSipWorkflowFromJSONTyped(json: any, ignoreDiscrimina
         'startedAt': (new Date(json['started_at'])),
         'status': json['status'],
         'tasks': !exists(json, 'tasks') ? undefined : ((json['tasks'] as Array<any>).map(EnduroIngestSipTaskFromJSON)),
+        'temporalId': json['temporal_id'],
         'type': json['type'],
-        'workflowId': json['workflow_id'],
     };
 }
 
@@ -152,8 +152,8 @@ export function EnduroIngestSipWorkflowToJSON(value?: EnduroIngestSipWorkflow | 
         'started_at': (value.startedAt.toISOString()),
         'status': value.status,
         'tasks': value.tasks === undefined ? undefined : ((value.tasks as Array<any>).map(EnduroIngestSipTaskToJSON)),
+        'temporal_id': value.temporalId,
         'type': value.type,
-        'workflow_id': value.workflowId,
     };
 }
 

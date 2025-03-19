@@ -104,12 +104,12 @@ type TransferInfo struct {
 	// It is populated by BundleActivity.
 	Bundle activities.BundleActivityResult
 
-	// Identifier of the workflow that creates the AIP
+	// Identifier of the workflow that creates the AIP.
 	//
 	// It is populated by createWorkflowLocalActivity .
 	WorkflowID int
 
-	// Identifier of the preservation system task queue name
+	// Identifier of the preservation system task queue name.
 	//
 	// It is populated by the workflow request.
 	GlobalTaskQueue       string
@@ -210,11 +210,11 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *inge
 		} else {
 			// TODO: investigate better way to reset the ingest.
 			err = temporalsdk_workflow.ExecuteLocalActivity(activityOpts, updateSIPLocalActivity, w.ingestsvc, &updateSIPLocalActivityParams{
-				SIPID:    req.SIPID,
-				Key:      req.Key,
-				AIPUUID:  "",
-				StoredAt: temporalsdk_workflow.Now(ctx).UTC(),
-				Status:   status,
+				SIPID:       req.SIPID,
+				Key:         req.Key,
+				AIPUUID:     "",
+				CompletedAt: temporalsdk_workflow.Now(ctx).UTC(),
+				Status:      status,
 			}).Get(activityOpts, nil)
 		}
 
@@ -234,11 +234,11 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *inge
 		dctx, _ := temporalsdk_workflow.NewDisconnectedContext(ctx)
 		activityOpts := withLocalActivityOpts(dctx)
 		_ = temporalsdk_workflow.ExecuteLocalActivity(activityOpts, updateSIPLocalActivity, w.ingestsvc, &updateSIPLocalActivityParams{
-			SIPID:    tinfo.req.SIPID,
-			Key:      tinfo.req.Key,
-			AIPUUID:  tinfo.SIPID,
-			StoredAt: tinfo.StoredAt,
-			Status:   status,
+			SIPID:       tinfo.req.SIPID,
+			Key:         tinfo.req.Key,
+			AIPUUID:     tinfo.SIPID,
+			CompletedAt: tinfo.StoredAt,
+			Status:      status,
 		}).
 			Get(activityOpts, nil)
 
@@ -376,7 +376,7 @@ func (w *ProcessingWorkflow) SessionHandler(
 
 			ctx := withLocalActivityOpts(sessCtx)
 			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, createWorkflowLocalActivity, w.ingestsvc, &createWorkflowLocalActivityParams{
-				WorkflowID: temporalsdk_workflow.GetInfo(ctx).WorkflowExecution.ID,
+				TemporalID: temporalsdk_workflow.GetInfo(ctx).WorkflowExecution.ID,
 				Type:       workflowType,
 				Status:     enums.WorkflowStatusInProgress,
 				StartedAt:  sipStartedAt,
@@ -537,11 +537,11 @@ func (w *ProcessingWorkflow) SessionHandler(
 	{
 		activityOpts := withLocalActivityOpts(sessCtx)
 		_ = temporalsdk_workflow.ExecuteLocalActivity(activityOpts, updateSIPLocalActivity, w.ingestsvc, &updateSIPLocalActivityParams{
-			SIPID:    tinfo.req.SIPID,
-			Key:      tinfo.req.Key,
-			AIPUUID:  tinfo.SIPID,
-			StoredAt: tinfo.StoredAt,
-			Status:   enums.SIPStatusInProgress,
+			SIPID:       tinfo.req.SIPID,
+			Key:         tinfo.req.Key,
+			AIPUUID:     tinfo.SIPID,
+			CompletedAt: tinfo.StoredAt,
+			Status:      enums.SIPStatusInProgress,
 		}).
 			Get(activityOpts, nil)
 	}
@@ -747,16 +747,6 @@ func (w *ProcessingWorkflow) SessionHandler(
 				CompletedAt: temporalsdk_workflow.Now(sessCtx).UTC(),
 				Note:        ref.New(fmt.Sprintf("Moved to location %s", *reviewResult.LocationID)),
 			}).
-				Get(ctx, nil)
-			if err != nil {
-				return err
-			}
-		}
-
-		// Set SIP location
-		{
-			ctx := withLocalActivityOpts(sessCtx)
-			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setLocationIDLocalActivity, w.ingestsvc, tinfo.req.SIPID, *reviewResult.LocationID).
 				Get(ctx, nil)
 			if err != nil {
 				return err
@@ -1023,21 +1013,6 @@ func (w *ProcessingWorkflow) transferAM(
 
 	// Set AIP "stored at" time.
 	tinfo.StoredAt = temporalsdk_workflow.Now(ctx).UTC()
-
-	// Set SIP location
-	{
-		ctx := withLocalActivityOpts(ctx)
-		err := temporalsdk_workflow.ExecuteLocalActivity(
-			ctx,
-			setLocationIDLocalActivity,
-			w.ingestsvc,
-			tinfo.req.SIPID,
-			ref.DerefZero(tinfo.req.DefaultPermanentLocationID),
-		).Get(ctx, nil)
-		if err != nil {
-			return err
-		}
-	}
 
 	// Create storage AIP record and set location to AMSS location.
 	{

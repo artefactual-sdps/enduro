@@ -28,18 +28,6 @@ func (sc *SIPCreate) SetName(s string) *SIPCreate {
 	return sc
 }
 
-// SetWorkflowID sets the "workflow_id" field.
-func (sc *SIPCreate) SetWorkflowID(s string) *SIPCreate {
-	sc.mutation.SetWorkflowID(s)
-	return sc
-}
-
-// SetRunID sets the "run_id" field.
-func (sc *SIPCreate) SetRunID(u uuid.UUID) *SIPCreate {
-	sc.mutation.SetRunID(u)
-	return sc
-}
-
 // SetAipID sets the "aip_id" field.
 func (sc *SIPCreate) SetAipID(u uuid.UUID) *SIPCreate {
 	sc.mutation.SetAipID(u)
@@ -50,20 +38,6 @@ func (sc *SIPCreate) SetAipID(u uuid.UUID) *SIPCreate {
 func (sc *SIPCreate) SetNillableAipID(u *uuid.UUID) *SIPCreate {
 	if u != nil {
 		sc.SetAipID(*u)
-	}
-	return sc
-}
-
-// SetLocationID sets the "location_id" field.
-func (sc *SIPCreate) SetLocationID(u uuid.UUID) *SIPCreate {
-	sc.mutation.SetLocationID(u)
-	return sc
-}
-
-// SetNillableLocationID sets the "location_id" field if the given value is not nil.
-func (sc *SIPCreate) SetNillableLocationID(u *uuid.UUID) *SIPCreate {
-	if u != nil {
-		sc.SetLocationID(*u)
 	}
 	return sc
 }
@@ -177,12 +151,6 @@ func (sc *SIPCreate) check() error {
 	if _, ok := sc.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`db: missing required field "SIP.name"`)}
 	}
-	if _, ok := sc.mutation.WorkflowID(); !ok {
-		return &ValidationError{Name: "workflow_id", err: errors.New(`db: missing required field "SIP.workflow_id"`)}
-	}
-	if _, ok := sc.mutation.RunID(); !ok {
-		return &ValidationError{Name: "run_id", err: errors.New(`db: missing required field "SIP.run_id"`)}
-	}
 	if _, ok := sc.mutation.Status(); !ok {
 		return &ValidationError{Name: "status", err: errors.New(`db: missing required field "SIP.status"`)}
 	}
@@ -219,21 +187,9 @@ func (sc *SIPCreate) createSpec() (*SIP, *sqlgraph.CreateSpec) {
 		_spec.SetField(sip.FieldName, field.TypeString, value)
 		_node.Name = value
 	}
-	if value, ok := sc.mutation.WorkflowID(); ok {
-		_spec.SetField(sip.FieldWorkflowID, field.TypeString, value)
-		_node.WorkflowID = value
-	}
-	if value, ok := sc.mutation.RunID(); ok {
-		_spec.SetField(sip.FieldRunID, field.TypeUUID, value)
-		_node.RunID = value
-	}
 	if value, ok := sc.mutation.AipID(); ok {
 		_spec.SetField(sip.FieldAipID, field.TypeUUID, value)
 		_node.AipID = value
-	}
-	if value, ok := sc.mutation.LocationID(); ok {
-		_spec.SetField(sip.FieldLocationID, field.TypeUUID, value)
-		_node.LocationID = value
 	}
 	if value, ok := sc.mutation.Status(); ok {
 		_spec.SetField(sip.FieldStatus, field.TypeInt8, value)

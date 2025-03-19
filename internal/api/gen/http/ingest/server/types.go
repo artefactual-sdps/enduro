@@ -40,7 +40,6 @@ type MonitorResponseBody struct {
 		// - "sip_created_event"
 		// - "sip_updated_event"
 		// - "sip_status_updated_event"
-		// - "sip_location_updated_event"
 		// - "sip_workflow_created_event"
 		// - "sip_workflow_updated_event"
 		// - "sip_task_created_event"
@@ -65,14 +64,8 @@ type ShowSipResponseBody struct {
 	ID uint `form:"id" json:"id" xml:"id"`
 	// Name of the SIP
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
-	// Identifier of storage location
-	LocationID *uuid.UUID `form:"location_id,omitempty" json:"location_id,omitempty" xml:"location_id,omitempty"`
 	// Status of the SIP
 	Status string `form:"status" json:"status" xml:"status"`
-	// Identifier of processing workflow
-	WorkflowID *string `form:"workflow_id,omitempty" json:"workflow_id,omitempty" xml:"workflow_id,omitempty"`
-	// Identifier of latest processing workflow run
-	RunID *string `form:"run_id,omitempty" json:"run_id,omitempty" xml:"run_id,omitempty"`
 	// Identifier of AIP
 	AipID *string `form:"aip_id,omitempty" json:"aip_id,omitempty" xml:"aip_id,omitempty"`
 	// Creation datetime
@@ -412,14 +405,8 @@ type SIPResponseBody struct {
 	ID uint `form:"id" json:"id" xml:"id"`
 	// Name of the SIP
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
-	// Identifier of storage location
-	LocationID *uuid.UUID `form:"location_id,omitempty" json:"location_id,omitempty" xml:"location_id,omitempty"`
 	// Status of the SIP
 	Status string `form:"status" json:"status" xml:"status"`
-	// Identifier of processing workflow
-	WorkflowID *string `form:"workflow_id,omitempty" json:"workflow_id,omitempty" xml:"workflow_id,omitempty"`
-	// Identifier of latest processing workflow run
-	RunID *string `form:"run_id,omitempty" json:"run_id,omitempty" xml:"run_id,omitempty"`
 	// Identifier of AIP
 	AipID *string `form:"aip_id,omitempty" json:"aip_id,omitempty" xml:"aip_id,omitempty"`
 	// Creation datetime
@@ -447,7 +434,7 @@ type SIPWorkflowResponseBodyCollection []*SIPWorkflowResponseBody
 // SIPWorkflowResponseBody is used to define fields on response body types.
 type SIPWorkflowResponseBody struct {
 	ID          uint                          `form:"id" json:"id" xml:"id"`
-	WorkflowID  string                        `form:"workflow_id" json:"workflow_id" xml:"workflow_id"`
+	TemporalID  string                        `form:"temporal_id" json:"temporal_id" xml:"temporal_id"`
 	Type        string                        `form:"type" json:"type" xml:"type"`
 	Status      string                        `form:"status" json:"status" xml:"status"`
 	StartedAt   string                        `form:"started_at" json:"started_at" xml:"started_at"`
@@ -488,8 +475,6 @@ func NewMonitorResponseBody(res *ingest.MonitorEvent) *MonitorResponseBody {
 			name = "sip_updated_event"
 		case *ingest.SIPStatusUpdatedEvent:
 			name = "sip_status_updated_event"
-		case *ingest.SIPLocationUpdatedEvent:
-			name = "sip_location_updated_event"
 		case *ingest.SIPWorkflowCreatedEvent:
 			name = "sip_workflow_created_event"
 		case *ingest.SIPWorkflowUpdatedEvent:
@@ -505,7 +490,6 @@ func NewMonitorResponseBody(res *ingest.MonitorEvent) *MonitorResponseBody {
 			// - "sip_created_event"
 			// - "sip_updated_event"
 			// - "sip_status_updated_event"
-			// - "sip_location_updated_event"
 			// - "sip_workflow_created_event"
 			// - "sip_workflow_updated_event"
 			// - "sip_task_created_event"
@@ -545,10 +529,7 @@ func NewShowSipResponseBody(res *ingestviews.SIPView) *ShowSipResponseBody {
 	body := &ShowSipResponseBody{
 		ID:          *res.ID,
 		Name:        res.Name,
-		LocationID:  res.LocationID,
 		Status:      *res.Status,
-		WorkflowID:  res.WorkflowID,
-		RunID:       res.RunID,
 		AipID:       res.AipID,
 		CreatedAt:   *res.CreatedAt,
 		StartedAt:   res.StartedAt,
@@ -853,13 +834,12 @@ func NewMonitorPayload(ticket *string) *ingest.MonitorPayload {
 }
 
 // NewListSipsPayload builds a ingest service list_sips endpoint payload.
-func NewListSipsPayload(name *string, aipID *string, earliestCreatedTime *string, latestCreatedTime *string, locationID *string, status *string, limit *int, offset *int, token *string) *ingest.ListSipsPayload {
+func NewListSipsPayload(name *string, aipID *string, earliestCreatedTime *string, latestCreatedTime *string, status *string, limit *int, offset *int, token *string) *ingest.ListSipsPayload {
 	v := &ingest.ListSipsPayload{}
 	v.Name = name
 	v.AipID = aipID
 	v.EarliestCreatedTime = earliestCreatedTime
 	v.LatestCreatedTime = latestCreatedTime
-	v.LocationID = locationID
 	v.Status = status
 	v.Limit = limit
 	v.Offset = offset

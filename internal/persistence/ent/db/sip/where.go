@@ -61,24 +61,9 @@ func Name(v string) predicate.SIP {
 	return predicate.SIP(sql.FieldEQ(FieldName, v))
 }
 
-// WorkflowID applies equality check predicate on the "workflow_id" field. It's identical to WorkflowIDEQ.
-func WorkflowID(v string) predicate.SIP {
-	return predicate.SIP(sql.FieldEQ(FieldWorkflowID, v))
-}
-
-// RunID applies equality check predicate on the "run_id" field. It's identical to RunIDEQ.
-func RunID(v uuid.UUID) predicate.SIP {
-	return predicate.SIP(sql.FieldEQ(FieldRunID, v))
-}
-
 // AipID applies equality check predicate on the "aip_id" field. It's identical to AipIDEQ.
 func AipID(v uuid.UUID) predicate.SIP {
 	return predicate.SIP(sql.FieldEQ(FieldAipID, v))
-}
-
-// LocationID applies equality check predicate on the "location_id" field. It's identical to LocationIDEQ.
-func LocationID(v uuid.UUID) predicate.SIP {
-	return predicate.SIP(sql.FieldEQ(FieldLocationID, v))
 }
 
 // Status applies equality check predicate on the "status" field. It's identical to StatusEQ.
@@ -166,111 +151,6 @@ func NameContainsFold(v string) predicate.SIP {
 	return predicate.SIP(sql.FieldContainsFold(FieldName, v))
 }
 
-// WorkflowIDEQ applies the EQ predicate on the "workflow_id" field.
-func WorkflowIDEQ(v string) predicate.SIP {
-	return predicate.SIP(sql.FieldEQ(FieldWorkflowID, v))
-}
-
-// WorkflowIDNEQ applies the NEQ predicate on the "workflow_id" field.
-func WorkflowIDNEQ(v string) predicate.SIP {
-	return predicate.SIP(sql.FieldNEQ(FieldWorkflowID, v))
-}
-
-// WorkflowIDIn applies the In predicate on the "workflow_id" field.
-func WorkflowIDIn(vs ...string) predicate.SIP {
-	return predicate.SIP(sql.FieldIn(FieldWorkflowID, vs...))
-}
-
-// WorkflowIDNotIn applies the NotIn predicate on the "workflow_id" field.
-func WorkflowIDNotIn(vs ...string) predicate.SIP {
-	return predicate.SIP(sql.FieldNotIn(FieldWorkflowID, vs...))
-}
-
-// WorkflowIDGT applies the GT predicate on the "workflow_id" field.
-func WorkflowIDGT(v string) predicate.SIP {
-	return predicate.SIP(sql.FieldGT(FieldWorkflowID, v))
-}
-
-// WorkflowIDGTE applies the GTE predicate on the "workflow_id" field.
-func WorkflowIDGTE(v string) predicate.SIP {
-	return predicate.SIP(sql.FieldGTE(FieldWorkflowID, v))
-}
-
-// WorkflowIDLT applies the LT predicate on the "workflow_id" field.
-func WorkflowIDLT(v string) predicate.SIP {
-	return predicate.SIP(sql.FieldLT(FieldWorkflowID, v))
-}
-
-// WorkflowIDLTE applies the LTE predicate on the "workflow_id" field.
-func WorkflowIDLTE(v string) predicate.SIP {
-	return predicate.SIP(sql.FieldLTE(FieldWorkflowID, v))
-}
-
-// WorkflowIDContains applies the Contains predicate on the "workflow_id" field.
-func WorkflowIDContains(v string) predicate.SIP {
-	return predicate.SIP(sql.FieldContains(FieldWorkflowID, v))
-}
-
-// WorkflowIDHasPrefix applies the HasPrefix predicate on the "workflow_id" field.
-func WorkflowIDHasPrefix(v string) predicate.SIP {
-	return predicate.SIP(sql.FieldHasPrefix(FieldWorkflowID, v))
-}
-
-// WorkflowIDHasSuffix applies the HasSuffix predicate on the "workflow_id" field.
-func WorkflowIDHasSuffix(v string) predicate.SIP {
-	return predicate.SIP(sql.FieldHasSuffix(FieldWorkflowID, v))
-}
-
-// WorkflowIDEqualFold applies the EqualFold predicate on the "workflow_id" field.
-func WorkflowIDEqualFold(v string) predicate.SIP {
-	return predicate.SIP(sql.FieldEqualFold(FieldWorkflowID, v))
-}
-
-// WorkflowIDContainsFold applies the ContainsFold predicate on the "workflow_id" field.
-func WorkflowIDContainsFold(v string) predicate.SIP {
-	return predicate.SIP(sql.FieldContainsFold(FieldWorkflowID, v))
-}
-
-// RunIDEQ applies the EQ predicate on the "run_id" field.
-func RunIDEQ(v uuid.UUID) predicate.SIP {
-	return predicate.SIP(sql.FieldEQ(FieldRunID, v))
-}
-
-// RunIDNEQ applies the NEQ predicate on the "run_id" field.
-func RunIDNEQ(v uuid.UUID) predicate.SIP {
-	return predicate.SIP(sql.FieldNEQ(FieldRunID, v))
-}
-
-// RunIDIn applies the In predicate on the "run_id" field.
-func RunIDIn(vs ...uuid.UUID) predicate.SIP {
-	return predicate.SIP(sql.FieldIn(FieldRunID, vs...))
-}
-
-// RunIDNotIn applies the NotIn predicate on the "run_id" field.
-func RunIDNotIn(vs ...uuid.UUID) predicate.SIP {
-	return predicate.SIP(sql.FieldNotIn(FieldRunID, vs...))
-}
-
-// RunIDGT applies the GT predicate on the "run_id" field.
-func RunIDGT(v uuid.UUID) predicate.SIP {
-	return predicate.SIP(sql.FieldGT(FieldRunID, v))
-}
-
-// RunIDGTE applies the GTE predicate on the "run_id" field.
-func RunIDGTE(v uuid.UUID) predicate.SIP {
-	return predicate.SIP(sql.FieldGTE(FieldRunID, v))
-}
-
-// RunIDLT applies the LT predicate on the "run_id" field.
-func RunIDLT(v uuid.UUID) predicate.SIP {
-	return predicate.SIP(sql.FieldLT(FieldRunID, v))
-}
-
-// RunIDLTE applies the LTE predicate on the "run_id" field.
-func RunIDLTE(v uuid.UUID) predicate.SIP {
-	return predicate.SIP(sql.FieldLTE(FieldRunID, v))
-}
-
 // AipIDEQ applies the EQ predicate on the "aip_id" field.
 func AipIDEQ(v uuid.UUID) predicate.SIP {
 	return predicate.SIP(sql.FieldEQ(FieldAipID, v))
@@ -319,56 +199,6 @@ func AipIDIsNil() predicate.SIP {
 // AipIDNotNil applies the NotNil predicate on the "aip_id" field.
 func AipIDNotNil() predicate.SIP {
 	return predicate.SIP(sql.FieldNotNull(FieldAipID))
-}
-
-// LocationIDEQ applies the EQ predicate on the "location_id" field.
-func LocationIDEQ(v uuid.UUID) predicate.SIP {
-	return predicate.SIP(sql.FieldEQ(FieldLocationID, v))
-}
-
-// LocationIDNEQ applies the NEQ predicate on the "location_id" field.
-func LocationIDNEQ(v uuid.UUID) predicate.SIP {
-	return predicate.SIP(sql.FieldNEQ(FieldLocationID, v))
-}
-
-// LocationIDIn applies the In predicate on the "location_id" field.
-func LocationIDIn(vs ...uuid.UUID) predicate.SIP {
-	return predicate.SIP(sql.FieldIn(FieldLocationID, vs...))
-}
-
-// LocationIDNotIn applies the NotIn predicate on the "location_id" field.
-func LocationIDNotIn(vs ...uuid.UUID) predicate.SIP {
-	return predicate.SIP(sql.FieldNotIn(FieldLocationID, vs...))
-}
-
-// LocationIDGT applies the GT predicate on the "location_id" field.
-func LocationIDGT(v uuid.UUID) predicate.SIP {
-	return predicate.SIP(sql.FieldGT(FieldLocationID, v))
-}
-
-// LocationIDGTE applies the GTE predicate on the "location_id" field.
-func LocationIDGTE(v uuid.UUID) predicate.SIP {
-	return predicate.SIP(sql.FieldGTE(FieldLocationID, v))
-}
-
-// LocationIDLT applies the LT predicate on the "location_id" field.
-func LocationIDLT(v uuid.UUID) predicate.SIP {
-	return predicate.SIP(sql.FieldLT(FieldLocationID, v))
-}
-
-// LocationIDLTE applies the LTE predicate on the "location_id" field.
-func LocationIDLTE(v uuid.UUID) predicate.SIP {
-	return predicate.SIP(sql.FieldLTE(FieldLocationID, v))
-}
-
-// LocationIDIsNil applies the IsNil predicate on the "location_id" field.
-func LocationIDIsNil() predicate.SIP {
-	return predicate.SIP(sql.FieldIsNull(FieldLocationID))
-}
-
-// LocationIDNotNil applies the NotNil predicate on the "location_id" field.
-func LocationIDNotNil() predicate.SIP {
-	return predicate.SIP(sql.FieldNotNull(FieldLocationID))
 }
 
 // StatusEQ applies the EQ predicate on the "status" field.

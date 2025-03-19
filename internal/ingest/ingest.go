@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/go-logr/logr"
-	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	temporalsdk_client "go.temporal.io/sdk/client"
 	"gocloud.dev/blob"
@@ -26,18 +25,17 @@ var ErrInvalid = errors.New("invalid")
 type Service interface {
 	// Goa returns an implementation of the goaingest Service.
 	Goa() goaingest.Service
-	Create(context.Context, *datatypes.SIP) error
-	UpdateWorkflowStatus(
+	CreateSIP(context.Context, *datatypes.SIP) error
+	UpdateSIP(
 		ctx context.Context,
 		ID int,
-		name, workflowID, runID, aipID string,
+		name, aipID string,
 		status enums.SIPStatus,
-		storedAt time.Time,
+		completedAt time.Time,
 	) error
 	SetStatus(ctx context.Context, ID int, status enums.SIPStatus) error
 	SetStatusInProgress(ctx context.Context, ID int, startedAt time.Time) error
 	SetStatusPending(ctx context.Context, ID int) error
-	SetLocationID(ctx context.Context, ID int, locationID uuid.UUID) error
 	CreateWorkflow(ctx context.Context, w *datatypes.Workflow) error
 	SetWorkflowStatus(ctx context.Context, ID int, status enums.WorkflowStatus) error
 	CompleteWorkflow(
@@ -103,9 +101,9 @@ func (svc *ingestImpl) Goa() goaingest.Service {
 	}
 }
 
-// Create persists s to the data store then updates it from the data store,
+// CreateSIP persists s to the data store then updates it from the data store,
 // adding generated data (e.g. ID, CreatedAt).
-func (svc *ingestImpl) Create(ctx context.Context, s *datatypes.SIP) error {
+func (svc *ingestImpl) CreateSIP(ctx context.Context, s *datatypes.SIP) error {
 	err := svc.perSvc.CreateSIP(ctx, s)
 	if err != nil {
 		return fmt.Errorf("ingest: create SIP: %v", err)
@@ -116,20 +114,20 @@ func (svc *ingestImpl) Create(ctx context.Context, s *datatypes.SIP) error {
 	return nil
 }
 
-func (svc *ingestImpl) UpdateWorkflowStatus(
+func (svc *ingestImpl) UpdateSIP(
 	ctx context.Context,
 	ID int,
-	name, workflowID, runID, aipID string,
+	name, aipID string,
 	status enums.SIPStatus,
-	storedAt time.Time,
+	completedAt time.Time,
 ) error {
-	// Ensure that storedAt is reset during retries.
-	completedAt := &storedAt
+	// Ensure that completedAt is reset during retries.
+	compAt := &completedAt
 	if status == enums.SIPStatusInProgress {
-		completedAt = nil
+		compAt = nil
 	}
-	if completedAt != nil && completedAt.IsZero() {
-		completedAt = nil
+	if compAt != nil && compAt.IsZero() {
+		compAt = nil
 	}
 
 	if ID < 0 {
@@ -137,14 +135,12 @@ func (svc *ingestImpl) UpdateWorkflowStatus(
 	}
 	id := uint(ID) // #nosec G115 -- range validated.
 
-	query := `UPDATE sip SET name = ?, workflow_id = ?, run_id = ?, aip_id = ?, status = ?, completed_at = ? WHERE id = ?`
+	query := `UPDATE sip SET name = ?, aip_id = ?, status = ?, completed_at = ? WHERE id = ?`
 	args := []interface{}{
 		name,
-		workflowID,
-		runID,
 		aipID,
 		status,
-		completedAt,
+		compAt,
 		ID,
 	}
 
@@ -235,30 +231,6 @@ func (svc *ingestImpl) SetStatusPending(ctx context.Context, ID int) error {
 	return nil
 }
 
-func (svc *ingestImpl) SetLocationID(ctx context.Context, ID int, locationID uuid.UUID) error {
-	if ID < 0 {
-		return fmt.Errorf("%w: ID", ErrInvalid)
-	}
-	id := uint(ID) // #nosec G115 -- range validated.
-
-	query := `UPDATE sip SET location_id = ? WHERE id = ?`
-	args := []interface{}{
-		locationID,
-		ID,
-	}
-
-	if err := svc.updateRow(ctx, query, args); err != nil {
-		return err
-	}
-
-	event.PublishEvent(ctx, svc.evsvc, &goaingest.SIPLocationUpdatedEvent{
-		ID:         id,
-		LocationID: locationID,
-	})
-
-	return nil
-}
-
 func (svc *ingestImpl) updateRow(ctx context.Context, query string, args []interface{}) error {
 	_, err := svc.db.ExecContext(ctx, query, args...)
 	if err != nil {
@@ -269,7 +241,7 @@ func (svc *ingestImpl) updateRow(ctx context.Context, query string, args []inter
 }
 
 func (svc *ingestImpl) read(ctx context.Context, ID uint) (*datatypes.SIP, error) {
-	query := "SELECT id, name, workflow_id, run_id, aip_id, location_id, status, CONVERT_TZ(created_at, @@session.time_zone, '+00:00') AS created_at, CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at, CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at FROM sip WHERE id = ?"
+	query := "SELECT id, name, aip_id, status, CONVERT_TZ(created_at, @@session.time_zone, '+00:00') AS created_at, CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at, CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at FROM sip WHERE id = ?"
 	args := []interface{}{ID}
 	c := datatypes.SIP{}
 

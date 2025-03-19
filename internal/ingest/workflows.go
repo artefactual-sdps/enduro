@@ -27,8 +27,6 @@ type ReviewPerformedSignal struct {
 }
 
 type ProcessingWorkflowRequest struct {
-	WorkflowID string `json:"-"`
-
 	// The zero value represents a new SIP. It can be used to indicate
 	// an existing SIP in retries.
 	SIPID int
@@ -72,15 +70,11 @@ type ProcessingWorkflowRequest struct {
 }
 
 func InitProcessingWorkflow(ctx context.Context, tc temporalsdk_client.Client, req *ProcessingWorkflowRequest) error {
-	if req.WorkflowID == "" {
-		req.WorkflowID = fmt.Sprintf("processing-workflow-%s", uuid.New().String())
-	}
-
 	ctx, cancel := context.WithTimeout(ctx, time.Second*5)
 	defer cancel()
 
 	opts := temporalsdk_client.StartWorkflowOptions{
-		ID:                    req.WorkflowID,
+		ID:                    fmt.Sprintf("processing-workflow-%s", uuid.New().String()),
 		TaskQueue:             req.GlobalTaskQueue,
 		WorkflowIDReusePolicy: temporalsdk_api_enums.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE,
 	}

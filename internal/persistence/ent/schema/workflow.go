@@ -23,7 +23,7 @@ func (Workflow) Annotations() []schema.Annotation {
 // Fields of the Workflow.
 func (Workflow) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("workflow_id").
+		field.String("temporal_id").
 			Annotations(entsql.Annotation{
 				Size: 255,
 			}),

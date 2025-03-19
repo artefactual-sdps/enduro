@@ -320,7 +320,7 @@ func (s *ProcessingWorkflowTestSuite) TestConfirmation() {
 		mock.Anything,
 		mock.Anything,
 		&createWorkflowLocalActivityParams{
-			WorkflowID: "default-test-workflow-id",
+			TemporalID: "default-test-workflow-id",
 			Type:       enums.WorkflowTypeCreateAndReviewAip,
 			Status:     enums.WorkflowStatusInProgress,
 			StartedAt:  startTime,
@@ -406,8 +406,6 @@ func (s *ProcessingWorkflowTestSuite) TestConfirmation() {
 		Return(nil, nil)
 	s.env.OnActivity(activities.MoveToPermanentStorageActivityName, mock.Anything, mock.Anything).Return(nil, nil)
 	s.env.OnActivity(activities.PollMoveToPermanentStorageActivityName, mock.Anything, mock.Anything).Return(nil, nil)
-	s.env.OnActivity(setLocationIDLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
-		Return(nil, nil)
 	s.env.OnActivity(completeWorkflowLocalActivity, ctx, ingestsvc, mock.AnythingOfType("*workflow.completeWorkflowLocalActivityParams")).
 		Return(nil, nil).
 		Once()
@@ -478,7 +476,7 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 		ctx,
 		ingestsvc,
 		&createWorkflowLocalActivityParams{
-			WorkflowID: "default-test-workflow-id",
+			TemporalID: "default-test-workflow-id",
 			Type:       enums.WorkflowTypeCreateAip,
 			Status:     enums.WorkflowStatusInProgress,
 			StartedAt:  startTime,
@@ -607,7 +605,6 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 	s.env.OnActivity(activities.PollMoveToPermanentStorageActivityName, sessionCtx, mock.AnythingOfType("*activities.PollMoveToPermanentStorageActivityParams")).
 		Return(nil, nil).
 		Once()
-	s.env.OnActivity(setLocationIDLocalActivity, ctx, ingestsvc, sipID, locationID).Return(nil, nil).Once()
 	s.env.OnActivity(completeWorkflowLocalActivity, ctx, ingestsvc, mock.AnythingOfType("*workflow.completeWorkflowLocalActivityParams")).
 		Return(nil, nil).
 		Once()
@@ -770,12 +767,6 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	).Return(
 		&am.PollIngestActivityResult{Status: "COMPLETE"}, nil,
 	)
-
-	s.env.OnActivity(setLocationIDLocalActivity, ctx,
-		ingestsvc,
-		sipID,
-		amssLocationID,
-	).Return(&setLocationIDLocalActivityResult{}, nil)
 
 	s.env.OnActivity(activities.CreateStorageAIPActivityName, sessionCtx,
 		&activities.CreateStorageAIPActivityParams{
@@ -1004,7 +995,7 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 		ctx,
 		ingestsvc,
 		&createWorkflowLocalActivityParams{
-			WorkflowID: "default-test-workflow-id",
+			TemporalID: "default-test-workflow-id",
 			Type:       enums.WorkflowTypeCreateAip,
 			Status:     enums.WorkflowStatusInProgress,
 			StartedAt:  startTime,
@@ -1181,8 +1172,6 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 		Return(nil, nil).
 		Once()
 
-	s.env.OnActivity(setLocationIDLocalActivity, ctx, ingestsvc, sipID, locationID).Return(nil, nil).Once()
-
 	s.env.OnActivity(completeWorkflowLocalActivity, ctx, ingestsvc, mock.AnythingOfType("*workflow.completeWorkflowLocalActivityParams")).
 		Return(nil, nil).
 		Once()
@@ -1274,7 +1263,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedSIP() {
 		ctx,
 		ingestsvc,
 		&createWorkflowLocalActivityParams{
-			WorkflowID: "default-test-workflow-id",
+			TemporalID: "default-test-workflow-id",
 			Type:       enums.WorkflowTypeCreateAip,
 			Status:     enums.WorkflowStatusInProgress,
 			StartedAt:  startTime,
@@ -1389,7 +1378,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPA3m() {
 		ctx,
 		ingestsvc,
 		&createWorkflowLocalActivityParams{
-			WorkflowID: "default-test-workflow-id",
+			TemporalID: "default-test-workflow-id",
 			Type:       enums.WorkflowTypeCreateAip,
 			Status:     enums.WorkflowStatusInProgress,
 			StartedAt:  startTime,
@@ -1548,7 +1537,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPAM() {
 		ctx,
 		ingestsvc,
 		&createWorkflowLocalActivityParams{
-			WorkflowID: "default-test-workflow-id",
+			TemporalID: "default-test-workflow-id",
 			Type:       enums.WorkflowTypeCreateAip,
 			Status:     enums.WorkflowStatusInProgress,
 			StartedAt:  startTime,

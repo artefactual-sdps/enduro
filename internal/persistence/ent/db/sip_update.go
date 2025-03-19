@@ -44,34 +44,6 @@ func (su *SIPUpdate) SetNillableName(s *string) *SIPUpdate {
 	return su
 }
 
-// SetWorkflowID sets the "workflow_id" field.
-func (su *SIPUpdate) SetWorkflowID(s string) *SIPUpdate {
-	su.mutation.SetWorkflowID(s)
-	return su
-}
-
-// SetNillableWorkflowID sets the "workflow_id" field if the given value is not nil.
-func (su *SIPUpdate) SetNillableWorkflowID(s *string) *SIPUpdate {
-	if s != nil {
-		su.SetWorkflowID(*s)
-	}
-	return su
-}
-
-// SetRunID sets the "run_id" field.
-func (su *SIPUpdate) SetRunID(u uuid.UUID) *SIPUpdate {
-	su.mutation.SetRunID(u)
-	return su
-}
-
-// SetNillableRunID sets the "run_id" field if the given value is not nil.
-func (su *SIPUpdate) SetNillableRunID(u *uuid.UUID) *SIPUpdate {
-	if u != nil {
-		su.SetRunID(*u)
-	}
-	return su
-}
-
 // SetAipID sets the "aip_id" field.
 func (su *SIPUpdate) SetAipID(u uuid.UUID) *SIPUpdate {
 	su.mutation.SetAipID(u)
@@ -89,26 +61,6 @@ func (su *SIPUpdate) SetNillableAipID(u *uuid.UUID) *SIPUpdate {
 // ClearAipID clears the value of the "aip_id" field.
 func (su *SIPUpdate) ClearAipID() *SIPUpdate {
 	su.mutation.ClearAipID()
-	return su
-}
-
-// SetLocationID sets the "location_id" field.
-func (su *SIPUpdate) SetLocationID(u uuid.UUID) *SIPUpdate {
-	su.mutation.SetLocationID(u)
-	return su
-}
-
-// SetNillableLocationID sets the "location_id" field if the given value is not nil.
-func (su *SIPUpdate) SetNillableLocationID(u *uuid.UUID) *SIPUpdate {
-	if u != nil {
-		su.SetLocationID(*u)
-	}
-	return su
-}
-
-// ClearLocationID clears the value of the "location_id" field.
-func (su *SIPUpdate) ClearLocationID() *SIPUpdate {
-	su.mutation.ClearLocationID()
 	return su
 }
 
@@ -253,23 +205,11 @@ func (su *SIPUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := su.mutation.Name(); ok {
 		_spec.SetField(sip.FieldName, field.TypeString, value)
 	}
-	if value, ok := su.mutation.WorkflowID(); ok {
-		_spec.SetField(sip.FieldWorkflowID, field.TypeString, value)
-	}
-	if value, ok := su.mutation.RunID(); ok {
-		_spec.SetField(sip.FieldRunID, field.TypeUUID, value)
-	}
 	if value, ok := su.mutation.AipID(); ok {
 		_spec.SetField(sip.FieldAipID, field.TypeUUID, value)
 	}
 	if su.mutation.AipIDCleared() {
 		_spec.ClearField(sip.FieldAipID, field.TypeUUID)
-	}
-	if value, ok := su.mutation.LocationID(); ok {
-		_spec.SetField(sip.FieldLocationID, field.TypeUUID, value)
-	}
-	if su.mutation.LocationIDCleared() {
-		_spec.ClearField(sip.FieldLocationID, field.TypeUUID)
 	}
 	if value, ok := su.mutation.Status(); ok {
 		_spec.SetField(sip.FieldStatus, field.TypeInt8, value)
@@ -368,34 +308,6 @@ func (suo *SIPUpdateOne) SetNillableName(s *string) *SIPUpdateOne {
 	return suo
 }
 
-// SetWorkflowID sets the "workflow_id" field.
-func (suo *SIPUpdateOne) SetWorkflowID(s string) *SIPUpdateOne {
-	suo.mutation.SetWorkflowID(s)
-	return suo
-}
-
-// SetNillableWorkflowID sets the "workflow_id" field if the given value is not nil.
-func (suo *SIPUpdateOne) SetNillableWorkflowID(s *string) *SIPUpdateOne {
-	if s != nil {
-		suo.SetWorkflowID(*s)
-	}
-	return suo
-}
-
-// SetRunID sets the "run_id" field.
-func (suo *SIPUpdateOne) SetRunID(u uuid.UUID) *SIPUpdateOne {
-	suo.mutation.SetRunID(u)
-	return suo
-}
-
-// SetNillableRunID sets the "run_id" field if the given value is not nil.
-func (suo *SIPUpdateOne) SetNillableRunID(u *uuid.UUID) *SIPUpdateOne {
-	if u != nil {
-		suo.SetRunID(*u)
-	}
-	return suo
-}
-
 // SetAipID sets the "aip_id" field.
 func (suo *SIPUpdateOne) SetAipID(u uuid.UUID) *SIPUpdateOne {
 	suo.mutation.SetAipID(u)
@@ -413,26 +325,6 @@ func (suo *SIPUpdateOne) SetNillableAipID(u *uuid.UUID) *SIPUpdateOne {
 // ClearAipID clears the value of the "aip_id" field.
 func (suo *SIPUpdateOne) ClearAipID() *SIPUpdateOne {
 	suo.mutation.ClearAipID()
-	return suo
-}
-
-// SetLocationID sets the "location_id" field.
-func (suo *SIPUpdateOne) SetLocationID(u uuid.UUID) *SIPUpdateOne {
-	suo.mutation.SetLocationID(u)
-	return suo
-}
-
-// SetNillableLocationID sets the "location_id" field if the given value is not nil.
-func (suo *SIPUpdateOne) SetNillableLocationID(u *uuid.UUID) *SIPUpdateOne {
-	if u != nil {
-		suo.SetLocationID(*u)
-	}
-	return suo
-}
-
-// ClearLocationID clears the value of the "location_id" field.
-func (suo *SIPUpdateOne) ClearLocationID() *SIPUpdateOne {
-	suo.mutation.ClearLocationID()
 	return suo
 }
 
@@ -607,23 +499,11 @@ func (suo *SIPUpdateOne) sqlSave(ctx context.Context) (_node *SIP, err error) {
 	if value, ok := suo.mutation.Name(); ok {
 		_spec.SetField(sip.FieldName, field.TypeString, value)
 	}
-	if value, ok := suo.mutation.WorkflowID(); ok {
-		_spec.SetField(sip.FieldWorkflowID, field.TypeString, value)
-	}
-	if value, ok := suo.mutation.RunID(); ok {
-		_spec.SetField(sip.FieldRunID, field.TypeUUID, value)
-	}
 	if value, ok := suo.mutation.AipID(); ok {
 		_spec.SetField(sip.FieldAipID, field.TypeUUID, value)
 	}
 	if suo.mutation.AipIDCleared() {
 		_spec.ClearField(sip.FieldAipID, field.TypeUUID)
-	}
-	if value, ok := suo.mutation.LocationID(); ok {
-		_spec.SetField(sip.FieldLocationID, field.TypeUUID, value)
-	}
-	if suo.mutation.LocationIDCleared() {
-		_spec.ClearField(sip.FieldLocationID, field.TypeUUID)
 	}
 	if value, ok := suo.mutation.Status(); ok {
 		_spec.SetField(sip.FieldStatus, field.TypeInt8, value)

@@ -39,10 +39,7 @@ type SIPMutation struct {
 	typ              string
 	id               *int
 	name             *string
-	workflow_id      *string
-	run_id           *uuid.UUID
 	aip_id           *uuid.UUID
-	location_id      *uuid.UUID
 	status           *int8
 	addstatus        *int8
 	created_at       *time.Time
@@ -191,78 +188,6 @@ func (m *SIPMutation) ResetName() {
 	m.name = nil
 }
 
-// SetWorkflowID sets the "workflow_id" field.
-func (m *SIPMutation) SetWorkflowID(s string) {
-	m.workflow_id = &s
-}
-
-// WorkflowID returns the value of the "workflow_id" field in the mutation.
-func (m *SIPMutation) WorkflowID() (r string, exists bool) {
-	v := m.workflow_id
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldWorkflowID returns the old "workflow_id" field's value of the SIP entity.
-// If the SIP object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *SIPMutation) OldWorkflowID(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldWorkflowID is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldWorkflowID requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldWorkflowID: %w", err)
-	}
-	return oldValue.WorkflowID, nil
-}
-
-// ResetWorkflowID resets all changes to the "workflow_id" field.
-func (m *SIPMutation) ResetWorkflowID() {
-	m.workflow_id = nil
-}
-
-// SetRunID sets the "run_id" field.
-func (m *SIPMutation) SetRunID(u uuid.UUID) {
-	m.run_id = &u
-}
-
-// RunID returns the value of the "run_id" field in the mutation.
-func (m *SIPMutation) RunID() (r uuid.UUID, exists bool) {
-	v := m.run_id
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldRunID returns the old "run_id" field's value of the SIP entity.
-// If the SIP object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *SIPMutation) OldRunID(ctx context.Context) (v uuid.UUID, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldRunID is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldRunID requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldRunID: %w", err)
-	}
-	return oldValue.RunID, nil
-}
-
-// ResetRunID resets all changes to the "run_id" field.
-func (m *SIPMutation) ResetRunID() {
-	m.run_id = nil
-}
-
 // SetAipID sets the "aip_id" field.
 func (m *SIPMutation) SetAipID(u uuid.UUID) {
 	m.aip_id = &u
@@ -310,55 +235,6 @@ func (m *SIPMutation) AipIDCleared() bool {
 func (m *SIPMutation) ResetAipID() {
 	m.aip_id = nil
 	delete(m.clearedFields, sip.FieldAipID)
-}
-
-// SetLocationID sets the "location_id" field.
-func (m *SIPMutation) SetLocationID(u uuid.UUID) {
-	m.location_id = &u
-}
-
-// LocationID returns the value of the "location_id" field in the mutation.
-func (m *SIPMutation) LocationID() (r uuid.UUID, exists bool) {
-	v := m.location_id
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldLocationID returns the old "location_id" field's value of the SIP entity.
-// If the SIP object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *SIPMutation) OldLocationID(ctx context.Context) (v uuid.UUID, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldLocationID is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldLocationID requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldLocationID: %w", err)
-	}
-	return oldValue.LocationID, nil
-}
-
-// ClearLocationID clears the value of the "location_id" field.
-func (m *SIPMutation) ClearLocationID() {
-	m.location_id = nil
-	m.clearedFields[sip.FieldLocationID] = struct{}{}
-}
-
-// LocationIDCleared returns if the "location_id" field was cleared in this mutation.
-func (m *SIPMutation) LocationIDCleared() bool {
-	_, ok := m.clearedFields[sip.FieldLocationID]
-	return ok
-}
-
-// ResetLocationID resets all changes to the "location_id" field.
-func (m *SIPMutation) ResetLocationID() {
-	m.location_id = nil
-	delete(m.clearedFields, sip.FieldLocationID)
 }
 
 // SetStatus sets the "status" field.
@@ -639,21 +515,12 @@ func (m *SIPMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *SIPMutation) Fields() []string {
-	fields := make([]string, 0, 9)
+	fields := make([]string, 0, 6)
 	if m.name != nil {
 		fields = append(fields, sip.FieldName)
 	}
-	if m.workflow_id != nil {
-		fields = append(fields, sip.FieldWorkflowID)
-	}
-	if m.run_id != nil {
-		fields = append(fields, sip.FieldRunID)
-	}
 	if m.aip_id != nil {
 		fields = append(fields, sip.FieldAipID)
-	}
-	if m.location_id != nil {
-		fields = append(fields, sip.FieldLocationID)
 	}
 	if m.status != nil {
 		fields = append(fields, sip.FieldStatus)
@@ -677,14 +544,8 @@ func (m *SIPMutation) Field(name string) (ent.Value, bool) {
 	switch name {
 	case sip.FieldName:
 		return m.Name()
-	case sip.FieldWorkflowID:
-		return m.WorkflowID()
-	case sip.FieldRunID:
-		return m.RunID()
 	case sip.FieldAipID:
 		return m.AipID()
-	case sip.FieldLocationID:
-		return m.LocationID()
 	case sip.FieldStatus:
 		return m.Status()
 	case sip.FieldCreatedAt:
@@ -704,14 +565,8 @@ func (m *SIPMutation) OldField(ctx context.Context, name string) (ent.Value, err
 	switch name {
 	case sip.FieldName:
 		return m.OldName(ctx)
-	case sip.FieldWorkflowID:
-		return m.OldWorkflowID(ctx)
-	case sip.FieldRunID:
-		return m.OldRunID(ctx)
 	case sip.FieldAipID:
 		return m.OldAipID(ctx)
-	case sip.FieldLocationID:
-		return m.OldLocationID(ctx)
 	case sip.FieldStatus:
 		return m.OldStatus(ctx)
 	case sip.FieldCreatedAt:
@@ -736,33 +591,12 @@ func (m *SIPMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetName(v)
 		return nil
-	case sip.FieldWorkflowID:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetWorkflowID(v)
-		return nil
-	case sip.FieldRunID:
-		v, ok := value.(uuid.UUID)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetRunID(v)
-		return nil
 	case sip.FieldAipID:
 		v, ok := value.(uuid.UUID)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetAipID(v)
-		return nil
-	case sip.FieldLocationID:
-		v, ok := value.(uuid.UUID)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetLocationID(v)
 		return nil
 	case sip.FieldStatus:
 		v, ok := value.(int8)
@@ -840,9 +674,6 @@ func (m *SIPMutation) ClearedFields() []string {
 	if m.FieldCleared(sip.FieldAipID) {
 		fields = append(fields, sip.FieldAipID)
 	}
-	if m.FieldCleared(sip.FieldLocationID) {
-		fields = append(fields, sip.FieldLocationID)
-	}
 	if m.FieldCleared(sip.FieldStartedAt) {
 		fields = append(fields, sip.FieldStartedAt)
 	}
@@ -866,9 +697,6 @@ func (m *SIPMutation) ClearField(name string) error {
 	case sip.FieldAipID:
 		m.ClearAipID()
 		return nil
-	case sip.FieldLocationID:
-		m.ClearLocationID()
-		return nil
 	case sip.FieldStartedAt:
 		m.ClearStartedAt()
 		return nil
@@ -886,17 +714,8 @@ func (m *SIPMutation) ResetField(name string) error {
 	case sip.FieldName:
 		m.ResetName()
 		return nil
-	case sip.FieldWorkflowID:
-		m.ResetWorkflowID()
-		return nil
-	case sip.FieldRunID:
-		m.ResetRunID()
-		return nil
 	case sip.FieldAipID:
 		m.ResetAipID()
-		return nil
-	case sip.FieldLocationID:
-		m.ResetLocationID()
 		return nil
 	case sip.FieldStatus:
 		m.ResetStatus()
@@ -1785,7 +1604,7 @@ type WorkflowMutation struct {
 	op            Op
 	typ           string
 	id            *int
-	workflow_id   *string
+	temporal_id   *string
 	_type         *int8
 	add_type      *int8
 	status        *int8
@@ -1901,40 +1720,40 @@ func (m *WorkflowMutation) IDs(ctx context.Context) ([]int, error) {
 	}
 }
 
-// SetWorkflowID sets the "workflow_id" field.
-func (m *WorkflowMutation) SetWorkflowID(s string) {
-	m.workflow_id = &s
+// SetTemporalID sets the "temporal_id" field.
+func (m *WorkflowMutation) SetTemporalID(s string) {
+	m.temporal_id = &s
 }
 
-// WorkflowID returns the value of the "workflow_id" field in the mutation.
-func (m *WorkflowMutation) WorkflowID() (r string, exists bool) {
-	v := m.workflow_id
+// TemporalID returns the value of the "temporal_id" field in the mutation.
+func (m *WorkflowMutation) TemporalID() (r string, exists bool) {
+	v := m.temporal_id
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldWorkflowID returns the old "workflow_id" field's value of the Workflow entity.
+// OldTemporalID returns the old "temporal_id" field's value of the Workflow entity.
 // If the Workflow object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *WorkflowMutation) OldWorkflowID(ctx context.Context) (v string, err error) {
+func (m *WorkflowMutation) OldTemporalID(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldWorkflowID is only allowed on UpdateOne operations")
+		return v, errors.New("OldTemporalID is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldWorkflowID requires an ID field in the mutation")
+		return v, errors.New("OldTemporalID requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldWorkflowID: %w", err)
+		return v, fmt.Errorf("querying old value for OldTemporalID: %w", err)
 	}
-	return oldValue.WorkflowID, nil
+	return oldValue.TemporalID, nil
 }
 
-// ResetWorkflowID resets all changes to the "workflow_id" field.
-func (m *WorkflowMutation) ResetWorkflowID() {
-	m.workflow_id = nil
+// ResetTemporalID resets all changes to the "temporal_id" field.
+func (m *WorkflowMutation) ResetTemporalID() {
+	m.temporal_id = nil
 }
 
 // SetType sets the "type" field.
@@ -2299,8 +2118,8 @@ func (m *WorkflowMutation) Type() string {
 // AddedFields().
 func (m *WorkflowMutation) Fields() []string {
 	fields := make([]string, 0, 6)
-	if m.workflow_id != nil {
-		fields = append(fields, workflow.FieldWorkflowID)
+	if m.temporal_id != nil {
+		fields = append(fields, workflow.FieldTemporalID)
 	}
 	if m._type != nil {
 		fields = append(fields, workflow.FieldType)
@@ -2325,8 +2144,8 @@ func (m *WorkflowMutation) Fields() []string {
 // schema.
 func (m *WorkflowMutation) Field(name string) (ent.Value, bool) {
 	switch name {
-	case workflow.FieldWorkflowID:
-		return m.WorkflowID()
+	case workflow.FieldTemporalID:
+		return m.TemporalID()
 	case workflow.FieldType:
 		return m.GetType()
 	case workflow.FieldStatus:
@@ -2346,8 +2165,8 @@ func (m *WorkflowMutation) Field(name string) (ent.Value, bool) {
 // database failed.
 func (m *WorkflowMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
-	case workflow.FieldWorkflowID:
-		return m.OldWorkflowID(ctx)
+	case workflow.FieldTemporalID:
+		return m.OldTemporalID(ctx)
 	case workflow.FieldType:
 		return m.OldType(ctx)
 	case workflow.FieldStatus:
@@ -2367,12 +2186,12 @@ func (m *WorkflowMutation) OldField(ctx context.Context, name string) (ent.Value
 // type.
 func (m *WorkflowMutation) SetField(name string, value ent.Value) error {
 	switch name {
-	case workflow.FieldWorkflowID:
+	case workflow.FieldTemporalID:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetWorkflowID(v)
+		m.SetTemporalID(v)
 		return nil
 	case workflow.FieldType:
 		v, ok := value.(int8)
@@ -2500,8 +2319,8 @@ func (m *WorkflowMutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *WorkflowMutation) ResetField(name string) error {
 	switch name {
-	case workflow.FieldWorkflowID:
-		m.ResetWorkflowID()
+	case workflow.FieldTemporalID:
+		m.ResetTemporalID()
 		return nil
 	case workflow.FieldType:
 		m.ResetType()

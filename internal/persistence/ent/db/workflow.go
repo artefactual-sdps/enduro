@@ -18,8 +18,8 @@ type Workflow struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
-	// WorkflowID holds the value of the "workflow_id" field.
-	WorkflowID string `json:"workflow_id,omitempty"`
+	// TemporalID holds the value of the "temporal_id" field.
+	TemporalID string `json:"temporal_id,omitempty"`
 	// Type holds the value of the "type" field.
 	Type int8 `json:"type,omitempty"`
 	// Status holds the value of the "status" field.
@@ -74,7 +74,7 @@ func (*Workflow) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case workflow.FieldID, workflow.FieldType, workflow.FieldStatus, workflow.FieldSipID:
 			values[i] = new(sql.NullInt64)
-		case workflow.FieldWorkflowID:
+		case workflow.FieldTemporalID:
 			values[i] = new(sql.NullString)
 		case workflow.FieldStartedAt, workflow.FieldCompletedAt:
 			values[i] = new(sql.NullTime)
@@ -99,11 +99,11 @@ func (w *Workflow) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			w.ID = int(value.Int64)
-		case workflow.FieldWorkflowID:
+		case workflow.FieldTemporalID:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field workflow_id", values[i])
+				return fmt.Errorf("unexpected type %T for field temporal_id", values[i])
 			} else if value.Valid {
-				w.WorkflowID = value.String
+				w.TemporalID = value.String
 			}
 		case workflow.FieldType:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -181,8 +181,8 @@ func (w *Workflow) String() string {
 	var builder strings.Builder
 	builder.WriteString("Workflow(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", w.ID))
-	builder.WriteString("workflow_id=")
-	builder.WriteString(w.WorkflowID)
+	builder.WriteString("temporal_id=")
+	builder.WriteString(w.TemporalID)
 	builder.WriteString(", ")
 	builder.WriteString("type=")
 	builder.WriteString(fmt.Sprintf("%v", w.Type))

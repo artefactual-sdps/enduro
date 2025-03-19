@@ -54,7 +54,6 @@ export interface IngestListSipsRequest {
     aipId?: string;
     earliestCreatedTime?: Date;
     latestCreatedTime?: Date;
-    locationId?: string;
     status?: IngestListSipsStatusEnum;
     limit?: number;
     offset?: number;
@@ -132,7 +131,6 @@ export interface IngestApiInterface {
      * @param {string} [aipId] Identifier of AIP
      * @param {Date} [earliestCreatedTime] 
      * @param {Date} [latestCreatedTime] 
-     * @param {string} [locationId] Identifier of storage location
      * @param {'new' | 'in progress' | 'done' | 'error' | 'unknown' | 'queued' | 'abandoned' | 'pending'} [status] 
      * @param {number} [limit] Limit number of results to return
      * @param {number} [offset] Offset from the beginning of the found set
@@ -374,10 +372,6 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
 
         if (requestParameters.latestCreatedTime !== undefined) {
             queryParameters['latest_created_time'] = (requestParameters.latestCreatedTime as any).toISOString();
-        }
-
-        if (requestParameters.locationId !== undefined) {
-            queryParameters['location_id'] = requestParameters.locationId;
         }
 
         if (requestParameters.status !== undefined) {

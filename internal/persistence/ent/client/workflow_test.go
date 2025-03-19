@@ -16,7 +16,7 @@ import (
 func TestCreateWorkflow(t *testing.T) {
 	t.Parallel()
 
-	workflowID := "processing-workflow-720db1d4-825c-4911-9a20-61c212cf23ff"
+	temporalID := "processing-workflow-720db1d4-825c-4911-9a20-61c212cf23ff"
 	started := sql.NullTime{Time: time.Now(), Valid: true}
 	completed := sql.NullTime{Time: started.Time.Add(time.Second), Valid: true}
 
@@ -34,7 +34,7 @@ func TestCreateWorkflow(t *testing.T) {
 			name: "Saves a new workflow to the database",
 			args: params{
 				w: &datatypes.Workflow{
-					WorkflowID:  workflowID,
+					TemporalID:  temporalID,
 					Type:        enums.WorkflowTypeCreateAip,
 					Status:      enums.WorkflowStatusDone,
 					StartedAt:   started,
@@ -44,7 +44,7 @@ func TestCreateWorkflow(t *testing.T) {
 			},
 			want: &datatypes.Workflow{
 				ID:          1,
-				WorkflowID:  workflowID,
+				TemporalID:  temporalID,
 				Type:        enums.WorkflowTypeCreateAip,
 				Status:      enums.WorkflowStatusDone,
 				StartedAt:   started,
@@ -53,20 +53,20 @@ func TestCreateWorkflow(t *testing.T) {
 			},
 		},
 		{
-			name: "Required field error for missing WorkflowID",
+			name: "Required field error for missing TemporalID",
 			args: params{
 				w: &datatypes.Workflow{
 					Type:   enums.WorkflowTypeCreateAip,
 					Status: enums.WorkflowStatusDone,
 				},
 			},
-			wantErr: "invalid data error: field \"WorkflowID\" is required",
+			wantErr: "invalid data error: field \"TemporalID\" is required",
 		},
 		{
 			name: "Required field error for missing SIPID",
 			args: params{
 				w: &datatypes.Workflow{
-					WorkflowID: workflowID,
+					TemporalID: temporalID,
 					Type:       enums.WorkflowTypeCreateAip,
 					Status:     enums.WorkflowStatusDone,
 				},
@@ -77,7 +77,7 @@ func TestCreateWorkflow(t *testing.T) {
 			name: "Foreign key error on an invalid SIPID",
 			args: params{
 				w: &datatypes.Workflow{
-					WorkflowID: workflowID,
+					TemporalID: temporalID,
 					Type:       9,
 					Status:     enums.WorkflowStatusDone,
 					SIPID:      12345,

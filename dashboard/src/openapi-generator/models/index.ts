@@ -24,7 +24,6 @@ export * from './MonitorEventEvent';
 export * from './MonitorPingEvent';
 export * from './MoveStatusResult';
 export * from './SIPCreatedEvent';
-export * from './SIPLocationUpdatedEvent';
 export * from './SIPNotFound';
 export * from './SIPStatusUpdatedEvent';
 export * from './SIPTaskCreatedEvent';

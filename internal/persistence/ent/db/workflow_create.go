@@ -22,9 +22,9 @@ type WorkflowCreate struct {
 	hooks    []Hook
 }
 
-// SetWorkflowID sets the "workflow_id" field.
-func (wc *WorkflowCreate) SetWorkflowID(s string) *WorkflowCreate {
-	wc.mutation.SetWorkflowID(s)
+// SetTemporalID sets the "temporal_id" field.
+func (wc *WorkflowCreate) SetTemporalID(s string) *WorkflowCreate {
+	wc.mutation.SetTemporalID(s)
 	return wc
 }
 
@@ -128,8 +128,8 @@ func (wc *WorkflowCreate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (wc *WorkflowCreate) check() error {
-	if _, ok := wc.mutation.WorkflowID(); !ok {
-		return &ValidationError{Name: "workflow_id", err: errors.New(`db: missing required field "Workflow.workflow_id"`)}
+	if _, ok := wc.mutation.TemporalID(); !ok {
+		return &ValidationError{Name: "temporal_id", err: errors.New(`db: missing required field "Workflow.temporal_id"`)}
 	}
 	if _, ok := wc.mutation.GetType(); !ok {
 		return &ValidationError{Name: "type", err: errors.New(`db: missing required field "Workflow.type"`)}
@@ -174,9 +174,9 @@ func (wc *WorkflowCreate) createSpec() (*Workflow, *sqlgraph.CreateSpec) {
 		_node = &Workflow{config: wc.config}
 		_spec = sqlgraph.NewCreateSpec(workflow.Table, sqlgraph.NewFieldSpec(workflow.FieldID, field.TypeInt))
 	)
-	if value, ok := wc.mutation.WorkflowID(); ok {
-		_spec.SetField(workflow.FieldWorkflowID, field.TypeString, value)
-		_node.WorkflowID = value
+	if value, ok := wc.mutation.TemporalID(); ok {
+		_spec.SetField(workflow.FieldTemporalID, field.TypeString, value)
+		_node.TemporalID = value
 	}
 	if value, ok := wc.mutation.GetType(); ok {
 		_spec.SetField(workflow.FieldType, field.TypeInt8, value)

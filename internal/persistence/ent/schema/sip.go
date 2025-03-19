@@ -31,14 +31,7 @@ func (SIP) Fields() []ent.Field {
 			Annotations(entsql.Annotation{
 				Size: 2048,
 			}),
-		field.String("workflow_id").
-			Annotations(entsql.Annotation{
-				Size: 255,
-			}),
-		field.UUID("run_id", uuid.UUID{}),
 		field.UUID("aip_id", uuid.UUID{}).
-			Optional(),
-		field.UUID("location_id", uuid.UUID{}).
 			Optional(),
 		field.Int8("status"),
 		field.Time("created_at").
@@ -67,8 +60,6 @@ func (SIP) Indexes() []ent.Index {
 			Annotations(entsql.Prefix(50)),
 		index.Fields("aip_id").
 			StorageKey("sip_aip_id_idx"),
-		index.Fields("location_id").
-			StorageKey("sip_location_id_idx"),
 		index.Fields("status").
 			StorageKey("sip_status_idx"),
 		index.Fields("created_at").

@@ -115,9 +115,7 @@ type ListSipsPayload struct {
 	AipID               *string
 	EarliestCreatedTime *string
 	LatestCreatedTime   *string
-	// Identifier of storage location
-	LocationID *string
-	Status     *string
+	Status              *string
 	// Limit number of results to return
 	Limit *int
 	// Offset from the beginning of the found set
@@ -189,14 +187,8 @@ type SIP struct {
 	ID uint
 	// Name of the SIP
 	Name *string
-	// Identifier of storage location
-	LocationID *uuid.UUID
 	// Status of the SIP
 	Status string
-	// Identifier of processing workflow
-	WorkflowID *string
-	// Identifier of latest processing workflow run
-	RunID *string
 	// Identifier of AIP
 	AipID *string
 	// Creation datetime
@@ -213,13 +205,6 @@ type SIPCreatedEvent struct {
 	// Identifier of SIP
 	ID   uint
 	Item *SIP
-}
-
-type SIPLocationUpdatedEvent struct {
-	// Identifier of SIP
-	ID uint
-	// Identifier of storage location
-	LocationID uuid.UUID
 }
 
 // SIP not found.
@@ -271,7 +256,7 @@ type SIPUpdatedEvent struct {
 // SIPWorkflow describes a workflow of a SIP.
 type SIPWorkflow struct {
 	ID          uint
-	WorkflowID  string
+	TemporalID  string
 	Type        string
 	Status      string
 	StartedAt   string
@@ -378,7 +363,6 @@ func (e Unauthorized) GoaErrorName() string {
 }
 func (*MonitorPingEvent) eventVal()        {}
 func (*SIPCreatedEvent) eventVal()         {}
-func (*SIPLocationUpdatedEvent) eventVal() {}
 func (*SIPStatusUpdatedEvent) eventVal()   {}
 func (*SIPTaskCreatedEvent) eventVal()     {}
 func (*SIPTaskUpdatedEvent) eventVal()     {}
@@ -502,9 +486,6 @@ func newSIPCollectionView(res SIPCollection) ingestviews.SIPCollectionView {
 func newSIP(vres *ingestviews.SIPView) *SIP {
 	res := &SIP{
 		Name:        vres.Name,
-		LocationID:  vres.LocationID,
-		WorkflowID:  vres.WorkflowID,
-		RunID:       vres.RunID,
 		AipID:       vres.AipID,
 		StartedAt:   vres.StartedAt,
 		CompletedAt: vres.CompletedAt,
@@ -530,10 +511,7 @@ func newSIPView(res *SIP) *ingestviews.SIPView {
 	vres := &ingestviews.SIPView{
 		ID:          &res.ID,
 		Name:        res.Name,
-		LocationID:  res.LocationID,
 		Status:      &res.Status,
-		WorkflowID:  res.WorkflowID,
-		RunID:       res.RunID,
 		AipID:       res.AipID,
 		CreatedAt:   &res.CreatedAt,
 		StartedAt:   res.StartedAt,
@@ -639,8 +617,8 @@ func newSIPWorkflowSimple(vres *ingestviews.SIPWorkflowView) *SIPWorkflow {
 	if vres.ID != nil {
 		res.ID = *vres.ID
 	}
-	if vres.WorkflowID != nil {
-		res.WorkflowID = *vres.WorkflowID
+	if vres.TemporalID != nil {
+		res.TemporalID = *vres.TemporalID
 	}
 	if vres.Type != nil {
 		res.Type = *vres.Type
@@ -667,8 +645,8 @@ func newSIPWorkflow(vres *ingestviews.SIPWorkflowView) *SIPWorkflow {
 	if vres.ID != nil {
 		res.ID = *vres.ID
 	}
-	if vres.WorkflowID != nil {
-		res.WorkflowID = *vres.WorkflowID
+	if vres.TemporalID != nil {
+		res.TemporalID = *vres.TemporalID
 	}
 	if vres.Type != nil {
 		res.Type = *vres.Type
@@ -690,7 +668,7 @@ func newSIPWorkflow(vres *ingestviews.SIPWorkflowView) *SIPWorkflow {
 func newSIPWorkflowViewSimple(res *SIPWorkflow) *ingestviews.SIPWorkflowView {
 	vres := &ingestviews.SIPWorkflowView{
 		ID:          &res.ID,
-		WorkflowID:  &res.WorkflowID,
+		TemporalID:  &res.TemporalID,
 		Type:        &res.Type,
 		Status:      &res.Status,
 		StartedAt:   &res.StartedAt,
@@ -705,7 +683,7 @@ func newSIPWorkflowViewSimple(res *SIPWorkflow) *ingestviews.SIPWorkflowView {
 func newSIPWorkflowView(res *SIPWorkflow) *ingestviews.SIPWorkflowView {
 	vres := &ingestviews.SIPWorkflowView{
 		ID:          &res.ID,
-		WorkflowID:  &res.WorkflowID,
+		TemporalID:  &res.TemporalID,
 		Type:        &res.Type,
 		Status:      &res.Status,
 		StartedAt:   &res.StartedAt,

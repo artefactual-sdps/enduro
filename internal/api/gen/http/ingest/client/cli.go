@@ -49,7 +49,7 @@ func BuildMonitorPayload(ingestMonitorTicket string) (*ingest.MonitorPayload, er
 
 // BuildListSipsPayload builds the payload for the ingest list_sips endpoint
 // from CLI flags.
-func BuildListSipsPayload(ingestListSipsName string, ingestListSipsAipID string, ingestListSipsEarliestCreatedTime string, ingestListSipsLatestCreatedTime string, ingestListSipsLocationID string, ingestListSipsStatus string, ingestListSipsLimit string, ingestListSipsOffset string, ingestListSipsToken string) (*ingest.ListSipsPayload, error) {
+func BuildListSipsPayload(ingestListSipsName string, ingestListSipsAipID string, ingestListSipsEarliestCreatedTime string, ingestListSipsLatestCreatedTime string, ingestListSipsStatus string, ingestListSipsLimit string, ingestListSipsOffset string, ingestListSipsToken string) (*ingest.ListSipsPayload, error) {
 	var err error
 	var name *string
 	{
@@ -82,16 +82,6 @@ func BuildListSipsPayload(ingestListSipsName string, ingestListSipsAipID string,
 		if ingestListSipsLatestCreatedTime != "" {
 			latestCreatedTime = &ingestListSipsLatestCreatedTime
 			err = goa.MergeErrors(err, goa.ValidateFormat("latest_created_time", *latestCreatedTime, goa.FormatDateTime))
-			if err != nil {
-				return nil, err
-			}
-		}
-	}
-	var locationID *string
-	{
-		if ingestListSipsLocationID != "" {
-			locationID = &ingestListSipsLocationID
-			err = goa.MergeErrors(err, goa.ValidateFormat("location_id", *locationID, goa.FormatUUID))
 			if err != nil {
 				return nil, err
 			}
@@ -144,7 +134,6 @@ func BuildListSipsPayload(ingestListSipsName string, ingestListSipsAipID string,
 	v.AipID = aipID
 	v.EarliestCreatedTime = earliestCreatedTime
 	v.LatestCreatedTime = latestCreatedTime
-	v.LocationID = locationID
 	v.Status = status
 	v.Limit = limit
 	v.Offset = offset

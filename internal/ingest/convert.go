@@ -48,7 +48,7 @@ func workflowToGoa(w *datatypes.Workflow) *goaingest.SIPWorkflow {
 
 	return &goaingest.SIPWorkflow{
 		ID:          id,
-		WorkflowID:  w.WorkflowID,
+		TemporalID:  w.TemporalID,
 		Type:        w.Type.String(),
 		Status:      w.Status.String(),
 		StartedAt:   startedAt,
@@ -91,11 +91,6 @@ func listSipsPayloadToSIPFilter(payload *goaingest.ListSipsPayload) (*persistenc
 		return nil, goaingest.MakeNotValid(errors.New("aip_id: invalid UUID"))
 	}
 
-	locID, err := stringToUUIDPtr(payload.LocationID)
-	if err != nil {
-		return nil, goaingest.MakeNotValid(errors.New("location_id: invalid UUID"))
-	}
-
 	var status *enums.SIPStatus
 	if payload.Status != nil {
 		s, err := enums.ParseSIPStatus(*payload.Status)
@@ -111,12 +106,11 @@ func listSipsPayloadToSIPFilter(payload *goaingest.ListSipsPayload) (*persistenc
 	}
 
 	pf := persistence.SIPFilter{
-		AIPID:      aipID,
-		Name:       payload.Name,
-		LocationID: locID,
-		Status:     status,
-		CreatedAt:  createdAt,
-		Sort:       entfilter.NewSort().AddCol("id", true),
+		AIPID:     aipID,
+		Name:      payload.Name,
+		Status:    status,
+		CreatedAt: createdAt,
+		Sort:      entfilter.NewSort().AddCol("id", true),
 		Page: persistence.Page{
 			Limit:  ref.DerefZero(payload.Limit),
 			Offset: ref.DerefZero(payload.Offset),

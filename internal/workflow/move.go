@@ -74,18 +74,6 @@ func (w *MoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req *ingest.Mov
 		}
 	}
 
-	// Set SIP location.
-	{
-		if status != enums.WorkflowStatusError {
-			ctx := withLocalActivityOpts(ctx)
-			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setLocationIDLocalActivity, w.ingestsvc, req.ID, req.LocationID).
-				Get(ctx, nil)
-			if err != nil {
-				return err
-			}
-		}
-	}
-
 	// Create workflow.
 	{
 		ctx := withLocalActivityOpts(ctx)
@@ -93,7 +81,7 @@ func (w *MoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req *ingest.Mov
 		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, saveLocationMoveWorkflowLocalActivity, w.ingestsvc, &saveLocationMoveWorkflowLocalActivityParams{
 			SIPID:       req.ID,
 			LocationID:  req.LocationID,
-			WorkflowID:  temporalsdk_workflow.GetInfo(ctx).WorkflowExecution.ID,
+			TemporalID:  temporalsdk_workflow.GetInfo(ctx).WorkflowExecution.ID,
 			Type:        enums.WorkflowTypeMovePackage,
 			Status:      status,
 			StartedAt:   startedAt,

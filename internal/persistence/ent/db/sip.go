@@ -20,14 +20,8 @@ type SIP struct {
 	ID int `json:"id,omitempty"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
-	// WorkflowID holds the value of the "workflow_id" field.
-	WorkflowID string `json:"workflow_id,omitempty"`
-	// RunID holds the value of the "run_id" field.
-	RunID uuid.UUID `json:"run_id,omitempty"`
 	// AipID holds the value of the "aip_id" field.
 	AipID uuid.UUID `json:"aip_id,omitempty"`
-	// LocationID holds the value of the "location_id" field.
-	LocationID uuid.UUID `json:"location_id,omitempty"`
 	// Status holds the value of the "status" field.
 	Status int8 `json:"status,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
@@ -67,11 +61,11 @@ func (*SIP) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case sip.FieldID, sip.FieldStatus:
 			values[i] = new(sql.NullInt64)
-		case sip.FieldName, sip.FieldWorkflowID:
+		case sip.FieldName:
 			values[i] = new(sql.NullString)
 		case sip.FieldCreatedAt, sip.FieldStartedAt, sip.FieldCompletedAt:
 			values[i] = new(sql.NullTime)
-		case sip.FieldRunID, sip.FieldAipID, sip.FieldLocationID:
+		case sip.FieldAipID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -100,29 +94,11 @@ func (s *SIP) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				s.Name = value.String
 			}
-		case sip.FieldWorkflowID:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field workflow_id", values[i])
-			} else if value.Valid {
-				s.WorkflowID = value.String
-			}
-		case sip.FieldRunID:
-			if value, ok := values[i].(*uuid.UUID); !ok {
-				return fmt.Errorf("unexpected type %T for field run_id", values[i])
-			} else if value != nil {
-				s.RunID = *value
-			}
 		case sip.FieldAipID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field aip_id", values[i])
 			} else if value != nil {
 				s.AipID = *value
-			}
-		case sip.FieldLocationID:
-			if value, ok := values[i].(*uuid.UUID); !ok {
-				return fmt.Errorf("unexpected type %T for field location_id", values[i])
-			} else if value != nil {
-				s.LocationID = *value
 			}
 		case sip.FieldStatus:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -192,17 +168,8 @@ func (s *SIP) String() string {
 	builder.WriteString("name=")
 	builder.WriteString(s.Name)
 	builder.WriteString(", ")
-	builder.WriteString("workflow_id=")
-	builder.WriteString(s.WorkflowID)
-	builder.WriteString(", ")
-	builder.WriteString("run_id=")
-	builder.WriteString(fmt.Sprintf("%v", s.RunID))
-	builder.WriteString(", ")
 	builder.WriteString("aip_id=")
 	builder.WriteString(fmt.Sprintf("%v", s.AipID))
-	builder.WriteString(", ")
-	builder.WriteString("location_id=")
-	builder.WriteString(fmt.Sprintf("%v", s.LocationID))
 	builder.WriteString(", ")
 	builder.WriteString("status=")
 	builder.WriteString(fmt.Sprintf("%v", s.Status))

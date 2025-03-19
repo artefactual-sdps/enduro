@@ -26,11 +26,6 @@ func convertSIP(sip *db.SIP) *datatypes.SIP {
 		aipID = uuid.NullUUID{UUID: sip.AipID, Valid: true}
 	}
 
-	var locID uuid.NullUUID
-	if sip.LocationID != uuid.Nil {
-		locID = uuid.NullUUID{UUID: sip.LocationID, Valid: true}
-	}
-
 	var status uint
 	if sip.Status > 0 {
 		status = uint(sip.Status) // #nosec G115 -- range validated.
@@ -39,10 +34,7 @@ func convertSIP(sip *db.SIP) *datatypes.SIP {
 	return &datatypes.SIP{
 		ID:          sip.ID,
 		Name:        sip.Name,
-		WorkflowID:  sip.WorkflowID,
-		RunID:       sip.RunID.String(),
 		AIPID:       aipID,
-		LocationID:  locID,
 		Status:      enums.SIPStatus(status),
 		CreatedAt:   sip.CreatedAt,
 		StartedAt:   started,
@@ -65,7 +57,7 @@ func convertWorkflow(w *db.Workflow) *datatypes.Workflow {
 
 	return &datatypes.Workflow{
 		ID:          w.ID,
-		WorkflowID:  w.WorkflowID,
+		TemporalID:  w.TemporalID,
 		Type:        enums.WorkflowType(w.Type),     // #nosec G115 -- constrained value.
 		Status:      enums.WorkflowStatus(w.Status), // #nosec G115 -- constrained value.
 		StartedAt:   started,

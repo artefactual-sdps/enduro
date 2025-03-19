@@ -25,7 +25,6 @@ export interface MonitorEventEvent {
      * - "sip_created_event"
      * - "sip_updated_event"
      * - "sip_status_updated_event"
-     * - "sip_location_updated_event"
      * - "sip_workflow_created_event"
      * - "sip_workflow_updated_event"
      * - "sip_task_created_event"
@@ -51,7 +50,6 @@ export const MonitorEventEventTypeEnum = {
     SipCreatedEvent: 'sip_created_event',
     SipUpdatedEvent: 'sip_updated_event',
     SipStatusUpdatedEvent: 'sip_status_updated_event',
-    SipLocationUpdatedEvent: 'sip_location_updated_event',
     SipWorkflowCreatedEvent: 'sip_workflow_created_event',
     SipWorkflowUpdatedEvent: 'sip_workflow_updated_event',
     SipTaskCreatedEvent: 'sip_task_created_event',

@@ -44,23 +44,11 @@ export interface EnduroIngestSip {
      */
     id: number;
     /**
-     * Identifier of storage location
-     * @type {string}
-     * @memberof EnduroIngestSip
-     */
-    locationId?: string;
-    /**
      * Name of the SIP
      * @type {string}
      * @memberof EnduroIngestSip
      */
     name?: string;
-    /**
-     * Identifier of latest processing workflow run
-     * @type {string}
-     * @memberof EnduroIngestSip
-     */
-    runId?: string;
     /**
      * Start datetime
      * @type {Date}
@@ -73,12 +61,6 @@ export interface EnduroIngestSip {
      * @memberof EnduroIngestSip
      */
     status: EnduroIngestSipStatusEnum;
-    /**
-     * Identifier of processing workflow
-     * @type {string}
-     * @memberof EnduroIngestSip
-     */
-    workflowId?: string;
 }
 
 
@@ -124,12 +106,9 @@ export function EnduroIngestSipFromJSONTyped(json: any, ignoreDiscriminator: boo
         'completedAt': !exists(json, 'completed_at') ? undefined : (new Date(json['completed_at'])),
         'createdAt': (new Date(json['created_at'])),
         'id': json['id'],
-        'locationId': !exists(json, 'location_id') ? undefined : json['location_id'],
         'name': !exists(json, 'name') ? undefined : json['name'],
-        'runId': !exists(json, 'run_id') ? undefined : json['run_id'],
         'startedAt': !exists(json, 'started_at') ? undefined : (new Date(json['started_at'])),
         'status': json['status'],
-        'workflowId': !exists(json, 'workflow_id') ? undefined : json['workflow_id'],
     };
 }
 
@@ -146,12 +125,9 @@ export function EnduroIngestSipToJSON(value?: EnduroIngestSip | null): any {
         'completed_at': value.completedAt === undefined ? undefined : (value.completedAt.toISOString()),
         'created_at': (value.createdAt.toISOString()),
         'id': value.id,
-        'location_id': value.locationId,
         'name': value.name,
-        'run_id': value.runId,
         'started_at': value.startedAt === undefined ? undefined : (value.startedAt.toISOString()),
         'status': value.status,
-        'workflow_id': value.workflowId,
     };
 }
 

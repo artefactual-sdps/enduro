@@ -9,7 +9,6 @@
 package views
 
 import (
-	"github.com/google/uuid"
 	goa "goa.design/goa/v3/pkg"
 )
 
@@ -52,14 +51,8 @@ type SIPView struct {
 	ID *uint
 	// Name of the SIP
 	Name *string
-	// Identifier of storage location
-	LocationID *uuid.UUID
 	// Status of the SIP
 	Status *string
-	// Identifier of processing workflow
-	WorkflowID *string
-	// Identifier of latest processing workflow run
-	RunID *string
 	// Identifier of AIP
 	AipID *string
 	// Creation datetime
@@ -92,7 +85,7 @@ type SIPWorkflowCollectionView []*SIPWorkflowView
 // SIPWorkflowView is a type that runs validations on a projected type.
 type SIPWorkflowView struct {
 	ID          *uint
-	WorkflowID  *string
+	TemporalID  *string
 	Type        *string
 	Status      *string
 	StartedAt   *string
@@ -129,10 +122,7 @@ var (
 		"default": {
 			"id",
 			"name",
-			"location_id",
 			"status",
-			"workflow_id",
-			"run_id",
 			"aip_id",
 			"created_at",
 			"started_at",
@@ -152,10 +142,7 @@ var (
 		"default": {
 			"id",
 			"name",
-			"location_id",
 			"status",
-			"workflow_id",
-			"run_id",
 			"aip_id",
 			"created_at",
 			"started_at",
@@ -176,7 +163,7 @@ var (
 	SIPWorkflowCollectionMap = map[string][]string{
 		"simple": {
 			"id",
-			"workflow_id",
+			"temporal_id",
 			"type",
 			"status",
 			"started_at",
@@ -185,7 +172,7 @@ var (
 		},
 		"default": {
 			"id",
-			"workflow_id",
+			"temporal_id",
 			"type",
 			"status",
 			"started_at",
@@ -199,7 +186,7 @@ var (
 	SIPWorkflowMap = map[string][]string{
 		"simple": {
 			"id",
-			"workflow_id",
+			"temporal_id",
 			"type",
 			"status",
 			"started_at",
@@ -208,7 +195,7 @@ var (
 		},
 		"default": {
 			"id",
-			"workflow_id",
+			"temporal_id",
 			"type",
 			"status",
 			"started_at",
@@ -325,12 +312,6 @@ func ValidateSIPView(result *SIPView) (err error) {
 			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.status", *result.Status, []any{"new", "in progress", "done", "error", "unknown", "queued", "abandoned", "pending"}))
 		}
 	}
-	if result.WorkflowID != nil {
-		err = goa.MergeErrors(err, goa.ValidateFormat("result.workflow_id", *result.WorkflowID, goa.FormatUUID))
-	}
-	if result.RunID != nil {
-		err = goa.MergeErrors(err, goa.ValidateFormat("result.run_id", *result.RunID, goa.FormatUUID))
-	}
 	if result.AipID != nil {
 		err = goa.MergeErrors(err, goa.ValidateFormat("result.aip_id", *result.AipID, goa.FormatUUID))
 	}
@@ -401,8 +382,8 @@ func ValidateSIPWorkflowViewSimple(result *SIPWorkflowView) (err error) {
 	if result.ID == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("id", "result"))
 	}
-	if result.WorkflowID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("workflow_id", "result"))
+	if result.TemporalID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporal_id", "result"))
 	}
 	if result.Type == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("type", "result"))
@@ -438,8 +419,8 @@ func ValidateSIPWorkflowView(result *SIPWorkflowView) (err error) {
 	if result.ID == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("id", "result"))
 	}
-	if result.WorkflowID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("workflow_id", "result"))
+	if result.TemporalID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporal_id", "result"))
 	}
 	if result.Type == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("type", "result"))

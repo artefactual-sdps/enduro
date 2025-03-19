@@ -4,8 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/google/uuid"
-
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/entfilter"
 	"github.com/artefactual-sdps/enduro/internal/persistence"
@@ -24,30 +22,14 @@ func (c *client) CreateSIP(ctx context.Context, s *datatypes.SIP) error {
 	if s.Name == "" {
 		return newRequiredFieldError("Name")
 	}
-	if s.WorkflowID == "" {
-		return newRequiredFieldError("WorkflowID")
-	}
-
-	if s.RunID == "" {
-		return newRequiredFieldError("RunID")
-	}
-	runID, err := uuid.Parse(s.RunID)
-	if err != nil {
-		return newParseError(err, "RunID")
-	}
 
 	q := c.ent.SIP.Create().
 		SetName(s.Name).
-		SetWorkflowID(s.WorkflowID).
-		SetRunID(runID).
 		SetStatus(int8(s.Status)) // #nosec G115 -- constrained value.
 
 	// Add optional fields.
 	if s.AIPID.Valid {
 		q.SetAipID(s.AIPID.UUID)
-	}
-	if s.LocationID.Valid {
-		q.SetLocationID(s.LocationID.UUID)
 	}
 	if s.StartedAt.Valid {
 		q.SetStartedAt(s.StartedAt.Time)
@@ -96,24 +78,14 @@ func (c *client) UpdateSIP(
 		return nil, rollback(tx, newUpdaterError(err))
 	}
 
-	runID, err := uuid.Parse(up.RunID)
-	if err != nil {
-		return nil, rollback(tx, newParseError(err, "RunID"))
-	}
-
 	// Set required column values.
 	q := tx.SIP.UpdateOneID(id).
 		SetName(up.Name).
-		SetWorkflowID(up.WorkflowID).
-		SetRunID(runID).
 		SetStatus(int8(up.Status)) // #nosec G115 -- constrained value.
 
 	// Set nullable column values.
 	if up.AIPID.Valid {
 		q.SetAipID(up.AIPID.UUID)
-	}
-	if up.LocationID.Valid {
-		q.SetLocationID(up.LocationID.UUID)
 	}
 	if up.StartedAt.Valid {
 		q.SetStartedAt(up.StartedAt.Time)
@@ -176,7 +148,6 @@ func filterSIPs(q *db.SIPQuery, f *persistence.SIPFilter) (page, whole *db.SIPQu
 	})
 	qf.Contains(sip.FieldName, f.Name)
 	qf.Equals(sip.FieldAipID, f.AIPID)
-	qf.Equals(sip.FieldLocationID, f.LocationID)
 	qf.Equals(sip.FieldStatus, f.Status)
 	qf.AddDateRange(sip.FieldCreatedAt, f.CreatedAt)
 	qf.OrderBy(f.Sort)

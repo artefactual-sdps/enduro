@@ -23,7 +23,6 @@ var MonitorEvent = Type("MonitorEvent", func() {
 		Attribute("sip_created_event", SIPCreatedEvent)
 		Attribute("sip_updated_event", SIPUpdatedEvent)
 		Attribute("sip_status_updated_event", SIPStatusUpdatedEvent)
-		Attribute("sip_location_updated_event", SIPLocationUpdatedEvent)
 		Attribute("sip_workflow_created_event", SIPWorkflowCreatedEvent)
 		Attribute("sip_workflow_updated_event", SIPWorkflowUpdatedEvent)
 		Attribute("sip_task_created_event", SIPTaskCreatedEvent)
@@ -65,15 +64,6 @@ var SIPStatusUpdatedEvent = Type("SIPStatusUpdatedEvent", func() {
 
 	Meta("type:generate:force")
 	Meta("openapi:typename", "SIPStatusUpdatedEvent")
-})
-
-var SIPLocationUpdatedEvent = Type("SIPLocationUpdatedEvent", func() {
-	Attribute("id", UInt, "Identifier of SIP")
-	TypedAttributeUUID("location_id", "Identifier of storage location")
-	Required("id", "location_id")
-
-	Meta("type:generate:force")
-	Meta("openapi:typename", "SIPLocationUpdatedEvent")
 })
 
 var SIPWorkflowCreatedEvent = Type("SIPWorkflowCreatedEvent", func() {

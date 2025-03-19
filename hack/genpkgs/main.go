@@ -49,14 +49,11 @@ func gen(c int) []string {
 	const doneStatus string = "2"
 	return []string{
 		strconv.Itoa(c),
-		fmt.Sprintf("DPJ-SIP-%s.tar", id()),         // name
-		fmt.Sprintf("processing-workflow-%s", id()), // workflow_id
-		id(),                  // run_id
-		id(),                  // aip_id
-		id(),                  // location_id
-		doneStatus,            // status
-		"2019-11-21 17:36:10", // created_at
-		"2019-11-21 17:36:11", // started_at
-		"2019-11-21 17:42:12", // completed_at
+		fmt.Sprintf("DPJ-SIP-%s.tar", id()), // name
+		id(),                                // aip_id
+		doneStatus,                          // status
+		"2019-11-21 17:36:10",               // created_at
+		"2019-11-21 17:36:11",               // started_at
+		"2019-11-21 17:42:12",               // completed_at
 	}
 }

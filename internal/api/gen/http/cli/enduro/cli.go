@@ -61,7 +61,6 @@ func ParseEndpoint(
 		ingestListSipsAipIDFlag               = ingestListSipsFlags.String("aip-id", "", "")
 		ingestListSipsEarliestCreatedTimeFlag = ingestListSipsFlags.String("earliest-created-time", "", "")
 		ingestListSipsLatestCreatedTimeFlag   = ingestListSipsFlags.String("latest-created-time", "", "")
-		ingestListSipsLocationIDFlag          = ingestListSipsFlags.String("location-id", "", "")
 		ingestListSipsStatusFlag              = ingestListSipsFlags.String("status", "", "")
 		ingestListSipsLimitFlag               = ingestListSipsFlags.String("limit", "", "")
 		ingestListSipsOffsetFlag              = ingestListSipsFlags.String("offset", "", "")
@@ -327,7 +326,7 @@ func ParseEndpoint(
 				data, err = ingestc.BuildMonitorPayload(*ingestMonitorTicketFlag)
 			case "list-sips":
 				endpoint = c.ListSips()
-				data, err = ingestc.BuildListSipsPayload(*ingestListSipsNameFlag, *ingestListSipsAipIDFlag, *ingestListSipsEarliestCreatedTimeFlag, *ingestListSipsLatestCreatedTimeFlag, *ingestListSipsLocationIDFlag, *ingestListSipsStatusFlag, *ingestListSipsLimitFlag, *ingestListSipsOffsetFlag, *ingestListSipsTokenFlag)
+				data, err = ingestc.BuildListSipsPayload(*ingestListSipsNameFlag, *ingestListSipsAipIDFlag, *ingestListSipsEarliestCreatedTimeFlag, *ingestListSipsLatestCreatedTimeFlag, *ingestListSipsStatusFlag, *ingestListSipsLimitFlag, *ingestListSipsOffsetFlag, *ingestListSipsTokenFlag)
 			case "show-sip":
 				endpoint = c.ShowSip()
 				data, err = ingestc.BuildShowSipPayload(*ingestShowSipIDFlag, *ingestShowSipTokenFlag)
@@ -450,21 +449,20 @@ Example:
 }
 
 func ingestListSipsUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] ingest list-sips -name STRING -aip-id STRING -earliest-created-time STRING -latest-created-time STRING -location-id STRING -status STRING -limit INT -offset INT -token STRING
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] ingest list-sips -name STRING -aip-id STRING -earliest-created-time STRING -latest-created-time STRING -status STRING -limit INT -offset INT -token STRING
 
 List all ingested SIPs
     -name STRING: 
     -aip-id STRING: 
     -earliest-created-time STRING: 
     -latest-created-time STRING: 
-    -location-id STRING: 
     -status STRING: 
     -limit INT: 
     -offset INT: 
     -token STRING: 
 
 Example:
-    %[1]s ingest list-sips --name "abc123" --aip-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --earliest-created-time "1970-01-01T00:00:01Z" --latest-created-time "1970-01-01T00:00:01Z" --location-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --status "in progress" --limit 1 --offset 1 --token "abc123"
+    %[1]s ingest list-sips --name "abc123" --aip-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --earliest-created-time "1970-01-01T00:00:01Z" --latest-created-time "1970-01-01T00:00:01Z" --status "in progress" --limit 1 --offset 1 --token "abc123"
 `, os.Args[0])
 }
 
