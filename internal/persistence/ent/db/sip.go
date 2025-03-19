@@ -44,20 +44,20 @@ type SIP struct {
 
 // SIPEdges holds the relations/edges for other nodes in the graph.
 type SIPEdges struct {
-	// PreservationActions holds the value of the preservation_actions edge.
-	PreservationActions []*PreservationAction `json:"preservation_actions,omitempty"`
+	// Workflows holds the value of the workflows edge.
+	Workflows []*Workflow `json:"workflows,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [1]bool
 }
 
-// PreservationActionsOrErr returns the PreservationActions value or an error if the edge
+// WorkflowsOrErr returns the Workflows value or an error if the edge
 // was not loaded in eager-loading.
-func (e SIPEdges) PreservationActionsOrErr() ([]*PreservationAction, error) {
+func (e SIPEdges) WorkflowsOrErr() ([]*Workflow, error) {
 	if e.loadedTypes[0] {
-		return e.PreservationActions, nil
+		return e.Workflows, nil
 	}
-	return nil, &NotLoadedError{edge: "preservation_actions"}
+	return nil, &NotLoadedError{edge: "workflows"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -161,9 +161,9 @@ func (s *SIP) Value(name string) (ent.Value, error) {
 	return s.selectValues.Get(name)
 }
 
-// QueryPreservationActions queries the "preservation_actions" edge of the SIP entity.
-func (s *SIP) QueryPreservationActions() *PreservationActionQuery {
-	return NewSIPClient(s.config).QueryPreservationActions(s)
+// QueryWorkflows queries the "workflows" edge of the SIP entity.
+func (s *SIP) QueryWorkflows() *WorkflowQuery {
+	return NewSIPClient(s.config).QueryWorkflows(s)
 }
 
 // Update returns a builder for updating this SIP.

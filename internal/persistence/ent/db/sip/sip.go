@@ -32,17 +32,17 @@ const (
 	FieldStartedAt = "started_at"
 	// FieldCompletedAt holds the string denoting the completed_at field in the database.
 	FieldCompletedAt = "completed_at"
-	// EdgePreservationActions holds the string denoting the preservation_actions edge name in mutations.
-	EdgePreservationActions = "preservation_actions"
+	// EdgeWorkflows holds the string denoting the workflows edge name in mutations.
+	EdgeWorkflows = "workflows"
 	// Table holds the table name of the sip in the database.
 	Table = "sip"
-	// PreservationActionsTable is the table that holds the preservation_actions relation/edge.
-	PreservationActionsTable = "preservation_action"
-	// PreservationActionsInverseTable is the table name for the PreservationAction entity.
-	// It exists in this package in order to avoid circular dependency with the "preservationaction" package.
-	PreservationActionsInverseTable = "preservation_action"
-	// PreservationActionsColumn is the table column denoting the preservation_actions relation/edge.
-	PreservationActionsColumn = "sip_id"
+	// WorkflowsTable is the table that holds the workflows relation/edge.
+	WorkflowsTable = "workflow"
+	// WorkflowsInverseTable is the table name for the Workflow entity.
+	// It exists in this package in order to avoid circular dependency with the "workflow" package.
+	WorkflowsInverseTable = "workflow"
+	// WorkflowsColumn is the table column denoting the workflows relation/edge.
+	WorkflowsColumn = "sip_id"
 )
 
 // Columns holds all SQL columns for sip fields.
@@ -127,23 +127,23 @@ func ByCompletedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCompletedAt, opts...).ToFunc()
 }
 
-// ByPreservationActionsCount orders the results by preservation_actions count.
-func ByPreservationActionsCount(opts ...sql.OrderTermOption) OrderOption {
+// ByWorkflowsCount orders the results by workflows count.
+func ByWorkflowsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newPreservationActionsStep(), opts...)
+		sqlgraph.OrderByNeighborsCount(s, newWorkflowsStep(), opts...)
 	}
 }
 
-// ByPreservationActions orders the results by preservation_actions terms.
-func ByPreservationActions(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+// ByWorkflows orders the results by workflows terms.
+func ByWorkflows(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newPreservationActionsStep(), append([]sql.OrderTerm{term}, terms...)...)
+		sqlgraph.OrderByNeighborTerms(s, newWorkflowsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
-func newPreservationActionsStep() *sqlgraph.Step {
+func newWorkflowsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(PreservationActionsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, PreservationActionsTable, PreservationActionsColumn),
+		sqlgraph.To(WorkflowsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, WorkflowsTable, WorkflowsColumn),
 	)
 }

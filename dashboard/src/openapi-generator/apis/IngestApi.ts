@@ -20,7 +20,7 @@ import type {
   MonitorEvent,
   MoveStatusResult,
   SIPNotFound,
-  SIPPreservationActions,
+  SIPWorkflows,
   SIPs,
 } from '../models/index';
 import {
@@ -34,8 +34,8 @@ import {
     MoveStatusResultToJSON,
     SIPNotFoundFromJSON,
     SIPNotFoundToJSON,
-    SIPPreservationActionsFromJSON,
-    SIPPreservationActionsToJSON,
+    SIPWorkflowsFromJSON,
+    SIPWorkflowsToJSON,
     SIPsFromJSON,
     SIPsToJSON,
 } from '../models/index';
@@ -45,7 +45,7 @@ export interface IngestConfirmSipRequest {
     confirmSipRequestBody: ConfirmSipRequestBody;
 }
 
-export interface IngestListSipPreservationActionsRequest {
+export interface IngestListSipWorkflowsRequest {
     id: number;
 }
 
@@ -110,20 +110,20 @@ export interface IngestApiInterface {
     ingestConfirmSip(requestParameters: IngestConfirmSipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
 
     /**
-     * List all preservation actions for a SIP
-     * @summary list_sip_preservation_actions ingest
+     * List all workflows for a SIP
+     * @summary list_sip_workflows ingest
      * @param {number} id Identifier of SIP to look up
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof IngestApiInterface
      */
-    ingestListSipPreservationActionsRaw(requestParameters: IngestListSipPreservationActionsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SIPPreservationActions>>;
+    ingestListSipWorkflowsRaw(requestParameters: IngestListSipWorkflowsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SIPWorkflows>>;
 
     /**
-     * List all preservation actions for a SIP
-     * list_sip_preservation_actions ingest
+     * List all workflows for a SIP
+     * list_sip_workflows ingest
      */
-    ingestListSipPreservationActions(requestParameters: IngestListSipPreservationActionsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SIPPreservationActions>;
+    ingestListSipWorkflows(requestParameters: IngestListSipWorkflowsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SIPWorkflows>;
 
     /**
      * List all ingested SIPs
@@ -314,12 +314,12 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
     }
 
     /**
-     * List all preservation actions for a SIP
-     * list_sip_preservation_actions ingest
+     * List all workflows for a SIP
+     * list_sip_workflows ingest
      */
-    async ingestListSipPreservationActionsRaw(requestParameters: IngestListSipPreservationActionsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SIPPreservationActions>> {
+    async ingestListSipWorkflowsRaw(requestParameters: IngestListSipWorkflowsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SIPWorkflows>> {
         if (requestParameters.id === null || requestParameters.id === undefined) {
-            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling ingestListSipPreservationActions.');
+            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling ingestListSipWorkflows.');
         }
 
         const queryParameters: any = {};
@@ -335,21 +335,21 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
             }
         }
         const response = await this.request({
-            path: `/ingest/sips/{id}/preservation-actions`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
+            path: `/ingest/sips/{id}/workflows`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => SIPPreservationActionsFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => SIPWorkflowsFromJSON(jsonValue));
     }
 
     /**
-     * List all preservation actions for a SIP
-     * list_sip_preservation_actions ingest
+     * List all workflows for a SIP
+     * list_sip_workflows ingest
      */
-    async ingestListSipPreservationActions(requestParameters: IngestListSipPreservationActionsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SIPPreservationActions> {
-        const response = await this.ingestListSipPreservationActionsRaw(requestParameters, initOverrides);
+    async ingestListSipWorkflows(requestParameters: IngestListSipWorkflowsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SIPWorkflows> {
+        const response = await this.ingestListSipWorkflowsRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

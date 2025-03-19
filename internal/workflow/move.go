@@ -19,11 +19,11 @@ func NewMoveWorkflow(ingestsvc ingest.Service) *MoveWorkflow {
 }
 
 func (w *MoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req *ingest.MoveWorkflowRequest) error {
-	// Save starting time for preservation action.
+	// Save starting time for workflow.
 	startedAt := temporalsdk_workflow.Now(ctx).UTC()
 
-	// Assume the preservation action will be successful.
-	status := enums.PreservationActionStatusDone
+	// Assume the workflow will be successful.
+	status := enums.WorkflowStatusDone
 
 	// Set SIP to in progress status.
 	{
@@ -44,20 +44,20 @@ func (w *MoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req *ingest.Mov
 		}).
 			Get(activityOpts, nil)
 		if err != nil {
-			status = enums.PreservationActionStatusError
+			status = enums.WorkflowStatusError
 		}
 	}
 
 	// Poll AIP move to permanent storage
 	{
-		if status != enums.PreservationActionStatusError {
+		if status != enums.WorkflowStatusError {
 			activityOpts := withActivityOptsForLongLivedRequest(ctx)
 			err := temporalsdk_workflow.ExecuteActivity(activityOpts, activities.PollMoveToPermanentStorageActivityName, &activities.PollMoveToPermanentStorageActivityParams{
 				AIPID: req.AIPID,
 			}).
 				Get(activityOpts, nil)
 			if err != nil {
-				status = enums.PreservationActionStatusError
+				status = enums.WorkflowStatusError
 			}
 		}
 	}
@@ -76,7 +76,7 @@ func (w *MoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req *ingest.Mov
 
 	// Set SIP location.
 	{
-		if status != enums.PreservationActionStatusError {
+		if status != enums.WorkflowStatusError {
 			ctx := withLocalActivityOpts(ctx)
 			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setLocationIDLocalActivity, w.ingestsvc, req.ID, req.LocationID).
 				Get(ctx, nil)
@@ -86,15 +86,15 @@ func (w *MoveWorkflow) Execute(ctx temporalsdk_workflow.Context, req *ingest.Mov
 		}
 	}
 
-	// Create preservation action.
+	// Create workflow.
 	{
 		ctx := withLocalActivityOpts(ctx)
 		completedAt := temporalsdk_workflow.Now(ctx).UTC()
-		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, saveLocationMovePreservationActionLocalActivity, w.ingestsvc, &saveLocationMovePreservationActionLocalActivityParams{
+		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, saveLocationMoveWorkflowLocalActivity, w.ingestsvc, &saveLocationMoveWorkflowLocalActivityParams{
 			SIPID:       req.ID,
 			LocationID:  req.LocationID,
 			WorkflowID:  temporalsdk_workflow.GetInfo(ctx).WorkflowExecution.ID,
-			Type:        enums.PreservationActionTypeMovePackage,
+			Type:        enums.WorkflowTypeMovePackage,
 			Status:      status,
 			StartedAt:   startedAt,
 			CompletedAt: completedAt,

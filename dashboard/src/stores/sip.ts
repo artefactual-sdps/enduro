@@ -23,8 +23,8 @@ export const useSipStore = defineStore("sip", {
     // SIP currently displayed.
     current: null as api.EnduroIngestSip | null,
 
-    // Preservation actions of the current SIP.
-    currentPreservationActions: null as api.SIPPreservationActions | null,
+    // Workflows of the current SIP.
+    currentWorkflows: null as api.SIPWorkflows | null,
 
     // A list of SIPs shown during searches.
     sips: [] as Array<api.EnduroIngestSip>,
@@ -59,29 +59,25 @@ export const useSipStore = defineStore("sip", {
       }
       return i;
     },
-    getActionById: (state) => {
-      return (
-        actionId: number,
-      ): api.EnduroIngestSipPreservationAction | undefined => {
-        const x = state.currentPreservationActions?.actions?.find(
-          (action: api.EnduroIngestSipPreservationAction) =>
-            action.id === actionId,
+    getWorkflowById: (state) => {
+      return (workflowId: number): api.EnduroIngestSipWorkflow | undefined => {
+        const x = state.currentWorkflows?.workflows?.find(
+          (workflow: api.EnduroIngestSipWorkflow) => workflow.id === workflowId,
         );
         return x;
       };
     },
     getTaskById: (state) => {
       return (
-        actionId: number,
+        workflowId: number,
         taskId: number,
-      ): api.EnduroIngestSipPreservationTask | undefined => {
-        const action = state.currentPreservationActions?.actions?.find(
-          (action: api.EnduroIngestSipPreservationAction) =>
-            action.id === actionId,
+      ): api.EnduroIngestSipTask | undefined => {
+        const workflow = state.currentWorkflows?.workflows?.find(
+          (workflow: api.EnduroIngestSipWorkflow) => workflow.id === workflowId,
         );
-        if (!action) return;
-        return action.tasks?.find(
-          (task: api.EnduroIngestSipPreservationTask) => task.id === taskId,
+        if (!workflow) return;
+        return workflow.tasks?.find(
+          (task: api.EnduroIngestSipTask) => task.id === taskId,
         );
       };
     },
@@ -94,8 +90,9 @@ export const useSipStore = defineStore("sip", {
       }
 
       this.current = await client.ingest.ingestShowSip({ id: sipId });
-      this.currentPreservationActions =
-        await client.ingest.ingestListSipPreservationActions({ id: sipId });
+      this.currentWorkflows = await client.ingest.ingestListSipWorkflows({
+        id: sipId,
+      });
 
       // Update breadcrumb. TODO: should this be done in the component?
       const layoutStore = useLayoutStore();

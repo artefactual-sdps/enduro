@@ -36,7 +36,7 @@ func TestSavePreprocessingTasksActivity(t *testing.T) {
 		{
 			name: "Saves a preprocessing task",
 			params: localact.SavePreprocessingTasksActivityParams{
-				PreservationActionID: 101,
+				WorkflowID: 101,
 				Tasks: []preprocessing.Task{
 					{
 						Name:        "Validate SIP structure",
@@ -48,14 +48,14 @@ func TestSavePreprocessingTasksActivity(t *testing.T) {
 				},
 			},
 			mockCalls: func(m *ingest_fake.MockServiceMockRecorder) {
-				m.CreatePreservationTask(mockutil.Context(), &datatypes.PreservationTask{
-					TaskID:               "52fdfc07-2182-454f-963f-5f0f9a621d72",
-					Name:                 "Validate SIP structure",
-					Status:               enums.PreservationTaskStatusDone,
-					StartedAt:            sql.NullTime{Time: startedAt, Valid: true},
-					CompletedAt:          sql.NullTime{Time: completedAt, Valid: true},
-					Note:                 "SIP structure matches validation criteria",
-					PreservationActionID: 101,
+				m.CreateTask(mockutil.Context(), &datatypes.Task{
+					TaskID:      "52fdfc07-2182-454f-963f-5f0f9a621d72",
+					Name:        "Validate SIP structure",
+					Status:      enums.TaskStatusDone,
+					StartedAt:   sql.NullTime{Time: startedAt, Valid: true},
+					CompletedAt: sql.NullTime{Time: completedAt, Valid: true},
+					Note:        "SIP structure matches validation criteria",
+					WorkflowID:  101,
 				}).Return(nil)
 			},
 			want: &localact.SavePreprocessingTasksActivityResult{
@@ -65,7 +65,7 @@ func TestSavePreprocessingTasksActivity(t *testing.T) {
 		{
 			name: "Errors when a required value is missing",
 			params: localact.SavePreprocessingTasksActivityParams{
-				PreservationActionID: 101,
+				WorkflowID: 101,
 				Tasks: []preprocessing.Task{
 					{
 						Message:     "SIP structure matches validation criteria",
@@ -76,18 +76,18 @@ func TestSavePreprocessingTasksActivity(t *testing.T) {
 				},
 			},
 			mockCalls: func(m *ingest_fake.MockServiceMockRecorder) {
-				m.CreatePreservationTask(mockutil.Context(), &datatypes.PreservationTask{
-					TaskID:               "52fdfc07-2182-454f-963f-5f0f9a621d72",
-					Status:               enums.PreservationTaskStatusDone,
-					StartedAt:            sql.NullTime{Time: startedAt, Valid: true},
-					CompletedAt:          sql.NullTime{Time: completedAt, Valid: true},
-					Note:                 "SIP structure matches validation criteria",
-					PreservationActionID: 101,
+				m.CreateTask(mockutil.Context(), &datatypes.Task{
+					TaskID:      "52fdfc07-2182-454f-963f-5f0f9a621d72",
+					Status:      enums.TaskStatusDone,
+					StartedAt:   sql.NullTime{Time: startedAt, Valid: true},
+					CompletedAt: sql.NullTime{Time: completedAt, Valid: true},
+					Note:        "SIP structure matches validation criteria",
+					WorkflowID:  101,
 				}).Return(errors.New(
-					"preservation task: create: invalid data error: field Name is required",
+					"task: create: invalid data error: field Name is required",
 				))
 			},
-			wantErr: "SavePreprocessingTasksActivity: preservation task: create: invalid data error: field Name is required",
+			wantErr: "SavePreprocessingTasksActivity: task: create: invalid data error: field Name is required",
 		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {

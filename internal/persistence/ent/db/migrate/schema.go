@@ -9,55 +9,6 @@ import (
 )
 
 var (
-	// PreservationActionColumns holds the columns for the "preservation_action" table.
-	PreservationActionColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "workflow_id", Type: field.TypeString, Size: 255},
-		{Name: "type", Type: field.TypeInt8},
-		{Name: "status", Type: field.TypeInt8},
-		{Name: "started_at", Type: field.TypeTime, Nullable: true},
-		{Name: "completed_at", Type: field.TypeTime, Nullable: true},
-		{Name: "sip_id", Type: field.TypeInt},
-	}
-	// PreservationActionTable holds the schema information for the "preservation_action" table.
-	PreservationActionTable = &schema.Table{
-		Name:       "preservation_action",
-		Columns:    PreservationActionColumns,
-		PrimaryKey: []*schema.Column{PreservationActionColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "preservation_action_sip_preservation_actions",
-				Columns:    []*schema.Column{PreservationActionColumns[6]},
-				RefColumns: []*schema.Column{SipColumns[0]},
-				OnDelete:   schema.Cascade,
-			},
-		},
-	}
-	// PreservationTaskColumns holds the columns for the "preservation_task" table.
-	PreservationTaskColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "task_id", Type: field.TypeUUID},
-		{Name: "name", Type: field.TypeString, Size: 2048},
-		{Name: "status", Type: field.TypeInt8},
-		{Name: "started_at", Type: field.TypeTime, Nullable: true},
-		{Name: "completed_at", Type: field.TypeTime, Nullable: true},
-		{Name: "note", Type: field.TypeString, Size: 2147483647},
-		{Name: "preservation_action_id", Type: field.TypeInt},
-	}
-	// PreservationTaskTable holds the schema information for the "preservation_task" table.
-	PreservationTaskTable = &schema.Table{
-		Name:       "preservation_task",
-		Columns:    PreservationTaskColumns,
-		PrimaryKey: []*schema.Column{PreservationTaskColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "preservation_task_preservation_action_tasks",
-				Columns:    []*schema.Column{PreservationTaskColumns[7]},
-				RefColumns: []*schema.Column{PreservationActionColumns[0]},
-				OnDelete:   schema.Cascade,
-			},
-		},
-	}
 	// SipColumns holds the columns for the "sip" table.
 	SipColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -112,24 +63,73 @@ var (
 			},
 		},
 	}
+	// TaskColumns holds the columns for the "task" table.
+	TaskColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "task_id", Type: field.TypeUUID},
+		{Name: "name", Type: field.TypeString, Size: 2048},
+		{Name: "status", Type: field.TypeInt8},
+		{Name: "started_at", Type: field.TypeTime, Nullable: true},
+		{Name: "completed_at", Type: field.TypeTime, Nullable: true},
+		{Name: "note", Type: field.TypeString, Size: 2147483647},
+		{Name: "workflow_id", Type: field.TypeInt},
+	}
+	// TaskTable holds the schema information for the "task" table.
+	TaskTable = &schema.Table{
+		Name:       "task",
+		Columns:    TaskColumns,
+		PrimaryKey: []*schema.Column{TaskColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "task_workflow_tasks",
+				Columns:    []*schema.Column{TaskColumns[7]},
+				RefColumns: []*schema.Column{WorkflowColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+	}
+	// WorkflowColumns holds the columns for the "workflow" table.
+	WorkflowColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "workflow_id", Type: field.TypeString, Size: 255},
+		{Name: "type", Type: field.TypeInt8},
+		{Name: "status", Type: field.TypeInt8},
+		{Name: "started_at", Type: field.TypeTime, Nullable: true},
+		{Name: "completed_at", Type: field.TypeTime, Nullable: true},
+		{Name: "sip_id", Type: field.TypeInt},
+	}
+	// WorkflowTable holds the schema information for the "workflow" table.
+	WorkflowTable = &schema.Table{
+		Name:       "workflow",
+		Columns:    WorkflowColumns,
+		PrimaryKey: []*schema.Column{WorkflowColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "workflow_sip_workflows",
+				Columns:    []*schema.Column{WorkflowColumns[6]},
+				RefColumns: []*schema.Column{SipColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
-		PreservationActionTable,
-		PreservationTaskTable,
 		SipTable,
+		TaskTable,
+		WorkflowTable,
 	}
 )
 
 func init() {
-	PreservationActionTable.ForeignKeys[0].RefTable = SipTable
-	PreservationActionTable.Annotation = &entsql.Annotation{
-		Table: "preservation_action",
-	}
-	PreservationTaskTable.ForeignKeys[0].RefTable = PreservationActionTable
-	PreservationTaskTable.Annotation = &entsql.Annotation{
-		Table: "preservation_task",
-	}
 	SipTable.Annotation = &entsql.Annotation{
 		Table: "sip",
+	}
+	TaskTable.ForeignKeys[0].RefTable = WorkflowTable
+	TaskTable.Annotation = &entsql.Annotation{
+		Table: "task",
+	}
+	WorkflowTable.ForeignKeys[0].RefTable = SipTable
+	WorkflowTable.Annotation = &entsql.Annotation{
+		Table: "workflow",
 	}
 }

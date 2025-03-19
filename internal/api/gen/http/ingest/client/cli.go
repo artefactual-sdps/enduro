@@ -179,14 +179,14 @@ func BuildShowSipPayload(ingestShowSipID string, ingestShowSipToken string) (*in
 	return v, nil
 }
 
-// BuildListSipPreservationActionsPayload builds the payload for the ingest
-// list_sip_preservation_actions endpoint from CLI flags.
-func BuildListSipPreservationActionsPayload(ingestListSipPreservationActionsID string, ingestListSipPreservationActionsToken string) (*ingest.ListSipPreservationActionsPayload, error) {
+// BuildListSipWorkflowsPayload builds the payload for the ingest
+// list_sip_workflows endpoint from CLI flags.
+func BuildListSipWorkflowsPayload(ingestListSipWorkflowsID string, ingestListSipWorkflowsToken string) (*ingest.ListSipWorkflowsPayload, error) {
 	var err error
 	var id uint
 	{
 		var v uint64
-		v, err = strconv.ParseUint(ingestListSipPreservationActionsID, 10, strconv.IntSize)
+		v, err = strconv.ParseUint(ingestListSipWorkflowsID, 10, strconv.IntSize)
 		id = uint(v)
 		if err != nil {
 			return nil, fmt.Errorf("invalid value for id, must be UINT")
@@ -194,11 +194,11 @@ func BuildListSipPreservationActionsPayload(ingestListSipPreservationActionsID s
 	}
 	var token *string
 	{
-		if ingestListSipPreservationActionsToken != "" {
-			token = &ingestListSipPreservationActionsToken
+		if ingestListSipWorkflowsToken != "" {
+			token = &ingestListSipWorkflowsToken
 		}
 	}
-	v := &ingest.ListSipPreservationActionsPayload{}
+	v := &ingest.ListSipWorkflowsPayload{}
 	v.ID = id
 	v.Token = token
 

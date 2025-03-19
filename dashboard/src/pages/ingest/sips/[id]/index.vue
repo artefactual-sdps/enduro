@@ -2,9 +2,9 @@
 import { computed } from "vue";
 
 import { api } from "@/client";
-import PreservationActionCollapse from "@/components/PreservationActionCollapse.vue";
 import StatusBadge from "@/components/StatusBadge.vue";
 import UUID from "@/components/UUID.vue";
+import WorkflowCollapse from "@/components/WorkflowCollapse.vue";
 import { useAuthStore } from "@/stores/auth";
 import { useSipStore } from "@/stores/sip";
 import IconLink from "~icons/bi/box-arrow-up-right";
@@ -15,12 +15,10 @@ const sipStore = useSipStore();
 
 const createAipWorkflow = computed(
   () =>
-    sipStore.currentPreservationActions?.actions?.filter(
-      (action) =>
-        action.type ===
-          api.EnduroIngestSipPreservationActionTypeEnum.CreateAip ||
-        action.type ===
-          api.EnduroIngestSipPreservationActionTypeEnum.CreateAndReviewAip,
+    sipStore.currentWorkflows?.workflows?.filter(
+      (w) =>
+        w.type === api.EnduroIngestSipWorkflowTypeEnum.CreateAip ||
+        w.type === api.EnduroIngestSipWorkflowTypeEnum.CreateAndReviewAip,
     )[0],
 );
 </script>
@@ -78,37 +76,37 @@ const createAipWorkflow = computed(
       </div>
     </div>
 
-    <div v-if="authStore.checkAttributes(['ingest:sips:actions:list'])">
+    <div v-if="authStore.checkAttributes(['ingest:sips:workflows:list'])">
       <div class="d-flex">
         <h2 class="mb-0">
-          Preservation actions
+          Ingest workflow details
           <a
-            id="presActionHelpToggle"
+            id="workflowHelpToggle"
             data-bs-toggle="collapse"
-            href="#preservationActionHelp"
+            href="#workflowHelp"
             role="button"
             aria-expanded="false"
-            aria-controls="preservationActionHelp"
-            aria-label="Show preservation action help"
+            aria-controls="workflowHelp"
+            aria-label="Show workflows help"
             ><IconHelp alt="help"
           /></a>
         </h2>
       </div>
       <div
         class="collapse"
-        id="preservationActionHelp"
-        aria-labelledby="presActionHelpToggle"
+        id="workflowHelp"
+        aria-labelledby="workflowHelpToggle"
       >
         <div class="card card-body flex flex-column bg-light">
           <div>
             <p>
-              A preservation action is a <strong>workflow</strong> composed of
-              one or more <strong>tasks</strong> performed on a SIP to support
+              A <strong>workflow</strong> is composed of one or more
+              <strong>tasks</strong> performed on a SIP/AIP to support
               preservation.
             </p>
             <p>
-              Click on a preservation action listed below to expand it and see
-              more information on individual tasks run as part of the workflow.
+              Click on a workflow listed below to expand it and see more
+              information on individual tasks run as part of the workflow.
             </p>
           </div>
           <div class="align-self-end">
@@ -123,13 +121,12 @@ const createAipWorkflow = computed(
 
       <hr />
 
-      <div class="accordion mb-2" id="preservation-actions">
-        <PreservationActionCollapse
-          :action="action"
+      <div class="accordion mb-2" id="workflows">
+        <WorkflowCollapse
+          :workflow="workflow"
           :index="index"
-          v-for="(action, index) in sipStore.currentPreservationActions
-            ?.actions"
-          v-bind:key="action.id"
+          v-for="(workflow, index) in sipStore.currentWorkflows?.workflows"
+          v-bind:key="workflow.id"
         />
       </div>
     </div>

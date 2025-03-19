@@ -290,7 +290,7 @@ func (s *ProcessingWorkflowTestSuite) TestConfirmation() {
 	s.SetupWorkflowTest(cfg)
 
 	sipID := 1
-	paID := 1
+	wID := 1
 	valPREMISTaskID := 102
 	ctx := mock.AnythingOfType("*context.valueCtx")
 	sessionCtx := mock.AnythingOfType("*context.timerCtx")
@@ -316,17 +316,17 @@ func (s *ProcessingWorkflowTestSuite) TestConfirmation() {
 	s.env.OnActivity(setStatusInProgressLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, nil)
 	s.env.OnActivity(
-		createPreservationActionLocalActivity,
+		createWorkflowLocalActivity,
 		mock.Anything,
 		mock.Anything,
-		&createPreservationActionLocalActivityParams{
+		&createWorkflowLocalActivityParams{
 			WorkflowID: "default-test-workflow-id",
-			Type:       enums.PreservationActionTypeCreateAndReviewAip,
-			Status:     enums.PreservationActionStatusInProgress,
+			Type:       enums.WorkflowTypeCreateAndReviewAip,
+			Status:     enums.WorkflowStatusInProgress,
 			StartedAt:  startTime,
 			SIPID:      1,
 		},
-	).Return(paID, nil)
+	).Return(wID, nil)
 
 	s.env.OnActivity(activities.DownloadActivityName, sessionCtx,
 		&activities.DownloadActivityParams{Key: key, WatcherName: watcherName},
@@ -352,19 +352,19 @@ func (s *ProcessingWorkflowTestSuite) TestConfirmation() {
 	)
 
 	s.env.OnActivity(
-		createPreservationTaskLocalActivity,
+		createTaskLocalActivity,
 		ctx,
-		&createPreservationTaskLocalActivityParams{
+		&createTaskLocalActivityParams{
 			Ingestsvc: ingestsvc,
 			RNG:       s.workflow.rng,
-			PreservationTask: datatypes.PreservationTask{
+			Task: datatypes.Task{
 				Name:   "Validate PREMIS",
-				Status: enums.PreservationTaskStatusInProgress,
+				Status: enums.TaskStatusInProgress,
 				StartedAt: sql.NullTime{
 					Time:  startTime,
 					Valid: true,
 				},
-				PreservationActionID: paID,
+				WorkflowID: wID,
 			},
 		},
 	).Return(valPREMISTaskID, nil)
@@ -381,34 +381,34 @@ func (s *ProcessingWorkflowTestSuite) TestConfirmation() {
 	)
 
 	s.env.OnActivity(
-		completePreservationTaskLocalActivity,
+		completeTaskLocalActivity,
 		ctx,
 		ingestsvc,
-		&completePreservationTaskLocalActivityParams{
+		&completeTaskLocalActivityParams{
 			ID:          valPREMISTaskID,
-			Status:      enums.PreservationTaskStatusDone,
+			Status:      enums.TaskStatusDone,
 			CompletedAt: startTime,
 			Note:        ref.New("PREMIS is valid"),
 		},
-	).Return(&completePreservationTaskLocalActivityResult{}, nil)
+	).Return(&completeTaskLocalActivityResult{}, nil)
 
 	s.env.OnActivity(a3m.CreateAIPActivityName, mock.Anything, mock.Anything).Return(nil, nil)
 	s.env.OnActivity(updateSIPLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, nil)
-	s.env.OnActivity(createPreservationTaskLocalActivity, mock.Anything, mock.Anything, mock.Anything).
+	s.env.OnActivity(createTaskLocalActivity, mock.Anything, mock.Anything, mock.Anything).
 		Return(0, nil)
 	s.env.OnActivity(activities.UploadActivityName, mock.Anything, mock.Anything).Return(nil, nil)
 	s.env.OnActivity(setStatusLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, nil)
-	s.env.OnActivity(setPreservationActionStatusLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+	s.env.OnActivity(setWorkflowStatusLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, nil)
-	s.env.OnActivity(completePreservationTaskLocalActivity, mock.Anything, mock.Anything, mock.Anything).
+	s.env.OnActivity(completeTaskLocalActivity, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, nil)
 	s.env.OnActivity(activities.MoveToPermanentStorageActivityName, mock.Anything, mock.Anything).Return(nil, nil)
 	s.env.OnActivity(activities.PollMoveToPermanentStorageActivityName, mock.Anything, mock.Anything).Return(nil, nil)
 	s.env.OnActivity(setLocationIDLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, nil)
-	s.env.OnActivity(completePreservationActionLocalActivity, ctx, ingestsvc, mock.AnythingOfType("*workflow.completePreservationActionLocalActivityParams")).
+	s.env.OnActivity(completeWorkflowLocalActivity, ctx, ingestsvc, mock.AnythingOfType("*workflow.completeWorkflowLocalActivityParams")).
 		Return(nil, nil).
 		Once()
 	s.env.OnActivity(
@@ -419,7 +419,7 @@ func (s *ProcessingWorkflowTestSuite) TestConfirmation() {
 	s.env.OnActivity(activities.DeleteOriginalActivityName, sessionCtx, watcherName, key).Return(nil, nil).Once()
 	s.env.OnActivity(updateSIPLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, nil)
-	s.env.OnActivity(completePreservationActionLocalActivity, mock.Anything, mock.Anything, mock.Anything).
+	s.env.OnActivity(completeWorkflowLocalActivity, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, nil)
 
 	s.env.ExecuteWorkflow(
@@ -447,7 +447,7 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 	s.SetupWorkflowTest(cfg)
 
 	sipID := 1
-	paID := 1
+	wID := 1
 	valBagTaskID := 101
 	moveAIPTaskID := 103
 	watcherName := "watcher"
@@ -474,17 +474,17 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 	).Return(nil, nil)
 
 	s.env.OnActivity(
-		createPreservationActionLocalActivity,
+		createWorkflowLocalActivity,
 		ctx,
 		ingestsvc,
-		&createPreservationActionLocalActivityParams{
+		&createWorkflowLocalActivityParams{
 			WorkflowID: "default-test-workflow-id",
-			Type:       enums.PreservationActionTypeCreateAip,
-			Status:     enums.PreservationActionStatusInProgress,
+			Type:       enums.WorkflowTypeCreateAip,
+			Status:     enums.WorkflowStatusInProgress,
 			StartedAt:  startTime,
 			SIPID:      1,
 		},
-	).Return(paID, nil)
+	).Return(wID, nil)
 
 	s.env.OnActivity(activities.DownloadActivityName, sessionCtx,
 		&activities.DownloadActivityParams{Key: key, WatcherName: watcherName},
@@ -507,19 +507,19 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 	)
 
 	s.env.OnActivity(
-		createPreservationTaskLocalActivity,
+		createTaskLocalActivity,
 		ctx,
-		&createPreservationTaskLocalActivityParams{
+		&createTaskLocalActivityParams{
 			Ingestsvc: ingestsvc,
 			RNG:       rng,
-			PreservationTask: datatypes.PreservationTask{
+			Task: datatypes.Task{
 				Name:   "Validate Bag",
-				Status: enums.PreservationTaskStatusInProgress,
+				Status: enums.TaskStatusInProgress,
 				StartedAt: sql.NullTime{
 					Time:  startTime,
 					Valid: true,
 				},
-				PreservationActionID: paID,
+				WorkflowID: wID,
 			},
 		},
 	).Return(valBagTaskID, nil)
@@ -534,16 +534,16 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 	)
 
 	s.env.OnActivity(
-		completePreservationTaskLocalActivity,
+		completeTaskLocalActivity,
 		ctx,
 		ingestsvc,
-		&completePreservationTaskLocalActivityParams{
+		&completeTaskLocalActivityParams{
 			ID:          valBagTaskID,
-			Status:      enums.PreservationTaskStatusDone,
+			Status:      enums.TaskStatusDone,
 			CompletedAt: startTime,
 			Note:        ref.New("Bag is valid"),
 		},
-	).Return(&completePreservationTaskLocalActivityResult{}, nil)
+	).Return(&completeTaskLocalActivityResult{}, nil)
 
 	s.env.OnActivity(activities.BundleActivityName, sessionCtx,
 		&activities.BundleActivityParams{
@@ -564,17 +564,17 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 		Times(2)
 
 	s.env.OnActivity(
-		createPreservationTaskLocalActivity,
+		createTaskLocalActivity,
 		ctx,
-		&createPreservationTaskLocalActivityParams{
+		&createTaskLocalActivityParams{
 			Ingestsvc: ingestsvc,
 			RNG:       rng,
-			PreservationTask: datatypes.PreservationTask{
-				Name:                 "Move AIP",
-				Status:               enums.PreservationTaskStatusInProgress,
-				StartedAt:            sql.NullTime{Time: startTime, Valid: true},
-				Note:                 "Moving to permanent storage",
-				PreservationActionID: paID,
+			Task: datatypes.Task{
+				Name:       "Move AIP",
+				Status:     enums.TaskStatusInProgress,
+				StartedAt:  sql.NullTime{Time: startTime, Valid: true},
+				Note:       "Moving to permanent storage",
+				WorkflowID: wID,
 			},
 		},
 	).Return(moveAIPTaskID, nil)
@@ -585,21 +585,21 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 	s.env.OnActivity(setStatusLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, nil).
 		Never()
-	s.env.OnActivity(setPreservationActionStatusLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+	s.env.OnActivity(setWorkflowStatusLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, nil).
 		Never()
 
 	s.env.OnActivity(
-		completePreservationTaskLocalActivity,
+		completeTaskLocalActivity,
 		ctx,
 		ingestsvc,
-		&completePreservationTaskLocalActivityParams{
+		&completeTaskLocalActivityParams{
 			ID:          moveAIPTaskID,
-			Status:      enums.PreservationTaskStatusDone,
+			Status:      enums.TaskStatusDone,
 			CompletedAt: startTime,
 			Note:        ref.New("Moved to location f2cc963f-c14d-4eaa-b950-bd207189a1f1"),
 		},
-	).Return(&completePreservationTaskLocalActivityResult{}, nil)
+	).Return(&completeTaskLocalActivityResult{}, nil)
 
 	s.env.OnActivity(activities.MoveToPermanentStorageActivityName, sessionCtx, mock.AnythingOfType("*activities.MoveToPermanentStorageActivityParams")).
 		Return(nil, nil).
@@ -608,7 +608,7 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 		Return(nil, nil).
 		Once()
 	s.env.OnActivity(setLocationIDLocalActivity, ctx, ingestsvc, sipID, locationID).Return(nil, nil).Once()
-	s.env.OnActivity(completePreservationActionLocalActivity, ctx, ingestsvc, mock.AnythingOfType("*workflow.completePreservationActionLocalActivityParams")).
+	s.env.OnActivity(completeWorkflowLocalActivity, ctx, ingestsvc, mock.AnythingOfType("*workflow.completeWorkflowLocalActivityParams")).
 		Return(nil, nil).
 		Once()
 	s.env.OnActivity(
@@ -635,7 +635,7 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 
 func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	sipID := 1
-	paID := 1
+	wID := 1
 	valPREMISTaskID := 102
 	watcherName := "watcher"
 	key := "transfer.zip"
@@ -666,9 +666,9 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	s.env.OnActivity(setStatusInProgressLocalActivity, ctx, ingestsvc, sipID, mock.AnythingOfType("time.Time")).
 		Return(nil, nil)
 
-	s.env.OnActivity(createPreservationActionLocalActivity, ctx,
-		ingestsvc, mock.AnythingOfType("*workflow.createPreservationActionLocalActivityParams"),
-	).Return(paID, nil)
+	s.env.OnActivity(createWorkflowLocalActivity, ctx,
+		ingestsvc, mock.AnythingOfType("*workflow.createWorkflowLocalActivityParams"),
+	).Return(wID, nil)
 
 	s.env.OnActivity(activities.DownloadActivityName, sessionCtx,
 		&activities.DownloadActivityParams{Key: key, WatcherName: watcherName},
@@ -698,19 +698,19 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	)
 
 	s.env.OnActivity(
-		createPreservationTaskLocalActivity,
+		createTaskLocalActivity,
 		ctx,
-		&createPreservationTaskLocalActivityParams{
+		&createTaskLocalActivityParams{
 			Ingestsvc: ingestsvc,
 			RNG:       s.workflow.rng,
-			PreservationTask: datatypes.PreservationTask{
+			Task: datatypes.Task{
 				Name:   "Validate PREMIS",
-				Status: enums.PreservationTaskStatusInProgress,
+				Status: enums.TaskStatusInProgress,
 				StartedAt: sql.NullTime{
 					Time:  startTime,
 					Valid: true,
 				},
-				PreservationActionID: paID,
+				WorkflowID: wID,
 			},
 		},
 	).Return(valPREMISTaskID, nil)
@@ -727,16 +727,16 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	)
 
 	s.env.OnActivity(
-		completePreservationTaskLocalActivity,
+		completeTaskLocalActivity,
 		ctx,
 		ingestsvc,
-		&completePreservationTaskLocalActivityParams{
+		&completeTaskLocalActivityParams{
 			ID:          valPREMISTaskID,
-			Status:      enums.PreservationTaskStatusDone,
+			Status:      enums.TaskStatusDone,
 			CompletedAt: startTime,
 			Note:        ref.New("PREMIS is valid"),
 		},
-	).Return(&completePreservationTaskLocalActivityResult{}, nil)
+	).Return(&completeTaskLocalActivityResult{}, nil)
 
 	s.env.OnActivity(archivezip.Name, sessionCtx,
 		&archivezip.Params{SourceDir: extractPath},
@@ -760,13 +760,13 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	)
 
 	s.env.OnActivity(am.PollTransferActivityName, sessionCtx,
-		&am.PollTransferActivityParams{TransferID: transferID.String(), PresActionID: paID},
+		&am.PollTransferActivityParams{TransferID: transferID.String(), WorkflowID: wID},
 	).Return(
 		&am.PollTransferActivityResult{SIPID: aipUUID.String()}, nil,
 	)
 
 	s.env.OnActivity(am.PollIngestActivityName, sessionCtx,
-		&am.PollIngestActivityParams{SIPID: aipUUID.String(), PresActionID: paID},
+		&am.PollIngestActivityParams{SIPID: aipUUID.String(), WorkflowID: wID},
 	).Return(
 		&am.PollIngestActivityResult{Status: "COMPLETE"}, nil,
 	)
@@ -799,10 +799,10 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 		mock.AnythingOfType("*workflow.updateSIPLocalActivityParams"),
 	).Return(nil, nil)
 	s.env.OnActivity(
-		completePreservationActionLocalActivity,
+		completeWorkflowLocalActivity,
 		ctx,
 		ingestsvc,
-		mock.AnythingOfType("*workflow.completePreservationActionLocalActivityParams"),
+		mock.AnythingOfType("*workflow.completeWorkflowLocalActivityParams"),
 	).Return(nil, nil)
 	s.env.OnActivity(
 		removepaths.Name,
@@ -864,7 +864,7 @@ func (s *ProcessingWorkflowTestSuite) TestRejection() {
 		Return(sipID, nil)
 	s.env.OnActivity(setStatusInProgressLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, nil)
-	s.env.OnActivity(createPreservationActionLocalActivity, mock.Anything, mock.Anything, mock.Anything).
+	s.env.OnActivity(createWorkflowLocalActivity, mock.Anything, mock.Anything, mock.Anything).
 		Return(0, nil)
 
 	s.env.OnActivity(activities.DownloadActivityName, sessionCtx,
@@ -901,14 +901,14 @@ func (s *ProcessingWorkflowTestSuite) TestRejection() {
 	s.env.OnActivity(a3m.CreateAIPActivityName, mock.Anything, mock.Anything).Return(nil, nil)
 	s.env.OnActivity(updateSIPLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, nil)
-	s.env.OnActivity(completePreservationTaskLocalActivity, mock.Anything, mock.Anything, mock.Anything).
+	s.env.OnActivity(completeTaskLocalActivity, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, nil)
 	s.env.OnActivity(activities.UploadActivityName, mock.Anything, mock.Anything).Return(nil, nil)
 	s.env.OnActivity(setStatusLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, nil)
-	s.env.OnActivity(setPreservationActionStatusLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+	s.env.OnActivity(setWorkflowStatusLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, nil)
-	s.env.OnActivity(createPreservationTaskLocalActivity, mock.Anything, mock.Anything, mock.Anything).
+	s.env.OnActivity(createTaskLocalActivity, mock.Anything, mock.Anything, mock.Anything).
 		Return(0, nil)
 	s.env.OnActivity(activities.RejectSIPActivityName, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, nil)
@@ -920,7 +920,7 @@ func (s *ProcessingWorkflowTestSuite) TestRejection() {
 	s.env.OnActivity(activities.DeleteOriginalActivityName, sessionCtx, watcherName, key).Return(nil, nil).Once()
 	s.env.OnActivity(updateSIPLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, nil)
-	s.env.OnActivity(completePreservationActionLocalActivity, mock.Anything, mock.Anything, mock.Anything).
+	s.env.OnActivity(completeWorkflowLocalActivity, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, nil)
 
 	s.env.ExecuteWorkflow(
@@ -1000,13 +1000,13 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 	).Return(nil, nil)
 
 	s.env.OnActivity(
-		createPreservationActionLocalActivity,
+		createWorkflowLocalActivity,
 		ctx,
 		ingestsvc,
-		&createPreservationActionLocalActivityParams{
+		&createWorkflowLocalActivityParams{
 			WorkflowID: "default-test-workflow-id",
-			Type:       enums.PreservationActionTypeCreateAip,
-			Status:     enums.PreservationActionStatusInProgress,
+			Type:       enums.WorkflowTypeCreateAip,
+			Status:     enums.WorkflowStatusInProgress,
 			StartedAt:  startTime,
 			SIPID:      1,
 		},
@@ -1049,9 +1049,9 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 		localact.SavePreprocessingTasksActivity,
 		ctx,
 		localact.SavePreprocessingTasksActivityParams{
-			Ingestsvc:            ingestsvc,
-			RNG:                  rand.New(rand.NewSource(1)), // #nosec: G404
-			PreservationActionID: 1,
+			Ingestsvc:  ingestsvc,
+			RNG:        rand.New(rand.NewSource(1)), // #nosec: G404
+			WorkflowID: 1,
 			Tasks: []preprocessing.Task{
 				{
 					Name:        "Identify SIP structure",
@@ -1076,19 +1076,19 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 	)
 
 	s.env.OnActivity(
-		createPreservationTaskLocalActivity,
+		createTaskLocalActivity,
 		ctx,
-		&createPreservationTaskLocalActivityParams{
+		&createTaskLocalActivityParams{
 			Ingestsvc: ingestsvc,
 			RNG:       s.workflow.rng,
-			PreservationTask: datatypes.PreservationTask{
+			Task: datatypes.Task{
 				Name:   "Validate Bag",
-				Status: enums.PreservationTaskStatusInProgress,
+				Status: enums.TaskStatusInProgress,
 				StartedAt: sql.NullTime{
 					Time:  startTime,
 					Valid: true,
 				},
-				PreservationActionID: 1,
+				WorkflowID: 1,
 			},
 		},
 	).Return(valBagTaskID, nil)
@@ -1103,16 +1103,16 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 	)
 
 	s.env.OnActivity(
-		completePreservationTaskLocalActivity,
+		completeTaskLocalActivity,
 		ctx,
 		ingestsvc,
-		&completePreservationTaskLocalActivityParams{
+		&completeTaskLocalActivityParams{
 			ID:          valBagTaskID,
-			Status:      enums.PreservationTaskStatusDone,
+			Status:      enums.TaskStatusDone,
 			CompletedAt: startTime,
 			Note:        ref.New("Bag is valid"),
 		},
-	).Return(&completePreservationTaskLocalActivityResult{}, nil)
+	).Return(&completeTaskLocalActivityResult{}, nil)
 
 	s.env.OnActivity(activities.BundleActivityName, sessionCtx,
 		&activities.BundleActivityParams{
@@ -1133,17 +1133,17 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 		Times(2)
 
 	s.env.OnActivity(
-		createPreservationTaskLocalActivity,
+		createTaskLocalActivity,
 		ctx,
-		&createPreservationTaskLocalActivityParams{
+		&createTaskLocalActivityParams{
 			Ingestsvc: ingestsvc,
 			RNG:       s.workflow.rng,
-			PreservationTask: datatypes.PreservationTask{
-				Name:                 "Move AIP",
-				Status:               enums.PreservationTaskStatusInProgress,
-				StartedAt:            sql.NullTime{Time: startTime, Valid: true},
-				PreservationActionID: 1,
-				Note:                 "Moving to permanent storage",
+			Task: datatypes.Task{
+				Name:       "Move AIP",
+				Status:     enums.TaskStatusInProgress,
+				StartedAt:  sql.NullTime{Time: startTime, Valid: true},
+				WorkflowID: 1,
+				Note:       "Moving to permanent storage",
 			},
 		},
 	).Return(moveAIPTaskID, nil)
@@ -1155,21 +1155,21 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 	).Return(nil, nil)
 
 	s.env.OnActivity(
-		completePreservationTaskLocalActivity,
+		completeTaskLocalActivity,
 		ctx,
 		ingestsvc,
-		&completePreservationTaskLocalActivityParams{
+		&completeTaskLocalActivityParams{
 			ID:          moveAIPTaskID,
-			Status:      enums.PreservationTaskStatusDone,
+			Status:      enums.TaskStatusDone,
 			CompletedAt: startTime,
 			Note:        ref.New("Moved to location f2cc963f-c14d-4eaa-b950-bd207189a1f1"),
 		},
-	).Return(&completePreservationTaskLocalActivityResult{}, nil)
+	).Return(&completeTaskLocalActivityResult{}, nil)
 
 	s.env.OnActivity(setStatusLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, nil).
 		Never()
-	s.env.OnActivity(setPreservationActionStatusLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+	s.env.OnActivity(setWorkflowStatusLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, nil).
 		Never()
 
@@ -1183,7 +1183,7 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 
 	s.env.OnActivity(setLocationIDLocalActivity, ctx, ingestsvc, sipID, locationID).Return(nil, nil).Once()
 
-	s.env.OnActivity(completePreservationActionLocalActivity, ctx, ingestsvc, mock.AnythingOfType("*workflow.completePreservationActionLocalActivityParams")).
+	s.env.OnActivity(completeWorkflowLocalActivity, ctx, ingestsvc, mock.AnythingOfType("*workflow.completeWorkflowLocalActivityParams")).
 		Return(nil, nil).
 		Once()
 
@@ -1270,13 +1270,13 @@ func (s *ProcessingWorkflowTestSuite) TestFailedSIP() {
 	).Return(nil, nil)
 
 	s.env.OnActivity(
-		createPreservationActionLocalActivity,
+		createWorkflowLocalActivity,
 		ctx,
 		ingestsvc,
-		&createPreservationActionLocalActivityParams{
+		&createWorkflowLocalActivityParams{
 			WorkflowID: "default-test-workflow-id",
-			Type:       enums.PreservationActionTypeCreateAip,
-			Status:     enums.PreservationActionStatusInProgress,
+			Type:       enums.WorkflowTypeCreateAip,
+			Status:     enums.WorkflowStatusInProgress,
 			StartedAt:  startTime,
 			SIPID:      1,
 		},
@@ -1324,10 +1324,10 @@ func (s *ProcessingWorkflowTestSuite) TestFailedSIP() {
 	).Return(nil, nil)
 
 	s.env.OnActivity(
-		completePreservationActionLocalActivity,
+		completeWorkflowLocalActivity,
 		ctx,
 		ingestsvc,
-		mock.AnythingOfType("*workflow.completePreservationActionLocalActivityParams"),
+		mock.AnythingOfType("*workflow.completeWorkflowLocalActivityParams"),
 	).Return(nil, nil)
 
 	s.env.OnActivity(
@@ -1385,13 +1385,13 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPA3m() {
 	).Return(nil, nil)
 
 	s.env.OnActivity(
-		createPreservationActionLocalActivity,
+		createWorkflowLocalActivity,
 		ctx,
 		ingestsvc,
-		&createPreservationActionLocalActivityParams{
+		&createWorkflowLocalActivityParams{
 			WorkflowID: "default-test-workflow-id",
-			Type:       enums.PreservationActionTypeCreateAip,
-			Status:     enums.PreservationActionStatusInProgress,
+			Type:       enums.WorkflowTypeCreateAip,
+			Status:     enums.WorkflowStatusInProgress,
 			StartedAt:  startTime,
 			SIPID:      1,
 		},
@@ -1420,19 +1420,19 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPA3m() {
 	).Return(&activities.ClassifySIPActivityResult{Type: enums.SIPTypeBagIt}, nil)
 
 	s.env.OnActivity(
-		createPreservationTaskLocalActivity,
+		createTaskLocalActivity,
 		ctx,
-		&createPreservationTaskLocalActivityParams{
+		&createTaskLocalActivityParams{
 			Ingestsvc: ingestsvc,
 			RNG:       rand.New(rand.NewSource(1)), // #nosec: G404
-			PreservationTask: datatypes.PreservationTask{
+			Task: datatypes.Task{
 				Name:   "Validate Bag",
-				Status: enums.PreservationTaskStatusInProgress,
+				Status: enums.TaskStatusInProgress,
 				StartedAt: sql.NullTime{
 					Time:  startTime,
 					Valid: true,
 				},
-				PreservationActionID: 1,
+				WorkflowID: 1,
 			},
 		},
 	).Return(valBagTaskID, nil)
@@ -1444,16 +1444,16 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPA3m() {
 	).Return(&bagvalidate.Result{Valid: true}, nil)
 
 	s.env.OnActivity(
-		completePreservationTaskLocalActivity,
+		completeTaskLocalActivity,
 		ctx,
 		ingestsvc,
-		&completePreservationTaskLocalActivityParams{
+		&completeTaskLocalActivityParams{
 			ID:          valBagTaskID,
-			Status:      enums.PreservationTaskStatusDone,
+			Status:      enums.TaskStatusDone,
 			CompletedAt: startTime,
 			Note:        ref.New("Bag is valid"),
 		},
-	).Return(&completePreservationTaskLocalActivityResult{}, nil)
+	).Return(&completeTaskLocalActivityResult{}, nil)
 
 	s.env.OnActivity(
 		activities.BundleActivityName,
@@ -1489,10 +1489,10 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPA3m() {
 	).Return(nil, nil)
 
 	s.env.OnActivity(
-		completePreservationActionLocalActivity,
+		completeWorkflowLocalActivity,
 		ctx,
 		ingestsvc,
-		mock.AnythingOfType("*workflow.completePreservationActionLocalActivityParams"),
+		mock.AnythingOfType("*workflow.completeWorkflowLocalActivityParams"),
 	).Return(nil, nil)
 
 	s.env.OnActivity(
@@ -1525,7 +1525,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPAM() {
 	s.SetupWorkflowTest(cfg)
 
 	sipID := 1
-	paID := 1
+	wID := 1
 	watcherName := "watcher"
 	key := "transfer.zip"
 	retentionPeriod := 1 * time.Second
@@ -1544,17 +1544,17 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPAM() {
 		Return(nil, nil)
 
 	s.env.OnActivity(
-		createPreservationActionLocalActivity,
+		createWorkflowLocalActivity,
 		ctx,
 		ingestsvc,
-		&createPreservationActionLocalActivityParams{
+		&createWorkflowLocalActivityParams{
 			WorkflowID: "default-test-workflow-id",
-			Type:       enums.PreservationActionTypeCreateAip,
-			Status:     enums.PreservationActionStatusInProgress,
+			Type:       enums.WorkflowTypeCreateAip,
+			Status:     enums.WorkflowStatusInProgress,
 			StartedAt:  startTime,
 			SIPID:      1,
 		},
-	).Return(paID, nil)
+	).Return(wID, nil)
 
 	s.env.OnActivity(
 		activities.DownloadActivityName,
@@ -1604,10 +1604,10 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPAM() {
 	).Return(nil, nil)
 
 	s.env.OnActivity(
-		completePreservationActionLocalActivity,
+		completeWorkflowLocalActivity,
 		ctx,
 		ingestsvc,
-		mock.AnythingOfType("*workflow.completePreservationActionLocalActivityParams"),
+		mock.AnythingOfType("*workflow.completeWorkflowLocalActivityParams"),
 	).Return(nil, nil)
 
 	s.env.OnActivity(

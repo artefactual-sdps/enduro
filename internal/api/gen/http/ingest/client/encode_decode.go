@@ -543,24 +543,23 @@ func DecodeShowSipResponse(decoder func(*http.Response) goahttp.Decoder, restore
 	}
 }
 
-// BuildListSipPreservationActionsRequest instantiates a HTTP request object
-// with method and path set to call the "ingest" service
-// "list_sip_preservation_actions" endpoint
-func (c *Client) BuildListSipPreservationActionsRequest(ctx context.Context, v any) (*http.Request, error) {
+// BuildListSipWorkflowsRequest instantiates a HTTP request object with method
+// and path set to call the "ingest" service "list_sip_workflows" endpoint
+func (c *Client) BuildListSipWorkflowsRequest(ctx context.Context, v any) (*http.Request, error) {
 	var (
 		id uint
 	)
 	{
-		p, ok := v.(*ingest.ListSipPreservationActionsPayload)
+		p, ok := v.(*ingest.ListSipWorkflowsPayload)
 		if !ok {
-			return nil, goahttp.ErrInvalidType("ingest", "list_sip_preservation_actions", "*ingest.ListSipPreservationActionsPayload", v)
+			return nil, goahttp.ErrInvalidType("ingest", "list_sip_workflows", "*ingest.ListSipWorkflowsPayload", v)
 		}
 		id = p.ID
 	}
-	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: ListSipPreservationActionsIngestPath(id)}
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: ListSipWorkflowsIngestPath(id)}
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
-		return nil, goahttp.ErrInvalidURL("ingest", "list_sip_preservation_actions", u.String(), err)
+		return nil, goahttp.ErrInvalidURL("ingest", "list_sip_workflows", u.String(), err)
 	}
 	if ctx != nil {
 		req = req.WithContext(ctx)
@@ -569,13 +568,13 @@ func (c *Client) BuildListSipPreservationActionsRequest(ctx context.Context, v a
 	return req, nil
 }
 
-// EncodeListSipPreservationActionsRequest returns an encoder for requests sent
-// to the ingest list_sip_preservation_actions server.
-func EncodeListSipPreservationActionsRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, any) error {
+// EncodeListSipWorkflowsRequest returns an encoder for requests sent to the
+// ingest list_sip_workflows server.
+func EncodeListSipWorkflowsRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, any) error {
 	return func(req *http.Request, v any) error {
-		p, ok := v.(*ingest.ListSipPreservationActionsPayload)
+		p, ok := v.(*ingest.ListSipWorkflowsPayload)
 		if !ok {
-			return goahttp.ErrInvalidType("ingest", "list_sip_preservation_actions", "*ingest.ListSipPreservationActionsPayload", v)
+			return goahttp.ErrInvalidType("ingest", "list_sip_workflows", "*ingest.ListSipWorkflowsPayload", v)
 		}
 		if p.Token != nil {
 			head := *p.Token
@@ -589,15 +588,15 @@ func EncodeListSipPreservationActionsRequest(encoder func(*http.Request) goahttp
 	}
 }
 
-// DecodeListSipPreservationActionsResponse returns a decoder for responses
-// returned by the ingest list_sip_preservation_actions endpoint. restoreBody
-// controls whether the response body should be restored after having been read.
-// DecodeListSipPreservationActionsResponse may return the following errors:
+// DecodeListSipWorkflowsResponse returns a decoder for responses returned by
+// the ingest list_sip_workflows endpoint. restoreBody controls whether the
+// response body should be restored after having been read.
+// DecodeListSipWorkflowsResponse may return the following errors:
 //   - "not_found" (type *ingest.SIPNotFound): http.StatusNotFound
 //   - "forbidden" (type ingest.Forbidden): http.StatusForbidden
 //   - "unauthorized" (type ingest.Unauthorized): http.StatusUnauthorized
 //   - error: internal error
-func DecodeListSipPreservationActionsResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
+func DecodeListSipWorkflowsResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
 	return func(resp *http.Response) (any, error) {
 		if restoreBody {
 			b, err := io.ReadAll(resp.Body)
@@ -614,35 +613,35 @@ func DecodeListSipPreservationActionsResponse(decoder func(*http.Response) goaht
 		switch resp.StatusCode {
 		case http.StatusOK:
 			var (
-				body ListSipPreservationActionsResponseBody
+				body ListSipWorkflowsResponseBody
 				err  error
 			)
 			err = decoder(resp).Decode(&body)
 			if err != nil {
-				return nil, goahttp.ErrDecodingError("ingest", "list_sip_preservation_actions", err)
+				return nil, goahttp.ErrDecodingError("ingest", "list_sip_workflows", err)
 			}
-			p := NewListSipPreservationActionsSIPPreservationActionsOK(&body)
+			p := NewListSipWorkflowsSIPWorkflowsOK(&body)
 			view := "default"
-			vres := &ingestviews.SIPPreservationActions{Projected: p, View: view}
-			if err = ingestviews.ValidateSIPPreservationActions(vres); err != nil {
-				return nil, goahttp.ErrValidationError("ingest", "list_sip_preservation_actions", err)
+			vres := &ingestviews.SIPWorkflows{Projected: p, View: view}
+			if err = ingestviews.ValidateSIPWorkflows(vres); err != nil {
+				return nil, goahttp.ErrValidationError("ingest", "list_sip_workflows", err)
 			}
-			res := ingest.NewSIPPreservationActions(vres)
+			res := ingest.NewSIPWorkflows(vres)
 			return res, nil
 		case http.StatusNotFound:
 			var (
-				body ListSipPreservationActionsNotFoundResponseBody
+				body ListSipWorkflowsNotFoundResponseBody
 				err  error
 			)
 			err = decoder(resp).Decode(&body)
 			if err != nil {
-				return nil, goahttp.ErrDecodingError("ingest", "list_sip_preservation_actions", err)
+				return nil, goahttp.ErrDecodingError("ingest", "list_sip_workflows", err)
 			}
-			err = ValidateListSipPreservationActionsNotFoundResponseBody(&body)
+			err = ValidateListSipWorkflowsNotFoundResponseBody(&body)
 			if err != nil {
-				return nil, goahttp.ErrValidationError("ingest", "list_sip_preservation_actions", err)
+				return nil, goahttp.ErrValidationError("ingest", "list_sip_workflows", err)
 			}
-			return nil, NewListSipPreservationActionsNotFound(&body)
+			return nil, NewListSipWorkflowsNotFound(&body)
 		case http.StatusForbidden:
 			var (
 				body string
@@ -650,9 +649,9 @@ func DecodeListSipPreservationActionsResponse(decoder func(*http.Response) goaht
 			)
 			err = decoder(resp).Decode(&body)
 			if err != nil {
-				return nil, goahttp.ErrDecodingError("ingest", "list_sip_preservation_actions", err)
+				return nil, goahttp.ErrDecodingError("ingest", "list_sip_workflows", err)
 			}
-			return nil, NewListSipPreservationActionsForbidden(body)
+			return nil, NewListSipWorkflowsForbidden(body)
 		case http.StatusUnauthorized:
 			var (
 				body string
@@ -660,12 +659,12 @@ func DecodeListSipPreservationActionsResponse(decoder func(*http.Response) goaht
 			)
 			err = decoder(resp).Decode(&body)
 			if err != nil {
-				return nil, goahttp.ErrDecodingError("ingest", "list_sip_preservation_actions", err)
+				return nil, goahttp.ErrDecodingError("ingest", "list_sip_workflows", err)
 			}
-			return nil, NewListSipPreservationActionsUnauthorized(body)
+			return nil, NewListSipWorkflowsUnauthorized(body)
 		default:
 			body, _ := io.ReadAll(resp.Body)
-			return nil, goahttp.ErrInvalidResponse("ingest", "list_sip_preservation_actions", resp.StatusCode, string(body))
+			return nil, goahttp.ErrInvalidResponse("ingest", "list_sip_workflows", resp.StatusCode, string(body))
 		}
 	}
 }
@@ -1436,14 +1435,14 @@ func unmarshalEnduroPageResponseBodyToIngestviewsEnduroPageView(v *EnduroPageRes
 	return res
 }
 
-// unmarshalSIPPreservationActionResponseBodyToIngestviewsSIPPreservationActionView
-// builds a value of type *ingestviews.SIPPreservationActionView from a value
-// of type *SIPPreservationActionResponseBody.
-func unmarshalSIPPreservationActionResponseBodyToIngestviewsSIPPreservationActionView(v *SIPPreservationActionResponseBody) *ingestviews.SIPPreservationActionView {
+// unmarshalSIPWorkflowResponseBodyToIngestviewsSIPWorkflowView builds a value
+// of type *ingestviews.SIPWorkflowView from a value of type
+// *SIPWorkflowResponseBody.
+func unmarshalSIPWorkflowResponseBodyToIngestviewsSIPWorkflowView(v *SIPWorkflowResponseBody) *ingestviews.SIPWorkflowView {
 	if v == nil {
 		return nil
 	}
-	res := &ingestviews.SIPPreservationActionView{
+	res := &ingestviews.SIPWorkflowView{
 		ID:          v.ID,
 		WorkflowID:  v.WorkflowID,
 		Type:        v.Type,
@@ -1453,31 +1452,30 @@ func unmarshalSIPPreservationActionResponseBodyToIngestviewsSIPPreservationActio
 		SipID:       v.SipID,
 	}
 	if v.Tasks != nil {
-		res.Tasks = make([]*ingestviews.SIPPreservationTaskView, len(v.Tasks))
+		res.Tasks = make([]*ingestviews.SIPTaskView, len(v.Tasks))
 		for i, val := range v.Tasks {
-			res.Tasks[i] = unmarshalSIPPreservationTaskResponseBodyToIngestviewsSIPPreservationTaskView(val)
+			res.Tasks[i] = unmarshalSIPTaskResponseBodyToIngestviewsSIPTaskView(val)
 		}
 	}
 
 	return res
 }
 
-// unmarshalSIPPreservationTaskResponseBodyToIngestviewsSIPPreservationTaskView
-// builds a value of type *ingestviews.SIPPreservationTaskView from a value of
-// type *SIPPreservationTaskResponseBody.
-func unmarshalSIPPreservationTaskResponseBodyToIngestviewsSIPPreservationTaskView(v *SIPPreservationTaskResponseBody) *ingestviews.SIPPreservationTaskView {
+// unmarshalSIPTaskResponseBodyToIngestviewsSIPTaskView builds a value of type
+// *ingestviews.SIPTaskView from a value of type *SIPTaskResponseBody.
+func unmarshalSIPTaskResponseBodyToIngestviewsSIPTaskView(v *SIPTaskResponseBody) *ingestviews.SIPTaskView {
 	if v == nil {
 		return nil
 	}
-	res := &ingestviews.SIPPreservationTaskView{
-		ID:                   v.ID,
-		TaskID:               v.TaskID,
-		Name:                 v.Name,
-		Status:               v.Status,
-		StartedAt:            v.StartedAt,
-		CompletedAt:          v.CompletedAt,
-		Note:                 v.Note,
-		PreservationActionID: v.PreservationActionID,
+	res := &ingestviews.SIPTaskView{
+		ID:          v.ID,
+		TaskID:      v.TaskID,
+		Name:        v.Name,
+		Status:      v.Status,
+		StartedAt:   v.StartedAt,
+		CompletedAt: v.CompletedAt,
+		Note:        v.Note,
+		WorkflowID:  v.WorkflowID,
 	}
 
 	return res

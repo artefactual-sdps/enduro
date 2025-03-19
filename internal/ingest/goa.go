@@ -172,16 +172,16 @@ func (w *goaWrapper) ShowSip(
 	return c.Goa(), nil
 }
 
-func (w *goaWrapper) ListSipPreservationActions(
+func (w *goaWrapper) ListSipWorkflows(
 	ctx context.Context,
-	payload *goaingest.ListSipPreservationActionsPayload,
-) (*goaingest.SIPPreservationActions, error) {
+	payload *goaingest.ListSipWorkflowsPayload,
+) (*goaingest.SIPWorkflows, error) {
 	goasip, err := w.ShowSip(ctx, &goaingest.ShowSipPayload{ID: payload.ID})
 	if err != nil {
 		return nil, err
 	}
 
-	query := "SELECT id, workflow_id, type, status, CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at, CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at FROM preservation_action WHERE sip_id = ? ORDER BY started_at DESC"
+	query := "SELECT id, workflow_id, type, status, CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at, CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at FROM workflow WHERE sip_id = ? ORDER BY started_at DESC"
 	args := []interface{}{goasip.ID}
 
 	rows, err := w.db.QueryxContext(ctx, query, args...)
@@ -190,16 +190,16 @@ func (w *goaWrapper) ListSipPreservationActions(
 	}
 	defer rows.Close()
 
-	preservation_actions := []*goaingest.SIPPreservationAction{}
+	workflows := []*goaingest.SIPWorkflow{}
 	for rows.Next() {
-		pa := datatypes.PreservationAction{}
-		if err := rows.StructScan(&pa); err != nil {
+		workflow := datatypes.Workflow{}
+		if err := rows.StructScan(&workflow); err != nil {
 			return nil, fmt.Errorf("error scanning database result: %w", err)
 		}
-		goapa := preservationActionToGoa(&pa)
+		goaworkflow := workflowToGoa(&workflow)
 
-		ptQuery := "SELECT id, task_id, name, status, CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at, CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at, note FROM preservation_task WHERE preservation_action_id = ?"
-		ptQueryArgs := []interface{}{pa.ID}
+		ptQuery := "SELECT id, task_id, name, status, CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at, CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at, note FROM task WHERE workflow_id = ?"
+		ptQueryArgs := []interface{}{workflow.ID}
 
 		ptRows, err := w.db.QueryxContext(ctx, ptQuery, ptQueryArgs...)
 		if err != nil {
@@ -207,21 +207,21 @@ func (w *goaWrapper) ListSipPreservationActions(
 		}
 		defer ptRows.Close()
 
-		preservation_tasks := []*goaingest.SIPPreservationTask{}
+		tasks := []*goaingest.SIPTask{}
 		for ptRows.Next() {
-			pt := datatypes.PreservationTask{}
-			if err := ptRows.StructScan(&pt); err != nil {
+			task := datatypes.Task{}
+			if err := ptRows.StructScan(&task); err != nil {
 				return nil, fmt.Errorf("error scanning database result: %w", err)
 			}
-			preservation_tasks = append(preservation_tasks, preservationTaskToGoa(&pt))
+			tasks = append(tasks, taskToGoa(&task))
 		}
 
-		goapa.Tasks = preservation_tasks
-		preservation_actions = append(preservation_actions, goapa)
+		goaworkflow.Tasks = tasks
+		workflows = append(workflows, goaworkflow)
 	}
 
-	result := &goaingest.SIPPreservationActions{
-		Actions: preservation_actions,
+	result := &goaingest.SIPWorkflows{
+		Workflows: workflows,
 	}
 
 	return result, nil

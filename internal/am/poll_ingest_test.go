@@ -26,7 +26,7 @@ func TestPollIngestActivity(t *testing.T) {
 
 	clock := clockwork.NewFakeClock()
 	path := "/var/archivematica/fake/sip"
-	presActionID := 2
+	workflowID := 2
 	sipID := uuid.New().String()
 
 	httpError := func(m *amclienttest.MockIngestServiceMockRecorder, statusCode int) {
@@ -153,23 +153,23 @@ func TestPollIngestActivity(t *testing.T) {
 				)
 			},
 			ingestRec: func(m *ingest_fake.MockServiceMockRecorder) {
-				tasks := make([]*datatypes.PreservationTask, len(jobs))
+				tasks := make([]*datatypes.Task, len(jobs))
 				for i, job := range jobs {
-					pt := am.ConvertJobToPreservationTask(job)
-					pt.PreservationActionID = presActionID
+					task := am.ConvertJobToTask(job)
+					task.WorkflowID = workflowID
 
-					tasks[i] = &pt
+					tasks[i] = &task
 				}
 
 				// Poll 2: save first job.
-				m.CreatePreservationTask(mockutil.Context(), tasks[0]).Return(nil)
+				m.CreateTask(mockutil.Context(), tasks[0]).Return(nil)
 
 				// Poll 3: save second job.
-				m.CreatePreservationTask(mockutil.Context(), tasks[1]).Return(nil)
+				m.CreateTask(mockutil.Context(), tasks[1]).Return(nil)
 			},
 			want: am.PollIngestActivityResult{
-				Status:        "COMPLETE",
-				PresTaskCount: 2,
+				Status:    "COMPLETE",
+				TaskCount: 2,
 			},
 		},
 		{
@@ -276,8 +276,8 @@ func TestPollIngestActivity(t *testing.T) {
 			enc, err := env.ExecuteActivity(
 				am.PollIngestActivityName,
 				am.PollIngestActivityParams{
-					PresActionID: presActionID,
-					SIPID:        sipID,
+					WorkflowID: workflowID,
+					SIPID:      sipID,
 				},
 			)
 			if tt.wantErr != "" {

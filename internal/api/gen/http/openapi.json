@@ -428,7 +428,7 @@
       "title": "IngestConfirmSipRequestBody",
       "type": "object"
     },
-    "IngestListSipPreservationActionsNotFoundResponseBody": {
+    "IngestListSipWorkflowsNotFoundResponseBody": {
       "description": "SIP not found",
       "example": {
         "id": 1,
@@ -451,13 +451,13 @@
         "message",
         "id"
       ],
-      "title": "IngestListSipPreservationActionsNotFoundResponseBody",
+      "title": "IngestListSipWorkflowsNotFoundResponseBody",
       "type": "object"
     },
-    "IngestListSipPreservationActionsResponseBody": {
-      "description": "list_sip_preservation_actions_response_body result type (default view)",
+    "IngestListSipWorkflowsResponseBody": {
+      "description": "list_sip_workflows_response_body result type (default view)",
       "example": {
-        "actions": [
+        "workflows": [
           {
             "completed_at": "1970-01-01T00:00:01Z",
             "id": 1,
@@ -470,10 +470,10 @@
                 "id": 1,
                 "name": "abc123",
                 "note": "abc123",
-                "preservation_action_id": 1,
                 "started_at": "1970-01-01T00:00:01Z",
                 "status": "in progress",
-                "task_id": "abc123"
+                "task_id": "abc123",
+                "workflow_id": 1
               }
             ],
             "type": "create aip",
@@ -482,11 +482,11 @@
         ]
       },
       "properties": {
-        "actions": {
-          "$ref": "#/definitions/SIPPreservationActionResponseBodyCollection"
+        "workflows": {
+          "$ref": "#/definitions/SIPWorkflowResponseBodyCollection"
         }
       },
-      "title": "Mediatype identifier: application/vnd.enduro.ingest.sip.preservation-actions; view=default",
+      "title": "Mediatype identifier: application/vnd.enduro.ingest.sip.workflows; view=default",
       "type": "object"
     },
     "IngestListSipsNotValidResponseBody": {
@@ -701,17 +701,17 @@
           },
           "properties": {
             "Type": {
-              "description": "Union type name, one of:\n- \"monitor_ping_event\"\n- \"sip_created_event\"\n- \"sip_updated_event\"\n- \"sip_status_updated_event\"\n- \"sip_location_updated_event\"\n- \"sip_preservation_action_created_event\"\n- \"sip_preservation_action_updated_event\"\n- \"sip_preservation_task_created_event\"\n- \"sip_preservation_task_updated_event\"",
+              "description": "Union type name, one of:\n- \"monitor_ping_event\"\n- \"sip_created_event\"\n- \"sip_updated_event\"\n- \"sip_status_updated_event\"\n- \"sip_location_updated_event\"\n- \"sip_workflow_created_event\"\n- \"sip_workflow_updated_event\"\n- \"sip_task_created_event\"\n- \"sip_task_updated_event\"",
               "enum": [
                 "monitor_ping_event",
                 "sip_created_event",
                 "sip_updated_event",
                 "sip_status_updated_event",
                 "sip_location_updated_event",
-                "sip_preservation_action_created_event",
-                "sip_preservation_action_updated_event",
-                "sip_preservation_task_created_event",
-                "sip_preservation_task_updated_event"
+                "sip_workflow_created_event",
+                "sip_workflow_updated_event",
+                "sip_task_created_event",
+                "sip_task_updated_event"
               ],
               "example": "sip_created_event",
               "type": "string"
@@ -1502,209 +1502,6 @@
       "title": "Mediatype identifier: application/vnd.enduro.storage.location; view=default",
       "type": "object"
     },
-    "SIPPreservationActionResponseBody": {
-      "description": "SIPPreservationAction describes a preservation action of a SIP. (default view)",
-      "example": {
-        "completed_at": "1970-01-01T00:00:01Z",
-        "id": 1,
-        "sip_id": 1,
-        "started_at": "1970-01-01T00:00:01Z",
-        "status": "in progress",
-        "tasks": [
-          {
-            "completed_at": "1970-01-01T00:00:01Z",
-            "id": 1,
-            "name": "abc123",
-            "note": "abc123",
-            "preservation_action_id": 1,
-            "started_at": "1970-01-01T00:00:01Z",
-            "status": "in progress",
-            "task_id": "abc123"
-          }
-        ],
-        "type": "create aip",
-        "workflow_id": "abc123"
-      },
-      "properties": {
-        "completed_at": {
-          "example": "1970-01-01T00:00:01Z",
-          "format": "date-time",
-          "type": "string"
-        },
-        "id": {
-          "example": 1,
-          "format": "int64",
-          "type": "integer"
-        },
-        "sip_id": {
-          "example": 1,
-          "format": "int64",
-          "type": "integer"
-        },
-        "started_at": {
-          "example": "1970-01-01T00:00:01Z",
-          "format": "date-time",
-          "type": "string"
-        },
-        "status": {
-          "enum": [
-            "unspecified",
-            "in progress",
-            "done",
-            "error",
-            "queued",
-            "pending"
-          ],
-          "example": "in progress",
-          "type": "string"
-        },
-        "tasks": {
-          "$ref": "#/definitions/SIPPreservationTaskResponseBodyCollection"
-        },
-        "type": {
-          "enum": [
-            "unspecified",
-            "create aip",
-            "create and review aip",
-            "move package"
-          ],
-          "example": "create aip",
-          "type": "string"
-        },
-        "workflow_id": {
-          "example": "abc123",
-          "type": "string"
-        }
-      },
-      "required": [
-        "id",
-        "workflow_id",
-        "type",
-        "status",
-        "started_at"
-      ],
-      "title": "Mediatype identifier: application/vnd.enduro.ingest.sip.preservation-action; view=default",
-      "type": "object"
-    },
-    "SIPPreservationActionResponseBodyCollection": {
-      "description": "SIPPreservationActionCollectionResponseBody is the result type for an array of SIPPreservationActionResponseBody (default view)",
-      "example": [
-        {
-          "completed_at": "1970-01-01T00:00:01Z",
-          "id": 1,
-          "sip_id": 1,
-          "started_at": "1970-01-01T00:00:01Z",
-          "status": "in progress",
-          "tasks": [
-            {
-              "completed_at": "1970-01-01T00:00:01Z",
-              "id": 1,
-              "name": "abc123",
-              "note": "abc123",
-              "preservation_action_id": 1,
-              "started_at": "1970-01-01T00:00:01Z",
-              "status": "in progress",
-              "task_id": "abc123"
-            }
-          ],
-          "type": "create aip",
-          "workflow_id": "abc123"
-        }
-      ],
-      "items": {
-        "$ref": "#/definitions/SIPPreservationActionResponseBody"
-      },
-      "title": "Mediatype identifier: application/vnd.enduro.ingest.sip.preservation-action; type=collection; view=default",
-      "type": "array"
-    },
-    "SIPPreservationTaskResponseBody": {
-      "description": "SIPPreservationTask describes a SIP preservation action task. (default view)",
-      "example": {
-        "completed_at": "1970-01-01T00:00:01Z",
-        "id": 1,
-        "name": "abc123",
-        "note": "abc123",
-        "preservation_action_id": 1,
-        "started_at": "1970-01-01T00:00:01Z",
-        "status": "in progress",
-        "task_id": "abc123"
-      },
-      "properties": {
-        "completed_at": {
-          "example": "1970-01-01T00:00:01Z",
-          "format": "date-time",
-          "type": "string"
-        },
-        "id": {
-          "example": 1,
-          "format": "int64",
-          "type": "integer"
-        },
-        "name": {
-          "example": "abc123",
-          "type": "string"
-        },
-        "note": {
-          "example": "abc123",
-          "type": "string"
-        },
-        "preservation_action_id": {
-          "example": 1,
-          "format": "int64",
-          "type": "integer"
-        },
-        "started_at": {
-          "example": "1970-01-01T00:00:01Z",
-          "format": "date-time",
-          "type": "string"
-        },
-        "status": {
-          "enum": [
-            "unspecified",
-            "in progress",
-            "done",
-            "error",
-            "queued",
-            "pending"
-          ],
-          "example": "in progress",
-          "type": "string"
-        },
-        "task_id": {
-          "example": "abc123",
-          "type": "string"
-        }
-      },
-      "required": [
-        "id",
-        "task_id",
-        "name",
-        "status",
-        "started_at"
-      ],
-      "title": "Mediatype identifier: application/vnd.enduro.ingest.sip.preservation-task; view=default",
-      "type": "object"
-    },
-    "SIPPreservationTaskResponseBodyCollection": {
-      "description": "SIPPreservationTaskCollectionResponseBody is the result type for an array of SIPPreservationTaskResponseBody (default view)",
-      "example": [
-        {
-          "completed_at": "1970-01-01T00:00:01Z",
-          "id": 1,
-          "name": "abc123",
-          "note": "abc123",
-          "preservation_action_id": 1,
-          "started_at": "1970-01-01T00:00:01Z",
-          "status": "in progress",
-          "task_id": "abc123"
-        }
-      ],
-      "items": {
-        "$ref": "#/definitions/SIPPreservationTaskResponseBody"
-      },
-      "title": "Mediatype identifier: application/vnd.enduro.ingest.sip.preservation-task; type=collection; view=default",
-      "type": "array"
-    },
     "SIPResponseBody": {
       "description": "SIP describes an ingest SIP type. (default view)",
       "example": {
@@ -1817,6 +1614,209 @@
         "$ref": "#/definitions/SIPResponseBody"
       },
       "title": "Mediatype identifier: application/vnd.enduro.ingest.sip; type=collection; view=default",
+      "type": "array"
+    },
+    "SIPTaskResponseBody": {
+      "description": "SIPTask describes a SIP workflow task. (default view)",
+      "example": {
+        "completed_at": "1970-01-01T00:00:01Z",
+        "id": 1,
+        "name": "abc123",
+        "note": "abc123",
+        "started_at": "1970-01-01T00:00:01Z",
+        "status": "in progress",
+        "task_id": "abc123",
+        "workflow_id": 1
+      },
+      "properties": {
+        "completed_at": {
+          "example": "1970-01-01T00:00:01Z",
+          "format": "date-time",
+          "type": "string"
+        },
+        "id": {
+          "example": 1,
+          "format": "int64",
+          "type": "integer"
+        },
+        "name": {
+          "example": "abc123",
+          "type": "string"
+        },
+        "note": {
+          "example": "abc123",
+          "type": "string"
+        },
+        "started_at": {
+          "example": "1970-01-01T00:00:01Z",
+          "format": "date-time",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "unspecified",
+            "in progress",
+            "done",
+            "error",
+            "queued",
+            "pending"
+          ],
+          "example": "in progress",
+          "type": "string"
+        },
+        "task_id": {
+          "example": "abc123",
+          "type": "string"
+        },
+        "workflow_id": {
+          "example": 1,
+          "format": "int64",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "task_id",
+        "name",
+        "status",
+        "started_at"
+      ],
+      "title": "Mediatype identifier: application/vnd.enduro.ingest.sip.task; view=default",
+      "type": "object"
+    },
+    "SIPTaskResponseBodyCollection": {
+      "description": "SIPTaskCollectionResponseBody is the result type for an array of SIPTaskResponseBody (default view)",
+      "example": [
+        {
+          "completed_at": "1970-01-01T00:00:01Z",
+          "id": 1,
+          "name": "abc123",
+          "note": "abc123",
+          "started_at": "1970-01-01T00:00:01Z",
+          "status": "in progress",
+          "task_id": "abc123",
+          "workflow_id": 1
+        }
+      ],
+      "items": {
+        "$ref": "#/definitions/SIPTaskResponseBody"
+      },
+      "title": "Mediatype identifier: application/vnd.enduro.ingest.sip.task; type=collection; view=default",
+      "type": "array"
+    },
+    "SIPWorkflowResponseBody": {
+      "description": "SIPWorkflow describes a workflow of a SIP. (default view)",
+      "example": {
+        "completed_at": "1970-01-01T00:00:01Z",
+        "id": 1,
+        "sip_id": 1,
+        "started_at": "1970-01-01T00:00:01Z",
+        "status": "in progress",
+        "tasks": [
+          {
+            "completed_at": "1970-01-01T00:00:01Z",
+            "id": 1,
+            "name": "abc123",
+            "note": "abc123",
+            "started_at": "1970-01-01T00:00:01Z",
+            "status": "in progress",
+            "task_id": "abc123",
+            "workflow_id": 1
+          }
+        ],
+        "type": "create aip",
+        "workflow_id": "abc123"
+      },
+      "properties": {
+        "completed_at": {
+          "example": "1970-01-01T00:00:01Z",
+          "format": "date-time",
+          "type": "string"
+        },
+        "id": {
+          "example": 1,
+          "format": "int64",
+          "type": "integer"
+        },
+        "sip_id": {
+          "example": 1,
+          "format": "int64",
+          "type": "integer"
+        },
+        "started_at": {
+          "example": "1970-01-01T00:00:01Z",
+          "format": "date-time",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "unspecified",
+            "in progress",
+            "done",
+            "error",
+            "queued",
+            "pending"
+          ],
+          "example": "in progress",
+          "type": "string"
+        },
+        "tasks": {
+          "$ref": "#/definitions/SIPTaskResponseBodyCollection"
+        },
+        "type": {
+          "enum": [
+            "unspecified",
+            "create aip",
+            "create and review aip",
+            "move package"
+          ],
+          "example": "create aip",
+          "type": "string"
+        },
+        "workflow_id": {
+          "example": "abc123",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "workflow_id",
+        "type",
+        "status",
+        "started_at"
+      ],
+      "title": "Mediatype identifier: application/vnd.enduro.ingest.sip.workflow; view=default",
+      "type": "object"
+    },
+    "SIPWorkflowResponseBodyCollection": {
+      "description": "SIPWorkflowCollectionResponseBody is the result type for an array of SIPWorkflowResponseBody (default view)",
+      "example": [
+        {
+          "completed_at": "1970-01-01T00:00:01Z",
+          "id": 1,
+          "sip_id": 1,
+          "started_at": "1970-01-01T00:00:01Z",
+          "status": "in progress",
+          "tasks": [
+            {
+              "completed_at": "1970-01-01T00:00:01Z",
+              "id": 1,
+              "name": "abc123",
+              "note": "abc123",
+              "started_at": "1970-01-01T00:00:01Z",
+              "status": "in progress",
+              "task_id": "abc123",
+              "workflow_id": 1
+            }
+          ],
+          "type": "create aip",
+          "workflow_id": "abc123"
+        }
+      ],
+      "items": {
+        "$ref": "#/definitions/SIPWorkflowResponseBody"
+      },
+      "title": "Mediatype identifier: application/vnd.enduro.ingest.sip.workflow; type=collection; view=default",
       "type": "array"
     },
     "StorageAIPResponseCollection": {
@@ -3280,7 +3280,7 @@
         ]
       },
       "post": {
-        "description": "Request access to the /monitor WebSocket\n\n**Required security scopes for jwt**:\n  * `ingest:sips:list`\n  * `ingest:sips:actions:list`\n  * `ingest:sips:move`\n  * `ingest:sips:read`\n  * `ingest:sips:review`\n  * `ingest:sips:upload`",
+        "description": "Request access to the /monitor WebSocket\n\n**Required security scopes for jwt**:\n  * `ingest:sips:list`\n  * `ingest:sips:move`\n  * `ingest:sips:read`\n  * `ingest:sips:review`\n  * `ingest:sips:upload`\n  * `ingest:sips:workflows:list`",
         "operationId": "ingest#monitor_request",
         "parameters": [
           {
@@ -3814,69 +3814,6 @@
         ]
       }
     },
-    "/ingest/sips/{id}/preservation-actions": {
-      "get": {
-        "description": "List all preservation actions for a SIP\n\n**Required security scopes for jwt**:\n  * `ingest:sips:actions:list`",
-        "operationId": "ingest#list_sip_preservation_actions",
-        "parameters": [
-          {
-            "description": "Identifier of SIP to look up",
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "type": "integer"
-          },
-          {
-            "in": "header",
-            "name": "Authorization",
-            "required": false,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK response.",
-            "schema": {
-              "$ref": "#/definitions/IngestListSipPreservationActionsResponseBody"
-            }
-          },
-          "401": {
-            "description": "Unauthorized response.",
-            "schema": {
-              "type": "string"
-            }
-          },
-          "403": {
-            "description": "Forbidden response.",
-            "schema": {
-              "type": "string"
-            }
-          },
-          "404": {
-            "description": "Not Found response.",
-            "schema": {
-              "$ref": "#/definitions/IngestListSipPreservationActionsNotFoundResponseBody",
-              "required": [
-                "message",
-                "id"
-              ]
-            }
-          }
-        },
-        "schemes": [
-          "http"
-        ],
-        "security": [
-          {
-            "jwt_header_Authorization": []
-          }
-        ],
-        "summary": "list_sip_preservation_actions ingest",
-        "tags": [
-          "ingest"
-        ]
-      }
-    },
     "/ingest/sips/{id}/reject": {
       "post": {
         "description": "Signal the SIP has been reviewed and rejected\n\n**Required security scopes for jwt**:\n  * `ingest:sips:review`",
@@ -3944,6 +3881,69 @@
           }
         ],
         "summary": "reject_sip ingest",
+        "tags": [
+          "ingest"
+        ]
+      }
+    },
+    "/ingest/sips/{id}/workflows": {
+      "get": {
+        "description": "List all workflows for a SIP\n\n**Required security scopes for jwt**:\n  * `ingest:sips:workflows:list`",
+        "operationId": "ingest#list_sip_workflows",
+        "parameters": [
+          {
+            "description": "Identifier of SIP to look up",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK response.",
+            "schema": {
+              "$ref": "#/definitions/IngestListSipWorkflowsResponseBody"
+            }
+          },
+          "401": {
+            "description": "Unauthorized response.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "403": {
+            "description": "Forbidden response.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "404": {
+            "description": "Not Found response.",
+            "schema": {
+              "$ref": "#/definitions/IngestListSipWorkflowsNotFoundResponseBody",
+              "required": [
+                "message",
+                "id"
+              ]
+            }
+          }
+        },
+        "schemes": [
+          "http"
+        ],
+        "security": [
+          {
+            "jwt_header_Authorization": []
+          }
+        ],
+        "summary": "list_sip_workflows ingest",
         "tags": [
           "ingest"
         ]
@@ -4892,7 +4892,7 @@
   ],
   "securityDefinitions": {
     "jwt_header_Authorization": {
-      "description": "Secures endpoint by requiring a valid JWT token.\n\n**Security Scopes**:\n  * `ingest:sips:actions:list`: no description\n  * `ingest:sips:list`: no description\n  * `ingest:sips:move`: no description\n  * `ingest:sips:read`: no description\n  * `ingest:sips:review`: no description\n  * `ingest:sips:upload`: no description\n  * `storage:aips:create`: no description\n  * `storage:aips:download`: no description\n  * `storage:aips:list`: no description\n  * `storage:aips:move`: no description\n  * `storage:aips:read`: no description\n  * `storage:aips:review`: no description\n  * `storage:aips:submit`: no description\n  * `storage:locations:aips:list`: no description\n  * `storage:locations:create`: no description\n  * `storage:locations:list`: no description\n  * `storage:locations:read`: no description",
+      "description": "Secures endpoint by requiring a valid JWT token.\n\n**Security Scopes**:\n  * `ingest:sips:list`: no description\n  * `ingest:sips:move`: no description\n  * `ingest:sips:read`: no description\n  * `ingest:sips:review`: no description\n  * `ingest:sips:upload`: no description\n  * `ingest:sips:workflows:list`: no description\n  * `storage:aips:create`: no description\n  * `storage:aips:download`: no description\n  * `storage:aips:list`: no description\n  * `storage:aips:move`: no description\n  * `storage:aips:read`: no description\n  * `storage:aips:review`: no description\n  * `storage:aips:submit`: no description\n  * `storage:locations:aips:list`: no description\n  * `storage:locations:create`: no description\n  * `storage:locations:list`: no description\n  * `storage:locations:read`: no description",
       "in": "header",
       "name": "Authorization",
       "type": "apiKey"

@@ -85,91 +85,91 @@ describe("useSipStore", () => {
     const sipStore = useSipStore();
     const now = new Date();
     sipStore.$patch({
-      currentPreservationActions: {
-        actions: [
+      currentWorkflows: {
+        workflows: [
           {
             id: 1,
-            type: api.EnduroIngestSipPreservationActionTypeEnum.CreateAip,
+            type: api.EnduroIngestSipWorkflowTypeEnum.CreateAip,
             startedAt: now,
-            status: api.EnduroIngestSipPreservationActionStatusEnum.Done,
+            status: api.EnduroIngestSipWorkflowStatusEnum.Done,
             workflowId: "c18d00f2-a1c4-4161-820c-6fc6ce707811",
           },
           {
             id: 2,
-            type: api.EnduroIngestSipPreservationActionTypeEnum.MovePackage,
+            type: api.EnduroIngestSipWorkflowTypeEnum.MovePackage,
             startedAt: now,
-            status: api.EnduroIngestSipPreservationActionStatusEnum.Done,
+            status: api.EnduroIngestSipWorkflowStatusEnum.Done,
             workflowId: "051cf998-6f87-4461-8091-8561ebf479c4",
           },
         ],
       },
     });
 
-    expect(sipStore.getActionById(1)).toEqual({
+    expect(sipStore.getWorkflowById(1)).toEqual({
       id: 1,
-      type: api.EnduroIngestSipPreservationActionTypeEnum.CreateAip,
+      type: api.EnduroIngestSipWorkflowTypeEnum.CreateAip,
       startedAt: now,
-      status: api.EnduroIngestSipPreservationActionStatusEnum.Done,
+      status: api.EnduroIngestSipWorkflowStatusEnum.Done,
       workflowId: "c18d00f2-a1c4-4161-820c-6fc6ce707811",
     });
-    expect(sipStore.getActionById(2)).toEqual({
+    expect(sipStore.getWorkflowById(2)).toEqual({
       id: 2,
-      type: api.EnduroIngestSipPreservationActionTypeEnum.MovePackage,
+      type: api.EnduroIngestSipWorkflowTypeEnum.MovePackage,
       startedAt: now,
-      status: api.EnduroIngestSipPreservationActionStatusEnum.Done,
+      status: api.EnduroIngestSipWorkflowStatusEnum.Done,
       workflowId: "051cf998-6f87-4461-8091-8561ebf479c4",
     });
-    expect(sipStore.getActionById(3)).toBeUndefined();
+    expect(sipStore.getWorkflowById(3)).toBeUndefined();
   });
 
   it("getTaskById finds tasks", () => {
     const sipStore = useSipStore();
     const now = new Date();
     sipStore.$patch({
-      currentPreservationActions: {
-        actions: [
+      currentWorkflows: {
+        workflows: [
           {
             id: 1,
-            type: api.EnduroIngestSipPreservationActionTypeEnum.CreateAip,
+            type: api.EnduroIngestSipWorkflowTypeEnum.CreateAip,
             startedAt: now,
-            status: api.EnduroIngestSipPreservationActionStatusEnum.Done,
+            status: api.EnduroIngestSipWorkflowStatusEnum.Done,
             workflowId: "c18d00f2-a1c4-4161-820c-6fc6ce707811",
             tasks: [
               {
                 id: 1,
                 name: "Task 1",
                 startedAt: now,
-                status: api.EnduroIngestSipPreservationTaskStatusEnum.Done,
+                status: api.EnduroIngestSipTaskStatusEnum.Done,
                 taskId: "1",
               },
               {
                 id: 2,
                 name: "Task 2",
                 startedAt: now,
-                status: api.EnduroIngestSipPreservationTaskStatusEnum.Done,
+                status: api.EnduroIngestSipTaskStatusEnum.Done,
                 taskId: "2",
               },
             ],
           },
           {
             id: 2,
-            type: api.EnduroIngestSipPreservationActionTypeEnum.MovePackage,
+            type: api.EnduroIngestSipWorkflowTypeEnum.MovePackage,
             startedAt: now,
-            status: api.EnduroIngestSipPreservationActionStatusEnum.Done,
+            status: api.EnduroIngestSipWorkflowStatusEnum.Done,
             workflowId: "051cf998-6f87-4461-8091-8561ebf479c4",
             tasks: [
               {
                 id: 3,
                 name: "Task 3",
                 startedAt: now,
-                status: api.EnduroIngestSipPreservationTaskStatusEnum.Done,
+                status: api.EnduroIngestSipTaskStatusEnum.Done,
                 taskId: "3",
               },
               {
                 id: 4,
                 name: "Task 4",
                 startedAt: now,
-                status: api.EnduroIngestSipPreservationTaskStatusEnum.Done,
+                status: api.EnduroIngestSipTaskStatusEnum.Done,
                 taskId: "4",
               },
             ],
@@ -182,14 +182,14 @@ describe("useSipStore", () => {
       id: 1,
       name: "Task 1",
       startedAt: now,
-      status: api.EnduroIngestSipPreservationTaskStatusEnum.Done,
+      status: api.EnduroIngestSipTaskStatusEnum.Done,
       taskId: "1",
     });
     expect(sipStore.getTaskById(1, 2)).toEqual({
       id: 2,
       name: "Task 2",
       startedAt: now,
-      status: api.EnduroIngestSipPreservationTaskStatusEnum.Done,
+      status: api.EnduroIngestSipTaskStatusEnum.Done,
       taskId: "2",
     });
     expect(sipStore.getTaskById(1, 3)).toBeUndefined();
@@ -198,14 +198,14 @@ describe("useSipStore", () => {
       id: 3,
       name: "Task 3",
       startedAt: now,
-      status: api.EnduroIngestSipPreservationTaskStatusEnum.Done,
+      status: api.EnduroIngestSipTaskStatusEnum.Done,
       taskId: "3",
     });
     expect(sipStore.getTaskById(2, 4)).toEqual({
       id: 4,
       name: "Task 4",
       startedAt: now,
-      status: api.EnduroIngestSipPreservationTaskStatusEnum.Done,
+      status: api.EnduroIngestSipTaskStatusEnum.Done,
       taskId: "4",
     });
     expect(sipStore.getTaskById(2, 5)).toBeUndefined();
@@ -218,28 +218,28 @@ describe("useSipStore", () => {
       createdAt: new Date("2025-01-01T00:00:00Z"),
       status: api.EnduroIngestSipStatusEnum.Done,
     };
-    const mockPreservationActions: api.SIPPreservationActions = {
-      actions: [
+    const mockWorkflows: api.SIPWorkflows = {
+      workflows: [
         {
           id: 1,
           startedAt: new Date("2025-01-01T00:00:00Z"),
-          status: api.EnduroIngestSipPreservationActionStatusEnum.Done,
-          type: api.EnduroIngestSipPreservationActionTypeEnum.CreateAip,
+          status: api.EnduroIngestSipWorkflowStatusEnum.Done,
+          type: api.EnduroIngestSipWorkflowTypeEnum.CreateAip,
           workflowId: "c18d00f2-a1c4-4161-820c-6fc6ce707811",
         },
       ],
     };
 
     client.ingest.ingestShowSip = vi.fn().mockResolvedValue(mockSip);
-    client.ingest.ingestListSipPreservationActions = vi
+    client.ingest.ingestListSipWorkflows = vi
       .fn()
-      .mockResolvedValue(mockPreservationActions);
+      .mockResolvedValue(mockWorkflows);
 
     const store = useSipStore();
     await store.fetchCurrent("1");
 
     expect(store.current).toEqual(mockSip);
-    expect(store.currentPreservationActions).toEqual(mockPreservationActions);
+    expect(store.currentWorkflows).toEqual(mockWorkflows);
 
     const layoutStore = useLayoutStore();
     expect(layoutStore.breadcrumb).toEqual([

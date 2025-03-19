@@ -279,8 +279,8 @@ func TestParseAttributes(t *testing.T) {
 					UseRoles:  true,
 					RolesMapping: map[string][]string{
 						"admin":    {"*"},
-						"operator": {"ingest:sips:actions:list", "ingest:sips:list", "ingest:sips:move", "ingest:sips:read", "ingest:sips:upload"},
-						"readonly": {"ingest:sips:actions:list", "ingest:sips:list", "ingest:sips:read"},
+						"operator": {"ingest:sips:list", "ingest:sips:move", "ingest:sips:read", "ingest:sips:upload", "ingest:sips:workflows:list"},
+						"readonly": {"ingest:sips:list", "ingest:sips:read", "ingest:sips:workflows:list"},
 					},
 				},
 			},
@@ -292,7 +292,7 @@ func TestParseAttributes(t *testing.T) {
 			wantClaims: &auth.Claims{
 				Email:         "info@artefactual.com",
 				EmailVerified: true,
-				Attributes:    []string{"*", "ingest:sips:actions:list", "ingest:sips:list", "ingest:sips:move", "ingest:sips:read", "ingest:sips:upload"},
+				Attributes:    []string{"*", "ingest:sips:list", "ingest:sips:move", "ingest:sips:read", "ingest:sips:upload", "ingest:sips:workflows:list"},
 			},
 		},
 		{

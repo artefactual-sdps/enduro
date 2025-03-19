@@ -6,8 +6,8 @@ import type { api } from "@/client";
 const props = defineProps<{
   status:
     | api.EnduroIngestSipStatusEnum
-    | api.EnduroIngestSipPreservationActionStatusEnum
-    | api.EnduroIngestSipPreservationTaskStatusEnum
+    | api.EnduroIngestSipWorkflowStatusEnum
+    | api.EnduroIngestSipTaskStatusEnum
     | api.EnduroStorageAipStatusEnum;
   note?: string;
 }>();
@@ -15,8 +15,8 @@ const props = defineProps<{
 const classes: {
   [key in
     | api.EnduroIngestSipStatusEnum
-    | api.EnduroIngestSipPreservationActionStatusEnum
-    | api.EnduroIngestSipPreservationTaskStatusEnum
+    | api.EnduroIngestSipWorkflowStatusEnum
+    | api.EnduroIngestSipTaskStatusEnum
     | api.EnduroStorageAipStatusEnum]: string;
 } = {
   new: "text-bg-dark",

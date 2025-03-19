@@ -44,15 +44,13 @@ app.config.globalProperties.$filters = {
   formatDuration(from: Date, to: Date) {
     return FormatDuration(from, to);
   },
-  getPreservationActionLabel(
-    value: api.EnduroIngestSipPreservationActionTypeEnum,
-  ) {
+  getWorkflowLabel(value: api.EnduroIngestSipWorkflowTypeEnum) {
     switch (value) {
-      case api.EnduroIngestSipPreservationActionTypeEnum.CreateAip:
+      case api.EnduroIngestSipWorkflowTypeEnum.CreateAip:
         return "Create AIP";
-      case api.EnduroIngestSipPreservationActionTypeEnum.CreateAndReviewAip:
+      case api.EnduroIngestSipWorkflowTypeEnum.CreateAndReviewAip:
         return "Create and Review AIP";
-      case api.EnduroIngestSipPreservationActionTypeEnum.MovePackage:
+      case api.EnduroIngestSipWorkflowTypeEnum.MovePackage:
         return "Move package";
       default:
         return value;

@@ -59,11 +59,11 @@ var keepJobs = map[string]struct{}{
 	"b7cf0d9a-504f-4f4e-9930-befa817d67ff": {}, // Clean up after storing AIP
 }
 
-var jobStatusToPreservationTaskStatus = map[amclient.JobStatus]enums.PreservationTaskStatus{
-	amclient.JobStatusUnknown:    enums.PreservationTaskStatusUnspecified,
-	amclient.JobStatusComplete:   enums.PreservationTaskStatusDone,
-	amclient.JobStatusProcessing: enums.PreservationTaskStatusInProgress,
-	amclient.JobStatusFailed:     enums.PreservationTaskStatusError,
+var jobStatusToTaskStatus = map[amclient.JobStatus]enums.TaskStatus{
+	amclient.JobStatusUnknown:    enums.TaskStatusUnspecified,
+	amclient.JobStatusComplete:   enums.TaskStatusDone,
+	amclient.JobStatusProcessing: enums.TaskStatusInProgress,
+	amclient.JobStatusFailed:     enums.TaskStatusError,
 }
 
 type JobTracker struct {
@@ -72,9 +72,9 @@ type JobTracker struct {
 	jobSvc    amclient.JobsService
 	ingestsvc ingest.Service
 
-	// presActionID is the PreservationAction ID that will be the parent ID for
-	// all saved preservation tasks.
-	presActionID int
+	// workflowID is the workflow ID that will be the parent ID for
+	// all saved tasks.
+	workflowID int
 
 	// savedIDs caches the ID of jobs that have already been saved so we don't
 	// create duplicates.
@@ -85,28 +85,28 @@ func NewJobTracker(
 	clock clockwork.Clock,
 	jobSvc amclient.JobsService,
 	ingestsvc ingest.Service,
-	presActionID int,
+	workflowID int,
 ) *JobTracker {
 	return &JobTracker{
 		clock:     clock,
 		jobSvc:    jobSvc,
 		ingestsvc: ingestsvc,
 
-		presActionID: presActionID,
-		savedIDs:     make(map[string]struct{}),
+		workflowID: workflowID,
+		savedIDs:   make(map[string]struct{}),
 	}
 }
 
-// SavePreservationTasks queries the Archivematica jobs list endpoint to get a
+// SaveTasks queries the Archivematica jobs list endpoint to get a
 // list of completed jobs related to the transfer or ingest identified by
-// unitID, then saves any new jobs as preservation tasks.
-func (jt *JobTracker) SavePreservationTasks(ctx context.Context, unitID string) (int, error) {
+// unitID, then saves any new jobs as tasks.
+func (jt *JobTracker) SaveTasks(ctx context.Context, unitID string) (int, error) {
 	jobs, err := jt.list(ctx, unitID)
 	if err != nil {
 		return 0, err
 	}
 
-	count, err := jt.savePreservationTasks(ctx, jobs)
+	count, err := jt.saveTasks(ctx, jobs)
 	if err != nil {
 		return 0, err
 	}
@@ -126,8 +126,8 @@ func (jt *JobTracker) list(ctx context.Context, unitID string) ([]amclient.Job, 
 	return jobs, nil
 }
 
-// savePreservationTasks persists Archivematica jobs data as preservation tasks.
-func (jt *JobTracker) savePreservationTasks(ctx context.Context, jobs []amclient.Job) (int, error) {
+// saveTasks persists Archivematica jobs data as tasks.
+func (jt *JobTracker) saveTasks(ctx context.Context, jobs []amclient.Job) (int, error) {
 	var count int
 	jobs = jt.filterJobs(jobs)
 	for _, job := range jobs {
@@ -136,10 +136,10 @@ func (jt *JobTracker) savePreservationTasks(ctx context.Context, jobs []amclient
 			continue
 		}
 
-		pt := ConvertJobToPreservationTask(job)
-		pt.PreservationActionID = jt.presActionID
+		task := ConvertJobToTask(job)
+		task.WorkflowID = jt.workflowID
 
-		err := jt.ingestsvc.CreatePreservationTask(ctx, &pt)
+		err := jt.ingestsvc.CreateTask(ctx, &task)
 		if err != nil {
 			return 0, err
 		}
@@ -166,14 +166,13 @@ func (jt *JobTracker) filterJobs(jobs []amclient.Job) []amclient.Job {
 	return filtered
 }
 
-// ConvertJobToPreservationTask converts an amclient.Job to a
-// datatypes.PreservationTask.
-func ConvertJobToPreservationTask(job amclient.Job) datatypes.PreservationTask {
+// ConvertJobToTask converts an amclient.Job to a datatypes.Task.
+func ConvertJobToTask(job amclient.Job) datatypes.Task {
 	st, co := jobTimeRange(job)
-	return datatypes.PreservationTask{
+	return datatypes.Task{
 		TaskID:      job.ID,
 		Name:        job.Name,
-		Status:      jobStatusToPreservationTaskStatus[job.Status],
+		Status:      jobStatusToTaskStatus[job.Status],
 		StartedAt:   st,
 		CompletedAt: co,
 	}

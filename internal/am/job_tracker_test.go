@@ -25,7 +25,7 @@ import (
 func TestJobTracker(t *testing.T) {
 	t.Parallel()
 
-	paID := 1
+	wID := 1
 	unitID := uuid.New().String()
 	startedAt := time.Date(2024, time.January, 18, 1, 27, 49, 0, time.UTC)
 	completedAt := time.Date(2024, time.January, 18, 1, 27, 51, 0, time.UTC)
@@ -82,7 +82,7 @@ func TestJobTracker(t *testing.T) {
 	}
 	for _, tt := range []test{
 		{
-			name: "Updates preservation action tasks",
+			name: "Updates workflow tasks",
 			jobRec: func(m *amclienttest.MockJobsServiceMockRecorder, statusCode int) {
 				m.List(
 					mockutil.Context(),
@@ -99,16 +99,16 @@ func TestJobTracker(t *testing.T) {
 				)
 			},
 			ingestRec: func(m *ingest_fake.MockServiceMockRecorder) {
-				m.CreatePreservationTask(
+				m.CreateTask(
 					mockutil.Context(),
-					&datatypes.PreservationTask{
-						ID:                   0,
-						TaskID:               "f60018ac-da79-4769-9509-c6c41d5efe7e",
-						Name:                 "Extract zipped bag transfer",
-						Status:               enums.PreservationTaskStatusDone,
-						StartedAt:            sql.NullTime{Time: startedAt, Valid: true},
-						CompletedAt:          sql.NullTime{Time: completedAt, Valid: true},
-						PreservationActionID: paID,
+					&datatypes.Task{
+						ID:          0,
+						TaskID:      "f60018ac-da79-4769-9509-c6c41d5efe7e",
+						Name:        "Extract zipped bag transfer",
+						Status:      enums.TaskStatusDone,
+						StartedAt:   sql.NullTime{Time: startedAt, Valid: true},
+						CompletedAt: sql.NullTime{Time: completedAt, Valid: true},
+						WorkflowID:  wID,
 					},
 				).Return(nil)
 			},
@@ -158,8 +158,8 @@ func TestJobTracker(t *testing.T) {
 				tt.ingestRec(ingestsvc.EXPECT())
 			}
 
-			pa := am.NewJobTracker(clock, jobsSvc, ingestsvc, paID)
-			got, err := pa.SavePreservationTasks(context.Background(), unitID)
+			jt := am.NewJobTracker(clock, jobsSvc, ingestsvc, wID)
+			got, err := jt.SaveTasks(context.Background(), unitID)
 			if tt.wantErr != "" {
 				assert.Error(t, err, tt.wantErr)
 				assert.Assert(t, temporal_tools.NonRetryableError(err) != tt.retryableErr)
@@ -172,18 +172,18 @@ func TestJobTracker(t *testing.T) {
 	}
 }
 
-func TestConvertJobToPreservationTask(t *testing.T) {
+func TestConvertJobToTask(t *testing.T) {
 	t.Parallel()
 
 	type test struct {
 		name string
 		job  amclient.Job
-		want datatypes.PreservationTask
+		want datatypes.Task
 	}
 
 	for _, tt := range []test{
 		{
-			name: "Returns preservation task with computed time range",
+			name: "Returns task with computed time range",
 			job: amclient.Job{
 				ID:     "f60018ac-da79-4769-9509-c6c41d5efe7e",
 				LinkID: "70669a5b-01e4-4ea0-ac70-10292f87da05",
@@ -208,10 +208,10 @@ func TestConvertJobToPreservationTask(t *testing.T) {
 					},
 				},
 			},
-			want: datatypes.PreservationTask{
+			want: datatypes.Task{
 				TaskID: "f60018ac-da79-4769-9509-c6c41d5efe7e",
 				Name:   "Move to processing directory",
-				Status: enums.PreservationTaskStatusDone,
+				Status: enums.TaskStatusDone,
 				StartedAt: sql.NullTime{
 					Time:  time.Date(2024, time.January, 18, 1, 27, 49, 0, time.UTC),
 					Valid: true,
@@ -248,10 +248,10 @@ func TestConvertJobToPreservationTask(t *testing.T) {
 					},
 				},
 			},
-			want: datatypes.PreservationTask{
+			want: datatypes.Task{
 				TaskID: "c2128d39-2ace-47c5-8cac-39ded8d9c9ef",
 				Name:   "Verify SIP compliance",
-				Status: enums.PreservationTaskStatusInProgress,
+				Status: enums.TaskStatusInProgress,
 				StartedAt: sql.NullTime{
 					Time:  time.Date(2024, time.January, 18, 1, 27, 49, 0, time.UTC),
 					Valid: true,
@@ -262,13 +262,13 @@ func TestConvertJobToPreservationTask(t *testing.T) {
 		{
 			name: "Returns NULL timestamps in the job has no tasks",
 			job:  amclient.Job{},
-			want: datatypes.PreservationTask{},
+			want: datatypes.Task{},
 		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			got := am.ConvertJobToPreservationTask(tt.job)
+			got := am.ConvertJobToTask(tt.job)
 
 			assert.DeepEqual(t, got, tt.want)
 		})

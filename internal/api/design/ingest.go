@@ -20,11 +20,11 @@ var _ = Service("ingest", func() {
 		// For now, the monitor websocket requires all the scopes from this service.
 		Security(JWTAuth, func() {
 			Scope("ingest:sips:list")
-			Scope("ingest:sips:actions:list")
 			Scope("ingest:sips:move")
 			Scope("ingest:sips:read")
 			Scope("ingest:sips:review")
 			Scope("ingest:sips:upload")
+			Scope("ingest:sips:workflows:list")
 		})
 		Payload(func() {
 			Token("token", String)
@@ -121,20 +121,20 @@ var _ = Service("ingest", func() {
 			Response("not_available", StatusConflict)
 		})
 	})
-	Method("list_sip_preservation_actions", func() {
-		Description("List all preservation actions for a SIP")
+	Method("list_sip_workflows", func() {
+		Description("List all workflows for a SIP")
 		Security(JWTAuth, func() {
-			Scope("ingest:sips:actions:list")
+			Scope("ingest:sips:workflows:list")
 		})
 		Payload(func() {
 			Attribute("id", UInt, "Identifier of SIP to look up")
 			Token("token", String)
 			Required("id")
 		})
-		Result(SIPPreservationActions)
+		Result(SIPWorkflows)
 		Error("not_found", SIPNotFound, "SIP not found")
 		HTTP(func() {
-			GET("/sips/{id}/preservation-actions")
+			GET("/sips/{id}/workflows")
 			Response(StatusOK)
 			Response("not_found", StatusNotFound)
 		})
@@ -327,33 +327,33 @@ var SIPNotFound = Type("SIPNotFound", func() {
 	Required("message", "id")
 })
 
-var SIPPreservationActions = ResultType("application/vnd.enduro.ingest.sip.preservation-actions", func() {
-	Description("SIPPreservationActions describes the preservation actions of a SIP.")
-	TypeName("SIPPreservationActions")
+var SIPWorkflows = ResultType("application/vnd.enduro.ingest.sip.workflows", func() {
+	Description("SIPWorkflows describes the workflows of a SIP.")
+	TypeName("SIPWorkflows")
 	Attributes(func() {
-		Attribute("actions", CollectionOf(SIPPreservationAction))
+		Attribute("workflows", CollectionOf(SIPWorkflow))
 	})
 })
 
-var EnumPreservationActionType = func() {
-	Enum(enums.PreservationActionTypeInterfaces()...)
+var EnumWorkflowType = func() {
+	Enum(enums.WorkflowTypeInterfaces()...)
 }
 
-var EnumPreservationActionStatus = func() {
-	Enum(enums.PreservationActionStatusInterfaces()...)
+var EnumWorkflowStatus = func() {
+	Enum(enums.WorkflowStatusInterfaces()...)
 }
 
-var SIPPreservationAction = ResultType("application/vnd.enduro.ingest.sip.preservation-action", func() {
-	Description("SIPPreservationAction describes a preservation action of a SIP.")
-	TypeName("SIPPreservationAction")
+var SIPWorkflow = ResultType("application/vnd.enduro.ingest.sip.workflow", func() {
+	Description("SIPWorkflow describes a workflow of a SIP.")
+	TypeName("SIPWorkflow")
 	Attributes(func() {
 		Attribute("id", UInt)
 		Attribute("workflow_id", String)
 		Attribute("type", String, func() {
-			EnumPreservationActionType()
+			EnumWorkflowType()
 		})
 		Attribute("status", String, func() {
-			EnumPreservationActionStatus()
+			EnumWorkflowStatus()
 		})
 		Attribute("started_at", String, func() {
 			Format(FormatDateTime)
@@ -361,7 +361,7 @@ var SIPPreservationAction = ResultType("application/vnd.enduro.ingest.sip.preser
 		Attribute("completed_at", String, func() {
 			Format(FormatDateTime)
 		})
-		Attribute("tasks", CollectionOf(SIPPreservationTask))
+		Attribute("tasks", CollectionOf(SIPTask))
 		Attribute("sip_id", UInt)
 	})
 	View("simple", func() {
@@ -376,19 +376,19 @@ var SIPPreservationAction = ResultType("application/vnd.enduro.ingest.sip.preser
 	Required("id", "workflow_id", "type", "status", "started_at")
 })
 
-var EnumPreservationTaskStatus = func() {
-	Enum(enums.PreservationTaskStatusInterfaces()...)
+var EnumTaskStatus = func() {
+	Enum(enums.TaskStatusInterfaces()...)
 }
 
-var SIPPreservationTask = ResultType("application/vnd.enduro.ingest.sip.preservation-task", func() {
-	Description("SIPPreservationTask describes a SIP preservation action task.")
-	TypeName("SIPPreservationTask")
+var SIPTask = ResultType("application/vnd.enduro.ingest.sip.task", func() {
+	Description("SIPTask describes a SIP workflow task.")
+	TypeName("SIPTask")
 	Attributes(func() {
 		Attribute("id", UInt)
 		Attribute("task_id", String)
 		Attribute("name", String)
 		Attribute("status", String, func() {
-			EnumPreservationTaskStatus()
+			EnumTaskStatus()
 		})
 		Attribute("started_at", String, func() {
 			Format(FormatDateTime)
@@ -397,7 +397,7 @@ var SIPPreservationTask = ResultType("application/vnd.enduro.ingest.sip.preserva
 			Format(FormatDateTime)
 		})
 		Attribute("note", String)
-		Attribute("preservation_action_id", UInt)
+		Attribute("workflow_id", UInt)
 	})
 	Required("id", "task_id", "name", "status", "started_at")
 })

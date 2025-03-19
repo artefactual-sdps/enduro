@@ -46,14 +46,14 @@ func createSIP(
 		Save(context.Background())
 }
 
-func createPreservationAction(
+func createWorkflow(
 	entc *db.Client,
 	sipID int,
-	status enums.PreservationActionStatus,
-) (*db.PreservationAction, error) {
-	return entc.PreservationAction.Create().
+	status enums.WorkflowStatus,
+) (*db.Workflow, error) {
+	return entc.Workflow.Create().
 		SetWorkflowID("12345").
-		SetType(int8(enums.PreservationActionTypeCreateAip)).
+		SetType(int8(enums.WorkflowTypeCreateAip)).
 		SetStatus(int8(status)). // #nosec G115 -- constrained value.
 		SetSipID(sipID).
 		Save(context.Background())

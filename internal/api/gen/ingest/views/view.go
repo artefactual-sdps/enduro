@@ -29,11 +29,10 @@ type SIP struct {
 	View string
 }
 
-// SIPPreservationActions is the viewed result type that is projected based on
-// a view.
-type SIPPreservationActions struct {
+// SIPWorkflows is the viewed result type that is projected based on a view.
+type SIPWorkflows struct {
 	// Type to project
-	Projected *SIPPreservationActionsView
+	Projected *SIPWorkflowsView
 	// View to render
 	View string
 }
@@ -81,43 +80,40 @@ type EnduroPageView struct {
 	Total *int
 }
 
-// SIPPreservationActionsView is a type that runs validations on a projected
-// type.
-type SIPPreservationActionsView struct {
-	Actions SIPPreservationActionCollectionView
+// SIPWorkflowsView is a type that runs validations on a projected type.
+type SIPWorkflowsView struct {
+	Workflows SIPWorkflowCollectionView
 }
 
-// SIPPreservationActionCollectionView is a type that runs validations on a
-// projected type.
-type SIPPreservationActionCollectionView []*SIPPreservationActionView
-
-// SIPPreservationActionView is a type that runs validations on a projected
+// SIPWorkflowCollectionView is a type that runs validations on a projected
 // type.
-type SIPPreservationActionView struct {
+type SIPWorkflowCollectionView []*SIPWorkflowView
+
+// SIPWorkflowView is a type that runs validations on a projected type.
+type SIPWorkflowView struct {
 	ID          *uint
 	WorkflowID  *string
 	Type        *string
 	Status      *string
 	StartedAt   *string
 	CompletedAt *string
-	Tasks       SIPPreservationTaskCollectionView
+	Tasks       SIPTaskCollectionView
 	SipID       *uint
 }
 
-// SIPPreservationTaskCollectionView is a type that runs validations on a
-// projected type.
-type SIPPreservationTaskCollectionView []*SIPPreservationTaskView
+// SIPTaskCollectionView is a type that runs validations on a projected type.
+type SIPTaskCollectionView []*SIPTaskView
 
-// SIPPreservationTaskView is a type that runs validations on a projected type.
-type SIPPreservationTaskView struct {
-	ID                   *uint
-	TaskID               *string
-	Name                 *string
-	Status               *string
-	StartedAt            *string
-	CompletedAt          *string
-	Note                 *string
-	PreservationActionID *uint
+// SIPTaskView is a type that runs validations on a projected type.
+type SIPTaskView struct {
+	ID          *uint
+	TaskID      *string
+	Name        *string
+	Status      *string
+	StartedAt   *string
+	CompletedAt *string
+	Note        *string
+	WorkflowID  *uint
 }
 
 var (
@@ -143,11 +139,11 @@ var (
 			"completed_at",
 		},
 	}
-	// SIPPreservationActionsMap is a map indexing the attribute names of
-	// SIPPreservationActions by view name.
-	SIPPreservationActionsMap = map[string][]string{
+	// SIPWorkflowsMap is a map indexing the attribute names of SIPWorkflows by
+	// view name.
+	SIPWorkflowsMap = map[string][]string{
 		"default": {
-			"actions",
+			"workflows",
 		},
 	}
 	// SIPCollectionMap is a map indexing the attribute names of SIPCollection by
@@ -175,9 +171,9 @@ var (
 			"total",
 		},
 	}
-	// SIPPreservationActionCollectionMap is a map indexing the attribute names of
-	// SIPPreservationActionCollection by view name.
-	SIPPreservationActionCollectionMap = map[string][]string{
+	// SIPWorkflowCollectionMap is a map indexing the attribute names of
+	// SIPWorkflowCollection by view name.
+	SIPWorkflowCollectionMap = map[string][]string{
 		"simple": {
 			"id",
 			"workflow_id",
@@ -198,9 +194,9 @@ var (
 			"sip_id",
 		},
 	}
-	// SIPPreservationActionMap is a map indexing the attribute names of
-	// SIPPreservationAction by view name.
-	SIPPreservationActionMap = map[string][]string{
+	// SIPWorkflowMap is a map indexing the attribute names of SIPWorkflow by view
+	// name.
+	SIPWorkflowMap = map[string][]string{
 		"simple": {
 			"id",
 			"workflow_id",
@@ -221,9 +217,9 @@ var (
 			"sip_id",
 		},
 	}
-	// SIPPreservationTaskCollectionMap is a map indexing the attribute names of
-	// SIPPreservationTaskCollection by view name.
-	SIPPreservationTaskCollectionMap = map[string][]string{
+	// SIPTaskCollectionMap is a map indexing the attribute names of
+	// SIPTaskCollection by view name.
+	SIPTaskCollectionMap = map[string][]string{
 		"default": {
 			"id",
 			"task_id",
@@ -232,12 +228,11 @@ var (
 			"started_at",
 			"completed_at",
 			"note",
-			"preservation_action_id",
+			"workflow_id",
 		},
 	}
-	// SIPPreservationTaskMap is a map indexing the attribute names of
-	// SIPPreservationTask by view name.
-	SIPPreservationTaskMap = map[string][]string{
+	// SIPTaskMap is a map indexing the attribute names of SIPTask by view name.
+	SIPTaskMap = map[string][]string{
 		"default": {
 			"id",
 			"task_id",
@@ -246,7 +241,7 @@ var (
 			"started_at",
 			"completed_at",
 			"note",
-			"preservation_action_id",
+			"workflow_id",
 		},
 	}
 )
@@ -273,12 +268,12 @@ func ValidateSIP(result *SIP) (err error) {
 	return
 }
 
-// ValidateSIPPreservationActions runs the validations defined on the viewed
-// result type SIPPreservationActions.
-func ValidateSIPPreservationActions(result *SIPPreservationActions) (err error) {
+// ValidateSIPWorkflows runs the validations defined on the viewed result type
+// SIPWorkflows.
+func ValidateSIPWorkflows(result *SIPWorkflows) (err error) {
 	switch result.View {
 	case "default", "":
-		err = ValidateSIPPreservationActionsView(result.Projected)
+		err = ValidateSIPWorkflowsView(result.Projected)
 	default:
 		err = goa.InvalidEnumValueError("view", result.View, []any{"default"})
 	}
@@ -366,43 +361,43 @@ func ValidateEnduroPageView(result *EnduroPageView) (err error) {
 	return
 }
 
-// ValidateSIPPreservationActionsView runs the validations defined on
-// SIPPreservationActionsView using the "default" view.
-func ValidateSIPPreservationActionsView(result *SIPPreservationActionsView) (err error) {
+// ValidateSIPWorkflowsView runs the validations defined on SIPWorkflowsView
+// using the "default" view.
+func ValidateSIPWorkflowsView(result *SIPWorkflowsView) (err error) {
 
-	if result.Actions != nil {
-		if err2 := ValidateSIPPreservationActionCollectionView(result.Actions); err2 != nil {
+	if result.Workflows != nil {
+		if err2 := ValidateSIPWorkflowCollectionView(result.Workflows); err2 != nil {
 			err = goa.MergeErrors(err, err2)
 		}
 	}
 	return
 }
 
-// ValidateSIPPreservationActionCollectionViewSimple runs the validations
-// defined on SIPPreservationActionCollectionView using the "simple" view.
-func ValidateSIPPreservationActionCollectionViewSimple(result SIPPreservationActionCollectionView) (err error) {
+// ValidateSIPWorkflowCollectionViewSimple runs the validations defined on
+// SIPWorkflowCollectionView using the "simple" view.
+func ValidateSIPWorkflowCollectionViewSimple(result SIPWorkflowCollectionView) (err error) {
 	for _, item := range result {
-		if err2 := ValidateSIPPreservationActionViewSimple(item); err2 != nil {
+		if err2 := ValidateSIPWorkflowViewSimple(item); err2 != nil {
 			err = goa.MergeErrors(err, err2)
 		}
 	}
 	return
 }
 
-// ValidateSIPPreservationActionCollectionView runs the validations defined on
-// SIPPreservationActionCollectionView using the "default" view.
-func ValidateSIPPreservationActionCollectionView(result SIPPreservationActionCollectionView) (err error) {
+// ValidateSIPWorkflowCollectionView runs the validations defined on
+// SIPWorkflowCollectionView using the "default" view.
+func ValidateSIPWorkflowCollectionView(result SIPWorkflowCollectionView) (err error) {
 	for _, item := range result {
-		if err2 := ValidateSIPPreservationActionView(item); err2 != nil {
+		if err2 := ValidateSIPWorkflowView(item); err2 != nil {
 			err = goa.MergeErrors(err, err2)
 		}
 	}
 	return
 }
 
-// ValidateSIPPreservationActionViewSimple runs the validations defined on
-// SIPPreservationActionView using the "simple" view.
-func ValidateSIPPreservationActionViewSimple(result *SIPPreservationActionView) (err error) {
+// ValidateSIPWorkflowViewSimple runs the validations defined on
+// SIPWorkflowView using the "simple" view.
+func ValidateSIPWorkflowViewSimple(result *SIPWorkflowView) (err error) {
 	if result.ID == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("id", "result"))
 	}
@@ -437,9 +432,9 @@ func ValidateSIPPreservationActionViewSimple(result *SIPPreservationActionView) 
 	return
 }
 
-// ValidateSIPPreservationActionView runs the validations defined on
-// SIPPreservationActionView using the "default" view.
-func ValidateSIPPreservationActionView(result *SIPPreservationActionView) (err error) {
+// ValidateSIPWorkflowView runs the validations defined on SIPWorkflowView
+// using the "default" view.
+func ValidateSIPWorkflowView(result *SIPWorkflowView) (err error) {
 	if result.ID == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("id", "result"))
 	}
@@ -472,27 +467,27 @@ func ValidateSIPPreservationActionView(result *SIPPreservationActionView) (err e
 		err = goa.MergeErrors(err, goa.ValidateFormat("result.completed_at", *result.CompletedAt, goa.FormatDateTime))
 	}
 	if result.Tasks != nil {
-		if err2 := ValidateSIPPreservationTaskCollectionView(result.Tasks); err2 != nil {
+		if err2 := ValidateSIPTaskCollectionView(result.Tasks); err2 != nil {
 			err = goa.MergeErrors(err, err2)
 		}
 	}
 	return
 }
 
-// ValidateSIPPreservationTaskCollectionView runs the validations defined on
-// SIPPreservationTaskCollectionView using the "default" view.
-func ValidateSIPPreservationTaskCollectionView(result SIPPreservationTaskCollectionView) (err error) {
+// ValidateSIPTaskCollectionView runs the validations defined on
+// SIPTaskCollectionView using the "default" view.
+func ValidateSIPTaskCollectionView(result SIPTaskCollectionView) (err error) {
 	for _, item := range result {
-		if err2 := ValidateSIPPreservationTaskView(item); err2 != nil {
+		if err2 := ValidateSIPTaskView(item); err2 != nil {
 			err = goa.MergeErrors(err, err2)
 		}
 	}
 	return
 }
 
-// ValidateSIPPreservationTaskView runs the validations defined on
-// SIPPreservationTaskView using the "default" view.
-func ValidateSIPPreservationTaskView(result *SIPPreservationTaskView) (err error) {
+// ValidateSIPTaskView runs the validations defined on SIPTaskView using the
+// "default" view.
+func ValidateSIPTaskView(result *SIPTaskView) (err error) {
 	if result.ID == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("id", "result"))
 	}

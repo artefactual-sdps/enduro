@@ -12,8 +12,8 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/predicate"
-	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/preservationaction"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/sip"
+	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/workflow"
 	"github.com/google/uuid"
 )
 
@@ -173,19 +173,19 @@ func (su *SIPUpdate) ClearCompletedAt() *SIPUpdate {
 	return su
 }
 
-// AddPreservationActionIDs adds the "preservation_actions" edge to the PreservationAction entity by IDs.
-func (su *SIPUpdate) AddPreservationActionIDs(ids ...int) *SIPUpdate {
-	su.mutation.AddPreservationActionIDs(ids...)
+// AddWorkflowIDs adds the "workflows" edge to the Workflow entity by IDs.
+func (su *SIPUpdate) AddWorkflowIDs(ids ...int) *SIPUpdate {
+	su.mutation.AddWorkflowIDs(ids...)
 	return su
 }
 
-// AddPreservationActions adds the "preservation_actions" edges to the PreservationAction entity.
-func (su *SIPUpdate) AddPreservationActions(p ...*PreservationAction) *SIPUpdate {
-	ids := make([]int, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
+// AddWorkflows adds the "workflows" edges to the Workflow entity.
+func (su *SIPUpdate) AddWorkflows(w ...*Workflow) *SIPUpdate {
+	ids := make([]int, len(w))
+	for i := range w {
+		ids[i] = w[i].ID
 	}
-	return su.AddPreservationActionIDs(ids...)
+	return su.AddWorkflowIDs(ids...)
 }
 
 // Mutation returns the SIPMutation object of the builder.
@@ -193,25 +193,25 @@ func (su *SIPUpdate) Mutation() *SIPMutation {
 	return su.mutation
 }
 
-// ClearPreservationActions clears all "preservation_actions" edges to the PreservationAction entity.
-func (su *SIPUpdate) ClearPreservationActions() *SIPUpdate {
-	su.mutation.ClearPreservationActions()
+// ClearWorkflows clears all "workflows" edges to the Workflow entity.
+func (su *SIPUpdate) ClearWorkflows() *SIPUpdate {
+	su.mutation.ClearWorkflows()
 	return su
 }
 
-// RemovePreservationActionIDs removes the "preservation_actions" edge to PreservationAction entities by IDs.
-func (su *SIPUpdate) RemovePreservationActionIDs(ids ...int) *SIPUpdate {
-	su.mutation.RemovePreservationActionIDs(ids...)
+// RemoveWorkflowIDs removes the "workflows" edge to Workflow entities by IDs.
+func (su *SIPUpdate) RemoveWorkflowIDs(ids ...int) *SIPUpdate {
+	su.mutation.RemoveWorkflowIDs(ids...)
 	return su
 }
 
-// RemovePreservationActions removes "preservation_actions" edges to PreservationAction entities.
-func (su *SIPUpdate) RemovePreservationActions(p ...*PreservationAction) *SIPUpdate {
-	ids := make([]int, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
+// RemoveWorkflows removes "workflows" edges to Workflow entities.
+func (su *SIPUpdate) RemoveWorkflows(w ...*Workflow) *SIPUpdate {
+	ids := make([]int, len(w))
+	for i := range w {
+		ids[i] = w[i].ID
 	}
-	return su.RemovePreservationActionIDs(ids...)
+	return su.RemoveWorkflowIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -289,28 +289,28 @@ func (su *SIPUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if su.mutation.CompletedAtCleared() {
 		_spec.ClearField(sip.FieldCompletedAt, field.TypeTime)
 	}
-	if su.mutation.PreservationActionsCleared() {
+	if su.mutation.WorkflowsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   sip.PreservationActionsTable,
-			Columns: []string{sip.PreservationActionsColumn},
+			Table:   sip.WorkflowsTable,
+			Columns: []string{sip.WorkflowsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(preservationaction.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(workflow.FieldID, field.TypeInt),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := su.mutation.RemovedPreservationActionsIDs(); len(nodes) > 0 && !su.mutation.PreservationActionsCleared() {
+	if nodes := su.mutation.RemovedWorkflowsIDs(); len(nodes) > 0 && !su.mutation.WorkflowsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   sip.PreservationActionsTable,
-			Columns: []string{sip.PreservationActionsColumn},
+			Table:   sip.WorkflowsTable,
+			Columns: []string{sip.WorkflowsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(preservationaction.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(workflow.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -318,15 +318,15 @@ func (su *SIPUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := su.mutation.PreservationActionsIDs(); len(nodes) > 0 {
+	if nodes := su.mutation.WorkflowsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   sip.PreservationActionsTable,
-			Columns: []string{sip.PreservationActionsColumn},
+			Table:   sip.WorkflowsTable,
+			Columns: []string{sip.WorkflowsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(preservationaction.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(workflow.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -497,19 +497,19 @@ func (suo *SIPUpdateOne) ClearCompletedAt() *SIPUpdateOne {
 	return suo
 }
 
-// AddPreservationActionIDs adds the "preservation_actions" edge to the PreservationAction entity by IDs.
-func (suo *SIPUpdateOne) AddPreservationActionIDs(ids ...int) *SIPUpdateOne {
-	suo.mutation.AddPreservationActionIDs(ids...)
+// AddWorkflowIDs adds the "workflows" edge to the Workflow entity by IDs.
+func (suo *SIPUpdateOne) AddWorkflowIDs(ids ...int) *SIPUpdateOne {
+	suo.mutation.AddWorkflowIDs(ids...)
 	return suo
 }
 
-// AddPreservationActions adds the "preservation_actions" edges to the PreservationAction entity.
-func (suo *SIPUpdateOne) AddPreservationActions(p ...*PreservationAction) *SIPUpdateOne {
-	ids := make([]int, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
+// AddWorkflows adds the "workflows" edges to the Workflow entity.
+func (suo *SIPUpdateOne) AddWorkflows(w ...*Workflow) *SIPUpdateOne {
+	ids := make([]int, len(w))
+	for i := range w {
+		ids[i] = w[i].ID
 	}
-	return suo.AddPreservationActionIDs(ids...)
+	return suo.AddWorkflowIDs(ids...)
 }
 
 // Mutation returns the SIPMutation object of the builder.
@@ -517,25 +517,25 @@ func (suo *SIPUpdateOne) Mutation() *SIPMutation {
 	return suo.mutation
 }
 
-// ClearPreservationActions clears all "preservation_actions" edges to the PreservationAction entity.
-func (suo *SIPUpdateOne) ClearPreservationActions() *SIPUpdateOne {
-	suo.mutation.ClearPreservationActions()
+// ClearWorkflows clears all "workflows" edges to the Workflow entity.
+func (suo *SIPUpdateOne) ClearWorkflows() *SIPUpdateOne {
+	suo.mutation.ClearWorkflows()
 	return suo
 }
 
-// RemovePreservationActionIDs removes the "preservation_actions" edge to PreservationAction entities by IDs.
-func (suo *SIPUpdateOne) RemovePreservationActionIDs(ids ...int) *SIPUpdateOne {
-	suo.mutation.RemovePreservationActionIDs(ids...)
+// RemoveWorkflowIDs removes the "workflows" edge to Workflow entities by IDs.
+func (suo *SIPUpdateOne) RemoveWorkflowIDs(ids ...int) *SIPUpdateOne {
+	suo.mutation.RemoveWorkflowIDs(ids...)
 	return suo
 }
 
-// RemovePreservationActions removes "preservation_actions" edges to PreservationAction entities.
-func (suo *SIPUpdateOne) RemovePreservationActions(p ...*PreservationAction) *SIPUpdateOne {
-	ids := make([]int, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
+// RemoveWorkflows removes "workflows" edges to Workflow entities.
+func (suo *SIPUpdateOne) RemoveWorkflows(w ...*Workflow) *SIPUpdateOne {
+	ids := make([]int, len(w))
+	for i := range w {
+		ids[i] = w[i].ID
 	}
-	return suo.RemovePreservationActionIDs(ids...)
+	return suo.RemoveWorkflowIDs(ids...)
 }
 
 // Where appends a list predicates to the SIPUpdate builder.
@@ -643,28 +643,28 @@ func (suo *SIPUpdateOne) sqlSave(ctx context.Context) (_node *SIP, err error) {
 	if suo.mutation.CompletedAtCleared() {
 		_spec.ClearField(sip.FieldCompletedAt, field.TypeTime)
 	}
-	if suo.mutation.PreservationActionsCleared() {
+	if suo.mutation.WorkflowsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   sip.PreservationActionsTable,
-			Columns: []string{sip.PreservationActionsColumn},
+			Table:   sip.WorkflowsTable,
+			Columns: []string{sip.WorkflowsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(preservationaction.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(workflow.FieldID, field.TypeInt),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := suo.mutation.RemovedPreservationActionsIDs(); len(nodes) > 0 && !suo.mutation.PreservationActionsCleared() {
+	if nodes := suo.mutation.RemovedWorkflowsIDs(); len(nodes) > 0 && !suo.mutation.WorkflowsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   sip.PreservationActionsTable,
-			Columns: []string{sip.PreservationActionsColumn},
+			Table:   sip.WorkflowsTable,
+			Columns: []string{sip.WorkflowsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(preservationaction.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(workflow.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -672,15 +672,15 @@ func (suo *SIPUpdateOne) sqlSave(ctx context.Context) (_node *SIP, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := suo.mutation.PreservationActionsIDs(); len(nodes) > 0 {
+	if nodes := suo.mutation.WorkflowsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   sip.PreservationActionsTable,
-			Columns: []string{sip.PreservationActionsColumn},
+			Table:   sip.WorkflowsTable,
+			Columns: []string{sip.WorkflowsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(preservationaction.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(workflow.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

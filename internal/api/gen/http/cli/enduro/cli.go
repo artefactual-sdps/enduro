@@ -24,7 +24,7 @@ import (
 //
 //	command (subcommand1|subcommand2|...)
 func UsageCommands() string {
-	return `ingest (monitor-request|monitor|list-sips|show-sip|list-sip-preservation-actions|confirm-sip|reject-sip|move-sip|move-sip-status|upload-sip)
+	return `ingest (monitor-request|monitor|list-sips|show-sip|list-sip-workflows|confirm-sip|reject-sip|move-sip|move-sip-status|upload-sip)
 storage (list-aips|create-aip|submit-aip|update-aip|download-aip|move-aip|move-aip-status|reject-aip|show-aip|list-locations|create-location|show-location|list-location-aips)
 `
 }
@@ -71,9 +71,9 @@ func ParseEndpoint(
 		ingestShowSipIDFlag    = ingestShowSipFlags.String("id", "REQUIRED", "Identifier of SIP to show")
 		ingestShowSipTokenFlag = ingestShowSipFlags.String("token", "", "")
 
-		ingestListSipPreservationActionsFlags     = flag.NewFlagSet("list-sip-preservation-actions", flag.ExitOnError)
-		ingestListSipPreservationActionsIDFlag    = ingestListSipPreservationActionsFlags.String("id", "REQUIRED", "Identifier of SIP to look up")
-		ingestListSipPreservationActionsTokenFlag = ingestListSipPreservationActionsFlags.String("token", "", "")
+		ingestListSipWorkflowsFlags     = flag.NewFlagSet("list-sip-workflows", flag.ExitOnError)
+		ingestListSipWorkflowsIDFlag    = ingestListSipWorkflowsFlags.String("id", "REQUIRED", "Identifier of SIP to look up")
+		ingestListSipWorkflowsTokenFlag = ingestListSipWorkflowsFlags.String("token", "", "")
 
 		ingestConfirmSipFlags     = flag.NewFlagSet("confirm-sip", flag.ExitOnError)
 		ingestConfirmSipBodyFlag  = ingestConfirmSipFlags.String("body", "REQUIRED", "")
@@ -163,7 +163,7 @@ func ParseEndpoint(
 	ingestMonitorFlags.Usage = ingestMonitorUsage
 	ingestListSipsFlags.Usage = ingestListSipsUsage
 	ingestShowSipFlags.Usage = ingestShowSipUsage
-	ingestListSipPreservationActionsFlags.Usage = ingestListSipPreservationActionsUsage
+	ingestListSipWorkflowsFlags.Usage = ingestListSipWorkflowsUsage
 	ingestConfirmSipFlags.Usage = ingestConfirmSipUsage
 	ingestRejectSipFlags.Usage = ingestRejectSipUsage
 	ingestMoveSipFlags.Usage = ingestMoveSipUsage
@@ -233,8 +233,8 @@ func ParseEndpoint(
 			case "show-sip":
 				epf = ingestShowSipFlags
 
-			case "list-sip-preservation-actions":
-				epf = ingestListSipPreservationActionsFlags
+			case "list-sip-workflows":
+				epf = ingestListSipWorkflowsFlags
 
 			case "confirm-sip":
 				epf = ingestConfirmSipFlags
@@ -331,9 +331,9 @@ func ParseEndpoint(
 			case "show-sip":
 				endpoint = c.ShowSip()
 				data, err = ingestc.BuildShowSipPayload(*ingestShowSipIDFlag, *ingestShowSipTokenFlag)
-			case "list-sip-preservation-actions":
-				endpoint = c.ListSipPreservationActions()
-				data, err = ingestc.BuildListSipPreservationActionsPayload(*ingestListSipPreservationActionsIDFlag, *ingestListSipPreservationActionsTokenFlag)
+			case "list-sip-workflows":
+				endpoint = c.ListSipWorkflows()
+				data, err = ingestc.BuildListSipWorkflowsPayload(*ingestListSipWorkflowsIDFlag, *ingestListSipWorkflowsTokenFlag)
 			case "confirm-sip":
 				endpoint = c.ConfirmSip()
 				data, err = ingestc.BuildConfirmSipPayload(*ingestConfirmSipBodyFlag, *ingestConfirmSipIDFlag, *ingestConfirmSipTokenFlag)
@@ -416,7 +416,7 @@ COMMAND:
     monitor: Obtain access to the /monitor WebSocket
     list-sips: List all ingested SIPs
     show-sip: Show SIP by ID
-    list-sip-preservation-actions: List all preservation actions for a SIP
+    list-sip-workflows: List all workflows for a SIP
     confirm-sip: Signal the SIP has been reviewed and accepted
     reject-sip: Signal the SIP has been reviewed and rejected
     move-sip: Move a SIP to a permanent storage location
@@ -480,15 +480,15 @@ Example:
 `, os.Args[0])
 }
 
-func ingestListSipPreservationActionsUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] ingest list-sip-preservation-actions -id UINT -token STRING
+func ingestListSipWorkflowsUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] ingest list-sip-workflows -id UINT -token STRING
 
-List all preservation actions for a SIP
+List all workflows for a SIP
     -id UINT: Identifier of SIP to look up
     -token STRING: 
 
 Example:
-    %[1]s ingest list-sip-preservation-actions --id 1 --token "abc123"
+    %[1]s ingest list-sip-workflows --id 1 --token "abc123"
 `, os.Args[0])
 }
 

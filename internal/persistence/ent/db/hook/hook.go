@@ -9,30 +9,6 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db"
 )
 
-// The PreservationActionFunc type is an adapter to allow the use of ordinary
-// function as PreservationAction mutator.
-type PreservationActionFunc func(context.Context, *db.PreservationActionMutation) (db.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f PreservationActionFunc) Mutate(ctx context.Context, m db.Mutation) (db.Value, error) {
-	if mv, ok := m.(*db.PreservationActionMutation); ok {
-		return f(ctx, mv)
-	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *db.PreservationActionMutation", m)
-}
-
-// The PreservationTaskFunc type is an adapter to allow the use of ordinary
-// function as PreservationTask mutator.
-type PreservationTaskFunc func(context.Context, *db.PreservationTaskMutation) (db.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f PreservationTaskFunc) Mutate(ctx context.Context, m db.Mutation) (db.Value, error) {
-	if mv, ok := m.(*db.PreservationTaskMutation); ok {
-		return f(ctx, mv)
-	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *db.PreservationTaskMutation", m)
-}
-
 // The SIPFunc type is an adapter to allow the use of ordinary
 // function as SIP mutator.
 type SIPFunc func(context.Context, *db.SIPMutation) (db.Value, error)
@@ -43,6 +19,30 @@ func (f SIPFunc) Mutate(ctx context.Context, m db.Mutation) (db.Value, error) {
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *db.SIPMutation", m)
+}
+
+// The TaskFunc type is an adapter to allow the use of ordinary
+// function as Task mutator.
+type TaskFunc func(context.Context, *db.TaskMutation) (db.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f TaskFunc) Mutate(ctx context.Context, m db.Mutation) (db.Value, error) {
+	if mv, ok := m.(*db.TaskMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *db.TaskMutation", m)
+}
+
+// The WorkflowFunc type is an adapter to allow the use of ordinary
+// function as Workflow mutator.
+type WorkflowFunc func(context.Context, *db.WorkflowMutation) (db.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f WorkflowFunc) Mutate(ctx context.Context, m db.Mutation) (db.Value, error) {
+	if mv, ok := m.(*db.WorkflowMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *db.WorkflowMutation", m)
 }
 
 // Condition is a hook condition function.

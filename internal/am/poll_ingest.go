@@ -16,8 +16,8 @@ import (
 const PollIngestActivityName = "poll-ingest-activity"
 
 type PollIngestActivityParams struct {
-	PresActionID int
-	SIPID        string
+	WorkflowID int
+	SIPID      string
 }
 
 type PollIngestActivity struct {
@@ -29,8 +29,8 @@ type PollIngestActivity struct {
 }
 
 type PollIngestActivityResult struct {
-	Status        string
-	PresTaskCount int
+	Status    string
+	TaskCount int
 }
 
 func NewPollIngestActivity(
@@ -62,12 +62,12 @@ func (a *PollIngestActivity) Execute(
 ) (*PollIngestActivityResult, error) {
 	logger := temporal_tools.GetLogger(ctx)
 	logger.V(1).Info("Executing PollIngestActivity",
-		"PresActionID", params.PresActionID,
+		"WorkflowID", params.WorkflowID,
 		"SIPID", params.SIPID,
 	)
 
 	var taskCount int
-	jobTracker := NewJobTracker(a.clock, a.jobSvc, a.ingestsvc, params.PresActionID)
+	jobTracker := NewJobTracker(a.clock, a.jobSvc, a.ingestsvc, params.WorkflowID)
 	ticker := time.NewTicker(a.cfg.PollInterval)
 	defer ticker.Stop()
 
@@ -81,7 +81,7 @@ func (a *PollIngestActivity) Execute(
 				taskCount += count
 
 				// Send a heartbeat then continue polling after the poll interval.
-				temporalsdk_activity.RecordHeartbeat(ctx, fmt.Sprintf("preservation tasks completed: %d", taskCount))
+				temporalsdk_activity.RecordHeartbeat(ctx, fmt.Sprintf("tasks completed: %d", taskCount))
 				continue
 			}
 			if err != nil {
@@ -91,8 +91,8 @@ func (a *PollIngestActivity) Execute(
 			taskCount += count
 
 			return &PollIngestActivityResult{
-				Status:        resp.Status,
-				PresTaskCount: taskCount,
+				Status:    resp.Status,
+				TaskCount: taskCount,
 			}, nil
 		}
 	}
@@ -129,14 +129,14 @@ func (a *PollIngestActivity) poll(
 		}
 	}
 
-	// Save job progress as preservation tasks.
-	count, err := jobTracker.SavePreservationTasks(ctx, transferID)
+	// Save job progress as tasks.
+	count, err := jobTracker.SaveTasks(ctx, transferID)
 	if err == ErrBadRequest {
 		// Continue polling on a "400 Bad request" response.
 		return resp, 0, ErrWorkOngoing
 	}
 	if err != nil {
-		return nil, 0, fmt.Errorf("save preservation tasks: %v", err)
+		return nil, 0, fmt.Errorf("save tasks: %v", err)
 	}
 
 	// Continue polling.

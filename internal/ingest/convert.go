@@ -29,59 +29,59 @@ func sipTogoaingestCreatedEvent(s *datatypes.SIP) *goaingest.SIPCreatedEvent {
 	}
 }
 
-// preservationActionToGoa returns the API representation of a preservation task.
-func preservationActionToGoa(pa *datatypes.PreservationAction) *goaingest.SIPPreservationAction {
+// workflowToGoa returns the API representation of a workflow.
+func workflowToGoa(w *datatypes.Workflow) *goaingest.SIPWorkflow {
 	var startedAt string
-	if pa.StartedAt.Valid {
-		startedAt = pa.StartedAt.Time.Format(time.RFC3339)
+	if w.StartedAt.Valid {
+		startedAt = w.StartedAt.Time.Format(time.RFC3339)
 	}
 
 	var id uint
-	if pa.ID > 0 {
-		id = uint(pa.ID) // #nosec G115 -- range validated.
+	if w.ID > 0 {
+		id = uint(w.ID) // #nosec G115 -- range validated.
 	}
 
 	var sipID uint
-	if pa.SIPID > 0 {
-		sipID = uint(pa.SIPID) // #nosec G115 -- range validated.
+	if w.SIPID > 0 {
+		sipID = uint(w.SIPID) // #nosec G115 -- range validated.
 	}
 
-	return &goaingest.SIPPreservationAction{
+	return &goaingest.SIPWorkflow{
 		ID:          id,
-		WorkflowID:  pa.WorkflowID,
-		Type:        pa.Type.String(),
-		Status:      pa.Status.String(),
+		WorkflowID:  w.WorkflowID,
+		Type:        w.Type.String(),
+		Status:      w.Status.String(),
 		StartedAt:   startedAt,
-		CompletedAt: db.FormatOptionalTime(pa.CompletedAt),
+		CompletedAt: db.FormatOptionalTime(w.CompletedAt),
 		SipID:       ref.New(sipID),
 	}
 }
 
-// preservationTaskToGoa returns the API representation of a preservation task.
-func preservationTaskToGoa(pt *datatypes.PreservationTask) *goaingest.SIPPreservationTask {
+// taskToGoa returns the API representation of a task.
+func taskToGoa(task *datatypes.Task) *goaingest.SIPTask {
 	var id uint
-	if pt.ID > 0 {
-		id = uint(pt.ID) // #nosec G115 -- range validated.
+	if task.ID > 0 {
+		id = uint(task.ID) // #nosec G115 -- range validated.
 	}
 
-	var paID uint
-	if pt.PreservationActionID > 0 {
-		paID = uint(pt.PreservationActionID) // #nosec G115 -- range validated.
+	var wID uint
+	if task.WorkflowID > 0 {
+		wID = uint(task.WorkflowID) // #nosec G115 -- range validated.
 	}
 
-	return &goaingest.SIPPreservationTask{
+	return &goaingest.SIPTask{
 		ID:     id,
-		TaskID: pt.TaskID,
-		Name:   pt.Name,
-		Status: pt.Status.String(),
+		TaskID: task.TaskID,
+		Name:   task.Name,
+		Status: task.Status.String(),
 
 		// TODO: Make Goa StartedAt a pointer to a string to avoid having to
 		// convert a null time to an empty (zero value) string.
-		StartedAt: ref.DerefZero(db.FormatOptionalTime(pt.CompletedAt)),
+		StartedAt: ref.DerefZero(db.FormatOptionalTime(task.CompletedAt)),
 
-		CompletedAt:          db.FormatOptionalTime(pt.CompletedAt),
-		Note:                 &pt.Note,
-		PreservationActionID: ref.New(paID),
+		CompletedAt: db.FormatOptionalTime(task.CompletedAt),
+		Note:        &task.Note,
+		WorkflowID:  ref.New(wID),
 	}
 }
 

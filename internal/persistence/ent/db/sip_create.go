@@ -10,8 +10,8 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/preservationaction"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/sip"
+	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/workflow"
 	"github.com/google/uuid"
 )
 
@@ -116,19 +116,19 @@ func (sc *SIPCreate) SetNillableCompletedAt(t *time.Time) *SIPCreate {
 	return sc
 }
 
-// AddPreservationActionIDs adds the "preservation_actions" edge to the PreservationAction entity by IDs.
-func (sc *SIPCreate) AddPreservationActionIDs(ids ...int) *SIPCreate {
-	sc.mutation.AddPreservationActionIDs(ids...)
+// AddWorkflowIDs adds the "workflows" edge to the Workflow entity by IDs.
+func (sc *SIPCreate) AddWorkflowIDs(ids ...int) *SIPCreate {
+	sc.mutation.AddWorkflowIDs(ids...)
 	return sc
 }
 
-// AddPreservationActions adds the "preservation_actions" edges to the PreservationAction entity.
-func (sc *SIPCreate) AddPreservationActions(p ...*PreservationAction) *SIPCreate {
-	ids := make([]int, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
+// AddWorkflows adds the "workflows" edges to the Workflow entity.
+func (sc *SIPCreate) AddWorkflows(w ...*Workflow) *SIPCreate {
+	ids := make([]int, len(w))
+	for i := range w {
+		ids[i] = w[i].ID
 	}
-	return sc.AddPreservationActionIDs(ids...)
+	return sc.AddWorkflowIDs(ids...)
 }
 
 // Mutation returns the SIPMutation object of the builder.
@@ -251,15 +251,15 @@ func (sc *SIPCreate) createSpec() (*SIP, *sqlgraph.CreateSpec) {
 		_spec.SetField(sip.FieldCompletedAt, field.TypeTime, value)
 		_node.CompletedAt = value
 	}
-	if nodes := sc.mutation.PreservationActionsIDs(); len(nodes) > 0 {
+	if nodes := sc.mutation.WorkflowsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   sip.PreservationActionsTable,
-			Columns: []string{sip.PreservationActionsColumn},
+			Table:   sip.WorkflowsTable,
+			Columns: []string{sip.WorkflowsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(preservationaction.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(workflow.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

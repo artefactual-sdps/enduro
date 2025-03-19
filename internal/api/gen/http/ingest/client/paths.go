@@ -32,9 +32,9 @@ func ShowSipIngestPath(id uint) string {
 	return fmt.Sprintf("/ingest/sips/%v", id)
 }
 
-// ListSipPreservationActionsIngestPath returns the URL path to the ingest service list_sip_preservation_actions HTTP endpoint.
-func ListSipPreservationActionsIngestPath(id uint) string {
-	return fmt.Sprintf("/ingest/sips/%v/preservation-actions", id)
+// ListSipWorkflowsIngestPath returns the URL path to the ingest service list_sip_workflows HTTP endpoint.
+func ListSipWorkflowsIngestPath(id uint) string {
+	return fmt.Sprintf("/ingest/sips/%v/workflows", id)
 }
 
 // ConfirmSipIngestPath returns the URL path to the ingest service confirm_sip HTTP endpoint.

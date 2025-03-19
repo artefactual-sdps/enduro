@@ -26,10 +26,10 @@ export interface MonitorEventEvent {
      * - "sip_updated_event"
      * - "sip_status_updated_event"
      * - "sip_location_updated_event"
-     * - "sip_preservation_action_created_event"
-     * - "sip_preservation_action_updated_event"
-     * - "sip_preservation_task_created_event"
-     * - "sip_preservation_task_updated_event"
+     * - "sip_workflow_created_event"
+     * - "sip_workflow_updated_event"
+     * - "sip_task_created_event"
+     * - "sip_task_updated_event"
      * @type {string}
      * @memberof MonitorEventEvent
      */
@@ -52,10 +52,10 @@ export const MonitorEventEventTypeEnum = {
     SipUpdatedEvent: 'sip_updated_event',
     SipStatusUpdatedEvent: 'sip_status_updated_event',
     SipLocationUpdatedEvent: 'sip_location_updated_event',
-    SipPreservationActionCreatedEvent: 'sip_preservation_action_created_event',
-    SipPreservationActionUpdatedEvent: 'sip_preservation_action_updated_event',
-    SipPreservationTaskCreatedEvent: 'sip_preservation_task_created_event',
-    SipPreservationTaskUpdatedEvent: 'sip_preservation_task_updated_event'
+    SipWorkflowCreatedEvent: 'sip_workflow_created_event',
+    SipWorkflowUpdatedEvent: 'sip_workflow_updated_event',
+    SipTaskCreatedEvent: 'sip_task_created_event',
+    SipTaskUpdatedEvent: 'sip_task_updated_event'
 } as const;
 export type MonitorEventEventTypeEnum = typeof MonitorEventEventTypeEnum[keyof typeof MonitorEventEventTypeEnum];
 

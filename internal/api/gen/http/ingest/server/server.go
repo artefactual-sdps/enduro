@@ -22,18 +22,18 @@ import (
 
 // Server lists the ingest service endpoint HTTP handlers.
 type Server struct {
-	Mounts                     []*MountPoint
-	MonitorRequest             http.Handler
-	Monitor                    http.Handler
-	ListSips                   http.Handler
-	ShowSip                    http.Handler
-	ListSipPreservationActions http.Handler
-	ConfirmSip                 http.Handler
-	RejectSip                  http.Handler
-	MoveSip                    http.Handler
-	MoveSipStatus              http.Handler
-	UploadSip                  http.Handler
-	CORS                       http.Handler
+	Mounts           []*MountPoint
+	MonitorRequest   http.Handler
+	Monitor          http.Handler
+	ListSips         http.Handler
+	ShowSip          http.Handler
+	ListSipWorkflows http.Handler
+	ConfirmSip       http.Handler
+	RejectSip        http.Handler
+	MoveSip          http.Handler
+	MoveSipStatus    http.Handler
+	UploadSip        http.Handler
+	CORS             http.Handler
 }
 
 // MountPoint holds information about the mounted endpoints.
@@ -72,7 +72,7 @@ func New(
 			{"Monitor", "GET", "/ingest/monitor"},
 			{"ListSips", "GET", "/ingest/sips"},
 			{"ShowSip", "GET", "/ingest/sips/{id}"},
-			{"ListSipPreservationActions", "GET", "/ingest/sips/{id}/preservation-actions"},
+			{"ListSipWorkflows", "GET", "/ingest/sips/{id}/workflows"},
 			{"ConfirmSip", "POST", "/ingest/sips/{id}/confirm"},
 			{"RejectSip", "POST", "/ingest/sips/{id}/reject"},
 			{"MoveSip", "POST", "/ingest/sips/{id}/move"},
@@ -81,23 +81,23 @@ func New(
 			{"CORS", "OPTIONS", "/ingest/monitor"},
 			{"CORS", "OPTIONS", "/ingest/sips"},
 			{"CORS", "OPTIONS", "/ingest/sips/{id}"},
-			{"CORS", "OPTIONS", "/ingest/sips/{id}/preservation-actions"},
+			{"CORS", "OPTIONS", "/ingest/sips/{id}/workflows"},
 			{"CORS", "OPTIONS", "/ingest/sips/{id}/confirm"},
 			{"CORS", "OPTIONS", "/ingest/sips/{id}/reject"},
 			{"CORS", "OPTIONS", "/ingest/sips/{id}/move"},
 			{"CORS", "OPTIONS", "/ingest/sips/upload"},
 		},
-		MonitorRequest:             NewMonitorRequestHandler(e.MonitorRequest, mux, decoder, encoder, errhandler, formatter),
-		Monitor:                    NewMonitorHandler(e.Monitor, mux, decoder, encoder, errhandler, formatter, upgrader, configurer.MonitorFn),
-		ListSips:                   NewListSipsHandler(e.ListSips, mux, decoder, encoder, errhandler, formatter),
-		ShowSip:                    NewShowSipHandler(e.ShowSip, mux, decoder, encoder, errhandler, formatter),
-		ListSipPreservationActions: NewListSipPreservationActionsHandler(e.ListSipPreservationActions, mux, decoder, encoder, errhandler, formatter),
-		ConfirmSip:                 NewConfirmSipHandler(e.ConfirmSip, mux, decoder, encoder, errhandler, formatter),
-		RejectSip:                  NewRejectSipHandler(e.RejectSip, mux, decoder, encoder, errhandler, formatter),
-		MoveSip:                    NewMoveSipHandler(e.MoveSip, mux, decoder, encoder, errhandler, formatter),
-		MoveSipStatus:              NewMoveSipStatusHandler(e.MoveSipStatus, mux, decoder, encoder, errhandler, formatter),
-		UploadSip:                  NewUploadSipHandler(e.UploadSip, mux, decoder, encoder, errhandler, formatter),
-		CORS:                       NewCORSHandler(),
+		MonitorRequest:   NewMonitorRequestHandler(e.MonitorRequest, mux, decoder, encoder, errhandler, formatter),
+		Monitor:          NewMonitorHandler(e.Monitor, mux, decoder, encoder, errhandler, formatter, upgrader, configurer.MonitorFn),
+		ListSips:         NewListSipsHandler(e.ListSips, mux, decoder, encoder, errhandler, formatter),
+		ShowSip:          NewShowSipHandler(e.ShowSip, mux, decoder, encoder, errhandler, formatter),
+		ListSipWorkflows: NewListSipWorkflowsHandler(e.ListSipWorkflows, mux, decoder, encoder, errhandler, formatter),
+		ConfirmSip:       NewConfirmSipHandler(e.ConfirmSip, mux, decoder, encoder, errhandler, formatter),
+		RejectSip:        NewRejectSipHandler(e.RejectSip, mux, decoder, encoder, errhandler, formatter),
+		MoveSip:          NewMoveSipHandler(e.MoveSip, mux, decoder, encoder, errhandler, formatter),
+		MoveSipStatus:    NewMoveSipStatusHandler(e.MoveSipStatus, mux, decoder, encoder, errhandler, formatter),
+		UploadSip:        NewUploadSipHandler(e.UploadSip, mux, decoder, encoder, errhandler, formatter),
+		CORS:             NewCORSHandler(),
 	}
 }
 
@@ -110,7 +110,7 @@ func (s *Server) Use(m func(http.Handler) http.Handler) {
 	s.Monitor = m(s.Monitor)
 	s.ListSips = m(s.ListSips)
 	s.ShowSip = m(s.ShowSip)
-	s.ListSipPreservationActions = m(s.ListSipPreservationActions)
+	s.ListSipWorkflows = m(s.ListSipWorkflows)
 	s.ConfirmSip = m(s.ConfirmSip)
 	s.RejectSip = m(s.RejectSip)
 	s.MoveSip = m(s.MoveSip)
@@ -128,7 +128,7 @@ func Mount(mux goahttp.Muxer, h *Server) {
 	MountMonitorHandler(mux, h.Monitor)
 	MountListSipsHandler(mux, h.ListSips)
 	MountShowSipHandler(mux, h.ShowSip)
-	MountListSipPreservationActionsHandler(mux, h.ListSipPreservationActions)
+	MountListSipWorkflowsHandler(mux, h.ListSipWorkflows)
 	MountConfirmSipHandler(mux, h.ConfirmSip)
 	MountRejectSipHandler(mux, h.RejectSip)
 	MountMoveSipHandler(mux, h.MoveSip)
@@ -361,22 +361,21 @@ func NewShowSipHandler(
 	})
 }
 
-// MountListSipPreservationActionsHandler configures the mux to serve the
-// "ingest" service "list_sip_preservation_actions" endpoint.
-func MountListSipPreservationActionsHandler(mux goahttp.Muxer, h http.Handler) {
+// MountListSipWorkflowsHandler configures the mux to serve the "ingest"
+// service "list_sip_workflows" endpoint.
+func MountListSipWorkflowsHandler(mux goahttp.Muxer, h http.Handler) {
 	f, ok := HandleIngestOrigin(h).(http.HandlerFunc)
 	if !ok {
 		f = func(w http.ResponseWriter, r *http.Request) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("GET", "/ingest/sips/{id}/preservation-actions", otelhttp.WithRouteTag("/ingest/sips/{id}/preservation-actions", f).ServeHTTP)
+	mux.Handle("GET", "/ingest/sips/{id}/workflows", otelhttp.WithRouteTag("/ingest/sips/{id}/workflows", f).ServeHTTP)
 }
 
-// NewListSipPreservationActionsHandler creates a HTTP handler which loads the
-// HTTP request and calls the "ingest" service "list_sip_preservation_actions"
-// endpoint.
-func NewListSipPreservationActionsHandler(
+// NewListSipWorkflowsHandler creates a HTTP handler which loads the HTTP
+// request and calls the "ingest" service "list_sip_workflows" endpoint.
+func NewListSipWorkflowsHandler(
 	endpoint goa.Endpoint,
 	mux goahttp.Muxer,
 	decoder func(*http.Request) goahttp.Decoder,
@@ -385,13 +384,13 @@ func NewListSipPreservationActionsHandler(
 	formatter func(ctx context.Context, err error) goahttp.Statuser,
 ) http.Handler {
 	var (
-		decodeRequest  = DecodeListSipPreservationActionsRequest(mux, decoder)
-		encodeResponse = EncodeListSipPreservationActionsResponse(encoder)
-		encodeError    = EncodeListSipPreservationActionsError(encoder, formatter)
+		decodeRequest  = DecodeListSipWorkflowsRequest(mux, decoder)
+		encodeResponse = EncodeListSipWorkflowsResponse(encoder)
+		encodeError    = EncodeListSipWorkflowsError(encoder, formatter)
 	)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
-		ctx = context.WithValue(ctx, goa.MethodKey, "list_sip_preservation_actions")
+		ctx = context.WithValue(ctx, goa.MethodKey, "list_sip_workflows")
 		ctx = context.WithValue(ctx, goa.ServiceKey, "ingest")
 		payload, err := decodeRequest(r)
 		if err != nil {
@@ -676,7 +675,7 @@ func MountCORSHandler(mux goahttp.Muxer, h http.Handler) {
 	mux.Handle("OPTIONS", "/ingest/monitor", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/ingest/sips", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/ingest/sips/{id}", h.ServeHTTP)
-	mux.Handle("OPTIONS", "/ingest/sips/{id}/preservation-actions", h.ServeHTTP)
+	mux.Handle("OPTIONS", "/ingest/sips/{id}/workflows", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/ingest/sips/{id}/confirm", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/ingest/sips/{id}/reject", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/ingest/sips/{id}/move", h.ServeHTTP)

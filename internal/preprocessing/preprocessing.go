@@ -40,8 +40,7 @@ type WorkflowResult struct {
 	// Relative path to the shared path.
 	RelativePath string
 
-	// PreservationTasks is a log of the preservation tasks performed by
-	// preprocessing.
+	// PreservationTasks is a log of the tasks performed by preprocessing.
 	PreservationTasks []Task
 }
 

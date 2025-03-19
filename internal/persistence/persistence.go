@@ -19,8 +19,8 @@ var (
 )
 
 type (
-	SIPUpdater      func(*datatypes.SIP) (*datatypes.SIP, error)
-	PresTaskUpdater func(*datatypes.PreservationTask) (*datatypes.PreservationTask, error)
+	SIPUpdater  func(*datatypes.SIP) (*datatypes.SIP, error)
+	TaskUpdater func(*datatypes.Task) (*datatypes.Task, error)
 )
 
 type Service interface {
@@ -31,8 +31,8 @@ type Service interface {
 	UpdateSIP(context.Context, int, SIPUpdater) (*datatypes.SIP, error)
 	ListSIPs(context.Context, *SIPFilter) ([]*datatypes.SIP, *Page, error)
 
-	CreatePreservationAction(context.Context, *datatypes.PreservationAction) error
+	CreateWorkflow(context.Context, *datatypes.Workflow) error
 
-	CreatePreservationTask(context.Context, *datatypes.PreservationTask) error
-	UpdatePreservationTask(ctx context.Context, id int, updater PresTaskUpdater) (*datatypes.PreservationTask, error)
+	CreateTask(context.Context, *datatypes.Task) error
+	UpdateTask(ctx context.Context, id int, updater TaskUpdater) (*datatypes.Task, error)
 }

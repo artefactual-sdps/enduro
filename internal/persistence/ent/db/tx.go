@@ -12,12 +12,12 @@ import (
 // Tx is a transactional client that is created by calling Client.Tx().
 type Tx struct {
 	config
-	// PreservationAction is the client for interacting with the PreservationAction builders.
-	PreservationAction *PreservationActionClient
-	// PreservationTask is the client for interacting with the PreservationTask builders.
-	PreservationTask *PreservationTaskClient
 	// SIP is the client for interacting with the SIP builders.
 	SIP *SIPClient
+	// Task is the client for interacting with the Task builders.
+	Task *TaskClient
+	// Workflow is the client for interacting with the Workflow builders.
+	Workflow *WorkflowClient
 
 	// lazily loaded.
 	client     *Client
@@ -149,9 +149,9 @@ func (tx *Tx) Client() *Client {
 }
 
 func (tx *Tx) init() {
-	tx.PreservationAction = NewPreservationActionClient(tx.config)
-	tx.PreservationTask = NewPreservationTaskClient(tx.config)
 	tx.SIP = NewSIPClient(tx.config)
+	tx.Task = NewTaskClient(tx.config)
+	tx.Workflow = NewWorkflowClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.
@@ -161,7 +161,7 @@ func (tx *Tx) init() {
 // of them in order to commit or rollback the transaction.
 //
 // If a closed transaction is embedded in one of the generated entities, and the entity
-// applies a query, for example: PreservationAction.QueryXXX(), the query will be executed
+// applies a query, for example: SIP.QueryXXX(), the query will be executed
 // through the driver which created this transaction.
 //
 // Note that txDriver is not goroutine safe.

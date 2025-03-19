@@ -36,9 +36,9 @@ type Client struct {
 	// endpoint.
 	ShowSipDoer goahttp.Doer
 
-	// ListSipPreservationActions Doer is the HTTP client used to make requests to
-	// the list_sip_preservation_actions endpoint.
-	ListSipPreservationActionsDoer goahttp.Doer
+	// ListSipWorkflows Doer is the HTTP client used to make requests to the
+	// list_sip_workflows endpoint.
+	ListSipWorkflowsDoer goahttp.Doer
 
 	// ConfirmSip Doer is the HTTP client used to make requests to the confirm_sip
 	// endpoint.
@@ -90,24 +90,24 @@ func NewClient(
 		cfn = &ConnConfigurer{}
 	}
 	return &Client{
-		MonitorRequestDoer:             doer,
-		MonitorDoer:                    doer,
-		ListSipsDoer:                   doer,
-		ShowSipDoer:                    doer,
-		ListSipPreservationActionsDoer: doer,
-		ConfirmSipDoer:                 doer,
-		RejectSipDoer:                  doer,
-		MoveSipDoer:                    doer,
-		MoveSipStatusDoer:              doer,
-		UploadSipDoer:                  doer,
-		CORSDoer:                       doer,
-		RestoreResponseBody:            restoreBody,
-		scheme:                         scheme,
-		host:                           host,
-		decoder:                        dec,
-		encoder:                        enc,
-		dialer:                         dialer,
-		configurer:                     cfn,
+		MonitorRequestDoer:   doer,
+		MonitorDoer:          doer,
+		ListSipsDoer:         doer,
+		ShowSipDoer:          doer,
+		ListSipWorkflowsDoer: doer,
+		ConfirmSipDoer:       doer,
+		RejectSipDoer:        doer,
+		MoveSipDoer:          doer,
+		MoveSipStatusDoer:    doer,
+		UploadSipDoer:        doer,
+		CORSDoer:             doer,
+		RestoreResponseBody:  restoreBody,
+		scheme:               scheme,
+		host:                 host,
+		decoder:              dec,
+		encoder:              enc,
+		dialer:               dialer,
+		configurer:           cfn,
 	}
 }
 
@@ -225,15 +225,15 @@ func (c *Client) ShowSip() goa.Endpoint {
 	}
 }
 
-// ListSipPreservationActions returns an endpoint that makes HTTP requests to
-// the ingest service list_sip_preservation_actions server.
-func (c *Client) ListSipPreservationActions() goa.Endpoint {
+// ListSipWorkflows returns an endpoint that makes HTTP requests to the ingest
+// service list_sip_workflows server.
+func (c *Client) ListSipWorkflows() goa.Endpoint {
 	var (
-		encodeRequest  = EncodeListSipPreservationActionsRequest(c.encoder)
-		decodeResponse = DecodeListSipPreservationActionsResponse(c.decoder, c.RestoreResponseBody)
+		encodeRequest  = EncodeListSipWorkflowsRequest(c.encoder)
+		decodeResponse = DecodeListSipWorkflowsResponse(c.decoder, c.RestoreResponseBody)
 	)
 	return func(ctx context.Context, v any) (any, error) {
-		req, err := c.BuildListSipPreservationActionsRequest(ctx, v)
+		req, err := c.BuildListSipWorkflowsRequest(ctx, v)
 		if err != nil {
 			return nil, err
 		}
@@ -241,9 +241,9 @@ func (c *Client) ListSipPreservationActions() goa.Endpoint {
 		if err != nil {
 			return nil, err
 		}
-		resp, err := c.ListSipPreservationActionsDoer.Do(req)
+		resp, err := c.ListSipWorkflowsDoer.Do(req)
 		if err != nil {
-			return nil, goahttp.ErrRequestError("ingest", "list_sip_preservation_actions", err)
+			return nil, goahttp.ErrRequestError("ingest", "list_sip_workflows", err)
 		}
 		return decodeResponse(resp)
 	}

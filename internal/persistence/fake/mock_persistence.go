@@ -41,82 +41,6 @@ func (m *MockService) EXPECT() *MockServiceMockRecorder {
 	return m.recorder
 }
 
-// CreatePreservationAction mocks base method.
-func (m *MockService) CreatePreservationAction(arg0 context.Context, arg1 *datatypes.PreservationAction) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreatePreservationAction", arg0, arg1)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// CreatePreservationAction indicates an expected call of CreatePreservationAction.
-func (mr *MockServiceMockRecorder) CreatePreservationAction(arg0, arg1 any) *MockServiceCreatePreservationActionCall {
-	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreatePreservationAction", reflect.TypeOf((*MockService)(nil).CreatePreservationAction), arg0, arg1)
-	return &MockServiceCreatePreservationActionCall{Call: call}
-}
-
-// MockServiceCreatePreservationActionCall wrap *gomock.Call
-type MockServiceCreatePreservationActionCall struct {
-	*gomock.Call
-}
-
-// Return rewrite *gomock.Call.Return
-func (c *MockServiceCreatePreservationActionCall) Return(arg0 error) *MockServiceCreatePreservationActionCall {
-	c.Call = c.Call.Return(arg0)
-	return c
-}
-
-// Do rewrite *gomock.Call.Do
-func (c *MockServiceCreatePreservationActionCall) Do(f func(context.Context, *datatypes.PreservationAction) error) *MockServiceCreatePreservationActionCall {
-	c.Call = c.Call.Do(f)
-	return c
-}
-
-// DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockServiceCreatePreservationActionCall) DoAndReturn(f func(context.Context, *datatypes.PreservationAction) error) *MockServiceCreatePreservationActionCall {
-	c.Call = c.Call.DoAndReturn(f)
-	return c
-}
-
-// CreatePreservationTask mocks base method.
-func (m *MockService) CreatePreservationTask(arg0 context.Context, arg1 *datatypes.PreservationTask) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreatePreservationTask", arg0, arg1)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// CreatePreservationTask indicates an expected call of CreatePreservationTask.
-func (mr *MockServiceMockRecorder) CreatePreservationTask(arg0, arg1 any) *MockServiceCreatePreservationTaskCall {
-	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreatePreservationTask", reflect.TypeOf((*MockService)(nil).CreatePreservationTask), arg0, arg1)
-	return &MockServiceCreatePreservationTaskCall{Call: call}
-}
-
-// MockServiceCreatePreservationTaskCall wrap *gomock.Call
-type MockServiceCreatePreservationTaskCall struct {
-	*gomock.Call
-}
-
-// Return rewrite *gomock.Call.Return
-func (c *MockServiceCreatePreservationTaskCall) Return(arg0 error) *MockServiceCreatePreservationTaskCall {
-	c.Call = c.Call.Return(arg0)
-	return c
-}
-
-// Do rewrite *gomock.Call.Do
-func (c *MockServiceCreatePreservationTaskCall) Do(f func(context.Context, *datatypes.PreservationTask) error) *MockServiceCreatePreservationTaskCall {
-	c.Call = c.Call.Do(f)
-	return c
-}
-
-// DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockServiceCreatePreservationTaskCall) DoAndReturn(f func(context.Context, *datatypes.PreservationTask) error) *MockServiceCreatePreservationTaskCall {
-	c.Call = c.Call.DoAndReturn(f)
-	return c
-}
-
 // CreateSIP mocks base method.
 func (m *MockService) CreateSIP(arg0 context.Context, arg1 *datatypes.SIP) error {
 	m.ctrl.T.Helper()
@@ -151,6 +75,82 @@ func (c *MockServiceCreateSIPCall) Do(f func(context.Context, *datatypes.SIP) er
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
 func (c *MockServiceCreateSIPCall) DoAndReturn(f func(context.Context, *datatypes.SIP) error) *MockServiceCreateSIPCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
+// CreateTask mocks base method.
+func (m *MockService) CreateTask(arg0 context.Context, arg1 *datatypes.Task) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateTask", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateTask indicates an expected call of CreateTask.
+func (mr *MockServiceMockRecorder) CreateTask(arg0, arg1 any) *MockServiceCreateTaskCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateTask", reflect.TypeOf((*MockService)(nil).CreateTask), arg0, arg1)
+	return &MockServiceCreateTaskCall{Call: call}
+}
+
+// MockServiceCreateTaskCall wrap *gomock.Call
+type MockServiceCreateTaskCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockServiceCreateTaskCall) Return(arg0 error) *MockServiceCreateTaskCall {
+	c.Call = c.Call.Return(arg0)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockServiceCreateTaskCall) Do(f func(context.Context, *datatypes.Task) error) *MockServiceCreateTaskCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockServiceCreateTaskCall) DoAndReturn(f func(context.Context, *datatypes.Task) error) *MockServiceCreateTaskCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
+// CreateWorkflow mocks base method.
+func (m *MockService) CreateWorkflow(arg0 context.Context, arg1 *datatypes.Workflow) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateWorkflow", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateWorkflow indicates an expected call of CreateWorkflow.
+func (mr *MockServiceMockRecorder) CreateWorkflow(arg0, arg1 any) *MockServiceCreateWorkflowCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateWorkflow", reflect.TypeOf((*MockService)(nil).CreateWorkflow), arg0, arg1)
+	return &MockServiceCreateWorkflowCall{Call: call}
+}
+
+// MockServiceCreateWorkflowCall wrap *gomock.Call
+type MockServiceCreateWorkflowCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockServiceCreateWorkflowCall) Return(arg0 error) *MockServiceCreateWorkflowCall {
+	c.Call = c.Call.Return(arg0)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockServiceCreateWorkflowCall) Do(f func(context.Context, *datatypes.Workflow) error) *MockServiceCreateWorkflowCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockServiceCreateWorkflowCall) DoAndReturn(f func(context.Context, *datatypes.Workflow) error) *MockServiceCreateWorkflowCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
@@ -195,45 +195,6 @@ func (c *MockServiceListSIPsCall) DoAndReturn(f func(context.Context, *persisten
 	return c
 }
 
-// UpdatePreservationTask mocks base method.
-func (m *MockService) UpdatePreservationTask(arg0 context.Context, arg1 int, arg2 persistence.PresTaskUpdater) (*datatypes.PreservationTask, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdatePreservationTask", arg0, arg1, arg2)
-	ret0, _ := ret[0].(*datatypes.PreservationTask)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// UpdatePreservationTask indicates an expected call of UpdatePreservationTask.
-func (mr *MockServiceMockRecorder) UpdatePreservationTask(arg0, arg1, arg2 any) *MockServiceUpdatePreservationTaskCall {
-	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdatePreservationTask", reflect.TypeOf((*MockService)(nil).UpdatePreservationTask), arg0, arg1, arg2)
-	return &MockServiceUpdatePreservationTaskCall{Call: call}
-}
-
-// MockServiceUpdatePreservationTaskCall wrap *gomock.Call
-type MockServiceUpdatePreservationTaskCall struct {
-	*gomock.Call
-}
-
-// Return rewrite *gomock.Call.Return
-func (c *MockServiceUpdatePreservationTaskCall) Return(arg0 *datatypes.PreservationTask, arg1 error) *MockServiceUpdatePreservationTaskCall {
-	c.Call = c.Call.Return(arg0, arg1)
-	return c
-}
-
-// Do rewrite *gomock.Call.Do
-func (c *MockServiceUpdatePreservationTaskCall) Do(f func(context.Context, int, persistence.PresTaskUpdater) (*datatypes.PreservationTask, error)) *MockServiceUpdatePreservationTaskCall {
-	c.Call = c.Call.Do(f)
-	return c
-}
-
-// DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockServiceUpdatePreservationTaskCall) DoAndReturn(f func(context.Context, int, persistence.PresTaskUpdater) (*datatypes.PreservationTask, error)) *MockServiceUpdatePreservationTaskCall {
-	c.Call = c.Call.DoAndReturn(f)
-	return c
-}
-
 // UpdateSIP mocks base method.
 func (m *MockService) UpdateSIP(arg0 context.Context, arg1 int, arg2 persistence.SIPUpdater) (*datatypes.SIP, error) {
 	m.ctrl.T.Helper()
@@ -269,6 +230,45 @@ func (c *MockServiceUpdateSIPCall) Do(f func(context.Context, int, persistence.S
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
 func (c *MockServiceUpdateSIPCall) DoAndReturn(f func(context.Context, int, persistence.SIPUpdater) (*datatypes.SIP, error)) *MockServiceUpdateSIPCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
+// UpdateTask mocks base method.
+func (m *MockService) UpdateTask(arg0 context.Context, arg1 int, arg2 persistence.TaskUpdater) (*datatypes.Task, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateTask", arg0, arg1, arg2)
+	ret0, _ := ret[0].(*datatypes.Task)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateTask indicates an expected call of UpdateTask.
+func (mr *MockServiceMockRecorder) UpdateTask(arg0, arg1, arg2 any) *MockServiceUpdateTaskCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateTask", reflect.TypeOf((*MockService)(nil).UpdateTask), arg0, arg1, arg2)
+	return &MockServiceUpdateTaskCall{Call: call}
+}
+
+// MockServiceUpdateTaskCall wrap *gomock.Call
+type MockServiceUpdateTaskCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockServiceUpdateTaskCall) Return(arg0 *datatypes.Task, arg1 error) *MockServiceUpdateTaskCall {
+	c.Call = c.Call.Return(arg0, arg1)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockServiceUpdateTaskCall) Do(f func(context.Context, int, persistence.TaskUpdater) (*datatypes.Task, error)) *MockServiceUpdateTaskCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockServiceUpdateTaskCall) DoAndReturn(f func(context.Context, int, persistence.TaskUpdater) (*datatypes.Task, error)) *MockServiceUpdateTaskCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

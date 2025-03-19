@@ -1,4 +1,4 @@
-h1:2cHdzZbV3R0R8RyylKlOCm7fnCdnpEBzpvvPcaCpWiA=
+h1:3w4/iMssdiRyABeCup5xbyhZMi4oXIi8ulBCjmxXX48=
 1570659451_init.down.sql h1:hZkExHm7J+Njznl8jVlCA3ePmlKfnCi3h0UFLvgU0kU=
 1570659451_init.up.sql h1:/Bi8TK4Lt/bWcuxnQMqAvRO3e/NhFDQusiR3fjk5Z3c=
 1710442322_nullable_aip_id.down.sql h1:naFYM+Aybp/Vz8EwJOG7fRf/CWmV87qwylR4YR/76XE=
@@ -7,3 +7,5 @@ h1:2cHdzZbV3R0R8RyylKlOCm7fnCdnpEBzpvvPcaCpWiA=
 20250207193001_rename_package_table.up.sql h1:W1lSrRpAw4X8n9A/qlaD1IzRv67SZmOXUWNe5ivX/bQ=
 20250210184720_use_atlas.down.sql h1:NnSR/0LHahSc75I4nR+3Rksn7noiKztEZB0kK3yIvtQ=
 20250210184720_use_atlas.up.sql h1:2OwM5TbYcVes4N2X2wFXUxtGIgab/EQlrZ0Eox3PYrU=
+20250318151452_rename_preservation_tables.down.sql h1:JnW+wcgsBhHU0Io+bMrAF8PGL4DDMmT+tJHmRZj3zLE=
+20250318151452_rename_preservation_tables.up.sql h1:JPP8sGmtIX3mJYdhPzDh3GwjYJvA3xGRRPKwCOfGTVg=

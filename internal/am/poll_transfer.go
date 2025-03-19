@@ -17,8 +17,8 @@ import (
 const PollTransferActivityName = "poll-transfer-activity"
 
 type PollTransferActivityParams struct {
-	PresActionID int
-	TransferID   string
+	WorkflowID int
+	TransferID string
 }
 
 type PollTransferActivity struct {
@@ -30,9 +30,9 @@ type PollTransferActivity struct {
 }
 
 type PollTransferActivityResult struct {
-	SIPID         string
-	Path          string
-	PresTaskCount int
+	SIPID     string
+	Path      string
+	TaskCount int
 }
 
 func NewPollTransferActivity(
@@ -56,7 +56,7 @@ func NewPollTransferActivity(
 // activity heartbeat after each poll.
 //
 // On each poll, Execute requests an updated list of AM jobs performed and saves
-// the job data to the ingest service as preservation tasks.
+// the job data to the ingest service as tasks.
 //
 // A transfer status of "REJECTED", "FAILED", "USER_INPUT", or "BACKLOG" returns
 // a temporal.NonRetryableApplicationError to indicate that processing can not
@@ -69,11 +69,11 @@ func (a *PollTransferActivity) Execute(
 
 	logger := temporal_tools.GetLogger(ctx)
 	logger.V(1).Info("Executing PollTransferActivity",
-		"PresActionID", params.PresActionID,
+		"WorkflowID", params.WorkflowID,
 		"TransferID", params.TransferID,
 	)
 
-	jobTracker := NewJobTracker(a.clock, a.jobSvc, a.ingestsvc, params.PresActionID)
+	jobTracker := NewJobTracker(a.clock, a.jobSvc, a.ingestsvc, params.WorkflowID)
 	ticker := time.NewTicker(a.cfg.PollInterval)
 	defer ticker.Stop()
 
@@ -87,7 +87,7 @@ func (a *PollTransferActivity) Execute(
 				taskCount += count
 
 				// Send a heartbeat then continue polling after the poll interval.
-				temporalsdk_activity.RecordHeartbeat(ctx, fmt.Sprintf("preservation tasks completed: %d", taskCount))
+				temporalsdk_activity.RecordHeartbeat(ctx, fmt.Sprintf("tasks completed: %d", taskCount))
 				continue
 			}
 			if err != nil {
@@ -96,7 +96,7 @@ func (a *PollTransferActivity) Execute(
 
 			taskCount += count
 
-			return &PollTransferActivityResult{SIPID: resp.SIPID, Path: resp.Path, PresTaskCount: taskCount}, nil
+			return &PollTransferActivityResult{SIPID: resp.SIPID, Path: resp.Path, TaskCount: taskCount}, nil
 		}
 	}
 }
@@ -107,7 +107,7 @@ func (a *PollTransferActivity) Execute(
 // All other errors should terminate polling.
 //
 // If the transfer is still in progress or completed successfully, poll saves
-// the AM jobs progress as preservation tasks via JobTracker.
+// the AM jobs progress as tasks via JobTracker.
 func (a *PollTransferActivity) poll(
 	ctx context.Context,
 	jobTracker *JobTracker,
@@ -135,14 +135,14 @@ func (a *PollTransferActivity) poll(
 		}
 	}
 
-	// Save job progress as preservation tasks.
-	count, err := jobTracker.SavePreservationTasks(ctx, transferID)
+	// Save job progress as tasks.
+	count, err := jobTracker.SaveTasks(ctx, transferID)
 	if err == ErrBadRequest {
 		// Continue polling on a "400 Bad request" response.
 		return resp, 0, ErrWorkOngoing
 	}
 	if err != nil {
-		return nil, 0, fmt.Errorf("save preservation tasks: %v", err)
+		return nil, 0, fmt.Errorf("save tasks: %v", err)
 	}
 
 	// Continue polling.

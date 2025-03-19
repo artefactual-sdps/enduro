@@ -5,9 +5,9 @@ package db
 import (
 	"time"
 
-	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/preservationaction"
-	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/preservationtask"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/sip"
+	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/task"
+	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/workflow"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/schema"
 )
 
@@ -15,22 +15,22 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
-	preservationactionFields := schema.PreservationAction{}.Fields()
-	_ = preservationactionFields
-	// preservationactionDescSipID is the schema descriptor for sip_id field.
-	preservationactionDescSipID := preservationactionFields[5].Descriptor()
-	// preservationaction.SipIDValidator is a validator for the "sip_id" field. It is called by the builders before save.
-	preservationaction.SipIDValidator = preservationactionDescSipID.Validators[0].(func(int) error)
-	preservationtaskFields := schema.PreservationTask{}.Fields()
-	_ = preservationtaskFields
-	// preservationtaskDescPreservationActionID is the schema descriptor for preservation_action_id field.
-	preservationtaskDescPreservationActionID := preservationtaskFields[6].Descriptor()
-	// preservationtask.PreservationActionIDValidator is a validator for the "preservation_action_id" field. It is called by the builders before save.
-	preservationtask.PreservationActionIDValidator = preservationtaskDescPreservationActionID.Validators[0].(func(int) error)
 	sipFields := schema.SIP{}.Fields()
 	_ = sipFields
 	// sipDescCreatedAt is the schema descriptor for created_at field.
 	sipDescCreatedAt := sipFields[6].Descriptor()
 	// sip.DefaultCreatedAt holds the default value on creation for the created_at field.
 	sip.DefaultCreatedAt = sipDescCreatedAt.Default.(func() time.Time)
+	taskFields := schema.Task{}.Fields()
+	_ = taskFields
+	// taskDescWorkflowID is the schema descriptor for workflow_id field.
+	taskDescWorkflowID := taskFields[6].Descriptor()
+	// task.WorkflowIDValidator is a validator for the "workflow_id" field. It is called by the builders before save.
+	task.WorkflowIDValidator = taskDescWorkflowID.Validators[0].(func(int) error)
+	workflowFields := schema.Workflow{}.Fields()
+	_ = workflowFields
+	// workflowDescSipID is the schema descriptor for sip_id field.
+	workflowDescSipID := workflowFields[5].Descriptor()
+	// workflow.SipIDValidator is a validator for the "sip_id" field. It is called by the builders before save.
+	workflow.SipIDValidator = workflowDescSipID.Validators[0].(func(int) error)
 }

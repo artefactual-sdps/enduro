@@ -23,14 +23,10 @@ const handlers: {
   [MonitorEventEventTypeEnum.SipUpdatedEvent]: handleSipUpdated,
   [MonitorEventEventTypeEnum.SipStatusUpdatedEvent]: handleSipStatusUpdated,
   [MonitorEventEventTypeEnum.SipLocationUpdatedEvent]: handleSipLocationUpdated,
-  [MonitorEventEventTypeEnum.SipPreservationActionCreatedEvent]:
-    handlePreservationActionCreated,
-  [MonitorEventEventTypeEnum.SipPreservationActionUpdatedEvent]:
-    handlePreservationActionUpdated,
-  [MonitorEventEventTypeEnum.SipPreservationTaskCreatedEvent]:
-    handlePreservationTaskCreated,
-  [MonitorEventEventTypeEnum.SipPreservationTaskUpdatedEvent]:
-    handlePreservationTaskUpdated,
+  [MonitorEventEventTypeEnum.SipWorkflowCreatedEvent]: handleWorkflowCreated,
+  [MonitorEventEventTypeEnum.SipWorkflowUpdatedEvent]: handleWorkflowUpdated,
+  [MonitorEventEventTypeEnum.SipTaskCreatedEvent]: handleTaskCreated,
+  [MonitorEventEventTypeEnum.SipTaskUpdatedEvent]: handleTaskUpdated,
 };
 
 function handleMonitorPing(data: unknown) {
@@ -69,54 +65,54 @@ function handleSipLocationUpdated(data: unknown) {
   });
 }
 
-function handlePreservationActionCreated(data: unknown) {
-  const event = api.SIPPreservationActionCreatedEventFromJSON(data);
+function handleWorkflowCreated(data: unknown) {
+  const event = api.SIPWorkflowCreatedEventFromJSON(data);
   const store = useSipStore();
 
   // Ignore event if it does not relate to the current SIP.
   if (store.current?.id != event.item.sipId) return;
 
-  // Append the action.
-  store.currentPreservationActions?.actions?.unshift(event.item);
+  // Append the workflow.
+  store.currentWorkflows?.workflows?.unshift(event.item);
 }
 
-function handlePreservationActionUpdated(data: unknown) {
-  const event = api.SIPPreservationActionUpdatedEventFromJSON(data);
+function handleWorkflowUpdated(data: unknown) {
+  const event = api.SIPWorkflowUpdatedEventFromJSON(data);
   const store = useSipStore();
 
   // Ignore event if it does not relate to the current SIP.
   if (store.current?.id != event.item.sipId) return;
 
-  // Find and update the action.
-  const action = store.getActionById(event.id);
-  if (!action) return;
+  // Find and update the workflow.
+  const workflow = store.getWorkflowById(event.id);
+  if (!workflow) return;
 
   // Keep existing tasks, this event doesn't include them.
-  const tasks = action.tasks;
-  Object.assign(action, event.item);
-  action.tasks = tasks;
+  const tasks = workflow.tasks;
+  Object.assign(workflow, event.item);
+  workflow.tasks = tasks;
 }
 
-function handlePreservationTaskCreated(data: unknown) {
-  const event = api.SIPPreservationTaskCreatedEventFromJSON(data);
+function handleTaskCreated(data: unknown) {
+  const event = api.SIPTaskCreatedEventFromJSON(data);
   const store = useSipStore();
 
-  // Find and update the action.
-  if (!event.item.preservationActionId) return;
-  const action = store.getActionById(event.item.preservationActionId);
-  if (!action) return;
-  if (action.id === event.item.preservationActionId) {
-    if (!action.tasks) action.tasks = [];
-    action.tasks.push(event.item);
+  // Find and update the workflow.
+  if (!event.item.workflowId) return;
+  const workflow = store.getWorkflowById(event.item.workflowId);
+  if (!workflow) return;
+  if (workflow.id === event.item.workflowId) {
+    if (!workflow.tasks) workflow.tasks = [];
+    workflow.tasks.push(event.item);
   }
 }
 
-function handlePreservationTaskUpdated(data: unknown) {
-  const event = api.SIPPreservationTaskUpdatedEventFromJSON(data);
+function handleTaskUpdated(data: unknown) {
+  const event = api.SIPTaskUpdatedEventFromJSON(data);
   const store = useSipStore();
 
-  if (!event.item.preservationActionId) return;
-  const task = store.getTaskById(event.item.preservationActionId, event.id);
+  if (!event.item.workflowId) return;
+  const task = store.getTaskById(event.item.workflowId, event.id);
   if (!task) return;
   Object.assign(task, event.item);
 }

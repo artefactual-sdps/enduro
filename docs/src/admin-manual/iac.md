@@ -73,7 +73,7 @@ useRoles = false
 #   "role2": ["attribute1", "atrribute2", "attribute3", "atrribute4"]
 # }
 # Example:
-# rolesMapping = '{"admin": ["*"], "operator": ["ingest:sips:list", "ingest:sips:actions:list", "ingest:sips:move", "ingest:sips:read", "ingest:sips:upload"], "readonly": ["ingest:sips:list", "ingest:sips:actions:list", "ingest:sips:read"]}'
+# rolesMapping = '{"admin": ["*"], "operator": ["ingest:sips:list", "ingest:sips:move", "ingest:sips:read", "ingest:sips:upload", "ingest:sips:workflows:list"], "readonly": ["ingest:sips:list", "ingest:sips:read", "ingest:sips:workflows:list"]}'
 rolesMapping = ""
 
 [api.auth.ticket.redis]
@@ -164,8 +164,8 @@ The `*` attribute will provide full access to the API.
 | POST   | /ingest/sips/{id}/confirm              | `ingest:sips:review`          |
 | GET    | /ingest/sips/{id}/move                 | `ingest:sips:move`            |
 | POST   | /ingest/sips/{id}/move                 | `ingest:sips:move`            |
-| GET    | /ingest/sips/{id}/preservation-actions | `ingest:sips:actions:list`    |
 | POST   | /ingest/sips/{id}/reject               | `ingest:sips:review`          |
+| GET    | /ingest/sips/{id}/workflows            | `ingest:sips:workflows:list`  |
 | POST   | /ingest/sips/upload                    | `ingest:sips:upload`          |
 | GET    | /storage/aips                          | `storage:aips:list`           |
 | POST   | /storage/aips                          | `storage:aips:create`         |

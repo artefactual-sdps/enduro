@@ -50,56 +50,56 @@ func convertSIP(sip *db.SIP) *datatypes.SIP {
 	}
 }
 
-// convertPreservationAction converts an entgo `db.PreservationAction`
-// representation to a `datatypes.PreservationAction` representation.
-func convertPreservationAction(pa *db.PreservationAction) *datatypes.PreservationAction {
+// convertWorkflow converts an entgo `db.Workflow`
+// representation to a `datatypes.Workflow` representation.
+func convertWorkflow(w *db.Workflow) *datatypes.Workflow {
 	var started sql.NullTime
-	if !pa.StartedAt.IsZero() {
-		started = sql.NullTime{Time: pa.StartedAt, Valid: true}
+	if !w.StartedAt.IsZero() {
+		started = sql.NullTime{Time: w.StartedAt, Valid: true}
 	}
 
 	var completed sql.NullTime
-	if !pa.CompletedAt.IsZero() {
-		completed = sql.NullTime{Time: pa.CompletedAt, Valid: true}
+	if !w.CompletedAt.IsZero() {
+		completed = sql.NullTime{Time: w.CompletedAt, Valid: true}
 	}
 
-	return &datatypes.PreservationAction{
-		ID:          pa.ID,
-		WorkflowID:  pa.WorkflowID,
-		Type:        enums.PreservationActionType(pa.Type),     // #nosec G115 -- constrained value.
-		Status:      enums.PreservationActionStatus(pa.Status), // #nosec G115 -- constrained value.
+	return &datatypes.Workflow{
+		ID:          w.ID,
+		WorkflowID:  w.WorkflowID,
+		Type:        enums.WorkflowType(w.Type),     // #nosec G115 -- constrained value.
+		Status:      enums.WorkflowStatus(w.Status), // #nosec G115 -- constrained value.
 		StartedAt:   started,
 		CompletedAt: completed,
-		SIPID:       pa.SipID,
+		SIPID:       w.SipID,
 	}
 }
 
-// convertPreservationTask converts an entgo `db.PreservationTask` representation
-// to a `datatypes.PreservationTask` representation.
-func convertPreservationTask(pt *db.PreservationTask) *datatypes.PreservationTask {
+// convertTask converts an entgo `db.Task` representation
+// to a `datatypes.Task` representation.
+func convertTask(task *db.Task) *datatypes.Task {
 	var started sql.NullTime
-	if !pt.StartedAt.IsZero() {
-		started = sql.NullTime{Time: pt.StartedAt, Valid: true}
+	if !task.StartedAt.IsZero() {
+		started = sql.NullTime{Time: task.StartedAt, Valid: true}
 	}
 
 	var completed sql.NullTime
-	if !pt.CompletedAt.IsZero() {
-		completed = sql.NullTime{Time: pt.CompletedAt, Valid: true}
+	if !task.CompletedAt.IsZero() {
+		completed = sql.NullTime{Time: task.CompletedAt, Valid: true}
 	}
 
 	var status uint
-	if pt.Status > 0 {
-		status = uint(pt.Status) // #nosec G115 -- range validated.
+	if task.Status > 0 {
+		status = uint(task.Status) // #nosec G115 -- range validated.
 	}
 
-	return &datatypes.PreservationTask{
-		ID:                   pt.ID,
-		TaskID:               pt.TaskID.String(),
-		Name:                 pt.Name,
-		Status:               enums.PreservationTaskStatus(status),
-		StartedAt:            started,
-		CompletedAt:          completed,
-		Note:                 pt.Note,
-		PreservationActionID: pt.PreservationActionID,
+	return &datatypes.Task{
+		ID:          task.ID,
+		TaskID:      task.TaskID.String(),
+		Name:        task.Name,
+		Status:      enums.TaskStatus(status),
+		StartedAt:   started,
+		CompletedAt: completed,
+		Note:        task.Note,
+		WorkflowID:  task.WorkflowID,
 	}
 }

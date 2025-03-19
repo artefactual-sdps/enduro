@@ -64,7 +64,7 @@ useRoles = false
 #   "role2": ["attribute1", "atrribute2", "attribute3", "atrribute4"]
 # }
 # Example:
-# rolesMapping = '{"admin": ["*"], "operator": ["ingest:sips:list", "ingest:sips:actions:list", "ingest:sips:move", "ingest:sips:read", "ingest:sips:upload"], "readonly": ["ingest:sips:list", "ingest:sips:actions:list", "ingest:sips:read"]}'
+# rolesMapping = '{"admin": ["*"], "operator": ["ingest:sips:list", "ingest:sips:move", "ingest:sips:read", "ingest:sips:upload", "ingest:sips:workflows:list"], "readonly": ["ingest:sips:list", "ingest:sips:read", "ingest:sips:workflows:list"]}'
 rolesMapping = ""
 
 [api.auth.ticket.redis]

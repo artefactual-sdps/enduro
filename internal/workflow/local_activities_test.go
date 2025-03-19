@@ -12,12 +12,12 @@ import (
 	"go.uber.org/mock/gomock"
 	"gotest.tools/v3/assert"
 
-	"github.com/artefactual-sdps/enduro/internal/datatypes"
+	w "github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	ingest_fake "github.com/artefactual-sdps/enduro/internal/ingest/fake"
 )
 
-func TestCreatePreservationActionLocalActivity(t *testing.T) {
+func TestCreateWorkflowLocalActivity(t *testing.T) {
 	t.Parallel()
 
 	startedAt := time.Date(2024, 6, 13, 17, 50, 13, 0, time.UTC)
@@ -25,32 +25,32 @@ func TestCreatePreservationActionLocalActivity(t *testing.T) {
 
 	type test struct {
 		name      string
-		params    *createPreservationActionLocalActivityParams
+		params    *createWorkflowLocalActivityParams
 		mockCalls func(m *ingest_fake.MockServiceMockRecorder)
 		want      uint
 		wantErr   string
 	}
 	for _, tt := range []test{
 		{
-			name: "Creates a preservation action",
-			params: &createPreservationActionLocalActivityParams{
+			name: "Creates a workflow",
+			params: &createWorkflowLocalActivityParams{
 				WorkflowID:  "workflow-id",
-				Type:        enums.PreservationActionTypeCreateAip,
-				Status:      enums.PreservationActionStatusDone,
+				Type:        enums.WorkflowTypeCreateAip,
+				Status:      enums.WorkflowStatusDone,
 				StartedAt:   startedAt,
 				CompletedAt: completedAt,
 				SIPID:       1,
 			},
 			mockCalls: func(m *ingest_fake.MockServiceMockRecorder) {
-				m.CreatePreservationAction(mockutil.Context(), &datatypes.PreservationAction{
+				m.CreateWorkflow(mockutil.Context(), &w.Workflow{
 					WorkflowID:  "workflow-id",
-					Type:        enums.PreservationActionTypeCreateAip,
-					Status:      enums.PreservationActionStatusDone,
+					Type:        enums.WorkflowTypeCreateAip,
+					Status:      enums.WorkflowStatusDone,
 					StartedAt:   sql.NullTime{Time: startedAt, Valid: true},
 					CompletedAt: sql.NullTime{Time: completedAt, Valid: true},
 					SIPID:       1,
-				}).DoAndReturn(func(ctx context.Context, pa *datatypes.PreservationAction) error {
-					pa.ID = 1
+				}).DoAndReturn(func(ctx context.Context, w *w.Workflow) error {
+					w.ID = 1
 					return nil
 				})
 			},
@@ -58,20 +58,20 @@ func TestCreatePreservationActionLocalActivity(t *testing.T) {
 		},
 		{
 			name: "Does not pass zero dates",
-			params: &createPreservationActionLocalActivityParams{
+			params: &createWorkflowLocalActivityParams{
 				WorkflowID: "workflow-id",
-				Type:       enums.PreservationActionTypeCreateAip,
-				Status:     enums.PreservationActionStatusDone,
+				Type:       enums.WorkflowTypeCreateAip,
+				Status:     enums.WorkflowStatusDone,
 				SIPID:      1,
 			},
 			mockCalls: func(m *ingest_fake.MockServiceMockRecorder) {
-				m.CreatePreservationAction(mockutil.Context(), &datatypes.PreservationAction{
+				m.CreateWorkflow(mockutil.Context(), &w.Workflow{
 					WorkflowID: "workflow-id",
-					Type:       enums.PreservationActionTypeCreateAip,
-					Status:     enums.PreservationActionStatusDone,
+					Type:       enums.WorkflowTypeCreateAip,
+					Status:     enums.WorkflowStatusDone,
 					SIPID:      1,
-				}).DoAndReturn(func(ctx context.Context, pa *datatypes.PreservationAction) error {
-					pa.ID = 1
+				}).DoAndReturn(func(ctx context.Context, w *w.Workflow) error {
+					w.ID = 1
 					return nil
 				})
 			},
@@ -79,17 +79,17 @@ func TestCreatePreservationActionLocalActivity(t *testing.T) {
 		},
 		{
 			name: "Fails if there is a persistence error",
-			params: &createPreservationActionLocalActivityParams{
+			params: &createWorkflowLocalActivityParams{
 				WorkflowID: "workflow-id",
-				Type:       enums.PreservationActionTypeCreateAip,
-				Status:     enums.PreservationActionStatusDone,
+				Type:       enums.WorkflowTypeCreateAip,
+				Status:     enums.WorkflowStatusDone,
 				SIPID:      1,
 			},
 			mockCalls: func(m *ingest_fake.MockServiceMockRecorder) {
-				m.CreatePreservationAction(mockutil.Context(), &datatypes.PreservationAction{
+				m.CreateWorkflow(mockutil.Context(), &w.Workflow{
 					WorkflowID: "workflow-id",
-					Type:       enums.PreservationActionTypeCreateAip,
-					Status:     enums.PreservationActionStatusDone,
+					Type:       enums.WorkflowTypeCreateAip,
+					Status:     enums.WorkflowStatusDone,
 					SIPID:      1,
 				}).Return(fmt.Errorf("persistence error"))
 			},
@@ -107,7 +107,7 @@ func TestCreatePreservationActionLocalActivity(t *testing.T) {
 			}
 
 			enc, err := env.ExecuteLocalActivity(
-				createPreservationActionLocalActivity,
+				createWorkflowLocalActivity,
 				svc,
 				tt.params,
 			)

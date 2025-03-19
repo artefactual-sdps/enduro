@@ -63,9 +63,9 @@ func TestCreateAIPActivity(t *testing.T) {
 		)
 
 	ingestsvc := ingest_fake.NewMockService(ctrl)
-	ingestsvc.EXPECT().CreatePreservationTask(mockutil.Context(), &datatypes.PreservationTask{
+	ingestsvc.EXPECT().CreateTask(mockutil.Context(), &datatypes.Task{
 		TaskID: "721f6e04-ce12-42b6-a53c-482dc1571d5a",
-		Status: enums.PreservationTaskStatusDone,
+		Status: enums.TaskStatusDone,
 		StartedAt: sql.NullTime{
 			Time:  time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC),
 			Valid: true,

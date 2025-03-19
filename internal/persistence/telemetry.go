@@ -71,45 +71,45 @@ func (w *wrapper) ListSIPs(ctx context.Context, f *SIPFilter) ([]*datatypes.SIP,
 	return r, pg, nil
 }
 
-func (w *wrapper) CreatePreservationAction(ctx context.Context, pa *datatypes.PreservationAction) error {
-	ctx, span := w.tracer.Start(ctx, "CreatePreservationAction")
+func (w *wrapper) CreateWorkflow(ctx context.Context, workflow *datatypes.Workflow) error {
+	ctx, span := w.tracer.Start(ctx, "CreateWorkflow")
 	defer span.End()
 
-	err := w.wrapped.CreatePreservationAction(ctx, pa)
+	err := w.wrapped.CreateWorkflow(ctx, workflow)
 	if err != nil {
 		telemetry.RecordError(span, err)
-		return updateError(err, "CreatePreservationAction")
+		return updateError(err, "CreateWorkflow")
 	}
 
 	return nil
 }
 
-func (w *wrapper) CreatePreservationTask(ctx context.Context, pt *datatypes.PreservationTask) error {
-	ctx, span := w.tracer.Start(ctx, "CreatePreservationTask")
+func (w *wrapper) CreateTask(ctx context.Context, task *datatypes.Task) error {
+	ctx, span := w.tracer.Start(ctx, "CreateTask")
 	defer span.End()
 
-	err := w.wrapped.CreatePreservationTask(ctx, pt)
+	err := w.wrapped.CreateTask(ctx, task)
 	if err != nil {
 		telemetry.RecordError(span, err)
-		return updateError(err, "CreatePreservationTask")
+		return updateError(err, "CreateTask")
 	}
 
 	return nil
 }
 
-func (w *wrapper) UpdatePreservationTask(
+func (w *wrapper) UpdateTask(
 	ctx context.Context,
 	id int,
-	updater PresTaskUpdater,
-) (*datatypes.PreservationTask, error) {
-	ctx, span := w.tracer.Start(ctx, "UpdatePreservationTask")
+	updater TaskUpdater,
+) (*datatypes.Task, error) {
+	ctx, span := w.tracer.Start(ctx, "UpdateTask")
 	defer span.End()
 	span.SetAttributes(attribute.Int("id", id))
 
-	r, err := w.wrapped.UpdatePreservationTask(ctx, id, updater)
+	r, err := w.wrapped.UpdateTask(ctx, id, updater)
 	if err != nil {
 		telemetry.RecordError(span, err)
-		return nil, updateError(err, "UpdatePreservationTask")
+		return nil, updateError(err, "UpdateTask")
 	}
 
 	return r, nil

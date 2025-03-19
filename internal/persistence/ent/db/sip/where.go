@@ -551,21 +551,21 @@ func CompletedAtNotNil() predicate.SIP {
 	return predicate.SIP(sql.FieldNotNull(FieldCompletedAt))
 }
 
-// HasPreservationActions applies the HasEdge predicate on the "preservation_actions" edge.
-func HasPreservationActions() predicate.SIP {
+// HasWorkflows applies the HasEdge predicate on the "workflows" edge.
+func HasWorkflows() predicate.SIP {
 	return predicate.SIP(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, PreservationActionsTable, PreservationActionsColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, WorkflowsTable, WorkflowsColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasPreservationActionsWith applies the HasEdge predicate on the "preservation_actions" edge with a given conditions (other predicates).
-func HasPreservationActionsWith(preds ...predicate.PreservationAction) predicate.SIP {
+// HasWorkflowsWith applies the HasEdge predicate on the "workflows" edge with a given conditions (other predicates).
+func HasWorkflowsWith(preds ...predicate.Workflow) predicate.SIP {
 	return predicate.SIP(func(s *sql.Selector) {
-		step := newPreservationActionsStep()
+		step := newWorkflowsStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

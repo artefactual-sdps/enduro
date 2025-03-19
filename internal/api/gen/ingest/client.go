@@ -17,31 +17,31 @@ import (
 
 // Client is the "ingest" service client.
 type Client struct {
-	MonitorRequestEndpoint             goa.Endpoint
-	MonitorEndpoint                    goa.Endpoint
-	ListSipsEndpoint                   goa.Endpoint
-	ShowSipEndpoint                    goa.Endpoint
-	ListSipPreservationActionsEndpoint goa.Endpoint
-	ConfirmSipEndpoint                 goa.Endpoint
-	RejectSipEndpoint                  goa.Endpoint
-	MoveSipEndpoint                    goa.Endpoint
-	MoveSipStatusEndpoint              goa.Endpoint
-	UploadSipEndpoint                  goa.Endpoint
+	MonitorRequestEndpoint   goa.Endpoint
+	MonitorEndpoint          goa.Endpoint
+	ListSipsEndpoint         goa.Endpoint
+	ShowSipEndpoint          goa.Endpoint
+	ListSipWorkflowsEndpoint goa.Endpoint
+	ConfirmSipEndpoint       goa.Endpoint
+	RejectSipEndpoint        goa.Endpoint
+	MoveSipEndpoint          goa.Endpoint
+	MoveSipStatusEndpoint    goa.Endpoint
+	UploadSipEndpoint        goa.Endpoint
 }
 
 // NewClient initializes a "ingest" service client given the endpoints.
-func NewClient(monitorRequest, monitor, listSips, showSip, listSipPreservationActions, confirmSip, rejectSip, moveSip, moveSipStatus, uploadSip goa.Endpoint) *Client {
+func NewClient(monitorRequest, monitor, listSips, showSip, listSipWorkflows, confirmSip, rejectSip, moveSip, moveSipStatus, uploadSip goa.Endpoint) *Client {
 	return &Client{
-		MonitorRequestEndpoint:             monitorRequest,
-		MonitorEndpoint:                    monitor,
-		ListSipsEndpoint:                   listSips,
-		ShowSipEndpoint:                    showSip,
-		ListSipPreservationActionsEndpoint: listSipPreservationActions,
-		ConfirmSipEndpoint:                 confirmSip,
-		RejectSipEndpoint:                  rejectSip,
-		MoveSipEndpoint:                    moveSip,
-		MoveSipStatusEndpoint:              moveSipStatus,
-		UploadSipEndpoint:                  uploadSip,
+		MonitorRequestEndpoint:   monitorRequest,
+		MonitorEndpoint:          monitor,
+		ListSipsEndpoint:         listSips,
+		ShowSipEndpoint:          showSip,
+		ListSipWorkflowsEndpoint: listSipWorkflows,
+		ConfirmSipEndpoint:       confirmSip,
+		RejectSipEndpoint:        rejectSip,
+		MoveSipEndpoint:          moveSip,
+		MoveSipStatusEndpoint:    moveSipStatus,
+		UploadSipEndpoint:        uploadSip,
 	}
 }
 
@@ -106,20 +106,20 @@ func (c *Client) ShowSip(ctx context.Context, p *ShowSipPayload) (res *SIP, err 
 	return ires.(*SIP), nil
 }
 
-// ListSipPreservationActions calls the "list_sip_preservation_actions"
-// endpoint of the "ingest" service.
-// ListSipPreservationActions may return the following errors:
+// ListSipWorkflows calls the "list_sip_workflows" endpoint of the "ingest"
+// service.
+// ListSipWorkflows may return the following errors:
 //   - "not_found" (type *SIPNotFound): SIP not found
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
 //   - error: internal error
-func (c *Client) ListSipPreservationActions(ctx context.Context, p *ListSipPreservationActionsPayload) (res *SIPPreservationActions, err error) {
+func (c *Client) ListSipWorkflows(ctx context.Context, p *ListSipWorkflowsPayload) (res *SIPWorkflows, err error) {
 	var ires any
-	ires, err = c.ListSipPreservationActionsEndpoint(ctx, p)
+	ires, err = c.ListSipWorkflowsEndpoint(ctx, p)
 	if err != nil {
 		return
 	}
-	return ires.(*SIPPreservationActions), nil
+	return ires.(*SIPWorkflows), nil
 }
 
 // ConfirmSip calls the "confirm_sip" endpoint of the "ingest" service.

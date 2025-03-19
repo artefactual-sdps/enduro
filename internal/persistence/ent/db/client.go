@@ -15,9 +15,9 @@ import (
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/preservationaction"
-	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/preservationtask"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/sip"
+	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/task"
+	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/workflow"
 )
 
 // Client is the client that holds all ent builders.
@@ -25,12 +25,12 @@ type Client struct {
 	config
 	// Schema is the client for creating, migrating and dropping schema.
 	Schema *migrate.Schema
-	// PreservationAction is the client for interacting with the PreservationAction builders.
-	PreservationAction *PreservationActionClient
-	// PreservationTask is the client for interacting with the PreservationTask builders.
-	PreservationTask *PreservationTaskClient
 	// SIP is the client for interacting with the SIP builders.
 	SIP *SIPClient
+	// Task is the client for interacting with the Task builders.
+	Task *TaskClient
+	// Workflow is the client for interacting with the Workflow builders.
+	Workflow *WorkflowClient
 }
 
 // NewClient creates a new client configured with the given options.
@@ -42,9 +42,9 @@ func NewClient(opts ...Option) *Client {
 
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
-	c.PreservationAction = NewPreservationActionClient(c.config)
-	c.PreservationTask = NewPreservationTaskClient(c.config)
 	c.SIP = NewSIPClient(c.config)
+	c.Task = NewTaskClient(c.config)
+	c.Workflow = NewWorkflowClient(c.config)
 }
 
 type (
@@ -135,11 +135,11 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:                ctx,
-		config:             cfg,
-		PreservationAction: NewPreservationActionClient(cfg),
-		PreservationTask:   NewPreservationTaskClient(cfg),
-		SIP:                NewSIPClient(cfg),
+		ctx:      ctx,
+		config:   cfg,
+		SIP:      NewSIPClient(cfg),
+		Task:     NewTaskClient(cfg),
+		Workflow: NewWorkflowClient(cfg),
 	}, nil
 }
 
@@ -157,18 +157,18 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:                ctx,
-		config:             cfg,
-		PreservationAction: NewPreservationActionClient(cfg),
-		PreservationTask:   NewPreservationTaskClient(cfg),
-		SIP:                NewSIPClient(cfg),
+		ctx:      ctx,
+		config:   cfg,
+		SIP:      NewSIPClient(cfg),
+		Task:     NewTaskClient(cfg),
+		Workflow: NewWorkflowClient(cfg),
 	}, nil
 }
 
 // Debug returns a new debug-client. It's used to get verbose logging on specific operations.
 //
 //	client.Debug().
-//		PreservationAction.
+//		SIP.
 //		Query().
 //		Count(ctx)
 func (c *Client) Debug() *Client {
@@ -190,344 +190,30 @@ func (c *Client) Close() error {
 // Use adds the mutation hooks to all the entity clients.
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
-	c.PreservationAction.Use(hooks...)
-	c.PreservationTask.Use(hooks...)
 	c.SIP.Use(hooks...)
+	c.Task.Use(hooks...)
+	c.Workflow.Use(hooks...)
 }
 
 // Intercept adds the query interceptors to all the entity clients.
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
-	c.PreservationAction.Intercept(interceptors...)
-	c.PreservationTask.Intercept(interceptors...)
 	c.SIP.Intercept(interceptors...)
+	c.Task.Intercept(interceptors...)
+	c.Workflow.Intercept(interceptors...)
 }
 
 // Mutate implements the ent.Mutator interface.
 func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
-	case *PreservationActionMutation:
-		return c.PreservationAction.mutate(ctx, m)
-	case *PreservationTaskMutation:
-		return c.PreservationTask.mutate(ctx, m)
 	case *SIPMutation:
 		return c.SIP.mutate(ctx, m)
+	case *TaskMutation:
+		return c.Task.mutate(ctx, m)
+	case *WorkflowMutation:
+		return c.Workflow.mutate(ctx, m)
 	default:
 		return nil, fmt.Errorf("db: unknown mutation type %T", m)
-	}
-}
-
-// PreservationActionClient is a client for the PreservationAction schema.
-type PreservationActionClient struct {
-	config
-}
-
-// NewPreservationActionClient returns a client for the PreservationAction from the given config.
-func NewPreservationActionClient(c config) *PreservationActionClient {
-	return &PreservationActionClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `preservationaction.Hooks(f(g(h())))`.
-func (c *PreservationActionClient) Use(hooks ...Hook) {
-	c.hooks.PreservationAction = append(c.hooks.PreservationAction, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `preservationaction.Intercept(f(g(h())))`.
-func (c *PreservationActionClient) Intercept(interceptors ...Interceptor) {
-	c.inters.PreservationAction = append(c.inters.PreservationAction, interceptors...)
-}
-
-// Create returns a builder for creating a PreservationAction entity.
-func (c *PreservationActionClient) Create() *PreservationActionCreate {
-	mutation := newPreservationActionMutation(c.config, OpCreate)
-	return &PreservationActionCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of PreservationAction entities.
-func (c *PreservationActionClient) CreateBulk(builders ...*PreservationActionCreate) *PreservationActionCreateBulk {
-	return &PreservationActionCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *PreservationActionClient) MapCreateBulk(slice any, setFunc func(*PreservationActionCreate, int)) *PreservationActionCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &PreservationActionCreateBulk{err: fmt.Errorf("calling to PreservationActionClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*PreservationActionCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &PreservationActionCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for PreservationAction.
-func (c *PreservationActionClient) Update() *PreservationActionUpdate {
-	mutation := newPreservationActionMutation(c.config, OpUpdate)
-	return &PreservationActionUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *PreservationActionClient) UpdateOne(pa *PreservationAction) *PreservationActionUpdateOne {
-	mutation := newPreservationActionMutation(c.config, OpUpdateOne, withPreservationAction(pa))
-	return &PreservationActionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *PreservationActionClient) UpdateOneID(id int) *PreservationActionUpdateOne {
-	mutation := newPreservationActionMutation(c.config, OpUpdateOne, withPreservationActionID(id))
-	return &PreservationActionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for PreservationAction.
-func (c *PreservationActionClient) Delete() *PreservationActionDelete {
-	mutation := newPreservationActionMutation(c.config, OpDelete)
-	return &PreservationActionDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *PreservationActionClient) DeleteOne(pa *PreservationAction) *PreservationActionDeleteOne {
-	return c.DeleteOneID(pa.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *PreservationActionClient) DeleteOneID(id int) *PreservationActionDeleteOne {
-	builder := c.Delete().Where(preservationaction.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &PreservationActionDeleteOne{builder}
-}
-
-// Query returns a query builder for PreservationAction.
-func (c *PreservationActionClient) Query() *PreservationActionQuery {
-	return &PreservationActionQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypePreservationAction},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a PreservationAction entity by its id.
-func (c *PreservationActionClient) Get(ctx context.Context, id int) (*PreservationAction, error) {
-	return c.Query().Where(preservationaction.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *PreservationActionClient) GetX(ctx context.Context, id int) *PreservationAction {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// QuerySip queries the sip edge of a PreservationAction.
-func (c *PreservationActionClient) QuerySip(pa *PreservationAction) *SIPQuery {
-	query := (&SIPClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := pa.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(preservationaction.Table, preservationaction.FieldID, id),
-			sqlgraph.To(sip.Table, sip.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, preservationaction.SipTable, preservationaction.SipColumn),
-		)
-		fromV = sqlgraph.Neighbors(pa.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryTasks queries the tasks edge of a PreservationAction.
-func (c *PreservationActionClient) QueryTasks(pa *PreservationAction) *PreservationTaskQuery {
-	query := (&PreservationTaskClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := pa.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(preservationaction.Table, preservationaction.FieldID, id),
-			sqlgraph.To(preservationtask.Table, preservationtask.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, preservationaction.TasksTable, preservationaction.TasksColumn),
-		)
-		fromV = sqlgraph.Neighbors(pa.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// Hooks returns the client hooks.
-func (c *PreservationActionClient) Hooks() []Hook {
-	return c.hooks.PreservationAction
-}
-
-// Interceptors returns the client interceptors.
-func (c *PreservationActionClient) Interceptors() []Interceptor {
-	return c.inters.PreservationAction
-}
-
-func (c *PreservationActionClient) mutate(ctx context.Context, m *PreservationActionMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&PreservationActionCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&PreservationActionUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&PreservationActionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&PreservationActionDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("db: unknown PreservationAction mutation op: %q", m.Op())
-	}
-}
-
-// PreservationTaskClient is a client for the PreservationTask schema.
-type PreservationTaskClient struct {
-	config
-}
-
-// NewPreservationTaskClient returns a client for the PreservationTask from the given config.
-func NewPreservationTaskClient(c config) *PreservationTaskClient {
-	return &PreservationTaskClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `preservationtask.Hooks(f(g(h())))`.
-func (c *PreservationTaskClient) Use(hooks ...Hook) {
-	c.hooks.PreservationTask = append(c.hooks.PreservationTask, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `preservationtask.Intercept(f(g(h())))`.
-func (c *PreservationTaskClient) Intercept(interceptors ...Interceptor) {
-	c.inters.PreservationTask = append(c.inters.PreservationTask, interceptors...)
-}
-
-// Create returns a builder for creating a PreservationTask entity.
-func (c *PreservationTaskClient) Create() *PreservationTaskCreate {
-	mutation := newPreservationTaskMutation(c.config, OpCreate)
-	return &PreservationTaskCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of PreservationTask entities.
-func (c *PreservationTaskClient) CreateBulk(builders ...*PreservationTaskCreate) *PreservationTaskCreateBulk {
-	return &PreservationTaskCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *PreservationTaskClient) MapCreateBulk(slice any, setFunc func(*PreservationTaskCreate, int)) *PreservationTaskCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &PreservationTaskCreateBulk{err: fmt.Errorf("calling to PreservationTaskClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*PreservationTaskCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &PreservationTaskCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for PreservationTask.
-func (c *PreservationTaskClient) Update() *PreservationTaskUpdate {
-	mutation := newPreservationTaskMutation(c.config, OpUpdate)
-	return &PreservationTaskUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *PreservationTaskClient) UpdateOne(pt *PreservationTask) *PreservationTaskUpdateOne {
-	mutation := newPreservationTaskMutation(c.config, OpUpdateOne, withPreservationTask(pt))
-	return &PreservationTaskUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *PreservationTaskClient) UpdateOneID(id int) *PreservationTaskUpdateOne {
-	mutation := newPreservationTaskMutation(c.config, OpUpdateOne, withPreservationTaskID(id))
-	return &PreservationTaskUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for PreservationTask.
-func (c *PreservationTaskClient) Delete() *PreservationTaskDelete {
-	mutation := newPreservationTaskMutation(c.config, OpDelete)
-	return &PreservationTaskDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *PreservationTaskClient) DeleteOne(pt *PreservationTask) *PreservationTaskDeleteOne {
-	return c.DeleteOneID(pt.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *PreservationTaskClient) DeleteOneID(id int) *PreservationTaskDeleteOne {
-	builder := c.Delete().Where(preservationtask.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &PreservationTaskDeleteOne{builder}
-}
-
-// Query returns a query builder for PreservationTask.
-func (c *PreservationTaskClient) Query() *PreservationTaskQuery {
-	return &PreservationTaskQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypePreservationTask},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a PreservationTask entity by its id.
-func (c *PreservationTaskClient) Get(ctx context.Context, id int) (*PreservationTask, error) {
-	return c.Query().Where(preservationtask.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *PreservationTaskClient) GetX(ctx context.Context, id int) *PreservationTask {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// QueryAction queries the action edge of a PreservationTask.
-func (c *PreservationTaskClient) QueryAction(pt *PreservationTask) *PreservationActionQuery {
-	query := (&PreservationActionClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := pt.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(preservationtask.Table, preservationtask.FieldID, id),
-			sqlgraph.To(preservationaction.Table, preservationaction.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, preservationtask.ActionTable, preservationtask.ActionColumn),
-		)
-		fromV = sqlgraph.Neighbors(pt.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// Hooks returns the client hooks.
-func (c *PreservationTaskClient) Hooks() []Hook {
-	return c.hooks.PreservationTask
-}
-
-// Interceptors returns the client interceptors.
-func (c *PreservationTaskClient) Interceptors() []Interceptor {
-	return c.inters.PreservationTask
-}
-
-func (c *PreservationTaskClient) mutate(ctx context.Context, m *PreservationTaskMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&PreservationTaskCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&PreservationTaskUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&PreservationTaskUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&PreservationTaskDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("db: unknown PreservationTask mutation op: %q", m.Op())
 	}
 }
 
@@ -639,15 +325,15 @@ func (c *SIPClient) GetX(ctx context.Context, id int) *SIP {
 	return obj
 }
 
-// QueryPreservationActions queries the preservation_actions edge of a SIP.
-func (c *SIPClient) QueryPreservationActions(s *SIP) *PreservationActionQuery {
-	query := (&PreservationActionClient{config: c.config}).Query()
+// QueryWorkflows queries the workflows edge of a SIP.
+func (c *SIPClient) QueryWorkflows(s *SIP) *WorkflowQuery {
+	query := (&WorkflowClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := s.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(sip.Table, sip.FieldID, id),
-			sqlgraph.To(preservationaction.Table, preservationaction.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, sip.PreservationActionsTable, sip.PreservationActionsColumn),
+			sqlgraph.To(workflow.Table, workflow.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, sip.WorkflowsTable, sip.WorkflowsColumn),
 		)
 		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
 		return fromV, nil
@@ -680,12 +366,326 @@ func (c *SIPClient) mutate(ctx context.Context, m *SIPMutation) (Value, error) {
 	}
 }
 
+// TaskClient is a client for the Task schema.
+type TaskClient struct {
+	config
+}
+
+// NewTaskClient returns a client for the Task from the given config.
+func NewTaskClient(c config) *TaskClient {
+	return &TaskClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `task.Hooks(f(g(h())))`.
+func (c *TaskClient) Use(hooks ...Hook) {
+	c.hooks.Task = append(c.hooks.Task, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `task.Intercept(f(g(h())))`.
+func (c *TaskClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Task = append(c.inters.Task, interceptors...)
+}
+
+// Create returns a builder for creating a Task entity.
+func (c *TaskClient) Create() *TaskCreate {
+	mutation := newTaskMutation(c.config, OpCreate)
+	return &TaskCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Task entities.
+func (c *TaskClient) CreateBulk(builders ...*TaskCreate) *TaskCreateBulk {
+	return &TaskCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *TaskClient) MapCreateBulk(slice any, setFunc func(*TaskCreate, int)) *TaskCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &TaskCreateBulk{err: fmt.Errorf("calling to TaskClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*TaskCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &TaskCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Task.
+func (c *TaskClient) Update() *TaskUpdate {
+	mutation := newTaskMutation(c.config, OpUpdate)
+	return &TaskUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *TaskClient) UpdateOne(t *Task) *TaskUpdateOne {
+	mutation := newTaskMutation(c.config, OpUpdateOne, withTask(t))
+	return &TaskUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *TaskClient) UpdateOneID(id int) *TaskUpdateOne {
+	mutation := newTaskMutation(c.config, OpUpdateOne, withTaskID(id))
+	return &TaskUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Task.
+func (c *TaskClient) Delete() *TaskDelete {
+	mutation := newTaskMutation(c.config, OpDelete)
+	return &TaskDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *TaskClient) DeleteOne(t *Task) *TaskDeleteOne {
+	return c.DeleteOneID(t.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *TaskClient) DeleteOneID(id int) *TaskDeleteOne {
+	builder := c.Delete().Where(task.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &TaskDeleteOne{builder}
+}
+
+// Query returns a query builder for Task.
+func (c *TaskClient) Query() *TaskQuery {
+	return &TaskQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeTask},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Task entity by its id.
+func (c *TaskClient) Get(ctx context.Context, id int) (*Task, error) {
+	return c.Query().Where(task.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *TaskClient) GetX(ctx context.Context, id int) *Task {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryWorkflow queries the workflow edge of a Task.
+func (c *TaskClient) QueryWorkflow(t *Task) *WorkflowQuery {
+	query := (&WorkflowClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := t.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(task.Table, task.FieldID, id),
+			sqlgraph.To(workflow.Table, workflow.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, task.WorkflowTable, task.WorkflowColumn),
+		)
+		fromV = sqlgraph.Neighbors(t.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *TaskClient) Hooks() []Hook {
+	return c.hooks.Task
+}
+
+// Interceptors returns the client interceptors.
+func (c *TaskClient) Interceptors() []Interceptor {
+	return c.inters.Task
+}
+
+func (c *TaskClient) mutate(ctx context.Context, m *TaskMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&TaskCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&TaskUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&TaskUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&TaskDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("db: unknown Task mutation op: %q", m.Op())
+	}
+}
+
+// WorkflowClient is a client for the Workflow schema.
+type WorkflowClient struct {
+	config
+}
+
+// NewWorkflowClient returns a client for the Workflow from the given config.
+func NewWorkflowClient(c config) *WorkflowClient {
+	return &WorkflowClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `workflow.Hooks(f(g(h())))`.
+func (c *WorkflowClient) Use(hooks ...Hook) {
+	c.hooks.Workflow = append(c.hooks.Workflow, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `workflow.Intercept(f(g(h())))`.
+func (c *WorkflowClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Workflow = append(c.inters.Workflow, interceptors...)
+}
+
+// Create returns a builder for creating a Workflow entity.
+func (c *WorkflowClient) Create() *WorkflowCreate {
+	mutation := newWorkflowMutation(c.config, OpCreate)
+	return &WorkflowCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Workflow entities.
+func (c *WorkflowClient) CreateBulk(builders ...*WorkflowCreate) *WorkflowCreateBulk {
+	return &WorkflowCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *WorkflowClient) MapCreateBulk(slice any, setFunc func(*WorkflowCreate, int)) *WorkflowCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &WorkflowCreateBulk{err: fmt.Errorf("calling to WorkflowClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*WorkflowCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &WorkflowCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Workflow.
+func (c *WorkflowClient) Update() *WorkflowUpdate {
+	mutation := newWorkflowMutation(c.config, OpUpdate)
+	return &WorkflowUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *WorkflowClient) UpdateOne(w *Workflow) *WorkflowUpdateOne {
+	mutation := newWorkflowMutation(c.config, OpUpdateOne, withWorkflow(w))
+	return &WorkflowUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *WorkflowClient) UpdateOneID(id int) *WorkflowUpdateOne {
+	mutation := newWorkflowMutation(c.config, OpUpdateOne, withWorkflowID(id))
+	return &WorkflowUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Workflow.
+func (c *WorkflowClient) Delete() *WorkflowDelete {
+	mutation := newWorkflowMutation(c.config, OpDelete)
+	return &WorkflowDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *WorkflowClient) DeleteOne(w *Workflow) *WorkflowDeleteOne {
+	return c.DeleteOneID(w.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *WorkflowClient) DeleteOneID(id int) *WorkflowDeleteOne {
+	builder := c.Delete().Where(workflow.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &WorkflowDeleteOne{builder}
+}
+
+// Query returns a query builder for Workflow.
+func (c *WorkflowClient) Query() *WorkflowQuery {
+	return &WorkflowQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeWorkflow},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Workflow entity by its id.
+func (c *WorkflowClient) Get(ctx context.Context, id int) (*Workflow, error) {
+	return c.Query().Where(workflow.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *WorkflowClient) GetX(ctx context.Context, id int) *Workflow {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QuerySip queries the sip edge of a Workflow.
+func (c *WorkflowClient) QuerySip(w *Workflow) *SIPQuery {
+	query := (&SIPClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := w.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(workflow.Table, workflow.FieldID, id),
+			sqlgraph.To(sip.Table, sip.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, workflow.SipTable, workflow.SipColumn),
+		)
+		fromV = sqlgraph.Neighbors(w.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryTasks queries the tasks edge of a Workflow.
+func (c *WorkflowClient) QueryTasks(w *Workflow) *TaskQuery {
+	query := (&TaskClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := w.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(workflow.Table, workflow.FieldID, id),
+			sqlgraph.To(task.Table, task.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, workflow.TasksTable, workflow.TasksColumn),
+		)
+		fromV = sqlgraph.Neighbors(w.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *WorkflowClient) Hooks() []Hook {
+	return c.hooks.Workflow
+}
+
+// Interceptors returns the client interceptors.
+func (c *WorkflowClient) Interceptors() []Interceptor {
+	return c.inters.Workflow
+}
+
+func (c *WorkflowClient) mutate(ctx context.Context, m *WorkflowMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&WorkflowCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&WorkflowUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&WorkflowUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&WorkflowDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("db: unknown Workflow mutation op: %q", m.Op())
+	}
+}
+
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		PreservationAction, PreservationTask, SIP []ent.Hook
+		SIP, Task, Workflow []ent.Hook
 	}
 	inters struct {
-		PreservationAction, PreservationTask, SIP []ent.Interceptor
+		SIP, Task, Workflow []ent.Interceptor
 	}
 )

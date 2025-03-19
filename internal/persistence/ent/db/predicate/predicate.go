@@ -6,11 +6,11 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
-// PreservationAction is the predicate function for preservationaction builders.
-type PreservationAction func(*sql.Selector)
-
-// PreservationTask is the predicate function for preservationtask builders.
-type PreservationTask func(*sql.Selector)
-
 // SIP is the predicate function for sip builders.
 type SIP func(*sql.Selector)
+
+// Task is the predicate function for task builders.
+type Task func(*sql.Selector)
+
+// Workflow is the predicate function for workflow builders.
+type Workflow func(*sql.Selector)

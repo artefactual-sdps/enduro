@@ -38,19 +38,19 @@ type Service interface {
 	SetStatusInProgress(ctx context.Context, ID int, startedAt time.Time) error
 	SetStatusPending(ctx context.Context, ID int) error
 	SetLocationID(ctx context.Context, ID int, locationID uuid.UUID) error
-	CreatePreservationAction(ctx context.Context, pa *datatypes.PreservationAction) error
-	SetPreservationActionStatus(ctx context.Context, ID int, status enums.PreservationActionStatus) error
-	CompletePreservationAction(
+	CreateWorkflow(ctx context.Context, w *datatypes.Workflow) error
+	SetWorkflowStatus(ctx context.Context, ID int, status enums.WorkflowStatus) error
+	CompleteWorkflow(
 		ctx context.Context,
 		ID int,
-		status enums.PreservationActionStatus,
+		status enums.WorkflowStatus,
 		completedAt time.Time,
 	) error
-	CreatePreservationTask(ctx context.Context, pt *datatypes.PreservationTask) error
-	CompletePreservationTask(
+	CreateTask(ctx context.Context, task *datatypes.Task) error
+	CompleteTask(
 		ctx context.Context,
 		ID int,
-		status enums.PreservationTaskStatus,
+		status enums.TaskStatus,
 		completedAt time.Time,
 		note *string,
 	) error

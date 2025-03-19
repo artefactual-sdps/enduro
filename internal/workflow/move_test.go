@@ -91,9 +91,9 @@ func (s *MoveWorkflowTestSuite) TestSuccessfulMove() {
 	// SIP location is set.
 	s.env.OnActivity(setLocationIDLocalActivity, mock.Anything, mock.Anything, sipID, locationID).Return(nil, nil)
 
-	// Preservation action is created with successful status.
+	// Workflow is created with successful status.
 	s.env.OnActivity(
-		saveLocationMovePreservationActionLocalActivity,
+		saveLocationMoveWorkflowLocalActivity,
 		mock.Anything,
 		mock.Anything,
 		mock.Anything,
@@ -136,9 +136,9 @@ func (s *MoveWorkflowTestSuite) TestFailedMove() {
 	s.env.OnActivity(setStatusLocalActivity, mock.Anything, mock.Anything, sipID, enums.SIPStatusDone).
 		Return(nil, nil)
 
-	// Preservation action is created with failed status.
+	// Workflow is created with failed status.
 	s.env.OnActivity(
-		saveLocationMovePreservationActionLocalActivity,
+		saveLocationMoveWorkflowLocalActivity,
 		mock.Anything,
 		mock.Anything,
 		mock.Anything,

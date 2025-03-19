@@ -16,12 +16,12 @@ import (
 
 var JWTAuth = JWTSecurity("jwt", func() {
 	Description("Secures endpoint by requiring a valid JWT token.")
-	Scope("ingest:sips:actions:list")
 	Scope("ingest:sips:list")
 	Scope("ingest:sips:move")
 	Scope("ingest:sips:read")
 	Scope("ingest:sips:review")
 	Scope("ingest:sips:upload")
+	Scope("ingest:sips:workflows:list")
 	Scope("storage:aips:create")
 	Scope("storage:aips:download")
 	Scope("storage:aips:list")

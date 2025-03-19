@@ -121,9 +121,9 @@ gen-enums: $(GO_ENUM)
 		-f internal/enums/sip_type.go \
 		-f internal/enums/sip_status.go \
 		-f internal/enums/preprocessing_task_outcome.go \
-		-f internal/enums/pres_action_status.go \
-		-f internal/enums/pres_action_type.go \
-		-f internal/enums/pres_task_status.go \
+		-f internal/enums/task_status.go \
+		-f internal/enums/workflow_status.go \
+		-f internal/enums/workflow_type.go \
 		-f internal/storage/enums/aip_status.go \
 		-f internal/storage/enums/location_purpose.go \
 		-f internal/storage/enums/location_source.go
@@ -273,7 +273,7 @@ upload-sample-transfer: ADDRESS ?= localhost:9002
 upload-sample-transfer:
 	curl \
 		-F "file=@$(CURDIR)/internal/testdata/zipped_transfer/small.zip" \
-		http://$(ADDRESS)/ingest/sip/upload
+		http://$(ADDRESS)/ingest/sips/upload
 
 workflowcheck: # @HELP Detect non-determinism in workflow functions.
 workflowcheck: $(WORKFLOWCHECK)

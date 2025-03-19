@@ -28,8 +28,8 @@ type Service interface {
 	ListSips(context.Context, *ListSipsPayload) (res *SIPs, err error)
 	// Show SIP by ID
 	ShowSip(context.Context, *ShowSipPayload) (res *SIP, err error)
-	// List all preservation actions for a SIP
-	ListSipPreservationActions(context.Context, *ListSipPreservationActionsPayload) (res *SIPPreservationActions, err error)
+	// List all workflows for a SIP
+	ListSipWorkflows(context.Context, *ListSipWorkflowsPayload) (res *SIPWorkflows, err error)
 	// Signal the SIP has been reviewed and accepted
 	ConfirmSip(context.Context, *ConfirmSipPayload) (err error)
 	// Signal the SIP has been reviewed and rejected
@@ -62,7 +62,7 @@ const ServiceName = "ingest"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [10]string{"monitor_request", "monitor", "list_sips", "show_sip", "list_sip_preservation_actions", "confirm_sip", "reject_sip", "move_sip", "move_sip_status", "upload_sip"}
+var MethodNames = [10]string{"monitor_request", "monitor", "list_sips", "show_sip", "list_sip_workflows", "confirm_sip", "reject_sip", "move_sip", "move_sip_status", "upload_sip"}
 
 // MonitorServerStream is the interface a "monitor" endpoint server stream must
 // satisfy.
@@ -100,9 +100,9 @@ type EnduroPage struct {
 	Total int
 }
 
-// ListSipPreservationActionsPayload is the payload type of the ingest service
-// list_sip_preservation_actions method.
-type ListSipPreservationActionsPayload struct {
+// ListSipWorkflowsPayload is the payload type of the ingest service
+// list_sip_workflows method.
+type ListSipWorkflowsPayload struct {
 	// Identifier of SIP to look up
 	ID    uint
 	Token *string
@@ -230,74 +230,74 @@ type SIPNotFound struct {
 	ID uint
 }
 
-// SIPPreservationAction describes a preservation action of a SIP.
-type SIPPreservationAction struct {
-	ID          uint
-	WorkflowID  string
-	Type        string
-	Status      string
-	StartedAt   string
-	CompletedAt *string
-	Tasks       SIPPreservationTaskCollection
-	SipID       *uint
-}
-
-type SIPPreservationActionCollection []*SIPPreservationAction
-
-type SIPPreservationActionCreatedEvent struct {
-	// Identifier of preservation action
-	ID   uint
-	Item *SIPPreservationAction
-}
-
-type SIPPreservationActionUpdatedEvent struct {
-	// Identifier of preservation action
-	ID   uint
-	Item *SIPPreservationAction
-}
-
-// SIPPreservationActions is the result type of the ingest service
-// list_sip_preservation_actions method.
-type SIPPreservationActions struct {
-	Actions SIPPreservationActionCollection
-}
-
-// SIPPreservationTask describes a SIP preservation action task.
-type SIPPreservationTask struct {
-	ID                   uint
-	TaskID               string
-	Name                 string
-	Status               string
-	StartedAt            string
-	CompletedAt          *string
-	Note                 *string
-	PreservationActionID *uint
-}
-
-type SIPPreservationTaskCollection []*SIPPreservationTask
-
-type SIPPreservationTaskCreatedEvent struct {
-	// Identifier of preservation task
-	ID   uint
-	Item *SIPPreservationTask
-}
-
-type SIPPreservationTaskUpdatedEvent struct {
-	// Identifier of preservation task
-	ID   uint
-	Item *SIPPreservationTask
-}
-
 type SIPStatusUpdatedEvent struct {
 	// Identifier of SIP
 	ID     uint
 	Status string
 }
 
+// SIPTask describes a SIP workflow task.
+type SIPTask struct {
+	ID          uint
+	TaskID      string
+	Name        string
+	Status      string
+	StartedAt   string
+	CompletedAt *string
+	Note        *string
+	WorkflowID  *uint
+}
+
+type SIPTaskCollection []*SIPTask
+
+type SIPTaskCreatedEvent struct {
+	// Identifier of task
+	ID   uint
+	Item *SIPTask
+}
+
+type SIPTaskUpdatedEvent struct {
+	// Identifier of task
+	ID   uint
+	Item *SIPTask
+}
+
 type SIPUpdatedEvent struct {
 	// Identifier of SIP
 	ID   uint
 	Item *SIP
+}
+
+// SIPWorkflow describes a workflow of a SIP.
+type SIPWorkflow struct {
+	ID          uint
+	WorkflowID  string
+	Type        string
+	Status      string
+	StartedAt   string
+	CompletedAt *string
+	Tasks       SIPTaskCollection
+	SipID       *uint
+}
+
+type SIPWorkflowCollection []*SIPWorkflow
+
+type SIPWorkflowCreatedEvent struct {
+	// Identifier of workflow
+	ID   uint
+	Item *SIPWorkflow
+}
+
+type SIPWorkflowUpdatedEvent struct {
+	// Identifier of workflow
+	ID   uint
+	Item *SIPWorkflow
+}
+
+// SIPWorkflows is the result type of the ingest service list_sip_workflows
+// method.
+type SIPWorkflows struct {
+	Workflows SIPWorkflowCollection
 }
 
 // SIPs is the result type of the ingest service list_sips method.
@@ -376,15 +376,15 @@ func (e Unauthorized) ErrorName() string {
 func (e Unauthorized) GoaErrorName() string {
 	return "unauthorized"
 }
-func (*MonitorPingEvent) eventVal()                  {}
-func (*SIPCreatedEvent) eventVal()                   {}
-func (*SIPLocationUpdatedEvent) eventVal()           {}
-func (*SIPPreservationActionCreatedEvent) eventVal() {}
-func (*SIPPreservationActionUpdatedEvent) eventVal() {}
-func (*SIPPreservationTaskCreatedEvent) eventVal()   {}
-func (*SIPPreservationTaskUpdatedEvent) eventVal()   {}
-func (*SIPStatusUpdatedEvent) eventVal()             {}
-func (*SIPUpdatedEvent) eventVal()                   {}
+func (*MonitorPingEvent) eventVal()        {}
+func (*SIPCreatedEvent) eventVal()         {}
+func (*SIPLocationUpdatedEvent) eventVal() {}
+func (*SIPStatusUpdatedEvent) eventVal()   {}
+func (*SIPTaskCreatedEvent) eventVal()     {}
+func (*SIPTaskUpdatedEvent) eventVal()     {}
+func (*SIPUpdatedEvent) eventVal()         {}
+func (*SIPWorkflowCreatedEvent) eventVal() {}
+func (*SIPWorkflowUpdatedEvent) eventVal() {}
 
 // MakeNotAvailable builds a goa.ServiceError from an error.
 func MakeNotAvailable(err error) *goa.ServiceError {
@@ -440,18 +440,17 @@ func NewViewedSIP(res *SIP, view string) *ingestviews.SIP {
 	return &ingestviews.SIP{Projected: p, View: "default"}
 }
 
-// NewSIPPreservationActions initializes result type SIPPreservationActions
-// from viewed result type SIPPreservationActions.
-func NewSIPPreservationActions(vres *ingestviews.SIPPreservationActions) *SIPPreservationActions {
-	return newSIPPreservationActions(vres.Projected)
+// NewSIPWorkflows initializes result type SIPWorkflows from viewed result type
+// SIPWorkflows.
+func NewSIPWorkflows(vres *ingestviews.SIPWorkflows) *SIPWorkflows {
+	return newSIPWorkflows(vres.Projected)
 }
 
-// NewViewedSIPPreservationActions initializes viewed result type
-// SIPPreservationActions from result type SIPPreservationActions using the
-// given view.
-func NewViewedSIPPreservationActions(res *SIPPreservationActions, view string) *ingestviews.SIPPreservationActions {
-	p := newSIPPreservationActionsView(res)
-	return &ingestviews.SIPPreservationActions{Projected: p, View: "default"}
+// NewViewedSIPWorkflows initializes viewed result type SIPWorkflows from
+// result type SIPWorkflows using the given view.
+func NewViewedSIPWorkflows(res *SIPWorkflows, view string) *ingestviews.SIPWorkflows {
+	p := newSIPWorkflowsView(res)
+	return &ingestviews.SIPWorkflows{Projected: p, View: "default"}
 }
 
 // newSIPs converts projected type SIPs to service type SIPs.
@@ -569,131 +568,127 @@ func newEnduroPageView(res *EnduroPage) *ingestviews.EnduroPageView {
 	return vres
 }
 
-// newSIPPreservationActions converts projected type SIPPreservationActions to
-// service type SIPPreservationActions.
-func newSIPPreservationActions(vres *ingestviews.SIPPreservationActionsView) *SIPPreservationActions {
-	res := &SIPPreservationActions{}
-	if vres.Actions != nil {
-		res.Actions = newSIPPreservationActionCollection(vres.Actions)
+// newSIPWorkflows converts projected type SIPWorkflows to service type
+// SIPWorkflows.
+func newSIPWorkflows(vres *ingestviews.SIPWorkflowsView) *SIPWorkflows {
+	res := &SIPWorkflows{}
+	if vres.Workflows != nil {
+		res.Workflows = newSIPWorkflowCollection(vres.Workflows)
 	}
 	return res
 }
 
-// newSIPPreservationActionsView projects result type SIPPreservationActions to
-// projected type SIPPreservationActionsView using the "default" view.
-func newSIPPreservationActionsView(res *SIPPreservationActions) *ingestviews.SIPPreservationActionsView {
-	vres := &ingestviews.SIPPreservationActionsView{}
-	if res.Actions != nil {
-		vres.Actions = newSIPPreservationActionCollectionView(res.Actions)
+// newSIPWorkflowsView projects result type SIPWorkflows to projected type
+// SIPWorkflowsView using the "default" view.
+func newSIPWorkflowsView(res *SIPWorkflows) *ingestviews.SIPWorkflowsView {
+	vres := &ingestviews.SIPWorkflowsView{}
+	if res.Workflows != nil {
+		vres.Workflows = newSIPWorkflowCollectionView(res.Workflows)
 	}
 	return vres
 }
 
-// newSIPPreservationActionCollectionSimple converts projected type
-// SIPPreservationActionCollection to service type
-// SIPPreservationActionCollection.
-func newSIPPreservationActionCollectionSimple(vres ingestviews.SIPPreservationActionCollectionView) SIPPreservationActionCollection {
-	res := make(SIPPreservationActionCollection, len(vres))
+// newSIPWorkflowCollectionSimple converts projected type SIPWorkflowCollection
+// to service type SIPWorkflowCollection.
+func newSIPWorkflowCollectionSimple(vres ingestviews.SIPWorkflowCollectionView) SIPWorkflowCollection {
+	res := make(SIPWorkflowCollection, len(vres))
 	for i, n := range vres {
-		res[i] = newSIPPreservationActionSimple(n)
+		res[i] = newSIPWorkflowSimple(n)
 	}
 	return res
 }
 
-// newSIPPreservationActionCollection converts projected type
-// SIPPreservationActionCollection to service type
-// SIPPreservationActionCollection.
-func newSIPPreservationActionCollection(vres ingestviews.SIPPreservationActionCollectionView) SIPPreservationActionCollection {
-	res := make(SIPPreservationActionCollection, len(vres))
+// newSIPWorkflowCollection converts projected type SIPWorkflowCollection to
+// service type SIPWorkflowCollection.
+func newSIPWorkflowCollection(vres ingestviews.SIPWorkflowCollectionView) SIPWorkflowCollection {
+	res := make(SIPWorkflowCollection, len(vres))
 	for i, n := range vres {
-		res[i] = newSIPPreservationAction(n)
+		res[i] = newSIPWorkflow(n)
 	}
 	return res
 }
 
-// newSIPPreservationActionCollectionViewSimple projects result type
-// SIPPreservationActionCollection to projected type
-// SIPPreservationActionCollectionView using the "simple" view.
-func newSIPPreservationActionCollectionViewSimple(res SIPPreservationActionCollection) ingestviews.SIPPreservationActionCollectionView {
-	vres := make(ingestviews.SIPPreservationActionCollectionView, len(res))
-	for i, n := range res {
-		vres[i] = newSIPPreservationActionViewSimple(n)
-	}
-	return vres
-}
-
-// newSIPPreservationActionCollectionView projects result type
-// SIPPreservationActionCollection to projected type
-// SIPPreservationActionCollectionView using the "default" view.
-func newSIPPreservationActionCollectionView(res SIPPreservationActionCollection) ingestviews.SIPPreservationActionCollectionView {
-	vres := make(ingestviews.SIPPreservationActionCollectionView, len(res))
-	for i, n := range res {
-		vres[i] = newSIPPreservationActionView(n)
-	}
-	return vres
-}
-
-// newSIPPreservationActionSimple converts projected type SIPPreservationAction
-// to service type SIPPreservationAction.
-func newSIPPreservationActionSimple(vres *ingestviews.SIPPreservationActionView) *SIPPreservationAction {
-	res := &SIPPreservationAction{
-		CompletedAt: vres.CompletedAt,
-		SipID:       vres.SipID,
-	}
-	if vres.ID != nil {
-		res.ID = *vres.ID
-	}
-	if vres.WorkflowID != nil {
-		res.WorkflowID = *vres.WorkflowID
-	}
-	if vres.Type != nil {
-		res.Type = *vres.Type
-	}
-	if vres.Status != nil {
-		res.Status = *vres.Status
-	}
-	if vres.StartedAt != nil {
-		res.StartedAt = *vres.StartedAt
-	}
-	if vres.Tasks != nil {
-		res.Tasks = newSIPPreservationTaskCollection(vres.Tasks)
-	}
-	return res
-}
-
-// newSIPPreservationAction converts projected type SIPPreservationAction to
-// service type SIPPreservationAction.
-func newSIPPreservationAction(vres *ingestviews.SIPPreservationActionView) *SIPPreservationAction {
-	res := &SIPPreservationAction{
-		CompletedAt: vres.CompletedAt,
-		SipID:       vres.SipID,
-	}
-	if vres.ID != nil {
-		res.ID = *vres.ID
-	}
-	if vres.WorkflowID != nil {
-		res.WorkflowID = *vres.WorkflowID
-	}
-	if vres.Type != nil {
-		res.Type = *vres.Type
-	}
-	if vres.Status != nil {
-		res.Status = *vres.Status
-	}
-	if vres.StartedAt != nil {
-		res.StartedAt = *vres.StartedAt
-	}
-	if vres.Tasks != nil {
-		res.Tasks = newSIPPreservationTaskCollection(vres.Tasks)
-	}
-	return res
-}
-
-// newSIPPreservationActionViewSimple projects result type
-// SIPPreservationAction to projected type SIPPreservationActionView using the
+// newSIPWorkflowCollectionViewSimple projects result type
+// SIPWorkflowCollection to projected type SIPWorkflowCollectionView using the
 // "simple" view.
-func newSIPPreservationActionViewSimple(res *SIPPreservationAction) *ingestviews.SIPPreservationActionView {
-	vres := &ingestviews.SIPPreservationActionView{
+func newSIPWorkflowCollectionViewSimple(res SIPWorkflowCollection) ingestviews.SIPWorkflowCollectionView {
+	vres := make(ingestviews.SIPWorkflowCollectionView, len(res))
+	for i, n := range res {
+		vres[i] = newSIPWorkflowViewSimple(n)
+	}
+	return vres
+}
+
+// newSIPWorkflowCollectionView projects result type SIPWorkflowCollection to
+// projected type SIPWorkflowCollectionView using the "default" view.
+func newSIPWorkflowCollectionView(res SIPWorkflowCollection) ingestviews.SIPWorkflowCollectionView {
+	vres := make(ingestviews.SIPWorkflowCollectionView, len(res))
+	for i, n := range res {
+		vres[i] = newSIPWorkflowView(n)
+	}
+	return vres
+}
+
+// newSIPWorkflowSimple converts projected type SIPWorkflow to service type
+// SIPWorkflow.
+func newSIPWorkflowSimple(vres *ingestviews.SIPWorkflowView) *SIPWorkflow {
+	res := &SIPWorkflow{
+		CompletedAt: vres.CompletedAt,
+		SipID:       vres.SipID,
+	}
+	if vres.ID != nil {
+		res.ID = *vres.ID
+	}
+	if vres.WorkflowID != nil {
+		res.WorkflowID = *vres.WorkflowID
+	}
+	if vres.Type != nil {
+		res.Type = *vres.Type
+	}
+	if vres.Status != nil {
+		res.Status = *vres.Status
+	}
+	if vres.StartedAt != nil {
+		res.StartedAt = *vres.StartedAt
+	}
+	if vres.Tasks != nil {
+		res.Tasks = newSIPTaskCollection(vres.Tasks)
+	}
+	return res
+}
+
+// newSIPWorkflow converts projected type SIPWorkflow to service type
+// SIPWorkflow.
+func newSIPWorkflow(vres *ingestviews.SIPWorkflowView) *SIPWorkflow {
+	res := &SIPWorkflow{
+		CompletedAt: vres.CompletedAt,
+		SipID:       vres.SipID,
+	}
+	if vres.ID != nil {
+		res.ID = *vres.ID
+	}
+	if vres.WorkflowID != nil {
+		res.WorkflowID = *vres.WorkflowID
+	}
+	if vres.Type != nil {
+		res.Type = *vres.Type
+	}
+	if vres.Status != nil {
+		res.Status = *vres.Status
+	}
+	if vres.StartedAt != nil {
+		res.StartedAt = *vres.StartedAt
+	}
+	if vres.Tasks != nil {
+		res.Tasks = newSIPTaskCollection(vres.Tasks)
+	}
+	return res
+}
+
+// newSIPWorkflowViewSimple projects result type SIPWorkflow to projected type
+// SIPWorkflowView using the "simple" view.
+func newSIPWorkflowViewSimple(res *SIPWorkflow) *ingestviews.SIPWorkflowView {
+	vres := &ingestviews.SIPWorkflowView{
 		ID:          &res.ID,
 		WorkflowID:  &res.WorkflowID,
 		Type:        &res.Type,
@@ -705,10 +700,10 @@ func newSIPPreservationActionViewSimple(res *SIPPreservationAction) *ingestviews
 	return vres
 }
 
-// newSIPPreservationActionView projects result type SIPPreservationAction to
-// projected type SIPPreservationActionView using the "default" view.
-func newSIPPreservationActionView(res *SIPPreservationAction) *ingestviews.SIPPreservationActionView {
-	vres := &ingestviews.SIPPreservationActionView{
+// newSIPWorkflowView projects result type SIPWorkflow to projected type
+// SIPWorkflowView using the "default" view.
+func newSIPWorkflowView(res *SIPWorkflow) *ingestviews.SIPWorkflowView {
+	vres := &ingestviews.SIPWorkflowView{
 		ID:          &res.ID,
 		WorkflowID:  &res.WorkflowID,
 		Type:        &res.Type,
@@ -718,39 +713,37 @@ func newSIPPreservationActionView(res *SIPPreservationAction) *ingestviews.SIPPr
 		SipID:       res.SipID,
 	}
 	if res.Tasks != nil {
-		vres.Tasks = newSIPPreservationTaskCollectionView(res.Tasks)
+		vres.Tasks = newSIPTaskCollectionView(res.Tasks)
 	}
 	return vres
 }
 
-// newSIPPreservationTaskCollection converts projected type
-// SIPPreservationTaskCollection to service type SIPPreservationTaskCollection.
-func newSIPPreservationTaskCollection(vres ingestviews.SIPPreservationTaskCollectionView) SIPPreservationTaskCollection {
-	res := make(SIPPreservationTaskCollection, len(vres))
+// newSIPTaskCollection converts projected type SIPTaskCollection to service
+// type SIPTaskCollection.
+func newSIPTaskCollection(vres ingestviews.SIPTaskCollectionView) SIPTaskCollection {
+	res := make(SIPTaskCollection, len(vres))
 	for i, n := range vres {
-		res[i] = newSIPPreservationTask(n)
+		res[i] = newSIPTask(n)
 	}
 	return res
 }
 
-// newSIPPreservationTaskCollectionView projects result type
-// SIPPreservationTaskCollection to projected type
-// SIPPreservationTaskCollectionView using the "default" view.
-func newSIPPreservationTaskCollectionView(res SIPPreservationTaskCollection) ingestviews.SIPPreservationTaskCollectionView {
-	vres := make(ingestviews.SIPPreservationTaskCollectionView, len(res))
+// newSIPTaskCollectionView projects result type SIPTaskCollection to projected
+// type SIPTaskCollectionView using the "default" view.
+func newSIPTaskCollectionView(res SIPTaskCollection) ingestviews.SIPTaskCollectionView {
+	vres := make(ingestviews.SIPTaskCollectionView, len(res))
 	for i, n := range res {
-		vres[i] = newSIPPreservationTaskView(n)
+		vres[i] = newSIPTaskView(n)
 	}
 	return vres
 }
 
-// newSIPPreservationTask converts projected type SIPPreservationTask to
-// service type SIPPreservationTask.
-func newSIPPreservationTask(vres *ingestviews.SIPPreservationTaskView) *SIPPreservationTask {
-	res := &SIPPreservationTask{
-		CompletedAt:          vres.CompletedAt,
-		Note:                 vres.Note,
-		PreservationActionID: vres.PreservationActionID,
+// newSIPTask converts projected type SIPTask to service type SIPTask.
+func newSIPTask(vres *ingestviews.SIPTaskView) *SIPTask {
+	res := &SIPTask{
+		CompletedAt: vres.CompletedAt,
+		Note:        vres.Note,
+		WorkflowID:  vres.WorkflowID,
 	}
 	if vres.ID != nil {
 		res.ID = *vres.ID
@@ -770,18 +763,18 @@ func newSIPPreservationTask(vres *ingestviews.SIPPreservationTaskView) *SIPPrese
 	return res
 }
 
-// newSIPPreservationTaskView projects result type SIPPreservationTask to
-// projected type SIPPreservationTaskView using the "default" view.
-func newSIPPreservationTaskView(res *SIPPreservationTask) *ingestviews.SIPPreservationTaskView {
-	vres := &ingestviews.SIPPreservationTaskView{
-		ID:                   &res.ID,
-		TaskID:               &res.TaskID,
-		Name:                 &res.Name,
-		Status:               &res.Status,
-		StartedAt:            &res.StartedAt,
-		CompletedAt:          res.CompletedAt,
-		Note:                 res.Note,
-		PreservationActionID: res.PreservationActionID,
+// newSIPTaskView projects result type SIPTask to projected type SIPTaskView
+// using the "default" view.
+func newSIPTaskView(res *SIPTask) *ingestviews.SIPTaskView {
+	vres := &ingestviews.SIPTaskView{
+		ID:          &res.ID,
+		TaskID:      &res.TaskID,
+		Name:        &res.Name,
+		Status:      &res.Status,
+		StartedAt:   &res.StartedAt,
+		CompletedAt: res.CompletedAt,
+		Note:        res.Note,
+		WorkflowID:  res.WorkflowID,
 	}
 	return vres
 }

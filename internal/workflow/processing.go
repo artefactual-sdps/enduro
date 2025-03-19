@@ -104,10 +104,10 @@ type TransferInfo struct {
 	// It is populated by BundleActivity.
 	Bundle activities.BundleActivityResult
 
-	// Identifier of the preservation action that creates the AIP
+	// Identifier of the workflow that creates the AIP
 	//
-	// It is populated by createPreservationActionLocalActivity .
-	PreservationActionID int
+	// It is populated by createWorkflowLocalActivity .
+	WorkflowID int
 
 	// Identifier of the preservation system task queue name
 	//
@@ -190,8 +190,8 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *inge
 		// SIP status. All SIPs start in queued status.
 		status = enums.SIPStatusQueued
 
-		// Create AIP preservation action status.
-		paStatus = enums.PreservationActionStatusUnspecified
+		// Create SIP workflow status.
+		wStatus = enums.WorkflowStatusUnspecified
 	)
 
 	w.logger = temporalsdk_workflow.GetLogger(ctx)
@@ -223,8 +223,7 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *inge
 		}
 	}
 
-	// Ensure that the status of the SIP and the preservation action is always updated when this
-	// workflow function returns.
+	// Ensure that the status of the SIP and the workflow is always updated when this function returns.
 	defer func() {
 		// Mark as failed unless it completed successfully or it was abandoned.
 		if status != enums.SIPStatusDone && status != enums.SIPStatusAbandoned {
@@ -243,14 +242,14 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *inge
 		}).
 			Get(activityOpts, nil)
 
-		if paStatus != enums.PreservationActionStatusDone {
-			paStatus = enums.PreservationActionStatusError
+		if wStatus != enums.WorkflowStatusDone {
+			wStatus = enums.WorkflowStatusError
 		}
 
-		_ = temporalsdk_workflow.ExecuteLocalActivity(activityOpts, completePreservationActionLocalActivity, w.ingestsvc, &completePreservationActionLocalActivityParams{
-			PreservationActionID: tinfo.PreservationActionID,
-			Status:               paStatus,
-			CompletedAt:          temporalsdk_workflow.Now(dctx).UTC(),
+		_ = temporalsdk_workflow.ExecuteLocalActivity(activityOpts, completeWorkflowLocalActivity, w.ingestsvc, &completeWorkflowLocalActivityParams{
+			WorkflowID:  tinfo.WorkflowID,
+			Status:      wStatus,
+			CompletedAt: temporalsdk_workflow.Now(dctx).UTC(),
 		}).
 			Get(activityOpts, nil)
 	}()
@@ -306,7 +305,7 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *inge
 
 		status = enums.SIPStatusDone
 
-		paStatus = enums.PreservationActionStatusDone
+		wStatus = enums.WorkflowStatusDone
 	}
 
 	// Schedule deletion of the original in the watched data source.
@@ -365,25 +364,25 @@ func (w *ProcessingWorkflow) SessionHandler(
 		}
 	}
 
-	// Persist the preservation action for creating the AIP.
+	// Persist the workflow for the ingest workflow.
 	{
 		{
-			var preservationActionType enums.PreservationActionType
+			var workflowType enums.WorkflowType
 			if tinfo.req.AutoApproveAIP {
-				preservationActionType = enums.PreservationActionTypeCreateAip
+				workflowType = enums.WorkflowTypeCreateAip
 			} else {
-				preservationActionType = enums.PreservationActionTypeCreateAndReviewAip
+				workflowType = enums.WorkflowTypeCreateAndReviewAip
 			}
 
 			ctx := withLocalActivityOpts(sessCtx)
-			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, createPreservationActionLocalActivity, w.ingestsvc, &createPreservationActionLocalActivityParams{
+			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, createWorkflowLocalActivity, w.ingestsvc, &createWorkflowLocalActivityParams{
 				WorkflowID: temporalsdk_workflow.GetInfo(ctx).WorkflowExecution.ID,
-				Type:       preservationActionType,
-				Status:     enums.PreservationActionStatusInProgress,
+				Type:       workflowType,
+				Status:     enums.WorkflowStatusInProgress,
 				StartedAt:  sipStartedAt,
 				SIPID:      tinfo.req.SIPID,
 			}).
-				Get(ctx, &tinfo.PreservationActionID)
+				Get(ctx, &tinfo.WorkflowID)
 			if err != nil {
 				return err
 			}
@@ -466,12 +465,12 @@ func (w *ProcessingWorkflow) SessionHandler(
 
 	// If the SIP is a BagIt Bag, validate it.
 	if tinfo.IsDir && tinfo.SIPType == enums.SIPTypeBagIt {
-		id, err := w.createPreservationTask(
+		id, err := w.createTask(
 			sessCtx,
-			datatypes.PreservationTask{
-				Name:                 "Validate Bag",
-				Status:               enums.PreservationTaskStatusInProgress,
-				PreservationActionID: tinfo.PreservationActionID,
+			datatypes.Task{
+				Name:       "Validate Bag",
+				Status:     enums.TaskStatusInProgress,
+				WorkflowID: tinfo.WorkflowID,
 			},
 		)
 		if err != nil {
@@ -479,9 +478,9 @@ func (w *ProcessingWorkflow) SessionHandler(
 		}
 
 		// Set the default (successful) validate bag task completion values.
-		pt := datatypes.PreservationTask{
+		task := datatypes.Task{
 			ID:     id,
-			Status: enums.PreservationTaskStatusDone,
+			Status: enums.TaskStatusDone,
 			Note:   "Bag is valid",
 		}
 
@@ -494,12 +493,12 @@ func (w *ProcessingWorkflow) SessionHandler(
 			&bagvalidate.Params{Path: tinfo.TempPath},
 		).Get(activityOpts, &result)
 		if err != nil {
-			pt.Status = enums.PreservationTaskStatusError
-			pt.Note = "System error"
+			task.Status = enums.TaskStatusError
+			task.Note = "System error"
 		}
 		if !result.Valid {
-			pt.Status = enums.PreservationTaskStatusError
-			pt.Note = result.Error
+			task.Status = enums.TaskStatusError
+			task.Note = result.Error
 
 			// Fail the workflow with an error for now. In the future we may
 			// want to stop the workflow without returning an error, but this
@@ -508,8 +507,8 @@ func (w *ProcessingWorkflow) SessionHandler(
 			err = errors.New(result.Error)
 		}
 
-		// Update the validate bag preservation task.
-		if e := w.completePreservationTask(sessCtx, pt); e != nil {
+		// Update the validate bag task.
+		if e := w.completeTask(sessCtx, task); e != nil {
 			return errors.Join(
 				err,
 				fmt.Errorf("complete validate bag task: %v", e),
@@ -552,24 +551,24 @@ func (w *ProcessingWorkflow) SessionHandler(
 		return nil
 	}
 
-	// Identifier of the preservation task for upload to sips bucket.
-	var uploadPreservationTaskID int
+	// Identifier of the task for upload to sips bucket.
+	var uploadTaskID int
 
-	// Add preservation task for upload to review bucket.
+	// Add task for upload to review bucket.
 	if !tinfo.req.AutoApproveAIP {
-		id, err := w.createPreservationTask(
+		id, err := w.createTask(
 			sessCtx,
-			datatypes.PreservationTask{
-				Name:                 "Move AIP",
-				Status:               enums.PreservationTaskStatusInProgress,
-				Note:                 "Moving to review bucket",
-				PreservationActionID: tinfo.PreservationActionID,
+			datatypes.Task{
+				Name:       "Move AIP",
+				Status:     enums.TaskStatusInProgress,
+				Note:       "Moving to review bucket",
+				WorkflowID: tinfo.WorkflowID,
 			},
 		)
 		if err != nil {
 			return err
 		}
-		uploadPreservationTaskID = id
+		uploadTaskID = id
 	}
 
 	// Upload AIP to MinIO.
@@ -593,12 +592,12 @@ func (w *ProcessingWorkflow) SessionHandler(
 		}
 	}
 
-	// Complete preservation task for upload to review bucket.
+	// Complete task for upload to review bucket.
 	if !tinfo.req.AutoApproveAIP {
 		ctx := withLocalActivityOpts(sessCtx)
-		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, completePreservationTaskLocalActivity, w.ingestsvc, &completePreservationTaskLocalActivityParams{
-			ID:          uploadPreservationTaskID,
-			Status:      enums.PreservationTaskStatusDone,
+		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, completeTaskLocalActivity, w.ingestsvc, &completeTaskLocalActivityParams{
+			ID:          uploadTaskID,
+			Status:      enums.TaskStatusDone,
 			CompletedAt: temporalsdk_workflow.Now(sessCtx).UTC(),
 			Note:        ref.New("Moved to review bucket"),
 		}).
@@ -610,8 +609,8 @@ func (w *ProcessingWorkflow) SessionHandler(
 
 	var reviewResult *ingest.ReviewPerformedSignal
 
-	// Identifier of the preservation task for SIP/AIP review
-	var reviewPreservationTaskID int
+	// Identifier of the task for SIP/AIP review
+	var reviewTaskID int
 
 	if tinfo.req.AutoApproveAIP {
 		reviewResult = &ingest.ReviewPerformedSignal{
@@ -628,31 +627,31 @@ func (w *ProcessingWorkflow) SessionHandler(
 			}
 		}
 
-		// Set preservation action to pending status.
+		// Set workflow to pending status.
 		{
 			ctx := withLocalActivityOpts(sessCtx)
-			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setPreservationActionStatusLocalActivity, w.ingestsvc, tinfo.PreservationActionID, enums.PreservationActionStatusPending).Get(ctx, nil)
+			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setWorkflowStatusLocalActivity, w.ingestsvc, tinfo.WorkflowID, enums.WorkflowStatusPending).Get(ctx, nil)
 			if err != nil {
 				return err
 			}
 		}
 
-		// Add preservation task for SIP/AIP review
+		// Add task for SIP/AIP review
 		{
-			id, err := w.createPreservationTask(
+			id, err := w.createTask(
 				sessCtx,
-				datatypes.PreservationTask{
-					TaskID:               uuid.NewString(),
-					Name:                 "Review AIP",
-					Status:               enums.PreservationTaskStatusPending,
-					Note:                 "Awaiting user decision",
-					PreservationActionID: tinfo.PreservationActionID,
+				datatypes.Task{
+					TaskID:     uuid.NewString(),
+					Name:       "Review AIP",
+					Status:     enums.TaskStatusPending,
+					Note:       "Awaiting user decision",
+					WorkflowID: tinfo.WorkflowID,
 				},
 			)
 			if err != nil {
 				return err
 			}
-			reviewPreservationTaskID = id
+			reviewTaskID = id
 		}
 
 		reviewResult = w.waitForReview(sessCtx)
@@ -666,10 +665,10 @@ func (w *ProcessingWorkflow) SessionHandler(
 			}
 		}
 
-		// Set preservation action to in progress status.
+		// Set workflow to in progress status.
 		{
 			ctx := withLocalActivityOpts(sessCtx)
-			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setPreservationActionStatusLocalActivity, w.ingestsvc, tinfo.PreservationActionID, enums.PreservationActionStatusInProgress).Get(ctx, nil)
+			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setWorkflowStatusLocalActivity, w.ingestsvc, tinfo.WorkflowID, enums.WorkflowStatusInProgress).Get(ctx, nil)
 			if err != nil {
 				return err
 			}
@@ -679,12 +678,12 @@ func (w *ProcessingWorkflow) SessionHandler(
 	reviewCompletedAt := temporalsdk_workflow.Now(sessCtx).UTC()
 
 	if reviewResult.Accepted {
-		// Record SIP/AIP confirmation in review preservation task
+		// Record SIP/AIP confirmation in review task.
 		if !tinfo.req.AutoApproveAIP {
 			ctx := withLocalActivityOpts(sessCtx)
-			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, completePreservationTaskLocalActivity, w.ingestsvc, &completePreservationTaskLocalActivityParams{
-				ID:          reviewPreservationTaskID,
-				Status:      enums.PreservationTaskStatusDone,
+			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, completeTaskLocalActivity, w.ingestsvc, &completeTaskLocalActivityParams{
+				ID:          reviewTaskID,
+				Status:      enums.TaskStatusDone,
 				CompletedAt: reviewCompletedAt,
 				Note:        ref.New("Reviewed and accepted"),
 			}).
@@ -694,24 +693,24 @@ func (w *ProcessingWorkflow) SessionHandler(
 			}
 		}
 
-		// Identifier of the preservation task for permanent storage move.
-		var movePreservationTaskID int
+		// Identifier of the task for permanent storage move.
+		var moveTaskID int
 
-		// Add preservation task for permanent storage move.
+		// Add task for permanent storage move.
 		{
-			id, err := w.createPreservationTask(
+			id, err := w.createTask(
 				sessCtx,
-				datatypes.PreservationTask{
-					Name:                 "Move AIP",
-					Status:               enums.PreservationTaskStatusInProgress,
-					Note:                 "Moving to permanent storage",
-					PreservationActionID: tinfo.PreservationActionID,
+				datatypes.Task{
+					Name:       "Move AIP",
+					Status:     enums.TaskStatusInProgress,
+					Note:       "Moving to permanent storage",
+					WorkflowID: tinfo.WorkflowID,
 				},
 			)
 			if err != nil {
 				return err
 			}
-			movePreservationTaskID = id
+			moveTaskID = id
 		}
 
 		// Move AIP to permanent storage
@@ -739,12 +738,12 @@ func (w *ProcessingWorkflow) SessionHandler(
 			}
 		}
 
-		// Complete preservation task for permanent storage move.
+		// Complete task for permanent storage move.
 		{
 			ctx := withLocalActivityOpts(sessCtx)
-			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, completePreservationTaskLocalActivity, w.ingestsvc, &completePreservationTaskLocalActivityParams{
-				ID:          movePreservationTaskID,
-				Status:      enums.PreservationTaskStatusDone,
+			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, completeTaskLocalActivity, w.ingestsvc, &completeTaskLocalActivityParams{
+				ID:          moveTaskID,
+				Status:      enums.TaskStatusDone,
 				CompletedAt: temporalsdk_workflow.Now(sessCtx).UTC(),
 				Note:        ref.New(fmt.Sprintf("Moved to location %s", *reviewResult.LocationID)),
 			}).
@@ -768,12 +767,12 @@ func (w *ProcessingWorkflow) SessionHandler(
 			return err
 		}
 	} else if !tinfo.req.AutoApproveAIP {
-		// Record SIP/AIP rejection in review preservation task
+		// Record SIP/AIP rejection in review task
 		{
 			ctx := withLocalActivityOpts(sessCtx)
-			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, completePreservationTaskLocalActivity, w.ingestsvc, &completePreservationTaskLocalActivityParams{
-				ID:          reviewPreservationTaskID,
-				Status:      enums.PreservationTaskStatusDone,
+			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, completeTaskLocalActivity, w.ingestsvc, &completeTaskLocalActivityParams{
+				ID:          reviewTaskID,
+				Status:      enums.TaskStatusDone,
 				CompletedAt: reviewCompletedAt,
 				Note:        ref.New("Reviewed and rejected"),
 			}).Get(ctx, nil)
@@ -840,7 +839,7 @@ func (w *ProcessingWorkflow) transferA3m(
 	err := w.validatePREMIS(
 		sessCtx,
 		filepath.Join(tinfo.Bundle.FullPath, "metadata", "premis.xml"),
-		tinfo.PreservationActionID,
+		tinfo.WorkflowID,
 	)
 	if err != nil {
 		return err
@@ -861,9 +860,9 @@ func (w *ProcessingWorkflow) transferA3m(
 		})
 
 		params := &a3m.CreateAIPActivityParams{
-			Name:                 tinfo.Name(),
-			Path:                 tinfo.Bundle.FullPath,
-			PreservationActionID: tinfo.PreservationActionID,
+			Name:       tinfo.Name(),
+			Path:       tinfo.Bundle.FullPath,
+			WorkflowID: tinfo.WorkflowID,
 		}
 
 		result := a3m.CreateAIPActivityResult{}
@@ -906,7 +905,7 @@ func (w *ProcessingWorkflow) transferAM(
 	err = w.validatePREMIS(
 		ctx,
 		filepath.Join(tinfo.TempPath, "data", "metadata", "premis.xml"),
-		tinfo.PreservationActionID,
+		tinfo.WorkflowID,
 	)
 	if err != nil {
 		return err
@@ -997,8 +996,8 @@ func (w *ProcessingWorkflow) transferAM(
 		pollOpts,
 		am.PollTransferActivityName,
 		am.PollTransferActivityParams{
-			PresActionID: tinfo.PreservationActionID,
-			TransferID:   transferResult.TransferID,
+			WorkflowID: tinfo.WorkflowID,
+			TransferID: transferResult.TransferID,
 		},
 	).Get(pollOpts, &pollTransferResult)
 	if err != nil {
@@ -1014,8 +1013,8 @@ func (w *ProcessingWorkflow) transferAM(
 		pollOpts,
 		am.PollIngestActivityName,
 		am.PollIngestActivityParams{
-			PresActionID: tinfo.PreservationActionID,
-			SIPID:        tinfo.SIPID,
+			WorkflowID: tinfo.WorkflowID,
+			SIPID:      tinfo.SIPID,
 		},
 	).Get(pollOpts, &pollIngestResult)
 	if err != nil {
@@ -1106,7 +1105,7 @@ func (w *ProcessingWorkflow) preprocessing(ctx temporalsdk_workflow.Context, tin
 	tinfo.TempPath = filepath.Join(w.cfg.Preprocessing.SharedPath, filepath.Clean(ppResult.RelativePath))
 	tinfo.IsDir = true
 
-	// Save preprocessing preservation task data.
+	// Save preprocessing task data.
 	if len(ppResult.PreservationTasks) > 0 {
 		opts := withLocalActivityOpts(ctx)
 		var savePPTasksResult localact.SavePreprocessingTasksActivityResult
@@ -1114,10 +1113,10 @@ func (w *ProcessingWorkflow) preprocessing(ctx temporalsdk_workflow.Context, tin
 			opts,
 			localact.SavePreprocessingTasksActivity,
 			localact.SavePreprocessingTasksActivityParams{
-				Ingestsvc:            w.ingestsvc,
-				RNG:                  w.rng,
-				PreservationActionID: tinfo.PreservationActionID,
-				Tasks:                ppResult.PreservationTasks,
+				Ingestsvc:  w.ingestsvc,
+				RNG:        w.rng,
+				WorkflowID: tinfo.WorkflowID,
+				Tasks:      ppResult.PreservationTasks,
 			},
 		).Get(opts, &savePPTasksResult)
 		if err != nil {
@@ -1167,27 +1166,27 @@ func (w *ProcessingWorkflow) poststorage(ctx temporalsdk_workflow.Context, aipUU
 	return err
 }
 
-func (w *ProcessingWorkflow) createPreservationTask(
+func (w *ProcessingWorkflow) createTask(
 	ctx temporalsdk_workflow.Context,
-	pt datatypes.PreservationTask,
+	task datatypes.Task,
 ) (int, error) {
 	var id int
 	ctx = withLocalActivityOpts(ctx)
 	err := temporalsdk_workflow.ExecuteLocalActivity(
 		ctx,
-		createPreservationTaskLocalActivity,
-		&createPreservationTaskLocalActivityParams{
+		createTaskLocalActivity,
+		&createTaskLocalActivityParams{
 			Ingestsvc: w.ingestsvc,
 			RNG:       w.rng,
-			PreservationTask: datatypes.PreservationTask{
-				Name:   pt.Name,
-				Status: pt.Status,
+			Task: datatypes.Task{
+				Name:   task.Name,
+				Status: task.Status,
 				StartedAt: sql.NullTime{
 					Time:  temporalsdk_workflow.Now(ctx).UTC(),
 					Valid: true,
 				},
-				Note:                 pt.Note,
-				PreservationActionID: pt.PreservationActionID,
+				Note:       task.Note,
+				WorkflowID: task.WorkflowID,
 			},
 		},
 	).Get(ctx, &id)
@@ -1198,20 +1197,20 @@ func (w *ProcessingWorkflow) createPreservationTask(
 	return id, nil
 }
 
-func (w *ProcessingWorkflow) completePreservationTask(
+func (w *ProcessingWorkflow) completeTask(
 	ctx temporalsdk_workflow.Context,
-	pt datatypes.PreservationTask,
+	task datatypes.Task,
 ) error {
 	ctx = withLocalActivityOpts(ctx)
 	err := temporalsdk_workflow.ExecuteLocalActivity(
 		ctx,
-		completePreservationTaskLocalActivity,
+		completeTaskLocalActivity,
 		w.ingestsvc,
-		&completePreservationTaskLocalActivityParams{
-			ID:          pt.ID,
-			Status:      pt.Status,
+		&completeTaskLocalActivityParams{
+			ID:          task.ID,
+			Status:      task.Status,
 			CompletedAt: temporalsdk_workflow.Now(ctx).UTC(),
-			Note:        ref.New(pt.Note),
+			Note:        ref.New(task.Note),
 		},
 	).Get(ctx, nil)
 	if err != nil {
@@ -1265,29 +1264,29 @@ func (w *ProcessingWorkflow) sendToFailedBucket(
 func (w *ProcessingWorkflow) validatePREMIS(
 	ctx temporalsdk_workflow.Context,
 	xmlPath string,
-	paID int,
+	wID int,
 ) error {
 	if !w.cfg.ValidatePREMIS.Enabled {
 		return nil
 	}
 
-	// Create preservation task for PREMIS validation.
-	id, err := w.createPreservationTask(
+	// Create task for PREMIS validation.
+	id, err := w.createTask(
 		ctx,
-		datatypes.PreservationTask{
-			Name:                 "Validate PREMIS",
-			Status:               enums.PreservationTaskStatusInProgress,
-			PreservationActionID: paID,
+		datatypes.Task{
+			Name:       "Validate PREMIS",
+			Status:     enums.TaskStatusInProgress,
+			WorkflowID: wID,
 		},
 	)
 	if err != nil {
 		return fmt.Errorf("create validate PREMIS task: %v", err)
 	}
 
-	// Set preservation task default status and note.
-	pt := datatypes.PreservationTask{
+	// Set task default status and note.
+	task := datatypes.Task{
 		ID:     id,
-		Status: enums.PreservationTaskStatusDone,
+		Status: enums.TaskStatusDone,
 		Note:   "PREMIS is valid",
 	}
 
@@ -1303,25 +1302,25 @@ func (w *ProcessingWorkflow) validatePREMIS(
 			// Allow PREMIS XML to not exist without failing workflow.
 			err = nil
 		} else {
-			pt.Status = enums.PreservationTaskStatusError
-			pt.Note = "System error"
+			task.Status = enums.TaskStatusError
+			task.Note = "System error"
 		}
 	}
 
-	// Set preservation task status to error and add PREMIS validation failures to note.
+	// Set task status to error and add PREMIS validation failures to note.
 	if len(xmlvalidateResult.Failures) > 0 {
-		pt.Status = enums.PreservationTaskStatusError
-		pt.Note = "PREMIS is invalid"
+		task.Status = enums.TaskStatusError
+		task.Note = "PREMIS is invalid"
 
 		for _, failure := range xmlvalidateResult.Failures {
-			pt.Note += fmt.Sprintf("\n%s", failure)
+			task.Note += fmt.Sprintf("\n%s", failure)
 		}
 
-		err = errors.New(pt.Note)
+		err = errors.New(task.Note)
 	}
 
-	// Mark preservation task as complete.
-	if e := w.completePreservationTask(ctx, pt); e != nil {
+	// Mark task as complete.
+	if e := w.completeTask(ctx, task); e != nil {
 		return errors.Join(
 			err,
 			fmt.Errorf("complete validate PREMIS task: %v", e),

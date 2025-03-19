@@ -5,111 +5,109 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/google/uuid"
-	temporalsdk_api_enums "go.temporal.io/api/enums/v1"
-	temporalsdk_client "go.temporal.io/sdk/client"
+	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
+	"github.com/artefactual-sdps/enduro/internal/datatypes"
+	"github.com/artefactual-sdps/enduro/internal/enums"
+	"github.com/artefactual-sdps/enduro/internal/event"
 )
 
-const (
-	// Name of the SIP move workflow.
-	MoveWorkflowName = "move-workflow"
-
-	// Name of the SIP processing workflow.
-	ProcessingWorkflowName = "processing-workflow"
-
-	// Name of the signal for reviewing a SIP/AIP.
-	ReviewPerformedSignalName = "review-performed-signal"
-)
-
-type ReviewPerformedSignal struct {
-	Accepted   bool
-	LocationID *uuid.UUID
-}
-
-type ProcessingWorkflowRequest struct {
-	WorkflowID string `json:"-"`
-
-	// The zero value represents a new SIP. It can be used to indicate
-	// an existing SIP in retries.
-	SIPID int
-
-	// Name of the watcher that received this blob.
-	WatcherName string
-
-	// Period of time to schedule the deletion of the original blob from the
-	// watched data source. nil means no deletion.
-	RetentionPeriod *time.Duration
-
-	// Directory where the transfer is moved to once processing has completed
-	// successfully.
-	CompletedDir string
-
-	// Whether the top-level directory is meant to be stripped.
-	StripTopLevelDir bool
-
-	// Key of the blob.
-	Key string
-
-	// Whether the blob is a directory (fs watcher)
-	IsDir bool
-
-	// Whether the AIP is stored automatically in the default permanent location.
-	AutoApproveAIP bool
-
-	// Location identifier for storing auto approved AIPs.
-	DefaultPermanentLocationID *uuid.UUID
-
-	// Task queues used for starting new workflows.
-	GlobalTaskQueue       string
-	PreservationTaskQueue string
-
-	// PollInterval is the time to wait between poll requests to the AM API.
-	PollInterval time.Duration
-
-	// TransferDeadline is the maximum time to wait for a transfer to complete.
-	// Set to zero for no deadline.
-	TransferDeadline time.Duration
-}
-
-func InitProcessingWorkflow(ctx context.Context, tc temporalsdk_client.Client, req *ProcessingWorkflowRequest) error {
-	if req.WorkflowID == "" {
-		req.WorkflowID = fmt.Sprintf("processing-workflow-%s", uuid.New().String())
-	}
-
-	ctx, cancel := context.WithTimeout(ctx, time.Second*5)
-	defer cancel()
-
-	opts := temporalsdk_client.StartWorkflowOptions{
-		ID:                    req.WorkflowID,
-		TaskQueue:             req.GlobalTaskQueue,
-		WorkflowIDReusePolicy: temporalsdk_api_enums.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE,
-	}
-	_, err := tc.ExecuteWorkflow(ctx, opts, ProcessingWorkflowName, req)
-
-	return err
-}
-
-type MoveWorkflowRequest struct {
-	ID         int
-	AIPID      string
-	LocationID uuid.UUID
-	TaskQueue  string
-}
-
-func InitMoveWorkflow(
+func (svc *ingestImpl) CreateWorkflow(
 	ctx context.Context,
-	tc temporalsdk_client.Client,
-	req *MoveWorkflowRequest,
-) (temporalsdk_client.WorkflowRun, error) {
-	ctx, cancel := context.WithTimeout(ctx, time.Second*5)
-	defer cancel()
-
-	opts := temporalsdk_client.StartWorkflowOptions{
-		ID:                    fmt.Sprintf("%s-%s", MoveWorkflowName, req.AIPID),
-		TaskQueue:             req.TaskQueue,
-		WorkflowIDReusePolicy: temporalsdk_api_enums.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE,
+	w *datatypes.Workflow,
+) error {
+	err := svc.perSvc.CreateWorkflow(ctx, w)
+	if err != nil {
+		return fmt.Errorf("workflow: create: %v", err)
 	}
-	exec, err := tc.ExecuteWorkflow(ctx, opts, MoveWorkflowName, req)
 
-	return exec, err
+	ev := &goaingest.SIPWorkflowCreatedEvent{
+		ID:   uint(w.ID), // #nosec G115 -- constrained value.
+		Item: workflowToGoa(w),
+	}
+	event.PublishEvent(ctx, svc.evsvc, ev)
+
+	return nil
+}
+
+func (svc *ingestImpl) SetWorkflowStatus(
+	ctx context.Context,
+	ID int,
+	status enums.WorkflowStatus,
+) error {
+	query := `UPDATE workflow SET status = ? WHERE id = ?`
+	args := []interface{}{
+		status,
+		ID,
+	}
+
+	_, err := svc.db.ExecContext(ctx, query, args...)
+	if err != nil {
+		return fmt.Errorf("error updating workflow: %w", err)
+	}
+
+	if item, err := svc.readWorkflow(ctx, ID); err == nil {
+		event.PublishEvent(
+			ctx,
+			svc.evsvc,
+			&goaingest.SIPWorkflowUpdatedEvent{ID: item.ID, Item: item},
+		)
+	}
+
+	return nil
+}
+
+func (svc *ingestImpl) CompleteWorkflow(
+	ctx context.Context,
+	ID int,
+	status enums.WorkflowStatus,
+	completedAt time.Time,
+) error {
+	query := `UPDATE workflow SET status = ?, completed_at = ? WHERE id = ?`
+	args := []interface{}{
+		status,
+		completedAt,
+		ID,
+	}
+
+	_, err := svc.db.ExecContext(ctx, query, args...)
+	if err != nil {
+		return fmt.Errorf("error updating workflow: %w", err)
+	}
+
+	if item, err := svc.readWorkflow(ctx, ID); err == nil {
+		event.PublishEvent(
+			ctx,
+			svc.evsvc,
+			&goaingest.SIPWorkflowUpdatedEvent{ID: item.ID, Item: item},
+		)
+	}
+
+	return nil
+}
+
+func (svc *ingestImpl) readWorkflow(
+	ctx context.Context,
+	ID int,
+) (*goaingest.SIPWorkflow, error) {
+	query := `
+		SELECT
+			workflow.id,
+			workflow.workflow_id,
+			workflow.type,
+			workflow.status,
+			CONVERT_TZ(workflow.started_at, @@session.time_zone, '+00:00') AS started_at,
+			CONVERT_TZ(workflow.completed_at, @@session.time_zone, '+00:00') AS completed_at,
+			workflow.sip_id
+		FROM workflow
+		LEFT JOIN sip ON (workflow.sip_id = sip.id)
+		WHERE workflow.id = ?
+	`
+
+	args := []interface{}{ID}
+	w := datatypes.Workflow{}
+	if err := svc.db.GetContext(ctx, &w, query, args...); err != nil {
+		return nil, err
+	}
+
+	return workflowToGoa(&w), nil
 }

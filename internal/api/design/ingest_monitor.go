@@ -19,42 +19,15 @@ import (
 
 var MonitorEvent = Type("MonitorEvent", func() {
 	OneOf("event", func() {
-		Attribute(
-			"monitor_ping_event",
-			MonitorPingEvent,
-		)
-		Attribute(
-			"sip_created_event",
-			SIPCreatedEvent,
-		)
-		Attribute(
-			"sip_updated_event",
-			SIPUpdatedEvent,
-		)
-		Attribute(
-			"sip_status_updated_event",
-			SIPStatusUpdatedEvent,
-		)
-		Attribute(
-			"sip_location_updated_event",
-			SIPLocationUpdatedEvent,
-		)
-		Attribute(
-			"sip_preservation_action_created_event",
-			SIPPreservationActionCreatedEvent,
-		)
-		Attribute(
-			"sip_preservation_action_updated_event",
-			SIPPreservationActionUpdatedEvent,
-		)
-		Attribute(
-			"sip_preservation_task_created_event",
-			SIPPreservationTaskCreatedEvent,
-		)
-		Attribute(
-			"sip_preservation_task_updated_event",
-			SIPPreservationTaskUpdatedEvent,
-		)
+		Attribute("monitor_ping_event", MonitorPingEvent)
+		Attribute("sip_created_event", SIPCreatedEvent)
+		Attribute("sip_updated_event", SIPUpdatedEvent)
+		Attribute("sip_status_updated_event", SIPStatusUpdatedEvent)
+		Attribute("sip_location_updated_event", SIPLocationUpdatedEvent)
+		Attribute("sip_workflow_created_event", SIPWorkflowCreatedEvent)
+		Attribute("sip_workflow_updated_event", SIPWorkflowUpdatedEvent)
+		Attribute("sip_task_created_event", SIPTaskCreatedEvent)
+		Attribute("sip_task_updated_event", SIPTaskUpdatedEvent)
 	})
 })
 
@@ -103,46 +76,46 @@ var SIPLocationUpdatedEvent = Type("SIPLocationUpdatedEvent", func() {
 	Meta("openapi:typename", "SIPLocationUpdatedEvent")
 })
 
-var SIPPreservationActionCreatedEvent = Type("SIPPreservationActionCreatedEvent", func() {
-	Attribute("id", UInt, "Identifier of preservation action")
-	Attribute("item", SIPPreservationAction, func() {
+var SIPWorkflowCreatedEvent = Type("SIPWorkflowCreatedEvent", func() {
+	Attribute("id", UInt, "Identifier of workflow")
+	Attribute("item", SIPWorkflow, func() {
 		View("simple")
 	})
 	Required("id", "item")
 
 	Meta("type:generate:force")
-	Meta("openapi:typename", "SIPPreservationActionCreatedEvent")
+	Meta("openapi:typename", "SIPWorkflowCreatedEvent")
 })
 
-var SIPPreservationActionUpdatedEvent = Type("SIPPreservationActionUpdatedEvent", func() {
-	Attribute("id", UInt, "Identifier of preservation action")
-	Attribute("item", SIPPreservationAction, func() {
+var SIPWorkflowUpdatedEvent = Type("SIPWorkflowUpdatedEvent", func() {
+	Attribute("id", UInt, "Identifier of workflow")
+	Attribute("item", SIPWorkflow, func() {
 		View("simple")
 	})
 	Required("id", "item")
 
 	Meta("type:generate:force")
-	Meta("openapi:typename", "SIPPreservationActionUpdatedEvent")
+	Meta("openapi:typename", "SIPWorkflowUpdatedEvent")
 })
 
-var SIPPreservationTaskCreatedEvent = Type("SIPPreservationTaskCreatedEvent", func() {
-	Attribute("id", UInt, "Identifier of preservation task")
-	Attribute("item", SIPPreservationTask, func() {
+var SIPTaskCreatedEvent = Type("SIPTaskCreatedEvent", func() {
+	Attribute("id", UInt, "Identifier of task")
+	Attribute("item", SIPTask, func() {
 		View("default")
 	})
 	Required("id", "item")
 
 	Meta("type:generate:force")
-	Meta("openapi:typename", "SIPPreservationTaskCreatedEvent")
+	Meta("openapi:typename", "SIPTaskCreatedEvent")
 })
 
-var SIPPreservationTaskUpdatedEvent = Type("SIPPreservationTaskUpdatedEvent", func() {
-	Attribute("id", UInt, "Identifier of preservation task")
-	Attribute("item", SIPPreservationTask, func() {
+var SIPTaskUpdatedEvent = Type("SIPTaskUpdatedEvent", func() {
+	Attribute("id", UInt, "Identifier of task")
+	Attribute("item", SIPTask, func() {
 		View("default")
 	})
 	Required("id", "item")
 
 	Meta("type:generate:force")
-	Meta("openapi:typename", "SIPPreservationTaskUpdatedEvent")
+	Meta("openapi:typename", "SIPTaskUpdatedEvent")
 })

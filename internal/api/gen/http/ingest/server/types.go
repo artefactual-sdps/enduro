@@ -41,10 +41,10 @@ type MonitorResponseBody struct {
 		// - "sip_updated_event"
 		// - "sip_status_updated_event"
 		// - "sip_location_updated_event"
-		// - "sip_preservation_action_created_event"
-		// - "sip_preservation_action_updated_event"
-		// - "sip_preservation_task_created_event"
-		// - "sip_preservation_task_updated_event"
+		// - "sip_workflow_created_event"
+		// - "sip_workflow_updated_event"
+		// - "sip_task_created_event"
+		// - "sip_task_updated_event"
 		Type string `form:"Type" json:"Type" xml:"Type"`
 		// JSON encoded union value
 		Value string `form:"Value" json:"Value" xml:"Value"`
@@ -83,10 +83,10 @@ type ShowSipResponseBody struct {
 	CompletedAt *string `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
 }
 
-// ListSipPreservationActionsResponseBody is the type of the "ingest" service
-// "list_sip_preservation_actions" endpoint HTTP response body.
-type ListSipPreservationActionsResponseBody struct {
-	Actions SIPPreservationActionResponseBodyCollection `form:"actions,omitempty" json:"actions,omitempty" xml:"actions,omitempty"`
+// ListSipWorkflowsResponseBody is the type of the "ingest" service
+// "list_sip_workflows" endpoint HTTP response body.
+type ListSipWorkflowsResponseBody struct {
+	Workflows SIPWorkflowResponseBodyCollection `form:"workflows,omitempty" json:"workflows,omitempty" xml:"workflows,omitempty"`
 }
 
 // MoveSipStatusResponseBody is the type of the "ingest" service
@@ -176,10 +176,9 @@ type ShowSipNotFoundResponseBody struct {
 	ID uint `form:"id" json:"id" xml:"id"`
 }
 
-// ListSipPreservationActionsNotFoundResponseBody is the type of the "ingest"
-// service "list_sip_preservation_actions" endpoint HTTP response body for the
-// "not_found" error.
-type ListSipPreservationActionsNotFoundResponseBody struct {
+// ListSipWorkflowsNotFoundResponseBody is the type of the "ingest" service
+// "list_sip_workflows" endpoint HTTP response body for the "not_found" error.
+type ListSipWorkflowsNotFoundResponseBody struct {
 	// Message of error
 	Message string `form:"message" json:"message" xml:"message"`
 	// Identifier of missing SIP
@@ -441,38 +440,36 @@ type EnduroPageResponseBody struct {
 	Total int `form:"total" json:"total" xml:"total"`
 }
 
-// SIPPreservationActionResponseBodyCollection is used to define fields on
-// response body types.
-type SIPPreservationActionResponseBodyCollection []*SIPPreservationActionResponseBody
-
-// SIPPreservationActionResponseBody is used to define fields on response body
+// SIPWorkflowResponseBodyCollection is used to define fields on response body
 // types.
-type SIPPreservationActionResponseBody struct {
-	ID          uint                                      `form:"id" json:"id" xml:"id"`
-	WorkflowID  string                                    `form:"workflow_id" json:"workflow_id" xml:"workflow_id"`
-	Type        string                                    `form:"type" json:"type" xml:"type"`
-	Status      string                                    `form:"status" json:"status" xml:"status"`
-	StartedAt   string                                    `form:"started_at" json:"started_at" xml:"started_at"`
-	CompletedAt *string                                   `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
-	Tasks       SIPPreservationTaskResponseBodyCollection `form:"tasks,omitempty" json:"tasks,omitempty" xml:"tasks,omitempty"`
-	SipID       *uint                                     `form:"sip_id,omitempty" json:"sip_id,omitempty" xml:"sip_id,omitempty"`
+type SIPWorkflowResponseBodyCollection []*SIPWorkflowResponseBody
+
+// SIPWorkflowResponseBody is used to define fields on response body types.
+type SIPWorkflowResponseBody struct {
+	ID          uint                          `form:"id" json:"id" xml:"id"`
+	WorkflowID  string                        `form:"workflow_id" json:"workflow_id" xml:"workflow_id"`
+	Type        string                        `form:"type" json:"type" xml:"type"`
+	Status      string                        `form:"status" json:"status" xml:"status"`
+	StartedAt   string                        `form:"started_at" json:"started_at" xml:"started_at"`
+	CompletedAt *string                       `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
+	Tasks       SIPTaskResponseBodyCollection `form:"tasks,omitempty" json:"tasks,omitempty" xml:"tasks,omitempty"`
+	SipID       *uint                         `form:"sip_id,omitempty" json:"sip_id,omitempty" xml:"sip_id,omitempty"`
 }
 
-// SIPPreservationTaskResponseBodyCollection is used to define fields on
-// response body types.
-type SIPPreservationTaskResponseBodyCollection []*SIPPreservationTaskResponseBody
-
-// SIPPreservationTaskResponseBody is used to define fields on response body
+// SIPTaskResponseBodyCollection is used to define fields on response body
 // types.
-type SIPPreservationTaskResponseBody struct {
-	ID                   uint    `form:"id" json:"id" xml:"id"`
-	TaskID               string  `form:"task_id" json:"task_id" xml:"task_id"`
-	Name                 string  `form:"name" json:"name" xml:"name"`
-	Status               string  `form:"status" json:"status" xml:"status"`
-	StartedAt            string  `form:"started_at" json:"started_at" xml:"started_at"`
-	CompletedAt          *string `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
-	Note                 *string `form:"note,omitempty" json:"note,omitempty" xml:"note,omitempty"`
-	PreservationActionID *uint   `form:"preservation_action_id,omitempty" json:"preservation_action_id,omitempty" xml:"preservation_action_id,omitempty"`
+type SIPTaskResponseBodyCollection []*SIPTaskResponseBody
+
+// SIPTaskResponseBody is used to define fields on response body types.
+type SIPTaskResponseBody struct {
+	ID          uint    `form:"id" json:"id" xml:"id"`
+	TaskID      string  `form:"task_id" json:"task_id" xml:"task_id"`
+	Name        string  `form:"name" json:"name" xml:"name"`
+	Status      string  `form:"status" json:"status" xml:"status"`
+	StartedAt   string  `form:"started_at" json:"started_at" xml:"started_at"`
+	CompletedAt *string `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
+	Note        *string `form:"note,omitempty" json:"note,omitempty" xml:"note,omitempty"`
+	WorkflowID  *uint   `form:"workflow_id,omitempty" json:"workflow_id,omitempty" xml:"workflow_id,omitempty"`
 }
 
 // NewMonitorResponseBody builds the HTTP response body from the result of the
@@ -493,14 +490,14 @@ func NewMonitorResponseBody(res *ingest.MonitorEvent) *MonitorResponseBody {
 			name = "sip_status_updated_event"
 		case *ingest.SIPLocationUpdatedEvent:
 			name = "sip_location_updated_event"
-		case *ingest.SIPPreservationActionCreatedEvent:
-			name = "sip_preservation_action_created_event"
-		case *ingest.SIPPreservationActionUpdatedEvent:
-			name = "sip_preservation_action_updated_event"
-		case *ingest.SIPPreservationTaskCreatedEvent:
-			name = "sip_preservation_task_created_event"
-		case *ingest.SIPPreservationTaskUpdatedEvent:
-			name = "sip_preservation_task_updated_event"
+		case *ingest.SIPWorkflowCreatedEvent:
+			name = "sip_workflow_created_event"
+		case *ingest.SIPWorkflowUpdatedEvent:
+			name = "sip_workflow_updated_event"
+		case *ingest.SIPTaskCreatedEvent:
+			name = "sip_task_created_event"
+		case *ingest.SIPTaskUpdatedEvent:
+			name = "sip_task_updated_event"
 		}
 		body.Event = &struct {
 			// Union type name, one of:
@@ -509,10 +506,10 @@ func NewMonitorResponseBody(res *ingest.MonitorEvent) *MonitorResponseBody {
 			// - "sip_updated_event"
 			// - "sip_status_updated_event"
 			// - "sip_location_updated_event"
-			// - "sip_preservation_action_created_event"
-			// - "sip_preservation_action_updated_event"
-			// - "sip_preservation_task_created_event"
-			// - "sip_preservation_task_updated_event"
+			// - "sip_workflow_created_event"
+			// - "sip_workflow_updated_event"
+			// - "sip_task_created_event"
+			// - "sip_task_updated_event"
 			Type string `form:"Type" json:"Type" xml:"Type"`
 			// JSON encoded union value
 			Value string `form:"Value" json:"Value" xml:"Value"`
@@ -560,15 +557,14 @@ func NewShowSipResponseBody(res *ingestviews.SIPView) *ShowSipResponseBody {
 	return body
 }
 
-// NewListSipPreservationActionsResponseBody builds the HTTP response body from
-// the result of the "list_sip_preservation_actions" endpoint of the "ingest"
-// service.
-func NewListSipPreservationActionsResponseBody(res *ingestviews.SIPPreservationActionsView) *ListSipPreservationActionsResponseBody {
-	body := &ListSipPreservationActionsResponseBody{}
-	if res.Actions != nil {
-		body.Actions = make([]*SIPPreservationActionResponseBody, len(res.Actions))
-		for i, val := range res.Actions {
-			body.Actions[i] = marshalIngestviewsSIPPreservationActionViewToSIPPreservationActionResponseBody(val)
+// NewListSipWorkflowsResponseBody builds the HTTP response body from the
+// result of the "list_sip_workflows" endpoint of the "ingest" service.
+func NewListSipWorkflowsResponseBody(res *ingestviews.SIPWorkflowsView) *ListSipWorkflowsResponseBody {
+	body := &ListSipWorkflowsResponseBody{}
+	if res.Workflows != nil {
+		body.Workflows = make([]*SIPWorkflowResponseBody, len(res.Workflows))
+		for i, val := range res.Workflows {
+			body.Workflows[i] = marshalIngestviewsSIPWorkflowViewToSIPWorkflowResponseBody(val)
 		}
 	}
 	return body
@@ -649,11 +645,10 @@ func NewShowSipNotFoundResponseBody(res *ingest.SIPNotFound) *ShowSipNotFoundRes
 	return body
 }
 
-// NewListSipPreservationActionsNotFoundResponseBody builds the HTTP response
-// body from the result of the "list_sip_preservation_actions" endpoint of the
-// "ingest" service.
-func NewListSipPreservationActionsNotFoundResponseBody(res *ingest.SIPNotFound) *ListSipPreservationActionsNotFoundResponseBody {
-	body := &ListSipPreservationActionsNotFoundResponseBody{
+// NewListSipWorkflowsNotFoundResponseBody builds the HTTP response body from
+// the result of the "list_sip_workflows" endpoint of the "ingest" service.
+func NewListSipWorkflowsNotFoundResponseBody(res *ingest.SIPNotFound) *ListSipWorkflowsNotFoundResponseBody {
+	body := &ListSipWorkflowsNotFoundResponseBody{
 		Message: res.Message,
 		ID:      res.ID,
 	}
@@ -882,10 +877,10 @@ func NewShowSipPayload(id uint, token *string) *ingest.ShowSipPayload {
 	return v
 }
 
-// NewListSipPreservationActionsPayload builds a ingest service
-// list_sip_preservation_actions endpoint payload.
-func NewListSipPreservationActionsPayload(id uint, token *string) *ingest.ListSipPreservationActionsPayload {
-	v := &ingest.ListSipPreservationActionsPayload{}
+// NewListSipWorkflowsPayload builds a ingest service list_sip_workflows
+// endpoint payload.
+func NewListSipWorkflowsPayload(id uint, token *string) *ingest.ListSipWorkflowsPayload {
+	v := &ingest.ListSipWorkflowsPayload{}
 	v.ID = id
 	v.Token = token
 

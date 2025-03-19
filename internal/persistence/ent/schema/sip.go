@@ -54,7 +54,7 @@ func (SIP) Fields() []ent.Field {
 // Edges of the SIP.
 func (SIP) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("preservation_actions", PreservationAction.Type).
+		edge.To("workflows", Workflow.Type).
 			Annotations(entsql.OnDelete(entsql.Cascade)),
 	}
 }

@@ -127,11 +127,11 @@ paths:
             security:
                 - jwt_header_Authorization:
                     - ingest:sips:list
-                    - ingest:sips:actions:list
                     - ingest:sips:move
                     - ingest:sips:read
                     - ingest:sips:review
                     - ingest:sips:upload
+                    - ingest:sips:workflows:list
     /ingest/sips:
         get:
             tags:
@@ -535,77 +535,6 @@ paths:
             security:
                 - jwt_header_Authorization:
                     - ingest:sips:move
-    /ingest/sips/{id}/preservation-actions:
-        get:
-            tags:
-                - ingest
-            summary: list_sip_preservation_actions ingest
-            description: List all preservation actions for a SIP
-            operationId: ingest#list_sip_preservation_actions
-            parameters:
-                - name: id
-                  in: path
-                  description: Identifier of SIP to look up
-                  required: true
-                  schema:
-                    type: integer
-                    description: Identifier of SIP to look up
-                    example: 1
-                    format: int64
-                  example: 1
-            responses:
-                "200":
-                    description: OK response.
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/SIPPreservationActions'
-                            example:
-                                actions:
-                                    - completed_at: "1970-01-01T00:00:01Z"
-                                      id: 1
-                                      sip_id: 1
-                                      started_at: "1970-01-01T00:00:01Z"
-                                      status: in progress
-                                      tasks:
-                                        - completed_at: "1970-01-01T00:00:01Z"
-                                          id: 1
-                                          name: abc123
-                                          note: abc123
-                                          preservation_action_id: 1
-                                          started_at: "1970-01-01T00:00:01Z"
-                                          status: in progress
-                                          task_id: abc123
-                                      type: create aip
-                                      workflow_id: abc123
-                "401":
-                    description: 'unauthorized: Unauthorized response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
-                "403":
-                    description: 'forbidden: Forbidden response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
-                "404":
-                    description: 'not_found: SIP not found'
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/SIPNotFound'
-                            example:
-                                id: 1
-                                message: abc123
-            security:
-                - jwt_header_Authorization:
-                    - ingest:sips:actions:list
     /ingest/sips/{id}/reject:
         post:
             tags:
@@ -667,6 +596,77 @@ paths:
             security:
                 - jwt_header_Authorization:
                     - ingest:sips:review
+    /ingest/sips/{id}/workflows:
+        get:
+            tags:
+                - ingest
+            summary: list_sip_workflows ingest
+            description: List all workflows for a SIP
+            operationId: ingest#list_sip_workflows
+            parameters:
+                - name: id
+                  in: path
+                  description: Identifier of SIP to look up
+                  required: true
+                  schema:
+                    type: integer
+                    description: Identifier of SIP to look up
+                    example: 1
+                    format: int64
+                  example: 1
+            responses:
+                "200":
+                    description: OK response.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SIPWorkflows'
+                            example:
+                                workflows:
+                                    - completed_at: "1970-01-01T00:00:01Z"
+                                      id: 1
+                                      sip_id: 1
+                                      started_at: "1970-01-01T00:00:01Z"
+                                      status: in progress
+                                      tasks:
+                                        - completed_at: "1970-01-01T00:00:01Z"
+                                          id: 1
+                                          name: abc123
+                                          note: abc123
+                                          started_at: "1970-01-01T00:00:01Z"
+                                          status: in progress
+                                          task_id: abc123
+                                          workflow_id: 1
+                                      type: create aip
+                                      workflow_id: abc123
+                "401":
+                    description: 'unauthorized: Unauthorized response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
+                "403":
+                    description: 'forbidden: Forbidden response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
+                "404":
+                    description: 'not_found: SIP not found'
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SIPNotFound'
+                            example:
+                                id: 1
+                                message: abc123
+            security:
+                - jwt_header_Authorization:
+                    - ingest:sips:workflows:list
     /ingest/sips/upload:
         post:
             tags:
@@ -1901,7 +1901,61 @@ components:
                 - id
                 - status
                 - created_at
-        EnduroIngestSipPreservationAction:
+        EnduroIngestSipTask:
+            type: object
+            properties:
+                completed_at:
+                    type: string
+                    example: "1970-01-01T00:00:01Z"
+                    format: date-time
+                id:
+                    type: integer
+                    example: 1
+                    format: int64
+                name:
+                    type: string
+                    example: abc123
+                note:
+                    type: string
+                    example: abc123
+                started_at:
+                    type: string
+                    example: "1970-01-01T00:00:01Z"
+                    format: date-time
+                status:
+                    type: string
+                    example: in progress
+                    enum:
+                        - unspecified
+                        - in progress
+                        - done
+                        - error
+                        - queued
+                        - pending
+                task_id:
+                    type: string
+                    example: abc123
+                workflow_id:
+                    type: integer
+                    example: 1
+                    format: int64
+            description: SIPTask describes a SIP workflow task.
+            example:
+                completed_at: "1970-01-01T00:00:01Z"
+                id: 1
+                name: abc123
+                note: abc123
+                started_at: "1970-01-01T00:00:01Z"
+                status: in progress
+                task_id: abc123
+                workflow_id: 1
+            required:
+                - id
+                - task_id
+                - name
+                - status
+                - started_at
+        EnduroIngestSipWorkflow:
             type: object
             properties:
                 completed_at:
@@ -1931,7 +1985,7 @@ components:
                         - queued
                         - pending
                 tasks:
-                    $ref: '#/components/schemas/SIPPreservationTaskCollection'
+                    $ref: '#/components/schemas/SIPTaskCollection'
                 type:
                     type: string
                     example: create aip
@@ -1943,7 +1997,7 @@ components:
                 workflow_id:
                     type: string
                     example: abc123
-            description: SIPPreservationAction describes a preservation action of a SIP.
+            description: SIPWorkflow describes a workflow of a SIP.
             example:
                 completed_at: "1970-01-01T00:00:01Z"
                 id: 1
@@ -1955,70 +2009,16 @@ components:
                       id: 1
                       name: abc123
                       note: abc123
-                      preservation_action_id: 1
                       started_at: "1970-01-01T00:00:01Z"
                       status: in progress
                       task_id: abc123
+                      workflow_id: 1
                 type: create aip
                 workflow_id: abc123
             required:
                 - id
                 - workflow_id
                 - type
-                - status
-                - started_at
-        EnduroIngestSipPreservationTask:
-            type: object
-            properties:
-                completed_at:
-                    type: string
-                    example: "1970-01-01T00:00:01Z"
-                    format: date-time
-                id:
-                    type: integer
-                    example: 1
-                    format: int64
-                name:
-                    type: string
-                    example: abc123
-                note:
-                    type: string
-                    example: abc123
-                preservation_action_id:
-                    type: integer
-                    example: 1
-                    format: int64
-                started_at:
-                    type: string
-                    example: "1970-01-01T00:00:01Z"
-                    format: date-time
-                status:
-                    type: string
-                    example: in progress
-                    enum:
-                        - unspecified
-                        - in progress
-                        - done
-                        - error
-                        - queued
-                        - pending
-                task_id:
-                    type: string
-                    example: abc123
-            description: SIPPreservationTask describes a SIP preservation action task.
-            example:
-                completed_at: "1970-01-01T00:00:01Z"
-                id: 1
-                name: abc123
-                note: abc123
-                preservation_action_id: 1
-                started_at: "1970-01-01T00:00:01Z"
-                status: in progress
-                task_id: abc123
-            required:
-                - id
-                - task_id
-                - name
                 - status
                 - started_at
         EnduroPage:
@@ -2335,10 +2335,10 @@ components:
                                 - "sip_updated_event"
                                 - "sip_status_updated_event"
                                 - "sip_location_updated_event"
-                                - "sip_preservation_action_created_event"
-                                - "sip_preservation_action_updated_event"
-                                - "sip_preservation_task_created_event"
-                                - "sip_preservation_task_updated_event"
+                                - "sip_workflow_created_event"
+                                - "sip_workflow_updated_event"
+                                - "sip_task_created_event"
+                                - "sip_task_updated_event"
                             example: sip_created_event
                             enum:
                                 - monitor_ping_event
@@ -2346,10 +2346,10 @@ components:
                                 - sip_updated_event
                                 - sip_status_updated_event
                                 - sip_location_updated_event
-                                - sip_preservation_action_created_event
-                                - sip_preservation_action_updated_event
-                                - sip_preservation_task_created_event
-                                - sip_preservation_task_updated_event
+                                - sip_workflow_created_event
+                                - sip_workflow_updated_event
+                                - sip_task_created_event
+                                - sip_task_updated_event
                         Value:
                             type: string
                             description: JSON encoded union value
@@ -2460,175 +2460,6 @@ components:
             required:
                 - message
                 - id
-        SIPPreservationActionCollection:
-            type: array
-            items:
-                $ref: '#/components/schemas/EnduroIngestSipPreservationAction'
-            example:
-                - completed_at: "1970-01-01T00:00:01Z"
-                  id: 1
-                  sip_id: 1
-                  started_at: "1970-01-01T00:00:01Z"
-                  status: in progress
-                  tasks:
-                    - completed_at: "1970-01-01T00:00:01Z"
-                      id: 1
-                      name: abc123
-                      note: abc123
-                      preservation_action_id: 1
-                      started_at: "1970-01-01T00:00:01Z"
-                      status: in progress
-                      task_id: abc123
-                  type: create aip
-                  workflow_id: abc123
-        SIPPreservationActionCreatedEvent:
-            type: object
-            properties:
-                id:
-                    type: integer
-                    description: Identifier of preservation action
-                    example: 1
-                    format: int64
-                item:
-                    $ref: '#/components/schemas/EnduroIngestSipPreservationAction'
-            example:
-                id: 1
-                item:
-                    completed_at: "1970-01-01T00:00:01Z"
-                    id: 1
-                    sip_id: 1
-                    started_at: "1970-01-01T00:00:01Z"
-                    status: in progress
-                    tasks:
-                        - completed_at: "1970-01-01T00:00:01Z"
-                          id: 1
-                          name: abc123
-                          note: abc123
-                          preservation_action_id: 1
-                          started_at: "1970-01-01T00:00:01Z"
-                          status: in progress
-                          task_id: abc123
-                    type: create aip
-                    workflow_id: abc123
-            required:
-                - id
-                - item
-        SIPPreservationActionUpdatedEvent:
-            type: object
-            properties:
-                id:
-                    type: integer
-                    description: Identifier of preservation action
-                    example: 1
-                    format: int64
-                item:
-                    $ref: '#/components/schemas/EnduroIngestSipPreservationAction'
-            example:
-                id: 1
-                item:
-                    completed_at: "1970-01-01T00:00:01Z"
-                    id: 1
-                    sip_id: 1
-                    started_at: "1970-01-01T00:00:01Z"
-                    status: in progress
-                    tasks:
-                        - completed_at: "1970-01-01T00:00:01Z"
-                          id: 1
-                          name: abc123
-                          note: abc123
-                          preservation_action_id: 1
-                          started_at: "1970-01-01T00:00:01Z"
-                          status: in progress
-                          task_id: abc123
-                    type: create aip
-                    workflow_id: abc123
-            required:
-                - id
-                - item
-        SIPPreservationActions:
-            type: object
-            properties:
-                actions:
-                    $ref: '#/components/schemas/SIPPreservationActionCollection'
-            example:
-                actions:
-                    - completed_at: "1970-01-01T00:00:01Z"
-                      id: 1
-                      sip_id: 1
-                      started_at: "1970-01-01T00:00:01Z"
-                      status: in progress
-                      tasks:
-                        - completed_at: "1970-01-01T00:00:01Z"
-                          id: 1
-                          name: abc123
-                          note: abc123
-                          preservation_action_id: 1
-                          started_at: "1970-01-01T00:00:01Z"
-                          status: in progress
-                          task_id: abc123
-                      type: create aip
-                      workflow_id: abc123
-        SIPPreservationTaskCollection:
-            type: array
-            items:
-                $ref: '#/components/schemas/EnduroIngestSipPreservationTask'
-            example:
-                - completed_at: "1970-01-01T00:00:01Z"
-                  id: 1
-                  name: abc123
-                  note: abc123
-                  preservation_action_id: 1
-                  started_at: "1970-01-01T00:00:01Z"
-                  status: in progress
-                  task_id: abc123
-        SIPPreservationTaskCreatedEvent:
-            type: object
-            properties:
-                id:
-                    type: integer
-                    description: Identifier of preservation task
-                    example: 1
-                    format: int64
-                item:
-                    $ref: '#/components/schemas/EnduroIngestSipPreservationTask'
-            example:
-                id: 1
-                item:
-                    completed_at: "1970-01-01T00:00:01Z"
-                    id: 1
-                    name: abc123
-                    note: abc123
-                    preservation_action_id: 1
-                    started_at: "1970-01-01T00:00:01Z"
-                    status: in progress
-                    task_id: abc123
-            required:
-                - id
-                - item
-        SIPPreservationTaskUpdatedEvent:
-            type: object
-            properties:
-                id:
-                    type: integer
-                    description: Identifier of preservation task
-                    example: 1
-                    format: int64
-                item:
-                    $ref: '#/components/schemas/EnduroIngestSipPreservationTask'
-            example:
-                id: 1
-                item:
-                    completed_at: "1970-01-01T00:00:01Z"
-                    id: 1
-                    name: abc123
-                    note: abc123
-                    preservation_action_id: 1
-                    started_at: "1970-01-01T00:00:01Z"
-                    status: in progress
-                    task_id: abc123
-            required:
-                - id
-                - item
         SIPStatusUpdatedEvent:
             type: object
             properties:
@@ -2655,6 +2486,67 @@ components:
             required:
                 - id
                 - status
+        SIPTaskCollection:
+            type: array
+            items:
+                $ref: '#/components/schemas/EnduroIngestSipTask'
+            example:
+                - completed_at: "1970-01-01T00:00:01Z"
+                  id: 1
+                  name: abc123
+                  note: abc123
+                  started_at: "1970-01-01T00:00:01Z"
+                  status: in progress
+                  task_id: abc123
+                  workflow_id: 1
+        SIPTaskCreatedEvent:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    description: Identifier of task
+                    example: 1
+                    format: int64
+                item:
+                    $ref: '#/components/schemas/EnduroIngestSipTask'
+            example:
+                id: 1
+                item:
+                    completed_at: "1970-01-01T00:00:01Z"
+                    id: 1
+                    name: abc123
+                    note: abc123
+                    started_at: "1970-01-01T00:00:01Z"
+                    status: in progress
+                    task_id: abc123
+                    workflow_id: 1
+            required:
+                - id
+                - item
+        SIPTaskUpdatedEvent:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    description: Identifier of task
+                    example: 1
+                    format: int64
+                item:
+                    $ref: '#/components/schemas/EnduroIngestSipTask'
+            example:
+                id: 1
+                item:
+                    completed_at: "1970-01-01T00:00:01Z"
+                    id: 1
+                    name: abc123
+                    note: abc123
+                    started_at: "1970-01-01T00:00:01Z"
+                    status: in progress
+                    task_id: abc123
+                    workflow_id: 1
+            required:
+                - id
+                - item
         SIPUpdatedEvent:
             type: object
             properties:
@@ -2681,6 +2573,114 @@ components:
             required:
                 - id
                 - item
+        SIPWorkflowCollection:
+            type: array
+            items:
+                $ref: '#/components/schemas/EnduroIngestSipWorkflow'
+            example:
+                - completed_at: "1970-01-01T00:00:01Z"
+                  id: 1
+                  sip_id: 1
+                  started_at: "1970-01-01T00:00:01Z"
+                  status: in progress
+                  tasks:
+                    - completed_at: "1970-01-01T00:00:01Z"
+                      id: 1
+                      name: abc123
+                      note: abc123
+                      started_at: "1970-01-01T00:00:01Z"
+                      status: in progress
+                      task_id: abc123
+                      workflow_id: 1
+                  type: create aip
+                  workflow_id: abc123
+        SIPWorkflowCreatedEvent:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    description: Identifier of workflow
+                    example: 1
+                    format: int64
+                item:
+                    $ref: '#/components/schemas/EnduroIngestSipWorkflow'
+            example:
+                id: 1
+                item:
+                    completed_at: "1970-01-01T00:00:01Z"
+                    id: 1
+                    sip_id: 1
+                    started_at: "1970-01-01T00:00:01Z"
+                    status: in progress
+                    tasks:
+                        - completed_at: "1970-01-01T00:00:01Z"
+                          id: 1
+                          name: abc123
+                          note: abc123
+                          started_at: "1970-01-01T00:00:01Z"
+                          status: in progress
+                          task_id: abc123
+                          workflow_id: 1
+                    type: create aip
+                    workflow_id: abc123
+            required:
+                - id
+                - item
+        SIPWorkflowUpdatedEvent:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    description: Identifier of workflow
+                    example: 1
+                    format: int64
+                item:
+                    $ref: '#/components/schemas/EnduroIngestSipWorkflow'
+            example:
+                id: 1
+                item:
+                    completed_at: "1970-01-01T00:00:01Z"
+                    id: 1
+                    sip_id: 1
+                    started_at: "1970-01-01T00:00:01Z"
+                    status: in progress
+                    tasks:
+                        - completed_at: "1970-01-01T00:00:01Z"
+                          id: 1
+                          name: abc123
+                          note: abc123
+                          started_at: "1970-01-01T00:00:01Z"
+                          status: in progress
+                          task_id: abc123
+                          workflow_id: 1
+                    type: create aip
+                    workflow_id: abc123
+            required:
+                - id
+                - item
+        SIPWorkflows:
+            type: object
+            properties:
+                workflows:
+                    $ref: '#/components/schemas/SIPWorkflowCollection'
+            example:
+                workflows:
+                    - completed_at: "1970-01-01T00:00:01Z"
+                      id: 1
+                      sip_id: 1
+                      started_at: "1970-01-01T00:00:01Z"
+                      status: in progress
+                      tasks:
+                        - completed_at: "1970-01-01T00:00:01Z"
+                          id: 1
+                          name: abc123
+                          note: abc123
+                          started_at: "1970-01-01T00:00:01Z"
+                          status: in progress
+                          task_id: abc123
+                          workflow_id: 1
+                      type: create aip
+                      workflow_id: abc123
         SIPs:
             type: object
             properties:

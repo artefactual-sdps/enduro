@@ -108,24 +108,24 @@ func setLocationIDLocalActivity(
 	return &setLocationIDLocalActivityResult{}, ingestsvc.SetLocationID(ctx, sipID, locationID)
 }
 
-type saveLocationMovePreservationActionLocalActivityParams struct {
+type saveLocationMoveWorkflowLocalActivityParams struct {
 	SIPID       int
 	LocationID  uuid.UUID
 	WorkflowID  string
-	Type        enums.PreservationActionType
-	Status      enums.PreservationActionStatus
+	Type        enums.WorkflowType
+	Status      enums.WorkflowStatus
 	StartedAt   time.Time
 	CompletedAt time.Time
 }
 
-type saveLocationMovePreservationActionLocalActivityResult struct{}
+type saveLocationMoveWorkflowLocalActivityResult struct{}
 
-func saveLocationMovePreservationActionLocalActivity(
+func saveLocationMoveWorkflowLocalActivity(
 	ctx context.Context,
 	ingestsvc ingest.Service,
-	params *saveLocationMovePreservationActionLocalActivityParams,
-) (*saveLocationMovePreservationActionLocalActivityResult, error) {
-	paID, err := createPreservationActionLocalActivity(ctx, ingestsvc, &createPreservationActionLocalActivityParams{
+	params *saveLocationMoveWorkflowLocalActivityParams,
+) (*saveLocationMoveWorkflowLocalActivityResult, error) {
+	wID, err := createWorkflowLocalActivity(ctx, ingestsvc, &createWorkflowLocalActivityParams{
 		WorkflowID:  params.WorkflowID,
 		Type:        params.Type,
 		Status:      params.Status,
@@ -134,136 +134,136 @@ func saveLocationMovePreservationActionLocalActivity(
 		SIPID:       params.SIPID,
 	})
 	if err != nil {
-		return &saveLocationMovePreservationActionLocalActivityResult{}, err
+		return &saveLocationMoveWorkflowLocalActivityResult{}, err
 	}
 
-	actionStatusToTaskStatus := map[enums.PreservationActionStatus]enums.PreservationTaskStatus{
-		enums.PreservationActionStatusUnspecified: enums.PreservationTaskStatusUnspecified,
-		enums.PreservationActionStatusDone:        enums.PreservationTaskStatusDone,
-		enums.PreservationActionStatusInProgress:  enums.PreservationTaskStatusInProgress,
-		enums.PreservationActionStatusError:       enums.PreservationTaskStatusError,
+	actionStatusToTaskStatus := map[enums.WorkflowStatus]enums.TaskStatus{
+		enums.WorkflowStatusUnspecified: enums.TaskStatusUnspecified,
+		enums.WorkflowStatusDone:        enums.TaskStatusDone,
+		enums.WorkflowStatusInProgress:  enums.TaskStatusInProgress,
+		enums.WorkflowStatusError:       enums.TaskStatusError,
 	}
 
-	pt := datatypes.PreservationTask{
-		TaskID:               uuid.NewString(),
-		Name:                 "Move AIP",
-		Status:               actionStatusToTaskStatus[params.Status],
-		Note:                 fmt.Sprintf("Moved to location %s", params.LocationID),
-		PreservationActionID: paID,
+	task := datatypes.Task{
+		TaskID:     uuid.NewString(),
+		Name:       "Move AIP",
+		Status:     actionStatusToTaskStatus[params.Status],
+		Note:       fmt.Sprintf("Moved to location %s", params.LocationID),
+		WorkflowID: wID,
 	}
-	pt.StartedAt.Time = params.StartedAt
-	pt.CompletedAt.Time = params.CompletedAt
+	task.StartedAt.Time = params.StartedAt
+	task.CompletedAt.Time = params.CompletedAt
 
-	return &saveLocationMovePreservationActionLocalActivityResult{}, ingestsvc.CreatePreservationTask(ctx, &pt)
+	return &saveLocationMoveWorkflowLocalActivityResult{}, ingestsvc.CreateTask(ctx, &task)
 }
 
-type createPreservationActionLocalActivityParams struct {
+type createWorkflowLocalActivityParams struct {
 	WorkflowID  string
-	Type        enums.PreservationActionType
-	Status      enums.PreservationActionStatus
+	Type        enums.WorkflowType
+	Status      enums.WorkflowStatus
 	StartedAt   time.Time
 	CompletedAt time.Time
 	SIPID       int
 }
 
-func createPreservationActionLocalActivity(
+func createWorkflowLocalActivity(
 	ctx context.Context,
 	ingestsvc ingest.Service,
-	params *createPreservationActionLocalActivityParams,
+	params *createWorkflowLocalActivityParams,
 ) (int, error) {
-	pa := datatypes.PreservationAction{
+	w := datatypes.Workflow{
 		WorkflowID: params.WorkflowID,
 		Type:       params.Type,
 		Status:     params.Status,
 		SIPID:      params.SIPID,
 	}
 	if !params.StartedAt.IsZero() {
-		pa.StartedAt = sql.NullTime{Time: params.StartedAt, Valid: true}
+		w.StartedAt = sql.NullTime{Time: params.StartedAt, Valid: true}
 	}
 	if !params.CompletedAt.IsZero() {
-		pa.CompletedAt = sql.NullTime{Time: params.CompletedAt, Valid: true}
+		w.CompletedAt = sql.NullTime{Time: params.CompletedAt, Valid: true}
 	}
 
-	if err := ingestsvc.CreatePreservationAction(ctx, &pa); err != nil {
+	if err := ingestsvc.CreateWorkflow(ctx, &w); err != nil {
 		return 0, err
 	}
 
-	return pa.ID, nil
+	return w.ID, nil
 }
 
-type setPreservationActionStatusLocalActivityResult struct{}
+type setWorkflowStatusLocalActivityResult struct{}
 
-func setPreservationActionStatusLocalActivity(
+func setWorkflowStatusLocalActivity(
 	ctx context.Context,
 	ingestsvc ingest.Service,
 	ID int,
-	status enums.PreservationActionStatus,
-) (*setPreservationActionStatusLocalActivityResult, error) {
-	return &setPreservationActionStatusLocalActivityResult{}, ingestsvc.SetPreservationActionStatus(ctx, ID, status)
+	status enums.WorkflowStatus,
+) (*setWorkflowStatusLocalActivityResult, error) {
+	return &setWorkflowStatusLocalActivityResult{}, ingestsvc.SetWorkflowStatus(ctx, ID, status)
 }
 
-type completePreservationActionLocalActivityParams struct {
-	PreservationActionID int
-	Status               enums.PreservationActionStatus
-	CompletedAt          time.Time
+type completeWorkflowLocalActivityParams struct {
+	WorkflowID  int
+	Status      enums.WorkflowStatus
+	CompletedAt time.Time
 }
 
-type completePreservationActionLocalActivityResult struct{}
+type completeWorkflowLocalActivityResult struct{}
 
-func completePreservationActionLocalActivity(
+func completeWorkflowLocalActivity(
 	ctx context.Context,
 	ingestsvc ingest.Service,
-	params *completePreservationActionLocalActivityParams,
-) (*completePreservationActionLocalActivityResult, error) {
-	return &completePreservationActionLocalActivityResult{}, ingestsvc.CompletePreservationAction(
+	params *completeWorkflowLocalActivityParams,
+) (*completeWorkflowLocalActivityResult, error) {
+	return &completeWorkflowLocalActivityResult{}, ingestsvc.CompleteWorkflow(
 		ctx,
-		params.PreservationActionID,
+		params.WorkflowID,
 		params.Status,
 		params.CompletedAt,
 	)
 }
 
-type createPreservationTaskLocalActivityParams struct {
-	Ingestsvc        ingest.Service
-	RNG              io.Reader
-	PreservationTask datatypes.PreservationTask
+type createTaskLocalActivityParams struct {
+	Ingestsvc ingest.Service
+	RNG       io.Reader
+	Task      datatypes.Task
 }
 
-func createPreservationTaskLocalActivity(
+func createTaskLocalActivity(
 	ctx context.Context,
-	params *createPreservationTaskLocalActivityParams,
+	params *createTaskLocalActivityParams,
 ) (int, error) {
-	pt := params.PreservationTask
-	if pt.TaskID == "" {
+	task := params.Task
+	if task.TaskID == "" {
 		id, err := uuid.NewRandomFromReader(params.RNG)
 		if err != nil {
 			return 0, err
 		}
-		pt.TaskID = id.String()
+		task.TaskID = id.String()
 	}
 
-	if err := params.Ingestsvc.CreatePreservationTask(ctx, &pt); err != nil {
+	if err := params.Ingestsvc.CreateTask(ctx, &task); err != nil {
 		return 0, err
 	}
 
-	return pt.ID, nil
+	return task.ID, nil
 }
 
-type completePreservationTaskLocalActivityParams struct {
+type completeTaskLocalActivityParams struct {
 	ID          int
-	Status      enums.PreservationTaskStatus
+	Status      enums.TaskStatus
 	CompletedAt time.Time
 	Note        *string
 }
 
-type completePreservationTaskLocalActivityResult struct{}
+type completeTaskLocalActivityResult struct{}
 
-func completePreservationTaskLocalActivity(
+func completeTaskLocalActivity(
 	ctx context.Context,
 	ingestsvc ingest.Service,
-	params *completePreservationTaskLocalActivityParams,
-) (*completePreservationTaskLocalActivityResult, error) {
-	return &completePreservationTaskLocalActivityResult{}, ingestsvc.CompletePreservationTask(
+	params *completeTaskLocalActivityParams,
+) (*completeTaskLocalActivityResult, error) {
+	return &completeTaskLocalActivityResult{}, ingestsvc.CompleteTask(
 		ctx,
 		params.ID,
 		params.Status,

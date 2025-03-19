@@ -443,21 +443,21 @@ func EncodeShowSipError(encoder func(context.Context, http.ResponseWriter) goaht
 	}
 }
 
-// EncodeListSipPreservationActionsResponse returns an encoder for responses
-// returned by the ingest list_sip_preservation_actions endpoint.
-func EncodeListSipPreservationActionsResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, any) error {
+// EncodeListSipWorkflowsResponse returns an encoder for responses returned by
+// the ingest list_sip_workflows endpoint.
+func EncodeListSipWorkflowsResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, any) error {
 	return func(ctx context.Context, w http.ResponseWriter, v any) error {
-		res := v.(*ingestviews.SIPPreservationActions)
+		res := v.(*ingestviews.SIPWorkflows)
 		enc := encoder(ctx, w)
-		body := NewListSipPreservationActionsResponseBody(res.Projected)
+		body := NewListSipWorkflowsResponseBody(res.Projected)
 		w.WriteHeader(http.StatusOK)
 		return enc.Encode(body)
 	}
 }
 
-// DecodeListSipPreservationActionsRequest returns a decoder for requests sent
-// to the ingest list_sip_preservation_actions endpoint.
-func DecodeListSipPreservationActionsRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (any, error) {
+// DecodeListSipWorkflowsRequest returns a decoder for requests sent to the
+// ingest list_sip_workflows endpoint.
+func DecodeListSipWorkflowsRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (any, error) {
 	return func(r *http.Request) (any, error) {
 		var (
 			id    uint
@@ -481,7 +481,7 @@ func DecodeListSipPreservationActionsRequest(mux goahttp.Muxer, decoder func(*ht
 		if err != nil {
 			return nil, err
 		}
-		payload := NewListSipPreservationActionsPayload(id, token)
+		payload := NewListSipWorkflowsPayload(id, token)
 		if payload.Token != nil {
 			if strings.Contains(*payload.Token, " ") {
 				// Remove authorization scheme prefix (e.g. "Bearer")
@@ -494,9 +494,9 @@ func DecodeListSipPreservationActionsRequest(mux goahttp.Muxer, decoder func(*ht
 	}
 }
 
-// EncodeListSipPreservationActionsError returns an encoder for errors returned
-// by the list_sip_preservation_actions ingest endpoint.
-func EncodeListSipPreservationActionsError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(ctx context.Context, err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
+// EncodeListSipWorkflowsError returns an encoder for errors returned by the
+// list_sip_workflows ingest endpoint.
+func EncodeListSipWorkflowsError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(ctx context.Context, err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
 	encodeError := goahttp.ErrorEncoder(encoder, formatter)
 	return func(ctx context.Context, w http.ResponseWriter, v error) error {
 		var en goa.GoaErrorNamer
@@ -512,7 +512,7 @@ func EncodeListSipPreservationActionsError(encoder func(context.Context, http.Re
 			if formatter != nil {
 				body = formatter(ctx, res)
 			} else {
-				body = NewListSipPreservationActionsNotFoundResponseBody(res)
+				body = NewListSipWorkflowsNotFoundResponseBody(res)
 			}
 			w.Header().Set("goa-error", res.GoaErrorName())
 			w.WriteHeader(http.StatusNotFound)
@@ -1183,14 +1183,14 @@ func marshalIngestviewsEnduroPageViewToEnduroPageResponseBody(v *ingestviews.End
 	return res
 }
 
-// marshalIngestviewsSIPPreservationActionViewToSIPPreservationActionResponseBody
-// builds a value of type *SIPPreservationActionResponseBody from a value of
-// type *ingestviews.SIPPreservationActionView.
-func marshalIngestviewsSIPPreservationActionViewToSIPPreservationActionResponseBody(v *ingestviews.SIPPreservationActionView) *SIPPreservationActionResponseBody {
+// marshalIngestviewsSIPWorkflowViewToSIPWorkflowResponseBody builds a value of
+// type *SIPWorkflowResponseBody from a value of type
+// *ingestviews.SIPWorkflowView.
+func marshalIngestviewsSIPWorkflowViewToSIPWorkflowResponseBody(v *ingestviews.SIPWorkflowView) *SIPWorkflowResponseBody {
 	if v == nil {
 		return nil
 	}
-	res := &SIPPreservationActionResponseBody{
+	res := &SIPWorkflowResponseBody{
 		ID:          *v.ID,
 		WorkflowID:  *v.WorkflowID,
 		Type:        *v.Type,
@@ -1200,31 +1200,30 @@ func marshalIngestviewsSIPPreservationActionViewToSIPPreservationActionResponseB
 		SipID:       v.SipID,
 	}
 	if v.Tasks != nil {
-		res.Tasks = make([]*SIPPreservationTaskResponseBody, len(v.Tasks))
+		res.Tasks = make([]*SIPTaskResponseBody, len(v.Tasks))
 		for i, val := range v.Tasks {
-			res.Tasks[i] = marshalIngestviewsSIPPreservationTaskViewToSIPPreservationTaskResponseBody(val)
+			res.Tasks[i] = marshalIngestviewsSIPTaskViewToSIPTaskResponseBody(val)
 		}
 	}
 
 	return res
 }
 
-// marshalIngestviewsSIPPreservationTaskViewToSIPPreservationTaskResponseBody
-// builds a value of type *SIPPreservationTaskResponseBody from a value of type
-// *ingestviews.SIPPreservationTaskView.
-func marshalIngestviewsSIPPreservationTaskViewToSIPPreservationTaskResponseBody(v *ingestviews.SIPPreservationTaskView) *SIPPreservationTaskResponseBody {
+// marshalIngestviewsSIPTaskViewToSIPTaskResponseBody builds a value of type
+// *SIPTaskResponseBody from a value of type *ingestviews.SIPTaskView.
+func marshalIngestviewsSIPTaskViewToSIPTaskResponseBody(v *ingestviews.SIPTaskView) *SIPTaskResponseBody {
 	if v == nil {
 		return nil
 	}
-	res := &SIPPreservationTaskResponseBody{
-		ID:                   *v.ID,
-		TaskID:               *v.TaskID,
-		Name:                 *v.Name,
-		Status:               *v.Status,
-		StartedAt:            *v.StartedAt,
-		CompletedAt:          v.CompletedAt,
-		Note:                 v.Note,
-		PreservationActionID: v.PreservationActionID,
+	res := &SIPTaskResponseBody{
+		ID:          *v.ID,
+		TaskID:      *v.TaskID,
+		Name:        *v.Name,
+		Status:      *v.Status,
+		StartedAt:   *v.StartedAt,
+		CompletedAt: v.CompletedAt,
+		Note:        v.Note,
+		WorkflowID:  v.WorkflowID,
 	}
 
 	return res

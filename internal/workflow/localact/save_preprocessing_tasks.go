@@ -22,15 +22,15 @@ type SavePreprocessingTasksActivityParams struct {
 	// RNG is a random number generator source.
 	RNG io.Reader
 
-	// PreservationActionID is the primary key of the parent PreservationAction.
-	PreservationActionID int
+	// WorkflowID is the primary key of the parent Workflow.
+	WorkflowID int
 
-	// Tasks is a list of preprocessing tasks to save as PreservationTasks.
+	// Tasks is a list of preprocessing tasks to save as Tasks.
 	Tasks []preprocessing.Task
 }
 
 type SavePreprocessingTasksActivityResult struct {
-	// Count is the number of saved PreservationTasks.
+	// Count is the number of saved Tasks.
 	Count int
 }
 
@@ -40,16 +40,16 @@ func SavePreprocessingTasksActivity(
 ) (*SavePreprocessingTasksActivityResult, error) {
 	var res SavePreprocessingTasksActivityResult
 	for _, t := range params.Tasks {
-		pt := preprocTaskToPresTask(t)
-		pt.PreservationActionID = params.PreservationActionID
+		task := preprocTaskToTask(t)
+		task.WorkflowID = params.WorkflowID
 
 		u, err := uuid.NewRandomFromReader(params.RNG)
 		if err != nil {
 			return &res, fmt.Errorf("SavePreprocessingTasksActivity: generate UUID: %v", err)
 		}
-		pt.TaskID = u.String()
+		task.TaskID = u.String()
 
-		if err := params.Ingestsvc.CreatePreservationTask(ctx, &pt); err != nil {
+		if err := params.Ingestsvc.CreateTask(ctx, &task); err != nil {
 			return &res, fmt.Errorf("SavePreprocessingTasksActivity: %v", err)
 		}
 		res.Count++
@@ -58,20 +58,20 @@ func SavePreprocessingTasksActivity(
 	return &res, nil
 }
 
-func preprocTaskToPresTask(t preprocessing.Task) datatypes.PreservationTask {
-	taskOutcomeToPresTaskStatus := map[enums.PreprocessingTaskOutcome]enums.PreservationTaskStatus{
-		enums.PreprocessingTaskOutcomeUnspecified:       enums.PreservationTaskStatusUnspecified,
-		enums.PreprocessingTaskOutcomeSuccess:           enums.PreservationTaskStatusDone,
-		enums.PreprocessingTaskOutcomeSystemFailure:     enums.PreservationTaskStatusError,
-		enums.PreprocessingTaskOutcomeValidationFailure: enums.PreservationTaskStatusError,
+func preprocTaskToTask(t preprocessing.Task) datatypes.Task {
+	taskOutcomeToTaskStatus := map[enums.PreprocessingTaskOutcome]enums.TaskStatus{
+		enums.PreprocessingTaskOutcomeUnspecified:       enums.TaskStatusUnspecified,
+		enums.PreprocessingTaskOutcomeSuccess:           enums.TaskStatusDone,
+		enums.PreprocessingTaskOutcomeSystemFailure:     enums.TaskStatusError,
+		enums.PreprocessingTaskOutcomeValidationFailure: enums.TaskStatusError,
 	}
 
-	status, found := taskOutcomeToPresTaskStatus[t.Outcome]
+	status, found := taskOutcomeToTaskStatus[t.Outcome]
 	if !found {
-		status = enums.PreservationTaskStatusUnspecified
+		status = enums.TaskStatusUnspecified
 	}
 
-	return datatypes.PreservationTask{
+	return datatypes.Task{
 		Name:        t.Name,
 		Status:      status,
 		StartedAt:   timeToNullTime(t.StartedAt),

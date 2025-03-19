@@ -13,18 +13,18 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/predicate"
-	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/preservationaction"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/sip"
+	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/workflow"
 )
 
 // SIPQuery is the builder for querying SIP entities.
 type SIPQuery struct {
 	config
-	ctx                     *QueryContext
-	order                   []sip.OrderOption
-	inters                  []Interceptor
-	predicates              []predicate.SIP
-	withPreservationActions *PreservationActionQuery
+	ctx           *QueryContext
+	order         []sip.OrderOption
+	inters        []Interceptor
+	predicates    []predicate.SIP
+	withWorkflows *WorkflowQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -61,9 +61,9 @@ func (sq *SIPQuery) Order(o ...sip.OrderOption) *SIPQuery {
 	return sq
 }
 
-// QueryPreservationActions chains the current query on the "preservation_actions" edge.
-func (sq *SIPQuery) QueryPreservationActions() *PreservationActionQuery {
-	query := (&PreservationActionClient{config: sq.config}).Query()
+// QueryWorkflows chains the current query on the "workflows" edge.
+func (sq *SIPQuery) QueryWorkflows() *WorkflowQuery {
+	query := (&WorkflowClient{config: sq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := sq.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -74,8 +74,8 @@ func (sq *SIPQuery) QueryPreservationActions() *PreservationActionQuery {
 		}
 		step := sqlgraph.NewStep(
 			sqlgraph.From(sip.Table, sip.FieldID, selector),
-			sqlgraph.To(preservationaction.Table, preservationaction.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, sip.PreservationActionsTable, sip.PreservationActionsColumn),
+			sqlgraph.To(workflow.Table, workflow.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, sip.WorkflowsTable, sip.WorkflowsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
 		return fromU, nil
@@ -270,26 +270,26 @@ func (sq *SIPQuery) Clone() *SIPQuery {
 		return nil
 	}
 	return &SIPQuery{
-		config:                  sq.config,
-		ctx:                     sq.ctx.Clone(),
-		order:                   append([]sip.OrderOption{}, sq.order...),
-		inters:                  append([]Interceptor{}, sq.inters...),
-		predicates:              append([]predicate.SIP{}, sq.predicates...),
-		withPreservationActions: sq.withPreservationActions.Clone(),
+		config:        sq.config,
+		ctx:           sq.ctx.Clone(),
+		order:         append([]sip.OrderOption{}, sq.order...),
+		inters:        append([]Interceptor{}, sq.inters...),
+		predicates:    append([]predicate.SIP{}, sq.predicates...),
+		withWorkflows: sq.withWorkflows.Clone(),
 		// clone intermediate query.
 		sql:  sq.sql.Clone(),
 		path: sq.path,
 	}
 }
 
-// WithPreservationActions tells the query-builder to eager-load the nodes that are connected to
-// the "preservation_actions" edge. The optional arguments are used to configure the query builder of the edge.
-func (sq *SIPQuery) WithPreservationActions(opts ...func(*PreservationActionQuery)) *SIPQuery {
-	query := (&PreservationActionClient{config: sq.config}).Query()
+// WithWorkflows tells the query-builder to eager-load the nodes that are connected to
+// the "workflows" edge. The optional arguments are used to configure the query builder of the edge.
+func (sq *SIPQuery) WithWorkflows(opts ...func(*WorkflowQuery)) *SIPQuery {
+	query := (&WorkflowClient{config: sq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	sq.withPreservationActions = query
+	sq.withWorkflows = query
 	return sq
 }
 
@@ -372,7 +372,7 @@ func (sq *SIPQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*SIP, err
 		nodes       = []*SIP{}
 		_spec       = sq.querySpec()
 		loadedTypes = [1]bool{
-			sq.withPreservationActions != nil,
+			sq.withWorkflows != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -393,19 +393,17 @@ func (sq *SIPQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*SIP, err
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := sq.withPreservationActions; query != nil {
-		if err := sq.loadPreservationActions(ctx, query, nodes,
-			func(n *SIP) { n.Edges.PreservationActions = []*PreservationAction{} },
-			func(n *SIP, e *PreservationAction) {
-				n.Edges.PreservationActions = append(n.Edges.PreservationActions, e)
-			}); err != nil {
+	if query := sq.withWorkflows; query != nil {
+		if err := sq.loadWorkflows(ctx, query, nodes,
+			func(n *SIP) { n.Edges.Workflows = []*Workflow{} },
+			func(n *SIP, e *Workflow) { n.Edges.Workflows = append(n.Edges.Workflows, e) }); err != nil {
 			return nil, err
 		}
 	}
 	return nodes, nil
 }
 
-func (sq *SIPQuery) loadPreservationActions(ctx context.Context, query *PreservationActionQuery, nodes []*SIP, init func(*SIP), assign func(*SIP, *PreservationAction)) error {
+func (sq *SIPQuery) loadWorkflows(ctx context.Context, query *WorkflowQuery, nodes []*SIP, init func(*SIP), assign func(*SIP, *Workflow)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[int]*SIP)
 	for i := range nodes {
@@ -416,10 +414,10 @@ func (sq *SIPQuery) loadPreservationActions(ctx context.Context, query *Preserva
 		}
 	}
 	if len(query.ctx.Fields) > 0 {
-		query.ctx.AppendFieldOnce(preservationaction.FieldSipID)
+		query.ctx.AppendFieldOnce(workflow.FieldSipID)
 	}
-	query.Where(predicate.PreservationAction(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(sip.PreservationActionsColumn), fks...))
+	query.Where(predicate.Workflow(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(sip.WorkflowsColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {

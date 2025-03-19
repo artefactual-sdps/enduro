@@ -31,9 +31,9 @@ type CreateAIPActivity struct {
 }
 
 type CreateAIPActivityParams struct {
-	Name                 string
-	Path                 string
-	PreservationActionID int
+	Name       string
+	Path       string
+	WorkflowID int
 }
 
 type CreateAIPActivityResult struct {
@@ -134,7 +134,7 @@ func (a *CreateAIPActivity) Execute(
 						continue
 					}
 
-					err = savePreservationTasks(ctx, a.tracer, readResp.Jobs, a.ingestsvc, opts.PreservationActionID)
+					err = saveTasks(ctx, a.tracer, readResp.Jobs, a.ingestsvc, opts.WorkflowID)
 					if err != nil {
 						return err
 					}
@@ -164,35 +164,35 @@ func (a *CreateAIPActivity) Execute(
 	return result, nil
 }
 
-func savePreservationTasks(
+func saveTasks(
 	ctx context.Context,
 	tracer trace.Tracer,
 	jobs []*transferservice.Job,
 	ingestsvc ingest.Service,
-	paID int,
+	wID int,
 ) error {
-	ctx, span := tracer.Start(ctx, "savePreservationTasks")
+	ctx, span := tracer.Start(ctx, "saveTasks")
 	defer span.End()
 
-	jobStatusToPreservationTaskStatus := map[transferservice.Job_Status]enums.PreservationTaskStatus{
-		transferservice.Job_STATUS_UNSPECIFIED: enums.PreservationTaskStatusUnspecified,
-		transferservice.Job_STATUS_COMPLETE:    enums.PreservationTaskStatusDone,
-		transferservice.Job_STATUS_PROCESSING:  enums.PreservationTaskStatusInProgress,
-		transferservice.Job_STATUS_FAILED:      enums.PreservationTaskStatusError,
+	jobStatusToTaskStatus := map[transferservice.Job_Status]enums.TaskStatus{
+		transferservice.Job_STATUS_UNSPECIFIED: enums.TaskStatusUnspecified,
+		transferservice.Job_STATUS_COMPLETE:    enums.TaskStatusDone,
+		transferservice.Job_STATUS_PROCESSING:  enums.TaskStatusInProgress,
+		transferservice.Job_STATUS_FAILED:      enums.TaskStatusError,
 	}
 
 	for _, job := range jobs {
-		pt := datatypes.PreservationTask{
+		task := datatypes.Task{
 			TaskID: job.Id,
 			Name:   job.Name,
-			Status: jobStatusToPreservationTaskStatus[job.Status],
+			Status: jobStatusToTaskStatus[job.Status],
 			StartedAt: sql.NullTime{
 				Time:  job.StartTime.AsTime(),
 				Valid: true,
 			},
-			PreservationActionID: paID,
+			WorkflowID: wID,
 		}
-		err := ingestsvc.CreatePreservationTask(ctx, &pt)
+		err := ingestsvc.CreateTask(ctx, &task)
 		if err != nil {
 			telemetry.RecordError(span, err)
 			return err

@@ -230,14 +230,14 @@ describe("useAuthStore", () => {
             admin: ["*"],
             operator: [
               "ingest:sips:list",
-              "ingest:sips:actions:list",
+              "ingest:sips:workflows:list",
               "ingest:sips:move",
               "ingest:sips:read",
               "ingest:sips:upload",
             ],
             readonly: [
               "ingest:sips:list",
-              "ingest:sips:actions:list",
+              "ingest:sips:workflows:list",
               "ingest:sips:read",
             ],
           },
@@ -653,14 +653,14 @@ describe("useAuthStore", () => {
         admin: ["*"],
         operator: [
           "ingest:sips:list",
-          "ingest:sips:actions:list",
+          "ingest:sips:workflows:list",
           "ingest:sips:move",
           "ingest:sips:read",
           "ingest:sips:upload",
         ],
         readonly: [
           "ingest:sips:list",
-          "ingest:sips:actions:list",
+          "ingest:sips:workflows:list",
           "ingest:sips:read",
         ],
       },
@@ -682,7 +682,7 @@ describe("useAuthStore", () => {
       expected: [
         "*",
         "ingest:sips:list",
-        "ingest:sips:actions:list",
+        "ingest:sips:workflows:list",
         "ingest:sips:move",
         "ingest:sips:read",
         "ingest:sips:upload",

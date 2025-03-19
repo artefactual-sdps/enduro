@@ -41,10 +41,10 @@ type MonitorResponseBody struct {
 		// - "sip_updated_event"
 		// - "sip_status_updated_event"
 		// - "sip_location_updated_event"
-		// - "sip_preservation_action_created_event"
-		// - "sip_preservation_action_updated_event"
-		// - "sip_preservation_task_created_event"
-		// - "sip_preservation_task_updated_event"
+		// - "sip_workflow_created_event"
+		// - "sip_workflow_updated_event"
+		// - "sip_task_created_event"
+		// - "sip_task_updated_event"
 		Type *string `form:"Type" json:"Type" xml:"Type"`
 		// JSON encoded union value
 		Value *string `form:"Value" json:"Value" xml:"Value"`
@@ -83,10 +83,10 @@ type ShowSipResponseBody struct {
 	CompletedAt *string `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
 }
 
-// ListSipPreservationActionsResponseBody is the type of the "ingest" service
-// "list_sip_preservation_actions" endpoint HTTP response body.
-type ListSipPreservationActionsResponseBody struct {
-	Actions SIPPreservationActionCollectionResponseBody `form:"actions,omitempty" json:"actions,omitempty" xml:"actions,omitempty"`
+// ListSipWorkflowsResponseBody is the type of the "ingest" service
+// "list_sip_workflows" endpoint HTTP response body.
+type ListSipWorkflowsResponseBody struct {
+	Workflows SIPWorkflowCollectionResponseBody `form:"workflows,omitempty" json:"workflows,omitempty" xml:"workflows,omitempty"`
 }
 
 // MoveSipStatusResponseBody is the type of the "ingest" service
@@ -176,10 +176,9 @@ type ShowSipNotFoundResponseBody struct {
 	ID *uint `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
 }
 
-// ListSipPreservationActionsNotFoundResponseBody is the type of the "ingest"
-// service "list_sip_preservation_actions" endpoint HTTP response body for the
-// "not_found" error.
-type ListSipPreservationActionsNotFoundResponseBody struct {
+// ListSipWorkflowsNotFoundResponseBody is the type of the "ingest" service
+// "list_sip_workflows" endpoint HTTP response body for the "not_found" error.
+type ListSipWorkflowsNotFoundResponseBody struct {
 	// Message of error
 	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
 	// Identifier of missing SIP
@@ -441,38 +440,36 @@ type EnduroPageResponseBody struct {
 	Total *int `form:"total,omitempty" json:"total,omitempty" xml:"total,omitempty"`
 }
 
-// SIPPreservationActionCollectionResponseBody is used to define fields on
-// response body types.
-type SIPPreservationActionCollectionResponseBody []*SIPPreservationActionResponseBody
-
-// SIPPreservationActionResponseBody is used to define fields on response body
+// SIPWorkflowCollectionResponseBody is used to define fields on response body
 // types.
-type SIPPreservationActionResponseBody struct {
-	ID          *uint                                     `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
-	WorkflowID  *string                                   `form:"workflow_id,omitempty" json:"workflow_id,omitempty" xml:"workflow_id,omitempty"`
-	Type        *string                                   `form:"type,omitempty" json:"type,omitempty" xml:"type,omitempty"`
-	Status      *string                                   `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
-	StartedAt   *string                                   `form:"started_at,omitempty" json:"started_at,omitempty" xml:"started_at,omitempty"`
-	CompletedAt *string                                   `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
-	Tasks       SIPPreservationTaskCollectionResponseBody `form:"tasks,omitempty" json:"tasks,omitempty" xml:"tasks,omitempty"`
-	SipID       *uint                                     `form:"sip_id,omitempty" json:"sip_id,omitempty" xml:"sip_id,omitempty"`
+type SIPWorkflowCollectionResponseBody []*SIPWorkflowResponseBody
+
+// SIPWorkflowResponseBody is used to define fields on response body types.
+type SIPWorkflowResponseBody struct {
+	ID          *uint                         `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	WorkflowID  *string                       `form:"workflow_id,omitempty" json:"workflow_id,omitempty" xml:"workflow_id,omitempty"`
+	Type        *string                       `form:"type,omitempty" json:"type,omitempty" xml:"type,omitempty"`
+	Status      *string                       `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
+	StartedAt   *string                       `form:"started_at,omitempty" json:"started_at,omitempty" xml:"started_at,omitempty"`
+	CompletedAt *string                       `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
+	Tasks       SIPTaskCollectionResponseBody `form:"tasks,omitempty" json:"tasks,omitempty" xml:"tasks,omitempty"`
+	SipID       *uint                         `form:"sip_id,omitempty" json:"sip_id,omitempty" xml:"sip_id,omitempty"`
 }
 
-// SIPPreservationTaskCollectionResponseBody is used to define fields on
-// response body types.
-type SIPPreservationTaskCollectionResponseBody []*SIPPreservationTaskResponseBody
-
-// SIPPreservationTaskResponseBody is used to define fields on response body
+// SIPTaskCollectionResponseBody is used to define fields on response body
 // types.
-type SIPPreservationTaskResponseBody struct {
-	ID                   *uint   `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
-	TaskID               *string `form:"task_id,omitempty" json:"task_id,omitempty" xml:"task_id,omitempty"`
-	Name                 *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
-	Status               *string `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
-	StartedAt            *string `form:"started_at,omitempty" json:"started_at,omitempty" xml:"started_at,omitempty"`
-	CompletedAt          *string `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
-	Note                 *string `form:"note,omitempty" json:"note,omitempty" xml:"note,omitempty"`
-	PreservationActionID *uint   `form:"preservation_action_id,omitempty" json:"preservation_action_id,omitempty" xml:"preservation_action_id,omitempty"`
+type SIPTaskCollectionResponseBody []*SIPTaskResponseBody
+
+// SIPTaskResponseBody is used to define fields on response body types.
+type SIPTaskResponseBody struct {
+	ID          *uint   `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	TaskID      *string `form:"task_id,omitempty" json:"task_id,omitempty" xml:"task_id,omitempty"`
+	Name        *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	Status      *string `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
+	StartedAt   *string `form:"started_at,omitempty" json:"started_at,omitempty" xml:"started_at,omitempty"`
+	CompletedAt *string `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
+	Note        *string `form:"note,omitempty" json:"note,omitempty" xml:"note,omitempty"`
+	WorkflowID  *uint   `form:"workflow_id,omitempty" json:"workflow_id,omitempty" xml:"workflow_id,omitempty"`
 }
 
 // NewConfirmSipRequestBody builds the HTTP request body from the payload of
@@ -559,20 +556,20 @@ func NewMonitorEventOK(body *MonitorResponseBody) *ingest.MonitorEvent {
 			var val *ingest.SIPLocationUpdatedEvent
 			json.Unmarshal([]byte(*body.Event.Value), &val)
 			v.Event = val
-		case "sip_preservation_action_created_event":
-			var val *ingest.SIPPreservationActionCreatedEvent
+		case "sip_workflow_created_event":
+			var val *ingest.SIPWorkflowCreatedEvent
 			json.Unmarshal([]byte(*body.Event.Value), &val)
 			v.Event = val
-		case "sip_preservation_action_updated_event":
-			var val *ingest.SIPPreservationActionUpdatedEvent
+		case "sip_workflow_updated_event":
+			var val *ingest.SIPWorkflowUpdatedEvent
 			json.Unmarshal([]byte(*body.Event.Value), &val)
 			v.Event = val
-		case "sip_preservation_task_created_event":
-			var val *ingest.SIPPreservationTaskCreatedEvent
+		case "sip_task_created_event":
+			var val *ingest.SIPTaskCreatedEvent
 			json.Unmarshal([]byte(*body.Event.Value), &val)
 			v.Event = val
-		case "sip_preservation_task_updated_event":
-			var val *ingest.SIPPreservationTaskUpdatedEvent
+		case "sip_task_updated_event":
+			var val *ingest.SIPTaskUpdatedEvent
 			json.Unmarshal([]byte(*body.Event.Value), &val)
 			v.Event = val
 		}
@@ -715,24 +712,23 @@ func NewShowSipUnauthorized(body string) ingest.Unauthorized {
 	return v
 }
 
-// NewListSipPreservationActionsSIPPreservationActionsOK builds a "ingest"
-// service "list_sip_preservation_actions" endpoint result from a HTTP "OK"
-// response.
-func NewListSipPreservationActionsSIPPreservationActionsOK(body *ListSipPreservationActionsResponseBody) *ingestviews.SIPPreservationActionsView {
-	v := &ingestviews.SIPPreservationActionsView{}
-	if body.Actions != nil {
-		v.Actions = make([]*ingestviews.SIPPreservationActionView, len(body.Actions))
-		for i, val := range body.Actions {
-			v.Actions[i] = unmarshalSIPPreservationActionResponseBodyToIngestviewsSIPPreservationActionView(val)
+// NewListSipWorkflowsSIPWorkflowsOK builds a "ingest" service
+// "list_sip_workflows" endpoint result from a HTTP "OK" response.
+func NewListSipWorkflowsSIPWorkflowsOK(body *ListSipWorkflowsResponseBody) *ingestviews.SIPWorkflowsView {
+	v := &ingestviews.SIPWorkflowsView{}
+	if body.Workflows != nil {
+		v.Workflows = make([]*ingestviews.SIPWorkflowView, len(body.Workflows))
+		for i, val := range body.Workflows {
+			v.Workflows[i] = unmarshalSIPWorkflowResponseBodyToIngestviewsSIPWorkflowView(val)
 		}
 	}
 
 	return v
 }
 
-// NewListSipPreservationActionsNotFound builds a ingest service
-// list_sip_preservation_actions endpoint not_found error.
-func NewListSipPreservationActionsNotFound(body *ListSipPreservationActionsNotFoundResponseBody) *ingest.SIPNotFound {
+// NewListSipWorkflowsNotFound builds a ingest service list_sip_workflows
+// endpoint not_found error.
+func NewListSipWorkflowsNotFound(body *ListSipWorkflowsNotFoundResponseBody) *ingest.SIPNotFound {
 	v := &ingest.SIPNotFound{
 		Message: *body.Message,
 		ID:      *body.ID,
@@ -741,17 +737,17 @@ func NewListSipPreservationActionsNotFound(body *ListSipPreservationActionsNotFo
 	return v
 }
 
-// NewListSipPreservationActionsForbidden builds a ingest service
-// list_sip_preservation_actions endpoint forbidden error.
-func NewListSipPreservationActionsForbidden(body string) ingest.Forbidden {
+// NewListSipWorkflowsForbidden builds a ingest service list_sip_workflows
+// endpoint forbidden error.
+func NewListSipWorkflowsForbidden(body string) ingest.Forbidden {
 	v := ingest.Forbidden(body)
 
 	return v
 }
 
-// NewListSipPreservationActionsUnauthorized builds a ingest service
-// list_sip_preservation_actions endpoint unauthorized error.
-func NewListSipPreservationActionsUnauthorized(body string) ingest.Unauthorized {
+// NewListSipWorkflowsUnauthorized builds a ingest service list_sip_workflows
+// endpoint unauthorized error.
+func NewListSipWorkflowsUnauthorized(body string) ingest.Unauthorized {
 	v := ingest.Unauthorized(body)
 
 	return v
@@ -1050,8 +1046,8 @@ func ValidateMonitorResponseBody(body *MonitorResponseBody) (err error) {
 			err = goa.MergeErrors(err, goa.MissingFieldError("Value", "body.event"))
 		}
 		if body.Event.Type != nil {
-			if !(*body.Event.Type == "monitor_ping_event" || *body.Event.Type == "sip_created_event" || *body.Event.Type == "sip_updated_event" || *body.Event.Type == "sip_status_updated_event" || *body.Event.Type == "sip_location_updated_event" || *body.Event.Type == "sip_preservation_action_created_event" || *body.Event.Type == "sip_preservation_action_updated_event" || *body.Event.Type == "sip_preservation_task_created_event" || *body.Event.Type == "sip_preservation_task_updated_event") {
-				err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.event.Type", *body.Event.Type, []any{"monitor_ping_event", "sip_created_event", "sip_updated_event", "sip_status_updated_event", "sip_location_updated_event", "sip_preservation_action_created_event", "sip_preservation_action_updated_event", "sip_preservation_task_created_event", "sip_preservation_task_updated_event"}))
+			if !(*body.Event.Type == "monitor_ping_event" || *body.Event.Type == "sip_created_event" || *body.Event.Type == "sip_updated_event" || *body.Event.Type == "sip_status_updated_event" || *body.Event.Type == "sip_location_updated_event" || *body.Event.Type == "sip_workflow_created_event" || *body.Event.Type == "sip_workflow_updated_event" || *body.Event.Type == "sip_task_created_event" || *body.Event.Type == "sip_task_updated_event") {
+				err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.event.Type", *body.Event.Type, []any{"monitor_ping_event", "sip_created_event", "sip_updated_event", "sip_status_updated_event", "sip_location_updated_event", "sip_workflow_created_event", "sip_workflow_updated_event", "sip_task_created_event", "sip_task_updated_event"}))
 			}
 		}
 	}
@@ -1175,9 +1171,9 @@ func ValidateShowSipNotFoundResponseBody(body *ShowSipNotFoundResponseBody) (err
 	return
 }
 
-// ValidateListSipPreservationActionsNotFoundResponseBody runs the validations
-// defined on list_sip_preservation_actions_not_found_response_body
-func ValidateListSipPreservationActionsNotFoundResponseBody(body *ListSipPreservationActionsNotFoundResponseBody) (err error) {
+// ValidateListSipWorkflowsNotFoundResponseBody runs the validations defined on
+// list_sip_workflows_not_found_response_body
+func ValidateListSipWorkflowsNotFoundResponseBody(body *ListSipWorkflowsNotFoundResponseBody) (err error) {
 	if body.Message == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
 	}
@@ -1540,12 +1536,12 @@ func ValidateEnduroPageResponseBody(body *EnduroPageResponseBody) (err error) {
 	return
 }
 
-// ValidateSIPPreservationActionCollectionResponseBody runs the validations
-// defined on SIPPreservationActionCollectionResponseBody
-func ValidateSIPPreservationActionCollectionResponseBody(body SIPPreservationActionCollectionResponseBody) (err error) {
+// ValidateSIPWorkflowCollectionResponseBody runs the validations defined on
+// SIPWorkflowCollectionResponseBody
+func ValidateSIPWorkflowCollectionResponseBody(body SIPWorkflowCollectionResponseBody) (err error) {
 	for _, e := range body {
 		if e != nil {
-			if err2 := ValidateSIPPreservationActionResponseBody(e); err2 != nil {
+			if err2 := ValidateSIPWorkflowResponseBody(e); err2 != nil {
 				err = goa.MergeErrors(err, err2)
 			}
 		}
@@ -1553,9 +1549,9 @@ func ValidateSIPPreservationActionCollectionResponseBody(body SIPPreservationAct
 	return
 }
 
-// ValidateSIPPreservationActionResponseBody runs the validations defined on
-// SIPPreservationActionResponseBody
-func ValidateSIPPreservationActionResponseBody(body *SIPPreservationActionResponseBody) (err error) {
+// ValidateSIPWorkflowResponseBody runs the validations defined on
+// SIPWorkflowResponseBody
+func ValidateSIPWorkflowResponseBody(body *SIPWorkflowResponseBody) (err error) {
 	if body.ID == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
 	}
@@ -1588,19 +1584,19 @@ func ValidateSIPPreservationActionResponseBody(body *SIPPreservationActionRespon
 		err = goa.MergeErrors(err, goa.ValidateFormat("body.completed_at", *body.CompletedAt, goa.FormatDateTime))
 	}
 	if body.Tasks != nil {
-		if err2 := ValidateSIPPreservationTaskCollectionResponseBody(body.Tasks); err2 != nil {
+		if err2 := ValidateSIPTaskCollectionResponseBody(body.Tasks); err2 != nil {
 			err = goa.MergeErrors(err, err2)
 		}
 	}
 	return
 }
 
-// ValidateSIPPreservationTaskCollectionResponseBody runs the validations
-// defined on SIPPreservationTaskCollectionResponseBody
-func ValidateSIPPreservationTaskCollectionResponseBody(body SIPPreservationTaskCollectionResponseBody) (err error) {
+// ValidateSIPTaskCollectionResponseBody runs the validations defined on
+// SIPTaskCollectionResponseBody
+func ValidateSIPTaskCollectionResponseBody(body SIPTaskCollectionResponseBody) (err error) {
 	for _, e := range body {
 		if e != nil {
-			if err2 := ValidateSIPPreservationTaskResponseBody(e); err2 != nil {
+			if err2 := ValidateSIPTaskResponseBody(e); err2 != nil {
 				err = goa.MergeErrors(err, err2)
 			}
 		}
@@ -1608,9 +1604,9 @@ func ValidateSIPPreservationTaskCollectionResponseBody(body SIPPreservationTaskC
 	return
 }
 
-// ValidateSIPPreservationTaskResponseBody runs the validations defined on
-// SIPPreservationTaskResponseBody
-func ValidateSIPPreservationTaskResponseBody(body *SIPPreservationTaskResponseBody) (err error) {
+// ValidateSIPTaskResponseBody runs the validations defined on
+// SIPTaskResponseBody
+func ValidateSIPTaskResponseBody(body *SIPTaskResponseBody) (err error) {
 	if body.ID == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
 	}

@@ -20,13 +20,13 @@ func PublishEvent(ctx context.Context, events EventService, event interface{}) {
 		update.Event = v
 	case *goaingest.SIPLocationUpdatedEvent:
 		update.Event = v
-	case *goaingest.SIPPreservationActionCreatedEvent:
+	case *goaingest.SIPWorkflowCreatedEvent:
 		update.Event = v
-	case *goaingest.SIPPreservationActionUpdatedEvent:
+	case *goaingest.SIPWorkflowUpdatedEvent:
 		update.Event = v
-	case *goaingest.SIPPreservationTaskCreatedEvent:
+	case *goaingest.SIPTaskCreatedEvent:
 		update.Event = v
-	case *goaingest.SIPPreservationTaskUpdatedEvent:
+	case *goaingest.SIPTaskUpdatedEvent:
 		update.Event = v
 	default:
 		panic("tried to publish unexpected event")
