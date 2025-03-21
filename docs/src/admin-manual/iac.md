@@ -176,6 +176,7 @@ The `*` attribute will provide full access to the API.
 | POST   | /storage/aips/{uuid}/store             | `storage:aips:move`           |
 | POST   | /storage/aips/{uuid}/submit            | `storage:aips:submit`         |
 | POST   | /storage/aips/{uuid}/update            | `storage:aips:submit`         |
+| POST   | /storage/aips/{uuid}/workflows         | `storage:aips:workflows:list` |
 | GET    | /storage/locations                     | `storage:locations:list`      |
 | POST   | /storage/locations                     | `storage:locations:create`    |
 | GET    | /storage/locations/{uuid}              | `storage:locations:read`      |

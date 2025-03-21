@@ -37,6 +37,8 @@ type Service interface {
 	RejectAip(context.Context, *RejectAipPayload) (err error)
 	// Show AIP by AIPID
 	ShowAip(context.Context, *ShowAipPayload) (res *AIP, err error)
+	// List all workflows for an AIP
+	ListAipWorkflows(context.Context, *ListAipWorkflowsPayload) (res *AIPWorkflows, err error)
 	// List locations
 	ListLocations(context.Context, *ListLocationsPayload) (res LocationCollection, err error)
 	// Create a storage location
@@ -67,7 +69,7 @@ const ServiceName = "storage"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [13]string{"list_aips", "create_aip", "submit_aip", "update_aip", "download_aip", "move_aip", "move_aip_status", "reject_aip", "show_aip", "list_locations", "create_location", "show_location", "list_location_aips"}
+var MethodNames = [14]string{"list_aips", "create_aip", "submit_aip", "update_aip", "download_aip", "move_aip", "move_aip_status", "reject_aip", "show_aip", "list_aip_workflows", "list_locations", "create_location", "show_location", "list_location_aips"}
 
 // AIP is the result type of the storage service create_aip method.
 type AIP struct {
@@ -92,6 +94,37 @@ type AIPNotFound struct {
 	Message string
 	// Identifier of missing AIP
 	UUID uuid.UUID
+}
+
+// AIPTask describes an AIP workflow task.
+type AIPTask struct {
+	UUID        uuid.UUID
+	Name        string
+	Status      string
+	StartedAt   *string
+	CompletedAt *string
+	Note        *string
+}
+
+type AIPTaskCollection []*AIPTask
+
+// AIPWorkflow describes a workflow of an AIP.
+type AIPWorkflow struct {
+	UUID        uuid.UUID
+	TemporalID  string
+	Type        string
+	Status      string
+	StartedAt   *string
+	CompletedAt *string
+	Tasks       AIPTaskCollection
+}
+
+type AIPWorkflowCollection []*AIPWorkflow
+
+// AIPWorkflows is the result type of the storage service list_aip_workflows
+// method.
+type AIPWorkflows struct {
+	Workflows AIPWorkflowCollection
 }
 
 // AIPs is the result type of the storage service list_aips method.
@@ -157,6 +190,14 @@ type EnduroPage struct {
 	Offset int
 	// Total result count before paging
 	Total int
+}
+
+// ListAipWorkflowsPayload is the payload type of the storage service
+// list_aip_workflows method.
+type ListAipWorkflowsPayload struct {
+	// Identifier of AIP
+	UUID  string
+	Token *string
 }
 
 // ListAipsPayload is the payload type of the storage service list_aips method.
@@ -512,6 +553,19 @@ func NewViewedAIP(res *AIP, view string) *storageviews.AIP {
 	return &storageviews.AIP{Projected: p, View: "default"}
 }
 
+// NewAIPWorkflows initializes result type AIPWorkflows from viewed result type
+// AIPWorkflows.
+func NewAIPWorkflows(vres *storageviews.AIPWorkflows) *AIPWorkflows {
+	return newAIPWorkflows(vres.Projected)
+}
+
+// NewViewedAIPWorkflows initializes viewed result type AIPWorkflows from
+// result type AIPWorkflows using the given view.
+func NewViewedAIPWorkflows(res *AIPWorkflows, view string) *storageviews.AIPWorkflows {
+	p := newAIPWorkflowsView(res)
+	return &storageviews.AIPWorkflows{Projected: p, View: "default"}
+}
+
 // NewLocationCollection initializes result type LocationCollection from viewed
 // result type LocationCollection.
 func NewLocationCollection(vres storageviews.LocationCollection) LocationCollection {
@@ -658,6 +712,201 @@ func newEnduroPageView(res *EnduroPage) *storageviews.EnduroPageView {
 		Limit:  &res.Limit,
 		Offset: &res.Offset,
 		Total:  &res.Total,
+	}
+	return vres
+}
+
+// newAIPWorkflows converts projected type AIPWorkflows to service type
+// AIPWorkflows.
+func newAIPWorkflows(vres *storageviews.AIPWorkflowsView) *AIPWorkflows {
+	res := &AIPWorkflows{}
+	if vres.Workflows != nil {
+		res.Workflows = newAIPWorkflowCollection(vres.Workflows)
+	}
+	return res
+}
+
+// newAIPWorkflowsView projects result type AIPWorkflows to projected type
+// AIPWorkflowsView using the "default" view.
+func newAIPWorkflowsView(res *AIPWorkflows) *storageviews.AIPWorkflowsView {
+	vres := &storageviews.AIPWorkflowsView{}
+	if res.Workflows != nil {
+		vres.Workflows = newAIPWorkflowCollectionView(res.Workflows)
+	}
+	return vres
+}
+
+// newAIPWorkflowCollectionSimple converts projected type AIPWorkflowCollection
+// to service type AIPWorkflowCollection.
+func newAIPWorkflowCollectionSimple(vres storageviews.AIPWorkflowCollectionView) AIPWorkflowCollection {
+	res := make(AIPWorkflowCollection, len(vres))
+	for i, n := range vres {
+		res[i] = newAIPWorkflowSimple(n)
+	}
+	return res
+}
+
+// newAIPWorkflowCollection converts projected type AIPWorkflowCollection to
+// service type AIPWorkflowCollection.
+func newAIPWorkflowCollection(vres storageviews.AIPWorkflowCollectionView) AIPWorkflowCollection {
+	res := make(AIPWorkflowCollection, len(vres))
+	for i, n := range vres {
+		res[i] = newAIPWorkflow(n)
+	}
+	return res
+}
+
+// newAIPWorkflowCollectionViewSimple projects result type
+// AIPWorkflowCollection to projected type AIPWorkflowCollectionView using the
+// "simple" view.
+func newAIPWorkflowCollectionViewSimple(res AIPWorkflowCollection) storageviews.AIPWorkflowCollectionView {
+	vres := make(storageviews.AIPWorkflowCollectionView, len(res))
+	for i, n := range res {
+		vres[i] = newAIPWorkflowViewSimple(n)
+	}
+	return vres
+}
+
+// newAIPWorkflowCollectionView projects result type AIPWorkflowCollection to
+// projected type AIPWorkflowCollectionView using the "default" view.
+func newAIPWorkflowCollectionView(res AIPWorkflowCollection) storageviews.AIPWorkflowCollectionView {
+	vres := make(storageviews.AIPWorkflowCollectionView, len(res))
+	for i, n := range res {
+		vres[i] = newAIPWorkflowView(n)
+	}
+	return vres
+}
+
+// newAIPWorkflowSimple converts projected type AIPWorkflow to service type
+// AIPWorkflow.
+func newAIPWorkflowSimple(vres *storageviews.AIPWorkflowView) *AIPWorkflow {
+	res := &AIPWorkflow{
+		StartedAt:   vres.StartedAt,
+		CompletedAt: vres.CompletedAt,
+	}
+	if vres.UUID != nil {
+		res.UUID = *vres.UUID
+	}
+	if vres.TemporalID != nil {
+		res.TemporalID = *vres.TemporalID
+	}
+	if vres.Type != nil {
+		res.Type = *vres.Type
+	}
+	if vres.Status != nil {
+		res.Status = *vres.Status
+	}
+	if vres.Tasks != nil {
+		res.Tasks = newAIPTaskCollection(vres.Tasks)
+	}
+	return res
+}
+
+// newAIPWorkflow converts projected type AIPWorkflow to service type
+// AIPWorkflow.
+func newAIPWorkflow(vres *storageviews.AIPWorkflowView) *AIPWorkflow {
+	res := &AIPWorkflow{
+		StartedAt:   vres.StartedAt,
+		CompletedAt: vres.CompletedAt,
+	}
+	if vres.UUID != nil {
+		res.UUID = *vres.UUID
+	}
+	if vres.TemporalID != nil {
+		res.TemporalID = *vres.TemporalID
+	}
+	if vres.Type != nil {
+		res.Type = *vres.Type
+	}
+	if vres.Status != nil {
+		res.Status = *vres.Status
+	}
+	if vres.Tasks != nil {
+		res.Tasks = newAIPTaskCollection(vres.Tasks)
+	}
+	return res
+}
+
+// newAIPWorkflowViewSimple projects result type AIPWorkflow to projected type
+// AIPWorkflowView using the "simple" view.
+func newAIPWorkflowViewSimple(res *AIPWorkflow) *storageviews.AIPWorkflowView {
+	vres := &storageviews.AIPWorkflowView{
+		UUID:        &res.UUID,
+		TemporalID:  &res.TemporalID,
+		Type:        &res.Type,
+		Status:      &res.Status,
+		StartedAt:   res.StartedAt,
+		CompletedAt: res.CompletedAt,
+	}
+	return vres
+}
+
+// newAIPWorkflowView projects result type AIPWorkflow to projected type
+// AIPWorkflowView using the "default" view.
+func newAIPWorkflowView(res *AIPWorkflow) *storageviews.AIPWorkflowView {
+	vres := &storageviews.AIPWorkflowView{
+		UUID:        &res.UUID,
+		TemporalID:  &res.TemporalID,
+		Type:        &res.Type,
+		Status:      &res.Status,
+		StartedAt:   res.StartedAt,
+		CompletedAt: res.CompletedAt,
+	}
+	if res.Tasks != nil {
+		vres.Tasks = newAIPTaskCollectionView(res.Tasks)
+	}
+	return vres
+}
+
+// newAIPTaskCollection converts projected type AIPTaskCollection to service
+// type AIPTaskCollection.
+func newAIPTaskCollection(vres storageviews.AIPTaskCollectionView) AIPTaskCollection {
+	res := make(AIPTaskCollection, len(vres))
+	for i, n := range vres {
+		res[i] = newAIPTask(n)
+	}
+	return res
+}
+
+// newAIPTaskCollectionView projects result type AIPTaskCollection to projected
+// type AIPTaskCollectionView using the "default" view.
+func newAIPTaskCollectionView(res AIPTaskCollection) storageviews.AIPTaskCollectionView {
+	vres := make(storageviews.AIPTaskCollectionView, len(res))
+	for i, n := range res {
+		vres[i] = newAIPTaskView(n)
+	}
+	return vres
+}
+
+// newAIPTask converts projected type AIPTask to service type AIPTask.
+func newAIPTask(vres *storageviews.AIPTaskView) *AIPTask {
+	res := &AIPTask{
+		StartedAt:   vres.StartedAt,
+		CompletedAt: vres.CompletedAt,
+		Note:        vres.Note,
+	}
+	if vres.UUID != nil {
+		res.UUID = *vres.UUID
+	}
+	if vres.Name != nil {
+		res.Name = *vres.Name
+	}
+	if vres.Status != nil {
+		res.Status = *vres.Status
+	}
+	return res
+}
+
+// newAIPTaskView projects result type AIPTask to projected type AIPTaskView
+// using the "default" view.
+func newAIPTaskView(res *AIPTask) *storageviews.AIPTaskView {
+	vres := &storageviews.AIPTaskView{
+		UUID:        &res.UUID,
+		Name:        &res.Name,
+		Status:      &res.Status,
+		StartedAt:   res.StartedAt,
+		CompletedAt: res.CompletedAt,
+		Note:        res.Note,
 	}
 	return vres
 }

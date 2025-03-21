@@ -111,6 +111,19 @@ func (w *wrapper) UpdateAIPLocationID(ctx context.Context, aipID, locationID uui
 	return nil
 }
 
+func (w *wrapper) AIPWorkflows(ctx context.Context, aipUUID uuid.UUID) (goastorage.AIPWorkflowCollection, error) {
+	ctx, span := w.tracer.Start(ctx, "AIPWorkflows")
+	defer span.End()
+
+	r, err := w.wrapped.AIPWorkflows(ctx, aipUUID)
+	if err != nil {
+		telemetry.RecordError(span, err)
+		return nil, updateError(err, "AIPWorkflows")
+	}
+
+	return r, nil
+}
+
 func (w *wrapper) CreateLocation(
 	ctx context.Context,
 	location *goastorage.Location,

@@ -83,6 +83,45 @@ func (c *MockStorageAIPDBIDCall) DoAndReturn(f func(context.Context, uuid.UUID) 
 	return c
 }
 
+// AIPWorkflows mocks base method.
+func (m *MockStorage) AIPWorkflows(arg0 context.Context, arg1 uuid.UUID) (storage.AIPWorkflowCollection, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AIPWorkflows", arg0, arg1)
+	ret0, _ := ret[0].(storage.AIPWorkflowCollection)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AIPWorkflows indicates an expected call of AIPWorkflows.
+func (mr *MockStorageMockRecorder) AIPWorkflows(arg0, arg1 any) *MockStorageAIPWorkflowsCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AIPWorkflows", reflect.TypeOf((*MockStorage)(nil).AIPWorkflows), arg0, arg1)
+	return &MockStorageAIPWorkflowsCall{Call: call}
+}
+
+// MockStorageAIPWorkflowsCall wrap *gomock.Call
+type MockStorageAIPWorkflowsCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockStorageAIPWorkflowsCall) Return(arg0 storage.AIPWorkflowCollection, arg1 error) *MockStorageAIPWorkflowsCall {
+	c.Call = c.Call.Return(arg0, arg1)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockStorageAIPWorkflowsCall) Do(f func(context.Context, uuid.UUID) (storage.AIPWorkflowCollection, error)) *MockStorageAIPWorkflowsCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockStorageAIPWorkflowsCall) DoAndReturn(f func(context.Context, uuid.UUID) (storage.AIPWorkflowCollection, error)) *MockStorageAIPWorkflowsCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
 // CreateAIP mocks base method.
 func (m *MockStorage) CreateAIP(arg0 context.Context, arg1 *storage.AIP) (*storage.AIP, error) {
 	m.ctrl.T.Helper()

@@ -54,6 +54,10 @@ type Client struct {
 	// endpoint.
 	ShowAipDoer goahttp.Doer
 
+	// ListAipWorkflows Doer is the HTTP client used to make requests to the
+	// list_aip_workflows endpoint.
+	ListAipWorkflowsDoer goahttp.Doer
+
 	// ListLocations Doer is the HTTP client used to make requests to the
 	// list_locations endpoint.
 	ListLocationsDoer goahttp.Doer
@@ -102,6 +106,7 @@ func NewClient(
 		MoveAipStatusDoer:    doer,
 		RejectAipDoer:        doer,
 		ShowAipDoer:          doer,
+		ListAipWorkflowsDoer: doer,
 		ListLocationsDoer:    doer,
 		CreateLocationDoer:   doer,
 		ShowLocationDoer:     doer,
@@ -326,6 +331,30 @@ func (c *Client) ShowAip() goa.Endpoint {
 		resp, err := c.ShowAipDoer.Do(req)
 		if err != nil {
 			return nil, goahttp.ErrRequestError("storage", "show_aip", err)
+		}
+		return decodeResponse(resp)
+	}
+}
+
+// ListAipWorkflows returns an endpoint that makes HTTP requests to the storage
+// service list_aip_workflows server.
+func (c *Client) ListAipWorkflows() goa.Endpoint {
+	var (
+		encodeRequest  = EncodeListAipWorkflowsRequest(c.encoder)
+		decodeResponse = DecodeListAipWorkflowsResponse(c.decoder, c.RestoreResponseBody)
+	)
+	return func(ctx context.Context, v any) (any, error) {
+		req, err := c.BuildListAipWorkflowsRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		err = encodeRequest(req, v)
+		if err != nil {
+			return nil, err
+		}
+		resp, err := c.ListAipWorkflowsDoer.Do(req)
+		if err != nil {
+			return nil, goahttp.ErrRequestError("storage", "list_aip_workflows", err)
 		}
 		return decodeResponse(resp)
 	}

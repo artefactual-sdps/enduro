@@ -23,6 +23,7 @@ type Storage interface {
 	AIPDBID(ctx context.Context, aipID uuid.UUID) (int, error)
 	UpdateAIPStatus(ctx context.Context, aipID uuid.UUID, status enums.AIPStatus) error
 	UpdateAIPLocationID(ctx context.Context, aipID, locationID uuid.UUID) error
+	AIPWorkflows(ctx context.Context, aipUUID uuid.UUID) (goastorage.AIPWorkflowCollection, error)
 
 	// Location.
 	CreateLocation(

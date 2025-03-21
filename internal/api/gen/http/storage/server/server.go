@@ -32,6 +32,7 @@ type Server struct {
 	MoveAipStatus    http.Handler
 	RejectAip        http.Handler
 	ShowAip          http.Handler
+	ListAipWorkflows http.Handler
 	ListLocations    http.Handler
 	CreateLocation   http.Handler
 	ShowLocation     http.Handler
@@ -75,6 +76,7 @@ func New(
 			{"MoveAipStatus", "GET", "/storage/aips/{uuid}/store"},
 			{"RejectAip", "POST", "/storage/aips/{uuid}/reject"},
 			{"ShowAip", "GET", "/storage/aips/{uuid}"},
+			{"ListAipWorkflows", "GET", "/storage/aips/{uuid}/workflows"},
 			{"ListLocations", "GET", "/storage/locations"},
 			{"CreateLocation", "POST", "/storage/locations"},
 			{"ShowLocation", "GET", "/storage/locations/{uuid}"},
@@ -86,6 +88,7 @@ func New(
 			{"CORS", "OPTIONS", "/storage/aips/{uuid}/store"},
 			{"CORS", "OPTIONS", "/storage/aips/{uuid}/reject"},
 			{"CORS", "OPTIONS", "/storage/aips/{uuid}"},
+			{"CORS", "OPTIONS", "/storage/aips/{uuid}/workflows"},
 			{"CORS", "OPTIONS", "/storage/locations"},
 			{"CORS", "OPTIONS", "/storage/locations/{uuid}"},
 			{"CORS", "OPTIONS", "/storage/locations/{uuid}/aips"},
@@ -99,6 +102,7 @@ func New(
 		MoveAipStatus:    NewMoveAipStatusHandler(e.MoveAipStatus, mux, decoder, encoder, errhandler, formatter),
 		RejectAip:        NewRejectAipHandler(e.RejectAip, mux, decoder, encoder, errhandler, formatter),
 		ShowAip:          NewShowAipHandler(e.ShowAip, mux, decoder, encoder, errhandler, formatter),
+		ListAipWorkflows: NewListAipWorkflowsHandler(e.ListAipWorkflows, mux, decoder, encoder, errhandler, formatter),
 		ListLocations:    NewListLocationsHandler(e.ListLocations, mux, decoder, encoder, errhandler, formatter),
 		CreateLocation:   NewCreateLocationHandler(e.CreateLocation, mux, decoder, encoder, errhandler, formatter),
 		ShowLocation:     NewShowLocationHandler(e.ShowLocation, mux, decoder, encoder, errhandler, formatter),
@@ -121,6 +125,7 @@ func (s *Server) Use(m func(http.Handler) http.Handler) {
 	s.MoveAipStatus = m(s.MoveAipStatus)
 	s.RejectAip = m(s.RejectAip)
 	s.ShowAip = m(s.ShowAip)
+	s.ListAipWorkflows = m(s.ListAipWorkflows)
 	s.ListLocations = m(s.ListLocations)
 	s.CreateLocation = m(s.CreateLocation)
 	s.ShowLocation = m(s.ShowLocation)
@@ -142,6 +147,7 @@ func Mount(mux goahttp.Muxer, h *Server) {
 	MountMoveAipStatusHandler(mux, h.MoveAipStatus)
 	MountRejectAipHandler(mux, h.RejectAip)
 	MountShowAipHandler(mux, h.ShowAip)
+	MountListAipWorkflowsHandler(mux, h.ListAipWorkflows)
 	MountListLocationsHandler(mux, h.ListLocations)
 	MountCreateLocationHandler(mux, h.CreateLocation)
 	MountShowLocationHandler(mux, h.ShowLocation)
@@ -613,6 +619,57 @@ func NewShowAipHandler(
 	})
 }
 
+// MountListAipWorkflowsHandler configures the mux to serve the "storage"
+// service "list_aip_workflows" endpoint.
+func MountListAipWorkflowsHandler(mux goahttp.Muxer, h http.Handler) {
+	f, ok := HandleStorageOrigin(h).(http.HandlerFunc)
+	if !ok {
+		f = func(w http.ResponseWriter, r *http.Request) {
+			h.ServeHTTP(w, r)
+		}
+	}
+	mux.Handle("GET", "/storage/aips/{uuid}/workflows", otelhttp.WithRouteTag("/storage/aips/{uuid}/workflows", f).ServeHTTP)
+}
+
+// NewListAipWorkflowsHandler creates a HTTP handler which loads the HTTP
+// request and calls the "storage" service "list_aip_workflows" endpoint.
+func NewListAipWorkflowsHandler(
+	endpoint goa.Endpoint,
+	mux goahttp.Muxer,
+	decoder func(*http.Request) goahttp.Decoder,
+	encoder func(context.Context, http.ResponseWriter) goahttp.Encoder,
+	errhandler func(context.Context, http.ResponseWriter, error),
+	formatter func(ctx context.Context, err error) goahttp.Statuser,
+) http.Handler {
+	var (
+		decodeRequest  = DecodeListAipWorkflowsRequest(mux, decoder)
+		encodeResponse = EncodeListAipWorkflowsResponse(encoder)
+		encodeError    = EncodeListAipWorkflowsError(encoder, formatter)
+	)
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
+		ctx = context.WithValue(ctx, goa.MethodKey, "list_aip_workflows")
+		ctx = context.WithValue(ctx, goa.ServiceKey, "storage")
+		payload, err := decodeRequest(r)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		res, err := endpoint(ctx, payload)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		if err := encodeResponse(ctx, w, res); err != nil {
+			errhandler(ctx, w, err)
+		}
+	})
+}
+
 // MountListLocationsHandler configures the mux to serve the "storage" service
 // "list_locations" endpoint.
 func MountListLocationsHandler(mux goahttp.Muxer, h http.Handler) {
@@ -828,6 +885,7 @@ func MountCORSHandler(mux goahttp.Muxer, h http.Handler) {
 	mux.Handle("OPTIONS", "/storage/aips/{uuid}/store", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/storage/aips/{uuid}/reject", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/storage/aips/{uuid}", h.ServeHTTP)
+	mux.Handle("OPTIONS", "/storage/aips/{uuid}/workflows", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/storage/locations", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/storage/locations/{uuid}", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/storage/locations/{uuid}/aips", h.ServeHTTP)

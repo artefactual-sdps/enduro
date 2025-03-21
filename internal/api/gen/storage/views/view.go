@@ -29,6 +29,14 @@ type AIP struct {
 	View string
 }
 
+// AIPWorkflows is the viewed result type that is projected based on a view.
+type AIPWorkflows struct {
+	// Type to project
+	Projected *AIPWorkflowsView
+	// View to render
+	View string
+}
+
 // LocationCollection is the viewed result type that is projected based on a
 // view.
 type LocationCollection struct {
@@ -84,6 +92,39 @@ type EnduroPageView struct {
 	Offset *int
 	// Total result count before paging
 	Total *int
+}
+
+// AIPWorkflowsView is a type that runs validations on a projected type.
+type AIPWorkflowsView struct {
+	Workflows AIPWorkflowCollectionView
+}
+
+// AIPWorkflowCollectionView is a type that runs validations on a projected
+// type.
+type AIPWorkflowCollectionView []*AIPWorkflowView
+
+// AIPWorkflowView is a type that runs validations on a projected type.
+type AIPWorkflowView struct {
+	UUID        *uuid.UUID
+	TemporalID  *string
+	Type        *string
+	Status      *string
+	StartedAt   *string
+	CompletedAt *string
+	Tasks       AIPTaskCollectionView
+}
+
+// AIPTaskCollectionView is a type that runs validations on a projected type.
+type AIPTaskCollectionView []*AIPTaskView
+
+// AIPTaskView is a type that runs validations on a projected type.
+type AIPTaskView struct {
+	UUID        *uuid.UUID
+	Name        *string
+	Status      *string
+	StartedAt   *string
+	CompletedAt *string
+	Note        *string
 }
 
 // LocationCollectionView is a type that runs validations on a projected type.
@@ -163,6 +204,13 @@ var (
 			"created_at",
 		},
 	}
+	// AIPWorkflowsMap is a map indexing the attribute names of AIPWorkflows by
+	// view name.
+	AIPWorkflowsMap = map[string][]string{
+		"default": {
+			"workflows",
+		},
+	}
 	// LocationCollectionMap is a map indexing the attribute names of
 	// LocationCollection by view name.
 	LocationCollectionMap = map[string][]string{
@@ -207,6 +255,71 @@ var (
 			"total",
 		},
 	}
+	// AIPWorkflowCollectionMap is a map indexing the attribute names of
+	// AIPWorkflowCollection by view name.
+	AIPWorkflowCollectionMap = map[string][]string{
+		"simple": {
+			"uuid",
+			"temporal_id",
+			"type",
+			"status",
+			"started_at",
+			"completed_at",
+		},
+		"default": {
+			"uuid",
+			"temporal_id",
+			"type",
+			"status",
+			"started_at",
+			"completed_at",
+			"tasks",
+		},
+	}
+	// AIPWorkflowMap is a map indexing the attribute names of AIPWorkflow by view
+	// name.
+	AIPWorkflowMap = map[string][]string{
+		"simple": {
+			"uuid",
+			"temporal_id",
+			"type",
+			"status",
+			"started_at",
+			"completed_at",
+		},
+		"default": {
+			"uuid",
+			"temporal_id",
+			"type",
+			"status",
+			"started_at",
+			"completed_at",
+			"tasks",
+		},
+	}
+	// AIPTaskCollectionMap is a map indexing the attribute names of
+	// AIPTaskCollection by view name.
+	AIPTaskCollectionMap = map[string][]string{
+		"default": {
+			"uuid",
+			"name",
+			"status",
+			"started_at",
+			"completed_at",
+			"note",
+		},
+	}
+	// AIPTaskMap is a map indexing the attribute names of AIPTask by view name.
+	AIPTaskMap = map[string][]string{
+		"default": {
+			"uuid",
+			"name",
+			"status",
+			"started_at",
+			"completed_at",
+			"note",
+		},
+	}
 )
 
 // ValidateAIPs runs the validations defined on the viewed result type AIPs.
@@ -225,6 +338,18 @@ func ValidateAIP(result *AIP) (err error) {
 	switch result.View {
 	case "default", "":
 		err = ValidateAIPView(result.Projected)
+	default:
+		err = goa.InvalidEnumValueError("view", result.View, []any{"default"})
+	}
+	return
+}
+
+// ValidateAIPWorkflows runs the validations defined on the viewed result type
+// AIPWorkflows.
+func ValidateAIPWorkflows(result *AIPWorkflows) (err error) {
+	switch result.View {
+	case "default", "":
+		err = ValidateAIPWorkflowsView(result.Projected)
 	default:
 		err = goa.InvalidEnumValueError("view", result.View, []any{"default"})
 	}
@@ -335,6 +460,150 @@ func ValidateEnduroPageView(result *EnduroPageView) (err error) {
 	}
 	if result.Total == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("total", "result"))
+	}
+	return
+}
+
+// ValidateAIPWorkflowsView runs the validations defined on AIPWorkflowsView
+// using the "default" view.
+func ValidateAIPWorkflowsView(result *AIPWorkflowsView) (err error) {
+
+	if result.Workflows != nil {
+		if err2 := ValidateAIPWorkflowCollectionView(result.Workflows); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	return
+}
+
+// ValidateAIPWorkflowCollectionViewSimple runs the validations defined on
+// AIPWorkflowCollectionView using the "simple" view.
+func ValidateAIPWorkflowCollectionViewSimple(result AIPWorkflowCollectionView) (err error) {
+	for _, item := range result {
+		if err2 := ValidateAIPWorkflowViewSimple(item); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	return
+}
+
+// ValidateAIPWorkflowCollectionView runs the validations defined on
+// AIPWorkflowCollectionView using the "default" view.
+func ValidateAIPWorkflowCollectionView(result AIPWorkflowCollectionView) (err error) {
+	for _, item := range result {
+		if err2 := ValidateAIPWorkflowView(item); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	return
+}
+
+// ValidateAIPWorkflowViewSimple runs the validations defined on
+// AIPWorkflowView using the "simple" view.
+func ValidateAIPWorkflowViewSimple(result *AIPWorkflowView) (err error) {
+	if result.UUID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("uuid", "result"))
+	}
+	if result.TemporalID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporal_id", "result"))
+	}
+	if result.Type == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("type", "result"))
+	}
+	if result.Status == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("status", "result"))
+	}
+	if result.Type != nil {
+		if !(*result.Type == "unspecified" || *result.Type == "upload aip" || *result.Type == "move aip" || *result.Type == "delete aip") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.type", *result.Type, []any{"unspecified", "upload aip", "move aip", "delete aip"}))
+		}
+	}
+	if result.Status != nil {
+		if !(*result.Status == "unspecified" || *result.Status == "in progress" || *result.Status == "done" || *result.Status == "error" || *result.Status == "queued" || *result.Status == "pending") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.status", *result.Status, []any{"unspecified", "in progress", "done", "error", "queued", "pending"}))
+		}
+	}
+	if result.StartedAt != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("result.started_at", *result.StartedAt, goa.FormatDateTime))
+	}
+	if result.CompletedAt != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("result.completed_at", *result.CompletedAt, goa.FormatDateTime))
+	}
+	return
+}
+
+// ValidateAIPWorkflowView runs the validations defined on AIPWorkflowView
+// using the "default" view.
+func ValidateAIPWorkflowView(result *AIPWorkflowView) (err error) {
+	if result.UUID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("uuid", "result"))
+	}
+	if result.TemporalID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporal_id", "result"))
+	}
+	if result.Type == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("type", "result"))
+	}
+	if result.Status == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("status", "result"))
+	}
+	if result.Type != nil {
+		if !(*result.Type == "unspecified" || *result.Type == "upload aip" || *result.Type == "move aip" || *result.Type == "delete aip") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.type", *result.Type, []any{"unspecified", "upload aip", "move aip", "delete aip"}))
+		}
+	}
+	if result.Status != nil {
+		if !(*result.Status == "unspecified" || *result.Status == "in progress" || *result.Status == "done" || *result.Status == "error" || *result.Status == "queued" || *result.Status == "pending") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.status", *result.Status, []any{"unspecified", "in progress", "done", "error", "queued", "pending"}))
+		}
+	}
+	if result.StartedAt != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("result.started_at", *result.StartedAt, goa.FormatDateTime))
+	}
+	if result.CompletedAt != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("result.completed_at", *result.CompletedAt, goa.FormatDateTime))
+	}
+	if result.Tasks != nil {
+		if err2 := ValidateAIPTaskCollectionView(result.Tasks); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	return
+}
+
+// ValidateAIPTaskCollectionView runs the validations defined on
+// AIPTaskCollectionView using the "default" view.
+func ValidateAIPTaskCollectionView(result AIPTaskCollectionView) (err error) {
+	for _, item := range result {
+		if err2 := ValidateAIPTaskView(item); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	return
+}
+
+// ValidateAIPTaskView runs the validations defined on AIPTaskView using the
+// "default" view.
+func ValidateAIPTaskView(result *AIPTaskView) (err error) {
+	if result.UUID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("uuid", "result"))
+	}
+	if result.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "result"))
+	}
+	if result.Status == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("status", "result"))
+	}
+	if result.Status != nil {
+		if !(*result.Status == "unspecified" || *result.Status == "in progress" || *result.Status == "done" || *result.Status == "error" || *result.Status == "queued" || *result.Status == "pending") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.status", *result.Status, []any{"unspecified", "in progress", "done", "error", "queued", "pending"}))
+		}
+	}
+	if result.StartedAt != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("result.started_at", *result.StartedAt, goa.FormatDateTime))
+	}
+	if result.CompletedAt != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("result.completed_at", *result.CompletedAt, goa.FormatDateTime))
 	}
 	return
 }

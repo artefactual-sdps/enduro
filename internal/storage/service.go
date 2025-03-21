@@ -398,6 +398,23 @@ func (s *serviceImpl) AipReader(ctx context.Context, a *goastorage.AIP) (*blob.R
 	return reader, nil
 }
 
+func (s *serviceImpl) ListAipWorkflows(
+	ctx context.Context,
+	payload *goastorage.ListAipWorkflowsPayload,
+) (*goastorage.AIPWorkflows, error) {
+	aipUUID, err := uuid.Parse(payload.UUID)
+	if err != nil {
+		return nil, goastorage.MakeNotValid(errors.New("cannot perform operation"))
+	}
+
+	workflows, err := s.storagePersistence.AIPWorkflows(ctx, aipUUID)
+	if err != nil {
+		return nil, goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
+	}
+
+	return &goastorage.AIPWorkflows{Workflows: workflows}, nil
+}
+
 func (s *serviceImpl) CreateLocation(
 	ctx context.Context,
 	payload *goastorage.CreateLocationPayload,
