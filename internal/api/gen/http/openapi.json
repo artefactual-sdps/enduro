@@ -137,6 +137,180 @@
       "title": "Mediatype identifier: application/vnd.enduro.storage.aip; type=collection; view=default",
       "type": "array"
     },
+    "AIPTaskResponseBody": {
+      "description": "AIPTask describes an AIP workflow task. (default view)",
+      "example": {
+        "completed_at": "1970-01-01T00:00:01Z",
+        "name": "abc123",
+        "note": "abc123",
+        "started_at": "1970-01-01T00:00:01Z",
+        "status": "in progress",
+        "uuid": "abc123"
+      },
+      "properties": {
+        "completed_at": {
+          "example": "1970-01-01T00:00:01Z",
+          "format": "date-time",
+          "type": "string"
+        },
+        "name": {
+          "example": "abc123",
+          "type": "string"
+        },
+        "note": {
+          "example": "abc123",
+          "type": "string"
+        },
+        "started_at": {
+          "example": "1970-01-01T00:00:01Z",
+          "format": "date-time",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "unspecified",
+            "in progress",
+            "done",
+            "error",
+            "queued",
+            "pending"
+          ],
+          "example": "in progress",
+          "type": "string"
+        },
+        "uuid": {
+          "example": "abc123",
+          "type": "string"
+        }
+      },
+      "required": [
+        "uuid",
+        "name",
+        "status"
+      ],
+      "title": "Mediatype identifier: application/vnd.enduro.storage.aip.task; view=default",
+      "type": "object"
+    },
+    "AIPTaskResponseBodyCollection": {
+      "description": "AIPTaskCollectionResponseBody is the result type for an array of AIPTaskResponseBody (default view)",
+      "example": [
+        {
+          "completed_at": "1970-01-01T00:00:01Z",
+          "name": "abc123",
+          "note": "abc123",
+          "started_at": "1970-01-01T00:00:01Z",
+          "status": "in progress",
+          "uuid": "abc123"
+        }
+      ],
+      "items": {
+        "$ref": "#/definitions/AIPTaskResponseBody"
+      },
+      "title": "Mediatype identifier: application/vnd.enduro.storage.aip.task; type=collection; view=default",
+      "type": "array"
+    },
+    "AIPWorkflowResponseBody": {
+      "description": "AIPWorkflow describes a workflow of an AIP. (default view)",
+      "example": {
+        "completed_at": "1970-01-01T00:00:01Z",
+        "started_at": "1970-01-01T00:00:01Z",
+        "status": "in progress",
+        "tasks": [
+          {
+            "completed_at": "1970-01-01T00:00:01Z",
+            "name": "abc123",
+            "note": "abc123",
+            "started_at": "1970-01-01T00:00:01Z",
+            "status": "in progress",
+            "uuid": "abc123"
+          }
+        ],
+        "temporal_id": "abc123",
+        "type": "upload aip",
+        "uuid": "abc123"
+      },
+      "properties": {
+        "completed_at": {
+          "example": "1970-01-01T00:00:01Z",
+          "format": "date-time",
+          "type": "string"
+        },
+        "started_at": {
+          "example": "1970-01-01T00:00:01Z",
+          "format": "date-time",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "unspecified",
+            "in progress",
+            "done",
+            "error",
+            "queued",
+            "pending"
+          ],
+          "example": "in progress",
+          "type": "string"
+        },
+        "tasks": {
+          "$ref": "#/definitions/AIPTaskResponseBodyCollection"
+        },
+        "temporal_id": {
+          "example": "abc123",
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "unspecified",
+            "upload aip",
+            "move aip",
+            "delete aip"
+          ],
+          "example": "upload aip",
+          "type": "string"
+        },
+        "uuid": {
+          "example": "abc123",
+          "type": "string"
+        }
+      },
+      "required": [
+        "uuid",
+        "temporal_id",
+        "type",
+        "status"
+      ],
+      "title": "Mediatype identifier: application/vnd.enduro.storage.aip.workflow; view=default",
+      "type": "object"
+    },
+    "AIPWorkflowResponseBodyCollection": {
+      "description": "AIPWorkflowCollectionResponseBody is the result type for an array of AIPWorkflowResponseBody (default view)",
+      "example": [
+        {
+          "completed_at": "1970-01-01T00:00:01Z",
+          "started_at": "1970-01-01T00:00:01Z",
+          "status": "in progress",
+          "tasks": [
+            {
+              "completed_at": "1970-01-01T00:00:01Z",
+              "name": "abc123",
+              "note": "abc123",
+              "started_at": "1970-01-01T00:00:01Z",
+              "status": "in progress",
+              "uuid": "abc123"
+            }
+          ],
+          "temporal_id": "abc123",
+          "type": "upload aip",
+          "uuid": "abc123"
+        }
+      ],
+      "items": {
+        "$ref": "#/definitions/AIPWorkflowResponseBody"
+      },
+      "title": "Mediatype identifier: application/vnd.enduro.storage.aip.workflow; type=collection; view=default",
+      "type": "array"
+    },
     "AboutAboutResponseBody": {
       "description": "AboutResponseBody result type (default view)",
       "example": {
@@ -2122,6 +2296,63 @@
         "uuid"
       ],
       "title": "StorageDownloadAipNotFoundResponseBody",
+      "type": "object"
+    },
+    "StorageListAipWorkflowsNotFoundResponseBody": {
+      "description": "AIP not found",
+      "example": {
+        "message": "abc123",
+        "uuid": "abc123"
+      },
+      "properties": {
+        "message": {
+          "description": "Message of error",
+          "example": "abc123",
+          "type": "string"
+        },
+        "uuid": {
+          "description": "Identifier of missing AIP",
+          "example": "abc123",
+          "type": "string"
+        }
+      },
+      "required": [
+        "message",
+        "uuid"
+      ],
+      "title": "StorageListAipWorkflowsNotFoundResponseBody",
+      "type": "object"
+    },
+    "StorageListAipWorkflowsResponseBody": {
+      "description": "list_aip_workflows_response_body result type (default view)",
+      "example": {
+        "workflows": [
+          {
+            "completed_at": "1970-01-01T00:00:01Z",
+            "started_at": "1970-01-01T00:00:01Z",
+            "status": "in progress",
+            "tasks": [
+              {
+                "completed_at": "1970-01-01T00:00:01Z",
+                "name": "abc123",
+                "note": "abc123",
+                "started_at": "1970-01-01T00:00:01Z",
+                "status": "in progress",
+                "uuid": "abc123"
+              }
+            ],
+            "temporal_id": "abc123",
+            "type": "upload aip",
+            "uuid": "abc123"
+          }
+        ]
+      },
+      "properties": {
+        "workflows": {
+          "$ref": "#/definitions/AIPWorkflowResponseBodyCollection"
+        }
+      },
+      "title": "Mediatype identifier: application/vnd.enduro.storage.aip.workflows; view=default",
       "type": "object"
     },
     "StorageListAipsNotAvailableResponseBody": {
@@ -4562,6 +4793,70 @@
         ]
       }
     },
+    "/storage/aips/{uuid}/workflows": {
+      "get": {
+        "description": "List all workflows for an AIP\n\n**Required security scopes for jwt**:\n  * `storage:aips:workflows:list`",
+        "operationId": "storage#list_aip_workflows",
+        "parameters": [
+          {
+            "description": "Identifier of AIP",
+            "format": "uuid",
+            "in": "path",
+            "name": "uuid",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK response.",
+            "schema": {
+              "$ref": "#/definitions/StorageListAipWorkflowsResponseBody"
+            }
+          },
+          "401": {
+            "description": "Unauthorized response.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "403": {
+            "description": "Forbidden response.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "404": {
+            "description": "Not Found response.",
+            "schema": {
+              "$ref": "#/definitions/StorageListAipWorkflowsNotFoundResponseBody",
+              "required": [
+                "message",
+                "uuid"
+              ]
+            }
+          }
+        },
+        "schemes": [
+          "http"
+        ],
+        "security": [
+          {
+            "jwt_header_Authorization": []
+          }
+        ],
+        "summary": "list_aip_workflows storage",
+        "tags": [
+          "storage"
+        ]
+      }
+    },
     "/storage/locations": {
       "get": {
         "description": "List locations\n\n**Required security scopes for jwt**:\n  * `storage:locations:list`",
@@ -4837,7 +5132,7 @@
   ],
   "securityDefinitions": {
     "jwt_header_Authorization": {
-      "description": "Secures endpoint by requiring a valid JWT token.\n\n**Security Scopes**:\n  * `ingest:sips:list`: no description\n  * `ingest:sips:move`: no description\n  * `ingest:sips:read`: no description\n  * `ingest:sips:review`: no description\n  * `ingest:sips:upload`: no description\n  * `ingest:sips:workflows:list`: no description\n  * `storage:aips:create`: no description\n  * `storage:aips:download`: no description\n  * `storage:aips:list`: no description\n  * `storage:aips:move`: no description\n  * `storage:aips:read`: no description\n  * `storage:aips:review`: no description\n  * `storage:aips:submit`: no description\n  * `storage:locations:aips:list`: no description\n  * `storage:locations:create`: no description\n  * `storage:locations:list`: no description\n  * `storage:locations:read`: no description",
+      "description": "Secures endpoint by requiring a valid JWT token.\n\n**Security Scopes**:\n  * `ingest:sips:list`: no description\n  * `ingest:sips:move`: no description\n  * `ingest:sips:read`: no description\n  * `ingest:sips:review`: no description\n  * `ingest:sips:upload`: no description\n  * `ingest:sips:workflows:list`: no description\n  * `storage:aips:create`: no description\n  * `storage:aips:download`: no description\n  * `storage:aips:list`: no description\n  * `storage:aips:move`: no description\n  * `storage:aips:read`: no description\n  * `storage:aips:review`: no description\n  * `storage:aips:submit`: no description\n  * `storage:aips:workflows:list`: no description\n  * `storage:locations:aips:list`: no description\n  * `storage:locations:create`: no description\n  * `storage:locations:list`: no description\n  * `storage:locations:read`: no description",
       "in": "header",
       "name": "Authorization",
       "type": "apiKey"

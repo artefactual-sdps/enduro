@@ -13,6 +13,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/storage/enums"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/aip"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/location"
+	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/workflow"
 	"github.com/google/uuid"
 )
 
@@ -78,6 +79,21 @@ func (ac *AIPCreate) SetNillableCreatedAt(t *time.Time) *AIPCreate {
 // SetLocation sets the "location" edge to the Location entity.
 func (ac *AIPCreate) SetLocation(l *Location) *AIPCreate {
 	return ac.SetLocationID(l.ID)
+}
+
+// AddWorkflowIDs adds the "workflows" edge to the Workflow entity by IDs.
+func (ac *AIPCreate) AddWorkflowIDs(ids ...int) *AIPCreate {
+	ac.mutation.AddWorkflowIDs(ids...)
+	return ac
+}
+
+// AddWorkflows adds the "workflows" edges to the Workflow entity.
+func (ac *AIPCreate) AddWorkflows(w ...*Workflow) *AIPCreate {
+	ids := make([]int, len(w))
+	for i := range w {
+		ids[i] = w[i].ID
+	}
+	return ac.AddWorkflowIDs(ids...)
 }
 
 // Mutation returns the AIPMutation object of the builder.
@@ -204,6 +220,22 @@ func (ac *AIPCreate) createSpec() (*AIP, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.LocationID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := ac.mutation.WorkflowsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   aip.WorkflowsTable,
+			Columns: []string{aip.WorkflowsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(workflow.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

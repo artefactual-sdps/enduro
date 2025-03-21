@@ -42,9 +42,11 @@ type AIP struct {
 type AIPEdges struct {
 	// Location holds the value of the location edge.
 	Location *Location `json:"location,omitempty"`
+	// Workflows holds the value of the workflows edge.
+	Workflows []*Workflow `json:"workflows,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [2]bool
 }
 
 // LocationOrErr returns the Location value or an error if the edge
@@ -56,6 +58,15 @@ func (e AIPEdges) LocationOrErr() (*Location, error) {
 		return nil, &NotFoundError{label: location.Label}
 	}
 	return nil, &NotLoadedError{edge: "location"}
+}
+
+// WorkflowsOrErr returns the Workflows value or an error if the edge
+// was not loaded in eager-loading.
+func (e AIPEdges) WorkflowsOrErr() ([]*Workflow, error) {
+	if e.loadedTypes[1] {
+		return e.Workflows, nil
+	}
+	return nil, &NotLoadedError{edge: "workflows"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -144,6 +155,11 @@ func (a *AIP) Value(name string) (ent.Value, error) {
 // QueryLocation queries the "location" edge of the AIP entity.
 func (a *AIP) QueryLocation() *LocationQuery {
 	return NewAIPClient(a.config).QueryLocation(a)
+}
+
+// QueryWorkflows queries the "workflows" edge of the AIP entity.
+func (a *AIP) QueryWorkflows() *WorkflowQuery {
+	return NewAIPClient(a.config).QueryWorkflows(a)
 }
 
 // Update returns a builder for updating this AIP.

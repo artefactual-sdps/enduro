@@ -77,10 +77,76 @@ var (
 			},
 		},
 	}
+	// TaskColumns holds the columns for the "task" table.
+	TaskColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "uuid", Type: field.TypeUUID, Unique: true},
+		{Name: "name", Type: field.TypeString, Size: 2048},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"unspecified", "in progress", "done", "error", "queued", "pending"}},
+		{Name: "started_at", Type: field.TypeTime, Nullable: true},
+		{Name: "completed_at", Type: field.TypeTime, Nullable: true},
+		{Name: "note", Type: field.TypeString, Size: 2147483647},
+		{Name: "workflow_id", Type: field.TypeInt},
+	}
+	// TaskTable holds the schema information for the "task" table.
+	TaskTable = &schema.Table{
+		Name:       "task",
+		Columns:    TaskColumns,
+		PrimaryKey: []*schema.Column{TaskColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "task_workflow_tasks",
+				Columns:    []*schema.Column{TaskColumns[7]},
+				RefColumns: []*schema.Column{WorkflowColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "task_uuid",
+				Unique:  false,
+				Columns: []*schema.Column{TaskColumns[1]},
+			},
+		},
+	}
+	// WorkflowColumns holds the columns for the "workflow" table.
+	WorkflowColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "uuid", Type: field.TypeUUID, Unique: true},
+		{Name: "temporal_id", Type: field.TypeString, Size: 255},
+		{Name: "type", Type: field.TypeEnum, Enums: []string{"unspecified", "upload aip", "move aip", "delete aip"}},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"unspecified", "in progress", "done", "error", "queued", "pending"}},
+		{Name: "started_at", Type: field.TypeTime, Nullable: true},
+		{Name: "completed_at", Type: field.TypeTime, Nullable: true},
+		{Name: "aip_id", Type: field.TypeInt},
+	}
+	// WorkflowTable holds the schema information for the "workflow" table.
+	WorkflowTable = &schema.Table{
+		Name:       "workflow",
+		Columns:    WorkflowColumns,
+		PrimaryKey: []*schema.Column{WorkflowColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "workflow_aip_workflows",
+				Columns:    []*schema.Column{WorkflowColumns[7]},
+				RefColumns: []*schema.Column{AipColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "workflow_uuid",
+				Unique:  false,
+				Columns: []*schema.Column{WorkflowColumns[1]},
+			},
+		},
+	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		AipTable,
 		LocationTable,
+		TaskTable,
+		WorkflowTable,
 	}
 )
 
@@ -91,5 +157,13 @@ func init() {
 	}
 	LocationTable.Annotation = &entsql.Annotation{
 		Table: "location",
+	}
+	TaskTable.ForeignKeys[0].RefTable = WorkflowTable
+	TaskTable.Annotation = &entsql.Annotation{
+		Table: "task",
+	}
+	WorkflowTable.ForeignKeys[0].RefTable = AipTable
+	WorkflowTable.Annotation = &entsql.Annotation{
+		Table: "workflow",
 	}
 }

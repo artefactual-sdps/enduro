@@ -29,6 +29,9 @@ export const useAipStore = defineStore("aip", {
     // AIP currently displayed.
     current: null as api.EnduroStorageAip | null,
 
+    // Workflows of the current AIP.
+    currentWorkflows: null as api.AIPWorkflows | null,
+
     // The current AIP is being moved into a new location.
     // Set to true by this client when the AIP is moved.
     // Set to false by moveStatus or handleSipLocationUpdated.
@@ -85,6 +88,9 @@ export const useAipStore = defineStore("aip", {
   actions: {
     async fetchCurrent(id: string) {
       this.current = await client.storage.storageShowAip({ uuid: id });
+      this.currentWorkflows = await client.storage.storageListAipWorkflows({
+        uuid: id,
+      });
       this.locationChanging =
         this.current?.status == api.EnduroStorageAipStatusEnum.Moving;
 

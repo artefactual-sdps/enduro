@@ -25,6 +25,7 @@ type Client struct {
 	MoveAipStatusEndpoint    goa.Endpoint
 	RejectAipEndpoint        goa.Endpoint
 	ShowAipEndpoint          goa.Endpoint
+	ListAipWorkflowsEndpoint goa.Endpoint
 	ListLocationsEndpoint    goa.Endpoint
 	CreateLocationEndpoint   goa.Endpoint
 	ShowLocationEndpoint     goa.Endpoint
@@ -32,7 +33,7 @@ type Client struct {
 }
 
 // NewClient initializes a "storage" service client given the endpoints.
-func NewClient(listAips, createAip, submitAip, updateAip, downloadAip, moveAip, moveAipStatus, rejectAip, showAip, listLocations, createLocation, showLocation, listLocationAips goa.Endpoint) *Client {
+func NewClient(listAips, createAip, submitAip, updateAip, downloadAip, moveAip, moveAipStatus, rejectAip, showAip, listAipWorkflows, listLocations, createLocation, showLocation, listLocationAips goa.Endpoint) *Client {
 	return &Client{
 		ListAipsEndpoint:         listAips,
 		CreateAipEndpoint:        createAip,
@@ -43,6 +44,7 @@ func NewClient(listAips, createAip, submitAip, updateAip, downloadAip, moveAip, 
 		MoveAipStatusEndpoint:    moveAipStatus,
 		RejectAipEndpoint:        rejectAip,
 		ShowAipEndpoint:          showAip,
+		ListAipWorkflowsEndpoint: listAipWorkflows,
 		ListLocationsEndpoint:    listLocations,
 		CreateLocationEndpoint:   createLocation,
 		ShowLocationEndpoint:     showLocation,
@@ -181,6 +183,22 @@ func (c *Client) ShowAip(ctx context.Context, p *ShowAipPayload) (res *AIP, err 
 		return
 	}
 	return ires.(*AIP), nil
+}
+
+// ListAipWorkflows calls the "list_aip_workflows" endpoint of the "storage"
+// service.
+// ListAipWorkflows may return the following errors:
+//   - "not_found" (type *AIPNotFound): AIP not found
+//   - "unauthorized" (type Unauthorized)
+//   - "forbidden" (type Forbidden)
+//   - error: internal error
+func (c *Client) ListAipWorkflows(ctx context.Context, p *ListAipWorkflowsPayload) (res *AIPWorkflows, err error) {
+	var ires any
+	ires, err = c.ListAipWorkflowsEndpoint(ctx, p)
+	if err != nil {
+		return
+	}
+	return ires.(*AIPWorkflows), nil
 }
 
 // ListLocations calls the "list_locations" endpoint of the "storage" service.

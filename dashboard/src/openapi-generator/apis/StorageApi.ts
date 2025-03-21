@@ -17,6 +17,7 @@ import * as runtime from '../runtime';
 import type {
   AIPNotFound,
   AIPResponse,
+  AIPWorkflows,
   AIPs,
   ConfirmSipRequestBody,
   CreateAipRequestBody,
@@ -34,6 +35,8 @@ import {
     AIPNotFoundToJSON,
     AIPResponseFromJSON,
     AIPResponseToJSON,
+    AIPWorkflowsFromJSON,
+    AIPWorkflowsToJSON,
     AIPsFromJSON,
     AIPsToJSON,
     ConfirmSipRequestBodyFromJSON,
@@ -67,6 +70,10 @@ export interface StorageCreateLocationRequest {
 }
 
 export interface StorageDownloadAipRequest {
+    uuid: string;
+}
+
+export interface StorageListAipWorkflowsRequest {
     uuid: string;
 }
 
@@ -167,6 +174,22 @@ export interface StorageApiInterface {
      * download_aip storage
      */
     storageDownloadAip(requestParameters: StorageDownloadAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Blob>;
+
+    /**
+     * List all workflows for an AIP
+     * @summary list_aip_workflows storage
+     * @param {string} uuid Identifier of AIP
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof StorageApiInterface
+     */
+    storageListAipWorkflowsRaw(requestParameters: StorageListAipWorkflowsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AIPWorkflows>>;
+
+    /**
+     * List all workflows for an AIP
+     * list_aip_workflows storage
+     */
+    storageListAipWorkflows(requestParameters: StorageListAipWorkflowsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AIPWorkflows>;
 
     /**
      * List all AIPs
@@ -464,6 +487,46 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
      */
     async storageDownloadAip(requestParameters: StorageDownloadAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Blob> {
         const response = await this.storageDownloadAipRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * List all workflows for an AIP
+     * list_aip_workflows storage
+     */
+    async storageListAipWorkflowsRaw(requestParameters: StorageListAipWorkflowsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AIPWorkflows>> {
+        if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
+            throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling storageListAipWorkflows.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("jwt_header_Authorization", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+        const response = await this.request({
+            path: `/storage/aips/{uuid}/workflows`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => AIPWorkflowsFromJSON(jsonValue));
+    }
+
+    /**
+     * List all workflows for an AIP
+     * list_aip_workflows storage
+     */
+    async storageListAipWorkflows(requestParameters: StorageListAipWorkflowsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AIPWorkflows> {
+        const response = await this.storageListAipWorkflowsRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

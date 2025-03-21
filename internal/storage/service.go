@@ -32,9 +32,14 @@ type Service interface {
 	// Used from workflow activities.
 	Location(ctx context.Context, locationID uuid.UUID) (Location, error)
 	ReadAip(ctx context.Context, aipID uuid.UUID) (*goastorage.AIP, error)
+	AIPDBID(ctx context.Context, aipID uuid.UUID) (int, error)
 	UpdateAipStatus(ctx context.Context, aipID uuid.UUID, status enums.AIPStatus) error
 	UpdateAipLocationID(ctx context.Context, aipID, locationID uuid.UUID) error
 	DeleteAip(ctx context.Context, aipID uuid.UUID) (err error)
+	CreateWorkflow(context.Context, *types.Workflow) error
+	UpdateWorkflow(context.Context, int, persistence.WorkflowUpdater) (*types.Workflow, error)
+	CreateTask(context.Context, *types.Task) error
+	UpdateTask(context.Context, int, persistence.TaskUpdater) (*types.Task, error)
 
 	// Both.
 	AipReader(ctx context.Context, aip *goastorage.AIP) (*blob.Reader, error)
@@ -327,6 +332,10 @@ func (s *serviceImpl) ReadAip(ctx context.Context, aipID uuid.UUID) (*goastorage
 	return s.storagePersistence.ReadAIP(ctx, aipID)
 }
 
+func (s *serviceImpl) AIPDBID(ctx context.Context, aipID uuid.UUID) (int, error) {
+	return s.storagePersistence.AIPDBID(ctx, aipID)
+}
+
 func (s *serviceImpl) UpdateAipStatus(ctx context.Context, aipID uuid.UUID, status enums.AIPStatus) error {
 	return s.storagePersistence.UpdateAIPStatus(ctx, aipID, status)
 }
@@ -387,6 +396,23 @@ func (s *serviceImpl) AipReader(ctx context.Context, a *goastorage.AIP) (*blob.R
 	}
 
 	return reader, nil
+}
+
+func (s *serviceImpl) ListAipWorkflows(
+	ctx context.Context,
+	payload *goastorage.ListAipWorkflowsPayload,
+) (*goastorage.AIPWorkflows, error) {
+	aipUUID, err := uuid.Parse(payload.UUID)
+	if err != nil {
+		return nil, goastorage.MakeNotValid(errors.New("cannot perform operation"))
+	}
+
+	workflows, err := s.storagePersistence.AIPWorkflows(ctx, aipUUID)
+	if err != nil {
+		return nil, goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
+	}
+
+	return &goastorage.AIPWorkflows{Workflows: workflows}, nil
 }
 
 func (s *serviceImpl) CreateLocation(
@@ -469,4 +495,24 @@ func (s *serviceImpl) ListLocationAips(
 	}
 
 	return aips, nil
+}
+
+func (svc *serviceImpl) CreateWorkflow(ctx context.Context, w *types.Workflow) error {
+	return svc.storagePersistence.CreateWorkflow(ctx, w)
+}
+
+func (svc *serviceImpl) UpdateWorkflow(
+	ctx context.Context,
+	id int,
+	upd persistence.WorkflowUpdater,
+) (*types.Workflow, error) {
+	return svc.storagePersistence.UpdateWorkflow(ctx, id, upd)
+}
+
+func (svc *serviceImpl) CreateTask(ctx context.Context, t *types.Task) error {
+	return svc.storagePersistence.CreateTask(ctx, t)
+}
+
+func (svc *serviceImpl) UpdateTask(ctx context.Context, id int, upd persistence.TaskUpdater) (*types.Task, error) {
+	return svc.storagePersistence.UpdateTask(ctx, id, upd)
 }
