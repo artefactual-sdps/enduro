@@ -44,6 +44,45 @@ func (m *MockStorage) EXPECT() *MockStorageMockRecorder {
 	return m.recorder
 }
 
+// AIPDBID mocks base method.
+func (m *MockStorage) AIPDBID(arg0 context.Context, arg1 uuid.UUID) (int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AIPDBID", arg0, arg1)
+	ret0, _ := ret[0].(int)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AIPDBID indicates an expected call of AIPDBID.
+func (mr *MockStorageMockRecorder) AIPDBID(arg0, arg1 any) *MockStorageAIPDBIDCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AIPDBID", reflect.TypeOf((*MockStorage)(nil).AIPDBID), arg0, arg1)
+	return &MockStorageAIPDBIDCall{Call: call}
+}
+
+// MockStorageAIPDBIDCall wrap *gomock.Call
+type MockStorageAIPDBIDCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockStorageAIPDBIDCall) Return(arg0 int, arg1 error) *MockStorageAIPDBIDCall {
+	c.Call = c.Call.Return(arg0, arg1)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockStorageAIPDBIDCall) Do(f func(context.Context, uuid.UUID) (int, error)) *MockStorageAIPDBIDCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockStorageAIPDBIDCall) DoAndReturn(f func(context.Context, uuid.UUID) (int, error)) *MockStorageAIPDBIDCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
 // CreateAIP mocks base method.
 func (m *MockStorage) CreateAIP(arg0 context.Context, arg1 *storage.AIP) (*storage.AIP, error) {
 	m.ctrl.T.Helper()

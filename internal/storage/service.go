@@ -32,6 +32,7 @@ type Service interface {
 	// Used from workflow activities.
 	Location(ctx context.Context, locationID uuid.UUID) (Location, error)
 	ReadAip(ctx context.Context, aipID uuid.UUID) (*goastorage.AIP, error)
+	AIPDBID(ctx context.Context, aipID uuid.UUID) (int, error)
 	UpdateAipStatus(ctx context.Context, aipID uuid.UUID, status enums.AIPStatus) error
 	UpdateAipLocationID(ctx context.Context, aipID, locationID uuid.UUID) error
 	DeleteAip(ctx context.Context, aipID uuid.UUID) (err error)
@@ -329,6 +330,10 @@ func (s *serviceImpl) ShowAip(ctx context.Context, payload *goastorage.ShowAipPa
 
 func (s *serviceImpl) ReadAip(ctx context.Context, aipID uuid.UUID) (*goastorage.AIP, error) {
 	return s.storagePersistence.ReadAIP(ctx, aipID)
+}
+
+func (s *serviceImpl) AIPDBID(ctx context.Context, aipID uuid.UUID) (int, error) {
+	return s.storagePersistence.AIPDBID(ctx, aipID)
 }
 
 func (s *serviceImpl) UpdateAipStatus(ctx context.Context, aipID uuid.UUID, status enums.AIPStatus) error {

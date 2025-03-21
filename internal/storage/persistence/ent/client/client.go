@@ -140,6 +140,19 @@ func (c *Client) ReadAIP(ctx context.Context, aipID uuid.UUID) (*goastorage.AIP,
 	return aipAsGoa(ctx, a), nil
 }
 
+func (c *Client) AIPDBID(ctx context.Context, aipID uuid.UUID) (int, error) {
+	a, err := c.c.AIP.Query().Where(aip.AipID(aipID)).Only(ctx)
+	if err != nil {
+		if db.IsNotFound(err) {
+			return 0, &goastorage.AIPNotFound{UUID: aipID, Message: "AIP not found"}
+		} else {
+			return 0, goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
+		}
+	}
+
+	return a.ID, nil
+}
+
 func (c *Client) UpdateAIPStatus(ctx context.Context, aipID uuid.UUID, status enums.AIPStatus) error {
 	n, err := c.c.AIP.Update().
 		Where(

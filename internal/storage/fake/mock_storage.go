@@ -46,6 +46,45 @@ func (m *MockService) EXPECT() *MockServiceMockRecorder {
 	return m.recorder
 }
 
+// AIPDBID mocks base method.
+func (m *MockService) AIPDBID(arg0 context.Context, arg1 uuid.UUID) (int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AIPDBID", arg0, arg1)
+	ret0, _ := ret[0].(int)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AIPDBID indicates an expected call of AIPDBID.
+func (mr *MockServiceMockRecorder) AIPDBID(arg0, arg1 any) *MockServiceAIPDBIDCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AIPDBID", reflect.TypeOf((*MockService)(nil).AIPDBID), arg0, arg1)
+	return &MockServiceAIPDBIDCall{Call: call}
+}
+
+// MockServiceAIPDBIDCall wrap *gomock.Call
+type MockServiceAIPDBIDCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockServiceAIPDBIDCall) Return(arg0 int, arg1 error) *MockServiceAIPDBIDCall {
+	c.Call = c.Call.Return(arg0, arg1)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockServiceAIPDBIDCall) Do(f func(context.Context, uuid.UUID) (int, error)) *MockServiceAIPDBIDCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockServiceAIPDBIDCall) DoAndReturn(f func(context.Context, uuid.UUID) (int, error)) *MockServiceAIPDBIDCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
 // AipReader mocks base method.
 func (m *MockService) AipReader(arg0 context.Context, arg1 *storage.AIP) (*blob.Reader, error) {
 	m.ctrl.T.Helper()

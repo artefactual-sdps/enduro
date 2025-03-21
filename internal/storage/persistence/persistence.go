@@ -20,6 +20,7 @@ type Storage interface {
 	CreateAIP(ctx context.Context, aip *goastorage.AIP) (*goastorage.AIP, error)
 	ListAIPs(ctx context.Context, payload *goastorage.ListAipsPayload) (*goastorage.AIPs, error)
 	ReadAIP(ctx context.Context, aipID uuid.UUID) (*goastorage.AIP, error)
+	AIPDBID(ctx context.Context, aipID uuid.UUID) (int, error)
 	UpdateAIPStatus(ctx context.Context, aipID uuid.UUID, status enums.AIPStatus) error
 	UpdateAIPLocationID(ctx context.Context, aipID, locationID uuid.UUID) error
 
