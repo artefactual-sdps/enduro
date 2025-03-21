@@ -2,6 +2,7 @@
 /* eslint-disable */
 export * from './AIPNotFound';
 export * from './AIPResponse';
+export * from './AIPWorkflows';
 export * from './AIPs';
 export * from './ConfirmSipRequestBody';
 export * from './CreateAipRequestBody';
@@ -16,6 +17,8 @@ export * from './EnduroPage';
 export * from './EnduroPoststorage';
 export * from './EnduroPreprocessing';
 export * from './EnduroStorageAip';
+export * from './EnduroStorageAipTask';
+export * from './EnduroStorageAipWorkflow';
 export * from './Location';
 export * from './LocationResponse';
 export * from './ModelError';

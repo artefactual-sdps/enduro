@@ -76,7 +76,12 @@ const createAipWorkflow = computed(
       </div>
     </div>
 
-    <div v-if="authStore.checkAttributes(['ingest:sips:workflows:list'])">
+    <div
+      v-if="
+        sipStore.currentWorkflows?.workflows?.length &&
+        authStore.checkAttributes(['ingest:sips:workflows:list'])
+      "
+    >
       <div class="d-flex">
         <h2 class="mb-0">
           Ingest workflow details

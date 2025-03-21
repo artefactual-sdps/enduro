@@ -44,7 +44,11 @@ app.config.globalProperties.$filters = {
   formatDuration(from: Date, to: Date) {
     return FormatDuration(from, to);
   },
-  getWorkflowLabel(value: api.EnduroIngestSipWorkflowTypeEnum) {
+  getWorkflowLabel(
+    value:
+      | api.EnduroIngestSipWorkflowTypeEnum
+      | api.EnduroStorageAipWorkflowTypeEnum,
+  ) {
     switch (value) {
       case api.EnduroIngestSipWorkflowTypeEnum.CreateAip:
         return "Create AIP";
@@ -52,6 +56,12 @@ app.config.globalProperties.$filters = {
         return "Create and Review AIP";
       case api.EnduroIngestSipWorkflowTypeEnum.MovePackage:
         return "Move package";
+      case api.EnduroStorageAipWorkflowTypeEnum.UploadAip:
+        return "Upload AIP";
+      case api.EnduroStorageAipWorkflowTypeEnum.MoveAip:
+        return "Move AIP";
+      case api.EnduroStorageAipWorkflowTypeEnum.DeleteAip:
+        return "Delete AIP";
       default:
         return value;
     }

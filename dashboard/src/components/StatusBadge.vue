@@ -8,7 +8,9 @@ const props = defineProps<{
     | api.EnduroIngestSipStatusEnum
     | api.EnduroIngestSipWorkflowStatusEnum
     | api.EnduroIngestSipTaskStatusEnum
-    | api.EnduroStorageAipStatusEnum;
+    | api.EnduroStorageAipStatusEnum
+    | api.EnduroStorageAipWorkflowStatusEnum
+    | api.EnduroStorageAipTaskStatusEnum;
   note?: string;
 }>();
 
@@ -17,7 +19,9 @@ const classes: {
     | api.EnduroIngestSipStatusEnum
     | api.EnduroIngestSipWorkflowStatusEnum
     | api.EnduroIngestSipTaskStatusEnum
-    | api.EnduroStorageAipStatusEnum]: string;
+    | api.EnduroStorageAipStatusEnum
+    | api.EnduroStorageAipWorkflowStatusEnum
+    | api.EnduroStorageAipTaskStatusEnum]: string;
 } = {
   new: "text-bg-dark",
   "in progress": "text-bg-secondary",
