@@ -126,7 +126,10 @@ gen-enums: $(GO_ENUM)
 		-f internal/enums/workflow_type.go \
 		-f internal/storage/enums/aip_status.go \
 		-f internal/storage/enums/location_purpose.go \
-		-f internal/storage/enums/location_source.go
+		-f internal/storage/enums/location_source.go \
+		-f internal/storage/enums/task_status.go \
+		-f internal/storage/enums/workflow_status.go \
+		-f internal/storage/enums/workflow_type.go
 
 gen-goa: # @HELP Generate Goa assets.
 gen-goa: $(GOA)

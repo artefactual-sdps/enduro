@@ -35,6 +35,10 @@ type Service interface {
 	UpdateAipStatus(ctx context.Context, aipID uuid.UUID, status enums.AIPStatus) error
 	UpdateAipLocationID(ctx context.Context, aipID, locationID uuid.UUID) error
 	DeleteAip(ctx context.Context, aipID uuid.UUID) (err error)
+	CreateWorkflow(context.Context, *types.Workflow) error
+	UpdateWorkflow(context.Context, int, persistence.WorkflowUpdater) (*types.Workflow, error)
+	CreateTask(context.Context, *types.Task) error
+	UpdateTask(context.Context, int, persistence.TaskUpdater) (*types.Task, error)
 
 	// Both.
 	AipReader(ctx context.Context, aip *goastorage.AIP) (*blob.Reader, error)
@@ -469,4 +473,24 @@ func (s *serviceImpl) ListLocationAips(
 	}
 
 	return aips, nil
+}
+
+func (svc *serviceImpl) CreateWorkflow(ctx context.Context, w *types.Workflow) error {
+	return svc.storagePersistence.CreateWorkflow(ctx, w)
+}
+
+func (svc *serviceImpl) UpdateWorkflow(
+	ctx context.Context,
+	id int,
+	upd persistence.WorkflowUpdater,
+) (*types.Workflow, error) {
+	return svc.storagePersistence.UpdateWorkflow(ctx, id, upd)
+}
+
+func (svc *serviceImpl) CreateTask(ctx context.Context, t *types.Task) error {
+	return svc.storagePersistence.CreateTask(ctx, t)
+}
+
+func (svc *serviceImpl) UpdateTask(ctx context.Context, id int, upd persistence.TaskUpdater) (*types.Task, error) {
+	return svc.storagePersistence.UpdateTask(ctx, id, upd)
 }

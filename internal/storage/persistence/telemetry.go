@@ -153,3 +153,55 @@ func (w *wrapper) LocationAIPs(ctx context.Context, locationID uuid.UUID) (goast
 
 	return r, nil
 }
+
+func (w *wrapper) CreateWorkflow(ctx context.Context, workflow *types.Workflow) error {
+	ctx, span := w.tracer.Start(ctx, "CreateWorkflow")
+	defer span.End()
+
+	err := w.wrapped.CreateWorkflow(ctx, workflow)
+	if err != nil {
+		telemetry.RecordError(span, err)
+		return updateError(err, "CreateWorkflow")
+	}
+
+	return nil
+}
+
+func (w *wrapper) UpdateWorkflow(ctx context.Context, id int, upd WorkflowUpdater) (*types.Workflow, error) {
+	ctx, span := w.tracer.Start(ctx, "UpdateWorkflow")
+	defer span.End()
+
+	r, err := w.wrapped.UpdateWorkflow(ctx, id, upd)
+	if err != nil {
+		telemetry.RecordError(span, err)
+		return nil, updateError(err, "UpdateWorkflow")
+	}
+
+	return r, nil
+}
+
+func (w *wrapper) CreateTask(ctx context.Context, task *types.Task) error {
+	ctx, span := w.tracer.Start(ctx, "CreateTask")
+	defer span.End()
+
+	err := w.wrapped.CreateTask(ctx, task)
+	if err != nil {
+		telemetry.RecordError(span, err)
+		return updateError(err, "CreateTask")
+	}
+
+	return nil
+}
+
+func (w *wrapper) UpdateTask(ctx context.Context, id int, upd TaskUpdater) (*types.Task, error) {
+	ctx, span := w.tracer.Start(ctx, "UpdateTask")
+	defer span.End()
+
+	r, err := w.wrapped.UpdateTask(ctx, id, upd)
+	if err != nil {
+		telemetry.RecordError(span, err)
+		return nil, updateError(err, "UpdateTask")
+	}
+
+	return r, nil
+}

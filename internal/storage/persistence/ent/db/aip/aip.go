@@ -30,6 +30,8 @@ const (
 	FieldCreatedAt = "created_at"
 	// EdgeLocation holds the string denoting the location edge name in mutations.
 	EdgeLocation = "location"
+	// EdgeWorkflows holds the string denoting the workflows edge name in mutations.
+	EdgeWorkflows = "workflows"
 	// Table holds the table name of the aip in the database.
 	Table = "aip"
 	// LocationTable is the table that holds the location relation/edge.
@@ -39,6 +41,13 @@ const (
 	LocationInverseTable = "location"
 	// LocationColumn is the table column denoting the location relation/edge.
 	LocationColumn = "location_id"
+	// WorkflowsTable is the table that holds the workflows relation/edge.
+	WorkflowsTable = "workflow"
+	// WorkflowsInverseTable is the table name for the Workflow entity.
+	// It exists in this package in order to avoid circular dependency with the "workflow" package.
+	WorkflowsInverseTable = "workflow"
+	// WorkflowsColumn is the table column denoting the workflows relation/edge.
+	WorkflowsColumn = "aip_id"
 )
 
 // Columns holds all SQL columns for aip fields.
@@ -121,10 +130,31 @@ func ByLocationField(field string, opts ...sql.OrderTermOption) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newLocationStep(), sql.OrderByField(field, opts...))
 	}
 }
+
+// ByWorkflowsCount orders the results by workflows count.
+func ByWorkflowsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newWorkflowsStep(), opts...)
+	}
+}
+
+// ByWorkflows orders the results by workflows terms.
+func ByWorkflows(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newWorkflowsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newLocationStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(LocationInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, false, LocationTable, LocationColumn),
+	)
+}
+func newWorkflowsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(WorkflowsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, WorkflowsTable, WorkflowsColumn),
 	)
 }
