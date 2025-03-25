@@ -14,6 +14,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/aip"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/location"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/predicate"
+	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/workflow"
 	"github.com/google/uuid"
 )
 
@@ -111,6 +112,21 @@ func (au *AIPUpdate) SetLocation(l *Location) *AIPUpdate {
 	return au.SetLocationID(l.ID)
 }
 
+// AddWorkflowIDs adds the "workflows" edge to the Workflow entity by IDs.
+func (au *AIPUpdate) AddWorkflowIDs(ids ...int) *AIPUpdate {
+	au.mutation.AddWorkflowIDs(ids...)
+	return au
+}
+
+// AddWorkflows adds the "workflows" edges to the Workflow entity.
+func (au *AIPUpdate) AddWorkflows(w ...*Workflow) *AIPUpdate {
+	ids := make([]int, len(w))
+	for i := range w {
+		ids[i] = w[i].ID
+	}
+	return au.AddWorkflowIDs(ids...)
+}
+
 // Mutation returns the AIPMutation object of the builder.
 func (au *AIPUpdate) Mutation() *AIPMutation {
 	return au.mutation
@@ -120,6 +136,27 @@ func (au *AIPUpdate) Mutation() *AIPMutation {
 func (au *AIPUpdate) ClearLocation() *AIPUpdate {
 	au.mutation.ClearLocation()
 	return au
+}
+
+// ClearWorkflows clears all "workflows" edges to the Workflow entity.
+func (au *AIPUpdate) ClearWorkflows() *AIPUpdate {
+	au.mutation.ClearWorkflows()
+	return au
+}
+
+// RemoveWorkflowIDs removes the "workflows" edge to Workflow entities by IDs.
+func (au *AIPUpdate) RemoveWorkflowIDs(ids ...int) *AIPUpdate {
+	au.mutation.RemoveWorkflowIDs(ids...)
+	return au
+}
+
+// RemoveWorkflows removes "workflows" edges to Workflow entities.
+func (au *AIPUpdate) RemoveWorkflows(w ...*Workflow) *AIPUpdate {
+	ids := make([]int, len(w))
+	for i := range w {
+		ids[i] = w[i].ID
+	}
+	return au.RemoveWorkflowIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -205,6 +242,51 @@ func (au *AIPUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(location.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if au.mutation.WorkflowsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   aip.WorkflowsTable,
+			Columns: []string{aip.WorkflowsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(workflow.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := au.mutation.RemovedWorkflowsIDs(); len(nodes) > 0 && !au.mutation.WorkflowsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   aip.WorkflowsTable,
+			Columns: []string{aip.WorkflowsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(workflow.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := au.mutation.WorkflowsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   aip.WorkflowsTable,
+			Columns: []string{aip.WorkflowsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(workflow.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -313,6 +395,21 @@ func (auo *AIPUpdateOne) SetLocation(l *Location) *AIPUpdateOne {
 	return auo.SetLocationID(l.ID)
 }
 
+// AddWorkflowIDs adds the "workflows" edge to the Workflow entity by IDs.
+func (auo *AIPUpdateOne) AddWorkflowIDs(ids ...int) *AIPUpdateOne {
+	auo.mutation.AddWorkflowIDs(ids...)
+	return auo
+}
+
+// AddWorkflows adds the "workflows" edges to the Workflow entity.
+func (auo *AIPUpdateOne) AddWorkflows(w ...*Workflow) *AIPUpdateOne {
+	ids := make([]int, len(w))
+	for i := range w {
+		ids[i] = w[i].ID
+	}
+	return auo.AddWorkflowIDs(ids...)
+}
+
 // Mutation returns the AIPMutation object of the builder.
 func (auo *AIPUpdateOne) Mutation() *AIPMutation {
 	return auo.mutation
@@ -322,6 +419,27 @@ func (auo *AIPUpdateOne) Mutation() *AIPMutation {
 func (auo *AIPUpdateOne) ClearLocation() *AIPUpdateOne {
 	auo.mutation.ClearLocation()
 	return auo
+}
+
+// ClearWorkflows clears all "workflows" edges to the Workflow entity.
+func (auo *AIPUpdateOne) ClearWorkflows() *AIPUpdateOne {
+	auo.mutation.ClearWorkflows()
+	return auo
+}
+
+// RemoveWorkflowIDs removes the "workflows" edge to Workflow entities by IDs.
+func (auo *AIPUpdateOne) RemoveWorkflowIDs(ids ...int) *AIPUpdateOne {
+	auo.mutation.RemoveWorkflowIDs(ids...)
+	return auo
+}
+
+// RemoveWorkflows removes "workflows" edges to Workflow entities.
+func (auo *AIPUpdateOne) RemoveWorkflows(w ...*Workflow) *AIPUpdateOne {
+	ids := make([]int, len(w))
+	for i := range w {
+		ids[i] = w[i].ID
+	}
+	return auo.RemoveWorkflowIDs(ids...)
 }
 
 // Where appends a list predicates to the AIPUpdate builder.
@@ -437,6 +555,51 @@ func (auo *AIPUpdateOne) sqlSave(ctx context.Context) (_node *AIP, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(location.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if auo.mutation.WorkflowsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   aip.WorkflowsTable,
+			Columns: []string{aip.WorkflowsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(workflow.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := auo.mutation.RemovedWorkflowsIDs(); len(nodes) > 0 && !auo.mutation.WorkflowsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   aip.WorkflowsTable,
+			Columns: []string{aip.WorkflowsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(workflow.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := auo.mutation.WorkflowsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   aip.WorkflowsTable,
+			Columns: []string{aip.WorkflowsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(workflow.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

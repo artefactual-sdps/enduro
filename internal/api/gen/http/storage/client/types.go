@@ -111,6 +111,12 @@ type ShowAipResponseBody struct {
 	CreatedAt *string `form:"created_at,omitempty" json:"created_at,omitempty" xml:"created_at,omitempty"`
 }
 
+// ListAipWorkflowsResponseBody is the type of the "storage" service
+// "list_aip_workflows" endpoint HTTP response body.
+type ListAipWorkflowsResponseBody struct {
+	Workflows AIPWorkflowCollectionResponseBody `form:"workflows,omitempty" json:"workflows,omitempty" xml:"workflows,omitempty"`
+}
+
 // ListLocationsResponseBody is the type of the "storage" service
 // "list_locations" endpoint HTTP response body.
 type ListLocationsResponseBody []*LocationResponse
@@ -413,6 +419,15 @@ type ShowAipNotFoundResponseBody struct {
 	UUID *uuid.UUID `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
 }
 
+// ListAipWorkflowsNotFoundResponseBody is the type of the "storage" service
+// "list_aip_workflows" endpoint HTTP response body for the "not_found" error.
+type ListAipWorkflowsNotFoundResponseBody struct {
+	// Message of error
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Identifier of missing AIP
+	UUID *uuid.UUID `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
+}
+
 // CreateLocationNotValidResponseBody is the type of the "storage" service
 // "create_location" endpoint HTTP response body for the "not_valid" error.
 type CreateLocationNotValidResponseBody struct {
@@ -489,6 +504,35 @@ type EnduroPageResponseBody struct {
 	Offset *int `form:"offset,omitempty" json:"offset,omitempty" xml:"offset,omitempty"`
 	// Total result count before paging
 	Total *int `form:"total,omitempty" json:"total,omitempty" xml:"total,omitempty"`
+}
+
+// AIPWorkflowCollectionResponseBody is used to define fields on response body
+// types.
+type AIPWorkflowCollectionResponseBody []*AIPWorkflowResponseBody
+
+// AIPWorkflowResponseBody is used to define fields on response body types.
+type AIPWorkflowResponseBody struct {
+	UUID        *uuid.UUID                    `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
+	TemporalID  *string                       `form:"temporal_id,omitempty" json:"temporal_id,omitempty" xml:"temporal_id,omitempty"`
+	Type        *string                       `form:"type,omitempty" json:"type,omitempty" xml:"type,omitempty"`
+	Status      *string                       `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
+	StartedAt   *string                       `form:"started_at,omitempty" json:"started_at,omitempty" xml:"started_at,omitempty"`
+	CompletedAt *string                       `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
+	Tasks       AIPTaskCollectionResponseBody `form:"tasks,omitempty" json:"tasks,omitempty" xml:"tasks,omitempty"`
+}
+
+// AIPTaskCollectionResponseBody is used to define fields on response body
+// types.
+type AIPTaskCollectionResponseBody []*AIPTaskResponseBody
+
+// AIPTaskResponseBody is used to define fields on response body types.
+type AIPTaskResponseBody struct {
+	UUID        *uuid.UUID `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
+	Name        *string    `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	Status      *string    `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
+	StartedAt   *string    `form:"started_at,omitempty" json:"started_at,omitempty" xml:"started_at,omitempty"`
+	CompletedAt *string    `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
+	Note        *string    `form:"note,omitempty" json:"note,omitempty" xml:"note,omitempty"`
 }
 
 // LocationResponse is used to define fields on response body types.
@@ -1042,6 +1086,47 @@ func NewShowAipForbidden(body string) storage.Forbidden {
 // NewShowAipUnauthorized builds a storage service show_aip endpoint
 // unauthorized error.
 func NewShowAipUnauthorized(body string) storage.Unauthorized {
+	v := storage.Unauthorized(body)
+
+	return v
+}
+
+// NewListAipWorkflowsAIPWorkflowsOK builds a "storage" service
+// "list_aip_workflows" endpoint result from a HTTP "OK" response.
+func NewListAipWorkflowsAIPWorkflowsOK(body *ListAipWorkflowsResponseBody) *storageviews.AIPWorkflowsView {
+	v := &storageviews.AIPWorkflowsView{}
+	if body.Workflows != nil {
+		v.Workflows = make([]*storageviews.AIPWorkflowView, len(body.Workflows))
+		for i, val := range body.Workflows {
+			v.Workflows[i] = unmarshalAIPWorkflowResponseBodyToStorageviewsAIPWorkflowView(val)
+		}
+	}
+
+	return v
+}
+
+// NewListAipWorkflowsNotFound builds a storage service list_aip_workflows
+// endpoint not_found error.
+func NewListAipWorkflowsNotFound(body *ListAipWorkflowsNotFoundResponseBody) *storage.AIPNotFound {
+	v := &storage.AIPNotFound{
+		Message: *body.Message,
+		UUID:    *body.UUID,
+	}
+
+	return v
+}
+
+// NewListAipWorkflowsForbidden builds a storage service list_aip_workflows
+// endpoint forbidden error.
+func NewListAipWorkflowsForbidden(body string) storage.Forbidden {
+	v := storage.Forbidden(body)
+
+	return v
+}
+
+// NewListAipWorkflowsUnauthorized builds a storage service list_aip_workflows
+// endpoint unauthorized error.
+func NewListAipWorkflowsUnauthorized(body string) storage.Unauthorized {
 	v := storage.Unauthorized(body)
 
 	return v
@@ -1605,6 +1690,18 @@ func ValidateShowAipNotFoundResponseBody(body *ShowAipNotFoundResponseBody) (err
 	return
 }
 
+// ValidateListAipWorkflowsNotFoundResponseBody runs the validations defined on
+// list_aip_workflows_not_found_response_body
+func ValidateListAipWorkflowsNotFoundResponseBody(body *ListAipWorkflowsNotFoundResponseBody) (err error) {
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.UUID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("uuid", "body"))
+	}
+	return
+}
+
 // ValidateCreateLocationNotValidResponseBody runs the validations defined on
 // create_location_not_valid_response_body
 func ValidateCreateLocationNotValidResponseBody(body *CreateLocationNotValidResponseBody) (err error) {
@@ -1729,6 +1826,97 @@ func ValidateEnduroPageResponseBody(body *EnduroPageResponseBody) (err error) {
 	}
 	if body.Total == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("total", "body"))
+	}
+	return
+}
+
+// ValidateAIPWorkflowCollectionResponseBody runs the validations defined on
+// AIPWorkflowCollectionResponseBody
+func ValidateAIPWorkflowCollectionResponseBody(body AIPWorkflowCollectionResponseBody) (err error) {
+	for _, e := range body {
+		if e != nil {
+			if err2 := ValidateAIPWorkflowResponseBody(e); err2 != nil {
+				err = goa.MergeErrors(err, err2)
+			}
+		}
+	}
+	return
+}
+
+// ValidateAIPWorkflowResponseBody runs the validations defined on
+// AIPWorkflowResponseBody
+func ValidateAIPWorkflowResponseBody(body *AIPWorkflowResponseBody) (err error) {
+	if body.UUID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("uuid", "body"))
+	}
+	if body.TemporalID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporal_id", "body"))
+	}
+	if body.Type == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("type", "body"))
+	}
+	if body.Status == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("status", "body"))
+	}
+	if body.Type != nil {
+		if !(*body.Type == "unspecified" || *body.Type == "upload aip" || *body.Type == "move aip" || *body.Type == "delete aip") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.type", *body.Type, []any{"unspecified", "upload aip", "move aip", "delete aip"}))
+		}
+	}
+	if body.Status != nil {
+		if !(*body.Status == "unspecified" || *body.Status == "in progress" || *body.Status == "done" || *body.Status == "error" || *body.Status == "queued" || *body.Status == "pending") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []any{"unspecified", "in progress", "done", "error", "queued", "pending"}))
+		}
+	}
+	if body.StartedAt != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("body.started_at", *body.StartedAt, goa.FormatDateTime))
+	}
+	if body.CompletedAt != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("body.completed_at", *body.CompletedAt, goa.FormatDateTime))
+	}
+	if body.Tasks != nil {
+		if err2 := ValidateAIPTaskCollectionResponseBody(body.Tasks); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	return
+}
+
+// ValidateAIPTaskCollectionResponseBody runs the validations defined on
+// AIPTaskCollectionResponseBody
+func ValidateAIPTaskCollectionResponseBody(body AIPTaskCollectionResponseBody) (err error) {
+	for _, e := range body {
+		if e != nil {
+			if err2 := ValidateAIPTaskResponseBody(e); err2 != nil {
+				err = goa.MergeErrors(err, err2)
+			}
+		}
+	}
+	return
+}
+
+// ValidateAIPTaskResponseBody runs the validations defined on
+// AIPTaskResponseBody
+func ValidateAIPTaskResponseBody(body *AIPTaskResponseBody) (err error) {
+	if body.UUID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("uuid", "body"))
+	}
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.Status == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("status", "body"))
+	}
+	if body.Status != nil {
+		if !(*body.Status == "unspecified" || *body.Status == "in progress" || *body.Status == "done" || *body.Status == "error" || *body.Status == "queued" || *body.Status == "pending") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []any{"unspecified", "in progress", "done", "error", "queued", "pending"}))
+		}
+	}
+	if body.StartedAt != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("body.started_at", *body.StartedAt, goa.FormatDateTime))
+	}
+	if body.CompletedAt != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("body.completed_at", *body.CompletedAt, goa.FormatDateTime))
 	}
 	return
 }

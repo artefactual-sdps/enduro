@@ -53,6 +53,8 @@ func (AIP) Edges() []ent.Edge {
 		edge.To("location", Location.Type).
 			Field("location_id").
 			Unique(),
+		edge.To("workflows", Workflow.Type).
+			Annotations(entsql.OnDelete(entsql.Cascade)),
 	}
 }
 

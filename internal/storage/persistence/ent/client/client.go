@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
 	"github.com/google/uuid"
 	"go.artefactual.dev/tools/ref"
@@ -185,22 +184,18 @@ func (c *Client) UpdateAIPLocationID(ctx context.Context, aipID, locationID uuid
 	return nil
 }
 
-func aipAsGoa(ctx context.Context, a *db.AIP) *goastorage.AIP {
-	p := &goastorage.AIP{
-		Name:      a.Name,
-		UUID:      a.AipID,
-		Status:    a.Status.String(),
-		ObjectKey: a.ObjectKey,
-		CreatedAt: a.CreatedAt.Format(time.RFC3339),
+func (c *Client) AIPWorkflows(ctx context.Context, aipUUID uuid.UUID) (goastorage.AIPWorkflowCollection, error) {
+	res, err := c.c.AIP.Query().Where(aip.AipID(aipUUID)).QueryWorkflows().WithTasks().All(ctx)
+	if err != nil {
+		return nil, err
 	}
 
-	// TODO: should we use UUID as the foreign key?
-	l, err := a.QueryLocation().Only(ctx)
-	if err == nil {
-		p.LocationID = &l.UUID
+	workflows := []*goastorage.AIPWorkflow{}
+	for _, item := range res {
+		workflows = append(workflows, workflowAsGoa(item))
 	}
 
-	return p
+	return workflows, nil
 }
 
 func (c *Client) CreateLocation(
@@ -261,51 +256,6 @@ func (c *Client) ReadLocation(ctx context.Context, locationID uuid.UUID) (*goast
 	}
 
 	return locationAsGoa(l), nil
-}
-
-func locationAsGoa(loc *db.Location) *goastorage.Location {
-	l := &goastorage.Location{
-		Name:        loc.Name,
-		Description: &loc.Description,
-		Source:      loc.Source.String(),
-		Purpose:     loc.Purpose.String(),
-		UUID:        loc.UUID,
-		CreatedAt:   loc.CreatedAt.Format(time.RFC3339),
-	}
-
-	switch c := loc.Config.Value.(type) {
-	case *types.S3Config:
-		l.Config = &goastorage.S3Config{
-			Bucket:    c.Bucket,
-			Region:    c.Region,
-			Endpoint:  &c.Endpoint,
-			PathStyle: &c.PathStyle,
-			Profile:   &c.Profile,
-			Key:       &c.Key,
-			Secret:    &c.Secret,
-			Token:     &c.Token,
-		}
-	case *types.SFTPConfig:
-		l.Config = &goastorage.SFTPConfig{
-			Address:   c.Address,
-			Username:  c.Username,
-			Password:  c.Password,
-			Directory: c.Directory,
-		}
-	case *types.AMSSConfig:
-		l.Config = &goastorage.AMSSConfig{
-			APIKey:   c.APIKey,
-			URL:      c.URL,
-			Username: c.Username,
-		}
-	case *types.URLConfig:
-		l.Config = &goastorage.URLConfig{
-			URL: c.URL,
-		}
-
-	}
-
-	return l
 }
 
 func (c *Client) LocationAIPs(ctx context.Context, locationID uuid.UUID) (goastorage.AIPCollection, error) {

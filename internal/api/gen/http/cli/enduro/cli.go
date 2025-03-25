@@ -25,7 +25,7 @@ import (
 //	command (subcommand1|subcommand2|...)
 func UsageCommands() string {
 	return `ingest (monitor-request|monitor|list-sips|show-sip|list-sip-workflows|confirm-sip|reject-sip|move-sip|move-sip-status|upload-sip)
-storage (list-aips|create-aip|submit-aip|update-aip|download-aip|move-aip|move-aip-status|reject-aip|show-aip|list-locations|create-location|show-location|list-location-aips)
+storage (list-aips|create-aip|submit-aip|update-aip|download-aip|move-aip|move-aip-status|reject-aip|show-aip|list-aip-workflows|list-locations|create-location|show-location|list-location-aips)
 `
 }
 
@@ -142,6 +142,10 @@ func ParseEndpoint(
 		storageShowAipUUIDFlag  = storageShowAipFlags.String("uuid", "REQUIRED", "Identifier of AIP")
 		storageShowAipTokenFlag = storageShowAipFlags.String("token", "", "")
 
+		storageListAipWorkflowsFlags     = flag.NewFlagSet("list-aip-workflows", flag.ExitOnError)
+		storageListAipWorkflowsUUIDFlag  = storageListAipWorkflowsFlags.String("uuid", "REQUIRED", "Identifier of AIP")
+		storageListAipWorkflowsTokenFlag = storageListAipWorkflowsFlags.String("token", "", "")
+
 		storageListLocationsFlags     = flag.NewFlagSet("list-locations", flag.ExitOnError)
 		storageListLocationsTokenFlag = storageListLocationsFlags.String("token", "", "")
 
@@ -179,6 +183,7 @@ func ParseEndpoint(
 	storageMoveAipStatusFlags.Usage = storageMoveAipStatusUsage
 	storageRejectAipFlags.Usage = storageRejectAipUsage
 	storageShowAipFlags.Usage = storageShowAipUsage
+	storageListAipWorkflowsFlags.Usage = storageListAipWorkflowsUsage
 	storageListLocationsFlags.Usage = storageListLocationsUsage
 	storageCreateLocationFlags.Usage = storageCreateLocationUsage
 	storageShowLocationFlags.Usage = storageShowLocationUsage
@@ -281,6 +286,9 @@ func ParseEndpoint(
 			case "show-aip":
 				epf = storageShowAipFlags
 
+			case "list-aip-workflows":
+				epf = storageListAipWorkflowsFlags
+
 			case "list-locations":
 				epf = storageListLocationsFlags
 
@@ -382,6 +390,9 @@ func ParseEndpoint(
 			case "show-aip":
 				endpoint = c.ShowAip()
 				data, err = storagec.BuildShowAipPayload(*storageShowAipUUIDFlag, *storageShowAipTokenFlag)
+			case "list-aip-workflows":
+				endpoint = c.ListAipWorkflows()
+				data, err = storagec.BuildListAipWorkflowsPayload(*storageListAipWorkflowsUUIDFlag, *storageListAipWorkflowsTokenFlag)
 			case "list-locations":
 				endpoint = c.ListLocations()
 				data, err = storagec.BuildListLocationsPayload(*storageListLocationsTokenFlag)
@@ -573,6 +584,7 @@ COMMAND:
     move-aip-status: Retrieve the status of a permanent storage location move of the AIP
     reject-aip: Reject an AIP
     show-aip: Show AIP by AIPID
+    list-aip-workflows: List all workflows for an AIP
     list-locations: List locations
     create-location: Create a storage location
     show-location: Show location by UUID
@@ -704,6 +716,18 @@ Show AIP by AIPID
 
 Example:
     %[1]s storage show-aip --uuid "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --token "abc123"
+`, os.Args[0])
+}
+
+func storageListAipWorkflowsUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage list-aip-workflows -uuid STRING -token STRING
+
+List all workflows for an AIP
+    -uuid STRING: Identifier of AIP
+    -token STRING: 
+
+Example:
+    %[1]s storage list-aip-workflows --uuid "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --token "abc123"
 `, os.Args[0])
 }
 

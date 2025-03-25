@@ -16,6 +16,10 @@ type Tx struct {
 	AIP *AIPClient
 	// Location is the client for interacting with the Location builders.
 	Location *LocationClient
+	// Task is the client for interacting with the Task builders.
+	Task *TaskClient
+	// Workflow is the client for interacting with the Workflow builders.
+	Workflow *WorkflowClient
 
 	// lazily loaded.
 	client     *Client
@@ -149,6 +153,8 @@ func (tx *Tx) Client() *Client {
 func (tx *Tx) init() {
 	tx.AIP = NewAIPClient(tx.config)
 	tx.Location = NewLocationClient(tx.config)
+	tx.Task = NewTaskClient(tx.config)
+	tx.Workflow = NewWorkflowClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.

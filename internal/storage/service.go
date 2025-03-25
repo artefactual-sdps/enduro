@@ -35,6 +35,10 @@ type Service interface {
 	UpdateAipStatus(ctx context.Context, aipID uuid.UUID, status enums.AIPStatus) error
 	UpdateAipLocationID(ctx context.Context, aipID, locationID uuid.UUID) error
 	DeleteAip(ctx context.Context, aipID uuid.UUID) (err error)
+	CreateWorkflow(context.Context, *types.Workflow) error
+	UpdateWorkflow(context.Context, int, persistence.WorkflowUpdater) (*types.Workflow, error)
+	CreateTask(context.Context, *types.Task) error
+	UpdateTask(context.Context, int, persistence.TaskUpdater) (*types.Task, error)
 
 	// Both.
 	AipReader(ctx context.Context, aip *goastorage.AIP) (*blob.Reader, error)
@@ -389,6 +393,23 @@ func (s *serviceImpl) AipReader(ctx context.Context, a *goastorage.AIP) (*blob.R
 	return reader, nil
 }
 
+func (s *serviceImpl) ListAipWorkflows(
+	ctx context.Context,
+	payload *goastorage.ListAipWorkflowsPayload,
+) (*goastorage.AIPWorkflows, error) {
+	aipUUID, err := uuid.Parse(payload.UUID)
+	if err != nil {
+		return nil, goastorage.MakeNotValid(errors.New("cannot perform operation"))
+	}
+
+	workflows, err := s.storagePersistence.AIPWorkflows(ctx, aipUUID)
+	if err != nil {
+		return nil, goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
+	}
+
+	return &goastorage.AIPWorkflows{Workflows: workflows}, nil
+}
+
 func (s *serviceImpl) CreateLocation(
 	ctx context.Context,
 	payload *goastorage.CreateLocationPayload,
@@ -469,4 +490,24 @@ func (s *serviceImpl) ListLocationAips(
 	}
 
 	return aips, nil
+}
+
+func (svc *serviceImpl) CreateWorkflow(ctx context.Context, w *types.Workflow) error {
+	return svc.storagePersistence.CreateWorkflow(ctx, w)
+}
+
+func (svc *serviceImpl) UpdateWorkflow(
+	ctx context.Context,
+	id int,
+	upd persistence.WorkflowUpdater,
+) (*types.Workflow, error) {
+	return svc.storagePersistence.UpdateWorkflow(ctx, id, upd)
+}
+
+func (svc *serviceImpl) CreateTask(ctx context.Context, t *types.Task) error {
+	return svc.storagePersistence.CreateTask(ctx, t)
+}
+
+func (svc *serviceImpl) UpdateTask(ctx context.Context, id int, upd persistence.TaskUpdater) (*types.Task, error) {
+	return svc.storagePersistence.UpdateTask(ctx, id, upd)
 }

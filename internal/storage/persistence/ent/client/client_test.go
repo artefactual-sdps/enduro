@@ -552,6 +552,108 @@ func TestUpdateAIPLocation(t *testing.T) {
 		).OnlyX(context.Background())
 }
 
+func TestAIPWorkflows(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Lists AIP workflows", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		entc, c := setUpClient(t)
+
+		workflowUUID1 := uuid.New()
+		workflowUUID2 := uuid.New()
+		taskUUID1 := uuid.New()
+		taskUUID2 := uuid.New()
+		startedAt := time.Now().Add(-time.Minute)
+		completedAt := time.Now()
+
+		entc.AIP.Create().
+			SetName("AIP").
+			SetAipID(aipID).
+			SetObjectKey(objectKey).
+			SetStatus(enums.AIPStatusStored).
+			ExecX(ctx)
+
+		workflow1 := entc.Workflow.Create().
+			SetUUID(workflowUUID1).
+			SetTemporalID("temporal-id-1").
+			SetType(enums.WorkflowTypeMoveAip).
+			SetStatus(enums.WorkflowStatusDone).
+			SetStartedAt(startedAt).
+			SetCompletedAt(completedAt).
+			SetAipID(1).
+			SaveX(ctx)
+
+		entc.Task.Create().
+			SetUUID(taskUUID1).
+			SetName("Task 1").
+			SetStatus(enums.TaskStatusDone).
+			SetStartedAt(startedAt).
+			SetCompletedAt(completedAt).
+			SetNote("Note 1").
+			SetWorkflowID(workflow1.ID).
+			SaveX(ctx)
+
+		workflow2 := entc.Workflow.Create().
+			SetUUID(workflowUUID2).
+			SetTemporalID("temporal-id-2").
+			SetType(enums.WorkflowTypeDeleteAip).
+			SetStatus(enums.WorkflowStatusInProgress).
+			SetStartedAt(startedAt).
+			SetAipID(1).
+			SaveX(ctx)
+
+		entc.Task.Create().
+			SetUUID(taskUUID2).
+			SetName("Task 2").
+			SetStatus(enums.TaskStatusInProgress).
+			SetStartedAt(startedAt).
+			SetNote("Note 2").
+			SetWorkflowID(workflow2.ID).
+			SaveX(ctx)
+
+		re, err := c.AIPWorkflows(ctx, aipID)
+		assert.NilError(t, err)
+		assert.DeepEqual(t, re, goastorage.AIPWorkflowCollection{
+			{
+				UUID:       workflowUUID2,
+				TemporalID: "temporal-id-2",
+				Type:       enums.WorkflowTypeDeleteAip.String(),
+				Status:     enums.WorkflowStatusInProgress.String(),
+				StartedAt:  ref.New(startedAt.Format(time.RFC3339)),
+				Tasks: goastorage.AIPTaskCollection{
+					{
+						UUID:      taskUUID2,
+						Name:      "Task 2",
+						Status:    enums.TaskStatusInProgress.String(),
+						StartedAt: ref.New(startedAt.Format(time.RFC3339)),
+						Note:      ref.New("Note 2"),
+					},
+				},
+			},
+			{
+				UUID:        workflowUUID1,
+				TemporalID:  "temporal-id-1",
+				Type:        enums.WorkflowTypeMoveAip.String(),
+				Status:      enums.WorkflowStatusDone.String(),
+				StartedAt:   ref.New(startedAt.Format(time.RFC3339)),
+				CompletedAt: ref.New(completedAt.Format(time.RFC3339)),
+				Tasks: goastorage.AIPTaskCollection{
+					{
+						UUID:        taskUUID1,
+						Name:        "Task 1",
+						Status:      enums.TaskStatusDone.String(),
+						StartedAt:   ref.New(startedAt.Format(time.RFC3339)),
+						CompletedAt: ref.New(completedAt.Format(time.RFC3339)),
+						Note:        ref.New("Note 1"),
+					},
+				},
+			},
+		})
+	})
+}
+
 func TestCreateLocation(t *testing.T) {
 	t.Parallel()
 

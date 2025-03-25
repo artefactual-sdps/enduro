@@ -57,6 +57,11 @@ func ShowAipStoragePath(uuid string) string {
 	return fmt.Sprintf("/storage/aips/%v", uuid)
 }
 
+// ListAipWorkflowsStoragePath returns the URL path to the storage service list_aip_workflows HTTP endpoint.
+func ListAipWorkflowsStoragePath(uuid string) string {
+	return fmt.Sprintf("/storage/aips/%v/workflows", uuid)
+}
+
 // ListLocationsStoragePath returns the URL path to the storage service list_locations HTTP endpoint.
 func ListLocationsStoragePath() string {
 	return "/storage/locations"

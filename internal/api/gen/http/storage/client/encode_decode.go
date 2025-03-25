@@ -1233,6 +1233,132 @@ func DecodeShowAipResponse(decoder func(*http.Response) goahttp.Decoder, restore
 	}
 }
 
+// BuildListAipWorkflowsRequest instantiates a HTTP request object with method
+// and path set to call the "storage" service "list_aip_workflows" endpoint
+func (c *Client) BuildListAipWorkflowsRequest(ctx context.Context, v any) (*http.Request, error) {
+	var (
+		uuid string
+	)
+	{
+		p, ok := v.(*storage.ListAipWorkflowsPayload)
+		if !ok {
+			return nil, goahttp.ErrInvalidType("storage", "list_aip_workflows", "*storage.ListAipWorkflowsPayload", v)
+		}
+		uuid = p.UUID
+	}
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: ListAipWorkflowsStoragePath(uuid)}
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		return nil, goahttp.ErrInvalidURL("storage", "list_aip_workflows", u.String(), err)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
+	return req, nil
+}
+
+// EncodeListAipWorkflowsRequest returns an encoder for requests sent to the
+// storage list_aip_workflows server.
+func EncodeListAipWorkflowsRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, any) error {
+	return func(req *http.Request, v any) error {
+		p, ok := v.(*storage.ListAipWorkflowsPayload)
+		if !ok {
+			return goahttp.ErrInvalidType("storage", "list_aip_workflows", "*storage.ListAipWorkflowsPayload", v)
+		}
+		if p.Token != nil {
+			head := *p.Token
+			if !strings.Contains(head, " ") {
+				req.Header.Set("Authorization", "Bearer "+head)
+			} else {
+				req.Header.Set("Authorization", head)
+			}
+		}
+		return nil
+	}
+}
+
+// DecodeListAipWorkflowsResponse returns a decoder for responses returned by
+// the storage list_aip_workflows endpoint. restoreBody controls whether the
+// response body should be restored after having been read.
+// DecodeListAipWorkflowsResponse may return the following errors:
+//   - "not_found" (type *storage.AIPNotFound): http.StatusNotFound
+//   - "forbidden" (type storage.Forbidden): http.StatusForbidden
+//   - "unauthorized" (type storage.Unauthorized): http.StatusUnauthorized
+//   - error: internal error
+func DecodeListAipWorkflowsResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
+	return func(resp *http.Response) (any, error) {
+		if restoreBody {
+			b, err := io.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			defer func() {
+				resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			}()
+		} else {
+			defer resp.Body.Close()
+		}
+		switch resp.StatusCode {
+		case http.StatusOK:
+			var (
+				body ListAipWorkflowsResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "list_aip_workflows", err)
+			}
+			p := NewListAipWorkflowsAIPWorkflowsOK(&body)
+			view := "default"
+			vres := &storageviews.AIPWorkflows{Projected: p, View: view}
+			if err = storageviews.ValidateAIPWorkflows(vres); err != nil {
+				return nil, goahttp.ErrValidationError("storage", "list_aip_workflows", err)
+			}
+			res := storage.NewAIPWorkflows(vres)
+			return res, nil
+		case http.StatusNotFound:
+			var (
+				body ListAipWorkflowsNotFoundResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "list_aip_workflows", err)
+			}
+			err = ValidateListAipWorkflowsNotFoundResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "list_aip_workflows", err)
+			}
+			return nil, NewListAipWorkflowsNotFound(&body)
+		case http.StatusForbidden:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "list_aip_workflows", err)
+			}
+			return nil, NewListAipWorkflowsForbidden(body)
+		case http.StatusUnauthorized:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "list_aip_workflows", err)
+			}
+			return nil, NewListAipWorkflowsUnauthorized(body)
+		default:
+			body, _ := io.ReadAll(resp.Body)
+			return nil, goahttp.ErrInvalidResponse("storage", "list_aip_workflows", resp.StatusCode, string(body))
+		}
+	}
+}
+
 // BuildListLocationsRequest instantiates a HTTP request object with method and
 // path set to call the "storage" service "list_locations" endpoint
 func (c *Client) BuildListLocationsRequest(ctx context.Context, v any) (*http.Request, error) {
@@ -1742,6 +1868,49 @@ func unmarshalEnduroPageResponseBodyToStorageviewsEnduroPageView(v *EnduroPageRe
 		Limit:  v.Limit,
 		Offset: v.Offset,
 		Total:  v.Total,
+	}
+
+	return res
+}
+
+// unmarshalAIPWorkflowResponseBodyToStorageviewsAIPWorkflowView builds a value
+// of type *storageviews.AIPWorkflowView from a value of type
+// *AIPWorkflowResponseBody.
+func unmarshalAIPWorkflowResponseBodyToStorageviewsAIPWorkflowView(v *AIPWorkflowResponseBody) *storageviews.AIPWorkflowView {
+	if v == nil {
+		return nil
+	}
+	res := &storageviews.AIPWorkflowView{
+		UUID:        v.UUID,
+		TemporalID:  v.TemporalID,
+		Type:        v.Type,
+		Status:      v.Status,
+		StartedAt:   v.StartedAt,
+		CompletedAt: v.CompletedAt,
+	}
+	if v.Tasks != nil {
+		res.Tasks = make([]*storageviews.AIPTaskView, len(v.Tasks))
+		for i, val := range v.Tasks {
+			res.Tasks[i] = unmarshalAIPTaskResponseBodyToStorageviewsAIPTaskView(val)
+		}
+	}
+
+	return res
+}
+
+// unmarshalAIPTaskResponseBodyToStorageviewsAIPTaskView builds a value of type
+// *storageviews.AIPTaskView from a value of type *AIPTaskResponseBody.
+func unmarshalAIPTaskResponseBodyToStorageviewsAIPTaskView(v *AIPTaskResponseBody) *storageviews.AIPTaskView {
+	if v == nil {
+		return nil
+	}
+	res := &storageviews.AIPTaskView{
+		UUID:        v.UUID,
+		Name:        v.Name,
+		Status:      v.Status,
+		StartedAt:   v.StartedAt,
+		CompletedAt: v.CompletedAt,
+		Note:        v.Note,
 	}
 
 	return res

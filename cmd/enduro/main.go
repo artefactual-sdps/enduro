@@ -498,6 +498,7 @@ func main() {
 			storageHttpClient.MoveAipStatus(),
 			storageHttpClient.RejectAip(),
 			storageHttpClient.ShowAip(),
+			storageHttpClient.ListAipWorkflows(),
 			storageHttpClient.ListLocations(),
 			storageHttpClient.CreateLocation(),
 			storageHttpClient.ShowLocation(),

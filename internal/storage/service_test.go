@@ -1020,6 +1020,84 @@ func TestAipReader(t *testing.T) {
 	})
 }
 
+func TestListAipWorkflows(t *testing.T) {
+	t.Parallel()
+
+	workflows := goastorage.AIPWorkflowCollection{
+		{
+			UUID:       uuid.New(),
+			TemporalID: "temporal-id-1",
+			Type:       enums.WorkflowTypeMoveAip.String(),
+			Status:     enums.WorkflowStatusDone.String(),
+		},
+		{
+			UUID:       uuid.New(),
+			TemporalID: "temporal-id-2",
+			Type:       enums.WorkflowTypeDeleteAip.String(),
+			Status:     enums.WorkflowStatusInProgress.String(),
+		},
+	}
+
+	type test struct {
+		name    string
+		payload *goastorage.ListAipWorkflowsPayload
+		mock    func(context.Context, *fake.MockStorage)
+		want    *goastorage.AIPWorkflows
+		wantErr string
+	}
+
+	for _, tt := range []test{
+		{
+			name: "Lists AIP workflows",
+			payload: &goastorage.ListAipWorkflowsPayload{
+				UUID: aipID.String(),
+			},
+			mock: func(ctx context.Context, s *fake.MockStorage) {
+				s.EXPECT().AIPWorkflows(ctx, aipID).Return(workflows, nil)
+			},
+			want: &goastorage.AIPWorkflows{Workflows: workflows},
+		},
+		{
+			name: "Fails to lists AIP workflows (invalid AIP ID)",
+			payload: &goastorage.ListAipWorkflowsPayload{
+				UUID: "invalid-uuid",
+			},
+			wantErr: "cannot perform operation",
+		},
+		{
+			name: "Fails to lists AIP workflows (persistence error)",
+			payload: &goastorage.ListAipWorkflowsPayload{
+				UUID: aipID.String(),
+			},
+			mock: func(ctx context.Context, s *fake.MockStorage) {
+				s.EXPECT().AIPWorkflows(ctx, aipID).Return(nil, errors.New("persistece error"))
+			},
+			wantErr: "cannot perform operation",
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			attrs := &setUpAttrs{}
+			svc := setUpService(t, attrs)
+
+			if tt.mock != nil {
+				tt.mock(ctx, attrs.persistenceMock)
+			}
+
+			re, err := svc.ListAipWorkflows(ctx, tt.payload)
+			if tt.wantErr != "" {
+				assert.Error(t, err, tt.wantErr)
+				return
+			}
+
+			assert.NilError(t, err)
+			assert.DeepEqual(t, re, tt.want)
+		})
+	}
+}
+
 func TestServiceUpdate(t *testing.T) {
 	t.Parallel()
 
@@ -1817,5 +1895,141 @@ func TestServiceShow(t *testing.T) {
 			ObjectKey:  objectKey,
 			LocationID: &uuid.Nil,
 		})
+	})
+}
+
+func TestCreateWorkflow(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Creates a Workflow", func(t *testing.T) {
+		t.Parallel()
+
+		attrs := &setUpAttrs{}
+		svc := setUpService(t, attrs)
+		ctx := context.Background()
+
+		workflow := &types.Workflow{
+			UUID:       uuid.New(),
+			TemporalID: "temporal-id",
+			Type:       enums.WorkflowTypeMoveAip,
+			Status:     enums.WorkflowStatusInProgress,
+		}
+		perErr := errors.New("persistence error")
+
+		attrs.persistenceMock.
+			EXPECT().
+			CreateWorkflow(ctx, workflow).
+			Return(perErr)
+
+		err := svc.CreateWorkflow(ctx, workflow)
+		assert.ErrorIs(t, err, perErr)
+	})
+}
+
+func TestUpdateWorkflow(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Updates a Workflow", func(t *testing.T) {
+		t.Parallel()
+
+		attrs := &setUpAttrs{}
+		svc := setUpService(t, attrs)
+		ctx := context.Background()
+
+		workflowID := 1
+		workflow := &types.Workflow{
+			DBID:       workflowID,
+			UUID:       uuid.New(),
+			TemporalID: "temporal-id",
+			Type:       enums.WorkflowTypeMoveAip,
+			Status:     enums.WorkflowStatusInProgress,
+		}
+		updater := func(w *types.Workflow) (*types.Workflow, error) { return w, nil }
+
+		attrs.persistenceMock.
+			EXPECT().
+			UpdateWorkflow(
+				ctx,
+				workflowID,
+				mockutil.Func(
+					"should update workflow",
+					func(updater persistence.WorkflowUpdater) error {
+						_, err := updater(workflow)
+						return err
+					},
+				),
+			).
+			Return(workflow, nil)
+
+		re, err := svc.UpdateWorkflow(ctx, workflowID, updater)
+		assert.NilError(t, err)
+		assert.DeepEqual(t, re, workflow)
+	})
+}
+
+func TestCreateTask(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Creates a Task", func(t *testing.T) {
+		t.Parallel()
+
+		attrs := &setUpAttrs{}
+		svc := setUpService(t, attrs)
+		ctx := context.Background()
+
+		task := &types.Task{
+			UUID:   uuid.New(),
+			Name:   "task",
+			Status: enums.TaskStatusInProgress,
+		}
+		perErr := errors.New("persistence error")
+
+		attrs.persistenceMock.
+			EXPECT().
+			CreateTask(ctx, task).
+			Return(perErr)
+
+		err := svc.CreateTask(ctx, task)
+		assert.ErrorIs(t, err, perErr)
+	})
+}
+
+func TestUpdateTask(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Updates a Task", func(t *testing.T) {
+		t.Parallel()
+
+		attrs := &setUpAttrs{}
+		svc := setUpService(t, attrs)
+		ctx := context.Background()
+
+		taskID := 1
+		task := &types.Task{
+			DBID:   taskID,
+			UUID:   uuid.New(),
+			Name:   "task",
+			Status: enums.TaskStatusInProgress,
+		}
+		updater := func(t *types.Task) (*types.Task, error) { return t, nil }
+
+		attrs.persistenceMock.
+			EXPECT().
+			UpdateTask(
+				ctx,
+				taskID,
+				mockutil.Func(
+					"should update task",
+					func(updater persistence.TaskUpdater) error {
+						_, err := updater(task)
+						return err
+					},
+				),
+			).
+			Return(task, nil)
+
+		re, err := svc.UpdateTask(ctx, taskID, updater)
+		assert.NilError(t, err)
+		assert.DeepEqual(t, re, task)
 	})
 }

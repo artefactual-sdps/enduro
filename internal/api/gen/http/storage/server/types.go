@@ -111,6 +111,12 @@ type ShowAipResponseBody struct {
 	CreatedAt string `form:"created_at" json:"created_at" xml:"created_at"`
 }
 
+// ListAipWorkflowsResponseBody is the type of the "storage" service
+// "list_aip_workflows" endpoint HTTP response body.
+type ListAipWorkflowsResponseBody struct {
+	Workflows AIPWorkflowResponseBodyCollection `form:"workflows,omitempty" json:"workflows,omitempty" xml:"workflows,omitempty"`
+}
+
 // LocationResponseCollection is the type of the "storage" service
 // "list_locations" endpoint HTTP response body.
 type LocationResponseCollection []*LocationResponse
@@ -403,6 +409,15 @@ type ShowAipNotFoundResponseBody struct {
 	UUID uuid.UUID `form:"uuid" json:"uuid" xml:"uuid"`
 }
 
+// ListAipWorkflowsNotFoundResponseBody is the type of the "storage" service
+// "list_aip_workflows" endpoint HTTP response body for the "not_found" error.
+type ListAipWorkflowsNotFoundResponseBody struct {
+	// Message of error
+	Message string `form:"message" json:"message" xml:"message"`
+	// Identifier of missing AIP
+	UUID uuid.UUID `form:"uuid" json:"uuid" xml:"uuid"`
+}
+
 // CreateLocationNotValidResponseBody is the type of the "storage" service
 // "create_location" endpoint HTTP response body for the "not_valid" error.
 type CreateLocationNotValidResponseBody struct {
@@ -479,6 +494,35 @@ type EnduroPageResponseBody struct {
 	Offset int `form:"offset" json:"offset" xml:"offset"`
 	// Total result count before paging
 	Total int `form:"total" json:"total" xml:"total"`
+}
+
+// AIPWorkflowResponseBodyCollection is used to define fields on response body
+// types.
+type AIPWorkflowResponseBodyCollection []*AIPWorkflowResponseBody
+
+// AIPWorkflowResponseBody is used to define fields on response body types.
+type AIPWorkflowResponseBody struct {
+	UUID        uuid.UUID                     `form:"uuid" json:"uuid" xml:"uuid"`
+	TemporalID  string                        `form:"temporal_id" json:"temporal_id" xml:"temporal_id"`
+	Type        string                        `form:"type" json:"type" xml:"type"`
+	Status      string                        `form:"status" json:"status" xml:"status"`
+	StartedAt   *string                       `form:"started_at,omitempty" json:"started_at,omitempty" xml:"started_at,omitempty"`
+	CompletedAt *string                       `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
+	Tasks       AIPTaskResponseBodyCollection `form:"tasks,omitempty" json:"tasks,omitempty" xml:"tasks,omitempty"`
+}
+
+// AIPTaskResponseBodyCollection is used to define fields on response body
+// types.
+type AIPTaskResponseBodyCollection []*AIPTaskResponseBody
+
+// AIPTaskResponseBody is used to define fields on response body types.
+type AIPTaskResponseBody struct {
+	UUID        uuid.UUID `form:"uuid" json:"uuid" xml:"uuid"`
+	Name        string    `form:"name" json:"name" xml:"name"`
+	Status      string    `form:"status" json:"status" xml:"status"`
+	StartedAt   *string   `form:"started_at,omitempty" json:"started_at,omitempty" xml:"started_at,omitempty"`
+	CompletedAt *string   `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
+	Note        *string   `form:"note,omitempty" json:"note,omitempty" xml:"note,omitempty"`
 }
 
 // LocationResponse is used to define fields on response body types.
@@ -569,6 +613,19 @@ func NewShowAipResponseBody(res *storageviews.AIPView) *ShowAipResponseBody {
 		ObjectKey:  *res.ObjectKey,
 		LocationID: res.LocationID,
 		CreatedAt:  *res.CreatedAt,
+	}
+	return body
+}
+
+// NewListAipWorkflowsResponseBody builds the HTTP response body from the
+// result of the "list_aip_workflows" endpoint of the "storage" service.
+func NewListAipWorkflowsResponseBody(res *storageviews.AIPWorkflowsView) *ListAipWorkflowsResponseBody {
+	body := &ListAipWorkflowsResponseBody{}
+	if res.Workflows != nil {
+		body.Workflows = make([]*AIPWorkflowResponseBody, len(res.Workflows))
+		for i, val := range res.Workflows {
+			body.Workflows[i] = marshalStorageviewsAIPWorkflowViewToAIPWorkflowResponseBody(val)
+		}
 	}
 	return body
 }
@@ -834,6 +891,16 @@ func NewShowAipNotFoundResponseBody(res *storage.AIPNotFound) *ShowAipNotFoundRe
 	return body
 }
 
+// NewListAipWorkflowsNotFoundResponseBody builds the HTTP response body from
+// the result of the "list_aip_workflows" endpoint of the "storage" service.
+func NewListAipWorkflowsNotFoundResponseBody(res *storage.AIPNotFound) *ListAipWorkflowsNotFoundResponseBody {
+	body := &ListAipWorkflowsNotFoundResponseBody{
+		Message: res.Message,
+		UUID:    res.UUID,
+	}
+	return body
+}
+
 // NewCreateLocationNotValidResponseBody builds the HTTP response body from the
 // result of the "create_location" endpoint of the "storage" service.
 func NewCreateLocationNotValidResponseBody(res *goa.ServiceError) *CreateLocationNotValidResponseBody {
@@ -977,6 +1044,16 @@ func NewRejectAipPayload(uuid string, token *string) *storage.RejectAipPayload {
 // NewShowAipPayload builds a storage service show_aip endpoint payload.
 func NewShowAipPayload(uuid string, token *string) *storage.ShowAipPayload {
 	v := &storage.ShowAipPayload{}
+	v.UUID = uuid
+	v.Token = token
+
+	return v
+}
+
+// NewListAipWorkflowsPayload builds a storage service list_aip_workflows
+// endpoint payload.
+func NewListAipWorkflowsPayload(uuid string, token *string) *storage.ListAipWorkflowsPayload {
+	v := &storage.ListAipWorkflowsPayload{}
 	v.UUID = uuid
 	v.Token = token
 

@@ -7,6 +7,7 @@ apis/index.ts
 index.ts
 models/AIPNotFound.ts
 models/AIPResponse.ts
+models/AIPWorkflows.ts
 models/AIPs.ts
 models/ConfirmSipRequestBody.ts
 models/CreateAipRequestBody.ts
@@ -21,6 +22,8 @@ models/EnduroPage.ts
 models/EnduroPoststorage.ts
 models/EnduroPreprocessing.ts
 models/EnduroStorageAip.ts
+models/EnduroStorageAipTask.ts
+models/EnduroStorageAipWorkflow.ts
 models/Location.ts
 models/LocationResponse.ts
 models/ModelError.ts

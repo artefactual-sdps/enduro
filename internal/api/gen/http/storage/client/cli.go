@@ -337,6 +337,31 @@ func BuildShowAipPayload(storageShowAipUUID string, storageShowAipToken string) 
 	return v, nil
 }
 
+// BuildListAipWorkflowsPayload builds the payload for the storage
+// list_aip_workflows endpoint from CLI flags.
+func BuildListAipWorkflowsPayload(storageListAipWorkflowsUUID string, storageListAipWorkflowsToken string) (*storage.ListAipWorkflowsPayload, error) {
+	var err error
+	var uuid string
+	{
+		uuid = storageListAipWorkflowsUUID
+		err = goa.MergeErrors(err, goa.ValidateFormat("uuid", uuid, goa.FormatUUID))
+		if err != nil {
+			return nil, err
+		}
+	}
+	var token *string
+	{
+		if storageListAipWorkflowsToken != "" {
+			token = &storageListAipWorkflowsToken
+		}
+	}
+	v := &storage.ListAipWorkflowsPayload{}
+	v.UUID = uuid
+	v.Token = token
+
+	return v, nil
+}
+
 // BuildListLocationsPayload builds the payload for the storage list_locations
 // endpoint from CLI flags.
 func BuildListLocationsPayload(storageListLocationsToken string) (*storage.ListLocationsPayload, error) {

@@ -1,4 +1,4 @@
-h1:cw69TQvyChgb5KODW60VY81hc9od/PI8/9N3SAIaVlE=
+h1:tnJDvLm5IaGSbpaPClc4Qv6zG7JwV0djjrLduTtiB4Q=
 20220818175139_init.down.sql h1:SU3ri3mnbAqcubHMc09bvtO1fHwsmWf0Fv3zO32TIKE=
 20220818175139_init.up.sql h1:L99Oh5xRGKLr5aV9GfKdP0Wz9hMJ2jGHwdNdFYYDcj4=
 20220819155618_location_config.down.sql h1:YHBToXRroeebB14Oi6BV6Ts8urWNUBIkSkt879Ant9o=
@@ -11,3 +11,5 @@ h1:cw69TQvyChgb5KODW60VY81hc9od/PI8/9N3SAIaVlE=
 20240507234842_location_source_amss.up.sql h1:oBjmqn1bdo3RkOT/uXi3PwsYxvufpwkkOAtRS2Fpk8M=
 20250211024602_rename_package_table.down.sql h1:zk3r3cXipyGpj/fY2Cnh7vEQNmgEB/VxIGsH/LVrU+4=
 20250211024602_rename_package_table.up.sql h1:kvk247jrt4aA2sMZ7bHreqKMEcc+Vywupv3qhNebn8I=
+20250320032646_add_workflow_and_task_tables.down.sql h1:Ti8Smg0IrtHfxRML7WurJNFNbYnJ4ZpySw2lK8FFyxM=
+20250320032646_add_workflow_and_task_tables.up.sql h1:N0nNdiy4nCFteQQnf9vhKidH+ET0sor//blZLvFEu2o=

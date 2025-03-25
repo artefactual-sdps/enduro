@@ -221,6 +221,24 @@ var _ = Service("storage", func() {
 			Response("not_found", StatusNotFound)
 		})
 	})
+	Method("list_aip_workflows", func() {
+		Description("List all workflows for an AIP")
+		Security(JWTAuth, func() {
+			Scope("storage:aips:workflows:list")
+		})
+		Payload(func() {
+			AttributeUUID("uuid", "Identifier of AIP")
+			Token("token", String)
+			Required("uuid")
+		})
+		Result(AIPWorkflows)
+		Error("not_found", AIPNotFound, "AIP not found")
+		HTTP(func() {
+			GET("/aips/{uuid}/workflows")
+			Response(StatusOK)
+			Response("not_found", StatusNotFound)
+		})
+	})
 	Method("list_locations", func() {
 		Description("List locations")
 		Security(JWTAuth, func() {
@@ -480,4 +498,79 @@ var URLConfig = Type("URLConfig", func() {
 	ConvertTo(types.URLConfig{})
 	Attribute("url", String)
 	Required("url")
+})
+
+var AIPWorkflows = ResultType("application/vnd.enduro.storage.aip.workflows", func() {
+	Description("AIPWorkflows describes the workflows of an AIP.")
+	TypeName("AIPWorkflows")
+	Attributes(func() {
+		Attribute("workflows", CollectionOf(AIPWorkflow))
+	})
+})
+
+var EnumAIPWorkflowType = func() {
+	Enum(enums.WorkflowTypeInterfaces()...)
+}
+
+var EnumAIPWorkflowStatus = func() {
+	Enum(enums.WorkflowStatusInterfaces()...)
+}
+
+var AIPWorkflow = ResultType("application/vnd.enduro.storage.aip.workflow", func() {
+	Description("AIPWorkflow describes a workflow of an AIP.")
+	TypeName("AIPWorkflow")
+	Attributes(func() {
+		Attribute("uuid", String, func() {
+			Meta("struct:field:type", "uuid.UUID", "github.com/google/uuid")
+		})
+		Attribute("temporal_id", String)
+		Attribute("type", String, func() {
+			EnumAIPWorkflowType()
+		})
+		Attribute("status", String, func() {
+			EnumAIPWorkflowStatus()
+		})
+		Attribute("started_at", String, func() {
+			Format(FormatDateTime)
+		})
+		Attribute("completed_at", String, func() {
+			Format(FormatDateTime)
+		})
+		Attribute("tasks", CollectionOf(AIPTask))
+	})
+	View("simple", func() {
+		Attribute("uuid")
+		Attribute("temporal_id")
+		Attribute("type")
+		Attribute("status")
+		Attribute("started_at")
+		Attribute("completed_at")
+	})
+	Required("uuid", "temporal_id", "type", "status")
+})
+
+var EnumAIPTaskStatus = func() {
+	Enum(enums.TaskStatusInterfaces()...)
+}
+
+var AIPTask = ResultType("application/vnd.enduro.storage.aip.task", func() {
+	Description("AIPTask describes an AIP workflow task.")
+	TypeName("AIPTask")
+	Attributes(func() {
+		Attribute("uuid", String, func() {
+			Meta("struct:field:type", "uuid.UUID", "github.com/google/uuid")
+		})
+		Attribute("name", String)
+		Attribute("status", String, func() {
+			EnumAIPTaskStatus()
+		})
+		Attribute("started_at", String, func() {
+			Format(FormatDateTime)
+		})
+		Attribute("completed_at", String, func() {
+			Format(FormatDateTime)
+		})
+		Attribute("note", String)
+	})
+	Required("uuid", "name", "status")
 })

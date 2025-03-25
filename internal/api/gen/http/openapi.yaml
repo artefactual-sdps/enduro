@@ -1013,6 +1013,52 @@ paths:
                 - http
             security:
                 - jwt_header_Authorization: []
+    /storage/aips/{uuid}/workflows:
+        get:
+            tags:
+                - storage
+            summary: list_aip_workflows storage
+            description: |-
+                List all workflows for an AIP
+
+                **Required security scopes for jwt**:
+                  * `storage:aips:workflows:list`
+            operationId: storage#list_aip_workflows
+            parameters:
+                - name: uuid
+                  in: path
+                  description: Identifier of AIP
+                  required: true
+                  type: string
+                  format: uuid
+                - name: Authorization
+                  in: header
+                  required: false
+                  type: string
+            responses:
+                "200":
+                    description: OK response.
+                    schema:
+                        $ref: '#/definitions/StorageListAipWorkflowsResponseBody'
+                "401":
+                    description: Unauthorized response.
+                    schema:
+                        type: string
+                "403":
+                    description: Forbidden response.
+                    schema:
+                        type: string
+                "404":
+                    description: Not Found response.
+                    schema:
+                        $ref: '#/definitions/StorageListAipWorkflowsNotFoundResponseBody'
+                        required:
+                            - message
+                            - uuid
+            schemes:
+                - http
+            security:
+                - jwt_header_Authorization: []
     /storage/locations:
         get:
             tags:
@@ -1310,6 +1356,140 @@ definitions:
               name: abc123
               object_key: abc123
               status: in_review
+              uuid: abc123
+    AIPTaskResponseBody:
+        title: 'Mediatype identifier: application/vnd.enduro.storage.aip.task; view=default'
+        type: object
+        properties:
+            completed_at:
+                type: string
+                example: "1970-01-01T00:00:01Z"
+                format: date-time
+            name:
+                type: string
+                example: abc123
+            note:
+                type: string
+                example: abc123
+            started_at:
+                type: string
+                example: "1970-01-01T00:00:01Z"
+                format: date-time
+            status:
+                type: string
+                example: in progress
+                enum:
+                    - unspecified
+                    - in progress
+                    - done
+                    - error
+                    - queued
+                    - pending
+            uuid:
+                type: string
+                example: abc123
+        description: AIPTask describes an AIP workflow task. (default view)
+        example:
+            completed_at: "1970-01-01T00:00:01Z"
+            name: abc123
+            note: abc123
+            started_at: "1970-01-01T00:00:01Z"
+            status: in progress
+            uuid: abc123
+        required:
+            - uuid
+            - name
+            - status
+    AIPTaskResponseBodyCollection:
+        title: 'Mediatype identifier: application/vnd.enduro.storage.aip.task; type=collection; view=default'
+        type: array
+        items:
+            $ref: '#/definitions/AIPTaskResponseBody'
+        description: AIPTaskCollectionResponseBody is the result type for an array of AIPTaskResponseBody (default view)
+        example:
+            - completed_at: "1970-01-01T00:00:01Z"
+              name: abc123
+              note: abc123
+              started_at: "1970-01-01T00:00:01Z"
+              status: in progress
+              uuid: abc123
+    AIPWorkflowResponseBody:
+        title: 'Mediatype identifier: application/vnd.enduro.storage.aip.workflow; view=default'
+        type: object
+        properties:
+            completed_at:
+                type: string
+                example: "1970-01-01T00:00:01Z"
+                format: date-time
+            started_at:
+                type: string
+                example: "1970-01-01T00:00:01Z"
+                format: date-time
+            status:
+                type: string
+                example: in progress
+                enum:
+                    - unspecified
+                    - in progress
+                    - done
+                    - error
+                    - queued
+                    - pending
+            tasks:
+                $ref: '#/definitions/AIPTaskResponseBodyCollection'
+            temporal_id:
+                type: string
+                example: abc123
+            type:
+                type: string
+                example: upload aip
+                enum:
+                    - unspecified
+                    - upload aip
+                    - move aip
+                    - delete aip
+            uuid:
+                type: string
+                example: abc123
+        description: AIPWorkflow describes a workflow of an AIP. (default view)
+        example:
+            completed_at: "1970-01-01T00:00:01Z"
+            started_at: "1970-01-01T00:00:01Z"
+            status: in progress
+            tasks:
+                - completed_at: "1970-01-01T00:00:01Z"
+                  name: abc123
+                  note: abc123
+                  started_at: "1970-01-01T00:00:01Z"
+                  status: in progress
+                  uuid: abc123
+            temporal_id: abc123
+            type: upload aip
+            uuid: abc123
+        required:
+            - uuid
+            - temporal_id
+            - type
+            - status
+    AIPWorkflowResponseBodyCollection:
+        title: 'Mediatype identifier: application/vnd.enduro.storage.aip.workflow; type=collection; view=default'
+        type: array
+        items:
+            $ref: '#/definitions/AIPWorkflowResponseBody'
+        description: AIPWorkflowCollectionResponseBody is the result type for an array of AIPWorkflowResponseBody (default view)
+        example:
+            - completed_at: "1970-01-01T00:00:01Z"
+              started_at: "1970-01-01T00:00:01Z"
+              status: in progress
+              tasks:
+                - completed_at: "1970-01-01T00:00:01Z"
+                  name: abc123
+                  note: abc123
+                  started_at: "1970-01-01T00:00:01Z"
+                  status: in progress
+                  uuid: abc123
+              temporal_id: abc123
+              type: upload aip
               uuid: abc123
     AboutAboutResponseBody:
         title: 'Mediatype identifier: application/vnd.enduro.about; view=default'
@@ -2894,6 +3074,47 @@ definitions:
         required:
             - message
             - uuid
+    StorageListAipWorkflowsNotFoundResponseBody:
+        title: StorageListAipWorkflowsNotFoundResponseBody
+        type: object
+        properties:
+            message:
+                type: string
+                description: Message of error
+                example: abc123
+            uuid:
+                type: string
+                description: Identifier of missing AIP
+                example: abc123
+        description: AIP not found
+        example:
+            message: abc123
+            uuid: abc123
+        required:
+            - message
+            - uuid
+    StorageListAipWorkflowsResponseBody:
+        title: 'Mediatype identifier: application/vnd.enduro.storage.aip.workflows; view=default'
+        type: object
+        properties:
+            workflows:
+                $ref: '#/definitions/AIPWorkflowResponseBodyCollection'
+        description: list_aip_workflows_response_body result type (default view)
+        example:
+            workflows:
+                - completed_at: "1970-01-01T00:00:01Z"
+                  started_at: "1970-01-01T00:00:01Z"
+                  status: in progress
+                  tasks:
+                    - completed_at: "1970-01-01T00:00:01Z"
+                      name: abc123
+                      note: abc123
+                      started_at: "1970-01-01T00:00:01Z"
+                      status: in progress
+                      uuid: abc123
+                  temporal_id: abc123
+                  type: upload aip
+                  uuid: abc123
     StorageListAipsNotAvailableResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
@@ -3723,6 +3944,7 @@ securityDefinitions:
               * `storage:aips:read`: no description
               * `storage:aips:review`: no description
               * `storage:aips:submit`: no description
+              * `storage:aips:workflows:list`: no description
               * `storage:locations:aips:list`: no description
               * `storage:locations:create`: no description
               * `storage:locations:list`: no description

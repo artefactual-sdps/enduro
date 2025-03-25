@@ -15,6 +15,7 @@ import (
 
 	storage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 	enums "github.com/artefactual-sdps/enduro/internal/storage/enums"
+	persistence "github.com/artefactual-sdps/enduro/internal/storage/persistence"
 	types "github.com/artefactual-sdps/enduro/internal/storage/types"
 	uuid "github.com/google/uuid"
 	gomock "go.uber.org/mock/gomock"
@@ -41,6 +42,45 @@ func NewMockStorage(ctrl *gomock.Controller) *MockStorage {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockStorage) EXPECT() *MockStorageMockRecorder {
 	return m.recorder
+}
+
+// AIPWorkflows mocks base method.
+func (m *MockStorage) AIPWorkflows(arg0 context.Context, arg1 uuid.UUID) (storage.AIPWorkflowCollection, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AIPWorkflows", arg0, arg1)
+	ret0, _ := ret[0].(storage.AIPWorkflowCollection)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AIPWorkflows indicates an expected call of AIPWorkflows.
+func (mr *MockStorageMockRecorder) AIPWorkflows(arg0, arg1 any) *MockStorageAIPWorkflowsCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AIPWorkflows", reflect.TypeOf((*MockStorage)(nil).AIPWorkflows), arg0, arg1)
+	return &MockStorageAIPWorkflowsCall{Call: call}
+}
+
+// MockStorageAIPWorkflowsCall wrap *gomock.Call
+type MockStorageAIPWorkflowsCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockStorageAIPWorkflowsCall) Return(arg0 storage.AIPWorkflowCollection, arg1 error) *MockStorageAIPWorkflowsCall {
+	c.Call = c.Call.Return(arg0, arg1)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockStorageAIPWorkflowsCall) Do(f func(context.Context, uuid.UUID) (storage.AIPWorkflowCollection, error)) *MockStorageAIPWorkflowsCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockStorageAIPWorkflowsCall) DoAndReturn(f func(context.Context, uuid.UUID) (storage.AIPWorkflowCollection, error)) *MockStorageAIPWorkflowsCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
 }
 
 // CreateAIP mocks base method.
@@ -117,6 +157,82 @@ func (c *MockStorageCreateLocationCall) Do(f func(context.Context, *storage.Loca
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
 func (c *MockStorageCreateLocationCall) DoAndReturn(f func(context.Context, *storage.Location, *types.LocationConfig) (*storage.Location, error)) *MockStorageCreateLocationCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
+// CreateTask mocks base method.
+func (m *MockStorage) CreateTask(arg0 context.Context, arg1 *types.Task) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateTask", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateTask indicates an expected call of CreateTask.
+func (mr *MockStorageMockRecorder) CreateTask(arg0, arg1 any) *MockStorageCreateTaskCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateTask", reflect.TypeOf((*MockStorage)(nil).CreateTask), arg0, arg1)
+	return &MockStorageCreateTaskCall{Call: call}
+}
+
+// MockStorageCreateTaskCall wrap *gomock.Call
+type MockStorageCreateTaskCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockStorageCreateTaskCall) Return(arg0 error) *MockStorageCreateTaskCall {
+	c.Call = c.Call.Return(arg0)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockStorageCreateTaskCall) Do(f func(context.Context, *types.Task) error) *MockStorageCreateTaskCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockStorageCreateTaskCall) DoAndReturn(f func(context.Context, *types.Task) error) *MockStorageCreateTaskCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
+// CreateWorkflow mocks base method.
+func (m *MockStorage) CreateWorkflow(arg0 context.Context, arg1 *types.Workflow) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateWorkflow", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateWorkflow indicates an expected call of CreateWorkflow.
+func (mr *MockStorageMockRecorder) CreateWorkflow(arg0, arg1 any) *MockStorageCreateWorkflowCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateWorkflow", reflect.TypeOf((*MockStorage)(nil).CreateWorkflow), arg0, arg1)
+	return &MockStorageCreateWorkflowCall{Call: call}
+}
+
+// MockStorageCreateWorkflowCall wrap *gomock.Call
+type MockStorageCreateWorkflowCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockStorageCreateWorkflowCall) Return(arg0 error) *MockStorageCreateWorkflowCall {
+	c.Call = c.Call.Return(arg0)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockStorageCreateWorkflowCall) Do(f func(context.Context, *types.Workflow) error) *MockStorageCreateWorkflowCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockStorageCreateWorkflowCall) DoAndReturn(f func(context.Context, *types.Workflow) error) *MockStorageCreateWorkflowCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
@@ -388,6 +504,84 @@ func (c *MockStorageUpdateAIPStatusCall) Do(f func(context.Context, uuid.UUID, e
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
 func (c *MockStorageUpdateAIPStatusCall) DoAndReturn(f func(context.Context, uuid.UUID, enums.AIPStatus) error) *MockStorageUpdateAIPStatusCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
+// UpdateTask mocks base method.
+func (m *MockStorage) UpdateTask(arg0 context.Context, arg1 int, arg2 persistence.TaskUpdater) (*types.Task, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateTask", arg0, arg1, arg2)
+	ret0, _ := ret[0].(*types.Task)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateTask indicates an expected call of UpdateTask.
+func (mr *MockStorageMockRecorder) UpdateTask(arg0, arg1, arg2 any) *MockStorageUpdateTaskCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateTask", reflect.TypeOf((*MockStorage)(nil).UpdateTask), arg0, arg1, arg2)
+	return &MockStorageUpdateTaskCall{Call: call}
+}
+
+// MockStorageUpdateTaskCall wrap *gomock.Call
+type MockStorageUpdateTaskCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockStorageUpdateTaskCall) Return(arg0 *types.Task, arg1 error) *MockStorageUpdateTaskCall {
+	c.Call = c.Call.Return(arg0, arg1)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockStorageUpdateTaskCall) Do(f func(context.Context, int, persistence.TaskUpdater) (*types.Task, error)) *MockStorageUpdateTaskCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockStorageUpdateTaskCall) DoAndReturn(f func(context.Context, int, persistence.TaskUpdater) (*types.Task, error)) *MockStorageUpdateTaskCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
+// UpdateWorkflow mocks base method.
+func (m *MockStorage) UpdateWorkflow(arg0 context.Context, arg1 int, arg2 persistence.WorkflowUpdater) (*types.Workflow, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateWorkflow", arg0, arg1, arg2)
+	ret0, _ := ret[0].(*types.Workflow)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateWorkflow indicates an expected call of UpdateWorkflow.
+func (mr *MockStorageMockRecorder) UpdateWorkflow(arg0, arg1, arg2 any) *MockStorageUpdateWorkflowCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateWorkflow", reflect.TypeOf((*MockStorage)(nil).UpdateWorkflow), arg0, arg1, arg2)
+	return &MockStorageUpdateWorkflowCall{Call: call}
+}
+
+// MockStorageUpdateWorkflowCall wrap *gomock.Call
+type MockStorageUpdateWorkflowCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockStorageUpdateWorkflowCall) Return(arg0 *types.Workflow, arg1 error) *MockStorageUpdateWorkflowCall {
+	c.Call = c.Call.Return(arg0, arg1)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockStorageUpdateWorkflowCall) Do(f func(context.Context, int, persistence.WorkflowUpdater) (*types.Workflow, error)) *MockStorageUpdateWorkflowCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockStorageUpdateWorkflowCall) DoAndReturn(f func(context.Context, int, persistence.WorkflowUpdater) (*types.Workflow, error)) *MockStorageUpdateWorkflowCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

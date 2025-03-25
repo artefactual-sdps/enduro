@@ -18,6 +18,7 @@ type Client interface {
 	MoveAipStatus(context.Context, *goastorage.MoveAipStatusPayload) (*goastorage.MoveStatusResult, error)
 	RejectAip(context.Context, *goastorage.RejectAipPayload) error
 	ShowAip(context.Context, *goastorage.ShowAipPayload) (*goastorage.AIP, error)
+	ListAipWorkflows(context.Context, *goastorage.ListAipWorkflowsPayload) (*goastorage.AIPWorkflows, error)
 	ShowLocation(context.Context, *goastorage.ShowLocationPayload) (*goastorage.Location, error)
 	ListLocationAips(context.Context, *goastorage.ListLocationAipsPayload) (goastorage.AIPCollection, error)
 }

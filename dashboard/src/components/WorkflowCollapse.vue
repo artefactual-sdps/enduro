@@ -8,17 +8,19 @@ import Task from "@/components/Task.vue";
 import { useAuthStore } from "@/stores/auth";
 
 const authStore = useAuthStore();
-const tasks = computed<api.EnduroIngestSipTask[]>(() => {
-  if (!props.workflow.tasks) {
-    return [];
-  }
+const tasks = computed<api.EnduroIngestSipTask[] | api.EnduroStorageAipTask[]>(
+  () => {
+    if (!props.workflow.tasks) {
+      return [];
+    }
 
-  // Show the last task first.
-  return props.workflow.tasks.slice().reverse();
-});
+    // Show the last task first.
+    return props.workflow.tasks.slice().reverse();
+  },
+);
 
 const props = defineProps<{
-  workflow: api.EnduroIngestSipWorkflow;
+  workflow: api.EnduroIngestSipWorkflow | api.EnduroStorageAipWorkflow;
   index: number;
 }>();
 
@@ -78,7 +80,7 @@ let expandCounter = ref<number>(0);
         <li
           v-for="(task, index) of tasks"
           :id="'task-' + (tasks.length - index)"
-          :key="task.id"
+          :key="index"
           class="mb-2 card bg-light"
         >
           <Task :index="tasks.length - index" :task="task" />

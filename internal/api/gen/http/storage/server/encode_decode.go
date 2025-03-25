@@ -1014,6 +1014,96 @@ func EncodeShowAipError(encoder func(context.Context, http.ResponseWriter) goaht
 	}
 }
 
+// EncodeListAipWorkflowsResponse returns an encoder for responses returned by
+// the storage list_aip_workflows endpoint.
+func EncodeListAipWorkflowsResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, any) error {
+	return func(ctx context.Context, w http.ResponseWriter, v any) error {
+		res := v.(*storageviews.AIPWorkflows)
+		enc := encoder(ctx, w)
+		body := NewListAipWorkflowsResponseBody(res.Projected)
+		w.WriteHeader(http.StatusOK)
+		return enc.Encode(body)
+	}
+}
+
+// DecodeListAipWorkflowsRequest returns a decoder for requests sent to the
+// storage list_aip_workflows endpoint.
+func DecodeListAipWorkflowsRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (any, error) {
+	return func(r *http.Request) (any, error) {
+		var (
+			uuid  string
+			token *string
+			err   error
+
+			params = mux.Vars(r)
+		)
+		uuid = params["uuid"]
+		err = goa.MergeErrors(err, goa.ValidateFormat("uuid", uuid, goa.FormatUUID))
+		tokenRaw := r.Header.Get("Authorization")
+		if tokenRaw != "" {
+			token = &tokenRaw
+		}
+		if err != nil {
+			return nil, err
+		}
+		payload := NewListAipWorkflowsPayload(uuid, token)
+		if payload.Token != nil {
+			if strings.Contains(*payload.Token, " ") {
+				// Remove authorization scheme prefix (e.g. "Bearer")
+				cred := strings.SplitN(*payload.Token, " ", 2)[1]
+				payload.Token = &cred
+			}
+		}
+
+		return payload, nil
+	}
+}
+
+// EncodeListAipWorkflowsError returns an encoder for errors returned by the
+// list_aip_workflows storage endpoint.
+func EncodeListAipWorkflowsError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(ctx context.Context, err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
+	encodeError := goahttp.ErrorEncoder(encoder, formatter)
+	return func(ctx context.Context, w http.ResponseWriter, v error) error {
+		var en goa.GoaErrorNamer
+		if !errors.As(v, &en) {
+			return encodeError(ctx, w, v)
+		}
+		switch en.GoaErrorName() {
+		case "not_found":
+			var res *storage.AIPNotFound
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			var body any
+			if formatter != nil {
+				body = formatter(ctx, res)
+			} else {
+				body = NewListAipWorkflowsNotFoundResponseBody(res)
+			}
+			w.Header().Set("goa-error", res.GoaErrorName())
+			w.WriteHeader(http.StatusNotFound)
+			return enc.Encode(body)
+		case "forbidden":
+			var res storage.Forbidden
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			body := res
+			w.Header().Set("goa-error", res.GoaErrorName())
+			w.WriteHeader(http.StatusForbidden)
+			return enc.Encode(body)
+		case "unauthorized":
+			var res storage.Unauthorized
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			body := res
+			w.Header().Set("goa-error", res.GoaErrorName())
+			w.WriteHeader(http.StatusUnauthorized)
+			return enc.Encode(body)
+		default:
+			return encodeError(ctx, w, v)
+		}
+	}
+}
+
 // EncodeListLocationsResponse returns an encoder for responses returned by the
 // storage list_locations endpoint.
 func EncodeListLocationsResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, any) error {
@@ -1395,6 +1485,49 @@ func marshalStorageviewsEnduroPageViewToEnduroPageResponseBody(v *storageviews.E
 		Limit:  *v.Limit,
 		Offset: *v.Offset,
 		Total:  *v.Total,
+	}
+
+	return res
+}
+
+// marshalStorageviewsAIPWorkflowViewToAIPWorkflowResponseBody builds a value
+// of type *AIPWorkflowResponseBody from a value of type
+// *storageviews.AIPWorkflowView.
+func marshalStorageviewsAIPWorkflowViewToAIPWorkflowResponseBody(v *storageviews.AIPWorkflowView) *AIPWorkflowResponseBody {
+	if v == nil {
+		return nil
+	}
+	res := &AIPWorkflowResponseBody{
+		UUID:        *v.UUID,
+		TemporalID:  *v.TemporalID,
+		Type:        *v.Type,
+		Status:      *v.Status,
+		StartedAt:   v.StartedAt,
+		CompletedAt: v.CompletedAt,
+	}
+	if v.Tasks != nil {
+		res.Tasks = make([]*AIPTaskResponseBody, len(v.Tasks))
+		for i, val := range v.Tasks {
+			res.Tasks[i] = marshalStorageviewsAIPTaskViewToAIPTaskResponseBody(val)
+		}
+	}
+
+	return res
+}
+
+// marshalStorageviewsAIPTaskViewToAIPTaskResponseBody builds a value of type
+// *AIPTaskResponseBody from a value of type *storageviews.AIPTaskView.
+func marshalStorageviewsAIPTaskViewToAIPTaskResponseBody(v *storageviews.AIPTaskView) *AIPTaskResponseBody {
+	if v == nil {
+		return nil
+	}
+	res := &AIPTaskResponseBody{
+		UUID:        *v.UUID,
+		Name:        *v.Name,
+		Status:      *v.Status,
+		StartedAt:   v.StartedAt,
+		CompletedAt: v.CompletedAt,
+		Note:        v.Note,
 	}
 
 	return res

@@ -50,7 +50,18 @@ watch(aipStore.ui.download, () => download());
       <div class="d-flex flex-wrap gap-2">
         <button
           v-if="
-            false &&
+            aipStore.isStored &&
+            authStore.checkAttributes(['storage:aips:download'])
+          "
+          type="button"
+          class="btn btn-primary btn-sm"
+          @click="download"
+          :disabled="aipStore.isMoving"
+        >
+          Download
+        </button>
+        <button
+          v-if="
             aipStore.isStored &&
             authStore.checkAttributes(['storage:aips:move'])
           "
@@ -67,19 +78,7 @@ watch(aipStore.ui.download, () => download());
             ></span>
             Moving...
           </template>
-          <template v-else>Choose storage location</template>
-        </button>
-        <button
-          v-if="
-            aipStore.isStored &&
-            authStore.checkAttributes(['storage:aips:download'])
-          "
-          type="button"
-          class="btn btn-primary btn-sm"
-          @click="download"
-          :disabled="aipStore.isMoving"
-        >
-          Download
+          <template v-else>Move</template>
         </button>
       </div>
     </div>

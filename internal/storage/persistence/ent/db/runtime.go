@@ -7,6 +7,8 @@ import (
 
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/aip"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/location"
+	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/task"
+	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/workflow"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/schema"
 )
 
@@ -26,4 +28,16 @@ func init() {
 	locationDescCreatedAt := locationFields[6].Descriptor()
 	// location.DefaultCreatedAt holds the default value on creation for the created_at field.
 	location.DefaultCreatedAt = locationDescCreatedAt.Default.(func() time.Time)
+	taskFields := schema.Task{}.Fields()
+	_ = taskFields
+	// taskDescWorkflowID is the schema descriptor for workflow_id field.
+	taskDescWorkflowID := taskFields[6].Descriptor()
+	// task.WorkflowIDValidator is a validator for the "workflow_id" field. It is called by the builders before save.
+	task.WorkflowIDValidator = taskDescWorkflowID.Validators[0].(func(int) error)
+	workflowFields := schema.Workflow{}.Fields()
+	_ = workflowFields
+	// workflowDescAipID is the schema descriptor for aip_id field.
+	workflowDescAipID := workflowFields[6].Descriptor()
+	// workflow.AipIDValidator is a validator for the "aip_id" field. It is called by the builders before save.
+	workflow.AipIDValidator = workflowDescAipID.Validators[0].(func(int) error)
 }
