@@ -413,6 +413,29 @@ func HasTasksWith(preds ...predicate.Task) predicate.Workflow {
 	})
 }
 
+// HasDeletionRequest applies the HasEdge predicate on the "deletion_request" edge.
+func HasDeletionRequest() predicate.Workflow {
+	return predicate.Workflow(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, false, DeletionRequestTable, DeletionRequestColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasDeletionRequestWith applies the HasEdge predicate on the "deletion_request" edge with a given conditions (other predicates).
+func HasDeletionRequestWith(preds ...predicate.DeletionRequest) predicate.Workflow {
+	return predicate.Workflow(func(s *sql.Selector) {
+		step := newDeletionRequestStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.Workflow) predicate.Workflow {
 	return predicate.Workflow(sql.AndPredicates(predicates...))

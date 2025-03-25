@@ -125,6 +125,7 @@ gen-enums: $(GO_ENUM)
 		-f internal/enums/workflow_status.go \
 		-f internal/enums/workflow_type.go \
 		-f internal/storage/enums/aip_status.go \
+		-f internal/storage/enums/deletion_request_status.go \
 		-f internal/storage/enums/location_purpose.go \
 		-f internal/storage/enums/location_source.go \
 		-f internal/storage/enums/task_status.go \

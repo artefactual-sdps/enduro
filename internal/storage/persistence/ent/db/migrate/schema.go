@@ -45,6 +45,43 @@ var (
 			},
 		},
 	}
+	// DeletionRequestColumns holds the columns for the "deletion_request" table.
+	DeletionRequestColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "uuid", Type: field.TypeUUID, Unique: true},
+		{Name: "requester", Type: field.TypeString, Size: 1024},
+		{Name: "requester_iss", Type: field.TypeString, Size: 1024},
+		{Name: "requester_sub", Type: field.TypeString, Size: 1024},
+		{Name: "reviewer", Type: field.TypeString, Size: 1024},
+		{Name: "reviewer_iss", Type: field.TypeString, Size: 1024},
+		{Name: "reviewer_sub", Type: field.TypeString, Size: 1024},
+		{Name: "reason", Type: field.TypeString, Size: 2048},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"pending", "approved", "rejected"}},
+		{Name: "requested_at", Type: field.TypeTime},
+		{Name: "reviewed_at", Type: field.TypeTime, Nullable: true},
+		{Name: "workflow_id", Type: field.TypeInt, Unique: true},
+	}
+	// DeletionRequestTable holds the schema information for the "deletion_request" table.
+	DeletionRequestTable = &schema.Table{
+		Name:       "deletion_request",
+		Columns:    DeletionRequestColumns,
+		PrimaryKey: []*schema.Column{DeletionRequestColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "deletion_request_workflow_deletion_request",
+				Columns:    []*schema.Column{DeletionRequestColumns[12]},
+				RefColumns: []*schema.Column{WorkflowColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "deletionrequest_uuid",
+				Unique:  false,
+				Columns: []*schema.Column{DeletionRequestColumns[1]},
+			},
+		},
+	}
 	// LocationColumns holds the columns for the "location" table.
 	LocationColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -144,6 +181,7 @@ var (
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		AipTable,
+		DeletionRequestTable,
 		LocationTable,
 		TaskTable,
 		WorkflowTable,
@@ -154,6 +192,10 @@ func init() {
 	AipTable.ForeignKeys[0].RefTable = LocationTable
 	AipTable.Annotation = &entsql.Annotation{
 		Table: "aip",
+	}
+	DeletionRequestTable.ForeignKeys[0].RefTable = WorkflowTable
+	DeletionRequestTable.Annotation = &entsql.Annotation{
+		Table: "deletion_request",
 	}
 	LocationTable.Annotation = &entsql.Annotation{
 		Table: "location",

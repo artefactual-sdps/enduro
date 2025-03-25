@@ -14,6 +14,8 @@ type Tx struct {
 	config
 	// AIP is the client for interacting with the AIP builders.
 	AIP *AIPClient
+	// DeletionRequest is the client for interacting with the DeletionRequest builders.
+	DeletionRequest *DeletionRequestClient
 	// Location is the client for interacting with the Location builders.
 	Location *LocationClient
 	// Task is the client for interacting with the Task builders.
@@ -152,6 +154,7 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.AIP = NewAIPClient(tx.config)
+	tx.DeletionRequest = NewDeletionRequestClient(tx.config)
 	tx.Location = NewLocationClient(tx.config)
 	tx.Task = NewTaskClient(tx.config)
 	tx.Workflow = NewWorkflowClient(tx.config)
