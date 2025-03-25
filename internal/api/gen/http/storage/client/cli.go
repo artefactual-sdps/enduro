@@ -362,6 +362,80 @@ func BuildListAipWorkflowsPayload(storageListAipWorkflowsUUID string, storageLis
 	return v, nil
 }
 
+// BuildRequestAipDeletionPayload builds the payload for the storage
+// request_aip_deletion endpoint from CLI flags.
+func BuildRequestAipDeletionPayload(storageRequestAipDeletionBody string, storageRequestAipDeletionUUID string, storageRequestAipDeletionToken string) (*storage.RequestAipDeletionPayload, error) {
+	var err error
+	var body RequestAipDeletionRequestBody
+	{
+		err = json.Unmarshal([]byte(storageRequestAipDeletionBody), &body)
+		if err != nil {
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"reason\": \"abc123\"\n   }'")
+		}
+	}
+	var uuid string
+	{
+		uuid = storageRequestAipDeletionUUID
+		err = goa.MergeErrors(err, goa.ValidateFormat("uuid", uuid, goa.FormatUUID))
+		if err != nil {
+			return nil, err
+		}
+	}
+	var token *string
+	{
+		if storageRequestAipDeletionToken != "" {
+			token = &storageRequestAipDeletionToken
+		}
+	}
+	v := &storage.RequestAipDeletionPayload{
+		Reason: body.Reason,
+	}
+	v.UUID = uuid
+	v.Token = token
+
+	return v, nil
+}
+
+// BuildReviewAipDeletionPayload builds the payload for the storage
+// review_aip_deletion endpoint from CLI flags.
+func BuildReviewAipDeletionPayload(storageReviewAipDeletionBody string, storageReviewAipDeletionUUID string, storageReviewAipDeletionToken string) (*storage.ReviewAipDeletionPayload, error) {
+	var err error
+	var body ReviewAipDeletionRequestBody
+	{
+		err = json.Unmarshal([]byte(storageReviewAipDeletionBody), &body)
+		if err != nil {
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"decision\": \"reject\"\n   }'")
+		}
+		if !(body.Decision == "approve" || body.Decision == "reject") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.decision", body.Decision, []any{"approve", "reject"}))
+		}
+		if err != nil {
+			return nil, err
+		}
+	}
+	var uuid string
+	{
+		uuid = storageReviewAipDeletionUUID
+		err = goa.MergeErrors(err, goa.ValidateFormat("uuid", uuid, goa.FormatUUID))
+		if err != nil {
+			return nil, err
+		}
+	}
+	var token *string
+	{
+		if storageReviewAipDeletionToken != "" {
+			token = &storageReviewAipDeletionToken
+		}
+	}
+	v := &storage.ReviewAipDeletionPayload{
+		Decision: body.Decision,
+	}
+	v.UUID = uuid
+	v.Token = token
+
+	return v, nil
+}
+
 // BuildListLocationsPayload builds the payload for the storage list_locations
 // endpoint from CLI flags.
 func BuildListLocationsPayload(storageListLocationsToken string) (*storage.ListLocationsPayload, error) {

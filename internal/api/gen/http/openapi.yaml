@@ -703,6 +703,108 @@ paths:
                 - http
             security:
                 - jwt_header_Authorization: []
+    /storage/aips/{uuid}/deletion-request:
+        post:
+            tags:
+                - storage
+            summary: request_aip_deletion storage
+            description: |-
+                Request an AIP deletion
+
+                **Required security scopes for jwt**:
+                  * `storage:aips:deletion:request`
+            operationId: storage#request_aip_deletion
+            parameters:
+                - name: uuid
+                  in: path
+                  description: Identifier of AIP
+                  required: true
+                  type: string
+                  format: uuid
+                - name: Authorization
+                  in: header
+                  required: false
+                  type: string
+                - name: request_aip_deletion_request_body
+                  in: body
+                  required: true
+                  schema:
+                    $ref: '#/definitions/StorageRequestAipDeletionRequestBody'
+                    required:
+                        - reason
+            responses:
+                "200":
+                    description: OK response.
+                "401":
+                    description: Unauthorized response.
+                    schema:
+                        type: string
+                "403":
+                    description: Forbidden response.
+                    schema:
+                        type: string
+                "404":
+                    description: Not Found response.
+                    schema:
+                        $ref: '#/definitions/StorageRequestAipDeletionNotFoundResponseBody'
+                        required:
+                            - message
+                            - uuid
+            schemes:
+                - http
+            security:
+                - jwt_header_Authorization: []
+    /storage/aips/{uuid}/deletion-review:
+        post:
+            tags:
+                - storage
+            summary: review_aip_deletion storage
+            description: |-
+                Review an AIP deletion request
+
+                **Required security scopes for jwt**:
+                  * `storage:aips:deletion:review`
+            operationId: storage#review_aip_deletion
+            parameters:
+                - name: uuid
+                  in: path
+                  description: Identifier of AIP
+                  required: true
+                  type: string
+                  format: uuid
+                - name: Authorization
+                  in: header
+                  required: false
+                  type: string
+                - name: review_aip_deletion_request_body
+                  in: body
+                  required: true
+                  schema:
+                    $ref: '#/definitions/StorageReviewAipDeletionRequestBody'
+                    required:
+                        - decision
+            responses:
+                "200":
+                    description: OK response.
+                "401":
+                    description: Unauthorized response.
+                    schema:
+                        type: string
+                "403":
+                    description: Forbidden response.
+                    schema:
+                        type: string
+                "404":
+                    description: Not Found response.
+                    schema:
+                        $ref: '#/definitions/StorageReviewAipDeletionNotFoundResponseBody'
+                        required:
+                            - message
+                            - uuid
+            schemes:
+                - http
+            security:
+                - jwt_header_Authorization: []
     /storage/aips/{uuid}/download:
         get:
             tags:
@@ -3594,6 +3696,69 @@ definitions:
             - temporary
             - timeout
             - fault
+    StorageRequestAipDeletionNotFoundResponseBody:
+        title: StorageRequestAipDeletionNotFoundResponseBody
+        type: object
+        properties:
+            message:
+                type: string
+                description: Message of error
+                example: abc123
+            uuid:
+                type: string
+                description: Identifier of missing AIP
+                example: abc123
+        description: AIP not found
+        example:
+            message: abc123
+            uuid: abc123
+        required:
+            - message
+            - uuid
+    StorageRequestAipDeletionRequestBody:
+        title: StorageRequestAipDeletionRequestBody
+        type: object
+        properties:
+            reason:
+                type: string
+                example: abc123
+        example:
+            reason: abc123
+        required:
+            - reason
+    StorageReviewAipDeletionNotFoundResponseBody:
+        title: StorageReviewAipDeletionNotFoundResponseBody
+        type: object
+        properties:
+            message:
+                type: string
+                description: Message of error
+                example: abc123
+            uuid:
+                type: string
+                description: Identifier of missing AIP
+                example: abc123
+        description: AIP not found
+        example:
+            message: abc123
+            uuid: abc123
+        required:
+            - message
+            - uuid
+    StorageReviewAipDeletionRequestBody:
+        title: StorageReviewAipDeletionRequestBody
+        type: object
+        properties:
+            decision:
+                type: string
+                example: reject
+                enum:
+                    - approve
+                    - reject
+        example:
+            decision: reject
+        required:
+            - decision
     StorageShowAipNotFoundResponseBody:
         title: StorageShowAipNotFoundResponseBody
         type: object
@@ -3938,6 +4103,8 @@ securityDefinitions:
               * `ingest:sips:upload`: no description
               * `ingest:sips:workflows:list`: no description
               * `storage:aips:create`: no description
+              * `storage:aips:deletion:request`: no description
+              * `storage:aips:deletion:review`: no description
               * `storage:aips:download`: no description
               * `storage:aips:list`: no description
               * `storage:aips:move`: no description
