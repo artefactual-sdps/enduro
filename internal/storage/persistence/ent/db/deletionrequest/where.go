@@ -107,6 +107,11 @@ func ReviewedAt(v time.Time) predicate.DeletionRequest {
 	return predicate.DeletionRequest(sql.FieldEQ(FieldReviewedAt, v))
 }
 
+// AipID applies equality check predicate on the "aip_id" field. It's identical to AipIDEQ.
+func AipID(v int) predicate.DeletionRequest {
+	return predicate.DeletionRequest(sql.FieldEQ(FieldAipID, v))
+}
+
 // WorkflowID applies equality check predicate on the "workflow_id" field. It's identical to WorkflowIDEQ.
 func WorkflowID(v int) predicate.DeletionRequest {
 	return predicate.DeletionRequest(sql.FieldEQ(FieldWorkflowID, v))
@@ -727,6 +732,26 @@ func ReviewedAtNotNil() predicate.DeletionRequest {
 	return predicate.DeletionRequest(sql.FieldNotNull(FieldReviewedAt))
 }
 
+// AipIDEQ applies the EQ predicate on the "aip_id" field.
+func AipIDEQ(v int) predicate.DeletionRequest {
+	return predicate.DeletionRequest(sql.FieldEQ(FieldAipID, v))
+}
+
+// AipIDNEQ applies the NEQ predicate on the "aip_id" field.
+func AipIDNEQ(v int) predicate.DeletionRequest {
+	return predicate.DeletionRequest(sql.FieldNEQ(FieldAipID, v))
+}
+
+// AipIDIn applies the In predicate on the "aip_id" field.
+func AipIDIn(vs ...int) predicate.DeletionRequest {
+	return predicate.DeletionRequest(sql.FieldIn(FieldAipID, vs...))
+}
+
+// AipIDNotIn applies the NotIn predicate on the "aip_id" field.
+func AipIDNotIn(vs ...int) predicate.DeletionRequest {
+	return predicate.DeletionRequest(sql.FieldNotIn(FieldAipID, vs...))
+}
+
 // WorkflowIDEQ applies the EQ predicate on the "workflow_id" field.
 func WorkflowIDEQ(v int) predicate.DeletionRequest {
 	return predicate.DeletionRequest(sql.FieldEQ(FieldWorkflowID, v))
@@ -745,6 +770,39 @@ func WorkflowIDIn(vs ...int) predicate.DeletionRequest {
 // WorkflowIDNotIn applies the NotIn predicate on the "workflow_id" field.
 func WorkflowIDNotIn(vs ...int) predicate.DeletionRequest {
 	return predicate.DeletionRequest(sql.FieldNotIn(FieldWorkflowID, vs...))
+}
+
+// WorkflowIDIsNil applies the IsNil predicate on the "workflow_id" field.
+func WorkflowIDIsNil() predicate.DeletionRequest {
+	return predicate.DeletionRequest(sql.FieldIsNull(FieldWorkflowID))
+}
+
+// WorkflowIDNotNil applies the NotNil predicate on the "workflow_id" field.
+func WorkflowIDNotNil() predicate.DeletionRequest {
+	return predicate.DeletionRequest(sql.FieldNotNull(FieldWorkflowID))
+}
+
+// HasAip applies the HasEdge predicate on the "aip" edge.
+func HasAip() predicate.DeletionRequest {
+	return predicate.DeletionRequest(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, AipTable, AipColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasAipWith applies the HasEdge predicate on the "aip" edge with a given conditions (other predicates).
+func HasAipWith(preds ...predicate.AIP) predicate.DeletionRequest {
+	return predicate.DeletionRequest(func(s *sql.Selector) {
+		step := newAipStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
 }
 
 // HasWorkflow applies the HasEdge predicate on the "workflow" edge.

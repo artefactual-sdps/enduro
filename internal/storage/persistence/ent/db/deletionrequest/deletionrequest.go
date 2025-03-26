@@ -38,12 +38,23 @@ const (
 	FieldRequestedAt = "requested_at"
 	// FieldReviewedAt holds the string denoting the reviewed_at field in the database.
 	FieldReviewedAt = "reviewed_at"
+	// FieldAipID holds the string denoting the aip_id field in the database.
+	FieldAipID = "aip_id"
 	// FieldWorkflowID holds the string denoting the workflow_id field in the database.
 	FieldWorkflowID = "workflow_id"
+	// EdgeAip holds the string denoting the aip edge name in mutations.
+	EdgeAip = "aip"
 	// EdgeWorkflow holds the string denoting the workflow edge name in mutations.
 	EdgeWorkflow = "workflow"
 	// Table holds the table name of the deletionrequest in the database.
 	Table = "deletion_request"
+	// AipTable is the table that holds the aip relation/edge.
+	AipTable = "deletion_request"
+	// AipInverseTable is the table name for the AIP entity.
+	// It exists in this package in order to avoid circular dependency with the "aip" package.
+	AipInverseTable = "aip"
+	// AipColumn is the table column denoting the aip relation/edge.
+	AipColumn = "aip_id"
 	// WorkflowTable is the table that holds the workflow relation/edge.
 	WorkflowTable = "deletion_request"
 	// WorkflowInverseTable is the table name for the Workflow entity.
@@ -67,6 +78,7 @@ var Columns = []string{
 	FieldStatus,
 	FieldRequestedAt,
 	FieldReviewedAt,
+	FieldAipID,
 	FieldWorkflowID,
 }
 
@@ -83,6 +95,8 @@ func ValidColumn(column string) bool {
 var (
 	// DefaultRequestedAt holds the default value on creation for the "requested_at" field.
 	DefaultRequestedAt func() time.Time
+	// AipIDValidator is a validator for the "aip_id" field. It is called by the builders before save.
+	AipIDValidator func(int) error
 	// WorkflowIDValidator is a validator for the "workflow_id" field. It is called by the builders before save.
 	WorkflowIDValidator func(int) error
 )
@@ -160,9 +174,21 @@ func ByReviewedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldReviewedAt, opts...).ToFunc()
 }
 
+// ByAipID orders the results by the aip_id field.
+func ByAipID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAipID, opts...).ToFunc()
+}
+
 // ByWorkflowID orders the results by the workflow_id field.
 func ByWorkflowID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldWorkflowID, opts...).ToFunc()
+}
+
+// ByAipField orders the results by aip field.
+func ByAipField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newAipStep(), sql.OrderByField(field, opts...))
+	}
 }
 
 // ByWorkflowField orders the results by workflow field.
@@ -170,6 +196,13 @@ func ByWorkflowField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
 		sqlgraph.OrderByNeighborTerms(s, newWorkflowStep(), sql.OrderByField(field, opts...))
 	}
+}
+func newAipStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(AipInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, AipTable, AipColumn),
+	)
 }
 func newWorkflowStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(

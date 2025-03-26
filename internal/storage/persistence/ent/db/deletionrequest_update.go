@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/artefactual-sdps/enduro/internal/storage/enums"
+	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/aip"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/deletionrequest"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/predicate"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/workflow"
@@ -177,6 +178,20 @@ func (dru *DeletionRequestUpdate) ClearReviewedAt() *DeletionRequestUpdate {
 	return dru
 }
 
+// SetAipID sets the "aip_id" field.
+func (dru *DeletionRequestUpdate) SetAipID(i int) *DeletionRequestUpdate {
+	dru.mutation.SetAipID(i)
+	return dru
+}
+
+// SetNillableAipID sets the "aip_id" field if the given value is not nil.
+func (dru *DeletionRequestUpdate) SetNillableAipID(i *int) *DeletionRequestUpdate {
+	if i != nil {
+		dru.SetAipID(*i)
+	}
+	return dru
+}
+
 // SetWorkflowID sets the "workflow_id" field.
 func (dru *DeletionRequestUpdate) SetWorkflowID(i int) *DeletionRequestUpdate {
 	dru.mutation.SetWorkflowID(i)
@@ -191,6 +206,17 @@ func (dru *DeletionRequestUpdate) SetNillableWorkflowID(i *int) *DeletionRequest
 	return dru
 }
 
+// ClearWorkflowID clears the value of the "workflow_id" field.
+func (dru *DeletionRequestUpdate) ClearWorkflowID() *DeletionRequestUpdate {
+	dru.mutation.ClearWorkflowID()
+	return dru
+}
+
+// SetAip sets the "aip" edge to the AIP entity.
+func (dru *DeletionRequestUpdate) SetAip(a *AIP) *DeletionRequestUpdate {
+	return dru.SetAipID(a.ID)
+}
+
 // SetWorkflow sets the "workflow" edge to the Workflow entity.
 func (dru *DeletionRequestUpdate) SetWorkflow(w *Workflow) *DeletionRequestUpdate {
 	return dru.SetWorkflowID(w.ID)
@@ -199,6 +225,12 @@ func (dru *DeletionRequestUpdate) SetWorkflow(w *Workflow) *DeletionRequestUpdat
 // Mutation returns the DeletionRequestMutation object of the builder.
 func (dru *DeletionRequestUpdate) Mutation() *DeletionRequestMutation {
 	return dru.mutation
+}
+
+// ClearAip clears the "aip" edge to the AIP entity.
+func (dru *DeletionRequestUpdate) ClearAip() *DeletionRequestUpdate {
+	dru.mutation.ClearAip()
+	return dru
 }
 
 // ClearWorkflow clears the "workflow" edge to the Workflow entity.
@@ -241,13 +273,18 @@ func (dru *DeletionRequestUpdate) check() error {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`db: validator failed for field "DeletionRequest.status": %w`, err)}
 		}
 	}
+	if v, ok := dru.mutation.AipID(); ok {
+		if err := deletionrequest.AipIDValidator(v); err != nil {
+			return &ValidationError{Name: "aip_id", err: fmt.Errorf(`db: validator failed for field "DeletionRequest.aip_id": %w`, err)}
+		}
+	}
 	if v, ok := dru.mutation.WorkflowID(); ok {
 		if err := deletionrequest.WorkflowIDValidator(v); err != nil {
 			return &ValidationError{Name: "workflow_id", err: fmt.Errorf(`db: validator failed for field "DeletionRequest.workflow_id": %w`, err)}
 		}
 	}
-	if dru.mutation.WorkflowCleared() && len(dru.mutation.WorkflowIDs()) > 0 {
-		return errors.New(`db: clearing a required unique edge "DeletionRequest.workflow"`)
+	if dru.mutation.AipCleared() && len(dru.mutation.AipIDs()) > 0 {
+		return errors.New(`db: clearing a required unique edge "DeletionRequest.aip"`)
 	}
 	return nil
 }
@@ -296,6 +333,35 @@ func (dru *DeletionRequestUpdate) sqlSave(ctx context.Context) (n int, err error
 	}
 	if dru.mutation.ReviewedAtCleared() {
 		_spec.ClearField(deletionrequest.FieldReviewedAt, field.TypeTime)
+	}
+	if dru.mutation.AipCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   deletionrequest.AipTable,
+			Columns: []string{deletionrequest.AipColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(aip.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := dru.mutation.AipIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   deletionrequest.AipTable,
+			Columns: []string{deletionrequest.AipColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(aip.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if dru.mutation.WorkflowCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -492,6 +558,20 @@ func (druo *DeletionRequestUpdateOne) ClearReviewedAt() *DeletionRequestUpdateOn
 	return druo
 }
 
+// SetAipID sets the "aip_id" field.
+func (druo *DeletionRequestUpdateOne) SetAipID(i int) *DeletionRequestUpdateOne {
+	druo.mutation.SetAipID(i)
+	return druo
+}
+
+// SetNillableAipID sets the "aip_id" field if the given value is not nil.
+func (druo *DeletionRequestUpdateOne) SetNillableAipID(i *int) *DeletionRequestUpdateOne {
+	if i != nil {
+		druo.SetAipID(*i)
+	}
+	return druo
+}
+
 // SetWorkflowID sets the "workflow_id" field.
 func (druo *DeletionRequestUpdateOne) SetWorkflowID(i int) *DeletionRequestUpdateOne {
 	druo.mutation.SetWorkflowID(i)
@@ -506,6 +586,17 @@ func (druo *DeletionRequestUpdateOne) SetNillableWorkflowID(i *int) *DeletionReq
 	return druo
 }
 
+// ClearWorkflowID clears the value of the "workflow_id" field.
+func (druo *DeletionRequestUpdateOne) ClearWorkflowID() *DeletionRequestUpdateOne {
+	druo.mutation.ClearWorkflowID()
+	return druo
+}
+
+// SetAip sets the "aip" edge to the AIP entity.
+func (druo *DeletionRequestUpdateOne) SetAip(a *AIP) *DeletionRequestUpdateOne {
+	return druo.SetAipID(a.ID)
+}
+
 // SetWorkflow sets the "workflow" edge to the Workflow entity.
 func (druo *DeletionRequestUpdateOne) SetWorkflow(w *Workflow) *DeletionRequestUpdateOne {
 	return druo.SetWorkflowID(w.ID)
@@ -514,6 +605,12 @@ func (druo *DeletionRequestUpdateOne) SetWorkflow(w *Workflow) *DeletionRequestU
 // Mutation returns the DeletionRequestMutation object of the builder.
 func (druo *DeletionRequestUpdateOne) Mutation() *DeletionRequestMutation {
 	return druo.mutation
+}
+
+// ClearAip clears the "aip" edge to the AIP entity.
+func (druo *DeletionRequestUpdateOne) ClearAip() *DeletionRequestUpdateOne {
+	druo.mutation.ClearAip()
+	return druo
 }
 
 // ClearWorkflow clears the "workflow" edge to the Workflow entity.
@@ -569,13 +666,18 @@ func (druo *DeletionRequestUpdateOne) check() error {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`db: validator failed for field "DeletionRequest.status": %w`, err)}
 		}
 	}
+	if v, ok := druo.mutation.AipID(); ok {
+		if err := deletionrequest.AipIDValidator(v); err != nil {
+			return &ValidationError{Name: "aip_id", err: fmt.Errorf(`db: validator failed for field "DeletionRequest.aip_id": %w`, err)}
+		}
+	}
 	if v, ok := druo.mutation.WorkflowID(); ok {
 		if err := deletionrequest.WorkflowIDValidator(v); err != nil {
 			return &ValidationError{Name: "workflow_id", err: fmt.Errorf(`db: validator failed for field "DeletionRequest.workflow_id": %w`, err)}
 		}
 	}
-	if druo.mutation.WorkflowCleared() && len(druo.mutation.WorkflowIDs()) > 0 {
-		return errors.New(`db: clearing a required unique edge "DeletionRequest.workflow"`)
+	if druo.mutation.AipCleared() && len(druo.mutation.AipIDs()) > 0 {
+		return errors.New(`db: clearing a required unique edge "DeletionRequest.aip"`)
 	}
 	return nil
 }
@@ -641,6 +743,35 @@ func (druo *DeletionRequestUpdateOne) sqlSave(ctx context.Context) (_node *Delet
 	}
 	if druo.mutation.ReviewedAtCleared() {
 		_spec.ClearField(deletionrequest.FieldReviewedAt, field.TypeTime)
+	}
+	if druo.mutation.AipCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   deletionrequest.AipTable,
+			Columns: []string{deletionrequest.AipColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(aip.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := druo.mutation.AipIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   deletionrequest.AipTable,
+			Columns: []string{deletionrequest.AipColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(aip.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if druo.mutation.WorkflowCleared() {
 		edge := &sqlgraph.EdgeSpec{

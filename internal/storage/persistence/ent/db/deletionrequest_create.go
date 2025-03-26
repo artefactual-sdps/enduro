@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/artefactual-sdps/enduro/internal/storage/enums"
+	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/aip"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/deletionrequest"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/workflow"
 	"github.com/google/uuid"
@@ -105,10 +106,29 @@ func (drc *DeletionRequestCreate) SetNillableReviewedAt(t *time.Time) *DeletionR
 	return drc
 }
 
+// SetAipID sets the "aip_id" field.
+func (drc *DeletionRequestCreate) SetAipID(i int) *DeletionRequestCreate {
+	drc.mutation.SetAipID(i)
+	return drc
+}
+
 // SetWorkflowID sets the "workflow_id" field.
 func (drc *DeletionRequestCreate) SetWorkflowID(i int) *DeletionRequestCreate {
 	drc.mutation.SetWorkflowID(i)
 	return drc
+}
+
+// SetNillableWorkflowID sets the "workflow_id" field if the given value is not nil.
+func (drc *DeletionRequestCreate) SetNillableWorkflowID(i *int) *DeletionRequestCreate {
+	if i != nil {
+		drc.SetWorkflowID(*i)
+	}
+	return drc
+}
+
+// SetAip sets the "aip" edge to the AIP entity.
+func (drc *DeletionRequestCreate) SetAip(a *AIP) *DeletionRequestCreate {
+	return drc.SetAipID(a.ID)
 }
 
 // SetWorkflow sets the "workflow" edge to the Workflow entity.
@@ -194,16 +214,21 @@ func (drc *DeletionRequestCreate) check() error {
 	if _, ok := drc.mutation.RequestedAt(); !ok {
 		return &ValidationError{Name: "requested_at", err: errors.New(`db: missing required field "DeletionRequest.requested_at"`)}
 	}
-	if _, ok := drc.mutation.WorkflowID(); !ok {
-		return &ValidationError{Name: "workflow_id", err: errors.New(`db: missing required field "DeletionRequest.workflow_id"`)}
+	if _, ok := drc.mutation.AipID(); !ok {
+		return &ValidationError{Name: "aip_id", err: errors.New(`db: missing required field "DeletionRequest.aip_id"`)}
+	}
+	if v, ok := drc.mutation.AipID(); ok {
+		if err := deletionrequest.AipIDValidator(v); err != nil {
+			return &ValidationError{Name: "aip_id", err: fmt.Errorf(`db: validator failed for field "DeletionRequest.aip_id": %w`, err)}
+		}
 	}
 	if v, ok := drc.mutation.WorkflowID(); ok {
 		if err := deletionrequest.WorkflowIDValidator(v); err != nil {
 			return &ValidationError{Name: "workflow_id", err: fmt.Errorf(`db: validator failed for field "DeletionRequest.workflow_id": %w`, err)}
 		}
 	}
-	if len(drc.mutation.WorkflowIDs()) == 0 {
-		return &ValidationError{Name: "workflow", err: errors.New(`db: missing required edge "DeletionRequest.workflow"`)}
+	if len(drc.mutation.AipIDs()) == 0 {
+		return &ValidationError{Name: "aip", err: errors.New(`db: missing required edge "DeletionRequest.aip"`)}
 	}
 	return nil
 }
@@ -274,6 +299,23 @@ func (drc *DeletionRequestCreate) createSpec() (*DeletionRequest, *sqlgraph.Crea
 	if value, ok := drc.mutation.ReviewedAt(); ok {
 		_spec.SetField(deletionrequest.FieldReviewedAt, field.TypeTime, value)
 		_node.ReviewedAt = value
+	}
+	if nodes := drc.mutation.AipIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   deletionrequest.AipTable,
+			Columns: []string{deletionrequest.AipColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(aip.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.AipID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := drc.mutation.WorkflowIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

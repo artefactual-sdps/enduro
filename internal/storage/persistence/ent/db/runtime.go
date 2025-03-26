@@ -29,8 +29,12 @@ func init() {
 	deletionrequestDescRequestedAt := deletionrequestFields[9].Descriptor()
 	// deletionrequest.DefaultRequestedAt holds the default value on creation for the requested_at field.
 	deletionrequest.DefaultRequestedAt = deletionrequestDescRequestedAt.Default.(func() time.Time)
+	// deletionrequestDescAipID is the schema descriptor for aip_id field.
+	deletionrequestDescAipID := deletionrequestFields[11].Descriptor()
+	// deletionrequest.AipIDValidator is a validator for the "aip_id" field. It is called by the builders before save.
+	deletionrequest.AipIDValidator = deletionrequestDescAipID.Validators[0].(func(int) error)
 	// deletionrequestDescWorkflowID is the schema descriptor for workflow_id field.
-	deletionrequestDescWorkflowID := deletionrequestFields[11].Descriptor()
+	deletionrequestDescWorkflowID := deletionrequestFields[12].Descriptor()
 	// deletionrequest.WorkflowIDValidator is a validator for the "workflow_id" field. It is called by the builders before save.
 	deletionrequest.WorkflowIDValidator = deletionrequestDescWorkflowID.Validators[0].(func(int) error)
 	locationFields := schema.Location{}.Fields()

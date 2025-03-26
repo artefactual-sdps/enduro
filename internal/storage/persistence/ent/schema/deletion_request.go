@@ -66,18 +66,25 @@ func (DeletionRequest) Fields() []ent.Field {
 			Default(time.Now),
 		field.Time("reviewed_at").
 			Optional(),
-		field.Int("workflow_id").
+		field.Int("aip_id").
 			Positive(),
+		field.Int("workflow_id").
+			Positive().
+			Optional(),
 	}
 }
 
 // Edges of the DeletionRequest.
 func (DeletionRequest) Edges() []ent.Edge {
 	return []ent.Edge{
+		edge.From("aip", AIP.Type).
+			Ref("deletion_requests").
+			Unique().
+			Required().
+			Field("aip_id"),
 		edge.From("workflow", Workflow.Type).
 			Ref("deletion_request").
 			Unique().
-			Required().
 			Field("workflow_id"),
 	}
 }

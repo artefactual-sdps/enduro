@@ -59,7 +59,8 @@ var (
 		{Name: "status", Type: field.TypeEnum, Enums: []string{"pending", "approved", "rejected"}},
 		{Name: "requested_at", Type: field.TypeTime},
 		{Name: "reviewed_at", Type: field.TypeTime, Nullable: true},
-		{Name: "workflow_id", Type: field.TypeInt, Unique: true},
+		{Name: "aip_id", Type: field.TypeInt},
+		{Name: "workflow_id", Type: field.TypeInt, Unique: true, Nullable: true},
 	}
 	// DeletionRequestTable holds the schema information for the "deletion_request" table.
 	DeletionRequestTable = &schema.Table{
@@ -68,10 +69,16 @@ var (
 		PrimaryKey: []*schema.Column{DeletionRequestColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "deletion_request_workflow_deletion_request",
+				Symbol:     "deletion_request_aip_deletion_requests",
 				Columns:    []*schema.Column{DeletionRequestColumns[12]},
+				RefColumns: []*schema.Column{AipColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "deletion_request_workflow_deletion_request",
+				Columns:    []*schema.Column{DeletionRequestColumns[13]},
 				RefColumns: []*schema.Column{WorkflowColumns[0]},
-				OnDelete:   schema.NoAction,
+				OnDelete:   schema.SetNull,
 			},
 		},
 		Indexes: []*schema.Index{
@@ -193,7 +200,8 @@ func init() {
 	AipTable.Annotation = &entsql.Annotation{
 		Table: "aip",
 	}
-	DeletionRequestTable.ForeignKeys[0].RefTable = WorkflowTable
+	DeletionRequestTable.ForeignKeys[0].RefTable = AipTable
+	DeletionRequestTable.ForeignKeys[1].RefTable = WorkflowTable
 	DeletionRequestTable.Annotation = &entsql.Annotation{
 		Table: "deletion_request",
 	}

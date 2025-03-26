@@ -377,6 +377,22 @@ func (c *AIPClient) QueryWorkflows(a *AIP) *WorkflowQuery {
 	return query
 }
 
+// QueryDeletionRequests queries the deletion_requests edge of a AIP.
+func (c *AIPClient) QueryDeletionRequests(a *AIP) *DeletionRequestQuery {
+	query := (&DeletionRequestClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := a.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(aip.Table, aip.FieldID, id),
+			sqlgraph.To(deletionrequest.Table, deletionrequest.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, aip.DeletionRequestsTable, aip.DeletionRequestsColumn),
+		)
+		fromV = sqlgraph.Neighbors(a.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *AIPClient) Hooks() []Hook {
 	return c.hooks.AIP
@@ -508,6 +524,22 @@ func (c *DeletionRequestClient) GetX(ctx context.Context, id int) *DeletionReque
 		panic(err)
 	}
 	return obj
+}
+
+// QueryAip queries the aip edge of a DeletionRequest.
+func (c *DeletionRequestClient) QueryAip(dr *DeletionRequest) *AIPQuery {
+	query := (&AIPClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := dr.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(deletionrequest.Table, deletionrequest.FieldID, id),
+			sqlgraph.To(aip.Table, aip.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, deletionrequest.AipTable, deletionrequest.AipColumn),
+		)
+		fromV = sqlgraph.Neighbors(dr.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
 }
 
 // QueryWorkflow queries the workflow edge of a DeletionRequest.

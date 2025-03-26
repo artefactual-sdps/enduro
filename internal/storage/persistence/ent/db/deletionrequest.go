@@ -10,6 +10,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/artefactual-sdps/enduro/internal/storage/enums"
+	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/aip"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/deletionrequest"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/workflow"
 	"github.com/google/uuid"
@@ -42,6 +43,8 @@ type DeletionRequest struct {
 	RequestedAt time.Time `json:"requested_at,omitempty"`
 	// ReviewedAt holds the value of the "reviewed_at" field.
 	ReviewedAt time.Time `json:"reviewed_at,omitempty"`
+	// AipID holds the value of the "aip_id" field.
+	AipID int `json:"aip_id,omitempty"`
 	// WorkflowID holds the value of the "workflow_id" field.
 	WorkflowID int `json:"workflow_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -52,11 +55,24 @@ type DeletionRequest struct {
 
 // DeletionRequestEdges holds the relations/edges for other nodes in the graph.
 type DeletionRequestEdges struct {
+	// Aip holds the value of the aip edge.
+	Aip *AIP `json:"aip,omitempty"`
 	// Workflow holds the value of the workflow edge.
 	Workflow *Workflow `json:"workflow,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [2]bool
+}
+
+// AipOrErr returns the Aip value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e DeletionRequestEdges) AipOrErr() (*AIP, error) {
+	if e.Aip != nil {
+		return e.Aip, nil
+	} else if e.loadedTypes[0] {
+		return nil, &NotFoundError{label: aip.Label}
+	}
+	return nil, &NotLoadedError{edge: "aip"}
 }
 
 // WorkflowOrErr returns the Workflow value or an error if the edge
@@ -64,7 +80,7 @@ type DeletionRequestEdges struct {
 func (e DeletionRequestEdges) WorkflowOrErr() (*Workflow, error) {
 	if e.Workflow != nil {
 		return e.Workflow, nil
-	} else if e.loadedTypes[0] {
+	} else if e.loadedTypes[1] {
 		return nil, &NotFoundError{label: workflow.Label}
 	}
 	return nil, &NotLoadedError{edge: "workflow"}
@@ -75,7 +91,7 @@ func (*DeletionRequest) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case deletionrequest.FieldID, deletionrequest.FieldWorkflowID:
+		case deletionrequest.FieldID, deletionrequest.FieldAipID, deletionrequest.FieldWorkflowID:
 			values[i] = new(sql.NullInt64)
 		case deletionrequest.FieldRequester, deletionrequest.FieldRequesterIss, deletionrequest.FieldRequesterSub, deletionrequest.FieldReviewer, deletionrequest.FieldReviewerIss, deletionrequest.FieldReviewerSub, deletionrequest.FieldReason, deletionrequest.FieldStatus:
 			values[i] = new(sql.NullString)
@@ -170,6 +186,12 @@ func (dr *DeletionRequest) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				dr.ReviewedAt = value.Time
 			}
+		case deletionrequest.FieldAipID:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field aip_id", values[i])
+			} else if value.Valid {
+				dr.AipID = int(value.Int64)
+			}
 		case deletionrequest.FieldWorkflowID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field workflow_id", values[i])
@@ -187,6 +209,11 @@ func (dr *DeletionRequest) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (dr *DeletionRequest) Value(name string) (ent.Value, error) {
 	return dr.selectValues.Get(name)
+}
+
+// QueryAip queries the "aip" edge of the DeletionRequest entity.
+func (dr *DeletionRequest) QueryAip() *AIPQuery {
+	return NewDeletionRequestClient(dr.config).QueryAip(dr)
 }
 
 // QueryWorkflow queries the "workflow" edge of the DeletionRequest entity.
@@ -249,6 +276,9 @@ func (dr *DeletionRequest) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("reviewed_at=")
 	builder.WriteString(dr.ReviewedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("aip_id=")
+	builder.WriteString(fmt.Sprintf("%v", dr.AipID))
 	builder.WriteString(", ")
 	builder.WriteString("workflow_id=")
 	builder.WriteString(fmt.Sprintf("%v", dr.WorkflowID))

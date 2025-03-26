@@ -41,23 +41,26 @@ const (
 // AIPMutation represents an operation that mutates the AIP nodes in the graph.
 type AIPMutation struct {
 	config
-	op               Op
-	typ              string
-	id               *int
-	name             *string
-	aip_id           *uuid.UUID
-	status           *enums.AIPStatus
-	object_key       *uuid.UUID
-	created_at       *time.Time
-	clearedFields    map[string]struct{}
-	location         *int
-	clearedlocation  bool
-	workflows        map[int]struct{}
-	removedworkflows map[int]struct{}
-	clearedworkflows bool
-	done             bool
-	oldValue         func(context.Context) (*AIP, error)
-	predicates       []predicate.AIP
+	op                       Op
+	typ                      string
+	id                       *int
+	name                     *string
+	aip_id                   *uuid.UUID
+	status                   *enums.AIPStatus
+	object_key               *uuid.UUID
+	created_at               *time.Time
+	clearedFields            map[string]struct{}
+	location                 *int
+	clearedlocation          bool
+	workflows                map[int]struct{}
+	removedworkflows         map[int]struct{}
+	clearedworkflows         bool
+	deletion_requests        map[int]struct{}
+	removeddeletion_requests map[int]struct{}
+	cleareddeletion_requests bool
+	done                     bool
+	oldValue                 func(context.Context) (*AIP, error)
+	predicates               []predicate.AIP
 }
 
 var _ ent.Mutation = (*AIPMutation)(nil)
@@ -468,6 +471,60 @@ func (m *AIPMutation) ResetWorkflows() {
 	m.removedworkflows = nil
 }
 
+// AddDeletionRequestIDs adds the "deletion_requests" edge to the DeletionRequest entity by ids.
+func (m *AIPMutation) AddDeletionRequestIDs(ids ...int) {
+	if m.deletion_requests == nil {
+		m.deletion_requests = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.deletion_requests[ids[i]] = struct{}{}
+	}
+}
+
+// ClearDeletionRequests clears the "deletion_requests" edge to the DeletionRequest entity.
+func (m *AIPMutation) ClearDeletionRequests() {
+	m.cleareddeletion_requests = true
+}
+
+// DeletionRequestsCleared reports if the "deletion_requests" edge to the DeletionRequest entity was cleared.
+func (m *AIPMutation) DeletionRequestsCleared() bool {
+	return m.cleareddeletion_requests
+}
+
+// RemoveDeletionRequestIDs removes the "deletion_requests" edge to the DeletionRequest entity by IDs.
+func (m *AIPMutation) RemoveDeletionRequestIDs(ids ...int) {
+	if m.removeddeletion_requests == nil {
+		m.removeddeletion_requests = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.deletion_requests, ids[i])
+		m.removeddeletion_requests[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedDeletionRequests returns the removed IDs of the "deletion_requests" edge to the DeletionRequest entity.
+func (m *AIPMutation) RemovedDeletionRequestsIDs() (ids []int) {
+	for id := range m.removeddeletion_requests {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// DeletionRequestsIDs returns the "deletion_requests" edge IDs in the mutation.
+func (m *AIPMutation) DeletionRequestsIDs() (ids []int) {
+	for id := range m.deletion_requests {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetDeletionRequests resets all changes to the "deletion_requests" edge.
+func (m *AIPMutation) ResetDeletionRequests() {
+	m.deletion_requests = nil
+	m.cleareddeletion_requests = false
+	m.removeddeletion_requests = nil
+}
+
 // Where appends a list predicates to the AIPMutation builder.
 func (m *AIPMutation) Where(ps ...predicate.AIP) {
 	m.predicates = append(m.predicates, ps...)
@@ -698,12 +755,15 @@ func (m *AIPMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *AIPMutation) AddedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
 	if m.location != nil {
 		edges = append(edges, aip.EdgeLocation)
 	}
 	if m.workflows != nil {
 		edges = append(edges, aip.EdgeWorkflows)
+	}
+	if m.deletion_requests != nil {
+		edges = append(edges, aip.EdgeDeletionRequests)
 	}
 	return edges
 }
@@ -722,15 +782,24 @@ func (m *AIPMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case aip.EdgeDeletionRequests:
+		ids := make([]ent.Value, 0, len(m.deletion_requests))
+		for id := range m.deletion_requests {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *AIPMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
 	if m.removedworkflows != nil {
 		edges = append(edges, aip.EdgeWorkflows)
+	}
+	if m.removeddeletion_requests != nil {
+		edges = append(edges, aip.EdgeDeletionRequests)
 	}
 	return edges
 }
@@ -745,18 +814,27 @@ func (m *AIPMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case aip.EdgeDeletionRequests:
+		ids := make([]ent.Value, 0, len(m.removeddeletion_requests))
+		for id := range m.removeddeletion_requests {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *AIPMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
 	if m.clearedlocation {
 		edges = append(edges, aip.EdgeLocation)
 	}
 	if m.clearedworkflows {
 		edges = append(edges, aip.EdgeWorkflows)
+	}
+	if m.cleareddeletion_requests {
+		edges = append(edges, aip.EdgeDeletionRequests)
 	}
 	return edges
 }
@@ -769,6 +847,8 @@ func (m *AIPMutation) EdgeCleared(name string) bool {
 		return m.clearedlocation
 	case aip.EdgeWorkflows:
 		return m.clearedworkflows
+	case aip.EdgeDeletionRequests:
+		return m.cleareddeletion_requests
 	}
 	return false
 }
@@ -794,6 +874,9 @@ func (m *AIPMutation) ResetEdge(name string) error {
 	case aip.EdgeWorkflows:
 		m.ResetWorkflows()
 		return nil
+	case aip.EdgeDeletionRequests:
+		m.ResetDeletionRequests()
+		return nil
 	}
 	return fmt.Errorf("unknown AIP edge %s", name)
 }
@@ -816,6 +899,8 @@ type DeletionRequestMutation struct {
 	requested_at    *time.Time
 	reviewed_at     *time.Time
 	clearedFields   map[string]struct{}
+	aip             *int
+	clearedaip      bool
 	workflow        *int
 	clearedworkflow bool
 	done            bool
@@ -1330,6 +1415,42 @@ func (m *DeletionRequestMutation) ResetReviewedAt() {
 	delete(m.clearedFields, deletionrequest.FieldReviewedAt)
 }
 
+// SetAipID sets the "aip_id" field.
+func (m *DeletionRequestMutation) SetAipID(i int) {
+	m.aip = &i
+}
+
+// AipID returns the value of the "aip_id" field in the mutation.
+func (m *DeletionRequestMutation) AipID() (r int, exists bool) {
+	v := m.aip
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAipID returns the old "aip_id" field's value of the DeletionRequest entity.
+// If the DeletionRequest object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DeletionRequestMutation) OldAipID(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAipID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAipID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAipID: %w", err)
+	}
+	return oldValue.AipID, nil
+}
+
+// ResetAipID resets all changes to the "aip_id" field.
+func (m *DeletionRequestMutation) ResetAipID() {
+	m.aip = nil
+}
+
 // SetWorkflowID sets the "workflow_id" field.
 func (m *DeletionRequestMutation) SetWorkflowID(i int) {
 	m.workflow = &i
@@ -1361,9 +1482,49 @@ func (m *DeletionRequestMutation) OldWorkflowID(ctx context.Context) (v int, err
 	return oldValue.WorkflowID, nil
 }
 
+// ClearWorkflowID clears the value of the "workflow_id" field.
+func (m *DeletionRequestMutation) ClearWorkflowID() {
+	m.workflow = nil
+	m.clearedFields[deletionrequest.FieldWorkflowID] = struct{}{}
+}
+
+// WorkflowIDCleared returns if the "workflow_id" field was cleared in this mutation.
+func (m *DeletionRequestMutation) WorkflowIDCleared() bool {
+	_, ok := m.clearedFields[deletionrequest.FieldWorkflowID]
+	return ok
+}
+
 // ResetWorkflowID resets all changes to the "workflow_id" field.
 func (m *DeletionRequestMutation) ResetWorkflowID() {
 	m.workflow = nil
+	delete(m.clearedFields, deletionrequest.FieldWorkflowID)
+}
+
+// ClearAip clears the "aip" edge to the AIP entity.
+func (m *DeletionRequestMutation) ClearAip() {
+	m.clearedaip = true
+	m.clearedFields[deletionrequest.FieldAipID] = struct{}{}
+}
+
+// AipCleared reports if the "aip" edge to the AIP entity was cleared.
+func (m *DeletionRequestMutation) AipCleared() bool {
+	return m.clearedaip
+}
+
+// AipIDs returns the "aip" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// AipID instead. It exists only for internal usage by the builders.
+func (m *DeletionRequestMutation) AipIDs() (ids []int) {
+	if id := m.aip; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetAip resets all changes to the "aip" edge.
+func (m *DeletionRequestMutation) ResetAip() {
+	m.aip = nil
+	m.clearedaip = false
 }
 
 // ClearWorkflow clears the "workflow" edge to the Workflow entity.
@@ -1374,7 +1535,7 @@ func (m *DeletionRequestMutation) ClearWorkflow() {
 
 // WorkflowCleared reports if the "workflow" edge to the Workflow entity was cleared.
 func (m *DeletionRequestMutation) WorkflowCleared() bool {
-	return m.clearedworkflow
+	return m.WorkflowIDCleared() || m.clearedworkflow
 }
 
 // WorkflowIDs returns the "workflow" edge IDs in the mutation.
@@ -1427,7 +1588,7 @@ func (m *DeletionRequestMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *DeletionRequestMutation) Fields() []string {
-	fields := make([]string, 0, 12)
+	fields := make([]string, 0, 13)
 	if m.uuid != nil {
 		fields = append(fields, deletionrequest.FieldUUID)
 	}
@@ -1460,6 +1621,9 @@ func (m *DeletionRequestMutation) Fields() []string {
 	}
 	if m.reviewed_at != nil {
 		fields = append(fields, deletionrequest.FieldReviewedAt)
+	}
+	if m.aip != nil {
+		fields = append(fields, deletionrequest.FieldAipID)
 	}
 	if m.workflow != nil {
 		fields = append(fields, deletionrequest.FieldWorkflowID)
@@ -1494,6 +1658,8 @@ func (m *DeletionRequestMutation) Field(name string) (ent.Value, bool) {
 		return m.RequestedAt()
 	case deletionrequest.FieldReviewedAt:
 		return m.ReviewedAt()
+	case deletionrequest.FieldAipID:
+		return m.AipID()
 	case deletionrequest.FieldWorkflowID:
 		return m.WorkflowID()
 	}
@@ -1527,6 +1693,8 @@ func (m *DeletionRequestMutation) OldField(ctx context.Context, name string) (en
 		return m.OldRequestedAt(ctx)
 	case deletionrequest.FieldReviewedAt:
 		return m.OldReviewedAt(ctx)
+	case deletionrequest.FieldAipID:
+		return m.OldAipID(ctx)
 	case deletionrequest.FieldWorkflowID:
 		return m.OldWorkflowID(ctx)
 	}
@@ -1615,6 +1783,13 @@ func (m *DeletionRequestMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetReviewedAt(v)
 		return nil
+	case deletionrequest.FieldAipID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAipID(v)
+		return nil
 	case deletionrequest.FieldWorkflowID:
 		v, ok := value.(int)
 		if !ok {
@@ -1658,6 +1833,9 @@ func (m *DeletionRequestMutation) ClearedFields() []string {
 	if m.FieldCleared(deletionrequest.FieldReviewedAt) {
 		fields = append(fields, deletionrequest.FieldReviewedAt)
 	}
+	if m.FieldCleared(deletionrequest.FieldWorkflowID) {
+		fields = append(fields, deletionrequest.FieldWorkflowID)
+	}
 	return fields
 }
 
@@ -1674,6 +1852,9 @@ func (m *DeletionRequestMutation) ClearField(name string) error {
 	switch name {
 	case deletionrequest.FieldReviewedAt:
 		m.ClearReviewedAt()
+		return nil
+	case deletionrequest.FieldWorkflowID:
+		m.ClearWorkflowID()
 		return nil
 	}
 	return fmt.Errorf("unknown DeletionRequest nullable field %s", name)
@@ -1716,6 +1897,9 @@ func (m *DeletionRequestMutation) ResetField(name string) error {
 	case deletionrequest.FieldReviewedAt:
 		m.ResetReviewedAt()
 		return nil
+	case deletionrequest.FieldAipID:
+		m.ResetAipID()
+		return nil
 	case deletionrequest.FieldWorkflowID:
 		m.ResetWorkflowID()
 		return nil
@@ -1725,7 +1909,10 @@ func (m *DeletionRequestMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *DeletionRequestMutation) AddedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
+	if m.aip != nil {
+		edges = append(edges, deletionrequest.EdgeAip)
+	}
 	if m.workflow != nil {
 		edges = append(edges, deletionrequest.EdgeWorkflow)
 	}
@@ -1736,6 +1923,10 @@ func (m *DeletionRequestMutation) AddedEdges() []string {
 // name in this mutation.
 func (m *DeletionRequestMutation) AddedIDs(name string) []ent.Value {
 	switch name {
+	case deletionrequest.EdgeAip:
+		if id := m.aip; id != nil {
+			return []ent.Value{*id}
+		}
 	case deletionrequest.EdgeWorkflow:
 		if id := m.workflow; id != nil {
 			return []ent.Value{*id}
@@ -1746,7 +1937,7 @@ func (m *DeletionRequestMutation) AddedIDs(name string) []ent.Value {
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *DeletionRequestMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	return edges
 }
 
@@ -1758,7 +1949,10 @@ func (m *DeletionRequestMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *DeletionRequestMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
+	if m.clearedaip {
+		edges = append(edges, deletionrequest.EdgeAip)
+	}
 	if m.clearedworkflow {
 		edges = append(edges, deletionrequest.EdgeWorkflow)
 	}
@@ -1769,6 +1963,8 @@ func (m *DeletionRequestMutation) ClearedEdges() []string {
 // was cleared in this mutation.
 func (m *DeletionRequestMutation) EdgeCleared(name string) bool {
 	switch name {
+	case deletionrequest.EdgeAip:
+		return m.clearedaip
 	case deletionrequest.EdgeWorkflow:
 		return m.clearedworkflow
 	}
@@ -1779,6 +1975,9 @@ func (m *DeletionRequestMutation) EdgeCleared(name string) bool {
 // if that edge is not defined in the schema.
 func (m *DeletionRequestMutation) ClearEdge(name string) error {
 	switch name {
+	case deletionrequest.EdgeAip:
+		m.ClearAip()
+		return nil
 	case deletionrequest.EdgeWorkflow:
 		m.ClearWorkflow()
 		return nil
@@ -1790,6 +1989,9 @@ func (m *DeletionRequestMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *DeletionRequestMutation) ResetEdge(name string) error {
 	switch name {
+	case deletionrequest.EdgeAip:
+		m.ResetAip()
+		return nil
 	case deletionrequest.EdgeWorkflow:
 		m.ResetWorkflow()
 		return nil

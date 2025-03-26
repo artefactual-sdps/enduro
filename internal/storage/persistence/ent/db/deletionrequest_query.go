@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/aip"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/deletionrequest"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/predicate"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/workflow"
@@ -23,6 +24,7 @@ type DeletionRequestQuery struct {
 	order        []deletionrequest.OrderOption
 	inters       []Interceptor
 	predicates   []predicate.DeletionRequest
+	withAip      *AIPQuery
 	withWorkflow *WorkflowQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -58,6 +60,28 @@ func (drq *DeletionRequestQuery) Unique(unique bool) *DeletionRequestQuery {
 func (drq *DeletionRequestQuery) Order(o ...deletionrequest.OrderOption) *DeletionRequestQuery {
 	drq.order = append(drq.order, o...)
 	return drq
+}
+
+// QueryAip chains the current query on the "aip" edge.
+func (drq *DeletionRequestQuery) QueryAip() *AIPQuery {
+	query := (&AIPClient{config: drq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := drq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := drq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(deletionrequest.Table, deletionrequest.FieldID, selector),
+			sqlgraph.To(aip.Table, aip.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, deletionrequest.AipTable, deletionrequest.AipColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(drq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // QueryWorkflow chains the current query on the "workflow" edge.
@@ -274,11 +298,23 @@ func (drq *DeletionRequestQuery) Clone() *DeletionRequestQuery {
 		order:        append([]deletionrequest.OrderOption{}, drq.order...),
 		inters:       append([]Interceptor{}, drq.inters...),
 		predicates:   append([]predicate.DeletionRequest{}, drq.predicates...),
+		withAip:      drq.withAip.Clone(),
 		withWorkflow: drq.withWorkflow.Clone(),
 		// clone intermediate query.
 		sql:  drq.sql.Clone(),
 		path: drq.path,
 	}
+}
+
+// WithAip tells the query-builder to eager-load the nodes that are connected to
+// the "aip" edge. The optional arguments are used to configure the query builder of the edge.
+func (drq *DeletionRequestQuery) WithAip(opts ...func(*AIPQuery)) *DeletionRequestQuery {
+	query := (&AIPClient{config: drq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	drq.withAip = query
+	return drq
 }
 
 // WithWorkflow tells the query-builder to eager-load the nodes that are connected to
@@ -370,7 +406,8 @@ func (drq *DeletionRequestQuery) sqlAll(ctx context.Context, hooks ...queryHook)
 	var (
 		nodes       = []*DeletionRequest{}
 		_spec       = drq.querySpec()
-		loadedTypes = [1]bool{
+		loadedTypes = [2]bool{
+			drq.withAip != nil,
 			drq.withWorkflow != nil,
 		}
 	)
@@ -392,6 +429,12 @@ func (drq *DeletionRequestQuery) sqlAll(ctx context.Context, hooks ...queryHook)
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+	if query := drq.withAip; query != nil {
+		if err := drq.loadAip(ctx, query, nodes, nil,
+			func(n *DeletionRequest, e *AIP) { n.Edges.Aip = e }); err != nil {
+			return nil, err
+		}
+	}
 	if query := drq.withWorkflow; query != nil {
 		if err := drq.loadWorkflow(ctx, query, nodes, nil,
 			func(n *DeletionRequest, e *Workflow) { n.Edges.Workflow = e }); err != nil {
@@ -401,6 +444,35 @@ func (drq *DeletionRequestQuery) sqlAll(ctx context.Context, hooks ...queryHook)
 	return nodes, nil
 }
 
+func (drq *DeletionRequestQuery) loadAip(ctx context.Context, query *AIPQuery, nodes []*DeletionRequest, init func(*DeletionRequest), assign func(*DeletionRequest, *AIP)) error {
+	ids := make([]int, 0, len(nodes))
+	nodeids := make(map[int][]*DeletionRequest)
+	for i := range nodes {
+		fk := nodes[i].AipID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(aip.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "aip_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
 func (drq *DeletionRequestQuery) loadWorkflow(ctx context.Context, query *WorkflowQuery, nodes []*DeletionRequest, init func(*DeletionRequest), assign func(*DeletionRequest, *Workflow)) error {
 	ids := make([]int, 0, len(nodes))
 	nodeids := make(map[int][]*DeletionRequest)
@@ -455,6 +527,9 @@ func (drq *DeletionRequestQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != deletionrequest.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if drq.withAip != nil {
+			_spec.Node.AddColumnOnce(deletionrequest.FieldAipID)
 		}
 		if drq.withWorkflow != nil {
 			_spec.Node.AddColumnOnce(deletionrequest.FieldWorkflowID)
