@@ -80,6 +80,17 @@ watch(aipStore.ui.download, () => download());
           </template>
           <template v-else>Move</template>
         </button>
+        <button
+          v-if="
+            aipStore.isStored &&
+            authStore.checkAttributes(['storage:aips:deletion:request'])
+          "
+          type="button"
+          class="btn btn-primary btn-sm"
+          @click="aipStore.requestDeletion"
+        >
+          Delete
+        </button>
       </div>
     </div>
   </div>

@@ -173,6 +173,27 @@ export const useAipStore = defineStore("aip", {
       }
       this.locationChanging = !resp.done;
     },
+    async requestDeletion() {
+      if (!this.current) return;
+      // TODO:
+      // - Add dialog and get reason from it.
+      // - Improve error reporting.
+      try {
+        await client.storage.storageRequestAipDeletion({
+          uuid: this.current.uuid,
+          requestAipDeletionRequestBody: {
+            reason: "Requesting deletion",
+          },
+        });
+      } catch (error) {
+        return error;
+      }
+      this.$patch((state) => {
+        // TODO: Use proper status.
+        if (state.current)
+          state.current.status = api.EnduroStorageAipStatusEnum.InReview;
+      });
+    },
     nextPage() {
       if (this.hasNextPage) {
         this.fetchAips(this.pager.current + 1);

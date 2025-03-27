@@ -23,6 +23,24 @@ func localActivityOptions(ctx temporalsdk_workflow.Context) temporalsdk_workflow
 	})
 }
 
+func updateAIPStatus(
+	ctx temporalsdk_workflow.Context,
+	storagesvc storage.Service,
+	aipID uuid.UUID,
+	s enums.AIPStatus,
+) error {
+	activityOpts := localActivityOptions(ctx)
+	return temporalsdk_workflow.ExecuteLocalActivity(
+		activityOpts,
+		storage.UpdateAIPStatusLocalActivity,
+		storagesvc,
+		&storage.UpdateAIPStatusLocalActivityParams{
+			AIPID:  aipID,
+			Status: s,
+		},
+	).Get(activityOpts, nil)
+}
+
 func createWorkflow(
 	ctx temporalsdk_workflow.Context,
 	storagesvc storage.Service,
