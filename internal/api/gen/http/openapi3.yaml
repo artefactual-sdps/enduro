@@ -747,6 +747,9 @@ paths:
                         - rejected
                         - stored
                         - moving
+                        - pending
+                        - processing
+                        - deleted
                   example: in_review
                 - name: limit
                   in: query
@@ -1788,6 +1791,9 @@ components:
                         - rejected
                         - stored
                         - moving
+                        - pending
+                        - processing
+                        - deleted
                 uuid:
                     type: string
                     example: abc123
@@ -1926,6 +1932,9 @@ components:
                         - rejected
                         - stored
                         - moving
+                        - pending
+                        - processing
+                        - deleted
                 uuid:
                     type: string
                     description: Identifier of the AIP
@@ -2317,6 +2326,9 @@ components:
                         - rejected
                         - stored
                         - moving
+                        - pending
+                        - processing
+                        - deleted
                 uuid:
                     type: string
                     example: abc123
@@ -2397,6 +2409,7 @@ components:
                         - error
                         - queued
                         - pending
+                        - canceled
                 tasks:
                     $ref: '#/components/schemas/AIPTaskCollection'
                 temporal_id:

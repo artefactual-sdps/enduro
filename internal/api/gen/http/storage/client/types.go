@@ -1931,8 +1931,8 @@ func ValidateAIPResponseBody(body *AIPResponseBody) (err error) {
 		err = goa.MergeErrors(err, goa.MissingFieldError("created_at", "body"))
 	}
 	if body.Status != nil {
-		if !(*body.Status == "unspecified" || *body.Status == "in_review" || *body.Status == "rejected" || *body.Status == "stored" || *body.Status == "moving") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []any{"unspecified", "in_review", "rejected", "stored", "moving"}))
+		if !(*body.Status == "unspecified" || *body.Status == "in_review" || *body.Status == "rejected" || *body.Status == "stored" || *body.Status == "moving" || *body.Status == "pending" || *body.Status == "processing" || *body.Status == "deleted") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []any{"unspecified", "in_review", "rejected", "stored", "moving", "pending", "processing", "deleted"}))
 		}
 	}
 	if body.CreatedAt != nil {
@@ -1990,8 +1990,8 @@ func ValidateAIPWorkflowResponseBody(body *AIPWorkflowResponseBody) (err error) 
 		}
 	}
 	if body.Status != nil {
-		if !(*body.Status == "unspecified" || *body.Status == "in progress" || *body.Status == "done" || *body.Status == "error" || *body.Status == "queued" || *body.Status == "pending") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []any{"unspecified", "in progress", "done", "error", "queued", "pending"}))
+		if !(*body.Status == "unspecified" || *body.Status == "in progress" || *body.Status == "done" || *body.Status == "error" || *body.Status == "queued" || *body.Status == "pending" || *body.Status == "canceled") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []any{"unspecified", "in progress", "done", "error", "queued", "pending", "canceled"}))
 		}
 	}
 	if body.StartedAt != nil {
@@ -2111,8 +2111,8 @@ func ValidateAIPResponse(body *AIPResponse) (err error) {
 		err = goa.MergeErrors(err, goa.MissingFieldError("created_at", "body"))
 	}
 	if body.Status != nil {
-		if !(*body.Status == "unspecified" || *body.Status == "in_review" || *body.Status == "rejected" || *body.Status == "stored" || *body.Status == "moving") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []any{"unspecified", "in_review", "rejected", "stored", "moving"}))
+		if !(*body.Status == "unspecified" || *body.Status == "in_review" || *body.Status == "rejected" || *body.Status == "stored" || *body.Status == "moving" || *body.Status == "pending" || *body.Status == "processing" || *body.Status == "deleted") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []any{"unspecified", "in_review", "rejected", "stored", "moving", "pending", "processing", "deleted"}))
 		}
 	}
 	if body.CreatedAt != nil {

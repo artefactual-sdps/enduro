@@ -213,7 +213,7 @@ export interface StorageApiInterface {
      * @param {string} [name] 
      * @param {Date} [earliestCreatedTime] 
      * @param {Date} [latestCreatedTime] 
-     * @param {'unspecified' | 'in_review' | 'rejected' | 'stored' | 'moving'} [status] 
+     * @param {'unspecified' | 'in_review' | 'rejected' | 'stored' | 'moving' | 'pending' | 'processing' | 'deleted'} [status] 
      * @param {number} [limit] Limit number of results to return
      * @param {number} [offset] Offset from the beginning of the found set
      * @param {*} [options] Override http request option.
@@ -1109,6 +1109,9 @@ export const StorageListAipsStatusEnum = {
     InReview: 'in_review',
     Rejected: 'rejected',
     Stored: 'stored',
-    Moving: 'moving'
+    Moving: 'moving',
+    Pending: 'pending',
+    Processing: 'processing',
+    Deleted: 'deleted'
 } as const;
 export type StorageListAipsStatusEnum = typeof StorageListAipsStatusEnum[keyof typeof StorageListAipsStatusEnum];

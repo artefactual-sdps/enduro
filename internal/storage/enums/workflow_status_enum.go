@@ -24,6 +24,8 @@ const (
 	WorkflowStatusQueued WorkflowStatus = "queued"
 	// WorkflowStatusPending is a WorkflowStatus of type pending.
 	WorkflowStatusPending WorkflowStatus = "pending"
+	// WorkflowStatusCanceled is a WorkflowStatus of type canceled.
+	WorkflowStatusCanceled WorkflowStatus = "canceled"
 )
 
 var ErrInvalidWorkflowStatus = fmt.Errorf("not a valid WorkflowStatus, try [%s]", strings.Join(_WorkflowStatusNames, ", "))
@@ -35,6 +37,7 @@ var _WorkflowStatusNames = []string{
 	string(WorkflowStatusError),
 	string(WorkflowStatusQueued),
 	string(WorkflowStatusPending),
+	string(WorkflowStatusCanceled),
 }
 
 // WorkflowStatusNames returns a list of possible string values of WorkflowStatus.
@@ -63,6 +66,7 @@ var _WorkflowStatusValue = map[string]WorkflowStatus{
 	"error":       WorkflowStatusError,
 	"queued":      WorkflowStatusQueued,
 	"pending":     WorkflowStatusPending,
+	"canceled":    WorkflowStatusCanceled,
 }
 
 // ParseWorkflowStatus attempts to convert a string to a WorkflowStatus.

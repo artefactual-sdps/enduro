@@ -573,6 +573,9 @@ paths:
                     - rejected
                     - stored
                     - moving
+                    - pending
+                    - processing
+                    - deleted
                 - name: limit
                   in: query
                   description: Limit number of results to return
@@ -1382,6 +1385,9 @@ definitions:
                     - rejected
                     - stored
                     - moving
+                    - pending
+                    - processing
+                    - deleted
             uuid:
                 type: string
                 example: abc123
@@ -1429,6 +1435,9 @@ definitions:
                     - rejected
                     - stored
                     - moving
+                    - pending
+                    - processing
+                    - deleted
             uuid:
                 type: string
                 example: abc123
@@ -1537,6 +1546,7 @@ definitions:
                     - error
                     - queued
                     - pending
+                    - canceled
             tasks:
                 $ref: '#/definitions/AIPTaskResponseBodyCollection'
             temporal_id:
@@ -2978,6 +2988,9 @@ definitions:
                     - rejected
                     - stored
                     - moving
+                    - pending
+                    - processing
+                    - deleted
             uuid:
                 type: string
                 description: Identifier of the AIP
@@ -3023,6 +3036,9 @@ definitions:
                     - rejected
                     - stored
                     - moving
+                    - pending
+                    - processing
+                    - deleted
             uuid:
                 type: string
                 example: abc123
@@ -3808,6 +3824,9 @@ definitions:
                     - rejected
                     - stored
                     - moving
+                    - pending
+                    - processing
+                    - deleted
             uuid:
                 type: string
                 example: abc123

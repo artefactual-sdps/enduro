@@ -22,6 +22,12 @@ const (
 	AIPStatusStored AIPStatus = "stored"
 	// AIPStatusMoving is a AIPStatus of type moving.
 	AIPStatusMoving AIPStatus = "moving"
+	// AIPStatusPending is a AIPStatus of type pending.
+	AIPStatusPending AIPStatus = "pending"
+	// AIPStatusProcessing is a AIPStatus of type processing.
+	AIPStatusProcessing AIPStatus = "processing"
+	// AIPStatusDeleted is a AIPStatus of type deleted.
+	AIPStatusDeleted AIPStatus = "deleted"
 )
 
 var ErrInvalidAIPStatus = fmt.Errorf("not a valid AIPStatus, try [%s]", strings.Join(_AIPStatusNames, ", "))
@@ -32,6 +38,9 @@ var _AIPStatusNames = []string{
 	string(AIPStatusRejected),
 	string(AIPStatusStored),
 	string(AIPStatusMoving),
+	string(AIPStatusPending),
+	string(AIPStatusProcessing),
+	string(AIPStatusDeleted),
 }
 
 // AIPStatusNames returns a list of possible string values of AIPStatus.
@@ -59,6 +68,9 @@ var _AIPStatusValue = map[string]AIPStatus{
 	"rejected":    AIPStatusRejected,
 	"stored":      AIPStatusStored,
 	"moving":      AIPStatusMoving,
+	"pending":     AIPStatusPending,
+	"processing":  AIPStatusProcessing,
+	"deleted":     AIPStatusDeleted,
 }
 
 // ParseAIPStatus attempts to convert a string to a AIPStatus.

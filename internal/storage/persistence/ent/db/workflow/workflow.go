@@ -100,7 +100,7 @@ func TypeValidator(_type enums.WorkflowType) error {
 // StatusValidator is a validator for the "status" field enum values. It is called by the builders before save.
 func StatusValidator(s enums.WorkflowStatus) error {
 	switch s.String() {
-	case "unspecified", "in progress", "done", "error", "queued", "pending":
+	case "unspecified", "in progress", "done", "error", "queued", "pending", "canceled":
 		return nil
 	default:
 		return fmt.Errorf("workflow: invalid enum value for status field: %q", s)

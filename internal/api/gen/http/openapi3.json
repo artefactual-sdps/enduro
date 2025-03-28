@@ -79,7 +79,10 @@
               "in_review",
               "rejected",
               "stored",
-              "moving"
+              "moving",
+              "pending",
+              "processing",
+              "deleted"
             ],
             "example": "in_review",
             "type": "string"
@@ -268,7 +271,10 @@
               "in_review",
               "rejected",
               "stored",
-              "moving"
+              "moving",
+              "pending",
+              "processing",
+              "deleted"
             ],
             "example": "in_review",
             "type": "string"
@@ -769,7 +775,10 @@
               "in_review",
               "rejected",
               "stored",
-              "moving"
+              "moving",
+              "pending",
+              "processing",
+              "deleted"
             ],
             "example": "in_review",
             "type": "string"
@@ -879,7 +888,8 @@
               "done",
               "error",
               "queued",
-              "pending"
+              "pending",
+              "canceled"
             ],
             "example": "in progress",
             "type": "string"
@@ -2796,7 +2806,10 @@
                 "in_review",
                 "rejected",
                 "stored",
-                "moving"
+                "moving",
+                "pending",
+                "processing",
+                "deleted"
               ],
               "example": "in_review",
               "type": "string"
