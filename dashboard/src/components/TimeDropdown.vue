@@ -7,6 +7,8 @@ import { onMounted, ref, watch } from "vue";
 
 import IconClose from "~icons/clarity/close-line";
 
+const dateFormat = "yyyy-MM-dd HH:mm";
+
 const emit = defineEmits<{
   change: [name: string, start: string, end: string];
 }>();
@@ -189,6 +191,7 @@ const earliestTimeFromOption = (value: string) => {
           time-picker-inline
           :id="'tdd-' + props.name + '-start'"
           :name="'tdd-' + props.name + '-start-input'"
+          :format="dateFormat"
           v-model="startTime"
           placeholder="Start time"
           @update:model-value="handleStartChange"
@@ -200,6 +203,7 @@ const earliestTimeFromOption = (value: string) => {
           time-picker-inline
           :id="'tdd-' + props.name + '-end'"
           :name="'tdd-' + props.name + '-end-input'"
+          :format="dateFormat"
           v-model="endTime"
           placeholder="End time"
           @update:model-value="handleEndChange"
