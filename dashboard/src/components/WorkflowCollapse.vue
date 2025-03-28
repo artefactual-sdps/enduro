@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed, ref, toRefs } from "vue";
 
-import type { api } from "@/client";
+import { api } from "@/client";
+import AipDeletionReviewAlert from "@/components/AipDeletionReviewAlert.vue";
 import SipReviewAlert from "@/components/SipReviewAlert.vue";
 import StatusBadge from "@/components/StatusBadge.vue";
 import Task from "@/components/Task.vue";
@@ -27,6 +28,22 @@ const props = defineProps<{
 const { workflow, index } = toRefs(props);
 
 let expandCounter = ref<number>(0);
+
+const showSipReviewAlert = (
+  status:
+    | api.EnduroIngestSipWorkflowStatusEnum
+    | api.EnduroStorageAipWorkflowStatusEnum,
+) => {
+  return status == api.EnduroIngestSipWorkflowStatusEnum.Pending;
+};
+
+const showAipDeletionReviewAlert = (
+  status:
+    | api.EnduroIngestSipWorkflowStatusEnum
+    | api.EnduroStorageAipWorkflowStatusEnum,
+) => {
+  return status == api.EnduroStorageAipWorkflowStatusEnum.Pending;
+};
 </script>
 
 <template>
@@ -74,7 +91,17 @@ let expandCounter = ref<number>(0);
     >
       <SipReviewAlert
         v-model:expandCounter="expandCounter"
-        v-if="authStore.checkAttributes(['ingest:sips:review'])"
+        v-if="
+          showSipReviewAlert(workflow.status) &&
+          authStore.checkAttributes(['ingest:sips:review'])
+        "
+      />
+      <AipDeletionReviewAlert
+        v-if="
+          showAipDeletionReviewAlert(workflow.status) &&
+          authStore.checkAttributes(['storage:aips:deletion:review'])
+        "
+        :note="workflow.tasks?.[0]?.note || ''"
       />
       <ul class="accordion-body d-flex flex-column gap-1">
         <li

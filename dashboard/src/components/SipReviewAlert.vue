@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { openLocationDialog } from "@/dialogs";
+import { openDialog } from "vue3-promise-dialog";
+
+import LocationDialog from "@/components/LocationDialog.vue";
 import { useAipStore } from "@/stores/aip";
 import { useSipStore } from "@/stores/sip";
 
@@ -15,7 +17,7 @@ const aipStore = useAipStore();
 const sipStore = useSipStore();
 
 const confirm = async () => {
-  const locationId = await openLocationDialog();
+  const locationId = await openDialog(LocationDialog);
   if (!locationId) return;
   sipStore.confirm(locationId);
 };
