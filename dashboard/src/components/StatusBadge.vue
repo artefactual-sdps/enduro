@@ -24,18 +24,21 @@ const classes: {
     | api.EnduroStorageAipTaskStatusEnum]: string;
 } = {
   new: "text-bg-dark",
-  "in progress": "text-bg-secondary",
+  "in progress": "text-bg-info",
   done: "text-bg-success",
   error: "text-bg-danger",
   unknown: "text-bg-dark",
-  queued: "text-bg-info",
+  queued: "text-bg-secondary",
   pending: "text-bg-warning",
   abandoned: "text-bg-dark",
+  canceled: "text-bg-dark",
   unspecified: "text-bg-dark",
   in_review: "text-bg-warning",
   rejected: "text-bg-danger",
   stored: "text-bg-success",
   moving: "text-bg-warning",
+  deleted: "text-bg-danger",
+  processing: "text-bg-info",
 };
 
 const colorClass = computed(() => {
