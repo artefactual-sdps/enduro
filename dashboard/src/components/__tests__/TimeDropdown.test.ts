@@ -146,7 +146,7 @@ describe("TimeDropdown.vue initialized with start and end times", () => {
     const end = wrapper.find("#tdd-createdAt-end input");
 
     // Local times are offset -6 hours from UTC times.
-    expect(start.element.getAttribute("value")).toEqual("12/31/2024, 18:00");
-    expect(end.element.getAttribute("value")).toEqual("01/31/2025, 17:59");
+    expect(start.element.getAttribute("value")).toEqual("2024-12-31 18:00");
+    expect(end.element.getAttribute("value")).toEqual("2025-01-31 17:59");
   });
 });
