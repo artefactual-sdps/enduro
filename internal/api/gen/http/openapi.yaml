@@ -785,7 +785,7 @@ paths:
                   schema:
                     $ref: '#/definitions/StorageReviewAipDeletionRequestBody'
                     required:
-                        - decision
+                        - approved
             responses:
                 "200":
                     description: OK response.
@@ -3765,16 +3765,13 @@ definitions:
         title: StorageReviewAipDeletionRequestBody
         type: object
         properties:
-            decision:
-                type: string
-                example: reject
-                enum:
-                    - approve
-                    - reject
+            approved:
+                type: boolean
+                example: false
         example:
-            decision: reject
+            approved: false
         required:
-            - decision
+            - approved
     StorageShowAipNotFoundResponseBody:
         title: StorageShowAipNotFoundResponseBody
         type: object

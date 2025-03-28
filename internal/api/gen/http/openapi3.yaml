@@ -1020,7 +1020,7 @@ paths:
                         schema:
                             $ref: '#/components/schemas/ReviewAipDeletionRequestBody'
                         example:
-                            decision: reject
+                            approved: false
             responses:
                 "200":
                     description: OK response.
@@ -2703,16 +2703,13 @@ components:
         ReviewAipDeletionRequestBody:
             type: object
             properties:
-                decision:
-                    type: string
-                    example: reject
-                    enum:
-                        - approve
-                        - reject
+                approved:
+                    type: boolean
+                    example: false
             example:
-                decision: reject
+                approved: false
             required:
-                - decision
+                - approved
         SIPCollection:
             type: array
             items:

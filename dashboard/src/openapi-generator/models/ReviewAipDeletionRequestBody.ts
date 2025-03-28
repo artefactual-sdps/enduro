@@ -21,29 +21,18 @@ import { exists, mapValues } from '../runtime';
 export interface ReviewAipDeletionRequestBody {
     /**
      * 
-     * @type {string}
+     * @type {boolean}
      * @memberof ReviewAipDeletionRequestBody
      */
-    decision: ReviewAipDeletionRequestBodyDecisionEnum;
+    approved: boolean;
 }
-
-
-/**
- * @export
- */
-export const ReviewAipDeletionRequestBodyDecisionEnum = {
-    Approve: 'approve',
-    Reject: 'reject'
-} as const;
-export type ReviewAipDeletionRequestBodyDecisionEnum = typeof ReviewAipDeletionRequestBodyDecisionEnum[keyof typeof ReviewAipDeletionRequestBodyDecisionEnum];
-
 
 /**
  * Check if a given object implements the ReviewAipDeletionRequestBody interface.
  */
 export function instanceOfReviewAipDeletionRequestBody(value: object): boolean {
     let isInstance = true;
-    isInstance = isInstance && "decision" in value;
+    isInstance = isInstance && "approved" in value;
 
     return isInstance;
 }
@@ -58,7 +47,7 @@ export function ReviewAipDeletionRequestBodyFromJSONTyped(json: any, ignoreDiscr
     }
     return {
         
-        'decision': json['decision'],
+        'approved': json['approved'],
     };
 }
 
@@ -71,7 +60,7 @@ export function ReviewAipDeletionRequestBodyToJSON(value?: ReviewAipDeletionRequ
     }
     return {
         
-        'decision': value.decision,
+        'approved': value.approved,
     };
 }
 

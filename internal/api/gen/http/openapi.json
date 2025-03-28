@@ -3044,20 +3044,16 @@
     },
     "StorageReviewAipDeletionRequestBody": {
       "example": {
-        "decision": "reject"
+        "approved": false
       },
       "properties": {
-        "decision": {
-          "enum": [
-            "approve",
-            "reject"
-          ],
-          "example": "reject",
-          "type": "string"
+        "approved": {
+          "example": false,
+          "type": "boolean"
         }
       },
       "required": [
-        "decision"
+        "approved"
       ],
       "title": "StorageReviewAipDeletionRequestBody",
       "type": "object"
@@ -4560,7 +4556,7 @@
             "schema": {
               "$ref": "#/definitions/StorageReviewAipDeletionRequestBody",
               "required": [
-                "decision"
+                "approved"
               ]
             }
           }

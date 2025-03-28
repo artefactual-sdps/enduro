@@ -265,10 +265,8 @@ var _ = Service("storage", func() {
 		Payload(func() {
 			AttributeUUID("uuid", "Identifier of AIP")
 			Token("token", String)
-			Attribute("decision", String, func() {
-				Enum("approve", "reject")
-			})
-			Required("uuid", "decision")
+			Attribute("approved", Boolean)
+			Required("uuid", "approved")
 		})
 		Error("not_found", AIPNotFound, "AIP not found")
 		HTTP(func() {

@@ -404,13 +404,7 @@ func BuildReviewAipDeletionPayload(storageReviewAipDeletionBody string, storageR
 	{
 		err = json.Unmarshal([]byte(storageReviewAipDeletionBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"decision\": \"reject\"\n   }'")
-		}
-		if !(body.Decision == "approve" || body.Decision == "reject") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.decision", body.Decision, []any{"approve", "reject"}))
-		}
-		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"approved\": false\n   }'")
 		}
 	}
 	var uuid string
@@ -428,7 +422,7 @@ func BuildReviewAipDeletionPayload(storageReviewAipDeletionBody string, storageR
 		}
 	}
 	v := &storage.ReviewAipDeletionPayload{
-		Decision: body.Decision,
+		Approved: body.Approved,
 	}
 	v.UUID = uuid
 	v.Token = token

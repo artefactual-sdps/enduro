@@ -310,7 +310,7 @@ type ReviewAipDeletionPayload struct {
 	// Identifier of AIP
 	UUID     string
 	Token    *string
-	Decision string
+	Approved bool
 }
 
 type S3Config struct {

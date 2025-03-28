@@ -54,7 +54,7 @@ type RequestAipDeletionRequestBody struct {
 // ReviewAipDeletionRequestBody is the type of the "storage" service
 // "review_aip_deletion" endpoint HTTP request body.
 type ReviewAipDeletionRequestBody struct {
-	Decision string `form:"decision" json:"decision" xml:"decision"`
+	Approved bool `form:"approved" json:"approved" xml:"approved"`
 }
 
 // CreateLocationRequestBody is the type of the "storage" service
@@ -653,7 +653,7 @@ func NewRequestAipDeletionRequestBody(p *storage.RequestAipDeletionPayload) *Req
 // payload of the "review_aip_deletion" endpoint of the "storage" service.
 func NewReviewAipDeletionRequestBody(p *storage.ReviewAipDeletionPayload) *ReviewAipDeletionRequestBody {
 	body := &ReviewAipDeletionRequestBody{
-		Decision: p.Decision,
+		Approved: p.Approved,
 	}
 	return body
 }

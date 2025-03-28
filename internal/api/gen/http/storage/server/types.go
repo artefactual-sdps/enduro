@@ -54,7 +54,7 @@ type RequestAipDeletionRequestBody struct {
 // ReviewAipDeletionRequestBody is the type of the "storage" service
 // "review_aip_deletion" endpoint HTTP request body.
 type ReviewAipDeletionRequestBody struct {
-	Decision *string `form:"decision,omitempty" json:"decision,omitempty" xml:"decision,omitempty"`
+	Approved *bool `form:"approved,omitempty" json:"approved,omitempty" xml:"approved,omitempty"`
 }
 
 // CreateLocationRequestBody is the type of the "storage" service
@@ -1126,7 +1126,7 @@ func NewRequestAipDeletionPayload(body *RequestAipDeletionRequestBody, uuid stri
 // endpoint payload.
 func NewReviewAipDeletionPayload(body *ReviewAipDeletionRequestBody, uuid string, token *string) *storage.ReviewAipDeletionPayload {
 	v := &storage.ReviewAipDeletionPayload{
-		Decision: *body.Decision,
+		Approved: *body.Approved,
 	}
 	v.UUID = uuid
 	v.Token = token
@@ -1253,13 +1253,8 @@ func ValidateRequestAipDeletionRequestBody(body *RequestAipDeletionRequestBody) 
 // ValidateReviewAipDeletionRequestBody runs the validations defined on
 // review_aip_deletion_request_body
 func ValidateReviewAipDeletionRequestBody(body *ReviewAipDeletionRequestBody) (err error) {
-	if body.Decision == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("decision", "body"))
-	}
-	if body.Decision != nil {
-		if !(*body.Decision == "approve" || *body.Decision == "reject") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.decision", *body.Decision, []any{"approve", "reject"}))
-		}
+	if body.Approved == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("approved", "body"))
 	}
 	return
 }

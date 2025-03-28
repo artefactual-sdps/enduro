@@ -782,7 +782,7 @@ Review an AIP deletion request
 
 Example:
     %[1]s storage review-aip-deletion --body '{
-      "decision": "reject"
+      "approved": false
    }' --uuid "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --token "abc123"
 `, os.Args[0])
 }

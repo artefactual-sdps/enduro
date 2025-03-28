@@ -1238,20 +1238,16 @@
       },
       "ReviewAipDeletionRequestBody": {
         "example": {
-          "decision": "reject"
+          "approved": false
         },
         "properties": {
-          "decision": {
-            "enum": [
-              "approve",
-              "reject"
-            ],
-            "example": "reject",
-            "type": "string"
+          "approved": {
+            "example": false,
+            "type": "boolean"
           }
         },
         "required": [
-          "decision"
+          "approved"
         ],
         "type": "object"
       },
@@ -3215,7 +3211,7 @@
           "content": {
             "application/json": {
               "example": {
-                "decision": "reject"
+                "approved": false
               },
               "schema": {
                 "$ref": "#/components/schemas/ReviewAipDeletionRequestBody"
