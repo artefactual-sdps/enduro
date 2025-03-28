@@ -75,6 +75,24 @@ func CreateWorkflowLocalActivity(
 	return w.DBID, nil
 }
 
+type UpdateWorkflowStatusLocalActivityParams struct {
+	DBID   int
+	Status enums.WorkflowStatus
+}
+
+func UpdateWorkflowStatusLocalActivity(
+	ctx context.Context,
+	storagesvc Service,
+	params *UpdateWorkflowStatusLocalActivityParams,
+) error {
+	_, err := storagesvc.UpdateWorkflow(ctx, params.DBID, func(w *types.Workflow) (*types.Workflow, error) {
+		w.Status = params.Status
+		return w, nil
+	})
+
+	return err
+}
+
 type CompleteWorkflowLocalActivityParams struct {
 	DBID   int
 	Status enums.WorkflowStatus
@@ -90,15 +108,13 @@ func CompleteWorkflowLocalActivity(
 		w.CompletedAt = time.Now()
 		return w, nil
 	})
-	if err != nil {
-		return err
-	}
 
-	return nil
+	return err
 }
 
 type CreateTaskLocalActivityParams struct {
 	WorkflowDBID int
+	Status       enums.TaskStatus
 	Name         string
 	Note         string
 }
@@ -111,7 +127,7 @@ func CreateTaskLocalActivity(
 	t := &types.Task{
 		UUID:         uuid.New(),
 		Name:         params.Name,
-		Status:       enums.TaskStatusInProgress,
+		Status:       params.Status,
 		StartedAt:    time.Now(),
 		Note:         params.Note,
 		WorkflowDBID: params.WorkflowDBID,
@@ -141,9 +157,6 @@ func CompleteTaskLocalActivity(
 		t.Note = params.Note
 		return t, nil
 	})
-	if err != nil {
-		return err
-	}
 
-	return nil
+	return err
 }

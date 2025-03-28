@@ -66,6 +66,24 @@ func createWorkflow(
 	return workflowDBID, nil
 }
 
+func updateWorkflowStatus(
+	ctx temporalsdk_workflow.Context,
+	storagesvc storage.Service,
+	dbID int,
+	s enums.WorkflowStatus,
+) error {
+	activityOpts := localActivityOptions(ctx)
+	return temporalsdk_workflow.ExecuteLocalActivity(
+		activityOpts,
+		storage.UpdateWorkflowStatusLocalActivity,
+		storagesvc,
+		&storage.UpdateWorkflowStatusLocalActivityParams{
+			DBID:   dbID,
+			Status: s,
+		},
+	).Get(activityOpts, nil)
+}
+
 func completeWorkflow(
 	ctx temporalsdk_workflow.Context,
 	storagesvc storage.Service,
@@ -87,7 +105,8 @@ func completeWorkflow(
 func createTask(
 	ctx temporalsdk_workflow.Context,
 	storagesvc storage.Service,
-	dbID int,
+	workflowDBID int,
+	status enums.TaskStatus,
 	name, note string,
 ) (int, error) {
 	var taskDBID int
@@ -97,7 +116,8 @@ func createTask(
 		storage.CreateTaskLocalActivity,
 		storagesvc,
 		&storage.CreateTaskLocalActivityParams{
-			WorkflowDBID: dbID,
+			WorkflowDBID: workflowDBID,
+			Status:       status,
 			Name:         name,
 			Note:         note,
 		},

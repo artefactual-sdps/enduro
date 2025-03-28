@@ -53,7 +53,14 @@ func (w *StorageMoveWorkflow) Execute(
 	}()
 
 	// Create copy AIP task.
-	copyTaskID, err := createTask(ctx, w.storagesvc, workflowDBID, "Copy AIP", "Copying AIP to target location")
+	copyTaskID, err := createTask(
+		ctx,
+		w.storagesvc,
+		workflowDBID,
+		enums.TaskStatusInProgress,
+		"Copy AIP",
+		"Copying AIP to target location",
+	)
 	if err != nil {
 		return err
 	}
@@ -95,7 +102,14 @@ func (w *StorageMoveWorkflow) Execute(
 	}
 
 	// Create delete AIP task.
-	deleteTaskID, err := createTask(ctx, w.storagesvc, workflowDBID, "Delete AIP", "Deleting AIP from source location")
+	deleteTaskID, err := createTask(
+		ctx,
+		w.storagesvc,
+		workflowDBID,
+		enums.TaskStatusInProgress,
+		"Delete AIP",
+		"Deleting AIP from source location",
+	)
 	if err != nil {
 		return err
 	}

@@ -16,6 +16,7 @@ const (
 	StorageDeleteWorkflowName           = "storage-delete-workflow"
 	StorageUploadWorkflowName           = "storage-upload-workflow"
 	StorageMoveWorkflowName             = "storage-move-workflow"
+	DeletionReviewedSignalName          = "deletion-reviewed-signal"
 	UploadDoneSignalName                = "upload-done-signal"
 )
 
@@ -26,6 +27,13 @@ type StorageDeleteWorkflowRequest struct {
 	UserSub   string
 	UserISS   string
 	TaskQueue string
+}
+
+type DeletionReviewedSignal struct {
+	Approved  bool
+	UserEmail string
+	UserSub   string
+	UserISS   string
 }
 
 type StorageUploadWorkflowRequest struct {
@@ -46,6 +54,10 @@ type CopyToPermanentLocationActivityParams struct {
 
 type UploadDoneSignal struct{}
 
+func StorageDeleteWorkflowID(aipID uuid.UUID) string {
+	return fmt.Sprintf("%s-%s", StorageDeleteWorkflowName, aipID)
+}
+
 func InitStorageDeleteWorkflow(
 	ctx context.Context,
 	tc temporalsdk_client.Client,
@@ -55,7 +67,7 @@ func InitStorageDeleteWorkflow(
 	defer cancel()
 
 	opts := temporalsdk_client.StartWorkflowOptions{
-		ID:                    fmt.Sprintf("%s-%s", StorageDeleteWorkflowName, req.AIPID),
+		ID:                    StorageDeleteWorkflowID(req.AIPID),
 		TaskQueue:             req.TaskQueue,
 		WorkflowIDReusePolicy: temporalsdk_api_enums.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE_FAILED_ONLY,
 	}
