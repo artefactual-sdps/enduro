@@ -18,8 +18,6 @@ func (s *serviceImpl) RequestAipDeletion(ctx context.Context, payload *goastorag
 		return goastorage.MakeNotValid(errors.New("invalid reason"))
 	}
 
-	s.logger.Info("HERE WE GO!!", "UUID", payload.UUID, "Reason", payload.Reason)
-
 	// TODO:
 	// - Check AIP existence and status, same as in workflow.
 	// - Get user details from context claim and include them in the request.
@@ -28,6 +26,9 @@ func (s *serviceImpl) RequestAipDeletion(ctx context.Context, payload *goastorag
 		AIPID:     aipID,
 		Reason:    payload.Reason,
 		TaskQueue: s.config.TaskQueue,
+		UserEmail: "",
+		UserSub:   "",
+		UserISS:   "",
 	})
 	if err != nil {
 		s.logger.Error(err, "error initializing delete workflow")
@@ -38,5 +39,25 @@ func (s *serviceImpl) RequestAipDeletion(ctx context.Context, payload *goastorag
 }
 
 func (s *serviceImpl) ReviewAipDeletion(ctx context.Context, payload *goastorage.ReviewAipDeletionPayload) error {
+	aipID, err := uuid.Parse(payload.UUID)
+	if err != nil {
+		return goastorage.MakeNotValid(errors.New("invalid UUID"))
+	}
+
+	// TODO:
+	// - Check AIP existence and status, and DeletionRequest.
+	// - Get user details from context claim and include them in the signal.
+
+	signal := DeletionReviewedSignal{
+		Approved:  payload.Approved,
+		UserEmail: "",
+		UserSub:   "",
+		UserISS:   "",
+	}
+	err = s.tc.SignalWorkflow(ctx, StorageDeleteWorkflowID(aipID), "", DeletionReviewedSignalName, signal)
+	if err != nil {
+		return goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
+	}
+
 	return nil
 }
