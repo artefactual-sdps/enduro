@@ -650,7 +650,9 @@ func TestAIPWorkflows(t *testing.T) {
 					},
 				},
 			},
-		})
+		}, cmpopts.SortSlices(func(a, b goastorage.AIPWorkflow) bool {
+			return a.UUID.String() < b.UUID.String()
+		}))
 	})
 }
 
