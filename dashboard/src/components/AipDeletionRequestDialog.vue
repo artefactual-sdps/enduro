@@ -10,6 +10,7 @@ const aipStore = useAipStore();
 
 const el = ref<HTMLElement | null>(null);
 const modal = ref<Modal | null>(null);
+const reason = ref<string>("");
 
 onMounted(() => {
   if (!el.value) return;
@@ -17,10 +18,8 @@ onMounted(() => {
   modal.value.show();
 });
 
-let reason: string = "";
-
 useEventListener(el, "hidden.bs.modal", () => {
-  closeDialog(reason);
+  closeDialog(reason.value);
 });
 
 const request = () => {
