@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, watch } from "vue";
 
 import StatusBadge from "@/components/StatusBadge.vue";
 import { FormatDateTime } from "@/composables/dateFormat";
@@ -45,6 +45,15 @@ const props = defineProps<{
 }>();
 
 const card = ref(new Card(props.task));
+
+watch(
+  () => props.task,
+  (task) => {
+    const isOpen = card.value.isOpen;
+    card.value = new Card(task);
+    card.value.isOpen = isOpen;
+  },
+);
 </script>
 
 <template>
