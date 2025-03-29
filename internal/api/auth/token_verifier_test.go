@@ -14,7 +14,10 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
 )
 
-const audience = "test-audience"
+const (
+	audience = "test-audience"
+	subject  = "test-subject"
+)
 
 func token(t *testing.T, signer jose.Signer, iss string, claims interface{}) (token string) {
 	t.Helper()
@@ -25,7 +28,7 @@ func token(t *testing.T, signer jose.Signer, iss string, claims interface{}) (to
 			Issuer:   iss,
 			IssuedAt: jwt.NewNumericDate(time.Now()),
 			Expiry:   jwt.NewNumericDate(time.Now().Add(30 * time.Minute)),
-			Subject:  "test-subject",
+			Subject:  subject,
 			Audience: jwt.Audience{audience},
 		})
 
@@ -65,6 +68,8 @@ func TestOIDCTokenVerifier(t *testing.T) {
 		assert.DeepEqual(t, claims, &auth.Claims{
 			Email:         "info@artefactual.com",
 			EmailVerified: true,
+			ISS:           iss,
+			Sub:           subject,
 		})
 	})
 
@@ -84,7 +89,11 @@ func TestOIDCTokenVerifier(t *testing.T) {
 
 		claims, err := v.Verify(ctx, token)
 		assert.NilError(t, err)
-		assert.DeepEqual(t, claims, &auth.Claims{Email: "info@artefactual.com"})
+		assert.DeepEqual(t, claims, &auth.Claims{
+			Email: "info@artefactual.com",
+			ISS:   iss,
+			Sub:   subject,
+		})
 	})
 
 	t.Run("Rejects tokens without email verified", func(t *testing.T) {
@@ -180,6 +189,8 @@ func TestParseAttributes(t *testing.T) {
 			wantClaims: &auth.Claims{
 				Email:         "info@artefactual.com",
 				EmailVerified: true,
+				ISS:           iss,
+				Sub:           subject,
 				Attributes:    []string{"*"},
 			},
 		},
@@ -200,6 +211,8 @@ func TestParseAttributes(t *testing.T) {
 			wantClaims: &auth.Claims{
 				Email:         "info@artefactual.com",
 				EmailVerified: true,
+				ISS:           iss,
+				Sub:           subject,
 				Attributes:    nil,
 			},
 		},
@@ -221,6 +234,8 @@ func TestParseAttributes(t *testing.T) {
 			wantClaims: &auth.Claims{
 				Email:         "info@artefactual.com",
 				EmailVerified: true,
+				ISS:           iss,
+				Sub:           subject,
 				Attributes:    []string{},
 			},
 		},
@@ -243,6 +258,8 @@ func TestParseAttributes(t *testing.T) {
 			wantClaims: &auth.Claims{
 				Email:         "info@artefactual.com",
 				EmailVerified: true,
+				ISS:           iss,
+				Sub:           subject,
 				Attributes:    []string{"*"},
 			},
 		},
@@ -265,6 +282,8 @@ func TestParseAttributes(t *testing.T) {
 			wantClaims: &auth.Claims{
 				Email:         "info@artefactual.com",
 				EmailVerified: true,
+				ISS:           iss,
+				Sub:           subject,
 				Attributes:    []string{"*"},
 			},
 		},
@@ -292,6 +311,8 @@ func TestParseAttributes(t *testing.T) {
 			wantClaims: &auth.Claims{
 				Email:         "info@artefactual.com",
 				EmailVerified: true,
+				ISS:           iss,
+				Sub:           subject,
 				Attributes:    []string{"*", "ingest:sips:list", "ingest:sips:move", "ingest:sips:read", "ingest:sips:upload", "ingest:sips:workflows:list"},
 			},
 		},
@@ -315,6 +336,8 @@ func TestParseAttributes(t *testing.T) {
 			wantClaims: &auth.Claims{
 				Email:         "info@artefactual.com",
 				EmailVerified: true,
+				ISS:           iss,
+				Sub:           subject,
 				Attributes:    []string{},
 			},
 		},
