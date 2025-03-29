@@ -239,6 +239,42 @@ var _ = Service("storage", func() {
 			Response("not_found", StatusNotFound)
 		})
 	})
+	Method("request_aip_deletion", func() {
+		Description("Request an AIP deletion")
+		Security(JWTAuth, func() {
+			Scope("storage:aips:deletion:request")
+		})
+		Payload(func() {
+			AttributeUUID("uuid", "Identifier of AIP")
+			Token("token", String)
+			Attribute("reason", String)
+			Required("uuid", "reason")
+		})
+		Error("not_found", AIPNotFound, "AIP not found")
+		HTTP(func() {
+			POST("/aips/{uuid}/deletion-request")
+			Response(StatusOK)
+			Response("not_found", StatusNotFound)
+		})
+	})
+	Method("review_aip_deletion", func() {
+		Description("Review an AIP deletion request")
+		Security(JWTAuth, func() {
+			Scope("storage:aips:deletion:review")
+		})
+		Payload(func() {
+			AttributeUUID("uuid", "Identifier of AIP")
+			Token("token", String)
+			Attribute("approved", Boolean)
+			Required("uuid", "approved")
+		})
+		Error("not_found", AIPNotFound, "AIP not found")
+		HTTP(func() {
+			POST("/aips/{uuid}/deletion-review")
+			Response(StatusOK)
+			Response("not_found", StatusNotFound)
+		})
+	})
 	Method("list_locations", func() {
 		Description("List locations")
 		Security(JWTAuth, func() {

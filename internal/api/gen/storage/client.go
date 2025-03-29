@@ -16,39 +16,43 @@ import (
 
 // Client is the "storage" service client.
 type Client struct {
-	ListAipsEndpoint         goa.Endpoint
-	CreateAipEndpoint        goa.Endpoint
-	SubmitAipEndpoint        goa.Endpoint
-	UpdateAipEndpoint        goa.Endpoint
-	DownloadAipEndpoint      goa.Endpoint
-	MoveAipEndpoint          goa.Endpoint
-	MoveAipStatusEndpoint    goa.Endpoint
-	RejectAipEndpoint        goa.Endpoint
-	ShowAipEndpoint          goa.Endpoint
-	ListAipWorkflowsEndpoint goa.Endpoint
-	ListLocationsEndpoint    goa.Endpoint
-	CreateLocationEndpoint   goa.Endpoint
-	ShowLocationEndpoint     goa.Endpoint
-	ListLocationAipsEndpoint goa.Endpoint
+	ListAipsEndpoint           goa.Endpoint
+	CreateAipEndpoint          goa.Endpoint
+	SubmitAipEndpoint          goa.Endpoint
+	UpdateAipEndpoint          goa.Endpoint
+	DownloadAipEndpoint        goa.Endpoint
+	MoveAipEndpoint            goa.Endpoint
+	MoveAipStatusEndpoint      goa.Endpoint
+	RejectAipEndpoint          goa.Endpoint
+	ShowAipEndpoint            goa.Endpoint
+	ListAipWorkflowsEndpoint   goa.Endpoint
+	RequestAipDeletionEndpoint goa.Endpoint
+	ReviewAipDeletionEndpoint  goa.Endpoint
+	ListLocationsEndpoint      goa.Endpoint
+	CreateLocationEndpoint     goa.Endpoint
+	ShowLocationEndpoint       goa.Endpoint
+	ListLocationAipsEndpoint   goa.Endpoint
 }
 
 // NewClient initializes a "storage" service client given the endpoints.
-func NewClient(listAips, createAip, submitAip, updateAip, downloadAip, moveAip, moveAipStatus, rejectAip, showAip, listAipWorkflows, listLocations, createLocation, showLocation, listLocationAips goa.Endpoint) *Client {
+func NewClient(listAips, createAip, submitAip, updateAip, downloadAip, moveAip, moveAipStatus, rejectAip, showAip, listAipWorkflows, requestAipDeletion, reviewAipDeletion, listLocations, createLocation, showLocation, listLocationAips goa.Endpoint) *Client {
 	return &Client{
-		ListAipsEndpoint:         listAips,
-		CreateAipEndpoint:        createAip,
-		SubmitAipEndpoint:        submitAip,
-		UpdateAipEndpoint:        updateAip,
-		DownloadAipEndpoint:      downloadAip,
-		MoveAipEndpoint:          moveAip,
-		MoveAipStatusEndpoint:    moveAipStatus,
-		RejectAipEndpoint:        rejectAip,
-		ShowAipEndpoint:          showAip,
-		ListAipWorkflowsEndpoint: listAipWorkflows,
-		ListLocationsEndpoint:    listLocations,
-		CreateLocationEndpoint:   createLocation,
-		ShowLocationEndpoint:     showLocation,
-		ListLocationAipsEndpoint: listLocationAips,
+		ListAipsEndpoint:           listAips,
+		CreateAipEndpoint:          createAip,
+		SubmitAipEndpoint:          submitAip,
+		UpdateAipEndpoint:          updateAip,
+		DownloadAipEndpoint:        downloadAip,
+		MoveAipEndpoint:            moveAip,
+		MoveAipStatusEndpoint:      moveAipStatus,
+		RejectAipEndpoint:          rejectAip,
+		ShowAipEndpoint:            showAip,
+		ListAipWorkflowsEndpoint:   listAipWorkflows,
+		RequestAipDeletionEndpoint: requestAipDeletion,
+		ReviewAipDeletionEndpoint:  reviewAipDeletion,
+		ListLocationsEndpoint:      listLocations,
+		CreateLocationEndpoint:     createLocation,
+		ShowLocationEndpoint:       showLocation,
+		ListLocationAipsEndpoint:   listLocationAips,
 	}
 }
 
@@ -199,6 +203,30 @@ func (c *Client) ListAipWorkflows(ctx context.Context, p *ListAipWorkflowsPayloa
 		return
 	}
 	return ires.(*AIPWorkflows), nil
+}
+
+// RequestAipDeletion calls the "request_aip_deletion" endpoint of the
+// "storage" service.
+// RequestAipDeletion may return the following errors:
+//   - "not_found" (type *AIPNotFound): AIP not found
+//   - "unauthorized" (type Unauthorized)
+//   - "forbidden" (type Forbidden)
+//   - error: internal error
+func (c *Client) RequestAipDeletion(ctx context.Context, p *RequestAipDeletionPayload) (err error) {
+	_, err = c.RequestAipDeletionEndpoint(ctx, p)
+	return
+}
+
+// ReviewAipDeletion calls the "review_aip_deletion" endpoint of the "storage"
+// service.
+// ReviewAipDeletion may return the following errors:
+//   - "not_found" (type *AIPNotFound): AIP not found
+//   - "unauthorized" (type Unauthorized)
+//   - "forbidden" (type Forbidden)
+//   - error: internal error
+func (c *Client) ReviewAipDeletion(ctx context.Context, p *ReviewAipDeletionPayload) (err error) {
+	_, err = c.ReviewAipDeletionEndpoint(ctx, p)
+	return
 }
 
 // ListLocations calls the "list_locations" endpoint of the "storage" service.

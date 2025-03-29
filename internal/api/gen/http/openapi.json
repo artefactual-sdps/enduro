@@ -41,7 +41,10 @@
             "in_review",
             "rejected",
             "stored",
-            "moving"
+            "moving",
+            "pending",
+            "processing",
+            "deleted"
           ],
           "example": "in_review",
           "type": "string"
@@ -99,7 +102,10 @@
             "in_review",
             "rejected",
             "stored",
-            "moving"
+            "moving",
+            "pending",
+            "processing",
+            "deleted"
           ],
           "example": "in_review",
           "type": "string"
@@ -247,7 +253,8 @@
             "done",
             "error",
             "queued",
-            "pending"
+            "pending",
+            "canceled"
           ],
           "example": "in progress",
           "type": "string"
@@ -2050,7 +2057,10 @@
             "in_review",
             "rejected",
             "stored",
-            "moving"
+            "moving",
+            "pending",
+            "processing",
+            "deleted"
           ],
           "example": "in_review",
           "type": "string"
@@ -2108,7 +2118,10 @@
             "in_review",
             "rejected",
             "stored",
-            "moving"
+            "moving",
+            "pending",
+            "processing",
+            "deleted"
           ],
           "example": "in_review",
           "type": "string"
@@ -2963,6 +2976,88 @@
       "title": "Mediatype identifier: application/vnd.goa.error; view=default",
       "type": "object"
     },
+    "StorageRequestAipDeletionNotFoundResponseBody": {
+      "description": "AIP not found",
+      "example": {
+        "message": "abc123",
+        "uuid": "abc123"
+      },
+      "properties": {
+        "message": {
+          "description": "Message of error",
+          "example": "abc123",
+          "type": "string"
+        },
+        "uuid": {
+          "description": "Identifier of missing AIP",
+          "example": "abc123",
+          "type": "string"
+        }
+      },
+      "required": [
+        "message",
+        "uuid"
+      ],
+      "title": "StorageRequestAipDeletionNotFoundResponseBody",
+      "type": "object"
+    },
+    "StorageRequestAipDeletionRequestBody": {
+      "example": {
+        "reason": "abc123"
+      },
+      "properties": {
+        "reason": {
+          "example": "abc123",
+          "type": "string"
+        }
+      },
+      "required": [
+        "reason"
+      ],
+      "title": "StorageRequestAipDeletionRequestBody",
+      "type": "object"
+    },
+    "StorageReviewAipDeletionNotFoundResponseBody": {
+      "description": "AIP not found",
+      "example": {
+        "message": "abc123",
+        "uuid": "abc123"
+      },
+      "properties": {
+        "message": {
+          "description": "Message of error",
+          "example": "abc123",
+          "type": "string"
+        },
+        "uuid": {
+          "description": "Identifier of missing AIP",
+          "example": "abc123",
+          "type": "string"
+        }
+      },
+      "required": [
+        "message",
+        "uuid"
+      ],
+      "title": "StorageReviewAipDeletionNotFoundResponseBody",
+      "type": "object"
+    },
+    "StorageReviewAipDeletionRequestBody": {
+      "example": {
+        "approved": false
+      },
+      "properties": {
+        "approved": {
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "approved"
+      ],
+      "title": "StorageReviewAipDeletionRequestBody",
+      "type": "object"
+    },
     "StorageShowAipNotFoundResponseBody": {
       "description": "AIP not found",
       "example": {
@@ -3026,7 +3121,10 @@
             "in_review",
             "rejected",
             "stored",
-            "moving"
+            "moving",
+            "pending",
+            "processing",
+            "deleted"
           ],
           "example": "in_review",
           "type": "string"
@@ -4156,7 +4254,10 @@
               "in_review",
               "rejected",
               "stored",
-              "moving"
+              "moving",
+              "pending",
+              "processing",
+              "deleted"
             ],
             "in": "query",
             "name": "status",
@@ -4352,6 +4453,150 @@
           }
         ],
         "summary": "show_aip storage",
+        "tags": [
+          "storage"
+        ]
+      }
+    },
+    "/storage/aips/{uuid}/deletion-request": {
+      "post": {
+        "description": "Request an AIP deletion\n\n**Required security scopes for jwt**:\n  * `storage:aips:deletion:request`",
+        "operationId": "storage#request_aip_deletion",
+        "parameters": [
+          {
+            "description": "Identifier of AIP",
+            "format": "uuid",
+            "in": "path",
+            "name": "uuid",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "request_aip_deletion_request_body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/StorageRequestAipDeletionRequestBody",
+              "required": [
+                "reason"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK response."
+          },
+          "401": {
+            "description": "Unauthorized response.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "403": {
+            "description": "Forbidden response.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "404": {
+            "description": "Not Found response.",
+            "schema": {
+              "$ref": "#/definitions/StorageRequestAipDeletionNotFoundResponseBody",
+              "required": [
+                "message",
+                "uuid"
+              ]
+            }
+          }
+        },
+        "schemes": [
+          "http"
+        ],
+        "security": [
+          {
+            "jwt_header_Authorization": []
+          }
+        ],
+        "summary": "request_aip_deletion storage",
+        "tags": [
+          "storage"
+        ]
+      }
+    },
+    "/storage/aips/{uuid}/deletion-review": {
+      "post": {
+        "description": "Review an AIP deletion request\n\n**Required security scopes for jwt**:\n  * `storage:aips:deletion:review`",
+        "operationId": "storage#review_aip_deletion",
+        "parameters": [
+          {
+            "description": "Identifier of AIP",
+            "format": "uuid",
+            "in": "path",
+            "name": "uuid",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "review_aip_deletion_request_body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/StorageReviewAipDeletionRequestBody",
+              "required": [
+                "approved"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK response."
+          },
+          "401": {
+            "description": "Unauthorized response.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "403": {
+            "description": "Forbidden response.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "404": {
+            "description": "Not Found response.",
+            "schema": {
+              "$ref": "#/definitions/StorageReviewAipDeletionNotFoundResponseBody",
+              "required": [
+                "message",
+                "uuid"
+              ]
+            }
+          }
+        },
+        "schemes": [
+          "http"
+        ],
+        "security": [
+          {
+            "jwt_header_Authorization": []
+          }
+        ],
+        "summary": "review_aip_deletion storage",
         "tags": [
           "storage"
         ]
@@ -5132,7 +5377,7 @@
   ],
   "securityDefinitions": {
     "jwt_header_Authorization": {
-      "description": "Secures endpoint by requiring a valid JWT token.\n\n**Security Scopes**:\n  * `ingest:sips:list`: no description\n  * `ingest:sips:move`: no description\n  * `ingest:sips:read`: no description\n  * `ingest:sips:review`: no description\n  * `ingest:sips:upload`: no description\n  * `ingest:sips:workflows:list`: no description\n  * `storage:aips:create`: no description\n  * `storage:aips:download`: no description\n  * `storage:aips:list`: no description\n  * `storage:aips:move`: no description\n  * `storage:aips:read`: no description\n  * `storage:aips:review`: no description\n  * `storage:aips:submit`: no description\n  * `storage:aips:workflows:list`: no description\n  * `storage:locations:aips:list`: no description\n  * `storage:locations:create`: no description\n  * `storage:locations:list`: no description\n  * `storage:locations:read`: no description",
+      "description": "Secures endpoint by requiring a valid JWT token.\n\n**Security Scopes**:\n  * `ingest:sips:list`: no description\n  * `ingest:sips:move`: no description\n  * `ingest:sips:read`: no description\n  * `ingest:sips:review`: no description\n  * `ingest:sips:upload`: no description\n  * `ingest:sips:workflows:list`: no description\n  * `storage:aips:create`: no description\n  * `storage:aips:deletion:request`: no description\n  * `storage:aips:deletion:review`: no description\n  * `storage:aips:download`: no description\n  * `storage:aips:list`: no description\n  * `storage:aips:move`: no description\n  * `storage:aips:read`: no description\n  * `storage:aips:review`: no description\n  * `storage:aips:submit`: no description\n  * `storage:aips:workflows:list`: no description\n  * `storage:locations:aips:list`: no description\n  * `storage:locations:create`: no description\n  * `storage:locations:list`: no description\n  * `storage:locations:read`: no description",
       "in": "header",
       "name": "Authorization",
       "type": "apiKey"

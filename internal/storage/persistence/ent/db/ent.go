@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/aip"
+	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/deletionrequest"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/location"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/task"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/workflow"
@@ -76,10 +77,11 @@ var (
 func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			aip.Table:      aip.ValidColumn,
-			location.Table: location.ValidColumn,
-			task.Table:     task.ValidColumn,
-			workflow.Table: workflow.ValidColumn,
+			aip.Table:             aip.ValidColumn,
+			deletionrequest.Table: deletionrequest.ValidColumn,
+			location.Table:        location.ValidColumn,
+			task.Table:            task.ValidColumn,
+			workflow.Table:        workflow.ValidColumn,
 		})
 	})
 	return columnCheck(table, column)

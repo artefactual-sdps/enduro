@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/artefactual-sdps/enduro/internal/storage/enums"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/aip"
+	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/deletionrequest"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/location"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/predicate"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/workflow"
@@ -127,6 +128,21 @@ func (au *AIPUpdate) AddWorkflows(w ...*Workflow) *AIPUpdate {
 	return au.AddWorkflowIDs(ids...)
 }
 
+// AddDeletionRequestIDs adds the "deletion_requests" edge to the DeletionRequest entity by IDs.
+func (au *AIPUpdate) AddDeletionRequestIDs(ids ...int) *AIPUpdate {
+	au.mutation.AddDeletionRequestIDs(ids...)
+	return au
+}
+
+// AddDeletionRequests adds the "deletion_requests" edges to the DeletionRequest entity.
+func (au *AIPUpdate) AddDeletionRequests(d ...*DeletionRequest) *AIPUpdate {
+	ids := make([]int, len(d))
+	for i := range d {
+		ids[i] = d[i].ID
+	}
+	return au.AddDeletionRequestIDs(ids...)
+}
+
 // Mutation returns the AIPMutation object of the builder.
 func (au *AIPUpdate) Mutation() *AIPMutation {
 	return au.mutation
@@ -157,6 +173,27 @@ func (au *AIPUpdate) RemoveWorkflows(w ...*Workflow) *AIPUpdate {
 		ids[i] = w[i].ID
 	}
 	return au.RemoveWorkflowIDs(ids...)
+}
+
+// ClearDeletionRequests clears all "deletion_requests" edges to the DeletionRequest entity.
+func (au *AIPUpdate) ClearDeletionRequests() *AIPUpdate {
+	au.mutation.ClearDeletionRequests()
+	return au
+}
+
+// RemoveDeletionRequestIDs removes the "deletion_requests" edge to DeletionRequest entities by IDs.
+func (au *AIPUpdate) RemoveDeletionRequestIDs(ids ...int) *AIPUpdate {
+	au.mutation.RemoveDeletionRequestIDs(ids...)
+	return au
+}
+
+// RemoveDeletionRequests removes "deletion_requests" edges to DeletionRequest entities.
+func (au *AIPUpdate) RemoveDeletionRequests(d ...*DeletionRequest) *AIPUpdate {
+	ids := make([]int, len(d))
+	for i := range d {
+		ids[i] = d[i].ID
+	}
+	return au.RemoveDeletionRequestIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -294,6 +331,51 @@ func (au *AIPUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if au.mutation.DeletionRequestsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   aip.DeletionRequestsTable,
+			Columns: []string{aip.DeletionRequestsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(deletionrequest.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := au.mutation.RemovedDeletionRequestsIDs(); len(nodes) > 0 && !au.mutation.DeletionRequestsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   aip.DeletionRequestsTable,
+			Columns: []string{aip.DeletionRequestsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(deletionrequest.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := au.mutation.DeletionRequestsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   aip.DeletionRequestsTable,
+			Columns: []string{aip.DeletionRequestsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(deletionrequest.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, au.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{aip.Label}
@@ -410,6 +492,21 @@ func (auo *AIPUpdateOne) AddWorkflows(w ...*Workflow) *AIPUpdateOne {
 	return auo.AddWorkflowIDs(ids...)
 }
 
+// AddDeletionRequestIDs adds the "deletion_requests" edge to the DeletionRequest entity by IDs.
+func (auo *AIPUpdateOne) AddDeletionRequestIDs(ids ...int) *AIPUpdateOne {
+	auo.mutation.AddDeletionRequestIDs(ids...)
+	return auo
+}
+
+// AddDeletionRequests adds the "deletion_requests" edges to the DeletionRequest entity.
+func (auo *AIPUpdateOne) AddDeletionRequests(d ...*DeletionRequest) *AIPUpdateOne {
+	ids := make([]int, len(d))
+	for i := range d {
+		ids[i] = d[i].ID
+	}
+	return auo.AddDeletionRequestIDs(ids...)
+}
+
 // Mutation returns the AIPMutation object of the builder.
 func (auo *AIPUpdateOne) Mutation() *AIPMutation {
 	return auo.mutation
@@ -440,6 +537,27 @@ func (auo *AIPUpdateOne) RemoveWorkflows(w ...*Workflow) *AIPUpdateOne {
 		ids[i] = w[i].ID
 	}
 	return auo.RemoveWorkflowIDs(ids...)
+}
+
+// ClearDeletionRequests clears all "deletion_requests" edges to the DeletionRequest entity.
+func (auo *AIPUpdateOne) ClearDeletionRequests() *AIPUpdateOne {
+	auo.mutation.ClearDeletionRequests()
+	return auo
+}
+
+// RemoveDeletionRequestIDs removes the "deletion_requests" edge to DeletionRequest entities by IDs.
+func (auo *AIPUpdateOne) RemoveDeletionRequestIDs(ids ...int) *AIPUpdateOne {
+	auo.mutation.RemoveDeletionRequestIDs(ids...)
+	return auo
+}
+
+// RemoveDeletionRequests removes "deletion_requests" edges to DeletionRequest entities.
+func (auo *AIPUpdateOne) RemoveDeletionRequests(d ...*DeletionRequest) *AIPUpdateOne {
+	ids := make([]int, len(d))
+	for i := range d {
+		ids[i] = d[i].ID
+	}
+	return auo.RemoveDeletionRequestIDs(ids...)
 }
 
 // Where appends a list predicates to the AIPUpdate builder.
@@ -600,6 +718,51 @@ func (auo *AIPUpdateOne) sqlSave(ctx context.Context) (_node *AIP, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(workflow.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if auo.mutation.DeletionRequestsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   aip.DeletionRequestsTable,
+			Columns: []string{aip.DeletionRequestsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(deletionrequest.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := auo.mutation.RemovedDeletionRequestsIDs(); len(nodes) > 0 && !auo.mutation.DeletionRequestsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   aip.DeletionRequestsTable,
+			Columns: []string{aip.DeletionRequestsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(deletionrequest.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := auo.mutation.DeletionRequestsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   aip.DeletionRequestsTable,
+			Columns: []string{aip.DeletionRequestsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(deletionrequest.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

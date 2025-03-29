@@ -454,6 +454,10 @@ func main() {
 		)
 
 		w.RegisterWorkflowWithOptions(
+			storage_workflows.NewStorageDeleteWorkflow(storagesvc).Execute,
+			temporalsdk_workflow.RegisterOptions{Name: storage.StorageDeleteWorkflowName},
+		)
+		w.RegisterWorkflowWithOptions(
 			storage_workflows.NewStorageUploadWorkflow().Execute,
 			temporalsdk_workflow.RegisterOptions{Name: storage.StorageUploadWorkflowName},
 		)
@@ -499,6 +503,8 @@ func main() {
 			storageHttpClient.RejectAip(),
 			storageHttpClient.ShowAip(),
 			storageHttpClient.ListAipWorkflows(),
+			storageHttpClient.RequestAipDeletion(),
+			storageHttpClient.ReviewAipDeletion(),
 			storageHttpClient.ListLocations(),
 			storageHttpClient.CreateLocation(),
 			storageHttpClient.ShowLocation(),

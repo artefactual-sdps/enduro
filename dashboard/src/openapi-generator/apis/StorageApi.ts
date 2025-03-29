@@ -27,6 +27,8 @@ import type {
   Location,
   LocationResponse,
   MoveStatusResult,
+  RequestAipDeletionRequestBody,
+  ReviewAipDeletionRequestBody,
   SubmitAIPResult,
   SubmitAipRequestBody,
 } from '../models/index';
@@ -55,6 +57,10 @@ import {
     LocationResponseToJSON,
     MoveStatusResultFromJSON,
     MoveStatusResultToJSON,
+    RequestAipDeletionRequestBodyFromJSON,
+    RequestAipDeletionRequestBodyToJSON,
+    ReviewAipDeletionRequestBodyFromJSON,
+    ReviewAipDeletionRequestBodyToJSON,
     SubmitAIPResultFromJSON,
     SubmitAIPResultToJSON,
     SubmitAipRequestBodyFromJSON,
@@ -101,6 +107,16 @@ export interface StorageMoveAipStatusRequest {
 
 export interface StorageRejectAipRequest {
     uuid: string;
+}
+
+export interface StorageRequestAipDeletionRequest {
+    uuid: string;
+    requestAipDeletionRequestBody: RequestAipDeletionRequestBody;
+}
+
+export interface StorageReviewAipDeletionRequest {
+    uuid: string;
+    reviewAipDeletionRequestBody: ReviewAipDeletionRequestBody;
 }
 
 export interface StorageShowAipRequest {
@@ -197,7 +213,7 @@ export interface StorageApiInterface {
      * @param {string} [name] 
      * @param {Date} [earliestCreatedTime] 
      * @param {Date} [latestCreatedTime] 
-     * @param {'unspecified' | 'in_review' | 'rejected' | 'stored' | 'moving'} [status] 
+     * @param {'unspecified' | 'in_review' | 'rejected' | 'stored' | 'moving' | 'pending' | 'processing' | 'deleted'} [status] 
      * @param {number} [limit] Limit number of results to return
      * @param {number} [offset] Offset from the beginning of the found set
      * @param {*} [options] Override http request option.
@@ -291,6 +307,40 @@ export interface StorageApiInterface {
      * reject_aip storage
      */
     storageRejectAip(requestParameters: StorageRejectAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
+
+    /**
+     * Request an AIP deletion
+     * @summary request_aip_deletion storage
+     * @param {string} uuid Identifier of AIP
+     * @param {RequestAipDeletionRequestBody} requestAipDeletionRequestBody 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof StorageApiInterface
+     */
+    storageRequestAipDeletionRaw(requestParameters: StorageRequestAipDeletionRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>>;
+
+    /**
+     * Request an AIP deletion
+     * request_aip_deletion storage
+     */
+    storageRequestAipDeletion(requestParameters: StorageRequestAipDeletionRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
+
+    /**
+     * Review an AIP deletion request
+     * @summary review_aip_deletion storage
+     * @param {string} uuid Identifier of AIP
+     * @param {ReviewAipDeletionRequestBody} reviewAipDeletionRequestBody 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof StorageApiInterface
+     */
+    storageReviewAipDeletionRaw(requestParameters: StorageReviewAipDeletionRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>>;
+
+    /**
+     * Review an AIP deletion request
+     * review_aip_deletion storage
+     */
+    storageReviewAipDeletion(requestParameters: StorageReviewAipDeletionRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
 
     /**
      * Show AIP by AIPID
@@ -792,6 +842,98 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
     }
 
     /**
+     * Request an AIP deletion
+     * request_aip_deletion storage
+     */
+    async storageRequestAipDeletionRaw(requestParameters: StorageRequestAipDeletionRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
+            throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling storageRequestAipDeletion.');
+        }
+
+        if (requestParameters.requestAipDeletionRequestBody === null || requestParameters.requestAipDeletionRequestBody === undefined) {
+            throw new runtime.RequiredError('requestAipDeletionRequestBody','Required parameter requestParameters.requestAipDeletionRequestBody was null or undefined when calling storageRequestAipDeletion.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("jwt_header_Authorization", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+        const response = await this.request({
+            path: `/storage/aips/{uuid}/deletion-request`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: RequestAipDeletionRequestBodyToJSON(requestParameters.requestAipDeletionRequestBody),
+        }, initOverrides);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     * Request an AIP deletion
+     * request_aip_deletion storage
+     */
+    async storageRequestAipDeletion(requestParameters: StorageRequestAipDeletionRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.storageRequestAipDeletionRaw(requestParameters, initOverrides);
+    }
+
+    /**
+     * Review an AIP deletion request
+     * review_aip_deletion storage
+     */
+    async storageReviewAipDeletionRaw(requestParameters: StorageReviewAipDeletionRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
+            throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling storageReviewAipDeletion.');
+        }
+
+        if (requestParameters.reviewAipDeletionRequestBody === null || requestParameters.reviewAipDeletionRequestBody === undefined) {
+            throw new runtime.RequiredError('reviewAipDeletionRequestBody','Required parameter requestParameters.reviewAipDeletionRequestBody was null or undefined when calling storageReviewAipDeletion.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("jwt_header_Authorization", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+        const response = await this.request({
+            path: `/storage/aips/{uuid}/deletion-review`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: ReviewAipDeletionRequestBodyToJSON(requestParameters.reviewAipDeletionRequestBody),
+        }, initOverrides);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     * Review an AIP deletion request
+     * review_aip_deletion storage
+     */
+    async storageReviewAipDeletion(requestParameters: StorageReviewAipDeletionRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.storageReviewAipDeletionRaw(requestParameters, initOverrides);
+    }
+
+    /**
      * Show AIP by AIPID
      * show_aip storage
      */
@@ -967,6 +1109,9 @@ export const StorageListAipsStatusEnum = {
     InReview: 'in_review',
     Rejected: 'rejected',
     Stored: 'stored',
-    Moving: 'moving'
+    Moving: 'moving',
+    Pending: 'pending',
+    Processing: 'processing',
+    Deleted: 'deleted'
 } as const;
 export type StorageListAipsStatusEnum = typeof StorageListAipsStatusEnum[keyof typeof StorageListAipsStatusEnum];

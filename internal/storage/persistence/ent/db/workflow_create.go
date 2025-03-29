@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/artefactual-sdps/enduro/internal/storage/enums"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/aip"
+	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/deletionrequest"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/task"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/workflow"
 	"github.com/google/uuid"
@@ -100,6 +101,25 @@ func (wc *WorkflowCreate) AddTasks(t ...*Task) *WorkflowCreate {
 		ids[i] = t[i].ID
 	}
 	return wc.AddTaskIDs(ids...)
+}
+
+// SetDeletionRequestID sets the "deletion_request" edge to the DeletionRequest entity by ID.
+func (wc *WorkflowCreate) SetDeletionRequestID(id int) *WorkflowCreate {
+	wc.mutation.SetDeletionRequestID(id)
+	return wc
+}
+
+// SetNillableDeletionRequestID sets the "deletion_request" edge to the DeletionRequest entity by ID if the given value is not nil.
+func (wc *WorkflowCreate) SetNillableDeletionRequestID(id *int) *WorkflowCreate {
+	if id != nil {
+		wc = wc.SetDeletionRequestID(*id)
+	}
+	return wc
+}
+
+// SetDeletionRequest sets the "deletion_request" edge to the DeletionRequest entity.
+func (wc *WorkflowCreate) SetDeletionRequest(d *DeletionRequest) *WorkflowCreate {
+	return wc.SetDeletionRequestID(d.ID)
 }
 
 // Mutation returns the WorkflowMutation object of the builder.
@@ -245,6 +265,22 @@ func (wc *WorkflowCreate) createSpec() (*Workflow, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(task.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := wc.mutation.DeletionRequestIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   workflow.DeletionRequestTable,
+			Columns: []string{workflow.DeletionRequestColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(deletionrequest.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

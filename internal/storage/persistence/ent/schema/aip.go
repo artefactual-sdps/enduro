@@ -55,6 +55,8 @@ func (AIP) Edges() []ent.Edge {
 			Unique(),
 		edge.To("workflows", Workflow.Type).
 			Annotations(entsql.OnDelete(entsql.Cascade)),
+		edge.To("deletion_requests", DeletionRequest.Type).
+			Annotations(entsql.OnDelete(entsql.Cascade)),
 	}
 }
 

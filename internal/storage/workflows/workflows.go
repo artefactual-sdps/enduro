@@ -23,6 +23,24 @@ func localActivityOptions(ctx temporalsdk_workflow.Context) temporalsdk_workflow
 	})
 }
 
+func updateAIPStatus(
+	ctx temporalsdk_workflow.Context,
+	storagesvc storage.Service,
+	aipID uuid.UUID,
+	s enums.AIPStatus,
+) error {
+	activityOpts := localActivityOptions(ctx)
+	return temporalsdk_workflow.ExecuteLocalActivity(
+		activityOpts,
+		storage.UpdateAIPStatusLocalActivity,
+		storagesvc,
+		&storage.UpdateAIPStatusLocalActivityParams{
+			AIPID:  aipID,
+			Status: s,
+		},
+	).Get(activityOpts, nil)
+}
+
 func createWorkflow(
 	ctx temporalsdk_workflow.Context,
 	storagesvc storage.Service,
@@ -48,6 +66,24 @@ func createWorkflow(
 	return workflowDBID, nil
 }
 
+func updateWorkflowStatus(
+	ctx temporalsdk_workflow.Context,
+	storagesvc storage.Service,
+	dbID int,
+	s enums.WorkflowStatus,
+) error {
+	activityOpts := localActivityOptions(ctx)
+	return temporalsdk_workflow.ExecuteLocalActivity(
+		activityOpts,
+		storage.UpdateWorkflowStatusLocalActivity,
+		storagesvc,
+		&storage.UpdateWorkflowStatusLocalActivityParams{
+			DBID:   dbID,
+			Status: s,
+		},
+	).Get(activityOpts, nil)
+}
+
 func completeWorkflow(
 	ctx temporalsdk_workflow.Context,
 	storagesvc storage.Service,
@@ -69,7 +105,8 @@ func completeWorkflow(
 func createTask(
 	ctx temporalsdk_workflow.Context,
 	storagesvc storage.Service,
-	dbID int,
+	workflowDBID int,
+	status enums.TaskStatus,
 	name, note string,
 ) (int, error) {
 	var taskDBID int
@@ -79,7 +116,8 @@ func createTask(
 		storage.CreateTaskLocalActivity,
 		storagesvc,
 		&storage.CreateTaskLocalActivityParams{
-			WorkflowDBID: dbID,
+			WorkflowDBID: workflowDBID,
+			Status:       status,
 			Name:         name,
 			Note:         note,
 		},

@@ -19,6 +19,8 @@ func TestUserClaimsFromContext(t *testing.T) {
 		claims := auth.Claims{
 			Email:         "info@artefactual.com",
 			EmailVerified: true,
+			ISS:           "http://keycloak:7470/realms/artefactual",
+			Sub:           "61a16d59-5029-4d85-8aef-290d1951b8d3",
 			Attributes:    []string{"*"},
 		}
 

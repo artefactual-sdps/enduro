@@ -45,6 +45,18 @@ type MoveAipRequestBody struct {
 	LocationID uuid.UUID `form:"location_id" json:"location_id" xml:"location_id"`
 }
 
+// RequestAipDeletionRequestBody is the type of the "storage" service
+// "request_aip_deletion" endpoint HTTP request body.
+type RequestAipDeletionRequestBody struct {
+	Reason string `form:"reason" json:"reason" xml:"reason"`
+}
+
+// ReviewAipDeletionRequestBody is the type of the "storage" service
+// "review_aip_deletion" endpoint HTTP request body.
+type ReviewAipDeletionRequestBody struct {
+	Approved bool `form:"approved" json:"approved" xml:"approved"`
+}
+
 // CreateLocationRequestBody is the type of the "storage" service
 // "create_location" endpoint HTTP request body.
 type CreateLocationRequestBody struct {
@@ -428,6 +440,24 @@ type ListAipWorkflowsNotFoundResponseBody struct {
 	UUID *uuid.UUID `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
 }
 
+// RequestAipDeletionNotFoundResponseBody is the type of the "storage" service
+// "request_aip_deletion" endpoint HTTP response body for the "not_found" error.
+type RequestAipDeletionNotFoundResponseBody struct {
+	// Message of error
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Identifier of missing AIP
+	UUID *uuid.UUID `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
+}
+
+// ReviewAipDeletionNotFoundResponseBody is the type of the "storage" service
+// "review_aip_deletion" endpoint HTTP response body for the "not_found" error.
+type ReviewAipDeletionNotFoundResponseBody struct {
+	// Message of error
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Identifier of missing AIP
+	UUID *uuid.UUID `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
+}
+
 // CreateLocationNotValidResponseBody is the type of the "storage" service
 // "create_location" endpoint HTTP response body for the "not_valid" error.
 type CreateLocationNotValidResponseBody struct {
@@ -606,6 +636,24 @@ func NewSubmitAipRequestBody(p *storage.SubmitAipPayload) *SubmitAipRequestBody 
 func NewMoveAipRequestBody(p *storage.MoveAipPayload) *MoveAipRequestBody {
 	body := &MoveAipRequestBody{
 		LocationID: p.LocationID,
+	}
+	return body
+}
+
+// NewRequestAipDeletionRequestBody builds the HTTP request body from the
+// payload of the "request_aip_deletion" endpoint of the "storage" service.
+func NewRequestAipDeletionRequestBody(p *storage.RequestAipDeletionPayload) *RequestAipDeletionRequestBody {
+	body := &RequestAipDeletionRequestBody{
+		Reason: p.Reason,
+	}
+	return body
+}
+
+// NewReviewAipDeletionRequestBody builds the HTTP request body from the
+// payload of the "review_aip_deletion" endpoint of the "storage" service.
+func NewReviewAipDeletionRequestBody(p *storage.ReviewAipDeletionPayload) *ReviewAipDeletionRequestBody {
+	body := &ReviewAipDeletionRequestBody{
+		Approved: p.Approved,
 	}
 	return body
 }
@@ -1127,6 +1175,60 @@ func NewListAipWorkflowsForbidden(body string) storage.Forbidden {
 // NewListAipWorkflowsUnauthorized builds a storage service list_aip_workflows
 // endpoint unauthorized error.
 func NewListAipWorkflowsUnauthorized(body string) storage.Unauthorized {
+	v := storage.Unauthorized(body)
+
+	return v
+}
+
+// NewRequestAipDeletionNotFound builds a storage service request_aip_deletion
+// endpoint not_found error.
+func NewRequestAipDeletionNotFound(body *RequestAipDeletionNotFoundResponseBody) *storage.AIPNotFound {
+	v := &storage.AIPNotFound{
+		Message: *body.Message,
+		UUID:    *body.UUID,
+	}
+
+	return v
+}
+
+// NewRequestAipDeletionForbidden builds a storage service request_aip_deletion
+// endpoint forbidden error.
+func NewRequestAipDeletionForbidden(body string) storage.Forbidden {
+	v := storage.Forbidden(body)
+
+	return v
+}
+
+// NewRequestAipDeletionUnauthorized builds a storage service
+// request_aip_deletion endpoint unauthorized error.
+func NewRequestAipDeletionUnauthorized(body string) storage.Unauthorized {
+	v := storage.Unauthorized(body)
+
+	return v
+}
+
+// NewReviewAipDeletionNotFound builds a storage service review_aip_deletion
+// endpoint not_found error.
+func NewReviewAipDeletionNotFound(body *ReviewAipDeletionNotFoundResponseBody) *storage.AIPNotFound {
+	v := &storage.AIPNotFound{
+		Message: *body.Message,
+		UUID:    *body.UUID,
+	}
+
+	return v
+}
+
+// NewReviewAipDeletionForbidden builds a storage service review_aip_deletion
+// endpoint forbidden error.
+func NewReviewAipDeletionForbidden(body string) storage.Forbidden {
+	v := storage.Forbidden(body)
+
+	return v
+}
+
+// NewReviewAipDeletionUnauthorized builds a storage service
+// review_aip_deletion endpoint unauthorized error.
+func NewReviewAipDeletionUnauthorized(body string) storage.Unauthorized {
 	v := storage.Unauthorized(body)
 
 	return v
@@ -1702,6 +1804,30 @@ func ValidateListAipWorkflowsNotFoundResponseBody(body *ListAipWorkflowsNotFound
 	return
 }
 
+// ValidateRequestAipDeletionNotFoundResponseBody runs the validations defined
+// on request_aip_deletion_not_found_response_body
+func ValidateRequestAipDeletionNotFoundResponseBody(body *RequestAipDeletionNotFoundResponseBody) (err error) {
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.UUID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("uuid", "body"))
+	}
+	return
+}
+
+// ValidateReviewAipDeletionNotFoundResponseBody runs the validations defined
+// on review_aip_deletion_not_found_response_body
+func ValidateReviewAipDeletionNotFoundResponseBody(body *ReviewAipDeletionNotFoundResponseBody) (err error) {
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.UUID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("uuid", "body"))
+	}
+	return
+}
+
 // ValidateCreateLocationNotValidResponseBody runs the validations defined on
 // create_location_not_valid_response_body
 func ValidateCreateLocationNotValidResponseBody(body *CreateLocationNotValidResponseBody) (err error) {
@@ -1805,8 +1931,8 @@ func ValidateAIPResponseBody(body *AIPResponseBody) (err error) {
 		err = goa.MergeErrors(err, goa.MissingFieldError("created_at", "body"))
 	}
 	if body.Status != nil {
-		if !(*body.Status == "unspecified" || *body.Status == "in_review" || *body.Status == "rejected" || *body.Status == "stored" || *body.Status == "moving") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []any{"unspecified", "in_review", "rejected", "stored", "moving"}))
+		if !(*body.Status == "unspecified" || *body.Status == "in_review" || *body.Status == "rejected" || *body.Status == "stored" || *body.Status == "moving" || *body.Status == "pending" || *body.Status == "processing" || *body.Status == "deleted") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []any{"unspecified", "in_review", "rejected", "stored", "moving", "pending", "processing", "deleted"}))
 		}
 	}
 	if body.CreatedAt != nil {
@@ -1864,8 +1990,8 @@ func ValidateAIPWorkflowResponseBody(body *AIPWorkflowResponseBody) (err error) 
 		}
 	}
 	if body.Status != nil {
-		if !(*body.Status == "unspecified" || *body.Status == "in progress" || *body.Status == "done" || *body.Status == "error" || *body.Status == "queued" || *body.Status == "pending") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []any{"unspecified", "in progress", "done", "error", "queued", "pending"}))
+		if !(*body.Status == "unspecified" || *body.Status == "in progress" || *body.Status == "done" || *body.Status == "error" || *body.Status == "queued" || *body.Status == "pending" || *body.Status == "canceled") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []any{"unspecified", "in progress", "done", "error", "queued", "pending", "canceled"}))
 		}
 	}
 	if body.StartedAt != nil {
@@ -1985,8 +2111,8 @@ func ValidateAIPResponse(body *AIPResponse) (err error) {
 		err = goa.MergeErrors(err, goa.MissingFieldError("created_at", "body"))
 	}
 	if body.Status != nil {
-		if !(*body.Status == "unspecified" || *body.Status == "in_review" || *body.Status == "rejected" || *body.Status == "stored" || *body.Status == "moving") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []any{"unspecified", "in_review", "rejected", "stored", "moving"}))
+		if !(*body.Status == "unspecified" || *body.Status == "in_review" || *body.Status == "rejected" || *body.Status == "stored" || *body.Status == "moving" || *body.Status == "pending" || *body.Status == "processing" || *body.Status == "deleted") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []any{"unspecified", "in_review", "rejected", "stored", "moving", "pending", "processing", "deleted"}))
 		}
 	}
 	if body.CreatedAt != nil {

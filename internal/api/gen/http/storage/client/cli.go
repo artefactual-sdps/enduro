@@ -51,8 +51,8 @@ func BuildListAipsPayload(storageListAipsName string, storageListAipsEarliestCre
 	{
 		if storageListAipsStatus != "" {
 			status = &storageListAipsStatus
-			if !(*status == "unspecified" || *status == "in_review" || *status == "rejected" || *status == "stored" || *status == "moving") {
-				err = goa.MergeErrors(err, goa.InvalidEnumValueError("status", *status, []any{"unspecified", "in_review", "rejected", "stored", "moving"}))
+			if !(*status == "unspecified" || *status == "in_review" || *status == "rejected" || *status == "stored" || *status == "moving" || *status == "pending" || *status == "processing" || *status == "deleted") {
+				err = goa.MergeErrors(err, goa.InvalidEnumValueError("status", *status, []any{"unspecified", "in_review", "rejected", "stored", "moving", "pending", "processing", "deleted"}))
 			}
 			if err != nil {
 				return nil, err
@@ -113,8 +113,8 @@ func BuildCreateAipPayload(storageCreateAipBody string, storageCreateAipToken st
 		}
 		err = goa.MergeErrors(err, goa.ValidateFormat("body.uuid", body.UUID, goa.FormatUUID))
 		err = goa.MergeErrors(err, goa.ValidateFormat("body.object_key", body.ObjectKey, goa.FormatUUID))
-		if !(body.Status == "unspecified" || body.Status == "in_review" || body.Status == "rejected" || body.Status == "stored" || body.Status == "moving") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", body.Status, []any{"unspecified", "in_review", "rejected", "stored", "moving"}))
+		if !(body.Status == "unspecified" || body.Status == "in_review" || body.Status == "rejected" || body.Status == "stored" || body.Status == "moving" || body.Status == "pending" || body.Status == "processing" || body.Status == "deleted") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", body.Status, []any{"unspecified", "in_review", "rejected", "stored", "moving", "pending", "processing", "deleted"}))
 		}
 		if err != nil {
 			return nil, err
@@ -356,6 +356,74 @@ func BuildListAipWorkflowsPayload(storageListAipWorkflowsUUID string, storageLis
 		}
 	}
 	v := &storage.ListAipWorkflowsPayload{}
+	v.UUID = uuid
+	v.Token = token
+
+	return v, nil
+}
+
+// BuildRequestAipDeletionPayload builds the payload for the storage
+// request_aip_deletion endpoint from CLI flags.
+func BuildRequestAipDeletionPayload(storageRequestAipDeletionBody string, storageRequestAipDeletionUUID string, storageRequestAipDeletionToken string) (*storage.RequestAipDeletionPayload, error) {
+	var err error
+	var body RequestAipDeletionRequestBody
+	{
+		err = json.Unmarshal([]byte(storageRequestAipDeletionBody), &body)
+		if err != nil {
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"reason\": \"abc123\"\n   }'")
+		}
+	}
+	var uuid string
+	{
+		uuid = storageRequestAipDeletionUUID
+		err = goa.MergeErrors(err, goa.ValidateFormat("uuid", uuid, goa.FormatUUID))
+		if err != nil {
+			return nil, err
+		}
+	}
+	var token *string
+	{
+		if storageRequestAipDeletionToken != "" {
+			token = &storageRequestAipDeletionToken
+		}
+	}
+	v := &storage.RequestAipDeletionPayload{
+		Reason: body.Reason,
+	}
+	v.UUID = uuid
+	v.Token = token
+
+	return v, nil
+}
+
+// BuildReviewAipDeletionPayload builds the payload for the storage
+// review_aip_deletion endpoint from CLI flags.
+func BuildReviewAipDeletionPayload(storageReviewAipDeletionBody string, storageReviewAipDeletionUUID string, storageReviewAipDeletionToken string) (*storage.ReviewAipDeletionPayload, error) {
+	var err error
+	var body ReviewAipDeletionRequestBody
+	{
+		err = json.Unmarshal([]byte(storageReviewAipDeletionBody), &body)
+		if err != nil {
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"approved\": false\n   }'")
+		}
+	}
+	var uuid string
+	{
+		uuid = storageReviewAipDeletionUUID
+		err = goa.MergeErrors(err, goa.ValidateFormat("uuid", uuid, goa.FormatUUID))
+		if err != nil {
+			return nil, err
+		}
+	}
+	var token *string
+	{
+		if storageReviewAipDeletionToken != "" {
+			token = &storageReviewAipDeletionToken
+		}
+	}
+	v := &storage.ReviewAipDeletionPayload{
+		Approved: body.Approved,
+	}
 	v.UUID = uuid
 	v.Token = token
 
