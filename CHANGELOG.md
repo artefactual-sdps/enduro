@@ -8,6 +8,18 @@ requests.
 
 ## [Unreleased]
 
+## [0.12.0] - 2025-04-02
+
+### Changed
+
+- Rename SIP preservation action/task to workflow/task ([#1117])
+- Use ISO 8601 format for datepicker dates ([#1156])
+
+### Added
+
+- Add workflows and tasks to storage service ([#1076])
+- Add AIP deletion workflow ([#1076])
+
 ## [0.11.0] - 2025-03-13
 
 ### Changed
@@ -112,7 +124,8 @@ requests.
 
 Initial release.
 
-[unreleased]: https://github.com/artefactual-sdps/enduro/compare/v0.11.0...HEAD
+[unreleased]: https://github.com/artefactual-sdps/enduro/compare/v0.12.0...HEAD
+[0.12.0]: https://github.com/artefactual-sdps/enduro/compare/v0.11.0...v0.12.0
 [0.11.0]: https://github.com/artefactual-sdps/enduro/compare/v0.10.0...v0.11.0
 [0.10.0]: https://github.com/artefactual-sdps/enduro/compare/v0.9.0...v0.10.0
 [0.9.0]: https://github.com/artefactual-sdps/enduro/compare/v0.8.0...v0.9.0
@@ -124,6 +137,7 @@ Initial release.
 [0.3.0]: https://github.com/artefactual-sdps/enduro/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/artefactual-sdps/enduro/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/artefactual-sdps/enduro/releases/tag/v0.1.0
+[#1156]: https://github.com/artefactual-sdps/enduro/issues/1156
 [#1141]: https://github.com/artefactual-sdps/enduro/issues/1141
 [#1136]: https://github.com/artefactual-sdps/enduro/issues/1136
 [#1130]: https://github.com/artefactual-sdps/enduro/issues/1130
@@ -132,6 +146,7 @@ Initial release.
 [#1101]: https://github.com/artefactual-sdps/enduro/issues/1101
 [#1079]: https://github.com/artefactual-sdps/enduro/issues/1079
 [#1077]: https://github.com/artefactual-sdps/enduro/issues/1077
+[#1076]: https://github.com/artefactual-sdps/enduro/issues/1076
 [#1066]: https://github.com/artefactual-sdps/enduro/issues/1066
 [#1062]: https://github.com/artefactual-sdps/enduro/issues/1062
 [#1039]: https://github.com/artefactual-sdps/enduro/issues/1039
