@@ -39,6 +39,10 @@ type Service interface {
 	ShowAip(context.Context, *ShowAipPayload) (res *AIP, err error)
 	// List all workflows for an AIP
 	ListAipWorkflows(context.Context, *ListAipWorkflowsPayload) (res *AIPWorkflows, err error)
+	// Request an AIP deletion
+	RequestAipDeletion(context.Context, *RequestAipDeletionPayload) (err error)
+	// Review an AIP deletion request
+	ReviewAipDeletion(context.Context, *ReviewAipDeletionPayload) (err error)
 	// List locations
 	ListLocations(context.Context, *ListLocationsPayload) (res LocationCollection, err error)
 	// Create a storage location
@@ -69,7 +73,7 @@ const ServiceName = "storage"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [14]string{"list_aips", "create_aip", "submit_aip", "update_aip", "download_aip", "move_aip", "move_aip_status", "reject_aip", "show_aip", "list_aip_workflows", "list_locations", "create_location", "show_location", "list_location_aips"}
+var MethodNames = [16]string{"list_aips", "create_aip", "submit_aip", "update_aip", "download_aip", "move_aip", "move_aip_status", "reject_aip", "show_aip", "list_aip_workflows", "request_aip_deletion", "review_aip_deletion", "list_locations", "create_location", "show_location", "list_location_aips"}
 
 // AIP is the result type of the storage service create_aip method.
 type AIP struct {
@@ -289,6 +293,24 @@ type RejectAipPayload struct {
 	// Identifier of AIP
 	UUID  string
 	Token *string
+}
+
+// RequestAipDeletionPayload is the payload type of the storage service
+// request_aip_deletion method.
+type RequestAipDeletionPayload struct {
+	// Identifier of AIP
+	UUID   string
+	Token  *string
+	Reason string
+}
+
+// ReviewAipDeletionPayload is the payload type of the storage service
+// review_aip_deletion method.
+type ReviewAipDeletionPayload struct {
+	// Identifier of AIP
+	UUID     string
+	Token    *string
+	Approved bool
 }
 
 type S3Config struct {

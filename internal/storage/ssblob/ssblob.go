@@ -5,12 +5,10 @@ package ssblob
 import (
 	"context"
 	"errors"
-	"fmt"
 	"io"
 	"net/http"
 	"net/url"
 
-	"github.com/hashicorp/go-cleanhttp"
 	"gocloud.dev/blob"
 	"gocloud.dev/blob/driver"
 	"gocloud.dev/gcerrors"
@@ -43,15 +41,9 @@ func openBucket(opts *Options) (driver.Bucket, error) {
 	if err != nil {
 		return nil, err
 	}
-	client := &http.Client{
-		Transport: &transport{
-			key: fmt.Sprintf("%s:%s", opts.Username, opts.Key),
-			t:   cleanhttp.DefaultPooledTransport(),
-		},
-	}
 	return &bucket{
 		baseURL: u,
-		client:  client,
+		client:  NewClient(opts.Username, opts.Key),
 	}, nil
 }
 

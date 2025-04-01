@@ -80,7 +80,8 @@ export const EnduroStorageAipWorkflowStatusEnum = {
     Done: 'done',
     Error: 'error',
     Queued: 'queued',
-    Pending: 'pending'
+    Pending: 'pending',
+    Canceled: 'canceled'
 } as const;
 export type EnduroStorageAipWorkflowStatusEnum = typeof EnduroStorageAipWorkflowStatusEnum[keyof typeof EnduroStorageAipWorkflowStatusEnum];
 

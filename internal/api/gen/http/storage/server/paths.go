@@ -62,6 +62,16 @@ func ListAipWorkflowsStoragePath(uuid string) string {
 	return fmt.Sprintf("/storage/aips/%v/workflows", uuid)
 }
 
+// RequestAipDeletionStoragePath returns the URL path to the storage service request_aip_deletion HTTP endpoint.
+func RequestAipDeletionStoragePath(uuid string) string {
+	return fmt.Sprintf("/storage/aips/%v/deletion-request", uuid)
+}
+
+// ReviewAipDeletionStoragePath returns the URL path to the storage service review_aip_deletion HTTP endpoint.
+func ReviewAipDeletionStoragePath(uuid string) string {
+	return fmt.Sprintf("/storage/aips/%v/deletion-review", uuid)
+}
+
 // ListLocationsStoragePath returns the URL path to the storage service list_locations HTTP endpoint.
 func ListLocationsStoragePath() string {
 	return "/storage/locations"

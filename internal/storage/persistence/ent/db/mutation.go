@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/artefactual-sdps/enduro/internal/storage/enums"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/aip"
+	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/deletionrequest"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/location"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/predicate"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/task"
@@ -30,32 +31,36 @@ const (
 	OpUpdateOne = ent.OpUpdateOne
 
 	// Node types.
-	TypeAIP      = "AIP"
-	TypeLocation = "Location"
-	TypeTask     = "Task"
-	TypeWorkflow = "Workflow"
+	TypeAIP             = "AIP"
+	TypeDeletionRequest = "DeletionRequest"
+	TypeLocation        = "Location"
+	TypeTask            = "Task"
+	TypeWorkflow        = "Workflow"
 )
 
 // AIPMutation represents an operation that mutates the AIP nodes in the graph.
 type AIPMutation struct {
 	config
-	op               Op
-	typ              string
-	id               *int
-	name             *string
-	aip_id           *uuid.UUID
-	status           *enums.AIPStatus
-	object_key       *uuid.UUID
-	created_at       *time.Time
-	clearedFields    map[string]struct{}
-	location         *int
-	clearedlocation  bool
-	workflows        map[int]struct{}
-	removedworkflows map[int]struct{}
-	clearedworkflows bool
-	done             bool
-	oldValue         func(context.Context) (*AIP, error)
-	predicates       []predicate.AIP
+	op                       Op
+	typ                      string
+	id                       *int
+	name                     *string
+	aip_id                   *uuid.UUID
+	status                   *enums.AIPStatus
+	object_key               *uuid.UUID
+	created_at               *time.Time
+	clearedFields            map[string]struct{}
+	location                 *int
+	clearedlocation          bool
+	workflows                map[int]struct{}
+	removedworkflows         map[int]struct{}
+	clearedworkflows         bool
+	deletion_requests        map[int]struct{}
+	removeddeletion_requests map[int]struct{}
+	cleareddeletion_requests bool
+	done                     bool
+	oldValue                 func(context.Context) (*AIP, error)
+	predicates               []predicate.AIP
 }
 
 var _ ent.Mutation = (*AIPMutation)(nil)
@@ -466,6 +471,60 @@ func (m *AIPMutation) ResetWorkflows() {
 	m.removedworkflows = nil
 }
 
+// AddDeletionRequestIDs adds the "deletion_requests" edge to the DeletionRequest entity by ids.
+func (m *AIPMutation) AddDeletionRequestIDs(ids ...int) {
+	if m.deletion_requests == nil {
+		m.deletion_requests = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.deletion_requests[ids[i]] = struct{}{}
+	}
+}
+
+// ClearDeletionRequests clears the "deletion_requests" edge to the DeletionRequest entity.
+func (m *AIPMutation) ClearDeletionRequests() {
+	m.cleareddeletion_requests = true
+}
+
+// DeletionRequestsCleared reports if the "deletion_requests" edge to the DeletionRequest entity was cleared.
+func (m *AIPMutation) DeletionRequestsCleared() bool {
+	return m.cleareddeletion_requests
+}
+
+// RemoveDeletionRequestIDs removes the "deletion_requests" edge to the DeletionRequest entity by IDs.
+func (m *AIPMutation) RemoveDeletionRequestIDs(ids ...int) {
+	if m.removeddeletion_requests == nil {
+		m.removeddeletion_requests = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.deletion_requests, ids[i])
+		m.removeddeletion_requests[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedDeletionRequests returns the removed IDs of the "deletion_requests" edge to the DeletionRequest entity.
+func (m *AIPMutation) RemovedDeletionRequestsIDs() (ids []int) {
+	for id := range m.removeddeletion_requests {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// DeletionRequestsIDs returns the "deletion_requests" edge IDs in the mutation.
+func (m *AIPMutation) DeletionRequestsIDs() (ids []int) {
+	for id := range m.deletion_requests {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetDeletionRequests resets all changes to the "deletion_requests" edge.
+func (m *AIPMutation) ResetDeletionRequests() {
+	m.deletion_requests = nil
+	m.cleareddeletion_requests = false
+	m.removeddeletion_requests = nil
+}
+
 // Where appends a list predicates to the AIPMutation builder.
 func (m *AIPMutation) Where(ps ...predicate.AIP) {
 	m.predicates = append(m.predicates, ps...)
@@ -696,12 +755,15 @@ func (m *AIPMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *AIPMutation) AddedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
 	if m.location != nil {
 		edges = append(edges, aip.EdgeLocation)
 	}
 	if m.workflows != nil {
 		edges = append(edges, aip.EdgeWorkflows)
+	}
+	if m.deletion_requests != nil {
+		edges = append(edges, aip.EdgeDeletionRequests)
 	}
 	return edges
 }
@@ -720,15 +782,24 @@ func (m *AIPMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case aip.EdgeDeletionRequests:
+		ids := make([]ent.Value, 0, len(m.deletion_requests))
+		for id := range m.deletion_requests {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *AIPMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
 	if m.removedworkflows != nil {
 		edges = append(edges, aip.EdgeWorkflows)
+	}
+	if m.removeddeletion_requests != nil {
+		edges = append(edges, aip.EdgeDeletionRequests)
 	}
 	return edges
 }
@@ -743,18 +814,27 @@ func (m *AIPMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case aip.EdgeDeletionRequests:
+		ids := make([]ent.Value, 0, len(m.removeddeletion_requests))
+		for id := range m.removeddeletion_requests {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *AIPMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
 	if m.clearedlocation {
 		edges = append(edges, aip.EdgeLocation)
 	}
 	if m.clearedworkflows {
 		edges = append(edges, aip.EdgeWorkflows)
+	}
+	if m.cleareddeletion_requests {
+		edges = append(edges, aip.EdgeDeletionRequests)
 	}
 	return edges
 }
@@ -767,6 +847,8 @@ func (m *AIPMutation) EdgeCleared(name string) bool {
 		return m.clearedlocation
 	case aip.EdgeWorkflows:
 		return m.clearedworkflows
+	case aip.EdgeDeletionRequests:
+		return m.cleareddeletion_requests
 	}
 	return false
 }
@@ -792,8 +874,1186 @@ func (m *AIPMutation) ResetEdge(name string) error {
 	case aip.EdgeWorkflows:
 		m.ResetWorkflows()
 		return nil
+	case aip.EdgeDeletionRequests:
+		m.ResetDeletionRequests()
+		return nil
 	}
 	return fmt.Errorf("unknown AIP edge %s", name)
+}
+
+// DeletionRequestMutation represents an operation that mutates the DeletionRequest nodes in the graph.
+type DeletionRequestMutation struct {
+	config
+	op              Op
+	typ             string
+	id              *int
+	uuid            *uuid.UUID
+	requester       *string
+	requester_iss   *string
+	requester_sub   *string
+	reviewer        *string
+	reviewer_iss    *string
+	reviewer_sub    *string
+	reason          *string
+	status          *enums.DeletionRequestStatus
+	requested_at    *time.Time
+	reviewed_at     *time.Time
+	clearedFields   map[string]struct{}
+	aip             *int
+	clearedaip      bool
+	workflow        *int
+	clearedworkflow bool
+	done            bool
+	oldValue        func(context.Context) (*DeletionRequest, error)
+	predicates      []predicate.DeletionRequest
+}
+
+var _ ent.Mutation = (*DeletionRequestMutation)(nil)
+
+// deletionrequestOption allows management of the mutation configuration using functional options.
+type deletionrequestOption func(*DeletionRequestMutation)
+
+// newDeletionRequestMutation creates new mutation for the DeletionRequest entity.
+func newDeletionRequestMutation(c config, op Op, opts ...deletionrequestOption) *DeletionRequestMutation {
+	m := &DeletionRequestMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeDeletionRequest,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withDeletionRequestID sets the ID field of the mutation.
+func withDeletionRequestID(id int) deletionrequestOption {
+	return func(m *DeletionRequestMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *DeletionRequest
+		)
+		m.oldValue = func(ctx context.Context) (*DeletionRequest, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().DeletionRequest.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withDeletionRequest sets the old DeletionRequest of the mutation.
+func withDeletionRequest(node *DeletionRequest) deletionrequestOption {
+	return func(m *DeletionRequestMutation) {
+		m.oldValue = func(context.Context) (*DeletionRequest, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m DeletionRequestMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m DeletionRequestMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("db: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *DeletionRequestMutation) ID() (id int, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *DeletionRequestMutation) IDs(ctx context.Context) ([]int, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []int{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().DeletionRequest.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetUUID sets the "uuid" field.
+func (m *DeletionRequestMutation) SetUUID(u uuid.UUID) {
+	m.uuid = &u
+}
+
+// UUID returns the value of the "uuid" field in the mutation.
+func (m *DeletionRequestMutation) UUID() (r uuid.UUID, exists bool) {
+	v := m.uuid
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUUID returns the old "uuid" field's value of the DeletionRequest entity.
+// If the DeletionRequest object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DeletionRequestMutation) OldUUID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUUID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUUID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUUID: %w", err)
+	}
+	return oldValue.UUID, nil
+}
+
+// ResetUUID resets all changes to the "uuid" field.
+func (m *DeletionRequestMutation) ResetUUID() {
+	m.uuid = nil
+}
+
+// SetRequester sets the "requester" field.
+func (m *DeletionRequestMutation) SetRequester(s string) {
+	m.requester = &s
+}
+
+// Requester returns the value of the "requester" field in the mutation.
+func (m *DeletionRequestMutation) Requester() (r string, exists bool) {
+	v := m.requester
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRequester returns the old "requester" field's value of the DeletionRequest entity.
+// If the DeletionRequest object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DeletionRequestMutation) OldRequester(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRequester is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRequester requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRequester: %w", err)
+	}
+	return oldValue.Requester, nil
+}
+
+// ResetRequester resets all changes to the "requester" field.
+func (m *DeletionRequestMutation) ResetRequester() {
+	m.requester = nil
+}
+
+// SetRequesterIss sets the "requester_iss" field.
+func (m *DeletionRequestMutation) SetRequesterIss(s string) {
+	m.requester_iss = &s
+}
+
+// RequesterIss returns the value of the "requester_iss" field in the mutation.
+func (m *DeletionRequestMutation) RequesterIss() (r string, exists bool) {
+	v := m.requester_iss
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRequesterIss returns the old "requester_iss" field's value of the DeletionRequest entity.
+// If the DeletionRequest object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DeletionRequestMutation) OldRequesterIss(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRequesterIss is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRequesterIss requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRequesterIss: %w", err)
+	}
+	return oldValue.RequesterIss, nil
+}
+
+// ResetRequesterIss resets all changes to the "requester_iss" field.
+func (m *DeletionRequestMutation) ResetRequesterIss() {
+	m.requester_iss = nil
+}
+
+// SetRequesterSub sets the "requester_sub" field.
+func (m *DeletionRequestMutation) SetRequesterSub(s string) {
+	m.requester_sub = &s
+}
+
+// RequesterSub returns the value of the "requester_sub" field in the mutation.
+func (m *DeletionRequestMutation) RequesterSub() (r string, exists bool) {
+	v := m.requester_sub
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRequesterSub returns the old "requester_sub" field's value of the DeletionRequest entity.
+// If the DeletionRequest object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DeletionRequestMutation) OldRequesterSub(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRequesterSub is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRequesterSub requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRequesterSub: %w", err)
+	}
+	return oldValue.RequesterSub, nil
+}
+
+// ResetRequesterSub resets all changes to the "requester_sub" field.
+func (m *DeletionRequestMutation) ResetRequesterSub() {
+	m.requester_sub = nil
+}
+
+// SetReviewer sets the "reviewer" field.
+func (m *DeletionRequestMutation) SetReviewer(s string) {
+	m.reviewer = &s
+}
+
+// Reviewer returns the value of the "reviewer" field in the mutation.
+func (m *DeletionRequestMutation) Reviewer() (r string, exists bool) {
+	v := m.reviewer
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldReviewer returns the old "reviewer" field's value of the DeletionRequest entity.
+// If the DeletionRequest object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DeletionRequestMutation) OldReviewer(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldReviewer is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldReviewer requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldReviewer: %w", err)
+	}
+	return oldValue.Reviewer, nil
+}
+
+// ClearReviewer clears the value of the "reviewer" field.
+func (m *DeletionRequestMutation) ClearReviewer() {
+	m.reviewer = nil
+	m.clearedFields[deletionrequest.FieldReviewer] = struct{}{}
+}
+
+// ReviewerCleared returns if the "reviewer" field was cleared in this mutation.
+func (m *DeletionRequestMutation) ReviewerCleared() bool {
+	_, ok := m.clearedFields[deletionrequest.FieldReviewer]
+	return ok
+}
+
+// ResetReviewer resets all changes to the "reviewer" field.
+func (m *DeletionRequestMutation) ResetReviewer() {
+	m.reviewer = nil
+	delete(m.clearedFields, deletionrequest.FieldReviewer)
+}
+
+// SetReviewerIss sets the "reviewer_iss" field.
+func (m *DeletionRequestMutation) SetReviewerIss(s string) {
+	m.reviewer_iss = &s
+}
+
+// ReviewerIss returns the value of the "reviewer_iss" field in the mutation.
+func (m *DeletionRequestMutation) ReviewerIss() (r string, exists bool) {
+	v := m.reviewer_iss
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldReviewerIss returns the old "reviewer_iss" field's value of the DeletionRequest entity.
+// If the DeletionRequest object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DeletionRequestMutation) OldReviewerIss(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldReviewerIss is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldReviewerIss requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldReviewerIss: %w", err)
+	}
+	return oldValue.ReviewerIss, nil
+}
+
+// ClearReviewerIss clears the value of the "reviewer_iss" field.
+func (m *DeletionRequestMutation) ClearReviewerIss() {
+	m.reviewer_iss = nil
+	m.clearedFields[deletionrequest.FieldReviewerIss] = struct{}{}
+}
+
+// ReviewerIssCleared returns if the "reviewer_iss" field was cleared in this mutation.
+func (m *DeletionRequestMutation) ReviewerIssCleared() bool {
+	_, ok := m.clearedFields[deletionrequest.FieldReviewerIss]
+	return ok
+}
+
+// ResetReviewerIss resets all changes to the "reviewer_iss" field.
+func (m *DeletionRequestMutation) ResetReviewerIss() {
+	m.reviewer_iss = nil
+	delete(m.clearedFields, deletionrequest.FieldReviewerIss)
+}
+
+// SetReviewerSub sets the "reviewer_sub" field.
+func (m *DeletionRequestMutation) SetReviewerSub(s string) {
+	m.reviewer_sub = &s
+}
+
+// ReviewerSub returns the value of the "reviewer_sub" field in the mutation.
+func (m *DeletionRequestMutation) ReviewerSub() (r string, exists bool) {
+	v := m.reviewer_sub
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldReviewerSub returns the old "reviewer_sub" field's value of the DeletionRequest entity.
+// If the DeletionRequest object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DeletionRequestMutation) OldReviewerSub(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldReviewerSub is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldReviewerSub requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldReviewerSub: %w", err)
+	}
+	return oldValue.ReviewerSub, nil
+}
+
+// ClearReviewerSub clears the value of the "reviewer_sub" field.
+func (m *DeletionRequestMutation) ClearReviewerSub() {
+	m.reviewer_sub = nil
+	m.clearedFields[deletionrequest.FieldReviewerSub] = struct{}{}
+}
+
+// ReviewerSubCleared returns if the "reviewer_sub" field was cleared in this mutation.
+func (m *DeletionRequestMutation) ReviewerSubCleared() bool {
+	_, ok := m.clearedFields[deletionrequest.FieldReviewerSub]
+	return ok
+}
+
+// ResetReviewerSub resets all changes to the "reviewer_sub" field.
+func (m *DeletionRequestMutation) ResetReviewerSub() {
+	m.reviewer_sub = nil
+	delete(m.clearedFields, deletionrequest.FieldReviewerSub)
+}
+
+// SetReason sets the "reason" field.
+func (m *DeletionRequestMutation) SetReason(s string) {
+	m.reason = &s
+}
+
+// Reason returns the value of the "reason" field in the mutation.
+func (m *DeletionRequestMutation) Reason() (r string, exists bool) {
+	v := m.reason
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldReason returns the old "reason" field's value of the DeletionRequest entity.
+// If the DeletionRequest object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DeletionRequestMutation) OldReason(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldReason is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldReason requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldReason: %w", err)
+	}
+	return oldValue.Reason, nil
+}
+
+// ResetReason resets all changes to the "reason" field.
+func (m *DeletionRequestMutation) ResetReason() {
+	m.reason = nil
+}
+
+// SetStatus sets the "status" field.
+func (m *DeletionRequestMutation) SetStatus(ers enums.DeletionRequestStatus) {
+	m.status = &ers
+}
+
+// Status returns the value of the "status" field in the mutation.
+func (m *DeletionRequestMutation) Status() (r enums.DeletionRequestStatus, exists bool) {
+	v := m.status
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStatus returns the old "status" field's value of the DeletionRequest entity.
+// If the DeletionRequest object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DeletionRequestMutation) OldStatus(ctx context.Context) (v enums.DeletionRequestStatus, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStatus is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStatus requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStatus: %w", err)
+	}
+	return oldValue.Status, nil
+}
+
+// ResetStatus resets all changes to the "status" field.
+func (m *DeletionRequestMutation) ResetStatus() {
+	m.status = nil
+}
+
+// SetRequestedAt sets the "requested_at" field.
+func (m *DeletionRequestMutation) SetRequestedAt(t time.Time) {
+	m.requested_at = &t
+}
+
+// RequestedAt returns the value of the "requested_at" field in the mutation.
+func (m *DeletionRequestMutation) RequestedAt() (r time.Time, exists bool) {
+	v := m.requested_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRequestedAt returns the old "requested_at" field's value of the DeletionRequest entity.
+// If the DeletionRequest object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DeletionRequestMutation) OldRequestedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRequestedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRequestedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRequestedAt: %w", err)
+	}
+	return oldValue.RequestedAt, nil
+}
+
+// ResetRequestedAt resets all changes to the "requested_at" field.
+func (m *DeletionRequestMutation) ResetRequestedAt() {
+	m.requested_at = nil
+}
+
+// SetReviewedAt sets the "reviewed_at" field.
+func (m *DeletionRequestMutation) SetReviewedAt(t time.Time) {
+	m.reviewed_at = &t
+}
+
+// ReviewedAt returns the value of the "reviewed_at" field in the mutation.
+func (m *DeletionRequestMutation) ReviewedAt() (r time.Time, exists bool) {
+	v := m.reviewed_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldReviewedAt returns the old "reviewed_at" field's value of the DeletionRequest entity.
+// If the DeletionRequest object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DeletionRequestMutation) OldReviewedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldReviewedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldReviewedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldReviewedAt: %w", err)
+	}
+	return oldValue.ReviewedAt, nil
+}
+
+// ClearReviewedAt clears the value of the "reviewed_at" field.
+func (m *DeletionRequestMutation) ClearReviewedAt() {
+	m.reviewed_at = nil
+	m.clearedFields[deletionrequest.FieldReviewedAt] = struct{}{}
+}
+
+// ReviewedAtCleared returns if the "reviewed_at" field was cleared in this mutation.
+func (m *DeletionRequestMutation) ReviewedAtCleared() bool {
+	_, ok := m.clearedFields[deletionrequest.FieldReviewedAt]
+	return ok
+}
+
+// ResetReviewedAt resets all changes to the "reviewed_at" field.
+func (m *DeletionRequestMutation) ResetReviewedAt() {
+	m.reviewed_at = nil
+	delete(m.clearedFields, deletionrequest.FieldReviewedAt)
+}
+
+// SetAipID sets the "aip_id" field.
+func (m *DeletionRequestMutation) SetAipID(i int) {
+	m.aip = &i
+}
+
+// AipID returns the value of the "aip_id" field in the mutation.
+func (m *DeletionRequestMutation) AipID() (r int, exists bool) {
+	v := m.aip
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAipID returns the old "aip_id" field's value of the DeletionRequest entity.
+// If the DeletionRequest object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DeletionRequestMutation) OldAipID(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAipID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAipID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAipID: %w", err)
+	}
+	return oldValue.AipID, nil
+}
+
+// ResetAipID resets all changes to the "aip_id" field.
+func (m *DeletionRequestMutation) ResetAipID() {
+	m.aip = nil
+}
+
+// SetWorkflowID sets the "workflow_id" field.
+func (m *DeletionRequestMutation) SetWorkflowID(i int) {
+	m.workflow = &i
+}
+
+// WorkflowID returns the value of the "workflow_id" field in the mutation.
+func (m *DeletionRequestMutation) WorkflowID() (r int, exists bool) {
+	v := m.workflow
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldWorkflowID returns the old "workflow_id" field's value of the DeletionRequest entity.
+// If the DeletionRequest object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DeletionRequestMutation) OldWorkflowID(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldWorkflowID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldWorkflowID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldWorkflowID: %w", err)
+	}
+	return oldValue.WorkflowID, nil
+}
+
+// ClearWorkflowID clears the value of the "workflow_id" field.
+func (m *DeletionRequestMutation) ClearWorkflowID() {
+	m.workflow = nil
+	m.clearedFields[deletionrequest.FieldWorkflowID] = struct{}{}
+}
+
+// WorkflowIDCleared returns if the "workflow_id" field was cleared in this mutation.
+func (m *DeletionRequestMutation) WorkflowIDCleared() bool {
+	_, ok := m.clearedFields[deletionrequest.FieldWorkflowID]
+	return ok
+}
+
+// ResetWorkflowID resets all changes to the "workflow_id" field.
+func (m *DeletionRequestMutation) ResetWorkflowID() {
+	m.workflow = nil
+	delete(m.clearedFields, deletionrequest.FieldWorkflowID)
+}
+
+// ClearAip clears the "aip" edge to the AIP entity.
+func (m *DeletionRequestMutation) ClearAip() {
+	m.clearedaip = true
+	m.clearedFields[deletionrequest.FieldAipID] = struct{}{}
+}
+
+// AipCleared reports if the "aip" edge to the AIP entity was cleared.
+func (m *DeletionRequestMutation) AipCleared() bool {
+	return m.clearedaip
+}
+
+// AipIDs returns the "aip" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// AipID instead. It exists only for internal usage by the builders.
+func (m *DeletionRequestMutation) AipIDs() (ids []int) {
+	if id := m.aip; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetAip resets all changes to the "aip" edge.
+func (m *DeletionRequestMutation) ResetAip() {
+	m.aip = nil
+	m.clearedaip = false
+}
+
+// ClearWorkflow clears the "workflow" edge to the Workflow entity.
+func (m *DeletionRequestMutation) ClearWorkflow() {
+	m.clearedworkflow = true
+	m.clearedFields[deletionrequest.FieldWorkflowID] = struct{}{}
+}
+
+// WorkflowCleared reports if the "workflow" edge to the Workflow entity was cleared.
+func (m *DeletionRequestMutation) WorkflowCleared() bool {
+	return m.WorkflowIDCleared() || m.clearedworkflow
+}
+
+// WorkflowIDs returns the "workflow" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// WorkflowID instead. It exists only for internal usage by the builders.
+func (m *DeletionRequestMutation) WorkflowIDs() (ids []int) {
+	if id := m.workflow; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetWorkflow resets all changes to the "workflow" edge.
+func (m *DeletionRequestMutation) ResetWorkflow() {
+	m.workflow = nil
+	m.clearedworkflow = false
+}
+
+// Where appends a list predicates to the DeletionRequestMutation builder.
+func (m *DeletionRequestMutation) Where(ps ...predicate.DeletionRequest) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the DeletionRequestMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *DeletionRequestMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.DeletionRequest, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *DeletionRequestMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *DeletionRequestMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (DeletionRequest).
+func (m *DeletionRequestMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *DeletionRequestMutation) Fields() []string {
+	fields := make([]string, 0, 13)
+	if m.uuid != nil {
+		fields = append(fields, deletionrequest.FieldUUID)
+	}
+	if m.requester != nil {
+		fields = append(fields, deletionrequest.FieldRequester)
+	}
+	if m.requester_iss != nil {
+		fields = append(fields, deletionrequest.FieldRequesterIss)
+	}
+	if m.requester_sub != nil {
+		fields = append(fields, deletionrequest.FieldRequesterSub)
+	}
+	if m.reviewer != nil {
+		fields = append(fields, deletionrequest.FieldReviewer)
+	}
+	if m.reviewer_iss != nil {
+		fields = append(fields, deletionrequest.FieldReviewerIss)
+	}
+	if m.reviewer_sub != nil {
+		fields = append(fields, deletionrequest.FieldReviewerSub)
+	}
+	if m.reason != nil {
+		fields = append(fields, deletionrequest.FieldReason)
+	}
+	if m.status != nil {
+		fields = append(fields, deletionrequest.FieldStatus)
+	}
+	if m.requested_at != nil {
+		fields = append(fields, deletionrequest.FieldRequestedAt)
+	}
+	if m.reviewed_at != nil {
+		fields = append(fields, deletionrequest.FieldReviewedAt)
+	}
+	if m.aip != nil {
+		fields = append(fields, deletionrequest.FieldAipID)
+	}
+	if m.workflow != nil {
+		fields = append(fields, deletionrequest.FieldWorkflowID)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *DeletionRequestMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case deletionrequest.FieldUUID:
+		return m.UUID()
+	case deletionrequest.FieldRequester:
+		return m.Requester()
+	case deletionrequest.FieldRequesterIss:
+		return m.RequesterIss()
+	case deletionrequest.FieldRequesterSub:
+		return m.RequesterSub()
+	case deletionrequest.FieldReviewer:
+		return m.Reviewer()
+	case deletionrequest.FieldReviewerIss:
+		return m.ReviewerIss()
+	case deletionrequest.FieldReviewerSub:
+		return m.ReviewerSub()
+	case deletionrequest.FieldReason:
+		return m.Reason()
+	case deletionrequest.FieldStatus:
+		return m.Status()
+	case deletionrequest.FieldRequestedAt:
+		return m.RequestedAt()
+	case deletionrequest.FieldReviewedAt:
+		return m.ReviewedAt()
+	case deletionrequest.FieldAipID:
+		return m.AipID()
+	case deletionrequest.FieldWorkflowID:
+		return m.WorkflowID()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *DeletionRequestMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case deletionrequest.FieldUUID:
+		return m.OldUUID(ctx)
+	case deletionrequest.FieldRequester:
+		return m.OldRequester(ctx)
+	case deletionrequest.FieldRequesterIss:
+		return m.OldRequesterIss(ctx)
+	case deletionrequest.FieldRequesterSub:
+		return m.OldRequesterSub(ctx)
+	case deletionrequest.FieldReviewer:
+		return m.OldReviewer(ctx)
+	case deletionrequest.FieldReviewerIss:
+		return m.OldReviewerIss(ctx)
+	case deletionrequest.FieldReviewerSub:
+		return m.OldReviewerSub(ctx)
+	case deletionrequest.FieldReason:
+		return m.OldReason(ctx)
+	case deletionrequest.FieldStatus:
+		return m.OldStatus(ctx)
+	case deletionrequest.FieldRequestedAt:
+		return m.OldRequestedAt(ctx)
+	case deletionrequest.FieldReviewedAt:
+		return m.OldReviewedAt(ctx)
+	case deletionrequest.FieldAipID:
+		return m.OldAipID(ctx)
+	case deletionrequest.FieldWorkflowID:
+		return m.OldWorkflowID(ctx)
+	}
+	return nil, fmt.Errorf("unknown DeletionRequest field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *DeletionRequestMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case deletionrequest.FieldUUID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUUID(v)
+		return nil
+	case deletionrequest.FieldRequester:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRequester(v)
+		return nil
+	case deletionrequest.FieldRequesterIss:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRequesterIss(v)
+		return nil
+	case deletionrequest.FieldRequesterSub:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRequesterSub(v)
+		return nil
+	case deletionrequest.FieldReviewer:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetReviewer(v)
+		return nil
+	case deletionrequest.FieldReviewerIss:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetReviewerIss(v)
+		return nil
+	case deletionrequest.FieldReviewerSub:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetReviewerSub(v)
+		return nil
+	case deletionrequest.FieldReason:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetReason(v)
+		return nil
+	case deletionrequest.FieldStatus:
+		v, ok := value.(enums.DeletionRequestStatus)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStatus(v)
+		return nil
+	case deletionrequest.FieldRequestedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRequestedAt(v)
+		return nil
+	case deletionrequest.FieldReviewedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetReviewedAt(v)
+		return nil
+	case deletionrequest.FieldAipID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAipID(v)
+		return nil
+	case deletionrequest.FieldWorkflowID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetWorkflowID(v)
+		return nil
+	}
+	return fmt.Errorf("unknown DeletionRequest field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *DeletionRequestMutation) AddedFields() []string {
+	var fields []string
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *DeletionRequestMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *DeletionRequestMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown DeletionRequest numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *DeletionRequestMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(deletionrequest.FieldReviewer) {
+		fields = append(fields, deletionrequest.FieldReviewer)
+	}
+	if m.FieldCleared(deletionrequest.FieldReviewerIss) {
+		fields = append(fields, deletionrequest.FieldReviewerIss)
+	}
+	if m.FieldCleared(deletionrequest.FieldReviewerSub) {
+		fields = append(fields, deletionrequest.FieldReviewerSub)
+	}
+	if m.FieldCleared(deletionrequest.FieldReviewedAt) {
+		fields = append(fields, deletionrequest.FieldReviewedAt)
+	}
+	if m.FieldCleared(deletionrequest.FieldWorkflowID) {
+		fields = append(fields, deletionrequest.FieldWorkflowID)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *DeletionRequestMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *DeletionRequestMutation) ClearField(name string) error {
+	switch name {
+	case deletionrequest.FieldReviewer:
+		m.ClearReviewer()
+		return nil
+	case deletionrequest.FieldReviewerIss:
+		m.ClearReviewerIss()
+		return nil
+	case deletionrequest.FieldReviewerSub:
+		m.ClearReviewerSub()
+		return nil
+	case deletionrequest.FieldReviewedAt:
+		m.ClearReviewedAt()
+		return nil
+	case deletionrequest.FieldWorkflowID:
+		m.ClearWorkflowID()
+		return nil
+	}
+	return fmt.Errorf("unknown DeletionRequest nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *DeletionRequestMutation) ResetField(name string) error {
+	switch name {
+	case deletionrequest.FieldUUID:
+		m.ResetUUID()
+		return nil
+	case deletionrequest.FieldRequester:
+		m.ResetRequester()
+		return nil
+	case deletionrequest.FieldRequesterIss:
+		m.ResetRequesterIss()
+		return nil
+	case deletionrequest.FieldRequesterSub:
+		m.ResetRequesterSub()
+		return nil
+	case deletionrequest.FieldReviewer:
+		m.ResetReviewer()
+		return nil
+	case deletionrequest.FieldReviewerIss:
+		m.ResetReviewerIss()
+		return nil
+	case deletionrequest.FieldReviewerSub:
+		m.ResetReviewerSub()
+		return nil
+	case deletionrequest.FieldReason:
+		m.ResetReason()
+		return nil
+	case deletionrequest.FieldStatus:
+		m.ResetStatus()
+		return nil
+	case deletionrequest.FieldRequestedAt:
+		m.ResetRequestedAt()
+		return nil
+	case deletionrequest.FieldReviewedAt:
+		m.ResetReviewedAt()
+		return nil
+	case deletionrequest.FieldAipID:
+		m.ResetAipID()
+		return nil
+	case deletionrequest.FieldWorkflowID:
+		m.ResetWorkflowID()
+		return nil
+	}
+	return fmt.Errorf("unknown DeletionRequest field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *DeletionRequestMutation) AddedEdges() []string {
+	edges := make([]string, 0, 2)
+	if m.aip != nil {
+		edges = append(edges, deletionrequest.EdgeAip)
+	}
+	if m.workflow != nil {
+		edges = append(edges, deletionrequest.EdgeWorkflow)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *DeletionRequestMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case deletionrequest.EdgeAip:
+		if id := m.aip; id != nil {
+			return []ent.Value{*id}
+		}
+	case deletionrequest.EdgeWorkflow:
+		if id := m.workflow; id != nil {
+			return []ent.Value{*id}
+		}
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *DeletionRequestMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 2)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *DeletionRequestMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *DeletionRequestMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 2)
+	if m.clearedaip {
+		edges = append(edges, deletionrequest.EdgeAip)
+	}
+	if m.clearedworkflow {
+		edges = append(edges, deletionrequest.EdgeWorkflow)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *DeletionRequestMutation) EdgeCleared(name string) bool {
+	switch name {
+	case deletionrequest.EdgeAip:
+		return m.clearedaip
+	case deletionrequest.EdgeWorkflow:
+		return m.clearedworkflow
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *DeletionRequestMutation) ClearEdge(name string) error {
+	switch name {
+	case deletionrequest.EdgeAip:
+		m.ClearAip()
+		return nil
+	case deletionrequest.EdgeWorkflow:
+		m.ClearWorkflow()
+		return nil
+	}
+	return fmt.Errorf("unknown DeletionRequest unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *DeletionRequestMutation) ResetEdge(name string) error {
+	switch name {
+	case deletionrequest.EdgeAip:
+		m.ResetAip()
+		return nil
+	case deletionrequest.EdgeWorkflow:
+		m.ResetWorkflow()
+		return nil
+	}
+	return fmt.Errorf("unknown DeletionRequest edge %s", name)
 }
 
 // LocationMutation represents an operation that mutates the Location nodes in the graph.
@@ -2290,24 +3550,26 @@ func (m *TaskMutation) ResetEdge(name string) error {
 // WorkflowMutation represents an operation that mutates the Workflow nodes in the graph.
 type WorkflowMutation struct {
 	config
-	op            Op
-	typ           string
-	id            *int
-	uuid          *uuid.UUID
-	temporal_id   *string
-	_type         *enums.WorkflowType
-	status        *enums.WorkflowStatus
-	started_at    *time.Time
-	completed_at  *time.Time
-	clearedFields map[string]struct{}
-	aip           *int
-	clearedaip    bool
-	tasks         map[int]struct{}
-	removedtasks  map[int]struct{}
-	clearedtasks  bool
-	done          bool
-	oldValue      func(context.Context) (*Workflow, error)
-	predicates    []predicate.Workflow
+	op                      Op
+	typ                     string
+	id                      *int
+	uuid                    *uuid.UUID
+	temporal_id             *string
+	_type                   *enums.WorkflowType
+	status                  *enums.WorkflowStatus
+	started_at              *time.Time
+	completed_at            *time.Time
+	clearedFields           map[string]struct{}
+	aip                     *int
+	clearedaip              bool
+	tasks                   map[int]struct{}
+	removedtasks            map[int]struct{}
+	clearedtasks            bool
+	deletion_request        *int
+	cleareddeletion_request bool
+	done                    bool
+	oldValue                func(context.Context) (*Workflow, error)
+	predicates              []predicate.Workflow
 }
 
 var _ ent.Mutation = (*WorkflowMutation)(nil)
@@ -2767,6 +4029,45 @@ func (m *WorkflowMutation) ResetTasks() {
 	m.removedtasks = nil
 }
 
+// SetDeletionRequestID sets the "deletion_request" edge to the DeletionRequest entity by id.
+func (m *WorkflowMutation) SetDeletionRequestID(id int) {
+	m.deletion_request = &id
+}
+
+// ClearDeletionRequest clears the "deletion_request" edge to the DeletionRequest entity.
+func (m *WorkflowMutation) ClearDeletionRequest() {
+	m.cleareddeletion_request = true
+}
+
+// DeletionRequestCleared reports if the "deletion_request" edge to the DeletionRequest entity was cleared.
+func (m *WorkflowMutation) DeletionRequestCleared() bool {
+	return m.cleareddeletion_request
+}
+
+// DeletionRequestID returns the "deletion_request" edge ID in the mutation.
+func (m *WorkflowMutation) DeletionRequestID() (id int, exists bool) {
+	if m.deletion_request != nil {
+		return *m.deletion_request, true
+	}
+	return
+}
+
+// DeletionRequestIDs returns the "deletion_request" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// DeletionRequestID instead. It exists only for internal usage by the builders.
+func (m *WorkflowMutation) DeletionRequestIDs() (ids []int) {
+	if id := m.deletion_request; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetDeletionRequest resets all changes to the "deletion_request" edge.
+func (m *WorkflowMutation) ResetDeletionRequest() {
+	m.deletion_request = nil
+	m.cleareddeletion_request = false
+}
+
 // Where appends a list predicates to the WorkflowMutation builder.
 func (m *WorkflowMutation) Where(ps ...predicate.Workflow) {
 	m.predicates = append(m.predicates, ps...)
@@ -3020,12 +4321,15 @@ func (m *WorkflowMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *WorkflowMutation) AddedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
 	if m.aip != nil {
 		edges = append(edges, workflow.EdgeAip)
 	}
 	if m.tasks != nil {
 		edges = append(edges, workflow.EdgeTasks)
+	}
+	if m.deletion_request != nil {
+		edges = append(edges, workflow.EdgeDeletionRequest)
 	}
 	return edges
 }
@@ -3044,13 +4348,17 @@ func (m *WorkflowMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case workflow.EdgeDeletionRequest:
+		if id := m.deletion_request; id != nil {
+			return []ent.Value{*id}
+		}
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *WorkflowMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
 	if m.removedtasks != nil {
 		edges = append(edges, workflow.EdgeTasks)
 	}
@@ -3073,12 +4381,15 @@ func (m *WorkflowMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *WorkflowMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
 	if m.clearedaip {
 		edges = append(edges, workflow.EdgeAip)
 	}
 	if m.clearedtasks {
 		edges = append(edges, workflow.EdgeTasks)
+	}
+	if m.cleareddeletion_request {
+		edges = append(edges, workflow.EdgeDeletionRequest)
 	}
 	return edges
 }
@@ -3091,6 +4402,8 @@ func (m *WorkflowMutation) EdgeCleared(name string) bool {
 		return m.clearedaip
 	case workflow.EdgeTasks:
 		return m.clearedtasks
+	case workflow.EdgeDeletionRequest:
+		return m.cleareddeletion_request
 	}
 	return false
 }
@@ -3101,6 +4414,9 @@ func (m *WorkflowMutation) ClearEdge(name string) error {
 	switch name {
 	case workflow.EdgeAip:
 		m.ClearAip()
+		return nil
+	case workflow.EdgeDeletionRequest:
+		m.ClearDeletionRequest()
 		return nil
 	}
 	return fmt.Errorf("unknown Workflow unique edge %s", name)
@@ -3115,6 +4431,9 @@ func (m *WorkflowMutation) ResetEdge(name string) error {
 		return nil
 	case workflow.EdgeTasks:
 		m.ResetTasks()
+		return nil
+	case workflow.EdgeDeletionRequest:
+		m.ResetDeletionRequest()
 		return nil
 	}
 	return fmt.Errorf("unknown Workflow edge %s", name)

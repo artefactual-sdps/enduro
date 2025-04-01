@@ -130,12 +130,28 @@ describe("useAipStore", () => {
       status: api.AIPResponseStatusEnum.Stored,
       uuid: "aip-uuid-1",
     };
+    const mockWorkflows: api.AIPWorkflows = {
+      workflows: [
+        {
+          uuid: "uuid-1",
+          startedAt: new Date("2025-01-01T00:00:00Z"),
+          status: api.EnduroStorageAipWorkflowStatusEnum.Done,
+          type: api.EnduroStorageAipWorkflowTypeEnum.DeleteAip,
+          temporalId: "c18d00f2-a1c4-4161-820c-6fc6ce707811",
+        },
+      ],
+    };
+
     client.storage.storageShowAip = vi.fn().mockResolvedValue(mockAip);
+    client.storage.storageListAipWorkflows = vi
+      .fn()
+      .mockResolvedValue(mockWorkflows);
 
     const store = useAipStore();
     await store.fetchCurrent("uuid-1234");
 
     expect(store.current).toEqual(mockAip);
+    expect(store.currentWorkflows).toEqual(mockWorkflows);
     expect(store.locationChanging).toEqual(false);
 
     const layoutStore = useLayoutStore();

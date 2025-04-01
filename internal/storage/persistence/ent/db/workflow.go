@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/artefactual-sdps/enduro/internal/storage/enums"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/aip"
+	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/deletionrequest"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/workflow"
 	"github.com/google/uuid"
 )
@@ -46,9 +47,11 @@ type WorkflowEdges struct {
 	Aip *AIP `json:"aip,omitempty"`
 	// Tasks holds the value of the tasks edge.
 	Tasks []*Task `json:"tasks,omitempty"`
+	// DeletionRequest holds the value of the deletion_request edge.
+	DeletionRequest *DeletionRequest `json:"deletion_request,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
+	loadedTypes [3]bool
 }
 
 // AipOrErr returns the Aip value or an error if the edge
@@ -69,6 +72,17 @@ func (e WorkflowEdges) TasksOrErr() ([]*Task, error) {
 		return e.Tasks, nil
 	}
 	return nil, &NotLoadedError{edge: "tasks"}
+}
+
+// DeletionRequestOrErr returns the DeletionRequest value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e WorkflowEdges) DeletionRequestOrErr() (*DeletionRequest, error) {
+	if e.DeletionRequest != nil {
+		return e.DeletionRequest, nil
+	} else if e.loadedTypes[2] {
+		return nil, &NotFoundError{label: deletionrequest.Label}
+	}
+	return nil, &NotLoadedError{edge: "deletion_request"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -168,6 +182,11 @@ func (w *Workflow) QueryAip() *AIPQuery {
 // QueryTasks queries the "tasks" edge of the Workflow entity.
 func (w *Workflow) QueryTasks() *TaskQuery {
 	return NewWorkflowClient(w.config).QueryTasks(w)
+}
+
+// QueryDeletionRequest queries the "deletion_request" edge of the Workflow entity.
+func (w *Workflow) QueryDeletionRequest() *DeletionRequestQuery {
+	return NewWorkflowClient(w.config).QueryDeletionRequest(w)
 }
 
 // Update returns a builder for updating this Workflow.

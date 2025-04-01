@@ -11,8 +11,9 @@ import (
 )
 
 type (
-	WorkflowUpdater func(*types.Workflow) (*types.Workflow, error)
-	TaskUpdater     func(*types.Task) (*types.Task, error)
+	WorkflowUpdater        func(*types.Workflow) (*types.Workflow, error)
+	TaskUpdater            func(*types.Task) (*types.Task, error)
+	DeletionRequestUpdater func(*types.DeletionRequest) (*types.DeletionRequest, error)
 )
 
 type Storage interface {
@@ -41,4 +42,9 @@ type Storage interface {
 	// Task.
 	CreateTask(context.Context, *types.Task) error
 	UpdateTask(context.Context, int, TaskUpdater) (*types.Task, error)
+
+	// DeletionRequest.
+	CreateDeletionRequest(context.Context, *types.DeletionRequest) error
+	UpdateDeletionRequest(context.Context, int, DeletionRequestUpdater) (*types.DeletionRequest, error)
+	ReadAipPendingDeletionRequest(context.Context, uuid.UUID) (*types.DeletionRequest, error)
 }

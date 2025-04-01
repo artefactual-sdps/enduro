@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, watch } from "vue";
 
 import StatusBadge from "@/components/StatusBadge.vue";
+import { addEmailLinks } from "@/composables/addEmailLinks";
 import { FormatDateTime } from "@/composables/dateFormat";
 import type {
   EnduroIngestSipTask,
@@ -45,6 +46,15 @@ const props = defineProps<{
 }>();
 
 const card = ref(new Card(props.task));
+
+watch(
+  () => props.task,
+  (task) => {
+    const isOpen = card.value.isOpen;
+    card.value = new Card(task);
+    card.value.isOpen = isOpen;
+  },
+);
 </script>
 
 <template>
@@ -76,7 +86,10 @@ const card = ref(new Card(props.task));
           </div>
         </div>
         <div class="flex-grow-1">
-          <span :id="'pt-' + index + '-note'">{{ card.note }}</span>
+          <span
+            :id="'pt-' + index + '-note'"
+            v-html="addEmailLinks(card.note)"
+          ></span>
           <span v-if="card.more">
             <span v-show="!card.isOpen">... </span>
             <Transition name="fade">
@@ -84,9 +97,8 @@ const card = ref(new Card(props.task));
                 v-show="card.isOpen"
                 :id="'pt-' + index + '-note-more'"
                 class="line-break"
-              >
-                {{ card.more }}
-              </p>
+                v-html="addEmailLinks(card.more)"
+              ></p>
             </Transition>
             <a
               :id="'pt-' + index + '-note-toggle'"

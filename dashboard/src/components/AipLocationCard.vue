@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
+import { openDialog } from "vue3-promise-dialog";
 
 import { storageServiceDownloadURL } from "@/client";
+import AipDeletionRequestDialog from "@/components/AipDeletionRequestDialog.vue";
+import LocationDialog from "@/components/LocationDialog.vue";
 import UUID from "@/components/UUID.vue";
-import { openLocationDialog } from "@/dialogs";
 import { useAipStore } from "@/stores/aip";
 import { useAuthStore } from "@/stores/auth";
 
@@ -13,7 +15,9 @@ const failed = ref(false);
 
 const choose = async () => {
   failed.value = false;
-  const locationId = await openLocationDialog(aipStore.current?.locationId);
+  const locationId = await openDialog(LocationDialog, {
+    currentLocationId: aipStore.current?.locationId,
+  });
   if (!locationId) return;
   const error = await aipStore.move(locationId);
   if (error) {
@@ -28,6 +32,14 @@ const download = () => {
 };
 
 watch(aipStore.ui.download, () => download());
+
+const requestDeletion = async () => {
+  if (!aipStore.current) return;
+  const reason = await openDialog(AipDeletionRequestDialog);
+  if (!reason) return;
+  // TODO: Handle error.
+  await aipStore.requestDeletion(reason);
+};
 </script>
 
 <template>
@@ -42,6 +54,7 @@ watch(aipStore.ui.download, () => download());
       <h4 class="card-title">Location</h4>
       <p class="card-text">
         <span v-if="aipStore.isRejected">AIP rejected.</span>
+        <span v-else-if="aipStore.isDeleted">AIP deleted.</span>
         <span v-else-if="!aipStore.current?.locationId"
           >Not available yet.</span
         >
@@ -49,20 +62,17 @@ watch(aipStore.ui.download, () => download());
       </p>
       <div class="d-flex flex-wrap gap-2">
         <button
-          v-if="
-            aipStore.isStored &&
-            authStore.checkAttributes(['storage:aips:download'])
-          "
+          v-if="authStore.checkAttributes(['storage:aips:download'])"
           type="button"
           class="btn btn-primary btn-sm"
           @click="download"
-          :disabled="aipStore.isMoving"
+          :disabled="!aipStore.isStored && !aipStore.isPending"
         >
           Download
         </button>
         <button
           v-if="
-            aipStore.isStored &&
+            false && // TODO: Enable this also based on location type and available locations.
             authStore.checkAttributes(['storage:aips:move'])
           "
           type="button"
@@ -79,6 +89,15 @@ watch(aipStore.ui.download, () => download());
             Moving...
           </template>
           <template v-else>Move</template>
+        </button>
+        <button
+          v-if="authStore.checkAttributes(['storage:aips:deletion:request'])"
+          type="button"
+          class="btn btn-primary btn-sm"
+          @click="requestDeletion"
+          :disabled="!aipStore.isStored"
+        >
+          Delete
         </button>
       </div>
     </div>

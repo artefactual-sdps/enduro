@@ -21,6 +21,18 @@ func (f AIPFunc) Mutate(ctx context.Context, m db.Mutation) (db.Value, error) {
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *db.AIPMutation", m)
 }
 
+// The DeletionRequestFunc type is an adapter to allow the use of ordinary
+// function as DeletionRequest mutator.
+type DeletionRequestFunc func(context.Context, *db.DeletionRequestMutation) (db.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f DeletionRequestFunc) Mutate(ctx context.Context, m db.Mutation) (db.Value, error) {
+	if mv, ok := m.(*db.DeletionRequestMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *db.DeletionRequestMutation", m)
+}
+
 // The LocationFunc type is an adapter to allow the use of ordinary
 // function as Location mutator.
 type LocationFunc func(context.Context, *db.LocationMutation) (db.Value, error)

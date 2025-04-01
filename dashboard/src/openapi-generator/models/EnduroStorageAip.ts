@@ -66,7 +66,10 @@ export const EnduroStorageAipStatusEnum = {
     InReview: 'in_review',
     Rejected: 'rejected',
     Stored: 'stored',
-    Moving: 'moving'
+    Moving: 'moving',
+    Pending: 'pending',
+    Processing: 'processing',
+    Deleted: 'deleted'
 } as const;
 export type EnduroStorageAipStatusEnum = typeof EnduroStorageAipStatusEnum[keyof typeof EnduroStorageAipStatusEnum];
 

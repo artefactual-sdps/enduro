@@ -60,7 +60,10 @@ export const CreateAipRequestBodyStatusEnum = {
     InReview: 'in_review',
     Rejected: 'rejected',
     Stored: 'stored',
-    Moving: 'moving'
+    Moving: 'moving',
+    Pending: 'pending',
+    Processing: 'processing',
+    Deleted: 'deleted'
 } as const;
 export type CreateAipRequestBodyStatusEnum = typeof CreateAipRequestBodyStatusEnum[keyof typeof CreateAipRequestBodyStatusEnum];
 

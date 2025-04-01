@@ -31,6 +31,8 @@ models/MonitorEvent.ts
 models/MonitorEventEvent.ts
 models/MonitorPingEvent.ts
 models/MoveStatusResult.ts
+models/RequestAipDeletionRequestBody.ts
+models/ReviewAipDeletionRequestBody.ts
 models/SIPCreatedEvent.ts
 models/SIPNotFound.ts
 models/SIPStatusUpdatedEvent.ts

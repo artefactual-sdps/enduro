@@ -19,6 +19,8 @@ type Client interface {
 	RejectAip(context.Context, *goastorage.RejectAipPayload) error
 	ShowAip(context.Context, *goastorage.ShowAipPayload) (*goastorage.AIP, error)
 	ListAipWorkflows(context.Context, *goastorage.ListAipWorkflowsPayload) (*goastorage.AIPWorkflows, error)
+	RequestAipDeletion(context.Context, *goastorage.RequestAipDeletionPayload) error
+	ReviewAipDeletion(context.Context, *goastorage.ReviewAipDeletionPayload) error
 	ShowLocation(context.Context, *goastorage.ShowLocationPayload) (*goastorage.Location, error)
 	ListLocationAips(context.Context, *goastorage.ListLocationAipsPayload) (goastorage.AIPCollection, error)
 }

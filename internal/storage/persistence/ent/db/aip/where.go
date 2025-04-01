@@ -373,6 +373,29 @@ func HasWorkflowsWith(preds ...predicate.Workflow) predicate.AIP {
 	})
 }
 
+// HasDeletionRequests applies the HasEdge predicate on the "deletion_requests" edge.
+func HasDeletionRequests() predicate.AIP {
+	return predicate.AIP(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, DeletionRequestsTable, DeletionRequestsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasDeletionRequestsWith applies the HasEdge predicate on the "deletion_requests" edge with a given conditions (other predicates).
+func HasDeletionRequestsWith(preds ...predicate.DeletionRequest) predicate.AIP {
+	return predicate.AIP(func(s *sql.Selector) {
+		step := newDeletionRequestsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.AIP) predicate.AIP {
 	return predicate.AIP(sql.AndPredicates(predicates...))

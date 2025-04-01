@@ -35,10 +35,14 @@ type Service interface {
 	UpdateAipStatus(ctx context.Context, aipID uuid.UUID, status enums.AIPStatus) error
 	UpdateAipLocationID(ctx context.Context, aipID, locationID uuid.UUID) error
 	DeleteAip(ctx context.Context, aipID uuid.UUID) (err error)
+	ReadLocation(ctx context.Context, locationID uuid.UUID) (*goastorage.Location, error)
 	CreateWorkflow(context.Context, *types.Workflow) error
 	UpdateWorkflow(context.Context, int, persistence.WorkflowUpdater) (*types.Workflow, error)
 	CreateTask(context.Context, *types.Task) error
 	UpdateTask(context.Context, int, persistence.TaskUpdater) (*types.Task, error)
+	CreateDeletionRequest(context.Context, *types.DeletionRequest) error
+	UpdateDeletionRequest(context.Context, int, persistence.DeletionRequestUpdater) (*types.DeletionRequest, error)
+	ReadAipPendingDeletionRequest(ctx context.Context, aipID uuid.UUID) (*types.DeletionRequest, error)
 
 	// Both.
 	AipReader(ctx context.Context, aip *goastorage.AIP) (*blob.Reader, error)
@@ -508,6 +512,29 @@ func (svc *serviceImpl) CreateTask(ctx context.Context, t *types.Task) error {
 	return svc.storagePersistence.CreateTask(ctx, t)
 }
 
-func (svc *serviceImpl) UpdateTask(ctx context.Context, id int, upd persistence.TaskUpdater) (*types.Task, error) {
+func (svc *serviceImpl) UpdateTask(
+	ctx context.Context,
+	id int,
+	upd persistence.TaskUpdater,
+) (*types.Task, error) {
 	return svc.storagePersistence.UpdateTask(ctx, id, upd)
+}
+
+func (svc *serviceImpl) CreateDeletionRequest(ctx context.Context, dr *types.DeletionRequest) error {
+	return svc.storagePersistence.CreateDeletionRequest(ctx, dr)
+}
+
+func (svc *serviceImpl) UpdateDeletionRequest(
+	ctx context.Context,
+	id int,
+	upd persistence.DeletionRequestUpdater,
+) (*types.DeletionRequest, error) {
+	return svc.storagePersistence.UpdateDeletionRequest(ctx, id, upd)
+}
+
+func (svc *serviceImpl) ReadAipPendingDeletionRequest(
+	ctx context.Context,
+	aipID uuid.UUID,
+) (*types.DeletionRequest, error) {
+	return svc.storagePersistence.ReadAipPendingDeletionRequest(ctx, aipID)
 }

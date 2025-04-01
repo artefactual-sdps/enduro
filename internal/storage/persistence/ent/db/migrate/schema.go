@@ -14,7 +14,7 @@ var (
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "name", Type: field.TypeString, Size: 2048},
 		{Name: "aip_id", Type: field.TypeUUID, Unique: true},
-		{Name: "status", Type: field.TypeEnum, Enums: []string{"unspecified", "in_review", "rejected", "stored", "moving"}},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"unspecified", "in_review", "rejected", "stored", "moving", "pending", "processing", "deleted"}},
 		{Name: "object_key", Type: field.TypeUUID, Unique: true},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "location_id", Type: field.TypeInt, Nullable: true},
@@ -42,6 +42,50 @@ var (
 				Name:    "aip_object_key",
 				Unique:  false,
 				Columns: []*schema.Column{AipColumns[4]},
+			},
+		},
+	}
+	// DeletionRequestColumns holds the columns for the "deletion_request" table.
+	DeletionRequestColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "uuid", Type: field.TypeUUID, Unique: true},
+		{Name: "requester", Type: field.TypeString, Size: 1024},
+		{Name: "requester_iss", Type: field.TypeString, Size: 1024},
+		{Name: "requester_sub", Type: field.TypeString, Size: 1024},
+		{Name: "reviewer", Type: field.TypeString, Nullable: true, Size: 1024},
+		{Name: "reviewer_iss", Type: field.TypeString, Nullable: true, Size: 1024},
+		{Name: "reviewer_sub", Type: field.TypeString, Nullable: true, Size: 1024},
+		{Name: "reason", Type: field.TypeString, Size: 2048},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"pending", "approved", "rejected"}, Default: "pending"},
+		{Name: "requested_at", Type: field.TypeTime},
+		{Name: "reviewed_at", Type: field.TypeTime, Nullable: true},
+		{Name: "aip_id", Type: field.TypeInt},
+		{Name: "workflow_id", Type: field.TypeInt, Unique: true, Nullable: true},
+	}
+	// DeletionRequestTable holds the schema information for the "deletion_request" table.
+	DeletionRequestTable = &schema.Table{
+		Name:       "deletion_request",
+		Columns:    DeletionRequestColumns,
+		PrimaryKey: []*schema.Column{DeletionRequestColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "deletion_request_aip_deletion_requests",
+				Columns:    []*schema.Column{DeletionRequestColumns[12]},
+				RefColumns: []*schema.Column{AipColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "deletion_request_workflow_deletion_request",
+				Columns:    []*schema.Column{DeletionRequestColumns[13]},
+				RefColumns: []*schema.Column{WorkflowColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "deletionrequest_uuid",
+				Unique:  false,
+				Columns: []*schema.Column{DeletionRequestColumns[1]},
 			},
 		},
 	}
@@ -115,7 +159,7 @@ var (
 		{Name: "uuid", Type: field.TypeUUID, Unique: true},
 		{Name: "temporal_id", Type: field.TypeString, Size: 255},
 		{Name: "type", Type: field.TypeEnum, Enums: []string{"unspecified", "upload aip", "move aip", "delete aip"}},
-		{Name: "status", Type: field.TypeEnum, Enums: []string{"unspecified", "in progress", "done", "error", "queued", "pending"}},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"unspecified", "in progress", "done", "error", "queued", "pending", "canceled"}},
 		{Name: "started_at", Type: field.TypeTime, Nullable: true},
 		{Name: "completed_at", Type: field.TypeTime, Nullable: true},
 		{Name: "aip_id", Type: field.TypeInt},
@@ -144,6 +188,7 @@ var (
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		AipTable,
+		DeletionRequestTable,
 		LocationTable,
 		TaskTable,
 		WorkflowTable,
@@ -154,6 +199,11 @@ func init() {
 	AipTable.ForeignKeys[0].RefTable = LocationTable
 	AipTable.Annotation = &entsql.Annotation{
 		Table: "aip",
+	}
+	DeletionRequestTable.ForeignKeys[0].RefTable = AipTable
+	DeletionRequestTable.ForeignKeys[1].RefTable = WorkflowTable
+	DeletionRequestTable.Annotation = &entsql.Annotation{
+		Table: "deletion_request",
 	}
 	LocationTable.Annotation = &entsql.Annotation{
 		Table: "location",

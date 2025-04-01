@@ -23,8 +23,8 @@ import IconClose from "~icons/clarity/close-line";
 import IconError from "~icons/clarity/remove-line?raw&font-size=20px";
 import IconSearch from "~icons/clarity/search-line";
 import IconDone from "~icons/clarity/success-standard-line?raw&font-size=20px";
-import IconInProgress from "~icons/clarity/sync-line?raw&font-size=20px";
-import IconMoving from "~icons/hugeicons/package-moving?raw&font-size=20px";
+import IconProcessing from "~icons/clarity/sync-line?raw&font-size=20px";
+import IconPending from "~icons/clarity/warning-standard-line?raw&font-size=20px";
 
 const authStore = useAuthStore();
 const layoutStore = useLayoutStore();
@@ -55,29 +55,29 @@ const tabs = computed(() => [
     show: true,
   },
   {
-    icon: IconMoving,
-    text: "Moving",
-    route: router.resolve({
-      name: "/storage/aips/",
-      query: { ...route.query, status: "moving" },
-    }),
-    show: true,
-  },
-  {
-    icon: IconInProgress,
-    text: "In review",
-    route: router.resolve({
-      name: "/storage/aips/",
-      query: { ...route.query, status: "in_review" },
-    }),
-    show: true,
-  },
-  {
     icon: IconError,
-    text: "Rejected",
+    text: "Deleted",
     route: router.resolve({
       name: "/storage/aips/",
-      query: { ...route.query, status: "rejected" },
+      query: { ...route.query, status: "deleted" },
+    }),
+    show: true,
+  },
+  {
+    icon: IconPending,
+    text: "Pending",
+    route: router.resolve({
+      name: "/storage/aips/",
+      query: { ...route.query, status: "pending" },
+    }),
+    show: true,
+  },
+  {
+    icon: IconProcessing,
+    text: "Processing",
+    route: router.resolve({
+      name: "/storage/aips/",
+      query: { ...route.query, status: "processing" },
     }),
     show: true,
   },
@@ -229,7 +229,7 @@ watch(
       <div>
         <TimeDropdown
           name="createdAt"
-          label="Created"
+          label="Deposited"
           :start="aipStore.filters.earliestCreatedTime"
           :end="aipStore.filters.latestCreatedTime"
           @change="

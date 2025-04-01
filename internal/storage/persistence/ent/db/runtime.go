@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/aip"
+	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/deletionrequest"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/location"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/task"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/workflow"
@@ -22,6 +23,20 @@ func init() {
 	aipDescCreatedAt := aipFields[5].Descriptor()
 	// aip.DefaultCreatedAt holds the default value on creation for the created_at field.
 	aip.DefaultCreatedAt = aipDescCreatedAt.Default.(func() time.Time)
+	deletionrequestFields := schema.DeletionRequest{}.Fields()
+	_ = deletionrequestFields
+	// deletionrequestDescRequestedAt is the schema descriptor for requested_at field.
+	deletionrequestDescRequestedAt := deletionrequestFields[9].Descriptor()
+	// deletionrequest.DefaultRequestedAt holds the default value on creation for the requested_at field.
+	deletionrequest.DefaultRequestedAt = deletionrequestDescRequestedAt.Default.(func() time.Time)
+	// deletionrequestDescAipID is the schema descriptor for aip_id field.
+	deletionrequestDescAipID := deletionrequestFields[11].Descriptor()
+	// deletionrequest.AipIDValidator is a validator for the "aip_id" field. It is called by the builders before save.
+	deletionrequest.AipIDValidator = deletionrequestDescAipID.Validators[0].(func(int) error)
+	// deletionrequestDescWorkflowID is the schema descriptor for workflow_id field.
+	deletionrequestDescWorkflowID := deletionrequestFields[12].Descriptor()
+	// deletionrequest.WorkflowIDValidator is a validator for the "workflow_id" field. It is called by the builders before save.
+	deletionrequest.WorkflowIDValidator = deletionrequestDescWorkflowID.Validators[0].(func(int) error)
 	locationFields := schema.Location{}.Fields()
 	_ = locationFields
 	// locationDescCreatedAt is the schema descriptor for created_at field.

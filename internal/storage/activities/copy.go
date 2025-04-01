@@ -4,11 +4,18 @@ import (
 	"context"
 	"io"
 
+	"github.com/google/uuid"
+
 	"github.com/artefactual-sdps/enduro/internal/storage"
 )
 
 type CopyToPermanentLocationActivity struct {
 	storagesvc storage.Service
+}
+
+type CopyToPermanentLocationActivityParams struct {
+	AIPID      uuid.UUID
+	LocationID uuid.UUID
 }
 
 type CopyToPermanentLocationActivityResult struct{}
@@ -19,7 +26,7 @@ func NewCopyToPermanentLocationActivity(storagesvc storage.Service) *CopyToPerma
 
 func (a *CopyToPermanentLocationActivity) Execute(
 	ctx context.Context,
-	params *storage.CopyToPermanentLocationActivityParams,
+	params *CopyToPermanentLocationActivityParams,
 ) (*CopyToPermanentLocationActivityResult, error) {
 	p, err := a.storagesvc.ReadAip(ctx, params.AIPID)
 	if err != nil {

@@ -23,6 +23,8 @@ var JWTAuth = JWTSecurity("jwt", func() {
 	Scope("ingest:sips:upload")
 	Scope("ingest:sips:workflows:list")
 	Scope("storage:aips:create")
+	Scope("storage:aips:deletion:request")
+	Scope("storage:aips:deletion:review")
 	Scope("storage:aips:download")
 	Scope("storage:aips:list")
 	Scope("storage:aips:move")

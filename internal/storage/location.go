@@ -55,22 +55,9 @@ func NewInternalLocation(config *LocationConfig) (Location, error) {
 }
 
 func NewLocation(location *goastorage.Location) (Location, error) {
-	var config types.LocationConfig
-	switch c := location.Config.(type) {
-	case *goastorage.URLConfig:
-		config.Value = c.ConvertToURLConfig()
-	case *goastorage.S3Config:
-		config.Value = c.ConvertToS3Config()
-	case *goastorage.SFTPConfig:
-		config.Value = c.ConvertToSFTPConfig()
-	case *goastorage.AMSSConfig:
-		config.Value = c.ConvertToAMSSConfig()
-	default:
-		return nil, fmt.Errorf("unsupported config type: %T", c)
-	}
-
-	if !config.Value.Valid() {
-		return nil, errors.New("invalid configuration")
+	config, err := ConvertGoaLocationConfigToLocationConfig(location.Config)
+	if err != nil {
+		return nil, err
 	}
 
 	return &locationImpl{
@@ -89,4 +76,26 @@ func (l *locationImpl) OpenBucket(ctx context.Context) (*blob.Bucket, error) {
 		return nil, err
 	}
 	return b, nil
+}
+
+func ConvertGoaLocationConfigToLocationConfig(goaConfig any) (types.LocationConfig, error) {
+	var config types.LocationConfig
+	switch c := goaConfig.(type) {
+	case *goastorage.URLConfig:
+		config.Value = c.ConvertToURLConfig()
+	case *goastorage.S3Config:
+		config.Value = c.ConvertToS3Config()
+	case *goastorage.SFTPConfig:
+		config.Value = c.ConvertToSFTPConfig()
+	case *goastorage.AMSSConfig:
+		config.Value = c.ConvertToAMSSConfig()
+	default:
+		return types.LocationConfig{}, fmt.Errorf("unsupported config type: %T", c)
+	}
+
+	if !config.Value.Valid() {
+		return types.LocationConfig{}, errors.New("invalid configuration")
+	}
+
+	return config, nil
 }

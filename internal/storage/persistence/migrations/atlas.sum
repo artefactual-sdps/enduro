@@ -1,4 +1,4 @@
-h1:tnJDvLm5IaGSbpaPClc4Qv6zG7JwV0djjrLduTtiB4Q=
+h1:d8vaqDZh4g7sX7M9Rak7hg8XEydIPg9Sd/YbseYLSWk=
 20220818175139_init.down.sql h1:SU3ri3mnbAqcubHMc09bvtO1fHwsmWf0Fv3zO32TIKE=
 20220818175139_init.up.sql h1:L99Oh5xRGKLr5aV9GfKdP0Wz9hMJ2jGHwdNdFYYDcj4=
 20220819155618_location_config.down.sql h1:YHBToXRroeebB14Oi6BV6Ts8urWNUBIkSkt879Ant9o=
@@ -13,3 +13,9 @@ h1:tnJDvLm5IaGSbpaPClc4Qv6zG7JwV0djjrLduTtiB4Q=
 20250211024602_rename_package_table.up.sql h1:kvk247jrt4aA2sMZ7bHreqKMEcc+Vywupv3qhNebn8I=
 20250320032646_add_workflow_and_task_tables.down.sql h1:Ti8Smg0IrtHfxRML7WurJNFNbYnJ4ZpySw2lK8FFyxM=
 20250320032646_add_workflow_and_task_tables.up.sql h1:N0nNdiy4nCFteQQnf9vhKidH+ET0sor//blZLvFEu2o=
+20250326003422_add_deletion_request_table.down.sql h1:gQaXPLNbg0ujPGfjiVUqNcSZ78E1wY2F5pGjH5ONguI=
+20250326003422_add_deletion_request_table.up.sql h1:S6XcLH647Q/adzPmQ6PhFf+dA+QWlarOzw9pTqVkRrA=
+20250328171353_add_status_enums.down.sql h1:atiLCPBC9sHog66AESaDJITpKc1jAzW+gSmI+tdYjx8=
+20250328171353_add_status_enums.up.sql h1:eGij5YQ9GHoEcBUsIJmwDzIuA2s5QnX7yhGftik3GLI=
+20250330021845_update_deletion_request.down.sql h1:WLC7WdEIJAyOqElNHNcs2RAzBV2S6QHQIk8gW4Tws6E=
+20250330021845_update_deletion_request.up.sql h1:Om2QIHehW6YGW/m067+qMOIE0MVj+CqwozeugMn7A0E=

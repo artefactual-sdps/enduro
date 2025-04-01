@@ -16,6 +16,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/aip"
+	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/deletionrequest"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/location"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/task"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/workflow"
@@ -28,6 +29,8 @@ type Client struct {
 	Schema *migrate.Schema
 	// AIP is the client for interacting with the AIP builders.
 	AIP *AIPClient
+	// DeletionRequest is the client for interacting with the DeletionRequest builders.
+	DeletionRequest *DeletionRequestClient
 	// Location is the client for interacting with the Location builders.
 	Location *LocationClient
 	// Task is the client for interacting with the Task builders.
@@ -46,6 +49,7 @@ func NewClient(opts ...Option) *Client {
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.AIP = NewAIPClient(c.config)
+	c.DeletionRequest = NewDeletionRequestClient(c.config)
 	c.Location = NewLocationClient(c.config)
 	c.Task = NewTaskClient(c.config)
 	c.Workflow = NewWorkflowClient(c.config)
@@ -139,12 +143,13 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:      ctx,
-		config:   cfg,
-		AIP:      NewAIPClient(cfg),
-		Location: NewLocationClient(cfg),
-		Task:     NewTaskClient(cfg),
-		Workflow: NewWorkflowClient(cfg),
+		ctx:             ctx,
+		config:          cfg,
+		AIP:             NewAIPClient(cfg),
+		DeletionRequest: NewDeletionRequestClient(cfg),
+		Location:        NewLocationClient(cfg),
+		Task:            NewTaskClient(cfg),
+		Workflow:        NewWorkflowClient(cfg),
 	}, nil
 }
 
@@ -162,12 +167,13 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:      ctx,
-		config:   cfg,
-		AIP:      NewAIPClient(cfg),
-		Location: NewLocationClient(cfg),
-		Task:     NewTaskClient(cfg),
-		Workflow: NewWorkflowClient(cfg),
+		ctx:             ctx,
+		config:          cfg,
+		AIP:             NewAIPClient(cfg),
+		DeletionRequest: NewDeletionRequestClient(cfg),
+		Location:        NewLocationClient(cfg),
+		Task:            NewTaskClient(cfg),
+		Workflow:        NewWorkflowClient(cfg),
 	}, nil
 }
 
@@ -197,6 +203,7 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	c.AIP.Use(hooks...)
+	c.DeletionRequest.Use(hooks...)
 	c.Location.Use(hooks...)
 	c.Task.Use(hooks...)
 	c.Workflow.Use(hooks...)
@@ -206,6 +213,7 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	c.AIP.Intercept(interceptors...)
+	c.DeletionRequest.Intercept(interceptors...)
 	c.Location.Intercept(interceptors...)
 	c.Task.Intercept(interceptors...)
 	c.Workflow.Intercept(interceptors...)
@@ -216,6 +224,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
 	case *AIPMutation:
 		return c.AIP.mutate(ctx, m)
+	case *DeletionRequestMutation:
+		return c.DeletionRequest.mutate(ctx, m)
 	case *LocationMutation:
 		return c.Location.mutate(ctx, m)
 	case *TaskMutation:
@@ -367,6 +377,22 @@ func (c *AIPClient) QueryWorkflows(a *AIP) *WorkflowQuery {
 	return query
 }
 
+// QueryDeletionRequests queries the deletion_requests edge of a AIP.
+func (c *AIPClient) QueryDeletionRequests(a *AIP) *DeletionRequestQuery {
+	query := (&DeletionRequestClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := a.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(aip.Table, aip.FieldID, id),
+			sqlgraph.To(deletionrequest.Table, deletionrequest.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, aip.DeletionRequestsTable, aip.DeletionRequestsColumn),
+		)
+		fromV = sqlgraph.Neighbors(a.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *AIPClient) Hooks() []Hook {
 	return c.hooks.AIP
@@ -389,6 +415,171 @@ func (c *AIPClient) mutate(ctx context.Context, m *AIPMutation) (Value, error) {
 		return (&AIPDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("db: unknown AIP mutation op: %q", m.Op())
+	}
+}
+
+// DeletionRequestClient is a client for the DeletionRequest schema.
+type DeletionRequestClient struct {
+	config
+}
+
+// NewDeletionRequestClient returns a client for the DeletionRequest from the given config.
+func NewDeletionRequestClient(c config) *DeletionRequestClient {
+	return &DeletionRequestClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `deletionrequest.Hooks(f(g(h())))`.
+func (c *DeletionRequestClient) Use(hooks ...Hook) {
+	c.hooks.DeletionRequest = append(c.hooks.DeletionRequest, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `deletionrequest.Intercept(f(g(h())))`.
+func (c *DeletionRequestClient) Intercept(interceptors ...Interceptor) {
+	c.inters.DeletionRequest = append(c.inters.DeletionRequest, interceptors...)
+}
+
+// Create returns a builder for creating a DeletionRequest entity.
+func (c *DeletionRequestClient) Create() *DeletionRequestCreate {
+	mutation := newDeletionRequestMutation(c.config, OpCreate)
+	return &DeletionRequestCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of DeletionRequest entities.
+func (c *DeletionRequestClient) CreateBulk(builders ...*DeletionRequestCreate) *DeletionRequestCreateBulk {
+	return &DeletionRequestCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *DeletionRequestClient) MapCreateBulk(slice any, setFunc func(*DeletionRequestCreate, int)) *DeletionRequestCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &DeletionRequestCreateBulk{err: fmt.Errorf("calling to DeletionRequestClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*DeletionRequestCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &DeletionRequestCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for DeletionRequest.
+func (c *DeletionRequestClient) Update() *DeletionRequestUpdate {
+	mutation := newDeletionRequestMutation(c.config, OpUpdate)
+	return &DeletionRequestUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *DeletionRequestClient) UpdateOne(dr *DeletionRequest) *DeletionRequestUpdateOne {
+	mutation := newDeletionRequestMutation(c.config, OpUpdateOne, withDeletionRequest(dr))
+	return &DeletionRequestUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *DeletionRequestClient) UpdateOneID(id int) *DeletionRequestUpdateOne {
+	mutation := newDeletionRequestMutation(c.config, OpUpdateOne, withDeletionRequestID(id))
+	return &DeletionRequestUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for DeletionRequest.
+func (c *DeletionRequestClient) Delete() *DeletionRequestDelete {
+	mutation := newDeletionRequestMutation(c.config, OpDelete)
+	return &DeletionRequestDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *DeletionRequestClient) DeleteOne(dr *DeletionRequest) *DeletionRequestDeleteOne {
+	return c.DeleteOneID(dr.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *DeletionRequestClient) DeleteOneID(id int) *DeletionRequestDeleteOne {
+	builder := c.Delete().Where(deletionrequest.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &DeletionRequestDeleteOne{builder}
+}
+
+// Query returns a query builder for DeletionRequest.
+func (c *DeletionRequestClient) Query() *DeletionRequestQuery {
+	return &DeletionRequestQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeDeletionRequest},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a DeletionRequest entity by its id.
+func (c *DeletionRequestClient) Get(ctx context.Context, id int) (*DeletionRequest, error) {
+	return c.Query().Where(deletionrequest.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *DeletionRequestClient) GetX(ctx context.Context, id int) *DeletionRequest {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryAip queries the aip edge of a DeletionRequest.
+func (c *DeletionRequestClient) QueryAip(dr *DeletionRequest) *AIPQuery {
+	query := (&AIPClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := dr.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(deletionrequest.Table, deletionrequest.FieldID, id),
+			sqlgraph.To(aip.Table, aip.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, deletionrequest.AipTable, deletionrequest.AipColumn),
+		)
+		fromV = sqlgraph.Neighbors(dr.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryWorkflow queries the workflow edge of a DeletionRequest.
+func (c *DeletionRequestClient) QueryWorkflow(dr *DeletionRequest) *WorkflowQuery {
+	query := (&WorkflowClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := dr.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(deletionrequest.Table, deletionrequest.FieldID, id),
+			sqlgraph.To(workflow.Table, workflow.FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, true, deletionrequest.WorkflowTable, deletionrequest.WorkflowColumn),
+		)
+		fromV = sqlgraph.Neighbors(dr.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *DeletionRequestClient) Hooks() []Hook {
+	return c.hooks.DeletionRequest
+}
+
+// Interceptors returns the client interceptors.
+func (c *DeletionRequestClient) Interceptors() []Interceptor {
+	return c.inters.DeletionRequest
+}
+
+func (c *DeletionRequestClient) mutate(ctx context.Context, m *DeletionRequestMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&DeletionRequestCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&DeletionRequestUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&DeletionRequestUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&DeletionRequestDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("db: unknown DeletionRequest mutation op: %q", m.Op())
 	}
 }
 
@@ -830,6 +1021,22 @@ func (c *WorkflowClient) QueryTasks(w *Workflow) *TaskQuery {
 	return query
 }
 
+// QueryDeletionRequest queries the deletion_request edge of a Workflow.
+func (c *WorkflowClient) QueryDeletionRequest(w *Workflow) *DeletionRequestQuery {
+	query := (&DeletionRequestClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := w.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(workflow.Table, workflow.FieldID, id),
+			sqlgraph.To(deletionrequest.Table, deletionrequest.FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, false, workflow.DeletionRequestTable, workflow.DeletionRequestColumn),
+		)
+		fromV = sqlgraph.Neighbors(w.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *WorkflowClient) Hooks() []Hook {
 	return c.hooks.Workflow
@@ -858,9 +1065,9 @@ func (c *WorkflowClient) mutate(ctx context.Context, m *WorkflowMutation) (Value
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		AIP, Location, Task, Workflow []ent.Hook
+		AIP, DeletionRequest, Location, Task, Workflow []ent.Hook
 	}
 	inters struct {
-		AIP, Location, Task, Workflow []ent.Interceptor
+		AIP, DeletionRequest, Location, Task, Workflow []ent.Interceptor
 	}
 )

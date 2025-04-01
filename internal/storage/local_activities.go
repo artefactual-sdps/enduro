@@ -6,9 +6,18 @@ import (
 
 	"github.com/google/uuid"
 
+	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 	"github.com/artefactual-sdps/enduro/internal/storage/enums"
 	"github.com/artefactual-sdps/enduro/internal/storage/types"
 )
+
+func ReadAIPLocalActivity(
+	ctx context.Context,
+	storagesvc Service,
+	aipID uuid.UUID,
+) (*goastorage.AIP, error) {
+	return storagesvc.ReadAip(ctx, aipID)
+}
 
 type UpdateAIPLocationLocalActivityParams struct {
 	AIPID      uuid.UUID
@@ -36,16 +45,43 @@ func UpdateAIPStatusLocalActivity(
 	return storagesvc.UpdateAipStatus(ctx, params.AIPID, params.Status)
 }
 
-type DeleteFromLocationLocalActivityParams struct {
+type DeleteFromMinIOLocationLocalActivityParams struct {
 	AIPID uuid.UUID
 }
 
-func DeleteFromLocationLocalActivity(
+func DeleteFromMinIOLocationLocalActivity(
 	ctx context.Context,
 	storagesvc Service,
-	params *DeleteFromLocationLocalActivityParams,
+	params *DeleteFromMinIOLocationLocalActivityParams,
 ) error {
 	return storagesvc.DeleteAip(ctx, params.AIPID)
+}
+
+type ReadLocationInfoLocalActivityResult struct {
+	Source enums.LocationSource
+	Config types.LocationConfig
+}
+
+func ReadLocationInfoLocalActivity(
+	ctx context.Context,
+	storagesvc Service,
+	locationID uuid.UUID,
+) (*ReadLocationInfoLocalActivityResult, error) {
+	l, err := storagesvc.ReadLocation(ctx, locationID)
+	if err != nil {
+		return nil, err
+	}
+
+	// The location config from the Goa type cannot unmarshal.
+	config, err := ConvertGoaLocationConfigToLocationConfig(l.Config)
+	if err != nil {
+		return nil, err
+	}
+
+	return &ReadLocationInfoLocalActivityResult{
+		Source: enums.LocationSource(l.Source),
+		Config: config,
+	}, nil
 }
 
 type CreateWorkflowLocalActivityParams struct {
@@ -75,6 +111,24 @@ func CreateWorkflowLocalActivity(
 	return w.DBID, nil
 }
 
+type UpdateWorkflowStatusLocalActivityParams struct {
+	DBID   int
+	Status enums.WorkflowStatus
+}
+
+func UpdateWorkflowStatusLocalActivity(
+	ctx context.Context,
+	storagesvc Service,
+	params *UpdateWorkflowStatusLocalActivityParams,
+) error {
+	_, err := storagesvc.UpdateWorkflow(ctx, params.DBID, func(w *types.Workflow) (*types.Workflow, error) {
+		w.Status = params.Status
+		return w, nil
+	})
+
+	return err
+}
+
 type CompleteWorkflowLocalActivityParams struct {
 	DBID   int
 	Status enums.WorkflowStatus
@@ -90,15 +144,13 @@ func CompleteWorkflowLocalActivity(
 		w.CompletedAt = time.Now()
 		return w, nil
 	})
-	if err != nil {
-		return err
-	}
 
-	return nil
+	return err
 }
 
 type CreateTaskLocalActivityParams struct {
 	WorkflowDBID int
+	Status       enums.TaskStatus
 	Name         string
 	Note         string
 }
@@ -111,7 +163,7 @@ func CreateTaskLocalActivity(
 	t := &types.Task{
 		UUID:         uuid.New(),
 		Name:         params.Name,
-		Status:       enums.TaskStatusInProgress,
+		Status:       params.Status,
 		StartedAt:    time.Now(),
 		Note:         params.Note,
 		WorkflowDBID: params.WorkflowDBID,
@@ -141,9 +193,65 @@ func CompleteTaskLocalActivity(
 		t.Note = params.Note
 		return t, nil
 	})
+
+	return err
+}
+
+type CreateDeletionRequestLocalActivityParams struct {
+	Requester    string
+	RequesterISS string
+	RequesterSub string
+	Reason       string
+	AIPUUID      uuid.UUID
+	WorkflowDBID int
+}
+
+func CreateDeletionRequestLocalActivity(
+	ctx context.Context,
+	storagesvc Service,
+	params *CreateDeletionRequestLocalActivityParams,
+) (int, error) {
+	dr := &types.DeletionRequest{
+		UUID:         uuid.New(),
+		Requester:    params.Requester,
+		RequesterISS: params.RequesterISS,
+		RequesterSub: params.RequesterSub,
+		RequestedAt:  time.Now(),
+		Reason:       params.Reason,
+		Status:       enums.DeletionRequestStatusPending,
+		AIPUUID:      params.AIPUUID,
+		WorkflowDBID: params.WorkflowDBID,
+	}
+	err := storagesvc.CreateDeletionRequest(ctx, dr)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
-	return nil
+	return dr.DBID, nil
+}
+
+func ReviewDeletionRequestLocalActivity(
+	ctx context.Context,
+	storagesvc Service,
+	dbID int,
+	review DeletionReviewedSignal,
+) error {
+	_, err := storagesvc.UpdateDeletionRequest(
+		ctx,
+		dbID,
+		func(dr *types.DeletionRequest) (*types.DeletionRequest, error) {
+			dr.Reviewer = review.UserEmail
+			dr.ReviewerISS = review.UserISS
+			dr.ReviewerSub = review.UserSub
+			dr.ReviewedAt = time.Now()
+			if review.Approved {
+				dr.Status = enums.DeletionRequestStatusApproved
+			} else {
+				dr.Status = enums.DeletionRequestStatusRejected
+			}
+			return dr, nil
+		},
+	)
+
+	return err
 }

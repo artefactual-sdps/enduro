@@ -2,6 +2,7 @@
 import { useAsyncState } from "@vueuse/core";
 import { useRoute, useRouter } from "vue-router/auto";
 
+import AipPendingAlert from "@/components/AipPendingAlert.vue";
 import PageLoadingAlert from "@/components/PageLoadingAlert.vue";
 import Tabs from "@/components/Tabs.vue";
 import { useAipStore } from "@/stores/aip";
@@ -35,6 +36,8 @@ const tabs = [
 <template>
   <div class="container-xxl">
     <PageLoadingAlert v-if="error" :execute="execute" :error="error" />
+
+    <AipPendingAlert v-if="aipStore.current" />
 
     <h1 class="d-flex mb-3" v-if="aipStore.current">
       <IconAIPs class="me-3 text-dark" />{{ aipStore.current.name }}

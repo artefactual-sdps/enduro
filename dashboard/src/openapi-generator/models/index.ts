@@ -26,6 +26,8 @@ export * from './MonitorEvent';
 export * from './MonitorEventEvent';
 export * from './MonitorPingEvent';
 export * from './MoveStatusResult';
+export * from './RequestAipDeletionRequestBody';
+export * from './ReviewAipDeletionRequestBody';
 export * from './SIPCreatedEvent';
 export * from './SIPNotFound';
 export * from './SIPStatusUpdatedEvent';

@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/aip"
+	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/deletionrequest"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/location"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/predicate"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/workflow"
@@ -21,12 +22,13 @@ import (
 // AIPQuery is the builder for querying AIP entities.
 type AIPQuery struct {
 	config
-	ctx           *QueryContext
-	order         []aip.OrderOption
-	inters        []Interceptor
-	predicates    []predicate.AIP
-	withLocation  *LocationQuery
-	withWorkflows *WorkflowQuery
+	ctx                  *QueryContext
+	order                []aip.OrderOption
+	inters               []Interceptor
+	predicates           []predicate.AIP
+	withLocation         *LocationQuery
+	withWorkflows        *WorkflowQuery
+	withDeletionRequests *DeletionRequestQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -100,6 +102,28 @@ func (aq *AIPQuery) QueryWorkflows() *WorkflowQuery {
 			sqlgraph.From(aip.Table, aip.FieldID, selector),
 			sqlgraph.To(workflow.Table, workflow.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, aip.WorkflowsTable, aip.WorkflowsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(aq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryDeletionRequests chains the current query on the "deletion_requests" edge.
+func (aq *AIPQuery) QueryDeletionRequests() *DeletionRequestQuery {
+	query := (&DeletionRequestClient{config: aq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := aq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := aq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(aip.Table, aip.FieldID, selector),
+			sqlgraph.To(deletionrequest.Table, deletionrequest.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, aip.DeletionRequestsTable, aip.DeletionRequestsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(aq.driver.Dialect(), step)
 		return fromU, nil
@@ -294,13 +318,14 @@ func (aq *AIPQuery) Clone() *AIPQuery {
 		return nil
 	}
 	return &AIPQuery{
-		config:        aq.config,
-		ctx:           aq.ctx.Clone(),
-		order:         append([]aip.OrderOption{}, aq.order...),
-		inters:        append([]Interceptor{}, aq.inters...),
-		predicates:    append([]predicate.AIP{}, aq.predicates...),
-		withLocation:  aq.withLocation.Clone(),
-		withWorkflows: aq.withWorkflows.Clone(),
+		config:               aq.config,
+		ctx:                  aq.ctx.Clone(),
+		order:                append([]aip.OrderOption{}, aq.order...),
+		inters:               append([]Interceptor{}, aq.inters...),
+		predicates:           append([]predicate.AIP{}, aq.predicates...),
+		withLocation:         aq.withLocation.Clone(),
+		withWorkflows:        aq.withWorkflows.Clone(),
+		withDeletionRequests: aq.withDeletionRequests.Clone(),
 		// clone intermediate query.
 		sql:  aq.sql.Clone(),
 		path: aq.path,
@@ -326,6 +351,17 @@ func (aq *AIPQuery) WithWorkflows(opts ...func(*WorkflowQuery)) *AIPQuery {
 		opt(query)
 	}
 	aq.withWorkflows = query
+	return aq
+}
+
+// WithDeletionRequests tells the query-builder to eager-load the nodes that are connected to
+// the "deletion_requests" edge. The optional arguments are used to configure the query builder of the edge.
+func (aq *AIPQuery) WithDeletionRequests(opts ...func(*DeletionRequestQuery)) *AIPQuery {
+	query := (&DeletionRequestClient{config: aq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	aq.withDeletionRequests = query
 	return aq
 }
 
@@ -407,9 +443,10 @@ func (aq *AIPQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*AIP, err
 	var (
 		nodes       = []*AIP{}
 		_spec       = aq.querySpec()
-		loadedTypes = [2]bool{
+		loadedTypes = [3]bool{
 			aq.withLocation != nil,
 			aq.withWorkflows != nil,
+			aq.withDeletionRequests != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -440,6 +477,13 @@ func (aq *AIPQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*AIP, err
 		if err := aq.loadWorkflows(ctx, query, nodes,
 			func(n *AIP) { n.Edges.Workflows = []*Workflow{} },
 			func(n *AIP, e *Workflow) { n.Edges.Workflows = append(n.Edges.Workflows, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := aq.withDeletionRequests; query != nil {
+		if err := aq.loadDeletionRequests(ctx, query, nodes,
+			func(n *AIP) { n.Edges.DeletionRequests = []*DeletionRequest{} },
+			func(n *AIP, e *DeletionRequest) { n.Edges.DeletionRequests = append(n.Edges.DeletionRequests, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -490,6 +534,36 @@ func (aq *AIPQuery) loadWorkflows(ctx context.Context, query *WorkflowQuery, nod
 	}
 	query.Where(predicate.Workflow(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(aip.WorkflowsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.AipID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "aip_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (aq *AIPQuery) loadDeletionRequests(ctx context.Context, query *DeletionRequestQuery, nodes []*AIP, init func(*AIP), assign func(*AIP, *DeletionRequest)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*AIP)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(deletionrequest.FieldAipID)
+	}
+	query.Where(predicate.DeletionRequest(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(aip.DeletionRequestsColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {

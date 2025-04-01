@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/aip"
+	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/deletionrequest"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/predicate"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/task"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/workflow"
@@ -21,12 +22,13 @@ import (
 // WorkflowQuery is the builder for querying Workflow entities.
 type WorkflowQuery struct {
 	config
-	ctx        *QueryContext
-	order      []workflow.OrderOption
-	inters     []Interceptor
-	predicates []predicate.Workflow
-	withAip    *AIPQuery
-	withTasks  *TaskQuery
+	ctx                 *QueryContext
+	order               []workflow.OrderOption
+	inters              []Interceptor
+	predicates          []predicate.Workflow
+	withAip             *AIPQuery
+	withTasks           *TaskQuery
+	withDeletionRequest *DeletionRequestQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -100,6 +102,28 @@ func (wq *WorkflowQuery) QueryTasks() *TaskQuery {
 			sqlgraph.From(workflow.Table, workflow.FieldID, selector),
 			sqlgraph.To(task.Table, task.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, workflow.TasksTable, workflow.TasksColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(wq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryDeletionRequest chains the current query on the "deletion_request" edge.
+func (wq *WorkflowQuery) QueryDeletionRequest() *DeletionRequestQuery {
+	query := (&DeletionRequestClient{config: wq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := wq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := wq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(workflow.Table, workflow.FieldID, selector),
+			sqlgraph.To(deletionrequest.Table, deletionrequest.FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, false, workflow.DeletionRequestTable, workflow.DeletionRequestColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(wq.driver.Dialect(), step)
 		return fromU, nil
@@ -294,13 +318,14 @@ func (wq *WorkflowQuery) Clone() *WorkflowQuery {
 		return nil
 	}
 	return &WorkflowQuery{
-		config:     wq.config,
-		ctx:        wq.ctx.Clone(),
-		order:      append([]workflow.OrderOption{}, wq.order...),
-		inters:     append([]Interceptor{}, wq.inters...),
-		predicates: append([]predicate.Workflow{}, wq.predicates...),
-		withAip:    wq.withAip.Clone(),
-		withTasks:  wq.withTasks.Clone(),
+		config:              wq.config,
+		ctx:                 wq.ctx.Clone(),
+		order:               append([]workflow.OrderOption{}, wq.order...),
+		inters:              append([]Interceptor{}, wq.inters...),
+		predicates:          append([]predicate.Workflow{}, wq.predicates...),
+		withAip:             wq.withAip.Clone(),
+		withTasks:           wq.withTasks.Clone(),
+		withDeletionRequest: wq.withDeletionRequest.Clone(),
 		// clone intermediate query.
 		sql:  wq.sql.Clone(),
 		path: wq.path,
@@ -326,6 +351,17 @@ func (wq *WorkflowQuery) WithTasks(opts ...func(*TaskQuery)) *WorkflowQuery {
 		opt(query)
 	}
 	wq.withTasks = query
+	return wq
+}
+
+// WithDeletionRequest tells the query-builder to eager-load the nodes that are connected to
+// the "deletion_request" edge. The optional arguments are used to configure the query builder of the edge.
+func (wq *WorkflowQuery) WithDeletionRequest(opts ...func(*DeletionRequestQuery)) *WorkflowQuery {
+	query := (&DeletionRequestClient{config: wq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	wq.withDeletionRequest = query
 	return wq
 }
 
@@ -407,9 +443,10 @@ func (wq *WorkflowQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Wor
 	var (
 		nodes       = []*Workflow{}
 		_spec       = wq.querySpec()
-		loadedTypes = [2]bool{
+		loadedTypes = [3]bool{
 			wq.withAip != nil,
 			wq.withTasks != nil,
+			wq.withDeletionRequest != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -440,6 +477,12 @@ func (wq *WorkflowQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Wor
 		if err := wq.loadTasks(ctx, query, nodes,
 			func(n *Workflow) { n.Edges.Tasks = []*Task{} },
 			func(n *Workflow, e *Task) { n.Edges.Tasks = append(n.Edges.Tasks, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := wq.withDeletionRequest; query != nil {
+		if err := wq.loadDeletionRequest(ctx, query, nodes, nil,
+			func(n *Workflow, e *DeletionRequest) { n.Edges.DeletionRequest = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -490,6 +533,33 @@ func (wq *WorkflowQuery) loadTasks(ctx context.Context, query *TaskQuery, nodes 
 	}
 	query.Where(predicate.Task(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(workflow.TasksColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.WorkflowID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "workflow_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (wq *WorkflowQuery) loadDeletionRequest(ctx context.Context, query *DeletionRequestQuery, nodes []*Workflow, init func(*Workflow), assign func(*Workflow, *DeletionRequest)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*Workflow)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(deletionrequest.FieldWorkflowID)
+	}
+	query.Where(predicate.DeletionRequest(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(workflow.DeletionRequestColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {

@@ -44,9 +44,11 @@ type AIPEdges struct {
 	Location *Location `json:"location,omitempty"`
 	// Workflows holds the value of the workflows edge.
 	Workflows []*Workflow `json:"workflows,omitempty"`
+	// DeletionRequests holds the value of the deletion_requests edge.
+	DeletionRequests []*DeletionRequest `json:"deletion_requests,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
+	loadedTypes [3]bool
 }
 
 // LocationOrErr returns the Location value or an error if the edge
@@ -67,6 +69,15 @@ func (e AIPEdges) WorkflowsOrErr() ([]*Workflow, error) {
 		return e.Workflows, nil
 	}
 	return nil, &NotLoadedError{edge: "workflows"}
+}
+
+// DeletionRequestsOrErr returns the DeletionRequests value or an error if the edge
+// was not loaded in eager-loading.
+func (e AIPEdges) DeletionRequestsOrErr() ([]*DeletionRequest, error) {
+	if e.loadedTypes[2] {
+		return e.DeletionRequests, nil
+	}
+	return nil, &NotLoadedError{edge: "deletion_requests"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -160,6 +171,11 @@ func (a *AIP) QueryLocation() *LocationQuery {
 // QueryWorkflows queries the "workflows" edge of the AIP entity.
 func (a *AIP) QueryWorkflows() *WorkflowQuery {
 	return NewAIPClient(a.config).QueryWorkflows(a)
+}
+
+// QueryDeletionRequests queries the "deletion_requests" edge of the AIP entity.
+func (a *AIP) QueryDeletionRequests() *DeletionRequestQuery {
+	return NewAIPClient(a.config).QueryDeletionRequests(a)
 }
 
 // Update returns a builder for updating this AIP.

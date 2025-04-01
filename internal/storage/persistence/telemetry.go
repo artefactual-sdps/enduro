@@ -218,3 +218,49 @@ func (w *wrapper) UpdateTask(ctx context.Context, id int, upd TaskUpdater) (*typ
 
 	return r, nil
 }
+
+func (w *wrapper) CreateDeletionRequest(ctx context.Context, dr *types.DeletionRequest) error {
+	ctx, span := w.tracer.Start(ctx, "CreateDeletionRequest")
+	defer span.End()
+
+	err := w.wrapped.CreateDeletionRequest(ctx, dr)
+	if err != nil {
+		telemetry.RecordError(span, err)
+		return updateError(err, "CreateDeletionRequest")
+	}
+
+	return nil
+}
+
+func (w *wrapper) UpdateDeletionRequest(
+	ctx context.Context,
+	id int,
+	upd DeletionRequestUpdater,
+) (*types.DeletionRequest, error) {
+	ctx, span := w.tracer.Start(ctx, "UpdateDeletionRequest")
+	defer span.End()
+
+	r, err := w.wrapped.UpdateDeletionRequest(ctx, id, upd)
+	if err != nil {
+		telemetry.RecordError(span, err)
+		return nil, updateError(err, "UpdateDeletionRequest")
+	}
+
+	return r, nil
+}
+
+func (w *wrapper) ReadAipPendingDeletionRequest(
+	ctx context.Context,
+	aipID uuid.UUID,
+) (*types.DeletionRequest, error) {
+	ctx, span := w.tracer.Start(ctx, "ReadAipPendingDeletionRequest")
+	defer span.End()
+
+	r, err := w.wrapped.ReadAipPendingDeletionRequest(ctx, aipID)
+	if err != nil {
+		telemetry.RecordError(span, err)
+		return nil, updateError(err, "ReadAipPendingDeletionRequest")
+	}
+
+	return r, nil
+}

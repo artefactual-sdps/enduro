@@ -454,6 +454,10 @@ func main() {
 		)
 
 		w.RegisterWorkflowWithOptions(
+			storage_workflows.NewStorageDeleteWorkflow(storagesvc).Execute,
+			temporalsdk_workflow.RegisterOptions{Name: storage.StorageDeleteWorkflowName},
+		)
+		w.RegisterWorkflowWithOptions(
 			storage_workflows.NewStorageUploadWorkflow().Execute,
 			temporalsdk_workflow.RegisterOptions{Name: storage.StorageUploadWorkflowName},
 		)
@@ -465,6 +469,10 @@ func main() {
 		w.RegisterActivityWithOptions(
 			storage_activities.NewCopyToPermanentLocationActivity(storagesvc).Execute,
 			temporalsdk_activity.RegisterOptions{Name: storage.CopyToPermanentLocationActivityName},
+		)
+		w.RegisterActivityWithOptions(
+			storage_activities.NewDeleteFromAMSSLocationActivity().Execute,
+			temporalsdk_activity.RegisterOptions{Name: storage.DeleteFromAMSSLocationActivityName},
 		)
 
 		w.RegisterWorkflowWithOptions(
@@ -499,6 +507,8 @@ func main() {
 			storageHttpClient.RejectAip(),
 			storageHttpClient.ShowAip(),
 			storageHttpClient.ListAipWorkflows(),
+			storageHttpClient.RequestAipDeletion(),
+			storageHttpClient.ReviewAipDeletion(),
 			storageHttpClient.ListLocations(),
 			storageHttpClient.CreateLocation(),
 			storageHttpClient.ShowLocation(),

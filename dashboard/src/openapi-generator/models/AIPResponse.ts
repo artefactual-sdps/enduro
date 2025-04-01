@@ -66,7 +66,10 @@ export const AIPResponseStatusEnum = {
     InReview: 'in_review',
     Rejected: 'rejected',
     Stored: 'stored',
-    Moving: 'moving'
+    Moving: 'moving',
+    Pending: 'pending',
+    Processing: 'processing',
+    Deleted: 'deleted'
 } as const;
 export type AIPResponseStatusEnum = typeof AIPResponseStatusEnum[keyof typeof AIPResponseStatusEnum];
 

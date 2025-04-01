@@ -1359,6 +1359,237 @@ func DecodeListAipWorkflowsResponse(decoder func(*http.Response) goahttp.Decoder
 	}
 }
 
+// BuildRequestAipDeletionRequest instantiates a HTTP request object with
+// method and path set to call the "storage" service "request_aip_deletion"
+// endpoint
+func (c *Client) BuildRequestAipDeletionRequest(ctx context.Context, v any) (*http.Request, error) {
+	var (
+		uuid string
+	)
+	{
+		p, ok := v.(*storage.RequestAipDeletionPayload)
+		if !ok {
+			return nil, goahttp.ErrInvalidType("storage", "request_aip_deletion", "*storage.RequestAipDeletionPayload", v)
+		}
+		uuid = p.UUID
+	}
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: RequestAipDeletionStoragePath(uuid)}
+	req, err := http.NewRequest("POST", u.String(), nil)
+	if err != nil {
+		return nil, goahttp.ErrInvalidURL("storage", "request_aip_deletion", u.String(), err)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
+	return req, nil
+}
+
+// EncodeRequestAipDeletionRequest returns an encoder for requests sent to the
+// storage request_aip_deletion server.
+func EncodeRequestAipDeletionRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, any) error {
+	return func(req *http.Request, v any) error {
+		p, ok := v.(*storage.RequestAipDeletionPayload)
+		if !ok {
+			return goahttp.ErrInvalidType("storage", "request_aip_deletion", "*storage.RequestAipDeletionPayload", v)
+		}
+		if p.Token != nil {
+			head := *p.Token
+			if !strings.Contains(head, " ") {
+				req.Header.Set("Authorization", "Bearer "+head)
+			} else {
+				req.Header.Set("Authorization", head)
+			}
+		}
+		body := NewRequestAipDeletionRequestBody(p)
+		if err := encoder(req).Encode(&body); err != nil {
+			return goahttp.ErrEncodingError("storage", "request_aip_deletion", err)
+		}
+		return nil
+	}
+}
+
+// DecodeRequestAipDeletionResponse returns a decoder for responses returned by
+// the storage request_aip_deletion endpoint. restoreBody controls whether the
+// response body should be restored after having been read.
+// DecodeRequestAipDeletionResponse may return the following errors:
+//   - "not_found" (type *storage.AIPNotFound): http.StatusNotFound
+//   - "forbidden" (type storage.Forbidden): http.StatusForbidden
+//   - "unauthorized" (type storage.Unauthorized): http.StatusUnauthorized
+//   - error: internal error
+func DecodeRequestAipDeletionResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
+	return func(resp *http.Response) (any, error) {
+		if restoreBody {
+			b, err := io.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			defer func() {
+				resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			}()
+		} else {
+			defer resp.Body.Close()
+		}
+		switch resp.StatusCode {
+		case http.StatusOK:
+			return nil, nil
+		case http.StatusNotFound:
+			var (
+				body RequestAipDeletionNotFoundResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "request_aip_deletion", err)
+			}
+			err = ValidateRequestAipDeletionNotFoundResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "request_aip_deletion", err)
+			}
+			return nil, NewRequestAipDeletionNotFound(&body)
+		case http.StatusForbidden:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "request_aip_deletion", err)
+			}
+			return nil, NewRequestAipDeletionForbidden(body)
+		case http.StatusUnauthorized:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "request_aip_deletion", err)
+			}
+			return nil, NewRequestAipDeletionUnauthorized(body)
+		default:
+			body, _ := io.ReadAll(resp.Body)
+			return nil, goahttp.ErrInvalidResponse("storage", "request_aip_deletion", resp.StatusCode, string(body))
+		}
+	}
+}
+
+// BuildReviewAipDeletionRequest instantiates a HTTP request object with method
+// and path set to call the "storage" service "review_aip_deletion" endpoint
+func (c *Client) BuildReviewAipDeletionRequest(ctx context.Context, v any) (*http.Request, error) {
+	var (
+		uuid string
+	)
+	{
+		p, ok := v.(*storage.ReviewAipDeletionPayload)
+		if !ok {
+			return nil, goahttp.ErrInvalidType("storage", "review_aip_deletion", "*storage.ReviewAipDeletionPayload", v)
+		}
+		uuid = p.UUID
+	}
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: ReviewAipDeletionStoragePath(uuid)}
+	req, err := http.NewRequest("POST", u.String(), nil)
+	if err != nil {
+		return nil, goahttp.ErrInvalidURL("storage", "review_aip_deletion", u.String(), err)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
+	return req, nil
+}
+
+// EncodeReviewAipDeletionRequest returns an encoder for requests sent to the
+// storage review_aip_deletion server.
+func EncodeReviewAipDeletionRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, any) error {
+	return func(req *http.Request, v any) error {
+		p, ok := v.(*storage.ReviewAipDeletionPayload)
+		if !ok {
+			return goahttp.ErrInvalidType("storage", "review_aip_deletion", "*storage.ReviewAipDeletionPayload", v)
+		}
+		if p.Token != nil {
+			head := *p.Token
+			if !strings.Contains(head, " ") {
+				req.Header.Set("Authorization", "Bearer "+head)
+			} else {
+				req.Header.Set("Authorization", head)
+			}
+		}
+		body := NewReviewAipDeletionRequestBody(p)
+		if err := encoder(req).Encode(&body); err != nil {
+			return goahttp.ErrEncodingError("storage", "review_aip_deletion", err)
+		}
+		return nil
+	}
+}
+
+// DecodeReviewAipDeletionResponse returns a decoder for responses returned by
+// the storage review_aip_deletion endpoint. restoreBody controls whether the
+// response body should be restored after having been read.
+// DecodeReviewAipDeletionResponse may return the following errors:
+//   - "not_found" (type *storage.AIPNotFound): http.StatusNotFound
+//   - "forbidden" (type storage.Forbidden): http.StatusForbidden
+//   - "unauthorized" (type storage.Unauthorized): http.StatusUnauthorized
+//   - error: internal error
+func DecodeReviewAipDeletionResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
+	return func(resp *http.Response) (any, error) {
+		if restoreBody {
+			b, err := io.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			defer func() {
+				resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			}()
+		} else {
+			defer resp.Body.Close()
+		}
+		switch resp.StatusCode {
+		case http.StatusOK:
+			return nil, nil
+		case http.StatusNotFound:
+			var (
+				body ReviewAipDeletionNotFoundResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "review_aip_deletion", err)
+			}
+			err = ValidateReviewAipDeletionNotFoundResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "review_aip_deletion", err)
+			}
+			return nil, NewReviewAipDeletionNotFound(&body)
+		case http.StatusForbidden:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "review_aip_deletion", err)
+			}
+			return nil, NewReviewAipDeletionForbidden(body)
+		case http.StatusUnauthorized:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "review_aip_deletion", err)
+			}
+			return nil, NewReviewAipDeletionUnauthorized(body)
+		default:
+			body, _ := io.ReadAll(resp.Body)
+			return nil, goahttp.ErrInvalidResponse("storage", "review_aip_deletion", resp.StatusCode, string(body))
+		}
+	}
+}
+
 // BuildListLocationsRequest instantiates a HTTP request object with method and
 // path set to call the "storage" service "list_locations" endpoint
 func (c *Client) BuildListLocationsRequest(ctx context.Context, v any) (*http.Request, error) {

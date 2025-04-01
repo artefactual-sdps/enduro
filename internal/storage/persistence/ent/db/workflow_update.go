@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/artefactual-sdps/enduro/internal/storage/enums"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/aip"
+	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/deletionrequest"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/predicate"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/task"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/workflow"
@@ -162,6 +163,25 @@ func (wu *WorkflowUpdate) AddTasks(t ...*Task) *WorkflowUpdate {
 	return wu.AddTaskIDs(ids...)
 }
 
+// SetDeletionRequestID sets the "deletion_request" edge to the DeletionRequest entity by ID.
+func (wu *WorkflowUpdate) SetDeletionRequestID(id int) *WorkflowUpdate {
+	wu.mutation.SetDeletionRequestID(id)
+	return wu
+}
+
+// SetNillableDeletionRequestID sets the "deletion_request" edge to the DeletionRequest entity by ID if the given value is not nil.
+func (wu *WorkflowUpdate) SetNillableDeletionRequestID(id *int) *WorkflowUpdate {
+	if id != nil {
+		wu = wu.SetDeletionRequestID(*id)
+	}
+	return wu
+}
+
+// SetDeletionRequest sets the "deletion_request" edge to the DeletionRequest entity.
+func (wu *WorkflowUpdate) SetDeletionRequest(d *DeletionRequest) *WorkflowUpdate {
+	return wu.SetDeletionRequestID(d.ID)
+}
+
 // Mutation returns the WorkflowMutation object of the builder.
 func (wu *WorkflowUpdate) Mutation() *WorkflowMutation {
 	return wu.mutation
@@ -192,6 +212,12 @@ func (wu *WorkflowUpdate) RemoveTasks(t ...*Task) *WorkflowUpdate {
 		ids[i] = t[i].ID
 	}
 	return wu.RemoveTaskIDs(ids...)
+}
+
+// ClearDeletionRequest clears the "deletion_request" edge to the DeletionRequest entity.
+func (wu *WorkflowUpdate) ClearDeletionRequest() *WorkflowUpdate {
+	wu.mutation.ClearDeletionRequest()
+	return wu
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -354,6 +380,35 @@ func (wu *WorkflowUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if wu.mutation.DeletionRequestCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   workflow.DeletionRequestTable,
+			Columns: []string{workflow.DeletionRequestColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(deletionrequest.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := wu.mutation.DeletionRequestIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   workflow.DeletionRequestTable,
+			Columns: []string{workflow.DeletionRequestColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(deletionrequest.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, wu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{workflow.Label}
@@ -504,6 +559,25 @@ func (wuo *WorkflowUpdateOne) AddTasks(t ...*Task) *WorkflowUpdateOne {
 	return wuo.AddTaskIDs(ids...)
 }
 
+// SetDeletionRequestID sets the "deletion_request" edge to the DeletionRequest entity by ID.
+func (wuo *WorkflowUpdateOne) SetDeletionRequestID(id int) *WorkflowUpdateOne {
+	wuo.mutation.SetDeletionRequestID(id)
+	return wuo
+}
+
+// SetNillableDeletionRequestID sets the "deletion_request" edge to the DeletionRequest entity by ID if the given value is not nil.
+func (wuo *WorkflowUpdateOne) SetNillableDeletionRequestID(id *int) *WorkflowUpdateOne {
+	if id != nil {
+		wuo = wuo.SetDeletionRequestID(*id)
+	}
+	return wuo
+}
+
+// SetDeletionRequest sets the "deletion_request" edge to the DeletionRequest entity.
+func (wuo *WorkflowUpdateOne) SetDeletionRequest(d *DeletionRequest) *WorkflowUpdateOne {
+	return wuo.SetDeletionRequestID(d.ID)
+}
+
 // Mutation returns the WorkflowMutation object of the builder.
 func (wuo *WorkflowUpdateOne) Mutation() *WorkflowMutation {
 	return wuo.mutation
@@ -534,6 +608,12 @@ func (wuo *WorkflowUpdateOne) RemoveTasks(t ...*Task) *WorkflowUpdateOne {
 		ids[i] = t[i].ID
 	}
 	return wuo.RemoveTaskIDs(ids...)
+}
+
+// ClearDeletionRequest clears the "deletion_request" edge to the DeletionRequest entity.
+func (wuo *WorkflowUpdateOne) ClearDeletionRequest() *WorkflowUpdateOne {
+	wuo.mutation.ClearDeletionRequest()
+	return wuo
 }
 
 // Where appends a list predicates to the WorkflowUpdate builder.
@@ -719,6 +799,35 @@ func (wuo *WorkflowUpdateOne) sqlSave(ctx context.Context) (_node *Workflow, err
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(task.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if wuo.mutation.DeletionRequestCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   workflow.DeletionRequestTable,
+			Columns: []string{workflow.DeletionRequestColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(deletionrequest.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := wuo.mutation.DeletionRequestIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   workflow.DeletionRequestTable,
+			Columns: []string{workflow.DeletionRequestColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(deletionrequest.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

@@ -32,6 +32,8 @@ const (
 	EdgeLocation = "location"
 	// EdgeWorkflows holds the string denoting the workflows edge name in mutations.
 	EdgeWorkflows = "workflows"
+	// EdgeDeletionRequests holds the string denoting the deletion_requests edge name in mutations.
+	EdgeDeletionRequests = "deletion_requests"
 	// Table holds the table name of the aip in the database.
 	Table = "aip"
 	// LocationTable is the table that holds the location relation/edge.
@@ -48,6 +50,13 @@ const (
 	WorkflowsInverseTable = "workflow"
 	// WorkflowsColumn is the table column denoting the workflows relation/edge.
 	WorkflowsColumn = "aip_id"
+	// DeletionRequestsTable is the table that holds the deletion_requests relation/edge.
+	DeletionRequestsTable = "deletion_request"
+	// DeletionRequestsInverseTable is the table name for the DeletionRequest entity.
+	// It exists in this package in order to avoid circular dependency with the "deletionrequest" package.
+	DeletionRequestsInverseTable = "deletion_request"
+	// DeletionRequestsColumn is the table column denoting the deletion_requests relation/edge.
+	DeletionRequestsColumn = "aip_id"
 )
 
 // Columns holds all SQL columns for aip fields.
@@ -79,7 +88,7 @@ var (
 // StatusValidator is a validator for the "status" field enum values. It is called by the builders before save.
 func StatusValidator(s enums.AIPStatus) error {
 	switch s.String() {
-	case "unspecified", "in_review", "rejected", "stored", "moving":
+	case "unspecified", "in_review", "rejected", "stored", "moving", "pending", "processing", "deleted":
 		return nil
 	default:
 		return fmt.Errorf("aip: invalid enum value for status field: %q", s)
@@ -144,6 +153,20 @@ func ByWorkflows(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newWorkflowsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByDeletionRequestsCount orders the results by deletion_requests count.
+func ByDeletionRequestsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newDeletionRequestsStep(), opts...)
+	}
+}
+
+// ByDeletionRequests orders the results by deletion_requests terms.
+func ByDeletionRequests(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newDeletionRequestsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newLocationStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -156,5 +179,12 @@ func newWorkflowsStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(WorkflowsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, WorkflowsTable, WorkflowsColumn),
+	)
+}
+func newDeletionRequestsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(DeletionRequestsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, DeletionRequestsTable, DeletionRequestsColumn),
 	)
 }

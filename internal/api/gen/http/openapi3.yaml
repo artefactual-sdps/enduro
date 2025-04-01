@@ -747,6 +747,9 @@ paths:
                         - rejected
                         - stored
                         - moving
+                        - pending
+                        - processing
+                        - deleted
                   example: in_review
                 - name: limit
                   in: query
@@ -935,6 +938,120 @@ paths:
             security:
                 - jwt_header_Authorization:
                     - storage:aips:read
+    /storage/aips/{uuid}/deletion-request:
+        post:
+            tags:
+                - storage
+            summary: request_aip_deletion storage
+            description: Request an AIP deletion
+            operationId: storage#request_aip_deletion
+            parameters:
+                - name: uuid
+                  in: path
+                  description: Identifier of AIP
+                  required: true
+                  schema:
+                    type: string
+                    description: Identifier of AIP
+                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    format: uuid
+                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/RequestAipDeletionRequestBody'
+                        example:
+                            reason: abc123
+            responses:
+                "200":
+                    description: OK response.
+                "401":
+                    description: 'unauthorized: Unauthorized response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
+                "403":
+                    description: 'forbidden: Forbidden response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
+                "404":
+                    description: 'not_found: AIP not found'
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AIPNotFound'
+                            example:
+                                message: abc123
+                                uuid: abc123
+            security:
+                - jwt_header_Authorization:
+                    - storage:aips:deletion:request
+    /storage/aips/{uuid}/deletion-review:
+        post:
+            tags:
+                - storage
+            summary: review_aip_deletion storage
+            description: Review an AIP deletion request
+            operationId: storage#review_aip_deletion
+            parameters:
+                - name: uuid
+                  in: path
+                  description: Identifier of AIP
+                  required: true
+                  schema:
+                    type: string
+                    description: Identifier of AIP
+                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    format: uuid
+                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ReviewAipDeletionRequestBody'
+                        example:
+                            approved: false
+            responses:
+                "200":
+                    description: OK response.
+                "401":
+                    description: 'unauthorized: Unauthorized response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
+                "403":
+                    description: 'forbidden: Forbidden response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
+                "404":
+                    description: 'not_found: AIP not found'
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AIPNotFound'
+                            example:
+                                message: abc123
+                                uuid: abc123
+            security:
+                - jwt_header_Authorization:
+                    - storage:aips:deletion:review
     /storage/aips/{uuid}/download:
         get:
             tags:
@@ -1674,6 +1791,9 @@ components:
                         - rejected
                         - stored
                         - moving
+                        - pending
+                        - processing
+                        - deleted
                 uuid:
                     type: string
                     example: abc123
@@ -1812,6 +1932,9 @@ components:
                         - rejected
                         - stored
                         - moving
+                        - pending
+                        - processing
+                        - deleted
                 uuid:
                     type: string
                     description: Identifier of the AIP
@@ -2203,6 +2326,9 @@ components:
                         - rejected
                         - stored
                         - moving
+                        - pending
+                        - processing
+                        - deleted
                 uuid:
                     type: string
                     example: abc123
@@ -2283,6 +2409,7 @@ components:
                         - error
                         - queued
                         - pending
+                        - canceled
                 tasks:
                     $ref: '#/components/schemas/AIPTaskCollection'
                 temporal_id:
@@ -2563,6 +2690,26 @@ components:
                 done: false
             required:
                 - done
+        RequestAipDeletionRequestBody:
+            type: object
+            properties:
+                reason:
+                    type: string
+                    example: abc123
+            example:
+                reason: abc123
+            required:
+                - reason
+        ReviewAipDeletionRequestBody:
+            type: object
+            properties:
+                approved:
+                    type: boolean
+                    example: false
+            example:
+                approved: false
+            required:
+                - approved
         SIPCollection:
             type: array
             items:

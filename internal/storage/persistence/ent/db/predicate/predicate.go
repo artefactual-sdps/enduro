@@ -9,6 +9,9 @@ import (
 // AIP is the predicate function for aip builders.
 type AIP func(*sql.Selector)
 
+// DeletionRequest is the predicate function for deletionrequest builders.
+type DeletionRequest func(*sql.Selector)
+
 // Location is the predicate function for location builders.
 type Location func(*sql.Selector)
 

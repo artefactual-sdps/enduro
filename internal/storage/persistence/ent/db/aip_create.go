@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/artefactual-sdps/enduro/internal/storage/enums"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/aip"
+	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/deletionrequest"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/location"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/workflow"
 	"github.com/google/uuid"
@@ -94,6 +95,21 @@ func (ac *AIPCreate) AddWorkflows(w ...*Workflow) *AIPCreate {
 		ids[i] = w[i].ID
 	}
 	return ac.AddWorkflowIDs(ids...)
+}
+
+// AddDeletionRequestIDs adds the "deletion_requests" edge to the DeletionRequest entity by IDs.
+func (ac *AIPCreate) AddDeletionRequestIDs(ids ...int) *AIPCreate {
+	ac.mutation.AddDeletionRequestIDs(ids...)
+	return ac
+}
+
+// AddDeletionRequests adds the "deletion_requests" edges to the DeletionRequest entity.
+func (ac *AIPCreate) AddDeletionRequests(d ...*DeletionRequest) *AIPCreate {
+	ids := make([]int, len(d))
+	for i := range d {
+		ids[i] = d[i].ID
+	}
+	return ac.AddDeletionRequestIDs(ids...)
 }
 
 // Mutation returns the AIPMutation object of the builder.
@@ -231,6 +247,22 @@ func (ac *AIPCreate) createSpec() (*AIP, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(workflow.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := ac.mutation.DeletionRequestsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   aip.DeletionRequestsTable,
+			Columns: []string{aip.DeletionRequestsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(deletionrequest.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

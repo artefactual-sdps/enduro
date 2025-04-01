@@ -58,6 +58,14 @@ type Client struct {
 	// list_aip_workflows endpoint.
 	ListAipWorkflowsDoer goahttp.Doer
 
+	// RequestAipDeletion Doer is the HTTP client used to make requests to the
+	// request_aip_deletion endpoint.
+	RequestAipDeletionDoer goahttp.Doer
+
+	// ReviewAipDeletion Doer is the HTTP client used to make requests to the
+	// review_aip_deletion endpoint.
+	ReviewAipDeletionDoer goahttp.Doer
+
 	// ListLocations Doer is the HTTP client used to make requests to the
 	// list_locations endpoint.
 	ListLocationsDoer goahttp.Doer
@@ -97,26 +105,28 @@ func NewClient(
 	restoreBody bool,
 ) *Client {
 	return &Client{
-		ListAipsDoer:         doer,
-		CreateAipDoer:        doer,
-		SubmitAipDoer:        doer,
-		UpdateAipDoer:        doer,
-		DownloadAipDoer:      doer,
-		MoveAipDoer:          doer,
-		MoveAipStatusDoer:    doer,
-		RejectAipDoer:        doer,
-		ShowAipDoer:          doer,
-		ListAipWorkflowsDoer: doer,
-		ListLocationsDoer:    doer,
-		CreateLocationDoer:   doer,
-		ShowLocationDoer:     doer,
-		ListLocationAipsDoer: doer,
-		CORSDoer:             doer,
-		RestoreResponseBody:  restoreBody,
-		scheme:               scheme,
-		host:                 host,
-		decoder:              dec,
-		encoder:              enc,
+		ListAipsDoer:           doer,
+		CreateAipDoer:          doer,
+		SubmitAipDoer:          doer,
+		UpdateAipDoer:          doer,
+		DownloadAipDoer:        doer,
+		MoveAipDoer:            doer,
+		MoveAipStatusDoer:      doer,
+		RejectAipDoer:          doer,
+		ShowAipDoer:            doer,
+		ListAipWorkflowsDoer:   doer,
+		RequestAipDeletionDoer: doer,
+		ReviewAipDeletionDoer:  doer,
+		ListLocationsDoer:      doer,
+		CreateLocationDoer:     doer,
+		ShowLocationDoer:       doer,
+		ListLocationAipsDoer:   doer,
+		CORSDoer:               doer,
+		RestoreResponseBody:    restoreBody,
+		scheme:                 scheme,
+		host:                   host,
+		decoder:                dec,
+		encoder:                enc,
 	}
 }
 
@@ -355,6 +365,54 @@ func (c *Client) ListAipWorkflows() goa.Endpoint {
 		resp, err := c.ListAipWorkflowsDoer.Do(req)
 		if err != nil {
 			return nil, goahttp.ErrRequestError("storage", "list_aip_workflows", err)
+		}
+		return decodeResponse(resp)
+	}
+}
+
+// RequestAipDeletion returns an endpoint that makes HTTP requests to the
+// storage service request_aip_deletion server.
+func (c *Client) RequestAipDeletion() goa.Endpoint {
+	var (
+		encodeRequest  = EncodeRequestAipDeletionRequest(c.encoder)
+		decodeResponse = DecodeRequestAipDeletionResponse(c.decoder, c.RestoreResponseBody)
+	)
+	return func(ctx context.Context, v any) (any, error) {
+		req, err := c.BuildRequestAipDeletionRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		err = encodeRequest(req, v)
+		if err != nil {
+			return nil, err
+		}
+		resp, err := c.RequestAipDeletionDoer.Do(req)
+		if err != nil {
+			return nil, goahttp.ErrRequestError("storage", "request_aip_deletion", err)
+		}
+		return decodeResponse(resp)
+	}
+}
+
+// ReviewAipDeletion returns an endpoint that makes HTTP requests to the
+// storage service review_aip_deletion server.
+func (c *Client) ReviewAipDeletion() goa.Endpoint {
+	var (
+		encodeRequest  = EncodeReviewAipDeletionRequest(c.encoder)
+		decodeResponse = DecodeReviewAipDeletionResponse(c.decoder, c.RestoreResponseBody)
+	)
+	return func(ctx context.Context, v any) (any, error) {
+		req, err := c.BuildReviewAipDeletionRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		err = encodeRequest(req, v)
+		if err != nil {
+			return nil, err
+		}
+		resp, err := c.ReviewAipDeletionDoer.Do(req)
+		if err != nil {
+			return nil, goahttp.ErrRequestError("storage", "review_aip_deletion", err)
 		}
 		return decodeResponse(resp)
 	}

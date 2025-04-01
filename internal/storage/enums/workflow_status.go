@@ -8,6 +8,7 @@ done
 error
 queued
 pending
+canceled
 )
 */
 type WorkflowStatus string

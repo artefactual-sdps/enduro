@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/google/uuid"
 	temporalsdk_temporal "go.temporal.io/sdk/temporal"
 	temporalsdk_workflow "go.temporal.io/sdk/workflow"
 
 	"github.com/artefactual-sdps/enduro/internal/storage"
+	"github.com/artefactual-sdps/enduro/internal/storage/activities"
 	"github.com/artefactual-sdps/enduro/internal/storage/enums"
 )
 
@@ -29,7 +29,7 @@ func (w *StorageMoveWorkflow) Execute(
 ) (e error) {
 	// Set AIP status to moving.
 	{
-		if err := w.updateAIPStatus(ctx, enums.AIPStatusMoving, req.AIPID); err != nil {
+		if err := updateAIPStatus(ctx, w.storagesvc, req.AIPID, enums.AIPStatusMoving); err != nil {
 			return err
 		}
 	}
@@ -54,7 +54,14 @@ func (w *StorageMoveWorkflow) Execute(
 	}()
 
 	// Create copy AIP task.
-	copyTaskID, err := createTask(ctx, w.storagesvc, workflowDBID, "Copy AIP", "Copying AIP to target location")
+	copyTaskID, err := createTask(
+		ctx,
+		w.storagesvc,
+		workflowDBID,
+		enums.TaskStatusInProgress,
+		"Copy AIP",
+		"Copying AIP to target location",
+	)
 	if err != nil {
 		return err
 	}
@@ -76,7 +83,7 @@ func (w *StorageMoveWorkflow) Execute(
 		err := temporalsdk_workflow.ExecuteActivity(
 			activityOpts,
 			storage.CopyToPermanentLocationActivityName,
-			&storage.CopyToPermanentLocationActivityParams{
+			&activities.CopyToPermanentLocationActivityParams{
 				AIPID:      req.AIPID,
 				LocationID: req.LocationID,
 			},
@@ -96,7 +103,14 @@ func (w *StorageMoveWorkflow) Execute(
 	}
 
 	// Create delete AIP task.
-	deleteTaskID, err := createTask(ctx, w.storagesvc, workflowDBID, "Delete AIP", "Deleting AIP from source location")
+	deleteTaskID, err := createTask(
+		ctx,
+		w.storagesvc,
+		workflowDBID,
+		enums.TaskStatusInProgress,
+		"Delete AIP",
+		"Deleting AIP from source location",
+	)
 	if err != nil {
 		return err
 	}
@@ -106,9 +120,9 @@ func (w *StorageMoveWorkflow) Execute(
 		activityOpts := localActivityOptions(ctx)
 		err := temporalsdk_workflow.ExecuteLocalActivity(
 			activityOpts,
-			storage.DeleteFromLocationLocalActivity,
+			storage.DeleteFromMinIOLocationLocalActivity,
 			w.storagesvc,
-			&storage.DeleteFromLocationLocalActivityParams{
+			&storage.DeleteFromMinIOLocationLocalActivityParams{
 				AIPID: req.AIPID,
 			},
 		).Get(activityOpts, nil)
@@ -145,34 +159,10 @@ func (w *StorageMoveWorkflow) Execute(
 
 	// Set AIP status to stored.
 	{
-		if err := w.updateAIPStatus(ctx, enums.AIPStatusStored, req.AIPID); err != nil {
+		if err := updateAIPStatus(ctx, w.storagesvc, req.AIPID, enums.AIPStatusStored); err != nil {
 			return err
 		}
 	}
 
 	return nil
-}
-
-func (w *StorageMoveWorkflow) updateAIPStatus(
-	ctx temporalsdk_workflow.Context,
-	st enums.AIPStatus,
-	aipID uuid.UUID,
-) error {
-	activityOpts := temporalsdk_workflow.WithLocalActivityOptions(ctx, temporalsdk_workflow.LocalActivityOptions{
-		ScheduleToCloseTimeout: 5 * time.Second,
-		RetryPolicy: &temporalsdk_temporal.RetryPolicy{
-			InitialInterval:    time.Second,
-			BackoffCoefficient: 2,
-			MaximumInterval:    time.Minute,
-			MaximumAttempts:    3,
-		},
-	})
-
-	params := &storage.UpdateAIPStatusLocalActivityParams{
-		AIPID:  aipID,
-		Status: st,
-	}
-
-	return temporalsdk_workflow.ExecuteLocalActivity(activityOpts, storage.UpdateAIPStatusLocalActivity, w.storagesvc, params).
-		Get(activityOpts, nil)
 }

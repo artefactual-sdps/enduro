@@ -45,6 +45,18 @@ type MoveAipRequestBody struct {
 	LocationID *uuid.UUID `form:"location_id,omitempty" json:"location_id,omitempty" xml:"location_id,omitempty"`
 }
 
+// RequestAipDeletionRequestBody is the type of the "storage" service
+// "request_aip_deletion" endpoint HTTP request body.
+type RequestAipDeletionRequestBody struct {
+	Reason *string `form:"reason,omitempty" json:"reason,omitempty" xml:"reason,omitempty"`
+}
+
+// ReviewAipDeletionRequestBody is the type of the "storage" service
+// "review_aip_deletion" endpoint HTTP request body.
+type ReviewAipDeletionRequestBody struct {
+	Approved *bool `form:"approved,omitempty" json:"approved,omitempty" xml:"approved,omitempty"`
+}
+
 // CreateLocationRequestBody is the type of the "storage" service
 // "create_location" endpoint HTTP request body.
 type CreateLocationRequestBody struct {
@@ -412,6 +424,24 @@ type ShowAipNotFoundResponseBody struct {
 // ListAipWorkflowsNotFoundResponseBody is the type of the "storage" service
 // "list_aip_workflows" endpoint HTTP response body for the "not_found" error.
 type ListAipWorkflowsNotFoundResponseBody struct {
+	// Message of error
+	Message string `form:"message" json:"message" xml:"message"`
+	// Identifier of missing AIP
+	UUID uuid.UUID `form:"uuid" json:"uuid" xml:"uuid"`
+}
+
+// RequestAipDeletionNotFoundResponseBody is the type of the "storage" service
+// "request_aip_deletion" endpoint HTTP response body for the "not_found" error.
+type RequestAipDeletionNotFoundResponseBody struct {
+	// Message of error
+	Message string `form:"message" json:"message" xml:"message"`
+	// Identifier of missing AIP
+	UUID uuid.UUID `form:"uuid" json:"uuid" xml:"uuid"`
+}
+
+// ReviewAipDeletionNotFoundResponseBody is the type of the "storage" service
+// "review_aip_deletion" endpoint HTTP response body for the "not_found" error.
+type ReviewAipDeletionNotFoundResponseBody struct {
 	// Message of error
 	Message string `form:"message" json:"message" xml:"message"`
 	// Identifier of missing AIP
@@ -901,6 +931,26 @@ func NewListAipWorkflowsNotFoundResponseBody(res *storage.AIPNotFound) *ListAipW
 	return body
 }
 
+// NewRequestAipDeletionNotFoundResponseBody builds the HTTP response body from
+// the result of the "request_aip_deletion" endpoint of the "storage" service.
+func NewRequestAipDeletionNotFoundResponseBody(res *storage.AIPNotFound) *RequestAipDeletionNotFoundResponseBody {
+	body := &RequestAipDeletionNotFoundResponseBody{
+		Message: res.Message,
+		UUID:    res.UUID,
+	}
+	return body
+}
+
+// NewReviewAipDeletionNotFoundResponseBody builds the HTTP response body from
+// the result of the "review_aip_deletion" endpoint of the "storage" service.
+func NewReviewAipDeletionNotFoundResponseBody(res *storage.AIPNotFound) *ReviewAipDeletionNotFoundResponseBody {
+	body := &ReviewAipDeletionNotFoundResponseBody{
+		Message: res.Message,
+		UUID:    res.UUID,
+	}
+	return body
+}
+
 // NewCreateLocationNotValidResponseBody builds the HTTP response body from the
 // result of the "create_location" endpoint of the "storage" service.
 func NewCreateLocationNotValidResponseBody(res *goa.ServiceError) *CreateLocationNotValidResponseBody {
@@ -1060,6 +1110,30 @@ func NewListAipWorkflowsPayload(uuid string, token *string) *storage.ListAipWork
 	return v
 }
 
+// NewRequestAipDeletionPayload builds a storage service request_aip_deletion
+// endpoint payload.
+func NewRequestAipDeletionPayload(body *RequestAipDeletionRequestBody, uuid string, token *string) *storage.RequestAipDeletionPayload {
+	v := &storage.RequestAipDeletionPayload{
+		Reason: *body.Reason,
+	}
+	v.UUID = uuid
+	v.Token = token
+
+	return v
+}
+
+// NewReviewAipDeletionPayload builds a storage service review_aip_deletion
+// endpoint payload.
+func NewReviewAipDeletionPayload(body *ReviewAipDeletionRequestBody, uuid string, token *string) *storage.ReviewAipDeletionPayload {
+	v := &storage.ReviewAipDeletionPayload{
+		Approved: *body.Approved,
+	}
+	v.UUID = uuid
+	v.Token = token
+
+	return v
+}
+
 // NewListLocationsPayload builds a storage service list_locations endpoint
 // payload.
 func NewListLocationsPayload(token *string) *storage.ListLocationsPayload {
@@ -1142,8 +1216,8 @@ func ValidateCreateAipRequestBody(body *CreateAipRequestBody) (err error) {
 		err = goa.MergeErrors(err, goa.ValidateFormat("body.object_key", *body.ObjectKey, goa.FormatUUID))
 	}
 	if body.Status != nil {
-		if !(*body.Status == "unspecified" || *body.Status == "in_review" || *body.Status == "rejected" || *body.Status == "stored" || *body.Status == "moving") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []any{"unspecified", "in_review", "rejected", "stored", "moving"}))
+		if !(*body.Status == "unspecified" || *body.Status == "in_review" || *body.Status == "rejected" || *body.Status == "stored" || *body.Status == "moving" || *body.Status == "pending" || *body.Status == "processing" || *body.Status == "deleted") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []any{"unspecified", "in_review", "rejected", "stored", "moving", "pending", "processing", "deleted"}))
 		}
 	}
 	return
@@ -1163,6 +1237,24 @@ func ValidateSubmitAipRequestBody(body *SubmitAipRequestBody) (err error) {
 func ValidateMoveAipRequestBody(body *MoveAipRequestBody) (err error) {
 	if body.LocationID == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("location_id", "body"))
+	}
+	return
+}
+
+// ValidateRequestAipDeletionRequestBody runs the validations defined on
+// request_aip_deletion_request_body
+func ValidateRequestAipDeletionRequestBody(body *RequestAipDeletionRequestBody) (err error) {
+	if body.Reason == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("reason", "body"))
+	}
+	return
+}
+
+// ValidateReviewAipDeletionRequestBody runs the validations defined on
+// review_aip_deletion_request_body
+func ValidateReviewAipDeletionRequestBody(body *ReviewAipDeletionRequestBody) (err error) {
+	if body.Approved == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("approved", "body"))
 	}
 	return
 }

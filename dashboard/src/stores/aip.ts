@@ -59,11 +59,17 @@ export const useAipStore = defineStore("aip", {
     },
   }),
   getters: {
+    isDeleted(): boolean {
+      return this.current?.status == api.EnduroStorageAipStatusEnum.Deleted;
+    },
     isMovable(): boolean {
       return this.isStored && !this.isMoving;
     },
     isMoving(): boolean {
       return this.locationChanging;
+    },
+    isPending(): boolean {
+      return this.current?.status == api.EnduroStorageAipStatusEnum.Pending;
     },
     isRejected(): boolean {
       return this.current?.status == api.EnduroStorageAipStatusEnum.Rejected;
@@ -88,9 +94,15 @@ export const useAipStore = defineStore("aip", {
   actions: {
     async fetchCurrent(id: string) {
       this.current = await client.storage.storageShowAip({ uuid: id });
-      this.currentWorkflows = await client.storage.storageListAipWorkflows({
-        uuid: id,
-      });
+      this.currentWorkflows = await client.storage
+        .storageListAipWorkflows({
+          uuid: id,
+        })
+        .then((resp) => {
+          resp.workflows?.reverse();
+          return resp;
+        });
+
       this.locationChanging =
         this.current?.status == api.EnduroStorageAipStatusEnum.Moving;
 
@@ -172,6 +184,51 @@ export const useAipStore = defineStore("aip", {
         return error;
       }
       this.locationChanging = !resp.done;
+    },
+    async requestDeletion(reason: string) {
+      if (!this.current) return;
+      try {
+        await client.storage.storageRequestAipDeletion({
+          uuid: this.current.uuid,
+          requestAipDeletionRequestBody: { reason: reason },
+        });
+      } catch (error) {
+        return error;
+      }
+
+      // TODO: Remove this once we have websocket in the storage service.
+      while (true) {
+        if (!this.current) return;
+        this.fetchCurrent(this.current.uuid);
+        if (this.current.status == api.EnduroStorageAipStatusEnum.Pending) {
+          break;
+        }
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      }
+    },
+    async reviewDeletion(approved: boolean) {
+      if (!this.current) return;
+      try {
+        await client.storage.storageReviewAipDeletion({
+          uuid: this.current.uuid,
+          reviewAipDeletionRequestBody: { approved: approved },
+        });
+      } catch (error) {
+        return error;
+      }
+
+      // TODO: Remove this once we have websocket in the storage service.
+      while (true) {
+        if (!this.current) return;
+        this.fetchCurrent(this.current.uuid);
+        if (
+          this.current.status == api.EnduroStorageAipStatusEnum.Deleted ||
+          this.current.status == api.EnduroStorageAipStatusEnum.Stored
+        ) {
+          break;
+        }
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      }
     },
     nextPage() {
       if (this.hasNextPage) {

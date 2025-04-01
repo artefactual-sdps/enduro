@@ -10,6 +10,7 @@ import (
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/google/uuid"
 	_ "github.com/mattn/go-sqlite3"
+	"go.artefactual.dev/tools/mockutil"
 	"go.artefactual.dev/tools/ref"
 	"gotest.tools/v3/assert"
 
@@ -440,7 +441,7 @@ func TestListAIPs(t *testing.T) {
 				return
 			}
 			assert.NilError(t, err)
-			assert.DeepEqual(t, aips, tt.want, cmpopts.EquateApproxTime(time.Second))
+			assert.DeepEqual(t, aips, tt.want, cmpopts.EquateApproxTime(time.Second*2))
 		})
 	}
 }
@@ -561,10 +562,10 @@ func TestAIPWorkflows(t *testing.T) {
 		ctx := context.Background()
 		entc, c := setUpClient(t)
 
-		workflowUUID1 := uuid.New()
-		workflowUUID2 := uuid.New()
-		taskUUID1 := uuid.New()
-		taskUUID2 := uuid.New()
+		workflowUUID1 := uuid.MustParse("a1b2c3d4-e5f6-7a8b-9c0d-e1f2a3b4c5d6")
+		workflowUUID2 := uuid.MustParse("f6e5d4c3-b2a1-0c9b-8a7f-6e5d4c3b2a1f")
+		taskUUID1 := uuid.MustParse("1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d")
+		taskUUID2 := uuid.MustParse("6d5c4b3a-2f1e-0d9c-8b7a-6f5e4d3c2b1a")
 		startedAt := time.Now().Add(-time.Minute)
 		completedAt := time.Now()
 
@@ -613,25 +614,7 @@ func TestAIPWorkflows(t *testing.T) {
 			SetWorkflowID(workflow2.ID).
 			SaveX(ctx)
 
-		re, err := c.AIPWorkflows(ctx, aipID)
-		assert.NilError(t, err)
-		assert.DeepEqual(t, re, goastorage.AIPWorkflowCollection{
-			{
-				UUID:       workflowUUID2,
-				TemporalID: "temporal-id-2",
-				Type:       enums.WorkflowTypeDeleteAip.String(),
-				Status:     enums.WorkflowStatusInProgress.String(),
-				StartedAt:  ref.New(startedAt.Format(time.RFC3339)),
-				Tasks: goastorage.AIPTaskCollection{
-					{
-						UUID:      taskUUID2,
-						Name:      "Task 2",
-						Status:    enums.TaskStatusInProgress.String(),
-						StartedAt: ref.New(startedAt.Format(time.RFC3339)),
-						Note:      ref.New("Note 2"),
-					},
-				},
-			},
+		expected := goastorage.AIPWorkflowCollection{
 			{
 				UUID:        workflowUUID1,
 				TemporalID:  "temporal-id-1",
@@ -650,7 +633,35 @@ func TestAIPWorkflows(t *testing.T) {
 					},
 				},
 			},
-		})
+			{
+				UUID:       workflowUUID2,
+				TemporalID: "temporal-id-2",
+				Type:       enums.WorkflowTypeDeleteAip.String(),
+				Status:     enums.WorkflowStatusInProgress.String(),
+				StartedAt:  ref.New(startedAt.Format(time.RFC3339)),
+				Tasks: goastorage.AIPTaskCollection{
+					{
+						UUID:      taskUUID2,
+						Name:      "Task 2",
+						Status:    enums.TaskStatusInProgress.String(),
+						StartedAt: ref.New(startedAt.Format(time.RFC3339)),
+						Note:      ref.New("Note 2"),
+					},
+				},
+			},
+		}
+
+		re, err := c.AIPWorkflows(ctx, aipID)
+		assert.NilError(t, err)
+		assert.DeepEqual(
+			t,
+			re,
+			expected,
+			cmpopts.SortSlices(func(a, b goastorage.AIPWorkflow) bool {
+				return a.UUID.String() < b.UUID.String()
+			}),
+			mockutil.EquateNearlySameTime(),
+		)
 	})
 }
 

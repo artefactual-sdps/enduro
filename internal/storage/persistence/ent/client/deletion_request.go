@@ -1,0 +1,127 @@
+package client
+
+import (
+	"context"
+	"fmt"
+
+	"github.com/google/uuid"
+
+	"github.com/artefactual-sdps/enduro/internal/storage/enums"
+	"github.com/artefactual-sdps/enduro/internal/storage/persistence"
+	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db"
+	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/aip"
+	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/deletionrequest"
+	"github.com/artefactual-sdps/enduro/internal/storage/types"
+)
+
+func (c *Client) CreateDeletionRequest(ctx context.Context, dr *types.DeletionRequest) error {
+	tx, err := c.c.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf("create deletion request: %v", err)
+	}
+
+	aipDBID, err := tx.AIP.Query().Where(aip.AipID(dr.AIPUUID)).OnlyID(ctx)
+	if err != nil {
+		return rollback(tx, fmt.Errorf("create deletion request: %v", err))
+	}
+
+	q := tx.DeletionRequest.Create().
+		SetUUID(dr.UUID).
+		SetRequester(dr.Requester).
+		SetRequesterIss(dr.RequesterISS).
+		SetRequesterSub(dr.RequesterSub).
+		SetReason(dr.Reason).
+		SetAipID(aipDBID).
+		SetWorkflowID(dr.WorkflowDBID)
+
+	if !dr.RequestedAt.IsZero() {
+		q.SetRequestedAt(dr.RequestedAt)
+	}
+
+	dbdr, err := q.Save(ctx)
+	if err != nil {
+		return rollback(tx, fmt.Errorf("create deletion request: %v", err))
+	}
+	if err = tx.Commit(); err != nil {
+		return rollback(tx, fmt.Errorf("create deletion request: %v", err))
+	}
+
+	dr.DBID = dbdr.ID
+
+	return nil
+}
+
+func (c *Client) UpdateDeletionRequest(
+	ctx context.Context,
+	id int,
+	upd persistence.DeletionRequestUpdater,
+) (*types.DeletionRequest, error) {
+	tx, err := c.c.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, fmt.Errorf("update deletion request: %v", err)
+	}
+
+	dr, err := tx.DeletionRequest.Get(ctx, id)
+	if err != nil {
+		return nil, rollback(tx, fmt.Errorf("update deletion request: %v", err))
+	}
+
+	up, err := upd(convertDeletionRequest(dr))
+	if err != nil {
+		return nil, rollback(tx, fmt.Errorf("update deletion request: %v", err))
+	}
+
+	q := tx.DeletionRequest.UpdateOneID(id).
+		SetUUID(up.UUID).
+		SetReviewer(up.Reviewer).
+		SetReviewerIss(up.ReviewerISS).
+		SetReviewerSub(up.ReviewerSub).
+		SetStatus(up.Status)
+
+	if !up.ReviewedAt.IsZero() {
+		q.SetReviewedAt(up.ReviewedAt)
+	}
+
+	dr, err = q.Save(ctx)
+	if err != nil {
+		return nil, rollback(tx, fmt.Errorf("update deletion request: %v", err))
+	}
+	if err = tx.Commit(); err != nil {
+		return nil, rollback(tx, fmt.Errorf("update deletion request: %v", err))
+	}
+
+	return convertDeletionRequest(dr), nil
+}
+
+func (c *Client) ReadAipPendingDeletionRequest(
+	ctx context.Context,
+	aipID uuid.UUID,
+) (*types.DeletionRequest, error) {
+	dr, err := c.c.DeletionRequest.Query().
+		Where(deletionrequest.HasAipWith(aip.AipID(aipID))).
+		Where(deletionrequest.StatusEQ(enums.DeletionRequestStatusPending)).
+		Only(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("read AIP pending deletion request: %v", err)
+	}
+
+	return convertDeletionRequest(dr), nil
+}
+
+func convertDeletionRequest(dbdr *db.DeletionRequest) *types.DeletionRequest {
+	return &types.DeletionRequest{
+		DBID:         dbdr.ID,
+		UUID:         dbdr.UUID,
+		Requester:    dbdr.Requester,
+		RequesterISS: dbdr.RequesterIss,
+		RequesterSub: dbdr.RequesterSub,
+		Reviewer:     dbdr.Reviewer,
+		ReviewerISS:  dbdr.ReviewerIss,
+		ReviewerSub:  dbdr.ReviewerSub,
+		Reason:       dbdr.Reason,
+		Status:       dbdr.Status,
+		RequestedAt:  dbdr.RequestedAt,
+		ReviewedAt:   dbdr.ReviewedAt,
+		WorkflowDBID: dbdr.WorkflowID,
+	}
+}
