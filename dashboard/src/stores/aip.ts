@@ -13,17 +13,6 @@ class UIRequest {
 
 const defaultPageSize = 20;
 
-export interface Pager {
-  // maxPages is the maximum number of page links to show in the pager.
-  readonly maxPages: number;
-
-  current: number;
-  first: number;
-  last: number;
-  total: number;
-  pages: Array<number>;
-}
-
 export const useAipStore = defineStore("aip", {
   state: () => ({
     // AIP currently displayed.
@@ -42,9 +31,6 @@ export const useAipStore = defineStore("aip", {
 
     // Page is a subset of the total AIP list.
     page: { limit: defaultPageSize } as api.EnduroPage,
-
-    // Pager contains a list of page numbers to show in the pager.
-    pager: { maxPages: 7 } as Pager,
 
     filters: {
       name: "" as string | undefined,
@@ -76,19 +62,6 @@ export const useAipStore = defineStore("aip", {
     },
     isStored(): boolean {
       return this.current?.status == api.EnduroStorageAipStatusEnum.Stored;
-    },
-    hasNextPage(): boolean {
-      return this.page.offset + this.page.limit < this.page.total;
-    },
-    hasPrevPage(): boolean {
-      return this.page.offset > 0;
-    },
-    lastResultOnPage(): number {
-      let i = this.page.offset + this.page.limit;
-      if (i > this.page.total) {
-        i = this.page.total;
-      }
-      return i;
     },
   },
   actions: {
@@ -127,12 +100,10 @@ export const useAipStore = defineStore("aip", {
         .then((resp) => {
           this.aips = resp.items;
           this.page = resp.page;
-          this.updatePager();
         })
         .catch(async (err) => {
           this.aips = [];
           this.page = { limit: defaultPageSize, offset: 0, total: 0 };
-          this.updatePager();
 
           if (err instanceof ResponseError) {
             // An invalid status or time range returns a ResponseError with the
@@ -228,39 +199,6 @@ export const useAipStore = defineStore("aip", {
           break;
         }
         await new Promise((resolve) => setTimeout(resolve, 1000));
-      }
-    },
-    nextPage() {
-      if (this.hasNextPage) {
-        this.fetchAips(this.pager.current + 1);
-      }
-    },
-    prevPage() {
-      if (this.hasPrevPage) {
-        this.fetchAips(this.pager.current - 1);
-      }
-    },
-    updatePager(): void {
-      const pgr = this.pager;
-      pgr.total = Math.ceil(this.page.total / this.page.limit);
-      pgr.current = Math.floor(this.page.offset / this.page.limit) + 1;
-
-      let first = 1;
-      const count = pgr.total < pgr.maxPages ? pgr.total : pgr.maxPages;
-      const half = Math.floor(pgr.maxPages / 2);
-      if (pgr.current > half + 1) {
-        if (pgr.total - pgr.current < half) {
-          first = pgr.total - count + 1;
-        } else {
-          first = pgr.current - half;
-        }
-      }
-      pgr.first = first;
-      pgr.last = first + count - 1;
-
-      pgr.pages = new Array(count);
-      for (let i = 0; i < count; i++) {
-        pgr.pages[i] = i + first;
       }
     },
   },

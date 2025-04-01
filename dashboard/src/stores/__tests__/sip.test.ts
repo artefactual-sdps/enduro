@@ -3,7 +3,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { api, client } from "@/client";
 import { useLayoutStore } from "@/stores/layout";
-import type { Pager } from "@/stores/sip";
 import { useSipStore } from "@/stores/sip";
 
 vi.mock("@/client");
@@ -27,58 +26,6 @@ describe("useSipStore", () => {
       },
     });
     expect(sipStore.isPending).toEqual(true);
-  });
-
-  it("hasNextPage", () => {
-    const sipStore = useSipStore();
-
-    sipStore.$patch({
-      page: { limit: 20, offset: 0, total: 20 },
-    });
-    expect(sipStore.hasNextPage).toEqual(false);
-
-    sipStore.$patch({
-      page: { limit: 20, offset: 20, total: 40 },
-    });
-    expect(sipStore.hasNextPage).toEqual(false);
-
-    sipStore.$patch({
-      page: { limit: 20, offset: 0, total: 21 },
-    });
-    expect(sipStore.hasNextPage).toEqual(true);
-  });
-
-  it("hasPrevPage", () => {
-    const sipStore = useSipStore();
-
-    sipStore.$patch({
-      page: { limit: 20, offset: 0, total: 40 },
-    });
-    expect(sipStore.hasPrevPage).toEqual(false);
-
-    sipStore.$patch({
-      page: { limit: 20, offset: 20, total: 40 },
-    });
-    expect(sipStore.hasPrevPage).toEqual(true);
-  });
-
-  it("returns lastResultOnPage", () => {
-    const sipStore = useSipStore();
-
-    sipStore.$patch({
-      page: { limit: 20, offset: 0, total: 40 },
-    });
-    expect(sipStore.lastResultOnPage).toEqual(20);
-
-    sipStore.$patch({
-      page: { limit: 20, offset: 0, total: 7 },
-    });
-    expect(sipStore.lastResultOnPage).toEqual(7);
-
-    sipStore.$patch({
-      page: { limit: 20, offset: 20, total: 35 },
-    });
-    expect(sipStore.lastResultOnPage).toEqual(35);
   });
 
   it("getActionById finds actions", () => {
@@ -274,48 +221,5 @@ describe("useSipStore", () => {
 
     expect(store.sips).toEqual(mockSips.items);
     expect(store.page).toEqual(mockSips.page);
-  });
-
-  it("updates the pager", () => {
-    const sipStore = useSipStore();
-
-    sipStore.$patch({
-      page: { limit: 20, offset: 60, total: 125 },
-    });
-    sipStore.updatePager();
-    expect(sipStore.pager).toEqual(<Pager>{
-      maxPages: 7,
-      current: 4,
-      first: 1,
-      last: 7,
-      total: 7,
-      pages: [1, 2, 3, 4, 5, 6, 7],
-    });
-
-    sipStore.$patch({
-      page: { limit: 20, offset: 160, total: 573 },
-    });
-    sipStore.updatePager();
-    expect(sipStore.pager).toEqual(<Pager>{
-      maxPages: 7,
-      current: 9,
-      first: 6,
-      last: 12,
-      total: 29,
-      pages: [6, 7, 8, 9, 10, 11, 12],
-    });
-
-    sipStore.$patch({
-      page: { limit: 20, offset: 540, total: 573 },
-    });
-    sipStore.updatePager();
-    expect(sipStore.pager).toEqual(<Pager>{
-      maxPages: 7,
-      current: 28,
-      first: 23,
-      last: 29,
-      total: 29,
-      pages: [23, 24, 25, 26, 27, 28, 29],
-    });
   });
 });
