@@ -7,17 +7,6 @@ import { useLayoutStore } from "@/stores/layout";
 
 const defaultPageSize = 20;
 
-export interface Pager {
-  // maxPages is the maximum number of page links to show in the pager.
-  readonly maxPages: number;
-
-  current: number;
-  first: number;
-  last: number;
-  total: number;
-  pages: Array<number>;
-}
-
 export const useSipStore = defineStore("sip", {
   state: () => ({
     // SIP currently displayed.
@@ -32,9 +21,6 @@ export const useSipStore = defineStore("sip", {
     // Page is a subset of the total SIP list.
     page: { limit: defaultPageSize } as api.EnduroPage,
 
-    // Pager contains a list of page numbers to show in the pager.
-    pager: { maxPages: 7 } as Pager,
-
     filters: {
       name: "" as string | undefined,
       status: "" as IngestListSipsStatusEnum | undefined,
@@ -45,19 +31,6 @@ export const useSipStore = defineStore("sip", {
   getters: {
     isPending(): boolean {
       return this.current?.status == api.EnduroIngestSipStatusEnum.Pending;
-    },
-    hasNextPage(): boolean {
-      return this.page.offset + this.page.limit < this.page.total;
-    },
-    hasPrevPage(): boolean {
-      return this.page.offset > 0;
-    },
-    lastResultOnPage(): number {
-      let i = this.page.offset + this.page.limit;
-      if (i > this.page.total) {
-        i = this.page.total;
-      }
-      return i;
     },
     getWorkflowById: (state) => {
       return (workflowId: number): api.EnduroIngestSipWorkflow | undefined => {
@@ -115,12 +88,10 @@ export const useSipStore = defineStore("sip", {
         .then((resp) => {
           this.sips = resp.items;
           this.page = resp.page;
-          this.updatePager();
         })
         .catch(async (err) => {
           this.sips = [];
           this.page = { limit: defaultPageSize, offset: 0, total: 0 };
-          this.updatePager();
 
           if (err instanceof ResponseError) {
             // An invalid status or time range returns a ResponseError with the
@@ -166,39 +137,6 @@ export const useSipStore = defineStore("sip", {
         if (!this.current) return;
         this.current.status = api.EnduroIngestSipStatusEnum.InProgress;
       });
-    },
-    nextPage() {
-      if (this.hasNextPage) {
-        this.fetchSips(this.pager.current + 1);
-      }
-    },
-    prevPage() {
-      if (this.hasPrevPage) {
-        this.fetchSips(this.pager.current - 1);
-      }
-    },
-    updatePager(): void {
-      const pgr = this.pager;
-      pgr.total = Math.ceil(this.page.total / this.page.limit);
-      pgr.current = Math.floor(this.page.offset / this.page.limit) + 1;
-
-      let first = 1;
-      const count = pgr.total < pgr.maxPages ? pgr.total : pgr.maxPages;
-      const half = Math.floor(pgr.maxPages / 2);
-      if (pgr.current > half + 1) {
-        if (pgr.total - pgr.current < half) {
-          first = pgr.total - count + 1;
-        } else {
-          first = pgr.current - half;
-        }
-      }
-      pgr.first = first;
-      pgr.last = first + count - 1;
-
-      pgr.pages = new Array(count);
-      for (let i = 0; i < count; i++) {
-        pgr.pages[i] = i + first;
-      }
     },
   },
   debounce: {
