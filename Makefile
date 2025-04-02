@@ -192,11 +192,15 @@ help:
 	        { printf "  %-30s %s\n", $$1, $$2 };  \
 	    '
 
+fmt: # @HELP Format the project Go files with golangci-lint.
+fmt: FMT_FLAGS ?=
+fmt: $(GOLANGCI_LINT)
+	golangci-lint fmt $(FMT_FLAGS)
+
 lint: # @HELP Lint the project Go files with golangci-lint.
-lint: OUT_FORMAT ?= colored-line-number
-lint: LINT_FLAGS ?= --timeout=5m --fix
+lint: LINT_FLAGS ?= --timeout=5m --fix --output.text.colors
 lint: $(GOLANGCI_LINT)
-	golangci-lint run --out-format $(OUT_FORMAT) $(LINT_FLAGS)
+	golangci-lint run $(LINT_FLAGS)
 
 list-tested-packages: # @HELP Print a list of packages being tested.
 list-tested-packages:
