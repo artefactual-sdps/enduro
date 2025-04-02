@@ -18,19 +18,16 @@ const (
 	WorkflowTypeCreateAip
 	// WorkflowTypeCreateAndReviewAip is a WorkflowType of type Create And Review Aip.
 	WorkflowTypeCreateAndReviewAip
-	// WorkflowTypeMovePackage is a WorkflowType of type Move Package.
-	WorkflowTypeMovePackage
 )
 
 var ErrInvalidWorkflowType = fmt.Errorf("not a valid WorkflowType, try [%s]", strings.Join(_WorkflowTypeNames, ", "))
 
-const _WorkflowTypeName = "unspecifiedcreate aipcreate and review aipmove package"
+const _WorkflowTypeName = "unspecifiedcreate aipcreate and review aip"
 
 var _WorkflowTypeNames = []string{
 	_WorkflowTypeName[0:11],
 	_WorkflowTypeName[11:21],
 	_WorkflowTypeName[21:42],
-	_WorkflowTypeName[42:54],
 }
 
 // WorkflowTypeNames returns a list of possible string values of WorkflowType.
@@ -44,7 +41,6 @@ var _WorkflowTypeMap = map[WorkflowType]string{
 	WorkflowTypeUnspecified:        _WorkflowTypeName[0:11],
 	WorkflowTypeCreateAip:          _WorkflowTypeName[11:21],
 	WorkflowTypeCreateAndReviewAip: _WorkflowTypeName[21:42],
-	WorkflowTypeMovePackage:        _WorkflowTypeName[42:54],
 }
 
 // String implements the Stringer interface.
@@ -66,7 +62,6 @@ var _WorkflowTypeValue = map[string]WorkflowType{
 	_WorkflowTypeName[0:11]:  WorkflowTypeUnspecified,
 	_WorkflowTypeName[11:21]: WorkflowTypeCreateAip,
 	_WorkflowTypeName[21:42]: WorkflowTypeCreateAndReviewAip,
-	_WorkflowTypeName[42:54]: WorkflowTypeMovePackage,
 }
 
 // ParseWorkflowType attempts to convert a string to a WorkflowType.

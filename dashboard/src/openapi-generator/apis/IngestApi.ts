@@ -18,7 +18,6 @@ import type {
   ConfirmSipRequestBody,
   EnduroIngestSip,
   MonitorEvent,
-  MoveStatusResult,
   SIPNotFound,
   SIPWorkflows,
   SIPs,
@@ -30,8 +29,6 @@ import {
     EnduroIngestSipToJSON,
     MonitorEventFromJSON,
     MonitorEventToJSON,
-    MoveStatusResultFromJSON,
-    MoveStatusResultToJSON,
     SIPNotFoundFromJSON,
     SIPNotFoundToJSON,
     SIPWorkflowsFromJSON,
@@ -61,15 +58,6 @@ export interface IngestListSipsRequest {
 
 export interface IngestMonitorRequest {
     enduroWsTicket?: string;
-}
-
-export interface IngestMoveSipRequest {
-    id: number;
-    confirmSipRequestBody: ConfirmSipRequestBody;
-}
-
-export interface IngestMoveSipStatusRequest {
-    id: number;
 }
 
 export interface IngestRejectSipRequest {
@@ -176,39 +164,6 @@ export interface IngestApiInterface {
      * monitor_request ingest
      */
     ingestMonitorRequest(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
-
-    /**
-     * Move a SIP to a permanent storage location
-     * @summary move_sip ingest
-     * @param {number} id Identifier of SIP to move
-     * @param {ConfirmSipRequestBody} confirmSipRequestBody 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof IngestApiInterface
-     */
-    ingestMoveSipRaw(requestParameters: IngestMoveSipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>>;
-
-    /**
-     * Move a SIP to a permanent storage location
-     * move_sip ingest
-     */
-    ingestMoveSip(requestParameters: IngestMoveSipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
-
-    /**
-     * Retrieve the status of a permanent storage location move of the SIP
-     * @summary move_sip_status ingest
-     * @param {number} id Identifier of SIP to move
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof IngestApiInterface
-     */
-    ingestMoveSipStatusRaw(requestParameters: IngestMoveSipStatusRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<MoveStatusResult>>;
-
-    /**
-     * Retrieve the status of a permanent storage location move of the SIP
-     * move_sip_status ingest
-     */
-    ingestMoveSipStatus(requestParameters: IngestMoveSipStatusRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MoveStatusResult>;
 
     /**
      * Signal the SIP has been reviewed and rejected
@@ -475,92 +430,6 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
      */
     async ingestMonitorRequest(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
         await this.ingestMonitorRequestRaw(initOverrides);
-    }
-
-    /**
-     * Move a SIP to a permanent storage location
-     * move_sip ingest
-     */
-    async ingestMoveSipRaw(requestParameters: IngestMoveSipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
-        if (requestParameters.id === null || requestParameters.id === undefined) {
-            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling ingestMoveSip.');
-        }
-
-        if (requestParameters.confirmSipRequestBody === null || requestParameters.confirmSipRequestBody === undefined) {
-            throw new runtime.RequiredError('confirmSipRequestBody','Required parameter requestParameters.confirmSipRequestBody was null or undefined when calling ingestMoveSip.');
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        headerParameters['Content-Type'] = 'application/json';
-
-        if (this.configuration && this.configuration.accessToken) {
-            const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", []);
-
-            if (tokenString) {
-                headerParameters["Authorization"] = `Bearer ${tokenString}`;
-            }
-        }
-        const response = await this.request({
-            path: `/ingest/sips/{id}/move`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
-            method: 'POST',
-            headers: headerParameters,
-            query: queryParameters,
-            body: ConfirmSipRequestBodyToJSON(requestParameters.confirmSipRequestBody),
-        }, initOverrides);
-
-        return new runtime.VoidApiResponse(response);
-    }
-
-    /**
-     * Move a SIP to a permanent storage location
-     * move_sip ingest
-     */
-    async ingestMoveSip(requestParameters: IngestMoveSipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.ingestMoveSipRaw(requestParameters, initOverrides);
-    }
-
-    /**
-     * Retrieve the status of a permanent storage location move of the SIP
-     * move_sip_status ingest
-     */
-    async ingestMoveSipStatusRaw(requestParameters: IngestMoveSipStatusRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<MoveStatusResult>> {
-        if (requestParameters.id === null || requestParameters.id === undefined) {
-            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling ingestMoveSipStatus.');
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        if (this.configuration && this.configuration.accessToken) {
-            const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", []);
-
-            if (tokenString) {
-                headerParameters["Authorization"] = `Bearer ${tokenString}`;
-            }
-        }
-        const response = await this.request({
-            path: `/ingest/sips/{id}/move`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        }, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => MoveStatusResultFromJSON(jsonValue));
-    }
-
-    /**
-     * Retrieve the status of a permanent storage location move of the SIP
-     * move_sip_status ingest
-     */
-    async ingestMoveSipStatus(requestParameters: IngestMoveSipStatusRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MoveStatusResult> {
-        const response = await this.ingestMoveSipStatusRaw(requestParameters, initOverrides);
-        return await response.value();
     }
 
     /**

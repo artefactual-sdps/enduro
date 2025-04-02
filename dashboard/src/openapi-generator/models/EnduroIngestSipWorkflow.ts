@@ -96,8 +96,7 @@ export type EnduroIngestSipWorkflowStatusEnum = typeof EnduroIngestSipWorkflowSt
 export const EnduroIngestSipWorkflowTypeEnum = {
     Unspecified: 'unspecified',
     CreateAip: 'create aip',
-    CreateAndReviewAip: 'create and review aip',
-    MovePackage: 'move package'
+    CreateAndReviewAip: 'create and review aip'
 } as const;
 export type EnduroIngestSipWorkflowTypeEnum = typeof EnduroIngestSipWorkflowTypeEnum[keyof typeof EnduroIngestSipWorkflowTypeEnum];
 

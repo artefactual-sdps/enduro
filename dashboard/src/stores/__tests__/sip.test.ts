@@ -96,7 +96,7 @@ describe("useSipStore", () => {
           },
           {
             id: 2,
-            type: api.EnduroIngestSipWorkflowTypeEnum.MovePackage,
+            type: api.EnduroIngestSipWorkflowTypeEnum.CreateAndReviewAip,
             startedAt: now,
             status: api.EnduroIngestSipWorkflowStatusEnum.Done,
             temporalId: "051cf998-6f87-4461-8091-8561ebf479c4",
@@ -114,7 +114,7 @@ describe("useSipStore", () => {
     });
     expect(sipStore.getWorkflowById(2)).toEqual({
       id: 2,
-      type: api.EnduroIngestSipWorkflowTypeEnum.MovePackage,
+      type: api.EnduroIngestSipWorkflowTypeEnum.CreateAndReviewAip,
       startedAt: now,
       status: api.EnduroIngestSipWorkflowStatusEnum.Done,
       temporalId: "051cf998-6f87-4461-8091-8561ebf479c4",
@@ -153,7 +153,7 @@ describe("useSipStore", () => {
           },
           {
             id: 2,
-            type: api.EnduroIngestSipWorkflowTypeEnum.MovePackage,
+            type: api.EnduroIngestSipWorkflowTypeEnum.CreateAndReviewAip,
             startedAt: now,
             status: api.EnduroIngestSipWorkflowStatusEnum.Done,
             temporalId: "051cf998-6f87-4461-8091-8561ebf479c4",

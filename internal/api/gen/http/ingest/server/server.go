@@ -30,8 +30,6 @@ type Server struct {
 	ListSipWorkflows http.Handler
 	ConfirmSip       http.Handler
 	RejectSip        http.Handler
-	MoveSip          http.Handler
-	MoveSipStatus    http.Handler
 	UploadSip        http.Handler
 	CORS             http.Handler
 }
@@ -75,8 +73,6 @@ func New(
 			{"ListSipWorkflows", "GET", "/ingest/sips/{id}/workflows"},
 			{"ConfirmSip", "POST", "/ingest/sips/{id}/confirm"},
 			{"RejectSip", "POST", "/ingest/sips/{id}/reject"},
-			{"MoveSip", "POST", "/ingest/sips/{id}/move"},
-			{"MoveSipStatus", "GET", "/ingest/sips/{id}/move"},
 			{"UploadSip", "POST", "/ingest/sips/upload"},
 			{"CORS", "OPTIONS", "/ingest/monitor"},
 			{"CORS", "OPTIONS", "/ingest/sips"},
@@ -84,7 +80,6 @@ func New(
 			{"CORS", "OPTIONS", "/ingest/sips/{id}/workflows"},
 			{"CORS", "OPTIONS", "/ingest/sips/{id}/confirm"},
 			{"CORS", "OPTIONS", "/ingest/sips/{id}/reject"},
-			{"CORS", "OPTIONS", "/ingest/sips/{id}/move"},
 			{"CORS", "OPTIONS", "/ingest/sips/upload"},
 		},
 		MonitorRequest:   NewMonitorRequestHandler(e.MonitorRequest, mux, decoder, encoder, errhandler, formatter),
@@ -94,8 +89,6 @@ func New(
 		ListSipWorkflows: NewListSipWorkflowsHandler(e.ListSipWorkflows, mux, decoder, encoder, errhandler, formatter),
 		ConfirmSip:       NewConfirmSipHandler(e.ConfirmSip, mux, decoder, encoder, errhandler, formatter),
 		RejectSip:        NewRejectSipHandler(e.RejectSip, mux, decoder, encoder, errhandler, formatter),
-		MoveSip:          NewMoveSipHandler(e.MoveSip, mux, decoder, encoder, errhandler, formatter),
-		MoveSipStatus:    NewMoveSipStatusHandler(e.MoveSipStatus, mux, decoder, encoder, errhandler, formatter),
 		UploadSip:        NewUploadSipHandler(e.UploadSip, mux, decoder, encoder, errhandler, formatter),
 		CORS:             NewCORSHandler(),
 	}
@@ -113,8 +106,6 @@ func (s *Server) Use(m func(http.Handler) http.Handler) {
 	s.ListSipWorkflows = m(s.ListSipWorkflows)
 	s.ConfirmSip = m(s.ConfirmSip)
 	s.RejectSip = m(s.RejectSip)
-	s.MoveSip = m(s.MoveSip)
-	s.MoveSipStatus = m(s.MoveSipStatus)
 	s.UploadSip = m(s.UploadSip)
 	s.CORS = m(s.CORS)
 }
@@ -131,8 +122,6 @@ func Mount(mux goahttp.Muxer, h *Server) {
 	MountListSipWorkflowsHandler(mux, h.ListSipWorkflows)
 	MountConfirmSipHandler(mux, h.ConfirmSip)
 	MountRejectSipHandler(mux, h.RejectSip)
-	MountMoveSipHandler(mux, h.MoveSip)
-	MountMoveSipStatusHandler(mux, h.MoveSipStatus)
 	MountUploadSipHandler(mux, h.UploadSip)
 	MountCORSHandler(mux, h.CORS)
 }
@@ -514,108 +503,6 @@ func NewRejectSipHandler(
 	})
 }
 
-// MountMoveSipHandler configures the mux to serve the "ingest" service
-// "move_sip" endpoint.
-func MountMoveSipHandler(mux goahttp.Muxer, h http.Handler) {
-	f, ok := HandleIngestOrigin(h).(http.HandlerFunc)
-	if !ok {
-		f = func(w http.ResponseWriter, r *http.Request) {
-			h.ServeHTTP(w, r)
-		}
-	}
-	mux.Handle("POST", "/ingest/sips/{id}/move", otelhttp.WithRouteTag("/ingest/sips/{id}/move", f).ServeHTTP)
-}
-
-// NewMoveSipHandler creates a HTTP handler which loads the HTTP request and
-// calls the "ingest" service "move_sip" endpoint.
-func NewMoveSipHandler(
-	endpoint goa.Endpoint,
-	mux goahttp.Muxer,
-	decoder func(*http.Request) goahttp.Decoder,
-	encoder func(context.Context, http.ResponseWriter) goahttp.Encoder,
-	errhandler func(context.Context, http.ResponseWriter, error),
-	formatter func(ctx context.Context, err error) goahttp.Statuser,
-) http.Handler {
-	var (
-		decodeRequest  = DecodeMoveSipRequest(mux, decoder)
-		encodeResponse = EncodeMoveSipResponse(encoder)
-		encodeError    = EncodeMoveSipError(encoder, formatter)
-	)
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
-		ctx = context.WithValue(ctx, goa.MethodKey, "move_sip")
-		ctx = context.WithValue(ctx, goa.ServiceKey, "ingest")
-		payload, err := decodeRequest(r)
-		if err != nil {
-			if err := encodeError(ctx, w, err); err != nil {
-				errhandler(ctx, w, err)
-			}
-			return
-		}
-		res, err := endpoint(ctx, payload)
-		if err != nil {
-			if err := encodeError(ctx, w, err); err != nil {
-				errhandler(ctx, w, err)
-			}
-			return
-		}
-		if err := encodeResponse(ctx, w, res); err != nil {
-			errhandler(ctx, w, err)
-		}
-	})
-}
-
-// MountMoveSipStatusHandler configures the mux to serve the "ingest" service
-// "move_sip_status" endpoint.
-func MountMoveSipStatusHandler(mux goahttp.Muxer, h http.Handler) {
-	f, ok := HandleIngestOrigin(h).(http.HandlerFunc)
-	if !ok {
-		f = func(w http.ResponseWriter, r *http.Request) {
-			h.ServeHTTP(w, r)
-		}
-	}
-	mux.Handle("GET", "/ingest/sips/{id}/move", otelhttp.WithRouteTag("/ingest/sips/{id}/move", f).ServeHTTP)
-}
-
-// NewMoveSipStatusHandler creates a HTTP handler which loads the HTTP request
-// and calls the "ingest" service "move_sip_status" endpoint.
-func NewMoveSipStatusHandler(
-	endpoint goa.Endpoint,
-	mux goahttp.Muxer,
-	decoder func(*http.Request) goahttp.Decoder,
-	encoder func(context.Context, http.ResponseWriter) goahttp.Encoder,
-	errhandler func(context.Context, http.ResponseWriter, error),
-	formatter func(ctx context.Context, err error) goahttp.Statuser,
-) http.Handler {
-	var (
-		decodeRequest  = DecodeMoveSipStatusRequest(mux, decoder)
-		encodeResponse = EncodeMoveSipStatusResponse(encoder)
-		encodeError    = EncodeMoveSipStatusError(encoder, formatter)
-	)
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
-		ctx = context.WithValue(ctx, goa.MethodKey, "move_sip_status")
-		ctx = context.WithValue(ctx, goa.ServiceKey, "ingest")
-		payload, err := decodeRequest(r)
-		if err != nil {
-			if err := encodeError(ctx, w, err); err != nil {
-				errhandler(ctx, w, err)
-			}
-			return
-		}
-		res, err := endpoint(ctx, payload)
-		if err != nil {
-			if err := encodeError(ctx, w, err); err != nil {
-				errhandler(ctx, w, err)
-			}
-			return
-		}
-		if err := encodeResponse(ctx, w, res); err != nil {
-			errhandler(ctx, w, err)
-		}
-	})
-}
-
 // MountUploadSipHandler configures the mux to serve the "ingest" service
 // "upload_sip" endpoint.
 func MountUploadSipHandler(mux goahttp.Muxer, h http.Handler) {
@@ -678,7 +565,6 @@ func MountCORSHandler(mux goahttp.Muxer, h http.Handler) {
 	mux.Handle("OPTIONS", "/ingest/sips/{id}/workflows", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/ingest/sips/{id}/confirm", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/ingest/sips/{id}/reject", h.ServeHTTP)
-	mux.Handle("OPTIONS", "/ingest/sips/{id}/move", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/ingest/sips/upload", h.ServeHTTP)
 }
 

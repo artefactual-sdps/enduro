@@ -5,11 +5,9 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"math"
 	"time"
 
 	"go.artefactual.dev/tools/ref"
-	temporalapi_enums "go.temporal.io/api/enums/v1"
 	"goa.design/goa/v3/security"
 
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
@@ -266,62 +264,4 @@ func (w *goaWrapper) RejectSip(ctx context.Context, payload *goaingest.RejectSip
 	}
 
 	return nil
-}
-
-func (w *goaWrapper) MoveSip(ctx context.Context, payload *goaingest.MoveSipPayload) error {
-	goasip, err := w.ShowSip(ctx, &goaingest.ShowSipPayload{ID: payload.ID})
-	if err != nil {
-		return err
-	}
-	if payload.ID > math.MaxInt {
-		return goaingest.MakeNotValid(errors.New("invalid ID"))
-	}
-
-	_, err = InitMoveWorkflow(ctx, w.tc, &MoveWorkflowRequest{
-		ID:         int(payload.ID), // #nosec G115 -- range validated.
-		AIPID:      *goasip.AipID,
-		LocationID: payload.LocationID,
-		TaskQueue:  w.taskQueue,
-	})
-	if err != nil {
-		w.logger.Error(err, "error initializing move workflow")
-		return goaingest.MakeNotAvailable(errors.New("cannot perform operation"))
-	}
-
-	return nil
-}
-
-func (w *goaWrapper) MoveSipStatus(
-	ctx context.Context,
-	payload *goaingest.MoveSipStatusPayload,
-) (*goaingest.MoveStatusResult, error) {
-	goasip, err := w.ShowSip(ctx, &goaingest.ShowSipPayload{ID: payload.ID})
-	if err != nil {
-		return nil, goaingest.MakeFailedDependency(errors.New("cannot perform operation"))
-	}
-	if goasip.AipID == nil {
-		return nil, goaingest.MakeFailedDependency(errors.New("cannot perform operation"))
-	}
-
-	workflowID := fmt.Sprintf("%s-%s", MoveWorkflowName, *goasip.AipID)
-	resp, err := w.tc.DescribeWorkflowExecution(ctx, workflowID, "")
-	if err != nil {
-		return nil, goaingest.MakeFailedDependency(errors.New("cannot perform operation"))
-	}
-
-	var done bool
-	switch resp.WorkflowExecutionInfo.Status {
-	case
-		temporalapi_enums.WORKFLOW_EXECUTION_STATUS_FAILED,
-		temporalapi_enums.WORKFLOW_EXECUTION_STATUS_CANCELED,
-		temporalapi_enums.WORKFLOW_EXECUTION_STATUS_TERMINATED,
-		temporalapi_enums.WORKFLOW_EXECUTION_STATUS_TIMED_OUT:
-		return nil, goaingest.MakeFailedDependency(errors.New("cannot perform operation"))
-	case temporalapi_enums.WORKFLOW_EXECUTION_STATUS_COMPLETED:
-		done = true
-	case temporalapi_enums.WORKFLOW_EXECUTION_STATUS_RUNNING:
-		done = false
-	}
-
-	return &goaingest.MoveStatusResult{Done: done}, nil
 }

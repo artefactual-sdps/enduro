@@ -24,13 +24,6 @@ type ConfirmSipRequestBody struct {
 	LocationID *uuid.UUID `form:"location_id,omitempty" json:"location_id,omitempty" xml:"location_id,omitempty"`
 }
 
-// MoveSipRequestBody is the type of the "ingest" service "move_sip" endpoint
-// HTTP request body.
-type MoveSipRequestBody struct {
-	// Identifier of storage location
-	LocationID *uuid.UUID `form:"location_id,omitempty" json:"location_id,omitempty" xml:"location_id,omitempty"`
-}
-
 // MonitorResponseBody is the type of the "ingest" service "monitor" endpoint
 // HTTP response body.
 type MonitorResponseBody struct {
@@ -80,12 +73,6 @@ type ShowSipResponseBody struct {
 // "list_sip_workflows" endpoint HTTP response body.
 type ListSipWorkflowsResponseBody struct {
 	Workflows SIPWorkflowResponseBodyCollection `form:"workflows,omitempty" json:"workflows,omitempty" xml:"workflows,omitempty"`
-}
-
-// MoveSipStatusResponseBody is the type of the "ingest" service
-// "move_sip_status" endpoint HTTP response body.
-type MoveSipStatusResponseBody struct {
-	Done bool `form:"done" json:"done" xml:"done"`
 }
 
 // MonitorRequestNotAvailableResponseBody is the type of the "ingest" service
@@ -262,79 +249,6 @@ type RejectSipNotValidResponseBody struct {
 // RejectSipNotFoundResponseBody is the type of the "ingest" service
 // "reject_sip" endpoint HTTP response body for the "not_found" error.
 type RejectSipNotFoundResponseBody struct {
-	// Message of error
-	Message string `form:"message" json:"message" xml:"message"`
-	// Identifier of missing SIP
-	ID uint `form:"id" json:"id" xml:"id"`
-}
-
-// MoveSipNotAvailableResponseBody is the type of the "ingest" service
-// "move_sip" endpoint HTTP response body for the "not_available" error.
-type MoveSipNotAvailableResponseBody struct {
-	// Name is the name of this class of errors.
-	Name string `form:"name" json:"name" xml:"name"`
-	// ID is a unique identifier for this particular occurrence of the problem.
-	ID string `form:"id" json:"id" xml:"id"`
-	// Message is a human-readable explanation specific to this occurrence of the
-	// problem.
-	Message string `form:"message" json:"message" xml:"message"`
-	// Is the error temporary?
-	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
-	// Is the error a timeout?
-	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
-	// Is the error a server-side fault?
-	Fault bool `form:"fault" json:"fault" xml:"fault"`
-}
-
-// MoveSipNotValidResponseBody is the type of the "ingest" service "move_sip"
-// endpoint HTTP response body for the "not_valid" error.
-type MoveSipNotValidResponseBody struct {
-	// Name is the name of this class of errors.
-	Name string `form:"name" json:"name" xml:"name"`
-	// ID is a unique identifier for this particular occurrence of the problem.
-	ID string `form:"id" json:"id" xml:"id"`
-	// Message is a human-readable explanation specific to this occurrence of the
-	// problem.
-	Message string `form:"message" json:"message" xml:"message"`
-	// Is the error temporary?
-	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
-	// Is the error a timeout?
-	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
-	// Is the error a server-side fault?
-	Fault bool `form:"fault" json:"fault" xml:"fault"`
-}
-
-// MoveSipNotFoundResponseBody is the type of the "ingest" service "move_sip"
-// endpoint HTTP response body for the "not_found" error.
-type MoveSipNotFoundResponseBody struct {
-	// Message of error
-	Message string `form:"message" json:"message" xml:"message"`
-	// Identifier of missing SIP
-	ID uint `form:"id" json:"id" xml:"id"`
-}
-
-// MoveSipStatusFailedDependencyResponseBody is the type of the "ingest"
-// service "move_sip_status" endpoint HTTP response body for the
-// "failed_dependency" error.
-type MoveSipStatusFailedDependencyResponseBody struct {
-	// Name is the name of this class of errors.
-	Name string `form:"name" json:"name" xml:"name"`
-	// ID is a unique identifier for this particular occurrence of the problem.
-	ID string `form:"id" json:"id" xml:"id"`
-	// Message is a human-readable explanation specific to this occurrence of the
-	// problem.
-	Message string `form:"message" json:"message" xml:"message"`
-	// Is the error temporary?
-	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
-	// Is the error a timeout?
-	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
-	// Is the error a server-side fault?
-	Fault bool `form:"fault" json:"fault" xml:"fault"`
-}
-
-// MoveSipStatusNotFoundResponseBody is the type of the "ingest" service
-// "move_sip_status" endpoint HTTP response body for the "not_found" error.
-type MoveSipStatusNotFoundResponseBody struct {
 	// Message of error
 	Message string `form:"message" json:"message" xml:"message"`
 	// Identifier of missing SIP
@@ -551,15 +465,6 @@ func NewListSipWorkflowsResponseBody(res *ingestviews.SIPWorkflowsView) *ListSip
 	return body
 }
 
-// NewMoveSipStatusResponseBody builds the HTTP response body from the result
-// of the "move_sip_status" endpoint of the "ingest" service.
-func NewMoveSipStatusResponseBody(res *ingest.MoveStatusResult) *MoveSipStatusResponseBody {
-	body := &MoveSipStatusResponseBody{
-		Done: res.Done,
-	}
-	return body
-}
-
 // NewMonitorRequestNotAvailableResponseBody builds the HTTP response body from
 // the result of the "monitor_request" endpoint of the "ingest" service.
 func NewMonitorRequestNotAvailableResponseBody(res *goa.ServiceError) *MonitorRequestNotAvailableResponseBody {
@@ -712,68 +617,6 @@ func NewRejectSipNotFoundResponseBody(res *ingest.SIPNotFound) *RejectSipNotFoun
 	return body
 }
 
-// NewMoveSipNotAvailableResponseBody builds the HTTP response body from the
-// result of the "move_sip" endpoint of the "ingest" service.
-func NewMoveSipNotAvailableResponseBody(res *goa.ServiceError) *MoveSipNotAvailableResponseBody {
-	body := &MoveSipNotAvailableResponseBody{
-		Name:      res.Name,
-		ID:        res.ID,
-		Message:   res.Message,
-		Temporary: res.Temporary,
-		Timeout:   res.Timeout,
-		Fault:     res.Fault,
-	}
-	return body
-}
-
-// NewMoveSipNotValidResponseBody builds the HTTP response body from the result
-// of the "move_sip" endpoint of the "ingest" service.
-func NewMoveSipNotValidResponseBody(res *goa.ServiceError) *MoveSipNotValidResponseBody {
-	body := &MoveSipNotValidResponseBody{
-		Name:      res.Name,
-		ID:        res.ID,
-		Message:   res.Message,
-		Temporary: res.Temporary,
-		Timeout:   res.Timeout,
-		Fault:     res.Fault,
-	}
-	return body
-}
-
-// NewMoveSipNotFoundResponseBody builds the HTTP response body from the result
-// of the "move_sip" endpoint of the "ingest" service.
-func NewMoveSipNotFoundResponseBody(res *ingest.SIPNotFound) *MoveSipNotFoundResponseBody {
-	body := &MoveSipNotFoundResponseBody{
-		Message: res.Message,
-		ID:      res.ID,
-	}
-	return body
-}
-
-// NewMoveSipStatusFailedDependencyResponseBody builds the HTTP response body
-// from the result of the "move_sip_status" endpoint of the "ingest" service.
-func NewMoveSipStatusFailedDependencyResponseBody(res *goa.ServiceError) *MoveSipStatusFailedDependencyResponseBody {
-	body := &MoveSipStatusFailedDependencyResponseBody{
-		Name:      res.Name,
-		ID:        res.ID,
-		Message:   res.Message,
-		Temporary: res.Temporary,
-		Timeout:   res.Timeout,
-		Fault:     res.Fault,
-	}
-	return body
-}
-
-// NewMoveSipStatusNotFoundResponseBody builds the HTTP response body from the
-// result of the "move_sip_status" endpoint of the "ingest" service.
-func NewMoveSipStatusNotFoundResponseBody(res *ingest.SIPNotFound) *MoveSipStatusNotFoundResponseBody {
-	body := &MoveSipStatusNotFoundResponseBody{
-		Message: res.Message,
-		ID:      res.ID,
-	}
-	return body
-}
-
 // NewUploadSipInvalidMediaTypeResponseBody builds the HTTP response body from
 // the result of the "upload_sip" endpoint of the "ingest" service.
 func NewUploadSipInvalidMediaTypeResponseBody(res *goa.ServiceError) *UploadSipInvalidMediaTypeResponseBody {
@@ -887,27 +730,6 @@ func NewRejectSipPayload(id uint, token *string) *ingest.RejectSipPayload {
 	return v
 }
 
-// NewMoveSipPayload builds a ingest service move_sip endpoint payload.
-func NewMoveSipPayload(body *MoveSipRequestBody, id uint, token *string) *ingest.MoveSipPayload {
-	v := &ingest.MoveSipPayload{
-		LocationID: *body.LocationID,
-	}
-	v.ID = id
-	v.Token = token
-
-	return v
-}
-
-// NewMoveSipStatusPayload builds a ingest service move_sip_status endpoint
-// payload.
-func NewMoveSipStatusPayload(id uint, token *string) *ingest.MoveSipStatusPayload {
-	v := &ingest.MoveSipStatusPayload{}
-	v.ID = id
-	v.Token = token
-
-	return v
-}
-
 // NewUploadSipPayload builds a ingest service upload_sip endpoint payload.
 func NewUploadSipPayload(contentType string, token *string) *ingest.UploadSipPayload {
 	v := &ingest.UploadSipPayload{}
@@ -920,15 +742,6 @@ func NewUploadSipPayload(contentType string, token *string) *ingest.UploadSipPay
 // ValidateConfirmSipRequestBody runs the validations defined on
 // confirm_sip_request_body
 func ValidateConfirmSipRequestBody(body *ConfirmSipRequestBody) (err error) {
-	if body.LocationID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("location_id", "body"))
-	}
-	return
-}
-
-// ValidateMoveSipRequestBody runs the validations defined on
-// move_sip_request_body
-func ValidateMoveSipRequestBody(body *MoveSipRequestBody) (err error) {
 	if body.LocationID == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("location_id", "body"))
 	}

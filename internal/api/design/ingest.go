@@ -20,7 +20,6 @@ var _ = Service("ingest", func() {
 		// For now, the monitor websocket requires all the scopes from this service.
 		Security(JWTAuth, func() {
 			Scope("ingest:sips:list")
-			Scope("ingest:sips:move")
 			Scope("ingest:sips:read")
 			Scope("ingest:sips:review")
 			Scope("ingest:sips:upload")
@@ -178,48 +177,6 @@ var _ = Service("ingest", func() {
 			Response("not_found", StatusNotFound)
 			Response("not_available", StatusConflict)
 			Response("not_valid", StatusBadRequest)
-		})
-	})
-	Method("move_sip", func() {
-		Description("Move a SIP to a permanent storage location")
-		Security(JWTAuth, func() {
-			Scope("ingest:sips:move")
-		})
-		Payload(func() {
-			Attribute("id", UInt, "Identifier of SIP to move")
-			TypedAttributeUUID("location_id", "Identifier of storage location")
-			Token("token", String)
-			Required("id", "location_id")
-		})
-		Error("not_found", SIPNotFound, "SIP not found")
-		Error("not_available")
-		Error("not_valid")
-		HTTP(func() {
-			POST("/sips/{id}/move")
-			Response(StatusAccepted)
-			Response("not_found", StatusNotFound)
-			Response("not_available", StatusConflict)
-			Response("not_valid", StatusBadRequest)
-		})
-	})
-	Method("move_sip_status", func() {
-		Description("Retrieve the status of a permanent storage location move of the SIP")
-		Security(JWTAuth, func() {
-			Scope("ingest:sips:move")
-		})
-		Payload(func() {
-			Attribute("id", UInt, "Identifier of SIP to move")
-			Token("token", String)
-			Required("id")
-		})
-		Result(MoveStatusResult)
-		Error("not_found", SIPNotFound, "SIP not found")
-		Error("failed_dependency")
-		HTTP(func() {
-			GET("/sips/{id}/move")
-			Response(StatusOK)
-			Response("not_found", StatusNotFound)
-			Response("failed_dependency", StatusFailedDependency)
 		})
 	})
 	Method("upload_sip", func() {

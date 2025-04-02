@@ -48,14 +48,6 @@ type Client struct {
 	// endpoint.
 	RejectSipDoer goahttp.Doer
 
-	// MoveSip Doer is the HTTP client used to make requests to the move_sip
-	// endpoint.
-	MoveSipDoer goahttp.Doer
-
-	// MoveSipStatus Doer is the HTTP client used to make requests to the
-	// move_sip_status endpoint.
-	MoveSipStatusDoer goahttp.Doer
-
 	// UploadSip Doer is the HTTP client used to make requests to the upload_sip
 	// endpoint.
 	UploadSipDoer goahttp.Doer
@@ -97,8 +89,6 @@ func NewClient(
 		ListSipWorkflowsDoer: doer,
 		ConfirmSipDoer:       doer,
 		RejectSipDoer:        doer,
-		MoveSipDoer:          doer,
-		MoveSipStatusDoer:    doer,
 		UploadSipDoer:        doer,
 		CORSDoer:             doer,
 		RestoreResponseBody:  restoreBody,
@@ -292,54 +282,6 @@ func (c *Client) RejectSip() goa.Endpoint {
 		resp, err := c.RejectSipDoer.Do(req)
 		if err != nil {
 			return nil, goahttp.ErrRequestError("ingest", "reject_sip", err)
-		}
-		return decodeResponse(resp)
-	}
-}
-
-// MoveSip returns an endpoint that makes HTTP requests to the ingest service
-// move_sip server.
-func (c *Client) MoveSip() goa.Endpoint {
-	var (
-		encodeRequest  = EncodeMoveSipRequest(c.encoder)
-		decodeResponse = DecodeMoveSipResponse(c.decoder, c.RestoreResponseBody)
-	)
-	return func(ctx context.Context, v any) (any, error) {
-		req, err := c.BuildMoveSipRequest(ctx, v)
-		if err != nil {
-			return nil, err
-		}
-		err = encodeRequest(req, v)
-		if err != nil {
-			return nil, err
-		}
-		resp, err := c.MoveSipDoer.Do(req)
-		if err != nil {
-			return nil, goahttp.ErrRequestError("ingest", "move_sip", err)
-		}
-		return decodeResponse(resp)
-	}
-}
-
-// MoveSipStatus returns an endpoint that makes HTTP requests to the ingest
-// service move_sip_status server.
-func (c *Client) MoveSipStatus() goa.Endpoint {
-	var (
-		encodeRequest  = EncodeMoveSipStatusRequest(c.encoder)
-		decodeResponse = DecodeMoveSipStatusResponse(c.decoder, c.RestoreResponseBody)
-	)
-	return func(ctx context.Context, v any) (any, error) {
-		req, err := c.BuildMoveSipStatusRequest(ctx, v)
-		if err != nil {
-			return nil, err
-		}
-		err = encodeRequest(req, v)
-		if err != nil {
-			return nil, err
-		}
-		resp, err := c.MoveSipStatusDoer.Do(req)
-		if err != nil {
-			return nil, goahttp.ErrRequestError("ingest", "move_sip_status", err)
 		}
 		return decodeResponse(resp)
 	}

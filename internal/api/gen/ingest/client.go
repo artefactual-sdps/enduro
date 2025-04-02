@@ -24,13 +24,11 @@ type Client struct {
 	ListSipWorkflowsEndpoint goa.Endpoint
 	ConfirmSipEndpoint       goa.Endpoint
 	RejectSipEndpoint        goa.Endpoint
-	MoveSipEndpoint          goa.Endpoint
-	MoveSipStatusEndpoint    goa.Endpoint
 	UploadSipEndpoint        goa.Endpoint
 }
 
 // NewClient initializes a "ingest" service client given the endpoints.
-func NewClient(monitorRequest, monitor, listSips, showSip, listSipWorkflows, confirmSip, rejectSip, moveSip, moveSipStatus, uploadSip goa.Endpoint) *Client {
+func NewClient(monitorRequest, monitor, listSips, showSip, listSipWorkflows, confirmSip, rejectSip, uploadSip goa.Endpoint) *Client {
 	return &Client{
 		MonitorRequestEndpoint:   monitorRequest,
 		MonitorEndpoint:          monitor,
@@ -39,8 +37,6 @@ func NewClient(monitorRequest, monitor, listSips, showSip, listSipWorkflows, con
 		ListSipWorkflowsEndpoint: listSipWorkflows,
 		ConfirmSipEndpoint:       confirmSip,
 		RejectSipEndpoint:        rejectSip,
-		MoveSipEndpoint:          moveSip,
-		MoveSipStatusEndpoint:    moveSipStatus,
 		UploadSipEndpoint:        uploadSip,
 	}
 }
@@ -146,35 +142,6 @@ func (c *Client) ConfirmSip(ctx context.Context, p *ConfirmSipPayload) (err erro
 func (c *Client) RejectSip(ctx context.Context, p *RejectSipPayload) (err error) {
 	_, err = c.RejectSipEndpoint(ctx, p)
 	return
-}
-
-// MoveSip calls the "move_sip" endpoint of the "ingest" service.
-// MoveSip may return the following errors:
-//   - "not_found" (type *SIPNotFound): SIP not found
-//   - "not_available" (type *goa.ServiceError)
-//   - "not_valid" (type *goa.ServiceError)
-//   - "unauthorized" (type Unauthorized)
-//   - "forbidden" (type Forbidden)
-//   - error: internal error
-func (c *Client) MoveSip(ctx context.Context, p *MoveSipPayload) (err error) {
-	_, err = c.MoveSipEndpoint(ctx, p)
-	return
-}
-
-// MoveSipStatus calls the "move_sip_status" endpoint of the "ingest" service.
-// MoveSipStatus may return the following errors:
-//   - "not_found" (type *SIPNotFound): SIP not found
-//   - "failed_dependency" (type *goa.ServiceError)
-//   - "unauthorized" (type Unauthorized)
-//   - "forbidden" (type Forbidden)
-//   - error: internal error
-func (c *Client) MoveSipStatus(ctx context.Context, p *MoveSipStatusPayload) (res *MoveStatusResult, err error) {
-	var ires any
-	ires, err = c.MoveSipStatusEndpoint(ctx, p)
-	if err != nil {
-		return
-	}
-	return ires.(*MoveStatusResult), nil
 }
 
 // UploadSip calls the "upload_sip" endpoint of the "ingest" service.

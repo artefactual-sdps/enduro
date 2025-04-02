@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"net/http/httptrace"
 	"net/http/pprof"
 	"os"
 	"os/signal"
@@ -15,15 +14,12 @@ import (
 
 	"ariga.io/sqlcomment"
 	"entgo.io/ent/dialect/sql"
-	"github.com/hashicorp/go-cleanhttp"
 	"github.com/oklog/run"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/pflag"
 	"go.artefactual.dev/tools/bucket"
 	"go.artefactual.dev/tools/log"
 	temporal_tools "go.artefactual.dev/tools/temporal"
-	"go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace"
-	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel/codes"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
 	temporalsdk_client "go.temporal.io/sdk/client"
@@ -31,13 +27,10 @@ import (
 	temporalsdk_interceptor "go.temporal.io/sdk/interceptor"
 	temporalsdk_worker "go.temporal.io/sdk/worker"
 	temporalsdk_workflow "go.temporal.io/sdk/workflow"
-	goahttp "goa.design/goa/v3/http"
 
 	"github.com/artefactual-sdps/enduro/internal/about"
 	"github.com/artefactual-sdps/enduro/internal/api"
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
-	goahttpstorage "github.com/artefactual-sdps/enduro/internal/api/gen/http/storage/client"
-	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 	"github.com/artefactual-sdps/enduro/internal/config"
 	"github.com/artefactual-sdps/enduro/internal/db"
 	"github.com/artefactual-sdps/enduro/internal/event"
@@ -473,54 +466,6 @@ func main() {
 		w.RegisterActivityWithOptions(
 			storage_activities.NewDeleteFromAMSSLocationActivity().Execute,
 			temporalsdk_activity.RegisterOptions{Name: storage.DeleteFromAMSSLocationActivityName},
-		)
-
-		w.RegisterWorkflowWithOptions(
-			workflow.NewMoveWorkflow(ingestsvc).Execute,
-			temporalsdk_workflow.RegisterOptions{Name: ingest.MoveWorkflowName},
-		)
-
-		httpClient := cleanhttp.DefaultPooledClient()
-		httpClient.Transport = otelhttp.NewTransport(
-			httpClient.Transport,
-			otelhttp.WithTracerProvider(tp),
-			otelhttp.WithClientTrace(func(ctx context.Context) *httptrace.ClientTrace {
-				return otelhttptrace.NewClientTrace(ctx)
-			}),
-		)
-		storageHttpClient := goahttpstorage.NewClient(
-			"http",
-			cfg.Storage.EnduroAddress,
-			httpClient,
-			goahttp.RequestEncoder,
-			goahttp.ResponseDecoder,
-			false,
-		)
-		storageClient := goastorage.NewClient(
-			storageHttpClient.ListAips(),
-			storageHttpClient.CreateAip(),
-			storageHttpClient.SubmitAip(),
-			storageHttpClient.UpdateAip(),
-			storageHttpClient.DownloadAip(),
-			storageHttpClient.MoveAip(),
-			storageHttpClient.MoveAipStatus(),
-			storageHttpClient.RejectAip(),
-			storageHttpClient.ShowAip(),
-			storageHttpClient.ListAipWorkflows(),
-			storageHttpClient.RequestAipDeletion(),
-			storageHttpClient.ReviewAipDeletion(),
-			storageHttpClient.ListLocations(),
-			storageHttpClient.CreateLocation(),
-			storageHttpClient.ShowLocation(),
-			storageHttpClient.ListLocationAips(),
-		)
-		w.RegisterActivityWithOptions(
-			activities.NewMoveToPermanentStorageActivity(storageClient).Execute,
-			temporalsdk_activity.RegisterOptions{Name: activities.MoveToPermanentStorageActivityName},
-		)
-		w.RegisterActivityWithOptions(
-			activities.NewPollMoveToPermanentStorageActivity(storageClient).Execute,
-			temporalsdk_activity.RegisterOptions{Name: activities.PollMoveToPermanentStorageActivityName},
 		)
 
 		g.Add(

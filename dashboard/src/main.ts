@@ -54,8 +54,6 @@ app.config.globalProperties.$filters = {
         return "Create AIP";
       case api.EnduroIngestSipWorkflowTypeEnum.CreateAndReviewAip:
         return "Create and Review AIP";
-      case api.EnduroIngestSipWorkflowTypeEnum.MovePackage:
-        return "Move package";
       case api.EnduroStorageAipWorkflowTypeEnum.UploadAip:
         return "Upload AIP";
       case api.EnduroStorageAipWorkflowTypeEnum.MoveAip:

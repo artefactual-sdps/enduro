@@ -24,13 +24,6 @@ type ConfirmSipRequestBody struct {
 	LocationID uuid.UUID `form:"location_id" json:"location_id" xml:"location_id"`
 }
 
-// MoveSipRequestBody is the type of the "ingest" service "move_sip" endpoint
-// HTTP request body.
-type MoveSipRequestBody struct {
-	// Identifier of storage location
-	LocationID uuid.UUID `form:"location_id" json:"location_id" xml:"location_id"`
-}
-
 // MonitorResponseBody is the type of the "ingest" service "monitor" endpoint
 // HTTP response body.
 type MonitorResponseBody struct {
@@ -80,12 +73,6 @@ type ShowSipResponseBody struct {
 // "list_sip_workflows" endpoint HTTP response body.
 type ListSipWorkflowsResponseBody struct {
 	Workflows SIPWorkflowCollectionResponseBody `form:"workflows,omitempty" json:"workflows,omitempty" xml:"workflows,omitempty"`
-}
-
-// MoveSipStatusResponseBody is the type of the "ingest" service
-// "move_sip_status" endpoint HTTP response body.
-type MoveSipStatusResponseBody struct {
-	Done *bool `form:"done,omitempty" json:"done,omitempty" xml:"done,omitempty"`
 }
 
 // MonitorRequestNotAvailableResponseBody is the type of the "ingest" service
@@ -268,79 +255,6 @@ type RejectSipNotFoundResponseBody struct {
 	ID *uint `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
 }
 
-// MoveSipNotAvailableResponseBody is the type of the "ingest" service
-// "move_sip" endpoint HTTP response body for the "not_available" error.
-type MoveSipNotAvailableResponseBody struct {
-	// Name is the name of this class of errors.
-	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
-	// ID is a unique identifier for this particular occurrence of the problem.
-	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
-	// Message is a human-readable explanation specific to this occurrence of the
-	// problem.
-	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
-	// Is the error temporary?
-	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
-	// Is the error a timeout?
-	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
-	// Is the error a server-side fault?
-	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
-}
-
-// MoveSipNotValidResponseBody is the type of the "ingest" service "move_sip"
-// endpoint HTTP response body for the "not_valid" error.
-type MoveSipNotValidResponseBody struct {
-	// Name is the name of this class of errors.
-	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
-	// ID is a unique identifier for this particular occurrence of the problem.
-	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
-	// Message is a human-readable explanation specific to this occurrence of the
-	// problem.
-	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
-	// Is the error temporary?
-	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
-	// Is the error a timeout?
-	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
-	// Is the error a server-side fault?
-	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
-}
-
-// MoveSipNotFoundResponseBody is the type of the "ingest" service "move_sip"
-// endpoint HTTP response body for the "not_found" error.
-type MoveSipNotFoundResponseBody struct {
-	// Message of error
-	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
-	// Identifier of missing SIP
-	ID *uint `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
-}
-
-// MoveSipStatusFailedDependencyResponseBody is the type of the "ingest"
-// service "move_sip_status" endpoint HTTP response body for the
-// "failed_dependency" error.
-type MoveSipStatusFailedDependencyResponseBody struct {
-	// Name is the name of this class of errors.
-	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
-	// ID is a unique identifier for this particular occurrence of the problem.
-	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
-	// Message is a human-readable explanation specific to this occurrence of the
-	// problem.
-	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
-	// Is the error temporary?
-	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
-	// Is the error a timeout?
-	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
-	// Is the error a server-side fault?
-	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
-}
-
-// MoveSipStatusNotFoundResponseBody is the type of the "ingest" service
-// "move_sip_status" endpoint HTTP response body for the "not_found" error.
-type MoveSipStatusNotFoundResponseBody struct {
-	// Message of error
-	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
-	// Identifier of missing SIP
-	ID *uint `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
-}
-
 // UploadSipInvalidMediaTypeResponseBody is the type of the "ingest" service
 // "upload_sip" endpoint HTTP response body for the "invalid_media_type" error.
 type UploadSipInvalidMediaTypeResponseBody struct {
@@ -463,15 +377,6 @@ type SIPTaskResponseBody struct {
 // the "confirm_sip" endpoint of the "ingest" service.
 func NewConfirmSipRequestBody(p *ingest.ConfirmSipPayload) *ConfirmSipRequestBody {
 	body := &ConfirmSipRequestBody{
-		LocationID: p.LocationID,
-	}
-	return body
-}
-
-// NewMoveSipRequestBody builds the HTTP request body from the payload of the
-// "move_sip" endpoint of the "ingest" service.
-func NewMoveSipRequestBody(p *ingest.MoveSipPayload) *MoveSipRequestBody {
-	body := &MoveSipRequestBody{
 		LocationID: p.LocationID,
 	}
 	return body
@@ -847,113 +752,6 @@ func NewRejectSipUnauthorized(body string) ingest.Unauthorized {
 	return v
 }
 
-// NewMoveSipNotAvailable builds a ingest service move_sip endpoint
-// not_available error.
-func NewMoveSipNotAvailable(body *MoveSipNotAvailableResponseBody) *goa.ServiceError {
-	v := &goa.ServiceError{
-		Name:      *body.Name,
-		ID:        *body.ID,
-		Message:   *body.Message,
-		Temporary: *body.Temporary,
-		Timeout:   *body.Timeout,
-		Fault:     *body.Fault,
-	}
-
-	return v
-}
-
-// NewMoveSipNotValid builds a ingest service move_sip endpoint not_valid error.
-func NewMoveSipNotValid(body *MoveSipNotValidResponseBody) *goa.ServiceError {
-	v := &goa.ServiceError{
-		Name:      *body.Name,
-		ID:        *body.ID,
-		Message:   *body.Message,
-		Temporary: *body.Temporary,
-		Timeout:   *body.Timeout,
-		Fault:     *body.Fault,
-	}
-
-	return v
-}
-
-// NewMoveSipNotFound builds a ingest service move_sip endpoint not_found error.
-func NewMoveSipNotFound(body *MoveSipNotFoundResponseBody) *ingest.SIPNotFound {
-	v := &ingest.SIPNotFound{
-		Message: *body.Message,
-		ID:      *body.ID,
-	}
-
-	return v
-}
-
-// NewMoveSipForbidden builds a ingest service move_sip endpoint forbidden
-// error.
-func NewMoveSipForbidden(body string) ingest.Forbidden {
-	v := ingest.Forbidden(body)
-
-	return v
-}
-
-// NewMoveSipUnauthorized builds a ingest service move_sip endpoint
-// unauthorized error.
-func NewMoveSipUnauthorized(body string) ingest.Unauthorized {
-	v := ingest.Unauthorized(body)
-
-	return v
-}
-
-// NewMoveSipStatusMoveStatusResultOK builds a "ingest" service
-// "move_sip_status" endpoint result from a HTTP "OK" response.
-func NewMoveSipStatusMoveStatusResultOK(body *MoveSipStatusResponseBody) *ingest.MoveStatusResult {
-	v := &ingest.MoveStatusResult{
-		Done: *body.Done,
-	}
-
-	return v
-}
-
-// NewMoveSipStatusFailedDependency builds a ingest service move_sip_status
-// endpoint failed_dependency error.
-func NewMoveSipStatusFailedDependency(body *MoveSipStatusFailedDependencyResponseBody) *goa.ServiceError {
-	v := &goa.ServiceError{
-		Name:      *body.Name,
-		ID:        *body.ID,
-		Message:   *body.Message,
-		Temporary: *body.Temporary,
-		Timeout:   *body.Timeout,
-		Fault:     *body.Fault,
-	}
-
-	return v
-}
-
-// NewMoveSipStatusNotFound builds a ingest service move_sip_status endpoint
-// not_found error.
-func NewMoveSipStatusNotFound(body *MoveSipStatusNotFoundResponseBody) *ingest.SIPNotFound {
-	v := &ingest.SIPNotFound{
-		Message: *body.Message,
-		ID:      *body.ID,
-	}
-
-	return v
-}
-
-// NewMoveSipStatusForbidden builds a ingest service move_sip_status endpoint
-// forbidden error.
-func NewMoveSipStatusForbidden(body string) ingest.Forbidden {
-	v := ingest.Forbidden(body)
-
-	return v
-}
-
-// NewMoveSipStatusUnauthorized builds a ingest service move_sip_status
-// endpoint unauthorized error.
-func NewMoveSipStatusUnauthorized(body string) ingest.Unauthorized {
-	v := ingest.Unauthorized(body)
-
-	return v
-}
-
 // NewUploadSipInvalidMediaType builds a ingest service upload_sip endpoint
 // invalid_media_type error.
 func NewUploadSipInvalidMediaType(body *UploadSipInvalidMediaTypeResponseBody) *goa.ServiceError {
@@ -1030,15 +828,6 @@ func ValidateMonitorResponseBody(body *MonitorResponseBody) (err error) {
 				err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.event.Type", *body.Event.Type, []any{"monitor_ping_event", "sip_created_event", "sip_updated_event", "sip_status_updated_event", "sip_workflow_created_event", "sip_workflow_updated_event", "sip_task_created_event", "sip_task_updated_event"}))
 			}
 		}
-	}
-	return
-}
-
-// ValidateMoveSipStatusResponseBody runs the validations defined on
-// move_sip_status_response_body
-func ValidateMoveSipStatusResponseBody(body *MoveSipStatusResponseBody) (err error) {
-	if body.Done == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("done", "body"))
 	}
 	return
 }
@@ -1283,102 +1072,6 @@ func ValidateRejectSipNotFoundResponseBody(body *RejectSipNotFoundResponseBody) 
 	return
 }
 
-// ValidateMoveSipNotAvailableResponseBody runs the validations defined on
-// move_sip_not_available_response_body
-func ValidateMoveSipNotAvailableResponseBody(body *MoveSipNotAvailableResponseBody) (err error) {
-	if body.Name == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
-	}
-	if body.ID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
-	}
-	if body.Message == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
-	}
-	if body.Temporary == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
-	}
-	if body.Timeout == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
-	}
-	if body.Fault == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
-	}
-	return
-}
-
-// ValidateMoveSipNotValidResponseBody runs the validations defined on
-// move_sip_not_valid_response_body
-func ValidateMoveSipNotValidResponseBody(body *MoveSipNotValidResponseBody) (err error) {
-	if body.Name == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
-	}
-	if body.ID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
-	}
-	if body.Message == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
-	}
-	if body.Temporary == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
-	}
-	if body.Timeout == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
-	}
-	if body.Fault == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
-	}
-	return
-}
-
-// ValidateMoveSipNotFoundResponseBody runs the validations defined on
-// move_sip_not_found_response_body
-func ValidateMoveSipNotFoundResponseBody(body *MoveSipNotFoundResponseBody) (err error) {
-	if body.Message == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
-	}
-	if body.ID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
-	}
-	return
-}
-
-// ValidateMoveSipStatusFailedDependencyResponseBody runs the validations
-// defined on move_sip_status_failed_dependency_response_body
-func ValidateMoveSipStatusFailedDependencyResponseBody(body *MoveSipStatusFailedDependencyResponseBody) (err error) {
-	if body.Name == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
-	}
-	if body.ID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
-	}
-	if body.Message == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
-	}
-	if body.Temporary == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
-	}
-	if body.Timeout == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
-	}
-	if body.Fault == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
-	}
-	return
-}
-
-// ValidateMoveSipStatusNotFoundResponseBody runs the validations defined on
-// move_sip_status_not_found_response_body
-func ValidateMoveSipStatusNotFoundResponseBody(body *MoveSipStatusNotFoundResponseBody) (err error) {
-	if body.Message == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
-	}
-	if body.ID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
-	}
-	return
-}
-
 // ValidateUploadSipInvalidMediaTypeResponseBody runs the validations defined
 // on upload_sip_invalid_media_type_response_body
 func ValidateUploadSipInvalidMediaTypeResponseBody(body *UploadSipInvalidMediaTypeResponseBody) (err error) {
@@ -1542,8 +1235,8 @@ func ValidateSIPWorkflowResponseBody(body *SIPWorkflowResponseBody) (err error) 
 		err = goa.MergeErrors(err, goa.MissingFieldError("started_at", "body"))
 	}
 	if body.Type != nil {
-		if !(*body.Type == "unspecified" || *body.Type == "create aip" || *body.Type == "create and review aip" || *body.Type == "move package") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.type", *body.Type, []any{"unspecified", "create aip", "create and review aip", "move package"}))
+		if !(*body.Type == "unspecified" || *body.Type == "create aip" || *body.Type == "create and review aip") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.type", *body.Type, []any{"unspecified", "create aip", "create and review aip"}))
 		}
 	}
 	if body.Status != nil {

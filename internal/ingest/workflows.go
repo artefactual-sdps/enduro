@@ -11,9 +11,6 @@ import (
 )
 
 const (
-	// Name of the SIP move workflow.
-	MoveWorkflowName = "move-workflow"
-
 	// Name of the SIP processing workflow.
 	ProcessingWorkflowName = "processing-workflow"
 
@@ -81,29 +78,4 @@ func InitProcessingWorkflow(ctx context.Context, tc temporalsdk_client.Client, r
 	_, err := tc.ExecuteWorkflow(ctx, opts, ProcessingWorkflowName, req)
 
 	return err
-}
-
-type MoveWorkflowRequest struct {
-	ID         int
-	AIPID      string
-	LocationID uuid.UUID
-	TaskQueue  string
-}
-
-func InitMoveWorkflow(
-	ctx context.Context,
-	tc temporalsdk_client.Client,
-	req *MoveWorkflowRequest,
-) (temporalsdk_client.WorkflowRun, error) {
-	ctx, cancel := context.WithTimeout(ctx, time.Second*5)
-	defer cancel()
-
-	opts := temporalsdk_client.StartWorkflowOptions{
-		ID:                    fmt.Sprintf("%s-%s", MoveWorkflowName, req.AIPID),
-		TaskQueue:             req.TaskQueue,
-		WorkflowIDReusePolicy: temporalsdk_api_enums.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE,
-	}
-	exec, err := tc.ExecuteWorkflow(ctx, opts, MoveWorkflowName, req)
-
-	return exec, err
 }

@@ -3,7 +3,6 @@ package workflow
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"io"
 	"time"
 
@@ -86,55 +85,6 @@ func setStatusLocalActivity(
 	status enums.SIPStatus,
 ) (*setStatusLocalActivityResult, error) {
 	return &setStatusLocalActivityResult{}, ingestsvc.SetStatus(ctx, sipID, status)
-}
-
-type saveLocationMoveWorkflowLocalActivityParams struct {
-	SIPID       int
-	LocationID  uuid.UUID
-	TemporalID  string
-	Type        enums.WorkflowType
-	Status      enums.WorkflowStatus
-	StartedAt   time.Time
-	CompletedAt time.Time
-}
-
-type saveLocationMoveWorkflowLocalActivityResult struct{}
-
-func saveLocationMoveWorkflowLocalActivity(
-	ctx context.Context,
-	ingestsvc ingest.Service,
-	params *saveLocationMoveWorkflowLocalActivityParams,
-) (*saveLocationMoveWorkflowLocalActivityResult, error) {
-	wID, err := createWorkflowLocalActivity(ctx, ingestsvc, &createWorkflowLocalActivityParams{
-		TemporalID:  params.TemporalID,
-		Type:        params.Type,
-		Status:      params.Status,
-		StartedAt:   params.StartedAt,
-		CompletedAt: params.CompletedAt,
-		SIPID:       params.SIPID,
-	})
-	if err != nil {
-		return &saveLocationMoveWorkflowLocalActivityResult{}, err
-	}
-
-	actionStatusToTaskStatus := map[enums.WorkflowStatus]enums.TaskStatus{
-		enums.WorkflowStatusUnspecified: enums.TaskStatusUnspecified,
-		enums.WorkflowStatusDone:        enums.TaskStatusDone,
-		enums.WorkflowStatusInProgress:  enums.TaskStatusInProgress,
-		enums.WorkflowStatusError:       enums.TaskStatusError,
-	}
-
-	task := datatypes.Task{
-		TaskID:     uuid.NewString(),
-		Name:       "Move AIP",
-		Status:     actionStatusToTaskStatus[params.Status],
-		Note:       fmt.Sprintf("Moved to location %s", params.LocationID),
-		WorkflowID: wID,
-	}
-	task.StartedAt.Time = params.StartedAt
-	task.CompletedAt.Time = params.CompletedAt
-
-	return &saveLocationMoveWorkflowLocalActivityResult{}, ingestsvc.CreateTask(ctx, &task)
 }
 
 type createWorkflowLocalActivityParams struct {

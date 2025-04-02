@@ -34,10 +34,6 @@ type Service interface {
 	ConfirmSip(context.Context, *ConfirmSipPayload) (err error)
 	// Signal the SIP has been reviewed and rejected
 	RejectSip(context.Context, *RejectSipPayload) (err error)
-	// Move a SIP to a permanent storage location
-	MoveSip(context.Context, *MoveSipPayload) (err error)
-	// Retrieve the status of a permanent storage location move of the SIP
-	MoveSipStatus(context.Context, *MoveSipStatusPayload) (res *MoveStatusResult, err error)
 	// Upload a SIP to trigger an ingest workflow
 	UploadSip(context.Context, *UploadSipPayload, io.ReadCloser) (err error)
 }
@@ -62,7 +58,7 @@ const ServiceName = "ingest"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [10]string{"monitor_request", "monitor", "list_sips", "show_sip", "list_sip_workflows", "confirm_sip", "reject_sip", "move_sip", "move_sip_status", "upload_sip"}
+var MethodNames = [8]string{"monitor_request", "monitor", "list_sips", "show_sip", "list_sip_workflows", "confirm_sip", "reject_sip", "upload_sip"}
 
 // MonitorServerStream is the interface a "monitor" endpoint server stream must
 // satisfy.
@@ -149,29 +145,6 @@ type MonitorRequestPayload struct {
 // monitor_request method.
 type MonitorRequestResult struct {
 	Ticket *string
-}
-
-// MoveSipPayload is the payload type of the ingest service move_sip method.
-type MoveSipPayload struct {
-	// Identifier of SIP to move
-	ID uint
-	// Identifier of storage location
-	LocationID uuid.UUID
-	Token      *string
-}
-
-// MoveSipStatusPayload is the payload type of the ingest service
-// move_sip_status method.
-type MoveSipStatusPayload struct {
-	// Identifier of SIP to move
-	ID    uint
-	Token *string
-}
-
-// MoveStatusResult is the result type of the ingest service move_sip_status
-// method.
-type MoveStatusResult struct {
-	Done bool
 }
 
 // RejectSipPayload is the payload type of the ingest service reject_sip method.
@@ -378,11 +351,6 @@ func MakeNotAvailable(err error) *goa.ServiceError {
 // MakeNotValid builds a goa.ServiceError from an error.
 func MakeNotValid(err error) *goa.ServiceError {
 	return goa.NewServiceError(err, "not_valid", false, false, false)
-}
-
-// MakeFailedDependency builds a goa.ServiceError from an error.
-func MakeFailedDependency(err error) *goa.ServiceError {
-	return goa.NewServiceError(err, "failed_dependency", false, false, false)
 }
 
 // MakeInvalidMediaType builds a goa.ServiceError from an error.

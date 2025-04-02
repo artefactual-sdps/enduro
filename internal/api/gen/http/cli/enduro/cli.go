@@ -24,7 +24,7 @@ import (
 //
 //	command (subcommand1|subcommand2|...)
 func UsageCommands() string {
-	return `ingest (monitor-request|monitor|list-sips|show-sip|list-sip-workflows|confirm-sip|reject-sip|move-sip|move-sip-status|upload-sip)
+	return `ingest (monitor-request|monitor|list-sips|show-sip|list-sip-workflows|confirm-sip|reject-sip|upload-sip)
 storage (list-aips|create-aip|submit-aip|update-aip|download-aip|move-aip|move-aip-status|reject-aip|show-aip|list-aip-workflows|request-aip-deletion|review-aip-deletion|list-locations|create-location|show-location|list-location-aips)
 `
 }
@@ -82,15 +82,6 @@ func ParseEndpoint(
 		ingestRejectSipFlags     = flag.NewFlagSet("reject-sip", flag.ExitOnError)
 		ingestRejectSipIDFlag    = ingestRejectSipFlags.String("id", "REQUIRED", "Identifier of SIP to look up")
 		ingestRejectSipTokenFlag = ingestRejectSipFlags.String("token", "", "")
-
-		ingestMoveSipFlags     = flag.NewFlagSet("move-sip", flag.ExitOnError)
-		ingestMoveSipBodyFlag  = ingestMoveSipFlags.String("body", "REQUIRED", "")
-		ingestMoveSipIDFlag    = ingestMoveSipFlags.String("id", "REQUIRED", "Identifier of SIP to move")
-		ingestMoveSipTokenFlag = ingestMoveSipFlags.String("token", "", "")
-
-		ingestMoveSipStatusFlags     = flag.NewFlagSet("move-sip-status", flag.ExitOnError)
-		ingestMoveSipStatusIDFlag    = ingestMoveSipStatusFlags.String("id", "REQUIRED", "Identifier of SIP to move")
-		ingestMoveSipStatusTokenFlag = ingestMoveSipStatusFlags.String("token", "", "")
 
 		ingestUploadSipFlags           = flag.NewFlagSet("upload-sip", flag.ExitOnError)
 		ingestUploadSipContentTypeFlag = ingestUploadSipFlags.String("content-type", "multipart/form-data; boundary=goa", "")
@@ -179,8 +170,6 @@ func ParseEndpoint(
 	ingestListSipWorkflowsFlags.Usage = ingestListSipWorkflowsUsage
 	ingestConfirmSipFlags.Usage = ingestConfirmSipUsage
 	ingestRejectSipFlags.Usage = ingestRejectSipUsage
-	ingestMoveSipFlags.Usage = ingestMoveSipUsage
-	ingestMoveSipStatusFlags.Usage = ingestMoveSipStatusUsage
 	ingestUploadSipFlags.Usage = ingestUploadSipUsage
 
 	storageFlags.Usage = storageUsage
@@ -257,12 +246,6 @@ func ParseEndpoint(
 
 			case "reject-sip":
 				epf = ingestRejectSipFlags
-
-			case "move-sip":
-				epf = ingestMoveSipFlags
-
-			case "move-sip-status":
-				epf = ingestMoveSipStatusFlags
 
 			case "upload-sip":
 				epf = ingestUploadSipFlags
@@ -365,12 +348,6 @@ func ParseEndpoint(
 			case "reject-sip":
 				endpoint = c.RejectSip()
 				data, err = ingestc.BuildRejectSipPayload(*ingestRejectSipIDFlag, *ingestRejectSipTokenFlag)
-			case "move-sip":
-				endpoint = c.MoveSip()
-				data, err = ingestc.BuildMoveSipPayload(*ingestMoveSipBodyFlag, *ingestMoveSipIDFlag, *ingestMoveSipTokenFlag)
-			case "move-sip-status":
-				endpoint = c.MoveSipStatus()
-				data, err = ingestc.BuildMoveSipStatusPayload(*ingestMoveSipStatusIDFlag, *ingestMoveSipStatusTokenFlag)
 			case "upload-sip":
 				endpoint = c.UploadSip()
 				data, err = ingestc.BuildUploadSipPayload(*ingestUploadSipContentTypeFlag, *ingestUploadSipTokenFlag)
@@ -453,8 +430,6 @@ COMMAND:
     list-sip-workflows: List all workflows for a SIP
     confirm-sip: Signal the SIP has been reviewed and accepted
     reject-sip: Signal the SIP has been reviewed and rejected
-    move-sip: Move a SIP to a permanent storage location
-    move-sip-status: Retrieve the status of a permanent storage location move of the SIP
     upload-sip: Upload a SIP to trigger an ingest workflow
 
 Additional help:
@@ -549,33 +524,6 @@ Signal the SIP has been reviewed and rejected
 
 Example:
     %[1]s ingest reject-sip --id 1 --token "abc123"
-`, os.Args[0])
-}
-
-func ingestMoveSipUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] ingest move-sip -body JSON -id UINT -token STRING
-
-Move a SIP to a permanent storage location
-    -body JSON: 
-    -id UINT: Identifier of SIP to move
-    -token STRING: 
-
-Example:
-    %[1]s ingest move-sip --body '{
-      "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
-   }' --id 1 --token "abc123"
-`, os.Args[0])
-}
-
-func ingestMoveSipStatusUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] ingest move-sip-status -id UINT -token STRING
-
-Retrieve the status of a permanent storage location move of the SIP
-    -id UINT: Identifier of SIP to move
-    -token STRING: 
-
-Example:
-    %[1]s ingest move-sip-status --id 1 --token "abc123"
 `, os.Args[0])
 }
 

@@ -255,67 +255,6 @@ func BuildRejectSipPayload(ingestRejectSipID string, ingestRejectSipToken string
 	return v, nil
 }
 
-// BuildMoveSipPayload builds the payload for the ingest move_sip endpoint from
-// CLI flags.
-func BuildMoveSipPayload(ingestMoveSipBody string, ingestMoveSipID string, ingestMoveSipToken string) (*ingest.MoveSipPayload, error) {
-	var err error
-	var body MoveSipRequestBody
-	{
-		err = json.Unmarshal([]byte(ingestMoveSipBody), &body)
-		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location_id\": \"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"\n   }'")
-		}
-	}
-	var id uint
-	{
-		var v uint64
-		v, err = strconv.ParseUint(ingestMoveSipID, 10, strconv.IntSize)
-		id = uint(v)
-		if err != nil {
-			return nil, fmt.Errorf("invalid value for id, must be UINT")
-		}
-	}
-	var token *string
-	{
-		if ingestMoveSipToken != "" {
-			token = &ingestMoveSipToken
-		}
-	}
-	v := &ingest.MoveSipPayload{
-		LocationID: body.LocationID,
-	}
-	v.ID = id
-	v.Token = token
-
-	return v, nil
-}
-
-// BuildMoveSipStatusPayload builds the payload for the ingest move_sip_status
-// endpoint from CLI flags.
-func BuildMoveSipStatusPayload(ingestMoveSipStatusID string, ingestMoveSipStatusToken string) (*ingest.MoveSipStatusPayload, error) {
-	var err error
-	var id uint
-	{
-		var v uint64
-		v, err = strconv.ParseUint(ingestMoveSipStatusID, 10, strconv.IntSize)
-		id = uint(v)
-		if err != nil {
-			return nil, fmt.Errorf("invalid value for id, must be UINT")
-		}
-	}
-	var token *string
-	{
-		if ingestMoveSipStatusToken != "" {
-			token = &ingestMoveSipStatusToken
-		}
-	}
-	v := &ingest.MoveSipStatusPayload{}
-	v.ID = id
-	v.Token = token
-
-	return v, nil
-}
-
 // BuildUploadSipPayload builds the payload for the ingest upload_sip endpoint
 // from CLI flags.
 func BuildUploadSipPayload(ingestUploadSipContentType string, ingestUploadSipToken string) (*ingest.UploadSipPayload, error) {

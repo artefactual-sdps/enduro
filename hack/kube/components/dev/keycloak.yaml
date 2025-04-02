@@ -116,7 +116,6 @@ data:
           "attributes": {
             "enduro": [
               "ingest:sips:list",
-              "ingest:sips:move",
               "ingest:sips:read",
               "ingest:sips:upload",
               "ingest:sips:workflows:list",

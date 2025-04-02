@@ -47,16 +47,6 @@ func RejectSipIngestPath(id uint) string {
 	return fmt.Sprintf("/ingest/sips/%v/reject", id)
 }
 
-// MoveSipIngestPath returns the URL path to the ingest service move_sip HTTP endpoint.
-func MoveSipIngestPath(id uint) string {
-	return fmt.Sprintf("/ingest/sips/%v/move", id)
-}
-
-// MoveSipStatusIngestPath returns the URL path to the ingest service move_sip_status HTTP endpoint.
-func MoveSipStatusIngestPath(id uint) string {
-	return fmt.Sprintf("/ingest/sips/%v/move", id)
-}
-
 // UploadSipIngestPath returns the URL path to the ingest service upload_sip HTTP endpoint.
 func UploadSipIngestPath() string {
 	return "/ingest/sips/upload"
