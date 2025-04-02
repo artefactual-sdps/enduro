@@ -5,7 +5,7 @@ $(call _assert_var,UNAME_ARCH2)
 $(call _assert_var,CACHE_VERSIONS)
 $(call _assert_var,CACHE_BIN)
 
-ATLAS_VERSION ?= 0.31.0
+ATLAS_VERSION ?= 0.32.0
 
 ATLAS := $(CACHE_VERSIONS)/atlas/$(ATLAS_VERSION)
 $(ATLAS):
