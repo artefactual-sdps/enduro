@@ -33,7 +33,7 @@ deactivate () {
 # Unset irrelevant variables.
 deactivate nondestructive
 
-export VIRTUAL_ENV="$HOME/.cache/enduro-sdps/Linux/$(uname -m)/bin"
+export VIRTUAL_ENV=$(go tool bine path)
 
 _OLD_VIRTUAL_PATH="$PATH"
 PATH="$VIRTUAL_ENV:$PATH"
