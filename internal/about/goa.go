@@ -68,9 +68,10 @@ func (s *Service) About(context.Context, *goaabout.AboutPayload) (*goaabout.Endu
 	}
 
 	res.PreservationSystem = "Unknown"
-	if s.presTaskQueue == temporal.AmWorkerTaskQueue {
+	switch s.presTaskQueue {
+	case temporal.AmWorkerTaskQueue:
 		res.PreservationSystem = "Archivematica"
-	} else if s.presTaskQueue == temporal.A3mWorkerTaskQueue {
+	case temporal.A3mWorkerTaskQueue:
 		res.PreservationSystem = "a3m"
 	}
 

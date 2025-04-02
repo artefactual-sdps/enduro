@@ -191,7 +191,7 @@ func isProcessed(status string) (bool, error) {
 		return false, nil
 	default:
 		return false, temporal_tools.NewNonRetryableError(
-			fmt.Errorf("Unexpected AMSS AIP status: %s", status),
+			fmt.Errorf("unexpected AMSS AIP status: %s", status),
 		)
 	}
 }

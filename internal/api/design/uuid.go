@@ -6,7 +6,7 @@
 package design
 
 import (
-	. "goa.design/goa/v3/dsl"
+	. "goa.design/goa/v3/dsl" //nolint:staticcheck
 )
 
 // AttributeUUID describes a string typed field that must be a valid UUID.

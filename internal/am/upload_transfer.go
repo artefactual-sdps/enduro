@@ -8,7 +8,6 @@ import (
 	"path/filepath"
 	"time"
 
-	"go.artefactual.dev/tools/temporal"
 	temporal_tools "go.artefactual.dev/tools/temporal"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
 
@@ -151,7 +150,7 @@ func uploadError(err error) error {
 
 	switch err.(type) {
 	case *sftp.AuthError:
-		return temporal.NewNonRetryableError(e)
+		return temporal_tools.NewNonRetryableError(e)
 	default:
 		return e
 	}

@@ -28,10 +28,8 @@ func (c *Claims) CheckAttributes(required []string) bool {
 
 	// Check for all required attributes considering wildcards.
 	for _, attr := range required {
-		for {
-			if slices.Contains(c.Attributes, attr) {
-				break
-			}
+		for !slices.Contains(c.Attributes, attr) {
+
 			attr, _ = strings.CutSuffix(attr, ":*")
 			lastColonIndex := strings.LastIndex(attr, ":")
 			if lastColonIndex == -1 {

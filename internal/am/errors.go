@@ -16,6 +16,7 @@ var (
 	// ErrBadRequest respresents an AM "400 Bad request" response, which can
 	// occur while a transfer or ingest is still processing and may require
 	// special handling.
+	//nolint:staticcheck
 	ErrBadRequest = errors.New("Archivematica response: 400 Bad request")
 )
 
@@ -28,22 +29,25 @@ func convertAMClientError(resp *amclient.Response, err error) error {
 	}
 
 	switch {
-	case resp.Response.StatusCode == http.StatusBadRequest:
+	case resp.StatusCode == http.StatusBadRequest:
 		// Allow retries for "400 Bad request" errors.
 		return ErrBadRequest
-	case resp.Response.StatusCode == http.StatusUnauthorized:
+	case resp.StatusCode == http.StatusUnauthorized:
 		return temporal_tools.NewNonRetryableError(errors.New("invalid Archivematica credentials"))
-	case resp.Response.StatusCode == http.StatusForbidden:
+	case resp.StatusCode == http.StatusForbidden:
 		return temporal_tools.NewNonRetryableError(errors.New("insufficient Archivematica permissions"))
-	case resp.Response.StatusCode == http.StatusNotFound:
+	case resp.StatusCode == http.StatusNotFound:
+		//nolint:staticcheck
 		return temporal_tools.NewNonRetryableError(errors.New("Archivematica resource not found"))
 	// All status codes between 401 and 499 are non-retryable.
-	case resp.Response.StatusCode >= 401 && resp.Response.StatusCode < 500:
+	case resp.StatusCode >= 401 && resp.StatusCode < 500:
 		return temporal_tools.NewNonRetryableError(
-			fmt.Errorf("Archivematica error: %s", resp.Response.Status),
+			//nolint:staticcheck
+			fmt.Errorf("Archivematica error: %s", resp.Status),
 		)
 	}
 
 	// Retry any requests that don't return one of the above status codes.
-	return fmt.Errorf("Archivematica error: %s", resp.Response.Status)
+	//nolint:staticcheck
+	return fmt.Errorf("Archivematica error: %s", resp.Status)
 }

@@ -33,7 +33,7 @@ func (r Range) IsZero() bool {
 
 // IsInstant returns true when the Start an End times are equal.
 func (r Range) IsInstant() bool {
-	return r.Start == r.End
+	return r.Start.Equal(r.End)
 }
 
 // Parse returns a new Range with the given Start and End strings.

@@ -142,7 +142,7 @@ func uploadDirectory(ctx context.Context, srcPath, remoteDir string, upload *Asy
 
 			remoteCopy(ctx, upload, f, remotePath)
 		} else {
-			err = upload.conn.Client.MkdirAll(remotePath)
+			err = upload.conn.MkdirAll(remotePath)
 			if err != nil {
 				return err
 			}
