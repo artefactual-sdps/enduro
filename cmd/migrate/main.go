@@ -30,6 +30,7 @@ import (
 	"os"
 	"strings"
 
+	"ariga.io/atlas/sql/migrate"
 	"ariga.io/atlas/sql/sqltool"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql/schema"
@@ -98,6 +99,7 @@ func main() {
 		schema.WithDir(dir),                         // provide migration directory
 		schema.WithMigrationMode(schema.ModeReplay), // provide migration mode
 		schema.WithDialect(dialect.MySQL),           // Ent dialect to use
+		schema.WithFormatter(migrate.DefaultFormatter),
 		schema.WithDropIndex(true),
 		schema.WithDropColumn(true),
 	}
