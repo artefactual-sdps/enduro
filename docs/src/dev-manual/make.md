@@ -30,6 +30,11 @@ GOARCH='amd64'
 New mocks can be added to the project by adding a new `mockgen` line to
 `Makefile` that specifies the mock details (e.g. source, destination, package).
 
+### make fmt
+
+`make fmt` lints the project Go files with
+[golangci-lint](https://github.com/golangci/golangci-lint).
+
 ### make lint
 
 `make lint` lints the project Go files with
