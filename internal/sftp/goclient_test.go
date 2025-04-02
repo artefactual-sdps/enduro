@@ -20,7 +20,6 @@ import (
 	gosftp "github.com/pkg/sftp"
 	gossh "golang.org/x/crypto/ssh"
 	"gotest.tools/v3/assert"
-	"gotest.tools/v3/fs"
 	tfs "gotest.tools/v3/fs"
 
 	"github.com/artefactual-sdps/enduro/internal/sftp"
@@ -450,7 +449,7 @@ func TestDelete(t *testing.T) {
 			name: "Deletes a file",
 			params: params{
 				fsOps: []tfs.PathOp{
-					fs.WithFile("test.txt", ""),
+					tfs.WithFile("test.txt", ""),
 				},
 				file: "test.txt",
 			},
@@ -470,8 +469,8 @@ func TestDelete(t *testing.T) {
 			name: "Errors when there are insufficient permissions",
 			params: params{
 				fsOps: []tfs.PathOp{
-					fs.WithDir("restricted",
-						fs.WithFile("test.txt", ""),
+					tfs.WithDir("restricted",
+						tfs.WithFile("test.txt", ""),
 					),
 				},
 				restrictDir: "restricted",
@@ -525,5 +524,5 @@ func knownHostsFile(t *testing.T, host, port string) string {
 	addr := fmt.Sprintf("[%s]:%s", host, port)
 	blob = bytes.Replace(blob, []byte("[127.0.0.1]:2222"), []byte(addr), 1)
 
-	return fs.NewFile(t, "", fs.WithBytes(blob)).Path()
+	return tfs.NewFile(t, "", tfs.WithBytes(blob)).Path()
 }

@@ -1,7 +1,7 @@
 package design
 
 import (
-	. "goa.design/goa/v3/dsl"
+	. "goa.design/goa/v3/dsl" //nolint:staticcheck
 
 	"github.com/artefactual-sdps/enduro/internal/storage/enums"
 	"github.com/artefactual-sdps/enduro/internal/storage/types"

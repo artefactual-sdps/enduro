@@ -168,6 +168,7 @@ func (a *PollTransferActivity) transferStatus(
 	}
 	if complete {
 		if resp.SIPID == "BACKLOG" {
+			//nolint:staticcheck
 			return resp, temporal_tools.NewNonRetryableError(errors.New("Archivematica SIP sent to backlog"))
 		}
 

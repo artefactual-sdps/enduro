@@ -1,6 +1,6 @@
 package design
 
-import . "goa.design/goa/v3/dsl"
+import . "goa.design/goa/v3/dsl" //nolint:staticcheck
 
 var _ = Service("about", func() {
 	Description("The about service provides information about the system.")

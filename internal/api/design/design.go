@@ -8,7 +8,7 @@ in gRPC. Services define their own methods, errors, etc...
 package design
 
 import (
-	. "goa.design/goa/v3/dsl"
+	. "goa.design/goa/v3/dsl" //nolint:staticcheck
 	"goa.design/goa/v3/expr"
 	cors "goa.design/plugins/v3/cors/dsl"
 	_ "goa.design/plugins/v3/otel"
