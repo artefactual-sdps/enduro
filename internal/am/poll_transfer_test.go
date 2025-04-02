@@ -187,7 +187,7 @@ func TestPollTransferActivity(t *testing.T) {
 					nil,
 				)
 			},
-			wantErr: "Unknown Archivematica response status: UNKNOWN",
+			wantErr: "unknown Archivematica response status: UNKNOWN",
 		},
 		{
 			name: "Non-retryable error because transfer failed",

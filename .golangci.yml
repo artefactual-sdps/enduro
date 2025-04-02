@@ -45,6 +45,7 @@ formatters:
   enable:
     - gci
     - gofumpt
+    - golines
   settings:
     gci:
       sections:
@@ -55,6 +56,11 @@ formatters:
       no-prefix-comments: false
     gofumpt:
       extra-rules: true
+    golines:
+      max-len: 120
+      shorten-comments: true
+      reformat-tags: true
+      chain-split-dots: true
   exclusions:
     generated: lax
     paths:
