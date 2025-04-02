@@ -20,7 +20,6 @@ include hack/make/dep_ent.mk
 include hack/make/dep_go_enums.mk
 include hack/make/dep_goa.mk
 include hack/make/dep_golangci_lint.mk
-include hack/make/dep_golines.mk
 include hack/make/dep_gomajor.mk
 include hack/make/dep_gosec.mk
 include hack/make/dep_gotestsum.mk
@@ -36,7 +35,6 @@ TOOLS = $(ATLAS) \
 	$(GO_ENUM) \
 	$(GOA) \
 	$(GOLANGCI_LINT) \
-	$(GOLINES) \
 	$(GOMAJOR) \
 	$(GOSEC) \
 	$(GOTESTSUM) \
@@ -159,18 +157,6 @@ gen-mock: $(MOCKGEN)
 	mockgen -typed -destination=./internal/watcher/fake/mock_service.go -package=fake github.com/artefactual-sdps/enduro/internal/watcher Service
 	mockgen -typed -destination=./internal/watcher/fake/mock_watcher.go -package=fake github.com/artefactual-sdps/enduro/internal/watcher Watcher
 
-golines: # @HELP Run the golines formatter to fix long lines.
-golines: GOLINES_OUT_MODE ?= write-output
-golines: $(GOLINES)
-	golines \
-		--chain-split-dots \
-		--ignored-dirs="$(TEST_IGNORED_PACKAGES)" \
-		--max-len=120 \
-		--reformat-tags \
-		--shorten-comments \
-		--$(GOLINES_OUT_MODE) \
-		.
-
 gosec: # @HELP Run gosec security scanner.
 gosec: GOSEC_VERBOSITY ?= "-terse"
 gosec: $(GOSEC)
@@ -222,7 +208,6 @@ mod-tidy-check: # @HELP Check that mod files are tidy.
 pre-commit: # @HELP Check that code is ready to commit.
 pre-commit:
 	$(MAKE) -j \
-		golines \
 		gosec GOSEC_VERBOSITY="-quiet"\
 		lint \
 		mod-tidy-check \
