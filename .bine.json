@@ -1,0 +1,78 @@
+// See https://github.com/artefactual-labs/bine for config details.
+{
+  "project": "enduro-sdps",
+  "bins": [
+    {
+      "name": "atlas",
+      "version": "0.32.0",
+      "url": "https://release.ariga.io/atlas",
+      "asset_pattern": "atlas-{goos}-{goarch}-v{version}"
+    },
+    {
+      "name": "ent",
+      "go_package": "entgo.io/ent/cmd/ent",
+      "version": "0.14.1"
+    },
+    {
+      "name": "go-enum",
+      "url": "https://github.com/abice/go-enum",
+      "version": "0.6.0",
+      "asset_pattern": "{name}_{os}_{arch}"
+    },
+    {
+      "name": "goa",
+      "go_package": "goa.design/goa/v3/cmd/goa",
+      "version": "3.15.2"
+    },
+    {
+      "name": "golangci-lint",
+      "url": "https://github.com/golangci/golangci-lint",
+      "version": "2.0.2",
+      "asset_pattern": "{name}-{version}-{goos}-{goarch}.tar.gz"
+    },
+    {
+      "name": "gomajor",
+      "go_package": "github.com/icholy/gomajor",
+      "version": "0.9.5"
+    },
+    {
+      "name": "gosec",
+      "go_package": "github.com/securego/gosec/v2/cmd/gosec",
+      "version": "latest"
+    },
+    {
+      "name": "gotestsum",
+      "url": "https://github.com/gotestyourself/gotestsum",
+      "version": "1.11.0",
+      "asset_pattern": "{name}_{version}_{goos}_{goarch}.tar.gz"
+    },
+    {
+      "name": "migrate",
+      "url": "https://github.com/golang-migrate/migrate",
+      "version": "4.16.2",
+      "asset_pattern": "{name}.{goos}-{goarch}.tar.gz"
+    },
+    {
+      "name": "mockgen",
+      "go_package": "go.uber.org/mock/mockgen",
+      "version": "0.4.0"
+    },
+    {
+      "name": "shfmt",
+      "url": "https://github.com/mvdan/sh",
+      "version": "3.7.0",
+      "asset_pattern": "{name}_v{version}_{goos}_{goarch}"
+    },
+    {
+      "name": "tparse",
+      "url": "https://github.com/mfridman/tparse",
+      "version": "0.13.1",
+      "asset_pattern": "{name}_{goos}_{arch}"
+    },
+    {
+      "name": "workflowcheck",
+      "go_package": "go.temporal.io/sdk/contrib/tools/workflowcheck",
+      "version": "0.2.0"
+    }
+  ]
+}
