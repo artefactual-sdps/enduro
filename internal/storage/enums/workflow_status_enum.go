@@ -12,20 +12,13 @@ import (
 )
 
 const (
-	// WorkflowStatusUnspecified is a WorkflowStatus of type unspecified.
 	WorkflowStatusUnspecified WorkflowStatus = "unspecified"
-	// WorkflowStatusInProgress is a WorkflowStatus of type in progress.
-	WorkflowStatusInProgress WorkflowStatus = "in progress"
-	// WorkflowStatusDone is a WorkflowStatus of type done.
-	WorkflowStatusDone WorkflowStatus = "done"
-	// WorkflowStatusError is a WorkflowStatus of type error.
-	WorkflowStatusError WorkflowStatus = "error"
-	// WorkflowStatusQueued is a WorkflowStatus of type queued.
-	WorkflowStatusQueued WorkflowStatus = "queued"
-	// WorkflowStatusPending is a WorkflowStatus of type pending.
-	WorkflowStatusPending WorkflowStatus = "pending"
-	// WorkflowStatusCanceled is a WorkflowStatus of type canceled.
-	WorkflowStatusCanceled WorkflowStatus = "canceled"
+	WorkflowStatusInProgress  WorkflowStatus = "in progress"
+	WorkflowStatusDone        WorkflowStatus = "done"
+	WorkflowStatusError       WorkflowStatus = "error"
+	WorkflowStatusQueued      WorkflowStatus = "queued"
+	WorkflowStatusPending     WorkflowStatus = "pending"
+	WorkflowStatusCanceled    WorkflowStatus = "canceled"
 )
 
 var ErrInvalidWorkflowStatus = fmt.Errorf("not a valid WorkflowStatus, try [%s]", strings.Join(_WorkflowStatusNames, ", "))

@@ -86,6 +86,7 @@ gen-enums: # @HELP Generate go-enum assets.
 gen-enums: ENUM_FLAGS = --names --template=$(CURDIR)/hack/make/enums.tmpl
 gen-enums: tool-go-enum
 	go-enum $(ENUM_FLAGS) \
+		--nocomments \
 		-f internal/enums/sip_type.go \
 		-f internal/enums/sip_status.go \
 		-f internal/enums/preprocessing_task_outcome.go \

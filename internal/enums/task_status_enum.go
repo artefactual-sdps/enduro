@@ -12,23 +12,25 @@ import (
 )
 
 const (
-	// TaskStatusUnspecified is a TaskStatus of type Unspecified.
+	// Status is indeterminate.
 	TaskStatusUnspecified TaskStatus = iota
-	// TaskStatusInProgress is a TaskStatus of type In Progress.
+	// Work is ongoing.
 	TaskStatusInProgress
-	// TaskStatusDone is a TaskStatus of type Done.
+	// Completed successfully.
 	TaskStatusDone
-	// TaskStatusError is a TaskStatus of type Error.
+	// Halted due to a system error.
 	TaskStatusError
-	// TaskStatusQueued is a TaskStatus of type Queued.
+	// Awaiting resource allocation.
 	TaskStatusQueued
-	// TaskStatusPending is a TaskStatus of type Pending.
+	// Awaiting user decision.
 	TaskStatusPending
+	// Halted due to a policy violation.
+	TaskStatusFailed
 )
 
 var ErrInvalidTaskStatus = fmt.Errorf("not a valid TaskStatus, try [%s]", strings.Join(_TaskStatusNames, ", "))
 
-const _TaskStatusName = "unspecifiedin progressdoneerrorqueuedpending"
+const _TaskStatusName = "unspecifiedin progressdoneerrorqueuedpendingfailed"
 
 var _TaskStatusNames = []string{
 	_TaskStatusName[0:11],
@@ -37,6 +39,7 @@ var _TaskStatusNames = []string{
 	_TaskStatusName[26:31],
 	_TaskStatusName[31:37],
 	_TaskStatusName[37:44],
+	_TaskStatusName[44:50],
 }
 
 // TaskStatusNames returns a list of possible string values of TaskStatus.
@@ -53,6 +56,7 @@ var _TaskStatusMap = map[TaskStatus]string{
 	TaskStatusError:       _TaskStatusName[26:31],
 	TaskStatusQueued:      _TaskStatusName[31:37],
 	TaskStatusPending:     _TaskStatusName[37:44],
+	TaskStatusFailed:      _TaskStatusName[44:50],
 }
 
 // String implements the Stringer interface.
@@ -77,6 +81,7 @@ var _TaskStatusValue = map[string]TaskStatus{
 	_TaskStatusName[26:31]: TaskStatusError,
 	_TaskStatusName[31:37]: TaskStatusQueued,
 	_TaskStatusName[37:44]: TaskStatusPending,
+	_TaskStatusName[44:50]: TaskStatusFailed,
 }
 
 // ParseTaskStatus attempts to convert a string to a TaskStatus.

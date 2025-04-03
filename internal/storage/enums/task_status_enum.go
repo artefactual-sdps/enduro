@@ -12,18 +12,12 @@ import (
 )
 
 const (
-	// TaskStatusUnspecified is a TaskStatus of type unspecified.
 	TaskStatusUnspecified TaskStatus = "unspecified"
-	// TaskStatusInProgress is a TaskStatus of type in progress.
-	TaskStatusInProgress TaskStatus = "in progress"
-	// TaskStatusDone is a TaskStatus of type done.
-	TaskStatusDone TaskStatus = "done"
-	// TaskStatusError is a TaskStatus of type error.
-	TaskStatusError TaskStatus = "error"
-	// TaskStatusQueued is a TaskStatus of type queued.
-	TaskStatusQueued TaskStatus = "queued"
-	// TaskStatusPending is a TaskStatus of type pending.
-	TaskStatusPending TaskStatus = "pending"
+	TaskStatusInProgress  TaskStatus = "in progress"
+	TaskStatusDone        TaskStatus = "done"
+	TaskStatusError       TaskStatus = "error"
+	TaskStatusQueued      TaskStatus = "queued"
+	TaskStatusPending     TaskStatus = "pending"
 )
 
 var ErrInvalidTaskStatus = fmt.Errorf("not a valid TaskStatus, try [%s]", strings.Join(_TaskStatusNames, ", "))

@@ -12,11 +12,8 @@ import (
 )
 
 const (
-	// DeletionRequestStatusPending is a DeletionRequestStatus of type pending.
-	DeletionRequestStatusPending DeletionRequestStatus = "pending"
-	// DeletionRequestStatusApproved is a DeletionRequestStatus of type approved.
+	DeletionRequestStatusPending  DeletionRequestStatus = "pending"
 	DeletionRequestStatusApproved DeletionRequestStatus = "approved"
-	// DeletionRequestStatusRejected is a DeletionRequestStatus of type rejected.
 	DeletionRequestStatusRejected DeletionRequestStatus = "rejected"
 )
 

@@ -400,8 +400,8 @@ func ValidateSIPWorkflowViewSimple(result *SIPWorkflowView) (err error) {
 		}
 	}
 	if result.Status != nil {
-		if !(*result.Status == "unspecified" || *result.Status == "in progress" || *result.Status == "done" || *result.Status == "error" || *result.Status == "queued" || *result.Status == "pending") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.status", *result.Status, []any{"unspecified", "in progress", "done", "error", "queued", "pending"}))
+		if !(*result.Status == "unspecified" || *result.Status == "in progress" || *result.Status == "done" || *result.Status == "error" || *result.Status == "queued" || *result.Status == "pending" || *result.Status == "failed") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.status", *result.Status, []any{"unspecified", "in progress", "done", "error", "queued", "pending", "failed"}))
 		}
 	}
 	if result.StartedAt != nil {
@@ -437,8 +437,8 @@ func ValidateSIPWorkflowView(result *SIPWorkflowView) (err error) {
 		}
 	}
 	if result.Status != nil {
-		if !(*result.Status == "unspecified" || *result.Status == "in progress" || *result.Status == "done" || *result.Status == "error" || *result.Status == "queued" || *result.Status == "pending") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.status", *result.Status, []any{"unspecified", "in progress", "done", "error", "queued", "pending"}))
+		if !(*result.Status == "unspecified" || *result.Status == "in progress" || *result.Status == "done" || *result.Status == "error" || *result.Status == "queued" || *result.Status == "pending" || *result.Status == "failed") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.status", *result.Status, []any{"unspecified", "in progress", "done", "error", "queued", "pending", "failed"}))
 		}
 	}
 	if result.StartedAt != nil {
@@ -485,8 +485,8 @@ func ValidateSIPTaskView(result *SIPTaskView) (err error) {
 		err = goa.MergeErrors(err, goa.MissingFieldError("started_at", "result"))
 	}
 	if result.Status != nil {
-		if !(*result.Status == "unspecified" || *result.Status == "in progress" || *result.Status == "done" || *result.Status == "error" || *result.Status == "queued" || *result.Status == "pending") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.status", *result.Status, []any{"unspecified", "in progress", "done", "error", "queued", "pending"}))
+		if !(*result.Status == "unspecified" || *result.Status == "in progress" || *result.Status == "done" || *result.Status == "error" || *result.Status == "queued" || *result.Status == "pending" || *result.Status == "failed") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.status", *result.Status, []any{"unspecified", "in progress", "done", "error", "queued", "pending", "failed"}))
 		}
 	}
 	if result.StartedAt != nil {
