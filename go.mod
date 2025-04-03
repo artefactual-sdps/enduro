@@ -8,7 +8,7 @@ require (
 	buf.build/gen/go/artefactual/a3m/grpc/go v1.3.0-20230508184533-2e9432075630.2
 	buf.build/gen/go/artefactual/a3m/protocolbuffers/go v1.31.0-20230508184533-2e9432075630.2
 	chainguard.dev/go-oidctest v0.3.1
-	entgo.io/ent v0.14.1
+	entgo.io/ent v0.14.4
 	github.com/XSAM/otelsql v0.29.0
 	github.com/alicebob/miniredis/v2 v2.32.1
 	github.com/artefactual-labs/bagit-gython v0.2.0
@@ -59,7 +59,7 @@ require (
 	goa.design/goa/v3 v3.15.2
 	goa.design/plugins/v3 v3.15.2
 	gocloud.dev v0.39.0
-	golang.org/x/crypto v0.32.0
+	golang.org/x/crypto v0.33.0
 	golang.org/x/exp v0.0.0-20231219180239-dc181d75b848
 	google.golang.org/grpc v1.66.0
 	google.golang.org/protobuf v1.34.2
@@ -176,13 +176,13 @@ require (
 	go.uber.org/zap v1.27.0 // indirect
 	go4.org v0.0.0-20230225012048-214862532bf5 // indirect
 	golang.org/x/mod v0.24.0 // indirect
-	golang.org/x/net v0.33.0 // indirect
+	golang.org/x/net v0.35.0 // indirect
 	golang.org/x/oauth2 v0.22.0 // indirect
-	golang.org/x/sync v0.10.0 // indirect
-	golang.org/x/sys v0.29.0 // indirect
-	golang.org/x/text v0.21.0 // indirect
+	golang.org/x/sync v0.11.0 // indirect
+	golang.org/x/sys v0.30.0 // indirect
+	golang.org/x/text v0.22.0 // indirect
 	golang.org/x/time v0.6.0 // indirect
-	golang.org/x/tools v0.24.0 // indirect
+	golang.org/x/tools v0.30.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240716161551-93cc26a95ae9 // indirect
 	google.golang.org/api v0.191.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20240827150818-7e3bb234dfed // indirect

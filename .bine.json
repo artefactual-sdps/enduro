@@ -11,7 +11,7 @@
     {
       "name": "ent",
       "go_package": "entgo.io/ent/cmd/ent",
-      "version": "0.14.1"
+      "version": "0.14.4"
     },
     {
       "name": "go-enum",
