@@ -12,11 +12,8 @@ import (
 )
 
 const (
-	// SIPTypeUnknown is a SIPType of type Unknown.
 	SIPTypeUnknown SIPType = iota
-	// SIPTypeBagIt is a SIPType of type BagIt.
 	SIPTypeBagIt
-	// SIPTypeArchivematicaStandardTransfer is a SIPType of type Archivematica Standard Transfer.
 	SIPTypeArchivematicaStandardTransfer
 )
 

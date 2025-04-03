@@ -1240,8 +1240,8 @@ func ValidateSIPWorkflowResponseBody(body *SIPWorkflowResponseBody) (err error) 
 		}
 	}
 	if body.Status != nil {
-		if !(*body.Status == "unspecified" || *body.Status == "in progress" || *body.Status == "done" || *body.Status == "error" || *body.Status == "queued" || *body.Status == "pending") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []any{"unspecified", "in progress", "done", "error", "queued", "pending"}))
+		if !(*body.Status == "unspecified" || *body.Status == "in progress" || *body.Status == "done" || *body.Status == "error" || *body.Status == "queued" || *body.Status == "pending" || *body.Status == "failed") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []any{"unspecified", "in progress", "done", "error", "queued", "pending", "failed"}))
 		}
 	}
 	if body.StartedAt != nil {
@@ -1290,8 +1290,8 @@ func ValidateSIPTaskResponseBody(body *SIPTaskResponseBody) (err error) {
 		err = goa.MergeErrors(err, goa.MissingFieldError("started_at", "body"))
 	}
 	if body.Status != nil {
-		if !(*body.Status == "unspecified" || *body.Status == "in progress" || *body.Status == "done" || *body.Status == "error" || *body.Status == "queued" || *body.Status == "pending") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []any{"unspecified", "in progress", "done", "error", "queued", "pending"}))
+		if !(*body.Status == "unspecified" || *body.Status == "in progress" || *body.Status == "done" || *body.Status == "error" || *body.Status == "queued" || *body.Status == "pending" || *body.Status == "failed") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []any{"unspecified", "in progress", "done", "error", "queued", "pending", "failed"}))
 		}
 	}
 	if body.StartedAt != nil {

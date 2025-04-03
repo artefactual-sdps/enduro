@@ -12,14 +12,10 @@ import (
 )
 
 const (
-	// WorkflowTypeUnspecified is a WorkflowType of type unspecified.
 	WorkflowTypeUnspecified WorkflowType = "unspecified"
-	// WorkflowTypeUploadAip is a WorkflowType of type upload aip.
-	WorkflowTypeUploadAip WorkflowType = "upload aip"
-	// WorkflowTypeMoveAip is a WorkflowType of type move aip.
-	WorkflowTypeMoveAip WorkflowType = "move aip"
-	// WorkflowTypeDeleteAip is a WorkflowType of type delete aip.
-	WorkflowTypeDeleteAip WorkflowType = "delete aip"
+	WorkflowTypeUploadAip   WorkflowType = "upload aip"
+	WorkflowTypeMoveAip     WorkflowType = "move aip"
+	WorkflowTypeDeleteAip   WorkflowType = "delete aip"
 )
 
 var ErrInvalidWorkflowType = fmt.Errorf("not a valid WorkflowType, try [%s]", strings.Join(_WorkflowTypeNames, ", "))
