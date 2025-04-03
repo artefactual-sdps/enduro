@@ -12,10 +12,8 @@ import (
 )
 
 const (
-	// LocationPurposeUnspecified is a LocationPurpose of type unspecified.
 	LocationPurposeUnspecified LocationPurpose = "unspecified"
-	// LocationPurposeAipStore is a LocationPurpose of type aip_store.
-	LocationPurposeAipStore LocationPurpose = "aip_store"
+	LocationPurposeAipStore    LocationPurpose = "aip_store"
 )
 
 var ErrInvalidLocationPurpose = fmt.Errorf("not a valid LocationPurpose, try [%s]", strings.Join(_LocationPurposeNames, ", "))

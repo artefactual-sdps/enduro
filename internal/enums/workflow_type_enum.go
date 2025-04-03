@@ -12,11 +12,11 @@ import (
 )
 
 const (
-	// WorkflowTypeUnspecified is a WorkflowType of type Unspecified.
+	// Type is indeterminate.
 	WorkflowTypeUnspecified WorkflowType = iota
-	// WorkflowTypeCreateAip is a WorkflowType of type Create Aip.
+	// Create an AIP and store it.
 	WorkflowTypeCreateAip
-	// WorkflowTypeCreateAndReviewAip is a WorkflowType of type Create And Review Aip.
+	// Create an AIP then wait for a manual review.
 	WorkflowTypeCreateAndReviewAip
 )
 

@@ -536,7 +536,8 @@
               "done",
               "error",
               "queued",
-              "pending"
+              "pending",
+              "failed"
             ],
             "example": "in progress",
             "type": "string"
@@ -611,7 +612,8 @@
               "done",
               "error",
               "queued",
-              "pending"
+              "pending",
+              "failed"
             ],
             "example": "in progress",
             "type": "string"

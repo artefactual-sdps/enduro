@@ -12,22 +12,14 @@ import (
 )
 
 const (
-	// AIPStatusUnspecified is a AIPStatus of type unspecified.
 	AIPStatusUnspecified AIPStatus = "unspecified"
-	// AIPStatusInReview is a AIPStatus of type in_review.
-	AIPStatusInReview AIPStatus = "in_review"
-	// AIPStatusRejected is a AIPStatus of type rejected.
-	AIPStatusRejected AIPStatus = "rejected"
-	// AIPStatusStored is a AIPStatus of type stored.
-	AIPStatusStored AIPStatus = "stored"
-	// AIPStatusMoving is a AIPStatus of type moving.
-	AIPStatusMoving AIPStatus = "moving"
-	// AIPStatusPending is a AIPStatus of type pending.
-	AIPStatusPending AIPStatus = "pending"
-	// AIPStatusProcessing is a AIPStatus of type processing.
-	AIPStatusProcessing AIPStatus = "processing"
-	// AIPStatusDeleted is a AIPStatus of type deleted.
-	AIPStatusDeleted AIPStatus = "deleted"
+	AIPStatusInReview    AIPStatus = "in_review"
+	AIPStatusRejected    AIPStatus = "rejected"
+	AIPStatusStored      AIPStatus = "stored"
+	AIPStatusMoving      AIPStatus = "moving"
+	AIPStatusPending     AIPStatus = "pending"
+	AIPStatusProcessing  AIPStatus = "processing"
+	AIPStatusDeleted     AIPStatus = "deleted"
 )
 
 var ErrInvalidAIPStatus = fmt.Errorf("not a valid AIPStatus, try [%s]", strings.Join(_AIPStatusNames, ", "))

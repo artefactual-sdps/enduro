@@ -2009,6 +2009,7 @@ components:
                         - error
                         - queued
                         - pending
+                        - failed
                 task_id:
                     type: string
                     example: abc123
@@ -2061,6 +2062,7 @@ components:
                         - error
                         - queued
                         - pending
+                        - failed
                 tasks:
                     $ref: '#/components/schemas/SIPTaskCollection'
                 temporal_id:

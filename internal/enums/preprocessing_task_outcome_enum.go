@@ -12,13 +12,13 @@ import (
 )
 
 const (
-	// PreprocessingTaskOutcomeUnspecified is a PreprocessingTaskOutcome of type unspecified.
+	// Unused!
 	PreprocessingTaskOutcomeUnspecified PreprocessingTaskOutcome = "unspecified"
-	// PreprocessingTaskOutcomeSuccess is a PreprocessingTaskOutcome of type success.
+	// Completed successfully.
 	PreprocessingTaskOutcomeSuccess PreprocessingTaskOutcome = "success"
-	// PreprocessingTaskOutcomeSystemFailure is a PreprocessingTaskOutcome of type system failure.
+	// Failed due to a system error.
 	PreprocessingTaskOutcomeSystemFailure PreprocessingTaskOutcome = "system failure"
-	// PreprocessingTaskOutcomeValidationFailure is a PreprocessingTaskOutcome of type validation failure.
+	// Failed due to a policy violation.
 	PreprocessingTaskOutcomeValidationFailure PreprocessingTaskOutcome = "validation failure"
 )
 

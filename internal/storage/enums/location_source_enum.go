@@ -12,14 +12,10 @@ import (
 )
 
 const (
-	// LocationSourceUnspecified is a LocationSource of type unspecified.
 	LocationSourceUnspecified LocationSource = "unspecified"
-	// LocationSourceMinio is a LocationSource of type minio.
-	LocationSourceMinio LocationSource = "minio"
-	// LocationSourceSftp is a LocationSource of type sftp.
-	LocationSourceSftp LocationSource = "sftp"
-	// LocationSourceAmss is a LocationSource of type amss.
-	LocationSourceAmss LocationSource = "amss"
+	LocationSourceMinio       LocationSource = "minio"
+	LocationSourceSftp        LocationSource = "sftp"
+	LocationSourceAmss        LocationSource = "amss"
 )
 
 var ErrInvalidLocationSource = fmt.Errorf("not a valid LocationSource, try [%s]", strings.Join(_LocationSourceNames, ", "))
