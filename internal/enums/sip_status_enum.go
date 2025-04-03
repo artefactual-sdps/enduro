@@ -12,28 +12,20 @@ import (
 )
 
 const (
-	// SIPStatusNew is a SIPStatus of type New.
 	// Unused!
 	SIPStatusNew SIPStatus = iota
-	// SIPStatusInProgress is a SIPStatus of type In Progress.
 	// Undergoing work.
 	SIPStatusInProgress
-	// SIPStatusDone is a SIPStatus of type Done.
 	// Work has completed.
 	SIPStatusDone
-	// SIPStatusError is a SIPStatus of type Error.
 	// Processing failed.
 	SIPStatusError
-	// SIPStatusUnknown is a SIPStatus of type Unknown.
 	// Unused!
 	SIPStatusUnknown
-	// SIPStatusQueued is a SIPStatus of type Queued.
 	// Awaiting resource allocation.
 	SIPStatusQueued
-	// SIPStatusAbandoned is a SIPStatus of type Abandoned.
 	// User abandoned processing.
 	SIPStatusAbandoned
-	// SIPStatusPending is a SIPStatus of type Pending.
 	// Awaiting user decision.
 	SIPStatusPending
 )

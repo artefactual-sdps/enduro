@@ -12,23 +12,25 @@ import (
 )
 
 const (
-	// WorkflowStatusUnspecified is a WorkflowStatus of type Unspecified.
+	// Status is indeterminate.
 	WorkflowStatusUnspecified WorkflowStatus = iota
-	// WorkflowStatusInProgress is a WorkflowStatus of type In Progress.
+	// Work is ongoing.
 	WorkflowStatusInProgress
-	// WorkflowStatusDone is a WorkflowStatus of type Done.
+	// Work has completed successfully.
 	WorkflowStatusDone
-	// WorkflowStatusError is a WorkflowStatus of type Error.
+	// Halted due to a system error.
 	WorkflowStatusError
-	// WorkflowStatusQueued is a WorkflowStatus of type Queued.
+	// Awaiting resource allocation.
 	WorkflowStatusQueued
-	// WorkflowStatusPending is a WorkflowStatus of type Pending.
+	// Awaiting user decision.
 	WorkflowStatusPending
+	// Halted due to a policy violation.
+	WorkflowStatusFailed
 )
 
 var ErrInvalidWorkflowStatus = fmt.Errorf("not a valid WorkflowStatus, try [%s]", strings.Join(_WorkflowStatusNames, ", "))
 
-const _WorkflowStatusName = "unspecifiedin progressdoneerrorqueuedpending"
+const _WorkflowStatusName = "unspecifiedin progressdoneerrorqueuedpendingfailed"
 
 var _WorkflowStatusNames = []string{
 	_WorkflowStatusName[0:11],
@@ -37,6 +39,7 @@ var _WorkflowStatusNames = []string{
 	_WorkflowStatusName[26:31],
 	_WorkflowStatusName[31:37],
 	_WorkflowStatusName[37:44],
+	_WorkflowStatusName[44:50],
 }
 
 // WorkflowStatusNames returns a list of possible string values of WorkflowStatus.
@@ -53,6 +56,7 @@ var _WorkflowStatusMap = map[WorkflowStatus]string{
 	WorkflowStatusError:       _WorkflowStatusName[26:31],
 	WorkflowStatusQueued:      _WorkflowStatusName[31:37],
 	WorkflowStatusPending:     _WorkflowStatusName[37:44],
+	WorkflowStatusFailed:      _WorkflowStatusName[44:50],
 }
 
 // String implements the Stringer interface.
@@ -77,6 +81,7 @@ var _WorkflowStatusValue = map[string]WorkflowStatus{
 	_WorkflowStatusName[26:31]: WorkflowStatusError,
 	_WorkflowStatusName[31:37]: WorkflowStatusQueued,
 	_WorkflowStatusName[37:44]: WorkflowStatusPending,
+	_WorkflowStatusName[44:50]: WorkflowStatusFailed,
 }
 
 // ParseWorkflowStatus attempts to convert a string to a WorkflowStatus.
