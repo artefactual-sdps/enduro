@@ -6,6 +6,7 @@ import { useRoute, useRouter } from "vue-router/auto";
 import type { LocationQueryValue } from "vue-router/auto";
 
 import PageLoadingAlert from "@/components/PageLoadingAlert.vue";
+import Pager from "@/components/Pager.vue";
 import SipListLegend from "@/components/SipListLegend.vue";
 import StatusBadge from "@/components/StatusBadge.vue";
 import Tabs from "@/components/Tabs.vue";
@@ -16,10 +17,6 @@ import { useAuthStore } from "@/stores/auth";
 import { useLayoutStore } from "@/stores/layout";
 import { useSipStore } from "@/stores/sip";
 import IconInfo from "~icons/akar-icons/info-fill";
-import IconCaretLeft from "~icons/bi/caret-left-fill";
-import IconCaretRight from "~icons/bi/caret-right-fill";
-import IconSkipEnd from "~icons/bi/skip-end-fill";
-import IconSkipStart from "~icons/bi/skip-start-fill";
 import IconAll from "~icons/clarity/blocks-group-line?raw&font-size=20px";
 import IconQueued from "~icons/clarity/clock-line?raw&font-size=20px";
 import IconClose from "~icons/clarity/close-line";
@@ -99,6 +96,20 @@ const tabs = computed(() => [
   },
 ]);
 
+const changePage = (page: number) => {
+  let q = { ...route.query };
+  if (page <= 1) {
+    delete q.page;
+  } else {
+    q.page = <LocationQueryValue>page.toString();
+  }
+
+  router.push({
+    name: "/ingest/sips/",
+    query: q,
+  });
+};
+
 const searchByName = () => {
   let q = { ...route.query };
   if (sipStore.filters.name === "") {
@@ -106,6 +117,10 @@ const searchByName = () => {
   } else {
     q.name = <LocationQueryValue>sipStore.filters.name;
   }
+
+  // Reset the page number because the found results may reduce the total number
+  // of pages.
+  delete q.page;
 
   router.push({
     name: "/ingest/sips/",
@@ -148,6 +163,10 @@ const updateDateFilter = (
       // undefined.
       return;
   }
+
+  // Reset the page number because the found results may reduce the total number
+  // of pages.
+  delete q.page;
 
   router.push({
     name: "/ingest/sips/",
@@ -305,98 +324,13 @@ watch(
         </tbody>
       </table>
     </div>
-    <div v-if="sipStore.pager.total > 1">
-      <nav role="navigation" aria-label="Pagination navigation">
-        <ul class="pagination justify-content-center">
-          <li v-if="sipStore.pager.total > sipStore.pager.maxPages">
-            <a
-              href="#"
-              :class="{
-                'page-link': true,
-                disabled: sipStore.pager.current == 1,
-              }"
-              aria-label="Go to first page"
-              title="First page"
-              @click.prevent="sipStore.fetchSips(1)"
-              ><IconSkipStart
-            /></a>
-          </li>
-          <li class="page-item">
-            <a
-              href="#"
-              :class="{
-                'page-link': true,
-                disabled: !sipStore.hasPrevPage,
-              }"
-              aria-label="Go to previous page"
-              title="Previous page"
-              @click.prevent="sipStore.prevPage"
-              ><IconCaretLeft
-            /></a>
-          </li>
-          <li
-            v-if="sipStore.pager.first > 1"
-            class="d-none d-sm-block"
-            aria-hidden="true"
-          >
-            <a href="#" class="page-link disabled">…</a>
-          </li>
-          <li
-            v-for="pg in sipStore.pager.pages"
-            :key="pg"
-            :class="{ 'd-none d-sm-block': pg != sipStore.pager.current }"
-          >
-            <a
-              href="#"
-              :class="{
-                'page-link': true,
-                active: pg == sipStore.pager.current,
-              }"
-              @click.prevent="sipStore.fetchSips(pg)"
-              :aria-label="
-                pg == sipStore.pager.current
-                  ? 'Current page, page ' + pg
-                  : 'Go to page ' + pg
-              "
-              :aria-current="pg == sipStore.pager.current"
-              >{{ pg }}</a
-            >
-          </li>
-          <li
-            v-if="sipStore.pager.last < sipStore.pager.total"
-            class="d-none d-sm-block"
-            aria-hidden="true"
-          >
-            <a href="#" class="page-link disabled">…</a>
-          </li>
-          <li class="page-item">
-            <a
-              href="#"
-              :class="{
-                'page-link': true,
-                disabled: !sipStore.hasNextPage,
-              }"
-              aria-label="Go to next page"
-              title="Next page"
-              @click.prevent="sipStore.nextPage"
-              ><IconCaretRight
-            /></a>
-          </li>
-          <li v-if="sipStore.pager.total > sipStore.pager.maxPages">
-            <a
-              href="#"
-              :class="{
-                'page-link': true,
-                disabled: sipStore.pager.current == sipStore.pager.total,
-              }"
-              aria-label="Go to last page"
-              title="Last page"
-              @click.prevent="sipStore.fetchSips(sipStore.pager.total)"
-              ><IconSkipEnd
-            /></a>
-          </li>
-        </ul>
-      </nav>
+    <div v-if="sipStore.page.total > 1">
+      <Pager
+        :currentPage="sipStore.pageNumber"
+        :totalPages="sipStore.totalPages"
+        @page-change="(page) => changePage(page)"
+      />
+
       <div class="text-muted mb-3 text-center">
         Showing SIPs {{ sipStore.page.offset + 1 }} -
         {{ sipStore.lastResultOnPage }} of
