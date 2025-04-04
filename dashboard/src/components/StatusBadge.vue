@@ -39,6 +39,7 @@ const classes: {
   moving: "text-bg-warning",
   deleted: "text-bg-danger",
   processing: "text-bg-info",
+  failed: "text-bg-danger",
 };
 
 const colorClass = computed(() => {

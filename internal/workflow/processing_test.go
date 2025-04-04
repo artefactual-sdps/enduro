@@ -29,7 +29,6 @@ import (
 	temporalsdk_workflow "go.temporal.io/sdk/workflow"
 	"go.uber.org/mock/gomock"
 	"gocloud.dev/blob/memblob"
-	"gotest.tools/v3/assert"
 
 	"github.com/artefactual-sdps/enduro/internal/a3m"
 	a3mfake "github.com/artefactual-sdps/enduro/internal/a3m/fake"
@@ -78,14 +77,6 @@ type ProcessingWorkflowTestSuite struct {
 	// Each test registers the workflow with a different name to avoid
 	// duplicates.
 	workflow *ProcessingWorkflow
-}
-
-func TestTransferInfo_Name(t *testing.T) {
-	t.Run("Returns name of transfer", func(t *testing.T) {
-		tinfo := TransferInfo{}
-		tinfo.req.Key = "somename.tar.gz"
-		assert.Equal(t, tinfo.Name(), "somename")
-	})
 }
 
 func preprocessingChildWorkflow(
@@ -461,7 +452,7 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 		createSIPLocalActivity,
 		ctx,
 		ingestsvc,
-		&createSIPLocalActivityParams{Key: key, Status: enums.SIPStatusQueued},
+		&createSIPLocalActivityParams{Name: key, Status: enums.SIPStatusQueued},
 	).Return(sipID, nil).Once()
 	s.env.OnActivity(
 		setStatusInProgressLocalActivity,
@@ -657,7 +648,7 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	// Activity mocks/assertions sequence
 	s.env.OnActivity(createSIPLocalActivity, ctx,
 		ingestsvc,
-		&createSIPLocalActivityParams{Key: key, Status: enums.SIPStatusQueued},
+		&createSIPLocalActivityParams{Name: key, Status: enums.SIPStatusQueued},
 	).Return(sipID, nil)
 
 	s.env.OnActivity(setStatusInProgressLocalActivity, ctx, ingestsvc, sipID, mock.AnythingOfType("time.Time")).
@@ -979,7 +970,7 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 		createSIPLocalActivity,
 		ctx,
 		ingestsvc,
-		&createSIPLocalActivityParams{Key: key, Status: enums.SIPStatusQueued},
+		&createSIPLocalActivityParams{Name: key, Status: enums.SIPStatusQueued},
 	).Return(sipID, nil)
 
 	s.env.OnActivity(
@@ -1247,7 +1238,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedSIP() {
 		createSIPLocalActivity,
 		ctx,
 		ingestsvc,
-		&createSIPLocalActivityParams{Key: key, Status: enums.SIPStatusQueued},
+		&createSIPLocalActivityParams{Name: key, Status: enums.SIPStatusQueued},
 	).Return(sipID, nil)
 
 	s.env.OnActivity(
@@ -1362,7 +1353,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPA3m() {
 		createSIPLocalActivity,
 		ctx,
 		ingestsvc,
-		&createSIPLocalActivityParams{Key: key, Status: enums.SIPStatusQueued},
+		&createSIPLocalActivityParams{Name: key, Status: enums.SIPStatusQueued},
 	).Return(sipID, nil)
 
 	s.env.OnActivity(
@@ -1526,7 +1517,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPAM() {
 		createSIPLocalActivity,
 		ctx,
 		ingestsvc,
-		&createSIPLocalActivityParams{Key: key, Status: enums.SIPStatusQueued},
+		&createSIPLocalActivityParams{Name: key, Status: enums.SIPStatusQueued},
 	).Return(sipID, nil)
 
 	s.env.OnActivity(setStatusInProgressLocalActivity, ctx, ingestsvc, sipID, mock.AnythingOfType("time.Time")).
