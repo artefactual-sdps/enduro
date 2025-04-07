@@ -13,7 +13,7 @@ type workflowState struct {
 	// req is populated by the workflow request.
 	req *ingest.ProcessingWorkflowRequest
 
-	// status is the status of the workflow.
+	// status is the current status of the ingest workflow.
 	status enums.WorkflowStatus
 
 	// tempDirs is a list of temporary directories that should be deleted when
@@ -64,31 +64,35 @@ func (s *workflowState) tempPath(path string) {
 
 // sipInfo is data about the SIP.
 type sipInfo struct {
-	// id is the UUID of the SIP.
-	id string
-
 	// name of the SIP.
 	name string
 
-	// status of the SIP.
-	status enums.SIPStatus
+	// path is the temporary location of the working copy of the SIP.
+	path string
 
 	// isDir indicates whether the current working copy of the SIP is a
 	// filesystem directory.
 	isDir bool
 
-	// sipType is the type of the SIP.
-	sipType enums.SIPType
-
-	// path is the temporary location of the working copy of the SIP.
-	path string
+	// status of the SIP.
+	status enums.SIPStatus
 }
 
 // pipInfo represents the PIP, if one is created.
 type pipInfo struct {
-	// path is the path to the PIP. It is populated by
-	// BundleActivity.
+	// id is the UUID of the PIP. It is populated by the
+	// am.PollTransferActivity.
+	id string
+
+	// path is the path to the PIP. It is populated by the BundleActivity.
 	path string
+
+	// isDir indicates whether the current working copy of the SIP is a
+	// filesystem directory.
+	isDir bool
+
+	// pipType is the type of the PIP.
+	pipType enums.SIPType
 }
 
 // aipInfo represents the AIP, if one is created.
