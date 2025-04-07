@@ -452,7 +452,7 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 		createSIPLocalActivity,
 		ctx,
 		ingestsvc,
-		&createSIPLocalActivityParams{Key: key, Status: enums.SIPStatusQueued},
+		&createSIPLocalActivityParams{Name: key, Status: enums.SIPStatusQueued},
 	).Return(sipID, nil).Once()
 	s.env.OnActivity(
 		setStatusInProgressLocalActivity,
@@ -648,7 +648,7 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	// Activity mocks/assertions sequence
 	s.env.OnActivity(createSIPLocalActivity, ctx,
 		ingestsvc,
-		&createSIPLocalActivityParams{Key: key, Status: enums.SIPStatusQueued},
+		&createSIPLocalActivityParams{Name: key, Status: enums.SIPStatusQueued},
 	).Return(sipID, nil)
 
 	s.env.OnActivity(setStatusInProgressLocalActivity, ctx, ingestsvc, sipID, mock.AnythingOfType("time.Time")).
@@ -970,7 +970,7 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 		createSIPLocalActivity,
 		ctx,
 		ingestsvc,
-		&createSIPLocalActivityParams{Key: key, Status: enums.SIPStatusQueued},
+		&createSIPLocalActivityParams{Name: key, Status: enums.SIPStatusQueued},
 	).Return(sipID, nil)
 
 	s.env.OnActivity(
@@ -1238,7 +1238,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedSIP() {
 		createSIPLocalActivity,
 		ctx,
 		ingestsvc,
-		&createSIPLocalActivityParams{Key: key, Status: enums.SIPStatusQueued},
+		&createSIPLocalActivityParams{Name: key, Status: enums.SIPStatusQueued},
 	).Return(sipID, nil)
 
 	s.env.OnActivity(
@@ -1353,7 +1353,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPA3m() {
 		createSIPLocalActivity,
 		ctx,
 		ingestsvc,
-		&createSIPLocalActivityParams{Key: key, Status: enums.SIPStatusQueued},
+		&createSIPLocalActivityParams{Name: key, Status: enums.SIPStatusQueued},
 	).Return(sipID, nil)
 
 	s.env.OnActivity(
@@ -1517,7 +1517,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPAM() {
 		createSIPLocalActivity,
 		ctx,
 		ingestsvc,
-		&createSIPLocalActivityParams{Key: key, Status: enums.SIPStatusQueued},
+		&createSIPLocalActivityParams{Name: key, Status: enums.SIPStatusQueued},
 	).Return(sipID, nil)
 
 	s.env.OnActivity(setStatusInProgressLocalActivity, ctx, ingestsvc, sipID, mock.AnythingOfType("time.Time")).
