@@ -396,30 +396,33 @@ func (w *ProcessingWorkflow) SessionHandler(
 		return err
 	}
 
-	// Classify the SIP.
+	// After this point we treat the package as a PIP, as preprocessing may have
+	// modified it.
+
+	// Classify the PIP.
 	{
 		activityOpts := withActivityOptsForLocalAction(sessCtx)
 		var result activities.ClassifySIPActivityResult
 		err := temporalsdk_workflow.ExecuteActivity(
 			activityOpts,
 			activities.ClassifySIPActivityName,
-			activities.ClassifySIPActivityParams{Path: state.sip.path},
+			activities.ClassifySIPActivityParams{Path: state.pip.path},
 		).Get(activityOpts, &result)
 		if err != nil {
-			return fmt.Errorf("classify SIP activity: %v", err)
+			return fmt.Errorf("classify PIP: %v", err)
 		}
 
-		state.sip.sipType = result.Type
+		state.pip.pipType = result.Type
 	}
 
-	// Stop the workflow if preprocessing returned a SIP path that is not a
+	// Stop the workflow if preprocessing returned a PIP path that is not a
 	// valid bag.
-	if state.sip.sipType != enums.SIPTypeBagIt && w.cfg.Preprocessing.Enabled {
+	if state.pip.pipType != enums.SIPTypeBagIt && w.cfg.Preprocessing.Enabled {
 		return errors.New("preprocessing returned a path that is not a valid bag")
 	}
 
-	// If the SIP is a BagIt Bag, validate it.
-	if state.sip.isDir && state.sip.sipType == enums.SIPTypeBagIt {
+	// If the PIP is a BagIt Bag, validate it.
+	if state.pip.isDir && state.pip.pipType == enums.SIPTypeBagIt {
 		id, err := w.createTask(
 			sessCtx,
 			datatypes.Task{
@@ -445,7 +448,7 @@ func (w *ProcessingWorkflow) SessionHandler(
 		err = temporalsdk_workflow.ExecuteActivity(
 			activityOpts,
 			bagvalidate.Name,
-			&bagvalidate.Params{Path: state.sip.path},
+			&bagvalidate.Params{Path: state.pip.path},
 		).Get(activityOpts, &result)
 		if err != nil {
 			task.Status = enums.TaskStatusError
@@ -490,7 +493,7 @@ func (w *ProcessingWorkflow) SessionHandler(
 		}
 	}
 
-	// Persist SIPID.
+	// Persist AIP UUID and storedAt time.
 	{
 		activityOpts := withLocalActivityOpts(sessCtx)
 		_ = temporalsdk_workflow.ExecuteLocalActivity(activityOpts, updateSIPLocalActivity, w.ingestsvc, &updateSIPLocalActivityParams{
@@ -508,7 +511,7 @@ func (w *ProcessingWorkflow) SessionHandler(
 		return nil
 	}
 
-	// Identifier of the task for upload to sips bucket.
+	// Identifier of the task for upload to AIPs bucket.
 	var uploadTaskID int
 
 	// Add task for upload to review bucket.
@@ -766,9 +769,9 @@ func (w *ProcessingWorkflow) transferA3m(
 			activityOpts,
 			activities.BundleActivityName,
 			&activities.BundleActivityParams{
-				SourcePath:  state.sip.path,
+				SourcePath:  state.pip.path,
 				TransferDir: w.cfg.A3m.ShareDir,
-				IsDir:       state.sip.isDir,
+				IsDir:       state.pip.isDir,
 			},
 		).Get(activityOpts, &bundleResult)
 		if err != nil {
@@ -776,7 +779,11 @@ func (w *ProcessingWorkflow) transferA3m(
 		}
 
 		state.pip.path = bundleResult.FullPath
-		state.sip.sipType = enums.SIPTypeArchivematicaStandardTransfer
+		state.pip.pipType = enums.SIPTypeArchivematicaStandardTransfer
+
+		state.sendToFailed.path = state.pip.path
+		state.sendToFailed.activityName = activities.SendToFailedPIPsName
+		state.sendToFailed.needsZipping = true
 
 		// Delete bundled transfer when session ends.
 		state.tempPath(bundleResult.FullPath)
@@ -790,10 +797,6 @@ func (w *ProcessingWorkflow) transferA3m(
 	if err != nil {
 		return err
 	}
-
-	state.sendToFailed.path = state.pip.path
-	state.sendToFailed.activityName = activities.SendToFailedPIPsName
-	state.sendToFailed.needsZipping = true
 
 	// Send PIP to a3m for preservation.
 	{
@@ -834,33 +837,33 @@ func (w *ProcessingWorkflow) transferAM(
 ) error {
 	var err error
 
-	// Bag PIP if it's not already a bag.
-	if state.sip.sipType != enums.SIPTypeBagIt {
+	// Bag the PIP if it's not already a bag.
+	if state.pip.pipType != enums.SIPTypeBagIt {
 		lctx := withActivityOptsForLocalAction(ctx)
-		var zipResult bagcreate.Result
+		var result bagcreate.Result
 		err = temporalsdk_workflow.ExecuteActivity(
 			lctx,
 			bagcreate.Name,
-			&bagcreate.Params{SourcePath: state.sip.path},
-		).Get(lctx, &zipResult)
+			&bagcreate.Params{SourcePath: state.pip.path},
+		).Get(lctx, &result)
 		if err != nil {
 			return err
 		}
-		state.sip.sipType = enums.SIPTypeBagIt
+		state.pip.pipType = enums.SIPTypeBagIt
 	}
 
 	err = w.validatePREMIS(
 		ctx,
-		filepath.Join(state.sip.path, "data", "metadata", "premis.xml"),
+		filepath.Join(state.pip.path, "data", "metadata", "premis.xml"),
 		state.workflowID,
 	)
 	if err != nil {
 		return err
 	}
 
-	state.sendToFailed.path = state.sip.path
+	// Send the PIP to the "failed PIP" bucket if preservation fails.
+	state.sendToFailed.path = state.pip.path
 	state.sendToFailed.activityName = activities.SendToFailedPIPsName
-	state.sendToFailed.needsZipping = true
 
 	// Zip PIP, if necessary.
 	if w.cfg.AM.ZipPIP {
@@ -869,20 +872,23 @@ func (w *ProcessingWorkflow) transferAM(
 		err = temporalsdk_workflow.ExecuteActivity(
 			activityOpts,
 			archivezip.Name,
-			&archivezip.Params{SourceDir: state.sip.path},
+			&archivezip.Params{SourceDir: state.pip.path},
 		).Get(activityOpts, &zipResult)
 		if err != nil {
 			return err
 		}
 
+		state.pip.path = zipResult.Path
+		state.pip.isDir = false
+
 		state.sendToFailed.path = zipResult.Path
 		state.sendToFailed.needsZipping = false
-		state.sip.path = zipResult.Path
 
+		// Delete the zipped PIP when the workflow completes.
 		state.tempPath(zipResult.Path)
 	}
 
-	// Upload PIP to AMSS.
+	// Upload the PIP to AMSS.
 	activityOpts := temporalsdk_workflow.WithActivityOptions(ctx,
 		temporalsdk_workflow.ActivityOptions{
 			StartToCloseTimeout: time.Hour * 2,
@@ -901,7 +907,7 @@ func (w *ProcessingWorkflow) transferAM(
 	err = temporalsdk_workflow.ExecuteActivity(
 		activityOpts,
 		am.UploadTransferActivityName,
-		&am.UploadTransferActivityParams{SourcePath: state.sip.path},
+		&am.UploadTransferActivityParams{SourcePath: state.pip.path},
 	).Get(activityOpts, &uploadResult)
 	if err != nil {
 		return err
@@ -914,7 +920,7 @@ func (w *ProcessingWorkflow) transferAM(
 		activityOpts,
 		am.StartTransferActivityName,
 		&am.StartTransferActivityParams{
-			Name:         state.req.Key,
+			Name:         state.sip.name,
 			RelativePath: uploadResult.RemoteRelativePath,
 			ZipPIP:       w.cfg.AM.ZipPIP,
 		},
@@ -951,8 +957,8 @@ func (w *ProcessingWorkflow) transferAM(
 		return err
 	}
 
-	// Set SIP ID.
-	state.sip.id = pollTransferResult.SIPID
+	// Set PIP id to Archivematica SIP ID.
+	state.pip.id = pollTransferResult.SIPID
 
 	// Poll ingest status.
 	var pollIngestResult am.PollIngestActivityResult
@@ -961,7 +967,7 @@ func (w *ProcessingWorkflow) transferAM(
 		am.PollIngestActivityName,
 		am.PollIngestActivityParams{
 			WorkflowID: state.workflowID,
-			SIPID:      state.sip.id,
+			SIPID:      state.pip.id,
 		},
 	).Get(pollOpts, &pollIngestResult)
 	if err != nil {
@@ -970,7 +976,7 @@ func (w *ProcessingWorkflow) transferAM(
 
 	// Set AIP data.
 	state.aip = &aipInfo{
-		id:       state.sip.id,
+		id:       state.pip.id,
 		storedAt: temporalsdk_workflow.Now(ctx).UTC(),
 	}
 
@@ -993,11 +999,11 @@ func (w *ProcessingWorkflow) transferAM(
 		}
 	}
 
-	if err := w.poststorage(ctx, state.sip.id); err != nil {
+	if err := w.poststorage(ctx, state.aip.id); err != nil {
 		return err
 	}
 
-	// Delete transfer.
+	// Delete the PIP from the Archivematica transfer source directory.
 	activityOpts = withActivityOptsForRequest(ctx)
 	err = temporalsdk_workflow.ExecuteActivity(activityOpts, am.DeleteTransferActivityName, am.DeleteTransferActivityParams{
 		Destination: uploadResult.RemoteRelativePath,
@@ -1012,6 +1018,10 @@ func (w *ProcessingWorkflow) transferAM(
 
 func (w *ProcessingWorkflow) preprocessing(ctx temporalsdk_workflow.Context, state *workflowState) error {
 	if !w.cfg.Preprocessing.Enabled {
+		// Alias the PIP info to the SIP to have consistent calls going forward.
+		state.pip.path = state.sip.path
+		state.pip.isDir = state.sip.isDir
+
 		return nil
 	}
 
@@ -1038,8 +1048,9 @@ func (w *ProcessingWorkflow) preprocessing(ctx temporalsdk_workflow.Context, sta
 		return err
 	}
 
-	state.sip.path = filepath.Join(w.cfg.Preprocessing.SharedPath, filepath.Clean(ppResult.RelativePath))
-	state.sip.isDir = true
+	// Set PIP info from preprocessing result.
+	state.pip.path = filepath.Join(w.cfg.Preprocessing.SharedPath, filepath.Clean(ppResult.RelativePath))
+	state.pip.isDir = true
 
 	// Save preprocessing task data.
 	if len(ppResult.PreservationTasks) > 0 {
