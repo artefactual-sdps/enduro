@@ -1,0 +1,78 @@
+---
+version: 2
+project_name: enduro-sdps
+
+before:
+  # Templates for the commands to be ran.
+  hooks:
+  - sh -c 'cd dashboard; npm clean-install; npm run build'
+
+builds:
+- env:
+  - CGO_ENABLED=0
+  id: enduro
+  goos:
+  - linux
+  goarch:
+  - amd64
+  flags:
+  - -trimpath
+  ldflags:
+  - -X "github.com/artefactual-sdps/enduro/internal/version.Long={{ .Version }}-t{{ .ShortCommit }}"
+  - -X "github.com/artefactual-sdps/enduro/internal/version.Short={{ .Version }}"
+  - -X "github.com/artefactual-sdps/enduro/internal/version.GitCommit={{ .Commit }}"
+  main: ./cmd/enduro
+  binary: enduro
+
+- env:
+  - CGO_ENABLED=0
+  id: enduro-am-worker
+  goos:
+  - linux
+  goarch:
+  - amd64
+  flags:
+  - -trimpath
+  ldflags:
+  - -X "github.com/artefactual-sdps/enduro/internal/version.Long={{ .Version }}-t{{ .ShortCommit }}"
+  - -X "github.com/artefactual-sdps/enduro/internal/version.Short={{ .Version }}"
+  - -X "github.com/artefactual-sdps/enduro/internal/version.GitCommit={{ .Commit }}"
+  main: ./cmd/enduro-am-worker
+  binary: enduro-am-worker
+
+- env:
+  - CGO_ENABLED=0
+  id: enduro-a3m-worker
+  goos:
+  - linux
+  goarch:
+  - amd64
+  flags:
+  - -trimpath
+  ldflags:
+  - -X "github.com/artefactual-sdps/enduro/internal/version.Long={{ .Version }}-t{{ .ShortCommit }}"
+  - -X "github.com/artefactual-sdps/enduro/internal/version.Short={{ .Version }}"
+  - -X "github.com/artefactual-sdps/enduro/internal/version.GitCommit={{ .Commit }}"
+  main: ./cmd/enduro-a3m-worker
+  binary: enduro-a3m-worker
+
+
+archives:
+- wrap_in_directory: true
+  formats: tar.gz
+  name_template: >-
+    {{ .ProjectName }}_
+    {{- .Version }}_
+    {{- title .Os }}-
+    {{- if eq .Arch "amd64" }}64bit
+    {{- else if eq .Arch "386" }}32bit
+    {{- else }}{{ .Arch }}{{ end }}
+  files:
+  - LICENSE
+  - README.md
+  - dashboard/dist/
+  - enduro.toml
+
+checksum:
+  name_template: checksums.txt
+  algorithm: sha256
