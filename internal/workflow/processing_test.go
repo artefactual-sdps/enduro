@@ -530,7 +530,7 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 			ID:          valBagTaskID,
 			Status:      enums.TaskStatusDone,
 			CompletedAt: startTime,
-			Note:        ref.New("Bag is valid"),
+			Note:        ref.New("Bag successfully validated"),
 		},
 	).Return(&completeTaskLocalActivityResult{}, nil)
 
@@ -1092,7 +1092,7 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 			ID:          valBagTaskID,
 			Status:      enums.TaskStatusDone,
 			CompletedAt: startTime,
-			Note:        ref.New("Bag is valid"),
+			Note:        ref.New("Bag successfully validated"),
 		},
 	).Return(&completeTaskLocalActivityResult{}, nil)
 
@@ -1431,7 +1431,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPA3m() {
 			ID:          valBagTaskID,
 			Status:      enums.TaskStatusDone,
 			CompletedAt: startTime,
-			Note:        ref.New("Bag is valid"),
+			Note:        ref.New("Bag successfully validated"),
 		},
 	).Return(&completeTaskLocalActivityResult{}, nil)
 
