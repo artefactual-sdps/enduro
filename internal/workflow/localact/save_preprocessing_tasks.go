@@ -63,7 +63,7 @@ func preprocTaskToTask(t preprocessing.Task) datatypes.Task {
 		enums.PreprocessingTaskOutcomeUnspecified:       enums.TaskStatusUnspecified,
 		enums.PreprocessingTaskOutcomeSuccess:           enums.TaskStatusDone,
 		enums.PreprocessingTaskOutcomeSystemFailure:     enums.TaskStatusError,
-		enums.PreprocessingTaskOutcomeValidationFailure: enums.TaskStatusError,
+		enums.PreprocessingTaskOutcomeValidationFailure: enums.TaskStatusFailed,
 	}
 
 	status, found := taskOutcomeToTaskStatus[t.Outcome]
