@@ -54,9 +54,9 @@ func newWorkflowState(req *ingest.ProcessingWorkflowRequest) *workflowState {
 	}
 }
 
-// tempPath registers a filepath for deletion when a workflow session
+// addTempPath registers a filepath for deletion when a workflow session
 // completes.
-func (s *workflowState) tempPath(path string) {
+func (s *workflowState) addTempPath(path string) {
 	if path == "" || slices.Contains(s.tempDirs, path) {
 		return
 	}

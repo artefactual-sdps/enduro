@@ -1,8 +1,5 @@
-// Package workflow contains an experimental workflow for Archivemica transfers.
-//
-// It's not generalized since it contains client-specific activities. However,
-// the long-term goal is to build a system where workflows and activities are
-// dynamically set up based on user input.
+// Package workflow contains a Temporal workflow for ingesting and preserving
+// SIPs using Archivematica or A3M.
 package workflow
 
 import (
@@ -158,7 +155,7 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *inge
 	w.logger = temporalsdk_workflow.GetLogger(ctx)
 
 	// Create the initial workflow state.
-	var state = newWorkflowState(req)
+	state := newWorkflowState(req)
 
 	// Persist the SIP as early as possible.
 	{
@@ -363,7 +360,7 @@ func (w *ProcessingWorkflow) SessionHandler(
 		state.sip.path = downloadResult.Path
 
 		// Delete download tmp dir when session ends.
-		state.tempPath(filepath.Dir(downloadResult.Path))
+		state.addTempPath(filepath.Dir(downloadResult.Path))
 
 		state.sendToFailed.path = downloadResult.Path
 		state.sendToFailed.activityName = activities.SendToFailedSIPsName
@@ -791,7 +788,7 @@ func (w *ProcessingWorkflow) transferA3m(
 		state.sendToFailed.needsZipping = true
 
 		// Delete bundled transfer when session ends.
-		state.tempPath(bundleResult.FullPath)
+		state.addTempPath(bundleResult.FullPath)
 	}
 
 	err := w.validatePREMIS(
@@ -890,7 +887,7 @@ func (w *ProcessingWorkflow) transferAM(
 		state.sendToFailed.needsZipping = false
 
 		// Delete the zipped PIP when the workflow completes.
-		state.tempPath(zipResult.Path)
+		state.addTempPath(zipResult.Path)
 	}
 
 	// Upload the PIP to AMSS.
@@ -1040,7 +1037,7 @@ func (w *ProcessingWorkflow) preprocessing(ctx temporalsdk_workflow.Context, sta
 	preCtx := temporalsdk_workflow.WithChildOptions(ctx, temporalsdk_workflow.ChildWorkflowOptions{
 		Namespace:         w.cfg.Preprocessing.Temporal.Namespace,
 		TaskQueue:         w.cfg.Preprocessing.Temporal.TaskQueue,
-		WorkflowID:        fmt.Sprintf("%s-%d", w.cfg.Preprocessing.Temporal.WorkflowName, state.req.SIPID),
+		WorkflowID:        fmt.Sprintf("%s-%d", w.cfg.Preprocessing.Temporal.WorkflowName, state.sip.dbID),
 		ParentClosePolicy: temporalapi_enums.PARENT_CLOSE_POLICY_TERMINATE,
 	})
 	var ppResult preprocessing.WorkflowResult
@@ -1080,10 +1077,13 @@ func (w *ProcessingWorkflow) preprocessing(ctx temporalsdk_workflow.Context, sta
 	case preprocessing.OutcomeSuccess:
 		return nil
 	case preprocessing.OutcomeSystemError:
+		state.status = enums.WorkflowStatusError
 		return errors.New("preprocessing workflow: system error")
 	case preprocessing.OutcomeContentError:
+		state.status = enums.WorkflowStatusFailed
 		return errors.New("preprocessing workflow: validation failed")
 	default:
+		state.status = enums.WorkflowStatusError
 		return fmt.Errorf("preprocessing workflow: unknown outcome %d", ppResult.Outcome)
 	}
 }
