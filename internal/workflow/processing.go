@@ -439,7 +439,7 @@ func (w *ProcessingWorkflow) SessionHandler(
 		task := datatypes.Task{
 			ID:     id,
 			Status: enums.TaskStatusDone,
-			Note:   "Bag is valid",
+			Note:   "Bag successfully validated",
 		}
 
 		// Validate the bag.
@@ -451,13 +451,18 @@ func (w *ProcessingWorkflow) SessionHandler(
 			&bagvalidate.Params{Path: state.pip.path},
 		).Get(activityOpts, &result)
 		if err != nil {
-			task.Status = enums.TaskStatusError
-			task.Note = "System error"
+			task.SystemError(
+				"SIP bag validation has failed.",
+				"An error has occurred while attempting to validate the SIP bag. Please try again, or ask a system administrator to investigate.",
+			)
 			state.status = enums.WorkflowStatusError
 		}
 		if !result.Valid {
-			task.Status = enums.TaskStatusFailed
-			task.Note = result.Error
+			task.Failed(
+				"SIP bag validation has failed.",
+				result.Error,
+				"Please ensure the bag is well-formed before reattempting ingest.",
+			)
 
 			// Fail the workflow with an error for now. In the future we may
 			// want to stop the workflow without returning an error, but this
