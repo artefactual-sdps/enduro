@@ -13,7 +13,7 @@ type workflowState struct {
 	// req is populated by the workflow request.
 	req *ingest.ProcessingWorkflowRequest
 
-	// status is the current status of the ingest workflow.
+	// status of the ingest workflow.
 	status enums.WorkflowStatus
 
 	// tempDirs is a list of temporary directories that should be deleted when
@@ -79,7 +79,8 @@ type sipInfo struct {
 	// isDir indicates whether the working copy of the SIP is a directory.
 	isDir bool
 
-	// status of the SIP.
+	// status is the ingest status of the SIP (e.g. "in progress", "done",
+	// "error").
 	status enums.SIPStatus
 }
 
