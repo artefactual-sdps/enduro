@@ -9,6 +9,11 @@ changelog:
     - '^docs:'
     - '^website:'
 
+before:
+  # Templates for the commands to be ran.
+  hooks:
+  - sh -c 'cd dashboard; npm clean-install; npm run build'
+
 builds:
 - env:
   - CGO_ENABLED=0
@@ -61,7 +66,7 @@ builds:
 
 archives:
 - wrap_in_directory: true
-  format: tar.gz
+  formats: tar.gz
   name_template: >-
     {{ .ProjectName }}_
     {{- .Version }}_
@@ -72,6 +77,7 @@ archives:
   files:
   - LICENSE
   - README.md
+  - dashboard/dist/
   - enduro.toml
 
 checksum:
