@@ -1061,10 +1061,11 @@ func (w *ProcessingWorkflow) preprocessing(ctx temporalsdk_workflow.Context, tin
 		return err
 	}
 
+	// TODO: Use SIP UUID instead SIPID when that field is added to the SIP.
 	preCtx := temporalsdk_workflow.WithChildOptions(ctx, temporalsdk_workflow.ChildWorkflowOptions{
 		Namespace:         w.cfg.Preprocessing.Temporal.Namespace,
 		TaskQueue:         w.cfg.Preprocessing.Temporal.TaskQueue,
-		WorkflowID:        fmt.Sprintf("%s-%s", w.cfg.Preprocessing.Temporal.WorkflowName, uuid.New().String()),
+		WorkflowID:        fmt.Sprintf("%s-%d", w.cfg.Preprocessing.Temporal.WorkflowName, tinfo.req.SIPID),
 		ParentClosePolicy: temporalapi_enums.PARENT_CLOSE_POLICY_TERMINATE,
 	})
 	var ppResult preprocessing.WorkflowResult
