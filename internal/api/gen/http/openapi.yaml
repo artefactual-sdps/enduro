@@ -2475,6 +2475,7 @@ definitions:
                     - error
                     - queued
                     - pending
+                    - failed
             task_id:
                 type: string
                 example: abc123
@@ -2543,6 +2544,7 @@ definitions:
                     - error
                     - queued
                     - pending
+                    - failed
             tasks:
                 $ref: '#/definitions/SIPTaskResponseBodyCollection'
             temporal_id:

@@ -86,7 +86,8 @@ export const EnduroIngestSipWorkflowStatusEnum = {
     Done: 'done',
     Error: 'error',
     Queued: 'queued',
-    Pending: 'pending'
+    Pending: 'pending',
+    Failed: 'failed'
 } as const;
 export type EnduroIngestSipWorkflowStatusEnum = typeof EnduroIngestSipWorkflowStatusEnum[keyof typeof EnduroIngestSipWorkflowStatusEnum];
 

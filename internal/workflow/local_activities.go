@@ -14,7 +14,7 @@ import (
 )
 
 type createSIPLocalActivityParams struct {
-	Key    string
+	Name   string
 	Status enums.SIPStatus
 }
 
@@ -24,7 +24,7 @@ func createSIPLocalActivity(
 	params *createSIPLocalActivityParams,
 ) (int, error) {
 	col := &datatypes.SIP{
-		Name:   params.Key,
+		Name:   params.Name,
 		Status: params.Status,
 	}
 
@@ -37,7 +37,7 @@ func createSIPLocalActivity(
 
 type updateSIPLocalActivityParams struct {
 	SIPID       int
-	Key         string
+	Name        string
 	AIPUUID     string
 	CompletedAt time.Time
 	Status      enums.SIPStatus
@@ -53,7 +53,7 @@ func updateSIPLocalActivity(
 	err := ingestsvc.UpdateSIP(
 		ctx,
 		params.SIPID,
-		params.Key,
+		params.Name,
 		params.AIPUUID,
 		params.Status,
 		params.CompletedAt,
