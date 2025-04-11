@@ -28,27 +28,27 @@ const emit = defineEmits<{
 }>();
 
 const currentPage = computed(() => {
-  // Calculate current page based on offset and limit
+  // Calculate current page based on offset and limit.
   return Math.floor(props.offset / props.limit) + 1;
 });
 
 const totalPages = computed(() => {
-  // Calculate total pages based on offset and limit
+  // Calculate total pages based on total and limit.
   return Math.ceil(props.total / props.limit);
 });
 
 const visiblePages = computed(() => {
   if (totalPages.value <= props.maxVisiblePages) {
-    // If total pages is less than max visible, show all pages
+    // If total pages is less than max visible, show all pages.
     return Array.from({ length: totalPages.value }, (_, i) => i + 1);
   }
 
-  // Calculate range of pages to show
+  // Calculate range of pages to show.
   const halfVisible = Math.floor(props.maxVisiblePages / 2);
   let startPage = Math.max(currentPage.value - halfVisible, 1);
   let endPage = startPage + props.maxVisiblePages - 1;
 
-  // Adjust if end page exceeds total pages
+  // Adjust if end page exceeds total pages.
   if (endPage > totalPages.value) {
     endPage = totalPages.value;
     startPage = Math.max(endPage - props.maxVisiblePages + 1, 1);

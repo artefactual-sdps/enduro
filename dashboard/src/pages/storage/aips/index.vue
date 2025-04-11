@@ -6,6 +6,7 @@ import type { LocationQueryValue } from "vue-router/auto";
 
 import PageLoadingAlert from "@/components/PageLoadingAlert.vue";
 import Pager from "@/components/Pager.vue";
+import ResultCounter from "@/components/ResultCounter.vue";
 import StatusBadge from "@/components/StatusBadge.vue";
 import Tabs from "@/components/Tabs.vue";
 import TimeDropdown from "@/components/TimeDropdown.vue";
@@ -205,9 +206,11 @@ watch(
     <h1 class="d-flex mb-0"><IconAIPs class="me-3 text-dark" />AIPs</h1>
 
     <div class="text-muted mb-3">
-      Showing {{ aipStore.page.offset + 1 }} -
-      {{ aipStore.page.offset + aipStore.page.limit }} of
-      {{ aipStore.page.total }}
+      <ResultCounter
+        :offset="aipStore.page.offset"
+        :limit="aipStore.page.limit"
+        :total="aipStore.page.total"
+      />
     </div>
 
     <PageLoadingAlert :execute="execute" :error="error" />
@@ -293,7 +296,7 @@ watch(
         </tbody>
       </table>
     </div>
-    <div v-if="aipStore.page.total > 1">
+    <div v-if="aipStore.page.total > aipStore.page.limit">
       <Pager
         :offset="aipStore.page.offset"
         :limit="aipStore.page.limit"
@@ -301,9 +304,11 @@ watch(
         @page-change="(page) => changePage(page)"
       />
       <div class="text-muted mb-3 text-center">
-        Showing AIPs {{ aipStore.page.offset + 1 }} -
-        {{ aipStore.page.offset + aipStore.page.limit }} of
-        {{ aipStore.page.total }}
+        <ResultCounter
+          :offset="aipStore.page.offset"
+          :limit="aipStore.page.limit"
+          :total="aipStore.page.total"
+        />
       </div>
     </div>
   </div>

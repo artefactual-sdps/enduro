@@ -7,6 +7,7 @@ import type { LocationQueryValue } from "vue-router/auto";
 
 import PageLoadingAlert from "@/components/PageLoadingAlert.vue";
 import Pager from "@/components/Pager.vue";
+import ResultCounter from "@/components/ResultCounter.vue";
 import SipListLegend from "@/components/SipListLegend.vue";
 import StatusBadge from "@/components/StatusBadge.vue";
 import Tabs from "@/components/Tabs.vue";
@@ -222,9 +223,11 @@ watch(
     <h1 class="d-flex mb-0"><IconSIPs class="me-3 text-dark" />SIPs</h1>
 
     <div class="text-muted mb-3">
-      Showing {{ sipStore.page.offset + 1 }} -
-      {{ sipStore.page.offset + sipStore.page.limit }} of
-      {{ sipStore.page.total }}
+      <ResultCounter
+        :offset="sipStore.page.offset"
+        :limit="sipStore.page.limit"
+        :total="sipStore.page.total"
+      />
     </div>
 
     <PageLoadingAlert :execute="execute" :error="error" />
@@ -324,18 +327,19 @@ watch(
         </tbody>
       </table>
     </div>
-    <div v-if="sipStore.page.total > 1">
+    <div v-if="sipStore.page.total > sipStore.page.limit">
       <Pager
         :offset="sipStore.page.offset"
         :limit="sipStore.page.limit"
         :total="sipStore.page.total"
         @page-change="(page) => changePage(page)"
       />
-
       <div class="text-muted mb-3 text-center">
-        Showing SIPs {{ sipStore.page.offset + 1 }} -
-        {{ sipStore.page.offset + sipStore.page.limit }} of
-        {{ sipStore.page.total }}
+        <ResultCounter
+          :offset="sipStore.page.offset"
+          :limit="sipStore.page.limit"
+          :total="sipStore.page.total"
+        />
       </div>
     </div>
   </div>
