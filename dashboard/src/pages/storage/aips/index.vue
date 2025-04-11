@@ -5,6 +5,8 @@ import { useRoute, useRouter } from "vue-router/auto";
 import type { LocationQueryValue } from "vue-router/auto";
 
 import PageLoadingAlert from "@/components/PageLoadingAlert.vue";
+import Pager from "@/components/Pager.vue";
+import ResultCounter from "@/components/ResultCounter.vue";
 import StatusBadge from "@/components/StatusBadge.vue";
 import Tabs from "@/components/Tabs.vue";
 import TimeDropdown from "@/components/TimeDropdown.vue";
@@ -13,10 +15,6 @@ import type { StorageListAipsStatusEnum } from "@/openapi-generator";
 import { useAipStore } from "@/stores/aip";
 import { useAuthStore } from "@/stores/auth";
 import { useLayoutStore } from "@/stores/layout";
-import IconCaretLeft from "~icons/bi/caret-left-fill";
-import IconCaretRight from "~icons/bi/caret-right-fill";
-import IconSkipEnd from "~icons/bi/skip-end-fill";
-import IconSkipStart from "~icons/bi/skip-start-fill";
 import IconAll from "~icons/clarity/blocks-group-line?raw&font-size=20px";
 import IconAIPs from "~icons/clarity/bundle-line";
 import IconClose from "~icons/clarity/close-line";
@@ -41,7 +39,7 @@ const tabs = computed(() => [
     text: "All",
     route: router.resolve({
       name: "/storage/aips/",
-      query: { ...route.query, status: undefined },
+      query: { ...route.query, status: undefined, page: undefined },
     }),
     show: true,
   },
@@ -50,7 +48,7 @@ const tabs = computed(() => [
     text: "Stored",
     route: router.resolve({
       name: "/storage/aips/",
-      query: { ...route.query, status: "stored" },
+      query: { ...route.query, status: "stored", page: undefined },
     }),
     show: true,
   },
@@ -59,7 +57,7 @@ const tabs = computed(() => [
     text: "Deleted",
     route: router.resolve({
       name: "/storage/aips/",
-      query: { ...route.query, status: "deleted" },
+      query: { ...route.query, status: "deleted", page: undefined },
     }),
     show: true,
   },
@@ -68,7 +66,7 @@ const tabs = computed(() => [
     text: "Pending",
     route: router.resolve({
       name: "/storage/aips/",
-      query: { ...route.query, status: "pending" },
+      query: { ...route.query, status: "pending", page: undefined },
     }),
     show: true,
   },
@@ -77,11 +75,25 @@ const tabs = computed(() => [
     text: "Processing",
     route: router.resolve({
       name: "/storage/aips/",
-      query: { ...route.query, status: "processing" },
+      query: { ...route.query, status: "processing", page: undefined },
     }),
     show: true,
   },
 ]);
+
+const changePage = (page: number) => {
+  let q = { ...route.query };
+  if (page <= 1) {
+    delete q.page;
+  } else {
+    q.page = <LocationQueryValue>page.toString();
+  }
+
+  router.push({
+    name: "/storage/aips/",
+    query: q,
+  });
+};
 
 const searchByName = () => {
   let q = { ...route.query };
@@ -90,6 +102,10 @@ const searchByName = () => {
   } else {
     q.name = <LocationQueryValue>aipStore.filters.name;
   }
+
+  // Reset the page number because the found results may reduce the total number
+  // of pages.
+  delete q.page;
 
   router.push({
     name: "/storage/aips/",
@@ -132,6 +148,10 @@ const updateDateFilter = (
       // undefined.
       return;
   }
+
+  // Reset the page number because the found results may reduce the total number
+  // of pages.
+  delete q.page;
 
   router.push({
     name: "/storage/aips/",
@@ -186,9 +206,11 @@ watch(
     <h1 class="d-flex mb-0"><IconAIPs class="me-3 text-dark" />AIPs</h1>
 
     <div class="text-muted mb-3">
-      Showing {{ aipStore.page.offset + 1 }} -
-      {{ aipStore.lastResultOnPage }} of
-      {{ aipStore.page.total }}
+      <ResultCounter
+        :offset="aipStore.page.offset"
+        :limit="aipStore.page.limit"
+        :total="aipStore.page.total"
+      />
     </div>
 
     <PageLoadingAlert :execute="execute" :error="error" />
@@ -274,102 +296,19 @@ watch(
         </tbody>
       </table>
     </div>
-    <div v-if="aipStore.pager.total > 1">
-      <nav role="navigation" aria-label="Pagination navigation">
-        <ul class="pagination justify-content-center">
-          <li v-if="aipStore.pager.total > aipStore.pager.maxPages">
-            <a
-              href="#"
-              :class="{
-                'page-link': true,
-                disabled: aipStore.pager.current == 1,
-              }"
-              aria-label="Go to first page"
-              title="First page"
-              @click.prevent="aipStore.fetchAips(1)"
-              ><IconSkipStart
-            /></a>
-          </li>
-          <li class="page-item">
-            <a
-              href="#"
-              :class="{
-                'page-link': true,
-                disabled: !aipStore.hasPrevPage,
-              }"
-              aria-label="Go to previous page"
-              title="Previous page"
-              @click.prevent="aipStore.prevPage"
-              ><IconCaretLeft
-            /></a>
-          </li>
-          <li
-            v-if="aipStore.pager.first > 1"
-            class="d-none d-sm-block"
-            aria-hidden="true"
-          >
-            <a href="#" class="page-link disabled">…</a>
-          </li>
-          <li
-            v-for="pg in aipStore.pager.pages"
-            :key="pg"
-            :class="{ 'd-none d-sm-block': pg != aipStore.pager.current }"
-          >
-            <a
-              href="#"
-              :class="{
-                'page-link': true,
-                active: pg == aipStore.pager.current,
-              }"
-              @click.prevent="aipStore.fetchAips(pg)"
-              :aria-label="
-                pg == aipStore.pager.current
-                  ? 'Current page, page ' + pg
-                  : 'Go to page ' + pg
-              "
-              :aria-current="pg == aipStore.pager.current"
-              >{{ pg }}</a
-            >
-          </li>
-          <li
-            v-if="aipStore.pager.last < aipStore.pager.total"
-            class="d-none d-sm-block"
-            aria-hidden="true"
-          >
-            <a href="#" class="page-link disabled">…</a>
-          </li>
-          <li class="page-item">
-            <a
-              href="#"
-              :class="{
-                'page-link': true,
-                disabled: !aipStore.hasNextPage,
-              }"
-              aria-label="Go to next page"
-              title="Next page"
-              @click.prevent="aipStore.nextPage"
-              ><IconCaretRight
-            /></a>
-          </li>
-          <li v-if="aipStore.pager.total > aipStore.pager.maxPages">
-            <a
-              href="#"
-              :class="{
-                'page-link': true,
-                disabled: aipStore.pager.current == aipStore.pager.total,
-              }"
-              aria-label="Go to last page"
-              title="Last page"
-              @click.prevent="aipStore.fetchAips(aipStore.pager.total)"
-              ><IconSkipEnd
-            /></a>
-          </li>
-        </ul>
-      </nav>
+    <div v-if="aipStore.page.total > aipStore.page.limit">
+      <Pager
+        :offset="aipStore.page.offset"
+        :limit="aipStore.page.limit"
+        :total="aipStore.page.total"
+        @page-change="(page) => changePage(page)"
+      />
       <div class="text-muted mb-3 text-center">
-        Showing AIPs {{ aipStore.page.offset + 1 }} -
-        {{ aipStore.lastResultOnPage }} of
-        {{ aipStore.page.total }}
+        <ResultCounter
+          :offset="aipStore.page.offset"
+          :limit="aipStore.page.limit"
+          :total="aipStore.page.total"
+        />
       </div>
     </div>
   </div>
