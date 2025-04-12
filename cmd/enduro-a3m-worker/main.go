@@ -13,7 +13,6 @@ import (
 
 	"ariga.io/sqlcomment"
 	"entgo.io/ent/dialect/sql"
-	bagit_gython "github.com/artefactual-labs/bagit-gython"
 	"github.com/artefactual-sdps/temporal-activities/archiveextract"
 	"github.com/artefactual-sdps/temporal-activities/archivezip"
 	"github.com/artefactual-sdps/temporal-activities/bagvalidate"
@@ -192,21 +191,6 @@ func main() {
 		}
 	}
 
-	// validator is a BagIt bag validator.
-	var validator *bagit_gython.BagIt
-	{
-		validator, err = bagit_gython.NewBagIt()
-		if err != nil {
-			logger.Error(err, "Error creating BagIt validator")
-			os.Exit(1)
-		}
-	}
-	defer func() {
-		if err = validator.Cleanup(); err != nil {
-			logger.Info("Couldn't clean up bag validator: %v", err)
-		}
-	}()
-
 	// Set-up failed SIPs bucket.
 	failedSIPs, err := bucket.NewWithConfig(ctx, &cfg.FailedSIPs)
 	if err != nil {
@@ -262,7 +246,7 @@ func main() {
 			temporalsdk_activity.RegisterOptions{Name: activities.ClassifySIPActivityName},
 		)
 		w.RegisterActivityWithOptions(
-			bagvalidate.New(validator).Execute,
+			bagvalidate.New(nil).Execute,
 			temporalsdk_activity.RegisterOptions{Name: bagvalidate.Name},
 		)
 		w.RegisterActivityWithOptions(

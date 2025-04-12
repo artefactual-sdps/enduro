@@ -11,8 +11,7 @@ require (
 	entgo.io/ent v0.14.4
 	github.com/XSAM/otelsql v0.29.0
 	github.com/alicebob/miniredis/v2 v2.32.1
-	github.com/artefactual-labs/bagit-gython v0.2.0
-	github.com/artefactual-sdps/temporal-activities v0.0.0-20241018212855-8ea34d29bdf4
+	github.com/artefactual-sdps/temporal-activities v0.0.0-20250411163551-a3b6ecf735e5
 	github.com/coreos/go-oidc/v3 v3.10.0
 	github.com/cyphar/filepath-securejoin v0.2.4
 	github.com/dolmen-go/contextio v1.0.0
@@ -75,6 +74,7 @@ require (
 	github.com/andybalholm/brotli v1.1.1 // indirect
 	github.com/anmitsu/go-shlex v0.0.0-20200514113438-38f4b401e2be // indirect
 	github.com/apparentlymart/go-textseg/v15 v15.0.0 // indirect
+	github.com/artefactual-labs/bagit-gython v0.2.0 // indirect
 	github.com/artefactual-labs/bine v0.10.0 // indirect
 	github.com/aws/aws-sdk-go v1.55.5 // indirect
 	github.com/aws/aws-sdk-go-v2 v1.30.3 // indirect
