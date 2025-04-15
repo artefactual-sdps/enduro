@@ -12,27 +12,29 @@ import (
 )
 
 const (
+	// Indeterminate status.
 	AIPStatusUnspecified AIPStatus = "unspecified"
-	AIPStatusInReview    AIPStatus = "in_review"
-	AIPStatusRejected    AIPStatus = "rejected"
-	AIPStatusStored      AIPStatus = "stored"
-	AIPStatusMoving      AIPStatus = "moving"
-	AIPStatusPending     AIPStatus = "pending"
-	AIPStatusProcessing  AIPStatus = "processing"
-	AIPStatusDeleted     AIPStatus = "deleted"
+	// Stored in preservation storage.
+	AIPStatusStored AIPStatus = "stored"
+	// Awaiting a user decision.
+	AIPStatusPending AIPStatus = "pending"
+	// Undergoing processing.
+	AIPStatusProcessing AIPStatus = "processing"
+	// Deleted from preservation storage.
+	AIPStatusDeleted AIPStatus = "deleted"
+	// Queued for processing.
+	AIPStatusQueued AIPStatus = "queued"
 )
 
 var ErrInvalidAIPStatus = fmt.Errorf("not a valid AIPStatus, try [%s]", strings.Join(_AIPStatusNames, ", "))
 
 var _AIPStatusNames = []string{
 	string(AIPStatusUnspecified),
-	string(AIPStatusInReview),
-	string(AIPStatusRejected),
 	string(AIPStatusStored),
-	string(AIPStatusMoving),
 	string(AIPStatusPending),
 	string(AIPStatusProcessing),
 	string(AIPStatusDeleted),
+	string(AIPStatusQueued),
 }
 
 // AIPStatusNames returns a list of possible string values of AIPStatus.
@@ -56,13 +58,11 @@ func (x AIPStatus) IsValid() bool {
 
 var _AIPStatusValue = map[string]AIPStatus{
 	"unspecified": AIPStatusUnspecified,
-	"in_review":   AIPStatusInReview,
-	"rejected":    AIPStatusRejected,
 	"stored":      AIPStatusStored,
-	"moving":      AIPStatusMoving,
 	"pending":     AIPStatusPending,
 	"processing":  AIPStatusProcessing,
 	"deleted":     AIPStatusDeleted,
+	"queued":      AIPStatusQueued,
 }
 
 // ParseAIPStatus attempts to convert a string to a AIPStatus.

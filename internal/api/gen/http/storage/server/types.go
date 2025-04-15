@@ -1216,8 +1216,8 @@ func ValidateCreateAipRequestBody(body *CreateAipRequestBody) (err error) {
 		err = goa.MergeErrors(err, goa.ValidateFormat("body.object_key", *body.ObjectKey, goa.FormatUUID))
 	}
 	if body.Status != nil {
-		if !(*body.Status == "unspecified" || *body.Status == "in_review" || *body.Status == "rejected" || *body.Status == "stored" || *body.Status == "moving" || *body.Status == "pending" || *body.Status == "processing" || *body.Status == "deleted") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []any{"unspecified", "in_review", "rejected", "stored", "moving", "pending", "processing", "deleted"}))
+		if !(*body.Status == "unspecified" || *body.Status == "stored" || *body.Status == "pending" || *body.Status == "processing" || *body.Status == "deleted" || *body.Status == "queued") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []any{"unspecified", "stored", "pending", "processing", "deleted", "queued"}))
 		}
 	}
 	return

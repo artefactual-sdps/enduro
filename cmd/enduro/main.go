@@ -111,8 +111,9 @@ func main() {
 		os.Exit(1)
 	}
 	if cfg.Database.Migrate {
-		if err := db.MigrateEnduroDatabase(enduroDatabase); err != nil {
-			logger.Error(err, "Enduro database migration failed.")
+		l := logger.WithName("migrate")
+		if err := db.MigrateEnduroDatabase(l, enduroDatabase); err != nil {
+			l.Error(err, "Enduro database migration failed.")
 			os.Exit(1)
 		}
 	}
@@ -124,8 +125,9 @@ func main() {
 		os.Exit(1)
 	}
 	if cfg.Storage.Database.Migrate {
-		if err := db.MigrateEnduroStorageDatabase(storageDatabase); err != nil {
-			logger.Error(err, "Storage database migration failed.")
+		l := logger.WithName("storage-migrate")
+		if err := db.MigrateEnduroStorageDatabase(l, storageDatabase); err != nil {
+			l.Error(err, "Storage database migration failed.")
 			os.Exit(1)
 		}
 	}

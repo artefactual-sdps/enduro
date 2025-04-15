@@ -37,9 +37,24 @@ type ConfigurationValidator interface {
 }
 
 type Configuration struct {
-	Debug       bool
+	// Debug toggles the encoding of log messages to support different reader
+	// contexts.
+	//
+	// If Debug is true, the logger will output human readable logs with ANSI
+	// color codes. This is useful for debugging and development.
+	//
+	// If Debug is false the logger will output JSON formatted messages with no
+	// color codes. This is useful for data analysis and log aggregation.
+	Debug bool
+
+	// DebugListen is the HTTP address of the observability server.
 	DebugListen string
-	Verbosity   int
+
+	// Verbosity controls the verbosity of log messages. The default is 0 which
+	// will only log the most important messages. The development environment
+	// log level is 2 which will log most messages. See the developer
+	// documentation for more information on logging levels.
+	Verbosity int
 
 	A3m             a3m.Config
 	AM              am.Config

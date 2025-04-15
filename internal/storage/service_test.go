@@ -637,7 +637,7 @@ func TestReject(t *testing.T) {
 		assert.ErrorContains(t, err, "cannot perform operation")
 	})
 
-	t.Run("Fails when passing an invalid UUID", func(t *testing.T) {
+	t.Run("Rejects the AIP", func(t *testing.T) {
 		t.Parallel()
 
 		attrs := setUpAttrs{}
@@ -649,7 +649,7 @@ func TestReject(t *testing.T) {
 			UpdateAIPStatus(
 				ctx,
 				aipID,
-				enums.AIPStatusRejected,
+				enums.AIPStatusDeleted,
 			).
 			Return(nil)
 
@@ -1167,7 +1167,7 @@ func TestServiceUpdate(t *testing.T) {
 			UpdateAIPStatus(
 				gomock.AssignableToTypeOf(ctx),
 				gomock.Any(),
-				enums.AIPStatusInReview,
+				enums.AIPStatusPending,
 			).
 			Return(
 				errors.New("unexpected error"),
@@ -1205,7 +1205,7 @@ func TestServiceUpdate(t *testing.T) {
 			UpdateAIPStatus(
 				gomock.AssignableToTypeOf(ctx),
 				gomock.Any(),
-				enums.AIPStatusInReview,
+				enums.AIPStatusPending,
 			).
 			Return(
 				nil,

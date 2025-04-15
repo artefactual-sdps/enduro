@@ -63,13 +63,11 @@ export interface EnduroStorageAip {
  */
 export const EnduroStorageAipStatusEnum = {
     Unspecified: 'unspecified',
-    InReview: 'in_review',
-    Rejected: 'rejected',
     Stored: 'stored',
-    Moving: 'moving',
     Pending: 'pending',
     Processing: 'processing',
-    Deleted: 'deleted'
+    Deleted: 'deleted',
+    Queued: 'queued'
 } as const;
 export type EnduroStorageAipStatusEnum = typeof EnduroStorageAipStatusEnum[keyof typeof EnduroStorageAipStatusEnum];
 

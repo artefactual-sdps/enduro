@@ -32,7 +32,7 @@ storage (list-aips|create-aip|submit-aip|update-aip|download-aip|move-aip|move-a
 // UsageExamples produces an example of a valid invocation of the CLI tool.
 func UsageExamples() string {
 	return os.Args[0] + ` ingest monitor-request --token "abc123"` + "\n" +
-		os.Args[0] + ` storage list-aips --name "abc123" --earliest-created-time "1970-01-01T00:00:01Z" --latest-created-time "1970-01-01T00:00:01Z" --status "in_review" --limit 1 --offset 1 --token "abc123"` + "\n" +
+		os.Args[0] + ` storage list-aips --name "abc123" --earliest-created-time "1970-01-01T00:00:01Z" --latest-created-time "1970-01-01T00:00:01Z" --status "stored" --limit 1 --offset 1 --token "abc123"` + "\n" +
 		""
 }
 
@@ -581,7 +581,7 @@ List all AIPs
     -token STRING: 
 
 Example:
-    %[1]s storage list-aips --name "abc123" --earliest-created-time "1970-01-01T00:00:01Z" --latest-created-time "1970-01-01T00:00:01Z" --status "in_review" --limit 1 --offset 1 --token "abc123"
+    %[1]s storage list-aips --name "abc123" --earliest-created-time "1970-01-01T00:00:01Z" --latest-created-time "1970-01-01T00:00:01Z" --status "stored" --limit 1 --offset 1 --token "abc123"
 `, os.Args[0])
 }
 
@@ -597,7 +597,7 @@ Example:
       "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
       "name": "abc123",
       "object_key": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
-      "status": "in_review",
+      "status": "stored",
       "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
    }' --token "abc123"
 `, os.Args[0])

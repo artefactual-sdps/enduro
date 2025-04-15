@@ -53,14 +53,13 @@ const requestDeletion = async () => {
       </div>
       <h4 class="card-title">Location</h4>
       <p class="card-text">
-        <span v-if="aipStore.isRejected">AIP rejected.</span>
-        <span v-else-if="aipStore.isDeleted">AIP deleted.</span>
+        <span v-if="aipStore.isDeleted">AIP deleted.</span>
         <span v-else-if="!aipStore.current?.locationId"
           >Not available yet.</span
         >
         <span v-else><UUID :id="aipStore.current.locationId" /></span>
       </p>
-      <div class="d-flex flex-wrap gap-2">
+      <div v-if="!aipStore.isDeleted" class="d-flex flex-wrap gap-2">
         <button
           v-if="authStore.checkAttributes(['storage:aips:download'])"
           type="button"

@@ -63,7 +63,7 @@ func TestStorageMoveWorkflow(t *testing.T) {
 	storagesvc := fake.NewMockService(ctrl)
 	storagesvc.EXPECT().DeleteAip(mockutil.Context(), aipUUID)
 	storagesvc.EXPECT().UpdateAipLocationID(mockutil.Context(), aipUUID, locationUUID)
-	storagesvc.EXPECT().UpdateAipStatus(mockutil.Context(), aipUUID, enums.AIPStatusMoving)
+	storagesvc.EXPECT().UpdateAipStatus(mockutil.Context(), aipUUID, enums.AIPStatusProcessing)
 	storagesvc.EXPECT().UpdateAipStatus(mockutil.Context(), aipUUID, enums.AIPStatusStored)
 	storagesvc.EXPECT().CreateWorkflow(
 		mockutil.Context(),

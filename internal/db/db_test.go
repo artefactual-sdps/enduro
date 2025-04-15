@@ -5,6 +5,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/go-logr/logr"
 	_ "github.com/mattn/go-sqlite3"
 	"go.opentelemetry.io/otel/trace/noop"
 	"gotest.tools/v3/assert"
@@ -60,7 +61,7 @@ func TestMigrateEnduroDatabase(t *testing.T) {
 			os.Remove(dbfile)
 		}()
 
-		err = MigrateEnduroDatabase(db)
+		err = MigrateEnduroDatabase(logr.Discard(), db)
 		assert.Error(
 			t,
 			err,

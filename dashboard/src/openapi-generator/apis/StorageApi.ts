@@ -213,7 +213,7 @@ export interface StorageApiInterface {
      * @param {string} [name] 
      * @param {Date} [earliestCreatedTime] 
      * @param {Date} [latestCreatedTime] 
-     * @param {'unspecified' | 'in_review' | 'rejected' | 'stored' | 'moving' | 'pending' | 'processing' | 'deleted'} [status] 
+     * @param {'unspecified' | 'stored' | 'pending' | 'processing' | 'deleted' | 'queued'} [status] 
      * @param {number} [limit] Limit number of results to return
      * @param {number} [offset] Offset from the beginning of the found set
      * @param {*} [options] Override http request option.
@@ -1106,12 +1106,10 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
  */
 export const StorageListAipsStatusEnum = {
     Unspecified: 'unspecified',
-    InReview: 'in_review',
-    Rejected: 'rejected',
     Stored: 'stored',
-    Moving: 'moving',
     Pending: 'pending',
     Processing: 'processing',
-    Deleted: 'deleted'
+    Deleted: 'deleted',
+    Queued: 'queued'
 } as const;
 export type StorageListAipsStatusEnum = typeof StorageListAipsStatusEnum[keyof typeof StorageListAipsStatusEnum];
