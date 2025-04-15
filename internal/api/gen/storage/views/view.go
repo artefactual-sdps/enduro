@@ -439,8 +439,8 @@ func ValidateAIPView(result *AIPView) (err error) {
 		err = goa.MergeErrors(err, goa.MissingFieldError("created_at", "result"))
 	}
 	if result.Status != nil {
-		if !(*result.Status == "unspecified" || *result.Status == "in_review" || *result.Status == "rejected" || *result.Status == "stored" || *result.Status == "moving" || *result.Status == "pending" || *result.Status == "processing" || *result.Status == "deleted") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.status", *result.Status, []any{"unspecified", "in_review", "rejected", "stored", "moving", "pending", "processing", "deleted"}))
+		if !(*result.Status == "unspecified" || *result.Status == "stored" || *result.Status == "pending" || *result.Status == "processing" || *result.Status == "deleted" || *result.Status == "queued") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.status", *result.Status, []any{"unspecified", "stored", "pending", "processing", "deleted", "queued"}))
 		}
 	}
 	if result.CreatedAt != nil {

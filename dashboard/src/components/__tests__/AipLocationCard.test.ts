@@ -120,7 +120,7 @@ describe("AipLocationCard.vue", () => {
     moveMock.mockImplementation(async () => {
       aipStore.$patch((state) => {
         if (!state.current) return;
-        state.current.status = api.EnduroStorageAipStatusEnum.Moving;
+        state.current.status = api.EnduroStorageAipStatusEnum.Processing;
         state.locationChanging = true;
       });
     });
@@ -147,7 +147,7 @@ describe("AipLocationCard.vue", () => {
             initialState: {
               aip: {
                 current: {
-                  status: api.EnduroStorageAipStatusEnum.Moving,
+                  status: api.EnduroStorageAipStatusEnum.Processing,
                 } as api.EnduroStorageAip,
               },
             },
@@ -171,7 +171,7 @@ describe("AipLocationCard.vue", () => {
     `);
   });
 
-  it("renders when the AIP is rejected", async () => {
+  it("renders when the AIP is deleted", async () => {
     const { html } = render(AipLocationCard, {
       global: {
         plugins: [
@@ -180,7 +180,7 @@ describe("AipLocationCard.vue", () => {
             initialState: {
               aip: {
                 current: {
-                  status: api.EnduroStorageAipStatusEnum.Rejected,
+                  status: api.EnduroStorageAipStatusEnum.Deleted,
                   locationId: undefined,
                 } as api.EnduroStorageAip,
               },
@@ -196,10 +196,8 @@ describe("AipLocationCard.vue", () => {
           <!--v-if-->
           <!--v-if-->
           <h4 class="card-title">Location</h4>
-          <p class="card-text"><span>AIP rejected.</span></p>
-          <div class="d-flex flex-wrap gap-2"><button type="button" class="btn btn-primary btn-sm" disabled=""> Download </button>
-            <!--v-if--><button type="button" class="btn btn-primary btn-sm" disabled=""> Delete </button>
-          </div>
+          <p class="card-text"><span>AIP deleted.</span></p>
+          <!--v-if-->
         </div>
       </div>"
     `);
@@ -214,7 +212,7 @@ describe("AipLocationCard.vue", () => {
             initialState: {
               aip: {
                 current: {
-                  status: api.EnduroStorageAipStatusEnum.Moving,
+                  status: api.EnduroStorageAipStatusEnum.Processing,
                   locationId: "f8635e46-a320-4152-9a2c-98a28eeb50d1",
                 } as api.EnduroStorageAip,
               },

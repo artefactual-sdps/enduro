@@ -224,8 +224,9 @@ func (s *serviceImpl) UpdateAip(ctx context.Context, payload *goastorage.UpdateA
 	if err != nil {
 		return goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
 	}
-	// Update the AIP status to in_review
-	err = s.UpdateAipStatus(ctx, aipID, enums.AIPStatusInReview)
+
+	// Update AIP status to pending.
+	err = s.UpdateAipStatus(ctx, aipID, enums.AIPStatusPending)
 	if err != nil {
 		return goastorage.MakeNotValid(errors.New("cannot update AIP status"))
 	}
@@ -319,7 +320,7 @@ func (s *serviceImpl) RejectAip(ctx context.Context, payload *goastorage.RejectA
 		return goastorage.MakeNotValid(errors.New("cannot perform operation"))
 	}
 
-	return s.UpdateAipStatus(ctx, aipID, enums.AIPStatusRejected)
+	return s.UpdateAipStatus(ctx, aipID, enums.AIPStatusDeleted)
 }
 
 func (s *serviceImpl) ShowAip(ctx context.Context, payload *goastorage.ShowAipPayload) (*goastorage.AIP, error) {

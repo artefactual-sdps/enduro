@@ -8,7 +8,7 @@
             "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
             "name": "abc123",
             "object_key": "abc123",
-            "status": "in_review",
+            "status": "stored",
             "uuid": "abc123"
           }
         ],
@@ -48,7 +48,7 @@
           "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
           "name": "abc123",
           "object_key": "abc123",
-          "status": "in_review",
+          "status": "stored",
           "uuid": "abc123"
         },
         "properties": {
@@ -76,15 +76,13 @@
             "description": "Status of the AIP",
             "enum": [
               "unspecified",
-              "in_review",
-              "rejected",
               "stored",
-              "moving",
               "pending",
               "processing",
-              "deleted"
+              "deleted",
+              "queued"
             ],
-            "example": "in_review",
+            "example": "stored",
             "type": "string"
           },
           "uuid": {
@@ -109,7 +107,7 @@
             "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
             "name": "abc123",
             "object_key": "abc123",
-            "status": "in_review",
+            "status": "stored",
             "uuid": "abc123"
           }
         ],
@@ -198,7 +196,7 @@
               "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
               "name": "abc123",
               "object_key": "abc123",
-              "status": "in_review",
+              "status": "stored",
               "uuid": "abc123"
             }
           ],
@@ -243,7 +241,7 @@
           "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
           "name": "abc123",
           "object_key": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
-          "status": "in_review",
+          "status": "stored",
           "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
         },
         "properties": {
@@ -268,15 +266,13 @@
             "description": "Status of the the AIP",
             "enum": [
               "unspecified",
-              "in_review",
-              "rejected",
               "stored",
-              "moving",
               "pending",
               "processing",
-              "deleted"
+              "deleted",
+              "queued"
             ],
-            "example": "in_review",
+            "example": "stored",
             "type": "string"
           },
           "uuid": {
@@ -745,7 +741,7 @@
           "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
           "name": "abc123",
           "object_key": "abc123",
-          "status": "in_review",
+          "status": "stored",
           "uuid": "abc123"
         },
         "properties": {
@@ -773,15 +769,13 @@
             "description": "Status of the AIP",
             "enum": [
               "unspecified",
-              "in_review",
-              "rejected",
               "stored",
-              "moving",
               "pending",
               "processing",
-              "deleted"
+              "deleted",
+              "queued"
             ],
-            "example": "in_review",
+            "example": "stored",
             "type": "string"
           },
           "uuid": {
@@ -2592,21 +2586,19 @@
           },
           {
             "allowEmptyValue": true,
-            "example": "in_review",
+            "example": "stored",
             "in": "query",
             "name": "status",
             "schema": {
               "enum": [
                 "unspecified",
-                "in_review",
-                "rejected",
                 "stored",
-                "moving",
                 "pending",
                 "processing",
-                "deleted"
+                "deleted",
+                "queued"
               ],
-              "example": "in_review",
+              "example": "stored",
               "type": "string"
             }
           },
@@ -2648,7 +2640,7 @@
                       "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
                       "name": "abc123",
                       "object_key": "abc123",
-                      "status": "in_review",
+                      "status": "stored",
                       "uuid": "abc123"
                     }
                   ],
@@ -2732,7 +2724,7 @@
                 "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
                 "name": "abc123",
                 "object_key": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
-                "status": "in_review",
+                "status": "stored",
                 "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
               },
               "schema": {
@@ -2751,7 +2743,7 @@
                   "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
                   "name": "abc123",
                   "object_key": "abc123",
-                  "status": "in_review",
+                  "status": "stored",
                   "uuid": "abc123"
                 },
                 "schema": {
@@ -2837,7 +2829,7 @@
                   "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
                   "name": "abc123",
                   "object_key": "abc123",
-                  "status": "in_review",
+                  "status": "stored",
                   "uuid": "abc123"
                 },
                 "schema": {
@@ -4015,7 +4007,7 @@
                     "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
                     "name": "abc123",
                     "object_key": "abc123",
-                    "status": "in_review",
+                    "status": "stored",
                     "uuid": "abc123"
                   }
                 ],

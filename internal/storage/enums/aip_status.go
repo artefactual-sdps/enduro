@@ -2,14 +2,12 @@ package enums
 
 /*
 ENUM(
-unspecified
-in_review
-rejected
-stored
-moving
-pending
-processing
-deleted
+unspecified  // Indeterminate status.
+stored       // Stored in preservation storage.
+pending      // Awaiting a user decision.
+processing   // Undergoing processing.
+deleted      // Deleted from preservation storage.
+queued       // Queued for processing.
 )
 */
 type AIPStatus string

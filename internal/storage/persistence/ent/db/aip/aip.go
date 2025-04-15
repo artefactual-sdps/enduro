@@ -88,7 +88,7 @@ var (
 // StatusValidator is a validator for the "status" field enum values. It is called by the builders before save.
 func StatusValidator(s enums.AIPStatus) error {
 	switch s.String() {
-	case "unspecified", "in_review", "rejected", "stored", "moving", "pending", "processing", "deleted":
+	case "unspecified", "stored", "pending", "processing", "deleted", "queued":
 		return nil
 	default:
 		return fmt.Errorf("aip: invalid enum value for status field: %q", s)

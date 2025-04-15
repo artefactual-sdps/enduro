@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/XSAM/otelsql"
+	"github.com/go-logr/logr"
 	mysqldriver "github.com/go-sql-driver/mysql"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/mysql"
@@ -24,6 +25,20 @@ import (
 
 // Wait up to five minutes is another process is already on it.
 const lockTimeout = time.Minute * 5
+
+// migrateLogger wraps a logr.Logger instance to implement the migrate.Logger
+// interface.
+type migrateLogger struct {
+	logger logr.Logger
+}
+
+func (l *migrateLogger) Printf(format string, a ...any) {
+	l.logger.V(2).Info(fmt.Sprintf(format, a...))
+}
+
+func (l *migrateLogger) Verbose() bool {
+	return false
+}
 
 // Connect returns a database handler.
 func Connect(ctx context.Context, tp trace.TracerProvider, driver, dsn string) (db *sql.DB, err error) {
@@ -132,33 +147,32 @@ func ConnectSQLite(tp trace.TracerProvider, dsn string) (db *sql.DB, err error) 
 	return db, err
 }
 
-func MigrateEnduroDatabase(db *sql.DB) error {
+func MigrateEnduroDatabase(logger logr.Logger, db *sql.DB) error {
 	src, err := enduroSourceDriver()
 	if err != nil {
 		return fmt.Errorf("error loading migration sources: %v", err)
 	}
 
-	return up(db, src)
+	return up(logger, db, src)
 }
 
-func MigrateEnduroStorageDatabase(db *sql.DB) error {
+func MigrateEnduroStorageDatabase(logger logr.Logger, db *sql.DB) error {
 	src, err := persistence.SourceDriver()
 	if err != nil {
 		return fmt.Errorf("error loading migration sources: %v", err)
 	}
 
-	return up(db, src)
+	return up(logger, db, src)
 }
 
 // up migrates the database.
-func up(db *sql.DB, src source.Driver) error {
-	m, err := newMigrate(db, src)
+func up(logger logr.Logger, db *sql.DB, src source.Driver) error {
+	m, err := newMigrate(logger, db, src)
 	if err != nil {
 		return fmt.Errorf("error creating golang-migrate object: %v", err)
 	}
 
-	err = doMigrate(m)
-	if err != nil {
+	if err := doMigrate(m); err != nil {
 		return fmt.Errorf("error during database migration: %v", err)
 	}
 
@@ -166,7 +180,7 @@ func up(db *sql.DB, src source.Driver) error {
 }
 
 // newMigrate builds the golang-migrate object.
-func newMigrate(db *sql.DB, src source.Driver) (*migrate.Migrate, error) {
+func newMigrate(logger logr.Logger, db *sql.DB, src source.Driver) (*migrate.Migrate, error) {
 	driver, err := mysql.WithInstance(db, &mysql.Config{})
 	if err != nil {
 		return nil, fmt.Errorf("error creating migrate driver: %w", err)
@@ -178,6 +192,9 @@ func newMigrate(db *sql.DB, src source.Driver) (*migrate.Migrate, error) {
 	}
 
 	m.LockTimeout = lockTimeout
+
+	// Log migration steps.
+	m.Log = &migrateLogger{logger: logger}
 
 	return m, nil
 }

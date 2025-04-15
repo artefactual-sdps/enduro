@@ -37,22 +37,6 @@ describe("useAipStore", () => {
     expect(aipStore.isMoving).toEqual(true);
   });
 
-  it("isRejected", () => {
-    const aipStore = useAipStore();
-    const now = new Date();
-
-    expect(aipStore.isRejected).toEqual(false);
-
-    aipStore.$patch({
-      current: {
-        createdAt: now,
-        uuid: "uuid-1",
-        status: api.EnduroStorageAipStatusEnum.Rejected,
-      },
-    });
-    expect(aipStore.isRejected).toEqual(true);
-  });
-
   it("isStored", () => {
     const aipStore = useAipStore();
     const now = new Date();

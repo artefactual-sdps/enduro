@@ -18,6 +18,7 @@ import { useLayoutStore } from "@/stores/layout";
 import IconAll from "~icons/clarity/blocks-group-line?raw&font-size=20px";
 import IconAIPs from "~icons/clarity/bundle-line";
 import IconClose from "~icons/clarity/close-line";
+import IconQueued from "~icons/clarity/hourglass-line?raw&font-size=20px";
 import IconError from "~icons/clarity/remove-line?raw&font-size=20px";
 import IconSearch from "~icons/clarity/search-line";
 import IconDone from "~icons/clarity/success-standard-line?raw&font-size=20px";
@@ -58,6 +59,15 @@ const tabs = computed(() => [
     route: router.resolve({
       name: "/storage/aips/",
       query: { ...route.query, status: "deleted", page: undefined },
+    }),
+    show: true,
+  },
+  {
+    icon: IconQueued,
+    text: "Queued",
+    route: router.resolve({
+      name: "/storage/aips/",
+      query: { ...route.query, status: "queued", page: undefined },
     }),
     show: true,
   },

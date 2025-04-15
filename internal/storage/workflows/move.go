@@ -29,7 +29,7 @@ func (w *StorageMoveWorkflow) Execute(
 ) (e error) {
 	// Set AIP status to moving.
 	{
-		if err := updateAIPStatus(ctx, w.storagesvc, req.AIPID, enums.AIPStatusMoving); err != nil {
+		if err := updateAIPStatus(ctx, w.storagesvc, req.AIPID, enums.AIPStatusProcessing); err != nil {
 			return err
 		}
 	}

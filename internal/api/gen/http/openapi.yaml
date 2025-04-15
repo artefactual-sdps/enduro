@@ -460,13 +460,11 @@ paths:
                   type: string
                   enum:
                     - unspecified
-                    - in_review
-                    - rejected
                     - stored
-                    - moving
                     - pending
                     - processing
                     - deleted
+                    - queued
                 - name: limit
                   in: query
                   description: Limit number of results to return
@@ -1269,16 +1267,14 @@ definitions:
                 type: string
                 description: Status of the AIP
                 default: unspecified
-                example: in_review
+                example: stored
                 enum:
                     - unspecified
-                    - in_review
-                    - rejected
                     - stored
-                    - moving
                     - pending
                     - processing
                     - deleted
+                    - queued
             uuid:
                 type: string
                 example: abc123
@@ -1288,7 +1284,7 @@ definitions:
             location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
             name: abc123
             object_key: abc123
-            status: in_review
+            status: stored
             uuid: abc123
         required:
             - name
@@ -1319,16 +1315,14 @@ definitions:
                 type: string
                 description: Status of the AIP
                 default: unspecified
-                example: in_review
+                example: stored
                 enum:
                     - unspecified
-                    - in_review
-                    - rejected
                     - stored
-                    - moving
                     - pending
                     - processing
                     - deleted
+                    - queued
             uuid:
                 type: string
                 example: abc123
@@ -1338,7 +1332,7 @@ definitions:
             location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
             name: abc123
             object_key: abc123
-            status: in_review
+            status: stored
             uuid: abc123
         required:
             - name
@@ -1357,7 +1351,7 @@ definitions:
               location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
               name: abc123
               object_key: abc123
-              status: in_review
+              status: stored
               uuid: abc123
     AIPTaskResponseBody:
         title: 'Mediatype identifier: application/vnd.enduro.storage.aip.task; view=default'
@@ -2615,7 +2609,7 @@ definitions:
               location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
               name: abc123
               object_key: abc123
-              status: in_review
+              status: stored
               uuid: abc123
     StorageCreateAipNotValidResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
@@ -2681,16 +2675,14 @@ definitions:
                 type: string
                 description: Status of the the AIP
                 default: unspecified
-                example: in_review
+                example: stored
                 enum:
                     - unspecified
-                    - in_review
-                    - rejected
                     - stored
-                    - moving
                     - pending
                     - processing
                     - deleted
+                    - queued
             uuid:
                 type: string
                 description: Identifier of the AIP
@@ -2700,7 +2692,7 @@ definitions:
             location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
             name: abc123
             object_key: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-            status: in_review
+            status: stored
             uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
         required:
             - uuid
@@ -2729,16 +2721,14 @@ definitions:
                 type: string
                 description: Status of the AIP
                 default: unspecified
-                example: in_review
+                example: stored
                 enum:
                     - unspecified
-                    - in_review
-                    - rejected
                     - stored
-                    - moving
                     - pending
                     - processing
                     - deleted
+                    - queued
             uuid:
                 type: string
                 example: abc123
@@ -2748,7 +2738,7 @@ definitions:
             location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
             name: abc123
             object_key: abc123
-            status: in_review
+            status: stored
             uuid: abc123
         required:
             - name
@@ -3034,7 +3024,7 @@ definitions:
                   location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                   name: abc123
                   object_key: abc123
-                  status: in_review
+                  status: stored
                   uuid: abc123
             page:
                 limit: 1
@@ -3514,16 +3504,14 @@ definitions:
                 type: string
                 description: Status of the AIP
                 default: unspecified
-                example: in_review
+                example: stored
                 enum:
                     - unspecified
-                    - in_review
-                    - rejected
                     - stored
-                    - moving
                     - pending
                     - processing
                     - deleted
+                    - queued
             uuid:
                 type: string
                 example: abc123
@@ -3533,7 +3521,7 @@ definitions:
             location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
             name: abc123
             object_key: abc123
-            status: in_review
+            status: stored
             uuid: abc123
         required:
             - name

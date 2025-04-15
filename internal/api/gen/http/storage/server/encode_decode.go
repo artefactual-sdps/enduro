@@ -71,8 +71,8 @@ func DecodeListAipsRequest(mux goahttp.Muxer, decoder func(*http.Request) goahtt
 			status = &statusRaw
 		}
 		if status != nil {
-			if !(*status == "unspecified" || *status == "in_review" || *status == "rejected" || *status == "stored" || *status == "moving" || *status == "pending" || *status == "processing" || *status == "deleted") {
-				err = goa.MergeErrors(err, goa.InvalidEnumValueError("status", *status, []any{"unspecified", "in_review", "rejected", "stored", "moving", "pending", "processing", "deleted"}))
+			if !(*status == "unspecified" || *status == "stored" || *status == "pending" || *status == "processing" || *status == "deleted" || *status == "queued") {
+				err = goa.MergeErrors(err, goa.InvalidEnumValueError("status", *status, []any{"unspecified", "stored", "pending", "processing", "deleted", "queued"}))
 			}
 		}
 		{

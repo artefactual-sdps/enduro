@@ -309,7 +309,7 @@ func TestListAIPs(t *testing.T) {
 					SetName("Test AIP 2").
 					SetAipID(aipID2).
 					SetObjectKey(objectKey2).
-					SetStatus(enums.AIPStatusRejected).
+					SetStatus(enums.AIPStatusDeleted).
 					ExecX(ctx)
 			},
 			payload: &goastorage.ListAipsPayload{
@@ -385,7 +385,7 @@ func TestListAIPs(t *testing.T) {
 					SetName("Test AIP 2").
 					SetAipID(aipID2).
 					SetObjectKey(objectKey2).
-					SetStatus(enums.AIPStatusRejected).
+					SetStatus(enums.AIPStatusStored).
 					ExecX(ctx)
 			},
 			payload: &goastorage.ListAipsPayload{
@@ -494,13 +494,13 @@ func TestUpdateAIPStatus(t *testing.T) {
 		SetStatus(enums.AIPStatusStored).
 		SaveX(context.Background())
 
-	err := c.UpdateAIPStatus(context.Background(), a.AipID, enums.AIPStatusRejected)
+	err := c.UpdateAIPStatus(context.Background(), a.AipID, enums.AIPStatusProcessing)
 	assert.NilError(t, err)
 
 	entc.AIP.Query().
 		Where(
 			aip.ID(a.ID),
-			aip.StatusEQ(enums.AIPStatusRejected),
+			aip.StatusEQ(enums.AIPStatusProcessing),
 		).OnlyX(context.Background())
 }
 

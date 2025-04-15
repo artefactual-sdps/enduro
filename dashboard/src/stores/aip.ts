@@ -49,7 +49,7 @@ export const useAipStore = defineStore("aip", {
       return this.current?.status == api.EnduroStorageAipStatusEnum.Deleted;
     },
     isMovable(): boolean {
-      return this.isStored && !this.isMoving;
+      return this.isStored && !this.isProcessing;
     },
     isMoving(): boolean {
       return this.locationChanging;
@@ -57,19 +57,16 @@ export const useAipStore = defineStore("aip", {
     isPending(): boolean {
       return this.current?.status == api.EnduroStorageAipStatusEnum.Pending;
     },
-    isRejected(): boolean {
-      return this.current?.status == api.EnduroStorageAipStatusEnum.Rejected;
-    },
     isStored(): boolean {
       return this.current?.status == api.EnduroStorageAipStatusEnum.Stored;
+    },
+    isProcessing(): boolean {
+      return this.current?.status == api.EnduroStorageAipStatusEnum.Processing;
     },
   },
   actions: {
     async fetchCurrent(id: string) {
       this.current = await client.storage.storageShowAip({ uuid: id });
-
-      this.locationChanging =
-        this.current?.status == api.EnduroStorageAipStatusEnum.Moving;
 
       // Update breadcrumb. TODO: should this be done in the component?
       const layoutStore = useLayoutStore();
@@ -142,7 +139,7 @@ export const useAipStore = defineStore("aip", {
       }
       this.$patch((state) => {
         if (!state.current) return;
-        state.current.status = api.EnduroStorageAipStatusEnum.Moving;
+        state.current.status = api.EnduroStorageAipStatusEnum.Processing;
         state.locationChanging = true;
       });
     },

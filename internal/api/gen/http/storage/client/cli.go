@@ -51,8 +51,8 @@ func BuildListAipsPayload(storageListAipsName string, storageListAipsEarliestCre
 	{
 		if storageListAipsStatus != "" {
 			status = &storageListAipsStatus
-			if !(*status == "unspecified" || *status == "in_review" || *status == "rejected" || *status == "stored" || *status == "moving" || *status == "pending" || *status == "processing" || *status == "deleted") {
-				err = goa.MergeErrors(err, goa.InvalidEnumValueError("status", *status, []any{"unspecified", "in_review", "rejected", "stored", "moving", "pending", "processing", "deleted"}))
+			if !(*status == "unspecified" || *status == "stored" || *status == "pending" || *status == "processing" || *status == "deleted" || *status == "queued") {
+				err = goa.MergeErrors(err, goa.InvalidEnumValueError("status", *status, []any{"unspecified", "stored", "pending", "processing", "deleted", "queued"}))
 			}
 			if err != nil {
 				return nil, err
@@ -109,12 +109,12 @@ func BuildCreateAipPayload(storageCreateAipBody string, storageCreateAipToken st
 	{
 		err = json.Unmarshal([]byte(storageCreateAipBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location_id\": \"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\n      \"name\": \"abc123\",\n      \"object_key\": \"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\n      \"status\": \"in_review\",\n      \"uuid\": \"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location_id\": \"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\n      \"name\": \"abc123\",\n      \"object_key\": \"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\n      \"status\": \"stored\",\n      \"uuid\": \"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"\n   }'")
 		}
 		err = goa.MergeErrors(err, goa.ValidateFormat("body.uuid", body.UUID, goa.FormatUUID))
 		err = goa.MergeErrors(err, goa.ValidateFormat("body.object_key", body.ObjectKey, goa.FormatUUID))
-		if !(body.Status == "unspecified" || body.Status == "in_review" || body.Status == "rejected" || body.Status == "stored" || body.Status == "moving" || body.Status == "pending" || body.Status == "processing" || body.Status == "deleted") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", body.Status, []any{"unspecified", "in_review", "rejected", "stored", "moving", "pending", "processing", "deleted"}))
+		if !(body.Status == "unspecified" || body.Status == "stored" || body.Status == "pending" || body.Status == "processing" || body.Status == "deleted" || body.Status == "queued") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", body.Status, []any{"unspecified", "stored", "pending", "processing", "deleted", "queued"}))
 		}
 		if err != nil {
 			return nil, err

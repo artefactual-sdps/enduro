@@ -14,7 +14,7 @@ var (
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "name", Type: field.TypeString, Size: 2048},
 		{Name: "aip_id", Type: field.TypeUUID, Unique: true},
-		{Name: "status", Type: field.TypeEnum, Enums: []string{"unspecified", "in_review", "rejected", "stored", "moving", "pending", "processing", "deleted"}},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"unspecified", "stored", "pending", "processing", "deleted", "queued"}},
 		{Name: "object_key", Type: field.TypeUUID, Unique: true},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "location_id", Type: field.TypeInt, Nullable: true},

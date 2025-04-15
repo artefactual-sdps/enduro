@@ -1931,8 +1931,8 @@ func ValidateAIPResponseBody(body *AIPResponseBody) (err error) {
 		err = goa.MergeErrors(err, goa.MissingFieldError("created_at", "body"))
 	}
 	if body.Status != nil {
-		if !(*body.Status == "unspecified" || *body.Status == "in_review" || *body.Status == "rejected" || *body.Status == "stored" || *body.Status == "moving" || *body.Status == "pending" || *body.Status == "processing" || *body.Status == "deleted") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []any{"unspecified", "in_review", "rejected", "stored", "moving", "pending", "processing", "deleted"}))
+		if !(*body.Status == "unspecified" || *body.Status == "stored" || *body.Status == "pending" || *body.Status == "processing" || *body.Status == "deleted" || *body.Status == "queued") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []any{"unspecified", "stored", "pending", "processing", "deleted", "queued"}))
 		}
 	}
 	if body.CreatedAt != nil {
@@ -2111,8 +2111,8 @@ func ValidateAIPResponse(body *AIPResponse) (err error) {
 		err = goa.MergeErrors(err, goa.MissingFieldError("created_at", "body"))
 	}
 	if body.Status != nil {
-		if !(*body.Status == "unspecified" || *body.Status == "in_review" || *body.Status == "rejected" || *body.Status == "stored" || *body.Status == "moving" || *body.Status == "pending" || *body.Status == "processing" || *body.Status == "deleted") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []any{"unspecified", "in_review", "rejected", "stored", "moving", "pending", "processing", "deleted"}))
+		if !(*body.Status == "unspecified" || *body.Status == "stored" || *body.Status == "pending" || *body.Status == "processing" || *body.Status == "deleted" || *body.Status == "queued") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []any{"unspecified", "stored", "pending", "processing", "deleted", "queued"}))
 		}
 	}
 	if body.CreatedAt != nil {

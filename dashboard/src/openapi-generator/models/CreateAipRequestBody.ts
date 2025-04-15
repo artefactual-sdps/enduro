@@ -57,13 +57,11 @@ export interface CreateAipRequestBody {
  */
 export const CreateAipRequestBodyStatusEnum = {
     Unspecified: 'unspecified',
-    InReview: 'in_review',
-    Rejected: 'rejected',
     Stored: 'stored',
-    Moving: 'moving',
     Pending: 'pending',
     Processing: 'processing',
-    Deleted: 'deleted'
+    Deleted: 'deleted',
+    Queued: 'queued'
 } as const;
 export type CreateAipRequestBodyStatusEnum = typeof CreateAipRequestBodyStatusEnum[keyof typeof CreateAipRequestBodyStatusEnum];
 
