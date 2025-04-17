@@ -123,6 +123,7 @@ data:
               "storage:locations:aips:list",
               "storage:locations:read",
               "storage:aips:download",
+              "storage:aips:list",
               "storage:aips:move",
               "storage:aips:read",
               "storage:aips:submit"

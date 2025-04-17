@@ -67,14 +67,6 @@ export const useAipStore = defineStore("aip", {
   actions: {
     async fetchCurrent(id: string) {
       this.current = await client.storage.storageShowAip({ uuid: id });
-      this.currentWorkflows = await client.storage
-        .storageListAipWorkflows({
-          uuid: id,
-        })
-        .then((resp) => {
-          resp.workflows?.reverse();
-          return resp;
-        });
 
       this.locationChanging =
         this.current?.status == api.EnduroStorageAipStatusEnum.Moving;
@@ -86,6 +78,16 @@ export const useAipStore = defineStore("aip", {
         { route: router.resolve("/storage/aips/"), text: "AIPs" },
         { text: this.current.name },
       ]);
+    },
+    async fetchWorkflows(id: string) {
+      this.currentWorkflows = await client.storage
+        .storageListAipWorkflows({
+          uuid: id,
+        })
+        .then((resp) => {
+          resp.workflows?.reverse();
+          return resp;
+        });
     },
     async fetchAips(page: number) {
       return client.storage
