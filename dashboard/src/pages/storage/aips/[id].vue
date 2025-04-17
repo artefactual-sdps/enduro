@@ -15,10 +15,13 @@ const router = useRouter();
 const authStore = useAuthStore();
 const aipStore = useAipStore();
 
-const { execute, error } = useAsyncState(
-  aipStore.fetchCurrent(route.params.id.toString()),
-  null,
-);
+const { execute, error } = useAsyncState(async function () {
+  aipStore.fetchCurrent(route.params.id.toString()).then(() => {
+    if (authStore.checkAttributes(["storage:aips:workflows:list"])) {
+      aipStore.fetchWorkflows(route.params.id.toString());
+    }
+  });
+}, null);
 
 const tabs = [
   {

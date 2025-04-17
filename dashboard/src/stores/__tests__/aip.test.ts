@@ -77,6 +77,24 @@ describe("useAipStore", () => {
       status: api.AIPResponseStatusEnum.Stored,
       uuid: "aip-uuid-1",
     };
+
+    client.storage.storageShowAip = vi.fn().mockResolvedValue(mockAip);
+
+    const store = useAipStore();
+    await store.fetchCurrent("uuid-1234");
+
+    expect(store.current).toEqual(mockAip);
+    expect(store.locationChanging).toEqual(false);
+
+    const layoutStore = useLayoutStore();
+    expect(layoutStore.breadcrumb).toEqual([
+      { text: "Storage" },
+      { route: expect.any(Object), text: "AIPs" },
+      { text: mockAip.name },
+    ]);
+  });
+
+  it("fetches workflows", async () => {
     const mockWorkflows: api.AIPWorkflows = {
       workflows: [
         {
@@ -89,24 +107,14 @@ describe("useAipStore", () => {
       ],
     };
 
-    client.storage.storageShowAip = vi.fn().mockResolvedValue(mockAip);
     client.storage.storageListAipWorkflows = vi
       .fn()
       .mockResolvedValue(mockWorkflows);
 
     const store = useAipStore();
-    await store.fetchCurrent("uuid-1234");
+    await store.fetchWorkflows("uuid-1234");
 
-    expect(store.current).toEqual(mockAip);
     expect(store.currentWorkflows).toEqual(mockWorkflows);
-    expect(store.locationChanging).toEqual(false);
-
-    const layoutStore = useLayoutStore();
-    expect(layoutStore.breadcrumb).toEqual([
-      { text: "Storage" },
-      { route: expect.any(Object), text: "AIPs" },
-      { text: mockAip.name },
-    ]);
   });
 
   it("fetches AIPs", async () => {
