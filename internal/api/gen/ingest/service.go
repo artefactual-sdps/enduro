@@ -467,9 +467,6 @@ func newSIP(vres *ingestviews.SIPView) *SIP {
 	if vres.CreatedAt != nil {
 		res.CreatedAt = *vres.CreatedAt
 	}
-	if vres.Status == nil {
-		res.Status = "new"
-	}
 	return res
 }
 

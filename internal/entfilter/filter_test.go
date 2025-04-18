@@ -390,7 +390,7 @@ func TestFilter(t *testing.T) {
 		f.Equals("outcome", &taskOutcome)
 
 		// Add an integer enum entfilter.
-		sipStatus := enums.SIPStatusDone
+		sipStatus := enums.SIPStatusIngested
 		f.Equals("status", &sipStatus)
 
 		// Omit invalid enum values.
@@ -429,16 +429,16 @@ func TestFilter(t *testing.T) {
 			newSortableFields("id"),
 		)
 		f.In("status", []any{
-			enums.SIPStatusInProgress,
-			enums.SIPStatusDone,
-			enums.SIPStatus(100), // Ignore an invalid enum.
+			enums.SIPStatusProcessing,
+			enums.SIPStatusIngested,
+			enums.SIPStatus("invalid"), // Ignore an invalid enum.
 		})
 		_, whole := f.Apply()
 
 		assert.Equal(t, whole.where, "`data`.`status` IN (?, ?)")
 		assert.DeepEqual(t, whole.args, []any{
-			enums.SIPStatusInProgress,
-			enums.SIPStatusDone,
+			enums.SIPStatusProcessing,
+			enums.SIPStatusIngested,
 		})
 	})
 

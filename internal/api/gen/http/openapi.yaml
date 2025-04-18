@@ -136,14 +136,12 @@ paths:
                   required: false
                   type: string
                   enum:
-                    - new
-                    - in progress
-                    - done
                     - error
-                    - unknown
+                    - failed
                     - queued
-                    - abandoned
+                    - processing
                     - pending
+                    - ingested
                 - name: limit
                   in: query
                   description: Limit number of results to return
@@ -1816,7 +1814,7 @@ definitions:
                   id: 1
                   name: abc123
                   started_at: "1970-01-01T00:00:01Z"
-                  status: in progress
+                  status: failed
             page:
                 limit: 1
                 offset: 1
@@ -1942,17 +1940,17 @@ definitions:
                     Value:
                         type: string
                         description: JSON encoded union value
-                        example: '{"id":1,"item":{"aip_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","id":1,"name":"abc123","started_at":"1970-01-01T00:00:01Z","status":"in progress"}}'
+                        example: '{"id":1,"item":{"aip_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","id":1,"name":"abc123","started_at":"1970-01-01T00:00:01Z","status":"failed"}}'
                 example:
                     Type: sip_created_event
-                    Value: '{"id":1,"item":{"aip_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","id":1,"name":"abc123","started_at":"1970-01-01T00:00:01Z","status":"in progress"}}'
+                    Value: '{"id":1,"item":{"aip_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","id":1,"name":"abc123","started_at":"1970-01-01T00:00:01Z","status":"failed"}}'
                 required:
                     - Type
                     - Value
         example:
             event:
                 Type: sip_created_event
-                Value: '{"id":1,"item":{"aip_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","id":1,"name":"abc123","started_at":"1970-01-01T00:00:01Z","status":"in progress"}}'
+                Value: '{"id":1,"item":{"aip_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","id":1,"name":"abc123","started_at":"1970-01-01T00:00:01Z","status":"failed"}}'
     IngestRejectSipNotAvailableResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
@@ -2158,17 +2156,14 @@ definitions:
             status:
                 type: string
                 description: Status of the SIP
-                default: new
-                example: in progress
+                example: failed
                 enum:
-                    - new
-                    - in progress
-                    - done
                     - error
-                    - unknown
+                    - failed
                     - queued
-                    - abandoned
+                    - processing
                     - pending
+                    - ingested
         description: show_sip_response_body result type (default view)
         example:
             aip_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
@@ -2177,7 +2172,7 @@ definitions:
             id: 1
             name: abc123
             started_at: "1970-01-01T00:00:01Z"
-            status: in progress
+            status: failed
         required:
             - id
             - status
@@ -2399,17 +2394,14 @@ definitions:
             status:
                 type: string
                 description: Status of the SIP
-                default: new
-                example: in progress
+                example: failed
                 enum:
-                    - new
-                    - in progress
-                    - done
                     - error
-                    - unknown
+                    - failed
                     - queued
-                    - abandoned
+                    - processing
                     - pending
+                    - ingested
         description: SIP describes an ingest SIP type. (default view)
         example:
             aip_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
@@ -2418,7 +2410,7 @@ definitions:
             id: 1
             name: abc123
             started_at: "1970-01-01T00:00:01Z"
-            status: in progress
+            status: failed
         required:
             - id
             - status
@@ -2436,7 +2428,7 @@ definitions:
               id: 1
               name: abc123
               started_at: "1970-01-01T00:00:01Z"
-              status: in progress
+              status: failed
     SIPTaskResponseBody:
         title: 'Mediatype identifier: application/vnd.enduro.ingest.sip.task; view=default'
         type: object

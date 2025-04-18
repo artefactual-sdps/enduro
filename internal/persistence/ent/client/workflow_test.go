@@ -95,7 +95,7 @@ func TestCreateWorkflow(t *testing.T) {
 			sip, _ := createSIP(
 				entc,
 				"Test SIP",
-				enums.SIPStatusInProgress,
+				enums.SIPStatusProcessing,
 			)
 
 			w := *tt.args.w // Make a local copy.

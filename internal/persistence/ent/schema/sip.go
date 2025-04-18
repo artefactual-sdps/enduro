@@ -10,6 +10,8 @@ import (
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
 	"github.com/google/uuid"
+
+	"github.com/artefactual-sdps/enduro/internal/enums"
 )
 
 // SIP holds the schema definition for the SIP entity.
@@ -33,7 +35,8 @@ func (SIP) Fields() []ent.Field {
 			}),
 		field.UUID("aip_id", uuid.UUID{}).
 			Optional(),
-		field.Int8("status"),
+		field.Enum("status").
+			GoType(enums.SIPStatusIngested),
 		field.Time("created_at").
 			Immutable().
 			Default(time.Now),

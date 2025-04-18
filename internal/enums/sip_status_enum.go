@@ -12,37 +12,29 @@ import (
 )
 
 const (
-	// Unused!
-	SIPStatusNew SIPStatus = iota
-	// Undergoing work.
-	SIPStatusInProgress
-	// Work has completed.
-	SIPStatusDone
-	// Processing failed.
-	SIPStatusError
-	// Unused!
-	SIPStatusUnknown
+	// Failed due to a system error.
+	SIPStatusError SIPStatus = "error"
+	// Failed due to invalid contents.
+	SIPStatusFailed SIPStatus = "failed"
 	// Awaiting resource allocation.
-	SIPStatusQueued
-	// User abandoned processing.
-	SIPStatusAbandoned
+	SIPStatusQueued SIPStatus = "queued"
+	// Undergoing work.
+	SIPStatusProcessing SIPStatus = "processing"
 	// Awaiting user decision.
-	SIPStatusPending
+	SIPStatusPending SIPStatus = "pending"
+	// Successfully ingested.
+	SIPStatusIngested SIPStatus = "ingested"
 )
 
 var ErrInvalidSIPStatus = fmt.Errorf("not a valid SIPStatus, try [%s]", strings.Join(_SIPStatusNames, ", "))
 
-const _SIPStatusName = "newin progressdoneerrorunknownqueuedabandonedpending"
-
 var _SIPStatusNames = []string{
-	_SIPStatusName[0:3],
-	_SIPStatusName[3:14],
-	_SIPStatusName[14:18],
-	_SIPStatusName[18:23],
-	_SIPStatusName[23:30],
-	_SIPStatusName[30:36],
-	_SIPStatusName[36:45],
-	_SIPStatusName[45:52],
+	string(SIPStatusError),
+	string(SIPStatusFailed),
+	string(SIPStatusQueued),
+	string(SIPStatusProcessing),
+	string(SIPStatusPending),
+	string(SIPStatusIngested),
 }
 
 // SIPStatusNames returns a list of possible string values of SIPStatus.
@@ -52,41 +44,25 @@ func SIPStatusNames() []string {
 	return tmp
 }
 
-var _SIPStatusMap = map[SIPStatus]string{
-	SIPStatusNew:        _SIPStatusName[0:3],
-	SIPStatusInProgress: _SIPStatusName[3:14],
-	SIPStatusDone:       _SIPStatusName[14:18],
-	SIPStatusError:      _SIPStatusName[18:23],
-	SIPStatusUnknown:    _SIPStatusName[23:30],
-	SIPStatusQueued:     _SIPStatusName[30:36],
-	SIPStatusAbandoned:  _SIPStatusName[36:45],
-	SIPStatusPending:    _SIPStatusName[45:52],
-}
-
 // String implements the Stringer interface.
 func (x SIPStatus) String() string {
-	if str, ok := _SIPStatusMap[x]; ok {
-		return str
-	}
-	return fmt.Sprintf("SIPStatus(%d)", x)
+	return string(x)
 }
 
 // IsValid provides a quick way to determine if the typed value is
 // part of the allowed enumerated values
 func (x SIPStatus) IsValid() bool {
-	_, ok := _SIPStatusMap[x]
-	return ok
+	_, err := ParseSIPStatus(string(x))
+	return err == nil
 }
 
 var _SIPStatusValue = map[string]SIPStatus{
-	_SIPStatusName[0:3]:   SIPStatusNew,
-	_SIPStatusName[3:14]:  SIPStatusInProgress,
-	_SIPStatusName[14:18]: SIPStatusDone,
-	_SIPStatusName[18:23]: SIPStatusError,
-	_SIPStatusName[23:30]: SIPStatusUnknown,
-	_SIPStatusName[30:36]: SIPStatusQueued,
-	_SIPStatusName[36:45]: SIPStatusAbandoned,
-	_SIPStatusName[45:52]: SIPStatusPending,
+	"error":      SIPStatusError,
+	"failed":     SIPStatusFailed,
+	"queued":     SIPStatusQueued,
+	"processing": SIPStatusProcessing,
+	"pending":    SIPStatusPending,
+	"ingested":   SIPStatusIngested,
 }
 
 // ParseSIPStatus attempts to convert a string to a SIPStatus.
@@ -94,7 +70,7 @@ func ParseSIPStatus(name string) (SIPStatus, error) {
 	if x, ok := _SIPStatusValue[name]; ok {
 		return x, nil
 	}
-	return SIPStatus(0), fmt.Errorf("%s is %w", name, ErrInvalidSIPStatus)
+	return SIPStatus(""), fmt.Errorf("%s is %w", name, ErrInvalidSIPStatus)
 }
 
 // Values implements the entgo.io/ent/schema/field EnumValues interface.

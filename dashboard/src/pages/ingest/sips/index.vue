@@ -19,12 +19,14 @@ import { useLayoutStore } from "@/stores/layout";
 import { useSipStore } from "@/stores/sip";
 import IconInfo from "~icons/akar-icons/info-fill";
 import IconAll from "~icons/clarity/blocks-group-line?raw&font-size=20px";
-import IconQueued from "~icons/clarity/clock-line?raw&font-size=20px";
 import IconClose from "~icons/clarity/close-line";
-import IconError from "~icons/clarity/remove-line?raw&font-size=20px";
+import IconError from "~icons/clarity/flame-line?raw&font-size=20px";
+import IconQueued from "~icons/clarity/hourglass-line?raw&font-size=20px";
+import IconFailed from "~icons/clarity/remove-line?raw&font-size=20px";
 import IconSearch from "~icons/clarity/search-line";
-import IconDone from "~icons/clarity/success-standard-line?raw&font-size=20px";
-import IconInProgress from "~icons/clarity/sync-line?raw&font-size=20px";
+import IconIngested from "~icons/clarity/success-standard-line?raw&font-size=20px";
+import IconProcessing from "~icons/clarity/sync-line?raw&font-size=20px";
+import IconPending from "~icons/clarity/warning-standard-line?raw&font-size=20px";
 import IconSIPs from "~icons/octicon/package-dependencies-24";
 
 const authStore = useAuthStore();
@@ -60,11 +62,20 @@ const tabs = computed(() => [
     show: true,
   },
   {
-    icon: IconDone,
-    text: "Done",
+    icon: IconIngested,
+    text: "Ingested",
     route: router.resolve({
       name: "/ingest/sips/",
-      query: { ...route.query, status: "done", page: undefined },
+      query: { ...route.query, status: "ingested", page: undefined },
+    }),
+    show: true,
+  },
+  {
+    icon: IconFailed,
+    text: "Failed",
+    route: router.resolve({
+      name: "/ingest/sips/",
+      query: { ...route.query, status: "failed", page: undefined },
     }),
     show: true,
   },
@@ -78,11 +89,11 @@ const tabs = computed(() => [
     show: true,
   },
   {
-    icon: IconInProgress,
-    text: "In progress",
+    icon: IconProcessing,
+    text: "Processing",
     route: router.resolve({
       name: "/ingest/sips/",
-      query: { ...route.query, status: "in progress", page: undefined },
+      query: { ...route.query, status: "processing", page: undefined },
     }),
     show: true,
   },
@@ -92,6 +103,15 @@ const tabs = computed(() => [
     route: router.resolve({
       name: "/ingest/sips/",
       query: { ...route.query, status: "queued", page: undefined },
+    }),
+    show: true,
+  },
+  {
+    icon: IconPending,
+    text: "Pending",
+    route: router.resolve({
+      name: "/ingest/sips/",
+      query: { ...route.query, status: "pending", page: undefined },
     }),
     show: true,
   },

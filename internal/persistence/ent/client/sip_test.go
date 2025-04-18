@@ -43,7 +43,7 @@ func TestCreateSIP(t *testing.T) {
 				sip: &datatypes.SIP{
 					Name:        "Test SIP 1",
 					AIPID:       aipID,
-					Status:      enums.SIPStatusInProgress,
+					Status:      enums.SIPStatusProcessing,
 					StartedAt:   started,
 					CompletedAt: completed,
 				},
@@ -52,7 +52,7 @@ func TestCreateSIP(t *testing.T) {
 				ID:          1,
 				Name:        "Test SIP 1",
 				AIPID:       aipID,
-				Status:      enums.SIPStatusInProgress,
+				Status:      enums.SIPStatusProcessing,
 				CreatedAt:   time.Now(),
 				StartedAt:   started,
 				CompletedAt: completed,
@@ -63,13 +63,13 @@ func TestCreateSIP(t *testing.T) {
 			args: params{
 				sip: &datatypes.SIP{
 					Name:   "Test SIP 2",
-					Status: enums.SIPStatusInProgress,
+					Status: enums.SIPStatusProcessing,
 				},
 			},
 			want: &datatypes.SIP{
 				ID:        1,
 				Name:      "Test SIP 2",
-				Status:    enums.SIPStatusInProgress,
+				Status:    enums.SIPStatusProcessing,
 				CreatedAt: time.Now(),
 			},
 		},
@@ -144,7 +144,7 @@ func TestUpdateSIP(t *testing.T) {
 				sip: &datatypes.SIP{
 					Name:        "Test SIP",
 					AIPID:       aipID,
-					Status:      enums.SIPStatusInProgress,
+					Status:      enums.SIPStatusProcessing,
 					StartedAt:   started,
 					CompletedAt: completed,
 				},
@@ -152,7 +152,7 @@ func TestUpdateSIP(t *testing.T) {
 					p.ID = 100 // No-op, can't update ID.
 					p.Name = "Updated SIP"
 					p.AIPID = aipID2
-					p.Status = enums.SIPStatusDone
+					p.Status = enums.SIPStatusIngested
 					p.CreatedAt = started2.Time // No-op, can't update CreatedAt.
 					p.StartedAt = started2
 					p.CompletedAt = completed2
@@ -163,7 +163,7 @@ func TestUpdateSIP(t *testing.T) {
 				ID:          1,
 				Name:        "Updated SIP",
 				AIPID:       aipID2,
-				Status:      enums.SIPStatusDone,
+				Status:      enums.SIPStatusIngested,
 				CreatedAt:   time.Now(),
 				StartedAt:   started2,
 				CompletedAt: completed2,
@@ -175,11 +175,11 @@ func TestUpdateSIP(t *testing.T) {
 				sip: &datatypes.SIP{
 					Name:      "Test SIP",
 					AIPID:     aipID,
-					Status:    enums.SIPStatusInProgress,
+					Status:    enums.SIPStatusProcessing,
 					StartedAt: started,
 				},
 				updater: func(p *datatypes.SIP) (*datatypes.SIP, error) {
-					p.Status = enums.SIPStatusDone
+					p.Status = enums.SIPStatusIngested
 					p.CompletedAt = completed
 					return p, nil
 				},
@@ -188,7 +188,7 @@ func TestUpdateSIP(t *testing.T) {
 				ID:          1,
 				Name:        "Test SIP",
 				AIPID:       aipID,
-				Status:      enums.SIPStatusDone,
+				Status:      enums.SIPStatusIngested,
 				CreatedAt:   time.Now(),
 				StartedAt:   started,
 				CompletedAt: completed,
@@ -207,8 +207,9 @@ func TestUpdateSIP(t *testing.T) {
 			name: "Errors when the updater errors",
 			args: params{
 				sip: &datatypes.SIP{
-					Name:  "Test SIP",
-					AIPID: aipID,
+					Name:   "Test SIP",
+					AIPID:  aipID,
+					Status: enums.SIPStatusProcessing,
 				},
 				updater: func(p *datatypes.SIP) (*datatypes.SIP, error) {
 					return nil, fmt.Errorf("Bad input")
@@ -294,14 +295,14 @@ func TestListSIPs(t *testing.T) {
 				{
 					Name:        "Test SIP 1",
 					AIPID:       aipID,
-					Status:      enums.SIPStatusDone,
+					Status:      enums.SIPStatusIngested,
 					StartedAt:   started,
 					CompletedAt: completed,
 				},
 				{
 					Name:        "Test SIP 2",
 					AIPID:       aipID2,
-					Status:      enums.SIPStatusInProgress,
+					Status:      enums.SIPStatusProcessing,
 					StartedAt:   started2,
 					CompletedAt: completed2,
 				},
@@ -312,7 +313,7 @@ func TestListSIPs(t *testing.T) {
 						ID:          1,
 						Name:        "Test SIP 1",
 						AIPID:       aipID,
-						Status:      enums.SIPStatusDone,
+						Status:      enums.SIPStatusIngested,
 						CreatedAt:   time.Now(),
 						StartedAt:   started,
 						CompletedAt: completed,
@@ -321,7 +322,7 @@ func TestListSIPs(t *testing.T) {
 						ID:          2,
 						Name:        "Test SIP 2",
 						AIPID:       aipID2,
-						Status:      enums.SIPStatusInProgress,
+						Status:      enums.SIPStatusProcessing,
 						CreatedAt:   time.Now(),
 						StartedAt:   started2,
 						CompletedAt: completed2,
@@ -339,14 +340,14 @@ func TestListSIPs(t *testing.T) {
 				{
 					Name:        "Test SIP 1",
 					AIPID:       aipID,
-					Status:      enums.SIPStatusDone,
+					Status:      enums.SIPStatusIngested,
 					StartedAt:   started,
 					CompletedAt: completed,
 				},
 				{
 					Name:        "Test SIP 2",
 					AIPID:       aipID2,
-					Status:      enums.SIPStatusInProgress,
+					Status:      enums.SIPStatusProcessing,
 					StartedAt:   started2,
 					CompletedAt: completed2,
 				},
@@ -360,7 +361,7 @@ func TestListSIPs(t *testing.T) {
 						ID:          1,
 						Name:        "Test SIP 1",
 						AIPID:       aipID,
-						Status:      enums.SIPStatusDone,
+						Status:      enums.SIPStatusIngested,
 						CreatedAt:   time.Now(),
 						StartedAt:   started,
 						CompletedAt: completed,
@@ -378,14 +379,14 @@ func TestListSIPs(t *testing.T) {
 				{
 					Name:        "Test SIP 1",
 					AIPID:       aipID,
-					Status:      enums.SIPStatusDone,
+					Status:      enums.SIPStatusIngested,
 					StartedAt:   started,
 					CompletedAt: completed,
 				},
 				{
 					Name:        "Test SIP 2",
 					AIPID:       aipID2,
-					Status:      enums.SIPStatusInProgress,
+					Status:      enums.SIPStatusProcessing,
 					StartedAt:   started2,
 					CompletedAt: completed2,
 				},
@@ -399,7 +400,7 @@ func TestListSIPs(t *testing.T) {
 						ID:          2,
 						Name:        "Test SIP 2",
 						AIPID:       aipID2,
-						Status:      enums.SIPStatusInProgress,
+						Status:      enums.SIPStatusProcessing,
 						CreatedAt:   time.Now(),
 						StartedAt:   started2,
 						CompletedAt: completed2,
@@ -418,14 +419,14 @@ func TestListSIPs(t *testing.T) {
 				{
 					Name:        "Test SIP",
 					AIPID:       aipID,
-					Status:      enums.SIPStatusDone,
+					Status:      enums.SIPStatusIngested,
 					StartedAt:   started,
 					CompletedAt: completed,
 				},
 				{
 					Name:        "small.zip",
 					AIPID:       aipID2,
-					Status:      enums.SIPStatusInProgress,
+					Status:      enums.SIPStatusProcessing,
 					StartedAt:   started2,
 					CompletedAt: completed2,
 				},
@@ -439,7 +440,7 @@ func TestListSIPs(t *testing.T) {
 						ID:          2,
 						Name:        "small.zip",
 						AIPID:       aipID2,
-						Status:      enums.SIPStatusInProgress,
+						Status:      enums.SIPStatusProcessing,
 						CreatedAt:   time.Now(),
 						StartedAt:   started2,
 						CompletedAt: completed2,
@@ -457,14 +458,14 @@ func TestListSIPs(t *testing.T) {
 				{
 					Name:        "Test SIP 1",
 					AIPID:       aipID,
-					Status:      enums.SIPStatusDone,
+					Status:      enums.SIPStatusIngested,
 					StartedAt:   started,
 					CompletedAt: completed,
 				},
 				{
 					Name:        "Test SIP 2",
 					AIPID:       aipID2,
-					Status:      enums.SIPStatusInProgress,
+					Status:      enums.SIPStatusProcessing,
 					StartedAt:   started2,
 					CompletedAt: completed2,
 				},
@@ -478,7 +479,7 @@ func TestListSIPs(t *testing.T) {
 						ID:          2,
 						Name:        "Test SIP 2",
 						AIPID:       aipID2,
-						Status:      enums.SIPStatusInProgress,
+						Status:      enums.SIPStatusProcessing,
 						CreatedAt:   time.Now(),
 						StartedAt:   started2,
 						CompletedAt: completed2,
@@ -496,20 +497,20 @@ func TestListSIPs(t *testing.T) {
 				{
 					Name:        "Test SIP 1",
 					AIPID:       aipID,
-					Status:      enums.SIPStatusDone,
+					Status:      enums.SIPStatusIngested,
 					StartedAt:   started,
 					CompletedAt: completed,
 				},
 				{
 					Name:        "Test SIP 2",
 					AIPID:       aipID2,
-					Status:      enums.SIPStatusInProgress,
+					Status:      enums.SIPStatusProcessing,
 					StartedAt:   started2,
 					CompletedAt: completed2,
 				},
 			},
 			sipFilter: &persistence.SIPFilter{
-				Status: ref.New(enums.SIPStatusInProgress),
+				Status: ref.New(enums.SIPStatusProcessing),
 			},
 			want: results{
 				data: []*datatypes.SIP{
@@ -517,7 +518,7 @@ func TestListSIPs(t *testing.T) {
 						ID:          2,
 						Name:        "Test SIP 2",
 						AIPID:       aipID2,
-						Status:      enums.SIPStatusInProgress,
+						Status:      enums.SIPStatusProcessing,
 						CreatedAt:   time.Now(),
 						StartedAt:   started2,
 						CompletedAt: completed2,
@@ -535,14 +536,14 @@ func TestListSIPs(t *testing.T) {
 				{
 					Name:        "Test SIP 1",
 					AIPID:       aipID,
-					Status:      enums.SIPStatusDone,
+					Status:      enums.SIPStatusIngested,
 					StartedAt:   started,
 					CompletedAt: completed,
 				},
 				{
 					Name:        "Test SIP 2",
 					AIPID:       aipID2,
-					Status:      enums.SIPStatusInProgress,
+					Status:      enums.SIPStatusProcessing,
 					StartedAt:   started2,
 					CompletedAt: completed2,
 				},
@@ -565,7 +566,7 @@ func TestListSIPs(t *testing.T) {
 						ID:          1,
 						Name:        "Test SIP 1",
 						AIPID:       aipID,
-						Status:      enums.SIPStatusDone,
+						Status:      enums.SIPStatusIngested,
 						CreatedAt:   time.Now(),
 						StartedAt:   started,
 						CompletedAt: completed,
@@ -574,7 +575,7 @@ func TestListSIPs(t *testing.T) {
 						ID:          2,
 						Name:        "Test SIP 2",
 						AIPID:       aipID2,
-						Status:      enums.SIPStatusInProgress,
+						Status:      enums.SIPStatusProcessing,
 						CreatedAt:   time.Now(),
 						StartedAt:   started2,
 						CompletedAt: completed2,
@@ -592,14 +593,14 @@ func TestListSIPs(t *testing.T) {
 				{
 					Name:        "Test SIP 1",
 					AIPID:       aipID,
-					Status:      enums.SIPStatusDone,
+					Status:      enums.SIPStatusIngested,
 					StartedAt:   started,
 					CompletedAt: completed,
 				},
 				{
 					Name:        "Test SIP 2",
 					AIPID:       aipID2,
-					Status:      enums.SIPStatusInProgress,
+					Status:      enums.SIPStatusProcessing,
 					StartedAt:   started2,
 					CompletedAt: completed2,
 				},

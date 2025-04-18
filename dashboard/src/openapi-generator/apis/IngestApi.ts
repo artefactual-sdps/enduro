@@ -119,7 +119,7 @@ export interface IngestApiInterface {
      * @param {string} [aipId] Identifier of AIP
      * @param {Date} [earliestCreatedTime] 
      * @param {Date} [latestCreatedTime] 
-     * @param {'new' | 'in progress' | 'done' | 'error' | 'unknown' | 'queued' | 'abandoned' | 'pending'} [status] 
+     * @param {'error' | 'failed' | 'queued' | 'processing' | 'pending' | 'ingested'} [status] 
      * @param {number} [limit] Limit number of results to return
      * @param {number} [offset] Offset from the beginning of the found set
      * @param {*} [options] Override http request option.
@@ -556,13 +556,11 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
  * @export
  */
 export const IngestListSipsStatusEnum = {
-    New: 'new',
-    InProgress: 'in progress',
-    Done: 'done',
     Error: 'error',
-    Unknown: 'unknown',
+    Failed: 'failed',
     Queued: 'queued',
-    Abandoned: 'abandoned',
-    Pending: 'pending'
+    Processing: 'processing',
+    Pending: 'pending',
+    Ingested: 'ingested'
 } as const;
 export type IngestListSipsStatusEnum = typeof IngestListSipsStatusEnum[keyof typeof IngestListSipsStatusEnum];

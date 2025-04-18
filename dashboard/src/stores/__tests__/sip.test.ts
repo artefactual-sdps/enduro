@@ -163,7 +163,7 @@ describe("useSipStore", () => {
       id: 1,
       name: "SIP 1",
       createdAt: new Date("2025-01-01T00:00:00Z"),
-      status: api.EnduroIngestSipStatusEnum.Done,
+      status: api.EnduroIngestSipStatusEnum.Ingested,
     };
     const mockWorkflows: api.SIPWorkflows = {
       workflows: [
@@ -203,13 +203,13 @@ describe("useSipStore", () => {
           id: 1,
           name: "SIP 1",
           createdAt: new Date("2025-01-01T00:00:00Z"),
-          status: api.EnduroIngestSipStatusEnum.Done,
+          status: api.EnduroIngestSipStatusEnum.Ingested,
         },
         {
           id: 2,
           name: "SIP 2",
           createdAt: new Date("2025-01-02T00:00:00Z"),
-          status: api.EnduroIngestSipStatusEnum.Done,
+          status: api.EnduroIngestSipStatusEnum.Ingested,
         },
       ],
       page: { limit: 20, offset: 0, total: 2 },

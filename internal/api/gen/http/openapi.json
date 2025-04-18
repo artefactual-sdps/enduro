@@ -730,7 +730,7 @@
             "id": 1,
             "name": "abc123",
             "started_at": "1970-01-01T00:00:01Z",
-            "status": "in progress"
+            "status": "failed"
           }
         ],
         "page": {
@@ -864,14 +864,14 @@
       "example": {
         "event": {
           "Type": "sip_created_event",
-          "Value": "{\"id\":1,\"item\":{\"aip_id\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"id\":1,\"name\":\"abc123\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"in progress\"}}"
+          "Value": "{\"id\":1,\"item\":{\"aip_id\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"id\":1,\"name\":\"abc123\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"failed\"}}"
         }
       },
       "properties": {
         "event": {
           "example": {
             "Type": "sip_created_event",
-            "Value": "{\"id\":1,\"item\":{\"aip_id\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"id\":1,\"name\":\"abc123\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"in progress\"}}"
+            "Value": "{\"id\":1,\"item\":{\"aip_id\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"id\":1,\"name\":\"abc123\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"failed\"}}"
           },
           "properties": {
             "Type": {
@@ -891,7 +891,7 @@
             },
             "Value": {
               "description": "JSON encoded union value",
-              "example": "{\"id\":1,\"item\":{\"aip_id\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"id\":1,\"name\":\"abc123\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"in progress\"}}",
+              "example": "{\"id\":1,\"item\":{\"aip_id\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"id\":1,\"name\":\"abc123\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"failed\"}}",
               "type": "string"
             }
           },
@@ -1125,7 +1125,7 @@
         "id": 1,
         "name": "abc123",
         "started_at": "1970-01-01T00:00:01Z",
-        "status": "in progress"
+        "status": "failed"
       },
       "properties": {
         "aip_id": {
@@ -1164,19 +1164,16 @@
           "type": "string"
         },
         "status": {
-          "default": "new",
           "description": "Status of the SIP",
           "enum": [
-            "new",
-            "in progress",
-            "done",
             "error",
-            "unknown",
+            "failed",
             "queued",
-            "abandoned",
-            "pending"
+            "processing",
+            "pending",
+            "ingested"
           ],
-          "example": "in progress",
+          "example": "failed",
           "type": "string"
         }
       },
@@ -1420,7 +1417,7 @@
         "id": 1,
         "name": "abc123",
         "started_at": "1970-01-01T00:00:01Z",
-        "status": "in progress"
+        "status": "failed"
       },
       "properties": {
         "aip_id": {
@@ -1459,19 +1456,16 @@
           "type": "string"
         },
         "status": {
-          "default": "new",
           "description": "Status of the SIP",
           "enum": [
-            "new",
-            "in progress",
-            "done",
             "error",
-            "unknown",
+            "failed",
             "queued",
-            "abandoned",
-            "pending"
+            "processing",
+            "pending",
+            "ingested"
           ],
-          "example": "in progress",
+          "example": "failed",
           "type": "string"
         }
       },
@@ -1493,7 +1487,7 @@
           "id": 1,
           "name": "abc123",
           "started_at": "1970-01-01T00:00:01Z",
-          "status": "in progress"
+          "status": "failed"
         }
       ],
       "items": {
@@ -3391,14 +3385,12 @@
           },
           {
             "enum": [
-              "new",
-              "in progress",
-              "done",
               "error",
-              "unknown",
+              "failed",
               "queued",
-              "abandoned",
-              "pending"
+              "processing",
+              "pending",
+              "ingested"
             ],
             "in": "query",
             "name": "status",

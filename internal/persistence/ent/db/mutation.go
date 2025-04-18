@@ -11,6 +11,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/predicate"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/sip"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/task"
@@ -40,8 +41,7 @@ type SIPMutation struct {
 	id               *int
 	name             *string
 	aip_id           *uuid.UUID
-	status           *int8
-	addstatus        *int8
+	status           *enums.SIPStatus
 	created_at       *time.Time
 	started_at       *time.Time
 	completed_at     *time.Time
@@ -238,13 +238,12 @@ func (m *SIPMutation) ResetAipID() {
 }
 
 // SetStatus sets the "status" field.
-func (m *SIPMutation) SetStatus(i int8) {
-	m.status = &i
-	m.addstatus = nil
+func (m *SIPMutation) SetStatus(es enums.SIPStatus) {
+	m.status = &es
 }
 
 // Status returns the value of the "status" field in the mutation.
-func (m *SIPMutation) Status() (r int8, exists bool) {
+func (m *SIPMutation) Status() (r enums.SIPStatus, exists bool) {
 	v := m.status
 	if v == nil {
 		return
@@ -255,7 +254,7 @@ func (m *SIPMutation) Status() (r int8, exists bool) {
 // OldStatus returns the old "status" field's value of the SIP entity.
 // If the SIP object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *SIPMutation) OldStatus(ctx context.Context) (v int8, err error) {
+func (m *SIPMutation) OldStatus(ctx context.Context) (v enums.SIPStatus, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldStatus is only allowed on UpdateOne operations")
 	}
@@ -269,28 +268,9 @@ func (m *SIPMutation) OldStatus(ctx context.Context) (v int8, err error) {
 	return oldValue.Status, nil
 }
 
-// AddStatus adds i to the "status" field.
-func (m *SIPMutation) AddStatus(i int8) {
-	if m.addstatus != nil {
-		*m.addstatus += i
-	} else {
-		m.addstatus = &i
-	}
-}
-
-// AddedStatus returns the value that was added to the "status" field in this mutation.
-func (m *SIPMutation) AddedStatus() (r int8, exists bool) {
-	v := m.addstatus
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
 // ResetStatus resets all changes to the "status" field.
 func (m *SIPMutation) ResetStatus() {
 	m.status = nil
-	m.addstatus = nil
 }
 
 // SetCreatedAt sets the "created_at" field.
@@ -599,7 +579,7 @@ func (m *SIPMutation) SetField(name string, value ent.Value) error {
 		m.SetAipID(v)
 		return nil
 	case sip.FieldStatus:
-		v, ok := value.(int8)
+		v, ok := value.(enums.SIPStatus)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -633,21 +613,13 @@ func (m *SIPMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *SIPMutation) AddedFields() []string {
-	var fields []string
-	if m.addstatus != nil {
-		fields = append(fields, sip.FieldStatus)
-	}
-	return fields
+	return nil
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *SIPMutation) AddedField(name string) (ent.Value, bool) {
-	switch name {
-	case sip.FieldStatus:
-		return m.AddedStatus()
-	}
 	return nil, false
 }
 
@@ -656,13 +628,6 @@ func (m *SIPMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *SIPMutation) AddField(name string, value ent.Value) error {
 	switch name {
-	case sip.FieldStatus:
-		v, ok := value.(int8)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddStatus(v)
-		return nil
 	}
 	return fmt.Errorf("unknown SIP numeric field %s", name)
 }

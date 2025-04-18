@@ -23,20 +23,18 @@ const classes: {
     | api.EnduroStorageAipWorkflowStatusEnum
     | api.EnduroStorageAipTaskStatusEnum]: string;
 } = {
-  new: "text-bg-dark",
   "in progress": "text-bg-info",
   done: "text-bg-success",
   error: "text-bg-danger",
-  unknown: "text-bg-dark",
   queued: "text-bg-secondary",
   pending: "text-bg-warning",
-  abandoned: "text-bg-dark",
   canceled: "text-bg-dark",
   unspecified: "text-bg-dark",
   stored: "text-bg-success",
   deleted: "text-bg-danger",
   processing: "text-bg-info",
   failed: "text-bg-danger",
+  ingested: "text-bg-success",
 };
 
 const colorClass = computed(() => {

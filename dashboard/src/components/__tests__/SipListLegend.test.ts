@@ -14,11 +14,12 @@ describe("SipListLegend.vue", () => {
         },
       });
 
-    getByText("DONE");
     getByText("ERROR");
-    getByText("IN PROGRESS");
+    getByText("FAILED");
     getByText("QUEUED");
+    getByText("PROCESSING");
     getByText("PENDING");
+    getByText("INGESTED");
 
     // Closing emits an event.
     const button = getByLabelText("Close");

@@ -25,7 +25,7 @@ func (c *client) CreateSIP(ctx context.Context, s *datatypes.SIP) error {
 
 	q := c.ent.SIP.Create().
 		SetName(s.Name).
-		SetStatus(int8(s.Status)) // #nosec G115 -- constrained value.
+		SetStatus(s.Status)
 
 	// Add optional fields.
 	if s.AIPID.Valid {
@@ -81,7 +81,7 @@ func (c *client) UpdateSIP(
 	// Set required column values.
 	q := tx.SIP.UpdateOneID(id).
 		SetName(up.Name).
-		SetStatus(int8(up.Status)) // #nosec G115 -- constrained value.
+		SetStatus(up.Status)
 
 	// Set nullable column values.
 	if up.AIPID.Valid {
