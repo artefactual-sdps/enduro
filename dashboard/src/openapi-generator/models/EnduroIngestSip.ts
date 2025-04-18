@@ -68,14 +68,12 @@ export interface EnduroIngestSip {
  * @export
  */
 export const EnduroIngestSipStatusEnum = {
-    New: 'new',
-    InProgress: 'in progress',
-    Done: 'done',
     Error: 'error',
-    Unknown: 'unknown',
+    Failed: 'failed',
     Queued: 'queued',
-    Abandoned: 'abandoned',
-    Pending: 'pending'
+    Processing: 'processing',
+    Pending: 'pending',
+    Ingested: 'ingested'
 } as const;
 export type EnduroIngestSipStatusEnum = typeof EnduroIngestSipStatusEnum[keyof typeof EnduroIngestSipStatusEnum];
 

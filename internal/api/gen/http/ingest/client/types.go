@@ -1169,8 +1169,8 @@ func ValidateSIPResponseBody(body *SIPResponseBody) (err error) {
 		err = goa.MergeErrors(err, goa.MissingFieldError("created_at", "body"))
 	}
 	if body.Status != nil {
-		if !(*body.Status == "new" || *body.Status == "in progress" || *body.Status == "done" || *body.Status == "error" || *body.Status == "unknown" || *body.Status == "queued" || *body.Status == "abandoned" || *body.Status == "pending") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []any{"new", "in progress", "done", "error", "unknown", "queued", "abandoned", "pending"}))
+		if !(*body.Status == "error" || *body.Status == "failed" || *body.Status == "queued" || *body.Status == "processing" || *body.Status == "pending" || *body.Status == "ingested") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []any{"error", "failed", "queued", "processing", "pending", "ingested"}))
 		}
 	}
 	if body.AipID != nil {

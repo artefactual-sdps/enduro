@@ -38,14 +38,12 @@ export interface SIPStatusUpdatedEvent {
  * @export
  */
 export const SIPStatusUpdatedEventStatusEnum = {
-    New: 'new',
-    InProgress: 'in progress',
-    Done: 'done',
     Error: 'error',
-    Unknown: 'unknown',
+    Failed: 'failed',
     Queued: 'queued',
-    Abandoned: 'abandoned',
-    Pending: 'pending'
+    Processing: 'processing',
+    Pending: 'pending',
+    Ingested: 'ingested'
 } as const;
 export type SIPStatusUpdatedEventStatusEnum = typeof SIPStatusUpdatedEventStatusEnum[keyof typeof SIPStatusUpdatedEventStatusEnum];
 

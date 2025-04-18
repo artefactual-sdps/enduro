@@ -9,6 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/sip"
 	"github.com/google/uuid"
 )
@@ -23,7 +24,7 @@ type SIP struct {
 	// AipID holds the value of the "aip_id" field.
 	AipID uuid.UUID `json:"aip_id,omitempty"`
 	// Status holds the value of the "status" field.
-	Status int8 `json:"status,omitempty"`
+	Status enums.SIPStatus `json:"status,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// StartedAt holds the value of the "started_at" field.
@@ -59,9 +60,9 @@ func (*SIP) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case sip.FieldID, sip.FieldStatus:
+		case sip.FieldID:
 			values[i] = new(sql.NullInt64)
-		case sip.FieldName:
+		case sip.FieldName, sip.FieldStatus:
 			values[i] = new(sql.NullString)
 		case sip.FieldCreatedAt, sip.FieldStartedAt, sip.FieldCompletedAt:
 			values[i] = new(sql.NullTime)
@@ -101,10 +102,10 @@ func (s *SIP) assignValues(columns []string, values []any) error {
 				s.AipID = *value
 			}
 		case sip.FieldStatus:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field status", values[i])
 			} else if value.Valid {
-				s.Status = int8(value.Int64)
+				s.Status = enums.SIPStatus(value.String)
 			}
 		case sip.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {

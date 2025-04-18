@@ -20,26 +20,32 @@ const show = computed(() => modelValue);
 
 const items = [
   {
-    status: api.EnduroIngestSipStatusEnum.Done,
-    description: "The current workflow or task has completed without errors.",
-  },
-  {
     status: api.EnduroIngestSipStatusEnum.Error,
     description:
-      "The current workflow has encountered an error it could not resolve and failed.",
+      "The SIP workflow encountered a system error and ingest was aborted.",
   },
   {
-    status: api.EnduroIngestSipStatusEnum.InProgress,
-    description: "The current workflow is still processing.",
+    status: api.EnduroIngestSipStatusEnum.Failed,
+    description:
+      "The SIP has failed to failed to meet the policy-defined criteria for ingest, halting the workflow.",
   },
   {
     status: api.EnduroIngestSipStatusEnum.Queued,
     description:
-      "The current workflow is waiting for an available worker to begin.",
+      "The SIP is about to be part of an active workflow and is awaiting processing.",
+  },
+  {
+    status: api.EnduroIngestSipStatusEnum.Processing,
+    description:
+      "The SIP is currently part of an active workflow and is undergoing processing.",
   },
   {
     status: api.EnduroIngestSipStatusEnum.Pending,
-    description: "The current workflow is awaiting a user decision.",
+    description: "The SIP is part of a workflow awaiting a user decision.",
+  },
+  {
+    status: api.EnduroIngestSipStatusEnum.Ingested,
+    description: "The SIP has successfully completed all ingest processing.",
   },
 ];
 </script>

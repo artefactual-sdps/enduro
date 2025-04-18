@@ -472,7 +472,7 @@ List all ingested SIPs
     -token STRING: 
 
 Example:
-    %[1]s ingest list-sips --name "abc123" --aip-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --earliest-created-time "1970-01-01T00:00:01Z" --latest-created-time "1970-01-01T00:00:01Z" --status "in progress" --limit 1 --offset 1 --token "abc123"
+    %[1]s ingest list-sips --name "abc123" --aip-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --earliest-created-time "1970-01-01T00:00:01Z" --latest-created-time "1970-01-01T00:00:01Z" --status "failed" --limit 1 --offset 1 --token "abc123"
 `, os.Args[0])
 }
 

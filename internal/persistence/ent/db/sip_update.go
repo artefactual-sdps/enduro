@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/predicate"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/sip"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/workflow"
@@ -65,23 +66,16 @@ func (su *SIPUpdate) ClearAipID() *SIPUpdate {
 }
 
 // SetStatus sets the "status" field.
-func (su *SIPUpdate) SetStatus(i int8) *SIPUpdate {
-	su.mutation.ResetStatus()
-	su.mutation.SetStatus(i)
+func (su *SIPUpdate) SetStatus(es enums.SIPStatus) *SIPUpdate {
+	su.mutation.SetStatus(es)
 	return su
 }
 
 // SetNillableStatus sets the "status" field if the given value is not nil.
-func (su *SIPUpdate) SetNillableStatus(i *int8) *SIPUpdate {
-	if i != nil {
-		su.SetStatus(*i)
+func (su *SIPUpdate) SetNillableStatus(es *enums.SIPStatus) *SIPUpdate {
+	if es != nil {
+		su.SetStatus(*es)
 	}
-	return su
-}
-
-// AddStatus adds i to the "status" field.
-func (su *SIPUpdate) AddStatus(i int8) *SIPUpdate {
-	su.mutation.AddStatus(i)
 	return su
 }
 
@@ -193,7 +187,20 @@ func (su *SIPUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (su *SIPUpdate) check() error {
+	if v, ok := su.mutation.Status(); ok {
+		if err := sip.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`db: validator failed for field "SIP.status": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (su *SIPUpdate) sqlSave(ctx context.Context) (n int, err error) {
+	if err := su.check(); err != nil {
+		return n, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(sip.Table, sip.Columns, sqlgraph.NewFieldSpec(sip.FieldID, field.TypeInt))
 	if ps := su.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
@@ -212,10 +219,7 @@ func (su *SIPUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		_spec.ClearField(sip.FieldAipID, field.TypeUUID)
 	}
 	if value, ok := su.mutation.Status(); ok {
-		_spec.SetField(sip.FieldStatus, field.TypeInt8, value)
-	}
-	if value, ok := su.mutation.AddedStatus(); ok {
-		_spec.AddField(sip.FieldStatus, field.TypeInt8, value)
+		_spec.SetField(sip.FieldStatus, field.TypeEnum, value)
 	}
 	if value, ok := su.mutation.StartedAt(); ok {
 		_spec.SetField(sip.FieldStartedAt, field.TypeTime, value)
@@ -329,23 +333,16 @@ func (suo *SIPUpdateOne) ClearAipID() *SIPUpdateOne {
 }
 
 // SetStatus sets the "status" field.
-func (suo *SIPUpdateOne) SetStatus(i int8) *SIPUpdateOne {
-	suo.mutation.ResetStatus()
-	suo.mutation.SetStatus(i)
+func (suo *SIPUpdateOne) SetStatus(es enums.SIPStatus) *SIPUpdateOne {
+	suo.mutation.SetStatus(es)
 	return suo
 }
 
 // SetNillableStatus sets the "status" field if the given value is not nil.
-func (suo *SIPUpdateOne) SetNillableStatus(i *int8) *SIPUpdateOne {
-	if i != nil {
-		suo.SetStatus(*i)
+func (suo *SIPUpdateOne) SetNillableStatus(es *enums.SIPStatus) *SIPUpdateOne {
+	if es != nil {
+		suo.SetStatus(*es)
 	}
-	return suo
-}
-
-// AddStatus adds i to the "status" field.
-func (suo *SIPUpdateOne) AddStatus(i int8) *SIPUpdateOne {
-	suo.mutation.AddStatus(i)
 	return suo
 }
 
@@ -470,7 +467,20 @@ func (suo *SIPUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (suo *SIPUpdateOne) check() error {
+	if v, ok := suo.mutation.Status(); ok {
+		if err := sip.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`db: validator failed for field "SIP.status": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (suo *SIPUpdateOne) sqlSave(ctx context.Context) (_node *SIP, err error) {
+	if err := suo.check(); err != nil {
+		return _node, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(sip.Table, sip.Columns, sqlgraph.NewFieldSpec(sip.FieldID, field.TypeInt))
 	id, ok := suo.mutation.ID()
 	if !ok {
@@ -506,10 +516,7 @@ func (suo *SIPUpdateOne) sqlSave(ctx context.Context) (_node *SIP, err error) {
 		_spec.ClearField(sip.FieldAipID, field.TypeUUID)
 	}
 	if value, ok := suo.mutation.Status(); ok {
-		_spec.SetField(sip.FieldStatus, field.TypeInt8, value)
-	}
-	if value, ok := suo.mutation.AddedStatus(); ok {
-		_spec.AddField(sip.FieldStatus, field.TypeInt8, value)
+		_spec.SetField(sip.FieldStatus, field.TypeEnum, value)
 	}
 	if value, ok := suo.mutation.StartedAt(); ok {
 		_spec.SetField(sip.FieldStartedAt, field.TypeTime, value)

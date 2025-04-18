@@ -234,7 +234,6 @@ var SIP = ResultType("application/vnd.enduro.ingest.sip", func() {
 		Attribute("name", String, "Name of the SIP")
 		Attribute("status", String, "Status of the SIP", func() {
 			EnumSIPStatus()
-			Default(enums.SIPStatusNew.String())
 		})
 		AttributeUUID("aip_id", "Identifier of AIP")
 		Attribute("created_at", String, "Creation datetime", func() {

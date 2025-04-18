@@ -21,7 +21,7 @@ import (
 func addDBFixtures(t *testing.T, entc *db.Client) (*db.Workflow, *db.Workflow) {
 	t.Helper()
 
-	sip, err := createSIP(entc, "S1", enums.SIPStatusInProgress)
+	sip, err := createSIP(entc, "S1", enums.SIPStatusProcessing)
 	if err != nil {
 		t.Errorf("create SIP: %v", err)
 	}
@@ -118,7 +118,7 @@ func TestCreateTask(t *testing.T) {
 			sip, _ := createSIP(
 				entc,
 				"Test SIP",
-				enums.SIPStatusDone,
+				enums.SIPStatusIngested,
 			)
 			w, _ := createWorkflow(
 				entc,

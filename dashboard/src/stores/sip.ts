@@ -128,14 +128,14 @@ export const useSipStore = defineStore("sip", {
         })
         .then(() => {
           if (!this.current) return;
-          this.current.status = api.EnduroIngestSipStatusEnum.InProgress;
+          this.current.status = api.EnduroIngestSipStatusEnum.Processing;
         });
     },
     reject() {
       if (!this.current) return;
       client.ingest.ingestRejectSip({ id: this.current.id }).then(() => {
         if (!this.current) return;
-        this.current.status = api.EnduroIngestSipStatusEnum.InProgress;
+        this.current.status = api.EnduroIngestSipStatusEnum.Processing;
       });
     },
   },

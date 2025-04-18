@@ -235,8 +235,8 @@ func DecodeListSipsRequest(mux goahttp.Muxer, decoder func(*http.Request) goahtt
 			status = &statusRaw
 		}
 		if status != nil {
-			if !(*status == "new" || *status == "in progress" || *status == "done" || *status == "error" || *status == "unknown" || *status == "queued" || *status == "abandoned" || *status == "pending") {
-				err = goa.MergeErrors(err, goa.InvalidEnumValueError("status", *status, []any{"new", "in progress", "done", "error", "unknown", "queued", "abandoned", "pending"}))
+			if !(*status == "error" || *status == "failed" || *status == "queued" || *status == "processing" || *status == "pending" || *status == "ingested") {
+				err = goa.MergeErrors(err, goa.InvalidEnumValueError("status", *status, []any{"error", "failed", "queued", "processing", "pending", "ingested"}))
 			}
 		}
 		{

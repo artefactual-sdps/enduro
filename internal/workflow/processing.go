@@ -71,9 +71,14 @@ func (w *ProcessingWorkflow) cleanup(ctx temporalsdk_workflow.Context, state *wo
 		state.status = enums.WorkflowStatusError
 	}
 
-	// Mark SIP as failed unless it completed successfully or it was
-	// abandoned.
-	if state.sip.status != enums.SIPStatusDone && state.sip.status != enums.SIPStatusAbandoned {
+	// Set SIP status.
+	switch state.status {
+	case enums.WorkflowStatusDone:
+		state.sip.status = enums.SIPStatusIngested
+	case enums.WorkflowStatusFailed:
+		state.sip.status = enums.SIPStatusFailed
+	default:
+		// Mark SIP as an error because something went wrong.
 		state.sip.status = enums.SIPStatusError
 	}
 
@@ -246,13 +251,12 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *inge
 			return sessErr
 		}
 
-		state.sip.status = enums.SIPStatusDone
 		state.status = enums.WorkflowStatusDone
 	}
 
 	// Schedule deletion of the original in the watched data source.
 	{
-		if state.sip.status == enums.SIPStatusDone {
+		if state.status == enums.WorkflowStatusDone {
 			if req.RetentionPeriod != nil {
 				err := temporalsdk_workflow.NewTimer(ctx, *req.RetentionPeriod).Get(ctx, nil)
 				if err != nil {
@@ -284,7 +288,7 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *inge
 		"SIPID", state.sip.dbID,
 		"watcher", req.WatcherName,
 		"name", state.sip.name,
-		"status", state.sip.status.String(),
+		"status", state.status,
 	)
 
 	return nil
@@ -503,7 +507,7 @@ func (w *ProcessingWorkflow) SessionHandler(
 			Name:        state.sip.name,
 			AIPUUID:     state.aip.id,
 			CompletedAt: state.aip.storedAt,
-			Status:      enums.SIPStatusInProgress,
+			Status:      enums.SIPStatusProcessing,
 		}).
 			Get(activityOpts, nil)
 	}
@@ -621,7 +625,7 @@ func (w *ProcessingWorkflow) SessionHandler(
 		// Set SIP to in progress status.
 		{
 			ctx := withLocalActivityOpts(sessCtx)
-			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setStatusLocalActivity, w.ingestsvc, state.sip.dbID, enums.SIPStatusInProgress).Get(ctx, nil)
+			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setStatusLocalActivity, w.ingestsvc, state.sip.dbID, enums.SIPStatusProcessing).Get(ctx, nil)
 			if err != nil {
 				return err
 			}

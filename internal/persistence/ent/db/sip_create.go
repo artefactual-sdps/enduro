@@ -10,6 +10,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/sip"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/workflow"
 	"github.com/google/uuid"
@@ -43,8 +44,8 @@ func (sc *SIPCreate) SetNillableAipID(u *uuid.UUID) *SIPCreate {
 }
 
 // SetStatus sets the "status" field.
-func (sc *SIPCreate) SetStatus(i int8) *SIPCreate {
-	sc.mutation.SetStatus(i)
+func (sc *SIPCreate) SetStatus(es enums.SIPStatus) *SIPCreate {
+	sc.mutation.SetStatus(es)
 	return sc
 }
 
@@ -154,6 +155,11 @@ func (sc *SIPCreate) check() error {
 	if _, ok := sc.mutation.Status(); !ok {
 		return &ValidationError{Name: "status", err: errors.New(`db: missing required field "SIP.status"`)}
 	}
+	if v, ok := sc.mutation.Status(); ok {
+		if err := sip.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`db: validator failed for field "SIP.status": %w`, err)}
+		}
+	}
 	if _, ok := sc.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`db: missing required field "SIP.created_at"`)}
 	}
@@ -192,7 +198,7 @@ func (sc *SIPCreate) createSpec() (*SIP, *sqlgraph.CreateSpec) {
 		_node.AipID = value
 	}
 	if value, ok := sc.mutation.Status(); ok {
-		_spec.SetField(sip.FieldStatus, field.TypeInt8, value)
+		_spec.SetField(sip.FieldStatus, field.TypeEnum, value)
 		_node.Status = value
 	}
 	if value, ok := sc.mutation.CreatedAt(); ok {

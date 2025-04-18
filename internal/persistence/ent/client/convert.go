@@ -26,16 +26,11 @@ func convertSIP(sip *db.SIP) *datatypes.SIP {
 		aipID = uuid.NullUUID{UUID: sip.AipID, Valid: true}
 	}
 
-	var status uint
-	if sip.Status > 0 {
-		status = uint(sip.Status) // #nosec G115 -- range validated.
-	}
-
 	return &datatypes.SIP{
 		ID:          sip.ID,
 		Name:        sip.Name,
 		AIPID:       aipID,
-		Status:      enums.SIPStatus(status),
+		Status:      sip.Status,
 		CreatedAt:   sip.CreatedAt,
 		StartedAt:   started,
 		CompletedAt: completed,

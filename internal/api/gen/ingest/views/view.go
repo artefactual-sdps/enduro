@@ -308,8 +308,8 @@ func ValidateSIPView(result *SIPView) (err error) {
 		err = goa.MergeErrors(err, goa.MissingFieldError("created_at", "result"))
 	}
 	if result.Status != nil {
-		if !(*result.Status == "new" || *result.Status == "in progress" || *result.Status == "done" || *result.Status == "error" || *result.Status == "unknown" || *result.Status == "queued" || *result.Status == "abandoned" || *result.Status == "pending") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.status", *result.Status, []any{"new", "in progress", "done", "error", "unknown", "queued", "abandoned", "pending"}))
+		if !(*result.Status == "error" || *result.Status == "failed" || *result.Status == "queued" || *result.Status == "processing" || *result.Status == "pending" || *result.Status == "ingested") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.status", *result.Status, []any{"error", "failed", "queued", "processing", "pending", "ingested"}))
 		}
 	}
 	if result.AipID != nil {

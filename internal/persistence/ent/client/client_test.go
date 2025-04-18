@@ -39,7 +39,7 @@ func createSIP(
 	return entc.SIP.Create().
 		SetName(name).
 		SetAipID(aipID).
-		SetStatus(int8(status)). // #nosec G115 -- constrained value.
+		SetStatus(status).
 		Save(context.Background())
 }
 
@@ -66,12 +66,12 @@ func TestNew(t *testing.T) {
 		s, err := createSIP(
 			entc,
 			"testing 1-2-3",
-			enums.SIPStatusInProgress,
+			enums.SIPStatusProcessing,
 		)
 		assert.NilError(t, err)
 
 		assert.Equal(t, s.Name, "testing 1-2-3")
 		assert.Equal(t, s.AipID, uuid.MustParse("30223842-0650-4f79-80bd-7bf43b810656"))
-		assert.Equal(t, s.Status, int8(enums.SIPStatusInProgress))
+		assert.Equal(t, s.Status, enums.SIPStatusProcessing)
 	})
 }

@@ -3,10 +3,12 @@
 package sip
 
 import (
+	"fmt"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/artefactual-sdps/enduro/internal/enums"
 )
 
 const (
@@ -64,6 +66,16 @@ var (
 	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
 	DefaultCreatedAt func() time.Time
 )
+
+// StatusValidator is a validator for the "status" field enum values. It is called by the builders before save.
+func StatusValidator(s enums.SIPStatus) error {
+	switch s.String() {
+	case "error", "failed", "queued", "processing", "pending", "ingested":
+		return nil
+	default:
+		return fmt.Errorf("sip: invalid enum value for status field: %q", s)
+	}
+}
 
 // OrderOption defines the ordering options for the SIP queries.
 type OrderOption func(*sql.Selector)

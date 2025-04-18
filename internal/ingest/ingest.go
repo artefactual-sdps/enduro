@@ -123,7 +123,7 @@ func (svc *ingestImpl) UpdateSIP(
 ) error {
 	// Ensure that completedAt is reset during retries.
 	compAt := &completedAt
-	if status == enums.SIPStatusInProgress {
+	if status == enums.SIPStatusProcessing {
 		compAt = nil
 	}
 	if compAt != nil && compAt.IsZero() {
@@ -180,7 +180,7 @@ func (svc *ingestImpl) SetStatus(ctx context.Context, ID int, status enums.SIPSt
 
 func (svc *ingestImpl) SetStatusInProgress(ctx context.Context, ID int, startedAt time.Time) error {
 	var query string
-	args := []interface{}{enums.SIPStatusInProgress}
+	args := []interface{}{enums.SIPStatusProcessing}
 
 	if ID < 0 {
 		return fmt.Errorf("%w: ID", ErrInvalid)
@@ -201,7 +201,7 @@ func (svc *ingestImpl) SetStatusInProgress(ctx context.Context, ID int, startedA
 
 	event.PublishEvent(ctx, svc.evsvc, &goaingest.SIPStatusUpdatedEvent{
 		ID:     id,
-		Status: enums.SIPStatusInProgress.String(),
+		Status: enums.SIPStatusProcessing.String(),
 	})
 
 	return nil

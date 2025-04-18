@@ -2,14 +2,12 @@ package enums
 
 /*
 ENUM(
-new          // Unused!
-in progress  // Undergoing work.
-done         // Work has completed.
-error        // Processing failed.
-unknown      // Unused!
+error        // Failed due to a system error.
+failed       // Failed due to invalid contents.
 queued       // Awaiting resource allocation.
-abandoned    // User abandoned processing.
+processing   // Undergoing work.
 pending      // Awaiting user decision.
+ingested     // Successfully ingested.
 )
 */
-type SIPStatus uint
+type SIPStatus string

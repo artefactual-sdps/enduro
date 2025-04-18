@@ -130,7 +130,7 @@ var testSIPs = []*datatypes.SIP{
 		ID:        1,
 		Name:      "Test SIP 1",
 		AIPID:     nullUUID("e2ace0da-8697-453d-9ea1-4c9b62309e54"),
-		Status:    enums.SIPStatusDone,
+		Status:    enums.SIPStatusIngested,
 		CreatedAt: time.Date(2024, 9, 25, 9, 31, 10, 0, time.UTC),
 		StartedAt: sql.NullTime{
 			Time:  time.Date(2024, 9, 25, 9, 31, 11, 0, time.UTC),
@@ -145,7 +145,7 @@ var testSIPs = []*datatypes.SIP{
 		ID:        2,
 		Name:      "Test SIP 2",
 		AIPID:     nullUUID("ffdb12f4-1735-4022-b746-a9bf4a32109b"),
-		Status:    enums.SIPStatusInProgress,
+		Status:    enums.SIPStatusProcessing,
 		CreatedAt: time.Date(2024, 10, 1, 17, 13, 26, 0, time.UTC),
 		StartedAt: sql.NullTime{
 			Time:  time.Date(2024, 10, 1, 17, 13, 27, 0, time.UTC),
@@ -188,7 +188,7 @@ func TestList(t *testing.T) {
 					{
 						ID:          1,
 						Name:        ref.New("Test SIP 1"),
-						Status:      "done",
+						Status:      enums.SIPStatusIngested.String(),
 						AipID:       ref.New("e2ace0da-8697-453d-9ea1-4c9b62309e54"),
 						CreatedAt:   "2024-09-25T09:31:10Z",
 						StartedAt:   ref.New("2024-09-25T09:31:11Z"),
@@ -197,7 +197,7 @@ func TestList(t *testing.T) {
 					{
 						ID:          2,
 						Name:        ref.New("Test SIP 2"),
-						Status:      "in progress",
+						Status:      enums.SIPStatusProcessing.String(),
 						AipID:       ref.New("ffdb12f4-1735-4022-b746-a9bf4a32109b"),
 						CreatedAt:   "2024-10-01T17:13:26Z",
 						StartedAt:   ref.New("2024-10-01T17:13:27Z"),
@@ -217,7 +217,7 @@ func TestList(t *testing.T) {
 				AipID:               ref.New("e2ace0da-8697-453d-9ea1-4c9b62309e54"),
 				EarliestCreatedTime: ref.New("2024-09-25T09:30:00Z"),
 				LatestCreatedTime:   ref.New("2024-09-25T09:40:00Z"),
-				Status:              ref.New("done"),
+				Status:              ref.New(enums.SIPStatusIngested.String()),
 				Limit:               ref.New(10),
 				Offset:              ref.New(1),
 			},
@@ -231,7 +231,7 @@ func TestList(t *testing.T) {
 							Start: time.Date(2024, 9, 25, 9, 30, 0, 0, time.UTC),
 							End:   time.Date(2024, 9, 25, 9, 40, 0, 0, time.UTC),
 						},
-						Status: ref.New(enums.SIPStatusDone),
+						Status: ref.New(enums.SIPStatusIngested),
 						Sort:   entfilter.NewSort().AddCol("id", true),
 						Page: persistence.Page{
 							Limit:  10,
@@ -249,7 +249,7 @@ func TestList(t *testing.T) {
 					{
 						ID:          1,
 						Name:        ref.New("Test SIP 1"),
-						Status:      "done",
+						Status:      enums.SIPStatusIngested.String(),
 						AipID:       ref.New("e2ace0da-8697-453d-9ea1-4c9b62309e54"),
 						CreatedAt:   "2024-09-25T09:31:10Z",
 						StartedAt:   ref.New("2024-09-25T09:31:11Z"),
