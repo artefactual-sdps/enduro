@@ -58,6 +58,7 @@ const items = [
           <div class="col-12 col-md-2 py-2">
             <StatusBadge
               :status="item.status"
+              type="package"
               :aria-describedby="`badge-${index}-desc`"
             />
           </div>

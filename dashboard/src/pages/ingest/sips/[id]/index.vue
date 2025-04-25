@@ -32,7 +32,9 @@ const createAipWorkflow = computed(
           <dt>Name</dt>
           <dd>{{ sipStore.current.name }}</dd>
           <dt>Status</dt>
-          <dd><StatusBadge :status="sipStore.current.status" /></dd>
+          <dd>
+            <StatusBadge :status="sipStore.current.status" type="package" />
+          </dd>
           <dt>Started</dt>
           <dd>{{ $filters.formatDateTime(createAipWorkflow?.startedAt) }}</dd>
           <dt v-if="createAipWorkflow?.completedAt">Completed</dt>

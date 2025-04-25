@@ -113,7 +113,7 @@ watch(
         </div>
       </div>
       <div class="d-flex pt-1">
-        <StatusBadge :status="task.status" />
+        <StatusBadge :status="task.status" type="workflow" />
       </div>
     </div>
   </div>
