@@ -301,7 +301,7 @@ watch(
             <td><UUID :id="aip.uuid" /></td>
             <td>{{ $filters.formatDateTime(aip.createdAt) }}</td>
             <td><UUID :id="aip.locationId" /></td>
-            <td><StatusBadge :status="aip.status" /></td>
+            <td><StatusBadge :status="aip.status" type="package" /></td>
           </tr>
         </tbody>
       </table>

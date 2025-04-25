@@ -342,7 +342,7 @@ watch(
             </td>
             <td><UUID :id="sip.aipId" /></td>
             <td>{{ $filters.formatDateTime(sip.startedAt) }}</td>
-            <td><StatusBadge :status="sip.status" /></td>
+            <td><StatusBadge :status="sip.status" type="package" /></td>
           </tr>
         </tbody>
       </table>

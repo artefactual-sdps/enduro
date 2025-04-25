@@ -23,7 +23,9 @@ const authStore = useAuthStore();
           <dt>UUID</dt>
           <dd><UUID :id="aipStore.current.uuid" /></dd>
           <dt>Status</dt>
-          <dd><StatusBadge :status="aipStore.current.status" /></dd>
+          <dd>
+            <StatusBadge :status="aipStore.current.status" type="package" />
+          </dd>
           <dt>Deposited</dt>
           <dd>{{ $filters.formatDateTime(aipStore.current.createdAt) }}</dd>
         </dl>

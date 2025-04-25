@@ -61,7 +61,7 @@ const showAipDeletionReviewAlert = (
         <div class="d-flex flex-column">
           <div class="h4">
             {{ $filters.getWorkflowLabel(workflow.type) }}
-            <StatusBadge :status="workflow.status" />
+            <StatusBadge :status="workflow.status" type="workflow" />
           </div>
           <div>
             <span v-if="workflow.completedAt">
