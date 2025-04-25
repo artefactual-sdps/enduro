@@ -104,8 +104,15 @@ func main() {
 		schema.WithDropColumn(true),
 	}
 
-	// Generate migrations using Atlas support for TiDB (note the Ent dialect option passed above).
+	// Append ".up" to the migration name if not already present, as a
+	// workaround for the fact that Atlas omits ".up" from the ".up.sql" suffix
+	// that is required when the migration is applied.
 	name, _ := p.GetString("name")
+	if !strings.HasSuffix(name, ".up") {
+		name = fmt.Sprintf("%s.up", name)
+	}
+
+	// Generate migrations using Atlas support for MySQL (note the Ent dialect option passed above).
 	if db == "ingest" {
 		err = ingest_migrate.NamedDiff(ctx, entDSN, name, opts...)
 	} else {
