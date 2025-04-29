@@ -1,15 +1,4 @@
-<script setup lang="ts">
-import { computed } from "vue";
-
-import type { api } from "@/client";
-
-type badgeType = "package" | "workflow";
-const props = defineProps<{
-  status: statusEnum;
-  type: badgeType;
-  note?: string;
-}>();
-
+<script lang="ts">
 type packageEnum =
   | api.EnduroIngestSipStatusEnum
   | api.EnduroStorageAipStatusEnum;
@@ -20,9 +9,23 @@ type taskEnum =
   | api.EnduroIngestSipTaskStatusEnum
   | api.EnduroStorageAipTaskStatusEnum;
 
-type statusEnum = packageEnum | workflowEnum | taskEnum;
+export type StatusEnum = packageEnum | workflowEnum | taskEnum;
+</script>
+
+<script setup lang="ts">
+import { computed } from "vue";
+
+import type { api } from "@/client";
+
+type badgeType = "package" | "workflow";
 
 type badgeStyle = string[];
+
+const props = defineProps<{
+  status: StatusEnum;
+  type: badgeType;
+  note?: string;
+}>();
 
 const packageStyle: {
   [key in packageEnum]: badgeStyle;

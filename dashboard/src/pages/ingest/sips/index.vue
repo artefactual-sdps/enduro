@@ -5,11 +5,12 @@ import { computed, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router/auto";
 import type { LocationQueryValue } from "vue-router/auto";
 
+import { api } from "@/client";
 import PageLoadingAlert from "@/components/PageLoadingAlert.vue";
 import Pager from "@/components/Pager.vue";
 import ResultCounter from "@/components/ResultCounter.vue";
-import SipListLegend from "@/components/SipListLegend.vue";
 import StatusBadge from "@/components/StatusBadge.vue";
+import StatusLegend from "@/components/StatusLegend.vue";
 import Tabs from "@/components/Tabs.vue";
 import TimeDropdown from "@/components/TimeDropdown.vue";
 import UUID from "@/components/UUID.vue";
@@ -116,6 +117,37 @@ const tabs = computed(() => [
     show: true,
   },
 ]);
+
+const statuses = [
+  {
+    status: api.EnduroIngestSipStatusEnum.Ingested,
+    description: "The SIP has successfully completed all ingest processing.",
+  },
+  {
+    status: api.EnduroIngestSipStatusEnum.Failed,
+    description:
+      "The SIP has failed to meet the policy-defined criteria for ingest, halting the workflow.",
+  },
+  {
+    status: api.EnduroIngestSipStatusEnum.Processing,
+    description:
+      "The SIP is currently part of an active workflow and is undergoing processing.",
+  },
+  {
+    status: api.EnduroIngestSipStatusEnum.Pending,
+    description: "The SIP is part of a workflow awaiting a user decision.",
+  },
+  {
+    status: api.EnduroIngestSipStatusEnum.Queued,
+    description:
+      "The SIP is about to be part of an active workflow and is awaiting processing.",
+  },
+  {
+    status: api.EnduroIngestSipStatusEnum.Error,
+    description:
+      "The SIP workflow encountered a system error and ingest was aborted.",
+  },
+];
 
 const changePage = (page: number) => {
   let q = { ...route.query };
@@ -303,7 +335,11 @@ watch(
     </div>
 
     <Tabs :tabs="tabs" param="status" />
-    <SipListLegend v-model="showLegend" />
+    <StatusLegend
+      :show="showLegend"
+      :items="statuses"
+      @update:show="(val) => (showLegend = val)"
+    />
 
     <div class="table-responsive mb-3">
       <table class="table table-bordered mb-0">

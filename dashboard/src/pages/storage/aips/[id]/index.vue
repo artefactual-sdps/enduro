@@ -1,15 +1,31 @@
 <script setup lang="ts">
+import Tooltip from "bootstrap/js/dist/tooltip";
+import { onMounted, ref } from "vue";
+
 import AipLocationCard from "@/components/AipLocationCard.vue";
 import StatusBadge from "@/components/StatusBadge.vue";
 import UUID from "@/components/UUID.vue";
 import WorkflowCollapse from "@/components/WorkflowCollapse.vue";
+import WorkflowHelp from "@/components/WorkflowHelp.vue";
 import { useAipStore } from "@/stores/aip";
 import { useAuthStore } from "@/stores/auth";
-import IconLink from "~icons/bi/box-arrow-up-right";
 import IconHelp from "~icons/clarity/help-solid?height=0.8em&width=0.8em";
 
 const aipStore = useAipStore();
 const authStore = useAuthStore();
+
+const el = ref<HTMLElement | null>(null);
+let tooltip: Tooltip | null = null;
+
+const showHelp = ref(false);
+const toggleHelp = () => {
+  showHelp.value = !showHelp.value;
+  if (tooltip) tooltip.hide();
+};
+
+onMounted(() => {
+  if (el.value) tooltip = new Tooltip(el.value);
+});
 </script>
 
 <template>
@@ -40,47 +56,27 @@ const authStore = useAuthStore();
         authStore.checkAttributes(['storage:aips:workflows:list'])
       "
     >
-      <div class="d-flex">
+      <div>
         <h2 class="mb-0">
-          Workflows
+          Storage workflow details
           <a
+            ref="el"
             id="workflowHelpToggle"
-            data-bs-toggle="collapse"
             href="#workflowHelp"
             role="button"
             aria-expanded="false"
             aria-controls="workflowHelp"
-            aria-label="Show workflows help"
+            data-bs-toggle="tooltip"
+            data-bs-title="Toggle help"
+            @click="toggleHelp"
             ><IconHelp alt="help"
           /></a>
         </h2>
       </div>
-      <div
-        class="collapse"
-        id="workflowHelp"
-        aria-labelledby="workflowHelpToggle"
-      >
-        <div class="card card-body flex flex-column bg-light">
-          <div>
-            <p>
-              A <strong>workflow</strong> is composed of one or more
-              <strong>tasks</strong> performed on a SIP/AIP to support
-              preservation.
-            </p>
-            <p>
-              Click on a workflow listed below to expand it and see more
-              information on individual tasks run as part of the workflow.
-            </p>
-          </div>
-          <div class="align-self-end">
-            <a
-              href="https://github.com/artefactual-sdps/enduro/blob/main/docs/src/user-manual/usage.md#view-tasks-in-enduro"
-              target="_new"
-              >Learn more <IconLink alt="" aria-hidden="true"
-            /></a>
-          </div>
-        </div>
-      </div>
+      <WorkflowHelp
+        :show="showHelp"
+        @update:show="(value) => (showHelp = value)"
+      />
 
       <hr />
 

@@ -1,13 +1,16 @@
 <script setup lang="ts">
 import { useAsyncState } from "@vueuse/core";
-import { computed, watch } from "vue";
+import Tooltip from "bootstrap/js/dist/tooltip";
+import { computed, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router/auto";
 import type { LocationQueryValue } from "vue-router/auto";
 
+import { api } from "@/client";
 import PageLoadingAlert from "@/components/PageLoadingAlert.vue";
 import Pager from "@/components/Pager.vue";
 import ResultCounter from "@/components/ResultCounter.vue";
 import StatusBadge from "@/components/StatusBadge.vue";
+import StatusLegend from "@/components/StatusLegend.vue";
 import Tabs from "@/components/Tabs.vue";
 import TimeDropdown from "@/components/TimeDropdown.vue";
 import UUID from "@/components/UUID.vue";
@@ -15,6 +18,7 @@ import type { StorageListAipsStatusEnum } from "@/openapi-generator";
 import { useAipStore } from "@/stores/aip";
 import { useAuthStore } from "@/stores/auth";
 import { useLayoutStore } from "@/stores/layout";
+import IconInfo from "~icons/akar-icons/info-fill";
 import IconAll from "~icons/clarity/blocks-group-line?raw&font-size=20px";
 import IconAIPs from "~icons/clarity/bundle-line";
 import IconClose from "~icons/clarity/close-line";
@@ -33,6 +37,12 @@ const route = useRoute();
 const router = useRouter();
 
 layoutStore.updateBreadcrumb([{ text: "Storage" }, { text: "AIPs" }]);
+
+const el = ref<HTMLElement | null>(null);
+let tooltip: Tooltip | null = null;
+onMounted(() => {
+  if (el.value) tooltip = new Tooltip(el.value);
+});
 
 const tabs = computed(() => [
   {
@@ -209,6 +219,38 @@ watch(
     execute();
   },
 );
+
+const showLegend = ref(false);
+const toggleLegend = () => {
+  showLegend.value = !showLegend.value;
+  if (tooltip) tooltip.hide();
+};
+
+const statuses = [
+  {
+    status: api.EnduroStorageAipStatusEnum.Stored,
+    description:
+      "The AIP has been successfully placed in preservation storage.",
+  },
+  {
+    status: api.EnduroIngestSipStatusEnum.Pending,
+    description: "The AIP is part of a workflow awaiting a user decision.",
+  },
+  {
+    status: api.EnduroStorageAipStatusEnum.Deleted,
+    description: "The AIP has been deleted from preservation storage.",
+  },
+  {
+    status: api.EnduroIngestSipStatusEnum.Processing,
+    description:
+      "The AIP is currently part of an active workflow and is undergoing processing.",
+  },
+  {
+    status: api.EnduroStorageAipStatusEnum.Queued,
+    description:
+      "The AIP is about to be part of an active workflow and is awaiting processing.",
+  },
+];
 </script>
 
 <template>
@@ -276,6 +318,11 @@ watch(
     </div>
 
     <Tabs :tabs="tabs" param="status" />
+    <StatusLegend
+      :show="showLegend"
+      :items="statuses"
+      @update:show="(val: boolean) => (showLegend = val)"
+    />
 
     <div class="table-responsive mb-3">
       <table class="table table-bordered mb-0">
@@ -285,7 +332,22 @@ watch(
             <th scope="col">UUID</th>
             <th scope="col">Deposited</th>
             <th scope="col">Location</th>
-            <th scope="col">Status</th>
+            <th scope="col">
+              <span class="d-flex gap-2">
+                Status
+                <button
+                  ref="el"
+                  class="btn btn-sm btn-link text-decoration-none ms-auto p-0"
+                  type="button"
+                  @click="toggleLegend"
+                  data-bs-toggle="tooltip"
+                  data-bs-title="Toggle legend"
+                >
+                  <IconInfo style="font-size: 1.2em" aria-hidden="true" />
+                  <span class="visually-hidden">Toggle AIP status legend</span>
+                </button>
+              </span>
+            </th>
           </tr>
         </thead>
         <tbody>
