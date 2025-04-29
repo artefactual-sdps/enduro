@@ -1,163 +1,157 @@
 package workflows
 
 import (
-	"context"
 	"testing"
-	"time"
 
-	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
-	"go.artefactual.dev/tools/mockutil"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
 	temporalsdk_testsuite "go.temporal.io/sdk/testsuite"
 	"go.uber.org/mock/gomock"
-	"gotest.tools/v3/assert"
 
 	"github.com/artefactual-sdps/enduro/internal/storage"
 	"github.com/artefactual-sdps/enduro/internal/storage/activities"
 	"github.com/artefactual-sdps/enduro/internal/storage/enums"
 	"github.com/artefactual-sdps/enduro/internal/storage/fake"
-	"github.com/artefactual-sdps/enduro/internal/storage/persistence"
-	"github.com/artefactual-sdps/enduro/internal/storage/types"
 )
 
 func TestStorageMoveWorkflow(t *testing.T) {
 	s := temporalsdk_testsuite.WorkflowTestSuite{}
 	env := s.NewTestWorkflowEnvironment()
-
-	aipUUID := uuid.New()
-	locationUUID := uuid.MustParse("e7452225-53d6-46f3-9f90-d0f2ee18b7cd")
-	workflowDBID := 1
-	workflow := &types.Workflow{
-		UUID:       uuid.New(),
-		TemporalID: "default-test-workflow-id",
-		Type:       enums.WorkflowTypeMoveAip,
-		Status:     enums.WorkflowStatusInProgress,
-		StartedAt:  time.Now(),
-		AIPUUID:    aipUUID,
-	}
-	copyTaskDBID := 1
-	copyTask := &types.Task{
-		UUID:         uuid.New(),
-		Name:         "Copy AIP",
-		Status:       enums.TaskStatusInProgress,
-		StartedAt:    time.Now(),
-		Note:         "Copying AIP to target location",
-		WorkflowDBID: workflowDBID,
-	}
-	deleteTaskDBID := 2
-	deleteTask := &types.Task{
-		UUID:         uuid.New(),
-		Name:         "Delete AIP",
-		Status:       enums.TaskStatusInProgress,
-		StartedAt:    time.Now(),
-		Note:         "Deleting AIP from source location",
-		WorkflowDBID: workflowDBID,
-	}
-
-	// Mock services and their expected calls
-	// TODO: Move these to local activities tests and mock activities here.
 	ctrl := gomock.NewController(t)
 	storagesvc := fake.NewMockService(ctrl)
-	storagesvc.EXPECT().DeleteAip(mockutil.Context(), aipUUID)
-	storagesvc.EXPECT().UpdateAipLocationID(mockutil.Context(), aipUUID, locationUUID)
-	storagesvc.EXPECT().UpdateAipStatus(mockutil.Context(), aipUUID, enums.AIPStatusProcessing)
-	storagesvc.EXPECT().UpdateAipStatus(mockutil.Context(), aipUUID, enums.AIPStatusStored)
-	storagesvc.EXPECT().CreateWorkflow(
-		mockutil.Context(),
-		mockutil.Eq(
-			workflow,
-			cmpopts.IgnoreFields(types.Workflow{}, "UUID"),
-			mockutil.EquateNearlySameTime(),
-		),
-	).DoAndReturn(func(ctx context.Context, w *types.Workflow) error {
-		w.DBID = workflowDBID
-		return nil
-	})
-	storagesvc.EXPECT().UpdateWorkflow(
-		mockutil.Context(),
-		workflowDBID,
-		mockutil.Func(
-			"Should update workflow fields",
-			func(updater persistence.WorkflowUpdater) error {
-				w, err := updater(&types.Workflow{})
-				assert.NilError(t, err)
-				assert.DeepEqual(t, w.Status, enums.WorkflowStatusDone)
-				assert.DeepEqual(t, w.CompletedAt, time.Now(), mockutil.EquateNearlySameTime())
-				return nil
-			},
-		),
-	)
-	storagesvc.EXPECT().CreateTask(
-		mockutil.Context(),
-		mockutil.Eq(
-			copyTask,
-			cmpopts.IgnoreFields(types.Task{}, "UUID"),
-			mockutil.EquateNearlySameTime(),
-		),
-	).DoAndReturn(func(ctx context.Context, t *types.Task) error {
-		t.DBID = copyTaskDBID
-		return nil
-	})
-	storagesvc.EXPECT().UpdateTask(
-		mockutil.Context(),
-		copyTaskDBID,
-		mockutil.Func(
-			"Should update task fields",
-			func(updater persistence.TaskUpdater) error {
-				task, err := updater(&types.Task{})
-				assert.NilError(t, err)
-				assert.DeepEqual(t, task.Status, enums.TaskStatusDone)
-				assert.DeepEqual(t, task.CompletedAt, time.Now(), mockutil.EquateNearlySameTime())
-				assert.DeepEqual(t, task.Note, "AIP copied to target location")
-				return nil
-			},
-		),
-	)
-	storagesvc.EXPECT().CreateTask(
-		mockutil.Context(),
-		mockutil.Eq(
-			deleteTask,
-			cmpopts.IgnoreFields(types.Task{}, "UUID"),
-			mockutil.EquateNearlySameTime(),
-		),
-	).DoAndReturn(func(ctx context.Context, t *types.Task) error {
-		t.DBID = deleteTaskDBID
-		return nil
-	})
-	storagesvc.EXPECT().UpdateTask(
-		mockutil.Context(),
-		deleteTaskDBID,
-		mockutil.Func(
-			"Should update task fields",
-			func(updater persistence.TaskUpdater) error {
-				task, err := updater(&types.Task{})
-				assert.NilError(t, err)
-				assert.DeepEqual(t, task.Status, enums.TaskStatusDone)
-				assert.DeepEqual(t, task.CompletedAt, time.Now(), mockutil.EquateNearlySameTime())
-				assert.DeepEqual(t, task.Note, "AIP deleted from source location")
-				return nil
-			},
-		),
-	)
 
-	// Worker activities
 	env.RegisterActivityWithOptions(
 		activities.NewCopyToPermanentLocationActivity(storagesvc).Execute,
 		temporalsdk_activity.RegisterOptions{Name: storage.CopyToPermanentLocationActivityName},
 	)
-	env.OnActivity(storage.CopyToPermanentLocationActivityName, mock.Anything, mock.Anything).Return(nil, nil)
 
-	env.ExecuteWorkflow(
-		NewStorageMoveWorkflow(storagesvc).Execute,
-		storage.StorageMoveWorkflowRequest{
-			AIPID:      aipUUID,
-			LocationID: locationUUID,
-			TaskQueue:  "global",
+	req := storage.StorageMoveWorkflowRequest{
+		AIPID:      uuid.New(),
+		LocationID: uuid.New(),
+		TaskQueue:  "global",
+	}
+	workflowDBID := 1
+	copyTaskDBID := 1
+	deleteTaskDBID := 2
+
+	env.OnActivity(
+		storage.UpdateAIPStatusLocalActivity,
+		mock.AnythingOfType("*context.valueCtx"),
+		storagesvc,
+		&storage.UpdateAIPStatusLocalActivityParams{
+			AIPID:  req.AIPID,
+			Status: enums.AIPStatusProcessing,
 		},
-	)
+	).Return(nil)
+
+	env.OnActivity(
+		storage.CreateWorkflowLocalActivity,
+		mock.AnythingOfType("*context.valueCtx"),
+		storagesvc,
+		&storage.CreateWorkflowLocalActivityParams{
+			AIPID:      req.AIPID,
+			TemporalID: "default-test-workflow-id",
+			Type:       enums.WorkflowTypeMoveAip,
+		},
+	).Return(workflowDBID, nil)
+
+	env.OnActivity(
+		storage.CreateTaskLocalActivity,
+		mock.AnythingOfType("*context.valueCtx"),
+		storagesvc,
+		&storage.CreateTaskLocalActivityParams{
+			WorkflowDBID: workflowDBID,
+			Status:       enums.TaskStatusInProgress,
+			Name:         "Copy AIP",
+			Note:         "Copying AIP to target location",
+		},
+	).Return(copyTaskDBID, nil)
+
+	env.OnActivity(
+		storage.CopyToPermanentLocationActivityName,
+		mock.AnythingOfType("*context.timerCtx"),
+		&activities.CopyToPermanentLocationActivityParams{
+			AIPID:      req.AIPID,
+			LocationID: req.LocationID,
+		},
+	).Return(nil, nil)
+
+	env.OnActivity(
+		storage.CompleteTaskLocalActivity,
+		mock.AnythingOfType("*context.valueCtx"),
+		storagesvc,
+		&storage.CompleteTaskLocalActivityParams{
+			DBID:   copyTaskDBID,
+			Status: enums.TaskStatusDone,
+			Note:   "AIP copied to target location",
+		},
+	).Return(nil)
+
+	env.OnActivity(
+		storage.CreateTaskLocalActivity,
+		mock.AnythingOfType("*context.valueCtx"),
+		storagesvc,
+		&storage.CreateTaskLocalActivityParams{
+			WorkflowDBID: workflowDBID,
+			Status:       enums.TaskStatusInProgress,
+			Name:         "Delete AIP",
+			Note:         "Deleting AIP from source location",
+		},
+	).Return(deleteTaskDBID, nil)
+
+	env.OnActivity(
+		storage.DeleteFromMinIOLocationLocalActivity,
+		mock.AnythingOfType("*context.valueCtx"),
+		storagesvc,
+		&storage.DeleteFromMinIOLocationLocalActivityParams{
+			AIPID: req.AIPID,
+		},
+	).Return(nil)
+
+	env.OnActivity(
+		storage.CompleteTaskLocalActivity,
+		mock.AnythingOfType("*context.valueCtx"),
+		storagesvc,
+		&storage.CompleteTaskLocalActivityParams{
+			DBID:   deleteTaskDBID,
+			Status: enums.TaskStatusDone,
+			Note:   "AIP deleted from source location",
+		},
+	).Return(nil)
+
+	env.OnActivity(
+		storage.UpdateAIPLocationLocalActivity,
+		mock.AnythingOfType("*context.valueCtx"),
+		storagesvc,
+		&storage.UpdateAIPLocationLocalActivityParams{
+			AIPID:      req.AIPID,
+			LocationID: req.LocationID,
+		},
+	).Return(nil)
+
+	env.OnActivity(
+		storage.UpdateAIPStatusLocalActivity,
+		mock.AnythingOfType("*context.valueCtx"),
+		storagesvc,
+		&storage.UpdateAIPStatusLocalActivityParams{
+			AIPID:  req.AIPID,
+			Status: enums.AIPStatusStored,
+		},
+	).Return(nil)
+
+	env.OnActivity(
+		storage.CompleteWorkflowLocalActivity,
+		mock.AnythingOfType("*context.valueCtx"),
+		storagesvc,
+		&storage.CompleteWorkflowLocalActivityParams{
+			DBID:   workflowDBID,
+			Status: enums.WorkflowStatusDone,
+		},
+	).Return(nil)
+
+	env.ExecuteWorkflow(NewStorageMoveWorkflow(storagesvc).Execute, req)
 
 	require.True(t, env.IsWorkflowCompleted())
 	err := env.GetWorkflowResult(nil)
