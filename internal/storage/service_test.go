@@ -1908,6 +1908,34 @@ func TestCreateWorkflow(t *testing.T) {
 		svc := setUpService(t, attrs)
 		ctx := context.Background()
 
+		dbID := 1
+		workflow := &types.Workflow{
+			UUID:       uuid.New(),
+			TemporalID: "temporal-id",
+			Type:       enums.WorkflowTypeMoveAip,
+			Status:     enums.WorkflowStatusInProgress,
+		}
+
+		attrs.persistenceMock.
+			EXPECT().
+			CreateWorkflow(ctx, workflow).
+			DoAndReturn(func(ctx context.Context, w *types.Workflow) error {
+				w.DBID = dbID
+				return nil
+			})
+
+		err := svc.CreateWorkflow(ctx, workflow)
+		assert.NilError(t, err)
+		assert.Equal(t, workflow.DBID, dbID)
+	})
+
+	t.Run("Returns a persistence error", func(t *testing.T) {
+		t.Parallel()
+
+		attrs := &setUpAttrs{}
+		svc := setUpService(t, attrs)
+		ctx := context.Background()
+
 		workflow := &types.Workflow{
 			UUID:       uuid.New(),
 			TemporalID: "temporal-id",
@@ -1977,6 +2005,33 @@ func TestCreateTask(t *testing.T) {
 		svc := setUpService(t, attrs)
 		ctx := context.Background()
 
+		dbID := 1
+		task := &types.Task{
+			UUID:   uuid.New(),
+			Name:   "task",
+			Status: enums.TaskStatusInProgress,
+		}
+
+		attrs.persistenceMock.
+			EXPECT().
+			CreateTask(ctx, task).
+			DoAndReturn(func(ctx context.Context, t *types.Task) error {
+				t.DBID = dbID
+				return nil
+			})
+
+		err := svc.CreateTask(ctx, task)
+		assert.NilError(t, err)
+		assert.Equal(t, task.DBID, dbID)
+	})
+
+	t.Run("Returns a persistence error", func(t *testing.T) {
+		t.Parallel()
+
+		attrs := &setUpAttrs{}
+		svc := setUpService(t, attrs)
+		ctx := context.Background()
+
 		task := &types.Task{
 			UUID:   uuid.New(),
 			Name:   "task",
@@ -2031,5 +2086,158 @@ func TestUpdateTask(t *testing.T) {
 		re, err := svc.UpdateTask(ctx, taskID, updater)
 		assert.NilError(t, err)
 		assert.DeepEqual(t, re, task)
+	})
+}
+
+func TestCreateDeletionRequest(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Creates a DeletionRequest", func(t *testing.T) {
+		t.Parallel()
+
+		attrs := &setUpAttrs{}
+		svc := setUpService(t, attrs)
+		ctx := context.Background()
+
+		dbID := 1
+		dr := &types.DeletionRequest{
+			UUID:        uuid.New(),
+			AIPUUID:     uuid.New(),
+			Reason:      "Reason",
+			Status:      enums.DeletionRequestStatusPending,
+			RequestedAt: time.Now(),
+		}
+
+		attrs.persistenceMock.
+			EXPECT().
+			CreateDeletionRequest(ctx, dr).
+			DoAndReturn(func(ctx context.Context, dr *types.DeletionRequest) error {
+				dr.DBID = dbID
+				return nil
+			})
+
+		err := svc.CreateDeletionRequest(ctx, dr)
+		assert.NilError(t, err)
+		assert.Equal(t, dr.DBID, dbID)
+	})
+
+	t.Run("Returns a persistence error", func(t *testing.T) {
+		t.Parallel()
+
+		attrs := &setUpAttrs{}
+		svc := setUpService(t, attrs)
+		ctx := context.Background()
+
+		dr := &types.DeletionRequest{
+			UUID:        uuid.New(),
+			AIPUUID:     uuid.New(),
+			Reason:      "Reason",
+			Status:      enums.DeletionRequestStatusPending,
+			RequestedAt: time.Now(),
+		}
+		perErr := errors.New("persistence error")
+
+		attrs.persistenceMock.
+			EXPECT().
+			CreateDeletionRequest(ctx, dr).
+			Return(perErr)
+
+		err := svc.CreateDeletionRequest(ctx, dr)
+		assert.ErrorIs(t, err, perErr)
+	})
+}
+
+func TestUpdateDeletionRequest(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Updates a DeletionRequest", func(t *testing.T) {
+		t.Parallel()
+
+		attrs := &setUpAttrs{}
+		svc := setUpService(t, attrs)
+		ctx := context.Background()
+
+		drID := 1
+		dr := &types.DeletionRequest{
+			DBID:        drID,
+			UUID:        uuid.New(),
+			AIPUUID:     uuid.New(),
+			Reason:      "Updated reason",
+			Status:      enums.DeletionRequestStatusApproved,
+			RequestedAt: time.Now(),
+			ReviewedAt:  time.Now(),
+			Reviewer:    "reviewer@example.com",
+			ReviewerISS: "issuer",
+			ReviewerSub: "subject",
+		}
+		updater := func(dr *types.DeletionRequest) (*types.DeletionRequest, error) { return dr, nil }
+
+		attrs.persistenceMock.
+			EXPECT().
+			UpdateDeletionRequest(
+				ctx,
+				drID,
+				mockutil.Func(
+					"should update deletion request",
+					func(updater persistence.DeletionRequestUpdater) error {
+						_, err := updater(dr)
+						return err
+					},
+				),
+			).
+			Return(dr, nil)
+
+		re, err := svc.UpdateDeletionRequest(ctx, drID, updater)
+		assert.NilError(t, err)
+		assert.DeepEqual(t, re, dr)
+	})
+}
+
+func TestReadAipPendingDeletionRequest(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Returns pending DeletionRequest", func(t *testing.T) {
+		t.Parallel()
+
+		attrs := &setUpAttrs{}
+		svc := setUpService(t, attrs)
+		ctx := context.Background()
+
+		aipUUID := uuid.New()
+		dr := &types.DeletionRequest{
+			UUID:        uuid.New(),
+			AIPUUID:     aipUUID,
+			Reason:      "Pending deletion request",
+			Status:      enums.DeletionRequestStatusPending,
+			RequestedAt: time.Now(),
+		}
+
+		attrs.persistenceMock.
+			EXPECT().
+			ReadAipPendingDeletionRequest(ctx, aipUUID).
+			Return(dr, nil)
+
+		re, err := svc.ReadAipPendingDeletionRequest(ctx, aipUUID)
+		assert.NilError(t, err)
+		assert.DeepEqual(t, re, dr)
+	})
+
+	t.Run("Returns a persistence error", func(t *testing.T) {
+		t.Parallel()
+
+		attrs := &setUpAttrs{}
+		svc := setUpService(t, attrs)
+		ctx := context.Background()
+
+		aipUUID := uuid.New()
+		perErr := errors.New("persistence error")
+
+		attrs.persistenceMock.
+			EXPECT().
+			ReadAipPendingDeletionRequest(ctx, aipUUID).
+			Return(nil, perErr)
+
+		_, err := svc.ReadAipPendingDeletionRequest(ctx, aipUUID)
+		assert.ErrorIs(t, err, perErr)
 	})
 }
