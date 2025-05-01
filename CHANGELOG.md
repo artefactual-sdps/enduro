@@ -8,6 +8,27 @@ requests.
 
 ## [Unreleased]
 
+## [0.13.0] - 2025-05-01
+
+### Fixed
+
+- Bag validation when running concurrent workflows ([#1123])
+- Nondeterministic error with preprocessing child workflow ([#1176])
+- Conditionally load AIP workflows based on ABAC ([#1189])
+
+### Changed
+
+- Dashboard pager component for SIP/AIP browse pages ([#1168])
+- Update SIP and AIP status values and badges style ([#1160])
+
+### Added
+
+- Failed status for workflows and tasks ([#1161])
+
+### Removed
+
+- Move API endpoints and workflow from ingest domain ([#1117])
+
 ## [0.12.0] - 2025-04-02
 
 ### Changed
@@ -124,7 +145,8 @@ requests.
 
 Initial release.
 
-[unreleased]: https://github.com/artefactual-sdps/enduro/compare/v0.12.0...HEAD
+[unreleased]: https://github.com/artefactual-sdps/enduro/compare/v0.13.0...HEAD
+[0.13.0]: https://github.com/artefactual-sdps/enduro/compare/v0.12.0...v0.13.0
 [0.12.0]: https://github.com/artefactual-sdps/enduro/compare/v0.11.0...v0.12.0
 [0.11.0]: https://github.com/artefactual-sdps/enduro/compare/v0.10.0...v0.11.0
 [0.10.0]: https://github.com/artefactual-sdps/enduro/compare/v0.9.0...v0.10.0
@@ -137,10 +159,16 @@ Initial release.
 [0.3.0]: https://github.com/artefactual-sdps/enduro/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/artefactual-sdps/enduro/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/artefactual-sdps/enduro/releases/tag/v0.1.0
+[#1189]: https://github.com/artefactual-sdps/enduro/issues/1189
+[#1176]: https://github.com/artefactual-sdps/enduro/issues/1176
+[#1168]: https://github.com/artefactual-sdps/enduro/issues/1168
+[#1161]: https://github.com/artefactual-sdps/enduro/issues/1161
+[#1160]: https://github.com/artefactual-sdps/enduro/issues/1160
 [#1156]: https://github.com/artefactual-sdps/enduro/issues/1156
 [#1141]: https://github.com/artefactual-sdps/enduro/issues/1141
 [#1136]: https://github.com/artefactual-sdps/enduro/issues/1136
 [#1130]: https://github.com/artefactual-sdps/enduro/issues/1130
+[#1123]: https://github.com/artefactual-sdps/enduro/issues/1123
 [#1117]: https://github.com/artefactual-sdps/enduro/issues/1117
 [#1102]: https://github.com/artefactual-sdps/enduro/issues/1102
 [#1101]: https://github.com/artefactual-sdps/enduro/issues/1101
