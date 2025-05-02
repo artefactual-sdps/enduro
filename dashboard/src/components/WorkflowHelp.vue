@@ -5,24 +5,24 @@ import IconLink from "~icons/bi/box-arrow-up-right";
 
 const statuses = [
   {
-    status: api.EnduroIngestSipWorkflowStatusEnum.Done,
+    status: api.EnduroIngestSipTaskStatusEnum.Done,
     description: "The task has completed successfully.",
   },
   {
-    status: api.EnduroIngestSipWorkflowStatusEnum.Failed,
+    status: api.EnduroIngestSipTaskStatusEnum.Failed,
     description:
       "The related package has failed to meet this task's policy-defined criteria.",
   },
   {
-    status: api.EnduroIngestSipWorkflowStatusEnum.InProgress,
+    status: api.EnduroIngestSipTaskStatusEnum.InProgress,
     description: "The task is still processing.",
   },
   {
-    status: api.EnduroIngestSipWorkflowStatusEnum.Pending,
+    status: api.EnduroIngestSipTaskStatusEnum.Pending,
     description: "The task is awaiting a user decision.",
   },
   {
-    status: api.EnduroIngestSipWorkflowStatusEnum.Error,
+    status: api.EnduroIngestSipTaskStatusEnum.Error,
     description:
       "The task has encountered a system error it could not resolve.",
   },
@@ -43,12 +43,17 @@ const emit = defineEmits<{
       <div class="card bg-light">
         <div class="card-body">
           <div class="d-flex mb-3">
-            <div class="flex-grow-1" id="workflow-description">
-              A <strong>workflow</strong> is composed of one or more
-              <strong>tasks</strong> performed on a SIP/AIP to support
-              preservation.<br />
-              Click on a workflow listed below to expand it and see more
-              information on individual tasks run as part of the workflow.
+            <div class="flex-grow-1">
+              <p id="workflow-task-definition">
+                A <b>task</b> is an operation performed on a file, directory, or
+                package in the context of a workflow. In Enduro, a
+                <b>workflow</b> is a series of tasks performed on a package to
+                support the ingest and long-term preservation.
+              </p>
+              <p>
+                Click on a workflow listed below to expand it and see more
+                information on individual tasks run as part of the workflow.
+              </p>
             </div>
             <div class="justify-content-end">
               <button
@@ -60,7 +65,7 @@ const emit = defineEmits<{
               ></button>
             </div>
           </div>
-          <label for="task-status-legend" class="h5">Task status legend</label>
+          <span class="h5">Task status legend</span>
           <div id="task-status-legend" class="container-fluid border p-2 mb-3">
             <div
               class="row"

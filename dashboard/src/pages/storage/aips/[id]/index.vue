@@ -58,7 +58,7 @@ onMounted(() => {
     >
       <div>
         <h2 class="mb-0">
-          Storage workflow details
+          Workflows
           <a
             ref="el"
             id="workflowHelpToggle"
