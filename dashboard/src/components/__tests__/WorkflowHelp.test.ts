@@ -16,8 +16,8 @@ describe("WorkflowHelp.vue", () => {
     });
 
     expect(wrapper.get("#workflow-help").isVisible()).toBe(true);
-    expect(wrapper.get("#workflow-description").text()).toContain(
-      "A workflow is composed of one or more tasks performed on a SIP/AIP to support preservation.",
+    expect(wrapper.get("#workflow-task-definition").text()).toContain(
+      "workflow",
     );
   });
 
