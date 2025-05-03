@@ -86,4 +86,4 @@ function createClient(): Client {
 
 const client = createClient();
 
-export { api, client, runtime, storageServiceDownloadURL };
+export { api, client, getPath, runtime, storageServiceDownloadURL };

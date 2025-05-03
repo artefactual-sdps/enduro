@@ -13,6 +13,7 @@ const signinRoutes: string[] = ["/user/signin", "/user/signin-callback"];
 const protectedRoutes: Record<string, string[]> = {
   "/ingest/sips/": ["ingest:sips:list"],
   "/ingest/sips/[id]/": ["ingest:sips:read"],
+  "/ingest/upload": ["ingest:sips:upload"],
   "/storage/aips/": ["storage:aips:list"],
   "/storage/aips/[id]/": ["storage:aips:read"],
   "/storage/locations/": ["storage:locations:list"],

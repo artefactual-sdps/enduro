@@ -380,6 +380,40 @@ describe("useAuthStore", () => {
     expect(authStore.user).toEqual(null);
   });
 
+  it("signs in silently", async () => {
+    const manager = new UserManager({
+      authority: "",
+      client_id: "",
+      redirect_uri: "",
+    });
+
+    const callbackMock = vi.fn().mockImplementation(manager.signinSilent);
+    callbackMock.mockImplementation(
+      async () =>
+        new User({
+          access_token: "access_token",
+          token_type: "",
+          profile: {
+            aud: "",
+            exp: 0,
+            iat: 0,
+            iss: "",
+            sub: "",
+          },
+        }),
+    );
+    manager.signinSilent = callbackMock;
+
+    const authStore = useAuthStore();
+    authStore.$patch((state) => {
+      state.config.enabled = false;
+      state.manager = manager;
+    });
+    authStore.signinSilent();
+    await flushPromises();
+    expect(authStore.getUserAccessToken).toEqual("access_token");
+  });
+
   it("redirects for signout", () => {
     const manager = new UserManager({
       authority: "",

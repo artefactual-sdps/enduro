@@ -10,6 +10,7 @@ import IconAIPs from "~icons/clarity/bundle-line?raw&width=2em&height=2em";
 import IconCaret from "~icons/clarity/caret-line";
 import IconHome from "~icons/clarity/home-line?raw&width=2em&height=2em";
 import IconLogout from "~icons/clarity/logout-line?raw&width=2em&height=2em";
+import IconUpload from "~icons/clarity/plus-circle-line?raw&width=2em&height=2em";
 import IconUser from "~icons/clarity/user-solid?raw&width=2em&height=2em";
 import IconSIPs from "~icons/octicon/package-dependencies-24?raw&width=2em&height=2em";
 import IconLocations from "~icons/octicon/server-24?raw&width=2em&height=2em";
@@ -34,6 +35,12 @@ const menuItems = [
     icon: IconSIPs,
     text: "SIPs",
     show: authStore.checkAttributes(["ingest:sips:list"]),
+  },
+  {
+    route: router.resolve("/ingest/upload"),
+    icon: IconUpload,
+    text: "Upload SIPs",
+    show: authStore.checkAttributes(["ingest:sips:upload"]),
   },
   {
     text: "STORAGE",

@@ -208,6 +208,10 @@ export const useAuthStore = defineStore("auth", {
       this.loadManager();
       this.setUser((await this.manager?.signinCallback()) || null);
     },
+    async signinSilent() {
+      this.loadManager();
+      this.setUser((await this.manager?.signinSilent()) || null);
+    },
     signoutRedirect() {
       this.loadManager();
       this.manager?.signoutRedirect();

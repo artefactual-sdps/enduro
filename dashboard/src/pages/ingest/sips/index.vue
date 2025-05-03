@@ -48,10 +48,6 @@ const toggleLegend = () => {
   if (tooltip) tooltip.hide();
 };
 
-onMounted(() => {
-  if (el.value) tooltip = new Tooltip(el.value);
-});
-
 const tabs = computed(() => [
   {
     icon: IconAll,
@@ -268,6 +264,11 @@ watch(
     execute();
   },
 );
+
+onMounted(() => {
+  if (el.value) tooltip = new Tooltip(el.value);
+  execute();
+});
 </script>
 
 <template>
