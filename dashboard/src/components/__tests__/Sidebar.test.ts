@@ -15,6 +15,7 @@ const router = createRouter({
   routes: [
     { name: "index", path: "", component: {} },
     { name: "sips", path: "/ingest/sips", component: {} },
+    { name: "upload", path: "/ingest/upload", component: {} },
     { name: "locations", path: "/storage/locations", component: {} },
     { name: "aips", path: "/storage/aips", component: {} },
   ],
@@ -43,6 +44,7 @@ describe("Sidebar.vue", () => {
     getByRole("navigation", { name: "Navigation" });
     const homeLink = getByRole("link", { name: "Home" });
     const sipsLink = getByRole("link", { name: "SIPs" });
+    const uploadLink = getByRole("link", { name: "Upload SIPs" });
     const locationsLink = getByRole("link", { name: "Locations" });
     const aipsLink = getByRole("link", { name: "AIPs" });
 
@@ -53,6 +55,10 @@ describe("Sidebar.vue", () => {
     fireEvent.click(sipsLink);
     await flushPromises();
     expect(sipsLink.getAttribute("aria-current")).toEqual("page");
+
+    fireEvent.click(uploadLink);
+    await flushPromises();
+    expect(uploadLink.getAttribute("aria-current")).toEqual("page");
 
     fireEvent.click(locationsLink);
     await flushPromises();
@@ -87,6 +93,7 @@ describe("Sidebar.vue", () => {
     getByRole("navigation", { name: "Navigation" });
     getByRole("link", { name: "Home" });
     expect(queryByRole("link", { name: "SIPs" })).toBeNull();
+    expect(queryByRole("link", { name: "Upload SIPs" })).toBeNull();
     expect(queryByRole("link", { name: "Locations" })).toBeNull();
     expect(queryByRole("link", { name: "AIPs" })).toBeNull();
   });

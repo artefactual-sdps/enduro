@@ -25,6 +25,8 @@ declare module 'vue-router/auto-routes' {
     '/ingest/sips/': RouteRecordInfo<'/ingest/sips/', '/ingest/sips', Record<never, never>, Record<never, never>>,
     '/ingest/sips/[id]': RouteRecordInfo<'/ingest/sips/[id]', '/ingest/sips/:id', { id: ParamValue<true> }, { id: ParamValue<false> }>,
     '/ingest/sips/[id]/': RouteRecordInfo<'/ingest/sips/[id]/', '/ingest/sips/:id', { id: ParamValue<true> }, { id: ParamValue<false> }>,
+    '/ingest/upload': RouteRecordInfo<'/ingest/upload', '/ingest/upload', Record<never, never>, Record<never, never>>,
+    '/ingest/upload/': RouteRecordInfo<'/ingest/upload/', '/ingest/upload', Record<never, never>, Record<never, never>>,
     '/storage': RouteRecordInfo<'/storage', '/storage', Record<never, never>, Record<never, never>>,
     '/storage/aips': RouteRecordInfo<'/storage/aips', '/storage/aips', Record<never, never>, Record<never, never>>,
     '/storage/aips/': RouteRecordInfo<'/storage/aips/', '/storage/aips', Record<never, never>, Record<never, never>>,
