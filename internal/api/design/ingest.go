@@ -214,6 +214,8 @@ var _ = Service("ingest", func() {
 			// direct access to the HTTP request body reader.
 			SkipRequestBodyEncodeDecode()
 
+			Response(StatusAccepted)
+
 			// Define error HTTP statuses.
 			Response("invalid_media_type", StatusBadRequest)
 			Response("invalid_multipart_request", StatusBadRequest)

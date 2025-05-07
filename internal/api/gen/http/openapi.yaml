@@ -404,8 +404,8 @@ paths:
                   required: false
                   type: string
             responses:
-                "204":
-                    description: No Content response.
+                "202":
+                    description: Accepted response.
                 "400":
                     description: Bad Request response.
                     schema:

@@ -539,8 +539,8 @@ paths:
                     pattern: multipart/[^;]+; boundary=.+
                   example: multipart/form-data; boundary=goa
             responses:
-                "204":
-                    description: No Content response.
+                "202":
+                    description: Accepted response.
                 "400":
                     description: 'invalid_multipart_request: Error returned when the request body is not a valid multipart content.'
                     content:
