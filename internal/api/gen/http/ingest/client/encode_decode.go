@@ -1025,7 +1025,7 @@ func DecodeUploadSipResponse(decoder func(*http.Response) goahttp.Decoder, resto
 			defer resp.Body.Close()
 		}
 		switch resp.StatusCode {
-		case http.StatusNoContent:
+		case http.StatusAccepted:
 			return nil, nil
 		case http.StatusBadRequest:
 			en := resp.Header.Get("goa-error")
