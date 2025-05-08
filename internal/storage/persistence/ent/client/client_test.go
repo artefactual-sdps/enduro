@@ -188,6 +188,7 @@ func TestListAIPs(t *testing.T) {
 					SetAipID(aipID).
 					SetObjectKey(objectKey).
 					SetStatus(enums.AIPStatusStored).
+					SetCreatedAt(time.Date(2025, 5, 8, 10, 53, 12, 0, time.UTC)).
 					ExecX(ctx)
 
 				entc.AIP.Create().
@@ -195,6 +196,7 @@ func TestListAIPs(t *testing.T) {
 					SetAipID(aipID2).
 					SetObjectKey(objectKey2).
 					SetStatus(enums.AIPStatusStored).
+					SetCreatedAt(time.Date(2025, 5, 8, 10, 53, 48, 0, time.UTC)).
 					ExecX(ctx)
 			},
 			want: &goastorage.AIPs{
@@ -204,14 +206,14 @@ func TestListAIPs(t *testing.T) {
 						UUID:      aipID2,
 						ObjectKey: objectKey2,
 						Status:    "stored",
-						CreatedAt: time.Now().Format(time.RFC3339),
+						CreatedAt: "2025-05-08T10:53:48Z",
 					},
 					{
 						Name:      "Test AIP 1",
 						UUID:      aipID,
 						ObjectKey: objectKey,
 						Status:    "stored",
-						CreatedAt: time.Now().Format(time.RFC3339),
+						CreatedAt: "2025-05-08T10:53:12Z",
 					},
 				},
 				Page: &goastorage.EnduroPage{
@@ -229,6 +231,7 @@ func TestListAIPs(t *testing.T) {
 					SetAipID(aipID).
 					SetObjectKey(objectKey).
 					SetStatus(enums.AIPStatusStored).
+					SetCreatedAt(time.Date(2025, 5, 8, 10, 53, 12, 0, time.UTC)).
 					ExecX(ctx)
 
 				entc.AIP.Create().
@@ -236,6 +239,7 @@ func TestListAIPs(t *testing.T) {
 					SetAipID(aipID2).
 					SetObjectKey(objectKey2).
 					SetStatus(enums.AIPStatusStored).
+					SetCreatedAt(time.Date(2025, 5, 8, 10, 53, 48, 0, time.UTC)).
 					ExecX(ctx)
 			},
 			payload: &goastorage.ListAipsPayload{
@@ -248,7 +252,7 @@ func TestListAIPs(t *testing.T) {
 						UUID:      aipID2,
 						ObjectKey: objectKey2,
 						Status:    "stored",
-						CreatedAt: time.Now().Format(time.RFC3339),
+						CreatedAt: "2025-05-08T10:53:48Z",
 					},
 				},
 				Page: &goastorage.EnduroPage{
@@ -266,6 +270,7 @@ func TestListAIPs(t *testing.T) {
 					SetAipID(aipID).
 					SetObjectKey(objectKey).
 					SetStatus(enums.AIPStatusStored).
+					SetCreatedAt(time.Date(2025, 5, 8, 10, 53, 12, 0, time.UTC)).
 					ExecX(ctx)
 
 				entc.AIP.Create().
@@ -273,6 +278,7 @@ func TestListAIPs(t *testing.T) {
 					SetAipID(aipID2).
 					SetObjectKey(objectKey2).
 					SetStatus(enums.AIPStatusStored).
+					SetCreatedAt(time.Date(2025, 5, 8, 10, 53, 48, 0, time.UTC)).
 					ExecX(ctx)
 			},
 			payload: &goastorage.ListAipsPayload{
@@ -285,7 +291,7 @@ func TestListAIPs(t *testing.T) {
 						UUID:      aipID,
 						ObjectKey: objectKey,
 						Status:    "stored",
-						CreatedAt: time.Now().Format(time.RFC3339),
+						CreatedAt: "2025-05-08T10:53:12Z",
 					},
 				},
 				Page: &goastorage.EnduroPage{
@@ -303,6 +309,7 @@ func TestListAIPs(t *testing.T) {
 					SetAipID(aipID).
 					SetObjectKey(objectKey).
 					SetStatus(enums.AIPStatusStored).
+					SetCreatedAt(time.Date(2025, 5, 8, 10, 53, 12, 0, time.UTC)).
 					ExecX(ctx)
 
 				entc.AIP.Create().
@@ -310,6 +317,7 @@ func TestListAIPs(t *testing.T) {
 					SetAipID(aipID2).
 					SetObjectKey(objectKey2).
 					SetStatus(enums.AIPStatusDeleted).
+					SetCreatedAt(time.Date(2025, 5, 8, 10, 53, 48, 0, time.UTC)).
 					ExecX(ctx)
 			},
 			payload: &goastorage.ListAipsPayload{
@@ -322,7 +330,7 @@ func TestListAIPs(t *testing.T) {
 						UUID:      aipID,
 						ObjectKey: objectKey,
 						Status:    "stored",
-						CreatedAt: time.Now().Format(time.RFC3339),
+						CreatedAt: "2025-05-08T10:53:12Z",
 					},
 				},
 				Page: &goastorage.EnduroPage{
@@ -340,7 +348,7 @@ func TestListAIPs(t *testing.T) {
 					SetAipID(aipID).
 					SetObjectKey(objectKey).
 					SetStatus(enums.AIPStatusStored).
-					SetCreatedAt(time.Now().Add(-48 * time.Hour)).
+					SetCreatedAt(time.Date(2025, 5, 6, 7, 8, 9, 0, time.UTC)).
 					ExecX(ctx)
 
 				entc.AIP.Create().
@@ -348,11 +356,11 @@ func TestListAIPs(t *testing.T) {
 					SetAipID(aipID2).
 					SetObjectKey(objectKey2).
 					SetStatus(enums.AIPStatusStored).
-					SetCreatedAt(time.Now().Add(-24 * time.Hour)).
+					SetCreatedAt(time.Date(2025, 5, 7, 8, 9, 10, 0, time.UTC)).
 					ExecX(ctx)
 			},
 			payload: &goastorage.ListAipsPayload{
-				EarliestCreatedTime: ref.New(time.Now().Add(-36 * time.Hour).Format(time.RFC3339)),
+				EarliestCreatedTime: ref.New("2025-05-07T00:00:00Z"),
 			},
 			want: &goastorage.AIPs{
 				Items: []*goastorage.AIP{
@@ -361,7 +369,7 @@ func TestListAIPs(t *testing.T) {
 						UUID:      aipID2,
 						ObjectKey: objectKey2,
 						Status:    "stored",
-						CreatedAt: time.Now().Add(-24 * time.Hour).Format(time.RFC3339),
+						CreatedAt: "2025-05-07T08:09:10Z",
 					},
 				},
 				Page: &goastorage.EnduroPage{
@@ -379,6 +387,7 @@ func TestListAIPs(t *testing.T) {
 					SetAipID(aipID).
 					SetObjectKey(objectKey).
 					SetStatus(enums.AIPStatusStored).
+					SetCreatedAt(time.Date(2025, 5, 8, 10, 53, 12, 0, time.UTC)).
 					ExecX(ctx)
 
 				entc.AIP.Create().
@@ -386,6 +395,7 @@ func TestListAIPs(t *testing.T) {
 					SetAipID(aipID2).
 					SetObjectKey(objectKey2).
 					SetStatus(enums.AIPStatusStored).
+					SetCreatedAt(time.Date(2025, 5, 8, 10, 53, 48, 0, time.UTC)).
 					ExecX(ctx)
 			},
 			payload: &goastorage.ListAipsPayload{
@@ -398,7 +408,7 @@ func TestListAIPs(t *testing.T) {
 						UUID:      aipID,
 						ObjectKey: objectKey,
 						Status:    "stored",
-						CreatedAt: time.Now().Format(time.RFC3339),
+						CreatedAt: "2025-05-08T10:53:12Z",
 					},
 				},
 				Page: &goastorage.EnduroPage{
@@ -441,7 +451,7 @@ func TestListAIPs(t *testing.T) {
 				return
 			}
 			assert.NilError(t, err)
-			assert.DeepEqual(t, aips, tt.want, cmpopts.EquateApproxTime(time.Second*2))
+			assert.DeepEqual(t, aips, tt.want)
 		})
 	}
 }
@@ -566,8 +576,8 @@ func TestAIPWorkflows(t *testing.T) {
 		workflowUUID2 := uuid.MustParse("f6e5d4c3-b2a1-0c9b-8a7f-6e5d4c3b2a1f")
 		taskUUID1 := uuid.MustParse("1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d")
 		taskUUID2 := uuid.MustParse("6d5c4b3a-2f1e-0d9c-8b7a-6f5e4d3c2b1a")
-		startedAt := time.Now().Add(-time.Minute)
-		completedAt := time.Now()
+		startedAt := time.Date(2023, 10, 1, 12, 0, 0, 0, time.UTC)
+		completedAt := time.Date(2023, 10, 1, 12, 1, 0, 0, time.UTC)
 
 		entc.AIP.Create().
 			SetName("AIP").
