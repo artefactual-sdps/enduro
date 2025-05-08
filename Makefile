@@ -128,18 +128,6 @@ gen-mock: tool-mockgen
 	mockgen -typed -destination=./internal/watcher/fake/mock_service.go -package=fake github.com/artefactual-sdps/enduro/internal/watcher Service
 	mockgen -typed -destination=./internal/watcher/fake/mock_watcher.go -package=fake github.com/artefactual-sdps/enduro/internal/watcher Watcher
 
-gosec: # @HELP Run gosec security scanner.
-gosec: GOSEC_VERBOSITY ?= "-terse"
-gosec: tool-gosec
-	gosec \
-		$(GOSEC_VERBOSITY) \
-		-exclude-dir=dashboard \
-		-exclude-dir=hack \
-		-exclude-dir=internal/api/gen \
-		-exclude-dir=internal/persistence/ent/db \
-		-exclude-dir=internal/storage/persistence/ent/db \
-		./...
-
 help: # @HELP Print this message.
 help:
 	echo "TARGETS:"
@@ -179,7 +167,6 @@ mod-tidy-check: # @HELP Check that mod files are tidy.
 pre-commit: # @HELP Check that code is ready to commit.
 pre-commit:
 	$(MAKE) -j \
-		gosec GOSEC_VERBOSITY="-quiet"\
 		lint \
 		mod-tidy-check \
 		shfmt \

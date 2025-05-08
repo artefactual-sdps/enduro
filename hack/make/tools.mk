@@ -6,7 +6,6 @@ TOOLS = \
     goa \
     golangci-lint \
     gomajor \
-    gosec \
     gotestsum \
     migrate \
     mockgen \

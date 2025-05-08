@@ -27,18 +27,13 @@
     {
       "name": "golangci-lint",
       "url": "https://github.com/golangci/golangci-lint",
-      "version": "2.0.2",
+      "version": "2.1.6",
       "asset_pattern": "{name}-{version}-{goos}-{goarch}.tar.gz"
     },
     {
       "name": "gomajor",
       "go_package": "github.com/icholy/gomajor",
       "version": "0.9.5"
-    },
-    {
-      "name": "gosec",
-      "go_package": "github.com/securego/gosec/v2/cmd/gosec",
-      "version": "latest"
     },
     {
       "name": "gotestsum",
