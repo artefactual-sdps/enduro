@@ -16,5 +16,5 @@ jobs:
           go-version-file: go.mod
       - name: Check atlas.sum
         run: |
-          go run -mod=mod ariga.io/atlas/cmd/atlas@v0.13.1 \
+          go tool bine run atlas \
             migrate validate --dir "file://./internal/storage/persistence/migrations"
