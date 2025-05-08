@@ -3,6 +3,7 @@ TOOLS = \
     atlas \
     ent \
     go-enum \
+    go-mod-outdated \
     goa \
     golangci-lint \
     gomajor \
