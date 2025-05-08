@@ -53,8 +53,8 @@ db:
 	mysql -h127.0.0.1 -P3306 -uroot -proot123 enduro
 
 deps: # @HELP List available module dependency updates.
-deps: tool-gomajor
-	gomajor list
+deps: tool-go-mod-outdated
+	go list -u -m -json all | go-mod-outdated -direct -update
 
 env: # @HELP Print Go env variables.
 env:
