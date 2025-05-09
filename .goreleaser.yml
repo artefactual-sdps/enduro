@@ -25,9 +25,9 @@ builds:
   flags:
   - -trimpath
   ldflags:
-  - -X "main.buildTime={{.Date}}"
-  - -X "main.gitCommit={{.Commit}}"
-  - -X "main.version={{.Version}}"
+  - -X "github.com/artefactual-sdps/enduro/internal/version.Long={{ .Version }}-t{{ .ShortCommit }}"
+  - -X "github.com/artefactual-sdps/enduro/internal/version.Short={{ .Version }}"
+  - -X "github.com/artefactual-sdps/enduro/internal/version.GitCommit={{ .Commit }}"
   main: ./cmd/enduro
   binary: enduro
 
@@ -41,9 +41,9 @@ builds:
   flags:
   - -trimpath
   ldflags:
-  - -X "main.buildTime={{.Date}}"
-  - -X "main.gitCommit={{.Commit}}"
-  - -X "main.version={{.Version}}"
+  - -X "github.com/artefactual-sdps/enduro/internal/version.Long={{ .Version }}-t{{ .ShortCommit }}"
+  - -X "github.com/artefactual-sdps/enduro/internal/version.Short={{ .Version }}"
+  - -X "github.com/artefactual-sdps/enduro/internal/version.GitCommit={{ .Commit }}"
   main: ./cmd/enduro-am-worker
   binary: enduro-am-worker
 
@@ -57,9 +57,9 @@ builds:
   flags:
   - -trimpath
   ldflags:
-  - -X "main.buildTime={{.Date}}"
-  - -X "main.gitCommit={{.Commit}}"
-  - -X "main.version={{.Version}}"
+  - -X "github.com/artefactual-sdps/enduro/internal/version.Long={{ .Version }}-t{{ .ShortCommit }}"
+  - -X "github.com/artefactual-sdps/enduro/internal/version.Short={{ .Version }}"
+  - -X "github.com/artefactual-sdps/enduro/internal/version.GitCommit={{ .Commit }}"
   main: ./cmd/enduro-a3m-worker
   binary: enduro-a3m-worker
 
