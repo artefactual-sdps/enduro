@@ -1031,9 +1031,24 @@ func EncodeListAipWorkflowsResponse(encoder func(context.Context, http.ResponseW
 func DecodeListAipWorkflowsRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (any, error) {
 	return func(r *http.Request) (any, error) {
 		var (
+			body ListAipWorkflowsRequestBody
+			err  error
+		)
+		err = decoder(r).Decode(&body)
+		if err != nil {
+			if err == io.EOF {
+				return nil, goa.MissingPayloadError()
+			}
+			return nil, goa.DecodePayloadError(err.Error())
+		}
+		err = ValidateListAipWorkflowsRequestBody(&body)
+		if err != nil {
+			return nil, err
+		}
+
+		var (
 			uuid  string
 			token *string
-			err   error
 
 			params = mux.Vars(r)
 		)
@@ -1046,7 +1061,7 @@ func DecodeListAipWorkflowsRequest(mux goahttp.Muxer, decoder func(*http.Request
 		if err != nil {
 			return nil, err
 		}
-		payload := NewListAipWorkflowsPayload(uuid, token)
+		payload := NewListAipWorkflowsPayload(&body, uuid, token)
 		if payload.Token != nil {
 			if strings.Contains(*payload.Token, " ") {
 				// Remove authorization scheme prefix (e.g. "Bearer")

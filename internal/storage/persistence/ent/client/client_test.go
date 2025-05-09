@@ -17,6 +17,7 @@ import (
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 	"github.com/artefactual-sdps/enduro/internal/entfilter"
 	"github.com/artefactual-sdps/enduro/internal/storage/enums"
+	"github.com/artefactual-sdps/enduro/internal/storage/persistence"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/client"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/aip"
@@ -563,22 +564,17 @@ func TestUpdateAIPLocation(t *testing.T) {
 		).OnlyX(context.Background())
 }
 
-func TestAIPWorkflows(t *testing.T) {
+func TestListWorkflows(t *testing.T) {
 	t.Parallel()
 
-	t.Run("Lists AIP workflows", func(t *testing.T) {
-		t.Parallel()
+	workflowUUID1 := uuid.MustParse("a1b2c3d4-e5f6-7a8b-9c0d-e1f2a3b4c5d6")
+	workflowUUID2 := uuid.MustParse("f6e5d4c3-b2a1-0c9b-8a7f-6e5d4c3b2a1f")
+	taskUUID1 := uuid.MustParse("1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d")
+	taskUUID2 := uuid.MustParse("6d5c4b3a-2f1e-0d9c-8b7a-6f5e4d3c2b1a")
+	startedAt := time.Date(2023, 10, 1, 12, 0, 0, 0, time.UTC)
+	completedAt := time.Date(2023, 10, 1, 12, 1, 0, 0, time.UTC)
 
-		ctx := context.Background()
-		entc, c := setUpClient(t)
-
-		workflowUUID1 := uuid.MustParse("a1b2c3d4-e5f6-7a8b-9c0d-e1f2a3b4c5d6")
-		workflowUUID2 := uuid.MustParse("f6e5d4c3-b2a1-0c9b-8a7f-6e5d4c3b2a1f")
-		taskUUID1 := uuid.MustParse("1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d")
-		taskUUID2 := uuid.MustParse("6d5c4b3a-2f1e-0d9c-8b7a-6f5e4d3c2b1a")
-		startedAt := time.Date(2023, 10, 1, 12, 0, 0, 0, time.UTC)
-		completedAt := time.Date(2023, 10, 1, 12, 1, 0, 0, time.UTC)
-
+	addWorkflowData := func(ctx context.Context, entc *db.Client) {
 		entc.AIP.Create().
 			SetName("AIP").
 			SetAipID(aipID).
@@ -623,56 +619,160 @@ func TestAIPWorkflows(t *testing.T) {
 			SetNote("Note 2").
 			SetWorkflowID(workflow2.ID).
 			SaveX(ctx)
+	}
 
-		expected := goastorage.AIPWorkflowCollection{
-			{
-				UUID:        workflowUUID1,
-				TemporalID:  "temporal-id-1",
-				Type:        enums.WorkflowTypeMoveAip.String(),
-				Status:      enums.WorkflowStatusDone.String(),
-				StartedAt:   ref.New(startedAt.Format(time.RFC3339)),
-				CompletedAt: ref.New(completedAt.Format(time.RFC3339)),
-				Tasks: goastorage.AIPTaskCollection{
-					{
-						UUID:        taskUUID1,
-						Name:        "Task 1",
-						Status:      enums.TaskStatusDone.String(),
-						StartedAt:   ref.New(startedAt.Format(time.RFC3339)),
-						CompletedAt: ref.New(completedAt.Format(time.RFC3339)),
-						Note:        ref.New("Note 1"),
+	type test struct {
+		name   string
+		filter persistence.WorkflowFilter
+		want   goastorage.AIPWorkflowCollection
+	}
+
+	for _, tt := range []test{
+		{
+			name: "Returns all workflows",
+			want: goastorage.AIPWorkflowCollection{
+				{
+					UUID:        workflowUUID1,
+					TemporalID:  "temporal-id-1",
+					Type:        enums.WorkflowTypeMoveAip.String(),
+					Status:      enums.WorkflowStatusDone.String(),
+					StartedAt:   ref.New(startedAt.Format(time.RFC3339)),
+					CompletedAt: ref.New(completedAt.Format(time.RFC3339)),
+					Tasks: goastorage.AIPTaskCollection{
+						{
+							UUID:        taskUUID1,
+							Name:        "Task 1",
+							Status:      enums.TaskStatusDone.String(),
+							StartedAt:   ref.New(startedAt.Format(time.RFC3339)),
+							CompletedAt: ref.New(completedAt.Format(time.RFC3339)),
+							Note:        ref.New("Note 1"),
+						},
+					},
+				},
+				{
+					UUID:       workflowUUID2,
+					TemporalID: "temporal-id-2",
+					Type:       enums.WorkflowTypeDeleteAip.String(),
+					Status:     enums.WorkflowStatusInProgress.String(),
+					StartedAt:  ref.New(startedAt.Format(time.RFC3339)),
+					Tasks: goastorage.AIPTaskCollection{
+						{
+							UUID:      taskUUID2,
+							Name:      "Task 2",
+							Status:    enums.TaskStatusInProgress.String(),
+							StartedAt: ref.New(startedAt.Format(time.RFC3339)),
+							Note:      ref.New("Note 2"),
+						},
 					},
 				},
 			},
-			{
-				UUID:       workflowUUID2,
-				TemporalID: "temporal-id-2",
-				Type:       enums.WorkflowTypeDeleteAip.String(),
-				Status:     enums.WorkflowStatusInProgress.String(),
-				StartedAt:  ref.New(startedAt.Format(time.RFC3339)),
-				Tasks: goastorage.AIPTaskCollection{
-					{
-						UUID:      taskUUID2,
-						Name:      "Task 2",
-						Status:    enums.TaskStatusInProgress.String(),
-						StartedAt: ref.New(startedAt.Format(time.RFC3339)),
-						Note:      ref.New("Note 2"),
+		},
+		{
+			name:   "Returns workflows matching AIP UUID",
+			filter: persistence.WorkflowFilter{AIPUUID: &aipID},
+			want: goastorage.AIPWorkflowCollection{
+				{
+					UUID:        workflowUUID1,
+					TemporalID:  "temporal-id-1",
+					Type:        enums.WorkflowTypeMoveAip.String(),
+					Status:      enums.WorkflowStatusDone.String(),
+					StartedAt:   ref.New(startedAt.Format(time.RFC3339)),
+					CompletedAt: ref.New(completedAt.Format(time.RFC3339)),
+					Tasks: goastorage.AIPTaskCollection{
+						{
+							UUID:        taskUUID1,
+							Name:        "Task 1",
+							Status:      enums.TaskStatusDone.String(),
+							StartedAt:   ref.New(startedAt.Format(time.RFC3339)),
+							CompletedAt: ref.New(completedAt.Format(time.RFC3339)),
+							Note:        ref.New("Note 1"),
+						},
+					},
+				},
+				{
+					UUID:       workflowUUID2,
+					TemporalID: "temporal-id-2",
+					Type:       enums.WorkflowTypeDeleteAip.String(),
+					Status:     enums.WorkflowStatusInProgress.String(),
+					StartedAt:  ref.New(startedAt.Format(time.RFC3339)),
+					Tasks: goastorage.AIPTaskCollection{
+						{
+							UUID:      taskUUID2,
+							Name:      "Task 2",
+							Status:    enums.TaskStatusInProgress.String(),
+							StartedAt: ref.New(startedAt.Format(time.RFC3339)),
+							Note:      ref.New("Note 2"),
+						},
 					},
 				},
 			},
-		}
+		},
+		{
+			name:   "Returns workflows matching status",
+			filter: persistence.WorkflowFilter{Status: ref.New(enums.WorkflowStatusInProgress)},
+			want: goastorage.AIPWorkflowCollection{
+				{
+					UUID:       workflowUUID2,
+					TemporalID: "temporal-id-2",
+					Type:       enums.WorkflowTypeDeleteAip.String(),
+					Status:     enums.WorkflowStatusInProgress.String(),
+					StartedAt:  ref.New(startedAt.Format(time.RFC3339)),
+					Tasks: goastorage.AIPTaskCollection{
+						{
+							UUID:      taskUUID2,
+							Name:      "Task 2",
+							Status:    enums.TaskStatusInProgress.String(),
+							StartedAt: ref.New(startedAt.Format(time.RFC3339)),
+							Note:      ref.New("Note 2"),
+						},
+					},
+				},
+			},
+		},
+		{
+			name:   "Returns workflows matching type",
+			filter: persistence.WorkflowFilter{Type: ref.New(enums.WorkflowTypeDeleteAip)},
+			want: goastorage.AIPWorkflowCollection{
+				{
+					UUID:       workflowUUID2,
+					TemporalID: "temporal-id-2",
+					Type:       enums.WorkflowTypeDeleteAip.String(),
+					Status:     enums.WorkflowStatusInProgress.String(),
+					StartedAt:  ref.New(startedAt.Format(time.RFC3339)),
+					Tasks: goastorage.AIPTaskCollection{
+						{
+							UUID:      taskUUID2,
+							Name:      "Task 2",
+							Status:    enums.TaskStatusInProgress.String(),
+							StartedAt: ref.New(startedAt.Format(time.RFC3339)),
+							Note:      ref.New("Note 2"),
+						},
+					},
+				},
+			},
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 
-		re, err := c.AIPWorkflows(ctx, aipID)
-		assert.NilError(t, err)
-		assert.DeepEqual(
-			t,
-			re,
-			expected,
-			cmpopts.SortSlices(func(a, b goastorage.AIPWorkflow) bool {
-				return a.UUID.String() < b.UUID.String()
-			}),
-			mockutil.EquateNearlySameTime(),
-		)
-	})
+			ctx := context.Background()
+			entc, c := setUpClient(t)
+
+			addWorkflowData(ctx, entc)
+
+			got, err := c.ListWorkflows(ctx, &tt.filter)
+			assert.NilError(t, err)
+			assert.DeepEqual(
+				t,
+				got,
+				tt.want,
+				cmpopts.SortSlices(func(a, b goastorage.AIPWorkflow) bool {
+					return a.UUID.String() < b.UUID.String()
+				}),
+				mockutil.EquateNearlySameTime(),
+			)
+		})
+	}
 }
 
 func TestCreateLocation(t *testing.T) {

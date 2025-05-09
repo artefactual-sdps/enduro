@@ -222,12 +222,18 @@ var _ = Service("storage", func() {
 		})
 	})
 	Method("list_aip_workflows", func() {
-		Description("List all workflows for an AIP")
+		Description("List workflows related to an AIP")
 		Security(JWTAuth, func() {
 			Scope("storage:aips:workflows:list")
 		})
 		Payload(func() {
 			AttributeUUID("uuid", "Identifier of AIP")
+			Attribute("status", String, func() {
+				EnumAIPWorkflowStatus()
+			})
+			Attribute("type", String, func() {
+				EnumAIPWorkflowType()
+			})
 			Token("token", String)
 			Required("uuid")
 		})

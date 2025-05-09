@@ -19,6 +19,7 @@ export * from './EnduroPreprocessing';
 export * from './EnduroStorageAip';
 export * from './EnduroStorageAipTask';
 export * from './EnduroStorageAipWorkflow';
+export * from './ListAipWorkflowsRequestBody';
 export * from './Location';
 export * from './LocationResponse';
 export * from './ModelError';

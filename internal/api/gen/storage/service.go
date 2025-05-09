@@ -200,8 +200,10 @@ type EnduroPage struct {
 // list_aip_workflows method.
 type ListAipWorkflowsPayload struct {
 	// Identifier of AIP
-	UUID  string
-	Token *string
+	UUID   string
+	Type   *string
+	Status *string
+	Token  *string
 }
 
 // ListAipsPayload is the payload type of the storage service list_aips method.

@@ -402,12 +402,31 @@ func (s *serviceImpl) ListAipWorkflows(
 	ctx context.Context,
 	payload *goastorage.ListAipWorkflowsPayload,
 ) (*goastorage.AIPWorkflows, error) {
+	f := persistence.WorkflowFilter{}
+
 	aipUUID, err := uuid.Parse(payload.UUID)
 	if err != nil {
-		return nil, goastorage.MakeNotValid(errors.New("cannot perform operation"))
+		return nil, goastorage.MakeNotValid(errors.New("UUID: invalid value"))
+	}
+	f.AIPUUID = &aipUUID
+
+	if payload.Status != nil {
+		s, err := enums.ParseWorkflowStatus(*payload.Status)
+		if err != nil {
+			return nil, goastorage.MakeNotValid(errors.New("status: invalid value"))
+		}
+		f.Status = &s
 	}
 
-	workflows, err := s.storagePersistence.AIPWorkflows(ctx, aipUUID)
+	if payload.Type != nil {
+		t, err := enums.ParseWorkflowType(*payload.Type)
+		if err != nil {
+			return nil, goastorage.MakeNotValid(errors.New("type: invalid value"))
+		}
+		f.Type = &t
+	}
+
+	workflows, err := s.storagePersistence.ListWorkflows(ctx, &f)
 	if err != nil {
 		return nil, goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
 	}

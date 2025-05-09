@@ -134,6 +134,7 @@ func ParseEndpoint(
 		storageShowAipTokenFlag = storageShowAipFlags.String("token", "", "")
 
 		storageListAipWorkflowsFlags     = flag.NewFlagSet("list-aip-workflows", flag.ExitOnError)
+		storageListAipWorkflowsBodyFlag  = storageListAipWorkflowsFlags.String("body", "REQUIRED", "")
 		storageListAipWorkflowsUUIDFlag  = storageListAipWorkflowsFlags.String("uuid", "REQUIRED", "Identifier of AIP")
 		storageListAipWorkflowsTokenFlag = storageListAipWorkflowsFlags.String("token", "", "")
 
@@ -387,7 +388,7 @@ func ParseEndpoint(
 				data, err = storagec.BuildShowAipPayload(*storageShowAipUUIDFlag, *storageShowAipTokenFlag)
 			case "list-aip-workflows":
 				endpoint = c.ListAipWorkflows()
-				data, err = storagec.BuildListAipWorkflowsPayload(*storageListAipWorkflowsUUIDFlag, *storageListAipWorkflowsTokenFlag)
+				data, err = storagec.BuildListAipWorkflowsPayload(*storageListAipWorkflowsBodyFlag, *storageListAipWorkflowsUUIDFlag, *storageListAipWorkflowsTokenFlag)
 			case "request-aip-deletion":
 				endpoint = c.RequestAipDeletion()
 				data, err = storagec.BuildRequestAipDeletionPayload(*storageRequestAipDeletionBodyFlag, *storageRequestAipDeletionUUIDFlag, *storageRequestAipDeletionTokenFlag)
@@ -694,14 +695,18 @@ Example:
 }
 
 func storageListAipWorkflowsUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage list-aip-workflows -uuid STRING -token STRING
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage list-aip-workflows -body JSON -uuid STRING -token STRING
 
 List all workflows for an AIP
+    -body JSON: 
     -uuid STRING: Identifier of AIP
     -token STRING: 
 
 Example:
-    %[1]s storage list-aip-workflows --uuid "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --token "abc123"
+    %[1]s storage list-aip-workflows --body '{
+      "status": "in progress",
+      "type": "upload aip"
+   }' --uuid "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --token "abc123"
 `, os.Args[0])
 }
 
