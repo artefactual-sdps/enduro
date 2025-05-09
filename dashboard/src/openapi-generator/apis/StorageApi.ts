@@ -24,6 +24,7 @@ import type {
   CreateLocationRequestBody,
   CreateLocationResult,
   EnduroStorageAip,
+  ListAipWorkflowsRequestBody,
   Location,
   LocationResponse,
   MoveStatusResult,
@@ -51,6 +52,8 @@ import {
     CreateLocationResultToJSON,
     EnduroStorageAipFromJSON,
     EnduroStorageAipToJSON,
+    ListAipWorkflowsRequestBodyFromJSON,
+    ListAipWorkflowsRequestBodyToJSON,
     LocationFromJSON,
     LocationToJSON,
     LocationResponseFromJSON,
@@ -81,6 +84,7 @@ export interface StorageDownloadAipRequest {
 
 export interface StorageListAipWorkflowsRequest {
     uuid: string;
+    listAipWorkflowsRequestBody: ListAipWorkflowsRequestBody;
 }
 
 export interface StorageListAipsRequest {
@@ -195,6 +199,7 @@ export interface StorageApiInterface {
      * List all workflows for an AIP
      * @summary list_aip_workflows storage
      * @param {string} uuid Identifier of AIP
+     * @param {ListAipWorkflowsRequestBody} listAipWorkflowsRequestBody 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof StorageApiInterface
@@ -549,9 +554,15 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
             throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling storageListAipWorkflows.');
         }
 
+        if (requestParameters.listAipWorkflowsRequestBody === null || requestParameters.listAipWorkflowsRequestBody === undefined) {
+            throw new runtime.RequiredError('listAipWorkflowsRequestBody','Required parameter requestParameters.listAipWorkflowsRequestBody was null or undefined when calling storageListAipWorkflows.');
+        }
+
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
@@ -566,6 +577,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
+            body: ListAipWorkflowsRequestBodyToJSON(requestParameters.listAipWorkflowsRequestBody),
         }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => AIPWorkflowsFromJSON(jsonValue));

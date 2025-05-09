@@ -1027,6 +1027,11 @@ paths:
                   in: header
                   required: false
                   type: string
+                - name: list_aip_workflows_request_body
+                  in: body
+                  required: true
+                  schema:
+                    $ref: '#/definitions/StorageListAipWorkflowsRequestBody'
             responses:
                 "200":
                     description: OK response.
@@ -2893,6 +2898,32 @@ definitions:
         required:
             - message
             - uuid
+    StorageListAipWorkflowsRequestBody:
+        title: StorageListAipWorkflowsRequestBody
+        type: object
+        properties:
+            status:
+                type: string
+                example: in progress
+                enum:
+                    - unspecified
+                    - in progress
+                    - done
+                    - error
+                    - queued
+                    - pending
+                    - canceled
+            type:
+                type: string
+                example: upload aip
+                enum:
+                    - unspecified
+                    - upload aip
+                    - move aip
+                    - delete aip
+        example:
+            status: in progress
+            type: upload aip
     StorageListAipWorkflowsResponseBody:
         title: 'Mediatype identifier: application/vnd.enduro.storage.aip.workflows; view=default'
         type: object

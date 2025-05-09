@@ -1274,6 +1274,10 @@ func EncodeListAipWorkflowsRequest(encoder func(*http.Request) goahttp.Encoder) 
 				req.Header.Set("Authorization", head)
 			}
 		}
+		body := NewListAipWorkflowsRequestBody(p)
+		if err := encoder(req).Encode(&body); err != nil {
+			return goahttp.ErrEncodingError("storage", "list_aip_workflows", err)
+		}
 		return nil
 	}
 }

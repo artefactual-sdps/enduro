@@ -24,6 +24,7 @@ models/EnduroPreprocessing.ts
 models/EnduroStorageAip.ts
 models/EnduroStorageAipTask.ts
 models/EnduroStorageAipWorkflow.ts
+models/ListAipWorkflowsRequestBody.ts
 models/Location.ts
 models/LocationResponse.ts
 models/ModelError.ts

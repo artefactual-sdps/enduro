@@ -1053,24 +1053,76 @@ func TestListAipWorkflows(t *testing.T) {
 				UUID: aipID.String(),
 			},
 			mock: func(ctx context.Context, s *fake.MockStorage) {
-				s.EXPECT().AIPWorkflows(ctx, aipID).Return(workflows, nil)
+				s.EXPECT().
+					ListWorkflows(ctx, &persistence.WorkflowFilter{AIPUUID: &aipID}).
+					Return(workflows, nil)
 			},
 			want: &goastorage.AIPWorkflows{Workflows: workflows},
 		},
 		{
-			name: "Fails to lists AIP workflows (invalid AIP ID)",
+			name: "Filter AIP workflows by status",
+			payload: &goastorage.ListAipWorkflowsPayload{
+				UUID:   aipID.String(),
+				Status: ref.New(enums.WorkflowStatusInProgress.String()),
+			},
+			mock: func(ctx context.Context, s *fake.MockStorage) {
+				s.EXPECT().
+					ListWorkflows(ctx, &persistence.WorkflowFilter{
+						AIPUUID: &aipID,
+						Status:  ref.New(enums.WorkflowStatusInProgress),
+					}).
+					Return(workflows[1:], nil)
+			},
+			want: &goastorage.AIPWorkflows{Workflows: workflows[1:]},
+		},
+		{
+			name: "Filter AIP workflows by type",
+			payload: &goastorage.ListAipWorkflowsPayload{
+				UUID: aipID.String(),
+				Type: ref.New(enums.WorkflowTypeMoveAip.String()),
+			},
+			mock: func(ctx context.Context, s *fake.MockStorage) {
+				s.EXPECT().
+					ListWorkflows(ctx, &persistence.WorkflowFilter{
+						AIPUUID: &aipID,
+						Type:    ref.New(enums.WorkflowTypeMoveAip),
+					}).
+					Return(workflows[:1], nil)
+			},
+			want: &goastorage.AIPWorkflows{Workflows: workflows[:1]},
+		},
+		{
+			name: "Fails on invalid AIP UUID",
 			payload: &goastorage.ListAipWorkflowsPayload{
 				UUID: "invalid-uuid",
 			},
-			wantErr: "cannot perform operation",
+			wantErr: "UUID: invalid value",
 		},
 		{
-			name: "Fails to lists AIP workflows (persistence error)",
+			name: "Fails on invalid workflow status",
+			payload: &goastorage.ListAipWorkflowsPayload{
+				UUID:   aipID.String(),
+				Status: ref.New("bad status"),
+			},
+			wantErr: "status: invalid value",
+		},
+		{
+			name: "Fails on invalid workflow type",
+			payload: &goastorage.ListAipWorkflowsPayload{
+				UUID: aipID.String(),
+				Type: ref.New("bad type"),
+			},
+			wantErr: "type: invalid value",
+		},
+		{
+			name: "Fails on persistence error",
 			payload: &goastorage.ListAipWorkflowsPayload{
 				UUID: aipID.String(),
 			},
 			mock: func(ctx context.Context, s *fake.MockStorage) {
-				s.EXPECT().AIPWorkflows(ctx, aipID).Return(nil, errors.New("persistece error"))
+				s.EXPECT().
+					ListWorkflows(ctx, &persistence.WorkflowFilter{AIPUUID: &aipID}).
+					Return(nil, errors.New("persistence error"))
 			},
 			wantErr: "cannot perform operation",
 		},

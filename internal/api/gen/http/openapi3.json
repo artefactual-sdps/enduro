@@ -967,6 +967,38 @@
         ],
         "type": "object"
       },
+      "ListAipWorkflowsRequestBody": {
+        "example": {
+          "status": "in progress",
+          "type": "upload aip"
+        },
+        "properties": {
+          "status": {
+            "enum": [
+              "unspecified",
+              "in progress",
+              "done",
+              "error",
+              "queued",
+              "pending",
+              "canceled"
+            ],
+            "example": "in progress",
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "unspecified",
+              "upload aip",
+              "move aip",
+              "delete aip"
+            ],
+            "example": "upload aip",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "Location": {
         "example": {
           "config": {
@@ -3645,6 +3677,20 @@
             }
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "example": {
+                "status": "in progress",
+                "type": "upload aip"
+              },
+              "schema": {
+                "$ref": "#/components/schemas/ListAipWorkflowsRequestBody"
+              }
+            }
+          },
+          "required": true
+        },
         "responses": {
           "200": {
             "content": {

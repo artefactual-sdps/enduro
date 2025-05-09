@@ -15,6 +15,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/aip"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/location"
+	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/workflow"
 	"github.com/artefactual-sdps/enduro/internal/storage/types"
 	"github.com/artefactual-sdps/enduro/internal/timerange"
 )
@@ -184,8 +185,22 @@ func (c *Client) UpdateAIPLocationID(ctx context.Context, aipID, locationID uuid
 	return nil
 }
 
-func (c *Client) AIPWorkflows(ctx context.Context, aipUUID uuid.UUID) (goastorage.AIPWorkflowCollection, error) {
-	res, err := c.c.AIP.Query().Where(aip.AipID(aipUUID)).QueryWorkflows().WithTasks().All(ctx)
+func (c *Client) ListWorkflows(ctx context.Context, f *persistence.WorkflowFilter) (goastorage.AIPWorkflowCollection, error) {
+	q := c.c.Workflow.Query()
+
+	if f.AIPUUID != nil {
+		q = q.Where(workflow.HasAipWith(aip.AipID(*f.AIPUUID)))
+	}
+
+	if f.Status != nil {
+		q = q.Where(workflow.StatusEQ(*f.Status))
+	}
+
+	if f.Type != nil {
+		q = q.Where(workflow.TypeEQ(*f.Type))
+	}
+
+	res, err := q.WithTasks().All(ctx)
 	if err != nil {
 		return nil, err
 	}

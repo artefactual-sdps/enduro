@@ -23,7 +23,7 @@ type Storage interface {
 	ReadAIP(ctx context.Context, aipID uuid.UUID) (*goastorage.AIP, error)
 	UpdateAIPStatus(ctx context.Context, aipID uuid.UUID, status enums.AIPStatus) error
 	UpdateAIPLocationID(ctx context.Context, aipID, locationID uuid.UUID) error
-	AIPWorkflows(ctx context.Context, aipUUID uuid.UUID) (goastorage.AIPWorkflowCollection, error)
+	ListWorkflows(ctx context.Context, f *WorkflowFilter) (goastorage.AIPWorkflowCollection, error)
 
 	// Location.
 	CreateLocation(
@@ -47,4 +47,10 @@ type Storage interface {
 	CreateDeletionRequest(context.Context, *types.DeletionRequest) error
 	UpdateDeletionRequest(context.Context, int, DeletionRequestUpdater) (*types.DeletionRequest, error)
 	ReadAipPendingDeletionRequest(context.Context, uuid.UUID) (*types.DeletionRequest, error)
+}
+
+type WorkflowFilter struct {
+	AIPUUID *uuid.UUID
+	Status  *enums.WorkflowStatus
+	Type    *enums.WorkflowType
 }

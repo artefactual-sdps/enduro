@@ -339,8 +339,28 @@ func BuildShowAipPayload(storageShowAipUUID string, storageShowAipToken string) 
 
 // BuildListAipWorkflowsPayload builds the payload for the storage
 // list_aip_workflows endpoint from CLI flags.
-func BuildListAipWorkflowsPayload(storageListAipWorkflowsUUID string, storageListAipWorkflowsToken string) (*storage.ListAipWorkflowsPayload, error) {
+func BuildListAipWorkflowsPayload(storageListAipWorkflowsBody string, storageListAipWorkflowsUUID string, storageListAipWorkflowsToken string) (*storage.ListAipWorkflowsPayload, error) {
 	var err error
+	var body ListAipWorkflowsRequestBody
+	{
+		err = json.Unmarshal([]byte(storageListAipWorkflowsBody), &body)
+		if err != nil {
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"status\": \"in progress\",\n      \"type\": \"upload aip\"\n   }'")
+		}
+		if body.Type != nil {
+			if !(*body.Type == "unspecified" || *body.Type == "upload aip" || *body.Type == "move aip" || *body.Type == "delete aip") {
+				err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.type", *body.Type, []any{"unspecified", "upload aip", "move aip", "delete aip"}))
+			}
+		}
+		if body.Status != nil {
+			if !(*body.Status == "unspecified" || *body.Status == "in progress" || *body.Status == "done" || *body.Status == "error" || *body.Status == "queued" || *body.Status == "pending" || *body.Status == "canceled") {
+				err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []any{"unspecified", "in progress", "done", "error", "queued", "pending", "canceled"}))
+			}
+		}
+		if err != nil {
+			return nil, err
+		}
+	}
 	var uuid string
 	{
 		uuid = storageListAipWorkflowsUUID
@@ -355,7 +375,10 @@ func BuildListAipWorkflowsPayload(storageListAipWorkflowsUUID string, storageLis
 			token = &storageListAipWorkflowsToken
 		}
 	}
-	v := &storage.ListAipWorkflowsPayload{}
+	v := &storage.ListAipWorkflowsPayload{
+		Type:   body.Type,
+		Status: body.Status,
+	}
 	v.UUID = uuid
 	v.Token = token
 
