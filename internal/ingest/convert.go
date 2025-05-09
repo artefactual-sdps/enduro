@@ -18,13 +18,8 @@ import (
 )
 
 func sipTogoaingestCreatedEvent(s *datatypes.SIP) *goaingest.SIPCreatedEvent {
-	var id uint
-	if s.ID > 0 {
-		id = uint(s.ID) // #nosec G115 -- range validated.
-	}
-
 	return &goaingest.SIPCreatedEvent{
-		ID:   id,
+		UUID: s.UUID,
 		Item: s.Goa(),
 	}
 }
@@ -41,11 +36,6 @@ func workflowToGoa(w *datatypes.Workflow) *goaingest.SIPWorkflow {
 		id = uint(w.ID) // #nosec G115 -- range validated.
 	}
 
-	var sipID uint
-	if w.SIPID > 0 {
-		sipID = uint(w.SIPID) // #nosec G115 -- range validated.
-	}
-
 	return &goaingest.SIPWorkflow{
 		ID:          id,
 		TemporalID:  w.TemporalID,
@@ -53,7 +43,7 @@ func workflowToGoa(w *datatypes.Workflow) *goaingest.SIPWorkflow {
 		Status:      w.Status.String(),
 		StartedAt:   startedAt,
 		CompletedAt: db.FormatOptionalTime(w.CompletedAt),
-		SipID:       ref.New(sipID),
+		SipUUID:     w.SIPUUID,
 	}
 }
 

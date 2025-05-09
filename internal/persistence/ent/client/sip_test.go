@@ -24,6 +24,7 @@ import (
 func TestCreateSIP(t *testing.T) {
 	t.Parallel()
 
+	sipUUID := uuid.New()
 	aipID := uuid.NullUUID{UUID: uuid.New(), Valid: true}
 	started := sql.NullTime{Time: time.Now(), Valid: true}
 	completed := sql.NullTime{Time: started.Time.Add(time.Second), Valid: true}
@@ -41,6 +42,7 @@ func TestCreateSIP(t *testing.T) {
 			name: "Saves a new SIP in the DB",
 			args: params{
 				sip: &datatypes.SIP{
+					UUID:        sipUUID,
 					Name:        "Test SIP 1",
 					AIPID:       aipID,
 					Status:      enums.SIPStatusProcessing,
@@ -50,6 +52,7 @@ func TestCreateSIP(t *testing.T) {
 			},
 			want: &datatypes.SIP{
 				ID:          1,
+				UUID:        sipUUID,
 				Name:        "Test SIP 1",
 				AIPID:       aipID,
 				Status:      enums.SIPStatusProcessing,
@@ -62,21 +65,30 @@ func TestCreateSIP(t *testing.T) {
 			name: "Saves a SIP with missing optional fields",
 			args: params{
 				sip: &datatypes.SIP{
+					UUID:   sipUUID,
 					Name:   "Test SIP 2",
 					Status: enums.SIPStatusProcessing,
 				},
 			},
 			want: &datatypes.SIP{
 				ID:        1,
+				UUID:      sipUUID,
 				Name:      "Test SIP 2",
 				Status:    enums.SIPStatusProcessing,
 				CreatedAt: time.Now(),
 			},
 		},
 		{
-			name: "Required field error for missing Name",
+			name: "Required field error for missing UUID",
 			args: params{
 				sip: &datatypes.SIP{},
+			},
+			wantErr: "invalid data error: field \"UUID\" is required",
+		},
+		{
+			name: "Required field error for missing Name",
+			args: params{
+				sip: &datatypes.SIP{UUID: sipUUID},
 			},
 			wantErr: "invalid data error: field \"Name\" is required",
 		},
@@ -107,6 +119,8 @@ func TestCreateSIP(t *testing.T) {
 func TestUpdateSIP(t *testing.T) {
 	t.Parallel()
 
+	sipUUID := uuid.New()
+	sipUUID2 := uuid.New()
 	aipID := uuid.NullUUID{
 		UUID:  uuid.MustParse("e2ace0da-8697-453d-9ea1-4c9b62309e54"),
 		Valid: true,
@@ -142,6 +156,7 @@ func TestUpdateSIP(t *testing.T) {
 			name: "Updates all SIP columns",
 			args: params{
 				sip: &datatypes.SIP{
+					UUID:        sipUUID,
 					Name:        "Test SIP",
 					AIPID:       aipID,
 					Status:      enums.SIPStatusProcessing,
@@ -149,7 +164,8 @@ func TestUpdateSIP(t *testing.T) {
 					CompletedAt: completed,
 				},
 				updater: func(p *datatypes.SIP) (*datatypes.SIP, error) {
-					p.ID = 100 // No-op, can't update ID.
+					p.ID = 100        // No-op, can't update ID.
+					p.UUID = sipUUID2 // No-op, can't update UUID.
 					p.Name = "Updated SIP"
 					p.AIPID = aipID2
 					p.Status = enums.SIPStatusIngested
@@ -161,6 +177,7 @@ func TestUpdateSIP(t *testing.T) {
 			},
 			want: &datatypes.SIP{
 				ID:          1,
+				UUID:        sipUUID,
 				Name:        "Updated SIP",
 				AIPID:       aipID2,
 				Status:      enums.SIPStatusIngested,
@@ -173,6 +190,7 @@ func TestUpdateSIP(t *testing.T) {
 			name: "Only updates selected columns",
 			args: params{
 				sip: &datatypes.SIP{
+					UUID:      sipUUID,
 					Name:      "Test SIP",
 					AIPID:     aipID,
 					Status:    enums.SIPStatusProcessing,
@@ -186,6 +204,7 @@ func TestUpdateSIP(t *testing.T) {
 			},
 			want: &datatypes.SIP{
 				ID:          1,
+				UUID:        sipUUID,
 				Name:        "Test SIP",
 				AIPID:       aipID,
 				Status:      enums.SIPStatusIngested,
@@ -207,6 +226,7 @@ func TestUpdateSIP(t *testing.T) {
 			name: "Errors when the updater errors",
 			args: params{
 				sip: &datatypes.SIP{
+					UUID:   sipUUID,
 					Name:   "Test SIP",
 					AIPID:  aipID,
 					Status: enums.SIPStatusProcessing,
@@ -251,6 +271,8 @@ func TestUpdateSIP(t *testing.T) {
 func TestListSIPs(t *testing.T) {
 	t.Parallel()
 
+	sipUUID := uuid.New()
+	sipUUID2 := uuid.New()
 	aipID := uuid.NullUUID{
 		UUID:  uuid.MustParse("e2ace0da-8697-453d-9ea1-4c9b62309e54"),
 		Valid: true,
@@ -293,6 +315,7 @@ func TestListSIPs(t *testing.T) {
 			name: "Returns all SIPs",
 			data: []*datatypes.SIP{
 				{
+					UUID:        sipUUID,
 					Name:        "Test SIP 1",
 					AIPID:       aipID,
 					Status:      enums.SIPStatusIngested,
@@ -300,6 +323,7 @@ func TestListSIPs(t *testing.T) {
 					CompletedAt: completed,
 				},
 				{
+					UUID:        sipUUID2,
 					Name:        "Test SIP 2",
 					AIPID:       aipID2,
 					Status:      enums.SIPStatusProcessing,
@@ -311,6 +335,7 @@ func TestListSIPs(t *testing.T) {
 				data: []*datatypes.SIP{
 					{
 						ID:          1,
+						UUID:        sipUUID,
 						Name:        "Test SIP 1",
 						AIPID:       aipID,
 						Status:      enums.SIPStatusIngested,
@@ -320,6 +345,7 @@ func TestListSIPs(t *testing.T) {
 					},
 					{
 						ID:          2,
+						UUID:        sipUUID2,
 						Name:        "Test SIP 2",
 						AIPID:       aipID2,
 						Status:      enums.SIPStatusProcessing,
@@ -338,6 +364,7 @@ func TestListSIPs(t *testing.T) {
 			name: "Returns first page of SIPs",
 			data: []*datatypes.SIP{
 				{
+					UUID:        sipUUID,
 					Name:        "Test SIP 1",
 					AIPID:       aipID,
 					Status:      enums.SIPStatusIngested,
@@ -345,6 +372,7 @@ func TestListSIPs(t *testing.T) {
 					CompletedAt: completed,
 				},
 				{
+					UUID:        sipUUID2,
 					Name:        "Test SIP 2",
 					AIPID:       aipID2,
 					Status:      enums.SIPStatusProcessing,
@@ -359,6 +387,7 @@ func TestListSIPs(t *testing.T) {
 				data: []*datatypes.SIP{
 					{
 						ID:          1,
+						UUID:        sipUUID,
 						Name:        "Test SIP 1",
 						AIPID:       aipID,
 						Status:      enums.SIPStatusIngested,
@@ -377,6 +406,7 @@ func TestListSIPs(t *testing.T) {
 			name: "Returns second page of SIPs",
 			data: []*datatypes.SIP{
 				{
+					UUID:        sipUUID,
 					Name:        "Test SIP 1",
 					AIPID:       aipID,
 					Status:      enums.SIPStatusIngested,
@@ -384,6 +414,7 @@ func TestListSIPs(t *testing.T) {
 					CompletedAt: completed,
 				},
 				{
+					UUID:        sipUUID2,
 					Name:        "Test SIP 2",
 					AIPID:       aipID2,
 					Status:      enums.SIPStatusProcessing,
@@ -398,6 +429,7 @@ func TestListSIPs(t *testing.T) {
 				data: []*datatypes.SIP{
 					{
 						ID:          2,
+						UUID:        sipUUID2,
 						Name:        "Test SIP 2",
 						AIPID:       aipID2,
 						Status:      enums.SIPStatusProcessing,
@@ -417,6 +449,7 @@ func TestListSIPs(t *testing.T) {
 			name: "Returns SIPs whose names contain a string",
 			data: []*datatypes.SIP{
 				{
+					UUID:        sipUUID,
 					Name:        "Test SIP",
 					AIPID:       aipID,
 					Status:      enums.SIPStatusIngested,
@@ -424,6 +457,7 @@ func TestListSIPs(t *testing.T) {
 					CompletedAt: completed,
 				},
 				{
+					UUID:        sipUUID2,
 					Name:        "small.zip",
 					AIPID:       aipID2,
 					Status:      enums.SIPStatusProcessing,
@@ -438,6 +472,7 @@ func TestListSIPs(t *testing.T) {
 				data: []*datatypes.SIP{
 					{
 						ID:          2,
+						UUID:        sipUUID2,
 						Name:        "small.zip",
 						AIPID:       aipID2,
 						Status:      enums.SIPStatusProcessing,
@@ -456,6 +491,7 @@ func TestListSIPs(t *testing.T) {
 			name: "Returns SIPs filtered by AIPID",
 			data: []*datatypes.SIP{
 				{
+					UUID:        sipUUID,
 					Name:        "Test SIP 1",
 					AIPID:       aipID,
 					Status:      enums.SIPStatusIngested,
@@ -463,6 +499,7 @@ func TestListSIPs(t *testing.T) {
 					CompletedAt: completed,
 				},
 				{
+					UUID:        sipUUID2,
 					Name:        "Test SIP 2",
 					AIPID:       aipID2,
 					Status:      enums.SIPStatusProcessing,
@@ -477,6 +514,7 @@ func TestListSIPs(t *testing.T) {
 				data: []*datatypes.SIP{
 					{
 						ID:          2,
+						UUID:        sipUUID2,
 						Name:        "Test SIP 2",
 						AIPID:       aipID2,
 						Status:      enums.SIPStatusProcessing,
@@ -495,6 +533,7 @@ func TestListSIPs(t *testing.T) {
 			name: "Returns SIPs filtered by status",
 			data: []*datatypes.SIP{
 				{
+					UUID:        sipUUID,
 					Name:        "Test SIP 1",
 					AIPID:       aipID,
 					Status:      enums.SIPStatusIngested,
@@ -502,6 +541,7 @@ func TestListSIPs(t *testing.T) {
 					CompletedAt: completed,
 				},
 				{
+					UUID:        sipUUID2,
 					Name:        "Test SIP 2",
 					AIPID:       aipID2,
 					Status:      enums.SIPStatusProcessing,
@@ -516,6 +556,7 @@ func TestListSIPs(t *testing.T) {
 				data: []*datatypes.SIP{
 					{
 						ID:          2,
+						UUID:        sipUUID2,
 						Name:        "Test SIP 2",
 						AIPID:       aipID2,
 						Status:      enums.SIPStatusProcessing,
@@ -534,6 +575,7 @@ func TestListSIPs(t *testing.T) {
 			name: "Returns SIPs filtered by CreatedAt",
 			data: []*datatypes.SIP{
 				{
+					UUID:        sipUUID,
 					Name:        "Test SIP 1",
 					AIPID:       aipID,
 					Status:      enums.SIPStatusIngested,
@@ -541,6 +583,7 @@ func TestListSIPs(t *testing.T) {
 					CompletedAt: completed,
 				},
 				{
+					UUID:        sipUUID2,
 					Name:        "Test SIP 2",
 					AIPID:       aipID2,
 					Status:      enums.SIPStatusProcessing,
@@ -564,6 +607,7 @@ func TestListSIPs(t *testing.T) {
 				data: []*datatypes.SIP{
 					{
 						ID:          1,
+						UUID:        sipUUID,
 						Name:        "Test SIP 1",
 						AIPID:       aipID,
 						Status:      enums.SIPStatusIngested,
@@ -573,6 +617,7 @@ func TestListSIPs(t *testing.T) {
 					},
 					{
 						ID:          2,
+						UUID:        sipUUID2,
 						Name:        "Test SIP 2",
 						AIPID:       aipID2,
 						Status:      enums.SIPStatusProcessing,
@@ -591,6 +636,7 @@ func TestListSIPs(t *testing.T) {
 			name: "Returns no results when no SIPs match CreatedAt range",
 			data: []*datatypes.SIP{
 				{
+					UUID:        sipUUID,
 					Name:        "Test SIP 1",
 					AIPID:       aipID,
 					Status:      enums.SIPStatusIngested,
@@ -598,6 +644,7 @@ func TestListSIPs(t *testing.T) {
 					CompletedAt: completed,
 				},
 				{
+					UUID:        sipUUID2,
 					Name:        "Test SIP 2",
 					AIPID:       aipID2,
 					Status:      enums.SIPStatusProcessing,

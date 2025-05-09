@@ -368,11 +368,11 @@ onMounted(() => {
           </tr>
         </thead>
         <tbody>
-          <tr v-for="sip in sipStore.sips" :key="sip.id">
+          <tr v-for="sip in sipStore.sips" :key="sip.uuid">
             <td>
               <router-link
                 v-if="authStore.checkAttributes(['ingest:sips:read'])"
-                :to="{ name: '/ingest/sips/[id]/', params: { id: sip.id } }"
+                :to="{ name: '/ingest/sips/[id]/', params: { id: sip.uuid } }"
                 >{{ sip.name }}</router-link
               >
               <span v-else>{{ sip.name }}</span>

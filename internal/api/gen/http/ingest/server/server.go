@@ -69,17 +69,17 @@ func New(
 			{"MonitorRequest", "POST", "/ingest/monitor"},
 			{"Monitor", "GET", "/ingest/monitor"},
 			{"ListSips", "GET", "/ingest/sips"},
-			{"ShowSip", "GET", "/ingest/sips/{id}"},
-			{"ListSipWorkflows", "GET", "/ingest/sips/{id}/workflows"},
-			{"ConfirmSip", "POST", "/ingest/sips/{id}/confirm"},
-			{"RejectSip", "POST", "/ingest/sips/{id}/reject"},
+			{"ShowSip", "GET", "/ingest/sips/{uuid}"},
+			{"ListSipWorkflows", "GET", "/ingest/sips/{uuid}/workflows"},
+			{"ConfirmSip", "POST", "/ingest/sips/{uuid}/confirm"},
+			{"RejectSip", "POST", "/ingest/sips/{uuid}/reject"},
 			{"UploadSip", "POST", "/ingest/sips/upload"},
 			{"CORS", "OPTIONS", "/ingest/monitor"},
 			{"CORS", "OPTIONS", "/ingest/sips"},
-			{"CORS", "OPTIONS", "/ingest/sips/{id}"},
-			{"CORS", "OPTIONS", "/ingest/sips/{id}/workflows"},
-			{"CORS", "OPTIONS", "/ingest/sips/{id}/confirm"},
-			{"CORS", "OPTIONS", "/ingest/sips/{id}/reject"},
+			{"CORS", "OPTIONS", "/ingest/sips/{uuid}"},
+			{"CORS", "OPTIONS", "/ingest/sips/{uuid}/workflows"},
+			{"CORS", "OPTIONS", "/ingest/sips/{uuid}/confirm"},
+			{"CORS", "OPTIONS", "/ingest/sips/{uuid}/reject"},
 			{"CORS", "OPTIONS", "/ingest/sips/upload"},
 		},
 		MonitorRequest:   NewMonitorRequestHandler(e.MonitorRequest, mux, decoder, encoder, errhandler, formatter),
@@ -308,7 +308,7 @@ func MountShowSipHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("GET", "/ingest/sips/{id}", otelhttp.WithRouteTag("/ingest/sips/{id}", f).ServeHTTP)
+	mux.Handle("GET", "/ingest/sips/{uuid}", otelhttp.WithRouteTag("/ingest/sips/{uuid}", f).ServeHTTP)
 }
 
 // NewShowSipHandler creates a HTTP handler which loads the HTTP request and
@@ -359,7 +359,7 @@ func MountListSipWorkflowsHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("GET", "/ingest/sips/{id}/workflows", otelhttp.WithRouteTag("/ingest/sips/{id}/workflows", f).ServeHTTP)
+	mux.Handle("GET", "/ingest/sips/{uuid}/workflows", otelhttp.WithRouteTag("/ingest/sips/{uuid}/workflows", f).ServeHTTP)
 }
 
 // NewListSipWorkflowsHandler creates a HTTP handler which loads the HTTP
@@ -410,7 +410,7 @@ func MountConfirmSipHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("POST", "/ingest/sips/{id}/confirm", otelhttp.WithRouteTag("/ingest/sips/{id}/confirm", f).ServeHTTP)
+	mux.Handle("POST", "/ingest/sips/{uuid}/confirm", otelhttp.WithRouteTag("/ingest/sips/{uuid}/confirm", f).ServeHTTP)
 }
 
 // NewConfirmSipHandler creates a HTTP handler which loads the HTTP request and
@@ -461,7 +461,7 @@ func MountRejectSipHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("POST", "/ingest/sips/{id}/reject", otelhttp.WithRouteTag("/ingest/sips/{id}/reject", f).ServeHTTP)
+	mux.Handle("POST", "/ingest/sips/{uuid}/reject", otelhttp.WithRouteTag("/ingest/sips/{uuid}/reject", f).ServeHTTP)
 }
 
 // NewRejectSipHandler creates a HTTP handler which loads the HTTP request and
@@ -561,10 +561,10 @@ func MountCORSHandler(mux goahttp.Muxer, h http.Handler) {
 	h = HandleIngestOrigin(h)
 	mux.Handle("OPTIONS", "/ingest/monitor", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/ingest/sips", h.ServeHTTP)
-	mux.Handle("OPTIONS", "/ingest/sips/{id}", h.ServeHTTP)
-	mux.Handle("OPTIONS", "/ingest/sips/{id}/workflows", h.ServeHTTP)
-	mux.Handle("OPTIONS", "/ingest/sips/{id}/confirm", h.ServeHTTP)
-	mux.Handle("OPTIONS", "/ingest/sips/{id}/reject", h.ServeHTTP)
+	mux.Handle("OPTIONS", "/ingest/sips/{uuid}", h.ServeHTTP)
+	mux.Handle("OPTIONS", "/ingest/sips/{uuid}/workflows", h.ServeHTTP)
+	mux.Handle("OPTIONS", "/ingest/sips/{uuid}/confirm", h.ServeHTTP)
+	mux.Handle("OPTIONS", "/ingest/sips/{uuid}/reject", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/ingest/sips/upload", h.ServeHTTP)
 }
 

@@ -38,12 +38,6 @@ export interface EnduroIngestSip {
      */
     createdAt: Date;
     /**
-     * Identifier of SIP
-     * @type {number}
-     * @memberof EnduroIngestSip
-     */
-    id: number;
-    /**
      * Name of the SIP
      * @type {string}
      * @memberof EnduroIngestSip
@@ -61,6 +55,12 @@ export interface EnduroIngestSip {
      * @memberof EnduroIngestSip
      */
     status: EnduroIngestSipStatusEnum;
+    /**
+     * Identifier of SIP
+     * @type {string}
+     * @memberof EnduroIngestSip
+     */
+    uuid: string;
 }
 
 
@@ -84,8 +84,8 @@ export type EnduroIngestSipStatusEnum = typeof EnduroIngestSipStatusEnum[keyof t
 export function instanceOfEnduroIngestSip(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "createdAt" in value;
-    isInstance = isInstance && "id" in value;
     isInstance = isInstance && "status" in value;
+    isInstance = isInstance && "uuid" in value;
 
     return isInstance;
 }
@@ -103,10 +103,10 @@ export function EnduroIngestSipFromJSONTyped(json: any, ignoreDiscriminator: boo
         'aipId': !exists(json, 'aip_id') ? undefined : json['aip_id'],
         'completedAt': !exists(json, 'completed_at') ? undefined : (new Date(json['completed_at'])),
         'createdAt': (new Date(json['created_at'])),
-        'id': json['id'],
         'name': !exists(json, 'name') ? undefined : json['name'],
         'startedAt': !exists(json, 'started_at') ? undefined : (new Date(json['started_at'])),
         'status': json['status'],
+        'uuid': json['uuid'],
     };
 }
 
@@ -122,10 +122,10 @@ export function EnduroIngestSipToJSON(value?: EnduroIngestSip | null): any {
         'aip_id': value.aipId,
         'completed_at': value.completedAt === undefined ? undefined : (value.completedAt.toISOString()),
         'created_at': (value.createdAt.toISOString()),
-        'id': value.id,
         'name': value.name,
         'started_at': value.startedAt === undefined ? undefined : (value.startedAt.toISOString()),
         'status': value.status,
+        'uuid': value.uuid,
     };
 }
 

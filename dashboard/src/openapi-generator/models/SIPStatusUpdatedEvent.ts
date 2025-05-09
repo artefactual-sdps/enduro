@@ -20,17 +20,17 @@ import { exists, mapValues } from '../runtime';
  */
 export interface SIPStatusUpdatedEvent {
     /**
-     * Identifier of SIP
-     * @type {number}
-     * @memberof SIPStatusUpdatedEvent
-     */
-    id: number;
-    /**
      * 
      * @type {string}
      * @memberof SIPStatusUpdatedEvent
      */
     status: SIPStatusUpdatedEventStatusEnum;
+    /**
+     * Identifier of SIP
+     * @type {string}
+     * @memberof SIPStatusUpdatedEvent
+     */
+    uuid: string;
 }
 
 
@@ -53,8 +53,8 @@ export type SIPStatusUpdatedEventStatusEnum = typeof SIPStatusUpdatedEventStatus
  */
 export function instanceOfSIPStatusUpdatedEvent(value: object): boolean {
     let isInstance = true;
-    isInstance = isInstance && "id" in value;
     isInstance = isInstance && "status" in value;
+    isInstance = isInstance && "uuid" in value;
 
     return isInstance;
 }
@@ -69,8 +69,8 @@ export function SIPStatusUpdatedEventFromJSONTyped(json: any, ignoreDiscriminato
     }
     return {
         
-        'id': json['id'],
         'status': json['status'],
+        'uuid': json['uuid'],
     };
 }
 
@@ -83,8 +83,8 @@ export function SIPStatusUpdatedEventToJSON(value?: SIPStatusUpdatedEvent | null
     }
     return {
         
-        'id': value.id,
         'status': value.status,
+        'uuid': value.uuid,
     };
 }
 

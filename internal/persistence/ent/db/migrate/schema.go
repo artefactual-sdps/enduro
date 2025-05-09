@@ -12,6 +12,7 @@ var (
 	// SipColumns holds the columns for the "sip" table.
 	SipColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "uuid", Type: field.TypeUUID, Unique: true},
 		{Name: "name", Type: field.TypeString, Size: 2048},
 		{Name: "aip_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "status", Type: field.TypeEnum, Enums: []string{"error", "failed", "queued", "processing", "pending", "ingested"}},
@@ -28,7 +29,7 @@ var (
 			{
 				Name:    "sip_name_idx",
 				Unique:  false,
-				Columns: []*schema.Column{SipColumns[1]},
+				Columns: []*schema.Column{SipColumns[2]},
 				Annotation: &entsql.IndexAnnotation{
 					Prefix: 50,
 				},
@@ -36,22 +37,22 @@ var (
 			{
 				Name:    "sip_aip_id_idx",
 				Unique:  false,
-				Columns: []*schema.Column{SipColumns[2]},
+				Columns: []*schema.Column{SipColumns[3]},
 			},
 			{
 				Name:    "sip_status_idx",
 				Unique:  false,
-				Columns: []*schema.Column{SipColumns[3]},
+				Columns: []*schema.Column{SipColumns[4]},
 			},
 			{
 				Name:    "sip_created_at_idx",
 				Unique:  false,
-				Columns: []*schema.Column{SipColumns[4]},
+				Columns: []*schema.Column{SipColumns[5]},
 			},
 			{
 				Name:    "sip_started_at_idx",
 				Unique:  false,
-				Columns: []*schema.Column{SipColumns[5]},
+				Columns: []*schema.Column{SipColumns[6]},
 			},
 		},
 	}

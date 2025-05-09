@@ -403,16 +403,16 @@ func DecodeListSipsResponse(decoder func(*http.Response) goahttp.Decoder, restor
 // set to call the "ingest" service "show_sip" endpoint
 func (c *Client) BuildShowSipRequest(ctx context.Context, v any) (*http.Request, error) {
 	var (
-		id uint
+		uuid string
 	)
 	{
 		p, ok := v.(*ingest.ShowSipPayload)
 		if !ok {
 			return nil, goahttp.ErrInvalidType("ingest", "show_sip", "*ingest.ShowSipPayload", v)
 		}
-		id = p.ID
+		uuid = p.UUID
 	}
-	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: ShowSipIngestPath(id)}
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: ShowSipIngestPath(uuid)}
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
 		return nil, goahttp.ErrInvalidURL("ingest", "show_sip", u.String(), err)
@@ -544,16 +544,16 @@ func DecodeShowSipResponse(decoder func(*http.Response) goahttp.Decoder, restore
 // and path set to call the "ingest" service "list_sip_workflows" endpoint
 func (c *Client) BuildListSipWorkflowsRequest(ctx context.Context, v any) (*http.Request, error) {
 	var (
-		id uint
+		uuid string
 	)
 	{
 		p, ok := v.(*ingest.ListSipWorkflowsPayload)
 		if !ok {
 			return nil, goahttp.ErrInvalidType("ingest", "list_sip_workflows", "*ingest.ListSipWorkflowsPayload", v)
 		}
-		id = p.ID
+		uuid = p.UUID
 	}
-	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: ListSipWorkflowsIngestPath(id)}
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: ListSipWorkflowsIngestPath(uuid)}
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
 		return nil, goahttp.ErrInvalidURL("ingest", "list_sip_workflows", u.String(), err)
@@ -670,16 +670,16 @@ func DecodeListSipWorkflowsResponse(decoder func(*http.Response) goahttp.Decoder
 // path set to call the "ingest" service "confirm_sip" endpoint
 func (c *Client) BuildConfirmSipRequest(ctx context.Context, v any) (*http.Request, error) {
 	var (
-		id uint
+		uuid string
 	)
 	{
 		p, ok := v.(*ingest.ConfirmSipPayload)
 		if !ok {
 			return nil, goahttp.ErrInvalidType("ingest", "confirm_sip", "*ingest.ConfirmSipPayload", v)
 		}
-		id = p.ID
+		uuid = p.UUID
 	}
-	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: ConfirmSipIngestPath(id)}
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: ConfirmSipIngestPath(uuid)}
 	req, err := http.NewRequest("POST", u.String(), nil)
 	if err != nil {
 		return nil, goahttp.ErrInvalidURL("ingest", "confirm_sip", u.String(), err)
@@ -815,16 +815,16 @@ func DecodeConfirmSipResponse(decoder func(*http.Response) goahttp.Decoder, rest
 // path set to call the "ingest" service "reject_sip" endpoint
 func (c *Client) BuildRejectSipRequest(ctx context.Context, v any) (*http.Request, error) {
 	var (
-		id uint
+		uuid string
 	)
 	{
 		p, ok := v.(*ingest.RejectSipPayload)
 		if !ok {
 			return nil, goahttp.ErrInvalidType("ingest", "reject_sip", "*ingest.RejectSipPayload", v)
 		}
-		id = p.ID
+		uuid = p.UUID
 	}
-	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: RejectSipIngestPath(id)}
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: RejectSipIngestPath(uuid)}
 	req, err := http.NewRequest("POST", u.String(), nil)
 	if err != nil {
 		return nil, goahttp.ErrInvalidURL("ingest", "reject_sip", u.String(), err)
@@ -1120,7 +1120,7 @@ func BuildUploadSipStreamPayload(payload any, fpath string) (*ingest.UploadSipRe
 // *ingestviews.SIPView from a value of type *SIPResponseBody.
 func unmarshalSIPResponseBodyToIngestviewsSIPView(v *SIPResponseBody) *ingestviews.SIPView {
 	res := &ingestviews.SIPView{
-		ID:          v.ID,
+		UUID:        v.UUID,
 		Name:        v.Name,
 		Status:      v.Status,
 		AipID:       v.AipID,
@@ -1159,7 +1159,7 @@ func unmarshalSIPWorkflowResponseBodyToIngestviewsSIPWorkflowView(v *SIPWorkflow
 		Status:      v.Status,
 		StartedAt:   v.StartedAt,
 		CompletedAt: v.CompletedAt,
-		SipID:       v.SipID,
+		SipUUID:     v.SipUUID,
 	}
 	if v.Tasks != nil {
 		res.Tasks = make([]*ingestviews.SIPTaskView, len(v.Tasks))

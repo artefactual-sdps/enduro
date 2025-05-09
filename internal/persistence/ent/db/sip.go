@@ -19,6 +19,8 @@ type SIP struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
+	// UUID holds the value of the "uuid" field.
+	UUID uuid.UUID `json:"uuid,omitempty"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
 	// AipID holds the value of the "aip_id" field.
@@ -66,7 +68,7 @@ func (*SIP) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case sip.FieldCreatedAt, sip.FieldStartedAt, sip.FieldCompletedAt:
 			values[i] = new(sql.NullTime)
-		case sip.FieldAipID:
+		case sip.FieldUUID, sip.FieldAipID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -89,6 +91,12 @@ func (s *SIP) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			s.ID = int(value.Int64)
+		case sip.FieldUUID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field uuid", values[i])
+			} else if value != nil {
+				s.UUID = *value
+			}
 		case sip.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
@@ -166,6 +174,9 @@ func (s *SIP) String() string {
 	var builder strings.Builder
 	builder.WriteString("SIP(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", s.ID))
+	builder.WriteString("uuid=")
+	builder.WriteString(fmt.Sprintf("%v", s.UUID))
+	builder.WriteString(", ")
 	builder.WriteString("name=")
 	builder.WriteString(s.Name)
 	builder.WriteString(", ")

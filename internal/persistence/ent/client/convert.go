@@ -28,6 +28,7 @@ func convertSIP(sip *db.SIP) *datatypes.SIP {
 
 	return &datatypes.SIP{
 		ID:          sip.ID,
+		UUID:        sip.UUID,
 		Name:        sip.Name,
 		AIPID:       aipID,
 		Status:      sip.Status,

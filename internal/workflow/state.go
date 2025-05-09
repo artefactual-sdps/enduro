@@ -4,6 +4,8 @@ import (
 	"slices"
 	"time"
 
+	"github.com/google/uuid"
+
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/ingest"
 )
@@ -39,6 +41,7 @@ func newWorkflowState(req *ingest.ProcessingWorkflowRequest) *workflowState {
 		req:    req,
 		status: enums.WorkflowStatusUnspecified,
 		sip: &sipInfo{
+			uuid:  req.SIPUUID,
 			dbID:  req.SIPID,
 			name:  req.Key,
 			isDir: req.IsDir,
@@ -65,6 +68,9 @@ func (s *workflowState) addTempPath(path string) {
 
 // sipInfo is data about the SIP.
 type sipInfo struct {
+	// uuid is the unique identifier of the SIP, it's passed in the request.
+	uuid uuid.UUID
+
 	// dbID is the database ID of the SIP. It is populated by
 	// createSIPLocalActivity as one of the first steps of processing.
 	dbID int

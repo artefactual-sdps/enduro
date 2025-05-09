@@ -15,7 +15,6 @@
 
 import * as runtime from '../runtime';
 import type {
-  AIPNotFound,
   AIPResponse,
   AIPWorkflows,
   AIPs,
@@ -30,12 +29,11 @@ import type {
   MoveStatusResult,
   RequestAipDeletionRequestBody,
   ReviewAipDeletionRequestBody,
+  SIPNotFound,
   SubmitAIPResult,
   SubmitAipRequestBody,
 } from '../models/index';
 import {
-    AIPNotFoundFromJSON,
-    AIPNotFoundToJSON,
     AIPResponseFromJSON,
     AIPResponseToJSON,
     AIPWorkflowsFromJSON,
@@ -64,6 +62,8 @@ import {
     RequestAipDeletionRequestBodyToJSON,
     ReviewAipDeletionRequestBodyFromJSON,
     ReviewAipDeletionRequestBodyToJSON,
+    SIPNotFoundFromJSON,
+    SIPNotFoundToJSON,
     SubmitAIPResultFromJSON,
     SubmitAIPResultToJSON,
     SubmitAipRequestBodyFromJSON,
