@@ -18,7 +18,7 @@ func init() {
 	sipFields := schema.SIP{}.Fields()
 	_ = sipFields
 	// sipDescCreatedAt is the schema descriptor for created_at field.
-	sipDescCreatedAt := sipFields[3].Descriptor()
+	sipDescCreatedAt := sipFields[4].Descriptor()
 	// sip.DefaultCreatedAt holds the default value on creation for the created_at field.
 	sip.DefaultCreatedAt = sipDescCreatedAt.Default.(func() time.Time)
 	taskFields := schema.Task{}.Fields()

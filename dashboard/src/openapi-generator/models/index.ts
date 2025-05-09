@@ -1,6 +1,5 @@
 /* tslint:disable */
 /* eslint-disable */
-export * from './AIPNotFound';
 export * from './AIPResponse';
 export * from './AIPWorkflows';
 export * from './AIPs';

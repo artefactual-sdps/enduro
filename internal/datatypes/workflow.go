@@ -3,6 +3,8 @@ package datatypes
 import (
 	"database/sql"
 
+	"github.com/google/uuid"
+
 	"github.com/artefactual-sdps/enduro/internal/enums"
 )
 
@@ -15,4 +17,5 @@ type Workflow struct {
 	StartedAt   sql.NullTime         `db:"started_at"`
 	CompletedAt sql.NullTime         `db:"completed_at"`
 	SIPID       int                  `db:"sip_id"`
+	SIPUUID     uuid.UUID            `db:"sip_uuid"`
 }

@@ -29,6 +29,9 @@ func (SIP) Annotations() []schema.Annotation {
 // Fields of the SIP.
 func (SIP) Fields() []ent.Field {
 	return []ent.Field{
+		field.UUID("uuid", uuid.UUID{}).
+			Unique().
+			Immutable(),
 		field.String("name").
 			Annotations(entsql.Annotation{
 				Size: 2048,

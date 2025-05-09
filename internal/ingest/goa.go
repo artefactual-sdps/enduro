@@ -160,27 +160,29 @@ func (w *goaWrapper) ShowSip(
 	ctx context.Context,
 	payload *goaingest.ShowSipPayload,
 ) (*goaingest.SIP, error) {
-	c, err := w.read(ctx, payload.ID)
+	s, err := w.read(ctx, payload.UUID)
 	if err == sql.ErrNoRows {
-		return nil, &goaingest.SIPNotFound{ID: payload.ID, Message: "SIP not found"}
+		return nil, &goaingest.SIPNotFound{UUID: payload.UUID, Message: "SIP not found"}
 	} else if err != nil {
 		return nil, goaingest.MakeNotAvailable(errors.New("cannot perform operation"))
 	}
 
-	return c.Goa(), nil
+	return s.Goa(), nil
 }
 
 func (w *goaWrapper) ListSipWorkflows(
 	ctx context.Context,
 	payload *goaingest.ListSipWorkflowsPayload,
 ) (*goaingest.SIPWorkflows, error) {
-	goasip, err := w.ShowSip(ctx, &goaingest.ShowSipPayload{ID: payload.ID})
-	if err != nil {
-		return nil, err
+	s, err := w.read(ctx, payload.UUID)
+	if err == sql.ErrNoRows {
+		return nil, &goaingest.SIPNotFound{UUID: payload.UUID, Message: "SIP not found"}
+	} else if err != nil {
+		return nil, goaingest.MakeNotAvailable(errors.New("cannot perform operation"))
 	}
 
 	query := "SELECT id, temporal_id, type, status, CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at, CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at FROM workflow WHERE sip_id = ? ORDER BY started_at DESC"
-	args := []interface{}{goasip.ID}
+	args := []interface{}{s.ID}
 
 	rows, err := w.db.QueryxContext(ctx, query, args...)
 	if err != nil {
@@ -194,6 +196,7 @@ func (w *goaWrapper) ListSipWorkflows(
 		if err := rows.StructScan(&workflow); err != nil {
 			return nil, fmt.Errorf("error scanning database result: %w", err)
 		}
+		workflow.SIPUUID = s.UUID
 		goaworkflow := workflowToGoa(&workflow)
 
 		ptQuery := "SELECT id, task_id, name, status, CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at, CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at, note FROM task WHERE workflow_id = ?"
@@ -226,7 +229,7 @@ func (w *goaWrapper) ListSipWorkflows(
 }
 
 func (w *goaWrapper) ConfirmSip(ctx context.Context, payload *goaingest.ConfirmSipPayload) error {
-	goaworkflows, err := w.ListSipWorkflows(ctx, &goaingest.ListSipWorkflowsPayload{ID: payload.ID})
+	goaworkflows, err := w.ListSipWorkflows(ctx, &goaingest.ListSipWorkflowsPayload{UUID: payload.UUID})
 	if err != nil {
 		return err
 	}
@@ -247,7 +250,7 @@ func (w *goaWrapper) ConfirmSip(ctx context.Context, payload *goaingest.ConfirmS
 }
 
 func (w *goaWrapper) RejectSip(ctx context.Context, payload *goaingest.RejectSipPayload) error {
-	goaworkflows, err := w.ListSipWorkflows(ctx, &goaingest.ListSipWorkflowsPayload{ID: payload.ID})
+	goaworkflows, err := w.ListSipWorkflows(ctx, &goaingest.ListSipWorkflowsPayload{UUID: payload.UUID})
 	if err != nil {
 		return err
 	}

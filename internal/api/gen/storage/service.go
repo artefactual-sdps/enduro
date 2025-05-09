@@ -334,7 +334,7 @@ type SFTPConfig struct {
 // SIP describes an ingest SIP type.
 type SIP struct {
 	// Identifier of SIP
-	ID uint
+	UUID string
 	// Name of the SIP
 	Name *string
 	// Status of the SIP
@@ -351,13 +351,13 @@ type SIP struct {
 
 type SIPCreatedEvent struct {
 	// Identifier of SIP
-	ID   uint
+	UUID uuid.UUID
 	Item *SIP
 }
 
 type SIPStatusUpdatedEvent struct {
 	// Identifier of SIP
-	ID     uint
+	UUID   uuid.UUID
 	Status string
 }
 
@@ -389,7 +389,7 @@ type SIPTaskUpdatedEvent struct {
 
 type SIPUpdatedEvent struct {
 	// Identifier of SIP
-	ID   uint
+	UUID uuid.UUID
 	Item *SIP
 }
 
@@ -402,7 +402,8 @@ type SIPWorkflow struct {
 	StartedAt   string
 	CompletedAt *string
 	Tasks       SIPTaskCollection
-	SipID       *uint
+	// Identifier of related SIP
+	SipUUID uuid.UUID
 }
 
 type SIPWorkflowCreatedEvent struct {

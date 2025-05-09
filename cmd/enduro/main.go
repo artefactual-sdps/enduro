@@ -14,6 +14,7 @@ import (
 
 	"ariga.io/sqlcomment"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 	"github.com/oklog/run"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/pflag"
@@ -399,6 +400,7 @@ func main() {
 									PreservationTaskQueue:      cfg.Preservation.TaskQueue,
 									PollInterval:               cfg.AM.PollInterval,
 									TransferDeadline:           cfg.AM.TransferDeadline,
+									SIPUUID:                    uuid.New(),
 								}
 								if err := ingest.InitProcessingWorkflow(ctx, temporalClient, &req); err != nil {
 									logger.Error(err, "Error initializing processing workflow.")

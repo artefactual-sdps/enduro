@@ -4,6 +4,8 @@ import (
 	"context"
 	"time"
 
+	"github.com/google/uuid"
+
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/entfilter"
 	"github.com/artefactual-sdps/enduro/internal/persistence"
@@ -19,11 +21,15 @@ import (
 // set to the current time.
 func (c *client) CreateSIP(ctx context.Context, s *datatypes.SIP) error {
 	// Validate required fields.
+	if s.UUID == uuid.Nil {
+		return newRequiredFieldError("UUID")
+	}
 	if s.Name == "" {
 		return newRequiredFieldError("Name")
 	}
 
 	q := c.ent.SIP.Create().
+		SetUUID(s.UUID).
 		SetName(s.Name).
 		SetStatus(s.Status)
 

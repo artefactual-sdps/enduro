@@ -38,12 +38,12 @@ import {
 } from '../models/index';
 
 export interface IngestConfirmSipRequest {
-    id: number;
+    uuid: string;
     confirmSipRequestBody: ConfirmSipRequestBody;
 }
 
 export interface IngestListSipWorkflowsRequest {
-    id: number;
+    uuid: string;
 }
 
 export interface IngestListSipsRequest {
@@ -61,11 +61,11 @@ export interface IngestMonitorRequest {
 }
 
 export interface IngestRejectSipRequest {
-    id: number;
+    uuid: string;
 }
 
 export interface IngestShowSipRequest {
-    id: number;
+    uuid: string;
 }
 
 export interface IngestUploadSipRequest {
@@ -82,7 +82,7 @@ export interface IngestApiInterface {
     /**
      * Signal the SIP has been reviewed and accepted
      * @summary confirm_sip ingest
-     * @param {number} id Identifier of SIP to look up
+     * @param {string} uuid Identifier of SIP to look up
      * @param {ConfirmSipRequestBody} confirmSipRequestBody 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -99,7 +99,7 @@ export interface IngestApiInterface {
     /**
      * List all workflows for a SIP
      * @summary list_sip_workflows ingest
-     * @param {number} id Identifier of SIP to look up
+     * @param {string} uuid Identifier of SIP to look up
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof IngestApiInterface
@@ -168,7 +168,7 @@ export interface IngestApiInterface {
     /**
      * Signal the SIP has been reviewed and rejected
      * @summary reject_sip ingest
-     * @param {number} id Identifier of SIP to look up
+     * @param {string} uuid Identifier of SIP to look up
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof IngestApiInterface
@@ -184,7 +184,7 @@ export interface IngestApiInterface {
     /**
      * Show SIP by ID
      * @summary show_sip ingest
-     * @param {number} id Identifier of SIP to show
+     * @param {string} uuid Identifier of SIP to show
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof IngestApiInterface
@@ -225,8 +225,8 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
      * confirm_sip ingest
      */
     async ingestConfirmSipRaw(requestParameters: IngestConfirmSipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
-        if (requestParameters.id === null || requestParameters.id === undefined) {
-            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling ingestConfirmSip.');
+        if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
+            throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling ingestConfirmSip.');
         }
 
         if (requestParameters.confirmSipRequestBody === null || requestParameters.confirmSipRequestBody === undefined) {
@@ -248,7 +248,7 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
             }
         }
         const response = await this.request({
-            path: `/ingest/sips/{id}/confirm`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
+            path: `/ingest/sips/{uuid}/confirm`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
@@ -271,8 +271,8 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
      * list_sip_workflows ingest
      */
     async ingestListSipWorkflowsRaw(requestParameters: IngestListSipWorkflowsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SIPWorkflows>> {
-        if (requestParameters.id === null || requestParameters.id === undefined) {
-            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling ingestListSipWorkflows.');
+        if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
+            throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling ingestListSipWorkflows.');
         }
 
         const queryParameters: any = {};
@@ -288,7 +288,7 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
             }
         }
         const response = await this.request({
-            path: `/ingest/sips/{id}/workflows`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
+            path: `/ingest/sips/{uuid}/workflows`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -437,8 +437,8 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
      * reject_sip ingest
      */
     async ingestRejectSipRaw(requestParameters: IngestRejectSipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
-        if (requestParameters.id === null || requestParameters.id === undefined) {
-            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling ingestRejectSip.');
+        if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
+            throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling ingestRejectSip.');
         }
 
         const queryParameters: any = {};
@@ -454,7 +454,7 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
             }
         }
         const response = await this.request({
-            path: `/ingest/sips/{id}/reject`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
+            path: `/ingest/sips/{uuid}/reject`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
@@ -476,8 +476,8 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
      * show_sip ingest
      */
     async ingestShowSipRaw(requestParameters: IngestShowSipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EnduroIngestSip>> {
-        if (requestParameters.id === null || requestParameters.id === undefined) {
-            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling ingestShowSip.');
+        if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
+            throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling ingestShowSip.');
         }
 
         const queryParameters: any = {};
@@ -493,7 +493,7 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
             }
         }
         const response = await this.request({
-            path: `/ingest/sips/{id}`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
+            path: `/ingest/sips/{uuid}`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,

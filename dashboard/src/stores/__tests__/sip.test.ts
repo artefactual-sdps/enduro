@@ -21,7 +21,7 @@ describe("useSipStore", () => {
     sipStore.$patch({
       current: {
         createdAt: now,
-        id: 1,
+        uuid: "a499e8fc-7309-4e26-b39d-d8ab68466c27",
         status: api.EnduroIngestSipStatusEnum.Pending,
       },
     });
@@ -160,7 +160,7 @@ describe("useSipStore", () => {
 
   it("fetches current", async () => {
     const mockSip: api.EnduroIngestSip = {
-      id: 1,
+      uuid: "a499e8fc-7309-4e26-b39d-d8ab68466c27",
       name: "SIP 1",
       createdAt: new Date("2025-01-01T00:00:00Z"),
       status: api.EnduroIngestSipStatusEnum.Ingested,
@@ -173,6 +173,7 @@ describe("useSipStore", () => {
           status: api.EnduroIngestSipWorkflowStatusEnum.Done,
           type: api.EnduroIngestSipWorkflowTypeEnum.CreateAip,
           temporalId: "c18d00f2-a1c4-4161-820c-6fc6ce707811",
+          sipUuid: "a499e8fc-7309-4e26-b39d-d8ab68466c27",
         },
       ],
     };
@@ -200,13 +201,13 @@ describe("useSipStore", () => {
     const mockSips: api.SIPs = {
       items: [
         {
-          id: 1,
+          uuid: "a499e8fc-7309-4e26-b39d-d8ab68466c27",
           name: "SIP 1",
           createdAt: new Date("2025-01-01T00:00:00Z"),
           status: api.EnduroIngestSipStatusEnum.Ingested,
         },
         {
-          id: 2,
+          uuid: "30223842-0650-4f79-80bd-7bf43b810656",
           name: "SIP 2",
           createdAt: new Date("2025-01-02T00:00:00Z"),
           status: api.EnduroIngestSipStatusEnum.Ingested,

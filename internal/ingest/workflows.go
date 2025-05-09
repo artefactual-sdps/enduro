@@ -28,6 +28,9 @@ type ProcessingWorkflowRequest struct {
 	// an existing SIP in retries.
 	SIPID int
 
+	// Unique identifier of the SIP.
+	SIPUUID uuid.UUID
+
 	// Name of the watcher that received this blob.
 	WatcherName string
 
@@ -71,7 +74,7 @@ func InitProcessingWorkflow(ctx context.Context, tc temporalsdk_client.Client, r
 	defer cancel()
 
 	opts := temporalsdk_client.StartWorkflowOptions{
-		ID:                    fmt.Sprintf("processing-workflow-%s", uuid.New().String()),
+		ID:                    fmt.Sprintf("processing-workflow-%s", req.SIPUUID.String()),
 		TaskQueue:             req.GlobalTaskQueue,
 		WorkflowIDReusePolicy: temporalsdk_api_enums.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE,
 	}
