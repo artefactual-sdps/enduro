@@ -1,4 +1,4 @@
-h1:NUco0jUmkq5CP8nCUxd23EmqsFXKtn5BPtg61fL8img=
+h1:E06vXiibtx977z7rdeGCcL3ZyWq7LhRuEs6VsMlvsKc=
 1570659451_init.up.sql h1:zyiKKl39RqMxuEhop5jeeiPTxPiSSq00Tn6u06gyNmk=
 1710442322_nullable_aip_id.up.sql h1:vL4eG5YELXr3k4ymhHuRD/R7KpNt3/DNRhH26t83x3A=
 20250207193001_rename_package_table.up.sql h1:d2RjfIturPoFYMMtFocrMvvjEXEqDXDdxQRttcknX/0=
@@ -8,3 +8,4 @@ h1:NUco0jUmkq5CP8nCUxd23EmqsFXKtn5BPtg61fL8img=
 20250319035720_rename_workflow_column.up.sql h1:l77ApLKkj0DMmsAhEiF/6U+O3/0Jo0Z/ujEjRTIUEZw=
 20250402173826_remove_workflow_type.up.sql h1:P0w5tngLlCsfyYm1hW8LqdxDgVAYWIf9QM7oTLu5mJA=
 20250418000742_update_sip_statuses.up.sql h1:FUbEzeO8+t0FVImqnOWApQqKzxulq2GY4urMSsJlbc0=
+20250509030046_restore_sip_status_index.up.sql h1:8iKBW+nC9mgEs6PqQJ4Frq1IGJOjedAyhm3dO27yVZw=
