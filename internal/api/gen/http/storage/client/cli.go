@@ -347,14 +347,14 @@ func BuildListAipWorkflowsPayload(storageListAipWorkflowsBody string, storageLis
 		if err != nil {
 			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"status\": \"in progress\",\n      \"type\": \"upload aip\"\n   }'")
 		}
-		if body.Type != nil {
-			if !(*body.Type == "unspecified" || *body.Type == "upload aip" || *body.Type == "move aip" || *body.Type == "delete aip") {
-				err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.type", *body.Type, []any{"unspecified", "upload aip", "move aip", "delete aip"}))
-			}
-		}
 		if body.Status != nil {
 			if !(*body.Status == "unspecified" || *body.Status == "in progress" || *body.Status == "done" || *body.Status == "error" || *body.Status == "queued" || *body.Status == "pending" || *body.Status == "canceled") {
 				err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []any{"unspecified", "in progress", "done", "error", "queued", "pending", "canceled"}))
+			}
+		}
+		if body.Type != nil {
+			if !(*body.Type == "unspecified" || *body.Type == "upload aip" || *body.Type == "move aip" || *body.Type == "delete aip") {
+				err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.type", *body.Type, []any{"unspecified", "upload aip", "move aip", "delete aip"}))
 			}
 		}
 		if err != nil {
@@ -376,8 +376,8 @@ func BuildListAipWorkflowsPayload(storageListAipWorkflowsBody string, storageLis
 		}
 	}
 	v := &storage.ListAipWorkflowsPayload{
-		Type:   body.Type,
 		Status: body.Status,
+		Type:   body.Type,
 	}
 	v.UUID = uuid
 	v.Token = token

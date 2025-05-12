@@ -67,20 +67,20 @@ func ParseEndpoint(
 		ingestListSipsTokenFlag               = ingestListSipsFlags.String("token", "", "")
 
 		ingestShowSipFlags     = flag.NewFlagSet("show-sip", flag.ExitOnError)
-		ingestShowSipIDFlag    = ingestShowSipFlags.String("id", "REQUIRED", "Identifier of SIP to show")
+		ingestShowSipUUIDFlag  = ingestShowSipFlags.String("uuid", "REQUIRED", "Identifier of SIP to show")
 		ingestShowSipTokenFlag = ingestShowSipFlags.String("token", "", "")
 
 		ingestListSipWorkflowsFlags     = flag.NewFlagSet("list-sip-workflows", flag.ExitOnError)
-		ingestListSipWorkflowsIDFlag    = ingestListSipWorkflowsFlags.String("id", "REQUIRED", "Identifier of SIP to look up")
+		ingestListSipWorkflowsUUIDFlag  = ingestListSipWorkflowsFlags.String("uuid", "REQUIRED", "Identifier of SIP to look up")
 		ingestListSipWorkflowsTokenFlag = ingestListSipWorkflowsFlags.String("token", "", "")
 
 		ingestConfirmSipFlags     = flag.NewFlagSet("confirm-sip", flag.ExitOnError)
 		ingestConfirmSipBodyFlag  = ingestConfirmSipFlags.String("body", "REQUIRED", "")
-		ingestConfirmSipIDFlag    = ingestConfirmSipFlags.String("id", "REQUIRED", "Identifier of SIP to look up")
+		ingestConfirmSipUUIDFlag  = ingestConfirmSipFlags.String("uuid", "REQUIRED", "Identifier of SIP to look up")
 		ingestConfirmSipTokenFlag = ingestConfirmSipFlags.String("token", "", "")
 
 		ingestRejectSipFlags     = flag.NewFlagSet("reject-sip", flag.ExitOnError)
-		ingestRejectSipIDFlag    = ingestRejectSipFlags.String("id", "REQUIRED", "Identifier of SIP to look up")
+		ingestRejectSipUUIDFlag  = ingestRejectSipFlags.String("uuid", "REQUIRED", "Identifier of SIP to look up")
 		ingestRejectSipTokenFlag = ingestRejectSipFlags.String("token", "", "")
 
 		ingestUploadSipFlags           = flag.NewFlagSet("upload-sip", flag.ExitOnError)
@@ -339,16 +339,16 @@ func ParseEndpoint(
 				data, err = ingestc.BuildListSipsPayload(*ingestListSipsNameFlag, *ingestListSipsAipIDFlag, *ingestListSipsEarliestCreatedTimeFlag, *ingestListSipsLatestCreatedTimeFlag, *ingestListSipsStatusFlag, *ingestListSipsLimitFlag, *ingestListSipsOffsetFlag, *ingestListSipsTokenFlag)
 			case "show-sip":
 				endpoint = c.ShowSip()
-				data, err = ingestc.BuildShowSipPayload(*ingestShowSipIDFlag, *ingestShowSipTokenFlag)
+				data, err = ingestc.BuildShowSipPayload(*ingestShowSipUUIDFlag, *ingestShowSipTokenFlag)
 			case "list-sip-workflows":
 				endpoint = c.ListSipWorkflows()
-				data, err = ingestc.BuildListSipWorkflowsPayload(*ingestListSipWorkflowsIDFlag, *ingestListSipWorkflowsTokenFlag)
+				data, err = ingestc.BuildListSipWorkflowsPayload(*ingestListSipWorkflowsUUIDFlag, *ingestListSipWorkflowsTokenFlag)
 			case "confirm-sip":
 				endpoint = c.ConfirmSip()
-				data, err = ingestc.BuildConfirmSipPayload(*ingestConfirmSipBodyFlag, *ingestConfirmSipIDFlag, *ingestConfirmSipTokenFlag)
+				data, err = ingestc.BuildConfirmSipPayload(*ingestConfirmSipBodyFlag, *ingestConfirmSipUUIDFlag, *ingestConfirmSipTokenFlag)
 			case "reject-sip":
 				endpoint = c.RejectSip()
-				data, err = ingestc.BuildRejectSipPayload(*ingestRejectSipIDFlag, *ingestRejectSipTokenFlag)
+				data, err = ingestc.BuildRejectSipPayload(*ingestRejectSipUUIDFlag, *ingestRejectSipTokenFlag)
 			case "upload-sip":
 				endpoint = c.UploadSip()
 				data, err = ingestc.BuildUploadSipPayload(*ingestUploadSipContentTypeFlag, *ingestUploadSipTokenFlag)
@@ -478,53 +478,53 @@ Example:
 }
 
 func ingestShowSipUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] ingest show-sip -id UINT -token STRING
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] ingest show-sip -uuid STRING -token STRING
 
 Show SIP by ID
-    -id UINT: Identifier of SIP to show
+    -uuid STRING: Identifier of SIP to show
     -token STRING: 
 
 Example:
-    %[1]s ingest show-sip --id 1 --token "abc123"
+    %[1]s ingest show-sip --uuid "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --token "abc123"
 `, os.Args[0])
 }
 
 func ingestListSipWorkflowsUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] ingest list-sip-workflows -id UINT -token STRING
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] ingest list-sip-workflows -uuid STRING -token STRING
 
 List all workflows for a SIP
-    -id UINT: Identifier of SIP to look up
+    -uuid STRING: Identifier of SIP to look up
     -token STRING: 
 
 Example:
-    %[1]s ingest list-sip-workflows --id 1 --token "abc123"
+    %[1]s ingest list-sip-workflows --uuid "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --token "abc123"
 `, os.Args[0])
 }
 
 func ingestConfirmSipUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] ingest confirm-sip -body JSON -id UINT -token STRING
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] ingest confirm-sip -body JSON -uuid STRING -token STRING
 
 Signal the SIP has been reviewed and accepted
     -body JSON: 
-    -id UINT: Identifier of SIP to look up
+    -uuid STRING: Identifier of SIP to look up
     -token STRING: 
 
 Example:
     %[1]s ingest confirm-sip --body '{
       "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
-   }' --id 1 --token "abc123"
+   }' --uuid "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --token "abc123"
 `, os.Args[0])
 }
 
 func ingestRejectSipUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] ingest reject-sip -id UINT -token STRING
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] ingest reject-sip -uuid STRING -token STRING
 
 Signal the SIP has been reviewed and rejected
-    -id UINT: Identifier of SIP to look up
+    -uuid STRING: Identifier of SIP to look up
     -token STRING: 
 
 Example:
-    %[1]s ingest reject-sip --id 1 --token "abc123"
+    %[1]s ingest reject-sip --uuid "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --token "abc123"
 `, os.Args[0])
 }
 
@@ -557,7 +557,7 @@ COMMAND:
     move-aip-status: Retrieve the status of a permanent storage location move of the AIP
     reject-aip: Reject an AIP
     show-aip: Show AIP by AIPID
-    list-aip-workflows: List all workflows for an AIP
+    list-aip-workflows: List workflows related to an AIP
     request-aip-deletion: Request an AIP deletion
     review-aip-deletion: Review an AIP deletion request
     list-locations: List locations
@@ -697,7 +697,7 @@ Example:
 func storageListAipWorkflowsUsage() {
 	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage list-aip-workflows -body JSON -uuid STRING -token STRING
 
-List all workflows for an AIP
+List workflows related to an AIP
     -body JSON: 
     -uuid STRING: Identifier of AIP
     -token STRING: 

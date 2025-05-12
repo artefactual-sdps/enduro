@@ -15,6 +15,7 @@ import (
 // SIP represents a SIP in the sip table.
 type SIP struct {
 	ID     int             `db:"id"`
+	UUID   uuid.UUID       `db:"uuid"`
 	Name   string          `db:"name"`
 	AIPID  uuid.NullUUID   `db:"aip_id"` // Nullable.
 	Status enums.SIPStatus `db:"status"`
@@ -35,13 +36,8 @@ func (s *SIP) Goa() *goaingest.SIP {
 		return nil
 	}
 
-	var id uint
-	if s.ID > 0 {
-		id = uint(s.ID) // #nosec G115 -- range validated.
-	}
-
 	col := goaingest.SIP{
-		ID:          id,
+		UUID:        s.UUID,
 		Name:        db.FormatOptionalString(s.Name),
 		Status:      s.Status.String(),
 		CreatedAt:   db.FormatTime(s.CreatedAt),

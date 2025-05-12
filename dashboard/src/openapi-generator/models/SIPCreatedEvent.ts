@@ -27,17 +27,17 @@ import {
  */
 export interface SIPCreatedEvent {
     /**
-     * Identifier of SIP
-     * @type {number}
-     * @memberof SIPCreatedEvent
-     */
-    id: number;
-    /**
      * 
      * @type {EnduroIngestSip}
      * @memberof SIPCreatedEvent
      */
     item: EnduroIngestSip;
+    /**
+     * Identifier of SIP
+     * @type {string}
+     * @memberof SIPCreatedEvent
+     */
+    uuid: string;
 }
 
 /**
@@ -45,8 +45,8 @@ export interface SIPCreatedEvent {
  */
 export function instanceOfSIPCreatedEvent(value: object): boolean {
     let isInstance = true;
-    isInstance = isInstance && "id" in value;
     isInstance = isInstance && "item" in value;
+    isInstance = isInstance && "uuid" in value;
 
     return isInstance;
 }
@@ -61,8 +61,8 @@ export function SIPCreatedEventFromJSONTyped(json: any, ignoreDiscriminator: boo
     }
     return {
         
-        'id': json['id'],
         'item': EnduroIngestSipFromJSON(json['item']),
+        'uuid': json['uuid'],
     };
 }
 
@@ -75,8 +75,8 @@ export function SIPCreatedEventToJSON(value?: SIPCreatedEvent | null): any {
     }
     return {
         
-        'id': value.id,
         'item': EnduroIngestSipToJSON(value.item),
+        'uuid': value.uuid,
     };
 }
 

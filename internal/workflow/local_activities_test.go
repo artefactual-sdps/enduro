@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/google/uuid"
 	"go.artefactual.dev/tools/mockutil"
 	temporalsdk_testsuite "go.temporal.io/sdk/testsuite"
 	"go.uber.org/mock/gomock"
@@ -20,6 +21,7 @@ import (
 func TestCreateWorkflowLocalActivity(t *testing.T) {
 	t.Parallel()
 
+	sipUUID := uuid.New()
 	startedAt := time.Date(2024, 6, 13, 17, 50, 13, 0, time.UTC)
 	completedAt := time.Date(2024, 6, 13, 17, 50, 14, 0, time.UTC)
 
@@ -39,7 +41,7 @@ func TestCreateWorkflowLocalActivity(t *testing.T) {
 				Status:      enums.WorkflowStatusDone,
 				StartedAt:   startedAt,
 				CompletedAt: completedAt,
-				SIPID:       1,
+				SIPUUID:     sipUUID,
 			},
 			mockCalls: func(m *ingest_fake.MockServiceMockRecorder) {
 				m.CreateWorkflow(mockutil.Context(), &w.Workflow{
@@ -48,7 +50,7 @@ func TestCreateWorkflowLocalActivity(t *testing.T) {
 					Status:      enums.WorkflowStatusDone,
 					StartedAt:   sql.NullTime{Time: startedAt, Valid: true},
 					CompletedAt: sql.NullTime{Time: completedAt, Valid: true},
-					SIPID:       1,
+					SIPUUID:     sipUUID,
 				}).DoAndReturn(func(ctx context.Context, w *w.Workflow) error {
 					w.ID = 1
 					return nil
@@ -62,14 +64,14 @@ func TestCreateWorkflowLocalActivity(t *testing.T) {
 				TemporalID: "workflow-id",
 				Type:       enums.WorkflowTypeCreateAip,
 				Status:     enums.WorkflowStatusDone,
-				SIPID:      1,
+				SIPUUID:    sipUUID,
 			},
 			mockCalls: func(m *ingest_fake.MockServiceMockRecorder) {
 				m.CreateWorkflow(mockutil.Context(), &w.Workflow{
 					TemporalID: "workflow-id",
 					Type:       enums.WorkflowTypeCreateAip,
 					Status:     enums.WorkflowStatusDone,
-					SIPID:      1,
+					SIPUUID:    sipUUID,
 				}).DoAndReturn(func(ctx context.Context, w *w.Workflow) error {
 					w.ID = 1
 					return nil
@@ -83,14 +85,14 @@ func TestCreateWorkflowLocalActivity(t *testing.T) {
 				TemporalID: "workflow-id",
 				Type:       enums.WorkflowTypeCreateAip,
 				Status:     enums.WorkflowStatusDone,
-				SIPID:      1,
+				SIPUUID:    sipUUID,
 			},
 			mockCalls: func(m *ingest_fake.MockServiceMockRecorder) {
 				m.CreateWorkflow(mockutil.Context(), &w.Workflow{
 					TemporalID: "workflow-id",
 					Type:       enums.WorkflowTypeCreateAip,
 					Status:     enums.WorkflowStatusDone,
-					SIPID:      1,
+					SIPUUID:    sipUUID,
 				}).Return(fmt.Errorf("persistence error"))
 			},
 			wantErr: "persistence error",

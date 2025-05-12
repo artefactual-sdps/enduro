@@ -91,7 +91,7 @@ func (w *ProcessingWorkflow) cleanup(ctx temporalsdk_workflow.Context, state *wo
 		updateSIPLocalActivity,
 		w.ingestsvc,
 		&updateSIPLocalActivityParams{
-			SIPID:       state.sip.dbID,
+			UUID:        state.sip.uuid,
 			Name:        state.sip.name,
 			AIPUUID:     state.aip.id,
 			CompletedAt: state.aip.storedAt,
@@ -173,6 +173,7 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *inge
 				createSIPLocalActivity,
 				w.ingestsvc,
 				&createSIPLocalActivityParams{
+					UUID:   state.sip.uuid,
 					Name:   state.sip.name,
 					Status: state.sip.status,
 				},
@@ -184,7 +185,7 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *inge
 				updateSIPLocalActivity,
 				w.ingestsvc,
 				&updateSIPLocalActivityParams{
-					SIPID:       state.sip.dbID,
+					UUID:        state.sip.uuid,
 					Name:        state.sip.name,
 					AIPUUID:     "",
 					CompletedAt: temporalsdk_workflow.Now(ctx).UTC(),
@@ -312,7 +313,7 @@ func (w *ProcessingWorkflow) SessionHandler(
 			ctx,
 			setStatusInProgressLocalActivity,
 			w.ingestsvc,
-			state.sip.dbID,
+			state.sip.uuid,
 			sipStartedAt,
 		).Get(ctx, nil)
 		if err != nil {
@@ -336,7 +337,7 @@ func (w *ProcessingWorkflow) SessionHandler(
 				Type:       workflowType,
 				Status:     enums.WorkflowStatusInProgress,
 				StartedAt:  sipStartedAt,
-				SIPID:      state.sip.dbID,
+				SIPUUID:    state.sip.uuid,
 			}).
 				Get(ctx, &state.workflowID)
 			if err != nil {
@@ -503,7 +504,7 @@ func (w *ProcessingWorkflow) SessionHandler(
 	{
 		activityOpts := withLocalActivityOpts(sessCtx)
 		_ = temporalsdk_workflow.ExecuteLocalActivity(activityOpts, updateSIPLocalActivity, w.ingestsvc, &updateSIPLocalActivityParams{
-			SIPID:       state.sip.dbID,
+			UUID:        state.sip.uuid,
 			Name:        state.sip.name,
 			AIPUUID:     state.aip.id,
 			CompletedAt: state.aip.storedAt,
@@ -587,7 +588,7 @@ func (w *ProcessingWorkflow) SessionHandler(
 		// Set SIP to pending status.
 		{
 			ctx := withLocalActivityOpts(sessCtx)
-			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setStatusLocalActivity, w.ingestsvc, state.sip.dbID, enums.SIPStatusPending).Get(ctx, nil)
+			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setStatusLocalActivity, w.ingestsvc, state.sip.uuid, enums.SIPStatusPending).Get(ctx, nil)
 			if err != nil {
 				return err
 			}
@@ -625,7 +626,7 @@ func (w *ProcessingWorkflow) SessionHandler(
 		// Set SIP to in progress status.
 		{
 			ctx := withLocalActivityOpts(sessCtx)
-			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setStatusLocalActivity, w.ingestsvc, state.sip.dbID, enums.SIPStatusProcessing).Get(ctx, nil)
+			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setStatusLocalActivity, w.ingestsvc, state.sip.uuid, enums.SIPStatusProcessing).Get(ctx, nil)
 			if err != nil {
 				return err
 			}
@@ -1037,11 +1038,10 @@ func (w *ProcessingWorkflow) preprocessing(ctx temporalsdk_workflow.Context, sta
 		return err
 	}
 
-	// TODO: Use SIP UUID instead SIPID when that field is added to the SIP.
 	preCtx := temporalsdk_workflow.WithChildOptions(ctx, temporalsdk_workflow.ChildWorkflowOptions{
 		Namespace:         w.cfg.Preprocessing.Temporal.Namespace,
 		TaskQueue:         w.cfg.Preprocessing.Temporal.TaskQueue,
-		WorkflowID:        fmt.Sprintf("%s-%d", w.cfg.Preprocessing.Temporal.WorkflowName, state.sip.dbID),
+		WorkflowID:        fmt.Sprintf("%s-%s", w.cfg.Preprocessing.Temporal.WorkflowName, state.sip.uuid.String()),
 		ParentClosePolicy: temporalapi_enums.PARENT_CLOSE_POLICY_TERMINATE,
 	})
 	var ppResult preprocessing.WorkflowResult

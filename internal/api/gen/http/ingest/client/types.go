@@ -54,7 +54,7 @@ type ListSipsResponseBody struct {
 // HTTP response body.
 type ShowSipResponseBody struct {
 	// Identifier of SIP
-	ID *uint `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	UUID *uuid.UUID `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
 	// Name of the SIP
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 	// Status of the SIP
@@ -153,7 +153,7 @@ type ShowSipNotFoundResponseBody struct {
 	// Message of error
 	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
 	// Identifier of missing SIP
-	ID *uint `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	UUID *string `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
 }
 
 // ListSipWorkflowsNotFoundResponseBody is the type of the "ingest" service
@@ -162,7 +162,7 @@ type ListSipWorkflowsNotFoundResponseBody struct {
 	// Message of error
 	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
 	// Identifier of missing SIP
-	ID *uint `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	UUID *string `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
 }
 
 // ConfirmSipNotAvailableResponseBody is the type of the "ingest" service
@@ -207,7 +207,7 @@ type ConfirmSipNotFoundResponseBody struct {
 	// Message of error
 	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
 	// Identifier of missing SIP
-	ID *uint `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	UUID *string `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
 }
 
 // RejectSipNotAvailableResponseBody is the type of the "ingest" service
@@ -252,7 +252,7 @@ type RejectSipNotFoundResponseBody struct {
 	// Message of error
 	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
 	// Identifier of missing SIP
-	ID *uint `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	UUID *string `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
 }
 
 // UploadSipInvalidMediaTypeResponseBody is the type of the "ingest" service
@@ -316,7 +316,7 @@ type SIPCollectionResponseBody []*SIPResponseBody
 // SIPResponseBody is used to define fields on response body types.
 type SIPResponseBody struct {
 	// Identifier of SIP
-	ID *uint `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	UUID *uuid.UUID `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
 	// Name of the SIP
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 	// Status of the SIP
@@ -354,7 +354,8 @@ type SIPWorkflowResponseBody struct {
 	StartedAt   *string                       `form:"started_at,omitempty" json:"started_at,omitempty" xml:"started_at,omitempty"`
 	CompletedAt *string                       `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
 	Tasks       SIPTaskCollectionResponseBody `form:"tasks,omitempty" json:"tasks,omitempty" xml:"tasks,omitempty"`
-	SipID       *uint                         `form:"sip_id,omitempty" json:"sip_id,omitempty" xml:"sip_id,omitempty"`
+	// Identifier of related SIP
+	SipUUID *uuid.UUID `form:"sip_uuid,omitempty" json:"sip_uuid,omitempty" xml:"sip_uuid,omitempty"`
 }
 
 // SIPTaskCollectionResponseBody is used to define fields on response body
@@ -544,7 +545,7 @@ func NewListSipsUnauthorized(body string) ingest.Unauthorized {
 // HTTP "OK" response.
 func NewShowSipSIPOK(body *ShowSipResponseBody) *ingestviews.SIPView {
 	v := &ingestviews.SIPView{
-		ID:          body.ID,
+		UUID:        body.UUID,
 		Name:        body.Name,
 		Status:      body.Status,
 		AipID:       body.AipID,
@@ -575,7 +576,7 @@ func NewShowSipNotAvailable(body *ShowSipNotAvailableResponseBody) *goa.ServiceE
 func NewShowSipNotFound(body *ShowSipNotFoundResponseBody) *ingest.SIPNotFound {
 	v := &ingest.SIPNotFound{
 		Message: *body.Message,
-		ID:      *body.ID,
+		UUID:    *body.UUID,
 	}
 
 	return v
@@ -616,7 +617,7 @@ func NewListSipWorkflowsSIPWorkflowsOK(body *ListSipWorkflowsResponseBody) *inge
 func NewListSipWorkflowsNotFound(body *ListSipWorkflowsNotFoundResponseBody) *ingest.SIPNotFound {
 	v := &ingest.SIPNotFound{
 		Message: *body.Message,
-		ID:      *body.ID,
+		UUID:    *body.UUID,
 	}
 
 	return v
@@ -673,7 +674,7 @@ func NewConfirmSipNotValid(body *ConfirmSipNotValidResponseBody) *goa.ServiceErr
 func NewConfirmSipNotFound(body *ConfirmSipNotFoundResponseBody) *ingest.SIPNotFound {
 	v := &ingest.SIPNotFound{
 		Message: *body.Message,
-		ID:      *body.ID,
+		UUID:    *body.UUID,
 	}
 
 	return v
@@ -730,7 +731,7 @@ func NewRejectSipNotValid(body *RejectSipNotValidResponseBody) *goa.ServiceError
 func NewRejectSipNotFound(body *RejectSipNotFoundResponseBody) *ingest.SIPNotFound {
 	v := &ingest.SIPNotFound{
 		Message: *body.Message,
-		ID:      *body.ID,
+		UUID:    *body.UUID,
 	}
 
 	return v
@@ -934,8 +935,11 @@ func ValidateShowSipNotFoundResponseBody(body *ShowSipNotFoundResponseBody) (err
 	if body.Message == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
 	}
-	if body.ID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	if body.UUID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("uuid", "body"))
+	}
+	if body.UUID != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("body.uuid", *body.UUID, goa.FormatUUID))
 	}
 	return
 }
@@ -946,8 +950,11 @@ func ValidateListSipWorkflowsNotFoundResponseBody(body *ListSipWorkflowsNotFound
 	if body.Message == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
 	}
-	if body.ID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	if body.UUID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("uuid", "body"))
+	}
+	if body.UUID != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("body.uuid", *body.UUID, goa.FormatUUID))
 	}
 	return
 }
@@ -1006,8 +1013,11 @@ func ValidateConfirmSipNotFoundResponseBody(body *ConfirmSipNotFoundResponseBody
 	if body.Message == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
 	}
-	if body.ID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	if body.UUID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("uuid", "body"))
+	}
+	if body.UUID != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("body.uuid", *body.UUID, goa.FormatUUID))
 	}
 	return
 }
@@ -1066,8 +1076,11 @@ func ValidateRejectSipNotFoundResponseBody(body *RejectSipNotFoundResponseBody) 
 	if body.Message == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
 	}
-	if body.ID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	if body.UUID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("uuid", "body"))
+	}
+	if body.UUID != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("body.uuid", *body.UUID, goa.FormatUUID))
 	}
 	return
 }
@@ -1159,8 +1172,8 @@ func ValidateSIPCollectionResponseBody(body SIPCollectionResponseBody) (err erro
 
 // ValidateSIPResponseBody runs the validations defined on SIPResponseBody
 func ValidateSIPResponseBody(body *SIPResponseBody) (err error) {
-	if body.ID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	if body.UUID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("uuid", "body"))
 	}
 	if body.Status == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("status", "body"))
@@ -1233,6 +1246,9 @@ func ValidateSIPWorkflowResponseBody(body *SIPWorkflowResponseBody) (err error) 
 	}
 	if body.StartedAt == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("started_at", "body"))
+	}
+	if body.SipUUID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("sip_uuid", "body"))
 	}
 	if body.Type != nil {
 		if !(*body.Type == "unspecified" || *body.Type == "create aip" || *body.Type == "create and review aip") {

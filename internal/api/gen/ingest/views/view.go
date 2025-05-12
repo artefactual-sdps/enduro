@@ -9,6 +9,7 @@
 package views
 
 import (
+	"github.com/google/uuid"
 	goa "goa.design/goa/v3/pkg"
 )
 
@@ -48,7 +49,7 @@ type SIPCollectionView []*SIPView
 // SIPView is a type that runs validations on a projected type.
 type SIPView struct {
 	// Identifier of SIP
-	ID *uint
+	UUID *uuid.UUID
 	// Name of the SIP
 	Name *string
 	// Status of the SIP
@@ -91,7 +92,8 @@ type SIPWorkflowView struct {
 	StartedAt   *string
 	CompletedAt *string
 	Tasks       SIPTaskCollectionView
-	SipID       *uint
+	// Identifier of related SIP
+	SipUUID *uuid.UUID
 }
 
 // SIPTaskCollectionView is a type that runs validations on a projected type.
@@ -120,7 +122,7 @@ var (
 	// SIPMap is a map indexing the attribute names of SIP by view name.
 	SIPMap = map[string][]string{
 		"default": {
-			"id",
+			"uuid",
 			"name",
 			"status",
 			"aip_id",
@@ -140,7 +142,7 @@ var (
 	// view name.
 	SIPCollectionMap = map[string][]string{
 		"default": {
-			"id",
+			"uuid",
 			"name",
 			"status",
 			"aip_id",
@@ -168,7 +170,7 @@ var (
 			"status",
 			"started_at",
 			"completed_at",
-			"sip_id",
+			"sip_uuid",
 		},
 		"default": {
 			"id",
@@ -178,7 +180,7 @@ var (
 			"started_at",
 			"completed_at",
 			"tasks",
-			"sip_id",
+			"sip_uuid",
 		},
 	}
 	// SIPWorkflowMap is a map indexing the attribute names of SIPWorkflow by view
@@ -191,7 +193,7 @@ var (
 			"status",
 			"started_at",
 			"completed_at",
-			"sip_id",
+			"sip_uuid",
 		},
 		"default": {
 			"id",
@@ -201,7 +203,7 @@ var (
 			"started_at",
 			"completed_at",
 			"tasks",
-			"sip_id",
+			"sip_uuid",
 		},
 	}
 	// SIPTaskCollectionMap is a map indexing the attribute names of
@@ -298,8 +300,8 @@ func ValidateSIPCollectionView(result SIPCollectionView) (err error) {
 // ValidateSIPView runs the validations defined on SIPView using the "default"
 // view.
 func ValidateSIPView(result *SIPView) (err error) {
-	if result.ID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("id", "result"))
+	if result.UUID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("uuid", "result"))
 	}
 	if result.Status == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("status", "result"))
@@ -394,6 +396,9 @@ func ValidateSIPWorkflowViewSimple(result *SIPWorkflowView) (err error) {
 	if result.StartedAt == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("started_at", "result"))
 	}
+	if result.SipUUID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("sip_uuid", "result"))
+	}
 	if result.Type != nil {
 		if !(*result.Type == "unspecified" || *result.Type == "create aip" || *result.Type == "create and review aip") {
 			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.type", *result.Type, []any{"unspecified", "create aip", "create and review aip"}))
@@ -430,6 +435,9 @@ func ValidateSIPWorkflowView(result *SIPWorkflowView) (err error) {
 	}
 	if result.StartedAt == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("started_at", "result"))
+	}
+	if result.SipUUID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("sip_uuid", "result"))
 	}
 	if result.Type != nil {
 		if !(*result.Type == "unspecified" || *result.Type == "create aip" || *result.Type == "create and review aip") {

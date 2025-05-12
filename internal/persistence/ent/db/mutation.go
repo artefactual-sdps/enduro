@@ -39,6 +39,7 @@ type SIPMutation struct {
 	op               Op
 	typ              string
 	id               *int
+	uuid             *uuid.UUID
 	name             *string
 	aip_id           *uuid.UUID
 	status           *enums.SIPStatus
@@ -150,6 +151,42 @@ func (m *SIPMutation) IDs(ctx context.Context) ([]int, error) {
 	default:
 		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
 	}
+}
+
+// SetUUID sets the "uuid" field.
+func (m *SIPMutation) SetUUID(u uuid.UUID) {
+	m.uuid = &u
+}
+
+// UUID returns the value of the "uuid" field in the mutation.
+func (m *SIPMutation) UUID() (r uuid.UUID, exists bool) {
+	v := m.uuid
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUUID returns the old "uuid" field's value of the SIP entity.
+// If the SIP object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SIPMutation) OldUUID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUUID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUUID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUUID: %w", err)
+	}
+	return oldValue.UUID, nil
+}
+
+// ResetUUID resets all changes to the "uuid" field.
+func (m *SIPMutation) ResetUUID() {
+	m.uuid = nil
 }
 
 // SetName sets the "name" field.
@@ -495,7 +532,10 @@ func (m *SIPMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *SIPMutation) Fields() []string {
-	fields := make([]string, 0, 6)
+	fields := make([]string, 0, 7)
+	if m.uuid != nil {
+		fields = append(fields, sip.FieldUUID)
+	}
 	if m.name != nil {
 		fields = append(fields, sip.FieldName)
 	}
@@ -522,6 +562,8 @@ func (m *SIPMutation) Fields() []string {
 // schema.
 func (m *SIPMutation) Field(name string) (ent.Value, bool) {
 	switch name {
+	case sip.FieldUUID:
+		return m.UUID()
 	case sip.FieldName:
 		return m.Name()
 	case sip.FieldAipID:
@@ -543,6 +585,8 @@ func (m *SIPMutation) Field(name string) (ent.Value, bool) {
 // database failed.
 func (m *SIPMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
+	case sip.FieldUUID:
+		return m.OldUUID(ctx)
 	case sip.FieldName:
 		return m.OldName(ctx)
 	case sip.FieldAipID:
@@ -564,6 +608,13 @@ func (m *SIPMutation) OldField(ctx context.Context, name string) (ent.Value, err
 // type.
 func (m *SIPMutation) SetField(name string, value ent.Value) error {
 	switch name {
+	case sip.FieldUUID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUUID(v)
+		return nil
 	case sip.FieldName:
 		v, ok := value.(string)
 		if !ok {
@@ -676,6 +727,9 @@ func (m *SIPMutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *SIPMutation) ResetField(name string) error {
 	switch name {
+	case sip.FieldUUID:
+		m.ResetUUID()
+		return nil
 	case sip.FieldName:
 		m.ResetName()
 		return nil

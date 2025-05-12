@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/go-logr/logr"
+	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	temporalsdk_client "go.temporal.io/sdk/client"
 	"gocloud.dev/blob"
@@ -28,14 +29,13 @@ type Service interface {
 	CreateSIP(context.Context, *datatypes.SIP) error
 	UpdateSIP(
 		ctx context.Context,
-		ID int,
+		id uuid.UUID,
 		name, aipID string,
 		status enums.SIPStatus,
 		completedAt time.Time,
 	) error
-	SetStatus(ctx context.Context, ID int, status enums.SIPStatus) error
-	SetStatusInProgress(ctx context.Context, ID int, startedAt time.Time) error
-	SetStatusPending(ctx context.Context, ID int) error
+	SetStatus(ctx context.Context, id uuid.UUID, status enums.SIPStatus) error
+	SetStatusInProgress(ctx context.Context, id uuid.UUID, startedAt time.Time) error
 	CreateWorkflow(ctx context.Context, w *datatypes.Workflow) error
 	SetWorkflowStatus(ctx context.Context, ID int, status enums.WorkflowStatus) error
 	CompleteWorkflow(
@@ -109,14 +109,14 @@ func (svc *ingestImpl) CreateSIP(ctx context.Context, s *datatypes.SIP) error {
 		return fmt.Errorf("ingest: create SIP: %v", err)
 	}
 
-	event.PublishEvent(ctx, svc.evsvc, sipTogoaingestCreatedEvent(s))
+	event.PublishEvent(ctx, svc.evsvc, sipToCreatedEvent(s))
 
 	return nil
 }
 
 func (svc *ingestImpl) UpdateSIP(
 	ctx context.Context,
-	ID int,
+	id uuid.UUID,
 	name, aipID string,
 	status enums.SIPStatus,
 	completedAt time.Time,
@@ -130,69 +130,54 @@ func (svc *ingestImpl) UpdateSIP(
 		compAt = nil
 	}
 
-	if ID < 0 {
-		return fmt.Errorf("%w: ID", ErrInvalid)
-	}
-	id := uint(ID) // #nosec G115 -- range validated.
-
-	query := `UPDATE sip SET name = ?, aip_id = ?, status = ?, completed_at = ? WHERE id = ?`
+	query := `UPDATE sip SET name = ?, aip_id = ?, status = ?, completed_at = ? WHERE uuid = ?`
 	args := []interface{}{
 		name,
 		aipID,
 		status,
 		compAt,
-		ID,
+		id.String(),
 	}
 
 	if err := svc.updateRow(ctx, query, args); err != nil {
 		return err
 	}
 
-	if s, err := svc.Goa().ShowSip(ctx, &goaingest.ShowSipPayload{ID: id}); err == nil {
-		ev := &goaingest.SIPUpdatedEvent{ID: s.ID, Item: s}
+	if s, err := svc.Goa().ShowSip(ctx, &goaingest.ShowSipPayload{UUID: id.String()}); err == nil {
+		ev := &goaingest.SIPUpdatedEvent{UUID: id, Item: s}
 		event.PublishEvent(ctx, svc.evsvc, ev)
 	}
 
 	return nil
 }
 
-func (svc *ingestImpl) SetStatus(ctx context.Context, ID int, status enums.SIPStatus) error {
-	if ID < 0 {
-		return fmt.Errorf("%w: ID", ErrInvalid)
-	}
-	id := uint(ID) // #nosec G115 -- range validated.
-
-	query := `UPDATE sip SET status = ? WHERE id = ?`
+func (svc *ingestImpl) SetStatus(ctx context.Context, id uuid.UUID, status enums.SIPStatus) error {
+	query := `UPDATE sip SET status = ? WHERE uuid = ?`
 	args := []interface{}{
 		status,
-		ID,
+		id.String(),
 	}
 
 	if err := svc.updateRow(ctx, query, args); err != nil {
 		return err
 	}
 
-	ev := &goaingest.SIPStatusUpdatedEvent{ID: id, Status: status.String()}
+	ev := &goaingest.SIPStatusUpdatedEvent{UUID: id, Status: status.String()}
 	event.PublishEvent(ctx, svc.evsvc, ev)
 
 	return nil
 }
 
-func (svc *ingestImpl) SetStatusInProgress(ctx context.Context, ID int, startedAt time.Time) error {
+func (svc *ingestImpl) SetStatusInProgress(ctx context.Context, id uuid.UUID, startedAt time.Time) error {
 	var query string
 	args := []interface{}{enums.SIPStatusProcessing}
 
-	if ID < 0 {
-		return fmt.Errorf("%w: ID", ErrInvalid)
-	}
-	id := uint(ID) // #nosec G115 -- range validated.
-
 	if !startedAt.IsZero() {
-		query = `UPDATE sip SET status = ?, started_at = ? WHERE id = ?`
-		args = append(args, startedAt, ID)
+		query = `UPDATE sip SET status = ?, started_at = ? WHERE uuid = ?`
+		args = append(args, startedAt, id.String())
 	} else {
-		query = `UPDATE sip SET status = ? WHERE id = ?`
-		args = append(args, ID)
+		query = `UPDATE sip SET status = ? WHERE uuid = ?`
+		args = append(args, id.String())
 	}
 
 	if err := svc.updateRow(ctx, query, args); err != nil {
@@ -200,32 +185,8 @@ func (svc *ingestImpl) SetStatusInProgress(ctx context.Context, ID int, startedA
 	}
 
 	event.PublishEvent(ctx, svc.evsvc, &goaingest.SIPStatusUpdatedEvent{
-		ID:     id,
+		UUID:   id,
 		Status: enums.SIPStatusProcessing.String(),
-	})
-
-	return nil
-}
-
-func (svc *ingestImpl) SetStatusPending(ctx context.Context, ID int) error {
-	query := `UPDATE sip SET status = ?, WHERE id = ?`
-	args := []interface{}{
-		enums.SIPStatusPending,
-		ID,
-	}
-
-	if ID < 0 {
-		return fmt.Errorf("%w: ID", ErrInvalid)
-	}
-	id := uint(ID) // #nosec G115 -- range validated.
-
-	if err := svc.updateRow(ctx, query, args); err != nil {
-		return err
-	}
-
-	event.PublishEvent(ctx, svc.evsvc, &goaingest.SIPStatusUpdatedEvent{
-		ID:     id,
-		Status: enums.SIPStatusPending.String(),
 	})
 
 	return nil
@@ -240,9 +201,9 @@ func (svc *ingestImpl) updateRow(ctx context.Context, query string, args []inter
 	return nil
 }
 
-func (svc *ingestImpl) read(ctx context.Context, ID uint) (*datatypes.SIP, error) {
-	query := "SELECT id, name, aip_id, status, CONVERT_TZ(created_at, @@session.time_zone, '+00:00') AS created_at, CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at, CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at FROM sip WHERE id = ?"
-	args := []interface{}{ID}
+func (svc *ingestImpl) read(ctx context.Context, id string) (*datatypes.SIP, error) {
+	query := "SELECT id, uuid, name, aip_id, status, CONVERT_TZ(created_at, @@session.time_zone, '+00:00') AS created_at, CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at, CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at FROM sip WHERE uuid = ?"
+	args := []interface{}{id}
 	c := datatypes.SIP{}
 
 	if err := svc.db.GetContext(ctx, &c, query, args...); err != nil {

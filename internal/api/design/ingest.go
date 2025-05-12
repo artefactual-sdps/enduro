@@ -104,15 +104,15 @@ var _ = Service("ingest", func() {
 			Scope("ingest:sips:read")
 		})
 		Payload(func() {
-			Attribute("id", UInt, "Identifier of SIP to show")
+			AttributeUUID("uuid", "Identifier of SIP to show")
 			Token("token", String)
-			Required("id")
+			Required("uuid")
 		})
 		Result(SIP)
 		Error("not_found", SIPNotFound, "SIP not found")
 		Error("not_available")
 		HTTP(func() {
-			GET("/sips/{id}")
+			GET("/sips/{uuid}")
 			Response(StatusOK)
 			Response("not_found", StatusNotFound)
 			Response("not_available", StatusConflict)
@@ -124,14 +124,14 @@ var _ = Service("ingest", func() {
 			Scope("ingest:sips:workflows:list")
 		})
 		Payload(func() {
-			Attribute("id", UInt, "Identifier of SIP to look up")
+			AttributeUUID("uuid", "Identifier of SIP to look up")
 			Token("token", String)
-			Required("id")
+			Required("uuid")
 		})
 		Result(SIPWorkflows)
 		Error("not_found", SIPNotFound, "SIP not found")
 		HTTP(func() {
-			GET("/sips/{id}/workflows")
+			GET("/sips/{uuid}/workflows")
 			Response(StatusOK)
 			Response("not_found", StatusNotFound)
 		})
@@ -142,16 +142,16 @@ var _ = Service("ingest", func() {
 			Scope("ingest:sips:review")
 		})
 		Payload(func() {
-			Attribute("id", UInt, "Identifier of SIP to look up")
+			AttributeUUID("uuid", "Identifier of SIP to look up")
 			TypedAttributeUUID("location_id", "Identifier of storage location")
 			Token("token", String)
-			Required("id", "location_id")
+			Required("uuid", "location_id")
 		})
 		Error("not_found", SIPNotFound, "SIP not found")
 		Error("not_available")
 		Error("not_valid")
 		HTTP(func() {
-			POST("/sips/{id}/confirm")
+			POST("/sips/{uuid}/confirm")
 			Response(StatusAccepted)
 			Response("not_found", StatusNotFound)
 			Response("not_available", StatusConflict)
@@ -164,15 +164,15 @@ var _ = Service("ingest", func() {
 			Scope("ingest:sips:review")
 		})
 		Payload(func() {
-			Attribute("id", UInt, "Identifier of SIP to look up")
+			AttributeUUID("uuid", "Identifier of SIP to look up")
 			Token("token", String)
-			Required("id")
+			Required("uuid")
 		})
 		Error("not_found", SIPNotFound, "SIP not found")
 		Error("not_available")
 		Error("not_valid")
 		HTTP(func() {
-			POST("/sips/{id}/reject")
+			POST("/sips/{uuid}/reject")
 			Response(StatusAccepted)
 			Response("not_found", StatusNotFound)
 			Response("not_available", StatusConflict)
@@ -232,7 +232,7 @@ var SIP = ResultType("application/vnd.enduro.ingest.sip", func() {
 	Description("SIP describes an ingest SIP type.")
 	TypeName("SIP")
 	Attributes(func() {
-		Attribute("id", UInt, "Identifier of SIP")
+		TypedAttributeUUID("uuid", "Identifier of SIP")
 		Attribute("name", String, "Name of the SIP")
 		Attribute("status", String, "Status of the SIP", func() {
 			EnumSIPStatus()
@@ -249,7 +249,7 @@ var SIP = ResultType("application/vnd.enduro.ingest.sip", func() {
 		})
 	})
 	View("default", func() {
-		Attribute("id")
+		Attribute("uuid")
 		Attribute("name")
 		Attribute("status")
 		Attribute("aip_id")
@@ -257,7 +257,7 @@ var SIP = ResultType("application/vnd.enduro.ingest.sip", func() {
 		Attribute("started_at")
 		Attribute("completed_at")
 	})
-	Required("id", "status", "created_at")
+	Required("uuid", "status", "created_at")
 })
 
 var SIPs = ResultType("application/vnd.enduro.ingest.sips", func() {
@@ -273,8 +273,8 @@ var SIPNotFound = Type("SIPNotFound", func() {
 	Attribute("message", String, "Message of error", func() {
 		Meta("struct:error:message")
 	})
-	Attribute("id", UInt, "Identifier of missing SIP")
-	Required("message", "id")
+	AttributeUUID("uuid", "Identifier of missing SIP")
+	Required("message", "uuid")
 })
 
 var SIPWorkflows = ResultType("application/vnd.enduro.ingest.sip.workflows", func() {
@@ -312,7 +312,7 @@ var SIPWorkflow = ResultType("application/vnd.enduro.ingest.sip.workflow", func(
 			Format(FormatDateTime)
 		})
 		Attribute("tasks", CollectionOf(SIPTask))
-		Attribute("sip_id", UInt)
+		TypedAttributeUUID("sip_uuid", "Identifier of related SIP")
 	})
 	View("simple", func() {
 		Attribute("id")
@@ -321,9 +321,9 @@ var SIPWorkflow = ResultType("application/vnd.enduro.ingest.sip.workflow", func(
 		Attribute("status")
 		Attribute("started_at")
 		Attribute("completed_at")
-		Attribute("sip_id")
+		Attribute("sip_uuid")
 	})
-	Required("id", "temporal_id", "type", "status", "started_at")
+	Required("id", "temporal_id", "type", "status", "started_at", "sip_uuid")
 })
 
 var EnumTaskStatus = func() {

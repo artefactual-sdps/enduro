@@ -5,7 +5,6 @@ apis/StorageApi.ts
 apis/SwaggerApi.ts
 apis/index.ts
 index.ts
-models/AIPNotFound.ts
 models/AIPResponse.ts
 models/AIPWorkflows.ts
 models/AIPs.ts

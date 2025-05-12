@@ -63,15 +63,15 @@ func id() string {
 }
 
 func sip(c int) []string {
-	const doneStatus string = "2"
 	return []string{
 		strconv.Itoa(c),                     // id
 		fmt.Sprintf("DPJ-SIP-%s.tar", id()), // name
 		id(),                                // aip_id
-		doneStatus,                          // status
+		"ingested",                          // status
 		"2019-11-21 17:36:10",               // created_at
 		"2019-11-21 17:36:11",               // started_at
 		"2019-11-21 17:42:12",               // completed_at
+		id(),                                // uuid
 	}
 }
 

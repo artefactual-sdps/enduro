@@ -80,7 +80,7 @@ type MonitorClientStream interface {
 // method.
 type ConfirmSipPayload struct {
 	// Identifier of SIP to look up
-	ID uint
+	UUID string
 	// Identifier of storage location
 	LocationID uuid.UUID
 	Token      *string
@@ -100,7 +100,7 @@ type EnduroPage struct {
 // list_sip_workflows method.
 type ListSipWorkflowsPayload struct {
 	// Identifier of SIP to look up
-	ID    uint
+	UUID  string
 	Token *string
 }
 
@@ -150,14 +150,14 @@ type MonitorRequestResult struct {
 // RejectSipPayload is the payload type of the ingest service reject_sip method.
 type RejectSipPayload struct {
 	// Identifier of SIP to look up
-	ID    uint
+	UUID  string
 	Token *string
 }
 
 // SIP is the result type of the ingest service show_sip method.
 type SIP struct {
 	// Identifier of SIP
-	ID uint
+	UUID uuid.UUID
 	// Name of the SIP
 	Name *string
 	// Status of the SIP
@@ -176,7 +176,7 @@ type SIPCollection []*SIP
 
 type SIPCreatedEvent struct {
 	// Identifier of SIP
-	ID   uint
+	UUID uuid.UUID
 	Item *SIP
 }
 
@@ -185,12 +185,12 @@ type SIPNotFound struct {
 	// Message of error
 	Message string
 	// Identifier of missing SIP
-	ID uint
+	UUID string
 }
 
 type SIPStatusUpdatedEvent struct {
 	// Identifier of SIP
-	ID     uint
+	UUID   uuid.UUID
 	Status string
 }
 
@@ -222,7 +222,7 @@ type SIPTaskUpdatedEvent struct {
 
 type SIPUpdatedEvent struct {
 	// Identifier of SIP
-	ID   uint
+	UUID uuid.UUID
 	Item *SIP
 }
 
@@ -235,7 +235,8 @@ type SIPWorkflow struct {
 	StartedAt   string
 	CompletedAt *string
 	Tasks       SIPTaskCollection
-	SipID       *uint
+	// Identifier of related SIP
+	SipUUID uuid.UUID
 }
 
 type SIPWorkflowCollection []*SIPWorkflow
@@ -267,7 +268,7 @@ type SIPs struct {
 // ShowSipPayload is the payload type of the ingest service show_sip method.
 type ShowSipPayload struct {
 	// Identifier of SIP to show
-	ID    uint
+	UUID  string
 	Token *string
 }
 
@@ -458,8 +459,8 @@ func newSIP(vres *ingestviews.SIPView) *SIP {
 		StartedAt:   vres.StartedAt,
 		CompletedAt: vres.CompletedAt,
 	}
-	if vres.ID != nil {
-		res.ID = *vres.ID
+	if vres.UUID != nil {
+		res.UUID = *vres.UUID
 	}
 	if vres.Status != nil {
 		res.Status = *vres.Status
@@ -474,7 +475,7 @@ func newSIP(vres *ingestviews.SIPView) *SIP {
 // "default" view.
 func newSIPView(res *SIP) *ingestviews.SIPView {
 	vres := &ingestviews.SIPView{
-		ID:          &res.ID,
+		UUID:        &res.UUID,
 		Name:        res.Name,
 		Status:      &res.Status,
 		AipID:       res.AipID,
@@ -577,7 +578,6 @@ func newSIPWorkflowCollectionView(res SIPWorkflowCollection) ingestviews.SIPWork
 func newSIPWorkflowSimple(vres *ingestviews.SIPWorkflowView) *SIPWorkflow {
 	res := &SIPWorkflow{
 		CompletedAt: vres.CompletedAt,
-		SipID:       vres.SipID,
 	}
 	if vres.ID != nil {
 		res.ID = *vres.ID
@@ -593,6 +593,9 @@ func newSIPWorkflowSimple(vres *ingestviews.SIPWorkflowView) *SIPWorkflow {
 	}
 	if vres.StartedAt != nil {
 		res.StartedAt = *vres.StartedAt
+	}
+	if vres.SipUUID != nil {
+		res.SipUUID = *vres.SipUUID
 	}
 	if vres.Tasks != nil {
 		res.Tasks = newSIPTaskCollection(vres.Tasks)
@@ -605,7 +608,6 @@ func newSIPWorkflowSimple(vres *ingestviews.SIPWorkflowView) *SIPWorkflow {
 func newSIPWorkflow(vres *ingestviews.SIPWorkflowView) *SIPWorkflow {
 	res := &SIPWorkflow{
 		CompletedAt: vres.CompletedAt,
-		SipID:       vres.SipID,
 	}
 	if vres.ID != nil {
 		res.ID = *vres.ID
@@ -621,6 +623,9 @@ func newSIPWorkflow(vres *ingestviews.SIPWorkflowView) *SIPWorkflow {
 	}
 	if vres.StartedAt != nil {
 		res.StartedAt = *vres.StartedAt
+	}
+	if vres.SipUUID != nil {
+		res.SipUUID = *vres.SipUUID
 	}
 	if vres.Tasks != nil {
 		res.Tasks = newSIPTaskCollection(vres.Tasks)
@@ -638,7 +643,7 @@ func newSIPWorkflowViewSimple(res *SIPWorkflow) *ingestviews.SIPWorkflowView {
 		Status:      &res.Status,
 		StartedAt:   &res.StartedAt,
 		CompletedAt: res.CompletedAt,
-		SipID:       res.SipID,
+		SipUUID:     &res.SipUUID,
 	}
 	return vres
 }
@@ -653,7 +658,7 @@ func newSIPWorkflowView(res *SIPWorkflow) *ingestviews.SIPWorkflowView {
 		Status:      &res.Status,
 		StartedAt:   &res.StartedAt,
 		CompletedAt: res.CompletedAt,
-		SipID:       res.SipID,
+		SipUUID:     &res.SipUUID,
 	}
 	if res.Tasks != nil {
 		vres.Tasks = newSIPTaskCollectionView(res.Tasks)

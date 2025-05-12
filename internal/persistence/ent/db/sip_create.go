@@ -23,6 +23,12 @@ type SIPCreate struct {
 	hooks    []Hook
 }
 
+// SetUUID sets the "uuid" field.
+func (sc *SIPCreate) SetUUID(u uuid.UUID) *SIPCreate {
+	sc.mutation.SetUUID(u)
+	return sc
+}
+
 // SetName sets the "name" field.
 func (sc *SIPCreate) SetName(s string) *SIPCreate {
 	sc.mutation.SetName(s)
@@ -149,6 +155,9 @@ func (sc *SIPCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (sc *SIPCreate) check() error {
+	if _, ok := sc.mutation.UUID(); !ok {
+		return &ValidationError{Name: "uuid", err: errors.New(`db: missing required field "SIP.uuid"`)}
+	}
 	if _, ok := sc.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`db: missing required field "SIP.name"`)}
 	}
@@ -189,6 +198,10 @@ func (sc *SIPCreate) createSpec() (*SIP, *sqlgraph.CreateSpec) {
 		_node = &SIP{config: sc.config}
 		_spec = sqlgraph.NewCreateSpec(sip.Table, sqlgraph.NewFieldSpec(sip.FieldID, field.TypeInt))
 	)
+	if value, ok := sc.mutation.UUID(); ok {
+		_spec.SetField(sip.FieldUUID, field.TypeUUID, value)
+		_node.UUID = value
+	}
 	if value, ok := sc.mutation.Name(); ok {
 		_spec.SetField(sip.FieldName, field.TypeString, value)
 		_node.Name = value

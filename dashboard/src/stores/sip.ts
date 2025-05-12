@@ -57,14 +57,9 @@ export const useSipStore = defineStore("sip", {
   },
   actions: {
     async fetchCurrent(id: string) {
-      const sipId = +id;
-      if (Number.isNaN(sipId)) {
-        throw Error("Unexpected parameter");
-      }
-
-      this.current = await client.ingest.ingestShowSip({ id: sipId });
+      this.current = await client.ingest.ingestShowSip({ uuid: id });
       this.currentWorkflows = await client.ingest.ingestListSipWorkflows({
-        id: sipId,
+        uuid: id,
       });
 
       // Update breadcrumb. TODO: should this be done in the component?
@@ -123,7 +118,7 @@ export const useSipStore = defineStore("sip", {
       if (!this.current) return;
       client.ingest
         .ingestConfirmSip({
-          id: this.current.id,
+          uuid: this.current.uuid,
           confirmSipRequestBody: { locationId: locationId },
         })
         .then(() => {
@@ -133,7 +128,7 @@ export const useSipStore = defineStore("sip", {
     },
     reject() {
       if (!this.current) return;
-      client.ingest.ingestRejectSip({ id: this.current.id }).then(() => {
+      client.ingest.ingestRejectSip({ uuid: this.current.uuid }).then(() => {
         if (!this.current) return;
         this.current.status = api.EnduroIngestSipStatusEnum.Processing;
       });

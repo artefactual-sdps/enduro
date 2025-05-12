@@ -48,8 +48,8 @@ type MoveAipRequestBody struct {
 // ListAipWorkflowsRequestBody is the type of the "storage" service
 // "list_aip_workflows" endpoint HTTP request body.
 type ListAipWorkflowsRequestBody struct {
-	Type   *string `form:"type,omitempty" json:"type,omitempty" xml:"type,omitempty"`
 	Status *string `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
+	Type   *string `form:"type,omitempty" json:"type,omitempty" xml:"type,omitempty"`
 }
 
 // RequestAipDeletionRequestBody is the type of the "storage" service
@@ -651,8 +651,8 @@ func NewMoveAipRequestBody(p *storage.MoveAipPayload) *MoveAipRequestBody {
 // of the "list_aip_workflows" endpoint of the "storage" service.
 func NewListAipWorkflowsRequestBody(p *storage.ListAipWorkflowsPayload) *ListAipWorkflowsRequestBody {
 	body := &ListAipWorkflowsRequestBody{
-		Type:   p.Type,
 		Status: p.Status,
+		Type:   p.Type,
 	}
 	return body
 }

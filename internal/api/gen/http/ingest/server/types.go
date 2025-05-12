@@ -54,7 +54,7 @@ type ListSipsResponseBody struct {
 // HTTP response body.
 type ShowSipResponseBody struct {
 	// Identifier of SIP
-	ID uint `form:"id" json:"id" xml:"id"`
+	UUID uuid.UUID `form:"uuid" json:"uuid" xml:"uuid"`
 	// Name of the SIP
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 	// Status of the SIP
@@ -153,7 +153,7 @@ type ShowSipNotFoundResponseBody struct {
 	// Message of error
 	Message string `form:"message" json:"message" xml:"message"`
 	// Identifier of missing SIP
-	ID uint `form:"id" json:"id" xml:"id"`
+	UUID string `form:"uuid" json:"uuid" xml:"uuid"`
 }
 
 // ListSipWorkflowsNotFoundResponseBody is the type of the "ingest" service
@@ -162,7 +162,7 @@ type ListSipWorkflowsNotFoundResponseBody struct {
 	// Message of error
 	Message string `form:"message" json:"message" xml:"message"`
 	// Identifier of missing SIP
-	ID uint `form:"id" json:"id" xml:"id"`
+	UUID string `form:"uuid" json:"uuid" xml:"uuid"`
 }
 
 // ConfirmSipNotAvailableResponseBody is the type of the "ingest" service
@@ -207,7 +207,7 @@ type ConfirmSipNotFoundResponseBody struct {
 	// Message of error
 	Message string `form:"message" json:"message" xml:"message"`
 	// Identifier of missing SIP
-	ID uint `form:"id" json:"id" xml:"id"`
+	UUID string `form:"uuid" json:"uuid" xml:"uuid"`
 }
 
 // RejectSipNotAvailableResponseBody is the type of the "ingest" service
@@ -252,7 +252,7 @@ type RejectSipNotFoundResponseBody struct {
 	// Message of error
 	Message string `form:"message" json:"message" xml:"message"`
 	// Identifier of missing SIP
-	ID uint `form:"id" json:"id" xml:"id"`
+	UUID string `form:"uuid" json:"uuid" xml:"uuid"`
 }
 
 // UploadSipInvalidMediaTypeResponseBody is the type of the "ingest" service
@@ -316,7 +316,7 @@ type SIPResponseBodyCollection []*SIPResponseBody
 // SIPResponseBody is used to define fields on response body types.
 type SIPResponseBody struct {
 	// Identifier of SIP
-	ID uint `form:"id" json:"id" xml:"id"`
+	UUID uuid.UUID `form:"uuid" json:"uuid" xml:"uuid"`
 	// Name of the SIP
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 	// Status of the SIP
@@ -354,7 +354,8 @@ type SIPWorkflowResponseBody struct {
 	StartedAt   string                        `form:"started_at" json:"started_at" xml:"started_at"`
 	CompletedAt *string                       `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
 	Tasks       SIPTaskResponseBodyCollection `form:"tasks,omitempty" json:"tasks,omitempty" xml:"tasks,omitempty"`
-	SipID       *uint                         `form:"sip_id,omitempty" json:"sip_id,omitempty" xml:"sip_id,omitempty"`
+	// Identifier of related SIP
+	SipUUID uuid.UUID `form:"sip_uuid" json:"sip_uuid" xml:"sip_uuid"`
 }
 
 // SIPTaskResponseBodyCollection is used to define fields on response body
@@ -441,7 +442,7 @@ func NewListSipsResponseBody(res *ingestviews.SIPsView) *ListSipsResponseBody {
 // "show_sip" endpoint of the "ingest" service.
 func NewShowSipResponseBody(res *ingestviews.SIPView) *ShowSipResponseBody {
 	body := &ShowSipResponseBody{
-		ID:          *res.ID,
+		UUID:        *res.UUID,
 		Name:        res.Name,
 		Status:      *res.Status,
 		AipID:       res.AipID,
@@ -526,7 +527,7 @@ func NewShowSipNotAvailableResponseBody(res *goa.ServiceError) *ShowSipNotAvaila
 func NewShowSipNotFoundResponseBody(res *ingest.SIPNotFound) *ShowSipNotFoundResponseBody {
 	body := &ShowSipNotFoundResponseBody{
 		Message: res.Message,
-		ID:      res.ID,
+		UUID:    res.UUID,
 	}
 	return body
 }
@@ -536,7 +537,7 @@ func NewShowSipNotFoundResponseBody(res *ingest.SIPNotFound) *ShowSipNotFoundRes
 func NewListSipWorkflowsNotFoundResponseBody(res *ingest.SIPNotFound) *ListSipWorkflowsNotFoundResponseBody {
 	body := &ListSipWorkflowsNotFoundResponseBody{
 		Message: res.Message,
-		ID:      res.ID,
+		UUID:    res.UUID,
 	}
 	return body
 }
@@ -574,7 +575,7 @@ func NewConfirmSipNotValidResponseBody(res *goa.ServiceError) *ConfirmSipNotVali
 func NewConfirmSipNotFoundResponseBody(res *ingest.SIPNotFound) *ConfirmSipNotFoundResponseBody {
 	body := &ConfirmSipNotFoundResponseBody{
 		Message: res.Message,
-		ID:      res.ID,
+		UUID:    res.UUID,
 	}
 	return body
 }
@@ -612,7 +613,7 @@ func NewRejectSipNotValidResponseBody(res *goa.ServiceError) *RejectSipNotValidR
 func NewRejectSipNotFoundResponseBody(res *ingest.SIPNotFound) *RejectSipNotFoundResponseBody {
 	body := &RejectSipNotFoundResponseBody{
 		Message: res.Message,
-		ID:      res.ID,
+		UUID:    res.UUID,
 	}
 	return body
 }
@@ -692,9 +693,9 @@ func NewListSipsPayload(name *string, aipID *string, earliestCreatedTime *string
 }
 
 // NewShowSipPayload builds a ingest service show_sip endpoint payload.
-func NewShowSipPayload(id uint, token *string) *ingest.ShowSipPayload {
+func NewShowSipPayload(uuid string, token *string) *ingest.ShowSipPayload {
 	v := &ingest.ShowSipPayload{}
-	v.ID = id
+	v.UUID = uuid
 	v.Token = token
 
 	return v
@@ -702,29 +703,29 @@ func NewShowSipPayload(id uint, token *string) *ingest.ShowSipPayload {
 
 // NewListSipWorkflowsPayload builds a ingest service list_sip_workflows
 // endpoint payload.
-func NewListSipWorkflowsPayload(id uint, token *string) *ingest.ListSipWorkflowsPayload {
+func NewListSipWorkflowsPayload(uuid string, token *string) *ingest.ListSipWorkflowsPayload {
 	v := &ingest.ListSipWorkflowsPayload{}
-	v.ID = id
+	v.UUID = uuid
 	v.Token = token
 
 	return v
 }
 
 // NewConfirmSipPayload builds a ingest service confirm_sip endpoint payload.
-func NewConfirmSipPayload(body *ConfirmSipRequestBody, id uint, token *string) *ingest.ConfirmSipPayload {
+func NewConfirmSipPayload(body *ConfirmSipRequestBody, uuid string, token *string) *ingest.ConfirmSipPayload {
 	v := &ingest.ConfirmSipPayload{
 		LocationID: *body.LocationID,
 	}
-	v.ID = id
+	v.UUID = uuid
 	v.Token = token
 
 	return v
 }
 
 // NewRejectSipPayload builds a ingest service reject_sip endpoint payload.
-func NewRejectSipPayload(id uint, token *string) *ingest.RejectSipPayload {
+func NewRejectSipPayload(uuid string, token *string) *ingest.RejectSipPayload {
 	v := &ingest.RejectSipPayload{}
-	v.ID = id
+	v.UUID = uuid
 	v.Token = token
 
 	return v

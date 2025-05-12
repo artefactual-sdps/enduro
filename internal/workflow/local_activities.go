@@ -14,6 +14,7 @@ import (
 )
 
 type createSIPLocalActivityParams struct {
+	UUID   uuid.UUID
 	Name   string
 	Status enums.SIPStatus
 }
@@ -24,6 +25,7 @@ func createSIPLocalActivity(
 	params *createSIPLocalActivityParams,
 ) (int, error) {
 	col := &datatypes.SIP{
+		UUID:   params.UUID,
 		Name:   params.Name,
 		Status: params.Status,
 	}
@@ -36,7 +38,7 @@ func createSIPLocalActivity(
 }
 
 type updateSIPLocalActivityParams struct {
-	SIPID       int
+	UUID        uuid.UUID
 	Name        string
 	AIPUUID     string
 	CompletedAt time.Time
@@ -52,7 +54,7 @@ func updateSIPLocalActivity(
 ) (*updateSIPLocalActivityResult, error) {
 	err := ingestsvc.UpdateSIP(
 		ctx,
-		params.SIPID,
+		params.UUID,
 		params.Name,
 		params.AIPUUID,
 		params.Status,
@@ -70,10 +72,10 @@ type setStatusInProgressLocalActivityResult struct{}
 func setStatusInProgressLocalActivity(
 	ctx context.Context,
 	ingestsvc ingest.Service,
-	sipID int,
+	sipUUID uuid.UUID,
 	startedAt time.Time,
 ) (*setStatusInProgressLocalActivityResult, error) {
-	return &setStatusInProgressLocalActivityResult{}, ingestsvc.SetStatusInProgress(ctx, sipID, startedAt)
+	return &setStatusInProgressLocalActivityResult{}, ingestsvc.SetStatusInProgress(ctx, sipUUID, startedAt)
 }
 
 type setStatusLocalActivityResult struct{}
@@ -81,10 +83,10 @@ type setStatusLocalActivityResult struct{}
 func setStatusLocalActivity(
 	ctx context.Context,
 	ingestsvc ingest.Service,
-	sipID int,
+	sipUUID uuid.UUID,
 	status enums.SIPStatus,
 ) (*setStatusLocalActivityResult, error) {
-	return &setStatusLocalActivityResult{}, ingestsvc.SetStatus(ctx, sipID, status)
+	return &setStatusLocalActivityResult{}, ingestsvc.SetStatus(ctx, sipUUID, status)
 }
 
 type createWorkflowLocalActivityParams struct {
@@ -93,7 +95,7 @@ type createWorkflowLocalActivityParams struct {
 	Status      enums.WorkflowStatus
 	StartedAt   time.Time
 	CompletedAt time.Time
-	SIPID       int
+	SIPUUID     uuid.UUID
 }
 
 func createWorkflowLocalActivity(
@@ -105,7 +107,7 @@ func createWorkflowLocalActivity(
 		TemporalID: params.TemporalID,
 		Type:       params.Type,
 		Status:     params.Status,
-		SIPID:      params.SIPID,
+		SIPUUID:    params.SIPUUID,
 	}
 	if !params.StartedAt.IsZero() {
 		w.StartedAt = sql.NullTime{Time: params.StartedAt, Valid: true}

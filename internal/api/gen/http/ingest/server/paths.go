@@ -28,23 +28,23 @@ func ListSipsIngestPath() string {
 }
 
 // ShowSipIngestPath returns the URL path to the ingest service show_sip HTTP endpoint.
-func ShowSipIngestPath(id uint) string {
-	return fmt.Sprintf("/ingest/sips/%v", id)
+func ShowSipIngestPath(uuid string) string {
+	return fmt.Sprintf("/ingest/sips/%v", uuid)
 }
 
 // ListSipWorkflowsIngestPath returns the URL path to the ingest service list_sip_workflows HTTP endpoint.
-func ListSipWorkflowsIngestPath(id uint) string {
-	return fmt.Sprintf("/ingest/sips/%v/workflows", id)
+func ListSipWorkflowsIngestPath(uuid string) string {
+	return fmt.Sprintf("/ingest/sips/%v/workflows", uuid)
 }
 
 // ConfirmSipIngestPath returns the URL path to the ingest service confirm_sip HTTP endpoint.
-func ConfirmSipIngestPath(id uint) string {
-	return fmt.Sprintf("/ingest/sips/%v/confirm", id)
+func ConfirmSipIngestPath(uuid string) string {
+	return fmt.Sprintf("/ingest/sips/%v/confirm", uuid)
 }
 
 // RejectSipIngestPath returns the URL path to the ingest service reject_sip HTTP endpoint.
-func RejectSipIngestPath(id uint) string {
-	return fmt.Sprintf("/ingest/sips/%v/reject", id)
+func RejectSipIngestPath(uuid string) string {
+	return fmt.Sprintf("/ingest/sips/%v/reject", uuid)
 }
 
 // UploadSipIngestPath returns the URL path to the ingest service upload_sip HTTP endpoint.

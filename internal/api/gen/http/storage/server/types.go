@@ -48,8 +48,8 @@ type MoveAipRequestBody struct {
 // ListAipWorkflowsRequestBody is the type of the "storage" service
 // "list_aip_workflows" endpoint HTTP request body.
 type ListAipWorkflowsRequestBody struct {
-	Type   *string `form:"type,omitempty" json:"type,omitempty" xml:"type,omitempty"`
 	Status *string `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
+	Type   *string `form:"type,omitempty" json:"type,omitempty" xml:"type,omitempty"`
 }
 
 // RequestAipDeletionRequestBody is the type of the "storage" service
@@ -1111,8 +1111,8 @@ func NewShowAipPayload(uuid string, token *string) *storage.ShowAipPayload {
 // endpoint payload.
 func NewListAipWorkflowsPayload(body *ListAipWorkflowsRequestBody, uuid string, token *string) *storage.ListAipWorkflowsPayload {
 	v := &storage.ListAipWorkflowsPayload{
-		Type:   body.Type,
 		Status: body.Status,
+		Type:   body.Type,
 	}
 	v.UUID = uuid
 	v.Token = token
@@ -1254,14 +1254,14 @@ func ValidateMoveAipRequestBody(body *MoveAipRequestBody) (err error) {
 // ValidateListAipWorkflowsRequestBody runs the validations defined on
 // list_aip_workflows_request_body
 func ValidateListAipWorkflowsRequestBody(body *ListAipWorkflowsRequestBody) (err error) {
-	if body.Type != nil {
-		if !(*body.Type == "unspecified" || *body.Type == "upload aip" || *body.Type == "move aip" || *body.Type == "delete aip") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.type", *body.Type, []any{"unspecified", "upload aip", "move aip", "delete aip"}))
-		}
-	}
 	if body.Status != nil {
 		if !(*body.Status == "unspecified" || *body.Status == "in progress" || *body.Status == "done" || *body.Status == "error" || *body.Status == "queued" || *body.Status == "pending" || *body.Status == "canceled") {
 			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []any{"unspecified", "in progress", "done", "error", "queued", "pending", "canceled"}))
+		}
+	}
+	if body.Type != nil {
+		if !(*body.Type == "unspecified" || *body.Type == "upload aip" || *body.Type == "move aip" || *body.Type == "delete aip") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.type", *body.Type, []any{"unspecified", "upload aip", "move aip", "delete aip"}))
 		}
 	}
 	return

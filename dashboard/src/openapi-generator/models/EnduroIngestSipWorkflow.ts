@@ -39,11 +39,11 @@ export interface EnduroIngestSipWorkflow {
      */
     id: number;
     /**
-     * 
-     * @type {number}
+     * Identifier of related SIP
+     * @type {string}
      * @memberof EnduroIngestSipWorkflow
      */
-    sipId?: number;
+    sipUuid: string;
     /**
      * 
      * @type {Date}
@@ -108,6 +108,7 @@ export type EnduroIngestSipWorkflowTypeEnum = typeof EnduroIngestSipWorkflowType
 export function instanceOfEnduroIngestSipWorkflow(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "id" in value;
+    isInstance = isInstance && "sipUuid" in value;
     isInstance = isInstance && "startedAt" in value;
     isInstance = isInstance && "status" in value;
     isInstance = isInstance && "temporalId" in value;
@@ -128,7 +129,7 @@ export function EnduroIngestSipWorkflowFromJSONTyped(json: any, ignoreDiscrimina
         
         'completedAt': !exists(json, 'completed_at') ? undefined : (new Date(json['completed_at'])),
         'id': json['id'],
-        'sipId': !exists(json, 'sip_id') ? undefined : json['sip_id'],
+        'sipUuid': json['sip_uuid'],
         'startedAt': (new Date(json['started_at'])),
         'status': json['status'],
         'tasks': !exists(json, 'tasks') ? undefined : ((json['tasks'] as Array<any>).map(EnduroIngestSipTaskFromJSON)),
@@ -148,7 +149,7 @@ export function EnduroIngestSipWorkflowToJSON(value?: EnduroIngestSipWorkflow | 
         
         'completed_at': value.completedAt === undefined ? undefined : (value.completedAt.toISOString()),
         'id': value.id,
-        'sip_id': value.sipId,
+        'sip_uuid': value.sipUuid,
         'started_at': (value.startedAt.toISOString()),
         'status': value.status,
         'tasks': value.tasks === undefined ? undefined : ((value.tasks as Array<any>).map(EnduroIngestSipTaskToJSON)),

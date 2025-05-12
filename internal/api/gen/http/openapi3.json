@@ -17,30 +17,6 @@
         },
         "type": "array"
       },
-      "AIPNotFound": {
-        "description": "AIP not found",
-        "example": {
-          "message": "abc123",
-          "uuid": "abc123"
-        },
-        "properties": {
-          "message": {
-            "description": "Message of error",
-            "example": "abc123",
-            "type": "string"
-          },
-          "uuid": {
-            "description": "Identifier of missing AIP",
-            "example": "abc123",
-            "type": "string"
-          }
-        },
-        "required": [
-          "message",
-          "uuid"
-        ],
-        "type": "object"
-      },
       "AIPResponse": {
         "description": "An AIP describes an AIP retrieved by the storage service. (default view)",
         "example": {
@@ -424,10 +400,10 @@
           "aip_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
           "completed_at": "1970-01-01T00:00:01Z",
           "created_at": "1970-01-01T00:00:01Z",
-          "id": 1,
           "name": "abc123",
           "started_at": "1970-01-01T00:00:01Z",
-          "status": "failed"
+          "status": "failed",
+          "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
         },
         "properties": {
           "aip_id": {
@@ -447,12 +423,6 @@
             "example": "1970-01-01T00:00:01Z",
             "format": "date-time",
             "type": "string"
-          },
-          "id": {
-            "description": "Identifier of SIP",
-            "example": 1,
-            "format": "int64",
-            "type": "integer"
           },
           "name": {
             "description": "Name of the SIP",
@@ -477,10 +447,15 @@
             ],
             "example": "failed",
             "type": "string"
+          },
+          "uuid": {
+            "description": "Identifier of SIP",
+            "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+            "type": "string"
           }
         },
         "required": [
-          "id",
+          "uuid",
           "status",
           "created_at"
         ],
@@ -559,7 +534,7 @@
         "example": {
           "completed_at": "1970-01-01T00:00:01Z",
           "id": 1,
-          "sip_id": 1,
+          "sip_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
           "started_at": "1970-01-01T00:00:01Z",
           "status": "in progress",
           "tasks": [
@@ -588,10 +563,10 @@
             "format": "int64",
             "type": "integer"
           },
-          "sip_id": {
-            "example": 1,
-            "format": "int64",
-            "type": "integer"
+          "sip_uuid": {
+            "description": "Identifier of related SIP",
+            "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+            "type": "string"
           },
           "started_at": {
             "example": "1970-01-01T00:00:01Z",
@@ -633,7 +608,8 @@
           "temporal_id",
           "type",
           "status",
-          "started_at"
+          "started_at",
+          "sip_uuid"
         ],
         "type": "object"
       },
@@ -1178,14 +1154,14 @@
         "example": {
           "event": {
             "Type": "sip_created_event",
-            "Value": "{\"id\":1,\"item\":{\"aip_id\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"id\":1,\"name\":\"abc123\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"failed\"}}"
+            "Value": "{\"item\":{\"aip_id\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"name\":\"abc123\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"failed\",\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}"
           }
         },
         "properties": {
           "event": {
             "example": {
               "Type": "sip_created_event",
-              "Value": "{\"id\":1,\"item\":{\"aip_id\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"id\":1,\"name\":\"abc123\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"failed\"}}"
+              "Value": "{\"item\":{\"aip_id\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"name\":\"abc123\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"failed\",\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}"
             },
             "properties": {
               "Type": {
@@ -1205,7 +1181,7 @@
               },
               "Value": {
                 "description": "JSON encoded union value",
-                "example": "{\"id\":1,\"item\":{\"aip_id\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"id\":1,\"name\":\"abc123\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"failed\"}}",
+                "example": "{\"item\":{\"aip_id\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"name\":\"abc123\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"failed\",\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}",
                 "type": "string"
               }
             },
@@ -1281,10 +1257,10 @@
             "aip_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
             "completed_at": "1970-01-01T00:00:01Z",
             "created_at": "1970-01-01T00:00:01Z",
-            "id": 1,
             "name": "abc123",
             "started_at": "1970-01-01T00:00:01Z",
-            "status": "failed"
+            "status": "failed",
+            "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
           }
         ],
         "items": {
@@ -1294,30 +1270,29 @@
       },
       "SIPCreatedEvent": {
         "example": {
-          "id": 1,
           "item": {
             "aip_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
             "completed_at": "1970-01-01T00:00:01Z",
             "created_at": "1970-01-01T00:00:01Z",
-            "id": 1,
             "name": "abc123",
             "started_at": "1970-01-01T00:00:01Z",
-            "status": "failed"
-          }
+            "status": "failed",
+            "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+          },
+          "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
         },
         "properties": {
-          "id": {
-            "description": "Identifier of SIP",
-            "example": 1,
-            "format": "int64",
-            "type": "integer"
-          },
           "item": {
             "$ref": "#/components/schemas/EnduroIngestSip"
+          },
+          "uuid": {
+            "description": "Identifier of SIP",
+            "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+            "type": "string"
           }
         },
         "required": [
-          "id",
+          "uuid",
           "item"
         ],
         "type": "object"
@@ -1325,40 +1300,34 @@
       "SIPNotFound": {
         "description": "SIP not found",
         "example": {
-          "id": 1,
-          "message": "abc123"
+          "message": "abc123",
+          "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
         },
         "properties": {
-          "id": {
-            "description": "Identifier of missing SIP",
-            "example": 1,
-            "format": "int64",
-            "type": "integer"
-          },
           "message": {
             "description": "Message of error",
             "example": "abc123",
+            "type": "string"
+          },
+          "uuid": {
+            "description": "Identifier of missing SIP",
+            "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+            "format": "uuid",
             "type": "string"
           }
         },
         "required": [
           "message",
-          "id"
+          "uuid"
         ],
         "type": "object"
       },
       "SIPStatusUpdatedEvent": {
         "example": {
-          "id": 1,
-          "status": "failed"
+          "status": "failed",
+          "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
         },
         "properties": {
-          "id": {
-            "description": "Identifier of SIP",
-            "example": 1,
-            "format": "int64",
-            "type": "integer"
-          },
           "status": {
             "enum": [
               "error",
@@ -1370,10 +1339,15 @@
             ],
             "example": "failed",
             "type": "string"
+          },
+          "uuid": {
+            "description": "Identifier of SIP",
+            "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+            "type": "string"
           }
         },
         "required": [
-          "id",
+          "uuid",
           "status"
         ],
         "type": "object"
@@ -1460,30 +1434,29 @@
       },
       "SIPUpdatedEvent": {
         "example": {
-          "id": 1,
           "item": {
             "aip_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
             "completed_at": "1970-01-01T00:00:01Z",
             "created_at": "1970-01-01T00:00:01Z",
-            "id": 1,
             "name": "abc123",
             "started_at": "1970-01-01T00:00:01Z",
-            "status": "failed"
-          }
+            "status": "failed",
+            "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+          },
+          "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
         },
         "properties": {
-          "id": {
-            "description": "Identifier of SIP",
-            "example": 1,
-            "format": "int64",
-            "type": "integer"
-          },
           "item": {
             "$ref": "#/components/schemas/EnduroIngestSip"
+          },
+          "uuid": {
+            "description": "Identifier of SIP",
+            "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+            "type": "string"
           }
         },
         "required": [
-          "id",
+          "uuid",
           "item"
         ],
         "type": "object"
@@ -1493,7 +1466,7 @@
           {
             "completed_at": "1970-01-01T00:00:01Z",
             "id": 1,
-            "sip_id": 1,
+            "sip_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
             "started_at": "1970-01-01T00:00:01Z",
             "status": "in progress",
             "tasks": [
@@ -1523,7 +1496,7 @@
           "item": {
             "completed_at": "1970-01-01T00:00:01Z",
             "id": 1,
-            "sip_id": 1,
+            "sip_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
             "started_at": "1970-01-01T00:00:01Z",
             "status": "in progress",
             "tasks": [
@@ -1565,7 +1538,7 @@
           "item": {
             "completed_at": "1970-01-01T00:00:01Z",
             "id": 1,
-            "sip_id": 1,
+            "sip_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
             "started_at": "1970-01-01T00:00:01Z",
             "status": "in progress",
             "tasks": [
@@ -1607,7 +1580,7 @@
             {
               "completed_at": "1970-01-01T00:00:01Z",
               "id": 1,
-              "sip_id": 1,
+              "sip_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
               "started_at": "1970-01-01T00:00:01Z",
               "status": "in progress",
               "tasks": [
@@ -1641,10 +1614,10 @@
               "aip_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
               "completed_at": "1970-01-01T00:00:01Z",
               "created_at": "1970-01-01T00:00:01Z",
-              "id": 1,
               "name": "abc123",
               "started_at": "1970-01-01T00:00:01Z",
-              "status": "failed"
+              "status": "failed",
+              "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
             }
           ],
           "page": {
@@ -1789,7 +1762,7 @@
                 "example": {
                   "event": {
                     "Type": "sip_created_event",
-                    "Value": "{\"id\":1,\"item\":{\"aip_id\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"id\":1,\"name\":\"abc123\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"failed\"}}"
+                    "Value": "{\"item\":{\"aip_id\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"name\":\"abc123\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"failed\",\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}"
                   }
                 },
                 "schema": {
@@ -2012,10 +1985,10 @@
                       "aip_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
                       "completed_at": "1970-01-01T00:00:01Z",
                       "created_at": "1970-01-01T00:00:01Z",
-                      "id": 1,
                       "name": "abc123",
                       "started_at": "1970-01-01T00:00:01Z",
-                      "status": "failed"
+                      "status": "failed",
+                      "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
                     }
                   ],
                   "page": {
@@ -2161,22 +2134,22 @@
         ]
       }
     },
-    "/ingest/sips/{id}": {
+    "/ingest/sips/{uuid}": {
       "get": {
         "description": "Show SIP by ID",
         "operationId": "ingest#show_sip",
         "parameters": [
           {
             "description": "Identifier of SIP to show",
-            "example": 1,
+            "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
             "in": "path",
-            "name": "id",
+            "name": "uuid",
             "required": true,
             "schema": {
               "description": "Identifier of SIP to show",
-              "example": 1,
-              "format": "int64",
-              "type": "integer"
+              "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+              "format": "uuid",
+              "type": "string"
             }
           }
         ],
@@ -2188,10 +2161,10 @@
                   "aip_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
                   "completed_at": "1970-01-01T00:00:01Z",
                   "created_at": "1970-01-01T00:00:01Z",
-                  "id": 1,
                   "name": "abc123",
                   "started_at": "1970-01-01T00:00:01Z",
-                  "status": "failed"
+                  "status": "failed",
+                  "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
                 },
                 "schema": {
                   "$ref": "#/components/schemas/EnduroIngestSip"
@@ -2228,8 +2201,8 @@
             "content": {
               "application/json": {
                 "example": {
-                  "id": 1,
-                  "message": "abc123"
+                  "message": "abc123",
+                  "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
                 },
                 "schema": {
                   "$ref": "#/components/schemas/SIPNotFound"
@@ -2262,22 +2235,22 @@
         ]
       }
     },
-    "/ingest/sips/{id}/confirm": {
+    "/ingest/sips/{uuid}/confirm": {
       "post": {
         "description": "Signal the SIP has been reviewed and accepted",
         "operationId": "ingest#confirm_sip",
         "parameters": [
           {
             "description": "Identifier of SIP to look up",
-            "example": 1,
+            "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
             "in": "path",
-            "name": "id",
+            "name": "uuid",
             "required": true,
             "schema": {
               "description": "Identifier of SIP to look up",
-              "example": 1,
-              "format": "int64",
-              "type": "integer"
+              "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+              "format": "uuid",
+              "type": "string"
             }
           }
         ],
@@ -2336,8 +2309,8 @@
             "content": {
               "application/json": {
                 "example": {
-                  "id": 1,
-                  "message": "abc123"
+                  "message": "abc123",
+                  "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
                 },
                 "schema": {
                   "$ref": "#/components/schemas/SIPNotFound"
@@ -2370,22 +2343,22 @@
         ]
       }
     },
-    "/ingest/sips/{id}/reject": {
+    "/ingest/sips/{uuid}/reject": {
       "post": {
         "description": "Signal the SIP has been reviewed and rejected",
         "operationId": "ingest#reject_sip",
         "parameters": [
           {
             "description": "Identifier of SIP to look up",
-            "example": 1,
+            "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
             "in": "path",
-            "name": "id",
+            "name": "uuid",
             "required": true,
             "schema": {
               "description": "Identifier of SIP to look up",
-              "example": 1,
-              "format": "int64",
-              "type": "integer"
+              "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+              "format": "uuid",
+              "type": "string"
             }
           }
         ],
@@ -2431,8 +2404,8 @@
             "content": {
               "application/json": {
                 "example": {
-                  "id": 1,
-                  "message": "abc123"
+                  "message": "abc123",
+                  "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
                 },
                 "schema": {
                   "$ref": "#/components/schemas/SIPNotFound"
@@ -2465,22 +2438,22 @@
         ]
       }
     },
-    "/ingest/sips/{id}/workflows": {
+    "/ingest/sips/{uuid}/workflows": {
       "get": {
         "description": "List all workflows for a SIP",
         "operationId": "ingest#list_sip_workflows",
         "parameters": [
           {
             "description": "Identifier of SIP to look up",
-            "example": 1,
+            "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
             "in": "path",
-            "name": "id",
+            "name": "uuid",
             "required": true,
             "schema": {
               "description": "Identifier of SIP to look up",
-              "example": 1,
-              "format": "int64",
-              "type": "integer"
+              "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+              "format": "uuid",
+              "type": "string"
             }
           }
         ],
@@ -2493,7 +2466,7 @@
                     {
                       "completed_at": "1970-01-01T00:00:01Z",
                       "id": 1,
-                      "sip_id": 1,
+                      "sip_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
                       "started_at": "1970-01-01T00:00:01Z",
                       "status": "in progress",
                       "tasks": [
@@ -2548,8 +2521,8 @@
             "content": {
               "application/json": {
                 "example": {
-                  "id": 1,
-                  "message": "abc123"
+                  "message": "abc123",
+                  "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
                 },
                 "schema": {
                   "$ref": "#/components/schemas/SIPNotFound"
@@ -2896,7 +2869,7 @@
                   "uuid": "abc123"
                 },
                 "schema": {
-                  "$ref": "#/components/schemas/AIPNotFound"
+                  "$ref": "#/components/schemas/SIPNotFound"
                 }
               }
             },
@@ -2984,7 +2957,7 @@
                   "uuid": "abc123"
                 },
                 "schema": {
-                  "$ref": "#/components/schemas/AIPNotFound"
+                  "$ref": "#/components/schemas/SIPNotFound"
                 }
               }
             },
@@ -3072,7 +3045,7 @@
                   "uuid": "abc123"
                 },
                 "schema": {
-                  "$ref": "#/components/schemas/AIPNotFound"
+                  "$ref": "#/components/schemas/SIPNotFound"
                 }
               }
             },
@@ -3157,7 +3130,7 @@
                   "uuid": "abc123"
                 },
                 "schema": {
-                  "$ref": "#/components/schemas/AIPNotFound"
+                  "$ref": "#/components/schemas/SIPNotFound"
                 }
               }
             },
@@ -3242,7 +3215,7 @@
                   "uuid": "abc123"
                 },
                 "schema": {
-                  "$ref": "#/components/schemas/AIPNotFound"
+                  "$ref": "#/components/schemas/SIPNotFound"
                 }
               }
             },
@@ -3337,7 +3310,7 @@
                   "uuid": "abc123"
                 },
                 "schema": {
-                  "$ref": "#/components/schemas/AIPNotFound"
+                  "$ref": "#/components/schemas/SIPNotFound"
                 }
               }
             },
@@ -3443,7 +3416,7 @@
                   "uuid": "abc123"
                 },
                 "schema": {
-                  "$ref": "#/components/schemas/AIPNotFound"
+                  "$ref": "#/components/schemas/SIPNotFound"
                 }
               }
             },
@@ -3660,7 +3633,7 @@
     },
     "/storage/aips/{uuid}/workflows": {
       "get": {
-        "description": "List all workflows for an AIP",
+        "description": "List workflows related to an AIP",
         "operationId": "storage#list_aip_workflows",
         "parameters": [
           {
@@ -3756,7 +3729,7 @@
                   "uuid": "abc123"
                 },
                 "schema": {
-                  "$ref": "#/components/schemas/AIPNotFound"
+                  "$ref": "#/components/schemas/SIPNotFound"
                 }
               }
             },
@@ -3997,7 +3970,7 @@
                   "uuid": "abc123"
                 },
                 "schema": {
-                  "$ref": "#/components/schemas/AIPNotFound"
+                  "$ref": "#/components/schemas/SIPNotFound"
                 }
               }
             },
@@ -4099,7 +4072,7 @@
                   "uuid": "abc123"
                 },
                 "schema": {
-                  "$ref": "#/components/schemas/AIPNotFound"
+                  "$ref": "#/components/schemas/SIPNotFound"
                 }
               }
             },

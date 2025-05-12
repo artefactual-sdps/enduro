@@ -299,12 +299,12 @@ func (sq *SIPQuery) WithWorkflows(opts ...func(*WorkflowQuery)) *SIPQuery {
 // Example:
 //
 //	var v []struct {
-//		Name string `json:"name,omitempty"`
+//		UUID uuid.UUID `json:"uuid,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.SIP.Query().
-//		GroupBy(sip.FieldName).
+//		GroupBy(sip.FieldUUID).
 //		Aggregate(db.Count()).
 //		Scan(ctx, &v)
 func (sq *SIPQuery) GroupBy(field string, fields ...string) *SIPGroupBy {
@@ -322,11 +322,11 @@ func (sq *SIPQuery) GroupBy(field string, fields ...string) *SIPGroupBy {
 // Example:
 //
 //	var v []struct {
-//		Name string `json:"name,omitempty"`
+//		UUID uuid.UUID `json:"uuid,omitempty"`
 //	}
 //
 //	client.SIP.Query().
-//		Select(sip.FieldName).
+//		Select(sip.FieldUUID).
 //		Scan(ctx, &v)
 func (sq *SIPQuery) Select(fields ...string) *SIPSelect {
 	sq.ctx.Fields = append(sq.ctx.Fields, fields...)

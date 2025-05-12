@@ -38,29 +38,29 @@ var MonitorPingEvent = Type("MonitorPingEvent", func() {
 })
 
 var SIPCreatedEvent = Type("SIPCreatedEvent", func() {
-	Attribute("id", UInt, "Identifier of SIP")
+	TypedAttributeUUID("uuid", "Identifier of SIP")
 	Attribute("item", SIP, func() { View("default") })
-	Required("id", "item")
+	Required("uuid", "item")
 
 	Meta("type:generate:force")
 	Meta("openapi:typename", "SIPCreatedEvent")
 })
 
 var SIPUpdatedEvent = Type("SIPUpdatedEvent", func() {
-	Attribute("id", UInt, "Identifier of SIP")
+	TypedAttributeUUID("uuid", "Identifier of SIP")
 	Attribute("item", SIP, func() { View("default") })
-	Required("id", "item")
+	Required("uuid", "item")
 
 	Meta("type:generate:force")
 	Meta("openapi:typename", "SIPUpdatedEvent")
 })
 
 var SIPStatusUpdatedEvent = Type("SIPStatusUpdatedEvent", func() {
-	Attribute("id", UInt, "Identifier of SIP")
+	TypedAttributeUUID("uuid", "Identifier of SIP")
 	Attribute("status", String, func() {
 		EnumSIPStatus()
 	})
-	Required("id", "status")
+	Required("uuid", "status")
 
 	Meta("type:generate:force")
 	Meta("openapi:typename", "SIPStatusUpdatedEvent")

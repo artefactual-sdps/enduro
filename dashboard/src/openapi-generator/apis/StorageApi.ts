@@ -15,7 +15,6 @@
 
 import * as runtime from '../runtime';
 import type {
-  AIPNotFound,
   AIPResponse,
   AIPWorkflows,
   AIPs,
@@ -30,12 +29,11 @@ import type {
   MoveStatusResult,
   RequestAipDeletionRequestBody,
   ReviewAipDeletionRequestBody,
+  SIPNotFound,
   SubmitAIPResult,
   SubmitAipRequestBody,
 } from '../models/index';
 import {
-    AIPNotFoundFromJSON,
-    AIPNotFoundToJSON,
     AIPResponseFromJSON,
     AIPResponseToJSON,
     AIPWorkflowsFromJSON,
@@ -64,6 +62,8 @@ import {
     RequestAipDeletionRequestBodyToJSON,
     ReviewAipDeletionRequestBodyFromJSON,
     ReviewAipDeletionRequestBodyToJSON,
+    SIPNotFoundFromJSON,
+    SIPNotFoundToJSON,
     SubmitAIPResultFromJSON,
     SubmitAIPResultToJSON,
     SubmitAipRequestBodyFromJSON,
@@ -196,7 +196,7 @@ export interface StorageApiInterface {
     storageDownloadAip(requestParameters: StorageDownloadAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Blob>;
 
     /**
-     * List all workflows for an AIP
+     * List workflows related to an AIP
      * @summary list_aip_workflows storage
      * @param {string} uuid Identifier of AIP
      * @param {ListAipWorkflowsRequestBody} listAipWorkflowsRequestBody 
@@ -207,7 +207,7 @@ export interface StorageApiInterface {
     storageListAipWorkflowsRaw(requestParameters: StorageListAipWorkflowsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AIPWorkflows>>;
 
     /**
-     * List all workflows for an AIP
+     * List workflows related to an AIP
      * list_aip_workflows storage
      */
     storageListAipWorkflows(requestParameters: StorageListAipWorkflowsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AIPWorkflows>;
@@ -546,7 +546,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
     }
 
     /**
-     * List all workflows for an AIP
+     * List workflows related to an AIP
      * list_aip_workflows storage
      */
     async storageListAipWorkflowsRaw(requestParameters: StorageListAipWorkflowsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AIPWorkflows>> {
@@ -584,7 +584,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
     }
 
     /**
-     * List all workflows for an AIP
+     * List workflows related to an AIP
      * list_aip_workflows storage
      */
     async storageListAipWorkflows(requestParameters: StorageListAipWorkflowsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AIPWorkflows> {

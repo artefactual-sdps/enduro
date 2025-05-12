@@ -343,20 +343,14 @@ func EncodeShowSipResponse(encoder func(context.Context, http.ResponseWriter) go
 func DecodeShowSipRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (any, error) {
 	return func(r *http.Request) (any, error) {
 		var (
-			id    uint
+			uuid  string
 			token *string
 			err   error
 
 			params = mux.Vars(r)
 		)
-		{
-			idRaw := params["id"]
-			v, err2 := strconv.ParseUint(idRaw, 10, strconv.IntSize)
-			if err2 != nil {
-				err = goa.MergeErrors(err, goa.InvalidFieldTypeError("id", idRaw, "unsigned integer"))
-			}
-			id = uint(v)
-		}
+		uuid = params["uuid"]
+		err = goa.MergeErrors(err, goa.ValidateFormat("uuid", uuid, goa.FormatUUID))
 		tokenRaw := r.Header.Get("Authorization")
 		if tokenRaw != "" {
 			token = &tokenRaw
@@ -364,7 +358,7 @@ func DecodeShowSipRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp
 		if err != nil {
 			return nil, err
 		}
-		payload := NewShowSipPayload(id, token)
+		payload := NewShowSipPayload(uuid, token)
 		if payload.Token != nil {
 			if strings.Contains(*payload.Token, " ") {
 				// Remove authorization scheme prefix (e.g. "Bearer")
@@ -452,20 +446,14 @@ func EncodeListSipWorkflowsResponse(encoder func(context.Context, http.ResponseW
 func DecodeListSipWorkflowsRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (any, error) {
 	return func(r *http.Request) (any, error) {
 		var (
-			id    uint
+			uuid  string
 			token *string
 			err   error
 
 			params = mux.Vars(r)
 		)
-		{
-			idRaw := params["id"]
-			v, err2 := strconv.ParseUint(idRaw, 10, strconv.IntSize)
-			if err2 != nil {
-				err = goa.MergeErrors(err, goa.InvalidFieldTypeError("id", idRaw, "unsigned integer"))
-			}
-			id = uint(v)
-		}
+		uuid = params["uuid"]
+		err = goa.MergeErrors(err, goa.ValidateFormat("uuid", uuid, goa.FormatUUID))
 		tokenRaw := r.Header.Get("Authorization")
 		if tokenRaw != "" {
 			token = &tokenRaw
@@ -473,7 +461,7 @@ func DecodeListSipWorkflowsRequest(mux goahttp.Muxer, decoder func(*http.Request
 		if err != nil {
 			return nil, err
 		}
-		payload := NewListSipWorkflowsPayload(id, token)
+		payload := NewListSipWorkflowsPayload(uuid, token)
 		if payload.Token != nil {
 			if strings.Contains(*payload.Token, " ") {
 				// Remove authorization scheme prefix (e.g. "Bearer")
@@ -561,19 +549,13 @@ func DecodeConfirmSipRequest(mux goahttp.Muxer, decoder func(*http.Request) goah
 		}
 
 		var (
-			id    uint
+			uuid  string
 			token *string
 
 			params = mux.Vars(r)
 		)
-		{
-			idRaw := params["id"]
-			v, err2 := strconv.ParseUint(idRaw, 10, strconv.IntSize)
-			if err2 != nil {
-				err = goa.MergeErrors(err, goa.InvalidFieldTypeError("id", idRaw, "unsigned integer"))
-			}
-			id = uint(v)
-		}
+		uuid = params["uuid"]
+		err = goa.MergeErrors(err, goa.ValidateFormat("uuid", uuid, goa.FormatUUID))
 		tokenRaw := r.Header.Get("Authorization")
 		if tokenRaw != "" {
 			token = &tokenRaw
@@ -581,7 +563,7 @@ func DecodeConfirmSipRequest(mux goahttp.Muxer, decoder func(*http.Request) goah
 		if err != nil {
 			return nil, err
 		}
-		payload := NewConfirmSipPayload(&body, id, token)
+		payload := NewConfirmSipPayload(&body, uuid, token)
 		if payload.Token != nil {
 			if strings.Contains(*payload.Token, " ") {
 				// Remove authorization scheme prefix (e.g. "Bearer")
@@ -679,20 +661,14 @@ func EncodeRejectSipResponse(encoder func(context.Context, http.ResponseWriter) 
 func DecodeRejectSipRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (any, error) {
 	return func(r *http.Request) (any, error) {
 		var (
-			id    uint
+			uuid  string
 			token *string
 			err   error
 
 			params = mux.Vars(r)
 		)
-		{
-			idRaw := params["id"]
-			v, err2 := strconv.ParseUint(idRaw, 10, strconv.IntSize)
-			if err2 != nil {
-				err = goa.MergeErrors(err, goa.InvalidFieldTypeError("id", idRaw, "unsigned integer"))
-			}
-			id = uint(v)
-		}
+		uuid = params["uuid"]
+		err = goa.MergeErrors(err, goa.ValidateFormat("uuid", uuid, goa.FormatUUID))
 		tokenRaw := r.Header.Get("Authorization")
 		if tokenRaw != "" {
 			token = &tokenRaw
@@ -700,7 +676,7 @@ func DecodeRejectSipRequest(mux goahttp.Muxer, decoder func(*http.Request) goaht
 		if err != nil {
 			return nil, err
 		}
-		payload := NewRejectSipPayload(id, token)
+		payload := NewRejectSipPayload(uuid, token)
 		if payload.Token != nil {
 			if strings.Contains(*payload.Token, " ") {
 				// Remove authorization scheme prefix (e.g. "Bearer")
@@ -904,7 +880,7 @@ func EncodeUploadSipError(encoder func(context.Context, http.ResponseWriter) goa
 // *SIPResponseBody from a value of type *ingestviews.SIPView.
 func marshalIngestviewsSIPViewToSIPResponseBody(v *ingestviews.SIPView) *SIPResponseBody {
 	res := &SIPResponseBody{
-		ID:          *v.ID,
+		UUID:        *v.UUID,
 		Name:        v.Name,
 		Status:      *v.Status,
 		AipID:       v.AipID,
@@ -943,7 +919,7 @@ func marshalIngestviewsSIPWorkflowViewToSIPWorkflowResponseBody(v *ingestviews.S
 		Status:      *v.Status,
 		StartedAt:   *v.StartedAt,
 		CompletedAt: v.CompletedAt,
-		SipID:       v.SipID,
+		SipUUID:     *v.SipUUID,
 	}
 	if v.Tasks != nil {
 		res.Tasks = make([]*SIPTaskResponseBody, len(v.Tasks))

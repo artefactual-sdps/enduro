@@ -57,6 +57,7 @@ const (
 )
 
 var (
+	sipUUID        = uuid.MustParse("e2ace0da-8697-453d-9ea1-4c9b62309e54")
 	locationID     = uuid.MustParse("f2cc963f-c14d-4eaa-b950-bd207189a1f1")
 	amssLocationID = uuid.MustParse("e0ed8b2a-8ae2-4546-b5d8-f0090919df04")
 	transferID     = uuid.MustParse("65233405-771e-4f7e-b2d9-b08439570ba2")
@@ -315,7 +316,7 @@ func (s *ProcessingWorkflowTestSuite) TestConfirmation() {
 			Type:       enums.WorkflowTypeCreateAndReviewAip,
 			Status:     enums.WorkflowStatusInProgress,
 			StartedAt:  startTime,
-			SIPID:      1,
+			SIPUUID:    sipUUID,
 		},
 	).Return(wID, nil)
 
@@ -384,7 +385,7 @@ func (s *ProcessingWorkflowTestSuite) TestConfirmation() {
 	).Return(&completeTaskLocalActivityResult{}, nil)
 
 	s.env.OnActivity(a3m.CreateAIPActivityName, mock.Anything, mock.Anything).Return(nil, nil)
-	s.env.OnActivity(updateSIPLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+	s.env.OnActivity(updateSIPLocalActivity, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, nil)
 	s.env.OnActivity(createTaskLocalActivity, mock.Anything, mock.Anything, mock.Anything).
 		Return(0, nil)
@@ -418,6 +419,7 @@ func (s *ProcessingWorkflowTestSuite) TestConfirmation() {
 			WatcherName:     watcherName,
 			RetentionPeriod: &retentionPeriod,
 			AutoApproveAIP:  false,
+			SIPUUID:         sipUUID,
 		},
 	)
 
@@ -452,13 +454,13 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 		createSIPLocalActivity,
 		ctx,
 		ingestsvc,
-		&createSIPLocalActivityParams{Name: key, Status: enums.SIPStatusQueued},
+		&createSIPLocalActivityParams{UUID: sipUUID, Name: key, Status: enums.SIPStatusQueued},
 	).Return(sipID, nil).Once()
 	s.env.OnActivity(
 		setStatusInProgressLocalActivity,
 		ctx,
 		ingestsvc,
-		sipID,
+		sipUUID,
 		mock.AnythingOfType("time.Time"),
 	).Return(nil, nil)
 
@@ -471,7 +473,7 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 			Type:       enums.WorkflowTypeCreateAip,
 			Status:     enums.WorkflowStatusInProgress,
 			StartedAt:  startTime,
-			SIPID:      1,
+			SIPUUID:    sipUUID,
 		},
 	).Return(wID, nil)
 
@@ -614,6 +616,7 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 			RetentionPeriod:            &retentionPeriod,
 			AutoApproveAIP:             true,
 			DefaultPermanentLocationID: &cfg.Storage.DefaultPermanentLocationID,
+			SIPUUID:                    sipUUID,
 		},
 	)
 
@@ -648,10 +651,10 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	// Activity mocks/assertions sequence
 	s.env.OnActivity(createSIPLocalActivity, ctx,
 		ingestsvc,
-		&createSIPLocalActivityParams{Name: key, Status: enums.SIPStatusQueued},
+		&createSIPLocalActivityParams{UUID: sipUUID, Name: key, Status: enums.SIPStatusQueued},
 	).Return(sipID, nil)
 
-	s.env.OnActivity(setStatusInProgressLocalActivity, ctx, ingestsvc, sipID, mock.AnythingOfType("time.Time")).
+	s.env.OnActivity(setStatusInProgressLocalActivity, ctx, ingestsvc, sipUUID, mock.AnythingOfType("time.Time")).
 		Return(nil, nil)
 
 	s.env.OnActivity(createWorkflowLocalActivity, ctx,
@@ -807,6 +810,7 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 			DefaultPermanentLocationID: &cfg.Storage.DefaultPermanentLocationID,
 			Key:                        key,
 			TransferDeadline:           time.Second,
+			SIPUUID:                    sipUUID,
 		},
 	)
 
@@ -912,6 +916,7 @@ func (s *ProcessingWorkflowTestSuite) TestRejection() {
 			WatcherName:     watcherName,
 			RetentionPeriod: &retentionPeriod,
 			AutoApproveAIP:  false,
+			SIPUUID:         sipUUID,
 		},
 	)
 
@@ -970,14 +975,14 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 		createSIPLocalActivity,
 		ctx,
 		ingestsvc,
-		&createSIPLocalActivityParams{Name: key, Status: enums.SIPStatusQueued},
+		&createSIPLocalActivityParams{UUID: sipUUID, Name: key, Status: enums.SIPStatusQueued},
 	).Return(sipID, nil)
 
 	s.env.OnActivity(
 		setStatusInProgressLocalActivity,
 		ctx,
 		ingestsvc,
-		sipID,
+		sipUUID,
 		startTime,
 	).Return(nil, nil)
 
@@ -990,7 +995,7 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 			Type:       enums.WorkflowTypeCreateAip,
 			Status:     enums.WorkflowStatusInProgress,
 			StartedAt:  startTime,
-			SIPID:      1,
+			SIPUUID:    sipUUID,
 		},
 	).Return(1, nil)
 
@@ -1199,6 +1204,7 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 			RetentionPeriod:            &retentionPeriod,
 			AutoApproveAIP:             true,
 			DefaultPermanentLocationID: &cfg.Storage.DefaultPermanentLocationID,
+			SIPUUID:                    sipUUID,
 		},
 	)
 
@@ -1238,14 +1244,14 @@ func (s *ProcessingWorkflowTestSuite) TestFailedSIP() {
 		createSIPLocalActivity,
 		ctx,
 		ingestsvc,
-		&createSIPLocalActivityParams{Name: key, Status: enums.SIPStatusQueued},
+		&createSIPLocalActivityParams{UUID: sipUUID, Name: key, Status: enums.SIPStatusQueued},
 	).Return(sipID, nil)
 
 	s.env.OnActivity(
 		setStatusInProgressLocalActivity,
 		ctx,
 		ingestsvc,
-		sipID,
+		sipUUID,
 		startTime,
 	).Return(nil, nil)
 
@@ -1258,7 +1264,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedSIP() {
 			Type:       enums.WorkflowTypeCreateAip,
 			Status:     enums.WorkflowStatusInProgress,
 			StartedAt:  startTime,
-			SIPID:      1,
+			SIPUUID:    sipUUID,
 		},
 	).Return(1, nil)
 
@@ -1324,6 +1330,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedSIP() {
 			RetentionPeriod:            &retentionPeriod,
 			AutoApproveAIP:             true,
 			DefaultPermanentLocationID: &cfg.Storage.DefaultPermanentLocationID,
+			SIPUUID:                    sipUUID,
 		},
 	)
 
@@ -1353,14 +1360,14 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPA3m() {
 		createSIPLocalActivity,
 		ctx,
 		ingestsvc,
-		&createSIPLocalActivityParams{Name: key, Status: enums.SIPStatusQueued},
+		&createSIPLocalActivityParams{UUID: sipUUID, Name: key, Status: enums.SIPStatusQueued},
 	).Return(sipID, nil)
 
 	s.env.OnActivity(
 		setStatusInProgressLocalActivity,
 		ctx,
 		ingestsvc,
-		sipID,
+		sipUUID,
 		startTime,
 	).Return(nil, nil)
 
@@ -1373,7 +1380,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPA3m() {
 			Type:       enums.WorkflowTypeCreateAip,
 			Status:     enums.WorkflowStatusInProgress,
 			StartedAt:  startTime,
-			SIPID:      1,
+			SIPUUID:    sipUUID,
 		},
 	).Return(1, nil)
 
@@ -1489,6 +1496,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPA3m() {
 			RetentionPeriod:            &retentionPeriod,
 			AutoApproveAIP:             true,
 			DefaultPermanentLocationID: &cfg.Storage.DefaultPermanentLocationID,
+			SIPUUID:                    sipUUID,
 		},
 	)
 
@@ -1517,10 +1525,10 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPAM() {
 		createSIPLocalActivity,
 		ctx,
 		ingestsvc,
-		&createSIPLocalActivityParams{Name: key, Status: enums.SIPStatusQueued},
+		&createSIPLocalActivityParams{UUID: sipUUID, Name: key, Status: enums.SIPStatusQueued},
 	).Return(sipID, nil)
 
-	s.env.OnActivity(setStatusInProgressLocalActivity, ctx, ingestsvc, sipID, mock.AnythingOfType("time.Time")).
+	s.env.OnActivity(setStatusInProgressLocalActivity, ctx, ingestsvc, sipUUID, mock.AnythingOfType("time.Time")).
 		Return(nil, nil)
 
 	s.env.OnActivity(
@@ -1532,7 +1540,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPAM() {
 			Type:       enums.WorkflowTypeCreateAip,
 			Status:     enums.WorkflowStatusInProgress,
 			StartedAt:  startTime,
-			SIPID:      1,
+			SIPUUID:    sipUUID,
 		},
 	).Return(wID, nil)
 
@@ -1605,6 +1613,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPAM() {
 			DefaultPermanentLocationID: &cfg.Storage.DefaultPermanentLocationID,
 			Key:                        key,
 			TransferDeadline:           time.Second,
+			SIPUUID:                    sipUUID,
 		},
 	)
 

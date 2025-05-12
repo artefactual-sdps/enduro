@@ -144,15 +144,14 @@ func BuildListSipsPayload(ingestListSipsName string, ingestListSipsAipID string,
 
 // BuildShowSipPayload builds the payload for the ingest show_sip endpoint from
 // CLI flags.
-func BuildShowSipPayload(ingestShowSipID string, ingestShowSipToken string) (*ingest.ShowSipPayload, error) {
+func BuildShowSipPayload(ingestShowSipUUID string, ingestShowSipToken string) (*ingest.ShowSipPayload, error) {
 	var err error
-	var id uint
+	var uuid string
 	{
-		var v uint64
-		v, err = strconv.ParseUint(ingestShowSipID, 10, strconv.IntSize)
-		id = uint(v)
+		uuid = ingestShowSipUUID
+		err = goa.MergeErrors(err, goa.ValidateFormat("uuid", uuid, goa.FormatUUID))
 		if err != nil {
-			return nil, fmt.Errorf("invalid value for id, must be UINT")
+			return nil, err
 		}
 	}
 	var token *string
@@ -162,7 +161,7 @@ func BuildShowSipPayload(ingestShowSipID string, ingestShowSipToken string) (*in
 		}
 	}
 	v := &ingest.ShowSipPayload{}
-	v.ID = id
+	v.UUID = uuid
 	v.Token = token
 
 	return v, nil
@@ -170,15 +169,14 @@ func BuildShowSipPayload(ingestShowSipID string, ingestShowSipToken string) (*in
 
 // BuildListSipWorkflowsPayload builds the payload for the ingest
 // list_sip_workflows endpoint from CLI flags.
-func BuildListSipWorkflowsPayload(ingestListSipWorkflowsID string, ingestListSipWorkflowsToken string) (*ingest.ListSipWorkflowsPayload, error) {
+func BuildListSipWorkflowsPayload(ingestListSipWorkflowsUUID string, ingestListSipWorkflowsToken string) (*ingest.ListSipWorkflowsPayload, error) {
 	var err error
-	var id uint
+	var uuid string
 	{
-		var v uint64
-		v, err = strconv.ParseUint(ingestListSipWorkflowsID, 10, strconv.IntSize)
-		id = uint(v)
+		uuid = ingestListSipWorkflowsUUID
+		err = goa.MergeErrors(err, goa.ValidateFormat("uuid", uuid, goa.FormatUUID))
 		if err != nil {
-			return nil, fmt.Errorf("invalid value for id, must be UINT")
+			return nil, err
 		}
 	}
 	var token *string
@@ -188,7 +186,7 @@ func BuildListSipWorkflowsPayload(ingestListSipWorkflowsID string, ingestListSip
 		}
 	}
 	v := &ingest.ListSipWorkflowsPayload{}
-	v.ID = id
+	v.UUID = uuid
 	v.Token = token
 
 	return v, nil
@@ -196,7 +194,7 @@ func BuildListSipWorkflowsPayload(ingestListSipWorkflowsID string, ingestListSip
 
 // BuildConfirmSipPayload builds the payload for the ingest confirm_sip
 // endpoint from CLI flags.
-func BuildConfirmSipPayload(ingestConfirmSipBody string, ingestConfirmSipID string, ingestConfirmSipToken string) (*ingest.ConfirmSipPayload, error) {
+func BuildConfirmSipPayload(ingestConfirmSipBody string, ingestConfirmSipUUID string, ingestConfirmSipToken string) (*ingest.ConfirmSipPayload, error) {
 	var err error
 	var body ConfirmSipRequestBody
 	{
@@ -205,13 +203,12 @@ func BuildConfirmSipPayload(ingestConfirmSipBody string, ingestConfirmSipID stri
 			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location_id\": \"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"\n   }'")
 		}
 	}
-	var id uint
+	var uuid string
 	{
-		var v uint64
-		v, err = strconv.ParseUint(ingestConfirmSipID, 10, strconv.IntSize)
-		id = uint(v)
+		uuid = ingestConfirmSipUUID
+		err = goa.MergeErrors(err, goa.ValidateFormat("uuid", uuid, goa.FormatUUID))
 		if err != nil {
-			return nil, fmt.Errorf("invalid value for id, must be UINT")
+			return nil, err
 		}
 	}
 	var token *string
@@ -223,7 +220,7 @@ func BuildConfirmSipPayload(ingestConfirmSipBody string, ingestConfirmSipID stri
 	v := &ingest.ConfirmSipPayload{
 		LocationID: body.LocationID,
 	}
-	v.ID = id
+	v.UUID = uuid
 	v.Token = token
 
 	return v, nil
@@ -231,15 +228,14 @@ func BuildConfirmSipPayload(ingestConfirmSipBody string, ingestConfirmSipID stri
 
 // BuildRejectSipPayload builds the payload for the ingest reject_sip endpoint
 // from CLI flags.
-func BuildRejectSipPayload(ingestRejectSipID string, ingestRejectSipToken string) (*ingest.RejectSipPayload, error) {
+func BuildRejectSipPayload(ingestRejectSipUUID string, ingestRejectSipToken string) (*ingest.RejectSipPayload, error) {
 	var err error
-	var id uint
+	var uuid string
 	{
-		var v uint64
-		v, err = strconv.ParseUint(ingestRejectSipID, 10, strconv.IntSize)
-		id = uint(v)
+		uuid = ingestRejectSipUUID
+		err = goa.MergeErrors(err, goa.ValidateFormat("uuid", uuid, goa.FormatUUID))
 		if err != nil {
-			return nil, fmt.Errorf("invalid value for id, must be UINT")
+			return nil, err
 		}
 	}
 	var token *string
@@ -249,7 +245,7 @@ func BuildRejectSipPayload(ingestRejectSipID string, ingestRejectSipToken string
 		}
 	}
 	v := &ingest.RejectSipPayload{}
-	v.ID = id
+	v.UUID = uuid
 	v.Token = token
 
 	return v, nil

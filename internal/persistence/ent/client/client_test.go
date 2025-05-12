@@ -17,6 +17,8 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/enttest"
 )
 
+var sipUUID = uuid.New()
+
 func setUpClient(t *testing.T, logger logr.Logger) (*db.Client, persistence.Service) {
 	t.Helper()
 
@@ -37,6 +39,7 @@ func createSIP(
 	aipID := uuid.MustParse("30223842-0650-4f79-80bd-7bf43b810656")
 
 	return entc.SIP.Create().
+		SetUUID(sipUUID).
 		SetName(name).
 		SetAipID(aipID).
 		SetStatus(status).

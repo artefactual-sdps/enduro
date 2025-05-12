@@ -20,17 +20,17 @@ import { exists, mapValues } from '../runtime';
  */
 export interface SIPNotFound {
     /**
-     * Identifier of missing SIP
-     * @type {number}
-     * @memberof SIPNotFound
-     */
-    id: number;
-    /**
      * Message of error
      * @type {string}
      * @memberof SIPNotFound
      */
     message: string;
+    /**
+     * Identifier of missing SIP
+     * @type {string}
+     * @memberof SIPNotFound
+     */
+    uuid: string;
 }
 
 /**
@@ -38,8 +38,8 @@ export interface SIPNotFound {
  */
 export function instanceOfSIPNotFound(value: object): boolean {
     let isInstance = true;
-    isInstance = isInstance && "id" in value;
     isInstance = isInstance && "message" in value;
+    isInstance = isInstance && "uuid" in value;
 
     return isInstance;
 }
@@ -54,8 +54,8 @@ export function SIPNotFoundFromJSONTyped(json: any, ignoreDiscriminator: boolean
     }
     return {
         
-        'id': json['id'],
         'message': json['message'],
+        'uuid': json['uuid'],
     };
 }
 
@@ -68,8 +68,8 @@ export function SIPNotFoundToJSON(value?: SIPNotFound | null): any {
     }
     return {
         
-        'id': value.id,
         'message': value.message,
+        'uuid': value.uuid,
     };
 }
 

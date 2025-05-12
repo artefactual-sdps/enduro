@@ -42,7 +42,7 @@ function handleSipUpdated(data: unknown) {
   const event = api.SIPUpdatedEventFromJSON(data);
   const store = useSipStore();
   store.fetchSipsDebounced(1);
-  if (store.$state.current?.id != event.id) return;
+  if (store.$state.current?.uuid != event.uuid) return;
   Object.assign(store.$state.current, event.item);
 }
 
@@ -50,7 +50,7 @@ function handleSipStatusUpdated(data: unknown) {
   const event = api.SIPStatusUpdatedEventFromJSON(data);
   const store = useSipStore();
   store.fetchSipsDebounced(1);
-  if (store.$state.current?.id != event.id) return;
+  if (store.$state.current?.uuid != event.uuid) return;
   store.$state.current.status = event.status;
 }
 
@@ -59,9 +59,11 @@ function handleWorkflowCreated(data: unknown) {
   const store = useSipStore();
 
   // Ignore event if it does not relate to the current SIP.
-  if (store.current?.id != event.item.sipId) return;
+  if (store.current?.uuid != event.item.sipUuid) return;
 
   // Append the workflow.
+  if (!store.currentWorkflows) store.currentWorkflows = {};
+  if (!store.currentWorkflows.workflows) store.currentWorkflows.workflows = [];
   store.currentWorkflows?.workflows?.unshift(event.item);
 }
 
@@ -70,7 +72,7 @@ function handleWorkflowUpdated(data: unknown) {
   const store = useSipStore();
 
   // Ignore event if it does not relate to the current SIP.
-  if (store.current?.id != event.item.sipId) return;
+  if (store.current?.uuid != event.item.sipUuid) return;
 
   // Find and update the workflow.
   const workflow = store.getWorkflowById(event.id);

@@ -28,36 +28,13 @@ func convertSIP(sip *db.SIP) *datatypes.SIP {
 
 	return &datatypes.SIP{
 		ID:          sip.ID,
+		UUID:        sip.UUID,
 		Name:        sip.Name,
 		AIPID:       aipID,
 		Status:      sip.Status,
 		CreatedAt:   sip.CreatedAt,
 		StartedAt:   started,
 		CompletedAt: completed,
-	}
-}
-
-// convertWorkflow converts an entgo `db.Workflow`
-// representation to a `datatypes.Workflow` representation.
-func convertWorkflow(w *db.Workflow) *datatypes.Workflow {
-	var started sql.NullTime
-	if !w.StartedAt.IsZero() {
-		started = sql.NullTime{Time: w.StartedAt, Valid: true}
-	}
-
-	var completed sql.NullTime
-	if !w.CompletedAt.IsZero() {
-		completed = sql.NullTime{Time: w.CompletedAt, Valid: true}
-	}
-
-	return &datatypes.Workflow{
-		ID:          w.ID,
-		TemporalID:  w.TemporalID,
-		Type:        enums.WorkflowType(w.Type),     // #nosec G115 -- constrained value.
-		Status:      enums.WorkflowStatus(w.Status), // #nosec G115 -- constrained value.
-		StartedAt:   started,
-		CompletedAt: completed,
-		SIPID:       w.SipID,
 	}
 }
 

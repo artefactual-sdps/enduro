@@ -57,6 +57,11 @@ func IDLTE(id int) predicate.SIP {
 	return predicate.SIP(sql.FieldLTE(FieldID, id))
 }
 
+// UUID applies equality check predicate on the "uuid" field. It's identical to UUIDEQ.
+func UUID(v uuid.UUID) predicate.SIP {
+	return predicate.SIP(sql.FieldEQ(FieldUUID, v))
+}
+
 // Name applies equality check predicate on the "name" field. It's identical to NameEQ.
 func Name(v string) predicate.SIP {
 	return predicate.SIP(sql.FieldEQ(FieldName, v))
@@ -80,6 +85,46 @@ func StartedAt(v time.Time) predicate.SIP {
 // CompletedAt applies equality check predicate on the "completed_at" field. It's identical to CompletedAtEQ.
 func CompletedAt(v time.Time) predicate.SIP {
 	return predicate.SIP(sql.FieldEQ(FieldCompletedAt, v))
+}
+
+// UUIDEQ applies the EQ predicate on the "uuid" field.
+func UUIDEQ(v uuid.UUID) predicate.SIP {
+	return predicate.SIP(sql.FieldEQ(FieldUUID, v))
+}
+
+// UUIDNEQ applies the NEQ predicate on the "uuid" field.
+func UUIDNEQ(v uuid.UUID) predicate.SIP {
+	return predicate.SIP(sql.FieldNEQ(FieldUUID, v))
+}
+
+// UUIDIn applies the In predicate on the "uuid" field.
+func UUIDIn(vs ...uuid.UUID) predicate.SIP {
+	return predicate.SIP(sql.FieldIn(FieldUUID, vs...))
+}
+
+// UUIDNotIn applies the NotIn predicate on the "uuid" field.
+func UUIDNotIn(vs ...uuid.UUID) predicate.SIP {
+	return predicate.SIP(sql.FieldNotIn(FieldUUID, vs...))
+}
+
+// UUIDGT applies the GT predicate on the "uuid" field.
+func UUIDGT(v uuid.UUID) predicate.SIP {
+	return predicate.SIP(sql.FieldGT(FieldUUID, v))
+}
+
+// UUIDGTE applies the GTE predicate on the "uuid" field.
+func UUIDGTE(v uuid.UUID) predicate.SIP {
+	return predicate.SIP(sql.FieldGTE(FieldUUID, v))
+}
+
+// UUIDLT applies the LT predicate on the "uuid" field.
+func UUIDLT(v uuid.UUID) predicate.SIP {
+	return predicate.SIP(sql.FieldLT(FieldUUID, v))
+}
+
+// UUIDLTE applies the LTE predicate on the "uuid" field.
+func UUIDLTE(v uuid.UUID) predicate.SIP {
+	return predicate.SIP(sql.FieldLTE(FieldUUID, v))
 }
 
 // NameEQ applies the EQ predicate on the "name" field.

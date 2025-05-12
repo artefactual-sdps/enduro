@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/google/uuid"
 	"go.artefactual.dev/tools/mockutil"
 	"gotest.tools/v3/assert"
 
@@ -18,6 +19,7 @@ import (
 func TestCreateWorkflow(t *testing.T) {
 	t.Parallel()
 
+	sipUUID := uuid.New()
 	temporalID := "processing-workflow-720db1d4-825c-4911-9a20-61c212cf23ff"
 	startedAt := sql.NullTime{
 		Time:  time.Date(2024, 6, 3, 8, 51, 35, 0, time.UTC),
@@ -40,7 +42,7 @@ func TestCreateWorkflow(t *testing.T) {
 			name: "Creates a workflow",
 			w: datatypes.Workflow{
 				TemporalID: temporalID,
-				SIPID:      1,
+				SIPUUID:    sipUUID,
 			},
 			want: datatypes.Workflow{
 				ID:         11,
@@ -51,7 +53,7 @@ func TestCreateWorkflow(t *testing.T) {
 					Time:  time.Date(2024, 6, 3, 9, 4, 23, 0, time.UTC),
 					Valid: true,
 				},
-				SIPID: 1,
+				SIPUUID: sipUUID,
 			},
 			mock: func(svc *persistence_fake.MockService, w datatypes.Workflow) *persistence_fake.MockService {
 				svc.EXPECT().
@@ -77,7 +79,7 @@ func TestCreateWorkflow(t *testing.T) {
 				Status:      enums.WorkflowStatusDone,
 				StartedAt:   startedAt,
 				CompletedAt: completedAt,
-				SIPID:       1,
+				SIPUUID:     sipUUID,
 			},
 			want: datatypes.Workflow{
 				ID:          11,
@@ -86,7 +88,7 @@ func TestCreateWorkflow(t *testing.T) {
 				Status:      enums.WorkflowStatusDone,
 				StartedAt:   startedAt,
 				CompletedAt: completedAt,
-				SIPID:       1,
+				SIPUUID:     sipUUID,
 			},
 			mock: func(svc *persistence_fake.MockService, w datatypes.Workflow) *persistence_fake.MockService {
 				svc.EXPECT().
@@ -103,7 +105,7 @@ func TestCreateWorkflow(t *testing.T) {
 		{
 			name: "Errors when TemporalID is missing",
 			w: datatypes.Workflow{
-				SIPID: 1,
+				SIPUUID: sipUUID,
 			},
 			wantErr: "workflow: create: invalid data error: field \"TemporalID\" is required",
 			mock: func(svc *persistence_fake.MockService, w datatypes.Workflow) *persistence_fake.MockService {

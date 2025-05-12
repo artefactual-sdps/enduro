@@ -45,6 +45,8 @@ onMounted(() => {
         <dl>
           <dt>Name</dt>
           <dd>{{ sipStore.current.name }}</dd>
+          <dt>UUID</dt>
+          <dd><UUID :id="sipStore.current.uuid" /></dd>
           <dt>Status</dt>
           <dd>
             <StatusBadge :status="sipStore.current.status" type="package" />

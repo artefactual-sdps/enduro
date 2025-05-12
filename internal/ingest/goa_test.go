@@ -125,38 +125,44 @@ func nullUUID(s string) uuid.NullUUID {
 	}
 }
 
-var testSIPs = []*datatypes.SIP{
-	{
-		ID:        1,
-		Name:      "Test SIP 1",
-		AIPID:     nullUUID("e2ace0da-8697-453d-9ea1-4c9b62309e54"),
-		Status:    enums.SIPStatusIngested,
-		CreatedAt: time.Date(2024, 9, 25, 9, 31, 10, 0, time.UTC),
-		StartedAt: sql.NullTime{
-			Time:  time.Date(2024, 9, 25, 9, 31, 11, 0, time.UTC),
-			Valid: true,
+var (
+	sipUUID1 = uuid.New()
+	sipUUID2 = uuid.New()
+	testSIPs = []*datatypes.SIP{
+		{
+			ID:        1,
+			UUID:      sipUUID1,
+			Name:      "Test SIP 1",
+			AIPID:     nullUUID("e2ace0da-8697-453d-9ea1-4c9b62309e54"),
+			Status:    enums.SIPStatusIngested,
+			CreatedAt: time.Date(2024, 9, 25, 9, 31, 10, 0, time.UTC),
+			StartedAt: sql.NullTime{
+				Time:  time.Date(2024, 9, 25, 9, 31, 11, 0, time.UTC),
+				Valid: true,
+			},
+			CompletedAt: sql.NullTime{
+				Time:  time.Date(2024, 9, 25, 9, 31, 12, 0, time.UTC),
+				Valid: true,
+			},
 		},
-		CompletedAt: sql.NullTime{
-			Time:  time.Date(2024, 9, 25, 9, 31, 12, 0, time.UTC),
-			Valid: true,
+		{
+			ID:        2,
+			UUID:      sipUUID2,
+			Name:      "Test SIP 2",
+			AIPID:     nullUUID("ffdb12f4-1735-4022-b746-a9bf4a32109b"),
+			Status:    enums.SIPStatusProcessing,
+			CreatedAt: time.Date(2024, 10, 1, 17, 13, 26, 0, time.UTC),
+			StartedAt: sql.NullTime{
+				Time:  time.Date(2024, 10, 1, 17, 13, 27, 0, time.UTC),
+				Valid: true,
+			},
+			CompletedAt: sql.NullTime{
+				Time:  time.Date(2024, 10, 1, 17, 13, 28, 0, time.UTC),
+				Valid: true,
+			},
 		},
-	},
-	{
-		ID:        2,
-		Name:      "Test SIP 2",
-		AIPID:     nullUUID("ffdb12f4-1735-4022-b746-a9bf4a32109b"),
-		Status:    enums.SIPStatusProcessing,
-		CreatedAt: time.Date(2024, 10, 1, 17, 13, 26, 0, time.UTC),
-		StartedAt: sql.NullTime{
-			Time:  time.Date(2024, 10, 1, 17, 13, 27, 0, time.UTC),
-			Valid: true,
-		},
-		CompletedAt: sql.NullTime{
-			Time:  time.Date(2024, 10, 1, 17, 13, 28, 0, time.UTC),
-			Valid: true,
-		},
-	},
-}
+	}
+)
 
 func TestList(t *testing.T) {
 	t.Parallel()
@@ -186,7 +192,7 @@ func TestList(t *testing.T) {
 			want: &goaingest.SIPs{
 				Items: goaingest.SIPCollection{
 					{
-						ID:          1,
+						UUID:        sipUUID1,
 						Name:        ref.New("Test SIP 1"),
 						Status:      enums.SIPStatusIngested.String(),
 						AipID:       ref.New("e2ace0da-8697-453d-9ea1-4c9b62309e54"),
@@ -195,7 +201,7 @@ func TestList(t *testing.T) {
 						CompletedAt: ref.New("2024-09-25T09:31:12Z"),
 					},
 					{
-						ID:          2,
+						UUID:        sipUUID2,
 						Name:        ref.New("Test SIP 2"),
 						Status:      enums.SIPStatusProcessing.String(),
 						AipID:       ref.New("ffdb12f4-1735-4022-b746-a9bf4a32109b"),
@@ -247,7 +253,7 @@ func TestList(t *testing.T) {
 			want: &goaingest.SIPs{
 				Items: goaingest.SIPCollection{
 					{
-						ID:          1,
+						UUID:        sipUUID1,
 						Name:        ref.New("Test SIP 1"),
 						Status:      enums.SIPStatusIngested.String(),
 						AipID:       ref.New("e2ace0da-8697-453d-9ea1-4c9b62309e54"),
